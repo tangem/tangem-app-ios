@@ -25,6 +25,12 @@ final class EnvironmentSetupViewModel: ObservableObject {
     @Published var additionalSettingsViewModels: [DefaultRowViewModel] = []
     @Published var alert: AlertBinder?
 
+    @Published var searchText: String = ""
+
+    var isSearching: Bool {
+        !searchQueryTokens(from: searchText).isEmpty
+    }
+
     /// Demo
     @Published var forcedDemoCardId: String = ""
 
@@ -37,10 +43,15 @@ final class EnvironmentSetupViewModel: ObservableObject {
     /// Application UID
     @Published var applicationUid: String = ""
 
+    @Published private(set) var walletIds: [WalletIds] = []
+
     // MARK: - Dependencies
+
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let featureStorage = FeatureStorage.instance
     private weak var coordinator: EnvironmentSetupRoutable?
+    private var allFeatureStateViewModels: [FeatureStateRowViewModel] = []
     private var bag: Set<AnyCancellable> = []
 
     init(coordinator: EnvironmentSetupRoutable) {
@@ -161,7 +172,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
             ),
         ]
 
-        featureStateViewModels = Feature.allCases.reversed().map { feature in
+        allFeatureStateViewModels = Feature.allCases.reversed().map { feature in
             FeatureStateRowViewModel(
                 feature: feature,
                 enabledByDefault: FeatureProvider.isAvailableForReleaseVersion(feature),
@@ -180,6 +191,15 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 )
             )
         }
+
+        $searchText
+            .removeDuplicates()
+            .sink { [weak self] searchText in
+                guard let self else { return }
+
+                featureStateViewModels = filterFeatureStateViewModels(searchText: searchText)
+            }
+            .store(in: &bag)
 
         additionalSettingsViewModels = [
             DefaultRowViewModel(title: "Supported Blockchains", action: { [weak self] in
@@ -201,6 +221,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
             DefaultRowViewModel(title: "Design System Demo", action: { [weak self] in
                 self?.coordinator?.openDesignSystemDemo()
             }),
+            DefaultRowViewModel(title: "Stories V2 Demo", action: { [weak self] in
+                self?.coordinator?.openStoriesV2Demo()
+            }),
             DefaultRowViewModel(title: "Silent Push Tester", action: { [weak self] in
                 self?.coordinator?.openSilentPushTester()
             }),
@@ -221,12 +244,22 @@ final class EnvironmentSetupViewModel: ObservableObject {
         fcmToken = Messaging.messaging().fcmToken ?? "none"
 
         updateApplicationUid()
+        updateWalletIds()
     }
 
     func copyField(_ keyPath: KeyPath<EnvironmentSetupViewModel, String>) {
-        let value = self[keyPath: keyPath]
+        copy(self[keyPath: keyPath])
+    }
+
+    func copy(_ value: String) {
         UIPasteboard.general.string = value
         UINotificationFeedbackGenerator().notificationOccurred(.success)
+    }
+
+    func updateWalletIds() {
+        walletIds = userWalletRepository.models.map {
+            WalletIds(id: $0.userWalletId.stringValue, name: $0.name, hash: $0.userWalletId.hashedStringValue)
+        }
     }
 
     func resetApplicationUID() {
@@ -254,6 +287,32 @@ final class EnvironmentSetupViewModel: ObservableObject {
         self.alert = AlertBinder(alert: alert)
     }
 
+    private func filterFeatureStateViewModels(searchText: String) -> [FeatureStateRowViewModel] {
+        let tokens = searchQueryTokens(from: searchText)
+
+        guard !tokens.isEmpty else {
+            return allFeatureStateViewModels
+        }
+
+        return allFeatureStateViewModels.filter { viewModel in
+            let haystack = normalized("\(viewModel.feature.name) \(viewModel.feature.rawValue)")
+            return tokens.allSatisfy { haystack.contains($0) }
+        }
+    }
+
+    /// Both the toggle name and the ticket key are written with `_` and `-` separators,
+    /// so the query is matched word by word instead of as a raw substring.
+    private func searchQueryTokens(from searchText: String) -> [String] {
+        normalized(searchText).split(separator: " ").map(String.init)
+    }
+
+    private func normalized(_ string: String) -> String {
+        string
+            .lowercased()
+            .replacingOccurrences(of: "_", with: " ")
+            .replacingOccurrences(of: "-", with: " ")
+    }
+
     private func updateApplicationUid() {
         applicationUid = AppSettings.shared.applicationUid
     }
@@ -269,5 +328,15 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
     func handleSurveySparrowDemoNPSButtonTapped() {
         coordinator?.openSparrowSurveyNPSDemo(withToken: surveySparrowToken)
+    }
+}
+
+// MARK: - Wallet ids
+
+extension EnvironmentSetupViewModel {
+    struct WalletIds: Identifiable {
+        let id: String
+        let name: String
+        let hash: String
     }
 }

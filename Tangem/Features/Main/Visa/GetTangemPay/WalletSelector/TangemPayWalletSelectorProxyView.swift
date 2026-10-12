@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemLocalization
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 /// Probably this should be replaced with AccountSelectorView
 /// when account feature would be implemented
@@ -23,6 +24,7 @@ struct TangemPayWalletSelectorProxyView: View {
                     Fonts.BoldStatic.body,
                     color: Colors.Text.primary1
                 )
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.walletSelectorTitle)
 
             WalletSelectorView(viewModel: viewModel.walletSelectorViewModel)
         }

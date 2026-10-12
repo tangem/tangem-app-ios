@@ -9,9 +9,14 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemFoundation
 
 final class FakeTangemApiService: TangemApiService {
     private let geoIpRegionCode: String
+
+    // MARK: - Geo Handlers (Tests/Previews)
+
+    var loadGeoHandler: (@Sendable () async throws -> String)?
 
     // MARK: - News Handlers (Tests/Previews)
 
@@ -23,6 +28,9 @@ final class FakeTangemApiService: TangemApiService {
     // MARK: - Coins Handlers (Tests/Previews)
 
     var loadCoinsHandler: ((CoinsList.Request) async throws -> CoinsList.Response)?
+    var loadCoinsCategoriesHandler: ((MarketsDTO.Categories.Request) async throws -> MarketsDTO.Categories.Response)?
+    var loadCoinsGeckoCategoriesHandler: ((MarketsDTO.GeckoCategories.Request) async throws -> MarketsDTO.GeckoCategories.Response)?
+    var loadMarketIndicatorsHandler: ((MarketsDTO.MarketIndicators.Request) async throws -> MarketsDTO.MarketIndicators.Response)?
 
     // MARK: - Campaigns Handlers (Tests/Previews)
 
@@ -30,6 +38,10 @@ final class FakeTangemApiService: TangemApiService {
     var loadPromotionCampaignsHandler: ((String) async throws -> [BannerPromotion.Response.Promotion])?
     var loadYieldBoostPromotionStatusHandler: ((String) async throws -> YieldBoostPromotionDTO.Response)?
     var registerForPromotionCampaignHandler: ((PromotionRegistrationDTO.Request) async throws -> PromotionRegistrationDTO.Response)?
+
+    // MARK: - Promotions Handlers (Tests/Previews)
+
+    var loadPromotionsHandler: ((PromotionsDTO.Load.Request) async throws -> PromotionsDTO.Load.Response)?
 
     init(geoIpRegionCode: String = "us") {
         self.geoIpRegionCode = geoIpRegionCode
@@ -40,6 +52,10 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadGeo() -> AnyPublisher<String, any Error> {
+        if let loadGeoHandler {
+            return Future.async { try await loadGeoHandler() }.eraseToAnyPublisher()
+        }
+
         return .justWithError(output: geoIpRegionCode)
     }
 
@@ -77,7 +93,7 @@ final class FakeTangemApiService: TangemApiService {
         .anyFail(error: .init(code: .notFound))
     }
 
-    func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String) async throws {
+    func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String, revision: String) async throws -> String? {
         throw "Not implemented"
     }
 
@@ -90,6 +106,10 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadPromotions(request: PromotionsDTO.Load.Request) async throws -> PromotionsDTO.Load.Response {
+        if let handler = loadPromotionsHandler {
+            return try await handler(request)
+        }
+
         throw "Not implemented"
     }
 
@@ -133,6 +153,10 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func loadStories(slugs: [String], language: String) async throws -> StoriesResponseDTO {
+        throw "Not implemented"
+    }
+
     func loadAPIList() async throws -> APIListDTO {
         throw "Not implemented"
     }
@@ -146,6 +170,30 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadCoinsList(requestModel: MarketsDTO.General.Request) async throws -> MarketsDTO.General.Response {
+        throw "Not implemented"
+    }
+
+    func loadCoinsCategories(requestModel: MarketsDTO.Categories.Request) async throws -> MarketsDTO.Categories.Response {
+        if let loadCoinsCategoriesHandler {
+            return try await loadCoinsCategoriesHandler(requestModel)
+        }
+
+        throw "Not implemented"
+    }
+
+    func loadCoinsGeckoCategories(requestModel: MarketsDTO.GeckoCategories.Request) async throws -> MarketsDTO.GeckoCategories.Response {
+        if let loadCoinsGeckoCategoriesHandler {
+            return try await loadCoinsGeckoCategoriesHandler(requestModel)
+        }
+
+        throw "Not implemented"
+    }
+
+    func loadMarketIndicators(requestModel: MarketsDTO.MarketIndicators.Request) async throws -> MarketsDTO.MarketIndicators.Response {
+        if let loadMarketIndicatorsHandler {
+            return try await loadMarketIndicatorsHandler(requestModel)
+        }
+
         throw "Not implemented"
     }
 
@@ -258,31 +306,51 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func getJointAccounts(walletId: String) async throws -> JointAccountsDTO.List.Response {
+    func getJointAccounts(
+        walletId: String, knownETag: String?
+    ) async throws -> (eTag: String?, accounts: JointAccountsDTO.Response.JointAccounts)? {
         throw "Not implemented"
     }
 
     func createJointAccount(
-        walletId: String, body: JointAccountsDTO.Create.Request
-    ) async throws -> JointAccountsDTO.Create.Response {
+        walletId: String, body: JointAccountsDTO.Request.Create
+    ) async throws -> JointAccountsDTO.Response.JointAccount {
         throw "Not implemented"
     }
 
     func getJointAccountInvite(
         walletId: String, inviteId: String
-    ) async throws -> JointAccountsDTO.InvitePreview.Response {
+    ) async throws -> JointAccountsDTO.Response.InvitePreview {
         throw "Not implemented"
     }
 
     func joinJointAccount(
-        walletId: String, body: JointAccountsDTO.Join.Request
-    ) async throws -> JointAccountsDTO.Join.Response {
+        walletId: String, body: JointAccountsDTO.Request.Join
+    ) async throws -> JointAccountsDTO.Response.JointAccount {
         throw "Not implemented"
     }
 
     func activateJointAccount(
-        walletId: String, body: JointAccountsDTO.Activate.Request
-    ) async throws -> JointAccountsDTO.Activate.Response {
+        walletId: String, body: JointAccountsDTO.Request.Activate
+    ) async throws -> JointAccountsDTO.Response.JointAccount {
+        throw "Not implemented"
+    }
+
+    func createJointAccountOperation(
+        walletId: String, body: JointAccountsDTO.Request.CreateOperation
+    ) async throws -> JointAccountsDTO.Response.Operation {
+        throw "Not implemented"
+    }
+
+    func signJointAccountOperation(
+        walletId: String, operationId: String, body: JointAccountsDTO.Request.SignOperation
+    ) async throws -> JointAccountsDTO.Response.Operation {
+        throw "Not implemented"
+    }
+
+    func rejectJointAccountOperation(
+        walletId: String, operationId: String
+    ) async throws -> JointAccountsDTO.Response.Operation? {
         throw "Not implemented"
     }
 

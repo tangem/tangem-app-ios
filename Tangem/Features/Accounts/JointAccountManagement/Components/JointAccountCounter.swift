@@ -44,7 +44,7 @@ struct JointAccountCounter: View {
 
     private func stepButton(icon: ImageType, accessibilityLabel: String, isEnabled: Bool, action: @escaping () -> Void) -> some View {
         TangemUI.Button(icon: icon, accessibilityLabel: accessibilityLabel, action: action)
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .size(.x7)
             .disabled(!isEnabled)
     }

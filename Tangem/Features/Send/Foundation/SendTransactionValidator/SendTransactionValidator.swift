@@ -11,5 +11,12 @@ import BlockchainSdk
 protocol SendTransactionValidator {
     func validate(amount: Amount) throws
     func validate(amount: Amount, fee: Fee) throws
+    func validate(amount: Amount, fee: Fee, builtBy: SendTransactionBuilder) throws
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws
+}
+
+extension SendTransactionValidator {
+    func validate(amount: Amount, fee: Fee, builtBy: SendTransactionBuilder) throws {
+        try validate(amount: amount, fee: fee)
+    }
 }

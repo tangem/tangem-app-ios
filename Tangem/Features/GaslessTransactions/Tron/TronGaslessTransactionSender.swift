@@ -23,8 +23,7 @@ final class TronGaslessTransactionSender {
     }
 
     func send(transaction: BSDKTransaction) async throws -> TransactionDispatcherResult {
-        guard FeatureProvider.isAvailable(.tronGasless),
-              transaction.amount.type.isToken,
+        guard transaction.amount.type.isToken,
               transaction.fee.amount.type.isToken,
               let feeToken = transaction.fee.amount.type.token,
               let builder = walletModel.tronGaslessTransactionsBuilder else {
@@ -55,7 +54,8 @@ final class TronGaslessTransactionSender {
                 quoteId: quote.quoteId,
                 signedCompensationTx: signedTransactions.signedCompensationTx,
                 signedOriginalTx: signedTransactions.signedOriginalTx
-            )
+            ),
+            userWalletId: walletModel.userWalletId
         )
 
         switch response.status {

@@ -22,7 +22,7 @@ struct EthereumUtilsTests {
 
     @Test
     func mapToBigUIntGreatestFiniteMagnitudeReturnsMaxUInt256() {
-        #expect(EthereumUtils.mapToBigUInt(.greatestFiniteMagnitude) == BigUInt(2).power(256) - 1)
+        #expect(EthereumUtils.mapToBigUInt(.greatestFiniteMagnitude) == .maxUInt256)
     }
 
     @Test

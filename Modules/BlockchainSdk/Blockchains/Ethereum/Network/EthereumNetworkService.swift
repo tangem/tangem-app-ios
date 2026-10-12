@@ -296,4 +296,12 @@ extension EthereumNetworkService: EVMSmartContractInteractor {
             $0.call(contractAddress: request.contractAddress, encodedData: request.encodedData)
         }
     }
+
+    func ethCallAllProviders<Request>(
+        request: Request
+    ) -> AnyPublisher<[Result<String, Error>], Never> where Request: SmartContractRequest {
+        allProvidersPublisher {
+            $0.call(contractAddress: request.contractAddress, encodedData: request.encodedData)
+        }
+    }
 }

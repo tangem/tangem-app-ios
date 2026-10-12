@@ -8,20 +8,17 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
-public class CommonIncomingActionManager {
-    @Injected(\.appLockController) private var appLockController: AppLockController
+class CommonIncomingActionManager {
     @Injected(\.pushNotificationsEventsPublisher) private var pushNotificationsEventsPublisher: PushNotificationEventsPublishing
-    @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
 
-    public private(set) var pendingAction: IncomingAction?
     private var responders = OrderedWeakObjectsCollection<IncomingActionResponder>()
     private lazy var parser = IncomingActionParser()
-    private let urlValidator: IncomingURLValidator
+    private let incomingActionsSubject = PassthroughSubject<IncomingAction, Never>()
     private var cancellable: AnyCancellable?
 
-    public init(urlValidator: IncomingURLValidator = CommonIncomingURLValidator()) {
-        self.urlValidator = urlValidator
+    init() {
         bind()
     }
 
@@ -42,10 +39,7 @@ public class CommonIncomingActionManager {
             return false
         }
 
-        mobileFinishActivationManager.onIncoming(action: action)
-
-        pendingAction = action
-        tryHandleLastAction()
+        receive(action)
         return true
     }
 
@@ -56,121 +50,74 @@ public class CommonIncomingActionManager {
 
         let userInfo = response.notification.request.content.userInfo
 
-        if let tangemPayAction = TangemPayPushPayload.parse(from: userInfo).map(IncomingAction.tangemPayPush) {
-            pendingAction = tangemPayAction
-            tryHandleLastAction()
+        guard let action = parser.parse(push: userInfo) else {
             return
         }
 
-        let deeplinkURL = [Constants.deeplinkKey, Constants.externalLinkKey]
-            .compactMap { userInfo[$0] as? String }
-            .first
+        AppLogger.info("Received push with action: \(action)")
+        receive(action)
+    }
+}
 
-        if let deeplinkURL {
-            tryHandleDeeplinkUrlByDeeplinkKey(with: deeplinkURL)
-        } else {
-            // A temporary crutch, while the push of deeplink transactions is not formed on the back, but is collected locally
-            tryHandleDeeplinkUrlByTransactionPush(with: userInfo)
-        }
+// MARK: - Dispatch
+
+private extension CommonIncomingActionManager {
+    /// An action that has just arrived from outside, as opposed to one handed back by a responder.
+    func receive(_ action: IncomingAction) {
+        incomingActionsSubject.send(action)
+        handle(action)
     }
 
-    private func tryHandleDeeplinkUrlByDeeplinkKey(with deeplinkURL: String) {
-        if let url = URL(string: deeplinkURL) {
-            _handleIncomingURL(url)
-        }
-    }
-
-    private func tryHandleDeeplinkUrlByTransactionPush(with userInfo: [AnyHashable: Any]) {
-        guard let payload = TransactionPushPayload(userInfo: userInfo) else {
+    /// Offers the action to the chain, newest responder first, until one shows it. Nobody showing it is the
+    /// end of it: whoever wanted it kept for later had to be in the chain and take it.
+    func handle(_ action: IncomingAction) {
+        for responder in responders.allDelegates.reversed() where responder.didReceiveIncomingAction(action) {
+            AppLogger.info("Incoming action handled: \(action)")
             return
         }
 
-        let transactionPushURLHelper = TransactionPushActionURLHelper(
-            type: payload.type.rawValue,
-            networkId: payload.networkId,
-            tokenId: payload.tokenId,
-            userWalletId: payload.userWalletId,
-            derivationPath: payload.derivationPath
-        )
-
-        let handleUrl = transactionPushURLHelper.buildURL(scheme: .withoutRedirectUniversalLink)
-        _handleIncomingURL(handleUrl)
+        AppLogger.info("Incoming action has nowhere to go: \(action)")
     }
 }
 
 // MARK: - IncomingActionManaging
 
 extension CommonIncomingActionManager: IncomingActionManaging {
-    public func checkForPendingActions() {
-        if pendingAction != nil {
-            tryHandleLastAction()
-        }
+    var incomingActionsPublisher: AnyPublisher<IncomingAction, Never> {
+        incomingActionsSubject.eraseToAnyPublisher()
     }
 
-    public func becomeFirstResponder(_ responder: IncomingActionResponder) {
+    func becomeFirstResponder(_ responder: IncomingActionResponder) {
         if !responders.contains(responder) {
             responders.add(responder)
         }
-
-        tryHandleLastAction()
     }
 
-    public func resignFirstResponder(_ responder: IncomingActionResponder) {
+    func resignFirstResponder(_ responder: IncomingActionResponder) {
         responders.remove(responder)
     }
 
-    public func discardIncomingAction(if shouldDiscard: (IncomingAction) -> Bool) {
-        if let action = pendingAction, shouldDiscard(action) {
-            pendingAction = nil
-        }
-    }
-
-    public func discardIncomingAction() {
-        pendingAction = nil // discarded
-    }
-
-    private func tryHandleLastAction() {
-        guard let pendingAction else {
-            return
-        }
-
-        for responder in responders.allDelegates.reversed() {
-            if responder.didReceiveIncomingAction(pendingAction) {
-                self.pendingAction = nil // handled
-                AppLogger.info("Incoming action handled: \(pendingAction)")
-                break
-            }
-        }
+    func deliver(_ action: IncomingAction) {
+        handle(action)
     }
 }
 
 // MARK: - IncomingActionHandler
 
 extension CommonIncomingActionManager: IncomingActionHandler {
-    public func handleIntent(_ intent: String) -> Bool {
+    func handleIntent(_ intent: String) -> Bool {
         AppLogger.info("Received intent: \(intent)")
 
         guard let action = parser.parseIntent(intent) else {
             return false
         }
 
-        pendingAction = action
-        tryHandleLastAction()
+        receive(action)
         return true
     }
 
-    public func handleIncomingURL(_ url: URL) -> Bool {
+    @discardableResult
+    func handleIncomingURL(_ url: URL) -> Bool {
         _handleIncomingURL(url)
-    }
-}
-
-// MARK: - Constants
-
-extension CommonIncomingActionManager {
-    enum Constants: CaseIterable {
-        /// Key used to extract an external URL from push notification payload (e.g., "link": "https://...").
-        static let externalLinkKey = "link"
-        /// Key used to extract a deeplink from push notification payload.
-        static let deeplinkKey = "deeplink"
     }
 }

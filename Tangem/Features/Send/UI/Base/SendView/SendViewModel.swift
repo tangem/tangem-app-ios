@@ -210,6 +210,7 @@ private extension SendViewModel {
 
     @MainActor
     func proceed(result _: TransactionDispatcherResult) {
+        coordinator?.didDispatchTransaction()
         stepsManager.performFinish()
     }
 

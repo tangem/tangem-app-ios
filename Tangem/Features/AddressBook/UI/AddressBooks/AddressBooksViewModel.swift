@@ -44,6 +44,7 @@ final class AddressBooksViewModel: ObservableObject {
     private weak var selectionOutput: AddressBooksSelectionOutput?
     private let addressBooksProvider: any AddressBooksProvider
     private let analyticsLogger: any AddressBookAnalyticsLogger
+    private let analyticsSource: AddressBookAnalyticsSource
     private let addressBooksSubject: CurrentValueSubject<[AddressBookWallet], Never>
     private let matcher = AddressBookContactMatcher()
     private var bag = Set<AnyCancellable>()
@@ -52,30 +53,30 @@ final class AddressBooksViewModel: ObservableObject {
         coordinator: AddressBooksRoutable,
         addressBooksProvider: any AddressBooksProvider,
         selectionOutput: AddressBooksSelectionOutput? = nil,
-        analyticsLogger: any AddressBookAnalyticsLogger
+        analyticsLogger: any AddressBookAnalyticsLogger,
+        analyticsSource: AddressBookAnalyticsSource
     ) {
         self.coordinator = coordinator
         self.selectionOutput = selectionOutput
         self.addressBooksProvider = addressBooksProvider
         self.analyticsLogger = analyticsLogger
+        self.analyticsSource = analyticsSource
         addressBooksSubject = .init(addressBooksProvider.addressBooks)
         selectedChipId = addressBooksSubject.value.count >= 2 ? Constants.allChipId : addressBooksSubject.value.first?.wallet.id.stringValue
 
         bindAddressBooks()
         bindSearchDebounce()
         bind()
-        loadAllAddressBooks()
     }
 
     func onFirstAppear() {
-        let userWalletId = analyticsUserWalletId
         let source = analyticsSource
         allWalletsPublisher()
             .filter { $0.allSatisfy(\.isSettled) }
             .map { wallets in wallets.reduce(0) { $0 + $1.contacts.count } }
             .first()
             .sink { [analyticsLogger] contactsCount in
-                analyticsLogger.logContactListScreenOpened(userWalletId: userWalletId, source: source, contactsCount: contactsCount)
+                analyticsLogger.logContactListScreenOpened(source: source, contactsCount: contactsCount)
             }
             .store(in: &bag)
     }
@@ -85,7 +86,7 @@ final class AddressBooksViewModel: ObservableObject {
     }
 
     func openAddContact() {
-        analyticsLogger.logAddContactTapped(userWalletId: analyticsUserWalletId, source: .settings)
+        analyticsLogger.logAddContactTapped(source: analyticsSource)
 
         guard let addContactTarget else {
             return
@@ -107,14 +108,6 @@ final class AddressBooksViewModel: ObservableObject {
 // MARK: - Private
 
 private extension AddressBooksViewModel {
-    var analyticsUserWalletId: UserWalletId? {
-        userWalletRepository.selectedModel?.userWalletId
-    }
-
-    var analyticsSource: AddressBookAnalyticsSource {
-        selectionOutput != nil ? .sendFlow : .settings
-    }
-
     var isAllScope: Bool {
         selectedChipId == Constants.allChipId
     }
@@ -149,18 +142,6 @@ private extension AddressBooksViewModel {
         Task {
             await TaskGroup.executeKeepingOrder(items: books, action: { book in
                 await book.addressBookManager.load()
-            })
-        }
-    }
-
-    func loadAllAddressBooks() {
-        let managers = userWalletRepository.models
-            .filter { !$0.isUserWalletLocked }
-            .map(\.addressBookManager)
-
-        Task {
-            await TaskGroup.executeKeepingOrder(items: managers, action: { manager in
-                await manager.load()
             })
         }
     }
@@ -304,7 +285,7 @@ private extension AddressBooksViewModel {
         // In selection mode (opened from Send "View All") a tap resolves the contact's address and
         // returns it instead of editing the contact.
         if selectionOutput != nil {
-            analyticsLogger.logContactSelected(userWalletId: contact.walletId, contactId: contact.id.stringValue)
+            analyticsLogger.logContactSelected(contactId: contact.id.stringValue)
             let groups = contact.entries.groupedByAddress
 
             // A single-address contact is applied directly; a multi-address one opens the address picker.

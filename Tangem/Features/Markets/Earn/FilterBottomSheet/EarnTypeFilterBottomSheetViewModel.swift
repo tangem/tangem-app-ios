@@ -19,7 +19,7 @@ final class EarnTypeFilterBottomSheetViewModel: ObservableObject, Identifiable, 
     @Published var currentSelection: EarnFilterType
 
     var title: String {
-        Localization.earnFilterAllTypes
+        Localization.commonType
     }
 
     // MARK: - Identifiable
@@ -47,8 +47,8 @@ final class EarnTypeFilterBottomSheetViewModel: ObservableObject, Identifiable, 
         listOptionViewModel = filterProvider.supportedFilterTypes.map {
             DefaultSelectableRowViewModel(
                 id: $0,
-                title: $0.description,
-                subtitle: nil
+                title: $0.optionTitle,
+                subtitle: $0.optionSubtitle
             )
         }
         bind()
@@ -58,13 +58,10 @@ final class EarnTypeFilterBottomSheetViewModel: ObservableObject, Identifiable, 
         dismiss()
     }
 
-    func onCancelTap() {
-        dismiss()
-    }
-
+    /// Duplicates are deliberately kept so that picking the already selected type closes the sheet too. That is also
+    /// why `selectAndDismiss` must never write `currentSelection` back — the sink would feed itself.
     private func bind() {
         subscription = $currentSelection
-            .removeDuplicates()
             .dropFirst()
             .withWeakCaptureOf(self)
             .sink(receiveValue: { viewModel, newType in
@@ -73,7 +70,6 @@ final class EarnTypeFilterBottomSheetViewModel: ObservableObject, Identifiable, 
     }
 
     private func selectAndDismiss(type: EarnFilterType) {
-        currentSelection = type
         analyticsProvider.logBestOpportunitiesFilterTypeApplied(type: type.analyticsTypeValue)
         filterProvider.didSelectFilterType(type)
         dismiss()

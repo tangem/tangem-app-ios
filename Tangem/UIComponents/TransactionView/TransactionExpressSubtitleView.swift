@@ -65,7 +65,7 @@ struct TransactionExpressSubtitleView: View {
                 ownerName(name)
             }
 
-        case .unresolved:
+        case .contact, .unresolved:
             EmptyView()
         }
     }

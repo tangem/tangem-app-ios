@@ -33,7 +33,7 @@ struct OrganizeTokensListFooterRedesigned: View {
                 accessibilityLabel: nil,
                 action: actionsHandler.onCancelButtonTap
             )
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .size(buttonSize)
             .horizontalLayout(.infinity)
             .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.cancelButton)

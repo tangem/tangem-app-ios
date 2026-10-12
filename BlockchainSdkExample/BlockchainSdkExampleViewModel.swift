@@ -70,7 +70,6 @@ class BlockchainSdkExampleViewModel: ObservableObject {
             dependencies: .init(
                 accountCreator: SimpleAccountCreator { [weak self] in self?.card },
                 dataStorage: InMemoryBlockchainDataStorage { return nil },
-                isGaslessYieldEnabled: true
             ),
             apiList: apiList,
         )
@@ -444,18 +443,35 @@ class BlockchainSdkExampleViewModel: ObservableObject {
         }
 
         let publicKey = Wallet.PublicKey(seedKey: walletPublicKey, derivationType: .none)
-        return try walletManagerFactory.makeWalletManager(blockchain: blockchain, publicKey: publicKey)
+        let bsdkWallet = try WalletFactory(blockchain: blockchain).makeWallet(publicKey: publicKey)
+        return try walletManagerFactory.makeWalletManager(wallet: bsdkWallet)
     }
 
     private func createStubWalletManager(blockchain: Blockchain, wallet: Card.Wallet) throws -> WalletManager {
         guard let walletPublicKey = wallet.publicKey else {
             throw TangemSdkError.walletUnavailableBackupRequired
         }
-        return try walletManagerFactory.makeStubWalletManager(
-            blockchain: blockchain,
-            dummyPublicKey: dummyPublicKey.isEmpty ? walletPublicKey : Data(hex: dummyPublicKey),
-            dummyAddress: dummyAddress
+
+        let publicKey = Wallet.PublicKey(
+            seedKey: dummyPublicKey.isEmpty ? walletPublicKey : Data(hex: dummyPublicKey),
+            derivationType: .none
         )
+
+        let address: Address
+        if dummyAddress.isEmpty {
+            let service = AddressServiceFactory(blockchain: blockchain).makeAddressService()
+            address = try service.makeAddress(for: publicKey, with: .default)
+        } else {
+            address = PlainAddress(value: dummyAddress, type: .default)
+        }
+
+        let stubWallet = Wallet(
+            blockchain: blockchain,
+            publicKey: publicKey,
+            addressesProvider: CommonAddressesProvider(defaultAddress: address)
+        )
+
+        return try walletManagerFactory.makeWalletManager(wallet: stubWallet)
     }
 
     private func parseAmount() -> Amount? {

@@ -10,7 +10,7 @@ import Foundation
 import GRDB
 
 public struct ExpressSyncMetadataRecord {
-    public let ownerAddress: String
+    public let userWalletID: String
     public let endpointType: String
     public let archiveCursor: String?
     public let deltaCursor: String?
@@ -18,14 +18,14 @@ public struct ExpressSyncMetadataRecord {
     public let lastSyncAt: Date
 
     public init(
-        ownerAddress: String,
+        userWalletID: String,
         endpointType: String,
         archiveCursor: String?,
         deltaCursor: String?,
         isInitialSyncDone: Bool,
         lastSyncAt: Date
     ) {
-        self.ownerAddress = ownerAddress
+        self.userWalletID = userWalletID
         self.endpointType = endpointType
         self.archiveCursor = archiveCursor
         self.deltaCursor = deltaCursor
@@ -37,15 +37,15 @@ public struct ExpressSyncMetadataRecord {
 // MARK: - Fetching helpers
 
 public extension ExpressSyncMetadataRecord {
-    static func filter(ownerAddress: String, endpointType: String) -> QueryInterfaceRequest<Self> {
+    static func filter(userWalletID: String, endpointType: String) -> QueryInterfaceRequest<Self> {
         return filter(key: [
-            ExpressSyncMetadataRecord.Columns.ownerAddress.name: ownerAddress,
+            ExpressSyncMetadataRecord.Columns.userWalletID.name: userWalletID,
             ExpressSyncMetadataRecord.Columns.endpointType.name: endpointType,
         ])
     }
 
-    static func filter(ownerAddress: String) -> QueryInterfaceRequest<Self> {
-        return filter { $0.ownerAddress == ownerAddress }
+    static func filter(userWalletID: String) -> QueryInterfaceRequest<Self> {
+        return filter { $0.userWalletID == userWalletID }
     }
 }
 
@@ -62,7 +62,7 @@ extension ExpressSyncMetadataRecord: FetchableRecord {}
 extension ExpressSyncMetadataRecord: TableRecord {
     /// - Note: Only columns used twice or more are extracted to this enum.
     public enum Columns {
-        public static let ownerAddress = Column(CodingKeys.ownerAddress)
+        public static let userWalletID = Column(CodingKeys.userWalletID)
         public static let endpointType = Column(CodingKeys.endpointType)
         public static let archiveCursor = Column(CodingKeys.archiveCursor)
         public static let deltaCursor = Column(CodingKeys.deltaCursor)

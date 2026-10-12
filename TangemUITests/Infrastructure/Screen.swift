@@ -25,7 +25,13 @@ extension Screen {
                 CommonUIAccessibilityIdentifiers.backButton,
                 "BackButton"
             )
-            app.buttons.matching(predicate).firstMatch.waitAndTap()
+            // A just-dismissed sheet can leave its own back button in the tree, so the hittable match is taken.
+            guard let backButton = app.buttons.matching(predicate).firstHittableElement() else {
+                XCTFail("Back button should become hittable")
+                return Destination(app)
+            }
+
+            backButton.tap()
             return Destination(app)
         }
     }
@@ -41,6 +47,28 @@ extension Screen {
         XCTContext.runActivity(named: "Verify toast '\(text)' is visible") { _ in
             let toast = app.staticTexts[text].firstMatch
             waitAndAssertTrue(toast, timeout: .conditional, "Toast with text '\(text)' should be displayed")
+            return self
+        }
+    }
+
+    /// Waits for an alert to appear and dismisses it via its 'OK' button.
+    @discardableResult
+    func waitForAlertAndDismiss() -> Self {
+        XCTContext.runActivity(named: "Wait for alert and dismiss") { _ in
+            let alert = app.alerts.firstMatch
+            XCTAssertTrue(alert.waitForExistence(timeout: .robustUIUpdate), "Alert should be displayed")
+
+            alert.buttons["OK"].waitAndTap()
+        }
+        return self
+    }
+
+    /// Waits for the in-app Safari (`SFSafariViewController`), which surfaces as a web view, to appear.
+    @discardableResult
+    func waitForBrowserOpened() -> Self {
+        XCTContext.runActivity(named: "Verify in-app browser is opened") { _ in
+            let webView = app.webViews.firstMatch
+            waitAndAssertTrue(webView, "Web view should appear after opening the in-app browser")
             return self
         }
     }

@@ -13,39 +13,35 @@ enum Feature: String, Hashable, CaseIterable {
     case visa // [REDACTED_TODO_COMMENT]
     case exchangeOnlyWithinSingleAddress
     case walletConnectBitcoin
-    case gaslessYieldFee
     case usdtRevokeGaslessFee
-    case tronGasless
-    case xrplTransactionHistory
-    case deeplinkPresentationWay
     case transactionHistoryV2
     case mobileWalletMultiCreation
     case stakingFlowV2
-    case forYou
-    case tangemPayMultichain
     case priceAlertsSubscription
     case backup4cards
     case backendAuthentication
-    case tangemPayAddFundsWithdrawRework
-    case swapHideZeroBalanceSource
-    case onrampPaymentMethodThemedImages
-    case chooseTokenPulseAnimation
-    case hotWalletDexRatesUntilDeposit
     case polymarket
-    case mobileWalletBackup
-    case swapDeeplinkParameters
     case walletCardsBackupReport
     case jointAccounts
     case ethPolLocalStakingValidation
     case yieldDexTransferDetection
-    case tangemPayCashback
-    case swapChooseTokenWholeAreaTap
     case welcomeScreenV2
-    case tangemPayPlastic
-    case gachaMachine
+    case newShtorkaEnabled
+    case collectibles
     case openTelemetryMetrics
+    case totalTokenBalanceV2
     case expressGeoRestrictions
+    case mobileSocialLogin
     case tangemPayOfframp
+    case realAssets
+    case storiesV2
+    case hardwareUpgradeStories
+    case jointAccountsGaslessTokenFee
+    case tronGaslessActivation
+    case merklIncentives
+    case tangemPayCustomCards
+    case mcp
+    case tangemPayChooseCountry
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -55,39 +51,35 @@ enum Feature: String, Hashable, CaseIterable {
         case .visa: return "Visa"
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
         case .walletConnectBitcoin: return "WalletConnect Bitcoin"
-        case .gaslessYieldFee: return "TWI-1327_smart_gas_support_for_tokens_in_yield_mode"
         case .usdtRevokeGaslessFee: return "USDT Revoke Gasless Fee"
-        case .tronGasless: return "TWI-1259_tron_gasless"
-        case .xrplTransactionHistory: return "XRPL Transaction History"
-        case .deeplinkPresentationWay: return "13880_Deeplink_Presentation_Way"
         case .transactionHistoryV2: return "139_Transaction_History_V2"
         case .mobileWalletMultiCreation: return "14278_Mobile_wallet_multi_creation"
         case .stakingFlowV2: return "[REDACTED_INFO]_staking_flow_v2"
-        case .forYou: return "TWI-1469_for_you_product_shelves_add_indicators"
         case .priceAlertsSubscription: return "TWI-1603_price_alerts_subscription"
         case .backup4cards: return "[REDACTED_INFO]_backup_4_cards_fw8"
-        case .tangemPayMultichain: return "TWI-1684_tangem_pay_multichain"
         case .backendAuthentication: return "[REDACTED_INFO]_backend_authentication"
-        case .tangemPayAddFundsWithdrawRework: return "[REDACTED_INFO]_tangem_pay_add_funds_withdraw_rework"
-        case .swapHideZeroBalanceSource: return "[REDACTED_INFO]_hide_zero_balance_tokens_in_swap_source"
-        case .onrampPaymentMethodThemedImages: return "[REDACTED_INFO]_two_payment_method_pictures"
-        case .chooseTokenPulseAnimation: return "[REDACTED_INFO]_choose_token_pulse_animation"
-        case .hotWalletDexRatesUntilDeposit: return "[REDACTED_INFO]_hot_wallet_dex_rates_until_deposit"
         case .polymarket: return "TWI-1576_polymarket"
-        case .mobileWalletBackup: return "[REDACTED_INFO]_mobile_wallet_backup"
-        case .swapDeeplinkParameters: return "[REDACTED_INFO]_swap_deeplink_parameters"
         case .walletCardsBackupReport: return "[REDACTED_INFO]_cardlinked_status_update_stage2"
         case .jointAccounts: return "TWI-1611_joint_accounts"
         case .ethPolLocalStakingValidation: return "[REDACTED_INFO]_eth_pol_local_staking_validation"
         case .yieldDexTransferDetection: return "[REDACTED_INFO]_yield_dex_transfer_detection"
-        case .tangemPayCashback: return "TWI-1192_tangem_pay_cashback"
-        case .swapChooseTokenWholeAreaTap: return "[REDACTED_INFO]_choose_token_whole_area_tap"
         case .welcomeScreenV2: return "TWI-1747_welcome_screen_v2"
-        case .tangemPayPlastic: return "TWI-1157_tangem_pay_plastic"
-        case .gachaMachine: return "TWI-1640_gacha_machine"
+        case .newShtorkaEnabled: return "TWI-1608_new_shtorka_enabled"
+        case .collectibles: return "TWI-1640_gacha_machine"
         case .openTelemetryMetrics: return "TWI-1627_opentelemetry_metrics_mirroring"
+        case .totalTokenBalanceV2: return "[REDACTED_INFO]_total_token_balance_v2"
         case .expressGeoRestrictions: return "[REDACTED_INFO]_express_geo_restrictions"
+        case .mobileSocialLogin: return "[REDACTED_INFO]_mobile_social_login"
         case .tangemPayOfframp: return "TWI-1632_tangem_pay_offramp"
+        case .realAssets: return "TWI-1477_real_assets_shelf"
+        case .storiesV2: return "TWI-1713_stories_v2"
+        case .hardwareUpgradeStories: return "TWI-1357_hardware_upgrade_stories"
+        case .jointAccountsGaslessTokenFee: return "[REDACTED_INFO]_joint_accounts_gasless_token_fee"
+        case .tronGaslessActivation: return "TWI-1783_tron_gasless_account_activation_enabled"
+        case .merklIncentives: return "TWI-1520_merkl_incentives"
+        case .tangemPayCustomCards: return "TWI-1727_tangem_pay_custom_cards"
+        case .mcp: return "TWI-1721_mcp"
+        case .tangemPayChooseCountry: return "TWI-1771_choose_country"
         }
     }
 
@@ -97,39 +89,35 @@ enum Feature: String, Hashable, CaseIterable {
         case .visa: return .unspecified
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .walletConnectBitcoin: return .unspecified
-        case .gaslessYieldFee: return .version("6.3")
         case .usdtRevokeGaslessFee: return .unspecified
-        case .tronGasless: return .version("6.3")
-        case .xrplTransactionHistory: return .version("6.3")
-        case .deeplinkPresentationWay: return .unspecified
-        case .transactionHistoryV2: return .unspecified
+        case .transactionHistoryV2: return .version("6.4")
         case .mobileWalletMultiCreation: return .unspecified
-        case .stakingFlowV2: return .unspecified
-        case .forYou: return .version("6.3")
+        case .stakingFlowV2: return .version("6.4")
         case .priceAlertsSubscription: return .unspecified
-        case .tangemPayMultichain: return .version("6.3")
         case .backup4cards: return .unspecified
-        case .backendAuthentication: return .unspecified
-        case .tangemPayAddFundsWithdrawRework: return .version("6.3")
-        case .swapHideZeroBalanceSource: return .version("6.3")
-        case .onrampPaymentMethodThemedImages: return .version("6.3")
-        case .chooseTokenPulseAnimation: return .version("6.3")
-        case .hotWalletDexRatesUntilDeposit: return .version("6.3")
+        case .backendAuthentication: return .version("6.4")
         case .polymarket: return .unspecified
-        case .mobileWalletBackup: return .version("6.3")
-        case .swapDeeplinkParameters: return .version("6.3")
         case .walletCardsBackupReport: return .unspecified
         case .jointAccounts: return .unspecified
         case .ethPolLocalStakingValidation: return .unspecified
         case .yieldDexTransferDetection: return .unspecified
-        case .tangemPayCashback: return .version("6.3.1")
-        case .swapChooseTokenWholeAreaTap: return .version("6.3")
-        case .welcomeScreenV2: return .unspecified
-        case .tangemPayPlastic: return .version("6.3.2")
-        case .gachaMachine: return .unspecified
-        case .openTelemetryMetrics: return .unspecified
-        case .expressGeoRestrictions: return .unspecified
+        case .welcomeScreenV2: return .version("6.4")
+        case .newShtorkaEnabled: return .version("6.4")
+        case .collectibles: return .unspecified
+        case .openTelemetryMetrics: return .version("6.4")
+        case .totalTokenBalanceV2: return .unspecified
+        case .expressGeoRestrictions: return .version("6.4")
+        case .mobileSocialLogin: return .unspecified
         case .tangemPayOfframp: return .version("6.4")
+        case .realAssets: return .unspecified
+        case .storiesV2: return .version("6.4")
+        case .hardwareUpgradeStories: return .unspecified
+        case .jointAccountsGaslessTokenFee: return .unspecified
+        case .tronGaslessActivation: return .version("6.4")
+        case .merklIncentives: return .unspecified
+        case .tangemPayCustomCards: return .version("6.4")
+        case .mcp: return .unspecified
+        case .tangemPayChooseCountry: return .version("6.5")
         }
     }
 }

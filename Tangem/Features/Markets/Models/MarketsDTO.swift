@@ -16,23 +16,50 @@ enum MarketsDTO {
 // MARK: - General
 
 extension MarketsDTO.General {
+    enum Order: String, Encodable {
+        case rating
+        case trending
+        case buyers
+        case gainers
+        case losers
+        case category
+
+        init(_ orderType: MarketsListOrderType) {
+            switch orderType {
+            case .rating: self = .rating
+            case .trending: self = .trending
+            case .buyers: self = .buyers
+            case .gainers: self = .gainers
+            case .losers: self = .losers
+            }
+        }
+    }
+
     struct Request: Encodable {
         let currency: String
         let offset: Int
         let limit: Int
         let interval: MarketsPriceIntervalType
-        let order: MarketsListOrderType
+        let order: Order
         let search: String?
         let showNetworks: Bool?
+        let categoryId: Int?
+        let sectorId: Int?
+        let geckoCategoryId: String?
+        let country: String?
 
         init(
             currency: String,
             offset: Int = 0,
             limit: Int = 20,
             interval: MarketsPriceIntervalType,
-            order: MarketsListOrderType,
+            order: Order,
             search: String?,
-            showNetworks: Bool?
+            showNetworks: Bool?,
+            categoryId: Int? = nil,
+            sectorId: Int? = nil,
+            geckoCategoryId: String? = nil,
+            country: String? = nil
         ) {
             self.currency = currency
             self.offset = offset
@@ -41,6 +68,10 @@ extension MarketsDTO.General {
             self.order = order
             self.search = search
             self.showNetworks = showNetworks
+            self.categoryId = categoryId
+            self.sectorId = sectorId
+            self.geckoCategoryId = geckoCategoryId
+            self.country = country
         }
 
         // MARK: - Helper
@@ -60,6 +91,22 @@ extension MarketsDTO.General {
 
             if let showNetworks {
                 params["showNetworks"] = showNetworks ? "true" : "false"
+            }
+
+            if let categoryId {
+                params["categoryId"] = categoryId
+            }
+
+            if let sectorId {
+                params["sectorId"] = sectorId
+            }
+
+            if let geckoCategoryId, !geckoCategoryId.isEmpty {
+                params["geckoCategoryId"] = geckoCategoryId
+            }
+
+            if let country, !country.isEmpty {
+                params["country"] = country
             }
 
             return params

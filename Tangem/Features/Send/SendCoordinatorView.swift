@@ -12,25 +12,46 @@ import TangemUI
 
 struct SendCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: SendCoordinator
+
+    private let presentation: SendView.Presentation
+
     @State private var interactiveDismissDisabled: Bool = false
 
-    var body: some View {
-        NavigationStack {
-            ZStack {
-                if let rootViewModel = coordinator.rootViewModel {
-                    SendView(
-                        viewModel: rootViewModel,
-                        interactiveDismissDisabled: $interactiveDismissDisabled
-                    )
-                    .navigationLinks(links)
-                    .supportChatPresentation(coordinator.supportChatPresenter)
-                }
+    init(coordinator: SendCoordinator, presentation: SendView.Presentation = .modal) {
+        self.coordinator = coordinator
+        self.presentation = presentation
+    }
 
-                sheets
+    @ViewBuilder
+    var body: some View {
+        switch presentation {
+        case .modal:
+            NavigationStack {
+                content
             }
+            .tint(Colors.Text.primary1)
+            .interactiveDismissDisabled(interactiveDismissDisabled)
+
+        case .pushed:
+            content
+                .tint(Colors.Text.primary1)
         }
-        .tint(Colors.Text.primary1)
-        .interactiveDismissDisabled(interactiveDismissDisabled)
+    }
+
+    private var content: some View {
+        ZStack {
+            if let rootViewModel = coordinator.rootViewModel {
+                SendView(
+                    viewModel: rootViewModel,
+                    interactiveDismissDisabled: $interactiveDismissDisabled,
+                    presentation: presentation
+                )
+                .navigationLinks(links)
+                .supportChatPresentation(coordinator.supportChatPresenter)
+            }
+
+            sheets
+        }
     }
 
     private var links: some View {

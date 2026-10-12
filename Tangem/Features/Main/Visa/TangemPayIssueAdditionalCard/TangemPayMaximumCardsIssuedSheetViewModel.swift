@@ -7,6 +7,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 
@@ -38,6 +39,10 @@ final class TangemPayMaximumCardsIssuedSheetViewModel: TangemPayPopupViewModel {
             size: .default,
             action: dismiss
         )
+    }
+
+    var primaryButtonAccessibilityIdentifier: String? {
+        TangemPayAccessibilityIdentifiers.maximumCardsIssuedConfirmButton
     }
 
     private weak var coordinator: TangemPayMaximumCardsIssuedSheetRoutable?

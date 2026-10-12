@@ -12,6 +12,11 @@ import XCTest
 
 final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     private lazy var searchField = textField(.searchThroughMarketField)
+    private lazy var searchFieldContainer = app.descendants(matching: .any)
+        .matching(identifier: MainAccessibilityIdentifiers.searchThroughMarketFieldContainer)
+        .firstMatch
+    private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
+    private lazy var mainDetailsButton = app.buttons[MainAccessibilityIdentifiers.detailsButton].firstMatch
     private lazy var searchFieldClearButton = app.buttons[MainAccessibilityIdentifiers.searchThroughMarketClearButton]
     private lazy var addToPortfolioButton = button(.addToPortfolioButton)
     private lazy var continueButton = button(.continueButton)
@@ -20,22 +25,26 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     private lazy var tokensUnderCapExpandButton = button(.marketsTokensUnderCapExpandButton)
     private lazy var noResultsLabel = staticText(.marketsSearchNoResultsLabel)
     private lazy var tokenItemButtons: XCUIElementQuery = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'marketsListTokenItem_'"))
+    private lazy var intervalDropDown = app.buttons.matching(
+        NSPredicate(format: "identifier BEGINSWITH 'marketsIntervalButton_'")
+    ).firstMatch
 
     // MARK: - Public methods
 
     @discardableResult
     func closeMarketsSheetWithSwipe() -> MainScreen {
         XCTContext.runActivity(named: "Close markets sheet with swipe down gesture") { _ in
-            // Find the grabber view or bottom sheet area to swipe down
-            let grabberView = app.otherElements.matching(identifier: "commonUIGrabber").firstMatch
+            // The main screen's top bar stays out of reach for as long as the feed sheet covers it.
+            for _ in 0 ..< Constants.sheetCloseAttempts {
+                if mainDetailsButton.isHittable {
+                    break
+                }
 
-            waitAndAssertTrue(grabberView)
+                dragFeedSheetDown()
+                waitUntilHittable(mainDetailsButton)
+            }
 
-            // Swipe down on the grabber view
-            let startPoint = grabberView.coordinate(
-                withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
-            let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: 400)) // Swipe down 300 points
-            startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
+            XCTAssertTrue(mainDetailsButton.isHittable, "Markets sheet should be closed and the main screen reachable")
 
             return MainScreen(app)
         }
@@ -197,7 +206,9 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     @discardableResult
     func tapShowTokensUnderCapButton() -> Self {
         XCTContext.runActivity(named: "Tap 'Show tokens' under cap button") { _ in
-            tokensUnderCapExpandButton.waitAndTapWithScroll()
+            waitAndAssertTrue(tokensUnderCapExpandButton, "'Show tokens' under cap button should exist")
+            scrollToElement(tokensUnderCapExpandButton, attempts: .lazy)
+            tokensUnderCapExpandButton.waitAndTap()
             return self
         }
     }
@@ -303,9 +314,12 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     @discardableResult
     func selectInterval(_ intervalId: String) -> Self {
         XCTContext.runActivity(named: "Select interval: \(intervalId)") { _ in
-            let intervalButton = app.buttons[MarketsAccessibilityIdentifiers.marketsIntervalSegment(intervalId)]
-            waitAndAssertTrue(intervalButton, "Interval button '\(intervalId)' should exist")
-            intervalButton.waitAndTap()
+            waitAndAssertTrue(intervalDropDown, "Interval drop-down should exist")
+            intervalDropDown.waitAndTap()
+
+            let intervalOption = app.buttons[MarketsAccessibilityIdentifiers.marketsIntervalSegment(intervalId)].firstMatch
+            waitAndAssertTrue(intervalOption, "Interval option '\(intervalId)' should exist")
+            intervalOption.waitAndTap()
             return self
         }
     }
@@ -313,12 +327,8 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     @discardableResult
     func verifyIntervalSelected(_ intervalId: String) -> Self {
         XCTContext.runActivity(named: "Verify interval is selected: \(intervalId)") { _ in
-            let intervalButton = app.buttons[MarketsAccessibilityIdentifiers.marketsIntervalSegment(intervalId)]
-            waitAndAssertTrue(intervalButton, "Interval button '\(intervalId)' should exist")
-            waitAndAssertTrue(
-                intervalButton,
-                "Interval '\(intervalId)' should be selected"
-            )
+            let selected = app.buttons[MarketsAccessibilityIdentifiers.marketsIntervalButton(intervalId)].firstMatch
+            waitAndAssertTrue(selected, "Interval '\(intervalId)' should be selected")
             return self
         }
     }
@@ -454,19 +464,10 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     }
 
     @discardableResult
-    func tapSortButton() -> Self {
-        XCTContext.runActivity(named: "Tap Markets sort button") { _ in
-            let sortButton = app.buttons[MarketsAccessibilityIdentifiers.marketsSortButton]
-            waitAndAssertTrue(sortButton, "Sort button should exist")
-            sortButton.waitAndTap()
-            return self
-        }
-    }
-
-    @discardableResult
     func selectSortOption(_ orderType: String) -> Self {
         XCTContext.runActivity(named: "Select Markets sort option: \(orderType)") { _ in
-            let sortOptionButton = app.buttons[MarketsAccessibilityIdentifiers.marketsSortOption(orderType)]
+            let sortOptionButton = app.buttons[MarketsAccessibilityIdentifiers.marketsSortOption(orderType)].firstMatch
+            scrollToSortOption(sortOptionButton)
             waitAndAssertTrue(sortOptionButton, "Sort option '\(orderType)' should exist")
             sortOptionButton.waitAndTap()
             return self
@@ -474,20 +475,17 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     }
 
     @discardableResult
-    func verifySortSelected(_ expectedText: String) -> Self {
-        XCTContext.runActivity(named: "Verify Markets sort is selected: \(expectedText)") { _ in
-            let sortButton = app.buttons[MarketsAccessibilityIdentifiers.marketsSortButton]
-            waitAndAssertTrue(sortButton, "Sort button should exist")
+    func verifySortSelected(_ orderType: String) -> Self {
+        XCTContext.runActivity(named: "Verify Markets sort is selected: \(orderType)") { _ in
+            let sortOptionButton = app.buttons[MarketsAccessibilityIdentifiers.marketsSortOption(orderType)].firstMatch
+            waitAndAssertTrue(sortOptionButton, "Sort option '\(orderType)' should exist")
 
-            // Wait for button label to contain expected text
-            let predicate = NSPredicate(format: "label CONTAINS %@", expectedText)
-            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: sortButton)
-            let result = XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate)
-
-            let buttonText = sortButton.label
-            waitAndAssertTrue(
-                result == .completed ? sortButton : app.buttons["nonexistent"],
-                "Sort button should display '\(expectedText)', but shows '\(buttonText)'"
+            let predicate = NSPredicate(format: "selected == true")
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: sortOptionButton)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Sort option '\(orderType)' should be selected"
             )
             return self
         }
@@ -667,6 +665,46 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
             )
         }
     }
+
+    private func waitUntilHittable(_ element: XCUIElement) {
+        let expectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "isHittable == true"),
+            object: element
+        )
+        _ = XCTWaiter().wait(for: [expectation], timeout: .quick)
+    }
+
+    private func dragFeedSheetDown() {
+        let startPoint = feedSheetDragStartPoint()
+        startPoint.press(
+            forDuration: 0.1,
+            thenDragTo: startPoint.withOffset(CGVector(dx: 0, dy: Constants.sheetCloseDragDistance))
+        )
+    }
+
+    private func feedSheetDragStartPoint() -> XCUICoordinate {
+        let centre = CGVector(dx: 0.5, dy: 0.5)
+
+        if grabber.exists {
+            return grabber.coordinate(withNormalizedOffset: centre)
+        }
+
+        if searchFieldContainer.exists {
+            return searchFieldContainer.coordinate(withNormalizedOffset: centre)
+        }
+
+        return app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: Constants.sheetHeaderNormalizedY))
+    }
+
+    private func scrollToSortOption(_ element: XCUIElement) {
+        let anchor = app.buttons[MarketsAccessibilityIdentifiers.marketsSortOption(Constants.defaultSortOption)].firstMatch
+        scrollToElement(anchor)
+
+        guard !element.isHittable else { return }
+
+        // The chips row sits above the screen centre, where the default swipe would land.
+        app.scrollHorizontallyToElement(element, startPoint: anchor.frame.midY / app.frame.height)
+    }
 }
 
 enum MarketsScreenElement: String, UIElement {
@@ -695,5 +733,14 @@ enum MarketsScreenElement: String, UIElement {
         case .marketsSearchNoResultsLabel:
             MarketsAccessibilityIdentifiers.marketsSearchNoResultsLabel
         }
+    }
+}
+
+private extension MarketsScreen {
+    enum Constants {
+        static let defaultSortOption = "rating"
+        static let sheetCloseAttempts = 3
+        static let sheetCloseDragDistance: CGFloat = 400
+        static let sheetHeaderNormalizedY = 0.12
     }
 }

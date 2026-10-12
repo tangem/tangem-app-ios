@@ -383,7 +383,6 @@ extension SecurityKeychainRepositoryTests {
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: keychainService,
             kSecAttrAccount: keychainAccount,
-            kSecMatchLimit: kSecMatchLimitOne,
             kSecUseDataProtectionKeychain: true,
         ]
 
@@ -400,7 +399,6 @@ extension SecurityKeychainRepositoryTests {
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: keychainService,
             kSecAttrAccount: keychainAccount,
-            kSecMatchLimit: kSecMatchLimitAll,
             kSecUseDataProtectionKeychain: true,
         ]
 

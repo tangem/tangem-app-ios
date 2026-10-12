@@ -26,6 +26,7 @@ final class SilentPushTesterViewModel: ObservableObject {
     @Published var networkId: String = ""
     @Published var tokenId: String = ""
     @Published var derivationPath: String = ""
+    @Published var transactionId: String = ""
     @Published var selectedType: IncomingActionConstants.DeeplinkType = .incomeTransaction
     @Published var scenario: Scenario = .hit
     @Published var lastResultMessage: String = ""
@@ -89,7 +90,8 @@ final class SilentPushTesterViewModel: ObservableObject {
             networkId: networkId,
             tokenId: effectiveTokenId,
             userWalletId: userWalletId,
-            derivationPath: derivationPath.nilIfEmpty
+            derivationPath: derivationPath.nilIfEmpty,
+            transactionId: transactionId.nilIfEmpty
         )
 
         let url = helper.buildURL(scheme: .withoutRedirectUniversalLink)
@@ -106,11 +108,12 @@ final class SilentPushTesterViewModel: ObservableObject {
             "aps": [
                 "content-available": 1,
             ],
-            params.type: selectedType.rawValue,
+            TokenDeeplink.Keys.type: selectedType.rawValue,
             params.networkId: networkId,
             params.tokenId: effectiveTokenId,
             params.userWalletId: userWalletId,
             params.derivationPath: derivationPath.nilIfEmpty ?? "null",
+            TokenDeeplink.Keys.transactionId: transactionId.nilIfEmpty ?? "null",
         ]
     }
 

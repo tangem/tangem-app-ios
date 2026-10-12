@@ -49,7 +49,7 @@ final class LockedUserWalletModel: UserWalletModel {
     var emailData: [EmailCollectedData] {
         var data = config.emailData
 
-        if let tangemPayCustomerId = accountModelsManager.tangemPayAccountModel?.customerId {
+        if let tangemPayCustomerId = AccountModelsAggregator(.tangemPay).model(from: accountModelsManager)?.customerId {
             data.append(EmailCollectedData(type: .tangemPayCustomerId, data: tangemPayCustomerId))
         }
         data.append(EmailCollectedData(type: .card(.userWalletId), data: userWalletId.stringValue))
@@ -121,6 +121,10 @@ final class LockedUserWalletModel: UserWalletModel {
 
     var jointAccountDerivationInteractor: JointAccountDerivationInteractor {
         UnavailableJointAccountDerivationInteractor()
+    }
+
+    var collectiblesColdKeyInteractor: CollectiblesColdKeyInteractor {
+        UnavailableCollectiblesColdKeyInteractor()
     }
 
     var name: String { userWallet.name }

@@ -46,7 +46,7 @@ final class CommonCryptoAccountModel {
 
     private let didChangeSubject = PassthroughSubject<Void, Never>()
     private let accountId: AccountId
-    private let derivationIndex: Int
+    private let derivationIdentity: CryptoAccountDerivationIdentity
     private weak var delegate: CommonCryptoAccountModelDelegate?
 
     /// - Warning: The derivation manager is not used directly in this class, but a strong reference is stored here
@@ -60,7 +60,7 @@ final class CommonCryptoAccountModel {
         userWalletId: UserWalletId,
         accountName: String?,
         accountIcon: AccountModel.CompositeIcon,
-        derivationIndex: Int,
+        derivationIdentity: CryptoAccountDerivationIdentity,
         walletModelsManager: WalletModelsManager,
         userTokensManager: UserTokensManager,
         accountBalanceProvider: AccountBalanceProvider,
@@ -68,12 +68,12 @@ final class CommonCryptoAccountModel {
         derivationManager: DerivationManager?,
         delegate: CommonCryptoAccountModelDelegate
     ) {
-        let accountId = AccountId(userWalletId: userWalletId, derivationIndex: derivationIndex)
+        let accountId = AccountId(userWalletId: userWalletId, derivationIdentity: derivationIdentity)
 
         self.accountId = accountId
         _name = accountName
         icon = accountIcon
-        self.derivationIndex = derivationIndex
+        self.derivationIdentity = derivationIdentity
         self.walletModelsManager = walletModelsManager
         self.userTokensManager = userTokensManager
         self.accountBalanceProvider = accountBalanceProvider
@@ -81,10 +81,14 @@ final class CommonCryptoAccountModel {
         self.derivationManager = derivationManager
         self.delegate = delegate
     }
+}
 
-    /// Updates the model properties directly without involving the delegate (internal use only by `AccountModelsManager`).
+// MARK: - AccountModelEditable protocol conformance
+
+extension CommonCryptoAccountModel {
+    /// Updates the model properties directly without involving the delegate (internal use only by the account model registries).
     @discardableResult
-    func update(with editor: Editor) -> Self {
+    func update(with editor: (_ editor: CommonAccountModelEditor) -> Void) -> Self {
         let accountModelEditor = CommonAccountModelEditor()
         editor(accountModelEditor)
 
@@ -112,7 +116,11 @@ extension CommonCryptoAccountModel: Identifiable {
 
 extension CommonCryptoAccountModel: CryptoAccountModel {
     var isMainAccount: Bool {
-        AccountModelUtils.isMainAccount(derivationIndex)
+        AccountModelUtils.isMainAccount(derivationIdentity)
+    }
+
+    var accountType: AccountType {
+        derivationIdentity.type
     }
 
     var didChangePublisher: AnyPublisher<Void, Never> {
@@ -120,20 +128,20 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
     }
 
     var descriptionString: String {
-        Localization.accountFormAccountIndex(derivationIndex)
+        Localization.accountFormAccountIndex(derivationIdentity.derivationIndex)
     }
 
     // MARK: - AccountModelAnalyticsProviding
 
     func analyticsParameters(with builder: AccountsAnalyticsBuilder) -> [Analytics.ParameterKey: String] {
         builder
-            .setDerivationIndex(derivationIndex)
+            .setDerivationIdentity(derivationIdentity)
             .build()
     }
 
     /// Edits the account model using the provided editor closure (external use by consumers).
     @discardableResult
-    func edit(with editor: Editor) async throws(AccountEditError) -> Self {
+    func edit(with editor: (_ editor: CommonAccountModelEditor) -> Void) async throws(AccountEditError) -> Self {
         let accountModelEditor = CommonAccountModelEditor()
         editor(accountModelEditor)
 
@@ -142,7 +150,7 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
         }
 
         let persistentConfig = CryptoAccountPersistentConfig(
-            derivationIndex: derivationIndex,
+            derivationIdentity: derivationIdentity,
             name: accountModelEditor.name ?? _name,
             icon: accountModelEditor.icon ?? icon
         )
@@ -192,7 +200,7 @@ extension CommonCryptoAccountModel: CustomStringConvertible {
                 "name": name,
                 "icon": icon,
                 "id": id,
-                "derivationIndex": derivationIndex,
+                "derivationIdentity": derivationIdentity,
                 "User tokens count": userTokensManager.userTokens.count,
                 "Wallet models count": walletModelsManager.walletModels.count,
             ]
@@ -202,7 +210,8 @@ extension CommonCryptoAccountModel: CustomStringConvertible {
 
 // MARK: - Auxiliary types
 
-private extension CommonCryptoAccountModel {
+extension CommonCryptoAccountModel {
+    /// Not private: a private type cannot be the witness for `Editor`.
     final class CommonAccountModelEditor: AccountModelEditor {
         var name: String?
         var icon: AccountModel.CompositeIcon?

@@ -139,7 +139,11 @@ enum MainUserWalletPageBuilder: Identifiable {
 
     @ViewBuilder
     var bottomOverlay: some View {
-        if let bottomSheetFooterViewModel {
+        // The pager reserves the new sheet's measured inset; its search bar is presented separately.
+        if FeatureProvider.isAvailable(.newShtorkaEnabled) {
+            // [REDACTED_TODO_COMMENT]
+            EmptyView()
+        } else if let bottomSheetFooterViewModel {
             MainBottomSheetFooterView(viewModel: bottomSheetFooterViewModel)
         } else {
             EmptyMainFooterView()
@@ -175,32 +179,6 @@ enum MainUserWalletPageBuilder: Identifiable {
             return bodyModel == nil
         case .multiWallet, .lockedWallet, .visaWallet:
             return false
-        }
-    }
-}
-
-// MARK: - MainViewPage protocol conformance
-
-extension MainUserWalletPageBuilder: MainViewPage {
-    func onPageAppear() {
-        switch self {
-        case .singleWallet(_, _, _, let bodyModel):
-            bodyModel?.onPageAppear()
-        case .multiWallet(_, _, _, let bodyModel):
-            bodyModel.onPageAppear()
-        case .lockedWallet, .visaWallet:
-            break
-        }
-    }
-
-    func onPageDisappear() {
-        switch self {
-        case .singleWallet(_, _, _, let bodyModel):
-            bodyModel?.onPageDisappear()
-        case .multiWallet(_, _, _, let bodyModel):
-            bodyModel.onPageDisappear()
-        case .lockedWallet, .visaWallet:
-            break
         }
     }
 }

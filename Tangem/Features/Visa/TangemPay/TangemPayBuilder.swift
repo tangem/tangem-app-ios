@@ -31,7 +31,8 @@ final class TangemPayBuilder {
     private lazy var enrollmentStateFetcher = TangemPayEnrollmentStateFetcher(
         customerWalletId: customerWalletId,
         availabilityService: availabilityService,
-        customerService: customerService
+        customerService: customerService,
+        isCustomCardsEnabled: FeatureProvider.isAvailable(.tangemPayCustomCards)
     )
 
     private lazy var orderStatusPollingService = TangemPayOrderStatusPollingService(
@@ -60,8 +61,14 @@ final class TangemPayBuilder {
         )
     }
 
+    private lazy var offrampOrderSigner = CommonTangemPayOfframpOrderSigner(
+        signerFactory: signerFactory,
+        walletPublicKey: TangemPayUtilities.getKey(from: keysRepository)
+    )
+
     private lazy var withdrawAvailabilityProvider = TangemPayWithdrawAvailabilityProvider(
         withdrawTransactionService: withdrawTransactionService,
+        orderResolver: orderResolver,
         tokenBalanceProvider: balancesService.availableBalanceProvider
     )
 
@@ -117,6 +124,7 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
             withdrawTransactionService: withdrawTransactionService,
             transactionDispatcherFactory: transactionDispatcherFactory,
             withdrawAvailabilityProvider: withdrawAvailabilityProvider,
+            offrampOrderSigner: offrampOrderSigner,
             orderStatusPollingService: orderStatusPollingService,
             mainHeaderBalanceProvider: mainHeaderBalanceProvider,
             orderResolver: orderResolver,

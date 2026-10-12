@@ -42,13 +42,16 @@ final class SingleTokenRouter: SingleTokenRoutable {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
 
     private let userWalletInfo: UserWalletInfo
+    private let analyticsSource: AnalyticsSource
     private weak var coordinator: SingleTokenBaseRoutable?
 
     init(
         userWalletInfo: UserWalletInfo,
+        analyticsSource: AnalyticsSource,
         coordinator: SingleTokenBaseRoutable?
     ) {
         self.userWalletInfo = userWalletInfo
+        self.analyticsSource = analyticsSource
         self.coordinator = coordinator
     }
 
@@ -76,7 +79,8 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openStaking(walletModel: any WalletModel) {
-        sendAnalyticsEvent(.stakingClicked, for: walletModel)
+        Analytics.log(event: .stakingClicked, params: [.token: walletModel.tokenItem.currencySymbol])
+
         guard let stakingManager = walletModel.stakingManager else {
             return
         }
@@ -108,7 +112,13 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openExplorer(at url: URL, for walletModel: any WalletModel) {
-        sendAnalyticsEvent(.buttonExplore, for: walletModel)
+        Analytics.log(
+            event: .buttonExplore,
+            params: [
+                .token: walletModel.tokenItem.currencySymbol,
+                .source: analyticsSource.parameterValue.rawValue,
+            ]
+        )
         coordinator?.openInSafari(url: url)
     }
 
@@ -130,6 +140,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
             isUnderMarketCapLimit: nil,
             stakingOpportunities: nil,
             networks: nil,
+            restrictedForCountry: nil
         )
 
         coordinator?.openMarketsTokenDetails(tokenModel: model)
@@ -159,13 +170,25 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 }
 
+// MARK: - Analytics
+
+extension SingleTokenRouter {
+    enum AnalyticsSource {
+        case main
+        case token
+
+        var parameterValue: Analytics.ParameterValue {
+            switch self {
+            case .main: .main
+            case .token: .token
+            }
+        }
+    }
+}
+
 // MARK: - Private utilities functions
 
 private extension SingleTokenRouter {
-    func sendAnalyticsEvent(_ event: Analytics.Event, for walletModel: any WalletModel) {
-        Analytics.log(event: event, params: [.token: walletModel.tokenItem.currencySymbol])
-    }
-
     func buildSellCryptoUtility(for walletModel: any WalletModel) -> SellCryptoUtility {
         SellCryptoUtility(
             blockchain: walletModel.tokenItem.blockchain,

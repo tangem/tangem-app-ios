@@ -24,13 +24,15 @@ struct TransactionDetailsTokensViewData: Equatable {
 
     /// Transfer / stake
     init(
-        tokenIconInfo: TokenIconInfo,
+        icon: Single.Icon,
+        caption: String?,
         amountText: String,
-        fiatText: String? = nil,
-        isAmountStrikethrough: Bool = false
+        fiatText: String?,
+        isAmountStrikethrough: Bool
     ) {
         content = .single(Single(
-            tokenIconInfo: tokenIconInfo,
+            icon: icon,
+            caption: caption,
             amountText: amountText,
             fiatText: fiatText,
             isAmountStrikethrough: isAmountStrikethrough
@@ -43,7 +45,13 @@ struct TransactionDetailsTokensViewData: Equatable {
     }
 
     struct Single: Equatable {
-        let tokenIconInfo: TokenIconInfo
+        enum Icon: Equatable {
+            case token(TokenIconInfo)
+            case unresolved(network: ImageType)
+        }
+
+        let icon: Icon
+        let caption: String?
         let amountText: String
         let fiatText: String?
         let isAmountStrikethrough: Bool
@@ -91,6 +99,7 @@ struct TransactionDetailsTokensView: View {
     @ScaledMetric private var tokenSide: CGFloat = 72
     @ScaledMetric private var legTokenSide: CGFloat = 40
     @ScaledMetric private var captionIconSide: CGFloat = 18
+    @ScaledMetric private var networkIconSide = CGFloat.unit(.x8)
 
     var body: some View {
         switch data.content {
@@ -103,25 +112,54 @@ struct TransactionDetailsTokensView: View {
 
     // MARK: - Single
 
+    @ViewBuilder
+    private func icon(_ icon: TransactionDetailsTokensViewData.Single.Icon) -> some View {
+        let size = CGSize(bothDimensions: tokenSide)
+
+        switch icon {
+        case .token(let tokenIconInfo):
+            TokenIcon(tokenIconInfo: tokenIconInfo, size: size)
+        case .unresolved(let network):
+            Circle()
+                .fill(DesignSystem.Color.bgTertiary)
+                .frame(size: size)
+                .networkIconOverlay(
+                    imageAsset: network,
+                    iconSize: CGSize(bothDimensions: networkIconSide),
+                    borderColor: DesignSystem.Color.bgPrimary,
+                    isShimmerEnabled: false
+                )
+        }
+    }
+
     private func singleView(_ single: TransactionDetailsTokensViewData.Single) -> some View {
         VStack(spacing: 24) {
-            TokenIcon(tokenIconInfo: single.tokenIconInfo, size: CGSize(bothDimensions: tokenSide))
+            icon(single.icon)
 
-            VStack(spacing: 2) {
-                Text(single.amountText)
-                    .style(
-                        DesignSystem.Font.headingMediumToken,
-                        color: single.isAmountStrikethrough ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
-                    )
-                    .strikethrough(single.isAmountStrikethrough)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-
-                if let fiatText = single.fiatText {
-                    Text(fiatText)
-                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+            VStack(spacing: 4) {
+                if let caption = single.caption {
+                    Text(caption)
+                        .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
+                        .multilineTextAlignment(.center)
                         .lineLimit(1)
+                }
+
+                VStack(spacing: 2) {
+                    SensitiveText(single.amountText)
+                        .strikethroughWhenVisible(single.isAmountStrikethrough)
+                        .style(
+                            DesignSystem.Font.headingMediumToken,
+                            color: single.isAmountStrikethrough ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
+                        )
+                        .multilineTextAlignment(.center)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+
+                    if let fiatText = single.fiatText {
+                        SensitiveText(fiatText)
+                            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+                            .lineLimit(1)
+                    }
                 }
             }
         }
@@ -159,7 +197,7 @@ struct TransactionDetailsTokensView: View {
                     }
 
                     if let fiatText = leg.fiatText {
-                        Text(fiatText)
+                        SensitiveText(fiatText)
                             .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                             .lineLimit(1)
                     }
@@ -174,12 +212,12 @@ struct TransactionDetailsTokensView: View {
     }
 
     private func legAmountLabel(_ text: String, isStrikethrough: Bool) -> some View {
-        Text(text)
+        SensitiveText(text)
+            .strikethroughWhenVisible(isStrikethrough)
             .style(
                 DesignSystem.Font.headingSmallToken,
                 color: isStrikethrough ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
             )
-            .strikethrough(isStrikethrough)
             .lineLimit(1)
             .minimumScaleFactor(0.7)
     }
@@ -197,6 +235,7 @@ struct TransactionDetailsTokensView: View {
                 Text(actor.displayName)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
+                    .truncationMode(actor.displayNameTruncationMode)
             }
         }
     }
@@ -204,7 +243,7 @@ struct TransactionDetailsTokensView: View {
     @ViewBuilder
     private func actorIcon(_ actor: TransactionDetailsActor) -> some View {
         switch actor {
-        case .address(_, let blockiesImage):
+        case .address(_, let blockiesImage), .validator(_, let blockiesImage):
             AddressBlockiesIconView(viewData: blockiesImage, size: captionIconSide)
         case .contact(_, let icon):
             AddressBookContactNameIconView(viewData: icon, size: captionIconSide)

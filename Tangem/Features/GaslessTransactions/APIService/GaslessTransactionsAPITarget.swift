@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemFoundation
 import TangemNetworkUtils
 
 enum GaslessApiTargetConstants {
@@ -45,8 +46,8 @@ struct GaslessTransactionsAPITarget: TargetType {
         case sendGaslessBatchTransaction(transaction: GaslessTransactionsDTO.Request.GaslessBatchTransaction)
         case feeRecipient
         case tronTokens
-        case tronEstimate(request: GaslessTransactionsDTO.Request.TronEstimate)
-        case tronSubmit(request: GaslessTransactionsDTO.Request.TronSubmit)
+        case tronEstimate(request: GaslessTransactionsDTO.Request.TronEstimate, userWalletId: UserWalletId)
+        case tronSubmit(request: GaslessTransactionsDTO.Request.TronSubmit, userWalletId: UserWalletId)
     }
 
     var baseURL: URL {
@@ -111,9 +112,9 @@ struct GaslessTransactionsAPITarget: TargetType {
             return .requestJSONEncodable(transaction)
         case .sendGaslessBatchTransaction(let transaction):
             return .requestJSONEncodable(transaction)
-        case .tronEstimate(let request):
+        case .tronEstimate(let request, _):
             return .requestJSONEncodable(request)
-        case .tronSubmit(let request):
+        case .tronSubmit(let request, _):
             return .requestJSONEncodable(request)
         case .availableTokens, .feeRecipient, .tronTokens:
             return .requestPlain
@@ -121,7 +122,12 @@ struct GaslessTransactionsAPITarget: TargetType {
     }
 
     var headers: [String: String]? {
-        nil
+        switch target {
+        case .tronEstimate(_, let userWalletId), .tronSubmit(_, let userWalletId):
+            return ["userWalletId": userWalletId.stringValue]
+        case .availableTokens, .sendGaslessTransaction, .sendGaslessBatchTransaction, .feeRecipient, .tronTokens:
+            return nil
+        }
     }
 }
 

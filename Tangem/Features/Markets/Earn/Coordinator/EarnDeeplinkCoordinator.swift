@@ -8,6 +8,7 @@
 
 import SwiftUI
 import UIKit
+import TangemFoundation
 import TangemUI
 
 final class EarnDeeplinkCoordinator: ObservableObject {
@@ -21,7 +22,6 @@ final class EarnDeeplinkCoordinator: ObservableObject {
     private(set) var earnCoordinator: EarnCoordinator!
 
     private let earnType: EarnFilterType?
-    private var yieldDeeplinkRouter: YieldDeeplinkRouter?
 
     init(earnType: EarnFilterType?, networkId: String?, dismissAction: @escaping () -> Void) {
         self.earnType = earnType
@@ -148,22 +148,23 @@ extension EarnDeeplinkCoordinator: EarnAddTokenRoutable {
 
 private extension EarnDeeplinkCoordinator {
     func openYieldOnboarding(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
-        yieldDeeplinkRouter = YieldDeeplinkRouter(
-            discardIncomingAction: { [weak self] in
-                self?.presentTokenDetails(by: walletModel, with: userWalletModel)
-            },
-            openYieldPromoAction: { [weak self] apy, flowFactory in
-                self?.openYieldModulePromoView(apy: apy, factory: flowFactory)
-            },
-            openYieldActiveAction: { [weak self] flowFactory in
-                self?.openYieldModuleActiveInfo(factory: flowFactory)
-            },
-            onFinish: { [weak self] in
-                self?.yieldDeeplinkRouter = nil
-            }
-        )
+        runTask(in: self) { coordinator in
+            let destination = await YieldModuleDestinationResolver().resolve(
+                walletModel: walletModel,
+                userWalletModel: userWalletModel
+            )
 
-        yieldDeeplinkRouter?.handle(walletModel: walletModel, userWalletModel: userWalletModel)
+            await runOnMain {
+                switch destination {
+                case .promo(let apy, let flowFactory):
+                    coordinator.openYieldModulePromoView(apy: apy, factory: flowFactory)
+                case .active(let flowFactory):
+                    coordinator.openYieldModuleActiveInfo(factory: flowFactory)
+                case nil:
+                    coordinator.presentTokenDetails(by: walletModel, with: userWalletModel)
+                }
+            }
+        }
     }
 
     func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory) {

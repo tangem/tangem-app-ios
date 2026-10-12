@@ -23,7 +23,7 @@ protocol UserWalletSettingsRoutable: AnyObject, UserSettingsAccountsRoutable {
 
     func openNotificationSettings(userWalletModel: UserWalletModel)
 
-    func openMobileBackupNeeded(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource, onBackupFinished: @escaping () -> Void)
+    func openMobileBackupNeeded(userWalletModel: UserWalletModel)
     func openMobileBackupTypes(userWalletModel: UserWalletModel)
     func openMobileRemoveWalletNotification(userWalletModel: UserWalletModel)
 

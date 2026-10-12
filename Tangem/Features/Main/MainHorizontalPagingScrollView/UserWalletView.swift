@@ -16,13 +16,13 @@ import TangemAccessibilityIdentifiers
 struct UserWalletView: View {
     let pageBuilder: MainUserWalletPageBuilder
     let showPagingIndicatorStub: Bool
+    let isRefreshing: Bool
     let onContentPropertiesChanged: (ScrollContentProperties) -> Void
-    let onNormalizedOffsetYChanged: (CGFloat, Animation?) -> Void
+    let onPagingIndicatorOffsetChanged: (PagingIndicatorOffset) -> Void
     let containerGeometryProperties: ContainerGeometryProperties
 
     @State private var scrollDisabled = false
     @State private var contentOffsetY = CGFloat.zero
-    @State private var normalizedOffsetY = CGFloat.zero
     @State private var headerHeight = CGFloat.zero
     @State private var headerScale: CGFloat = 1
     @State private var headerOpacity: CGFloat = 1
@@ -37,21 +37,23 @@ struct UserWalletView: View {
     /// mutating its phase/velocity doesn't invalidate the view.
     @State private var snapEngine = MagneticHeaderSnapEngine()
 
-    private let pullToRefreshAction: @MainActor () async -> Void
+    private let pullToRefreshAction: @MainActor () -> Void
     @EnvironmentObject private var scrollDetector: ScrollDetector
 
     init(
         pageBuilder: MainUserWalletPageBuilder,
         showPagingIndicatorStub: Bool,
-        pullToRefreshAction: @MainActor @escaping () async -> Void,
+        isRefreshing: Bool,
+        pullToRefreshAction: @MainActor @escaping () -> Void,
         onContentPropertiesChanged: @escaping (ScrollContentProperties) -> Void,
-        onNormalizedOffsetYChanged: @escaping (CGFloat, Animation?) -> Void,
+        onPagingIndicatorOffsetChanged: @escaping (PagingIndicatorOffset) -> Void,
         containerGeometryProperties: ContainerGeometryProperties
     ) {
         self.pageBuilder = pageBuilder
         self.showPagingIndicatorStub = showPagingIndicatorStub
+        self.isRefreshing = isRefreshing
         self.onContentPropertiesChanged = onContentPropertiesChanged
-        self.onNormalizedOffsetYChanged = onNormalizedOffsetYChanged
+        self.onPagingIndicatorOffsetChanged = onPagingIndicatorOffsetChanged
         self.containerGeometryProperties = containerGeometryProperties
 
         self.pullToRefreshAction = pullToRefreshAction
@@ -63,7 +65,8 @@ struct UserWalletView: View {
                 RefreshableScrollView(
                     axes: .vertical,
                     scrollDisabled: scrollDisabled,
-                    onNormalizedOffsetYChanged: handleNormalizedOffsetYChanged,
+                    isRefreshing: isRefreshing,
+                    onScrollOffsetChanged: handleScrollOffsetChanged,
                     refreshAction: pullToRefreshAction,
                 ) {
                     VStack(spacing: .zero) {
@@ -183,15 +186,19 @@ struct UserWalletView: View {
         onContentPropertiesChanged(contentProperties)
     }
 
-    func handleNormalizedOffsetYChanged(_ normalizedOffsetY: CGFloat, _ animation: Animation?) {
-        let pagingIndicatorOffsetY = normalizedOffsetY
+    /// Reports where the paging indicator belongs on this page: the geometry the page measures itself, plus the drag,
+    /// but never the height of an *active* refresh control. The pager owns the refresh state and adds that part.
+    private func handleScrollOffsetChanged(_ contentOffsetY: CGFloat, _ dragRefreshControlHeight: CGFloat) {
+        let baseOffsetY = contentOffsetY
             + Paddings.headerTop
             + headerBalanceTextHeight
             + MainUserWalletHeader.Paddings.balanceBottom
             + headerSubtitleHeight
             + MainUserWalletHeader.Paddings.subtitleBottom
 
-        onNormalizedOffsetYChanged(pagingIndicatorOffsetY, animation)
+        onPagingIndicatorOffsetChanged(
+            PagingIndicatorOffset(baseOffsetY: baseOffsetY, dragRefreshControlHeight: dragRefreshControlHeight)
+        )
     }
 
     private var snapLayout: MagneticHeaderSnapEngine.Layout {
@@ -259,6 +266,14 @@ extension UserWalletView {
         let didScrollToBottom: Bool
     }
 
+    struct PagingIndicatorOffset {
+        /// Where the paging indicator sits within the page before the refresh control is added: the page's own
+        /// scroll offset plus the header above the indicator.
+        let baseOffsetY: CGFloat
+        /// Height the refresh control has from the drag alone, i.e. as if no refresh were running.
+        let dragRefreshControlHeight: CGFloat
+    }
+
     struct ContainerGeometryProperties: Equatable {
         let safeAreaInsetsTop: CGFloat
         let bottomOverlayHeight: CGFloat
@@ -281,11 +296,20 @@ extension UserWalletView {
         case bottom
     }
 
-    private enum RefreshableConstants {
+    enum RefreshableConstants {
         static let coordinateSpaceName = "UserWalletView.RefreshableScrollView"
-        static let refreshTaskDebugName = "UserWalletView.RefreshableScrollView"
         static let activeRefreshControlMaxHeight: CGFloat = 70
         static let contentOffsetThresholdTrigger: CGFloat = 130
+        static let refreshEndAnimation = Animation.easeInOut(duration: 0.25)
+
+        static func dragRefreshControlHeight(contentOffsetY: CGFloat) -> CGFloat {
+            clamp(contentOffsetY / contentOffsetThresholdTrigger, min: 0, max: 1) * activeRefreshControlMaxHeight
+        }
+
+        /// Shared by the page, which lays the control out, and by the pager, which places the paging indicator over it.
+        static func refreshControlHeight(isRefreshing: Bool, dragRefreshControlHeight: CGFloat) -> CGFloat {
+            max(dragRefreshControlHeight, isRefreshing ? activeRefreshControlMaxHeight : .zero)
+        }
     }
 }
 
@@ -293,15 +317,18 @@ extension UserWalletView {
     private struct RefreshableScrollView<Content: View>: View {
         let axes: Axis.Set
         let scrollDisabled: Bool
-        let onNormalizedOffsetYChanged: (CGFloat, Animation?) -> Void
-        let refreshAction: @MainActor () async -> Void
+        /// Owned by `MainViewModel`, not by this view: a page is torn down and rebuilt while its refresh runs.
+        let isRefreshing: Bool
+        let onScrollOffsetChanged: (CGFloat, CGFloat) -> Void
+        let refreshAction: @MainActor () -> Void
         @ViewBuilder let content: Content
 
         @State private var contentOffsetY = CGFloat.zero
-        @State private var refreshOffsetProgress = CGFloat.zero
 
-        @State private var canStartNewRefresh = true
-        @State private var refreshTask: Task<Void, Never>?
+        /// Transient gesture state, armed only once the content reports that it is at the top. Below iOS 17 a page
+        /// whose refresh ends under a held finger is rebuilt while still pulled down, and must not refresh again
+        /// right away.
+        @State private var canStartNewRefresh = false
 
         var body: some View {
             ZStack(alignment: .top) {
@@ -328,11 +355,11 @@ extension UserWalletView {
                                 startRefreshingIfNeeded()
                             }
 
-                            if refreshTask == nil, !canStartNewRefresh {
+                            if !isRefreshing, !canStartNewRefresh {
                                 canStartNewRefresh = contentOffsetY <= 0
                             }
 
-                            onNormalizedOffsetYChanged(contentOffsetY + refreshIndicatorHeight, nil)
+                            onScrollOffsetChanged(contentOffsetY, dragRefreshControlHeight)
                         }
                     )
                     .modifyView { view in
@@ -340,7 +367,7 @@ extension UserWalletView {
                             view
                                 .clipToBoundsDisableBackport()
                                 .task {
-                                    onNormalizedOffsetYChanged(0, nil)
+                                    onScrollOffsetChanged(0, 0)
                                 }
                         } else {
                             view
@@ -350,46 +377,46 @@ extension UserWalletView {
                 .scrollDisabled(scrollDisabled)
                 .coordinateSpace(name: RefreshableConstants.coordinateSpaceName)
             }
+            // Collapses the refresh control when the refresh ends. Fires only on that flip, not on every drag frame.
+            .animation(RefreshableConstants.refreshEndAnimation, value: isRefreshing)
+            .onChange(of: isRefreshing) { isRefreshing in
+                guard !isRefreshing else { return }
+
+                canStartNewRefresh = contentOffsetY <= 0
+            }
         }
 
         private func startRefreshingIfNeeded() {
-            guard canStartNewRefresh else {
+            guard canStartNewRefresh, !isRefreshing else {
                 return
             }
 
             canStartNewRefresh = false
 
             FeedbackGenerator.heavy()
-            refreshTask = Task(name: RefreshableConstants.refreshTaskDebugName) {
-                await refreshAction()
+            refreshAction()
+        }
 
-                let animation = Animation.easeInOut(duration: 0.25)
-                withAnimation(animation) {
-                    refreshTask = nil
-                    canStartNewRefresh = contentOffsetY <= 0
-                    onNormalizedOffsetYChanged(contentOffsetY + refreshIndicatorHeight, animation)
-                }
-            }
+        private var dragRefreshControlHeight: CGFloat {
+            RefreshableConstants.dragRefreshControlHeight(contentOffsetY: contentOffsetY)
         }
 
         private var refreshIndicatorHeight: CGFloat {
-            if refreshTask != nil {
-                return RefreshableConstants.activeRefreshControlMaxHeight
-            }
-
-            let progress = max(0, min(1.0, contentOffsetY / RefreshableConstants.contentOffsetThresholdTrigger))
-            return progress * RefreshableConstants.activeRefreshControlMaxHeight
+            RefreshableConstants.refreshControlHeight(
+                isRefreshing: isRefreshing,
+                dragRefreshControlHeight: dragRefreshControlHeight
+            )
         }
 
         private var progressView: some View {
             PetalProgressView(
-                mode: refreshTask == nil
-                    ? .progress(refreshIndicatorHeight / RefreshableConstants.activeRefreshControlMaxHeight)
-                    : .spinning
+                mode: isRefreshing
+                    ? .spinning
+                    : .progress(refreshIndicatorHeight / RefreshableConstants.activeRefreshControlMaxHeight)
             )
             .opacity(contentOffsetY < -refreshIndicatorHeight ? 0 : 1)
             .padding(.top, 20)
-            .accessibilityIdentifier(refreshTask == nil ? MainAccessibilityIdentifiers.refreshStateIdle : MainAccessibilityIdentifiers.refreshStateRefreshing)
+            .accessibilityIdentifier(isRefreshing ? MainAccessibilityIdentifiers.refreshStateRefreshing : MainAccessibilityIdentifiers.refreshStateIdle)
         }
     }
 }

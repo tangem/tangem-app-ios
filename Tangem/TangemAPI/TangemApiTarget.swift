@@ -24,6 +24,10 @@ struct TangemApiTarget: TargetType {
             AppEnvironment.current.activatePromoCodeBaseUrl
         case .promotion, .yieldBoostPromotionStatus, .promotionRegistration:
             AppEnvironment.current.apiBaseUrlv2
+        case .stories:
+            // The backend example requests `/api/v2/stories` — same gateway `/api` segment
+            // as notification preferences; revert to `apiBaseUrlv2` if BE drops it.
+            AppEnvironment.current.apiBaseUrlv2WithGatewaySegment
         case .saveUserWalletTokensV2:
             // Contract v1.3 documents the full path as `/api/v2/wallets/{walletId}/tokens`.
             // NOTE: the leading `/api` segment is applied here but still needs backend confirmation
@@ -40,9 +44,9 @@ struct TangemApiTarget: TargetType {
             // gateway-segment caveat as notification-preferences above; endpoints are not yet in the
             // contract registry (OQ-1), so the exact host/segment still needs backend confirmation.
             AppEnvironment.current.apiBaseUrlWithGatewaySegment
-        case .coinIndicators:
-            // Full path is `/api/v1/coins/indicators`; the `/api/v1` prefix comes from
-            // `apiBaseUrlWithGatewaySegment`, so `path` below stays relative (`/coins/indicators`).
+        case .coinIndicators, .marketIndicators:
+            // Full paths are `/api/v1/coins/indicators` and `/api/v1/market-indicators`; the `/api/v1`
+            // prefix comes from `apiBaseUrlWithGatewaySegment`, so `path` below stays relative.
             AppEnvironment.current.apiBaseUrlWithGatewaySegment
         case .getWalletCards, .saveWalletCards:
             AppEnvironment.current.apiBaseUrlWithGatewaySegment
@@ -58,7 +62,10 @@ struct TangemApiTarget: TargetType {
              .createJointAccount,
              .getJointAccountInvite,
              .joinJointAccount,
-             .activateJointAccount:
+             .activateJointAccount,
+             .createJointAccountOperation,
+             .signJointAccountOperation,
+             .rejectJointAccountOperation:
             // The joint accounts contract documents these as `/api/v1/wallets/{walletId}/joint-accounts...`, unlike
             // the plain `/v1/wallets/{walletId}/accounts` it describes beside them, so only these carry the segment
             AppEnvironment.current.apiBaseUrlWithGatewaySegment
@@ -83,7 +90,7 @@ struct TangemApiTarget: TargetType {
             return "/features"
         case .getUserWalletTokens(let key):
             return "/user-tokens/\(key)"
-        case .saveUserWalletTokensV2(let key, _):
+        case .saveUserWalletTokensV2(let key, _, _):
             return "/wallets/\(key)/tokens"
         case .loadReferralProgramInfo(let userWalletId, _):
             return "/referral/\(userWalletId)"
@@ -107,10 +114,18 @@ struct TangemApiTarget: TargetType {
             return "/networks/providers"
         case .story(let storyId):
             return "/stories/\(storyId)"
+        case .stories:
+            return "/stories"
 
         // MARK: - Markets paths
         case .coinsList:
             return "/coins/list"
+        case .coinsCategories:
+            return "/coins/categories"
+        case .coinsGeckoCategories:
+            return "/coins/gecko-categories"
+        case .marketIndicators:
+            return "/market-indicators"
         case .coinsHistoryChartPreview:
             return "/coins/history_preview"
         case .tokenMarketsDetails(let requestModel):
@@ -185,7 +200,7 @@ struct TangemApiTarget: TargetType {
             return "/wallets/\(userWalletId)/accounts/archived"
 
         // MARK: - Joint accounts
-        case .getJointAccounts(let walletId),
+        case .getJointAccounts(let walletId, _),
              .createJointAccount(let walletId, _):
             return "/wallets/\(walletId)/joint-accounts"
         case .getJointAccountInvite(let walletId, let inviteId):
@@ -194,6 +209,12 @@ struct TangemApiTarget: TargetType {
             return "/wallets/\(walletId)/joint-accounts/join"
         case .activateJointAccount(let walletId, _):
             return "/wallets/\(walletId)/joint-accounts/activate"
+        case .createJointAccountOperation(let walletId, _):
+            return "/wallets/\(walletId)/joint-accounts/operations"
+        case .signJointAccountOperation(let walletId, let operationId, _):
+            return "/wallets/\(walletId)/joint-accounts/operations/\(operationId)/sign"
+        case .rejectJointAccountOperation(let walletId, let operationId):
+            return "/wallets/\(walletId)/joint-accounts/operations/\(operationId)/reject"
 
         // MARK: - Address Book
         case .syncAddressBooks:
@@ -233,6 +254,9 @@ struct TangemApiTarget: TargetType {
              .apiList,
              .features,
              .coinsList,
+             .coinsCategories,
+             .coinsGeckoCategories,
+             .marketIndicators,
              .coinsHistoryChartPreview,
              .tokenMarketsDetails,
              .historyChart,
@@ -243,6 +267,7 @@ struct TangemApiTarget: TargetType {
              .coinsSettings,
              .coinIndicators,
              .story,
+             .stories,
              .pushNotificationsEligible,
              .getUserAccounts,
              .getArchivedUserAccounts,
@@ -270,6 +295,9 @@ struct TangemApiTarget: TargetType {
              .createJointAccount,
              .joinJointAccount,
              .activateJointAccount,
+             .createJointAccountOperation,
+             .signJointAccountOperation,
+             .rejectJointAccountOperation,
              .createUserWalletsApplication,
              .activatePromoCode,
              .createWallet,
@@ -296,7 +324,7 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(pageModel)
         case .currencies, .geo, .features, .getUserWalletTokens, .applicationVersions:
             return .requestPlain
-        case .saveUserWalletTokensV2(_, let list):
+        case .saveUserWalletTokensV2(_, let list, _):
             return .requestJSONEncodable(list)
         case .loadReferralProgramInfo(_, let expectedAwardsLimit):
             return .requestParameters(
@@ -325,9 +353,21 @@ struct TangemApiTarget: TargetType {
             return .requestPlain
         case .story:
             return .requestPlain
+        case .stories(let slugs, let language):
+            // Repeated `slugs` parameters and the language as a query item, per the backend example.
+            return .requestParameters(
+                parameters: ["slugs": slugs, "language": language],
+                encoding: URLEncoding(destination: .queryString, arrayEncoding: .noBrackets)
+            )
 
         // MARK: - Markets tasks
         case .coinsList(let requestData):
+            return .requestParameters(parameters: requestData.parameters, encoding: URLEncoding.default)
+        case .coinsCategories(let requestData):
+            return .requestParameters(parameters: requestData.parameters, encoding: URLEncoding.default)
+        case .coinsGeckoCategories(let requestData):
+            return .requestParameters(parameters: requestData.parameters, encoding: URLEncoding.default)
+        case .marketIndicators(let requestData):
             return .requestParameters(parameters: requestData.parameters, encoding: URLEncoding.default)
         case .coinsHistoryChartPreview(let requestData):
             return .requestParameters(parameters: requestData.parameters, encoding: URLEncoding(destination: .queryString, arrayEncoding: .noBrackets))
@@ -408,6 +448,14 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(body)
         case .activateJointAccount(_, let body):
             return .requestJSONEncodable(body)
+        case .createJointAccountOperation(_, let body):
+            return .requestJSONEncodable(body)
+        case .signJointAccountOperation(_, _, let body):
+            return .requestJSONEncodable(body)
+        case .rejectJointAccountOperation:
+            // The refusal is not signed and carries nothing: the operation is named by the id in the path, and the
+            // wallet the call is made for says whether the initiator is cancelling or a co-signer is declining
+            return .requestPlain
 
         // MARK: - Address Book
         case .syncAddressBooks(let request):
@@ -455,6 +503,16 @@ struct TangemApiTarget: TargetType {
         case .updateAddressBook(_, let knownETag, _):
             // Optimistic locking: send If-Match only when we already hold an etag (the client never mints one).
             return knownETag.map { [TangemAPIHeaders.ifMatch.rawValue: $0] }
+        case .getJointAccounts(_, let knownETag):
+            // The tag of the last answer, so that an unchanged list comes back as a 304 with no body rather than
+            // being read in full once a minute. Opaque: whatever the endpoint issued is sent back as it was
+            return knownETag.map { [TangemAPIHeaders.ifNoneMatch.rawValue: $0] }
+        case .saveUserWalletTokensV2(_, _, let revision):
+            // The accounts ETag, the same lock `saveUserAccounts` carries: a joint account's token list is one list
+            // for every member, and without it two of them writing it overwrite each other
+            return [
+                TangemAPIHeaders.ifMatch.rawValue: revision,
+            ]
         case .rawData,
              .currencies,
              .coins,
@@ -462,7 +520,6 @@ struct TangemApiTarget: TargetType {
              .geo,
              .features,
              .getUserWalletTokens,
-             .saveUserWalletTokensV2,
              .loadReferralProgramInfo,
              .participateInReferralProgram,
              .createAccount,
@@ -474,7 +531,11 @@ struct TangemApiTarget: TargetType {
              .marketingCampaigns,
              .activatePromoCode,
              .story,
+             .stories,
              .coinsList,
+             .coinsCategories,
+             .coinsGeckoCategories,
+             .marketIndicators,
              .coinsHistoryChartPreview,
              .tokenMarketsDetails,
              .historyChart,
@@ -496,11 +557,13 @@ struct TangemApiTarget: TargetType {
              .saveWalletCards,
              .getUserAccounts,
              .getArchivedUserAccounts,
-             .getJointAccounts,
              .createJointAccount,
              .getJointAccountInvite,
              .joinJointAccount,
              .activateJointAccount,
+             .createJointAccountOperation,
+             .signJointAccountOperation,
+             .rejectJointAccountOperation,
              .createWallet,
              .getNotificationPreferences,
              .updateNotificationPreferences,
@@ -529,7 +592,7 @@ extension TangemApiTarget {
         case geo
         case features
         case getUserWalletTokens(key: String)
-        case saveUserWalletTokensV2(key: String, list: AccountsDTO.Request.UserTokens)
+        case saveUserWalletTokensV2(key: String, list: AccountsDTO.Request.UserTokens, revision: String)
         case loadReferralProgramInfo(userWalletId: String, expectedAwardsLimit: Int)
         case participateInReferralProgram(userInfo: ReferralParticipationRequestBody)
         case createAccount(_ parameters: BlockchainAccountCreateParameters)
@@ -547,10 +610,14 @@ extension TangemApiTarget {
         case marketingCampaigns(parameters: [String: Any])
 
         case story(_ id: String)
+        case stories(slugs: [String], language: String)
 
         // MARK: - Markets Targets
 
         case coinsList(_ requestModel: MarketsDTO.General.Request)
+        case coinsCategories(_ requestModel: MarketsDTO.Categories.Request)
+        case coinsGeckoCategories(_ requestModel: MarketsDTO.GeckoCategories.Request)
+        case marketIndicators(_ requestModel: MarketsDTO.MarketIndicators.Request)
         case coinsHistoryChartPreview(_ requestModel: MarketsDTO.ChartsHistory.PreviewRequest)
         case tokenMarketsDetails(_ requestModel: MarketsDTO.Coins.Request)
         case historyChart(_ requestModel: MarketsDTO.ChartsHistory.HistoryRequest)
@@ -609,11 +676,14 @@ extension TangemApiTarget {
         case getArchivedUserAccounts(userWalletId: String)
 
         // Joint accounts
-        case getJointAccounts(walletId: String)
-        case createJointAccount(walletId: String, body: JointAccountsDTO.Create.Request)
+        case getJointAccounts(walletId: String, knownETag: String?)
+        case createJointAccount(walletId: String, body: JointAccountsDTO.Request.Create)
         case getJointAccountInvite(walletId: String, inviteId: String)
-        case joinJointAccount(walletId: String, body: JointAccountsDTO.Join.Request)
-        case activateJointAccount(walletId: String, body: JointAccountsDTO.Activate.Request)
+        case joinJointAccount(walletId: String, body: JointAccountsDTO.Request.Join)
+        case activateJointAccount(walletId: String, body: JointAccountsDTO.Request.Activate)
+        case createJointAccountOperation(walletId: String, body: JointAccountsDTO.Request.CreateOperation)
+        case signJointAccountOperation(walletId: String, operationId: String, body: JointAccountsDTO.Request.SignOperation)
+        case rejectJointAccountOperation(walletId: String, operationId: String)
 
         // Address Book
         case syncAddressBooks(_ request: AddressBookDTO.SyncRequest)
@@ -632,7 +702,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns, .getJointAccounts, .getJointAccountInvite:
+        case .geo, .features, .apiList, .quotes, .coinsList, .coinsCategories, .coinsGeckoCategories, .marketIndicators, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns, .getJointAccounts, .getJointAccountInvite, .stories:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -659,6 +729,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .quotes,
              .apiList,
              .coinsList,
+             .coinsGeckoCategories,
+             .marketIndicators,
              .coinsHistoryChartPreview,
              .historyChart,
              .tokenMarketsDetails,
@@ -667,6 +739,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .earnNetworks,
              .coinIndicators,
              .story,
+             .stories,
              .rawData,
              .hotCrypto,
              .createUserWalletsApplication,
@@ -693,7 +766,10 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .joinJointAccount,
              .getJointAccountInvite,
              .getJointAccounts,
-             .activateJointAccount:
+             .activateJointAccount,
+             .createJointAccountOperation,
+             .signJointAccountOperation,
+             .rejectJointAccountOperation:
             return false
         case .geo,
              .features,
@@ -715,6 +791,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .updateAddressBook,
              .activatePromoCode,
              .coinsSettings,
+             .coinsCategories,
              .applicationVersions:
             return true
         }

@@ -32,6 +32,7 @@ final class WelcomeCoordinator: CoordinatorObject {
     @Published var welcomeOnboardingCoordinator: WelcomeOnboardingCoordinator? = nil
     @Published var createWalletSelectorCoordinator: CreateWalletSelectorCoordinator? = nil
     @Published var tangemPayMobileOnboardingCoordinator: TangemPayMobileOnboardingCoordinator? = nil
+    @Published var tangemPayCampaignCoordinator: TangemPayCampaignCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -48,6 +49,7 @@ final class WelcomeCoordinator: CoordinatorObject {
         publishers.append($searchTokensViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($welcomeOnboardingCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($tangemPayMobileOnboardingCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
+        publishers.append($tangemPayCampaignCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append(mailPresenterLifecycleSubject.eraseToAnyPublisher())
 
         return Publishers.MergeMany(publishers)
@@ -112,6 +114,8 @@ final class WelcomeCoordinator: CoordinatorObject {
         switch state.deepLink {
         case .tangemPay:
             showTangemPayMobileOnboarding()
+        case .tangemPayCampaign(let campaignKey):
+            showTangemPayCampaign(campaignKey: campaignKey)
         case .promo:
             openCreateWallet(showsBackButton: false)
         case .none:
@@ -172,6 +176,29 @@ final class WelcomeCoordinator: CoordinatorObject {
         let coordinator = TangemPayMobileOnboardingCoordinator(dismissAction: dismissAction)
         coordinator.start(with: ())
         tangemPayMobileOnboardingCoordinator = coordinator
+    }
+
+    private func showTangemPayCampaign(campaignKey: String) {
+        guard tangemPayCampaignCoordinator == nil else { return }
+
+        // The stored key is what carries the campaign from one launch to the next, so showing it spends
+        // the key — left behind, it would make `MainCoordinator` open the campaign again every launch.
+        TangemPayCampaignService().clearPending()
+
+        let dismissAction: Action<TangemPayCampaignCoordinator.OutputOptions> = { [weak self] options in
+            guard let self else { return }
+
+            switch options {
+            case .close:
+                tangemPayCampaignCoordinator = nil
+            case .finished(let userWalletModel), .finishedWithPlanSelection(let userWalletModel):
+                dismiss(with: .main(userWalletModel))
+            }
+        }
+
+        let coordinator = TangemPayCampaignCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: .init(campaignKey: campaignKey))
+        tangemPayCampaignCoordinator = coordinator
     }
 
     private func openCreateWallet(showsBackButton: Bool) {

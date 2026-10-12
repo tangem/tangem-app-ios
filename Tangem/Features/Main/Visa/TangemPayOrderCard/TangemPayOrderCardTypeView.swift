@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -35,6 +36,11 @@ struct TangemPayOrderCardTypeView: View {
                     .image
                     .resizable()
                     .scaledToFit()
+                    .accessibilityIdentifier(
+                        viewModel.isBasicTariff
+                            ? TangemPayAccessibilityIdentifiers.orderCardBackgroundBasic
+                            : TangemPayAccessibilityIdentifiers.orderCardBackgroundPlus
+                    )
             }
             .ignoresSafeArea()
     }
@@ -48,6 +54,7 @@ struct TangemPayOrderCardTypeView: View {
 
                 TabNavigation(data: viewModel.cardTypes, selection: tabSelection)
                     .variant(.material)
+                    .accessibilityIdentifier(factory: { TangemPayAccessibilityIdentifiers.orderCardTab("\($0)") })
                     .padding(.vertical, Constants.tabsVerticalPadding)
 
                 infoRows
@@ -167,6 +174,7 @@ struct TangemPayOrderCardTypeView: View {
         .background(alignment: .bottom) {
             BottomFadeWithBlur(backgroundColor: DesignSystem.Color.bgPrimary)
         }
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.orderCardTypeSelectButton)
     }
 }
 

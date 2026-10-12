@@ -72,7 +72,7 @@ struct TangemPayPushPayloadTests {
 
     @Test("Parses each push type into the matching body case", arguments: dispatchArguments)
     func bodyDispatch(type: String, bodyFields: [String: String]) {
-        let payload = TangemPayPushPayload.parse(from: Self.makeUserInfo(type: type, bodyFields: bodyFields))
+        let payload = TangemPayPushParser().parse(from: Self.makeUserInfo(type: type, bodyFields: bodyFields))
 
         guard let payload else {
             #expect(Bool(false), "Expected parse to succeed for type '\(type)'")
@@ -94,14 +94,14 @@ struct TangemPayPushPayloadTests {
         ]
     )
     func rejectsUnsupportedDeclinedReasonType(type: String) {
-        #expect(TangemPayPushPayload.parse(from: Self.makeUserInfo(type: type, bodyFields: Self.spendFields)) == nil)
+        #expect(TangemPayPushParser().parse(from: Self.makeUserInfo(type: type, bodyFields: Self.spendFields)) == nil)
     }
 
     // MARK: - Value coercion
 
     @Test("Coerces string decimals, ISO8601 dates, and URLs")
     func valueCoercion() {
-        let payload = TangemPayPushPayload.parse(from: Self.makeUserInfo(type: "transaction_spend", bodyFields: Self.spendFields))
+        let payload = TangemPayPushParser().parse(from: Self.makeUserInfo(type: "transaction_spend", bodyFields: Self.spendFields))
 
         guard case .transactionSpend(let spend) = payload?.body else {
             #expect(Bool(false), "Expected .transactionSpend body")
@@ -131,7 +131,7 @@ struct TangemPayPushPayloadTests {
     )
     func rejectsInvalidEnvelope(userInfo: [String: String]) {
         let dict: [AnyHashable: Any] = userInfo.reduce(into: [:]) { $0[$1.key] = $1.value }
-        #expect(TangemPayPushPayload.parse(from: dict) == nil)
+        #expect(TangemPayPushParser().parse(from: dict) == nil)
     }
 
     // MARK: - Body field rejection
@@ -144,7 +144,7 @@ struct TangemPayPushPayloadTests {
         var fields = Self.spendFields
         fields.removeValue(forKey: missingKey)
         let userInfo = Self.makeUserInfo(type: "transaction_spend", bodyFields: fields)
-        #expect(TangemPayPushPayload.parse(from: userInfo) == nil)
+        #expect(TangemPayPushParser().parse(from: userInfo) == nil)
     }
 
     @Test(
@@ -155,7 +155,7 @@ struct TangemPayPushPayloadTests {
         var fields = Self.collateralFields
         fields.removeValue(forKey: missingKey)
         let userInfo = Self.makeUserInfo(type: "collateral_withdraw", bodyFields: fields)
-        #expect(TangemPayPushPayload.parse(from: userInfo) == nil)
+        #expect(TangemPayPushParser().parse(from: userInfo) == nil)
     }
 
     @Test("Rejects unknown spend status")
@@ -163,6 +163,38 @@ struct TangemPayPushPayloadTests {
         var fields = Self.spendFields
         fields["status"] = "chargeback"
         let userInfo = Self.makeUserInfo(type: "transaction_spend", bodyFields: fields)
-        #expect(TangemPayPushPayload.parse(from: userInfo) == nil)
+        #expect(TangemPayPushParser().parse(from: userInfo) == nil)
+    }
+
+    // MARK: - Where a push leads
+
+    @Test("The card being ready opens the payment account of the wallet the push names, with nothing to do there")
+    func cardReadyOpensTheAccount() {
+        let payload = TangemPayPushParser().parse(from: Self.makeUserInfo(type: "card_ready"))
+
+        #expect(payload?.action == .tangemPayAccount(TangemPayAccountDeeplink(screen: nil, userWalletId: payload?.customerWalletId)))
+    }
+
+    @Test("A threshold top-up opens the payment account on adding funds")
+    func thresholdTopUpOpensAddFunds() {
+        let payload = TangemPayPushParser().parse(from: Self.makeUserInfo(type: "threshold1_top_up"))
+
+        #expect(payload?.action == .tangemPayAccount(TangemPayAccountDeeplink(screen: "add_funds", userWalletId: payload?.customerWalletId)))
+    }
+
+    @Test(
+        "A transaction has a sheet of its own instead of the payment account",
+        arguments: ["transaction_spend", "transaction_spend_refund", "declined_top_up", "collateral_deposit"]
+    )
+    func transactionHasItsOwnSheet(type: String) {
+        let bodyFields = type.hasPrefix("collateral") ? Self.collateralFields : Self.spendFields
+        let payload = TangemPayPushParser().parse(from: Self.makeUserInfo(type: type, bodyFields: bodyFields))
+
+        guard let payload, case .tangemPayTransaction(let deeplink) = payload.action else {
+            Issue.record("Expected the push to lead to its own transaction sheet")
+            return
+        }
+
+        #expect(deeplink.payload == payload)
     }
 }

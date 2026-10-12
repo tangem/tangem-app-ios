@@ -13,19 +13,44 @@ import TangemExpress
 final class SwapableTokenStub: SendSwapableToken {
     private let inner: SendSourceTokenStub
     private let sendingRestriction: SendingRestrictions?
+    private let receivingRestriction: ReceivedRestriction?
+    private let validator: SendTransactionValidator?
+    private let receiveDestination: SendReceiveTokenDestination?
 
-    init(blockchain: Blockchain, sendingRestriction: SendingRestrictions? = nil) {
+    init(
+        blockchain: Blockchain,
+        sendingRestriction: SendingRestrictions? = nil,
+        receivingRestriction: ReceivedRestriction? = nil,
+        transactionValidator: SendTransactionValidator? = nil,
+        destination: SendReceiveTokenDestination? = nil
+    ) {
         inner = SendSourceTokenStub(blockchain: blockchain)
         self.sendingRestriction = sendingRestriction
+        self.receivingRestriction = receivingRestriction
+        validator = transactionValidator
+        receiveDestination = destination
     }
 
-    init(tokenItem: TokenItem, sendingRestriction: SendingRestrictions? = nil) {
+    init(
+        tokenItem: TokenItem,
+        sendingRestriction: SendingRestrictions? = nil,
+        receivingRestriction: ReceivedRestriction? = nil,
+        transactionValidator: SendTransactionValidator? = nil,
+        destination: SendReceiveTokenDestination? = nil
+    ) {
         inner = SendSourceTokenStub(tokenItem: tokenItem)
         self.sendingRestriction = sendingRestriction
+        self.receivingRestriction = receivingRestriction
+        validator = transactionValidator
+        receiveDestination = destination
     }
 
     var sendingRestrictionsProvider: any SendingRestrictionsProvider {
         SendingRestrictionsProviderStub(sendingRestrictions: sendingRestriction)
+    }
+
+    var destination: SendReceiveTokenDestination? {
+        receiveDestination ?? SendReceiveTokenDestination(destination: .plain(defaultAddressString), destinationTag: nil)
     }
 
     // MARK: - SendSourceToken proxy
@@ -60,13 +85,22 @@ final class SwapableTokenStub: SendSwapableToken {
     var operationType: ExpressOperationType { .swapAndSend }
     /// When the stub plays the destination, the pair-update task queries its restrictions from a
     /// detached task — a `fatalError` here crashes the whole run intermittently.
-    var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { NoReceivingRestrictionsStub() }
+    var receivingRestrictionsProvider: any ReceivingRestrictionsProvider {
+        ReceivingRestrictionsProviderStub(result: receivingRestriction)
+    }
+
+    var transactionValidator: any SendTransactionValidator {
+        guard let validator else {
+            fatalError("Unused in tests")
+        }
+
+        return validator
+    }
 
     // MARK: - Unused in tests
 
     var tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider { fatalError("Unused in tests") }
     var tokenFeeProvidersManager: any TokenFeeProvidersManager { fatalError("Unused in tests") }
-    var transactionValidator: any SendTransactionValidator { fatalError("Unused in tests") }
     var transactionCreator: any SendTransactionCreator { fatalError("Unused in tests") }
     var balanceProvider: any BalanceProvider { fatalError("Unused in tests") }
     var analyticsLogger: any AnalyticsLogger { fatalError("Unused in tests") }
@@ -77,9 +111,11 @@ struct SwapAvailabilityProviderStub: SwapAvailabilityProvider {
     let isSwapAvailable: Bool
 }
 
-private struct NoReceivingRestrictionsStub: ReceivingRestrictionsProvider {
+private struct ReceivingRestrictionsProviderStub: ReceivingRestrictionsProvider {
+    let result: ReceivedRestriction?
+
     var isRestrictionKnown: Bool { true }
-    func restriction(expectAmount: Decimal) async throws -> ReceivedRestriction? { nil }
+    func restriction(expectAmount: Decimal) async throws -> ReceivedRestriction? { result }
 }
 
 private struct SendingRestrictionsProviderStub: SendingRestrictionsProvider {

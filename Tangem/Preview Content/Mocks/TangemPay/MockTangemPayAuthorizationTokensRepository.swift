@@ -18,7 +18,7 @@ final class MockTangemPayAuthorizationTokensRepository: TangemPayAuthorizationTo
     func getToken(forCustomerWalletId customerWalletId: String) -> TangemPayAuthorizationTokens? {
         let farFuture = Date(timeIntervalSince1970: 9_999_999_999)
         return TangemPayAuthorizationTokens(
-            accessToken: "mock-access-token",
+            accessToken: "mock-access-token-\(customerWalletId)",
             refreshToken: "mock-refresh-token",
             expiresAt: farFuture,
             refreshExpiresAt: farFuture

@@ -14,13 +14,12 @@ import TangemAccessibilityIdentifiers
 
 final class TangemPayWithdrawNoteSheetViewModel: TangemPayPopupViewModel {
     private weak var coordinator: TangemPayWithdrawNoteSheetRoutable?
-    private let parameters: PredefinedSwapParameters
 
     var primaryButton: MainButton.Settings {
         .init(
             title: Localization.commonGotIt,
             style: .primary,
-            action: openWithdrawal
+            action: confirm
         )
     }
 
@@ -46,16 +45,12 @@ final class TangemPayWithdrawNoteSheetViewModel: TangemPayPopupViewModel {
         .warning
     }
 
-    init(
-        parameters: PredefinedSwapParameters,
-        coordinator: TangemPayWithdrawNoteSheetRoutable
-    ) {
-        self.parameters = parameters
+    init(coordinator: TangemPayWithdrawNoteSheetRoutable) {
         self.coordinator = coordinator
     }
 
-    func openWithdrawal() {
-        coordinator?.openWithdrawal(parameters: parameters)
+    func confirm() {
+        coordinator?.withdrawNoteSheetDidConfirm()
     }
 
     func dismiss() {

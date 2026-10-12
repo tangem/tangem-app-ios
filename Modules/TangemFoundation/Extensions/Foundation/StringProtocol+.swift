@@ -21,6 +21,9 @@ public extension StringProtocol {
     /// EN DASH, Unicode U+2013.
     static var enDashSign: Self { "–" }
 
+    /// BULLET, Unicode U+2022.
+    static var bulletSign: Self { "•" }
+
     /// EM DASH, Unicode U+2014.
     static var emDashSign: Self { "—" }
 
@@ -31,8 +34,12 @@ public extension StringProtocol {
         return range(of: other, options: .caseInsensitive) != nil
     }
 
-    func caseInsensitiveHasPrefix(_ prefix: String) -> Bool {
+    func caseInsensitiveHasPrefix(_ prefix: some StringProtocol) -> Bool {
         return range(of: prefix, options: [.anchored, .caseInsensitive]) != nil
+    }
+
+    func caseInsensitiveHasSuffix(_ suffix: some StringProtocol) -> Bool {
+        return range(of: suffix, options: [.anchored, .backwards, .caseInsensitive]) != nil
     }
 
     /// I.e. `.orderedSame`.
