@@ -291,6 +291,170 @@ struct PromoCampaignEnrollmentServiceTests {
         #expect(response.results.map(\.walletId) == ["aa"])
         #expect(response.results.first?.payout == nil)
     }
+
+    // MARK: - Analytics
+
+    @Test("The enroll tap is reported with the chosen payout token and every wallet sent")
+    func enrollTapIsReported() async throws {
+        let analytics = AnalyticsLoggerSpy()
+        let api = try EnrollmentApiStub(response: makeResponse([(walletA, "enrolled")]))
+        let sut = makeSUT(wallets: [mobileWallet(walletA), mobileWallet(walletB)], api: api, analytics: analytics)
+        let campaign = PromoCampaignFixtures.makeCampaign(id: 42, isPayoutNeeded: true, matchMode: .linkedWallet)
+
+        _ = await sut.enroll(in: campaign, from: walletA, payout: PromoCampaignPayoutSelection(tokenItem: CampaignsFixtures.usdcOnEthereum, address: userAddress))
+
+        #expect(analytics.events.first == .enrollButtonClicked(campaign: campaign, payoutToken: CampaignsFixtures.usdcOnEthereum, walletsCount: 2))
+    }
+
+    @Test("Every event of a linked-wallet enrollment goes out for the wallet the sheet was opened from")
+    func eventsGoOutForInitiatingWallet() async throws {
+        let analytics = AnalyticsLoggerSpy()
+        let api = try EnrollmentApiStub(response: makeResponse([(walletA, "enrolled"), (walletB, "enrolled")]))
+        let sut = makeSUT(wallets: [mobileWallet(walletA), mobileWallet(walletB)], api: api, analytics: analytics)
+
+        _ = await sut.enroll(in: linkedCampaign, from: walletB, payout: nil)
+
+        #expect(analytics.userWalletIds == [walletB, walletB])
+    }
+
+    @Test("A campaign without a payout reports no payout token even when one is passed")
+    func campaignWithoutPayoutReportsNoToken() async throws {
+        let analytics = AnalyticsLoggerSpy()
+        let api = try EnrollmentApiStub(response: makeResponse([(walletA, "enrolled")]))
+        let sut = makeSUT(wallets: [mobileWallet(walletA)], api: api, analytics: analytics)
+        let campaign = PromoCampaignFixtures.makeCampaign(id: 42)
+
+        _ = await sut.enroll(in: campaign, from: walletA, payout: PromoCampaignPayoutSelection(tokenItem: CampaignsFixtures.usdcOnEthereum, address: userAddress))
+
+        #expect(analytics.events == [
+            .enrollButtonClicked(campaign: campaign, payoutToken: nil, walletsCount: 1),
+            .enrollSuccessful(campaign: campaign, payoutToken: nil, walletsEnrolled: 1, walletsTotal: 1),
+        ])
+    }
+
+    @Test("A success counts the enrolled wallets against every item of the answer", arguments: [
+        ([(0, "enrolled"), (1, "enrolled")], 2, 2),
+        ([(0, "enrolled"), (1, "already_enrolled")], 1, 2),
+        ([(0, "enrolled"), (1, "ineligible")], 1, 2),
+    ])
+    func successCountsEnrolledWallets(answer: [(Int, String)], walletsEnrolled: Int, walletsTotal: Int) async throws {
+        let analytics = AnalyticsLoggerSpy()
+        let wallets = [walletA, walletB]
+
+        _ = try await enrollLinkedWallets(answering: answer.map { (wallets[$0.0], $0.1) }, analytics: analytics)
+
+        #expect(analytics.events == [
+            .enrollButtonClicked(campaign: linkedCampaign, payoutToken: nil, walletsCount: 2),
+            .enrollSuccessful(campaign: linkedCampaign, payoutToken: nil, walletsEnrolled: walletsEnrolled, walletsTotal: walletsTotal),
+        ])
+    }
+
+    @Test("Wallets that were all enrolled before report neither a success nor an error")
+    func alreadyEnrolledReportsNoResult() async throws {
+        let analytics = AnalyticsLoggerSpy()
+
+        _ = try await enrollLinkedWallets(answering: [(walletA, "already_enrolled")], analytics: analytics)
+
+        #expect(analytics.events == [.enrollButtonClicked(campaign: linkedCampaign, payoutToken: nil, walletsCount: 2)])
+    }
+
+    @Test("An answer the campaign rejects every wallet in is reported as unavailable, without a code")
+    func ineligibleAnswerIsReportedUnavailable() async throws {
+        let analytics = AnalyticsLoggerSpy()
+
+        _ = try await enrollLinkedWallets(answering: [(walletA, "ineligible")], analytics: analytics)
+
+        #expect(analytics.events == [
+            .enrollButtonClicked(campaign: linkedCampaign, payoutToken: nil, walletsCount: 2),
+            .enrollError(campaign: linkedCampaign, reason: .unavailable, statusCode: nil),
+        ])
+    }
+
+    @Test("An answer about none of the sent wallets is reported as a technical error")
+    func unknownWalletsAnswerIsReportedTechnical() async throws {
+        let analytics = AnalyticsLoggerSpy()
+
+        _ = try await enrollLinkedWallets(answering: [(walletC, "enrolled")], analytics: analytics)
+
+        #expect(analytics.events == [
+            .enrollButtonClicked(campaign: linkedCampaign, payoutToken: nil, walletsCount: 2),
+            .enrollError(campaign: linkedCampaign, reason: .technical, statusCode: nil),
+        ])
+    }
+
+    @Test("A rejected request is reported with its reason and status code", arguments: [
+        (404, PromoCampaignAnalyticsEvent.EnrollErrorReason.unavailable),
+        (409, .notActiveYet),
+        (400, .technical),
+        (401, .technical),
+        (500, .technical),
+    ])
+    func rejectedRequestIsReported(statusCode: Int, reason: PromoCampaignAnalyticsEvent.EnrollErrorReason) async {
+        let analytics = AnalyticsLoggerSpy()
+        let sut = makeSUT(wallets: [mobileWallet(walletA)], api: EnrollmentApiStub(error: Self.statusCodeError(statusCode)), analytics: analytics)
+        let campaign = PromoCampaignFixtures.makeCampaign(id: 42)
+
+        _ = await sut.enroll(in: campaign, from: walletA, payout: nil)
+
+        #expect(analytics.events == [
+            .enrollButtonClicked(campaign: campaign, payoutToken: nil, walletsCount: 1),
+            .enrollError(campaign: campaign, reason: reason, statusCode: statusCode),
+        ])
+    }
+
+    @Test("A connection failure is reported as a technical error without a code")
+    func connectionFailureIsReported() async {
+        let analytics = AnalyticsLoggerSpy()
+        let error = MoyaError.underlying(AFError.sessionTaskFailed(error: URLError(.notConnectedToInternet)), nil)
+        let sut = makeSUT(wallets: [mobileWallet(walletA)], api: EnrollmentApiStub(error: error), analytics: analytics)
+        let campaign = PromoCampaignFixtures.makeCampaign(id: 42)
+
+        _ = await sut.enroll(in: campaign, from: walletA, payout: nil)
+
+        #expect(analytics.events == [
+            .enrollButtonClicked(campaign: campaign, payoutToken: nil, walletsCount: 1),
+            .enrollError(campaign: campaign, reason: .technical, statusCode: nil),
+        ])
+    }
+
+    @Test("A cancelled request reports no result")
+    func cancelledRequestReportsNoResult() async {
+        let analytics = AnalyticsLoggerSpy()
+        let sut = makeSUT(wallets: [mobileWallet(walletA)], api: EnrollmentApiStub(error: CancellationError()), analytics: analytics)
+        let campaign = PromoCampaignFixtures.makeCampaign(id: 42)
+
+        _ = await sut.enroll(in: campaign, from: walletA, payout: nil)
+
+        #expect(analytics.events == [.enrollButtonClicked(campaign: campaign, payoutToken: nil, walletsCount: 1)])
+    }
+
+    @Test("A campaign with a payout tapped without a payout token is reported as a technical error")
+    func missingPayoutTokenIsReported() async {
+        let analytics = AnalyticsLoggerSpy()
+        let sut = makeSUT(wallets: [mobileWallet(walletA)], api: EnrollmentApiStub(error: Self.statusCodeError(500)), analytics: analytics)
+        let campaign = PromoCampaignFixtures.makeCampaign(id: 42, isPayoutNeeded: true)
+
+        _ = await sut.enroll(in: campaign, from: walletA, payout: nil)
+
+        #expect(analytics.events == [
+            .enrollButtonClicked(campaign: campaign, payoutToken: nil, walletsCount: 1),
+            .enrollError(campaign: campaign, reason: .technical, statusCode: nil),
+        ])
+    }
+
+    @Test("A wallet the app does not know is reported as a technical error after a tap with no wallets")
+    func unknownInitiatingWalletIsReported() async {
+        let analytics = AnalyticsLoggerSpy()
+        let sut = makeSUT(wallets: [mobileWallet(walletA)], api: EnrollmentApiStub(error: Self.statusCodeError(500)), analytics: analytics)
+        let campaign = PromoCampaignFixtures.makeCampaign(id: 42)
+
+        _ = await sut.enroll(in: campaign, from: walletB, payout: nil)
+
+        #expect(analytics.events == [
+            .enrollButtonClicked(campaign: campaign, payoutToken: nil, walletsCount: 0),
+            .enrollError(campaign: campaign, reason: .technical, statusCode: nil),
+        ])
+    }
 }
 
 // MARK: - Helpers
@@ -307,27 +471,33 @@ private extension PromoCampaignEnrollmentServiceTests {
         return MoyaError.underlying(validationError, Response(statusCode: statusCode, data: Data()))
     }
 
+    var linkedCampaign: PromoCampaign {
+        PromoCampaignFixtures.makeCampaign(id: 42, matchMode: .linkedWallet)
+    }
+
     func makeSUT(
         wallets: [PromoCampaignWallet],
         api: EnrollmentApiStub,
-        repository: CampaignsRepositorySpy = CampaignsRepositorySpy()
+        repository: CampaignsRepositorySpy = CampaignsRepositorySpy(),
+        analytics: AnalyticsLoggerSpy = AnalyticsLoggerSpy()
     ) -> CommonPromoCampaignEnrollmentService {
         CommonPromoCampaignEnrollmentService(
             walletsProvider: EnrollmentWalletsProviderStub(wallets: wallets),
             campaignsRepository: repository,
-            tangemApiService: api.service
+            tangemApiService: api.service,
+            analyticsLogger: analytics
         )
     }
 
     func enrollLinkedWallets(
         answering results: [(userWalletId: UserWalletId, status: String)],
-        repository: CampaignsRepositorySpy = CampaignsRepositorySpy()
+        repository: CampaignsRepositorySpy = CampaignsRepositorySpy(),
+        analytics: AnalyticsLoggerSpy = AnalyticsLoggerSpy()
     ) async throws -> PromoCampaignEnrollmentOutcome {
         let api = try EnrollmentApiStub(response: makeResponse(results))
-        let sut = makeSUT(wallets: [mobileWallet(walletA), mobileWallet(walletB)], api: api, repository: repository)
-        let campaign = PromoCampaignFixtures.makeCampaign(id: 42, matchMode: .linkedWallet)
+        let sut = makeSUT(wallets: [mobileWallet(walletA), mobileWallet(walletB)], api: api, repository: repository, analytics: analytics)
 
-        return await sut.enroll(in: campaign, from: walletA, payout: nil)
+        return await sut.enroll(in: linkedCampaign, from: walletA, payout: nil)
     }
 
     func makeResponse(
@@ -440,5 +610,21 @@ private final class CampaignsRepositorySpy: PromoCampaignsProviding {
     private struct State {
         var reloadedWalletIds: [[UserWalletId]] = []
         var removedCampaignIds: [Int] = []
+    }
+}
+
+private final class AnalyticsLoggerSpy: PromoCampaignAnalyticsLogging {
+    private let state = OSAllocatedUnfairLock(initialState: [(event: PromoCampaignAnalyticsEvent, userWalletId: UserWalletId)]())
+
+    var events: [PromoCampaignAnalyticsEvent] {
+        state.withLock { $0.map(\.event) }
+    }
+
+    var userWalletIds: [UserWalletId] {
+        state.withLock { $0.map(\.userWalletId) }
+    }
+
+    func log(_ event: PromoCampaignAnalyticsEvent, userWalletId: UserWalletId) {
+        state.withLock { $0.append((event, userWalletId)) }
     }
 }

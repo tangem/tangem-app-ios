@@ -27,15 +27,18 @@ struct CommonPromoCampaignEnrollmentService {
     private let walletsProvider: PromoCampaignWalletsProviding
     private let campaignsRepository: PromoCampaignsProviding
     private let tangemApiService: TangemApiService
+    private let analyticsLogger: PromoCampaignAnalyticsLogging
 
     init(
         walletsProvider: PromoCampaignWalletsProviding = CommonPromoCampaignWalletsProvider(),
         campaignsRepository: PromoCampaignsProviding = InjectedValues[\.promoCampaignsRepository],
-        tangemApiService: TangemApiService = InjectedValues[\.tangemApiService]
+        tangemApiService: TangemApiService = InjectedValues[\.tangemApiService],
+        analyticsLogger: PromoCampaignAnalyticsLogging = CommonPromoCampaignAnalyticsLogger()
     ) {
         self.walletsProvider = walletsProvider
         self.campaignsRepository = campaignsRepository
         self.tangemApiService = tangemApiService
+        self.analyticsLogger = analyticsLogger
     }
 }
 
@@ -48,9 +51,13 @@ extension CommonPromoCampaignEnrollmentService: PromoCampaignEnrolling {
         payout: PromoCampaignPayoutSelection?
     ) async -> PromoCampaignEnrollmentOutcome {
         let wallets = enrollingWallets(for: campaign, from: userWalletId)
+        let payoutToken = campaign.isPayoutNeeded ? payout?.tokenItem : nil
+
+        analyticsLogger.log(.enrollButtonClicked(campaign: campaign, payoutToken: payoutToken, walletsCount: wallets.count), userWalletId: userWalletId)
 
         guard wallets.isNotEmpty else {
             PromotionsLogger.warning("Promo campaign \(campaign.id) has no wallet to enroll from \(userWalletId.stringValue.masked())")
+            analyticsLogger.log(.enrollError(campaign: campaign, reason: .technical, statusCode: nil), userWalletId: userWalletId)
             return .failed
         }
 
@@ -58,6 +65,7 @@ extension CommonPromoCampaignEnrollmentService: PromoCampaignEnrolling {
 
         if campaign.isPayoutNeeded, payoutDestination == nil {
             PromotionsLogger.warning("Promo campaign \(campaign.id) needs a payout token the selected item does not match")
+            analyticsLogger.log(.enrollError(campaign: campaign, reason: .technical, statusCode: nil), userWalletId: userWalletId)
             return .failed
         }
 
@@ -74,9 +82,9 @@ extension CommonPromoCampaignEnrollmentService: PromoCampaignEnrolling {
 
         do {
             let response = try await tangemApiService.enrollInPromoCampaign(id: campaign.id, request: request)
-            return await handle(response, wallets: wallets, campaign: campaign)
+            return await handle(response, wallets: wallets, campaign: campaign, payoutToken: payoutToken, from: userWalletId)
         } catch {
-            return await handle(error, campaign: campaign)
+            return await handle(error, campaign: campaign, from: userWalletId)
         }
     }
 }
@@ -110,7 +118,9 @@ private extension CommonPromoCampaignEnrollmentService {
     func handle(
         _ response: PromoCampaignEnrollmentDTO.Response,
         wallets: [PromoCampaignWallet],
-        campaign: PromoCampaign
+        campaign: PromoCampaign,
+        payoutToken: TokenItem?,
+        from userWalletId: UserWalletId
     ) async -> PromoCampaignEnrollmentOutcome {
         let userWalletIds = Dictionary(
             wallets.map { ($0.userWalletId.stringValue.lowercased(), $0.userWalletId) },
@@ -148,6 +158,15 @@ private extension CommonPromoCampaignEnrollmentService {
             await campaignsRepository.reloadCampaigns(for: respondedWalletIds)
         }
 
+        if enrolled.isNotEmpty {
+            analyticsLogger.log(.enrollSuccessful(
+                campaign: campaign,
+                payoutToken: payoutToken,
+                walletsEnrolled: enrolled.count,
+                walletsTotal: response.results.count
+            ), userWalletId: userWalletId)
+        }
+
         switch (enrolled.isEmpty, alreadyEnrolled.isEmpty) {
         case (false, false):
             return .partiallyEnrolled(enrolled: enrolled, alreadyEnrolled: alreadyEnrolled)
@@ -156,7 +175,13 @@ private extension CommonPromoCampaignEnrollmentService {
         case (true, false):
             return .alreadyEnrolled(alreadyEnrolled)
         case (true, true):
-            return hasIneligibleWallets ? .unavailable : .failed
+            guard hasIneligibleWallets else {
+                analyticsLogger.log(.enrollError(campaign: campaign, reason: .technical, statusCode: nil), userWalletId: userWalletId)
+                return .failed
+            }
+
+            analyticsLogger.log(.enrollError(campaign: campaign, reason: .unavailable, statusCode: nil), userWalletId: userWalletId)
+            return .unavailable
         }
     }
 
@@ -175,16 +200,21 @@ private extension CommonPromoCampaignEnrollmentService {
         )
     }
 
-    func handle(_ error: Error, campaign: PromoCampaign) async -> PromoCampaignEnrollmentOutcome {
-        switch error.asMoyaError?.response?.statusCode {
+    func handle(_ error: Error, campaign: PromoCampaign, from userWalletId: UserWalletId) async -> PromoCampaignEnrollmentOutcome {
+        let statusCode = error.asMoyaError?.response?.statusCode
+
+        switch statusCode {
         case .some(Constants.campaignNotFoundStatusCode):
+            analyticsLogger.log(.enrollError(campaign: campaign, reason: .unavailable, statusCode: statusCode), userWalletId: userWalletId)
             await campaignsRepository.removeCampaign(withId: campaign.id)
             return .unavailable
         case .some(Constants.campaignNotActiveStatusCode):
+            analyticsLogger.log(.enrollError(campaign: campaign, reason: .notActiveYet, statusCode: statusCode), userWalletId: userWalletId)
             return .temporarilyUnavailable
         default:
             if !error.isCancellationError {
                 PromotionsLogger.error("Enrolling in promo campaign \(campaign.id)", error: error)
+                analyticsLogger.log(.enrollError(campaign: campaign, reason: .technical, statusCode: statusCode), userWalletId: userWalletId)
             }
 
             return .failed
