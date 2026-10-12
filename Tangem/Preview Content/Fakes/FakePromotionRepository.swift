@@ -26,7 +26,8 @@ class FakePromotionRepository: PromotionRepository {
                 buttonEnabled: true,
                 buttonText: "Buy Now",
                 dismissable: true,
-                campaignId: nil
+                campaignId: nil,
+                campaignName: nil
             ),
             Promotion(
                 id: 2,
@@ -39,7 +40,8 @@ class FakePromotionRepository: PromotionRepository {
                 buttonEnabled: true,
                 buttonText: "Stake Now",
                 dismissable: true,
-                campaignId: nil
+                campaignId: nil,
+                campaignName: nil
             ),
         ],
         .news: [
@@ -54,7 +56,8 @@ class FakePromotionRepository: PromotionRepository {
                 buttonEnabled: false,
                 buttonText: nil,
                 dismissable: false,
-                campaignId: nil
+                campaignId: nil,
+                campaignName: nil
             ),
         ],
     ]) {
