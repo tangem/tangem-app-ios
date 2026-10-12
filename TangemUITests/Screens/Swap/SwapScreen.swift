@@ -730,6 +730,26 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
         }
     }
 
+    @discardableResult
+    func holdConfirmUntilSubmitted(isNothingSent: () -> Bool) -> SendFinishScreen {
+        XCTContext.runActivity(named: "Hold Swap, repeating the hold only while nothing has been sent") { _ in
+            let hideKeyboardButton = app.buttons["Hide Keyboard"].firstMatch
+            if hideKeyboardButton.waitForExistence(timeout: .quick) {
+                hideKeyboardButton.tap()
+            }
+
+            let finishScreen = SendFinishScreen(app)
+            for _ in 0 ..< Constants.confirmSwapAttempts {
+                XCTAssertTrue(confirmButton.waitForState(state: .enabled), "Swap should be enabled")
+                confirmButton.press(forDuration: Constants.holdToConfirmDuration)
+                if finishScreen.isDisplayed(timeout: .conditional) || !isNothingSent() {
+                    break
+                }
+            }
+            return finishScreen.waitForDisplay()
+        }
+    }
+
     func confirmTransferAndOpenFinish() -> SendFinishScreen {
         XCTContext.runActivity(named: "Confirm transfer and open finish screen") { _ in
             confirmSwap()
@@ -1450,6 +1470,7 @@ private extension SwapScreen {
         static let keyboardFocusTimeout: TimeInterval = 3
         static let focusAttempts = 3
         static let confirmSwapAttempts = 3
+        static let holdToConfirmDuration: TimeInterval = 4
         static let fiatSign = "$"
         static let zeroPlaceholder = "0"
         static let tokenSelectorChevron = "chevronDownMini"

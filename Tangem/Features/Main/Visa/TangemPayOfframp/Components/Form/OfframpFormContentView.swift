@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -124,6 +125,7 @@ private extension OfframpFormContentView {
         .styleType(.primary)
         .horizontalLayout(.infinity)
         .disabled(!state.isContinueEnabled)
+        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.formContinueButton)
     }
 
     func handle(_ toolbarAction: OfframpFormKeyboardToolbar.Action) {

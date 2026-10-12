@@ -332,6 +332,13 @@ public enum TangemPayAccessibilityIdentifiers {
     public static func cashbackChartValue(_ month: String) -> String {
         "\(cashbackChartValuePrefix)_\(month)"
     }
+
+    public static let geoSelectionRow = "\(prefix)GeoSelectionRow"
+    private static let formFieldPrefix = "\(prefix)FormField"
+
+    public static func formField(_ field: String) -> String {
+        "\(formFieldPrefix)_\(field)"
+    }
 }
 
 public extension TangemPayAccessibilityIdentifiers {

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -84,6 +85,7 @@ private extension TransferInputContentView {
                     placeholderColor: DesignSystem.Color.textTertiary
                 ))
                 .alignment(.center)
+                .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.amountField)
                 .focused($isAmountFocused)
                 .onAppear {
                     guard !isAmountFocused else { return }
@@ -124,6 +126,7 @@ private extension TransferInputContentView {
                         }
                     }
             }
+            .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.amountTokenRow)
         }
     }
 
@@ -207,6 +210,7 @@ private extension TransferInputContentView {
         .styleType(.primary)
         .horizontalLayout(.infinity)
         .disabled(!state.isContinueEnabled || isContinuing)
+        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.amountContinueButton)
     }
 
     func continueAction() {

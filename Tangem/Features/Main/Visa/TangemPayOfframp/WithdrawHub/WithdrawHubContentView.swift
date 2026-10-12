@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -52,6 +53,7 @@ private extension WithdrawHubContentView {
                     )
                 )
                 .disabled(isWithinPortfolioLoading)
+                .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.hubWithinPortfolioTile)
             },
             dynamicContent: {
                 switch recentTokens {
@@ -60,9 +62,11 @@ private extension WithdrawHubContentView {
 
                 case .loaded(let items) where items.isEmpty:
                     placeholderTile
+                        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.hubRecentTokensEmpty)
 
                 case .failed:
                     placeholderTile
+                        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.hubRecentTokensEmpty)
 
                 case .loaded(let items):
                     ForEach(items) { item in
@@ -77,6 +81,7 @@ private extension WithdrawHubContentView {
                                 )
                             )
                         )
+                        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.hubRecentTokenTile)
                     }
                     .transition(.content)
                 }
@@ -97,12 +102,14 @@ private extension WithdrawHubContentView {
                         title: Localization.tangempayWithdrawHubToPersonalAccount,
                         action: { onAction(.personalAccountTap) }
                     )
+                    .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.hubPersonalAccountTile)
 
                     WithdrawHubCompactActionTileView(
                         icon: Assets.Accounts.briefcase,
                         title: Localization.tangempayWithdrawHubToBusinessAccount,
                         action: { onAction(.businessAccountTap) }
                     )
+                    .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.hubBusinessAccountTile)
                 }
             },
             dynamicContent: {
@@ -112,9 +119,11 @@ private extension WithdrawHubContentView {
 
                 case .loaded(let items) where items.isEmpty:
                     placeholderTile
+                        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.hubRecentAccountsEmpty)
 
                 case .failed:
                     retryTile
+                        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.hubRecentAccountsRetry)
 
                 case .loaded(let items):
                     ForEach(items) { item in
@@ -128,11 +137,13 @@ private extension WithdrawHubContentView {
                                 )
                             )
                         )
+                        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.hubRecentAccountTile)
                     }
                     .transition(.content)
 
                     if isSeeAllAccountsVisible {
                         WithdrawHubActionTileView(data: .seeAll(action: { onAction(.seeAllTap) }))
+                            .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.hubSeeAllTile)
                             .transition(.content)
                     }
                 }
