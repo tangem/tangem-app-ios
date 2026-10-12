@@ -20,9 +20,7 @@ struct MultiWalletMainContentRedesignedView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
-
-            notificationBanners
+            MainNotificationsView(viewModel: viewModel.mainNotificationsViewModel)
 
             pendingJointAccountsOperations
 
@@ -57,15 +55,6 @@ struct MultiWalletMainContentRedesignedView: View {
         .onDidAppear(perform: viewModel.onDidAppear)
         .onWillDisappear(perform: viewModel.onWillDisappear)
         .shtorkaCompatibleBindAlert($viewModel.error)
-    }
-
-    // MARK: - Notification Banners
-
-    private var notificationBanners: some View {
-        NotificationBannerContainer(
-            items: viewModel.notificationBannerItems,
-            stackingType: .carousel
-        )
     }
 
     // MARK: - Pending joint account operations
