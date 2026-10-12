@@ -14,8 +14,14 @@ import TangemUI
 final class LoopingVideoBackgroundViewModel: ObservableObject {
     @Published private(set) var player: AVQueuePlayer?
 
+    var playbackTime: AnyPublisher<TimeInterval, Never> {
+        playbackTimeSubject.eraseToAnyPublisher()
+    }
+
     private let provider: LoopingVideoBackgroundProvider
+    private let playbackTimeSubject = CurrentValueSubject<TimeInterval, Never>(0)
     private var looper: AVPlayerLooper?
+    private var timeObserver: Any?
     private var autoplayPreferenceObserver: AnyCancellable?
 
     init(provider: LoopingVideoBackgroundProvider) {
@@ -34,10 +40,17 @@ final class LoopingVideoBackgroundViewModel: ObservableObject {
     func stop() {
         autoplayPreferenceObserver = nil
         player?.pause()
+
+        if let timeObserver {
+            player?.removeTimeObserver(timeObserver)
+        }
+
+        timeObserver = nil
         looper?.disableLooping()
         looper = nil
         player?.removeAllItems()
         player = nil
+        playbackTimeSubject.send(0)
     }
 
     private func startPlayback() {
@@ -54,6 +67,15 @@ final class LoopingVideoBackgroundViewModel: ObservableObject {
 
         player = queuePlayer
         looper = AVPlayerLooper(player: queuePlayer, templateItem: item)
+        observePlaybackTime(of: queuePlayer)
+    }
+
+    private func observePlaybackTime(of player: AVQueuePlayer) {
+        let interval = CMTime(seconds: Constants.playbackTimeInterval, preferredTimescale: .init(NSEC_PER_SEC))
+
+        timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
+            self?.playbackTimeSubject.send(time.seconds)
+        }
     }
 
     private func observeAutoplayPreference() {
@@ -73,5 +95,13 @@ final class LoopingVideoBackgroundViewModel: ObservableObject {
         } else {
             player?.pause()
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension LoopingVideoBackgroundViewModel {
+    enum Constants {
+        static let playbackTimeInterval: TimeInterval = 0.1
     }
 }
