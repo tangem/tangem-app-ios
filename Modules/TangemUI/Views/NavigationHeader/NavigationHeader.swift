@@ -32,15 +32,15 @@ public struct NavigationHeader<L: View, P: View, T: View>: View {
     public var body: some View {
         HStack(spacing: 0) {
             leadingContent
-            Spacer(minLength: SizeUnit.x2.value)
+            Spacer(minLength: 8)
             trailingContent
         }
         .overlay(alignment: .center) {
             principalContent
         }
-        .padding(.horizontal, .unit(.x4))
-        .padding(.top, .unit(.x4))
-        .padding(.bottom, .unit(.x3))
+        .padding(.horizontal, 16)
+        .padding(.top, 16)
+        .padding(.bottom, 12)
         .background(alignment: .top) {
             let coversContentBelow = backgroundBottomInset > 0
             let startingInset: VariableBlur.GradientSizing? = coversContentBelow ? .relative(fraction: NavigationHeaderConstants.extendedBlurStart) : nil

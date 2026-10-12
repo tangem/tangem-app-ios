@@ -100,7 +100,7 @@ struct TransactionDetailsTokensView: View {
     @ScaledMetric private var tokenSide: CGFloat = 72
     @ScaledMetric private var legTokenSide: CGFloat = 40
     @ScaledMetric private var captionIconSide: CGFloat = 18
-    @ScaledMetric private var networkIconSide = CGFloat.unit(.x8)
+    @ScaledMetric private var networkIconSide: CGFloat = 32
 
     var body: some View {
         switch data.content {

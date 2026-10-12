@@ -261,8 +261,8 @@ enum TopNavigationChromeMetrics {
     static let actionButtonSize: TangemUI.Button.Size = .x9
     static let chromeButtonSize: TangemUI.Button.Size = .x11
     static let iconSize: CGFloat = 24
-    static let actionSpacing: CGFloat = .unit(.x1)
-    static let trailingGroupSpacing: CGFloat = .unit(.x2)
+    static let actionSpacing: CGFloat = 4
+    static let trailingGroupSpacing: CGFloat = 8
     static let capsuleEndPadding: CGFloat = 4
 
     static let maxDynamicTypeSize: DynamicTypeSize = .xxxLarge
@@ -271,7 +271,7 @@ enum TopNavigationChromeMetrics {
         max(barHeight, size.height)
     }
 
-    private static let barHeight: CGFloat = .unit(.x11)
+    private static let barHeight: CGFloat = 44
 }
 
 // MARK: - Content alignment
