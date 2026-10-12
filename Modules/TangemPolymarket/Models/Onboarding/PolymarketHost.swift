@@ -12,4 +12,6 @@ enum PolymarketHost {
     static let polymarket = URL(string: "https://polymarket.com")!
     static let relayer = URL(string: "https://relayer-v2.polymarket.com")!
     static let clob = URL(string: "https://clob.polymarket.com")!
+    static let bridge = URL(string: "https://bridge.polymarket.com")!
+    static let dataAPI = URL(string: "https://data-api.polymarket.com")!
 }

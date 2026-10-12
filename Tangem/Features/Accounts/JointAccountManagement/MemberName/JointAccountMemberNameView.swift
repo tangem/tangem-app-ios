@@ -65,17 +65,17 @@ struct JointAccountMemberNameView: View {
     }
 
     private var footer: some View {
-        let label = AttributedString(Localization.commonCreateAccount)
+        let label = AttributedString(viewModel.submitButtonTitle)
 
         return TangemUI.Button(label: label, accessibilityLabel: nil) {
-            viewModel.onCreateTap()
+            viewModel.onSubmitTap()
         }
-        .content(.label(label, iconStart: nil, iconEnd: viewModel.createButtonIcon))
+        .content(.label(label, iconStart: nil, iconEnd: viewModel.submitButtonIcon))
         .styleType(.default)
         .horizontalLayout(.infinity)
         .size(.x12)
-        .isLoading(viewModel.isCreating)
-        .disabled(viewModel.createButtonDisabled)
+        .loading(.spinner(if: viewModel.isSubmitting))
+        .disabled(viewModel.submitButtonDisabled)
         .padding(.horizontal, 16)
         .padding(.bottom, 12)
         .background {

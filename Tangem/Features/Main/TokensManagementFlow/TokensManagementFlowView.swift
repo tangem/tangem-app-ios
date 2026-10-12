@@ -60,7 +60,7 @@ struct TokensManagementFlowView: View {
             accessibilityLabel: nil,
             action: viewModel.close
         )
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .size(.x12)
         .horizontalLayout(.infinity)
         .padding(.horizontal, 16)

@@ -80,9 +80,9 @@ struct AppDatabaseConstraintTests {
     @Test("Upserting sync metadata with the same composite key updates the cursors")
     func syncMetadataUpsertUpdatesCursors() throws {
         let databaseQueue = try AppDatabaseTestFactory.makeMigratedDatabaseQueue()
-        let original = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(ownerAddress: "0xOwner", endpointType: "exchange")
+        let original = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(userWalletID: "0xOwner", endpointType: "exchange")
         let updated = AppDatabaseFixtures.makeFullSyncMetadataRecord(
-            ownerAddress: original.ownerAddress,
+            userWalletID: original.userWalletID,
             endpointType: original.endpointType
         )
 
@@ -95,7 +95,7 @@ struct AppDatabaseConstraintTests {
             let rowCount = try ExpressSyncMetadataRecord.fetchCount(database)
             let fetchedRecord = try ExpressSyncMetadataRecord.fetchOne(
                 database,
-                key: ["ownerAddress": updated.ownerAddress, "endpointType": updated.endpointType]
+                key: ["userWalletID": updated.userWalletID, "endpointType": updated.endpointType]
             )
 
             return (rowCount: rowCount, fetchedRecord: fetchedRecord)

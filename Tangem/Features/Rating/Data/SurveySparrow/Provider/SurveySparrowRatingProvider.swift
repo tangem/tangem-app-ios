@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemFoundation
 @preconcurrency import TangemNetworkUtils
 
 final class SurveySparrowRatingProvider: RatingProvider {
@@ -33,6 +34,11 @@ final class SurveySparrowRatingProvider: RatingProvider {
     }
 
     // MARK: - Public methods
+
+    /// SurveySparrow is only ever asked over the network; answers kept in memory are RatingProviderCacheDecorator's
+    func cachedStatus(for transactionId: String) -> RatingStatus {
+        .unknown
+    }
 
     func checkExisting(for transactionId: String) async throws -> ExistingRating? {
         guard let rating = keys.swapRating else { return nil }
@@ -80,7 +86,11 @@ private extension SurveySparrowRatingProvider {
     // MARK: - URL
 
     static func makeURL(domain: String) -> URL? {
-        URL(string: "https://\(domain)")
+        guard !AppEnvironment.current.isProduction, FeatureStorage.instance.tangemAPIType == .mock else {
+            return URL(string: "https://\(domain)")
+        }
+
+        return URL(string: "\(WireMockEnvironment.baseURL)/survey-sparrow")
     }
 
     // MARK: - Network

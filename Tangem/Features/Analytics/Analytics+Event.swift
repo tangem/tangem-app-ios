@@ -24,10 +24,20 @@ extension Analytics {
         case buttonBuyCards = "[Introduction Process] Button - Buy Cards"
         case introductionProcessButtonScanCard = "[Introduction Process] Button - Scan Card"
         case introductionProcessCreateWalletIntroScreenOpened = "[Introduction Process] Create Wallet Intro Screen Opened"
+        case introductionProcessIHaveWalletIntroScreenOpened = "[Introduction Process] I Have Wallet Intro Screen Opened"
         case introductionProcessButtonCreateNewWallet = "[Introduction Process] Button - Create New Wallet"
         case introductionProcessButtonAddExistingWallet = "[Introduction Process] Button - Add Existing Wallet"
         case introductionProcessOpened = "[Introduction Process] Introduction Process Screen Opened"
         case introductionProcessLearn = "[Introduction Process] Button - Learn"
+        case introductionProcessButtonIHaveWallet = "[Introduction Process] Button - I Have Wallet"
+        case introductionProcessButtonBuyTangem = "[Introduction Process] Button - Buy Tangem"
+        case introductionProcessButtonImportExistingWallet = "[Introduction Process] Button - Import Existing Wallet"
+        case introductionProcessButtonHardwareWallet = "[Introduction Process] Button - Hardware Wallet"
+        case introductionProcessButtonSignInWithCard = "[Introduction Process] Button - Sign In With Card"
+        case introductionProcessSheetDismissed = "[Introduction Process] Sheet Dismissed"
+        case introductionProcessLegalOpened = "[Introduction Process] Legal Opened"
+        case introductionProcessScanCancelled = "[Introduction Process] Scan Cancelled"
+        case introductionProcessWelcomeMediaError = "[Introduction Process] Welcome Media Error"
 
         case promoBuy = "[Promo Screen] Button - Buy"
         case promoSuccessOpened = "[Promo Screen] Success Screen Opened"
@@ -106,6 +116,8 @@ extension Analytics {
         case tokenButtonTransfer = "[Token] Button - Transfer"
         case buttonReceive = "[Token] Button - Receive"
         case buttonUnderstand = "[Token] Button - Understand"
+        case tokenButtonShare = "[Token] Button - Share"
+        case tokenButtonCopyAddress = "[Token] Button - Copy Address"
         case tokenBought = "[Token] Token Bought"
         case receiveScreenOpened = "[Token / Receive] Receive Screen Opened"
         case qrScreenOpened = "[Token / Receive] QR Screen Opened"
@@ -384,6 +396,7 @@ extension Analytics {
 
         case swapTokenSelected = "[Swap] Token Selected"
         case swapNoticeUnavailableToSwapPair = "[Swap] Notice - Unavailable To Swap Pair"
+        case swapNoticeGeoRestriction = "[Swap] Notice - Geo Restriction"
         case swapPreselectedTokenChanged = "[Swap] Pre-selected token changed"
         case swapFilterProvider = "[Swap] Filter provider"
         case swapFastAmountInput = "[Swap] Fast amount input"
@@ -571,6 +584,12 @@ extension Analytics {
         case marketsEarnScreenOpened = "[Markets] Earn Screen Opened"
         case marketsTokenSearch = "[Markets] Token Search"
         case marketsTokenSearchedClicked = "[Markets] Token Searched Clicked"
+        case marketsEnterSection = "[Markets] Enter Section"
+        case marketsSelectCategory = "[Markets] Select Category"
+        case marketsProductCardShown = "[Markets] Product Card Shown"
+        case marketsProductCardClicked = "[Markets] Product Card Clicked"
+        case marketsForYouClicked = "[Markets] For You Clicked"
+        case marketsNotificationRegionNotSupported = "[Markets] Notification - Region Not Supported"
 
         // MARK: - Earn
 
@@ -663,6 +682,7 @@ extension Analytics {
         case onrampBuyingInProgressScreenOpened = "[Onramp] Buying In Progress Screen Opened"
         case onrampNoticeKYC = "[Onramp] Notice - KYC"
         case onrampNoticeBuyNotSupported = "[Onramp] Notice - Buy Not Supported"
+        case onrampNoticeGeoRestriction = "[Onramp] Notice - Geo Restriction"
         case onrampOnrampStatusOpened = "[Onramp] Onramp Status Opened"
         case onrampButtonGoToProvider = "[Onramp] Button - Go To Provider"
         case onrampOnrampStatus = "[Onramp] Onramp Status"
@@ -715,7 +735,11 @@ extension Analytics {
 
         case storiesSwapStory = "[Stories] Swap Story"
         case storiesYieldPromoStory = "[Stories] Yield Promo Story"
+        case storiesPolymarketOnboardingStory = "[Stories] Polymarket Onboarding Story"
         case storiesError = "[Stories] Error"
+        case storiesStoryOpened = "[Stories] Story Opened"
+        case storiesSlideViewed = "[Stories] Slide Viewed"
+        case storiesStoryClosed = "[Stories] Story Closed"
 
         // MARK: - Tangem API Service
 
@@ -762,6 +786,9 @@ extension Analytics {
         case visaOnboardingChooseWalletPopup = "[Visa Onboarding] Choose Wallet Popup"
         case visaOnboardingVisaIssuingBannerDisplayed = "[Visa Onboarding] Visa Issuing Banner Displayed"
         case visaOnboardingVisaShortForHWActivationScreenOpened = "[Visa Onboarding] Visa Short For HW Activation Screen Opened"
+        case visaOnboardingCobrandDesignOnboardingNewHotWallet = "[Visa Onboarding] Cobrand Design Onboarding New HotWallet"
+        case visaOnboardingCobrandDesignOnboardingNotInPay = "[Visa Onboarding] Cobrand Design Onboarding Not In Pay"
+        case visaOnboardingCobrandDesignOnboardingExistPay = "[Visa Onboarding] Cobrand Design Onboarding Exist Pay"
 
         case visaOnboardingVisaKYCCanceled = "[Visa Onboarding] Visa KYC Canceled"
         case visaOnboardingVisaKYCRejected = "[Visa Onboarding] Visa KYC Rejected"
@@ -878,6 +905,40 @@ extension Analytics {
         case visaVATopupShareDetailsButtonClicked = "[Visa VA Topup] Share Details Button Clicked"
         case visaVATopupCopyFieldClicked = "[Visa VA Topup] Copy Field Clicked"
 
+        // Virtual Account offramp
+
+        case visaVAOfframpBankTransferSheetOpened = "[Visa VA Offramp] Bank Transfer Sheet Opened"
+        case visaVAOfframpToPersonalAccountClicked = "[Visa VA Offramp] To Personal Account Clicked"
+        case visaVAOfframpToBusinessAccountClicked = "[Visa VA Offramp] To Business Account Clicked"
+        case visaVAOfframpSavedContactClicked = "[Visa VA Offramp] Saved Contact Clicked"
+        case visaVAOfframpSavedContactsSeeAllClicked = "[Visa VA Offramp] Saved Contacts See All Clicked"
+        case visaVAOfframpSavedContactsScreenOpened = "[Visa VA Offramp] Saved Contacts Screen Opened"
+        case visaVAOfframpSearchBarClicked = "[Visa VA Offramp] Search Bar Clicked"
+        case visaVAOfframpSavedContactOnContactsScreenClicked = "[Visa VA Offramp] Saved Contact On Contacts Screen Clicked"
+        case visaVAOfframpAmountEntered = "[Visa VA Offramp] Amount Entered"
+        case visaVAOfframpCoinSelectorClicked = "[Visa VA Offramp] Coin Selector Clicked"
+        case visaVAOfframpCoinSelectionSheetOpened = "[Visa VA Offramp] Coin Selection Sheet Opened"
+        case visaVAOfframpCoinInSelectionSheetClicked = "[Visa VA Offramp] Coin In Selection Sheet Clicked"
+        case visaVAOfframpAmountContinueClicked = "[Visa VA Offramp] Amount Continue Clicked"
+        case visaVAOfframpPersonalAccountTypeScreenOpened = "[Visa VA Offramp] Personal Account Type Screen Opened"
+        case visaVAOfframpPersonalAccountTypeContinueClicked = "[Visa VA Offramp] Personal Account Type Continue Clicked"
+        case visaVAOfframpRecipientDetailsScreenOpened = "[Visa VA Offramp] Recipient Details Screen Opened"
+        case visaVAOfframpRecipientDetailsFieldFilled = "[Visa VA Offramp] Recipient Details Field Filled"
+        case visaVAOfframpRecipientDetailsContinueClicked = "[Visa VA Offramp] Recipient Details Continue Clicked"
+        case visaVAOfframpRecipientBankDetailsScreenOpened = "[Visa VA Offramp] Recipient Bank Details Screen Opened"
+        case visaVAOfframpRecipientBankDetailsFieldFilled = "[Visa VA Offramp] Recipient Bank Details Field Filled"
+        case visaVAOfframpRecipientBankDetailsContinueClicked = "[Visa VA Offramp] Recipient Bank Details Continue Clicked"
+        case visaVAOfframpConfirmationScreenOpened = "[Visa VA Offramp] Confirmation Screen Opened"
+        case visaVAOfframpRailSelectorClicked = "[Visa VA Offramp] Rail Selector Clicked"
+        case visaVAOfframpRecipientDetailsOnConfirmationClicked = "[Visa VA Offramp] Recipient Details On Confirmation Clicked"
+        case visaVAOfframpRecipientBankDetailsOnConfirmationClicked = "[Visa VA Offramp] Recipient Bank Details On Confirmation Clicked"
+        case visaVAOfframpRailSelectionSheetOpened = "[Visa VA Offramp] Rail Selection Sheet Opened"
+        case visaVAOfframpRailInSelectionSheetClicked = "[Visa VA Offramp] Rail In Selection Sheet Clicked"
+        case visaVAOfframpInsufficientFundsStateShowed = "[Visa VA Offramp] Insufficient Funds State Showed"
+        case visaVAOfframpSendOnConfirmationClicked = "[Visa VA Offramp] Send On Confirmation Clicked"
+        case visaVAOfframpSendErrorScreenOpened = "[Visa VA Offramp] Send Error Screen Opened"
+        case visaVAOfframpSendSuccessScreenShowed = "[Visa VA Offramp] Send Success Screen Showed"
+
         // Cashback
 
         case visaCashbackBannerShowed = "[Visa Cashback] Cashback Banner Showed"
@@ -991,6 +1052,11 @@ extension Analytics {
         case addressBookAddressSubstitutedInSend = "[Address Book] Address Substituted In Send"
         case addressBookSelectAllNetworksTapped = "[Address Book] Select All Networks Tapped"
 
+        // MARK: - Transaction History
+
+        case transactionDetailScreenOpened = "[Transaction History] Transaction Detail Screen Opened"
+        case transactionDetailButtonCopyTransactionID = "[Transaction History] Button - Copy Transaction ID"
+
         // MARK: - For You
 
         case forYouScreenOpened = "[For You] For You Screen Opened"
@@ -1005,5 +1071,10 @@ extension Analytics {
         case forYouEarnTokenOpened = "[For You] Earn Token Opened"
         case forYouExploreAllTokens = "[For You] Explore All Tokens"
         case forYouIndicatorInfo = "[For You] Indicator Info"
+
+        // MARK: - Backend Authentication
+
+        case userWalletRegistrationUnexpectedCurve = "[Backend Auth] Unexpected Wallet Curve"
+        case backendAuthNonceRequestTimeout = "[Backend Auth] Nonce Request Timeout"
     }
 }

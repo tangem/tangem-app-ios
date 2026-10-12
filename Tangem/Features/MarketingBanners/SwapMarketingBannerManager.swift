@@ -74,7 +74,7 @@ private extension SwapMarketingBannerManager {
     func makeStandaloneViewModel(for banner: MarketingBanner) -> StandaloneMarketingBannerViewModel {
         let action: (() -> Void)? = switch banner.action {
         case .deeplink(let url):
-            { [incomingActionHandler] in _ = incomingActionHandler.handleIncomingURL(url) }
+            { [incomingActionHandler] in incomingActionHandler.handleIncomingURL(url) }
         case .none:
             nil
         }

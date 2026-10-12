@@ -166,7 +166,7 @@ struct TransactionsListView: View {
                         makeSectionHeader(for: sectionItem, atIndex: sectionIndex, withVerticalPadding: true)
                     }
 
-                    ForEach(sectionItem.items.indexed(), id: \.1.id) { cellIndex, cellItem in
+                    ForEach(sectionItem.items.indexed(), id: \.1) { cellIndex, cellItem in
                         Button {
                             exploreTransactionAction(cellItem.hash)
                         } label: {

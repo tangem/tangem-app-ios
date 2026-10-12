@@ -6,8 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Testing
 import Foundation
+import Testing
 import TangemStories
 @testable import Tangem
 
@@ -18,282 +18,336 @@ struct StoriesDTOMapperTests {
         "app.tangem.com", "tangem.surveysparrow.com", "feedback.tangem.com",
     ]
 
-    private func map(_ json: String) throws -> [StoryV2] {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        let dto = try decoder.decode(StoriesResponseDTO.self, from: Data(json.utf8))
-        return StoriesDTOMapper(allowedWebHosts: allowedWebHosts).map(dto)
+    private func map(_ json: String, origin: ContentOrigin = .remote) throws -> [StoryV2] {
+        let dto = try JSONDecoder().decode(StoriesResponseDTO.self, from: Data(json.utf8))
+        return StoriesDTOMapper(allowedWebHosts: allowedWebHosts, origin: origin).map(dto)
     }
 
-    // MARK: - JSON builders (complete, contract-valid fragments)
-
-    private func videoSlide(_ id: String, _ order: Int, path: String) -> String {
-        """
-        { "id": "\(id)", "order": \(order), "title": "t", "subtitle": "s",
-          "asset": { "type": "video", "contentMode": "cover", "durationMs": 6000,
-            "sources": [{ "path": "\(path)", "mimeType": "video/mp4", "platforms": ["all"], "sizeBytes": 1, "checksum": "sha256:a" }],
-            "poster": { "path": "\(path).webp", "mimeType": "image/webp", "sizeBytes": 1, "checksum": "sha256:b" } } }
-        """
-    }
-
-    private func imageSlide(_ id: String, _ order: Int, path: String) -> String {
-        """
-        { "id": "\(id)", "order": \(order), "title": "t", "subtitle": "s",
-          "asset": { "type": "image", "contentMode": "contain", "durationMs": 5000,
-            "sources": [{ "path": "\(path)", "mimeType": "image/webp", "platforms": ["all"], "sizeBytes": 1, "checksum": "sha256:c" }] } }
-        """
-    }
-
-    private func envelope(schemaVersion: Int = 1, host: String = "", story: String) -> String {
-        """
-        { "schemaVersion": \(schemaVersion), "contentHost": "\(host)", "items": [\(story)] }
-        """
-    }
-
-    private func story(
-        id: String = "s",
-        placements: String = #"["main_upgrade"]"#,
-        priority: Int = 1,
-        displayPolicy: String = #"{ "type": "always" }"#,
-        endBehavior: String = "finish",
-        actions: String = "[]",
-        slides: String
-    ) -> String {
-        """
-        { "id": "\(id)", "version": 1, "language": "en", "placements": \(placements),
-          "priority": \(priority), "displayPolicy": \(displayPolicy), "endBehavior": "\(endBehavior)",
-          "actions": \(actions), "slides": [\(slides)] }
-        """
-    }
-
-    // MARK: - Tests
+    // MARK: - Backend example
 
     @Test
-    func unknownAssetTypeSlideIsSkipped() throws {
-        let unknown = #"{ "id": "b", "order": 2, "title": "t", "subtitle": "s", "asset": { "type": "spline3d", "contentMode": "cover", "durationMs": 6000, "sources": [{ "path": "b.usdz", "mimeType": "model/usdz", "platforms": ["all"], "sizeBytes": 1, "checksum": "sha256:x" }] } }"#
-        let action = #"[{ "id": "go", "label": "Go", "style": "primary", "target": { "type": "screen", "value": "hardware_wallet" } }]"#
-        let stories = try map(envelope(host: "https://h/", story: story(
-            actions: action,
-            slides: "\(videoSlide("a", 1, path: "a.mp4")), \(unknown), \(imageSlide("c", 3, path: "c.webp"))"
-        )))
+    func mapsBackendExample() throws {
+        let stories = try map(Self.backendExample)
 
+        let story = try #require(stories.first)
         #expect(stories.count == 1)
-        #expect(stories[0].slides.map(\.id) == ["a", "c"])
-        #expect(stories[0].actions.first?.target == .screen("hardware_wallet"))
-        #expect(stories[0].slides[0].asset.url == URL(string: "https://h/a.mp4"))
+        #expect(story.id == "hardware_upgrade")
+        #expect(story.placements == ["main_upgrade"])
+        #expect(story.priority == 100)
+        #expect(story.displayPolicy == .always)
+        #expect(story.endBehavior == .finish)
+        #expect(story.origin == .remote)
+
+        #expect(story.slides.count == 2)
+        let first = story.slides[0]
+        #expect(first.id == "2")
+        #expect(first.order == 1)
+        #expect(first.asset.type == .video)
+        #expect(first.asset.contentMode == .cover)
+        #expect(first.asset.durationMs == 10000)
+        #expect(first.hapticAtMs == [1200])
+        #expect(first.asset.url?.absoluteString.hasSuffix("8f3c21d9.mp4") == true)
+        #expect(story.slides[1].order == 2)
+        #expect(story.slides[1].hapticAtMs.isEmpty)
+
+        let action = try #require(story.actions.first)
+        #expect(action.id == "hardware_upgrade_action_1")
+        #expect(action.label == "Get Tangem")
+        #expect(action.style == .primary)
+        #expect(action.target == .deeplink("tangem://hardware_wallet"))
     }
 
-    @Test
-    func unknownContentModeSkipsSlide() throws {
-        let weird = #"{ "id": "w", "order": 1, "title": "t", "subtitle": "s", "asset": { "type": "image", "contentMode": "parallax", "durationMs": 5000, "sources": [{ "path": "w.webp", "mimeType": "image/webp", "platforms": ["all"], "sizeBytes": 1, "checksum": "sha256:x" }] } }"#
-        let stories = try map(envelope(story: story(slides: "\(weird), \(imageSlide("c", 2, path: "c.webp"))")))
-        #expect(stories.first?.slides.map(\.id) == ["c"])
-    }
+    // MARK: - Story fields
 
     @Test
-    func storyWithOnlyUnknownSlidesIsDropped() throws {
-        let unknown = #"{ "id": "x", "order": 1, "title": "t", "subtitle": "s", "asset": { "type": "hologram", "contentMode": "cover", "durationMs": 6000, "sources": [{ "path": "x", "mimeType": "x", "platforms": ["all"], "sizeBytes": 1, "checksum": "sha256:x" }] } }"#
-        let stories = try map(envelope(story: story(slides: unknown)))
-        #expect(stories.isEmpty)
-    }
+    func mapsEndBehaviourSpelling() throws {
+        let stories = try map(Self.story(extra: #""endBehaviour": "loop""#))
 
-    @Test
-    func onceDisplayPolicyParsing() throws {
-        let stories = try map(envelope(story: story(
-            placements: #"["onboarding"]"#,
-            displayPolicy: #"{ "type": "once", "scope": "device", "resetOnVersion": true }"#,
-            endBehavior: "loop",
-            actions: #"[{ "id": "start", "label": "Start", "style": "primary", "target": { "type": "close" } }]"#,
-            slides: imageSlide("s", 1, path: "s.webp")
-        )))
         #expect(stories.first?.endBehavior == .loop)
-        #expect(stories.first?.displayPolicy.type == .once)
-        #expect(stories.first?.displayPolicy.scope == .device)
-        #expect(stories.first?.displayPolicy.resetOnVersion == true)
-        #expect(stories.first?.actions.first?.target == .close)
     }
 
     @Test
-    func onceWithoutScopeDropsStory() throws {
-        let stories = try map(envelope(story: story(
-            displayPolicy: #"{ "type": "once" }"#,
-            slides: imageSlide("s", 1, path: "s.webp")
-        )))
-        #expect(stories.isEmpty)
+    func missingPolicyAndBehaviorFallBackToDefaults() throws {
+        let story = try #require(try map(Self.story()).first)
+
+        #expect(story.displayPolicy == .always)
+        #expect(story.endBehavior == .finish)
     }
 
     @Test
     func unknownDisplayPolicyDropsStory() throws {
-        let stories = try map(envelope(story: story(
-            displayPolicy: #"{ "type": "weekly" }"#,
-            slides: videoSlide("a", 1, path: "a.mp4")
-        )))
-        #expect(stories.isEmpty)
+        #expect(try map(Self.story(extra: #""displayPolicy": "sometimes""#)).isEmpty)
     }
 
     @Test
-    func placementsKeptVerbatim() throws {
-        let stories = try map(envelope(story: story(
-            placements: #"["telepathy", "main_upgrade"]"#,
-            slides: videoSlide("a", 1, path: "a.mp4")
-        )))
-        #expect(stories.first?.placements == ["telepathy", "main_upgrade"])
+    func unknownEndBehaviorDropsStory() throws {
+        #expect(try map(Self.story(extra: #""endBehaviour": "restart""#)).isEmpty)
     }
 
     @Test
-    func emptyPlacementsDropsStory() throws {
-        let stories = try map(envelope(story: story(
-            placements: "[]",
-            slides: videoSlide("a", 1, path: "a.mp4")
-        )))
-        #expect(stories.isEmpty)
-    }
-
-    @Test
-    func forbiddenWebTargetActionHidden() throws {
-        let actions = """
-        [
-          { "id": "bad", "label": "Evil", "style": "primary", "target": { "type": "web", "value": "https://evil.com/x" } },
-          { "id": "ok", "label": "Buy", "style": "secondary", "target": { "type": "web", "value": "https://buy.tangem.com/promo" } }
-        ]
+    func malformedStoryIsDroppedWithoutFailingThePlacement() throws {
+        let json = """
+        { "main": [
+            { "language": "en", "slides": [] },
+            \(Self.storyObject())
+        ] }
         """
-        let stories = try map(envelope(story: story(actions: actions, slides: videoSlide("a", 1, path: "a.mp4"))))
-        #expect(stories.first?.actions.map(\.id) == ["ok"])
-        #expect(stories.first?.actions.first?.target == .web("https://buy.tangem.com/promo"))
+        let stories = try map(json)
+
+        #expect(stories.count == 1)
+        #expect(stories.first?.id == "slug_1")
     }
 
     @Test
-    func httpWebTargetActionHidden() throws {
-        let actions = #"[{ "id": "http", "label": "Plain", "style": "primary", "target": { "type": "web", "value": "http://buy.tangem.com/promo" } }]"#
-        let stories = try map(envelope(story: story(actions: actions, slides: videoSlide("a", 1, path: "a.mp4"))))
-        #expect(stories.first?.actions.isEmpty == true)
-    }
-
-    @Test
-    func webHostAllowlistIsCaseInsensitive() throws {
-        let actions = #"[{ "id": "ok", "label": "Buy", "style": "primary", "target": { "type": "web", "value": "https://Buy.Tangem.com/promo" } }]"#
-        let stories = try map(envelope(story: story(actions: actions, slides: videoSlide("a", 1, path: "a.mp4"))))
-        #expect(stories.first?.actions.first?.target == .web("https://Buy.Tangem.com/promo"))
-    }
-
-    @Test
-    func unknownActionStyleHidden() throws {
-        let actions = #"[{ "id": "t", "label": "T", "style": "tertiary", "target": { "type": "close" } }]"#
-        let stories = try map(envelope(story: story(actions: actions, slides: videoSlide("a", 1, path: "a.mp4"))))
-        #expect(stories.first?.actions.isEmpty == true)
-    }
-
-    @Test
-    func schemaVersionMismatchYieldsNothing() throws {
-        let stories = try map(envelope(schemaVersion: 2, story: story(slides: videoSlide("a", 1, path: "a.mp4"))))
-        #expect(stories.isEmpty)
-    }
-
-    @Test
-    func malformedStoryInArrayIsSkipped() throws {
-        // `bad` omits the required endBehavior → dropped at decode; `good` survives.
-        let good = story(id: "good", slides: videoSlide("a", 1, path: "a.mp4"))
-        let bad = """
-        { "id": "bad", "version": 1, "language": "en", "placements": ["main_upgrade"],
-          "priority": 1, "displayPolicy": { "type": "always" }, "actions": [],
-          "slides": [\(videoSlide("z", 1, path: "z.mp4"))] }
+    func nullPlacementIsSkippedNotFatal() throws {
+        let json = """
+        { "empty": null, "main": [\(Self.storyObject())] }
         """
-        let stories = try map(envelope(story: "\(good), \(bad)"))
-        #expect(stories.map(\.id) == ["good"])
+        let stories = try map(json)
+
+        #expect(stories.count == 1)
     }
 
     @Test
-    func emptyItems() throws {
-        let stories = try map(#"{ "schemaVersion": 1, "contentHost": "", "items": [] }"#)
-        #expect(stories.isEmpty)
-    }
+    func malformedSlideIsDroppedWithoutLosingTheStory() throws {
+        let broken = #"{ "id": 99, "assetType": "video", "durationMs": 1000 }"#
+        let stories = try map(Self.story(slides: [broken, Self.slideObject()]))
 
-    // MARK: - URL resolution
-
-    @Test
-    func hostWithoutTrailingSlashIsNormalized() throws {
-        let stories = try map(envelope(host: "https://cdn.tangem.com", story: story(slides: videoSlide("a", 1, path: "a.mp4"))))
-        #expect(stories.first?.slides.first?.asset.url == URL(string: "https://cdn.tangem.com/a.mp4"))
+        #expect(stories.first?.slides.count == 1)
     }
 
     @Test
-    func hostAndPathBothWithSlashesProduceSingleSeparator() throws {
-        let stories = try map(envelope(host: "https://cdn.tangem.com/", story: story(slides: videoSlide("a", 1, path: "/a.mp4"))))
-        #expect(stories.first?.slides.first?.asset.url == URL(string: "https://cdn.tangem.com/a.mp4"))
+    func sameSlugAcrossPlacementsMergesIntoOneStory() throws {
+        let json = """
+        {
+          "b_placement": [\(Self.storyObject(slug: "shared"))],
+          "a_placement": [\(Self.storyObject(slug: "shared"))]
+        }
+        """
+        let stories = try map(json)
+
+        #expect(stories.count == 1)
+        #expect(stories.first?.placements == ["a_placement", "b_placement"])
     }
 
     @Test
-    func absoluteHttpsSourcePathBypassesHost() throws {
-        let stories = try map(envelope(host: "https://ignored.example/", story: story(slides: videoSlide("a", 1, path: "https://other.example/x.mp4"))))
-        #expect(stories.first?.slides.first?.asset.url == URL(string: "https://other.example/x.mp4"))
+    func nonPositiveDurationDropsSlide() throws {
+        let json = Self.story(slides: [Self.slideObject(durationMs: 0)])
+        #expect(try map(json).isEmpty)
     }
 
     @Test
-    func schemeLikePathIsResolvedAgainstHost() throws {
-        let stories = try map(envelope(host: "https://cdn.tangem.com/", story: story(slides: videoSlide("a", 1, path: "sha256:abc.mp4"))))
-        #expect(stories.first?.slides.first?.asset.url == URL(string: "https://cdn.tangem.com/sha256:abc.mp4"))
+    func slideActionFallbackIdIsNamespacedByStoryAndSlide() throws {
+        let slide = Self.slideObject(extra: #""actions": [{ "label": "Go", "style": "primary", "deeplink": "tangem://x" }]"#)
+        let mapped = try #require(try map(Self.story(slides: [slide])).first?.slides.first)
+
+        #expect(mapped.actions?.first?.id == "slug_1_7_action_1")
     }
 
     @Test
-    func unresolvableAssetURLDropsSlide() throws {
-        let unresolvable = #"{ "id": "u", "order": 1, "title": "t", "subtitle": "s", "asset": { "type": "video", "contentMode": "cover", "durationMs": 5000, "sources": [{ "path": "", "mimeType": "video/mp4", "platforms": ["all"], "sizeBytes": 1, "checksum": "sha256:x" }] } }"#
-        let stories = try map(envelope(host: "", story: story(slides: "\(unresolvable), \(imageSlide("c", 2, path: "c.webp"))")))
-        #expect(stories.first?.slides.map(\.id) == ["c"])
+    func crossPlacementOrderIsPriorityDescThenIdAsc() throws {
+        let json = """
+        {
+          "b_placement": [\(Self.storyObject(slug: "beta", extra: #""priority": 10"#))],
+          "a_placement": [
+            \(Self.storyObject(slug: "zeta", extra: #""priority": 100"#)),
+            \(Self.storyObject(slug: "alpha", extra: #""priority": 10"#))
+          ]
+        }
+        """
+        let stories = try map(json)
+
+        #expect(stories.map(\.id) == ["zeta", "alpha", "beta"])
     }
 
-    // MARK: - Slide actions (absent → inherit; [] → hide; non-empty → replace)
+    // MARK: - Slides
 
     @Test
-    func slideActionsAbsentInheritsFromStory() throws {
-        let slide = #"{ "id": "a", "order": 1, "title": "t", "subtitle": "s", "asset": { "type": "image", "contentMode": "cover", "durationMs": 5000, "sources": [{ "path": "a.webp", "mimeType": "image/webp", "platforms": ["all"], "sizeBytes": 1, "checksum": "sha256:c" }] } }"#
-        let stories = try map(envelope(host: "https://h/", story: story(
-            actions: #"[{ "id": "s", "label": "S", "style": "primary", "target": { "type": "close" } }]"#,
-            slides: slide
-        )))
-        #expect(stories.first?.slides.first?.actions == nil)
-    }
-
-    @Test
-    func slideActionsExplicitEmptyHidesStoryLevel() throws {
-        let slide = #"{ "id": "a", "order": 1, "title": "t", "subtitle": "s", "actions": [], "asset": { "type": "image", "contentMode": "cover", "durationMs": 5000, "sources": [{ "path": "a.webp", "mimeType": "image/webp", "platforms": ["all"], "sizeBytes": 1, "checksum": "sha256:c" }] } }"#
-        let stories = try map(envelope(host: "https://h/", story: story(slides: slide)))
-        #expect(stories.first?.slides.first?.actions == [])
+    func nonHTTPSSourceDropsSlideAndEmptyStory() throws {
+        let slide = Self.slideObject(url: "http://cdn.example.com/a.mp4")
+        #expect(try map(Self.story(slides: [slide])).isEmpty)
     }
 
     @Test
-    func slideActionsAllUnknownInheritsInsteadOfHiding() throws {
-        let slide = #"""
-        { "id": "a", "order": 1, "title": "t", "subtitle": "s",
-          "actions": [{ "id": "t", "label": "T", "style": "tertiary", "target": { "type": "close" } }],
-          "asset": { "type": "image", "contentMode": "cover", "durationMs": 5000, "sources": [{ "path": "a.webp", "mimeType": "image/webp", "platforms": ["all"], "sizeBytes": 1, "checksum": "sha256:c" }] } }
-        """#
-        let stories = try map(envelope(host: "https://h/", story: story(slides: slide)))
-        #expect(stories.first?.slides.first?.actions == nil)
-    }
-
-    // MARK: - Haptics
-
-    @Test
-    func zeroDurationStripsHaptics() throws {
-        let slide = #"""
-        { "id": "a", "order": 1, "title": "t", "subtitle": "s",
-          "hapticAtMs": [100, 200],
-          "asset": { "type": "video", "contentMode": "cover", "durationMs": 0,
-            "sources": [{ "path": "a.mp4", "mimeType": "video/mp4", "platforms": ["all"], "sizeBytes": 1, "checksum": "sha256:x" }] } }
-        """#
-        let stories = try map(envelope(host: "https://h/", story: story(slides: slide)))
-        #expect(stories.first?.slides.first?.hapticAtMs == [])
+    func nonPositiveSizeBytesDropsSlide() throws {
+        let slide = Self.slideObject(extraSource: #""sizeBytes": 0"#)
+        #expect(try map(Self.story(slides: [slide])).isEmpty)
     }
 
     @Test
-    func hapticsDedupedAndSorted() throws {
-        let slide = #"""
-        { "id": "a", "order": 1, "title": "t", "subtitle": "s",
-          "hapticAtMs": [200, 100, 200, -5, 6000],
-          "asset": { "type": "video", "contentMode": "cover", "durationMs": 6000,
-            "sources": [{ "path": "a.mp4", "mimeType": "video/mp4", "platforms": ["all"], "sizeBytes": 1, "checksum": "sha256:x" }] } }
-        """#
-        let stories = try map(envelope(host: "https://h/", story: story(slides: slide)))
-        #expect(stories.first?.slides.first?.hapticAtMs == [100, 200])
+    func missingChecksumBecomesEmptyAndPosterStaysNil() throws {
+        let asset = try #require(try map(Self.story()).first?.slides.first?.asset)
+
+        #expect(asset.checksum.isEmpty)
+        #expect(asset.posterURL == nil)
+        #expect(asset.posterChecksum.isEmpty)
     }
+
+    @Test
+    func hapticsOutsideDurationAreFiltered() throws {
+        let slide = Self.slideObject(extra: #""hapticAtMs": [-5, 100, 5000, 12000]"#)
+        let mapped = try #require(try map(Self.story(slides: [slide])).first?.slides.first)
+
+        #expect(mapped.hapticAtMs == [100, 5000])
+    }
+
+    @Test
+    func unknownContentModeDropsSlideButMissingDefaultsToCover() throws {
+        let unknown = try map(Self.story(slides: [Self.slideObject(contentMode: #""contentMode": "stretch","#)]))
+        let missing = try map(Self.story(slides: [Self.slideObject(contentMode: "")]))
+
+        #expect(unknown.isEmpty)
+        #expect(missing.first?.slides.first?.asset.contentMode == .cover)
+    }
+
+    @Test
+    func unknownAssetTypeDropsSlide() throws {
+        let slide = Self.slideObject(assetType: "hologram")
+        #expect(try map(Self.story(slides: [slide])).isEmpty)
+    }
+
+    // MARK: - Actions
+
+    @Test
+    func mapsFlattenedTargets() throws {
+        let json = Self.story(actions: [
+            #"{ "label": "Web", "style": "secondary", "url": "https://buy.tangem.com/x" }"#,
+            #"{ "label": "Screen", "style": "secondary", "screen": "hardware_wallet" }"#,
+            #"{ "label": "Close", "style": "secondary", "close": true }"#,
+        ])
+        let actions = try #require(try map(json).first?.actions)
+
+        #expect(actions.map(\.target) == [
+            .web("https://buy.tangem.com/x"),
+            .screen("hardware_wallet"),
+            .close,
+        ])
+    }
+
+    @Test
+    func disallowedWebHostDropsAction() throws {
+        let json = Self.story(actions: [#"{ "label": "Web", "style": "secondary", "url": "https://evil.example.com" }"#])
+        #expect(try map(json).first?.actions.isEmpty == true)
+    }
+
+    @Test
+    func actionWithoutAnyTargetIsDropped() throws {
+        let json = Self.story(actions: [#"{ "label": "Nothing", "style": "primary" }"#])
+        #expect(try map(json).first?.actions.isEmpty == true)
+    }
+
+    @Test
+    func explicitActionIdWinsOverFallback() throws {
+        let json = Self.story(actions: [#"{ "id": 42, "label": "Go", "style": "primary", "deeplink": "tangem://x" }"#])
+        #expect(try map(json).first?.actions.first?.id == "42")
+    }
+
+    @Test
+    func slideActionsKeepInheritHideReplaceSemantics() throws {
+        let inherit = Self.slideObject()
+        let hide = Self.slideObject(extra: #""actions": []"#)
+        let unknownOnly = Self.slideObject(extra: #""actions": [{ "label": "X", "style": "fancy", "deeplink": "tangem://x" }]"#)
+
+        let slides = try #require(try map(Self.story(slides: [inherit, hide, unknownOnly])).first?.slides)
+
+        #expect(slides[0].actions == nil)
+        #expect(slides[1].actions == [])
+        #expect(slides[2].actions == nil)
+    }
+
+    // MARK: - Fixtures
+
+    private static func slideObject(
+        url: String = "https://s3.example.com/stories/a.mp4",
+        assetType: String = "video",
+        contentMode: String = #""contentMode": "cover","#,
+        durationMs: Int = 10000,
+        extraSource: String = #""sizeBytes": 1000"#,
+        extra: String = #""hapticAtMs": []"#
+    ) -> String {
+        """
+        {
+          "id": 7,
+          "title": "Title",
+          "subtitle": "Subtitle",
+          "assetType": "\(assetType)",
+          \(contentMode)
+          "durationMs": \(durationMs),
+          \(extra),
+          "source": { "url": "\(url)", \(extraSource) }
+        }
+        """
+    }
+
+    private static func storyObject(
+        slug: String = "slug_1",
+        extra: String = #""language": "en""#,
+        slides: [String]? = nil,
+        actions: [String] = []
+    ) -> String {
+        """
+        {
+          "slug": "\(slug)",
+          \(extra),
+          "slides": [\((slides ?? [slideObject()]).joined(separator: ","))],
+          "actions": [\(actions.joined(separator: ","))]
+        }
+        """
+    }
+
+    private static func story(
+        extra: String = #""language": "en""#,
+        slides: [String]? = nil,
+        actions: [String] = []
+    ) -> String {
+        #"{ "main": [\#(storyObject(extra: extra, slides: slides, actions: actions))] }"#
+    }
+
+    private static let backendExample = """
+    {
+      "main_upgrade": [
+        {
+          "slug": "hardware_upgrade",
+          "language": "en",
+          "priority": 100,
+          "displayPolicy": "always",
+          "endBehaviour": "finish",
+          "slides": [
+            {
+              "id": 2,
+              "title": "One tap to control crypto",
+              "subtitle": "Confirm every action with your Tangem",
+              "assetType": "video",
+              "contentMode": "cover",
+              "durationMs": 10000,
+              "hapticAtMs": [1200],
+              "source": {
+                "url": "https://s3.eu-central-1.amazonaws.com/tangem.api/stories/hardware_upgrade/8f3c21d9.mp4",
+                "mimetype": "video/mp4",
+                "codec": "avc1.4d003c",
+                "sizeBytes": 2955524
+              }
+            },
+            {
+              "id": 3,
+              "title": "Trusted by millions",
+              "subtitle": "Join the self-custody wallet used worldwide",
+              "assetType": "video",
+              "contentMode": "cover",
+              "durationMs": 10017,
+              "source": {
+                "url": "https://s3.eu-central-1.amazonaws.com/tangem.api/stories/hardware_upgrade/1d5fb7c3.mp4",
+                "mimetype": "video/mp4",
+                "codec": "avc1.4d003c",
+                "sizeBytes": 2521474
+              }
+            }
+          ],
+          "actions": [
+            { "label": "Get Tangem", "style": "primary", "deeplink": "tangem://hardware_wallet" }
+          ]
+        }
+      ]
+    }
+    """
 }

@@ -44,6 +44,11 @@ struct TangemPayDefaultHeadersPlugin: PluginType {
             value: TangemPayNetworkingConstants.Header.Value.applicationJson
         )
 
+        request.headers.add(
+            name: TangemPayNetworkingConstants.Header.Key.xDeviceScale,
+            value: TangemPayNetworkingConstants.Header.Value.deviceScale
+        )
+
         return request
     }
 }

@@ -93,6 +93,7 @@ struct TangemPayMainView: View {
 
                 if viewModel.hasIssuingEntry, !viewModel.isAwaitingDeposit {
                     TangemPayIssuingCardBannerRedesigned()
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.issuingCardBanner)
                 }
 
                 if let deliveryBannerState = viewModel.cardDeliveryBannerState {
@@ -132,7 +133,6 @@ struct TangemPayMainView: View {
             TransactionsListViewRedesigned(
                 state: viewModel.tangemPayTransactionHistoryState,
                 exploreAction: nil,
-                exploreConfirmationDialog: nil,
                 openTransactionDetailsAction: { viewModel.openTransactionDetails(id: $0.hash) },
                 reloadButtonAction: viewModel.reloadHistory,
                 isReloadButtonBusy: false,
@@ -183,6 +183,7 @@ struct TangemPayMainView: View {
                 .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
         }
         .primaryButton(viewModel.awaitingDepositAddFundsButton)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.awaitingDepositBanner)
     }
 
     private func cardDeliveryBanner(state: TangemPayMainViewModel.CardDeliveryBannerState) -> some View {
@@ -196,6 +197,7 @@ struct TangemPayMainView: View {
                 state.activatableCard.map { card in
                     MessageBannerButton(
                         title: Localization.tangempayCardDetailsActivate,
+                        accessibilityIdentifier: TangemPayAccessibilityIdentifiers.plasticDeliveryBannerActivateButton,
                         action: { viewModel.onActivateCardBannerButton(card: card) }
                     )
                 }
@@ -222,6 +224,7 @@ struct TangemPayMainView: View {
             .variant(.tinted)
             .appearance(.warning)
             .slotStart(DesignSystem.Icons.Info.regular16)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountInactiveBadge)
     }
 
     private var redesignedCardsRow: some View {
@@ -234,6 +237,7 @@ struct TangemPayMainView: View {
                 SwiftUI.Button(action: viewModel.tapAddCard) {
                     TangemPayAddCardView()
                 }
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountAddCardButton)
                 .disabled(viewModel.addCardDisabled)
                 .opacity(viewModel.addCardDisabled ? 0.6 : 1)
             }
@@ -271,6 +275,7 @@ struct TangemPayMainView: View {
             } label: {
                 TangemPaySmallCardViewRedesigned(state: entry.isGhost ? .ghost : .issuing)
             }
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountIssuingCardButton)
         }
     }
 
@@ -288,10 +293,12 @@ struct TangemPayMainView: View {
                 Text(Localization.tangempayPaymentAccount)
                     .font(token: DesignSystem.Font.subheadingMediumToken)
                     .foregroundStyle(DesignSystem.Color.textPrimary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountToolbarTitle)
 
                 Text(viewModel.toolbarSubtitle)
                     .font(token: DesignSystem.Font.captionMediumToken)
                     .foregroundStyle(DesignSystem.Color.textTertiary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountToolbarSubtitle)
             }
         }
 
@@ -316,6 +323,7 @@ struct TangemPayMainView: View {
                             .renderingMode(.template)
                     }
                 }
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.currentPlanMenuItem)
 
                 Divider()
 
@@ -335,35 +343,23 @@ struct TangemPayMainView: View {
                     }
                     .menuActionDismissBehavior(.disabled)
                     .disabled(cashbackMenuState.isReloading)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackMenuItem)
                     .onAppear(perform: viewModel.logCashbackMenuItemImpression)
                     .onChange(of: viewModel.cashbackMenuItemImpression) { _ in
                         viewModel.logCashbackMenuItemImpression()
                     }
                 }
 
-                if viewModel.isVisaBenefitsAvailable {
-                    SwiftUI.Button(action: viewModel.visaBenefits) {
-                        Label {
-                            Text(Localization.tangempayVisaBenefits)
-                        } icon: {
-                            DesignSystem.Icons.Heart.regular20.image
-                        }
-                    }
-                }
-
-                SwiftUI.Button(action: viewModel.termsAndLimits) {
-                    Label(Localization.tangemPayTermsLimits, systemImage: "text.page")
-                }
-                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.termsAndLimitsMenuItem)
-
                 SwiftUI.Button(action: viewModel.contactSupport) {
                     Label(Localization.tangempayPaySupport, systemImage: "text.bubble")
                 }
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paySupportMenuItem)
 
                 if viewModel.isDeactivated {
                     SwiftUI.Button(role: .destructive, action: viewModel.promptRemoveAccount) {
                         Label(Localization.tangempayRemoveAccount, systemImage: "trash")
                     }
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.removeAccountMenuItem)
                 }
             } label: {
                 Image(systemName: "ellipsis")
@@ -400,5 +396,6 @@ struct TangemPayMainView: View {
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
         }
         .secondaryButton(gotItButton)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackDeactivatedBanner)
     }
 }

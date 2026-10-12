@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 import TangemAssets
 import TangemAccounts
 import TangemAccessibilityIdentifiers
@@ -19,6 +20,8 @@ struct AccountRowButtonView<Trailing: View>: View {
     @ScaledMetric private var balanceLoaderWidth: CGFloat = 40
 
     let trailing: Trailing
+
+    private var iconSettings: AccountIconView.Settings = .defaultSized
 
     init(
         viewModel: AccountRowButtonViewModel,
@@ -36,6 +39,7 @@ struct AccountRowButtonView<Trailing: View>: View {
                 subtitle: { subtitleView },
                 trailing: { trailing }
             )
+            .iconSettings(iconSettings)
         }
         .disabled(viewModel.isDisabled)
         .accessibilityIdentifier(AccountsAccessibilityIdentifiers.walletSettingsAccountRow(accountName: viewModel.name))
@@ -73,6 +77,14 @@ struct AccountRowButtonView<Trailing: View>: View {
             style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
             loader: .init(size: CGSize(width: balanceLoaderWidth, height: balanceLoaderHeight))
         )
+    }
+}
+
+// MARK: - Setupable protocol conformance
+
+extension AccountRowButtonView: Setupable {
+    func iconSettings(_ settings: AccountIconView.Settings) -> Self {
+        map { $0.iconSettings = settings }
     }
 }
 

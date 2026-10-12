@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 
 public struct StepsFlowView: View {
     @StateObject private var viewModel: StepsFlowViewModel
@@ -40,6 +41,12 @@ public struct StepsFlowView: View {
         }
         .overlay(StepsFlowLoading(isLoading: viewModel.currentIsLoading))
         .animation(.default, value: viewModel.currentStepId)
+        .onChange(of: viewModel.currentStepId) { _ in
+            // Steps live side by side in a paging container, so a step scrolled off-screen
+            // is never removed and its disappear lifecycle never fires. Dismiss any active
+            // keyboard here so an input step (e.g. the access code) doesn't leave it hanging.
+            UIApplication.shared.endEditing()
+        }
     }
 }
 
@@ -96,6 +103,7 @@ private extension StepsFlowView {
     func stepView(_ step: StepsFlowStep) -> some View {
         StepsFlowContent(
             step: step,
+            isActive: step.id == viewModel.currentStepId,
             onTitle: { viewModel.update(stepId: step.id, title: $0) },
             onLeadingItem: { viewModel.update(stepId: step.id, leadingItem: $0) },
             onTrailingItem: { viewModel.update(stepId: step.id, trailingItem: $0) },

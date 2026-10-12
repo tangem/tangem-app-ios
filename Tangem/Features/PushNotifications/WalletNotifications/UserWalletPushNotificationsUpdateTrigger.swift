@@ -76,8 +76,8 @@ final class UserWalletPushNotificationsUpdateTrigger {
             .subscribe(isAuthorizedSubject)
             .store(in: &bag)
 
-        let isUserTokenListReadyPublisher = accountModelsManager
-            .cryptoAccountModelsPublisher
+        let isUserTokenListReadyPublisher = AccountModelsAggregator(.crypto, .joint)
+            .modelsPublisher(from: accountModelsManager)
             .flatMapLatest { cryptoAccountModels -> AnyPublisher<Bool, Never> in
                 guard cryptoAccountModels.isNotEmpty else {
                     return .just(output: false)
@@ -92,8 +92,8 @@ final class UserWalletPushNotificationsUpdateTrigger {
             .filter { $0 }
             .share(replay: 1)
 
-        accountModelsManager
-            .cryptoAccountModelsPublisher
+        AccountModelsAggregator(.crypto, .joint)
+            .modelsPublisher(from: accountModelsManager)
             .flatMapLatest { cryptoAccountModels -> AnyPublisher<Bool, Never> in
                 let hasPendingDerivationsPublishers = cryptoAccountModels
                     .compactMap { $0.userTokensManager.derivationManager?.hasPendingDerivations }

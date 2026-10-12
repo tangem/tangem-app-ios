@@ -92,54 +92,8 @@ struct TabSelectionPill: View {
             Color.clear
                 .tangemMaterialSurface(in: Capsule())
         case .transparent:
-            Capsule().fill(DesignSystem.Color.bgOpaqueSecondary)
+            Capsule().fill(DesignSystem.Color.bgTransparentSecondary)
         }
-    }
-}
-
-// MARK: - Selection pill scale pulse
-
-struct TabSelectionPillScale<Trigger: Equatable>: ViewModifier {
-    let trigger: Trigger
-
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        if #available(iOS 17.0, *) {
-            content.keyframeAnimator(initialValue: CGFloat(1), trigger: trigger) { view, scaleX in
-                view.scaleEffect(x: scaleX, anchor: .center)
-            } keyframes: { _ in
-                KeyframeTrack {
-                    CubicKeyframe(Constants.pillPeakScale, duration: Constants.pillScalePhaseDuration)
-                    CubicKeyframe(1, duration: Constants.pillScalePhaseDuration)
-                }
-            }
-        } else {
-            content.modifier(LegacyPillScale(trigger: trigger))
-        }
-    }
-}
-
-private struct LegacyPillScale<Trigger: Equatable>: ViewModifier {
-    let trigger: Trigger
-
-    @State private var scaleX: CGFloat = 1
-    @State private var resetWorkItem: DispatchWorkItem?
-
-    func body(content: Content) -> some View {
-        content
-            .scaleEffect(x: scaleX, anchor: .center)
-            .onChange(of: trigger) { _ in pulse() }
-    }
-
-    private func pulse() {
-        let easing: Animation = .timingCurve(0.5, 0, 0.5, 1, duration: Constants.pillScalePhaseDuration)
-
-        resetWorkItem?.cancel()
-        withAnimation(easing) { scaleX = Constants.pillPeakScale }
-
-        let workItem = DispatchWorkItem { withAnimation(easing) { scaleX = 1 } }
-        resetWorkItem = workItem
-        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.pillScalePhaseDuration, execute: workItem)
     }
 }
 
@@ -170,7 +124,7 @@ struct TabItemPlaceholder: View {
 
     var body: some View {
         Capsule()
-            .fill(DesignSystem.Color.bgOpaqueSecondary)
+            .fill(DesignSystem.Color.bgTransparentSecondary)
             .frame(width: Constants.placeholderWidth, height: height)
             .tangemShimmer()
     }
@@ -185,9 +139,6 @@ private enum Constants {
     static let minWidth: CGFloat = 56
     static let hitAreaInset: CGFloat = 4
     static let pressAnimation: Animation = .timingCurve(0.8, 0, 0.6, 1, duration: 0.2)
-
-    static let pillScalePhaseDuration: TimeInterval = 0.2
-    static let pillPeakScale: CGFloat = 1.1
 
     static let placeholderHeight: CGFloat = 36
     static let placeholderWidth: CGFloat = 72

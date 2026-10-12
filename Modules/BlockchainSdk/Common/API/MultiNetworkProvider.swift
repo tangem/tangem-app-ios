@@ -90,6 +90,25 @@ extension MultiNetworkProvider {
             .eraseToAnyPublisher()
     }
 
+    func allProvidersPublisher<T>(
+        for requestPublisher: @escaping (_ provider: Provider) -> AnyPublisher<T, Error>
+    ) -> AnyPublisher<[Result<T, Error>], Never> {
+        let publishers = providers.enumerated().map { index, provider in
+            requestPublisher(provider)
+                .map { (index, Result<T, Error>.success($0)) }
+                .catch { Just((index, Result<T, Error>.failure($0))) }
+        }
+
+        return Publishers.MergeMany(publishers)
+            .collect()
+            .map { results in
+                results
+                    .sorted { $0.0 < $1.0 }
+                    .map(\.1)
+            }
+            .eraseToAnyPublisher()
+    }
+
     /// NOTE: There also copy of this behaviour in the wild, if you want to update something
     /// in the code, don't forget to update also Solano.Swift framework, class NetworkingRouter
     private func switchProviderIfNeeded(for errorHost: String) -> String? {

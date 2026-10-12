@@ -14,6 +14,7 @@ import struct Hiero.AccountId
 
 final class HederaWalletManager: BaseWalletManager {
     fileprivate typealias AssociatedTokens = Set<String>
+    fileprivate typealias TokenMetadata = [String: HederaTokenMetadata]
 
     private let networkService: HederaNetworkService
     private let transactionBuilder: HederaTransactionBuilder
@@ -23,6 +24,9 @@ final class HederaWalletManager: BaseWalletManager {
     /// HBARs per 1 USD
     private var tokenAssociationFeeExchangeRate: Decimal?
     private var associatedTokens: AssociatedTokens?
+    private var tokenMetadata: TokenMetadata?
+    private var tokenMetadataResolutionTask: Task<Void, Never>?
+    private var tokenMetadataStorageTask: Task<Void, Never>?
 
     private var storageKeySuffix: String {
         return wallet
@@ -65,11 +69,26 @@ final class HederaWalletManager: BaseWalletManager {
         fatalError("\(#function) has not been implemented")
     }
 
+    override func addToken(_ token: Token) {
+        guard !cardTokens.contains(token) else {
+            return
+        }
+
+        super.addToken(token)
+
+        let previousResolutionTask = tokenMetadataResolutionTask
+        tokenMetadataResolutionTask = Task { [weak self] in
+            await previousResolutionTask?.value
+            await self?.resolveTokenMetadata(for: token)
+        }
+    }
+
     // MARK: - Wallet update
 
     func updateWalletManager(address _: String) async throws {
         do {
-            try await loadCachedAssociatedTokensIfNeeded().async()
+            await loadCachedAssociatedTokensIfNeeded()
+            await tokenMetadataResolutionTask?.value
 
             let accountId = try await getAccountId().async()
 
@@ -116,13 +135,26 @@ final class HederaWalletManager: BaseWalletManager {
             result[element.contractAddress] = Decimal(element.balance) / pow(10, element.decimalCount)
         }
 
-        // Using HTS tokens balances from a remote list of tokens for tokens in a local list
         cardTokens
-            .filter { !HederaTokenContractAddressConverter.isERC20TokenAddress($0.contractAddress) }
-            .map { Amount(with: $0, value: htsTokenBalances[$0.contractAddress] ?? .zero) }
-            .forEach { wallet.add(amount: $0) }
+            .filter { tokenType(for: $0) == .hts }
+            .map { token in
+                htsAmountTransform(token: token, tokenBalances: htsTokenBalances)
+            }
+            .forEach { token, amount in
+                if let amount = amount {
+                    wallet.add(amount: amount)
+                } else {
+                    wallet.clearAmount(for: token)
+                }
+            }
 
         updateERC20TokensBalances(erc20TokenBalances)
+    }
+
+    private func htsAmountTransform(token: Token, tokenBalances: [String: Decimal]) -> (Token, Amount?) {
+        let contractAddress = normalizedHTSAddress(token.contractAddress)
+        guard let balance = tokenBalances[contractAddress] else { return (token, nil) }
+        return (token, Amount(with: token, value: balance))
     }
 
     private func updateERC20TokensBalances(_ tokensBalances: [Token: Result<Decimal, Error>]) {
@@ -137,7 +169,11 @@ final class HederaWalletManager: BaseWalletManager {
     }
 
     private func fetchERC20TokenBalances(accountId: String) -> some Publisher<[Token: Result<Decimal, Error>], Error> {
-        let erc20Tokens = cardTokens.filter { HederaTokenContractAddressConverter.isERC20TokenAddress($0.contractAddress) }
+        let erc20Tokens = cardTokens.filter { tokenType(for: $0) == .erc20 }
+        let contractAddresses = erc20Tokens
+            .map { (token: $0, contractAddress: erc20ContractAddress(for: $0)) }
+            .keyedFirst(by: \.token)
+            .mapValues(\.contractAddress)
         let networkService = networkService
 
         guard !erc20Tokens.isEmpty else {
@@ -151,7 +187,7 @@ final class HederaWalletManager: BaseWalletManager {
                 networkService
                     .getERC20Balance(
                         accountId: accountId,
-                        tokenContractAddress: token.contractAddress,
+                        tokenContractAddress: contractAddresses[token] ?? token.contractAddress,
                         tokenDecimals: token.decimalCount
                     )
                     .mapToResult()
@@ -184,7 +220,8 @@ final class HederaWalletManager: BaseWalletManager {
     private func makeTokenAssociationFeeExchangeRatePublisher(
         alreadyAssociatedTokens: AssociatedTokens
     ) -> some Publisher<HederaExchangeRate?, Error> {
-        if cardTokens.allSatisfy({ alreadyAssociatedTokens.contains($0.contractAddress) }) {
+        let htsTokens = cardTokens.filter { tokenType(for: $0) == .hts }
+        if htsTokens.allSatisfy({ alreadyAssociatedTokens.contains(normalizedHTSAddress($0.contractAddress)) }) {
             // All added tokens (from `cardTokens`) are already associated with the current account;
             // therefore there is no point in requesting an exchange rate to calculate the token association fee
             //
@@ -397,27 +434,15 @@ final class HederaWalletManager: BaseWalletManager {
 
     // MARK: - Token associations management
 
-    private func loadCachedAssociatedTokensIfNeeded() -> some Publisher<Void, Error> {
-        guard associatedTokens == nil else {
-            // Token associations are already loaded from the cache
-            return Just.justWithError(output: ())
-        }
+    private func loadCachedAssociatedTokensIfNeeded() async {
+        guard associatedTokens == nil else { return }
 
         let storageKey = Constants.associatedTokensStorageKeyPrefix + storageKeySuffix
+        let cachedAssociatedTokens: AssociatedTokens = await dataStorage.get(key: storageKey) ?? []
 
-        return Just
-            .justWithError(output: storageKey)
-            .withWeakCaptureOf(self)
-            .asyncMap { walletManager, storageKey in
-                return await walletManager.dataStorage.get(key: storageKey) ?? []
-            }
-            .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .handleEvents(receiveOutput: { walletManager, cachedAssociatedTokens in
-                walletManager.associatedTokens = cachedAssociatedTokens
-            })
-            .mapToVoid()
-            .eraseToAnyPublisher()
+        await MainActor.run {
+            self.associatedTokens = cachedAssociatedTokens
+        }
     }
 
     private func saveAssociatedTokensIfNeeded(newValue: AssociatedTokens) {
@@ -433,20 +458,106 @@ final class HederaWalletManager: BaseWalletManager {
         }
     }
 
+    private func loadCachedTokenMetadataIfNeeded() async {
+        guard tokenMetadata == nil else { return }
+
+        let storageKey = Constants.tokenMetadataStorageKeyPrefix + storageKeySuffix
+        let tokenMetadata: TokenMetadata = await dataStorage.get(key: storageKey) ?? [:]
+
+        await MainActor.run {
+            self.tokenMetadata = tokenMetadata
+        }
+    }
+
+    private func resolveTokenMetadata(for token: Token) async {
+        await loadCachedTokenMetadataIfNeeded()
+
+        guard tokenMetadata?[token.contractAddress] == nil else {
+            return
+        }
+
+        let resolver = HederaTokenMetadataResolver(networkService: networkService)
+        guard let metadata = try? await resolver.resolve(contractAddress: token.contractAddress) else {
+            return
+        }
+
+        var updatedMetadata = tokenMetadata ?? [:]
+        updatedMetadata[token.contractAddress] = metadata
+        saveTokenMetadataIfNeeded(newValue: updatedMetadata)
+    }
+
+    private func saveTokenMetadataIfNeeded(newValue: TokenMetadata) {
+        guard tokenMetadata != newValue else {
+            return
+        }
+
+        tokenMetadata = newValue
+
+        let previousStorageTask = tokenMetadataStorageTask
+        previousStorageTask?.cancel()
+        tokenMetadataStorageTask = Task.detached { [storageKeySuffix, dataStorage] in
+            await previousStorageTask?.value
+            guard !Task.isCancelled else { return }
+
+            let storageKey = Constants.tokenMetadataStorageKeyPrefix + storageKeySuffix
+            await dataStorage.store(key: storageKey, value: newValue)
+        }
+    }
+
+    private func tokenType(for token: Token) -> HederaTokenType {
+        if let cachedType = tokenMetadata?[token.contractAddress]?.type {
+            return cachedType
+        }
+
+        return HederaTokenContractAddressConverter.isERC20TokenAddress(token.contractAddress) ? .erc20 : .hts
+    }
+
+    private func normalizedHTSAddress(_ address: String) -> String {
+        return HederaTokenMetadataResolver(networkService: networkService).normalizeHTSAddress(address)
+    }
+
+    private func erc20ContractAddress(for token: Token) -> String {
+        return tokenMetadata?[token.contractAddress]?.evmAddress ?? token.contractAddress
+    }
+
     private func assetRequiresAssociation(_ asset: Asset) -> Bool {
         switch asset {
         case .coin, .reserve, .feeResource:
             return false
         case .token(let token):
-            if HederaTokenContractAddressConverter.isERC20TokenAddress(token.contractAddress) {
+            if tokenType(for: token) == .erc20 {
                 return false
             }
 
-            return !(associatedTokens ?? []).contains(token.contractAddress)
+            return !(associatedTokens ?? []).contains(normalizedHTSAddress(token.contractAddress))
         }
     }
 
     // MARK: - Transaction dependencies and building
+
+    private func makeTransferContext(
+        for transaction: Transaction
+    ) -> AnyPublisher<HederaTransactionBuilder.TransferContext, Error> {
+        guard case .token(let token) = transaction.amount.type, tokenType(for: token) == .erc20 else {
+            return .justWithError(output: .regular)
+        }
+
+        let tokenContractAddress = erc20ContractAddress(for: token)
+
+        return networkService
+            .getAccountInfo(address: transaction.destinationAddress)
+            .tryMap { accountInfo -> HederaTransactionBuilder.TransferContext in
+                guard let recipientEVMAddress = accountInfo.evmAddress, !recipientEVMAddress.isEmpty else {
+                    throw HederaError.accountEVMAddressNotFound
+                }
+
+                return .erc20(
+                    tokenContractAddress: tokenContractAddress,
+                    recipientEVMAddress: recipientEVMAddress
+                )
+            }
+            .eraseToAnyPublisher()
+    }
 
     private func getFee(amount: Amount, doesAccountExistPublisher: some Publisher<Bool, Error>) -> AnyPublisher<[Fee], Error> {
         let transferFeeBase: Decimal
@@ -456,10 +567,12 @@ final class HederaWalletManager: BaseWalletManager {
             transferFeeBase = Constants.cryptoTransferServiceCostInUSD
         case .token(let token):
             transferFeeBase = Constants.tokenTransferServiceCostInUSD
-            if !HederaTokenContractAddressConverter.isERC20TokenAddress(token.contractAddress) {
-                tokenCustomFeesPublisher = networkService.getTokensCustomFeesInfo(tokenAddress: token.contractAddress)
-                    .map(Optional.init)
-                    .eraseToAnyPublisher()
+            if tokenType(for: token) == .hts {
+                tokenCustomFeesPublisher = networkService.getTokensCustomFeesInfo(
+                    tokenAddress: normalizedHTSAddress(token.contractAddress)
+                )
+                .mapToOptional()
+                .eraseToAnyPublisher()
             }
         case .reserve, .feeResource:
             return .anyFail(error: BlockchainSdkError.failedToGetFee)
@@ -488,7 +601,7 @@ final class HederaWalletManager: BaseWalletManager {
             // Therefore, the fee value is always approximate and rounding of the fee value is mandatory.
             let feeRoundedValue = feeValue.rounded(blockchain: walletManager.wallet.blockchain, roundingMode: .up)
             let feeAmount = Amount(with: walletManager.wallet.blockchain, value: feeRoundedValue)
-            let fee = Fee(feeAmount, parameters: HederaFeeParams(additionalHBARFee: additionalHBARFee, erc20TransferConfiguration: nil))
+            let fee = Fee(feeAmount, parameters: HederaFeeParams(additionalHBARFee: additionalHBARFee, contractCallGasLimit: nil))
 
             return [fee]
         }
@@ -500,30 +613,29 @@ final class HederaWalletManager: BaseWalletManager {
             return .anyFail(error: BlockchainSdkError.failedToGetFee)
         }
 
+        let tokenContractAddress = erc20ContractAddress(for: token)
+
         return Publishers.CombineLatest(
             networkService.estimateERC20Transfer(
                 sourceAccountId: wallet.address,
                 destinationAddress: destination,
-                tokenContractAddress: token.contractAddress,
+                tokenContractAddress: tokenContractAddress,
                 amount: amount
             ),
             networkService.getERC20GasPrice()
         )
-        .tryMap { [weak self] estimation, gasPrice in
+        .tryMap { [weak self] gasLimit, gasPrice in
             guard let self else {
                 throw BlockchainSdkError.failedToGetFee
             }
 
-            let totalGas = Decimal(estimation.gasLimit) * Decimal(gasPrice)
+            let totalGas = Decimal(gasLimit) * Decimal(gasPrice)
             let feeValue = totalGas / wallet.blockchain.decimalValue
             let feeRoundedValue = feeValue.rounded(blockchain: wallet.blockchain, roundingMode: .up)
             let feeAmount = Amount(with: wallet.blockchain, value: feeRoundedValue)
             let feeParams = HederaFeeParams(
                 additionalHBARFee: .zero,
-                erc20TransferConfiguration: .init(
-                    recipientEVMAddress: estimation.recipientEVMAddress,
-                    gasLimit: estimation.gasLimit
-                )
+                contractCallGasLimit: gasLimit
             )
 
             return [Fee(feeAmount, parameters: feeParams)]
@@ -592,7 +704,7 @@ extension HederaWalletManager: WalletManager {
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
         if case .token(let token) = amount.type,
-           HederaTokenContractAddressConverter.isERC20TokenAddress(token.contractAddress) {
+           tokenType(for: token) == .erc20 {
             return getERC20TransferFee(amount: amount, destination: destination)
         }
 
@@ -609,25 +721,26 @@ extension HederaWalletManager: WalletManager {
     }
 
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        return sendCompiledTransaction(signedUsing: signer) { [weak self] validStartDate in
-            guard let self else {
-                throw BlockchainSdkError.empty
+        return makeTransferContext(for: transaction)
+            .withWeakCaptureOf(self)
+            .flatMap { walletManager, transferContext in
+                walletManager.sendCompiledTransaction(signedUsing: signer) { validStartDate in
+                    return try walletManager.transactionBuilder
+                        .buildTransferTransactionForSign(
+                            transaction: transaction,
+                            transferContext: transferContext,
+                            validStartDate: validStartDate,
+                            nodeAccountIds: nil
+                        )
+                }
             }
-
-            return try transactionBuilder
-                .buildTransferTransactionForSign(
-                    transaction: transaction,
-                    validStartDate: validStartDate,
-                    nodeAccountIds: nil
-                )
-        }
-        .withWeakCaptureOf(self)
-        .handleEvents(receiveOutput: { walletManager, sendResult in
-            walletManager.updateWalletWithPendingTransferTransaction(transaction, sendResult: sendResult)
-        })
-        .mapSendTxError(currentHost: currentHost)
-        .map(\.1)
-        .eraseToAnyPublisher()
+            .withWeakCaptureOf(self)
+            .handleEvents(receiveOutput: { walletManager, sendResult in
+                walletManager.updateWalletWithPendingTransferTransaction(transaction, sendResult: sendResult)
+            })
+            .mapSendTxError(currentHost: currentHost)
+            .map(\.1)
+            .eraseToAnyPublisher()
     }
 }
 
@@ -677,7 +790,10 @@ extension HederaWalletManager: AssetRequirementsManager {
                 }
 
                 return try transactionBuilder.buildTokenAssociationForSign(
-                    tokenAssociation: .init(accountId: wallet.address, contractAddress: token.contractAddress),
+                    tokenAssociation: .init(
+                        accountId: wallet.address,
+                        contractAddress: normalizedHTSAddress(token.contractAddress)
+                    ),
                     validStartDate: validStartDate,
                     nodeAccountIds: nil
                 )
@@ -699,6 +815,7 @@ private extension HederaWalletManager {
         static let accountIdStorageKeyPrefix = "hedera_wallet_"
         static let accountIdResetVersionStorageKeyPrefix = "hedera_wallet_reset_version_"
         static let associatedTokensStorageKeyPrefix = "hedera_associated_tokens_"
+        static let tokenMetadataStorageKeyPrefix = "hedera_token_metadata_"
         /// https://docs.hedera.com/hedera/networks/mainnet/fees
         static let cryptoTransferServiceCostInUSD = Decimal(stringValue: "0.0001")!
         static let tokenTransferServiceCostInUSD = Decimal(stringValue: "0.001")!

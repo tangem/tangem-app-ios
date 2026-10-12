@@ -21,6 +21,7 @@ final class TokenSelectorExpandableAccountItemViewModel: Identifiable, Observabl
     @Published private(set) var iconData: AccountIconView.ViewData
     @Published private(set) var totalFiatBalance: LoadableBalanceView.State
     @Published private(set) var priceChange: PriceChangeView.State
+    let currencyCode: String?
 
     var tokensCount: String { Localization.commonTokensCount(rawTokensCount) }
 
@@ -45,6 +46,7 @@ final class TokenSelectorExpandableAccountItemViewModel: Identifiable, Observabl
     init(
         account: any BaseAccountModel,
         rateProvider: (any AccountRateProvider)?,
+        currencyCode: String?,
         stateStorage: ExpandableAccountItemStateStorage,
         initiallyExpanded: Bool,
         itemsCountPublisher: AnyPublisher<Int, Never>,
@@ -53,6 +55,7 @@ final class TokenSelectorExpandableAccountItemViewModel: Identifiable, Observabl
     ) {
         accountModel = account
         self.rateProvider = rateProvider
+        self.currencyCode = currencyCode
         self.stateStorage = stateStorage
         self.filteredBalancePublisher = filteredBalancePublisher
         name = account.name

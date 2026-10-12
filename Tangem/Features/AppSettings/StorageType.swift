@@ -45,6 +45,8 @@ enum StorageType: String {
     case tangemPayCardIssuingOrderIdForCustomerWalletId = "tangem_pay_card_issuing_order_id_for_customer_wallet_id"
     case tangemPayShowAddToApplePayGuide = "tangem_pay_show_add_to_apple_pay_guide"
     case tangemPayIsPaeraCustomer = "tangem_pay_is_paera_customer"
+    case polymarketHasAccount = "polymarket_has_account"
+    case collectiblesHasAccount = "collectibles_has_account"
     case tangemPayIsDisabledForCustomerWalletId = "tangem_pay_is_disabled_for_customer_wallet_id"
     case tangemPayIsKYCHiddenForCustomerWalletId = "tangem_pay_is_kyc_hidden_for_customer_wallet_id"
     case tangemPayCashbackBlockedBannerDismissedForCustomerWalletId = "tangem_pay_cashback_blocked_banner_dismissed_for_customer_wallet_id"
@@ -61,6 +63,7 @@ enum StorageType: String {
     case hasReferralBindingRequest = "has_referral_binding_request"
     case shouldShowMobilePromoWalletSelector = "should_show_mobile_promo_wallet_selector"
     case needsTangemPayMobileOnboarding = "needs_tangem_pay_mobile_onboarding"
+    case pendingTangemPayCampaignKey = "pending_tangem_pay_campaign_key"
     case mobileUpgradeBannerClosed = "mobile_upgrade_banner_closed"
     case mobileUpgradeBannerWalletCreated = "mobile_upgrade_banner_wallet_created"
     case mobileUpgradeBannerWalletToppedUp = "mobile_upgrade_banner_wallet_topped_up"
@@ -70,4 +73,6 @@ enum StorageType: String {
     case yieldApyBoostFirstSeenCompletedDates = "yield_apy_boost_first_seen_completed_dates"
     case priceAlertsOnboardingShown = "price_alerts_onboarding_shown"
     case hiddenMarketingCampaigns = "hidden_marketing_campaigns"
+    case geoIpRegionCode = "geo_ip_region_code"
+    case geoIpRegionCodeUpdateDate = "geo_ip_region_code_update_date"
 }

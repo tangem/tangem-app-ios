@@ -19,6 +19,7 @@ struct MarketsCoordinatorView: CoordinatorView {
                 if let mainMarketsViewModel = coordinator.marketsMainViewModel {
                     MarketsMainView(viewModel: mainMarketsViewModel)
                         .navigationLinks(links)
+                        .containerCornerRadius(MarketsNavigationMetrics.pushedScreenCornerRadius)
                 }
 
                 sheets
@@ -83,7 +84,7 @@ struct MarketsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.polymarketCoordinator) {
                 PolymarketCoordinatorView(coordinator: $0)
             }
-            .fullScreenCover(item: $coordinator.gachaCoordinator, content: GachaCoordinatorView.init)
+            .collectiblesFullScreenCover(item: $coordinator.collectiblesCoordinator)
     }
 
     private var newsPagerTokenDetailsLink: some View {

@@ -89,7 +89,7 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WC
             .blockchain: walletModel.tokenItem.blockchain.displayName,
             .walletForm: result.signerType,
             .selectedHost: result.currentHost,
-        ], analyticsSystems: .all)
+        ], analyticsSystems: .all, otelParamOverrides: Analytics.otelCustomTokenOverrides(token: walletModel.tokenItem))
 
         return RPCResult.response(AnyCodable(result.hash.lowercased()))
     }

@@ -44,9 +44,7 @@ extension CommonMobileRemoveWalletManager: MobileRemoveWalletManager {
     }
 
     func removeWallet() {
-        if FeatureProvider.isAvailable(.mobileWalletBackup) {
-            logWalletForgottenAnalytics()
-        }
+        logWalletForgottenAnalytics()
 
         if deletesICloudBackup {
             MobileCleanupUtil.cleanBackup(

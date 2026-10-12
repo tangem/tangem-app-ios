@@ -128,8 +128,7 @@ extension WelcomeOnboardingViewModel {
     private func presentWarningSheet() {
         let analyticsContext = PushNotificationsWarningAnalyticsContext(
             zone: .onboarding,
-            variant: isWarningSheetAvailable ? .treatment : .control,
-            walletId: nil
+            variant: isWarningSheetAvailable ? .treatment : .control
         )
 
         warningSheetViewModel = PushNotificationsWarningViewModel(

@@ -16,38 +16,65 @@ import TangemFoundation
 struct NewsPagerView: View {
     @ObservedObject var viewModel: NewsPagerViewModel
 
+    @Environment(\.mainShtorkaSize) private var sheetSize
+    @Environment(\.mainShtorkaContentIsCollapsed) private var isContentCollapsed
+
+    @State private var sheetNavigationBarHeight: CGFloat = 0
+    @State private var sheetNavigationButtonWidth: CGFloat = 0
+    @State private var sheetPagerHeight: CGFloat?
+
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            VStack(spacing: 0) {
-                if !viewModel.isNativeNavigationBarUsed {
-                    navigationBar
+            ZStack(alignment: .top) {
+                VStack(spacing: 0) {
+                    if !sheetSize.isFeedSheet, !viewModel.isNativeNavigationBarUsed {
+                        navigationBar
+                    }
+
+                    Group {
+                        if sheetSize.isFeedSheet {
+                            sheetPagerContent
+                        } else {
+                            pagerContent
+                                .opacity(viewModel.overlayContentHidingProgress)
+                        }
+                    }
+                    .hiddenWhileCollapsed()
                 }
 
-                pagerContent
-                    .opacity(viewModel.overlayContentHidingProgress)
+                if sheetSize.isFeedSheet {
+                    sheetNavigationBar
+                        .readGeometry(\.size.height, bindTo: $sheetNavigationBarHeight)
+                }
             }
 
-            if viewModel.shouldShowPageIndicator {
+            if viewModel.shouldShowPageIndicator, !sheetSize.isNonFullFeedSheet {
                 Group {
                     pageIndicatorOverlay
                         .ignoresSafeArea(.container, edges: .bottom)
                     pageIndicator
                         .padding(.bottom, 8)
                 }
-                .opacity(viewModel.overlayContentHidingProgress)
+                .opacity(sheetSize.isFeedSheet ? 1 : viewModel.overlayContentHidingProgress)
+                .hiddenWhileCollapsed()
             }
         }
-        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+        .background(backgroundColor.ignoresSafeArea())
         .onAppear { viewModel.handleViewAction(.onAppear) }
         .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
             viewModel?.onOverlayContentProgressChange(progress)
         }
-        .if(viewModel.isMarketsSheetFlow || viewModel.isDeeplinkMode) { view in
+        .if(!sheetSize.isFeedSheet && (viewModel.isMarketsSheetFlow || viewModel.isDeeplinkMode)) { view in
             view.injectMarketsNavigationConfigurator(isSimplified: viewModel.isDeeplinkMode)
         }
-        .if(viewModel.isNativeNavigationBarUsed) { view in
+        .if(sheetSize.isFeedSheet) { view in
+            view
+                .toolbar(.hidden, for: .navigationBar)
+                .background(FeedPopGestureEnabler(prioritizesNavigation: true))
+        }
+        .if(!sheetSize.isFeedSheet && viewModel.isNativeNavigationBarUsed) { view in
             view
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
@@ -79,7 +106,9 @@ struct NewsPagerView: View {
                     startPoint: .top,
                     endPoint: .bottom
                 )
-                .frame(height: 200)
+                // Capped rather than fixed: while the sheet is dragged low its detent is still full, and a fixed
+                // height would push the screen past the sheet and its header above the top edge.
+                .frame(maxHeight: 200)
                 .ignoresSafeArea(.container, edges: .bottom)
             }
         }
@@ -87,6 +116,56 @@ struct NewsPagerView: View {
     }
 
     // MARK: - Navigation Bar
+
+    private var sheetNavigationBar: some View {
+        NavigationHeader(
+            leadingContent: {
+                Group {
+                    if viewModel.isDeeplinkMode {
+                        NavigationBarButton.close(action: { viewModel.handleViewAction(.back) })
+                            .redesigned()
+                    } else {
+                        NavigationBarButton.back(action: { viewModel.handleViewAction(.back) })
+                            .redesigned()
+                    }
+                }
+                .readGeometry(\.size.width, bindTo: $sheetNavigationButtonWidth)
+            },
+            principalContent: {
+                if isContentCollapsed {
+                    sheetNavigationBarTitle
+                        .padding(.horizontal, sheetNavigationButtonWidth + Constants.titleToButtonSpacing)
+                        .transition(.opacity)
+                }
+            },
+            trailingContent: {
+                NavigationBarButton.share(action: { viewModel.handleViewAction(.share) })
+                    .redesigned()
+                    .disabled(viewModel.isCurrentArticleLoading)
+            }
+        )
+        .animation(.easeInOut(duration: 0.2), value: isContentCollapsed)
+    }
+
+    private var sheetNavigationBarTitle: some View {
+        ViewThatFits(in: .horizontal) {
+            sheetNavigationBarTitleText
+
+            sheetNavigationBarTitleText
+                .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                .reverseMask(alignment: .trailing) {
+                    LinearGradient(colors: [.clear, .black], startPoint: .leading, endPoint: .trailing)
+                        .frame(width: 24)
+                }
+        }
+    }
+
+    private var sheetNavigationBarTitleText: some View {
+        Text(viewModel.currentArticle?.title ?? Localization.commonNews)
+            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
+    }
 
     private var navigationBar: some View {
         NavigationBar(
@@ -113,6 +192,10 @@ struct NewsPagerView: View {
         .padding(.top, 12)
     }
 
+    private var backgroundColor: Color {
+        !sheetSize.isNonFullFeedSheet ? DesignSystem.Color.bgPrimary : .clear
+    }
+
     @ToolbarContentBuilder
     private var trailingToolbarContent: some ToolbarContent {
         NavigationToolbarButton.share(placement: .topBarTrailing) {
@@ -137,10 +220,29 @@ struct NewsPagerView: View {
         )
     }
 
+    /// The sheet resizes its content through a drag, and the paged `TabView` lays its pages out a frame late,
+    /// shifting the article under the header. Kept at the tallest height the sheet gave, it is only clipped instead.
+    private var sheetPagerContent: some View {
+        Color.clear
+            .overlay(alignment: .top) {
+                pagerContent
+                    .frame(height: sheetPagerHeight)
+            }
+            .onGeometryChange(for: CGFloat.self, of: { $0.size.height }) { height in
+                sheetPagerHeight = max(sheetPagerHeight ?? 0, height)
+            }
+            .ignoresSafeArea(.container, edges: .bottom)
+    }
+
     private var pagerContent: some View {
         TabView(selection: currentIndexBinding) {
             ForEach(Array(viewModel.newsIds.enumerated()), id: \.element) { index, newsId in
                 NewsPageContentView(newsId: newsId, viewModel: viewModel)
+                    .if(sheetSize.isFeedSheet) { view in
+                        view.safeAreaInset(edge: .top, spacing: 0) {
+                            Color.clear.frame(height: sheetNavigationBarHeight)
+                        }
+                    }
                     .tag(index)
                     .contentShape(Rectangle())
             }
@@ -148,6 +250,14 @@ struct NewsPagerView: View {
         .tabViewStyle(.page(indexDisplayMode: .never))
         .ignoresSafeArea(.container, edges: .bottom)
         .id(viewModel.newsIds.count)
+    }
+}
+
+// MARK: - Constants
+
+private extension NewsPagerView {
+    enum Constants {
+        static let titleToButtonSpacing: CGFloat = 8
     }
 }
 
@@ -237,7 +347,7 @@ private struct NewsPageContentView: View {
             .padding(.horizontal, 12)
             .frame(height: 36)
             .frame(minWidth: 46)
-            .background(DesignSystem.Color.bgOpaquePrimary, in: .capsule)
+            .background(DesignSystem.Color.bgTransparentPrimary, in: .capsule)
         }
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -12,19 +12,20 @@ import Foundation
 /// Returns `[.accountDerivation: index]` for non-main accounts.
 /// Main accounts are skipped and return an empty dictionary.
 final class SingleAccountAnalyticsBuilder: AccountsAnalyticsBuilder {
-    private var derivationIndex: Int?
+    private var derivationIdentity: CryptoAccountDerivationIdentity?
 
     @discardableResult
-    func setDerivationIndex(_ index: Int) -> Self {
-        derivationIndex = index
+    func setDerivationIdentity(_ identity: CryptoAccountDerivationIdentity) -> Self {
+        derivationIdentity = identity
         return self
     }
 
     func build() -> [Analytics.ParameterKey: String] {
-        guard let derivationIndex else {
+        guard let derivationIdentity else {
             return [:]
         }
 
-        return [.accountDerivation: "\(derivationIndex)"]
+        // The parameter has always been numeric, and both kinds of account report the bare index they are numbered by
+        return [.accountDerivation: "\(derivationIdentity.derivationIndex)"]
     }
 }

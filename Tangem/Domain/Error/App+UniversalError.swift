@@ -15,7 +15,7 @@ import TangemFoundation
 // `002` - Visa user wallet model
 // `003` - Referral
 // `004` - TransactionDispatcherResult.Error
-// `005` - AnyWalletManagerFactoryError
+// `005` - AnyWalletFactoryError
 // `006` - MultipleAddressTransactionHistoryService.ServiceError
 // `007` - CommonUserTokensManager.Error
 // `008` - CommonTokenEnricher.Error
@@ -124,7 +124,7 @@ extension TransactionDispatcherResult.Error: UniversalError {
     }
 }
 
-extension AnyWalletManagerFactoryError: UniversalError {
+extension AnyWalletFactoryError: UniversalError {
     var errorCode: Int {
         switch self {
         case .walletWithBlockchainCurveNotFound:
@@ -135,6 +135,8 @@ extension AnyWalletManagerFactoryError: UniversalError {
             100005002
         case .twinWalletPublicKeyNotFound:
             100005003
+        case .accountAddressUnavailable:
+            100005004
         }
     }
 }

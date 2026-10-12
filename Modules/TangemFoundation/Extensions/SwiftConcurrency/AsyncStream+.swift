@@ -19,6 +19,10 @@ public extension AsyncStream {
     struct MulticastSubscribers<ID: Hashable> {
         private var subscribers: [ID: SubscriptionState] = [:]
 
+        public var isEmpty: Bool {
+            subscribers.isEmpty
+        }
+
         public init() {}
 
         /// Mimics a `PassthroughSubject`: the subscriber receives only elements yielded after it subscribes.

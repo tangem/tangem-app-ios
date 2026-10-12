@@ -17,8 +17,6 @@ struct WelcomeView: View {
             .alert(item: $viewModel.error, content: { $0.alert })
             .environment(\.colorScheme, .dark)
             .onFirstAppear(perform: viewModel.onFirstAppear)
-            .onAppear(perform: viewModel.onAppear)
-            .onDisappear(perform: viewModel.onDisappear)
     }
 }
 

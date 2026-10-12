@@ -19,10 +19,9 @@ struct TransactionHistoryMapperWarningTests {
         #expect(warning == Self.expectedWarning(for: status))
     }
 
-    @Test("Onramp surfaces the matching warning per status", arguments: OnrampTransactionStatus.allCases)
+    @Test("Onramp rows carry no warning in any status", arguments: OnrampTransactionStatus.allCases)
     func onrampWarning(status: OnrampTransactionStatus) {
-        let warning = makeWarning(for: .onramp(onrampInfo(status: status)))
-        #expect(warning == Self.expectedWarning(for: status))
+        #expect(makeWarning(for: .onramp(onrampInfo(status: status))) == nil)
     }
 
     @Test("A plain transfer (no Express extra info) has no warning")
@@ -57,27 +56,6 @@ private extension TransactionHistoryMapperWarningTests {
             return nil
         }
     }
-
-    static func expectedWarning(for status: OnrampTransactionStatus) -> TransactionViewModel.Warning? {
-        switch status {
-        case .verifying:
-            return .verifying
-        case .paused:
-            return .paused
-        case .unknown,
-             .created,
-             .expired,
-             .waitingForPayment,
-             .paymentProcessing,
-             .failed,
-             .paid,
-             .sending,
-             .refunding,
-             .refunded,
-             .finished:
-            return nil
-        }
-    }
 }
 
 // MARK: - Helpers
@@ -86,9 +64,11 @@ private extension TransactionHistoryMapperWarningTests {
     func makeSUT() -> TransactionHistoryMapper {
         TransactionHistoryMapper(
             currencySymbol: "ETH",
+            blockchain: .ethereum(testnet: false),
             addressesProvider: StubWarningAddressesProvider(walletAddresses: ["0xSource"]),
             showSign: true,
-            isToken: false
+            isToken: false,
+            stakingNetwork: .ethereum
         )
     }
 

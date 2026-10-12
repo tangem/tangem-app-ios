@@ -17,6 +17,7 @@ enum AppDatabaseTableKind: CaseIterable {
     case expressOnrampTransactionsTable
     case expressSyncMetadataTable
     case transactionHistoryIndexTable
+    case stakingTargetsCacheTable
 
     var table: AppDatabaseTable.Type {
         switch self {
@@ -34,6 +35,8 @@ enum AppDatabaseTableKind: CaseIterable {
             ExpressSyncMetadataTable.self
         case .transactionHistoryIndexTable:
             TransactionHistoryIndexTable.self
+        case .stakingTargetsCacheTable:
+            StakingTargetsCacheTable.self
         }
     }
 }

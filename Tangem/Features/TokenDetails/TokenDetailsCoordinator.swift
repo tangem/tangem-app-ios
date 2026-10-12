@@ -42,6 +42,7 @@ final class TokenDetailsCoordinator: CoordinatorObject {
 
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     private var safariHandle: SafariHandle?
+    private var transactionDetailsPresentationTask: Task<Void, Never>?
 
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -58,19 +59,14 @@ final class TokenDetailsCoordinator: CoordinatorObject {
 
         let tokenRouter = SingleTokenRouter(
             userWalletInfo: options.userWalletInfo,
+            analyticsSource: .token,
             coordinator: self
         )
 
         let expressFactory = ExpressStatusTrackingFactory(
             userWalletInfo: options.userWalletInfo,
             tokenItem: options.walletModel.tokenItem,
-            transactionHistoryEnricherFactory: { [weak walletModel = options.walletModel] in
-                try? await walletModel?
-                    .featuresPublisher
-                    .first()
-                    .async()
-                    .transactionHistoryProvider
-            }
+            transactionHistoryEnricherFactory: TransactionHistoryEnricherFactory.make(for: options.walletModel)
         )
 
         let expressStatusTracking = expressFactory.makeExpressStatusTracking()
@@ -81,7 +77,7 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             publicKey: options.walletModel.publicKey
         )
 
-        let deeplinkHandler = PromotionDeeplinkHandler(
+        let deeplinkHandler = TokenScreenDeeplinkResponder(
             coordinator: self,
             walletModel: options.walletModel,
             userWalletInfo: options.userWalletInfo
@@ -147,17 +143,45 @@ extension TokenDetailsCoordinator {
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
     func openTransactionDetails(_ data: TransactionDetailsRouteData) {
-        Task { @MainActor in
-            let viewModel = TransactionDetailsViewModel(
-                id: data.id,
-                walletModel: data.walletModel,
-                userWalletInfo: data.userWalletInfo,
-                isAccountsMode: data.isAccountsMode,
-                addressBookManager: data.addressBookManager,
-                addressBookAnalyticsLogger: CommonAddressBookAnalyticsLogger(),
-                routable: self
-            )
+        guard transactionDetailsPresentationTask == nil else { return }
 
+        transactionDetailsPresentationTask = Task { @MainActor [weak self] in
+            guard let viewModel = self?.makeTransactionDetailsViewModel(data) else { return }
+
+            await viewModel.prepareForPresentation()
+
+            guard !Task.isCancelled, let self else { return }
+
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+            transactionDetailsPresentationTask = nil
+        }
+    }
+
+    func cancelTransactionDetailsPresentation() {
+        transactionDetailsPresentationTask?.cancel()
+        transactionDetailsPresentationTask = nil
+    }
+
+    @MainActor
+    private func makeTransactionDetailsViewModel(_ data: TransactionDetailsRouteData) -> TransactionDetailsViewModel {
+        TransactionDetailsViewModel(
+            id: data.id,
+            walletModel: data.walletModel,
+            userWalletInfo: data.userWalletInfo,
+            isAccountsMode: data.isAccountsMode,
+            addressBookManager: data.addressBookManager,
+            addressBookAnalyticsLogger: CommonAddressBookAnalyticsLogger(),
+            routable: self
+        )
+    }
+
+    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation) {
+        let viewModel = JointAccountOperationDetailsViewModelBuilder().build(
+            pendingOperation: pendingOperation,
+            coordinator: self
+        )
+
+        Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -407,6 +431,8 @@ extension TokenDetailsCoordinator: TransactionDetailsRoutable {
 // MARK: - AddressBookContactNavigating
 
 extension TokenDetailsCoordinator: AddressBookContactNavigating {
+    var addressBookAnalyticsSource: AddressBookAnalyticsSource { .transactionDetails }
+
     func contactManagementDidDismiss() {
         Task { @MainActor in
             floatingSheetPresenter.resumeSheetsDisplaying()
@@ -583,6 +609,16 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 
 extension TokenDetailsCoordinator: SendFeeCurrencyNavigating {}
 
-// MARK: - PromotionDeeplinkRoutable
+// MARK: - TokenScreenDeeplinkRoutable
 
-extension TokenDetailsCoordinator: PromotionDeeplinkRoutable {}
+extension TokenDetailsCoordinator: TokenScreenDeeplinkRoutable {}
+
+// MARK: - JointAccountOperationDetailsRoutable
+
+extension TokenDetailsCoordinator: JointAccountOperationDetailsRoutable {
+    func closeOperationDetails() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}

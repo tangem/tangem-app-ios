@@ -15,6 +15,7 @@ import TangemUIUtils
 class SendRoutableMock: SendRoutable {
     func openLearnMoreAboutApprove() {}
     func dismiss(reason: SendDismissReason) {}
+    func didDispatchTransaction() {}
     func openFeeExplanation(url: URL) {}
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {}
     func openSwapSupportSelection(with dataCollector: EmailDataCollector, recipient: String, chatDataCollector: ChatDataCollector) {}

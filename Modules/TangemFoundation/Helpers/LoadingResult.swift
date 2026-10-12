@@ -110,10 +110,10 @@ public extension LoadingResult {
 
 // MARK: - Error
 
-public enum LoadingResultError: LocalizedError {
+enum LoadingResultError: LocalizedError {
     case loadingInProcess
 
-    public var errorDescription: String? {
+    var errorDescription: String? {
         switch self {
         case .loadingInProcess: "Loading in process"
         }

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -64,6 +65,7 @@ struct TangemPayActivateCardView: View {
             Text(viewModel.hint)
                 .style(DesignSystem.Font.captionMediumToken, color: hintColor)
                 .multilineTextAlignment(.center)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.activateCardHint)
 
             TangemUI.Button(
                 label: AttributedString(Localization.commonContinue),
@@ -73,8 +75,9 @@ struct TangemPayActivateCardView: View {
             .size(.x12)
             .styleType(.default)
             .horizontalLayout(.infinity)
-            .isLoading(viewModel.isActivating)
+            .loading(.spinner(if: viewModel.isActivating))
             .disabled(!viewModel.isContinueEnabled)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.activateCardContinueButton)
         }
         .padding(.horizontal, Constants.footerHorizontalPadding)
         .padding(.vertical, Constants.footerVerticalPadding)

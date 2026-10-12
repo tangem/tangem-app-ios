@@ -121,6 +121,25 @@ extension Analytics {
 
         case walletForm = "WalletForm"
         case reason = "Reason"
+        case storyId = "Story Id"
+        case slideId = "Slide Id"
+        case slideIndex = "Slide Index"
+        case slidesTotal = "Slides Total"
+        /// Distinct slides seen in one session. Kept apart from `watched`, which V1 stories already
+        /// send as a page index — one wire name cannot carry both a position and a count.
+        case slidesWatched = "Slides Watched"
+        case assetType = "Asset Type"
+        case assetDurationMs = "Asset Duration Ms"
+        case watchedMs = "Watched Ms"
+        case slideCompleted = "Slide Completed"
+        case storyCompleted = "Story Completed"
+        case advanceReason = "Advance Reason"
+        case loopsWatched = "Loops Watched"
+        case contentOrigin = "Content Origin"
+        case exitReason = "Exit Reason"
+        case actionId = "Action Id"
+        case actionTargetType = "Action Target Type"
+        case actionDestination = "Action Destination"
         case residence = "Residence"
         case paymentMethod = "Payment Method"
 
@@ -158,7 +177,6 @@ extension Analytics {
         case backupType = "Backup Type"
         case backupsCount = "Backup Count"
         case completedBackups = "Completed Backups"
-        case userWalletId = "User Wallet Id"
 
         // MARK: - News
 
@@ -192,11 +210,9 @@ extension Analytics {
 
         case variant
         case zone
-        case walletId = "wallet_id"
 
         // MARK: - Address Book
 
-        case addressBookWalletId = "Wallet Id"
         case contactId = "Contact Id"
         case contactsCount = "Contacts Count"
 
@@ -220,5 +236,20 @@ extension Analytics {
         // MARK: - For You
 
         case info = "Info"
+
+        // MARK: - Welcome V2
+
+        case sheet = "Sheet"
+        case dismissReason = "Dismiss Reason"
+        case document = "Document"
+        case entryReason = "Entry Reason"
+        case stage = "Stage"
+
+        // MARK: - Markets sections
+
+        case section = "Section"
+        case category = "Category"
+        case productCard = "Product Card"
+        case shtorkaState = "Shtorka State"
     }
 }

@@ -15,30 +15,19 @@ struct EarnDetailHeaderView: View {
     let headerTitle: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: .zero) {
-            HStack(alignment: .center, spacing: .zero) {
-                Text(headerTitle)
-                    .lineLimit(1)
-                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+        HStack(alignment: .center, spacing: .zero) {
+            Text(headerTitle)
+                .lineLimit(1)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
 
-                Spacer(minLength: 8)
-            }
-            .padding(.horizontal, Layout.Content.horizontalPadding)
+            Spacer(minLength: 8)
         }
-        .padding(.vertical, Layout.Container.verticalPadding)
-        .padding(.horizontal, Layout.Container.horizontalPadding)
+        .padding(.horizontal, Layout.horizontalPadding)
     }
 }
 
 extension EarnDetailHeaderView {
     enum Layout {
-        enum Container {
-            static let horizontalPadding: CGFloat = 16.0
-            static let verticalPadding: CGFloat = 2.0
-        }
-
-        enum Content {
-            static let horizontalPadding: CGFloat = 8.0
-        }
+        static let horizontalPadding: CGFloat = 16.0
     }
 }

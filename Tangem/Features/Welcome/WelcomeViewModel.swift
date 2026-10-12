@@ -15,7 +15,6 @@ import TangemLocalization
 final class WelcomeViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
-    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
     @Published var error: AlertBinder?
     @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
@@ -68,14 +67,6 @@ final class WelcomeViewModel: ObservableObject {
         Analytics.log(.introductionProcessOpened)
     }
 
-    func onAppear() {
-        incomingActionManager.becomeFirstResponder(self)
-    }
-
-    func onDisappear() {
-        incomingActionManager.resignFirstResponder(self)
-    }
-
     func scanCard() {
         isScanningCard.send(true)
         Analytics.log(Analytics.CardScanSource.welcome.cardScanButtonEvent)
@@ -87,8 +78,6 @@ final class WelcomeViewModel: ObservableObject {
 
             switch result {
             case .error(let error) where error.isCancellationError:
-                viewModel.incomingActionManager.discardIncomingAction()
-
                 await runOnMain {
                     viewModel.isScanningCard.send(false)
                 }
@@ -104,7 +93,6 @@ final class WelcomeViewModel: ObservableObject {
                     params: [.source: Analytics.CardScanSource.welcome.cardWasScannedParameterValue],
                     contextParams: input.cardInput.getContextParams()
                 )
-                viewModel.incomingActionManager.discardIncomingAction(if: { !$0.isPromoDeeplink })
 
                 await runOnMain {
                     viewModel.isScanningCard.send(false)
@@ -113,7 +101,6 @@ final class WelcomeViewModel: ObservableObject {
 
             case .scanTroubleshooting:
                 Analytics.log(.cantScanTheCard, params: [.source: .introduction])
-                viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
                     viewModel.isScanningCard.send(false)
@@ -174,8 +161,6 @@ final class WelcomeViewModel: ObservableObject {
     }
 
     private func handleError(_ error: Error) async {
-        incomingActionManager.discardIncomingAction()
-
         await runOnMain {
             isScanningCard.send(false)
             self.error = error.alertBinder
@@ -246,18 +231,5 @@ extension WelcomeViewModel: StoriesDelegate {
 
     func openShop() {
         coordinator?.openShop()
-    }
-}
-
-// MARK: - IncomingActionResponder
-
-extension WelcomeViewModel: IncomingActionResponder {
-    func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
-        switch action {
-        case .start:
-            return true
-        default:
-            return false
-        }
     }
 }

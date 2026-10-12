@@ -12,25 +12,26 @@ import BlockchainSdk
 import TangemAssets
 import TangemLocalization
 import protocol TangemUI.FloatingSheetContentViewModel
+import protocol TangemUI.TabNavigationItem
 
 @MainActor
 final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiable, FloatingSheetContentViewModel {
     // MARK: - ViewState
 
-    @Published var currentSelection: EarnNetworkFilterType
-    @Published var presetRowViewModels: [DefaultSelectableRowViewModel<EarnNetworkFilterType>]
-    @Published var networkRowInputs: [EarnNetworkFilterNetworkRowInput] = []
+    @Published private(set) var networkRowInputs: [EarnNetworkFilterNetworkRowInput] = []
+    @Published private(set) var isAllOptionSelected = true
+    @Published private(set) var isFooterVisible = false
+
+    let scopes = EarnNetworkFilterScope.allCases
 
     var title: String {
-        Localization.earnFilterBy
+        Localization.earnFilterNetworks
     }
 
-    var selectionBinding: Binding<EarnNetworkFilterType> {
+    var scopeBinding: Binding<EarnNetworkFilterScope> {
         Binding(
-            get: { [weak self] in self?.currentSelection ?? .all },
-            set: { [weak self] newValue in
-                self?.selectAndDismiss(network: newValue)
-            }
+            get: { [weak self] in self?.draft.scope ?? .allNetworks },
+            set: { [weak self] newValue in self?.select(scope: newValue) }
         )
     }
 
@@ -42,7 +43,13 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
 
     private let filterProvider: EarnDataFilterProvider
     private let analyticsProvider: EarnAnalyticsProvider
+    private let blockchainIconProvider: NetworkImageProvider
     private let dismissAction: (() -> Void)?
+
+    private let availableNetworks: [EarnNetworkInfo]
+    private let myNetworks: [EarnNetworkInfo]
+    private let appliedFilter: EarnNetworkFilterType
+    private var draft: Selection
 
     // MARK: - Init
 
@@ -54,46 +61,16 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
     ) {
         self.filterProvider = filterProvider
         self.analyticsProvider = analyticsProvider
+        self.blockchainIconProvider = blockchainIconProvider
         dismissAction = onDismiss
-        currentSelection = filterProvider.selectedNetworkFilter
 
-        presetRowViewModels = [
-            EarnNetworkFilterType.all,
-            EarnNetworkFilterType.userNetworks(networkInfos: filterProvider.myNetworks),
-        ].map {
-            DefaultSelectableRowViewModel(
-                id: $0,
-                title: $0.displayTitle,
-                subtitle: nil
-            )
-        }
+        availableNetworks = filterProvider.availableNetworks
+        myNetworks = filterProvider.myNetworks
 
-        let blockchainsByNetworkId = filterProvider.supportedBlockchainsByNetworkId
+        appliedFilter = filterProvider.selectedNetworkFilter
+        draft = Selection(filter: appliedFilter, availableNetworks: availableNetworks, myNetworks: myNetworks)
 
-        let selectedNetworkFilter = filterProvider.selectedNetworkFilter
-        networkRowInputs = filterProvider.availableNetworks.compactMap { networkInfo in
-            guard let blockchain = blockchainsByNetworkId[networkInfo.networkId] else {
-                return nil
-            }
-
-            let isSelected: Bool
-            if case .specific(let selected) = selectedNetworkFilter {
-                isSelected = selected.networkId == networkInfo.networkId
-            } else {
-                isSelected = false
-            }
-
-            return EarnNetworkFilterNetworkRowInput(
-                id: blockchain.networkId,
-                iconAsset: blockchainIconProvider.provide(by: blockchain, filled: true),
-                networkName: blockchain.displayName,
-                currencySymbol: blockchain.currencySymbol,
-                isSelected: isSelected,
-                onTap: { [weak self] in
-                    self?.selectAndDismiss(network: .specific(networkInfo: networkInfo))
-                }
-            )
-        }
+        updateState()
     }
 
     // MARK: - Internal Methods
@@ -102,21 +79,73 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
         dismiss()
     }
 
-    func onCancelTap() {
+    func onAllOptionTap() {
+        draft.networkId = nil
+        updateState()
+    }
+
+    func onResetTap() {
+        draft = Selection(scope: .allNetworks, networkId: nil)
+        updateState()
+    }
+
+    func onApplyTap() {
+        let filter = draft.filter(availableNetworks: availableNetworks, myNetworks: myNetworks)
+        let (networkFilterType, networkId) = analyticsNetworkFilterParams(for: filter)
+        analyticsProvider.logBestOpportunitiesFilterNetworkApplied(
+            networkFilterType: networkFilterType,
+            networkId: networkId
+        )
+        filterProvider.didSelectNetworkFilter(filter)
         dismiss()
     }
 
     // MARK: - Private Methods
 
-    private func selectAndDismiss(network: EarnNetworkFilterType) {
-        currentSelection = network
-        let (networkFilterType, networkId) = analyticsNetworkFilterParams(for: network)
-        analyticsProvider.logBestOpportunitiesFilterNetworkApplied(
-            networkFilterType: networkFilterType,
-            networkId: networkId
-        )
-        filterProvider.didSelectNetworkFilter(network)
-        dismiss()
+    private func select(scope: EarnNetworkFilterScope) {
+        let networkId = draft.networkId.flatMap { id in
+            networks(of: scope).contains { $0.networkId == id } ? id : nil
+        }
+        draft = Selection(scope: scope, networkId: networkId)
+        updateState()
+    }
+
+    private func select(networkId: String) {
+        draft.networkId = networkId
+        updateState()
+    }
+
+    private func networks(of scope: EarnNetworkFilterScope) -> [EarnNetworkInfo] {
+        switch scope {
+        case .allNetworks:
+            availableNetworks
+        case .myNetworks:
+            myNetworks
+        }
+    }
+
+    private func updateState() {
+        let blockchainsByNetworkId = filterProvider.supportedBlockchainsByNetworkId
+
+        networkRowInputs = networks(of: draft.scope).compactMap { networkInfo in
+            guard let blockchain = blockchainsByNetworkId[networkInfo.networkId] else {
+                return nil
+            }
+
+            return EarnNetworkFilterNetworkRowInput(
+                id: blockchain.networkId,
+                iconAsset: blockchainIconProvider.provide(by: blockchain, filled: true),
+                networkName: blockchain.displayName,
+                currencySymbol: blockchain.currencySymbol,
+                isSelected: draft.networkId == networkInfo.networkId,
+                onTap: { [weak self] in
+                    self?.select(networkId: networkInfo.networkId)
+                }
+            )
+        }
+
+        isAllOptionSelected = draft.networkId == nil
+        isFooterVisible = draft.filter(availableNetworks: availableNetworks, myNetworks: myNetworks) != appliedFilter
     }
 
     private func analyticsNetworkFilterParams(for network: EarnNetworkFilterType) -> (String, String) {
@@ -130,7 +159,74 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
         }
     }
 
-    func dismiss() {
+    private func dismiss() {
         dismissAction?()
+    }
+}
+
+// MARK: - Selection
+
+private extension EarnNetworkFilterBottomSheetViewModel {
+    /// `networkId == nil` means the scope's "All" option is selected.
+    struct Selection {
+        var scope: EarnNetworkFilterScope
+        var networkId: String?
+
+        init(scope: EarnNetworkFilterScope, networkId: String?) {
+            self.scope = scope
+            self.networkId = networkId
+        }
+
+        init(filter: EarnNetworkFilterType, availableNetworks: [EarnNetworkInfo], myNetworks: [EarnNetworkInfo]) {
+            switch filter {
+            case .all:
+                self.init(scope: .allNetworks, networkId: nil)
+            case .userNetworks:
+                self.init(scope: .myNetworks, networkId: nil)
+            case .specific(let networkInfo):
+                let networkId = networkInfo.networkId
+                // A specific network is scope-agnostic, so the sheet opens on the narrowest tab holding it.
+                if myNetworks.contains(where: { $0.networkId == networkId }) {
+                    self.init(scope: .myNetworks, networkId: networkId)
+                } else if availableNetworks.contains(where: { $0.networkId == networkId }) {
+                    self.init(scope: .allNetworks, networkId: networkId)
+                } else {
+                    self.init(scope: .allNetworks, networkId: nil)
+                }
+            }
+        }
+
+        func filter(availableNetworks: [EarnNetworkInfo], myNetworks: [EarnNetworkInfo]) -> EarnNetworkFilterType {
+            if let networkId, let networkInfo = availableNetworks.first(where: { $0.networkId == networkId }) {
+                return .specific(networkInfo: networkInfo)
+            }
+
+            switch scope {
+            case .allNetworks:
+                return .all
+            case .myNetworks:
+                return .userNetworks(networkInfos: myNetworks)
+            }
+        }
+    }
+}
+
+// MARK: - EarnNetworkFilterScope
+
+enum EarnNetworkFilterScope: CaseIterable, TabNavigationItem {
+    case allNetworks
+    case myNetworks
+
+    var id: Self {
+        self
+    }
+
+    var title: String {
+        switch self {
+        case .allNetworks:
+            Localization.earnFilterAllNetworks
+        case .myNetworks:
+            Localization.earnFilterMyNetworks
+        }
     }
 }

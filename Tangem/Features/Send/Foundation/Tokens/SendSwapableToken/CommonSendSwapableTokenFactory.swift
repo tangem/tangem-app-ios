@@ -31,19 +31,20 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
             walletModel: walletModel
         )
 
-        let swapTokenFeeProvidersManagerProvider = CommonTokenFeeProvidersManagerProvider(
+        let swapTokenFeeProvidersManagerProvider = WalletModelTokenFeeProvidersManagerProvider(
             walletModel: walletModel,
             supportingOptions: .swap
         )
 
-        let transferTokenFeeProvidersManager = CommonTokenFeeProvidersManagerProvider(
+        let transferTokenFeeProvidersManager = WalletModelTokenFeeProvidersManagerProvider(
             walletModel: walletModel,
             supportingOptions: .all
         ).makeTokenFeeProvidersManager()
 
-        let transactionValidator = BSDKTransactionValidator(
+        let transactionValidator = SendTransactionValidatorFactory(
+            blockchain: walletModel.tokenItem.blockchain,
             transactionValidator: walletModel.transactionValidator
-        )
+        ).makeValidator()
 
         let transactionCreator = BSDKTransactionCreator(
             transactionCreator: walletModel.transactionCreator

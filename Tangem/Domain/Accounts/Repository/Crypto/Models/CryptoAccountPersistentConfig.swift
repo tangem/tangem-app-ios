@@ -10,7 +10,7 @@ import Foundation
 
 /// An intermediate DTO for the repository. Basically, a `StoredCryptoAccount` model without tokens.
 struct CryptoAccountPersistentConfig {
-    let derivationIndex: Int
+    let derivationIdentity: CryptoAccountDerivationIdentity
     /// Nil, if the account uses a localized name.
     let name: String?
     let iconName: String
@@ -35,12 +35,12 @@ extension CryptoAccountPersistentConfig {
 
 extension CryptoAccountPersistentConfig {
     init(
-        derivationIndex: Int,
+        derivationIdentity: CryptoAccountDerivationIdentity,
         name: String?,
         icon: AccountModel.CompositeIcon
     ) {
         self.init(
-            derivationIndex: derivationIndex,
+            derivationIdentity: derivationIdentity,
             name: name,
             iconName: icon.name.rawValue,
             iconColor: icon.color.rawValue

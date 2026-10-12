@@ -23,6 +23,10 @@ public extension Search {
         map { $0.interactiveGlass = enabled }
     }
 
+    func prefersInset(_ prefers: Bool) -> Self {
+        map { $0.prefersInset = prefers }
+    }
+
     func containerAccessibilityIdentifier(_ identifier: String?) -> Self {
         map { $0.containerAccessibilityIdentifier = identifier }
     }

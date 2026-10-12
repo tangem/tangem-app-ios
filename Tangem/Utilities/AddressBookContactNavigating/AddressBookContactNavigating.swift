@@ -14,6 +14,8 @@ import TangemFoundation
 protocol AddressBookContactNavigating where Self: AnyObject, Self: CoordinatorObject {
     var contactManagementCoordinator: AddressBookContactManagementCoordinator? { get set }
 
+    var addressBookAnalyticsSource: AddressBookAnalyticsSource { get }
+
     func contactManagementDidDismiss()
 }
 
@@ -23,11 +25,19 @@ extension AddressBookContactNavigating {
     func contactManagementDidDismiss() {}
 
     func openAddContact(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft]) {
-        openContactManagement(with: .add(addressBookWallet: addressBookWallet, prefilledEntries: prefilledEntries))
+        openContactManagement(with: .add(
+            addressBookWallet: addressBookWallet,
+            prefilledEntries: prefilledEntries,
+            analyticsSource: addressBookAnalyticsSource
+        ))
     }
 
     func openEditContact(contact: AddressBookContact, addressBookWallet: AddressBookWallet) {
-        openContactManagement(with: .edit(contact: contact, addressBookWallet: addressBookWallet))
+        openContactManagement(with: .edit(
+            contact: contact,
+            addressBookWallet: addressBookWallet,
+            analyticsSource: addressBookAnalyticsSource
+        ))
     }
 
     func openContactManagement(with options: AddressBookContactManagementCoordinator.Options) {

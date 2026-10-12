@@ -44,7 +44,6 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Published var addToApplePayGuideViewModel: TangemPayAddToAppPayGuideViewModel?
     @Published var tangemPayPinViewModel: TangemPayPinViewModel?
     @Published var tangemPayDailyLimitViewModel: TangemPayDailyLimitViewModel?
-    @Published var termsAndLimitsViewModel: WebViewContainerViewModel?
     @Published var pendingExpressTxStatusBottomSheet: PendingExpressTxStatusBottomSheetViewModel?
     @Published var virtualAccountSuccessViewModel: TangemPayVirtualAccountSuccessViewModel?
     @Published var cashbackDetailViewModel: TangemPayCashbackDetailViewModel?
@@ -70,7 +69,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
             coordinator: self
         )
 
-        handleIncomingAction()
+        handleOpeningAction()
     }
 
     private static func makeFundingFlowBuilder(options: Options) -> TangemPayFundingFlowBuilder {
@@ -89,7 +88,7 @@ extension TangemPayMainCoordinator {
         let userWalletInfo: UserWalletInfo
         let tangemPayAccount: TangemPayAccount
         let userWalletModel: any UserWalletModel
-        let incomingAction: TangemPayIncomingActions?
+        let openingAction: TangemPayOpeningAction?
     }
 
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption
@@ -98,15 +97,15 @@ extension TangemPayMainCoordinator {
 // MARK: - Private
 
 extension TangemPayMainCoordinator {
-    private func handleIncomingAction() {
-        guard let incomingAction = options?.incomingAction else {
+    private func handleOpeningAction() {
+        guard let openingAction = options?.openingAction else {
             return
         }
 
         Task { @MainActor in
             try? await Task.sleep(for: .seconds(0.5))
 
-            switch incomingAction {
+            switch openingAction {
             case .addFunds:
                 rootViewModel?.addFunds()
 
@@ -133,7 +132,7 @@ extension TangemPayMainCoordinator {
                 await openVirtualAccountBankDetails()
 
             case .selectPlan:
-                break
+                openSelectPlan()
             }
         }
     }
@@ -189,7 +188,7 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     func renewTangemPaySession() {
         guard
             let userWalletModel = options?.userWalletModel,
-            let tangemPayAccountModel = userWalletModel.accountModelsManager.tangemPayAccountModel
+            let tangemPayAccountModel = AccountModelsAggregator(.tangemPay).model(from: userWalletModel.accountModelsManager)
         else {
             return
         }
@@ -326,9 +325,17 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         )
         coordinator.start(with: .init(
             tangemPayAccount: options.tangemPayAccount,
-            fundingFlowBuilder: Self.makeFundingFlowBuilder(options: options)
+            fundingFlowBuilder: Self.makeFundingFlowBuilder(options: options),
+            hasNFCInteraction: options.userWalletModel.config.hasFeature(.nfcInteraction)
         ))
         offrampCoordinator = coordinator
+    }
+
+    func openTangemPayWithdrawNoteSheet() {
+        Task { @MainActor in
+            let viewModel = TangemPayWithdrawNoteSheetViewModel(coordinator: self)
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     func openTangemWithdrawInProgressSheet() {
@@ -380,22 +387,6 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         )
     }
 
-    func openTermsAndLimits() {
-        termsAndLimitsViewModel = .init(
-            url: AppConstants.tangemPayTermsAndLimitsURL,
-            title: "",
-            withCloseButton: true
-        )
-    }
-
-    func openVisaBenefits() {
-        guard let url = TangemPayVisaBenefitsURLBuilder().url() else {
-            return
-        }
-
-        safariManager.openURL(url)
-    }
-
     func openCashbackDetail(summary: TangemPayCashback.Summary) {
         guard let options else {
             return
@@ -434,11 +425,11 @@ extension TangemPayMainCoordinator: TangemPayWithdrawNoteSheetRoutable {
         }
     }
 
-    func openWithdrawal(parameters: PredefinedSwapParameters) {
+    func withdrawNoteSheetDidConfirm() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
             try? await Task.sleep(for: .seconds(0.2))
-            openSwap(parameters: parameters)
+            openTangemPayOfframp()
         }
     }
 }

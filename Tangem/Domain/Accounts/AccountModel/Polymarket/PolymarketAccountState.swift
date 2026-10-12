@@ -10,11 +10,20 @@ import Foundation
 import TangemMacro
 
 @CaseFlagable
-enum PolymarketAccountState {
+enum PolymarketAccountState: Equatable {
     case loading
     case onboarding(PolymarketOnboardingStage)
     case onboardingFailed(PolymarketOnboardingStage)
     case syncNeeded
-    case active(depositWalletAddress: String)
+    case active
     case unavailable
+}
+
+extension PolymarketAccountState {
+    var isAccountVisible: Bool {
+        switch self {
+        case .active, .syncNeeded: true
+        case .loading, .onboarding, .onboardingFailed, .unavailable: false
+        }
+    }
 }

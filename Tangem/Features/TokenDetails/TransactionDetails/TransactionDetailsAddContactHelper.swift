@@ -32,11 +32,11 @@ struct TransactionDetailsAddContactHelper {
     private var isPlainTransfer: Bool {
         switch transactionType {
         case .transfer,
-             .gaslessTransfer,
              .tangemPay(.transfer):
             return true
 
-        case .swap,
+        case .gaslessTransfer,
+             .swap,
              .onramp,
              .tangemPay(.fee),
              .tangemPay(.spend),
@@ -57,6 +57,7 @@ struct TransactionDetailsAddContactHelper {
              .restake,
              .approve,
              .gaslessTransactionFee,
+             .networkFee,
              .operation,
              .unknownOperation:
             return false
@@ -94,6 +95,6 @@ struct TransactionDetailsAddContactHelper {
     }
 
     private func isSaved(_ address: String) -> Bool {
-        contacts.contains { $0.entries.caseInsensitiveContains(address: address, networkId: networkId) }
+        contacts.contains { $0.entries.contains(address: address, networkId: networkId) }
     }
 }

@@ -64,7 +64,7 @@ final class CommonTokenSelectorStateStorage: TokenSelectorStateStorage {
             userWalletModelsSubscriptions[userWalletId] = userWalletModel
                 .accountModelsManager
                 .accountModelsPublisher
-                .map { $0.cryptoAccounts() }
+                .map { AccountModelsAggregator(.crypto, .joint).models(from: $0) }
                 .prepend([])
                 .pairwise()
                 .receiveOnMain()
@@ -111,8 +111,8 @@ final class CommonTokenSelectorStateStorage: TokenSelectorStateStorage {
     }
 
     private func handleCryptoAccounts(
-        oldCryptoAccounts: [CryptoAccounts],
-        newCryptoAccounts: [CryptoAccounts],
+        oldCryptoAccounts: [any CryptoAccountModel],
+        newCryptoAccounts: [any CryptoAccountModel],
         userWalletId: UserWalletId
     ) {
         let newIds = mapToPersistentIdentifiers(newCryptoAccounts)
@@ -132,16 +132,8 @@ final class CommonTokenSelectorStateStorage: TokenSelectorStateStorage {
         }
     }
 
-    private func mapToPersistentIdentifiers(_ cryptoAccounts: [CryptoAccounts]) -> [any AccountModelPersistentIdentifierConvertible] {
+    private func mapToPersistentIdentifiers(_ cryptoAccounts: [any CryptoAccountModel]) -> [any AccountModelPersistentIdentifierConvertible] {
         cryptoAccounts
-            .reduce(into: [any CryptoAccountModel]()) { partialResult, element in
-                switch element {
-                case .single(let account):
-                    partialResult.append(account)
-                case .multiple(let accounts):
-                    partialResult.append(contentsOf: accounts)
-                }
-            }
             .map { $0.id as (any AccountModelPersistentIdentifierConvertible) }
     }
 }

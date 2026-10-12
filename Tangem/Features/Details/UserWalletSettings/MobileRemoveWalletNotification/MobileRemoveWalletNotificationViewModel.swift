@@ -22,9 +22,7 @@ final class MobileRemoveWalletNotificationViewModel: ObservableObject {
         case .iCloudBackup:
             Localization.hwRemoveWalletCloudBackupTitle
         case .seedBackup, .noBackup:
-            isICloudBackupFeatureAvailable
-                ? Localization.hwRemoveWalletNotificationTitleV2
-                : Localization.hwRemoveWalletNotificationTitle
+            Localization.hwRemoveWalletNotificationTitleV2
         }
     }
 
@@ -33,9 +31,7 @@ final class MobileRemoveWalletNotificationViewModel: ObservableObject {
         case .iCloudBackup:
             Localization.hwRemoveWalletCloudBackupDescription(MobileBackupConstants.iCloudServiceName)
         case .seedBackup:
-            isICloudBackupFeatureAvailable
-                ? Localization.hwRemoveWalletNotificationDescriptionHasBackupV2
-                : Localization.hwRemoveWalletNotificationDescriptionHasBackup
+            Localization.hwRemoveWalletNotificationDescriptionHasBackupV2
         case .noBackup:
             Localization.hwRemoveWalletNotificationDescriptionWithoutBackup
         }
@@ -47,10 +43,6 @@ final class MobileRemoveWalletNotificationViewModel: ObservableObject {
 
     var secondaryAction: Action {
         makeSecondaryAction()
-    }
-
-    var isICloudBackupFeatureAvailable: Bool {
-        FeatureProvider.isAvailable(.mobileWalletBackup)
     }
 
     private var analyticsContextParams: Analytics.ContextParams {
@@ -80,11 +72,7 @@ final class MobileRemoveWalletNotificationViewModel: ObservableObject {
         self.removeManager = removeManager
         self.coordinator = coordinator
 
-        if isICloudBackupFeatureAvailable {
-            logForgetWalletRequestAnalytics()
-        } else if backupState == .noBackup {
-            logMobileBackupNeededAnalytics()
-        }
+        logForgetWalletRequestAnalytics()
     }
 }
 
@@ -112,9 +100,7 @@ private extension MobileRemoveWalletNotificationViewModel {
             )
         case .seedBackup:
             Action(
-                title: isICloudBackupFeatureAvailable
-                    ? Localization.hwRemoveWalletNotificationActionBackupViewV2
-                    : Localization.hwRemoveWalletNotificationActionBackupView,
+                title: Localization.hwRemoveWalletNotificationActionBackupViewV2,
                 handler: weakify(self, forFunction: MobileRemoveWalletNotificationViewModel.revealHandler)
             )
         case .noBackup:
@@ -165,13 +151,7 @@ private extension MobileRemoveWalletNotificationViewModel {
     }
 
     func handleSeedPhraseBackup() async {
-        if isICloudBackupFeatureAvailable {
-            await openMobileBackupTypes()
-        } else {
-            await unlock { [weak self] context in
-                await self?.openSeedPhraseBackup(context: context)
-            }
-        }
+        await openMobileBackupTypes()
     }
 
     func revealHandler() {
@@ -246,17 +226,6 @@ private extension MobileRemoveWalletNotificationViewModel {
             contextParams: analyticsContextParams
         )
     }
-
-    func logMobileBackupNeededAnalytics() {
-        Analytics.log(
-            .walletSettingsNoticeBackupFirst,
-            params: [
-                .source: .walletSettings,
-                .action: .remove,
-            ],
-            contextParams: analyticsContextParams
-        )
-    }
 }
 
 // MARK: - Alerts
@@ -283,15 +252,6 @@ private extension MobileRemoveWalletNotificationViewModel {
 
     func openMobileBackupTypes() {
         coordinator?.openMobileBackupTypesFromRemoveWalletNotification(userWalletModel: userWalletModel)
-    }
-
-    func openSeedPhraseBackup(context: MobileWalletContext) {
-        let input = MobileOnboardingInput(flow: .seedPhraseBackup(
-            userWalletModel: userWalletModel,
-            source: .walletSettings(action: .remove),
-            context: context
-        ))
-        coordinator?.openMobileOnboardingFromRemoveWalletNotification(input: input)
     }
 
     func openSeedPhraseReveal(context: MobileWalletContext) {

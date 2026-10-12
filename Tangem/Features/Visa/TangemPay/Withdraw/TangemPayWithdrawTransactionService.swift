@@ -166,7 +166,7 @@ extension CommonTangemPayWithdrawTransactionService {
             throw Error.contentMismatch
         }
 
-        guard typedData.signHash == preSignature.hash else {
+        guard preSignature.isHashConsistent else {
             throw Error.hashMismatch
         }
     }

@@ -19,6 +19,9 @@ enum PersistentStorageKey {
     /// Invites are stored apart from `jointAccounts(cid:)` – the endpoint hands them out once and never reports them
     /// again, so a list read replacing what it knows must not be able to take them along
     case jointAccountInvites(cid: String)
+    /// The unfinished operations ride inside the accounts on the wire but are stored apart from `jointAccounts(cid:)`
+    /// – a co-signer answering or the relayer executing is no change to the account itself
+    case jointAccountPendingOperations(cid: String)
     case walletConnectSessions
     case pendingExpressTransactions
     case pendingOnrampTransactions
@@ -29,6 +32,9 @@ enum PersistentStorageKey {
     case tokenSearchQueryHistory
     case tokenSearchAssetHistory
     case addressBook(cid: String)
+    case coinsCategoriesCache
+    case coinsGeckoCategoriesCache
+    case tangemPayRecentOperations(cid: String)
 
     var path: String {
         switch self {
@@ -40,6 +46,8 @@ enum PersistentStorageKey {
             return "joint_accounts_\(cid)"
         case .jointAccountInvites(let cid):
             return "joint_account_invites_\(cid)"
+        case .jointAccountPendingOperations(let cid):
+            return "joint_account_pending_operations_\(cid)"
         case .walletConnectSessions:
             return "wallet_connect_sessions"
         case .pendingExpressTransactions:
@@ -60,6 +68,12 @@ enum PersistentStorageKey {
             return "token_search_asset_history"
         case .addressBook(let cid):
             return "address_book_\(cid)"
+        case .coinsCategoriesCache:
+            return "coins_categories_cache"
+        case .coinsGeckoCategoriesCache:
+            return "coins_gecko_categories_cache"
+        case .tangemPayRecentOperations(let cid):
+            return "tangem_pay_recent_operations_\(cid)"
         }
     }
 
@@ -75,6 +89,10 @@ enum PersistentStorageKey {
         case .jointAccountInvites:
             // Holds the accounts' access secrets, but the blob is encrypted on saving like every other per-wallet
             // cache, which is the protection this storage is built on
+            false
+        case .jointAccountPendingOperations:
+            // Holds the destinations and amounts the members are signing, nothing that spends; the blob is encrypted
+            // like every other per-wallet cache, and the accounts list has to be readable while the device is locked
             false
         case .onrampPreference:
             false
@@ -99,6 +117,11 @@ enum PersistentStorageKey {
         case .addressBook:
             // The cached blob is already AES-256-GCM encrypted, so it matches the convention of the
             // other per-wallet caches (e.g. accounts) rather than enabling complete file protection.
+            false
+        case .coinsCategoriesCache, .coinsGeckoCategoriesCache:
+            // Public market metadata, and the shelf has to render while the device is locked.
+            false
+        case .tangemPayRecentOperations:
             false
         }
     }

@@ -13,4 +13,5 @@ protocol BaseAccountDetailsRoutable: AnyObject {
 protocol CryptoAccountDetailsRoutable: AnyObject {
     func editAccount()
     func manageTokens()
+    func openSupportedNetworks()
 }

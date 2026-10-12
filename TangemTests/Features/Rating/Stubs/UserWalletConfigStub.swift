@@ -36,7 +36,7 @@ struct UserWalletConfigStub: UserWalletConfig {
     var contextBuilder: WalletCreationContextBuilder { fatalError("Not implemented for stub") }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability { .available }
-    func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory { AnyWalletManagerFactoryStub() }
+    func makeAnyWalletFactory() -> AnyWalletFactory { AnyWalletFactoryStub() }
     func makeOnboardingStepsBuilder(backupService: BackupService) -> any OnboardingStepsBuilder { OnboardingStepsBuilderStub() }
     func makeBackupService() -> BackupService { GenericBackupServiceFactory(isAccessCodeSet: false, defaultBlockchains: []).makeBackupService() }
     func makeTangemSdk() -> TangemSdk { GenericTangemSdkFactory(isAccessCodeSet: false).makeTangemSdk() }
@@ -70,11 +70,11 @@ final class EmailDataProviderStub: EmailDataProvider {
     let emailConfig: EmailConfig? = nil
 }
 
-// MARK: - AnyWalletManagerFactory
+// MARK: - AnyWalletFactory
 
-struct AnyWalletManagerFactoryStub: AnyWalletManagerFactory {
-    func makeWalletManager(blockchainNetwork: BlockchainNetwork, tokens: [Token], keys: [KeyInfo], apiList: APIList) throws -> WalletManager {
-        throw AnyWalletManagerFactoryError.noDerivation
+struct AnyWalletFactoryStub: AnyWalletFactory {
+    func makeWallet(blockchainNetwork: BlockchainNetwork, keys: [KeyInfo]) throws -> Wallet {
+        throw AnyWalletFactoryError.noDerivation
     }
 }
 

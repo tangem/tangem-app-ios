@@ -7,6 +7,7 @@
 //
 
 import Combine
+import CombineExt
 import TangemFoundation
 import TangemPay
 import TangemVisa
@@ -103,6 +104,25 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
             return walletSelection
         }
         .eraseToAnyPublisher()
+    }
+
+    var tangemPayFeedCardEntrypointEligibleWalletSelectionPublisher: AnyPublisher<TangemPayWalletSelectionType?, Never> {
+        Publishers
+            .CombineLatest(
+                tangemPayEligibleWalletSelectionPublisher(for: .banner),
+                currentWalletModelsContainPaeraCustomers
+            )
+            .map { walletSelection, currentWalletModelsContainPaeraCustomers in
+                guard let walletSelection,
+                      !currentWalletModelsContainPaeraCustomers
+                else {
+                    return nil
+                }
+
+                return walletSelection
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
     func userDidCloseGetTangemPayBanner() {
@@ -271,7 +291,7 @@ private extension UserWalletRepositoryEvent {
     }
 }
 
-private extension UserWalletModel {
+extension UserWalletModel {
     var supportsTangemPay: Bool {
         !isUserWalletLocked && config.hasFeature(.tangemPay)
     }

@@ -30,7 +30,7 @@ private struct MainTopNavigationModifier<Balance: View>: ViewModifier {
     let actionsHaveBackground: Bool
     let balance: Balance
 
-    @State private var barWidth: CGFloat = .zero
+    @State private var barWidth: CGFloat?
     @State private var logoWidth: CGFloat = .zero
     @State private var actionsWidth: CGFloat = .zero
     @State private var balanceWidth: CGFloat = .zero
@@ -41,7 +41,8 @@ private struct MainTopNavigationModifier<Balance: View>: ViewModifier {
                 mergedBarContent
             }
             .onGeometryChange(for: CGFloat.self, of: \.size.width) { contentWidth in
-                barWidth = max(.zero, contentWidth - Metrics.barHorizontalInset * 2)
+                let availableWidth = contentWidth - Metrics.barHorizontalInset * 2
+                barWidth = availableWidth > .zero ? availableWidth : nil
             }
     }
 
@@ -67,11 +68,15 @@ private struct MainTopNavigationModifier<Balance: View>: ViewModifier {
     }
 
     private var balanceRegionWidth: CGFloat {
-        max(.zero, barWidth - logoWidth - actionsWidth - Metrics.balanceGap * 2)
+        max(.zero, measuredBarWidth - logoWidth - actionsWidth - Metrics.balanceGap * 2)
+    }
+
+    private var measuredBarWidth: CGFloat {
+        barWidth ?? .zero
     }
 
     private var balanceDrift: CGFloat {
-        let roomBeforeActions = barWidth / 2 - actionsWidth - Metrics.balanceGap
+        let roomBeforeActions = measuredBarWidth / 2 - actionsWidth - Metrics.balanceGap
 
         return -max(.zero, balanceWidth / 2 - roomBeforeActions)
     }
@@ -89,7 +94,7 @@ private struct MainTopNavigationModifier<Balance: View>: ViewModifier {
     private var actions: TopNavigation.Actions {
         .two(
             TopNavigation.Action(
-                icon: DesignSystem.Icons.ScanQr.regular24,
+                icon: Assets.Glyphs.scanQrIcon,
                 accessibilityLabel: Localization.voiceOverOpenNewWalletConnectSession,
                 accessibilityIdentifier: MainAccessibilityIdentifiers.scanQrButton,
                 action: scanQRCodeAction

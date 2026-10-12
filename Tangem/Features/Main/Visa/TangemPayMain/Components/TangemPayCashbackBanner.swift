@@ -11,6 +11,7 @@ import TangemUI
 import TangemUIUtils
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayCashbackBanner: View {
     let state: TangemPayCashbackState
@@ -23,9 +24,11 @@ struct TangemPayCashbackBanner: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackBannerTitle)
 
                 subtitleView
                     .style(DesignSystem.Font.bodyMediumToken, color: subtitleForeground)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackBannerSubtitle)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -90,7 +93,7 @@ private extension TangemPayCashbackBanner {
     var indicatorView: some View {
         ZStack {
             Circle()
-                .fill(DesignSystem.Color.bgOpaquePrimary)
+                .fill(DesignSystem.Color.bgTransparentPrimary)
 
             indicatorContent
         }
