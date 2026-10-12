@@ -178,6 +178,7 @@ extension Analytics {
         case backupType = "Backup Type"
         case backupsCount = "Backup Count"
         case completedBackups = "Completed Backups"
+        case socialBackup = "Social Backup"
 
         // MARK: - News
 
