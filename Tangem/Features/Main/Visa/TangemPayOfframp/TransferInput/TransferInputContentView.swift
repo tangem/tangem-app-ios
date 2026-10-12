@@ -85,11 +85,13 @@ private extension TransferInputContentView {
                 ))
                 .alignment(.center)
                 .focused($isAmountFocused)
-                .task {
+                .onAppear {
                     guard !isAmountFocused else { return }
 
-                    try? await Task.sleep(for: .seconds(Constants.keyboardAnimationDelay))
-                    isAmountFocused = true
+                    Task {
+                        try? await Task.sleep(for: .seconds(Constants.keyboardAppearDelay))
+                        isAmountFocused = true
+                    }
                 }
 
             Text(state.amountErrorMessage ?? "")
@@ -212,7 +214,7 @@ private extension TransferInputContentView {
         isAmountFocused = false
 
         Task {
-            try? await Task.sleep(for: .seconds(Constants.keyboardAnimationDelay))
+            try? await Task.sleep(for: .seconds(Constants.keyboardDisappearDelay))
             action(.continueTap)
         }
     }
@@ -232,7 +234,8 @@ private extension TransferInputContentView {
         static let cardVerticalPadding: CGFloat = 16
         static let cardCornerRadius: CGFloat = 24
         static let railIconSide: CGFloat = 20
-        static let keyboardAnimationDelay: TimeInterval = 0.33
+        static let keyboardAppearDelay: TimeInterval = 0.5
+        static let keyboardDisappearDelay: TimeInterval = 0.33
     }
 }
 
