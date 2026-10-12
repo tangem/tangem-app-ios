@@ -420,7 +420,7 @@ private enum StatusScreenLayout {
     var footerTopPadding: CGFloat {
         switch self {
         case .compact: 12
-        case .regular: 24
+        case .regular: 8
         }
     }
 
