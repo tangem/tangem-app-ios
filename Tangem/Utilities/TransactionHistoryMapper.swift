@@ -497,7 +497,7 @@ private extension TransactionHistoryMapper {
         switch transactionType {
         case .stake, .unstake, .vote, .withdraw, .claimRewards, .restake, .operation, .unknownOperation:
             break
-        case .transfer, .swap, .onramp, .approve,
+        case .transfer, .swap, .onramp, .approve, .incentiveClaim, .incentiveClaimCoin,
              .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit, .yieldReactivate, .yieldSend,
              .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin,
              .gaslessTransactionFee, .gaslessTransfer, .networkFee, .tangemPay:
@@ -627,6 +627,8 @@ private extension TransactionHistoryMapper {
         case "redelegate": .restake
         case "yieldEnter" where !isToken: .yieldEnterCoin
         case "yieldEnter": .yieldEnter
+        case "yieldClaim" where !isToken: .incentiveClaimCoin
+        case "yieldClaim": .incentiveClaim
         case "yieldWithdraw" where !isToken: .yieldWithdrawCoin
         case "yieldWithdraw": .yieldWithdraw
         case "yieldReactivate": .yieldReactivate
@@ -699,6 +701,8 @@ private extension TransactionHistoryMapper {
              .claimRewards,
              .restake,
              .operation,
+             .incentiveClaim,
+             .incentiveClaimCoin,
              .yieldEnter,
              .yieldWithdraw,
              .gaslessTransactionFee,
