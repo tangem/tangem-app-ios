@@ -167,7 +167,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
                     .foregroundStyle(DesignSystem.Color.textSecondary)
                     .tint(DesignSystem.Color.textPrimary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, SizeUnit.x3.value)
+                    .padding(.horizontal, 12)
             }
         }
         .padding(.top, 28)

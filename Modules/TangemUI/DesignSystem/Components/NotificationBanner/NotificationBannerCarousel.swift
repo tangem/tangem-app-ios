@@ -15,7 +15,7 @@ public struct NotificationBannerCarousel<Item, BannerView: View>: View {
 
     private var hasClipShape: Bool = true
     private var paginationHasBackground: Bool = true
-    private var paginationSpacing: CGFloat = SizeUnit.x4.value
+    private var paginationSpacing: CGFloat = 16
     private var paginationMinHeight: CGFloat?
     private var currentIndexHasChanged: ((Int) -> Void)?
 
@@ -53,7 +53,7 @@ public struct NotificationBannerCarousel<Item, BannerView: View>: View {
                     }
             }
             .isEndless(true)
-            .interItemSpacing(SizeUnit.x4.value)
+            .interItemSpacing(16)
             .hidePagination()
             .currentIndexHasChanged { index in
                 currentIndex = index
@@ -70,7 +70,7 @@ public struct NotificationBannerCarousel<Item, BannerView: View>: View {
                 containerWidth = width.roundedToDeviceScale()
             }
             .frame(height: interpolatedHeight, alignment: .top)
-            .if(hasClipShape) { $0.clipShape(RoundedRectangle(cornerRadius: SizeUnit.x6.value)) }
+            .if(hasClipShape) { $0.clipShape(RoundedRectangle(cornerRadius: 24)) }
 
             if items.count > 1 {
                 TangemPagination(

@@ -78,7 +78,7 @@ public struct NotificationBannerContainer<Item: NotificationBannerContainerItem>
         if items.isEmpty {
             EmptyView()
         } else {
-            LazyVStack(spacing: SizeUnit.x2.value) {
+            LazyVStack(spacing: 8) {
                 ForEach(nonStackableItems) { item in
                     NotificationMessageBanner(
                         bannerType: item.bannerType,
@@ -130,7 +130,7 @@ public struct NotificationBannerContainer<Item: NotificationBannerContainerItem>
                         removal: .opacity
                     )
                 )
-                .padding(.horizontal, SizeUnit.x4.value)
+                .padding(.horizontal, 16)
             }
         }
     }
