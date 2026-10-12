@@ -79,7 +79,9 @@ extension CommonPromotionRepository: PromotionRepository {
         return promotions
             .combineLatest(promoCampaignsRepository.campaignsPublisher(for: userWalletId))
             .map { promotions, campaigns in
-                promotions.filter { PromoCampaignBannerMatcher.isVisible(campaignId: $0.campaignId, campaigns: campaigns) }
+                promotions
+                    .filter { PromoCampaignBannerMatcher.isVisible(campaignId: $0.campaignId, campaigns: campaigns) }
+                    .map { $0.withCampaignName(PromoCampaignBannerMatcher.campaignName(campaignId: $0.campaignId, campaigns: campaigns)) }
             }
             .eraseToAnyPublisher()
     }

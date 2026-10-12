@@ -110,6 +110,10 @@ extension Analytics {
         case valid = "Valid"
         case screen = "Screen"
         case campaign = "Campaign"
+        case matchMode = "Match Mode"
+        case payout = "Payout"
+        case walletsEnrolled = "Wallets Enrolled"
+        case walletsTotal = "Wallets Total"
         case searched = "Searched"
 
         case sendBlockchain = "Send Blockchain"

@@ -24,6 +24,7 @@ final class PromoCampaignCoordinator: CoordinatorObject {
     let popToRootAction: Action<PopToRootOptions>
 
     private let enrollmentService: PromoCampaignEnrolling = CommonPromoCampaignEnrollmentService()
+    private let analyticsLogger: PromoCampaignAnalyticsLogging = CommonPromoCampaignAnalyticsLogger()
 
     private var userWalletId: UserWalletId?
     private var state = PromoCampaignFlowState()
@@ -68,6 +69,19 @@ final class PromoCampaignCoordinator: CoordinatorObject {
             case .campaign(let campaign):
                 let viewModel = PromoCampaignViewModel(campaign: campaign, coordinator: self)
                 sheetViewModel = viewModel
+                logWhenShown(.screenOpened(campaign: campaign), sheetId: viewModel.id, userWalletId: options.userWalletId)
+                floatingSheetPresenter.enqueue(sheet: viewModel)
+            case .alreadyEnrolled(let campaign):
+                let viewModel = PromoCampaignPrecheckViewModel(
+                    state: .alreadyEnrolled(campaignName: campaign.content.title, wallets: []),
+                    coordinator: self
+                )
+                sheetViewModel = viewModel
+                logWhenShown(
+                    .alreadyEnrolledScreenOpened(campaign: campaign, source: .entry),
+                    sheetId: viewModel.id,
+                    userWalletId: options.userWalletId
+                )
                 floatingSheetPresenter.enqueue(sheet: viewModel)
             case .precheck(let precheckState):
                 let viewModel = PromoCampaignPrecheckViewModel(state: precheckState, coordinator: self)
@@ -142,6 +156,15 @@ private extension PromoCampaignCoordinator {
         showResult(result)
     }
 
+    func logWhenShown(_ event: PromoCampaignAnalyticsEvent, sheetId: String, userWalletId: UserWalletId) {
+        sheetStateProvider.activeSheetIdPublisher
+            .first { $0 == sheetId }
+            .sink { [analyticsLogger] _ in
+                analyticsLogger.log(event, userWalletId: userWalletId)
+            }
+            .store(in: &bag)
+    }
+
     func subscribeToResultDismiss() {
         overlayStateProvider.presentedOverlayIdPublisher
             .drop(while: { $0 != Constants.resultOverlayId })
@@ -203,6 +226,10 @@ private extension PromoCampaignCoordinator {
             view: PromoCampaignEnrollmentResultView(viewModel: viewModel),
             style: .fullScreenCover
         ))
+
+        if case .alreadyEnrolled = result.outcome, let userWalletId {
+            analyticsLogger.log(.alreadyEnrolledScreenOpened(campaign: result.campaign, source: .enrollResponse), userWalletId: userWalletId)
+        }
 
         subscribeToResultDismiss()
     }

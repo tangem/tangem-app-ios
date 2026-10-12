@@ -88,6 +88,10 @@ extension FloatingSheetViewModel: FloatingSheetPresentingStateProvider {
         $activeSheet.map { $0 != nil }.eraseToAnyPublisher()
     }
 
+    var activeSheetIdPublisher: AnyPublisher<String?, Never> {
+        $activeSheet.map { $0?.id }.eraseToAnyPublisher()
+    }
+
     func containsSheet(withId id: String) -> Bool {
         activeSheet?.id == id || sheetsQueue.contains { $0.id == id }
     }

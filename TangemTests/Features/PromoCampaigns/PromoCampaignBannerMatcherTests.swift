@@ -42,6 +42,19 @@ struct PromoCampaignBannerMatcherTests {
 
         #expect(!PromoCampaignBannerMatcher.isVisible(campaignId: 15, campaigns: campaigns))
     }
+
+    @Test("A banner takes the name of its own campaign")
+    func campaignNameOfMatchingCampaign() {
+        let campaigns = [makeCampaign(id: 16), makeCampaign(id: 15)]
+
+        #expect(PromoCampaignBannerMatcher.campaignName(campaignId: 15, campaigns: campaigns) == "campaign_15")
+    }
+
+    @Test("A banner without a campaign, or whose campaign did not come back, has no campaign name")
+    func campaignNameWithoutMatchingCampaign() {
+        #expect(PromoCampaignBannerMatcher.campaignName(campaignId: nil, campaigns: [makeCampaign(id: 15)]) == nil)
+        #expect(PromoCampaignBannerMatcher.campaignName(campaignId: 15, campaigns: [makeCampaign(id: 16)]) == nil)
+    }
 }
 
 // MARK: - Fixtures

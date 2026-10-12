@@ -39,7 +39,7 @@ struct PromoCampaignEnrollmentStateMapperTests {
         #expect(shownCampaign == campaign)
     }
 
-    @Test("An enrolled campaign goes to the already-enrolled pre-check without wallets, as no payout is known yet")
+    @Test("An enrolled campaign goes to the already-enrolled pre-check")
     func enrolledCampaignShowsPrecheck() {
         let enrolledCampaign = PromoCampaignFixtures.makeCampaign(id: 7, isEnrolled: true)
 
@@ -48,13 +48,12 @@ struct PromoCampaignEnrollmentStateMapperTests {
             campaigns: [PromoCampaignFixtures.makeCampaign(id: 3), enrolledCampaign]
         )
 
-        guard case .precheck(.alreadyEnrolled(let campaignName, let wallets)) = entry else {
+        guard case .alreadyEnrolled(let shownCampaign) = entry else {
             Issue.record("Expected the already-enrolled pre-check, got \(entry)")
             return
         }
 
-        #expect(campaignName == enrolledCampaign.content.title)
-        #expect(wallets.isEmpty)
+        #expect(shownCampaign == enrolledCampaign)
     }
 
     @Test("A campaign missing from the wallet's cache is unavailable")

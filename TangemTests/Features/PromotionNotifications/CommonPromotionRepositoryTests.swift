@@ -108,6 +108,7 @@ final class CommonPromotionRepositoryTests {
 
             let promotions = try await Self.waitForPromotions(sut, userWalletId: walletA)
             #expect(promotions.map(\.id) == [1, 2])
+            #expect(promotions.map(\.campaignName) == [nil, "campaign_15"])
 
             campaigns.send([Self.makeCampaign(id: 15, isEnrolled: true)], for: walletA)
             #expect(Self.currentPromotions(sut, userWalletId: walletA, placement: .main).map(\.id) == [1])
