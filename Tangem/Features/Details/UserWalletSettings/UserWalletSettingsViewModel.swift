@@ -44,6 +44,8 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     @Published var nftViewModel: DefaultToggleRowViewModel?
 
+    @Published var socialLogOutViewModel: DefaultRowViewModel?
+
     @Published var forgetViewModel: DefaultRowViewModel?
 
     @Published var alert: AlertBinder?
@@ -219,6 +221,8 @@ private extension UserWalletSettingsViewModel {
         mobileAccessCodeViewModel = nil
         mobileUpgradeViewModel = nil
         mobileBackupViewModel = nil
+        forgetViewModel = nil
+        socialLogOutViewModel = nil
     }
 
     func setupViewModels() {
@@ -278,10 +282,17 @@ private extension UserWalletSettingsViewModel {
         )
 
         if userWalletModel.config.hasFeature(.userWalletBackup) {
-            forgetViewModel = DefaultRowViewModel(
-                title: Localization.settingsForgetWallet,
-                action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapRemoveMobileWallet)
-            )
+            if userWalletModel.config.hasSocialLogin {
+                socialLogOutViewModel = DefaultRowViewModel(
+                    title: Localization.socialWalletSettingsLogOut,
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapSocialLoginLogOut)
+                )
+            } else {
+                forgetViewModel = DefaultRowViewModel(
+                    title: Localization.settingsForgetWallet,
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapRemoveMobileWallet)
+                )
+            }
         } else {
             forgetViewModel = DefaultRowViewModel(
                 title: Localization.settingsForgetWallet,
@@ -391,6 +402,29 @@ private extension UserWalletSettingsViewModel {
     }
 
     func didConfirmWalletDeletion() {
+        deleteWalletAndDismiss()
+    }
+
+    func didTapSocialLoginLogOut() {
+        Analytics.log(.walletSettingsLogOutRequest, contextParams: analyticsContextParams)
+
+        alert = AlertBuilder.makeAlert(
+            title: Localization.socialWalletLogOutTitle,
+            message: Localization.socialWalletLogOutDescriptionV2(MobileBackupConstants.appleServiceName),
+            primaryButton: .cancel(),
+            secondaryButton: .destructive(
+                Text(Localization.socialWalletSettingsLogOut),
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.socialLoginLogOut)
+            )
+        )
+    }
+
+    func socialLoginLogOut() {
+        Analytics.log(.walletSettingsWalletLoggedOut, contextParams: analyticsContextParams)
+        deleteWalletAndDismiss()
+    }
+
+    private func deleteWalletAndDismiss() {
         userWalletRepository.delete(userWalletId: userWalletModel.userWalletId)
         coordinator?.dismiss()
     }
@@ -598,6 +632,7 @@ private extension UserWalletSettingsViewModel {
         let statusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
         params[.backupCloud] = statusUtil.hasICloudBackup ? .done : .incomplete
         params[.backupManual] = .affirmativeOrNegative(for: statusUtil.hasMnemonicBackup)
+        params[.socialBackup] = .affirmativeOrNegative(for: statusUtil.hasSocialLogin)
 
         Analytics.log(
             .walletSettingsNoticeBackupFirst,

@@ -11,11 +11,13 @@ import Foundation
 enum SupportChatTopic {
     case swap
     case polymarket
+    case socialLogin
 
     var usedeskFieldValue: String {
         switch self {
         case .swap: "swap"
         case .polymarket: "polymarket"
+        case .socialLogin: "social_login"
         }
     }
 
