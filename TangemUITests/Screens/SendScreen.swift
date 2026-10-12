@@ -1341,6 +1341,157 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     }
 }
 
+extension SendScreen {
+    @discardableResult
+    func tapSourceTokenBlock() -> Self {
+        XCTContext.runActivity(named: "Tap source token block to edit the send amount") { _ in
+            let block = app.descendants(matching: .any).matching(identifier: SendAccessibilityIdentifiers.sourceTokenBlock).firstMatch
+            waitAndAssertTrue(block, "Source token block should exist")
+            block.tapEvenIfNotHittable()
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForRateBadge(_ title: String) -> Self {
+        XCTContext.runActivity(named: "Wait for rate badge '\(title)'") { _ in
+            let badge = app.buttons
+                .matching(identifier: SendAccessibilityIdentifiers.rateBadge)
+                .matching(NSPredicate(format: "label == %@", title))
+                .firstMatch
+            waitAndAssertTrue(badge, "Rate badge '\(title)' should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForAmountValue(containing expected: String) -> Self {
+        XCTContext.runActivity(named: "Wait for send amount field to contain '\(expected)'") { _ in
+            waitAndAssertTrue(amountTextField, "Amount text field should exist")
+            XCTAssertTrue(
+                amountTextField.waitForValue(timeout: .robustUIUpdate) { $0.contains(expected) },
+                "Send amount should contain '\(expected)' but was '\(amountTextField.getValue())'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForReceiveAmountValue(containing expected: String) -> Self {
+        XCTContext.runActivity(named: "Wait for receive amount field to contain '\(expected)'") { _ in
+            waitAndAssertTrue(receiveAmountTextField, "Receive amount text field should exist")
+            XCTAssertTrue(
+                receiveAmountTextField.waitForValue(timeout: .robustUIUpdate) { $0.contains(expected) },
+                "Receive amount should contain '\(expected)' but was '\(receiveAmountTextField.getValue())'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func trimReceiveAmount(to expected: String) -> Self {
+        XCTContext.runActivity(named: "Trim receive amount down to '\(expected)'") { _ in
+            waitAndAssertTrue(receiveAmountTextField, "Receive amount text field should exist")
+            let currentValue = receiveAmountTextField.getValue()
+            guard currentValue.hasPrefix(expected) else {
+                XCTFail("Receive amount '\(currentValue)' should start with '\(expected)'")
+                return
+            }
+            if !receiveAmountTextField.hasFocus {
+                receiveAmountTextField.tap()
+            }
+            for _ in 0 ..< currentValue.count - expected.count {
+                receiveAmountTextField.typeText(XCUIKeyboardKey.delete.rawValue)
+            }
+            XCTAssertTrue(
+                receiveAmountTextField.waitForValue(timeout: .conditional) { $0 == expected },
+                "Receive amount should be '\(expected)' but was '\(receiveAmountTextField.getValue())'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForCompactSendAmount(containing expected: String) -> Self {
+        XCTContext.runActivity(named: "Wait for compact send amount to contain '\(expected)'") { _ in
+            let sendAmount = app.descendants(matching: .any)
+                .matching(identifier: SendAccessibilityIdentifiers.sourceTokenBlock)
+                .matching(NSPredicate(format: "label CONTAINS %@", expected))
+                .firstMatch
+            waitAndAssertTrue(sendAmount, "Compact send amount should contain '\(expected)'")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForApproximateReceiveAmount(containing expected: String) -> Self {
+        XCTContext.runActivity(named: "Wait for approximate receive amount to contain '\(expected)'") { _ in
+            let receiveAmount = app.buttons
+                .matching(identifier: SendAccessibilityIdentifiers.receiveTokenBlock)
+                .matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", Constants.approximateSign, expected))
+                .firstMatch
+            waitAndAssertTrue(receiveAmount, "Approximate receive amount should contain '\(expected)'")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertApproximateReceiveAmountNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert approximate receive amount is not displayed") { _ in
+            let approximateAmount = app.descendants(matching: .any)
+                .matching(identifier: SendAccessibilityIdentifiers.receiveTokenBlock)
+                .matching(NSPredicate(format: "label CONTAINS %@", Constants.approximateSign))
+                .firstMatch
+            XCTAssertTrue(approximateAmount.staysAbsent(for: .shortUIUpdate), "Approximate receive amount should not be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForReceiveToken(named name: String) -> Self {
+        XCTContext.runActivity(named: "Wait for receive token '\(name)' to be selected") { _ in
+            let receiveToken = app.descendants(matching: .any)
+                .matching(identifier: SendAccessibilityIdentifiers.receiveTokenBlock)
+                .matching(NSPredicate(format: "label CONTAINS %@", name))
+                .firstMatch
+            waitAndAssertTrue(receiveToken, "Receive token '\(name)' should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForNextButton(titled title: String) -> Self {
+        XCTContext.runActivity(named: "Wait for main button titled '\(title)'") { _ in
+            waitAndAssertTrue(nextButton, "Main button should exist")
+            let expectation = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label == %@", title), object: nextButton)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Main button should be titled '\(title)' but was '\(nextButton.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForDestinationPlaceholder(_ placeholder: String) -> Self {
+        XCTContext.runActivity(named: "Wait for destination placeholder '\(placeholder)'") { _ in
+            waitAndAssertTrue(app.staticTexts[placeholder].firstMatch, "Destination placeholder '\(placeholder)' should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForChangeTokenAlertMessage(_ message: String) -> Self {
+        XCTContext.runActivity(named: "Validate 'Changing token' alert message") { _ in
+            let alert = app.alerts[Constants.changeTokenAlertTitle].firstMatch
+            waitAndAssertTrue(alert, "'Changing token' alert should be displayed")
+            waitAndAssertTrue(alert.staticTexts[message].firstMatch, "Alert message '\(message)' should be displayed")
+        }
+        return self
+    }
+}
+
 enum SendScreenElement: String, UIElement {
     case title
     case amountTextField
@@ -1460,5 +1611,12 @@ enum SendScreenElement: String, UIElement {
         case .removeConvertButton:
             return SendAccessibilityIdentifiers.removeConvertButton
         }
+    }
+}
+
+private extension SendScreen {
+    enum Constants {
+        static let approximateSign = "~"
+        static let changeTokenAlertTitle = "Changing token"
     }
 }

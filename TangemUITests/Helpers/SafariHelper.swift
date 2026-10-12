@@ -32,6 +32,21 @@ struct SafariHelper {
         dismissToolTipIfNeeded()
     }
 
+    func waitForPageURL(containing expected: String) {
+        XCTAssertTrue(safari.wait(for: .runningForeground, timeout: .robustUIUpdate), "Safari should be opened")
+        let addressBar = safari.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier == %@ OR identifier == %@", "Address", "TabBarItemTitle"))
+            .firstMatch
+        XCTAssertTrue(addressBar.waitForExistence(timeout: .robustUIUpdate), "Safari address bar should exist")
+        addressBar.tap()
+        let urlField = safari.textFields["Address"].firstMatch
+        XCTAssertTrue(urlField.waitForExistence(timeout: .robustUIUpdate), "Safari URL field should exist")
+        XCTAssertTrue(
+            urlField.waitForValue(timeout: .robustUIUpdate) { $0.contains(expected) },
+            "Safari URL should contain '\(expected)' but was '\(urlField.getValue())'"
+        )
+    }
+
     func dismissToolTipIfNeeded() {
         let closeButton = safari.buttons["Close"]
         if closeButton.waitForExistence(timeout: 3), closeButton.isHittable {
