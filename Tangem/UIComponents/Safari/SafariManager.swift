@@ -60,11 +60,6 @@ class CommonSafariManager: NSObject, SafariManager {
 
     private weak var context: SafariContext?
 
-    override init() {
-        super.init()
-        incomingActionManager.becomeFirstResponder(self)
-    }
-
     func openURL(_ url: URL, configuration: SafariConfiguration) {
         openURL(url, configuration: configuration, onDismiss: {}, onSuccess: { _ in })
     }
@@ -82,6 +77,12 @@ class CommonSafariManager: NSObject, SafariManager {
         controller.dismissButtonStyle = configuration.dismissButtonStyle.sfDismissButtonStyle
         controller.delegate = self
         controller.presentationController?.delegate = self
+
+        // The listener lives as long as a flow is waiting for its redirect — which outlasts the browser itself,
+        // because a redirect can land after the user has closed it, and the flow that opened it still has to
+        // hear about it. What ends the wait is the redirect arriving, or the wallet session going away.
+        incomingActionManager.becomeFirstResponder(self)
+
         let context = SafariContext(initialURL: url, controller: controller, onDismiss: onDismiss, onSuccess: onSuccess)
         self.context = context
         AppPresenter.shared.show(controller)
@@ -89,6 +90,8 @@ class CommonSafariManager: NSObject, SafariManager {
     }
 
     func dismiss(with url: URL) {
+        stopListeningForRedirects()
+
         // already dismissed by user, but we received an url from Safari
         if context?.controller.presentingViewController == nil {
             context?.onSuccess(url)
@@ -116,6 +119,10 @@ extension CommonSafariManager: SFSafariViewControllerDelegate, UIAdaptivePresent
 // MARK: - IncomingActionResponder
 
 extension CommonSafariManager: IncomingActionResponder {
+    fileprivate func stopListeningForRedirects() {
+        incomingActionManager.resignFirstResponder(self)
+    }
+
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
         guard case .dismissSafari(let url) = action else {
             return false

@@ -76,11 +76,7 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
                 method: method
             )
 
-            let result = try await networkService.ethCall(request: request).async()
-
-            guard let yieldContract = YieldModuleUtils.parseEthereumAddress(result) else {
-                throw YieldModuleError.noYieldContractFound
-            }
+            let yieldContract = try await resolveYieldContract(request: request)
 
             await dataStorage.store(key: storageKey(), value: yieldContract)
 
@@ -104,13 +100,7 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
             method: method
         )
 
-        let result = try await networkService.ethCall(request: request).async()
-
-        guard let yieldContract = YieldModuleUtils.parseEthereumAddress(result) else {
-            throw YieldModuleError.noYieldContractFound
-        }
-
-        return yieldContract
+        return try await resolveYieldContract(request: request)
     }
 
     public func getYieldSupplyStatus(tokenContractAddress: String) async throws -> YieldSupplyStatus {
@@ -292,6 +282,11 @@ extension AllowedTargetMethod: SmartContractMethod {
 }
 
 private extension EthereumYieldSupplyService {
+    func resolveYieldContract(request: YieldSmartContractRequest) async throws -> String {
+        let results = try await networkService.ethCallAllProviders(request: request).async()
+        return try YieldModuleUtils.resolveConsistentEthereumAddress(from: results)
+    }
+
     func getEffectiveBalance(token: Token) async throws -> Decimal {
         let method = EffectiveBalanceMethod(tokenContractAddress: token.contractAddress)
 

@@ -333,8 +333,8 @@ private extension BadgeAppearance {
         switch self {
         case .neutral:
             AppearancePalette(
-                solidBackground: DesignSystem.Color.bgOpaquePrimary,
-                subtleBackground: DesignSystem.Color.bgOpaquePrimary,
+                solidBackground: DesignSystem.Color.bgTransparentPrimary,
+                subtleBackground: DesignSystem.Color.bgTransparentPrimary,
                 outlineBorder: DesignSystem.Color.borderPrimary,
                 subtleContent: DesignSystem.Color.textSecondary,
                 subtleIcon: DesignSystem.Color.iconSecondary

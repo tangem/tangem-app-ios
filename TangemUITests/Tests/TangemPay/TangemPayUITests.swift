@@ -25,7 +25,7 @@ final class TangemPayUITests: BaseTestCase {
             .waitForPinEntryScreen()
             .enterPin("5217")
             .waitForSuccessScreen()
-            .tapDone()
+            .tapSuccessClose()
             .waitForScreen()
     }
 
@@ -58,19 +58,16 @@ final class TangemPayUITests: BaseTestCase {
             scenarios: [ScenarioConfig(name: "tangem_pay_transaction_history", initialState: "InitialEmpty")]
         )
 
-        let mainAfterBack = mainScreen
+        let paymentAccount = mainScreen
             .openTangemPay()
             .waitForScreen()
             .verifyTransactionNotVisible(merchantName: "Mock Merchant")
-            .tapBack()
 
         // Simulate a new transaction on the Tangem Pay
         wireMockClient.setScenarioStateSync("tangem_pay_transaction_history", state: "AfterTransaction")
+        pullToRefresh()
 
-        mainAfterBack
-            .openTangemPay()
-            .waitForScreen()
-            .verifyTransactionVisible(merchantName: "Mock Merchant")
+        paymentAccount.verifyTransactionVisible(merchantName: "Mock Merchant")
     }
 
     func testFreezeUnfreezeCard_TogglesCardState() {
@@ -116,15 +113,22 @@ final class TangemPayUITests: BaseTestCase {
             .verifyToastVisible(text: "CVC copied")
     }
 
-    func testTermsAndFees_OpensTariffsWebView_FromMoreActionsMenu() {
+    func testTermsAndFees_OpensTariffsWebView_FromCurrentPlan() {
         setAllureId(9592)
 
-        launchAndImportHotWallet()
-            .openTangemPay()
-            .waitForScreen()
-            .openTermsAndFees()
-            .verifyWebViewLoaded()
-            .verifyDocumentTitle()
+        launchAndImportHotWallet(
+            scenarios: [
+                ScenarioConfig(name: "tangem_pay_tariff_plan", initialState: "Basic"),
+                ScenarioConfig(name: "tangem_pay_tariff_plan_transitions", initialState: "FromBasic"),
+            ]
+        )
+        .openTangemPay()
+        .waitForScreen()
+        .openCurrentPlan()
+        .waitForScreen()
+        .tapFullTerms()
+        .verifyWebViewLoaded()
+        .verifyDocumentTitle()
     }
 
     func testAddFunds_DisabledWhenNoDepositAddress() {

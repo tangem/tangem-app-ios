@@ -71,4 +71,89 @@ final class TangemPayCardFreezeUITests: BaseTestCase {
             .verifyWithdrawDisabled()
             .verifyAddFundsDisabled()
     }
+
+    func testFrozenCard_ShowsSnowflakeIndicatorOnPaymentAccount() {
+        setAllureId(11478)
+
+        launchAndImportHotWallet(
+            scenarios: [ScenarioConfig(name: Constants.Scenario.cardFreeze, initialState: Constants.State.cardActive)]
+        )
+        .openTangemPay()
+        .waitForScreen()
+        .tapCard()
+        .waitForScreen()
+        .verifyCardActive()
+        .tapFreezeCard()
+        .waitForScreen()
+        .confirmFreeze()
+        .verifyCardFrozen()
+        .tapBack()
+        .waitForScreen()
+        .verifyCardFrozenIndicator(cardId: Constants.cardId)
+    }
+
+    func testPaymentOnFrozenCard_ShownAsDeclinedZeroAmountTransaction() {
+        setAllureId(9533)
+
+        let cardDetails = launchAndImportHotWallet(
+            scenarios: [
+                ScenarioConfig(name: Constants.Scenario.cardFreeze, initialState: Constants.State.cardActive),
+                ScenarioConfig(name: Constants.Scenario.balance, initialState: Constants.State.initialBalance),
+                ScenarioConfig(name: Constants.Scenario.history, initialState: Constants.State.emptyHistory),
+            ]
+        )
+        .openTangemPay()
+        .waitForScreen()
+        .verifyEmptyTransactionsState()
+        .tapCard()
+        .waitForScreen()
+        .tapFreezeCard()
+        .waitForScreen()
+        .confirmFreeze()
+        .verifyCardFrozen()
+
+        wireMockClient.setScenarioStateSync(Constants.Scenario.history, state: Constants.State.declinedOnFrozenCard)
+
+        cardDetails
+            .tapBack()
+            .waitForScreen()
+            .tapBack()
+            .openTangemPay()
+            .waitForScreen()
+            .verifyTransactionRow(
+                name: Constants.DeclinedTransaction.merchant,
+                amount: Constants.DeclinedTransaction.amount,
+                category: Constants.DeclinedTransaction.category
+            )
+            .tapTransaction(name: Constants.DeclinedTransaction.merchant)
+            .waitForScreen()
+            .verifyAmount(Constants.DeclinedTransaction.amount)
+            .verifyStatus(Constants.DeclinedTransaction.status)
+    }
+}
+
+private extension TangemPayCardFreezeUITests {
+    enum Constants {
+        static let cardId = "mock-card-id"
+
+        enum Scenario {
+            static let cardFreeze = "tangem_pay_card_freeze"
+            static let balance = "tangem_pay_balance_update"
+            static let history = "tangem_pay_transaction_history"
+        }
+
+        enum State {
+            static let cardActive = "Started"
+            static let initialBalance = "InitialBalance"
+            static let emptyHistory = "InitialEmpty"
+            static let declinedOnFrozenCard = "SpendDeclinedFrozenCard"
+        }
+
+        enum DeclinedTransaction {
+            static let merchant = "Tangem Frozen Card Shop"
+            static let amount = "$0.00"
+            static let category = "Electronics"
+            static let status = "Declined"
+        }
+    }
 }

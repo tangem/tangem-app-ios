@@ -16,14 +16,8 @@ struct OnrampPaymentMethodIconView: View {
     let lightURL: URL?
     let darkURL: URL?
 
-    private var usesThemedImages: Bool {
-        FeatureProvider.isAvailable(.onrampPaymentMethodThemedImages)
-    }
-
     private var url: URL? {
-        guard usesThemedImages else { return lightURL }
-
-        return colorScheme == .dark ? (darkURL ?? lightURL) : (lightURL ?? darkURL)
+        colorScheme == .dark ? (darkURL ?? lightURL) : (lightURL ?? darkURL)
     }
 
     var body: some View {
@@ -31,8 +25,6 @@ struct OnrampPaymentMethodIconView: View {
             RoundedRectangle(cornerRadius: 8)
                 .fill(Colors.Field.focused)
                 .frame(size: CGSize(width: 36, height: 36))
-                // With themed images off, keep the legacy always-light (white) tile background.
-                .environment(\.colorScheme, usesThemedImages ? colorScheme : .light)
 
             IconView(
                 url: url,

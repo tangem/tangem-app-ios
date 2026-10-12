@@ -27,12 +27,22 @@ struct TransactionDetailsPrincipalAmountView: View {
     @ScaledMetric private var tokenBadgeSide: CGFloat = 16
 
     var body: some View {
-        Row(title: data.amount, subtitle: data.label)
+        Row(subtitle: data.label)
             .lineOrder(.secondaryFirst)
             .verticalAlignment(.center)
-            .titleAccessory { TokenIcon(tokenIconInfo: data.tokenIconInfo, size: CGSize(bothDimensions: tokenBadgeSide)) }
+            .titleAccessory { titleContent }
             .start { leadingIcon }
             .roundedBackground(with: DesignSystem.Color.bgTertiary, padding: 0, radius: 24)
+    }
+
+    private var titleContent: some View {
+        HStack(spacing: 4) {
+            SensitiveText(data.amount)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                .lineLimit(1)
+
+            TokenIcon(tokenIconInfo: data.tokenIconInfo, size: CGSize(bothDimensions: tokenBadgeSide), isWithOverlays: false)
+        }
     }
 
     private var leadingIcon: some View {
@@ -41,9 +51,9 @@ struct TransactionDetailsPrincipalAmountView: View {
             .resizable()
             .scaledToFit()
             .frame(size: CGSize(bothDimensions: iconSide))
-            .foregroundStyle(DesignSystem.Color.iconSecondary)
+            .foregroundStyle(DesignSystem.Color.iconPrimary)
             .frame(size: CGSize(bothDimensions: iconContainerSide))
-            .background(DesignSystem.Color.bgOpaquePrimary, in: Circle())
+            .background(DesignSystem.Color.bgTransparentPrimary, in: Circle())
     }
 }
 

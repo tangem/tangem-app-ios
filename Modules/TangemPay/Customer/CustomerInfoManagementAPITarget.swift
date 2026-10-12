@@ -38,10 +38,6 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/card/close"
         case .setPin(let cardId, _, _, _), .getPin(let cardId, _):
             "customer/card/\(cardId)/pin"
-        case .getTransactionHistoryLegacy:
-            "customer/transactions"
-        case .getTransactionLegacy(let transactionId):
-            "customer/transactions/\(transactionId)"
         case .getTransactionHistory:
             "transactions"
         case .getTransaction(let transactionId):
@@ -56,12 +52,18 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "order/\(orderId)"
         case .cancelOrder(let orderId):
             "order/\(orderId)/cancel"
+        case .sendBankOfframpSignature(let orderId, _, _):
+            "order/\(orderId)/bank-offramp/signature"
         case .getCustomerOffers:
             "customer/offers"
         case .getProductInstanceOffers(let productInstanceId):
             "product-instances/\(productInstanceId)/offers"
         case .getBankCredentials(let productInstanceId):
             "account/bank-credentials/\(productInstanceId)"
+        case .getBankAccounts:
+            "account/bank-accounts"
+        case .getBankOfframpOptions:
+            "account/bank-offramp/options"
         case .getTariffPlanTransitions:
             "customer/tariff-plan/transitions"
         case .requestTariffPlanPendingTransition:
@@ -103,8 +105,6 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getProductInstanceOffers,
              .getTariffPlanTransitions,
              .getBalance,
-             .getTransactionHistoryLegacy,
-             .getTransactionLegacy,
              .getTransactionHistory,
              .getTransaction,
              .getPin,
@@ -116,11 +116,14 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getCashbackAccrualsDocs,
              .getCashbackTransactionDetails,
              .getBankCredentials,
+             .getBankAccounts,
+             .getBankOfframpOptions,
              .getEligibility:
             .get
 
         case .placeOrder,
              .cancelOrder,
+             .sendBankOfframpSignature,
              .getCardDetails,
              .freeze,
              .unfreeze,
@@ -148,7 +151,6 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getKYCAccessToken,
              .getOrder,
              .cancelOrder,
-             .getCustomerOffers,
              .getProductInstanceOffers,
              .getTariffPlanTransitions,
              .cancelTariffPlanPendingTransition,
@@ -156,7 +158,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getPin,
              .getFee,
              .getBankCredentials,
-             .getTransactionLegacy,
+             .getBankAccounts,
+             .getBankOfframpOptions,
              .getTransaction,
              .getCashbackSummary,
              .getCashbackPromotions,
@@ -164,6 +167,13 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getCashbackTransactionDetails,
              .getEligibility:
             return .requestPlain
+
+        case .getCustomerOffers(let deeplinkValue):
+            guard let deeplinkValue else {
+                return .requestPlain
+            }
+            let requestData = TangemPayCustomerOffersRequest(deeplinkValue: deeplinkValue)
+            return .requestParameters(requestData)
 
         case .getCashbackHistory(let months):
             guard let months else {
@@ -191,7 +201,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
             let requestParams = ["groups": groups.map(\.rawValue).joined(separator: ",")]
             return .requestParameters(parameters: requestParams, encoding: URLEncoding.default)
 
-        case .getTransactionHistoryLegacy(let limit, let cursor), .getTransactionHistory(let limit, let cursor):
+        case .getTransactionHistory(let limit, let cursor):
             var requestParams = [
                 "limit": "\(limit)",
             ]
@@ -223,6 +233,9 @@ struct CustomerInfoManagementAPITarget: TargetType {
         case .placeOrder(let request, _):
             return .requestCustomJSONEncodable(request, encoder: encoder)
 
+        case .sendBankOfframpSignature(_, let request, _):
+            return .requestCustomJSONEncodable(request, encoder: encoder)
+
         case .updateCardDisplayName(_, let displayName):
             let requestData = TangemPayUpdateCardDisplayNameRequest(displayName: displayName)
             return .requestCustomJSONEncodable(requestData, encoder: encoder)
@@ -245,14 +258,14 @@ struct CustomerInfoManagementAPITarget: TargetType {
         switch target {
         case .getPin(_, let sessionId):
             ["X-Session-Id": "\(sessionId)"]
-        case .placeOrder(_, let idempotencyKey):
+        case .placeOrder(_, let idempotencyKey), .sendBankOfframpSignature(_, _, let idempotencyKey):
             ["Idempotency-Key": idempotencyKey]
-        case .getCustomerInfo, .getTariffPlanTransitions, .getCustomerOffers, .getProductInstanceOffers:
-            [
-                TangemPayNetworkingConstants.Header.Key.xDeviceScale: TangemPayNetworkingConstants.Header.Value.deviceScale,
-                TangemPayNetworkingConstants.Header.Key.acceptLanguage: Locale.appLanguageCode,
-            ]
-        case .getCashbackPromotions, .getCashbackAccrualsDocs:
+        case .getCustomerInfo,
+             .getTariffPlanTransitions,
+             .getCustomerOffers,
+             .getProductInstanceOffers,
+             .getCashbackPromotions,
+             .getCashbackAccrualsDocs:
             [TangemPayNetworkingConstants.Header.Key.acceptLanguage: Locale.appLanguageCode]
         default:
             nil
@@ -283,8 +296,6 @@ extension CustomerInfoManagementAPITarget {
         case freeze(cardId: String)
         case unfreeze(cardId: String)
 
-        case getTransactionHistoryLegacy(limit: Int, cursor: String?)
-        case getTransactionLegacy(transactionId: String)
         case getTransactionHistory(limit: Int, cursor: String?)
         case getTransaction(transactionId: String)
 
@@ -293,9 +304,10 @@ extension CustomerInfoManagementAPITarget {
 
         case getOrder(orderId: String)
         case cancelOrder(orderId: String)
+        case sendBankOfframpSignature(orderId: String, request: TangemPayOfframpSignatureRequest, idempotencyKey: String)
         case findOrders(orderTypes: [String], orderStatuses: [TangemPayOrderResponse.Status])
 
-        case getCustomerOffers
+        case getCustomerOffers(deeplinkValue: String?)
         case getProductInstanceOffers(productInstanceId: String)
 
         case getTariffPlanTransitions
@@ -307,6 +319,8 @@ extension CustomerInfoManagementAPITarget {
         case reissueCard(cardId: String)
 
         case getBankCredentials(productInstanceId: String)
+        case getBankAccounts
+        case getBankOfframpOptions
 
         case getEligibility
         case getCashbackSummary

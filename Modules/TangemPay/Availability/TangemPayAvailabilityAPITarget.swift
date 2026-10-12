@@ -26,12 +26,14 @@ struct TangemPayAvailabilityAPITarget: TargetType {
             return "deeplink/validate"
         case .isPaeraCustomer(let customerWalletId):
             return "customer/wallets/\(customerWalletId)"
+        case .getImages:
+            return "images"
         }
     }
 
     var method: Moya.Method {
         switch target {
-        case .getEligibility, .isPaeraCustomer:
+        case .getEligibility, .isPaeraCustomer, .getImages:
             return .get
         case .validateDeeplink:
             return .post
@@ -45,6 +47,9 @@ struct TangemPayAvailabilityAPITarget: TargetType {
         case .validateDeeplink(let deeplinkString):
             let requestData = ValidateDeeplinkRequest(link: deeplinkString)
             return .requestJSONEncodable(requestData)
+        case .getImages(let deeplinkValue):
+            let requestData = TangemPayImagesRequest(deeplinkValue: deeplinkValue)
+            return .requestParameters(requestData)
         }
     }
 
@@ -59,6 +64,7 @@ extension TangemPayAvailabilityAPITarget {
         case getEligibility
         case validateDeeplink(deeplinkString: String)
         case isPaeraCustomer(customerWalletId: String)
+        case getImages(deeplinkValue: String)
     }
 }
 

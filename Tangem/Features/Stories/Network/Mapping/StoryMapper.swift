@@ -14,6 +14,7 @@ enum StoryMapper {
         switch storyId {
         case .swap: "first-time-swap-v2"
         case .yieldFirstActivationAPYBoost: "first-time-yield-promo"
+        case .polymarketOnboarding: "polymarket-onboarding"
         }
     }
 

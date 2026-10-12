@@ -6,10 +6,14 @@
 //
 
 import Foundation
+import BlockchainSdk
 import TangemAccounts
+import TangemAssets
 import TangemUI
 
 struct TransactionDetailsContext {
+    @Injected(\.transactionHistoryAuxDataRepository) private var auxDataRepository: TransactionHistoryAuxDataRepository
+
     private let walletModel: any WalletModel
     private let userWalletInfo: UserWalletInfo
     private let isAccountsMode: Bool
@@ -25,6 +29,44 @@ struct TransactionDetailsContext {
         self.userWalletInfo = userWalletInfo
         self.isAccountsMode = isAccountsMode
         tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
+    }
+
+    var blockchain: Blockchain {
+        walletModel.tokenItem.blockchain
+    }
+
+    var networkIconAsset: ImageType {
+        NetworkImageProvider().provide(by: walletModel.tokenItem.blockchain, filled: true)
+    }
+
+    func tokenIconInfo(forContract contract: String) -> TokenIconInfo? {
+        let blockchain = walletModel.tokenItem.blockchain
+        let comparator = AddressComparator()
+
+        let walletModels = walletModel.account?.walletModelsManager.walletModels ?? []
+
+        let matching: (any WalletModel)? = walletModels.first { model in
+            guard let contractAddress: String = model.tokenItem.contractAddress else {
+                return false
+            }
+
+            return model.tokenItem.blockchain.networkId == blockchain.networkId
+                && comparator.addressesMatch(contractAddress, contract, blockchain: blockchain)
+        }
+
+        guard let matching else {
+            return knownTokenIconInfo(forContract: contract)
+        }
+
+        return TokenIconInfoBuilder().build(from: matching.tokenItem, isCustom: matching.isCustom)
+    }
+
+    /// A token outside the account, e.g. an approve of a token the user doesn't hold, is looked up among all the
+    /// tokens known on the network. A cache miss fires a background load, and the sheet re-renders once it lands.
+    private func knownTokenIconInfo(forContract contract: String) -> TokenIconInfo? {
+        auxDataRepository
+            .cryptoCurrency(forContract: contract, blockchain: walletModel.tokenItem.blockchain)
+            .map { TokenIconInfoBuilder().build(from: $0, isCustom: false) }
     }
 
     var tokenSymbol: String {

@@ -13,20 +13,17 @@ public struct TransactionHistoryProviderFactory {
     private let keysConfig: BlockchainSdkKeysConfig
     private let apiList: APIList
     private let tangemProviderConfig: TangemProviderConfiguration
-    private let isXrpTransactionHistoryEnabled: Bool
 
     // MARK: - Init
 
     public init(
         keysConfig: BlockchainSdkKeysConfig,
         tangemProviderConfig: TangemProviderConfiguration,
-        apiList: APIList,
-        isXrpTransactionHistoryEnabled: Bool
+        apiList: APIList
     ) {
         self.keysConfig = keysConfig
         self.tangemProviderConfig = tangemProviderConfig
         self.apiList = apiList
-        self.isXrpTransactionHistoryEnabled = isXrpTransactionHistoryEnabled
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -163,7 +160,7 @@ public struct TransactionHistoryProviderFactory {
                 networkConfiguration: input.tangemProviderConfig,
                 mapper: SolanaTransactionHistoryMapper(blockchain: input.blockchain)
             )
-        case .xrp where isXrpTransactionHistoryEnabled:
+        case .xrp:
             let serviceFactory = WalletNetworkServiceFactory(
                 blockchainSdkKeysConfig: keysConfig,
                 tangemProviderConfig: tangemProviderConfig,

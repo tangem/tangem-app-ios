@@ -14,7 +14,11 @@ import TangemFoundation
 final class NewsPromotionNotificationsManager {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private let cache = Cache()
+    private let cache: Cache
+
+    init(placement: PromotionPlacement) {
+        cache = Cache(placement: placement)
+    }
 
     private var selectedUserWalletId: UserWalletId? {
         userWalletRepository.selectedModel?.userWalletId
@@ -90,14 +94,19 @@ extension NewsPromotionNotificationsManager: PromotionNotificationsManager {
 
 private extension NewsPromotionNotificationsManager {
     actor Cache {
+        private let placement: PromotionPlacement
         private var managers: [UserWalletId: PromotionNotificationsManager] = [:]
+
+        init(placement: PromotionPlacement) {
+            self.placement = placement
+        }
 
         func manager(for userWalletId: UserWalletId) -> PromotionNotificationsManager {
             if let cached = managers[userWalletId] {
                 return cached
             }
 
-            let newManager = CommonPromotionNotificationsManager(userWalletId: userWalletId, placement: .news)
+            let newManager = CommonPromotionNotificationsManager(userWalletId: userWalletId, placement: placement)
             managers[userWalletId] = newManager
 
             return newManager

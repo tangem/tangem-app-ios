@@ -9,40 +9,38 @@ import Foundation
 import BlockchainSdk
 import TangemExpress
 import TangemAssets
+import TangemFoundation
 import TangemLocalization
 
 enum TransactionDetailsMenuFactory {
     private static let balanceFormatter = BalanceFormatter()
 
-    static func menuActions(
+    private static let yieldProviderURL = URL(string: "https://aave.com/")!
+
+    static func menuSections(
         for record: TransactionRecord,
+        counterpartyAddress: String?,
+        transactionType: TransactionViewModel.TransactionType,
         context: TransactionDetailsContext,
         addContactHelper: TransactionDetailsAddContactHelper
-    ) -> [TransactionDetailsHeaderViewData.MenuAction] {
-        var actions: [TransactionDetailsHeaderViewData.MenuAction] = []
+    ) -> [TransactionDetailsHeaderViewData.MenuSection] {
+        var addressActions: [TransactionDetailsHeaderViewData.MenuAction] = []
 
-        if isShareAvailable(for: record) {
-            actions.append(.init(
-                id: "share",
-                title: Localization.commonShare,
-                icon: Assets.share,
-                action: .share
-            ))
-        }
-
-        actions.append(copyTransactionIdAction(for: record))
-
-        if let url = exploreURL(for: record, context: context) {
-            actions.append(.init(
-                id: "explore",
-                title: Localization.commonExplore,
-                icon: Assets.Glyphs.explore,
-                action: .openURL(url)
+        if let counterpartyAddress {
+            addressActions.append(.init(
+                id: "copyAddress",
+                title: Localization.commonCopyAddress,
+                icon: DesignSystem.Icons.Copy.regular24,
+                action: .copy(
+                    value: counterpartyAddress,
+                    toast: Localization.walletNotificationAddressCopied,
+                    kind: .address
+                )
             ))
         }
 
         if let addressToSave = addContactHelper.addressToSave(for: record) {
-            actions.append(.init(
+            addressActions.append(.init(
                 id: "addContact",
                 title: Localization.addressBookAddContact,
                 icon: DesignSystem.Icons.UserPlus.regular24,
@@ -50,16 +48,68 @@ enum TransactionDetailsMenuFactory {
             ))
         }
 
+        var transactionActions: [TransactionDetailsHeaderViewData.MenuAction] = []
+
+        if isShareAvailable(for: record) {
+            transactionActions.append(.init(
+                id: "share",
+                title: Localization.commonShare,
+                icon: DesignSystem.Icons.ShareIos.regular24,
+                action: .share
+            ))
+        }
+
+        transactionActions.append(copyTransactionIdAction(for: record))
+
+        if let url = exploreURL(for: record, context: context) {
+            transactionActions.append(.init(
+                id: "explore",
+                title: Localization.commonExplore,
+                icon: DesignSystem.Icons.Globe.regular24,
+                action: .openURL(url, kind: .explorer)
+            ))
+        }
+
+        if isYieldProviderInteraction(transactionType) {
+            transactionActions.append(.init(
+                id: "exploreProvider",
+                title: Localization.yieldModuleExploreSheetExploreAaveButtonTitle,
+                icon: DesignSystem.Icons.Globe.regular24,
+                action: .openURL(yieldProviderURL, kind: .yieldProvider)
+            ))
+        }
+
+        var sections: [TransactionDetailsHeaderViewData.MenuSection] = [
+            .init(id: "address", actions: addressActions),
+            .init(id: "transaction", actions: transactionActions),
+        ]
+
         #if INTERNAL || DEBUG
-        actions.append(.init(
-            id: "debug",
-            title: "Debug",
-            icon: Assets.Glyphs.docNew,
-            action: .debug
-        ))
+        sections.append(.init(id: "debug", actions: [
+            .init(
+                id: "debug",
+                title: "Debug",
+                icon: DesignSystem.Icons.Document.regular24,
+                action: .debug
+            ),
+        ]))
         #endif
 
-        return actions
+        return sections.filter { $0.actions.isNotEmpty }
+    }
+
+    // MARK: - Yield provider
+
+    private static func isYieldProviderInteraction(_ transactionType: TransactionViewModel.TransactionType) -> Bool {
+        switch transactionType {
+        case .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit,
+             .yieldReactivate, .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin:
+            return true
+        case .yieldSend, .stake, .unstake, .vote, .withdraw, .claimRewards, .restake,
+             .approve, .gaslessTransactionFee, .gaslessTransfer, .networkFee, .operation, .unknownOperation,
+             .transfer, .swap, .onramp, .tangemPay:
+            return false
+        }
     }
 
     // MARK: - Transaction id
@@ -68,10 +118,11 @@ enum TransactionDetailsMenuFactory {
         .init(
             id: "transactionID",
             title: Localization.commonTransactionId,
-            icon: Assets.Glyphs.copy,
+            icon: DesignSystem.Icons.Copy.regular24,
             action: .copy(
                 value: transactionId(for: record),
-                toast: Localization.expressTransactionIdCopied
+                toast: Localization.expressTransactionIdCopied,
+                kind: .transactionID
             )
         )
     }

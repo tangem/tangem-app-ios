@@ -258,7 +258,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
 
         let marketsScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .openMarketsSheetWithSwipe()
+            .openMarketsSheet()
             .searchForToken("XRP")
             .tapTokenInSearchResults("XRP")
 

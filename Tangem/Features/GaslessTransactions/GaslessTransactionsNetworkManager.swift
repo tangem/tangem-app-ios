@@ -32,8 +32,14 @@ protocol GaslessTransactionsNetworkManager {
     func updateAvailableTokens()
     func sendGaslessTransaction(_ transaction: GaslessTransaction, executorVersion: GaslessExecutorVersion) async throws -> String
     func sendGaslessBatchTransaction(_ transaction: GaslessBatchTransaction) async throws -> String
-    func estimateTronGaslessTransaction(_ request: TronEstimateRequest) async throws -> TronEstimateResponse
-    func submitTronGaslessTransaction(_ request: TronSubmitRequest) async throws -> TronSubmitResponse
+    func estimateTronGaslessTransaction(
+        _ request: TronEstimateRequest,
+        userWalletId: UserWalletId
+    ) async throws -> TronEstimateResponse
+    func submitTronGaslessTransaction(
+        _ request: TronSubmitRequest,
+        userWalletId: UserWalletId
+    ) async throws -> TronSubmitResponse
     func initialize()
 
     var cachedFeeRecipientAddress: String? { get }
@@ -50,7 +56,8 @@ final class CommonGaslessTransactionsNetworkManager {
     private var fetchFeeTokensTask: Task<Void, Never>?
     private var fetchTronFeeTokensTask: Task<Void, Never>?
     private var feeRecipientTask: Task<String?, Never>?
-    private var _feeRecipientAddress: String?
+
+    private let _feeRecipientAddress = OSAllocatedUnfairLock<String?>(initialState: nil)
 
     init(apiService: GaslessTransactionsAPIService) {
         self.apiService = apiService
@@ -61,7 +68,7 @@ final class CommonGaslessTransactionsNetworkManager {
 
 extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager {
     var cachedFeeRecipientAddress: String? {
-        _feeRecipientAddress
+        _feeRecipientAddress.withLock { $0 }
     }
 
     var currentHost: String {
@@ -72,7 +79,7 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
 
     var feeRecipientAddress: String? {
         get async {
-            if let cached = _feeRecipientAddress {
+            if let cached = cachedFeeRecipientAddress {
                 return cached
             }
             if let task = feeRecipientTask {
@@ -82,7 +89,7 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
             let task = Task<String?, Never> {
                 do {
                     let address = try await apiService.getFeeRecipientAddress()
-                    _feeRecipientAddress = address
+                    _feeRecipientAddress.withLock { $0 = address }
                     return address
                 } catch {
                     AppLogger.error("Failed to fetch fee recipient address", error: error)
@@ -130,17 +137,28 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
         try await apiService.sendGaslessBatchTransaction(transaction)
     }
 
-    func estimateTronGaslessTransaction(_ request: TronEstimateRequest) async throws -> TronEstimateResponse {
-        try await apiService.estimateTronGaslessTransaction(request)
+    func estimateTronGaslessTransaction(
+        _ request: TronEstimateRequest,
+        userWalletId: UserWalletId
+    ) async throws -> TronEstimateResponse {
+        try await mapTronActivationError {
+            try await apiService.estimateTronGaslessTransaction(request, userWalletId: userWalletId)
+        }
     }
 
-    func submitTronGaslessTransaction(_ request: TronSubmitRequest) async throws -> TronSubmitResponse {
-        try await apiService.submitTronGaslessTransaction(request)
+    func submitTronGaslessTransaction(
+        _ request: TronSubmitRequest,
+        userWalletId: UserWalletId
+    ) async throws -> TronSubmitResponse {
+        try await mapTronActivationError {
+            try await apiService.submitTronGaslessTransaction(request, userWalletId: userWalletId)
+        }
     }
 
     func preloadFeeRecipientAddress() {
         Task { [weak self] in
-            self?._feeRecipientAddress = try await self?.apiService.getFeeRecipientAddress()
+            let address = try await self?.apiService.getFeeRecipientAddress()
+            self?._feeRecipientAddress.withLock { $0 = address }
         }
     }
 }
@@ -166,13 +184,16 @@ private extension CommonGaslessTransactionsNetworkManager {
         self.fetchFeeTokensTask = fetchFeeTokensTask
     }
 
+    func mapTronActivationError<T>(_ work: () async throws -> T) async throws -> T {
+        do {
+            return try await work()
+        } catch let error as TangemAPIError {
+            throw GaslessTransactionsDTO.APIError.TronActivation(apiError: error) ?? error
+        }
+    }
+
     func updateAvailableTronFeeTokens() {
         fetchTronFeeTokensTask?.cancel()
-
-        guard FeatureProvider.isAvailable(.tronGasless) else {
-            availableTronFeeTokensSubject.send([])
-            return
-        }
 
         let fetchTronFeeTokensTask = Task {
             do {

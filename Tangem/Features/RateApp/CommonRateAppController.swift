@@ -9,11 +9,19 @@
 import Foundation
 import Combine
 import CombineExt
+import TangemFoundation
 
+/// Narrows the app-global eligibility from `RateAppService` down to a single main screen page.
 final class CommonRateAppController {
-    private let rateAppService: RateAppService
+    @Injected(\.rateAppService) private var rateAppService: RateAppService
+
     private let userWalletModel: UserWalletModel
     private weak var coordinator: RateAppRoutable?
+
+    /// The page is suppressed until `bind(...)` supplies its balance and notification state.
+    private let isSuppressedSubject = CurrentValueSubject<Bool, Never>(true)
+
+    private var bag: Set<AnyCancellable> = []
 
     private var isBalanceLoadedPublisher: AnyPublisher<Bool, Never> {
         userWalletModel
@@ -24,67 +32,48 @@ final class CommonRateAppController {
             .eraseToAnyPublisher()
     }
 
-    private var bag: Set<AnyCancellable> = []
-
     init(
-        rateAppService: RateAppService,
         userWalletModel: UserWalletModel,
         coordinator: RateAppRoutable?
     ) {
-        self.rateAppService = rateAppService
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
     }
 
-    private func handleRateAppAction(_ action: RateAppAction) {
-        switch action {
-        case .openFeedbackMailWithEmailType(let emailType):
-            let userWallet = userWalletModel
-            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
-                let collector = NegativeFeedbackDataCollector(userWalletEmailData: userWallet.emailData)
-                let recipient = userWallet.config.emailConfig?.recipient ?? EmailConfig.default.recipient
-                self?.coordinator?.openMail(with: collector, emailType: emailType, recipient: recipient)
+    private func bindSuppression(to notificationsPublisher: some Publisher<[NotificationViewInput], Never>) {
+        isBalanceLoadedPublisher
+            .combineLatest(notificationsPublisher)
+            .map { isBalanceLoaded, notifications in
+                !isBalanceLoaded || notifications.contains { Constants.suppressingSeverityLevels.contains($0.severity) }
             }
-        case .openAppStoreReview:
-            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
-                self?.coordinator?.openAppStoreReview()
-            }
-        case .requestAppRate,
-             .dismissAppRate:
-            // These cases are handled by logic in `showAppRateNotificationPublisher`
-            break
-        }
-    }
+            .removeDuplicates()
+            .receiveOnMain()
+            .subscribe(isSuppressedSubject)
+            .store(in: &bag)
 
-    private func bind() {
         userWalletModel
             .totalBalancePublisher
             .filter { $0.isLoaded }
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { controller, _ in
                 let walletModels = AccountWalletModelsAggregator.walletModels(from: controller.userWalletModel.accountModelsManager)
                 controller.rateAppService.registerBalances(of: walletModels)
             }
             .store(in: &bag)
-
-        rateAppService
-            .rateAppAction
-            .withWeakCaptureOf(self)
-            .sink { controller, rateAppAction in
-                controller.handleRateAppAction(rateAppAction)
-            }
-            .store(in: &bag)
     }
 
-    private func request(isPageSelected: Bool, isBalanceLoaded: Bool, notifications: [NotificationViewInput]) {
-        let rateAppRequest = RateAppRequest(
-            isLocked: false,
-            isSelected: isPageSelected,
-            isBalanceLoaded: isBalanceLoaded,
-            displayedNotifications: notifications
-        )
+    /// The prompt is still animating away when the response arrives, so the destination is opened after it settles.
+    private func afterDismissAnimation(_ action: @MainActor @escaping (CommonRateAppController) -> Void) {
+        Task { @MainActor [weak self] in
+            try? await ContinuousClock().sleep(for: .seconds(Constants.feedbackRequestDelay))
 
-        rateAppService.requestRateAppIfAvailable(with: rateAppRequest)
+            guard let self else {
+                return
+            }
+
+            action(self)
+        }
     }
 }
 
@@ -92,40 +81,37 @@ final class CommonRateAppController {
 
 extension CommonRateAppController: RateAppInteractionController {
     func bind(
-        isPageSelectedPublisher: some Publisher<Bool, Never>,
         notificationsPublisher1: some Publisher<[NotificationViewInput], Never>,
         notificationsPublisher2: some Publisher<[NotificationViewInput], Never>
     ) {
-        isPageSelectedPublisher.combineLatest(isBalanceLoadedPublisher, notificationsPublisher1, notificationsPublisher2)
-            .withWeakCaptureOf(self)
-            .sink { controller, values in
-                controller.request(isPageSelected: values.0, isBalanceLoaded: values.1, notifications: values.2 + values.3)
-            }
-            .store(in: &bag)
-
-        bind()
+        bindSuppression(
+            to: notificationsPublisher1
+                .combineLatest(notificationsPublisher2)
+                .map { $0 + $1 }
+        )
     }
 
-    func bind(
-        isPageSelectedPublisher: some Publisher<Bool, Never>,
-        notificationsPublisher: some Publisher<[NotificationViewInput], Never>
-    ) {
-        isPageSelectedPublisher.combineLatest(isBalanceLoadedPublisher, notificationsPublisher)
-            .withWeakCaptureOf(self)
-            .sink { controller, values in
-                controller.request(isPageSelected: values.0, isBalanceLoaded: values.1, notifications: values.2)
-            }
-            .store(in: &bag)
-
-        bind()
+    func bind(notificationsPublisher: some Publisher<[NotificationViewInput], Never>) {
+        bindSuppression(to: notificationsPublisher)
     }
 
     func openFeedbackMail() {
         rateAppService.respondToRateAppDialog(with: .negative)
+
+        afterDismissAnimation { controller in
+            let userWalletModel = controller.userWalletModel
+            let collector = NegativeFeedbackDataCollector(userWalletEmailData: userWalletModel.emailData)
+            let recipient = userWalletModel.config.emailConfig?.recipient ?? EmailConfig.default.recipient
+            controller.coordinator?.openMail(with: collector, emailType: .negativeRateAppFeedback, recipient: recipient)
+        }
     }
 
     func openAppStoreReview() {
         rateAppService.respondToRateAppDialog(with: .positive)
+
+        afterDismissAnimation { controller in
+            controller.coordinator?.openAppStoreReview()
+        }
     }
 }
 
@@ -133,18 +119,12 @@ extension CommonRateAppController: RateAppInteractionController {
 
 extension CommonRateAppController: RateAppNotificationController {
     var showAppRateNotificationPublisher: AnyPublisher<Bool, Never> {
-        return rateAppService
-            .rateAppAction
-            .map { action in
-                switch action {
-                case .requestAppRate:
-                    return true
-                case .openAppStoreReview,
-                     .openFeedbackMailWithEmailType,
-                     .dismissAppRate:
-                    return false
-                }
-            }
+        rateAppService
+            .isEligiblePublisher
+            .combineLatest(isSuppressedSubject)
+            .map { isEligible, isSuppressed in isEligible && !isSuppressed }
+            .removeDuplicates()
+            .receiveOnMain()
             .eraseToAnyPublisher()
     }
 
@@ -156,7 +136,13 @@ extension CommonRateAppController: RateAppNotificationController {
 // MARK: - Constants
 
 private extension CommonRateAppController {
-    private enum Constants {
+    enum Constants {
         static let feedbackRequestDelay = 0.7
+
+        /// A page showing a problem the user has to deal with is a bad place to ask for a review.
+        static let suppressingSeverityLevels: Set<NotificationView.Severity> = [
+            .warning,
+            .critical,
+        ]
     }
 }

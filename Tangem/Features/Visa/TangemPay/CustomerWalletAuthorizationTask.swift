@@ -26,7 +26,7 @@ public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
     }
 
     public func run(in session: CardSession, completion: @escaping CompletionResult<Response>) {
-        runTask(in: self, isDetached: false, priority: .userInitiated) { handler in
+        runTask(in: self, priority: .userInitiated) { handler in
             var derivationResult: DerivationResult = [:]
 
             do {
@@ -37,7 +37,14 @@ public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
                     throw CustomerWalletAuthorizationTaskError.derivedKeyNotFound
                 }
 
-                derivationResult = try await DeriveMultipleWalletPublicKeysTask([seedKey: [derivationPath]]).run(in: session)
+                let derivationTask = DeriveMultipleWalletPublicKeysTask([seedKey: [derivationPath]], shouldFailIfNothingDerived: true)
+                    .withUserWalletRegistration()
+
+                try await derivationTask
+                    .prepare(session)
+
+                derivationResult = try await derivationTask
+                    .run(in: session)
 
                 guard let extendedPublicKey = derivationResult[seedKey]?[derivationPath] else {
                     throw CustomerWalletAuthorizationTaskError.derivedKeyNotFound

@@ -71,7 +71,7 @@ public struct RowShowcase: View {
                     .environment(\.layoutDirection, rightToLeft ? .rightToLeft : .leftToRight)
                     .padding(.vertical, 24)
                     .frame(maxWidth: .infinity)
-                    .background(DesignSystem.Color.bgOpaquePrimary)
+                    .background(DesignSystem.Color.bgTransparentPrimary)
 
                 Text("taps: \(tapCount)")
                     .monospacedDigit()
@@ -200,7 +200,7 @@ public struct RowShowcase: View {
         }
         .padding(8)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(DesignSystem.Color.bgOpaqueSecondary, in: RoundedRectangle(cornerRadius: 8))
+        .background(DesignSystem.Color.bgTransparentSecondary, in: RoundedRectangle(cornerRadius: 8))
     }
 
     // MARK: - Predicted VoiceOver output
@@ -440,7 +440,7 @@ private func tangemRowVAlignSample(_ alignment: RowVerticalAlignment, extra: Boo
             .showDivider()
     }
     .padding()
-    .background(DesignSystem.Color.bgOpaquePrimary)
+    .background(DesignSystem.Color.bgTransparentPrimary)
     .environment(\.layoutDirection, .rightToLeft)
 }
 
@@ -451,6 +451,6 @@ private func tangemRowVAlignSample(_ alignment: RowVerticalAlignment, extra: Boo
         tangemRowVAlignSample(.top, extra: true)
     }
     .padding()
-    .background(DesignSystem.Color.bgOpaquePrimary)
+    .background(DesignSystem.Color.bgTransparentPrimary)
 }
 #endif // DEBUG

@@ -23,7 +23,6 @@ struct MobileOnboardingImportICloudBackupView: View {
             .onAppear(perform: viewModel.onAppear)
             .onDisappear {
                 viewModel.onDisappear()
-                UIApplication.shared.endEditing()
             }
     }
 }
@@ -220,7 +219,7 @@ private struct ActionButton: View {
         .styleType(.default)
         .horizontalLayout(.infinity)
         .size(.x12)
-        .isLoading(isLoading)
+        .loading(.spinner(if: isLoading))
         .disabled(!enabled)
     }
 }

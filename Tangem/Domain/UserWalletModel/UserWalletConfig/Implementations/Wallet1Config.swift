@@ -300,11 +300,12 @@ extension Wallet1Config: UserWalletConfig {
         }
     }
 
-    func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory {
+    func makeAnyWalletFactory() -> AnyWalletFactory {
         if hasFeature(.hdWallets) {
-            return GenericWalletManagerFactory()
+            let dataStorage = UserDefaultsBlockchainDataStorage(suiteName: AppEnvironment.current.blockchainDataStorageSuiteName)
+            return GenericWalletFactory(dataStorage: dataStorage)
         } else {
-            return SimpleWalletManagerFactory()
+            return SimpleWalletFactory()
         }
     }
 }
