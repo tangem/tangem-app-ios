@@ -163,7 +163,7 @@ struct PromoCampaignView: View {
             }
 
             TangemUI.Button(label: viewModel.actionButtonTitle, accessibilityLabel: nil, action: viewModel.performAction)
-                .styleType(.default)
+                .styleType(.primary)
                 .horizontalLayout(.infinity)
                 .size(.x12)
                 .loading(.spinner(if: viewModel.isEnrolling))

@@ -253,7 +253,7 @@ struct PolymarketOrderView: View {
                 viewModel.handleViewAction(.openSummary)
             }
         )
-        .styleType(.default)
+        .styleType(.primary)
         .size(.x12)
         .horizontalLayout(.infinity)
         .disabled(!viewModel.isNextEnabled)

@@ -87,7 +87,7 @@ struct JointAccountInviteSafetyView: View {
             accessibilityLabel: Localization.commonGotIt,
             action: viewModel.onCloseTap
         )
-        .styleType(.default)
+        .styleType(.primary)
         .size(.x12)
         .horizontalLayout(.infinity)
     }

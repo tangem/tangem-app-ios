@@ -24,7 +24,7 @@ struct PromoCampaignPrecheckView: View {
             }
 
             TangemUI.Button(label: Localization.commonClose, accessibilityLabel: nil, action: viewModel.close)
-                .styleType(.default)
+                .styleType(.primary)
                 .horizontalLayout(.infinity)
                 .size(.x12)
         }
