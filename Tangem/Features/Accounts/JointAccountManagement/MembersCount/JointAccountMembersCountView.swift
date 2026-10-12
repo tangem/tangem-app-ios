@@ -80,7 +80,7 @@ struct JointAccountMembersCountView: View {
         ) {
             viewModel.onContinueTap()
         }
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
         .size(.x12)
         .padding(.horizontal, 16)

@@ -96,7 +96,7 @@ private extension WrappedHoldToConfirmButton {
 
     var button: some View {
         Button(label: viewModel.labelTitle, accessibilityLabel: nil, action: {})
-            .styleType(.default)
+            .styleType(.primary)
             .size(.x12)
             .horizontalLayout(.infinity)
             .loading(.spinner(if: isLoadingState))

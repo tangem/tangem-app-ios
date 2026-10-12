@@ -77,7 +77,7 @@ private extension TransferTypeContentView {
             action: { action(.continueTap) }
         )
         .size(.x12)
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
         .disabled(state.selection == nil)
     }

@@ -126,7 +126,7 @@ private extension CollectiblesConfirmOrderView {
 
     var approveButton: some View {
         TangemUI.Button(label: buttonLabel, accessibilityLabel: nil, action: buttonAction)
-            .styleType(.default)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
             .size(.x12)
             .loading(isButtonLoading ? .spinner : nil)

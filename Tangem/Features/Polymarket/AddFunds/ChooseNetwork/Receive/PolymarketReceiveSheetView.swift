@@ -238,7 +238,7 @@ private extension PolymarketReceiveSheetView {
             )
             .iconEnd(DesignSystem.Icons.ShareIos.regular24)
             .size(.x12)
-            .styleType(.default)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
             .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.receiveSheetShareButton)
         }

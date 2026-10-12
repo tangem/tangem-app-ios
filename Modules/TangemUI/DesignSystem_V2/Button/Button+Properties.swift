@@ -206,31 +206,31 @@ public extension Button {
 public extension Button {
     enum StyleType: Hashable, Sendable {
         case brand
-        case `default`
+        case primary
         case secondary(Appearance)
         case material(Material)
         case outline
         case ghost
-        case positive
+        case success
 
         var backgroundColor: Color {
             switch self {
             case .brand: DesignSystem.Color.bgBrand
-            case .default: DesignSystem.Color.bgInverse
+            case .primary: DesignSystem.Color.bgInverse
             case .secondary(let appearance): appearance.backgroundColor
             case .material: .clear
             case .outline: .clear
             case .ghost: .clear
-            case .positive: DesignSystem.Color.bgStatusSuccess
+            case .success: DesignSystem.Color.bgStatusSuccess
             }
         }
 
         var foregroundColor: Color {
             switch self {
-            case .brand, .positive:
+            case .brand, .success:
                 DesignSystem.Color.textStaticDarkPrimary
 
-            case .default:
+            case .primary:
                 DesignSystem.Color.textInversePrimary
 
             case .secondary(let appearance):
@@ -246,7 +246,7 @@ public extension Button {
             case .outline:
                 DesignSystem.Color.borderSecondary
 
-            case .brand, .default, .secondary, .material, .ghost, .positive:
+            case .brand, .primary, .secondary, .material, .ghost, .success:
                 .clear
             }
         }
@@ -256,14 +256,14 @@ public extension Button {
             case .outline:
                 1
 
-            case .brand, .default, .secondary, .material, .ghost, .positive:
+            case .brand, .primary, .secondary, .material, .ghost, .success:
                 0
             }
         }
 
         var pressOverlay: Color {
             switch self {
-            case .brand, .default, .positive:
+            case .brand, .primary, .success:
                 DesignSystem.Color.interactionPressStaticLight
 
             case .secondary(let appearance):
@@ -276,7 +276,7 @@ public extension Button {
 
         var disabledStyle: DisabledStyle {
             switch self {
-            case .brand, .default, .positive, .material:
+            case .brand, .primary, .success, .material:
                 .swapColors
 
             case .secondary, .outline, .ghost:

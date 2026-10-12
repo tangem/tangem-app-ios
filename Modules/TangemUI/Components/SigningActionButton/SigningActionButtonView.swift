@@ -35,7 +35,7 @@ public struct SigningActionButtonView: View {
         case .cardTap:
             Button(label: title, accessibilityLabel: nil, action: action)
                 .iconEnd(DesignSystem.Icons.LogoTangem.regular24)
-                .styleType(.default)
+                .styleType(.primary)
                 .size(.x12)
                 .horizontalLayout(.infinity)
                 .loading(.spinner(if: isLoading))
