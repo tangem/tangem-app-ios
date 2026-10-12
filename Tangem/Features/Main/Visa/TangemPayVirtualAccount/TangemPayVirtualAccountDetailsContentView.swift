@@ -75,14 +75,17 @@ private extension TangemPayVirtualAccountDetailsContentView {
 // MARK: - Fees
 
 private extension TangemPayVirtualAccountDetailsContentView {
+    @ViewBuilder
     var feesSection: some View {
-        VStack(alignment: .leading, spacing: Constants.sectionSpacing) {
-            sectionHeader(Localization.tangempayBankTransferDetailsFeeHeader)
+        if state.fees != .empty {
+            VStack(alignment: .leading, spacing: Constants.sectionSpacing) {
+                sectionHeader(Localization.tangempayBankTransferDetailsFeeHeader)
 
-            feesCard
+                feesCard
 
-            if state.fees != .failed {
-                sectionFooter(Localization.tangempayBankTransferSwiftWarning)
+                if state.fees != .failed {
+                    sectionFooter(Localization.tangempayBankTransferSwiftWarning)
+                }
             }
         }
     }
@@ -91,30 +94,37 @@ private extension TangemPayVirtualAccountDetailsContentView {
     var feesCard: some View {
         switch state.fees {
         case .loading:
-            feeList(achFee: nil, fedwireFee: nil, isLoading: true)
-        case .loaded(let achFee, let fedwireFee):
-            feeList(achFee: achFee, fedwireFee: fedwireFee, isLoading: false)
+            card {
+                feePlaceholderRow
+
+                separator
+
+                feePlaceholderRow
+            }
+        case .loaded(let fees):
+            card {
+                ForEach(Array(fees.enumerated()), id: \.element.id) { index, fee in
+                    keyValueRow(title: fee.title, value: fee.value)
+
+                    if index < fees.count - 1 {
+                        separator
+                    }
+                }
+            }
+        case .empty:
+            EmptyView()
         case .failed:
             feeErrorBanner
         }
     }
 
-    func feeList(achFee: String?, fedwireFee: String?, isLoading: Bool) -> some View {
-        let showsAch = isLoading || achFee != nil
-        let showsFedwire = isLoading || fedwireFee != nil
+    var feePlaceholderRow: some View {
+        HStack(spacing: Constants.rowContentSpacing) {
+            Shimmer()
+                .variant(.text(style: .body, alignment: .leading))
 
-        return card {
-            if showsAch {
-                keyValueRow(title: Localization.tangempayBankTransferFeeAch, value: achFee)
-            }
-
-            if showsAch, showsFedwire {
-                separator
-            }
-
-            if showsFedwire {
-                keyValueRow(title: Localization.tangempayBankTransferFeeFedwire, value: fedwireFee)
-            }
+            Shimmer()
+                .variant(.text(style: .body, alignment: .trailing))
         }
     }
 
@@ -267,7 +277,8 @@ extension TangemPayVirtualAccountDetailsContentView {
 
     enum Fees: Hashable {
         case loading
-        case loaded(achFee: String?, fedwireFee: String?)
+        case loaded([TangemPayVirtualAccountFee])
+        case empty
         case failed
     }
 }
@@ -294,7 +305,14 @@ extension TangemPayVirtualAccountDetailsContentView {
 
 #Preview("Loaded") {
     TangemPayVirtualAccountDetailsContentView(
-        state: .preview(fees: .loaded(achFee: "$0", fedwireFee: "$0")),
+        state: .preview(fees: .loaded(.previews)),
+        action: { _ in }
+    )
+}
+
+#Preview("Empty") {
+    TangemPayVirtualAccountDetailsContentView(
+        state: .preview(fees: .empty),
         action: { _ in }
     )
 }
