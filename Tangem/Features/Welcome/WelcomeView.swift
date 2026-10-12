@@ -18,7 +18,7 @@ struct WelcomeView: View {
 
     var body: some View {
         ZStack {
-            WelcomeVideoBackgroundView(viewModel: viewModel.videoBackground)
+            videoBackground
                 .ignoresSafeArea()
 
             LinearGradient(
@@ -60,6 +60,16 @@ struct WelcomeView: View {
             }
         }
         .onFirstAppear(perform: viewModel.onFirstAppear)
+    }
+
+    @ViewBuilder
+    private var videoBackground: some View {
+        switch viewModel.videoBackground {
+        case .legacy(let videoViewModel):
+            WelcomeVideoBackgroundView(viewModel: videoViewModel)
+        case .shared(let videoViewModel):
+            LoopingVideoBackgroundView(viewModel: videoViewModel)
+        }
     }
 
     private var navigationBar: some View {
