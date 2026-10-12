@@ -155,8 +155,20 @@ final class YieldModuleActiveViewModel: ObservableObject {
     }
 
     func onShowStopEarningSheet() {
+        guard coordinator?.isTransactionSheetPresented == false else {
+            return
+        }
+
+        if YieldWithdrawalClaimBatching.isSupported(blockchain: walletModel.tokenItem.blockchain) {
+            openStopEarningSheet(mayClaimRewards: true)
+        } else {
+            offerClaimBeforeWithdrawal()
+        }
+    }
+
+    private func offerClaimBeforeWithdrawal() {
         Task { @MainActor [weak self] in
-            guard let self, !isResolvingWithdrawalClaim, coordinator?.isClaimSheetPresented == false else {
+            guard let self, !isResolvingWithdrawalClaim else {
                 return
             }
 
@@ -175,11 +187,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
                 return
             }
 
-            coordinator?.openBottomSheet(
-                viewModel: transactionFlowFactory.makeTransactionViewModel(
-                    action: .stop(tokenName: walletModel.tokenItem.name)
-                )
-            )
+            openStopEarningSheet(mayClaimRewards: false)
         }
     }
 
@@ -343,16 +351,20 @@ final class YieldModuleActiveViewModel: ObservableObject {
         rewardsBannerData = makeRewardsBannerData(surfaceState: surfaceState, summary: summary)
     }
 
-    @MainActor
-    private func makeClaimBeforeWithdrawalViewModel() async -> YieldModuleClaimViewModel? {
-        guard !hasOfferedClaimBeforeWithdrawal else {
-            return nil
-        }
+    private func openStopEarningSheet(mayClaimRewards: Bool) {
+        coordinator?.openBottomSheet(
+            viewModel: transactionFlowFactory.makeTransactionViewModel(
+                action: .stop(tokenName: walletModel.tokenItem.name, mayClaimRewards: mayClaimRewards)
+            )
+        )
+    }
 
+    @MainActor
+    private func isWithdrawalClaimAvailable() async -> Bool {
         let isClaimInFlight = await claimInteractor?.isClaimInFlight ?? false
 
         guard let incentivesSummary else {
-            return nil
+            return false
         }
 
         let surfaceState = YieldIncentivesSurfaceState.make(
@@ -361,7 +373,12 @@ final class YieldModuleActiveViewModel: ObservableObject {
             isClaimInFlight: isClaimInFlight
         )
 
-        guard surfaceState == .claimAvailable else {
+        return surfaceState == .claimAvailable
+    }
+
+    @MainActor
+    private func makeClaimBeforeWithdrawalViewModel() async -> YieldModuleClaimViewModel? {
+        guard !hasOfferedClaimBeforeWithdrawal, await isWithdrawalClaimAvailable(), let incentivesSummary else {
             return nil
         }
 

@@ -102,8 +102,8 @@ final class CommonYieldModuleFlowFactory {
         coordinator: YieldModuleActiveCoordinator,
         usesIncentiveDesign: Bool
     ) -> YieldModuleActiveViewModel {
-        let interactor = makeInteractor()
         let claimInteractor = makeClaimInteractor()
+        let interactor = makeInteractor(claimInteractor: claimInteractor)
 
         return YieldModuleActiveViewModel(
             walletModel: walletModel,
@@ -153,10 +153,11 @@ final class CommonYieldModuleFlowFactory {
 
     // MARK: - Interactor
 
-    private func makeInteractor() -> YieldManagerInteractor {
+    private func makeInteractor(claimInteractor: YieldIncentivesClaimInteractor? = nil) -> YieldManagerInteractor {
         YieldManagerInteractor(
             transactionDispatcher: transactionDispatcher,
-            manager: yieldModuleManager
+            manager: yieldModuleManager,
+            claimInteractor: claimInteractor
         )
     }
 

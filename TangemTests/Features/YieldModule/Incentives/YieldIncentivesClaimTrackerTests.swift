@@ -33,40 +33,40 @@ struct YieldIncentivesClaimTrackerTests {
         #expect(await sut.beginClaim())
     }
 
-    @Test("A submitted claim is announced at once and settled once the hash clears")
-    func submittedClaimSettlesOnClearance() async {
+    @Test("A submitted claim is announced at once and settled as soon as the backend reflects it")
+    func submittedClaimSettlesOnTheBackendsAnswer() async {
         let sut = YieldIncentivesClaimTracker()
         let recorder = ClaimEventRecorder(tracker: sut)
-        let clearanceCalls = OSAllocatedUnfairLock(initialState: 0)
+        let reflectionChecks = OSAllocatedUnfairLock(initialState: 0)
 
         _ = await sut.beginClaim()
         await sut.claimSubmitted {
-            clearanceCalls.withLock { $0 += 1 }
+            reflectionChecks.withLock { $0 += 1 }
             return true
         }
 
         await recorder.waitForSettlement()
 
         #expect(recorder.events == [.submitted, .settled])
-        #expect(clearanceCalls.withLock { $0 } == 1)
+        #expect(reflectionChecks.withLock { $0 } == 1)
         #expect(await !sut.isClaimInFlight)
     }
 
-    @Test("A hash that never clears gives up after the settlement rounds")
-    func unclearedHashGivesUpAfterTheRounds() async {
-        let sut = YieldIncentivesClaimTracker()
+    @Test("A backend that never reflects the claim gives the guard up on the timeout")
+    func unreflectedClaimGivesUpOnTheTimeout() async {
+        let sut = YieldIncentivesClaimTracker(pollInterval: 0.01, timeout: 0.5)
         let recorder = ClaimEventRecorder(tracker: sut)
-        let clearanceCalls = OSAllocatedUnfairLock(initialState: 0)
+        let reflectionChecks = OSAllocatedUnfairLock(initialState: 0)
 
         _ = await sut.beginClaim()
         await sut.claimSubmitted {
-            clearanceCalls.withLock { $0 += 1 }
+            reflectionChecks.withLock { $0 += 1 }
             return false
         }
 
         await recorder.waitForSettlement()
 
-        #expect(clearanceCalls.withLock { $0 } == YieldIncentivesClaimTracker.Constants.settlementRounds)
+        #expect(reflectionChecks.withLock { $0 } > 1)
         #expect(await !sut.isClaimInFlight)
     }
 
