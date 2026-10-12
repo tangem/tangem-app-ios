@@ -75,12 +75,12 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let virtualAccountDepositLimitSubtitle = "\(prefix)VirtualAccountDepositLimitSubtitle"
     public static let virtualAccountBankDetailsErrorRetryButton = "\(prefix)VirtualAccountBankDetailsErrorRetryButton"
 
-    public static func virtualAccountFeeTitle(_ fee: VirtualAccountFee) -> String {
-        "\(prefix)VirtualAccountFeeTitle_\(fee.rawValue)"
+    public static func virtualAccountFeeTitle(_ feeType: String) -> String {
+        "\(prefix)VirtualAccountFeeTitle_\(feeType)"
     }
 
-    public static func virtualAccountFeeValue(_ fee: VirtualAccountFee) -> String {
-        "\(prefix)VirtualAccountFeeValue_\(fee.rawValue)"
+    public static func virtualAccountFeeValue(_ feeType: String) -> String {
+        "\(prefix)VirtualAccountFeeValue_\(feeType)"
     }
 
     public static func virtualAccountBankDetailValue(_ field: String) -> String {
@@ -336,7 +336,7 @@ public enum TangemPayAccessibilityIdentifiers {
 
 public extension TangemPayAccessibilityIdentifiers {
     enum VirtualAccountFee: String {
-        case ach
-        case fedwire
+        case ach = "ACH_ONRAMP"
+        case fedwire = "FEDWIRE_ONRAMP"
     }
 }
