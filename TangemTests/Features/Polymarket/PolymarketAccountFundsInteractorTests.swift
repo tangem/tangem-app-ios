@@ -144,6 +144,25 @@ private enum StubError: Error {
 
 // MARK: - Fixtures
 
+private extension PolymarketAccountFundsInteractor.State {
+    var depositAvailability: PolymarketAccountFundsInteractor.DepositAvailability? {
+        if case .ready(let readiness) = self { return readiness.depositAvailability }
+        return nil
+    }
+
+    var depositTargets: [PolymarketAccountFundsInteractor.DepositTarget] {
+        if case .available(let targets) = depositAvailability { return targets }
+        return []
+    }
+}
+
+private extension PolymarketAccountFundsInteractor.Readiness {
+    var depositTargets: [PolymarketAccountFundsInteractor.DepositTarget] {
+        if case .available(let targets) = depositAvailability { return targets }
+        return []
+    }
+}
+
 private extension PolymarketSupportedAsset {
     static func make(
         chainId: String,
@@ -221,6 +240,29 @@ struct PolymarketAddFundsPreparationTests {
         #expect(makeInteractor().state == .loading)
     }
 
+    @Test("A stream hands out the current readiness first and every preparation outcome after it")
+    func streamsEveryReadiness() async {
+        let interactor = makeInteractor(configuration: ConfigurationServiceSpy(error: StubError.offline))
+        var readiness = interactor.makeStateStream().makeAsyncIterator()
+
+        #expect(await readiness.next() == .loading)
+
+        await interactor.prepare()
+
+        #expect(await readiness.next() == .unavailable)
+    }
+
+    @Test("A screen that subscribes after the preparation finished starts from its outcome, not from loading")
+    func lateSubscriberStartsFromTheOutcome() async {
+        let interactor = makeInteractor(configuration: ConfigurationServiceSpy(error: StubError.offline))
+
+        await interactor.prepare()
+
+        var readiness = interactor.makeStateStream().makeAsyncIterator()
+
+        #expect(await readiness.next() == .unavailable)
+    }
+
     @Test("Add funds becomes available once the bridge confirms it accepts USDC on Polygon")
     func availableWhenAccepted() async {
         let interactor = makeInteractor()
@@ -271,7 +313,7 @@ struct PolymarketAddFundsPreparationTests {
         let interactor = makeInteractor(bridge: bridge)
         await interactor.prepare()
 
-        #expect(interactor.state.depositTargets.isEmpty)
+        #expect(interactor.state.depositAvailability == .unavailable)
         #expect(interactor.state.collateralMinCheckoutUSD == 2)
     }
 

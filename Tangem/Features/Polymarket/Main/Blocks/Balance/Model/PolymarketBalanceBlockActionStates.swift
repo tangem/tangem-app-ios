@@ -9,7 +9,7 @@
 import Foundation
 
 struct PolymarketBalanceBlockActionStates: Equatable {
-    let addFunds: PolymarketBalanceBlockViewModel.ActionState
+    let addFunds: PolymarketAccountFundsInteractor.AddFundsAvailability
     let withdraw: PolymarketBalanceBlockViewModel.WithdrawState
 
     init(
@@ -17,17 +17,14 @@ struct PolymarketBalanceBlockActionStates: Equatable {
         collateralBalance: TokenBalanceType,
         withdrawMinimum: Decimal?
     ) {
+        addFunds = readiness.addFundsAvailability
+
         switch readiness {
         case .loading:
-            addFunds = .loading
             withdraw = .loading
-
-        case .ready(let readiness):
-            addFunds = readiness.depositTargets.isEmpty ? .unavailable : .available
+        case .ready:
             withdraw = Self.withdrawState(collateralBalance: collateralBalance, minimum: withdrawMinimum)
-
         case .unavailable:
-            addFunds = .unavailable
             withdraw = .unavailable(.accountUnavailable)
         }
     }

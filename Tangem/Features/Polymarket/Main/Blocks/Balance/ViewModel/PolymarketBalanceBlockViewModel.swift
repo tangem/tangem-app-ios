@@ -17,7 +17,7 @@ final class PolymarketBalanceBlockViewModel: ObservableObject {
     @Published private(set) var balance: LoadableBalanceView.State = .loading(cached: .none)
     @Published private(set) var balanceMode: PolymarketBalanceDisplay.Mode = .available
     @Published private(set) var canSwitchBalanceMode = false
-    @Published private(set) var addFundsState: ActionState = .loading
+    @Published private(set) var addFundsState: PolymarketAccountFundsInteractor.AddFundsAvailability = .loading
     @Published private(set) var withdrawState: WithdrawState = .loading
     @Published var alert: AlertBinder?
 
@@ -212,12 +212,6 @@ private extension PolymarketBalanceBlockViewModel {
 // MARK: - Types
 
 extension PolymarketBalanceBlockViewModel {
-    enum ActionState: Equatable {
-        case loading
-        case available
-        case unavailable
-    }
-
     enum WithdrawState: Equatable {
         case loading
         case available
