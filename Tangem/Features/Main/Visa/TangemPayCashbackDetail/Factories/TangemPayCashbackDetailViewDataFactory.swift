@@ -53,18 +53,7 @@ struct TangemPayCashbackDetailViewDataFactory {
 
 extension TangemPayCashbackDetailViewDataFactory {
     static func makeMarkdown(_ string: String) -> AttributedString {
-        let options = AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
-
-        guard var attributed = try? AttributedString(markdown: string, options: options) else {
-            return AttributedString(string)
-        }
-
-        for run in attributed.runs where run.link != nil {
-            attributed[run.range].underlineStyle = Text.LineStyle.single
-            attributed[run.range].foregroundColor = DesignSystem.Color.textPrimary
-        }
-
-        return attributed
+        TangemPayMarkdown.attributed(string, linkColor: DesignSystem.Color.textPrimary)
     }
 }
 

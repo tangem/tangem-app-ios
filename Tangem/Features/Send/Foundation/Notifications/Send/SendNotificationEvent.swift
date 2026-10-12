@@ -26,6 +26,7 @@ enum SendNotificationEvent: Hashable {
     case customFeeTooLow
     case highNetworkFee
     case accountNotActivated(assetName: String)
+    case minimumFeeTokenBalanceRequired(formattedAmount: String)
 
     // Generic notifications is received from BSDK
     case withdrawalNotificationEvent(WithdrawalNotificationEvent)
@@ -54,6 +55,8 @@ extension SendNotificationEvent: NotificationEvent {
             return event.title
         case .accountNotActivated:
             return .string(Localization.sendFeeUnreachableErrorTitle)
+        case .minimumFeeTokenBalanceRequired:
+            return .string(Localization.commonInsufficientBalance)
         case .oneSuiCoinIsRequiredForTokenTransaction:
             return .string(Localization.suiNotEnoughCoinForFeeTitle)
         }
@@ -77,6 +80,8 @@ extension SendNotificationEvent: NotificationEvent {
             return event.description
         case .accountNotActivated(let assetName):
             return Localization.sendTronAccountActivationError(assetName)
+        case .minimumFeeTokenBalanceRequired(let formattedAmount):
+            return Localization.gaslessTronActivationMinBalanceDescription(formattedAmount)
         case .oneSuiCoinIsRequiredForTokenTransaction(let currencySymbol):
             let oneSui = "1 \(currencySymbol)"
             return Localization.suiNotEnoughCoinForFeeDescription(oneSui)
@@ -97,7 +102,9 @@ extension SendNotificationEvent: NotificationEvent {
             return event.colorScheme
         case .validationErrorEvent(let event):
             return event.colorScheme
-        case .accountNotActivated, .oneSuiCoinIsRequiredForTokenTransaction:
+        case .accountNotActivated,
+             .minimumFeeTokenBalanceRequired,
+             .oneSuiCoinIsRequiredForTokenTransaction:
             return .action
         }
     }
@@ -114,7 +121,9 @@ extension SendNotificationEvent: NotificationEvent {
             return event.icon
         case .validationErrorEvent(let event):
             return event.icon
-        case .accountNotActivated, .oneSuiCoinIsRequiredForTokenTransaction:
+        case .accountNotActivated,
+             .minimumFeeTokenBalanceRequired,
+             .oneSuiCoinIsRequiredForTokenTransaction:
             return .init(iconType: .image(Assets.redCircleWarning))
         }
     }
@@ -131,7 +140,9 @@ extension SendNotificationEvent: NotificationEvent {
             return event.severity
         case .validationErrorEvent(let event):
             return event.severity
-        case .accountNotActivated, .oneSuiCoinIsRequiredForTokenTransaction:
+        case .accountNotActivated,
+             .minimumFeeTokenBalanceRequired,
+             .oneSuiCoinIsRequiredForTokenTransaction:
             return .critical
         }
     }
@@ -198,7 +209,8 @@ extension SendNotificationEvent {
              .customFeeTooHigh,
              .customFeeTooLow,
              .highNetworkFee,
-             .accountNotActivated:
+             .accountNotActivated,
+             .minimumFeeTokenBalanceRequired:
             return nil
         case .withdrawalNotificationEvent(let event):
             return event.buttonAction

@@ -16,149 +16,148 @@ import TangemUI
 @Suite("Swap deeplink wallet fallback", .serialized)
 @MainActor
 struct SwapDeeplinkWalletFallbackTests {
-    // MARK: - Main screen
+    // MARK: - A screen with no wallet of its own
 
     @Test("No user_wallet_id: swap opens on the selected wallet")
-    func mainWithoutWalletId() async {
+    func withoutWalletId() async {
         let environment = InjectedEnvironment()
 
         await environment.run {
-            let spy = MainRoutableSpy()
-            let handler = MainCoordinator.MainNavigationActionHandler()
-            handler.coordinator = spy
+            let parameters = SwapDeeplink().makeParameters()
 
-            let handled = handler.didReceiveIncomingAction(.navigation(makeAction(params: .empty)))
-
-            #expect(handled)
-            #expect(spy.swapParameters?.sourceUserWalletId == InjectedEnvironment.selectedWalletId)
+            #expect(parameters?.userWalletId.stringValue == InjectedEnvironment.selectedWalletId)
         }
     }
 
     @Test("Unknown user_wallet_id: swap still opens, on the selected wallet")
-    func mainWithUnknownWalletId() async {
+    func withUnknownWalletId() async {
         let environment = InjectedEnvironment()
 
         await environment.run {
-            let spy = MainRoutableSpy()
-            let handler = MainCoordinator.MainNavigationActionHandler()
-            handler.coordinator = spy
+            let parameters = SwapDeeplink(userWalletId: InjectedEnvironment.unknownWalletId).makeParameters()
 
-            let params = DeeplinkNavigationAction.Params(userWalletId: InjectedEnvironment.unknownWalletId)
-            let handled = handler.didReceiveIncomingAction(.navigation(makeAction(params: params)))
-
-            #expect(handled)
-            #expect(spy.swapParameters?.sourceUserWalletId == InjectedEnvironment.selectedWalletId)
+            #expect(parameters?.userWalletId.stringValue == InjectedEnvironment.selectedWalletId)
         }
     }
 
     @Test("Known user_wallet_id: the requested FROM is preselected")
-    func mainKnownWalletIdPreselectsRequestedToken() async {
+    func knownWalletIdPreselectsRequestedToken() async {
         let environment = InjectedEnvironment()
 
         await environment.run {
-            let spy = MainRoutableSpy()
-            let handler = MainCoordinator.MainNavigationActionHandler()
-            handler.coordinator = spy
+            let parameters = makeRequestedPairDeeplink(userWalletId: InjectedEnvironment.selectedWalletId).makeParameters()
 
-            let handled = handler.didReceiveIncomingAction(.navigation(makeAction(params: makeRequestedPairParams(userWalletId: InjectedEnvironment.selectedWalletId))))
+            #expect(parameters?.userWalletId.stringValue == InjectedEnvironment.selectedWalletId)
+            #expect(parameters?.isPairDeferred == false)
+        }
+    }
 
-            #expect(handled)
-            #expect(spy.swapParameters?.sourceUserWalletId == InjectedEnvironment.selectedWalletId)
-            #expect(spy.swapParameters?.isPairDeferred == false)
+    @Test("No user_wallet_id: the requested FROM is preselected on the selected wallet")
+    func withoutWalletIdPreservesRequestedToken() async {
+        let environment = InjectedEnvironment()
+
+        await environment.run {
+            let parameters = makeRequestedPairDeeplink(userWalletId: nil).makeParameters()
+
+            #expect(parameters?.userWalletId.stringValue == InjectedEnvironment.selectedWalletId)
+            #expect(parameters?.isPairDeferred == false)
         }
     }
 
     @Test("Unknown user_wallet_id: the requested FROM is dropped along with the wallet")
-    func mainUnknownWalletIdDropsPreselection() async {
+    func unknownWalletIdDropsPreselection() async {
         let environment = InjectedEnvironment()
 
         await environment.run {
-            let spy = MainRoutableSpy()
-            let handler = MainCoordinator.MainNavigationActionHandler()
-            handler.coordinator = spy
+            let parameters = makeRequestedPairDeeplink(userWalletId: InjectedEnvironment.unknownWalletId).makeParameters()
 
-            let handled = handler.didReceiveIncomingAction(.navigation(makeAction(params: makeRequestedPairParams(userWalletId: InjectedEnvironment.unknownWalletId))))
-
-            #expect(handled)
-            #expect(spy.swapParameters?.sourceUserWalletId == InjectedEnvironment.selectedWalletId)
-            #expect(spy.swapParameters?.isPairDeferred == true)
+            #expect(parameters?.userWalletId.stringValue == InjectedEnvironment.selectedWalletId)
+            #expect(parameters?.isPairDeferred == true)
         }
     }
 
     @Test("Unusable FROM side and amount: swap still opens on the selected wallet")
-    func mainWithUnusableParamsOpensSwap() async {
+    func unusableParamsStillOpenSwap() async {
         let environment = InjectedEnvironment()
 
         await environment.run {
-            let spy = MainRoutableSpy()
-            let handler = MainCoordinator.MainNavigationActionHandler()
-            handler.coordinator = spy
+            let parameters = makeUnusableDeeplink().makeParameters()
 
-            let handled = handler.didReceiveIncomingAction(.navigation(makeAction(params: makeUnusableParams())))
+            #expect(parameters?.userWalletId.stringValue == InjectedEnvironment.selectedWalletId)
+        }
+    }
+
+    // MARK: - Main screen
+
+    @Test("Unknown user_wallet_id: the main screen opens swap on the selected wallet")
+    func mainScreenUnknownWalletIdOpensSelectedWallet() async {
+        let environment = InjectedEnvironment()
+
+        await environment.run {
+            let coordinator = MainScreenDeeplinkRoutableSpy()
+            let responder = MainScreenDeeplinkResponder()
+            responder.coordinator = coordinator
+
+            InjectedValues[\.mainBottomSheetUIManager].setExpanded(false)
+
+            let handled = responder.didReceiveIncomingAction(
+                .navigation(.swap(makeRequestedPairDeeplink(userWalletId: InjectedEnvironment.unknownWalletId)))
+            )
 
             #expect(handled)
-            #expect(spy.swapParameters?.sourceUserWalletId == InjectedEnvironment.selectedWalletId)
+            #expect(coordinator.swapParameters?.userWalletId.stringValue == InjectedEnvironment.selectedWalletId)
+            #expect(coordinator.swapParameters?.isPairDeferred == true)
         }
     }
 
     // MARK: - Token details / staking screen
 
     @Test("Unknown user_wallet_id: swap opens on this screen's wallet, without preselection")
-    func promotionUnknownWalletIdOpensOnThisScreensWallet() async {
+    func tokenScreenUnknownWalletIdOpensOnThisScreensWallet() async {
         let environment = InjectedEnvironment()
 
         await environment.run {
-            let spy = PromotionDeeplinkRoutableSpy()
-            let handler = PromotionDeeplinkHandler(
-                coordinator: spy,
-                walletModel: CommonWalletModel.mockETH,
-                userWalletInfo: environment.otherWallet.userWalletInfo
+            let spy = TokenScreenDeeplinkRoutableSpy()
+            let responder = makeResponder(spy: spy, environment: environment)
+
+            let handled = responder.didReceiveIncomingAction(
+                .navigation(.swap(makeRequestedPairDeeplink(userWalletId: InjectedEnvironment.unknownWalletId)))
             )
 
-            let handled = handler.didReceiveIncomingAction(.navigation(makeAction(params: makeRequestedPairParams(userWalletId: InjectedEnvironment.unknownWalletId))))
-
             #expect(handled)
-            #expect(spy.swapParameters?.sourceUserWalletId == InjectedEnvironment.otherWalletId)
+            #expect(spy.swapParameters?.userWalletId.stringValue == InjectedEnvironment.otherWalletId)
             #expect(spy.swapParameters?.isPairDeferred == true)
         }
     }
 
     @Test("Unusable FROM side and amount: swap still opens on this screen's wallet")
-    func promotionWithUnusableParamsOpensSwap() async {
+    func tokenScreenUnusableParamsOpenSwap() async {
         let environment = InjectedEnvironment()
 
         await environment.run {
-            let spy = PromotionDeeplinkRoutableSpy()
-            let handler = PromotionDeeplinkHandler(
-                coordinator: spy,
-                walletModel: CommonWalletModel.mockETH,
-                userWalletInfo: environment.otherWallet.userWalletInfo
-            )
+            let spy = TokenScreenDeeplinkRoutableSpy()
+            let responder = makeResponder(spy: spy, environment: environment)
 
-            let handled = handler.didReceiveIncomingAction(.navigation(makeAction(params: makeUnusableParams())))
+            let handled = responder.didReceiveIncomingAction(.navigation(.swap(makeUnusableDeeplink())))
 
             #expect(handled)
-            #expect(spy.swapParameters?.sourceUserWalletId == InjectedEnvironment.otherWalletId)
+            #expect(spy.swapParameters?.userWalletId.stringValue == InjectedEnvironment.otherWalletId)
         }
     }
 
     @Test("Another wallet's user_wallet_id: swap opens on that wallet instead of being passed on")
-    func promotionAnotherWalletIdOpensThatWallet() async {
+    func tokenScreenAnotherWalletIdOpensThatWallet() async {
         let environment = InjectedEnvironment()
 
         await environment.run {
-            let spy = PromotionDeeplinkRoutableSpy()
-            let handler = PromotionDeeplinkHandler(
-                coordinator: spy,
-                walletModel: CommonWalletModel.mockETH,
-                userWalletInfo: environment.otherWallet.userWalletInfo
-            )
+            let spy = TokenScreenDeeplinkRoutableSpy()
+            let responder = makeResponder(spy: spy, environment: environment)
 
-            let params = DeeplinkNavigationAction.Params(userWalletId: InjectedEnvironment.selectedWalletId)
-            let handled = handler.didReceiveIncomingAction(.navigation(makeAction(params: params)))
+            let deeplink = SwapDeeplink(userWalletId: InjectedEnvironment.selectedWalletId)
+            let handled = responder.didReceiveIncomingAction(.navigation(.swap(deeplink)))
 
             #expect(handled)
-            #expect(spy.swapParameters?.sourceUserWalletId == InjectedEnvironment.selectedWalletId)
+            #expect(spy.swapParameters?.userWalletId.stringValue == InjectedEnvironment.selectedWalletId)
         }
     }
 }
@@ -166,31 +165,36 @@ struct SwapDeeplinkWalletFallbackTests {
 // MARK: - Fixtures
 
 private extension SwapDeeplinkWalletFallbackTests {
-    func makeAction(params: DeeplinkNavigationAction.Params) -> DeeplinkNavigationAction {
-        DeeplinkNavigationAction(destination: .swap, params: params, deeplinkString: "tangem://swap")
+    /// The token screen of the wallet that isn't the selected one, so the two can be told apart.
+    func makeResponder(spy: TokenScreenDeeplinkRoutableSpy, environment: InjectedEnvironment) -> TokenScreenDeeplinkResponder {
+        TokenScreenDeeplinkResponder(
+            coordinator: spy,
+            walletModel: CommonWalletModel.mockETH,
+            userWalletInfo: environment.otherWallet.userWalletInfo
+        )
     }
 
     /// The link reported in [REDACTED_INFO]: nothing on the FROM side resolves and the amount isn't a number,
     /// while the TO side is well-formed.
-    func makeUnusableParams() -> DeeplinkNavigationAction.Params {
-        DeeplinkNavigationAction.Params(
-            swapFromTokenId: "???",
-            swapFromNetworkId: "does not exist",
-            swapToTokenId: "ethereum",
-            swapToNetworkId: "ethereum",
-            swapFromAmount: "abc"
+    func makeUnusableDeeplink() -> SwapDeeplink {
+        SwapDeeplink(
+            fromTokenId: "???",
+            fromNetworkId: "does not exist",
+            toTokenId: "ethereum",
+            toNetworkId: "ethereum",
+            fromAmount: "abc"
         )
     }
 
     /// A FROM side naming the only token the stubbed wallets hold, so a resolved preselection is
     /// distinguishable from the best-effort fallback.
-    func makeRequestedPairParams(userWalletId: String) -> DeeplinkNavigationAction.Params {
+    func makeRequestedPairDeeplink(userWalletId: String?) -> SwapDeeplink {
         let tokenItem = CommonWalletModel.mockETH.tokenItem
 
-        return DeeplinkNavigationAction.Params(
+        return SwapDeeplink(
             userWalletId: userWalletId,
-            swapFromTokenId: tokenItem.id?.lowercased(),
-            swapFromNetworkId: tokenItem.blockchain.networkId.lowercased()
+            fromTokenId: tokenItem.id?.lowercased(),
+            fromNetworkId: tokenItem.blockchain.networkId.lowercased()
         )
     }
 }
@@ -199,7 +203,7 @@ private extension SwapDeeplinkWalletFallbackTests {
 
 /// Two wallets in the repository — the selected one and another — plus a swap-available express
 /// provider, restored after the body runs.
-private final class InjectedEnvironment {
+final class InjectedEnvironment {
     static let selectedWalletId = UserWalletId(value: Data("selected-wallet".utf8)).stringValue
     static let otherWalletId = UserWalletId(value: Data("other-wallet".utf8)).stringValue
     static let unknownWalletId = UserWalletId(value: Data("unknown-wallet".utf8)).stringValue
@@ -207,7 +211,7 @@ private final class InjectedEnvironment {
     let selectedWallet = CampaignUserWalletModelStub(walletIdSeed: "selected-wallet")
     let otherWallet = CampaignUserWalletModelStub(walletIdSeed: "other-wallet")
 
-    func run(_ body: () -> Void) async {
+    func run(_ body: () async -> Void) async {
         await InjectedDependenciesIsolation.shared.run {
             let previousRepository = InjectedValues[\.userWalletRepository]
             let previousExpressProvider = InjectedValues[\.expressAvailabilityProvider]
@@ -222,7 +226,7 @@ private final class InjectedEnvironment {
                 InjectedValues[\.expressAvailabilityProvider] = previousExpressProvider
             }
 
-            body()
+            await body()
         }
     }
 }
@@ -242,35 +246,7 @@ private final class SwapAvailableExpressProviderStub: ExpressAvailabilityProvide
     func updateExpressAvailability(for items: [TokenItem], forceReload: Bool, userWalletId: String) {}
 }
 
-private final class MainRoutableSpy: MainRoutable {
-    private(set) var openedDeepLinks: [MainCoordinator.DeepLinkDestination] = []
-
-    var swapParameters: PredefinedSwapParameters? {
-        openedDeepLinks.compactMap { destination in
-            guard case .swap(let parameters) = destination else { return nil }
-            return parameters
-        }.first
-    }
-
-    func openDeepLink(_ deepLink: MainCoordinator.DeepLinkDestination) {
-        openedDeepLinks.append(deepLink)
-    }
-
-    func openCampaignIfNeeded(campaignId: String?) -> Bool { false }
-    func beginHandlingIncomingActions() {}
-    func resignHandlingIncomingActions() {}
-    func openDetails() {}
-    func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {}
-    func openOnboardingModal(with options: OnboardingCoordinator.Options) {}
-    func openScanCardManual() {}
-    func openPushNotificationsAuthorization() {}
-    func openQRScan() {}
-    func popToRoot() {}
-    func show(floatingSheetViewModel: some FloatingSheetContentViewModel) {}
-    func show(toast: Toast<WarningToast>) {}
-}
-
-private final class PromotionDeeplinkRoutableSpy: PromotionDeeplinkRoutable {
+private final class TokenScreenDeeplinkRoutableSpy: TokenScreenDeeplinkRoutable {
     private(set) var swapParameters: PredefinedSwapParameters?
 
     func openSwap(parameters: PredefinedSwapParameters) {
@@ -283,17 +259,7 @@ private final class PromotionDeeplinkRoutableSpy: PromotionDeeplinkRoutable {
 
 // MARK: - Observables
 
-private extension PredefinedSwapParameters {
-    /// Which wallet the swap screen was opened for.
-    var sourceUserWalletId: String? {
-        switch self {
-        case .from(let source, _, _, _):
-            return source.userWalletInfo.id.stringValue
-        case .to(let receive, _, _):
-            return receive.userWalletInfo.id.stringValue
-        }
-    }
-
+extension PredefinedSwapParameters {
     /// `true` for the best-effort fallback, whose source is a guess a resolver settles later —
     /// as opposed to a source that came from the link's own parameters.
     var isPairDeferred: Bool {

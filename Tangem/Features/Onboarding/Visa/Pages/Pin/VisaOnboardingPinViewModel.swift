@@ -44,7 +44,7 @@ class VisaOnboardingPinViewModel: ObservableObject {
         isLoading = true
         UIApplication.shared.endEditing()
         let selectedPinCode = pinCode
-        runTask(in: self, isDetached: false) { viewModel in
+        runTask(in: self) { viewModel in
             do {
                 try await viewModel.delegate?.useSelectedPin(pinCode: selectedPinCode)
             } catch {

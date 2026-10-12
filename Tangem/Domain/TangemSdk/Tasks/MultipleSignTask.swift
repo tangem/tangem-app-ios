@@ -10,10 +10,11 @@ import TangemSdk
 import BlockchainSdk
 import TangemFoundation
 
-class MultipleSignTask: CardSessionRunnable {
+final class MultipleSignTask: CardSessionRunnable {
     private let dataToSign: [SignData]
     private let seedKey: Data
     private let pairKey: Data?
+    private let userWalletRegistrar = CardUserWalletRegistrar(analyticsReporter: CommonBackendAuthenticationAnalyticsReporter())
 
     public init(dataToSign: [SignData], seedKey: Data, pairKey: Data?) {
         self.dataToSign = dataToSign
@@ -23,6 +24,13 @@ class MultipleSignTask: CardSessionRunnable {
 
     deinit {
         TSDKLogger.debug("MultipleSignTask deinit")
+    }
+
+    public func prepare(_ session: CardSession, completion: @escaping CompletionResult<Void>) {
+        // Obtaining the nonce before the NFC session opens, so the NFC session remains responsive
+        userWalletRegistrar.obtainNonce {
+            completion(.success(()))
+        }
     }
 
     public func run(in session: CardSession, completion: @escaping CompletionResult<[MultipleSignTaskResponse]>) {
@@ -37,7 +45,9 @@ class MultipleSignTask: CardSessionRunnable {
     ) {
         guard index < dataToSign.count else {
             if partialResult.count == dataToSign.count {
-                completion(.success(partialResult))
+                userWalletRegistrar.registerIfNeeded(in: session) {
+                    completion(.success(partialResult))
+                }
             } else {
                 completion(.failure(TangemSdkError.signHashesNotAvailable))
             }

@@ -16,6 +16,9 @@ struct AddressBookContactEntriesTests {
     private let eth: BSDKBlockchain = .ethereum(testnet: false)
 
     private static let fixedEntryUUID = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
+    /// `AddressComparator` applies its EVM rule only to strings that pass `isEvmAddress`, so the fixture has to
+    /// be a real 20-byte address rather than a short stand-in.
+    private static let evmAddress = "0x5aaeb6053f3e94c9b9a09f33669435e7ef1beaed"
     private static let otherEntryUUID = UUID(uuidString: "22222222-2222-2222-2222-222222222222")!
 
     // MARK: - Construction
@@ -143,47 +146,47 @@ struct AddressBookContactEntriesTests {
         try AddressBookContactDraftEntries.validate(adding: [lower, upper], to: [])
     }
 
-    // MARK: - caseInsensitiveContains
+    // MARK: - contains
 
     @Test
-    func caseInsensitiveContainsMatchesRegardlessOfCase() {
-        let entries = makeEntries([draft(address: "0xAbCdEf", blockchain: btc)])
+    func containsMatchesEvmAddressIgnoringCase() {
+        let entries = makeEntries([draft(address: Self.evmAddress, blockchain: eth)])
 
-        #expect(entries.caseInsensitiveContains(address: "0xabcdef", networkId: nil))
-        #expect(entries.caseInsensitiveContains(address: "0XABCDEF", networkId: nil))
-        #expect(!entries.caseInsensitiveContains(address: "0xdead", networkId: nil))
+        #expect(entries.contains(address: Self.evmAddress.uppercased(), networkId: nil))
+        #expect(entries.contains(address: Self.evmAddress, networkId: networkId(of: eth)))
+        #expect(!entries.contains(address: "0xdead", networkId: nil))
+    }
+
+    /// Off EVM the case is part of the address, so a differently-cased string is a different address.
+    @Test
+    func containsDoesNotMatchANonEvmAddressWithDifferentCase() {
+        let entries = makeEntries([draft(address: "DBob1Address", blockchain: btc)])
+
+        #expect(entries.contains(address: "DBob1Address", networkId: nil))
+        #expect(!entries.contains(address: "dbob1address", networkId: nil))
     }
 
     @Test
-    func caseInsensitiveContainsMatchesRegardlessOfCaseWhenNetworkScoped() {
-        let entries = makeEntries([draft(address: "0xAbCdEf", blockchain: eth)])
-
-        #expect(entries.caseInsensitiveContains(address: "0xabcdef", networkId: networkId(of: eth)))
-        #expect(entries.caseInsensitiveContains(address: "0XABCDEF", networkId: networkId(of: eth)))
-        #expect(!entries.caseInsensitiveContains(address: "0xdead", networkId: networkId(of: eth)))
-    }
-
-    @Test
-    func caseInsensitiveContainsMatchesEveryNetworkAnAddressIsSavedOn() {
+    func containsMatchesEveryNetworkAnAddressIsSavedOn() {
         let entries = makeEntries([
             draft(address: "shared", blockchain: eth),
             draft(address: "shared", blockchain: btc),
             draft(address: "ethOnly", blockchain: eth),
         ])
 
-        #expect(entries.caseInsensitiveContains(address: "shared", networkId: networkId(of: eth)))
-        #expect(entries.caseInsensitiveContains(address: "shared", networkId: networkId(of: btc)))
-        #expect(entries.caseInsensitiveContains(address: "ethOnly", networkId: networkId(of: eth)))
-        #expect(!entries.caseInsensitiveContains(address: "ethOnly", networkId: networkId(of: btc)))
+        #expect(entries.contains(address: "shared", networkId: networkId(of: eth)))
+        #expect(entries.contains(address: "shared", networkId: networkId(of: btc)))
+        #expect(entries.contains(address: "ethOnly", networkId: networkId(of: eth)))
+        #expect(!entries.contains(address: "ethOnly", networkId: networkId(of: btc)))
     }
 
     /// A `nil` networkId keeps the any-network behaviour the send flow and `AddressIconProvider` rely on.
     @Test
-    func caseInsensitiveContainsIgnoresTheNetworkWhenNoneIsGiven() {
+    func containsIgnoresTheNetworkWhenNoneIsGiven() {
         let entries = makeEntries([draft(address: "ethOnly", blockchain: eth)])
 
-        #expect(entries.caseInsensitiveContains(address: "ethOnly", networkId: nil))
-        #expect(!entries.caseInsensitiveContains(address: "ethOnly", networkId: networkId(of: btc)))
+        #expect(entries.contains(address: "ethOnly", networkId: nil))
+        #expect(!entries.contains(address: "ethOnly", networkId: networkId(of: btc)))
     }
 
     // MARK: - Hashable / Equatable

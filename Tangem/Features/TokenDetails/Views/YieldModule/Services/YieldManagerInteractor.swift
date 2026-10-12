@@ -19,10 +19,13 @@ actor YieldManagerInteractor {
     private var exitFeeTask: Task<YieldTransactionFee, Error>?
     private var approveFeeTask: Task<YieldTransactionFee, Error>?
 
+    private var aprHistoryCache: [YieldIncentiveChartPeriod: YieldIncentiveChartData] = [:]
+
     // MARK: - Dependencies
 
     private let transactionDispatcher: any TransactionDispatcher
     private let manager: YieldModuleManager
+    private let chartMapper = YieldIncentiveChartMapper()
 
     // MARK: - Init
 
@@ -61,12 +64,30 @@ actor YieldManagerInteractor {
     }
 
     func getApy() async throws -> Decimal {
-        if let apy = manager.state?.marketInfo?.apy {
+        if let apy = manager.state?.marketInfo?.effectiveApy {
             return apy
         } else {
             let info = try await manager.fetchYieldTokenInfo()
             return info.apy
         }
+    }
+
+    func hasActiveIncentiveCampaign() -> Bool {
+        manager.state?.marketInfo?.incentive != nil
+    }
+
+    func getApyBreakdown() -> YieldApyBreakdown? {
+        guard let marketInfo = manager.state?.marketInfo,
+              let rewardsApr = marketInfo.incentive?.rewardsApr,
+              rewardsApr > 0 else {
+            return nil
+        }
+
+        return YieldApyBreakdown(baseApy: marketInfo.apy, rewardsApr: rewardsApr)
+    }
+
+    func getIncentivesSummary() async -> YieldIncentivesRewardsSummary? {
+        await manager.incentivesManager?.incentives()
     }
 
     func getMaxFeeNative() -> Decimal? {
@@ -79,6 +100,24 @@ actor YieldManagerInteractor {
 
     func getChartData() async throws -> YieldChartData {
         try await manager.fetchChartData()
+    }
+
+    func getIncentiveChartData(period: YieldIncentiveChartPeriod) async throws -> YieldIncentiveChartData {
+        // Daily-granularity data: fetch each period once per flow, so toggling periods back and forth
+        // doesn't refire requests.
+        if let cached = aprHistoryCache[period] {
+            return cached
+        }
+
+        let points = try await manager.fetchAprHistory(days: period.days)
+        let data = chartMapper.map(points: points, period: period)
+
+        // An empty history is worth refetching, so only a real series is kept.
+        if !points.isEmpty {
+            aprHistoryCache[period] = data
+        }
+
+        return data
     }
 
     func getCurrentFeeParameters() async throws -> EthereumFeeParameters {
@@ -205,6 +244,12 @@ actor YieldManagerInteractor {
             throw error
         }
     }
+}
+
+/// Components behind the displayed rate, in the same fraction form as the market APY.
+struct YieldApyBreakdown: Equatable {
+    let baseApy: Decimal
+    let rewardsApr: Decimal
 }
 
 private extension YieldManagerInteractor {

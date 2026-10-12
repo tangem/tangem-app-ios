@@ -42,15 +42,9 @@ final class MobileBackupToUpgradeNeededViewModel {
         self.onBackupFinished = onBackupFinished
         self.coordinator = coordinator
 
-        if FeatureProvider.isAvailable(.mobileWalletBackup) {
-            title = Localization.hwUpgradeSaveSeedTitle
-            description = Localization.hwUpgradeSaveSeedDescription
-            actionTitle = Localization.hwUpgradeSaveSeedAction
-        } else {
-            title = Localization.hwBackupNeedTitle
-            description = Localization.hwBackupToUpgradeDescription
-            actionTitle = Localization.hwBackupNeedAction
-        }
+        title = Localization.hwUpgradeSaveSeedTitle
+        description = Localization.hwUpgradeSaveSeedDescription
+        actionTitle = Localization.hwUpgradeSaveSeedAction
 
         logScreenOpenedAnalytics()
     }
@@ -157,11 +151,9 @@ private extension MobileBackupToUpgradeNeededViewModel {
     func logScreenOpenedAnalytics() {
         var params = source.analyticsParams
 
-        if FeatureProvider.isAvailable(.mobileWalletBackup) {
-            let statusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
-            params[.backupManual] = .affirmativeOrNegative(for: statusUtil.hasMnemonicBackup)
-            params[.backupCloud] = statusUtil.hasICloudBackup ? .done : .incomplete
-        }
+        let statusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
+        params[.backupManual] = .affirmativeOrNegative(for: statusUtil.hasMnemonicBackup)
+        params[.backupCloud] = statusUtil.hasICloudBackup ? .done : .incomplete
 
         Analytics.log(
             .walletSettingsNoticeBackupFirst,

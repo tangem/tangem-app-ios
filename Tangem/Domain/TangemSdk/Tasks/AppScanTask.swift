@@ -8,43 +8,8 @@
 
 import Foundation
 import TangemSdk
-import TangemVisa
 import TangemFoundation
-import TangemMacro
-
-@CaseFlagable
-enum DefaultWalletData: Codable {
-    case file(WalletData)
-    case legacy(WalletData)
-    case twin(WalletData, TwinData)
-    case visa(VisaCardActivationLocalState)
-    case none
-
-    var twinData: TwinData? {
-        if case .twin(_, let data) = self {
-            return data
-        }
-
-        return nil
-    }
-}
-
-struct AppScanTaskResponse {
-    let card: Card
-    let walletData: DefaultWalletData
-    let primaryCard: PrimaryCard?
-
-    func getCardInfo() -> CardInfo {
-        let cardInfo = CardInfo(
-            card: CardDTO(card: card),
-            walletData: walletData,
-            primaryCard: primaryCard,
-            associatedCardIds: []
-        )
-
-        return cardInfo
-    }
-}
+import TangemVisa
 
 final class AppScanTask: CardSessionRunnable {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
@@ -62,6 +27,7 @@ final class AppScanTask: CardSessionRunnable {
     let shouldAskForAccessCode: Bool
 
     private let shouldCheckAccessCode: Bool
+    private let userWalletRegistrar = CardUserWalletRegistrar(analyticsReporter: CommonBackendAuthenticationAnalyticsReporter())
     private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard?
     private var linkingCommand: StartPrimaryCardLinkingCommand?
@@ -76,6 +42,13 @@ final class AppScanTask: CardSessionRunnable {
 
     deinit {
         AppLogger.debug("AppScanTask deinit")
+    }
+
+    func prepare(_ session: CardSession, completion: @escaping CompletionResult<Void>) {
+        // Obtaining the nonce before the NFC session opens, so the NFC session remains responsive
+        userWalletRegistrar.obtainNonce {
+            completion(.success(()))
+        }
     }
 
     public func run(in session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
@@ -117,7 +90,7 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
-        if TwinCardSeries.series(for: card.cardId) != nil {
+        if TwinCardsUtils.isTwinCard(card) {
             readTwin(card, session: session, completion: completion)
             return
         }
@@ -132,7 +105,7 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
-        runScanTask(session, completion)
+        registerUserWalletIfNeeded(session, completion)
     }
 
     private func readPrimaryIfNeeded(_ card: Card, _ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
@@ -145,7 +118,7 @@ final class AppScanTask: CardSessionRunnable {
             readPrimaryCard(session, completion)
             return
         } else {
-            runScanTask(session, completion)
+            registerUserWalletIfNeeded(session, completion)
             return
         }
     }
@@ -207,7 +180,7 @@ final class AppScanTask: CardSessionRunnable {
                     self.walletData = .twin(walletData, twinData)
                 }
 
-                self.runScanTask(session, completion)
+                self.registerUserWalletIfNeeded(session, completion)
             case .failure(let error):
                 completion(.failure(error))
             }
@@ -226,7 +199,7 @@ final class AppScanTask: CardSessionRunnable {
         }
 
         return TwinData(
-            series: TwinCardSeries.series(for: card.cardId)!,
+            series: TwinCardsUtils.series(for: card)!,
             pairPublicKey: pairPublicKey
         )
     }
@@ -237,9 +210,9 @@ final class AppScanTask: CardSessionRunnable {
             switch result {
             case .success(let primaryCard):
                 self.primaryCard = primaryCard
-                self.runScanTask(session, completion)
+                self.registerUserWalletIfNeeded(session, completion)
             case .failure: // ignore any error
-                self.runScanTask(session, completion)
+                self.registerUserWalletIfNeeded(session, completion)
             }
         }
     }
@@ -252,12 +225,18 @@ final class AppScanTask: CardSessionRunnable {
             switch result {
             case .success(let success):
                 self.walletData = .visa(success)
-                self.runScanTask(session, completion)
+                self.registerUserWalletIfNeeded(session, completion)
             case .failure(let error):
                 completion(.failure(error))
             }
 
             withExtendedLifetime(handler) {}
+        }
+    }
+
+    private func registerUserWalletIfNeeded(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
+        userWalletRegistrar.registerIfNeeded(in: session) {
+            self.runScanTask(session, completion)
         }
     }
 
@@ -279,10 +258,12 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
-        completion(.success(AppScanTaskResponse(
+        let response = AppScanTaskResponse(
             card: card,
             walletData: walletData,
             primaryCard: primaryCard
-        )))
+        )
+
+        completion(.success(response))
     }
 }

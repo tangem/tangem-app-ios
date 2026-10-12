@@ -13,6 +13,9 @@ import TangemUIUtils
 struct PromotionNotificationsView: View {
     @ObservedObject var viewModel: PromotionNotificationsViewModel
 
+    var paginationSpacing: CGFloat = SizeUnit.x4.value
+    var paginationMinHeight: CGFloat?
+
     var body: some View {
         configured(
             NotificationBannerCarousel(items: viewModel.bannerItems) { item in
@@ -32,6 +35,7 @@ struct PromotionNotificationsView: View {
         carousel
             .hasClipShape(false)
             .paginationHasBackground(false)
+            .paginationLayout(spacing: paginationSpacing, minHeight: paginationMinHeight)
             .currentIndexHasChanged(viewModel.carouselIndexHasChanged)
             .onScreenVisibilityChange(viewModel.onScreenVisibilityChange)
     }

@@ -8,10 +8,12 @@
 
 import Foundation
 import TangemFoundation
+import TangemLocalization
 import TangemMobileWalletBackup
 
 final class WelcomeV2ImportSheetViewModel: ObservableObject, Identifiable {
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
+    @Injected(\.welcomeV2AnalyticsProvider) private var analytics: WelcomeV2AnalyticsProvider
 
     let id = UUID()
     let title: String
@@ -19,11 +21,16 @@ final class WelcomeV2ImportSheetViewModel: ObservableObject, Identifiable {
     let onBack: () -> Void
     let onClose: () -> Void
 
+    /// The `Sheet` value this sheet reports in analytics; lives on the sheet so it can't
+    /// outlive it, unlike a mirror flag on the coordinator.
+    let analyticsSheet: Analytics.ParameterValue = .welcomeV2ImportExisting
+
     @Published private(set) var items: [WelcomeV2ImportSheetItem]
 
     private let onRecoveryPhrase: () -> Void
     private let onICloudBackup: ([MobileWalletBackup]) -> Void
     private let backupManager: MobileWalletBackupManager
+    private var didLogImportRequest = false
 
     init(input: Input) {
         title = input.title
@@ -37,15 +44,15 @@ final class WelcomeV2ImportSheetViewModel: ObservableObject, Identifiable {
 
         items = [
             WelcomeV2ImportSheetItem(
-                id: Constants.recoveryItemId,
-                title: "Import recovery phrase",
+                id: ItemID.recovery,
+                title: Localization.hwCloudBackupRestoreUseRecoveryPhrase,
                 isEnabled: true,
                 isLoading: false,
                 action: input.onRecoveryPhrase
             ),
             WelcomeV2ImportSheetItem(
-                id: Constants.iCloudItemId,
-                title: "Restore iCloud backup",
+                id: ItemID.iCloud,
+                title: Localization.introductionImportIcloudRestore,
                 isEnabled: false,
                 isLoading: true,
                 action: {}
@@ -102,25 +109,37 @@ private extension WelcomeV2ImportSheetViewModel {
 
     @MainActor
     func applyICloud(loadResult: Result<[MobileWalletBackup], Error>, silent: Bool) {
-        switch loadResult {
-        case .success(let backups) where backups.isEmpty:
-            updateICloudItem(state: .notFound)
-        case .success(let backups):
-            updateICloudItem(state: .enabled(backups: backups))
-        case .failure(let error):
-            updateICloudItem(state: .retry)
-            if !silent {
-                alertPresenter.present(alert: error.alertBinder)
-            }
+        let state: ICloudBackupState = switch loadResult {
+        case .success(let backups) where backups.isEmpty: .notFound
+        case .success(let backups): .enabled(backups: backups)
+        case .failure: .retry
         }
+
+        updateICloudItem(state: state)
+
+        if case .failure(let error) = loadResult, !silent {
+            alertPresenter.present(alert: error.alertBinder)
+        }
+
+        logImportRequestOnce(state: state)
+    }
+
+    /// Matches the onboarding import screen: the request carries the resolved backup availability,
+    /// so it waits for the first load result instead of firing on presentation.
+    @MainActor
+    func logImportRequestOnce(state: ICloudBackupState) {
+        guard !didLogImportRequest else { return }
+        didLogImportRequest = true
+
+        analytics.logImportWalletRequest(hasCloudBackup: state.hasBackups)
     }
 
     @MainActor
     func updateICloudItem(state: ICloudBackupState) {
-        guard let index = items.firstIndex(where: { $0.id == Constants.iCloudItemId }) else { return }
+        guard let index = items.firstIndex(where: { $0.id == ItemID.iCloud }) else { return }
 
         items[index] = WelcomeV2ImportSheetItem(
-            id: Constants.iCloudItemId,
+            id: ItemID.iCloud,
             title: state.title,
             isEnabled: state.isEnabled,
             isLoading: state.isLoading,
@@ -152,9 +171,9 @@ extension WelcomeV2ImportSheetViewModel {
 
         var title: String {
             switch self {
-            case .loading, .enabled: "Restore iCloud backup"
-            case .notFound: "iCloud backup not found"
-            case .retry: "Retry iCloud backup"
+            case .loading, .enabled: Localization.introductionImportIcloudRestore
+            case .notFound: Localization.introductionImportIcloudNotFound
+            case .retry: Localization.introductionImportIcloudRetry
             }
         }
 
@@ -171,15 +190,28 @@ extension WelcomeV2ImportSheetViewModel {
             case .enabled, .notFound, .retry: false
             }
         }
+
+        var hasBackups: Bool {
+            switch self {
+            case .enabled: true
+            case .loading, .notFound, .retry: false
+            }
+        }
     }
 }
 
 // MARK: - Constants
 
+extension WelcomeV2ImportSheetViewModel {
+    /// Item ids double as the key for accessibility identifiers in the view.
+    enum ItemID {
+        static let recovery = "recovery"
+        static let iCloud = "icloud"
+    }
+}
+
 private extension WelcomeV2ImportSheetViewModel {
     enum Constants {
-        static let recoveryItemId = "recovery"
-        static let iCloudItemId = "icloud"
         static let loadingTimeout: Duration = .seconds(1)
     }
 }

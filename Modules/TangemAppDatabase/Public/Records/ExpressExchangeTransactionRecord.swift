@@ -11,7 +11,6 @@ import GRDB
 
 public struct ExpressExchangeTransactionRecord {
     public let id: String
-    public let ownerAddress: String
     public let providerID: String
     public let fromAddress: String?
     public let payInAddress: String
@@ -49,7 +48,6 @@ public struct ExpressExchangeTransactionRecord {
 
     public init(
         id: String,
-        ownerAddress: String,
         providerID: String,
         fromAddress: String?,
         payInAddress: String,
@@ -79,7 +77,6 @@ public struct ExpressExchangeTransactionRecord {
         updatedAt: Date
     ) {
         self.id = id
-        self.ownerAddress = ownerAddress
         self.providerID = providerID
         self.fromAddress = fromAddress
         self.payInAddress = payInAddress

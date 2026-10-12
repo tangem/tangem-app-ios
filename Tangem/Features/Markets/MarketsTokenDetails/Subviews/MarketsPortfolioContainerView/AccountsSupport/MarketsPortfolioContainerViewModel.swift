@@ -18,6 +18,7 @@ import TangemUI
 /// Copy-pasted and adapted for accounts `MarketsPortfolioContainerViewModel`
 final class MarketsPortfolioContainerViewModel: ObservableObject {
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
+    @Injected(\.cryptoAccountsGlobalStateProvider) private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
 
     // MARK: - Published Properties
 
@@ -252,7 +253,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
                 .accountModelsManager
                 .accountModelsPublisher
                 .flatMap { accountModels -> AnyPublisher<WalletData, Never> in
-                    let cryptoAccounts = Self.extractCryptoAccountModels(from: accountModels)
+                    let cryptoAccounts = AccountModelsAggregator(.crypto, .joint).models(from: accountModels)
 
                     let walletModelsPublishers = cryptoAccounts.map(\.walletModelsManager.walletModelsPublisher)
                     let userTokensPublishers = cryptoAccounts.map(\.userTokensManager.userTokensPublisher)
@@ -311,9 +312,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
             contextActionsDelegate: self
         )
 
-        let hasMultipleAccounts = walletsData.contains { walletData in
-            walletData.accountModels.cryptoAccounts().hasMultipleAccounts
-        }
+        let hasMultipleAccounts = cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
 
         hasMultiCurrencyWallet = walletsData.contains { $0.config.hasFeature(.multiCurrency) }
         let allWalletModels = walletsData.flatMap(\.walletModels)
@@ -338,9 +337,8 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
         for walletData in walletsData {
             var accountsWithTokenItems: [TypeView.AccountWithTokenItemsData] = []
             let userWalletInfo = makeUserWalletInfo(from: walletData)
-            let walletHasMultipleAccounts = walletData.accountModels.cryptoAccounts().hasMultipleAccounts
 
-            for account in Self.extractCryptoAccountModels(from: walletData.accountModels) {
+            for account in AccountModelsAggregator(.crypto, .joint).models(from: walletData.accountModels) {
                 let viewModels = factory.makeViewModels(
                     coinId: coinId,
                     walletModels: account.walletModelsManager.walletModels,
@@ -373,7 +371,8 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
                         userWalletId: walletData.userWalletId,
                         walletName: walletData.userWalletName,
                         walletThumbnail: walletData.config.walletThumbnailType,
-                        walletHasMultipleAccounts: walletHasMultipleAccounts,
+                        // Reaching this method is what the accounts presentation was decided by
+                        walletHasMultipleAccounts: true,
                         accountId: account.id.toAnyHashable(),
                         accountName: account.name,
                         accountIcon: account.icon.erased,
@@ -439,7 +438,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
                 entries: walletData.flattenedTokenItems
             )
 
-            if underived.isNotEmpty, let account = Self.extractCryptoAccountModels(from: walletData.accountModels).first {
+            if underived.isNotEmpty, let account = AccountModelsAggregator(.crypto, .joint).models(from: walletData.accountModels).first {
                 collectedUnderivedTokens.append(contentsOf: underived.map { tokenItem in
                     MarketsPortfolioTokenListViewModel.UnderivedToken(
                         userWalletId: walletData.userWalletId,
@@ -495,19 +494,6 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
 
             return matchesCoin && !derivedNetworks.contains(entry.blockchainNetwork)
         }
-    }
-
-    private static func extractCryptoAccountModels(from accountModels: [AccountModel]) -> [any CryptoAccountModel] {
-        return accountModels
-            .cryptoAccounts()
-            .reduce(into: []) { result, cryptoAccount in
-                switch cryptoAccount {
-                case .single(let cryptoAccountModel):
-                    result.append(cryptoAccountModel)
-                case .multiple(let cryptoAccountModels):
-                    result.append(contentsOf: cryptoAccountModels)
-                }
-            }
     }
 
     private static func makeWalletData(
@@ -651,18 +637,24 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
 
-            let helper = SwapPredefinedParametersHelper()
-            guard let parameters = helper.makeParameters(
-                walletModel: walletModel,
-                userWalletInfo: userWalletModel.userWalletInfo,
-                position: .automatic
-            ) else {
-                return
-            }
+            TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                presenter: alertPresenter,
+                swapStatus: availabilityProvider.swapAvailability,
+                action: {
+                    let helper = SwapPredefinedParametersHelper()
+                    guard let parameters = helper.makeParameters(
+                        walletModel: walletModel,
+                        userWalletInfo: userWalletModel.userWalletInfo,
+                        position: .automatic
+                    ) else {
+                        return
+                    }
 
-            Task { @MainActor in
-                coordinator.openSwap(input: parameters, destination: walletModel.tokenItem)
-            }
+                    Task { @MainActor in
+                        coordinator.openSwap(input: parameters, destination: walletModel.tokenItem)
+                    }
+                }
+            )
         case .stake:
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
             if let stakingManager = walletModel.stakingManager {

@@ -30,6 +30,8 @@ final class SendCoordinator: CoordinatorObject {
 
     @Published private(set) var rootViewModel: SendViewModel?
 
+    private var onTransactionDispatched: (() -> Void)?
+
     // MARK: - Child coordinators
 
     @Published var qrScanViewCoordinator: QRScanViewCoordinator? {
@@ -84,6 +86,8 @@ final class SendCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        onTransactionDispatched = options.onTransactionDispatched
+
         let flowFactory = SendFactory().flowFactory(options: options)
         rootViewModel = flowFactory
             .make(router: self, coordinatorStateProvider: stateProvider)
@@ -112,15 +116,19 @@ extension SendCoordinator {
         let type: SendType
         let source: Source
         let shouldStartFromTokenList: Bool
+        /// Called once the transaction is dispatched, whatever the user does with the flow afterwards.
+        let onTransactionDispatched: (() -> Void)?
 
         init(
             type: SendType,
             source: Source,
-            shouldStartFromTokenList: Bool = false
+            shouldStartFromTokenList: Bool = false,
+            onTransactionDispatched: (() -> Void)? = nil
         ) {
             self.type = type
             self.source = source
             self.shouldStartFromTokenList = shouldStartFromTokenList
+            self.onTransactionDispatched = onTransactionDispatched
         }
     }
 
@@ -161,11 +169,17 @@ extension SendCoordinator: SupportChatPresenting {}
 
 // MARK: - AddressBookContactNavigating
 
-extension SendCoordinator: AddressBookContactNavigating {}
+extension SendCoordinator: AddressBookContactNavigating {
+    var addressBookAnalyticsSource: AddressBookAnalyticsSource { .sendFlow }
+}
 
 // MARK: - SendRoutable
 
 extension SendCoordinator: SendRoutable {
+    func didDispatchTransaction() {
+        onTransactionDispatched?()
+    }
+
     func dismiss(reason: SendDismissReason) {
         let dismissOptions = mapDismissReasonToDismissOptions(reason)
         dismiss(with: dismissOptions)

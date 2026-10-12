@@ -10,7 +10,6 @@ import Foundation
 
 @MainActor
 protocol MobileBackupNeededRoutable: AnyObject {
-    func openMobileOnboardingFromMobileBackupNeeded(input: MobileOnboardingInput, onBackupFinished: @escaping () -> Void)
     func openMobileBackupTypesFromMobileBackupNeeded(userWalletModel: UserWalletModel)
     func dismissMobileBackupNeeded()
 }

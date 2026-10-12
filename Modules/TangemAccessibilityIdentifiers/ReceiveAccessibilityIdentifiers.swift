@@ -13,4 +13,6 @@ public enum ReceiveAccessibilityIdentifiers {
     public static let legacyAddress = "receiveLegacyAddress"
     public static let segwitShowQRCodeButton = "receiveSegwitShowQRCodeButton"
     public static let legacyShowQRCodeButton = "receiveLegacyShowQRCodeButton"
+    public static let copyButton = "receiveCopyButton"
+    public static let shareButton = "receiveShareButton"
 }

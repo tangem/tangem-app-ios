@@ -7,21 +7,18 @@
 
 import SwiftUI
 import TangemLocalization
-import TangemAssets
 import TangemUI
 
 struct TangemPayVirtualAccountSuccessView: View {
     @ObservedObject var viewModel: TangemPayVirtualAccountSuccessViewModel
 
     var body: some View {
-        TangemPaySuccessView(
-            model: .init(
-                icon: DesignSystem.Icons.Success.regular20,
-                title: Localization.tangempayBankTransferSuccessTitle,
-                subtitle: Localization.tangempayBankTransferSuccessSubtitle,
-                buttonTitle: Localization.commonClose
-            ),
+        StatusScreen(
+            title: Localization.tangempayBankTransferSuccessTitle,
+            description: Localization.tangempayBankTransferSuccessSubtitle,
+            actionTitle: Localization.commonClose,
             action: viewModel.close
         )
+        .appearance(.success)
     }
 }

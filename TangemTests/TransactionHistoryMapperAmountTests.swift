@@ -35,7 +35,7 @@ struct TransactionHistoryMapperAmountTests {
         #expect(viewModel.amount.amount.hasPrefix(AppConstants.minusSign))
     }
 
-    @Test("A staking record whose self destination carries a zeroed amount nets to the gross source amount with the outgoing minus, not to zero")
+    @Test("A staking record whose self destination carries a zeroed amount nets to the gross source amount, not to zero, and stays unsigned")
     func zeroedSelfDestinationNetsToGrossAmount() {
         let record = TransactionRecord(
             hash: "hash",
@@ -53,7 +53,7 @@ struct TransactionHistoryMapperAmountTests {
 
         let viewModel = makeSUT().mapTransactionViewModel(record)
 
-        #expect(viewModel.amount.amount == AppConstants.minusSign + BalanceFormatter().formatCryptoBalance(2, currencyCode: "ETH"))
+        #expect(viewModel.amount.amount == BalanceFormatter().formatCryptoBalance(2, currencyCode: "ETH"))
     }
 }
 
@@ -63,9 +63,11 @@ private extension TransactionHistoryMapperAmountTests {
     func makeSUT() -> Tangem.TransactionHistoryMapper {
         Tangem.TransactionHistoryMapper(
             currencySymbol: "ETH",
+            blockchain: .ethereum(testnet: false),
             addressesProvider: StubTransactionHistoryAddressesProvider(walletAddresses: ["0xSource"]),
             showSign: true,
-            isToken: false
+            isToken: false,
+            stakingNetwork: .ethereum
         )
     }
 

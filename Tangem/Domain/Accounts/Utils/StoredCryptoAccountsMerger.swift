@@ -22,16 +22,16 @@ struct StoredCryptoAccountsMerger {
         var updatedAccounts = oldAccounts
         var isDirty = false
 
-        // Fast lookup dictionary to find existing accounts by their derivation index
-        let indicesKeyedByDerivationIndex: [Int: Int] = oldAccounts
+        // Fast lookup dictionary to find existing accounts by their derivation identity
+        let indicesKeyedByDerivationIdentity: [CryptoAccountDerivationIdentity: Int] = oldAccounts
             .enumerated()
             .reduce(into: [:]) { partialResult, input in
                 let (index, account) = input
-                partialResult[account.derivationIndex] = index
+                partialResult[account.derivationIdentity] = index
             }
 
         for newAccount in newAccounts {
-            if let targetIndex = indicesKeyedByDerivationIndex[newAccount.derivationIndex] {
+            if let targetIndex = indicesKeyedByDerivationIdentity[newAccount.derivationIdentity] {
                 let existingAccount = updatedAccounts[targetIndex]
 
                 // Exclude `tokens` field of new account from comparison if we need to preserve existing tokens

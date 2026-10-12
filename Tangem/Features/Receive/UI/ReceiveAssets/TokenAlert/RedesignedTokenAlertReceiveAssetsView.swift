@@ -62,7 +62,7 @@ struct RedesignedTokenAlertReceiveAssetsView: View {
             action: viewModel.onGotItTapAction
         )
         .size(.x12)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .horizontalLayout(.infinity)
     }
 }

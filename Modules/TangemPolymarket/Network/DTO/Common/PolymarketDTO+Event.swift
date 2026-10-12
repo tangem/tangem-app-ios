@@ -20,6 +20,7 @@ extension PolymarketDTO {
         let icon: String?
 
         let status: String?
+        let live: Bool?
         let startDate: String?
         let endDate: String?
 

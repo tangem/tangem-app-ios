@@ -13,6 +13,7 @@ import TangemFoundation
 struct TopNavigationModifier<Slot: View>: ViewModifier {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.topNavigationDrawsBarBackground) private var drawsBarBackground
 
     private let contentPosition: TopNavigation.ContentPosition
     private let leadingPolicy: TopNavigation.LeadingPolicy
@@ -49,9 +50,15 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
         min(dynamicTypeSize, TopNavigationChromeMetrics.maxDynamicTypeSize)
     }
 
+    @ViewBuilder
     func body(content: Content) -> some View {
-        navigation(content)
-            .translucentNavigationBar()
+        if drawsBarBackground {
+            navigation(content)
+                .translucentNavigationBar()
+        } else {
+            navigation(content)
+                .clearNavigationBar()
+        }
     }
 
     private func navigation(_ content: Content) -> some View {
@@ -64,14 +71,24 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
 
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        if let leading = resolvedLeading {
-            ToolbarItem(placement: .topBarLeading) {
-                chromeButton(leading)
-            }
-        }
-
+        leadingContent
         principalContent
         trailingContent
+    }
+
+    @ToolbarContentBuilder
+    private var leadingContent: some ToolbarContent {
+        if let leading = resolvedLeading {
+            if #available(iOS 26.0, *) {
+                ToolbarItem(placement: .topBarLeading) {
+                    systemChrome([leading])
+                }
+            } else {
+                ToolbarItem(placement: .topBarLeading) {
+                    chromeButton(leading)
+                }
+            }
+        }
     }
 
     @ToolbarContentBuilder
@@ -110,32 +127,46 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
 
     @ToolbarContentBuilder
     private var trailingContent: some ToolbarContent {
-        if actions.isNotEmpty {
-            if #available(iOS 26.0, *) {
-                ToolbarItem(placement: .topBarTrailing) {
-                    barHosted {
-                        TopNavigationNativeActionsGroup(actions: actions, hasBackground: actionsHaveBackground)
-                    }
-                }
-                .sharedBackgroundVisibility(.hidden)
-            } else {
-                ToolbarItem(placement: .topBarTrailing) {
-                    barHosted {
-                        TopNavigationActionsPill(actions: actions, hasBackground: actionsHaveBackground)
-                    }
-                }
+        if #available(iOS 26.0, *) {
+            systemTrailingContent
+        } else if actions.isNotEmpty || onClose != nil {
+            ToolbarItem(placement: .topBarTrailing) {
+                trailingGroup
             }
         }
+    }
 
-        if onClose != nil, actions.isNotEmpty {
-            if #available(iOS 26.0, *) {
-                ToolbarSpacer(.fixed, placement: .topBarTrailing)
+    @available(iOS 26.0, *)
+    @ToolbarContentBuilder
+    private var systemTrailingContent: some ToolbarContent {
+        if actions.isNotEmpty {
+            ToolbarItem(placement: .topBarTrailing) {
+                systemChrome(actions)
             }
+            .sharedBackgroundVisibility(actionsHaveBackground ? .automatic : .hidden)
         }
 
         if let onClose {
+            if actions.isNotEmpty {
+                ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            }
+
             ToolbarItem(placement: .topBarTrailing) {
-                chromeButton(TopNavigation.Action.close(action: onClose))
+                systemChrome([TopNavigation.Action.close(action: onClose)])
+            }
+        }
+    }
+
+    private var trailingGroup: some View {
+        barHosted {
+            HStack(spacing: TopNavigationChromeMetrics.trailingGroupSpacing) {
+                if actions.isNotEmpty {
+                    TopNavigationActionsGroup(actions: actions, hasBackground: actionsHaveBackground)
+                }
+
+                if let onClose {
+                    TopNavigationCircleButton(action: TopNavigation.Action.close(action: onClose))
+                }
             }
         }
     }
@@ -148,11 +179,14 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
 
     private func chromeButton(_ action: TopNavigation.Action) -> some View {
         barHosted {
-            if #available(iOS 26.0, *) {
-                TopNavigationBarButton(action: action)
-            } else {
-                TopNavigationCircleButton(action: action)
-            }
+            TopNavigationCircleButton(action: action)
+        }
+    }
+
+    @available(iOS 26.0, *)
+    private func systemChrome(_ actions: [TopNavigation.Action]) -> some View {
+        barHosted {
+            TopNavigationSystemChrome(actions: actions)
         }
     }
 
@@ -162,4 +196,21 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
     private func barHosted<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
         content().dynamicTypeSize(barDynamicTypeSize)
     }
+}
+
+private extension View {
+    @ViewBuilder
+    func clearNavigationBar() -> some View {
+        if #available(iOS 26.0, *) {
+            scrollEdgeEffectHidden(true, for: .top)
+                .toolbarBackground(.hidden, for: .navigationBar)
+        } else {
+            toolbarBackground(.hidden, for: .navigationBar)
+        }
+    }
+}
+
+extension EnvironmentValues {
+    /// Cleared by a container that hosts the navigation stack on its own surface and fades its content itself.
+    @Entry var topNavigationDrawsBarBackground = true
 }

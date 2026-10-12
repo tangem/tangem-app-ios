@@ -41,15 +41,8 @@ private extension TangemPayWithdrawSourceWalletsProvider {
         return TokenSelectorAccount(
             account: tangemPayAccountModel,
             itemsProvider: StaticTokenSelectorItemsProvider(items: items),
-            rateProvider: nil
+            rateProvider: nil,
+            currencyCode: nil
         )
-    }
-}
-
-private struct StaticTokenSelectorItemsProvider: TokenSelectorAccountModelItemsProvider {
-    let items: [TokenSelectorItem]
-
-    var itemsPublisher: AnyPublisher<[TokenSelectorItem], Never> {
-        Just(items).eraseToAnyPublisher()
     }
 }
