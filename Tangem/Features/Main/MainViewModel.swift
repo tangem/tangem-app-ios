@@ -137,6 +137,10 @@ final class MainViewModel: ObservableObject {
         mainScreenOpenedAnalyticsSubscription = nil
     }
 
+    func onWillAppear() {
+        mainBottomSheetUIManager.requestShow()
+    }
+
     /// Handles `UIKit.UIViewController.viewDidAppear(_:)`.
     func onDidAppear() {
         // The application is already in a locked state, so no attempts to show bottom sheet should be made
@@ -162,7 +166,7 @@ final class MainViewModel: ObservableObject {
                 }
             }
         } else {
-            mainBottomSheetUIManager.show()
+            mainBottomSheetUIManager.showIfRequested()
 
             // A push into the stack while the screen is still fading in from the auth screen is lost, so the
             // deeplink handoff waits the fade out.
