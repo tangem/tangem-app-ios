@@ -15,9 +15,16 @@ final class MainBottomSheetUIManager {
     private(set) var hasPendingSnapshotUpdate = false
 
     private let isShownSubject: CurrentValueSubject<Bool, Never> = .init(false)
+    private let isExpandedSubject: CurrentValueSubject<Bool, Never> = .init(false)
     private let footerSnapshotSubject: PassthroughSubject<FooterSnapshot, Never> = .init()
     private let footerSnapshotUpdateTriggerSubject: PassthroughSubject<Void, Never> = .init()
     private var pendingFooterSnapshotUpdateCompletions: [() -> Void] = []
+    private var pendingShow: Task<Void, Error>?
+    private var pendingShowCompletions: [() -> Void] = []
+
+    deinit {
+        pendingShow?.cancel()
+    }
 }
 
 // MARK: - Visibility management
@@ -26,18 +33,54 @@ extension MainBottomSheetUIManager {
     var isShown: Bool { isShownSubject.value }
     var isShownPublisher: some Publisher<Bool, Never> { isShownSubject }
 
-    func show() {
+    /// Whether the sheet is dragged out over the main screen, in either of the two presentation modes.
+    var isExpanded: Bool { isExpandedSubject.value }
+
+    func setExpanded(_ isExpanded: Bool) {
         ensureOnMainQueue()
 
-        isShownSubject.send(true)
+        isExpandedSubject.send(isExpanded)
+    }
+
+    /// `completion` runs once the sheet is asked for. A newer `show` carries it over; a `hide` that drops the
+    /// pending show runs it at once, since there is no sheet left to wait for.
+    func show(after delay: TimeInterval = 0, completion: (() -> Void)? = nil) {
+        ensureOnMainQueue()
+
+        pendingShow?.cancel()
+        pendingShow = nil
+
+        if let completion {
+            pendingShowCompletions.append(completion)
+        }
+
+        guard delay > 0 else {
+            isShownSubject.send(true)
+            runPendingShowCompletions()
+            return
+        }
+
+        pendingShow = Task.delayed(withDelay: delay) { @MainActor [weak self] in
+            try Task.checkCancellation()
+            self?.pendingShow = nil
+            self?.isShownSubject.send(true)
+            self?.runPendingShowCompletions()
+        }
     }
 
     func hide(shouldUpdateFooterSnapshot: Bool = true) {
         ensureOnMainQueue()
 
+        // Navigation can hide the sheet before its cold-start presentation has run.
+        pendingShow?.cancel()
+        pendingShow = nil
+        runPendingShowCompletions()
+
         guard isShown else {
             return
         }
+
+        isExpandedSubject.send(false)
 
         let isShown = false
 
@@ -61,6 +104,14 @@ extension MainBottomSheetUIManager {
                 self.hasPendingSnapshotUpdate = false
             }
         }
+    }
+}
+
+private extension MainBottomSheetUIManager {
+    func runPendingShowCompletions() {
+        let completions = pendingShowCompletions
+        pendingShowCompletions.removeAll()
+        completions.forEach { $0() }
     }
 }
 

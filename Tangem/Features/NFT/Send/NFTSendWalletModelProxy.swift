@@ -233,23 +233,6 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.fulfillRequirements(signer: signer)
     }
 
-    var customFeeProviderBuilder: CustomFeeProviderBuilder {
-        CustomFeeProviderBuilder(
-            tokenItem: tokenItem,
-            feeTokenItem: mainTokenWalletModel.feeTokenItem,
-            walletManager: mainTokenWalletModel.customFeeProviderBuilder.walletManager
-        )
-    }
-
-    var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder {
-        TokenFeeLoaderBuilder(
-            tokenItem: tokenItem,
-            sourceAddress: mainTokenWalletModel.defaultAddressString,
-            dependenciesProvider: self,
-            isDemo: mainTokenWalletModel.isDemo
-        )
-    }
-
     var blockchainDataProvider: BlockchainDataProvider {
         mainTokenWalletModel.blockchainDataProvider
     }
@@ -320,6 +303,11 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     var ethereumTransactionSigner: EthereumTransactionSigner? {
         mainTokenWalletModel.ethereumTransactionSigner
+    }
+
+    /// An NFT transfer is not shaped as a Safe inner call, so it never goes out as a joint operation.
+    var safeWalletManagerOperationsService: SafeWalletManagerOperationsService? {
+        nil
     }
 
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? {

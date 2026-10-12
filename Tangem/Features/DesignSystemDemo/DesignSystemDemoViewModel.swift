@@ -103,8 +103,16 @@ final class DesignSystemDemoViewModel: ObservableObject {
         coordinator?.openGlowRingDemo()
     }
 
+    func openStatusScreenDemo() {
+        coordinator?.openStatusScreenDemo()
+    }
+
     func openTabNavigationDemo() {
         coordinator?.openTabNavigationDemo()
+    }
+
+    func openSegmentedControlDemo() {
+        coordinator?.openSegmentedControlDemo()
     }
 
     func openTangemTopNavigationDemo() {
@@ -113,6 +121,10 @@ final class DesignSystemDemoViewModel: ObservableObject {
 
     func openTangemFadeDemo() {
         coordinator?.openTangemFadeDemo()
+    }
+
+    func openFilterGroupDemo() {
+        coordinator?.openFilterGroupDemo()
     }
 
     func openTangemMessageBubbleDemo() {
@@ -142,4 +154,14 @@ final class DesignSystemDemoViewModel: ObservableObject {
     func openUtilBalanceDemo() {
         coordinator?.openUtilBalanceDemo()
     }
+
+    func openShtorkaDemo() {
+        coordinator?.openShtorkaDemo()
+    }
+
+    func openModalDemo() {
+        coordinator?.openModalDemo()
+    }
 }
+
+final class ModalDemoViewModel: ObservableObject, Identifiable {}

@@ -121,6 +121,36 @@ final class WireMockClient {
         return try JSONDecoder().decode(WireMockRequestCountResponse.self, from: data).count
     }
 
+    /// Bodies of the journalled requests matching the given method and exact URL path, oldest first
+    func findRequestBodies(method: String, urlPath: String) async throws -> [String] {
+        let url = URL(string: "\(baseURL)/__admin/requests/find")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(WireMockFindRequestsRequest(method: method, urlPath: urlPath))
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw WireMockError.httpError(response)
+        }
+
+        return try JSONDecoder().decode(WireMockFindRequestsResponse.self, from: data).requests.compactMap(\.body)
+    }
+
+    /// Clear the request journal so a test only counts and inspects its own traffic
+    func resetRequestJournal() async throws {
+        let url = URL(string: "\(baseURL)/__admin/requests")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+
+        let (_, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw WireMockError.httpError(response)
+        }
+    }
+
     // MARK: - Sync Wrappers for XCTest
 
     func resetAllScenariosSync() {
@@ -181,6 +211,36 @@ final class WireMockClient {
         }
         XCTestCase().wait(for: [expectation], timeout: .networkRequest)
         return count
+    }
+
+    func resetRequestJournalSync() {
+        let expectation = XCTestExpectation(description: "Reset WireMock request journal")
+        Task {
+            do {
+                try await resetRequestJournal()
+                expectation.fulfill()
+            } catch {
+                XCTFail("Failed to reset the request journal: \(error)")
+                expectation.fulfill()
+            }
+        }
+        XCTestCase().wait(for: [expectation], timeout: .networkRequest)
+    }
+
+    func findRequestBodiesSync(method: String, urlPath: String) -> [String] {
+        var bodies: [String] = []
+        let expectation = XCTestExpectation(description: "Find WireMock requests")
+        Task {
+            do {
+                bodies = try await findRequestBodies(method: method, urlPath: urlPath)
+                expectation.fulfill()
+            } catch {
+                XCTFail("Failed to find requests for \(method) \(urlPath): \(error)")
+                expectation.fulfill()
+            }
+        }
+        XCTestCase().wait(for: [expectation], timeout: .networkRequest)
+        return bodies
     }
 
     func resetScenarioSync(_ scenarioName: String) {

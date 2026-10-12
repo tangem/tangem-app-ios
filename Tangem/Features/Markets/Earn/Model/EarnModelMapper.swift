@@ -32,10 +32,16 @@ struct EarnModelMapper {
 
         // With fallback to network id
         let networkName = blockchain?.displayName ?? response.networkId.capitalized
+        let tokenName: String
+        if let blockchain, case .ton = blockchain, response.token.id == blockchain.currencyId {
+            tokenName = blockchain.coinDisplayName
+        } else {
+            tokenName = response.token.name
+        }
 
         return EarnTokenModel(
             id: response.token.id,
-            name: response.token.name,
+            name: tokenName,
             symbol: response.token.symbol,
             imageUrl: iconBuilder.tokenIconURL(id: response.token.id),
             networkId: response.networkId,

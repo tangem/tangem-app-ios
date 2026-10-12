@@ -7,8 +7,12 @@
 //
 
 import Foundation
+import UIKit
+import SwiftUI
 
 final class JointAccountManagementCoordinator: CoordinatorObject {
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+
     // MARK: - Navigation actions
 
     let dismissAction: Action<Void>
@@ -16,14 +20,10 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
 
     // MARK: - Root view model
 
-    @Published private(set) var rootViewModel: JointAccountOnboardingViewModel?
+    @Published private(set) var root: Root?
 
-    /// Steps pushed on top of the onboarding, which is the root of the flow's navigation stack.
+    /// Steps pushed on top of the root of the flow's navigation stack.
     @Published var path: [Step] = []
-
-    // MARK: - Dependencies
-
-    private var options: Options?
 
     init(
         dismissAction: @escaping Action<Void>,
@@ -34,18 +34,43 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        self.options = options
+        switch options {
+        case .creation(let creationOptions):
+            root = .onboarding(JointAccountOnboardingViewModel(coordinator: self), creationOptions)
 
-        rootViewModel = JointAccountOnboardingViewModel(coordinator: self)
+        case .members(let jointAccount):
+            // The account already exists, so the flow opens where the creation flow ends up
+            root = .inviteMembers(
+                JointAccountInviteMembersViewModel(
+                    jointAccount: jointAccount,
+                    coordinator: self
+                )
+            )
+        }
     }
 }
 
 // MARK: - Options
 
 extension JointAccountManagementCoordinator {
-    struct Options {
+    enum Options {
+        case creation(CreationOptions)
+        case members(jointAccount: any JointAccountModel)
+    }
+
+    struct CreationOptions {
         let accountModelsManager: any AccountModelsManager
         let userWalletConfig: UserWalletConfig
+    }
+}
+
+// MARK: - Root
+
+extension JointAccountManagementCoordinator {
+    enum Root {
+        /// The options are carried by the step that needs them, so that they cannot outlive the flow they start.
+        case onboarding(JointAccountOnboardingViewModel, CreationOptions)
+        case inviteMembers(JointAccountInviteMembersViewModel)
     }
 }
 
@@ -90,16 +115,16 @@ extension JointAccountManagementCoordinator: JointAccountOnboardingRoutable {
     }
 
     func continueOnboarding() {
-        guard let options else {
+        guard case .onboarding(_, let creationOptions) = root else {
             return
         }
 
         let creationHelper = JointAccountCreationHelper(
-            userWalletConfig: options.userWalletConfig,
-            accountModelsManager: options.accountModelsManager
+            userWalletConfig: creationOptions.userWalletConfig,
+            accountModelsManager: creationOptions.accountModelsManager
         )
         let creator = JointAccountFormViewCreator(
-            accountModelsManager: options.accountModelsManager,
+            accountModelsManager: creationOptions.accountModelsManager,
             creationHelper: creationHelper
         )
 
@@ -135,7 +160,11 @@ extension JointAccountManagementCoordinator: JointAccountMembersCountRoutable {
     }
 
     func continueMembersCount(creationHelper: JointAccountCreationHelper) {
-        let viewModel = JointAccountMemberNameViewModel(creationHelper: creationHelper, coordinator: self)
+        let viewModel = JointAccountMemberNameViewModel(
+            helper: JointAccountCreationMemberNameHelper(creationHelper: creationHelper, routable: self),
+            coordinator: self
+        )
+
         path.append(.memberName(viewModel: viewModel))
     }
 }
@@ -146,10 +175,28 @@ extension JointAccountManagementCoordinator: JointAccountMemberNameRoutable {
     func closeMemberName() {
         dismiss()
     }
+}
 
-    func openInviteMembers(creationHelper: JointAccountCreationHelper) {
-        let viewModel = JointAccountInviteMembersViewModel(creationContext: creationHelper, coordinator: self)
+// MARK: - JointAccountCreationMemberNameRoutable
+
+extension JointAccountManagementCoordinator: JointAccountCreationMemberNameRoutable {
+    func openInviteMembers(jointAccount: any JointAccountModel) {
+        let viewModel = JointAccountInviteMembersViewModel(
+            jointAccount: jointAccount,
+            coordinator: self
+        )
+
         path.append(.inviteMembers(viewModel: viewModel))
+    }
+}
+
+// MARK: - JointAccountInviteSafetyRoutable
+
+extension JointAccountManagementCoordinator: JointAccountInviteSafetyRoutable {
+    func closeInviteSafety() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 
@@ -160,15 +207,61 @@ extension JointAccountManagementCoordinator: JointAccountInviteMembersRoutable {
         dismiss()
     }
 
-    func shareInvite() {
-        // [REDACTED_TODO_COMMENT]
+    func shareInvite(url: URL) {
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
     }
 
     func openInviteSafety() {
-        // [REDACTED_TODO_COMMENT]
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: JointAccountInviteSafetyViewModel(coordinator: self))
+        }
     }
 
-    func openMemberDetails() {
-        // [REDACTED_TODO_COMMENT]
+    func openMemberDetails(name: String, address: String, accentColor: Color) {
+        let viewModel = JointAccountMemberDetailsViewModel(
+            name: name,
+            address: address,
+            accentColor: accentColor,
+            coordinator: self
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openActivationConfirmation(onConfirm: @escaping () -> Void) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(
+                sheet: JointAccountActivationConfirmationViewModel(onConfirm: onConfirm, coordinator: self)
+            )
+        }
+    }
+}
+
+// MARK: - JointAccountActivationConfirmationRoutable
+
+extension JointAccountManagementCoordinator: JointAccountActivationConfirmationRoutable {
+    func confirmActivation(_ activate: @escaping () -> Void) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            activate()
+        }
+    }
+
+    func cancelActivation() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - JointAccountMemberDetailsRoutable
+
+extension JointAccountManagementCoordinator: JointAccountMemberDetailsRoutable {
+    func closeMemberDetails() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }

@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import Testing
+import TangemFoundation
 import TangemLocalization
 @testable import BlockchainSdk
 @testable import Tangem
@@ -17,135 +18,307 @@ import TangemLocalization
 final class TransactionHistoryMapperGaslessTests {
     private static let walletAddress = "0xWalletAddress"
     private static let feeRecipientAddress = "0xFeeRecipient"
+    /// One of the collectors the spec names, which the wallet knows without asking the gasless service.
+    private static let knownFeeRecipientAddress = "0xFc719364BcCdc92D055d8C3164eF1ab4f5A9182c"
     fileprivate static let gaslessMethodId = "0x6234d42b"
-
-    private let previousSmartContractMethodMapper: SmartContractMethodMapper
-    private let previousGaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
-
-    init() {
-        previousSmartContractMethodMapper = InjectedValues[\.smartContractMethodMapper]
-        previousGaslessTransactionsNetworkManager = InjectedValues[\.gaslessTransactionsNetworkManager]
-
-        InjectedValues[\.smartContractMethodMapper] = StubSmartContractMethodMapper()
-        InjectedValues[\.gaslessTransactionsNetworkManager] = StubGaslessTransactionsNetworkManager(
-            cachedFeeRecipientAddress: Self.feeRecipientAddress
-        )
-    }
-
-    deinit {
-        InjectedValues[\.smartContractMethodMapper] = previousSmartContractMethodMapper
-        InjectedValues[\.gaslessTransactionsNetworkManager] = previousGaslessTransactionsNetworkManager
-    }
+    fileprivate static let yieldSendMethodId = "0x0779afe6"
 
     @Test("Outgoing gasless with fee transfer → gaslessTransactionFee")
-    func outgoingGaslessWithFee_classifiedAsTransactionFee() {
-        let mapper = makeSUT()
-        let record = Self.makeGaslessTransactionRecord(
-            isOutgoing: true,
-            recordDestination: Self.feeRecipientAddress,
-            tokenTransferDestination: Self.feeRecipientAddress
-        )
-        let viewModel = mapper.mapTransactionViewModel(record)
-        #expect(viewModel.name == Localization.gaslessTransactionFee)
-    }
-
-    @Test("Incoming gasless → gaslessTransfer (shown as Operation)")
-    func incomingGasless_classifiedAsGaslessTransfer() {
-        let mapper = makeSUT()
-        let record = Self.makeGaslessTransactionRecord(isOutgoing: false, tokenTransferDestination: Self.feeRecipientAddress)
-        let viewModel = mapper.mapTransactionViewModel(record)
-        #expect(viewModel.name == Localization.transactionHistoryOperation)
-    }
-
-    @Test("Outgoing gasless to non-fee address → gaslessTransfer (shown as Operation)")
-    func outgoingGaslessToNonFeeAddress_classifiedAsGaslessTransfer() {
-        let mapper = makeSUT()
-        let record = Self.makeGaslessTransactionRecord(isOutgoing: true, tokenTransferDestination: "0xSomeOtherAddress")
-        let viewModel = mapper.mapTransactionViewModel(record)
-        #expect(viewModel.name == Localization.transactionHistoryOperation)
-    }
-
-    @Test("Gasless without cached fee recipient → operation")
-    func gaslessWithoutFeeRecipient_classifiedAsOperation() {
-        InjectedValues[\.gaslessTransactionsNetworkManager] = StubGaslessTransactionsNetworkManager(
-            cachedFeeRecipientAddress: nil
-        )
-
-        let mapper = makeSUT()
-        let record = Self.makeGaslessTransactionRecord(isOutgoing: true, tokenTransferDestination: Self.feeRecipientAddress)
-        let viewModel = mapper.mapTransactionViewModel(record)
-        #expect(viewModel.name == "gaslessTransaction")
-    }
-
-    @Test("Both gasless transaction types exist and are excluded from recipient suggestions")
-    func gaslessTypes_existAndAreNeverSuggested() {
-        // Compile-time guard: referencing both cases means removing either from
-        // `TransactionViewModel.TransactionType` breaks this test.
-        _ = [TransactionViewModel.TransactionType.gaslessTransactionFee, .gaslessTransfer]
-
-        let mapper = makeSUT()
-
-        // Outgoing gasless paying the fee → classified as `.gaslessTransactionFee`.
-        let feeRecord = Self.makeGaslessTransactionRecord(
-            isOutgoing: true,
-            recordDestination: Self.feeRecipientAddress,
-            tokenTransferDestination: Self.feeRecipientAddress
-        )
-        #expect(mapper.mapTransactionViewModel(feeRecord).name == Localization.gaslessTransactionFee)
-        #expect(mapper.mapSuggestedRecord(feeRecord) == nil)
-
-        // Outgoing gasless transfer → classified as `.gaslessTransfer`. A user-looking destination would
-        // otherwise pass the `guard case .user` check, so this proves the type gate is what excludes it.
-        let transferRecord = Self.makeGaslessTransactionRecord(
-            isOutgoing: true,
-            recordDestination: "0xSomeOtherAddress",
-            tokenTransferDestination: "0xSomeOtherAddress"
-        )
-        #expect(mapper.mapTransactionViewModel(transferRecord).name == Localization.transactionHistoryOperation)
-        #expect(mapper.mapSuggestedRecord(transferRecord) == nil)
-    }
-
-    @Test("mapGaslessTransaction only ever returns .operation, .gaslessTransactionFee or .gaslessTransfer")
-    func mapGaslessTransaction_returnsOnlyGaslessTypes() {
-        func expectGaslessType(_ type: TransactionViewModel.TransactionType, sourceLocation: SourceLocation = #_sourceLocation) {
-            switch type {
-            case .operation, .gaslessTransactionFee, .gaslessTransfer:
-                break
-            default:
-                Issue.record("mapGaslessTransaction returned a forbidden type: \(type)", sourceLocation: sourceLocation)
-            }
-        }
-
-        let mapper = makeSUT()
-
-        // Fee payment, plain transfer and incoming branches (fee recipient is cached).
-        let cachedFeeRecipientRecords = [
-            Self.makeGaslessTransactionRecord(
+    func outgoingGaslessWithFee_classifiedAsTransactionFee() async {
+        await withStubbedDependencies {
+            let mapper = makeSUT()
+            let record = Self.makeGaslessTransactionRecord(
                 isOutgoing: true,
                 recordDestination: Self.feeRecipientAddress,
                 tokenTransferDestination: Self.feeRecipientAddress
-            ),
-            Self.makeGaslessTransactionRecord(isOutgoing: true, tokenTransferDestination: "0xSomeOtherAddress"),
-            Self.makeGaslessTransactionRecord(isOutgoing: false, tokenTransferDestination: "0xSomeOtherAddress"),
-        ]
-        for record in cachedFeeRecipientRecords {
-            expectGaslessType(mapper.mapGaslessTransaction(contractMethodName: "gaslessTransaction", transactionRecord: record))
+            )
+            let viewModel = mapper.mapTransactionViewModel(record)
+            #expect(viewModel.name == Localization.gaslessTransactionFee)
         }
+    }
 
-        // No cached fee recipient branch.
-        InjectedValues[\.gaslessTransactionsNetworkManager] = StubGaslessTransactionsNetworkManager(cachedFeeRecipientAddress: nil)
-        let noFeeRecipientMapper = makeSUT()
-        let record = Self.makeGaslessTransactionRecord(isOutgoing: true, tokenTransferDestination: "0xSomeOtherAddress")
-        expectGaslessType(noFeeRecipientMapper.mapGaslessTransaction(contractMethodName: "gaslessTransaction", transactionRecord: record))
+    @Test("Incoming gasless → gaslessTransfer (shown as Operation)")
+    func incomingGasless_classifiedAsGaslessTransfer() async {
+        await withStubbedDependencies {
+            let mapper = makeSUT()
+            let record = Self.makeGaslessTransactionRecord(isOutgoing: false, tokenTransferDestination: Self.feeRecipientAddress)
+            let viewModel = mapper.mapTransactionViewModel(record)
+            #expect(viewModel.name == Localization.transactionHistoryOperation)
+        }
+    }
+
+    @Test("Outgoing gasless to non-fee address → gaslessTransfer (shown as Operation)")
+    func outgoingGaslessToNonFeeAddress_classifiedAsGaslessTransfer() async {
+        await withStubbedDependencies {
+            let mapper = makeSUT()
+            let record = Self.makeGaslessTransactionRecord(isOutgoing: true, tokenTransferDestination: "0xSomeOtherAddress")
+            let viewModel = mapper.mapTransactionViewModel(record)
+            #expect(viewModel.name == Localization.transactionHistoryOperation)
+        }
+    }
+
+    @Test("The collectors named in the spec identify the fee before the gasless service answers")
+    func gaslessWithoutFeeRecipient_stillRecognizesKnownCollector() async {
+        await withStubbedDependencies(feeRecipientAddress: nil) {
+            let mapper = makeSUT()
+            let record = Self.makeGaslessTransactionRecord(
+                isOutgoing: true,
+                recordDestination: Self.knownFeeRecipientAddress,
+                tokenTransferDestination: Self.knownFeeRecipientAddress
+            )
+            let viewModel = mapper.mapTransactionViewModel(record)
+            #expect(viewModel.name == Localization.gaslessTransactionFee)
+        }
+    }
+
+    @Test("Both gasless transaction types exist and are excluded from recipient suggestions")
+    func gaslessTypes_existAndAreNeverSuggested() async {
+        await withStubbedDependencies {
+            // Compile-time guard: referencing both cases means removing either from
+            // `TransactionViewModel.TransactionType` breaks this test.
+            _ = [TransactionViewModel.TransactionType.gaslessTransactionFee, .gaslessTransfer]
+
+            let mapper = makeSUT()
+
+            // Outgoing gasless paying the fee → classified as `.gaslessTransactionFee`.
+            let feeRecord = Self.makeGaslessTransactionRecord(
+                isOutgoing: true,
+                recordDestination: Self.feeRecipientAddress,
+                tokenTransferDestination: Self.feeRecipientAddress
+            )
+            #expect(mapper.mapTransactionViewModel(feeRecord).name == Localization.gaslessTransactionFee)
+            #expect(mapper.mapSuggestedRecord(feeRecord) == nil)
+
+            // Outgoing gasless transfer → classified as `.gaslessTransfer`. A user-looking destination would
+            // otherwise pass the `guard case .user` check, so this proves the type gate is what excludes it.
+            let transferRecord = Self.makeGaslessTransactionRecord(
+                isOutgoing: true,
+                recordDestination: "0xSomeOtherAddress",
+                tokenTransferDestination: "0xSomeOtherAddress"
+            )
+            #expect(mapper.mapTransactionViewModel(transferRecord).name == Localization.transactionHistoryOperation)
+            #expect(mapper.mapSuggestedRecord(transferRecord) == nil)
+        }
+    }
+
+    @Test(
+        "Every entry point the executor is reached through pays the fee",
+        arguments: ["0x6234d42b", "0x4b072692", "0xf9b181bf", TransactionHistoryMapperGaslessTests.yieldSendMethodId]
+    )
+    func everyGaslessMethodPayingACollector_classifiedAsTransactionFee(methodId: String) async {
+        await withStubbedDependencies {
+            let mapper = makeSUT()
+            let record = Self.makeGaslessTransactionRecord(
+                isOutgoing: true,
+                recordDestination: Self.knownFeeRecipientAddress,
+                tokenTransferDestination: Self.knownFeeRecipientAddress,
+                methodId: methodId
+            )
+
+            #expect(mapper.mapTransactionViewModel(record).name == Localization.gaslessTransactionFee)
+        }
+    }
+
+    /// `send` is both how the fee leaves the Yield contract and how the wallet moves its own money, so the
+    /// address it pays is the only thing that can tell the two apart.
+    @Test("A Yield-mode send that pays no collector is no fee")
+    func yieldSendToOrdinaryAddress_isNotTransactionFee() async {
+        await withStubbedDependencies {
+            let mapper = makeSUT()
+            let record = Self.makeGaslessTransactionRecord(
+                isOutgoing: true,
+                recordDestination: "0xSomeOtherAddress",
+                tokenTransferDestination: "0xSomeOtherAddress",
+                methodId: Self.yieldSendMethodId
+            )
+
+            #expect(mapper.mapTransactionViewModel(record).name != Localization.gaslessTransactionFee)
+        }
+    }
+
+    /// Android names such a row after the money as well; the executor the transfer went through is plumbing.
+    @Test("A gasless transfer is named like any other transfer, while the fee keeps its own name")
+    func gaslessTransferIsNamedLikeATransfer() async {
+        await withStubbedDependencies {
+            let mapper = makeSUT()
+            let incoming = Self.makeGaslessTransactionRecord(isOutgoing: false, tokenTransferDestination: "0xSomeOtherAddress")
+            let outgoing = Self.makeGaslessTransactionRecord(
+                isOutgoing: true,
+                recordDestination: "0xSomeOtherAddress",
+                tokenTransferDestination: "0xSomeOtherAddress"
+            )
+            let fee = Self.makeGaslessTransactionRecord(
+                isOutgoing: true,
+                recordDestination: Self.knownFeeRecipientAddress,
+                tokenTransferDestination: Self.knownFeeRecipientAddress
+            )
+
+            #expect(mapper.mapTransactionViewModel(incoming).display.title.fullText == Localization.commonReceived)
+            #expect(mapper.mapTransactionViewModel(outgoing).display.title.fullText == Localization.commonSent)
+            #expect(mapper.mapTransactionViewModel(fee).display.title.fullText == Localization.commonNetworkFeeTitle)
+        }
+    }
+
+    @Test("The fee row says what it bought instead of naming the collector")
+    func theFeeRowIsSubtitledByWhatItPaidFor() async {
+        await withStubbedDependencies {
+            let fee = Self.makeGaslessTransactionRecord(
+                isOutgoing: true,
+                recordDestination: Self.knownFeeRecipientAddress,
+                tokenTransferDestination: Self.knownFeeRecipientAddress
+            )
+
+            let subtitle = makeSUT().mapTransactionViewModel(fee).display.subtitle
+
+            #expect(subtitle == .text(Localization.transactionHistoryFeeForSending))
+        }
     }
 
     @Test("A regular outgoing transfer is still suggested as a recipient")
-    func regularTransfer_isSuggested() {
-        let mapper = makeSUT()
-        let record = TransactionRecord(
+    func regularTransfer_isSuggested() async {
+        await withStubbedDependencies {
+            let suggested = makeSUT().mapSuggestedRecord(Self.makeTransferRecord())
+
+            #expect(suggested?.address == "0xReceiverAddress")
+        }
+    }
+
+    /// A folded row names the balance the wallet ended up with, and the counterparty it shows can be the pool it
+    /// swapped through rather than anyone it paid.
+    @Test("A folded row is not suggested as a recipient")
+    func foldedTransfer_isNotSuggested() async {
+        await withStubbedDependencies {
+            #expect(makeSUT().mapSuggestedRecord(Self.makeTransferRecord(isFolded: true)) == nil)
+        }
+    }
+
+    @Test("Tron gasless compensation transfer stays in the history but is not suggested as a recipient")
+    func tronGaslessCompensationTransfer_isNotSuggested() async {
+        await withStubbedDependencies {
+            let mapper = makeSUT()
+            let record = TransactionRecord(
+                hash: "0xCompensationHash",
+                index: 0,
+                source: .single(.init(address: Self.walletAddress, amount: 1)),
+                destination: .single(.init(address: .user("TSWsmaEDgWaE2VsP9tCBGh5GbBRbrdHSuZ"), amount: 1)),
+                fee: Fee(Amount(type: .coin, currencySymbol: "TRX", value: 0, decimals: 6)),
+                status: .confirmed,
+                isOutgoing: true,
+                type: .transfer,
+                date: Date(),
+                tokenTransfers: [],
+                nonce: nil
+            )
+            #expect(mapper.mapSuggestedRecord(record) == nil)
+
+            let historyItems = mapper.mapTransactionListItem(
+                from: [record],
+                groupingStyle: .day(.short),
+                dustFilter: TransactionHistoryDustFilter(usdRate: nil),
+                subtitleOwnerResolver: nil
+            )
+            #expect(historyItems.flatMap(\.items).map(\.hash) == ["0xCompensationHash"])
+        }
+    }
+
+    @Test("Tron gasless compensation in the token history is the network fee")
+    func tronGaslessCompensationInTokenHistory_isNetworkFee() async {
+        await withStubbedDependencies {
+            let viewModel = makeSUT().mapTransactionViewModel(Self.makeTronCompensationRecord(isOutgoing: true))
+
+            #expect(viewModel.name == Localization.gaslessTransactionFee)
+            #expect(viewModel.display.title.fullText == Localization.commonNetworkFeeTitle)
+        }
+    }
+
+    @Test("Only what the wallet pays the Tron collector is a fee")
+    func tronCollectorTransfer_isFeeOnlyWhenPaidByTheWallet() async {
+        await withStubbedDependencies {
+            let incoming = Self.makeTronCompensationRecord(isOutgoing: false)
+
+            #expect(makeSUT().mapTransactionViewModel(incoming).name != Localization.gaslessTransactionFee)
+        }
+    }
+
+    @Test("The coin history sees the Tron compensation as a call to the token contract, not as a gasless fee")
+    func tronCompensationInCoinHistory_isNotGaslessFee() async {
+        await withStubbedDependencies {
+            let contractCall = TransactionRecord(
+                hash: "0xCompensationHash",
+                index: 0,
+                source: .single(.init(address: Self.walletAddress, amount: 0)),
+                destination: .single(.init(address: .contract("TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"), amount: 0)),
+                fee: Fee(Amount(type: .coin, currencySymbol: "TRX", value: 1, decimals: 6)),
+                status: .confirmed,
+                isOutgoing: true,
+                type: .transfer,
+                date: Date(),
+                tokenTransfers: [],
+                nonce: nil
+            )
+
+            #expect(makeSUT(isToken: false).mapTransactionViewModel(contractCall).name != Localization.gaslessTransactionFee)
+        }
+    }
+}
+
+// MARK: - Helpers
+
+private extension TransactionHistoryMapperGaslessTests {
+    func withStubbedDependencies<T>(
+        feeRecipientAddress: String? = TransactionHistoryMapperGaslessTests.feeRecipientAddress,
+        _ operation: () throws -> T
+    ) async rethrows -> T {
+        try await InjectedDependenciesIsolation.shared.run {
+            let previousSmartContractMethodMapper = InjectedValues[\.smartContractMethodMapper]
+            let previousGaslessTransactionsNetworkManager = InjectedValues[\.gaslessTransactionsNetworkManager]
+            InjectedValues[\.smartContractMethodMapper] = StubSmartContractMethodMapper()
+            InjectedValues[\.gaslessTransactionsNetworkManager] = StubGaslessTransactionsNetworkManager(
+                cachedFeeRecipientAddress: feeRecipientAddress
+            )
+            defer {
+                InjectedValues[\.smartContractMethodMapper] = previousSmartContractMethodMapper
+                InjectedValues[\.gaslessTransactionsNetworkManager] = previousGaslessTransactionsNetworkManager
+            }
+            return try operation()
+        }
+    }
+
+    func makeSUT(isToken: Bool = true) -> Tangem.TransactionHistoryMapper {
+        Tangem.TransactionHistoryMapper(
+            currencySymbol: "USDT",
+            blockchain: .ethereum(testnet: false),
+            addressesProvider: StubTransactionHistoryAddressesProvider(walletAddresses: [Self.walletAddress]),
+            showSign: true,
+            isToken: isToken,
+            stakingNetwork: .ethereum
+        )
+    }
+
+    /// A plain TRC20 transfer between the wallet and the Tron collector, the shape the compensation arrives in.
+    static func makeTronCompensationRecord(isOutgoing: Bool) -> TransactionRecord {
+        let collector = "TSWsmaEDgWaE2VsP9tCBGh5GbBRbrdHSuZ"
+
+        return TransactionRecord(
+            hash: "0xCompensationHash",
+            index: 0,
+            source: .single(.init(address: isOutgoing ? walletAddress : collector, amount: 1)),
+            destination: .single(.init(address: .user(isOutgoing ? collector : walletAddress), amount: 1)),
+            fee: Fee(Amount(type: .coin, currencySymbol: "TRX", value: 0, decimals: 6)),
+            status: .confirmed,
+            isOutgoing: isOutgoing,
+            type: .transfer,
+            date: Date(),
+            tokenTransfers: [],
+            nonce: nil
+        )
+    }
+
+    static func makeTransferRecord(isFolded: Bool = false) -> TransactionRecord {
+        TransactionRecord(
             hash: "0xRegularHash",
             index: 0,
-            source: .single(.init(address: Self.walletAddress, amount: 10)),
+            source: .single(.init(address: walletAddress, amount: 10)),
             destination: .single(.init(address: .user("0xReceiverAddress"), amount: 10)),
             fee: Fee(Amount(type: .coin, currencySymbol: "ETH", value: 0, decimals: 18)),
             status: .confirmed,
@@ -153,56 +326,16 @@ final class TransactionHistoryMapperGaslessTests {
             type: .transfer,
             date: Date(),
             tokenTransfers: [],
+            isFolded: isFolded,
             nonce: nil
-        )
-        let suggested = mapper.mapSuggestedRecord(record)
-        #expect(suggested?.address == "0xReceiverAddress")
-    }
-
-    @Test("Tron gasless compensation transfer stays in the history but is not suggested as a recipient")
-    func tronGaslessCompensationTransfer_isNotSuggested() {
-        let mapper = makeSUT()
-        let record = TransactionRecord(
-            hash: "0xCompensationHash",
-            index: 0,
-            source: .single(.init(address: Self.walletAddress, amount: 1)),
-            destination: .single(.init(address: .user("TSWsmaEDgWaE2VsP9tCBGh5GbBRbrdHSuZ"), amount: 1)),
-            fee: Fee(Amount(type: .coin, currencySymbol: "TRX", value: 0, decimals: 6)),
-            status: .confirmed,
-            isOutgoing: true,
-            type: .transfer,
-            date: Date(),
-            tokenTransfers: [],
-            nonce: nil
-        )
-        #expect(mapper.mapSuggestedRecord(record) == nil)
-
-        let historyItems = mapper.mapTransactionListItem(
-            from: [record],
-            groupingStyle: .day(.short),
-            dustFilter: TransactionHistoryDustFilter(usdRate: nil),
-            subtitleOwnerResolver: nil
-        )
-        #expect(historyItems.flatMap(\.items).map(\.hash) == ["0xCompensationHash"])
-    }
-}
-
-// MARK: - Helpers
-
-private extension TransactionHistoryMapperGaslessTests {
-    func makeSUT() -> Tangem.TransactionHistoryMapper {
-        Tangem.TransactionHistoryMapper(
-            currencySymbol: "USDT",
-            addressesProvider: StubTransactionHistoryAddressesProvider(walletAddresses: [Self.walletAddress]),
-            showSign: true,
-            isToken: true
         )
     }
 
     static func makeGaslessTransactionRecord(
         isOutgoing: Bool,
         recordDestination: String? = nil,
-        tokenTransferDestination: String
+        tokenTransferDestination: String,
+        methodId: String = TransactionHistoryMapperGaslessTests.gaslessMethodId
     ) -> TransactionRecord {
         let source = isOutgoing ? walletAddress : "0xSenderAddress"
         let destination = recordDestination ?? (isOutgoing ? "0xReceiverAddress" : walletAddress)
@@ -215,7 +348,7 @@ private extension TransactionHistoryMapperGaslessTests {
             fee: Fee(Amount(type: .coin, currencySymbol: "ETH", value: 0, decimals: 18)),
             status: .confirmed,
             isOutgoing: isOutgoing,
-            type: .contractMethodIdentifier(id: gaslessMethodId),
+            type: .contractMethodIdentifier(id: methodId),
             date: Date(),
             tokenTransfers: [
                 .init(
@@ -240,8 +373,16 @@ private struct StubTransactionHistoryAddressesProvider: WalletModelTransactionHi
 }
 
 private final class StubSmartContractMethodMapper: SmartContractMethodMapper {
+    /// Mirrors the names the shipped `contract_methods.json` gives the methods these tests use.
+    private static let names = [
+        TransactionHistoryMapperGaslessTests.gaslessMethodId: "gaslessTransaction",
+        TransactionHistoryMapperGaslessTests.yieldSendMethodId: "yieldSend",
+        "0x4b072692": "gaslessTransaction",
+        "0xf9b181bf": "gaslessTransaction",
+    ]
+
     func getName(for method: String) -> String? {
-        method == TransactionHistoryMapperGaslessTests.gaslessMethodId ? "gaslessTransaction" : nil
+        Self.names[method]
     }
 }
 
@@ -271,13 +412,15 @@ private final class StubGaslessTransactionsNetworkManager: GaslessTransactionsNe
     ) async throws -> String { "" }
     func sendGaslessBatchTransaction(_ transaction: GaslessTransactionsDTO.Request.GaslessBatchTransaction) async throws -> String { "" }
     func estimateTronGaslessTransaction(
-        _ request: GaslessTransactionsDTO.Request.TronEstimate
+        _ request: GaslessTransactionsDTO.Request.TronEstimate,
+        userWalletId: UserWalletId
     ) async throws -> GaslessTransactionsDTO.Response.TronEstimate {
         throw CancellationError()
     }
 
     func submitTronGaslessTransaction(
-        _ request: GaslessTransactionsDTO.Request.TronSubmit
+        _ request: GaslessTransactionsDTO.Request.TronSubmit,
+        userWalletId: UserWalletId
     ) async throws -> GaslessTransactionsDTO.Response.TronSubmit {
         throw CancellationError()
     }

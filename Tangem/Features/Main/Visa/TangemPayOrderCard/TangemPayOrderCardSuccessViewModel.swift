@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import TangemAssets
 import TangemLocalization
 
 final class TangemPayOrderCardSuccessViewModel: ObservableObject, Identifiable {
@@ -16,18 +15,12 @@ final class TangemPayOrderCardSuccessViewModel: ObservableObject, Identifiable {
         deliveryEtaMaxDays.map(Localization.tangempayOrderSuccessDeliveryEta)
     }
 
-    var emailNote: AttributedString? {
+    var emailNote: String? {
         guard !email.isEmpty else {
             return nil
         }
 
-        var note = AttributedString(Localization.tangempayOrderSuccessEmailNote(email))
-
-        if let emailRange = note.range(of: email) {
-            note[emailRange].foregroundColor = DesignSystem.Color.textPrimary
-        }
-
-        return note
+        return Localization.tangempayOrderSuccessEmailNote(email)
     }
 
     private let email: String

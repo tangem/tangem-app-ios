@@ -148,7 +148,7 @@ final class CommonWCTransactionFeeManager: WCTransactionFeeManager {
                 maxPriorityFeePerGas: nil,
                 nonce: currentTransaction.nonce
             )
-        case .gasless:
+        case .gasless, .safe:
             return nil
         }
 

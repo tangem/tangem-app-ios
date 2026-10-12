@@ -7,8 +7,7 @@
 //
 
 import SwiftUI
-import func TangemFoundation.clamp
-import struct TangemFoundation.UserWalletId
+import TangemFoundation
 import TangemUI
 import TangemAssets
 
@@ -18,15 +17,26 @@ struct MainHorizontalPagingScrollView: View {
     let selectedCardIndex: Binding<Int>
     let onSelectedCardChanged: (CardsInfoPageChangeReason) -> Void
 
-    let pullToRefreshAction: @MainActor () async -> Void
-    let isPullToRefreshRunning: Bool
+    let pullToRefreshAction: @MainActor (UserWalletId) -> Void
+    let refreshingUserWalletIDs: Set<UserWalletId>
     let scanQRCodeAction: () -> Void
     let detailsAction: () -> Void
 
     @State private var userWalletIDToScrollAdjustedValues = [UserWalletId: ScrollAdjustedValues]()
     @State private var pagingIndicatorAnimationIsBlocked = true
 
-    @State private var bottomOverlayHeight = CGFloat.zero
+    /// `refreshingUserWalletIDs` applied inside an animated transaction: the indicator sits above the refresh control
+    /// and must collapse on the same curve. Pages read `refreshingUserWalletIDs` directly — their refresh guard must
+    /// see the flip immediately.
+    @State private var animatedRefreshingUserWalletIDs = Set<UserWalletId>()
+
+    /// Horizontal position of the pager, measured in page widths: `1.5` means the swipe is halfway between the second
+    /// and the third page. `nil` until the pager reports it.
+    @State private var pagePosition: CGFloat?
+
+    @Environment(\.mainShtorkaBottomInset) private var mainShtorkaBottomInset
+
+    @State private var legacyBottomOverlayHeight = CGFloat.zero
     @State private var contentFooterHeight = CGFloat.zero
     @State private var safeAreaInsetsTop = CGFloat.zero
 
@@ -44,7 +54,7 @@ struct MainHorizontalPagingScrollView: View {
         .ignoresSafeArea(edges: .bottom)
         .northernLightsBackground(
             backgroundColor: DesignSystem.Color.bgPrimary,
-            opacity: selectedUserWalletScrollAdjustedValues.backgroundOpacity
+            opacity: blendedValue(\.backgroundOpacity)
         )
         .mainTopNavigation(
             scanQRCodeAction: scanQRCodeAction,
@@ -60,9 +70,18 @@ struct MainHorizontalPagingScrollView: View {
         }
         .onChange(of: userWalletPageBuilders.map(\.id)) { userWalletIDs in
             pagingIndicatorAnimationIsBlocked = true
+            pagePosition = nil
             userWalletIDToScrollAdjustedValues = userWalletIDToScrollAdjustedValues.filter { userWalletIDs.contains($0.key) }
         }
-        .onAppear(perform: scrollDetector.startDetectingScroll)
+        .onChange(of: refreshingUserWalletIDs) { refreshingUserWalletIDs in
+            withAnimation(UserWalletView.RefreshableConstants.refreshEndAnimation) {
+                animatedRefreshingUserWalletIDs = refreshingUserWalletIDs
+            }
+        }
+        .onAppear {
+            animatedRefreshingUserWalletIDs = refreshingUserWalletIDs
+            scrollDetector.startDetectingScroll()
+        }
         .onDisappear(perform: scrollDetector.stopDetectingScroll)
         .environmentObject(scrollDetector)
     }
@@ -80,9 +99,11 @@ struct MainHorizontalPagingScrollView: View {
                     contentFooterHeight: contentFooterHeight
                 ),
                 pullToRefreshAction: pullToRefreshAction,
+                refreshingUserWalletIDs: refreshingUserWalletIDs,
                 isHorizontalScrollDisabled: isHorizontalScrollDisabled,
                 onContentPropertiesChanged: handleContentPropertiesChanged,
-                onNormalizedOffsetYChanged: handleNormalizedOffsetYChanged
+                onPagingIndicatorOffsetChanged: handlePagingIndicatorOffsetChanged,
+                onPagePositionChanged: handlePagePositionChanged
             )
             .id(userWalletPageBuilders.map(\.id))
         } else {
@@ -96,9 +117,11 @@ struct MainHorizontalPagingScrollView: View {
                     contentFooterHeight: contentFooterHeight
                 ),
                 pullToRefreshAction: pullToRefreshAction,
+                refreshingUserWalletIDs: refreshingUserWalletIDs,
                 isHorizontalScrollDisabled: isHorizontalScrollDisabled,
                 onContentPropertiesChanged: handleContentPropertiesChanged,
-                onNormalizedOffsetYChanged: handleNormalizedOffsetYChanged
+                onPagingIndicatorOffsetChanged: handlePagingIndicatorOffsetChanged,
+                onPagePositionChanged: handlePagePositionChanged
             )
         }
     }
@@ -107,14 +130,16 @@ struct MainHorizontalPagingScrollView: View {
     private var pagingIndicator: some View {
         if userWalletPageBuilders.count > 1 {
             VStack(spacing: .zero) {
-                TangemPagination(totalPages: userWalletPageBuilders.count, currentIndex: selectedUserWalletIndex)
+                TangemPagination(totalPages: userWalletPageBuilders.count, currentIndex: pagingIndicatorCurrentIndex)
                     .frame(height: 32)
-                    .offset(y: selectedUserWalletScrollAdjustedValues.pagingIndicatorOffsetY)
+                    .offset(y: blendedPagingIndicatorOffsetY ?? .zero)
                     .transaction { transaction in
                         guard pagingIndicatorAnimationIsBlocked else { return }
                         transaction.animation = nil
                     }
-                    .opacity(selectedUserWalletScrollAdjustedValues.pagingIndicatorOpacity)
+                    // Hidden until some page has said where the indicator belongs. Opacity is reported by a different
+                    // callback than the offset, so without this it can turn visible while still parked at zero.
+                    .opacity(blendedPagingIndicatorOffsetY == nil ? .zero : blendedValue(\.pagingIndicatorOpacity))
 
                 Spacer()
             }
@@ -147,12 +172,16 @@ struct MainHorizontalPagingScrollView: View {
         selectedUserWalletPageBuilder
             .bottomOverlay
             .onGeometryChange(for: CGFloat.self, of: \.size.height) { bottomOverlayHeight in
-                self.bottomOverlayHeight = bottomOverlayHeight
+                legacyBottomOverlayHeight = bottomOverlayHeight
             }
     }
 
+    private var bottomOverlayHeight: CGFloat {
+        max(legacyBottomOverlayHeight, mainShtorkaBottomInset)
+    }
+
     private var isHorizontalScrollDisabled: Bool {
-        if isPullToRefreshRunning || userWalletPageBuilders.count <= 1 {
+        if userWalletPageBuilders.count <= 1 {
             return true
         }
 
@@ -169,6 +198,54 @@ struct MainHorizontalPagingScrollView: View {
 
     private var selectedUserWalletScrollAdjustedValues: ScrollAdjustedValues {
         userWalletIDToScrollAdjustedValues[selectedUserWalletID, default: .initial]
+    }
+
+    /// The paging indicator and the background belong to no single page, so they are driven by the page position
+    /// instead of the selected page: they track the finger through a swipe rather than snapping when selection flips.
+    private var blender: PagingPositionBlender {
+        PagingPositionBlender(
+            position: pagePosition,
+            fallbackIndex: selectedUserWalletIndex,
+            pageCount: userWalletPageBuilders.count
+        )
+    }
+
+    private var pagingIndicatorCurrentIndex: Int {
+        blender.nearestIndex
+    }
+
+    /// `nil` until at least one of the pages involved has reported its geometry, which is the state a freshly inserted
+    /// page starts in. Zero is not a usable stand-in: it would park the indicator at the top of the screen.
+    private var blendedPagingIndicatorOffsetY: CGFloat? {
+        blender(pagingIndicatorOffsetY(at:)) ?? pagingIndicatorOffsetY(at: selectedUserWalletIndex)
+    }
+
+    private func blendedValue(_ keyPath: KeyPath<ScrollAdjustedValues, CGFloat>) -> CGFloat {
+        blender { scrollAdjustedValues(at: $0)?[keyPath: keyPath] }
+            ?? selectedUserWalletScrollAdjustedValues[keyPath: keyPath]
+    }
+
+    /// The height of a running refresh is added here rather than reported by the page. The pager owns that state, so
+    /// the offset cannot outlive the refresh even when the page is rebuilt mid-flight.
+    private func pagingIndicatorOffsetY(at index: Int) -> CGFloat? {
+        guard let baseOffsetY = scrollAdjustedValues(at: index)?.pagingIndicatorBaseOffsetY else { return nil }
+        return baseOffsetY + refreshControlHeight(at: index)
+    }
+
+    private func refreshControlHeight(at index: Int) -> CGFloat {
+        UserWalletView.RefreshableConstants.refreshControlHeight(
+            isRefreshing: isRefreshing(at: index),
+            dragRefreshControlHeight: scrollAdjustedValues(at: index)?.dragRefreshControlHeight ?? .zero
+        )
+    }
+
+    private func isRefreshing(at index: Int) -> Bool {
+        guard let pageBuilder = userWalletPageBuilders[safe: index] else { return false }
+        return animatedRefreshingUserWalletIDs.contains(pageBuilder.id)
+    }
+
+    private func scrollAdjustedValues(at index: Int) -> ScrollAdjustedValues? {
+        userWalletPageBuilders[safe: index].flatMap { userWalletIDToScrollAdjustedValues[$0.id] }
     }
 
     private var selectedUserWalletID: UserWalletId {
@@ -221,14 +298,24 @@ struct MainHorizontalPagingScrollView: View {
         userWalletIDToScrollAdjustedValues[userWalletID] = scrollAdjustedValues
     }
 
-    private func handleNormalizedOffsetYChanged(userWalletID: UserWalletId, normalizedOffsetY: CGFloat, animation: Animation?) {
+    private func handlePagePositionChanged(_ pagePosition: CGFloat) {
+        // The programmatic scroll animates `scrollPositionID`, and the resulting geometry updates would otherwise
+        // animate the paging indicator a second time on top of the scroll animation.
+        withTransaction(Transaction.withoutAnimations()) {
+            self.pagePosition = pagePosition
+        }
+    }
+
+    private func handlePagingIndicatorOffsetChanged(
+        userWalletID: UserWalletId,
+        pagingIndicatorOffset: UserWalletView.PagingIndicatorOffset
+    ) {
         var scrollAdjustedValues = userWalletIDToScrollAdjustedValues[userWalletID, default: .initial]
 
-        scrollAdjustedValues.pagingIndicatorOffsetY = normalizedOffsetY
+        scrollAdjustedValues.pagingIndicatorBaseOffsetY = pagingIndicatorOffset.baseOffsetY
+        scrollAdjustedValues.dragRefreshControlHeight = pagingIndicatorOffset.dragRefreshControlHeight
 
-        withAnimation(animation) {
-            userWalletIDToScrollAdjustedValues[userWalletID] = scrollAdjustedValues
-        }
+        userWalletIDToScrollAdjustedValues[userWalletID] = scrollAdjustedValues
     }
 }
 
@@ -242,22 +329,31 @@ extension MainHorizontalPagingScrollView {
 
         let containerGeometryProperties: UserWalletView.ContainerGeometryProperties
 
-        let pullToRefreshAction: @MainActor () async -> Void
+        let pullToRefreshAction: @MainActor (UserWalletId) -> Void
+        let refreshingUserWalletIDs: Set<UserWalletId>
         let isHorizontalScrollDisabled: Bool
         let onContentPropertiesChanged: (UserWalletId, UserWalletView.ScrollContentProperties) -> Void
-        let onNormalizedOffsetYChanged: (UserWalletId, CGFloat, Animation?) -> Void
+        let onPagingIndicatorOffsetChanged: (UserWalletId, UserWalletView.PagingIndicatorOffset) -> Void
+        let onPagePositionChanged: (CGFloat) -> Void
 
         @State private var scrollPositionID: UserWalletId?
+        @State private var pageWidth = CGFloat.zero
+
+        /// `nil` until the content reports its own frame. The width of the scroll view is reported first, and a
+        /// placeholder here would put the pager at page zero for that frame no matter which page is selected.
+        @State private var contentMinX: CGFloat?
 
         init(
             userWalletPageBuilders: [MainUserWalletPageBuilder],
             selectedCardIndex: Binding<Int>,
             onSelectedCardChanged: @escaping (CardsInfoPageChangeReason) -> Void,
             containerGeometryProperties: UserWalletView.ContainerGeometryProperties,
-            pullToRefreshAction: @MainActor @escaping () async -> Void,
+            pullToRefreshAction: @MainActor @escaping (UserWalletId) -> Void,
+            refreshingUserWalletIDs: Set<UserWalletId>,
             isHorizontalScrollDisabled: Bool,
             onContentPropertiesChanged: @escaping (UserWalletId, UserWalletView.ScrollContentProperties) -> Void,
-            onNormalizedOffsetYChanged: @escaping (UserWalletId, CGFloat, Animation?) -> Void
+            onPagingIndicatorOffsetChanged: @escaping (UserWalletId, UserWalletView.PagingIndicatorOffset) -> Void,
+            onPagePositionChanged: @escaping (CGFloat) -> Void
         ) {
             self.userWalletPageBuilders = userWalletPageBuilders
 
@@ -267,9 +363,11 @@ extension MainHorizontalPagingScrollView {
             self.containerGeometryProperties = containerGeometryProperties
 
             self.pullToRefreshAction = pullToRefreshAction
+            self.refreshingUserWalletIDs = refreshingUserWalletIDs
             self.isHorizontalScrollDisabled = isHorizontalScrollDisabled
             self.onContentPropertiesChanged = onContentPropertiesChanged
-            self.onNormalizedOffsetYChanged = onNormalizedOffsetYChanged
+            self.onPagingIndicatorOffsetChanged = onPagingIndicatorOffsetChanged
+            self.onPagePositionChanged = onPagePositionChanged
         }
 
         var body: some View {
@@ -279,12 +377,13 @@ extension MainHorizontalPagingScrollView {
                         UserWalletView(
                             pageBuilder: userWalletPageBuilder,
                             showPagingIndicatorStub: userWalletPageBuilders.count > 1,
-                            pullToRefreshAction: pullToRefreshAction,
+                            isRefreshing: refreshingUserWalletIDs.contains(userWalletPageBuilder.id),
+                            pullToRefreshAction: { pullToRefreshAction(userWalletPageBuilder.id) },
                             onContentPropertiesChanged: { contentProperties in
                                 onContentPropertiesChanged(userWalletPageBuilder.id, contentProperties)
                             },
-                            onNormalizedOffsetYChanged: { normalizedOffsetY, animation in
-                                onNormalizedOffsetYChanged(userWalletPageBuilder.id, normalizedOffsetY, animation)
+                            onPagingIndicatorOffsetChanged: { pagingIndicatorOffset in
+                                onPagingIndicatorOffsetChanged(userWalletPageBuilder.id, pagingIndicatorOffset)
                             },
                             containerGeometryProperties: containerGeometryProperties
                         )
@@ -293,12 +392,21 @@ extension MainHorizontalPagingScrollView {
                     }
                 }
                 .scrollTargetLayout()
+                .onGeometryChange(for: CGFloat.self, of: contentMinX(in:)) { contentMinX in
+                    self.contentMinX = contentMinX
+                    reportPagePositionIfPossible()
+                }
             }
             .scrollTargetBehavior(.paging)
             .scrollPosition(id: $scrollPositionID)
             .scrollClipDisabled()
             .scrollBounceBehavior(.basedOnSize)
             .scrollDisabled(isHorizontalScrollDisabled)
+            .coordinateSpace(.named(CoordinateSpaceIdentifier.horizontalScrollView))
+            .onGeometryChange(for: CGFloat.self, of: \.size.width) { pageWidth in
+                self.pageWidth = pageWidth
+                reportPagePositionIfPossible()
+            }
             .onChange(of: scrollPositionID) { _, newScrollPositionID in
                 updateSelectedCardIndexIfNeeded(from: newScrollPositionID)
             }
@@ -310,6 +418,20 @@ extension MainHorizontalPagingScrollView {
                     scrollPositionID = Self.userWalletID(at: selectedCardIndex.wrappedValue, in: userWalletPageBuilders)
                 }
             }
+        }
+
+        private var pagePosition: CGFloat {
+            guard pageWidth > 0, let contentMinX else { return CGFloat(selectedCardIndex.wrappedValue) }
+            return -contentMinX / pageWidth
+        }
+
+        private func contentMinX(in contentGeometryProxy: GeometryProxy) -> CGFloat {
+            contentGeometryProxy.frame(in: .named(CoordinateSpaceIdentifier.horizontalScrollView)).minX
+        }
+
+        private func reportPagePositionIfPossible() {
+            guard pageWidth > 0, contentMinX != nil else { return }
+            onPagePositionChanged(pagePosition)
         }
 
         private func updateSelectedCardIndexIfNeeded(from newScrollPositionID: UserWalletId?) {
@@ -342,8 +464,7 @@ extension MainHorizontalPagingScrollView {
             at index: Int,
             in userWalletPageBuilders: [MainUserWalletPageBuilder]
         ) -> UserWalletId? {
-            guard userWalletPageBuilders.indices.contains(index) else { return nil }
-            return userWalletPageBuilders[index].id
+            userWalletPageBuilders[safe: index]?.id
         }
     }
 }
@@ -356,8 +477,11 @@ extension MainHorizontalPagingScrollView {
 
     private enum Sizes {
         static let navigationBalanceMaxYOffset = CGFloat(16)
-        static let pullToRefreshThreshold: CGFloat = 150
         static let scrolledToTopTolerance: CGFloat = 0.5
+    }
+
+    private enum CoordinateSpaceIdentifier: Hashable {
+        case horizontalScrollView
     }
 
     private struct ScrollAdjustedValues: Equatable {
@@ -365,7 +489,10 @@ extension MainHorizontalPagingScrollView {
         var navigationBarBalanceOpacity: CGFloat
         var navigationBarBalanceOffsetY: CGFloat
         var pagingIndicatorOpacity: CGFloat
-        var pagingIndicatorOffsetY: CGFloat
+        /// `nil` until `handlePagingIndicatorOffsetChanged` reports. `handleContentPropertiesChanged` writes the same
+        /// struct and can land first — a placeholder zero here would park the indicator at the top of the screen.
+        var pagingIndicatorBaseOffsetY: CGFloat?
+        var dragRefreshControlHeight: CGFloat
         var backgroundOpacity: CGFloat
         var contentFooterOverlayIsVisible: Bool
 
@@ -374,7 +501,8 @@ extension MainHorizontalPagingScrollView {
             navigationBarBalanceOpacity: 1,
             navigationBarBalanceOffsetY: 0,
             pagingIndicatorOpacity: 0,
-            pagingIndicatorOffsetY: 0,
+            pagingIndicatorBaseOffsetY: nil,
+            dragRefreshControlHeight: 0,
             backgroundOpacity: 1,
             contentFooterOverlayIsVisible: false
         )

@@ -35,7 +35,7 @@ struct AddToPortfolioPromoView: View {
             action: action
         )
         .size(.x9)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .accessibilityIdentifier(MainAccessibilityIdentifiers.addToPortfolioButton)
     }
 

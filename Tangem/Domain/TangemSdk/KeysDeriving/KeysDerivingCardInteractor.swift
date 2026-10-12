@@ -26,8 +26,12 @@ extension KeysDerivingCardInteractor: KeysDeriving {
     var requiresCard: Bool { true }
 
     func deriveKeys(derivations: [Data: [DerivationPath]], completion: @escaping (Result<DerivationResult, Error>) -> Void) {
-        let task = DeriveMultipleWalletPublicKeysTask(derivations)
-        let tangemSdk = sdkFactory.makeTangemSdk()
+        let task = DeriveMultipleWalletPublicKeysTask(derivations, shouldFailIfNothingDerived: true)
+            .withUserWalletRegistration()
+
+        let tangemSdk = sdkFactory
+            .makeTangemSdk()
+
         tangemSdk.startSession(
             with: task,
             filter: filter

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BigInt
 import TangemFoundation
 
 public struct TransactionRecord: Hashable {
@@ -23,6 +24,9 @@ public struct TransactionRecord: Hashable {
     public let date: Date?
     public let tokenTransfers: [TokenTransfer]
     public let isFromYieldContract: Bool
+    /// Whether this record stands for several transfers of one transaction folded together. What it names is the
+    /// balance the wallet ended up with, not a payment made to the counterparty it shows.
+    public let isFolded: Bool
     /// For EVM only.
     public let nonce: Int?
     public var extraInfo: ExtraInfo? { _extraInfo?.wrapped }
@@ -50,6 +54,7 @@ public struct TransactionRecord: Hashable {
         date: Date?,
         tokenTransfers: [TokenTransfer],
         isFromYieldContract: Bool = false,
+        isFolded: Bool = false,
         nonce: Int?,
         extraInfo: ExtraInfoType? = nil
     ) {
@@ -64,6 +69,7 @@ public struct TransactionRecord: Hashable {
         self.date = date
         self.tokenTransfers = tokenTransfers
         self.isFromYieldContract = isFromYieldContract
+        self.isFolded = isFolded
         self.nonce = nonce
         _extraInfo = extraInfo.map(AnyExtraInfo.init)
     }
@@ -98,6 +104,31 @@ public extension TransactionRecord {
         /// Contains human-readable contract method name (like `swap`).
         case contractMethodName(name: String?)
         case staking(type: StakingTransactionType, target: String?)
+        case approve(Approve)
+
+        public struct Approve: Hashable {
+            public let spender: String
+            public let symbol: String?
+            public let allowance: Allowance
+
+            public init(spender: String, symbol: String?, allowance: Allowance) {
+                self.spender = spender
+                self.symbol = symbol
+                self.allowance = allowance
+            }
+
+            public enum Allowance: Hashable {
+                /// The uint256 maximum — the spender may move the whole balance until the approval is revoked.
+                case unlimited
+                /// A zero allowance, which is how ERC-20 expresses taking a previously granted permission away.
+                case revoked
+                /// The granted amount, already scaled by the token's decimals.
+                case limited(Decimal)
+                /// The granted amount as the raw uint256 of the calldata, left unscaled because the provider doesn't
+                /// know the token's decimals. See `resolving(symbol:decimals:)`.
+                case unscaled(BigUInt)
+            }
+        }
 
         public enum StakingTransactionType {
             case stake
@@ -139,7 +170,7 @@ public extension TransactionRecord {
             }
         }
 
-        static func from(_ sources: [Source]) -> Self {
+        public static func from(_ sources: [Source]) -> Self {
             if let source = sources.singleElement {
                 return .single(source)
             }
@@ -172,7 +203,7 @@ public extension TransactionRecord {
             }
         }
 
-        static func from(_ destinations: [Destination]) -> Self {
+        public static func from(_ destinations: [Destination]) -> Self {
             if let destination = destinations.singleElement {
                 return .single(destination)
             }

@@ -49,7 +49,7 @@ class StakingDetailsCoordinator: CoordinatorObject, SendFeeCurrencyNavigating {
             tokenBalanceProvider: options.sendInput.walletModel.availableBalanceProvider,
             stakingManager: options.manager,
             coordinator: self,
-            deeplinkHandler: PromotionDeeplinkHandler(
+            deeplinkHandler: TokenScreenDeeplinkResponder(
                 coordinator: self,
                 walletModel: options.sendInput.walletModel,
                 userWalletInfo: options.sendInput.userWalletInfo
@@ -187,9 +187,9 @@ extension StakingDetailsCoordinator {
     }
 }
 
-// MARK: - PromotionDeeplinkRoutable
+// MARK: - TokenScreenDeeplinkRoutable
 
-extension StakingDetailsCoordinator: PromotionDeeplinkRoutable {
+extension StakingDetailsCoordinator: TokenScreenDeeplinkRoutable {
     func openSwap(parameters: PredefinedSwapParameters) {
         let coordinator = makeSendCoordinator()
         coordinator.start(with: .init(type: .swap(parameters), source: .stakingDetails))

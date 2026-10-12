@@ -9,6 +9,8 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct WelcomeV2ImportSheetView: View {
     @ObservedObject var viewModel: WelcomeV2ImportSheetViewModel
@@ -21,11 +23,12 @@ struct WelcomeV2ImportSheetView: View {
                 closeAction: viewModel.onClose
             )
         ) {
-            VStack(spacing: 16) {
+            VStack(spacing: 0) {
                 badge
 
                 titleBlock
                     .padding(.horizontal, 24)
+                    .padding(.top, 32)
 
                 VStack(spacing: 8) {
                     ForEach(viewModel.items) { item in
@@ -33,7 +36,7 @@ struct WelcomeV2ImportSheetView: View {
                     }
                 }
                 .padding(.horizontal, 16)
-                .padding(.top, 8)
+                .padding(.top, 24)
                 .padding(.bottom, 20)
             }
         }
@@ -42,9 +45,9 @@ struct WelcomeV2ImportSheetView: View {
     private var badge: some View {
         DesignSystem.Icons.ArrowDownload.regular24.image
             .renderingMode(.template)
-            .foregroundStyle(DesignSystem.Color.iconAccentBlue)
-            .frame(width: 60, height: 60)
-            .background(DesignSystem.Color.bgAccentBlue, in: Circle())
+            .foregroundStyle(DesignSystem.Color.iconBrand)
+            .frame(width: 72, height: 72)
+            .background(DesignSystem.Color.bgStatusInfoSubtle, in: Circle())
             .accessibilityHidden(true)
     }
 
@@ -56,30 +59,31 @@ struct WelcomeV2ImportSheetView: View {
 
             if let subtitle = viewModel.subtitle {
                 Text(subtitle)
-                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                     .multilineTextAlignment(.center)
             }
         }
     }
 
     private func row(for item: WelcomeV2ImportSheetItem) -> some View {
-        Button(action: item.action) {
-            Text(item.title)
-                .style(
-                    DesignSystem.Font.subheadingMediumToken,
-                    color: item.isEnabled ? DesignSystem.Color.textPrimary : DesignSystem.Color.textSecondary
-                )
-                .frame(maxWidth: .infinity, minHeight: 52)
-                .overlay(alignment: .trailing) {
-                    if item.isLoading {
-                        ProgressView()
-                            .controlSize(.small)
-                            .padding(.trailing, 16)
-                    }
-                }
-                .background(DesignSystem.Color.bgSecondary)
-                .cornerRadiusContinuous(14)
-        }
+        TangemUI.Button(
+            label: item.title,
+            accessibilityLabel: nil,
+            action: item.action
+        )
+        .styleType(.secondary(.default))
+        .horizontalLayout(.infinity)
+        .size(.x12)
+        .loading(.spinner(if: item.isLoading))
         .disabled(!item.isEnabled)
+        .accessibilityIdentifier(rowAccessibilityIdentifier(for: item))
+    }
+
+    private func rowAccessibilityIdentifier(for item: WelcomeV2ImportSheetItem) -> String? {
+        switch item.id {
+        case WelcomeV2ImportSheetViewModel.ItemID.recovery: OnboardingAccessibilityIdentifiers.welcomeImportSheetRecoveryPhraseButton
+        case WelcomeV2ImportSheetViewModel.ItemID.iCloud: OnboardingAccessibilityIdentifiers.welcomeImportSheetICloudBackupButton
+        default: nil
+        }
     }
 }

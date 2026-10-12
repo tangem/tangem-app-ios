@@ -9,6 +9,8 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct WelcomeV2ActionSheetView: View {
     @ObservedObject var viewModel: WelcomeV2ActionSheetViewModel
@@ -17,15 +19,17 @@ struct WelcomeV2ActionSheetView: View {
         ZStack {
             if let importViewModel = viewModel.pushedImportSheet {
                 WelcomeV2ImportSheetView(viewModel: importViewModel)
-                    .transition(.move(edge: .trailing).combined(with: .opacity))
+                    .transition(.content)
             } else {
                 rootContent
-                    .transition(.move(edge: .leading).combined(with: .opacity))
+                    .transition(.content)
             }
         }
-        .animation(.easeInOut(duration: 0.28), value: viewModel.pushedImportSheet?.id)
         .floatingSheetConfiguration { config in
             config.backgroundInteractionBehavior = .tapToDismiss
+            config.verticalSwipeBehavior = .init(target: .sheet, threshold: Constants.swipeDismissThreshold)
+            config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+            config.sheetFrameUpdateAnimation = .contentFrameUpdate
         }
     }
 
@@ -46,12 +50,12 @@ struct WelcomeV2ActionSheetView: View {
                         .padding(.top, 4)
                 }
 
-                VStack(spacing: 8) {
+                VStack(spacing: .zero) {
                     ForEach(viewModel.items) { item in
                         row(for: item)
                     }
                 }
-                .padding(.horizontal, 16)
+                .allowsHitTesting(!viewModel.items.contains(where: \.isLoading))
                 .padding(.bottom, 20)
             }
         }
@@ -60,14 +64,70 @@ struct WelcomeV2ActionSheetView: View {
     private func row(for item: WelcomeV2ActionSheetItem) -> some View {
         Row(title: item.title, subtitle: item.subtitle)
             .contentLead(.start)
-            .start(icon: item.icon)
+            .start { item.icon.map(RowIcon.init) }
             .end {
-                DesignSystem.Icons.ChevronRight.regular16.image
-                    .renderingMode(.template)
-                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+                if item.isLoading {
+                    ProgressView()
+                        .controlSize(.small)
+                        .tint(DesignSystem.Color.iconSecondary)
+                }
             }
             .onTap(item.action)
-            .background(DesignSystem.Color.bgSecondary)
-            .cornerRadiusContinuous(14)
+            .accessibilityIdentifier(rowAccessibilityIdentifier(for: item))
     }
+
+    /// Item ids come from `WelcomeV2CreateWalletActionFactory` and `WelcomeV2ExistingWalletActionFactory`.
+    private func rowAccessibilityIdentifier(for item: WelcomeV2ActionSheetItem) -> String? {
+        switch item.id {
+        case "hardware": WelcomeV2AccessibilityIdentifiers.actionSheetHardwareRow
+        case "mobile": WelcomeV2AccessibilityIdentifiers.actionSheetMobileRow
+        case "import": WelcomeV2AccessibilityIdentifiers.actionSheetImportRow
+        default: nil
+        }
+    }
+}
+
+// MARK: - Row icon
+
+private struct RowIcon: View {
+    let icon: ImageType
+
+    @ScaledMetric private var glyphSize = Constants.glyphSize
+    @ScaledMetric private var backdropSize = Constants.backdropSize
+
+    var body: some View {
+        icon.image
+            .renderingMode(.template)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(size: CGSize(bothDimensions: glyphSize))
+            .foregroundStyle(DesignSystem.Color.iconPrimary)
+            .frame(size: CGSize(bothDimensions: backdropSize))
+            .background(DesignSystem.Color.bgTransparentPrimary, in: Circle())
+            .accessibilityHidden(true)
+    }
+}
+
+private extension RowIcon {
+    enum Constants {
+        static let glyphSize: CGFloat = 20
+        static let backdropSize: CGFloat = 40
+    }
+}
+
+private extension WelcomeV2ActionSheetView {
+    enum Constants {
+        static let swipeDismissThreshold: CGFloat = 100
+    }
+}
+
+private extension Animation {
+    static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
+}
+
+private extension AnyTransition {
+    static let content = AnyTransition.asymmetric(
+        insertion: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3).delay(0.2)),
+        removal: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
+    )
 }

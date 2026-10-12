@@ -23,10 +23,14 @@ class CommonStakeKitAPIProvider: StakeKitAPIProvider {
         return yieldInfos
     }
 
-    func yield(integrationId: String) async throws -> StakingYieldInfo {
+    func yield(integrationId: String) async throws -> StakingYieldFetchResult {
         let response = try await service.getYield(id: integrationId, request: .init())
-        let yieldInfo = try mapper.mapToYieldInfo(from: response)
-        return yieldInfo
+        let yield = try mapper.mapToYieldInfo(from: response)
+
+        return StakingYieldFetchResult(
+            yield: yield,
+            targets: mapper.mapToStakingTargetSummaries(from: response.validators, network: yield.item.network)
+        )
     }
 
     func balances(wallet: StakingWallet, integrationId: String) async throws -> [StakingBalanceInfo] {

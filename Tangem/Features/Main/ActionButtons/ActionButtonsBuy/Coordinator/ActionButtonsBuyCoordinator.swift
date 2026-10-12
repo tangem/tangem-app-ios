@@ -365,7 +365,7 @@ struct ActionButtonsBuyDismissPayload {
 private extension ActionButtonsBuyCoordinator {
     func makeTokenSelectorViewModel(preferredWalletId: UserWalletId?) -> TokenSelectorViewModel {
         .common(
-            walletsProvider: .standardAccountsOnly(),
+            walletsProvider: .cryptoJointAccounts(),
             availabilityProvider: .always(),
             preferredWalletId: preferredWalletId
         )

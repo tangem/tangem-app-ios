@@ -20,11 +20,17 @@ class EVMCustomFeeService {
     private let feeTokenItem: TokenItem
 
     private lazy var customFeeTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: feeTokenItem.decimalCount)
-    private lazy var gasLimitTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: 0)
+    private lazy var gasLimitTextField = DecimalNumberTextFieldViewModel(
+        maximumFractionDigits: 0,
+        maximumTextLength: Constants.gasLimitMaxLength
+    )
     private lazy var gasPriceTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: Constants.gweiDigits)
     private lazy var maxFeePerGasTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: Constants.gweiDigits)
     private lazy var priorityFeeTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: Constants.gweiDigits)
-    private lazy var nonceTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: 0)
+    private lazy var nonceTextField = DecimalNumberTextFieldViewModel(
+        maximumFractionDigits: 0,
+        maximumTextLength: Constants.nonceMaxLength
+    )
 
     private var gasLimit: BigUInt? {
         gasLimitTextField.value
@@ -189,6 +195,10 @@ class EVMCustomFeeService {
             maxFeePerGasTextField.update(value: gaslessParams.maxFeePerGas.decimal?.shiftOrder(magnitude: -Constants.gweiDigits))
             priorityFeeTextField.update(value: gaslessParams.priorityFee.decimal?.shiftOrder(magnitude: -Constants.gweiDigits))
             nonceTextField.update(value: gaslessParams.nonce.map { Decimal($0) })
+        case .safe(let safeParams):
+            gasLimitTextField.update(value: safeParams.gasLimit.decimal)
+            gasPriceTextField.update(value: safeParams.gasPrice.decimal?.shiftOrder(magnitude: -Constants.gweiDigits))
+            nonceTextField.update(value: safeParams.nonce.map { Decimal($0) })
         }
     }
 }
@@ -410,6 +420,9 @@ private extension EVMCustomFeeService {
     enum Constants {
         static let gweiDigits: Int = 9
         static let gweiSuffix: String = "GWEI"
+        static let gasLimitMaxLength: Int = 10
+        /// max nonce value in EVM is 2^64-1
+        static let nonceMaxLength: Int = 20
     }
 }
 

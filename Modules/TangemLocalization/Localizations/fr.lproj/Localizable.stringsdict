@@ -13,9 +13,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li person</string>
+        <string>%li personne</string>
         <key>other</key>
-        <string>%li people</string>
+        <string>%li personnes</string>
       </dict>
     </dict>
     <key>address_book_addresses</key>
@@ -48,6 +48,22 @@
         <string>%li carte</string>
         <key>other</key>
         <string>%li cartes</string>
+      </dict>
+    </dict>
+    <key>collectibles_account_collection_cards_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li card</string>
+        <key>other</key>
+        <string>%li cards</string>
       </dict>
     </dict>
     <key>common_assets_count</key>
@@ -189,9 +205,25 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li member</string>
+        <string>%li membre</string>
         <key>other</key>
-        <string>%li members</string>
+        <string>%li membres</string>
+      </dict>
+    </dict>
+    <key>joint_account_send_signatures_required_banner</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%1$li signature requise</string>
+        <key>other</key>
+        <string>%1$li signatures requises</string>
       </dict>
     </dict>
     <key>manage_tokens_number_of_wallets_ios</key>
