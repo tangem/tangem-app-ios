@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -58,6 +59,7 @@ private extension TransferInputTokenModalView {
             }
             .onTap { selection = item.id }
             .disabled(!item.isOfframpAvailable)
+            .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.tokenSheetRow)
     }
 
     func icon(for item: TransferInputTokenItem) -> some View {

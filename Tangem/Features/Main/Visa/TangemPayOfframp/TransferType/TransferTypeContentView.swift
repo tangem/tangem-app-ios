@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -64,6 +65,7 @@ private extension TransferTypeContentView {
             }
             .showDivider(showsDivider)
             .onTap { action(.optionTap(option)) }
+            .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.transferTypeOption)
     }
 }
 
@@ -80,6 +82,7 @@ private extension TransferTypeContentView {
         .styleType(.primary)
         .horizontalLayout(.infinity)
         .disabled(state.selection == nil)
+        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.transferTypeContinueButton)
     }
 }
 
