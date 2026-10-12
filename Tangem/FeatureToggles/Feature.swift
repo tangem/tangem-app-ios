@@ -100,7 +100,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .walletCardsBackupReport: return .unspecified
         case .jointAccounts: return .unspecified
         case .ethPolLocalStakingValidation: return .unspecified
-        case .yieldDexTransferDetection: return .unspecified
+        case .yieldDexTransferDetection: return .version("6.4.1")
         case .welcomeScreenV2: return .version("6.4")
         case .newShtorkaEnabled: return .version("6.4")
         case .collectibles: return .unspecified
