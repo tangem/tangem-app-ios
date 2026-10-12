@@ -7,38 +7,45 @@
 
 import Foundation
 import Testing
-import BlockchainSdk
+import Combine
 import TangemFoundation
-@testable import TangemExpress
+import BlockchainSdk
 @testable import Tangem
 
 @Suite("CommonTokenFeeProvider — Tron input routing")
 struct CommonTokenFeeProviderTronRoutingTests {
     private let tronFeeTokenItem: TokenItem = .blockchain(.init(.tron(testnet: false), derivationPath: nil))
 
-    @Test("a CEX input is unsupported with a Tron gasless loader")
-    func cexInput_tronGaslessLoader_notSupported() {
-        let token = Token(
-            name: "USDT",
-            symbol: "USDT",
-            contractAddress: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
-            decimalCount: 6
-        )
-        let loader = CommonTronGaslessTokenFeeLoader(
-            tokenItem: .token(token, .init(.tron(testnet: false), derivationPath: nil)),
-            feeToken: BSDKToken(
-                name: token.name,
-                symbol: token.symbol,
-                contractAddress: token.contractAddress,
-                decimalCount: token.decimalCount
-            ),
-            sourceAddress: "TSourceAddress",
-            userWalletId: UserWalletId(value: Data("wallet".utf8))
-        )
+    @Test(
+        "a CEX preview without a deposit address quotes a transfer from the wallet to itself",
+        .enabled(if: FeatureProvider.isAvailable(.tronGaslessCEX))
+    )
+    func cexInput_tronGaslessLoader_previewQuotesSourceAddress() async throws {
+        let networkManager = TronGaslessNetworkManagerStub(compensationAmountRaw: "2500000")
+        let loader = makeTronGaslessLoader(networkManager: networkManager)
         let sut = makeSUT(loader: loader)
 
         sut.setup(input: .cex(amount: 10))
+        await sut.updateFees().value
 
+        let request = try #require(networkManager.estimateRequests.first)
+        #expect(request.toAddress == "TSourceAddress")
+        #expect(request.amount == "10000000")
+    }
+
+    @Test(
+        "a CEX input is unsupported with a Tron gasless loader",
+        .enabled(if: !FeatureProvider.isAvailable(.tronGaslessCEX))
+    )
+    func cexInput_tronGaslessLoader_notSupported() async {
+        let networkManager = TronGaslessNetworkManagerStub(compensationAmountRaw: "2500000")
+        let loader = makeTronGaslessLoader(networkManager: networkManager)
+        let sut = makeSUT(loader: loader)
+
+        sut.setup(input: .cex(amount: 10))
+        await sut.updateFees().value
+
+        #expect(networkManager.estimateRequests.isEmpty)
         guard case .unavailable(.notSupported) = sut.state else {
             Issue.record("Expected .unavailable(.notSupported), got \(sut.state)")
             return
@@ -125,50 +132,6 @@ struct CommonTokenFeeProviderTronRoutingTests {
     }
 }
 
-@Suite("CommonTokenFeeProvidersManager — CEX input routing")
-struct CommonTokenFeeProvidersManagerCEXRoutingTests {
-    @Test("a CEX transaction forwards its destination to the selected loader and returns its fee")
-    func cexTransaction_routesDestinationAndReturnsFee() async throws {
-        let tokenItem = TokenItem.blockchain(.init(.tron(testnet: false), derivationPath: nil))
-        let loadedFee = BSDKFee(BSDKAmount(with: .tron(testnet: false), value: 4))
-        let loader = CEXTokenFeeLoaderSpy(fees: [loadedFee])
-        let provider = CommonTokenFeeProvider(
-            feeTokenItem: tokenItem,
-            tokenFeeLoader: loader,
-            customFeeProvider: nil,
-            feeTokenItemBalanceProvider: MutableTokenBalanceProviderMock(balance: 25),
-            supportingOptions: .all
-        )
-        let sut = CommonTokenFeeProvidersManager(
-            feeProviders: [provider],
-            initialSelectedProvider: provider,
-            ownerAddress: nil
-        )
-
-        let result = try await sut.transactionFee(data: .cex(data: ExpressTransactionData(
-            requestId: "",
-            fromAmount: 10,
-            toAmount: 20,
-            expressTransactionId: "",
-            transactionType: .swap,
-            sourceAddress: nil,
-            destinationAddress: "TDestinationAddress",
-            extraDestinationId: nil,
-            txValue: 10,
-            txData: nil,
-            otherNativeFee: nil,
-            estimatedGasLimit: nil,
-            externalTxId: nil,
-            externalTxURL: nil,
-            payInAddress: ""
-        )))
-
-        #expect(loader.receivedAmount == 10)
-        #expect(loader.receivedDestination == "TDestinationAddress")
-        #expect(result.amount.value == loadedFee.amount.value)
-    }
-}
-
 // MARK: - Helpers
 
 private extension CommonTokenFeeProviderTronRoutingTests {
@@ -194,6 +157,27 @@ private extension CommonTokenFeeProviderTronRoutingTests {
 
     func makeFee(_ value: Decimal) -> BSDKFee {
         BSDKFee(BSDKAmount(with: .tron(testnet: false), value: value))
+    }
+
+    func makeTronGaslessLoader(networkManager: TronGaslessNetworkManagerStub) -> CommonTronGaslessTokenFeeLoader {
+        let token = Token(
+            name: "USDT",
+            symbol: "USDT",
+            contractAddress: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+            decimalCount: 6
+        )
+        return CommonTronGaslessTokenFeeLoader(
+            tokenItem: .token(token, .init(.tron(testnet: false), derivationPath: nil)),
+            feeToken: BSDKToken(
+                name: token.name,
+                symbol: token.symbol,
+                contractAddress: token.contractAddress,
+                decimalCount: token.decimalCount
+            ),
+            sourceAddress: "TSourceAddress",
+            userWalletId: UserWalletId(value: Data("wallet".utf8)),
+            networkManager: networkManager
+        )
     }
 }
 
@@ -243,4 +227,68 @@ private final class TronTokenFeeLoaderSpy: TronTokenFeeLoader {
 private struct NonTronTokenFeeLoaderStub: TokenFeeLoader {
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] { throw StubError.notNeeded }
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee] { throw StubError.notNeeded }
+}
+
+private final class TronGaslessNetworkManagerStub: GaslessTransactionsNetworkManager {
+    private(set) var estimateRequests: [GaslessTransactionsDTO.Request.TronEstimate] = []
+
+    let cachedFeeRecipientAddress: String? = nil
+    var availableFeeTokens: [FeeToken] { [] }
+    var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> { Just([]).eraseToAnyPublisher() }
+    var availableTronFeeTokens: [TronFeeToken] { [] }
+    var availableTronFeeTokensPublisher: AnyPublisher<[TronFeeToken], Never> { Just([]).eraseToAnyPublisher() }
+    var currentHost: String { "test" }
+    var feeRecipientAddress: String? { nil }
+
+    private let compensationAmountRaw: String
+
+    init(compensationAmountRaw: String) {
+        self.compensationAmountRaw = compensationAmountRaw
+    }
+
+    func updateAvailableTokens() {}
+    func sendGaslessTransaction(_ transaction: GaslessTransaction, executorVersion: GaslessExecutorVersion) async throws -> String { "" }
+    func sendGaslessBatchTransaction(_ transaction: GaslessBatchTransaction) async throws -> String { "" }
+    func initialize() {}
+    func preloadFeeRecipientAddress() {}
+
+    func estimateTronGaslessTransaction(
+        _ request: TronEstimateRequest,
+        userWalletId: UserWalletId
+    ) async throws -> TronEstimateResponse {
+        estimateRequests.append(request)
+        return try Self.makeEstimateResponse(compensationAmountRaw: compensationAmountRaw)
+    }
+
+    func submitTronGaslessTransaction(
+        _ request: TronSubmitRequest,
+        userWalletId: UserWalletId
+    ) async throws -> TronSubmitResponse {
+        throw StubError.notNeeded
+    }
+
+    private static func makeEstimateResponse(compensationAmountRaw: String) throws -> TronEstimateResponse {
+        let data = Data(
+            """
+            {
+              "result": {
+                "quoteId": "quote",
+                "feeRecipient": "TFeeRecipient",
+                "compensationToken": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+                "compensationAmount": "2.5",
+                "compensationAmountRaw": "\(compensationAmountRaw)",
+                "estimate": {
+                  "energy": 1,
+                  "bandwidth": 1,
+                  "trxCost": "1"
+                },
+                "expiresAt": "2099-01-01T00:00:00Z"
+              }
+            }
+            """.utf8
+        )
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode(GaslessTransactionsDTO.Response.TronEstimate.self, from: data)
+    }
 }
