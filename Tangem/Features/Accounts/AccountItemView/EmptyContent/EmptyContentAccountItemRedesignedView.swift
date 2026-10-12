@@ -26,7 +26,7 @@ struct EmptyContentAccountItemRedesignedView: View {
                 accessibilityLabel: nil,
                 action: onManageTokensTap
             )
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .size(.x10)
             .horizontalLayout(.intrinsic)
         }

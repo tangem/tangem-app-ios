@@ -14,6 +14,10 @@ final class AddTokenFlowScreen: Screen {
 
     private lazy var addTokenButton = app.buttons[TokenAccessibilityIdentifiers.addTokenButton].firstMatch
     private lazy var tokenAddedToast = app.staticTexts[CommonUIAccessibilityIdentifiers.successToast].firstMatch
+    /// Type-agnostic: the selector row is a composed control whose element type is not guaranteed.
+    private lazy var accountSelectorRow = app.descendants(matching: .any)
+        .matching(identifier: TokenAccessibilityIdentifiers.addTokenAccountSelectorRow)
+        .firstMatch
 
     init(_ app: XCUIApplication) {
         self.app = app
@@ -35,6 +39,16 @@ final class AddTokenFlowScreen: Screen {
             walletButton.waitAndTap()
         }
         return self
+    }
+
+    /// Opens the account picker from the account row on the add-token screen.
+    @discardableResult
+    func openAccountSelector() -> AccountSelectorSheet {
+        XCTContext.runActivity(named: "Open account picker on the add-token screen") { _ in
+            waitAndAssertTrue(accountSelectorRow, "Account row should be displayed on the add-token screen")
+            accountSelectorRow.waitAndTap()
+            return AccountSelectorSheet(app)
+        }
     }
 
     /// Chooses a network in the "Choose network" sheet; the sheet is absent for single-network tokens.

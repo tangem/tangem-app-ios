@@ -148,7 +148,7 @@ private extension VisaOnboardingAccessCodeSetupViewModel {
         // We need to disable input, because a lot of operations will be done on this page
         // May be changed)
         isInputDisabled = true
-        runTask(in: self, isDetached: false) { viewModel in
+        runTask(in: self) { viewModel in
             do {
                 try await viewModel.delegate?.useSelectedCode(accessCode: viewModel.selectedAccessCode)
             } catch {

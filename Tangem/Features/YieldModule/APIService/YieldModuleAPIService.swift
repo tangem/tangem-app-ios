@@ -12,6 +12,21 @@ protocol YieldModuleAPIService {
     func getYieldMarkets(
         chainIDs: [String]?
     ) async throws -> YieldModuleDTO.Response.MarketsInfo
+    /// Markets with the Merkl campaign overlay (`/yield-modules/markets`, enveloped response).
+    func getIncentiveYieldMarkets(
+        chainIDs: [String]?
+    ) async throws -> YieldModuleDTO.Response.MarketsInfo
+    /// `nil` when the chain is not supported or not configured for incentives, which the contract reports as HTTP 400.
+    func getIncentives(
+        chainId: Int,
+        userAddress: String
+    ) async throws -> YieldModuleDTO.Response.IncentivesInfo?
+    /// Incentivised-yield history, ascending by date (`days` is capped at 90 by the contract).
+    func getAprHistory(
+        chainId: Int,
+        tokenAddress: String,
+        days: Int
+    ) async throws -> YieldModuleDTO.Response.AprHistory
     func getTokenPositionInfo(
         tokenContractAddress: String,
         chainId: Int

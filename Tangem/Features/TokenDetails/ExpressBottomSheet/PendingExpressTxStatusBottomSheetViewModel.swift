@@ -525,7 +525,8 @@ private extension PendingExpressTxStatusBottomSheetViewModel {
                     transaction: transaction,
                     userWalletIdHash: userWalletInfo.id.hashedStringValue
                 ),
-                feedbackPresenter: feedbackPresenter
+                feedbackPresenter: feedbackPresenter,
+                showsSkeleton: true
             )
         }
     }

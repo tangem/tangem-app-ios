@@ -12,6 +12,7 @@ import TangemUIUtils
 import TangemAssets
 import TangemLocalization
 import TangemFoundation
+import TangemAccessibilityIdentifiers
 
 struct TangemPayCashbackChartView: View {
     let formattedTotal: String
@@ -41,6 +42,7 @@ private extension TangemPayCashbackChartView {
             sensitive: formattedTotal
         )
         .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackChartTotal)
         .padding(.vertical, 16)
     }
 
@@ -52,6 +54,7 @@ private extension TangemPayCashbackChartView {
                         SensitiveText(item.formattedValue)
                             .style(DesignSystem.Font.captionMediumToken, color: color(for: item))
                             .lineLimit(1)
+                            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackChartValue(item.id))
                     }
 
                     bar(for: item)
@@ -77,6 +80,7 @@ private extension TangemPayCashbackChartView {
             ForEach(items) { item in
                 Text(item.month)
                     .style(DesignSystem.Font.captionMediumToken, color: color(for: item))
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cashbackChartMonth(item.id))
                     .frame(maxWidth: .infinity)
             }
         }

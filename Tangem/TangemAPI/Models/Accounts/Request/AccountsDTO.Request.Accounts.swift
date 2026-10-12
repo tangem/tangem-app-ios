@@ -20,6 +20,7 @@ extension AccountsDTO.Request {
             let icon: String
             let iconColor: String
             let derivation: Int
+            let type: String
         }
 
         let accounts: [Account]
@@ -43,6 +44,10 @@ extension AccountsDTO.Request.Accounts.Account: Encodable {
         try container.encode(icon, forKey: .icon)
         try container.encode(iconColor, forKey: .iconColor)
         try container.encode(derivation, forKey: .derivation)
+
+        if FeatureProvider.isAvailable(.jointAccounts) {
+            try container.encode(type, forKey: .type)
+        }
     }
 }
 
@@ -55,5 +60,6 @@ private extension AccountsDTO.Request.Accounts.Account {
         case icon
         case iconColor
         case derivation
+        case type
     }
 }

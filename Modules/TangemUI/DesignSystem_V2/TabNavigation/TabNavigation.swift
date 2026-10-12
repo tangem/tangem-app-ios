@@ -7,6 +7,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemFoundation
 import TangemUIUtils
 
 public struct TabNavigation<Data>: View, Setupable
@@ -17,6 +18,7 @@ public struct TabNavigation<Data>: View, Setupable
     private var variant: Variant = .material
     private var isScrollable = false
     private var isLoading = false
+    private var isHapticFeedbackEnabled = false
     private var accessibilityIdentifierFactory: ((Data.Element) -> String?)?
 
     @ScaledMetric private var spacing: CGFloat = Constants.interItemSpacing
@@ -52,13 +54,25 @@ public struct TabNavigation<Data>: View, Setupable
                     TabItemView(
                         item: item,
                         isSelected: item.id == selection.id,
-                        onTap: { selection = item }
+                        onTap: {
+                            if isHapticFeedbackEnabled, item.id != selection.id {
+                                FeedbackGenerator.selection()
+                            }
+
+                            selection = item
+                        }
                     )
                     .background {
                         if item.id == selection.id {
                             TabSelectionPill(variant: variant)
                                 .matchedGeometryEffect(id: Constants.pillMatchID, in: pillNamespace)
-                                .modifier(TabSelectionPillScale(trigger: selection.id))
+                                .modifier(
+                                    SelectionPillScale(
+                                        trigger: selection.id,
+                                        peakScaleX: Constants.pillPeakScale,
+                                        phaseDuration: Constants.pillScalePhaseDuration
+                                    )
+                                )
                         }
                     }
                     .accessibilityIdentifier(accessibilityIdentifierFactory?(item))
@@ -89,21 +103,12 @@ public extension TabNavigation {
         map { $0.isLoading = value }
     }
 
+    func hapticFeedback(_ value: Bool = true) -> Self {
+        map { $0.isHapticFeedbackEnabled = value }
+    }
+
     func accessibilityIdentifier(factory: @escaping (Data.Element) -> String?) -> Self {
         map { $0.accessibilityIdentifierFactory = factory }
-    }
-}
-
-// MARK: - Scroll clipping
-
-private struct DisableScrollClipIfAvailable: ViewModifier {
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        if #available(iOS 17.0, *) {
-            content.scrollClipDisabled()
-        } else {
-            content
-        }
     }
 }
 
@@ -114,5 +119,7 @@ private enum Constants {
     static let interItemSpacing: CGFloat = 4
     static let contentHorizontalPadding: CGFloat = 16
     static let pillMatchID = "TabNavigationSelectionPill"
+    static let pillPeakScale: CGFloat = 1.1
+    static let pillScalePhaseDuration: TimeInterval = 0.2
     static let selectionAnimation: Animation = .timingCurve(0.8, 0, 0.4, 1.2, duration: 0.4)
 }

@@ -61,7 +61,7 @@ class SendDestinationAddressViewModel: ObservableObject, Identifiable {
 
     private static func makeIcon(for address: String, style: IconStyle) -> AddressIconProviderViewType? {
         switch style {
-        case .automatic: AddressIconProvider.makeViewType(address: address)
+        case .automatic: AddressIconProvider.makeViewType(address: address, networkId: nil)
         case .blockies: .blockies(AddressIconProvider.makeBlockiesIconViewData(address: address))
         }
     }

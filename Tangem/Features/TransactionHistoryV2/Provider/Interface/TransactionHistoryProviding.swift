@@ -7,9 +7,16 @@
 //
 
 import Foundation
+import Combine
 
 protocol TransactionHistoryProviding:
     Identifiable,
     TransactionHistorySyncing,
-    TransactionHistoryExpressDataEnriching,
-    WalletModelTransactionHistoryEnriching {}
+    TransactionHistoryExpressDataEnriching {
+    var mappingQueue: DispatchQueue { get }
+
+    func historyUpdates(
+        for walletModelId: WalletModelId,
+        walletModelAddressesPublisher: some Publisher<[String], Never>
+    ) -> AsyncStream<[TransactionHistoryRecordsReader.Record]>
+}

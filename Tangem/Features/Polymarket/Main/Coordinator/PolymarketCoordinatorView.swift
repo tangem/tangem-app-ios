@@ -7,13 +7,56 @@
 //
 
 import SwiftUI
+import TangemAssets
+import TangemPolymarketUI
+import TangemUI
+import TangemUIUtils
 
 struct PolymarketCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: PolymarketCoordinator
 
     var body: some View {
-        if let viewModel = coordinator.rootViewModel {
+        content
+            .toolbar(.hidden, for: .navigationBar)
+            .background(FeedPopGestureEnabler())
+            .navigationLinks(links)
+            .sheet(item: $coordinator.sheet) { sheet in
+                switch sheet {
+                case .send(let coordinator):
+                    SendCoordinatorView(coordinator: coordinator)
+                }
+            }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch coordinator.viewState {
+        case .welcome(let viewModel):
+            PolymarketWelcomeView(viewModel: viewModel)
+        case .main(let viewModel, _, _):
             PolymarketMainView(viewModel: viewModel)
+        case nil:
+            EmptyView()
         }
+    }
+
+    private var links: some View {
+        NavHolder()
+            .navigation(item: $coordinator.destination) { destination in
+                switch destination {
+                case .eventDetails(let coordinator):
+                    PolymarketEventDetailsCoordinatorView(coordinator: coordinator)
+                case .positionDetails(let coordinator):
+                    PolymarketPositionDetailsCoordinatorView(coordinator: coordinator)
+                case .myPositions(let coordinator):
+                    PolymarketMyPositionsCoordinatorView(coordinator: coordinator)
+                case .order(let coordinator):
+                    PolymarketOrderCoordinatorView(coordinator: coordinator)
+                case .tokenDetails(let coordinator):
+                    TokenDetailsCoordinatorView(coordinator: coordinator)
+                case .redeem(let viewModel):
+                    PolymarketRedeemView(viewModel: viewModel)
+                }
+            }
     }
 }

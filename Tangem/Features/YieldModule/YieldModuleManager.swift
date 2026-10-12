@@ -20,6 +20,8 @@ protocol YieldModuleManager {
     var tokenId: String { get }
     var versionChecker: YieldModuleVersionChecker? { get }
     var swapExecutionRegistryProvider: YieldModuleSwapExecutionRegistryProvider? { get }
+    /// `nil` when the Merkl incentives feature is off.
+    var incentivesManager: YieldIncentivesManager? { get }
 
     func enterFee() async throws -> YieldTransactionFee
     func enter(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String]
@@ -34,9 +36,19 @@ protocol YieldModuleManager {
 
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo
     func fetchChartData() async throws -> YieldChartData
+    func fetchAprHistory(days: Int) async throws -> [YieldIncentiveAprPoint]
 
     func sendActivationState()
     func sendTransactionSendEvent(sourceAddress: String, transactionHash: String)
+}
+
+extension YieldModuleManager {
+    var marketInfoPublisher: AnyPublisher<YieldModuleMarketInfo?, Never> {
+        statePublisher
+            .map(\.?.marketInfo)
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
 }
 
 protocol YieldModuleManagerUpdater {
@@ -54,6 +66,7 @@ final class CommonYieldModuleManager {
 
     let blockchain: Blockchain
     let tokenId: String
+    let incentivesManager: YieldIncentivesManager?
 
     private let walletAddress: String
     private let token: Token
@@ -143,6 +156,10 @@ final class CommonYieldModuleManager {
             yieldSupplyContractAddresses: yieldSupplyContractAddresses,
             tokenBalanceProvider: tokenBalanceProvider
         )
+
+        incentivesManager = FeatureProvider.isAvailable(.merklIncentives)
+            ? InjectedValues[\.yieldIncentivesManagerProvider].manager(chainId: chainId, userAddress: walletAddress)
+            : nil
 
         bind()
         checkPromoAvailability()
@@ -377,6 +394,10 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         try await yieldModuleNetworkManager.fetchChartData(tokenContractAddress: token.contractAddress, chainId: chainId)
     }
 
+    func fetchAprHistory(days: Int) async throws -> [YieldIncentiveAprPoint] {
+        try await yieldModuleNetworkManager.fetchAprHistory(tokenContractAddress: token.contractAddress, chainId: chainId, days: days)
+    }
+
     func sendActivationState() {
         sendActivationStateCancellable = Task {
             switch state?.state {
@@ -446,7 +467,8 @@ private extension CommonYieldModuleManager {
         nextExpectedState: NextExpectedState?
     ) -> YieldModuleManagerStateInfo {
         let marketInfo = marketsInfo.first {
-            $0.tokenContractAddress == token.contractAddress && $0.chainId == chainId
+            // Addresses can differ in letter case (API lowercased vs EIP-55 checksum).
+            $0.tokenContractAddress.caseInsensitiveEquals(to: token.contractAddress) && $0.chainId == chainId
         }
 
         let state: YieldModuleManagerState
@@ -544,13 +566,15 @@ private extension CommonYieldModuleManager {
             throw YieldModuleError.maxNetworkFeeNotFound
         }
 
-        let maxFeeNativeWei = maxFeeNative * blockchain.decimalValue
         let coinPrice = try await quotesRepository.quote(for: blockchain.currencyId)
         let tokenPrice = try await quotesRepository.quote(for: tokenCurrencyId)
 
-        let maxNetworkFeeToken = maxFeeNativeWei * coinPrice.price / tokenPrice.price
-
-        return EthereumUtils.mapToBigUInt(maxNetworkFeeToken)
+        return try YieldMaxNetworkFeeUtil().maxNetworkFee(
+            maxFeeNative: maxFeeNative,
+            coinPrice: coinPrice.price,
+            tokenPrice: tokenPrice.price,
+            token: token
+        )
     }
 
     func activate() async {
@@ -603,7 +627,10 @@ private extension CommonYieldModuleManager {
             return statePublisher
         }
 
-        let cachedStateInfo = YieldModuleManagerStateInfo(marketInfo: .init(from: cachedMarket), state: .loading(cachedState: cachedState))
+        let cachedStateInfo = YieldModuleManagerStateInfo(
+            marketInfo: .init(from: cachedMarket),
+            state: .loading(cachedState: cachedState)
+        )
         return statePublisher
             .prepend(cachedStateInfo)
             .eraseToAnyPublisher()

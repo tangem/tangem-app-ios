@@ -10,6 +10,7 @@ import Combine
 import protocol TangemUI.FloatingSheetContentViewModel
 
 protocol FloatingSheetPresentingStateProvider: AnyObject {
+    var hasPresentedSheet: Bool { get }
     var hasPresentedSheetPublisher: AnyPublisher<Bool, Never> { get }
 }
 

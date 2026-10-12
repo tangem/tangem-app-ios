@@ -22,8 +22,6 @@ final class PromocodeActivationViewModel: ObservableObject {
     @Published private(set) var isCheckingPromoCode = false
 
     private let promoCode: String
-    private let refcode: String?
-    private let campaign: String?
     private let dismissAction: () -> Void
 
     private var alertOkButton: Alert.Button {
@@ -32,10 +30,8 @@ final class PromocodeActivationViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(promoCode: String, refcode: String?, campaign: String?, dismissAction: @escaping () -> Void) {
+    init(promoCode: String, dismissAction: @escaping () -> Void) {
         self.promoCode = promoCode
-        self.refcode = refcode
-        self.campaign = campaign
         self.dismissAction = dismissAction
 
         Analytics.log(.bitcoinPromoDeeplinkActivation)
@@ -52,10 +48,9 @@ final class PromocodeActivationViewModel: ObservableObject {
 
         AnalyticsLogger.info("Activating promo code: \(promoCode)")
 
-        if let refcode {
-            AnalyticsLogger.info("Refcode was provided: \(refcode)")
-            referralService.saveAndBindIfNeeded(refcode: refcode, campaign: campaign)
-        }
+        // The promo screen is up on the main screen, so the wallets are known: a referral the link brought in
+        // before there was one is bound now.
+        referralService.retryBindingIfNeeded()
 
         do {
             // Delay added to handle cold start, since getWalletAddress may fail before wallet models are fully loaded

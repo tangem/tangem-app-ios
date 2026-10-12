@@ -6,22 +6,56 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import Combine
+import SwiftUI
+import TangemFoundation
+import TangemLocalization
+import TangemPay
 import TangemUI
 
 final class TangemPayOfframpCoordinator: CoordinatorObject {
     let dismissAction: Action<DismissOptions?>
     let popToRootAction: Action<PopToRootOptions>
 
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.floatingSheetPresenter)
+    private var floatingSheetPresenter: any FloatingSheetPresenter
+
+    @Injected(\.tangemPayRecentOperationsStore)
+    private var tangemPayRecentOperationsStore: TangemPayRecentOperationsStore
 
     // MARK: - Root view model
 
     @Published private(set) var rootViewModel: WithdrawHubViewModel?
+    @Published var path: [Route] = []
+    @Published var successStatusModel: TransferSuccessStatusView.Model?
+    @Published var failedStatus: FailedStatus?
 
     // MARK: - Child coordinators
 
     @Published var sendCoordinator: SendCoordinator?
+
+    // MARK: - Shared state
+
+    private(set) var recentRecipientsStore: TangemPayRecentRecipientsStore?
+    private(set) var optionsStore: TangemPayOfframpOptionsStore?
+    private(set) var geoStore: TangemPayGeoStore?
+    private(set) var orderBuilder: TangemPayOfframpOrderBuilder?
+    private(set) var sendUseCase: TangemPayOffRampSendUseCase?
+    private(set) var analyticsLogger: (any TangemPayOfframpAnalyticsLogger)?
+    private(set) var hasNFCInteraction = false
+
+    private var orderService: (any TangemPayOfframpOrderService)?
+    private var orderSigner: (any TangemPayOfframpOrderSigning)?
+    @Published private(set) var transferInputViewModel: TransferInputViewModel?
+
+    // MARK: - Geo selection
+
+    @Published var isGeoSelectionPresented = false
+
+    private var geoSelectionStart: TangemPayOfframpGeoSelectionCoordinatorView.Start?
+    private var geoSelectionCompletion: ((TangemPayOfframpGeoSelectionCoordinatorView.Output) -> Void)?
+
+    private var bag: Set<AnyCancellable> = []
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -32,15 +66,99 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        hasNFCInteraction = options.hasNFCInteraction
+
+        let analyticsLogger = CommonTangemPayOfframpAnalyticsLogger(
+            userWalletId: options.tangemPayAccount.userWalletId
+        )
+        self.analyticsLogger = analyticsLogger
+
+        orderService = CommonTangemPayOfframpOrderService(
+            customerService: options.tangemPayAccount.customerService
+        )
+
+        orderSigner = options.tangemPayAccount.offrampOrderSigner
+
+        let recentRecipientsStore = TangemPayRecentRecipientsStore(
+            repository: CommonTangemPayBankAccountsRepository(
+                customerService: options.tangemPayAccount.customerService
+            )
+        )
+        self.recentRecipientsStore = recentRecipientsStore
+
+        let optionsStore = TangemPayOfframpOptionsStore(
+            optionsRepository: CommonTangemPayOfframpOptionsRepository(
+                customerService: options.tangemPayAccount.customerService
+            ),
+            accountTokensProvider: { [tangemPayAccount = options.tangemPayAccount] in
+                await Self.accountTokens(for: tangemPayAccount)
+            }
+        )
+        self.optionsStore = optionsStore
+
+        let repository = CommonTangemPayGeoRepository()
+        geoStore = TangemPayGeoStore(repository: repository)
+
         rootViewModel = WithdrawHubViewModel(
             withdrawFlowResolver: TangemPayWithdrawFlowResolver(
                 fundingFlowBuilder: options.fundingFlowBuilder,
                 withdrawAvailabilityProvider: options.tangemPayAccount.withdrawAvailabilityProvider
             ),
+            tangemPayAccount: options.tangemPayAccount,
+            recentOperationsStore: tangemPayRecentOperationsStore,
+            recentRecipientsStore: recentRecipientsStore,
+            optionsStore: optionsStore,
+            analyticsLogger: analyticsLogger,
             output: { [weak self] in
                 self?.handle($0)
             }
         )
+
+        bind()
+    }
+
+    func startWizard(recipient: TangemPayOfframpRecipient) {
+        guard let optionsStore,
+              let orderService,
+              let orderSigner,
+              let recentRecipientsStore,
+              let analyticsLogger
+        else {
+            return
+        }
+
+        let orderBuilder = TangemPayOfframpOrderBuilder(recipient: recipient)
+
+        if let account = savedRecipient(for: recipient) {
+            orderBuilder.selectSaved(account)
+        }
+
+        self.orderBuilder = orderBuilder
+
+        let savedRecipientName = savedRecipientName(for: recipient)
+
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            sendUseCase = TangemPayOffRampSendUseCase(
+                orderService: orderService,
+                orderSigner: orderSigner,
+                recentRecipientsStore: recentRecipientsStore
+            )
+
+            transferInputViewModel = TransferInputFactory.makeViewModel(
+                orderBuilder: orderBuilder,
+                optionsStore: optionsStore,
+                recipient: recipient,
+                savedRecipientName: savedRecipientName,
+                analyticsLogger: analyticsLogger,
+                output: { [weak self] in
+                    self?.handle($0)
+                }
+            )
+
+            path.append(.transferInput)
+        }
     }
 }
 
@@ -50,9 +168,392 @@ extension TangemPayOfframpCoordinator {
     struct Options {
         let tangemPayAccount: TangemPayAccount
         let fundingFlowBuilder: TangemPayFundingFlowBuilder
+        let hasNFCInteraction: Bool
     }
 
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption
+}
+
+// MARK: - Route
+
+extension TangemPayOfframpCoordinator {
+    enum Route: Hashable {
+        case recentRecipients
+        case swap
+        case transferInput
+        case transferType
+        case accountType
+        case personalDetails(Mode)
+        case bankDetails(Mode)
+        case transferConfirmation
+    }
+
+    enum Mode: Hashable {
+        case wizard
+        case edit
+    }
+}
+
+// MARK: - Route traits
+
+extension TangemPayOfframpCoordinator.Route {
+    var isPersonalDetails: Bool {
+        if case .personalDetails = self {
+            return true
+        }
+
+        return false
+    }
+}
+
+// MARK: - Account tokens
+
+private extension TangemPayOfframpCoordinator {
+    @MainActor
+    static func accountTokens(for account: TangemPayAccount) async -> [TangemPayAccountToken] {
+        if account.networks.isEmpty {
+            await account.loadBalance()
+        }
+
+        return TangemPayAccountTokensResolver().resolve(networks: account.networks)
+    }
+}
+
+// MARK: - Wizard lifetime
+
+private extension TangemPayOfframpCoordinator {
+    func bind() {
+        $path
+            .map { $0.contains(.transferInput) }
+            .removeDuplicates()
+            .filter { !$0 }
+            .withWeakCaptureOf(self)
+            .sink { coordinator, _ in
+                coordinator.orderBuilder = nil
+                coordinator.sendUseCase = nil
+                coordinator.transferInputViewModel = nil
+            }
+            .store(in: &bag)
+
+        $path
+            .map { $0.contains(.swap) }
+            .removeDuplicates()
+            .filter { !$0 }
+            .withWeakCaptureOf(self)
+            .sink { coordinator, _ in
+                coordinator.sendCoordinator = nil
+            }
+            .store(in: &bag)
+
+        $path
+            .map { $0.contains(where: \.isPersonalDetails) }
+            .removeDuplicates()
+            .filter { $0 }
+            .withWeakCaptureOf(self)
+            .sink { coordinator, _ in
+                coordinator.geoStore?.loadCountries()
+            }
+            .store(in: &bag)
+    }
+
+    func savedRecipientName(for recipient: TangemPayOfframpRecipient) -> String? {
+        savedRecipient(for: recipient)
+            .map { TangemPayRecipientNameFormatter.name(for: $0, style: .full) }
+    }
+
+    func savedRecipient(for recipient: TangemPayOfframpRecipient) -> TangemPayBankAccountResponse? {
+        guard case .saved(let bankAccountId) = recipient else { return nil }
+
+        return recentRecipientsStore?.recipients.first { $0.id == bankAccountId }
+    }
+}
+
+// MARK: - Active recipient
+
+extension TangemPayOfframpCoordinator {
+    var activeSavedRecipient: TangemPayBankAccountResponse? {
+        orderBuilder.flatMap { savedRecipient(for: $0.recipient) }
+    }
+}
+
+// MARK: - Transfer input output
+
+private extension TangemPayOfframpCoordinator {
+    func handle(_ output: TransferInputViewModel.Output) {
+        switch output {
+        case .continueWizard:
+            if path.contains(.transferConfirmation) {
+                popToConfirmation()
+            } else {
+                continueAfterTransferInput()
+            }
+
+        case .close:
+            dismiss(with: nil)
+        }
+    }
+}
+
+// MARK: - Wizard step output
+
+extension TangemPayOfframpCoordinator {
+    func handle(_ output: TransferTypeViewModel.Output) {
+        switch output {
+        case .continueWizard:
+            path.append(.accountType)
+
+        case .close:
+            dismiss(with: nil)
+        }
+    }
+
+    func handle(_ output: AccountTypeViewModel.Output) {
+        switch output {
+        case .continueWizard:
+            path.append(.personalDetails(.wizard))
+
+        case .close:
+            dismiss(with: nil)
+        }
+    }
+
+    func handle(_ output: PersonalDetailsViewModel.Output, mode: Mode) {
+        switch output {
+        case .selectCountry(let selectedCountryCode, let selectedRegionCode, let completion):
+            presentCountrySelection(
+                selectedCountryCode: selectedCountryCode,
+                selectedRegionCode: selectedRegionCode,
+                completion: completion
+            )
+
+        case .selectRegion(let countryCode, let selectedCode, let completion):
+            presentRegionSelection(countryCode: countryCode, selectedCode: selectedCode, completion: completion)
+
+        case .savedRecipientSelected:
+            restartOnSavedRecipient()
+
+        case .continueWizard:
+            switch mode {
+            case .wizard:
+                path.append(.bankDetails(.wizard))
+            case .edit:
+                popToConfirmation()
+            }
+
+        case .close:
+            dismiss(with: nil)
+        }
+    }
+
+    func handle(_ output: BankDetailsViewModel.Output, mode: Mode) {
+        switch output {
+        case .selectRegion(let countryCode, let selectedCode, let completion):
+            presentRegionSelection(countryCode: countryCode, selectedCode: selectedCode, completion: completion)
+
+        case .continueWizard:
+            switch mode {
+            case .wizard:
+                path.append(.transferConfirmation)
+            case .edit:
+                popToConfirmation()
+            }
+
+        case .close:
+            dismiss(with: nil)
+        }
+    }
+
+    func handle(_ output: TransferConfirmationViewModel.Output) {
+        switch output {
+        case .edit(let target):
+            path.append(route(for: target))
+
+        case .sent(let model):
+            successStatusModel = model
+
+        case .failed(let model, let onRetry, let onClose):
+            failedStatus = FailedStatus(model: model, onRetry: onRetry, onClose: onClose)
+
+        case .close:
+            dismiss(with: nil)
+        }
+    }
+
+    func closeFailedStatus() {
+        failedStatus?.onClose?()
+        dismiss(with: nil)
+    }
+
+    func retryAfterFailedStatus() {
+        let onRetry = failedStatus?.onRetry
+        failedStatus = nil
+
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(Constants.failedStatusDismissDelay))
+            onRetry?()
+        }
+    }
+}
+
+// MARK: - Failed status
+
+extension TangemPayOfframpCoordinator {
+    struct FailedStatus: Identifiable {
+        let id = UUID()
+        let model: TransferFailedStatusView.Model
+        let onRetry: (() -> Void)?
+        let onClose: (() -> Void)?
+
+        var canRetry: Bool {
+            onRetry != nil
+        }
+    }
+}
+
+// MARK: - Wizard routing
+
+private extension TangemPayOfframpCoordinator {
+    func continueAfterTransferInput() {
+        guard let orderBuilder else { return }
+
+        switch orderBuilder.recipient {
+        case .newIndividual:
+            path.append(.transferType)
+
+        case .newBusiness:
+            path.append(.accountType)
+
+        case .saved:
+            path.append(.transferConfirmation)
+        }
+    }
+
+    func restartOnSavedRecipient() {
+        Task { @MainActor [weak self] in
+            guard
+                let self,
+                let orderBuilder,
+                let optionsStore,
+                let analyticsLogger,
+                let index = path.lastIndex(of: .transferInput)
+            else {
+                return
+            }
+
+            let transferInputViewModel = TransferInputFactory.makeViewModel(
+                orderBuilder: orderBuilder,
+                optionsStore: optionsStore,
+                recipient: orderBuilder.recipient,
+                savedRecipientName: savedRecipientName(for: orderBuilder.recipient),
+                analyticsLogger: analyticsLogger,
+                output: { [weak self] in
+                    self?.handle($0)
+                }
+            )
+            self.transferInputViewModel = transferInputViewModel
+
+            path.removeSubrange((index + 1)...)
+
+            if transferInputViewModel.canContinue {
+                path.append(.transferConfirmation)
+            }
+        }
+    }
+
+    func popToConfirmation() {
+        guard let index = path.lastIndex(of: .transferConfirmation) else { return }
+
+        path.removeSubrange((index + 1)...)
+    }
+
+    func route(for target: TransferConfirmationEditTarget) -> Route {
+        switch target {
+        case .amount: .transferInput
+        case .personalDetails: .personalDetails(.edit)
+        case .bankDetails: .bankDetails(.edit)
+        }
+    }
+}
+
+// MARK: - Geo selection
+
+extension TangemPayOfframpCoordinator {
+    @MainActor
+    @ViewBuilder
+    func makeGeoSelectionView() -> some View {
+        if let geoStore, let geoSelectionStart {
+            TangemPayOfframpGeoSelectionCoordinatorView(
+                store: geoStore,
+                start: geoSelectionStart,
+                output: { [weak self] in self?.handle($0) }
+            )
+        }
+    }
+
+    func onGeoSelectionDismiss() {
+        geoSelectionStart = nil
+        geoSelectionCompletion = nil
+    }
+}
+
+private extension TangemPayOfframpCoordinator {
+    func presentGeoSelection(
+        start: TangemPayOfframpGeoSelectionCoordinatorView.Start,
+        completion: @escaping (TangemPayOfframpGeoSelectionCoordinatorView.Output) -> Void
+    ) {
+        geoSelectionStart = start
+        geoSelectionCompletion = completion
+        isGeoSelectionPresented = true
+    }
+
+    func presentCountrySelection(
+        selectedCountryCode: String?,
+        selectedRegionCode: String?,
+        completion: @escaping (TangemPayGeoCountry, TangemPayGeoRegion?) -> Void
+    ) {
+        presentGeoSelection(
+            start: .country(selectedCountryCode: selectedCountryCode, selectedRegionCode: selectedRegionCode)
+        ) { output in
+            switch output {
+            case .country(let country):
+                completion(country, nil)
+
+            case .countryWithRegion(let country, let region):
+                completion(country, region)
+
+            case .region, .closed:
+                break
+            }
+        }
+    }
+
+    func presentRegionSelection(
+        countryCode: String,
+        selectedCode: String?,
+        completion: @escaping (TangemPayGeoRegion) -> Void
+    ) {
+        presentGeoSelection(start: .region(countryCode: countryCode, selectedCode: selectedCode)) { output in
+            switch output {
+            case .region(let region):
+                completion(region)
+
+            case .country, .countryWithRegion, .closed:
+                break
+            }
+        }
+    }
+
+    func handle(_ output: TangemPayOfframpGeoSelectionCoordinatorView.Output) {
+        switch output {
+        case .country, .countryWithRegion, .region:
+            geoSelectionCompletion?(output)
+
+        case .closed:
+            break
+        }
+
+        isGeoSelectionPresented = false
+    }
 }
 
 // MARK: - Withdraw hub output
@@ -60,14 +561,8 @@ extension TangemPayOfframpCoordinator {
 private extension TangemPayOfframpCoordinator {
     func handle(_ output: WithdrawHubViewModel.Output) {
         switch output {
-        case .withdrawNote(let parameters):
-            Task { @MainActor in
-                let viewModel = TangemPayWithdrawNoteSheetViewModel(
-                    parameters: parameters,
-                    coordinator: self
-                )
-                floatingSheetPresenter.enqueue(sheet: viewModel)
-            }
+        case .withdraw(let parameters):
+            openSwap(parameters: parameters)
 
         case .withdrawInProgress:
             Task { @MainActor in
@@ -81,6 +576,12 @@ private extension TangemPayOfframpCoordinator {
                 floatingSheetPresenter.enqueue(sheet: viewModel)
             }
 
+        case .allRecipients:
+            path.append(.recentRecipients)
+
+        case .startWizard(let recipient):
+            startWizard(recipient: recipient)
+
         case .close:
             dismiss(with: nil)
         }
@@ -88,11 +589,9 @@ private extension TangemPayOfframpCoordinator {
 
     func openSwap(parameters: PredefinedSwapParameters) {
         let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] options in
-            self?.sendCoordinator = nil
-
             switch options {
             case .none, .closeButtonTap, .openSwap:
-                break
+                self?.dismiss(with: nil)
             case .openFeeCurrency(let feeCurrency):
                 self?.dismiss(with: feeCurrency)
             }
@@ -105,24 +604,7 @@ private extension TangemPayOfframpCoordinator {
 
         coordinator.start(with: .init(type: .swap(parameters), source: .main))
         sendCoordinator = coordinator
-    }
-}
-
-// MARK: - TangemPayWithdrawNoteSheetRoutable
-
-extension TangemPayOfframpCoordinator: TangemPayWithdrawNoteSheetRoutable {
-    func closeWithdrawNoteSheetPopup() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
-    }
-
-    func openWithdrawal(parameters: PredefinedSwapParameters) {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-            try? await Task.sleep(for: .seconds(0.2))
-            openSwap(parameters: parameters)
-        }
+        path.append(.swap)
     }
 }
 
@@ -143,5 +625,13 @@ extension TangemPayOfframpCoordinator: TangemPayNoDepositAddressSheetRoutable {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension TangemPayOfframpCoordinator {
+    enum Constants {
+        static let failedStatusDismissDelay: TimeInterval = 0.3
     }
 }

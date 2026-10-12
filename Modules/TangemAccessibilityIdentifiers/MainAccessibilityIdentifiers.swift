@@ -31,15 +31,20 @@ public enum MainAccessibilityIdentifiers {
     public static let searchThroughMarketField = "mainSearchThroughMarketField"
     public static let searchThroughMarketFieldContainer = "mainSearchThroughMarketFieldContainer"
     public static let searchThroughMarketClearButton = "mainSearchThroughMarketClearButton"
+    public static let shtorkaExpandButton = "mainShtorkaExpandButton"
     public static let addToPortfolioButton = "mainAddToPortfolioButton"
+    public static let addTokensButton = "mainAddTokensButton"
     public static let tokenNotSupportedNotice = "mainTokenNotSupportedNotice"
+    public static let walletPromoBannerButton = "mainWalletPromoBannerButton"
 
     /// Token-specific identifiers
     public static func tokenBalance(for tokenName: String) -> String {
         return "mainTokenBalance_\(tokenName)"
     }
 
+    public static let tokenCustomIndicatorPrefix = "mainTokenCustomIndicator_"
+
     public static func tokenCustomIndicator(for tokenName: String) -> String {
-        return "mainTokenCustomIndicator_\(tokenName)"
+        return "\(tokenCustomIndicatorPrefix)\(tokenName)"
     }
 }

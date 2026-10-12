@@ -92,7 +92,7 @@ public struct MessageBanner<SlotStart: View, SlotEnd: View, ExtraBottom: View>: 
     @ViewBuilder
     private func applyGlowRing(to content: some View) -> some View {
         if let appearance = config.glowRing {
-            content.glowRing(appearance, cornerRadius: cornerRadius)
+            content.glowRing(appearance, size: .card(cornerRadius: cornerRadius))
         } else {
             content
         }
@@ -170,7 +170,7 @@ private extension MessageBanner {
         if config.secondaryButton != nil || config.primaryButton != nil {
             HStack(spacing: MessageBannerMetrics.buttonRowSpacing) {
                 if let secondaryButton = config.secondaryButton {
-                    buttonView(secondaryButton, styleType: .secondary)
+                    buttonView(secondaryButton, styleType: .secondary(.default))
                 }
 
                 if let primaryButton = config.primaryButton {
@@ -191,7 +191,7 @@ private extension MessageBanner {
         .styleType(styleType)
         .size(.x9)
         .horizontalLayout(.infinity)
-        .isLoading(model.isLoading)
+        .loading(.spinner(if: model.isLoading))
         .disabled(!model.isEnabled)
         .frame(maxWidth: .infinity)
         .accessibilityIdentifier(model.accessibilityIdentifier)
@@ -226,7 +226,7 @@ private extension EnvironmentValues {
 extension MessageBannerVariant {
     var background: Color {
         switch self {
-        case .default: DesignSystem.Color.bgOpaquePrimary
+        case .default: DesignSystem.Color.bgTransparentPrimary
         case .solid: DesignSystem.Color.bgTertiary
         case .success: DesignSystem.Color.bgStatusSuccessSubtle
         case .error: DesignSystem.Color.bgStatusErrorSubtle

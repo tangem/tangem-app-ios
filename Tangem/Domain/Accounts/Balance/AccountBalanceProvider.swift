@@ -37,14 +37,19 @@ extension CommonAccountBalanceProvider: AccountBalanceProvider {
 
     var totalFiatBalance: LoadableBalanceView.State {
         loadableTokenBalanceViewStateBuilder.buildTotalBalance(
-            state: totalBalanceProvider.totalBalance
+            state: totalBalanceProvider.totalBalance,
+            currencyCode: AppSettings.shared.selectedCurrencyCode
         )
     }
 
     var totalFiatBalancePublisher: AnyPublisher<LoadableBalanceView.State, Never> {
         totalBalanceProvider.totalBalancePublisher
+            .withAppCurrencyCode()
             .withWeakCaptureOf(self)
-            .map { $0.loadableTokenBalanceViewStateBuilder.buildTotalBalance(state: $1) }
+            .map { provider, input in
+                let (state, currencyCode) = input
+                return provider.loadableTokenBalanceViewStateBuilder.buildTotalBalance(state: state, currencyCode: currencyCode)
+            }
             .eraseToAnyPublisher()
     }
 }

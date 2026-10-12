@@ -217,6 +217,11 @@ private extension MobileOnboardingAccessCodeViewModel {
                     context: context
                 )
 
+                BackendAuthenticationRegistrar.registerMobileWalletAfterAccessCodeUpdated(
+                    userWalletModel,
+                    accessCode: accessCode
+                )
+
                 userWalletModel.update(type: .accessCodeDidSet)
                 AppLogger.info("AccessCode update was successful, biometrics enabled: \(isBiometricsAvailable)")
                 await viewModel.onAccessCodeComplete()

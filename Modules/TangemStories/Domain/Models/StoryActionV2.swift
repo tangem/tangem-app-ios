@@ -7,18 +7,22 @@
 //
 
 import Foundation
+import TangemAssets
 
 public struct StoryActionV2: Equatable {
     public let id: String
     public let label: String
     public let style: ActionStyle
     public let target: ActionTarget
+    /// Local decoration only — remote stories have no icon in the contract.
+    public let icon: ImageType?
 
-    public init(id: String, label: String, style: ActionStyle, target: ActionTarget) {
+    public init(id: String, label: String, style: ActionStyle, target: ActionTarget, icon: ImageType? = nil) {
         self.id = id
         self.label = label
         self.style = style
         self.target = target
+        self.icon = icon
     }
 }
 

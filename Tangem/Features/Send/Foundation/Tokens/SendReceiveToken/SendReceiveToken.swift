@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemAssets
 import TangemExpress
 
 protocol SendGenericToken {}
@@ -27,10 +28,23 @@ extension SendReceiveToken {
 }
 
 /// Overrides how a receive token is presented on the swap screen for account funding flows:
-/// a fixed currency symbol, the payment account icon, and a fiat-denominated balance.
+/// a fixed currency symbol, the funded account's icon, and the denomination of its balance.
 struct SendReceiveTokenPresentation {
     /// Currency symbol shown on the receive pill (e.g. "USD" for a Visa Payment account).
     let currencySymbol: String
+    let icon: ImageType
+    let balanceDenomination: BalanceDenomination
+
+    init(currencySymbol: String, icon: ImageType, balanceDenomination: BalanceDenomination = .fiat) {
+        self.currencySymbol = currencySymbol
+        self.icon = icon
+        self.balanceDenomination = balanceDenomination
+    }
+
+    enum BalanceDenomination {
+        case fiat
+        case token
+    }
 }
 
 struct SendReceiveTokenDestination {

@@ -23,8 +23,5 @@ struct MobileOnboardingSeedPhraseImportView: View {
             })
             .stepsFlow(isLoading: viewModel.isCreating)
             .onFirstAppear(perform: viewModel.onFirstAppear)
-            .onDisappear {
-                UIApplication.shared.endEditing()
-            }
     }
 }
