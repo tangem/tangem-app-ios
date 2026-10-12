@@ -15,6 +15,7 @@ final class MainBottomSheetUIManager {
     private let isExpandedSubject: CurrentValueSubject<Bool, Never> = .init(false)
     private var pendingShow: Task<Void, Error>?
     private var pendingShowCompletions: [() -> Void] = []
+    private var isShowRequested = false
 
     deinit {
         pendingShow?.cancel()
@@ -36,11 +37,28 @@ extension MainBottomSheetUIManager {
         isExpandedSubject.send(isExpanded)
     }
 
+    func requestShow() {
+        ensureOnMainQueue()
+
+        isShowRequested = true
+    }
+
+    func showIfRequested() {
+        ensureOnMainQueue()
+
+        guard isShowRequested else {
+            return
+        }
+
+        show()
+    }
+
     /// `completion` runs once the sheet is asked for. A newer `show` carries it over; a `hide` that drops the
     /// pending show runs it at once, since there is no sheet left to wait for.
     func show(after delay: TimeInterval = 0, completion: (() -> Void)? = nil) {
         ensureOnMainQueue()
 
+        isShowRequested = false
         pendingShow?.cancel()
         pendingShow = nil
 
@@ -66,6 +84,7 @@ extension MainBottomSheetUIManager {
         ensureOnMainQueue()
 
         // Navigation can hide the sheet before its cold-start presentation has run.
+        isShowRequested = false
         pendingShow?.cancel()
         pendingShow = nil
         runPendingShowCompletions()
