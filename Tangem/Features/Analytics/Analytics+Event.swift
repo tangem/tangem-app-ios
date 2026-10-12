@@ -288,6 +288,9 @@ extension Analytics {
         case walletSettingsForgetWalletRequest = "[Settings / Wallet Settings] Forget Wallet Request"
         case walletSettingsForgetWalletScreen = "[Settings / Wallet Settings] Forget Wallet Screen"
         case walletSettingsWalletForgotten = "[Settings / Wallet Settings] Wallet Forgotten"
+        case walletSettingsLogOutRequest = "[Settings / Wallet Settings] Log Out Request"
+        case walletSettingsWalletLoggedOut = "[Settings / Wallet Settings] Wallet Logged Out"
+        case walletSettingsSocialRecoveryDeleted = "[Settings / Wallet Settings] Social Recovery Deleted"
 
         // MARK: - Account Settings
 

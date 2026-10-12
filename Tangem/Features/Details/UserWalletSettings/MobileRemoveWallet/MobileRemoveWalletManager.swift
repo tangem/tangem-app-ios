@@ -47,7 +47,7 @@ extension CommonMobileRemoveWalletManager: MobileRemoveWalletManager {
         logWalletForgottenAnalytics()
 
         if deletesICloudBackup {
-            MobileCleanupUtil.cleanBackup(
+            MobileCleanupUtil.cleanICloudBackup(
                 walletId: userWalletModel.userWalletId,
                 analyticsContextData: analyticsContextData
             )

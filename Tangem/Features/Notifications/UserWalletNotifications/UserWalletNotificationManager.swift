@@ -214,7 +214,7 @@ final class UserWalletNotificationManager {
 
         let config = userWalletModel.config
         let needBackup = MobileBackupStatusUtil.isBackupNeeded(config: config)
-        let needAccessCode = config.hasFeature(.userWalletAccessCode) && config.userWalletAccessCodeStatus == .none
+        let needAccessCode = MobileAccessCodeStatusUtil.isAccessCodeNeeded(config: config)
 
         guard needBackup || needAccessCode else {
             return
