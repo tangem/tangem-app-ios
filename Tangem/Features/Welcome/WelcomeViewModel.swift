@@ -19,7 +19,7 @@ final class WelcomeViewModel: ObservableObject {
     /// `nil` while the background hands one episode over to the next and no text belongs on screen.
     @Published private(set) var scene: WelcomeScene?
 
-    let videoBackground: WelcomeVideoBackgroundViewModel
+    let videoBackground: VideoBackground
 
     private weak var coordinator: WelcomeRoutable?
 
@@ -28,7 +28,14 @@ final class WelcomeViewModel: ObservableObject {
         videoProvider: WelcomeBackgroundVideoProviding
     ) {
         self.coordinator = coordinator
-        videoBackground = WelcomeVideoBackgroundViewModel(videoProvider: videoProvider)
+
+        if FeatureProvider.isAvailable(.payBundleIntroduction) {
+            videoBackground = .shared(
+                LoopingVideoBackgroundViewModel(provider: WelcomeLoopingVideoProvider(urlProvider: videoProvider))
+            )
+        } else {
+            videoBackground = .legacy(WelcomeVideoBackgroundViewModel(videoProvider: videoProvider))
+        }
 
         bind()
     }
@@ -64,5 +71,21 @@ final class WelcomeViewModel: ObservableObject {
             .map(WelcomeScene.scene(at:))
             .removeDuplicates()
             .assign(to: &$scene)
+    }
+}
+
+// MARK: - VideoBackground
+
+extension WelcomeViewModel {
+    enum VideoBackground {
+        case legacy(WelcomeVideoBackgroundViewModel)
+        case shared(LoopingVideoBackgroundViewModel)
+
+        var playbackTime: AnyPublisher<TimeInterval, Never> {
+            switch self {
+            case .legacy(let viewModel): viewModel.playbackTime
+            case .shared(let viewModel): viewModel.playbackTime
+            }
+        }
     }
 }
