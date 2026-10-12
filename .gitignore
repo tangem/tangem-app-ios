@@ -79,6 +79,7 @@ uitest-artifacts/
 Modules/TangemAssets/Generated/**/*.swift
 Modules/TangemAssets/Generated/.dscore-hash
 Modules/TangemLocalization/Generated/**/*.swift
+TangemUITests/Helpers/Localization/Localizable+Generated.swift
 
 # Rubygems
 vendor/bundle
