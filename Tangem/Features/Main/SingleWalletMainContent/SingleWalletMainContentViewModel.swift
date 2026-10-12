@@ -17,9 +17,8 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     // MARK: - ViewState
 
     @Published var notificationInputs: [NotificationViewInput] = []
-    @Published var notificationBannerItems: [NotificationBannerItem] = []
     @Published var walletPromoBannerViewModel: WalletPromoBannerViewModel?
-    @Published var promotionNotificationsViewModel: PromotionNotificationsViewModel
+    let mainNotificationsViewModel: MainNotificationsViewModel
     /// [REDACTED_INFO]: Remove when the redesign feature toggle is removed
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
 
@@ -61,7 +60,8 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         tokenRouter: SingleTokenRoutable,
         delegate: SingleWalletMainContentDelegate?,
         coordinator: (any ActionButtonsRoutable & MultiWalletMainContentRoutable)?,
-        accountModel: (any CryptoAccountModel)?
+        accountModel: (any CryptoAccountModel)?,
+        mainNotificationsViewModel: MainNotificationsViewModel
     ) {
         self.userWalletModel = userWalletModel
         self.userWalletNotificationManager = userWalletNotificationManager
@@ -79,9 +79,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             )
         }
 
-        promotionNotificationsViewModel = PromotionNotificationsViewModel(
-            promotionNotificationsManager: promotionNotificationsManager
-        )
+        self.mainNotificationsViewModel = mainNotificationsViewModel
 
         super.init(
             userWalletInfo: userWalletModel.userWalletInfo,
@@ -188,6 +186,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         async let mainRefresh: Void = super.onPullToRefresh()
         async let promotionsRefresh: Void = promotionNotificationsManager.loadPromotions()
         _ = await (mainRefresh, promotionsRefresh)
+        mainNotificationsViewModel.refresh()
     }
 
     override func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
@@ -230,16 +229,10 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        let mapper = MultiWalletNotificationBannerMapper()
-
-        $notificationInputs
-            .map { mapper.mapItems($0) }
-            .removeDuplicates()
-            .assign(to: &$notificationBannerItems)
-
         rateAppController.bind(notificationsPublisher: $notificationInputs)
 
         bindWalletPromoBanner()
+        bindMainNotificationsVisibility()
     }
 
     private func bindWalletPromoBanner() {
@@ -273,6 +266,23 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     private func openAddFunds() {
         let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
         addFundsRoutable?.openBuy(userWalletModels: userWalletModels, preferredWalletId: ActionButtonsBuyPreselection.userWalletId(for: userWalletModel))
+    }
+
+    // MARK: - Main notifications visibility
+
+    private func bindMainNotificationsVisibility() {
+        let hasSystemCardPublisher = Publishers
+            .CombineLatest($notificationInputs, $walletPromoBannerViewModel)
+            .map { notifications, walletPromoBanner in
+                !notifications.isEmpty || walletPromoBanner != nil
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+
+        mainNotificationsViewModel.bindVisibility(
+            hasSystemCardPublisher: hasSystemCardPublisher,
+            balanceProvider: userWalletModel
+        )
     }
 }
 
