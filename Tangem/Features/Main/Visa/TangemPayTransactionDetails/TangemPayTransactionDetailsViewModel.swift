@@ -28,9 +28,6 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
 
     @Published private(set) var displayModel: TangemPayTransactionDetailsDisplayModel?
 
-    @Published private(set) var cardRow: CardRowState?
-    @Published private(set) var cashbackRow: CashbackRowState?
-
     // MARK: - Dependencies
 
     private let origin: Origin
@@ -164,7 +161,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
         }
 
         cardLoadTask?.cancel()
-        cardRow = .loading
+        displayModel?.cardRow = .loading
         cardLoadTask = runTask(in: self) { viewModel in
             await viewModel.loadCard(transactionId: transactionId)
         }
@@ -176,7 +173,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
         }
 
         cashbackLoadTask?.cancel()
-        cashbackRow = .loading
+        displayModel?.cashbackRow = .loading
         cashbackLoadTask = runTask(in: self) { viewModel in
             await viewModel.loadCashback(transactionId: transactionId)
         }
@@ -200,12 +197,12 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
         do {
             let response = try await tangemPayAccount.getTransaction(transactionId: transactionId)
             if case .merchant(let merchant) = response.record.displayRecord, let cardNumberEnd = merchant.cardNumberEnd {
-                cardRow = .loaded(cardNumberEnd: cardNumberEnd, cardName: merchant.cardDisplayName)
+                displayModel?.cardRow = .loaded(cardNumberEnd: cardNumberEnd, cardName: merchant.cardDisplayName)
             } else {
-                cardRow = .failed
+                displayModel?.cardRow = .failed
             }
         } catch {
-            cardRow = .failed
+            displayModel?.cardRow = .failed
         }
     }
 
@@ -215,9 +212,9 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
 
         do {
             let response = try await tangemPayAccount.getCashbackTransactionDetails(transactionId: transactionId)
-            cashbackRow = redesignedMapper.map(cashback: TangemPayTransactionCashback(response))
+            displayModel?.cashbackRow = redesignedMapper.map(cashback: TangemPayTransactionCashback(response))
         } catch {
-            cashbackRow = .failed
+            displayModel?.cashbackRow = .failed
             Analytics.log(.visaCashbackLoadingErrorShowed, contextParams: .userWallet(userWalletId))
         }
     }
@@ -239,18 +236,5 @@ extension TangemPayTransactionDetailsViewModel {
     enum Origin {
         case history(TangemPayTransactionRecord)
         case push(TangemPayPushPayload)
-    }
-
-    enum CardRowState: Equatable {
-        case loading
-        case loaded(cardNumberEnd: String, cardName: String?)
-        case failed
-    }
-
-    enum CashbackRowState: Equatable {
-        case loading
-        case awaitingCalculation
-        case loaded(TangemPayTransactionDetailsDisplayModel.CashbackRow)
-        case failed
     }
 }

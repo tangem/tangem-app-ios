@@ -99,8 +99,14 @@ struct TangemPayDisplayDataMapper {
     }
 
     func map(collateral input: TangemPayCollateralDisplayInput) -> TangemPayTransactionDetailsViewModel.DisplayData {
-        let name = input.isOutgoing ? Localization.tangemPayWithdrawal : Localization.tangemPayDeposit
-        let type: TransactionViewModel.TransactionType = .tangemPay(.transfer(name: name))
+        let name = switch input.kind {
+        case .deposit: Localization.tangemPayDeposit
+        case .withdrawal: Localization.tangemPayWithdrawal
+        case .cashback: Localization.tangempayCashbackTitle
+        }
+        let type: TransactionViewModel.TransactionType = input.kind == .cashback
+            ? .tangemPay(.cashback(name: name))
+            : .tangemPay(.transfer(name: name))
 
         let prefix: String = input.amount > 0 ? .plusSign : .empty
         let formattedAmount = format(amount: input.amount, currencyCode: AppConstants.usdCurrencyCode, prefix: prefix)
@@ -204,7 +210,11 @@ struct TangemPaySpendDisplayInput {
 struct TangemPayCollateralDisplayInput {
     let postedAt: Date
     let amount: Decimal
-    let isOutgoing: Bool
+    let kind: TangemPayCollateralKind
+
+    var isOutgoing: Bool {
+        kind == .withdrawal
+    }
 }
 
 struct TangemPayPaymentDisplayInput {
@@ -260,7 +270,7 @@ extension TangemPayMerchantRecord {
 
 extension TangemPayTransactionHistoryResponse.Collateral {
     var displayInput: TangemPayCollateralDisplayInput {
-        .init(postedAt: postedAt, amount: amount, isOutgoing: amount < 0)
+        .init(postedAt: postedAt, amount: amount, kind: resolvedKind)
     }
 }
 
@@ -314,9 +324,11 @@ extension TangemPayPushPayload {
              .declinedReason17(let spend):
             return mapper.map(spend: spend.displayInput)
         case .collateralWithdraw(let collateral):
-            return mapper.map(collateral: collateral.displayInput(isOutgoing: true))
+            return mapper.map(collateral: collateral.displayInput(kind: .withdrawal))
         case .collateralDeposit(let collateral):
-            return mapper.map(collateral: collateral.displayInput(isOutgoing: false))
+            return mapper.map(collateral: collateral.displayInput(kind: .deposit))
+        case .cashbackTopUp(let collateral):
+            return mapper.map(collateral: collateral.displayInput(kind: .cashback))
         case .cardReady, .thresholdTopUp:
             return nil
         }
@@ -345,8 +357,8 @@ extension TangemPayPushPayload.Spend {
 }
 
 extension TangemPayPushPayload.Collateral {
-    func displayInput(isOutgoing: Bool) -> TangemPayCollateralDisplayInput {
-        .init(postedAt: postedAt, amount: isOutgoing ? -amount : amount, isOutgoing: isOutgoing)
+    func displayInput(kind: TangemPayCollateralKind) -> TangemPayCollateralDisplayInput {
+        .init(postedAt: postedAt, amount: kind == .withdrawal ? -amount : amount, kind: kind)
     }
 }
 
