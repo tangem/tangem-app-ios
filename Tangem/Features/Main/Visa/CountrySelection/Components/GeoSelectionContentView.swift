@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemFoundation
 import TangemLocalization
@@ -87,10 +88,12 @@ private extension GeoSelectionContentView {
                 .start { CountryFlagView(url: item.flagURL) }
                 .end { loader(for: item) }
                 .onTap { onItemTap(item.id, isHighlighted) }
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.geoSelectionRow)
         } else {
             Row(title: item.title)
                 .end { loader(for: item) }
                 .onTap { onItemTap(item.id, isHighlighted) }
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.geoSelectionRow)
         }
     }
 
