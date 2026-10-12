@@ -22,6 +22,7 @@ import TangemAccessibilityIdentifiers
 /// - `Yield mode enabled` (no amount, no subtitle)
 struct TransactionChipRedesigned: View {
     let viewModel: TransactionViewModel
+    let style: TransactionDisplayModel.ChipStatusStyle
 
     private var display: TransactionDisplayModel { viewModel.display }
 
@@ -56,10 +57,10 @@ struct TransactionChipRedesigned: View {
     }
 
     private var amountText: String? {
-        switch viewModel.icon.status {
-        case .failed, .undefined:
+        switch style {
+        case .error:
             return nil
-        case .inProgress, .confirmed:
+        case .progress, .plain, .success:
             return viewModel.amount.displayValue?.nilIfEmpty
         }
     }
@@ -71,10 +72,10 @@ struct TransactionChipRedesigned: View {
             return nil
         }
 
-        switch viewModel.icon.status {
-        case .failed, .undefined:
+        switch style {
+        case .error:
             return viewModel.amount.displayValue?.nilIfEmpty
-        case .inProgress, .confirmed:
+        case .progress, .plain, .success:
             return nil
         }
     }
@@ -85,16 +86,18 @@ struct TransactionChipRedesigned: View {
 
     @ViewBuilder
     private var leadingIcon: some View {
-        switch viewModel.icon.status {
-        case .inProgress:
+        switch style {
+        case .progress:
             Loader()
                 .loaderSize(.size16)
                 .loaderColor(DesignSystem.Color.iconStatusInfo)
-        case .failed, .undefined:
+        case .error:
             iconImage(DesignSystem.Icons.Cross.regular16.image)
-        case .confirmed where isOperationGlyphVisible:
+        case .success:
+            iconImage(DesignSystem.Icons.Success.regular16.image)
+        case .plain where isOperationGlyphVisible:
             iconImage(viewModel.icon.redesignedIcon)
-        case .confirmed:
+        case .plain:
             EmptyView()
         }
     }
@@ -151,8 +154,8 @@ struct TransactionChipRedesigned: View {
         case .owner(let direction, let owner) where isCounterpartyVisible:
             TransactionSubtitleView(direction: direction, owner: owner, isAddressEmphasized: true)
 
-        case .provider(let direction) where isCounterpartyVisible:
-            TransactionProviderSubtitleView(direction: direction)
+        case .provider(let direction, let provider) where isCounterpartyVisible:
+            TransactionProviderSubtitleView(direction: direction, provider: provider)
 
         case .owner, .text, .express, .provider, .none:
             EmptyView()
@@ -160,34 +163,36 @@ struct TransactionChipRedesigned: View {
     }
 
     private var isCounterpartyVisible: Bool {
-        switch viewModel.icon.status {
-        case .failed, .undefined:
+        switch style {
+        case .error:
             return false
-        case .inProgress, .confirmed:
+        case .progress, .plain, .success:
             return true
         }
     }
 
     private var titleColor: Color {
-        switch viewModel.icon.status {
-        case .failed, .undefined: DesignSystem.Color.textStatusError
-        case .inProgress: DesignSystem.Color.textStatusInfo
-        case .confirmed: DesignSystem.Color.textSecondary
+        switch style {
+        case .error: DesignSystem.Color.textStatusError
+        case .progress: DesignSystem.Color.textStatusInfo
+        case .plain: DesignSystem.Color.textSecondary
+        case .success: DesignSystem.Color.textStatusSuccess
         }
     }
 
     private var amountColor: Color {
-        switch viewModel.icon.status {
-        case .confirmed: DesignSystem.Color.textPrimary
-        case .inProgress, .failed, .undefined: titleColor
+        switch style {
+        case .plain, .success: DesignSystem.Color.textPrimary
+        case .progress, .error: titleColor
         }
     }
 
     private var background: Color {
-        switch viewModel.icon.status {
-        case .failed, .undefined: DesignSystem.Color.bgStatusErrorSubtle
-        case .inProgress: DesignSystem.Color.bgStatusInfoSubtle
-        case .confirmed: DesignSystem.Color.bgTransparentSecondary
+        switch style {
+        case .error: DesignSystem.Color.bgStatusErrorSubtle
+        case .progress: DesignSystem.Color.bgStatusInfoSubtle
+        case .plain: DesignSystem.Color.bgTransparentSecondary
+        case .success: DesignSystem.Color.bgStatusSuccessSubtle
         }
     }
 }
@@ -200,6 +205,7 @@ private enum ChipPreviewFixture {
     static let types: [TransactionViewModel.TransactionType] = [
         .stake, .unstake, .approve,
         .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin, .yieldTopup, .yieldSend,
+        .incentiveClaimCoin,
     ]
     static let statuses: [TransactionViewModel.Status] = [.inProgress, .confirmed, .failed]
 
@@ -225,7 +231,9 @@ private enum ChipPreviewFixture {
 #Preview("Chip variants") {
     VStack(spacing: 8) {
         ForEach(Array(ChipPreviewFixture.combinations.enumerated()), id: \.offset) { _, model in
-            TransactionChipRedesigned(viewModel: model)
+            if case .chip(let style) = model.display.style {
+                TransactionChipRedesigned(viewModel: model, style: style)
+            }
         }
     }
     .padding()

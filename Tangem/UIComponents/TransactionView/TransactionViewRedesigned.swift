@@ -201,9 +201,10 @@ struct TransactionViewRedesigned: View {
         case .express(let model):
             TransactionExpressSubtitleView(model: model)
 
-        case .provider(let direction):
+        case .provider(let direction, let provider):
             TransactionProviderSubtitleView(
                 direction: direction,
+                provider: provider,
                 accessibilityIdentifier: TxHistoryAccessibilityIdentifiers.transactionSubtitle(key: transactionKey)
             )
 
