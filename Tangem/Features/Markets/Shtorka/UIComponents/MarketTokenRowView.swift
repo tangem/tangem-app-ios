@@ -29,6 +29,7 @@ struct MarketTokenRowView: View {
                 onTap: { viewModel.didTapAction?() }
             )
         )
+        .iconIndicatorColor(viewModel.isRestrictedForCountry ? DesignSystem.Color.bgAccentYellow : nil)
         .accessibilityIdentifiers(
             TokenRowMarket.AccessibilityIdentifiers(
                 name: MarketsAccessibilityIdentifiers.marketsListTokenNameLabel,
