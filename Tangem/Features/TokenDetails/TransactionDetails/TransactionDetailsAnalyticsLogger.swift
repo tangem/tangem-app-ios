@@ -252,7 +252,7 @@ final class TransactionDetailsAnalyticsLogger {
 
     private static func transferTitle(for transaction: TransactionViewModel) -> Analytics.ParameterValue {
         guard transaction.subtitleOwner?.isOwnWallet != true else {
-            return .txHistoryTransfer
+            return .transfer
         }
 
         return transaction.isOutgoing ? .sent : .txHistoryReceived
