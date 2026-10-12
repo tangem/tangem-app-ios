@@ -39,7 +39,7 @@ struct JointAccountInvalidInviteView: View {
             accessibilityLabel: Localization.commonGotIt,
             action: onGotItTap
         )
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
         .size(.x12)
         .padding(.horizontal, Constants.footerHorizontalPadding)

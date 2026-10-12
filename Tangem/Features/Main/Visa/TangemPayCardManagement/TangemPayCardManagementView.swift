@@ -207,7 +207,7 @@ struct TangemPayCardManagementView: View {
                 action: viewModel.onActivatePlasticCardButton
             )
             .size(.x12)
-            .styleType(.default)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.plasticActivateCardButton)
         }

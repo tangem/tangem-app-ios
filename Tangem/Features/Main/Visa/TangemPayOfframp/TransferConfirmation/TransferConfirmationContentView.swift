@@ -221,7 +221,7 @@ private extension TransferConfirmationContentView {
         )
         .iconEnd(state.sendButtonIcon)
         .size(.x12)
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
         .loading(.spinner(if: state.isSending))
         .disabled(!state.isSendEnabled || state.isSending)

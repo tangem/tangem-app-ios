@@ -157,7 +157,7 @@ struct JointAccountJoinView: View {
         TangemUI.Button(label: Localization.commonContinue, accessibilityLabel: nil) {
             viewModel.onContinueTap()
         }
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
         .size(.x12)
         .padding(.vertical, Constants.footerVerticalPadding)

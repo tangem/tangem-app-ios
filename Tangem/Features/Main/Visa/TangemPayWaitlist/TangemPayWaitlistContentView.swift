@@ -106,7 +106,7 @@ private extension TangemPayWaitlistContentView {
             action: { action(.saveTap) }
         )
         .size(.x12)
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
         .loading(.spinner(if: state.isSaving))
         .disabled(!state.isSaveEnabled)

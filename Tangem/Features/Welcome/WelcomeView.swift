@@ -101,7 +101,7 @@ struct WelcomeView: View {
                     accessibilityLabel: nil,
                     action: viewModel.onCreateWalletTap
                 )
-                .styleType(.default)
+                .styleType(.primary)
                 .horizontalLayout(.infinity)
                 .size(.x12)
                 .accessibilityIdentifier(WelcomeAccessibilityIdentifiers.createWalletButton)

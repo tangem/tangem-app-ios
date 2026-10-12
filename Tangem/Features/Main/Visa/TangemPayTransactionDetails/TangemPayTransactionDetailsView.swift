@@ -131,7 +131,7 @@ private extension TangemPayTransactionDetailsView {
                 action: viewModel.userDidTapMainButton
             )
             .size(.x12)
-            .styleType(.default)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
             .padding(16)
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsMainButton)
