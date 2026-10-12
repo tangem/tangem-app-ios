@@ -44,6 +44,8 @@ struct TransactionViewIconViewData: Hashable {
             return DesignSystem.Icons.Stack.regular16.image
         case .tangemPay(.fee):
             return Assets.Visa.feeTransactionPercent.image
+        case .tangemPay(.cashback):
+            return DesignSystem.Icons.PercentBackward.regular20.image
         case .tangemPay(.spend):
             return Assets.Visa.otherTransaction.image
         case .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin,
