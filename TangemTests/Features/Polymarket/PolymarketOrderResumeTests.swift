@@ -134,6 +134,7 @@ private extension PolymarketOrderResumeTests {
             clobService: clob,
             isAwaitingFundsPublisher: .just(output: false),
             collateralBalancePublisher: .just(output: 200),
+            addFundsReadinessStream: AsyncStream { $0.yield(.unavailable); $0.finish() },
             delayProvider: ShortPollDelayProvider(),
             notificationCenter: notificationCenter
         )
