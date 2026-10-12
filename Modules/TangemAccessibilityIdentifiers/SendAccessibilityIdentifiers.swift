@@ -94,6 +94,8 @@ public enum SendAccessibilityIdentifiers {
     /// Send via Swap
     public static let convertToAnotherTokenButton = "sendConvertToAnotherTokenButton"
     public static let receiveTokenBlock = "sendReceiveTokenBlock"
+    public static let sourceTokenBlock = "sendSourceTokenBlock"
+    public static let rateBadge = "sendRateBadge"
     public static let receiveDecimalNumberTextField = "sendReceiveDecimalNumberTextField"
     public static let removeConvertButton = "sendRemoveConvertButton"
     public static let networkSelectorErrorTitle = "sendNetworkSelectorErrorTitle"
@@ -109,6 +111,8 @@ public enum SendAccessibilityIdentifiers {
     /// Swap Provider (compact view on summary)
     public static let swapProviderBlock = "sendSwapProviderBlock"
     public static let swapProviderName = "sendSwapProviderName"
+    public static let swapProviderFCAWarning = "sendSwapProviderFCAWarning"
+    public static let summaryTransactionDescription = "sendSummaryTransactionDescription"
 
     /// Swap Provider Selector
     public static let swapProviderBestRateBadge = "sendSwapProviderBestRateBadge"

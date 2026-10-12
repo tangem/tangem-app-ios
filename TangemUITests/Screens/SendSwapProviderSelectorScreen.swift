@@ -231,6 +231,35 @@ final class SendSwapProviderSelectorScreen: ScreenBase<SendSwapProviderSelectorE
     }
 
     @discardableResult
+    func assertFCAWarningBadge(onProvider name: String) -> Self {
+        XCTContext.runActivity(named: "Assert provider '\(name)' is marked with '\(Constants.fcaWarningBadge)'") { _ in
+            let row = providerRow(name: name)
+            waitAndAssertTrue(row, "Provider row '\(name)' should exist")
+            let isMarked = NSPredicate(format: "label CONTAINS %@", Constants.fcaWarningBadge)
+            let expectation = XCTNSPredicateExpectation(predicate: isMarked, object: row)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Provider '\(name)' should be marked '\(Constants.fcaWarningBadge)', but row label was '\(row.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertNoFCAWarningBadge(onProvider name: String) -> Self {
+        XCTContext.runActivity(named: "Assert provider '\(name)' is not marked with '\(Constants.fcaWarningBadge)'") { _ in
+            let row = providerRow(name: name)
+            waitAndAssertTrue(row, "Provider row '\(name)' should exist")
+            XCTAssertFalse(
+                row.label.contains(Constants.fcaWarningBadge),
+                "Provider '\(name)' should not be marked '\(Constants.fcaWarningBadge)', but row label was '\(row.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
     func close() -> SendSummaryScreen {
         XCTContext.runActivity(named: "Close provider selector") { _ in
             let closeButton = app.buttons[CommonUIAccessibilityIdentifiers.closeButton].firstMatch
@@ -278,5 +307,6 @@ enum SendSwapProviderSelectorElement: String, UIElement {
 private extension SendSwapProviderSelectorScreen {
     enum Constants {
         static let notAvailableBadge = "Not available"
+        static let fcaWarningBadge = "FCA Warning List"
     }
 }

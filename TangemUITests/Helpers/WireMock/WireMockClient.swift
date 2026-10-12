@@ -130,7 +130,18 @@ final class WireMockClient {
         try await findRequestBodies(matching: WireMockFindRequestsRequest(method: method, urlPathPattern: urlPathPattern))
     }
 
+    func findRequestTimestamps(method: String, urlPattern: String) async throws -> [Date] {
+        try await findRequests(matching: WireMockFindRequestsRequest(method: method, urlPattern: urlPattern))
+            .compactMap(\.loggedDate)
+            .sorted()
+            .map { Date(timeIntervalSince1970: $0 / 1000) }
+    }
+
     private func findRequestBodies(matching query: WireMockFindRequestsRequest) async throws -> [String] {
+        try await findRequests(matching: query).compactMap(\.body)
+    }
+
+    private func findRequests(matching query: WireMockFindRequestsRequest) async throws -> [WireMockLoggedRequest] {
         let url = URL(string: "\(baseURL)/__admin/requests/find")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -143,7 +154,7 @@ final class WireMockClient {
             throw WireMockError.httpError(response)
         }
 
-        return try JSONDecoder().decode(WireMockFindRequestsResponse.self, from: data).requests.compactMap(\.body)
+        return try JSONDecoder().decode(WireMockFindRequestsResponse.self, from: data).requests
     }
 
     /// Clear the request journal so a test only counts and inspects its own traffic
@@ -281,6 +292,22 @@ final class WireMockClient {
         }
         XCTestCase().wait(for: [expectation], timeout: .networkRequest)
         return bodies
+    }
+
+    func findRequestTimestampsSync(method: String, urlPattern: String) -> [Date] {
+        var timestamps: [Date] = []
+        let expectation = XCTestExpectation(description: "Find WireMock request timestamps")
+        Task {
+            do {
+                timestamps = try await findRequestTimestamps(method: method, urlPattern: urlPattern)
+                expectation.fulfill()
+            } catch {
+                XCTFail("Failed to find requests for \(method) \(urlPattern): \(error)")
+                expectation.fulfill()
+            }
+        }
+        XCTestCase().wait(for: [expectation], timeout: .networkRequest)
+        return timestamps
     }
 
     func resetScenarioSync(_ scenarioName: String) {
