@@ -21,19 +21,32 @@ struct TangemPayVirtualAccountFeeListView: View {
     var body: some View {
         switch state {
         case .loading:
-            feeList(achFee: nil, fedwireFee: nil, isLoading: true)
-        case .loaded(let achFee, let fedwireFee):
-            feeList(achFee: achFee, fedwireFee: fedwireFee, isLoading: false)
+            feeList {
+                feePlaceholderRow
+
+                divider
+
+                feePlaceholderRow
+            }
+        case .loaded(let fees):
+            feeList {
+                ForEach(Array(fees.enumerated()), id: \.element.id) { index, fee in
+                    feeRow(fee)
+
+                    if index < fees.count - 1 {
+                        divider
+                    }
+                }
+            }
+        case .empty:
+            EmptyView()
         case .failed:
             feeErrorBanner
         }
     }
 
-    private func feeList(achFee: String?, fedwireFee: String?, isLoading: Bool) -> some View {
-        let showsAch = isLoading || achFee != nil
-        let showsFedwire = isLoading || fedwireFee != nil
-
-        return VStack(spacing: 0) {
+    private func feeList(@ViewBuilder rows: () -> some View) -> some View {
+        VStack(spacing: 0) {
             HStack(spacing: 0) {
                 Text(header)
                     .font(token: DesignSystem.Font.subheadingMediumToken)
@@ -43,20 +56,14 @@ struct TangemPayVirtualAccountFeeListView: View {
             }
             .padding(.vertical, 8)
 
-            if showsAch {
-                feeRow(title: Localization.tangempayBankTransferFeeAch, value: achFee, fee: .ach)
-            }
-
-            if showsAch, showsFedwire {
-                DesignSystem.Color.borderSecondary
-                    .frame(height: 1)
-            }
-
-            if showsFedwire {
-                feeRow(title: Localization.tangempayBankTransferFeeFedwire, value: fedwireFee, fee: .fedwire)
-            }
+            rows()
         }
         .padding(.horizontal, rowsHorizontalPadding)
+    }
+
+    private var divider: some View {
+        DesignSystem.Color.borderSecondary
+            .frame(height: 1)
     }
 
     private var feeErrorBanner: some View {
@@ -74,27 +81,30 @@ struct TangemPayVirtualAccountFeeListView: View {
         .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountFeeErrorBanner)
     }
 
-    private func feeRow(title: String, value: String?, fee: TangemPayAccessibilityIdentifiers.VirtualAccountFee) -> some View {
+    private func feeRow(_ fee: TangemPayVirtualAccountFee) -> some View {
         HStack(spacing: 0) {
-            Text(verbatim: title)
+            Text(verbatim: fee.title)
                 .font(token: DesignSystem.Font.bodyMediumToken)
                 .foregroundStyle(DesignSystem.Color.textPrimary)
-                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountFeeTitle(fee))
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountFeeTitle(fee.id))
 
             Spacer(minLength: 0)
 
-            if let value {
-                Text(verbatim: value)
-                    .font(token: DesignSystem.Font.bodyMediumToken)
-                    .foregroundStyle(DesignSystem.Color.textSecondary)
-                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountFeeValue(fee))
-            }
+            Text(verbatim: fee.value)
+                .font(token: DesignSystem.Font.bodyMediumToken)
+                .foregroundStyle(DesignSystem.Color.textSecondary)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountFeeValue(fee.id))
         }
-        .overlay(alignment: .trailing) {
-            if value == nil {
-                Shimmer()
-                    .variant(.text(style: .body, alignment: .trailing))
-            }
+        .padding(.vertical, 12)
+    }
+
+    private var feePlaceholderRow: some View {
+        HStack(spacing: 12) {
+            Shimmer()
+                .variant(.text(style: .body, alignment: .leading))
+
+            Shimmer()
+                .variant(.text(style: .body, alignment: .trailing))
         }
         .padding(.vertical, 12)
     }
@@ -102,6 +112,7 @@ struct TangemPayVirtualAccountFeeListView: View {
 
 // MARK: - Previews
 
+#if DEBUG
 #Preview {
     VStack(spacing: 32) {
         TangemPayVirtualAccountFeeListView(
@@ -113,7 +124,14 @@ struct TangemPayVirtualAccountFeeListView: View {
 
         TangemPayVirtualAccountFeeListView(
             header: Localization.tangempayBankTransferOnboardingFeeHeader,
-            state: .loaded(achFee: "$0", fedwireFee: "$0"),
+            state: .loaded(.previews),
+            rowsHorizontalPadding: 0,
+            reload: {}
+        )
+
+        TangemPayVirtualAccountFeeListView(
+            header: Localization.tangempayBankTransferOnboardingFeeHeader,
+            state: .empty,
             rowsHorizontalPadding: 0,
             reload: {}
         )
@@ -128,3 +146,4 @@ struct TangemPayVirtualAccountFeeListView: View {
     .padding(24)
     .background(DesignSystem.Color.bgPrimary)
 }
+#endif

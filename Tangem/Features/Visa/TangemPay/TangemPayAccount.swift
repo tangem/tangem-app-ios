@@ -366,7 +366,6 @@ enum TangemPayAccountError: Error {
     case missingPaymentAccountAddress
     case missingDepositAddress
     case missingCardIssueOffer
-    case missingOnrampFees
 }
 
 extension TangemPayAccount {
