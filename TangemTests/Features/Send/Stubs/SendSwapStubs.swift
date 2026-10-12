@@ -214,5 +214,6 @@ final class SendAnalyticsLoggerStub: SendAnalyticsLogger {
     func logSwapButtonTransfer() {}
     func logSwapTransferModeSwitched() {}
     func logSwapTransactionSent(result: TransactionDispatcherResult) {}
+    func logTransferTransactionSent(result: TransactionDispatcherResult) {}
     func logSwapPreselectedTokenChanged(direction: Analytics.ParameterValue, preselectedSymbol: String, selectedSymbol: String) {}
 }
