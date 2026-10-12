@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemPay
@@ -163,6 +164,7 @@ private extension TransferConfirmationContentView {
                     }
 
                     sectionCard(for: section)
+                        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.confirmSection)
                 }
             }
         }
@@ -225,6 +227,7 @@ private extension TransferConfirmationContentView {
         .horizontalLayout(.infinity)
         .loading(.spinner(if: state.isSending))
         .disabled(!state.isSendEnabled || state.isSending)
+        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.confirmSendButton)
     }
 }
 
