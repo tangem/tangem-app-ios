@@ -8,7 +8,6 @@
 
 import XCTest
 import TangemAccessibilityIdentifiers
-import TangemLocalization
 
 final class CreateWalletScreen: ScreenBase<CreateWalletScreenElement> {
     private lazy var title = staticText(.title)
