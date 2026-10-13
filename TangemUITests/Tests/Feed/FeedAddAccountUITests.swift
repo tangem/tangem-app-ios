@@ -127,7 +127,7 @@ private extension FeedAddAccountUITests {
         static let accountsReadyState = "JointAccountReadyToCreate"
         static let createCryptoAccountState = "AccountReadyToCreateEmpty"
         static let cryptoAccountLimitReachedState = "CryptoAccountLimitReached"
-        static let jointAccountLimitReachedState = "JointAccountLimitReached"
+        static let jointAccountLimitReachedState = "JointAccountLimitReachedIOS"
         static let cryptoAccountName = "Account 2"
     }
 }

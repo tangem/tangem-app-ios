@@ -10,6 +10,7 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct TangemPayVirtualAccountDetailsContentView: View {
     let state: State
@@ -69,6 +70,7 @@ private extension TangemPayVirtualAccountDetailsContentView {
             }
             .padding(.vertical, Constants.credentialRowVerticalPadding)
         }
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountBankDetailCopyButton(row.key))
     }
 }
 
@@ -162,6 +164,7 @@ private extension TangemPayVirtualAccountDetailsContentView {
                 Text(Localization.tangempayBankTransferDetailsDailyDepositsHint(state.dailyDepositLimit))
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .multilineTextAlignment(.leading)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountDepositLimitSubtitle)
             }
         }
     }
@@ -179,6 +182,7 @@ private extension TangemPayVirtualAccountDetailsContentView {
         .styleType(.primary)
         .size(.x14)
         .horizontalLayout(.infinity)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountBankDetailsShareButton)
     }
 }
 

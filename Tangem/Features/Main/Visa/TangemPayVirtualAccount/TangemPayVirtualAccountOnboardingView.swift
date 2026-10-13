@@ -10,6 +10,7 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct TangemPayVirtualAccountOnboardingView: View {
     @ObservedObject var viewModel: TangemPayVirtualAccountInfoSheetViewModel
@@ -125,6 +126,7 @@ struct TangemPayVirtualAccountOnboardingView: View {
                 .size(.x12)
                 .horizontalLayout(.infinity)
                 .loading(.spinner(if: viewModel.isLoading))
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountOnboardingContinueButton)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)

@@ -36,8 +36,10 @@ final class TangemPayApplePayGuideUITests: BaseTestCase {
     func testApplePayGuideBanner_StaysDismissed_AfterBackgroundAndRestart() {
         setAllureId(9574)
 
-        let paymentAccount = launchAndImportHotWallet()
+        let cardDetails = launchAndImportHotWallet()
             .openTangemPay()
+            .waitForScreen()
+            .tapCard()
             .waitForScreen()
             .verifyApplePayGuideBannerVisible()
             .closeApplePayGuideBanner()
@@ -46,7 +48,7 @@ final class TangemPayApplePayGuideUITests: BaseTestCase {
         minimizeApp()
         maximizeApp()
 
-        paymentAccount.verifyApplePayGuideBannerHidden()
+        cardDetails.verifyApplePayGuideBannerHidden()
 
         relaunchKeepingState()
 
@@ -54,7 +56,6 @@ final class TangemPayApplePayGuideUITests: BaseTestCase {
             .openTangemPay()
             .waitForScreen()
             .waitForBalanceLoaded()
-            .verifyApplePayGuideBannerHidden()
             .tapCard()
             .waitForScreen()
             .verifyApplePayGuideBannerHidden()

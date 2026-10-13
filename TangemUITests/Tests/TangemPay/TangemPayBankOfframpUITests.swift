@@ -103,7 +103,7 @@ final class TangemPayBankOfframpUITests: BaseTestCase {
             .verifyOnlyRecipients(TangemPayBankRecipient.fiveSavedAccounts)
     }
 
-    func testRecipientAndToken_AddedToRecents_AfterSuccessfulTransfers() {
+    func testRecipient_AddedToRecents_AfterSuccessfulBankTransfer() {
         setAllureId(12178)
 
         let signaturesBefore = signatureRequestCount()
@@ -132,15 +132,22 @@ final class TangemPayBankOfframpUITests: BaseTestCase {
 
         wireMockClient.setScenarioStateSync(Constants.Scenario.bankAccounts, state: Constants.State.afterTransfer)
 
-        let withdrawDataBefore = withdrawDataRequestCount()
-
         TangemPayMainScreen(app)
             .tapWithdrawOpeningHub()
             .verifyRecentRecipient(.jane)
+    }
+
+    func testToken_AddedToRecents_AfterSuccessfulSwap() {
+        setAllureId(12670)
+
+        let withdrawDataBefore = withdrawDataRequestCount()
+
+        openPaymentAccount(bankAccountsState: Constants.State.afterTransfer, extraScenarios: Constants.swapScenarios)
+            .tapWithdrawOpeningHub()
             .tapWithinPortfolio()
             .chooseTokenFromEmptySelector(Constants.bitcoinName)
             .enterFromAmount(Constants.transferAmount)
-            .holdConfirmUntilSubmitted {
+            .confirmSwapUntilFinishOpened {
                 withdrawDataRequestCount() == withdrawDataBefore
             }
             .tapCloseButton()
