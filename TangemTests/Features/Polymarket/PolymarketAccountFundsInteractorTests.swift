@@ -337,6 +337,30 @@ struct PolymarketAddFundsPreparationTests {
         #expect(interactor.state.depositWalletAddress != nil)
     }
 
+    @Test("Without USDC on Polygon the deposit is withheld even though the bridge accepts USDC elsewhere")
+    func depositNeedsUSDCOnPolygon() async {
+        let interactor = makeInteractor(bridge: BridgeServiceStub(assets: [.usdcBase, .usdcSolana]))
+
+        await interactor.prepare()
+
+        #expect(interactor.state.depositAvailability == .unavailable)
+        #expect(interactor.state.depositWalletAddress != nil)
+    }
+
+    @Test("Without an EVM funding address the deposit is withheld even though a Solana target could be built")
+    func depositNeedsTheEVMFundingAddress() async {
+        let bridge = BridgeServiceStub(
+            assets: [.usdcPolygon, .usdcSolana],
+            fundingAddresses: PolymarketBridgeAddresses(addresses: [.svm: solanaFundingAddress])
+        )
+
+        let interactor = makeInteractor(bridge: bridge)
+        await interactor.prepare()
+
+        #expect(interactor.state.depositAvailability == .unavailable)
+        #expect(interactor.state.withdrawalAvailability == .available(minimumUSD: 2))
+    }
+
     @Test("A bridge that lists no asset the app offers withholds both flows but keeps the account prepared")
     func bothFlowsWithheldWhenNotAccepted() async {
         let other = PolymarketSupportedAsset.make(
