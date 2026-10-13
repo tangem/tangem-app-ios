@@ -22,7 +22,9 @@ struct PolymarketWithdrawTransactionValidator: SendTransactionValidator {
             throw ValidationError.amountExceedsBalance
         }
 
-        if let minimumAmount = minimum.inToken(), amount.value < minimumAmount {
+        let minimumAmount = minimum.inToken()
+
+        if amount.value < minimumAmount {
             throw ValidationError.minimumRestrictAmount(amount: Amount(with: amount, value: minimumAmount))
         }
     }
