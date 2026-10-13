@@ -145,8 +145,18 @@ private enum StubError: Error {
 // MARK: - Fixtures
 
 private extension PolymarketAccountFundsInteractor.State {
+    var depositWalletAddress: String? {
+        if case .ready(let readiness) = self { return readiness.depositWalletAddress }
+        return nil
+    }
+
     var depositAvailability: PolymarketAccountFundsInteractor.DepositAvailability? {
         if case .ready(let readiness) = self { return readiness.depositAvailability }
+        return nil
+    }
+
+    var withdrawalAvailability: PolymarketAccountFundsInteractor.WithdrawalAvailability? {
+        if case .ready(let readiness) = self { return readiness.withdrawalAvailability }
         return nil
     }
 
@@ -314,20 +324,21 @@ struct PolymarketAddFundsPreparationTests {
         await interactor.prepare()
 
         #expect(interactor.state.depositAvailability == .unavailable)
-        #expect(interactor.state.collateralMinCheckoutUSD == 2)
+        #expect(interactor.state.withdrawalAvailability == .available(minimumUSD: 2))
     }
 
-    @Test("A bridge that stops listing USDC on Polygon leaves no withdrawal floor to enforce")
+    @Test("A bridge that stops listing USDC on Polygon leaves the withdrawal minimum unknown, so the withdrawal is withheld")
     func withdrawalFloorNeedsTheCollateralAsset() async {
         let interactor = makeInteractor(bridge: BridgeServiceStub(assets: [.usdcBase]))
 
         await interactor.prepare()
 
-        #expect(interactor.state.collateralMinCheckoutUSD == nil)
+        #expect(interactor.state.withdrawalAvailability == .unavailable)
+        #expect(interactor.state.depositWalletAddress != nil)
     }
 
-    @Test("A bridge that lists no asset the app offers withholds the deposit without blocking a withdrawal")
-    func depositWithheldWhenNotAccepted() async {
+    @Test("A bridge that lists no asset the app offers withholds both flows but keeps the account prepared")
+    func bothFlowsWithheldWhenNotAccepted() async {
         let other = PolymarketSupportedAsset.make(
             chainId: "8453",
             symbol: "USDC",
@@ -339,16 +350,18 @@ struct PolymarketAddFundsPreparationTests {
         await interactor.prepare()
 
         #expect(interactor.state.depositTargets.first == nil)
+        #expect(interactor.state.withdrawalAvailability == .unavailable)
         #expect(interactor.state.depositWalletAddress == derivedDepositWallet)
     }
 
-    @Test("A failing bridge withholds the deposit without blocking a withdrawal")
-    func depositWithheldWhenBridgeFails() async {
+    @Test("A failing bridge withholds both flows but keeps the account prepared")
+    func bothFlowsWithheldWhenBridgeFails() async {
         let interactor = makeInteractor(bridge: BridgeServiceStub(assetsError: StubError.offline))
 
         await interactor.prepare()
 
         #expect(interactor.state.depositTargets.first == nil)
+        #expect(interactor.state.withdrawalAvailability == .unavailable)
         #expect(interactor.state.depositWalletAddress == derivedDepositWallet)
     }
 

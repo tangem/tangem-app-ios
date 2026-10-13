@@ -150,7 +150,7 @@ private extension PolymarketBalanceBlockViewModel {
             break
         case .balanceUnavailable:
             refresher.refreshNow()
-        case .accountUnavailable:
+        case .accountUnavailable, .minimumUnknown:
             actionsAvailability.prepare()
         }
     }
@@ -222,5 +222,6 @@ extension PolymarketBalanceBlockViewModel {
         case tooSmallBalance(minimumFormatted: String)
         case balanceUnavailable
         case accountUnavailable
+        case minimumUnknown
     }
 }

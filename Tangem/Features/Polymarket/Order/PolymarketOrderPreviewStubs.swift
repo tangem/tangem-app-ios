@@ -33,7 +33,6 @@ extension PolymarketOrderModel {
 extension PolymarketAccountFundsInteractor.State {
     static let preview: Self = .ready(PolymarketAccountFundsInteractor.Readiness(
         depositWalletAddress: "0x1111111111111111111111111111111111111111",
-        collateralMinCheckoutUSD: 2,
         depositAvailability: .available([
             PolymarketAccountFundsInteractor.DepositTarget(
                 entry: PolymarketDepositAssetCatalog.usdcOnPolygon,
@@ -41,7 +40,8 @@ extension PolymarketAccountFundsInteractor.State {
                 minCheckoutUSD: 2,
                 fundingAddress: "0x2222222222222222222222222222222222222222"
             ),
-        ])
+        ]),
+        withdrawalAvailability: .available(minimumUSD: 2)
     ))
 }
 
