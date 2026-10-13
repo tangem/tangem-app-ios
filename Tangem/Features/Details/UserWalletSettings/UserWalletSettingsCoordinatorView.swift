@@ -48,6 +48,9 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.mobileRemoveWalletViewModel) {
                 MobileRemoveWalletView(viewModel: $0)
             }
+            .navigation(item: $coordinator.mobileRemoveSocialWalletViewModel) {
+                MobileRemoveSocialWalletView(viewModel: $0)
+            }
             .navigation(item: $coordinator.hardwareBackupTypesCoordinator) {
                 HardwareBackupTypesCoordinatorView(coordinator: $0)
             }

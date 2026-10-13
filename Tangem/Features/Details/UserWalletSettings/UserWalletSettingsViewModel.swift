@@ -44,7 +44,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     @Published var nftViewModel: DefaultToggleRowViewModel?
 
-    @Published var socialLogOutViewModel: DefaultRowViewModel?
+    @Published var socialLoginSectionModels: [SocialLoginModel] = []
 
     @Published var forgetViewModel: DefaultRowViewModel?
 
@@ -222,7 +222,7 @@ private extension UserWalletSettingsViewModel {
         mobileUpgradeViewModel = nil
         mobileBackupViewModel = nil
         forgetViewModel = nil
-        socialLogOutViewModel = nil
+        socialLoginSectionModels = []
     }
 
     func setupViewModels() {
@@ -283,10 +283,7 @@ private extension UserWalletSettingsViewModel {
 
         if userWalletModel.config.hasFeature(.userWalletBackup) {
             if userWalletModel.config.hasSocialLogin {
-                socialLogOutViewModel = DefaultRowViewModel(
-                    title: Localization.socialWalletSettingsLogOut,
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapSocialLoginLogOut)
-                )
+                socialLoginSectionModels = makeSocialLoginModels()
             } else {
                 forgetViewModel = DefaultRowViewModel(
                     title: Localization.settingsForgetWallet,
@@ -299,6 +296,24 @@ private extension UserWalletSettingsViewModel {
                 action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapForgetWallet)
             )
         }
+    }
+
+    func makeSocialLoginModels() -> [SocialLoginModel] {
+        let logout = SocialLoginModel(
+            rowViewModel: DefaultRowViewModel(
+                title: Localization.socialWalletSettingsLogOut,
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapSocialLoginLogOut)
+            ),
+            isDestructive: false
+        )
+        let delete = SocialLoginModel(
+            rowViewModel: DefaultRowViewModel(
+                title: Localization.socialWalletSettingsDeleteWallet,
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapSocialLoginDelete)
+            ),
+            isDestructive: true
+        )
+        return [logout, delete]
     }
 
     func setupAccountsViewModel() {
@@ -429,6 +444,10 @@ private extension UserWalletSettingsViewModel {
         coordinator?.dismiss()
     }
 
+    func didTapSocialLoginDelete() {
+        coordinator?.openMobileRemoveSocialWallet(userWalletModel: userWalletModel)
+    }
+
     func showErrorAlert(error: Error) {
         alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription) { [weak self] in
             self?.coordinator?.onAlertDismiss()
@@ -441,6 +460,16 @@ private extension UserWalletSettingsViewModel {
             accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.manageTokensButton,
             action: weakify(self, forFunction: UserWalletSettingsViewModel.openManageTokens)
         )
+    }
+}
+
+// MARK: - Types
+
+extension UserWalletSettingsViewModel {
+    struct SocialLoginModel: Identifiable {
+        var id: ObjectIdentifier { rowViewModel.id }
+        let rowViewModel: DefaultRowViewModel
+        let isDestructive: Bool
     }
 }
 
