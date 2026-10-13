@@ -68,7 +68,7 @@ struct YieldModuleIncentiveChartContainer: View {
 
                     Text(formattedAverage(averageApy))
                         .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textSecondary)
-                        .skeletonable(isShown: isLoading)
+                        .shimmerPlaceholder(isLoading)
                 }
             }
             .padding(.leading, 16)

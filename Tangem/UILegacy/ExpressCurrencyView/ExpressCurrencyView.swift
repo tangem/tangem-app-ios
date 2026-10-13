@@ -236,9 +236,9 @@ struct ExpressCurrencyView<Content: View>: View {
     private var iconContent: some View {
         switch viewModel.state.tokenIconState {
         case .loading:
-            SkeletonView()
+            Shimmer()
+                .variant(.custom(cornerRadius: imageSize.height / 2))
                 .frame(size: imageSize)
-                .cornerRadius(imageSize.height / 2)
         case .notAvailable:
             Assets.emptyTokenList.image
                 .renderingMode(.template)

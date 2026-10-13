@@ -126,7 +126,7 @@ struct TabItemPlaceholder: View {
         Capsule()
             .fill(DesignSystem.Color.bgTransparentSecondary)
             .frame(width: Constants.placeholderWidth, height: height)
-            .tangemShimmer()
+            .shimmering()
     }
 }
 
