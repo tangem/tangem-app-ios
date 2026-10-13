@@ -15,7 +15,13 @@ final class SwapUITests: BaseTestCase {
     func testSwapCommission_validateReceivedAmount() {
         setAllureId(3546)
 
-        launchApp(tangemApiType: .mock, expressApiType: .mock)
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            scenarios: [
+                ScenarioConfig(name: Constants.polygonQuoteScenario, initialState: Constants.amountDependentQuoteState),
+            ]
+        )
 
         let swapScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -103,5 +109,12 @@ final class SwapUITests: BaseTestCase {
             .chooseReceiveToken("Ethereum")
             .enterFromAmount(amountToEnter)
             .waitErrorShown(title: "Error", message: "There was an error. Please try again.")
+    }
+}
+
+private extension SwapUITests {
+    enum Constants {
+        static let polygonQuoteScenario = "exchange_quote_polygon"
+        static let amountDependentQuoteState = "NonProportionalRate"
     }
 }

@@ -132,6 +132,15 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func verifyTokensListInteractive() -> Self {
+        XCTContext.runActivity(named: "Verify main screen tokens list is not covered") { _ in
+            waitAndAssertTrue(tokensList, "Main screen tokens list should be displayed")
+            XCTAssertTrue(tokensList.waitForState(state: .hittable, for: .conditional), "Main screen tokens list should not be covered by another screen")
+            return self
+        }
+    }
+
+    @discardableResult
     func verifyMarketsSheetIsCollapsedOnMain() -> Self {
         XCTContext.runActivity(named: "Verify collapsed 'Markets' sheet is visible on main") { _ in
             let sheet = shtorkaExpandButton.waitForExistence(timeout: .conditional) ? shtorkaExpandButton : grabber
