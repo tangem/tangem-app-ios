@@ -143,6 +143,19 @@ private extension WalletConnectSolanaSignTransactionHandler {
             transaction: transactionData
         )) ?? true
 
+        if !canHandleTransaction {
+            let isSoleRequiredSigner = try SolanaTransactionHelper().isSoleRequiredSigner(
+                walletModel.publicKey.blockchainKey,
+                transaction: transactionData
+            )
+
+            guard isSoleRequiredSigner else {
+                throw WalletConnectTransactionRequestProcessingError.invalidPayload(
+                    "The wallet must be the sole required signer of a transaction rebuilt with an address lookup table"
+                )
+            }
+        }
+
         return (canHandleTransaction, unsignedHash, withoutSignaturePlaceholders.signatureCount)
     }
 }
