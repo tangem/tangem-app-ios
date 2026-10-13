@@ -12,25 +12,17 @@ import TangemUI
 struct TransactionViewPlaceholder: View {
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            SkeletonView()
-                .frame(width: 40, height: 40)
-                .cornerRadius(20)
+            Shimmer().variant(.custom(width: 40, height: 40))
 
             VStack(alignment: .leading, spacing: 6.5) {
-                SkeletonView()
-                    .frame(width: 70, height: 12)
-                    .cornerRadius(3)
+                Shimmer().variant(.custom(width: 70, height: 12, cornerRadius: 3))
 
-                SkeletonView()
-                    .frame(width: 52, height: 12)
-                    .cornerRadius(3)
+                Shimmer().variant(.custom(width: 52, height: 12, cornerRadius: 3))
             }
 
             Spacer()
 
-            SkeletonView()
-                .frame(width: 40, height: 12)
-                .cornerRadius(3)
+            Shimmer().variant(.custom(width: 40, height: 12, cornerRadius: 3))
         }
     }
 }

@@ -31,6 +31,8 @@ private extension NewsArticleSkeletonView {
         let contentWidth: CGFloat
         let contentLineWidths: [CGFloat]
 
+        @ScaledMetric private var scaleFactor: CGFloat = 1
+
         var body: some View {
             ScrollView {
                 VStack(alignment: .leading, spacing: .zero) {
@@ -70,10 +72,10 @@ private extension NewsArticleSkeletonView {
         private func rateColumnSkeleton(titleWidth: CGFloat, subtitleWidth: CGFloat) -> some View {
             VStack(alignment: .leading, spacing: 10) {
                 Shimmer()
-                    .variant(.custom(width: titleWidth, height: 16, cornerRadius: 8))
+                    .variant(.custom(width: titleWidth * scaleFactor, height: 16 * scaleFactor, cornerRadius: 8))
 
                 Shimmer()
-                    .variant(.custom(width: subtitleWidth, height: 16, cornerRadius: 8))
+                    .variant(.custom(width: subtitleWidth * scaleFactor, height: 16 * scaleFactor, cornerRadius: 8))
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -81,21 +83,21 @@ private extension NewsArticleSkeletonView {
         private var titleSkeleton: some View {
             VStack(alignment: .leading, spacing: 12) {
                 Shimmer()
-                    .variant(.custom(height: 32, cornerRadius: 16))
+                    .variant(.custom(height: 32 * scaleFactor, cornerRadius: 16))
                     .frame(maxWidth: .infinity)
 
                 Shimmer()
-                    .variant(.custom(width: (contentWidth - 32) * 0.6, height: 32, cornerRadius: 16))
+                    .variant(.custom(width: (contentWidth - 32) * 0.6, height: 32 * scaleFactor, cornerRadius: 16))
             }
         }
 
         private var categoryChipsSkeleton: some View {
             HStack(spacing: 4) {
                 Shimmer()
-                    .variant(.custom(width: 82, height: 32, cornerRadius: 16))
+                    .variant(.custom(width: 82 * scaleFactor, height: 32 * scaleFactor, cornerRadius: 16))
 
                 Shimmer()
-                    .variant(.custom(width: 66, height: 32, cornerRadius: 16))
+                    .variant(.custom(width: 66 * scaleFactor, height: 32 * scaleFactor, cornerRadius: 16))
             }
         }
 
@@ -105,7 +107,7 @@ private extension NewsArticleSkeletonView {
                     Shimmer()
                         .variant(.custom(
                             width: (contentWidth - 32) * contentLineWidths[index],
-                            height: 16,
+                            height: 16 * scaleFactor,
                             cornerRadius: 8
                         ))
                 }

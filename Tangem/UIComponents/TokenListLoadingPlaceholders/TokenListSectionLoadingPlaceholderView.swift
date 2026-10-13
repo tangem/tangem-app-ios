@@ -14,9 +14,7 @@ struct TokenListSectionLoadingPlaceholderView: View {
     var body: some View {
         ZStack {
             HStack {
-                SkeletonView()
-                    .frame(width: 90.0, height: 18.0)
-                    .cornerRadiusContinuous(3)
+                Shimmer().variant(.custom(width: 90.0, height: 18.0, cornerRadius: 3))
 
                 Spacer()
             }

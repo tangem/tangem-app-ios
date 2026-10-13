@@ -32,24 +32,18 @@ struct RedesignedAccountSkeletonCardView: View {
         .padding(12)
         .background(Color.Tangem.Surface.level3)
         .cornerRadiusContinuous(24)
-        .environment(\.isSkeletonShimmerActive, isShimmerActive)
+        .environment(\.isShimmerAnimationPaused, !isShimmerActive)
     }
 
     private var iconPlaceholder: some View {
-        SkeletonView()
-            .frame(size: CGSize(bothDimensions: iconDimension))
-            .clipShape(Circle())
+        Shimmer().variant(.custom(width: iconDimension, height: iconDimension))
     }
 
     private func makeSkeletonsStack(alignment: HorizontalAlignment) -> some View {
         VStack(alignment: alignment, spacing: 6) {
-            SkeletonView()
-                .frame(size: CGSize(width: 80, height: 16) * scaleFactor)
-                .clipShape(Capsule(style: .continuous))
+            Shimmer().variant(.custom(width: 80 * scaleFactor, height: 16 * scaleFactor))
 
-            SkeletonView()
-                .frame(size: CGSize(width: 42, height: 12) * scaleFactor)
-                .clipShape(Capsule(style: .continuous))
+            Shimmer().variant(.custom(width: 42 * scaleFactor, height: 12 * scaleFactor))
         }
     }
 }

@@ -22,7 +22,6 @@ public extension Color {
         public enum Field {}
         public enum Overlay {}
         public enum Fill {}
-        public enum Skeleton {}
         public enum Markers {}
         public enum Visa {}
         public enum Tabs {}
@@ -176,14 +175,6 @@ public extension Color.Tangem.Fill {
         public static let warning: Color = .dynamic(light: Primitives.Red.amaranth, dark: Primitives.Red.flamingo)
         public static let attention: Color = .dynamic(light: Primitives.Yellow.tangerine, dark: Primitives.Yellow.mustard)
     }
-}
-
-// MARK: - Skeleton
-
-public extension Color.Tangem.Skeleton {
-    static let backgroundPrimary: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark5)
-    /// Skeleton color with sufficient contrast on `Colors.Background.action` backgrounds
-    static let backgroundAction: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark4)
 }
 
 // MARK: - Markers

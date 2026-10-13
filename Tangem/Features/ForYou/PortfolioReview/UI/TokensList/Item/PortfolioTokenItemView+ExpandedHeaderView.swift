@@ -78,11 +78,11 @@ private extension PortfolioTokenItemView.ExpandedHeaderView {
             }
             PortfolioTokenItemView.BalanceText(value: fiat)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
-                .shimmer()
+                .shimmering()
             dotSeparator
             Text(percent)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
-                .shimmer()
+                .shimmering()
         case .unavailable(let label):
             Text(AppConstants.enDashSign)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)

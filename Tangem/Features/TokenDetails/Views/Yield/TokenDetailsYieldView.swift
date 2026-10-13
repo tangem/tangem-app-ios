@@ -289,25 +289,16 @@ private extension TokenDetailsYieldView {
 
     var loadingView: some View {
         HStack(spacing: horizontalSpacing) {
-            skeletonView(width: iconDimension, height: iconDimension)
-                .shimmer()
+            Shimmer().variant(.custom(width: iconDimension, height: iconDimension))
 
             VStack(alignment: .leading, spacing: verticalSpacing) {
-                skeletonView(width: skeletonTopWidth, height: skeletonTopHeight)
-                    .shimmer()
+                Shimmer().variant(.custom(width: skeletonTopWidth, height: skeletonTopHeight))
 
-                skeletonView(width: skeletonBottomWidth, height: skeletonBottomHeight)
-                    .shimmer()
+                Shimmer().variant(.custom(width: skeletonBottomWidth, height: skeletonBottomHeight))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(padding)
         .background(Color.Tangem.Surface.level3, in: RoundedRectangle(cornerRadius: 24))
-    }
-
-    func skeletonView(width: CGFloat, height: CGFloat) -> some View {
-        Capsule(style: .continuous)
-            .fill(Color.Tangem.Skeleton.backgroundPrimary)
-            .frame(width: width, height: height)
     }
 }
