@@ -189,11 +189,115 @@ final class SwapDeeplinksUITests: BaseTestCase {
             .waitForRetryButtonDisplayed()
     }
 
+    func testOnlyFromWithAmountOpensSwapWithFromPrefilledAndNoAmount() {
+        setAllureId(10915)
+        let query = "from_token_id=ethereum&from_network_id=ethereum&from_amount=\(Constants.amount)"
+
+        launchEthereumUsdcSwap(extraScenarios: [
+            ScenarioConfig(name: Constants.Scenario.ethNetworkBalance, initialState: Constants.State.lessThanDollar),
+        ])
+        waitForPortfolioBalances(importHotWallet())
+
+        openSwapDeeplink(query)
+            .waitFromTokenDisplayed(tokenSymbol: Constants.Token.ethereumSymbol)
+            .waitForToTokenNotSelected()
+            .waitForFromAmountValue(Constants.emptyAmountPlaceholder)
+    }
+
+    func testOnlyToWithAmountOpensSwapWithMostFundedFromAndNoAmount() {
+        setAllureId(10916)
+        let query = "to_token_id=usd-coin&to_network_id=ethereum&from_amount=\(Constants.amount)"
+
+        launchEthereumUsdcSwap()
+        waitForPortfolioBalances(importHotWallet())
+
+        openSwapDeeplink(query)
+            .waitToTokenDisplayed(tokenSymbol: Constants.Token.usdcSymbol)
+            .waitFromTokenDisplayed(tokenSymbol: Constants.Token.ethereumSymbol)
+            .waitForFromAmountValue(Constants.emptyAmountPlaceholder)
+    }
+
+    func testProviderIdValidForPairPreselectsProvider() {
+        setAllureId(10918)
+        let query = "from_token_id=ethereum&from_network_id=ethereum" +
+            "&to_token_id=usd-coin&to_network_id=ethereum" +
+            "&from_amount=\(Constants.amount)&provider_id=changelly"
+
+        launchEthereumUsdcSwap(extraScenarios: [
+            ScenarioConfig(name: Constants.Scenario.exchangeQuoteEthereum, initialState: Constants.State.ethUsdcChangelly),
+        ])
+        waitForPortfolioBalances(importHotWallet())
+
+        openSwapDeeplink(query)
+            .waitFromTokenDisplayed(tokenSymbol: Constants.Token.ethereumSymbol)
+            .waitToTokenDisplayed(tokenSymbol: Constants.Token.usdcSymbol)
+            .waitForFromAmountValue(Constants.amount)
+            .verifyProviderName(contains: Constants.Provider.changelly)
+    }
+
+    private func launchEthereumUsdcSwap(extraScenarios: [ScenarioConfig] = []) {
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            yieldApiType: .mock,
+            clearStorage: true,
+            scenarios: [
+                ScenarioConfig(name: Constants.Scenario.networksProviders, initialState: Constants.State.ethereumProviderPair),
+                ScenarioConfig(name: Constants.Scenario.userTokens, initialState: Constants.State.yieldUSDCEthereum),
+                ScenarioConfig(name: Constants.Scenario.evmTokenBalances, initialState: Constants.State.nonZeroEvmBalances),
+                ScenarioConfig(name: Constants.Scenario.expressAssets, initialState: Constants.State.yieldUSDCEthereumExchangeEnabled),
+                ScenarioConfig(name: Constants.Scenario.ethereumPairs, initialState: Constants.State.ethUsdcChangelly),
+            ] + extraScenarios
+        )
+    }
+
+    private func waitForPortfolioBalances(_ mainScreen: MainScreen) {
+        mainScreen
+            .waitForTokenBalanceLoaded(tokenName: Constants.Token.ethereumName)
+            .waitForTokenBalanceLoaded(tokenName: Constants.Token.usdcSymbol)
+    }
+
     private func openSwapDeeplink(_ query: String) -> SwapScreen {
         safariHelper.safari.launch()
         safariHelper.openDeeplink("tangem://swap?\(query)")
         safariHelper.tapOpenButton()
         app.activate()
         return SwapStoriesScreen(app).closeStoriesIfNeeded()
+    }
+}
+
+private extension SwapDeeplinksUITests {
+    enum Constants {
+        static let amount = "0.5"
+        static let emptyAmountPlaceholder = "0"
+
+        enum Token {
+            static let ethereumName = "Ethereum"
+            static let ethereumSymbol = "ETH"
+            static let usdcSymbol = "USDC"
+        }
+
+        enum Provider {
+            static let changelly = "Changelly"
+        }
+
+        enum Scenario {
+            static let networksProviders = "networks_providers"
+            static let userTokens = "user_tokens_api"
+            static let evmTokenBalances = "moralis_evm_token_balances_api"
+            static let expressAssets = "express_api_assets"
+            static let ethereumPairs = "ethereum_pairs"
+            static let exchangeQuoteEthereum = "exchange_quote_ethereum"
+            static let ethNetworkBalance = "eth_network_balance"
+        }
+
+        enum State {
+            static let ethereumProviderPair = "EthereumProviderPair"
+            static let yieldUSDCEthereum = "YieldUSDCEthereum"
+            static let nonZeroEvmBalances = "NonZeroEvmBalances"
+            static let yieldUSDCEthereumExchangeEnabled = "YieldUSDCEthereumExchangeEnabled"
+            static let ethUsdcChangelly = "EthUsdcChangelly"
+            static let lessThanDollar = "LessThanDollar"
+        }
     }
 }
