@@ -1,5 +1,5 @@
 //
-//  ShimmerViewModifier+EnvironmentValues.swift
+//  Shimmer+EnvironmentValues.swift
 //  TangemUI
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,5 +10,5 @@ import SwiftUI
 
 public extension EnvironmentValues {
     @Entry var isShimmerActive = false
-    @Entry var isSkeletonShimmerActive = true
+    @Entry var isShimmerAnimationPaused = false
 }

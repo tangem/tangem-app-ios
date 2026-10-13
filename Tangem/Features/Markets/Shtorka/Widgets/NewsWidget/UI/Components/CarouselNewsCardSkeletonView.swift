@@ -11,6 +11,8 @@ import TangemAssets
 import TangemUI
 
 struct CarouselNewsCardSkeletonView: View {
+    @ScaledMetric private var scaleFactor: CGFloat = 1
+
     var body: some View {
         VStack(alignment: .leading, spacing: .zero) {
             ratingSkeleton
@@ -36,30 +38,30 @@ struct CarouselNewsCardSkeletonView: View {
 
     private var ratingSkeleton: some View {
         Shimmer()
-            .variant(.custom(width: 50, height: 16))
+            .variant(.custom(width: 50 * scaleFactor, height: 16 * scaleFactor))
     }
 
     private var titleSkeleton: some View {
         Shimmer()
-            .variant(.custom(height: 16))
+            .variant(.custom(height: 16 * scaleFactor))
             .frame(maxWidth: .infinity)
     }
 
     private var timeAgoSkeleton: some View {
         Shimmer()
-            .variant(.custom(width: 50, height: 16))
+            .variant(.custom(width: 50 * scaleFactor, height: 16 * scaleFactor))
     }
 
     private var tagsSkeleton: some View {
         HStack(spacing: 8) {
             Shimmer()
-                .variant(.custom(width: 78, height: 24))
+                .variant(.custom(width: 78 * scaleFactor, height: 24 * scaleFactor))
 
             Shimmer()
-                .variant(.custom(width: 65, height: 24))
+                .variant(.custom(width: 65 * scaleFactor, height: 24 * scaleFactor))
 
             Shimmer()
-                .variant(.custom(width: 32, height: 24))
+                .variant(.custom(width: 32 * scaleFactor, height: 24 * scaleFactor))
         }
     }
 }

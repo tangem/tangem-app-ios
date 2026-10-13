@@ -10,6 +10,7 @@ import Charts
 import SwiftUI
 import TangemAssets
 import TangemLocalization
+import TangemUI
 
 struct YieldModuleChart: View {
     let state: State
@@ -47,7 +48,7 @@ struct YieldModuleChart: View {
                     AxisValueLabel {
                         Text(text)
                             .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
-                            .skeletonable(isShown: state.isLoading)
+                            .shimmerPlaceholder(state.isLoading)
                     }
 
                     AxisGridLine().foregroundStyle(.clear)
@@ -61,7 +62,7 @@ struct YieldModuleChart: View {
                     if let v = mark.as(Double.self) {
                         Text(v, format: .percent.precision(.fractionLength(0)))
                             .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
-                            .skeletonable(isShown: state.isLoading)
+                            .shimmerPlaceholder(state.isLoading)
                     }
                 }
             }

@@ -33,7 +33,7 @@ struct NFTNotificationView: View {
             viewData.icon.image
                 .resizable()
                 .frame(size: .init(bothDimensions: 20))
-                .shimmer()
+                .shimmering()
 
             texts
         }
@@ -43,11 +43,11 @@ struct NFTNotificationView: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(viewData.title)
                 .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
-                .shimmer()
+                .shimmering()
 
             Text(viewData.subtitle)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                .shimmer()
+                .shimmering()
         }
     }
 }

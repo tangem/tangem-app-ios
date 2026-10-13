@@ -37,7 +37,7 @@ public struct LoadableBalanceView: View {
             switch state {
             case .loading(.some(let cached)):
                 textView(cached)
-                    .loadingShimmer(loader.appearance)
+                    .shimmering()
                     .accessibilityIdentifier(accessibilityIdentifier.map { "\($0)Shimmer" })
 
             case .loading(.none):
@@ -68,37 +68,14 @@ public struct LoadableBalanceView: View {
         .environment(\.isShimmerActive, true)
     }
 
-    @ViewBuilder
     private var placeholderView: some View {
-        switch loader.appearance {
-        case .skeleton:
-            skeletonView
-                .frame(size: loader.size)
-                .padding(loader.padding)
-                .shimmer()
-
-        case .tangemShimmer:
-            Shimmer()
-                .variant(.custom(
-                    width: loader.size.width,
-                    height: loader.size.height,
-                    cornerRadius: loader.cornerRadiusStyle.explicitCornerRadius
-                ))
-                .padding(loader.padding)
-        }
-    }
-
-    @ViewBuilder
-    private var skeletonView: some View {
-        switch loader.cornerRadiusStyle {
-        case .rounded(let radius):
-            RoundedRectangle(cornerRadius: radius, style: .continuous)
-                .fill(loader.skeletonColor)
-
-        case .capsule:
-            Capsule(style: .continuous)
-                .fill(loader.skeletonColor)
-        }
+        Shimmer()
+            .variant(.custom(
+                width: loader.size.width,
+                height: loader.size.height,
+                cornerRadius: loader.cornerRadiusStyle.explicitCornerRadius
+            ))
+            .padding(loader.padding)
     }
 
     private var cloudIcon: some View {
@@ -171,35 +148,25 @@ public extension LoadableBalanceView {
         public let size: CGSize
         public let padding: EdgeInsets
         public let cornerRadiusStyle: CornerRadiusStyle
-        public let skeletonColor: Color
-        public let appearance: LoadingShimmerAppearance
 
         public init(
             size: CGSize,
             padding: EdgeInsets = .init(),
-            cornerRadiusStyle: CornerRadiusStyle = .rounded(3),
-            skeletonColor: Color = Color.Tangem.Skeleton.backgroundPrimary,
-            appearance: LoadingShimmerAppearance = .skeleton
+            cornerRadiusStyle: CornerRadiusStyle = .rounded(3)
         ) {
             self.size = size
             self.padding = padding
             self.cornerRadiusStyle = cornerRadiusStyle
-            self.skeletonColor = skeletonColor
-            self.appearance = appearance
         }
 
         public init(
             size: CGSize,
             padding: EdgeInsets = .init(),
-            cornerRadius: CGFloat,
-            skeletonColor: Color = Color.Tangem.Skeleton.backgroundPrimary,
-            appearance: LoadingShimmerAppearance = .skeleton
+            cornerRadius: CGFloat
         ) {
             self.size = size
             self.padding = padding
             cornerRadiusStyle = .rounded(cornerRadius)
-            self.skeletonColor = skeletonColor
-            self.appearance = appearance
         }
     }
 }

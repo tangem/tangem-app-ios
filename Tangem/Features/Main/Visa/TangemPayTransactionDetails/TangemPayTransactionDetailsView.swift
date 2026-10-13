@@ -350,8 +350,8 @@ private extension TangemPayTransactionDetailsView {
             .style(token, color: .clear)
             .frame(width: width)
             .overlay {
-                SkeletonView()
-                    .clipShape(Capsule())
+                Shimmer()
+                    .variant(.custom(cornerRadius: token.lineHeight / 2))
                     .padding(.vertical, 2)
             }
     }
