@@ -129,7 +129,13 @@ private extension PolymarketOrderAddFundsTests {
 
         continuation.yield(readiness)
 
-        try await settle { model.state.addFundsReadiness == readiness && model.state.geoblock == geoblock }
+        let isAddFundsEnabled = readiness.addFundsAvailability == .available
+
+        try await settle {
+            model.state.addFundsReadiness == readiness
+                && model.state.geoblock == geoblock
+                && sut.isAddFundsEnabled == isAddFundsEnabled
+        }
 
         return Context(sut: sut, routable: routable, readiness: continuation)
     }
@@ -148,8 +154,8 @@ private extension PolymarketOrderAddFundsTests {
     func makeReadiness(depositAvailability: PolymarketAccountFundsInteractor.DepositAvailability) -> PolymarketAccountFundsInteractor.Readiness {
         PolymarketAccountFundsInteractor.Readiness(
             depositWalletAddress: "0x1111111111111111111111111111111111111111",
-            collateralMinCheckoutUSD: 2,
-            depositAvailability: depositAvailability
+            depositAvailability: depositAvailability,
+            withdrawalAvailability: .available(minimumUSD: 2)
         )
     }
 }

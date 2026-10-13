@@ -23,11 +23,11 @@ struct PolymarketDepositReceivingRestrictionsProvider: ReceivingRestrictionsProv
     var isRestrictionKnown: Bool { true }
 
     func restriction(expectAmount: Decimal) async throws -> ReceivedRestriction? {
-        if expectAmount > 0, let minimum = minimumReceiveAmount(), expectAmount < minimum {
+        if expectAmount > 0, expectAmount < minimumReceiveAmount() {
             return .notEnoughReceivedAmount(minAmount: .fiatUSD(minCheckoutUSD), reason: .receivingMinimum)
         }
 
-        if let maximum = maximumReceiveAmount(), expectAmount >= maximum {
+        if expectAmount >= maximumReceiveAmount() {
             return .tooMuchReceivedAmount(maxAmount: .fiatUSD(Constants.maximumDepositUSD))
         }
 
@@ -42,11 +42,11 @@ struct PolymarketDepositReceivingRestrictionsProvider: ReceivingRestrictionsProv
 // MARK: - Private implementation
 
 private extension PolymarketDepositReceivingRestrictionsProvider {
-    func minimumReceiveAmount() -> Decimal? {
+    func minimumReceiveAmount() -> Decimal {
         PolymarketUSDAmount(usd: minCheckoutUSD, tokenItem: tokenItem).inToken()
     }
 
-    func maximumReceiveAmount() -> Decimal? {
+    func maximumReceiveAmount() -> Decimal {
         PolymarketUSDAmount(usd: Constants.maximumDepositUSD, tokenItem: tokenItem).inToken()
     }
 
