@@ -40,26 +40,47 @@ struct JointAccountOperationSignersResolver {
     }
 
     func canSign(_ pendingOperation: JointAccountPendingOperation) -> Bool {
-        guard let ownAddress = ownAddress(of: pendingOperation.wallet) else {
+        guard let ownAddress = answeringAddress(in: pendingOperation) else {
             return false
         }
 
         let operation = pendingOperation.operation
-        let members = pendingOperation.wallet.account?.jointAccountMembersService.slots.members ?? []
-
-        guard members.contains(where: { $0.address.caseInsensitiveEquals(to: ownAddress) }) else {
-            return false
-        }
-
-        guard operation.status == .awaitingSignatures else {
-            return false
-        }
 
         guard !ownAddress.caseInsensitiveEquals(to: operation.initiator) else {
             return false
         }
 
         return !operation.signatures.contains { $0.address.caseInsensitiveEquals(to: ownAddress) }
+    }
+
+    func canReject(_ pendingOperation: JointAccountPendingOperation) -> Bool {
+        guard let ownAddress = answeringAddress(in: pendingOperation) else {
+            return false
+        }
+
+        return answer(of: ownAddress, in: pendingOperation.operation) != .declined
+    }
+}
+
+// MARK: - Private
+
+private extension JointAccountOperationSignersResolver {
+    func answeringAddress(in pendingOperation: JointAccountPendingOperation) -> String? {
+        guard let ownAddress = ownAddress(of: pendingOperation.wallet) else {
+            return nil
+        }
+
+        let members = pendingOperation.wallet.account?.jointAccountMembersService.slots.members ?? []
+
+        guard members.contains(where: { $0.address.caseInsensitiveEquals(to: ownAddress) }) else {
+            return nil
+        }
+
+        guard pendingOperation.operation.status == .awaitingSignatures else {
+            return nil
+        }
+
+        return ownAddress
     }
 }
 
