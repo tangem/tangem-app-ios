@@ -633,6 +633,14 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func verifyWalletNameDisplayed(_ walletName: String) -> Self {
+        XCTContext.runActivity(named: "Verify wallet '\(walletName)' is displayed on main screen") { _ in
+            waitAndAssertTrue(app.staticTexts[walletName].firstMatch, "Wallet '\(walletName)' should be displayed on main screen")
+            return self
+        }
+    }
+
+    @discardableResult
     func addNewSingleCurrencyWallet(name: CardMockAccessibilityIdentifiers, walletName: String) -> Self {
         XCTContext.runActivity(named: "Add new single-currency wallet: \(name.rawValue)") { _ in
             openDetails()
