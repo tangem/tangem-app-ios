@@ -35,11 +35,13 @@ struct EarnNetworkFilterContentView: View {
     @ScaledMetric private var contentSpacing: CGFloat = 12
     @ScaledMetric private var contentTitleTopPadding: CGFloat = 16
     @ScaledMetric private var allOptionVerticalPadding: CGFloat = 22
+    @ScaledMetric private var chipSpacing: CGFloat = 4
+    @ScaledMetric private var chipHorizontalPadding: CGFloat = 12
+    @ScaledMetric private var chipVerticalPadding: CGFloat = 8
 
     var body: some View {
         VStack(spacing: contentSpacing) {
-            TabNavigation(data: viewModel.scopes, selection: viewModel.scopeBinding)
-                .variant(.transparent)
+            scopeChips
 
             GroupedSection(
                 rows,
@@ -65,6 +67,38 @@ struct EarnNetworkFilterContentView: View {
 
     private var rows: [Row] {
         [.all] + viewModel.networkRowInputs.map { .network($0) }
+    }
+
+    private var scopeChips: some View {
+        HorizontalFlowLayout(
+            items: viewModel.scopes,
+            alignment: .leading,
+            horizontalSpacing: chipSpacing,
+            verticalSpacing: chipSpacing
+        ) { scope in
+            scopeChip(scope)
+        }
+    }
+
+    private func scopeChip(_ scope: EarnNetworkFilterScope) -> some View {
+        let isSelected = viewModel.selectedScope == scope
+
+        return SwiftUI.Button(action: { viewModel.onScopeTap(scope) }) {
+            Text(scope.title)
+                .style(
+                    DesignSystem.Font.subheadingMediumToken,
+                    color: isSelected ? DesignSystem.Color.textInversePrimary : DesignSystem.Color.textPrimary
+                )
+                .lineLimit(1)
+                .padding(.horizontal, chipHorizontalPadding)
+                .padding(.vertical, chipVerticalPadding)
+                .background(
+                    isSelected ? DesignSystem.Color.bgInverse : DesignSystem.Color.bgTransparentPrimary,
+                    in: .capsule
+                )
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     private var allOption: some View {
