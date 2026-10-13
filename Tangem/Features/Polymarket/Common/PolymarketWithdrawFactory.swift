@@ -43,7 +43,7 @@ struct PolymarketWithdrawContext {
     func makeSource(
         accountModel: any PolymarketAccountModel,
         depositWalletAddress: String,
-        minimumUSD: Decimal?
+        minimumUSD: Decimal
     ) -> PolymarketWithdrawSource {
         PolymarketWithdrawSource(
             accountModel: accountModel,

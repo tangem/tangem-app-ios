@@ -76,7 +76,7 @@ private extension PolymarketBalanceActionsAvailability {
         onChange?(PolymarketBalanceBlockActionStates(
             readiness: readiness,
             collateralBalance: collateralBalance,
-            withdrawMinimum: PolymarketUSDAmount(usd: readiness.collateralMinCheckoutUSD).inToken()
+            usdToToken: { PolymarketUSDAmount(usd: $0).inToken() }
         ))
     }
 }
