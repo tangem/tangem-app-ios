@@ -16,11 +16,7 @@ enum FeedTangemPayEntry {
     case kycDeclined(TangemPayKYCInteractor)
     case selectPlan(any TangemPayTariffPlanSelector, wallet: UserWalletModel)
 
-    static func resolve(offer: TangemPayWalletSelectionType?, customer: (any TangemPayAccountModel)?, wallet: UserWalletModel) -> Self? {
-        guard let customer else {
-            return offer.map(Self.offer)
-        }
-
+    static func resolve(customer: any TangemPayAccountModel, wallet: UserWalletModel) -> Self? {
         switch customer.state {
         case .kycRequired(let interactor):
             return .kycRequired(interactor)
