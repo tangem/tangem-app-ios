@@ -53,6 +53,16 @@ enum MobileCleanupUtil {
             )
         }
     }
+
+    static func deleteSocialBackup(walletId: UserWalletId, analyticsContextData: AnalyticsContextData) async {
+        do {
+            let backupManager = CommonMobileWalletSocialBackupManager(destination: .iCloud)
+            try await backupManager.deleteBackup(userWalletId: walletId)
+            logSocialRecoveryDeletedAnalytics(analyticsContextData: analyticsContextData)
+        } catch {
+            AppLogger.error("Failed to delete the social backup:", error: error)
+        }
+    }
 }
 
 // MARK: - Private methods
@@ -66,16 +76,6 @@ private extension MobileCleanupUtil {
         } catch {
             AppLogger.error("Failed to delete the cloud backup:", error: error)
             logCloudBackupDeletionErrorAnalytics(error: error, analyticsContextData: analyticsContextData)
-        }
-    }
-
-    static func deleteSocialBackup(walletId: UserWalletId, analyticsContextData: AnalyticsContextData) async {
-        do {
-            let backupManager = CommonMobileWalletSocialBackupManager(destination: .iCloud)
-            try await backupManager.deleteBackup(userWalletId: walletId)
-            logSocialRecoveryDeletedAnalytics(analyticsContextData: analyticsContextData)
-        } catch {
-            AppLogger.error("Failed to delete the social backup:", error: error)
         }
     }
 }
