@@ -28,6 +28,7 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     private lazy var copyExpirationButton = button(.cardDetailsCopyExpiration)
     private lazy var copyCvcButton = button(.cardDetailsCopyCvc)
     private lazy var applePayGuideBanner = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.addToApplePayGuideBanner].firstMatch
+    private lazy var applePayGuideBannerCloseButton = app.buttons[TangemPayAccessibilityIdentifiers.addToApplePayGuideBannerCloseButton].firstMatch
     private lazy var plasticContactSupportButton = button(.plasticContactSupportButton)
     private lazy var plasticActivateButton = button(.plasticActivateCardButton)
     /// Type-agnostic: the issuing message is a plain container, not guaranteed to surface as a specific element type.
@@ -429,6 +430,14 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
                 applePayGuideBanner.waitForNonExistence(timeout: .robustUIUpdate),
                 "Apple/Google Pay banner should not be displayed on card details screen"
             )
+            return self
+        }
+    }
+
+    @discardableResult
+    func closeApplePayGuideBanner() -> Self {
+        XCTContext.runActivity(named: "Close Apple/Google Pay banner on card details") { _ in
+            applePayGuideBannerCloseButton.waitAndTap()
             return self
         }
     }
