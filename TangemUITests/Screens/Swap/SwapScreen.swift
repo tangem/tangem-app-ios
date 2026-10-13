@@ -19,7 +19,6 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     private lazy var priorityFeeOption = button(.priorityFeeOption)
     private lazy var swapTokensButton = button(.swapTokensButton)
     private lazy var confirmButton = button(.confirmButton)
-    private lazy var holdConfirmButton = otherElement(.confirmButton)
     private lazy var chooseSpeedTitle = app.staticTexts[FeeAccessibilityIdentifiers.feeSelectorChooseSpeedTitle]
     private lazy var closeButton = app.buttons[CommonUIAccessibilityIdentifiers.closeButton].firstMatch
     private lazy var fromTokenSelector = app.buttons.matching(
@@ -425,22 +424,16 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
         return self
     }
 
-    /// Confirms the swap by tap (cold wallet) or press-and-hold (hot wallet); dismisses the number-pad first.
     @discardableResult
     func confirmSwap() -> Self {
-        XCTContext.runActivity(named: "Confirm swap (tap or hold)") { _ in
+        XCTContext.runActivity(named: "Confirm swap by holding the Swap button") { _ in
             let hideKeyboardButton = app.buttons["Hide Keyboard"].firstMatch
             if hideKeyboardButton.waitForExistence(timeout: .quick) {
                 hideKeyboardButton.tap()
             }
 
-            // Hold button appears only after source token finishes loading; tapping the regular button earlier throws "Loading in process".
-            if holdConfirmButton.waitForExistence(timeout: .networkRequest) {
-                holdConfirmButton.press(forDuration: 4.0)
-                return
-            }
-            waitAndAssertTrue(confirmButton, "Confirm button should exist and be ready")
-            confirmButton.waitAndTap()
+            waitAndAssertTrue(confirmButton, "Confirm button should exist")
+            confirmButton.holdToConfirm(timeout: .networkRequest)
         }
         return self
     }
@@ -722,27 +715,7 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
             let finishScreen = SendFinishScreen(app)
             for _ in 0 ..< Constants.confirmSwapAttempts {
                 confirmSwap()
-                if finishScreen.isDisplayed(timeout: .conditional) || !isNothingSent() || !holdConfirmButton.exists {
-                    break
-                }
-            }
-            return finishScreen.waitForDisplay()
-        }
-    }
-
-    @discardableResult
-    func holdConfirmUntilSubmitted(isNothingSent: () -> Bool) -> SendFinishScreen {
-        XCTContext.runActivity(named: "Hold Swap, repeating the hold only while nothing has been sent") { _ in
-            let hideKeyboardButton = app.buttons["Hide Keyboard"].firstMatch
-            if hideKeyboardButton.waitForExistence(timeout: .quick) {
-                hideKeyboardButton.tap()
-            }
-
-            let finishScreen = SendFinishScreen(app)
-            for _ in 0 ..< Constants.confirmSwapAttempts {
-                XCTAssertTrue(confirmButton.waitForState(state: .enabled), "Swap should be enabled")
-                confirmButton.press(forDuration: Constants.holdToConfirmDuration)
-                if finishScreen.isDisplayed(timeout: .conditional) || !isNothingSent() {
+                if finishScreen.isDisplayed(timeout: .conditional) || !isNothingSent() || !confirmButton.exists {
                     break
                 }
             }
@@ -1470,7 +1443,6 @@ private extension SwapScreen {
         static let keyboardFocusTimeout: TimeInterval = 3
         static let focusAttempts = 3
         static let confirmSwapAttempts = 3
-        static let holdToConfirmDuration: TimeInterval = 4
         static let fiatSign = "$"
         static let zeroPlaceholder = "0"
         static let tokenSelectorChevron = "chevronDownMini"
