@@ -35,6 +35,16 @@ public enum RowLineOrder: Sendable, Hashable, CaseIterable {
     case secondaryFirst
 }
 
+public struct RowPlaceholder: Sendable, Hashable {
+    let hasSubtitle: Bool
+
+    public static let shimmer = RowPlaceholder(hasSubtitle: false)
+
+    public static func shimmer(subtitle: Bool) -> RowPlaceholder {
+        RowPlaceholder(hasSubtitle: subtitle)
+    }
+}
+
 public struct RowOverrideTextColors {
     public var title: Color?
     public var subtitle: Color?
@@ -84,12 +94,14 @@ struct RowConfiguration {
     var onTap: (() -> Void)?
     var accessibilityLabel: String?
     var accessibilityHint: String?
+    var placeholder: RowPlaceholder?
 }
 
 public extension Row {
     typealias ContentLead = RowContentLead
     typealias VerticalAlignment = RowVerticalAlignment
     typealias LineOrder = RowLineOrder
+    typealias Placeholder = RowPlaceholder
 }
 
 // MARK: - Entry point
@@ -121,6 +133,11 @@ public extension Row where
             end: EmptyView(),
             extraBottom: EmptyView()
         )
+    }
+
+    init(_ placeholder: Placeholder) {
+        self.init()
+        config.placeholder = placeholder
     }
 }
 
