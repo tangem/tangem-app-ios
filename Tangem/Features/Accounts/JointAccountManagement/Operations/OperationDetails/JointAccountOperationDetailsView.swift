@@ -102,12 +102,15 @@ private extension JointAccountOperationDetailsViewModel {
                 ],
                 answer: answer,
                 canSign: true,
+                canReject: true,
+                isInitiator: false,
                 status: status
             ),
             contentPublisher: .empty,
             pendingOperationsProvider: nil,
             coordinator: nil,
-            sign: {}
+            sign: {},
+            reject: {}
         )
     }
 }
