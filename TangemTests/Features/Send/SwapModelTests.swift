@@ -249,6 +249,27 @@ final class SwapModelTests: LeakTrackingTestSuite {
         _ = try await waitForNewState(recorder, since: baseline) { _ in true }
     }
 
+    // MARK: - [REDACTED_INFO]: amount prefilled before the initial pair load
+
+    @MainActor
+    @Test("An amount prefilled before the initial pair load is quoted ([REDACTED_INFO])")
+    func amountPrefilledBeforeInitialLoadingIsQuoted() async throws {
+        let manager = ExpressManagerStub()
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager),
+            shouldStartInitialLoading: true
+        )
+
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+
+        try await waitUntil { await manager.getAmountType() == .from(1) }
+        #expect(await manager.currentPair != nil)
+        #expect(await manager.updateAmountTypeCallCount == 1)
+    }
+
     // MARK: - [REDACTED_INFO]: account funding flows
 
     @Test("Add funds auto-resolves the source token when the destination is fixed")
