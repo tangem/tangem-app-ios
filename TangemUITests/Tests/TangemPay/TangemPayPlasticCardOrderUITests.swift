@@ -121,9 +121,9 @@ final class TangemPayPlasticCardOrderUITests: TangemPayPlasticCardUITestCase {
             .clearNameOnCard()
             .leaveEditableFieldsEmpty()
             .verifyRequiredErrors()
-            .enterText(Constants.invalidNameOnCard, into: .nameOnCard)
-            .verifyLatinOnlyError(on: .nameOnCard)
-            .enterText(Constants.invalidCity, into: .city)
+            .enterText(Constants.nameOnCardWithForbiddenSymbol, into: .nameOnCard)
+            .verifyInvalidTextError(on: .nameOnCard)
+            .enterText(Constants.nonLatinCity, into: .city)
             .verifyLatinOnlyError(on: .city)
     }
 
@@ -182,8 +182,8 @@ private extension TangemPayPlasticCardOrderUITests {
         static let fundedBalance = "$10.00"
         static let virtualEmbossName = "HOT WALLET USER"
         static let plasticEmbossName = "PLASTIC CARD USER"
-        static let invalidNameOnCard = "John@Doe"
-        static let invalidCity = "New York$"
+        static let nameOnCardWithForbiddenSymbol = "John@Doe"
+        static let nonLatinCity = "Zürich"
         static let basicVirtualCardId = "mock-card-id-basic"
         static let plasticCardId = "mock-card-id-plastic"
 
