@@ -77,8 +77,8 @@ extension PolymarketAccountFundsInteractor {
 
             return store(.ready(Readiness(
                 depositWalletAddress: depositWalletAddress,
-                collateralMinCheckoutUSD: collateralMinCheckoutUSD(in: assets),
-                depositAvailability: depositAvailability(assets: assets, addresses: addresses)
+                depositAvailability: depositAvailability(assets: assets, addresses: addresses),
+                withdrawalAvailability: withdrawalAvailability(in: assets)
             )))
         } catch {
             guard !Task.isCancelled else { return state }
@@ -147,14 +147,17 @@ private extension PolymarketAccountFundsInteractor {
 
     /// The withdrawal floor is a fact of the bridge, so it must not depend on anything that
     /// narrows the deposit side — wallet support, funding addresses, the catalog's ordering.
-    func collateralMinCheckoutUSD(in assets: [PolymarketSupportedAsset]?) -> Decimal? {
+    func withdrawalAvailability(in assets: [PolymarketSupportedAsset]?) -> WithdrawalAvailability {
         guard let assets else {
-            return nil
+            return .unavailable
         }
 
-        return PolymarketDepositAssetCatalog
-            .acceptedAsset(for: PolymarketDepositAssetCatalog.usdcOnPolygon, in: assets)?
-            .minCheckoutUSD
+        guard let collateralAsset = PolymarketDepositAssetCatalog.acceptedAsset(for: PolymarketDepositAssetCatalog.usdcOnPolygon, in: assets) else {
+            PolymarketLogger.warning("A withdrawal is unavailable: the bridge does not list the collateral asset, so its minimum is unknown")
+            return .unavailable
+        }
+
+        return .available(minimumUSD: collateralAsset.minCheckoutUSD)
     }
 
     func makeDepositTargets(
@@ -238,22 +241,12 @@ extension PolymarketAccountFundsInteractor {
                 .unavailable
             }
         }
-
-        var collateralMinCheckoutUSD: Decimal? {
-            if case .ready(let readiness) = self { return readiness.collateralMinCheckoutUSD }
-            return nil
-        }
-
-        var depositWalletAddress: String? {
-            if case .ready(let readiness) = self { return readiness.depositWalletAddress }
-            return nil
-        }
     }
 
     struct Readiness: Equatable {
         let depositWalletAddress: String
-        let collateralMinCheckoutUSD: Decimal?
         let depositAvailability: DepositAvailability
+        let withdrawalAvailability: WithdrawalAvailability
     }
 
     enum DepositAvailability: Equatable {
@@ -264,6 +257,11 @@ extension PolymarketAccountFundsInteractor {
     enum AddFundsAvailability: Equatable {
         case loading
         case available
+        case unavailable
+    }
+
+    enum WithdrawalAvailability: Equatable {
+        case available(minimumUSD: Decimal)
         case unavailable
     }
 
