@@ -136,24 +136,24 @@ struct AppDatabaseRecordRoundTripTests {
 
     @Test("Fully populated ExpressSyncMetadataRecord round-trips")
     func fullSyncMetadataRecordRoundTrips() throws {
-        let record = AppDatabaseFixtures.makeFullSyncMetadataRecord(userWalletID: "0xOwner", endpointType: "exchange")
+        let record = AppDatabaseFixtures.makeFullSyncMetadataRecord(walletID: "0xOwner", endpointType: "exchange")
 
         try performRoundTrip(of: record) { database in
             try ExpressSyncMetadataRecord.fetchOne(
                 database,
-                key: ["userWalletID": record.userWalletID, "endpointType": record.endpointType]
+                key: ["walletID": record.walletID, "endpointType": record.endpointType]
             )
         }
     }
 
     @Test("ExpressSyncMetadataRecord with all optionals nil round-trips")
     func minimalSyncMetadataRecordRoundTrips() throws {
-        let record = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(userWalletID: "0xOwner", endpointType: "exchange")
+        let record = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(walletID: "0xOwner", endpointType: "exchange")
 
         try performRoundTrip(of: record) { database in
             try ExpressSyncMetadataRecord.fetchOne(
                 database,
-                key: ["userWalletID": record.userWalletID, "endpointType": record.endpointType]
+                key: ["walletID": record.walletID, "endpointType": record.endpointType]
             )
         }
     }
@@ -230,7 +230,7 @@ struct AppDatabaseRecordRoundTripTests {
             )
             """)
             try database.execute(sql: """
-            INSERT INTO expressSyncMetadata (userWalletID, endpointType, lastSyncAt)
+            INSERT INTO expressSyncMetadata (walletID, endpointType, lastSyncAt)
             VALUES ('0xOwner', 'exchange', '2026-07-27 00:00:00.000')
             """)
             try database.execute(sql: """
@@ -250,7 +250,7 @@ struct AppDatabaseRecordRoundTripTests {
             let onrampTransactionRecord = try ExpressOnrampTransactionRecord.fetchOne(database, key: "onramp-tx-1")
             let syncMetadataRecord = try ExpressSyncMetadataRecord.fetchOne(
                 database,
-                key: ["userWalletID": "0xOwner", "endpointType": "exchange"]
+                key: ["walletID": "0xOwner", "endpointType": "exchange"]
             )
             let historyIndexRecord = try TransactionHistoryIndexRecord.fetchOne(
                 database,
