@@ -9,7 +9,7 @@
 import XCTest
 
 final class TangemPayMultichainDepositUITests: BaseTestCase {
-    func testAddFundsSheetListsBankTransferThenSwapThenReceive() {
+    func testAddFundsSheetListsSwapThenReceiveThenBankTransfer() {
         setAllureId(11366)
 
         launchWithMultiNetworkBalance(extraScenarios: [

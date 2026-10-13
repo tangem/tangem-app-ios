@@ -1,5 +1,5 @@
 //
-//  TangemPayVirtualAccountInfoSheet.swift
+//  TangemPayVirtualAccountOnboardingScreen.swift
 //  TangemUITests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,14 +9,14 @@
 import XCTest
 import TangemAccessibilityIdentifiers
 
-final class TangemPayVirtualAccountInfoSheet: ScreenBase<TangemPayVirtualAccountInfoSheetElement> {
-    private lazy var showDetailsButton = button(.showDetailsButton)
+final class TangemPayVirtualAccountOnboardingScreen: ScreenBase<TangemPayVirtualAccountOnboardingScreenElement> {
+    private lazy var continueButton = button(.continueButton)
     private lazy var feeErrorBanner = button(.feeErrorBanner)
 
     @discardableResult
     func waitForScreen() -> Self {
-        XCTContext.runActivity(named: "Wait for Virtual account info sheet") { _ in
-            waitAndAssertTrue(showDetailsButton, "Show details button should be displayed on Virtual account info sheet")
+        XCTContext.runActivity(named: "Wait for Virtual account onboarding screen") { _ in
+            waitAndAssertTrue(continueButton, "Continue button should be displayed on Virtual account onboarding screen")
             return self
         }
     }
@@ -60,35 +60,11 @@ final class TangemPayVirtualAccountInfoSheet: ScreenBase<TangemPayVirtualAccount
     }
 
     @discardableResult
-    func tapShowDetailsExpectingSuccess() -> TangemPayVirtualAccountSuccessScreen {
-        XCTContext.runActivity(named: "Tap Show details to create a Virtual account order") { _ in
-            tapShowDetails()
-            return TangemPayVirtualAccountSuccessScreen(app)
+    func tapContinue() -> TangemPayMainScreen {
+        XCTContext.runActivity(named: "Tap Continue to request a Virtual account") { _ in
+            continueButton.waitAndTap()
+            return TangemPayMainScreen(app)
         }
-    }
-
-    @discardableResult
-    func tapShowDetailsExpectingBankDetails() -> TangemPayVirtualAccountBankDetailsSheet {
-        XCTContext.runActivity(named: "Tap Show details to open Virtual account banking details") { _ in
-            tapShowDetails()
-            return TangemPayVirtualAccountBankDetailsSheet(app)
-        }
-    }
-
-    @discardableResult
-    func tapShowDetailsExpectingError() -> TangemPayVirtualAccountBankDetailsErrorSheet {
-        XCTContext.runActivity(named: "Tap Show details expecting the banking details error sheet") { _ in
-            tapShowDetails()
-            return TangemPayVirtualAccountBankDetailsErrorSheet(app)
-        }
-    }
-
-    private func tapShowDetails() {
-        showDetailsButton.waitAndTap()
-        XCTAssertTrue(
-            showDetailsButton.waitForNonExistence(timeout: .networkRequest),
-            "Virtual account info sheet should be dismissed after tapping Show details"
-        )
     }
 
     private func feeTitleText(_ fee: TangemPayAccessibilityIdentifiers.VirtualAccountFee) -> XCUIElement {
@@ -100,14 +76,14 @@ final class TangemPayVirtualAccountInfoSheet: ScreenBase<TangemPayVirtualAccount
     }
 }
 
-enum TangemPayVirtualAccountInfoSheetElement: String, UIElement {
-    case showDetailsButton
+enum TangemPayVirtualAccountOnboardingScreenElement: String, UIElement {
+    case continueButton
     case feeErrorBanner
 
     var accessibilityIdentifier: String {
         switch self {
-        case .showDetailsButton:
-            TangemPayAccessibilityIdentifiers.virtualAccountShowDetailsButton
+        case .continueButton:
+            TangemPayAccessibilityIdentifiers.virtualAccountOnboardingContinueButton
         case .feeErrorBanner:
             TangemPayAccessibilityIdentifiers.virtualAccountFeeErrorBanner
         }
