@@ -1362,7 +1362,11 @@ extension SwapModel {
     private func initialLoading() async {
         switch (_sourceToken.value, _receiveToken.value) {
         case (.success, .success):
-            swappingPairDidChange()
+            if let sourceAmount = _sourceAmount.value?.crypto {
+                update(amount: .from(sourceAmount), syncsSlippageBeforeRequest: false)
+            } else {
+                swappingPairDidChange()
+            }
 
         case (.success, _):
             let initialSourceTokenItem = _sourceToken.value.value?.tokenItem
