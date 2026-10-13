@@ -67,7 +67,7 @@ final class TangemPayBankTransferWizardScreen: ScreenBase<TangemPayBankTransferW
     private func selectCountry(_ country: String, region: String) {
         XCTContext.runActivity(named: "Select \(country), \(region)") { _ in
             selectOption(country, from: .countryCode)
-            geoRow(region).waitAndTap(timeout: .networkRequest)
+            TangemPayGeoSelectionScreen(app).selectRow(region)
             XCTAssertTrue(
                 field(.countryCode).waitForValue(where: { $0.contains(country) }),
                 "Country should read '\(country)'. Actual: '\(field(.countryCode).getValue())'"
@@ -80,7 +80,7 @@ final class TangemPayBankTransferWizardScreen: ScreenBase<TangemPayBankTransferW
         let element = field(formField)
         waitAndAssertTrue(element, "\(formField.rawValue) field should be displayed")
         element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-        geoRow(option).waitAndTap(timeout: .networkRequest)
+        TangemPayGeoSelectionScreen(app).selectRow(option)
     }
 
     private func enter(_ text: String, into formField: FormField) {
@@ -115,12 +115,6 @@ final class TangemPayBankTransferWizardScreen: ScreenBase<TangemPayBankTransferW
     private func option(_ element: TangemPayBankTransferWizardScreenElement, label: String) -> XCUIElement {
         app.buttons
             .matching(NSPredicate(format: "identifier == %@ AND label CONTAINS %@", element.accessibilityIdentifier, label))
-            .firstMatch
-    }
-
-    private func geoRow(_ title: String) -> XCUIElement {
-        app.buttons
-            .matching(NSPredicate(format: "identifier == %@ AND label CONTAINS %@", TangemPayAccessibilityIdentifiers.geoSelectionRow, title))
             .firstMatch
     }
 }

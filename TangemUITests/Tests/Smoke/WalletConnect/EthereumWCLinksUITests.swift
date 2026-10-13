@@ -41,6 +41,9 @@ final class EthereumWCLinksUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .selectWalletFromList(name: .wallet2)
 
+        MainScreen(app)
+            .skipPushNotificationsSetup()
+
         WalletConnectSheet(app)
             .waitForConnectionProposalBottomSheetToBeVisible()
             .tapConnectionButton()
