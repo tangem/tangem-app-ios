@@ -128,7 +128,7 @@ struct MarketTokenItemView: View {
     private func makeSkeletonView(by value: String) -> some View {
         Text(value)
             .style(Fonts.Bold.caption1, color: Colors.Text.primary1)
-            .skeletonable(isShown: true)
+            .shimmerPlaceholder(true, variant: .custom(cornerRadius: 3))
     }
 }
 
