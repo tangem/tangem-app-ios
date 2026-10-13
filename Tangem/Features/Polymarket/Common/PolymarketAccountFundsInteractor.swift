@@ -142,7 +142,12 @@ private extension PolymarketAccountFundsInteractor {
 
         let targets = makeDepositTargets(from: acceptedAssets, addresses: addresses)
 
-        return targets.isEmpty ? .unavailable : .available(targets)
+        guard targets.contains(where: { $0.entry == PolymarketDepositAssetCatalog.usdcOnPolygon }) else {
+            PolymarketLogger.warning("A deposit is unavailable: the bridge offers no USDC on Polygon to deposit to")
+            return .unavailable
+        }
+
+        return .available(targets)
     }
 
     /// The withdrawal floor is a fact of the bridge, so it must not depend on anything that
