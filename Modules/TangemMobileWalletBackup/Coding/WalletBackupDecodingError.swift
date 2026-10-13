@@ -9,7 +9,7 @@
 import Foundation
 
 public enum WalletBackupDecodingError: Error {
-    /// The file has no readable `version` field, or its value is unknown to this app build.
+    /// No supported format version matches the file.
     case unsupportedVersion
     /// The file's `crypto.cipher` or `crypto.kdf` names an algorithm this app build cannot run.
     case unsupportedAlgorithm(String)

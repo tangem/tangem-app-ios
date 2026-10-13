@@ -45,6 +45,7 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
     @Published var mobileBackupTypesViewModel: MobileBackupTypesViewModel?
     @Published var accountFormViewModel: AccountFormViewModel?
     @Published var mobileRemoveWalletViewModel: MobileRemoveWalletViewModel?
+    @Published var mobileRemoveSocialWalletViewModel: MobileRemoveSocialWalletViewModel?
 
     // MARK: - Helpers
 
@@ -233,6 +234,15 @@ extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
+    }
+
+    func openMobileRemoveSocialWallet(userWalletModel: UserWalletModel) {
+        let removeManager = CommonMobileRemoveSocialWalletManager(userWalletModel: userWalletModel)
+
+        mobileRemoveSocialWalletViewModel = MobileRemoveSocialWalletViewModel(
+            removeManager: removeManager,
+            coordinator: self
+        )
     }
 
     func openAppSettings() {
@@ -444,6 +454,18 @@ extension UserWalletSettingsCoordinator: MobileRemoveWalletNotificationRoutable 
 
     func dismissMobileRemoveWalletNotification() {
         floatingSheetPresenter.removeActiveSheet()
+    }
+}
+
+// MARK: - MobileRemoveSocialWalletRoutable
+
+extension UserWalletSettingsCoordinator: MobileRemoveSocialWalletRoutable {
+    func removeSocialWalletClose() {
+        mobileRemoveSocialWalletViewModel = nil
+    }
+
+    func removeSocialWalletCompleted() {
+        dismiss()
     }
 }
 
