@@ -16,20 +16,23 @@ public struct PriceChangeView: View {
     private let showIconForNeutral: Bool
     /// [REDACTED_INFO]: Remove this flag and legacy colors when the redesign feature toggle is deleted
     private let useRedesignColors: Bool
-    private let shimmerAppearance: LoadingShimmerAppearance
+    private let isCapsuleSkeleton: Bool
+    private let skeletonSize: CGSize
 
     public init(
         state: State,
         showSkeletonWhenLoading: Bool = true,
         showIconForNeutral: Bool = true,
         useRedesignColors: Bool = false,
-        shimmerAppearance: LoadingShimmerAppearance = .skeleton
+        isCapsuleSkeleton: Bool = false,
+        skeletonSize: CGSize = CGSize(width: 40, height: 12)
     ) {
         self.state = state
         self.showSkeletonWhenLoading = showSkeletonWhenLoading
         self.showIconForNeutral = showIconForNeutral
         self.useRedesignColors = useRedesignColors
-        self.shimmerAppearance = shimmerAppearance
+        self.isCapsuleSkeleton = isCapsuleSkeleton
+        self.skeletonSize = skeletonSize
     }
 
     public var body: some View {
@@ -53,8 +56,7 @@ public struct PriceChangeView: View {
             changeContent(changeType: changeType, text: text)
         case .loadingCached(let changeType, let text):
             changeContent(changeType: changeType, text: text)
-                .loadingShimmer(shimmerAppearance)
-                .environment(\.isShimmerActive, true)
+                .shimmering(true)
         }
     }
 
@@ -70,26 +72,13 @@ public struct PriceChangeView: View {
         }
     }
 
-    @ViewBuilder
     private var skeleton: some View {
-        switch shimmerAppearance {
-        case .skeleton:
-            legacySkeleton
-
-        case .tangemShimmer:
-            Shimmer()
-                .variant(.custom(width: Constants.skeletonSize.width, height: Constants.skeletonSize.height))
-        }
-    }
-
-    @ViewBuilder
-    private var legacySkeleton: some View {
-        let base = SkeletonView().frame(width: Constants.skeletonSize.width, height: Constants.skeletonSize.height)
-        if useRedesignColors {
-            base.clipShape(.capsule)
-        } else {
-            base.cornerRadiusContinuous(3)
-        }
+        Shimmer()
+            .variant(.custom(
+                width: skeletonSize.width,
+                height: skeletonSize.height,
+                cornerRadius: useRedesignColors || isCapsuleSkeleton ? nil : 3
+            ))
     }
 
     private func shouldShowIcon(for changeType: ChangeType) -> Bool {
@@ -126,14 +115,6 @@ public struct PriceChangeView: View {
             }
         }
         .lineLimit(1)
-    }
-}
-
-// MARK: - Constants
-
-private extension PriceChangeView {
-    enum Constants {
-        static let skeletonSize = CGSize(width: 40, height: 12)
     }
 }
 

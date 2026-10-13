@@ -270,9 +270,8 @@ private struct TextInputWithTitle: View {
     @ViewBuilder
     private var skeleton: some View {
         if isLoading {
-            SkeletonView()
-                .frame(size: CGSize(width: 90, height: 12))
-                .cornerRadiusContinuous(3)
+            Shimmer()
+                .variant(.custom(width: 90, height: 12, cornerRadius: 3))
         }
     }
 }

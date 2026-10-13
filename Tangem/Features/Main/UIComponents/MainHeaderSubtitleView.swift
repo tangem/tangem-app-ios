@@ -56,10 +56,9 @@ struct MainHeaderSubtitleView: View {
         )
         .truncationMode(.middle)
         .if(!isUserWalletLocked) {
-            $0.skeletonable(
-                isShown: isLoadingSubtitle,
-                size: CGSize(width: subtitleStubWidthScaled, height: subtitleStubHeightScaled),
-                radius: 3
+            $0.shimmerPlaceholder(
+                isLoadingSubtitle,
+                variant: .custom(width: subtitleStubWidthScaled, height: subtitleStubHeightScaled, cornerRadius: 3)
             )
         }
     }

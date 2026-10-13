@@ -75,7 +75,7 @@ private struct WalletCounterpartyIconView: View {
 
         iconImage
             .frame(size: size)
-            .skeletonable(isShown: viewModel.icon.isLoading, size: size)
+            .shimmerPlaceholder(viewModel.icon.isLoading, variant: .custom(cornerRadius: 3))
             .onAppear { viewModel.loadImage() }
     }
 

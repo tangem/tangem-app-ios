@@ -226,21 +226,16 @@ public struct NFTCollectionsListView: View {
 
     private var collectionSkeleton: some View {
         HStack(spacing: 12) {
-            Color.clear
+            Shimmer()
+                .variant(.custom(cornerRadius: NFTCollectionRow.Constants.Icon.cornerRadius))
                 .frame(size: NFTCollectionRow.Constants.Icon.size)
-                .skeletonable(
-                    isShown: true,
-                    radius: NFTCollectionRow.Constants.Icon.cornerRadius
-                )
 
             VStack(alignment: .leading, spacing: 10) {
-                Color.clear
-                    .frame(width: 70, height: 12)
-                    .skeletonable(isShown: true, radius: 4)
+                Shimmer()
+                    .variant(.custom(width: 70, height: 12, cornerRadius: 4))
 
-                Color.clear
-                    .frame(width: 54, height: 12)
-                    .skeletonable(isShown: true, radius: 4)
+                Shimmer()
+                    .variant(.custom(width: 54, height: 12, cornerRadius: 4))
             }
         }
         .infinityFrame(alignment: .leading)

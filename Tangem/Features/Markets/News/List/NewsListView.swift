@@ -177,7 +177,7 @@ private struct RedesignNewsSkeletonItemView: View {
         VStack(alignment: .leading, spacing: .zero) {
             Text(Constants.ratingPlaceholder)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                .skeletonable(isShown: true, cornerStyle: .capsule)
+                .shimmerPlaceholder(true, variant: .custom(cornerRadius: 8))
 
             FixedSpacer(height: 8)
 
@@ -185,13 +185,13 @@ private struct RedesignNewsSkeletonItemView: View {
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .skeletonable(isShown: true, cornerStyle: .capsule)
+                .shimmerPlaceholder(true, variant: .custom(cornerRadius: 10))
 
             Spacer(minLength: 8)
 
             Text(Constants.timePlaceholder)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                .skeletonable(isShown: true, cornerStyle: .capsule)
+                .shimmerPlaceholder(true, variant: .custom(cornerRadius: 8))
 
             FixedSpacer(height: 8)
 
@@ -201,7 +201,7 @@ private struct RedesignNewsSkeletonItemView: View {
                         item: InfoChipItem(title: placeholder),
                         style: .redesign
                     )
-                    .skeletonable(isShown: true, cornerStyle: .capsule)
+                    .shimmerPlaceholder(true, variant: .custom(cornerRadius: 16))
                 }
             }
         }

@@ -58,7 +58,7 @@ struct PolymarketFeeBreakdownSheetView: View {
             breakdownRow(title: Constants.totalTitle, value: viewModel.total, showsDivider: false)
         }
         .padding(.top, Constants.rowsTopPadding)
-        .tangemShimmer()
+        .shimmering()
         .environment(\.isShimmerActive, viewModel.isRefreshing)
     }
 

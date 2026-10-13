@@ -38,7 +38,7 @@ public struct PolymarketAmountBadge: View, Setupable {
         Text(label(amountText))
             .style(typographyToken, color: appearance.foregroundColor)
             .lineLimit(1)
-            .tangemShimmer()
+            .shimmering()
             .environment(\.isShimmerActive, isLoading)
     }
 

@@ -57,11 +57,7 @@ struct AccountSelectorWalletCellButtonView: View {
 
     private var walletImage: some View {
         unwrappedWalletIcon
-            .skeletonable(
-                isShown: viewModel.walletIcon.isLoading,
-                size: CGSize(width: 36, height: 22),
-                paddings: EdgeInsets(top: 7, leading: 0, bottom: 7, trailing: 0)
-            )
+            .shimmerPlaceholder(viewModel.walletIcon.isLoading, variant: .custom(width: 36, height: 22, cornerRadius: 3))
             .opacity(viewModel.isDisabled ? 0.5 : 1)
     }
 

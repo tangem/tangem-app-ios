@@ -94,27 +94,21 @@ public struct LoadableTextView: View {
             ZStack {
                 styledDashText
                     .opacity(0.01)
-                skeletonView
-                    .frame(width: loaderSize.width, height: loaderSize.height)
+                Shimmer()
+                    .variant(.custom(width: loaderSize.width, height: loaderSize.height, cornerRadius: loaderCornerRadius))
             }
         case .loadingCached(let text):
             styledText(text, isSensitive: isSensitiveText)
-                .shimmer()
-                .environment(\.isShimmerActive, true)
+                .shimmering(true)
         case .loaded(let text):
             styledText(text, isSensitive: isSensitiveText)
         }
     }
 
-    @ViewBuilder
-    private var skeletonView: some View {
+    private var loaderCornerRadius: CGFloat? {
         switch loaderCornerRadiusStyle {
-        case .rounded(let radius):
-            SkeletonView()
-                .cornerRadiusContinuous(radius)
-        case .capsule:
-            SkeletonView()
-                .clipShape(Capsule())
+        case .rounded(let radius): radius
+        case .capsule: nil
         }
     }
 

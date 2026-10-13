@@ -38,7 +38,7 @@ private extension DemoRegistry {
             DemoEntry("Row", version: DSVersion(1, 0, 1), section: .ds3) { RowShowcase() },
             DemoEntry("Search", version: DSVersion(1, 0, 0), section: .ds3) { SearchShowcase() },
             DemoEntry("SegmentedControl", version: DSVersion(1, 0, 0), section: .ds3) { SegmentedControlShowcase() },
-            DemoEntry("Shimmer", version: DSVersion(1, 0, 0), section: .ds3) { ShimmerShowcase() },
+            DemoEntry("Shimmer", version: DSVersion(1, 0, 1), section: .ds3) { ShimmerShowcase() },
             DemoEntry("Shtorka", version: DSVersion(1, 0, 0), section: .ds3) { ShtorkaShowcase() },
             DemoEntry("StatusScreen", version: DSVersion(1, 0, 0), section: .ds3) { StatusScreenShowcase() },
             DemoEntry("TabNavigation", version: DSVersion(1, 0, 0), section: .ds3) { TabNavigationShowcase() },

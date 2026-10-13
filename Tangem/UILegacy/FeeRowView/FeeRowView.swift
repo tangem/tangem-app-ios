@@ -63,8 +63,8 @@ struct FeeRowView: View {
     private var trailingView: some View {
         switch viewModel.components {
         case .loading:
-            SkeletonView()
-                .frame(width: 70, height: 15)
+            Shimmer()
+                .variant(.custom(width: 70, height: 15, cornerRadius: 0))
         case .success(let components):
             trailingView(for: components)
         case .failure:

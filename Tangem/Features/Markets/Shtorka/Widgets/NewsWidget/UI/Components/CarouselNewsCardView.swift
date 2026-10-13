@@ -73,7 +73,7 @@ struct CarouselNewsCardView: View {
     private func contentView(for item: CarouselNewsItem) -> some View {
         VStack(alignment: .leading, spacing: .zero) {
             NewsRatingViewRedesign(rating: "\(item.rating) • \(item.timeAgo)", isHighlighted: false)
-                .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
+                .shimmerPlaceholder(isLoading, variant: .custom(cornerRadius: Layout.Skeleton.cornerRadius))
 
             FixedSpacer(height: 8)
 
@@ -83,12 +83,12 @@ struct CarouselNewsCardView: View {
                 .lineLimit(Layout.RedesignCard.titleLineLimit)
                 .truncationMode(.tail)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
-                .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
+                .shimmerPlaceholder(isLoading, variant: .custom(cornerRadius: Layout.Skeleton.cornerRadius))
 
             Spacer(minLength: 8)
 
             InfoChipsRowView(chips: item.tags, alignment: .leading, style: .redesign)
-                .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
+                .shimmerPlaceholder(isLoading, variant: .custom(cornerRadius: Layout.Skeleton.cornerRadius))
         }
     }
 
