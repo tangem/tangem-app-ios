@@ -14,6 +14,7 @@ final class MarketsAndNewsScreen: ScreenBase<MarketsAndNewsScreenElement> {
     private lazy var searchFieldContainer = button(.searchThroughMarketFieldContainer)
     private lazy var addAccountBanner = app.buttons[AccountsAccessibilityIdentifiers.feedAddAccountBanner].firstMatch
     private lazy var forYouWidget = app.buttons[MainAccessibilityIdentifiers.feedForYouWidget].firstMatch
+    private lazy var tangemPayBanner = app.buttons[TangemPayAccessibilityIdentifiers.feedBanner].firstMatch
 
     @discardableResult
     func openAddAccountTypeSelector() -> AddAccountTypeSelectorSheet {
@@ -25,6 +26,18 @@ final class MarketsAndNewsScreen: ScreenBase<MarketsAndNewsScreenElement> {
     func openAddAccountWalletSelector() -> AddAccountWalletSelectorSheet {
         tapAddAccountBanner()
         return AddAccountWalletSelectorSheet(app)
+    }
+
+    @discardableResult
+    func openTangemPayOnboarding() -> TangemPayOnboardingScreen {
+        tapTangemPayBanner()
+        return TangemPayOnboardingScreen(app)
+    }
+
+    @discardableResult
+    func openTangemPayKycStatusSheet() -> TangemPayKYCStatusSheet {
+        tapTangemPayBanner()
+        return TangemPayKYCStatusSheet(app)
     }
 
     @discardableResult
@@ -89,6 +102,14 @@ final class MarketsAndNewsScreen: ScreenBase<MarketsAndNewsScreenElement> {
     }
 
     @discardableResult
+    func verifyAddAccountBannerDisplayed() -> Self {
+        XCTContext.runActivity(named: "Verify 'Add account' banner is displayed in the feed") { _ in
+            waitAndAssertTrue(addAccountBanner, "'Add account' banner should be displayed in the feed")
+            return self
+        }
+    }
+
+    @discardableResult
     func verifyAddAccountBannerNotDisplayed() -> Self {
         XCTContext.runActivity(named: "Verify 'Add account' banner is not displayed in the feed") { _ in
             waitAndAssertTrue(forYouWidget, "Feed widgets should be rendered before checking the 'Add account' banner")
@@ -97,6 +118,40 @@ final class MarketsAndNewsScreen: ScreenBase<MarketsAndNewsScreenElement> {
                 "'Add account' banner should not be displayed for a Note card"
             )
             return self
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayBannerDisplayed() -> Self {
+        XCTContext.runActivity(named: "Verify 'Tangem Pay' banner is displayed in the feed") { _ in
+            waitAndAssertTrue(tangemPayBanner, timeout: .networkRequest, "'Tangem Pay' banner should be displayed in the feed")
+            XCTAssertTrue(
+                tangemPayBanner.label.contains(Localization.feedPromoTangemPayTitle),
+                "'Tangem Pay' banner title should be displayed"
+            )
+            XCTAssertTrue(
+                tangemPayBanner.label.contains(Localization.feedPromoTangemPayDescription),
+                "'Tangem Pay' banner description should be displayed"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayBannerNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Verify 'Tangem Pay' banner is not displayed in the feed") { _ in
+            waitAndAssertTrue(forYouWidget, "Feed widgets should be rendered before checking the 'Tangem Pay' banner")
+            XCTAssertTrue(
+                tangemPayBanner.staysAbsent(for: .robustUIUpdate),
+                "'Tangem Pay' banner should not be displayed in the feed"
+            )
+            return self
+        }
+    }
+
+    private func tapTangemPayBanner() {
+        XCTContext.runActivity(named: "Tap 'Tangem Pay' banner in the feed") { _ in
+            XCTAssertTrue(tangemPayBanner.waitAndTap(), "'Tangem Pay' banner should be tappable in the feed")
         }
     }
 
