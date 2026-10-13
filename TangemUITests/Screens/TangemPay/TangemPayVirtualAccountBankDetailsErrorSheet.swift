@@ -37,10 +37,10 @@ final class TangemPayVirtualAccountBankDetailsErrorSheet: ScreenBase<TangemPayVi
     }
 
     @discardableResult
-    func tapRetry() -> TangemPayVirtualAccountBankDetailsSheet {
+    func tapRetry() -> TangemPayVirtualAccountDetailsScreen {
         XCTContext.runActivity(named: "Tap Retry to request banking details again") { _ in
             retryButton.waitAndTap()
-            return TangemPayVirtualAccountBankDetailsSheet(app)
+            return TangemPayVirtualAccountDetailsScreen(app)
         }
     }
 }
