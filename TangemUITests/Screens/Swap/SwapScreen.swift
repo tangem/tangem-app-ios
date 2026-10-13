@@ -344,6 +344,15 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     }
 
     @discardableResult
+    func waitForToTokenNotSelected() -> Self {
+        XCTContext.runActivity(named: "Validate 'You receive' section has no token selected") { _ in
+            let emptyPill = app.buttons.matching(NSPredicate(format: "label == %@", Localization.commonChooseToken)).firstMatch
+            waitAndAssertTrue(emptyPill, "Empty 'Choose token' pill should be displayed in 'You receive' section")
+        }
+        return self
+    }
+
+    @discardableResult
     func waitForSwapTokensButtonDisplayed() -> Self {
         XCTContext.runActivity(named: "Validate swap tokens button is displayed") { _ in
             waitAndAssertTrue(swapTokensButton, "Swap tokens button should be displayed")
