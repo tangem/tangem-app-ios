@@ -12,19 +12,12 @@ import TangemAccessibilityIdentifiers
 final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     private lazy var title = staticText(.title)
     private lazy var finishButton = button(.finishButton)
-    // HoldToConfirmButton (hot wallet) is not a native Button, XCUITest sees it as otherElement
-    private lazy var holdFinishButton = otherElement(.finishButton)
     private lazy var amountValue = staticText(.amountValue)
     private lazy var validatorBlock = staticText(.validatorBlock)
     private lazy var networkFeeBlock = otherElement(.networkFeeBlock)
     private lazy var networkFeeAmount = staticText(.networkFeeAmount)
     private lazy var amountBlock = button(.amountBlock)
     private lazy var destinationBlock = button(.destinationBlock)
-
-    /// Returns the active finish/send button regardless of type (regular Button or HoldToConfirmButton)
-    private var activeFinishButton: XCUIElement {
-        finishButton.exists ? finishButton : holdFinishButton
-    }
 
     @discardableResult
     func waitForAmountValue(_ expectedAmount: String) -> Self {
@@ -47,9 +40,7 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
         XCTContext.runActivity(named: "Wait for display: Send Summary Screen") { _ in
             waitAndAssertTrue(title, "Title should exists")
 
-            // Check for either regular Button or HoldToConfirmButton (hot wallet)
-            let buttonFound = finishButton.waitForExistence(timeout: .quick) || holdFinishButton.waitForExistence(timeout: .robustUIUpdate)
-            XCTAssertTrue(buttonFound, "Finish flow button should exists")
+            waitAndAssertTrue(finishButton, "Finish flow button should exists")
 
             // Fee loads independently of the button/title and can still be in flight once those appear, so this needs an actual wait.
             waitAndAssertTrue(networkFeeBlock, "Network fee block should be displayed")
@@ -83,14 +74,9 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
 
     @discardableResult
     func tapSendButton() -> SendFinishScreen {
-        XCTContext.runActivity(named: "Tap Send button on Summary screen") { _ in
-            if finishButton.exists {
-                finishButton.waitAndTap()
-            } else {
-                // HoldToConfirmButton requires a long press (1.5s hold duration)
-                waitAndAssertTrue(holdFinishButton, "Hold-to-confirm button should exist")
-                holdFinishButton.press(forDuration: 4.0)
-            }
+        XCTContext.runActivity(named: "Confirm Send on Summary screen") { _ in
+            waitAndAssertTrue(finishButton, "'Send' button should exist")
+            finishButton.holdToConfirm()
         }
         return SendFinishScreen(app)
     }
@@ -389,8 +375,8 @@ extension SendSummaryScreen {
     @discardableResult
     func assertSendButtonEnabled() -> Self {
         XCTContext.runActivity(named: "Assert 'Send' button is enabled") { _ in
-            waitAndAssertTrue(activeFinishButton, "'Send' button should exist")
-            XCTAssertTrue(activeFinishButton.isEnabled, "'Send' button should be enabled")
+            waitAndAssertTrue(finishButton, "'Send' button should exist")
+            XCTAssertTrue(finishButton.isEnabled, "'Send' button should be enabled")
             return self
         }
     }
@@ -513,8 +499,8 @@ extension SendSummaryScreen {
     @discardableResult
     func waitForSendButtonEnabled() -> Self {
         XCTContext.runActivity(named: "Wait for 'Send' button to be enabled") { _ in
-            waitAndAssertTrue(activeFinishButton, "'Send' button should exist")
-            XCTAssertTrue(activeFinishButton.waitForState(state: .enabled), "'Send' button should be enabled")
+            waitAndAssertTrue(finishButton, "'Send' button should exist")
+            XCTAssertTrue(finishButton.waitForState(state: .enabled), "'Send' button should be enabled")
             return self
         }
     }
@@ -614,8 +600,7 @@ extension SendSummaryScreen {
     func waitForStakingConfirm() -> Self {
         XCTContext.runActivity(named: "Wait for staking confirm screen") { _ in
             waitAndAssertTrue(title, "Title should exist")
-            let buttonFound = finishButton.waitForExistence(timeout: .quick) || holdFinishButton.waitForExistence(timeout: .robustUIUpdate)
-            XCTAssertTrue(buttonFound, "Confirm button should exist")
+            waitAndAssertTrue(finishButton, "Confirm button should exist")
             waitAndAssertTrue(networkFeeBlock, "Network fee block should be displayed")
             return self
         }
@@ -636,8 +621,8 @@ extension SendSummaryScreen {
             let rentBanner = app.descendants(matching: .any)[SendAccessibilityIdentifiers.remainingAmountIsLessThanRentExemptionBanner].firstMatch
             XCTAssertTrue(rentBanner.waitForExistence(timeout: .robustUIUpdate), "Rent-fee 'Invalid amount' warning should be displayed on the confirm screen")
 
-            waitAndAssertTrue(activeFinishButton, "Confirm button should exist")
-            XCTAssertFalse(activeFinishButton.isEnabled, "Confirm button should be blocked while the rent-fee warning is shown")
+            waitAndAssertTrue(finishButton, "Confirm button should exist")
+            XCTAssertFalse(finishButton.isEnabled, "Confirm button should be blocked while the rent-fee warning is shown")
             return self
         }
     }

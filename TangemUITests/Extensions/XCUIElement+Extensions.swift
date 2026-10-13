@@ -150,6 +150,13 @@ extension XCUIElement {
             coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(forDuration: duration)
         }
     }
+
+    func holdToConfirm(timeout: TimeInterval = .robustUIUpdate) {
+        guard waitForState(state: .enabled, for: timeout) else {
+            return
+        }
+        pressEvenIfNotHittable(forDuration: Constants.holdToConfirmDuration)
+    }
 }
 
 // MARK: Find elements
@@ -234,5 +241,11 @@ extension XCUIElementQuery {
         }
 
         return hittableElement
+    }
+}
+
+private extension XCUIElement {
+    enum Constants {
+        static let holdToConfirmDuration: TimeInterval = 3
     }
 }

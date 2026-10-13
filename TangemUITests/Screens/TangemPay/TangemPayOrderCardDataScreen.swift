@@ -98,7 +98,15 @@ final class TangemPayOrderCardDataScreen: ScreenBase<TangemPayOrderCardDataScree
     @discardableResult
     func verifyLatinOnlyError(on field: Field) -> Self {
         XCTContext.runActivity(named: "Verify \(field.rawValue) shows Use Latin characters only") { _ in
-            verifyError(on: field, equals: Constants.latinOnlyError)
+            verifyError(on: field, equals: Localization.tangempayOrderDataFieldLatinOnly)
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyInvalidTextError(on field: Field) -> Self {
+        XCTContext.runActivity(named: "Verify \(field.rawValue) shows Invalid text") { _ in
+            verifyError(on: field, equals: Localization.tangempayOrderDataFieldInvalid)
             return self
         }
     }
@@ -217,7 +225,6 @@ private extension TangemPayOrderCardDataScreen {
         static let subtitle = "Check data"
         static let phoneMaskPlaceholder = "+1 ___-___-____"
         static let requiredError = "Required field"
-        static let latinOnlyError = "Use Latin characters only"
         static let nextFieldKey = "\n"
         static let focusChainAfterName: [Field] = [.firstName, .lastName, .region, .city, .addressLine1, .addressLine2, .postalCode, .phone]
         static let requiredEditableFields: [Field] = [.nameOnCard, .firstName, .lastName, .region, .city, .addressLine1, .postalCode, .phone]
