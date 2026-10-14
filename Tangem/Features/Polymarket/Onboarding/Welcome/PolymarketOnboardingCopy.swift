@@ -115,3 +115,11 @@ extension PolymarketOnboardingCopy {
         }
     }
 }
+
+// MARK: - LocalizedError
+
+extension PolymarketOnboardingError: @retroactive LocalizedError {
+    public var errorDescription: String? {
+        PolymarketOnboardingCopy.failure(for: self)
+    }
+}

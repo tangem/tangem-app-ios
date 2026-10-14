@@ -101,11 +101,6 @@ private struct OwnerAddressProviderStub: PolymarketOwnerAddressProviding {
     func getOwnerAddress() -> String? {
         address
     }
-
-    func deriveOwnerAddress() async throws(PolymarketDerivationError) -> String {
-        guard let address else { throw .missingWallet }
-        return address
-    }
 }
 
 private final class FirstAttemptFailsBridgeStub: PolymarketBridgeService {

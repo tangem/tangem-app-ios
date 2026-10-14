@@ -36,6 +36,7 @@ struct PolymarketOnboardingFactory {
         CommonPolymarketOnboardingInteractor(
             userWalletId: userWalletModel.userWalletId,
             ownerAddressProvider: makeOwnerAddressProvider(for: userWalletModel),
+            ownerKeySession: userWalletModel.polymarketOwnerKeySession,
             signer: CommonPolymarketOnboardingSigner(
                 keysRepository: userWalletModel.keysRepository,
                 signer: userWalletModel.signer
@@ -54,10 +55,6 @@ struct PolymarketOnboardingFactory {
 
 extension PolymarketOnboardingFactory {
     func makeOwnerAddressProvider(for userWalletModel: any UserWalletModel) -> PolymarketOwnerAddressProviding {
-        CommonPolymarketOwnerAddressProvider(
-            keysRepository: userWalletModel.keysRepository,
-            keysDerivingFactory: PolymarketKeysDeriving(provider: userWalletModel),
-            areHDWalletsSupported: userWalletModel.config.hasFeature(.hdWallets)
-        )
+        CommonPolymarketOwnerAddressProvider(keysRepository: userWalletModel.keysRepository)
     }
 }

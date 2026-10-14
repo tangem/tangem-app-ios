@@ -20,103 +20,28 @@ struct CommonPolymarketOwnerAddressProviderTests {
     private static let walletPublicKey = Data(hexString: "0279BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798")
     private static let chainCode = Data(repeating: 0x11, count: 32)
 
-    @Test(arguments: [true, false])
-    func theOwnerAddressIsReturnedEvenIfTheCacheDropsTheWrite(cachePersists: Bool) async throws {
-        let provider = Self.makeProvider(
-            repository: Self.makeRepository(derivedKey: nil, persists: cachePersists),
-            result: .success(Self.derivationResult)
-        )
-
-        #expect(try await provider.deriveOwnerAddress() == Self.derivedAddress)
-    }
-
     @Test
-    func anAlreadyDerivedKeyResolvesWithoutDerivingAgain() async throws {
-        let provider = Self.makeProvider(
-            repository: Self.makeRepository(derivedKey: Self.extendedPublicKey),
-            result: .success([:])
+    func anAlreadyDerivedKeyResolvesTheOwnerAddress() {
+        let provider = CommonPolymarketOwnerAddressProvider(
+            keysRepository: Self.makeRepository(derivedKey: Self.extendedPublicKey)
         )
 
         #expect(provider.getOwnerAddress() == Self.derivedAddress)
-        #expect(try await provider.deriveOwnerAddress() == Self.derivedAddress)
     }
 
     @Test
-    func aDerivationThatProducedNothingIsNotReportedAsAMissingWallet() async {
-        let provider = Self.makeProvider(repository: Self.makeRepository(derivedKey: nil), result: .success([:]))
-
-        await #expect(throws: PolymarketDerivationError.keyNotDerived) {
-            try await provider.deriveOwnerAddress()
-        }
-    }
-
-    @Test
-    func aWalletWithoutSecp256k1CannotOnboard() async {
-        let repository = KeysRepositoryTestsMock(keys: [Self.makeKeyInfo(curve: .ed25519, derivedKey: nil)])
-        let provider = Self.makeProvider(repository: repository, result: .success(Self.derivationResult))
+    func aKeyThatWasNeverDerivedHasNoOwnerAddress() {
+        let provider = CommonPolymarketOwnerAddressProvider(keysRepository: Self.makeRepository(derivedKey: nil))
 
         #expect(provider.getOwnerAddress() == nil)
-        await #expect(throws: PolymarketDerivationError.missingWallet) {
-            try await provider.deriveOwnerAddress()
-        }
     }
 
     @Test
-    func aWalletWithoutHDDerivationCannotOnboard() async {
-        let provider = Self.makeProvider(
-            repository: Self.makeRepository(derivedKey: nil),
-            result: .success(Self.derivationResult),
-            areHDWalletsSupported: false
-        )
+    func aWalletWithoutSecp256k1HasNoOwnerAddress() {
+        let repository = KeysRepositoryTestsMock(keys: [Self.makeKeyInfo(curve: .ed25519, derivedKey: Self.extendedPublicKey)])
+        let provider = CommonPolymarketOwnerAddressProvider(keysRepository: repository)
 
-        await #expect(throws: PolymarketDerivationError.derivationUnsupported) {
-            try await provider.deriveOwnerAddress()
-        }
-    }
-
-    @Test(arguments: CardFailure.allCases)
-    func cardFailuresKeepTheirRetryability(failure: CardFailure) async {
-        let provider = Self.makeProvider(repository: Self.makeRepository(derivedKey: nil), result: .failure(failure.sdkError))
-
-        await #expect(throws: failure.expectedError) {
-            try await provider.deriveOwnerAddress()
-        }
-    }
-
-    @Test
-    func aFailureThatIsNotTheCardIsNotBlamedOnTheCard() async {
-        struct NetworkishError: Error {}
-        let provider = Self.makeProvider(repository: Self.makeRepository(derivedKey: nil), result: .failure(NetworkishError()))
-
-        await #expect(throws: PolymarketDerivationError.unknown) {
-            try await provider.deriveOwnerAddress()
-        }
-    }
-}
-
-// MARK: - Scenarios
-
-extension CommonPolymarketOwnerAddressProviderTests {
-    enum CardFailure: CaseIterable, Sendable {
-        case userCancelled
-        case walletNotFound
-        case otherCardError
-
-        var sdkError: TangemSdkError {
-            switch self {
-            case .userCancelled: .userCancelled
-            case .walletNotFound: .walletNotFound
-            case .otherCardError: .cardError
-            }
-        }
-
-        var expectedError: PolymarketDerivationError {
-            switch self {
-            case .userCancelled: .cancelled
-            case .walletNotFound: .missingWallet
-            case .otherCardError: .cardFailed
-            }
-        }
+        #expect(provider.getOwnerAddress() == nil)
     }
 }
 
@@ -127,24 +52,8 @@ private extension CommonPolymarketOwnerAddressProviderTests {
         ExtendedPublicKey(publicKey: derivedPublicKey, chainCode: chainCode)
     }
 
-    static var derivationResult: DerivationResult {
-        [walletPublicKey: DerivedKeys(keys: [PolymarketUtilities.derivationPath: extendedPublicKey])]
-    }
-
-    static func makeProvider(
-        repository: KeysRepositoryTestsMock,
-        result: Result<DerivationResult, Error>,
-        areHDWalletsSupported: Bool = true
-    ) -> CommonPolymarketOwnerAddressProvider {
-        CommonPolymarketOwnerAddressProvider(
-            keysRepository: repository,
-            keysDerivingFactory: KeysDerivingFactoryTestsMock(result: result),
-            areHDWalletsSupported: areHDWalletsSupported
-        )
-    }
-
-    static func makeRepository(derivedKey: ExtendedPublicKey?, persists: Bool = true) -> KeysRepositoryTestsMock {
-        KeysRepositoryTestsMock(keys: [makeKeyInfo(curve: .secp256k1, derivedKey: derivedKey)], persists: persists)
+    static func makeRepository(derivedKey: ExtendedPublicKey?) -> KeysRepositoryTestsMock {
+        KeysRepositoryTestsMock(keys: [makeKeyInfo(curve: .secp256k1, derivedKey: derivedKey)])
     }
 
     static func makeKeyInfo(curve: EllipticCurve, derivedKey: ExtendedPublicKey?) -> KeyInfo {
@@ -155,31 +64,5 @@ private extension CommonPolymarketOwnerAddressProviderTests {
             isImported: false,
             derivedKeys: derivedKey.map { [PolymarketUtilities.derivationPath: $0] } ?? [:]
         )
-    }
-}
-
-// MARK: - Doubles
-
-private final class KeysDerivingTestsMock: KeysDeriving {
-    private let result: Result<DerivationResult, Error>
-
-    init(result: Result<DerivationResult, Error>) {
-        self.result = result
-    }
-
-    var requiresCard: Bool { true }
-
-    func deriveKeys(derivations: [Data: [DerivationPath]], completion: @escaping (Result<DerivationResult, Error>) -> Void) {
-        completion(result)
-    }
-}
-
-// MARK: - Doubles
-
-private struct KeysDerivingFactoryTestsMock: PolymarketKeysDerivingFactory {
-    let result: Result<DerivationResult, Error>
-
-    func makeInteractor() -> KeysDeriving {
-        KeysDerivingTestsMock(result: result)
     }
 }
