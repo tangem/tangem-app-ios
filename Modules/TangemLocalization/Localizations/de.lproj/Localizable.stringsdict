@@ -29,9 +29,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Adresse</string>
+        <string>%li Adresse</string>
         <key>other</key>
-        <string>Adressen</string>
+        <string>%li Adressen</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -61,9 +61,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Karte</string>
+        <string>%li Karte</string>
         <key>other</key>
-        <string>Karten\n</string>
+        <string>%li Karten</string>
       </dict>
     </dict>
     <key>common_assets_count</key>
@@ -141,9 +141,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li signature</string>
+        <string>%liUnterschrift</string>
         <key>other</key>
-        <string>%li signatures</string>
+        <string>%liUnterschriften</string>
       </dict>
     </dict>
     <key>joint_account_members_count</key>
@@ -189,9 +189,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li börse</string>
+        <string>%li Börse</string>
         <key>other</key>
-        <string>%li börsen</string>
+        <string>%li Börsen</string>
       </dict>
     </dict>
     <key>markets_token_details_based_on_ratings</key>
@@ -205,9 +205,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Bewertung, basierend auf %li</string>
+        <string>Basierend auf %li Bewertung</string>
         <key>other</key>
-        <string>Bewertungen, basierend auf %li</string>
+        <string>Basierend auf %li Bewertungen</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
@@ -266,7 +266,7 @@
         <key>one</key>
         <string>.</string>
         <key>other</key>
-        <string>Schreibe diese %li-Wörter in der unten angegebenen Reihenfolge auf und bewahre sie an einem sicheren und geheimen Ort auf.</string>
+        <string>Schreibe diese %li Wörter in der unten angegebenen Reihenfolge auf und bewahre sie an einem sicheren und geheimen Ort auf.</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_words_count</key>
@@ -296,9 +296,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Anbieter</string>
+        <string>%li Anbieter</string>
         <key>other</key>
-        <string>Anbieter</string>
+        <string>%li Anbieter</string>
       </dict>
     </dict>
     <key>onramp_timing_days</key>
@@ -328,9 +328,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>EIN +%li Ergebnis</string>
+        <string>+%li Ergebnis</string>
         <key>other</key>
-        <string>EIN +%li Ergebnis</string>
+        <string>+%li Ergebnisse</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>
@@ -378,7 +378,7 @@
         <key>one</key>
         <string>%li Token ist mit dieser Adresse nicht kompatibel</string>
         <key>other</key>
-        <string>%li -Tokens sind mit dieser Adresse nicht kompatibel</string>
+        <string>%li Token sind mit dieser Adresse nicht kompatibel</string>
       </dict>
     </dict>
     <key>tangempay_cards_count</key>
@@ -408,7 +408,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Die Lieferung dauert bis zu %li Werktage</string>
+        <string>Die Lieferung dauert bis zu %li Werktag</string>
         <key>other</key>
         <string>Die Lieferung dauert bis zu %li Werktage</string>
       </dict>
@@ -440,9 +440,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Werktag</string>
+        <string>%li Werktag</string>
         <key>other</key>
-        <string>Werktage</string>
+        <string>%li Werktage</string>
       </dict>
     </dict>
     <key>top_assets_count</key>
@@ -456,9 +456,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Vermögenswert</string>
+        <string>Top %li Vermögenswert</string>
         <key>other</key>
-        <string>Vermögenswerte</string>
+        <string>Top %li Vermögenswerte</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
@@ -490,7 +490,7 @@
         <key>one</key>
         <string>Verwende deine Karte oder Ring, um eine Adresse für das %li-Netz zu erhalten</string>
         <key>other</key>
-        <string>Verwende deine Karte oder Ring, um mehrere Adressen für die %li-Netzwerke zu erhalten</string>
+        <string>Verwende deine Karte oder Ring, um Adressen für %li Netzwerke zu erhalten</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_no_nfc_message</key>
@@ -504,9 +504,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Adressen synchronisieren, um eine Adresse für das Netzwerk %li zu erhalten</string>
+        <string>Adressen synchronisieren, um eine Adresse für %li Netzwerk zu erhalten</string>
         <key>other</key>
-        <string>Adressen synchronisieren, um eine Adresse für das Netzwerk %li zu erhalten</string>
+        <string>Adressen synchronisieren, um Adressen für %li Netzwerke zu erhalten</string>
       </dict>
     </dict>
   </dict>
