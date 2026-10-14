@@ -467,8 +467,12 @@ private extension SwapModel {
         case .loading(.provider), .loading(.autoupdate), .loading(.fee):
             return
         default:
-            _slippageProvider.send(mapToLoadingExpressAvailableProvider(providersState: providersState)?.value?.provider)
+            setSlippageProvider(mapToLoadingExpressAvailableProvider(providersState: providersState)?.value?.provider)
         }
+    }
+
+    private func setSlippageProvider(_ provider: ExpressProvider?) {
+        _slippageProvider.send(provider?.slippage == nil ? nil : provider)
     }
 
     private func refreshDexOnlyProvidersMode() async throws {
@@ -1718,7 +1722,7 @@ extension SwapModel: SendSwapProvidersInput {
 
 extension SwapModel: SendSwapProvidersOutput {
     func userDidSelect(provider: ExpressAvailableProvider) {
-        _slippageProvider.send(provider.provider)
+        setSlippageProvider(provider.provider)
 
         updateTask(loadingType: .provider) { expressManager in
             await expressManager.updateSelectedProvider(provider: provider)
