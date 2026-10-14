@@ -65,7 +65,14 @@ struct TransactionExpressSubtitleView: View {
                 ownerName(name)
             }
 
-        case .contact, .unresolved:
+        case .contact(let name, let icon, _):
+            HStack(spacing: 4) {
+                inPrefix
+                AddressBookContactNameIconView(viewData: icon, size: 16)
+                ownerName(name)
+            }
+
+        case .unresolved:
             EmptyView()
         }
     }
