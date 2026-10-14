@@ -71,6 +71,15 @@ final class TangemPayBankTransferTokenSheet: Screen {
     }
 
     @discardableResult
+    func selectToken(symbol: String, network: TangemPayNetwork) -> TangemPayBankTransferAmountScreen {
+        XCTContext.runActivity(named: "Select \(symbol) on \(network.displayName)") { _ in
+            row(symbol: symbol, network: network).waitAndTap()
+            XCTAssertTrue(title.waitForNonExistence(timeout: .conditional), "Choose network sheet should close after the selection")
+            return TangemPayBankTransferAmountScreen(app)
+        }
+    }
+
+    @discardableResult
     func close() -> TangemPayBankTransferAmountScreen {
         XCTContext.runActivity(named: "Close the Choose network sheet") { _ in
             let sheetTop = title.frame.minY - Constants.headerHeight

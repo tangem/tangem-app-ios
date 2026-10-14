@@ -337,9 +337,14 @@ public enum TangemPayAccessibilityIdentifiers {
 
     public static let geoSelectionRow = "\(prefix)GeoSelectionRow"
     private static let formFieldPrefix = "\(prefix)FormField"
+    private static let formFieldErrorPrefix = "\(prefix)FormFieldError"
 
     public static func formField(_ field: String) -> String {
         "\(formFieldPrefix)_\(field)"
+    }
+
+    public static func formFieldError(_ field: String) -> String {
+        "\(formFieldErrorPrefix)_\(field)"
     }
 }
 
