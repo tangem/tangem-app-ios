@@ -44,10 +44,11 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
     private let walletDataProvider: MarketsWalletDataProvider
     private weak var coordinator: MarketsPortfolioContainerRoutable?
     private var addTokenTapAction: (() -> Void)?
+    private let showsNotSupportedWithoutMultiCurrencyWallet: Bool
 
     private let coinId: String
-    private let coinName: String
-    private let coinSymbol: String
+    private var coinName: String
+    private var coinSymbol: String
 
     // Make networks a publisher so changes trigger reactive pipeline
     private let networksSubject = CurrentValueSubject<[NetworkModel]?, Never>(nil)
@@ -63,6 +64,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
         inputData: InputData,
         walletDataProvider: MarketsWalletDataProvider,
         coordinator: MarketsPortfolioContainerRoutable?,
+        showsNotSupportedWithoutMultiCurrencyWallet: Bool,
         addTokenTapAction: (() -> Void)?
     ) {
         coinId = inputData.coinId
@@ -71,6 +73,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
         self.walletDataProvider = walletDataProvider
         self.coordinator = coordinator
         self.addTokenTapAction = addTokenTapAction
+        self.showsNotSupportedWithoutMultiCurrencyWallet = showsNotSupportedWithoutMultiCurrencyWallet
 
         bind()
     }
@@ -105,7 +108,9 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
         )
     }
 
-    func update(networks: [NetworkModel]) {
+    func update(coinName: String, coinSymbol: String, networks: [NetworkModel]) {
+        self.coinName = coinName
+        self.coinSymbol = coinSymbol
         networksSubject.send(networks)
     }
 
@@ -199,6 +204,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
             return .loading
 
         case .unsupported, .unavailable:
+            guard hasMultiCurrencyWallet || showsNotSupportedWithoutMultiCurrencyWallet else { return .hidden }
             return .notSupported
 
         case .empty:
