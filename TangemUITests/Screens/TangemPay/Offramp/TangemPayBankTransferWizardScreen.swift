@@ -16,6 +16,19 @@ final class TangemPayBankTransferWizardScreen: ScreenBase<TangemPayBankTransferW
     private lazy var keyboardDismissButton = button(.keyboardDismissButton)
 
     @discardableResult
+    func verifyTransferTypeNothingSelected() -> Self {
+        XCTContext.runActivity(named: "Verify no transfer type is preselected") { _ in
+            for type in [TransferType.ownAccount, .thirdPartyAccount] {
+                let element = option(.transferTypeOption, label: type.title)
+                waitAndAssertTrue(element, timeout: .networkRequest, "'\(type.title)' option should be displayed")
+                XCTAssertFalse(element.isSelected, "'\(type.title)' should not be preselected")
+            }
+            XCTAssertFalse(transferTypeContinueButton.isEnabled, "Continue should stay disabled until a transfer type is chosen")
+            return self
+        }
+    }
+
+    @discardableResult
     func selectTransferType(_ type: TransferType) -> Self {
         XCTContext.runActivity(named: "Select transfer type '\(type.title)'") { _ in
             option(.transferTypeOption, label: type.title).waitAndTap(timeout: .networkRequest)
@@ -35,13 +48,20 @@ final class TangemPayBankTransferWizardScreen: ScreenBase<TangemPayBankTransferW
 
     @discardableResult
     func fillRecipientDetails(_ details: RecipientDetails) -> Self {
-        XCTContext.runActivity(named: "Fill in the recipient details of \(details.firstName) \(details.lastName)") { _ in
-            waitAndAssertTrue(field(.accountNumber), timeout: .networkRequest, "Recipient details form should be displayed")
+        XCTContext.runActivity(named: "Fill in the recipient details of \(details.name.fullName)") { _ in
+            waitForRecipientDetailsForm()
             enter(details.accountNumber, into: .accountNumber)
             enter(details.routingNumber, into: .routingNumber)
-            enter(details.firstName, into: .firstName)
-            enter(details.lastName, into: .lastName)
-            selectCountry(details.country, region: details.region)
+            switch details.name {
+            case .individual(let firstName, let lastName):
+                enter(firstName, into: .firstName)
+                enter(lastName, into: .lastName)
+            case .business(let businessName):
+                enter(businessName, into: .businessName)
+            }
+            if !isLocationSelected(country: details.country, region: details.region) {
+                selectCountry(details.country, region: details.region)
+            }
             enter(details.city, into: .city)
             enter(details.addressLine1, into: .line1)
             enter(details.postalCode, into: .postalCode)
@@ -53,7 +73,7 @@ final class TangemPayBankTransferWizardScreen: ScreenBase<TangemPayBankTransferW
     @discardableResult
     func fillBankDetails(_ details: BankDetails) -> TangemPayBankTransferConfirmScreen {
         XCTContext.runActivity(named: "Fill in the bank details of \(details.name)") { _ in
-            waitAndAssertTrue(field(.bankName), timeout: .networkRequest, "Bank details form should be displayed")
+            waitForBankDetailsForm()
             enter(details.name, into: .bankName)
             selectOption(details.region, from: .bankRegion)
             enter(details.city, into: .bankCity)
@@ -64,14 +84,103 @@ final class TangemPayBankTransferWizardScreen: ScreenBase<TangemPayBankTransferW
         }
     }
 
-    private func selectCountry(_ country: String, region: String) {
-        XCTContext.runActivity(named: "Select \(country), \(region)") { _ in
+    @discardableResult
+    func waitForRecipientDetailsForm() -> Self {
+        XCTContext.runActivity(named: "Wait for the recipient details form") { _ in
+            waitAndAssertTrue(field(.accountNumber), timeout: .networkRequest, "Recipient details form should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForBankDetailsForm() -> Self {
+        XCTContext.runActivity(named: "Wait for the bank details form") { _ in
+            waitAndAssertTrue(field(.bankName), timeout: .networkRequest, "Bank details form should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyFieldValue(_ formField: FormField, _ value: String) -> Self {
+        XCTContext.runActivity(named: "Verify \(formField.rawValue) reads '\(value)'") { _ in
+            let element = field(formField)
+            waitAndAssertTrue(element, timeout: .networkRequest, "\(formField.rawValue) field should be displayed")
+            XCTAssertTrue(
+                element.waitForValue(where: { $0 == value }),
+                "\(formField.rawValue) should read '\(value)'. Actual: '\(element.getValue())'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func replaceText(in formField: FormField, with text: String) -> Self {
+        XCTContext.runActivity(named: "Replace \(formField.rawValue) with '\(text)'") { _ in
+            enter(text, into: formField)
+            dismissKeyboard()
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyFieldError(_ formField: FormField, _ message: String) -> Self {
+        XCTContext.runActivity(named: "Verify \(formField.rawValue) shows '\(message)'") { _ in
+            let error = fieldError(formField)
+            assertPresent(error, "\(formField.rawValue) should show an error")
+            XCTAssertEqual(error.label, message, "\(formField.rawValue) error should read '\(message)'")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyNoFieldError(_ formField: FormField) -> Self {
+        XCTContext.runActivity(named: "Verify \(formField.rawValue) shows no error") { _ in
+            let error = fieldError(formField)
+            XCTAssertTrue(
+                !error.exists || error.waitForNonExistence(timeout: .conditional),
+                "\(formField.rawValue) should not show an error. Actual: '\(fieldError(formField).label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func selectCountry(_ country: String, region: String? = nil) -> Self {
+        XCTContext.runActivity(named: "Select \(country)\(region.map { ", \($0)" } ?? "")") { _ in
             selectOption(country, from: .countryCode)
-            TangemPayGeoSelectionScreen(app).selectRow(region)
+            if let region {
+                TangemPayGeoSelectionScreen(app).selectRow(region)
+            }
             XCTAssertTrue(
                 field(.countryCode).waitForValue(where: { $0.contains(country) }),
                 "Country should read '\(country)'. Actual: '\(field(.countryCode).getValue())'"
             )
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapContinueToBankDetails() -> Self {
+        tapFormContinue()
+        return waitForBankDetailsForm()
+    }
+
+    @discardableResult
+    func tapContinueToConfirmation() -> TangemPayBankTransferConfirmScreen {
+        tapFormContinue()
+        return TangemPayBankTransferConfirmScreen(app).waitForScreen()
+    }
+
+    @discardableResult
+    func close() -> TangemPayMainScreen {
+        XCTContext.runActivity(named: "Close the bank transfer") { _ in
+            dismissKeyboard()
+            guard let closeButton = app.buttons.matching(NSPredicate(format: "label == %@", Localization.commonClose)).firstHittableElement() else {
+                XCTFail("Bank transfer Close button should become hittable")
+                return TangemPayMainScreen(app)
+            }
+            closeButton.tap()
+            return TangemPayMainScreen(app).waitForScreen()
         }
     }
 
@@ -84,32 +193,71 @@ final class TangemPayBankTransferWizardScreen: ScreenBase<TangemPayBankTransferW
     }
 
     private func enter(_ text: String, into formField: FormField) {
-        dismissKeyboard()
         let element = field(formField)
-        waitAndAssertTrue(element, "\(formField.rawValue) field should be displayed")
+        assertPresent(element, "\(formField.rawValue) field should be displayed")
+        let currentText = hasText(element) ? element.getValue() : ""
+        guard currentText != text else { return }
+        if isCoveredByKeyboard(element) {
+            dismissKeyboard()
+        }
         element.tap()
-        element.typeText(text)
+        if !currentText.isEmpty {
+            element.coordinate(withNormalizedOffset: Constants.textEndOffset).tap()
+        }
+        element.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: currentText.count) + text)
         XCTAssertTrue(
-            element.waitForValue(where: { $0 == text }),
+            element.getValue() == text || element.waitForValue(where: { $0 == text }),
             "\(formField.rawValue) should read '\(text)'. Actual: '\(element.getValue())'"
         )
     }
 
     private func tapFormContinue() {
-        dismissKeyboard()
-        XCTAssertTrue(formContinueButton.waitForState(state: .enabled, for: .conditional), "Continue should be enabled once the form is filled")
-        formContinueButton.waitAndTap()
+        XCTContext.runActivity(named: "Tap Continue on the form") { _ in
+            dismissKeyboard()
+            XCTAssertTrue(formContinueButton.waitForState(state: .enabled, for: .conditional), "Continue should be enabled once the form is filled")
+            formContinueButton.waitAndTap()
+        }
     }
 
     private func dismissKeyboard() {
         let keyboard = app.keyboards.firstMatch
         guard keyboard.exists else { return }
-        keyboardDismissButton.waitAndTap()
+        if keyboardDismissButton.exists {
+            keyboardDismissButton.tap()
+        } else {
+            keyboardDismissButton.waitAndTap()
+        }
         XCTAssertTrue(keyboard.waitForNonExistence(timeout: .conditional), "Keyboard should be dismissed")
+    }
+
+    private func isLocationSelected(country: String, region: String) -> Bool {
+        let regionField = field(.region)
+        return field(.countryCode).getValue() == country && regionField.exists && regionField.getValue() == region
+    }
+
+    private func isCoveredByKeyboard(_ element: XCUIElement) -> Bool {
+        let keyboard = app.keyboards.firstMatch
+        guard keyboard.exists else { return false }
+        let keyboardTop = keyboardDismissButton.exists ? keyboardDismissButton.frame.minY : keyboard.frame.minY
+        return element.frame.maxY > keyboardTop - Constants.keyboardTopInset
+    }
+
+    private func assertPresent(_ element: XCUIElement, _ message: String) {
+        guard !element.exists else { return }
+        waitAndAssertTrue(element, timeout: .networkRequest, message)
+    }
+
+    private func hasText(_ element: XCUIElement) -> Bool {
+        let value = element.getValue()
+        return !value.isEmpty && value != element.placeholderValue
     }
 
     private func field(_ formField: FormField) -> XCUIElement {
         app.textFields[TangemPayAccessibilityIdentifiers.formField(formField.rawValue)].firstMatch
+    }
+
+    private func fieldError(_ formField: FormField) -> XCUIElement {
+        app.staticTexts[TangemPayAccessibilityIdentifiers.formFieldError(formField.rawValue)].firstMatch
     }
 
     private func option(_ element: TangemPayBankTransferWizardScreenElement, label: String) -> XCUIElement {
@@ -148,11 +296,43 @@ extension TangemPayBankTransferWizardScreen {
         }
     }
 
+    enum FormField: String {
+        case accountNumber
+        case routingNumber
+        case firstName
+        case lastName
+        case businessName
+        case countryCode
+        case region
+        case city
+        case line1
+        case line2
+        case postalCode
+        case bankName
+        case bankRegion
+        case bankCity
+        case bankLine1
+        case bankPostalCode
+    }
+
+    enum RecipientName {
+        case individual(firstName: String, lastName: String)
+        case business(String)
+
+        var fullName: String {
+            switch self {
+            case .individual(let firstName, let lastName):
+                "\(firstName) \(lastName)"
+            case .business(let businessName):
+                businessName
+            }
+        }
+    }
+
     struct RecipientDetails {
         let accountNumber: String
         let routingNumber: String
-        let firstName: String
-        let lastName: String
+        let name: RecipientName
         let country: String
         let region: String
         let city: String
@@ -196,19 +376,8 @@ enum TangemPayBankTransferWizardScreenElement: String, UIElement {
 }
 
 private extension TangemPayBankTransferWizardScreen {
-    enum FormField: String {
-        case accountNumber
-        case routingNumber
-        case firstName
-        case lastName
-        case countryCode
-        case city
-        case line1
-        case postalCode
-        case bankName
-        case bankRegion
-        case bankCity
-        case bankLine1
-        case bankPostalCode
+    enum Constants {
+        static let textEndOffset = CGVector(dx: 0.98, dy: 0.5)
+        static let keyboardTopInset: CGFloat = 16
     }
 }
