@@ -20,8 +20,7 @@ struct SwapSlippageSelectorView: View {
     var body: some View {
         VStack(spacing: .zero) {
             BottomSheetHeaderView(
-                // [REDACTED_TODO_COMMENT]
-                title: "Slippage",
+                title: Localization.commonSlippage,
                 trailing: { NavigationBarButton.close(action: viewModel.dismiss) }
             )
             .padding(.horizontal, Constants.horizontalPadding)
@@ -58,7 +57,7 @@ struct SwapSlippageSelectorView: View {
             .onAppear { isInputFocused = true }
 
         case .notCustomizable(let maxSlippage):
-            MessageBanner(title: AttributedString(notCustomizableText(maxSlippage: maxSlippage)))
+            MessageBanner(title: AttributedString(Localization.swapCustomSlippageInfo(maxSlippage)))
                 .variant(.info)
                 .glowRing(.info)
                 .padding(.horizontal, Constants.horizontalPadding)
@@ -88,10 +87,10 @@ struct SwapSlippageSelectorView: View {
     private func messageView(_ message: SwapSlippageSelectorViewModel.Message) -> some View {
         switch message {
         case .unsupportedAmount:
-            Text("Unsupported amount")
+            Text(Localization.swapSlippageError)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusError)
         case .mayFail:
-            Text("Swap may fail if the slippage threshold is hit")
+            Text(Localization.swapSlippageWarningText)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusWarning)
         }
     }
@@ -118,9 +117,9 @@ struct SwapSlippageSelectorView: View {
 
     private var hints: some View {
         VStack(alignment: .leading, spacing: Constants.hintSpacing) {
-            hint(icon: Assets.DesignSystem.percent, iconSize: Constants.percentIconSize, title: "Slippage", text: "is the difference between the expected and actual execution price caused by market price or liquidity changes")
+            hint(icon: Assets.DesignSystem.percent, iconSize: Constants.percentIconSize, title: Localization.commonSlippage, text: Localization.swapSlippageInfoText)
 
-            hint(icon: Assets.DesignSystem.dollar, iconSize: Constants.dollarIconSize, title: "Exchange rates", text: "displayed include the service provider’s fee")
+            hint(icon: Assets.DesignSystem.dollar, iconSize: Constants.dollarIconSize, title: Localization.swapExchangeRatesInfoTitle, text: Localization.swapExchangeRatesInfoText)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, Constants.hintsHorizontalPadding)
@@ -139,14 +138,6 @@ struct SwapSlippageSelectorView: View {
             Text("\(Text(title).foregroundColor(DesignSystem.Color.textPrimary)) \(Text(text).foregroundColor(DesignSystem.Color.textSecondary))")
                 .font(DesignSystem.Font.subheadingMediumToken.font)
         }
-    }
-
-    private func notCustomizableText(maxSlippage: String?) -> String {
-        guard let maxSlippage else {
-            return "Slippage can't be customized with this provider"
-        }
-
-        return "Slippage can't be customized with this provider and may reach up to \(maxSlippage) in rare cases"
     }
 }
 
