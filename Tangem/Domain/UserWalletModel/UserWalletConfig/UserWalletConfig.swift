@@ -8,7 +8,6 @@
 
 import Foundation
 import TangemLocalization
-import TangemAssets
 import TangemSdk
 import BlockchainSdk
 import TangemFoundation
@@ -64,8 +63,6 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
     var hasSocialLogin: Bool { get }
 
     var productType: Analytics.ProductType { get }
-
-    var cardHeaderImage: ImageType? { get }
 
     var walletThumbnailType: ThumbnailWalletViewType? { get }
 
