@@ -10,6 +10,7 @@ import Foundation
 import TangemFoundation
 
 protocol MobileRemoveSocialWalletManager: AnyObject {
+    var hasSeedBackup: Bool { get }
     var analyticsContextData: AnalyticsContextData { get }
 
     func removeWallet() async throws
@@ -28,6 +29,10 @@ final class CommonMobileRemoveSocialWalletManager {
 // MARK: - MobileRemoveSocialWalletManager
 
 extension CommonMobileRemoveSocialWalletManager: MobileRemoveSocialWalletManager {
+    var hasSeedBackup: Bool {
+        MobileBackupStatusUtil.hasMnemonicBackup(config: userWalletModel.config)
+    }
+
     var analyticsContextData: AnalyticsContextData {
         userWalletModel.analyticsContextData
     }

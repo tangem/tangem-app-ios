@@ -445,7 +445,7 @@ private extension UserWalletSettingsViewModel {
     }
 
     func didTapSocialLoginDelete() {
-        coordinator?.openMobileRemoveSocialWallet(userWalletModel: userWalletModel)
+        coordinator?.openMobileRemoveSocialWalletNotification(userWalletModel: userWalletModel)
     }
 
     func showErrorAlert(error: Error) {
