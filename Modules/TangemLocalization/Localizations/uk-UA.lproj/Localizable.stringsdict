@@ -135,7 +135,7 @@
         <key>many</key>
         <string>%li мереж</string>
         <key>other</key>
-        <string>%li мережі</string>
+        <string>%li мереж</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
@@ -418,7 +418,7 @@
         <key>one</key>
         <string>за %li гаманець</string>
         <key>few</key>
-        <string>за %li гаманця</string>
+        <string>за %li гаманці</string>
         <key>many</key>
         <string>за %li гаманців</string>
         <key>other</key>
@@ -438,7 +438,7 @@
         <key>one</key>
         <string>%li гаманець</string>
         <key>few</key>
-        <string>%li гаманця</string>
+        <string>%li гаманці</string>
         <key>many</key>
         <string>%li гаманців</string>
         <key>other</key>
@@ -482,7 +482,7 @@
         <key>many</key>
         <string>%li карток</string>
         <key>other</key>
-        <string>%li картки</string>
+        <string>%li карток</string>
       </dict>
     </dict>
     <key>tangempay_order_success_delivery_eta</key>

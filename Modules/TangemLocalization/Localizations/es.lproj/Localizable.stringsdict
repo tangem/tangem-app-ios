@@ -205,7 +205,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Basado en %li evaluación </string>
+        <string>Basado en %li evaluación</string>
         <key>other</key>
         <string>Basado en %li evaluaciónes</string>
       </dict>
@@ -344,7 +344,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>para %li billetera </string>
+        <string>para %li billetera</string>
         <key>other</key>
         <string>para %li billeteras</string>
       </dict>
@@ -376,9 +376,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>El token %li no es compatible con esta dirección</string>
+        <string>%li token no es compatible con esta dirección</string>
         <key>other</key>
-        <string>Los tokens %li no son compatibles con esta dirección</string>
+        <string>%li tokens no son compatibles con esta dirección</string>
       </dict>
     </dict>
     <key>tangempay_cards_count</key>
@@ -456,7 +456,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Activo %li principal</string>
+        <string>%li activo principal</string>
         <key>other</key>
         <string>Principales %li activos</string>
       </dict>
@@ -488,9 +488,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Use su tarjeta o anillo para obtener una dirección para la red %li</string>
+        <string>Use su tarjeta o anillo para obtener una dirección para %li red</string>
         <key>other</key>
-        <string>Use su tarjeta o anillo para obtener direcciónes para las redes %li</string>
+        <string>Use su tarjeta o anillo para obtener direcciones para %li redes</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_no_nfc_message</key>
@@ -504,9 +504,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Sincronice direcciones para obtener una dirección de la red %li</string>
+        <string>Sincronice direcciones para obtener una dirección de %li red</string>
         <key>other</key>
-        <string>Sincronice direcciones para obtener direcciones de las redes %li</string>
+        <string>Sincronice direcciones para obtener direcciones de %li redes</string>
       </dict>
     </dict>
   </dict>
