@@ -40,7 +40,7 @@ struct PolymarketMainView: View {
                 .readGeometry(\.size.height, bindTo: $navBarHeight)
 
             if viewModel.isTabsPinned {
-                PolymarketEventsTabsView(viewModel: viewModel.eventsViewModel)
+                PolymarketEventsTabsView(viewModel: viewModel.eventsViewModel, animatesStateChanges: false)
             }
         }
         .background {
@@ -69,12 +69,12 @@ struct PolymarketMainView: View {
     }
 
     private var titleView: some View {
-        VStack(spacing: 2) {
-            Text(Localization.predictionMainTitle)
-                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+        VStack(spacing: Constants.titleSpacing) {
+            Text(Localization.predictionAccountTitle)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
 
             Text(Localization.predictionMainSubtitle)
-                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textTertiary)
         }
     }
 
@@ -87,12 +87,14 @@ struct PolymarketMainView: View {
             if viewModel.isRegionRestricted {
                 regionRestrictionBanner
                     .padding(.top, Constants.bannerTopSpacing)
+                    .transition(.opacity)
             }
 
             if viewModel.isAwaitingFunds {
                 PolymarketOrderNotificationsView(notifications: [.awaitingFunds])
                     .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
                     .padding(.top, Constants.bannerTopSpacing)
+                    .transition(.opacity)
             }
 
             PolymarketPositionsBlockView(viewModel: viewModel.positionsViewModel)
@@ -133,7 +135,7 @@ struct PolymarketMainView: View {
     // MARK: - List
 
     private var content: some View {
-        ScrollView {
+        ScrollView(showsIndicators: false) {
             LazyVStack(spacing: Constants.contentSpacing) {
                 header
 
@@ -144,6 +146,8 @@ struct PolymarketMainView: View {
 
                 PolymarketEventsListView(viewModel: viewModel.eventsViewModel)
             }
+            .animation(.easeInOut(duration: Constants.bannerAnimationDuration), value: viewModel.isRegionRestricted)
+            .animation(.easeInOut(duration: Constants.bannerAnimationDuration), value: viewModel.isAwaitingFunds)
         }
         .safeAreaInset(edge: .top, spacing: 0) {
             Color.clear.frame(height: navBarHeight)
@@ -158,6 +162,7 @@ extension PolymarketMainView {
         static let scrollSpace = "PolymarketMainScroll"
 
         static let contentSpacing: CGFloat = 12
+        static let titleSpacing: CGFloat = 4
         static let navBarTopPadding: CGFloat = 8
         static let navBarSettingsHeight: CGFloat = 56
 
@@ -165,5 +170,6 @@ extension PolymarketMainView {
         static let headerSpacing: CGFloat = 40
         static let bannerTopSpacing: CGFloat = 24
         static let bannerIconSide: CGFloat = 20
+        static let bannerAnimationDuration: TimeInterval = 0.3
     }
 }
