@@ -16,21 +16,36 @@ final class PolymarketDestinationFactory {
     private let onAddFunds: () -> Void
     private let onRegionWarning: () -> Void
     private let onReturnToMain: () -> Void
+    let orderPresenter: PolymarketOrderPresenter
 
     init(
         dependencies: PolymarketMainDependencies,
         onAddFunds: @escaping () -> Void,
         onRegionWarning: @escaping () -> Void,
-        onReturnToMain: @escaping () -> Void
+        onReturnToMain: @escaping () -> Void,
+        orderPresenter: PolymarketOrderPresenter
     ) {
         self.dependencies = dependencies
         self.onAddFunds = onAddFunds
         self.onRegionWarning = onRegionWarning
         self.onReturnToMain = onReturnToMain
+        self.orderPresenter = orderPresenter
     }
 
     func returnToMain() {
         onReturnToMain()
+    }
+
+    func presentOrder(_ coordinator: PolymarketOrderCoordinator, from host: AnyObject?) {
+        orderPresenter.present(coordinator, from: host)
+    }
+
+    func dismissOrder() {
+        orderPresenter.dismiss()
+    }
+
+    func runAfterOrderDismiss(_ action: @escaping () -> Void) {
+        orderPresenter.runAfterDismiss(action)
     }
 
     func makePositionDetails(
@@ -90,22 +105,14 @@ extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
         outcome: PolymarketOutcome,
         eventTitle: String,
         request: PolymarketOrderRequest,
-        pushesPlacedPosition: Bool,
         onPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
         onOpenPosition: @escaping (PolymarketPosition) -> Void,
         onClose: @escaping () -> Void
     ) -> PolymarketOrderCoordinator {
         let coordinator = PolymarketOrderCoordinator(
-            dismissAction: { [weak self] payload in
-                guard let payload else {
-                    onClose()
-                    return
-                }
-
-                if let position = payload.position {
+            dismissAction: { payload in
+                if let position = payload?.position {
                     onOpenPosition(position)
-                } else if payload.returnsToMain {
-                    self?.onReturnToMain()
                 } else {
                     onClose()
                 }
@@ -127,7 +134,6 @@ extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
             isAwaitingFundsPublisher: dependencies.fundsArrivalTracker.$isAwaitingFunds.eraseToAnyPublisher(),
             collateralBalancePublisher: dependencies.balanceProvider.collateralBalancePublisher.map(\.value).eraseToAnyPublisher(),
             addFundsReadinessStream: dependencies.accountFundsInteractor.makeStateStream(),
-            positionBuilder: pushesPlacedPosition ? self : nil,
             onPlaced: onPlaced,
             onRegionWarning: onRegionWarning,
             onAddFunds: onAddFunds

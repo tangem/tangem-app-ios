@@ -135,9 +135,21 @@ struct PolymarketMainView: View {
     // MARK: - List
 
     private var content: some View {
+        ScrollViewReader { proxy in
+            scrollContent
+                .onChange(of: viewModel.scrollToTopRequest) { _ in
+                    withAnimation {
+                        proxy.scrollTo(Constants.topAnchorID, anchor: .top)
+                    }
+                }
+        }
+    }
+
+    private var scrollContent: some View {
         ScrollView(showsIndicators: false) {
             LazyVStack(spacing: Constants.contentSpacing) {
                 header
+                    .id(Constants.topAnchorID)
 
                 PolymarketEventsTabsView(viewModel: viewModel.eventsViewModel)
                     .readGeometry(inCoordinateSpace: .named(Constants.scrollSpace)) { viewModel.handleViewAction(.onTabsMove(minY: $0.frame.minY, navBarHeight: navBarHeight)) }
@@ -160,6 +172,7 @@ struct PolymarketMainView: View {
 extension PolymarketMainView {
     enum Constants {
         static let scrollSpace = "PolymarketMainScroll"
+        static let topAnchorID = "PolymarketMainTop"
 
         static let contentSpacing: CGFloat = 12
         static let titleSpacing: CGFloat = 4
