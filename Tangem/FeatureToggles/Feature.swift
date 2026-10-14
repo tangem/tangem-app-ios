@@ -39,6 +39,7 @@ enum Feature: String, Hashable, CaseIterable {
     case customSlippage
     case tronGaslessCEX
     case tokenChartAddToPortfolio
+    case marketingActivityBinding
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -74,6 +75,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .customSlippage: return "TWI-1674_custom_slippage"
         case .tronGaslessCEX: return "TWI-1803_tron_gasless_cex"
         case .tokenChartAddToPortfolio: return "TWI-1857_token_chart_add_to_portfolio"
+        case .marketingActivityBinding: return "TWI-1732_marketing_activity_binding"
         }
     }
 
@@ -109,6 +111,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .customSlippage: return .version("6.5")
         case .tronGaslessCEX: return .unspecified
         case .tokenChartAddToPortfolio: return .unspecified
+        case .marketingActivityBinding: return .unspecified
         }
     }
 }
