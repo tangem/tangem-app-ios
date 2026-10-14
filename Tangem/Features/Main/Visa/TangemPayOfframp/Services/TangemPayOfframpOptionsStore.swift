@@ -131,10 +131,9 @@ extension TangemPayOfframpOptionsStore {
                 icon: destination.rail.icon,
                 title: destination.fee.name?.nilIfEmpty ?? destination.rail.rawValue,
                 etaText: etaText(for: destination.eta),
-                feeText: BalanceFormatter().formatFiatBalance(
+                feeText: TangemPayOfframpAmountFormatter.format(
                     destination.fee.amount,
-                    currencyCode: destination.fee.currency?.nilIfEmpty ?? TangemPayUtilities.fiatItem.currencyCode,
-                    formattingOptions: Constants.feeFormattingOptions
+                    currencyCode: destination.fee.currency?.nilIfEmpty ?? TangemPayUtilities.fiatItem.currencyCode
                 ),
                 feeAmount: destination.fee.amount
             )
@@ -181,10 +180,7 @@ extension TangemPayOfframpOptionsStore {
                 symbol: accountToken.tokenItem.currencySymbol,
                 networkName: accountToken.tokenItem.blockchain.displayName,
                 balance: balance,
-                balanceText: BalanceFormatter().formatFiatBalance(
-                    balance,
-                    currencyCode: TangemPayUtilities.fiatItem.currencyCode
-                ),
+                balanceText: TangemPayOfframpAmountFormatter.formatBalance(balance),
                 chainId: chainId,
                 contractAddress: contractAddress,
                 isOfframpAvailable: offrampable.contains(id)
@@ -226,21 +222,6 @@ extension TangemPayOfframpOptionsStore {
                 return lhs.offset < rhs.offset
             }
             .map(\.element)
-    }
-}
-
-// MARK: - Constants
-
-private extension TangemPayOfframpOptionsStore {
-    enum Constants {
-        static let feeFractionDigits = 2
-
-        static let feeFormattingOptions = BalanceFormattingOptions(
-            minFractionDigits: 0,
-            maxFractionDigits: feeFractionDigits,
-            formatEpsilonAsLowestRepresentableValue: false,
-            roundingType: .default(roundingMode: .plain, scale: feeFractionDigits)
-        )
     }
 }
 
