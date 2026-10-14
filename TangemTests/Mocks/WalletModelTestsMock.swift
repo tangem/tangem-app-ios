@@ -109,8 +109,23 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - AvailableTokenBalanceProviderInput
 
-    var state: WalletModelState { .loaded(0) }
-    var statePublisher: AnyPublisher<WalletModelState, Never> { .just(output: state) }
+    private let _state = CurrentValueSubject<WalletModelState?, Never>(nil)
+    private let _stateSubscriptions = OSAllocatedUnfairLock(initialState: 0)
+
+    var stateMock: WalletModelState? {
+        get { _state.value }
+        set { _state.send(newValue) }
+    }
+
+    var stateSubscriptionCount: Int { _stateSubscriptions.withLock { $0 } }
+
+    var state: WalletModelState { _state.value ?? .loaded(0) }
+    var statePublisher: AnyPublisher<WalletModelState, Never> {
+        _state
+            .handleEvents(receiveSubscription: { [_stateSubscriptions] _ in _stateSubscriptions.withLock { $0 += 1 } })
+            .map { $0 ?? .loaded(0) }
+            .eraseToAnyPublisher()
+    }
 
     // MARK: - FiatTokenBalanceProviderInput
 
@@ -196,7 +211,8 @@ final class WalletModelTestsMock: WalletModel {
     var fiatStakingBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var blockchainDataProvider: BlockchainDataProvider { fatalError() }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { nil }
-    var assetRequirementsManager: AssetRequirementsManager? { nil }
+    var assetRequirementsManagerMock: AssetRequirementsManager?
+    var assetRequirementsManager: AssetRequirementsManager? { assetRequirementsManagerMock }
     var transactionFeeProvider: TransactionFeeProvider { fatalError() }
     var transactionCreator: TransactionCreator {
         guard let transactionCreatorMock else { fatalError("transactionCreatorMock is not set") }
