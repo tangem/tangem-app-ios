@@ -26,7 +26,8 @@ private extension CollectiblesPackCard {
     // MARK: - View properties
 
     var artwork: some View {
-        Artwork(url: model.artworkURL, packSize: CGSize(width: Metrics.packWidth, height: Metrics.packHeight))
+        Artwork(url: model.artworkURL)
+            .frame(width: Metrics.packWidth, height: Metrics.packHeight)
             .infinityFrame(axis: .horizontal)
             .frame(height: Metrics.artworkHeight)
             .background(DesignSystem.Color.bgSecondary)
@@ -68,8 +69,8 @@ private extension CollectiblesPackCard {
 extension CollectiblesPackCard {
     enum Metrics {
         static let artworkHeight: CGFloat = 228
-        static let packWidth: CGFloat = 144
-        static let packHeight: CGFloat = 216
+        static let packWidth: CGFloat = 118
+        static let packHeight: CGFloat = 170
         static let cornerRadius: CGFloat = 20
         static let contentSpacing: CGFloat = 8
         static let detailsSpacing: CGFloat = 2
