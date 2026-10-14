@@ -185,8 +185,7 @@ struct ExpressCurrencyView<Content: View>: View {
                     .renderingMode(.template)
                     .foregroundColor(Colors.Icon.informative)
 
-                // [REDACTED_TODO_COMMENT]
-                Text("Edit Slippage")
+                Text(Localization.commonSlippage)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
             }
         }
