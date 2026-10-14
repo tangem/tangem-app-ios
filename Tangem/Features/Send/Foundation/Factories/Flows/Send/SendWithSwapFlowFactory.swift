@@ -36,8 +36,7 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         predefinedValues: predefinedTransferValues
     )
     lazy var swapModel = makeSwapModel(
-        sourceToken: sourceToken,
-        receiveToken: .none,
+        parameters: .from(sourceToken),
         analyticsLogger: analyticsLogger,
         autoupdatingTimer: autoupdatingTimer,
         pairUpdateHandler: SendWithSwapPairUpdateHandler(
@@ -180,7 +179,7 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
 
 extension SendWithSwapFlowFactory: SendBaseBuildable {
     var baseIO: SendViewModelBuilder.IO {
-        SendViewModelBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel)
+        SendViewModelBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel, sourceTokenInput: sendWithSwapModel)
     }
 
     var baseDependencies: SendViewModelBuilder.Dependencies {
@@ -200,7 +199,6 @@ extension SendWithSwapFlowFactory: SendBaseBuildable {
                 sourceTokenInput: sendWithSwapModel
             ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             mainButtonUIOptionsProvider: CommonSendMainButtonUIOptionsProvider(sourceTokenInput: sendWithSwapModel)
         )
     }
@@ -282,10 +280,6 @@ extension SendWithSwapFlowFactory: SendSwapProvidersBuildable {
         SendSwapProvidersBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel, approveInput: sendWithSwapModel, approveOutput: sendWithSwapModel, sourceTokenInput: sendWithSwapModel, receiveTokenInput: sendWithSwapModel, receiveTokenAmountInput: sendWithSwapModel)
     }
 
-    var swapProvidersTypes: SendSwapProvidersBuilder.Types {
-        SendSwapProvidersBuilder.Types(tokenItem: tokenItem)
-    }
-
     var swapProvidersDependencies: SendSwapProvidersBuilder.Dependencies {
         SendSwapProvidersBuilder.Dependencies(
             analyticsLogger: analyticsLogger,
@@ -316,9 +310,7 @@ extension SendWithSwapFlowFactory: SendSummaryStepBuildable {
             notificationManager: notificationManager,
             autoupdatingTimer: autoupdatingTimer,
             analyticsLogger: analyticsLogger,
-            sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
-            sendWithSwapDescriptionBuilder: makeSendWithSwapTransactionSummaryDescriptionBuilder(),
-            stakingDescriptionBuilder: makeStakingTransactionSummaryDescriptionBuilder(),
+            transactionSummaryDescriptionBuilderProvider: transferableToken.transactionSummaryDescriptionBuilderProvider,
         )
     }
 }
@@ -328,10 +320,6 @@ extension SendWithSwapFlowFactory: SendSummaryStepBuildable {
 extension SendWithSwapFlowFactory: SendFinishStepBuildable {
     var finishIO: SendFinishStepBuilder.IO {
         SendFinishStepBuilder.IO(input: sendWithSwapModel)
-    }
-
-    var finishTypes: SendFinishStepBuilder.Types {
-        SendFinishStepBuilder.Types(tokenItem: tokenItem)
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {
