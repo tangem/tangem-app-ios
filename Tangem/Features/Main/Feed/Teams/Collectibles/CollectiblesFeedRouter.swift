@@ -11,16 +11,16 @@ protocol CollectiblesFeedRoutable: AnyObject {
 
 final class CollectiblesFeedRouter: CollectiblesFeedRoutable {
     private weak var navigation: (any FeedNavigation)?
+    private weak var host: (any FeedHostRoutable)?
     private let widgetSheetPresenter: FeedWidgetSheetPresenter
-    private let popToRootAction: Action<PopToRootOptions>
 
     @MainActor
     private var isOpeningCollectibles = false
 
-    init(context: FeedContext, widgetSheetPresenter: FeedWidgetSheetPresenter) {
+    init(context: FeedContext, host: (any FeedHostRoutable)?, widgetSheetPresenter: FeedWidgetSheetPresenter) {
         navigation = context.navigation
+        self.host = host
         self.widgetSheetPresenter = widgetSheetPresenter
-        popToRootAction = context.popToRootAction
     }
 
     func openCollectibles(wallets: [UserWalletModel], isRegionRestricted: Bool) {
@@ -60,12 +60,13 @@ private extension CollectiblesFeedRouter {
 
             switch outcome {
             case .open(let destination):
-                let coordinator = CollectiblesCoordinator(
-                    dismissAction: { [weak self] in self?.navigation?.dismissPresented() },
-                    popToRootAction: popToRootAction
+                let options = CollectiblesCoordinator.Options(
+                    destination: destination,
+                    userWalletModel: wallet,
+                    accountModel: accountModel
                 )
-                coordinator.start(with: .init(destination: destination, userWalletModel: wallet, accountModel: accountModel))
-                navigation.present(.collectibles(coordinator))
+
+                host?.openCollectibles(with: options)
 
             case .regionRestricted:
                 widgetSheetPresenter.enqueue(CollectiblesInfoSheetViewModel(model: .regionRestrictions))

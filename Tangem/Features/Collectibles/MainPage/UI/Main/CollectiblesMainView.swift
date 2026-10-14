@@ -96,9 +96,7 @@ private extension CollectiblesMainView {
                             .frame(height: Metrics.scrollAnchorHeight)
                             .id(Constants.scrollAnchor)
                     }
-                    .readGeometry(\.frame.minY, inCoordinateSpace: .named(Constants.scrollSpace)) {
-                        viewModel.updateScrollOffset(contentMinY: $0)
-                    }
+                    .readGeometry(\.frame.minY, inCoordinateSpace: .named(Constants.scrollSpace), onChange: viewModel.updateScrollOffset)
             }
             .refreshable { await viewModel.refresh() }
             .coordinateSpace(name: Constants.scrollSpace)
@@ -127,7 +125,7 @@ private extension CollectiblesMainView {
             CollectiblesAccountView(
                 viewModel: viewModel.accountViewModel,
                 balanceCoordinateSpace: .named(Constants.scrollSpace),
-                onBalanceMaxYChange: { viewModel.updateBalanceVisibility(balanceMaxY: $0) }
+                onBalanceMaxYChange: viewModel.updateBalanceVisibility
             )
             .readGeometry(\.size.height, bindTo: $accountHeight)
 
@@ -153,9 +151,9 @@ private extension CollectiblesMainView {
             .padding(.bottom, Metrics.pinnedTabsBottomPadding)
             .background {
                 if viewModel.isTabsPinned {
-                    Fade(position: .top)
-                        .backgroundColor(DesignSystem.Color.bgPrimary)
+                    pinnedTabsShade
                         .padding(.top, -topInset)
+                        .padding(.bottom, -Metrics.pinnedTabsShadeBottomOverhang)
                 }
             }
             .readGeometry(inCoordinateSpace: .named(Constants.scrollSpace)) {
@@ -164,6 +162,17 @@ private extension CollectiblesMainView {
             }
             // The pinned header must never animate its own position, or reappearing tabs drop in from above.
             .transaction { $0.animation = nil }
+    }
+
+    var pinnedTabsShade: some View {
+        DesignSystem.Color.bgPrimary.opacity(Metrics.pinnedTabsShadeOpacity).mask {
+            VStack(spacing: 0) {
+                Color.black
+
+                LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
+                    .frame(height: Metrics.pinnedTabsShadeFadeHeight)
+            }
+        }
     }
 
     var searchBar: some View {
@@ -264,6 +273,9 @@ private extension CollectiblesMainView {
         static let tabsTopPadding: CGFloat = 40
         static let pinnedTabsTopPadding: CGFloat = 8
         static let pinnedTabsBottomPadding: CGFloat = 8
+        static let pinnedTabsShadeOpacity: CGFloat = 0.9
+        static let pinnedTabsShadeFadeHeight: CGFloat = 20
+        static let pinnedTabsShadeBottomOverhang: CGFloat = 2
         /// From the ask: 20pt between the pinned tabs row and the first card after a lore switch.
         static let tabsToGridGap: CGFloat = 20
         static let gridTopPadding: CGFloat = 16

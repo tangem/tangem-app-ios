@@ -24,10 +24,6 @@ struct FeedDestinationView: View {
             ForYouCoordinatorView(coordinator: coordinator)
                 .background(FeedPopGestureEnabler())
                 .toolbar(.hidden, for: .navigationBar)
-        case .collectibles(let coordinator):
-            NavigationStack {
-                CollectiblesCoordinatorView(coordinator: coordinator, dismissStyle: .close)
-            }
         case .accountForm(let viewModel):
             NavigationStack { AccountFormView(viewModel: viewModel) }
                 .presentation(onDismissalAttempt: viewModel.onClose)

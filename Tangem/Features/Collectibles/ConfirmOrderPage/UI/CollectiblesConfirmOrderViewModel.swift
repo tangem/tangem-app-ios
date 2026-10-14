@@ -22,6 +22,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     private let buybackRate: Decimal
     private let openingVideoURL: URL?
     private let purchaseInteractor: any CollectiblesPackPurchaseInteractor
+    private weak var routable: (any CollectiblesConfirmOrderRoutable)?
     private let refreshBalance: () async -> Void
 
     private var balanceState: BalanceState = .loading
@@ -45,6 +46,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         machine: CollectiblesMachine,
         usdcBalanceProvider: any TokenBalanceProvider,
         purchaseInteractor: any CollectiblesPackPurchaseInteractor,
+        routable: (any CollectiblesConfirmOrderRoutable)?,
         refreshBalance: @escaping () async -> Void
     ) {
         self.machineID = machineID
@@ -54,6 +56,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         buybackRate = machine.buybackRate
         openingVideoURL = machine.openingVideoURL
         self.purchaseInteractor = purchaseInteractor
+        self.routable = routable
         self.refreshBalance = refreshBalance
         artworkURL = machine.artworkURL
         rows = [
@@ -109,6 +112,10 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
             self?.handlePurchaseResult(result)
             await refreshBalance()
         }
+    }
+
+    func close() {
+        routable?.closePackFlow()
     }
 
     func dismissError() {

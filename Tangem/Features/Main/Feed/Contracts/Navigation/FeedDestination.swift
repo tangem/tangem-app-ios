@@ -9,7 +9,6 @@
 enum FeedDestination: Hashable, Identifiable {
     case referral(ReferralCoordinator)
     case forYou(ForYouCoordinator)
-    case collectibles(CollectiblesCoordinator)
     case accountForm(AccountFormViewModel)
     case jointAccount(JointAccountManagementCoordinator)
     case token(MarketsTokenDetailsCoordinator)
@@ -19,7 +18,6 @@ enum FeedDestination: Hashable, Identifiable {
         switch self {
         case .referral(let coordinator): ObjectIdentifier(coordinator)
         case .forYou(let coordinator): ObjectIdentifier(coordinator)
-        case .collectibles(let coordinator): ObjectIdentifier(coordinator)
         case .accountForm(let viewModel): ObjectIdentifier(viewModel)
         case .jointAccount(let coordinator): ObjectIdentifier(coordinator)
         case .token(let coordinator): ObjectIdentifier(coordinator)
@@ -29,7 +27,7 @@ enum FeedDestination: Hashable, Identifiable {
 
     var isFullScreenPresentation: Bool {
         switch self {
-        case .jointAccount, .referral, .collectibles:
+        case .jointAccount, .referral:
             return true
         default:
             return false
