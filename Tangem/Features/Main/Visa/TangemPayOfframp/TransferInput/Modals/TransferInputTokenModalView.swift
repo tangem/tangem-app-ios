@@ -50,7 +50,10 @@ private extension TransferInputTokenModalView {
     }
 
     func row(_ item: TransferInputTokenItem) -> some View {
-        Row(title: item.symbol, subtitle: item.subtitle)
+        Row(title: item.symbol)
+            .subtitleAccessory {
+                TransferInputTokenSubtitleView(item: item)
+            }
             .start {
                 icon(for: item)
             }
