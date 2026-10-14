@@ -62,7 +62,12 @@ extension MobileWalletSigner: TangemSigner {
                     throw CancellationError()
                 }
 
-                return try await unlock(userWalletId: userWalletId)
+                return try await MobileAuthUtil(
+                    userWalletId: userWalletId,
+                    config: userWalletConfig,
+                    biometricsProvider: CommonUserWalletBiometricsProvider()
+                )
+                .unlockedContext()
             }
             .eraseToAnyPublisher()
 
@@ -80,30 +85,5 @@ extension MobileWalletSigner: TangemSigner {
                 signatures.map { SignatureInfo(signature: $0.signature, publicKey: $0.publicKey, hash: $0.hash) }
             }
             .eraseToAnyPublisher()
-    }
-}
-
-private extension MobileWalletSigner {
-    func unlock(userWalletId: UserWalletId) async throws -> MobileWalletContext {
-        let authUtil = MobileAuthUtil(
-            userWalletId: userWalletId,
-            config: userWalletConfig,
-            biometricsProvider: CommonUserWalletBiometricsProvider()
-        )
-        let unlockResult = try await authUtil.unlock()
-
-        return try await handleUnlockResult(unlockResult, userWalletId: userWalletId)
-    }
-
-    func handleUnlockResult(
-        _ result: MobileAuthUtil.Result,
-        userWalletId: UserWalletId
-    ) async throws -> MobileWalletContext {
-        switch result {
-        case .successful(let context):
-            return context
-        case .canceled, .userWalletNeedsToDelete:
-            throw CancellationError()
-        }
     }
 }
