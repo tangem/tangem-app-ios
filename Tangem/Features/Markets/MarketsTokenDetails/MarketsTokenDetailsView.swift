@@ -98,7 +98,7 @@ struct MarketsTokenDetailsView: View {
         ZStack {
             scrollView
 
-            if viewModel.shouldShowPortfolioBlock {
+            if viewModel.usesSheetNavigationHeader {
                 navigationBar
             }
         }
@@ -217,6 +217,13 @@ struct MarketsTokenDetailsView: View {
     private var trailingToolbarContent: some ToolbarContent {
         NavigationToolbarButton.share(placement: .topBarTrailing, action: viewModel.shareTokenDetails)
             .redesigned()
+
+        if viewModel.isAddButtonVisible {
+            NavigationToolbarButton.add(placement: .topBarTrailing, action: viewModel.onTapAddButton)
+                .redesigned()
+                .dimmed(!viewModel.isAddButtonEnabled)
+                .accessibilityLabel(Localization.commonAddToken)
+        }
     }
 
     private var navigationBarTitle: some View {
@@ -273,7 +280,7 @@ struct MarketsTokenDetailsView: View {
             .padding(.top, Constants.scrollViewContentTopInset + (sheetSize.isFeedSheet ? headerHeight : 0))
             .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame)) { contentOffset in
                 scrollOffsetHandler.contentOffsetSubject.send(contentOffset)
-                if viewModel.shouldShowPortfolioBlock {
+                if viewModel.showsPortfolioActions {
                     isListContentObscured = contentOffset.y > Constants.scrollViewContentTopInset
                 }
             }
@@ -415,6 +422,7 @@ private extension AnyTransition {
     return MarketsTokenDetailsView(viewModel: .init(
         tokenInfo: tokenInfo,
         presentationStyle: .marketsSheet,
+        showsPortfolioActions: true,
         dataProvider: .init(),
         marketsQuotesUpdateHelper: CommonMarketsQuotesUpdateHelper(),
         coordinator: nil
