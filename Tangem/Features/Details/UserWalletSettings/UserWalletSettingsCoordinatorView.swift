@@ -80,6 +80,9 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: MobileRemoveWalletNotificationViewModel.self) {
                 MobileRemoveWalletNotificationView(viewModel: $0)
             }
+            .floatingSheetContent(for: MobileRemoveSocialWalletNotificationViewModel.self) {
+                MobileRemoveSocialWalletNotificationView(viewModel: $0)
+            }
             .sheet(item: $coordinator.accountFormViewModel, onDismiss: coordinator.onAccountFormDismiss) { viewModel in
                 NavigationStack {
                     AccountFormView(viewModel: viewModel)
