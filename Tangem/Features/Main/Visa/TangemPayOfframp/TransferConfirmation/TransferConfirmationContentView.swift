@@ -75,7 +75,7 @@ private extension TransferConfirmationContentView {
 
             Spacer(minLength: Constants.amountHeaderSpacing)
 
-            Text(state.balanceText)
+            SensitiveText(state.balanceText)
         }
         .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
         .lineLimit(1)
