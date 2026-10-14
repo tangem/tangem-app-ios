@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemPolymarket
+import TangemUI
 
 // MARK: - Previews
 
@@ -27,6 +28,7 @@ private extension PolymarketOrderSummaryViewModel {
             model: .preview(outcomeIndex: outcomeIndex),
             account: nil,
             placementService: PolymarketOrderPlacementServiceStub(),
+            signingButtonType: .cardTap,
             coordinator: nil
         )
     }

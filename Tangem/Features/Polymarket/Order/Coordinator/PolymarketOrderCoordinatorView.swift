@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 import TangemUI
 
 struct PolymarketOrderCoordinatorView: CoordinatorView {
@@ -18,14 +19,44 @@ struct PolymarketOrderCoordinatorView: CoordinatorView {
                 .toolbar(.hidden, for: .navigationBar)
                 .background(FeedPopGestureEnabler())
                 .navigationLinks(links)
-                .sheet(item: $coordinator.sheet) { sheet in
-                    switch sheet {
-                    case .slippageSelector(let viewModel):
-                        PolymarketSlippageSelectorView(viewModel: viewModel)
-                    case .feeBreakdown(let viewModel):
-                        PolymarketFeeBreakdownSheetView(viewModel: viewModel)
-                    }
-                }
+                .modal(
+                    item: $coordinator.sheet,
+                    header: sheetHeader(for:),
+                    content: sheetContent(for:),
+                    footer: sheetFooter(for:)
+                )
+                .scrollIndicators(.hidden)
+        }
+    }
+
+    private func sheetHeader(for sheet: PolymarketOrderCoordinator.Sheet) -> some View {
+        FeedModalHeaderView(title: sheetTitle(for: sheet), onClose: { coordinator.sheet = nil })
+    }
+
+    private func sheetTitle(for sheet: PolymarketOrderCoordinator.Sheet) -> String {
+        switch sheet {
+        case .slippageSelector: Localization.predictionPlaceSlippage
+        case .feeBreakdown: Localization.predictionPlaceFee
+        }
+    }
+
+    @ViewBuilder
+    private func sheetContent(for sheet: PolymarketOrderCoordinator.Sheet) -> some View {
+        switch sheet {
+        case .slippageSelector(let viewModel):
+            PolymarketSlippageSelectorView(viewModel: viewModel)
+        case .feeBreakdown(let viewModel):
+            PolymarketFeeBreakdownSheetView(viewModel: viewModel)
+        }
+    }
+
+    @ViewBuilder
+    private func sheetFooter(for sheet: PolymarketOrderCoordinator.Sheet) -> some View {
+        switch sheet {
+        case .slippageSelector(let viewModel):
+            PolymarketSlippageSelectorFooterView(viewModel: viewModel)
+        case .feeBreakdown:
+            EmptyView()
         }
     }
 

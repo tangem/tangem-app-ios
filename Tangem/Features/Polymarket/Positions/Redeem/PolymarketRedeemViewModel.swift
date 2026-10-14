@@ -23,6 +23,7 @@ final class PolymarketRedeemViewModel: ObservableObject, Identifiable {
     private let position: PolymarketPosition
     private let outcome: Outcome
     private let redeemService: PolymarketRedeeming
+    private let signingButtonType: SigningActionButtonViewType
     private let onClaimed: (PolymarketPosition?) -> Void
     private weak var coordinator: PolymarketRedeemRoutable?
 
@@ -31,12 +32,14 @@ final class PolymarketRedeemViewModel: ObservableObject, Identifiable {
     init(
         position: PolymarketPosition,
         redeemService: PolymarketRedeeming,
+        signingButtonType: SigningActionButtonViewType,
         onClaimed: @escaping (PolymarketPosition?) -> Void,
         coordinator: PolymarketRedeemRoutable
     ) {
         outcome = Outcome(position.settlement)
         self.position = position
         self.redeemService = redeemService
+        self.signingButtonType = signingButtonType
         self.onClaimed = onClaimed
         self.coordinator = coordinator
     }
@@ -94,8 +97,11 @@ extension PolymarketRedeemViewModel {
     var actionTitle: String {
         guard isActionClaim else { return Localization.predictionPositionResultDismissAction }
 
-        // [REDACTED_TODO_COMMENT]
-        return outcome.paysOut ? Localization.predictionPositionResultClaimAction : "Dismiss position"
+        return outcome.paysOut ? Localization.predictionPositionResultClaimAction : Localization.predictionPositionResultCloseAction
+    }
+
+    var actionSigningType: SigningActionButtonViewType? {
+        isActionClaim ? signingButtonType : nil
     }
 
     var isActionClaim: Bool {

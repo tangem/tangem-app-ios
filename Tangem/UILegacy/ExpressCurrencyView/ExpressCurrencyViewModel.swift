@@ -69,14 +69,12 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         }
     }
 
-    /// Only the receive side is presented abstractly: the same token drives the send side of a
-    /// withdrawal, where it keeps its token rendering.
     private func presentation(of wallet: LoadingResult<any SendGenericToken, Error>) -> SendReceiveTokenPresentation? {
-        guard viewType == .receive, case .success(let token) = wallet else {
+        guard case .success(let token) = wallet, let presentation = (token as? SendReceiveToken)?.presentation else {
             return nil
         }
 
-        return (token as? SendReceiveToken)?.presentation
+        return viewType == .receive || presentation.appliesToSendSide ? presentation : nil
     }
 
     func updateFiatValue(expectAmount: Decimal?, tokenItem: TokenItem?) {

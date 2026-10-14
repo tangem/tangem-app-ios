@@ -30,6 +30,7 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
 
     @Published private(set) var viewState: ViewState?
     @Published var destination: Destination?
+    @Published var redeem: PolymarketRedeemViewModel?
     @Published var sheet: Sheet? {
         didSet {
             guard sheet == nil else { return }
@@ -58,6 +59,7 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
 
     private var options: Options?
     private var redeemService: PolymarketRedeeming?
+    private var signingButtonType: SigningActionButtonViewType = .holdToConfirm
     private weak var regionWarning: PolymarketRegionRestrictionViewModel?
     private weak var addFundsSheet: PolymarketAddFundsSheetViewModel?
     private var sheetDismissSubscription: AnyCancellable?
@@ -154,6 +156,7 @@ private extension PolymarketCoordinator {
         let dependencies = PolymarketMainDependenciesFactory().make(for: userWalletModel)
 
         redeemService = dependencies.redeemService
+        signingButtonType = dependencies.signingButtonType
 
         viewState = .main(
             viewModel: dependencies.makeMainViewModel(routable: self),
@@ -210,12 +213,13 @@ extension PolymarketCoordinator: PolymarketMainScreenRoutable {
     func openRedeem(position: PolymarketPosition, onClaimed: @escaping (PolymarketPosition?) -> Void) {
         guard let redeemService else { return }
 
-        destination = .redeem(PolymarketRedeemViewModel(
+        redeem = PolymarketRedeemViewModel(
             position: position,
             redeemService: redeemService,
+            signingButtonType: signingButtonType,
             onClaimed: onClaimed,
             coordinator: self
-        ))
+        )
     }
 
     func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void) {
@@ -454,7 +458,7 @@ extension PolymarketCoordinator {
 
 extension PolymarketCoordinator: PolymarketRedeemRoutable {
     func closeRedeem() {
-        popToMain()
+        redeem = nil
     }
 }
 
@@ -517,7 +521,6 @@ extension PolymarketCoordinator {
         case myPositions(PolymarketMyPositionsCoordinator)
         case order(PolymarketOrderCoordinator)
         case tokenDetails(TokenDetailsCoordinator)
-        case redeem(PolymarketRedeemViewModel)
     }
 
     enum Sheet: Identifiable {

@@ -11,6 +11,7 @@ import Combine
 import TangemFoundation
 import TangemPolymarket
 import TangemPolymarketUI
+import TangemUI
 
 final class PolymarketOrderCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
@@ -35,6 +36,7 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
 
     private var placementService: PolymarketOrderPlacementService?
     private var account: PolymarketOrderAccount?
+    private var signingButtonType: SigningActionButtonViewType = .holdToConfirm
     private weak var positionBuilder: PolymarketOrderFlowBuilder?
     private var regionWarningAction: (() -> Void)?
     private var placedAction: (@MainActor (PolymarketOrderIndexing) -> Void)?
@@ -56,6 +58,7 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
     func start(with options: Options) {
         placementService = options.placementService
         account = options.account
+        signingButtonType = options.signingButtonType
         positionBuilder = options.positionBuilder
         regionWarningAction = options.onRegionWarning
         placedAction = options.onPlaced
@@ -161,6 +164,7 @@ extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
             model: model,
             account: account,
             placementService: placementService,
+            signingButtonType: signingButtonType,
             coordinator: self
         ))
     }
@@ -262,6 +266,7 @@ extension PolymarketOrderCoordinator {
         let eventTitle: String
         let walletId: String
         let account: PolymarketOrderAccount?
+        let signingButtonType: SigningActionButtonViewType
         let intent: PolymarketOrderIntent
         let geoblockStateProvider: PolymarketGeoblockStateProvider
         let placementService: PolymarketOrderPlacementService

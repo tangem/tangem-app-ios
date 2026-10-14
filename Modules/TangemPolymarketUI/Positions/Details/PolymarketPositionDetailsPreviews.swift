@@ -11,23 +11,23 @@ import SwiftUI
 // MARK: - Previews
 
 #Preview("Winning") {
-    PolymarketPositionDetailsView(model: .winning, onClose: {})
+    PolymarketPositionDetailsView(model: .winning, onBack: {})
 }
 
 #Preview("Losing") {
-    PolymarketPositionDetailsView(model: .losing, onClose: {})
+    PolymarketPositionDetailsView(model: .losing, onBack: {})
 }
 
 #Preview("Pending") {
-    PolymarketPositionDetailsView(model: .pending, onClose: {})
+    PolymarketPositionDetailsView(model: .pending, onBack: {})
 }
 
 #Preview("Disputed") {
-    PolymarketPositionDetailsView(model: .disputed, onClose: {})
+    PolymarketPositionDetailsView(model: .disputed, onBack: {})
 }
 
 #Preview("Winning — Dark") {
-    PolymarketPositionDetailsView(model: .winning, onClose: {})
+    PolymarketPositionDetailsView(model: .winning, onBack: {})
         .preferredColorScheme(.dark)
 }
 
