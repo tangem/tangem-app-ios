@@ -23,8 +23,10 @@ struct TransferConfirmationContentView: View {
             VStack(spacing: .zero) {
                 VStack(spacing: Constants.sectionSpacing) {
                     amountCard
+                        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.confirmAmountCard)
 
                     railRow
+                        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.confirmRailRow)
                 }
                 .padding(.vertical, 12)
 

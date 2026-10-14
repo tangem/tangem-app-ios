@@ -112,6 +112,14 @@ final class TangemPayWithdrawHubScreen: ScreenBase<TangemPayWithdrawHubScreenEle
     }
 
     @discardableResult
+    func tapRecentRecipient(_ recipient: TangemPayBankRecipient) -> TangemPayBankTransferAmountScreen {
+        XCTContext.runActivity(named: "Tap recent recipient '\(recipient.shortName)'") { _ in
+            recentAccountTile(containing: recipient.shortName).waitAndTap(timeout: .networkRequest)
+            return TangemPayBankTransferAmountScreen(app).waitForScreen()
+        }
+    }
+
+    @discardableResult
     func verifyRecentRecipientNotDisplayed(_ recipient: TangemPayBankRecipient) -> Self {
         XCTContext.runActivity(named: "Verify '\(recipient.shortName)' is not among recent recipients") { _ in
             XCTAssertFalse(
