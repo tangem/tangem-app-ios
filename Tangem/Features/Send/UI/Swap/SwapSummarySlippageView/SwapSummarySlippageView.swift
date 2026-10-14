@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemAccessibilityIdentifiers
+import TangemLocalization
 
 struct SwapSummarySlippageView: View {
     @ObservedObject var viewModel: SwapSummarySlippageViewModel
@@ -29,8 +30,7 @@ struct SwapSummarySlippageView: View {
     private var content: some View {
         BaseOneLineRow(
             icon: nil,
-            // [REDACTED_TODO_COMMENT]
-            title: "Slippage",
+            title: Localization.commonSlippage,
             trailingView: {
                 Text(valueText)
                     .style(Fonts.Regular.body, color: valueColor)
@@ -44,7 +44,7 @@ struct SwapSummarySlippageView: View {
 
     private var valueText: String {
         switch viewModel.value {
-        case .auto: "Auto"
+        case .auto: Localization.commonAuto
         case .custom(let text): text
         }
     }
