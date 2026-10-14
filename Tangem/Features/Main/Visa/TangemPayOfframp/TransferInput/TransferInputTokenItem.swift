@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemLocalization
 import TangemUI
 
 struct TransferInputTokenItem: Identifiable, Equatable {
@@ -20,11 +19,6 @@ struct TransferInputTokenItem: Identifiable, Equatable {
     let chainId: Int
     let contractAddress: String
     let isOfframpAvailable: Bool
-
-    var subtitle: String {
-        let trailing = isOfframpAvailable ? balanceText : Localization.tangempayWithdrawBankOfframpUnavailable
-        return Localization.tangempayWithdrawBankSourceSubtitle(networkName, trailing)
-    }
 }
 
 // MARK: - Previews
@@ -53,7 +47,7 @@ extension TransferInputTokenItem {
             symbol: symbol,
             networkName: network,
             balance: balance,
-            balanceText: BalanceFormatter().formatFiatBalance(balance, currencyCode: "USD"),
+            balanceText: TangemPayOfframpAmountFormatter.formatBalance(balance),
             chainId: chainId,
             contractAddress: "0x\(symbol.lowercased())",
             isOfframpAvailable: isAvailable
