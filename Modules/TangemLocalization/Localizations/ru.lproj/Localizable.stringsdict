@@ -135,7 +135,7 @@
         <key>many</key>
         <string>%li сетей</string>
         <key>other</key>
-        <string>%li сетях</string>
+        <string>%li сетей</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
@@ -267,11 +267,11 @@
         <key>one</key>
         <string>%li NFT</string>
         <key>few</key>
-        <string>%li NFTs</string>
+        <string>%li NFT</string>
         <key>many</key>
-        <string>%li NFTs</string>
+        <string>%li NFT</string>
         <key>other</key>
-        <string>%li NFTs</string>
+        <string>%li NFT</string>
       </dict>
     </dict>
     <key>nft_wallet_count_ios</key>
@@ -456,13 +456,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li токен не совместим с этим адресом</string>
+        <string>%li токен несовместим с этим адресом</string>
         <key>few</key>
-        <string>%li токена не совместимы с этим адресом</string>
+        <string>%li токена несовместимы с этим адресом</string>
         <key>many</key>
-        <string>%li токенов не совместимо с этим адресом</string>
+        <string>%li токенов несовместимо с этим адресом</string>
         <key>other</key>
-        <string>%li токены не совместимы с этим адресом</string>
+        <string>%li токенов несовместимо с этим адресом</string>
       </dict>
     </dict>
     <key>tangempay_cards_count</key>
@@ -482,7 +482,7 @@
         <key>many</key>
         <string>%li карт</string>
         <key>other</key>
-        <string>%li карты</string>
+        <string>%li карт</string>
       </dict>
     </dict>
     <key>tangempay_order_success_delivery_eta</key>
