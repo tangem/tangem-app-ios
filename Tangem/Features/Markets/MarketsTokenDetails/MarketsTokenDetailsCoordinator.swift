@@ -59,6 +59,7 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     private var safariHandle: SafariHandle?
 
     private var isDeeplinkMode: Bool = false
+    private var showsPortfolioActions: Bool = false
     private var tokenId: String?
 
     private var isRestrictedForCountry: Bool = false
@@ -80,11 +81,13 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     func start(with options: Options) {
         presentationStyle = options.style
         isDeeplinkMode = options.isDeeplinkMode
+        showsPortfolioActions = options.showsPortfolioActions
         tokenId = options.info.id
         isRestrictedForCountry = options.info.restrictedForCountry ?? false
         rootViewModel = .init(
             tokenInfo: options.info,
             presentationStyle: options.style,
+            showsPortfolioActions: options.showsPortfolioActions,
             dataProvider: .init(),
             marketsQuotesUpdateHelper: CommonMarketsQuotesUpdateHelper(),
             coordinator: self
@@ -108,11 +111,38 @@ extension MarketsTokenDetailsCoordinator {
         let info: MarketsTokenModel
         let style: MarketsTokenDetailsPresentationStyle
         let isDeeplinkMode: Bool
+        let showsPortfolioActions: Bool
 
         init(info: MarketsTokenModel, style: MarketsTokenDetailsPresentationStyle, isDeeplinkMode: Bool = false) {
+            self.init(
+                info: info,
+                style: style,
+                isDeeplinkMode: isDeeplinkMode,
+                showsPortfolioActions: style.isSheet
+            )
+        }
+
+        init(
+            info: MarketsTokenModel,
+            style: MarketsTokenDetailsPresentationStyle,
+            isDeeplinkMode: Bool = false,
+            showsPortfolioActions: Bool
+        ) {
             self.info = info
             self.style = style
             self.isDeeplinkMode = isDeeplinkMode
+            self.showsPortfolioActions = showsPortfolioActions
+        }
+
+        static func tokenChartDeeplink(
+            tokenId: String,
+            isFeatureAvailable: (Feature) -> Bool = FeatureProvider.isAvailable
+        ) -> Options {
+            Options(
+                info: .deeplinkStub(tokenId: tokenId),
+                style: .navigationStack,
+                showsPortfolioActions: isFeatureAvailable(.tokenChartAddToPortfolio)
+            )
         }
     }
 }
@@ -819,7 +849,12 @@ extension MarketsTokenDetailsCoordinator: NewsDetailsRoutable {
             popToRootAction: popToRootAction
         )
 
-        coordinator.start(with: .init(info: token, style: resolvePresentationStyleForInnerFlow(), isDeeplinkMode: isDeeplinkMode))
+        coordinator.start(with: .init(
+            info: token,
+            style: resolvePresentationStyleForInnerFlow(),
+            isDeeplinkMode: isDeeplinkMode,
+            showsPortfolioActions: showsPortfolioActions
+        ))
         newsRelatedTokenDetailsCoordinator = coordinator
     }
 }
@@ -830,10 +865,10 @@ extension MarketsTokenDetailsCoordinator: NewsDetailsRoutable {
 extension MarketsTokenDetailsCoordinator {
     func openTokenSummary(_ input: TokenSummaryInput, walletDataProvider: MarketsWalletDataProvider) {
         tokenSummaryViewModel = TokenSummaryViewModel(
-            coinName: input.token.name,
-            symbol: input.token.symbol,
+            coinName: input.coinName,
+            symbol: input.coinSymbol,
             tokenIconInfo: TokenIconInfo(
-                name: input.token.name,
+                name: input.coinName,
                 blockchainIconAsset: nil,
                 imageURL: input.iconURL,
                 isCustom: false,
@@ -841,7 +876,7 @@ extension MarketsTokenDetailsCoordinator {
             ),
             preloadedIndicators: input.indicators,
             primaryActionPublisher: input.primaryActionPublisher,
-            analyticsLogger: CommonTokenSummaryAnalyticsLogger(symbol: input.token.symbol),
+            analyticsLogger: CommonTokenSummaryAnalyticsLogger(symbol: input.coinSymbol),
             onPrimaryAction: { [weak self] kind in
                 self?.handleTokenSummaryAction(kind, input: input, walletDataProvider: walletDataProvider)
             },
