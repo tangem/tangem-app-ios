@@ -30,7 +30,11 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
 
     @Published private(set) var viewState: ViewState?
     @Published var destination: Destination?
+
     @Published var redeem: PolymarketRedeemViewModel?
+    let orderPresenter = PolymarketOrderPresenter()
+
+    private var orderPresenterSubscription: AnyCancellable?
     @Published var sheet: Sheet? {
         didSet {
             guard sheet == nil else { return }
@@ -74,6 +78,11 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
     ) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
+
+        orderPresenter.mainCoordinator = self
+        orderPresenterSubscription = orderPresenter.objectWillChange.sink { [weak self] in
+            self?.objectWillChange.send()
+        }
     }
 
     func start(with options: Options) {
@@ -164,7 +173,8 @@ private extension PolymarketCoordinator {
                 dependencies: dependencies,
                 onAddFunds: { [weak self] in self?.openAddFunds() },
                 onRegionWarning: { [weak self] in self?.openRegionWarning() },
-                onReturnToMain: { [weak self] in self?.popToMain() }
+                onReturnToMain: { [weak self] in self?.popToMainTop() },
+                orderPresenter: orderPresenter
             ),
             fundingFlow: PolymarketFundingFlow(dependencies: dependencies)
         )
@@ -223,9 +233,17 @@ extension PolymarketCoordinator: PolymarketMainScreenRoutable {
     }
 
     func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void) {
+        openPositionDetails(position: position, onOrderPlaced: onOrderPlaced, scrollsMainToTopOnClose: false)
+    }
+
+    private func openPositionDetails(
+        position: PolymarketPosition,
+        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
+        scrollsMainToTopOnClose: Bool
+    ) {
         guard destination == nil else {
             replaceDestination { [weak self] in
-                self?.openPositionDetails(position: position, onOrderPlaced: onOrderPlaced)
+                self?.openPositionDetails(position: position, onOrderPlaced: onOrderPlaced, scrollsMainToTopOnClose: scrollsMainToTopOnClose)
             }
             return
         }
@@ -236,7 +254,13 @@ extension PolymarketCoordinator: PolymarketMainScreenRoutable {
             position: position,
             onOrderPlaced: onOrderPlaced,
             onRegionWarning: { [weak self] in self?.openRegionWarning() },
-            onClose: { [weak self] in self?.popToMain() }
+            onClose: { [weak self] in
+                if scrollsMainToTopOnClose {
+                    self?.popToMainTop()
+                } else {
+                    self?.popToMain()
+                }
+            }
         ))
     }
 
@@ -249,18 +273,20 @@ extension PolymarketCoordinator: PolymarketMainScreenRoutable {
     ) {
         guard let destinationFactory = viewState?.destinationFactory else { return }
 
-        destination = .order(destinationFactory.makeOrderCoordinator(
+        let coordinator = destinationFactory.makeOrderCoordinator(
             market: market,
             outcome: outcome,
             eventTitle: eventTitle,
             request: request,
-            pushesPlacedPosition: true,
             onPlaced: onPlaced,
             onOpenPosition: { [weak self] position in
-                self?.openPositionDetails(position: position, onOrderPlaced: onPlaced)
+                self?.openPositionDetails(position: position, onOrderPlaced: onPlaced, scrollsMainToTopOnClose: true)
+                self?.orderPresenter.dismiss()
             },
-            onClose: { [weak self] in self?.popToMain() }
-        ))
+            onClose: { [weak self] in self?.orderPresenter.dismiss() }
+        )
+
+        destinationFactory.presentOrder(coordinator, from: nil)
     }
 
     @MainActor
@@ -476,6 +502,11 @@ extension PolymarketCoordinator {
     func popToMain() {
         destination = nil
     }
+
+    func popToMainTop() {
+        popToMain()
+        viewState?.mainViewModel?.scrollToTop()
+    }
 }
 
 // MARK: - Funding operations
@@ -498,6 +529,12 @@ extension PolymarketCoordinator {
             fundingFlow: PolymarketFundingFlow
         )
 
+        var mainViewModel: PolymarketMainViewModel? {
+            guard case .main(let viewModel, _, _) = self else { return nil }
+
+            return viewModel
+        }
+
         var destinationFactory: PolymarketDestinationFactory? {
             guard case .main(_, let destinationFactory, _) = self else { return nil }
 
@@ -519,7 +556,6 @@ extension PolymarketCoordinator {
         case eventDetails(PolymarketEventDetailsCoordinator)
         case positionDetails(PolymarketPositionDetailsCoordinator)
         case myPositions(PolymarketMyPositionsCoordinator)
-        case order(PolymarketOrderCoordinator)
         case tokenDetails(TokenDetailsCoordinator)
     }
 

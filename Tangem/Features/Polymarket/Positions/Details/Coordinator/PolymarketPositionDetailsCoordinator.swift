@@ -26,8 +26,16 @@ final class PolymarketPositionDetailsCoordinator: CoordinatorObject {
 
     private var onRegionWarning: (() -> Void)?
     private weak var orderBuilder: PolymarketOrderFlowBuilder?
+
+    var orderPresenter: PolymarketOrderPresenter? {
+        orderBuilder?.orderPresenter
+    }
+
     private weak var eventBuilder: PolymarketEventDetailsBuilder?
+    var disablesPopGesture = false
+
     private var closesWhenFlowDismissed = false
+    private var hasLeftScreen = false
 
     // MARK: - Init
 
@@ -70,7 +78,6 @@ extension PolymarketPositionDetailsCoordinator {
     }
 
     enum Destination {
-        case order(PolymarketOrderCoordinator)
         case eventDetails(PolymarketEventDetailsCoordinator)
     }
 }
@@ -92,13 +99,17 @@ extension PolymarketPositionDetailsCoordinator {
 // MARK: - PolymarketPositionDetailsRoutable protocol conformance
 
 extension PolymarketPositionDetailsCoordinator: PolymarketPositionDetailsRoutable {
+    func leaveSoldPosition() {
+        leaveScreen()
+    }
+
     func closePositionDetails() {
         guard destination == nil else {
             closesWhenFlowDismissed = true
             return
         }
 
-        dismiss()
+        leaveScreen()
     }
 
     func openRegionWarning() {
@@ -137,19 +148,35 @@ extension PolymarketPositionDetailsCoordinator: PolymarketPositionDetailsRoutabl
         request: PolymarketOrderRequest,
         onPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
     ) {
-        guard let coordinator = orderBuilder?.makeOrderCoordinator(
+        guard let orderBuilder else { return }
+
+        let coordinator = orderBuilder.makeOrderCoordinator(
             market: market,
             outcome: outcome,
             eventTitle: eventTitle,
             request: request,
-            pushesPlacedPosition: false,
             onPlaced: onPlaced,
-            onOpenPosition: { [weak self] _ in self?.popToPositionDetails() },
-            onClose: { [weak self] in self?.popToPositionDetails() }
-        ) else {
-            return
+            onOpenPosition: { [weak orderBuilder] _ in orderBuilder?.dismissOrder() },
+            onClose: { [weak orderBuilder] in orderBuilder?.dismissOrder() }
+        )
+        coordinator.offersPlacedPosition = false
+        coordinator.onPositionClosed = { [weak self, weak orderBuilder] in
+            orderBuilder?.runAfterOrderDismiss { [weak self] in self?.leaveSoldPosition() }
         }
+        coordinator.onLeaveClosedPosition = { [weak self] in self?.leaveSoldPosition() }
 
-        destination = .order(coordinator)
+        orderBuilder.presentOrder(coordinator, from: self)
+    }
+}
+
+// MARK: - Leaving
+
+private extension PolymarketPositionDetailsCoordinator {
+    func leaveScreen() {
+        guard !hasLeftScreen else { return }
+
+        hasLeftScreen = true
+        orderPresenter?.dismiss(presentedFrom: self)
+        dismiss()
     }
 }

@@ -32,12 +32,15 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
     @Published var destination: Destination?
     @Published var sheet: Sheet?
 
-    @Published var positionDetailsCoordinator: PolymarketPositionDetailsCoordinator?
+    var offersPlacedPosition = true
+    var onPositionClosed: (() -> Void)?
+    var onLeaveClosedPosition: (() -> Void)?
+
+    private var hasClosedPosition = false
 
     private var placementService: PolymarketOrderPlacementService?
     private var account: PolymarketOrderAccount?
     private var signingButtonType: SigningActionButtonViewType = .holdToConfirm
-    private weak var positionBuilder: PolymarketOrderFlowBuilder?
     private var regionWarningAction: (() -> Void)?
     private var placedAction: (@MainActor (PolymarketOrderIndexing) -> Void)?
     private var addFundsAction: (() -> Void)?
@@ -59,7 +62,6 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
         placementService = options.placementService
         account = options.account
         signingButtonType = options.signingButtonType
-        positionBuilder = options.positionBuilder
         regionWarningAction = options.onRegionWarning
         placedAction = options.onPlaced
         addFundsAction = options.onAddFunds
@@ -89,11 +91,11 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
 
 extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
     func closeOrder() {
-        dismiss(with: DismissPayload(position: nil))
-    }
+        if hasClosedPosition {
+            onLeaveClosedPosition?()
+        }
 
-    func returnToMain() {
-        dismiss(with: DismissPayload(position: nil, returnsToMain: true))
+        dismiss(with: DismissPayload(position: nil))
     }
 
     func openAddFunds() {
@@ -133,20 +135,7 @@ extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
     }
 
     func openPosition(_ position: PolymarketPosition) {
-        guard let positionBuilder else {
-            dismiss(with: DismissPayload(position: position))
-            return
-        }
-
-        positionDetailsCoordinator = positionBuilder.makePositionDetails(
-            position: position,
-            onOrderPlaced: { [weak self] indexing in
-                self?.indexingTask = indexing
-                self?.placedAction?(indexing)
-            },
-            onRegionWarning: { [weak self] in self?.regionWarningAction?() },
-            onClose: { [weak self] in self?.returnToMain() }
-        )
+        dismiss(with: DismissPayload(position: position))
     }
 
     func openSlippageSelector(percent: Decimal, onConfirm: @escaping (Decimal) -> Void) {
@@ -214,12 +203,20 @@ extension PolymarketOrderCoordinator: PolymarketOrderSummaryRoutable {
             placedAction?(indexing)
         }
 
-        destination = .result(PolymarketOrderResultViewModel(
+        let resultViewModel = PolymarketOrderResultViewModel(
             state: state,
             content: content,
             indexing: indexingTask,
+            offersPlacedPosition: offersPlacedPosition,
             coordinator: self
-        ))
+        )
+
+        if resultViewModel.closesPosition {
+            hasClosedPosition = true
+            onPositionClosed?()
+        }
+
+        destination = .result(resultViewModel)
     }
 }
 
@@ -257,7 +254,6 @@ extension PolymarketOrderCoordinator {
 extension PolymarketOrderCoordinator {
     struct DismissPayload {
         let position: PolymarketPosition?
-        var returnsToMain = false
     }
 
     struct Options {
@@ -275,7 +271,6 @@ extension PolymarketOrderCoordinator {
         let isAwaitingFundsPublisher: AnyPublisher<Bool, Never>
         let collateralBalancePublisher: AnyPublisher<Decimal?, Never>
         let addFundsReadinessStream: AsyncStream<PolymarketAccountFundsInteractor.State>
-        let positionBuilder: PolymarketOrderFlowBuilder?
         let onPlaced: @MainActor (PolymarketOrderIndexing) -> Void
         let onRegionWarning: () -> Void
         let onAddFunds: () -> Void
