@@ -236,13 +236,18 @@ extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
         }
     }
 
-    func openMobileRemoveSocialWallet(userWalletModel: UserWalletModel) {
+    func openMobileRemoveSocialWalletNotification(userWalletModel: UserWalletModel) {
         let removeManager = CommonMobileRemoveSocialWalletManager(userWalletModel: userWalletModel)
 
-        mobileRemoveSocialWalletViewModel = MobileRemoveSocialWalletViewModel(
+        let viewModel = MobileRemoveSocialWalletNotificationViewModel(
+            userWalletModel: userWalletModel,
             removeManager: removeManager,
             coordinator: self
         )
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     func openAppSettings() {
@@ -453,6 +458,27 @@ extension UserWalletSettingsCoordinator: MobileRemoveWalletNotificationRoutable 
     }
 
     func dismissMobileRemoveWalletNotification() {
+        floatingSheetPresenter.removeActiveSheet()
+    }
+}
+
+// MARK: - MobileRemoveSocialWalletNotificationRoutable
+
+extension UserWalletSettingsCoordinator: MobileRemoveSocialWalletNotificationRoutable {
+    func openMobileRemoveSocialWallet(removeManager: MobileRemoveSocialWalletManager) {
+        dismissMobileRemoveSocialWalletNotification()
+        mobileRemoveSocialWalletViewModel = MobileRemoveSocialWalletViewModel(
+            removeManager: removeManager,
+            coordinator: self
+        )
+    }
+
+    func openMobileOnboardingFromRemoveSocialWalletNotification(input: MobileOnboardingInput) {
+        dismissMobileRemoveSocialWalletNotification()
+        openOnboardingModal(options: .mobileInput(input))
+    }
+
+    func dismissMobileRemoveSocialWalletNotification() {
         floatingSheetPresenter.removeActiveSheet()
     }
 }
