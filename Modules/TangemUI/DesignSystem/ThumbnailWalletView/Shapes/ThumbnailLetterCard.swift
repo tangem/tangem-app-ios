@@ -8,8 +8,6 @@
 
 import SwiftUI
 
-typealias ThumbnailLetterCardView = ThumbnailPathBuilderView<ThumbnailLetterCardPathBuilder>
-
 public enum ThumbnailLetterCardPathBuilder: ThumbnailPathBuilding {
     public struct FillColors: Equatable {
         public let card: Color

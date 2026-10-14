@@ -161,7 +161,6 @@ private extension GeoSelectionContentView {
         static let horizontalPadding: CGFloat = 16
         static let titleVerticalPadding: CGFloat = 8
         static let messageSpacing: CGFloat = 12
-        static let errorSpacing: CGFloat = 16
         static let iconBackgroundSide: CGFloat = 40
         static let skeletonRowCount = 8
     }

@@ -100,13 +100,6 @@ class CommonUserWalletModel {
     }
 }
 
-extension CommonUserWalletModel {
-    enum WalletsBalanceState {
-        case inProgress
-        case loaded
-    }
-}
-
 // MARK: - UserWalletModel
 
 extension CommonUserWalletModel: UserWalletModel {

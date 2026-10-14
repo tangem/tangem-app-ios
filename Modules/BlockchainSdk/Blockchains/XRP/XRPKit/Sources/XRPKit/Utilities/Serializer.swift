@@ -332,10 +332,6 @@ class Serializer {
         return vlEncode(contents: Data(hexString: hexBlob))
     }
 
-    private func currencyCodeToBytes(code: String) -> Data {
-        fatalError("currencyCodeToBytes not implemented")
-    }
-
     private func hash128ToBytes(hexString: String) -> Data {
         // Serializes a hexadecimal string as binary and confirms that it's 128 bits
         let data = hashToBytes(hexString: hexString)

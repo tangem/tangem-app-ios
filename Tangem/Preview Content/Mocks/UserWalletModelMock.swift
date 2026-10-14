@@ -105,8 +105,6 @@ class UserWalletModelMock: UserWalletModel {
         return nil
     }
 
-    func getAnalyticsContextData() -> AnalyticsContextData? { nil }
-
     var backupState: UserWalletBackupState { .valid }
 
     func update(type: UpdateRequest) {}

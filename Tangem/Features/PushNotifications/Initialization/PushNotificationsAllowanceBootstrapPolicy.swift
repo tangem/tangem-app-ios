@@ -15,10 +15,6 @@ enum PushNotificationsAllowanceBootstrapPolicy {
         !AppSettings.shared.allowanceUserWalletIdTransactionsPush.contains(userWalletId.stringValue)
     }
 
-    static func isEligibleForBootstrap(userWalletId: UserWalletId, isSystemPushAuthorized: Bool) -> Bool {
-        isSystemPushAuthorized && hasNotCompletedOnboarding(userWalletId: userWalletId)
-    }
-
     static func hasNotCompletedOnboardingPublisher(userWalletId: UserWalletId) -> AnyPublisher<Bool, Never> {
         AppSettings.shared
             .$allowanceUserWalletIdTransactionsPush

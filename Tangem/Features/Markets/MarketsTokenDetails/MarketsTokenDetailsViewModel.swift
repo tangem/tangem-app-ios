@@ -281,17 +281,6 @@ final class MarketsTokenDetailsViewModel: ObservableObject {
         coordinator?.openExchangesList(tokenId: tokenInfo.id, numberOfExchangesListedOn: numberOfExchangesListedOn)
     }
 
-    func onGenerateAITapAction() {
-        fullDescriptionBottomSheetInfo = nil
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-            guard let self else { return }
-
-            let dataCollector = TokenErrorDescriptionDataCollector(tokenId: tokenInfo.id, tokenName: tokenInfo.name)
-            coordinator?.openMail(with: dataCollector, emailType: .appFeedback(subject: Localization.feedbackTokenDescriptionError))
-        }
-    }
-
     func shareTokenDetails() {
         Analytics.log(event: .marketsChartButtonShare, params: [.token: tokenInfo.symbol.uppercased()])
 

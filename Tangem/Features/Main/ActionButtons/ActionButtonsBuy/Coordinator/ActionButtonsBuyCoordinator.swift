@@ -29,7 +29,6 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
 
     // MARK: - Private property
 
-    private var safariHandle: SafariHandle?
     private var userWalletModels: [UserWalletModel] = []
     private var tokenListViewModel: ActionButtonsBuyViewModel?
 

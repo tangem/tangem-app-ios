@@ -91,8 +91,6 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
         }
     }
 
-    var isSupplementButtonVisible: Bool { false }
-
     var supplementButtonTitle: String {
         switch self {
         case .createWallet: return Localization.onboardingCreateWalletButtonCreateWallet

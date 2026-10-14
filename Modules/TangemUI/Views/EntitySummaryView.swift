@@ -239,7 +239,6 @@ public extension EntitySummaryView.ViewState.ContentState.ImageLocation {
 public extension EntitySummaryView.ViewState.ContentState.ImageLocation {
     struct RemoteImageConfig: Equatable {
         let iconURL: URL?
-        let fallbackIconAsset = Assets.Glyphs.explore
 
         public init(iconURL: URL?) {
             self.iconURL = iconURL

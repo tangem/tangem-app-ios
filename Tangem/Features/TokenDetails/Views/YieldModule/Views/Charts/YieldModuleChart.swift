@@ -109,15 +109,6 @@ struct YieldModuleChart: View {
         let ticks = [0, 7, 14, 21, 27]
         return Dictionary(uniqueKeysWithValues: zip(ticks, labels))
     }
-
-    private func makeXLabels() -> [String] {
-        switch state {
-        case .loading:
-            return Array(repeating: "Aaa", count: 5)
-        case .loaded(_, let xAxisLabels, _):
-            return xAxisLabels
-        }
-    }
 }
 
 // MARK: - State

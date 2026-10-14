@@ -19,7 +19,6 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
     let viewType: ExpressCurrencyViewType
 
     private var balanceStateCancellable: AnyCancellable?
-    private var highPriceTask: Task<Void, Error>?
     private var balanceConvertTask: Task<Void, Error>?
 
     private let loadableBalanceViewStateBuilder = LoadableBalanceViewStateBuilder()

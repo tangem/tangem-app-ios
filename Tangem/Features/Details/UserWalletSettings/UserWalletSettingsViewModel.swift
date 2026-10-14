@@ -448,12 +448,6 @@ private extension UserWalletSettingsViewModel {
         coordinator?.openMobileRemoveSocialWalletNotification(userWalletModel: userWalletModel)
     }
 
-    func showErrorAlert(error: Error) {
-        alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription) { [weak self] in
-            self?.coordinator?.onAlertDismiss()
-        }
-    }
-
     func makeManageTokensRowViewModel() -> DefaultRowViewModel {
         DefaultRowViewModel(
             title: Localization.mainManageTokens,

@@ -140,8 +140,6 @@ struct EarnBestOpportunitiesListView: View {
 private extension EarnBestOpportunitiesListView {
     enum Layout {
         static let itemSpacing: CGFloat = .zero
-        static let horizontalPadding: CGFloat = 16.0
-        static let innerContentPadding: CGFloat = 0.0
         static let stateMinHeight: CGFloat = 180
         static let emptyViewSpacing: CGFloat = 20
         static let clearFilterSpacing: CGFloat = 8

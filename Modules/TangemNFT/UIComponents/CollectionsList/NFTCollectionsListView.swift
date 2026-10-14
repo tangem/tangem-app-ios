@@ -277,10 +277,7 @@ private extension View {
 private extension NFTCollectionsListView {
     enum Constants {
         enum EmptyView {
-            static let imageSize: CGSize = .init(bothDimensions: 76)
-
             static let horizontalPadding: CGFloat = 16
-            static let buttonHPaddingInsideContainer: CGFloat = 40
         }
 
         enum RoundedBackground {

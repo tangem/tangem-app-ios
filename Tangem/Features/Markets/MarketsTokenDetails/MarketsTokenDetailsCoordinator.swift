@@ -56,8 +56,6 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     /// Navigation to run once the modal AddFunds cover has finished dismissing (set via `dismissAddFunds`).
     private var addFundsFollowUpAction: (@MainActor () -> Void)?
 
-    private var safariHandle: SafariHandle?
-
     private var isDeeplinkMode: Bool = false
     private var showsPortfolioActions: Bool = false
     private var tokenId: String?
@@ -747,21 +745,6 @@ extension MarketsTokenDetailsCoordinator: AddTokenFlowRoutable {
                 layout: .top(padding: ToastConstants.topPadding),
                 type: .temporary()
             )
-    }
-}
-
-// MARK: - Utilities functions
-
-extension MarketsTokenDetailsCoordinator {
-    func openBuyCrypto(at url: URL, with walletModel: any WalletModel) {
-        safariHandle = safariManager.openURL(url) { [weak self] _ in
-            self?.safariHandle = nil
-
-            Task {
-                try await Task.sleep(for: .seconds(1))
-                await walletModel.update(silent: true, options: .balances)
-            }
-        }
     }
 }
 

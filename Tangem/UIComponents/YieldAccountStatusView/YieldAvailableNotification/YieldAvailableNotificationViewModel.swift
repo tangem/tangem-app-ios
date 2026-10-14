@@ -52,16 +52,6 @@ final class YieldAvailableNotificationViewModel {
             descriptionText = Localization.yieldApyBoostBannerSubtitle
         }
     }
-
-    // MARK: - Actions
-
-    func onLearnMoreButtonTap() {
-        onLearnMoreTap(apy)
-    }
-
-    func onActivateButtonTap() {
-        onActivateTap?(apy)
-    }
 }
 
 // MARK: - Title builders

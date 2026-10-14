@@ -47,12 +47,6 @@ struct NEARNetworkProvider {
         return requestPublisher(for: .sendTransactionAsync(transaction: transaction))
     }
 
-    func sendTransactionAwait(
-        _ transaction: String
-    ) -> AnyPublisher<NEARNetworkResult.TransactionSendAwait, Error> {
-        return requestPublisher(for: .sendTransactionAwait(transaction: transaction))
-    }
-
     func getTransactionStatus(
         accountId: String,
         transactionHash: String

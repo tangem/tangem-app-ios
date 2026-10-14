@@ -44,10 +44,6 @@ final class RealAssetsWidgetViewModel: ObservableObject {
         return Localization.marketsRealAssetsRegionRestrictionDescriptionRegion(regionName)
     }
 
-    var headerLoadingState: MarketsCommonWidgetHeaderLoadingState {
-        categorySelection == nil && tokenListLoadingState == .loading ? .first : .loaded
-    }
-
     private weak var coordinator: RealAssetsWidgetRoutable?
     private let categoriesProvider: MarketsCategoriesProvider
     private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper

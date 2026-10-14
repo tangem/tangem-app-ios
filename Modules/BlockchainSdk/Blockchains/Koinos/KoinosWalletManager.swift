@@ -16,10 +16,6 @@ class KoinosWalletManager: BaseWalletManager, WalletManager, FeeResourceRestrict
         networkService.host
     }
 
-    var feeResourceType: FeeResourceType {
-        .mana
-    }
-
     private let networkService: KoinosNetworkService
     private let transactionBuilder: KoinosTransactionBuilder
 
@@ -55,7 +51,6 @@ class KoinosWalletManager: BaseWalletManager, WalletManager, FeeResourceRestrict
 
             // Update state
             try await update(accountInfo: accountInfo, existingTransactionIDs: existingTransactionIDs)
-
         } catch {
             wallet.clearAmounts()
             throw error
