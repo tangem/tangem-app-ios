@@ -510,6 +510,19 @@ final class SwapModelTests: LeakTrackingTestSuite {
         #expect(sut.slippageProvider?.isCustomSlippageSupported == false)
     }
 
+    @Test("A provider without a default slippage gives the slippage sheet nothing to open")
+    func providerWithoutSlippageIsNotOfferedToSelector() {
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false))
+        )
+        let quotedState: ExpressProviderManagerState = .restriction(.tooBigAmount(100, currencySymbol: "ETH"), quote: nil)
+
+        sut.userDidSelect(provider: ExpressAvailableProviderFixture.make(state: quotedState, slippage: nil))
+
+        #expect(sut.slippageProvider == nil)
+    }
+
     @Test("Tapping the low slippage warning asks the router to open the slippage sheet")
     func editSlippageNotificationOpensSelector() {
         let router = SwapModelRouterSpy()

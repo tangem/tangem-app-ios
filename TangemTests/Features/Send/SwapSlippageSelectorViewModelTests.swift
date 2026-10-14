@@ -9,6 +9,7 @@
 import Foundation
 import Testing
 import TangemExpress
+import TangemLocalization
 @testable import Tangem
 
 @Suite("SwapSlippageSelectorViewModel")
@@ -16,7 +17,7 @@ import TangemExpress
 struct SwapSlippageSelectorViewModelTests {
     @Test("Starts from the provider default and offers half, default and double")
     func startsFromDefault() throws {
-        let viewModel = makeViewModel(defaultSlippage: 0.003)
+        let viewModel = try #require(makeViewModel(defaultSlippage: 0.003))
 
         let offeredPresets = try #require(presets(of: viewModel))
 
@@ -24,19 +25,19 @@ struct SwapSlippageSelectorViewModelTests {
         #expect(viewModel.message == nil)
         #expect(viewModel.isConfirmEnabled)
         #expect(offeredPresets.map(\.slippage) == [0.0015, 0.003, 0.006])
-        #expect(offeredPresets.map(\.title) == ["0.15%", "Default 0.3%", "0.6%"])
+        #expect(offeredPresets.map(\.title) == ["0.15%", "\(Localization.commonDefault) 0.3%", "0.6%"])
     }
 
     @Test("Starts from the custom slippage set before")
-    func startsFromCustom() {
-        let viewModel = makeViewModel(defaultSlippage: 0.003, slippage: .custom(0.005))
+    func startsFromCustom() throws {
+        let viewModel = try #require(makeViewModel(defaultSlippage: 0.003, slippage: .custom(0.005)))
 
         #expect(viewModel.fieldViewModel.value == 0.5)
     }
 
     @Test("Rejects a slippage above double the default")
-    func rejectsAboveMax() {
-        let viewModel = makeViewModel(defaultSlippage: 0.003)
+    func rejectsAboveMax() throws {
+        let viewModel = try #require(makeViewModel(defaultSlippage: 0.003))
 
         type("35", into: viewModel.fieldViewModel)
 
@@ -45,8 +46,8 @@ struct SwapSlippageSelectorViewModelTests {
     }
 
     @Test("Rejects a slippage below the minimum")
-    func rejectsBelowMin() {
-        let viewModel = makeViewModel(defaultSlippage: 0.003)
+    func rejectsBelowMin() throws {
+        let viewModel = try #require(makeViewModel(defaultSlippage: 0.003))
 
         type("0", into: viewModel.fieldViewModel)
 
@@ -55,8 +56,8 @@ struct SwapSlippageSelectorViewModelTests {
     }
 
     @Test("Warns but allows a slippage below half the default")
-    func warnsBelowThreshold() {
-        let viewModel = makeViewModel(defaultSlippage: 0.003)
+    func warnsBelowThreshold() throws {
+        let viewModel = try #require(makeViewModel(defaultSlippage: 0.003))
 
         type("0.11", into: viewModel.fieldViewModel)
 
@@ -65,8 +66,8 @@ struct SwapSlippageSelectorViewModelTests {
     }
 
     @Test("Disables confirm for an empty field")
-    func disablesForEmptyField() {
-        let viewModel = makeViewModel(defaultSlippage: 0.003)
+    func disablesForEmptyField() throws {
+        let viewModel = try #require(makeViewModel(defaultSlippage: 0.003))
 
         type("", into: viewModel.fieldViewModel)
 
@@ -75,9 +76,9 @@ struct SwapSlippageSelectorViewModelTests {
     }
 
     @Test("Confirms the entered slippage as a fraction")
-    func confirmsCustom() {
+    func confirmsCustom() throws {
         let output = SlippageOutputSpy()
-        let viewModel = makeViewModel(defaultSlippage: 0.003, output: output)
+        let viewModel = try #require(makeViewModel(defaultSlippage: 0.003, output: output))
 
         type("0.45", into: viewModel.fieldViewModel)
         viewModel.confirm()
@@ -88,7 +89,7 @@ struct SwapSlippageSelectorViewModelTests {
     @Test("Confirms the default preset as Auto")
     func confirmsDefaultAsAuto() throws {
         let output = SlippageOutputSpy()
-        let viewModel = makeViewModel(defaultSlippage: 0.003, slippage: .custom(0.005), output: output)
+        let viewModel = try #require(makeViewModel(defaultSlippage: 0.003, slippage: .custom(0.005), output: output))
 
         let defaultPreset = try #require(presets(of: viewModel)?[1])
         viewModel.select(preset: defaultPreset)
@@ -98,9 +99,9 @@ struct SwapSlippageSelectorViewModelTests {
     }
 
     @Test("Does not confirm an unsupported slippage")
-    func doesNotConfirmUnsupported() {
+    func doesNotConfirmUnsupported() throws {
         let output = SlippageOutputSpy()
-        let viewModel = makeViewModel(defaultSlippage: 0.003, output: output)
+        let viewModel = try #require(makeViewModel(defaultSlippage: 0.003, output: output))
 
         type("35", into: viewModel.fieldViewModel)
         viewModel.confirm()
@@ -109,8 +110,8 @@ struct SwapSlippageSelectorViewModelTests {
     }
 
     @Test("Accepts exactly double the default and does not warn at exactly half")
-    func acceptsBoundaries() {
-        let viewModel = makeViewModel(defaultSlippage: 0.003)
+    func acceptsBoundaries() throws {
+        let viewModel = try #require(makeViewModel(defaultSlippage: 0.003))
 
         type("0.6", into: viewModel.fieldViewModel)
         let isMaxAccepted = viewModel.isConfirmEnabled && viewModel.message == nil
@@ -123,9 +124,9 @@ struct SwapSlippageSelectorViewModelTests {
     }
 
     @Test("Treats a default with binary noise as the rounded default")
-    func normalizesInexactDefault() {
+    func normalizesInexactDefault() throws {
         let output = SlippageOutputSpy()
-        let viewModel = makeViewModel(defaultSlippage: Decimal(0.003), slippage: .custom(0.005), output: output)
+        let viewModel = try #require(makeViewModel(defaultSlippage: Decimal(0.003), slippage: .custom(0.005), output: output))
 
         type("0.3", into: viewModel.fieldViewModel)
         viewModel.confirm()
@@ -135,7 +136,7 @@ struct SwapSlippageSelectorViewModelTests {
 
     @Test("Drops presets that collapse into one or fall below the minimum")
     func dropsInvalidPresets() throws {
-        let viewModel = makeViewModel(defaultSlippage: 0.0001)
+        let viewModel = try #require(makeViewModel(defaultSlippage: 0.0001))
 
         let offeredPresets = try #require(presets(of: viewModel))
 
@@ -143,8 +144,8 @@ struct SwapSlippageSelectorViewModelTests {
     }
 
     @Test("Does not offer customization for a zero or negative default", arguments: [Decimal(0), Decimal(-0.01), Decimal(0.00004)])
-    func notCustomizableForInvalidDefault(defaultSlippage: Decimal) {
-        let viewModel = makeViewModel(defaultSlippage: defaultSlippage)
+    func notCustomizableForInvalidDefault(defaultSlippage: Decimal) throws {
+        let viewModel = try #require(makeViewModel(defaultSlippage: defaultSlippage))
 
         guard case .notCustomizable = viewModel.content else {
             Issue.record("Expected the not customizable content")
@@ -153,9 +154,9 @@ struct SwapSlippageSelectorViewModelTests {
     }
 
     @Test("Explains a provider without custom slippage and confirms Auto")
-    func notCustomizable() {
+    func notCustomizable() throws {
         let output = SlippageOutputSpy()
-        let viewModel = makeViewModel(defaultSlippage: 0.035, isCustomSlippageSupported: false, output: output)
+        let viewModel = try #require(makeViewModel(defaultSlippage: 0.035, isCustomSlippageSupported: false, output: output))
 
         viewModel.confirm()
 
@@ -168,6 +169,11 @@ struct SwapSlippageSelectorViewModelTests {
         #expect(viewModel.isConfirmEnabled)
         #expect(output.slippages == [.auto])
     }
+
+    @Test("Refuses a provider without a default slippage")
+    func refusesProviderWithoutSlippage() {
+        #expect(makeViewModel(defaultSlippage: nil) == nil)
+    }
 }
 
 // MARK: - Helpers
@@ -178,7 +184,7 @@ private extension SwapSlippageSelectorViewModelTests {
         slippage: SwapSlippage = .auto,
         isCustomSlippageSupported: Bool = true,
         output: SlippageOutputSpy = SlippageOutputSpy()
-    ) -> SwapSlippageSelectorViewModel {
+    ) -> SwapSlippageSelectorViewModel? {
         let provider = ExpressProvider(
             id: "provider",
             name: "Provider",
