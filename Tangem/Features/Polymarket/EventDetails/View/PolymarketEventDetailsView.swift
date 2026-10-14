@@ -27,6 +27,7 @@ struct PolymarketEventDetailsView: View {
         ZStack(alignment: .top) {
             content
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .polymarketStateTransition(viewModel.state.phase)
 
             topBar
         }
@@ -94,7 +95,7 @@ struct PolymarketEventDetailsView: View {
         switch viewModel.state {
         case .loading:
             PolymarketEventDetailsSkeletonView()
-                .padding(.top, barHeight)
+                .padding(.top, barHeight > 0 ? barHeight : Constants.estimatedBarHeight)
 
         case .failed(let failure):
             PolymarketEmptyMessageView(message: failure.message, onRetry: { viewModel.handleViewAction(.retry) })
@@ -106,7 +107,7 @@ struct PolymarketEventDetailsView: View {
     }
 
     private func loadedContent(_ content: PolymarketEventDetailsContent) -> some View {
-        ScrollView {
+        ScrollView(showsIndicators: false) {
             LazyVStack(spacing: 0) {
                 header(content)
 
@@ -203,7 +204,7 @@ struct PolymarketEventDetailsView: View {
                 .foregroundStyle(DesignSystem.Color.textSecondary)
 
             Text(value)
-                .foregroundStyle(DesignSystem.Color.textPrimary)
+                .foregroundStyle(DesignSystem.Color.textStatusWarning)
         }
         .font(token: DesignSystem.Font.captionMediumToken)
         .lineLimit(1)
@@ -335,6 +336,24 @@ struct PolymarketEventDetailsView: View {
     }
 }
 
+// MARK: - Animation
+
+private extension PolymarketEventDetailsViewModel.State {
+    enum Phase {
+        case loading
+        case content
+        case failed
+    }
+
+    var phase: Phase {
+        switch self {
+        case .loading: .loading
+        case .content: .content
+        case .failed: .failed
+        }
+    }
+}
+
 // MARK: - Failure copy
 
 private extension PolymarketEventDetailsViewModel.Failure {
@@ -359,6 +378,7 @@ private extension PolymarketEventDetailsView {
         static let toolbarHeight: CGFloat = 44
         static let barTopPadding: CGFloat = 8
         static let barBottomPadding: CGFloat = 16
+        static let estimatedBarHeight: CGFloat = barTopPadding + toolbarHeight + barBottomPadding
         static let barSpacing: CGFloat = 12
         static let barButtonSide: CGFloat = 44
         static let collapsedTitleSpacing: CGFloat = 4
