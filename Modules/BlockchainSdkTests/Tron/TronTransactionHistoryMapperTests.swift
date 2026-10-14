@@ -286,17 +286,55 @@ struct TronTransactionHistoryMapperTests {
         .chainExtraData,
     ])
     func otherContractCallKeepsItsSelector(contractType: TransactionFixtureContractType) throws {
-        let approveCalldata = "0x095ea7b3" + transferCalldata.dropFirst(10)
+        let otherCalldata = "0x12345678" + transferCalldata.dropFirst(10)
 
-        let record = try mapCoinContractCall(calldata: approveCalldata, contractType: contractType)
+        let record = try mapCoinContractCall(calldata: otherCalldata, contractType: contractType)
 
-        #expect(record.type == .contractMethodIdentifier(id: "0x095ea7b3"))
+        #expect(record.type == .contractMethodIdentifier(id: "0x12345678"))
+    }
+
+    @Test("An approve names its spender as a TRON address, whichever way the address slot is padded", arguments: [
+        "41",
+        "00",
+    ])
+    func approveNamesItsSpender(addressPrefix: String) throws {
+        let record = try mapCoinContractCall(
+            calldata: approveCalldata(addressPrefix: addressPrefix, amount: String(repeating: "f", count: 64)),
+            contractType: .chainExtraData
+        )
+
+        #expect(record.type == .approve(.init(spender: otherAddress, symbol: "USDT", allowance: .unlimited)))
+    }
+
+    @Test("An approve carries the allowance it granted, scaled by the approved token's decimals", arguments: [
+        (String(repeating: "0", count: 59) + "f4240", TransactionRecord.TransactionType.Approve.Allowance.limited(1)),
+        (String(repeating: "0", count: 64), .revoked),
+    ])
+    func approveCarriesItsAllowance(amount: String, allowance: TransactionRecord.TransactionType.Approve.Allowance) throws {
+        let record = try mapCoinContractCall(
+            calldata: approveCalldata(addressPrefix: "41", amount: amount),
+            contractType: .integer
+        )
+
+        #expect(record.type == .approve(.init(spender: otherAddress, symbol: "USDT", allowance: allowance)))
+        #expect(record.destination == .single(.init(address: .contract(usdtContract), amount: 0)))
     }
 
     @Test("A selector Blockbook parsed wins over the raw call data")
     func parsedSelectorWinsOverRawCallData() throws {
         let record = try mapCoinContractCall(
             calldata: transferCalldata,
+            parsedMethodId: "0x12345678",
+            contractType: .chainExtraData
+        )
+
+        #expect(record.type == .contractMethodIdentifier(id: "0x12345678"))
+    }
+
+    @Test("A selector Blockbook parsed wins over call data that looks like an approve")
+    func parsedSelectorWinsOverApproveCallData() throws {
+        let record = try mapCoinContractCall(
+            calldata: approveCalldata(addressPrefix: "41", amount: String(repeating: "f", count: 64)),
             parsedMethodId: "0x12345678",
             contractType: .chainExtraData
         )
@@ -473,6 +511,10 @@ struct TronTransactionHistoryMapperTests {
     private var transferCalldata: String {
         "0xa9059cbb" + String(repeating: "00", count: 11) + "41a346f2bd7d43a5d90b7c57a18196be96b2840e61"
             + String(repeating: "0", count: 59) + "f4240"
+    }
+
+    private func approveCalldata(addressPrefix: String, amount: String) -> String {
+        "0x095ea7b3" + String(repeating: "00", count: 11) + addressPrefix + "a346f2bd7d43a5d90b7c57a18196be96b2840e61" + amount
     }
 
     private func mapCoinContractCall(
