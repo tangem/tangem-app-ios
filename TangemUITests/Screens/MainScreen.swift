@@ -20,7 +20,6 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var addAndManageAddTokensRow = app.buttons[TokensManagementChooserAccessibilityIdentifiers.addTokensRow].firstMatch
     private lazy var detailsButton = button(.detailsButton)
     private lazy var actionButtonsList = otherElement(.actionButtonsList)
-    private lazy var headerCardImage = image(.headerCardImage)
     private lazy var totalBalance = staticText(.totalBalance)
     private lazy var totalBalanceShimmer = otherElement(.totalBalanceShimmer)
     /// Type-agnostic: redesign exposes this as `Button`, legacy as `Other`. Drop after redesign rollout.
@@ -908,15 +907,6 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
-    @discardableResult
-    func longPressWalletHeader() -> Self {
-        XCTContext.runActivity(named: "Long press wallet header") { _ in
-            waitAndAssertTrue(headerCardImage, "Header card image should exist")
-            headerCardImage.press(forDuration: 1.0)
-            return self
-        }
-    }
-
     func longPressToken(_ tokenName: String) -> ContextMenuScreen {
         XCTContext.runActivity(named: "Long press token: \(tokenName)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
@@ -1497,7 +1487,6 @@ enum MainScreenElement: String, UIElement {
     case organizeTokensButton
     case detailsButton
     case actionButtonsList
-    case headerCardImage
     case totalBalance
     case totalBalanceShimmer
     case missingDerivationNotification
@@ -1520,8 +1509,6 @@ enum MainScreenElement: String, UIElement {
             MainAccessibilityIdentifiers.detailsButton
         case .actionButtonsList:
             TokenAccessibilityIdentifiers.actionButtonsList
-        case .headerCardImage:
-            MainAccessibilityIdentifiers.headerCardImage
         case .totalBalance:
             MainAccessibilityIdentifiers.totalBalance
         case .totalBalanceShimmer:

@@ -11,7 +11,6 @@ import TangemCollectibles
 import Combine
 import TangemSdk
 import BlockchainSdk
-import TangemAssets
 import TangemNFT
 import TangemFoundation
 import TangemPay
@@ -142,12 +141,6 @@ class FakeUserWalletModel: UserWalletModel {
     }
 
     func addAssociatedCard(cardId: String) {}
-}
-
-extension FakeUserWalletModel: MainHeaderSupplementInfoProvider {
-    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
-        .just(output: config.cardHeaderImage)
-    }
 }
 
 extension FakeUserWalletModel: AnalyticsContextDataProvider {
