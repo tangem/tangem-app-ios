@@ -220,7 +220,7 @@ private extension TransferConfirmationViewModel {
 
         return TransferConfirmationContentView.State(
             balanceText: token?.balanceText ?? "",
-            amountText: orderBuilder.amount.map(TangemPayOfframpAmountFormatter.format) ?? "",
+            amountText: orderBuilder.amount.map { TangemPayOfframpAmountFormatter.format($0) } ?? "",
             token: token,
             rail: rail,
             isRailSelectable: !orderBuilder.isRailLocked,
