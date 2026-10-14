@@ -115,7 +115,10 @@ private extension TransferInputContentView {
             SwiftUI.Button {
                 action(.tokenTap)
             } label: {
-                Row(title: token.symbol, subtitle: token.subtitle)
+                Row(title: token.symbol)
+                    .subtitleAccessory {
+                        TransferInputTokenSubtitleView(item: token)
+                    }
                     .start {
                         TokenIconV2(tokenIconInfo: token.tokenIconInfo, size: .size40)
                     }
