@@ -294,7 +294,8 @@ struct StakeKitMapper {
         case .staked:
             return .active
         case .unstaking, .unlocking:
-            return .unbonding(date: balance.date)
+            let startOfToday = Calendar.current.startOfDay(for: Date())
+            return .unbonding(date: balance.date.flatMap { $0 < startOfToday ? nil : $0 })
         case .unstaked:
             return .unstaked
         case .rewards:
