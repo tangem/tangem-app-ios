@@ -119,11 +119,14 @@ struct TransactionDispatcherResultMapper {
         signer: TangemSignerType?,
         isToken: Bool
     ) -> TransactionDispatcherResult {
-        let factory = ExternalLinkProviderFactory()
-        let provider = factory.makeProvider(for: blockchain)
-        let explorerUrl = isToken
-            ? provider.tokenUrl(transaction: hash)
-            : provider.url(transaction: hash)
+        let explorerUrl: URL? = {
+            if blockchain.isTransactionAsync {
+                return nil
+            }
+
+            let provider = ExternalLinkProviderFactory().makeProvider(for: blockchain)
+            return isToken ? provider.tokenUrl(transaction: hash) : provider.url(transaction: hash)
+        }()
 
         let signerType = signer?.analyticsParameterValue ?? Analytics.ParameterValue.unknown
         let currentHost = HostAnalyticsFormatterUtil().formattedHost(from: currentProviderHost)

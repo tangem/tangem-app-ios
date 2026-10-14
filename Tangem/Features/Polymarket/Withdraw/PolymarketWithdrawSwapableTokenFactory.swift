@@ -49,6 +49,8 @@ struct PolymarketWithdrawSwapableTokenFactory: SendSwapableTokenFactory {
             scaledUIAmountMultiplierResolver: nil,
             emailDataCollectorBuilder: PolymarketAccountEmailDataCollectorBuilder(),
             transactionDispatcherProvider: transactionDispatcherProvider,
+            transactionSummaryDescriptionBuilderProvider: DefaultTransactionSummaryDescriptionBuilderProvider(tokenItem: tokenItem),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             accountModelAnalyticsProvider: nil,
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config),
             confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),

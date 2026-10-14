@@ -29,6 +29,8 @@ protocol SendSourceToken: SendReceiveToken {
 
     // Common providers
     var transactionDispatcherProvider: any TransactionDispatcherProvider { get }
+    var transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider { get }
+    var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { get }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
     var tangemIconProvider: any TangemIconProvider { get }
     var confirmTransactionPolicy: any ConfirmTransactionPolicy { get }

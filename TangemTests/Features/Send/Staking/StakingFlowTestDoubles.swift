@@ -232,6 +232,12 @@ final class SendStakingableTokenStub: SendStakingableToken {
     var emailDataCollectorBuilder: EmailDataCollectorBuilder { EmailDataCollectorBuilderStub() }
     var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? { get async { nil } }
     var transactionDispatcherProvider: any TransactionDispatcherProvider { transactionDispatcherProviderStub }
+    var transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider {
+        DefaultTransactionSummaryDescriptionBuilderProvider(tokenItem: tokenItem)
+    }
+
+    var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { BlockchainSDKNotificationMapper(tokenItem: tokenItem) }
+
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { nil }
     var tangemIconProvider: any TangemIconProvider { StakingTangemIconProviderStub() }
     var confirmTransactionPolicy: any ConfirmTransactionPolicy { StakingConfirmTransactionPolicyStub() }

@@ -56,6 +56,12 @@ class SendSourceTokenStub: SendSourceToken {
     var emailDataCollectorBuilder: EmailDataCollectorBuilder { EmailDataCollectorBuilderStub() }
     var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? { get async { nil } }
     var transactionDispatcherProvider: any TransactionDispatcherProvider { TransactionDispatcherProviderStub() }
+    var transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider {
+        DefaultTransactionSummaryDescriptionBuilderProvider(tokenItem: tokenItem)
+    }
+
+    var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { BlockchainSDKNotificationMapper(tokenItem: tokenItem) }
+
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { nil }
     var tangemIconProvider: any TangemIconProvider { TangemIconProviderStub() }
     var confirmTransactionPolicy: any ConfirmTransactionPolicy { ConfirmTransactionPolicyStub() }

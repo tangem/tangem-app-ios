@@ -102,11 +102,10 @@ private extension SwapModelDexSwapValidationTests {
         transactionValidator: SendTransactionValidator = BuilderSpyTransactionValidator()
     ) -> SwapModel {
         SwapModel(
-            sourceToken: SwapableTokenStub(
-                blockchain: .bitcoin(testnet: false),
-                transactionValidator: transactionValidator
+            parameters: .from(
+                SwapableTokenStub(blockchain: .bitcoin(testnet: false), transactionValidator: transactionValidator),
+                pair: .fixed(receive: receiveToken ?? makeReceiveToken())
             ),
-            receiveToken: receiveToken ?? makeReceiveToken(),
             expressManager: ExpressManagerDummy(),
             swapRepository: SwapRepositoryStub(),
             expressPendingTransactionRepository: ExpressPendingTransactionRepositoryStub(),

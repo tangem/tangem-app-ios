@@ -68,6 +68,8 @@ struct CommonSendSourceTokenFactory {
             scaledUIAmountMultiplierResolver: scaledUIAmountMultiplierResolver,
             emailDataCollectorBuilder: emailDataCollectorBuilder,
             transactionDispatcherProvider: transactionDispatcherProvider,
+            transactionSummaryDescriptionBuilderProvider: WalletModelTransactionSummaryDescriptionBuilderProvider(walletModel: walletModel),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: walletModel.tokenItem),
             accountModelAnalyticsProvider: walletModel.account,
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config),
             confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),

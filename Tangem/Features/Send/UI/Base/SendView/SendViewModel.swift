@@ -52,7 +52,7 @@ final class SendViewModel: ObservableObject {
     private let approveViewModelInputDataBuilder: SendApproveViewModelInputDataBuilder
     private let feeCurrencyProviderDataBuilder: SendFeeCurrencyProviderDataBuilder
     private let analyticsLogger: SendBaseViewAnalyticsLogger
-    private let blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper
+    private weak var sourceTokenInput: SendSourceTokenInput?
     private weak var coordinator: SendRoutable?
 
     private var bag: Set<AnyCancellable> = []
@@ -72,7 +72,7 @@ final class SendViewModel: ObservableObject {
         approveViewModelInputDataBuilder: SendApproveViewModelInputDataBuilder,
         feeCurrencyProviderDataBuilder: SendFeeCurrencyProviderDataBuilder,
         analyticsLogger: SendBaseViewAnalyticsLogger,
-        blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper,
+        sourceTokenInput: (any SendSourceTokenInput)?,
         coordinator: SendRoutable
     ) {
         self.interactor = interactor
@@ -83,7 +83,7 @@ final class SendViewModel: ObservableObject {
         self.approveViewModelInputDataBuilder = approveViewModelInputDataBuilder
         self.feeCurrencyProviderDataBuilder = feeCurrencyProviderDataBuilder
         self.analyticsLogger = analyticsLogger
-        self.blockchainSDKNotificationMapper = blockchainSDKNotificationMapper
+        self.sourceTokenInput = sourceTokenInput
         self.coordinator = coordinator
 
         step = stepsManager.initialStep
@@ -199,9 +199,9 @@ private extension SendViewModel {
             } catch _ as CancellationError {
                 // Do nothing
             } catch let error as ValidationError {
-                let mapper = viewModel.blockchainSDKNotificationMapper
-                let validationErrorEvent = mapper.mapToValidationErrorEvent(error)
-                let message = validationErrorEvent.description ?? error.localizedDescription
+                let mapper = viewModel.sourceTokenInput?.sourceToken.value?.blockchainSDKNotificationMapper
+                let validationErrorEvent = mapper?.mapToValidationErrorEvent(error)
+                let message = validationErrorEvent?.description ?? error.localizedDescription
                 let alertBinder = AlertBinder(title: Localization.commonError, message: message)
                 AppLogger.error(error: error)
                 await runOnMain { viewModel.alertPresenter.present(alert: alertBinder) }

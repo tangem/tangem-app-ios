@@ -166,8 +166,7 @@ private extension SendWithSwapStaleDestinationTests {
 
         private func makeSwapModel(sourceToken: SendSwapableToken) -> SwapModel {
             SwapModel(
-                sourceToken: sourceToken,
-                receiveToken: nil,
+                parameters: .from(sourceToken),
                 expressManager: expressManager,
                 swapRepository: SwapRepositoryStub(),
                 expressPendingTransactionRepository: ExpressPendingTransactionRepositoryStub(),
