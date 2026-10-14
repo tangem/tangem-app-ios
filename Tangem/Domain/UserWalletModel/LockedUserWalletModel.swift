@@ -127,6 +127,10 @@ final class LockedUserWalletModel: UserWalletModel {
         UnavailableCollectiblesColdKeyInteractor()
     }
 
+    var polymarketOwnerKeySession: PolymarketOwnerKeySession {
+        UnavailablePolymarketOwnerKeySession()
+    }
+
     var name: String { userWallet.name }
     let backupInput: OnboardingInput? = nil
     var userWallet: StoredUserWallet

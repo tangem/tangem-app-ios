@@ -378,6 +378,21 @@ extension CommonUserWalletModel: CollectiblesColdKeyInteractorProvider {
     }
 }
 
+extension CommonUserWalletModel: PolymarketOwnerKeySessionProvider {
+    var polymarketOwnerKeySession: PolymarketOwnerKeySession {
+        switch walletInfo {
+        case .cardWallet:
+            return CardPolymarketOwnerKeySession(config: config, keysRepository: keysRepository)
+        case .mobileWallet:
+            return MobilePolymarketOwnerKeySession(
+                userWalletId: userWalletId,
+                config: config,
+                keysRepository: keysRepository
+            )
+        }
+    }
+}
+
 // MARK: - TotalBalanceProvider
 
 extension CommonUserWalletModel: TotalBalanceProvider {

@@ -292,6 +292,112 @@ struct PolymarketOnboardingInteractorTests {
         #expect(progress.last?.isReady == true)
     }
 
+    @Test("A first activation derives, reads the backend and signs behind a single prompt")
+    func firstActivationAsksOnce() async throws {
+        let storedKeySigner = PolymarketOnboardingSignerSpy()
+        let session = PolymarketOwnerKeySessionSpy()
+        let service = try makeWalletService(statuses: [.notCreated, .deployed, .readyToTrade])
+        let sut = try makeSUT(walletService: service, signer: storedKeySigner, ownerKeySession: session, isKeyStored: false)
+
+        let progress = await sut.collectProgress()
+        let awaitingSignatureIndex = try #require(progress.firstIndex { $0.isAwaitingSignature })
+        let firstWorkingIndex = try #require(progress.firstIndex { $0.isWorking })
+
+        #expect(progress.first?.isDeriving == true)
+        #expect(awaitingSignatureIndex < firstWorkingIndex)
+        #expect(progress.last?.isReady == true)
+        #expect(session.prompts == 1)
+        #expect(session.signer.signCalls == 1)
+        #expect(storedKeySigner.signCalls == 0)
+        #expect(service.submittedBatches.count == 1)
+    }
+
+    @Test("A first activation that owes nothing ends the prompt without a signature")
+    func firstActivationWithNothingToSignAsksOnce() async throws {
+        let storedKeySigner = PolymarketOnboardingSignerSpy()
+        let session = PolymarketOwnerKeySessionSpy()
+        let sut = try makeSUT(
+            walletService: makeWalletService(statuses: [.readyToTrade]),
+            credentials: PolymarketCredentialsRepositoryStub.credentials,
+            signer: storedKeySigner,
+            ownerKeySession: session,
+            isKeyStored: false
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.isReady == true)
+        #expect(session.prompts == 1)
+        #expect(session.signer.signCalls == 0)
+        #expect(storedKeySigner.signCalls == 0)
+    }
+
+    @Test("An unrecognised status on a first activation fails inside the single prompt instead of asking again")
+    func firstActivationWithUnrecognisedStatusFails() async throws {
+        let storedKeySigner = PolymarketOnboardingSignerSpy()
+        let session = PolymarketOwnerKeySessionSpy()
+        let service = try makeWalletService(statuses: [.unknown])
+        let sut = try makeSUT(walletService: service, signer: storedKeySigner, ownerKeySession: session, isKeyStored: false)
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.failure?.isWallet == true)
+        #expect(progress.last?.failure?.isRetryable == true)
+        #expect(session.prompts == 1)
+        #expect(session.signer.signCalls == 0)
+        #expect(storedKeySigner.signCalls == 0)
+        #expect(service.requestedOwnerAddresses.count == 1)
+    }
+
+    @Test("A blocked region on a first activation stops the run inside the single prompt")
+    func firstActivationInABlockedRegionAsksOnce() async throws {
+        let session = PolymarketOwnerKeySessionSpy()
+        let sut = try makeSUT(
+            walletService: makeWalletService(statuses: [.notCreated]),
+            geoblockService: PolymarketGeoblockServiceStub(isBlocked: true),
+            ownerKeySession: session,
+            isKeyStored: false
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.failure?.isRegionBlocked == true)
+        #expect(session.prompts == 1)
+        #expect(session.signer.signCalls == 0)
+    }
+
+    @Test("Dismissing the first-activation prompt ends the run quietly")
+    func dismissedFirstActivationPromptIsNotAFailure() async throws {
+        let session = PolymarketOwnerKeySessionSpy(error: .derivation(.cancelled))
+        let sut = try makeSUT(
+            walletService: makeWalletService(statuses: [.notCreated]),
+            ownerKeySession: session,
+            isKeyStored: false
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.allSatisfy { $0.failure == nil })
+        #expect(session.prompts == 1)
+    }
+
+    @Test("A stored owner key never opens the first-activation session")
+    func storedKeySkipsTheOwnerKeySession() async throws {
+        let signer = PolymarketOnboardingSignerSpy()
+        let session = PolymarketOwnerKeySessionSpy()
+        let sut = try makeSUT(
+            walletService: makeWalletService(statuses: [.notCreated, .deployed, .readyToTrade]),
+            signer: signer,
+            ownerKeySession: session
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.isReady == true)
+        #expect(session.prompts == 0)
+        #expect(signer.signCalls == 1)
+    }
+
     @Test("A run the user walked away from ends quietly instead of reporting a failure")
     func cancellationIsNeverReportedAsFailure() async throws {
         let service = PolymarketDepositWalletServiceStub(stateResults: [.failure(.cancelled)])
@@ -337,11 +443,17 @@ private extension PolymarketOnboardingInteractorTests {
         signer: PolymarketOnboardingSigning = PolymarketOnboardingSignerSpy(),
         geoblockService: PolymarketGeoblockService = PolymarketGeoblockServiceStub(),
         clobService: PolymarketCLOBService = PolymarketCLOBServiceStub(),
-        serverClock: PolymarketServerClock = PolymarketServerClock()
+        serverClock: PolymarketServerClock = PolymarketServerClock(),
+        ownerKeySession: PolymarketOwnerKeySession = PolymarketOwnerKeySessionSpy(),
+        isKeyStored: Bool = true
     ) throws -> CommonPolymarketOnboardingInteractor {
         CommonPolymarketOnboardingInteractor(
             userWalletId: Self.userWalletId,
-            ownerAddressProvider: PolymarketOwnerAddressProviderStub(derived: PolymarketOwnerAddressProviderStub.ownerAddress),
+            ownerAddressProvider: PolymarketOwnerAddressProviderStub(
+                derived: PolymarketOwnerAddressProviderStub.ownerAddress,
+                isStored: isKeyStored
+            ),
+            ownerKeySession: ownerKeySession,
             signer: signer,
             credentialsRepository: credentialsRepository ?? PolymarketCredentialsRepositoryStub(stored: credentials),
             geoblockService: geoblockService,

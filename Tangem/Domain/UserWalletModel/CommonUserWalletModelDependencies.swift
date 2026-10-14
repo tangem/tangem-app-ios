@@ -53,9 +53,7 @@ struct CommonUserWalletModelDependencies {
         let polymarketAccountProvider = PolymarketAccountProvider(
             builder: PolymarketAccountBuilder(
                 userWalletId: userWalletId,
-                keysRepository: keysRepository,
-                keysDerivingInteractorFactory: keysDerivingInteractorFactory,
-                areHDWalletsSupported: areHDWalletsSupported
+                keysRepository: keysRepository
             )
         )
 
