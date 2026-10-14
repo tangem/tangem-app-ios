@@ -11,16 +11,19 @@ struct SwapSlippageSelectorBuilder {
     let slippageOutput: any SwapSlippageOutput
 
     func makeSlippageSelector() -> SwapSlippageSelectorViewModel? {
-        guard let provider = slippageInput.slippageProvider else {
+        guard
+            let provider = slippageInput.slippageProvider,
+            let viewModel = SwapSlippageSelectorViewModel(
+                provider: provider,
+                slippage: slippageInput.slippage,
+                output: slippageOutput
+            )
+        else {
             return nil
         }
 
         slippageOutput.userDidOpenSlippageSelector()
 
-        return SwapSlippageSelectorViewModel(
-            provider: provider,
-            slippage: slippageInput.slippage,
-            output: slippageOutput
-        )
+        return viewModel
     }
 }
