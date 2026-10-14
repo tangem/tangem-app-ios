@@ -274,10 +274,21 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func skipPushNotificationsSetup() -> Self {
         XCTContext.runActivity(named: "Tap 'Later' on Push Notifications sheet") { _ in
-            let laterButton = app.buttons[PushPermissionAccessibilityIdentifiers.laterButton]
-            if laterButton.waitForExistence(timeout: .conditional) {
-                laterButton.tap()
+            let laterButton = app.buttons[PushPermissionAccessibilityIdentifiers.laterButton].firstMatch
+            guard laterButton.waitForExistence(timeout: .conditional) else {
+                return self
             }
+
+            for _ in 0 ..< Constants.pushLaterTapAttempts {
+                let hittable = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == true AND isHittable == true"), object: laterButton)
+                if XCTWaiter().wait(for: [hittable], timeout: .quick) == .completed, laterButton.exists {
+                    laterButton.tap()
+                }
+                if laterButton.waitForNonExistence(timeout: .quick) {
+                    return self
+                }
+            }
+            XCTFail("Push notifications sheet should be dismissed after tapping 'Later'")
             return self
         }
     }
@@ -1551,5 +1562,6 @@ extension MainScreen {
 private extension MainScreen {
     enum Constants {
         static let shtorkaSearchBarInset: CGFloat = 16
+        static let pushLaterTapAttempts = 3
     }
 }
