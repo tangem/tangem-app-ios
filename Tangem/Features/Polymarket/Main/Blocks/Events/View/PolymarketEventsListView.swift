@@ -61,6 +61,8 @@ private extension PolymarketEventsListView {
                 .contentShape(.rect)
                 .onTapGesture { viewModel.handleViewAction(.openEventDetails(id: model.id)) }
                 .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
+                .onAppear { viewModel.handleViewAction(.onEventVisibilityChange(id: model.id, isVisible: true)) }
+                .onDisappear { viewModel.handleViewAction(.onEventVisibilityChange(id: model.id, isVisible: false)) }
         }
     }
 

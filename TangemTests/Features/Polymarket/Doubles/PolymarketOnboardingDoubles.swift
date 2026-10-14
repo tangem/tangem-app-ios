@@ -497,6 +497,7 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
 
     static let slowEventsDelay: UInt64 = 200_000_000
     var eventPages: [EventsPageKey: PolymarketEventsPage] = [:]
+    var eventErrors: [EventsPageKey: Error] = [:]
     private(set) var eventsRequests: [PolymarketEventsRequest] = []
 
     private var searchResults: [Result<PolymarketSearchResult, Error>]
@@ -535,8 +536,13 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
             try await Task.sleep(nanoseconds: Self.slowEventsDelay)
         }
 
-        return eventPages[EventsPageKey(category: request.category, cursor: request.cursor)]
-            ?? PolymarketEventsPage(events: [], cursor: nil, hasNext: false)
+        let key = EventsPageKey(category: request.category, cursor: request.cursor)
+
+        if let error = eventErrors[key] {
+            throw error
+        }
+
+        return eventPages[key] ?? PolymarketEventsPage(events: [], cursor: nil, hasNext: false)
     }
 
     struct EventsPageKey: Hashable {
