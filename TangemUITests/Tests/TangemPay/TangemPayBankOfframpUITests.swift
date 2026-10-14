@@ -8,7 +8,7 @@
 
 import XCTest
 
-final class TangemPayBankOfframpUITests: BaseTestCase {
+final class TangemPayBankOfframpUITests: TangemPayBankOfframpUITestCase {
     func testWithdrawOpensHub_OnlyWhenChannelsIncludeBankOfframp() {
         setAllureId(12172)
 
@@ -17,8 +17,8 @@ final class TangemPayBankOfframpUITests: BaseTestCase {
             .close()
             .tapBack()
 
-        wireMockClient.setScenarioStateSync(Constants.Scenario.eligibilityChannels, state: Constants.State.withoutBankOfframp)
-        let channelsRequestsBefore = requestCount(Constants.Endpoint.eligibilityChannels)
+        switchEligibilityChannels(to: .withoutBankOfframp)
+        let channelsRequestsBefore = requestCount(.eligibilityChannels)
 
         MainScreen(app)
             .openTangemPay()
@@ -27,7 +27,7 @@ final class TangemPayBankOfframpUITests: BaseTestCase {
             .validateSwapScreenDisplayed()
 
         verifyRequestedAgain(
-            Constants.Endpoint.eligibilityChannels,
+            .eligibilityChannels,
             since: channelsRequestsBefore,
             "Eligibility channels should be requested again after reopening the payment account"
         )
@@ -45,15 +45,15 @@ final class TangemPayBankOfframpUITests: BaseTestCase {
     func testWithdrawHub_BankAccountsError_TapReloadsList() {
         setAllureId(12174)
 
-        let hub = openPaymentAccount(bankAccountsState: Constants.State.error)
+        let hub = openPaymentAccount(bankAccounts: .error)
             .tapWithdrawOpeningHub()
             .verifyRecentAccountsLoadError()
 
-        let bankAccountsRequestsBefore = requestCount(Constants.Endpoint.bankAccounts)
+        let bankAccountsRequestsBefore = requestCount(.bankAccounts)
         hub.tapRecentAccountsRetry()
 
         verifyRequestedAgain(
-            Constants.Endpoint.bankAccounts,
+            .bankAccounts,
             since: bankAccountsRequestsBefore,
             "Tapping the error tile should request the bank accounts again"
         )
@@ -63,12 +63,12 @@ final class TangemPayBankOfframpUITests: BaseTestCase {
     func testBankTransferBlock_UnavailableWhenOptionsFailOrEmpty() {
         setAllureId(12175)
 
-        openPaymentAccount(offrampOptionsState: Constants.State.error)
+        openPaymentAccount(offrampOptions: .error)
             .tapWithdrawOpeningHub()
             .verifyBankTransferUnavailable()
             .close()
 
-        wireMockClient.setScenarioStateSync(Constants.Scenario.offrampOptions, state: Constants.State.empty)
+        switchOfframpOptions(to: .empty)
 
         verifyOfframpOptionsRequested {
             TangemPayMainScreen(app).tapWithdrawOpeningHub()
@@ -81,7 +81,7 @@ final class TangemPayBankOfframpUITests: BaseTestCase {
     func testWithdrawHub_ShowsRecentBankRecipients() {
         setAllureId(12177)
 
-        openPaymentAccount(bankAccountsState: Constants.State.twoAccounts)
+        openPaymentAccount(bankAccounts: .twoAccounts)
             .tapWithdrawOpeningHub()
             .verifyRecentRecipientCount(2)
             .verifyRecentRecipient(.john)
@@ -89,7 +89,7 @@ final class TangemPayBankOfframpUITests: BaseTestCase {
             .verifySeeAllNotDisplayed()
             .close()
 
-        wireMockClient.setScenarioStateSync(Constants.Scenario.bankAccounts, state: Constants.State.fiveAccounts)
+        switchBankAccounts(to: .fiveAccounts)
 
         TangemPayMainScreen(app)
             .tapWithdrawOpeningHub()
@@ -106,7 +106,7 @@ final class TangemPayBankOfframpUITests: BaseTestCase {
     func testRecipient_AddedToRecents_AfterSuccessfulBankTransfer() {
         setAllureId(12178)
 
-        let signaturesBefore = signatureRequestCount()
+        let signaturesBefore = requestCount(.orderSignature, method: "POST")
 
         openPaymentAccount(extraScenarios: Constants.swapScenarios)
             .tapWithdrawOpeningHub()
@@ -116,21 +116,21 @@ final class TangemPayBankOfframpUITests: BaseTestCase {
             .tapContinueToTransferType()
             .selectTransferType(.thirdPartyAccount)
             .selectAccountType(.checking)
-            .fillRecipientDetails(Constants.janeDetails)
-            .fillBankDetails(Constants.chaseBankDetails)
+            .fillRecipientDetails(.jane)
+            .fillBankDetails(.chase)
             .tapSend()
             .waitForScreen(amount: Constants.sentAmount)
             .tapClose()
 
         XCTContext.runActivity(named: "Verify the bank transfer signature was submitted once") { _ in
             XCTAssertEqual(
-                signatureRequestCount() - signaturesBefore,
+                requestCount(.orderSignature, method: "POST") - signaturesBefore,
                 1,
                 "The signed bank transfer should be submitted exactly once"
             )
         }
 
-        wireMockClient.setScenarioStateSync(Constants.Scenario.bankAccounts, state: Constants.State.afterTransfer)
+        switchBankAccounts(to: .afterTransfer)
 
         TangemPayMainScreen(app)
             .tapWithdrawOpeningHub()
@@ -140,15 +140,15 @@ final class TangemPayBankOfframpUITests: BaseTestCase {
     func testToken_AddedToRecents_AfterSuccessfulSwap() {
         setAllureId(12670)
 
-        let withdrawDataBefore = withdrawDataRequestCount()
+        let withdrawDataBefore = requestCount(.withdrawData, method: "POST")
 
-        openPaymentAccount(bankAccountsState: Constants.State.afterTransfer, extraScenarios: Constants.swapScenarios)
+        openPaymentAccount(bankAccounts: .afterTransfer, extraScenarios: Constants.swapScenarios)
             .tapWithdrawOpeningHub()
             .tapWithinPortfolio()
             .chooseTokenFromEmptySelector(Constants.bitcoinName)
             .enterFromAmount(Constants.transferAmount)
             .confirmSwapUntilFinishOpened {
-                withdrawDataRequestCount() == withdrawDataBefore
+                requestCount(.withdrawData, method: "POST") == withdrawDataBefore
             }
             .tapCloseButton()
 
@@ -161,7 +161,7 @@ final class TangemPayBankOfframpUITests: BaseTestCase {
     func testBankRecipients_SearchByNameAndAccountNumber() {
         setAllureId(12180)
 
-        openPaymentAccount(bankAccountsState: Constants.State.fiveAccounts)
+        openPaymentAccount(bankAccounts: .fiveAccounts)
             .tapWithdrawOpeningHub()
             .tapSeeAll()
             .verifyOnlyRecipients(TangemPayBankRecipient.fiveSavedAccounts)
@@ -176,7 +176,7 @@ final class TangemPayBankOfframpUITests: BaseTestCase {
     func testBankRecipientFromFullList_OpensAmountPrefilled() {
         setAllureId(12181)
 
-        openPaymentAccount(bankAccountsState: Constants.State.fiveAccounts)
+        openPaymentAccount(bankAccounts: .fiveAccounts)
             .tapWithdrawOpeningHub()
             .tapSeeAll()
             .tapRecipient(.alice)
@@ -189,7 +189,7 @@ final class TangemPayBankOfframpUITests: BaseTestCase {
     func testBankTransferSourceTokens_ShowOnlyPositiveBalances() {
         setAllureId(12182)
 
-        let paymentAccount = openPaymentAccount(balanceState: Constants.State.multiNetworkStatuses)
+        let paymentAccount = openPaymentAccount(balance: .multiNetworkStatuses)
         verifyOfframpOptionsRequested {
             paymentAccount.tapWithdrawOpeningHub()
         }
@@ -204,7 +204,7 @@ final class TangemPayBankOfframpUITests: BaseTestCase {
             .close()
             .close()
 
-        wireMockClient.setScenarioStateSync(Constants.Scenario.balance, state: Constants.State.arbitrumTopUp)
+        switchBalance(to: .arbitrumTopUp)
         pullToRefresh()
         paymentAccount.verifyBalanceContains(Constants.toppedUpBalance)
 
@@ -222,54 +222,14 @@ final class TangemPayBankOfframpUITests: BaseTestCase {
             .verifyTokenCount(3)
     }
 
-    private func openPaymentAccount(
-        balanceState: String = Constants.State.initialBalance,
-        bankAccountsState: String = Constants.State.started,
-        offrampOptionsState: String = Constants.State.started,
-        extraScenarios: [ScenarioConfig] = []
-    ) -> TangemPayMainScreen {
-        launchAndImportHotWalletWithRealPayAuthorization(expressApiType: .mock, scenarios: [
-            ScenarioConfig(name: Constants.Scenario.eligibilityChannels, initialState: Constants.State.bankOfframp),
-            ScenarioConfig(name: Constants.Scenario.balance, initialState: balanceState),
-            ScenarioConfig(name: Constants.Scenario.history, initialState: Constants.State.emptyHistory),
-            ScenarioConfig(name: Constants.Scenario.bankAccounts, initialState: bankAccountsState),
-            ScenarioConfig(name: Constants.Scenario.offrampOptions, initialState: offrampOptionsState),
-        ] + extraScenarios)
-            .openTangemPay()
-            .waitForScreen()
-            .waitForBalanceLoaded()
-    }
-
     private func verifyOfframpOptionsRequested(by action: () -> Void) {
-        let optionsRequestsBefore = requestCount(Constants.Endpoint.offrampOptions)
+        let optionsRequestsBefore = requestCount(.offrampOptions)
         action()
         verifyRequestedAgain(
-            Constants.Endpoint.offrampOptions,
+            .offrampOptions,
             since: optionsRequestsBefore,
             "Opening the Withdraw hub should request the bank off-ramp options"
         )
-    }
-
-    private func verifyRequestedAgain(_ urlPathPattern: String, since previousCount: Int, _ message: String) {
-        XCTContext.runActivity(named: "Verify \(urlPathPattern) was requested again") { _ in
-            let requestedAgain = NSPredicate { _, _ in
-                self.requestCount(urlPathPattern) > previousCount
-            }
-            let expectation = XCTNSPredicateExpectation(predicate: requestedAgain, object: nil)
-            XCTAssertEqual(XCTWaiter().wait(for: [expectation], timeout: .conditional), .completed, message)
-        }
-    }
-
-    private func withdrawDataRequestCount() -> Int {
-        wireMockClient.requestCountSync(method: "POST", urlPathPattern: Constants.Endpoint.withdrawData)
-    }
-
-    private func signatureRequestCount() -> Int {
-        wireMockClient.requestCountSync(method: "POST", urlPathPattern: Constants.Endpoint.offrampSignature)
-    }
-
-    private func requestCount(_ urlPathPattern: String) -> Int {
-        wireMockClient.requestCountSync(method: "GET", urlPathPattern: urlPathPattern)
     }
 }
 
@@ -290,58 +250,7 @@ private extension TangemPayBankOfframpUITests {
             ScenarioConfig(name: "exchange_status_provider", initialState: "Changelly"),
         ]
 
-        static let janeDetails = TangemPayBankTransferWizardScreen.RecipientDetails(
-            accountNumber: TangemPayBankRecipient.jane.accountNumber,
-            routingNumber: "021000021",
-            firstName: "Jane",
-            lastName: "Roe",
-            country: "United States",
-            region: "California",
-            city: "Los Angeles",
-            addressLine1: "1 Main Street",
-            postalCode: "90001"
-        )
-
-        static let chaseBankDetails = TangemPayBankTransferWizardScreen.BankDetails(
-            name: "Chase Bank",
-            region: "New York",
-            city: "New York",
-            addressLine1: "270 Park Avenue",
-            postalCode: "10017"
-        )
-
         static let aliceSavedDetails = [TangemPayBankRecipient.alice.accountNumber, "021000021", "Alice", "Smith", "Chase Bank"]
-
-        enum Scenario {
-            static let eligibilityChannels = "tangem_pay_eligibility_channels"
-            static let balance = "tangem_pay_balance_update"
-            static let history = "tangem_pay_transaction_history"
-            static let bankAccounts = "tangem_pay_bank_accounts"
-            static let offrampOptions = "tangem_pay_bank_offramp_options"
-        }
-
-        enum State {
-            static let started = "Started"
-            static let bankOfframp = "BankOfframp"
-            static let withoutBankOfframp = "BannerAndDetails"
-            static let initialBalance = "InitialBalanceMultinetwork"
-            static let multiNetworkStatuses = "MultiNetworkStatuses"
-            static let arbitrumTopUp = "MultiNetworkArbitrumTopUp"
-            static let emptyHistory = "InitialEmpty"
-            static let twoAccounts = "TwoAccounts"
-            static let fiveAccounts = "FiveAccounts"
-            static let afterTransfer = "AfterTransfer"
-            static let error = "Error"
-            static let empty = "Empty"
-        }
-
-        enum Endpoint {
-            static let eligibilityChannels = "/bff-v2/v1/eligibility/channels"
-            static let bankAccounts = "/bff-v2/v1/account/bank-accounts"
-            static let offrampOptions = "/bff-v2/v1/account/bank-offramp/options"
-            static let offrampSignature = "/bff-v2/v1/order/.*/bank-offramp/signature"
-            static let withdrawData = "/bff-v2/v1/customer/card/withdraw/data"
-        }
 
         enum Search {
             static let namePrefix = "Ali"

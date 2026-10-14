@@ -29,6 +29,7 @@ struct TangemPayFormFieldView: View {
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusError)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.formFieldError(String(describing: field.id)))
             }
         }
     }

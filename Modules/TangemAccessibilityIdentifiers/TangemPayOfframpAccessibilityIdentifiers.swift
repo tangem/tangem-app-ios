@@ -28,6 +28,11 @@ public enum TangemPayOfframpAccessibilityIdentifiers {
     public static let amountField = "\(prefix)Amount_textField_amount"
     public static let amountTokenRow = "\(prefix)Amount_button_token"
     public static let amountContinueButton = "\(prefix)Amount_button_continue"
+    public static let amountErrorText = "\(prefix)Amount_text_error"
+    public static let amountMaxButton = "\(prefix)Amount_button_max"
+    public static let amountRailRow = "\(prefix)Amount_view_rail"
+
+    public static let railSheetOption = "\(prefix)RailSheet_button_option"
 
     public static let tokenSheetRow = "\(prefix)TokenSheet_button_token"
 
@@ -41,5 +46,7 @@ public enum TangemPayOfframpAccessibilityIdentifiers {
     public static let formKeyboardDismissButton = "\(prefix)Form_button_keyboardDismiss"
 
     public static let confirmSection = "\(prefix)Confirm_view_section"
+    public static let confirmAmountCard = "\(prefix)Confirm_button_amountCard"
+    public static let confirmRailRow = "\(prefix)Confirm_view_rail"
     public static let confirmSendButton = "\(prefix)Confirm_button_send"
 }
