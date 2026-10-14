@@ -47,6 +47,8 @@ struct CommonSendSwapableToken: SendSwapableToken {
     var emailDataCollectorBuilder: any EmailDataCollectorBuilder { sourceToken.emailDataCollectorBuilder }
 
     var transactionDispatcherProvider: any TransactionDispatcherProvider { sourceToken.transactionDispatcherProvider }
+    var transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider { sourceToken.transactionSummaryDescriptionBuilderProvider }
+    var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { sourceToken.blockchainSDKNotificationMapper }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { sourceToken.accountModelAnalyticsProvider }
     var tangemIconProvider: any TangemIconProvider { sourceToken.tangemIconProvider }
     var confirmTransactionPolicy: any ConfirmTransactionPolicy { sourceToken.confirmTransactionPolicy }
