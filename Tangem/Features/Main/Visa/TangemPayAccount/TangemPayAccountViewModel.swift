@@ -278,17 +278,6 @@ extension TangemPayAccountViewModel {
             }
         }
 
-        var showsCachedIndicator: Bool {
-            switch self {
-            case .unavailable(let cached), .syncNeeded(let cached):
-                return cached != nil
-            case .skeleton, .normal, .kycInProgress, .actionRequired, .kycDeclined,
-                 .issuingYourCard, .failedToIssueCard, .rootedDevice,
-                 .replacingCard, .cardDeactivated, .planSelectNeeded:
-                return false
-            }
-        }
-
         var isSubtitleHighlighted: Bool {
             if case .actionRequired = self {
                 return true

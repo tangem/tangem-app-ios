@@ -40,22 +40,6 @@ final class VisaUserWalletModel {
         stateSubject.value
     }
 
-    var balancesPublisher: AnyPublisher<AppVisaBalances?, Never> {
-        balancesSubject.eraseToAnyPublisher()
-    }
-
-    var limitsPublisher: AnyPublisher<AppVisaLimits?, Never> {
-        cardSettingsSubject
-            .map { cardSettings in
-                guard let cardSettings else {
-                    return nil
-                }
-
-                return AppVisaLimits(limits: cardSettings.limits)
-            }
-            .eraseToAnyPublisher()
-    }
-
     var balances: AppVisaBalances? {
         balancesSubject.value
     }

@@ -44,16 +44,6 @@ struct TotalBalanceFormattingOptions {
         self.fractionalPartIncludesDecimalSeparator = fractionalPartIncludesDecimalSeparator
     }
 
-    static var defaultOptions: TotalBalanceFormattingOptions {
-        .init(
-            integerPartFont: TangemFontStyle(font: Fonts.Regular.title1),
-            fractionalPartFont: TangemFontStyle(font: Fonts.Bold.title3),
-            integerPartColor: Colors.Text.primary1,
-            fractionalPartColor: Colors.Text.primary1,
-            fractionalPartIncludesDecimalSeparator: false
-        )
-    }
-
     static var defaultOptionsRedesign: TotalBalanceFormattingOptions {
         .init(
             integerPartFont: Font.Tangem.Title44.semibold,

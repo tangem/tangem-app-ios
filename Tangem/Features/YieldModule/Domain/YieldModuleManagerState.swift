@@ -82,13 +82,4 @@ extension YieldModuleManagerState {
             return nil
         }
     }
-
-    var isBusy: Bool {
-        switch self {
-        case .loading, .processing:
-            return true
-        default:
-            return false
-        }
-    }
 }

@@ -8,8 +8,6 @@
 
 import SwiftUI
 
-typealias ThumbnailRingView = ThumbnailPathBuilderView<ThumbnailRingPathBuilder>
-
 public enum ThumbnailRingPathBuilder: ThumbnailPathBuilding {
     public struct FillColors: Equatable {
         public let ring: Color

@@ -27,16 +27,6 @@ extension ALPH.FixedSizeSerde {
         }
     }
 
-    func deserialize1(input: Data, f: (Data) -> Result<Value, ALPH.SerdeError>) -> Result<Value, ALPH.SerdeError> {
-        if input.count == serdeSize {
-            return f(input)
-        } else if input.count > serdeSize {
-            return .failure(ALPH.SerdeError.redundant(expected: serdeSize, got: input.count))
-        } else {
-            return .failure(ALPH.SerdeError.incompleteData(expected: serdeSize, got: input.count))
-        }
-    }
-
     func _deserialize(_ input: Data) -> Result<ALPH.Staging<Value>, Error> {
         if input.count >= serdeSize {
             let initData = input.prefix(serdeSize)

@@ -432,7 +432,6 @@ private extension SwapModel {
 
                 try await input.updateComplementaryAmount(state: providersState)
                 input.update(providersState: providersState, builtFrom: revision)
-
             } catch is CancellationError {
                 ExpressLogger.info(input, "updateTask was cancelled")
                 // Do nothing
@@ -704,7 +703,6 @@ extension SwapModel {
                 notification: notification
             )
             return .readyToTransfer(state)
-
         } catch {
             let quote = Quote(fromAmount: amountValue, expectAmount: amountValue, highPriceImpact: nil)
             return .requiredRefresh(occurredError: error, quote: quote)
@@ -2546,13 +2544,6 @@ extension SwapModel {
         let quote: Quote
         let data: ExpressTransactionData
         let fee: BSDKFee
-    }
-
-    struct TransactionSendResultState {
-        let dispatcherResult: TransactionDispatcherResult
-        let data: ExpressTransactionData
-        let fee: Fee
-        let provider: ExpressProvider
     }
 
     enum SwapModelError: String, LocalizedError {

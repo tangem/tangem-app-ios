@@ -42,10 +42,6 @@ final class MarketsPortfolioMultipleTokenViewModel: ObservableObject {
         0 ..< min(tokenInfo.count, tokenIconSetMaxCount)
     }
 
-    var balancePublishers: [TokenBalancePublisher] {
-        fiatTotalTokenBalancePublishers
-    }
-
     private var tokenCurrencyCode: String {
         tokenInfo.currencyCode
     }

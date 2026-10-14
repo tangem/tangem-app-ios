@@ -23,20 +23,10 @@ extension String {
         return prefix(1).capitalized + dropFirst()
     }
 
-    mutating func capitalizeFirstLetter() {
-        self = capitalizingFirstLetter()
-    }
-
     func remove(contentsOf strings: [String]) -> String {
         strings.reduce(into: self) {
             $0 = $0.remove($1)
         }
-    }
-
-    func camelCaseToSnakeCase() -> String {
-        let regex = try! NSRegularExpression(pattern: "([A-Z])", options: [])
-        let range = NSRange(location: 0, length: count)
-        return regex.stringByReplacingMatches(in: self, options: [], range: range, withTemplate: "_$1").lowercased()
     }
 
     /// Converts string to underscored format (words separated by `_`).

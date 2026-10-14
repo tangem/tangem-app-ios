@@ -182,17 +182,6 @@ final class ReferralViewModel: ObservableObject {
     }
 
     @MainActor
-    func updateAccount(_ newAccount: any CryptoAccountModel) {
-        let accountData = SelectedAccountViewData(
-            id: newAccount.id,
-            iconViewData: AccountModelUtils.UI.iconViewData(icon: newAccount.icon.erased, accountName: newAccount.name),
-            name: newAccount.name
-        )
-
-        updateViewState(to: viewState.updateAccountData(with: accountData))
-    }
-
-    @MainActor
     private func loadReferralInfo() async -> ReferralProgramInfo? {
         do {
             return try await referralProgramInfoRepository.loadInfo(for: UserWalletId(value: userWalletId))
@@ -554,11 +543,6 @@ extension ReferralViewModel {
         return Localization.referralPointDiscountDescriptionValue("\(info.conditions.discount.amount)\(info.conditions.discount.type.symbol)")
     }
 
-    var hasPurchases: Bool {
-        let count = referralProgramInfo?.referral?.walletsPurchased ?? 0
-        return count > 0
-    }
-
     var numberOfWalletsBought: String {
         let count = referralProgramInfo?.referral?.walletsPurchased ?? 0
         return Localization.referralWalletsPurchasedCount(count)
@@ -625,7 +609,6 @@ extension ReferralViewModel {
         return Localization.referralTosEnroledPrefix + " "
     }
 
-    var isProgramInfoLoaded: Bool { referralProgramInfo != nil }
     var isAlreadyReferral: Bool { referralProgramInfo?.referral != nil }
 }
 

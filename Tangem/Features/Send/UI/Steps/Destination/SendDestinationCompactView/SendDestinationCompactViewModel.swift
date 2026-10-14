@@ -11,8 +11,6 @@ import Combine
 import UIKit
 
 class SendDestinationCompactViewModel: ObservableObject, Identifiable {
-    typealias AdditionalField = (SendDestinationAdditionalFieldType, String)
-
     let suiTextViewModel: SUITextViewModel
     @Published var address: String = ""
     @Published var resolved: String?

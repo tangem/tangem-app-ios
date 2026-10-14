@@ -249,7 +249,6 @@ private extension TransferConfirmationContentView {
         static let amountMinimumScaleFactor: CGFloat = 0.5
         static let accountAvatarSide: CGFloat = 16
         static let tokenIconToSymbolSpacing: CGFloat = 2
-        static let accessorySpacing: CGFloat = 12
         static let railIconSide: CGFloat = 20
         static let railTitleSpacing: CGFloat = 12
         static let railValueSpacing: CGFloat = 8

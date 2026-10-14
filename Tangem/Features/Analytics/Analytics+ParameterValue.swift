@@ -424,10 +424,6 @@ extension Analytics {
             return boolean ? .success : .failed
         }
 
-        static func enabledOrDisabled(for boolean: Bool) -> ParameterValue {
-            return boolean ? .enabled : .disabled
-        }
-
         static func balanceState(for balance: Decimal) -> ParameterValue {
             return balance > 0 ? .full : .empty
         }

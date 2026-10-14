@@ -9,27 +9,6 @@
 import Foundation
 
 extension ALPH {
-    struct BoolSerde: FixedSizeSerde {
-        func serialize(_ input: Bool) -> Data {
-            return Data([input ? 1 : 0])
-        }
-
-        func deserialize(_ input: Data) -> Result<Bool, Error> {
-            guard let firstByte = input.first else {
-                return .failure(ALPH.SerdeError.wrongFormat(message: "Empty input"))
-            }
-
-            switch firstByte {
-            case 0:
-                return .success(false)
-            case 1:
-                return .success(true)
-            default:
-                return .failure(ALPH.SerdeError.wrongFormat(message: "Invalid boolean value"))
-            }
-        }
-    }
-
     struct ByteSerde: FixedSizeSerde {
         func serialize(_ input: UInt8) -> Data {
             return Data([input])
@@ -58,21 +37,6 @@ extension ALPH {
         }
     }
 
-    struct LongSerde: FixedSizeSerde {
-        func serialize(_ input: Int64) -> Data {
-            CompactInteger.Signed.encode(input)
-        }
-
-        func deserialize(_ input: Data) -> Result<Int64, Error> {
-            do {
-                let result = try CompactInteger.Signed.decodeLong(input).get()
-                return .success(result.value)
-            } catch {
-                return .failure(error)
-            }
-        }
-    }
-
     struct U256Serde: FixedSizeSerde {
         func serialize(_ input: U256) -> Data {
             return CompactInteger.Unsigned.encode(input)
@@ -81,21 +45,6 @@ extension ALPH {
         func deserialize(_ input: Data) -> Result<U256, Error> {
             do {
                 let result = try CompactInteger.Unsigned.decodeU256(input).get()
-                return .success(result.value)
-            } catch {
-                return .failure(error)
-            }
-        }
-    }
-
-    struct U32Serde: FixedSizeSerde {
-        func serialize(_ input: U32) -> Data {
-            return CompactInteger.Unsigned.encode(input)
-        }
-
-        func deserialize(_ input: Data) -> Result<U32, Error> {
-            do {
-                let result = try CompactInteger.Unsigned.decodeU32(input).get()
                 return .success(result.value)
             } catch {
                 return .failure(error)

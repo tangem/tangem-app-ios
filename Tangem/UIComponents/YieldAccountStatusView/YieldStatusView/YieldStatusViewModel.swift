@@ -47,12 +47,6 @@ final class YieldStatusViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Public Implementation
-
-    func onTapAction() {
-        navigationAction()
-    }
-
     // MARK: - Private Implementation
 
     @MainActor

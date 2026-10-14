@@ -25,10 +25,6 @@ struct MarketsTokenDetailsContentView: View {
         return model.shortDescription
     }
 
-    private var blocksWidth: CGFloat {
-        mainWindowSize.width - Constants.contentHorizontalPadding * 2
-    }
-
     var body: some View {
         VStack(spacing: Constants.contentVerticalSpacing) {
             let hasShortDescription = viewModel.descriptionCanBeShowed && shortDescription != nil

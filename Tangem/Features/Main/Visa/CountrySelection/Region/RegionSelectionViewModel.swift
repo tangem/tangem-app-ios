@@ -50,10 +50,6 @@ final class RegionSelectionViewModel: ObservableObject {
         output(.selected(region, isHighlighted: isHighlighted))
     }
 
-    func onRetryTap() {
-        store.reloadRegions(countryCode: countryCode)
-    }
-
     func onClose() {
         output(.closed)
     }

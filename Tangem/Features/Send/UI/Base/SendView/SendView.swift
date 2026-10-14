@@ -21,8 +21,6 @@ struct SendView: View {
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focused: Bool
 
-    private let backButtonStyle: MainButton.Style = .secondary
-    private let backButtonSize: MainButton.Size = .default
     private let bottomGradientHeight: CGFloat = 150
 
     var body: some View {
