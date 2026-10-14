@@ -59,7 +59,7 @@ enum TransactionDetailsMenuFactory {
             ))
         }
 
-        transactionActions.append(copyTransactionIdAction(for: record))
+        transactionActions.append(copyProviderTransactionIdAction(for: record) ?? copyTransactionIdAction(for: record))
 
         if let url = exploreURL(for: record, context: context) {
             transactionActions.append(.init(
@@ -135,6 +135,36 @@ enum TransactionDetailsMenuFactory {
         return expressExtraInfo.txId
     }
 
+    private static func copyProviderTransactionIdAction(for record: TransactionRecord) -> TransactionDetailsHeaderViewData.MenuAction? {
+        let externalTx: ExternalTxInfo?
+        let title: String
+        let toast: String
+
+        switch record.expressExtraInfo {
+        case .exchange(let info):
+            externalTx = info.transaction.externalTx
+            title = Localization.expressSwapId
+            toast = Localization.expressSwapIdCopied
+        case .onramp(let info):
+            externalTx = info.transaction.externalTx
+            title = Localization.expressOnrampId
+            toast = Localization.expressOnrampIdCopied
+        case nil:
+            return nil
+        }
+
+        guard let externalTx else {
+            return nil
+        }
+
+        return .init(
+            id: "providerTransactionID",
+            title: title,
+            icon: DesignSystem.Icons.Copy.regular24,
+            action: .copy(value: externalTx.id, toast: toast, kind: .transactionID)
+        )
+    }
+
     private static func onChainHash(for record: TransactionRecord) -> String? {
         ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash) ? nil : record.hash
     }
@@ -173,7 +203,7 @@ enum TransactionDetailsMenuFactory {
 
         return ExpressShareTextBuilder.build(
             operation: .swap(send: from, from: exchange.fromAddress, receive: to, to: exchange.payOut.address),
-            providerInfo: providerInfo(info.provider, fallbackId: exchange.providerId),
+            providerInfo: providerInfo(info.provider),
             transactionId: transactionId,
             onChainHash: onChainHash
         )
@@ -186,20 +216,19 @@ enum TransactionDetailsMenuFactory {
         context: TransactionDetailsContext
     ) -> String {
         let onramp = info.transaction
-        let to = amountWithSymbol(onramp.to.normalizedAmount, context.tokenSymbol)
+        let send = amountWithSymbol(onramp.from.amount, onramp.from.currencyCode)
+        let receive = amountWithSymbol(onramp.to.normalizedAmount, context.tokenSymbol)
 
         return ExpressShareTextBuilder.build(
-            operation: .onramp(buy: to, to: onramp.payOut.address),
-            providerInfo: providerInfo(info.provider, fallbackId: onramp.providerId),
+            operation: .onramp(send: send, receive: receive, to: onramp.payOut.address),
+            providerInfo: providerInfo(info.provider),
             transactionId: transactionId,
             onChainHash: onChainHash
         )
     }
 
-    private static func providerInfo(_ provider: ExpressProvider?, fallbackId: ExpressProvider.Id) -> String {
-        let name = provider?.name ?? fallbackId
-        let type = provider?.type.rawValue.uppercased()
-        return [name, type].compactMap { $0 }.joined(separator: " ")
+    private static func providerInfo(_ provider: ExpressProvider?) -> String? {
+        provider.map { "\($0.name) \($0.type.rawValue.uppercased())" }
     }
 
     private static func amountWithSymbol(_ amount: Decimal?, _ symbol: String?) -> String {
