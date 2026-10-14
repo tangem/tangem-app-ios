@@ -19,6 +19,7 @@ final class SwapableTokenStub: SendSwapableToken {
     private let balanceProviders: BalanceProviders?
     private let feeProvidersManager: (any TokenFeeProvidersManager)?
     private let defaultAddress: String?
+    private let injectedReceivingRestrictionsProvider: (any ReceivingRestrictionsProvider)?
 
     let presentation: SendReceiveTokenPresentation?
 
@@ -27,7 +28,8 @@ final class SwapableTokenStub: SendSwapableToken {
         sendingRestriction: SendingRestrictions? = nil,
         receivingRestriction: ReceivedRestriction? = nil,
         transactionValidator: SendTransactionValidator? = nil,
-        destination: SendReceiveTokenDestination? = nil
+        destination: SendReceiveTokenDestination? = nil,
+        receivingRestrictionsProvider: (any ReceivingRestrictionsProvider)? = nil
     ) {
         inner = SendSourceTokenStub(blockchain: blockchain)
         self.sendingRestriction = sendingRestriction
@@ -38,6 +40,7 @@ final class SwapableTokenStub: SendSwapableToken {
         feeProvidersManager = nil
         defaultAddress = nil
         presentation = nil
+        injectedReceivingRestrictionsProvider = receivingRestrictionsProvider
     }
 
     init(
@@ -49,7 +52,8 @@ final class SwapableTokenStub: SendSwapableToken {
         balanceProviders: BalanceProviders? = nil,
         presentation: SendReceiveTokenPresentation? = nil,
         tokenFeeProvidersManager: (any TokenFeeProvidersManager)? = nil,
-        defaultAddress: String? = nil
+        defaultAddress: String? = nil,
+        receivingRestrictionsProvider: (any ReceivingRestrictionsProvider)? = nil
     ) {
         inner = SendSourceTokenStub(tokenItem: tokenItem)
         self.sendingRestriction = sendingRestriction
@@ -60,6 +64,7 @@ final class SwapableTokenStub: SendSwapableToken {
         self.presentation = presentation
         feeProvidersManager = tokenFeeProvidersManager
         self.defaultAddress = defaultAddress
+        injectedReceivingRestrictionsProvider = receivingRestrictionsProvider
     }
 
     struct BalanceProviders {
@@ -109,7 +114,7 @@ final class SwapableTokenStub: SendSwapableToken {
     /// When the stub plays the destination, the pair-update task queries its restrictions from a
     /// detached task — a `fatalError` here crashes the whole run intermittently.
     var receivingRestrictionsProvider: any ReceivingRestrictionsProvider {
-        ReceivingRestrictionsProviderStub(result: receivingRestriction)
+        injectedReceivingRestrictionsProvider ?? ReceivingRestrictionsProviderStub(result: receivingRestriction)
     }
 
     var transactionValidator: any SendTransactionValidator {
