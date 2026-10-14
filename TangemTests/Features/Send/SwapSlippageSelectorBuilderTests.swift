@@ -38,6 +38,18 @@ struct SwapSlippageSelectorBuilderTests {
         #expect(viewModel == nil)
         #expect(output.openingsCount == 0)
     }
+
+    @Test("Opens nothing and reports nothing for a provider without a default slippage")
+    func skipsProviderWithoutSlippage() {
+        let output = SlippageOutputSpy()
+        let provider = ExpressAvailableProviderFixture.make(state: .idle, slippage: nil, isCustomSlippageSupported: true)
+        let builder = makeBuilder(provider: provider.provider, output: output)
+
+        let viewModel = builder.makeSlippageSelector()
+
+        #expect(viewModel == nil)
+        #expect(output.openingsCount == 0)
+    }
 }
 
 // MARK: - Helpers
