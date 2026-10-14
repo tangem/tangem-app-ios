@@ -192,22 +192,6 @@ extension FakeUserWalletModel {
         config: UserWalletConfigStubs.visaStub
     )
 
-    static let walletWithoutDelay = FakeUserWalletModel(
-        userWalletName: "Just A Wallet",
-        isUserWalletLocked: false,
-        isDelayed: false,
-        cardsCount: 1,
-        userWalletId: .init(with: Data.randomData(count: 32)),
-        walletManagers: [
-            .ethWithTokensManager,
-            .btcManager,
-            .polygonWithTokensManager,
-            .xrpManager,
-            .xlmManager,
-        ],
-        config: UserWalletConfigStubs.walletV2Stub
-    )
-
     static let twins = FakeUserWalletModel(
         userWalletName: "Tangem Twins",
         isUserWalletLocked: true,

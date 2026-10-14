@@ -30,10 +30,8 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
 
     @Injected(\.storyAvailabilityService) private var storyAvailabilityService: any StoryAvailabilityService
 
-    var tokenIconName: String { tokenIcon.name }
     var imageURL: URL? { tokenIcon.imageURL }
     var blockchainIconAsset: ImageType? { tokenIcon.blockchainIconAsset }
-    var hasMonochromeIcon: Bool { networkUnreachable || missingDerivation }
     var isCustom: Bool { tokenIcon.isCustom }
     var customTokenColor: Color? { tokenIcon.customTokenColor }
     var hasError: Bool { missingDerivation || networkUnreachable }
@@ -94,23 +92,8 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         setupView(tokenItemInfoProvider.balance)
     }
 
-    func showContextActions() {
-        let generator = UISelectionFeedbackGenerator()
-        generator.selectionChanged()
-        contextActionsDelegate?.showContextAction(for: self)
-    }
-
     func didTapContextAction(_ actionType: TokenActionType) {
         contextActionsDelegate?.didTapContextAction(actionType, walletModelId: walletModelId, userWalletId: userWalletId)
-    }
-
-    func shouldShowUnreadNotificationBadge(for actionType: TokenActionType) -> Bool {
-        switch actionType {
-        case .exchange:
-            storyAvailabilityService.checkStoryAvailability(storyId: .swap)
-        default:
-            false
-        }
     }
 
     // MARK: - Private Implementation

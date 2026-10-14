@@ -119,10 +119,6 @@ extension View {
     func pinStackSecured(_ isSecured: Bool) -> some View {
         environment(\.pinStackSecured, isSecured)
     }
-
-    func pinStackDigitBackground(_ color: Color) -> some View {
-        environment(\.pinStackDigitBackground, color)
-    }
 }
 
 @available(iOS 17.0, *)

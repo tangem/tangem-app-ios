@@ -377,7 +377,6 @@ struct MarketsTokenDetailsView: View {
 private extension MarketsTokenDetailsView {
     enum Constants {
         static let titleToButtonSpacing = 8.0
-        static let chartHeight = 200.0
         static let scrollViewContentTopInset = 14.0
         static let scrollViewVerticalPadding = 16.0
         static let shadowTopExtension = 60.0

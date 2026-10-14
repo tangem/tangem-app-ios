@@ -29,7 +29,6 @@ extension SendSwapProvidersSelectorProviderViewData {
         case plain(String)
         case accent(String, accessibilityIdentifier: String)
 
-        static let permissionNeeded = Badge.plain(Localization.expressProviderPermissionNeeded)
         static let fcaWarning = Badge.plain(Localization.expressProviderFcaWarningList)
         static let notAvailable = Badge.plain(Localization.commonNotAvailable)
         static let bestRate = Badge.accent(Localization.expressProviderBestRate, accessibilityIdentifier: SendAccessibilityIdentifiers.swapProviderBestRateBadge)

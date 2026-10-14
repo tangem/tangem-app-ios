@@ -14,7 +14,6 @@ import TangemSdk
 enum WCApprovalAnalyzer {
     private static let approvalFunctionSelector = "0x095ea7b3"
     private static let expectedDataLengthWithPrefix = 138
-    private static let expectedDataLengthBytes = 68
 
     static func analyzeApproval(transaction: WCSendableTransaction) -> ApprovalInfo? {
         guard isApprovalTransaction(transaction) else {

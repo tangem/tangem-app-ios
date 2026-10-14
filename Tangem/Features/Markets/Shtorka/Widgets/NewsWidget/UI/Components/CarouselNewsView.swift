@@ -116,10 +116,6 @@ private extension CarouselNewsView {
         }
 
         enum AllNewsCard {
-            static let verticalSpacing: CGFloat = .zero
-            static let spacingAfterIcon: CGFloat = 16
-            static let spacingAfterTitle: CGFloat = 4
-            static let iconSize: CGSize = .init(width: 48, height: 48)
             static let iconImageSize: CGSize = .init(width: 48, height: 48)
         }
     }

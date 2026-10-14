@@ -47,10 +47,6 @@ final class CountrySelectionViewModel: ObservableObject {
         output(.selected(country, isHighlighted: isHighlighted))
     }
 
-    func onRetryTap() {
-        store.reloadCountries()
-    }
-
     func onClose() {
         output(.closed)
     }

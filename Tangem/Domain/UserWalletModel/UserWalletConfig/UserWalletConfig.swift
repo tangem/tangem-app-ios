@@ -139,11 +139,6 @@ extension UserWalletConfig {
     }
 }
 
-struct TOU {
-    let id: String
-    let url: URL
-}
-
 protocol CardContainer {
     var card: CardDTO { get }
 }

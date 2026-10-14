@@ -478,14 +478,6 @@ extension TokenActionAvailabilityProvider {
         case hasPendingTransaction(blockchainDisplayName: String)
     }
 
-    var isDynamicAddressesActionAvailable: Bool {
-        if case .available = dynamicAddressesAvailability {
-            return true
-        }
-
-        return false
-    }
-
     var dynamicAddressesAvailability: DynamicAddressesActionAvailabilityStatus {
         if case .hasPendingTransaction(let blockchain) = walletModel.sendingRestrictions {
             return .hasPendingTransaction(blockchainDisplayName: blockchain.displayName)

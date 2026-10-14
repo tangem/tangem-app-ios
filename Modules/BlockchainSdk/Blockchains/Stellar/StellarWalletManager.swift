@@ -67,7 +67,6 @@ extension StellarWalletManager {
 
 class StellarWalletManager: BaseWalletManager, WalletManager {
     typealias Asset = Amount.AmountType
-    typealias StellarAsset = Asset
 
     var txBuilder: StellarTransactionBuilder!
     var networkService: StellarNetworkService!
@@ -280,7 +279,6 @@ extension StellarWalletManager: RequiredMemoRestrictable {
             if isMemoRequired {
                 throw ValidationError.destinationMemoRequired
             }
-
         } catch HorizonRequestError.notFound {
             // If the destination account is not created, we can't check that a memo is required
         }
@@ -380,12 +378,5 @@ extension StellarWalletManager: AssetRequirementsManager {
                 )
             }
             .eraseToAnyPublisher()
-    }
-}
-
-private extension StellarWalletManager {
-    struct Trustline {
-        let assetCode: String
-        let issuer: String
     }
 }
