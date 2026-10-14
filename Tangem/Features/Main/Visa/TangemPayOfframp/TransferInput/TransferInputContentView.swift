@@ -28,6 +28,7 @@ struct TransferInputContentView: View {
                 amountCard
 
                 railRow
+                    .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.amountRailRow)
             }
             .padding(.top, 12)
             .padding(.horizontal, Constants.horizontalPadding)
@@ -99,6 +100,7 @@ private extension TransferInputContentView {
             Text(state.amountErrorMessage ?? "")
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusError)
                 .multilineTextAlignment(.center)
+                .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.amountErrorText)
         }
         .padding(.vertical, 38)
         .padding(.horizontal, Constants.cardHorizontalPadding)
@@ -141,6 +143,7 @@ private extension TransferInputContentView {
         )
         .size(.x8)
         .styleType(.secondary(.default))
+        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.amountMaxButton)
     }
 
     var chevron: some View {
