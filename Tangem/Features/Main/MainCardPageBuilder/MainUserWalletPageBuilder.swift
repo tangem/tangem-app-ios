@@ -91,10 +91,6 @@ enum MainUserWalletPageBuilder: Identifiable {
         MainNavigationView(viewModel: navigationModel)
     }
 
-    var header: some View {
-        MainHeaderView(viewModel: headerModel)
-    }
-
     @ViewBuilder
     var content: some View {
         switch self {

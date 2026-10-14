@@ -38,7 +38,6 @@ extension MainHorizontalPagingScrollView {
         let userWalletPageBuilders: [MainUserWalletPageBuilder]
 
         let selectedCardIndex: Binding<Int>
-        let onSelectedCardChanged: (CardsInfoPageChangeReason) -> Void
 
         let containerGeometryProperties: UserWalletView.ContainerGeometryProperties
 
@@ -63,7 +62,6 @@ extension MainHorizontalPagingScrollView {
             HorizontalPagingCollectionViewController(
                 userWalletPageBuilders: userWalletPageBuilders,
                 selectedCardIndex: selectedCardIndex,
-                onSelectedCardChanged: onSelectedCardChanged,
                 containerGeometryProperties: containerGeometryProperties,
                 pullToRefreshAction: pullToRefreshAction,
                 refreshingUserWalletIDs: refreshingUserWalletIDs,
@@ -101,7 +99,6 @@ final class HorizontalPagingCollectionViewController: UIViewController {
     private(set) var userWalletPageBuilders: [MainUserWalletPageBuilder]
 
     let selectedCardIndex: Binding<Int>
-    let onSelectedCardChanged: (CardsInfoPageChangeReason) -> Void
 
     let pullToRefreshAction: @MainActor (UserWalletId) -> Void
     let onContentPropertiesChanged: (UserWalletId, UserWalletView.ScrollContentProperties) -> Void
@@ -120,7 +117,6 @@ final class HorizontalPagingCollectionViewController: UIViewController {
     init(
         userWalletPageBuilders: [MainUserWalletPageBuilder],
         selectedCardIndex: Binding<Int>,
-        onSelectedCardChanged: @escaping (CardsInfoPageChangeReason) -> Void,
         containerGeometryProperties: UserWalletView.ContainerGeometryProperties,
         pullToRefreshAction: @MainActor @escaping (UserWalletId) -> Void,
         refreshingUserWalletIDs: Set<UserWalletId>,
@@ -133,7 +129,6 @@ final class HorizontalPagingCollectionViewController: UIViewController {
 
         self.selectedCardIndex = selectedCardIndex
         currentCollectionViewIndex = selectedCardIndex.wrappedValue
-        self.onSelectedCardChanged = onSelectedCardChanged
 
         self.containerGeometryProperties = containerGeometryProperties
         self.pullToRefreshAction = pullToRefreshAction
@@ -347,7 +342,6 @@ extension HorizontalPagingCollectionViewController: UICollectionViewDelegate {
 
         guard selectedCardIndex.wrappedValue != selectedIndex else { return }
         selectedCardIndex.wrappedValue = selectedIndex
-        onSelectedCardChanged(.byGesture)
     }
 }
 

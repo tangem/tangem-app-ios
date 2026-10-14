@@ -10,7 +10,6 @@ import Foundation
 import TangemCollectibles
 import Combine
 import BlockchainSdk
-import TangemAssets
 import TangemVisa
 import TangemFoundation
 import TangemNFT
@@ -414,28 +413,6 @@ extension VisaUserWalletModel: VisaRefreshTokenSaver {
     }
 }
 
-extension VisaUserWalletModel: VisaWalletMainHeaderSubtitleDataSource {
-    var fiatBalance: String {
-        BalanceFormatter().formatFiatBalance(fiatValue)
-    }
-
-    var blockchainName: String {
-        VisaUtilities.visaBlockchain.displayName
-    }
-
-    private var fiatValue: Decimal? {
-        guard
-            let balanceValue = balancesSubject.value?.available,
-            let currencyId = tokenItem?.currencyId
-        else {
-            return nil
-        }
-
-        let converter = BalanceConverter()
-        return converter.convertToFiat(balanceValue, currencyId: currencyId)
-    }
-}
-
 extension VisaUserWalletModel: MainHeaderBalanceProvider {
     var balance: LoadableBalanceView.State {
         mapToLoadableBalanceViewState(state: stateSubject.value, balances: balancesSubject.value)
@@ -533,8 +510,6 @@ extension VisaUserWalletModel: UserWalletModel {
     var walletImageProvider: WalletImageProviding { userWalletModel.walletImageProvider }
 
     var name: String { userWalletModel.name }
-
-    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { userWalletModel.walletHeaderImagePublisher }
 
     var totalBalance: TotalBalanceState { userWalletModel.totalBalance }
 

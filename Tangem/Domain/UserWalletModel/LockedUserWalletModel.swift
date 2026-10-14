@@ -9,7 +9,6 @@
 import Foundation
 import TangemCollectibles
 import Combine
-import TangemAssets
 import TangemSdk
 import TangemNFT
 import BlockchainSdk
@@ -226,12 +225,6 @@ final class LockedUserWalletModel: UserWalletModel {
 
             try? await walletCreationHelper.updateWallet()
         }
-    }
-}
-
-extension LockedUserWalletModel: MainHeaderSupplementInfoProvider {
-    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
-        .just(output: config.cardHeaderImage)
     }
 }
 
