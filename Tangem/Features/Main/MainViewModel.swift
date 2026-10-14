@@ -176,14 +176,6 @@ final class MainViewModel: ObservableObject {
         }
     }
 
-    func onPageChange(dueTo reason: CardsInfoPageChangeReason) {
-        guard reason == .byGesture else { return }
-
-        if !AppSettings.shared.userDidSwipeWalletsOnMainScreen {
-            AppSettings.shared.userDidSwipeWalletsOnMainScreen = true
-        }
-    }
-
     func didTapEditWallet() {
         Analytics.log(.buttonEditWalletTapped)
 

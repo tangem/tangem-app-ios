@@ -73,9 +73,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.appTheme, store: .standard)
     var appTheme: ThemeOption = .system
 
-    @AppStorageCompat(StorageType.userDidSwipeWalletsOnMainScreen)
-    var userDidSwipeWalletsOnMainScreen: Bool = false
-
     @AppStorageCompat(StorageType.userDidTapSendScreenSummary)
     var userDidTapSendScreenSummary: Bool = false
 

@@ -9,7 +9,6 @@
 import Combine
 import SwiftUI
 import BlockchainSdk
-import TangemAssets
 import TangemVisa
 import TangemSdk
 import TangemNFT
@@ -47,7 +46,6 @@ class CommonUserWalletModel {
     private var _walletImageProvider: WalletImageProviding?
 
     private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
-    private let _cardHeaderImagePublisher: CurrentValueSubject<ImageType?, Never>
 
     init(
         walletInfo: WalletInfo,
@@ -73,8 +71,6 @@ class CommonUserWalletModel {
         self.priceAlertsSubscriptionsProvider = priceAlertsSubscriptionsProvider
         self.accountModelsManager = accountModelsManager
         self.addressBookManager = addressBookManager
-
-        _cardHeaderImagePublisher = .init(config.cardHeaderImage)
     }
 
     deinit {
@@ -231,7 +227,6 @@ extension CommonUserWalletModel: UserWalletModel {
                 // Prevents saving the wallet until the onboarding is completed
                 let shouldSave = userWalletRepository.models[userWalletId] != nil
                 updateConfiguration(walletInfo: .cardWallet(mutableCardInfo), shouldSave: shouldSave)
-                _cardHeaderImagePublisher.send(config.cardHeaderImage)
 
             case .mobileWallet(let existingInfo):
                 for wallet in mutableCardInfo.card.wallets {
@@ -242,7 +237,6 @@ extension CommonUserWalletModel: UserWalletModel {
 
                 _walletImageProvider = nil
                 updateConfiguration(walletInfo: .cardWallet(mutableCardInfo)) // Upgrading from mobile wallet to card wallet
-                _cardHeaderImagePublisher.send(config.cardHeaderImage)
                 cleanMobileWallet(mobileWalletInfo: existingInfo)
                 syncRemoteAfterUpgrade()
                 logMobileWalletUpgradedAnalytics()
@@ -321,14 +315,6 @@ extension CommonUserWalletModel: UserWalletModel {
         case .mobileWallet:
             return .valid
         }
-    }
-}
-
-extension CommonUserWalletModel: MainHeaderSupplementInfoProvider {
-    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
-        _cardHeaderImagePublisher
-            .removeDuplicates()
-            .eraseToAnyPublisher()
     }
 }
 

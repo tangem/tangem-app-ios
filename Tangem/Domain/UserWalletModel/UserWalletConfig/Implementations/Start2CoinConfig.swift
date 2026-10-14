@@ -83,10 +83,6 @@ extension Start2CoinConfig: UserWalletConfig {
         .start2coin
     }
 
-    var cardHeaderImage: ImageType? {
-        Assets.Cards.s2c
-    }
-
     var walletThumbnailType: ThumbnailWalletViewType? {
         .card(.init(card: Color.Tangem.CardCollection.starts2com))
     }

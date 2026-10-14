@@ -9,7 +9,6 @@
 import Foundation
 import TangemCollectibles
 import Combine
-import TangemAssets
 import TangemNFT
 import BlockchainSdk
 import TangemFoundation
@@ -59,8 +58,6 @@ class UserWalletModelMock: UserWalletModel {
     }
 
     var backupInput: OnboardingInput? { nil }
-
-    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { .empty }
 
     var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> { .empty }
 
