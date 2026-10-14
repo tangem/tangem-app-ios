@@ -69,7 +69,6 @@ struct CollectiblesPackRevealView: View {
             .background(DesignSystem.Color.bgPrimary)
             .ignoresSafeArea()
         }
-        .background(PopGestureDisabler(isDisabled: !isLanded))
         .task(reveal)
     }
 }

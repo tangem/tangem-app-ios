@@ -15,7 +15,7 @@ import TangemUIUtils
 struct CollectiblesMachineView: View {
     @ObservedObject var viewModel: CollectiblesMachineViewModel
 
-    let onBack: () -> Void
+    let onClose: () -> Void
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -59,8 +59,8 @@ private extension CollectiblesMachineView {
                 Text(viewModel.title)
                     .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
             },
-            leftButtons: { NavigationBarButton.back(action: onBack) },
-            rightButtons: EmptyView.init
+            leftButtons: EmptyView.init,
+            rightButtons: { NavigationBarButton.close(action: onClose) }
         )
         .padding(.top, Metrics.navigationBarTopPadding)
         .environment(\.isRedesign, true)
@@ -73,8 +73,13 @@ private extension CollectiblesMachineView {
     }
 
     var artwork: some View {
-        CollectiblesPackCard.Artwork(url: viewModel.artworkURL, packSize: Metrics.packSize, hasFailureCard: true)
-            .frame(width: Metrics.packSize.width, height: Metrics.packSize.height)
+        Color.clear
+            .aspectRatio(Metrics.artworkAspectRatio, contentMode: .fit)
+            .overlay {
+                CollectiblesFractionalFrame(width: Metrics.packWidthFraction, height: 1) {
+                    CollectiblesPackCard.Artwork(url: viewModel.artworkURL, hasFailureCard: true, glow: .page)
+                }
+            }
     }
 
     var content: some View {
@@ -194,9 +199,10 @@ extension CollectiblesMachineView {
         static let navigationBarTopPadding: CGFloat = 8
         static let navigationBarHeight: CGFloat = 56
 
-        static let packSize = CGSize(width: 252, height: 378)
-        static let artworkTopPadding: CGFloat = 6
-        static let contentTopPadding: CGFloat = 6
+        static let artworkAspectRatio: CGFloat = 402 / 294
+        static let packWidthFraction: CGFloat = 204 / 402
+        static let artworkTopPadding: CGFloat = 44
+        static let contentTopPadding: CGFloat = 48
         static let contentBottomPadding: CGFloat = 24
         static let horizontalPadding: CGFloat = 16
 
@@ -265,7 +271,7 @@ private struct PreviewMachineProvider: CollectiblesMachineProvider {
                 prizePoolProvider: PreviewPrizePoolProvider(),
                 provider: PreviewMachineProvider()
             ),
-            onBack: {}
+            onClose: {}
         )
     }
 }
