@@ -109,9 +109,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>UM</string>
+        <string>%li rede</string>
         <key>other</key>
-        <string>OUTRO</string>
+        <string>%li redes</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
@@ -125,9 +125,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>token</string>
+        <string>%li token</string>
         <key>other</key>
-        <string>tokens</string>
+        <string>%li tokens</string>
       </dict>
     </dict>
     <key>joint_account_join_signatures_count</key>
@@ -189,9 +189,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>exchange</string>
+        <string>%li exchange</string>
         <key>other</key>
-        <string>exchanges</string>
+        <string>%li exchanges</string>
       </dict>
     </dict>
     <key>markets_token_details_based_on_ratings</key>
@@ -205,9 +205,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Com base em avaliação</string>
+        <string>Com base em %li avaliação</string>
         <key>other</key>
-        <string>Com base em avaliações</string>
+        <string>Com base em %li avaliações</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
@@ -221,9 +221,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Artigo</string>
+        <string>%li item</string>
         <key>other</key>
-        <string>Artigos</string>
+        <string>%li itens</string>
       </dict>
     </dict>
     <key>nft_wallet_count_ios</key>
@@ -237,9 +237,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>coleção</string>
+        <string>%li coleção</string>
         <key>other</key>
-        <string>coleções</string>
+        <string>%li coleções</string>
       </dict>
       <key>nfts_count</key>
       <dict>
@@ -296,9 +296,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>UM</string>
+        <string>%li provedor</string>
         <key>other</key>
-        <string>OUTRO</string>
+        <string>%li provedores</string>
       </dict>
     </dict>
     <key>onramp_timing_days</key>
@@ -312,9 +312,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>até</string>
+        <string>até %li dia</string>
         <key>other</key>
-        <string>até</string>
+        <string>até %li dias</string>
       </dict>
     </dict>
     <key>prediction_event_more_outcomes</key>
@@ -328,9 +328,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Resultado</string>
+        <string>+%li Resultado</string>
         <key>other</key>
-        <string>Resultados</string>
+        <string>+%li Resultados</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>
@@ -344,9 +344,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>para carteira</string>
+        <string>para %li carteira</string>
         <key>other</key>
-        <string>para carteiras</string>
+        <string>para %li carteiras</string>
       </dict>
     </dict>
     <key>referral_wallets_purchased_count</key>
@@ -360,9 +360,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>carteira</string>
+        <string>%li carteira</string>
         <key>other</key>
-        <string>carteiras</string>
+        <string>%li carteiras</string>
       </dict>
     </dict>
     <key>send_network_selection_hidden_tokens</key>
@@ -376,9 +376,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li O token não é compatível com este endereço.</string>
+        <string>%li token não é compatível com este endereço.</string>
         <key>other</key>
-        <string>%li Os tokens não são compatíveis com este endereço.</string>
+        <string>%li tokens não são compatíveis com este endereço.</string>
       </dict>
     </dict>
     <key>tangempay_cards_count</key>
@@ -440,9 +440,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>dia útil</string>
+        <string>%li dia útil</string>
         <key>other</key>
-        <string>dias úteis</string>
+        <string>%li dias úteis</string>
       </dict>
     </dict>
     <key>top_assets_count</key>
@@ -472,9 +472,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>disponiver para</string>
+        <string>disponível por %li dia</string>
         <key>other</key>
-        <string>disponivel para</string>
+        <string>disponível por %li dias</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_message</key>
@@ -488,9 +488,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Use seu Cartão ou Anel para obter o endereço de uma rede %li.</string>
+        <string>Use seu cartão ou anel para obter o endereço de %li rede.</string>
         <key>other</key>
-        <string>Use seu Cartão ou Anel para obter endereços de redes %li.</string>
+        <string>Use seu cartão ou anel para obter endereços de %li redes.</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_no_nfc_message</key>
@@ -506,7 +506,7 @@
         <key>one</key>
         <string>Sincronizar endereços para obter um endereço de %li rede</string>
         <key>other</key>
-        <string>Sincronizar endereços para obter endereços para %li rede</string>
+        <string>Sincronizar endereços para obter endereços para %li redes</string>
       </dict>
     </dict>
   </dict>
