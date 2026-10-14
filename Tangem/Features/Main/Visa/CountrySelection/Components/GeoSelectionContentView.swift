@@ -53,10 +53,7 @@ private extension GeoSelectionContentView {
 
     func list(_ sections: GeoSelectionSections) -> some View {
         ScrollView {
-            LazyVStack(
-                spacing: .zero,
-                pinnedViews: [.sectionHeaders]
-            ) {
+            LazyVStack(spacing: .zero) {
                 if let highlighted = sections.highlighted {
                     Section {
                         row(highlighted, isHighlighted: true)
@@ -112,7 +109,6 @@ private extension GeoSelectionContentView {
             .padding(.horizontal, Constants.horizontalPadding)
             .padding(.top, Constants.sectionSpacing)
             .padding(.bottom, Constants.titleVerticalPadding)
-            .background(DesignSystem.Color.bgPrimary)
     }
 }
 
@@ -132,8 +128,7 @@ private extension GeoSelectionContentView {
     var emptyView: some View {
         messageView(
             icon: DesignSystem.Icons.Binoculars.regular20,
-            // [REDACTED_TODO_COMMENT]
-            message: "No results. Try to change request"
+            message: Localization.tangempayGeoSelectionSearchEmpty
         )
     }
 
