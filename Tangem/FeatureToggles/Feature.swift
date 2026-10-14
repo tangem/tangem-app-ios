@@ -101,7 +101,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .hideMarketingBannersWithSystem: return .version("6.5")
         case .tangemPayOnrampV2: return .version("6.5")
         case .promoCampaignsV2: return .version("6.5")
-        case .tangemPayAppleWalletProvisioning: return .version("6.5")
+        case .tangemPayAppleWalletProvisioning: return .unspecified
         case .customSlippage: return .version("6.5")
         }
     }
