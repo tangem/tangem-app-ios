@@ -24,7 +24,8 @@ struct PolymarketOrderSummaryView: View {
         VStack(spacing: 0) {
             PolymarketTopBar(
                 title: viewModel.screenTitle,
-                onBack: { viewModel.handleViewAction(.goBack) }
+                onBack: { viewModel.handleViewAction(.goBack) },
+                onClose: { viewModel.handleViewAction(.close) }
             )
             .padding(.top, Constants.topBarTopPadding)
 
@@ -32,6 +33,7 @@ struct PolymarketOrderSummaryView: View {
         }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
+        .interactiveDismissDisabled(viewModel.isPlacing)
         .safeAreaInset(edge: .bottom, spacing: .zero) { footer }
         .onWillAppear { viewModel.handleViewAction(.onAppear) }
         .bindAlert($viewModel.alert)

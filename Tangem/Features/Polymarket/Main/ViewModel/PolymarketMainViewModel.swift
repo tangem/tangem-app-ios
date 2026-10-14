@@ -14,6 +14,7 @@ final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var isTabsPinned = false
     @Published private(set) var isRegionRestricted = false
     @Published private(set) var isAwaitingFunds = false
+    @Published private(set) var scrollToTopRequest = 0
 
     let balanceViewModel: PolymarketBalanceBlockViewModel
     let positionsViewModel: PolymarketPositionsBlockViewModel
@@ -48,6 +49,14 @@ final class PolymarketMainViewModel: ObservableObject {
 
         bindGeoblockState()
         bindFundsArrival()
+    }
+}
+
+// MARK: - Scroll
+
+extension PolymarketMainViewModel {
+    func scrollToTop() {
+        scrollToTopRequest += 1
     }
 }
 
