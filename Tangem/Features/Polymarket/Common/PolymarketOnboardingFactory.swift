@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemPolymarket
+import TangemUI
 
 struct PolymarketOnboardingFactory {
     private let services = PolymarketOnboardingServicesFactory.makeDefault()
@@ -20,6 +21,7 @@ struct PolymarketOnboardingFactory {
         PolymarketWelcomeViewModel(
             interactor: makeInteractor(for: userWalletModel),
             hasExistingAccount: hasExistingAccount(for: userWalletModel),
+            signingButtonType: SigningActionButtonViewTypeBuilder().build(config: userWalletModel.config),
             coordinator: coordinator
         )
     }

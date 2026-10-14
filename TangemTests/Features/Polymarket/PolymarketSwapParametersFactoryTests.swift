@@ -50,13 +50,14 @@ struct PolymarketSwapParametersFactoryTests {
         #expect(receive.destination?.destinationTag == nil)
     }
 
-    @Test("The account's balance is shown in its own units, not converted to fiat")
-    func balanceIsDenominatedInTheAccountToken() throws {
+    @Test("The account is shown in dollars, as Tangem Pay shows its own, not in the coin it holds")
+    func accountIsPresentedInDollars() throws {
         let parameters = try #require(makeSUT().make(depositTargets: [Self.depositTarget]))
         let receive = try #require(receiveToken(from: parameters))
         let presentation = try #require(receive.presentation)
 
-        #expect(presentation.balanceDenomination == .token)
+        #expect(presentation.balanceDenomination == .fiat)
+        #expect(presentation.currencySymbol == AppConstants.usdCurrencyCode)
     }
 
     @Test("The receive side is the token the bridge accepts, not the pUSD the account holds")

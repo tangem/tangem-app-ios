@@ -60,6 +60,13 @@ public struct PolymarketMarketMetaRow: View {
 
             Text(volume.value)
                 .foregroundStyle(DesignSystem.Color.textPrimary)
+
+            if volume.isHot {
+                Assets.Polymarket.volumeFlame.image
+                    .resizable()
+                    .frame(width: Constants.iconSide, height: Constants.iconSide)
+                    .accessibilityHidden(true)
+            }
         }
         .font(token: DesignSystem.Font.captionMediumToken)
         .lineLimit(1)
@@ -82,10 +89,12 @@ public extension PolymarketMarketMetaRow {
     struct Volume: Hashable {
         public let title: String
         public let value: String
+        public let isHot: Bool
 
-        public init(title: String, value: String) {
+        public init(title: String, value: String, isHot: Bool = false) {
             self.title = title
             self.value = value
+            self.isHot = isHot
         }
     }
 }

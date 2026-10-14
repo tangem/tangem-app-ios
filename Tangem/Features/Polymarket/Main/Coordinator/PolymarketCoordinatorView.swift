@@ -20,6 +20,9 @@ struct PolymarketCoordinatorView: CoordinatorView {
             .toolbar(.hidden, for: .navigationBar)
             .background(FeedPopGestureEnabler())
             .navigationLinks(links)
+            .fullScreenCover(item: $coordinator.redeem) { viewModel in
+                PolymarketRedeemView(viewModel: viewModel)
+            }
             .sheet(item: $coordinator.sheet) { sheet in
                 switch sheet {
                 case .send(let coordinator):
@@ -65,8 +68,6 @@ struct PolymarketCoordinatorView: CoordinatorView {
                     PolymarketOrderCoordinatorView(coordinator: coordinator)
                 case .tokenDetails(let coordinator):
                     TokenDetailsCoordinatorView(coordinator: coordinator)
-                case .redeem(let viewModel):
-                    PolymarketRedeemView(viewModel: viewModel)
                 }
             }
     }

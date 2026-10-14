@@ -126,6 +126,9 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.polymarketHadPositions)
     var polymarketHadPositions: [String: Bool] = [:]
+
+    @AppStorageCompat(StorageType.polymarketShownPositionsCount)
+    var polymarketShownPositionsCount: [String: Int] = [:]
     @AppStorageCompat(StorageType.collectiblesHasAccount)
     var collectiblesHasAccount: [String: Bool] = [:]
 

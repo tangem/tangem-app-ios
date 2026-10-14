@@ -9,6 +9,7 @@
 import Combine
 import Foundation
 import TangemPolymarket
+import TangemUI
 
 final class PolymarketDestinationFactory {
     private let dependencies: PolymarketMainDependencies
@@ -69,6 +70,7 @@ final class PolymarketDestinationFactory {
             apiProvider: dependencies.apiProvider,
             geoblockStateProvider: dependencies.geoblockStateProvider,
             redeemService: dependencies.redeemService,
+            signingButtonType: dependencies.signingButtonType,
             onRegionWarning: onRegionWarning,
             onOrderPlaced: onOrderPlaced,
             onClaimed: onClaimed,
@@ -116,6 +118,7 @@ extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
             eventTitle: eventTitle,
             walletId: dependencies.walletId,
             account: dependencies.orderAccount,
+            signingButtonType: dependencies.signingButtonType,
             intent: dependencies.makeOrderIntent(for: request),
             geoblockStateProvider: dependencies.geoblockStateProvider,
             placementService: dependencies.placementService,

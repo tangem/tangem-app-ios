@@ -16,17 +16,38 @@ struct PolymarketEventsListView: View {
     @ObservedObject var viewModel: PolymarketEventsBlockViewModel
 
     var body: some View {
+        content
+            .polymarketStateTransition(contentState)
+    }
+
+    @ViewBuilder
+    private var content: some View {
         switch viewModel.loadingState {
         case .loading:
-            PolymarketEventsSkeletonView()
+            VStack(spacing: Constants.cardSpacing) {
+                PolymarketEventsSkeletonView()
+            }
         case .error:
             PolymarketEmptyMessageView(message: Localization.predictionMainEventsLoadError, onRetry: { viewModel.handleViewAction(.retry) })
         case .noResults:
             noResultsState
         case .loaded, .allDataLoaded, .paginationLoading, .paginationError:
-            eventCards
+            LazyVStack(spacing: Constants.cardSpacing) {
+                eventCards
 
-            paginationFooter
+                paginationFooter
+            }
+        }
+    }
+}
+
+// MARK: - Animation
+
+private extension PolymarketEventsListView {
+    var contentState: PolymarketEventsBlockViewModel.LoadingState {
+        switch viewModel.loadingState {
+        case .loading, .error, .noResults: viewModel.loadingState
+        case .loaded, .allDataLoaded, .paginationLoading, .paginationError: .loaded
         }
     }
 }
@@ -49,8 +70,13 @@ private extension PolymarketEventsListView {
             .frame(maxWidth: .infinity, minHeight: Constants.placeholderMinHeight)
     }
 
-    @ViewBuilder
     var paginationFooter: some View {
+        paginationFooterContent
+            .animation(.default, value: viewModel.loadingState == .paginationError)
+    }
+
+    @ViewBuilder
+    var paginationFooterContent: some View {
         switch viewModel.loadingState {
         case .loaded:
             paginationLoader
@@ -78,6 +104,7 @@ private extension PolymarketEventsListView {
 private extension PolymarketEventsListView {
     enum Constants {
         static let paginationVerticalPadding: CGFloat = 20
+        static let cardSpacing: CGFloat = 12
         static let placeholderMinHeight: CGFloat = 320
     }
 }
