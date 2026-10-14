@@ -48,7 +48,6 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
     weak var router: SwapAmountCompactRoutable?
 
-    private let initialTokenItem: TokenItem
     private let interactor: SendAmountInteractor
 
     private weak var stateProvider: SwapModelStateProvider?
@@ -70,7 +69,6 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     private var highPriceImpactCancellable: AnyCancellable?
 
     init(
-        initialTokenItem: TokenItem,
         isPairReversalEnabled: Bool = true,
         isReceiveTokenSelectionEnabled: Bool = true,
         interactor: SendAmountInteractor,
@@ -78,7 +76,6 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         sourceTokenInput: SendSourceTokenInput,
         receiveTokenInput: SendReceiveTokenInput?,
     ) {
-        self.initialTokenItem = initialTokenItem
         self.isPairReversalEnabled = isPairReversalEnabled
         self.isReceiveTokenSelectionEnabled = isReceiveTokenSelectionEnabled
         self.interactor = interactor
@@ -89,7 +86,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         sourceExpressCurrencyViewModel = .init(
             viewType: .send,
             headerType: .action(name: Localization.swappingFromTitle),
-            canChangeCurrency: sourceTokenInput.sourceToken.value?.tokenItem != initialTokenItem
+            canChangeCurrency: !sourceTokenInput.sourceToken.isLoading
         )
 
         sourceCryptoDecimalNumberTextFieldViewModel = .init(
@@ -106,7 +103,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
             viewType: .receive,
             headerType: .action(name: Localization.swappingToTitle),
             canChangeCurrency: isReceiveTokenSelectionEnabled
-                && receiveTokenInput?.receiveToken.value?.tokenItem != initialTokenItem
+                && (receiveTokenInput.map { !$0.receiveToken.isLoading } ?? true)
         )
 
         receiveCryptoAmountState = .initialized
@@ -356,8 +353,8 @@ private extension SwapAmountViewModel {
             sourceExpressCurrencyViewModel.update(alternativeAmountState: .loaded(text: fiatFormatted))
 
         case .fiat:
-            let tokenItem = sourceTokenInput?.sourceToken.value?.tokenItem ?? initialTokenItem
-            let formatter = DecimalNumberFormatter(maximumFractionDigits: tokenItem.decimalCount)
+            let decimalCount = sourceTokenInput?.sourceToken.value?.tokenItem.decimalCount ?? 0
+            let formatter = DecimalNumberFormatter(maximumFractionDigits: decimalCount)
             let cryptoFormatted: String = formatter.format(value: amount?.crypto ?? .zero)
             sourceExpressCurrencyViewModel.update(alternativeAmountState: .loaded(text: cryptoFormatted))
         }

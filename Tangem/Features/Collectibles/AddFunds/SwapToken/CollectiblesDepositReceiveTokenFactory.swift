@@ -33,6 +33,8 @@ struct CollectiblesDepositReceiveTokenFactory {
             scaledUIAmountMultiplierResolver: nil,
             emailDataCollectorBuilder: CollectiblesAccountEmailDataCollectorBuilder(),
             transactionDispatcherProvider: CollectiblesDepositTransactionDispatcherProvider(),
+            transactionSummaryDescriptionBuilderProvider: DefaultTransactionSummaryDescriptionBuilderProvider(tokenItem: tokenItem),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             accountModelAnalyticsProvider: nil,
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config),
             confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),

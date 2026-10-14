@@ -276,7 +276,7 @@ final class SwapModelTests: LeakTrackingTestSuite {
     func addFundsResolvesSourceToken() async throws {
         let resolvedSource = SwapableTokenStub(blockchain: .ethereum(testnet: false))
         let sut = makeSUT(
-            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            receiveToken: SwapableTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
             sourceTokenResolver: SourceTokenResolverStub(source: resolvedSource),
             shouldStartInitialLoading: true
         )
@@ -343,7 +343,7 @@ final class SwapModelTests: LeakTrackingTestSuite {
 
     @Test("Without a destination resolver a source change leaves the destination untouched")
     func sourceChangeWithoutResolverKeepsDestination() {
-        let receive = ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false))
+        let receive = SwapableTokenStub(blockchain: .ton(curve: .ed25519, testnet: false))
         let sut = makeSUT(receiveToken: receive)
 
         sut.update(source: SwapableTokenStub(blockchain: .ethereum(testnet: false)))
@@ -964,8 +964,12 @@ private extension SwapModelTests {
         shouldStartInitialLoading: Bool = false
     ) -> SwapModel {
         let model = SwapModel(
-            sourceToken: sourceToken,
-            receiveToken: receiveToken,
+            parameters: makeParameters(
+                sourceToken: sourceToken,
+                receiveToken: receiveToken,
+                sourceTokenResolver: sourceTokenResolver,
+                destinationTokenResolver: destinationTokenResolver
+            ),
             expressManager: expressManager,
             swapRepository: SwapRepositoryStub(),
             expressPendingTransactionRepository: ExpressPendingTransactionRepositoryStub(),
@@ -975,8 +979,6 @@ private extension SwapModelTests {
             autoupdatingTimer: autoupdatingTimer,
             pairUpdateHandler: pairUpdateHandler,
             balanceRestrictionFeatureChecker: SwapBalanceRestrictionFeatureCheckerStub(),
-            sourceTokenResolver: sourceTokenResolver,
-            destinationTokenResolver: destinationTokenResolver,
             shouldStartInitialLoading: shouldStartInitialLoading
         )
 
@@ -989,6 +991,41 @@ private extension SwapModelTests {
         )
 
         return model
+    }
+
+    func makeParameters(
+        sourceToken: SendSwapableToken?,
+        receiveToken: SendReceiveToken?,
+        sourceTokenResolver: (any SwapSourceTokenResolver)?,
+        destinationTokenResolver: (any SwapDestinationTokenResolver)?
+    ) -> PredefinedSwapParameters {
+        let configuration = SwapFlowConfiguration(
+            isPairReversalEnabled: true,
+            sourceTokenSelection: .unrestricted,
+            receiveTokenSelection: destinationTokenResolver.map { SwapFlowConfiguration.ReceiveTokenSelection.followsSource($0) } ?? .selectable(.unrestricted),
+            summaryTitle: nil
+        )
+
+        if let sourceToken {
+            let pair: PredefinedSwapParameters.PairResolution = if let sourceTokenResolver {
+                .deferred(sourceResolver: sourceTokenResolver)
+            } else {
+                .fixed(receiveOrUserSelection: receiveToken)
+            }
+
+            return .from(sourceToken, pair: pair, configuration: configuration)
+        }
+
+        guard let receiveToken else {
+            return .from(SwapableTokenStub(blockchain: .ethereum(testnet: false)), configuration: configuration)
+        }
+
+        guard let swapableReceiveToken = receiveToken as? SendSwapableToken else {
+            Issue.record("A `.to` entry needs a swapable receive token, got \(type(of: receiveToken))")
+            return .from(SwapableTokenStub(blockchain: .ethereum(testnet: false)), configuration: configuration)
+        }
+
+        return .to(swapableReceiveToken, sourceResolver: sourceTokenResolver, configuration: configuration)
     }
 
     func makeQuotedTokenItem(currencyId: String, blockchain: Blockchain = .ethereum(testnet: false)) -> TokenItem {

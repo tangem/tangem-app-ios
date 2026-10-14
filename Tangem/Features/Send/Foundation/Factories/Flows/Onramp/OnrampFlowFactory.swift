@@ -163,7 +163,6 @@ extension OnrampFlowFactory: SendBaseBuildable {
             approveViewModelInputDataBuilder: EmptyApproveViewModelInputDataBuilder(),
             feeCurrencyProviderDataBuilder: EmptySendFeeCurrencyProviderDataBuilder(),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             mainButtonUIOptionsProvider: OnrampSendMainButtonUIOptionsProvider()
         )
     }
@@ -202,10 +201,6 @@ extension OnrampFlowFactory: OnrampSummaryStepBuildable {
 extension OnrampFlowFactory: SendFinishStepBuildable {
     var finishIO: SendFinishStepBuilder.IO {
         SendFinishStepBuilder.IO(input: onrampModel)
-    }
-
-    var finishTypes: SendFinishStepBuilder.Types {
-        SendFinishStepBuilder.Types(tokenItem: tokenItem)
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {

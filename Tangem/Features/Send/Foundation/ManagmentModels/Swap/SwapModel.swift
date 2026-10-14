@@ -60,17 +60,22 @@ final class SwapModel {
     private let autoupdatingTimer: any AutoupdatingTimerSetup
     private let pairUpdateHandler: SwapPairUpdateHandler
     private let balanceRestrictionHandler: SwapBalanceRestrictionHandler
-    private let sourceTokenResolver: (any SwapSourceTokenResolver)?
-    private let destinationTokenResolver: (any SwapDestinationTokenResolver)?
-    private let onTransactionSent: ((SwapFlowConfiguration.SwapSentTransaction) -> Void)?
+    private let parameters: PredefinedSwapParameters
+
+    private var destinationTokenResolver: (any SwapDestinationTokenResolver)? {
+        parameters.configuration.receiveTokenSelection.destinationResolver
+    }
+
+    private var onTransactionSent: ((SwapFlowConfiguration.SwapSentTransaction) -> Void)? {
+        parameters.configuration.onTransactionSent
+    }
 
     private let balanceConverter = BalanceConverter()
     private var bag: Set<AnyCancellable> = []
     private let providersUpdate = OSAllocatedUnfairLock(initialState: ProvidersUpdate())
 
     init(
-        sourceToken: SendSwapableToken?,
-        receiveToken: SendReceiveToken?,
+        parameters: PredefinedSwapParameters,
         expressManager: ExpressManager,
         swapRepository: SwapRepository,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
@@ -80,9 +85,6 @@ final class SwapModel {
         autoupdatingTimer: any AutoupdatingTimerSetup,
         pairUpdateHandler: SwapPairUpdateHandler,
         balanceRestrictionFeatureChecker: SwapBalanceRestrictionFeatureChecker,
-        sourceTokenResolver: (any SwapSourceTokenResolver)? = nil,
-        destinationTokenResolver: (any SwapDestinationTokenResolver)? = nil,
-        onTransactionSent: ((SwapFlowConfiguration.SwapSentTransaction) -> Void)? = nil,
         shouldStartInitialLoading: Bool,
     ) {
         self.expressManager = expressManager
@@ -93,16 +95,14 @@ final class SwapModel {
         self.analyticsLogger = analyticsLogger
         self.autoupdatingTimer = autoupdatingTimer
         self.pairUpdateHandler = pairUpdateHandler
-        self.sourceTokenResolver = sourceTokenResolver
-        self.destinationTokenResolver = destinationTokenResolver
-        self.onTransactionSent = onTransactionSent
+        self.parameters = parameters
         balanceRestrictionHandler = SwapBalanceRestrictionHandler(checker: balanceRestrictionFeatureChecker)
 
-        _sourceToken = .init(sourceToken.map { .success($0) } ?? .loading)
-        _receiveToken = .init(receiveToken.map { .success($0) } ?? .loading)
+        _sourceToken = .init(parameters.sourceToken.map { .success($0) } ?? .loading)
+        _receiveToken = .init(parameters.receiveToken.map { .success($0) } ?? .loading)
         preselectedTokenChangeAnalyticsLogger = SwapPreselectedTokenChangeAnalyticsLogger(
-            preselectedSourceTokenItem: sourceToken?.tokenItem,
-            preselectedReceiveTokenItem: receiveToken?.tokenItem,
+            preselectedSourceTokenItem: parameters.sourceToken?.tokenItem,
+            preselectedReceiveTokenItem: parameters.receiveToken?.tokenItem,
             analyticsLogger: analyticsLogger
         )
         _sourceAmount = .init(.none)
@@ -1361,29 +1361,29 @@ extension SwapModel {
 extension SwapModel {
     @MainActor
     private func initialLoading() async {
-        switch (_sourceToken.value, _receiveToken.value) {
-        case (.success, .success):
+        switch parameters {
+        case .from(_, .fixed, _, _):
             if let sourceAmount = _sourceAmount.value?.crypto {
                 update(amount: .from(sourceAmount), syncsSlippageBeforeRequest: false)
             } else {
                 swappingPairDidChange()
             }
 
-        case (.success, _):
-            let initialSourceTokenItem = _sourceToken.value.value?.tokenItem
-
+        case .from(_, .userSelection, _, _):
             _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
 
-            if let sourceTokenResolver,
-               let resolvedSource = await sourceTokenResolver.resolve(),
+        case .from(let initialSource, .deferred(let sourceTokenResolver), _, _):
+            _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
+
+            if let resolvedSource = await sourceTokenResolver.resolve(),
                let currentSource = _sourceToken.value.value,
                // if false that means the user has already changed the source and we respect its choice
-               currentSource.tokenItem == initialSourceTokenItem,
+               currentSource.tokenItem == initialSource.tokenItem,
                currentSource.tokenItem != resolvedSource.tokenItem {
                 installResolvedSource(resolvedSource)
             }
 
-        case (_, .success):
+        case .to(_, let sourceTokenResolver, _):
             // Show the "Choose token" placeholder immediately, then fill the source in once the
             // wallet balances resolve. Respect a manual pick that lands while resolving.
             _sourceToken.send(.failure(SwapModelError.tokenSelectionRequired))
@@ -1393,10 +1393,6 @@ extension SwapModel {
                case .failure(SwapModelError.tokenSelectionRequired) = _sourceToken.value {
                 installResolvedSource(resolvedSource)
             }
-
-        default:
-            _sourceToken.send(.failure(SwapModelError.tokenSelectionRequired))
-            _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
         }
     }
 
@@ -2089,8 +2085,7 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     ) -> SendSummaryTransactionData? {
         switch providersState {
         case .loaded(.swap(let selected, _), let loadedState):
-            guard let provider = selected,
-                  let sourceTokenItem = _sourceToken.value.value?.tokenItem else {
+            guard let provider = selected else {
                 return nil
             }
 
@@ -2101,7 +2096,7 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
             default: .zero
             }
             let adjustedAmount = amount.map { $0 - subtractFee }
-            return .swap(amount: adjustedAmount, fee: fee, provider: provider.provider, sourceTokenItem: sourceTokenItem)
+            return .swap(amount: adjustedAmount, fee: fee, provider: provider.provider)
         case .loaded(_, .readyToTransfer(let state)):
             guard let amount else {
                 return nil

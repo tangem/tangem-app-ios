@@ -34,6 +34,8 @@ struct PolymarketDepositReceiveTokenFactory {
             scaledUIAmountMultiplierResolver: nil,
             emailDataCollectorBuilder: PolymarketAccountEmailDataCollectorBuilder(),
             transactionDispatcherProvider: PolymarketDepositTransactionDispatcherProvider(),
+            transactionSummaryDescriptionBuilderProvider: DefaultTransactionSummaryDescriptionBuilderProvider(tokenItem: tokenItem),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             accountModelAnalyticsProvider: nil,
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config),
             confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
