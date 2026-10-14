@@ -388,6 +388,7 @@ final class PolymarketAccountModelStub: PolymarketAccountModel {
 final class PolymarketAccountPresenceStoreStub: PolymarketAccountPresenceStore {
     private var known: Bool
     private var positions: Bool
+    private var shownCount: Int?
 
     init(known: Bool = false, positions: Bool = false) {
         self.known = known
@@ -410,9 +411,18 @@ final class PolymarketAccountPresenceStoreStub: PolymarketAccountPresenceStore {
         positions = true
     }
 
+    func shownPositionsCount(userWalletId: UserWalletId) -> Int? {
+        shownCount
+    }
+
+    func setShownPositionsCount(_ count: Int, for userWalletId: UserWalletId) {
+        shownCount = count
+    }
+
     func delete(userWalletId: UserWalletId) {
         known = false
         positions = false
+        shownCount = nil
     }
 }
 

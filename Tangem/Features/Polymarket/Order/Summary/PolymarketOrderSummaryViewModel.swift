@@ -14,6 +14,7 @@ import TangemLocalization
 import TangemPolymarket
 import TangemPolymarketUI
 import TangemUIUtils
+import TangemUI
 
 @MainActor
 final class PolymarketOrderSummaryViewModel: ObservableObject {
@@ -31,7 +32,7 @@ final class PolymarketOrderSummaryViewModel: ObservableObject {
     // MARK: - Content
 
     @Published private(set) var marketRow: PolymarketOrderMarketRow.Model
-    let currencyCode = PolymarketUtilities.collateralTokenItem.currencySymbol
+    let signingButtonType: SigningActionButtonViewType
 
     // MARK: - Dependencies
 
@@ -49,11 +50,13 @@ final class PolymarketOrderSummaryViewModel: ObservableObject {
         model: PolymarketOrderModel,
         account: PolymarketOrderAccount?,
         placementService: PolymarketOrderPlacementService,
+        signingButtonType: SigningActionButtonViewType,
         coordinator: PolymarketOrderSummaryRoutable?
     ) {
         self.model = model
         self.account = account
         self.placementService = placementService
+        self.signingButtonType = signingButtonType
         self.coordinator = coordinator
 
         marketRow = .make(
@@ -83,10 +86,6 @@ final class PolymarketOrderSummaryViewModel: ObservableObject {
             guard !isPlacing else { return }
 
             coordinator?.closeSummary()
-        case .close:
-            guard !isPlacing else { return }
-
-            coordinator?.closeOrder()
         case .placeOrder:
             place()
         case .openFeeBreakdown:
@@ -104,7 +103,6 @@ extension PolymarketOrderSummaryViewModel {
         case onAppear
         case onDisappear
         case goBack
-        case close
         case placeOrder
         case openFeeBreakdown
         case openLegalTerms(URL)
@@ -363,7 +361,7 @@ private extension PolymarketOrderSummaryViewModel {
 
         return .make(
             account: account,
-            sourceTitle: isSell ? "To" : Localization.predictionPlaceSummaryFrom,
+            sourceTitle: isSell ? Localization.predictionCloseSummaryTo : Localization.predictionPlaceSummaryFrom,
             amountText: isSell
                 ? PolymarketOrderFormatter.money(state.quote.quote?.expectedExecutionAmount)
                 : PolymarketOrderFormatter.enteredAmount(state.enteredAmount),
@@ -374,7 +372,7 @@ private extension PolymarketOrderSummaryViewModel {
     }
 
     static func makeSellingCaption(state: PolymarketOrderModel.State) -> String {
-        "Selling \(PolymarketOrderFormatter.shares(state.enteredAmount)) predict tokens"
+        Localization.predictionCloseSellingTokens(PolymarketOrderFormatter.shares(state.enteredAmount))
     }
 
     static func makeToWin(

@@ -19,30 +19,8 @@ struct PolymarketFeeBreakdownSheetView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            title
-
-            ScrollView {
-                rows
-            }
-            .scrollIndicators(.hidden)
-            .scrollBounceBehavior(.basedOnSize)
-        }
-        .frame(maxWidth: .infinity)
-        .background(DesignSystem.Color.bgSecondary.ignoresSafeArea())
-        .presentationDetents([.height(Constants.compactHeight), .large])
-        .presentationDragIndicator(.visible)
-    }
-
-    // MARK: - Title
-
-    private var title: some View {
-        Text(Localization.predictionPlaceFee)
-            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-            .lineLimit(1)
-            .frame(height: Constants.toolbarHeight)
-            .padding(.top, Constants.titleTopPadding)
-            .padding(.bottom, Constants.toolbarBottomPadding)
+        rows
+            .frame(maxWidth: .infinity)
     }
 
     // MARK: - Rows
@@ -79,14 +57,9 @@ struct PolymarketFeeBreakdownSheetView: View {
     }
 
     private func money(_ text: String) -> some View {
-        HStack(spacing: Constants.valueSpacing) {
-            Badge(label: viewModel.currencyCode, accessibilityLabel: nil)
-                .size(.x6)
-
-            Text(text)
-                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
-                .lineLimit(1)
-        }
+        Text(text)
+            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+            .lineLimit(1)
     }
 }
 
@@ -94,12 +67,7 @@ struct PolymarketFeeBreakdownSheetView: View {
 
 private extension PolymarketFeeBreakdownSheetView {
     enum Constants {
-        static let toolbarHeight: CGFloat = 44
-        static let titleTopPadding: CGFloat = 16
-        static let toolbarBottomPadding: CGFloat = 16
-        static let rowsTopPadding: CGFloat = 12
-        static let compactHeight: CGFloat = 360
-        static let valueSpacing: CGFloat = 8
+        static let rowsTopPadding: CGFloat = 16
 
         static let polymarketFeeTitle = Localization.predictionFeeSheetPolymarketFee
         static let tangemBuilderFeeTitle = Localization.predictionFeeSheetBuilderFee
@@ -121,15 +89,19 @@ private extension PolymarketFeeBreakdownSheetViewModel {
 }
 
 #Preview("Sheet") {
-    Color.clear.sheet(item: .constant(PolymarketFeeBreakdownSheetViewModel.preview())) { viewModel in
-        PolymarketFeeBreakdownSheetView(viewModel: viewModel)
-    }
+    Color.clear.modal(
+        isPresented: .constant(true),
+        title: Localization.predictionPlaceFee,
+        content: { PolymarketFeeBreakdownSheetView(viewModel: .preview()) }
+    )
 }
 
 #Preview("Sheet — Dark") {
     Color.clear
-        .sheet(item: .constant(PolymarketFeeBreakdownSheetViewModel.preview())) { viewModel in
-            PolymarketFeeBreakdownSheetView(viewModel: viewModel)
-        }
+        .modal(
+            isPresented: .constant(true),
+            title: Localization.predictionPlaceFee,
+            content: { PolymarketFeeBreakdownSheetView(viewModel: .preview()) }
+        )
         .preferredColorScheme(.dark)
 }

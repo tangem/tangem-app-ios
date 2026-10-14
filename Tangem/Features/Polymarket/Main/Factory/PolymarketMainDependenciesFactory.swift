@@ -9,6 +9,7 @@
 import Combine
 import Foundation
 import TangemPolymarket
+import TangemUI
 
 struct PolymarketMainDependenciesFactory {
     func make(for userWalletModel: any UserWalletModel) -> PolymarketMainDependencies {
@@ -59,6 +60,10 @@ struct PolymarketMainDependencies {
 
     var walletId: String {
         userWalletModel.userWalletId.stringValue
+    }
+
+    var signingButtonType: SigningActionButtonViewType {
+        SigningActionButtonViewTypeBuilder().build(config: userWalletModel.config)
     }
 
     var accountModel: (any PolymarketAccountModel)? {

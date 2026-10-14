@@ -47,6 +47,7 @@ enum StorageType: String {
     case tangemPayIsPaeraCustomer = "tangem_pay_is_paera_customer"
     case polymarketHasAccount = "polymarket_has_account"
     case polymarketHadPositions = "polymarket_had_positions"
+    case polymarketShownPositionsCount = "polymarket_shown_positions_count"
     case collectiblesHasAccount = "collectibles_has_account"
     case tangemPayIsDisabledForCustomerWalletId = "tangem_pay_is_disabled_for_customer_wallet_id"
     case tangemPayIsKYCHiddenForCustomerWalletId = "tangem_pay_is_kyc_hidden_for_customer_wallet_id"

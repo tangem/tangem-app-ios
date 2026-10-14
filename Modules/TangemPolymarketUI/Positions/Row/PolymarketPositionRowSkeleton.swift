@@ -55,12 +55,12 @@ struct PolymarketPositionRowSkeleton: View {
 
     private var footer: some View {
         HStack(spacing: Constants.footerSpacing) {
-            bar(width: Constants.bubbleWidth, height: Constants.footerHeight)
-            bar(width: Constants.changeWidth, height: Constants.footerHeight)
+            Shimmer().variant(.custom(width: Constants.bubbleWidth, height: Constants.footerHeight))
+            Shimmer().variant(.custom(width: Constants.changeWidth, height: Constants.footerHeight))
 
             Spacer(minLength: Constants.footerSpacing)
 
-            bar(width: Constants.trailingWidth, height: Constants.footerHeight)
+            Shimmer().variant(.custom(width: Constants.trailingWidth, height: Constants.footerHeight))
         }
     }
 

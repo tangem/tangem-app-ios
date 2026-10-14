@@ -13,10 +13,18 @@ import TangemUI
 struct PolymarketEventsTabsView: View {
     @ObservedObject var viewModel: PolymarketEventsBlockViewModel
 
+    var animatesStateChanges = true
+
     var body: some View {
         if viewModel.showsTabs {
-            tabs
-                .padding(.vertical, Constants.verticalPadding)
+            Group {
+                if animatesStateChanges {
+                    tabs.polymarketStateTransition(viewModel.categories.isEmpty)
+                } else {
+                    tabs
+                }
+            }
+            .padding(.vertical, Constants.verticalPadding)
         }
     }
 
