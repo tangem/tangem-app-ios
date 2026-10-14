@@ -10,6 +10,7 @@ import Combine
 import Foundation
 import TangemFoundation
 import TangemExpress
+import TangemLocalization
 import TangemUI
 
 final class SwapSlippageSelectorViewModel: ObservableObject, FloatingSheetContentViewModel {
@@ -24,16 +25,20 @@ final class SwapSlippageSelectorViewModel: ObservableObject, FloatingSheetConten
     private let output: SwapSlippageOutput
     private var bag: Set<AnyCancellable> = []
 
-    init(
+    init?(
         provider: ExpressProvider,
         slippage: SwapSlippage,
         output: SwapSlippageOutput,
         percentFormatter: PercentFormatter = PercentFormatter()
     ) {
+        guard let defaultSlippage = provider.slippage else {
+            return nil
+        }
+
         self.output = output
 
         guard let bounds = provider.customSlippageBounds else {
-            content = .notCustomizable(maxSlippage: provider.slippage.map { percentFormatter.format($0, option: .customSlippage) })
+            content = .notCustomizable(maxSlippage: percentFormatter.format(defaultSlippage, option: .customSlippage))
             isConfirmEnabled = true
             return
         }
@@ -84,8 +89,7 @@ private extension SwapSlippageSelectorViewModel {
     static func makePresets(bounds: SwapSlippageBounds, percentFormatter: PercentFormatter) -> [Preset] {
         [bounds.warningThreshold, bounds.defaultSlippage, bounds.maxSlippage].unique().filter(bounds.accepts).map { slippage in
             let formatted = percentFormatter.format(slippage, option: .customSlippage)
-            // [REDACTED_TODO_COMMENT]
-            let title = slippage == bounds.defaultSlippage ? "Default \(formatted)" : formatted
+            let title = slippage == bounds.defaultSlippage ? "\(Localization.commonDefault) \(formatted)" : formatted
             return Preset(slippage: slippage, title: title)
         }
     }
@@ -129,7 +133,7 @@ private extension SwapSlippageSelectorViewModel {
 extension SwapSlippageSelectorViewModel {
     enum Content {
         case customizable(bounds: SwapSlippageBounds, presets: [Preset])
-        case notCustomizable(maxSlippage: String?)
+        case notCustomizable(maxSlippage: String)
     }
 
     enum Message {
