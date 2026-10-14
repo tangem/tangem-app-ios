@@ -17,13 +17,13 @@ struct TangemPayUnavailableRegionView: View {
         StatusScreen(
             title: Localization.tangempayRegionUnavailableTitle,
             description: Localization.tangempayRegionUnavailableDescription,
-            actionTitle: Localization.tangempayRegionUnavailablePrimaryButton,
-            action: { output(.joinWaitlist) }
+            actionTitle: Localization.tangempayRegionUnavailableSecondaryButton,
+            action: { output(.selectAnotherRegion) }
         )
         .appearance(.error)
         .secondaryAction(
-            title: Localization.tangempayRegionUnavailableSecondaryButton,
-            action: { output(.selectAnotherRegion) }
+            title: Localization.tangempayRegionUnavailablePrimaryButton,
+            action: { output(.joinWaitlist) }
         )
     }
 }
