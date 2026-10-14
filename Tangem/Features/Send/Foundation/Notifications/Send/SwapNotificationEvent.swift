@@ -115,8 +115,7 @@ extension SwapNotificationEvent: NotificationEvent {
         case .highNetworkFee:
             return .string(Localization.highFeeWarningTitle)
         case .lowCustomSlippage(let slippage, _):
-            // [REDACTED_TODO_COMMENT]
-            return .string("Slippage is set \(slippage)")
+            return .string(Localization.swapSlippageWarningTitle(slippage))
         }
     }
 
@@ -182,7 +181,7 @@ extension SwapNotificationEvent: NotificationEvent {
         case .highNetworkFee:
             return Localization.highFeeWarningDescription
         case .lowCustomSlippage:
-            return "Swap may fail if the slippage threshold is hit"
+            return Localization.swapSlippageWarningText
         }
     }
 
