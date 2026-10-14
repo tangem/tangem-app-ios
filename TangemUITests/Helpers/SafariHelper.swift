@@ -38,13 +38,17 @@ struct SafariHelper {
             .matching(NSPredicate(format: "identifier == %@ OR identifier == %@", "Address", "TabBarItemTitle"))
             .firstMatch
         XCTAssertTrue(addressBar.waitForExistence(timeout: .robustUIUpdate), "Safari address bar should exist")
-        addressBar.tap()
         let urlField = safari.textFields["Address"].firstMatch
-        XCTAssertTrue(urlField.waitForExistence(timeout: .robustUIUpdate), "Safari URL field should exist")
-        XCTAssertTrue(
-            urlField.waitForValue(timeout: .robustUIUpdate) { $0.contains(expected) },
-            "Safari URL should contain '\(expected)' but was '\(urlField.getValue())'"
-        )
+        for _ in 0 ..< Constants.addressBarTapAttempts {
+            if addressBar.exists {
+                addressBar.tapEvenIfNotHittable()
+            }
+            if urlField.waitForExistence(timeout: .quick), urlField.waitForValue(timeout: Constants.urlWaitPerAttempt, where: { $0.contains(expected) }) {
+                return
+            }
+        }
+        let lastValue = urlField.exists ? urlField.getValue() : ""
+        XCTFail("Safari URL should contain '\(expected)' but was '\(lastValue)'")
     }
 
     func dismissToolTipIfNeeded() {
@@ -64,5 +68,12 @@ struct SafariHelper {
     func tapOpenTangemApp() {
         safari.buttons["Open Tangem App"].waitAndTap()
         safari.buttons["Open"].waitAndTap()
+    }
+}
+
+private extension SafariHelper {
+    enum Constants {
+        static let addressBarTapAttempts = 3
+        static let urlWaitPerAttempt: TimeInterval = .robustUIUpdate / 3
     }
 }
