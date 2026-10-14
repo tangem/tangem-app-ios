@@ -82,6 +82,10 @@ final class PolymarketOrderSummaryViewModel: ObservableObject {
         switch action {
         case .onAppear, .onDisappear:
             break
+        case .close:
+            guard !isPlacing else { return }
+
+            coordinator?.closeOrder()
         case .goBack:
             guard !isPlacing else { return }
 
@@ -103,6 +107,7 @@ extension PolymarketOrderSummaryViewModel {
         case onAppear
         case onDisappear
         case goBack
+        case close
         case placeOrder
         case openFeeBreakdown
         case openLegalTerms(URL)
@@ -186,12 +191,12 @@ private extension PolymarketOrderSummaryViewModel {
 
                 guard returningToMain else { return }
 
-                self?.coordinator?.returnToMain()
+                self?.coordinator?.closeOrder()
             },
             secondaryButton: .cancel(Text(Localization.commonClose)) { [weak self] in
                 guard returningToMain else { return }
 
-                self?.coordinator?.returnToMain()
+                self?.coordinator?.closeOrder()
             }
         )
     }
@@ -241,6 +246,12 @@ private extension PolymarketOrderSummaryViewModel {
         return money / shares
     }
 
+    var heldShares: Decimal? {
+        guard case .sell(let shares) = model.intent else { return nil }
+
+        return shares
+    }
+
     func makeResultContent(
         placement: PolymarketOrderPlacement?,
         quote: PolymarketOrderQuote?
@@ -252,7 +263,8 @@ private extension PolymarketOrderSummaryViewModel {
             filledAmount: filledMoney(placement),
             tokensBought: filledShares(placement),
             resolutionDate: model.market.endDate,
-            side: model.intent.side
+            side: model.intent.side,
+            heldShares: heldShares
         )
     }
 
