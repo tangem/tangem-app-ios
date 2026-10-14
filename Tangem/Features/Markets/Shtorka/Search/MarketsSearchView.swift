@@ -273,8 +273,6 @@ private extension MarketsSearchView {
         static let listOverlayBottomInset = 12.0
         static let scrollViewContentTopInset = 14.0
         static let scrollViewVerticalPadding = 16.0
-        static let blockHorizontalPadding: CGFloat = 16.0
-        static let contentVerticalSpacing: CGFloat = 14
     }
 
     enum Identifiers {
@@ -287,19 +285,5 @@ private extension MarketsSearchView {
         private static let prefix = "MarketsSearchView.CoordinateSpaceName."
 
         static let scrollViewFrame = prefix + "scrollViewFrame"
-    }
-}
-
-// MARK: - Auxiliary types
-
-extension MarketsSearchView {
-    enum ListLoadingState: String, Identifiable, Hashable {
-        case noResults
-        case error
-        case loading
-        case allDataLoaded
-        case idle
-
-        var id: String { rawValue }
     }
 }

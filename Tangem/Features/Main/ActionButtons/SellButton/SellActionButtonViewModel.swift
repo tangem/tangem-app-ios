@@ -72,14 +72,6 @@ final class SellActionButtonViewModel: ActionButtonViewModel {
         }
     }
 
-    private func makeTokenSelectorViewModel() -> TokenSelectorViewModel {
-        .common(
-            walletsProvider: .cryptoJointAccounts(),
-            availabilityProvider: .sell(),
-            preferredWalletId: ActionButtonsBuyPreselection.userWalletId(for: userWalletModel)
-        )
-    }
-
     @MainActor
     func updateState(to state: ActionButtonState) {
         viewState = state

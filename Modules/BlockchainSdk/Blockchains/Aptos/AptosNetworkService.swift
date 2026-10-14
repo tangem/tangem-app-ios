@@ -174,7 +174,6 @@ class AptosNetworkService: MultiNetworkProvider {
 private extension AptosNetworkService {
     enum Constants {
         static let accountKeyPrefix = "0x1::account::Account"
-        static let coinStoreKeyPrefix = "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>"
         static let transferPayloadType = "entry_function_payload"
         static let transferPayloadFunction = "0x1::aptos_account::transfer"
         static let aptosCoinContract = "0x1::aptos_coin::AptosCoin"

@@ -102,10 +102,6 @@ final class TangemPayMainViewModel: ObservableObject {
         !inlineNotifications.isEmpty
     }
 
-    var shouldDimTransactions: Bool {
-        isStale && tangemPayTransactionHistoryState.isLoaded
-    }
-
     var isDeactivated: Bool {
         tangemPayAccount.isDeactivated
     }

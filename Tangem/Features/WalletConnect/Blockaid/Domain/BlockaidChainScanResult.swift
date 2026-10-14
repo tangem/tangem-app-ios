@@ -42,16 +42,5 @@ struct BlockaidChainScanResult: Equatable {
                 assetType.lowercased() == "erc1155" ||
                 assetType.lowercased() == "nft"
         }
-
-        /// Determines if the asset is a fungible token
-        var isFungibleToken: Bool {
-            return assetType.lowercased() == "erc20" ||
-                assetType.lowercased() == "token"
-        }
-
-        /// Determines if the asset is the native currency
-        var isNative: Bool {
-            return assetType.lowercased() == "native"
-        }
     }
 }

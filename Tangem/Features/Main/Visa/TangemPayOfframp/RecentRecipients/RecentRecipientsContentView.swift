@@ -86,7 +86,6 @@ private extension RecentRecipientsContentView {
 private extension RecentRecipientsContentView {
     enum Constants {
         static let horizontalPadding: CGFloat = 16
-        static let listTopPadding: CGFloat = 12
         static let titleVerticalPadding: CGFloat = 8
         static let monogramSide: CGFloat = 40
         static let emptyViewSpacing: CGFloat = 12

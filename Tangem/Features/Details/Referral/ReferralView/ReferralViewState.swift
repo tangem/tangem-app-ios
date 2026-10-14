@@ -14,19 +14,6 @@ extension ReferralViewModel {
         case loading
         case loaded(LoadedState)
         case failed(reason: String)
-
-        func updateAccountData(with newData: SelectedAccountViewData) -> Self {
-            switch self {
-            case .loading:
-                return .loading
-
-            case .loaded(let loadedState):
-                return .loaded(loadedState.updateAccountData(with: newData))
-
-            case .failed(let reason):
-                return .failed(reason: reason)
-            }
-        }
     }
 
     enum LoadedState {
@@ -40,28 +27,6 @@ extension ReferralViewModel {
 
             case .readyToBecomeParticipant(let displayMode):
                 return displayMode.accountData
-            }
-        }
-
-        func updateAccountData(with newData: SelectedAccountViewData) -> Self {
-            switch self {
-            case .alreadyParticipant(let displayMode):
-                switch displayMode {
-                case .simple(let userTokensManager):
-                    return .alreadyParticipant(.simple(userTokensManager))
-
-                case .accounts:
-                    return .alreadyParticipant(.accounts(newData))
-                }
-
-            case .readyToBecomeParticipant(let displayMode):
-                switch displayMode {
-                case .simple(let userTokensManager):
-                    return .readyToBecomeParticipant(.simple(userTokensManager))
-
-                case .accounts(let tokenItem, _):
-                    return .readyToBecomeParticipant(.accounts(tokenItem, newData))
-                }
             }
         }
     }
