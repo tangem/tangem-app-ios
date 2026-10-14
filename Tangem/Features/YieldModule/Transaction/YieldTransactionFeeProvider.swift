@@ -452,7 +452,5 @@ extension YieldTransactionFeeProvider {
         static let zeroCoinAmount = "0x0"
         static let estimatedGasLimit = 500_000 // gas units, provided by dbaturin
         static let minimalTopUpGasLimit: BigUInt = 350_000
-        static let minimalTopUpBuffer: Decimal = 1.25
-        static let minimalTopUpFeeLimit: Decimal = 0.04
     }
 }

@@ -63,12 +63,6 @@ final class ActionButtonsBuyViewModel: ObservableObject {
         ActionButtonsAnalyticsService.trackCloseButtonTap(source: .buy)
         coordinator?.dismiss()
     }
-
-    func userDidTapHotCryptoToken(_ token: HotCryptoToken) {
-        ActionButtonsAnalyticsService.hotTokenClicked(tokenSymbol: token.tokenItem?.currencySymbol ?? token.name)
-        let scopeWalletModels = hotCryptoScopeWalletModels(selectedChipId: tokenSelectorViewModel.selectedChipId)
-        coordinator?.openAddHotToken(hotToken: token, userWalletModels: scopeWalletModels)
-    }
 }
 
 // MARK: - Private

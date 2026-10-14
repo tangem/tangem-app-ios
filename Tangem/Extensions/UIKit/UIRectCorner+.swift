@@ -17,13 +17,6 @@ extension UIRectCorner {
         ]
     }
 
-    static var bottomEdge: Self {
-        return [
-            .bottomLeft,
-            .bottomRight,
-        ]
-    }
-
     func toCACornerMask() -> CACornerMask {
         var maskedCorners = CACornerMask()
 

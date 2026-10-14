@@ -331,14 +331,6 @@ final class EnvironmentSetupViewModel: ObservableObject {
     func handleSurveySparrowDemoClassicButtonTapped() {
         coordinator?.openSparrowSurveyClassicDemo(withToken: surveySparrowToken)
     }
-
-    func handleSurveySparrowDemoChatButtonTapped() {
-        coordinator?.openSparrowSurveyChatDemo(withToken: surveySparrowToken)
-    }
-
-    func handleSurveySparrowDemoNPSButtonTapped() {
-        coordinator?.openSparrowSurveyNPSDemo(withToken: surveySparrowToken)
-    }
 }
 
 // MARK: - Wallet ids

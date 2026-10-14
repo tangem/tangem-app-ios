@@ -56,15 +56,6 @@ extension SendAmountTokenViewData {
         case max(action: () -> Void)
         case select(individualAction: (() -> Void)? = .none)
 
-        var individualAction: (() -> Void)? {
-            switch self {
-            case .max:
-                return nil
-            case .select(individualAction: let individualAction):
-                return individualAction
-            }
-        }
-
         static func == (lhs: SendAmountTokenViewData.DetailsType, rhs: SendAmountTokenViewData.DetailsType) -> Bool {
             lhs.hashValue == rhs.hashValue
         }

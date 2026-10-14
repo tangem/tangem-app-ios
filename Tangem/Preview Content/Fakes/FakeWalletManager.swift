@@ -100,11 +100,6 @@ class FakeWalletManager: WalletManager {
         wallet.add(tokenValue: 0, for: token)
     }
 
-    func addTokens(_ tokens: [BlockchainSdk.Token]) {
-        cardTokens.append(contentsOf: tokens)
-        tokens.forEach { wallet.add(tokenValue: 0, for: $0) }
-    }
-
     func send(
         _ transaction: BlockchainSdk.Transaction,
         signer: BlockchainSdk.TransactionSigner

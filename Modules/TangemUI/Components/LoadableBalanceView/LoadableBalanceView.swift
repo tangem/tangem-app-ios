@@ -191,12 +191,6 @@ public extension LoadableBalanceView.LoaderStyle {
 public extension LoadableBalanceView {
     enum ContentTransitionType {
         case numeric(isCountdown: Bool)
-
-        var contentTransition: ContentTransition? {
-            switch self {
-            case .numeric(let isCountdown): .numericText(countsDown: isCountdown)
-            }
-        }
     }
 }
 

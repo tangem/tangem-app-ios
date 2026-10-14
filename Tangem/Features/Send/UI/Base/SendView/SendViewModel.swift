@@ -33,7 +33,6 @@ final class SendViewModel: ObservableObject {
 
     var mainButtonLoading: Bool { actionInProcessing }
     var closeButtonDisabled: Bool { actionInProcessing }
-    var trailingButtonDisabled: Bool { actionInProcessing }
     var isUserInteractionDisabled: Bool { actionInProcessing }
 
     var navigationBarSettings: SendStepNavigationBarSettings { stepsManager.navigationBarSettings }
@@ -60,7 +59,6 @@ final class SendViewModel: ObservableObject {
     private var sendTask: Task<Void, Never>?
     private var isValidSubscription: AnyCancellable?
     private var isUpdatingSubscription: AnyCancellable?
-    private var isValidContinueSubscription: AnyCancellable?
     private var navigationBarRefreshSubscription: AnyCancellable?
 
     init(

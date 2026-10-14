@@ -79,25 +79,4 @@ enum OpCodeFactory {
             return .OP_INVALIDOPCODE
         }
     }
-
-    /**
-     Converts opcode OP_<N> or OP_1NEGATE to an Int value.
-     If incorrect opcode is given, Int.max is returned.
-
-     - parameter opcode: OpCode which can be OP_<N> or OP_1NEGATE
-
-     - returns: Int value correspondint to OpCode
-     */
-    static func smallInteger(from opcode: OpCode) -> SmallInteger {
-        switch opcode {
-        case .OP_1NEGATE:
-            return -1
-        case .OP_0:
-            return 0
-        case (OpCode.OP_1) ... (OpCode.OP_16):
-            return Int(opcode.value - OpCode.OP_1.value + 1)
-        default:
-            return Int.max
-        }
-    }
 }
