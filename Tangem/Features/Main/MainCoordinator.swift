@@ -696,6 +696,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         let coordinator = CollectiblesCoordinator(
             dismissAction: { [weak self] in
                 self?.collectiblesCoordinator = nil
+                self?.mainBottomSheetUIManager.show()
             },
             popToRootAction: popToRootAction
         )

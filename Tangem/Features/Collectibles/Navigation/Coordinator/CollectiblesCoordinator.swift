@@ -65,10 +65,6 @@ final class CollectiblesCoordinator: CoordinatorObject {
         )
     }
 
-    func closeMachine() {
-        machineViewModel = nil
-    }
-
     func closeConfirmOrder() {
         confirmOrderViewModel = nil
     }
@@ -86,6 +82,7 @@ extension CollectiblesCoordinator: CollectiblesMainRoutable {
     func openMachine(for pack: CollectiblesPack) {
         guard machineViewModel == nil else { return }
 
+        confirmOrderViewModel = nil
         machineViewModel = CollectiblesMachineViewModel(
             pack: pack,
             routable: self,
@@ -117,8 +114,17 @@ extension CollectiblesCoordinator: CollectiblesMachineRoutable {
             machine: machine,
             usdcBalanceProvider: accountModel.usdcTokenBalanceProvider,
             purchaseInteractor: accountModel.purchaseInteractor,
+            routable: self,
             refreshBalance: accountModel.refreshState
         )
+    }
+}
+
+// MARK: - CollectiblesConfirmOrderRoutable
+
+extension CollectiblesCoordinator: CollectiblesConfirmOrderRoutable {
+    func closePackFlow() {
+        machineViewModel = nil
     }
 }
 
