@@ -137,21 +137,44 @@ final class PolymarketOwnerAddressProviderStub: PolymarketOwnerAddressProviding 
     static let ownerAddress = "0xabc0000000000000000000000000000000000001"
 
     private let derived: String?
+    private let isStored: Bool
 
-    init(derived: String? = nil) {
+    init(derived: String? = nil, isStored: Bool = true) {
         self.derived = derived
+        self.isStored = isStored
     }
 
     func getOwnerAddress() -> String? {
-        derived
+        isStored ? derived : nil
+    }
+}
+
+// MARK: - Owner key session
+
+final class PolymarketOwnerKeySessionSpy: PolymarketOwnerKeySession {
+    private(set) var prompts = 0
+
+    let signer: PolymarketOnboardingSignerSpy
+
+    private let error: PolymarketOnboardingError?
+
+    init(signer: PolymarketOnboardingSignerSpy = PolymarketOnboardingSignerSpy(), error: PolymarketOnboardingError? = nil) {
+        self.signer = signer
+        self.error = error
     }
 
-    func deriveOwnerAddress() async throws(PolymarketDerivationError) -> String {
-        guard let derived else {
-            throw PolymarketDerivationError.missingWallet
+    func derive<Output>(
+        andRun work: @escaping (PolymarketOwnerKeySessionContext) async throws -> Output
+    ) async throws -> Output {
+        prompts += 1
+
+        if let error {
+            throw error
         }
 
-        return derived
+        return try await work(
+            PolymarketOwnerKeySessionContext(ownerAddress: PolymarketOwnerAddressProviderStub.ownerAddress, signer: signer)
+        )
     }
 }
 

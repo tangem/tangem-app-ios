@@ -547,6 +547,10 @@ extension VisaUserWalletModel: UserWalletModel {
         userWalletModel.tangemPayAuthorizingInteractor
     }
 
+    var polymarketOwnerKeySession: PolymarketOwnerKeySession {
+        userWalletModel.polymarketOwnerKeySession
+    }
+
     var userWalletPushNotificationsManager: any UserWalletPushNotificationsManager {
         userWalletModel.userWalletPushNotificationsManager
     }

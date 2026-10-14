@@ -25,6 +25,7 @@ protocol UserWalletModel:
     TangemPayAuthorizingProvider,
     JointAccountDerivationInteractorProvider,
     CollectiblesColdKeyInteractorProvider,
+    PolymarketOwnerKeySessionProvider,
     WalletSelectorInfoProvider,
     UserWalletModelUnlockerResolvable,
     UserWalletInfoProvider,
