@@ -15,7 +15,6 @@ protocol PolymarketOrderFlowBuilder: AnyObject {
         outcome: PolymarketOutcome,
         eventTitle: String,
         request: PolymarketOrderRequest,
-        pushesPlacedPosition: Bool,
         onPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
         onOpenPosition: @escaping (PolymarketPosition) -> Void,
         onClose: @escaping () -> Void
@@ -29,4 +28,12 @@ protocol PolymarketOrderFlowBuilder: AnyObject {
     ) -> PolymarketPositionDetailsCoordinator
 
     func returnToMain()
+
+    var orderPresenter: PolymarketOrderPresenter { get }
+
+    func presentOrder(_ coordinator: PolymarketOrderCoordinator, from host: AnyObject?)
+
+    func dismissOrder()
+
+    func runAfterOrderDismiss(_ action: @escaping () -> Void)
 }

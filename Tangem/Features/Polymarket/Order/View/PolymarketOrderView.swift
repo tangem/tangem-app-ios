@@ -26,7 +26,7 @@ struct PolymarketOrderView: View {
         VStack(spacing: 0) {
             PolymarketTopBar(
                 title: viewModel.screenTitle,
-                onBack: { viewModel.handleViewAction(.close) }
+                onClose: { viewModel.handleViewAction(.close) }
             )
             .padding(.top, Constants.topBarTopPadding)
 
