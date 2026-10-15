@@ -14,7 +14,7 @@ import TangemPay
 @MainActor
 final class RegionSelectionViewModel: ObservableObject {
     @Published var searchText = ""
-    @Published private(set) var state: LoadingResult<GeoSelectionSections, any Error> = .loading
+    @Published private(set) var state: LoadingResult<GeoSelectionList, any Error> = .loading
     @Published private(set) var loadingItemId: String?
     @Published private(set) var regions: [TangemPayGeoRegion] = []
 
@@ -86,23 +86,27 @@ private extension RegionSelectionViewModel {
         Publishers.CombineLatest(regionsPublisher, $searchText)
             .map { [configuration] state, searchText in
                 state.mapValue { regions in
-                    Self.makeSections(from: regions, searchText: searchText, configuration: configuration)
+                    Self.makeList(from: regions, searchText: searchText, configuration: configuration)
                 }
             }
             .receiveOnMain()
             .assign(to: &$state)
     }
 
-    static func makeSections(
+    static func makeList(
         from regions: [TangemPayGeoRegion],
         searchText: String,
         configuration: GeoSelectionConfiguration
-    ) -> GeoSelectionSections {
+    ) -> GeoSelectionList {
         let query = searchText.trimmed()
 
         let filtered = regions
             .filter { query.isEmpty || matches($0, query: query) }
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+
+        guard query.isEmpty else {
+            return .searchResults(filtered.map(makeItem(from:)))
+        }
 
         let highlighted: TangemPayGeoRegion? = switch configuration.highlight {
         case .none: nil
@@ -110,7 +114,7 @@ private extension RegionSelectionViewModel {
         case .selected(let code, _, _): filtered.first { $0.code == code }
         }
 
-        return GeoSelectionSections(
+        return .sections(
             highlighted: highlighted.map(makeItem(from:)),
             all: filtered.map(makeItem(from:))
         )
