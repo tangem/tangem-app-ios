@@ -65,7 +65,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
             .sheet(
                 item: $coordinator.addFundsViewModel,
                 onDismiss: coordinator.addFundsDidDismiss,
-                content: { AddFundsView(viewModel: $0) }
+                content: { viewModel in NavigationStack { AddFundsView(viewModel: viewModel) } }
             )
             .sheet(item: $coordinator.tokenSummaryViewModel, onDismiss: coordinator.tokenSummaryDidDismiss) {
                 TokenSummaryView(viewModel: $0)
