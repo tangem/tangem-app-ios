@@ -139,6 +139,23 @@ struct CollectiblesAPIServiceTests {
         #expect(headers["version"]?.isEmpty == false)
     }
 
+    // MARK: - Opening media
+
+    @Test("Opening media keeps every file the backend sends, even without the other theme's video")
+    func keepsPartialOpeningMedia() async throws {
+        let media = #"""
+        {"videoLight":null,"videoDark":"https://example.com/dark.mp4","skipAnimationAudio":"https://example.com/skip.mp3"}
+        """#
+        CollectiblesStubURLProtocol.responses = [Data(Self.machineJSON(openPackMedia: media).utf8)]
+
+        let machine = try await makeSUT().load(id: "pokemon_50")
+        let openingMedia = machine.openingMedia
+
+        #expect(openingMedia.darkVideoURL == URL(string: "https://example.com/dark.mp4"))
+        #expect(openingMedia.lightVideoURL == nil)
+        #expect(openingMedia.skipAudioURL == URL(string: "https://example.com/skip.mp3"))
+    }
+
     // MARK: - Errors
 
     @Test("Non-2xx response surfaces as .http with the status code and the raw body")
@@ -206,7 +223,8 @@ private extension CollectiblesAPIServiceTests {
 
     static func machineJSON(
         externalId: String = "pokemon_50",
-        commonRange: String = #"{"start":3000,"end":6000}"#
+        commonRange: String = #"{"start":3000,"end":6000}"#,
+        openPackMedia: String = "null"
     ) -> String {
         #"""
         {"id":"01a03802-433f-7ae5-a996-f981048a0a18","externalId":"\#(externalId)","name":"Elite Pokémon Gacha Pack",
@@ -215,7 +233,8 @@ private extension CollectiblesAPIServiceTests {
         "tierRanges":{"common":\#(commonRange),"rare":{"start":11000,"end":25000},"epic":{"start":25000,"end":500100},"legendary":null},
         "stock":{"common":214,"rare":383,"epic":200,"legendary":null},
         "expectedValue":5450,"image":"https://example.com/pack.png","categoryId":"pokemon","contains":1,
-        "fee":200,"feeAmount":100,"createdAt":"2026-08-25T08:21:07.518119Z","updatedAt":"2026-09-07T04:34:30.860676Z"}
+        "fee":200,"feeAmount":100,"createdAt":"2026-08-25T08:21:07.518119Z","updatedAt":"2026-09-07T04:34:30.860676Z",
+        "openPackMedia":\#(openPackMedia)}
         """#
     }
 }

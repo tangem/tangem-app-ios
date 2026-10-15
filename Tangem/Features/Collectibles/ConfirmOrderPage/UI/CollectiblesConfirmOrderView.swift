@@ -18,20 +18,24 @@ struct CollectiblesConfirmOrderView: View {
     let onBack: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
 
     @State private var packPose: PackPose = .resting
     @State private var isPackHidden = false
-    @State private var isOrderHidden = false
+    @State private var exitProgress: CGFloat = 0
     @State private var isRevealShown = false
 
     var body: some View {
         ZStack {
-            order
-
             reveal
+
+            order
+                .allowsHitTesting(!isRevealShown)
         }
         .overlay(alignment: .top) { errorSnackbar }
         .background(PopGestureDisabler(isDisabled: !isBackAvailable))
+        .onAppear { viewModel.preloadRevealAssets(for: colorScheme) }
+        .onChange(of: colorScheme, perform: viewModel.preloadRevealAssets)
     }
 }
 
@@ -44,11 +48,13 @@ private extension CollectiblesConfirmOrderView {
                 .infinityFrame()
 
             orderRows
-                .offset(y: orderExitOffset)
-                .opacity(isOrderHidden ? 0 : 1)
-                .animation(Launch.rowsExit, value: isOrderHidden)
+                .modifier(LaunchExit(progress: exitProgress, isDelayed: true, shift: exitShift))
         }
-        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+        .background(
+            DesignSystem.Color.bgPrimary
+                .opacity(isRevealShown ? 0 : 1)
+                .ignoresSafeArea()
+        )
         .safeAreaInset(edge: .top, spacing: 0) {
             navigationBar
                 .opacity(isRevealShown ? 0 : 1)
@@ -57,9 +63,7 @@ private extension CollectiblesConfirmOrderView {
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             approveButton
-                .offset(y: orderExitOffset)
-                .opacity(isOrderHidden ? 0 : 1)
-                .animation(Launch.buttonExit, value: isOrderHidden)
+                .modifier(LaunchExit(progress: exitProgress, isDelayed: false, shift: exitShift))
         }
         .task(id: viewModel.buttonState == .packGenerated) {
             guard viewModel.buttonState == .packGenerated else { return }
@@ -106,22 +110,31 @@ private extension CollectiblesConfirmOrderView {
             .overlay {
                 CollectiblesFractionalFrame(width: Metrics.packWidthFraction, height: 1) {
                     CollectiblesPackCard.Artwork(url: viewModel.artworkURL, hasFailureCard: true, glow: .page)
+                        .rotation3DEffect(
+                            packPose.rotationX,
+                            axis: (x: 1, y: 0, z: 0),
+                            perspective: Launch.packPerspective
+                        )
+                        .rotation3DEffect(
+                            packPose.rotationY,
+                            axis: (x: 0, y: 1, z: 0),
+                            perspective: Launch.packPerspective
+                        )
+                        .rotationEffect(packPose.rotationZ)
                         .scaleEffect(packPose.scale)
-                        .rotationEffect(packPose.rotation)
                         .offset(packPose.offset)
                         .animation(packPose.animation, value: packPose)
                         .opacity(isPackHidden ? 0 : 1)
-                        .animation(Launch.packFade, value: isPackHidden)
                 }
             }
     }
 
     var orderRows: some View {
         VStack(spacing: 0) {
-            ForEach(viewModel.rows, id: \.self) { row in
+            ForEach(viewModel.rows) { row in
                 Row(title: row.title, value: row.value)
-                    .overrideTextColors(.init(title: row.isTotal ? nil : DesignSystem.Color.textSecondary))
-                    .showDivider(!row.isTotal)
+                    .overrideTextColors(.init(title: row.kind == .total ? nil : DesignSystem.Color.textSecondary))
+                    .showDivider(row.kind != .total)
             }
         }
         .padding(.horizontal, Metrics.rowsHorizontalPadding)
@@ -184,8 +197,7 @@ private extension CollectiblesConfirmOrderView {
     @ViewBuilder
     var reveal: some View {
         if isRevealShown, let revealViewModel = viewModel.revealViewModel {
-            CollectiblesPackRevealView(viewModel: revealViewModel, onBack: onBack, onKeep: onBack)
-                .transition(.opacity.animation(Launch.revealVideoAppearance))
+            CollectiblesPackRevealView(viewModel: revealViewModel, onKeep: onBack)
         }
     }
 
@@ -211,8 +223,8 @@ private extension CollectiblesConfirmOrderView {
         viewModel.retryBalance()
     }
 
-    var orderExitOffset: CGFloat {
-        isOrderHidden && !reduceMotion ? Launch.exitOffset : 0
+    var exitShift: CGFloat {
+        reduceMotion ? 0 : Launch.exitOffset
     }
 }
 
@@ -220,13 +232,15 @@ private extension CollectiblesConfirmOrderView {
 
 private extension CollectiblesConfirmOrderView {
     func launchPack() async {
-        isOrderHidden = true
+        isRevealShown = true
 
         guard !reduceMotion else {
+            exitProgress = 1
             isPackHidden = true
-            isRevealShown = true
             return
         }
+
+        withAnimation(Launch.exit) { exitProgress = 1 }
 
         packPose = .dipped
 
@@ -237,7 +251,6 @@ private extension CollectiblesConfirmOrderView {
         }
 
         packPose = .launched
-        isPackHidden = true
 
         do {
             try await Task.sleep(for: Launch.launchDuration)
@@ -245,7 +258,7 @@ private extension CollectiblesConfirmOrderView {
             return
         }
 
-        isRevealShown = true
+        isPackHidden = true
     }
 }
 
