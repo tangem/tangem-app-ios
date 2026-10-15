@@ -93,7 +93,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         )
 
         sourceCryptoDecimalNumberTextFieldViewModel = .init(
-            maximumFractionDigits: sourceTokenInput.sourceToken.value?.tokenItem.decimalCount ?? 0
+            maximumFractionDigits: sourceTokenInput.sourceToken.value?.tokenItem.displayDecimalCount ?? 0
         )
 
         let fiatItem = sourceTokenInput.sourceToken.value?.fiatItem
@@ -314,14 +314,14 @@ private extension SwapAmountViewModel {
                 update(sourceCalculationType: .crypto)
             }
 
-            sourceCryptoDecimalNumberTextFieldViewModel.update(maximumFractionDigits: token.tokenItem.decimalCount)
+            sourceCryptoDecimalNumberTextFieldViewModel.update(maximumFractionDigits: token.tokenItem.displayDecimalCount)
             sourceFiatDecimalNumberTextFieldViewModel.update(maximumFractionDigits: token.fiatItem.fractionDigits)
             sourceFiatFieldOptions = prefixSuffixOptionsFactory.makeFiatOptions(fiatCurrencyCode: token.fiatItem.currencyCode)
 
             switch sourceCalculationType {
             case .crypto:
                 let textFieldValue = sourceCryptoDecimalNumberTextFieldViewModel.value
-                let roundedAmount = textFieldValue?.rounded(scale: token.tokenItem.decimalCount, roundingMode: .down)
+                let roundedAmount = textFieldValue?.rounded(scale: token.tokenItem.displayDecimalCount, roundingMode: .down)
 
                 // If we have amount then we should round and update it with new decimalCount
                 if roundedAmount != textFieldValue {
@@ -357,7 +357,7 @@ private extension SwapAmountViewModel {
 
         case .fiat:
             let tokenItem = sourceTokenInput?.sourceToken.value?.tokenItem ?? initialTokenItem
-            let formatter = DecimalNumberFormatter(maximumFractionDigits: tokenItem.decimalCount)
+            let formatter = DecimalNumberFormatter(maximumFractionDigits: tokenItem.displayDecimalCount)
             let cryptoFormatted: String = formatter.format(value: amount?.crypto ?? .zero)
             sourceExpressCurrencyViewModel.update(alternativeAmountState: .loaded(text: cryptoFormatted))
         }
@@ -394,7 +394,7 @@ private extension SwapAmountViewModel {
                 return
             }
 
-            let formatter = DecimalNumberFormatter(maximumFractionDigits: token.tokenItem.decimalCount)
+            let formatter = DecimalNumberFormatter(maximumFractionDigits: token.tokenItem.displayDecimalCount)
             let cryptoFormatted: String = formatter.format(value: crypto)
             receiveCryptoAmountState = .loaded(text: SwapAmountFormatter.formatAmount(cryptoFormatted, isApproximate: isApproximate))
 
