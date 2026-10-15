@@ -36,8 +36,6 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
     let isPairReversalEnabled: Bool
 
-    private let isReceiveTokenSelectionEnabled: Bool
-
     var sourceAmountInputPublisher: AnyPublisher<Decimal?, Never> {
         Publishers.Merge(
             sourceCryptoDecimalNumberTextFieldViewModel.valuePublisher(),
@@ -70,6 +68,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
     init(
         isPairReversalEnabled: Bool = true,
+        isSourceTokenSelectionEnabled: Bool = true,
         isReceiveTokenSelectionEnabled: Bool = true,
         interactor: SendAmountInteractor,
         stateProvider: SwapModelStateProvider,
@@ -77,7 +76,6 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         receiveTokenInput: SendReceiveTokenInput?,
     ) {
         self.isPairReversalEnabled = isPairReversalEnabled
-        self.isReceiveTokenSelectionEnabled = isReceiveTokenSelectionEnabled
         self.interactor = interactor
         self.stateProvider = stateProvider
         self.sourceTokenInput = sourceTokenInput
@@ -86,7 +84,8 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         sourceExpressCurrencyViewModel = .init(
             viewType: .send,
             headerType: .action(name: Localization.swappingFromTitle),
-            canChangeCurrency: !sourceTokenInput.sourceToken.isLoading
+            isTokenSelectionEnabled: isSourceTokenSelectionEnabled,
+            canChangeCurrency: isSourceTokenSelectionEnabled && !sourceTokenInput.sourceToken.isLoading
         )
 
         sourceCryptoDecimalNumberTextFieldViewModel = .init(
@@ -102,6 +101,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         receiveExpressCurrencyViewModel = .init(
             viewType: .receive,
             headerType: .action(name: Localization.swappingToTitle),
+            isTokenSelectionEnabled: isReceiveTokenSelectionEnabled,
             canChangeCurrency: isReceiveTokenSelectionEnabled
                 && (receiveTokenInput.map { !$0.receiveToken.isLoading } ?? true)
         )
@@ -366,10 +366,6 @@ private extension SwapAmountViewModel {
         isApproximate: Bool
     ) {
         receiveExpressCurrencyViewModel.update(wallet: receiveToken.mapValue { $0 as SendGenericToken })
-
-        if !isReceiveTokenSelectionEnabled {
-            receiveExpressCurrencyViewModel.update(canChangeCurrency: false)
-        }
 
         switch (receiveToken, amount) {
         case (.loading, _), (_, .loading):

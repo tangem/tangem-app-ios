@@ -33,6 +33,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         priceChangeState: PriceChangeState? = nil,
         tokenIconState: TokenIconState = .loading,
         symbolState: LoadableTextView.State = .loading,
+        isTokenSelectionEnabled: Bool = true,
         canChangeCurrency: Bool
     ) {
         self.viewType = viewType
@@ -43,6 +44,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
             priceChangeState: priceChangeState,
             tokenIconState: tokenIconState,
             symbolState: symbolState,
+            isTokenSelectionEnabled: isTokenSelectionEnabled,
             canChangeCurrency: canChangeCurrency
         )
     }
@@ -137,10 +139,6 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         state.isSwitchCurrencyAvailable = isSwitchCurrencyAvailable
     }
 
-    func update(canChangeCurrency: Bool) {
-        state.canChangeCurrency = canChangeCurrency
-    }
-
     /// Prevents an in-flight async conversion from overwriting
     /// the bottom row after the calculation type has changed.
     func cancelPendingFiatConversion() {
@@ -157,6 +155,7 @@ extension ExpressCurrencyViewModel {
         var priceChangeState: PriceChangeState?
         var tokenIconState: TokenIconState
         var symbolState: LoadableTextView.State
+        let isTokenSelectionEnabled: Bool
         var canChangeCurrency: Bool
         var isFiatAmountHidden: Bool = false
         var isSwitchCurrencyAvailable: Bool = false
@@ -166,7 +165,7 @@ extension ExpressCurrencyViewModel {
             presentation: SendReceiveTokenPresentation?,
             viewType: ExpressCurrencyViewType
         ) {
-            canChangeCurrency = !wallet.isLoading
+            canChangeCurrency = isTokenSelectionEnabled && !wallet.isLoading
 
             switch wallet {
             case .loading:
