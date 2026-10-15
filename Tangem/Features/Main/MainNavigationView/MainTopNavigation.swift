@@ -11,6 +11,7 @@ import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 /// Main is the only screen that needs a decorative logo pinned leading, a balance centred on screen and actions
 /// trailing, so it composes the shared `topNavigation` instead of adding a case to it.
@@ -30,20 +31,54 @@ private struct MainTopNavigationModifier<Balance: View>: ViewModifier {
     let actionsHaveBackground: Bool
     let balance: Balance
 
+    @Environment(\.verticalBarEdge) private var verticalBarEdge
+
     @State private var barWidth: CGFloat?
     @State private var logoWidth: CGFloat = .zero
     @State private var actionsWidth: CGFloat = .zero
     @State private var balanceWidth: CGFloat = .zero
 
+    private var isVerticalBar: Bool {
+        verticalBarEdge != nil
+    }
+
     func body(content: Content) -> some View {
         content
-            .topNavigation(leading: .none) {
-                mergedBarContent
+            .topNavigation(
+                leading: .none,
+                actions: isVerticalBar ? actions : nil,
+                actionsHaveBackground: actionsHaveBackground
+            ) {
+                if isVerticalBar {
+                    balance
+                } else {
+                    mergedBarContent
+                }
             }
+            .toolbar {
+                if isVerticalBar {
+                    logoItem
+                }
+            }
+            .navigationBarNeverMinimizes()
             .onGeometryChange(for: CGFloat.self, of: \.size.width) { contentWidth in
                 let availableWidth = contentWidth - Metrics.barHorizontalInset * 2
                 barWidth = availableWidth > .zero ? availableWidth : nil
             }
+    }
+
+    @ToolbarContentBuilder
+    private var logoItem: some ToolbarContent {
+        if #available(iOS 26.0, *) {
+            ToolbarItem(placement: .topBarLeading) {
+                logo
+            }
+            .sharedBackgroundVisibility(.hidden)
+        } else {
+            ToolbarItem(placement: .topBarLeading) {
+                logo
+            }
+        }
     }
 
     private var mergedBarContent: some View {
@@ -118,6 +153,21 @@ private enum Metrics {
 }
 
 // MARK: - View extension
+
+private extension View {
+    @ViewBuilder
+    func navigationBarNeverMinimizes() -> some View {
+        #if canImport(SwiftUI, _version: 8.0.84)
+        if #available(iOS 27.0, *) {
+            toolbarMinimizationBehavior(.never, for: .navigationBar)
+        } else {
+            self
+        }
+        #else
+        self
+        #endif
+    }
+}
 
 extension View {
     func mainTopNavigation(
