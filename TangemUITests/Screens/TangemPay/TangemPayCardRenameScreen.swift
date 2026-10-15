@@ -10,11 +10,6 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class TangemPayCardRenameScreen: ScreenBase<TangemPayCardRenameScreenElement> {
-    private static let invalidAlertTitle = "Invalid characters"
-    private static let invalidAlertMessage = "Only letters and numbers are allowed"
-    private static let backendErrorAlertTitle = "Unable to rename card"
-    private static let backendErrorAlertMessage = "Please try again later"
-
     private lazy var nameField = textField(.cardNameTextField)
     private lazy var doneButton = button(.cardRenameDoneButton)
     private lazy var closeButton = button(.cardRenameCloseButton)
@@ -68,7 +63,7 @@ final class TangemPayCardRenameScreen: ScreenBase<TangemPayCardRenameScreenEleme
     func submitExpectingInvalidCharacters() -> Self {
         XCTContext.runActivity(named: "Tap Done expecting Invalid characters alert") { _ in
             doneButton.waitAndTap()
-            verifyAlert(title: Self.invalidAlertTitle, message: Self.invalidAlertMessage)
+            verifyAlert(title: Localization.tangempayCardDetailsRenameCardInvalidTitle, message: Localization.tangempayCardDetailsRenameCardInvalidDescription)
             return self
         }
     }
@@ -77,7 +72,7 @@ final class TangemPayCardRenameScreen: ScreenBase<TangemPayCardRenameScreenEleme
     func submitExpectingBackendError() -> Self {
         XCTContext.runActivity(named: "Tap Done expecting backend error alert") { _ in
             doneButton.waitAndTap()
-            verifyAlert(title: Self.backendErrorAlertTitle, message: Self.backendErrorAlertMessage, timeout: .networkRequest)
+            verifyAlert(title: Localization.tangemPayCardDetailsUnableToRenameCardTitle, message: Localization.tangempayCardDetailsUnableToRenameCardDescription, timeout: .networkRequest)
             return self
         }
     }
@@ -104,7 +99,7 @@ final class TangemPayCardRenameScreen: ScreenBase<TangemPayCardRenameScreenEleme
             .firstMatch
         waitAndAssertTrue(messageElement, "Alert message '\(message)' should be displayed")
 
-        alert.buttons["OK"].waitAndTap()
+        alert.buttons[Localization.commonOk].waitAndTap()
     }
 }
 
