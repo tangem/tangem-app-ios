@@ -14,7 +14,6 @@ import TangemLocalization
 import TangemAccessibilityIdentifiers
 
 struct TangemPayOnboardingContentView: View {
-    let showsFAQ: Bool
     let showsLegalLine: Bool
     let usesBundleIntroductionLayout: Bool
     let getCardIcon: ImageType?
@@ -112,20 +111,17 @@ struct TangemPayOnboardingContentView: View {
         safeAreaBottom > 0 ? Constants.buttonBottomInset - safeAreaBottom : Constants.buttonBottomInsetWithoutHomeIndicator
     }
 
-    // MARK: - Scroll layout (static hero, scrollable, FAQ)
+    // MARK: - Scroll layout (static hero)
 
     private var scrollLayout: some View {
         ScrollView {
             VStack(spacing: 0) {
                 heroBackground
 
-                VStack(spacing: 24) {
+                VStack(spacing: 36) {
                     textSection
                     featureGrid
                         .padding(.bottom, 24)
-                    if showsFAQ {
-                        faqSection
-                    }
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, -112)
@@ -227,54 +223,6 @@ struct TangemPayOnboardingContentView: View {
         .cornerRadiusContinuous(24)
     }
 
-    private var faqSection: some View {
-        VStack(spacing: 0) {
-            faqItem(
-                question: Localization.tangempayNewonboardQ1Title,
-                answer: Localization.tangempayNewonboardQ1Body,
-                showDivider: false
-            )
-            faqItem(
-                question: Localization.tangempayNewonboardQ2Title,
-                answer: Localization.tangempayNewonboardQ2Body,
-                showDivider: true
-            )
-            faqItem(
-                question: Localization.tangempayNewonboardQ3Title,
-                answer: Localization.tangempayNewonboardQ3Body,
-                showDivider: true
-            )
-            faqItem(
-                question: Localization.tangempayNewonboardQ4Title,
-                answer: Localization.tangempayNewonboardQ4Body,
-                showDivider: true
-            )
-        }
-    }
-
-    private func faqItem(question: String, answer: String, showDivider: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            if showDivider {
-                DesignSystem.Color.borderSecondary
-                    .frame(height: 1)
-                    .frame(maxWidth: .infinity)
-                    .padding(.bottom, 12)
-            }
-
-            Text(question)
-                .font(token: DesignSystem.Font.headingSmallToken)
-                .foregroundStyle(DesignSystem.Color.textPrimary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            Text(answer)
-                .font(token: DesignSystem.Font.subheadingMediumToken)
-                .foregroundStyle(DesignSystem.Color.textSecondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .padding(.top, showDivider ? 24 : 12)
-        .padding(.bottom, 12)
-    }
-
     private var footer: some View {
         VStack(spacing: 12) {
             if showsLegalLine {
@@ -320,12 +268,12 @@ struct TangemPayOnboardingContentView: View {
 
         if let range = string.range(of: terms) {
             string[range].foregroundColor = DesignSystem.Color.textPrimary
-            string[range].link = AppConstants.tosURL
+            string[range].link = AppConstants.tangemPayTermsOfServiceURL
         }
 
         if let range = string.range(of: privacy) {
             string[range].foregroundColor = DesignSystem.Color.textPrimary
-            string[range].link = AppConstants.privacyPolicyURL
+            string[range].link = AppConstants.tangemPayOnboardingPrivacyPolicyURL
         }
 
         return string
