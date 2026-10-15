@@ -16,7 +16,7 @@ public extension Moya.Task {
         _ encodable: Encodable,
         encoder: JSONEncoder = JSONEncoder(),
         encoding: ParameterEncoding = URLEncoding()
-    ) -> Task {
+    ) -> Moya.Task {
         do {
             let data = try encoder.encode(encodable)
             let parameters = try JSONSerialization.jsonObject(with: data) as? [String: Any]
@@ -33,7 +33,7 @@ public extension Moya.Task {
         urlParameters: Encodable,
         encoder: JSONEncoder = JSONEncoder(),
         bodyEncoding: ParameterEncoding = JSONEncoding.default
-    ) -> Task {
+    ) -> Moya.Task {
         do {
             let bodyData = try encoder.encode(body)
             let bodyParameters = try JSONSerialization.jsonObject(with: bodyData) as? [String: Any]
