@@ -36,6 +36,19 @@ enum PolymarketPositionsError: Error {
     case ownerAddressUnavailable
 }
 
+// MARK: - What still counts as an open position
+
+extension PolymarketPosition {
+    /// A position the user has sold out of keeps coming back from the list until the indexer drops it.
+    var isEmptied: Bool {
+        size <= 0
+    }
+
+    var isWorthShowing: Bool {
+        !isEmptied && (settlement == nil || isRedeemable)
+    }
+}
+
 struct CommonPolymarketPositionsService {
     private let ownerAddressProvider: PolymarketOwnerAddressProviding
     private let apiProvider: PolymarketAPIProvider
@@ -54,6 +67,7 @@ struct CommonPolymarketPositionsService {
 extension CommonPolymarketPositionsService: PolymarketPositionsService {
     func activePositions(limit: Int) async throws -> PolymarketPositionsPage {
         var collected: [PolymarketPosition] = []
+        var seenIDs: Set<String> = []
         var received = 0
         var offset = 0
         var hasNext = false
@@ -61,7 +75,11 @@ extension CommonPolymarketPositionsService: PolymarketPositionsService {
         for _ in 0 ..< Constants.activePageScans {
             let page = try await openPositions(sort: .endDate, ascending: true, limit: limit, offset: offset)
 
-            collected += page.positions.filter { $0.settlement == nil || $0.isRedeemable }
+            for position in page.positions where position.isWorthShowing && !seenIDs.contains(position.id) {
+                seenIDs.insert(position.id)
+                collected.append(position)
+            }
+
             received += page.receivedCount
             offset += page.receivedCount
             hasNext = page.hasNext || page.receivedCount == limit

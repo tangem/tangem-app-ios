@@ -84,14 +84,18 @@ private extension TangemPayReceiveSheetView {
 
     var infoContent: some View {
         VStack(spacing: .zero) {
-            warningBanner
-                .padding(.horizontal, 16)
-                .padding(.bottom, 12)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: .zero) {
+                    warningBanner
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 12)
 
-            addressBlock
-                .padding(.horizontal, 16)
-                .padding(.top, 32)
-                .padding(.bottom, 40)
+                    addressBlock
+                        .padding(.horizontal, 16)
+                        .padding(.top, 32)
+                        .padding(.bottom, 40)
+                }
+            }
 
             actionButtons
                 .padding(16)
@@ -232,7 +236,7 @@ private extension TangemPayReceiveSheetView {
             )
             .iconEnd(DesignSystem.Icons.ShareIos.regular24)
             .size(.x12)
-            .styleType(.default)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetShareButton)
         }

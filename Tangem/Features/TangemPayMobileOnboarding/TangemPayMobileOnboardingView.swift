@@ -15,7 +15,63 @@ import TangemAccessibilityIdentifiers
 struct TangemPayMobileOnboardingView: View {
     @ObservedObject var viewModel: TangemPayMobileOnboardingViewModel
 
+    private var isBundleIntroductionEnabled: Bool {
+        FeatureProvider.isAvailable(.payBundleIntroduction)
+    }
+
     var body: some View {
+        content
+            .environment(\.colorScheme, .dark)
+            .alert(item: $viewModel.alert, content: { $0.alert })
+            .onAppear(perform: viewModel.onAppear)
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if isBundleIntroductionEnabled {
+            newContent
+        } else {
+            legacyContent
+        }
+    }
+
+    private var newContent: some View {
+        TangemPayOnboardingContentView(
+            showsFAQ: false,
+            showsLegalLine: true,
+            usesBundleIntroductionLayout: true,
+            getCardIcon: nil,
+            titleAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.mobileOnboardingTitle,
+            getCardButtonAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.mobileOnboardingGetCardButton,
+            isLoading: viewModel.isCreating,
+            onGetCard: viewModel.getCard,
+            onLegalLinkTap: viewModel.openLegalDocument
+        )
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                DesignSystem.Icons.LogoTangem.regular24.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+                    .foregroundStyle(DesignSystem.Color.textPrimary)
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                SwiftUI.Button(action: viewModel.onTermsTap) {
+                    Assets.Visa.tangemPayOnboardingNewDoc.image
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 20, height: 20)
+                        .foregroundStyle(DesignSystem.Color.textPrimary)
+                }
+                .accessibilityLabel(Localization.tangemPayTermsFeesLimits)
+            }
+        }
+    }
+
+    private var legacyContent: some View {
         VStack(spacing: 0) {
             Text(Localization.tangempayOnboardingTitle)
                 .style(Fonts.Bold.title1, color: Colors.Text.constantWhite)
@@ -45,11 +101,9 @@ struct TangemPayMobileOnboardingView: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 12)
         }
-        .environment(\.colorScheme, .dark)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(backgroundGradient.ignoresSafeArea())
-        .alert(item: $viewModel.alert, content: { $0.alert })
-        .onAppear(perform: viewModel.onAppear)
+        .navigationBarHidden(true)
     }
 
     private var backgroundGradient: some View {

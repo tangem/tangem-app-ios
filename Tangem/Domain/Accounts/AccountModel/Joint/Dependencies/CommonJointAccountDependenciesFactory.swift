@@ -85,7 +85,9 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
         let blockchainSettingsUpdater = CommonBlockchainSettingsUpdater(userTokensRepository: userTokensRepository)
         let walletModelsFactory = walletModelsFactoryProvider.makeWalletModelsFactory(
             blockchainSettingsUpdater: blockchainSettingsUpdater,
-            userTokensManager: userTokensManager
+            userTokensManager: userTokensManager,
+            isSafe: true,
+            isEarnSupported: false
         )
         let wrappedWalletModelsFactory = WalletModelsFactoryWrapper(innerFactory: walletModelsFactory)
 
@@ -111,13 +113,19 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
         let membersService = CommonJointAccountMembersService(
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
-            jointAccountsRepository: jointAccountsRepository
+            jointAccountsRepository: jointAccountsRepository,
+            keysProvider: keysRepository
         )
 
         let pendingOperationsProvider = CommonJointAccountPendingOperationsProvider(
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
             jointAccountsRepository: jointAccountsRepository,
+            walletModelsManager: walletModelsManager
+        )
+
+        let finishedOperationsWalletUpdater = JointAccountFinishedOperationsWalletUpdater(
+            pendingOperationsProvider: pendingOperationsProvider,
             walletModelsManager: walletModelsManager
         )
 
@@ -133,6 +141,7 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
             derivationManager: accountSpecificDerivationManager,
             operationsService: operationsService,
             pendingOperationsProvider: pendingOperationsProvider,
+            finishedOperationsWalletUpdater: finishedOperationsWalletUpdater,
             membersService: membersService
         )
     }

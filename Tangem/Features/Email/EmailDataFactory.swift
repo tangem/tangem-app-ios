@@ -37,6 +37,7 @@ struct EmailDataFactory {
         [
             EmailCollectedData(type: .mobileWallet(.hasSeedPhraseBackup), data: "\(mobileWallet.hasMnemonicBackup)"),
             EmailCollectedData(type: .mobileWallet(.hasICloudBackup), data: "\(mobileWallet.hasICloudBackup)"),
+            EmailCollectedData(type: .mobileWallet(.hasSocialBackup), data: "\(mobileWallet.hasSocialLogin)"),
             EmailCollectedData(type: .mobileWallet(.hasAccessCode), data: "\(mobileWallet.accessCodeStatus.hasAccessCode)"),
         ]
     }

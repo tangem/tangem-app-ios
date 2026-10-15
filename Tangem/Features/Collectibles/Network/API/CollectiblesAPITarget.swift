@@ -18,8 +18,11 @@ struct CollectiblesAPITarget: Moya.TargetType {
         case categories
         case machines(CollectiblesDTO.MachinesRequest)
         case machine(externalID: String)
-        case generateTx(CollectiblesDTO.GenerateTxRequest, userWalletID: String)
-        case submitTx(CollectiblesDTO.SubmitTxRequest, userWalletID: String)
+        case machineNfts(externalID: String, CollectiblesDTO.MachineNftsRequest, userWalletID: String)
+        case generatePurchaseTx(CollectiblesDTO.GeneratePurchaseTxRequest, userWalletID: String)
+        case purchaseTxSent(CollectiblesDTO.PurchaseTxSentRequest, userWalletID: String)
+        case purchaseStatus(CollectiblesDTO.PurchaseTransactionRequest, userWalletID: String)
+        case openPack(CollectiblesDTO.PurchaseTransactionRequest, userWalletID: String)
     }
 
     var path: String {
@@ -27,15 +30,18 @@ struct CollectiblesAPITarget: Moya.TargetType {
         case .categories: "api/v1/machine/categories"
         case .machines: "api/v1/machine/machines"
         case .machine(let externalID): "api/v1/machine/\(externalID)"
-        case .generateTx: "api/v1/collectible/generateTx"
-        case .submitTx: "api/v1/collectible/submitTx"
+        case .machineNfts(let externalID, _, _): "api/v1/machine/\(externalID)/nfts"
+        case .generatePurchaseTx: "api/v1/collectible/generate-purchase-tx"
+        case .purchaseTxSent: "api/v1/collectible/purchase-tx-sent"
+        case .purchaseStatus: "api/v1/collectible/status"
+        case .openPack: "api/v1/collectible/open-pack"
         }
     }
 
     var method: Moya.Method {
         switch target {
-        case .categories, .machines, .machine: .get
-        case .generateTx, .submitTx: .post
+        case .categories, .machines, .machine, .machineNfts, .purchaseStatus: .get
+        case .generatePurchaseTx, .purchaseTxSent, .openPack: .post
         }
     }
 
@@ -43,15 +49,24 @@ struct CollectiblesAPITarget: Moya.TargetType {
         switch target {
         case .categories, .machine: .requestPlain
         case .machines(let request): .requestParameters(request, encoding: URLEncoding.queryString)
-        case .generateTx(let request, _): .requestJSONEncodable(request)
-        case .submitTx(let request, _): .requestJSONEncodable(request)
+        case .machineNfts(_, let request, _): .requestParameters(request, encoding: URLEncoding.queryString)
+        case .purchaseStatus(let request, _):
+            .requestParameters(request, encoding: URLEncoding(destination: .queryString, boolEncoding: .literal))
+        case .generatePurchaseTx(let request, _): .requestJSONEncodable(request)
+        case .purchaseTxSent(let request, _): .requestJSONEncodable(request)
+        case .openPack(let request, _): .requestJSONEncodable(request)
         }
     }
 
     var headers: [String: String]? {
         switch target {
         case .categories, .machines, .machine: nil
-        case .generateTx(_, let userWalletID), .submitTx(_, let userWalletID): ["user-id": userWalletID]
+        case .machineNfts(_, _, let userWalletID),
+             .generatePurchaseTx(_, let userWalletID),
+             .purchaseTxSent(_, let userWalletID),
+             .purchaseStatus(_, let userWalletID),
+             .openPack(_, let userWalletID):
+            ["user-id": userWalletID]
         }
     }
 }

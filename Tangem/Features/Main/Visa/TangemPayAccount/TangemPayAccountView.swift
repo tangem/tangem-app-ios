@@ -3,14 +3,14 @@
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2025 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 import TangemLocalization
-import TangemVisa
 import TangemPay
 import TangemAccessibilityIdentifiers
 
@@ -18,103 +18,162 @@ struct TangemPayAccountView: View {
     @ObservedObject var viewModel: TangemPayAccountViewModel
 
     var body: some View {
-        SwiftUI.Button(action: viewModel.userDidTapView) {
-            HStack(alignment: .center, spacing: 12) {
-                leadingContent
+        TangemPayAccountTile(state: viewModel.state, onTap: viewModel.userDidTapView)
+    }
+}
 
-                Spacer()
+// MARK: - Stateless tile body
 
-                trailingContent
-            }
-            .opacity(viewModel.state.isFullyVisible ? 1 : 0.6)
-            .defaultRoundedBackground(with: Colors.Background.primary, verticalPadding: 14, horizontalPadding: 14)
+private struct TangemPayAccountTile: View {
+    let state: TangemPayAccountViewModel.ViewState
+    let onTap: () -> Void
+
+    @ScaledMetric private var iconSize: CGFloat = 40
+    @ScaledMetric private var cachedIconSize: CGFloat = 16
+    @ScaledMetric private var cachedIndicatorSpacing: CGFloat = 6
+    @ScaledMetric private var scaleFactor: CGFloat = 1
+
+    var body: some View {
+        SwiftUI.Button(action: onTap) {
+            content
+                .padding(state.isSkeleton ? .zero : 12)
+                .background(DesignSystem.Color.bgSecondary)
+                .cornerRadiusContinuous(24)
+                .opacity(state.isFullyVisible ? 1 : Constants.dimmedOpacity)
         }
+        .buttonStyle(.defaultScaled)
         .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.mainScreenTile)
     }
 
     @ViewBuilder
-    var leadingContent: some View {
-        if viewModel.state.isSkeleton {
-            skeletonLeadingContent
-        } else {
-            defaultLeadingContent
-        }
-    }
+    private var content: some View {
+        switch state {
+        case .skeleton:
+            TangemTwoLineRowSkeletonView()
 
-    @ViewBuilder
-    var skeletonLeadingContent: some View {
-        HStack(alignment: .center, spacing: 12) {
-            skeleton(width: 36, height: 36, radius: 8)
-
-            VStack(alignment: .leading, spacing: 8) {
-                skeleton(width: 112)
-                skeleton(width: 80)
-            }
-        }
-    }
-
-    @ViewBuilder
-    var defaultLeadingContent: some View {
-        HStack(alignment: .center, spacing: 12) {
-            Assets.Visa.accountAvatar.image
-                .resizable()
-                .frame(width: 36, height: 36)
-                .aspectRatio(contentMode: .fit)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(Localization.tangempayPaymentAccount)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-
-                Text(viewModel.state.subtitle)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-            }
-        }
-    }
-
-    @ViewBuilder
-    var trailingContent: some View {
-        switch viewModel.state {
-        case .kycInProgress, .issuingYourCard, .rootedDevice, .kycDeclined, .planSelectNeeded:
-            EmptyView()
+        case .normal(_, let balance, _), .cardDeactivated(let balance), .replacingCard(let balance):
+            balanceRow(subtitle: state.subtitle, balance: balance, showsCachedIndicator: false)
 
         case .failedToIssueCard:
-            Assets.redCircleWarning20Outline.image
+            stateRow(subtitle: state.subtitle, trailing: .warningIcon)
 
-        case .unavailable(let cached), .syncNeeded(let cached):
-            // No cached data → no cloud indicator: the row is just dimmed via opacity above.
-            if let cached {
-                cachedTrailingContent(cached.trailing)
-            } else {
-                EmptyView()
-            }
+        case .kycInProgress, .actionRequired, .kycDeclined, .issuingYourCard, .rootedDevice, .planSelectNeeded:
+            stateRow(subtitle: state.subtitle, trailing: .none)
 
-        case .normal(_, let balance, _):
-            balanceTrailingContent(balance: balance)
-
-        case .cardDeactivated(let balance), .replacingCard(let balance):
-            balanceTrailingContent(balance: balance)
-
-        case .skeleton:
-            VStack(alignment: .trailing, spacing: 8) {
-                skeleton(width: 40)
-                skeleton(width: 40)
-            }
+        case .syncNeeded(let cached), .unavailable(let cached):
+            cachedStateRow(cached: cached, fallbackSubtitle: state.subtitle)
         }
     }
 
+    // MARK: - Row variants
+
+    private func balanceRow(
+        subtitle: String,
+        balance: LoadableBalanceView.State,
+        showsCachedIndicator: Bool
+    ) -> some View {
+        TangemTwoLineRowLayout(
+            icon: { visaIcon },
+            primaryLeading: { titleText },
+            primaryTrailing: { balanceTrailing(balance: balance, showsCachedIndicator: showsCachedIndicator) },
+            secondaryLeading: { subtitleText(subtitle) },
+            secondaryTrailing: { currencyText }
+        )
+    }
+
+    private func stateRow(subtitle: String, trailing: TrailingAccessory) -> some View {
+        TangemTwoLineRowLayout(
+            icon: { visaIcon },
+            primaryLeading: { titleText },
+            secondaryLeading: { subtitleText(subtitle) },
+            centeredTrailing: { stateTrailing(trailing) }
+        )
+    }
+
     @ViewBuilder
-    private func cachedTrailingContent(_ trailing: TangemPayAccountViewModel.CachedDisplayData.Trailing) -> some View {
-        switch trailing {
-        case .warningIcon:
-            Assets.redCircleWarning20Outline.image
-        case .balance(let balance):
-            HStack(spacing: 6) {
-                cachedCloudIcon
-                balanceTrailingContent(balance: balance)
+    private func cachedStateRow(
+        cached: TangemPayAccountViewModel.CachedDisplayData?,
+        fallbackSubtitle: String
+    ) -> some View {
+        if let cached {
+            let resolvedSubtitle = cached.subtitle ?? fallbackSubtitle
+            switch cached.trailing {
+            case .balance(let balance):
+                balanceRow(subtitle: resolvedSubtitle, balance: balance, showsCachedIndicator: true)
+            case .warningIcon:
+                stateRow(subtitle: resolvedSubtitle, trailing: .warningIcon)
+            case .empty:
+                stateRow(subtitle: resolvedSubtitle, trailing: .cachedCloud)
             }
-        case .empty:
-            // We have a cached payload (e.g. KYC subtitle) without a balance — still surface
-            // the cloud so the user knows the row reflects locally stored data.
+        } else {
+            stateRow(subtitle: fallbackSubtitle, trailing: .none)
+        }
+    }
+
+    // MARK: - Shared elements
+
+    private var visaIcon: some View {
+        Assets.Visa.accountAvatar.image
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: iconSize, height: iconSize)
+    }
+
+    private var titleText: some View {
+        Text(Localization.tangempayPaymentAccount)
+            .style(TangemRowConstants.Style.Title.font, color: TangemRowConstants.Style.Title.color)
+            .lineLimit(1)
+    }
+
+    private func subtitleText(_ text: String) -> some View {
+        Text(text)
+            .style(
+                TangemRowConstants.Style.Subtitle.font,
+                color: state.isSubtitleHighlighted ? Color.Tangem.Text.Status.attention : TangemRowConstants.Style.Subtitle.color
+            )
+            .lineLimit(1)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.mainScreenTileSubtitle)
+    }
+
+    private func balanceTrailing(balance: LoadableBalanceView.State, showsCachedIndicator: Bool) -> some View {
+        HStack(spacing: cachedIndicatorSpacing) {
+            if showsCachedIndicator {
+                cachedCloudIcon
+            }
+
+            LoadableBalanceView(
+                state: AttributedBalanceFormatter.decimalColored(
+                    balance,
+                    integerPart: AttributedBalanceFormatter.PartStyle(font: nil, color: TangemPayAccountTile.balanceIntegerColor),
+                    fractionalPart: AttributedBalanceFormatter.PartStyle(font: nil, color: TangemPayAccountTile.balanceDecimalColor)
+                ),
+                style: LoadableBalanceView.Style(
+                    font: TangemPayAccountTile.balanceFont,
+                    textColor: TangemPayAccountTile.balanceIntegerColor
+                ),
+                loader: LoadableBalanceView.LoaderStyle(
+                    size: CGSize(width: 40, height: 12) * scaleFactor,
+                    cornerRadiusStyle: .capsule
+                ),
+                accessibilityIdentifier: TangemPayAccessibilityIdentifiers.mainScreenTileBalance
+            )
+        }
+    }
+
+    private var currencyText: some View {
+        SensitiveText(TangemPayUtilities.fiatItem.currencyCode)
+            .style(TangemRowConstants.Style.Subtitle.font, color: TangemRowConstants.Style.Subtitle.color)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.mainScreenTileCurrency)
+    }
+
+    @ViewBuilder
+    private func stateTrailing(_ trailing: TrailingAccessory) -> some View {
+        switch trailing {
+        case .none:
+            EmptyView()
+        case .warningIcon:
+            Assets.redCircleWarning.image
+        case .cachedCloud:
             cachedCloudIcon
         }
     }
@@ -123,39 +182,26 @@ struct TangemPayAccountView: View {
         Assets.failedCloud.image
             .resizable()
             .renderingMode(.template)
-            .foregroundColor(Colors.Icon.informative)
-            .frame(width: 16, height: 16)
-    }
-
-    private func balanceTrailingContent(balance: LoadableBalanceView.State) -> some View {
-        VStack(alignment: .trailing, spacing: 4) {
-            LoadableBalanceView(
-                state: balance,
-                style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
-                loader: .init(size: CGSize(width: 40, height: 17))
-            )
-
-            SensitiveText(TangemPayUtilities.usdcTokenItem.currencySymbol)
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-        }
-    }
-
-    private func skeleton(
-        width: CGFloat,
-        height: CGFloat = Constants.defaultSkeletonHeight,
-        radius: CGFloat = Constants.defaultSkeletonRadius
-    ) -> some View {
-        SkeletonView()
-            .frame(width: width, height: height)
-            .cornerRadiusContinuous(radius)
+            .foregroundStyle(DesignSystem.Color.iconSecondary)
+            .frame(width: cachedIconSize, height: cachedIconSize)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.mainScreenTileCachedIcon)
     }
 }
 
-// MARK: - TangemPayAccountView+Constants
+// MARK: - Nested types
 
-private extension TangemPayAccountView {
-    enum Constants {
-        static let defaultSkeletonHeight: CGFloat = 12
-        static let defaultSkeletonRadius: CGFloat = 3
+private extension TangemPayAccountTile {
+    enum TrailingAccessory {
+        case none
+        case warningIcon
+        case cachedCloud
     }
+
+    enum Constants {
+        static let dimmedOpacity: Double = 0.6
+    }
+
+    static let balanceFont = TangemRowConstants.Style.Title.font
+    static let balanceIntegerColor: Color = DesignSystem.Color.textPrimary
+    static let balanceDecimalColor: Color = DesignSystem.Color.textSecondary
 }

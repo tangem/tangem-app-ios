@@ -123,3 +123,44 @@ struct PolymarketWalletErrorTests {
         return PolymarketWalletError(apiError: .http(statusCode: statusCode, problemDetail: problemDetail))
     }
 }
+
+// MARK: - Record verification
+
+@Suite("Deposit wallet record verification")
+struct PolymarketDepositWalletRecordVerificationTests {
+    private let derived = "0xAbCdEf0000000000000000000000000000000002"
+
+    @Test("A record naming the derived wallet passes")
+    func matchingRecordPasses() throws {
+        let record = PolymarketDepositWallet(address: derived, status: .readyToTrade)
+
+        try record.ensureMatches(derived: derived)
+    }
+
+    @Test("A record the backend stores in lowercase passes against the checksummed derivation")
+    func lowercaseRecordPasses() throws {
+        let record = PolymarketDepositWallet(address: derived.lowercased(), status: .readyToTrade)
+
+        try record.ensureMatches(derived: derived)
+    }
+
+    @Test("A record naming another wallet is rejected")
+    func foreignRecordIsRejected() {
+        let record = PolymarketDepositWallet(address: "0xAbCdEf0000000000000000000000000000000003", status: .readyToTrade)
+
+        do {
+            try record.ensureMatches(derived: derived)
+            Issue.record("A foreign record passed verification")
+        } catch PolymarketOnboardingError.addressMismatch {
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+    }
+
+    @Test("A record without an address passes without any comparison, so every caller has to guard it itself")
+    func missingAddressIsNotCompared() throws {
+        let record = PolymarketDepositWallet(address: nil, status: .readyToTrade)
+
+        try record.ensureMatches(derived: derived)
+    }
+}

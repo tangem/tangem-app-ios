@@ -1,5 +1,5 @@
 {
-  "originHash" : "9d9db2852be076c2a9d77f7d785bdd49b92a878e75ba3da1f9d71abfd80833fd",
+  "originHash" : "b3f661e70fee4f1f6ed81642c4fe4a885b9c08ad5740b915653e07d87b7b98e7",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -359,6 +359,15 @@
       "state" : {
         "revision" : "69faaefa7721fba9e434a52c16adf4329c9084db",
         "version" : "4.6.0"
+      }
+    },
+    {
+      "identity" : "mea-wallet-binaries-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:tangem-developments/mea-wallet-binaries-ios.git",
+      "state" : {
+        "revision" : "5831c1c54ed1cf6f6925551fa9e3e305266c35d2",
+        "version" : "2.0.0"
       }
     },
     {
@@ -789,8 +798,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "9b66a3143f5b17166c87800fea18fca5a972ade1",
-        "version" : "5.2.3"
+        "revision" : "96928b0a1bad48bb7b0730aefc8b9bb60157cf81",
+        "version" : "5.3.1"
       }
     },
     {

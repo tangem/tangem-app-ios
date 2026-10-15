@@ -10,14 +10,29 @@ import Foundation
 import TangemFoundation
 
 enum PolymarketPriceFormatter {
-    static func centsText(_ probability: Decimal?) -> String {
+    static func cents(_ probability: Decimal?, isResolved: Bool = false) -> String {
         guard let probability else {
             return BalanceFormatter.defaultEmptyBalanceString
         }
 
-        let cents = (probability * Constants.centsPerUnit).intValue(roundingMode: .plain)
+        return balanceFormatter.formatDecimal(
+            displayed(probability * Constants.centsPerUnit, isResolved: isResolved),
+            formattingOptions: .predictionCents
+        )
+    }
 
-        return "\(cents)\(Constants.centsSuffix)"
+    static func centsText(_ probability: Decimal?, isResolved: Bool = false) -> String {
+        guard probability != nil else {
+            return BalanceFormatter.defaultEmptyBalanceString
+        }
+
+        return "\(cents(probability, isResolved: isResolved))\(Constants.centsSuffix)"
+    }
+
+    private static func displayed(_ cents: Decimal, isResolved: Bool) -> Decimal {
+        guard !isResolved else { return cents }
+
+        return min(max(cents, Constants.minUnresolvedCents), Constants.maxUnresolvedCents)
     }
 
     static func percentText(_ probability: Decimal?) -> String {
@@ -29,6 +44,7 @@ enum PolymarketPriceFormatter {
     }
 
     private static let percentFormatter = PercentFormatter()
+    private static let balanceFormatter = BalanceFormatter()
 }
 
 // MARK: - Constants
@@ -37,5 +53,18 @@ private extension PolymarketPriceFormatter {
     enum Constants {
         static let centsPerUnit: Decimal = 100
         static let centsSuffix = "¢"
+        static let minUnresolvedCents: Decimal = 0.1
+        static let maxUnresolvedCents: Decimal = 99.9
     }
+}
+
+// MARK: - Formatting options
+
+private extension BalanceFormattingOptions {
+    static let predictionCents = BalanceFormattingOptions(
+        minFractionDigits: 0,
+        maxFractionDigits: 1,
+        formatEpsilonAsLowestRepresentableValue: false,
+        roundingType: .default(roundingMode: .plain, scale: 1)
+    )
 }

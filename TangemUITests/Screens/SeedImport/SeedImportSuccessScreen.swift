@@ -16,6 +16,7 @@ final class SeedImportSuccessScreen: ScreenBase<SeedImportSuccessScreenElement> 
     @discardableResult
     func tapContinue() -> SetAccessCodeScreen {
         XCTContext.runActivity(named: "Tap Continue button") { _ in
+            continueButton.waitForStableFrame()
             continueButton.waitAndTap()
             return SetAccessCodeScreen(app)
         }

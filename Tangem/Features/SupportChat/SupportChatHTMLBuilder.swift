@@ -39,7 +39,8 @@ enum SupportChatHTMLBuilder {
     static func makeWidgetHTML(
         userIdentifier: String?,
         savedToken: String?,
-        initialMessage: SupportInitialMessage?
+        topic: SupportChatTopic?,
+        initialMessage: String?
     ) -> String {
         // userIdentify (not identify) matches an existing Usedesk client by a stable
         // email/name, so re-opening resumes the same chat instead of creating a new one.
@@ -49,8 +50,8 @@ enum SupportChatHTMLBuilder {
         let tokenPart = savedToken.map { ", token: \(jsLiteral($0))" } ?? ""
 
         // Flow-specific source field (e.g. swap -> "swap").
-        let additionalFieldsPart = initialMessage?.additionalFieldValue.map {
-            ", additional_fields: [{ id: \(SupportInitialMessage.swapAdditionalFieldId), value: \(jsLiteral($0)) }]"
+        let additionalFieldsPart = topic.map {
+            ", additional_fields: [{ id: \(SupportChatTopic.usedeskFieldId), value: \(jsLiteral($0.usedeskFieldValue)) }]"
         } ?? ""
 
         let identifyScript = userIdentifier.map { identifier in
@@ -60,7 +61,7 @@ enum SupportChatHTMLBuilder {
 
         // Optional text auto-sent once the chat is ready. sendMessage needs the same
         // identity payload (name/email/token) as userIdentify.
-        let initialMessageLiteral = jsLiteral(initialMessage?.message)
+        let initialMessageLiteral = jsLiteral(initialMessage)
         let nameLiteral = jsLiteral(userIdentifier ?? "")
         let sendTokenLiteral = jsLiteral(savedToken)
         return """

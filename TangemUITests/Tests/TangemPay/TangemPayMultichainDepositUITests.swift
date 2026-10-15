@@ -9,7 +9,7 @@
 import XCTest
 
 final class TangemPayMultichainDepositUITests: BaseTestCase {
-    func testAddFundsSheetListsBankTransferThenSwapThenReceive() {
+    func testAddFundsSheetListsSwapThenReceiveThenBankTransfer() {
         setAllureId(11366)
 
         launchWithMultiNetworkBalance(extraScenarios: [
@@ -21,9 +21,9 @@ final class TangemPayMultichainDepositUITests: BaseTestCase {
         .waitForScreen()
         .verifyOptionsOrder()
         .verifyOptionLabels(
-            bankTransfer: ["From a bank account", "Receive USD from a bank account"],
-            swap: ["From your Tangem Wallet", "Use crypto from your wallet to top up your payment account"],
-            receive: ["From another wallet or exchange", "Send USDC or USDT to your account"]
+            bankTransfer: [Localization.tangempayTopupBankTransferTitle, Localization.tangempayTopupBankTransferBody],
+            swap: [Localization.tangempayTopupSwapTitle, Localization.tangempayTopupSwapBody],
+            receive: [Localization.tangempayTopupReceiveTitle, Localization.tangempayTopupReceiveBodyMultichain]
         )
     }
 
@@ -36,7 +36,7 @@ final class TangemPayMultichainDepositUITests: BaseTestCase {
             .verifyTangemPayTileCurrency("USD")
             .openTangemPay()
             .waitForScreen()
-            .verifyHeader(title: "Payment account", subtitle: "US Dollars")
+            .verifyHeader(title: Localization.tangempayPaymentAccount, subtitle: Localization.tangempayMultinetwork)
     }
 
     func testChooseNetworkSheetSplitsNetworksIntoFastAndOtherOptions() {
@@ -55,8 +55,8 @@ final class TangemPayMultichainDepositUITests: BaseTestCase {
             .tapNetworkExpectingOtherNetworks(.arbitrum)
             .waitForSheet()
             .verifyContent(
-                title: "Send USDT/USDC on any EVM-chain to your Tangem Wallet",
-                subtitle: "Then swap it to payment account with zero fees"
+                title: Localization.tangempayOtherNetworksTitle,
+                subtitle: Localization.tangempayOtherNetworksSubtitle
             )
             .tapClose()
             .waitForSheet()
@@ -70,10 +70,10 @@ final class TangemPayMultichainDepositUITests: BaseTestCase {
             .tapNetworkExpectingReceive(.bsc)
             .waitForSheet()
             .verifyWarning(
-                title: "Send only USDC or USDT on the BNB Smart Chain network",
-                description: "Sending any other currency will result in its irreversible loss."
+                title: Localization.receiveBottomSheetWarningTitle("USDC \(Localization.commonOr) USDT", "BNB Smart Chain"),
+                description: Localization.receiveBottomSheetWarningMessageDescription
             )
-            .verifyHeading("USDC or USDT on BNB Smart Chain network")
+            .verifyHeading(Localization.receiveBottomSheetWarningMessageCompact("USDC \(Localization.commonOr) USDT", "BNB Smart Chain"))
             .verifyTokenIcons(["USDC", "USDT"])
             .verifyAddress(Constants.DepositAddress.bsc)
             .verifyActionButtonsDisplayed()
@@ -94,7 +94,7 @@ final class TangemPayMultichainDepositUITests: BaseTestCase {
             .waitForSheet()
             .verifyAddress(Constants.DepositAddress.bsc)
             .tapCopy()
-            .verifyToastVisible(text: Constants.addressCopiedToast)
+            .verifyToastVisible(text: Localization.walletNotificationAddressCopied)
 
         receiveSheet
             .tapShare()
@@ -106,7 +106,7 @@ final class TangemPayMultichainDepositUITests: BaseTestCase {
             .waitForDisplay()
             .verifyDisplayedAddress(Constants.DepositAddress.bsc)
             .tapCopy()
-            .verifyToastVisible(text: Constants.addressCopiedToast)
+            .verifyToastVisible(text: Localization.walletNotificationAddressCopied)
             .tapShare()
             .waitForSheet()
             .verifySharedText(Constants.DepositAddress.bsc)
@@ -122,11 +122,11 @@ final class TangemPayMultichainDepositUITests: BaseTestCase {
         openChooseNetworkSheet(activationState: Constants.State.activationPending)
             .verifyFastOptions([.polygon, .base])
             .tapNetworkExpectingActivation(.base)
-            .verifyNetworkSubtitle(.base, contains: Constants.preparingAddressSubtitle)
+            .verifyNetworkSubtitle(.base, contains: Localization.tangempayChooseNetworkRowLoading)
 
         TangemPayMultichainReceiveSheet(app)
             .waitForSheet()
-            .verifyHeading("USDC or USDT on Base network")
+            .verifyHeading(Localization.receiveBottomSheetWarningMessageCompact("USDC \(Localization.commonOr) USDT", "Base"))
             .verifyAddress(Constants.DepositAddress.base)
 
         XCTContext.runActivity(named: "Verify the activation looked up orders first and then placed exactly one") { _ in
@@ -143,11 +143,11 @@ final class TangemPayMultichainDepositUITests: BaseTestCase {
 
         openChooseNetworkSheet(activationState: Constants.State.activationInFlight)
             .tapNetworkExpectingActivation(.base)
-            .verifyNetworkSubtitle(.base, contains: Constants.preparingAddressSubtitle)
+            .verifyNetworkSubtitle(.base, contains: Localization.tangempayChooseNetworkRowLoading)
 
         TangemPayMultichainReceiveSheet(app)
             .waitForSheet()
-            .verifyHeading("USDC or USDT on Base network")
+            .verifyHeading(Localization.receiveBottomSheetWarningMessageCompact("USDC \(Localization.commonOr) USDT", "Base"))
             .verifyAddress(Constants.DepositAddress.base)
 
         XCTContext.runActivity(named: "Verify the in-flight order was resumed instead of placing a new one") { _ in
@@ -186,9 +186,6 @@ final class TangemPayMultichainDepositUITests: BaseTestCase {
 
 private extension TangemPayMultichainDepositUITests {
     enum Constants {
-        static let preparingAddressSubtitle = "Preparing address…"
-        static let addressCopiedToast = "Address was copied to clipboard"
-
         enum Scenario {
             static let balance = "tangem_pay_balance_update"
             static let history = "tangem_pay_transaction_history"

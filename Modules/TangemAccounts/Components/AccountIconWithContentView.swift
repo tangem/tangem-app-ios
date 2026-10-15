@@ -18,6 +18,7 @@ public struct AccountIconWithContentView<Subtitle: View, Trailing: View>: View {
     let trailing: Trailing
 
     private var iconSettings: AccountIconView.Settings = .defaultSized
+    private var nameBadge: String?
     private var nameFontStyle = TangemFontStyle(font: Fonts.Bold.subheadline)
     private var nameColor: Color = Colors.Text.primary1
     private var subtitleFontStyle = TangemFontStyle(font: Fonts.Regular.caption1)
@@ -53,9 +54,17 @@ public struct AccountIconWithContentView<Subtitle: View, Trailing: View>: View {
 
     private var contentStack: some View {
         VStack(alignment: .leading, spacing: 2.0) {
-            Text(name)
-                .style(nameFontStyle, color: nameColor)
-                .lineLimit(1)
+            HStack(spacing: 4) {
+                Text(name)
+                    .style(nameFontStyle, color: nameColor)
+                    .lineLimit(1)
+
+                if let nameBadge {
+                    Badge(label: nameBadge, accessibilityLabel: nil)
+                        .size(.x4)
+                        .fixedSize()
+                }
+            }
 
             subtitle
                 .style(subtitleFontStyle, color: subtitleColor)
@@ -69,6 +78,10 @@ public struct AccountIconWithContentView<Subtitle: View, Trailing: View>: View {
 extension AccountIconWithContentView: Setupable {
     public func iconSettings(_ settings: AccountIconView.Settings) -> Self {
         map { $0.iconSettings = settings }
+    }
+
+    public func nameBadge(_ nameBadge: String?) -> Self {
+        map { $0.nameBadge = nameBadge }
     }
 
     public func nameStyle(font: Font, color: Color) -> Self {

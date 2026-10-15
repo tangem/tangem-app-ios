@@ -166,7 +166,7 @@ struct TangemPayOrderCardTypeView: View {
             action: viewModel.select
         )
         .size(.x12)
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
         .disabled(!viewModel.isSelectEnabled)
         .padding(.horizontal, Constants.footerHorizontalPadding)

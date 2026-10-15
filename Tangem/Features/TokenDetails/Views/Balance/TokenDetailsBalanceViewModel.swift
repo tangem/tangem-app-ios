@@ -231,9 +231,9 @@ private extension TokenDetailsBalanceViewModel {
     func attributedFiatBalance(_ balance: String) -> Text {
         let attributedBalance = AttributedBalanceFormatter.format(
             balance,
-            font: Font.Tangem.Title44.semibold,
-            integerColor: .Tangem.Text.Neutral.primary,
-            fractionalColor: .Tangem.Text.Neutral.secondary
+            token: DesignSystem.Font.displayMediumToken,
+            integerColor: DesignSystem.Color.textPrimary,
+            fractionalColor: DesignSystem.Color.textSecondary
         )
         return .attributed(attributedBalance)
     }
@@ -241,9 +241,9 @@ private extension TokenDetailsBalanceViewModel {
     func attributedCryptoBalance(_ balance: String) -> Text {
         let attributedBalance = AttributedBalanceFormatter.format(
             balance,
-            font: Font.Tangem.Body16.medium,
-            integerColor: .Tangem.Text.Neutral.secondary,
-            fractionalColor: .Tangem.Text.Neutral.secondary
+            token: DesignSystem.Font.bodyMediumToken,
+            integerColor: DesignSystem.Color.textSecondary,
+            fractionalColor: DesignSystem.Color.textSecondary
         )
         return .attributed(attributedBalance)
     }

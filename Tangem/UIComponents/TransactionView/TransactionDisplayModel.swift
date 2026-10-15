@@ -36,7 +36,14 @@ struct TransactionDisplayModel: Hashable {
 
     enum Style: Hashable {
         case row
-        case chip
+        case chip(ChipStatusStyle)
+    }
+
+    enum ChipStatusStyle: Hashable {
+        case error
+        case progress
+        case plain
+        case success
     }
 
     enum Subtitle: Hashable {
@@ -47,8 +54,14 @@ struct TransactionDisplayModel: Hashable {
         /// Express (swap / onramp) counterparty: direction prefix + counterparty currency icon/symbol,
         /// and an optional "in [account/wallet]" segment when the counterparty leg lives elsewhere.
         case express(ExpressSubtitle)
-        /// Yield provider standing in for a counterparty — `to: ⬤ Aave` on Supply, `from:` on Withdraw.
-        case provider(direction: Direction)
+        /// Yield counterparty standing in for an address — `to: ⬤ Aave` on Supply, `from: ⬤ Aave` on the Withdraw
+        /// leg, `from: ⬤ Merkl` on an incentive claim.
+        case provider(direction: Direction, provider: YieldProvider)
+    }
+
+    enum YieldProvider: Hashable {
+        case aave
+        case merkl
     }
 
     /// Counterparty descriptor for an Express row subtitle (e.g. `to: POL in Family`).
@@ -92,7 +105,8 @@ extension TransactionDisplayModel {
         legacyName: String,
         addressDestination: String?,
         subtitleOwner: TransactionViewModel.SubtitleOwner?,
-        expressSubtitle: ExpressSubtitle?
+        expressSubtitle: ExpressSubtitle?,
+        isPendingSignature: Bool = false
     ) -> TransactionDisplayModel {
         TransactionDisplayModel(
             title: title(
@@ -101,7 +115,8 @@ extension TransactionDisplayModel {
                 isOutgoing: isOutgoing,
                 isFromYieldContract: isFromYieldContract,
                 legacyName: legacyName,
-                subtitleOwner: subtitleOwner
+                subtitleOwner: subtitleOwner,
+                isPendingSignature: isPendingSignature
             ),
             subtitle: subtitle(
                 transactionType: transactionType,
@@ -115,8 +130,24 @@ extension TransactionDisplayModel {
                 transactionType: transactionType,
                 isOutgoing: isOutgoing,
                 isFromYieldContract: isFromYieldContract
-            ) ? .chip : .row
+            ) ? .chip(chipStatusStyle(transactionType: transactionType, status: status)) : .row
         )
+    }
+
+    private static func chipStatusStyle(
+        transactionType: TransactionViewModel.TransactionType,
+        status: TransactionViewModel.Status
+    ) -> ChipStatusStyle {
+        switch (status, transactionType) {
+        case (.failed, _), (.undefined, _):
+            return .error
+        case (.inProgress, _):
+            return .progress
+        case (.confirmed, .incentiveClaimCoin):
+            return .success
+        case (.confirmed, _):
+            return .plain
+        }
     }
 
     private static func isChipStyle(
@@ -129,7 +160,7 @@ extension TransactionDisplayModel {
             return true
         case .vote, .withdraw,
              .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin, .yieldTopup, .yieldSend,
-             .yieldInit, .yieldDeploy, .yieldReactivate,
+             .incentiveClaim, .incentiveClaimCoin, .yieldInit, .yieldDeploy, .yieldReactivate,
              .transfer, .swap, .onramp, .claimRewards, .operation, .unknownOperation,
              .gaslessTransactionFee, .gaslessTransfer, .networkFee, .tangemPay:
             return isLabelOnlyChip(transactionType: transactionType, isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract)
@@ -143,12 +174,12 @@ extension TransactionDisplayModel {
     ) -> Bool {
         switch transactionType {
         case .vote, .withdraw,
-             .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin, .yieldTopup:
+             .incentiveClaimCoin, .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin, .yieldTopup:
             return true
         case .yieldSend:
             return !transactionType.isTransferLikeYieldSend(isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract)
         case .stake, .unstake, .restake, .approve,
-             .yieldInit, .yieldDeploy, .yieldReactivate,
+             .incentiveClaim, .yieldInit, .yieldDeploy, .yieldReactivate,
              .transfer, .swap, .onramp, .claimRewards, .operation, .unknownOperation,
              .gaslessTransactionFee, .gaslessTransfer, .networkFee, .tangemPay:
             return false
@@ -161,9 +192,12 @@ extension TransactionDisplayModel {
         isOutgoing: Bool,
         isFromYieldContract: Bool,
         legacyName: String,
-        subtitleOwner: TransactionViewModel.SubtitleOwner?
+        subtitleOwner: TransactionViewModel.SubtitleOwner?,
+        isPendingSignature: Bool = false
     ) -> TitleContent {
         switch transactionType {
+        case .transfer where isPendingSignature:
+            return .plain(Localization.commonSend)
         case .transfer, .gaslessTransfer:
             return transferTitle(isOutgoing: isOutgoing, status: status, subtitleOwner: subtitleOwner)
         case .gaslessTransactionFee, .networkFee:
@@ -183,6 +217,15 @@ extension TransactionDisplayModel {
                 progress: Localization.commonSupplying,
                 done: Localization.transactionHistorySupplied,
                 failed: Localization.transactionHistoryStatusSupplyFailed
+            )
+        case .incentiveClaim:
+            return transferTitle(isOutgoing: isOutgoing, status: status, subtitleOwner: subtitleOwner)
+        case .incentiveClaimCoin:
+            return statusTitle(
+                status: status,
+                progress: Localization.transactionHistoryClaimingIncentiveRewards,
+                done: Localization.transactionHistoryIncentiveRewardsClaimed,
+                failed: Localization.transactionHistoryStatusIncentiveRewardsClaimFailed
             )
         case .yieldEnter, .yieldEnterCoin:
             return yieldModeTitle(
@@ -268,11 +311,11 @@ extension TransactionDisplayModel {
             return .express(expressSubtitle)
         }
 
-        if let direction = yieldProviderDirection(
+        if let yieldProvider = yieldProviderInfo(
             transactionType: transactionType,
             isFromYieldContract: isFromYieldContract
         ) {
-            return .provider(direction: direction)
+            return .provider(direction: yieldProvider.direction, provider: yieldProvider.provider)
         }
 
         if case .claimRewards = transactionType {
@@ -316,10 +359,10 @@ extension TransactionDisplayModel {
     /// counterparty every other type falls back to.
     private static func isSubtitleSuppressed(transactionType: TransactionViewModel.TransactionType) -> Bool {
         switch transactionType {
-        case .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin,
+        case .incentiveClaimCoin, .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin,
              .stake, .unstake, .vote, .restake, .withdraw:
             return true
-        case .yieldSend, .yieldTopup, .yieldInit, .yieldDeploy, .yieldReactivate,
+        case .yieldSend, .yieldTopup, .incentiveClaim, .yieldInit, .yieldDeploy, .yieldReactivate,
              .transfer, .swap, .onramp,
              .claimRewards, .approve, .operation, .unknownOperation,
              .gaslessTransactionFee, .gaslessTransfer, .networkFee, .tangemPay:
@@ -328,17 +371,19 @@ extension TransactionDisplayModel {
     }
 
     /// Supply and Withdraw name the yield provider instead of an address — the funds go to Aave and come back from it.
-    private static func yieldProviderDirection(
+    private static func yieldProviderInfo(
         transactionType: TransactionViewModel.TransactionType,
         isFromYieldContract: Bool
-    ) -> Direction? {
+    ) -> (direction: Direction, provider: YieldProvider)? {
         switch transactionType {
         case .yieldTopup:
-            return .outgoing
+            return (.outgoing, .aave)
         case .yieldSend where isFromYieldContract:
-            return .incoming
+            return (.incoming, .aave)
+        case .incentiveClaim:
+            return (.incoming, .merkl)
         case .yieldSend, .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin,
-             .yieldInit, .yieldDeploy, .yieldReactivate,
+             .incentiveClaimCoin, .yieldInit, .yieldDeploy, .yieldReactivate,
              .transfer, .swap, .onramp, .stake, .unstake, .vote, .restake, .withdraw,
              .claimRewards, .approve, .operation, .unknownOperation,
              .gaslessTransactionFee, .gaslessTransfer, .networkFee, .tangemPay:

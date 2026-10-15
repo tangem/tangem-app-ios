@@ -25,6 +25,7 @@ actor CommonExpressManager {
     private var _pair: ExpressManagerSwappingPair?
     private var _amountType: ExpressAmountType?
     private var _approvePolicy: ApprovePolicy = .specified
+    private var _slippage: Decimal?
 
     /// A deeplink-preferred provider, selected over the "best" pick whenever it's among the current pair's
     /// providers (surviving quote reloads). Cleared when the pair changes or the user picks a provider.
@@ -61,6 +62,10 @@ extension CommonExpressManager: ExpressManager {
         _amountType
     }
 
+    func getSlippage() -> Decimal? {
+        _slippage
+    }
+
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerState {
         // Retire the deeplink provider preference the moment we leave the pair it was applied to — a real pair
         // change or the pair being cleared — so it can't resurrect on a pair the user never requested. Quote
@@ -72,6 +77,7 @@ extension CommonExpressManager: ExpressManager {
 
             if !sameAsPrevious {
                 _preferredProviderId = nil
+                _slippage = nil
             }
         }
 
@@ -94,6 +100,10 @@ extension CommonExpressManager: ExpressManager {
     }
 
     func update(amountType: ExpressAmountType?) async throws -> ExpressManagerState {
+        if amountType != _amountType {
+            _slippage = nil
+        }
+
         _amountType = amountType
 
         try await waitProvidersTaskIfNeeded()
@@ -141,6 +151,30 @@ extension CommonExpressManager: ExpressManager {
 
         let request = makeRequest()
         await selectedProvider.update(request: request)
+
+        return currentState
+    }
+
+    func update(slippage: Decimal?) async -> ExpressManagerState {
+        _slippage = slippage
+
+        guard _amountType != nil, case .swap(.some(let selectedProvider), let providers) = currentState else {
+            return currentState
+        }
+
+        let rateProviders = providers.availableProviders(rate: selectedProvider.rateType)
+        let affected = rateProviders.filter { $0.provider.isCustomSlippageSupported }
+
+        guard !affected.isEmpty else {
+            return currentState
+        }
+
+        let request = makeRequest()
+        await TaskGroup.executeKeepingOrder(items: affected) { provider in
+            await provider.update(request: request)
+        }
+
+        rateProviders.updateIsBestFlagPreferringDEX()
 
         return currentState
     }
@@ -287,6 +321,7 @@ private extension CommonExpressManager {
         ExpressAvailableProviderUpdatingRequest(
             amountType: _amountType,
             approvePolicy: _approvePolicy,
+            slippage: _slippage,
             quotesLoadingPerformanceTracker: tracker
         )
     }

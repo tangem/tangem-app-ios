@@ -10,7 +10,13 @@ import Foundation
 import Combine
 
 struct JointAccountPendingOperationsProviderMock: JointAccountPendingOperationsProvider {
+    var pendingOperations: [JointAccountPendingOperation] { [] }
+
     var pendingOperationsPublisher: AnyPublisher<[JointAccountPendingOperation], Never> {
         Just([]).eraseToAnyPublisher()
+    }
+
+    func requestFrequentUpdates() -> AnyCancellable {
+        AnyCancellable {}
     }
 }
