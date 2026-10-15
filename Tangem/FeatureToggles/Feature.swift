@@ -37,6 +37,7 @@ enum Feature: String, Hashable, CaseIterable {
     case promoCampaignsV2
     case tangemPayAppleWalletProvisioning
     case customSlippage
+    case tronGaslessCEX
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -70,6 +71,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .promoCampaignsV2: return "TWI-1705_promo_campaigns_v2"
         case .tangemPayAppleWalletProvisioning: return "TWI-1062_apple_wallet_push_provisioning"
         case .customSlippage: return "TWI-1674_custom_slippage"
+        case .tronGaslessCEX: return "TWI-1803_tron_gasless_cex"
         }
     }
 
@@ -103,6 +105,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .promoCampaignsV2: return .version("6.5")
         case .tangemPayAppleWalletProvisioning: return .unspecified
         case .customSlippage: return .version("6.5")
+        case .tronGaslessCEX: return .version("6.4.1")
         }
     }
 }
