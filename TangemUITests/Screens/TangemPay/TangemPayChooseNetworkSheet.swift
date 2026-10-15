@@ -25,7 +25,7 @@ final class TangemPayChooseNetworkSheet: ScreenBase<TangemPayChooseNetworkSheetE
     @discardableResult
     func verifyFastOptions(_ networks: [TangemPayNetwork]) -> Self {
         verifySection(
-            named: Constants.fastOptionsSection,
+            named: Localization.tangempayChooseNetworkFastWay,
             title: fastOptionsTitle,
             nextSectionTitle: otherOptionsTitle,
             networks: networks
@@ -34,7 +34,7 @@ final class TangemPayChooseNetworkSheet: ScreenBase<TangemPayChooseNetworkSheetE
 
     @discardableResult
     func verifyOtherOptions(_ networks: [TangemPayNetwork]) -> Self {
-        verifySection(named: Constants.otherOptionsSection, title: otherOptionsTitle, nextSectionTitle: nil, networks: networks)
+        verifySection(named: Localization.tangempayChooseNetworkOtherWays, title: otherOptionsTitle, nextSectionTitle: nil, networks: networks)
     }
 
     @discardableResult
@@ -153,12 +153,5 @@ enum TangemPayChooseNetworkSheetElement: String, UIElement {
         case .closeButton:
             TangemPayAccessibilityIdentifiers.chooseNetworkSheetCloseButton
         }
-    }
-}
-
-private extension TangemPayChooseNetworkSheet {
-    enum Constants {
-        static let fastOptionsSection = "Fast options"
-        static let otherOptionsSection = "Other options"
     }
 }

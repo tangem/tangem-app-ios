@@ -15,7 +15,7 @@ final class TangemPayKYCStatusSheet: Screen {
     private lazy var primaryButton = app.buttons[TangemPayAccessibilityIdentifiers.kycStatusSheetPrimaryButton].firstMatch
     /// Redesigned sheet exposes the cross by "Close" label, legacy one by the common close identifier
     private lazy var closeButton = app.buttons.matching(
-        NSPredicate(format: "identifier == %@ OR label == %@", CommonUIAccessibilityIdentifiers.closeButton, "Close")
+        NSPredicate(format: "identifier == %@ OR label == %@", CommonUIAccessibilityIdentifiers.closeButton, Localization.commonClose)
     ).firstMatch
 
     init(_ app: XCUIApplication) {
