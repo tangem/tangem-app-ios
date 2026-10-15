@@ -192,6 +192,51 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
     }
 
     @discardableResult
+    func verifyNativeApplePayOffer(provider: String, cryptoAmount: String) -> Self {
+        XCTContext.runActivity(named: "Validate native Apple Pay offer of \(provider)") { _ in
+            waitAndAssertTrue(nativeApplePayButton(provider), "Native Apple Pay buy button of \(provider) should exist")
+
+            let amount = app.staticTexts[OnrampAccessibilityIdentifiers.providerAmount(name: provider)].firstMatch
+            waitAndAssertTrue(amount, "Offer amount of \(provider) should exist")
+            XCTAssertTrue(amount.label.contains(cryptoAmount), "Offer amount '\(amount.label)' should contain '\(cryptoAmount)'")
+
+            waitAndAssertTrue(
+                app.buttons[OnrampAccessibilityIdentifiers.providerInfoButton(name: provider)].firstMatch,
+                "Info icon of the \(provider) offer should exist"
+            )
+
+            let texts = [
+                Localization.expressProviderGreatRate,
+                Localization.onrampInstantStatus,
+                Localization.onrampViaProvider(provider),
+                Localization.onrampPaymentMethodSubtitle,
+                Localization.onrampNativePaymentLegalNotice(provider, Localization.commonTermsOfUse, Localization.commonPrivacyPolicy),
+                Localization.onrampNativePaymentIdentityVerification(provider),
+            ]
+            for text in texts {
+                waitAndAssertTrue(app.staticTexts[text].firstMatch, "Text '\(text)' should be displayed in the native Apple Pay offer")
+            }
+        }
+        return self
+    }
+
+    func tapNativeApplePayButton(provider: String) -> ApplePaySheetScreen {
+        XCTContext.runActivity(named: "Tap native Apple Pay buy button of \(provider)") { _ in
+            nativeApplePayButton(provider).waitAndTap()
+            return ApplePaySheetScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyRegionRestrictionErrorNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Validate region restriction error is not displayed under the amount") { _ in
+            let error = app.staticTexts[Localization.expressOnrampRestrictionsAmountError].firstMatch
+            XCTAssertFalse(error.exists, "Region restriction error should not be displayed under the amount")
+        }
+        return self
+    }
+
+    @discardableResult
     func waitForTitle(_ expectedTitle: String) -> Self {
         XCTContext.runActivity(named: "Validate Onramp screen title") { _ in
             waitAndAssertTrue(titleLabel, "Title should exist on Onramp screen")
@@ -199,6 +244,20 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
             XCTAssertEqual(actualTitle, expectedTitle, "Title should be '\(expectedTitle)' but was '\(actualTitle)'")
         }
         return self
+    }
+
+    @discardableResult
+    func tapBuyButton(provider: String) -> OnrampProviderWebPage {
+        XCTContext.runActivity(named: "Tap Buy on \(provider) offer and open provider web page") { _ in
+            let buyButton = app.buttons[OnrampAccessibilityIdentifiers.providerBuyButton(name: provider)].firstMatch
+            waitAndAssertTrue(buyButton, "Buy button of \(provider) offer should exist before tapping")
+            buyButton.waitAndTap()
+
+            let webView = app.webViews.firstMatch
+            waitAndAssertTrue(webView, "Provider web view should appear after tapping Buy")
+
+            return OnrampProviderWebPage(app)
+        }
     }
 
     @discardableResult
@@ -214,6 +273,10 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
 
             return OnrampProviderWebPage(app)
         }
+    }
+
+    private func nativeApplePayButton(_ provider: String) -> XCUIElement {
+        app.buttons[OnrampAccessibilityIdentifiers.providerNativeApplePayButton(name: provider)].firstMatch
     }
 }
 
