@@ -5,6 +5,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import TangemFoundation
 import TangemLocalization
 import TangemUIUtils
@@ -19,7 +20,7 @@ final class AccountsFeedRouter {
     private weak var navigation: (any FeedNavigation)?
     private weak var host: (any FeedHostRoutable)?
     private let widgetSheetPresenter: FeedWidgetSheetPresenter
-    private weak var accountCreationWallet: UserWalletModel?
+    private weak var accountCreationWalletSubject: CurrentValueSubject<any UserWalletModel, Never>?
     private var accountFormCompletion: (() -> Void)?
     private let popToRootAction: Action<PopToRootOptions>
 
@@ -37,18 +38,19 @@ extension AccountsFeedRouter: AccountsFeedRoutable {
     func openAddAccount(candidates: [FeedAccountCandidate]) {
         Task { @MainActor [weak self] in
             guard let self, let navigation, navigation.presented == nil,
-                  !widgetSheetPresenter.isPresenting, let candidate = candidates.first else { return }
+                  !widgetSheetPresenter.isPresenting, candidates.contains(where: \.availability.isAvailable) else { return }
 
-            if candidates.count == 1 {
-                openAccountCreation(for: candidate)
+            guard candidates.contains(where: \.availability.joint) else {
+                openCryptoAccountForm()
                 return
             }
 
-            widgetSheetPresenter.presentWalletSelector(wallets: candidates.map(\.wallet)) { [weak self] wallet in
-                guard let candidate = candidates.first(where: { $0.wallet.userWalletId == wallet.userWalletId }) else { return }
-
-                self?.openAccountCreation(for: candidate)
-            }
+            let viewModel = AddAccountTypeSelectorViewModel(
+                // The feed records the entry tap before presenting the selector.
+                userWalletConfig: nil,
+                coordinator: self
+            )
+            widgetSheetPresenter.presentAccountTypeSelector(viewModel)
         }
     }
 }
@@ -56,19 +58,27 @@ extension AccountsFeedRouter: AccountsFeedRoutable {
 // MARK: - AddAccountTypeSelectorRoutable
 
 extension AccountsFeedRouter: AddAccountTypeSelectorRoutable {
-    func openCryptoAccountForm(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
+    func openCryptoAccountForm() {
         Task { @MainActor in
-            guard let navigation, navigation.presented == nil,
-                  validateAccountLimit(for: .crypto, accountModelsManager: accountModelsManager) else { return }
+            let wallets = UserWalletModelsProvider.accountCreationCandidates(for: .crypto)
+
+            guard let navigation, navigation.presented == nil, validateAccountLimit(in: wallets),
+                  let wallet = UserWalletModelsProvider.default(from: wallets) else { return }
 
             widgetSheetPresenter.dismissSelector { [weak self] in
                 guard let self else { return }
                 guard let navigation = self.navigation, navigation.presented == nil else { return }
 
+                let walletSubject = CurrentValueSubject<any UserWalletModel, Never>(wallet)
+                let walletSelection: AccountFormWalletSelection = wallets.count > 1 ? .selectable : .hidden
+
                 let viewModel = AccountFormViewModel(
-                    flowType: .create(creator: CryptoAccountFormViewCreator(accountModelsManager: accountModelsManager)),
+                    flowType: .create(
+                        creator: CryptoAccountFormViewCreator(userWalletModelSubject: walletSubject, walletSelection: walletSelection)
+                    ),
                     coordinator: self
                 )
+                accountCreationWalletSubject = walletSubject
                 navigation.present(.accountForm(viewModel), onDismiss: { [weak self] in
                     self?.accountFormDidDismiss()
                 })
@@ -78,8 +88,10 @@ extension AccountsFeedRouter: AddAccountTypeSelectorRoutable {
 
     func openJointAccountManagement() {
         Task { @MainActor in
-            guard let navigation, navigation.presented == nil, let accountCreationWallet,
-                  validateAccountLimit(for: .joint, accountModelsManager: accountCreationWallet.accountModelsManager) else { return }
+            let wallets = UserWalletModelsProvider.accountCreationCandidates(for: .joint)
+
+            guard let navigation, navigation.presented == nil, validateAccountLimit(in: wallets),
+                  let wallet = UserWalletModelsProvider.default(from: wallets) else { return }
 
             widgetSheetPresenter.dismissSelector { [weak self] in
                 guard let self else { return }
@@ -93,14 +105,10 @@ extension AccountsFeedRouter: AddAccountTypeSelectorRoutable {
                     },
                     popToRootAction: popToRootAction
                 )
-                coordinator.start(with: .creation(JointAccountCreationHelper(userWalletModel: accountCreationWallet)))
+                coordinator.start(with: .creation(JointAccountCreationHelper(userWalletModel: wallet), isWalletFixed: false))
                 navigation.present(.jointAccount(coordinator))
             }
         }
-    }
-
-    func dismissAddAccountTypeSelector() {
-        Task { @MainActor in widgetSheetPresenter.dismissSelector() }
     }
 }
 
@@ -114,10 +122,10 @@ extension AccountsFeedRouter: AccountFormViewModelRoutable {
             accountFormCompletion = makeAccountFormCompletion(
                 result: result,
                 createdAccount: createdAccount,
-                wallet: accountCreationWallet
+                wallet: accountCreationWalletSubject?.value
             )
         }
-        accountCreationWallet = nil
+        accountCreationWalletSubject = nil
         navigation.dismissPresented()
     }
 }
@@ -126,34 +134,13 @@ extension AccountsFeedRouter: AccountFormViewModelRoutable {
 
 @MainActor
 private extension AccountsFeedRouter {
-    func validateAccountLimit(for accountType: AccountType, accountModelsManager: any AccountModelsManager) -> Bool {
-        guard !AccountModelUtils.isAccountsLimitReached(for: accountType, in: accountModelsManager.accountModels) else {
+    func validateAccountLimit(in wallets: [any UserWalletModel]) -> Bool {
+        guard !wallets.isEmpty else {
             alertPresenter.present(alert: AccountEditErrorAlertBuilder.makeAlert(for: .tooManyAccounts))
             return false
         }
 
         return true
-    }
-
-    func openAccountCreation(for candidate: FeedAccountCandidate) {
-        guard let navigation, navigation.presented == nil, candidate.availability.isAvailable else { return }
-
-        let wallet = candidate.wallet
-        accountCreationWallet = wallet
-
-        guard candidate.availability.joint else {
-            openCryptoAccountForm(accountModelsManager: wallet.accountModelsManager, userWalletConfig: wallet.config)
-            return
-        }
-
-        let viewModel = AddAccountTypeSelectorViewModel(
-            accountModelsManager: wallet.accountModelsManager,
-            userWalletConfig: wallet.config,
-            coordinator: self,
-            // The feed records the entry tap before presenting the selector.
-            shouldLogAddAccountTap: false
-        )
-        widgetSheetPresenter.presentAccountTypeSelector(viewModel)
     }
 }
 

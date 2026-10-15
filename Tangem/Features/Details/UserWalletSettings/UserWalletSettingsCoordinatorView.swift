@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 import TangemUI
 
 struct UserWalletSettingsCoordinatorView: CoordinatorView {
@@ -68,8 +69,16 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     }
             }
-            .floatingSheetContent(for: AddAccountTypeSelectorViewModel.self) {
-                AddAccountTypeSelectorView(viewModel: $0)
+            .modal(
+                isPresented: $coordinator.isAddAccountTypeSelectorPresented,
+                contentLayout: .intrinsic,
+                dragIndicator: .hidden,
+                title: Localization.accountFormTitleCreate,
+                onDismiss: coordinator.addAccountTypeSelectorDidDismiss
+            ) {
+                if let viewModel = coordinator.addAccountTypeSelectorViewModel {
+                    AddAccountTypeSelectorView(viewModel: viewModel)
+                }
             }
             .fullScreenCover(item: $coordinator.jointAccountManagementCoordinator) {
                 JointAccountManagementCoordinatorView(coordinator: $0)
@@ -83,12 +92,10 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: MobileRemoveSocialWalletNotificationViewModel.self) {
                 MobileRemoveSocialWalletNotificationView(viewModel: $0)
             }
-            .sheet(item: $coordinator.accountFormViewModel, onDismiss: coordinator.onAccountFormDismiss) { viewModel in
+            .fullScreenCover(item: $coordinator.accountFormViewModel, onDismiss: coordinator.onAccountFormDismiss) { viewModel in
                 NavigationStack {
                     AccountFormView(viewModel: viewModel)
                 }
-                .presentation(onDismissalAttempt: viewModel.onClose)
-                .presentationCornerRadius(24)
             }
     }
 }

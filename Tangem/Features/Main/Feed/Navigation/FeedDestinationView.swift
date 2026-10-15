@@ -26,8 +26,6 @@ struct FeedDestinationView: View {
                 .toolbar(.hidden, for: .navigationBar)
         case .accountForm(let viewModel):
             NavigationStack { AccountFormView(viewModel: viewModel) }
-                .presentation(onDismissalAttempt: viewModel.onClose)
-                .presentationCornerRadius(Constants.accountFormCornerRadius)
         case .jointAccount(let coordinator):
             JointAccountManagementCoordinatorView(coordinator: coordinator)
         case .token(let coordinator):
@@ -39,13 +37,5 @@ struct FeedDestinationView: View {
                 .background(FeedPopGestureEnabler())
                 .toolbar(.hidden, for: .navigationBar)
         }
-    }
-}
-
-// MARK: - Constants
-
-private extension FeedDestinationView {
-    enum Constants {
-        static let accountFormCornerRadius: CGFloat = 24
     }
 }

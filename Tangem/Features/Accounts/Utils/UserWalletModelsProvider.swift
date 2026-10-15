@@ -19,4 +19,10 @@ enum UserWalletModelsProvider {
         return availableUserWalletModels.first { $0.userWalletId == selectedUserWalletId }
             ?? availableUserWalletModels.first
     }
+
+    static func accountCreationCandidates(for accountType: AccountType) -> [any UserWalletModel] {
+        available(from: userWalletRepository.models)
+            .filter(\.accountModelsManager.canAddCryptoAccounts)
+            .filter { !AccountModelUtils.isAccountsLimitReached(for: accountType, in: $0.accountModelsManager.accountModels) }
+    }
 }
