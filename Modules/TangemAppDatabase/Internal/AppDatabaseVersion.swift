@@ -14,6 +14,7 @@ import Foundation
 enum AppDatabaseVersion: CaseIterable {
     case v1
     case v2
+    case v3
 }
 
 // MARK: - Identifiable protocol conformance
@@ -26,6 +27,8 @@ extension AppDatabaseVersion: Identifiable {
             return "v1"
         case .v2:
             return "v2"
+        case .v3:
+            return "v3"
         }
     }
 }
