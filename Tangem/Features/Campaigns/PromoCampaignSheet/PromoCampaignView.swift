@@ -151,8 +151,10 @@ struct PromoCampaignView: View {
     // MARK: - Footer
 
     private var footer: some View {
-        VStack(spacing: 12) {
-            if let termsText = viewModel.termsText {
+        let termsText = viewModel.termsText
+
+        return VStack(spacing: 12) {
+            if let termsText {
                 Text(termsText)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity)
@@ -171,7 +173,13 @@ struct PromoCampaignView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(ListFooterOverlayShadowView(color: DesignSystem.Color.bgPrimary))
+        .background {
+            Fade(position: .bottom)
+                .variant(termsText == nil ? .soft : .hard)
+                .blurred(termsText != nil)
+                .padding(.top, -Constants.footerFadeOverhang)
+                .ignoresSafeArea(edges: .bottom)
+        }
     }
 }
 
@@ -185,6 +193,7 @@ private enum Constants {
     static let contentTopOffset: CGFloat = 256
     static let sectionSpacing: CGFloat = 24
     static let cardCornerRadius: CGFloat = 24
+    static let footerFadeOverhang: CGFloat = 16
 }
 
 // MARK: - Previews
