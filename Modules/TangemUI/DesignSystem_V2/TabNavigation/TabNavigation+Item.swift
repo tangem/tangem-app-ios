@@ -120,13 +120,20 @@ private extension EnvironmentValues {
 // MARK: - Loading placeholder
 
 struct TabItemPlaceholder: View {
-    @ScaledMetric private var height: CGFloat = Constants.placeholderHeight
+    @ScaledMetric private var padding: CGFloat = Constants.labelPadding
 
     var body: some View {
-        Capsule()
-            .fill(DesignSystem.Color.bgTransparentSecondary)
-            .frame(width: Constants.placeholderWidth, height: height)
-            .shimmering()
+        Text(verbatim: " ")
+            .font(token: DesignSystem.Font.subheadingMediumToken)
+            .hidden()
+            .padding(.vertical, padding)
+            .frame(width: Constants.placeholderWidth)
+            .background {
+                Capsule()
+                    .fill(DesignSystem.Color.bgTransparentSecondary)
+                    .shimmering()
+            }
+            .accessibilityHidden(true)
     }
 }
 
@@ -140,6 +147,5 @@ private enum Constants {
     static let hitAreaInset: CGFloat = 4
     static let pressAnimation: Animation = .timingCurve(0.8, 0, 0.6, 1, duration: 0.2)
 
-    static let placeholderHeight: CGFloat = 36
     static let placeholderWidth: CGFloat = 72
 }
