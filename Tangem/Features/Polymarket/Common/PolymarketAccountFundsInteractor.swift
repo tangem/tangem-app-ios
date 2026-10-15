@@ -19,6 +19,7 @@ actor PolymarketAccountFundsInteractor {
     private let walletService: PolymarketDepositWalletService
     private let ownerAddressProvider: PolymarketOwnerAddressProviding
     private let supportedBlockchains: Set<Blockchain>
+    private let sessionHealth: PolymarketSessionHealthChecking?
 
     private let storedState = OSAllocatedUnfairLock(initialState: State.loading)
     private var subscribers = AsyncStream<State>.MulticastSubscribers<UUID>()
@@ -28,13 +29,15 @@ actor PolymarketAccountFundsInteractor {
         configurationService: PolymarketConfigurationService,
         walletService: PolymarketDepositWalletService,
         ownerAddressProvider: PolymarketOwnerAddressProviding,
-        supportedBlockchains: Set<Blockchain>
+        supportedBlockchains: Set<Blockchain>,
+        sessionHealth: PolymarketSessionHealthChecking? = nil
     ) {
         self.bridgeService = bridgeService
         self.configurationService = configurationService
         self.walletService = walletService
         self.ownerAddressProvider = ownerAddressProvider
         self.supportedBlockchains = supportedBlockchains
+        self.sessionHealth = sessionHealth
     }
 }
 
@@ -216,7 +219,8 @@ private extension PolymarketAccountFundsInteractor {
     func verifiedDepositWalletAddress() async throws -> String {
         let resolver = PolymarketDepositWalletResolver(
             walletService: walletService,
-            ownerAddressProvider: ownerAddressProvider
+            ownerAddressProvider: ownerAddressProvider,
+            sessionHealth: sessionHealth
         )
 
         return try await resolver.resolve().depositWallet

@@ -115,6 +115,30 @@ struct CommonPolymarketAccountModelTests {
         #expect(balance.unavailableCalls == 1)
     }
 
+    @Test("Resetting the onboarding forgets the credentials, so even a known account stays in need of a reconnect")
+    func resetOnboardingRequiresAReconnect() async {
+        let credentials = PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials)
+        let (sut, balance) = makeSUT(
+            walletService: PolymarketDepositWalletServiceStub(status: .readyToTrade),
+            credentialsRepository: credentials,
+            knownAccount: true
+        )
+
+        await sut.refreshState()
+        #expect(sut.state == .active)
+
+        sut.resetOnboarding(isAccountGone: false)
+
+        #expect(credentials.deletedWalletIds == [Self.userWalletId])
+        #expect(credentials.load(userWalletId: Self.userWalletId) == nil)
+        #expect(sut.state == .syncNeeded)
+        #expect(balance.state?.isUnavailable == true)
+
+        await sut.refreshState()
+
+        #expect(sut.state == .syncNeeded)
+    }
+
     @Test("A cancelled refresh does not resurrect a state that has since been replaced")
     func cancelledRefreshKeepsTheNewerState() async {
         let service = PolymarketDepositWalletServiceStub(stateResults: [
@@ -148,9 +172,9 @@ struct CommonPolymarketAccountModelTests {
         #expect(service.requestedOwnerAddresses == [nil])
     }
 
-    @Test("A remembered account is served from local facts alone, without asking the backend")
-    func aRememberedAccountSkipsTheBackend() async {
-        let service = PolymarketDepositWalletServiceStub(status: .notCreated)
+    @Test("A remembered account the backend still calls ready is active and reads its balance")
+    func aRememberedReadyAccountReadsItsBalance() async {
+        let service = PolymarketDepositWalletServiceStub(status: .readyToTrade)
         let clob = PolymarketCLOBServiceStub(balanceResult: .success(7.5))
 
         let (sut, balance) = makeSUT(
@@ -162,7 +186,7 @@ struct CommonPolymarketAccountModelTests {
 
         await sut.refreshState()
 
-        #expect(service.requestedOwnerAddresses.isEmpty)
+        #expect(service.requestedOwnerAddresses.count == 1)
         #expect(sut.state == .active)
         #expect(balance.updates.first?.isLoading == true)
 
@@ -176,7 +200,7 @@ struct CommonPolymarketAccountModelTests {
 
     @Test("A remembered account without credentials still shows up, only without a balance")
     func aRememberedAccountWithoutCredentialsNeedsSync() async {
-        let service = PolymarketDepositWalletServiceStub(status: .notCreated)
+        let service = PolymarketDepositWalletServiceStub(status: .readyToTrade)
         let (sut, balance) = makeSUT(
             walletService: service,
             credentialsRepository: PolymarketCredentialsRepositoryStub(),
@@ -185,7 +209,7 @@ struct CommonPolymarketAccountModelTests {
 
         await sut.refreshState()
 
-        #expect(service.requestedOwnerAddresses.isEmpty)
+        #expect(service.requestedOwnerAddresses.count == 1)
         #expect(sut.state == .syncNeeded)
         #expect(balance.unavailableCalls == 1)
     }
@@ -204,16 +228,123 @@ struct CommonPolymarketAccountModelTests {
         #expect(states == [nil, .loading, .onboarding(.deploying)])
     }
 
-    @Test("Once the account is known to exist, a refresh stops going to the backend for it")
-    func aKnownAccountIsNotAskedForAgain() async {
+    @Test("A known account is still rechecked on every state refresh, so a wallet the backend reset is noticed")
+    func aKnownAccountIsRechecked() async {
         let service = PolymarketDepositWalletServiceStub(status: .readyToTrade)
-        let (sut, _) = makeSUT(walletService: service, ownerAddress: nil)
+        let (sut, _) = makeSUT(
+            walletService: service,
+            credentialsRepository: PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials),
+            knownAccount: true
+        )
 
         await sut.refreshState()
         await sut.refreshState()
 
-        #expect(service.requestedOwnerAddresses.count == 1)
+        #expect(service.requestedOwnerAddresses.count == 2)
+        #expect(sut.state == .active)
+    }
+
+    @Test("A known account without a derived key is not asked about, since nothing could be done with the answer")
+    func aKnownAccountWithoutAKeyIsNotAsked() async {
+        let service = PolymarketDepositWalletServiceStub(status: .readyToTrade)
+        let (sut, _) = makeSUT(
+            walletService: service,
+            credentialsRepository: PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials),
+            ownerAddress: nil,
+            knownAccount: true
+        )
+
+        await sut.refreshState()
+
+        #expect(service.requestedOwnerAddresses.isEmpty)
         #expect(sut.state == .syncNeeded)
+    }
+
+    @Test("A known account the backend no longer calls ready stays visible and asks for a reconnect, keeping its credentials", arguments: [
+        PolymarketDepositWalletStatus.deployed,
+        .approvalsInProgress,
+        .approvalsFailed,
+    ])
+    func aKnownAccountResetByTheBackendNeedsAReconnect(status: PolymarketDepositWalletStatus) async {
+        let credentials = PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials)
+        let (sut, balance) = makeSUT(
+            walletService: PolymarketDepositWalletServiceStub(status: status),
+            credentialsRepository: credentials,
+            knownAccount: true
+        )
+
+        await sut.refreshState()
+
+        #expect(sut.state == .syncNeeded)
+        #expect(sut.state?.isAccountVisible == true)
+        #expect(credentials.deletedWalletIds.isEmpty)
+        #expect(balance.state?.isUnavailable == true)
+    }
+
+    @Test("A known account the backend has never created is never shown, not even for a moment")
+    func aKnownAccountTheBackendNeverCreatedIsHidden() async {
+        let (sut, _) = makeSUT(
+            walletService: PolymarketDepositWalletServiceStub(status: .notCreated),
+            credentialsRepository: PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials),
+            knownAccount: true
+        )
+
+        var states: [PolymarketAccountState?] = []
+        let subscription = sut.statePublisher.sink { states.append($0) }
+
+        await sut.refreshState()
+        await sut.refreshState()
+        subscription.cancel()
+
+        #expect(sut.state == nil)
+        #expect(states.allSatisfy { $0?.isAccountVisible != true })
+    }
+
+    @Test("A known account that needed a reconnect keeps needing it when the next check cannot be read")
+    func aReconnectSurvivesAnUnreadableRecheck() async {
+        let (sut, _) = makeSUT(
+            walletService: PolymarketDepositWalletServiceStub(stateResults: [
+                .success(PolymarketDepositWallet(address: PolymarketDepositWalletServiceStub.depositWalletAddress, status: .deployed)),
+                .failure(.upstreamUnavailable(detail: nil)),
+            ]),
+            credentialsRepository: PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials),
+            knownAccount: true
+        )
+
+        await sut.refreshState()
+        #expect(sut.state == .syncNeeded)
+
+        await sut.refreshState()
+        #expect(sut.state == .syncNeeded)
+    }
+
+    @Test("Resetting an account the backend no longer has hides it instead of asking for a reconnect")
+    func resetOfAGoneAccountHidesIt() async {
+        let credentials = PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials)
+        let (sut, _) = makeSUT(
+            walletService: PolymarketDepositWalletServiceStub(status: .readyToTrade),
+            credentialsRepository: credentials,
+            knownAccount: true
+        )
+
+        await sut.refreshState()
+        sut.resetOnboarding(isAccountGone: true)
+
+        #expect(sut.state == nil)
+        #expect(credentials.deletedWalletIds == [Self.userWalletId])
+    }
+
+    @Test("A known account whose status cannot be read stays as it was known")
+    func aKnownAccountSurvivesAnUnreadableStatus() async {
+        let (sut, _) = makeSUT(
+            walletService: PolymarketDepositWalletServiceStub(stateError: .upstreamUnavailable(detail: nil)),
+            credentialsRepository: PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials),
+            knownAccount: true
+        )
+
+        await sut.refreshState()
+
+        #expect(sut.state == .active)
     }
 
     @Test("An active account is only claimed once the balance has actually been asked for")
