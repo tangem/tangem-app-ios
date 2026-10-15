@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUIUtils
@@ -74,6 +75,7 @@ struct OnrampKYCVerificationSheetView: View {
             .foregroundStyle(Colors.Icon.accent)
             .padding(12)
             .background(Circle().fill(Colors.Icon.accent.opacity(0.1)))
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.kycIcon)
     }
 
     private var whatsImportantSection: some View {
