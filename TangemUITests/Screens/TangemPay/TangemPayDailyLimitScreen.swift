@@ -14,16 +14,14 @@ final class TangemPayDailyLimitScreen: ScreenBase<TangemPayDailyLimitScreenEleme
 
     private static let hintPrefix = "Set a limit from"
     private static let hintMaxLimit = "250,000"
-    private static let errorAlertTitle = "Something went wrong"
-    private static let errorAlertMessageFragment = "set the limit"
 
     private lazy var amountField = textField(.dailyLimitAmountField)
     private lazy var setLimitsButton = button(.dailyLimitSetButton)
     private lazy var successTitle = app.staticTexts
-        .matching(NSPredicate(format: "label == %@", Constants.Success.title))
+        .matching(NSPredicate(format: "label == %@", Localization.tangempayCardPageDailyLimitSuccessTitle))
         .firstMatch
     private lazy var successCloseButton = app.buttons
-        .matching(NSPredicate(format: "label == %@", Constants.Success.closeButton))
+        .matching(NSPredicate(format: "label == %@", Localization.commonClose))
         .firstMatch
 
     @discardableResult
@@ -126,16 +124,16 @@ final class TangemPayDailyLimitScreen: ScreenBase<TangemPayDailyLimitScreenEleme
             waitAndAssertTrue(alert, timeout: .networkRequest, "Error alert should be displayed after failed limit change")
 
             let title = alert.staticTexts
-                .element(matching: NSPredicate(format: "label CONTAINS %@", Self.errorAlertTitle))
+                .element(matching: NSPredicate(format: "label CONTAINS %@", Localization.commonSomethingWentWrong))
                 .firstMatch
-            XCTAssertTrue(title.exists, "Alert title '\(Self.errorAlertTitle)' should be displayed")
+            XCTAssertTrue(title.exists, "Alert title '\(Localization.commonSomethingWentWrong)' should be displayed")
 
             let message = alert.staticTexts
-                .element(matching: NSPredicate(format: "label CONTAINS %@", Self.errorAlertMessageFragment))
+                .element(matching: NSPredicate(format: "label CONTAINS %@", Localization.tangempayCardLimitSetupErrorMessage))
                 .firstMatch
-            XCTAssertTrue(message.exists, "Alert message containing '\(Self.errorAlertMessageFragment)' should be displayed")
+            XCTAssertTrue(message.exists, "Alert message containing '\(Localization.tangempayCardLimitSetupErrorMessage)' should be displayed")
 
-            alert.buttons["OK"].waitAndTap()
+            alert.buttons[Localization.commonOk].waitAndTap()
             return self
         }
     }
@@ -155,15 +153,6 @@ enum TangemPayDailyLimitScreenElement: String, UIElement {
             TangemPayAccessibilityIdentifiers.dailyLimitAmountField
         case .dailyLimitSetButton:
             TangemPayAccessibilityIdentifiers.dailyLimitSetButton
-        }
-    }
-}
-
-private extension TangemPayDailyLimitScreen {
-    enum Constants {
-        enum Success {
-            static let title = "Daily limit is set"
-            static let closeButton = "Close"
         }
     }
 }

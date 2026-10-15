@@ -13,18 +13,13 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     /// Every Tangem Pay row shares this accessibility identifier key, see `TransactionViewModel.TransactionType`.
     private static let tangemPayKey = "tangemPay"
     private static let historyScrollAttempts = 12
-    private static let issuingCardTitle = "Issuing a new digital card"
-    private static let issuingCardDescription = "Usually takes up to 5 minutes. In rare cases, up to 48 hours."
-    private static let accountClosedTitle = "Your account has been closed"
-    private static let removeAccountAlertTitle = "Remove account?"
-    private static let removeAccountAlertButton = "Remove account"
 
     private lazy var historyStateIcon = app.images[TxHistoryAccessibilityIdentifiers.statusStateIcon].firstMatch
     private lazy var historyErrorMessage = app.staticTexts
         .matching(NSPredicate(format: "label CONTAINS %@", "Failed to load transaction history"))
         .firstMatch
     private lazy var reloadHistoryButton = app.buttons
-        .matching(NSPredicate(format: "label CONTAINS %@", "Reload"))
+        .matching(NSPredicate(format: "label CONTAINS %@", Localization.commonReload))
         .firstMatch
     private lazy var paymentAccountCardButton = app.buttons
         .matching(NSPredicate(format: "identifier BEGINSWITH %@", TangemPayAccessibilityIdentifiers.paymentAccountCardButtonPrefix))
@@ -33,7 +28,7 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     private lazy var toolbarSubtitle = staticText(.toolbarSubtitle)
     private lazy var addCardButton = button(.addCardButton)
     private lazy var emptyHistoryMessage = app.staticTexts
-        .matching(NSPredicate(format: "label CONTAINS %@", "You don't have any transactions yet"))
+        .matching(NSPredicate(format: "label CONTAINS %@", Localization.transactionHistoryEmptyTransactions))
         .firstMatch
     private lazy var balanceText = staticText(.paymentAccountBalance)
     private lazy var addFundsButton = button(.addFundsButton)
@@ -157,8 +152,8 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     func verifyPlasticDeliveryBanner() -> Self {
         XCTContext.runActivity(named: "Verify the plastic card delivery banner") { _ in
             let banner = app.descendants(matching: .any)
-                .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, Constants.plasticDeliveryBannerTitle))
-                .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, Constants.plasticDeliveryBannerDescription))
+                .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, Localization.tangempayCardDeliveryBannerTitle))
+                .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, Localization.tangempayCardDeliveryBannerDescription))
                 .firstMatch
             waitAndAssertTrue(banner, timeout: .networkRequest, "Plastic card delivery banner should be displayed")
             waitAndAssertTrue(plasticDeliveryActivateButton, timeout: .networkRequest, "Activate card should be displayed on the delivery banner")
@@ -179,11 +174,11 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
         XCTContext.runActivity(named: "Verify 'Issuing a new digital card' banner is displayed") { _ in
             waitAndAssertTrue(issuingCardBanner, timeout: .networkRequest, "Issuing card banner should be displayed")
             waitAndAssertTrue(
-                app.staticTexts[Self.issuingCardTitle].firstMatch,
+                app.staticTexts[Localization.tangempayIssuingNewDigitalCardTitle].firstMatch,
                 "Issuing card banner title should be displayed"
             )
             waitAndAssertTrue(
-                app.staticTexts[Self.issuingCardDescription].firstMatch,
+                app.staticTexts[Localization.tangempayReissueCardInProgressDescription].firstMatch,
                 "Issuing card banner description should be displayed"
             )
             return self
@@ -312,10 +307,10 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
         XCTContext.runActivity(named: "Verify account closed banner is displayed") { _ in
             waitAndAssertTrue(cardDeactivatedBanner, "Account closed banner should be displayed")
             // The banner may combine its texts into a single element, so any matching descendant is accepted.
-            let predicate = NSPredicate(format: "label CONTAINS[c] %@", Self.accountClosedTitle)
+            let predicate = NSPredicate(format: "label CONTAINS[c] %@", Localization.tangempayAccountDeactivatedMessageTitle)
             waitAndAssertTrue(
                 app.descendants(matching: .any).matching(predicate).firstMatch,
-                "Banner should read '\(Self.accountClosedTitle)'"
+                "Banner should read '\(Localization.tangempayAccountDeactivatedMessageTitle)'"
             )
             return self
         }
@@ -325,7 +320,7 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     func verifyAccountClosedBannerDetails() -> Self {
         XCTContext.runActivity(named: "Verify account closed banner shows its icon, texts and Remove account button") { _ in
             waitAndAssertTrue(cardDeactivatedBanner, "Account closed banner should be displayed")
-            for text in [Self.accountClosedTitle, Constants.accountClosedSupportText] {
+            for text in [Localization.tangempayAccountDeactivatedMessageTitle, Localization.tangempayAccountDeactivatedMessageSubtitle] {
                 waitAndAssertTrue(
                     cardDeactivatedBannerElement(labelContaining: text),
                     "Account closed banner should read '\(text)'"
@@ -335,9 +330,9 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
             waitAndAssertTrue(
                 app.buttons
                     .matching(identifier: TangemPayAccessibilityIdentifiers.cardDeactivatedNotification)
-                    .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, Self.removeAccountAlertButton))
+                    .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, Localization.tangempayRemoveAccount))
                     .firstMatch,
-                "Account closed banner should offer the '\(Self.removeAccountAlertButton)' button"
+                "Account closed banner should offer the '\(Localization.tangempayRemoveAccount)' button"
             )
             return self
         }
@@ -363,16 +358,16 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     @discardableResult
     func verifyRemoveAccountAlert() -> Self {
         XCTContext.runActivity(named: "Verify remove account confirmation alert") { _ in
-            let alert = app.alerts[Self.removeAccountAlertTitle].firstMatch
+            let alert = app.alerts[Localization.tangempayRemoveAccountAlertTitle].firstMatch
             waitAndAssertTrue(alert, "Remove account confirmation alert should be displayed")
-            waitAndAssertTrue(alert.buttons[Self.removeAccountAlertButton].firstMatch, "Alert should offer to remove the account")
+            waitAndAssertTrue(alert.buttons[Localization.tangempayRemoveAccount].firstMatch, "Alert should offer to remove the account")
             return self
         }
     }
 
     func confirmRemoveAccount() -> MainScreen {
         XCTContext.runActivity(named: "Confirm account removal") { _ in
-            app.alerts[Self.removeAccountAlertTitle].buttons[Self.removeAccountAlertButton].firstMatch.waitAndTap()
+            app.alerts[Localization.tangempayRemoveAccountAlertTitle].buttons[Localization.tangempayRemoveAccount].firstMatch.waitAndTap()
             return MainScreen(app)
         }
     }
@@ -867,8 +862,5 @@ enum TangemPayMainScreenElement: String, UIElement {
 private extension TangemPayMainScreen {
     enum Constants {
         static let cashbackOpenAttempts = 3
-        static let accountClosedSupportText = "For questions about account, data or transaction history, please contact support"
-        static let plasticDeliveryBannerTitle = "Your card on it's way for delivery"
-        static let plasticDeliveryBannerDescription = "Activate it when arrived"
     }
 }

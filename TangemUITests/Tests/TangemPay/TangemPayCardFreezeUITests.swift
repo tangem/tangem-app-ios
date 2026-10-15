@@ -128,7 +128,7 @@ final class TangemPayCardFreezeUITests: BaseTestCase {
             .tapTransaction(name: Constants.DeclinedTransaction.merchant)
             .waitForScreen()
             .verifyAmount(Constants.DeclinedTransaction.amount)
-            .verifyStatus(Constants.DeclinedTransaction.status)
+            .verifyStatus(Localization.tangemPayStatusDeclined)
     }
 }
 
@@ -153,7 +153,6 @@ private extension TangemPayCardFreezeUITests {
             static let merchant = "Tangem Frozen Card Shop"
             static let amount = "$0.00"
             static let category = "Electronics"
-            static let status = "Declined"
         }
     }
 }
