@@ -40,6 +40,7 @@ struct PromoCampaignView: View {
                 .padding(.top, Constants.contentTopOffset)
             }
         }
+        .coordinateSpace(name: Constants.scrollSpace)
         .environment(\.openURL, OpenURLAction { url in
             viewModel.open(url)
             return .handled
@@ -53,44 +54,45 @@ struct PromoCampaignView: View {
         .safeAreaInset(edge: .bottom, spacing: .zero) {
             footer
         }
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+        .onFirstAppear(perform: viewModel.onFirstAppear)
         .sheet(item: $viewModel.tokenSelectorViewModel) { tokenSelectorViewModel in
             CampaignTokenSelectorView(viewModel: tokenSelectorViewModel)
-        }
-        .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = DesignSystem.Color.bgPrimary
-            configuration.backgroundInteractionBehavior = .tapToDismiss
-            configuration.verticalSwipeBehavior = .init(target: .sheet, threshold: Constants.swipeToDismissThreshold)
-            configuration.maxHeightFraction = Constants.maxHeightFraction
         }
     }
 
     // MARK: - Hero image
 
     private var heroImage: some View {
-        Color.clear
-            .frame(height: Constants.heroImageHeight)
-            .frame(maxWidth: .infinity)
-            .overlay {
-                KFImage(viewModel.imageURL)
-                    .resizable()
-                    .cancelOnDisappear(true)
-                    .placeholder { DesignSystem.Color.bgSecondary }
-                    .onFailureView { DesignSystem.Color.bgSecondary }
-                    .aspectRatio(contentMode: .fill)
-            }
-            .clipped()
-            .accessibilityHidden(true)
-            .overlay(alignment: .bottom) {
-                LinearGradient(
-                    stops: [
-                        .init(color: DesignSystem.Color.bgPrimary.opacity(0), location: 0),
-                        .init(color: DesignSystem.Color.bgPrimary, location: 0.5),
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: Constants.heroImageTintHeight)
-            }
+        GeometryReader { proxy in
+            let overscroll = max(0, proxy.frame(in: .named(Constants.scrollSpace)).minY)
+
+            Color.clear
+                .frame(width: proxy.size.width, height: Constants.heroImageHeight + overscroll)
+                .overlay {
+                    KFImage(viewModel.imageURL)
+                        .resizable()
+                        .cancelOnDisappear(true)
+                        .placeholder { DesignSystem.Color.bgSecondary }
+                        .onFailureView { DesignSystem.Color.bgSecondary }
+                        .aspectRatio(contentMode: .fill)
+                }
+                .clipped()
+                .overlay(alignment: .bottom) {
+                    LinearGradient(
+                        stops: [
+                            .init(color: DesignSystem.Color.bgPrimary.opacity(0), location: 0),
+                            .init(color: DesignSystem.Color.bgPrimary, location: 0.5),
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: Constants.heroImageTintHeight)
+                }
+                .offset(y: -overscroll)
+        }
+        .frame(height: Constants.heroImageHeight)
+        .accessibilityHidden(true)
     }
 
     // MARK: - Title
@@ -186,8 +188,7 @@ struct PromoCampaignView: View {
 // MARK: - Constants
 
 private enum Constants {
-    static let maxHeightFraction: CGFloat = 0.9
-    static let swipeToDismissThreshold: CGFloat = 100
+    static let scrollSpace = "promo_campaign_scroll"
     static let heroImageHeight: CGFloat = 388
     static let heroImageTintHeight: CGFloat = 136
     static let contentTopOffset: CGFloat = 256

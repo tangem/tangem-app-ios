@@ -66,7 +66,7 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
         }
         .modifier(ModalDetentModifier(size: size, contentLayout: contentLayout, height: measuredHeight))
         .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 1), value: idealHeight)
-        .presentationCornerRadius(cornerRadius)
+        .presentationCornerRadius(ModalAppearance.cornerRadius)
         .presentationDragIndicator(dragIndicator)
         .modifier(ModalBackgroundModifier(size: size))
         .presentationBackgroundInteraction(.disabled)
@@ -232,14 +232,6 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
         }
 
         return max(Metrics.minContentHeight, availableHeight - headerHeight - footerHeight)
-    }
-
-    private var cornerRadius: CGFloat? {
-        if #available(iOS 26.0, *) {
-            nil
-        } else {
-            36
-        }
     }
 }
 

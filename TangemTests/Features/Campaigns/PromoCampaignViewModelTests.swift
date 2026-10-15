@@ -377,6 +377,8 @@ private final class PromoCampaignRoutableSpy: PromoCampaignRoutable {
         state.withLock { $0.openedLearnMoreURLs.append(url) }
     }
 
+    func promoCampaignDidAppear(_ campaign: PromoCampaign) {}
+
     func presentErrorToast(with text: String) {}
 
     func enrollInPromoCampaign(_ campaign: PromoCampaign, payoutToken: TokenSelectorItem?) -> Bool {
