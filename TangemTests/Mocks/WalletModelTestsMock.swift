@@ -30,6 +30,8 @@ final class WalletModelTestsMock: WalletModel {
     var stakingManagerMock: StakingManager?
     var yieldModuleManagerMock: (any YieldModuleManager)?
     var tronAccountActivationStateProviderMock: (any TronAccountActivationStateProvider)?
+    var isCustomMock = false
+    var sendingRestrictionsMock: SendingRestrictions?
     private let _updateAfterSendingTransactionCalls = OSAllocatedUnfairLock(initialState: [Bool]())
     var updateAfterSendingTransactionSilentFlags: [Bool] { _updateAfterSendingTransactionCalls.withLock { $0 } }
     var updateAfterSendingTransactionCallCount: Int { updateAfterSendingTransactionSilentFlags.count }
@@ -190,13 +192,13 @@ final class WalletModelTestsMock: WalletModel {
     var canUseQuotes: Bool { true }
     var isEmpty: Bool { _isEmpty }
     var publicKey: Wallet.PublicKey { Wallet.PublicKey(seedKey: Data(), derivationType: .none) }
-    var isCustom: Bool { false }
+    var isCustom: Bool { isCustomMock }
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { .empty }
     var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
     var qrReceiveMessage: String { "" }
     var isDemo: Bool { false }
     var demoBalance: Decimal? { get { nil } set {} }
-    var sendingRestrictions: SendingRestrictions? { nil }
+    var sendingRestrictions: SendingRestrictions? { sendingRestrictionsMock }
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { .empty }
     var stakingManager: StakingManager? { stakingManagerMock }
     var stakeKitTransactionSender: StakeKitTransactionSender? { nil }

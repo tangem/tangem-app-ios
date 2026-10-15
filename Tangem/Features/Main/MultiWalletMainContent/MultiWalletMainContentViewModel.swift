@@ -1031,13 +1031,11 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
                 }
             )
         case .exchange:
-            guard let parameters = SwapPredefinedParametersHelper().makeParameters(
+            let parameters = SwapPredefinedParametersHelper().makeParameters(
                 walletModel: walletModel,
                 userWalletInfo: userWalletModel.userWalletInfo,
-                position: .automatic
-            ) else {
-                return
-            }
+                position: .build(for: walletModel)
+            )
 
             tokenRouter.openSwap(parameters: parameters)
         case .stake:

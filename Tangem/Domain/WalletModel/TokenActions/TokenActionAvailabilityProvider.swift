@@ -77,7 +77,7 @@ extension TokenActionAvailabilityProvider {
 
         actions.append(contentsOf: [.receive, .send])
 
-        if userWalletConfig.isFeatureVisible(.swapping), !isSwapHidden {
+        if userWalletConfig.isFeatureVisible(.swapping) {
             actions.append(.exchange)
         }
 
@@ -107,7 +107,7 @@ extension TokenActionAvailabilityProvider {
             availableActions.append(.send)
         }
 
-        if userWalletConfig.isFeatureVisible(.swapping), isSwapAvailable {
+        if userWalletConfig.isFeatureVisible(.swapping), isSwapAsSourceAvailable {
             availableActions.append(.exchange)
         }
 
@@ -142,7 +142,7 @@ extension TokenActionAvailabilityProvider {
             }
         }
 
-        if userWalletConfig.isFeatureVisible(.swapping), isSwapAvailable {
+        if userWalletConfig.isFeatureVisible(.swapping), isSwapAsSourceAvailable {
             availableActions.append(.exchange)
         }
 
@@ -174,11 +174,9 @@ extension TokenActionAvailabilityProvider {
 // MARK: - Swap
 
 extension TokenActionAvailabilityProvider {
-    enum SwapActionAvailabilityStatus {
+    enum SwapSourceActionAvailabilityStatus {
         case available
-        case hidden
         case jointAccountsComingSoon
-        case unavailable(tokenName: String)
         case customToken
         case blockchainLoading
         case blockchainUnreachable
@@ -186,28 +184,42 @@ extension TokenActionAvailabilityProvider {
         case cantSignLongTransactions
         case expressUnreachable
         case expressLoading
-        case expressNotLoaded
         case missingAssetRequirement
         case yieldModuleApproveNeeded
     }
 
-    var isSwapAvailable: Bool {
-        if case .available = swapAvailability {
+    enum SwapReceiveActionAvailabilityStatus {
+        case available
+        case customToken
+        case missingAssetRequirement
+        case expressUnreachable
+        case expressLoading
+    }
+
+    var isSwapAsSourceAvailable: Bool {
+        if case .available = swapSourceAvailability {
             return true
         }
 
         return false
     }
 
-    var isSwapHidden: Bool {
-        if case .hidden = swapAvailability {
+    var isSwapAsReceiveAvailable: Bool {
+        if case .available = swapReceiveAvailability {
             return true
         }
 
         return false
     }
 
-    var swapAvailability: SwapActionAvailabilityStatus {
+    func isSwapAvailable(direction: SwapDirection) -> Bool {
+        switch direction {
+        case .from: isSwapAsSourceAvailable
+        case .to: isSwapAsReceiveAvailable
+        }
+    }
+
+    var swapSourceAvailability: SwapSourceActionAvailabilityStatus {
         if walletModel.isJointAccountParticipant {
             return .jointAccountsComingSoon
         }
@@ -243,6 +255,30 @@ extension TokenActionAvailabilityProvider {
             break
         }
 
+        switch expressSwapState() {
+        case .available: return .available
+        case .loading: return .expressLoading
+        case .unreachable: return .expressUnreachable
+        }
+    }
+
+    var swapReceiveAvailability: SwapReceiveActionAvailabilityStatus {
+        if walletModel.isCustom {
+            return .customToken
+        }
+
+        if case .assetRequirement = receiveAvailability {
+            return .missingAssetRequirement
+        }
+
+        switch expressSwapState() {
+        case .available: return .available
+        case .loading: return .expressLoading
+        case .unreachable: return .expressUnreachable
+        }
+    }
+
+    private func expressSwapState() -> ExpressSwapState {
         let assetsState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
         let tokenState = expressAvailabilityProvider.swapState(for: walletModel.tokenItem)
 
@@ -250,12 +286,18 @@ extension TokenActionAvailabilityProvider {
         case (.available, _):
             return .available
         case (.unavailable, .updating), (.notLoaded, .updating):
-            return .expressLoading
+            return .loading
         case (.notLoaded, .updated), (.unavailable, .updated):
             return .available // validation happens on Express screen
         case (.notLoaded, .failed), (.unavailable, .failed):
-            return .expressUnreachable
+            return .unreachable
         }
+    }
+
+    private enum ExpressSwapState {
+        case available
+        case loading
+        case unreachable
     }
 }
 

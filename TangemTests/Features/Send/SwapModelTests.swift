@@ -409,6 +409,36 @@ final class SwapModelTests: LeakTrackingTestSuite {
         #expect(amount == nil)
     }
 
+    // MARK: - Pair reversal
+
+    @Test("Reversing the pair makes the receive token the source")
+    func pairReversalSwapsSides() async throws {
+        let source = SwapableTokenStub(blockchain: .ethereum(testnet: false))
+        let receive = SwapableTokenStub(blockchain: .ton(curve: .ed25519, testnet: false))
+        let sut = makeSUT(sourceToken: source, receiveToken: receive)
+
+        sut.userDidRequestSwapSourceAndReceiveToken()
+
+        try await waitUntil { sut.sourceToken.value?.tokenItem == receive.tokenItem }
+        #expect(sut.receiveToken.value?.tokenItem == source.tokenItem)
+    }
+
+    @Test("Reversing the pair keeps the sides when the receive token can't be swapped from", arguments: SendingRestrictionCase.allCases)
+    func pairReversalKeepsSidesForRestrictedReceiveToken(restriction: SendingRestrictionCase) async throws {
+        let source = SwapableTokenStub(blockchain: .ethereum(testnet: false))
+        let receive = SwapableTokenStub(
+            blockchain: .ton(curve: .ed25519, testnet: false),
+            sendingRestriction: restriction.sendingRestriction
+        )
+        let sut = makeSUT(sourceToken: source, receiveToken: receive)
+
+        sut.userDidRequestSwapSourceAndReceiveToken()
+        try await Task.sleep(for: .milliseconds(100))
+
+        #expect(sut.sourceToken.value?.tokenItem == source.tokenItem)
+        #expect(sut.receiveToken.value?.tokenItem == receive.tokenItem)
+    }
+
     // MARK: - Custom slippage
 
     @Test("The slippage sheet keeps its provider through a fee refresh but not through a quote reload")

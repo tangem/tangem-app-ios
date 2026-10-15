@@ -5,6 +5,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import BlockchainSdk
 import TangemExpress
@@ -20,6 +21,7 @@ final class SwapableTokenStub: SendSwapableToken {
     private let feeProvidersManager: (any TokenFeeProvidersManager)?
     private let defaultAddress: String?
     private let injectedReceivingRestrictionsProvider: (any ReceivingRestrictionsProvider)?
+    private let injectedSendingRestrictionsProvider: (any SendingRestrictionsProvider)?
 
     let presentation: SendReceiveTokenPresentation?
 
@@ -29,7 +31,8 @@ final class SwapableTokenStub: SendSwapableToken {
         receivingRestriction: ReceivedRestriction? = nil,
         transactionValidator: SendTransactionValidator? = nil,
         destination: SendReceiveTokenDestination? = nil,
-        receivingRestrictionsProvider: (any ReceivingRestrictionsProvider)? = nil
+        receivingRestrictionsProvider: (any ReceivingRestrictionsProvider)? = nil,
+        sendingRestrictionsProvider: (any SendingRestrictionsProvider)? = nil
     ) {
         inner = SendSourceTokenStub(blockchain: blockchain)
         self.sendingRestriction = sendingRestriction
@@ -41,6 +44,7 @@ final class SwapableTokenStub: SendSwapableToken {
         defaultAddress = nil
         presentation = nil
         injectedReceivingRestrictionsProvider = receivingRestrictionsProvider
+        injectedSendingRestrictionsProvider = sendingRestrictionsProvider
     }
 
     init(
@@ -65,6 +69,7 @@ final class SwapableTokenStub: SendSwapableToken {
         feeProvidersManager = tokenFeeProvidersManager
         self.defaultAddress = defaultAddress
         injectedReceivingRestrictionsProvider = receivingRestrictionsProvider
+        injectedSendingRestrictionsProvider = nil
     }
 
     struct BalanceProviders {
@@ -73,7 +78,7 @@ final class SwapableTokenStub: SendSwapableToken {
     }
 
     var sendingRestrictionsProvider: any SendingRestrictionsProvider {
-        SendingRestrictionsProviderStub(sendingRestrictions: sendingRestriction)
+        injectedSendingRestrictionsProvider ?? SendingRestrictionsProviderStub(sendingRestrictions: sendingRestriction)
     }
 
     var destination: SendReceiveTokenDestination? {
@@ -155,6 +160,8 @@ private struct ReceivingRestrictionsProviderStub: ReceivingRestrictionsProvider 
 
 private struct SendingRestrictionsProviderStub: SendingRestrictionsProvider {
     let sendingRestrictions: SendingRestrictions?
+
+    var sendingRestrictionsPublisher: AnyPublisher<SendingRestrictions?, Never> { .just(output: sendingRestrictions) }
 }
 
 // MARK: - Token item helpers
