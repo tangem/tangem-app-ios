@@ -32,24 +32,4 @@ enum SafeOperationFeeCalculator {
 
         return Fee(feeAmount, parameters: feeParameters)
     }
-
-    /// The middle of the three options the network answers with; a single answer is taken as it is.
-    static func marketFeeParameters(from fees: [Fee]) throws -> EthereumFeeParameters {
-        let fee = fees.count > 1 ? fees[1] : fees.first
-
-        guard let parameters = fee?.parameters as? EthereumFeeParameters else {
-            throw SafeOperationError.feeNotFound
-        }
-
-        return parameters
-    }
-
-    static func gasPrice(of parameters: EthereumFeeParameters) -> BigUInt {
-        switch parameters.parametersType {
-        case .eip1559(let params): params.maxFeePerGas
-        case .legacy(let params): params.gasPrice
-        case .gasless(let params): params.maxFeePerGas
-        case .safe(let params): params.gasPrice
-        }
-    }
 }

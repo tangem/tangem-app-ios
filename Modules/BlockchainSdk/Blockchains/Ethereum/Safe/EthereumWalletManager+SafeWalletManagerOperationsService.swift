@@ -45,18 +45,19 @@ extension EthereumWalletManager: SafeWalletManagerOperationsService {
     }
 
     func getSafeOperationFee(innerCall: SafeInnerCall, parameters: SafeOperationParameters) async throws -> Fee {
-        // The wallet's `from` is the Safe already, so one fee request both estimates the inner call and prices it
-        async let fees = getFee(destination: innerCall.to, value: innerCall.value.hexString, data: innerCall.data).async()
+        async let gasLimit = getGasLimit(
+            to: innerCall.to,
+            from: defaultSourceAddress,
+            value: innerCall.value.hexString,
+            data: innerCall.data.hex().addHexPrefix()
+        )
+        .mapError { EthereumMapper.mapError($0) }
+        .async()
+        async let gasPrice = getGasPrice().async()
         async let state = getSafeState()
 
-        let marketFee = try await SafeOperationFeeCalculator.marketFeeParameters(from: fees)
-        let estimate = SafeInnerCallEstimate(
-            gasLimit: marketFee.gasLimit,
-            gasPrice: SafeOperationFeeCalculator.gasPrice(of: marketFee)
-        )
-
         return try await SafeOperationFeeCalculator.fee(
-            estimate: estimate,
+            estimate: SafeInnerCallEstimate(gasLimit: gasLimit, gasPrice: gasPrice),
             state: state,
             parameters: parameters
         )
