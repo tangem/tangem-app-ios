@@ -48,7 +48,7 @@ extension TokensManagementFlowCoordinator {
 
     func openAddTokens() {
         logger.logButtonAddTokens()
-        Task { @MainActor in
+        Task { @MainActor [self] in
             let accountSelector = factory.makeAccountSelectorViewModel { [weak self] cellModel in
                 self?.didSelectAccount(cellModel.cryptoAccountModel)
             }

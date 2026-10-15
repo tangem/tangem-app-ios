@@ -165,7 +165,7 @@ private extension View {
         }
         #else
         self
-        #endif
+        #endif // canImport(SwiftUI, _version: 8.0.84)
     }
 }
 

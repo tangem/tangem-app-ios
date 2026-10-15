@@ -8,10 +8,10 @@
 
 import Foundation
 
-class PersistentStorage {
+final class PersistentStorage: Sendable {
     private let documentType = "json"
 
-    private lazy var encryptionUtility = FileEncryptionUtility()
+    private let encryptionUtility = FileEncryptionUtility()
 
     private var fileManager: FileManager { FileManager.default }
 

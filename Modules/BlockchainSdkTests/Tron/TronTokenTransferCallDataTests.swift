@@ -62,7 +62,7 @@ struct TronTokenTransferCallDataTests {
             "a9059cbb" + String(repeating: "00", count: 11) + "41" + recipientBody + amount + "00",
             "a9059cbb",
             "",
-        ]
+        ] as [String]
     )
     func rejectsAnyOtherLength(calldata: String) {
         #expect(TronTokenTransferCallData(calldata: calldata) == nil)
