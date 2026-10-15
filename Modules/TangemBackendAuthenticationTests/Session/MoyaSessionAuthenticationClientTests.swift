@@ -11,6 +11,7 @@ import Testing
 import Alamofire
 import Moya
 import TangemFoundation
+import TangemNetworkUtils
 @testable import TangemBackendAuthentication
 
 @Suite(.tags(.backendAuthentication))
@@ -322,7 +323,7 @@ extension MoyaSessionAuthenticationClientTests {
 }
 
 private extension TokensResponseFixture {
-    static let deviceNotFoundErrorResponse = #"{"detail":"Device not found"}"#
+    static let deviceNotFoundErrorResponse = TangemProblemDetailError.deviceNotFound.jsonString
     static let nonceNotFoundErrorResponse = #"{"detail":"Nonce not found"}"#
     static let tokenNotFoundErrorResponse = #"{"detail":"Token not found"}"#
     static let emptyErrorResponse = ""

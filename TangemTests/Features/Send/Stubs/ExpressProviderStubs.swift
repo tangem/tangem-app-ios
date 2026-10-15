@@ -92,3 +92,49 @@ enum ExpressAvailableProviderFixture {
         return ExpressAvailableProvider(context: context, manager: ExpressProviderManagerStub(state: state))
     }
 }
+
+enum ExpressQuoteFixture {
+    static func make(fromAmount: Decimal = 1, expectAmount: Decimal = 1) -> ExpressQuote {
+        ExpressQuote(
+            fromAmount: fromAmount,
+            expectAmount: expectAmount,
+            allowanceContract: nil,
+            quoteId: nil,
+            txType: nil,
+            isRestricted: false,
+            slippage: nil
+        )
+    }
+}
+
+enum ExpressTransactionDataFixture {
+    static func make(
+        fromAmount: Decimal = 1,
+        toAmount: Decimal = 1,
+        transactionType: ExpressTransactionType = .swap,
+        sourceAddress: String? = nil,
+        destinationAddress: String = "",
+        txValue: Decimal = 0,
+        txData: String? = nil,
+        payInAddress: String = ""
+    ) -> ExpressTransactionData {
+        ExpressTransactionData(
+            requestId: "",
+            fromAmount: fromAmount,
+            toAmount: toAmount,
+            expressTransactionId: "",
+            transactionType: transactionType,
+            sourceAddress: sourceAddress,
+            destinationAddress: destinationAddress,
+            extraDestinationId: nil,
+            txValue: txValue,
+            txData: txData,
+            otherNativeFee: nil,
+            estimatedGasLimit: nil,
+            externalTxId: nil,
+            externalTxURL: nil,
+            payInAddress: payInAddress,
+            slippage: nil
+        )
+    }
+}

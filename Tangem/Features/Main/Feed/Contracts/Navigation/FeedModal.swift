@@ -21,29 +21,4 @@ enum FeedModal: Identifiable {
         case .earnTypeFilter(let viewModel): ObjectIdentifier(viewModel)
         }
     }
-
-    var pulseTagFilter: PulseTagFilterBottomSheetViewModel? {
-        guard case .pulseTagFilter(let viewModel) = self else { return nil }
-        return viewModel
-    }
-
-    var marketCapInfo: MarketCapInfoBottomSheetViewModel? {
-        guard case .marketCapInfo(let viewModel) = self else { return nil }
-        return viewModel
-    }
-
-    var realAssetsCategoryFilter: MarketsRealAssetsFilterBottomSheetViewModel? {
-        guard case .realAssetsCategoryFilter(let viewModel) = self else { return nil }
-        return viewModel
-    }
-
-    var earnNetworkFilter: EarnNetworkFilterBottomSheetViewModel? {
-        guard case .earnNetworkFilter(let viewModel) = self else { return nil }
-        return viewModel
-    }
-
-    var earnTypeFilter: EarnTypeFilterBottomSheetViewModel? {
-        guard case .earnTypeFilter(let viewModel) = self else { return nil }
-        return viewModel
-    }
 }

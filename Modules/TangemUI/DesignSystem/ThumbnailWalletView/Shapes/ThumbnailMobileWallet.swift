@@ -9,7 +9,7 @@
 import SwiftUI
 
 public enum ThumbnailMobileWalletPathBuilder: ThumbnailPathBuilding {
-    public struct FillColors: Equatable {
+    public struct FillColors: Equatable, Sendable {
         public let icon: Color
 
         public init(icon: Color) {

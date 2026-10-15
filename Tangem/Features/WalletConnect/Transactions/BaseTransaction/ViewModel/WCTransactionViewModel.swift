@@ -429,8 +429,7 @@ private extension WCTransactionViewModel {
                 )
 
                 let state = WCMultipleTransactionsAlertFactory.makeMultipleTransactionAlertState(
-                    tangemIconProvider: CommonTangemIconProvider(config: transactionData.userWalletModel.config),
-                    confirmTransactionPolicy: confirmTransactionPolicy
+                    signingActionButtonType: signingActionButtonType
                 )
                 let viewModel = WCMultipleTransactionAlertViewModel(state: state, input: input)
 

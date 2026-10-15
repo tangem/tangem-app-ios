@@ -200,39 +200,5 @@ extension ALPH.CompactInteger {
                 return .failure(ALPH.SerdeError.wrongFormat(message: "Unknown mode"))
             }
         }
-
-        static func decodeLong(_ data: Data) -> Result<ALPH.Staging<Int64>, Error> {
-            switch ALPH.ModeUtils.decode(data) {
-            case .success(let (mode, body, rest)):
-                return decodeLong(mode, body, rest)
-            case .failure(let error):
-                return .failure(error)
-            }
-        }
-
-        private static func decodeLong(
-            _ mode: ALPH.Mode,
-            _ body: Data,
-            _ rest: Data
-        ) -> Result<ALPH.Staging<Int64>, Error> {
-            switch mode {
-            case is ALPH.FixedWidth:
-                guard let mode = mode as? ALPH.FixedWidth else {
-                    return .failure(ALPH.SerdeError.wrongFormat(message: "Unknown mode"))
-                }
-
-                return decodeFixedWidthInt(mode, body, rest).map { staging in
-                    ALPH.Staging(value: Int64(staging.value), rest: staging.rest)
-                }
-            case is ALPH.MultiByte:
-                guard body.count >= 5, body.count == 9 else {
-                    return .failure(ALPH.SerdeError.wrongFormat(message: "Expect 9 bytes long, but got \(body.count - 1) bytes long"))
-                }
-                let value = ALPH.Bytes.toLongUnsafe(body.dropFirst())
-                return .success(ALPH.Staging(value: value, rest: rest))
-            default:
-                return .failure(ALPH.SerdeError.wrongFormat(message: "Unknown mode"))
-            }
-        }
     }
 }

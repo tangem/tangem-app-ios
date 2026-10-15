@@ -40,19 +40,6 @@ class Analytics {
         }
     }
 
-    static func logPromotionEvent(_ event: Event, programName: String, newClient: Bool? = nil) {
-        var params = [
-            ParameterKey.programName: programName,
-        ]
-
-        if let newClient {
-            let clientType: ParameterValue = newClient ? .new : .old
-            params[.clientType] = clientType.rawValue
-        }
-
-        Analytics.log(event: event, params: params)
-    }
-
     static func logScanError(_ error: Error, source: Analytics.ScanErrorsSource, contextParams: Analytics.ContextParams = .default) {
         let error = error.toTangemSdkError()
 

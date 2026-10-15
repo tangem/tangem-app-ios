@@ -66,10 +66,6 @@ class AppSettingsViewModel: ObservableObject {
         hasProtectedWallets && useBiometricAuthentication
     }
 
-    private var showingBiometryWarning: Bool {
-        warningViewModel != nil
-    }
-
     init(coordinator: AppSettingsRoutable) {
         self.coordinator = coordinator
 

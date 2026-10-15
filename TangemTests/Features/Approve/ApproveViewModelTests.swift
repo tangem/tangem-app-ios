@@ -263,8 +263,7 @@ struct ApproveViewModelTests {
             title: "Test title",
             subtitle: "Test subtitle",
             feeFooterText: "Test footer",
-            tokenItem: makeTestTokenItem(),
-            tangemIconProvider: ApproveTangemIconProviderStub()
+            tokenItem: makeTestTokenItem()
         )
 
         let input = ApproveViewModel.Input(

@@ -348,30 +348,6 @@ extension SwapNotificationEvent: NotificationEvent {
         }
     }
 
-    var removingOnFullLoadingState: Bool {
-        switch self {
-        case .unsupportedPair, .refreshRequired, .verificationRequired, .cexOperationFailed, .refunded, .longTimeAverageDuration, .regionRestricted, .trustlineRequired:
-            return false
-        case .permissionNeeded,
-             .hasPendingTransaction,
-             .hasPendingApproveTransaction,
-             .notEnoughFeeForTokenTx,
-             .tooSmallAmountToSwap,
-             .tooBigAmountToSwap,
-             .feeWillBeSubtractFromSendingAmount,
-             .customFeeWarning,
-             .notEnoughReceivedAmount,
-             .tooMuchReceivedAmount,
-             .notEnoughBalanceForSwapping,
-             .withdrawalNotificationEvent,
-             .validationErrorEvent,
-             .highPriceImpactWarning,
-             .highNetworkFee,
-             .lowCustomSlippage:
-            return true
-        }
-    }
-
     var isDismissable: Bool {
         return false
     }

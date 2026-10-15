@@ -227,7 +227,7 @@ extension StakeFactory: SendGenericFlowFactory {
 
 extension StakeFactory: SendBaseBuildable {
     var baseIO: SendViewModelBuilder.IO {
-        SendViewModelBuilder.IO(input: stakeModel, output: stakeModel)
+        SendViewModelBuilder.IO(input: stakeModel, output: stakeModel, sourceTokenInput: stakeModel)
     }
 
     var baseDependencies: SendViewModelBuilder.Dependencies {
@@ -240,14 +240,12 @@ extension StakeFactory: SendBaseBuildable {
             approveViewModelInputDataBuilder: CommonApproveViewModelInputDataBuilder(
                 dataProvider: stakeModel,
                 analyticsLogger: analyticsLogger,
-                output: stakeModel,
-                confirmTransactionPolicy: stakingableToken.confirmTransactionPolicy
+                output: stakeModel
             ),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
                 sourceTokenInput: stakeModel
             ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             mainButtonUIOptionsProvider: CommonSendMainButtonUIOptionsProvider(sourceTokenInput: stakeModel)
         )
     }
@@ -368,9 +366,7 @@ extension StakeFactory: SendSummaryStepBuildable {
             // The summary step's appearance drives resume/pause of the approve-mining poll.
             autoupdatingTimer: autoupdatingTimer,
             analyticsLogger: analyticsLogger,
-            sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
-            sendWithSwapDescriptionBuilder: makeSendWithSwapTransactionSummaryDescriptionBuilder(),
-            stakingDescriptionBuilder: makeStakingTransactionSummaryDescriptionBuilder()
+            transactionSummaryDescriptionBuilderProvider: stakingableToken.transactionSummaryDescriptionBuilderProvider
         )
     }
 }
@@ -380,10 +376,6 @@ extension StakeFactory: SendSummaryStepBuildable {
 extension StakeFactory: SendFinishStepBuildable {
     var finishIO: SendFinishStepBuilder.IO {
         SendFinishStepBuilder.IO(input: stakeModel)
-    }
-
-    var finishTypes: SendFinishStepBuilder.Types {
-        SendFinishStepBuilder.Types(tokenItem: tokenItem)
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {

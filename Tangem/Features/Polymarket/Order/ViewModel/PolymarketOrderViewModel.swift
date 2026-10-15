@@ -123,12 +123,8 @@ extension PolymarketOrderViewModel {
         if case .buy = model.intent { true } else { false }
     }
 
-    var showsBack: Bool {
-        if case .sell = model.intent { true } else { false }
-    }
-
     var amountPrefixSuffixOptions: SendDecimalNumberTextField.PrefixSuffixOptions {
-        .prefix(text: AppConstants.usdSign, hasSpace: true)
+        .prefix(text: AppConstants.usdSign, hasSpace: false)
     }
 
     struct FractionOption: Identifiable, Hashable {

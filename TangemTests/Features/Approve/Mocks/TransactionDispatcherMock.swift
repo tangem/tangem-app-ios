@@ -14,7 +14,6 @@ final class TransactionDispatcherMock: TransactionDispatcher {
     var sendResult: Result<TransactionDispatcherResult, Error> = .success(
         TransactionDispatcherResult(hash: "0xmockhash", url: nil, signerType: "mock", currentHost: "mock.host")
     )
-    var hasNFCInteraction: Bool = false
 
     // MARK: - Call tracking
 

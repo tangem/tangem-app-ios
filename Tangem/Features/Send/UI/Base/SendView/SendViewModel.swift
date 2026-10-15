@@ -33,7 +33,6 @@ final class SendViewModel: ObservableObject {
 
     var mainButtonLoading: Bool { actionInProcessing }
     var closeButtonDisabled: Bool { actionInProcessing }
-    var trailingButtonDisabled: Bool { actionInProcessing }
     var isUserInteractionDisabled: Bool { actionInProcessing }
 
     var navigationBarSettings: SendStepNavigationBarSettings { stepsManager.navigationBarSettings }
@@ -52,7 +51,7 @@ final class SendViewModel: ObservableObject {
     private let approveViewModelInputDataBuilder: SendApproveViewModelInputDataBuilder
     private let feeCurrencyProviderDataBuilder: SendFeeCurrencyProviderDataBuilder
     private let analyticsLogger: SendBaseViewAnalyticsLogger
-    private let blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper
+    private weak var sourceTokenInput: SendSourceTokenInput?
     private weak var coordinator: SendRoutable?
 
     private var bag: Set<AnyCancellable> = []
@@ -60,7 +59,6 @@ final class SendViewModel: ObservableObject {
     private var sendTask: Task<Void, Never>?
     private var isValidSubscription: AnyCancellable?
     private var isUpdatingSubscription: AnyCancellable?
-    private var isValidContinueSubscription: AnyCancellable?
     private var navigationBarRefreshSubscription: AnyCancellable?
 
     init(
@@ -72,7 +70,7 @@ final class SendViewModel: ObservableObject {
         approveViewModelInputDataBuilder: SendApproveViewModelInputDataBuilder,
         feeCurrencyProviderDataBuilder: SendFeeCurrencyProviderDataBuilder,
         analyticsLogger: SendBaseViewAnalyticsLogger,
-        blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper,
+        sourceTokenInput: (any SendSourceTokenInput)?,
         coordinator: SendRoutable
     ) {
         self.interactor = interactor
@@ -83,7 +81,7 @@ final class SendViewModel: ObservableObject {
         self.approveViewModelInputDataBuilder = approveViewModelInputDataBuilder
         self.feeCurrencyProviderDataBuilder = feeCurrencyProviderDataBuilder
         self.analyticsLogger = analyticsLogger
-        self.blockchainSDKNotificationMapper = blockchainSDKNotificationMapper
+        self.sourceTokenInput = sourceTokenInput
         self.coordinator = coordinator
 
         step = stepsManager.initialStep
@@ -165,12 +163,8 @@ final class SendViewModel: ObservableObject {
         mainButtonUIOptionsProvider.mainButtonTitle(mainButtonType: mainButtonType, flowActionType: flowActionType)
     }
 
-    func mainButtonNeedsHoldAction(mainButtonType: SendMainButtonType) -> Bool {
-        mainButtonUIOptionsProvider.mainButtonNeedsHoldAction(mainButtonType: mainButtonType, flowActionType: flowActionType)
-    }
-
-    func mainButtonIcon(mainButtonType: SendMainButtonType) -> MainButton.Icon? {
-        mainButtonUIOptionsProvider.mainButtonIcon(mainButtonType: mainButtonType, flowActionType: flowActionType)
+    func mainButtonSigningActionButtonType(mainButtonType: SendMainButtonType) -> SigningActionButtonViewType? {
+        mainButtonUIOptionsProvider.mainButtonSigningActionButtonType(mainButtonType: mainButtonType, flowActionType: flowActionType)
     }
 }
 
@@ -199,9 +193,9 @@ private extension SendViewModel {
             } catch _ as CancellationError {
                 // Do nothing
             } catch let error as ValidationError {
-                let mapper = viewModel.blockchainSDKNotificationMapper
-                let validationErrorEvent = mapper.mapToValidationErrorEvent(error)
-                let message = validationErrorEvent.description ?? error.localizedDescription
+                let mapper = viewModel.sourceTokenInput?.sourceToken.value?.blockchainSDKNotificationMapper
+                let validationErrorEvent = mapper?.mapToValidationErrorEvent(error)
+                let message = validationErrorEvent?.description ?? error.localizedDescription
                 let alertBinder = AlertBinder(title: Localization.commonError, message: message)
                 AppLogger.error(error: error)
                 await runOnMain { viewModel.alertPresenter.present(alert: alertBinder) }

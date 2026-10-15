@@ -63,8 +63,8 @@ struct FeeRowView: View {
     private var trailingView: some View {
         switch viewModel.components {
         case .loading:
-            SkeletonView()
-                .frame(width: 70, height: 15)
+            Shimmer()
+                .variant(.custom(width: 70, height: 15, cornerRadius: 0))
         case .success(let components):
             trailingView(for: components)
         case .failure:
@@ -113,15 +113,7 @@ struct FeeRowView: View {
 
 // MARK: - Setupable
 
-extension FeeRowView: Setupable {
-    func optionGeometryEffect(_ effect: GeometryEffectPropertiesModel?) -> Self {
-        map { $0.optionGeometryEffect = effect }
-    }
-
-    func amountGeometryEffect(_ effect: GeometryEffectPropertiesModel?) -> Self {
-        map { $0.amountGeometryEffect = effect }
-    }
-}
+extension FeeRowView: Setupable {}
 
 @available(iOS 17.0, *)
 #Preview("Light") {

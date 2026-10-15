@@ -15,11 +15,7 @@ struct PolymarketOrderPlacementFactory {
     func makeService(for userWalletModel: any UserWalletModel) -> PolymarketOrderPlacementService {
         CommonPolymarketOrderPlacementService(
             userWalletId: userWalletModel.userWalletId,
-            ownerAddressProvider: CommonPolymarketOwnerAddressProvider(
-                keysRepository: userWalletModel.keysRepository,
-                keysDerivingFactory: PolymarketKeysDeriving(provider: userWalletModel),
-                areHDWalletsSupported: userWalletModel.config.hasFeature(.hdWallets)
-            ),
+            ownerAddressProvider: CommonPolymarketOwnerAddressProvider(keysRepository: userWalletModel.keysRepository),
             credentialsRepository: CommonPolymarketCredentialsRepository(),
             placer: PolymarketOrderPlacer(
                 clobService: services.makeCLOBService(),

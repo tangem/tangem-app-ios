@@ -50,6 +50,7 @@ struct TransactionDetailsHeaderViewData: Equatable {
         let title: String
         let icon: ImageType?
         let action: TransactionDetailsViewModel.ViewAction
+        var role: ButtonRole?
     }
 }
 
@@ -123,7 +124,7 @@ struct TransactionDetailsHeaderView: View {
             ForEach(data.menuSections) { section in
                 Section {
                     ForEach(section.actions) { menuAction in
-                        Button(action: { onAction(menuAction.action) }) {
+                        Button(role: menuAction.role, action: { onAction(menuAction.action) }) {
                             if let icon = menuAction.icon {
                                 Label(
                                     title: { Text(menuAction.title) },

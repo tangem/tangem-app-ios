@@ -28,7 +28,6 @@ struct MainView: View {
         MainHorizontalPagingScrollView(
             userWalletPageBuilders: viewModel.pages,
             selectedCardIndex: $viewModel.selectedCardIndex,
-            onSelectedCardChanged: viewModel.onPageChange,
             pullToRefreshAction: viewModel.pullToRefresh(userWalletID:),
             refreshingUserWalletIDs: viewModel.refreshingUserWalletIDs,
             scanQRCodeAction: viewModel.openQRScan,

@@ -13,15 +13,16 @@ import TangemUI
 struct GeoSelectionRowSkeleton: View {
     let hasFlag: Bool
 
+    @ScaledMetric private var scaleFactor: CGFloat = 1
+
     var body: some View {
         HStack(spacing: Constants.spacing) {
             if hasFlag {
                 Shimmer()
                     .variant(
                         .custom(
-                            width: Constants.flagSide,
-                            height: Constants.flagSide,
-                            cornerRadius: Constants.flagSide / 2
+                            width: Constants.flagSide * scaleFactor,
+                            height: Constants.flagSide * scaleFactor
                         )
                     )
             }
@@ -29,8 +30,8 @@ struct GeoSelectionRowSkeleton: View {
             Shimmer()
                 .variant(
                     .custom(
-                        width: Constants.titleWidth,
-                        height: Constants.titleHeight,
+                        width: Constants.titleWidth * scaleFactor,
+                        height: Constants.titleHeight * scaleFactor,
                         cornerRadius: Constants.titleCornerRadius
                     )
                 )

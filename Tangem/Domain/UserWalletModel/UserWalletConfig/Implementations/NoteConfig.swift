@@ -86,18 +86,6 @@ extension NoteConfig: UserWalletConfig {
         isDemo ? .demoNote : .note
     }
 
-    var cardHeaderImage: ImageType? {
-        switch defaultBlockchain {
-        case .bitcoin: return Assets.Cards.noteBitcoin
-        case .ethereum: return Assets.Cards.noteEthereum
-        case .cardano: return Assets.Cards.noteCardano
-        case .bsc: return Assets.Cards.noteBinance
-        case .dogecoin: return Assets.Cards.noteDoge
-        case .xrp: return Assets.Cards.noteXrp
-        default: return nil
-        }
-    }
-
     var walletThumbnailType: ThumbnailWalletViewType? {
         typealias CC = Color.Tangem.CardCollection
 

@@ -47,8 +47,6 @@ class CardSigner {
 }
 
 extension CardSigner: TangemSigner {
-    var hasNFCInteraction: Bool { true }
-
     var latestSignerType: TangemSignerType? { _latestSignerType }
 
     func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {

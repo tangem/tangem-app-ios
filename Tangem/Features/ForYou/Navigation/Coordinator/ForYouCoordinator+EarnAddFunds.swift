@@ -86,7 +86,7 @@ extension ForYouCoordinator: AddFundsRoutable {
 
     func addFundsRequestSwap(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
         floatingSheetPresenter.removeActiveSheet()
-        openSwap(walletModel: walletModel, userWalletInfo: userWalletModel.userWalletInfo)
+        openSwap(walletModel: walletModel, userWalletInfo: userWalletModel.userWalletInfo, direction: .to)
     }
 
     func addFundsRequestReceive(viewModel: ReceiveMainViewModel) {

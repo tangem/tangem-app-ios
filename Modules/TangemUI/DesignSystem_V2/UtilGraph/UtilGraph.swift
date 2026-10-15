@@ -15,6 +15,8 @@ public struct UtilGraph: View, Setupable {
     private var direction: Direction = .neutral
     private var isLoading: Bool = false
 
+    @ScaledMetric private var loadingHeight: CGFloat = Metrics.loadingHeight
+
     public init(values: [Double]) {
         self.values = values
     }
@@ -22,7 +24,7 @@ public struct UtilGraph: View, Setupable {
     public var body: some View {
         if isLoading {
             Shimmer()
-                .variant(.custom(height: Metrics.loadingHeight, cornerRadius: Metrics.loadingCornerRadius))
+                .variant(.custom(height: loadingHeight, cornerRadius: Metrics.loadingCornerRadius))
                 .frame(maxHeight: .infinity, alignment: .center)
         } else {
             curve

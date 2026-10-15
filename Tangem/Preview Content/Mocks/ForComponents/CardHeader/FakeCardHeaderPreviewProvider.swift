@@ -92,7 +92,6 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
                     isUserWalletLocked: $0.walletModel.isUserWalletLocked,
                     walletThumbnailType: $0.walletModel.config.walletThumbnailType,
                     supplementInfoProvider: $0.walletModel,
-                    subtitleProvider: $0.headerSubtitleProvider,
                     balanceProvider: CommonMainHeaderBalanceProvider(
                         totalBalanceProvider: $0,
                         userWalletStateInfoProvider: $0.walletModel,
@@ -110,15 +109,12 @@ extension FakeCardHeaderPreviewProvider {
         @Published var balance: TotalBalanceState = .loading(cached: .none)
 
         let walletModel: FakeUserWalletModel
-        let headerSubtitleProvider: MainHeaderSubtitleProvider
         let updatePublisher: AnyPublisher<UpdateResult, Never>
 
         var tapAction: (CardInfoProvider) -> Void
 
         init(walletModel: FakeUserWalletModel, tapAction: @escaping (CardInfoProvider) -> Void) {
             self.walletModel = walletModel
-            headerSubtitleProvider = CommonMainHeaderProviderFactory()
-                .makeHeaderSubtitleProvider(for: walletModel, isMultiWallet: walletModel.config.hasFeature(.multiCurrency))
             updatePublisher = PassthroughSubject().eraseToAnyPublisher()
             self.tapAction = tapAction
         }

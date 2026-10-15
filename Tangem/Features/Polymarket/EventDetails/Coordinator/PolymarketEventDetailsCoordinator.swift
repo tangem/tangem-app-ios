@@ -25,6 +25,10 @@ final class PolymarketEventDetailsCoordinator: CoordinatorObject {
     private var onRegionWarning: (() -> Void)?
     private weak var orderBuilder: PolymarketOrderFlowBuilder?
 
+    var orderPresenter: PolymarketOrderPresenter? {
+        orderBuilder?.orderPresenter
+    }
+
     // MARK: - Init
 
     required init(
@@ -64,7 +68,6 @@ extension PolymarketEventDetailsCoordinator {
     }
 
     enum Destination {
-        case order(PolymarketOrderCoordinator)
         case positionDetails(PolymarketPositionDetailsCoordinator)
     }
 }
@@ -89,16 +92,14 @@ extension PolymarketEventDetailsCoordinator {
             position: position,
             onOrderPlaced: onPlaced,
             onRegionWarning: { [weak self] in self?.onRegionWarning?() },
-            onClose: { [weak self] in self?.popToEventDetails() }
+            onClose: { [weak self] in self?.orderBuilder?.returnToMain() }
         ) else {
             return
         }
 
-        destination = .positionDetails(coordinator)
-    }
+        coordinator.disablesPopGesture = true
 
-    func popToEventDetails() {
-        destination = nil
+        destination = .positionDetails(coordinator)
     }
 }
 
@@ -120,19 +121,21 @@ extension PolymarketEventDetailsCoordinator: PolymarketEventDetailsRoutable {
         request: PolymarketOrderRequest,
         onPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
     ) {
-        guard let coordinator = orderBuilder?.makeOrderCoordinator(
+        guard let orderBuilder else { return }
+
+        let coordinator = orderBuilder.makeOrderCoordinator(
             market: market,
             outcome: outcome,
             eventTitle: eventTitle,
             request: request,
-            pushesPlacedPosition: true,
             onPlaced: onPlaced,
-            onOpenPosition: { [weak self] position in self?.pushPositionDetails(position, onPlaced: onPlaced) },
-            onClose: { [weak self] in self?.popToEventDetails() }
-        ) else {
-            return
-        }
+            onOpenPosition: { [weak self, weak orderBuilder] position in
+                self?.pushPositionDetails(position, onPlaced: onPlaced)
+                orderBuilder?.dismissOrder()
+            },
+            onClose: { [weak orderBuilder] in orderBuilder?.dismissOrder() }
+        )
 
-        destination = .order(coordinator)
+        orderBuilder.presentOrder(coordinator, from: self)
     }
 }

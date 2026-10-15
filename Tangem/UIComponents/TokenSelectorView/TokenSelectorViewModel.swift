@@ -88,10 +88,6 @@ final class TokenSelectorViewModel: ObservableObject {
         scrollToTopTrigger = UUID()
     }
 
-    func setLoading() {
-        contentVisibility = .loading
-    }
-
     func itemsCountToDisplay(configuration: SectionHeaderConfiguration, itemsCount: Int) -> Int? {
         guard configuration.showsItemsCount, !searchText.isEmpty, itemsCount > 0 else { return nil }
 

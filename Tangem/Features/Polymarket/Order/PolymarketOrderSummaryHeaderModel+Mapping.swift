@@ -9,7 +9,6 @@
 import Foundation
 import TangemAssets
 import TangemLocalization
-import TangemPolymarket
 import TangemPolymarketUI
 
 extension PolymarketOrderSummaryHeader.Model {
@@ -28,8 +27,7 @@ extension PolymarketOrderSummaryHeader.Model {
             balanceText: balanceText,
             amountText: amountText,
             toWin: toWin,
-            caption: caption,
-            tokenIconInfo: TokenIconInfoBuilder().build(from: PolymarketUtilities.collateralTokenItem, isCustom: false)
+            caption: caption
         )
     }
 }

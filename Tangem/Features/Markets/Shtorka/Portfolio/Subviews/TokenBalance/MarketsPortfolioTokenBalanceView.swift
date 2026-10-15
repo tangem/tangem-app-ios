@@ -24,11 +24,11 @@ struct MarketsPortfolioTokenBalanceView: View {
 
         case .loadingCached(let text):
             textView(text)
-                .tangemShimmer()
+                .shimmering()
 
         case .loading:
             skeletonView(size: skeletonSize)
-                .tangemShimmer()
+                .shimmering()
 
         case .failed(let text, .none):
             textView(text)
