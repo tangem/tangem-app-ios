@@ -40,10 +40,14 @@ enum TangemPayNetworkRowResolver {
         case .notIssued:
             Constants.notIssuedTokenSymbols
         case .enabled, .disabled, .undefined:
-            network.tokens.map(\.token)
+            sortedTokens(of: network).map(\.token)
         }
 
         return symbols.joined(separator: ", ")
+    }
+
+    private static func sortedTokens(of network: TangemPayBalance.Network) -> [TangemPayBalance.Network.Token] {
+        network.tokens.sorted { $0.token < $1.token }
     }
 
     private static func action(
@@ -77,13 +81,13 @@ enum TangemPayNetworkRowResolver {
             blockchain: blockchain,
             networkTitle: blockchain.displayName,
             depositAddress: depositAddress,
-            tokens: network.tokens.map {
+            tokens: sortedTokens(of: network).map {
                 .init(symbol: $0.token, contractAddress: $0.tokenContractAddress)
             }
         )
     }
 
     private enum Constants {
-        static let notIssuedTokenSymbols = ["USDT", "USDC"]
+        static let notIssuedTokenSymbols = ["USDC", "USDT"]
     }
 }
