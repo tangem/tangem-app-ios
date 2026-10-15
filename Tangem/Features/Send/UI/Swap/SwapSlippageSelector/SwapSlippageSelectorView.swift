@@ -39,6 +39,7 @@ struct SwapSlippageSelectorView: View {
         }
         .floatingSheetConfiguration { configuration in
             configuration.backgroundInteractionBehavior = .tapToDismiss
+            configuration.verticalSwipeBehavior = .init(target: .sheet, threshold: Constants.swipeDismissThreshold)
         }
     }
 
@@ -163,6 +164,7 @@ private extension SwapSlippageSelectorView {
 
 private extension SwapSlippageSelectorView {
     enum Constants {
+        static let swipeDismissThreshold: CGFloat = 100
         static let horizontalPadding: CGFloat = 16
         static let amountTopPadding: CGFloat = 36
         static let amountBottomPadding: CGFloat = 32
