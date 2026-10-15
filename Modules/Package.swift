@@ -383,8 +383,10 @@ var featureModules: [PackageDescription.Target] {
             dependencies: [
                 .product(name: "OrderedCollections", package: "swift-collections"),
                 .product(name: "Moya", package: "Moya"),
+                .target(name: "TangemAssets"),
                 .target(name: "TangemFoundation"),
                 .target(name: "TangemNetworkUtils"),
+                .target(name: "TangemUI"),
             ],
             swiftSettings: .swift6StrictSettings
         ),
