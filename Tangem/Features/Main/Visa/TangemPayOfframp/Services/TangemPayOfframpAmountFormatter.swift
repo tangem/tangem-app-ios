@@ -7,14 +7,18 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemPay
 
 enum TangemPayOfframpAmountFormatter {
-    static func format(_ amount: Decimal) -> String {
-        BalanceFormatter().formatFiatBalance(
-            amount,
-            currencyCode: TangemPayUtilities.fiatItem.currencyCode,
-            formattingOptions: Constants.formattingOptions
+    static func format(_ amount: Decimal, currencyCode: String = TangemPayUtilities.fiatItem.currencyCode) -> String {
+        TangemPayFiatAmountFormatter().format(amount, currencyCode: currencyCode, hidesFractionForWholeAmounts: true)
+    }
+
+    static func formatBalance(_ balance: Decimal) -> String {
+        TangemPayFiatAmountFormatter().format(
+            balance.rounded(scale: Constants.fractionDigits, roundingMode: .down),
+            currencyCode: TangemPayUtilities.fiatItem.currencyCode
         )
     }
 }
@@ -24,12 +28,5 @@ enum TangemPayOfframpAmountFormatter {
 private extension TangemPayOfframpAmountFormatter {
     enum Constants {
         static let fractionDigits = 2
-
-        static let formattingOptions = BalanceFormattingOptions(
-            minFractionDigits: 0,
-            maxFractionDigits: fractionDigits,
-            formatEpsilonAsLowestRepresentableValue: false,
-            roundingType: .default(roundingMode: .plain, scale: fractionDigits)
-        )
     }
 }

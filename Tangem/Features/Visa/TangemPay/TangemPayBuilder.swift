@@ -28,11 +28,12 @@ final class TangemPayBuilder {
     private lazy var customerService = TangemPayCustomerInfoManagementServiceBuilder()
         .build(authorizationTokensHandler: authorizationService)
 
+    private lazy var waitlistService = TangemPayWaitlistServiceBuilder().build(authorizationTokensHandler: authorizationService)
+
     private lazy var enrollmentStateFetcher = TangemPayEnrollmentStateFetcher(
         customerWalletId: customerWalletId,
         availabilityService: availabilityService,
-        customerService: customerService,
-        isCustomCardsEnabled: FeatureProvider.isAvailable(.tangemPayCustomCards)
+        customerService: customerService
     )
 
     private lazy var orderStatusPollingService = TangemPayOrderStatusPollingService(
@@ -105,6 +106,8 @@ final class TangemPayBuilder {
             cachedStateStorage: AppSettings.shared,
             customerInfoCacheStorage: AppSettings.shared,
             cashbackCacheStorage: AppSettings.shared,
+            residencyStatusStorage: AppSettings.shared,
+            waitlistService: waitlistService,
             tangemPayAccountBuilder: self
         )
     }
@@ -130,6 +133,7 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
             orderResolver: orderResolver,
             feeRepository: feeRepository,
             cashbackCacheStorage: AppSettings.shared,
+            virtualAccountCreationFailureStorage: AppSettings.shared,
             account: account,
             accountRemover: accountRemover
         )

@@ -77,6 +77,7 @@ private extension MainScreenDeeplinkResponder {
         case .token(let deeplink):
             // The token may still be on its way from the backend, so the link is claimed now and opened when it
             // lands — but only for a wallet this device has.
+            guard !deeplink.isJointTransaction || FeatureProvider.isAvailable(.jointAccounts) else { return false }
             guard deeplink.findUserWalletModel() != nil else { return false }
             openTokenDetails(deeplink, action: action)
 
@@ -120,6 +121,10 @@ private extension MainScreenDeeplinkResponder {
             guard let userWalletModel = deeplink.findUserWalletModel() else { return false }
             openTangemPayAccount(of: userWalletModel, openingAction: deeplink.openingAction, action: .navigation(action))
 
+        case .jointAccount(let deeplink):
+            guard FeatureProvider.isAvailable(.jointAccounts), let userWalletModel = deeplink.findUserWalletModel() else { return false }
+            openJointAccount(deeplink, of: userWalletModel, action: action)
+
         case .payCustomCard(let deeplink):
             // The stored key is what a campaign is owed on, and the welcome flow spends it before the main
             // screen is ever reached — a link arriving once nothing is owed any more asks for nothing.
@@ -145,7 +150,7 @@ private extension MainScreenDeeplinkResponder {
             await deeplink.findTarget()
         } show: { target, coordinator in
             guard let target else {
-                return false
+                return Self.selectWallet(ofAccountNamedIn: deeplink, using: coordinator)
             }
 
             target.walletModel.startUpdateTask()
@@ -205,6 +210,38 @@ private extension MainScreenDeeplinkResponder {
                 coordinator.openTangemPaySelectPlan(tariffPlanSelector: tariffPlanSelector, userWalletModel: userWalletModel)
             } else {
                 return false
+            }
+
+            return true
+        }
+    }
+
+    static func selectWallet(ofAccountNamedIn deeplink: TokenDeeplink, using coordinator: any MainScreenDeeplinkRoutable) -> Bool {
+        guard deeplink.accountId != nil, let userWalletModel = deeplink.findUserWalletModel() else {
+            return false
+        }
+
+        coordinator.selectWallet(userWalletId: userWalletModel.userWalletId)
+        return true
+    }
+
+    func openJointAccount(_ deeplink: JointAccountDeeplink, of userWalletModel: any UserWalletModel, action: DeeplinkNavigationAction) {
+        showWhenLoaded(.navigation(action)) {
+            await deeplink.findJointAccount(in: userWalletModel)
+        } show: { jointAccount, coordinator in
+            coordinator.selectWallet(userWalletId: userWalletModel.userWalletId)
+
+            guard let jointAccount else {
+                return true
+            }
+
+            jointAccount.userTokensManager.sync {}
+
+            switch deeplink.entry {
+            case .members:
+                coordinator.openJointAccountMembers(jointAccount: jointAccount, userWalletConfig: userWalletModel.config)
+            case .overview:
+                coordinator.expandAccount(jointAccount, userWalletId: userWalletModel.userWalletId)
             }
 
             return true

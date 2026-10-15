@@ -28,7 +28,7 @@ final class TangemPayWithdrawUITests: BaseTestCase {
         pullToRefresh()
         TangemPayMainScreen(app)
             .verifyBalanceContains("$5.00")
-            .verifyTransactionRowVisible(label: "Withdrawal")
+            .verifyTransactionRowVisible(label: Localization.tangemPayWithdrawal)
     }
 
     func testWithdrawButtonDisabled_WhenBalanceIsZero() {
@@ -96,7 +96,7 @@ final class TangemPayWithdrawUITests: BaseTestCase {
         pullToRefresh()
         TangemPayMainScreen(app)
             .verifyBalanceContains("$0.00")
-            .verifyTransactionRowVisible(label: "Withdrawal")
+            .verifyTransactionRowVisible(label: Localization.tangemPayWithdrawal)
     }
 
     func testWithdrawSourceSelector_ListsPaymentAccountTokensAndHidesZeroBalance() {

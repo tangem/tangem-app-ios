@@ -45,6 +45,19 @@ struct RepeatedTaskProcessorTests {
         await processor.cancel()
     }
 
+    @Test("Runs the action right away when started with runsImmediately")
+    func firstRunIsImmediate() async throws {
+        let processor = RepeatedTaskProcessor(duration: .milliseconds(200))
+        let counter = Counter()
+
+        await processor.start(runsImmediately: true) { await counter.start() }
+        try await Task.sleep(for: .milliseconds(20))
+
+        #expect(await counter.starts == 1)
+
+        await processor.cancel()
+    }
+
     @Test("A run that outlasts the interval holds the next one back rather than overlapping it")
     func runsNeverOverlap() async throws {
         let processor = RepeatedTaskProcessor(duration: .milliseconds(10))

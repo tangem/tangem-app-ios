@@ -108,7 +108,7 @@ struct AddFundsView: View {
     // MARK: - Shared
 
     private var optionsSection: some View {
-        VStack(spacing: .unit(.x2)) {
+        VStack(spacing: 8) {
             if viewModel.isRestrictedForCountry {
                 BuyAndSwapRestrictionBanner()
             }

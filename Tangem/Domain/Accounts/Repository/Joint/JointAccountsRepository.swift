@@ -28,6 +28,8 @@ protocol JointAccountsRepository {
     /// the invites it was handed are written then and never again.
     var jointAccountsInvitesPublisher: AnyPublisher<[StoredJointAccountInvites], Never> { get }
 
+    var jointAccountsPendingOperations: [StoredJointAccountPendingOperations] { get }
+
     /// - Note: Kept apart from the accounts as well: an operation moves on its own occasions — a co-signer answers,
     /// the relayer executes — and none of them is a change to the account it belongs to.
     var jointAccountsPendingOperationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> { get }
@@ -40,6 +42,8 @@ protocol JointAccountsRepository {
     /// answers. The invites are stored apart from both and are left alone, since the endpoint hands them out once and
     /// never reports them again.
     func loadJointAccountsFromRemote() async throws
+
+    func requestFrequentUpdates() -> AnyCancellable
 
     /// Derives the key the account is signed with, has the backend create it and stores what it reports back — the
     /// invites first, since this is the only moment they can be written down.

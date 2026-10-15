@@ -17,6 +17,8 @@ public enum InfoDictionaryUtils {
     case bundleURLTypes
     case bundleURLSchemes
     case bundleIdentifier
+    case bundleIcons
+    case bundlePrimaryIconFiles
     case environmentName
     case suiteName
     case bsdkSuiteName
@@ -39,6 +41,17 @@ public enum InfoDictionaryUtils {
             }
 
             return dictionary.map { $0["CFBundleURLSchemes"] } as? T
+        case .bundleIcons:
+            return infoDictionary["CFBundleIcons"] as? T
+        case .bundlePrimaryIconFiles:
+            guard
+                let icons: [String: Any] = InfoDictionaryUtils.bundleIcons.value(),
+                let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any]
+            else {
+                return nil
+            }
+
+            return primaryIcon["CFBundleIconFiles"] as? T
         case .environmentName:
             return infoDictionary["ENVIRONMENT_NAME"] as? T
         case .suiteName:

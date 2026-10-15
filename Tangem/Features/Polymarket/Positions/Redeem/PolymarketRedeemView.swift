@@ -22,7 +22,7 @@ struct PolymarketRedeemView: View {
             title: viewModel.title,
             description: viewModel.description,
             actionTitle: viewModel.actionTitle,
-            action: { viewModel.handleViewAction(.primaryTapped) }
+            action: { viewModel.handleViewAction(.performPrimaryAction) }
         )
         .appearance(viewModel.appearance)
         .actionIcon(viewModel.isActionClaim ? DesignSystem.Icons.LogoTangem.regular24 : nil)
@@ -31,15 +31,16 @@ struct PolymarketRedeemView: View {
         .details { details }
         .overlay(alignment: .topTrailing) { closeButton }
         .toolbar(.hidden, for: .navigationBar)
+        .background(PopGestureDisabler(isDisabled: viewModel.isClaiming))
         .alert(item: $viewModel.alert) { $0.alert }
-        .onDisappear { viewModel.handleViewAction(.disappeared) }
+        .onDisappear { viewModel.handleViewAction(.onDisappear) }
     }
 
     private var closeButton: some View {
         TangemUI.Button(
             icon: DesignSystem.Icons.Cross.regular20,
             accessibilityLabel: Localization.commonClose,
-            action: { viewModel.handleViewAction(.closeTapped) }
+            action: { viewModel.handleViewAction(.close) }
         )
         .size(.x11)
         .styleType(.material(.glass))
@@ -60,6 +61,7 @@ struct PolymarketRedeemView: View {
         VStack(spacing: 0) {
             if let investedText = viewModel.investedText {
                 TangemUI.Row(title: Localization.predictionPositionsInvested, value: investedText)
+                    .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
                     .showDivider(viewModel.profit != nil)
             }
 
@@ -69,9 +71,8 @@ struct PolymarketRedeemView: View {
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
     private func profitRow(_ profit: PolymarketRedeemViewModel.Profit) -> some View {
-        TangemUI.Row(title: "Profit")
+        TangemUI.Row(title: Localization.predictionPositionResultProfit)
             .valueAccessory {
                 UtilPriceChange(value: profit.text, direction: profit.direction)
             }

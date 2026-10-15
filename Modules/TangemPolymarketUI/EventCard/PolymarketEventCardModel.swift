@@ -53,11 +53,11 @@ public extension PolymarketEventCard {
 
     struct Row: Identifiable {
         public let id: String
-        public let title: String
-        public let subtitle: String
+        public let title: String?
+        public let subtitle: String?
         public let outcomes: [Outcome]
 
-        public init(id: String, title: String, subtitle: String, outcomes: [Outcome]) {
+        public init(id: String, title: String?, subtitle: String?, outcomes: [Outcome]) {
             self.id = id
             self.title = title
             self.subtitle = subtitle
@@ -68,12 +68,20 @@ public extension PolymarketEventCard {
     struct Outcome: Identifiable {
         public let id: String
         public let title: String
+        public let priceText: String?
         public let style: PolymarketOutcomeStyle
         public let onSelect: () -> Void
 
-        public init(id: String, title: String, style: PolymarketOutcomeStyle, onSelect: @escaping () -> Void) {
+        public init(
+            id: String,
+            title: String,
+            priceText: String? = nil,
+            style: PolymarketOutcomeStyle,
+            onSelect: @escaping () -> Void
+        ) {
             self.id = id
             self.title = title
+            self.priceText = priceText
             self.style = style
             self.onSelect = onSelect
         }

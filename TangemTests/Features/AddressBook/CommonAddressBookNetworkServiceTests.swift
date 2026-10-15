@@ -243,7 +243,6 @@ private final class MockTangemApiService: TangemApiService {
     func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response { fatalError("unused") }
     func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response { fatalError("unused") }
     func loadNewsCategories() async throws -> NewsDTO.Categories.Response { fatalError("unused") }
-    func loadTrendingNews(limit: Int?, lang: String?) async throws -> TrendingNewsResponse { fatalError("unused") }
     func saveTokens(list: AccountsDTO.Request.UserTokens, for key: String) async throws { fatalError("unused") }
     func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String, revision: String) async throws -> String? { fatalError("unused") }
     func loadHotCrypto(requestModel: HotCryptoDTO.Request) async throws -> HotCryptoDTO.Response { fatalError("unused") }
@@ -256,6 +255,8 @@ private final class MockTangemApiService: TangemApiService {
     func loadStories(slugs: [String], language: String) async throws -> StoriesResponseDTO { fatalError("unused") }
     func loadPromotions(request: PromotionsDTO.Load.Request) async throws -> PromotionsDTO.Load.Response { fatalError("unused") }
     func hidePromotion(request: PromotionsDTO.Hide.Request) async throws -> PromotionsDTO.Hide.Response { fatalError("unused") }
+    func loadPromoCampaigns(request: PromoCampaignsDTO.Request) async throws -> [PromoCampaignsDTO.Promotion] { fatalError("unused") }
+    func enrollInPromoCampaign(id: Int, request: PromoCampaignEnrollmentDTO.Request) async throws -> PromoCampaignEnrollmentDTO.Response { fatalError("unused") }
     func loadPromotionCampaigns(userWalletId: String) async throws -> [BannerPromotion.Response.Promotion] { fatalError("unused") }
     func loadYieldBoostPromotionStatus(userWalletId: String) async throws -> YieldBoostPromotionDTO.Response { fatalError("unused") }
     func registerForPromotionCampaign(request: PromotionRegistrationDTO.Request) async throws -> PromotionRegistrationDTO.Response { fatalError("unused") }

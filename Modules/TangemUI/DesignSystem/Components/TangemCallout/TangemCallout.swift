@@ -41,7 +41,7 @@ public struct TangemCallout: View, Setupable {
 
 private extension TangemCallout {
     var contentView: some View {
-        HStack(spacing: .unit(.x1) * scaleFactor) {
+        HStack(spacing: 4 * scaleFactor) {
             if let icon {
                 iconView(icon)
             }
@@ -53,10 +53,10 @@ private extension TangemCallout {
         }
         .padding(
             EdgeInsets(
-                top: SizeUnit.half.value,
-                leading: SizeUnit.x2.value,
-                bottom: SizeUnit.half.value,
-                trailing: SizeUnit.half.value
+                top: 2,
+                leading: 8,
+                bottom: 2,
+                trailing: 2
             )
             .scaled(factor: scaleFactor)
         )
@@ -79,17 +79,17 @@ private extension TangemCallout {
             .resizable()
             .aspectRatio(contentMode: .fit)
             .foregroundStyle(colorPalette.icon)
-            .frame(width: SizeUnit.x3.value * scaleFactor, height: SizeUnit.x3.value * scaleFactor)
+            .frame(width: 12 * scaleFactor, height: 12 * scaleFactor)
     }
 
     func actionView(_ action: Action) -> some View {
         iconView(action.icon)
             .padding(
                 EdgeInsets(
-                    top: SizeUnit.half.value,
-                    leading: SizeUnit.x1_5.value,
-                    bottom: SizeUnit.half.value,
-                    trailing: SizeUnit.x1_5.value
+                    top: 2,
+                    leading: 6,
+                    bottom: 2,
+                    trailing: 6
                 )
                 .scaled(factor: scaleFactor)
             )
@@ -132,7 +132,7 @@ public extension TangemCallout {
 
 public extension TangemCallout {
     enum Sizes {
-        public static let arrowSide = CGFloat.unit(.x2)
+        public static let arrowSide: CGFloat = 8
     }
 }
 

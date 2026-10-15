@@ -3,233 +3,89 @@
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2021 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import Combine
-import TangemSdk
-import TangemFoundation
-import TangemUIUtils
-import TangemLocalization
+import Foundation
 
 final class WelcomeViewModel: ObservableObject {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
+    @Injected(\.welcomeEntryReasonProvider)
+    private var entryReasonProvider: WelcomeEntryReasonProviding
 
-    @Published var error: AlertBinder?
-    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
+    @Injected(\.welcomeAnalyticsProvider)
+    private var analytics: WelcomeAnalyticsProvider
 
-    let storiesModel: StoriesViewModel
+    /// `nil` while the background hands one episode over to the next and no text belongs on screen.
+    @Published private(set) var scene: WelcomeScene?
 
-    let isScanningCard: CurrentValueSubject<Bool, Never> = .init(false)
-    private let signInAnalyticsLogger = SignInAnalyticsLogger()
+    let videoBackground: VideoBackground
 
     private weak var coordinator: WelcomeRoutable?
 
-    init(coordinator: WelcomeRoutable, storiesModel: StoriesViewModel) {
+    init(
+        coordinator: WelcomeRoutable,
+        videoProvider: WelcomeBackgroundVideoProviding
+    ) {
         self.coordinator = coordinator
-        self.storiesModel = storiesModel
-    }
 
-    deinit {
-        AppLogger.debug("WelcomeViewModel deinit")
-    }
+        if FeatureProvider.isAvailable(.payBundleIntroduction) {
+            videoBackground = .shared(
+                LoopingVideoBackgroundViewModel(provider: WelcomeLoopingVideoProvider(urlProvider: videoProvider))
+            )
+        } else {
+            videoBackground = .legacy(WelcomeVideoBackgroundViewModel(videoProvider: videoProvider))
+        }
 
-    func scanCardTapped() {
-        scanCard()
-    }
-
-    func tryAgain() {
-        Analytics.log(.cantScanTheCardTryAgainButton, params: [.source: .introduction])
-        scanCard()
-    }
-
-    func openScanCardManual() {
-        Analytics.log(.cantScanTheCardButtonBlog, params: [.source: .introduction])
-        coordinator?.openScanCardManual()
-    }
-
-    func requestSupport() {
-        Analytics.log(.requestSupport, params: [.source: .introduction])
-        failedCardScanTracker.resetCounter()
-        openMail()
-    }
-
-    func orderCard() {
-        // For some reason the button can be tapped even after we've this flag to FALSE to disable it
-        guard !isScanningCard.value else { return }
-
-        openShop()
-        Analytics.log(.buttonBuyCards)
+        bind()
     }
 
     func onFirstAppear() {
-        Analytics.log(.introductionProcessOpened)
-    }
-
-    func scanCard() {
-        isScanningCard.send(true)
-        Analytics.log(Analytics.CardScanSource.welcome.cardScanButtonEvent)
-
-        runTask(in: self) { viewModel in
-            let cardScanner = CardScannerFactory().makeDefaultScanner()
-            let userWalletCardScanner = UserWalletCardScanner(scanner: cardScanner)
-            let result = await userWalletCardScanner.scanCard()
-
-            switch result {
-            case .error(let error) where error.isCancellationError:
-                await runOnMain {
-                    viewModel.isScanningCard.send(false)
-                }
-
-            case .error(let error):
-                Analytics.logScanError(error, source: .introduction)
-                Analytics.logVisaCardScanErrorIfNeeded(error, source: .introduction)
-                await viewModel.handleError(error)
-
-            case .onboarding(let input, _):
-                Analytics.log(
-                    .cardWasScanned,
-                    params: [.source: Analytics.CardScanSource.welcome.cardWasScannedParameterValue],
-                    contextParams: input.cardInput.getContextParams()
-                )
-
-                await runOnMain {
-                    viewModel.isScanningCard.send(false)
-                    viewModel.openOnboarding(with: input)
-                }
-
-            case .scanTroubleshooting:
-                Analytics.log(.cantScanTheCard, params: [.source: .introduction])
-
-                await runOnMain {
-                    viewModel.isScanningCard.send(false)
-                    viewModel.openTroubleshooting()
-                }
-
-            case .success(let cardInfo):
-                Analytics.log(
-                    .cardWasScanned,
-                    params: [.source: Analytics.CardScanSource.welcome.cardWasScannedParameterValue],
-                    contextParams: .custom(cardInfo.analyticsContextData)
-                )
-
-                let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
-
-                do {
-                    guard let userWalletId = UserWalletId(config: config),
-                          let encryptionKey = UserWalletEncryptionKey(config: config) else {
-                        throw UserWalletRepositoryError.cantUnlockWallet
-                    }
-
-                    let unlockMethod = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
-                    let userWalletModel = try await viewModel.userWalletRepository.unlock(with: unlockMethod)
-                    viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card, userWalletModel: userWalletModel)
-                    await runOnMain {
-                        viewModel.isScanningCard.send(false)
-                        viewModel.openMain(with: userWalletModel)
-                    }
-
-                } catch UserWalletRepositoryError.notFound {
-                    // new card scanned, add it
-                    await viewModel.handleNotFound(cardInfo: cardInfo)
-                } catch {
-                    await viewModel.handleError(error)
-                }
-            }
+        if let entryReason = entryReasonProvider.consumeEntryReason() {
+            analytics.logIntroductionProcessScreenOpened(entryReason: entryReason)
         }
     }
 
-    private func handleNotFound(cardInfo: CardInfo) async {
-        do {
-            if let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
-                walletInfo: .cardWallet(cardInfo),
-                keys: .cardWallet(keys: cardInfo.card.wallets)
-            ) {
-                try userWalletRepository.add(userWalletModel: newUserWalletModel)
-                signInAnalyticsLogger.logSignInEvent(signInType: .card, userWalletModel: newUserWalletModel)
-                await runOnMain {
-                    isScanningCard.send(false)
-                    openMain(with: newUserWalletModel)
-                }
-            } else {
-                throw UserWalletRepositoryError.cantUnlockWallet
-            }
-        } catch {
-            await handleError(error)
-        }
-    }
-
-    private func handleError(_ error: Error) async {
-        await runOnMain {
-            isScanningCard.send(false)
-            self.error = error.alertBinder
-        }
-    }
-}
-
-// MARK: - Navigation
-
-extension WelcomeViewModel {
-    func openTroubleshooting() {
-        let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
-            self?.tryAgain()
-        }
-
-        let readMoreButton = ConfirmationDialogViewModel.Button(title: Localization.commonReadMore) { [weak self] in
-            self?.openScanCardManual()
-        }
-
-        let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
-            self?.requestSupport()
-        }
-
-        scanTroubleshootingDialog = ConfirmationDialogViewModel(
-            title: Localization.alertTroubleshootingScanCardTitle,
-            subtitle: Localization.alertTroubleshootingScanCardMessage,
-            buttons: [
-                tryAgainButton,
-                readMoreButton,
-                requestSupportButton,
-                ConfirmationDialogViewModel.Button.cancel,
-            ]
-        )
-    }
-
-    func openOnboarding(with input: OnboardingInput) {
-        coordinator?.openOnboarding(with: input)
-    }
-
-    func openMain(with userWalletModel: UserWalletModel) {
-        coordinator?.openMain(with: userWalletModel)
-    }
-}
-
-// MARK: - StoriesDelegate
-
-extension WelcomeViewModel: StoriesDelegate {
-    var isScanning: AnyPublisher<Bool, Never> {
-        isScanningCard.eraseToAnyPublisher()
-    }
-
-    func createWallet() {
-        Analytics.log(.introductionProcessButtonCreateNewWallet)
+    func onCreateWalletTap() {
+        analytics.logCreateWalletButton()
         coordinator?.openCreateWallet()
     }
 
-    func openTokenList() {
-        // For some reason the button can be tapped even after we've this flag to FALSE to disable it
-        guard !isScanningCard.value else { return }
-
-        Analytics.log(.buttonTokensList)
-        coordinator?.openTokensList()
+    func onExistingWalletTap() {
+        analytics.logIHaveWalletButton()
+        coordinator?.openExistingWallet()
     }
 
-    func openMail() {
-        coordinator?.openMail(with: BaseDataCollector(), recipient: EmailConfig.default.recipient)
+    func onBuyTangemTap() {
+        coordinator?.openBuyTangem()
     }
 
-    func openShop() {
-        coordinator?.openShop()
+    func onLegalLinkTap(_ url: URL) {
+        let document = WelcomeLegalDocument(url: url)
+        analytics.logLegalOpened(document: document.analyticsValue)
+        coordinator?.openLegal(document: document)
+    }
+
+    private func bind() {
+        videoBackground.playbackTime
+            .map(WelcomeScene.scene(at:))
+            .removeDuplicates()
+            .assign(to: &$scene)
+    }
+}
+
+// MARK: - VideoBackground
+
+extension WelcomeViewModel {
+    enum VideoBackground {
+        case legacy(WelcomeVideoBackgroundViewModel)
+        case shared(LoopingVideoBackgroundViewModel)
+
+        var playbackTime: AnyPublisher<TimeInterval, Never> {
+            switch self {
+            case .legacy(let viewModel): viewModel.playbackTime
+            case .shared(let viewModel): viewModel.playbackTime
+            }
+        }
     }
 }

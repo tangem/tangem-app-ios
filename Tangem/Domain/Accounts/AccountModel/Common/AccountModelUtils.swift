@@ -15,6 +15,19 @@ enum AccountModelUtils {
 
     static var maxNumberOfAccounts: Int { Constants.maxNumberOfAccounts }
 
+    static func isAccountsLimitReached(for type: AccountType, in accountModels: [AccountModel]) -> Bool {
+        let accountsCount = switch type {
+        case .crypto: accountModels.cryptoAccountsCount
+        case .joint: AccountModelsAggregator(.joint).models(from: accountModels).count
+        }
+
+        return accountsCount >= maxNumberOfAccounts
+    }
+
+    static func isAccountsLimitReached(for type: AccountType, in remoteState: CryptoAccountsRemoteState) -> Bool {
+        remoteState.accounts.count(where: { $0.derivationIdentity.type == type }) >= maxNumberOfAccounts
+    }
+
     @available(iOS, deprecated: 100000.0, message: "Accessing raw derivation indices is discouraged and should be used only if absolutely necessary")
     static var mainAccountDerivationIndex: Int { Constants.mainAccountDerivationIndex }
 

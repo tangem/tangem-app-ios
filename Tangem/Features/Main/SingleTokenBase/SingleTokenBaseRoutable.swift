@@ -21,10 +21,4 @@ protocol SingleTokenBaseRoutable: AnyObject {
     func openInSafari(url: URL)
     func openMarketsTokenDetails(tokenModel: MarketsTokenModel)
     func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters)
-    func openPendingExpressTransactionDetails(
-        pendingTransaction: PendingTransaction,
-        tokenItem: TokenItem,
-        userWalletInfo: UserWalletInfo,
-        pendingTransactionsManager: PendingExpressTransactionsManager
-    )
 }

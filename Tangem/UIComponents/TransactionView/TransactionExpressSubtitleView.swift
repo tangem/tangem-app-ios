@@ -21,7 +21,7 @@ struct TransactionExpressSubtitleView: View {
     @ScaledMetric private var glyphSize: CGFloat = 16
 
     var body: some View {
-        HStack(spacing: .unit(.x1)) {
+        HStack(spacing: 4) {
             Text(model.direction.localizedPrefix)
                 .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
 
@@ -53,14 +53,14 @@ struct TransactionExpressSubtitleView: View {
         switch owner {
         case .accountInCurrentWallet(let name, let icon),
              .accountInOtherWallet(let name, let icon):
-            HStack(spacing: .unit(.x1)) {
+            HStack(spacing: 4) {
                 inPrefix
                 AccountIconView(data: icon).settings(.smallSized)
                 ownerName(name)
             }
 
         case .wallet(let name, _, _):
-            HStack(spacing: .unit(.x1)) {
+            HStack(spacing: 4) {
                 inPrefix
                 ownerName(name)
             }

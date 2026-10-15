@@ -17,13 +17,23 @@ struct AccountRowTrailingBalanceView: View {
     @ScaledMetric private var loaderHeight: CGFloat = Constants.loaderSize.height
 
     var body: some View {
-        if let balanceState = viewModel.trailingBalanceState {
+        if viewModel.isBalanceUnavailable {
+            unavailableIcon
+        } else if let balanceState = viewModel.trailingBalanceState {
             LoadableBalanceView(
                 state: balanceState,
                 style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
                 loader: .init(size: CGSize(width: loaderWidth, height: loaderHeight))
             )
         }
+    }
+
+    private var unavailableIcon: some View {
+        Assets.failedCloud.image
+            .resizable()
+            .renderingMode(.template)
+            .foregroundStyle(Color.Tangem.Graphic.Neutral.quaternary)
+            .frame(width: Constants.iconSize, height: Constants.iconSize)
     }
 }
 
@@ -32,5 +42,6 @@ struct AccountRowTrailingBalanceView: View {
 private extension AccountRowTrailingBalanceView {
     enum Constants {
         static let loaderSize = CGSize(width: 70, height: 16)
+        static let iconSize: CGFloat = 12
     }
 }

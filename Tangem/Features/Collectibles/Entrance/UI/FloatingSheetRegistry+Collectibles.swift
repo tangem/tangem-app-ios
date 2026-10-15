@@ -10,6 +10,7 @@ import TangemUI
 
 extension FloatingSheetRegistry {
     func registerCollectiblesFloatingSheets() {
-        register(CollectiblesGeoblockViewModel.self, viewBuilder: CollectiblesRegionRestrictionsView.FloatingSheet.init)
+        register(CollectiblesAddFundsSheetViewModel.self, viewBuilder: CollectiblesAddFundsSheetView.FloatingSheet.init)
+        register(CollectiblesInfoSheetViewModel.self, viewBuilder: CollectiblesInfoSheetView.FloatingSheet.init)
     }
 }

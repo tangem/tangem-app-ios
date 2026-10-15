@@ -28,17 +28,11 @@ struct TokenDetailsView: View {
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject, contentSettings: .simpleContent) {
             VStack(spacing: Constants.sectionSpacing) {
                 TokenDetailsBalanceView(viewModel: viewModel.balanceViewModel)
-                    .padding(.vertical, max(0, .unit(.x10) - Constants.sectionSpacing))
+                    .padding(.vertical, max(0, 40 - Constants.sectionSpacing))
 
                 redesignActionsSection
 
                 marketingBanner
-
-                if viewModel.showsPendingExpressTransactionsBlock {
-                    ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
-                        PendingExpressTransactionView(info: transactionInfo)
-                    }
-                }
 
                 PendingTransactionsListView(
                     items: viewModel.pendingTransactionViews,
@@ -46,7 +40,7 @@ struct TokenDetailsView: View {
                 )
 
                 VStack(spacing: .zero) {
-                    if let jointOperationsSection = viewModel.jointOperationsAwaitingSignaturesSection {
+                    if let jointOperationsSection = viewModel.jointOperationsInFlightSection {
                         TransactionsListSectionView(
                             item: jointOperationsSection,
                             openTransactionDetailsAction: viewModel.openTransactionDetails
@@ -136,7 +130,7 @@ struct TokenDetailsView: View {
     }
 
     private var redesignBanners: some View {
-        VStack(spacing: .unit(.x2)) {
+        VStack(spacing: 8) {
             redesignNotificationBanners
             redesignYieldView
             redesignStakingView
@@ -213,12 +207,13 @@ struct TokenDetailsView: View {
     }
 
     private var redesignNotificationBanners: some View {
-        VStack(spacing: .unit(.x2)) {
+        VStack(spacing: 8) {
             ForEach(viewModel.notifications) { notification in
                 NotificationMessageBanner(
                     bannerType: notification.bannerType,
                     variant: notification.variant,
                     ring: notification.ring,
+                    textColors: notification.textColors,
                     accessibilityIdentifier: notification.accessibilityIdentifier
                 )
             }
@@ -236,8 +231,8 @@ struct TokenDetailsView: View {
     private var marketPriceRedesign: some View {
         if let viewModel = viewModel.marketPriceViewModel {
             TokenDetailsMarketPriceView(viewModel: viewModel)
-                .padding(.horizontal, .unit(.x4))
-                .padding(.vertical, .unit(.x2))
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
                 .background {
                     LinearGradient.Tangem.Common.tokenDetailsMarketPrice
                         .ignoresSafeArea()

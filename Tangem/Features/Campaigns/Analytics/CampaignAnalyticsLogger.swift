@@ -22,11 +22,7 @@ struct CampaignAnalyticsLogger {
     func logEnrollButtonClicked(tokenItem: TokenItem) {
         Analytics.log(
             event: .promotionEnrollButtonClicked,
-            params: [
-                .campaign: campaignValue.rawValue,
-                .token: tokenItem.currencySymbol.uppercased(),
-                .blockchain: tokenItem.blockchain.displayName.capitalizingFirstLetter(),
-            ]
+            params: [.campaign: campaignValue.rawValue].merging(tokenItem.campaignAnalyticsParams) { current, _ in current }
         )
     }
 

@@ -49,7 +49,7 @@ extension CollectiblesAPIService: CollectiblesPacksProvider {
         let machinesRequest = CollectiblesDTO.MachinesRequest(
             categoryID: loreID,
             search: trimmedQuery.isEmpty ? nil : trimmedQuery,
-            limit: Constants.pageLimit,
+            limit: Constants.machinesPageLimit,
             cursor: cursor
         )
 
@@ -72,22 +72,21 @@ extension CollectiblesAPIService: CollectiblesMachineProvider {
     }
 }
 
-// MARK: - Pack opening
+// MARK: - Prize pool
 
 extension CollectiblesAPIService {
-    // [REDACTED_TODO_COMMENT]
-    func generatePackTransaction(_ request: CollectiblesDTO.GenerateTxRequest, userWalletID: String) async throws -> CollectiblesDTO.GenerateTxResponse {
-        try await self.request(.generateTx(request, userWalletID: userWalletID))
-    }
+    func loadPrizePool(machineID: String, page: Int, userWalletID: String) async throws -> CollectiblesPrizePoolPage {
+        let nftsRequest = CollectiblesDTO.MachineNftsRequest(page: page, limit: Constants.prizePoolPageLimit)
+        let target = CollectiblesAPITarget.Target.machineNfts(externalID: machineID, nftsRequest, userWalletID: userWalletID)
+        let response: CollectiblesDTO.MachineNftsResponse = try await request(target)
 
-    func submitPackTransaction(_ request: CollectiblesDTO.SubmitTxRequest, userWalletID: String) async throws -> CollectiblesDTO.SubmitTxResponse {
-        try await self.request(.submitTx(request, userWalletID: userWalletID))
+        return Mapper.mapToPrizePoolPage(response)
     }
 }
 
 // MARK: - Networking
 
-private extension CollectiblesAPIService {
+extension CollectiblesAPIService {
     func request<T: Decodable>(_ target: CollectiblesAPITarget.Target) async throws -> T {
         let request = CollectiblesAPITarget(baseURL: baseURL, target: target)
 
@@ -110,12 +109,8 @@ private extension CollectiblesAPIService {
 // MARK: - Authentication
 
 private extension CollectiblesAPIService {
-    static var authenticationInterceptor: (any RequestInterceptor)? {
-        guard FeatureProvider.isAvailable(.backendAuthentication) else {
-            return nil
-        }
-
-        return Interceptor(
+    static var authenticationInterceptor: any RequestInterceptor {
+        Interceptor(
             adapter: BackendAuthenticationAssembly.requestAdapter,
             retrier: BackendAuthenticationAssembly.requestRetrier
         )
@@ -126,6 +121,7 @@ private extension CollectiblesAPIService {
 
 private extension CollectiblesAPIService {
     enum Constants {
-        static let pageLimit = 50
+        static let machinesPageLimit = 20
+        static let prizePoolPageLimit = 50
     }
 }

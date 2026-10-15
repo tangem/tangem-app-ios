@@ -59,7 +59,7 @@ struct AddressBooksUpdateRequiredView: View {
             accessibilityLabel: Localization.forceUpdateRequiredAction,
             action: onUpdateTap
         )
-        .styleType(.default)
+        .styleType(.primary)
         .size(.x12)
         .horizontalLayout(.infinity)
         .padding(.horizontal, 16)
