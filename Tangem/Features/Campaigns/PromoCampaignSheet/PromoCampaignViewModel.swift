@@ -14,10 +14,11 @@ import TangemLocalization
 import TangemUI
 
 protocol PromoCampaignRoutable: CampaignRoutable {
+    func promoCampaignDidAppear(_ campaign: PromoCampaign)
     func enrollInPromoCampaign(_ campaign: PromoCampaign, payoutToken: TokenSelectorItem?) -> Bool
 }
 
-final class PromoCampaignViewModel: ObservableObject, FloatingSheetContentViewModel {
+final class PromoCampaignViewModel: ObservableObject {
     @Injected(\.cryptoAccountsGlobalStateProvider) private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
@@ -101,6 +102,10 @@ final class PromoCampaignViewModel: ObservableObject, FloatingSheetContentViewMo
         }
 
         return attributed
+    }
+
+    func onFirstAppear() {
+        coordinator?.promoCampaignDidAppear(campaign)
     }
 
     func close() {
