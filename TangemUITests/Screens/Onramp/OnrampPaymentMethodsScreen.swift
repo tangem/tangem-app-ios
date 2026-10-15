@@ -104,6 +104,18 @@ final class OnrampPaymentMethodsScreen: ScreenBase<OnrampPaymentMethodsScreenEle
             return OnrampProvidersScreen(app)
         }
     }
+
+    func selectPaymentMethod(id: String) -> OnrampProvidersScreen {
+        XCTContext.runActivity(named: "Select payment method '\(id)'") { _ in
+            let selectedCard = app.buttons
+                .matching(identifier: OnrampAccessibilityIdentifiers.paymentMethodCard)
+                .containing(.staticText, identifier: OnrampAccessibilityIdentifiers.paymentMethodName(id: id))
+                .firstMatch
+            waitAndAssertTrue(selectedCard, "Payment method card '\(id)' should exist")
+            selectedCard.waitAndTap()
+            return OnrampProvidersScreen(app)
+        }
+    }
 }
 
 enum OnrampPaymentMethodsScreenElement: String, UIElement {

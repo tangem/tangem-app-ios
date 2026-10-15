@@ -71,12 +71,44 @@ final class BuyTokenSelectorScreen: ScreenBase<BuyTokenSelectorScreenElement> {
     }
 
     @discardableResult
+    func waitMarketPulseTitleDisplayed() -> Self {
+        XCTContext.runActivity(named: "Validate Market Pulse block title is displayed") { _ in
+            let title = app.staticTexts[Localization.marketsPulseCommonTitle].firstMatch
+            waitAndAssertTrue(title, "Market Pulse title should exist on Buy Token Selector screen")
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitMarketPulseTokensDisplayed(_ names: [String]) -> Self {
+        XCTContext.runActivity(named: "Validate Market Pulse tokens are displayed: \(names.joined(separator: ", "))") { _ in
+            for name in names {
+                let tokenItem = marketPulseItem(name)
+                waitAndAssertTrue(tokenItem, "Market Pulse token \(name) should exist")
+            }
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyMarketPulseTokenNotDisplayed(_ name: String) -> Self {
+        XCTContext.runActivity(named: "Validate Market Pulse token \(name) is not displayed") { _ in
+            XCTAssertFalse(marketPulseItem(name).exists, "Market Pulse token \(name) should not exist")
+            return self
+        }
+    }
+
+    @discardableResult
     func waitTokenInWalletSection(_ token: String) -> Self {
         XCTContext.runActivity(named: "Wait \(token) is displayed in Wallet section") { _ in
             let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: token)].firstMatch
             waitAndAssertTrue(tokenButton, "Token \(token) should display in Wallet section")
             return self
         }
+    }
+
+    private func marketPulseItem(_ name: String) -> XCUIElement {
+        app.buttons[MarketsAccessibilityIdentifiers.marketsListTokenItem(uniqueId: name)].firstMatch
     }
 }
 
