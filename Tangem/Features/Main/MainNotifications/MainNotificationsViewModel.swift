@@ -35,6 +35,7 @@ final class MainNotificationsViewModel: ObservableObject {
     @Published private var isPromotionalVisible: Bool
 
     private let isEnabled: Bool
+    private let tangemPayPromoManager: NotificationManager?
     private let bannerMapper = MultiWalletNotificationBannerMapper()
     private var hasSystemCard = false
     private var bag = Set<AnyCancellable>()
@@ -46,6 +47,7 @@ final class MainNotificationsViewModel: ObservableObject {
         tangemPayPromoManager: NotificationManager?
     ) {
         self.isEnabled = isEnabled
+        self.tangemPayPromoManager = tangemPayPromoManager
         isPromotionalVisible = !isEnabled
         promotionNotificationsViewModel = PromotionNotificationsViewModel(promotionNotificationsManager: promotionNotificationsManager)
 
