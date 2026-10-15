@@ -41,7 +41,7 @@ private extension DemoRegistry {
             DemoEntry("Shimmer", version: DSVersion(1, 0, 1), section: .ds3) { ShimmerShowcase() },
             DemoEntry("Shtorka", version: DSVersion(1, 0, 0), section: .ds3) { ShtorkaShowcase() },
             DemoEntry("StatusScreen", version: DSVersion(1, 0, 1), section: .ds3) { StatusScreenShowcase() },
-            DemoEntry("TabNavigation", version: DSVersion(1, 0, 0), section: .ds3) { TabNavigationShowcase() },
+            DemoEntry("TabNavigation", version: DSVersion(1, 0, 2), section: .ds3) { TabNavigationShowcase() },
             DemoEntry("TokenIconV2", version: DSVersion(1, 1, 0), section: .ds3) { TokenIconV2Showcase() },
             DemoEntry("TokenRow", version: DSVersion(1, 1, 0), section: .ds3) { TokenRowShowcase() },
             DemoEntry("TokenRowMarket", version: DSVersion(1, 1, 0), section: .ds3) { TokenRowMarketShowcase() },
@@ -57,14 +57,12 @@ private extension DemoRegistry {
         [
             DemoEntry("MainActionButton", section: .legacy) { TangemMainActionButtonShowcase() },
             DemoEntry("NotificationBanner", section: .legacy) { NotificationBannerShowcase() },
-            DemoEntry("TangemBadge", section: .legacy) { TangemBadgeShowcase() },
             DemoEntry("TangemButton", section: .legacy) { TangemButtonShowcase() },
             DemoEntry("TangemCallout", section: .legacy) { TangemCalloutShowcase() },
             DemoEntry("TangemDropDown", section: .legacy) { TangemDropDownShowcase() },
             DemoEntry("TangemSearchField", section: .legacy) { TangemSearchFieldShowcase() },
             DemoEntry("TangemSegmentedPicker", section: .legacy) { TangemSegmentedPickerShowcase() },
             DemoEntry("TangemSnackbar", section: .legacy) { TangemSnackbarShowcase() },
-            DemoEntry("TangemTabs", section: .legacy) { TangemTabsShowcase() },
             DemoEntry("TangemTokenRow", section: .legacy) { TangemTokenRowShowcase() },
             DemoEntry("Typography", section: .legacy) { LegacyTypographyShowcase() },
         ]
