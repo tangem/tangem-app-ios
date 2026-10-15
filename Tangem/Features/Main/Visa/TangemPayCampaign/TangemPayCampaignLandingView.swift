@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -25,6 +26,7 @@ struct TangemPayCampaignLandingView: View {
             texts: {
                 Text(Localization.tangempayCampaignLandingTitle)
                     .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.campaignLandingTitle)
 
                 bullets
                     .padding(.top, Constants.titleToBulletsGap)
@@ -85,6 +87,7 @@ struct TangemPayCampaignLandingView: View {
             .horizontalLayout(.infinity)
             .loading(.spinner(if: viewModel.isCTALoading))
             .size(.x12)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.campaignLandingGetCardButton)
         }
         .padding(.horizontal, Constants.footerHorizontalPadding)
         .padding(.vertical, Constants.footerVerticalPadding)
@@ -100,6 +103,7 @@ struct TangemPayCampaignLandingView: View {
                 viewModel.openLegalDocument(url: url)
                 return .handled
             })
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.campaignLandingLegalCaption)
     }
 
     private var legalCaptionText: AttributedString {
