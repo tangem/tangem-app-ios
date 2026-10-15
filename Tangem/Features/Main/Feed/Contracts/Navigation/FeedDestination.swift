@@ -27,7 +27,7 @@ enum FeedDestination: Hashable, Identifiable {
 
     var isFullScreenPresentation: Bool {
         switch self {
-        case .jointAccount, .referral:
+        case .accountForm, .jointAccount, .referral:
             return true
         default:
             return false
