@@ -443,7 +443,14 @@
       "color.bg.accent.yellow-subtle": "6257408f0d3d275279384fab9af5291662f138f4",
       "color.bg.accent.green-subtle": "15f43efadcadf2625ca98df5ccffd7ab5eb446cb",
       "color.bg.accent.neutral-subtle": "acce64fbeced19f130fda0adbbf6926e63af338b",
-      "color.bg.special.switch": "1afe9f86bfdf3603e466d9064c4cf9026a7a0d4f"
+      "color.bg.special.switch": "1afe9f86bfdf3603e466d9064c4cf9026a7a0d4f",
+      "color.border.accent.blue-subtle": "c1f5fae076e66855c544d49500ee4d840a5a0ed3",
+      "color.border.accent.violet-subtle": "414d35871c8fb3dfa7c6321e141b2829c0dcf624",
+      "color.border.accent.red-subtle": "862f27a11089a91eb995f251c5b6599014829cc5",
+      "color.border.accent.orange-subtle": "931aead22a0710a950150c372355543766d2466a",
+      "color.border.accent.yellow-subtle": "6fab1b4931beb33ae459cbdd4a5449c3652ccb55",
+      "color.border.accent.green-subtle": "4c2e964b488e78a7e293e1f38bb0d2621de545e8",
+      "color.border.accent.neutral-subtle": "f4b983470c4b0de8b0673141b544230018b236af"
     },
     "group": "theme"
   },
@@ -678,7 +685,14 @@
       "color.bg.accent.yellow-subtle": "6257408f0d3d275279384fab9af5291662f138f4",
       "color.bg.accent.green-subtle": "15f43efadcadf2625ca98df5ccffd7ab5eb446cb",
       "color.bg.accent.neutral-subtle": "acce64fbeced19f130fda0adbbf6926e63af338b",
-      "color.bg.special.switch": "1afe9f86bfdf3603e466d9064c4cf9026a7a0d4f"
+      "color.bg.special.switch": "1afe9f86bfdf3603e466d9064c4cf9026a7a0d4f",
+      "color.border.accent.blue-subtle": "c1f5fae076e66855c544d49500ee4d840a5a0ed3",
+      "color.border.accent.violet-subtle": "414d35871c8fb3dfa7c6321e141b2829c0dcf624",
+      "color.border.accent.red-subtle": "862f27a11089a91eb995f251c5b6599014829cc5",
+      "color.border.accent.orange-subtle": "931aead22a0710a950150c372355543766d2466a",
+      "color.border.accent.yellow-subtle": "6fab1b4931beb33ae459cbdd4a5449c3652ccb55",
+      "color.border.accent.green-subtle": "4c2e964b488e78a7e293e1f38bb0d2621de545e8",
+      "color.border.accent.neutral-subtle": "f4b983470c4b0de8b0673141b544230018b236af"
     },
     "group": "theme"
   },
