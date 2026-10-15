@@ -87,6 +87,7 @@ struct PolymarketMainDependencies {
             eventsViewModel: makeEventsBlockViewModel(routable: routable),
             geoblockStateProvider: geoblockStateProvider,
             fundsArrivalTracker: fundsArrivalTracker,
+            withdrawTracker: withdrawContext.tracker,
             refreshCenter: refreshCenter,
             coordinator: routable
         )
@@ -122,6 +123,7 @@ private extension PolymarketMainDependencies {
             balanceProvider: balanceProvider,
             accountFundsInteractor: accountFundsInteractor,
             fundsArrivalTracker: fundsArrivalTracker,
+            withdrawalStatePublisher: withdrawContext.tracker.statePublisher,
             isRegionRestricted: isRegionRestricted,
             refreshCenter: refreshCenter,
             routable: routable
