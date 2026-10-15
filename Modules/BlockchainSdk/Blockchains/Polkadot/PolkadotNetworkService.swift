@@ -11,8 +11,9 @@ import Combine
 import ScaleCodec
 import Sodium
 import BigInt
+import TangemFoundation
 
-class PolkadotNetworkService: MultiNetworkProvider {
+final class PolkadotNetworkService: MultiNetworkProvider {
     var currentProviderIndex: Int = 0
     let providers: [PolkadotJsonRpcProvider]
 
@@ -38,13 +39,10 @@ class PolkadotNetworkService: MultiNetworkProvider {
         makeStorageKeyPublisher(forAddress: address)
             .withWeakCaptureOf(self)
             .flatMap { service, key in
-                service.providerPublisher { provider in
+                service.providerPublisher { [weak service] provider in
                     let latestBlockPublisher: AnyPublisher<(String, UInt64), Error> = provider.blockhash(.latest)
-                        .flatMap { [weak self] latestBlockHash -> AnyPublisher<(String, UInt64), Error> in
-                            guard
-                                let self = self,
-                                let provider = self.provider
-                            else {
+                        .flatMap { latestBlockHash -> AnyPublisher<(String, UInt64), Error> in
+                            guard let provider = service?.provider else {
                                 return .emptyFail
                             }
 

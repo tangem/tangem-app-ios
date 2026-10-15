@@ -9,7 +9,12 @@
 import Foundation
 import TangemFoundation
 
-actor PollingService<RequestData: Identifiable, ResponseData: Identifiable>: Sendable where RequestData.ID == ResponseData.ID {
+actor PollingService<RequestData, ResponseData>: Sendable where
+    RequestData: Identifiable,
+    RequestData: Sendable,
+    ResponseData: Identifiable,
+    ResponseData: Sendable,
+    RequestData.ID == ResponseData.ID {
     struct Response {
         let data: ResponseData
         let hasChanges: Bool
