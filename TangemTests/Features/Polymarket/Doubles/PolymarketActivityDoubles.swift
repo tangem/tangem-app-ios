@@ -21,11 +21,27 @@ final class PolymarketLaunchDepositsReconcilerStub: PolymarketLaunchDepositsReco
 
 final class PolymarketActivityServiceStub: PolymarketActivityService {
     var pages: [String?: Result<PolymarketActivityPage, Error>] = [:]
+    var holdsFirstPage = false
     private(set) var requestedCursors: [String?] = []
     private(set) var reconcileCount = 0
+    private var heldFirstPage: CheckedContinuation<Void, Never>?
+
+    var isHoldingFirstPage: Bool {
+        heldFirstPage != nil
+    }
+
+    func releaseFirstPage() {
+        holdsFirstPage = false
+        heldFirstPage?.resume()
+        heldFirstPage = nil
+    }
 
     func activity(filter: PolymarketActivityFilter, limit: Int, cursor: String?) async throws -> PolymarketActivityPage {
         requestedCursors.append(cursor)
+
+        if cursor == nil, holdsFirstPage {
+            await withCheckedContinuation { heldFirstPage = $0 }
+        }
 
         guard let result = pages[cursor] else {
             return PolymarketActivityPage(records: [], receivedCount: 0, nextCursor: nil)
