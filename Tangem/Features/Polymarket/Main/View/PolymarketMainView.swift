@@ -60,6 +60,7 @@ struct PolymarketMainView: View {
             leftButtons: { NavigationBarButton.back { viewModel.handleViewAction(.close) } },
             rightButtons: {
                 PolymarketOverflowMenu(
+                    onHistory: { viewModel.handleViewAction(.openHistory) },
                     onHowItWorks: { viewModel.handleViewAction(.openHowItWorks) },
                     onSupportChat: { viewModel.handleViewAction(.openSupportChat) }
                 )
