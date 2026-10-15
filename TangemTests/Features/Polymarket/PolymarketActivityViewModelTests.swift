@@ -75,6 +75,25 @@ struct PolymarketActivityViewModelTests {
         #expect(sut.sections.flatMap(\.rows).map(\.id) == ["1", "2"])
     }
 
+    @Test("Tapping a claim opens its merged details")
+    func opensMergedClaim() async throws {
+        let service = PolymarketActivityServiceStub()
+        service.pages[nil] = .success(.init(
+            records: [.claim(id: "1", amount: 0, result: .lost), .claim(id: "2", amount: 6, result: .won)],
+            receivedCount: 2,
+            nextCursor: nil
+        ))
+        let routable = PolymarketActivityRoutableSpy()
+
+        let sut = PolymarketActivityViewModel(activityService: service, coordinator: routable)
+
+        try await settle { sut.loadingState == .allDataLoaded }
+        sut.handleViewAction(.rowTapped(id: "1"))
+
+        #expect(routable.openedRecords.first?.amount == 6)
+        #expect(routable.openedRecords.first?.redeemResult == .won)
+    }
+
     @Test("A rejected next page keeps the cursor and the rows, and the footer retries the same page")
     func rejectedNextPageKeepsTheCursor() async throws {
         let service = PolymarketActivityServiceStub()
