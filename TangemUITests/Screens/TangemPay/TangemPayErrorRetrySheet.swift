@@ -12,7 +12,7 @@ import TangemAccessibilityIdentifiers
 final class TangemPayErrorRetrySheet: ScreenBase<TangemPayErrorRetrySheetElement> {
     private lazy var icon = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.popupIcon].firstMatch
     private lazy var closeButton = button(.closeButton)
-    private lazy var retryButton = app.buttons[Constants.retryTitle].firstMatch
+    private lazy var retryButton = app.buttons[Localization.commonRetry].firstMatch
 
     @discardableResult
     func waitForSheet() -> Self {
@@ -26,10 +26,10 @@ final class TangemPayErrorRetrySheet: ScreenBase<TangemPayErrorRetrySheetElement
     func verifyContent() -> Self {
         XCTContext.runActivity(named: "Verify the error sheet content") { _ in
             waitAndAssertTrue(icon, "Error icon should be displayed")
-            waitAndAssertTrue(app.staticTexts[Constants.title].firstMatch, "'\(Constants.title)' should be displayed")
-            waitAndAssertTrue(app.staticTexts[Constants.description].firstMatch, "'\(Constants.description)' should be displayed")
+            waitAndAssertTrue(app.staticTexts[Localization.commonSomethingWentWrong].firstMatch, "'\(Localization.commonSomethingWentWrong)' should be displayed")
+            waitAndAssertTrue(app.staticTexts[Localization.commonTryAgainLater].firstMatch, "'\(Localization.commonTryAgainLater)' should be displayed")
             waitAndAssertTrue(closeButton, "Close button should be displayed")
-            XCTAssertEqual(closeButton.label, Constants.closeTitle, "Secondary button should read '\(Constants.closeTitle)'")
+            XCTAssertEqual(closeButton.label, Localization.commonClose, "Secondary button should read '\(Localization.commonClose)'")
             XCTAssertTrue(retryButton.isEnabled, "Retry button should be enabled")
             return self
         }
@@ -44,14 +44,5 @@ enum TangemPayErrorRetrySheetElement: String, UIElement {
         case .closeButton:
             TangemPayAccessibilityIdentifiers.popupSecondaryButton
         }
-    }
-}
-
-private extension TangemPayErrorRetrySheet {
-    enum Constants {
-        static let title = "Something went wrong"
-        static let description = "Please try again later."
-        static let closeTitle = "Close"
-        static let retryTitle = "Retry"
     }
 }

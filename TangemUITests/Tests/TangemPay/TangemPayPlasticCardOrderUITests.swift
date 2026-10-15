@@ -176,7 +176,7 @@ private extension TangemPayPlasticCardOrderUITests {
         static let email = "plastic.user@tangem.com"
         static let virtualIssueFee = "$1.25"
         static let deliveryFee = "$4.99"
-        static let deliveryTime = "2–4 business days"
+        static let deliveryTime = Localization.tangempayOrderTypeDeliveryEtaRange(2, 4)
         static let deliveryEtaMaxDays = 4
         static let emptyBalance = "$0.00"
         static let fundedBalance = "$10.00"

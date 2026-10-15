@@ -86,25 +86,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
     }
 
-    private func tangemPayWaitlist(_ waitlist: MainCoordinator.TangemPayWaitlistPresentation) -> some View {
-        NavigationStack {
-            TangemPayWaitlistFactory.makeView(
-                product: .paymentAccount,
-                country: waitlist.region.country,
-                region: waitlist.region.region,
-                service: waitlist.service,
-                output: { [weak coordinator] in coordinator?.handleTangemPayWaitlist($0) }
-            )
-            .topNavigation(
-                leading: .none,
-                onClose: { [weak coordinator] in coordinator?.closeTangemPayWaitlist() }
-            )
-        }
-        .sheet(item: $coordinator.tangemPayWaitlistPrivacyPolicyViewModel) {
-            WebViewContainer(viewModel: $0)
-        }
-    }
-
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
@@ -143,9 +124,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .shtorkaCompatibleSheet(item: $coordinator.yieldModuleActiveCoordinator) {
                 YieldModuleActiveCoordinatorView(coordinator: $0)
-            }
-            .shtorkaCompatibleSheet(item: $coordinator.tangemPayWaitlist) {
-                tangemPayWaitlist($0)
             }
             .floatingSheetContent(for: MobileFinishActivationNeededViewModel.self) {
                 MobileFinishActivationNeededView(viewModel: $0)
