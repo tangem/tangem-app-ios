@@ -783,6 +783,44 @@ final class SwapModelTests: LeakTrackingTestSuite {
         #expect(feeManager.updateInputCalls == [.common(amount: 1, destination: "0xBridge")])
     }
 
+    // MARK: - Fee row on balance restrictions
+
+    @Test("A balance restriction hides the fee row when the selected provider has not estimated the swap fee")
+    func balanceRestrictionHidesFeeRowWithoutSwapFee() {
+        let sut = makeSUT()
+        let cases: [(ExpressProviderManagerState, SwapModel.RestrictionType)] = [
+            (.restriction(.insufficientBalance(1), quote: nil), .notEnoughBalanceForSwapping),
+            (.restriction(.feeCurrencyHasZeroBalance(isFeeCurrency: false), quote: nil), .notEnoughAmountForFee(isFeeCurrency: false, feeCurrencyBalance: 0)),
+            (.permissionRequired(makePermissionRequired()), .notEnoughBalanceForSwapping),
+            (.revokeAndPermissionRequired(makePermissionRequired()), .notEnoughBalanceForSwapping),
+        ]
+
+        for (providerState, restriction) in cases {
+            let providersState = makeRestrictedProvidersState(providerState: providerState, restriction: restriction)
+            #expect(!sut.mapToShouldShowFeeSelectorRow(providersState: providersState), "\(providerState)")
+        }
+    }
+
+    @Test("A balance restriction keeps the fee row when the selected provider has estimated the swap fee")
+    func balanceRestrictionKeepsFeeRowWithSwapFee() {
+        let sut = makeSUT()
+        let cases: [(ExpressProviderManagerState, SwapModel.RestrictionType)] = [
+            (makeCEXPreviewState(), .notEnoughBalanceForSwapping),
+            (makeDEXPreviewState(), .notEnoughBalanceForSwapping),
+            (makeDEXWithApprovePreviewState(), .notEnoughAmountForFee(isFeeCurrency: false, feeCurrencyBalance: 0)),
+            (.restriction(.insufficientBalanceIncludingFee, quote: nil), .notEnoughBalanceForSwapping),
+            (
+                .restriction(.feeCurrencyInsufficientBalanceForTxValue(1, isFeeCurrency: true, feeCurrencyBalance: 0), quote: nil),
+                .notEnoughAmountForTxValue(1, isFeeCurrency: true, feeCurrencyBalance: 0)
+            ),
+        ]
+
+        for (providerState, restriction) in cases {
+            let providersState = makeRestrictedProvidersState(providerState: providerState, restriction: restriction)
+            #expect(sut.mapToShouldShowFeeSelectorRow(providersState: providersState), "\(providerState)")
+        }
+    }
+
     // MARK: - [REDACTED_INFO]: destination trustline restriction
 
     @Test("A destination that requires a trustline maps to the trustlineRequired restriction")
@@ -1091,6 +1129,61 @@ private extension SwapModelTests {
         let previous = try #require(InjectedValues[\.quotesRepository] as? TokenQuotesRepository & TokenQuotesRepositoryUpdater)
         InjectedValues.setTokenQuotesRepository(MockTokenQuotesRepository(quotes: quotes))
         return previous
+    }
+
+    func makeRestrictedProvidersState(
+        providerState: ExpressProviderManagerState,
+        restriction: SwapModel.RestrictionType
+    ) -> SwapModel.ProvidersState {
+        let selected = ExpressAvailableProviderFixture.make(state: providerState)
+        return .loaded(.swap(selected: selected, providers: .empty), state: .restriction(restriction, quote: nil))
+    }
+
+    func makeCEXPreviewState() -> ExpressProviderManagerState {
+        let provider = ExpressAvailableProviderFixture.make(state: .idle).provider
+        return .cexPreview(.init(provider: provider, subtractFee: 0, quote: ExpressQuoteFixture.make(), fee: makeZeroFee()))
+    }
+
+    func makeDEXPreviewState() -> ExpressProviderManagerState {
+        let provider = ExpressAvailableProviderFixture.make(state: .idle).provider
+        return .dexPreview(.init(provider: provider, data: ExpressTransactionDataFixture.make(), fee: makeZeroFee(), quote: ExpressQuoteFixture.make()))
+    }
+
+    func makeDEXWithApprovePreviewState() -> ExpressProviderManagerState {
+        let provider = ExpressAvailableProviderFixture.make(state: .idle).provider
+        return .dexWithApprovePreview(.init(
+            provider: provider,
+            expressTransactionData: ExpressTransactionDataFixture.make(),
+            quote: ExpressQuoteFixture.make(),
+            approveData: .init(
+                provider: provider,
+                approvePolicy: .specified,
+                approveTransactionData: makeApproveTransactionData(),
+                approvalFlow: .approve,
+                approveFee: makeZeroFee()
+            ),
+            combinedFee: makeZeroFee()
+        ))
+    }
+
+    func makePermissionRequired() -> ExpressProviderManagerState.PermissionRequired {
+        let provider = ExpressAvailableProviderFixture.make(state: .idle).provider
+        return .init(
+            provider: provider,
+            policy: .specified,
+            data: makeApproveTransactionData(),
+            approvalFlow: .approve,
+            fee: makeZeroFee(),
+            quote: ExpressQuoteFixture.make()
+        )
+    }
+
+    func makeApproveTransactionData() -> ApproveTransactionData {
+        ApproveTransactionData(txData: Data(), spender: "0xspender", toContractAddress: "0xcontract")
+    }
+
+    func makeZeroFee() -> Fee {
+        Fee(Amount(with: .polygon(testnet: false), type: .coin, value: 0))
     }
 
     /// Waits for a state published *after* `baseline` that satisfies `predicate`. Capturing the baseline

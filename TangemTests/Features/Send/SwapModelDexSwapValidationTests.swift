@@ -143,9 +143,14 @@ private extension SwapModelDexSwapValidationTests {
     func makeDexPreview() -> ExpressProviderManagerState.DEXPreview {
         ExpressProviderManagerState.DEXPreview(
             provider: makeProvider().provider,
-            data: makeTransactionData(),
+            data: ExpressTransactionDataFixture.make(
+                fromAmount: Constants.fromAmount,
+                toAmount: Constants.expectAmount,
+                txValue: Constants.fromAmount,
+                txData: "cHNidP8="
+            ),
             fee: makeFee(),
-            quote: makeExpressQuote()
+            quote: ExpressQuoteFixture.make(fromAmount: Constants.fromAmount, expectAmount: Constants.expectAmount)
         )
     }
 
@@ -162,39 +167,6 @@ private extension SwapModelDexSwapValidationTests {
             fromAmount: Constants.fromAmount,
             expectAmount: Constants.expectAmount,
             highPriceImpact: nil
-        )
-    }
-
-    func makeExpressQuote() -> ExpressQuote {
-        ExpressQuote(
-            fromAmount: Constants.fromAmount,
-            expectAmount: Constants.expectAmount,
-            allowanceContract: nil,
-            quoteId: nil,
-            txType: nil,
-            isRestricted: false,
-            slippage: nil
-        )
-    }
-
-    func makeTransactionData() -> ExpressTransactionData {
-        ExpressTransactionData(
-            requestId: "",
-            fromAmount: Constants.fromAmount,
-            toAmount: Constants.expectAmount,
-            expressTransactionId: "",
-            transactionType: .swap,
-            sourceAddress: nil,
-            destinationAddress: "",
-            extraDestinationId: nil,
-            txValue: Constants.fromAmount,
-            txData: "cHNidP8=",
-            otherNativeFee: nil,
-            estimatedGasLimit: nil,
-            externalTxId: nil,
-            externalTxURL: nil,
-            payInAddress: "",
-            slippage: nil
         )
     }
 
