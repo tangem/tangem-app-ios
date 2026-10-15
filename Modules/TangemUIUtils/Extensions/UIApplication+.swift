@@ -22,6 +22,18 @@ public extension UIApplication {
         windows.first { $0.isKeyWindow }?.endEditing(true)
     }
 
+    /// Makes the overlay window (PassThroughWindow) key so the keyboard can appear.
+    /// Needed because FloatingSheet lives in a separate window that is not key by default.
+    @MainActor
+    func makeOverlayWindowKey() {
+        let overlayWindow = connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows)
+            .first { $0 is PassThroughWindow }
+
+        overlayWindow?.makeKey()
+    }
+
     static var topViewController: UIViewController? {
         UIApplication.mainWindow?.topViewController
     }
