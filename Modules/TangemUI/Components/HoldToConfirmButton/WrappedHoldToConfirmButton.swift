@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUIUtils
 import TangemAssets
+import TangemLocalization
 
 // MARK: - View
 
@@ -90,6 +91,7 @@ private extension WrappedHoldToConfirmButton {
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(Text(viewModel.labelTitle))
             .accessibilityHint(Text(configuration.cancelTitle))
+            .accessibilityValue(isLoadingState ? Localization.commonInProgress : "")
             .accessibilityAddTraits(.isButton)
             .disabled(viewModel.isDisabled)
     }

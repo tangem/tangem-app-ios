@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemUI
 
 protocol TokenDetailsRoutable: FeeCurrencyNavigating, CloreMigrationRoutable {
     func dismiss()
@@ -23,6 +24,7 @@ protocol TokenDetailsRoutable: FeeCurrencyNavigating, CloreMigrationRoutable {
     func openCloreMigration(factory: CloreMigrationModuleFlowFactory)
     func openDynamicAddressesEnterView(
         walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
+        signingActionButtonType: SigningActionButtonViewType,
         analyticsLogger: DynamicAddressesAnalyticsLogger
     )
     func openDynamicAddressesUnavailableSheet(messageType: DynamicAddressesUnavailableSheetViewModel.MessageType)

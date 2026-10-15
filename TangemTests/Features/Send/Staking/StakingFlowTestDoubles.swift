@@ -11,7 +11,6 @@ import Foundation
 import TangemExpress
 import TangemFoundation
 import TangemStaking
-import TangemUI
 @testable import Tangem
 
 // MARK: - StakingTargetInfo
@@ -239,8 +238,6 @@ final class SendStakingableTokenStub: SendStakingableToken {
     var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { BlockchainSDKNotificationMapper(tokenItem: tokenItem) }
 
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { nil }
-    var tangemIconProvider: any TangemIconProvider { StakingTangemIconProviderStub() }
-    var confirmTransactionPolicy: any ConfirmTransactionPolicy { StakingConfirmTransactionPolicyStub() }
     var isTangemPayAccount: Bool { false }
     var jointAccountPolicy: JointAccountPolicy? { nil }
 
@@ -262,14 +259,6 @@ final class StakingDispatcherProviderStub: TransactionDispatcherProvider {
     func makeApproveAndDEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
     func makeCEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
     func makeYieldModuleTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
-}
-
-private struct StakingTangemIconProviderStub: TangemIconProvider {
-    func getMainButtonIcon() -> MainButton.Icon? { nil }
-}
-
-private struct StakingConfirmTransactionPolicyStub: ConfirmTransactionPolicy {
-    let needsHoldToConfirm: Bool = false
 }
 
 // MARK: - StakeModelAnalyticsLogger

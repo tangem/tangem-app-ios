@@ -47,11 +47,13 @@ struct BlockchainAccountInitializationView: View {
                 }
                 .backgroundColor(Colors.Background.action)
 
-                if viewModel.needsHoldToInitialize {
-                    holdToInitializeButton
-                } else {
-                    initializeButton
-                }
+                SigningActionButtonView(
+                    type: viewModel.signingActionButtonType,
+                    title: Localization.commonActivate,
+                    isLoading: viewModel.isLoading,
+                    isDisabled: false,
+                    action: viewModel.initializeAccount
+                )
             }
             .padding(.vertical, 16)
         }
@@ -60,24 +62,5 @@ struct BlockchainAccountInitializationView: View {
         .onAppear {
             viewModel.onAppear()
         }
-    }
-
-    private var initializeButton: some View {
-        MainButton(
-            title: Localization.commonActivate,
-            icon: viewModel.mainButtonIcon,
-            isLoading: viewModel.isLoading,
-            isDisabled: false,
-            action: viewModel.initializeAccount
-        )
-    }
-
-    private var holdToInitializeButton: some View {
-        HoldToConfirmButton(
-            title: Localization.commonActivate,
-            isLoading: viewModel.isLoading,
-            isDisabled: false,
-            action: viewModel.initializeAccount
-        )
     }
 }

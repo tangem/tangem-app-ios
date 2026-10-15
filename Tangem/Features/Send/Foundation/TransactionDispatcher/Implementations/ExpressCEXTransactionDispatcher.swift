@@ -33,10 +33,6 @@ final class ExpressCEXTransactionDispatcher {
 // MARK: - TransactionDispatcher
 
 extension ExpressCEXTransactionDispatcher: TransactionDispatcher {
-    var hasNFCInteraction: Bool {
-        transactionSigner.hasNFCInteraction
-    }
-
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         guard case .cex(let data, let fee) = transaction else {
             throw TransactionDispatcherResult.Error.transactionNotFound
