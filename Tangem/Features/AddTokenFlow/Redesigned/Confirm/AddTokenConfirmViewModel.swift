@@ -40,7 +40,7 @@ final class AddTokenConfirmViewModel: ObservableObject, Identifiable {
 
     var confirmButtonContent: TangemButton.Content {
         let providedIcon = needsCardDerivation
-            ? CommonTangemIconProvider(config: accountSelectorCell.userWalletModel.config).getMainButtonIcon()
+            ? SigningActionButtonViewTypeBuilder().build(config: accountSelectorCell.userWalletModel.config).mainButtonIcon
             : nil
         let text = AttributedString(Localization.commonConfirm)
 
