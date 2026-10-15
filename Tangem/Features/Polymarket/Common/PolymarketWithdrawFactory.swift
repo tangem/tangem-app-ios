@@ -12,7 +12,10 @@ import TangemPolymarket
 struct PolymarketWithdrawFactory {
     private let services = PolymarketOnboardingServicesFactory.makeDefault()
 
-    func makeContext(for userWalletModel: any UserWalletModel) -> PolymarketWithdrawContext {
+    func makeContext(
+        for userWalletModel: any UserWalletModel,
+        sessionHealth: PolymarketSessionHealthChecking
+    ) -> PolymarketWithdrawContext {
         let walletId = userWalletModel.userWalletId.stringValue
         let signer = userWalletModel.signer
         let withdrawService = services.makeWithdrawService(walletId: walletId)
@@ -32,10 +35,12 @@ struct PolymarketWithdrawFactory {
             tracker: tracker,
             depositWalletResolver: PolymarketDepositWalletResolver(
                 walletService: services.makeWalletService(walletId: walletId),
-                ownerAddressProvider: PolymarketOnboardingFactory().makeOwnerAddressProvider(for: userWalletModel)
+                ownerAddressProvider: PolymarketOnboardingFactory().makeOwnerAddressProvider(for: userWalletModel),
+                sessionHealth: sessionHealth
             ),
             signer: PolymarketBatchSigner(keysRepository: userWalletModel.keysRepository, signer: signer),
-            serverClock: InjectedValues[\.polymarketServerClock]
+            serverClock: InjectedValues[\.polymarketServerClock],
+            sessionHealth: sessionHealth
         )
 
         return PolymarketWithdrawContext(

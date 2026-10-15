@@ -20,6 +20,7 @@ struct PolymarketMainDependenciesFactory {
             balancePublisher: balanceProvider.collateralBalancePublisher.map(\.value).eraseToAnyPublisher()
         )
         let refreshCenter = PolymarketMainRefreshCenter()
+        let sessionHealth = makeSessionHealth(for: userWalletModel)
 
         return PolymarketMainDependencies(
             userWalletModel: userWalletModel,
@@ -28,16 +29,36 @@ struct PolymarketMainDependenciesFactory {
                 geoblockService: PolymarketOnboardingServicesFactory.makeDefault().makeGeoblockService()
             ),
             balanceProvider: balanceProvider,
-            accountFundsInteractor: PolymarketAccountFundsFactory().makeInteractor(for: userWalletModel),
+            accountFundsInteractor: PolymarketAccountFundsFactory().makeInteractor(
+                for: userWalletModel,
+                sessionHealth: sessionHealth
+            ),
             positionsService: PolymarketPositionsFactory().makeService(for: userWalletModel, apiProvider: apiProvider),
             activityService: PolymarketActivityFactory().makeService(for: userWalletModel, apiProvider: apiProvider),
             placementService: PolymarketOrderPlacementFactory().makeService(for: userWalletModel),
             clobService: PolymarketOnboardingServicesFactory.makeDefault().makeCLOBService(),
-            redeemService: PolymarketRedeemFactory().makeService(for: userWalletModel),
-            withdrawContext: PolymarketWithdrawFactory().makeContext(for: userWalletModel),
+            redeemService: PolymarketRedeemFactory().makeService(for: userWalletModel, sessionHealth: sessionHealth),
+            withdrawContext: PolymarketWithdrawFactory().makeContext(for: userWalletModel, sessionHealth: sessionHealth),
             fundsArrivalTracker: fundsArrivalTracker,
             refreshCenter: refreshCenter,
-            activityHandler: PolymarketMainActivityHandler(fundsArrivalTracker: fundsArrivalTracker, refreshCenter: refreshCenter)
+            activityHandler: PolymarketMainActivityHandler(fundsArrivalTracker: fundsArrivalTracker, refreshCenter: refreshCenter),
+            sessionHealth: sessionHealth
+        )
+    }
+}
+
+// MARK: - Session health
+
+private extension PolymarketMainDependenciesFactory {
+    func makeSessionHealth(for userWalletModel: any UserWalletModel) -> PolymarketSessionHealth {
+        let walletId = userWalletModel.userWalletId.stringValue
+        let accountModel = AccountModelsAggregator(.polymarket).model(from: userWalletModel.accountModelsManager)
+
+        return PolymarketSessionHealth(
+            walletService: PolymarketOnboardingServicesFactory.makeDefault().makeWalletService(walletId: walletId),
+            ownerAddressProvider: PolymarketOnboardingFactory().makeOwnerAddressProvider(for: userWalletModel),
+            unauthorizedEvents: InjectedValues[\.polymarketUnauthorizedEvents].events(walletId: walletId),
+            resetOnboarding: { [weak accountModel] isAccountGone in accountModel?.resetOnboarding(isAccountGone: isAccountGone) }
         )
     }
 }
@@ -59,6 +80,7 @@ struct PolymarketMainDependencies {
     let fundsArrivalTracker: PolymarketFundsArrivalTracker
     let refreshCenter: PolymarketMainRefreshCenter
     let activityHandler: PolymarketMainActivityHandler
+    let sessionHealth: PolymarketSessionHealth
 
     var walletId: String {
         userWalletModel.userWalletId.stringValue

@@ -192,6 +192,62 @@ struct PolymarketWithdrawTransactionServiceTests {
         }
     }
 
+    @Test("A conflict from a wallet that is no longer ready to trade asks for a reconnect instead of a generic refusal")
+    func conflictFromANotReadyWalletRequiresAReconnect() async throws {
+        let sessionHealth = PolymarketSessionHealthSpy(verdict: .reconnectRequired)
+        let context = try Context(submitResults: [.failure(.conflict(detail: nil))], sessionHealth: sessionHealth)
+
+        do {
+            _ = try await context.sut.withdraw(amount: 1, to: recipientAddress)
+            Issue.record("A refused submission must not be reported as a success")
+        } catch PolymarketWithdrawTransactionService.Error.reconnectRequired {
+            #expect(sessionHealth.verifyCalls == 1)
+            #expect(context.withdrawService.submitted.count == 1)
+            #expect(context.tracker.tracked.isEmpty)
+        }
+    }
+
+    @Test("A conflict while the wallet is still ready to trade stays the refusal the backend sent")
+    func conflictFromAReadyWalletStaysARefusal() async throws {
+        let sessionHealth = PolymarketSessionHealthSpy(verdict: .ready)
+        let context = try Context(submitResults: [.failure(.conflict(detail: "busy"))], sessionHealth: sessionHealth)
+
+        do {
+            _ = try await context.sut.withdraw(amount: 1, to: recipientAddress)
+            Issue.record("A refused submission must not be reported as a success")
+        } catch PolymarketWithdrawTransactionService.Error.refused(.conflict(let detail)) {
+            #expect(detail == "busy")
+            #expect(sessionHealth.verifyCalls == 1)
+        }
+    }
+
+    @Test("A wallet found not ready before signing reports its status and asks for a reconnect, with nothing signed")
+    func notReadyWalletRequiresAReconnectBeforeSigning() async throws {
+        let sessionHealth = PolymarketSessionHealthSpy(verdict: .reconnectRequired)
+        let context = try Context(walletStatus: .deployed, sessionHealth: sessionHealth)
+
+        do {
+            _ = try await context.sut.withdraw(amount: 1, to: recipientAddress)
+            Issue.record("A wallet that is not ready must not withdraw")
+        } catch PolymarketWithdrawTransactionService.Error.reconnectRequired {
+            #expect(sessionHealth.reportedStatuses == [.deployed])
+            #expect(context.withdrawService.submitted.isEmpty)
+        }
+    }
+
+    @Test("A wallet status this build does not recognise fails the preparation instead of asking for a reconnect")
+    func unrecognisedWalletStatusFailsThePreparation() async throws {
+        let sessionHealth = PolymarketSessionHealthSpy(verdict: .inconclusive)
+        let context = try Context(walletStatus: .unknown, sessionHealth: sessionHealth)
+
+        do {
+            _ = try await context.sut.withdraw(amount: 1, to: recipientAddress)
+            Issue.record("A wallet that is not ready must not withdraw")
+        } catch PolymarketWithdrawTransactionService.Error.preparationFailed {
+            #expect(context.withdrawService.submitted.isEmpty)
+        }
+    }
+
     @Test("The address the user is withdrawing to is the address the bridge is told to deliver to")
     func asksTheBridgeToDeliverToTheUsersAddress() async throws {
         let context = try Context()
@@ -574,7 +630,9 @@ private extension PolymarketWithdrawTransactionServiceTests {
             submitResults: [Result<PolymarketWithdrawRecord, PolymarketWithdrawError>?] = [],
             configurationService: PolymarketConfigurationService = ConfigurationServiceStub(),
             signing: (any PolymarketBatchSigning)? = nil,
-            serverClock: PolymarketServerClock = PolymarketServerClock()
+            serverClock: PolymarketServerClock = PolymarketServerClock(),
+            walletStatus: PolymarketDepositWalletStatus = .readyToTrade,
+            sessionHealth: PolymarketSessionHealthChecking? = nil
         ) throws {
             let cardSigner = try PolymarketCardSignerStub()
             let keysRepository = KeysRepositoryTestsMock(keys: [
@@ -622,13 +680,15 @@ private extension PolymarketWithdrawTransactionServiceTests {
                 tracker: tracker,
                 depositWalletResolver: PolymarketDepositWalletResolver(
                     walletService: PolymarketDepositWalletServiceStub(
-                        status: .readyToTrade,
+                        status: walletStatus,
                         depositWalletAddress: depositWallet
                     ),
-                    ownerAddressProvider: PolymarketOwnerAddressProviderStub(derived: resolvedOwner)
+                    ownerAddressProvider: PolymarketOwnerAddressProviderStub(derived: resolvedOwner),
+                    sessionHealth: sessionHealth
                 ),
                 signer: resolvedSigner,
-                serverClock: serverClock
+                serverClock: serverClock,
+                sessionHealth: sessionHealth
             )
         }
     }

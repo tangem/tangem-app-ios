@@ -407,6 +407,8 @@ final class PolymarketAccountModelStub: PolymarketAccountModel {
     func refreshState(scope: PolymarketBalanceRefreshScope) async {}
 
     func refreshBalance(scope: PolymarketBalanceRefreshScope) async {}
+
+    func resetOnboarding(isAccountGone: Bool) {}
 }
 
 // MARK: - Account presence
