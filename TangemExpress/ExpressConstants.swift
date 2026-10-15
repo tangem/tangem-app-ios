@@ -28,8 +28,6 @@ public enum ExpressConstants {
         "1inch",
         "okx-cross-chain",
         "okx-on-chain",
-        "swapkit",
-        "li-fi",
     ]
 
     public static let swapProviderTypes: [ExpressProviderType] = [.dex, .cex, .dexBridge]
