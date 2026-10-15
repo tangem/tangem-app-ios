@@ -12,7 +12,7 @@ import TangemAccessibilityIdentifiers
 final class TangemPayActivateCardScreen: ScreenBase<TangemPayActivateCardScreenElement> {
     private lazy var hint = staticText(.hint)
     private lazy var continueButton = button(.continueButton)
-    private lazy var title = app.staticTexts[Constants.title].firstMatch
+    private lazy var title = app.staticTexts[Localization.tangempayCardDetailsActivate].firstMatch
 
     @discardableResult
     func waitForScreen() -> Self {
@@ -25,8 +25,8 @@ final class TangemPayActivateCardScreen: ScreenBase<TangemPayActivateCardScreenE
     @discardableResult
     func verifyInitialState() -> Self {
         XCTContext.runActivity(named: "Verify the Activate card screen initial state") { _ in
-            waitAndAssertTrue(title, "'\(Constants.title)' header should be displayed")
-            verifyHint(Constants.enterDigitsHint)
+            waitAndAssertTrue(title, "'\(Localization.tangempayCardDetailsActivate)' header should be displayed")
+            verifyHint(Localization.tangempayCardActivationDescription)
             waitAndAssertTrue(app.keyboards.firstMatch, timeout: .conditional, "The last-four-digits entry should be focused")
             XCTAssertTrue(continueButton.waitForState(state: .disabled, for: .conditional), "Continue should be disabled before four digits are entered")
             return self
@@ -54,7 +54,7 @@ final class TangemPayActivateCardScreen: ScreenBase<TangemPayActivateCardScreenE
     @discardableResult
     func verifyActivatingHint() -> Self {
         XCTContext.runActivity(named: "Verify the activation is in progress") { _ in
-            verifyHint(Constants.activatingHint)
+            verifyHint(Localization.tangempayCardActivationInProgress)
             return self
         }
     }
@@ -62,7 +62,7 @@ final class TangemPayActivateCardScreen: ScreenBase<TangemPayActivateCardScreenE
     @discardableResult
     func verifyInvalidDigitsHint() -> Self {
         XCTContext.runActivity(named: "Verify the invalid digits error") { _ in
-            verifyHint(Constants.invalidDigitsHint, timeout: .networkRequest)
+            verifyHint(Localization.tangempayCardActivationError, timeout: .networkRequest)
             return self
         }
     }
@@ -78,7 +78,7 @@ final class TangemPayActivateCardScreen: ScreenBase<TangemPayActivateCardScreenE
     @discardableResult
     func close<Destination: Screen>(to destination: Destination.Type) -> Destination {
         XCTContext.runActivity(named: "Close the Activate card screen") { _ in
-            guard let closeButton = app.buttons.matching(NSPredicate(format: "label == %@", Constants.closeTitle)).firstHittableElement() else {
+            guard let closeButton = app.buttons.matching(NSPredicate(format: "label == %@", Localization.commonClose)).firstHittableElement() else {
                 XCTFail("Close button should become hittable")
                 return Destination(app)
             }
@@ -106,15 +106,5 @@ enum TangemPayActivateCardScreenElement: String, UIElement {
         case .continueButton:
             TangemPayAccessibilityIdentifiers.activateCardContinueButton
         }
-    }
-}
-
-private extension TangemPayActivateCardScreen {
-    enum Constants {
-        static let title = "Activate card"
-        static let closeTitle = "Close"
-        static let enterDigitsHint = "Enter last 4 digits of your card number"
-        static let activatingHint = "Activating your card"
-        static let invalidDigitsHint = "Invalid last digits. Try again"
     }
 }
