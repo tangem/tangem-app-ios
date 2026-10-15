@@ -67,7 +67,7 @@ struct YieldModuleAboutApyV2View: View {
         VStack(spacing: .zero) {
             breakdownRow(title: Localization.yieldModuleAboutApyBaseYieldTitle, value: viewModel.baseApyText, showsDivider: true)
 
-            breakdownRow(title: Localization.yieldModuleAboutApyExtraRewardsTitle, value: viewModel.rewardsAprText)
+            breakdownRow(title: Localization.yieldModuleAboutApyExtraRewardsTitle, value: viewModel.rewardsApyText)
         }
     }
 
