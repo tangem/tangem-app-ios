@@ -12,7 +12,6 @@ import SwiftUI
 
 final class JointAccountManagementCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Navigation actions
 
@@ -26,6 +25,8 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
     /// Steps pushed on top of the root of the flow's navigation stack.
     @Published var path: [Step] = []
 
+    private var isCreationWalletFixed = false
+
     init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -36,7 +37,8 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         switch options {
-        case .creation(let creationHelper):
+        case .creation(let creationHelper, let isWalletFixed):
+            isCreationWalletFixed = isWalletFixed
             root = .onboarding(JointAccountOnboardingViewModel(creationHelper: creationHelper, coordinator: self))
 
         case .members(let jointAccount, let userWalletConfig):
@@ -53,7 +55,7 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
 
 extension JointAccountManagementCoordinator {
     enum Options {
-        case creation(JointAccountCreationHelper)
+        case creation(JointAccountCreationHelper, isWalletFixed: Bool)
         case members(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig)
     }
 }
@@ -109,11 +111,15 @@ extension JointAccountManagementCoordinator: JointAccountOnboardingRoutable {
 
     func continueOnboarding(creationHelper: JointAccountCreationHelper) {
         // A single wallet leaves nothing to choose, so the form shows no wallet row at all
-        let onWalletTap: (() -> Void)? = selectableUserWalletModels.count > 1
-            ? { [weak self] in self?.openWalletSelection(creationHelper: creationHelper) }
-            : nil
+        let walletSelection: AccountFormWalletSelection = if selectableUserWalletModels.count <= 1 {
+            .hidden
+        } else if isCreationWalletFixed {
+            .fixed
+        } else {
+            .selectable
+        }
 
-        let creator = JointAccountFormViewCreator(creationHelper: creationHelper, onWalletTap: onWalletTap)
+        let creator = JointAccountFormViewCreator(creationHelper: creationHelper, walletSelection: walletSelection)
 
         let viewModel = AccountFormViewModel(flowType: .create(creator: creator), coordinator: self)
         path.append(.accountForm(viewModel: viewModel))
@@ -237,28 +243,6 @@ private extension JointAccountManagementCoordinator {
     /// The wallets a joint account can be created in — the ones that offer to add an account at all and still have
     /// room for a joint one.
     var selectableUserWalletModels: [any UserWalletModel] {
-        UserWalletModelsProvider
-            .available(from: userWalletRepository.models)
-            .filter(\.accountModelsManager.canAddCryptoAccounts)
-            .filter { !AccountModelUtils.isAccountsLimitReached(for: .joint, in: $0.accountModelsManager.accountModels) }
-    }
-
-    func openWalletSelection(creationHelper: JointAccountCreationHelper) {
-        Task { @MainActor in
-            let accountSelectorViewModel = AccountSelectorViewModel(
-                userWalletModels: selectableUserWalletModels,
-                preferredDisplayMode: .wallets
-            ) { [weak self] selectedCell in
-                creationHelper.update(userWalletModel: selectedCell.userWalletModel)
-                self?.floatingSheetPresenter.removeActiveSheet()
-            }
-
-            floatingSheetPresenter.enqueue(
-                sheet: JointAccountWalletSelectionViewModel(
-                    accountSelectorViewModel: accountSelectorViewModel,
-                    close: floatingSheetPresenter.removeActiveSheet
-                )
-            )
-        }
+        UserWalletModelsProvider.accountCreationCandidates(for: .joint)
     }
 }
