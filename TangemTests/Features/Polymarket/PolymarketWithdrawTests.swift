@@ -353,17 +353,25 @@ struct PolymarketWithdrawTransactionServiceTests {
 
 @Suite("Polymarket withdraw pair")
 struct PolymarketWithdrawSwapParametersTests {
-    @Test("The source is the prediction account, and markets cannot add another one")
-    func sourceIsThePredictionAccountAlone() throws {
+    @Test("The source is pinned to the prediction account: nothing to pick, nothing to add from markets")
+    func sourceIsPinnedToThePredictionAccount() throws {
         let configuration = try makeConfiguration()
 
-        guard case .restricted(let walletsProvider, let allowsMarketsTokens) = configuration.sourceTokenSelection else {
-            Issue.record("The source must be restricted to the prediction account")
+        guard case .fixed = configuration.sourceTokenSelection else {
+            Issue.record("The source must be pinned to the prediction account")
             return
         }
 
-        #expect(walletsProvider is PolymarketWithdrawSourceWalletsProvider)
-        #expect(allowsMarketsTokens == false)
+        #expect(configuration.sourceTokenSelection.isSelectionEnabled == false)
+        #expect(configuration.sourceTokenSelection.allowsMarketsTokens == false)
+    }
+
+    @Test("Even if the source selector were ever opened, it would list nothing")
+    func sourceSelectorOffersNothing() throws {
+        let provider = try #require(makeConfiguration().sourceTokenSelection.walletsProvider as? FilteredTokenSelectorWalletsProvider)
+
+        #expect(!provider.isIncluded(CampaignsFixtures.makeTokenSelectorItem(tokenItem: .usdcOnPolygon)))
+        #expect(!provider.isIncluded(CampaignsFixtures.makeTokenSelectorItem(tokenItem: CampaignsFixtures.usdcOnEthereum)))
     }
 
     @Test("The destination stays selectable while markets search is off")
@@ -381,14 +389,6 @@ struct PolymarketWithdrawSwapParametersTests {
         #expect(filter.isIncluded(CampaignsFixtures.makeTokenSelectorItem(tokenItem: .usdcOnPolygon)))
         #expect(!filter.isIncluded(CampaignsFixtures.makeTokenSelectorItem(tokenItem: .usdtOnPolygon)))
         #expect(!filter.isIncluded(CampaignsFixtures.makeTokenSelectorItem(tokenItem: CampaignsFixtures.usdcOnEthereum)))
-    }
-
-    @Test("A row that is not a plain crypto account never passes the destination filter, whatever it holds")
-    func destinationFilterRejectsNonCryptoAccounts() throws {
-        let filter = try #require(makeConfiguration().receiveTokenSelection.walletsProvider as? FilteredTokenSelectorWalletsProvider)
-        let predictionAccountRow = try TokenSelectorItem(userWalletInfo: makeUserWalletInfo(), kind: .polymarket(makeSource()))
-
-        #expect(!filter.isIncluded(predictionAccountRow))
     }
 
     @Test("The single token the flow offers to add is USDC on Polygon, held by the wallet and not by the account")

@@ -185,7 +185,8 @@ extension SwapFlowFactory: SwapAmountStepBuildable {
 
     var amountTypes: SwapAmountStepBuilder.Types {
         .init(
-            isPairReversalEnabled: configuration.isPairReversalEnabled,
+            isPairReversalEnabled: configuration.isPairReversalAvailable,
+            isSourceTokenSelectionEnabled: configuration.sourceTokenSelection.isSelectionEnabled,
             isReceiveTokenSelectionEnabled: configuration.receiveTokenSelection.isSelectionEnabled
         )
     }

@@ -1014,7 +1014,7 @@ private extension SwapModelTests {
     ) -> PredefinedSwapParameters {
         let configuration = SwapFlowConfiguration(
             isPairReversalEnabled: true,
-            sourceTokenSelection: .unrestricted,
+            sourceTokenSelection: .selectable(.unrestricted),
             receiveTokenSelection: destinationTokenResolver.map { SwapFlowConfiguration.ReceiveTokenSelection.followsSource($0) } ?? .selectable(.unrestricted),
             summaryTitle: nil
         )
