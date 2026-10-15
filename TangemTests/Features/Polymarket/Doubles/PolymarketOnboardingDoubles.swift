@@ -192,6 +192,7 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
     }
 
     private(set) var balanceCalls = 0
+    private(set) var credentialRequests = 0
 
     var queuedPriceResults: [Result<Decimal, Error>] = []
 
@@ -216,11 +217,13 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
     }
 
     func createCredentials(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketL2Credentials {
-        try createResult.get()
+        credentialRequests += 1
+        return try createResult.get()
     }
 
     func deriveCredentials(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketL2Credentials {
-        try deriveResult.get()
+        credentialRequests += 1
+        return try deriveResult.get()
     }
 
     func updateBalanceAllowance(credentials: PolymarketL2Credentials, ownerAddress: String) async throws {}

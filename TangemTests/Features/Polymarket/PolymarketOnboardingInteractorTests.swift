@@ -168,6 +168,27 @@ struct PolymarketOnboardingInteractorTests {
         #expect(service.submittedBatches.count == 1)
     }
 
+    @Test("A ready wallet the backend demoted to deployed signs only the approvals again")
+    func demotedWalletOnlyRedoesApprovals() async throws {
+        let service = try makeWalletService(statuses: [.deployed, .readyToTrade])
+        let clobService = PolymarketCLOBServiceStub()
+        let signer = PolymarketOnboardingSignerSpy()
+        let sut = try makeSUT(
+            walletService: service,
+            credentials: PolymarketCredentialsRepositoryStub.credentials,
+            signer: signer,
+            clobService: clobService
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.isReady == true)
+        #expect(service.deployCalls == 0)
+        #expect(clobService.credentialRequests == 0)
+        #expect(signer.signCalls == 1)
+        #expect(service.submittedBatches.map(\.calls) == [PolymarketApprovalCalls.make()])
+    }
+
     @Test("The batch that reaches the backend is byte for byte the one the card signed")
     func theSubmittedBatchIsTheSignedOne() async throws {
         let deposit = try Self.depositWalletAddress()
