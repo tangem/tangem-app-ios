@@ -35,7 +35,8 @@ struct PolymarketAccountBuilder {
             balanceService: CommonPolymarketBalanceService(
                 tokenBalancesRepository: CommonTokenBalancesRepository(userWalletId: userWalletId)
             ),
-            presenceStore: AppSettings.shared
+            presenceStore: AppSettings.shared,
+            depositsReconciler: PolymarketLaunchDepositsReconciler.make(userWalletId: userWalletId)
         )
     }
 }
