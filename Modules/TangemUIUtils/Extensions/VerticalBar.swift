@@ -49,7 +49,7 @@ private struct VerticalBarPreferringToolbarContentWrapper<Content: ToolbarConten
     var body: some ToolbarContent {
         #if canImport(SwiftUI, _version: 8.0.85)
         if #available(iOS 27.1, *) {
-            axisBehavior(isPreferred ? .verticalPreferred : .automatic)
+            content.axisBehavior(isPreferred ? .verticalPreferred : .automatic)
         } else {
             content
         }
@@ -68,7 +68,7 @@ private struct VerticalBarPreferringCustomizableToolbarContentWrapper<Content: C
     var body: some CustomizableToolbarContent {
         #if canImport(SwiftUI, _version: 8.0.85)
         if #available(iOS 27.1, *) {
-            axisBehavior(isPreferred ? .verticalPreferred : .automatic)
+            content.axisBehavior(isPreferred ? .verticalPreferred : .automatic)
         } else {
             content
         }
