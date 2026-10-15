@@ -46,7 +46,7 @@ extension CollectiblesAPIService {
                 buybackRate: Decimal(machine.instantBuybackPercent) / Constants.percentScale,
                 expectedValue: machine.expectedValue / Constants.centsScale,
                 tiers: mapTiers(of: machine),
-                openingVideoURL: machine.videoOpenPack.flatMap(URL.init)
+                openingMedia: mapToOpeningMedia(machine.openPackMedia)
             )
         }
 
@@ -154,6 +154,14 @@ private extension CollectiblesAPIService.Mapper {
 
     static func mapToName(_ machine: CollectiblesDTO.Machine) -> String {
         machine.shortName.isEmpty ? machine.name : machine.shortName
+    }
+
+    static func mapToOpeningMedia(_ media: CollectiblesDTO.Machine.OpenPackMedia?) -> CollectiblesMachine.OpeningMedia {
+        CollectiblesMachine.OpeningMedia(
+            darkVideoURL: media?.videoDark.flatMap(URL.init),
+            lightVideoURL: media?.videoLight.flatMap(URL.init),
+            skipAudioURL: media?.skipAnimationAudio.flatMap(URL.init)
+        )
     }
 
     /// A tier the machine does not carry is absent from every dictionary (a missing key or an explicit null),

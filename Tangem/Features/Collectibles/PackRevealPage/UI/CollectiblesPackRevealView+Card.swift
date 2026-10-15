@@ -16,6 +16,7 @@ extension CollectiblesPackRevealView {
     struct SpinningCard: View, Animatable {
         var rotation: Double
         let imageURL: URL?
+        let backImageURL: URL?
         let cornerRadius: CGFloat
         let perspectiveDistance: CGFloat
 
@@ -46,27 +47,27 @@ private extension CollectiblesPackRevealView.SpinningCard {
     }
 
     var front: some View {
-        shape
-            .fill(DesignSystem.Color.bgSecondary)
-            .overlay {
-                KFImage(imageURL)
-                    .resizable()
-                    .cancelOnDisappear(true)
-                    .cacheOriginalImage()
-                    .placeholder { Shimmer() }
-                    .aspectRatio(contentMode: .fill)
-            }
-            .clipShape(shape)
+        side(imageURL: imageURL)
     }
 
     var back: some View {
-        // [REDACTED_TODO_COMMENT]
+        side(imageURL: backImageURL)
+    }
+
+    func side(imageURL: URL?) -> some View {
         shape
             .fill(DesignSystem.Color.bgSecondary)
             .overlay {
-                Text("BACK")
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textTertiary)
+                if let imageURL {
+                    KFImage(imageURL)
+                        .resizable()
+                        .cancelOnDisappear(true)
+                        .cacheOriginalImage()
+                        .placeholder { Shimmer() }
+                        .aspectRatio(contentMode: .fit)
+                }
             }
+            .clipShape(shape)
     }
 
     var shape: RoundedRectangle {

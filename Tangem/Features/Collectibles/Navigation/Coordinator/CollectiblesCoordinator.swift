@@ -115,6 +115,7 @@ extension CollectiblesCoordinator: CollectiblesMachineRoutable {
             usdcBalanceProvider: accountModel.usdcTokenBalanceProvider,
             purchaseInteractor: accountModel.purchaseInteractor,
             routable: self,
+            revealAssetsPreloader: RemoteCollectiblesRevealAssetsPreloader(openingMedia: machine.openingMedia),
             refreshBalance: accountModel.refreshState
         )
     }
