@@ -218,8 +218,8 @@ extension MockedCardScanner: CardScanner {
     }
 
     func scanCardPublisher() -> AnyPublisher<AppScanTaskResponse, TangemSdkError> {
-        Deferred {
-            Future { [weak self] promise in
+        Deferred { [weak self] in
+            Future { promise in
                 self?.scanCard(completion: promise)
             }
         }

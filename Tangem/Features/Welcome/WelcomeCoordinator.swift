@@ -250,7 +250,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
         let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToScanCard)
 
-        Task { @MainActor in
+        Task { @MainActor [self] in
             let mailPresenterBeingDismissed = true
             mailPresenterLifecycleSubject.send(!mailPresenterBeingDismissed)
 

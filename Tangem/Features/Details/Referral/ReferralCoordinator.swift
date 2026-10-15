@@ -54,7 +54,7 @@ extension ReferralCoordinator: ReferralRoutable {
         cryptoAccountModelsFilter: @escaping (any CryptoAccountModel) -> Bool,
         onSelect: @escaping (any CryptoAccountModel) -> Void
     ) {
-        Task { @MainActor in
+        Task { @MainActor [self] in
             floatingSheetPresenter.enqueue(
                 sheet: AccountSelectorViewModel(
                     selectedItem: selectedAccount,
