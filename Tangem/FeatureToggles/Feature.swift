@@ -18,6 +18,7 @@ enum Feature: String, Hashable, CaseIterable {
     case priceAlertsSubscription
     case backup4cards
     case polymarket
+    case polymarketPhaseTwo
     case walletCardsBackupReport
     case jointAccounts
     case ethPolLocalStakingValidation
@@ -54,6 +55,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .priceAlertsSubscription: return "TWI-1603_price_alerts_subscription"
         case .backup4cards: return "[REDACTED_INFO]_backup_4_cards_fw8"
         case .polymarket: return "TWI-1576_polymarket"
+        case .polymarketPhaseTwo: return "TWI-1700_polymarket_phase_two"
         case .walletCardsBackupReport: return "[REDACTED_INFO]_cardlinked_status_update_stage2"
         case .jointAccounts: return "TWI-1611_joint_accounts"
         case .ethPolLocalStakingValidation: return "[REDACTED_INFO]_eth_pol_local_staking_validation"
@@ -90,6 +92,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .priceAlertsSubscription: return .unspecified
         case .backup4cards: return .unspecified
         case .polymarket: return .unspecified
+        case .polymarketPhaseTwo: return .unspecified
         case .walletCardsBackupReport: return .unspecified
         case .jointAccounts: return .unspecified
         case .ethPolLocalStakingValidation: return .unspecified
