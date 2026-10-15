@@ -187,6 +187,20 @@ struct PromoCampaignEnrollmentServiceTests {
         #expect(outcome == .unavailable)
     }
 
+    @Test("An ineligible main wallet makes the campaign unavailable whatever the other wallets got", arguments: ["enrolled", "already_enrolled"])
+    func ineligibleMainWallet(otherStatus: String) async throws {
+        let outcome = try await enrollLinkedWallets(answering: [(walletA, "ineligible"), (walletB, otherStatus)])
+
+        #expect(outcome == .unavailable)
+    }
+
+    @Test("An ineligible linked wallet doesn't spoil the main wallet's success")
+    func ineligibleLinkedWallet() async throws {
+        let outcome = try await enrollLinkedWallets(answering: [(walletA, "enrolled"), (walletB, "ineligible")])
+
+        #expect(outcome == .enrolled([enrollment(walletA)]))
+    }
+
     @Test("An answer about none of the sent wallets is an error")
     func answerWithoutKnownWallets() async throws {
         let outcome = try await enrollLinkedWallets(answering: [(walletC, "enrolled")])
@@ -363,6 +377,18 @@ struct PromoCampaignEnrollmentServiceTests {
         let analytics = AnalyticsLoggerSpy()
 
         _ = try await enrollLinkedWallets(answering: [(walletA, "ineligible")], analytics: analytics)
+
+        #expect(analytics.events == [
+            .enrollButtonClicked(campaign: linkedCampaign, payoutToken: nil, walletsCount: 2),
+            .enrollError(campaign: linkedCampaign, reason: .unavailable, statusCode: nil),
+        ])
+    }
+
+    @Test("An ineligible main wallet is reported as unavailable even when another wallet got enrolled")
+    func ineligibleMainWalletIsReportedUnavailable() async throws {
+        let analytics = AnalyticsLoggerSpy()
+
+        _ = try await enrollLinkedWallets(answering: [(walletA, "ineligible"), (walletB, "enrolled")], analytics: analytics)
 
         #expect(analytics.events == [
             .enrollButtonClicked(campaign: linkedCampaign, payoutToken: nil, walletsCount: 2),
