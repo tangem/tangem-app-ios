@@ -16,11 +16,6 @@ struct TransferView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            AddFundsStackNavigationBar(
-                title: viewModel.title,
-                onClose: viewModel.close
-            )
-
             viewModel.tokenInfoViewData.map {
                 AddFundsTokenInfoView(viewData: $0)
                     .padding(.top, 64)
@@ -33,7 +28,7 @@ struct TransferView: View {
         .padding(.horizontal, 16)
         .padding(.bottom, 20)
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
-        .navigationBarHidden(true)
+        .topNavigation(title: viewModel.title, leading: .none, onClose: viewModel.close)
         .onFirstAppear(perform: viewModel.onAppear)
     }
 
