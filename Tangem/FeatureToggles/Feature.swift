@@ -87,7 +87,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .walletCardsBackupReport: return .unspecified
         case .jointAccounts: return .unspecified
         case .ethPolLocalStakingValidation: return .unspecified
-        case .yieldDexTransferDetection: return .unspecified
+        case .yieldDexTransferDetection: return .version("6.5")
         case .collectibles: return .unspecified
         case .totalTokenBalanceV2: return .unspecified
         case .mobileSocialLogin: return .unspecified
