@@ -69,7 +69,7 @@ final class PromoCampaignViewModel: ObservableObject, FloatingSheetContentViewMo
     }
 
     var selectedTokenNetworkName: String {
-        selectedToken?.tokenItem.networkName ?? ""
+        selectedToken.map { Localization.walletNetworkGroupTitle($0.tokenItem.networkName) } ?? ""
     }
 
     var selectedAccountViewData: SelectedAccountViewData? {
