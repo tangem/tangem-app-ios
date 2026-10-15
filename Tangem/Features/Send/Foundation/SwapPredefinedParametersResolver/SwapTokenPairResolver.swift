@@ -8,16 +8,9 @@
 
 import Foundation
 
-// MARK: - Result
-
-struct ResolvedSwapPair {
-    let source: (any WalletModel)?
-    let destination: (any WalletModel)?
-}
-
 // MARK: - Token Details Resolver
 
-final class TokenDetailsSwapPairResolver {
+final class TokenDetailsSwapSourceResolver {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
     private let swapAvailabilityChecker: SwapAvailabilityChecker
@@ -26,41 +19,27 @@ final class TokenDetailsSwapPairResolver {
         self.swapAvailabilityChecker = swapAvailabilityChecker
     }
 
-    func resolve(walletModel: any WalletModel) -> ResolvedSwapPair {
-        guard swapAvailabilityChecker.isSwapAvailable(walletModel: walletModel) else {
-            return ResolvedSwapPair(source: nil, destination: nil)
-        }
-
-        let isExchangeable = expressAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
-        let hasBalance = walletModel.fiatAvailableBalance > 0
-
-        if hasBalance {
-            return ResolvedSwapPair(source: walletModel, destination: nil)
-        }
-
-        let groups = groupAccountTokens(for: walletModel)
+    func resolveSource(for destination: any WalletModel) -> (any WalletModel)? {
+        let isExchangeable = expressAvailabilityProvider.canSwap(tokenItem: destination.tokenItem)
+        let groups = groupAccountTokens(for: destination)
 
         if isExchangeable {
             if let topExchangeable = groups.topExchangeable {
-                return ResolvedSwapPair(source: topExchangeable, destination: walletModel)
+                return topExchangeable
             }
 
             if groups.hasExchangeableEmpty {
-                return ResolvedSwapPair(source: nil, destination: walletModel)
+                return nil
             }
         }
 
-        if let topFunded = groups.mostFunded {
-            return ResolvedSwapPair(source: topFunded, destination: walletModel)
-        }
-
-        return ResolvedSwapPair(source: groups.firstInAccount, destination: walletModel)
+        return groups.mostFunded ?? groups.firstInAccount
     }
 }
 
 // MARK: - Private
 
-private extension TokenDetailsSwapPairResolver {
+private extension TokenDetailsSwapSourceResolver {
     func groupAccountTokens(for walletModel: any WalletModel) -> AccountTokenGroups {
         let allModels = walletModel.account?.walletModelsManager.walletModels ?? []
 

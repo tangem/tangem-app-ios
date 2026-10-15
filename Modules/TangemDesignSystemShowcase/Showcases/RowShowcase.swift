@@ -23,6 +23,7 @@ struct RowShowcase: View {
     @State private var isInteractive = true
     @State private var isEnabled = true
     @State private var overflow = false
+    @State private var shimmer: ShimmerKind?
 
     @State private var showTitle = true
     @State private var showSubtitle = true
@@ -67,6 +68,7 @@ struct RowShowcase: View {
                 controls.toggle("Interactive (onTap)", $isInteractive)
                 controls.toggle("Enabled", $isEnabled)
                 controls.toggle("Overflow text", $overflow)
+                controls.picker("Shimmer", $shimmer)
                 controls.readout("Taps", "\(tapCount)")
             }
 
@@ -104,17 +106,22 @@ struct RowShowcase: View {
             DSShowcaseGroup("Accessibility (VoiceOver)") {
                 controls.toggle("Override label", $overrideLabel)
                 controls.toggle("Custom hint", $customHint)
-                controls.note("Content element reads: \u{201C}\(contentElementReading)\u{201D}")
 
-                if showExtraBottom {
-                    controls.note("Extra bottom reads: \u{201C}\(Sample.extraBottom)\u{201D}")
+                if shimmer != nil {
+                    controls.note("Shimmer row is accessibility-hidden — VoiceOver skips it, slots included.")
+                } else {
+                    controls.note("Content element reads: \u{201C}\(contentElementReading)\u{201D}")
+
+                    if showExtraBottom {
+                        controls.note("Extra bottom reads: \u{201C}\(Sample.extraBottom)\u{201D}")
+                    }
+
+                    if showEndIcon {
+                        controls.note("end(icon:) is decorative — accessibility-hidden, no separate element.")
+                    }
+
+                    controls.note("Slots and accessories are opaque views — the reading is predicted from the samples; badge labels are read only if the badge isn't accessibility-hidden.")
                 }
-
-                if showEndIcon {
-                    controls.note("end(icon:) is decorative — accessibility-hidden, no separate element.")
-                }
-
-                controls.note("Slots and accessories are opaque views — the reading is predicted from the samples; badge labels are read only if the badge isn't accessibility-hidden.")
             }
         } stage: {
             livePreview
@@ -147,17 +154,27 @@ struct RowShowcase: View {
                         .disabled(state == .disabled)
                 }
             }
+
+            DSShowcaseGroup("Shimmer") {
+                DSShowcaseMatrix(rows: ShimmerKind.allCases) { kind in
+                    Row(kind.placeholder)
+                        .start(icon: Assets.chevronRight)
+                        .end(icon: Assets.chevronRight)
+                        .showDivider()
+                        .frame(width: 320)
+                }
+            }
         }
     }
 
     @ViewBuilder
     private var livePreview: some View {
-        let row = Row(
+        let row = (shimmer.map { Row($0.placeholder) } ?? Row(
             title: showTitle ? titleSample : nil,
             subtitle: showSubtitle ? subtitleSample : nil,
             value: showValue ? valueSample : nil,
             subvalue: showSubvalue ? subvalueSample : nil
-        )
+        ))
         .titleAccessory {
             if showTitleAccessory {
                 Badge(label: Sample.titleAccessory, accessibilityLabel: nil)
@@ -333,6 +350,18 @@ private extension RowShowcase {
         case enabled
         case focused
         case disabled
+    }
+
+    enum ShimmerKind: CaseIterable {
+        case title
+        case titleAndSubtitle
+
+        var placeholder: RowPlaceholder {
+            switch self {
+            case .title: .shimmer
+            case .titleAndSubtitle: .shimmer(subtitle: true)
+            }
+        }
     }
 }
 #endif

@@ -13,12 +13,13 @@ import TangemUIUtils
 
 struct FeedWidgetSkeletonView: View {
     @ScaledMetric private var accessorySide: CGFloat = Constants.accessorySide
+    @ScaledMetric private var tileSide: CGFloat = Constants.tileSide
 
     var body: some View {
         FeedProductCardLayout {
             HStack(alignment: .top, spacing: 0) {
                 Shimmer()
-                    .variant(.custom(width: Constants.tileSide, height: Constants.tileSide, cornerRadius: Constants.tileCornerRadius))
+                    .variant(.custom(width: tileSide, height: tileSide, cornerRadius: Constants.tileCornerRadius))
 
                 Spacer(minLength: 0)
 

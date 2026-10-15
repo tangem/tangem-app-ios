@@ -9,15 +9,9 @@
 import TangemFoundation
 
 protocol UserSettingsAccountsRoutable: AnyObject {
-    func addNewAccount(
-        accountModelsManager: any AccountModelsManager,
-        userWalletConfig: UserWalletConfig
-    )
+    func addNewAccount()
 
-    func openAddAccountTypeSelector(
-        accountModelsManager: any AccountModelsManager,
-        userWalletConfig: UserWalletConfig
-    )
+    func openAddAccountTypeSelector(userWalletConfig: UserWalletConfig)
 
     func openManageTokens(
         accountModelsManager: any AccountModelsManager,

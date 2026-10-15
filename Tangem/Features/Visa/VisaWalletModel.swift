@@ -110,10 +110,6 @@ extension VisaWalletModel: WalletModelBalancesProvider {
     func makeFiatTotalTokenBalanceProvider() -> TokenBalanceProvider {
         FiatTokenBalanceProvider(input: self, cryptoBalanceProvider: totalTokenBalanceProvider)
     }
-
-    func makeBSDKTokenBalanceProvider(tokenItem: TokenItem) -> any TokenBalanceProvider {
-        NotSupportedStakingTokenBalanceProvider()
-    }
 }
 
 extension VisaWalletModel: AvailableTokenBalanceProviderInput {
@@ -166,7 +162,6 @@ extension VisaWalletModel: WalletModelDependenciesProvider {
     var blockchainDataProvider: any BlockchainDataProvider { VisaDummyBlockchainDataProvider() }
     var withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? { nil }
     var assetRequirementsManager: (any AssetRequirementsManager)? { nil }
-    var addressResolver: (any AddressResolver)? { nil }
     var transactionFeeProvider: any TransactionFeeProvider { fatalError("VisaWalletModel does not support TransactionFeeProvider") }
     var transactionCreator: any TransactionCreator { transactionDependency }
     var transactionValidator: any TransactionValidator { transactionDependency }

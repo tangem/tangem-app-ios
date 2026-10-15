@@ -13,8 +13,6 @@ import TangemAssets
 struct TransactionDetailsView: View {
     @ObservedObject var viewModel: TransactionDetailsViewModel
 
-    private let blocksSpacing: CGFloat = 12
-
     var body: some View {
         ZStack(alignment: .top) {
             if let feedback = viewModel.presentedFeedback {

@@ -96,10 +96,6 @@ struct DataChunk: BitcoinScriptChunk {
         self.range = range
     }
 
-    var pushedData: Data {
-        return data
-    }
-
     private var data: Data {
         var loc = 1
         if opCode == OpCode.OP_PUSHDATA1 {

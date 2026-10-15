@@ -125,19 +125,10 @@ struct ManageTokensView: View {
     @ViewBuilder
     private var searchField: some View {
         if isRedesign {
-            TangemSearchField(
-                text: $viewModel.searchText,
-                clearAction: { viewModel.searchText = "" },
-                cancelAction: {
-                    viewModel.searchText = ""
-                    UIApplication.shared.endEditing()
-                }
-            )
-            .placeholder(text: Localization.commonSearch)
-            .cornerStyle(.capsule)
-            .configure(disablesAutocorrection: true)
-            .textFieldAccessibilityIdentifier(ManageTokensAccessibilityIdentifiers.searchField)
-            .frame(height: Constants.redesignSearchFieldHeight)
+            Search(text: $viewModel.searchText)
+                .placeholder(Localization.commonSearch)
+                .textFieldAccessibilityIdentifier(ManageTokensAccessibilityIdentifiers.searchField)
+                .autocorrectionDisabled()
         } else {
             CustomSearchBar(
                 searchText: $viewModel.searchText,
@@ -243,7 +234,6 @@ private extension ManageTokensView {
     enum Constants {
         static let cardCornerRadius: CGFloat = 14
         static let redesignCardCornerRadius: CGFloat = 24
-        static let redesignSearchFieldHeight: CGFloat = 44
     }
 }
 

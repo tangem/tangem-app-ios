@@ -39,9 +39,33 @@ struct PolymarketPositionsBlockViewModelTests {
         let service = PositionsBlockServiceStub(active: [Self.page(["a"])], finished: [.success(false)])
         let context = Self.makeSUT(service: service, hadPositions: true)
 
-        #expect(context.sut.content == .skeleton)
+        #expect({ if case .skeleton = context.sut.content { true } else { false } }())
 
         try await settle { Self.rowIDs(context.sut.content) == ["a/1"] }
+    }
+
+    @Test("A wallet that had positions but never showed any sees a single skeleton row")
+    func skeletonDefaultsToOneRow() {
+        let service = PositionsBlockServiceStub(active: [Self.page(["a"])], finished: [.success(false)])
+        let context = Self.makeSUT(service: service, hadPositions: true)
+
+        #expect(context.sut.content == .skeleton(rowCount: 1))
+    }
+
+    @Test("The skeleton has as many rows as the block showed last time")
+    func skeletonRemembersTheShownCount() async throws {
+        let presenceStore = PolymarketAccountPresenceStoreStub(positions: true)
+        let firstService = PositionsBlockServiceStub(active: [Self.page(["a", "b"])], finished: [.success(false)])
+        let first = Self.makeSUT(service: firstService, presenceStore: presenceStore)
+
+        try await settle { Self.rowIDs(first.sut.content) == ["a/1", "b/1"] }
+
+        #expect(presenceStore.shownPositionsCount(userWalletId: Self.userWalletId) == 2)
+
+        let secondService = PositionsBlockServiceStub(active: [Self.page(["a"])], finished: [.success(false)])
+        let second = Self.makeSUT(service: secondService, presenceStore: presenceStore)
+
+        #expect(second.sut.content == .skeleton(rowCount: 2))
     }
 
     @Test("The block shows three positions and offers the rest when there are more")
@@ -80,7 +104,7 @@ struct PolymarketPositionsBlockViewModelTests {
 
         context.sut.handleViewAction(.retry)
 
-        #expect(context.sut.content == .skeleton)
+        #expect({ if case .skeleton = context.sut.content { true } else { false } }())
         try await settle { Self.rowIDs(context.sut.content) == ["a/1"] }
     }
 
@@ -366,8 +390,12 @@ private extension PolymarketPositionsBlockViewModelTests {
 
     static let userWalletId = UserWalletId(value: Data([0x01, 0x02, 0x03]))
 
-    static func makeSUT(service: PositionsBlockServiceStub, hadPositions: Bool = false) -> Context {
-        let presenceStore = PolymarketAccountPresenceStoreStub(positions: hadPositions)
+    static func makeSUT(
+        service: PositionsBlockServiceStub,
+        hadPositions: Bool = false,
+        presenceStore: PolymarketAccountPresenceStoreStub? = nil
+    ) -> Context {
+        let presenceStore = presenceStore ?? PolymarketAccountPresenceStoreStub(positions: hadPositions)
         let refreshCenter = PolymarketMainRefreshCenter()
         let activityHandler = PolymarketMainActivityHandler(
             fundsArrivalTracker: PolymarketFundsArrivalTracker(balancePublisher: Empty().eraseToAnyPublisher()),

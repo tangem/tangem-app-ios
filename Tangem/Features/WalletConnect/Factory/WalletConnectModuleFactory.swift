@@ -31,8 +31,6 @@ enum WalletConnectModuleFactory {
     private static let openSystemSettingsAction = UIApplication.openSystemSettings
     private static let cameraAccessProvider = AVWalletConnectCameraAccessProvider()
 
-    private static let supportURLStub = "com.tangem.walletconnect.support"
-
     private static let disconnectDAppService = ReownWalletConnectDisconnectDAppService(walletConnectService: Self.walletConnectService)
 
     private static let dAppDataService = ReownWalletConnectDAppDataService(

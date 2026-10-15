@@ -172,8 +172,11 @@ private extension PolymarketPositionsBlockViewModel {
             // swap one state for another in front of the user.
             hadPositionsBefore = presenceStore.hadPositions(userWalletId: userWalletId)
             isRetrying = isRetrying || userInitiated
-            state = .loading
-            updateContent()
+
+            withAnimation(.polymarketStateChange) {
+                state = .loading
+                updateContent()
+            }
         }
 
         loadTask = runTask(in: self) { @MainActor viewModel in
@@ -189,11 +192,13 @@ private extension PolymarketPositionsBlockViewModel {
 
                 viewModel.isRetrying = false
 
-                if viewModel.state != .loaded {
-                    viewModel.state = .failed
-                }
+                withAnimation(.polymarketStateChange) {
+                    if viewModel.state != .loaded {
+                        viewModel.state = .failed
+                    }
 
-                viewModel.updateContent()
+                    viewModel.updateContent()
+                }
             }
         }
     }
@@ -209,8 +214,10 @@ private extension PolymarketPositionsBlockViewModel {
         isRetrying = false
 
         if snapshot.hasFinishedPositions == nil, openPositions.isEmpty, !hasFinishedPositions {
-            state = .failed
-            updateContent()
+            withAnimation(.polymarketStateChange) {
+                state = .failed
+                updateContent()
+            }
             return
         }
 
@@ -219,7 +226,7 @@ private extension PolymarketPositionsBlockViewModel {
             hadPositionsBefore = true
         }
 
-        withAnimation(.easeInOut(duration: Constants.listAnimationDuration)) {
+        withAnimation(.polymarketStateChange) {
             state = .loaded
             updateContent()
         }
@@ -266,15 +273,26 @@ private extension PolymarketPositionsBlockViewModel {
 // MARK: - Content
 
 private extension PolymarketPositionsBlockViewModel {
+    var skeletonRowCount: Int {
+        presenceStore.shownPositionsCount(userWalletId: userWalletId) ?? Constants.defaultSkeletonRowCount
+    }
+
+    func rememberShownCount(_ count: Int) {
+        guard presenceStore.shownPositionsCount(userWalletId: userWalletId) != count else { return }
+
+        presenceStore.setShownPositionsCount(count, for: userWalletId)
+    }
+
     func updateContent() {
         switch state {
         case .loading where hadPositionsBefore || isRetrying:
-            content = .skeleton
+            content = .skeleton(rowCount: skeletonRowCount)
         case .loading:
             content = .hidden
         case .failed:
             content = .failed
         case .loaded where openPositions.isNotEmpty:
+            rememberShownCount(openPositions.count)
             content = .positions(openPositions.map(PolymarketPositionRow.Model.make(position:)), showsViewAll: hasMorePositions)
         case .loaded where hadPositionsBefore:
             content = .noActivePositions(showsViewAll: hasMorePositions)
@@ -289,7 +307,7 @@ private extension PolymarketPositionsBlockViewModel {
 extension PolymarketPositionsBlockViewModel {
     enum Content: Equatable {
         case hidden
-        case skeleton
+        case skeleton(rowCount: Int)
         case failed
         case positions([PolymarketPositionRow.Model], showsViewAll: Bool)
         case noActivePositions(showsViewAll: Bool)
@@ -305,7 +323,7 @@ private extension PolymarketPositionsBlockViewModel {
 
     enum Constants {
         static let positionsShown = 3
+        static let defaultSkeletonRowCount = 1
         static let pollingInterval: TimeInterval = 20
-        static let listAnimationDuration: TimeInterval = 0.25
     }
 }

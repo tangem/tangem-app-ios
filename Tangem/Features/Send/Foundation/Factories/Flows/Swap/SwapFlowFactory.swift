@@ -9,21 +9,14 @@
 import struct TangemUI.TokenIconInfo
 
 class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
-    let sourceToken: SendSwapableToken?
-    let receiveToken: SendReceiveToken?
-
-    let initialTokenItem: TokenItem
     let expressDependenciesFactory: ExpressDependenciesFactory
-    private let sourceTokenResolver: (any SwapSourceTokenResolver)?
-    private let configuration: SwapFlowConfiguration
-    private let extras: PredefinedSwapParameters.Extras?
 
-    var tokenItem: TokenItem { initialTokenItem }
+    private let parameters: PredefinedSwapParameters
+    private var configuration: SwapFlowConfiguration { parameters.configuration }
 
     lazy var analyticsLogger: SendAnalyticsLogger = makeSwapAnalyticsLogger()
     lazy var swapModel = makeSwapModel(
-        sourceToken: sourceToken,
-        receiveToken: receiveToken,
+        parameters: parameters,
         analyticsLogger: analyticsLogger,
         autoupdatingTimer: autoupdatingTimer,
         pairUpdateHandler: RegularSwapPairUpdateHandler(
@@ -31,49 +24,18 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
             swapRepository: expressDependenciesFactory.swapRepository,
             analyticsLogger: analyticsLogger
         ),
-        shouldStartInitialLoading: true,
-        sourceTokenResolver: sourceTokenResolver,
-        destinationTokenResolver: configuration.receiveTokenSelection.destinationResolver,
-        onTransactionSent: configuration.onTransactionSent
+        shouldStartInitialLoading: true
     )
     lazy var notificationManager = makeSwapNotificationManager()
     lazy var marketingBannerManager = makeSwapMarketingBannerManager()
     lazy var autoupdatingTimer = AutoupdatingTimer()
 
-    init(
-        sourceToken: SendSwapableToken,
-        receiveToken: SendReceiveToken?,
-        extras: PredefinedSwapParameters.Extras? = nil,
-        sourceTokenResolver: (any SwapSourceTokenResolver)? = nil,
-        configuration: SwapFlowConfiguration = .default
-    ) {
-        self.sourceToken = sourceToken
-        self.receiveToken = receiveToken
-        self.extras = extras
-        self.sourceTokenResolver = sourceTokenResolver
-        self.configuration = configuration
-        initialTokenItem = sourceToken.tokenItem
+    init(parameters: PredefinedSwapParameters) {
+        self.parameters = parameters
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(
-            userWalletInfo: sourceToken.userWalletInfo,
-            preferredProviderId: extras?.providerId
-        )
-    }
-
-    init(
-        receiveToken: SendSwapableToken,
-        sourceTokenResolver: (any SwapSourceTokenResolver)? = nil,
-        configuration: SwapFlowConfiguration = .default
-    ) {
-        sourceToken = nil
-        self.receiveToken = receiveToken
-        self.sourceTokenResolver = sourceTokenResolver
-        self.configuration = configuration
-        extras = nil
-        initialTokenItem = receiveToken.tokenItem
-
-        expressDependenciesFactory = CommonExpressDependenciesFactory(
-            userWalletInfo: receiveToken.userWalletInfo
+            userWalletInfo: parameters.userWalletInfo,
+            preferredProviderId: parameters.extras?.providerId
         )
     }
 }
@@ -158,7 +120,7 @@ extension SwapFlowFactory: SendGenericFlowFactory {
 
         // A deeplink can carry a FROM amount to prefill — push it into the amount field via the same
         // path a user's keystroke uses, so validation and the "insufficient funds" state kick in normally.
-        if let sourceAmount = extras?.sourceAmount {
+        if let sourceAmount = parameters.extras?.sourceAmount {
             amount.amountUpdater.externalUpdate(cryptoAmount: sourceAmount)
         }
 
@@ -180,7 +142,7 @@ extension SwapFlowFactory: SendGenericFlowFactory {
 
 extension SwapFlowFactory: SendBaseBuildable {
     var baseIO: SendViewModelBuilder.IO {
-        SendViewModelBuilder.IO(input: swapModel, output: swapModel)
+        SendViewModelBuilder.IO(input: swapModel, output: swapModel, sourceTokenInput: swapModel)
     }
 
     var baseDependencies: SendViewModelBuilder.Dependencies {
@@ -195,16 +157,12 @@ extension SwapFlowFactory: SendBaseBuildable {
             approveViewModelInputDataBuilder: CommonApproveViewModelInputDataBuilder(
                 dataProvider: swapModel,
                 analyticsLogger: analyticsLogger,
-                output: swapModel,
-                confirmTransactionPolicy: SwapConfirmTransactionPolicy(sourceTokenInput: swapModel)
+                output: swapModel
             ),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
                 sourceTokenInput: swapModel
             ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(
-                tokenItem: initialTokenItem
-            ),
             mainButtonUIOptionsProvider: CommonSendMainButtonUIOptionsProvider(sourceTokenInput: swapModel)
         )
     }
@@ -226,8 +184,8 @@ extension SwapFlowFactory: SwapAmountStepBuildable {
 
     var amountTypes: SwapAmountStepBuilder.Types {
         .init(
-            initialTokenItem: initialTokenItem,
-            isPairReversalEnabled: configuration.isPairReversalEnabled,
+            isPairReversalEnabled: configuration.isPairReversalAvailable,
+            isSourceTokenSelectionEnabled: configuration.sourceTokenSelection.isSelectionEnabled,
             isReceiveTokenSelectionEnabled: configuration.receiveTokenSelection.isSelectionEnabled
         )
     }
@@ -261,8 +219,7 @@ extension SwapFlowFactory: SwapSummaryStepBuildable {
             notificationManager: notificationManager,
             marketingBannerManager: marketingBannerManager,
             autoupdatingTimer: autoupdatingTimer,
-            analyticsLogger: analyticsLogger,
-            swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder()
+            analyticsLogger: analyticsLogger
         )
     }
 }
@@ -294,10 +251,6 @@ extension SwapFlowFactory: SendSwapProvidersBuildable {
         )
     }
 
-    var swapProvidersTypes: SendSwapProvidersBuilder.Types {
-        SendSwapProvidersBuilder.Types(tokenItem: initialTokenItem)
-    }
-
     var swapProvidersDependencies: SendSwapProvidersBuilder.Dependencies {
         SendSwapProvidersBuilder.Dependencies(
             analyticsLogger: analyticsLogger,
@@ -312,10 +265,6 @@ extension SwapFlowFactory: SendSwapProvidersBuildable {
 extension SwapFlowFactory: SendFinishStepBuildable {
     var finishIO: SendFinishStepBuilder.IO {
         SendFinishStepBuilder.IO(input: swapModel)
-    }
-
-    var finishTypes: SendFinishStepBuilder.Types {
-        SendFinishStepBuilder.Types(tokenItem: initialTokenItem)
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {

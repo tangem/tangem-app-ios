@@ -79,21 +79,22 @@ private extension RealAssetsFeaturedTileView {
 
 struct RealAssetsFeaturedTileSkeletonView: View {
     @ScaledMetric private var tileWidth: CGFloat = RealAssetsFeaturedTileLayout.width
+    @ScaledMetric private var scaleFactor: CGFloat = 1
 
     var body: some View {
         VStack(alignment: .leading, spacing: .zero) {
             Shimmer()
-                .variant(.custom(width: 40, height: 40))
+                .variant(.custom(width: 40 * scaleFactor, height: 40 * scaleFactor))
 
             FixedSpacer(height: RealAssetsFeaturedTileLayout.iconBottomSpacing)
 
             Shimmer()
-                .variant(.custom(width: 95, height: 20))
+                .variant(.custom(width: 95 * scaleFactor, height: 20 * scaleFactor))
 
             FixedSpacer(height: RealAssetsFeaturedTileLayout.lineSpacing)
 
             Shimmer()
-                .variant(.custom(width: 110, height: 16))
+                .variant(.custom(width: 110 * scaleFactor, height: 16 * scaleFactor))
         }
         .frame(width: tileWidth, alignment: .topLeading)
         .padding(RealAssetsFeaturedTileLayout.padding)

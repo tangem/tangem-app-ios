@@ -29,7 +29,7 @@ enum SendType {
     case onramp(SendSourceToken, parameters: PredefinedOnrampParameters = .none)
 }
 
-// MARK: - Parameters
+// MARK: - PredefinedSendParameters
 
 struct PredefinedSendParameters {
     let destination: String
@@ -58,7 +58,9 @@ extension PredefinedSendParameters {
     }
 }
 
-/// Mirrors the two `SwapFlowFactory` inits: the source side is fixed, or the receive side is.
+// MARK: - PredefinedSwapParameters
+
+/// The swap flow opens either from a known source token or into a known receive token.
 /// `configuration` locks the pair and overrides the title for account funding flows.
 enum PredefinedSwapParameters {
     case from(
@@ -98,9 +100,41 @@ enum PredefinedSwapParameters {
 extension PredefinedSwapParameters {
     /// The wallet the swap opens for.
     var userWalletId: UserWalletId {
+        userWalletInfo.id
+    }
+
+    var userWalletInfo: UserWalletInfo {
         switch self {
-        case .from(let source, _, _, _): source.userWalletInfo.id
-        case .to(let receive, _, _): receive.userWalletInfo.id
+        case .from(let source, _, _, _): source.userWalletInfo
+        case .to(let receive, _, _): receive.userWalletInfo
+        }
+    }
+
+    var sourceToken: SendSwapableToken? {
+        switch self {
+        case .from(let source, _, _, _): source
+        case .to: nil
+        }
+    }
+
+    var receiveToken: SendReceiveToken? {
+        switch self {
+        case .from(_, let pair, _, _): pair.receiveToken
+        case .to(let receive, _, _): receive
+        }
+    }
+
+    var extras: Extras? {
+        switch self {
+        case .from(_, _, let extras, _): extras
+        case .to: nil
+        }
+    }
+
+    var configuration: SwapFlowConfiguration {
+        switch self {
+        case .from(_, _, _, let configuration): configuration
+        case .to(_, _, let configuration): configuration
         }
     }
 }
@@ -126,13 +160,18 @@ extension PredefinedSwapParameters.PairResolution {
     }
 }
 
-/// Swap direction for a token-details entry point. `automatic` defers to the balance-based pair
-/// resolver; `from`/`to` force the current token as source/destination respectively.
+/// Which side of the swap a token-details entry point puts the current token on: `from` makes it the
+/// source, `to` the destination.
 enum SwapDirection {
-    case automatic
     case from
     case to
+
+    static func build(for walletModel: any WalletModel) -> SwapDirection {
+        walletModel.fiatAvailableBalance > 0 ? .from : .to
+    }
 }
+
+// MARK: - PredefinedSellParameters
 
 struct PredefinedSellParameters {
     let amount: Decimal
@@ -140,10 +179,14 @@ struct PredefinedSellParameters {
     let tag: String?
 }
 
+// MARK: - PredefinedNFTParameters
+
 struct PredefinedNFTParameters {
     let asset: NFTAsset
     let collection: NFTCollection
 }
+
+// MARK: - PredefinedOnrampParameters
 
 struct PredefinedOnrampParameters: Hashable {
     static let none = PredefinedOnrampParameters(amount: .none, preferredValues: .none)

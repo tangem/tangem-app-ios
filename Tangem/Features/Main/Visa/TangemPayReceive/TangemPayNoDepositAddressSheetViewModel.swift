@@ -31,15 +31,6 @@ final class TangemPayNoDepositAddressSheetViewModel: FloatingSheetContentViewMod
     func close() {
         coordinator?.closeNoDepositAddressSheet()
     }
-
-    var primaryButtonSettings: MainButton.Settings {
-        MainButton.Settings(
-            title: Localization.commonGotIt,
-            style: .secondary,
-            size: .default,
-            action: close
-        )
-    }
 }
 
 @MainActor

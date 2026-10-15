@@ -32,10 +32,6 @@ protocol PolymarketPositionsService {
     func awaitPosition(conditionId: String, assetId: String, changedFrom shares: Decimal?) async throws -> PolymarketPosition?
 }
 
-enum PolymarketPositionsError: Error {
-    case ownerAddressUnavailable
-}
-
 // MARK: - What still counts as an open position
 
 extension PolymarketPosition {
@@ -102,7 +98,7 @@ extension CommonPolymarketPositionsService: PolymarketPositionsService {
     ) async throws -> PolymarketPositionsPage {
         try await apiProvider.positions(
             request: PolymarketPositionsRequest(
-                depositWalletAddress: depositWalletAddress(),
+                depositWalletAddress: ownerAddressProvider.depositWalletAddress(),
                 sort: sort,
                 ascending: ascending,
                 limit: limit,
@@ -119,7 +115,7 @@ extension CommonPolymarketPositionsService: PolymarketPositionsService {
     ) async throws -> PolymarketClosedPositionsPage {
         try await apiProvider.closedPositions(
             request: PolymarketClosedPositionsRequest(
-                depositWalletAddress: depositWalletAddress(),
+                depositWalletAddress: ownerAddressProvider.depositWalletAddress(),
                 sort: sort,
                 ascending: ascending,
                 limit: limit,
@@ -166,18 +162,10 @@ private extension CommonPolymarketPositionsService {
 
     func outcomeRequest(conditionId: String, assetId: String) throws -> PolymarketPositionOutcomeRequest {
         try PolymarketPositionOutcomeRequest(
-            depositWalletAddress: depositWalletAddress(),
+            depositWalletAddress: ownerAddressProvider.depositWalletAddress(),
             conditionId: conditionId,
             assetId: assetId
         )
-    }
-
-    func depositWalletAddress() throws -> String {
-        guard let ownerAddress = ownerAddressProvider.getOwnerAddress() else {
-            throw PolymarketPositionsError.ownerAddressUnavailable
-        }
-
-        return try PolymarketDepositWalletDeriver.derive(ownerAddress: ownerAddress)
     }
 
     func endsSooner(_ lhs: PolymarketPosition, _ rhs: PolymarketPosition) -> Bool {

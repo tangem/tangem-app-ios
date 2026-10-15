@@ -199,7 +199,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
                 option: .init(walletModel: walletModel)
             )
         case .swap:
-            openExchange()
+            openExchange(position: .build(for: walletModel))
         case .openCloreMigration:
             openCloreMigration()
         case .openDynamicAddressesEnter:
@@ -344,6 +344,7 @@ extension TokenDetailsViewModel {
             let analyticsLogger = CommonDynamicAddressesAnalyticsLogger(tokenItem: walletModel.tokenItem)
             coordinator?.openDynamicAddressesEnterView(
                 walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
+                signingActionButtonType: SigningActionButtonViewTypeBuilder().build(userWalletInfo: userWalletInfo),
                 analyticsLogger: analyticsLogger
             )
         }

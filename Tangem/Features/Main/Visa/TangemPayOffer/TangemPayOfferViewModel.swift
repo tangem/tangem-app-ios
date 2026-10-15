@@ -169,8 +169,4 @@ private extension TangemPayOfferViewModel {
                 : Localization.commonServerUnavailable
         )
     }
-
-    enum TangemPayOfferError: Error {
-        case unableToCreateWalletPublicKey
-    }
 }

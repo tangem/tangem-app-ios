@@ -137,7 +137,6 @@ struct CustomTextField: UIViewRepresentable {
     var textColor: UIColor = .tangemGrayDark4
     var font: UIFont = .systemFont(ofSize: 16.0)
     let placeholder: String
-    let toolbarItems: [UIBarButtonItem]? = nil
     var decimalCount: Int?
     var isEnabled = true
     var maxCount: Int?

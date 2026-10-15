@@ -44,20 +44,6 @@ extension ALPH {
         }
     }
 
-    struct AssetDescendingOrder: AssetOrder {
-        let ascending = AssetAscendingOrder()
-
-        func byAlph(_ x: AssetOutputInfo, _ y: AssetOutputInfo) -> Bool {
-            return !ascending.byAlph(x, y)
-        }
-
-        func byToken(id: TokenId) -> (AssetOutputInfo, AssetOutputInfo) -> Bool {
-            return { x, y in
-                !ascending.byToken(id: id)(x, y)
-            }
-        }
-    }
-
     // MARK: - Selection Models
 
     struct Selected {
@@ -84,15 +70,6 @@ extension ALPH {
     struct AssetAmounts {
         let alph: U256
         let tokens: [(TokenId, U256)]
-    }
-
-    struct TxInputWithAsset {
-        let input: TxInputInfo
-        let asset: AssetOutputInfo
-
-        static func from(asset: AssetOutputInfo, unlockScript: UnlockScript) -> TxInputWithAsset {
-            return TxInputWithAsset(input: TxInputInfo(outputRef: asset.ref, unlockScript: unlockScript), asset: asset)
-        }
     }
 
     // MARK: - Build Models

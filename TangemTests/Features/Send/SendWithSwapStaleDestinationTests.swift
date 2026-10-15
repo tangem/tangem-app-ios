@@ -166,8 +166,7 @@ private extension SendWithSwapStaleDestinationTests {
 
         private func makeSwapModel(sourceToken: SendSwapableToken) -> SwapModel {
             SwapModel(
-                sourceToken: sourceToken,
-                receiveToken: nil,
+                parameters: .from(sourceToken),
                 expressManager: expressManager,
                 swapRepository: SwapRepositoryStub(),
                 expressPendingTransactionRepository: ExpressPendingTransactionRepositoryStub(),
@@ -308,7 +307,7 @@ private struct AlwaysAvailableSwapAvailabilityProviderStub: SwapAvailabilityProv
 }
 
 private struct NoSendingRestrictionsProviderStub: SendingRestrictionsProvider {
-    var sendingRestrictions: SendingRestrictions? { nil }
+    var sendingRestrictionsPublisher: AnyPublisher<SendingRestrictions?, Never> { .just(output: nil) }
 }
 
 private struct NoReceivingRestrictionsProviderStub: ReceivingRestrictionsProvider {

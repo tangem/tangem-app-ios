@@ -132,14 +132,6 @@ class EthereumNetworkService: MultiNetworkProvider {
         }
     }
 
-    func getPriorityFee() -> AnyPublisher<BigUInt, Error> {
-        providerPublisher {
-            $0.getPriorityFee()
-                .tryMap { try EthereumMapper.mapBigUInt($0) }
-                .eraseToAnyPublisher()
-        }
-    }
-
     func getGasPrice() -> AnyPublisher<BigUInt, Error> {
         providerPublisher {
             $0.getGasPrice()

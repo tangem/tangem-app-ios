@@ -73,9 +73,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.appTheme, store: .standard)
     var appTheme: ThemeOption = .system
 
-    @AppStorageCompat(StorageType.userDidSwipeWalletsOnMainScreen)
-    var userDidSwipeWalletsOnMainScreen: Bool = false
-
     @AppStorageCompat(StorageType.userDidTapSendScreenSummary)
     var userDidTapSendScreenSummary: Bool = false
 
@@ -126,6 +123,9 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.polymarketHadPositions)
     var polymarketHadPositions: [String: Bool] = [:]
+
+    @AppStorageCompat(StorageType.polymarketShownPositionsCount)
+    var polymarketShownPositionsCount: [String: Int] = [:]
     @AppStorageCompat(StorageType.collectiblesHasAccount)
     var collectiblesHasAccount: [String: Bool] = [:]
 

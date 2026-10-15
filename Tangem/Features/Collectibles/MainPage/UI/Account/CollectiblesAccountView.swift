@@ -56,7 +56,7 @@ private extension CollectiblesAccountView {
 
             Text(summary.cryptoBalanceText)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                .shimmer()
+                .shimmering()
                 .padding(.top, Metrics.cryptoBalanceTopPadding)
                 .readGeometry(\.frame.maxY, inCoordinateSpace: balanceCoordinateSpace, onChange: onBalanceMaxYChange)
 

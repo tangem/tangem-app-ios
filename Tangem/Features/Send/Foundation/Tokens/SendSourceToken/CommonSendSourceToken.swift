@@ -29,9 +29,9 @@ struct CommonSendSourceToken: SendSourceToken {
     }
 
     let transactionDispatcherProvider: any TransactionDispatcherProvider
+    let transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider
+    let blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper
     let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
-    let tangemIconProvider: any TangemIconProvider
-    let confirmTransactionPolicy: any ConfirmTransactionPolicy
     let isTangemPayAccount: Bool
     let jointAccountPolicy: JointAccountPolicy?
 

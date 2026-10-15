@@ -33,12 +33,12 @@ struct CollapsedAccountItemHeaderView: View {
     @ScaledMetric private var pendingIndicatorGlyphSize: CGFloat = 10
     @ScaledMetric private var pendingIndicatorBorderWidth: CGFloat = 2
     @ScaledMetric private var pendingIndicatorOffset: CGFloat = 4
+    @ScaledMetric private var scaleFactor: CGFloat = 1
 
     private var balanceLoaderStyle: LoadableBalanceView.LoaderStyle {
         LoadableBalanceView.LoaderStyle(
-            size: CGSize(width: 72, height: 16),
-            cornerRadiusStyle: .capsule,
-            appearance: .tangemShimmer
+            size: CGSize(width: 72, height: 16) * scaleFactor,
+            cornerRadiusStyle: .capsule
         )
     }
 
@@ -105,7 +105,8 @@ struct CollapsedAccountItemHeaderView: View {
                         state: priceChange,
                         showSkeletonWhenLoading: true,
                         showIconForNeutral: false,
-                        shimmerAppearance: .tangemShimmer
+                        isCapsuleSkeleton: true,
+                        skeletonSize: CGSize(width: 40, height: 12) * scaleFactor
                     )
                 }
             }

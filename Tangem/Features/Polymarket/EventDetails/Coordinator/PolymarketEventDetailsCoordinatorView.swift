@@ -16,6 +16,7 @@ struct PolymarketEventDetailsCoordinatorView: CoordinatorView {
     var body: some View {
         content
             .navigationLinks(links)
+            .polymarketOrderSheet(presenter: coordinator.orderPresenter, host: coordinator)
     }
 
     @ViewBuilder
@@ -29,8 +30,6 @@ struct PolymarketEventDetailsCoordinatorView: CoordinatorView {
         NavHolder()
             .navigation(item: $coordinator.destination) { destination in
                 switch destination {
-                case .order(let coordinator):
-                    PolymarketOrderCoordinatorView(coordinator: coordinator)
                 case .positionDetails(let coordinator):
                     PolymarketPositionDetailsCoordinatorView(coordinator: coordinator)
                 }

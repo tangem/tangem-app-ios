@@ -85,19 +85,6 @@ extension OnrampFlowBaseDependenciesFactory {
         )
     }
 
-    func makeOnrampBaseDataBuilder(
-        onrampRepository: OnrampRepository,
-        onrampDataRepository: OnrampDataRepository,
-        onrampRedirectingBuilder: OnrampRedirectingBuilder
-    ) -> OnrampRouterDataBuilder {
-        CommonOnrampBaseDataBuilder(
-            config: userWalletInfo.config,
-            onrampRepository: onrampRepository,
-            onrampDataRepository: onrampDataRepository,
-            onrampRedirectingBuilder: onrampRedirectingBuilder
-        )
-    }
-
     func makeSendAlertBuilder() -> SendAlertBuilder {
         CommonSendAlertBuilder()
     }

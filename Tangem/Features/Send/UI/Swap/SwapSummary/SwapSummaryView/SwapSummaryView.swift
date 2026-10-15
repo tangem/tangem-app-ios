@@ -161,32 +161,11 @@ struct SwapSummaryView: View {
         .disableAnimations() // To force `.animation(nil)` behavior
     }
 
-    @ViewBuilder
     private var mainButton: some View {
-        if viewModel.mainButtonIsUpdating {
-            mainActionButton(isLoading: true)
-        } else if viewModel.mainButtonNeedsHold {
-            mainHoldActionButton
-        } else {
-            mainActionButton(isLoading: viewModel.mainButtonIsLoading)
-        }
-    }
-
-    private func mainActionButton(isLoading: Bool) -> some View {
-        MainButton(
+        SigningActionButtonView(
+            type: viewModel.mainButtonSigningActionButtonType,
             title: viewModel.mainButtonState.title,
-            icon: viewModel.mainButtonIcon,
-            isLoading: isLoading,
-            isDisabled: !viewModel.mainButtonIsEnabled,
-            action: viewModel.userDidTapMainActionButton
-        )
-        .accessibilityIdentifier(SwapAccessibilityIdentifiers.confirmButton)
-    }
-
-    private var mainHoldActionButton: some View {
-        HoldToConfirmButton(
-            title: viewModel.mainButtonState.title,
-            isLoading: viewModel.mainButtonIsLoading,
+            isLoading: viewModel.mainButtonIsUpdating || viewModel.mainButtonIsLoading,
             isDisabled: !viewModel.mainButtonIsEnabled,
             action: viewModel.userDidTapMainActionButton
         )

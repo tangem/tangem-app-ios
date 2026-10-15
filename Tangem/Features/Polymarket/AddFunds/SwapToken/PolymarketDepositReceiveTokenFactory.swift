@@ -28,15 +28,15 @@ struct PolymarketDepositReceiveTokenFactory {
             isCustom: false,
             defaultAddressString: depositTarget.fundingAddress,
             availableBalanceProvider: balanceProvider,
-            fiatAvailableBalanceProvider: accountModel.fiatAvailableBalanceProvider,
+            fiatAvailableBalanceProvider: PolymarketUSDBalanceProvider(collateralBalanceProvider: balanceProvider),
             allowanceService: nil,
             withdrawalNotificationProvider: nil,
             scaledUIAmountMultiplierResolver: nil,
             emailDataCollectorBuilder: PolymarketAccountEmailDataCollectorBuilder(),
             transactionDispatcherProvider: PolymarketDepositTransactionDispatcherProvider(),
+            transactionSummaryDescriptionBuilderProvider: DefaultTransactionSummaryDescriptionBuilderProvider(tokenItem: tokenItem),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             accountModelAnalyticsProvider: nil,
-            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config),
-            confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
             isTangemPayAccount: false,
             jointAccountPolicy: nil,
             tokenItem: tokenItem,
@@ -74,7 +74,7 @@ struct PolymarketDepositReceiveTokenFactory {
             providerTransactionValidator: PolymarketAccountExpressProviderTransactionValidator(),
             operationType: .swap,
             supportedProvidersFilter: .swap,
-            presentation: makePresentation(tokenItem: tokenItem)
+            presentation: makePresentation()
         )
     }
 }
@@ -82,11 +82,10 @@ struct PolymarketDepositReceiveTokenFactory {
 // MARK: - Private implementation
 
 private extension PolymarketDepositReceiveTokenFactory {
-    func makePresentation(tokenItem: TokenItem) -> SendReceiveTokenPresentation {
+    func makePresentation() -> SendReceiveTokenPresentation {
         SendReceiveTokenPresentation(
-            currencySymbol: tokenItem.currencySymbol,
-            icon: Assets.Polymarket.accountAvatar,
-            balanceDenomination: .token
+            currencySymbol: AppConstants.usdCurrencyCode,
+            icon: Assets.Polymarket.accountAvatar
         )
     }
 

@@ -40,13 +40,6 @@ class TezosNetworkService: MultiNetworkProvider {
         }
     }
 
-    func checkPublicKeyRevealed(address: String) -> AnyPublisher<Bool, Error> {
-        providerPublisher {
-            $0.checkPublicKeyRevealed(address: address)
-                .eraseToAnyPublisher()
-        }
-    }
-
     func getHeader() -> AnyPublisher<TezosHeader, Error> {
         providerPublisher {
             $0.getHeader()

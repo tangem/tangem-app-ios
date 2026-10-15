@@ -7,9 +7,9 @@
 //
 
 import SwiftUI
-import TangemAssets
 import TangemLocalization
 import TangemPay
+import TangemUI
 
 enum TransferConfirmationFactory {
     @MainActor
@@ -18,7 +18,7 @@ enum TransferConfirmationFactory {
         sendUseCase: TangemPayOffRampSendUseCase,
         optionsStore: TangemPayOfframpOptionsStore,
         savedRecipient: TangemPayBankAccountResponse?,
-        hasNFCInteraction: Bool,
+        signingActionButtonType: SigningActionButtonViewType,
         analyticsLogger: any TangemPayOfframpAnalyticsLogger,
         output: @escaping (TransferConfirmationViewModel.Output) -> Void
     ) -> some View {
@@ -29,7 +29,7 @@ enum TransferConfirmationFactory {
                 options: optionsStore.state.options ?? .empty,
                 savedRecipient: savedRecipient,
                 title: Localization.tangempayWithdrawBankConfirmTitle,
-                sendButtonIcon: hasNFCInteraction ? Assets.tangemIcon : nil,
+                signingActionButtonType: signingActionButtonType,
                 analyticsLogger: analyticsLogger,
                 output: output
             )
