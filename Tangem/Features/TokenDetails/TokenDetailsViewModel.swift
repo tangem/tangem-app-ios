@@ -199,7 +199,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
                 option: .init(walletModel: walletModel)
             )
         case .swap:
-            openExchange()
+            openExchange(position: .build(for: walletModel))
         case .openCloreMigration:
             openCloreMigration()
         case .openDynamicAddressesEnter:

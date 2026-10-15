@@ -643,24 +643,33 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
 
-            TokenActionAvailabilityAlertPresenter.presentOrProceed(
-                presenter: alertPresenter,
-                swapStatus: availabilityProvider.swapAvailability,
-                action: {
-                    let helper = SwapPredefinedParametersHelper()
-                    guard let parameters = helper.makeParameters(
-                        walletModel: walletModel,
-                        userWalletInfo: userWalletModel.userWalletInfo,
-                        position: .automatic
-                    ) else {
-                        return
-                    }
+            let direction = SwapDirection.build(for: walletModel)
+            let openSwap = {
+                let parameters = SwapPredefinedParametersHelper().makeParameters(
+                    walletModel: walletModel,
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    position: direction
+                )
 
-                    Task { @MainActor in
-                        coordinator.openSwap(input: parameters, destination: walletModel.tokenItem)
-                    }
+                Task { @MainActor in
+                    coordinator.openSwap(input: parameters, destination: walletModel.tokenItem)
                 }
-            )
+            }
+
+            switch direction {
+            case .from:
+                TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                    presenter: alertPresenter,
+                    swapSourceStatus: availabilityProvider.swapSourceAvailability,
+                    action: openSwap
+                )
+            case .to:
+                TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                    presenter: alertPresenter,
+                    swapReceiveStatus: availabilityProvider.swapReceiveAvailability,
+                    action: openSwap
+                )
+            }
         case .stake:
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
             if let stakingManager = walletModel.stakingManager {

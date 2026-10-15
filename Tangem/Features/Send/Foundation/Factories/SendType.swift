@@ -160,12 +160,15 @@ extension PredefinedSwapParameters.PairResolution {
     }
 }
 
-/// Swap direction for a token-details entry point. `automatic` defers to the balance-based pair
-/// resolver; `from`/`to` force the current token as source/destination respectively.
+/// Which side of the swap a token-details entry point puts the current token on: `from` makes it the
+/// source, `to` the destination.
 enum SwapDirection {
-    case automatic
     case from
     case to
+
+    static func build(for walletModel: any WalletModel) -> SwapDirection {
+        walletModel.fiatAvailableBalance > 0 ? .from : .to
+    }
 }
 
 // MARK: - PredefinedSellParameters

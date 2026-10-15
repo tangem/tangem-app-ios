@@ -84,7 +84,7 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
             Analytics.log(.addFundsButtonSwap)
             TokenActionAvailabilityAlertPresenter.presentOrProceed(
                 presenter: alertPresenter,
-                swapStatus: availabilityProvider.swapAvailability,
+                swapReceiveStatus: availabilityProvider.swapReceiveAvailability,
                 action: { [weak self] in
                     guard let self else { return }
                     Task { @MainActor in

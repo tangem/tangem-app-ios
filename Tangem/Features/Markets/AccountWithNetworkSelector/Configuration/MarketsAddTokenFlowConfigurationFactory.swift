@@ -151,13 +151,11 @@ private extension MarketsAddTokenFlowConfigurationFactory {
                 analyticsLogger.logExchangeTapped()
 
                 let helper = SwapPredefinedParametersHelper()
-                guard let parameters = helper.makeParameters(
+                let parameters = helper.makeParameters(
                     walletModel: walletModel,
                     userWalletInfo: userWalletInfo,
-                    position: .automatic
-                ) else {
-                    break
-                }
+                    position: .build(for: walletModel)
+                )
 
                 coordinator.openSwap(input: parameters, destination: walletModel.tokenItem)
 

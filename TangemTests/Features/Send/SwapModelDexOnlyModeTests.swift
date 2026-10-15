@@ -374,6 +374,7 @@ private final class DexOnlySwapableTokenStub: SendSwapableToken {
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { inner.accountModelAnalyticsProvider }
     var isTangemPayAccount: Bool { inner.isTangemPayAccount }
     var jointAccountPolicy: JointAccountPolicy? { inner.jointAccountPolicy }
+    var sendingRestrictionsProvider: any SendingRestrictionsProvider { NoSendingRestrictionsProviderStub() }
 
     // MARK: - Unused in tests
 
@@ -382,7 +383,6 @@ private final class DexOnlySwapableTokenStub: SendSwapableToken {
     var operationType: ExpressOperationType { .swap }
     var supportedProvidersFilter: SupportedProvidersFilter { .swap }
     var swapAvailabilityProvider: any SwapAvailabilityProvider { fatalError("Unused in tests") }
-    var sendingRestrictionsProvider: any SendingRestrictionsProvider { fatalError("Unused in tests") }
     var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { fatalError("Unused in tests") }
     var tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider { fatalError("Unused in tests") }
     var tokenFeeProvidersManager: any TokenFeeProvidersManager { fatalError("Unused in tests") }
@@ -391,6 +391,10 @@ private final class DexOnlySwapableTokenStub: SendSwapableToken {
     var balanceProvider: any BalanceProvider { fatalError("Unused in tests") }
     var analyticsLogger: any AnalyticsLogger { fatalError("Unused in tests") }
     var providerTransactionValidator: any ExpressProviderTransactionValidator { fatalError("Unused in tests") }
+}
+
+private struct NoSendingRestrictionsProviderStub: SendingRestrictionsProvider {
+    var sendingRestrictionsPublisher: AnyPublisher<SendingRestrictions?, Never> { .just(output: nil) }
 }
 
 private final class SwapPairUpdateHandlerDummy: SwapPairUpdateHandler {

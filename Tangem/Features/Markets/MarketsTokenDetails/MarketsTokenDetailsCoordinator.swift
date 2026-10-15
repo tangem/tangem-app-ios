@@ -404,13 +404,11 @@ extension MarketsTokenDetailsCoordinator: AddFundsRoutable {
 
     func addFundsRequestSwap(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
         let helper = SwapPredefinedParametersHelper()
-        guard let parameters = helper.makeParameters(
+        let parameters = helper.makeParameters(
             walletModel: walletModel,
             userWalletInfo: userWalletModel.userWalletInfo,
-            position: .automatic
-        ) else {
-            return
-        }
+            position: .to
+        )
 
         dismissAddFunds { [weak self] in
             self?.openSwap(input: parameters, destination: walletModel.tokenItem)
@@ -917,21 +915,23 @@ extension MarketsTokenDetailsCoordinator {
         )
 
         // Kept here rather than in the view model: it only decides whether navigation can happen at all, and the
-        // alert it raises needs the presenter. Without it the tap is swallowed by `makeParameters` returning nil.
-        guard availabilityProvider.isSwapAvailable else {
-            if let alert = TokenActionAvailabilityAlertBuilder().alert(for: availabilityProvider.swapAvailability) {
-                alertPresenter.present(alert: alert)
-            }
+        // alert it raises needs the presenter.
+        let direction = SwapDirection.build(for: walletModel)
+        let swapUnavailableAlert: AlertBinder? = switch direction {
+        case .from: TokenActionAvailabilityAlertBuilder().alert(for: availabilityProvider.swapSourceAvailability)
+        case .to: TokenActionAvailabilityAlertBuilder().alert(for: availabilityProvider.swapReceiveAvailability)
+        }
+
+        if let swapUnavailableAlert {
+            alertPresenter.present(alert: swapUnavailableAlert)
             return
         }
 
-        guard let parameters = SwapPredefinedParametersHelper().makeParameters(
+        let parameters = SwapPredefinedParametersHelper().makeParameters(
             walletModel: walletModel,
             userWalletInfo: userWalletModel.userWalletInfo,
-            position: .automatic
-        ) else {
-            return
-        }
+            position: direction
+        )
 
         openSwap(input: parameters, destination: walletModel.tokenItem)
     }

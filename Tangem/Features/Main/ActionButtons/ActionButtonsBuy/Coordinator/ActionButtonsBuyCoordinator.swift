@@ -147,11 +147,11 @@ extension ActionButtonsBuyCoordinator: AddFundsRoutable {
 
     func addFundsRequestSwap(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
         let helper = SwapPredefinedParametersHelper()
-        guard let parameters = helper.makeParameters(
+        let parameters = helper.makeParameters(
             walletModel: walletModel,
             userWalletInfo: userWalletModel.userWalletInfo,
-            position: .automatic
-        ) else { return }
+            position: .to
+        )
 
         Task { @MainActor [weak self] in
             guard let self else { return }
