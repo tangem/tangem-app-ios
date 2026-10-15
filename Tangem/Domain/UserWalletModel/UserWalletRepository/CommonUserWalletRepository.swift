@@ -216,6 +216,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
             userWalletIds.forEach {
                 polymarketCredentialsRepository.delete(userWalletId: $0)
                 polymarketAccountPresenceStore.delete(userWalletId: $0)
+                PolymarketWithdrawRecordStore(userWalletId: $0).delete()
             }
 
             modelsToDelete.forEach {
@@ -273,6 +274,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
         tangemPayResidencyStatusStorage.deleteResidencyStatuses(userWalletId: userWalletId)
         polymarketCredentialsRepository.delete(userWalletId: userWalletId)
         polymarketAccountPresenceStore.delete(userWalletId: userWalletId)
+        PolymarketWithdrawRecordStore(userWalletId: userWalletId).delete()
         try? collectiblesSessionKeyWalletStore.deleteKey(for: userWalletId)
         collectiblesAccountPresenceStore.remove(userWalletId)
 

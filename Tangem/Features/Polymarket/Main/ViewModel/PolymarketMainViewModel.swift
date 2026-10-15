@@ -9,12 +9,23 @@
 import SwiftUI
 import Combine
 import TangemFoundation
+import TangemPolymarket
+import TangemPolymarketUI
 
 final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var isTabsPinned = false
     @Published private(set) var isRegionRestricted = false
     @Published private(set) var isAwaitingFunds = false
     @Published private(set) var scrollToTopRequest = 0
+    @Published private(set) var withdrawalState: PolymarketWithdrawState?
+
+    var fundingNotifications: [PolymarketOrderNotification] {
+        [
+            isAwaitingFunds ? .awaitingFunds : nil,
+            withdrawalState.map(PolymarketOrderNotification.init(withdrawState:)),
+        ]
+        .compactMap { $0 }
+    }
 
     let balanceViewModel: PolymarketBalanceBlockViewModel
     let positionsViewModel: PolymarketPositionsBlockViewModel
@@ -23,6 +34,7 @@ final class PolymarketMainViewModel: ObservableObject {
 
     private let geoblockStateProvider: PolymarketGeoblockStateProvider
     private let fundsArrivalTracker: PolymarketFundsArrivalTracker
+    private let withdrawTracker: PolymarketWithdrawTracker
     private let refreshCenter: PolymarketMainRefreshCenter
     private weak var coordinator: PolymarketMainRoutable?
 
@@ -35,6 +47,7 @@ final class PolymarketMainViewModel: ObservableObject {
         eventsViewModel: PolymarketEventsBlockViewModel,
         geoblockStateProvider: PolymarketGeoblockStateProvider,
         fundsArrivalTracker: PolymarketFundsArrivalTracker,
+        withdrawTracker: PolymarketWithdrawTracker,
         refreshCenter: PolymarketMainRefreshCenter,
         coordinator: PolymarketMainRoutable
     ) {
@@ -44,11 +57,13 @@ final class PolymarketMainViewModel: ObservableObject {
         self.eventsViewModel = eventsViewModel
         self.geoblockStateProvider = geoblockStateProvider
         self.fundsArrivalTracker = fundsArrivalTracker
+        self.withdrawTracker = withdrawTracker
         self.refreshCenter = refreshCenter
         self.coordinator = coordinator
 
         bindGeoblockState()
         bindFundsArrival()
+        bindWithdrawal()
     }
 }
 
@@ -104,6 +119,13 @@ private extension PolymarketMainViewModel {
             .$isAwaitingFunds
             .receiveOnMain()
             .assign(to: &$isAwaitingFunds)
+    }
+
+    func bindWithdrawal() {
+        withdrawTracker
+            .statePublisher
+            .receiveOnMain()
+            .assign(to: &$withdrawalState)
     }
 
     func bindGeoblockState() {

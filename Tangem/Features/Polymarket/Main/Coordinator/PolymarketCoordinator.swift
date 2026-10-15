@@ -167,6 +167,8 @@ private extension PolymarketCoordinator {
         redeemService = dependencies.redeemService
         signingButtonType = dependencies.signingButtonType
 
+        Task { await dependencies.withdrawContext.tracker.resume() }
+
         viewState = .main(
             viewModel: dependencies.makeMainViewModel(routable: self),
             destinationFactory: PolymarketDestinationFactory(

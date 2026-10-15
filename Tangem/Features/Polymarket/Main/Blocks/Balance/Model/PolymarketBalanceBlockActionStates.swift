@@ -15,13 +15,16 @@ struct PolymarketBalanceBlockActionStates: Equatable {
     init(
         readiness: PolymarketAccountFundsInteractor.State,
         collateralBalance: TokenBalanceType,
-        usdToToken: (Decimal) -> Decimal
+        usdToToken: (Decimal) -> Decimal,
+        isWithdrawalPending: Bool
     ) {
         addFunds = readiness.addFundsAvailability
 
         switch readiness {
         case .loading:
             withdraw = .loading
+        case .ready where isWithdrawalPending:
+            withdraw = .unavailable(.withdrawalInProgress)
         case .ready(let readiness):
             withdraw = Self.withdrawState(
                 withdrawalAvailability: readiness.withdrawalAvailability,

@@ -12,6 +12,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemUI
 import TangemUIUtils
+import TangemPolymarket
 
 final class PolymarketBalanceBlockViewModel: ObservableObject {
     @Published private(set) var balance: LoadableBalanceView.State = .loading(cached: .none)
@@ -59,6 +60,7 @@ final class PolymarketBalanceBlockViewModel: ObservableObject {
         balanceProvider: PolymarketBalanceProvider,
         accountFundsInteractor: PolymarketAccountFundsInteractor,
         fundsArrivalTracker: PolymarketFundsArrivalTracker,
+        withdrawalStatePublisher: AnyPublisher<PolymarketWithdrawState?, Never>,
         isRegionRestricted: @escaping () -> Bool,
         refreshCenter: PolymarketMainRefreshCenter,
         routable: PolymarketBalanceBlockRoutable
@@ -73,7 +75,8 @@ final class PolymarketBalanceBlockViewModel: ObservableObject {
         )
         actionsAvailability = PolymarketBalanceActionsAvailability(
             accountFundsInteractor: accountFundsInteractor,
-            collateralBalancePublisher: balanceProvider.collateralBalancePublisher
+            collateralBalancePublisher: balanceProvider.collateralBalancePublisher,
+            withdrawalStatePublisher: withdrawalStatePublisher
         )
 
         bind()
@@ -146,7 +149,7 @@ private extension PolymarketBalanceBlockViewModel {
 
     func retryWithdrawAvailability(after reason: WithdrawUnavailability) {
         switch reason {
-        case .emptyBalance, .tooSmallBalance:
+        case .emptyBalance, .tooSmallBalance, .withdrawalInProgress:
             break
         case .balanceUnavailable:
             refresher.refreshNow()
@@ -223,5 +226,6 @@ extension PolymarketBalanceBlockViewModel {
         case balanceUnavailable
         case accountUnavailable
         case minimumUnknown
+        case withdrawalInProgress
     }
 }
