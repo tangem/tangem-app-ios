@@ -44,8 +44,6 @@ struct CommonSendTransferableToken: SendTransferableToken {
     var transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider { sourceToken.transactionSummaryDescriptionBuilderProvider }
     var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { sourceToken.blockchainSDKNotificationMapper }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { sourceToken.accountModelAnalyticsProvider }
-    var tangemIconProvider: any TangemIconProvider { sourceToken.tangemIconProvider }
-    var confirmTransactionPolicy: any ConfirmTransactionPolicy { sourceToken.confirmTransactionPolicy }
     var isTangemPayAccount: Bool { sourceToken.isTangemPayAccount }
     var jointAccountPolicy: JointAccountPolicy? { sourceToken.jointAccountPolicy }
 

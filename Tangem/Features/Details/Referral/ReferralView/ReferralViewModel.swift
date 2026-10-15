@@ -35,7 +35,7 @@ final class ReferralViewModel: ObservableObject {
     @Published private(set) var viewState: ViewState = .loading
 
     var mainButtonIcon: MainButton.Icon? {
-        CommonTangemIconProvider(config: userWalletModel.config).getMainButtonIcon()
+        SigningActionButtonViewTypeBuilder().build(config: userWalletModel.config).mainButtonIcon
     }
 
     @MainActor

@@ -240,8 +240,7 @@ extension StakeFactory: SendBaseBuildable {
             approveViewModelInputDataBuilder: CommonApproveViewModelInputDataBuilder(
                 dataProvider: stakeModel,
                 analyticsLogger: analyticsLogger,
-                output: stakeModel,
-                confirmTransactionPolicy: stakingableToken.confirmTransactionPolicy
+                output: stakeModel
             ),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
                 sourceTokenInput: stakeModel

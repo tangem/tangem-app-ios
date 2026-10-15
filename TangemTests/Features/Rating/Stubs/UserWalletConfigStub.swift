@@ -49,7 +49,6 @@ struct UserWalletConfigStub: UserWalletConfig {
 // MARK: - TangemSigner
 
 final class TangemSignerStub: TangemSigner {
-    let hasNFCInteraction: Bool = false
     let latestSignerType: TangemSignerType? = nil
 
     func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {

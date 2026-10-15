@@ -344,6 +344,7 @@ extension TokenDetailsViewModel {
             let analyticsLogger = CommonDynamicAddressesAnalyticsLogger(tokenItem: walletModel.tokenItem)
             coordinator?.openDynamicAddressesEnterView(
                 walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
+                signingActionButtonType: SigningActionButtonViewTypeBuilder().build(userWalletInfo: userWalletInfo),
                 analyticsLogger: analyticsLogger
             )
         }

@@ -120,34 +120,15 @@ struct YieldModuleStartView: View {
                 action: ctaButtonAction
             ))
         case .startEarning:
-            if viewModel.confirmTransactionPolicy.needsHoldToConfirm {
-                startEarningHoldButton
-            } else {
-                startEarningButton
-            }
+            SigningActionButtonView(
+                type: viewModel.signingActionButtonType,
+                title: Localization.yieldModuleStartEarning,
+                isLoading: viewModel.isProcessingStartRequest,
+                isDisabled: !viewModel.isButtonEnabled,
+                action: ctaButtonAction
+            )
+            .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.startEarningButton)
         }
-    }
-
-    private var startEarningButton: some View {
-        MainButton(settings: .init(
-            title: Localization.yieldModuleStartEarning,
-            icon: viewModel.tangemIconProvider.getMainButtonIcon(),
-            style: .primary,
-            isLoading: viewModel.isProcessingStartRequest,
-            isDisabled: !viewModel.isButtonEnabled,
-            action: ctaButtonAction,
-        ))
-        .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.startEarningButton)
-    }
-
-    private var startEarningHoldButton: some View {
-        HoldToConfirmButton(
-            title: Localization.yieldModuleStartEarning,
-            isLoading: viewModel.isProcessingStartRequest,
-            isDisabled: !viewModel.isButtonEnabled,
-            action: ctaButtonAction
-        )
-        .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.startEarningButton)
     }
 
     @ViewBuilder

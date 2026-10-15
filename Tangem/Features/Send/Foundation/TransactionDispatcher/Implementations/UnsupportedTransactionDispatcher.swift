@@ -7,8 +7,6 @@
 //
 
 struct UnsupportedTransactionDispatcher: TransactionDispatcher {
-    var hasNFCInteraction: Bool { true }
-
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         throw TransactionDispatcherProviderError.transactionNotSupported(reason: "Does not support \(transaction.rawCaseValue)")
     }

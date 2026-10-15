@@ -28,7 +28,7 @@ private extension PolymarketOrderSummaryViewModel {
             model: .preview(outcomeIndex: outcomeIndex),
             account: nil,
             placementService: PolymarketOrderPlacementServiceStub(),
-            signingButtonType: .cardTap,
+            signingButtonType: .requiredNFCInteraction,
             coordinator: nil
         )
     }

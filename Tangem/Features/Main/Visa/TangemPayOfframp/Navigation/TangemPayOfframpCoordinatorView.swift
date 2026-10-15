@@ -111,7 +111,7 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
                     sendUseCase: sendUseCase,
                     optionsStore: optionsStore,
                     savedRecipient: coordinator.activeSavedRecipient,
-                    hasNFCInteraction: coordinator.hasNFCInteraction,
+                    signingActionButtonType: coordinator.signingActionButtonType,
                     analyticsLogger: analyticsLogger,
                     output: { [weak coordinator] in coordinator?.handle($0) }
                 )
