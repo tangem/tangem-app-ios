@@ -12,20 +12,20 @@ import GRDB
 // MARK: - Convenience extensions
 
 public extension AppDatabase {
-    static func makeWithQueue() -> AppDatabase {
-        return AppDatabase { databaseFilePath in
+    static func makeWithQueue(migrationHelper: AppDatabaseMigrationHelper) -> AppDatabase {
+        return AppDatabase(migrationHelper: migrationHelper) { databaseFilePath in
             return try DatabaseQueue(path: databaseFilePath)
         }
     }
 
-    static func makeWithPool() -> AppDatabase {
-        return AppDatabase { databaseFilePath in
+    static func makeWithPool(migrationHelper: AppDatabaseMigrationHelper) -> AppDatabase {
+        return AppDatabase(migrationHelper: migrationHelper) { databaseFilePath in
             return try DatabasePool(path: databaseFilePath)
         }
     }
 
-    static func makeWithInMemoryStorage() -> AppDatabase {
-        return AppDatabase { _ in
+    static func makeWithInMemoryStorage(migrationHelper: AppDatabaseMigrationHelper) -> AppDatabase {
+        return AppDatabase(migrationHelper: migrationHelper) { _ in
             return try DatabaseQueue()
         }
     }
