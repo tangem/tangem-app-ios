@@ -167,6 +167,8 @@ private extension PolymarketCoordinator {
         redeemService = dependencies.redeemService
         signingButtonType = dependencies.signingButtonType
 
+        let activityService = dependencies.activityService
+        Task { await activityService.reconcileDeposits() }
         Task { await dependencies.withdrawContext.tracker.resume() }
 
         viewState = .main(

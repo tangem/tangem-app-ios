@@ -73,7 +73,11 @@ struct PolymarketFundingFlow {
     }
 
     func awaitDeposit(since baseline: Decimal?) {
-        dependencies.fundsArrivalTracker.startAwaitingFunds(since: baseline)
+        let activityService = dependencies.activityService
+
+        dependencies.fundsArrivalTracker.startAwaitingFunds(since: baseline) {
+            Task { await activityService.reconcileDeposits() }
+        }
     }
 
     func awaitWithdrawal(since baseline: Decimal?) {

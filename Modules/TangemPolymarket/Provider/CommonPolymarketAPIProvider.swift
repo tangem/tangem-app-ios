@@ -89,6 +89,17 @@ extension CommonPolymarketAPIProvider: PolymarketAPIProvider {
         let response = try await service.positionOutcome(request: request)
         return try mapper.mapPositionOutcome(response)
     }
+
+    public func activity(request: PolymarketActivityRequest) async throws -> PolymarketActivityPage {
+        let response = try await service.activity(request: request)
+        return mapper.mapActivity(response)
+    }
+
+    @discardableResult
+    public func reconcileDeposits(depositWalletAddress: String) async throws -> PolymarketDepositsScan {
+        let response = try await service.reconcileDeposits(depositWalletAddress: depositWalletAddress)
+        return mapper.mapDepositsScan(response)
+    }
 }
 
 // MARK: - Private implementation
