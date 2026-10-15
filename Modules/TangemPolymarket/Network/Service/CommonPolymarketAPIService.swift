@@ -67,6 +67,14 @@ extension CommonPolymarketAPIService: PolymarketAPIService {
     func positionOutcome(request outcomeRequest: PolymarketPositionOutcomeRequest) async throws -> PolymarketDTO.PositionOutcomeResponse {
         try await request(.positionOutcome(outcomeRequest))
     }
+
+    func activity(request activityRequest: PolymarketActivityRequest) async throws -> PolymarketDTO.ActivityResponse {
+        try await request(.activity(activityRequest))
+    }
+
+    func reconcileDeposits(depositWalletAddress: String) async throws -> PolymarketDTO.DepositsReconcileResponse {
+        try await request(.reconcileDeposits(depositWalletAddress: depositWalletAddress))
+    }
 }
 
 // MARK: - Private

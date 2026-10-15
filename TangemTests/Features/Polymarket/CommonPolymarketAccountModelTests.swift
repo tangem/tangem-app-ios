@@ -412,6 +412,34 @@ private extension CommonPolymarketAccountModelTests {
         #expect(balance.unavailableCalls == 0)
     }
 
+    @Test("Reading an active account's balance asks for the launch deposit scan with its owner")
+    func balanceRefreshAsksForTheLaunchScan() async {
+        let reconciler = PolymarketLaunchDepositsReconcilerStub()
+        let (sut, _) = makeSUT(
+            walletService: PolymarketDepositWalletServiceStub(status: .readyToTrade),
+            credentialsRepository: PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials),
+            depositsReconciler: reconciler
+        )
+
+        await sut.refreshBalance(scope: .full)
+
+        #expect(reconciler.ownerAddresses == [PolymarketOwnerAddressProviderStub.ownerAddress])
+    }
+
+    @Test("An account without credentials reads no balance and asks for no deposit scan")
+    func noCredentialsMeansNoLaunchScan() async {
+        let reconciler = PolymarketLaunchDepositsReconcilerStub()
+        let (sut, _) = makeSUT(
+            walletService: PolymarketDepositWalletServiceStub(status: .readyToTrade),
+            credentialsRepository: PolymarketCredentialsRepositoryStub(stored: nil),
+            depositsReconciler: reconciler
+        )
+
+        await sut.refreshBalance(scope: .full)
+
+        #expect(reconciler.ownerAddresses.isEmpty)
+    }
+
     func makeSUT(
         status: PolymarketDepositWalletStatus,
         credentials: PolymarketL2Credentials? = nil,
@@ -442,7 +470,8 @@ private extension CommonPolymarketAccountModelTests {
         clobService: PolymarketCLOBService = PolymarketCLOBServiceStub(),
         positionsValueService: PolymarketPositionsValueService = PolymarketPositionsValueServiceStub(),
         ownerAddress: String? = PolymarketOwnerAddressProviderStub.ownerAddress,
-        knownAccount: Bool = false
+        knownAccount: Bool = false,
+        depositsReconciler: PolymarketLaunchDepositsReconcilerStub = PolymarketLaunchDepositsReconcilerStub()
     ) -> (CommonPolymarketAccountModel, PolymarketBalanceServiceSpy) {
         let balance = PolymarketBalanceServiceSpy()
 
@@ -454,7 +483,8 @@ private extension CommonPolymarketAccountModelTests {
             credentialsRepository: credentialsRepository,
             ownerAddressProvider: PolymarketOwnerAddressProviderStub(derived: ownerAddress),
             balanceService: balance,
-            presenceStore: PolymarketAccountPresenceStoreStub(known: knownAccount)
+            presenceStore: PolymarketAccountPresenceStoreStub(known: knownAccount),
+            depositsReconciler: depositsReconciler
         )
 
         return (sut, balance)
