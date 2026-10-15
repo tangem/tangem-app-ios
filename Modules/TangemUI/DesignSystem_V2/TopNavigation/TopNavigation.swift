@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemLocalization
+import TangemMacro
 
 public enum TopNavigation {
     public enum ContentPosition: Sendable, Hashable, CaseIterable {
@@ -17,6 +18,7 @@ public enum TopNavigation {
     }
 
     public struct Action {
+        @CaseFlagable
         enum Content {
             case icon(ImageType)
             case title(String)
@@ -109,6 +111,8 @@ public enum TopNavigation {
         case custom(Action)
         /// No leading button — for root screens.
         case none
+        /// Non-interactive image, e.g. a logo on a root screen.
+        case image(ImageType, height: CGFloat)
     }
 }
 
