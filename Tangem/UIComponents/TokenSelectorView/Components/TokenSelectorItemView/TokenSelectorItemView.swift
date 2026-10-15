@@ -10,7 +10,6 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemAccessibilityIdentifiers
-import TangemLocalization
 
 struct TokenSelectorItemView: View {
     @ObservedObject var viewModel: TokenSelectorItemViewModel
@@ -75,25 +74,8 @@ struct TokenSelectorItemView: View {
     }
 
     private var secondaryLeadingView: some View {
-        Group {
-            switch viewModel.availabilityType {
-            case .available:
-                Text(viewModel.symbol)
-            case .unavailable(.unavailableForOnramp):
-                Text(Localization.tokensListUnavailableToPurchaseHeader)
-            case .unavailable(.unavailableForSwap(.swapState(.jointAccountsComingSoon))):
-                Text(Localization.commonComingSoon)
-            case .unavailable(.unavailableForSwap):
-                Text(Localization.tokensListUnavailableToSwapSourceHeader)
-            case .unavailable(.unavailableForSell(.jointAccountsComingSoon)):
-                Text(Localization.commonComingSoon)
-            case .unavailable(.unavailableForSell):
-                Text(Localization.tokensListUnavailableToSellHeader)
-            case .unavailable(.unavailableForSend):
-                Text(viewModel.symbol)
-            }
-        }
-        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-        .lineLimit(1)
+        Text(viewModel.secondaryLeadingText)
+            .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            .lineLimit(1)
     }
 }

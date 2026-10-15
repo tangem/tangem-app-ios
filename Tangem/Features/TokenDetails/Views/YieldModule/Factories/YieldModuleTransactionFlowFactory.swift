@@ -6,13 +6,14 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemUI
+
 final class YieldModuleTransactionFlowFactory {
     private let walletModel: any WalletModel
     private let yieldManagerInteractor: YieldManagerInteractor
     private let claimInteractor: YieldIncentivesClaimInteractor?
     private let logger: YieldAnalyticsLogger
-    private let tangemIconProvider: TangemIconProvider
-    private let confirmTransactionPolicy: ConfirmTransactionPolicy
+    private let signingActionButtonType: SigningActionButtonViewType
     private weak var coordinator: YieldModuleActiveCoordinator?
 
     // MARK: - Init
@@ -22,16 +23,14 @@ final class YieldModuleTransactionFlowFactory {
         yieldManagerInteractor: YieldManagerInteractor,
         claimInteractor: YieldIncentivesClaimInteractor?,
         logger: YieldAnalyticsLogger,
-        tangemIconProvider: TangemIconProvider,
-        confirmTransactionPolicy: ConfirmTransactionPolicy,
+        signingActionButtonType: SigningActionButtonViewType,
         coordinator: YieldModuleActiveCoordinator? = nil
     ) {
         self.walletModel = walletModel
         self.yieldManagerInteractor = yieldManagerInteractor
         self.claimInteractor = claimInteractor
         self.logger = logger
-        self.tangemIconProvider = tangemIconProvider
-        self.confirmTransactionPolicy = confirmTransactionPolicy
+        self.signingActionButtonType = signingActionButtonType
         self.coordinator = coordinator
     }
 
@@ -45,8 +44,7 @@ final class YieldModuleTransactionFlowFactory {
             yieldManagerInteractor: yieldManagerInteractor,
             notificationManager: YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem),
             logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId),
-            tangemIconProvider: tangemIconProvider,
-            confirmTransactionPolicy: confirmTransactionPolicy
+            signingActionButtonType: signingActionButtonType
         )
     }
 
@@ -61,8 +59,7 @@ final class YieldModuleTransactionFlowFactory {
             coordinator: coordinator,
             claimInteractor: claimInteractor,
             notificationManager: YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem),
-            tangemIconProvider: tangemIconProvider,
-            confirmTransactionPolicy: confirmTransactionPolicy
+            signingActionButtonType: signingActionButtonType
         )
     }
 }

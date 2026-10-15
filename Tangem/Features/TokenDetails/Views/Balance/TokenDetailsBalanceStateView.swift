@@ -21,7 +21,7 @@ struct TokenDetailsBalanceStateView: View {
 
         case .loadingCached(let text):
             textView(text)
-                .shimmer()
+                .shimmering()
 
         case .loading:
             skeletonView(size: skeletonSize)
@@ -43,9 +43,9 @@ private extension TokenDetailsBalanceStateView {
     }
 
     func skeletonView(size: CGSize) -> some View {
-        SkeletonView()
+        Shimmer()
+            .variant(.custom(cornerRadius: size.height / 2))
             .frame(size: size)
-            .clipShape(.capsule)
     }
 }
 

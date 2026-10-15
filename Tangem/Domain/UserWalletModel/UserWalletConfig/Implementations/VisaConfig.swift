@@ -80,10 +80,6 @@ extension VisaConfig: UserWalletConfig {
         .visa
     }
 
-    var cardHeaderImage: ImageType? {
-        Assets.Cards.visa
-    }
-
     var walletThumbnailType: ThumbnailWalletViewType? {
         .card(.init(card: Color.Tangem.CardCollection.visa))
     }

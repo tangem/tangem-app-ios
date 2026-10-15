@@ -13,11 +13,11 @@ enum PolymarketOrderFormatter {
     /// The collateral trades one to one with the dollar, so its amounts are drawn with the dollar sign and
     /// are never converted into the currency the app is set to.
     static func money(_ value: Decimal?) -> String {
-        formatter.formatFiatBalance(value, currencyCode: Constants.currencyCode)
+        formatter.formatFiatBalance(value, currencyCode: AppConstants.usdCurrencyCode)
     }
 
     static func enteredAmount(_ value: Decimal?) -> String {
-        formatter.formatFiatBalance(value, currencyCode: Constants.currencyCode, formattingOptions: .enteredAmount)
+        formatter.formatFiatBalance(value, currencyCode: AppConstants.usdCurrencyCode, formattingOptions: .enteredAmount)
     }
 
     static func shares(_ value: Decimal?) -> String {
@@ -45,7 +45,6 @@ enum PolymarketOrderFormatter {
 
 private extension PolymarketOrderFormatter {
     enum Constants {
-        static let currencyCode = "USD"
         static let moneyScale = 2
     }
 }

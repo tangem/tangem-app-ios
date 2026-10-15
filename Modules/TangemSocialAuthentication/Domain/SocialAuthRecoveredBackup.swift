@@ -9,6 +9,6 @@
 import TangemMobileWalletBackup
 
 public struct SocialAuthRecoveredBackup {
-    public let userWalletId: String
+    public let walletId: String
     public let payload: any WalletBackupPayload
 }

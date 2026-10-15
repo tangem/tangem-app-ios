@@ -39,46 +39,35 @@ struct NFTCompactAssetView: View {
 
     private var skeleton: some View {
         VStack(alignment: .leading, spacing: Constants.iconTextsSpacing) {
-            Color.clear
+            Shimmer()
+                .variant(.custom(cornerRadius: SquaredOrRectangleImageView.Constants.defaultCornerRadius))
                 .frame(maxWidth: .infinity)
                 .aspectRatio(1, contentMode: .fit)
-                .skeletonable(
-                    isShown: true,
-                    radius: SquaredOrRectangleImageView.Constants.defaultCornerRadius
-                )
 
             VStack(alignment: .leading, spacing: 10) {
-                Color.clear
-                    .frame(size: CGSize(width: 70, height: Constants.textSkeletonsHeight))
-                    .skeletonable(
-                        isShown: true,
-                        radius: Constants.textSkeletonsCornerRadius
-                    )
+                Shimmer()
+                    .variant(.custom(width: 70, height: Constants.textSkeletonsHeight, cornerRadius: Constants.textSkeletonsCornerRadius))
 
-                Color.clear
-                    .frame(size: CGSize(width: 52, height: Constants.textSkeletonsHeight))
-                    .skeletonable(
-                        isShown: true,
-                        radius: Constants.textSkeletonsCornerRadius
-                    )
+                Shimmer()
+                    .variant(.custom(width: 52, height: Constants.textSkeletonsHeight, cornerRadius: Constants.textSkeletonsCornerRadius))
             }
         }
     }
 
     private func makeIcon(media: NFTMedia?) -> some View {
         SquaredOrRectangleImageView(media: media)
-            .shimmer()
+            .shimmering()
     }
 
     private func makeTexts(title: String, subtitle: String?) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-                .shimmer()
+                .shimmering()
 
             Text(subtitle ?? "")
                 .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
-                .shimmer()
+                .shimmering()
         }
     }
 }

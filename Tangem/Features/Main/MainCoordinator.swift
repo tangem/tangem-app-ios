@@ -692,6 +692,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         let coordinator = CollectiblesCoordinator(
             dismissAction: { [weak self] in
                 self?.collectiblesCoordinator = nil
+                self?.mainBottomSheetUIManager.show()
             },
             popToRootAction: popToRootAction
         )
@@ -848,9 +849,17 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     }
 
     func openMarketsTokenDetails(tokenModel: MarketsTokenModel) {
+        openMarketsTokenDetails(options: .init(info: tokenModel, style: .navigationStack))
+    }
+
+    func openMarketsTokenChart(tokenId: String) {
+        openMarketsTokenDetails(options: .tokenChartDeeplink(tokenId: tokenId))
+    }
+
+    private func openMarketsTokenDetails(options: MarketsTokenDetailsCoordinator.Options) {
         mainBottomSheetUIManager.hide()
         let coordinator = coordinatorFactory.makeMarketsTokenDetailsCoordinator()
-        coordinator.start(with: .init(info: tokenModel, style: .navigationStack))
+        coordinator.start(with: options)
         marketsTokenDetailsCoordinator = coordinator
     }
 

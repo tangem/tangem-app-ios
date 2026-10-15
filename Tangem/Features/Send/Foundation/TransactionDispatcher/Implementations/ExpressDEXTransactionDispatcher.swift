@@ -34,10 +34,6 @@ final class ExpressDEXTransactionDispatcher {
 // MARK: - TransactionDispatcher
 
 extension ExpressDEXTransactionDispatcher: TransactionDispatcher {
-    var hasNFCInteraction: Bool {
-        transactionSigner.hasNFCInteraction
-    }
-
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         guard case .dex(let data, let fee) = transaction else {
             throw TransactionDispatcherResult.Error.transactionNotFound

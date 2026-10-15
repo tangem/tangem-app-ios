@@ -56,9 +56,8 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     /// Navigation to run once the modal AddFunds cover has finished dismissing (set via `dismissAddFunds`).
     private var addFundsFollowUpAction: (@MainActor () -> Void)?
 
-    private var safariHandle: SafariHandle?
-
     private var isDeeplinkMode: Bool = false
+    private var showsPortfolioActions: Bool = false
     private var tokenId: String?
 
     private var isRestrictedForCountry: Bool = false
@@ -80,11 +79,13 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     func start(with options: Options) {
         presentationStyle = options.style
         isDeeplinkMode = options.isDeeplinkMode
+        showsPortfolioActions = options.showsPortfolioActions
         tokenId = options.info.id
         isRestrictedForCountry = options.info.restrictedForCountry ?? false
         rootViewModel = .init(
             tokenInfo: options.info,
             presentationStyle: options.style,
+            showsPortfolioActions: options.showsPortfolioActions,
             dataProvider: .init(),
             marketsQuotesUpdateHelper: CommonMarketsQuotesUpdateHelper(),
             coordinator: self
@@ -108,11 +109,38 @@ extension MarketsTokenDetailsCoordinator {
         let info: MarketsTokenModel
         let style: MarketsTokenDetailsPresentationStyle
         let isDeeplinkMode: Bool
+        let showsPortfolioActions: Bool
 
         init(info: MarketsTokenModel, style: MarketsTokenDetailsPresentationStyle, isDeeplinkMode: Bool = false) {
+            self.init(
+                info: info,
+                style: style,
+                isDeeplinkMode: isDeeplinkMode,
+                showsPortfolioActions: style.isSheet
+            )
+        }
+
+        init(
+            info: MarketsTokenModel,
+            style: MarketsTokenDetailsPresentationStyle,
+            isDeeplinkMode: Bool = false,
+            showsPortfolioActions: Bool
+        ) {
             self.info = info
             self.style = style
             self.isDeeplinkMode = isDeeplinkMode
+            self.showsPortfolioActions = showsPortfolioActions
+        }
+
+        static func tokenChartDeeplink(
+            tokenId: String,
+            isFeatureAvailable: (Feature) -> Bool = FeatureProvider.isAvailable
+        ) -> Options {
+            Options(
+                info: .deeplinkStub(tokenId: tokenId),
+                style: .navigationStack,
+                showsPortfolioActions: isFeatureAvailable(.tokenChartAddToPortfolio)
+            )
         }
     }
 }
@@ -376,13 +404,11 @@ extension MarketsTokenDetailsCoordinator: AddFundsRoutable {
 
     func addFundsRequestSwap(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
         let helper = SwapPredefinedParametersHelper()
-        guard let parameters = helper.makeParameters(
+        let parameters = helper.makeParameters(
             walletModel: walletModel,
             userWalletInfo: userWalletModel.userWalletInfo,
-            position: .automatic
-        ) else {
-            return
-        }
+            position: .to
+        )
 
         dismissAddFunds { [weak self] in
             self?.openSwap(input: parameters, destination: walletModel.tokenItem)
@@ -720,21 +746,6 @@ extension MarketsTokenDetailsCoordinator: AddTokenFlowRoutable {
     }
 }
 
-// MARK: - Utilities functions
-
-extension MarketsTokenDetailsCoordinator {
-    func openBuyCrypto(at url: URL, with walletModel: any WalletModel) {
-        safariHandle = safariManager.openURL(url) { [weak self] _ in
-            self?.safariHandle = nil
-
-            Task {
-                try await Task.sleep(for: .seconds(1))
-                await walletModel.update(silent: true, options: .balances)
-            }
-        }
-    }
-}
-
 // MARK: - Constants
 
 private extension MarketsTokenDetailsCoordinator {
@@ -819,7 +830,12 @@ extension MarketsTokenDetailsCoordinator: NewsDetailsRoutable {
             popToRootAction: popToRootAction
         )
 
-        coordinator.start(with: .init(info: token, style: resolvePresentationStyleForInnerFlow(), isDeeplinkMode: isDeeplinkMode))
+        coordinator.start(with: .init(
+            info: token,
+            style: resolvePresentationStyleForInnerFlow(),
+            isDeeplinkMode: isDeeplinkMode,
+            showsPortfolioActions: showsPortfolioActions
+        ))
         newsRelatedTokenDetailsCoordinator = coordinator
     }
 }
@@ -830,10 +846,10 @@ extension MarketsTokenDetailsCoordinator: NewsDetailsRoutable {
 extension MarketsTokenDetailsCoordinator {
     func openTokenSummary(_ input: TokenSummaryInput, walletDataProvider: MarketsWalletDataProvider) {
         tokenSummaryViewModel = TokenSummaryViewModel(
-            coinName: input.token.name,
-            symbol: input.token.symbol,
+            coinName: input.coinName,
+            symbol: input.coinSymbol,
             tokenIconInfo: TokenIconInfo(
-                name: input.token.name,
+                name: input.coinName,
                 blockchainIconAsset: nil,
                 imageURL: input.iconURL,
                 isCustom: false,
@@ -841,7 +857,7 @@ extension MarketsTokenDetailsCoordinator {
             ),
             preloadedIndicators: input.indicators,
             primaryActionPublisher: input.primaryActionPublisher,
-            analyticsLogger: CommonTokenSummaryAnalyticsLogger(symbol: input.token.symbol),
+            analyticsLogger: CommonTokenSummaryAnalyticsLogger(symbol: input.coinSymbol),
             onPrimaryAction: { [weak self] kind in
                 self?.handleTokenSummaryAction(kind, input: input, walletDataProvider: walletDataProvider)
             },
@@ -899,21 +915,23 @@ extension MarketsTokenDetailsCoordinator {
         )
 
         // Kept here rather than in the view model: it only decides whether navigation can happen at all, and the
-        // alert it raises needs the presenter. Without it the tap is swallowed by `makeParameters` returning nil.
-        guard availabilityProvider.isSwapAvailable else {
-            if let alert = TokenActionAvailabilityAlertBuilder().alert(for: availabilityProvider.swapAvailability) {
-                alertPresenter.present(alert: alert)
-            }
+        // alert it raises needs the presenter.
+        let direction = SwapDirection.build(for: walletModel)
+        let swapUnavailableAlert: AlertBinder? = switch direction {
+        case .from: TokenActionAvailabilityAlertBuilder().alert(for: availabilityProvider.swapSourceAvailability)
+        case .to: TokenActionAvailabilityAlertBuilder().alert(for: availabilityProvider.swapReceiveAvailability)
+        }
+
+        if let swapUnavailableAlert {
+            alertPresenter.present(alert: swapUnavailableAlert)
             return
         }
 
-        guard let parameters = SwapPredefinedParametersHelper().makeParameters(
+        let parameters = SwapPredefinedParametersHelper().makeParameters(
             walletModel: walletModel,
             userWalletInfo: userWalletModel.userWalletInfo,
-            position: .automatic
-        ) else {
-            return
-        }
+            position: direction
+        )
 
         openSwap(input: parameters, destination: walletModel.tokenItem)
     }

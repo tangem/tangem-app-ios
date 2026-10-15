@@ -176,14 +176,6 @@ final class MainViewModel: ObservableObject {
         }
     }
 
-    func onPageChange(dueTo reason: CardsInfoPageChangeReason) {
-        guard reason == .byGesture else { return }
-
-        if !AppSettings.shared.userDidSwipeWalletsOnMainScreen {
-            AppSettings.shared.userDidSwipeWalletsOnMainScreen = true
-        }
-    }
-
     func didTapEditWallet() {
         Analytics.log(.buttonEditWalletTapped)
 
@@ -604,8 +596,6 @@ extension MainViewModel {
 
 private extension MainViewModel {
     private enum Constants {
-        /// A small delay for animated addition of newly inserted wallet(s) after the main view becomes visible.
-        static let pendingWalletsInsertionDelay = 1.0
         static let feedbackRequestDelay = 0.7
         static let pushNotificationAuthorizationRequestDelay = 1.0
         /// Backstop for a refresh that never completes — nothing else clears the per-wallet spinner.

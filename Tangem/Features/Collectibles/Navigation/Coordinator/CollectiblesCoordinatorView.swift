@@ -17,21 +17,9 @@ struct CollectiblesCoordinatorView: CoordinatorView {
     var body: some View {
         content
             .background(FeedPopGestureEnabler())
-            .navigationLinks(links)
+            .shtorkaCompatibleFullScreenCover(item: $coordinator.machineViewModel, content: machine)
             .background(funds)
             .floatingSheetContent(for: ReceiveMainViewModel.self, viewBuilder: ReceiveMainView.init)
-    }
-}
-
-// MARK: - Presentation
-
-extension View {
-    func collectiblesFullScreenCover(item: Binding<CollectiblesCoordinator?>) -> some View {
-        shtorkaCompatibleFullScreenCover(item: item) { coordinator in
-            NavigationStack {
-                CollectiblesCoordinatorView(coordinator: coordinator, dismissStyle: .close)
-            }
-        }
     }
 }
 
@@ -58,22 +46,34 @@ private extension CollectiblesCoordinatorView {
         }
     }
 
-    var links: some View {
-        NavHolder()
-            .navigation(item: $coordinator.machineViewModel) { viewModel in
-                CollectiblesMachineView(viewModel: viewModel, onBack: coordinator.closeMachine)
-                    .toolbar(.hidden, for: .navigationBar)
-                    .navigation(item: $coordinator.confirmOrderViewModel) { viewModel in
-                        CollectiblesConfirmOrderView(viewModel: viewModel, onBack: coordinator.closeConfirmOrder)
-                            .toolbar(.hidden, for: .navigationBar)
-                    }
-            }
+    func machine(_ viewModel: CollectiblesMachineViewModel) -> some View {
+        MachineFlow(coordinator: coordinator, viewModel: viewModel)
     }
 
     @ViewBuilder
     var funds: some View {
         if let fundsCoordinator = coordinator.fundsCoordinator {
             FundsCoordinatorView(coordinator: fundsCoordinator)
+        }
+    }
+}
+
+// MARK: - Machine flow
+
+private struct MachineFlow: View {
+    @ObservedObject var coordinator: CollectiblesCoordinator
+
+    let viewModel: CollectiblesMachineViewModel
+
+    var body: some View {
+        NavigationStack {
+            CollectiblesMachineView(viewModel: viewModel, onClose: coordinator.closePackFlow)
+                .toolbar(.hidden, for: .navigationBar)
+                .background(FeedPopGestureEnabler())
+                .navigation(item: $coordinator.confirmOrderViewModel) { viewModel in
+                    CollectiblesConfirmOrderView(viewModel: viewModel, onBack: coordinator.closeConfirmOrder)
+                        .toolbar(.hidden, for: .navigationBar)
+                }
         }
     }
 }

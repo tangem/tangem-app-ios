@@ -57,10 +57,6 @@ final class TangemPayAccount {
             || activeIssueOrdersSubject.value.contains { TangemPayOrderType.plasticDeliveringFamily.contains($0.type) }
     }
 
-    var offersPublisher: AnyPublisher<[TangemPayCustomerOffer], Never> {
-        offersSubject.eraseToAnyPublisher()
-    }
-
     var additionalCardIssueOffer: TangemPayCustomerOffer? {
         offersSubject.value.first { $0.type.isAdditionalCardIssue }
     }

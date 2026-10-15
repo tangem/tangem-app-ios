@@ -80,12 +80,6 @@ enum TONModels {
         let hash: String
     }
 
-    /// Sequence number model
-    struct Seqno: Codable {
-        /// Container seqno number
-        let stack: [[Stack]]
-    }
-
     enum AccountState: String, Codable {
         case active
         case uninitialized

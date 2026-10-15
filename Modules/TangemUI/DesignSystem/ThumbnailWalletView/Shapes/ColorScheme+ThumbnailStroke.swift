@@ -9,15 +9,6 @@
 import SwiftUI
 
 extension ColorScheme {
-    func stroke(
-        width: CGFloat
-    ) -> ThumbnailPathFillMode.Stroke? {
-        .init(
-            color: Color.Tangem.CardCollection.border,
-            style: .init(lineWidth: width)
-        )
-    }
-
     var defaultStroke: ThumbnailPathFillMode.Stroke {
         .init(
             color: Color.Tangem.CardCollection.border,

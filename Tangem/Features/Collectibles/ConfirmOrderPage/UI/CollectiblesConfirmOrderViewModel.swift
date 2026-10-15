@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import SwiftUI
 import TangemCollectibles
 import TangemLocalization
 
@@ -20,12 +21,15 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     private let platformFee: Decimal
     private let total: Decimal
     private let buybackRate: Decimal
-    private let openingVideoURL: URL?
     private let purchaseInteractor: any CollectiblesPackPurchaseInteractor
+    private let revealAssetsPreloader: any CollectiblesRevealAssetsPreloader
     private let refreshBalance: () async -> Void
+
+    private weak var routable: (any CollectiblesConfirmOrderRoutable)?
 
     private var balanceState: BalanceState = .loading
     private var orderPhase: OrderPhase = .idle
+    private var revealColorScheme: ColorScheme?
     private var bag = Set<AnyCancellable>()
     private var errorDismissTask: Task<Void, Error>?
 
@@ -45,6 +49,8 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         machine: CollectiblesMachine,
         usdcBalanceProvider: any TokenBalanceProvider,
         purchaseInteractor: any CollectiblesPackPurchaseInteractor,
+        routable: (any CollectiblesConfirmOrderRoutable)?,
+        revealAssetsPreloader: any CollectiblesRevealAssetsPreloader,
         refreshBalance: @escaping () async -> Void
     ) {
         self.machineID = machineID
@@ -52,28 +58,29 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         platformFee = machine.platformFee
         total = machine.price + machine.platformFee
         buybackRate = machine.buybackRate
-        openingVideoURL = machine.openingVideoURL
         self.purchaseInteractor = purchaseInteractor
+        self.revealAssetsPreloader = revealAssetsPreloader
+        self.routable = routable
         self.refreshBalance = refreshBalance
         artworkURL = machine.artworkURL
         rows = [
             OrderRow(
+                kind: .pack,
                 title: "\(machine.name) x1",
-                value: CollectiblesPriceFormatter.format(machine.price),
-                isTotal: false
+                value: CollectiblesPriceFormatter.format(machine.price)
             ),
             OrderRow(
+                kind: .fee,
                 title: Localization.collectiblesConfirmOrderPlatformFee,
-                value: CollectiblesPriceFormatter.format(machine.platformFee),
-                isTotal: false
+                value: CollectiblesPriceFormatter.format(machine.platformFee)
             ),
             OrderRow(
+                kind: .total,
                 title: Localization.collectiblesConfirmOrderTotal,
                 value: CollectiblesPriceFormatter.formatAmount(
                     total,
                     ticker: CollectiblesChainEnvironment.usdcTokenItem.currencySymbol
-                ),
-                isTotal: true
+                )
             ),
         ]
 
@@ -89,9 +96,11 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         orderPhase = .generating
         updateButtonState()
 
-        Task { [weak self, purchaseInteractor, machineID, price, platformFee, refreshBalance] in
-            let result: Result<CollectiblesWonCard, any Error>
+        if let revealColorScheme {
+            revealAssetsPreloader.preload(for: revealColorScheme)
+        }
 
+        Task { [weak self, purchaseInteractor, revealAssetsPreloader, machineID, price, platformFee, refreshBalance] in
             do {
                 let wonCard = try await purchaseInteractor.purchase(
                     machineID: machineID,
@@ -100,15 +109,26 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
                     turboMode: .off,
                     onStep: { [weak self] step in self?.apply(step) }
                 )
-                result = .success(wonCard)
+                let imageURLs = [wonCard.imageFrontURL, wonCard.imageBackURL].compactMap { $0 }
+                let assets = await revealAssetsPreloader.assets(prefetchingImages: imageURLs)
+
+                // [REDACTED_TODO_COMMENT]
+                self?.showReveal(of: wonCard, assets: assets)
             } catch {
-                result = .failure(error)
+                self?.handlePurchaseFailure(error)
             }
 
-            // [REDACTED_TODO_COMMENT]
-            self?.handlePurchaseResult(result)
             await refreshBalance()
         }
+    }
+
+    func close() {
+        routable?.closePackFlow()
+    }
+
+    func preloadRevealAssets(for colorScheme: ColorScheme) {
+        revealColorScheme = colorScheme
+        revealAssetsPreloader.preload(for: colorScheme)
     }
 
     func dismissError() {
@@ -132,10 +152,18 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
 // MARK: - Nested types
 
 extension CollectiblesConfirmOrderViewModel {
-    struct OrderRow: Hashable {
+    struct OrderRow: Identifiable {
+        enum Kind {
+            case pack
+            case fee
+            case total
+        }
+
+        let kind: Kind
         let title: String
         let value: String
-        let isTotal: Bool
+
+        var id: Kind { kind }
     }
 
     enum ButtonState {
@@ -200,22 +228,22 @@ private extension CollectiblesConfirmOrderViewModel {
         updateButtonState()
     }
 
-    func handlePurchaseResult(_ result: Result<CollectiblesWonCard, any Error>) {
-        switch result {
-        case .success(let wonCard):
-            let bundledVideoURL = Bundle.main.url(forResource: "CollectiblesPackReveal", withExtension: "mp4")
-            revealViewModel = CollectiblesPackRevealViewModel(
-                videoURL: openingVideoURL ?? bundledVideoURL,
-                prize: CollectiblesPackRevealView.Prize(wonCard: wonCard, buybackRate: buybackRate)
-            )
-            orderPhase = .generated
-        case .failure(let error):
-            CollectiblesLogger.error("Collectibles pack \(machineID) purchase failed", error: error)
-            orderPhase = .idle
-            showError()
-        }
-
+    func showReveal(of wonCard: CollectiblesWonCard, assets: CollectiblesRevealAssets) {
+        revealViewModel = CollectiblesPackRevealViewModel(
+            darkVideoURL: assets.darkVideoURL,
+            lightVideoURL: assets.lightVideoURL,
+            prize: CollectiblesPackRevealView.Prize(wonCard: wonCard, buybackRate: buybackRate),
+            player: AVCollectiblesRevealPlayer(skipAudioURL: assets.skipAudioURL)
+        )
+        orderPhase = .generated
         updateButtonState()
+    }
+
+    func handlePurchaseFailure(_ error: any Error) {
+        CollectiblesLogger.error("Collectibles pack \(machineID) purchase failed", error: error)
+        orderPhase = .idle
+        updateButtonState()
+        showError()
     }
 
     func showError() {

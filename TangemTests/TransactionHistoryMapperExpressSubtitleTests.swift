@@ -74,6 +74,29 @@ struct TransactionHistoryMapperExpressSubtitleTests {
         #expect(fullAddress == "0xOut")
     }
 
+    @Test("A swap whose counterparty leg is a saved contact names that contact in the row")
+    func swapWithContactCounterparty() throws {
+        let blockchain = BSDKBlockchain.ethereum(testnet: false)
+        let resolver = SubtitleOwnerResolver(
+            blockchain: blockchain,
+            currentUserWalletId: UserWalletId(value: Data()),
+            isAccountsMode: false,
+            contacts: [try makeContact(named: "Ivan", address: "0xFrom", on: blockchain)]
+        )
+
+        let viewModel = makeSUT().mapTransactionViewModel(swapRecord(isOutgoing: false), subtitleOwnerResolver: resolver)
+
+        guard case .express(let model)? = viewModel.display.subtitle else {
+            Issue.record("expected an express subtitle for a swap")
+            return
+        }
+        guard case .contact(let name, _, _)? = model.owner else {
+            Issue.record("expected the row to name the contact, got \(String(describing: model.owner))")
+            return
+        }
+        #expect(name == "Ivan")
+    }
+
     @Test("Onramp subtitle shows the paid fiat with a `from:` prefix and no owner")
     func onrampSubtitleFiat() {
         let viewModel = makeSUT().mapTransactionViewModel(onrampRecord(status: .waitingForPayment, toActualAmount: nil))
@@ -217,6 +240,37 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
             cryptoCurrencies: [:]
         )
         return baseRecord(isOutgoing: false, extraInfo: .onramp(info))
+    }
+
+    func makeContact(named name: String, address: String, on blockchain: BSDKBlockchain) throws -> AddressBookContact {
+        let contactId = AddressBookContactID()
+        let contactName = try AddressBookContactNameValidator().validate(name)
+        let decoded = AddressBookDecodedAddressEntry(
+            id: AddressBookAddressEntryID(),
+            address: address,
+            networkId: AddressBookNetworkID(blockchain.networkId),
+            memo: nil,
+            signature: Data([0x01])
+        )
+
+        let entry = try #require(
+            AddressBookVerifiedAddressEntryBuilder(supportedBlockchains: [blockchain]).make(
+                verifying: decoded,
+                contactId: contactId,
+                contactName: contactName,
+                walletPublicKey: Data(repeating: 0xB2, count: 33),
+                verifier: AcceptingAddressBookSignatureVerifier()
+            )
+        )
+
+        return AddressBookContact(
+            id: contactId,
+            walletId: UserWalletId(value: Data([0x01])),
+            name: contactName,
+            appearance: AddressBookContactAppearance(rawColor: "MexicanPink"),
+            createdAt: Date(),
+            entries: try #require(AddressBookContactVerifiedEntries([entry]))
+        )
     }
 }
 

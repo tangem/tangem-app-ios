@@ -54,7 +54,6 @@ final class CommonCryptoAccountsRepository {
 
     private var loadAccountsSubscription: AnyCancellable?
     private var saveAccountsSubscription: AnyCancellable?
-    private var storageDidUpdateSubscription: AnyCancellable?
 
     init(
         tokenItemsRepository: TokenItemsRepository,

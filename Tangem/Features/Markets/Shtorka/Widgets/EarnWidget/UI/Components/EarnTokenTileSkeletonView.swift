@@ -12,21 +12,22 @@ import TangemUI
 
 struct EarnTokenTileSkeletonView: View {
     @ScaledMetric private var tileWidth: CGFloat = 154
+    @ScaledMetric private var scaleFactor: CGFloat = 1
 
     var body: some View {
         VStack(alignment: .leading, spacing: .zero) {
             Shimmer()
-                .variant(.custom(width: 40, height: 40))
+                .variant(.custom(width: 40 * scaleFactor, height: 40 * scaleFactor))
 
             FixedSpacer(height: 22)
 
             Shimmer()
-                .variant(.custom(width: 95, height: 20))
+                .variant(.custom(width: 95 * scaleFactor, height: 20 * scaleFactor))
 
             FixedSpacer(height: 4)
 
             Shimmer()
-                .variant(.custom(width: 120, height: 16))
+                .variant(.custom(width: 120 * scaleFactor, height: 16 * scaleFactor))
         }
         .frame(width: tileWidth, alignment: .topLeading)
         .padding(.bottom, 4)

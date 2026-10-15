@@ -105,7 +105,7 @@ struct YieldModuleActiveContentV2View: View {
             Triangle()
                 .fill(DesignSystem.Color.textBrand)
                 .frame(width: 12, height: 10)
-                .skeletonable(isShown: viewModel.apyState == .loading)
+                .shimmerPlaceholder(viewModel.apyState == .loading)
 
         case .none:
             EmptyView()

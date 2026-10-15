@@ -137,21 +137,44 @@ final class PolymarketOwnerAddressProviderStub: PolymarketOwnerAddressProviding 
     static let ownerAddress = "0xabc0000000000000000000000000000000000001"
 
     private let derived: String?
+    private let isStored: Bool
 
-    init(derived: String? = nil) {
+    init(derived: String? = nil, isStored: Bool = true) {
         self.derived = derived
+        self.isStored = isStored
     }
 
     func getOwnerAddress() -> String? {
-        derived
+        isStored ? derived : nil
+    }
+}
+
+// MARK: - Owner key session
+
+final class PolymarketOwnerKeySessionSpy: PolymarketOwnerKeySession {
+    private(set) var prompts = 0
+
+    let signer: PolymarketOnboardingSignerSpy
+
+    private let error: PolymarketOnboardingError?
+
+    init(signer: PolymarketOnboardingSignerSpy = PolymarketOnboardingSignerSpy(), error: PolymarketOnboardingError? = nil) {
+        self.signer = signer
+        self.error = error
     }
 
-    func deriveOwnerAddress() async throws(PolymarketDerivationError) -> String {
-        guard let derived else {
-            throw PolymarketDerivationError.missingWallet
+    func derive<Output>(
+        andRun work: @escaping (PolymarketOwnerKeySessionContext) async throws -> Output
+    ) async throws -> Output {
+        prompts += 1
+
+        if let error {
+            throw error
         }
 
-        return derived
+        return try await work(
+            PolymarketOwnerKeySessionContext(ownerAddress: PolymarketOwnerAddressProviderStub.ownerAddress, signer: signer)
+        )
     }
 }
 
@@ -169,6 +192,7 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
     }
 
     private(set) var balanceCalls = 0
+    private(set) var credentialRequests = 0
 
     var queuedPriceResults: [Result<Decimal, Error>] = []
 
@@ -193,11 +217,13 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
     }
 
     func createCredentials(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketL2Credentials {
-        try createResult.get()
+        credentialRequests += 1
+        return try createResult.get()
     }
 
     func deriveCredentials(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketL2Credentials {
-        try deriveResult.get()
+        credentialRequests += 1
+        return try deriveResult.get()
     }
 
     func updateBalanceAllowance(credentials: PolymarketL2Credentials, ownerAddress: String) async throws {}
@@ -381,6 +407,8 @@ final class PolymarketAccountModelStub: PolymarketAccountModel {
     func refreshState(scope: PolymarketBalanceRefreshScope) async {}
 
     func refreshBalance(scope: PolymarketBalanceRefreshScope) async {}
+
+    func resetOnboarding(isAccountGone: Bool) {}
 }
 
 // MARK: - Account presence
@@ -388,6 +416,7 @@ final class PolymarketAccountModelStub: PolymarketAccountModel {
 final class PolymarketAccountPresenceStoreStub: PolymarketAccountPresenceStore {
     private var known: Bool
     private var positions: Bool
+    private var shownCount: Int?
 
     init(known: Bool = false, positions: Bool = false) {
         self.known = known
@@ -410,9 +439,18 @@ final class PolymarketAccountPresenceStoreStub: PolymarketAccountPresenceStore {
         positions = true
     }
 
+    func shownPositionsCount(userWalletId: UserWalletId) -> Int? {
+        shownCount
+    }
+
+    func setShownPositionsCount(_ count: Int, for userWalletId: UserWalletId) {
+        shownCount = count
+    }
+
     func delete(userWalletId: UserWalletId) {
         known = false
         positions = false
+        shownCount = nil
     }
 }
 
@@ -422,7 +460,6 @@ final class PolymarketCardSignerStub: TangemSigner {
     private(set) var signCalls = 0
     private(set) var requestedHashes: [Data] = []
 
-    let hasNFCInteraction = false
     let latestSignerType: TangemSignerType? = nil
 
     let publicKey: Data
@@ -487,6 +524,7 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
 
     static let slowEventsDelay: UInt64 = 200_000_000
     var eventPages: [EventsPageKey: PolymarketEventsPage] = [:]
+    var eventErrors: [EventsPageKey: Error] = [:]
     private(set) var eventsRequests: [PolymarketEventsRequest] = []
 
     private var searchResults: [Result<PolymarketSearchResult, Error>]
@@ -525,8 +563,13 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
             try await Task.sleep(nanoseconds: Self.slowEventsDelay)
         }
 
-        return eventPages[EventsPageKey(category: request.category, cursor: request.cursor)]
-            ?? PolymarketEventsPage(events: [], cursor: nil, hasNext: false)
+        let key = EventsPageKey(category: request.category, cursor: request.cursor)
+
+        if let error = eventErrors[key] {
+            throw error
+        }
+
+        return eventPages[key] ?? PolymarketEventsPage(events: [], cursor: nil, hasNext: false)
     }
 
     struct EventsPageKey: Hashable {
@@ -568,6 +611,14 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
 
     func positionOutcome(request: PolymarketPositionOutcomeRequest) async throws -> PolymarketPosition? {
         throw PolymarketDepositWalletServiceStub.StubError()
+    }
+
+    func activity(request: PolymarketActivityRequest) async throws -> PolymarketActivityPage {
+        PolymarketActivityPage(records: [], receivedCount: 0, nextCursor: nil)
+    }
+
+    func reconcileDeposits(depositWalletAddress: String) async throws -> PolymarketDepositsScan {
+        PolymarketDepositsScan(state: .scanning, retryAfter: 0)
     }
 }
 

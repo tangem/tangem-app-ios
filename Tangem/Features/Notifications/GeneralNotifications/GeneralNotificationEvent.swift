@@ -25,7 +25,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case legacyDerivation
     case systemDeprecationTemporary
     case systemDeprecationPermanent(version: String, date: String, hasEnded: Bool)
-    case missingDerivation(numberOfNetworks: Int, icon: MainButton.Icon?, hasNFCInteraction: Bool)
+    case missingDerivation(numberOfNetworks: Int, signingActionButtonType: SigningActionButtonViewType)
     case walletLocked(hasNFCInteraction: Bool)
     case missingBackup
     case supportedOnlySingleCurrencyWallet
@@ -188,12 +188,10 @@ extension GeneralNotificationEvent: NotificationEvent {
             return hasEnded
                 ? Localization.warningIosDeprecationEndedMessage(version, dateString)
                 : Localization.warningIosDeprecationMessage(version, dateString)
-        case .missingDerivation(let numberOfNetworks, _, let hasNFCInteraction):
-            if hasNFCInteraction {
-                return Localization.warningMissingDerivationMessage(numberOfNetworks)
-            } else {
-                return Localization.warningMissingDerivationNoNfcMessage(numberOfNetworks)
-            }
+        case .missingDerivation(let numberOfNetworks, .requiredNFCInteraction):
+            return Localization.warningMissingDerivationMessage(numberOfNetworks)
+        case .missingDerivation(let numberOfNetworks, .holdToConfirm):
+            return Localization.warningMissingDerivationNoNfcMessage(numberOfNetworks)
         case .walletLocked(let hasNFCInteraction):
             let biometryName = BiometricsUtil.biometryType.name
             return hasNFCInteraction
@@ -414,13 +412,13 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .withButtons([
                 NotificationView.NotificationButton(action: buttonAction, actionType: .backupCard, isWithLoader: false),
             ])
-        case .missingDerivation(_, let icon, _):
+        case .missingDerivation(_, let signingActionButtonType):
             guard let buttonAction else {
                 break
             }
 
             return .withButtons([
-                .init(action: buttonAction, actionType: .generateAddresses(icon: icon), isWithLoader: true),
+                .init(action: buttonAction, actionType: .generateAddresses(icon: signingActionButtonType.mainButtonIcon), isWithLoader: true),
             ])
         case .rateApp:
             guard let buttonAction else {

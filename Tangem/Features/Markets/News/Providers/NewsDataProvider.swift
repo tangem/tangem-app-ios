@@ -18,19 +18,15 @@ final class NewsDataProvider {
 
     // MARK: - Subjects
 
-    private let _categoriesSubject = CurrentValueSubject<[NewsDTO.Categories.Item], Never>([])
+    private let _categoriesSubject = CurrentValueSubject<LoadingResult<[NewsDTO.Categories.Item], any Error>, Never>(.loading)
     private let _eventSubject = PassthroughSubject<Event, Never>()
 
-    var categoriesPublisher: AnyPublisher<[NewsDTO.Categories.Item], Never> {
+    var categoriesPublisher: AnyPublisher<LoadingResult<[NewsDTO.Categories.Item], any Error>, Never> {
         _categoriesSubject.eraseToAnyPublisher()
     }
 
     var eventPublisher: AnyPublisher<Event, Never> {
         _eventSubject.eraseToAnyPublisher()
-    }
-
-    var categories: [NewsDTO.Categories.Item] {
-        _categoriesSubject.value
     }
 
     // MARK: - Public Properties
@@ -123,9 +119,10 @@ final class NewsDataProvider {
 
             do {
                 let response = try await tangemApiService.loadNewsCategories()
-                _categoriesSubject.send(response.items)
+                _categoriesSubject.send(.success(response.items))
             } catch {
                 AppLogger.error("📰 [NewsDataProvider] Failed to fetch categories", error: error)
+                _categoriesSubject.send(.failure(error))
                 // Silently fail - categories are optional
             }
         }.eraseToAnyCancellable()

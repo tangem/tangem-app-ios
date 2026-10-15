@@ -292,8 +292,4 @@ enum OpCode: OpCodeProtocol {
     var value: UInt8 {
         return opcode.value
     }
-
-    var isOpCode: Bool {
-        self > OpCode.OP_PUSHDATA4
-    }
 }

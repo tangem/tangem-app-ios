@@ -87,10 +87,6 @@ final class FakeTangemApiService: TangemApiService {
         .anyFail(error: "Not implemented")
     }
 
-    func loadRates(for coinIds: [String]) -> AnyPublisher<[String: Decimal], Error> {
-        .anyFail(error: "Not implemented")
-    }
-
     func loadCurrencies() -> AnyPublisher<[CurrenciesResponse.Currency], Error> {
         .anyFail(error: "Not implemented")
     }

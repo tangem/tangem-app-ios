@@ -55,7 +55,6 @@ private extension EarnFeedView {
         static let horizontalPadding: CGFloat = 16
         static let paginationSpacing: CGFloat = 0
         static let paginationMinHeight: CGFloat = 32
-        static let listCornerRadius: CGFloat = 24
         static let skeletonRowsCount = 5
     }
 }

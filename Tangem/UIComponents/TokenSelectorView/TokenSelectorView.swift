@@ -363,7 +363,6 @@ extension TokenSelectorView {
 
     private enum Constants {
         static var scrollToTopAnchorID: String { "TokenSelectorView.scrollToTopAnchor" }
-        static var chipsToListExtraSpacing: CGFloat { 8 }
         static var redesignedChipHeight: CGFloat { 36 }
         static var redesignedChipCornerRadius: CGFloat { 24 }
         static var redesignedChipsSpacing: CGFloat { 8 }

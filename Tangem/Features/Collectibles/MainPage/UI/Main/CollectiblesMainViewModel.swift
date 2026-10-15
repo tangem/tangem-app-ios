@@ -225,10 +225,10 @@ private extension CollectiblesMainViewModel {
             searchResultsViewModel.show(packsViewModel.catalogueSnapshot())
         case .empty:
             searchResultsViewModel.showEmpty()
-        case .loading:
+        case .loading, .reloading:
             searchResultsViewModel.showLoading()
             pendingCatalogueSync = Task { [weak self, packsViewModel] in
-                _ = await packsViewModel.$state.values.first { !$0.isLoading }
+                _ = await packsViewModel.$state.values.first { !$0.isLoading && !$0.isReloading }
 
                 guard let self, !Task.isCancelled else { return }
                 pendingCatalogueSync = nil

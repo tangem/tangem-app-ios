@@ -12,8 +12,6 @@ import SwiftUI
 
 #if DEBUG
 
-private typealias _Pagination = TangemPagination
-
 // MARK: - Interactive Demo View
 
 private struct PaginationDemoView: View {

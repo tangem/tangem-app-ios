@@ -10,36 +10,11 @@ import ReownWalletKit
 
 extension WCServiceV2 {
     enum LoggerStrings {
-        // General errors
-        static let walletConnectRedirectFailure = "WalletConnect redirect configure failure"
         static let userRejectWC = "User reject WC connection"
         static let failedToRejectWC = "Failed to reject WC connection"
-        static let failedToApproveSession = "Failed to approve Session"
-        static let noSelectedWallet = "Info provider is not setup. Saved session will miss some info"
-
-        /// Session handling
-        static func failedToFindSession(_ id: Int) -> String {
-            "Failed to find session with id: \(id). Attempt to disconnect session failed"
-        }
-
-        static func attemptToDisconnect(_ topic: String) -> String {
-            "Attempt to disconnect session with topic: \(topic)"
-        }
-
-        static func sessionDisconnected(_ topic: String) -> String {
-            "Session with topic: \(topic) was disconnected from SignAPI. Removing from storage"
-        }
-
-        static func failedToRemoveSession(_ topic: String) -> String {
-            "Failed to remove session with \(topic) from SignAPI. Removing anyway from storage"
-        }
 
         static func failedToDisconnectSession(_ topic: String) -> String {
             "Failed to disconnect session with topic: \(topic)"
-        }
-
-        static func failedDisconnectSessions(_ userWalletId: String) -> String {
-            "Failed to disconnect session while disconnecting all sessions for user wallet with id: \(userWalletId)"
         }
 
         static func sessionEstablished(_ session: Session) -> String {
@@ -63,10 +38,6 @@ extension WCServiceV2 {
             "Session proposal: \(sessionProposal) with verify context: \(String(describing: context))"
         }
 
-        static func attemptingToApproveSession(_ proposal: Session.Proposal) -> String {
-            "Attempting to approve session proposal: \(proposal)"
-        }
-
         static func namespacesToApprove(_ namespaces: [String: SessionNamespace]) -> String {
             "Namespaces to approve for session connection: \(namespaces)"
         }
@@ -82,10 +53,6 @@ extension WCServiceV2 {
 
         static func failedToConnect(_ url: WalletConnectURI) -> String {
             "Failed to connect to \(url)"
-        }
-
-        static func savedSession(_ topic: String, _ url: String) -> String {
-            "Saving session with topic: \(topic).\ndApp url: \(url)"
         }
 
         /// Disconnect actions

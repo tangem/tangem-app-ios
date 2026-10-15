@@ -147,7 +147,6 @@ extension WalletConnectViewState.ContentState {
 
     struct ConnectedDApp: Identifiable, Equatable {
         let domainModel: WalletConnectConnectedDApp
-        let fallbackIconAsset = Assets.Glyphs.explore
 
         var id: String {
             "\(domainModel.session.topic)|\(domainModel.accountId)"

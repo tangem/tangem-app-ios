@@ -32,7 +32,6 @@ final class CommonMobileAccessCodeManager {
     private let storageManager: MobileAccessCodeStorageManager
 
     private var bag: Set<AnyCancellable> = []
-    private var timersBag: Set<AnyCancellable> = []
 
     init(
         userWalletId: UserWalletId,
@@ -292,16 +291,6 @@ private extension CommonMobileAccessCodeManager {
 
     func makeAvailableBeforeLockCommand(remaining: Int) -> StateCommand {
         let state: MobileAccessCodeState = .available(.beforeLock(remaining: remaining))
-        return .update(state)
-    }
-
-    func makeAvailableBeforeWarningCommand(remaining: Int) -> StateCommand {
-        let state: MobileAccessCodeState = .available(.beforeWarning(remaining: remaining))
-        return .update(state)
-    }
-
-    func makeAvailableBeforeDeleteCommand(remaining: Int) -> StateCommand {
-        let state: MobileAccessCodeState = .available(.beforeDelete(remaining: remaining))
         return .update(state)
     }
 

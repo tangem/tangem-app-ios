@@ -24,11 +24,7 @@ final class JointAccountSendMainButtonUIOptionsProvider: SendMainButtonUIOptions
         }
     }
 
-    func mainButtonNeedsHoldAction(mainButtonType: SendMainButtonType, flowActionType: SendFlowActionType) -> Bool {
-        base.mainButtonNeedsHoldAction(mainButtonType: mainButtonType, flowActionType: flowActionType)
-    }
-
-    func mainButtonIcon(mainButtonType: SendMainButtonType, flowActionType: SendFlowActionType) -> MainButton.Icon? {
-        base.mainButtonIcon(mainButtonType: mainButtonType, flowActionType: flowActionType)
+    func mainButtonSigningActionButtonType(mainButtonType: SendMainButtonType, flowActionType: SendFlowActionType) -> SigningActionButtonViewType? {
+        base.mainButtonSigningActionButtonType(mainButtonType: mainButtonType, flowActionType: flowActionType)
     }
 }

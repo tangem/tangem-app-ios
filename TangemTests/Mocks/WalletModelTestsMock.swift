@@ -30,6 +30,8 @@ final class WalletModelTestsMock: WalletModel {
     var stakingManagerMock: StakingManager?
     var yieldModuleManagerMock: (any YieldModuleManager)?
     var tronAccountActivationStateProviderMock: (any TronAccountActivationStateProvider)?
+    var isCustomMock = false
+    var sendingRestrictionsMock: SendingRestrictions?
     private let _updateAfterSendingTransactionCalls = OSAllocatedUnfairLock(initialState: [Bool]())
     var updateAfterSendingTransactionSilentFlags: [Bool] { _updateAfterSendingTransactionCalls.withLock { $0 } }
     var updateAfterSendingTransactionCallCount: Int { updateAfterSendingTransactionSilentFlags.count }
@@ -109,8 +111,23 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - AvailableTokenBalanceProviderInput
 
-    var state: WalletModelState { .loaded(0) }
-    var statePublisher: AnyPublisher<WalletModelState, Never> { .just(output: state) }
+    private let _state = CurrentValueSubject<WalletModelState?, Never>(nil)
+    private let _stateSubscriptions = OSAllocatedUnfairLock(initialState: 0)
+
+    var stateMock: WalletModelState? {
+        get { _state.value }
+        set { _state.send(newValue) }
+    }
+
+    var stateSubscriptionCount: Int { _stateSubscriptions.withLock { $0 } }
+
+    var state: WalletModelState { _state.value ?? .loaded(0) }
+    var statePublisher: AnyPublisher<WalletModelState, Never> {
+        _state
+            .handleEvents(receiveSubscription: { [_stateSubscriptions] _ in _stateSubscriptions.withLock { $0 += 1 } })
+            .map { $0 ?? .loaded(0) }
+            .eraseToAnyPublisher()
+    }
 
     // MARK: - FiatTokenBalanceProviderInput
 
@@ -175,13 +192,13 @@ final class WalletModelTestsMock: WalletModel {
     var canUseQuotes: Bool { true }
     var isEmpty: Bool { _isEmpty }
     var publicKey: Wallet.PublicKey { Wallet.PublicKey(seedKey: Data(), derivationType: .none) }
-    var isCustom: Bool { false }
+    var isCustom: Bool { isCustomMock }
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { .empty }
     var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
     var qrReceiveMessage: String { "" }
     var isDemo: Bool { false }
     var demoBalance: Decimal? { get { nil } set {} }
-    var sendingRestrictions: SendingRestrictions? { nil }
+    var sendingRestrictions: SendingRestrictions? { sendingRestrictionsMock }
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { .empty }
     var stakingManager: StakingManager? { stakingManagerMock }
     var stakeKitTransactionSender: StakeKitTransactionSender? { nil }
@@ -196,7 +213,8 @@ final class WalletModelTestsMock: WalletModel {
     var fiatStakingBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var blockchainDataProvider: BlockchainDataProvider { fatalError() }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { nil }
-    var assetRequirementsManager: AssetRequirementsManager? { nil }
+    var assetRequirementsManagerMock: AssetRequirementsManager?
+    var assetRequirementsManager: AssetRequirementsManager? { assetRequirementsManagerMock }
     var transactionFeeProvider: TransactionFeeProvider { fatalError() }
     var transactionCreator: TransactionCreator {
         guard let transactionCreatorMock else { fatalError("transactionCreatorMock is not set") }

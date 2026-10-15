@@ -192,6 +192,62 @@ struct PolymarketWithdrawTransactionServiceTests {
         }
     }
 
+    @Test("A conflict from a wallet that is no longer ready to trade asks for a reconnect instead of a generic refusal")
+    func conflictFromANotReadyWalletRequiresAReconnect() async throws {
+        let sessionHealth = PolymarketSessionHealthSpy(verdict: .reconnectRequired)
+        let context = try Context(submitResults: [.failure(.conflict(detail: nil))], sessionHealth: sessionHealth)
+
+        do {
+            _ = try await context.sut.withdraw(amount: 1, to: recipientAddress)
+            Issue.record("A refused submission must not be reported as a success")
+        } catch PolymarketWithdrawTransactionService.Error.reconnectRequired {
+            #expect(sessionHealth.verifyCalls == 1)
+            #expect(context.withdrawService.submitted.count == 1)
+            #expect(context.tracker.tracked.isEmpty)
+        }
+    }
+
+    @Test("A conflict while the wallet is still ready to trade stays the refusal the backend sent")
+    func conflictFromAReadyWalletStaysARefusal() async throws {
+        let sessionHealth = PolymarketSessionHealthSpy(verdict: .ready)
+        let context = try Context(submitResults: [.failure(.conflict(detail: "busy"))], sessionHealth: sessionHealth)
+
+        do {
+            _ = try await context.sut.withdraw(amount: 1, to: recipientAddress)
+            Issue.record("A refused submission must not be reported as a success")
+        } catch PolymarketWithdrawTransactionService.Error.refused(.conflict(let detail)) {
+            #expect(detail == "busy")
+            #expect(sessionHealth.verifyCalls == 1)
+        }
+    }
+
+    @Test("A wallet found not ready before signing reports its status and asks for a reconnect, with nothing signed")
+    func notReadyWalletRequiresAReconnectBeforeSigning() async throws {
+        let sessionHealth = PolymarketSessionHealthSpy(verdict: .reconnectRequired)
+        let context = try Context(walletStatus: .deployed, sessionHealth: sessionHealth)
+
+        do {
+            _ = try await context.sut.withdraw(amount: 1, to: recipientAddress)
+            Issue.record("A wallet that is not ready must not withdraw")
+        } catch PolymarketWithdrawTransactionService.Error.reconnectRequired {
+            #expect(sessionHealth.reportedStatuses == [.deployed])
+            #expect(context.withdrawService.submitted.isEmpty)
+        }
+    }
+
+    @Test("A wallet status this build does not recognise fails the preparation instead of asking for a reconnect")
+    func unrecognisedWalletStatusFailsThePreparation() async throws {
+        let sessionHealth = PolymarketSessionHealthSpy(verdict: .inconclusive)
+        let context = try Context(walletStatus: .unknown, sessionHealth: sessionHealth)
+
+        do {
+            _ = try await context.sut.withdraw(amount: 1, to: recipientAddress)
+            Issue.record("A wallet that is not ready must not withdraw")
+        } catch PolymarketWithdrawTransactionService.Error.preparationFailed {
+            #expect(context.withdrawService.submitted.isEmpty)
+        }
+    }
+
     @Test("The address the user is withdrawing to is the address the bridge is told to deliver to")
     func asksTheBridgeToDeliverToTheUsersAddress() async throws {
         let context = try Context()
@@ -214,9 +270,10 @@ struct PolymarketWithdrawTransactionServiceTests {
         #expect(context.bridge.receivedBuilderCodes == [ConfigurationServiceStub.code])
     }
 
-    @Test("A confirmed first leg is reported as confirmed")
+    @Test("A first leg confirmed on submission is reported as confirmed")
     func reportsAConfirmedFirstLeg() async throws {
-        let context = try Context(states: [.init(transactionId: transactionId, state: .confirmed, transactionHash: "0x7ae1")])
+        let confirmed = PolymarketWithdrawRecord(transactionId: transactionId, state: .confirmed, transactionHash: "0x7ae1")
+        let context = try Context(submitResults: [.success(confirmed)])
 
         let record = try await context.sut.withdraw(amount: 1, to: recipientAddress)
 
@@ -224,31 +281,43 @@ struct PolymarketWithdrawTransactionServiceTests {
         #expect(record.transactionHash == "0x7ae1")
     }
 
-    @Test("A first leg still in flight is handed back as it is, never as a failure")
-    func doesNotReportAnUnsettledFirstLegAsAFailure() async throws {
-        let context = try Context(states: [.init(transactionId: transactionId, state: .inProgress, transactionHash: nil)])
+    @Test("A first leg still in flight is handed back as it is, without waiting for it to settle")
+    func handsBackAnUnsettledFirstLegWithoutWaiting() async throws {
+        let accepted = PolymarketWithdrawRecord(transactionId: transactionId, state: .inProgress, transactionHash: nil)
+        let context = try Context(submitResults: [.success(accepted)])
 
         let record = try await context.sut.withdraw(amount: 1, to: recipientAddress)
 
         #expect(record.state == .inProgress)
+        #expect(context.withdrawService.recordRequests == 0)
     }
 
-    @Test("A hash learned while polling survives a wait that ran out")
-    func keepsTheHashLearnedWhilePolling() async throws {
-        let context = try Context(states: [
-            .init(transactionId: transactionId, state: .inProgress, transactionHash: nil),
-            .init(transactionId: transactionId, state: .inProgress, transactionHash: "0x99"),
-        ])
+    @Test("Every submitted withdrawal is handed to the tracker before the send flow learns of it")
+    func handsTheSubmittedWithdrawalToTheTracker() async throws {
+        let accepted = PolymarketWithdrawRecord(transactionId: transactionId, state: .inProgress, transactionHash: nil)
+        let context = try Context(submitResults: [.success(accepted)])
 
-        let record = try await context.sut.withdraw(amount: 1, to: recipientAddress)
+        _ = try await context.sut.withdraw(amount: 1, to: recipientAddress)
 
-        #expect(record.state == .inProgress)
-        #expect(record.transactionHash == "0x99")
+        let batch = try #require(context.withdrawService.submitted.singleElement)
+
+        #expect(context.tracker.tracked.map(\.record) == [accepted])
+        #expect(context.tracker.tracked.map(\.deadline) == [Date(timeIntervalSince1970: try #require(TimeInterval(batch.deadline)))])
+    }
+
+    @Test("A withdrawal the backend refused on submission is never tracked, since it never started")
+    func doesNotTrackARefusedSubmission() async throws {
+        let context = try Context(submitResults: [.failure(.conflict(detail: nil))])
+
+        _ = try? await context.sut.withdraw(amount: 1, to: recipientAddress)
+
+        #expect(context.tracker.tracked.isEmpty)
     }
 
     @Test("A failed transfer is reported, since it never executed and may be signed again")
     func reportsAFailedTransfer() async throws {
-        let context = try Context(states: [.init(transactionId: transactionId, state: .failed, transactionHash: nil)])
+        let failed = PolymarketWithdrawRecord(transactionId: transactionId, state: .failed, transactionHash: nil)
+        let context = try Context(submitResults: [.success(failed)])
 
         do {
             _ = try await context.sut.withdraw(amount: 1, to: recipientAddress)
@@ -256,6 +325,8 @@ struct PolymarketWithdrawTransactionServiceTests {
         } catch PolymarketWithdrawTransactionService.Error.transferFailed(let record) {
             #expect(record.state == .failed)
         }
+
+        #expect(context.tracker.tracked.map(\.record) == [failed])
     }
 
     @Test("A cancelled card tap leaves the flow as a cancellation")
@@ -338,17 +409,25 @@ struct PolymarketWithdrawTransactionServiceTests {
 
 @Suite("Polymarket withdraw pair")
 struct PolymarketWithdrawSwapParametersTests {
-    @Test("The source is the prediction account, and markets cannot add another one")
-    func sourceIsThePredictionAccountAlone() throws {
+    @Test("The source is pinned to the prediction account: nothing to pick, nothing to add from markets")
+    func sourceIsPinnedToThePredictionAccount() throws {
         let configuration = try makeConfiguration()
 
-        guard case .restricted(let walletsProvider, let allowsMarketsTokens) = configuration.sourceTokenSelection else {
-            Issue.record("The source must be restricted to the prediction account")
+        guard case .fixed = configuration.sourceTokenSelection else {
+            Issue.record("The source must be pinned to the prediction account")
             return
         }
 
-        #expect(walletsProvider is PolymarketWithdrawSourceWalletsProvider)
-        #expect(allowsMarketsTokens == false)
+        #expect(configuration.sourceTokenSelection.isSelectionEnabled == false)
+        #expect(configuration.sourceTokenSelection.allowsMarketsTokens == false)
+    }
+
+    @Test("Even if the source selector were ever opened, it would list nothing")
+    func sourceSelectorOffersNothing() throws {
+        let provider = try #require(makeConfiguration().sourceTokenSelection.walletsProvider as? FilteredTokenSelectorWalletsProvider)
+
+        #expect(!provider.isIncluded(CampaignsFixtures.makeTokenSelectorItem(tokenItem: .usdcOnPolygon)))
+        #expect(!provider.isIncluded(CampaignsFixtures.makeTokenSelectorItem(tokenItem: CampaignsFixtures.usdcOnEthereum)))
     }
 
     @Test("The destination stays selectable while markets search is off")
@@ -366,14 +445,6 @@ struct PolymarketWithdrawSwapParametersTests {
         #expect(filter.isIncluded(CampaignsFixtures.makeTokenSelectorItem(tokenItem: .usdcOnPolygon)))
         #expect(!filter.isIncluded(CampaignsFixtures.makeTokenSelectorItem(tokenItem: .usdtOnPolygon)))
         #expect(!filter.isIncluded(CampaignsFixtures.makeTokenSelectorItem(tokenItem: CampaignsFixtures.usdcOnEthereum)))
-    }
-
-    @Test("A row that is not a plain crypto account never passes the destination filter, whatever it holds")
-    func destinationFilterRejectsNonCryptoAccounts() throws {
-        let filter = try #require(makeConfiguration().receiveTokenSelection.walletsProvider as? FilteredTokenSelectorWalletsProvider)
-        let predictionAccountRow = try TokenSelectorItem(userWalletInfo: makeUserWalletInfo(), kind: .polymarket(makeSource()))
-
-        #expect(!filter.isIncluded(predictionAccountRow))
     }
 
     @Test("The single token the flow offers to add is USDC on Polygon, held by the wallet and not by the account")
@@ -427,6 +498,16 @@ struct PolymarketWithdrawTransactionDispatcherTests {
 
         #expect(withdrawing.calls == [WithdrawingSpy.Call(amount: 12.5, recipientAddress: recipientAddress)])
         #expect(result.hash == transactionId)
+    }
+
+    @Test("A withdrawal never links to an explorer, since its hash is the transfer to the bridge and not the delivery")
+    func neverLinksToAnExplorer() async throws {
+        let sut = try makeSUT(withdrawing: WithdrawingSpy(transactionHash: "0x7ae1"))
+
+        let result = try await sut.send(transaction: .transfer(makeTransfer(amount: 12.5, destination: recipientAddress)))
+
+        #expect(result.hash == "0x7ae1")
+        #expect(result.url == nil)
     }
 
     @Test("A provider swap is refused, since the only thing that may leave the account is the transfer")
@@ -537,6 +618,7 @@ private extension PolymarketWithdrawTransactionServiceTests {
     struct Context {
         let sut: PolymarketWithdrawTransactionService
         let withdrawService: WithdrawServiceSpy
+        let tracker = TrackerSpy()
         let bridge: BridgeServiceSpy
         let ownerAddress: String
         let depositWalletAddress: String
@@ -546,12 +628,11 @@ private extension PolymarketWithdrawTransactionServiceTests {
             assets: [PolymarketSupportedAsset] = [.usdcOnPolygon],
             withdrawAddresses: PolymarketBridgeAddresses = PolymarketBridgeAddresses(addresses: [.evm: bridgeAddress]),
             submitResults: [Result<PolymarketWithdrawRecord, PolymarketWithdrawError>?] = [],
-            states: [PolymarketWithdrawRecord] = [
-                .init(transactionId: transactionId, state: .confirmed, transactionHash: "0x7ae1"),
-            ],
             configurationService: PolymarketConfigurationService = ConfigurationServiceStub(),
             signing: (any PolymarketBatchSigning)? = nil,
-            serverClock: PolymarketServerClock = PolymarketServerClock()
+            serverClock: PolymarketServerClock = PolymarketServerClock(),
+            walletStatus: PolymarketDepositWalletStatus = .readyToTrade,
+            sessionHealth: PolymarketSessionHealthChecking? = nil
         ) throws {
             let cardSigner = try PolymarketCardSignerStub()
             let keysRepository = KeysRepositoryTestsMock(keys: [
@@ -583,7 +664,7 @@ private extension PolymarketWithdrawTransactionServiceTests {
                 ?? PolymarketBatchSigner(keysRepository: keysRepository, signer: cardSigner)
 
             let depositWallet = try PolymarketDepositWalletDeriver.derive(ownerAddress: resolvedOwner)
-            let withdrawService = WithdrawServiceSpy(submitResults: submitResults, states: states)
+            let withdrawService = WithdrawServiceSpy(submitResults: submitResults)
             let bridge = BridgeServiceSpy(assets: assets, withdrawAddresses: withdrawAddresses)
 
             self.bridge = bridge
@@ -596,16 +677,18 @@ private extension PolymarketWithdrawTransactionServiceTests {
                 configurationService: configurationService,
                 relayerService: PolymarketRelayerServiceStub(),
                 withdrawService: withdrawService,
+                tracker: tracker,
                 depositWalletResolver: PolymarketDepositWalletResolver(
                     walletService: PolymarketDepositWalletServiceStub(
-                        status: .readyToTrade,
+                        status: walletStatus,
                         depositWalletAddress: depositWallet
                     ),
-                    ownerAddressProvider: PolymarketOwnerAddressProviderStub(derived: resolvedOwner)
+                    ownerAddressProvider: PolymarketOwnerAddressProviderStub(derived: resolvedOwner),
+                    sessionHealth: sessionHealth
                 ),
                 signer: resolvedSigner,
                 serverClock: serverClock,
-                pollDelayProvider: InstantPollDelayProvider()
+                sessionHealth: sessionHealth
             )
         }
     }
@@ -645,7 +728,8 @@ private extension PolymarketWithdrawSwapParametersTests {
             bridgeService: BridgeServiceSpy(assets: [.usdcOnPolygon]),
             configurationService: ConfigurationServiceStub(),
             relayerService: PolymarketRelayerServiceStub(),
-            withdrawService: WithdrawServiceSpy(submitResults: [], states: []),
+            withdrawService: WithdrawServiceSpy(submitResults: []),
+            tracker: TrackerSpy(),
             depositWalletResolver: PolymarketDepositWalletResolver(
                 walletService: PolymarketDepositWalletServiceStub(
                     status: .readyToTrade,
@@ -797,9 +881,11 @@ private final class WithdrawingSpy: PolymarketWithdrawing {
 
     private let state = OSAllocatedUnfairLock(initialState: [Call]())
     private let failure: Error?
+    private let transactionHash: String?
 
-    init(failure: Error? = nil) {
+    init(failure: Error? = nil, transactionHash: String? = nil) {
         self.failure = failure
+        self.transactionHash = transactionHash
     }
 
     func withdraw(amount: Decimal, to recipientAddress: String) async throws -> PolymarketWithdrawRecord {
@@ -809,7 +895,7 @@ private final class WithdrawingSpy: PolymarketWithdrawing {
             throw failure
         }
 
-        return PolymarketWithdrawRecord(transactionId: transactionId, state: .confirmed, transactionHash: nil)
+        return PolymarketWithdrawRecord(transactionId: transactionId, state: .confirmed, transactionHash: transactionHash)
     }
 }
 
@@ -860,18 +946,29 @@ private struct CancellingSignerStub: PolymarketBatchSigning {
     }
 }
 
+private final class TrackerSpy: PolymarketWithdrawTracking {
+    struct Tracked: Equatable {
+        let record: PolymarketWithdrawRecord
+        let deadline: Date
+    }
+
+    var tracked: [Tracked] { state.withLock { $0 } }
+
+    private let state = OSAllocatedUnfairLock(initialState: [Tracked]())
+
+    func track(_ record: PolymarketWithdrawRecord, deadline: Date) async {
+        state.withLock { $0.append(Tracked(record: record, deadline: deadline)) }
+    }
+}
+
 private final class WithdrawServiceSpy: PolymarketWithdrawService {
     private(set) var submitted: [PolymarketRelayedBatch] = []
+    private(set) var recordRequests = 0
 
     private var submitResults: [Result<PolymarketWithdrawRecord, PolymarketWithdrawError>?]
-    private var states: [PolymarketWithdrawRecord]
 
-    init(
-        submitResults: [Result<PolymarketWithdrawRecord, PolymarketWithdrawError>?],
-        states: [PolymarketWithdrawRecord]
-    ) {
+    init(submitResults: [Result<PolymarketWithdrawRecord, PolymarketWithdrawError>?]) {
         self.submitResults = submitResults
-        self.states = states
     }
 
     func submit(_ batch: PolymarketRelayedBatch) async throws(PolymarketWithdrawError) -> PolymarketWithdrawRecord {
@@ -889,7 +986,9 @@ private final class WithdrawServiceSpy: PolymarketWithdrawService {
     }
 
     func record(ofWithdrawal transactionId: String) async throws(PolymarketWithdrawError) -> PolymarketWithdrawRecord {
-        states.count > 1 ? states.removeFirst() : (states.first ?? accepted)
+        recordRequests += 1
+
+        return accepted
     }
 
     private var accepted: PolymarketWithdrawRecord {

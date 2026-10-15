@@ -36,6 +36,7 @@ struct ExpandedAccountItemHeaderView: View {
     /// compensates for the vertical position difference, ensuring the matchedGeometryEffect
     /// animation moves horizontally rather than diagonally.
     @ScaledMetric private var collapsedLayoutAlignmentOffset: CGFloat = 1
+    @ScaledMetric private var scaleFactor: CGFloat = 1
 
     /// Computed offset for tokensCount alignment guide.
     /// Derived from base offset minus the collapsed alignment compensation.
@@ -126,10 +127,7 @@ struct ExpandedAccountItemHeaderView: View {
             LoadableBalanceView(
                 state: totalFiatBalance,
                 style: LoadableBalanceView.Style(font: Font.Tangem.Caption12.medium, textColor: .Tangem.Text.Neutral.tertiary),
-                loader: LoadableBalanceView.LoaderStyle(
-                    size: CGSize(width: 40, height: 12),
-                    appearance: .tangemShimmer
-                )
+                loader: LoadableBalanceView.LoaderStyle(size: CGSize(width: 40, height: 12) * scaleFactor)
             )
             .matchedGeometryEffect(balanceGeometryEffect)
         }
