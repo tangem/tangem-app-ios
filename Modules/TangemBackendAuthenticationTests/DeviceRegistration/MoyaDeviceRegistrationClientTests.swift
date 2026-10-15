@@ -11,6 +11,7 @@ import Testing
 import Alamofire
 import Moya
 import TangemFoundation
+import TangemNetworkUtils
 @testable import TangemBackendAuthentication
 
 @Suite(.tags(.backendAuthentication))
@@ -119,9 +120,12 @@ struct MoyaDeviceRegistrationClientTests {
     }
 
     @Test
-    func registerThrowsAlreadyRegisteredForConflictStatusCode() async throws {
+    func registerThrowsAlreadyRegisteredFor409WithMatchingProblemDetail() async throws {
         let alreadyRegisteredStatusCode = 409
-        let sut = try Self.makeSUT(statusCode: alreadyRegisteredStatusCode)
+        let sut = try Self.makeSUT(
+            statusCode: alreadyRegisteredStatusCode,
+            responseBody: TangemProblemDetailError.deviceAlreadyRegistered.jsonString
+        )
 
         let error = try await #require(throws: DeviceRegistrationClientError.self) {
             _ = try await sut.register(request: DeviceRegistrationRequest.fake)
@@ -129,6 +133,24 @@ struct MoyaDeviceRegistrationClientTests {
 
         guard case .alreadyRegistered = error else {
             Issue.record("Expected .alreadyRegistered, got \(error)")
+            return
+        }
+    }
+
+    @Test
+    func registerThrowsRegisterFailedFor409WithNonMatchingProblemDetail() async throws {
+        let alreadyRegisteredStatusCode = 409
+        let sut = try Self.makeSUT(
+            statusCode: alreadyRegisteredStatusCode,
+            responseBody: TangemProblemDetailError.deviceNotFound.jsonString
+        )
+
+        let error = try await #require(throws: DeviceRegistrationClientError.self) {
+            _ = try await sut.register(request: DeviceRegistrationRequest.fake)
+        }
+
+        guard case .registerFailed = error else {
+            Issue.record("Expected .registerFailed, got \(error)")
             return
         }
     }
