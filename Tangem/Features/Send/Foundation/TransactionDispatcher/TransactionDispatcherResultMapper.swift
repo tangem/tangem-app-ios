@@ -53,17 +53,11 @@ struct TransactionDispatcherResultMapper {
     ) -> TransactionDispatcherResult {
         let signerType = signer?.analyticsParameterValue ?? Analytics.ParameterValue.unknown
 
-        let explorerURL = record.transactionHash.flatMap { hash in
-            ExternalLinkProviderFactory()
-                .makeProvider(for: PolymarketUtilities.blockchain)
-                .url(transaction: hash)
-        }
-
         return TransactionDispatcherResult(
             // The relayer does not always attach a Polygon hash, and the withdrawal is identified by its
             // own id everywhere else, so that is what the finish step falls back to.
             hash: record.transactionHash ?? record.transactionId,
-            url: explorerURL,
+            url: nil,
             signerType: signerType.rawValue,
             currentHost: HostAnalyticsFormatterUtil().formattedHost(from: host)
         )

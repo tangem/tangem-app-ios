@@ -90,8 +90,8 @@ struct PolymarketMainView: View {
                     .transition(.opacity)
             }
 
-            if viewModel.isAwaitingFunds {
-                PolymarketOrderNotificationsView(notifications: [.awaitingFunds])
+            if !viewModel.fundingNotifications.isEmpty {
+                PolymarketOrderNotificationsView(notifications: viewModel.fundingNotifications)
                     .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
                     .padding(.top, Constants.bannerTopSpacing)
                     .transition(.opacity)

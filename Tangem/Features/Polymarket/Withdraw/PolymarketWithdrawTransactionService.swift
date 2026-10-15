@@ -18,10 +18,10 @@ actor PolymarketWithdrawTransactionService {
     private let configurationService: PolymarketConfigurationService
     private let relayerService: PolymarketRelayerService
     private let withdrawService: PolymarketWithdrawService
+    private let tracker: any PolymarketWithdrawTracking
     private let depositWalletResolver: PolymarketDepositWalletResolver
     private let signer: PolymarketBatchSigning
     private let serverClock: PolymarketServerClock
-    private let pollDelayProvider: PollDelayProvider
 
     private var isWithdrawInProgress = false
 
@@ -30,19 +30,19 @@ actor PolymarketWithdrawTransactionService {
         configurationService: PolymarketConfigurationService,
         relayerService: PolymarketRelayerService,
         withdrawService: PolymarketWithdrawService,
+        tracker: any PolymarketWithdrawTracking,
         depositWalletResolver: PolymarketDepositWalletResolver,
         signer: PolymarketBatchSigning,
-        serverClock: PolymarketServerClock,
-        pollDelayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
+        serverClock: PolymarketServerClock
     ) {
         self.bridgeService = bridgeService
         self.configurationService = configurationService
         self.relayerService = relayerService
         self.withdrawService = withdrawService
+        self.tracker = tracker
         self.depositWalletResolver = depositWalletResolver
         self.signer = signer
         self.serverClock = serverClock
-        self.pollDelayProvider = pollDelayProvider
     }
 }
 
@@ -112,17 +112,21 @@ private extension PolymarketWithdrawTransactionService {
         let amountBaseUnits = try makeAmountBaseUnits(from: amount)
         let call = try makeCall(to: bridgeAddress, amountBaseUnits: amountBaseUnits)
         let nonce = try await relayerService.walletNonce(ownerAddress: addresses.owner)
+        let deadline = makeDeadline()
 
         let batch = PolymarketRelayedBatch.Unsigned(
             depositWalletAddress: addresses.depositWallet,
             nonce: nonce,
-            deadline: makeDeadline(),
+            deadline: String(Int(deadline.timeIntervalSince1970)),
             calls: [call]
         )
 
         let signed = try await signer.sign(batch, as: addresses.owner)
+        let record = try await submit(signed)
 
-        return try await settledRecord(for: try await submit(signed))
+        await tracker.track(record, deadline: deadline)
+
+        return try settled(record)
     }
 
     func bridgeAddress(
@@ -180,8 +184,8 @@ private extension PolymarketWithdrawTransactionService {
         return call
     }
 
-    func makeDeadline() -> String {
-        String(Int(serverClock.now.timeIntervalSince1970) + Constants.deadlineOffset)
+    func makeDeadline() -> Date {
+        Date(timeIntervalSince1970: TimeInterval(Int(serverClock.now.timeIntervalSince1970) + Constants.deadlineOffset))
     }
 
     func submit(_ batch: PolymarketRelayedBatch) async throws -> PolymarketWithdrawRecord {
@@ -196,37 +200,6 @@ private extension PolymarketWithdrawTransactionService {
 
             return try await withdrawService.submit(batch)
         }
-    }
-
-    func settledRecord(for record: PolymarketWithdrawRecord) async throws -> PolymarketWithdrawRecord {
-        if record.state.isTerminal {
-            return try settled(record)
-        }
-
-        try? await pollDelayProvider.wait(for: Constants.pollingInterval)
-
-        let polling = PollingSequence(
-            interval: Constants.pollingInterval,
-            request: { [withdrawService] in try await withdrawService.record(ofWithdrawal: record.transactionId) },
-            delayProvider: pollDelayProvider
-        )
-
-        var latest = record
-
-        for await result in polling.prefix(Constants.pollingAttempts) {
-            guard let polled = result.value else {
-                continue
-            }
-
-            guard polled.state.isTerminal else {
-                latest = polled
-                continue
-            }
-
-            return try settled(polled)
-        }
-
-        return latest
     }
 
     func settled(_ record: PolymarketWithdrawRecord) throws -> PolymarketWithdrawRecord {
@@ -293,7 +266,5 @@ private extension PolymarketWithdrawTransactionService.Error {
 private extension PolymarketWithdrawTransactionService {
     enum Constants {
         static let deadlineOffset = 600
-        static let pollingInterval: TimeInterval = 3
-        static let pollingAttempts = 10
     }
 }

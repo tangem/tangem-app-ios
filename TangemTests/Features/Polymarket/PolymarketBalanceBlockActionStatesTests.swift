@@ -44,6 +44,20 @@ struct PolymarketBalanceBlockActionStatesTests {
         #expect(states.withdraw == .available)
     }
 
+    @Test("A withdrawal still being processed blocks the next one, however healthy the balance")
+    func pendingWithdrawalBlocksTheNextOne() {
+        let states = makeStates(readiness: .ready(makeReadiness(depositAvailability: .available([target]))), balance: .loaded(10), isWithdrawalPending: true)
+
+        #expect(states.withdraw == .unavailable(.withdrawalInProgress))
+        #expect(states.addFunds == .available)
+    }
+
+    @Test("A pending withdrawal does not outrank an account that is unavailable or still loading")
+    func pendingWithdrawalYieldsToAccountReadiness() {
+        #expect(makeStates(readiness: .unavailable, balance: .loaded(10), isWithdrawalPending: true).withdraw == .unavailable(.accountUnavailable))
+        #expect(makeStates(readiness: .loading, balance: .loaded(10), isWithdrawalPending: true).withdraw == .loading)
+    }
+
     @Test("A zero balance has nothing to withdraw")
     func zeroBalanceCannotBeWithdrawn() {
         let states = makeStates(readiness: prepared, balance: .loaded(0))
@@ -60,7 +74,12 @@ struct PolymarketBalanceBlockActionStatesTests {
 
     @Test("The bridge minimum is compared in the account's token, not in dollars")
     func minimumIsConvertedToTokenBeforeTheComparison() {
-        let states = PolymarketBalanceBlockActionStates(readiness: prepared, collateralBalance: .loaded(3), usdToToken: { $0 * 2 })
+        let states = PolymarketBalanceBlockActionStates(
+            readiness: prepared,
+            collateralBalance: .loaded(3),
+            usdToToken: { $0 * 2 },
+            isWithdrawalPending: false
+        )
 
         #expect(states.withdraw == .unavailable(.tooSmallBalance(minimumFormatted: PolymarketOrderFormatter.money(4))))
     }
@@ -143,8 +162,14 @@ private extension PolymarketBalanceBlockActionStatesTests {
 
     func makeStates(
         readiness: PolymarketAccountFundsInteractor.State,
-        balance: TokenBalanceType
+        balance: TokenBalanceType,
+        isWithdrawalPending: Bool = false
     ) -> PolymarketBalanceBlockActionStates {
-        PolymarketBalanceBlockActionStates(readiness: readiness, collateralBalance: balance, usdToToken: { $0 })
+        PolymarketBalanceBlockActionStates(
+            readiness: readiness,
+            collateralBalance: balance,
+            usdToToken: { $0 },
+            isWithdrawalPending: isWithdrawalPending
+        )
     }
 }

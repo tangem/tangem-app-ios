@@ -41,6 +41,8 @@ private extension PolymarketBalanceBlockAlertBuilder {
             Localization.predictionAccountUnavailable
         case .minimumUnknown:
             Localization.predictionAddFundsErrorDescription
+        case .withdrawalInProgress:
+            Localization.predictionWithdrawInProgressMessage
         }
     }
 }

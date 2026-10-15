@@ -159,6 +159,7 @@ private extension PolymarketBalanceBlockViewModelTests {
                 supportedBlockchains: []
             ),
             fundsArrivalTracker: PolymarketFundsArrivalTracker(balancePublisher: Empty().eraseToAnyPublisher()),
+            withdrawalStatePublisher: Empty().eraseToAnyPublisher(),
             isRegionRestricted: { isRegionRestricted },
             refreshCenter: refreshCenter,
             routable: routable
