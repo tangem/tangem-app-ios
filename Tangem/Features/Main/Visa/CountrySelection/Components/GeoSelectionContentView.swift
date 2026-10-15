@@ -15,7 +15,7 @@ import TangemUI
 import TangemUIUtils
 
 struct GeoSelectionContentView: View {
-    let state: LoadingResult<GeoSelectionSections, any Error>
+    let state: LoadingResult<GeoSelectionList, any Error>
     let highlightedSectionTitle: String?
     let allSectionTitle: String?
     let hasFlags: Bool
@@ -42,40 +42,53 @@ private extension GeoSelectionContentView {
         case .failure:
             emptyView
 
-        case .success(let sections):
-            if sections.isEmpty {
+        case .success(let selectionList):
+            if selectionList.isEmpty {
                 emptyView
             } else {
-                list(sections)
+                list(selectionList)
             }
         }
     }
 
-    func list(_ sections: GeoSelectionSections) -> some View {
+    func list(_ selectionList: GeoSelectionList) -> some View {
         ScrollView {
             LazyVStack(spacing: .zero) {
-                if let highlighted = sections.highlighted {
-                    Section {
-                        row(highlighted, isHighlighted: true)
-                    } header: {
-                        if let highlightedSectionTitle {
-                            header(highlightedSectionTitle)
-                        }
-                    }
-                }
+                switch selectionList {
+                case .sections(let highlighted, let all):
+                    sections(highlighted: highlighted, all: all)
 
-                Section {
-                    ForEach(sections.all) { item in
+                case .searchResults(let items):
+                    ForEach(items) { item in
                         row(item, isHighlighted: false)
-                    }
-                } header: {
-                    if sections.all.isNotEmpty, let allSectionTitle {
-                        header(allSectionTitle)
                     }
                 }
             }
         }
         .allowsHitTesting(loadingItemId == nil)
+    }
+
+    @ViewBuilder
+    func sections(highlighted: GeoSelectionItem?, all: [GeoSelectionItem]) -> some View {
+        if let highlighted {
+            Section {
+                row(highlighted, isHighlighted: true)
+            } header: {
+                if let highlightedSectionTitle {
+                    header(highlightedSectionTitle)
+                }
+            }
+        }
+
+        Section {
+            ForEach(all) { item in
+                row(item, isHighlighted: false)
+            }
+        } header: {
+            if all.isNotEmpty, let allSectionTitle {
+                header(allSectionTitle)
+            }
+        }
     }
 
     @ViewBuilder
@@ -173,7 +186,7 @@ private extension GeoSelectionContentView {
 #Preview("Countries") {
     GeoSelectionContentView(
         state: .success(
-            GeoSelectionSections(highlighted: nil, all: GeoSelectionItem.previewCountries)
+            .sections(highlighted: nil, all: GeoSelectionItem.previewCountries)
         ),
         highlightedSectionTitle: nil,
         allSectionTitle: nil,
@@ -185,7 +198,7 @@ private extension GeoSelectionContentView {
 #Preview("Countries with selection") {
     GeoSelectionContentView(
         state: .success(
-            GeoSelectionSections(
+            .sections(
                 highlighted: GeoSelectionItem.previewCountries[2],
                 all: GeoSelectionItem.previewCountries
             )
@@ -200,7 +213,7 @@ private extension GeoSelectionContentView {
 #Preview("Regions with selection") {
     GeoSelectionContentView(
         state: .success(
-            GeoSelectionSections(
+            .sections(
                 highlighted: GeoSelectionItem.previewRegions[1],
                 all: GeoSelectionItem.previewRegions
             )
@@ -212,10 +225,22 @@ private extension GeoSelectionContentView {
     )
 }
 
+#Preview("Search results") {
+    GeoSelectionContentView(
+        state: .success(
+            .searchResults(Array(GeoSelectionItem.previewCountries.prefix(2)))
+        ),
+        highlightedSectionTitle: "Selected country",
+        allSectionTitle: "Change country",
+        hasFlags: true,
+        onItemTap: { _, _ in }
+    )
+}
+
 #Preview("Item loading") {
     GeoSelectionContentView(
         state: .success(
-            GeoSelectionSections(highlighted: nil, all: GeoSelectionItem.previewCountries)
+            .sections(highlighted: nil, all: GeoSelectionItem.previewCountries)
         ),
         highlightedSectionTitle: nil,
         allSectionTitle: nil,
@@ -237,7 +262,7 @@ private extension GeoSelectionContentView {
 
 #Preview("Empty") {
     GeoSelectionContentView(
-        state: .success(GeoSelectionSections(highlighted: nil, all: [])),
+        state: .success(.searchResults([])),
         highlightedSectionTitle: "Selected country",
         allSectionTitle: "Change country",
         hasFlags: true,
