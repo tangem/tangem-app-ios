@@ -12,6 +12,7 @@ final class AccountFormScreen: ScreenBase<AccountFormScreenElement> {
     private lazy var nameInput = textField(.nameInput)
     private lazy var mainButton = button(.mainButton)
     private lazy var closeButton = button(.closeButton)
+    private lazy var walletRow = button(.walletRow)
 
     // MARK: - Actions
 
@@ -56,6 +57,17 @@ final class AccountFormScreen: ScreenBase<AccountFormScreenElement> {
         XCTContext.runActivity(named: "Tap main button (Add account / Save)") { _ in
             mainButton.waitAndTap()
             return self
+        }
+    }
+
+    @discardableResult
+    func openWalletSelector() -> AddAccountWalletSelectorSheet {
+        XCTContext.runActivity(named: "Open wallet selector from the wallet row") { _ in
+            if app.keyboards.firstMatch.waitForExistence(timeout: .quick) {
+                dismissKeyboard()
+            }
+            walletRow.waitAndTap()
+            return AddAccountWalletSelectorSheet(app)
         }
     }
 
@@ -177,6 +189,7 @@ enum AccountFormScreenElement: String, UIElement {
     case nameInput
     case mainButton
     case closeButton
+    case walletRow
 
     var accessibilityIdentifier: String {
         switch self {
@@ -186,6 +199,8 @@ enum AccountFormScreenElement: String, UIElement {
             return AccountsAccessibilityIdentifiers.accountFormMainButton
         case .closeButton:
             return CommonUIAccessibilityIdentifiers.closeButton
+        case .walletRow:
+            return AccountsAccessibilityIdentifiers.accountFormWalletRow
         }
     }
 }
