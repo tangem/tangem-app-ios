@@ -40,6 +40,7 @@ struct TransactionDetailsAddContactHelper {
              .onramp,
              .tangemPay(.fee),
              .tangemPay(.spend),
+             .tangemPay(.cashback),
              .incentiveClaim,
              .incentiveClaimCoin,
              .yieldDeploy,

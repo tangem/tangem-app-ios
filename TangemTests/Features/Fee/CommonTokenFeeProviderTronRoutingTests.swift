@@ -16,8 +16,8 @@ import BlockchainSdk
 struct CommonTokenFeeProviderTronRoutingTests {
     private let tronFeeTokenItem: TokenItem = .blockchain(.init(.tron(testnet: false), derivationPath: nil))
 
-    @Test("a CEX preview without a deposit address quotes a transfer from the wallet to itself")
-    func cexInput_tronGaslessLoader_previewQuotesSourceAddress() async throws {
+    @Test("a CEX preview without a deposit address uses the Tron estimation address")
+    func cexInput_tronGaslessLoader_previewQuotesEstimationAddress() async throws {
         let networkManager = TronGaslessNetworkManagerStub(compensationAmountRaw: "2500000")
         let loader = makeTronGaslessLoader(networkManager: networkManager)
         let sut = makeSUT(loader: loader)
@@ -26,7 +26,7 @@ struct CommonTokenFeeProviderTronRoutingTests {
         await sut.updateFees().value
 
         let request = try #require(networkManager.estimateRequests.first)
-        #expect(request.toAddress == "TSourceAddress")
+        #expect(request.toAddress == "TA4Tkaj2nAJjkVbDHdUQDxYCbLfsZzS8pA")
         #expect(request.amount == "10000000")
     }
 

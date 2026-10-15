@@ -380,11 +380,14 @@ extension TransactionViewModel {
         /// Service fee
         case fee(name: String)
 
+        case cashback(name: String)
+
         var name: String {
             switch self {
             case .spend(let name, _, _, _): name
             case .transfer(let name): name
             case .fee(let name): name
+            case .cashback(let name): name
             }
         }
     }

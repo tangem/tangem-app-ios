@@ -248,6 +248,37 @@ struct TransactionHistoryMapperCoinFallbackTests {
         #expect(makeSUT(isToken: false, blockchain: .tron(testnet: false)).mapSuggestedRecord(record) == nil)
     }
 
+    @Test("A Tron token transfer that moved no TRX and cost no fee is left out of the coin history")
+    func aTronTransferPaidByResourcesIsLeftOutOfTheCoinHistory() throws {
+        let record = try makeRecord(
+            methodName: nil,
+            type: .transfer,
+            fee: 0,
+            tokenTransfers: [makeTokenTransfer(from: Self.walletAddress, amount: 1_000_000)]
+        )
+
+        #expect(mapTronList([record], isToken: false).isEmpty)
+    }
+
+    @Test("A Tron record that cost TRX, moved TRX, is not a transfer or is incoming stays in the coin history")
+    func tronRecordsThatAreNotFreeZeroTransfersStay() throws {
+        let records = try [
+            makeRecord(methodName: nil, type: .transfer),
+            makeRecord(methodName: nil, amount: 1, type: .transfer, fee: 0),
+            makeRecord(methodName: nil, fee: 0),
+            makeRecord(methodName: nil, isOutgoing: false, type: .transfer, fee: 0),
+        ]
+
+        #expect(mapTronList(records, isToken: false).count == records.count)
+    }
+
+    @Test("A Tron transfer that cost no fee stays in the token history")
+    func aTronTransferPaidByResourcesStaysInTheTokenHistory() throws {
+        let record = try makeRecord(methodName: nil, type: .transfer, fee: 0)
+
+        #expect(mapTronList([record], isToken: true).count == 1)
+    }
+
     @Test("A coin call that did move coin keeps its own row")
     func aCallThatMovedCoinKeepsItsRow() throws {
         let viewModel = try makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: nil, amount: 1))
@@ -271,6 +302,17 @@ struct TransactionHistoryMapperCoinFallbackTests {
             isToken: isToken,
             stakingNetwork: nil
         )
+    }
+
+    private func mapTronList(_ records: [TransactionRecord], isToken: Bool) -> [TransactionViewModel] {
+        makeSUT(isToken: isToken, blockchain: .tron(testnet: false))
+            .mapTransactionListItem(
+                from: records,
+                groupingStyle: .day(.short),
+                dustFilter: TransactionHistoryDustFilter(usdRate: nil),
+                subtitleOwnerResolver: nil
+            )
+            .flatMap(\.items)
     }
 
     private func makeTokenTransfer(

@@ -282,9 +282,9 @@ struct AppDatabaseQueryTests {
     func syncMetadataFilterByOwnerAndEndpointTypeReturnsSingleRow() throws {
         let databaseQueue = try AppDatabaseTestFactory.makeMigratedDatabaseQueue()
 
-        let matchingRecord = AppDatabaseFixtures.makeFullSyncMetadataRecord(userWalletID: "0xOwner", endpointType: "exchange")
-        let otherEndpointRecord = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(userWalletID: "0xOwner", endpointType: "onramp")
-        let otherOwnerRecord = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(userWalletID: "0xOther", endpointType: "exchange")
+        let matchingRecord = AppDatabaseFixtures.makeFullSyncMetadataRecord(walletID: "0xOwner", endpointType: "exchange")
+        let otherEndpointRecord = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(walletID: "0xOwner", endpointType: "onramp")
+        let otherOwnerRecord = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(walletID: "0xOther", endpointType: "exchange")
 
         try databaseQueue.write { database in
             try matchingRecord.insert(database)
@@ -294,7 +294,7 @@ struct AppDatabaseQueryTests {
 
         let fetchedRecords = try databaseQueue.read { database in
             try ExpressSyncMetadataRecord
-                .filter(userWalletID: matchingRecord.userWalletID, endpointType: matchingRecord.endpointType)
+                .filter(walletID: matchingRecord.walletID, endpointType: matchingRecord.endpointType)
                 .fetchAll(database)
         }
 
@@ -306,9 +306,9 @@ struct AppDatabaseQueryTests {
     func syncMetadataFilterByOwnerReturnsAllEndpointTypeRows() throws {
         let databaseQueue = try AppDatabaseTestFactory.makeMigratedDatabaseQueue()
 
-        let exchangeRecord = AppDatabaseFixtures.makeFullSyncMetadataRecord(userWalletID: "0xOwner", endpointType: "exchange")
-        let onrampRecord = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(userWalletID: "0xOwner", endpointType: "onramp")
-        let otherOwnerRecord = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(userWalletID: "0xOther", endpointType: "exchange")
+        let exchangeRecord = AppDatabaseFixtures.makeFullSyncMetadataRecord(walletID: "0xOwner", endpointType: "exchange")
+        let onrampRecord = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(walletID: "0xOwner", endpointType: "onramp")
+        let otherOwnerRecord = AppDatabaseFixtures.makeMinimalSyncMetadataRecord(walletID: "0xOther", endpointType: "exchange")
 
         try databaseQueue.write { database in
             try exchangeRecord.insert(database)
@@ -318,7 +318,7 @@ struct AppDatabaseQueryTests {
 
         let fetchedEndpointTypes = try databaseQueue.read { database in
             try ExpressSyncMetadataRecord
-                .filter(userWalletID: exchangeRecord.userWalletID)
+                .filter(walletID: exchangeRecord.walletID)
                 .fetchAll(database)
                 .map(\.endpointType)
                 .sorted()

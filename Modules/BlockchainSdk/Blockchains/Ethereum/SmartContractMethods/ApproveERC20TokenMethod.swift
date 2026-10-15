@@ -18,8 +18,6 @@ public struct ApproveERC20TokenMethod {
     public let spender: String
     public let amount: BigUInt
 
-    public var isUnlimited: Bool { amount == .maxUInt256 }
-
     public init(spender: String, amount: BigUInt) {
         self.spender = spender
         self.amount = amount

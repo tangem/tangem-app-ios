@@ -1186,7 +1186,7 @@ extension SwapModel {
 
                 let dispatcher = source.transactionDispatcherProvider.makeTransferTransactionDispatcher()
                 let result = try await dispatcher.send(transaction: .transfer(transaction))
-                analyticsLogger.logSwapTransactionSent(result: result)
+                analyticsLogger.logTransferTransactionSent(result: result)
 
                 return result
 
