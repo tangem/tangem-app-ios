@@ -64,12 +64,7 @@ final class TangemPayOnboardingViewModel: ObservableObject {
                     makeOffer()
                 } catch TangemPayOnboardingError.invalidDeeplink {
                     try? await minimumLoaderShowingTimeTask.value
-
-                    if FeatureProvider.isAvailable(.tangemPayChooseCountry) {
-                        closeOfferScreen()
-                    } else {
-                        showRegionUnavailable()
-                    }
+                    showRegionUnavailable()
                 } catch {
                     try? await minimumLoaderShowingTimeTask.value
                     closeOfferScreen()
