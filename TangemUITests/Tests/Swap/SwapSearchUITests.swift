@@ -16,6 +16,7 @@ final class SwapSearchUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
+            .waitForTotalBalanceShimmerToComplete()
             .tapMainSwap()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
@@ -36,6 +37,7 @@ final class SwapSearchUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
+            .waitForTotalBalanceShimmerToComplete()
             .tapMainSwap()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
@@ -76,6 +78,7 @@ final class SwapSearchUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
+            .waitForTotalBalanceShimmerToComplete()
             .tapMainSwap()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
@@ -100,6 +103,7 @@ final class SwapSearchUITests: BaseTestCase {
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
+            .waitForTotalBalanceShimmerToComplete()
             .tapMainSwap()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()

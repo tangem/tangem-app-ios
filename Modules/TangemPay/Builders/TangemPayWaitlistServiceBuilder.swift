@@ -19,11 +19,12 @@ public struct TangemPayWaitlistServiceBuilder {
     }
 
     public func build(
-        authorizationTokensHandler: TangemPayAuthorizationTokensHandler? = nil,
+        authorizationTokensHandler: TangemPayAuthorizationTokensHandler,
         urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
     ) -> TangemPayWaitlistService {
         CommonTangemPayWaitlistService(
             apiType: apiType,
+            authorizationTokensHandler: authorizationTokensHandler,
             apiService: TangemPayAPIService(
                 provider: TangemPayProviderBuilder().buildProvider(
                     bffStaticToken: bffStaticToken,

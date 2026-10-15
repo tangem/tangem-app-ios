@@ -7,13 +7,14 @@
 //
 
 import Combine
+import TangemStaking
 
 struct UnstakingBalanceProvider {
     private let tokenItem: TokenItem
-    private let action: UnstakingModel.Action
+    private let action: StakingAction
     private let balanceFormatter = BalanceFormatter()
 
-    init(tokenItem: TokenItem, action: UnstakingModel.Action) {
+    init(tokenItem: TokenItem, action: StakingAction) {
         self.tokenItem = tokenItem
         self.action = action
     }

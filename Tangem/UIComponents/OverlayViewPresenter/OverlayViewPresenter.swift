@@ -19,6 +19,7 @@ protocol OverlayViewPresenter: AnyObject {
 protocol OverlayViewPresentingStateProvider: AnyObject {
     var isPresenting: Bool { get }
     var isPresentingPublisher: AnyPublisher<Bool, Never> { get }
+    var presentedOverlayIdPublisher: AnyPublisher<String?, Never> { get }
 }
 
 struct OverlayView: Identifiable {

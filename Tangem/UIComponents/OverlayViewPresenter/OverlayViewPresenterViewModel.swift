@@ -49,4 +49,11 @@ extension OverlayViewPresenterViewModel: OverlayViewPresentingStateProvider {
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
+
+    var presentedOverlayIdPublisher: AnyPublisher<String?, Never> {
+        $presentedOverlay
+            .map { $0?.id }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
 }

@@ -25,8 +25,18 @@ final class SwapStoriesUITests: BaseTestCase {
             .tapToken(ethereumTokenName)
             .waitForActionButtons()
 
-        tokenScreen
+        let storiesScreen = tokenScreen
             .tapSwapButton()
+            .assertStoriesDisplayed()
+
+        storiesScreen
+            .assertCurrentStoryPage(0)
+            .tapStoryForward()
+            .assertCurrentStoryPage(1)
+            .tapStoryForward()
+            .assertCurrentStoryPage(2)
+
+        storiesScreen
             .closeStories()
             .validateSwapScreenDisplayed()
             .tapCloseButton()
@@ -45,9 +55,19 @@ final class SwapStoriesUITests: BaseTestCase {
             .validate(cardType: .wallet2)
             .waitActionButtonsEnabled()
 
-        mainScreen
+        let storiesScreen = mainScreen
             .tapMainSwap()
-            .closeStoriesIfNeeded()
+            .assertStoriesDisplayed()
+
+        storiesScreen
+            .assertCurrentStoryPage(0)
+            .tapStoryForward()
+            .assertCurrentStoryPage(1)
+            .tapStoryForward()
+            .assertCurrentStoryPage(2)
+
+        storiesScreen
+            .closeStories()
             .validateSwapScreenDisplayed()
             .tapCloseButton()
     }

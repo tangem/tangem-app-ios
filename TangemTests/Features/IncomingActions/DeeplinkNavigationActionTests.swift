@@ -145,6 +145,7 @@ struct DeeplinkNavigationActionTests {
         arguments: [
             ("onramp_status_update", TokenDeeplink.StatusUpdate.Kind.onramp),
             ("swap_status_update", TokenDeeplink.StatusUpdate.Kind.swap),
+            ("joint_tx", TokenDeeplink.StatusUpdate.Kind.jointOperation),
         ]
     )
     func tokenWithStatusUpdate(type: String, kind: TokenDeeplink.StatusUpdate.Kind) {
@@ -157,10 +158,54 @@ struct DeeplinkNavigationActionTests {
                         tokenId: "btc",
                         networkId: "btc-main",
                         derivationPath: "m/44'/0'/0'",
+                        isJointTransaction: kind == .jointOperation,
                         statusUpdate: .init(kind: kind, transactionId: "tx123abc")
                     )
                 )
         )
+    }
+
+    @Test("A joint operation link names its account instead of a derivation")
+    func tokenWithJointOperation() {
+        #expect(
+            action("tangem://token?type=joint_tx&token_id=pol&network_id=polygon-pos&account_id=BA910A77&transaction_id=tx123abc")
+                == .token(
+                    TokenDeeplink(
+                        tokenId: "pol",
+                        networkId: "polygon-pos",
+                        accountId: "ba910a77",
+                        isJointTransaction: true,
+                        statusUpdate: .init(kind: .jointOperation, transactionId: "tx123abc")
+                    )
+                )
+        )
+    }
+
+    @Test(
+        "A joint account link opens the screen of the account it names",
+        arguments: [
+            ("members", JointAccountDeeplink.Entry.members),
+            ("overview", JointAccountDeeplink.Entry.overview),
+        ]
+    )
+    func jointAccount(entry: String, expected: JointAccountDeeplink.Entry) {
+        #expect(
+            action("tangem://joint_account?entry=\(entry)&user_wallet_id=AB12&account_id=BA910A77")
+                == .jointAccount(JointAccountDeeplink(entry: expected, userWalletId: "AB12", accountId: "ba910a77"))
+        )
+    }
+
+    @Test(
+        "A joint account link missing what it needs is turned away",
+        arguments: [
+            "tangem://joint_account?user_wallet_id=AB12&account_id=BA910A77",
+            "tangem://joint_account?entry=settings&user_wallet_id=AB12&account_id=BA910A77",
+            "tangem://joint_account?entry=members&account_id=BA910A77",
+            "tangem://joint_account?entry=members&user_wallet_id=AB12",
+        ]
+    )
+    func jointAccountWithIncompleteParams(urlString: String) {
+        #expect(action(urlString) == nil)
     }
 
     @Test(

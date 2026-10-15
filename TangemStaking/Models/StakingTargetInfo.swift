@@ -18,6 +18,7 @@ public struct StakingTargetInfo: Hashable {
     public let rewardRate: Decimal
     public let status: StakingTargetInfoStatus
     public let maximumStakeAmount: Decimal?
+    public let allowsPartialUnstake: Bool
 
     public init(
         address: String,
@@ -28,7 +29,8 @@ public struct StakingTargetInfo: Hashable {
         rewardType: RewardType,
         rewardRate: Decimal,
         status: StakingTargetInfoStatus,
-        maximumStakeAmount: Decimal? = nil
+        maximumStakeAmount: Decimal? = nil,
+        allowsPartialUnstake: Bool
     ) {
         self.address = address
         self.name = name
@@ -39,5 +41,6 @@ public struct StakingTargetInfo: Hashable {
         self.rewardRate = rewardRate
         self.status = status
         self.maximumStakeAmount = maximumStakeAmount
+        self.allowsPartialUnstake = allowsPartialUnstake
     }
 }

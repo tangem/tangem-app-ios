@@ -196,6 +196,34 @@ extension ScreenBase {
         }
     }
 
+    /// Clears a field via the "Select All" edit menu, robust to the caret landing before the value.
+    func clearTextBySelectingAll(element: XCUIElement) {
+        scrollToElement(element)
+        if !element.hasFocus {
+            element.tap()
+        }
+
+        guard let value = element.value as? String, !value.isEmpty else {
+            return
+        }
+
+        element.doubleTap()
+
+        let selectAllMenuItem = app.menuItems["Select All"].firstMatch
+        let selectAllButton = app.buttons["Select All"].firstMatch
+        if selectAllMenuItem.waitForExistence(timeout: .shortUIUpdate) {
+            selectAllMenuItem.tap()
+            element.typeText(XCUIKeyboardKey.delete.rawValue)
+        } else if selectAllButton.waitForExistence(timeout: .shortUIUpdate) {
+            selectAllButton.tap()
+            element.typeText(XCUIKeyboardKey.delete.rawValue)
+        } else {
+            for _ in 0 ..< value.count {
+                element.typeText(XCUIKeyboardKey.delete.rawValue)
+            }
+        }
+    }
+
     func deleteText(element: XCUIElement) {
         if !element.hasFocus {
             element.doubleTap()

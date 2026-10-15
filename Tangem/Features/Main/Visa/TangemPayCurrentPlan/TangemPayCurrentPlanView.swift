@@ -123,7 +123,7 @@ struct TangemPayCurrentPlanView: View {
                 action: viewModel.changePlan
             )
             .size(.x12)
-            .styleType(.default)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.currentPlanChangeButton)
         }
