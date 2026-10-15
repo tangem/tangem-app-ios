@@ -223,7 +223,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
             return
         }
 
-        Task { [weak root] in
+        _ = Task { [weak root] in
             guard let root = root else { return }
 
             let fiatAmount = try await root.balanceConverter.convertToFiat(tokenTxInfo.amount, currencyId: currencyId)

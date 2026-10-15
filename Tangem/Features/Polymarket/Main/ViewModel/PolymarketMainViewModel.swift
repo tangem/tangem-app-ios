@@ -940,7 +940,7 @@ extension PolymarketMainViewModel {
         guard let position = openPositions.first(where: { $0.id == id }) else { return }
 
         guard !position.isRedeemable, position.settlement?.isResolved != true else {
-            Task { @MainActor in
+            Task { @MainActor [self] in
                 coordinator?.openRedeem(position: position, onClaimed: { [weak self] in self?.claimed() })
             }
             return
