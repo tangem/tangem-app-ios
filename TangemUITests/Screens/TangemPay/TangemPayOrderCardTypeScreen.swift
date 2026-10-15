@@ -15,7 +15,7 @@ final class TangemPayOrderCardTypeScreen: ScreenBase<TangemPayOrderCardTypeScree
     private lazy var plasticTab = button(.plasticTab)
     private lazy var basicBackground = image(.basicBackground)
     private lazy var plusBackground = image(.plusBackground)
-    private lazy var title = app.staticTexts[Constants.title].firstMatch
+    private lazy var title = app.staticTexts[Localization.tangempayOrderTypeTitle].firstMatch
 
     @discardableResult
     func waitForScreen() -> Self {
@@ -37,7 +37,7 @@ final class TangemPayOrderCardTypeScreen: ScreenBase<TangemPayOrderCardTypeScree
     @discardableResult
     func verifyHeader() -> Self {
         XCTContext.runActivity(named: "Verify the Order new card header") { _ in
-            waitAndAssertTrue(title, "'\(Constants.title)' header should be displayed")
+            waitAndAssertTrue(title, "'\(Localization.tangempayOrderTypeTitle)' header should be displayed")
             return self
         }
     }
@@ -82,8 +82,8 @@ final class TangemPayOrderCardTypeScreen: ScreenBase<TangemPayOrderCardTypeScree
     func verifyPlasticTabLabel() -> Self {
         XCTContext.runActivity(named: "Verify the Plastic tab is marked Beta") { _ in
             waitAndAssertTrue(plasticTab, "Plastic tab should be displayed")
-            XCTAssertTrue(plasticTab.label.contains(Constants.plasticTitle), "Plastic tab should read '\(Constants.plasticTitle)'")
-            XCTAssertTrue(plasticTab.label.contains(Constants.betaTitle), "Plastic tab should carry the '\(Constants.betaTitle)' counter")
+            XCTAssertTrue(plasticTab.label.contains(Localization.tangempayOrderTypeSegmentPlastic), "Plastic tab should read '\(Localization.tangempayOrderTypeSegmentPlastic)'")
+            XCTAssertTrue(plasticTab.label.contains(Localization.tangempayOrderTypeBeta), "Plastic tab should carry the '\(Localization.tangempayOrderTypeBeta)' counter")
             return self
         }
     }
@@ -91,8 +91,8 @@ final class TangemPayOrderCardTypeScreen: ScreenBase<TangemPayOrderCardTypeScree
     @discardableResult
     func verifyVirtualOffer(issueFee: String) -> Self {
         XCTContext.runActivity(named: "Verify the virtual offer") { _ in
-            verifyOfferInfoRow(.issueFee, contains: [Constants.issueFeeTitle, issueFee])
-            verifyOfferInfoRow(.issueTime, contains: [Constants.deliveryTimeTitle, Constants.instant])
+            verifyOfferInfoRow(.issueFee, contains: [Localization.tangempayOrderTypeIssueFee, issueFee])
+            verifyOfferInfoRow(.issueTime, contains: [Localization.tangempayOrderTypeDeliveryTime, Localization.tangempayOrderTypeDeliveryTimeInstant])
             return self
         }
     }
@@ -100,9 +100,9 @@ final class TangemPayOrderCardTypeScreen: ScreenBase<TangemPayOrderCardTypeScree
     @discardableResult
     func verifyPlasticOffer(country: String, deliveryFee: String, deliveryTime: String) -> Self {
         XCTContext.runActivity(named: "Verify the plastic offer") { _ in
-            verifyOfferInfoRow(.deliverTo, contains: [Constants.deliverToTitle, country, Constants.countryOfResidence])
-            verifyOfferInfoRow(.deliveryFee, contains: [Constants.deliveryFeeTitle, deliveryFee])
-            verifyOfferInfoRow(.deliveryTime, contains: [Constants.deliveryTimeTitle, deliveryTime])
+            verifyOfferInfoRow(.deliverTo, contains: [Localization.tangempayOrderTypeDeliveryTo, country, Localization.tangempayOrderTypeCountryOfResidence])
+            verifyOfferInfoRow(.deliveryFee, contains: [Localization.tangempayOrderTypeDeliveryFee, deliveryFee])
+            verifyOfferInfoRow(.deliveryTime, contains: [Localization.tangempayOrderTypeDeliveryTime, deliveryTime])
             return self
         }
     }
@@ -110,7 +110,7 @@ final class TangemPayOrderCardTypeScreen: ScreenBase<TangemPayOrderCardTypeScree
     @discardableResult
     func verifyFirstDeliveryFree() -> Self {
         XCTContext.runActivity(named: "Verify the first plastic delivery is free") { _ in
-            verifyOfferInfoRow(.deliveryFee, contains: [Constants.firstDeliveryFree])
+            verifyOfferInfoRow(.deliveryFee, contains: [Localization.tangempayOrderTypeFirstDeliveryFree])
             return self
         }
     }
@@ -118,7 +118,7 @@ final class TangemPayOrderCardTypeScreen: ScreenBase<TangemPayOrderCardTypeScree
     @discardableResult
     func verifyNoFirstDeliveryFree() -> Self {
         XCTContext.runActivity(named: "Verify the first-delivery-free badge is absent") { _ in
-            verifyOfferInfoRow(.deliveryFee, doesNotContain: Constants.firstDeliveryFree)
+            verifyOfferInfoRow(.deliveryFee, doesNotContain: Localization.tangempayOrderTypeFirstDeliveryFree)
             return self
         }
     }
@@ -126,7 +126,7 @@ final class TangemPayOrderCardTypeScreen: ScreenBase<TangemPayOrderCardTypeScree
     @discardableResult
     func verifyNotEnoughMoney(deliveryFee: String) -> Self {
         XCTContext.runActivity(named: "Verify the balance does not cover the delivery fee") { _ in
-            verifyOfferInfoRow(.deliveryFee, contains: [deliveryFee, Constants.notEnoughMoney])
+            verifyOfferInfoRow(.deliveryFee, contains: [deliveryFee, Localization.tangempayOrderTypeNotEnoughMoney])
             return self
         }
     }
@@ -135,7 +135,7 @@ final class TangemPayOrderCardTypeScreen: ScreenBase<TangemPayOrderCardTypeScree
     func verifyEnoughMoney(deliveryFee: String) -> Self {
         XCTContext.runActivity(named: "Verify the balance covers the delivery fee") { _ in
             verifyOfferInfoRow(.deliveryFee, contains: [deliveryFee])
-            verifyOfferInfoRow(.deliveryFee, doesNotContain: Constants.notEnoughMoney)
+            verifyOfferInfoRow(.deliveryFee, doesNotContain: Localization.tangempayOrderTypeNotEnoughMoney)
             return self
         }
     }
@@ -143,7 +143,7 @@ final class TangemPayOrderCardTypeScreen: ScreenBase<TangemPayOrderCardTypeScree
     @discardableResult
     func verifyPlasticUnavailable(country: String) -> Self {
         XCTContext.runActivity(named: "Verify the plastic card is unavailable") { _ in
-            verifyOfferInfoRow(.deliverTo, contains: [country, Constants.unavailable])
+            verifyOfferInfoRow(.deliverTo, contains: [country, Localization.tangempayOrderTypeUnavailable])
             verifyOfferInfoRow(.deliveryFee, contains: [Constants.unknownValue])
             verifyOfferInfoRow(.deliveryTime, contains: [Constants.unknownValue])
             return self
@@ -179,7 +179,7 @@ final class TangemPayOrderCardTypeScreen: ScreenBase<TangemPayOrderCardTypeScree
     @discardableResult
     func close() -> TangemPayMainScreen {
         XCTContext.runActivity(named: "Close the Order card type screen") { _ in
-            guard let closeButton = app.buttons.matching(NSPredicate(format: "label == %@", Constants.closeTitle)).firstHittableElement() else {
+            guard let closeButton = app.buttons.matching(NSPredicate(format: "label == %@", Localization.commonClose)).firstHittableElement() else {
                 XCTFail("Close button should become hittable")
                 return TangemPayMainScreen(app)
             }
@@ -223,19 +223,6 @@ enum TangemPayOrderCardTypeScreenElement: String, UIElement {
 
 private extension TangemPayOrderCardTypeScreen {
     enum Constants {
-        static let title = "Order new card"
-        static let closeTitle = "Close"
-        static let plasticTitle = "Plastic"
-        static let betaTitle = "Beta"
-        static let issueFeeTitle = "Issue fee"
-        static let deliveryTimeTitle = "Delivery time"
-        static let instant = "Instant"
-        static let deliverToTitle = "Deliver to"
-        static let countryOfResidence = "Country of residence"
-        static let deliveryFeeTitle = "Delivery fee"
-        static let firstDeliveryFree = "First delivery for free"
-        static let notEnoughMoney = "Not enough money"
-        static let unavailable = "Unavailable"
         static let unknownValue = "—"
     }
 }

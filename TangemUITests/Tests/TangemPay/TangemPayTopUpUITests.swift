@@ -43,6 +43,6 @@ final class TangemPayTopUpUITests: BaseTestCase {
         pullToRefresh()
         TangemPayMainScreen(app)
             .verifyBalanceContains("$110.00")
-            .verifyTransactionRowVisible(label: "Deposit")
+            .verifyTransactionRowVisible(label: Localization.tangemPayDeposit)
     }
 }
