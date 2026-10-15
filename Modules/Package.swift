@@ -272,6 +272,14 @@ var serviceModules: [PackageDescription.Target] {
             name: "TangemUIUtilsObjC"
         ),
         .tangemTarget(
+            name: "TangemWebSocket",
+            dependencies: [
+                "TangemFoundation",
+                "TangemNetworkUtils",
+            ],
+            swiftSettings: .swift6StrictSettings
+        ),
+        .tangemTarget(
             name: "TangemAppDatabase",
             dependencies: [
                 "TangemFoundation",
@@ -590,6 +598,13 @@ var unitTestsModules: [PackageDescription.Target] {
                 "TangemPolymarket",
                 "Moya",
             ]
+        ),
+        .tangemTestTarget(
+            name: "TangemWebSocketTests",
+            dependencies: [
+                "TangemWebSocket",
+            ],
+            swiftSettings: .swift6StrictSettings
         ),
     ]
 }
