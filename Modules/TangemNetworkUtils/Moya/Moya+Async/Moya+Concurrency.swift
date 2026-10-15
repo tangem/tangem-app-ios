@@ -6,11 +6,11 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-private import class Combine.AnyCancellable
+import class Combine.AnyCancellable
 import Moya
-private import class TangemFoundation.ThreadSafeCancellableWrapper
+import class TangemFoundation.ThreadSafeCancellableWrapper
 
-extension MoyaProvider {
+public extension MoyaProvider {
     func request(_ target: Target) async throws(Moya.MoyaError) -> Moya.Response {
         let protectedCancellable = ThreadSafeCancellableWrapper()
 

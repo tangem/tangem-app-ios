@@ -151,10 +151,11 @@ var serviceModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemBackendAuthentication",
             dependencies: [
-                .target(name: "TangemFoundation"),
-                .target(name: "TangemLogger"),
                 .product(name: "Alamofire", package: "Alamofire"),
                 .product(name: "Moya", package: "Moya"),
+                .target(name: "TangemFoundation"),
+                .target(name: "TangemLogger"),
+                .target(name: "TangemNetworkUtils"),
             ],
             swiftSettings: .swift6StrictSettings
         ),
@@ -380,7 +381,10 @@ var featureModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemMCP",
             dependencies: [
-                "TangemFoundation",
+                .product(name: "OrderedCollections", package: "swift-collections"),
+                .product(name: "Moya", package: "Moya"),
+                .target(name: "TangemFoundation"),
+                .target(name: "TangemNetworkUtils"),
             ],
             swiftSettings: .swift6StrictSettings
         ),
@@ -535,6 +539,7 @@ var unitTestsModules: [PackageDescription.Target] {
                 "TangemBackendAuthentication",
                 "TangemFoundation",
                 "TangemLogger",
+                "TangemNetworkUtils",
                 .product(name: "TangemTestKit", package: "TangemTestKit"),
             ],
             swiftSettings: .swift6StrictSettings
