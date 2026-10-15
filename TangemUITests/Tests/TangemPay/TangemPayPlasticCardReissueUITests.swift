@@ -82,7 +82,7 @@ private extension TangemPayPlasticCardReissueUITests {
         static let country = "United States"
         static let email = "plastic.user@tangem.com"
         static let deliveryFee = "$4.99"
-        static let deliveryTime = "Up to 4 business days"
+        static let deliveryTime = Localization.tangempayOrderTypeDeliveryEta(4)
         static let deliveryEtaMaxDays = 4
         static let emptyBalance = "$0.00"
         static let fundedBalance = "$10.00"

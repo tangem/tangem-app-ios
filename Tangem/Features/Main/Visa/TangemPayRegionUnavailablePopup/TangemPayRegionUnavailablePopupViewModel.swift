@@ -14,7 +14,7 @@ import TangemAssets
 
 protocol TangemPayRegionUnavailableRoutable: AnyObject {
     func closeTangemPayRegionUnavailablePopup()
-    func openTangemPayWaitlist(region: TangemPayUnavailableRegion, interactor: any TangemPayResidencyInteractor)
+    func openTangemPayRegionReselection(interactor: any TangemPayResidencyInteractor)
 }
 
 final class TangemPayRegionUnavailablePopupViewModel: TangemPayPopupViewModel {
@@ -30,7 +30,7 @@ final class TangemPayRegionUnavailablePopupViewModel: TangemPayPopupViewModel {
     }
 
     var secondaryButton: MainButton.Settings? {
-        .init(title: Localization.moneyAccountMainStatusDialogJoinWaitlist, style: .secondary, action: joinWaitlist)
+        .init(title: Localization.tangempayRegionUnavailableSecondaryButton, style: .secondary, action: selectAnotherRegion)
     }
 
     var title: AttributedString {
@@ -88,8 +88,8 @@ final class TangemPayRegionUnavailablePopupViewModel: TangemPayPopupViewModel {
         }
     }
 
-    private func joinWaitlist() {
-        coordinator?.openTangemPayWaitlist(region: region, interactor: interactor)
+    private func selectAnotherRegion() {
+        coordinator?.openTangemPayRegionReselection(interactor: interactor)
     }
 
     private func hideAccount() {
