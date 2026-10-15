@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct PolymarketWithdrawRecord: Hashable, Sendable {
+public struct PolymarketWithdrawRecord: Hashable, Sendable, Codable {
     public let transactionId: String
     public let state: PolymarketWithdrawState
     public let transactionHash: String?
