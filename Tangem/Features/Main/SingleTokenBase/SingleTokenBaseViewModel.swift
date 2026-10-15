@@ -507,7 +507,7 @@ extension SingleTokenBaseViewModel {
                 .token: walletModel.tokenItem.currencySymbol,
                 .blockchain: walletModel.tokenItem.blockchain.displayName,
                 .action: Analytics.ParameterValue.swap.rawValue,
-                .status: tokenActionAvailabilityAnalyticsMapper.mapToParameterValue(tokenActionAvailabilityProvider.swapAvailability).rawValue,
+                .status: swapAvailabilityAnalyticsValue(for: .build(for: walletModel)).rawValue,
             ])
         }
     }
@@ -630,9 +630,9 @@ extension SingleTokenBaseViewModel {
         case .receive:
             return !tokenActionAvailabilityProvider.isReceiveAvailable
         case .exchange:
-            return !tokenActionAvailabilityProvider.isSwapAvailable
+            return !tokenActionAvailabilityProvider.isSwapAvailable(direction: .build(for: walletModel))
         case .swapAndSend:
-            return !tokenActionAvailabilityProvider.isSwapAvailable
+            return !tokenActionAvailabilityProvider.isSwapAsSourceAvailable
         case .sell:
             return !tokenActionAvailabilityProvider.isSellAvailable
         case .copyAddress, .hide, .stake, .marketsDetails, .yield:
@@ -719,21 +719,19 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openSend(walletModel: walletModel)
     }
 
-    final func openExchange(position: SwapDirection = .automatic) {
-        if let swapUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.swapAvailability) {
+    final func openExchange(position: SwapDirection) {
+        if let swapUnavailableAlert = swapUnavailableAlert(for: position) {
             alert = swapUnavailableAlert
             return
         }
 
         let helper = SwapPredefinedParametersHelper()
 
-        guard let parameters = helper.makeParameters(
+        let parameters = helper.makeParameters(
             walletModel: walletModel,
             userWalletInfo: userWalletInfo,
             position: position
-        ) else {
-            return
-        }
+        )
 
         tokenRouter.openSwap(parameters: parameters)
     }
@@ -782,15 +780,33 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openExplorer(at: url, for: walletModel)
     }
 
-    private func openExchangeAction(position: SwapDirection = .automatic) {
+    private func openExchangeAction() {
+        openExchangeAction(position: .build(for: walletModel))
+    }
+
+    private func openExchangeAction(position: SwapDirection) {
         Analytics.log(event: .buttonExchange, params: [
             .token: walletModel.tokenItem.currencySymbol,
             .blockchain: walletModel.tokenItem.blockchain.displayName,
             .action: Analytics.ParameterValue.swap.rawValue,
-            .status: tokenActionAvailabilityAnalyticsMapper.mapToParameterValue(tokenActionAvailabilityProvider.swapAvailability).rawValue,
+            .status: swapAvailabilityAnalyticsValue(for: position).rawValue,
         ])
 
         openExchange(position: position)
+    }
+
+    private func swapUnavailableAlert(for position: SwapDirection) -> AlertBinder? {
+        switch position {
+        case .from: tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.swapSourceAvailability)
+        case .to: tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.swapReceiveAvailability)
+        }
+    }
+
+    private func swapAvailabilityAnalyticsValue(for position: SwapDirection) -> Analytics.ParameterValue {
+        switch position {
+        case .from: tokenActionAvailabilityAnalyticsMapper.mapToParameterValue(tokenActionAvailabilityProvider.swapSourceAvailability)
+        case .to: tokenActionAvailabilityAnalyticsMapper.mapToParameterValue(tokenActionAvailabilityProvider.swapReceiveAvailability)
+        }
     }
 
     private func openBuyCryptoAction() {
@@ -827,7 +843,7 @@ extension SingleTokenBaseViewModel {
     }
 
     private func openSwapAndSendAction() {
-        if let swapUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.swapAvailability) {
+        if let swapUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.swapSourceAvailability) {
             alert = swapUnavailableAlert
             return
         }

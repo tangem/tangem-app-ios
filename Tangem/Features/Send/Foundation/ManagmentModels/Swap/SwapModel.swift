@@ -589,14 +589,16 @@ extension SwapModel {
     }
 
     func mapToLoadedState(selected: ExpressAvailableProvider) async throws -> LoadedState {
+        let hasPendingTransaction = try await hasPendingTransaction()
+
         switch selected.getState() {
         case .idle:
             return .idle
 
-        case .error(_, .none) where hasPendingTransaction():
+        case .error(_, .none) where hasPendingTransaction:
             return .restriction(.hasPendingTransaction, quote: .none)
 
-        case .error(_, .some(let quote)) where hasPendingTransaction():
+        case .error(_, .some(let quote)) where hasPendingTransaction:
             let mappedQuote = try await map(provider: selected.provider, quote: quote)
             return .restriction(.hasPendingTransaction, quote: mappedQuote)
 
@@ -614,19 +616,19 @@ extension SwapModel {
             let quote = try await map(provider: selected.provider, quote: quote)
             return .restriction(map(restriction: restriction), quote: quote)
 
-        case .permissionRequired(let permissionRequired) where hasPendingTransaction():
+        case .permissionRequired(let permissionRequired) where hasPendingTransaction:
             let quote = try await map(provider: selected.provider, quote: permissionRequired.quote)
             return .restriction(.hasPendingTransaction, quote: quote)
 
-        case .cexPreview(let previewCEX) where hasPendingTransaction():
+        case .cexPreview(let previewCEX) where hasPendingTransaction:
             let quote = try await map(provider: selected.provider, quote: previewCEX.quote)
             return .restriction(.hasPendingTransaction, quote: quote)
 
-        case .dexPreview(let dexPreview) where hasPendingTransaction():
+        case .dexPreview(let dexPreview) where hasPendingTransaction:
             let quote = try await map(provider: selected.provider, quote: dexPreview.quote)
             return .restriction(.hasPendingTransaction, quote: quote)
 
-        case .dexWithApprovePreview(let preview) where hasPendingTransaction():
+        case .dexWithApprovePreview(let preview) where hasPendingTransaction:
             let quote = try await map(provider: selected.provider, quote: preview.quote)
             return .restriction(.hasPendingTransaction, quote: quote)
 
@@ -642,7 +644,7 @@ extension SwapModel {
         case .dexWithApprovePreview(let preview):
             return try await map(provider: selected, dexWithApprovePreview: preview)
 
-        case .revokeAndPermissionRequired(let permissionRequired) where hasPendingTransaction():
+        case .revokeAndPermissionRequired(let permissionRequired) where hasPendingTransaction:
             let quote = try await map(provider: selected.provider, quote: permissionRequired.quote)
             return .restriction(.hasPendingTransaction, quote: quote)
 
@@ -743,10 +745,13 @@ extension SwapModel {
         return try await HighPriceImpactCalculator().calculate(input: input)
     }
 
-    func hasPendingTransaction() -> Bool {
-        let sendingRestrictionsProvider = _sourceToken.value.value?.sendingRestrictionsProvider
-        let hasPendingTransaction = sendingRestrictionsProvider?.sendingRestrictions?.isHasPendingTransaction
-        return hasPendingTransaction ?? false
+    func hasPendingTransaction() async throws -> Bool {
+        guard let sendingRestrictionsProvider = _sourceToken.value.value?.sendingRestrictionsProvider else {
+            return false
+        }
+
+        let sendingRestrictions = try await sendingRestrictionsProvider.sendingRestrictionsPublisher.first().async()
+        return sendingRestrictions?.isHasPendingTransaction ?? false
     }
 
     func map(restriction: ExpressRestriction) -> RestrictionType {
@@ -2042,10 +2047,35 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     }
 
     func userDidRequestSwapSourceAndReceiveToken() {
-        swapSourceAndReceiveToken()
+        runTask(in: self) { model in
+            if await model.checkSourceAndReceiveTokenCanBeSwapped() {
+                await model.swapSourceAndReceiveToken()
+            }
+        }
     }
 
-    private func swapSourceAndReceiveToken() {
+    @MainActor
+    private func checkSourceAndReceiveTokenCanBeSwapped() async -> Bool {
+        let availability = await SwappingSourceAndReceiveTokenHelper().canBeSwapped(source: sourceToken, receive: receiveToken)
+
+        switch availability {
+        case .available:
+            return true
+
+        case .unavailable:
+            ExpressLogger.info("Swap Source and Receive tokens is not possible")
+            return false
+
+        case .restricted(let restrictions):
+            if let alert = TokenActionAvailabilityAlertBuilder().alert(for: restrictions) {
+                alertPresenter.present(alert: alert)
+            }
+            return false
+        }
+    }
+
+    @MainActor
+    private func swapSourceAndReceiveToken() async {
         let sourceResult = _sourceToken.value
         let receiveResult = _receiveToken.value
 
