@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import Testing
 import BlockchainSdk
@@ -53,19 +54,164 @@ struct TokenActionAvailabilityProviderJointAccountTests {
         #expect(!comingSoon.disablesTap)
         #expect(emptyBalance.disablesTap)
     }
+
+    @Test("Swap from a joint account's token is coming soon")
+    func swapFromJointAccountTokenIsComingSoon() async {
+        await withExpress {
+            let sut = makeSUT(account: makeJointAccount())
+
+            guard case .jointAccountsComingSoon = sut.swapSourceAvailability else {
+                Issue.record("Expected .jointAccountsComingSoon, got \(sut.swapSourceAvailability)")
+                return
+            }
+
+            #expect(!sut.isSwapAsSourceAvailable)
+        }
+    }
+
+    @Test("The swap direction picks the side whose availability is checked")
+    func swapDirectionPicksTheCheckedSide() async {
+        await withExpress {
+            let sut = makeSUT(account: makeJointAccount())
+
+            #expect(!sut.isSwapAvailable(direction: .from))
+            #expect(sut.isSwapAvailable(direction: .to))
+        }
+    }
+
+    @Test("Swap into a joint account's token is available")
+    func swapIntoJointAccountTokenIsAvailable() async {
+        await withExpress {
+            let sut = makeSUT(account: makeJointAccount())
+
+            guard case .available = sut.swapReceiveAvailability else {
+                Issue.record("Expected .available, got \(sut.swapReceiveAvailability)")
+                return
+            }
+        }
+    }
+
+    @Test("Swap on a personal account's token is available on both sides")
+    func swapOnPersonalAccountTokenIsAvailableOnBothSides() async {
+        await withExpress {
+            let sut = makeSUT(account: nil)
+
+            guard case .available = sut.swapSourceAvailability, case .available = sut.swapReceiveAvailability else {
+                Issue.record("Expected .available on both sides, got \(sut.swapSourceAvailability) and \(sut.swapReceiveAvailability)")
+                return
+            }
+        }
+    }
+
+    @Test("Swap into a custom token is refused")
+    func swapIntoCustomTokenIsRefused() async {
+        await withExpress {
+            let walletModel = makeWalletModel(account: nil)
+            walletModel.isCustomMock = true
+
+            let sut = makeSUT(walletModel: walletModel)
+
+            guard case .customToken = sut.swapReceiveAvailability else {
+                Issue.record("Expected .customToken, got \(sut.swapReceiveAvailability)")
+                return
+            }
+        }
+    }
+
+    @Test("Swap into a token with an unmet asset requirement is refused")
+    func swapIntoTokenWithMissingAssetRequirementIsRefused() async {
+        await withExpress {
+            let walletModel = makeWalletModel(account: nil)
+            walletModel.assetRequirementsManagerMock = AssetRequirementsManagerStub(
+                condition: .paidTransactionWithFee(blockchain: .polygon(testnet: false), transactionAmount: nil, feeAmount: nil)
+            )
+
+            let sut = makeSUT(walletModel: walletModel)
+
+            guard case .missingAssetRequirement = sut.swapReceiveAvailability else {
+                Issue.record("Expected .missingAssetRequirement, got \(sut.swapReceiveAvailability)")
+                return
+            }
+        }
+    }
+
+    @Test("Swap into a token waits while Express availability is loading")
+    func swapIntoTokenWaitsForExpress() async {
+        await withExpress(swapState: .notLoaded, updateState: .updating) {
+            let sut = makeSUT(account: nil)
+
+            guard case .expressLoading = sut.swapReceiveAvailability else {
+                Issue.record("Expected .expressLoading, got \(sut.swapReceiveAvailability)")
+                return
+            }
+        }
+    }
+
+    @Test("Swap into a token is refused when Express availability failed to load")
+    func swapIntoTokenIsRefusedWhenExpressFailed() async {
+        await withExpress(swapState: .notLoaded, updateState: .failed(error: URLError(.notConnectedToInternet))) {
+            let sut = makeSUT(account: nil)
+
+            guard case .expressUnreachable = sut.swapReceiveAvailability else {
+                Issue.record("Expected .expressUnreachable, got \(sut.swapReceiveAvailability)")
+                return
+            }
+        }
+    }
+
+    @Test("Swap into a token ignores what keeps it from being sent", arguments: SendingRestrictionCase.allCases)
+    func swapIntoTokenIgnoresSendingRestrictions(restriction: SendingRestrictionCase) async {
+        await withExpress {
+            let walletModel = makeWalletModel(account: nil)
+            walletModel.sendingRestrictionsMock = restriction.sendingRestriction
+
+            let sut = makeSUT(walletModel: walletModel)
+
+            #expect(!sut.isSwapAsSourceAvailable)
+            #expect(sut.isSwapAsReceiveAvailable)
+        }
+    }
+
+    @Test("The swap token selector keeps a joint source tappable to explain itself")
+    func swapSelectorKeepsJointSourceTappable() {
+        let comingSoon = TokenSelectorItem.AvailabilityType.unavailable(reason: .unavailableForSwap(.sourceState(.jointAccountsComingSoon)))
+        let customSource = TokenSelectorItem.AvailabilityType.unavailable(reason: .unavailableForSwap(.sourceState(.customToken)))
+
+        #expect(!comingSoon.disablesTap)
+        #expect(customSource.disablesTap)
+    }
 }
 
 // MARK: - Helpers
 
 private extension TokenActionAvailabilityProviderJointAccountTests {
+    func withExpress(
+        swapState: TokenItemExpressState = .available,
+        updateState: ExpressAvailabilityUpdateState = .updated,
+        _ body: () -> Void
+    ) async {
+        await InjectedDependenciesIsolation.shared.run {
+            let previousProvider = InjectedValues[\.expressAvailabilityProvider]
+            InjectedValues[\.expressAvailabilityProvider] = SwapExpressAvailabilityProviderStub(swapState: swapState, updateState: updateState)
+            defer { InjectedValues[\.expressAvailabilityProvider] = previousProvider }
+
+            body()
+        }
+    }
+
     func makeSUT(account: (any CryptoAccountModel)?) -> TokenActionAvailabilityProvider {
-        TokenActionAvailabilityProvider(
-            userWalletInfo: makeUserWalletInfo(),
-            walletModel: WalletModelTestsMock(
-                tokenItem: .blockchain(.init(.polygon(testnet: false), derivationPath: nil)),
-                isEmpty: false,
-                account: account
-            )
+        makeSUT(walletModel: makeWalletModel(account: account))
+    }
+
+    func makeSUT(walletModel: WalletModelTestsMock) -> TokenActionAvailabilityProvider {
+        TokenActionAvailabilityProvider(userWalletInfo: makeUserWalletInfo(), walletModel: walletModel)
+    }
+
+    func makeWalletModel(account: (any CryptoAccountModel)?) -> WalletModelTestsMock {
+        WalletModelTestsMock(
+            tokenItem: .blockchain(.init(.polygon(testnet: false), derivationPath: nil)),
+            isEmpty: false,
+            account: account
         )
     }
 
@@ -92,5 +238,21 @@ private extension TokenActionAvailabilityProviderJointAccountTests {
             membersService: JointAccountMembersServiceMock(),
             delegate: delegate
         )
+    }
+}
+
+// MARK: - Test cases
+
+enum SendingRestrictionCase: CaseIterable {
+    case hasOnlyCachedBalance
+    case blockchainLoading
+    case cantSignLongTransactions
+
+    var sendingRestriction: SendingRestrictions {
+        switch self {
+        case .hasOnlyCachedBalance: .hasOnlyCachedBalance
+        case .blockchainLoading: .blockchainLoading
+        case .cantSignLongTransactions: .cantSignLongTransactions
+        }
     }
 }
