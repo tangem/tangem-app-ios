@@ -592,6 +592,19 @@
           "$type": "color",
           "$value": "{palette.blue.50}"
         },
+        "blue-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.accent.blueSubtle",
+              "iOS": "DesignSystem.Color.bgAccentBlueSubtle"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.blue.10}"
+        },
         "violet": {
           "$extensions": {
             "com.figma.codeSyntax": {
@@ -604,6 +617,19 @@
           },
           "$type": "color",
           "$value": "{palette.violet.50}"
+        },
+        "violet-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.accent.violetSubtle",
+              "iOS": "DesignSystem.Color.bgAccentVioletSubtle"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.violet.10}"
         },
         "red": {
           "$extensions": {
@@ -618,6 +644,19 @@
           "$type": "color",
           "$value": "{palette.red.50}"
         },
+        "red-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.accent.redSubtle",
+              "iOS": "DesignSystem.Color.bgAccentRedSubtle"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.red.10}"
+        },
         "orange": {
           "$extensions": {
             "com.figma.codeSyntax": {
@@ -630,6 +669,19 @@
           },
           "$type": "color",
           "$value": "{palette.orange.50}"
+        },
+        "orange-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.accent.orangeSubtle",
+              "iOS": "DesignSystem.Color.bgAccentOrangeSubtle"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.orange.10}"
         },
         "yellow": {
           "$extensions": {
@@ -644,6 +696,19 @@
           "$type": "color",
           "$value": "{palette.yellow.50}"
         },
+        "yellow-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.accent.yellowSubtle",
+              "iOS": "DesignSystem.Color.bgAccentYellowSubtle"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.yellow.10}"
+        },
         "green": {
           "$extensions": {
             "com.figma.codeSyntax": {
@@ -657,6 +722,19 @@
           "$type": "color",
           "$value": "{palette.green.50}"
         },
+        "green-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.accent.greenSubtle",
+              "iOS": "DesignSystem.Color.bgAccentGreenSubtle"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.green.10}"
+        },
         "neutral": {
           "$extensions": {
             "com.figma.codeSyntax": {
@@ -669,6 +747,19 @@
           },
           "$type": "color",
           "$value": "{palette.neutral.50}"
+        },
+        "neutral-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.accent.neutralSubtle",
+              "iOS": "DesignSystem.Color.bgAccentNeutralSubtle"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.neutral.10}"
         }
       },
       "special": {
