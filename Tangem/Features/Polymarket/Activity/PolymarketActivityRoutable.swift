@@ -7,9 +7,13 @@
 //
 
 import Foundation
+import TangemPolymarket
 
 protocol PolymarketActivityRoutable: AnyObject {
     func closeActivity()
 
     func shareActivityExport(url: URL)
+
+    @MainActor
+    func openActivityDetails(record: PolymarketActivityRecord)
 }

@@ -13,12 +13,22 @@ import TangemUIUtils
 
 public struct PolymarketActivityRow: View {
     private let model: Model
+    private let onTap: (() -> Void)?
 
-    public init(model: Model) {
+    public init(model: Model, onTap: (() -> Void)? = nil) {
         self.model = model
+        self.onTap = onTap
     }
 
     public var body: some View {
+        if let onTap {
+            row.onTap(onTap)
+        } else {
+            row
+        }
+    }
+
+    private var row: Row<EmptyView, EmptyView, EmptyView, EmptyView, some View, EmptyView, EmptyView> {
         Row(title: model.title, subtitle: model.subtitle, value: model.amount)
             .start {
                 PolymarketActivityIcon(icon: model.icon)

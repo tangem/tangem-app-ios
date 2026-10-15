@@ -211,7 +211,10 @@ extension PolymarketCoordinator: PolymarketMainScreenRoutable {
     func openActivity() {
         guard let destinationFactory = viewState?.destinationFactory else { return }
 
-        destination = .activity(destinationFactory.makeActivity(onClose: { [weak self] in self?.popToMain() }))
+        destination = .activity(destinationFactory.makeActivity(
+            onRegionWarning: { [weak self] in self?.openRegionWarning() },
+            onClose: { [weak self] in self?.popToMain() }
+        ))
     }
 
     func openEventDetails(
