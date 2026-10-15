@@ -39,7 +39,7 @@ struct TangemPayTransactionRecordMapper {
         case .merchant, .payment, .fee:
             return true
         case .collateral(let collateral):
-            return collateral.amount < 0
+            return collateral.resolvedKind == .withdrawal
         }
     }
 
@@ -52,6 +52,8 @@ struct TangemPayTransactionRecordMapper {
                 isDeclined: merchant.isDeclined,
                 isNegativeAmount: merchant.amount < .zero
             )
+        case .collateral(let collateral) where collateral.resolvedKind == .cashback:
+            .cashback(name: name())
         case .collateral:
             .transfer(name: name())
         case .payment:
@@ -129,10 +131,10 @@ struct TangemPayTransactionRecordMapper {
         case .merchant(let merchant):
             return merchant.enrichedMerchantName ?? merchant.merchantName ?? Localization.tangempayCardDetailsTitle
         case .collateral(let collateral):
-            if collateral.amount > 0 {
-                return Localization.tangemPayDeposit
-            } else {
-                return Localization.tangemPayWithdrawal
+            switch collateral.resolvedKind {
+            case .deposit: return Localization.tangemPayDeposit
+            case .withdrawal: return Localization.tangemPayWithdrawal
+            case .cashback: return Localization.tangempayCashbackTitle
             }
         case .payment:
             return Localization.tangemPayWithdrawal

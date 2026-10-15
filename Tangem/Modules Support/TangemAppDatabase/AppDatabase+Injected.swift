@@ -21,5 +21,5 @@ extension InjectedValues {
 private struct AppDatabaseKey: InjectionKey {
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_TODO_COMMENT]
-    static var currentValue = AppDatabase.makeWithQueue()
+    static var currentValue = AppDatabase.makeWithQueue(migrationHelper: CommonAppDatabaseMigrationHelper())
 }
