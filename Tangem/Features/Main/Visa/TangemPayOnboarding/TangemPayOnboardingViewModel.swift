@@ -20,27 +20,23 @@ final class TangemPayOnboardingViewModel: ObservableObject {
 
     let closeOfferScreen: @MainActor () -> Void
     @MainActor @Published private(set) var tangemPayOfferViewModel: TangemPayOfferViewModel?
-    @MainActor @Published private(set) var screenVersion: TangemPayOnboardingScreenVersion = .v1
     @MainActor @Published private(set) var regionUnavailable = false
 
     private let source: TangemPayOnboardingSource
     private let availableSelection: TangemPayWalletSelectionType
     private let availabilityService: TangemPayAvailabilityService
-    private let screenVersionProvider: TangemPayOnboardingScreenVersionProvider
     private weak var coordinator: TangemPayOnboardingRoutable?
 
     init(
         source: TangemPayOnboardingSource,
         availableSelection: TangemPayWalletSelectionType,
         availabilityService: TangemPayAvailabilityService = TangemPayAvailabilityServiceBuilder().build(),
-        screenVersionProvider: TangemPayOnboardingScreenVersionProvider = CommonTangemPayOnboardingScreenVersionProvider(),
         coordinator: TangemPayOnboardingRoutable?,
         closeOfferScreen: @escaping @MainActor () -> Void
     ) {
         self.source = source
         self.availableSelection = availableSelection
         self.availabilityService = availabilityService
-        self.screenVersionProvider = screenVersionProvider
         self.coordinator = coordinator
         self.closeOfferScreen = closeOfferScreen
     }
@@ -75,17 +71,11 @@ final class TangemPayOnboardingViewModel: ObservableObject {
 
     @MainActor
     func onOfferAppear() {
-        switch screenVersion {
-        case .v2:
-            analytics.logNewOnboardingScreenOpened()
-        case .v1:
-            analytics.logOfferScreenOpened()
-        }
+        analytics.logNewOnboardingScreenOpened()
     }
 
     @MainActor
     private func makeOffer() {
-        screenVersion = screenVersionProvider.screenVersion()
         tangemPayOfferViewModel = TangemPayOfferViewModel(
             walletSelectionType: availableSelection,
             closeOfferScreen: closeOfferScreen,
