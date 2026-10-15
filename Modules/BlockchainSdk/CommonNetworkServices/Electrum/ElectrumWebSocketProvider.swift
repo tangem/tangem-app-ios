@@ -85,9 +85,11 @@ class ElectrumWebSocketProvider: HostProvider {
 // MARK: - Private
 
 private extension ElectrumWebSocketProvider {
-    func send<Method, Parameter, Result>(method: Method, parameter: Parameter) async throws -> Result
-        where Parameter: Encodable,
+    func send<Method, Parameter, Result>(method: Method, parameter: Parameter) async throws -> Result where
+        Parameter: Encodable,
+        Parameter: Sendable,
         Result: Decodable,
+        Result: Sendable,
         Method: RawRepresentable,
         Method.RawValue == String {
         try await webSocketProvider.send(

@@ -272,7 +272,7 @@ extension UserWalletSettingsCoordinator: AddAccountTypeSelectorRoutable {
     }
 
     func openJointAccountManagement(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
-        Task { @MainActor in
+        Task { @MainActor [self] in
             floatingSheetPresenter.removeActiveSheet()
 
             let coordinator = JointAccountManagementCoordinator(
