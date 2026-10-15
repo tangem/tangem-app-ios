@@ -19,6 +19,8 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
             content
                 .navigationLinks(links)
         }
+        .overlay(overlays)
+        .overlay(sheets)
         .environment(\.colorScheme, .dark)
     }
 
@@ -41,7 +43,17 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
             }
 
             sheetsContent
+        }
+        .confirmationDialog(viewModel: $coordinator.scanTroubleshootingDialog)
+        .fullScreenCover(item: $coordinator.legalViewModel) { legalViewModel in
+            WebViewContainer(viewModel: legalViewModel.webViewModel)
+                .background(legalViewModel.backgroundStyle)
+                .environment(\.colorScheme, legalViewModel.colorScheme)
+        }
+    }
 
+    private var overlays: some View {
+        ZStack {
             if let storyViewModel = coordinator.welcomeStoryViewModel {
                 WelcomeStoryView(viewModel: storyViewModel)
                     .transition(.opacity)
@@ -65,13 +77,6 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
         .animation(.easeInOut(duration: 0.35), value: coordinator.welcomeStoryViewModel != nil)
         .animation(.easeInOut(duration: 0.35), value: coordinator.tangemPayMobileOnboardingCoordinator != nil)
         .animation(.easeInOut(duration: 0.35), value: coordinator.tangemPayCampaignCoordinator != nil)
-        .overlay(sheets)
-        .confirmationDialog(viewModel: $coordinator.scanTroubleshootingDialog)
-        .fullScreenCover(item: $coordinator.legalViewModel) { legalViewModel in
-            WebViewContainer(viewModel: legalViewModel.webViewModel)
-                .background(legalViewModel.backgroundStyle)
-                .environment(\.colorScheme, legalViewModel.colorScheme)
-        }
     }
 
     /// Sheets are presented locally instead of via the global `FloatingSheetPresenter`:

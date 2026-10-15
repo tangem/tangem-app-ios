@@ -32,7 +32,11 @@ struct RootViewControllerFactory {
         }
 
         let rootView = rootView
-            .environment(\.mainWindowSize, window.screen.bounds.size)
+            .mainWindowSize(initial: window.screen.bounds.size)
+
+        if FeatureProvider.isAvailable(.newShtorkaEnabled) {
+            return TraitStatusBarHostingController(rootView: rootView)
+        }
 
         let contentViewController = UIHostingController(rootView: rootView)
 
@@ -59,5 +63,25 @@ extension RootViewControllerFactory {
         fileprivate static let notchlessDevicesOverlayCollapsedHeight: CGFloat = 90.0
         static let notchDevicesOverlayCornerRadius = 24.0
         static let notchlessDevicesOverlayCornerRadius = 16.0
+    }
+}
+
+// MARK: - TraitStatusBarHostingController
+
+private final class TraitStatusBarHostingController<Content: View>: UIHostingController<Content> {
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        traitCollection.userInterfaceStyle == .dark ? .lightContent : .darkContent
+    }
+
+    override var childForStatusBarStyle: UIViewController? {
+        nil
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        if traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
+            setNeedsStatusBarAppearanceUpdate()
+        }
     }
 }
