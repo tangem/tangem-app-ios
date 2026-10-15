@@ -9,7 +9,7 @@
 import SwiftUI
 
 public enum ThumbnailThreeCardsPathBuilder: ThumbnailPathBuilding {
-    public struct FillColors: Equatable {
+    public struct FillColors: Equatable, Sendable {
         public let card: Color
         public let secondCard: Color
         public let thirdCard: Color
