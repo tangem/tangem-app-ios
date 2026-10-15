@@ -22,6 +22,7 @@ final class TangemPayOfferViewModel: ObservableObject {
     @Published private(set) var isLoading = false
     @Published var alert: AlertBinder?
     @Published var termsFeesAndLimitsViewModel: WebViewContainerViewModel?
+    @Published var legalDocumentViewModel: WebViewContainerViewModel?
 
     var getCardButtonIcon: MainButton.Icon? {
         if let model = userWalletRepository.models.first, userWalletRepository.models.count == 1 {
@@ -47,7 +48,10 @@ final class TangemPayOfferViewModel: ObservableObject {
 
     func getCard() {
         Analytics.log(.visaOnboardingButtonVisaGetCard, analyticsSystems: .all)
+        selectWalletAndAcceptOffer()
+    }
 
+    func selectWalletAndAcceptOffer() {
         switch walletSelectionType {
         case .single(let id):
             guard
@@ -85,13 +89,18 @@ final class TangemPayOfferViewModel: ObservableObject {
     }
 
     func acceptOffer(on userWalletModel: UserWalletModel) {
+        guard FeatureProvider.isAvailable(.tangemPayChooseCountry) else {
+            acceptOfferWithoutResidency(on: userWalletModel)
+            return
+        }
+
         isLoading = true
         runTask(in: self) { viewModel in
             do throws(TangemPayAuthorizationError) {
-                try await userWalletModel.accountModelsManager.acceptTangemPayOffer(
+                let residencyInteractor = try await userWalletModel.accountModelsManager.authorizeTangemPayOfferForResidency(
                     authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor
                 )
-                await viewModel.closeOfferScreen()
+                await viewModel.continueAfterAuthorization(residencyInteractor: residencyInteractor)
             } catch {
                 await viewModel.handleAuthorizationFailure(error)
             }
@@ -107,9 +116,43 @@ final class TangemPayOfferViewModel: ObservableObject {
             withCloseButton: true
         )
     }
+
+    func openLegalDocument(url: URL) {
+        legalDocumentViewModel = .init(
+            url: url,
+            title: "",
+            withCloseButton: true
+        )
+    }
 }
 
 private extension TangemPayOfferViewModel {
+    func acceptOfferWithoutResidency(on userWalletModel: UserWalletModel) {
+        isLoading = true
+        runTask(in: self) { viewModel in
+            do throws(TangemPayAuthorizationError) {
+                try await userWalletModel.accountModelsManager.acceptTangemPayOffer(
+                    authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor
+                )
+                await viewModel.closeOfferScreen()
+            } catch {
+                await viewModel.handleAuthorizationFailure(error)
+            }
+        }
+    }
+
+    @MainActor
+    func continueAfterAuthorization(residencyInteractor: (any TangemPayResidencyInteractor)?) {
+        isLoading = false
+
+        guard let residencyInteractor else {
+            closeOfferScreen()
+            return
+        }
+
+        coordinator?.openResidency(interactor: residencyInteractor)
+    }
+
     @MainActor
     func handleAuthorizationFailure(_ error: TangemPayAuthorizationError) {
         isLoading = false

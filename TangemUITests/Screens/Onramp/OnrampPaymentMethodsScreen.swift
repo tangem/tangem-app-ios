@@ -42,6 +42,55 @@ final class OnrampPaymentMethodsScreen: ScreenBase<OnrampPaymentMethodsScreenEle
         return self
     }
 
+    @discardableResult
+    func waitForScreenTitleDisplayed() -> Self {
+        XCTContext.runActivity(named: "Validate payment methods screen title is displayed") { _ in
+            let title = app.staticTexts[OnrampAccessibilityIdentifiers.providersScreenTitle].firstMatch
+            waitAndAssertTrue(title, "Payment methods screen title should exist")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForPaymentMethodAmountsDisplayed() -> Self {
+        XCTContext.runActivity(named: "Validate each payment method shows an amount") { _ in
+            let amountsQuery = app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "onrampProviderAmount_"))
+            waitAndAssertTrue(amountsQuery.firstMatch, "At least one payment method amount should exist")
+
+            let amounts = amountsQuery.allElementsBoundByIndex
+            for amount in amounts {
+                waitAndAssertTrue(amount, "Payment method amount should exist: \(amount.identifier)")
+                let notEmpty = XCTWaiter.wait(
+                    for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "label.length > 0"), object: amount)],
+                    timeout: .robustUIUpdate
+                )
+                XCTAssertEqual(notEmpty, .completed, "Payment method amount should not be empty: \(amount.identifier)")
+            }
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForBestRateBadgeDisplayed() -> Self {
+        XCTContext.runActivity(named: "Validate at least one 'Best rate' badge is displayed") { _ in
+            // Only the "best" badge case renders an image (a star icon); "loss"/"restricted" render text instead.
+            let badgesQuery = app.images.matching(NSPredicate(format: "identifier BEGINSWITH %@", "onrampBestRateBadge_"))
+            waitAndAssertTrue(badgesQuery.firstMatch, "At least one 'Best rate' badge should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForProviderCountAndSpeedDisplayed() -> Self {
+        XCTContext.runActivity(named: "Validate provider count and speed badges are displayed") { _ in
+            let countsQuery = app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "onrampProviderCount_"))
+            let timesQuery = app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "onrampProviderTime_"))
+            waitAndAssertTrue(countsQuery.firstMatch, "At least one provider count badge should exist")
+            waitAndAssertTrue(timesQuery.firstMatch, "At least one provider speed badge should exist")
+        }
+        return self
+    }
+
     func selectPaymentMethod(at index: Int = 0) -> OnrampProvidersScreen {
         XCTContext.runActivity(named: "Select payment method at index \(index)") { _ in
             let paymentMethodCards = app.buttons.matching(identifier: OnrampAccessibilityIdentifiers.paymentMethodCard)

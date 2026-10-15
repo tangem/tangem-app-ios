@@ -14,17 +14,20 @@ public struct NotificationMessageBanner: View {
     private let bannerType: NotificationBanner.BannerType
     private let variantOverride: MessageBannerVariant?
     private let ringOverride: NotificationBanner.Ring?
+    private let textColors: MessageBannerOverrideTextColors
     private let accessibilityIdentifier: String?
 
     public init(
         bannerType: NotificationBanner.BannerType,
         variant: MessageBannerVariant? = nil,
         ring: NotificationBanner.Ring? = nil,
+        textColors: MessageBannerOverrideTextColors = .init(),
         accessibilityIdentifier: String?
     ) {
         self.bannerType = bannerType
         variantOverride = variant
         ringOverride = ring
+        self.textColors = textColors
         self.accessibilityIdentifier = accessibilityIdentifier
     }
 
@@ -41,6 +44,7 @@ public struct NotificationMessageBanner: View {
         let base = MessageBanner(title: title, description: description)
             .variant(variant)
             .glowRing(ringAppearance(ring))
+            .overrideTextColors(textColors)
             .contentAlign(contentAlign)
             .secondaryButton(buttons.secondary)
             .primaryButton(buttons.primary)
@@ -150,7 +154,7 @@ private extension NotificationMessageBanner {
             .renderingMode(icon.renderingMode)
             .resizable()
             .aspectRatio(contentMode: .fit)
-            .frame(width: icon.width.value, height: icon.height.value)
+            .frame(width: icon.width, height: icon.height)
             .foregroundColor(icon.color)
     }
 

@@ -26,7 +26,7 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
         }
     }
 
-    private lazy var isAccessCodeNeeded: Bool = userWalletModel.config.userWalletAccessCodeStatus == .none
+    private lazy var isAccessCodeNeeded: Bool = MobileAccessCodeStatusUtil.isAccessCodeNeeded(config: userWalletModel.config)
 
     private lazy var isPushNotificationsNeeded: Bool = {
         let availabilityProvider = pushNotificationsFactory.makeAvailabilityProviderForAfterLogin(using: pushNotificationsInteractor)

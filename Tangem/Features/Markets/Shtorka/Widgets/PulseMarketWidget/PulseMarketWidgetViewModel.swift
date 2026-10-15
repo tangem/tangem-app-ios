@@ -27,7 +27,7 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     }
 
     var headerTitle: String {
-        isSearchActive ? Localization.marketsCommonTitle : (widgetType.headerTitle ?? "")
+        isSearchActive ? Localization.marketsCommonTitle : (MarketsWidgetType.pulse.headerTitle ?? "")
     }
 
     var isNeedDisplayFilter: Bool {
@@ -39,22 +39,16 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     }
 
     var availabilityToSelectionOrderType: [MarketsListOrderType] {
-        var ordered: [MarketsListOrderType] = [.trending, .gainers, .losers, .buyers]
-        if includesMarketCapFilter {
-            ordered.insert(.rating, at: 0)
-        }
-        return ordered
+        [.rating, .trending, .gainers, .losers, .buyers]
     }
 
     // MARK: - Properties
 
-    let widgetType: MarketsWidgetType
     private weak var coordinator: PulseMarketWidgetRoutable?
 
     private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
     private let analyticsService: PulseMarketWidgetAnalyticsProvider
-    private let includesMarketCapFilter: Bool
 
     private let filterProvider: MarketsListDataFilterProvider
     private let dataProvider = MarketsListDataProvider(loadNetworks: true)
@@ -62,6 +56,7 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
 
     private var marketCapFormatter: MarketCapFormatter
+    private var displayedTokenIDs: Set<String> = []
     private var bag = Set<AnyCancellable>()
 
     private let skeletonFloor = LoadingStateFloor()
@@ -69,22 +64,18 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     // MARK: - Init
 
     init(
-        widgetType: MarketsWidgetType,
         widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler,
         quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
         analyticsService: PulseMarketWidgetAnalyticsProvider,
-        includesMarketCapFilter: Bool = false,
         coordinator: PulseMarketWidgetRoutable?
     ) {
-        self.widgetType = widgetType
         self.widgetsUpdateHandler = widgetsUpdateHandler
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
         self.analyticsService = analyticsService
-        self.includesMarketCapFilter = includesMarketCapFilter
         self.coordinator = coordinator
 
         filterProvider = MarketsListDataFilterProvider(
-            initialOrderType: includesMarketCapFilter ? .rating : Constants.initialOrderType
+            initialOrderType: .rating
         )
 
         marketCapFormatter = .init(
@@ -241,7 +232,7 @@ private extension PulseMarketWidgetViewModel {
                 switch newEvent {
                 case .loading:
                     if case .failedToFetchData = oldEvent { return }
-                    viewModel.widgetsUpdateHandler.performUpdateLoading(state: .loading, for: viewModel.widgetType)
+                    viewModel.widgetsUpdateHandler.performUpdateLoading(state: .loading, for: .pulse)
                 case .idle:
                     break
                 case .failedToFetchData:
@@ -249,9 +240,9 @@ private extension PulseMarketWidgetViewModel {
                         viewModel.quotesUpdatesScheduler.cancelUpdates()
                     }
 
-                    viewModel.widgetsUpdateHandler.performUpdateLoading(state: .error, for: viewModel.widgetType)
+                    viewModel.widgetsUpdateHandler.performUpdateLoading(state: .error, for: .pulse)
                 case .startInitialFetch, .cleared:
-                    viewModel.widgetsUpdateHandler.performUpdateLoading(state: .loading, for: viewModel.widgetType)
+                    viewModel.widgetsUpdateHandler.performUpdateLoading(state: .loading, for: .pulse)
                     viewModel.quotesUpdatesScheduler.saveQuotesUpdateDate(Date())
 
                     viewModel.quotesUpdatesScheduler.resetUpdates()
@@ -284,7 +275,7 @@ private extension PulseMarketWidgetViewModel {
             })
             .receiveOnMain()
             .sink { viewModel, _ in
-                viewModel.widgetsUpdateHandler.performUpdateLoading(state: .loaded, for: viewModel.widgetType)
+                viewModel.widgetsUpdateHandler.performUpdateLoading(state: .loaded, for: .pulse)
             }
             .store(in: &bag)
 
@@ -300,7 +291,7 @@ private extension PulseMarketWidgetViewModel {
                 case .initialLoading:
                     viewModel.showSkeletons()
                 case .reloading(let widgetTypes):
-                    if widgetTypes.contains(viewModel.widgetType) {
+                    if widgetTypes.contains(.pulse) {
                         viewModel.showSkeletons()
                     }
                 case .allFailed:
@@ -353,6 +344,7 @@ private extension PulseMarketWidgetViewModel {
             let items = dataProvider.items.prefix(Constants.itemsOnListWidget)
             let tokenViewModelsToAppend = mapToItemViewModel(Array(items), offset: 0)
             tokenViewModelsState = .success(tokenViewModelsToAppend)
+            updateQuotesSchedule(for: Set(items.map(\.id)))
         case .failedToFetchData(let error):
             tokenViewModelsState = .failure(error)
             analyticsService.logPulseMarketLoadError(error)
@@ -361,6 +353,17 @@ private extension PulseMarketWidgetViewModel {
         case .idle:
             break
         }
+    }
+
+    func updateQuotesSchedule(for tokenIDs: Set<String>) {
+        let hiddenTokenIDs = displayedTokenIDs.subtracting(tokenIDs)
+
+        if hiddenTokenIDs.isNotEmpty {
+            quotesUpdatesScheduler.stopUpdatingQuotes(for: hiddenTokenIDs)
+        }
+
+        displayedTokenIDs = tokenIDs
+        quotesUpdatesScheduler.scheduleQuotesUpdate(for: tokenIDs)
     }
 
     // MARK: - Actions
@@ -394,7 +397,6 @@ private extension PulseMarketWidgetViewModel {
 
 private extension PulseMarketWidgetViewModel {
     enum Constants {
-        static let initialOrderType: MarketsListOrderType = .trending
         static let searchOrderType: MarketsListOrderType = .rating
         static let itemsOnListWidget = 5
         static let searchDebounceInterval: DispatchQueue.SchedulerTimeType.Stride = 0.45

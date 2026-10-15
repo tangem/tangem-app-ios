@@ -24,6 +24,8 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openCloreMigration(walletModel: any WalletModel)
     func openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
     func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
+    func openTangemPayResidency(interactor: any TangemPayResidencyInteractor)
+    func openTangemPayRegionUnavailablePopup(region: TangemPayUnavailableRegion, interactor: any TangemPayResidencyInteractor)
     func openTangemPayFailedToIssueCardPopup(userWalletModel: UserWalletModel)
     func openTangemPayMainView(
         userWalletInfo: UserWalletInfo,
@@ -38,6 +40,6 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openGetTangemPay(availableSelection: TangemPayWalletSelectionType)
     func openPolymarket(userWalletModel: UserWalletModel)
     func openCollectibles(with options: CollectiblesCoordinator.Options)
-    func openJointAccountMembers(jointAccount: any JointAccountModel)
-    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation)
+    func openJointAccountMembers(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig)
+    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation, userWalletInfo: UserWalletInfo)
 }

@@ -34,7 +34,7 @@ extension YieldIncentiveChartPeriod: TangemSegmentedPickerTextProvider {
 
 struct YieldIncentiveChartData: Equatable {
     let baseApyData: [Double]
-    let rewardsAprData: [Double]
+    let totalApyData: [Double]
     let xTicks: [Int: String]
     let averageApy: Double?
 }

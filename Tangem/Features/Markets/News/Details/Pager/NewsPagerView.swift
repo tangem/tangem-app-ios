@@ -23,8 +23,6 @@ struct NewsPagerView: View {
     @State private var sheetNavigationButtonWidth: CGFloat = 0
     @State private var sheetPagerHeight: CGFloat?
 
-    @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
-
     var body: some View {
         ZStack(alignment: .bottom) {
             ZStack(alignment: .top) {
@@ -38,7 +36,6 @@ struct NewsPagerView: View {
                             sheetPagerContent
                         } else {
                             pagerContent
-                                .opacity(viewModel.overlayContentHidingProgress)
                         }
                     }
                     .hiddenWhileCollapsed()
@@ -57,15 +54,11 @@ struct NewsPagerView: View {
                     pageIndicator
                         .padding(.bottom, 8)
                 }
-                .opacity(sheetSize.isFeedSheet ? 1 : viewModel.overlayContentHidingProgress)
                 .hiddenWhileCollapsed()
             }
         }
         .background(backgroundColor.ignoresSafeArea())
         .onAppear { viewModel.handleViewAction(.onAppear) }
-        .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
-            viewModel?.onOverlayContentProgressChange(progress)
-        }
         .if(!sheetSize.isFeedSheet && (viewModel.isMarketsSheetFlow || viewModel.isDeeplinkMode)) { view in
             view.injectMarketsNavigationConfigurator(isSimplified: viewModel.isDeeplinkMode)
         }

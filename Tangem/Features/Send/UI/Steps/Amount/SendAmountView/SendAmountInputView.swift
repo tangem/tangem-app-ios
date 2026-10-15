@@ -61,6 +61,7 @@ private extension SendAmountInputView {
                     .stroke(Colors.Stroke.primary, lineWidth: 1)
             )
         }
+        .accessibilityIdentifier(SendAccessibilityIdentifiers.rateBadge)
     }
 
     @ViewBuilder

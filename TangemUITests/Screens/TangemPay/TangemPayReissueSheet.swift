@@ -10,11 +10,6 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class TangemPayReissueSheet: Screen {
-    private static let title = "Replace your card?"
-    private static let description = "This generates a new set of card details. Your old details will stop working. You can't undo this."
-    private static let feeLabel = "Replacement fee"
-    private static let unableToCoverFeeTitle = "Unable to cover fee"
-
     let app: XCUIApplication
 
     init(_ app: XCUIApplication) {
@@ -40,9 +35,9 @@ final class TangemPayReissueSheet: Screen {
     @discardableResult
     func verifyReplaceCardContent(feeValue: String) -> Self {
         XCTContext.runActivity(named: "Verify reissue sheet content with fee '\(feeValue)'") { _ in
-            waitAndAssertTrue(app.staticTexts[Self.title].firstMatch, "Reissue sheet title should be displayed")
-            waitAndAssertTrue(app.staticTexts[Self.description].firstMatch, "Reissue sheet description should be displayed")
-            waitAndAssertTrue(app.staticTexts[Self.feeLabel].firstMatch, "Replacement fee label should be displayed")
+            waitAndAssertTrue(app.staticTexts[Localization.tangempayReissueCardTitle].firstMatch, "Reissue sheet title should be displayed")
+            waitAndAssertTrue(app.staticTexts[Localization.tangempayReissueCardDescription].firstMatch, "Reissue sheet description should be displayed")
+            waitAndAssertTrue(app.staticTexts[Localization.tangempayReissueCardFeeLabel].firstMatch, "Replacement fee label should be displayed")
             waitAndAssertTrue(app.staticTexts[feeValue].firstMatch, "Replacement fee value '\(feeValue)' should be displayed")
             return self
         }
@@ -51,7 +46,7 @@ final class TangemPayReissueSheet: Screen {
     @discardableResult
     func verifyUnableToCoverFee() -> Self {
         XCTContext.runActivity(named: "Verify reissue sheet shows 'Unable to cover fee' state") { _ in
-            waitAndAssertTrue(app.staticTexts[Self.unableToCoverFeeTitle].firstMatch, "'Unable to cover fee' title should be displayed")
+            waitAndAssertTrue(app.staticTexts[Localization.tangempayReissueCardInsufficientFundsTitle].firstMatch, "'Unable to cover fee' title should be displayed")
             return self
         }
     }

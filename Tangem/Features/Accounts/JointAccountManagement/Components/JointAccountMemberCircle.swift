@@ -9,7 +9,7 @@
 import SwiftUI
 import TangemAssets
 
-/// One member slot of the joint account composition, in one of the three states the design defines.
+/// One member slot of the joint account composition, in one of the states the design defines.
 struct JointAccountMemberCircle: View {
     let state: State
     var diameter: CGFloat = Constants.diameter
@@ -46,6 +46,7 @@ extension JointAccountMemberCircle {
         case active
         case filled
         case empty
+        case vacant
     }
 }
 
@@ -55,6 +56,7 @@ private extension JointAccountMemberCircle.State {
         case .active: DesignSystem.Color.bgStatusInfoSubtle
         case .filled: DesignSystem.Color.bgTransparentPrimary
         case .empty: .clear
+        case .vacant: DesignSystem.Color.bgTertiary
         }
     }
 
@@ -63,12 +65,13 @@ private extension JointAccountMemberCircle.State {
         case .active: DesignSystem.Color.borderStatusInfoSubtle
         case .filled: DesignSystem.Color.borderPrimary
         case .empty: DesignSystem.Color.borderSecondary
+        case .vacant: .clear
         }
     }
 
     func borderStyle(diameter: CGFloat) -> StrokeStyle {
         switch self {
-        case .active, .filled:
+        case .active, .filled, .vacant:
             StrokeStyle(lineWidth: JointAccountMemberCircle.Constants.borderWidth)
         case .empty:
             StrokeStyle(
@@ -83,6 +86,7 @@ private extension JointAccountMemberCircle.State {
         case .active: DesignSystem.Color.iconStatusInfo
         case .filled: DesignSystem.Color.iconSecondary
         case .empty: nil
+        case .vacant: DesignSystem.Color.iconTertiary
         }
     }
 }

@@ -17,6 +17,7 @@ import TangemFoundation
 import TangemUI
 import TangemMobileWalletSdk
 import TangemPay
+import TangemLocalization
 
 final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     let dismissAction: Action<Void>
@@ -72,7 +73,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     // MARK: - Child view models
 
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
-    @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
 
     // MARK: - Helpers
 
@@ -427,6 +427,27 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
+    func openTangemPayResidency(interactor: any TangemPayResidencyInteractor) {
+        let dismissAction: Action<TangemPayOnboardingCoordinator.DismissOptions?> = { [weak self] _ in
+            self?.tangemPayOnboardingCoordinator = nil
+        }
+
+        let coordinator = TangemPayOnboardingCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: .init(residencyInteractor: interactor))
+        tangemPayOnboardingCoordinator = coordinator
+    }
+
+    func openTangemPayRegionUnavailablePopup(region: TangemPayUnavailableRegion, interactor: any TangemPayResidencyInteractor) {
+        Task { @MainActor in
+            let viewModel = TangemPayRegionUnavailablePopupViewModel(
+                region: region,
+                interactor: interactor,
+                coordinator: self
+            )
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openTangemPayFailedToIssueCardPopup(userWalletModel: UserWalletModel) {
         Task { @MainActor in
             let viewModel = TangemPayFailedToIssueCardSheetViewModel(
@@ -516,12 +537,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     /// A deferred AppsFlyer link resolves after launch, and on a relaunch with a wallet already present the
     /// app never builds `WelcomeProcessor` — so the stored key has no other route onto the screen here.
     private func observePendingTangemPayCampaign() {
-        guard FeatureProvider.isAvailable(.tangemPayCustomCards) else {
-            return
-        }
-
-        let keyChanges: AnyPublisher<Void, Never> = AppSettings.shared
-            .$pendingTangemPayCampaignKey
+        let keyChanges: AnyPublisher<Void, Never> = TangemPayCampaignService()
+            .pendingCampaignKeyPublisher
             .mapToVoid()
             .receiveOnMain()
             .eraseToAnyPublisher()
@@ -586,7 +603,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             || actionButtonsBuyCoordinator != nil
             || actionButtonsSellCoordinator != nil
             || yieldModuleActiveCoordinator != nil
-            || pendingExpressTxStatusBottomSheetViewModel != nil
     }
 
     /// Changes to the slots `isPresentingOverMain` reads, so a campaign that a modal was covering gets
@@ -602,7 +618,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             $actionButtonsBuyCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $actionButtonsSellCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $yieldModuleActiveCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
-            $pendingExpressTxStatusBottomSheetViewModel.dropFirst().mapToVoid().eraseToAnyPublisher(),
         ]
 
         return Publishers.MergeMany(slots).eraseToAnyPublisher()
@@ -615,11 +630,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         guard !isPresentingOverMain else { return }
 
         TangemPayCampaignService().clearPending()
-
-        // The shtorka presents the cover over itself, and hiding it would take the cover down with it.
-        if !FeatureProvider.isAvailable(.newShtorkaEnabled) {
-            mainBottomSheetUIManager.hide()
-        }
 
         let dismissAction: Action<TangemPayCampaignCoordinator.OutputOptions> = { [weak self] options in
             self?.tangemPayCampaignCoordinator = nil
@@ -689,20 +699,21 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         collectiblesCoordinator = coordinator
     }
 
-    func openJointAccountMembers(jointAccount: any JointAccountModel) {
+    func openJointAccountMembers(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig) {
         let coordinator = JointAccountManagementCoordinator(
             dismissAction: { [weak self] in
                 self?.jointAccountManagementCoordinator = nil
             },
             popToRootAction: popToRootAction
         )
-        coordinator.start(with: .members(jointAccount: jointAccount))
+        coordinator.start(with: .members(jointAccount: jointAccount, userWalletConfig: userWalletConfig))
         jointAccountManagementCoordinator = coordinator
     }
 
-    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation) {
+    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation, userWalletInfo: UserWalletInfo) {
         let viewModel = JointAccountOperationDetailsViewModelBuilder().build(
             pendingOperation: pendingOperation,
+            userWalletInfo: userWalletInfo,
             coordinator: self
         )
 
@@ -857,21 +868,6 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }
-
-    func openPendingExpressTransactionDetails(
-        pendingTransaction: PendingTransaction,
-        tokenItem: TokenItem,
-        userWalletInfo: UserWalletInfo,
-        pendingTransactionsManager: PendingExpressTransactionsManager
-    ) {
-        pendingExpressTxStatusBottomSheetViewModel = PendingExpressTxStatusBottomSheetViewModel(
-            pendingTransaction: pendingTransaction,
-            currentTokenItem: tokenItem,
-            userWalletInfo: userWalletInfo,
-            pendingTransactionsManager: pendingTransactionsManager,
-            router: self
-        )
-    }
 }
 
 // MARK: - SendFeeCurrencyNavigating
@@ -993,23 +989,6 @@ extension MainCoordinator: ActionButtonsSwapFlowRoutable {
     }
 }
 
-// MARK: - PendingExpressTxStatusRoutable
-
-extension MainCoordinator: PendingExpressTxStatusRoutable {
-    func openURL(_ url: URL) {
-        safariManager.openURL(url)
-    }
-
-    func openRefundCurrency(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
-        pendingExpressTxStatusBottomSheetViewModel = nil
-        openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
-    }
-
-    func dismissPendingTxSheet() {
-        pendingExpressTxStatusBottomSheetViewModel = nil
-    }
-}
-
 extension MainCoordinator {
     enum Constants {
         static let tooltipAnimationDuration: Double = 0.3
@@ -1017,6 +996,7 @@ extension MainCoordinator {
         static let tooltipAnimationDelay: Double = 1.5
         static let tangemPayPlanActivationNavigationDelay: TimeInterval = 0.6
         static let tangemPayCampaignPresentationDelay: TimeInterval = 0.35
+        static let tangemPayRegionReselectionPresentationDelay: TimeInterval = 0.5
     }
 }
 
@@ -1032,6 +1012,26 @@ extension MainCoordinator: TangemPayKYCDeclinedRoutable {
     func closeKYCDeclinedPopup() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - TangemPayRegionUnavailableRoutable
+
+extension MainCoordinator: TangemPayRegionUnavailableRoutable {
+    func closeTangemPayRegionUnavailablePopup() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func openTangemPayRegionReselection(interactor: any TangemPayResidencyInteractor) {
+        CommonTangemPayResidencyAnalyticsLogger().logSelectAnotherRegionTapped()
+
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(Constants.tangemPayRegionReselectionPresentationDelay))
+            openTangemPayResidency(interactor: interactor)
         }
     }
 }
@@ -1154,6 +1154,10 @@ extension MainCoordinator: FeedHostRoutable {
             openGetTangemPay(availableSelection: availableSelection)
         case .kycRequired(let tangemPayKYCInteractor):
             openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
+        case .residencyRequired(let interactor):
+            openTangemPayResidency(interactor: interactor)
+        case .regionUnavailable(let region, let interactor):
+            openTangemPayRegionUnavailablePopup(region: region, interactor: interactor)
         case .kycDeclined(let tangemPayKYCInteractor):
             openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
         case .selectPlan(let tariffPlanSelector, let userWalletModel):

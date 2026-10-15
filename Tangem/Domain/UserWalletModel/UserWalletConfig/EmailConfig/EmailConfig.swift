@@ -40,11 +40,14 @@ struct EmailConfig {
 
 enum PaeraEmailSubject {
     case KYCRejected
+    case regionUnavailable
 
     var prefix: String {
         switch self {
         case .KYCRejected:
             return "Tangem Pay - KYC rejected"
+        case .regionUnavailable:
+            return "Tangem Pay - Region unavailable"
         }
     }
 }

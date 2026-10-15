@@ -12,7 +12,7 @@ import TangemUIUtils
 import TangemUI
 import TangemFoundation
 
-struct CarouselNewsItem: Identifiable, Equatable, NewsReadStatusSortable {
+struct CarouselNewsItem: Identifiable, Equatable {
     let id: String
     let title: String
     let rating: String

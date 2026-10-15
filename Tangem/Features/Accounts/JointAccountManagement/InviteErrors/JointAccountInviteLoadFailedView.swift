@@ -27,7 +27,7 @@ struct JointAccountInviteLoadFailedView: View {
                     accessibilityLabel: Localization.commonReload,
                     action: onRetryTap
                 )
-                .styleType(.default)
+                .styleType(.primary)
                 .size(.x10)
                 .loading(.spinner(if: isRetrying))
 

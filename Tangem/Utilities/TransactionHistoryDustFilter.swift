@@ -39,7 +39,9 @@ struct TransactionHistoryDustFilter {
              .yieldWithdrawCoin,
              .yieldSend:
             return true
-        case .yieldDeploy,
+        case .incentiveClaim,
+             .incentiveClaimCoin,
+             .yieldDeploy,
              .yieldInit,
              .yieldReactivate,
              .approve,

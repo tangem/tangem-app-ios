@@ -171,12 +171,21 @@ final class TangemPayAccount {
     }
 
     var virtualAccountEntry: VirtualAccountEntry {
-        if let productInstance = currentCustomerInfo.virtualAccountProductInstance {
-            return productInstance.status == .active
-                ? .active(productInstanceId: productInstance.id)
-                : .preparing
-        }
-        return placedVirtualAccountOrderId == nil ? .none : .preparing
+        Self.makeVirtualAccountEntry(
+            customerInfo: currentCustomerInfo,
+            placedOrderId: placedVirtualAccountOrderIdSubject.value
+        )
+    }
+
+    var virtualAccountEntryPublisher: AnyPublisher<VirtualAccountEntry, Never> {
+        Publishers.CombineLatest(customerInfoSubject, placedVirtualAccountOrderIdSubject)
+            .map { Self.makeVirtualAccountEntry(customerInfo: $0, placedOrderId: $1) }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    var virtualAccountCreationFailedPublisher: AnyPublisher<Bool, Never> {
+        virtualAccountCreationFailureStorage.virtualAccountCreationFailedPublisher(customerWalletId: customerWalletId)
     }
 
     var hasVirtualAccount: Bool {
@@ -222,6 +231,7 @@ final class TangemPayAccount {
     private let orderStatusPollingService: TangemPayOrderStatusPollingService
     private let orderResolver: TangemPayOrderResolver
     private let cashbackCacheStorage: TangemPayCashbackCacheStorage
+    private let virtualAccountCreationFailureStorage: TangemPayVirtualAccountCreationFailureStorage
 
     private let customerInfoSubject: CurrentValueSubject<VisaCustomerInfoResponse, Never>
     private let cardsSubject = CurrentValueSubject<[TangemPayCard], Never>([])
@@ -240,7 +250,7 @@ final class TangemPayAccount {
     private let cardIssueCompletedSubject = PassthroughSubject<Void, Never>()
     private let firstCardIssueFailedSubject = PassthroughSubject<Void, Never>()
 
-    private var placedVirtualAccountOrderId: String?
+    private let placedVirtualAccountOrderIdSubject = CurrentValueSubject<String?, Never>(nil)
 
     private var reissueSourceProductInstanceIdByOrderId: [String: String] = [:]
 
@@ -279,6 +289,7 @@ final class TangemPayAccount {
         orderResolver: TangemPayOrderResolver,
         feeRepository: TangemPayFeeRepository,
         cashbackCacheStorage: TangemPayCashbackCacheStorage,
+        virtualAccountCreationFailureStorage: TangemPayVirtualAccountCreationFailureStorage,
         account: (any TangemPayAccountModel)?,
         accountRemover: (any TangemPayAccountRemoving)?
     ) {
@@ -295,6 +306,7 @@ final class TangemPayAccount {
         self.orderResolver = orderResolver
         self.feeRepository = feeRepository
         self.cashbackCacheStorage = cashbackCacheStorage
+        self.virtualAccountCreationFailureStorage = virtualAccountCreationFailureStorage
         self.account = account
         self.accountRemover = accountRemover
 
@@ -354,11 +366,10 @@ enum TangemPayAccountError: Error {
     case missingPaymentAccountAddress
     case missingDepositAddress
     case missingCardIssueOffer
-    case missingOnrampFees
 }
 
 extension TangemPayAccount {
-    enum VirtualAccountEntry {
+    enum VirtualAccountEntry: Equatable {
         case none
         case preparing
         case active(productInstanceId: String)
@@ -585,8 +596,13 @@ extension TangemPayAccount {
         )
 
         let order = try await customerService.placeOrder(request: request, idempotencyKey: idempotencyKey)
-        placedVirtualAccountOrderId = order.id
+        virtualAccountCreationFailureStorage.setVirtualAccountCreationFailed(false, customerWalletId: customerWalletId)
+        placedVirtualAccountOrderIdSubject.send(order.id)
         startVirtualAccountOrderPolling(orderId: order.id)
+    }
+
+    func dismissVirtualAccountCreationFailure() {
+        virtualAccountCreationFailureStorage.setVirtualAccountCreationFailed(false, customerWalletId: customerWalletId)
     }
 
     func loadBankCredentials(productInstanceId: String) async throws -> TangemPayBankCredentialsResponse {
@@ -603,13 +619,30 @@ extension TangemPayAccount {
             onCanceled: { [weak self] in
                 // Drop the local flag so `virtualAccountEntry` falls back to `.none` and the info sheet
                 // (retry path) becomes reachable again instead of pinning the user on "preparing".
-                self?.placedVirtualAccountOrderId = nil
+                self?.markVirtualAccountCreationFailed()
             },
             onFailed: { [weak self] error in
                 VisaLogger.error("Failed to poll virtual account order status", error: error)
-                self?.placedVirtualAccountOrderId = nil
+                self?.markVirtualAccountCreationFailed()
             }
         )
+    }
+
+    private func markVirtualAccountCreationFailed() {
+        placedVirtualAccountOrderIdSubject.send(nil)
+        virtualAccountCreationFailureStorage.setVirtualAccountCreationFailed(true, customerWalletId: customerWalletId)
+    }
+
+    private static func makeVirtualAccountEntry(
+        customerInfo: VisaCustomerInfoResponse,
+        placedOrderId: String?
+    ) -> VirtualAccountEntry {
+        if let productInstance = customerInfo.virtualAccountProductInstance {
+            return productInstance.status == .active
+                ? .active(productInstanceId: productInstance.id)
+                : .preparing
+        }
+        return placedOrderId == nil ? .none : .preparing
     }
 }
 

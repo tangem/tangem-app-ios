@@ -1897,11 +1897,11 @@
 "settings_forget_wallet" = "Forget wallet";
 "settings_wallet_name_title" = "Name";
 "social_agreement_action_create" = "Create wallet";
-"social_login_consent_acknowledge" = "I understand that losing my %@ account means losing this wallet";
-"social_login_consent_description" = "Tangem generates the keys on this phone and stores an encrypted copy in your %@ account. Signing in there is how you get the wallet back on any device.";
-"social_login_consent_email_sharing" = "Share my email with Tangem for product updates";
+"social_login_consent_acknowledge" = "I understand that if I don't save my recovery phrase, losing access to my %@ Account may permanently prevent me from accessing this wallet.";
+"social_login_consent_description" = "Your wallet keys are encrypted and backed up to your cloud account. Tangem cannot access them. Sign in with %1$@ to restore your wallet, or use your recovery phrase if you lose access to your %1$@ Account.";
+"social_login_consent_email_sharing" = "Get product updates and exclusive offers by email";
 "social_login_consent_learn_more" = "Learn more";
-"social_login_consent_title" = "Create a wallet with %@ account";
+"social_login_consent_title" = "Create a wallet with %@ Account";
 "social_login_creating_wallet_description" = "Your keys are generated on this device";
 "social_login_creating_wallet" = "Creating your wallet";
 "social_login_error_account_linked" = "This %@ account is already linked to another wallet.";
@@ -1920,9 +1920,9 @@
 "social_login_toast_wallet_created" = "Wallet created";
 "social_wallet_delete_anyway" = "Delete anyway";
 "social_wallet_delete_attention_acknowledge" = "I understand that if I haven't backed up my recovery phrase, I'll lose access to this wallet forever.";
-"social_wallet_delete_attention_description" = "This wallet will be permanently removed from your device and %@ account";
+"social_wallet_delete_attention_description" = "This will delete the wallet from this device, unlink it from your %1$@ Account and delete your encrypted keys from the cloud. Signing in with %1$@ will no longer restore it.";
 "social_wallet_delete_confirmation_title" = "Delete this wallet and unlink it from your %1$@ Account?";
-"social_wallet_delete_description" = "This wallet will be permanently removed from the app, and your %@ account will no longer be linked to it. Back up your seed phrase first - otherwise you'll permanently lose access to any crypto it holds.";
+"social_wallet_delete_description" = "This will delete the wallet from this device, unlink it from your %1$@ Account and delete your encrypted keys from the cloud. Signing in with %1$@ will no longer restore it. Back up your recovery phrase first. Without it, you'll lose access to the crypto in this wallet forever.";
 "social_wallet_delete_error_description" = "We couldn't delete this wallet. Please try again";
 "social_wallet_delete_title" = "Delete wallet?";
 "social_wallet_log_out_description_v2" = "This only removes the wallet from this device. It stays linked to your %1$@ Account, and you can restore the wallet by signing in with %1$@.";
@@ -2343,6 +2343,7 @@
 "tangempay_factory_settings_warning_title" = "Comprendo che perderò l'accesso alla mia Tangem Pay Card e ai fondi su di essa senza possibilità di recupero";
 "tangempay_failed_to_issue_card_support_description" = "Si è verificato un errore tecnico, contatta il supporto";
 "tangempay_failed_to_issue_card" = "Impossibile emettere la carta";
+"tangempay_geo_selection_search_empty" = "No results. Try to change request";
 "tangempay_get_banner_description" = "Carta Tangem Pay gratuita con fino al 2%% di cashback";
 "tangempay_get_tangem_pay" = "Ottieni Tangem Pay";
 "tangempay_go_to_support" = "Vai al supporto";

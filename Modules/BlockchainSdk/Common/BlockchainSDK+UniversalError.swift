@@ -341,6 +341,8 @@ extension SolanaBSDKError: UniversalError {
             102010108
         case .programIdOutsideStaticKeys:
             102010109
+        case .walletIsNotSoleRequiredSigner:
+            102010110
         }
     }
 }

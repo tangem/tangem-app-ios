@@ -16,6 +16,7 @@ import TangemPay
 @MainActor
 final class TangemPayVirtualAccountBankDetailsViewModel: ObservableObject, FloatingSheetContentViewModel {
     let rows: [Row]
+    let dailyDepositLimit: String
 
     @Injected(\.overlayShareActivitiesPresenter) private var shareActivitiesPresenter: any ShareActivitiesPresenter
 
@@ -33,6 +34,8 @@ final class TangemPayVirtualAccountBankDetailsViewModel: ObservableObject, Float
             Row(key: "routing_number", title: Localization.virtualAccountRequisitesRoutingNumber, value: credentials.routingNumber),
         ]
         .filter { !$0.value.isEmpty }
+
+        dailyDepositLimit = TangemPayDepositLimitFormatter.format(credentials.depositLimit)
 
         Analytics.log(.visaVATopupBankingDetailsShowed)
     }
