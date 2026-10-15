@@ -12,7 +12,10 @@ import TangemPolymarket
 struct PolymarketAccountFundsFactory {
     private let services = PolymarketOnboardingServicesFactory.makeDefault()
 
-    func makeInteractor(for userWalletModel: any UserWalletModel) -> PolymarketAccountFundsInteractor {
+    func makeInteractor(
+        for userWalletModel: any UserWalletModel,
+        sessionHealth: PolymarketSessionHealthChecking
+    ) -> PolymarketAccountFundsInteractor {
         let walletId = userWalletModel.userWalletId.stringValue
 
         let configurationService = services.makeConfigurationService(
@@ -27,7 +30,8 @@ struct PolymarketAccountFundsFactory {
             configurationService: configurationService,
             walletService: services.makeWalletService(walletId: walletId),
             ownerAddressProvider: PolymarketOnboardingFactory().makeOwnerAddressProvider(for: userWalletModel),
-            supportedBlockchains: userWalletModel.config.supportedBlockchains
+            supportedBlockchains: userWalletModel.config.supportedBlockchains,
+            sessionHealth: sessionHealth
         )
     }
 }

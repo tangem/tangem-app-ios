@@ -45,7 +45,7 @@ public struct EntitySummaryView: View {
         ZStack {
             switch viewState {
             case .loading:
-                SkeletonView()
+                Shimmer()
                     .frame(width: 56, height: 56)
                     .transition(.opacity)
             case .content(let contentState):
@@ -128,9 +128,8 @@ public struct EntitySummaryView: View {
                 .transition(.opacity)
 
         case .loading:
-            SkeletonView()
-                .frame(width: 120, height: 26)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+            Shimmer()
+                .variant(.custom(width: 120, height: 26, cornerRadius: 8))
                 .transition(.opacity)
         }
     }
@@ -164,9 +163,8 @@ public struct EntitySummaryView: View {
                 .transition(.opacity)
 
         case .loading:
-            SkeletonView()
-                .frame(width: 168, height: 18)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+            Shimmer()
+                .variant(.custom(width: 168, height: 18, cornerRadius: 8))
                 .transition(.opacity)
         }
     }
@@ -241,7 +239,6 @@ public extension EntitySummaryView.ViewState.ContentState.ImageLocation {
 public extension EntitySummaryView.ViewState.ContentState.ImageLocation {
     struct RemoteImageConfig: Equatable {
         let iconURL: URL?
-        let fallbackIconAsset = Assets.Glyphs.explore
 
         public init(iconURL: URL?) {
             self.iconURL = iconURL

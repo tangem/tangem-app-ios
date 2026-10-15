@@ -11,7 +11,8 @@ import Combine
 
 /// `swapCandidates` is a snapshot taken on tap — the sheet is dismissed before any navigation runs.
 struct TokenSummaryInput {
-    let token: MarketsTokenModel
+    let coinName: String
+    let coinSymbol: String
     let indicators: [TokenSummaryIndicator]
     let primaryActionPublisher: AnyPublisher<TokenSummaryPrimaryAction?, Never>
     let holdings: [any WalletModel]

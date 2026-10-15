@@ -35,10 +35,8 @@ struct YieldModuleRateInfoChartContainer: View {
     private func makeTopContent(isLoading: Bool) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             title(isLoading: isLoading)
-                .skeletonable(isShown: isLoading)
 
             description(isLoading: isLoading)
-                .skeletonable(isShown: isLoading)
         }
     }
 
@@ -64,7 +62,7 @@ struct YieldModuleRateInfoChartContainer: View {
     private func title(isLoading: Bool) -> some View {
         Text(Localization.yieldModuleRateInfoSheetChartTitle)
             .style(Fonts.Bold.headline, color: Colors.Text.primary1)
-            .skeletonable(isShown: isLoading)
+            .shimmerPlaceholder(isLoading)
     }
 
     private func description(isLoading: Bool) -> some View {
@@ -76,6 +74,6 @@ struct YieldModuleRateInfoChartContainer: View {
             Text(Localization.yieldModuleSupplyApr)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
         }
-        .skeletonable(isShown: isLoading)
+        .shimmerPlaceholder(isLoading)
     }
 }

@@ -23,16 +23,5 @@ extension ALPH {
         init(publicKeyData: Data = .init()) {
             self.publicKeyData = publicKeyData
         }
-
-        // MARK: - UnlockScript Conformance
-
-        /// Serialization/deserialization implementation
-        static var serde: ALPH.AnySerde<ALPH.SameAsPrevious> {
-            ALPH.BytesSerde(length: 0)
-                .xmap(
-                    to: { _ in SameAsPrevious() },
-                    from: { _ in Data() }
-                )
-        }
     }
 }

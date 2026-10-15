@@ -216,7 +216,7 @@ public struct TangemTokenRow: View {
             .size(.x4)
             .variant(.tinted)
             .appearance(info.isActive ? .info : .neutral)
-            .tangemShimmer()
+            .shimmering()
             .environment(\.isShimmerActive, info.isUpdating)
             .accessibilityIdentifier(viewData.accessibilityIdentifiers?.rewardsBadge)
     }

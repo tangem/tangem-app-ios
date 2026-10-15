@@ -24,7 +24,6 @@ actor CommonWCTransactionFeePreferencesRepository: WCTransactionFeePreferencesRe
     let dappName: String
 
     private var lastSelectedFeeOptions: [String: FeeOption] = [:]
-    private var lastCustomFeeValues: [String: (feeValue: Decimal, gasPrice: Decimal)] = [:]
     private var suggestedFeesFromDApp: [String: (gasLimit: BigUInt, gasPrice: BigUInt)] = [:]
 
     init(dappName: String) {
@@ -59,11 +58,5 @@ actor CommonWCTransactionFeePreferencesRepository: WCTransactionFeePreferencesRe
 
     func saveSuggestedFeeFromDApp(gasLimit: BigUInt, gasPrice: BigUInt, for networkId: String) {
         suggestedFeesFromDApp[networkId] = (gasLimit: gasLimit, gasPrice: gasPrice)
-    }
-
-    func clearAllSavedOptions() {
-        lastSelectedFeeOptions.removeAll()
-        lastCustomFeeValues.removeAll()
-        suggestedFeesFromDApp.removeAll()
     }
 }

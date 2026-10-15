@@ -94,7 +94,6 @@ private struct VersionedDTO<DTO: Codable>: Codable {
 }
 
 private typealias SessionTokensDTO = SessionTokensSchemaV1.SessionTokensDTO
-private typealias TokenDTO = SessionTokensSchemaV1.TokenDTO
 
 private enum SessionTokensSchemaV1 {
     static let version = 1

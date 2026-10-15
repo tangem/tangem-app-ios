@@ -9,27 +9,43 @@
 import Combine
 import Foundation
 import TangemPolymarket
+import TangemUI
 
 final class PolymarketDestinationFactory {
     private let dependencies: PolymarketMainDependencies
     private let onAddFunds: () -> Void
     private let onRegionWarning: () -> Void
     private let onReturnToMain: () -> Void
+    let orderPresenter: PolymarketOrderPresenter
 
     init(
         dependencies: PolymarketMainDependencies,
         onAddFunds: @escaping () -> Void,
         onRegionWarning: @escaping () -> Void,
-        onReturnToMain: @escaping () -> Void
+        onReturnToMain: @escaping () -> Void,
+        orderPresenter: PolymarketOrderPresenter
     ) {
         self.dependencies = dependencies
         self.onAddFunds = onAddFunds
         self.onRegionWarning = onRegionWarning
         self.onReturnToMain = onReturnToMain
+        self.orderPresenter = orderPresenter
     }
 
     func returnToMain() {
         onReturnToMain()
+    }
+
+    func presentOrder(_ coordinator: PolymarketOrderCoordinator, from host: AnyObject?) {
+        orderPresenter.present(coordinator, from: host)
+    }
+
+    func dismissOrder() {
+        orderPresenter.dismiss()
+    }
+
+    func runAfterOrderDismiss(_ action: @escaping () -> Void) {
+        orderPresenter.runAfterDismiss(action)
     }
 
     func makePositionDetails(
@@ -54,6 +70,23 @@ final class PolymarketDestinationFactory {
         return coordinator
     }
 
+    func makeActivity(
+        onRegionWarning: @escaping () -> Void,
+        onClose: @escaping Action<Void>
+    ) -> PolymarketActivityCoordinator {
+        let coordinator = PolymarketActivityCoordinator(dismissAction: onClose)
+        let activityHandler = dependencies.activityHandler
+
+        coordinator.start(with: .init(
+            activityService: dependencies.activityService,
+            onOrderPlaced: { [weak activityHandler] indexing in activityHandler?.orderPlaced(awaiting: indexing) },
+            onRegionWarning: onRegionWarning,
+            eventBuilder: self
+        ))
+
+        return coordinator
+    }
+
     func makeMyPositions(
         tab: PolymarketPositionsTab,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
@@ -69,6 +102,7 @@ final class PolymarketDestinationFactory {
             apiProvider: dependencies.apiProvider,
             geoblockStateProvider: dependencies.geoblockStateProvider,
             redeemService: dependencies.redeemService,
+            signingButtonType: dependencies.signingButtonType,
             onRegionWarning: onRegionWarning,
             onOrderPlaced: onOrderPlaced,
             onClaimed: onClaimed,
@@ -88,22 +122,14 @@ extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
         outcome: PolymarketOutcome,
         eventTitle: String,
         request: PolymarketOrderRequest,
-        pushesPlacedPosition: Bool,
         onPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
         onOpenPosition: @escaping (PolymarketPosition) -> Void,
         onClose: @escaping () -> Void
     ) -> PolymarketOrderCoordinator {
         let coordinator = PolymarketOrderCoordinator(
-            dismissAction: { [weak self] payload in
-                guard let payload else {
-                    onClose()
-                    return
-                }
-
-                if let position = payload.position {
+            dismissAction: { payload in
+                if let position = payload?.position {
                     onOpenPosition(position)
-                } else if payload.returnsToMain {
-                    self?.onReturnToMain()
                 } else {
                     onClose()
                 }
@@ -116,6 +142,7 @@ extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
             eventTitle: eventTitle,
             walletId: dependencies.walletId,
             account: dependencies.orderAccount,
+            signingButtonType: dependencies.signingButtonType,
             intent: dependencies.makeOrderIntent(for: request),
             geoblockStateProvider: dependencies.geoblockStateProvider,
             placementService: dependencies.placementService,
@@ -124,7 +151,6 @@ extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
             isAwaitingFundsPublisher: dependencies.fundsArrivalTracker.$isAwaitingFunds.eraseToAnyPublisher(),
             collateralBalancePublisher: dependencies.balanceProvider.collateralBalancePublisher.map(\.value).eraseToAnyPublisher(),
             addFundsReadinessStream: dependencies.accountFundsInteractor.makeStateStream(),
-            positionBuilder: pushesPlacedPosition ? self : nil,
             onPlaced: onPlaced,
             onRegionWarning: onRegionWarning,
             onAddFunds: onAddFunds

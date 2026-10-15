@@ -10,6 +10,7 @@ import Foundation
 import enum Moya.MoyaError
 import class Moya.MoyaProvider
 import class Moya.Response
+private import TangemNetworkUtils
 
 struct MoyaSessionAuthenticationClient: SessionAuthenticationClient {
     private let dPoPProofGenerator: DPoPProofGenerator
@@ -39,7 +40,7 @@ struct MoyaSessionAuthenticationClient: SessionAuthenticationClient {
         } catch {
             throw error.isTimeout
                 ? SessionAuthenticationClientError.requestNonceTimeout
-                : SessionAuthenticationClientError.requestNonceFailed(underlying: error)
+                : wrapped(moyaError: error, into: SessionAuthenticationClientError.requestNonceFailed)
         }
 
         do {
@@ -77,11 +78,16 @@ struct MoyaSessionAuthenticationClient: SessionAuthenticationClient {
             case 401, 403:
                 throw SessionAuthenticationClientError.authenticationRejected
 
-            case 404 where isDeviceNotFound(error.response?.data):
-                throw SessionAuthenticationClientError.deviceRegistrationMissing
-
             default:
-                throw SessionAuthenticationClientError.authenticateFailed(underlying: error)
+                guard let problemDetailsError = parseProblemDetail(from: error.response?.data) else {
+                    throw SessionAuthenticationClientError.authenticateFailed(underlying: error)
+                }
+
+                if problemDetailsError == .deviceNotFound {
+                    throw SessionAuthenticationClientError.deviceRegistrationMissing
+                }
+
+                throw SessionAuthenticationClientError.authenticateFailed(underlying: problemDetailsError)
             }
         }
 
@@ -94,38 +100,57 @@ struct MoyaSessionAuthenticationClient: SessionAuthenticationClient {
     }
 
     func refresh(refreshToken: String, accessToken: String) async throws(SessionAuthenticationClientError) -> SessionTokens {
+        let dPoPProof: DPoPProof
         do {
-            let dPoPProof = try await dPoPProofGenerator.generate(
+            dPoPProof = try await dPoPProofGenerator.generate(
                 htm: BackendAuthenticationTarget.Refresh.htm,
                 htu: BackendAuthenticationTarget.Refresh.htu(baseURL),
                 accessToken: accessToken
             )
+        } catch {
+            throw SessionAuthenticationClientError.refreshFailed(underlying: error)
+        }
 
-            let requestBody = RefreshDTO.Request(refreshToken: refreshToken)
-            let target = BackendAuthenticationTarget(
-                authenticationRefresh: requestBody,
-                baseURL: baseURL,
-                dPoPProof: dPoPProof.value,
-                accessToken: accessToken
-            )
+        let requestBody = RefreshDTO.Request(refreshToken: refreshToken)
+        let target = BackendAuthenticationTarget(
+            authenticationRefresh: requestBody,
+            baseURL: baseURL,
+            dPoPProof: dPoPProof.value,
+            accessToken: accessToken
+        )
 
-            let response = try await provider.request(target)
+        let response: Moya.Response
+        do {
+            response = try await provider.request(target)
+        } catch {
+            throw wrapped(moyaError: error, into: SessionAuthenticationClientError.refreshFailed)
+        }
+
+        do {
             let tokensResponse = try decoder.decode(TokensDTO.Response.self, from: response.data)
-
             return SessionTokensMapper.mapToDomain(tokensResponse)
         } catch {
             throw SessionAuthenticationClientError.refreshFailed(underlying: error)
         }
     }
+}
 
-    private func isDeviceNotFound(_ responseBody: Data?) -> Bool {
-        guard
-            let responseBody,
-            let problemDetailDTO = try? decoder.decode(ProblemDetailDTO.Response.self, from: responseBody)
-        else {
-            return false
+// MARK: - TangemProblemDetailError parsing
+
+extension MoyaSessionAuthenticationClient {
+    private func wrapped(
+        moyaError: MoyaError,
+        into clientError: (any Error) -> SessionAuthenticationClientError
+    ) -> SessionAuthenticationClientError {
+        guard let problemDetailsError = parseProblemDetail(from: moyaError.response?.data) else {
+            return clientError(moyaError)
         }
 
-        return problemDetailDTO == ProblemDetailDTO.Response.deviceNotFound
+        return clientError(problemDetailsError)
+    }
+
+    private func parseProblemDetail(from responseBody: Data?) -> TangemProblemDetailError? {
+        guard let responseBody else { return nil }
+        return try? decoder.decode(TangemProblemDetailError.self, from: responseBody)
     }
 }

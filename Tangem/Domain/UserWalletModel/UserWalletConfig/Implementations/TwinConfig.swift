@@ -100,10 +100,6 @@ extension TwinConfig: UserWalletConfig {
         .twin
     }
 
-    var cardHeaderImage: ImageType? {
-        Assets.Cards.twins
-    }
-
     var walletThumbnailType: ThumbnailWalletViewType? {
         .twoCards(
             .init(

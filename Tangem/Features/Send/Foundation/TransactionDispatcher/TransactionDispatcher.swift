@@ -12,8 +12,6 @@ import BlockchainSdk
 import TangemFoundation
 
 protocol TransactionDispatcher {
-    var hasNFCInteraction: Bool { get }
-
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult
     func send(transactions: [TransactionDispatcherTransactionType]) async throws -> [TransactionDispatcherResult]
 }

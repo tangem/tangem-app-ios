@@ -276,7 +276,7 @@ final class SwapModelTests: LeakTrackingTestSuite {
     func addFundsResolvesSourceToken() async throws {
         let resolvedSource = SwapableTokenStub(blockchain: .ethereum(testnet: false))
         let sut = makeSUT(
-            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            receiveToken: SwapableTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
             sourceTokenResolver: SourceTokenResolverStub(source: resolvedSource),
             shouldStartInitialLoading: true
         )
@@ -343,7 +343,7 @@ final class SwapModelTests: LeakTrackingTestSuite {
 
     @Test("Without a destination resolver a source change leaves the destination untouched")
     func sourceChangeWithoutResolverKeepsDestination() {
-        let receive = ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false))
+        let receive = SwapableTokenStub(blockchain: .ton(curve: .ed25519, testnet: false))
         let sut = makeSUT(receiveToken: receive)
 
         sut.update(source: SwapableTokenStub(blockchain: .ethereum(testnet: false)))
@@ -407,6 +407,36 @@ final class SwapModelTests: LeakTrackingTestSuite {
         )
 
         #expect(amount == nil)
+    }
+
+    // MARK: - Pair reversal
+
+    @Test("Reversing the pair makes the receive token the source")
+    func pairReversalSwapsSides() async throws {
+        let source = SwapableTokenStub(blockchain: .ethereum(testnet: false))
+        let receive = SwapableTokenStub(blockchain: .ton(curve: .ed25519, testnet: false))
+        let sut = makeSUT(sourceToken: source, receiveToken: receive)
+
+        sut.userDidRequestSwapSourceAndReceiveToken()
+
+        try await waitUntil { sut.sourceToken.value?.tokenItem == receive.tokenItem }
+        #expect(sut.receiveToken.value?.tokenItem == source.tokenItem)
+    }
+
+    @Test("Reversing the pair keeps the sides when the receive token can't be swapped from", arguments: SendingRestrictionCase.allCases)
+    func pairReversalKeepsSidesForRestrictedReceiveToken(restriction: SendingRestrictionCase) async throws {
+        let source = SwapableTokenStub(blockchain: .ethereum(testnet: false))
+        let receive = SwapableTokenStub(
+            blockchain: .ton(curve: .ed25519, testnet: false),
+            sendingRestriction: restriction.sendingRestriction
+        )
+        let sut = makeSUT(sourceToken: source, receiveToken: receive)
+
+        sut.userDidRequestSwapSourceAndReceiveToken()
+        try await Task.sleep(for: .milliseconds(100))
+
+        #expect(sut.sourceToken.value?.tokenItem == source.tokenItem)
+        #expect(sut.receiveToken.value?.tokenItem == receive.tokenItem)
     }
 
     // MARK: - Custom slippage
@@ -782,6 +812,223 @@ final class SwapModelTests: LeakTrackingTestSuite {
         #expect(transfer.destination == "0xBridge")
         #expect(feeManager.updateInputCalls == [.common(amount: 1, destination: "0xBridge")])
     }
+
+    // MARK: - Fee row on balance restrictions
+
+    @Test("A balance restriction hides the fee row when the selected provider has not estimated the swap fee")
+    func balanceRestrictionHidesFeeRowWithoutSwapFee() {
+        let sut = makeSUT()
+        let cases: [(ExpressProviderManagerState, SwapModel.RestrictionType)] = [
+            (.restriction(.insufficientBalance(1), quote: nil), .notEnoughBalanceForSwapping),
+            (.restriction(.feeCurrencyHasZeroBalance(isFeeCurrency: false), quote: nil), .notEnoughAmountForFee(isFeeCurrency: false, feeCurrencyBalance: 0)),
+            (.permissionRequired(makePermissionRequired()), .notEnoughBalanceForSwapping),
+            (.revokeAndPermissionRequired(makePermissionRequired()), .notEnoughBalanceForSwapping),
+        ]
+
+        for (providerState, restriction) in cases {
+            let providersState = makeRestrictedProvidersState(providerState: providerState, restriction: restriction)
+            #expect(!sut.mapToShouldShowFeeSelectorRow(providersState: providersState), "\(providerState)")
+        }
+    }
+
+    @Test("A balance restriction keeps the fee row when the selected provider has estimated the swap fee")
+    func balanceRestrictionKeepsFeeRowWithSwapFee() {
+        let sut = makeSUT()
+        let cases: [(ExpressProviderManagerState, SwapModel.RestrictionType)] = [
+            (makeCEXPreviewState(), .notEnoughBalanceForSwapping),
+            (makeDEXPreviewState(), .notEnoughBalanceForSwapping),
+            (makeDEXWithApprovePreviewState(), .notEnoughAmountForFee(isFeeCurrency: false, feeCurrencyBalance: 0)),
+            (.restriction(.insufficientBalanceIncludingFee, quote: nil), .notEnoughBalanceForSwapping),
+            (
+                .restriction(.feeCurrencyInsufficientBalanceForTxValue(1, isFeeCurrency: true, feeCurrencyBalance: 0), quote: nil),
+                .notEnoughAmountForTxValue(1, isFeeCurrency: true, feeCurrencyBalance: 0)
+            ),
+        ]
+
+        for (providerState, restriction) in cases {
+            let providersState = makeRestrictedProvidersState(providerState: providerState, restriction: restriction)
+            #expect(sut.mapToShouldShowFeeSelectorRow(providersState: providersState), "\(providerState)")
+        }
+    }
+
+    // MARK: - [REDACTED_INFO]: destination trustline restriction
+
+    @Test("A destination that requires a trustline maps to the trustlineRequired restriction")
+    func destinationRequiringTrustlineMapsToRestriction() async throws {
+        let receive = SwapableTokenStub(
+            blockchain: .stellar(curve: .ed25519, testnet: false),
+            receivingRestriction: .requiresTrustline
+        )
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: receive
+        )
+
+        let restriction = try await sut.validateReceivingRestrictions(receiveAmount: 100)
+
+        guard case .trustlineRequired(let destination) = restriction else {
+            Issue.record("Expected .trustlineRequired, got \(String(describing: restriction))")
+            return
+        }
+
+        #expect(destination as AnyObject === receive)
+    }
+
+    @Test("A trustline-restricted destination blocks the providers flow without requesting quotes")
+    func trustlineRestrictedDestinationBlocksProviders() async throws {
+        let manager = ExpressManagerStub()
+        let receive = SwapableTokenStub(
+            blockchain: .stellar(curve: .ed25519, testnet: false),
+            receivingRestriction: .requiresTrustline
+        )
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: receive,
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager)
+        )
+        let recorder = SwapProvidersStateRecorder(sut)
+
+        let baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+
+        let state = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        guard case .loaded(.swap(selected: .none, providers: let providers), .restriction(.trustlineRequired(let destination), quote: .none)) = state else {
+            Issue.record("Expected the trustlineRequired restriction without providers, got \(state)")
+            return
+        }
+
+        #expect(destination as AnyObject === receive)
+        #expect(providers.isEmpty)
+        #expect(await manager.updateAmountTypeCallCount == 0)
+    }
+
+    @Test("Quotes wait for the destination trustline data instead of loading on an unknown requirement")
+    func destinationWithPendingTrustlineDataHoldsQuotes() async throws {
+        let manager = ExpressManagerStub()
+        let restrictionsProvider = PendingReceivingRestrictionsProviderStub(restrictionWhenLoaded: .requiresTrustline)
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: SwapableTokenStub(
+                blockchain: .stellar(curve: .ed25519, testnet: false),
+                receivingRestrictionsProvider: restrictionsProvider
+            ),
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager)
+        )
+        let recorder = SwapProvidersStateRecorder(sut)
+
+        let baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoading }
+        #expect(await manager.updateAmountTypeCallCount == 0)
+
+        let loadingCount = recorder.count
+        restrictionsProvider.finishLoading()
+
+        let state = try await waitForNewState(recorder, since: loadingCount) { $0.isLoaded }
+
+        guard case .loaded(.swap(selected: .none, providers: _), .restriction(.trustlineRequired, quote: .none)) = state else {
+            Issue.record("Expected the trustlineRequired restriction once the data settled, got \(state)")
+            return
+        }
+
+        #expect(await manager.updateAmountTypeCallCount == 0)
+    }
+
+    @Test("A destination whose data cannot be loaded fails the providers instead of quoting")
+    func destinationWithUnavailableDataFailsProviders() async throws {
+        let manager = ExpressManagerStub()
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: SwapableTokenStub(
+                blockchain: .stellar(curve: .ed25519, testnet: false),
+                receivingRestrictionsProvider: UnavailableReceivingRestrictionsProviderStub()
+            ),
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager)
+        )
+        let recorder = SwapProvidersStateRecorder(sut)
+
+        let baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+
+        let state = try await waitForNewState(recorder, since: baseline) { state in
+            if case .failure = state { true } else { false }
+        }
+
+        guard case .failure(ReceivingRestrictionsError.restrictionsDataUnavailable) = state else {
+            Issue.record("Expected the unavailable data failure, got \(state)")
+            return
+        }
+
+        #expect(await manager.updateAmountTypeCallCount == 0)
+    }
+
+    @Test("Once the destination data settles without a restriction the quotes are requested")
+    func destinationWithSettledDataResumesQuotes() async throws {
+        let manager = ExpressManagerStub()
+        let restrictionsProvider = PendingReceivingRestrictionsProviderStub(restrictionWhenLoaded: nil)
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: SwapableTokenStub(
+                blockchain: .stellar(curve: .ed25519, testnet: false),
+                receivingRestrictionsProvider: restrictionsProvider
+            ),
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager)
+        )
+        let recorder = SwapProvidersStateRecorder(sut)
+
+        let baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoading }
+        #expect(await manager.updateAmountTypeCallCount == 0)
+
+        let loadingCount = recorder.count
+        restrictionsProvider.finishLoading()
+
+        let state = try await waitForNewState(recorder, since: loadingCount) { $0.isLoaded }
+
+        if case .loaded(_, .restriction(.trustlineRequired, _)) = state {
+            Issue.record("Expected the quotes to resume, got the trustline restriction")
+            return
+        }
+
+        #expect(await manager.updateAmountTypeCallCount == 1)
+    }
+
+    @Test("Tapping the trustline banner opens the details of the destination token")
+    func trustlineBannerTapOpensDestinationTokenDetails() async throws {
+        let manager = ExpressManagerStub()
+        let receive = SwapableTokenStub(
+            blockchain: .stellar(curve: .ed25519, testnet: false),
+            receivingRestriction: .requiresTrustline
+        )
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: receive,
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager)
+        )
+        let router = SwapModelRouterSpy()
+        sut.router = router
+        let recorder = SwapProvidersStateRecorder(sut)
+
+        let baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        sut.didTapNotification(with: 0, action: .addTokenTrustline)
+
+        #expect(router.openedTokenDetails.count == 1)
+        #expect(router.openedTokenDetails.first?.tokenItem == receive.tokenItem)
+        #expect(router.openedTokenDetails.first?.userWalletId == receive.userWalletInfo.id)
+    }
 }
 
 // MARK: - Helpers
@@ -798,8 +1045,12 @@ private extension SwapModelTests {
         shouldStartInitialLoading: Bool = false
     ) -> SwapModel {
         let model = SwapModel(
-            sourceToken: sourceToken,
-            receiveToken: receiveToken,
+            parameters: makeParameters(
+                sourceToken: sourceToken,
+                receiveToken: receiveToken,
+                sourceTokenResolver: sourceTokenResolver,
+                destinationTokenResolver: destinationTokenResolver
+            ),
             expressManager: expressManager,
             swapRepository: SwapRepositoryStub(),
             expressPendingTransactionRepository: ExpressPendingTransactionRepositoryStub(),
@@ -809,8 +1060,6 @@ private extension SwapModelTests {
             autoupdatingTimer: autoupdatingTimer,
             pairUpdateHandler: pairUpdateHandler,
             balanceRestrictionFeatureChecker: SwapBalanceRestrictionFeatureCheckerStub(),
-            sourceTokenResolver: sourceTokenResolver,
-            destinationTokenResolver: destinationTokenResolver,
             shouldStartInitialLoading: shouldStartInitialLoading
         )
 
@@ -823,6 +1072,41 @@ private extension SwapModelTests {
         )
 
         return model
+    }
+
+    func makeParameters(
+        sourceToken: SendSwapableToken?,
+        receiveToken: SendReceiveToken?,
+        sourceTokenResolver: (any SwapSourceTokenResolver)?,
+        destinationTokenResolver: (any SwapDestinationTokenResolver)?
+    ) -> PredefinedSwapParameters {
+        let configuration = SwapFlowConfiguration(
+            isPairReversalEnabled: true,
+            sourceTokenSelection: .selectable(.unrestricted),
+            receiveTokenSelection: destinationTokenResolver.map { SwapFlowConfiguration.ReceiveTokenSelection.followsSource($0) } ?? .selectable(.unrestricted),
+            summaryTitle: nil
+        )
+
+        if let sourceToken {
+            let pair: PredefinedSwapParameters.PairResolution = if let sourceTokenResolver {
+                .deferred(sourceResolver: sourceTokenResolver)
+            } else {
+                .fixed(receiveOrUserSelection: receiveToken)
+            }
+
+            return .from(sourceToken, pair: pair, configuration: configuration)
+        }
+
+        guard let receiveToken else {
+            return .from(SwapableTokenStub(blockchain: .ethereum(testnet: false)), configuration: configuration)
+        }
+
+        guard let swapableReceiveToken = receiveToken as? SendSwapableToken else {
+            Issue.record("A `.to` entry needs a swapable receive token, got \(type(of: receiveToken))")
+            return .from(SwapableTokenStub(blockchain: .ethereum(testnet: false)), configuration: configuration)
+        }
+
+        return .to(swapableReceiveToken, sourceResolver: sourceTokenResolver, configuration: configuration)
     }
 
     func makeQuotedTokenItem(currencyId: String, blockchain: Blockchain = .ethereum(testnet: false)) -> TokenItem {
@@ -875,6 +1159,61 @@ private extension SwapModelTests {
         let previous = try #require(InjectedValues[\.quotesRepository] as? TokenQuotesRepository & TokenQuotesRepositoryUpdater)
         InjectedValues.setTokenQuotesRepository(MockTokenQuotesRepository(quotes: quotes))
         return previous
+    }
+
+    func makeRestrictedProvidersState(
+        providerState: ExpressProviderManagerState,
+        restriction: SwapModel.RestrictionType
+    ) -> SwapModel.ProvidersState {
+        let selected = ExpressAvailableProviderFixture.make(state: providerState)
+        return .loaded(.swap(selected: selected, providers: .empty), state: .restriction(restriction, quote: nil))
+    }
+
+    func makeCEXPreviewState() -> ExpressProviderManagerState {
+        let provider = ExpressAvailableProviderFixture.make(state: .idle).provider
+        return .cexPreview(.init(provider: provider, subtractFee: 0, quote: ExpressQuoteFixture.make(), fee: makeZeroFee()))
+    }
+
+    func makeDEXPreviewState() -> ExpressProviderManagerState {
+        let provider = ExpressAvailableProviderFixture.make(state: .idle).provider
+        return .dexPreview(.init(provider: provider, data: ExpressTransactionDataFixture.make(), fee: makeZeroFee(), quote: ExpressQuoteFixture.make()))
+    }
+
+    func makeDEXWithApprovePreviewState() -> ExpressProviderManagerState {
+        let provider = ExpressAvailableProviderFixture.make(state: .idle).provider
+        return .dexWithApprovePreview(.init(
+            provider: provider,
+            expressTransactionData: ExpressTransactionDataFixture.make(),
+            quote: ExpressQuoteFixture.make(),
+            approveData: .init(
+                provider: provider,
+                approvePolicy: .specified,
+                approveTransactionData: makeApproveTransactionData(),
+                approvalFlow: .approve,
+                approveFee: makeZeroFee()
+            ),
+            combinedFee: makeZeroFee()
+        ))
+    }
+
+    func makePermissionRequired() -> ExpressProviderManagerState.PermissionRequired {
+        let provider = ExpressAvailableProviderFixture.make(state: .idle).provider
+        return .init(
+            provider: provider,
+            policy: .specified,
+            data: makeApproveTransactionData(),
+            approvalFlow: .approve,
+            fee: makeZeroFee(),
+            quote: ExpressQuoteFixture.make()
+        )
+    }
+
+    func makeApproveTransactionData() -> ApproveTransactionData {
+        ApproveTransactionData(txData: Data(), spender: "0xspender", toContractAddress: "0xcontract")
+    }
+
+    func makeZeroFee() -> Fee {
+        Fee(Amount(with: .polygon(testnet: false), type: .coin, value: 0))
     }
 
     /// Waits for a state published *after* `baseline` that satisfies `predicate`. Capturing the baseline
@@ -933,11 +1272,15 @@ private extension SwapModelTests {
 
 private final class SwapModelRouterSpy: SwapModelRoutable {
     private(set) var slippageSelectorOpenings = 0
+    private(set) var openedTokenDetails: [(userWalletId: UserWalletId, tokenItem: TokenItem)] = []
 
     func openNetworkCurrency() {}
     func openApproveSheet() {}
     func performSwapAction() {}
-    func openTokenDetails(userWalletId: UserWalletId, tokenItem: TokenItem) {}
+
+    func openTokenDetails(userWalletId: UserWalletId, tokenItem: TokenItem) {
+        openedTokenDetails.append((userWalletId, tokenItem))
+    }
 
     func openSlippageSelector() {
         slippageSelectorOpenings += 1
@@ -1085,6 +1428,39 @@ private actor ExpressManagerStub: ExpressManager {
             payInAddress: "",
             slippage: nil
         )
+    }
+}
+
+private final class PendingReceivingRestrictionsProviderStub: ReceivingRestrictionsProvider {
+    private let restrictionWhenLoaded: ReceivedRestriction?
+    private let isLoaded = OSAllocatedUnfairLock(initialState: false)
+
+    init(restrictionWhenLoaded: ReceivedRestriction?) {
+        self.restrictionWhenLoaded = restrictionWhenLoaded
+    }
+
+    var isRestrictionKnown: Bool {
+        isLoaded.withLock { $0 }
+    }
+
+    func restriction(expectAmount: Decimal) async throws -> ReceivedRestriction? {
+        while !isLoaded.withLock({ $0 }) {
+            try await Task.sleep(for: .milliseconds(10))
+        }
+
+        return restrictionWhenLoaded
+    }
+
+    func finishLoading() {
+        isLoaded.withLock { $0 = true }
+    }
+}
+
+private struct UnavailableReceivingRestrictionsProviderStub: ReceivingRestrictionsProvider {
+    var isRestrictionKnown: Bool { false }
+
+    func restriction(expectAmount: Decimal) async throws -> ReceivedRestriction? {
+        throw ReceivingRestrictionsError.restrictionsDataUnavailable
     }
 }
 

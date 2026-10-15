@@ -20,7 +20,6 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var addAndManageAddTokensRow = app.buttons[TokensManagementChooserAccessibilityIdentifiers.addTokensRow].firstMatch
     private lazy var detailsButton = button(.detailsButton)
     private lazy var actionButtonsList = otherElement(.actionButtonsList)
-    private lazy var headerCardImage = image(.headerCardImage)
     private lazy var totalBalance = staticText(.totalBalance)
     private lazy var totalBalanceShimmer = otherElement(.totalBalanceShimmer)
     /// Type-agnostic: redesign exposes this as `Button`, legacy as `Other`. Drop after redesign rollout.
@@ -644,6 +643,14 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func verifyWalletNameDisplayed(_ walletName: String) -> Self {
+        XCTContext.runActivity(named: "Verify wallet '\(walletName)' is displayed on main screen") { _ in
+            waitAndAssertTrue(app.staticTexts[walletName].firstMatch, "Wallet '\(walletName)' should be displayed on main screen")
+            return self
+        }
+    }
+
+    @discardableResult
     func addNewSingleCurrencyWallet(name: CardMockAccessibilityIdentifiers, walletName: String) -> Self {
         XCTContext.runActivity(named: "Add new single-currency wallet: \(name.rawValue)") { _ in
             openDetails()
@@ -897,15 +904,6 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             scrollToElement(tangemPayTile)
             tangemPayTile.waitAndTap()
             return TangemPayKYCDeclinedSheet(app)
-        }
-    }
-
-    @discardableResult
-    func longPressWalletHeader() -> Self {
-        XCTContext.runActivity(named: "Long press wallet header") { _ in
-            waitAndAssertTrue(headerCardImage, "Header card image should exist")
-            headerCardImage.press(forDuration: 1.0)
-            return self
         }
     }
 
@@ -1489,7 +1487,6 @@ enum MainScreenElement: String, UIElement {
     case organizeTokensButton
     case detailsButton
     case actionButtonsList
-    case headerCardImage
     case totalBalance
     case totalBalanceShimmer
     case missingDerivationNotification
@@ -1512,8 +1509,6 @@ enum MainScreenElement: String, UIElement {
             MainAccessibilityIdentifiers.detailsButton
         case .actionButtonsList:
             TokenAccessibilityIdentifiers.actionButtonsList
-        case .headerCardImage:
-            MainAccessibilityIdentifiers.headerCardImage
         case .totalBalance:
             MainAccessibilityIdentifiers.totalBalance
         case .totalBalanceShimmer:

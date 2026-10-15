@@ -21,10 +21,6 @@ struct TangemPayTransactionDispatcher {
 // MARK: - TransactionDispatcher
 
 extension TangemPayTransactionDispatcher: TransactionDispatcher {
-    var hasNFCInteraction: Bool {
-        signerFactory.makeSigner().hasNFCInteraction
-    }
-
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         switch transaction {
         case .transfer(let transaction):

@@ -33,6 +33,7 @@ extension CollectiblesMachineView {
             }
             .padding(.horizontal, Metrics.horizontalPadding)
             .padding(.top, Metrics.topPadding)
+            .bottomPaddingIfZeroSafeArea()
             .background { background.ignoresSafeArea(edges: .bottom) }
         }
     }

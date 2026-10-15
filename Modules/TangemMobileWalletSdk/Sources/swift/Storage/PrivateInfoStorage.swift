@@ -42,10 +42,6 @@ final class PrivateInfoStorage {
         try secureStorage.store(aesEncryptedData, forKey: walletID.privateInfoTag)
     }
 
-    func hasPrivateInfoData(for walletID: UserWalletId) -> Bool {
-        (try? secureStorage.get(walletID.privateInfoTag)) != nil
-    }
-
     func getPrivateInfoData(
         for walletID: UserWalletId,
         aesEncryptionKey: Data

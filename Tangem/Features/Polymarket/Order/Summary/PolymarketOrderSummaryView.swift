@@ -33,6 +33,7 @@ struct PolymarketOrderSummaryView: View {
         }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
+        .interactiveDismissDisabled(viewModel.isPlacing)
         .safeAreaInset(edge: .bottom, spacing: .zero) { footer }
         .onWillAppear { viewModel.handleViewAction(.onAppear) }
         .bindAlert($viewModel.alert)
@@ -48,7 +49,6 @@ struct PolymarketOrderSummaryView: View {
             PolymarketOrderMarketRow(model: viewModel.marketRow)
 
             PolymarketOrderDetailsBlock(
-                currencyCode: viewModel.currencyCode,
                 feeText: viewModel.feeText,
                 slippageText: viewModel.slippageText,
                 onFeeTap: viewModel.isFeeBreakdownAvailable ? { viewModel.handleViewAction(.openFeeBreakdown) } : nil
@@ -79,17 +79,13 @@ struct PolymarketOrderSummaryView: View {
     }
 
     private var placeButton: some View {
-        TangemUI.Button(
-            label: viewModel.primaryActionTitle,
-            accessibilityLabel: viewModel.primaryActionTitle,
+        SigningActionButtonView(
+            type: viewModel.signingButtonType,
+            title: viewModel.primaryActionTitle,
+            isLoading: viewModel.isPlacing,
+            isDisabled: !viewModel.isPlaceEnabled,
             action: { viewModel.handleViewAction(.placeOrder) }
         )
-        .iconEnd(DesignSystem.Icons.LogoTangem.regular24)
-        .styleType(.primary)
-        .size(.x12)
-        .horizontalLayout(.infinity)
-        .loading(.spinner(if: viewModel.isPlacing))
-        .disabled(!viewModel.isPlaceEnabled)
     }
 }
 

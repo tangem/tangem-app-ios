@@ -26,6 +26,7 @@ struct PolymarketOutcomeVoteView: View {
                 .lineLimit(1)
 
             pill
+                .polymarketStateTransition(isNextPriceLoading)
         }
         .accessibilityElement(children: .combine)
     }

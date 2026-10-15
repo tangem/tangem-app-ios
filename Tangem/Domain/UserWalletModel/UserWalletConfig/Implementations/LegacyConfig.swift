@@ -142,24 +142,6 @@ extension LegacyConfig: UserWalletConfig {
         .other
     }
 
-    var cardHeaderImage: ImageType? {
-        if walletData == nil {
-            let multiWalletWhiteBatch = "CB79"
-            let devKitBatch = "CB83"
-
-            switch card.batchId {
-            case multiWalletWhiteBatch:
-                return Assets.Cards.multiWalletWhite
-            case devKitBatch:
-                return Assets.Cards.developer
-            default:
-                break
-            }
-        }
-
-        return nil
-    }
-
     var walletThumbnailType: ThumbnailWalletViewType? {
         if walletData == nil {
             switch card.batchId {

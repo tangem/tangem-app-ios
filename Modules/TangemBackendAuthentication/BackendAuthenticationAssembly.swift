@@ -6,15 +6,14 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-public import struct Foundation.Data
-public import class Foundation.JSONDecoder
-public import struct Foundation.URL
+public import Foundation
 private import os.lock
 public import protocol Alamofire.RequestAdapter
 public import protocol Alamofire.RequestRetrier
 public import class Moya.MoyaProvider
 public import struct TangemLogger.Logger
 private import TangemFoundation
+private import TangemNetworkUtils
 
 public enum BackendAuthenticationAssembly {
     public static let registerDevice: RegisterDeviceUseCase = Self.makeRegisterDeviceUseCase()

@@ -325,7 +325,7 @@ private extension TokenDetailsView {
         userWalletId: userWalletModel.userWalletId,
         walletModel: walletModel,
         walletModelsManager: cryptoAccountModel.walletModelsManager,
-        tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true)
+        signingActionButtonType: .requiredNFCInteraction
     )
     let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
         ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)

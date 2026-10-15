@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemAssets
 import TangemExpress
 import TangemPolymarket
 
@@ -42,15 +43,15 @@ struct PolymarketWithdrawSwapableTokenFactory: SendSwapableTokenFactory {
             isCustom: false,
             defaultAddressString: source.depositWalletAddress,
             availableBalanceProvider: balanceProvider,
-            fiatAvailableBalanceProvider: accountModel.fiatAvailableBalanceProvider,
+            fiatAvailableBalanceProvider: PolymarketUSDBalanceProvider(collateralBalanceProvider: balanceProvider),
             allowanceService: nil,
             withdrawalNotificationProvider: nil,
             scaledUIAmountMultiplierResolver: nil,
             emailDataCollectorBuilder: PolymarketAccountEmailDataCollectorBuilder(),
             transactionDispatcherProvider: transactionDispatcherProvider,
+            transactionSummaryDescriptionBuilderProvider: DefaultTransactionSummaryDescriptionBuilderProvider(tokenItem: tokenItem),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             accountModelAnalyticsProvider: nil,
-            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config),
-            confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
             isTangemPayAccount: false,
             jointAccountPolicy: nil,
             tokenItem: tokenItem,
@@ -88,7 +89,7 @@ struct PolymarketWithdrawSwapableTokenFactory: SendSwapableTokenFactory {
             operationType: .swap,
 
             supportedProvidersFilter: .cex,
-            presentation: nil
+            presentation: makePresentation()
         )
     }
 }
@@ -96,6 +97,14 @@ struct PolymarketWithdrawSwapableTokenFactory: SendSwapableTokenFactory {
 // MARK: - Private implementation
 
 private extension PolymarketWithdrawSwapableTokenFactory {
+    func makePresentation() -> SendReceiveTokenPresentation {
+        SendReceiveTokenPresentation(
+            currencySymbol: AppConstants.usdCurrencyCode,
+            icon: Assets.Polymarket.accountAvatar,
+            appliesToSendSide: true
+        )
+    }
+
     func makeFiatItem() -> FiatItem {
         FiatItem(
             iconURL: IconURLBuilder().fiatIconURL(currencyCode: AppSettings.shared.selectedCurrencyCode),

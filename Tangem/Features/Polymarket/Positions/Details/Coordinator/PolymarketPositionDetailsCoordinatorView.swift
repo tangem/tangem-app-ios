@@ -17,7 +17,9 @@ struct PolymarketPositionDetailsCoordinatorView: CoordinatorView {
         content
             .navigationBarBackButtonHidden(true)
             .toolbar(.hidden, for: .navigationBar)
+            .background(PopGestureDisabler(isDisabled: coordinator.disablesPopGesture))
             .navigationLinks(links)
+            .polymarketOrderSheet(presenter: coordinator.orderPresenter, host: coordinator)
     }
 
     @ViewBuilder
@@ -31,8 +33,6 @@ struct PolymarketPositionDetailsCoordinatorView: CoordinatorView {
         NavHolder()
             .navigation(item: $coordinator.destination) { destination in
                 switch destination {
-                case .order(let coordinator):
-                    PolymarketOrderCoordinatorView(coordinator: coordinator)
                 case .eventDetails(let coordinator):
                     PolymarketEventDetailsCoordinatorView(coordinator: coordinator)
                 }

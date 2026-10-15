@@ -57,8 +57,6 @@ final class WCCustomEvmFeeService {
     private var customGasPriceBeforeEditing: BigUInt?
     private var customMaxFeePerGasBeforeEditing: BigUInt?
     private var customPriorityFeeBeforeEditing: BigUInt?
-    private var customMaxLimitBeforeEditing: BigUInt?
-    private var customNonceBeforeEditing: Int?
 
     private var cachedCustomFee: Fee?
     private var bag: Set<AnyCancellable> = []
@@ -209,29 +207,6 @@ final class WCCustomEvmFeeService {
             gasPriceTextField.update(value: legacyParameters.gasPrice.decimal?.shiftOrder(magnitude: -Constants.gweiDigits))
         case .gasless, .safe:
             break
-        }
-    }
-
-    private func updateFieldsFromTransaction() {
-        if let gasString = transaction.gas, let gasValue = BigUInt(gasString.removeHexPrefix(), radix: 16) {
-            gasLimitTextField.update(value: gasValue.decimal)
-        }
-
-        if feeTokenItem.blockchain.supportsEIP1559 {
-            if let maxFeePerGasString = transaction.maxFeePerGas,
-               let maxFeePerGasValue = BigUInt(maxFeePerGasString.removeHexPrefix(), radix: 16) {
-                maxFeePerGasTextField.update(value: maxFeePerGasValue.decimal?.shiftOrder(magnitude: -Constants.gweiDigits))
-            }
-
-            if let priorityFeeString = transaction.maxPriorityFeePerGas,
-               let priorityFeeValue = BigUInt(priorityFeeString.removeHexPrefix(), radix: 16) {
-                priorityFeeTextField.update(value: priorityFeeValue.decimal?.shiftOrder(magnitude: -Constants.gweiDigits))
-            }
-        } else {
-            if let gasPriceString = transaction.gasPrice,
-               let gasPriceValue = BigUInt(gasPriceString.removeHexPrefix(), radix: 16) {
-                gasPriceTextField.update(value: gasPriceValue.decimal?.shiftOrder(magnitude: -Constants.gweiDigits))
-            }
         }
     }
 
@@ -392,14 +367,6 @@ private extension WCCustomEvmFeeService {
             customPriorityFeeBeforeEditing = priorityFee
         } else {
             customPriorityFeeBeforeEditing = nil
-        }
-    }
-
-    private func onGasLimitChanged(_ focused: Bool) {
-        if focused {
-            customMaxLimitBeforeEditing = gasLimit
-        } else {
-            customMaxLimitBeforeEditing = nil
         }
     }
 

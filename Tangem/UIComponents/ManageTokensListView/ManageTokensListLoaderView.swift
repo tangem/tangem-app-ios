@@ -12,19 +12,13 @@ import TangemUI
 struct ManageTokensItemSkeletonView: View {
     var body: some View {
         HStack(spacing: 12) {
-            SkeletonView()
-                .frame(size: .init(bothDimensions: 36))
-                .cornerRadiusContinuous(18)
+            Shimmer().variant(.custom(width: 36, height: 36))
 
-            SkeletonView()
-                .frame(size: .init(width: 70, height: 12))
-                .cornerRadiusContinuous(3)
+            Shimmer().variant(.custom(width: 70, height: 12, cornerRadius: 3))
 
             Spacer()
 
-            SkeletonView()
-                .frame(size: .init(width: 24, height: 12))
-                .cornerRadiusContinuous(3)
+            Shimmer().variant(.custom(width: 24, height: 12, cornerRadius: 3))
         }
         .padding(16)
     }

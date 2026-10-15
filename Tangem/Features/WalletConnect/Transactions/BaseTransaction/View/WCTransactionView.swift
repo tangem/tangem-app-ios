@@ -151,33 +151,14 @@ struct WCTransactionView: View {
                 )
             )
 
-            if viewModel.confirmTransactionPolicy.needsHoldToConfirm {
-                signHoldButton
-            } else {
-                signButton
-            }
-        }
-    }
-
-    private var signButton: some View {
-        MainButton(
-            settings: .init(
+            SigningActionButtonView(
+                type: viewModel.signingActionButtonType,
                 title: viewModel.primariActionButtonTitle,
-                icon: viewModel.tangemIconProvider.getMainButtonIcon(),
                 isLoading: viewModel.presentationState == .signing,
                 isDisabled: viewModel.isActionButtonBlocked,
                 action: { viewModel.handleViewAction(.sign) }
             )
-        )
-    }
-
-    private var signHoldButton: some View {
-        HoldToConfirmButton(
-            title: viewModel.primariActionButtonTitle,
-            isLoading: viewModel.presentationState == .signing,
-            isDisabled: viewModel.isActionButtonBlocked,
-            action: { viewModel.handleViewAction(.sign) }
-        )
+        }
     }
 
     private func requestDetailsFooter(_ input: WCRequestDetailsInput) -> some View {
@@ -215,7 +196,6 @@ struct WCTransactionView: View {
 
             makeAlertButton(
                 from: viewModel.state.secondaryButton,
-                icon: viewModel.state.tangemIcon,
                 action: { viewModel.handleViewAction(.secondaryButtonTapped) }
             )
         }
@@ -228,9 +208,12 @@ struct WCTransactionView: View {
                 action: { viewModel.handleViewAction(.secondaryButtonTapped) }
             )
 
-            if viewModel.state.needsHoldToConfirm {
-                makeAlertHoldButton(
-                    from: viewModel.state.primaryButton,
+            if let signingActionButtonType = viewModel.state.signingActionButtonType {
+                SigningActionButtonView(
+                    type: signingActionButtonType,
+                    title: viewModel.state.primaryButton.title,
+                    isLoading: viewModel.state.primaryButton.isLoading,
+                    isDisabled: false,
                     action: { viewModel.handleViewAction(.primaryButtonTapped) }
                 )
             } else {
@@ -244,29 +227,15 @@ struct WCTransactionView: View {
 
     private func makeAlertButton(
         from state: WCTransactionAlertState.ButtonSettings,
-        icon: MainButton.Icon? = nil,
         action: @escaping () -> Void
     ) -> MainButton {
         MainButton(
             settings: .init(
                 title: state.title,
-                icon: icon,
                 style: state.style,
                 isLoading: state.isLoading,
                 action: action
             )
-        )
-    }
-
-    private func makeAlertHoldButton(
-        from state: WCTransactionAlertState.ButtonSettings,
-        action: @escaping () -> Void
-    ) -> some View {
-        HoldToConfirmButton(
-            title: state.title,
-            isLoading: state.isLoading,
-            isDisabled: false,
-            action: action
         )
     }
 }

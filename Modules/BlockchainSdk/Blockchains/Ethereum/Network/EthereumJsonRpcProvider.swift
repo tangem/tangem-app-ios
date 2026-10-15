@@ -72,10 +72,6 @@ final class EthereumJsonRpcProvider: HostProvider {
         requestPublisher(for: .gasPrice)
     }
 
-    func getPriorityFee() -> AnyPublisher<String, Error> {
-        requestPublisher(for: .priorityFee)
-    }
-
     func getFeeHistory() -> AnyPublisher<EthereumFeeHistoryResponse, Error> {
         requestPublisher(for: .feeHistory)
     }
