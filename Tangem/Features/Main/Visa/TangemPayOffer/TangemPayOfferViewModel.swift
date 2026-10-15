@@ -12,7 +12,6 @@ import TangemFoundation
 import TangemLocalization
 import TangemPay
 import TangemSdk
-import TangemUI
 import TangemUIUtils
 
 final class TangemPayOfferViewModel: ObservableObject {
@@ -24,12 +23,14 @@ final class TangemPayOfferViewModel: ObservableObject {
     @Published var termsFeesAndLimitsViewModel: WebViewContainerViewModel?
     @Published var legalDocumentViewModel: WebViewContainerViewModel?
 
-    var getCardButtonIcon: MainButton.Icon? {
-        if let model = userWalletRepository.models.first, userWalletRepository.models.count == 1 {
-            return CommonTangemIconProvider(config: model.config).getMainButtonIcon()
+    var showsGetCardIcon: Bool {
+        guard case .single(let id) = walletSelectionType,
+              let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == id })
+        else {
+            return false
         }
 
-        return nil
+        return userWalletModel.config.hasFeature(.nfcInteraction)
     }
 
     private weak var coordinator: TangemPayOnboardingRoutable?
