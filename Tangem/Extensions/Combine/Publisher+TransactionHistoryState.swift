@@ -15,11 +15,15 @@ extension Publisher where Output == WalletModelTransactionHistoryState, Failure 
     /// supporting history at all.
     func retainingContent() -> AnyPublisher<WalletModelTransactionHistoryState, Never> {
         scan((retained: WalletModelTransactionHistoryState?.none, output: WalletModelTransactionHistoryState?.none)) { accumulated, new in
-            guard let retained = accumulated.retained, retained.hasContent, new.preservesPreviousContent else {
+            guard
+                case .loaded(let retainedItems)? = accumulated.retained,
+                retainedItems.isNotEmpty,
+                new.preservesPreviousContent
+            else {
                 return (retained: new, output: new)
             }
 
-            return (retained: retained, output: nil)
+            return (retained: accumulated.retained, output: nil)
         }
         .compactMap(\.output)
         .eraseToAnyPublisher()

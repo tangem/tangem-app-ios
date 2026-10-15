@@ -19,10 +19,18 @@ public protocol TransactionFeeProvider {
 public extension TransactionFeeProvider where Self: WalletProvider {
     func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> {
         do {
-            let estimationFeeAddress = try EstimationFeeAddressFactory().makeAddress(for: wallet.blockchain)
+            let estimationFeeAddress = try wallet.blockchain.feeEstimationAddress
             return getFee(amount: amount, destination: estimationFeeAddress)
         } catch {
             return .anyFail(error: error)
+        }
+    }
+}
+
+public extension Blockchain {
+    var feeEstimationAddress: String {
+        get throws {
+            try EstimationFeeAddressFactory().makeAddress(for: self)
         }
     }
 }
@@ -141,7 +149,7 @@ public struct GaslessYieldFeeOptions {
 
 public extension GaslessTransactionFeeProvider where Self: WalletProvider {
     func getEstimatedGaslessFee(feeToken: Token, amount: Amount, feeRecipientAddress: String, nativeToFeeTokenRate: Decimal) async throws -> Fee {
-        let estimationFeeAddress = try EstimationFeeAddressFactory().makeAddress(for: wallet.blockchain)
+        let estimationFeeAddress = try wallet.blockchain.feeEstimationAddress
         let fee = try await getGaslessFee(
             feeToken: feeToken,
             amount: amount,
@@ -159,7 +167,7 @@ public extension GaslessTransactionFeeProvider where Self: WalletProvider {
         nativeToFeeTokenRate: Decimal,
         yieldFeeOptions: YieldFeeOptions
     ) async throws -> Fee {
-        let estimationFeeAddress = try EstimationFeeAddressFactory().makeAddress(for: wallet.blockchain)
+        let estimationFeeAddress = try wallet.blockchain.feeEstimationAddress
         return try await getGaslessYieldFee(
             feeToken: feeToken,
             amount: amount,

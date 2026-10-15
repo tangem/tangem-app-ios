@@ -30,6 +30,23 @@ struct SwapModelCEXDepositFeeTests {
         #expect(env.manager.transactionFeeDataCalls.isEmpty)
     }
 
+    @Test("a coin fee chosen after the preview is the one that is signed")
+    func coinFee_changedAfterPreview_signsShownFee() async throws {
+        let previewFee = BSDKFee(BSDKAmount(with: .ethereum(testnet: false), value: 1))
+        let shown = BSDKFee(BSDKAmount(with: .ethereum(testnet: false), value: 3))
+        let env = makeEnvironment(shown: shown, quoted: shown)
+
+        let fee = try await env.sut.cexDepositFee(
+            provider: env.provider,
+            data: makeTransactionData(),
+            preview: makePreview(fee: previewFee),
+            source: env.source
+        )
+
+        #expect(fee.amount.value == 3)
+        #expect(env.manager.transactionFeeDataCalls.isEmpty)
+    }
+
     @Test("a higher Tron gasless deposit quote is not signed")
     func tronGaslessFeeIncreased_throws() async throws {
         let shown = makeGaslessFee(compensation: 1, quoteId: "shown")

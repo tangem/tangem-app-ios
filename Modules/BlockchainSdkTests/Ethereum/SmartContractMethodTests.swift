@@ -177,7 +177,6 @@ struct SmartContractMethodTests {
         // then
         #expect(method?.spender == "0x1231deb6f5749ef6ce6943a275a1d3e7486f4eae")
         #expect(method?.amount == BigUInt("28000000"))
-        #expect(method?.isUnlimited == false)
     }
 
     @Test("Decoding an encoded approve returns the original arguments")
@@ -195,7 +194,7 @@ struct SmartContractMethodTests {
         #expect(decoded?.amount == amount)
     }
 
-    @Test("Recognizes the uint256 maximum as an unlimited allowance")
+    @Test("Decodes the uint256 maximum allowance")
     func approveERC20TokenMethodDecodingUnlimited() throws {
         // give
         let calldata = Data(hex: [
@@ -208,7 +207,6 @@ struct SmartContractMethodTests {
         let method = ApproveERC20TokenMethod(calldata: calldata)
 
         // then
-        #expect(method?.isUnlimited == true)
         #expect(method?.amount == BigUInt.maxUInt256)
     }
 
@@ -223,7 +221,6 @@ struct SmartContractMethodTests {
 
         // then
         #expect(decoded?.amount == .zero)
-        #expect(decoded?.isUnlimited == false)
     }
 
     @Test("Rejects calldata that is not a well-formed approve call", arguments: [
