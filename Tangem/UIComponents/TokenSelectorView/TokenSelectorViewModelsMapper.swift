@@ -271,10 +271,10 @@ private extension TokenSelectorViewModelsMapper {
             guard let self else { return }
 
             switch availabilityType {
-            case .unavailable(reason: .unavailableForSwap(.swapState(let swapState))):
+            case .unavailable(reason: .unavailableForSwap(.sourceState(let swapState))):
                 TokenActionAvailabilityAlertPresenter.presentOrProceed(
                     presenter: alertPresenter,
-                    swapStatus: swapState,
+                    swapSourceStatus: swapState,
                     action: { self.output?.userDidSelect(item: item) }
                 )
 

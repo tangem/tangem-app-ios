@@ -74,9 +74,9 @@ private extension TokenSelectorItemSwapAvailabilityProvider {
             return .unavailable(reason: .unavailableForSwap(.noAddress))
         }
 
-        let swapState = availabilityProvider.swapAvailability
+        let swapState = availabilityProvider.swapSourceAvailability
         guard case .available = swapState else {
-            return .unavailable(reason: .unavailableForSwap(.swapState(swapState)))
+            return .unavailable(reason: .unavailableForSwap(.sourceState(swapState)))
         }
 
         return .available

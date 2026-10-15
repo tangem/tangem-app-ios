@@ -113,10 +113,12 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
     func bind(stateProvider: SwapModelStateProvider) {
         // Buttons updating
-        interactor.receivedTokenPublisher
-            .map { result in
-                result.isLoading
+        Publishers.CombineLatest(interactor.sourceTokenPublisher, interactor.receivedTokenPublisher)
+            .map { source, receive in
+                SwappingSourceAndReceiveTokenHelper().canBeSwappedPublisher(source: source, receive: receive)
             }
+            .switchToLatest()
+            .map { !$0.isAvailable }
             .removeDuplicates()
             .receiveOnMain()
             .assign(to: &$isSwapButtonDisabled)
