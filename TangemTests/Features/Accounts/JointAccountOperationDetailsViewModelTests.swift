@@ -121,10 +121,10 @@ struct JointAccountOperationDetailsViewModelTests {
 
     @Test("The Sign button is confirmed the way the wallet signs")
     func signButtonFollowsTheSigner() {
-        let cardButton = signButton(in: makeViewModel(signingActionButtonType: .cardTap))
+        let cardButton = signButton(in: makeViewModel(signingActionButtonType: .requiredNFCInteraction))
         let holdButton = signButton(in: makeViewModel(signingActionButtonType: .holdToConfirm))
 
-        #expect(cardButton?.signingType == .cardTap)
+        #expect(cardButton?.signingType == .requiredNFCInteraction)
         #expect(holdButton?.signingType == .holdToConfirm)
     }
 
@@ -254,7 +254,7 @@ struct JointAccountOperationDetailsViewModelTests {
     // MARK: - Helpers
 
     private func makeViewModel(
-        signingActionButtonType: SigningActionButtonViewType = .cardTap,
+        signingActionButtonType: SigningActionButtonViewType = .requiredNFCInteraction,
         isInitiator: Bool = false,
         sign: @escaping () async throws -> Void = {},
         reject: @escaping () async throws -> Void = {}

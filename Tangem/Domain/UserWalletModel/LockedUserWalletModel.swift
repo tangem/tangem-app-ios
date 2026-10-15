@@ -289,13 +289,10 @@ extension LockedUserWalletModel: DisposableEntity {
 
 private extension LockedUserWalletModel {
     struct DummyTangemSigner: TangemSigner {
-        let hasNFCInteraction: Bool
         let latestSignerType: TangemSignerType?
 
         init(config: UserWalletConfig) {
-            let signer = config.tangemSigner
-            hasNFCInteraction = signer.hasNFCInteraction
-            latestSignerType = signer.latestSignerType
+            latestSignerType = config.tangemSigner.latestSignerType
         }
 
         func sign(dataToSign: [SignData], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], Error> {
@@ -319,7 +316,7 @@ private extension LockedUserWalletModel {
         let requiresCard: Bool
 
         init(config: UserWalletConfig) {
-            requiresCard = config.tangemSigner.hasNFCInteraction
+            requiresCard = config.hasFeature(.nfcInteraction)
         }
 
         func deriveKeys(

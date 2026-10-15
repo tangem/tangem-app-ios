@@ -458,7 +458,6 @@ final class PolymarketCardSignerStub: TangemSigner {
     private(set) var signCalls = 0
     private(set) var requestedHashes: [Data] = []
 
-    let hasNFCInteraction = false
     let latestSignerType: TangemSignerType? = nil
 
     let publicKey: Data

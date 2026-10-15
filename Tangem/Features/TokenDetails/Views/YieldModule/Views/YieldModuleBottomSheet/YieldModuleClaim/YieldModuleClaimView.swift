@@ -181,29 +181,17 @@ struct YieldModuleClaimView: View {
             .background(ListFooterOverlayShadowView())
     }
 
-    @ViewBuilder
     private func mainButton(viewData: YieldModuleClaimViewData) -> some View {
         let title = Localization.yieldModuleClaimButtonTitle(viewData.total)
 
-        if viewModel.confirmTransactionPolicy.needsHoldToConfirm {
-            HoldToConfirmButton(
-                title: title,
-                isLoading: viewModel.isProcessingRequest,
-                isDisabled: !viewModel.isActionButtonAvailable,
-                action: viewModel.onClaimTap
-            )
-            .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.confirmButton)
-        } else {
-            MainButton(settings: .init(
-                title: title,
-                icon: viewModel.tangemIconProvider.getMainButtonIcon(),
-                style: .primary,
-                isLoading: viewModel.isProcessingRequest,
-                isDisabled: !viewModel.isActionButtonAvailable,
-                action: viewModel.onClaimTap
-            ))
-            .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.confirmButton)
-        }
+        return SigningActionButtonView(
+            type: viewModel.signingActionButtonType,
+            title: title,
+            isLoading: viewModel.isProcessingRequest,
+            isDisabled: !viewModel.isActionButtonAvailable,
+            action: viewModel.onClaimTap
+        )
+        .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.confirmButton)
     }
 }
 

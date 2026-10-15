@@ -200,7 +200,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             userWalletId: model.userWalletId,
             walletModel: dependencies.walletModel,
             walletModelsManager: dependencies.walletModelsManager,
-            tangemIconProvider: CommonTangemIconProvider(config: model.config)
+            signingActionButtonType: SigningActionButtonViewTypeBuilder().build(config: model.config)
         )
 
         let promotionNotificationsManager = CommonPromotionNotificationsManager(

@@ -11,9 +11,12 @@ import Foundation
 import TangemLocalization
 import TangemUIUtils
 import TangemCollectibles
+import TangemUI
 
 final class CollectiblesWelcomeViewModel: ObservableObject {
     // MARK: - Properties
+
+    let signingActionButtonType: SigningActionButtonViewType
 
     private weak var routable: (any CollectiblesWelcomeRoutable)?
     private let onboarder: (any CollectiblesOnboarder)?
@@ -25,9 +28,14 @@ final class CollectiblesWelcomeViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(routable: (any CollectiblesWelcomeRoutable)?, onboarder: (any CollectiblesOnboarder)? = nil) {
+    init(
+        routable: (any CollectiblesWelcomeRoutable)?,
+        onboarder: (any CollectiblesOnboarder)? = nil,
+        signingActionButtonType: SigningActionButtonViewType
+    ) {
         self.routable = routable
         self.onboarder = onboarder
+        self.signingActionButtonType = signingActionButtonType
     }
 
     // MARK: - Methods

@@ -12,6 +12,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemStaking
 import TangemFoundation
+import TangemUI
 
 final class SingleTokenNotificationManager {
     @Injected(\.gaslessTransactionsNetworkManager)
@@ -23,7 +24,7 @@ final class SingleTokenNotificationManager {
 
     private let walletModel: any WalletModel
     private let walletModelsManager: WalletModelsManager
-    private let tangemIconProvider: TangemIconProvider
+    private let signingActionButtonType: SigningActionButtonViewType
     private weak var delegate: NotificationTapDelegate?
 
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
@@ -39,11 +40,11 @@ final class SingleTokenNotificationManager {
         userWalletId: UserWalletId,
         walletModel: any WalletModel,
         walletModelsManager: WalletModelsManager,
-        tangemIconProvider: TangemIconProvider
+        signingActionButtonType: SigningActionButtonViewType
     ) {
         self.walletModel = walletModel
         self.walletModelsManager = walletModelsManager
-        self.tangemIconProvider = tangemIconProvider
+        self.signingActionButtonType = signingActionButtonType
         analyticsService = NotificationsAnalyticsService(userWalletId: userWalletId)
         bind()
     }
@@ -316,7 +317,7 @@ final class SingleTokenNotificationManager {
                 canPerformAction: isTotalStateLoaded
             )
 
-            return [.hasUnfulfilledRequirements(configuration: configuration, icon: tangemIconProvider.getMainButtonIcon())]
+            return [.hasUnfulfilledRequirements(configuration: configuration, icon: signingActionButtonType.mainButtonIcon)]
 
         case .paidTransactionWithFee(let blockchain, let transactionAmount, let feeAmount) where isTotalStateLoaded:
             let configuration = makeUnfulfilledRequirementsConfiguration(
@@ -324,7 +325,7 @@ final class SingleTokenNotificationManager {
                 transactionAmount: transactionAmount,
                 feeAmount: feeAmount
             )
-            return [.hasUnfulfilledRequirements(configuration: configuration, icon: tangemIconProvider.getMainButtonIcon())]
+            return [.hasUnfulfilledRequirements(configuration: configuration, icon: signingActionButtonType.mainButtonIcon)]
 
         case .none, .paidTransactionWithFee:
             return []

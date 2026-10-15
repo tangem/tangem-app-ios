@@ -7,10 +7,10 @@
 //
 
 import Foundation
-import TangemAssets
 import TangemLocalization
 import TangemPay
 import TangemVisa
+import TangemUI
 
 @MainActor
 final class TransferConfirmationViewModel: ObservableObject {
@@ -23,7 +23,7 @@ final class TransferConfirmationViewModel: ObservableObject {
     private let sendUseCase: TangemPayOffRampSendUseCase
     private let options: TangemPayOfframpOptionsStore.Options
     private let savedRecipient: TangemPayBankAccountResponse?
-    private let sendButtonIcon: ImageType?
+    private let signingActionButtonType: SigningActionButtonViewType
     private let analyticsLogger: any TangemPayOfframpAnalyticsLogger
     private let output: (Output) -> Void
 
@@ -33,7 +33,7 @@ final class TransferConfirmationViewModel: ObservableObject {
         options: TangemPayOfframpOptionsStore.Options,
         savedRecipient: TangemPayBankAccountResponse?,
         title: String,
-        sendButtonIcon: ImageType?,
+        signingActionButtonType: SigningActionButtonViewType,
         analyticsLogger: any TangemPayOfframpAnalyticsLogger,
         output: @escaping (Output) -> Void
     ) {
@@ -42,7 +42,7 @@ final class TransferConfirmationViewModel: ObservableObject {
         self.options = options
         self.savedRecipient = savedRecipient
         self.title = title
-        self.sendButtonIcon = sendButtonIcon
+        self.signingActionButtonType = signingActionButtonType
         self.analyticsLogger = analyticsLogger
         self.output = output
 
@@ -54,7 +54,7 @@ final class TransferConfirmationViewModel: ObservableObject {
             orderBuilder: orderBuilder,
             options: options,
             savedRecipient: savedRecipient,
-            sendButtonIcon: sendButtonIcon,
+            signingActionButtonType: signingActionButtonType,
             isSending: false
         )
 
@@ -66,7 +66,7 @@ final class TransferConfirmationViewModel: ObservableObject {
             orderBuilder: orderBuilder,
             options: options,
             savedRecipient: savedRecipient,
-            sendButtonIcon: sendButtonIcon,
+            signingActionButtonType: signingActionButtonType,
             isSending: isSending
         )
     }
@@ -212,7 +212,7 @@ private extension TransferConfirmationViewModel {
         orderBuilder: TangemPayOfframpOrderBuilder,
         options: TangemPayOfframpOptionsStore.Options,
         savedRecipient: TangemPayBankAccountResponse?,
-        sendButtonIcon: ImageType?,
+        signingActionButtonType: SigningActionButtonViewType,
         isSending: Bool
     ) -> TransferConfirmationContentView.State {
         let token = selectedToken(orderBuilder: orderBuilder, tokenItems: options.tokens)
@@ -226,7 +226,7 @@ private extension TransferConfirmationViewModel {
             isRailSelectable: !orderBuilder.isRailLocked,
             sections: sections(orderBuilder: orderBuilder, savedRecipient: savedRecipient),
             footerNote: footerNote(amount: orderBuilder.amount, rail: rail),
-            sendButtonIcon: sendButtonIcon,
+            signingActionButtonType: signingActionButtonType,
             isSendEnabled: orderBuilder.amount != nil && token != nil && rail != nil,
             isSending: isSending
         )

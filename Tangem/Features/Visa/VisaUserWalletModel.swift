@@ -258,7 +258,7 @@ final class VisaUserWalletModel {
     }
 
     private func showRefreshTokenExpiredNotification() {
-        stateSubject.send(.failedToLoad(.missingValidRefreshToken(icon: CommonTangemIconProvider(config: config).getMainButtonIcon())))
+        stateSubject.send(.failedToLoad(.missingValidRefreshToken(icon: SigningActionButtonViewTypeBuilder().build(config: config).mainButtonIcon)))
     }
 
     private func loadBalancesAndLimits() async {
@@ -336,7 +336,7 @@ extension VisaUserWalletModel {
             )
 
         if await authorizationTokensHandler.refreshTokenExpired {
-            throw ModelError.missingValidRefreshToken(icon: CommonTangemIconProvider(config: config).getMainButtonIcon())
+            throw ModelError.missingValidRefreshToken(icon: SigningActionButtonViewTypeBuilder().build(config: config).mainButtonIcon)
         }
 
         if await authorizationTokensHandler.accessTokenExpired {

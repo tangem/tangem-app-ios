@@ -12,7 +12,6 @@ import Foundation
 import TangemExpress
 import TangemFoundation
 import TangemStaking
-import TangemUI
 @testable import Tangem
 
 // MARK: - SendSourceToken
@@ -63,8 +62,6 @@ class SendSourceTokenStub: SendSourceToken {
     var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { BlockchainSDKNotificationMapper(tokenItem: tokenItem) }
 
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { nil }
-    var tangemIconProvider: any TangemIconProvider { TangemIconProviderStub() }
-    var confirmTransactionPolicy: any ConfirmTransactionPolicy { ConfirmTransactionPolicyStub() }
     var isTangemPayAccount: Bool { false }
     var jointAccountPolicy: JointAccountPolicy? { nil }
 }
@@ -78,23 +75,9 @@ struct TokenBalanceProviderStub: TokenBalanceProvider {
     let formattedBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> = Just(.loading(.empty("-"))).eraseToAnyPublisher()
 }
 
-// MARK: - TangemIconProvider
-
-private struct TangemIconProviderStub: TangemIconProvider {
-    func getMainButtonIcon() -> MainButton.Icon? { nil }
-}
-
-// MARK: - ConfirmTransactionPolicy
-
-private struct ConfirmTransactionPolicyStub: ConfirmTransactionPolicy {
-    let needsHoldToConfirm: Bool = false
-}
-
 // MARK: - TransactionDispatcher
 
 struct TransactionDispatcherStub: TransactionDispatcher {
-    let hasNFCInteraction: Bool = false
-
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         throw NSError(domain: "stub", code: 0)
     }

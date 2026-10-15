@@ -40,7 +40,7 @@ private extension PolymarketWelcomeViewModel {
         let viewModel = PolymarketWelcomeViewModel(
             interactor: PolymarketOnboardingInteractorPreviewStub(progress: progress),
             hasExistingAccount: hasExistingAccount,
-            signingButtonType: .cardTap,
+            signingButtonType: .requiredNFCInteraction,
             coordinator: PolymarketWelcomeRoutablePreviewStub()
         )
 

@@ -26,7 +26,7 @@ final class TangemPayOfferViewModel: ObservableObject {
 
     var getCardButtonIcon: MainButton.Icon? {
         if let model = userWalletRepository.models.first, userWalletRepository.models.count == 1 {
-            return CommonTangemIconProvider(config: model.config).getMainButtonIcon()
+            return SigningActionButtonViewTypeBuilder().build(config: model.config).mainButtonIcon
         }
 
         return nil
