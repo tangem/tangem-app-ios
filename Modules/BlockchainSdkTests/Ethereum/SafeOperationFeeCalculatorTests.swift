@@ -68,6 +68,22 @@ struct SafeOperationFeeCalculatorTests {
         #expect(fee.amount.value == Decimal((23_520 + 100) * 3) / 1_000_000)
     }
 
+    @Test("The market option is the middle one, a lone answer is taken as it is")
+    func marketOptionIsPicked() throws {
+        let fees = [1_000, 2_000, 3_000].map { price in
+            Fee(Amount(with: .ethereum(testnet: false), value: 0), parameters: EthereumEIP1559FeeParameters(gasLimit: 21_000, maxFeePerGas: BigUInt(price), priorityFee: 1))
+        }
+
+        let market = try SafeOperationFeeCalculator.marketFeeParameters(from: fees)
+        let lone = try SafeOperationFeeCalculator.marketFeeParameters(from: [fees[0]])
+
+        #expect(SafeOperationFeeCalculator.gasPrice(of: market) == 2_000)
+        #expect(SafeOperationFeeCalculator.gasPrice(of: lone) == 1_000)
+        #expect(throws: SafeOperationError.self) {
+            try SafeOperationFeeCalculator.marketFeeParameters(from: [])
+        }
+    }
+
     private func safeParameters(of fee: Fee) throws -> SafeTransactionFeeParameters {
         try #require(fee.parameters as? SafeTransactionFeeParameters)
     }
