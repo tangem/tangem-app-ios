@@ -292,7 +292,7 @@ private extension TransactionViewRedesigned {
             return .Tangem.Text.Status.warning
         case .spend(_, _, _, let isNegativeAmount) where isNegativeAmount:
             return .Tangem.Text.Status.accent
-        case .transfer where !viewModel.isOutgoing:
+        case .transfer where !viewModel.isOutgoing, .cashback:
             return .Tangem.Text.Status.accent
         case .spend, .transfer, .fee:
             return nil
