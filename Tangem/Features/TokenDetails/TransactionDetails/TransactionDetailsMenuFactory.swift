@@ -27,16 +27,7 @@ enum TransactionDetailsMenuFactory {
         var addressActions: [TransactionDetailsHeaderViewData.MenuAction] = []
 
         if let counterpartyAddress {
-            addressActions.append(.init(
-                id: "copyAddress",
-                title: Localization.commonCopyAddress,
-                icon: DesignSystem.Icons.Copy.regular24,
-                action: .copy(
-                    value: counterpartyAddress,
-                    toast: Localization.walletNotificationAddressCopied,
-                    kind: .address
-                )
-            ))
+            addressActions.append(copyAddressAction(for: counterpartyAddress))
         }
 
         if let addressToSave = addContactHelper.addressToSave(for: record) {
@@ -98,6 +89,21 @@ enum TransactionDetailsMenuFactory {
         return sections.filter { $0.actions.isNotEmpty }
     }
 
+    // MARK: - Address
+
+    static func copyAddressAction(for address: String) -> TransactionDetailsHeaderViewData.MenuAction {
+        .init(
+            id: "copyAddress",
+            title: Localization.commonCopyAddress,
+            icon: DesignSystem.Icons.Copy.regular24,
+            action: .copy(
+                value: address,
+                toast: Localization.walletNotificationAddressCopied,
+                kind: .address
+            )
+        )
+    }
+
     // MARK: - Yield provider
 
     private static func isYieldProviderInteraction(_ transactionType: TransactionViewModel.TransactionType) -> Bool {
@@ -105,7 +111,7 @@ enum TransactionDetailsMenuFactory {
         case .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit,
              .yieldReactivate, .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin:
             return true
-        case .yieldSend, .stake, .unstake, .vote, .withdraw, .claimRewards, .restake,
+        case .incentiveClaim, .incentiveClaimCoin, .yieldSend, .stake, .unstake, .vote, .withdraw, .claimRewards, .restake,
              .approve, .gaslessTransactionFee, .gaslessTransfer, .networkFee, .operation, .unknownOperation,
              .transfer, .swap, .onramp, .tangemPay:
             return false

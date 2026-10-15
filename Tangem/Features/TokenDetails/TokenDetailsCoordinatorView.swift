@@ -51,9 +51,6 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.yieldModuleActiveCoordinator) {
                 YieldModuleActiveCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.pendingExpressTxStatusBottomSheetViewModel) { viewModel in
-                PendingExpressTxStatusBottomSheetView(viewModel: viewModel)
-            }
             .sheet(item: $coordinator.dynamicAddressesEnterViewModel) {
                 DynamicAddressesEnterView(viewModel: $0)
             }

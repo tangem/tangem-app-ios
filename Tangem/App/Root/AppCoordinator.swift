@@ -21,8 +21,7 @@ class AppCoordinator: CoordinatorObject {
     lazy var popToRootAction: Action<PopToRootOptions> = { [weak self] _ in
         guard let self else { return }
 
-        marketsCoordinator = nil
-        mainBottomSheetUIManager.hide(shouldUpdateFooterSnapshot: false)
+        mainBottomSheetUIManager.hide()
 
         let startupProcessor = StartupProcessor()
         if startupProcessor.shouldOpenAuthScreen {
@@ -37,22 +36,12 @@ class AppCoordinator: CoordinatorObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.appLockController) private var appLockController: AppLockController
-    @Injected(\.overlayContentContainer) private var overlayContentContainer: OverlayContentContainer
-    @Injected(\.welcomeV2EntryReasonProvider) private var welcomeV2EntryReasonProvider: WelcomeV2EntryReasonProviding
+    @Injected(\.welcomeEntryReasonProvider) private var welcomeEntryReasonProvider: WelcomeEntryReasonProviding
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.servicesManager) private var servicesManager: ServicesManager
     @Injected(\.mailComposePresenter) private var mailComposePresenter: MailComposePresenter
 
     private let deeplinkResponders = AppSessionDeeplinkResponders()
-
-    // MARK: - Child coordinators
-
-    /// Published property, used by UI. `SwiftUI.Binding` API requires it to be writable,
-    /// but in fact this is a read-only binding since the UI never mutates it.
-    @Published var marketsCoordinator: MarketsCoordinator?
-
-    /// An ugly workaround due to navigation issues in SwiftUI on iOS 18 and above, see [REDACTED_INFO] for details.
-    @Published private(set) var isOverlayContentContainerShown = false
 
     // MARK: - View State
 
@@ -72,7 +61,7 @@ class AppCoordinator: CoordinatorObject {
     }
 
     func start(with options: AppCoordinator.Options = .default) {
-        welcomeV2EntryReasonProvider.startObserving()
+        welcomeEntryReasonProvider.startObserving()
 
         let startupProcessor = StartupProcessor()
         let startupOption = startupProcessor.getStartupOption()
@@ -141,6 +130,8 @@ class AppCoordinator: CoordinatorObject {
         let dismissAction: Action<WelcomeCoordinator.OutputOptions> = { [weak self] options in
             guard let self else { return }
 
+            TangemPayCampaignService().clearPending()
+
             switch options {
             case .main(let model):
                 openMain(with: model)
@@ -149,15 +140,9 @@ class AppCoordinator: CoordinatorObject {
             }
         }
 
-        if FeatureProvider.isAvailable(.welcomeScreenV2) {
-            let welcomeV2Coordinator = WelcomeV2Coordinator(dismissAction: dismissAction)
-            welcomeV2Coordinator.start(with: .init())
-            setState(.welcomeV2(welcomeV2Coordinator))
-        } else {
-            let welcomeCoordinator = WelcomeCoordinator(dismissAction: dismissAction)
-            welcomeCoordinator.start(with: .init())
-            setState(.welcome(welcomeCoordinator))
-        }
+        let welcomeCoordinator = WelcomeCoordinator(dismissAction: dismissAction)
+        welcomeCoordinator.start(with: .init())
+        setState(.welcome(welcomeCoordinator))
     }
 
     private func setupAuth(unlockOnAppear: Bool) {
@@ -189,46 +174,7 @@ class AppCoordinator: CoordinatorObject {
         setState(.uncompleteBackup(uncompleteBackupCoordinator))
     }
 
-    /// - Note: The coordinator is set up only once and only when the feature toggle is enabled.
-    private func setupMainBottomSheetCoordinatorIfNeeded() {
-        guard marketsCoordinator == nil else {
-            return
-        }
-
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.marketsCoordinator = nil
-        }
-
-        let coordinator = MarketsCoordinator(
-            dismissAction: dismissAction,
-            popToRootAction: popToRootAction
-        )
-        coordinator.start(with: .init())
-        marketsCoordinator = coordinator
-    }
-
     private func bind() {
-        mainBottomSheetUIManager
-            .isShownPublisher
-            .filter { $0 }
-            .withWeakCaptureOf(self)
-            .sink { coordinator, _ in
-                coordinator.setupMainBottomSheetCoordinatorIfNeeded()
-            }
-            .store(in: &bag)
-
-        mainBottomSheetUIManager
-            .isShownPublisher
-            .assign(to: \.isOverlayContentContainerShown, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        $isOverlayContentContainerShown
-            .withWeakCaptureOf(self)
-            .sink { coordinator, isShown in
-                coordinator.overlayContentContainer.setOverlayHidden(!isShown)
-            }
-            .store(in: &bag)
-
         let cardSessionDidStartPublisher = NotificationCenter.default
             .publisher(for: .cardSessionDidStart)
             .map { _ in true }
@@ -340,7 +286,6 @@ extension AppCoordinator {
 extension AppCoordinator {
     enum ViewState: Equatable {
         case welcome(WelcomeCoordinator)
-        case welcomeV2(WelcomeV2Coordinator)
         case uncompleteBackup(UncompletedBackupCoordinator)
         case auth(AuthCoordinator)
         case main(MainCoordinator)
@@ -352,7 +297,7 @@ extension AppCoordinator {
 
         var shouldAddLockView: Bool {
             switch self {
-            case .auth, .welcome, .welcomeV2, .launch, .jailbreakWarning, .forceUpdate:
+            case .auth, .welcome, .launch, .jailbreakWarning, .forceUpdate:
                 return false
             case .lock, .main, .onboarding, .uncompleteBackup:
                 return true
@@ -362,7 +307,6 @@ extension AppCoordinator {
         static func == (lhs: AppCoordinator.ViewState, rhs: AppCoordinator.ViewState) -> Bool {
             switch (lhs, rhs) {
             case (.welcome, .welcome),
-                 (.welcomeV2, .welcomeV2),
                  (.uncompleteBackup, .uncompleteBackup),
                  (.auth, .auth),
                  (.main, .main),

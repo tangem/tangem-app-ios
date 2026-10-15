@@ -37,7 +37,6 @@ final class TokenDetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
     @Published var dynamicAddressesEnterViewModel: DynamicAddressesEnterViewModel? = nil
 
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
@@ -175,9 +174,10 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         )
     }
 
-    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation) {
+    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation, userWalletInfo: UserWalletInfo) {
         let viewModel = JointAccountOperationDetailsViewModelBuilder().build(
             pendingOperation: pendingOperation,
+            userWalletInfo: userWalletInfo,
             coordinator: self
         )
 
@@ -318,13 +318,7 @@ extension TokenDetailsCoordinator: StakingRegionUnavailableSheetRoutable {
     }
 }
 
-// MARK: - PendingExpressTxStatusRoutable
-
-extension TokenDetailsCoordinator: PendingExpressTxStatusRoutable {
-    func openURL(_ url: URL) {
-        safariManager.openURL(url)
-    }
-
+extension TokenDetailsCoordinator {
     func openRefundCurrency(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.tokenDetailsCoordinator = nil
@@ -351,10 +345,6 @@ extension TokenDetailsCoordinator: PendingExpressTxStatusRoutable {
         )
 
         tokenDetailsCoordinator = coordinator
-    }
-
-    func dismissPendingTxSheet() {
-        pendingExpressTxStatusBottomSheetViewModel = nil
     }
 }
 
@@ -587,21 +577,6 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         )
         coordinator.start(with: options)
         sendCoordinator = coordinator
-    }
-
-    func openPendingExpressTransactionDetails(
-        pendingTransaction: PendingTransaction,
-        tokenItem: TokenItem,
-        userWalletInfo: UserWalletInfo,
-        pendingTransactionsManager: PendingExpressTransactionsManager
-    ) {
-        pendingExpressTxStatusBottomSheetViewModel = PendingExpressTxStatusBottomSheetViewModel(
-            pendingTransaction: pendingTransaction,
-            currentTokenItem: tokenItem,
-            userWalletInfo: userWalletInfo,
-            pendingTransactionsManager: pendingTransactionsManager,
-            router: self
-        )
     }
 }
 

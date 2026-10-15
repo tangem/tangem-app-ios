@@ -96,8 +96,8 @@ public struct InfoChipsRowView: View {
 private struct InfoChipsOverflowView: View {
     let style: InfoChipView.Style
 
-    @ScaledMetric(relativeTo: .caption) private var iconWidth: CGFloat = .unit(.x5)
-    @ScaledMetric(relativeTo: .caption) private var iconHeight: CGFloat = .unit(.x4)
+    @ScaledMetric(relativeTo: .caption) private var iconWidth: CGFloat = 20
+    @ScaledMetric(relativeTo: .caption) private var iconHeight: CGFloat = 16
 
     var body: some View {
         Assets.horizontalDots.image
@@ -127,7 +127,7 @@ public struct InfoChipView: View {
     }
 
     public var body: some View {
-        HStack(spacing: .unit(.x1)) {
+        HStack(spacing: 4) {
             if let icon = item.leadingIcon {
                 makeIconImage(with: icon)
                     .frame(size: style.iconSize)
@@ -174,21 +174,21 @@ public extension InfoChipView {
         case legacy
         case redesign
 
-        var verticalPadding: CGFloat { .unit(.x1) }
-        var cornerRadius: CGFloat { .unit(.x4) }
-        var iconSize: CGSize { .init(bothDimensions: .unit(.x4)) }
+        var verticalPadding: CGFloat { 4 }
+        var cornerRadius: CGFloat { 16 }
+        var iconSize: CGSize { CGSize(bothDimensions: 16) }
 
         var contentHeight: CGFloat {
             switch self {
-            case .legacy: return .unit(.x4)
-            case .redesign: return .unit(.x6)
+            case .legacy: return 16
+            case .redesign: return 24
             }
         }
 
         var horizontalPadding: CGFloat {
             switch self {
             case .legacy: return 10
-            case .redesign: return .unit(.x2)
+            case .redesign: return 8
             }
         }
 

@@ -13,14 +13,17 @@ import TangemFoundation
 class CommonPromotionRepository {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.promoCampaignsRepository) private var promoCampaignsRepository: PromoCampaignsProviding
 
     typealias PromotionList = [PromotionPlacement: [Promotion]]
 
     private struct State {
         var promotions: [UserWalletId: PromotionList] = [:]
         var inFlightPromotionLoads: [UserWalletId: UUID] = [:]
+        var dismissedPromotionIds: [UserWalletId: Set<Int>] = [:]
     }
 
+    private let isPromoCampaignsEnabled: () -> Bool
     private let state = OSAllocatedUnfairLock(initialState: State())
     private let publishQueue = DispatchQueue(label: "com.tangem.CommonPromotionRepository.publish")
 
@@ -47,7 +50,9 @@ class CommonPromotionRepository {
 
     private var userWalletRepositoryEventSubscription: AnyCancellable?
 
-    init() {
+    init(isPromoCampaignsEnabled: @escaping () -> Bool = { PromoCampaignsAvailability.isEnabled }) {
+        self.isPromoCampaignsEnabled = isPromoCampaignsEnabled
+
         bind()
 
         if let userWalletId = selectedUserWalletId {
@@ -60,9 +65,23 @@ class CommonPromotionRepository {
 
 extension CommonPromotionRepository: PromotionRepository {
     func promotionsPublisher(userWalletId: UserWalletId, placeholder: PromotionPlacement) -> AnyPublisher<[Promotion], Never> {
-        return promotionsSubject
+        let promotions = promotionsSubject
             .map { promotions in
                 promotions[userWalletId]?[placeholder] ?? []
+            }
+
+        guard isPromoCampaignsEnabled() else {
+            return promotions
+                .map { promotions in promotions.filter { $0.campaignId == nil } }
+                .eraseToAnyPublisher()
+        }
+
+        return promotions
+            .combineLatest(promoCampaignsRepository.campaignsPublisher(for: userWalletId))
+            .map { promotions, campaigns in
+                promotions
+                    .filter { PromoCampaignBannerMatcher.isVisible(campaignId: $0.campaignId, campaigns: campaigns) }
+                    .map { $0.withCampaignName(PromoCampaignBannerMatcher.campaignName(campaignId: $0.campaignId, campaigns: campaigns)) }
             }
             .eraseToAnyPublisher()
     }
@@ -72,6 +91,8 @@ extension CommonPromotionRepository: PromotionRepository {
     }
 
     func hidePromotion(userWalletId: UserWalletId, displayId: Int) async {
+        removePromotion(displayId: displayId, for: userWalletId)
+
         let walletIdString = userWalletId.stringValue
         let redactedUserWalletId = "\(walletIdString.prefix(4))...\(walletIdString.suffix(4))"
 
@@ -152,11 +173,14 @@ private extension CommonPromotionRepository {
 
             state.inFlightPromotionLoads[userWalletId] = nil
 
-            guard state.promotions[userWalletId] != promotions else {
+            let dismissedIds = state.dismissedPromotionIds[userWalletId] ?? []
+            let visiblePromotions = promotions.mapValues { $0.filter { !dismissedIds.contains($0.id) } }
+
+            guard state.promotions[userWalletId] != visiblePromotions else {
                 return
             }
 
-            state.promotions[userWalletId] = promotions
+            state.promotions[userWalletId] = visiblePromotions
 
             let snapshot = state.promotions
             // Enqueued under the lock to keep FIFO order, but sent off it so downstream never runs while it's held.
@@ -166,13 +190,32 @@ private extension CommonPromotionRepository {
         }
     }
 
+    func removePromotion(displayId: Int, for userWalletId: UserWalletId) {
+        state { state in
+            state.dismissedPromotionIds[userWalletId, default: []].insert(displayId)
+
+            guard let promotions = state.promotions[userWalletId] else {
+                return
+            }
+
+            let remainingPromotions = promotions.mapValues { $0.filter { $0.id != displayId } }
+
+            guard remainingPromotions != promotions else {
+                return
+            }
+
+            state.promotions[userWalletId] = remainingPromotions
+
+            let snapshot = state.promotions
+            publishQueue.async { [promotionsSubject] in
+                promotionsSubject.send(snapshot)
+            }
+        }
+    }
+
     /// A feed placement costs a request only once its tab can appear at all.
     static var placementsToLoad: [PromotionPlacement] {
-        var placements: [PromotionPlacement] = [.main, .news, .paymentAccountMain]
-
-        guard FeatureProvider.isAvailable(.newShtorkaEnabled) else {
-            return placements
-        }
+        var placements: [PromotionPlacement] = [.main, .paymentAccountMain]
 
         placements.append(contentsOf: [.crypto, .earn])
 

@@ -19,10 +19,6 @@ enum BackendAuthenticationRegistrar {
     @Injected(\.keysManager) private static var keysManager: KeysManager
 
     static func configure() {
-        guard FeatureProvider.isAvailable(.backendAuthentication) else {
-            return
-        }
-
         BackendAuthenticationAssembly.configure(
             BackendAuthenticationAssembly.Configuration(
                 baseURL: AppEnvironment.current.backendAuthenticationBaseUrl,
@@ -42,10 +38,6 @@ enum BackendAuthenticationRegistrar {
     }
 
     static func registerDevice() async {
-        guard FeatureProvider.isAvailable(.backendAuthentication) else {
-            return
-        }
-
         let registerDevice = BackendAuthenticationAssembly.registerDevice
 
         do {
@@ -61,15 +53,11 @@ enum BackendAuthenticationRegistrar {
     }
 
     static func unregisterUserWallet(_ userWalletModel: some UserWalletModel) {
-        guard FeatureProvider.isAvailable(.backendAuthentication) else {
-            return
-        }
-
         let id = userWalletModel.userWalletId
 
         Task {
             do {
-                try await BackendAuthenticationAssembly.unregisterUserWallet(id: id)
+                try await BackendAuthenticationAssembly.unregisterUserWallet(id: id, shouldEraseSocialLoginData: false)
                 BackendAuthLogger.info("Unregistered user wallet \(id.stringValue)")
             } catch {
                 BackendAuthLogger.error("Failed to unregister user wallet \(id.stringValue)", error: error)
@@ -82,10 +70,7 @@ enum BackendAuthenticationRegistrar {
 
 extension BackendAuthenticationRegistrar {
     static func registerNewUnprotectedMobileWallet(_ userWalletModel: some UserWalletModel) {
-        guard
-            FeatureProvider.isAvailable(.backendAuthentication),
-            userWalletModel.assertIsMobileWallet()
-        else {
+        guard userWalletModel.assertIsMobileWallet() else {
             return
         }
 
@@ -123,10 +108,7 @@ extension BackendAuthenticationRegistrar {
     }
 
     static func registerMobileWalletAfterBiometricUnlock(_ userWalletModel: some UserWalletModel, context laContext: LAContext) {
-        guard
-            FeatureProvider.isAvailable(.backendAuthentication),
-            userWalletModel.isMobileWallet
-        else {
+        guard userWalletModel.isMobileWallet else {
             return
         }
 
@@ -163,10 +145,7 @@ extension BackendAuthenticationRegistrar {
     }
 
     static func registerMobileWalletAfterAccessCodeUpdated(_ userWalletModel: some UserWalletModel, accessCode: String) {
-        guard
-            FeatureProvider.isAvailable(.backendAuthentication),
-            userWalletModel.assertIsMobileWallet()
-        else {
+        guard userWalletModel.assertIsMobileWallet() else {
             return
         }
 
@@ -214,10 +193,6 @@ extension BackendAuthenticationRegistrar {
         mobileWalletSDK: some MobileWalletSdk,
         secp256k1PublicKey: Data? = nil
     ) {
-        guard FeatureProvider.isAvailable(.backendAuthentication) else {
-            return
-        }
-
         let signer = MobileUserWalletRegistrationSigner(
             context: context,
             secp256k1PublicKey: secp256k1PublicKey,
@@ -235,10 +210,7 @@ extension BackendAuthenticationRegistrar {
     }
 
     static func prepareMobileWalletForColdUpgrade(_ userWalletModel: some UserWalletModel) async {
-        guard
-            FeatureProvider.isAvailable(.backendAuthentication),
-            userWalletModel.assertIsMobileWallet()
-        else {
+        guard userWalletModel.assertIsMobileWallet() else {
             return
         }
 

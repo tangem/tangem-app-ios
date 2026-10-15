@@ -29,6 +29,10 @@ extension TokenSelectorWalletsProvider where Self == CommonTokenSelectorWalletsP
     static func cryptoJointAccounts() -> Self {
         CommonTokenSelectorWalletsProvider(.init(.crypto, .joint(.active)))
     }
+
+    static func cryptoAccounts() -> Self {
+        CommonTokenSelectorWalletsProvider(.init(.crypto))
+    }
 }
 
 // MARK: - Wallet

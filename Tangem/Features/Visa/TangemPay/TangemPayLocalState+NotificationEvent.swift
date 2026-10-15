@@ -19,6 +19,8 @@ extension TangemPayLocalState {
             return .sessionExpired(icon: icon, isRenewing: true)
         case .loading,
              .kycRequired,
+             .residencyRequired,
+             .regionUnavailable,
              .kycDeclined,
              .failedToIssueCard,
              .tangemPayAccount,

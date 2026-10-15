@@ -12,5 +12,7 @@ extension FloatingSheetRegistry {
     /// those presented over the main screen through UIKit.
     func registerCampaignFloatingSheets() {
         register(CampaignViewModel.self, viewBuilder: CampaignView.init)
+        register(PromoCampaignViewModel.self, viewBuilder: PromoCampaignView.init)
+        register(PromoCampaignPrecheckViewModel.self, viewBuilder: PromoCampaignPrecheckView.init)
     }
 }

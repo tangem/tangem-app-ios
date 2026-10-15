@@ -26,7 +26,8 @@ struct TransactionDetailsProviderIdTests {
         termsOfUse: nil,
         privacyPolicy: nil,
         recommended: nil,
-        slippage: nil
+        slippage: nil,
+        isCustomSlippageSupported: false
     )
 
     @Test("A swap the provider gave an id offers to copy it as Swap ID instead of the Transaction ID")

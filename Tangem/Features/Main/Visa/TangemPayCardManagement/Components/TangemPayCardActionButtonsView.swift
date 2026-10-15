@@ -26,6 +26,7 @@ struct TangemPayCardActionButtonsView: View {
                 icon: DesignSystem.Icons.Card.regular24,
                 action: detailsAction
             )
+            .disabled(isFrozen || actionsDisabled)
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardDetailsShowButton)
             .frame(maxWidth: .infinity)
 
@@ -49,7 +50,7 @@ struct TangemPayCardActionButtonsView: View {
                 icon: DesignSystem.Icons.Pincode.regular24,
                 action: pinAction
             )
-            .disabled(actionsDisabled)
+            .disabled(isFrozen || actionsDisabled)
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.changePinRow)
             .frame(maxWidth: .infinity)
         }

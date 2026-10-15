@@ -18,10 +18,6 @@ final class WalletModelTransactionHistoryFeatureManager {
     private let transactionHistoryProviderSubject = CurrentValueSubject<(any TransactionHistoryProviding)?, Never>(nil)
     private var transactionHistoryProviderSubscription: AnyCancellable?
 
-    private var isFeatureAvailable: Bool {
-        FeatureProvider.isAvailable(.transactionHistoryV2)
-    }
-
     private var isExpressSupported: Bool {
         expressAvailabilityProvider.canSwap(tokenItem: tokenItem) || expressAvailabilityProvider.canOnramp(tokenItem: tokenItem)
     }
@@ -37,10 +33,6 @@ final class WalletModelTransactionHistoryFeatureManager {
     }
 
     private func bind() {
-        guard isFeatureAvailable else {
-            return
-        }
-
         transactionHistoryProviderSubscription = expressAvailabilityProvider
             .availabilityDidChangePublisher
             .withWeakCaptureOf(self)

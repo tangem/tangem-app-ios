@@ -24,6 +24,10 @@ final class PolymarketWelcomeViewModel: ObservableObject {
 
     var isRunning: Bool { runState != .idle }
 
+    var stageMessage: String? {
+        PolymarketOnboardingCopy.stage(for: runState, status: reportedStatus)
+    }
+
     private let interactor: PolymarketOnboardingInteractor
     private weak var coordinator: PolymarketWelcomeRoutable?
 
@@ -39,9 +43,30 @@ final class PolymarketWelcomeViewModel: ObservableObject {
     }
 }
 
-// MARK: - Actions
+// MARK: - View actions
 
 extension PolymarketWelcomeViewModel {
+    func handleViewAction(_ action: ViewAction) {
+        switch action {
+        case .startOnboarding:
+            onStartTap()
+        case .close:
+            onCloseTap()
+        case .openLegalTerms(let url):
+            onLegalTermsTap(url: url)
+        }
+    }
+
+    enum ViewAction {
+        case startOnboarding
+        case close
+        case openLegalTerms(URL)
+    }
+}
+
+// MARK: - Actions
+
+private extension PolymarketWelcomeViewModel {
     func onStartTap() {
         guard !isRunning else { return }
 
@@ -94,12 +119,14 @@ private extension PolymarketWelcomeViewModel {
     @MainActor
     func handle(_ error: PolymarketOnboardingError) {
         switch error {
+        case _ where error.isCancellation:
+            break
         case .regionBlocked:
             coordinator?.openRegionWarning()
         case _ where error.isRetryable:
-            presentRetryAlert()
+            presentRetryAlert(message: PolymarketOnboardingCopy.failure(for: error))
         default:
-            alert = AlertBuilder.makeOkGotItAlert(message: Localization.commonUnknownError)
+            alert = AlertBuilder.makeOkGotItAlert(message: PolymarketOnboardingCopy.failure(for: error))
         }
     }
 }
@@ -124,10 +151,10 @@ private extension PolymarketWelcomeViewModel {
     }
 
     @MainActor
-    func presentRetryAlert() {
+    func presentRetryAlert(message: String) {
         alert = AlertBuilder.makeAlert(
             title: Localization.commonSomethingWentWrong,
-            message: Localization.commonTryAgainLater,
+            message: message,
             primaryButton: .default(Text(Localization.alertButtonTryAgain)) { [weak self] in self?.onStartTap() },
             secondaryButton: .cancel()
         )

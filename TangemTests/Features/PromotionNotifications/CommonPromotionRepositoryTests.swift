@@ -82,12 +82,136 @@ final class CommonPromotionRepositoryTests {
             #expect(promotions.map(\.id) == [1])
         }
     }
+
+    @Test("With promo campaigns on, a campaign banner shows only while its campaign is open to the wallet")
+    func campaignBannersFollowCampaigns() async throws {
+        let api = FakeTangemApiService()
+        api.loadPromotionsHandler = { _ in
+            PromotionsDTO.Load.Response(items: [
+                Self.makeItem(id: 1),
+                Self.makeItem(id: 2, campaignId: 15),
+                Self.makeItem(id: 3, campaignId: 16),
+                Self.makeItem(id: 4, campaignId: 17),
+            ])
+        }
+        let campaigns = PromoCampaignsProviderStub(campaigns: [
+            walletA: [
+                Self.makeCampaign(id: 15, isEnrolled: false),
+                Self.makeCampaign(id: 16, isEnrolled: true),
+            ],
+        ])
+
+        try await withInjectedPromotionDependencies(api, promoCampaignsRepository: campaigns) {
+            let sut = CommonPromotionRepository(isPromoCampaignsEnabled: { true })
+
+            await sut.loadPromotions(userWalletId: walletA)
+
+            let promotions = try await Self.waitForPromotions(sut, userWalletId: walletA)
+            #expect(promotions.map(\.id) == [1, 2])
+            #expect(promotions.map(\.campaignName) == [nil, "campaign_15"])
+
+            campaigns.send([Self.makeCampaign(id: 15, isEnrolled: true)], for: walletA)
+            #expect(Self.currentPromotions(sut, userWalletId: walletA, placement: .main).map(\.id) == [1])
+        }
+    }
+
+    @Test("A campaign banner follows the campaigns of its own wallet only")
+    func campaignBannersArePerWallet() async throws {
+        let api = FakeTangemApiService()
+        api.loadPromotionsHandler = { _ in
+            PromotionsDTO.Load.Response(items: [Self.makeItem(id: 1), Self.makeItem(id: 2, campaignId: 15)])
+        }
+        let campaigns = PromoCampaignsProviderStub(campaigns: [walletA: [Self.makeCampaign(id: 15, isEnrolled: false)]])
+
+        try await withInjectedPromotionDependencies(api, promoCampaignsRepository: campaigns) {
+            let sut = CommonPromotionRepository(isPromoCampaignsEnabled: { true })
+
+            await sut.loadPromotions(userWalletId: walletA)
+            await sut.loadPromotions(userWalletId: walletB)
+
+            let walletAPromotions = try await Self.waitForPromotions(sut, userWalletId: walletA)
+            let walletBPromotions = try await Self.waitForPromotions(sut, userWalletId: walletB)
+
+            #expect(walletAPromotions.map(\.id) == [1, 2])
+            #expect(walletBPromotions.map(\.id) == [1])
+        }
+    }
+
+    @Test("A dismissed banner stays hidden when the wallet's campaigns change")
+    func dismissedBannerStaysHidden() async throws {
+        let api = FakeTangemApiService()
+        api.loadPromotionsHandler = { _ in
+            PromotionsDTO.Load.Response(items: [Self.makeItem(id: 1), Self.makeItem(id: 2, campaignId: 15)])
+        }
+        let campaigns = PromoCampaignsProviderStub()
+        let received = OSAllocatedUnfairLock<[[Int]]>(initialState: [])
+
+        try await withInjectedPromotionDependencies(api, promoCampaignsRepository: campaigns) {
+            let sut = CommonPromotionRepository(isPromoCampaignsEnabled: { true })
+            let subscription = sut
+                .promotionsPublisher(userWalletId: walletA, placeholder: .main)
+                .sink { promotions in received.withLock { $0.append(promotions.map(\.id)) } }
+
+            await sut.loadPromotions(userWalletId: walletA)
+            try await Self.waitUntil { received.withLock { $0.last == [1] } }
+
+            await sut.hidePromotion(userWalletId: walletA, displayId: 1)
+            try await Self.waitUntil { received.withLock { $0.last == [] } }
+
+            campaigns.send([Self.makeCampaign(id: 15, isEnrolled: false)], for: walletA)
+
+            #expect(received.withLock { $0.last } == [2])
+            subscription.cancel()
+        }
+    }
+
+    @Test("A banner dismissed while a refresh is in flight stays hidden when the refresh lands")
+    func dismissalDuringRefresh() async throws {
+        let api = GatedPromotionsApi(items: [Self.makeItem(id: 1), Self.makeItem(id: 2)])
+
+        try await withInjectedPromotionDependencies(api.fake) {
+            let sut = CommonPromotionRepository()
+
+            async let refresh: Void = sut.loadPromotions(userWalletId: walletA)
+            try await api.waitForRequest(walletId: walletA.stringValue)
+
+            await sut.hidePromotion(userWalletId: walletA, displayId: 1)
+
+            api.open()
+            await refresh
+
+            let promotions = try await Self.waitForPromotions(sut, userWalletId: walletA)
+
+            #expect(promotions.map(\.id) == [2])
+        }
+    }
+
+    @Test("With promo campaigns off, campaign banners are hidden and the rest are shown")
+    func campaignsOffHidesCampaignBanners() async throws {
+        let api = FakeTangemApiService()
+        api.loadPromotionsHandler = { _ in
+            PromotionsDTO.Load.Response(items: [
+                Self.makeItem(id: 1),
+                Self.makeItem(id: 2, campaignId: 15),
+            ])
+        }
+        let campaigns = PromoCampaignsProviderStub(campaigns: [walletA: [Self.makeCampaign(id: 15, isEnrolled: false)]])
+
+        try await withInjectedPromotionDependencies(api, promoCampaignsRepository: campaigns) {
+            let sut = CommonPromotionRepository(isPromoCampaignsEnabled: { false })
+
+            await sut.loadPromotions(userWalletId: walletA)
+
+            let promotions = try await Self.waitForPromotions(sut, userWalletId: walletA)
+            #expect(promotions.map(\.id) == [1])
+        }
+    }
 }
 
 // MARK: - Support
 
 private extension CommonPromotionRepositoryTests {
-    static func makeItem(id: Int, placement: PromotionPlacement = .main) -> PromotionsDTO.Load.Item {
+    static func makeItem(id: Int, placement: PromotionPlacement = .main, campaignId: Int? = nil) -> PromotionsDTO.Load.Item {
         PromotionsDTO.Load.Item(
             id: id,
             placeholder: placement,
@@ -98,8 +222,13 @@ private extension CommonPromotionRepositoryTests {
             deeplink: nil,
             buttonEnabled: nil,
             buttonText: nil,
-            dismissable: nil
+            dismissable: nil,
+            campaignId: campaignId
         )
+    }
+
+    static func makeCampaign(id: Int, isEnrolled: Bool) -> PromoCampaign {
+        PromoCampaignFixtures.makeCampaign(id: id, isEnrolled: isEnrolled)
     }
 
     /// Promotions reach subscribers asynchronously, so the cache is polled instead of read once.
@@ -119,6 +248,18 @@ private extension CommonPromotionRepositoryTests {
         }
 
         return currentPromotions(sut, userWalletId: userWalletId, placement: placement)
+    }
+
+    static func waitUntil(_ condition: () -> Bool) async throws {
+        for _ in 0 ..< Constants.pollAttempts {
+            if condition() {
+                return
+            }
+
+            try await Task.sleep(nanoseconds: Constants.pollInterval)
+        }
+
+        Issue.record("Timed out waiting for the condition")
     }
 
     static func currentPromotions(
@@ -145,17 +286,21 @@ private extension CommonPromotionRepositoryTests {
 private func withInjectedPromotionDependencies(
     _ apiService: TangemApiService,
     userWalletRepository: UserWalletRepository = FakeUserWalletRepository(models: []),
+    promoCampaignsRepository: PromoCampaignsProviding = PromoCampaignsProviderStub(),
     operation: () async throws -> Void
 ) async rethrows {
     try await InjectedDependenciesIsolation.shared.run {
         let previousApiService = InjectedValues[\.tangemApiService]
         let previousUserWalletRepository = InjectedValues[\.userWalletRepository]
+        let previousPromoCampaignsRepository = InjectedValues[\.promoCampaignsRepository]
         InjectedValues[\.tangemApiService] = apiService
         InjectedValues[\.userWalletRepository] = userWalletRepository
+        InjectedValues[\.promoCampaignsRepository] = promoCampaignsRepository
 
         defer {
             InjectedValues[\.tangemApiService] = previousApiService
             InjectedValues[\.userWalletRepository] = previousUserWalletRepository
+            InjectedValues[\.promoCampaignsRepository] = previousPromoCampaignsRepository
         }
 
         try await operation()
@@ -231,5 +376,29 @@ private final class GatedPromotionsApi {
         }
 
         Issue.record("Timed out waiting for \(count) promotions request(s) for \(walletId)")
+    }
+}
+
+private final class PromoCampaignsProviderStub: PromoCampaignsProviding {
+    private let subject: CurrentValueSubject<[UserWalletId: [PromoCampaign]], Never>
+
+    init(campaigns: [UserWalletId: [PromoCampaign]] = [:]) {
+        subject = CurrentValueSubject(campaigns)
+    }
+
+    func initialize() {}
+
+    func campaignsPublisher(for userWalletId: UserWalletId) -> AnyPublisher<[PromoCampaign], Never> {
+        subject
+            .map { $0[userWalletId] ?? [] }
+            .eraseToAnyPublisher()
+    }
+
+    func reloadCampaigns(for userWalletIds: [UserWalletId]) {}
+
+    func removeCampaign(withId campaignId: Int) {}
+
+    func send(_ campaigns: [PromoCampaign], for userWalletId: UserWalletId) {
+        subject.value[userWalletId] = campaigns
     }
 }

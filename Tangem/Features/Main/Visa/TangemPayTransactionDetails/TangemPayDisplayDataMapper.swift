@@ -302,8 +302,9 @@ private extension TangemPaySpendDisplayInput.Status {
 extension TangemPayPushPayload {
     func displayData(using mapper: TangemPayDisplayDataMapper) -> TangemPayTransactionDetailsViewModel.DisplayData? {
         switch body {
+        case .transactionSpendRefund(let spend):
+            return mapper.map(spend: spend.displayInput(isRefund: true))
         case .transactionSpend(let spend),
-             .transactionSpendRefund(let spend),
              .declinedTopUp(let spend),
              .declinedReason1(let spend),
              .declinedReason2(let spend),
@@ -322,7 +323,7 @@ extension TangemPayPushPayload {
              .declinedReason15(let spend),
              .declinedReason16(let spend),
              .declinedReason17(let spend):
-            return mapper.map(spend: spend.displayInput)
+            return mapper.map(spend: spend.displayInput(isRefund: false))
         case .collateralWithdraw(let collateral):
             return mapper.map(collateral: collateral.displayInput(kind: .withdrawal))
         case .collateralDeposit(let collateral):
@@ -336,16 +337,16 @@ extension TangemPayPushPayload {
 }
 
 extension TangemPayPushPayload.Spend {
-    var displayInput: TangemPaySpendDisplayInput {
+    func displayInput(isRefund: Bool) -> TangemPaySpendDisplayInput {
         .init(
             transactionDate: authorizedAt,
             merchantName: merchantName,
             enrichedMerchantName: enrichedMerchantName,
             enrichedMerchantIcon: enrichedMerchantIcon,
-            amount: amount,
-            authorizedAmount: amount,
+            amount: isRefund ? -amount : amount,
+            authorizedAmount: isRefund ? -amount : amount,
             currency: currency,
-            localAmount: localAmount,
+            localAmount: isRefund ? localAmount.map { -$0 } : localAmount,
             localCurrency: localCurrency,
             merchantCategory: merchantCategory,
             enrichedMerchantCategory: enrichedMerchantCategory,

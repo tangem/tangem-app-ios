@@ -49,16 +49,16 @@ struct SendFinishView: View {
                 SendFeeFinishView(viewModel: sendFeeCompactViewModel)
             }
 
+            if let jointAccountSignaturesCompactViewModel = viewModel.jointAccountSignaturesCompactViewModel {
+                JointAccountSignaturesCompactView(viewModel: jointAccountSignaturesCompactViewModel)
+            }
+
             if let onrampStatusCompactViewModel = viewModel.onrampStatusCompactViewModel {
                 OnrampStatusCompactView(viewModel: onrampStatusCompactViewModel)
             }
         }
         .onAppear(perform: viewModel.onAppear)
-        .safeAreaInset(edge: .bottom, spacing: .zero) {
-            if let url = viewModel.transactionURL {
-                bottomButtons(url: url)
-            }
-        }
+        .safeAreaInset(edge: .bottom, spacing: .zero) { bottomView }
     }
 
     // MARK: - Header
@@ -88,6 +88,17 @@ struct SendFinishView: View {
         .padding(.bottom, 10)
     }
 
+    // MARK: - Bottom
+
+    private var bottomView: some View {
+        VStack(spacing: .zero) {
+            if let url = viewModel.transactionURL {
+                bottomButtons(url: url)
+            }
+        }
+        .padding(.vertical, 8)
+    }
+
     private func bottomButtons(url: URL) -> some View {
         HStack(spacing: 8) {
             MainButton(
@@ -105,7 +116,6 @@ struct SendFinishView: View {
             )
             .accessibilityIdentifier(SendAccessibilityIdentifiers.finishShareButton)
         }
-        .padding(.vertical, 8)
         .padding(.horizontal, 16)
         .transition(
             .opacity.animation(SendTransitions.animation)

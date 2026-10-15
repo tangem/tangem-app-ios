@@ -55,7 +55,7 @@ final class TangemPayVirtualAccountInfoSheetViewModel: ObservableObject, Floatin
         guard !isLoading else { return }
         isLoading = true
 
-        Analytics.log(isFirstTimeConditions ? .visaVATopupShowDetailsFirstTimeClicked : .visaVATopupShowDetailsClicked)
+        coordinator?.virtualAccountInfoSheetDidTapShowDetails(isFirstTime: isFirstTimeConditions)
 
         switch tangemPayAccount.virtualAccountEntry {
         case .active(let productInstanceId):
@@ -76,19 +76,11 @@ final class TangemPayVirtualAccountInfoSheetViewModel: ObservableObject, Floatin
     private func loadFees() {
         runTask(in: self) { @MainActor viewModel in
             do {
-                let fees = try await viewModel.tangemPayAccount.loadOnrampFees()
+                let fees = try await viewModel.tangemPayAccount
+                    .loadOnrampFees()
+                    .compactMap(TangemPayVirtualAccountFee.init(response:))
 
-                let ach = fees.first { $0.type == TangemPayFeeType.achOnramp.rawValue }
-                let fedwire = fees.first { $0.type == TangemPayFeeType.fedwireOnramp.rawValue }
-
-                guard ach != nil || fedwire != nil else {
-                    throw TangemPayAccountError.missingOnrampFees
-                }
-
-                viewModel.state = .loaded(
-                    achFee: ach.map { Self.format(fee: $0) },
-                    fedwireFee: fedwire.map { Self.format(fee: $0) }
-                )
+                viewModel.state = fees.isEmpty ? .empty : .loaded(fees)
             } catch {
                 VisaLogger.error("Failed to load virtual account onramp fees", error: error)
                 viewModel.state = .failed
@@ -134,22 +126,13 @@ final class TangemPayVirtualAccountInfoSheetViewModel: ObservableObject, Floatin
     func openURL(_ url: URL) {
         coordinator?.openVirtualAccountURL(url)
     }
-
-    private static func format(fee: TangemPayFeeResponse) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.locale = Locale(identifier: "en_US")
-        formatter.currencyCode = fee.currency
-        formatter.minimumFractionDigits = 0
-        formatter.maximumFractionDigits = 2
-        return formatter.string(from: fee.amount as NSDecimalNumber) ?? "\(fee.amount) \(fee.currency)"
-    }
 }
 
 extension TangemPayVirtualAccountInfoSheetViewModel {
     enum State: Hashable {
         case loading
-        case loaded(achFee: String?, fedwireFee: String?)
+        case loaded([TangemPayVirtualAccountFee])
+        case empty
         case failed
     }
 }

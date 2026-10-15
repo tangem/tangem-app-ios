@@ -62,6 +62,7 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
     private weak var addFundsSheet: PolymarketAddFundsSheetViewModel?
     private var sheetDismissSubscription: AnyCancellable?
     private var dispatchedOperation: FundingOperation?
+    private var dispatchedBalance: Decimal?
 
     // MARK: - Init
 
@@ -148,6 +149,7 @@ extension PolymarketCoordinator: PolymarketWelcomeRoutable {
 // MARK: - The main screen
 
 private extension PolymarketCoordinator {
+    @MainActor
     func showMain(for userWalletModel: any UserWalletModel) {
         let dependencies = PolymarketMainDependenciesFactory().make(for: userWalletModel)
 
@@ -158,6 +160,7 @@ private extension PolymarketCoordinator {
             destinationFactory: PolymarketDestinationFactory(
                 dependencies: dependencies,
                 onAddFunds: { [weak self] in self?.openAddFunds() },
+                onRegionWarning: { [weak self] in self?.openRegionWarning() },
                 onReturnToMain: { [weak self] in self?.popToMain() }
             ),
             fundingFlow: PolymarketFundingFlow(dependencies: dependencies)
@@ -165,9 +168,9 @@ private extension PolymarketCoordinator {
     }
 }
 
-// MARK: - PolymarketMainRoutable
+// MARK: - PolymarketMainScreenRoutable
 
-extension PolymarketCoordinator: PolymarketMainRoutable {
+extension PolymarketCoordinator: PolymarketMainScreenRoutable {
     func dismiss() {
         dismissAction(())
     }
@@ -180,27 +183,31 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
         )
     }
 
+    @MainActor
+    func openSupportChat() {
+        guard let userWalletModel = options?.userWalletModel else { return }
+
+        sheet = .supportChat(SupportChatViewModel(input: PolymarketSupportChatInputFactory().makeInput(for: userWalletModel)))
+    }
+
     func openEventDetails(
         eventID: String,
         category: PolymarketCategory?,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
     ) {
-        guard case .main(_, let destinationFactory, _) = viewState else { return }
+        guard let destinationFactory = viewState?.destinationFactory else { return }
 
-        destination = .eventDetails(destinationFactory.makeEventDetails(
+        destination = .eventDetails(destinationFactory.makeEventDetailsCoordinator(
             eventID: eventID,
             category: category,
             onOrderPlaced: onOrderPlaced,
             onRegionWarning: { [weak self] in self?.openRegionWarning() },
-            onOpenPosition: { [weak self] position in
-                self?.openPositionDetails(position: position, onOrderPlaced: onOrderPlaced)
-            },
             onClose: { [weak self] in self?.popToMain() }
         ))
     }
 
     @MainActor
-    func openRedeem(position: PolymarketPosition, onClaimed: @escaping () -> Void) {
+    func openRedeem(position: PolymarketPosition, onClaimed: @escaping (PolymarketPosition?) -> Void) {
         guard let redeemService else { return }
 
         destination = .redeem(PolymarketRedeemViewModel(
@@ -219,15 +226,12 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
             return
         }
 
-        guard case .main(_, let destinationFactory, _) = viewState else { return }
+        guard let destinationFactory = viewState?.destinationFactory else { return }
 
         destination = .positionDetails(destinationFactory.makePositionDetails(
             position: position,
             onOrderPlaced: onOrderPlaced,
             onRegionWarning: { [weak self] in self?.openRegionWarning() },
-            onOpenPosition: { [weak self] position in
-                self?.openPositionDetails(position: position, onOrderPlaced: onOrderPlaced)
-            },
             onClose: { [weak self] in self?.popToMain() }
         ))
     }
@@ -239,13 +243,14 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
         request: PolymarketOrderRequest,
         onPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
     ) {
-        guard case .main(_, let destinationFactory, _) = viewState else { return }
+        guard let destinationFactory = viewState?.destinationFactory else { return }
 
         destination = .order(destinationFactory.makeOrderCoordinator(
             market: market,
             outcome: outcome,
             eventTitle: eventTitle,
             request: request,
+            pushesPlacedPosition: true,
             onPlaced: onPlaced,
             onOpenPosition: { [weak self] position in
                 self?.openPositionDetails(position: position, onOrderPlaced: onPlaced)
@@ -258,9 +263,9 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
     func openMyPositions(
         tab: PolymarketPositionsTab,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
-        onClaimed: @escaping () -> Void
+        onClaimed: @escaping (PolymarketPosition?) -> Void
     ) {
-        guard case .main(_, let destinationFactory, _) = viewState else { return }
+        guard let destinationFactory = viewState?.destinationFactory else { return }
 
         destination = .myPositions(
             destinationFactory.makeMyPositions(
@@ -290,7 +295,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
 
     func openAddFunds() {
         Task { @MainActor [weak self] in
-            guard let self, addFundsSheet == nil, case .main(_, _, let fundingFlow) = viewState else { return }
+            guard let self, addFundsSheet == nil, let fundingFlow = viewState?.fundingFlow else { return }
 
             guard !fundingFlow.isRegionBlocked else {
                 openRegionWarning()
@@ -309,7 +314,7 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
     }
 
     func openWithdraw() {
-        guard case .main(_, _, let fundingFlow) = viewState else { return }
+        guard let fundingFlow = viewState?.fundingFlow else { return }
 
         runTask(in: self) { coordinator in
             do {
@@ -398,23 +403,32 @@ private extension PolymarketCoordinator {
             with: .init(
                 type: .swap(parameters),
                 source: .main,
-                onTransactionDispatched: { [weak self] in self?.dispatchedOperation = operation }
+                onTransactionDispatched: { [weak self] in self?.transactionDispatched(operation) }
             )
         )
 
         sendCoordinator = coordinator
     }
 
+    func transactionDispatched(_ operation: FundingOperation) {
+        dispatchedOperation = operation
+
+        dispatchedBalance = viewState?.fundingFlow?.currentBalance
+    }
+
     func startAwaitingDispatchedOperation() {
-        guard let operation = dispatchedOperation, case .main(_, _, let fundingFlow) = viewState else { return }
+        let baseline = dispatchedBalance
+        dispatchedBalance = nil
+
+        guard let operation = dispatchedOperation, let fundingFlow = viewState?.fundingFlow else { return }
 
         dispatchedOperation = nil
 
         switch operation {
         case .deposit:
-            fundingFlow.awaitDeposit()
+            fundingFlow.awaitDeposit(since: baseline)
         case .withdrawal:
-            fundingFlow.awaitWithdrawal()
+            fundingFlow.awaitWithdrawal(since: baseline)
         }
     }
 }
@@ -479,6 +493,18 @@ extension PolymarketCoordinator {
             destinationFactory: PolymarketDestinationFactory,
             fundingFlow: PolymarketFundingFlow
         )
+
+        var destinationFactory: PolymarketDestinationFactory? {
+            guard case .main(_, let destinationFactory, _) = self else { return nil }
+
+            return destinationFactory
+        }
+
+        var fundingFlow: PolymarketFundingFlow? {
+            guard case .main(_, _, let fundingFlow) = self else { return nil }
+
+            return fundingFlow
+        }
     }
 }
 
@@ -496,10 +522,12 @@ extension PolymarketCoordinator {
 
     enum Sheet: Identifiable {
         case send(SendCoordinator)
+        case supportChat(SupportChatViewModel)
 
         var id: String {
             switch self {
             case .send: "send"
+            case .supportChat: "supportChat"
             }
         }
     }

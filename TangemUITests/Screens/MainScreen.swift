@@ -132,6 +132,15 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func verifyTokensListInteractive() -> Self {
+        XCTContext.runActivity(named: "Verify main screen tokens list is not covered") { _ in
+            waitAndAssertTrue(tokensList, "Main screen tokens list should be displayed")
+            XCTAssertTrue(tokensList.waitForState(state: .hittable, for: .conditional), "Main screen tokens list should not be covered by another screen")
+            return self
+        }
+    }
+
+    @discardableResult
     func verifyMarketsSheetIsCollapsedOnMain() -> Self {
         XCTContext.runActivity(named: "Verify collapsed 'Markets' sheet is visible on main") { _ in
             let sheet = shtorkaExpandButton.waitForExistence(timeout: .conditional) ? shtorkaExpandButton : grabber
@@ -265,10 +274,21 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func skipPushNotificationsSetup() -> Self {
         XCTContext.runActivity(named: "Tap 'Later' on Push Notifications sheet") { _ in
-            let laterButton = app.buttons[PushPermissionAccessibilityIdentifiers.laterButton]
-            if laterButton.waitForExistence(timeout: .conditional) {
-                laterButton.tap()
+            let laterButton = app.buttons[PushPermissionAccessibilityIdentifiers.laterButton].firstMatch
+            guard laterButton.waitForExistence(timeout: .conditional) else {
+                return self
             }
+
+            for _ in 0 ..< Constants.pushLaterTapAttempts {
+                let hittable = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == true AND isHittable == true"), object: laterButton)
+                if XCTWaiter().wait(for: [hittable], timeout: .quick) == .completed, laterButton.exists {
+                    laterButton.tap()
+                }
+                if laterButton.waitForNonExistence(timeout: .quick) {
+                    return self
+                }
+            }
+            XCTFail("Push notifications sheet should be dismissed after tapping 'Later'")
             return self
         }
     }
@@ -619,6 +639,21 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             selectMockCardFromScannerAlert(name: name)
 
             waitAndAssertTrue(tokensList, "Tokens list should exist after adding new wallet")
+            return self
+        }
+    }
+
+    @discardableResult
+    func addNewSingleCurrencyWallet(name: CardMockAccessibilityIdentifiers, walletName: String) -> Self {
+        XCTContext.runActivity(named: "Add new single-currency wallet: \(name.rawValue)") { _ in
+            openDetails()
+                .tapAddNewWallet()
+                .tapHardwareWallet()
+
+            selectMockCardFromScannerAlert(name: name)
+
+            let header = app.staticTexts[walletName].firstMatch
+            waitAndAssertTrue(header, "Single-currency wallet '\(walletName)' should be selected after adding")
             return self
         }
     }
@@ -1080,6 +1115,34 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
+    @discardableResult
+    func waitForTokenBalance(tokenName: String, toEqual expectedBalance: String) -> Self {
+        XCTContext.runActivity(named: "Wait for '\(tokenName)' balance to be '\(expectedBalance)'") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            scrollTokensListToVisible(tokenElement(named: tokenName))
+            let balance = tokensList.staticTexts
+                .matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
+                .matching(NSPredicate(format: "label == %@", expectedBalance))
+                .firstMatch
+            waitAndAssertTrue(balance, timeout: .networkRequest, "'\(tokenName)' balance should be '\(expectedBalance)'")
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForTokenBalanceLoaded(tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Wait for '\(tokenName)' balance to be loaded") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            scrollTokensListToVisible(tokenElement(named: tokenName))
+            let balance = tokensList.staticTexts
+                .matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
+                .matching(NSPredicate(format: "label MATCHES %@", ".*[1-9].*"))
+                .firstMatch
+            waitAndAssertTrue(balance, timeout: .networkRequest, "'\(tokenName)' balance should be loaded and non-zero")
+            return self
+        }
+    }
+
     func getTokenBalanceNumeric(tokenName: String, tokenIndex: Int = 0) -> Decimal {
         XCTContext.runActivity(named: "Get balance (numeric) for token: \(tokenName) at index: \(tokenIndex)") { _ in
             let label = getTokenBalance(tokenName: tokenName, tokenIndex: tokenIndex)
@@ -1491,5 +1554,6 @@ extension MainScreen {
 private extension MainScreen {
     enum Constants {
         static let shtorkaSearchBarInset: CGFloat = 16
+        static let pushLaterTapAttempts = 3
     }
 }

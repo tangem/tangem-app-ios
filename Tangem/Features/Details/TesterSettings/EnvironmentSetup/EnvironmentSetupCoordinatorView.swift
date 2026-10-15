@@ -36,15 +36,17 @@ struct EnvironmentSetupCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.addressesInfoViewModel) {
                 AddressesInfoView(viewModel: $0)
             }
-            .navigation(item: $coordinator.designSystemDemoCoordinator) {
-                DesignSystemDemoCoordinatorView(coordinator: $0)
-            }
             .navigation(item: $coordinator.storiesV2DemoViewModel) {
                 StoriesV2DemoView(viewModel: $0)
             }
             .navigation(item: $coordinator.silentPushTesterViewModel) {
                 SilentPushTesterView(viewModel: $0)
             }
+        #if INTERNAL || DEBUG
+            .navigation(item: $coordinator.designSystemDemoViewModel) {
+                DesignSystemDemoView(viewModel: $0)
+            }
+        #endif
     }
 
     @ViewBuilder

@@ -498,6 +498,9 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
             )
             waitAndAssertTrue(nameLabels.firstMatch, "Token name labels should exist")
 
+            let listFilled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "count >= %d", count), object: nameLabels)
+            _ = XCTWaiter().wait(for: [listFilled], timeout: .robustUIUpdate)
+
             let tokenNames = nameLabels.allElementsBoundByIndex.prefix(count).map { $0.label }
             XCTAssertGreaterThanOrEqual(
                 tokenNames.count,

@@ -81,7 +81,7 @@ struct TangemPayCampaignLandingView: View {
                 action: viewModel.getCard
             )
             .iconEnd(viewModel.showsCTAIcon ? DesignSystem.Icons.LogoTangem.regular24 : nil)
-            .styleType(.default)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
             .loading(.spinner(if: viewModel.isCTALoading))
             .size(.x12)

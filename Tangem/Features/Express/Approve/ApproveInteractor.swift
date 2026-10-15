@@ -32,14 +32,11 @@ final class ApproveInteractor {
     // MARK: - State
 
     private(set) var approveInteractorState: ApproveInteractorState
-    private var currentPolicy: BSDKApprovePolicy
-    private var recalculateApproveFeeTask: Task<Void, Never>?
 
     // MARK: - Init
 
     init(
         approveInteractorState: ApproveInteractorState,
-        initialPolicy: BSDKApprovePolicy,
         approveAmount: Decimal,
         allowanceService: any AllowanceService,
         approveTransactionDispatcher: any TransactionDispatcher,
@@ -48,7 +45,6 @@ final class ApproveInteractor {
         output: ApproveOutput
     ) {
         self.approveInteractorState = approveInteractorState
-        currentPolicy = initialPolicy
         self.approveAmount = approveAmount
         self.allowanceService = allowanceService
         self.approveTransactionDispatcher = approveTransactionDispatcher
@@ -60,54 +56,36 @@ final class ApproveInteractor {
         tokenFeeProvidersManager.updateFees()
     }
 
-    deinit {
-        recalculateApproveFeeTask?.cancel()
-    }
-
     // MARK: - Public
 
     func logPermissionScreenOpened() {
         analyticsLogger.logPermissionScreenOpened(isRevoke: approveInteractorState.isRevokeAndApprove)
     }
 
-    func updateApprovePolicy(policy: BSDKApprovePolicy) {
-        currentPolicy = policy
+    @MainActor
+    func updateApprovePolicy(policy: BSDKApprovePolicy) async throws {
+        let approveData = try await allowanceService.makeApproveData(
+            spender: approveInteractorState.approveData.spender,
+            amount: approveAmount,
+            policy: policy
+        )
 
-        recalculateApproveFeeTask?.cancel()
-        recalculateApproveFeeTask = runTask(in: self) { interactor in
-            do {
-                let allowanceResult = try await interactor.allowanceService.allowanceState(
-                    amount: interactor.approveAmount,
-                    spender: interactor.approveInteractorState.approveData.spender,
-                    approvePolicy: policy,
-                )
+        try Task.checkCancellation()
 
-                try Task.checkCancellation()
+        let newState = approveInteractorState.replacingApprove(data: approveData, policy: policy)
+        approveInteractorState = newState
+        tokenFeeProvidersManager.update(input: newState.feeInput)
 
-                guard let newState = interactor.makeApproveInteractorState(from: allowanceResult) else {
-                    return
-                }
-
-                await runOnMain {
-                    interactor.approveInteractorState = newState
-                }
-
-                interactor.tokenFeeProvidersManager.update(input: newState.feeInput)
-                interactor.tokenFeeProvidersManager.updateFees()
-            } catch is CancellationError {
-                // Expected: superseded by a newer recalculation
-            } catch {
-                ExpressLogger.error(error: error)
-            }
-        }
+        await tokenFeeProvidersManager.updateFees().value
     }
 
+    @MainActor
     func sendApproveTransaction() async throws {
         switch approveInteractorState {
-        case .approve(let data):
-            try await sendApprove(data: data)
-        case .revokeAndApprove(let revoke, let approve, let feeUnit):
-            try await sendRevokeAndApprove(revokeData: revoke, approveData: approve, feeUnit: feeUnit)
+        case .approve(let data, let policy):
+            try await sendApprove(data: data, policy: policy)
+        case .revokeAndApprove(let revoke, let approve, let feeUnit, let policy):
+            try await sendRevokeAndApprove(revokeData: revoke, approveData: approve, feeUnit: feeUnit, policy: policy)
         }
     }
 
@@ -120,25 +98,10 @@ final class ApproveInteractor {
 // MARK: - Private
 
 private extension ApproveInteractor {
-    func makeApproveInteractorState(from result: AllowanceState) -> ApproveInteractorState? {
-        switch result {
-        case .permissionRequired(let data):
-            return .approve(data: data)
-        case .revokeAndPermissionRequired(let revoke, let approve):
-            if case .revokeAndApprove(_, _, let feeUnit) = approveInteractorState {
-                return .revokeAndApprove(revoke: revoke, approve: approve, feeUnit: feeUnit)
-            }
-            assertionFailure("Unexpected state transition to revokeAndApprove")
-            return .approve(data: approve)
-        default:
-            return nil
-        }
-    }
-
-    func sendApprove(data: ApproveTransactionData) async throws {
+    func sendApprove(data: ApproveTransactionData, policy: BSDKApprovePolicy) async throws {
         let fee = try tokenFeeProvidersManager.selectedTokenFee.value.get()
 
-        analyticsLogger.logSwapButtonPermissionApprove(policy: currentPolicy)
+        analyticsLogger.logSwapButtonPermissionApprove(policy: policy)
         let result = try await approveTransactionDispatcher.send(
             transaction: .approve(data: data, fee: fee)
         )
@@ -147,7 +110,7 @@ private extension ApproveInteractor {
 
         ExpressLogger.info("Sent the approve transaction with signerType: \(result.signerType), host: \(result.currentHost)")
         analyticsLogger.logApproveTransactionSent(
-            policy: currentPolicy,
+            policy: policy,
             signerType: result.signerType,
             currentProviderHost: result.currentHost
         )
@@ -157,7 +120,12 @@ private extension ApproveInteractor {
 
     /// Sends revoke (approve to 0) then approve in one batch.
     /// Required for tokens like USDT on Ethereum that need allowance reset to zero first.
-    func sendRevokeAndApprove(revokeData: ApproveTransactionData, approveData: ApproveTransactionData, feeUnit: BSDKFee) async throws {
+    func sendRevokeAndApprove(
+        revokeData: ApproveTransactionData,
+        approveData: ApproveTransactionData,
+        feeUnit: BSDKFee,
+        policy: BSDKApprovePolicy
+    ) async throws {
         ExpressLogger.info("Sending revoke+approve batch for spender: \(approveData.spender)")
 
         // feeUnit is the 1x revoke fee estimate.
@@ -179,7 +147,7 @@ private extension ApproveInteractor {
             .approve(data: approveData, fee: approveFee),
         ]
 
-        analyticsLogger.logSwapButtonPermissionApprove(policy: currentPolicy)
+        analyticsLogger.logSwapButtonPermissionApprove(policy: policy)
 
         let results = try await approveTransactionDispatcher.send(transactions: transactions)
 
@@ -188,7 +156,7 @@ private extension ApproveInteractor {
         if let result = results.last {
             ExpressLogger.info("Sent the revoke+approve transactions with signerType: \(result.signerType), host: \(result.currentHost)")
             analyticsLogger.logApproveTransactionSent(
-                policy: currentPolicy,
+                policy: policy,
                 signerType: result.signerType,
                 currentProviderHost: result.currentHost
             )
@@ -203,16 +171,34 @@ private extension ApproveInteractor {
 extension ApproveInteractor {
     @CaseFlagable
     enum ApproveInteractorState {
-        case approve(data: ApproveTransactionData)
+        case approve(data: ApproveTransactionData, policy: BSDKApprovePolicy)
         /// - `feeUnit`: 1x revoke fee estimate, used to build individual tx fees at send time
-        case revokeAndApprove(revoke: ApproveTransactionData, approve: ApproveTransactionData, feeUnit: Fee)
+        case revokeAndApprove(revoke: ApproveTransactionData, approve: ApproveTransactionData, feeUnit: Fee, policy: BSDKApprovePolicy)
+
+        var policy: BSDKApprovePolicy {
+            switch self {
+            case .approve(_, let policy):
+                return policy
+            case .revokeAndApprove(_, _, _, let policy):
+                return policy
+            }
+        }
 
         var approveData: ApproveTransactionData {
             switch self {
-            case .approve(let data):
+            case .approve(let data, _):
                 return data
-            case .revokeAndApprove(_, let approve, _):
-                return approve
+            case .revokeAndApprove(_, let data, _, _):
+                return data
+            }
+        }
+
+        func replacingApprove(data: ApproveTransactionData, policy: BSDKApprovePolicy) -> ApproveInteractorState {
+            switch self {
+            case .approve:
+                return .approve(data: data, policy: policy)
+            case .revokeAndApprove(let revoke, _, let feeUnit, _):
+                return .revokeAndApprove(revoke: revoke, approve: data, feeUnit: feeUnit, policy: policy)
             }
         }
 
@@ -221,9 +207,9 @@ extension ApproveInteractor {
         /// is already non-zero (USDT will revert).
         var feeInput: TokenFeeProviderInputData {
             switch self {
-            case .approve(let data):
+            case .approve(let data, _):
                 .approve(txData: data.txData, toContractAddress: data.toContractAddress)
-            case .revokeAndApprove(let revoke, _, _):
+            case .revokeAndApprove(let revoke, _, _, _):
                 .approve(txData: revoke.txData, toContractAddress: revoke.toContractAddress, feeMultiplier: .triple)
             }
         }

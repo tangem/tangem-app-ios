@@ -21,8 +21,6 @@ struct MarketsSearchView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.mainWindowSize) private var mainWindowSize
 
-    @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
-
     @State private var headerHeight: CGFloat = .zero
     @State private var isListContentObscured = false
 
@@ -48,12 +46,6 @@ struct MarketsSearchView: View {
 
     var body: some View {
         rootView
-            .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] state in
-                viewModel?.onOverlayContentStateChange(state)
-            }
-            .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
-                viewModel?.onOverlayContentProgressChange(progress)
-            }
             .background {
                 backgroundColor
                     .ignoresSafeArea(edges: .vertical)
@@ -74,7 +66,6 @@ struct MarketsSearchView: View {
                     defaultMarketsView
                 }
             }
-            .opacity(viewModel.overlayContentHidingProgress) // Hides list content on bottom sheet minimizing
             .scrollDismissesKeyboard(.immediately)
 
             navigationBarBackground
@@ -94,12 +85,7 @@ struct MarketsSearchView: View {
     // MARK: - Navigation Bar implementation
 
     private var navigationBarBackground: some View {
-        MarketsNavigationBarBackgroundView(
-            backdropViewColor: backgroundColor,
-            overlayContentHidingProgress: viewModel.overlayContentHidingProgress,
-            isNavigationBarBackgroundBackdropViewHidden: viewModel.isNavigationBarBackgroundBackdropViewHidden,
-            isListContentObscured: isListContentObscured
-        ) {
+        MarketsNavigationBarBackgroundView(isListContentObscured: isListContentObscured) {
             if viewModel.isSearching {
                 MarketsSearchResultListOverlayView(
                     titleOpacity: $listOverlayTitleOpacity,

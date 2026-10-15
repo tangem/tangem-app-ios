@@ -9,7 +9,7 @@
 import Foundation
 
 // [REDACTED_TODO_COMMENT]
-// and the three menu items it feeds once testers can top up on a network of their own.
+// and the four menu items it feeds once testers can top up on a network of their own.
 protocol CollectiblesDevnetActions: AnyObject {
     /// Where USDC for the packs goes: the vault's USDC account, not the vault itself.
     func topUpAddress() async throws -> String
@@ -17,6 +17,8 @@ protocol CollectiblesDevnetActions: AnyObject {
     /// Where devnet SOL goes: the owner key pays the fee for every transaction the onboarding signs, so an
     /// unfunded one stops it before the vault is deployed.
     func feePayerAddress() throws -> String
+
+    func purchaseFeePayerAddress() throws -> String
 
     func closeVault() async throws -> CollectiblesVaultCloseOutcome
 }
