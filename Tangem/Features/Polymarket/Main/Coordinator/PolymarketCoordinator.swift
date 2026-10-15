@@ -207,6 +207,13 @@ extension PolymarketCoordinator: PolymarketMainScreenRoutable {
         sheet = .supportChat(SupportChatViewModel(input: PolymarketSupportChatInputFactory().makeInput(for: userWalletModel)))
     }
 
+    @MainActor
+    func openActivity() {
+        guard let destinationFactory = viewState?.destinationFactory else { return }
+
+        destination = .activity(destinationFactory.makeActivity(onClose: { [weak self] in self?.popToMain() }))
+    }
+
     func openEventDetails(
         eventID: String,
         category: PolymarketCategory?,
@@ -561,6 +568,7 @@ extension PolymarketCoordinator {
         case positionDetails(PolymarketPositionDetailsCoordinator)
         case myPositions(PolymarketMyPositionsCoordinator)
         case tokenDetails(TokenDetailsCoordinator)
+        case activity(PolymarketActivityCoordinator)
     }
 
     enum Sheet: Identifiable {

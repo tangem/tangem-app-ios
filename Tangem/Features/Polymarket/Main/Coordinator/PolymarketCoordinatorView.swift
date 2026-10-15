@@ -51,6 +51,8 @@ struct PolymarketCoordinatorView: CoordinatorView {
                     PolymarketMyPositionsCoordinatorView(coordinator: coordinator)
                 case .tokenDetails(let coordinator):
                     TokenDetailsCoordinatorView(coordinator: coordinator)
+                case .activity(let coordinator):
+                    PolymarketActivityCoordinatorView(coordinator: coordinator)
                 }
             }
     }
