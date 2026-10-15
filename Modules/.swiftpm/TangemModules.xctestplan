@@ -85,6 +85,13 @@
     {
       "target" : {
         "containerPath" : "container:",
+        "identifier" : "TangemWebSocketTests",
+        "name" : "TangemWebSocketTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
         "identifier" : "TangemOpenTelemetryTests",
         "name" : "TangemOpenTelemetryTests"
       }
