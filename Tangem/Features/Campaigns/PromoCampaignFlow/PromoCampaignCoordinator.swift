@@ -29,7 +29,7 @@ final class PromoCampaignCoordinator: CoordinatorObject {
     private var userWalletId: UserWalletId?
     private var state = PromoCampaignFlowState()
     private var safariHandle: SafariHandle?
-    private var sheetViewModel: (any FloatingSheetContentViewModel)?
+    private var sheet: Sheet?
     private var bag: Set<AnyCancellable> = []
 
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
@@ -42,7 +42,14 @@ final class PromoCampaignCoordinator: CoordinatorObject {
     }
 
     private var isSheetAlive: Bool {
-        sheetViewModel.map { sheetStateProvider.containsSheet(withId: $0.id) } ?? false
+        switch sheet {
+        case .campaign:
+            overlayStateProvider.presentedOverlayId == Constants.campaignOverlayId
+        case .floating(let viewModel):
+            sheetStateProvider.containsSheet(withId: viewModel.id)
+        case nil:
+            false
+        }
     }
 
     func start(with options: Options) {
@@ -68,15 +75,18 @@ final class PromoCampaignCoordinator: CoordinatorObject {
             switch entry {
             case .campaign(let campaign):
                 let viewModel = PromoCampaignViewModel(campaign: campaign, coordinator: self)
-                sheetViewModel = viewModel
-                logWhenShown(.screenOpened(campaign: campaign), sheetId: viewModel.id, userWalletId: options.userWalletId)
-                floatingSheetPresenter.enqueue(sheet: viewModel)
+                sheet = .campaign
+                overlayViewPresenter.present(OverlayView(
+                    id: Constants.campaignOverlayId,
+                    view: PromoCampaignView(viewModel: viewModel),
+                    style: .modal
+                ))
             case .alreadyEnrolled(let campaign):
                 let viewModel = PromoCampaignPrecheckViewModel(
                     state: .alreadyEnrolled(campaignName: campaign.content.title, wallets: []),
                     coordinator: self
                 )
-                sheetViewModel = viewModel
+                sheet = .floating(viewModel)
                 logWhenShown(
                     .alreadyEnrolledScreenOpened(campaign: campaign, source: .entry),
                     sheetId: viewModel.id,
@@ -85,7 +95,7 @@ final class PromoCampaignCoordinator: CoordinatorObject {
                 floatingSheetPresenter.enqueue(sheet: viewModel)
             case .precheck(let precheckState):
                 let viewModel = PromoCampaignPrecheckViewModel(state: precheckState, coordinator: self)
-                sheetViewModel = viewModel
+                sheet = .floating(viewModel)
                 floatingSheetPresenter.enqueue(sheet: viewModel)
             }
         }
@@ -188,8 +198,6 @@ private extension PromoCampaignCoordinator {
                 return
             }
 
-            floatingSheetPresenter.resumeSheetsDisplaying()
-
             if state.closeSafari(isSheetAlive: isSheetAlive) {
                 finish()
             }
@@ -211,10 +219,6 @@ private extension PromoCampaignCoordinator {
 
         floatingSheetPresenter.pauseSheetsDisplaying()
         state.pauseSheetsForResult()
-
-        if ownsSheet {
-            removeOwnSheet()
-        }
 
         let viewModel = PromoCampaignEnrollmentResultViewModel(
             state: makeStateMapper().mapToResultState(result.outcome, campaign: result.campaign),
@@ -244,11 +248,18 @@ private extension PromoCampaignCoordinator {
 
     @MainActor
     func removeOwnSheet() {
-        guard let sheetId = sheetViewModel?.id else {
-            return
-        }
+        switch sheet {
+        case .campaign:
+            guard isSheetAlive else {
+                return
+            }
 
-        floatingSheetPresenter.removeSheet(withId: sheetId)
+            overlayViewPresenter.dismiss()
+        case .floating(let viewModel):
+            floatingSheetPresenter.removeSheet(withId: viewModel.id)
+        case nil:
+            break
+        }
     }
 
     func finish() {
@@ -257,7 +268,7 @@ private extension PromoCampaignCoordinator {
         }
 
         bag.removeAll()
-        sheetViewModel = nil
+        sheet = nil
 
         if state.isSheetsDisplayingPausedForResult, !userWalletRepository.isLocked {
             Task { @MainActor [floatingSheetPresenter] in
@@ -286,13 +297,19 @@ extension PromoCampaignCoordinator: PromoCampaignRoutable {
         }
     }
 
+    func promoCampaignDidAppear(_ campaign: PromoCampaign) {
+        guard let userWalletId else {
+            return
+        }
+
+        analyticsLogger.log(.screenOpened(campaign: campaign), userWalletId: userWalletId)
+    }
+
     func openLearnMore(url: URL) {
         Task { @MainActor [weak self] in
             guard let self, state.openSafari() else {
                 return
             }
-
-            floatingSheetPresenter.pauseSheetsDisplaying()
 
             safariHandle = safariManager.openURL(
                 url,
@@ -347,11 +364,21 @@ extension PromoCampaignCoordinator: PromoCampaignEnrollmentResultRoutable {
     }
 }
 
+// MARK: - Sheet
+
+private extension PromoCampaignCoordinator {
+    enum Sheet {
+        case campaign
+        case floating(any FloatingSheetContentViewModel)
+    }
+}
+
 // MARK: - Constants
 
 private extension PromoCampaignCoordinator {
     enum Constants {
         static let toastTopPadding: CGFloat = 52
+        static let campaignOverlayId = "promo_campaign"
         static let resultOverlayId = "promo_campaign_enrollment_result"
     }
 }
