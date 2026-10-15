@@ -70,9 +70,20 @@ final class PolymarketDestinationFactory {
         return coordinator
     }
 
-    func makeActivity(onClose: @escaping Action<Void>) -> PolymarketActivityCoordinator {
+    func makeActivity(
+        onRegionWarning: @escaping () -> Void,
+        onClose: @escaping Action<Void>
+    ) -> PolymarketActivityCoordinator {
         let coordinator = PolymarketActivityCoordinator(dismissAction: onClose)
-        coordinator.start(with: .init(activityService: dependencies.activityService))
+        let activityHandler = dependencies.activityHandler
+
+        coordinator.start(with: .init(
+            activityService: dependencies.activityService,
+            onOrderPlaced: { [weak activityHandler] indexing in activityHandler?.orderPlaced(awaiting: indexing) },
+            onRegionWarning: onRegionWarning,
+            eventBuilder: self
+        ))
+
         return coordinator
     }
 

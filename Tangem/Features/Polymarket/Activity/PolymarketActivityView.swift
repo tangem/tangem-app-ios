@@ -155,7 +155,7 @@ struct PolymarketActivityView: View {
             PolymarketActivitySectionHeader(title: section.title)
 
             ForEach(section.rows) { row in
-                PolymarketActivityRow(model: row)
+                PolymarketActivityRow(model: row, onTap: { viewModel.handleViewAction(.rowTapped(id: row.id)) })
             }
         }
     }
