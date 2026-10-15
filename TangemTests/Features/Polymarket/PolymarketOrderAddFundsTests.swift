@@ -129,7 +129,13 @@ private extension PolymarketOrderAddFundsTests {
 
         continuation.yield(readiness)
 
-        try await settle { model.state.addFundsReadiness == readiness && model.state.geoblock == geoblock }
+        let isAddFundsEnabled = readiness.addFundsAvailability == .available
+
+        try await settle {
+            model.state.addFundsReadiness == readiness
+                && model.state.geoblock == geoblock
+                && sut.isAddFundsEnabled == isAddFundsEnabled
+        }
 
         return Context(sut: sut, routable: routable, readiness: continuation)
     }
