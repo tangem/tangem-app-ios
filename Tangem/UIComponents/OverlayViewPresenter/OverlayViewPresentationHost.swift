@@ -92,6 +92,10 @@ private extension OverlayViewPresentationHost {
             viewController.view.backgroundColor = .clear
         }
 
+        if overlay.style == .modal, let sheet = viewController.sheetPresentationController {
+            ModalAppearance.applyFull(to: sheet)
+        }
+
         // A screen can go without the presenter asking for it: the user swipes it away, or the screen it was
         // shown from is closed and takes it along. Either way the presenter has to stop holding it.
         viewController.didDisappear = { [weak self, weak viewController] in
@@ -155,7 +159,7 @@ private extension OverlayViewPresentationHost {
 
     static func presentationStyle(for overlay: OverlayView) -> UIModalPresentationStyle {
         switch overlay.style {
-        case .sheet:
+        case .sheet, .modal:
             return .pageSheet
         case .fullScreenCover:
             // A cover that pops in at once brings its own fade, which it plays over the screen it covers.
