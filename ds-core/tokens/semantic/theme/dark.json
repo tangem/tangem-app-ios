@@ -1245,6 +1245,19 @@
           "$type": "color",
           "$value": "{palette.blue.40}"
         },
+        "blue-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.accent.blueSubtle",
+              "iOS": "DesignSystem.Color.borderAccentBlueSubtle"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.blue.80}"
+        },
         "violet": {
           "$extensions": {
             "com.figma.codeSyntax": {
@@ -1257,6 +1270,19 @@
           },
           "$type": "color",
           "$value": "{palette.violet.40}"
+        },
+        "violet-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.accent.violetSubtle",
+              "iOS": "DesignSystem.Color.borderAccentVioletSubtle"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.violet.80}"
         },
         "red": {
           "$extensions": {
@@ -1271,6 +1297,19 @@
           "$type": "color",
           "$value": "{palette.red.40}"
         },
+        "red-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.accent.redSubtle",
+              "iOS": "DesignSystem.Color.borderAccentRedSubtle"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.red.80}"
+        },
         "orange": {
           "$extensions": {
             "com.figma.codeSyntax": {
@@ -1283,6 +1322,19 @@
           },
           "$type": "color",
           "$value": "{palette.orange.40}"
+        },
+        "orange-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.accent.orangeSubtle",
+              "iOS": "DesignSystem.Color.borderAccentOrangeSubtle"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.orange.80}"
         },
         "yellow": {
           "$extensions": {
@@ -1297,6 +1349,19 @@
           "$type": "color",
           "$value": "{palette.yellow.40}"
         },
+        "yellow-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.accent.yellowSubtle",
+              "iOS": "DesignSystem.Color.borderAccentYellowSubtle"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.yellow.80}"
+        },
         "green": {
           "$extensions": {
             "com.figma.codeSyntax": {
@@ -1310,6 +1375,19 @@
           "$type": "color",
           "$value": "{palette.green.40}"
         },
+        "green-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.accent.greenSubtle",
+              "iOS": "DesignSystem.Color.borderAccentGreenSubtle"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.green.80}"
+        },
         "neutral": {
           "$extensions": {
             "com.figma.codeSyntax": {
@@ -1322,6 +1400,19 @@
           },
           "$type": "color",
           "$value": "{palette.neutral.40}"
+        },
+        "neutral-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.accent.neutralSubtle",
+              "iOS": "DesignSystem.Color.borderAccentNeutralSubtle"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.neutral.80}"
         }
       }
     },
