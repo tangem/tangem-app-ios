@@ -411,11 +411,14 @@ public indirect enum Blockchain: Equatable, Hashable {
     }
 
     public var displayDecimalCount: Int {
-        if case .arc = self {
-            return 6
+        switch self {
+        case .arc:
+            6
+        case .onyx:
+            8
+        default:
+            decimalCount
         }
-
-        return decimalCount
     }
 
     public var currencySymbol: String {
