@@ -99,6 +99,7 @@ extension TangemPayOnboardingCoordinator: TangemPayOnboardingRoutable {
 
             case .joinedWaitlist:
                 self?.kycLaunchTask?.cancel()
+                interactor.hideAccountFromHome()
                 self?.dismiss(with: ())
                 Toast(view: SuccessToast(text: Localization.tangempayWaitlistJoinedMessage))
                     .present(layout: .top(padding: 12), type: .temporary())
