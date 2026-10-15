@@ -67,6 +67,7 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
     private weak var regionWarning: PolymarketRegionRestrictionViewModel?
     private weak var addFundsSheet: PolymarketAddFundsSheetViewModel?
     private var sheetDismissSubscription: AnyCancellable?
+    private var isFundingSheetPresented = false
     private var dispatchedOperation: FundingOperation?
     private var dispatchedBalance: Decimal?
 
@@ -107,6 +108,7 @@ private extension PolymarketCoordinator {
             .withWeakCaptureOf(self)
             .sink { coordinator, _ in
                 coordinator.addFundsSheet = nil
+                coordinator.isFundingSheetPresented = false
                 coordinator.regionWarning = nil
             }
     }
@@ -167,6 +169,10 @@ private extension PolymarketCoordinator {
         redeemService = dependencies.redeemService
         signingButtonType = dependencies.signingButtonType
 
+        dependencies.sessionHealth.setReconnectHandler { [weak self] in
+            Task { @MainActor in self?.openReconnect() }
+        }
+
         let activityService = dependencies.activityService
         Task { await activityService.reconcileDeposits() }
         Task { await dependencies.withdrawContext.tracker.resume() }
@@ -182,6 +188,33 @@ private extension PolymarketCoordinator {
             ),
             fundingFlow: PolymarketFundingFlow(dependencies: dependencies)
         )
+    }
+}
+
+// MARK: - Reconnect
+
+private extension PolymarketCoordinator {
+    @MainActor
+    func openReconnect() {
+        guard viewState?.mainViewModel != nil, let userWalletModel = options?.userWalletModel else { return }
+
+        dispatchedOperation = nil
+        dispatchedBalance = nil
+        redeemService = nil
+
+        if isFundingSheetPresented || regionWarning != nil {
+            floatingSheetPresenter.removeActiveSheet()
+        }
+
+        addFundsSheet = nil
+        isFundingSheetPresented = false
+        regionWarning = nil
+        destination = nil
+        redeem = nil
+        sheet = nil
+        orderPresenter.dismiss()
+
+        viewState = .welcome(PolymarketOnboardingFactory().makeWelcomeViewModel(for: userWalletModel, coordinator: self))
     }
 }
 
@@ -350,6 +383,7 @@ extension PolymarketCoordinator: PolymarketMainScreenRoutable {
                 let viewModel = try fundingFlow.makeAddFundsSheet(routable: self)
 
                 addFundsSheet = viewModel
+                isFundingSheetPresented = true
                 floatingSheetPresenter.enqueue(sheet: viewModel)
             } catch {
                 PolymarketLogger.error("Add funds is not available", error: error)
@@ -393,6 +427,7 @@ extension PolymarketCoordinator: PolymarketAddFundsSheetRoutable {
             guard let self else { return }
 
             addFundsSheet = nil
+            isFundingSheetPresented = false
             floatingSheetPresenter.removeActiveSheet()
             openSwap(parameters: parameters, operation: .deposit)
         }
@@ -401,6 +436,7 @@ extension PolymarketCoordinator: PolymarketAddFundsSheetRoutable {
     func closeAddFundsSheet() {
         Task { @MainActor [weak self] in
             self?.addFundsSheet = nil
+            self?.isFundingSheetPresented = false
             self?.floatingSheetPresenter.removeActiveSheet()
         }
     }
@@ -422,6 +458,7 @@ extension PolymarketCoordinator: PolymarketChooseNetworkSheetRoutable {
 
     func closeChooseNetworkSheet() {
         Task { @MainActor [weak self] in
+            self?.isFundingSheetPresented = false
             self?.floatingSheetPresenter.removeActiveSheet()
         }
     }
@@ -432,6 +469,7 @@ extension PolymarketCoordinator: PolymarketChooseNetworkSheetRoutable {
 extension PolymarketCoordinator: PolymarketReceiveSheetRoutable {
     func closeReceiveSheet() {
         Task { @MainActor [weak self] in
+            self?.isFundingSheetPresented = false
             self?.floatingSheetPresenter.removeActiveSheet()
         }
     }
