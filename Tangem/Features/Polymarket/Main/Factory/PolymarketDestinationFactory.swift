@@ -70,6 +70,12 @@ final class PolymarketDestinationFactory {
         return coordinator
     }
 
+    func makeActivity(onClose: @escaping Action<Void>) -> PolymarketActivityCoordinator {
+        let coordinator = PolymarketActivityCoordinator(dismissAction: onClose)
+        coordinator.start(with: .init(activityService: dependencies.activityService))
+        return coordinator
+    }
+
     func makeMyPositions(
         tab: PolymarketPositionsTab,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,

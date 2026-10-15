@@ -87,6 +87,8 @@ extension PolymarketMainViewModel {
             coordinator?.openHowItWorks()
         case .openSupportChat:
             coordinator?.openSupportChat()
+        case .openHistory:
+            coordinator?.openActivity()
         case .onTabsMove(let minY, let navBarHeight):
             updatePinnedState(tabsMinY: minY, navBarHeight: navBarHeight)
         }
@@ -96,6 +98,7 @@ extension PolymarketMainViewModel {
         case close
         case openHowItWorks
         case openSupportChat
+        case openHistory
         case onTabsMove(minY: CGFloat, navBarHeight: CGFloat)
     }
 }
