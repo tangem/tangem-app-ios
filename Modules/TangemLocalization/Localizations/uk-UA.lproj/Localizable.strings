@@ -251,6 +251,13 @@
 "collectibles_main_search_empty" = "No results. Try to change your wording\nor explore from the list";
 "collectibles_main_search_load_error" = "Failed to load cards list.";
 "collectibles_main_title" = "Packs account";
+"collectibles_open_pack_keep_card_button" = "Keep card";
+"collectibles_open_pack_market_value" = "Market value %@ · Insured";
+"collectibles_open_pack_pull_common" = "Common pull";
+"collectibles_open_pack_pull_epic" = "Epic pull";
+"collectibles_open_pack_pull_rare" = "Rare pull";
+"collectibles_open_pack_pull_uncommon" = "Uncommon pull";
+"collectibles_open_pack_sell_back_button" = "Sell back for %@";
 "collectibles_pack_unopened_open_pack" = "Open pack";
 "collectibles_pack_unopened_subtitle" = "Your payment went through, but you haven’t finished opening pack. Please receive your card in order to continue ripping packs";
 "collectibles_pack_unopened_title" = "You have pack unopened";
@@ -1269,6 +1276,8 @@
 "mcp_session_title" = "Connected MCP";
 "mobile_wallet_requires_min_os_warning_body" = "Оновіться до версії %1$@, щоб створити мобільний гаманець";
 "mobile_wallet_requires_min_os_warning_title" = "Мобільний гаманець потребує %1$@ або новіше.";
+"money_account_add_funds_receive_description" = "Send USDC Polygon to your account's address";
+"money_account_add_funds_swap_description" = "Use crypto from your wallet to topup your banking account";
 "money_account_main_name" = "Money account";
 "money_account_main_status_action_required" = "Action required";
 "money_account_main_status_activating" = "Activating…";
@@ -1287,7 +1296,7 @@
 "money_account_main_status_verification" = "Verification in progress…";
 "money_account_onboarding_currency_card_caption" = "Account currency";
 "money_account_onboarding_description" = "Works just like a regular bank account. But powered by crypto and fully under your control.";
-"money_account_onboarding_disclaimer" = "Tangem Pay is a financial technology company, not a bank. Banking services are provided by SSB, Member FDIC. Funds deposited at SSB are eligible for FDIC insurance up to $250,000 per depositor, per insured bank, subject to applicable limitations and FDIC rules.";
+"money_account_onboarding_disclaimer" = "Tangem Pay — фінансово-технологічна компанія, а не банк. Банківські послуги надає SSB, член FDIC. Кошти, розміщені в SSB, мають право на страхування FDIC на суму до 250 000 доларів США на вкладника в кожному застрахованому банку з урахуванням чинних обмежень і правил FDIC.";
 "money_account_onboarding_earn_card_caption" = "Earn";
 "money_account_onboarding_fees_error" = "Failed to load fees information.\nTap to reload";
 "money_account_onboarding_fees_notice" = "SWIFT transfers aren’t supported. If you send one, it will be returned";
@@ -1712,6 +1721,9 @@
 "promo_campaign_terms_link" = "%1$@ Умови";
 "promo_campaign_unavailable_title" = "Campaign unavailable";
 "promo_campaign_whale_swap_summary_description" = "Отримуйте кешбек за кожний обмін від $10K до кінця серпня.\n\nСтавка зростає разом із сумою: 0.10%% від $10K, 0.20%% від $20K, 0.50%% від $100K.\n\nМаксимальна виплата: $500 за обмін та $10,000 на гаманець для кожного напрямку обмінів, поки триває кампанія. Обміни стейблкоїна на стейблкоїн виключено.\n\nВиплата надходить щотижня на обрану вами адресу USDT або USDC.";
+"promo_code_activation_success" = "Your promo code was successfully activated. The reward will be credited to your %@ account.";
+"promo_code_no_address_title" = "%@ address required  ";
+"promo_code_no_address" = "A %1$@ address is required to receive the bonus. Please add %1$@ to your wallet and retry the activation.";
 "push_notification_settings_banner_description" = "Push-сповіщення ввімкнені, але не працюватимуть без вашого дозволу";
 "push_notification_settings_banner_title" = "Дозволити сповіщення";
 "push_notification_settings_offers_updates_subtitle" = "Новини продукту, ексклюзивні пропозиції та нагадування про активність";
@@ -2343,7 +2355,6 @@
 "tangempay_factory_settings_warning_title" = "Я розумію, що повністю втрачу доступ до своєї картки Tangem Pay та всіх коштів на ній без можливості відновлення.";
 "tangempay_failed_to_issue_card_support_description" = "Технічна помилка, зверніться до служби підтримки.";
 "tangempay_failed_to_issue_card" = "Не вдалося випустити картку";
-"tangempay_geo_selection_search_empty" = "No results. Try to change request";
 "tangempay_get_banner_description" = "Безкоштовна картка Tangem Pay із кешбеком до 2%%";
 "tangempay_get_tangem_pay" = "Отримати Tangem Pay";
 "tangempay_go_to_support" = "Написати у підтримку";
@@ -2466,6 +2477,7 @@
 "tangempay_remove_account" = "Видалити аккаунт";
 "tangempay_residency_all_country" = "Змінити країну";
 "tangempay_residency_all_state" = "Обрати інший штат";
+"tangempay_residency_search_empty" = "Нічого не знайдено. Спробуйте змінити запит";
 "tangempay_residency_suggested_country" = "Запропонована країна";
 "tangempay_residency_suggested_state" = " Запропонований штат";
 "tangempay_residency_title_country" = "Країна проживання";
@@ -2739,10 +2751,10 @@
 "user_wallet_list_rename_popup_title" = "Перейменування гаманця";
 "user_wallet_list_unlock_all_with" = "Розблокувати все з %@";
 "virtual_account_requisites_account_number" = "Account number";
-"virtual_account_requisites_bank_address" = "Bank address";
-"virtual_account_requisites_bank_name" = "Bank name";
-"virtual_account_requisites_beneficiary_address" = "Beneficiary address";
-"virtual_account_requisites_beneficiary_name" = "Beneficiary name";
+"virtual_account_requisites_bank_address" = "Адреса банку";
+"virtual_account_requisites_bank_name" = "Назва банку";
+"virtual_account_requisites_beneficiary_address" = "Адреса отримувача";
+"virtual_account_requisites_beneficiary_name" = "Ім’я отримувача";
 "virtual_account_requisites_routing_number" = "Routing number";
 "visa_balance_limits_details_aml_verified" = "AML verified";
 "visa_balance_limits_details_available" = "Available";
@@ -3113,7 +3125,7 @@
 "yield_module_incentive_chart_average_apy" = "Average APY";
 "yield_module_incentive_chart_period_three_months" = "3 Months";
 "yield_module_incentive_chart_period_week" = "Week";
-"yield_module_incentive_chart_powered_by_description" = "A campaign sponsor funds extra reward tokens, distributed through Merkl.\nIncentives may end, and reward token prices can change.\nThe displayed APY includes incentive rewards after Tangem's service fee.";
+"yield_module_incentive_chart_powered_by_description" = "A campaign sponsor funds extra reward tokens, distributed through Merkl.\nIncentives may end, and reward token prices can change.";
 "yield_module_incentive_chart_powered_by_title" = "Powered by Merkl";
 "yield_module_incentive_chart_sheet_title" = "Incentivized yield";
 "yield_module_incentives_provider" = "Merkl";
