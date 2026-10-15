@@ -225,14 +225,16 @@ private func makeInteractor(
     configuration: ConfigurationServiceSpy = ConfigurationServiceSpy(),
     walletService: DepositWalletServiceStub = DepositWalletServiceStub(),
     ownerAddressProvider: OwnerAddressProviderStub = OwnerAddressProviderStub(),
-    supportedBlockchains: Set<Blockchain> = supportedBlockchains
+    supportedBlockchains: Set<Blockchain> = supportedBlockchains,
+    sessionHealth: PolymarketSessionHealthChecking? = nil
 ) -> PolymarketAccountFundsInteractor {
     PolymarketAccountFundsInteractor(
         bridgeService: bridge,
         configurationService: configuration,
         walletService: walletService,
         ownerAddressProvider: ownerAddressProvider,
-        supportedBlockchains: supportedBlockchains
+        supportedBlockchains: supportedBlockchains,
+        sessionHealth: sessionHealth
     )
 }
 
@@ -532,6 +534,32 @@ struct PolymarketAddFundsDepositWalletTests {
         await interactor.prepare()
 
         #expect(interactor.state == .unavailable)
+    }
+
+    @Test("A wallet the backend has taken back from ready to trade asks for a reconnect instead of offering add funds")
+    func notReadyWalletAsksForAReconnect() async {
+        let sessionHealth = PolymarketSessionHealthSpy(verdict: .reconnectRequired)
+        let interactor = makeInteractor(
+            walletService: DepositWalletServiceStub(status: .deployed),
+            sessionHealth: sessionHealth
+        )
+
+        await interactor.prepare()
+
+        #expect(interactor.state == .unavailable)
+        #expect(sessionHealth.reportedStatuses == [.deployed])
+    }
+
+    @Test("A ready wallet never troubles the session health")
+    func readyWalletLeavesTheSessionAlone() async {
+        let sessionHealth = PolymarketSessionHealthSpy(verdict: .ready)
+        let interactor = makeInteractor(sessionHealth: sessionHealth)
+
+        await interactor.prepare()
+
+        #expect(interactor.state.depositTargets.isEmpty == false)
+        #expect(sessionHealth.reportedStatuses.isEmpty)
+        #expect(sessionHealth.verifyCalls == 0)
     }
 
     @Test("An unreachable backend leaves add funds unavailable rather than funding unverified")
