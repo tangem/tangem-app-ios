@@ -68,7 +68,7 @@ final class TangemPayStateCachingUITests: BaseTestCase {
             scenarios: [ScenarioConfig(name: Self.sessionScenario, initialState: Self.sessionExpiredState)]
         )
         .verifyTangemPayTileExists()
-        .verifyTangemPayTileSubtitle(contains: "Session expired")
+        .verifyTangemPayTileSubtitle(contains: Localization.commonSessionExpired)
         .verifyTangemPayTileHasNoBalance()
         .verifySessionExpiredBanner()
         .verifyRenewSessionButton()
@@ -92,7 +92,7 @@ final class TangemPayStateCachingUITests: BaseTestCase {
         ])
         .verifyTangemPayTileShowsKycInProgress()
         .verifyTangemPayTileCachedIcon()
-        .verifyTangemPayTileSubtitle(doesNotContain: Constants.issuingCardSubtitle)
+        .verifyTangemPayTileSubtitle(doesNotContain: Localization.tangempayIssuingYourCard)
         .verifyTangemPayTileHasNoBalance()
     }
 
@@ -118,8 +118,6 @@ final class TangemPayStateCachingUITests: BaseTestCase {
 
 private extension TangemPayStateCachingUITests {
     enum Constants {
-        static let issuingCardSubtitle = "Issuing your card"
-
         enum Scenario {
             static let kycStatus = "tangem_pay_kyc_status"
         }
