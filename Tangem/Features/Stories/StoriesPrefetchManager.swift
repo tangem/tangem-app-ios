@@ -13,6 +13,9 @@ final class StoriesPrefetchManager: @unchecked Sendable {
     @Injected(\.storiesV2PrefetchService)
     private var storiesV2PrefetchService: StoriesV2PrefetchService
 
+    @Injected(\.storiesV2ReconcileService)
+    private var reconcileService: StoryAssetReconcileService
+
     private let legacyStoriesPrefetchService = StoryDataPrefetchService()
     private let hardwareUpgradeStoriesResolver = HardwareUpgradeStoriesResolver()
 
@@ -56,9 +59,11 @@ private extension StoriesPrefetchManager {
     func prefetchStoriesV2(for step: Step) {
         let task = runTask(in: self, isDetached: true, priority: .medium) { manager in
             let stories = manager.storiesToPrefetch(for: step)
-            guard !stories.isEmpty else { return }
+            if !stories.isEmpty {
+                await manager.storiesV2PrefetchService.prefetch(stories)
+            }
 
-            await manager.storiesV2PrefetchService.prefetch(stories)
+            await manager.reconcileService.reconcile()
         }
 
         prefetchTasks.withLock { tasks in
