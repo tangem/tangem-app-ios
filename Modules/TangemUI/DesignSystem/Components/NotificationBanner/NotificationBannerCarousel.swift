@@ -48,6 +48,7 @@ public struct NotificationBannerCarousel<Item, BannerView: View>: View {
         return VStack(spacing: paginationSpacing) {
             TangemCarousel(wrappedItems) { wrappedItem in
                 bannerView(wrappedItem.item)
+                    .fixedSize(horizontal: false, vertical: true)
                     .onGeometryChange(for: CGFloat.self, of: { $0.size.height }) { height in
                         itemHeights[wrappedItem.index] = height.roundedToDeviceScale()
                     }

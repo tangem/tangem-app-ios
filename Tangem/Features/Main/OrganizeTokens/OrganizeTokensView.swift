@@ -116,7 +116,7 @@ struct OrganizeTokensView: View {
 
             tokenListFooter
         }
-        .background(backgroundColor.ignoresSafeArea(edges: .vertical))
+        .background(backgroundColor.ignoresSafeArea())
         .toolbar { redesignedToolbarContent }
         .onWillAppear {
             dragAndDropController.dataSource = viewModel
