@@ -13,17 +13,21 @@ public enum PolymarketApprovalCalls {
         [
             approve(spender: PolymarketApprovalContracts.conditionalTokens),
             approve(spender: PolymarketApprovalContracts.ctfExchange),
-            setApprovalForAll(operator: PolymarketApprovalContracts.ctfExchange),
+            setApprovalForAll(token: PolymarketApprovalContracts.conditionalTokens, operator: PolymarketApprovalContracts.ctfExchange),
             approve(spender: PolymarketApprovalContracts.negRiskCtfExchange),
             approve(spender: PolymarketApprovalContracts.negRiskAdapter),
-            setApprovalForAll(operator: PolymarketApprovalContracts.negRiskCtfExchange),
-            setApprovalForAll(operator: PolymarketApprovalContracts.negRiskAdapter),
+            setApprovalForAll(token: PolymarketApprovalContracts.conditionalTokens, operator: PolymarketApprovalContracts.negRiskCtfExchange),
+            setApprovalForAll(token: PolymarketApprovalContracts.conditionalTokens, operator: PolymarketApprovalContracts.negRiskAdapter),
             approve(spender: PolymarketApprovalContracts.ctfCollateralAdapter),
             approve(spender: PolymarketApprovalContracts.negRiskCtfCollateralAdapter),
-            setApprovalForAll(operator: PolymarketApprovalContracts.ctfCollateralAdapter),
-            setApprovalForAll(operator: PolymarketApprovalContracts.negRiskCtfCollateralAdapter),
+            setApprovalForAll(token: PolymarketApprovalContracts.conditionalTokens, operator: PolymarketApprovalContracts.ctfCollateralAdapter),
+            setApprovalForAll(token: PolymarketApprovalContracts.conditionalTokens, operator: PolymarketApprovalContracts.negRiskCtfCollateralAdapter),
             approve(spender: PolymarketApprovalContracts.exchangeV3),
             approve(spender: PolymarketApprovalContracts.routerV3),
+            setApprovalForAll(token: PolymarketApprovalContracts.positionManager, operator: PolymarketApprovalContracts.exchangeV3),
+            setApprovalForAll(token: PolymarketApprovalContracts.positionManager, operator: PolymarketApprovalContracts.routerV3),
+            setApprovalForAll(token: PolymarketApprovalContracts.conditionalTokens, operator: PolymarketApprovalContracts.binaryModule),
+            setApprovalForAll(token: PolymarketApprovalContracts.conditionalTokens, operator: PolymarketApprovalContracts.negRiskModule),
         ]
     }
 }
@@ -38,9 +42,9 @@ private extension PolymarketApprovalCalls {
         )
     }
 
-    static func setApprovalForAll(operator operatorAddress: String) -> PolymarketRelayedBatch.Call {
+    static func setApprovalForAll(token: String, operator operatorAddress: String) -> PolymarketRelayedBatch.Call {
         PolymarketRelayedBatch.Call(
-            target: PolymarketApprovalContracts.conditionalTokens,
+            target: token,
             data: Constants.setApprovalForAllSelector + leftPaddedWord(operatorAddress) + Constants.boolTrue
         )
     }
