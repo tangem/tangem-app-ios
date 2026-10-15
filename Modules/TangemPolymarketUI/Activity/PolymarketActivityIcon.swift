@@ -12,18 +12,20 @@ import TangemUI
 
 struct PolymarketActivityIcon: View {
     let icon: PolymarketActivityRow.Icon
+    var side: CGFloat = Constants.side
+    var glyphSide: CGFloat = Constants.glyphSide
 
     var body: some View {
         switch icon {
         case .market(let url):
-            PolymarketAvatarView(url: url, side: Constants.side)
+            PolymarketAvatarView(url: url, side: side)
         case .glyph(let image):
             image.image
                 .renderingMode(.template)
                 .resizable()
-                .frame(width: Constants.glyphSide, height: Constants.glyphSide)
+                .frame(width: glyphSide, height: glyphSide)
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
-                .frame(width: Constants.side, height: Constants.side)
+                .frame(width: side, height: side)
                 .background(DesignSystem.Color.bgTertiary, in: Circle())
                 .accessibilityHidden(true)
         }

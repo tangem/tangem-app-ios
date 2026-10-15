@@ -51,6 +51,7 @@ final class PolymarketActivityViewModel: ObservableObject, Identifiable {
 
     private var records: [PolymarketActivityRecord] = []
     private var recordsTab: PolymarketActivityTab?
+    private var displayedRecords: [PolymarketActivityRecord] = []
     private var seenIDs: Set<String> = []
     private var cursor: String?
     private var hasNext = false
@@ -107,6 +108,10 @@ extension PolymarketActivityViewModel {
             coordinator?.closeActivity()
         case .downloadCSVTapped:
             exportCSV()
+        case .rowTapped(let id):
+            guard let record = displayedRecords.first(where: { $0.id == id }) else { return }
+
+            coordinator?.openActivityDetails(record: record)
         }
     }
 
@@ -117,6 +122,7 @@ extension PolymarketActivityViewModel {
         case retryNextPage
         case exploreTapped
         case downloadCSVTapped
+        case rowTapped(id: String)
     }
 }
 
@@ -150,6 +156,7 @@ private extension PolymarketActivityViewModel {
         records = []
         recordsTab = nil
         seenIDs = []
+        displayedRecords = []
         sections = []
         loadingState = .loading
     }
@@ -219,7 +226,8 @@ private extension PolymarketActivityViewModel {
     }
 
     func rebuildSections() {
-        sections = PolymarketActivitySection.make(records: PolymarketActivityClaimGrouping.group(records))
+        displayedRecords = PolymarketActivityClaimGrouping.group(records)
+        sections = PolymarketActivitySection.make(records: displayedRecords)
     }
 
     func settle() {
