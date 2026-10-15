@@ -31,7 +31,7 @@ public struct FormHeaderView: View {
         title: String,
         maxCharacters: Int,
         placeholderText: String,
-        backgroundColor: Color = Colors.Background.action,
+        backgroundColor: Color = DesignSystem.Color.bgSecondary,
         accountIconViewData: AccountIconView.ViewData,
         errorMessage: String? = nil,
         isFocused: FocusState<Bool>.Binding
@@ -49,11 +49,11 @@ public struct FormHeaderView: View {
     public var body: some View {
         VStack(alignment: .center, spacing: 0) {
             colorWithPreview
-                .padding(.bottom, style.avatarBottomPadding)
+                .padding(.bottom, 28)
 
             Text(title)
-                .style(Fonts.Bold.caption1, color: style.titleColor)
-                .padding(.bottom, style.titleBottomPadding)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                .padding(.bottom, 4)
 
             nameInput
 
@@ -64,14 +64,16 @@ public struct FormHeaderView: View {
                     .padding(.top, 4)
             }
         }
-        .roundedBackground(with: backgroundColor, verticalPadding: style.contentVerticalPadding, horizontalPadding: 16, radius: style.cornerRadius)
+        .padding(.top, 36)
+        .padding(.bottom, style.contentBottomPadding)
+        .roundedBackground(with: backgroundColor, verticalPadding: 0, horizontalPadding: 16, radius: 24)
     }
 
     private var colorWithPreview: some View {
         HStack {
             Spacer()
             AccountIconView(data: accountIconViewData)
-                .settings(.largeSized)
+                .settings(style.avatarSettings)
                 .if(style.isAvatarCircular) { $0.clipShape(Circle()) }
             Spacer()
         }
@@ -79,7 +81,7 @@ public struct FormHeaderView: View {
 
     private var nameInput: some View {
         TextField(placeholderText, text: $accountName)
-            .tint(Colors.Text.primary1)
+            .tint(DesignSystem.Color.textPrimary)
             .multilineTextAlignment(.center)
             .minimumScaleFactor(style.nameMinimumScaleFactor)
             .focused($isFocused)
@@ -91,7 +93,7 @@ public struct FormHeaderView: View {
                         }
                 }
             )
-            .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+            .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
             .frame(height: originalTextFieldHeight)
             // Mikhail Andreev - Needed to be constrained from here coz for some reason it
             // is not possible to do it from ViewModel
@@ -108,17 +110,27 @@ public struct FormHeaderView: View {
 
 public extension FormHeaderView {
     struct Style {
-        let cornerRadius: CGFloat
-        let contentVerticalPadding: CGFloat
-        let avatarBottomPadding: CGFloat
-        let titleColor: Color
-        let titleBottomPadding: CGFloat
+        let contentBottomPadding: CGFloat
+        let avatarSettings: AccountIconView.Settings
         let isAvatarCircular: Bool
         let enforcesMaxLength: Bool
         let nameMinimumScaleFactor: CGFloat
 
-        public static let accounts = Style(cornerRadius: 14, contentVerticalPadding: 20, avatarBottomPadding: 28, titleColor: Colors.Text.tertiary, titleBottomPadding: 4, isAvatarCircular: false, enforcesMaxLength: true, nameMinimumScaleFactor: 0.5)
-        public static let addressBook = Style(cornerRadius: 24, contentVerticalPadding: 36, avatarBottomPadding: 28, titleColor: Colors.Text.secondary, titleBottomPadding: 4, isAvatarCircular: true, enforcesMaxLength: false, nameMinimumScaleFactor: 1)
+        public static let accounts = Style(
+            contentBottomPadding: 24,
+            avatarSettings: .redesignLargeSized,
+            isAvatarCircular: false,
+            enforcesMaxLength: true,
+            nameMinimumScaleFactor: 0.5
+        )
+
+        public static let addressBook = Style(
+            contentBottomPadding: 36,
+            avatarSettings: .largeSized,
+            isAvatarCircular: true,
+            enforcesMaxLength: false,
+            nameMinimumScaleFactor: 1
+        )
     }
 }
 
