@@ -31,7 +31,7 @@ struct TokenItemEarnBadgeView: View {
                 .padding(.horizontal, 6)
                 .padding(.vertical, 3)
                 .background(background)
-                .shimmer()
+                .shimmering()
         }
         .environment(\.isShimmerActive, isUpdating)
     }

@@ -103,6 +103,47 @@ struct PolymarketFundsArrivalTrackerTests {
         #expect(!sut.isAwaitingFunds)
         #expect(!sut.isBalanceChangeExpected)
     }
+
+    @Test("The deposit is settled once the funds land, not when the wait starts")
+    func theDepositSettlesWhenFundsLand() async {
+        let balance = CurrentValueSubject<Decimal?, Never>(10)
+        let sut = makeSUT(balance: balance)
+        var settlements = 0
+
+        sut.startAwaitingFunds(since: sut.currentBalance) { settlements += 1 }
+
+        #expect(settlements == 0)
+
+        balance.send(60)
+        await drainMain()
+
+        #expect(settlements == 1)
+    }
+
+    @Test("A deposit that already landed is settled right away")
+    func aLandedDepositSettlesRightAway() {
+        let balance = CurrentValueSubject<Decimal?, Never>(10)
+        let sut = makeSUT(balance: balance)
+        let dispatched = sut.currentBalance
+        var settlements = 0
+
+        balance.send(60)
+        sut.startAwaitingFunds(since: dispatched) { settlements += 1 }
+
+        #expect(settlements == 1)
+    }
+
+    @Test("A deposit that never lands is still settled when the wait gives up")
+    func anUnlandedDepositSettlesOnTimeout() async throws {
+        let sut = makeSUT(delayProvider: InstantPollDelayProvider())
+        var settlements = 0
+
+        sut.startAwaitingFunds { settlements += 1 }
+
+        try await sut.windowClosed()
+
+        #expect(settlements == 1)
+    }
 }
 
 // MARK: - Fixtures

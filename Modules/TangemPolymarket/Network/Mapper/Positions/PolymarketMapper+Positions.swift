@@ -99,16 +99,6 @@ private extension PolymarketMapper {
         static let percentScale: Decimal = 100
     }
 
-    func decimal(_ raw: String?, field: String) throws -> Decimal {
-        guard let raw else { return 0 }
-
-        guard let value = Decimal(stringValue: raw) else {
-            throw PolymarketAPIError.decoding(field: field, value: raw)
-        }
-
-        return value
-    }
-
     func closedStatus(from raw: String?) -> PolymarketClosedPositionStatus {
         guard let raw, let status = PolymarketClosedPositionStatus(rawValue: raw) else {
             return .unknown

@@ -73,15 +73,6 @@ enum PreviewCard {
         }
     }
 
-    var isNote: Bool {
-        switch self {
-        case .cardanoNote, .ethEmptyNote, .cardanoNoteEmptyWallet:
-            return true
-        default:
-            return false
-        }
-    }
-
     private var card: Card {
         switch self {
         case .tangemWalletBackuped:

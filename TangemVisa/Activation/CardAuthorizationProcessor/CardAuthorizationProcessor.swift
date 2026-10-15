@@ -9,11 +9,6 @@
 import Foundation
 import TangemSdk
 
-struct CardAuthorizationResult {
-    let authorizationTokens: VisaAuthorizationTokens
-    let cardSession: CardSession
-}
-
 protocol CardAuthorizationProcessor {
     func getAuthorizationChallenge(for input: VisaCardActivationInput) async throws -> String
     func getAccessToken(

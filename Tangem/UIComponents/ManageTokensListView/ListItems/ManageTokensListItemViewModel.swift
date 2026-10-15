@@ -68,16 +68,6 @@ class ManageTokensListItemViewModel: ObservableObject, Identifiable {
                 viewModel.isExpandedBinding?.wrappedValue = value
             })
     }
-
-    func hasContractAddress(_ contractAddress: String) -> Bool {
-        items.contains { item in
-            guard let tokenContractAddress = item.tokenItem.contractAddress else {
-                return false
-            }
-
-            return tokenContractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame
-        }
-    }
 }
 
 extension ManageTokensListItemViewModel: Hashable {

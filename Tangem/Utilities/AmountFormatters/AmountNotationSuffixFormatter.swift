@@ -43,10 +43,6 @@ extension AmountNotationSuffixFormatter {
         let signPrefix: String
         let decimal: Decimal
         let suffix: String
-
-        var amountWithoutSign: String {
-            "\(abs(decimal))\(suffix)"
-        }
     }
 
     enum Divisor: Decimal {

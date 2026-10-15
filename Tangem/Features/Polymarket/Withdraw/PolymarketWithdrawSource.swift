@@ -13,5 +13,5 @@ struct PolymarketWithdrawSource {
     let depositWalletAddress: String
     let transactionService: PolymarketWithdrawTransactionService
     let signer: TangemSigner
-    let minimumUSD: Decimal?
+    let minimumUSD: Decimal
 }

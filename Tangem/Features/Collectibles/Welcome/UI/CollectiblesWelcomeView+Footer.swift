@@ -15,6 +15,7 @@ private typealias Footer = CollectiblesWelcomeView.Footer
 
 extension CollectiblesWelcomeView {
     struct Footer: View {
+        let signingActionButtonType: SigningActionButtonViewType
         let isLoading: Bool
         let onCreateAccountTap: () -> Void
         let onTermsTap: (URL) -> Void
@@ -53,12 +54,13 @@ private extension Footer {
     }
 
     var createAccountButton: some View {
-        TangemUI.Button(label: Localization.collectiblesWelcomeCreateAccountButton, accessibilityLabel: nil, action: onCreateAccountTap)
-            .iconEnd(DesignSystem.Icons.LogoTangem.regular24)
-            .styleType(.primary)
-            .horizontalLayout(.infinity)
-            .size(.x12)
-            .loading(.spinner(if: isLoading))
+        SigningActionButtonView(
+            type: signingActionButtonType,
+            title: Localization.collectiblesWelcomeCreateAccountButton,
+            isLoading: isLoading,
+            isDisabled: false,
+            action: onCreateAccountTap
+        )
     }
 
     /// Collector Crypt stays unlinked until the partner supplies its terms URL.
@@ -102,6 +104,6 @@ private extension Footer {
     ZStack(alignment: .bottom) {
         DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
-        Footer(isLoading: false, onCreateAccountTap: {}, onTermsTap: { _ in })
+        Footer(signingActionButtonType: .requiredNFCInteraction, isLoading: false, onCreateAccountTap: {}, onTermsTap: { _ in })
     }
 }

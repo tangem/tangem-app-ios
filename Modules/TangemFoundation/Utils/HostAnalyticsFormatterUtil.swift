@@ -92,7 +92,6 @@ public struct HostAnalyticsFormatterUtil {
 
 private extension HostAnalyticsFormatterUtil {
     enum Constants {
-        static let allowedSetCharacterSet: CharacterSet = .init(charactersIn: "-_")
         static let replacementCharacter: String = "_"
     }
 }

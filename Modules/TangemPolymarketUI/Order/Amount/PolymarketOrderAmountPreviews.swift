@@ -38,8 +38,8 @@ private struct PolymarketOrderAmountShowcase: View {
 }
 
 private extension PolymarketOrderPaymentRow.Model {
-    static let empty = Self(tokenIconInfo: .preview, symbol: "pUSD", balanceText: "$0,00")
-    static let funded = Self(tokenIconInfo: .preview, symbol: "pUSD", balanceText: "$30,000")
+    static let empty = Self(icon: Assets.Polymarket.accountAvatar, symbol: "USD", balanceText: "$0,00")
+    static let funded = Self(icon: Assets.Polymarket.accountAvatar, symbol: "USD", balanceText: "$30,000")
 }
 
 // MARK: - Previews
@@ -51,14 +51,4 @@ private extension PolymarketOrderPaymentRow.Model {
 #Preview("Showcase — Dark") {
     PolymarketOrderAmountShowcase()
         .preferredColorScheme(.dark)
-}
-
-private extension TokenIconInfo {
-    static let preview = TokenIconInfo(
-        name: "USD Coin",
-        blockchainIconAsset: nil,
-        imageURL: nil,
-        isCustom: false,
-        customTokenColor: nil
-    )
 }

@@ -67,11 +67,4 @@ extension WalletConnectURLParser {
 
 public enum WalletConnectRequestURI: Equatable {
     case v2(WalletConnectV2URI)
-
-    var debugString: String {
-        switch self {
-        case .v2(let walletConnectV2URI):
-            return walletConnectV2URI.absoluteString
-        }
-    }
 }

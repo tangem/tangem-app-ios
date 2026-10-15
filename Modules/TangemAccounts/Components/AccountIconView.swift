@@ -172,6 +172,12 @@ public extension AccountIconView {
             letterFont: TangemFontStyle(font: Fonts.Bold.largeTitle)
         )
 
+        public static let redesignLargeSized: Self = .init(
+            padding: 20,
+            size: CGSize(bothDimensions: 40),
+            letterFont: TangemFontStyle(font: Fonts.Bold.largeTitle)
+        )
+
         public static let redesignDefaultSized: Self = .init(
             padding: 8,
             size: CGSize(bothDimensions: 24),

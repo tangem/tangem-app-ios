@@ -41,7 +41,8 @@ struct JointAccountOperationDetailsViewModelBuilder {
             contentPublisher: contentPublisher(of: pendingOperation.operation.id, provider: provider),
             pendingOperationsProvider: provider,
             coordinator: coordinator,
-            sign: { try await pendingOperation.sign() }
+            sign: { try await pendingOperation.sign() },
+            reject: { try await pendingOperation.reject() }
         )
     }
 }
@@ -79,6 +80,8 @@ private extension JointAccountOperationDetailsViewModelBuilder {
             signers: signersBuilder.build(pendingOperation: pendingOperation),
             answer: answer(of: pendingOperation),
             canSign: signersResolver.canSign(pendingOperation),
+            canReject: signersResolver.canReject(pendingOperation),
+            isInitiator: signersResolver.ownAnswer(of: pendingOperation) == .created,
             status: status(of: pendingOperation)
         )
     }

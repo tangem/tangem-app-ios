@@ -34,10 +34,6 @@ class PolkadotJsonRpcProvider: HostProvider {
         requestPublisher(for: .header(hash: blockhash))
     }
 
-    func accountNextIndex(_ address: String) -> AnyPublisher<UInt64, Error> {
-        requestPublisher(for: .accountNextIndex(address: address))
-    }
-
     func queryInfo(_ extrinsic: String) -> AnyPublisher<String, Error> {
         requestPublisher(for: .queryInfo(extrinsic: extrinsic))
     }

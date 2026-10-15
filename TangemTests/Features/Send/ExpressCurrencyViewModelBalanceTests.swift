@@ -54,6 +54,21 @@ struct ExpressCurrencyViewModelBalanceTests {
 
         #expect(await settledBalance(of: viewModel) == .loaded(text: tokenBalanceText))
     }
+
+    @Test("A sending account that opts in is presented abstractly and shows the fiat balance")
+    func sendingSideOptedInShowsTheFiatBalance() async {
+        let viewModel = makeSUT(viewType: .send)
+        let presentation = SendReceiveTokenPresentation(
+            currencySymbol: "USD",
+            icon: Assets.Polymarket.accountAvatar,
+            appliesToSendSide: true
+        )
+
+        viewModel.update(wallet: .success(makeToken(presentation: presentation)))
+
+        #expect(await settledBalance(of: viewModel) == .loaded(text: fiatBalanceText))
+        #expect(viewModel.state.symbolState == .loaded(text: "USD"))
+    }
 }
 
 // MARK: - Fixtures

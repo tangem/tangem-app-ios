@@ -34,7 +34,7 @@ struct UserWalletSettingsView: View {
 
             nftSection
 
-            socialLogOutSection
+            socialLoginSection
 
             forgetSection
         }
@@ -145,10 +145,12 @@ struct UserWalletSettingsView: View {
         }
     }
 
-    private var socialLogOutSection: some View {
-        GroupedSection(viewModel.socialLogOutViewModel) {
-            DefaultRowView(viewModel: $0)
-                .appearance(.plainButton)
+    private var socialLoginSection: some View {
+        GroupedSection(viewModel.socialLoginSectionModels) {
+            DefaultRowView(viewModel: $0.rowViewModel)
+                .appearance($0.isDestructive ? .destructiveButton : .plainButton)
+        } footer: {
+            DefaultFooterView(Localization.socialWalletSettingsDeleteWalletFooter)
         }
     }
 }

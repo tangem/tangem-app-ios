@@ -60,12 +60,6 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         []
     }
 
-    func archiveCryptoAccount(
-        withIdentifier identifier: any AccountModelPersistentIdentifierConvertible
-    ) throws(AccountArchivationError) {
-        throw .unknownError(NSError.dummy)
-    }
-
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountRecoveryError) -> AccountOperationResult {
         throw .unknownError(NSError.dummy)
     }

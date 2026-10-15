@@ -17,7 +17,6 @@ import TangemCollectibles
 protocol UserWalletModel:
     MainHeaderSupplementInfoProvider,
     TotalBalanceProvider,
-    MultiWalletMainHeaderSubtitleDataSource,
     AnalyticsContextDataProvider,
     MainHeaderUserWalletStateInfoProvider,
     EmailDataProvider,
@@ -26,6 +25,7 @@ protocol UserWalletModel:
     TangemPayAuthorizingProvider,
     JointAccountDerivationInteractorProvider,
     CollectiblesColdKeyInteractorProvider,
+    PolymarketOwnerKeySessionProvider,
     WalletSelectorInfoProvider,
     UserWalletModelUnlockerResolvable,
     UserWalletInfoProvider,
@@ -34,6 +34,8 @@ protocol UserWalletModel:
     AnyObject {
     var config: UserWalletConfig { get }
     var userWalletId: UserWalletId { get }
+    var cardSetLabel: String { get }
+    var hasImportedWallets: Bool { get }
     var tangemApiAuthData: TangemApiAuthorizationData? { get }
     var keysRepository: KeysRepository { get }
     var refcodeProvider: RefcodeProvider? { get }

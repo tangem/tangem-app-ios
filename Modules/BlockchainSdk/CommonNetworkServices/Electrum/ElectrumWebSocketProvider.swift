@@ -36,15 +36,6 @@ class ElectrumWebSocketProvider: HostProvider {
         }
     }
 
-    func getTxHistory(identifier: Identifier) async throws -> [ElectrumDTO.Response.History] {
-        switch identifier {
-        case .address(let address):
-            return try await send(method: Method.Blockchain.Address.getHistory, parameter: [address])
-        case .scriptHash(let scriptHash):
-            return try await send(method: Method.Blockchain.ScriptHash.getHistory, parameter: [scriptHash])
-        }
-    }
-
     func getTransaction(hash: String) async throws -> ElectrumDTO.Response.Transaction {
         try await send(method: Method.Blockchain.Transaction.get, parameter: [AnyEncodable(hash), AnyEncodable(true)])
     }

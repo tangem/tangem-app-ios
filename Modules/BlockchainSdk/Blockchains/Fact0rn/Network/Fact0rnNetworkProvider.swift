@@ -109,10 +109,6 @@ private extension Fact0rnNetworkProvider {
 }
 
 extension Fact0rnNetworkProvider {
-    enum ProviderError: LocalizedError {
-        case failedScriptHashForAddress
-    }
-
     enum Constants {
         static let minimalFeeBlockAmount = 8
         static let normalFeeBlockAmount = 4

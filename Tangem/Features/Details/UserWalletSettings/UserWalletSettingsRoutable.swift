@@ -26,6 +26,7 @@ protocol UserWalletSettingsRoutable: AnyObject, UserSettingsAccountsRoutable {
     func openMobileBackupNeeded(userWalletModel: UserWalletModel)
     func openMobileBackupTypes(userWalletModel: UserWalletModel)
     func openMobileRemoveWalletNotification(userWalletModel: UserWalletModel)
+    func openMobileRemoveSocialWalletNotification(userWalletModel: UserWalletModel)
 
     @MainActor
     func openHardwareBackupTypes(userWalletModel: UserWalletModel)

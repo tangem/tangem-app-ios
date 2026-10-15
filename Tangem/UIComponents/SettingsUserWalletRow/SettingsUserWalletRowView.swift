@@ -44,10 +44,9 @@ struct SettingsUserWalletRowView: View {
     private var icon: some View {
         image
             .frame(width: 36, height: 36)
-            .skeletonable(
-                isShown: viewModel.icon.isLoading,
-                size: CGSize(width: 36, height: 22),
-                paddings: EdgeInsets(top: 7, leading: 0, bottom: 7, trailing: 0)
+            .shimmerPlaceholder(
+                viewModel.icon.isLoading,
+                variant: .custom(width: 36, height: 22, cornerRadius: 3)
             )
     }
 

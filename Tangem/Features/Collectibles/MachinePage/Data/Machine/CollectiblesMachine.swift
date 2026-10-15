@@ -19,7 +19,7 @@ struct CollectiblesMachine {
     let expectedValue: Decimal
     /// Only the tiers this machine actually carries, in rarity order.
     let tiers: [TierStats]
-    var openingVideoURL: URL?
+    var openingMedia: OpeningMedia = .empty
 }
 
 extension CollectiblesMachine {
@@ -29,6 +29,14 @@ extension CollectiblesMachine {
         case rare
         case epic
         case legendary
+    }
+
+    struct OpeningMedia {
+        let darkVideoURL: URL?
+        let lightVideoURL: URL?
+        let skipAudioURL: URL?
+
+        static let empty = OpeningMedia(darkVideoURL: nil, lightVideoURL: nil, skipAudioURL: nil)
     }
 
     struct TierStats {

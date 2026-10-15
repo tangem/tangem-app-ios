@@ -41,7 +41,7 @@ final class CollectiblesPacksViewModel: ObservableObject {
 
     func load() async {
         switch state {
-        case .loading, .content, .empty:
+        case .loading, .content, .empty, .reloading:
             return
         case .idle, .failed:
             reload()
@@ -63,7 +63,17 @@ final class CollectiblesPacksViewModel: ObservableObject {
         self.loreID = loreID
 
         guard let catalogue = model.switchLore(loreID) else {
-            state = .loading
+            switch state {
+            case .content(let models):
+                state = .reloading(.content(models))
+            case .empty(let hasQuery):
+                state = .reloading(.empty(hasQuery: hasQuery))
+            case .reloading:
+                break
+            case .idle, .loading, .failed:
+                state = .loading
+            }
+
             return reload()
         }
 
@@ -128,8 +138,15 @@ final class CollectiblesPacksViewModel: ObservableObject {
 
     func cancelLoading() {
         cancelTasks()
-        guard state.isLoading else { return }
-        state = .idle
+
+        switch state {
+        case .loading:
+            state = .idle
+        case .reloading(let shown):
+            state = shown.state
+        case .idle, .content, .empty, .failed:
+            break
+        }
     }
 
     func selectPack(withID id: String) {
@@ -159,9 +176,17 @@ extension CollectiblesPacksViewModel {
         case content([CollectiblesPackCard.Model])
         case empty(hasQuery: Bool)
         case failed
+        case reloading(Shown)
 
         var isLoading: Bool {
             if case .loading = self {
+                return true
+            }
+            return false
+        }
+
+        var isReloading: Bool {
+            if case .reloading = self {
                 return true
             }
             return false
@@ -179,6 +204,18 @@ extension CollectiblesPacksViewModel {
                 return true
             }
             return false
+        }
+    }
+
+    enum Shown {
+        case content([CollectiblesPackCard.Model])
+        case empty(hasQuery: Bool)
+
+        var state: State {
+            switch self {
+            case .content(let models): .content(models)
+            case .empty(let hasQuery): .empty(hasQuery: hasQuery)
+            }
         }
     }
 
@@ -220,7 +257,7 @@ private extension CollectiblesPacksViewModel {
         guard !Task.isCancelled else { return }
 
         switch state {
-        case .content, .empty:
+        case .content, .empty, .reloading:
             break
         case .idle, .loading, .failed:
             state = .loading

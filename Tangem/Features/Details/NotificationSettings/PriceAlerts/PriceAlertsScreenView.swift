@@ -91,18 +91,16 @@ struct PriceAlertsScreenView: View {
             .titleAccessory { skeletonCapsule(size: Constants.skeletonTitleSize) }
             .subtitleAccessory { skeletonCapsule(size: Constants.skeletonSubtitleSize) }
             .start {
-                SkeletonView()
-                    .frame(width: Constants.skeletonIconSize, height: Constants.skeletonIconSize)
-                    .clipShape(Circle())
+                Shimmer()
+                    .variant(.custom(width: Constants.skeletonIconSize, height: Constants.skeletonIconSize))
             }
             .contentLead(.equal)
             .showDivider(false)
     }
 
     private func skeletonCapsule(size: CGSize) -> some View {
-        SkeletonView()
-            .frame(width: size.width, height: size.height)
-            .clipShape(Capsule())
+        Shimmer()
+            .variant(.custom(width: size.width, height: size.height))
     }
 
     private var emptyStateView: some View {

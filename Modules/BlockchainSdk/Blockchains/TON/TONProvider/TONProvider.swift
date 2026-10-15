@@ -98,13 +98,6 @@ struct TONProvider: HostProvider {
         )
     }
 
-    /// Fetch balance wallet by address
-    /// - Parameter address: UserFriendly TON address wallet
-    /// - Returns: String balance wallet adress or Error
-    func getBalanceWallet(address: String) -> AnyPublisher<String, Error> {
-        requestPublisher(for: .init(node: node, targetType: .getBalance(address: address)))
-    }
-
     /// Get estimate sending transaction Fee
     /// - Parameter address: Wallet address
     /// - Parameter body: Body of message cell TON blockchain

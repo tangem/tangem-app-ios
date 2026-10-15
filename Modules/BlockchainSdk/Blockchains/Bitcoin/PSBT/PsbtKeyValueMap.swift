@@ -219,11 +219,6 @@ private struct ByteReader {
         }
     }
 
-    mutating func readVarBytes() throws -> Data {
-        let len = Int(try readVarInt())
-        return try read(count: len)
-    }
-
     mutating func readKVMap() throws -> [PsbtKeyValueMap.KV] {
         var items: [PsbtKeyValueMap.KV] = []
         while true {

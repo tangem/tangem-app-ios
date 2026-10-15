@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
 import TangemUIUtils
 
 struct VisaWalletMainContentView: View {
@@ -66,7 +67,7 @@ struct VisaWalletMainContentView: View {
                             Text(viewModel.numberOfDaysLimitText)
                                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                         }
-                        .skeletonable(isShown: viewModel.isBalancesAndLimitsBlockLoading, size: .init(width: 160, height: 18), radius: 4)
+                        .shimmerPlaceholder(viewModel.isBalancesAndLimitsBlockLoading, variant: .custom(width: 160, height: 18, cornerRadius: 4))
                     }
 
                     Spacer()
