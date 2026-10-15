@@ -12,7 +12,6 @@ import XCTest
 final class TangemPayAccountVisibilityUITests: BaseTestCase {
     private let firstAccountName = "Account 1"
     private let secondAccountName = "Account 2"
-    private let payAccountName = "Payment account"
     private let qaToolsClient = QAToolsClient()
 
     func testPayAccountNotListedInWalletSettingsAccounts() {
@@ -23,7 +22,7 @@ final class TangemPayAccountVisibilityUITests: BaseTestCase {
             .openWalletSettings()
             .verifyAccountExists(firstAccountName)
             .verifyAccountExists(secondAccountName)
-            .verifyAccountNotExists(payAccountName)
+            .verifyAccountNotExists(Localization.tangempayPaymentAccount)
     }
 
     func testPayAccountNotOfferedWhenAddingTokenViaAddAndManage() {
@@ -33,7 +32,7 @@ final class TangemPayAccountVisibilityUITests: BaseTestCase {
             .openAddTokensAccountPicker()
             .verifyAccountVisible(firstAccountName)
             .verifyAccountVisible(secondAccountName)
-            .verifyAccountNotVisible(payAccountName)
+            .verifyAccountNotVisible(Localization.tangempayPaymentAccount)
     }
 
     func testPayAccountNotListedInAddFundsTokenSelector() {
@@ -44,7 +43,7 @@ final class TangemPayAccountVisibilityUITests: BaseTestCase {
             .tapMainBuy()
             .waitBuyTokenSelectorDisplayed()
             .verifyAccountVisible(firstAccountName)
-            .verifyAccountNotVisible(payAccountName)
+            .verifyAccountNotVisible(Localization.tangempayPaymentAccount)
     }
 
     func testPayAccountNotListedInTransfersTokenSelector() {
@@ -54,7 +53,7 @@ final class TangemPayAccountVisibilityUITests: BaseTestCase {
             .tapMainSell()
             .waitSellTokenSelectorDisplayed()
             .verifyAccountVisible(firstAccountName)
-            .verifyAccountNotVisible(payAccountName)
+            .verifyAccountNotVisible(Localization.tangempayPaymentAccount)
     }
 
     func testPayAccountNotOfferedWhenAddingTokenViaMarkets() {
@@ -68,7 +67,7 @@ final class TangemPayAccountVisibilityUITests: BaseTestCase {
             .openAccountSelector()
             .verifyAccountVisible(firstAccountName)
             .verifyAccountVisible(secondAccountName)
-            .verifyAccountNotVisible(payAccountName)
+            .verifyAccountNotVisible(Localization.tangempayPaymentAccount)
     }
 
     func testPayAccountNotOfferedAsReferralRewardsAddress() {
@@ -81,7 +80,7 @@ final class TangemPayAccountVisibilityUITests: BaseTestCase {
             .openAccountSelector()
             .verifyAccountVisible(firstAccountName)
             .verifyAccountVisible(secondAccountName)
-            .verifyAccountNotVisible(payAccountName)
+            .verifyAccountNotVisible(Localization.tangempayPaymentAccount)
     }
 
     func testPayAccountNotOfferedWhenReceivingNFT() {
@@ -93,7 +92,7 @@ final class TangemPayAccountVisibilityUITests: BaseTestCase {
             .tapReceive()
             .verifyAccountVisible(firstAccountName)
             .verifyAccountVisible(secondAccountName)
-            .verifyAccountNotVisible(payAccountName)
+            .verifyAccountNotVisible(Localization.tangempayPaymentAccount)
     }
 
     func testPayAccountNotListedInNFTSendAccounts() {
@@ -107,7 +106,7 @@ final class TangemPayAccountVisibilityUITests: BaseTestCase {
             .openAsset(Constants.nftAssetName)
             .tapSend()
             .verifySuggestedAccountVisible(secondAccountName)
-            .verifySuggestedAccountNotVisible(payAccountName)
+            .verifySuggestedAccountNotVisible(Localization.tangempayPaymentAccount)
     }
 
     func testPayAccountNotOfferedWhenConnectingDAppViaWalletConnect() {
@@ -128,7 +127,7 @@ final class TangemPayAccountVisibilityUITests: BaseTestCase {
             .tapAccountRow()
             .verifyAccountVisible(firstAccountName)
             .verifyAccountVisible(secondAccountName)
-            .verifyAccountNotVisible(payAccountName)
+            .verifyAccountNotVisible(Localization.tangempayPaymentAccount)
     }
 
     private func launchWithPayAndTwoAccounts() -> MainScreen {
