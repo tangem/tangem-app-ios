@@ -22,6 +22,7 @@ final class CommonPolymarketAccountModel {
     private let ownerAddressProvider: PolymarketOwnerAddressProviding
     private let balanceService: PolymarketBalanceService
     private let presenceStore: PolymarketAccountPresenceStore
+    private let depositsReconciler: PolymarketLaunchDepositsReconciling
 
     private let stateSubject = CurrentValueSubject<PolymarketAccountState?, Never>(nil)
     private let refreshProcessor = SingleTaskProcessor<Void, Never>()
@@ -37,7 +38,8 @@ final class CommonPolymarketAccountModel {
         credentialsRepository: PolymarketCredentialsRepository,
         ownerAddressProvider: PolymarketOwnerAddressProviding,
         balanceService: PolymarketBalanceService,
-        presenceStore: PolymarketAccountPresenceStore
+        presenceStore: PolymarketAccountPresenceStore,
+        depositsReconciler: PolymarketLaunchDepositsReconciling
     ) {
         id = PolymarketAccountId(userWalletId: userWalletId)
         self.userWalletId = userWalletId
@@ -48,6 +50,7 @@ final class CommonPolymarketAccountModel {
         self.ownerAddressProvider = ownerAddressProvider
         self.balanceService = balanceService
         self.presenceStore = presenceStore
+        self.depositsReconciler = depositsReconciler
     }
 }
 
@@ -217,6 +220,8 @@ private extension CommonPolymarketAccountModel {
             balanceService.update(.unavailable)
             return
         }
+
+        depositsReconciler.reconcileOncePerLaunch(ownerAddress: ownerAddress)
 
         let previous = balanceService.state
         balanceService.update(.loading)
