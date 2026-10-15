@@ -31,6 +31,20 @@ extension PolymarketActivityRow.Model {
 
         return market?.iconURL ?? market?.imageURL ?? market?.event?.iconURL ?? market?.event?.imageURL
     }
+
+    static func marketTitle(for record: PolymarketActivityRecord) -> String? {
+        record.market?.title?.nilIfEmpty ?? record.market?.event?.title.nilIfEmpty
+    }
+
+    static func amount(for record: PolymarketActivityRecord) -> String {
+        let displayed = PolymarketOrderFormatter.displayedMoney(record.amount)
+
+        guard displayed > 0 else { return Constants.noAmount }
+
+        let sign = record.type.isIncoming ? String.plusSign : String.minusSign
+
+        return "\(sign) \(PolymarketOrderFormatter.money(displayed))"
+    }
 }
 
 // MARK: - Fields
@@ -65,22 +79,12 @@ private extension PolymarketActivityRow.Model {
     static func subtitle(for record: PolymarketActivityRecord) -> String? {
         guard !record.type.isFunding else { return record.transactionHash?.nilIfEmpty }
 
-        guard let title = (record.market?.title?.nilIfEmpty ?? record.market?.event?.title.nilIfEmpty) else { return nil }
+        guard let title = marketTitle(for: record) else { return nil }
 
         guard record.type == .redeem, record.redeemResult == .won else { return title }
 
         // [REDACTED_TODO_COMMENT]
         return "Because had won in “\(title)”"
-    }
-
-    static func amount(for record: PolymarketActivityRecord) -> String {
-        let displayed = PolymarketOrderFormatter.displayedMoney(record.amount)
-
-        guard displayed > 0 else { return Constants.noAmount }
-
-        let sign = record.type.isIncoming ? String.plusSign : String.minusSign
-
-        return "\(sign) \(PolymarketOrderFormatter.money(displayed))"
     }
 
     static func tone(for record: PolymarketActivityRecord) -> PolymarketValueTone {
@@ -91,7 +95,11 @@ private extension PolymarketActivityRow.Model {
         case .lost, .split: return .neutral
         }
     }
+}
 
+// MARK: - Constants
+
+private extension PolymarketActivityRow.Model {
     enum Constants {
         static let noAmount = "-"
     }

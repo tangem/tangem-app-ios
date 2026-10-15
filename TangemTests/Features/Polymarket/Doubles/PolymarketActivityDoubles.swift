@@ -55,3 +55,22 @@ final class PolymarketActivityServiceStub: PolymarketActivityService {
         return nil
     }
 }
+
+final class PolymarketActivityRoutableSpy: PolymarketActivityRoutable, PolymarketActivityDetailsRoutable {
+    private(set) var openedRecords: [PolymarketActivityRecord] = []
+    private(set) var closeCount = 0
+
+    func closeActivity() {
+        closeCount += 1
+    }
+
+    func shareActivityExport(url: URL) {}
+
+    func openActivityDetails(record: PolymarketActivityRecord) {
+        openedRecords.append(record)
+    }
+
+    func closeActivityDetails() {}
+
+    func openActivityEvent(eventID: String) {}
+}
