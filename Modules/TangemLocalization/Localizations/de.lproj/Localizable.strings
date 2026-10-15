@@ -251,6 +251,13 @@
 "collectibles_main_search_empty" = "Keine Ergebnisse. Versuchen Sie, Ihre Suchanfrage zu ändern, oder wählen Sie einen Begriff aus der Liste aus.";
 "collectibles_main_search_load_error" = "Die Kartenliste konnte nicht geladen werden.";
 "collectibles_main_title" = "Packs-Konto";
+"collectibles_open_pack_keep_card_button" = "Karte aufbewahren";
+"collectibles_open_pack_market_value" = "Marktwert %@ • Versichert";
+"collectibles_open_pack_pull_common" = "Allgemein";
+"collectibles_open_pack_pull_epic" = "Epische Karte gezogen";
+"collectibles_open_pack_pull_rare" = "Seltene Karte gezogen";
+"collectibles_open_pack_pull_uncommon" = "ungewöhnliche Karte gezogen";
+"collectibles_open_pack_sell_back_button" = "Zurückverkaufen für %@";
 "collectibles_pack_unopened_open_pack" = "Offenes Paket";
 "collectibles_pack_unopened_subtitle" = "Deine Zahlung wurde erfolgreich abgewickelt, aber du hast das Öffnen des Packs noch nicht abgeschlossen. Bitte hole dir deine Karte ab, um mit dem Öffnen der Packs fortzufahren.";
 "collectibles_pack_unopened_title" = "Sie haben die Packung ungeöffnet.";
@@ -1269,6 +1276,8 @@
 "mcp_session_title" = "Vernetztes MCP";
 "mobile_wallet_requires_min_os_warning_body" = "Du musst auf die folgende Version aktualisieren: %1$@ um eine mobile Wallet zu erstellen";
 "mobile_wallet_requires_min_os_warning_title" = "Mobile Wallet erfordert %1$@ oder später";
+"money_account_add_funds_receive_description" = "Senden Sie USDC Polygon an die Adresse Ihres Kontos.";
+"money_account_add_funds_swap_description" = "Nutzen Sie Kryptowährung aus Ihrer Wallet, um Ihr Bankkonto aufzuladen";
 "money_account_main_name" = "Geldkonto";
 "money_account_main_status_action_required" = "Erforderliche Maßnahme";
 "money_account_main_status_activating" = "Wird aktiviert…";
@@ -1712,6 +1721,9 @@
 "promo_campaign_terms_link" = "%1$@ Bedingungen";
 "promo_campaign_unavailable_title" = "Kampagne nicht verfügbar";
 "promo_campaign_whale_swap_summary_description" = "Erhalten Sie bis Ende August bei jedem Swap ab 10.000 $ Cashback.\n\nDie Sätze steigen mit dem Volumen: 0,10%% ab 10.000 $, 0,20%% ab 20.000 $, 0,50%% ab 100.000 $.\n\nMaximale Auszahlung: 500 $ pro Swap und 10.000 $ pro Wallet und Swap-Richtung, solange die Aktion läuft. Swaps von Stablecoins in andere Stablecoins sind ausgeschlossen.\n\nDie Auszahlung erfolgt wöchentlich an eine USDT- oder USDC-Adresse Ihrer Wahl.";
+"promo_code_activation_success" = "Ihr Aktionscode wurde erfolgreich aktiviert. Die Prämie wird Ihrem Konto gutgeschrieben. %@ Konto.";
+"promo_code_no_address_title" = "%@ Adresse erforderlich  ";
+"promo_code_no_address" = "Um den Bonus zu erhalten, ist eine „ %1$@ “-Adresse erforderlich. Bitte fügen Sie %1$@ zu Ihrer Wallet hinzu und versuchen Sie die Aktivierung erneut.";
 "push_notification_settings_banner_description" = "Push-Benachrichtigungen sind aktiviert, funktionieren aber erst, nachdem du Benachrichtigungen in den Geräteeinstellungen zugelassen hast.";
 "push_notification_settings_banner_title" = "Benachrichtigungen zulassen";
 "push_notification_settings_offers_updates_subtitle" = "Produktneuheiten, exklusive Angebote und Erinnerungen an Aktivitäten.";
@@ -2343,7 +2355,6 @@
 "tangempay_factory_settings_warning_title" = "Mir ist bewusst, dass ich den Zugriff auf meine Tangem Pay Card und alle darauf befindlichen Guthaben vollständig und ohne Möglichkeit der Wiederherstellung verliere.";
 "tangempay_failed_to_issue_card_support_description" = "Ein technischer Fehler ist aufgetreten, bitte kontaktieren Sie den Support";
 "tangempay_failed_to_issue_card" = "Kartenausstellung fehlgeschlagen";
-"tangempay_geo_selection_search_empty" = "No results. Try to change request";
 "tangempay_get_banner_description" = "Kostenlose Tangem Pay Karte mit bis zu 2 %% Cashback";
 "tangempay_get_tangem_pay" = "Tangem Pay erhalten";
 "tangempay_go_to_support" = "Zum Support";
@@ -2466,6 +2477,7 @@
 "tangempay_remove_account" = "Konto löschen";
 "tangempay_residency_all_country" = "Land ändern";
 "tangempay_residency_all_state" = "Wählen Sie einen anderen Bundesstaat";
+"tangempay_residency_search_empty" = "Keine Ergebnisse. Versuchen Sie, die Anfrage zu ändern.";
 "tangempay_residency_suggested_country" = "Vorgeschlagenes Land";
 "tangempay_residency_suggested_state" = "Empfohlener Zustand";
 "tangempay_residency_title_country" = "Aufenthaltsland";
@@ -2743,7 +2755,7 @@
 "virtual_account_requisites_bank_name" = "Name der Bank";
 "virtual_account_requisites_beneficiary_address" = "Adresse des Begünstigten";
 "virtual_account_requisites_beneficiary_name" = "Name des Begünstigten";
-"virtual_account_requisites_routing_number" = "Bankleitzahl";
+"virtual_account_requisites_routing_number" = "Routing number";
 "visa_balance_limits_details_aml_verified" = "AML-geprüft";
 "visa_balance_limits_details_available" = "Verfügbar";
 "visa_balance_limits_details_blocked" = "Gesperrt";

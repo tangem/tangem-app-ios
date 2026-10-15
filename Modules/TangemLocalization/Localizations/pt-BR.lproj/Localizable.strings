@@ -251,6 +251,13 @@
 "collectibles_main_search_empty" = "Nenhum resultado. Tente alterar os termos da busca\nou explore a partir da lista";
 "collectibles_main_search_load_error" = "Não foi possível carregar a lista de cartões.";
 "collectibles_main_title" = "Conta de pacotes";
+"collectibles_open_pack_keep_card_button" = "Ficar com o cartão";
+"collectibles_open_pack_market_value" = "Valor de mercado %@ · Segurado";
+"collectibles_open_pack_pull_common" = "Item comum obtido";
+"collectibles_open_pack_pull_epic" = "Item épico obtido";
+"collectibles_open_pack_pull_rare" = "Item raro obtido";
+"collectibles_open_pack_pull_uncommon" = "Item incomum obtido";
+"collectibles_open_pack_sell_back_button" = "Vender de volta por %@";
 "collectibles_pack_unopened_open_pack" = "Abrir pacote";
 "collectibles_pack_unopened_subtitle" = "Seu pagamento foi concluído, mas você ainda não terminou de abrir o pacote. Receba sua carta para continuar abrindo pacotes.";
 "collectibles_pack_unopened_title" = "Você tem um pacote fechado";
@@ -675,8 +682,8 @@
 "express_legal_two_placeholders" = "Ao utilizar a funcionalidade de troca, você concorda com os termos do provedor. %1$@ e %2$@.";
 "express_more_providers_once_wallet_funded" = "Mais fornecedores estarão disponíveis assim que a carteira tiver fundos";
 "express_more_providers_soon" = "Mais fornecedores estarão disponíveis em breve.";
-"express_onramp_id_copied" = "Onramp ID copied";
-"express_onramp_id" = "Onramp ID";
+"express_onramp_id_copied" = "ID do Onramp copiado";
+"express_onramp_id" = "ID do Onramp";
 "express_onramp_restrictions_amount_error" = "Você não pode comprar tokens devido a restrições regionais";
 "express_onramp_restrictions_text" = "Alguns dos provedores podem estar indisponíveis";
 "express_onramp_restrictions_title" = "Restrições regionais de compra";
@@ -699,8 +706,8 @@
 "express_status_hide_button_text" = "Ocultar esta transação";
 "express_status_hide_dialog_text" = "Se você ocultar esta transação, ela não aparecerá mais na tela de status. Se você quiser apenas fechar a tela de status e retornar mais tarde, basta deslizar para o lado para descartá-la.";
 "express_status_hide_dialog_title" = "Ocultar o status da transação?";
-"express_swap_id_copied" = "Swap ID copied";
-"express_swap_id" = "Swap ID";
+"express_swap_id_copied" = "ID da troca copiado";
+"express_swap_id" = "ID da troca";
 "express_swap_not_supported_text" = "Este token não é compatível. Por favor, escolha um token diferente para usar em substituição.";
 "express_swap_not_supported_title" = "%@ não é suportado";
 "express_swap_restrictions_text" = "O provedor de swap é restrito";
@@ -1269,6 +1276,8 @@
 "mcp_session_title" = "MCP conectado";
 "mobile_wallet_requires_min_os_warning_body" = "Você precisa atualizar para %1$@ antes de criar uma carteira móvel";
 "mobile_wallet_requires_min_os_warning_title" = "A carteira digital requer %1$@ ou mais tarde";
+"money_account_add_funds_receive_description" = "Envie USDC pela rede Polygon para o endereço da sua conta";
+"money_account_add_funds_swap_description" = "Use criptoativos da sua carteira para adicionar fundos à sua conta bancária";
 "money_account_main_name" = "Money account";
 "money_account_main_status_action_required" = "Ação necessária";
 "money_account_main_status_activating" = "Ativando...";
@@ -1712,6 +1721,9 @@
 "promo_campaign_terms_link" = "%1$@ Termos";
 "promo_campaign_unavailable_title" = "Campanha indisponível";
 "promo_campaign_whale_swap_summary_description" = "Ganhe cashback em todas as trocas a partir de US$ 10.000 até o final de agosto.\n\nAs taxas aumentam conforme o volume: 0,10%% a partir de US$ 10 mil, 0,20%% a partir de US$ 20 mil e 0,50%% a partir de US$ 100 mil.\n\nPagamento máximo: US$ 500 por troca e US$ 10.000 por carteira, por direção de troca, enquanto durar a campanha. Trocas de stablecoin por stablecoin estão excluídas.\n\nO pagamento é realizado semanalmente em USDT ou USDC no endereço de sua escolha.";
+"promo_code_activation_success" = "Seu código promocional foi ativado com sucesso. A recompensa será creditada na sua conta %@.";
+"promo_code_no_address_title" = "Endereço %@ obrigatório  ";
+"promo_code_no_address" = "É necessário ter um endereço %1$@ para receber o bônus. Adicione um endereço %1$@ à sua carteira e tente ativar novamente.";
 "push_notification_settings_banner_description" = "As notificações push estão ativadas, mas só funcionarão depois que você as permitir nas configurações do seu dispositivo.";
 "push_notification_settings_banner_title" = "Permitir notificações";
 "push_notification_settings_offers_updates_subtitle" = "Novidades sobre produtos, ofertas exclusivas e lembretes de atividades.";
@@ -2065,9 +2077,9 @@
 "swap_in_progress" = "Troca em andamento";
 "swap_simple_mode" = "Modo simples";
 "swap_slippage_error" = "Valor não compatível";
-"swap_slippage_info_text" = "é a diferença entre o preço de execução esperado e o preço de execução efetivo causada por alterações no preço de mercado ou na liquidez";
-"swap_slippage_warning_text" = "A troca pode falhar se o limite de slippage for atingido";
-"swap_slippage_warning_title" = "Slippage definido como %@";
+"swap_slippage_info_text" = "é a diferença entre o preço de execução esperado e o preço de execução efetivo, causada por alterações no preço de mercado ou na liquidez";
+"swap_slippage_warning_text" = "A troca poderá falhar se o limite de slippage for atingido";
+"swap_slippage_warning_title" = "Slippage definido em %@";
 "swap_story_first_subtitle_v2" = "Troque criptomoedas diretamente na Tangem\nSem transferências adicionais\nSem movimentação de fundos para corretoras";
 "swap_story_first_title_v2" = "Troque dentro de sua carteira";
 "swap_story_forth_subtitle_v2" = "As trocas são executadas por meio de provedores confiáveis. Suas chaves permanecem em sua carteira Tangem o tempo todo. Clara. Transparente. Autocustódia.";
@@ -2343,7 +2355,6 @@
 "tangempay_factory_settings_warning_title" = "Entendo que perderei completamente o acesso ao meu cartão Tangem Pay e a todos os fundos nele contidos, sem possibilidade de recuperação.";
 "tangempay_failed_to_issue_card_support_description" = "Ocorreu um erro técnico. Por favor, entre em contato com o suporte.";
 "tangempay_failed_to_issue_card" = "Falha na emissão do cartão";
-"tangempay_geo_selection_search_empty" = "No results. Try to change request";
 "tangempay_get_banner_description" = "Cartão Tangem Pay grátis com até 2%% de cashback";
 "tangempay_get_tangem_pay" = "Obtenha o Tangem Pay";
 "tangempay_go_to_support" = "Acesse o Suporte";
@@ -2466,6 +2477,7 @@
 "tangempay_remove_account" = "Remover conta";
 "tangempay_residency_all_country" = "Alterar país";
 "tangempay_residency_all_state" = "Selecionar outro estado";
+"tangempay_residency_search_empty" = "Nenhum resultado encontrado. Tente alterar os critérios de busca";
 "tangempay_residency_suggested_country" = "País sugerido";
 "tangempay_residency_suggested_state" = "Estado sugerido";
 "tangempay_residency_title_country" = "País de residência";
@@ -2743,7 +2755,7 @@
 "virtual_account_requisites_bank_name" = "Nome do banco";
 "virtual_account_requisites_beneficiary_address" = "Endereço do beneficiário";
 "virtual_account_requisites_beneficiary_name" = "Nome do beneficiário";
-"virtual_account_requisites_routing_number" = "Número de roteamento";
+"virtual_account_requisites_routing_number" = "Routing number";
 "visa_balance_limits_details_aml_verified" = "Verificado AML";
 "visa_balance_limits_details_available" = "Disponível";
 "visa_balance_limits_details_blocked" = "Bloqueado";
