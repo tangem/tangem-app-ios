@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import CombineExt
 import TangemFoundation
+import TangemLocalization
 
 final class RealAssetsWidgetViewModel: ObservableObject {
     // MARK: - Published Properties
@@ -22,8 +23,6 @@ final class RealAssetsWidgetViewModel: ObservableObject {
     @Published var selectedInterval: MarketsPriceIntervalType = .day
 
     // MARK: - Properties
-
-    let widgetType: MarketsWidgetType
 
     var orderOptions: [MarketsListOrderType] {
         filterProvider.supportedOrderTypes
@@ -46,15 +45,21 @@ final class RealAssetsWidgetViewModel: ObservableObject {
         }
     }
 
+    var regionRestrictionDescription: String {
+        guard let regionName = categoriesSnapshot?.country.flatMap(Self.localizedRegionName(for:)) else {
+            return Localization.marketsRealAssetsRegionRestrictionDescription
+        }
+
+        return Localization.marketsRealAssetsRegionRestrictionDescriptionRegion(regionName)
+    }
+
     var headerLoadingState: MarketsCommonWidgetHeaderLoadingState {
         categorySelection == nil && tokenListLoadingState == .loading ? .first : .loaded
     }
 
     private weak var coordinator: RealAssetsWidgetRoutable?
     private let categoriesProvider: MarketsCategoriesProvider
-    private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler?
     private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
-    private let analyticsSection: Analytics.MarketsSection?
 
     private let filterProvider: MarketsListDataFilterProvider
     private let dataProvider = MarketsListDataProvider()
@@ -73,23 +78,17 @@ final class RealAssetsWidgetViewModel: ObservableObject {
     // MARK: - Init
 
     init(
-        widgetType: MarketsWidgetType,
         categoriesProvider: MarketsCategoriesProvider,
-        widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler?,
         quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
-        analyticsSection: Analytics.MarketsSection?,
         coordinator: RealAssetsWidgetRoutable?
     ) {
-        self.widgetType = widgetType
         self.categoriesProvider = categoriesProvider
-        self.widgetsUpdateHandler = widgetsUpdateHandler
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
-        self.analyticsSection = analyticsSection
         self.coordinator = coordinator
 
         filterProvider = MarketsListDataFilterProvider(
             supportedOrderTypes: Constants.supportedOrderTypes,
-            analyticsSection: analyticsSection
+            analyticsSection: .assets
         )
 
         marketCapFormatter = .init(
@@ -201,7 +200,6 @@ private extension RealAssetsWidgetViewModel {
     func loadCategories() {
         categoriesLoadingTask?.cancel()
         tokenListLoadingState = .loading
-        widgetsUpdateHandler?.performUpdateLoading(state: .loading, for: widgetType)
 
         let categoriesProvider = categoriesProvider
 
@@ -216,7 +214,6 @@ private extension RealAssetsWidgetViewModel {
                 }
 
                 categoriesSnapshot = snapshot
-                widgetsUpdateHandler?.performUpdateLoading(state: .loaded, for: widgetType)
                 makeFeaturedViewModel(from: snapshot)
                 select(requestedSelection(from: snapshot) ?? defaultSelection)
             } catch {
@@ -224,7 +221,6 @@ private extension RealAssetsWidgetViewModel {
 
                 AppLogger.tag("Markets").error("Failed to load real assets categories", error: error)
                 tokenListLoadingState = .error
-                widgetsUpdateHandler?.performUpdateLoading(state: .error, for: widgetType)
             }
         }
     }
@@ -246,6 +242,10 @@ private extension RealAssetsWidgetViewModel {
         MarketsDefaultCategoryResolver
             .resolve(from: snapshot.selectableCategories, regionCode: snapshot.country)
             .map { RealAssetsCategorySelection(category: $0) }
+    }
+
+    static func localizedRegionName(for code: String) -> String? {
+        Locale(identifier: Locale.appLanguageCode).localizedString(forRegionCode: code)
     }
 
     func makeFeaturedViewModel(from snapshot: MarketsCategoriesSnapshot) {
@@ -283,11 +283,7 @@ private extension RealAssetsWidgetViewModel {
 
     func analyticsParams(for selection: RealAssetsCategorySelection) -> [Analytics.ParameterKey: String] {
         var params: [Analytics.ParameterKey: String] = [.category: selection.analyticsValue]
-
-        if let analyticsSection {
-            params[.section] = analyticsSection.rawValue
-        }
-
+        params[.section] = Analytics.MarketsSection.assets.rawValue
         return params
     }
 }

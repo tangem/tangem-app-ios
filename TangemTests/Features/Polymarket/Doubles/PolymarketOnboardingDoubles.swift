@@ -170,6 +170,8 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
 
     private(set) var balanceCalls = 0
 
+    var queuedPriceResults: [Result<Decimal, Error>] = []
+
     private let balanceResult: Result<Decimal, Error>
     private let deriveResult: Result<PolymarketL2Credentials, Error>
     private let createResult: Result<PolymarketL2Credentials, Error>
@@ -185,7 +187,9 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
     }
 
     func price(tokenId: String, side: PolymarketOrderSide) async throws -> Decimal {
-        0
+        guard !queuedPriceResults.isEmpty else { return 0 }
+
+        return try queuedPriceResults.removeFirst().get()
     }
 
     func createCredentials(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketL2Credentials {
@@ -307,6 +311,7 @@ final class PolymarketBalanceServiceSpy: PolymarketBalanceService {
     var fiatAvailableBalanceProvider: TokenBalanceProvider { balanceProvider }
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { balanceProvider }
     var collateralTokenBalanceProvider: TokenBalanceProvider { balanceProvider }
+    var collateralTotalBalanceProvider: TokenBalanceProvider { balanceProvider }
 
     var state: PolymarketBalanceState? { updates.last }
 
@@ -349,20 +354,29 @@ private struct PolymarketBalanceStateBalanceProvider: TokenBalanceProvider {
 
 final class PolymarketAccountModelStub: PolymarketAccountModel {
     let id: PolymarketAccountId
-    let state: PolymarketAccountState?
+    var state: PolymarketAccountState?
+    let collateralTokenBalanceProvider: TokenBalanceProvider
+    let collateralTotalBalanceProvider: TokenBalanceProvider
+    let fiatAvailableBalanceProvider: TokenBalanceProvider
+    let fiatTotalTokenBalanceProvider: TokenBalanceProvider
 
-    init(userWalletId: UserWalletId = UserWalletId(value: Data([0x01, 0x02, 0x03])), state: PolymarketAccountState?) {
+    init(
+        userWalletId: UserWalletId = UserWalletId(value: Data([0x01, 0x02, 0x03])),
+        state: PolymarketAccountState?,
+        collateralTokenBalanceProvider: TokenBalanceProvider = TokenBalanceProviderTestsMock(balance: 0),
+        collateralTotalBalanceProvider: TokenBalanceProvider = TokenBalanceProviderTestsMock(balance: 0),
+        fiatAvailableBalanceProvider: TokenBalanceProvider = TokenBalanceProviderTestsMock(balance: 0),
+        fiatTotalTokenBalanceProvider: TokenBalanceProvider = TokenBalanceProviderTestsMock(balance: 0)
+    ) {
         id = PolymarketAccountId(userWalletId: userWalletId)
         self.state = state
+        self.collateralTokenBalanceProvider = collateralTokenBalanceProvider
+        self.collateralTotalBalanceProvider = collateralTotalBalanceProvider
+        self.fiatAvailableBalanceProvider = fiatAvailableBalanceProvider
+        self.fiatTotalTokenBalanceProvider = fiatTotalTokenBalanceProvider
     }
 
     var statePublisher: AnyPublisher<PolymarketAccountState?, Never> { .just(output: state) }
-
-    var collateralTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
-
-    var fiatAvailableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
-
-    var fiatTotalTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
 
     func refreshState(scope: PolymarketBalanceRefreshScope) async {}
 
@@ -373,9 +387,11 @@ final class PolymarketAccountModelStub: PolymarketAccountModel {
 
 final class PolymarketAccountPresenceStoreStub: PolymarketAccountPresenceStore {
     private var known: Bool
+    private var positions: Bool
 
-    init(known: Bool = false) {
+    init(known: Bool = false, positions: Bool = false) {
         self.known = known
+        self.positions = positions
     }
 
     func hasAccount(userWalletId: UserWalletId) -> Bool {
@@ -386,8 +402,17 @@ final class PolymarketAccountPresenceStoreStub: PolymarketAccountPresenceStore {
         known = true
     }
 
+    func hadPositions(userWalletId: UserWalletId) -> Bool {
+        positions
+    }
+
+    func markPositionsExisted(for userWalletId: UserWalletId) {
+        positions = true
+    }
+
     func delete(userWalletId: UserWalletId) {
         known = false
+        positions = false
     }
 }
 
@@ -455,6 +480,15 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
     private(set) var searchRequests: [PolymarketSearchRequest] = []
     private(set) var quoteRequests: [PolymarketOrderQuoteRequest] = []
 
+    var queuedQuoteResults: [Result<PolymarketOrderQuote, Error>] = []
+    var categoryList: [PolymarketCategory] = []
+    var queuedCategoryResults: [Result<[PolymarketCategory], Error>] = []
+    var slowEventCategories: Set<Int> = []
+
+    static let slowEventsDelay: UInt64 = 200_000_000
+    var eventPages: [EventsPageKey: PolymarketEventsPage] = [:]
+    private(set) var eventsRequests: [PolymarketEventsRequest] = []
+
     private var searchResults: [Result<PolymarketSearchResult, Error>]
     private let quoteResult: PolymarketOrderQuote?
 
@@ -476,10 +510,28 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
         return try searchResults.removeFirst().get()
     }
 
-    func categories(locale: String?) async throws -> [PolymarketCategory] { [] }
+    func categories(locale: String?) async throws -> [PolymarketCategory] {
+        if !queuedCategoryResults.isEmpty {
+            return try queuedCategoryResults.removeFirst().get()
+        }
+
+        return categoryList
+    }
 
     func events(request: PolymarketEventsRequest) async throws -> PolymarketEventsPage {
-        PolymarketEventsPage(events: [], cursor: nil, hasNext: false)
+        eventsRequests.append(request)
+
+        if let category = request.category, slowEventCategories.contains(category) {
+            try await Task.sleep(nanoseconds: Self.slowEventsDelay)
+        }
+
+        return eventPages[EventsPageKey(category: request.category, cursor: request.cursor)]
+            ?? PolymarketEventsPage(events: [], cursor: nil, hasNext: false)
+    }
+
+    struct EventsPageKey: Hashable {
+        let category: Int?
+        let cursor: String?
     }
 
     func event(id: String) async throws -> PolymarketEvent {
@@ -494,6 +546,10 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
 
     func orderQuote(request: PolymarketOrderQuoteRequest) async throws -> PolymarketOrderQuote {
         quoteRequests.append(request)
+
+        if !queuedQuoteResults.isEmpty {
+            return try queuedQuoteResults.removeFirst().get()
+        }
 
         guard let quoteResult else {
             throw PolymarketDepositWalletServiceStub.StubError()
@@ -547,17 +603,39 @@ final class PolymarketGeoblockStateProviderStub: PolymarketGeoblockStateProvider
     func refresh() {}
 }
 
-// MARK: - Search routing
+// MARK: - Event opening routing
 
-final class PolymarketSearchRoutableSpy: PolymarketSearchRoutable {
+final class PolymarketEventOpeningRoutableSpy: PolymarketEventOpeningRoutable {
+    static let ignored = PolymarketEventOpeningRoutableSpy()
+
     private(set) var openedEventIDs: [String] = []
-    private(set) var openedOutcomes: [(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String)] = []
+    private(set) var openedOutcomes: [(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String, isBuy: Bool)] = []
+    private(set) var openedEventCategories: [PolymarketCategory?] = []
+    private(set) var regionWarningOpenings = 0
+    private(set) var lastOnPlaced: (@MainActor (PolymarketOrderIndexing) -> Void)?
 
-    func openEventDetailsFromSearch(eventID: String) {
-        openedEventIDs.append(eventID)
+    func openRegionWarning() {
+        regionWarningOpenings += 1
     }
 
-    func openOrderFromSearch(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {
-        openedOutcomes.append((market, outcome, eventTitle))
+    func openEventDetails(
+        eventID: String,
+        category: PolymarketCategory?,
+        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
+    ) {
+        openedEventIDs.append(eventID)
+        openedEventCategories.append(category)
+        lastOnPlaced = onOrderPlaced
+    }
+
+    func openOrder(
+        market: PolymarketMarket,
+        outcome: PolymarketOutcome,
+        eventTitle: String,
+        request: PolymarketOrderRequest,
+        onPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
+    ) {
+        openedOutcomes.append((market, outcome, eventTitle, request.side == .buy))
+        lastOnPlaced = onPlaced
     }
 }

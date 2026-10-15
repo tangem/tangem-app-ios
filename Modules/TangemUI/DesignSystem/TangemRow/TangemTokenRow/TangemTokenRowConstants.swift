@@ -38,7 +38,7 @@ enum TangemTokenRowConstants {
     }
 
     enum Spacings {
-        static let priceChangeIconSpacing: CGFloat = SizeUnit.x1.value
-        static let badgeSpacing: CGFloat = SizeUnit.x1.value
+        static let priceChangeIconSpacing: CGFloat = 4
+        static let badgeSpacing: CGFloat = 4
     }
 }

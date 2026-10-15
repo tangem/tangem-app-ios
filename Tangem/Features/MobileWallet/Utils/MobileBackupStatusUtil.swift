@@ -28,6 +28,10 @@ extension MobileBackupStatusUtil {
         Self.hasICloudBackup(config: userWalletModel.config)
     }
 
+    var hasSocialLogin: Bool {
+        userWalletModel.config.hasSocialLogin
+    }
+
     var hasBackup: Bool {
         Self.hasBackup(config: userWalletModel.config)
     }
@@ -45,7 +49,7 @@ extension MobileBackupStatusUtil {
     }
 
     static func hasBackup(config: UserWalletConfig) -> Bool {
-        hasMnemonicBackup(config: config) || hasICloudBackup(config: config)
+        hasMnemonicBackup(config: config) || hasICloudBackup(config: config) || config.hasSocialLogin
     }
 
     static func isBackupNeeded(config: UserWalletConfig) -> Bool {
@@ -65,6 +69,10 @@ extension MobileBackupStatusUtil {
 
         if hasICloudBackup(config: config) {
             paramValues.append(.backupTypeCloud)
+        }
+
+        if config.hasSocialLogin {
+            paramValues.append(.socialLogin)
         }
 
         guard paramValues.isNotEmpty else {

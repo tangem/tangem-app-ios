@@ -20,8 +20,6 @@ extension Analytics {
         case biometryFailed = "[Basic] Biometry Failed"
         case basicButtonBuy = "[Basic] Button - Buy"
 
-        case buttonTokensList = "[Introduction Process] Button - Tokens List"
-        case buttonBuyCards = "[Introduction Process] Button - Buy Cards"
         case introductionProcessButtonScanCard = "[Introduction Process] Button - Scan Card"
         case introductionProcessCreateWalletIntroScreenOpened = "[Introduction Process] Create Wallet Intro Screen Opened"
         case introductionProcessIHaveWalletIntroScreenOpened = "[Introduction Process] I Have Wallet Intro Screen Opened"
@@ -290,6 +288,9 @@ extension Analytics {
         case walletSettingsForgetWalletRequest = "[Settings / Wallet Settings] Forget Wallet Request"
         case walletSettingsForgetWalletScreen = "[Settings / Wallet Settings] Forget Wallet Screen"
         case walletSettingsWalletForgotten = "[Settings / Wallet Settings] Wallet Forgotten"
+        case walletSettingsLogOutRequest = "[Settings / Wallet Settings] Log Out Request"
+        case walletSettingsWalletLoggedOut = "[Settings / Wallet Settings] Wallet Logged Out"
+        case walletSettingsSocialRecoveryDeleted = "[Settings / Wallet Settings] Social Recovery Deleted"
 
         // MARK: - Account Settings
 
@@ -366,6 +367,9 @@ extension Analytics {
         case swapChooseTokenScreenResult = "[Swap] Choose Token Screen Result"
         case swapSearchedTokenClicked = "[Swap] Searched Token Clicked"
         case swapButtonSwap = "[Swap] Button - Swap"
+        case swapButtonConfirm = "[Swap] Button - Confirm"
+        case swapButtonSlippage = "[Swap] Button - Slippage"
+        case swapWarningCustomSlippageThreshold = "[Swap] Warning - Custom slippage threshold"
         case swapButtonGivePermission = "[Swap] Button - Give permission"
         case swapButtonPermissionApprove = "[Swap] Button - Permission Approve"
         case swapButtonPermissionCancel = "[Swap] Button - Permission Cancel"
@@ -492,6 +496,8 @@ extension Analytics {
         case promotionScreenOpened = "[Promotion] Promotion Screen Opened"
         case promotionEnrollButtonClicked = "[Promotion] Enroll Button Clicked"
         case promotionAlreadyEnrolledScreenOpened = "[Promotion] Already Enrolled Screen Opened"
+        case promotionEnrollSuccessful = "[Promotion] Enroll Successful"
+        case promotionEnrollError = "[Promotion] Enroll Error"
 
         // MARK: - Promotion Banner
 
@@ -568,20 +574,11 @@ extension Analytics {
 
         case marketsScreenOpened = "[Markets] Markets Screen Opened"
         case marketsTokenListOpened = "[Markets] Token List Opened"
-        case marketsNewsListOpened = "[Markets] News List Opened"
         case marketsTokensSort = "[Markets] Sort By"
         case marketsDataError = "[Markets] Data Error"
         case marketsMarketsLoadError = "[Markets] Markets Load Error"
-        case marketsNewsLoadError = "[Markets] News Load Error"
-        case marketsAllWidgetsLoadError = "[Markets] All Widgets Load Error"
-        case marketsNewsCarouselScrolled = "[Markets] News Carousel Scrolled"
-        case marketsNewsCarouselEndReached = "[Markets] News Carousel End Reached"
-        case marketsNewsCarouselAllNewsButton = "[Markets] News Carousel All News button"
-        case marketsNewsCarouselTrendingClicked = "[Markets] News Carousel Trending Clicked"
         case marketsNewsListLoadError = "[Markets] News List Load Error"
         case marketsNewsCategoriesSelected = "[Markets] News Categories Selected"
-        case marketsEarnLoadError = "[Markets] Earn Load Error"
-        case marketsEarnScreenOpened = "[Markets] Earn Screen Opened"
         case marketsTokenSearch = "[Markets] Token Search"
         case marketsTokenSearchedClicked = "[Markets] Token Searched Clicked"
         case marketsEnterSection = "[Markets] Enter Section"
@@ -798,6 +795,17 @@ extension Analytics {
         case visaOnboardingVisaPermanentBannerClicked = "[Visa Onboarding] Visa Permanent Banner Clicked"
         case visaOnboardingPermanentButtonShowed = "[Visa Onboarding] Visa Permanent Button Showed"
         case visaOnboardingPermanentBannerShowed = "[Visa Onboarding] Visa Permanent Banner Showed"
+
+        case vaOnboardingCountrySelectScreenOpened = "[VA Onboarding] VA Country Select Screen Opened"
+        case vaOnboardingCountrySelected = "[VA Onboarding] VA Country Selected"
+        case vaOnboardingStateScreenOpened = "[VA Onboarding] VA State Screen Opened"
+        case vaOnboardingStateSelected = "[VA Onboarding] VA State Selected"
+        case vaOnboardingEligibilityCheckResult = "[VA Onboarding] VA Eligibility Check Result"
+        case vaOnboardingRegionNotAvailableScreenOpened = "[VA Onboarding] VA Region Not Available Screen Opened"
+        case vaOnboardingRegionNotAvailableSelectAnotherTapped = "[VA Onboarding] VA Region Not Available Select Another Tapped"
+        case vaOnboardingRegionNotAvailableJoinWaitlistTapped = "[VA Onboarding] VA Region Not Available Join Waitlist Tapped"
+        case vaOnboardingWaitlistScreenOpened = "[VA Onboarding] VA Waitlist Screen Opened"
+        case vaOnboardingWaitlistSaved = "[VA Onboarding] VA Waitlist Saved"
 
         case visaScreenVisaMainScreenOpened = "[Visa Screen] Visa Main Screen Opened"
         case visaScreenCardSettingsClicked = "[Visa Card Management] Button - Card Settings"

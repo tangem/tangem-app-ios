@@ -94,6 +94,8 @@ public enum SendAccessibilityIdentifiers {
     /// Send via Swap
     public static let convertToAnotherTokenButton = "sendConvertToAnotherTokenButton"
     public static let receiveTokenBlock = "sendReceiveTokenBlock"
+    public static let sourceTokenBlock = "sendSourceTokenBlock"
+    public static let rateBadge = "sendRateBadge"
     public static let receiveDecimalNumberTextField = "sendReceiveDecimalNumberTextField"
     public static let removeConvertButton = "sendRemoveConvertButton"
     public static let networkSelectorErrorTitle = "sendNetworkSelectorErrorTitle"
@@ -109,6 +111,8 @@ public enum SendAccessibilityIdentifiers {
     /// Swap Provider (compact view on summary)
     public static let swapProviderBlock = "sendSwapProviderBlock"
     public static let swapProviderName = "sendSwapProviderName"
+    public static let swapProviderFCAWarning = "sendSwapProviderFCAWarning"
+    public static let summaryTransactionDescription = "sendSummaryTransactionDescription"
 
     /// Swap Provider Selector
     public static let swapProviderBestRateBadge = "sendSwapProviderBestRateBadge"
@@ -126,6 +130,11 @@ public enum SendAccessibilityIdentifiers {
         "sendSwapProviderTypeFilterChip_\(type)"
     }
 
+    public static let swapProviderSelectorTitle = "sendSwapProviderSelectorTitle"
+    public static let swapApproveDescription = "sendSwapApproveDescription"
+    public static let swapApprovePolicyRow = "sendSwapApprovePolicyRow"
+    public static let swapApproveConfirmButton = "sendSwapApproveConfirmButton"
+
     /// Token search in receive token list
     public static let receiveTokenSearchBar = "sendReceiveTokenSearchBar"
 
@@ -138,4 +147,8 @@ public enum SendAccessibilityIdentifiers {
     public static let finishExploreButton = "sendFinishExploreButton"
     public static let finishShareButton = "sendFinishShareButton"
     public static let finishAmountValue = "sendFinishAmountValue"
+    public static let finishSourceAmountBlock = "sendFinishSourceAmountBlock"
+    public static let finishDestinationAmountBlock = "sendFinishDestinationAmountBlock"
+    public static let finishProviderBlock = "sendFinishProviderBlock"
+    public static let formVariantMenuButton = "sendFormVariantMenuButton"
 }

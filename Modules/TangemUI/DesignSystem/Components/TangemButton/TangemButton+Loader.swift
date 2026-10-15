@@ -15,7 +15,7 @@ extension TangemButton {
         let size: CGFloat
         let color: Color
 
-        private let lineWidth: CGFloat = SizeUnit.half.value
+        private let lineWidth: CGFloat = 2
 
         func makeBody(configuration: Configuration) -> some View {
             Circle()

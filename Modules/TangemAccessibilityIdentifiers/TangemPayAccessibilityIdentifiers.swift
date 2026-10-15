@@ -67,6 +67,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let addFundsSheetBankTransferOption = "\(prefix)AddFundsSheetBankTransferOption"
     public static let addFundsSheetCloseButton = "\(prefix)AddFundsSheetCloseButton"
     public static let virtualAccountShowDetailsButton = "\(prefix)VirtualAccountShowDetailsButton"
+    public static let virtualAccountOnboardingContinueButton = "\(prefix)VirtualAccountOnboardingContinueButton"
     public static let virtualAccountBankDetailsShareButton = "\(prefix)VirtualAccountBankDetailsShareButton"
     public static let virtualAccountFeeErrorBanner = "\(prefix)VirtualAccountFeeErrorBanner"
     public static let virtualAccountSuccessTitle = "\(prefix)VirtualAccountSuccessTitle"
@@ -75,12 +76,12 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let virtualAccountDepositLimitSubtitle = "\(prefix)VirtualAccountDepositLimitSubtitle"
     public static let virtualAccountBankDetailsErrorRetryButton = "\(prefix)VirtualAccountBankDetailsErrorRetryButton"
 
-    public static func virtualAccountFeeTitle(_ fee: VirtualAccountFee) -> String {
-        "\(prefix)VirtualAccountFeeTitle_\(fee.rawValue)"
+    public static func virtualAccountFeeTitle(_ feeType: String) -> String {
+        "\(prefix)VirtualAccountFeeTitle_\(feeType)"
     }
 
-    public static func virtualAccountFeeValue(_ fee: VirtualAccountFee) -> String {
-        "\(prefix)VirtualAccountFeeValue_\(fee.rawValue)"
+    public static func virtualAccountFeeValue(_ feeType: String) -> String {
+        "\(prefix)VirtualAccountFeeValue_\(feeType)"
     }
 
     public static func virtualAccountBankDetailValue(_ field: String) -> String {
@@ -150,6 +151,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let addToApplePayGuideBannerCloseButton = "\(prefix)AddToApplePayGuideBannerCloseButton"
     public static let addToApplePayGuideContainer = "\(prefix)AddToApplePayGuideContainer"
     public static let addToApplePayGuideCloseButton = "\(prefix)AddToApplePayGuideCloseButton"
+    public static let addToAppleWalletButton = "\(prefix)AddToAppleWalletButton"
 
     // MARK: - Card management
 
@@ -331,11 +333,23 @@ public enum TangemPayAccessibilityIdentifiers {
     public static func cashbackChartValue(_ month: String) -> String {
         "\(cashbackChartValuePrefix)_\(month)"
     }
+
+    public static let geoSelectionRow = "\(prefix)GeoSelectionRow"
+    private static let formFieldPrefix = "\(prefix)FormField"
+    private static let formFieldErrorPrefix = "\(prefix)FormFieldError"
+
+    public static func formField(_ field: String) -> String {
+        "\(formFieldPrefix)_\(field)"
+    }
+
+    public static func formFieldError(_ field: String) -> String {
+        "\(formFieldErrorPrefix)_\(field)"
+    }
 }
 
 public extension TangemPayAccessibilityIdentifiers {
     enum VirtualAccountFee: String {
-        case ach
-        case fedwire
+        case ach = "ACH_ONRAMP"
+        case fedwire = "FEDWIRE_ONRAMP"
     }
 }

@@ -18,7 +18,7 @@ final class YieldModuleTransactionScreen: ScreenBase<YieldModuleTransactionScree
     func holdToConfirm() -> TokenScreen {
         XCTContext.runActivity(named: "Hold 'Confirm' button to confirm transaction") { _ in
             waitAndAssertTrue(confirmButton, "'Confirm' button should be displayed")
-            confirmButton.press(forDuration: YieldModuleHoldToConfirm.duration)
+            confirmButton.holdToConfirm()
             XCTAssertTrue(
                 confirmButton.waitForNonExistence(timeout: .robustUIUpdate),
                 "'Confirm' button should be dismissed after confirmation"

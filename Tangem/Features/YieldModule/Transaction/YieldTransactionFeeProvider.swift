@@ -140,6 +140,11 @@ final class YieldTransactionFeeProvider {
         return try ApproveFee(fees: fees)
     }
 
+    func claimFee(to: String, data: Data) async throws -> ClaimFee {
+        let fees = try await fees(from: [TransactionData(to: to, data: data)])
+        return try ClaimFee(fees: fees)
+    }
+
     func currentNetworkFeeParameters() async throws -> EthereumFeeParameters {
         try await ethereumNetworkProvider.getFee(
             gasLimit: Constants.minimalTopUpGasLimit,

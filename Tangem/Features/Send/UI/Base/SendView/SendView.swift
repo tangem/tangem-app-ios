@@ -147,6 +147,7 @@ struct SendView: View {
         } label: {
             NavbarDotsImage()
         }
+        .accessibilityIdentifier(SendAccessibilityIdentifiers.formVariantMenuButton)
     }
 
     @ViewBuilder
@@ -220,7 +221,7 @@ struct SendView: View {
 
     private func bottomAction(type mainButtonType: SendMainButtonType, isLoading: Bool) -> some View {
         MainButton(
-            title: mainButtonType.title(action: viewModel.flowActionType),
+            title: viewModel.mainButtonTitle(mainButtonType: mainButtonType),
             icon: viewModel.mainButtonIcon(mainButtonType: mainButtonType),
             style: .primary,
             size: .default,
@@ -234,7 +235,7 @@ struct SendView: View {
 
     private func bottomHoldAction(_ mainButtonType: SendMainButtonType) -> some View {
         HoldToConfirmButton(
-            title: mainButtonType.title(action: viewModel.flowActionType),
+            title: viewModel.mainButtonTitle(mainButtonType: mainButtonType),
             isLoading: viewModel.mainButtonUpdating || viewModel.mainButtonLoading,
             isDisabled: !viewModel.actionIsAvailable,
             action: {

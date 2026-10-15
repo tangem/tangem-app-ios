@@ -30,6 +30,7 @@ public struct PolymarketAmountBadge: View, Setupable {
         text
             .padding(.horizontal, Constants.horizontalPadding)
             .padding(.vertical, Constants.verticalPadding)
+            .frame(minHeight: Constants.minHeight)
             .background(appearance.backgroundColor, in: Capsule())
     }
 
@@ -105,6 +106,7 @@ private extension PolymarketAmountBadge {
     enum Constants {
         static let horizontalPadding: CGFloat = 8
         static let verticalPadding: CGFloat = 2
+        static let minHeight: CGFloat = 24
     }
 }
 
@@ -113,11 +115,6 @@ private extension PolymarketAmountBadge {
 public extension PolymarketAmountBadge {
     static func toWin(state: State) -> PolymarketAmountBadge {
         PolymarketAmountBadge(state: state, appearance: .info, label: Localization.predictionPlaceToWin)
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    static func willReceive(state: State) -> PolymarketAmountBadge {
-        PolymarketAmountBadge(state: state, appearance: .info, label: { "You will receive: \($0)" })
     }
 
     static func payout(state: State) -> PolymarketAmountBadge {

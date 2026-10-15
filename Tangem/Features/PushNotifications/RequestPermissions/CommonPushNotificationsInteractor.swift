@@ -28,13 +28,9 @@ final class CommonPushNotificationsInteractor {
     @AppStorageCompat(StorageKeys.didPostponeAuthorizationRequestOnWalletOnboarding)
     private var didPostponeAuthorizationRequestOnWalletOnboarding = false
 
-    @AppStorageCompat(StorageKeys.didPostponeAuthorizationRequestOnWelcomeOnboarding)
-    private var didPostponeAuthorizationRequestOnWelcomeOnboarding = false
-
     @AppStorageCompat(StorageKeys.resetPushNotificationsAuthorizationRequestCounter)
     private var resetPushNotificationsAuthorizationRequestCounter: Int = ResetVersion.default.rawValue
 
-    private var didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession = false
     private var didPostponeAuthorizationRequestOnWalletOnboardingInCurrentSession = false
     private var didSuppressAfterLoginRequestsInCurrentSession = false
 
@@ -61,8 +57,6 @@ final class CommonPushNotificationsInteractor {
 
     private func analyticsSourceValue(for flow: PushNotificationsPermissionRequestFlow) -> Analytics.ParameterValue {
         switch flow {
-        case .welcomeOnboarding:
-            return .stories
         case .walletOnboarding:
             return .onboarding
         case .afterLogin, .afterLoginBanner:
@@ -98,11 +92,8 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
         }
 
         switch flow {
-        case .welcomeOnboarding:
-            return !didPostponeAuthorizationRequestOnWelcomeOnboarding
         case .walletOnboarding:
-            return !didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession
-                && !didPostponeAuthorizationRequestOnWalletOnboarding
+            return !didPostponeAuthorizationRequestOnWalletOnboarding
         case .afterLogin:
             guard !didSuppressAfterLoginRequestsInCurrentSession else {
                 return false
@@ -112,14 +103,12 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
             canRequestAuthorizationOnAfterLogin = true
 
             return currentRequestState
-                && !didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession
                 && !didPostponeAuthorizationRequestOnWalletOnboardingInCurrentSession
         case .afterLoginBanner:
             // Need to exclude if display is required bottom sheet permission request or current session
             guard
                 !isAvailable(in: .afterLogin),
                 !didSuppressAfterLoginRequestsInCurrentSession,
-                !didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession,
                 !didPostponeAuthorizationRequestOnWalletOnboardingInCurrentSession
             else {
                 return false
@@ -141,9 +130,6 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
 
     func postponeRequest(in flow: PushNotificationsPermissionRequestFlow) {
         switch flow {
-        case .welcomeOnboarding:
-            didPostponeAuthorizationRequestOnWelcomeOnboarding = true
-            didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession = true
         case .walletOnboarding:
             didPostponeAuthorizationRequestOnWalletOnboarding = true
             didPostponeAuthorizationRequestOnWalletOnboardingInCurrentSession = true
@@ -201,7 +187,6 @@ extension CommonPushNotificationsInteractor: Initializable {
 private extension CommonPushNotificationsInteractor {
     enum StorageKeys: String, RawRepresentable {
         case canRequestAuthorization = "can_request_authorization"
-        case didPostponeAuthorizationRequestOnWelcomeOnboarding = "did_postpone_authorization_request_on_welcome_onboarding"
         case didPostponeAuthorizationRequestOnWalletOnboarding = "did_postpone_authorization_request_on_wallet_onboarding"
         case didRequestAuthorizationOnAfterLogin = "did_request_authorization_on_after_login"
         case resetPushNotificationsAuthorizationRequestCounter = "reset_push_notifications_authorization_request_counter"

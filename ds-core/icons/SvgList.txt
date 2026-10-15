@@ -28,13 +28,13 @@ Bell / 20, 24, 28 / Regular
 Binoculars / 16, 20, 24, 28, 32 / Regular
 Bone / 12, 16, 20, 24, 28, 32 / Regular
 Book Opened / 12, 16, 20, 24, 28, 32 / Regular
-Box / 16, 20, 24, 28 / Regular
+Box / 12, 16, 20, 24, 28, 32 / Regular
 Calculator / 16, 20, 24 / Regular
 Calendar / 16, 20, 24, 28 / Regular
 Capsule / 12, 16, 20, 24, 28, 32 / Regular
 Card Plus / 20, 24, 28, 32 / Regular
-Card / 12, 16, 20, 24 / Regular
-Cards Star / 16, 20, 24, 28 / Regular
+Card / 12, 16, 20, 24, 28, 32 / Regular
+Cards Star / 12, 16, 20, 24, 28, 32 / Regular
 Chair / 12, 16, 20, 24, 28, 32 / Regular
 Chart Bar Vertical / 16, 20, 24, 28 / Regular
 Chart Line Vertical / 16, 20, 24, 28 / Regular
@@ -48,6 +48,7 @@ Chevron Right / 12, 16, 20, 24, 28, 32 / Regular
 Chevron Up / 12, 16, 20, 24, 28, 32 / Regular
 Clapper Board / 12, 16, 20, 24, 28, 32 / Regular
 Clock / 12, 16, 20, 24, 28, 32 / Regular
+Clothing / 12, 16, 20, 24, 28, 32 / Regular
 Cloud Exclamation / 12, 16, 20, 24, 28, 32 / Regular
 Cloud / 12, 16, 20, 24, 28, 32 / Filled & Regular
 Coin Token / 16, 20, 24, 28 / Regular
@@ -92,6 +93,7 @@ Keyboard Up / 16, 20, 24 / Regular
 Kids Bottle / 12, 16, 20, 24, 28, 32 / Regular
 Lightning / 20, 24, 28 / Regular
 Loading Spinner / 12, 16, 20, 24, 28, 32 / Regular
+Lock / 12, 16, 20, 24, 28, 32 / Regular
 Logo Apple / 16, 20, 24, 28, 32 / Regular
 Logo Tangem / 16, 20, 24, 28, 32 / Regular
 Magic Ball / 16, 20, 24, 28 / Regular
@@ -121,22 +123,22 @@ Sign Minus / 12, 16, 20, 24, 28 / Regular
 Sign Plus / 12, 16, 20, 24, 28 / Regular
 Sign USD / 12, 16, 20, 24, 28, 32 / Regular
 Snowflake / 12, 16, 20, 24, 28 / Regular
-Stack / 12, 16, 20, 24, 28 / Regular
+Stack / 12, 16, 20, 24, 28, 32 / Regular
 Star / 16, 20, 24, 28 / Filled & Regular
 Success / 16, 20, 24, 28, 32 / Filled & Regular
 Sun / 16, 20, 24, 28 / Regular
-T-Shirt / 12, 16, 20, 24, 28, 32 / Regular
 Taxi / 12, 16, 20, 24, 28, 32 / Regular
 Theater / 16, 20, 24, 28 / Regular
 Train / 12, 16, 20, 24, 28, 32 / Regular
 Trash Bin / 12, 16, 20, 24, 28 / Regular
 Triangle Down / 12, 16, 20, 24, 28, 32 / Regular
 Triangle Up / 12, 16, 20, 24, 28, 32 / Regular
+Unlock / 12, 16, 20, 24, 28, 32 / Regular
 User Plus / 16, 20, 24, 28 / Regular
-User / 16, 20, 24, 28 / Filled & Regular
+User / 12, 16, 20, 24, 28, 32 / Filled & Regular
 Users / 16, 20, 24, 28 / Filled & Regular
-Wallet Checkmark / 16, 20, 24, 28 / Regular
-Wallet Plus / 16, 20, 24, 28 / Regular
-Wallet / 16, 20, 24, 28 / Regular
+Wallet Checkmark / 12, 16, 20, 24, 28, 32 / Regular
+Wallet Plus / 12, 16, 20, 24, 28, 32 / Regular
+Wallet / 12, 16, 20, 24, 28, 32 / Regular
 Warning / 16, 20, 24, 28 / Filled & Regular
 Weather / 16, 20, 24, 28 / Regular

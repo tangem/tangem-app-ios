@@ -253,7 +253,8 @@ private extension TronDEXTransactionMapperTests {
             estimatedGasLimit: nil,
             externalTxId: nil,
             externalTxURL: nil,
-            payInAddress: ""
+            payInAddress: "",
+            slippage: nil
         )
     }
 

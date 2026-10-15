@@ -21,7 +21,7 @@ struct ApproveView: View {
     var body: some View {
         VStack(spacing: 26) {
             GroupedSection(viewModel.menuRowViewModel) {
-                DefaultMenuRowView(viewModel: $0, selection: $viewModel.selectedAction, titleFont: Fonts.Regular.body)
+                DefaultMenuRowView(viewModel: $0, selection: $viewModel.selectedPolicy, titleFont: Fonts.Regular.body)
             } footer: {
                 approveInfoDescriptionView
             }
@@ -40,6 +40,7 @@ struct ApproveView: View {
         .padding(.bottom, 2)
         .padding(.horizontal, 16)
         .background(Colors.Background.tertiary)
+        .disabled(viewModel.state.isContentLocked)
     }
 
     private var approveInfoDescriptionView: some View {

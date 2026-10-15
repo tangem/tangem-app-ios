@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -64,6 +65,7 @@ private extension AccountTypeContentView {
             }
             .showDivider(showsDivider)
             .onTap { action(.optionTap(option)) }
+            .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.accountTypeOption)
     }
 }
 
@@ -77,9 +79,10 @@ private extension AccountTypeContentView {
             action: { action(.continueTap) }
         )
         .size(.x12)
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
         .disabled(state.selection == nil)
+        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.accountTypeContinueButton)
     }
 }
 

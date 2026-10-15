@@ -45,6 +45,12 @@ struct SolanaALTMessageV0TransactionSender {
     /// - Throws: An error if the ALT table cannot be created/extended, or if the transaction fails to send.
     @discardableResult
     mutating func buildForSend(message: MessageV0) async throws -> String {
+        try SolanaALTSignerGuard.validate(
+            header: message.header,
+            staticAccountKeys: message.staticAccountKeys,
+            walletPublicKey: walletPublicKey
+        )
+
         // Fetch all ALT accounts referenced by the original message
         let initialLookupAccounts = try await lookupTableDispatcher.prepareExistLookupTableAccounts(message: message)
 
