@@ -760,7 +760,7 @@ extension SwapModel {
         case .approveTransactionInProgress:
             return .hasPendingApproveTransaction
 
-        case .insufficientBalance:
+        case .insufficientBalance, .insufficientBalanceIncludingFee:
             return .notEnoughBalanceForSwapping
 
         case .feeCurrencyHasZeroBalance(let isFeeCurrency):
@@ -1902,7 +1902,7 @@ extension SwapModel: SendFeeInput {
         }
     }
 
-    private func mapToShouldShowFeeSelectorRow(providersState: ProvidersState) -> Bool {
+    func mapToShouldShowFeeSelectorRow(providersState: ProvidersState) -> Bool {
         switch providersState {
         case .loaded(_, .readyToSwap),
              .loaded(_, .readyToApproveAndSwap),
@@ -1911,7 +1911,7 @@ extension SwapModel: SendFeeInput {
         case .loaded(.swap(.some(let selected), _), .restriction(.notEnoughAmountForFee, _)),
              .loaded(.swap(.some(let selected), _), .restriction(.notEnoughAmountForTxValue, _)),
              .loaded(.swap(.some(let selected), _), .restriction(.notEnoughBalanceForSwapping, _)):
-            return !selected.getState().isPermissionRequired
+            return hasEstimatedSwapFee(selected)
         case .loaded(.transfer, .restriction):
             // Keep the fee row visible so a too-high custom fee can be lowered; transfers have no approve flow.
             return true
@@ -1920,6 +1920,19 @@ extension SwapModel: SendFeeInput {
         case .loading(.rates):
             return false
         case .loading(.fee):
+            return true
+        default:
+            return false
+        }
+    }
+
+    private func hasEstimatedSwapFee(_ provider: ExpressAvailableProvider) -> Bool {
+        switch provider.getState() {
+        case .cexPreview,
+             .dexPreview,
+             .dexWithApprovePreview,
+             .restriction(.insufficientBalanceIncludingFee, _),
+             .restriction(.feeCurrencyInsufficientBalanceForTxValue, _):
             return true
         default:
             return false
