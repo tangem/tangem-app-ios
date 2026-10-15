@@ -54,6 +54,8 @@ struct TransactionViewAmountViewData: Hashable {
              .yieldWithdrawCoin,
              .yieldEnterCoin,
              .yieldReactivate,
+             .incentiveClaim,
+             .incentiveClaimCoin,
              .yieldDeploy,
              .yieldInit,
              .gaslessTransactionFee,

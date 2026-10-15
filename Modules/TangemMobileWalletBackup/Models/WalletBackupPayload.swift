@@ -20,4 +20,9 @@ public protocol WalletBackupPayload: Sendable {
 public struct CommonWalletBackupPayload: WalletBackupPayload {
     public let mnemonicWords: [String]
     public let requiresPassphrase: Bool
+
+    public init(mnemonicWords: [String], requiresPassphrase: Bool) {
+        self.mnemonicWords = mnemonicWords
+        self.requiresPassphrase = requiresPassphrase
+    }
 }

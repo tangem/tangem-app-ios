@@ -13,6 +13,7 @@ import TangemUIUtils
 
 struct MainPageTangemTokenRow: View {
     @ObservedObject var viewModel: TokenItemViewModel
+    @ObservedObject private var visibilityState = SensitiveTextVisibilityState.shared
 
     init(viewModel: TokenItemViewModel) {
         self.viewModel = viewModel
@@ -21,12 +22,11 @@ struct MainPageTangemTokenRow: View {
     private var backgroundColor: Color = .clear
 
     var body: some View {
-        TangemTokenRow(viewData: viewModel.tokenRowViewData)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+        TokenRow(viewModel.tokenRowContent)
+            .accessibilityIdentifiers(viewModel.tokenRowAccessibilityIdentifiers)
+            .environment(\.isBalanceMasked, visibilityState.isHidden)
+            .environment(\.isShimmerActive, true)
             .background(backgroundColor)
-            .onTapGesture(perform: viewModel.tapAction)
-            .highlightable(color: .Tangem.Button.backgroundPrimary.opacity(0.03))
             // `previewContentShape` must be called just before `contextMenu` call, otherwise visual glitches may occur
             .previewContentShape(cornerRadius: 24)
             .contextMenu {

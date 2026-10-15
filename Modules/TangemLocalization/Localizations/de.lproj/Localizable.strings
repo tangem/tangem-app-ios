@@ -675,8 +675,8 @@
 "express_legal_two_placeholders" = "Durch die Nutzung der Swap-Funktionalität erklärst du dich mit des Anbieters %1$@ und %2$@ einverstanden.";
 "express_more_providers_once_wallet_funded" = "Sobald das Wallet aufgeladen ist, werden weitere Anbieter verfügbar sein.";
 "express_more_providers_soon" = "Weitere Anbieter folgen in Kürze";
-"express_onramp_id_copied" = "Onramp ID copied";
-"express_onramp_id" = "Onramp ID";
+"express_onramp_id_copied" = "Onramp-ID kopiert";
+"express_onramp_id" = "Onramp-ID";
 "express_onramp_restrictions_amount_error" = "Aufgrund regionaler Beschränkungen können keine Spielmarken gekauft werden.";
 "express_onramp_restrictions_text" = "Einige Anbieter sind möglicherweise nicht verfügbar.";
 "express_onramp_restrictions_title" = "Regionale Kaufbeschränkungen";
@@ -699,8 +699,8 @@
 "express_status_hide_button_text" = "Diese Transaktion ausblenden";
 "express_status_hide_dialog_text" = "Sobald der Transaktionsstatus ausgeblendet ist, kann er nicht mehr angezeigt werden. Stattdessen kannst Du ihn durch einfaches Wischen schließen.";
 "express_status_hide_dialog_title" = "Diese Transaktion ausblenden";
-"express_swap_id_copied" = "Swap ID copied";
-"express_swap_id" = "Swap ID";
+"express_swap_id_copied" = "Swap-ID kopiert";
+"express_swap_id" = "Tausch-ID";
 "express_swap_not_supported_text" = "Dieses Token wird nicht unterstützt. Bitte wähle zum Tauschen ein anderes Token.";
 "express_swap_not_supported_title" = "%@ wird nicht unterstützt";
 "express_swap_restrictions_text" = "Der Swap-Anbieter ist eingeschränkt";
@@ -2343,6 +2343,7 @@
 "tangempay_factory_settings_warning_title" = "Mir ist bewusst, dass ich den Zugriff auf meine Tangem Pay Card und alle darauf befindlichen Guthaben vollständig und ohne Möglichkeit der Wiederherstellung verliere.";
 "tangempay_failed_to_issue_card_support_description" = "Ein technischer Fehler ist aufgetreten, bitte kontaktieren Sie den Support";
 "tangempay_failed_to_issue_card" = "Kartenausstellung fehlgeschlagen";
+"tangempay_geo_selection_search_empty" = "No results. Try to change request";
 "tangempay_get_banner_description" = "Kostenlose Tangem Pay Karte mit bis zu 2 %% Cashback";
 "tangempay_get_tangem_pay" = "Tangem Pay erhalten";
 "tangempay_go_to_support" = "Zum Support";

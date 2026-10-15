@@ -36,7 +36,7 @@ let package = Package(
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.9.0")),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMajor(from: "1.9.0")),
         .package(url: "https://github.com/groue/GRDB.swift.git", .upToNextMajor(from: "7.1.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "5.2.3"),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "5.3.1"),
         // When a Swift macro target (`TangemMacro`) is used in the same package (`TangemModules`) in which it is defined,
         // and that package contains a test target (`BlockchainSdkTests`) that uses macros from that macro target,
         // this causes linker to incorrectly link the macros target plugin (build for macOS) into the iOS test binary,
@@ -341,8 +341,13 @@ var featureModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemSocialAuthentication",
             dependencies: [
+                .product(name: "Alamofire", package: "Alamofire"),
+                "Moya",
+                "TangemBackendAuthentication",
                 "TangemFoundation",
                 "TangemLogger",
+                "TangemMobileWalletBackup",
+                "TangemNetworkUtils",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -395,9 +400,18 @@ var featureModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemCollectibles",
             dependencies: [
+                "BlockchainSdk",
                 .product(name: "SolanaSwift", package: "Solana.Swift"),
+                .product(name: "TangemSdk", package: "tangem-sdk-ios"),
+                "TangemFoundation",
+                "TangemLogger",
+                "TangemMacro",
+                "TangemMobileWalletSdk",
             ],
-            swiftSettings: .swift6StrictSettings
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
         ),
         .tangemTarget(
             name: "TangemPay",
@@ -414,6 +428,18 @@ var featureModules: [PackageDescription.Target] {
                 // [REDACTED_TODO_COMMENT]
                 .swiftLanguageMode(.v5),
             ]
+        ),
+        .tangemTarget(
+            name: "TangemDesignSystemShowcase",
+            dependencies: [
+                "Kingfisher",
+                "TangemAssets",
+                "TangemFoundation",
+                "TangemLocalization",
+                "TangemUI",
+                "TangemUIUtils",
+            ],
+            swiftSettings: .swift6StrictSettings
         ),
         .tangemTarget(
             name: "TangemStories",

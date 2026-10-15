@@ -302,7 +302,7 @@ private struct ActionButton: View {
             accessibilityLabel: nil,
             action: action
         )
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
         .size(.x12)
         .loading(.spinner(if: isLoading))

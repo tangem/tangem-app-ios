@@ -37,7 +37,7 @@ public struct PolymarketRegionRestrictionView: View {
                 accessibilityLabel: nil,
                 action: viewModel.onCloseTap
             )
-            .styleType(.default)
+            .styleType(.primary)
             .size(.x12)
             .horizontalLayout(.infinity)
             .padding(.horizontal, Constants.buttonHorizontalPadding)

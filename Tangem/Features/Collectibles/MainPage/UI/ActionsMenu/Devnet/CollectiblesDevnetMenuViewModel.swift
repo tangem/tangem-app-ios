@@ -11,6 +11,7 @@ import class UIKit.UIPasteboard
 import TangemLocalization
 import TangemUI
 import TangemUIUtils
+import TangemCollectibles
 
 // [REDACTED_TODO_COMMENT]
 // in this folder; the rest of the app holds one property and two lines of view code.
@@ -57,6 +58,16 @@ final class CollectiblesDevnetMenuViewModel: ObservableObject {
             Self.present(SuccessToast(text: Localization.commonValueCopied))
         } catch {
             CollectiblesLogger.error("Devnet: the fee payer address could not be read", error: error)
+            Self.present(WarningToast(text: Localization.commonSomethingWentWrong))
+        }
+    }
+
+    func onCopyPurchaseFeePayerAddressTap() {
+        do {
+            UIPasteboard.general.string = try actions.purchaseFeePayerAddress()
+            Self.present(SuccessToast(text: Localization.commonValueCopied))
+        } catch {
+            CollectiblesLogger.error("Devnet: the purchase fee payer address could not be read", error: error)
             Self.present(WarningToast(text: Localization.commonSomethingWentWrong))
         }
     }

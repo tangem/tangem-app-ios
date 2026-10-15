@@ -6,162 +6,44 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
+import Combine
+import TangemDesignSystemShowcase
 
-final class DesignSystemDemoViewModel: ObservableObject {
-    weak var coordinator: DesignSystemDemoRoutable?
+@MainActor
+final class DesignSystemDemoViewModel: ObservableObject, Identifiable {
+    @Published var searchText = ""
 
-    init(coordinator: DesignSystemDemoRoutable) {
-        self.coordinator = coordinator
+    nonisolated init() {}
+
+    private var entries: [DemoEntry] {
+        DemoRegistry.entries + [
+            DemoEntry("MessageBanner · App notifications", section: .ds3) {
+                NotificationBannerCatalogView()
+                    .navigationTitle("App notifications")
+            },
+        ]
     }
 
-    func openTangemButtonDemo() {
-        coordinator?.openTangemButtonDemo()
+    var sections: [Section] {
+        DemoEntry.Section.allCases.compactMap { section in
+            let items = entries
+                .filter { $0.section == section && matchesSearch($0) }
+                .sorted { $0.title < $1.title }
+
+            return items.isEmpty ? nil : Section(title: section.title, entries: items)
+        }
     }
 
-    func openTangemButtonV2Demo() {
-        coordinator?.openTangemButtonV2Demo()
-    }
-
-    func openTangemCheckboxV2Demo() {
-        coordinator?.openTangemCheckboxV2Demo()
-    }
-
-    func openTangemCheckmarkV2Demo() {
-        coordinator?.openTangemCheckmarkV2Demo()
-    }
-
-    func openTangemBadgeDemo() {
-        coordinator?.openTangemBadgeDemo()
-    }
-
-    func openTangemBadgeV2Demo() {
-        coordinator?.openTangemBadgeV2Demo()
-    }
-
-    func openTangemMessageBannerDemo() {
-        coordinator?.openTangemMessageBannerDemo()
-    }
-
-    func openTangemRowDemo() {
-        coordinator?.openTangemRowDemo()
-    }
-
-    func openTangemCalloutDemo() {
-        coordinator?.openTangemCalloutDemo()
-    }
-
-    func openTangemMainActionButtonDemo() {
-        coordinator?.openTangemMainActionButtonDemo()
-    }
-
-    func openTypographyDemo() {
-        coordinator?.openTypographyDemo()
-    }
-
-    func openTypographyV2Demo() {
-        coordinator?.openTypographyV2Demo()
-    }
-
-    func openTangemSegmentedPickerDemo() {
-        coordinator?.openTangemSegmentedPickerDemo()
-    }
-
-    func openTangemTabsDemo() {
-        coordinator?.openTangemTabsDemo()
-    }
-
-    func openTangemSearchFieldDemo() {
-        coordinator?.openTangemSearchFieldDemo()
-    }
-
-    func openTangemSearchDemo() {
-        coordinator?.openTangemSearchDemo()
-    }
-
-    func openTangemDropDownDemo() {
-        coordinator?.openTangemDropDownDemo()
-    }
-
-    func openTangemLoaderDemo() {
-        coordinator?.openTangemLoaderDemo()
-    }
-
-    func openTangemTokenRowDemo() {
-        coordinator?.openTangemTokenRowDemo()
-    }
-
-    func openTangemSnackbarDemo() {
-        coordinator?.openTangemSnackbarDemo()
-    }
-
-    func openTangemShimmerDemo() {
-        coordinator?.openTangemShimmerDemo()
-    }
-
-    func openGlowRingDemo() {
-        coordinator?.openGlowRingDemo()
-    }
-
-    func openStatusScreenDemo() {
-        coordinator?.openStatusScreenDemo()
-    }
-
-    func openTabNavigationDemo() {
-        coordinator?.openTabNavigationDemo()
-    }
-
-    func openSegmentedControlDemo() {
-        coordinator?.openSegmentedControlDemo()
-    }
-
-    func openTangemTopNavigationDemo() {
-        coordinator?.openTangemTopNavigationDemo()
-    }
-
-    func openTangemFadeDemo() {
-        coordinator?.openTangemFadeDemo()
-    }
-
-    func openFilterGroupDemo() {
-        coordinator?.openFilterGroupDemo()
-    }
-
-    func openTangemMessageBubbleDemo() {
-        coordinator?.openTangemMessageBubbleDemo()
-    }
-
-    func openTokenIconV2Demo() {
-        coordinator?.openTokenIconV2Demo()
-    }
-
-    func openTokenRowV2Demo() {
-        coordinator?.openTokenRowV2Demo()
-    }
-
-    func openTokenRowMarketDemo() {
-        coordinator?.openTokenRowMarketDemo()
-    }
-
-    func openUtilGraphDemo() {
-        coordinator?.openUtilGraphDemo()
-    }
-
-    func openUtilPriceChangeDemo() {
-        coordinator?.openUtilPriceChangeDemo()
-    }
-
-    func openUtilBalanceDemo() {
-        coordinator?.openUtilBalanceDemo()
-    }
-
-    func openShtorkaDemo() {
-        coordinator?.openShtorkaDemo()
-    }
-
-    func openModalDemo() {
-        coordinator?.openModalDemo()
+    private func matchesSearch(_ entry: DemoEntry) -> Bool {
+        searchText.isEmpty || entry.title.localizedCaseInsensitiveContains(searchText)
     }
 }
 
-final class ModalDemoViewModel: ObservableObject, Identifiable {}
+extension DesignSystemDemoViewModel {
+    struct Section: Identifiable {
+        let title: String
+        let entries: [DemoEntry]
+
+        var id: String { title }
+    }
+}

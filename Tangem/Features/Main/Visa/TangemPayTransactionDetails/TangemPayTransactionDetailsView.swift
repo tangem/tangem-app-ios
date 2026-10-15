@@ -24,6 +24,8 @@ struct TangemPayTransactionDetailsView: View {
                     configuration.backgroundInteractionBehavior = .tapToDismiss
                 }
         } else {
+            // Logically it's dead code since TangemPayTransactionDeeplinkResponder will drop cases where displayModel is not being built.
+            // But to safely remove it we need to move TangemPayTransactionDetailsDisplayModel into init params of ViewModel.
             legacyBody
         }
     }

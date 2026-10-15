@@ -112,7 +112,7 @@ private struct MainTopNavigationModifier<Balance: View>: ViewModifier {
 // MARK: - Metrics
 
 private enum Metrics {
-    static let logoSide: CGFloat = .unit(.x8)
+    static let logoSide: CGFloat = 32
     static let barHorizontalInset: CGFloat = 16
     static let balanceGap: CGFloat = 8
 }

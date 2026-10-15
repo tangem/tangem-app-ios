@@ -50,6 +50,7 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
+    private var userWalletModel: InputOptions?
     private let hardwareUpgradeStoriesFlow = HardwareUpgradeStoriesFlow()
     private let isPresentedSubject = CurrentValueSubject<Bool, Never>(false)
     private var accountPendingNavigationSteps: [AccountPendingNavigationStep] = []
@@ -73,6 +74,7 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
     }
 
     func start(with userWalletModel: InputOptions) {
+        self.userWalletModel = userWalletModel
         rootViewModel = UserWalletSettingsViewModel(userWalletModel: userWalletModel, coordinator: self)
         bind()
     }
@@ -267,13 +269,30 @@ extension UserWalletSettingsCoordinator: AddAccountTypeSelectorRoutable {
     func openCryptoAccountForm(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+
+            guard !AccountModelUtils.isAccountsLimitReached(for: .crypto, in: accountModelsManager.accountModels) else {
+                handleAccountsLimitReached()
+                return
+            }
+
             addNewAccount(accountModelsManager: accountModelsManager, userWalletConfig: userWalletConfig)
         }
     }
 
-    func openJointAccountManagement(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
+    func openJointAccountManagement() {
+        guard let userWalletModel else {
+            return
+        }
+
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+
+            let accountModels = userWalletModel.accountModelsManager.accountModels
+
+            guard !AccountModelUtils.isAccountsLimitReached(for: .joint, in: accountModels) else {
+                handleAccountsLimitReached()
+                return
+            }
 
             let coordinator = JointAccountManagementCoordinator(
                 dismissAction: { [weak self] in
@@ -282,14 +301,7 @@ extension UserWalletSettingsCoordinator: AddAccountTypeSelectorRoutable {
                 popToRootAction: popToRootAction
             )
 
-            coordinator.start(
-                with: .creation(
-                    JointAccountManagementCoordinator.CreationOptions(
-                        accountModelsManager: accountModelsManager,
-                        userWalletConfig: userWalletConfig
-                    )
-                )
-            )
+            coordinator.start(with: .creation(JointAccountCreationHelper(userWalletModel: userWalletModel)))
 
             jointAccountManagementCoordinator = coordinator
         }

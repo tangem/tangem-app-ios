@@ -9,8 +9,8 @@
 import Foundation
 import Combine
 
-/// Owns the Welcome flow's async inputs, publishing a `State` for the coordinator to render straight from its
-/// two facts: whether the startup onboarding is up, and which deep link — if any — is pending.
+/// Owns the Welcome flow's async inputs, publishing a `State` for the coordinator to render straight from the
+/// deep link — if any — that is pending.
 final class WelcomeProcessor {
     var statePublisher: AnyPublisher<State, Never> {
         $state.removeDuplicates().eraseToAnyPublisher()
@@ -26,10 +26,6 @@ final class WelcomeProcessor {
 
     deinit {
         AppLogger.debug("WelcomeProcessor deinit")
-    }
-
-    func welcomeOnboardingDismissed() {
-        state.welcomeOnboarding = nil
     }
 
     /// Computes the initial state, then subscribes to the deep-link flags. Reading them for the initial state
@@ -63,19 +59,17 @@ final class WelcomeProcessor {
             }
             .store(in: &bag)
 
-        if FeatureProvider.isAvailable(.tangemPayCustomCards) {
-            AppSettings.shared.$pendingTangemPayCampaignKey
-                .compactMap { $0 }
-                .combineLatest(isIdle)
-                .filter { _, isIdle in isIdle }
-                .first()
-                .receiveOnMain()
-                .withWeakCaptureOf(self)
-                .sink { processor, input in
-                    processor.setDeepLink(.tangemPayCampaign(campaignKey: input.0))
-                }
-                .store(in: &bag)
-        }
+        TangemPayCampaignService().pendingCampaignKeyPublisher
+            .compactMap { $0 }
+            .combineLatest(isIdle)
+            .filter { _, isIdle in isIdle }
+            .first()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { processor, input in
+                processor.setDeepLink(.tangemPayCampaign(campaignKey: input.0))
+            }
+            .store(in: &bag)
     }
 
     /// The first deep link wins — they're mutually exclusive, so a later one shouldn't override the shown one.
@@ -90,8 +84,6 @@ final class WelcomeProcessor {
 
 extension WelcomeProcessor {
     struct State: Equatable {
-        /// Steps of the startup welcome onboarding (TOS/push). While present it gates the deep link behind it.
-        var welcomeOnboarding: [WelcomeOnboardingStep]?
         /// The single pending deep link: Tangem Pay shows modally over the stories, promo/referral navigates on
         /// to create wallet. Mutually exclusive — hence one optional.
         var deepLink: DeepLink?
@@ -108,21 +100,15 @@ extension WelcomeProcessor {
 
 extension WelcomeProcessor.State {
     /// Neutral value held until `bind` computes the real state during `init`; never rendered.
-    static let initial = Self(welcomeOnboarding: nil, deepLink: nil)
+    static let initial = Self(deepLink: nil)
 
     init(startupOnboarding: WelcomeStartupOnboarding?) {
         switch startupOnboarding {
-        case .welcome(let steps):
-            welcomeOnboarding = steps
-            deepLink = nil
         case .tangemPayMobile:
-            welcomeOnboarding = nil
             deepLink = .tangemPay
         case .tangemPayCampaign(let campaignKey):
-            welcomeOnboarding = nil
             deepLink = .tangemPayCampaign(campaignKey: campaignKey)
         case .none:
-            welcomeOnboarding = nil
             deepLink = nil
         }
     }

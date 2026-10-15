@@ -63,20 +63,23 @@ struct YieldModulePromoV2View: View {
     /// stacked rather than chained: a chained `.shadow` blurs the previous halo instead of the artwork itself. The
     /// artwork keeps its own size — scaling it to the screen width would drag the bars away from the content below.
     private var headerImage: some View {
-        ZStack {
-            artwork.shadow(color: Constants.glowGreen.opacity(0.2), radius: 9, y: 7)
-            artwork.shadow(color: Constants.glowGreen.opacity(0.7), radius: 63, y: 7)
+        Color.clear
+            .frame(height: Constants.artworkHeight)
+            .overlay {
+                ZStack {
+                    artwork.shadow(color: Constants.glowGreen.opacity(0.2), radius: 9, y: 7)
+                    artwork.shadow(color: Constants.glowGreen.opacity(0.7), radius: 63, y: 7)
 
-            // The white lift exists to separate the glow from the dark background the design is drawn on.
-            if colorScheme == .dark {
-                artwork.shadow(color: .white.opacity(0.8), radius: 99, y: 7)
+                    // The white lift exists to separate the glow from the dark background the design is drawn on.
+                    if colorScheme == .dark {
+                        artwork.shadow(color: .white.opacity(0.8), radius: 99, y: 7)
+                    }
+
+                    artwork
+                }
             }
-
-            artwork
-        }
-        .frame(maxWidth: .infinity)
-        .clipped()
-        .accessibilityHidden(true)
+            .clipped()
+            .accessibilityHidden(true)
     }
 
     private var artwork: some View {
@@ -204,6 +207,7 @@ private extension YieldModulePromoV2View {
     enum Constants {
         /// Design offset of the content block from the screen top, measured against the artwork's own height.
         static let contentTopOffset: CGFloat = 350
+        static let artworkHeight: CGFloat = 486
         static let glowGreen = Color(red: 0.047, green: 0.6235, blue: 0.2392)
         /// Grows the ~24pt pill to the 44pt accessibility touch target.
         static let pillTouchPadding: CGFloat = 10

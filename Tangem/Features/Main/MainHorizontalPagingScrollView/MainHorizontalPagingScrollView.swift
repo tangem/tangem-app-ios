@@ -36,7 +36,6 @@ struct MainHorizontalPagingScrollView: View {
 
     @Environment(\.mainShtorkaBottomInset) private var mainShtorkaBottomInset
 
-    @State private var legacyBottomOverlayHeight = CGFloat.zero
     @State private var contentFooterHeight = CGFloat.zero
     @State private var safeAreaInsetsTop = CGFloat.zero
 
@@ -49,7 +48,6 @@ struct MainHorizontalPagingScrollView: View {
             contentFooter
             horizontalScrollView
             pagingIndicator
-            bottomOverlay
         }
         .ignoresSafeArea(edges: .bottom)
         .northernLightsBackground(
@@ -95,7 +93,7 @@ struct MainHorizontalPagingScrollView: View {
                 onSelectedCardChanged: onSelectedCardChanged,
                 containerGeometryProperties: UserWalletView.ContainerGeometryProperties(
                     safeAreaInsetsTop: safeAreaInsetsTop,
-                    bottomOverlayHeight: bottomOverlayHeight,
+                    bottomOverlayHeight: mainShtorkaBottomInset,
                     contentFooterHeight: contentFooterHeight
                 ),
                 pullToRefreshAction: pullToRefreshAction,
@@ -113,7 +111,7 @@ struct MainHorizontalPagingScrollView: View {
                 onSelectedCardChanged: onSelectedCardChanged,
                 containerGeometryProperties: UserWalletView.ContainerGeometryProperties(
                     safeAreaInsetsTop: safeAreaInsetsTop,
-                    bottomOverlayHeight: bottomOverlayHeight,
+                    bottomOverlayHeight: mainShtorkaBottomInset,
                     contentFooterHeight: contentFooterHeight
                 ),
                 pullToRefreshAction: pullToRefreshAction,
@@ -158,7 +156,7 @@ struct MainHorizontalPagingScrollView: View {
                     .redesigned()
                     .padding(.top, Paddings.contentFooterTop)
                     .padding(.bottom, Paddings.contentFooterBottom)
-                    .offset(y: -bottomOverlayHeight)
+                    .offset(y: -mainShtorkaBottomInset)
                     .onGeometryChange(for: CGFloat.self, of: \.size.height) { contentFooterHeight in
                         self.contentFooterHeight = contentFooterHeight
                     }
@@ -166,18 +164,6 @@ struct MainHorizontalPagingScrollView: View {
             }
         }
         .animation(.easeIn(duration: 0.1), value: selectedUserWalletScrollAdjustedValues.contentFooterOverlayIsVisible)
-    }
-
-    private var bottomOverlay: some View {
-        selectedUserWalletPageBuilder
-            .bottomOverlay
-            .onGeometryChange(for: CGFloat.self, of: \.size.height) { bottomOverlayHeight in
-                legacyBottomOverlayHeight = bottomOverlayHeight
-            }
-    }
-
-    private var bottomOverlayHeight: CGFloat {
-        max(legacyBottomOverlayHeight, mainShtorkaBottomInset)
     }
 
     private var isHorizontalScrollDisabled: Bool {

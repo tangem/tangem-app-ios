@@ -57,8 +57,6 @@ final class LockedWalletMainContentViewModel: ObservableObject {
     @Published
     private(set) var actionButtonsViewModel: ActionButtonsViewModel?
 
-    private(set) lazy var bottomSheetFooterViewModel = MainBottomSheetFooterViewModel()
-
     let isMultiWallet: Bool
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository

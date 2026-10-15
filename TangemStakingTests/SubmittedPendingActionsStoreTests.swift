@@ -142,7 +142,8 @@ struct SubmittedPendingActionsStoreTests {
             image: nil,
             rewardType: .apy,
             rewardRate: 0.04,
-            status: .active
+            status: .active,
+            allowsPartialUnstake: true
         )
     }
 

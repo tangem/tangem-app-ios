@@ -38,8 +38,22 @@ public extension PolymarketOrderPlacement {
         status == .matched
     }
 
-    var isMatchedWithoutFill: Bool {
-        isMatched && (takingAmount ?? 0) <= 0
+    func isMatchedWithoutFill(side: PolymarketOrderSide) -> Bool {
+        isMatched && (filledShares(side: side) ?? 0) <= 0
+    }
+
+    func filledShares(side: PolymarketOrderSide) -> Decimal? {
+        switch side {
+        case .buy: takingAmount
+        case .sell: makingAmount
+        }
+    }
+
+    func filledMoney(side: PolymarketOrderSide) -> Decimal? {
+        switch side {
+        case .buy: makingAmount
+        case .sell: takingAmount
+        }
     }
 }
 

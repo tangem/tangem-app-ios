@@ -10,25 +10,21 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class TangemPayPinScreen: ScreenBase<TangemPayPinScreenElement> {
-    private let validationErrorText = "Invalid PIN: avoid sequences or repeats"
-    private let successTitleText = "PIN code created"
-    private let successDescriptionText = "The card is fully ready for payments."
-
     private lazy var screenTitle = staticText(.pinScreenTitle)
     private lazy var pinInputContainer = otherElement(.pinInputField)
     private lazy var keyboard = app.keyboards.firstMatch
     /// The container identifier on the PIN stack overwrites identifiers of its children, so the error is matched by label.
     private lazy var validationError = app.staticTexts
-        .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, validationErrorText))
+        .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, Localization.visaOnboardingPinValidationErrorMessage))
         .firstMatch
     private lazy var successTitle = app.staticTexts
-        .matching(NSPredicate(format: "label == %@", successTitleText))
+        .matching(NSPredicate(format: "label == %@", Localization.tangempayCardDetailsChangePinSuccessTitle))
         .firstMatch
     private lazy var successDescription = app.staticTexts
-        .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, successDescriptionText))
+        .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, Localization.tangempayCardDetailsChangePinSuccessDescription))
         .firstMatch
     private lazy var successCloseButton = app.buttons
-        .matching(NSPredicate(format: "label == %@", Constants.Success.closeButton))
+        .matching(NSPredicate(format: "label == %@", Localization.commonClose))
         .firstMatch
     private lazy var closeButton = button(.closeButton)
 
@@ -110,7 +106,7 @@ final class TangemPayPinScreen: ScreenBase<TangemPayPinScreenElement> {
     func verifySuccessContent() -> Self {
         XCTContext.runActivity(named: "Verify PIN success screen content") { _ in
             waitForSuccessScreen()
-            XCTAssertEqual(successTitle.label, successTitleText, "PIN success title should confirm the created PIN")
+            XCTAssertEqual(successTitle.label, Localization.tangempayCardDetailsChangePinSuccessTitle, "PIN success title should confirm the created PIN")
             waitAndAssertTrue(successDescription, "PIN success description should be displayed")
             return self
         }
@@ -161,14 +157,6 @@ enum TangemPayPinScreenElement: String, UIElement {
             TangemPayAccessibilityIdentifiers.pinInputField
         case .closeButton:
             CommonUIAccessibilityIdentifiers.closeButton
-        }
-    }
-}
-
-private extension TangemPayPinScreen {
-    enum Constants {
-        enum Success {
-            static let closeButton = "Close"
         }
     }
 }

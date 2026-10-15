@@ -58,7 +58,8 @@ enum TransactionHistoryAuxDataMapper {
             termsOfUse: try TransactionHistoryValueMapper.url(fromString: record.termsOfUse),
             privacyPolicy: try TransactionHistoryValueMapper.url(fromString: record.privacyPolicy),
             recommended: record.recommended,
-            slippage: try TransactionHistoryValueMapper.decimal(fromString: record.slippage)
+            slippage: try TransactionHistoryValueMapper.decimal(fromString: record.slippage),
+            isCustomSlippageSupported: false
         )
     }
 

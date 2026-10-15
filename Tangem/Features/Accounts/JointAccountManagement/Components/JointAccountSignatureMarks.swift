@@ -11,26 +11,23 @@ import TangemAssets
 import TangemFoundation
 import TangemUI
 
-/// One mark per member of a joint account, filled for each signature an operation has collected.
+/// One mark per signature a joint operation needs, filled for each one it has collected.
 ///
-/// The marks overlap like a stack of faces, so an account of five takes barely more room than an account of two and
+/// The marks overlap like a stack of faces, so a threshold of five takes barely more room than a threshold of two and
 /// the row it sits in keeps its shape.
-///
-/// - Note: Counts every member rather than the threshold. The threshold is what sends the operation, but the
-///   question this answers is who is left — and that is asked of the roster.
 struct JointAccountSignatureMarks: View {
     /// Includes the initiator's own signature, so an operation that exists never shows an empty row.
-    let signedMembersCount: Int
-    /// Every member of the account, not the threshold the operation needs — see the note above.
-    let totalMembersCount: Int
+    let collectedCount: Int
+    /// The signatures the operation needs to go through, not every member of the account.
+    let requiredCount: Int
 
     @ScaledMetric private var markSide: CGFloat = Constants.markSide
     @ScaledMetric private var markOverlap: CGFloat = Constants.markOverlap
     @ScaledMetric private var cutoutGap: CGFloat = Constants.cutoutGap
     @ScaledMetric private var checkmarkSide: CGFloat = Constants.checkmarkSide
 
-    private var total: Int { min(max(totalMembersCount, 1), Constants.maximumMarks) }
-    private var collected: Int { min(max(signedMembersCount, 0), total) }
+    private var total: Int { min(max(requiredCount, 1), Constants.maximumMarks) }
+    private var collected: Int { min(max(collectedCount, 0), total) }
 
     var body: some View {
         HStack(spacing: -markOverlap) {
@@ -43,8 +40,7 @@ struct JointAccountSignatureMarks: View {
     }
 
     private func mark(isCollected: Bool, hasCutout: Bool) -> some View {
-        Circle()
-            .fill(isCollected ? DesignSystem.Color.bgStatusWarning : DesignSystem.Color.iconTertiary)
+        markFill(isCollected: isCollected)
             .overlay {
                 // Every mark but the leading one is partly covered, and a row of clipped checkmarks reads worse
                 // than a plain fill — so only the front one carries it
@@ -59,6 +55,18 @@ struct JointAccountSignatureMarks: View {
             }
             .frame(width: markSide, height: markSide)
             .mask { markShape(hasCutout: hasCutout) }
+    }
+
+    @ViewBuilder
+    private func markFill(isCollected: Bool) -> some View {
+        if isCollected {
+            Circle()
+                .fill(DesignSystem.Color.bgStatusWarning)
+        } else {
+            Circle()
+                .fill(DesignSystem.Color.bgTransparentSecondary)
+                .background(Circle().fill(DesignSystem.Color.bgStatusWarningSubtle))
+        }
     }
 
     /// Bites a crescent out of the mark where the one in front of it overlaps, leaving a gap of whatever the row is
@@ -111,7 +119,7 @@ private extension JointAccountSignatureMarks {
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .frame(width: 60, alignment: .leading)
 
-                JointAccountSignatureMarks(signedMembersCount: collected, totalMembersCount: 5)
+                JointAccountSignatureMarks(collectedCount: collected, requiredCount: 5)
             }
         }
     }
@@ -119,15 +127,15 @@ private extension JointAccountSignatureMarks {
     .background(DesignSystem.Color.bgStatusWarningSubtle)
 }
 
-#Preview("Account sizes") {
+#Preview("Thresholds") {
     VStack(alignment: .leading, spacing: 20) {
-        ForEach(2 ... 5, id: \.self) { members in
+        ForEach(2 ... 5, id: \.self) { required in
             HStack(spacing: 16) {
-                Text("1 of \(members)")
+                Text("1 of \(required)")
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .frame(width: 60, alignment: .leading)
 
-                JointAccountSignatureMarks(signedMembersCount: 1, totalMembersCount: members)
+                JointAccountSignatureMarks(collectedCount: 1, requiredCount: required)
             }
         }
     }

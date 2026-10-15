@@ -24,7 +24,7 @@ enum TransactionDetailsFactory {
 
     private static let balanceFormatter = BalanceFormatter()
     private static let balanceConverter = BalanceConverter()
-    private static let headerDateFormatter: DateFormatter = {
+    static let headerDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
@@ -94,7 +94,7 @@ enum TransactionDetailsFactory {
         ):
             return .generic(sendReceiveContent(for: transaction, record: record, context: context))
 
-        case .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit, .yieldReactivate,
+        case .incentiveClaim, .incentiveClaimCoin, .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit, .yieldReactivate,
              .yieldSend, .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin:
             // Only the two operations that move the balance in or out of the protocol get the paired layout;
             // the rest are a plain single-asset amount, which the generic block already renders.
@@ -388,7 +388,7 @@ enum TransactionDetailsFactory {
             return YieldStage(provider: .leading(Assets.YieldModule.yieldModuleAaveLogo), caption: Localization.yieldModuleTransactionSupplied)
         case .yieldWithdraw, .yieldWithdrawCoin:
             return YieldStage(provider: .trailing(Assets.YieldModule.yieldModuleAaveLogo), caption: Localization.yieldModuleTransactionReturned)
-        case .yieldDeploy, .yieldInit, .yieldReactivate, .yieldSend, .yieldTopup,
+        case .incentiveClaim, .incentiveClaimCoin, .yieldDeploy, .yieldInit, .yieldReactivate, .yieldSend, .yieldTopup,
              .stake, .unstake, .vote, .withdraw, .claimRewards, .restake,
              .approve, .gaslessTransactionFee, .networkFee, .operation, .unknownOperation,
              .transfer, .gaslessTransfer, .swap, .onramp, .tangemPay:

@@ -10,14 +10,12 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class TangemPayPinCheckSheet: ScreenBase<TangemPayPinCheckSheetElement> {
-    private static let errorToastText = "Something went wrong"
-
     private lazy var title = staticText(.title)
     private lazy var changePinButton = button(.changePinButton)
     private lazy var loader = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.pinCheckLoader].firstMatch
     private lazy var pinDigits = app.staticTexts.matching(identifier: TangemPayAccessibilityIdentifiers.pinCheckValue)
     private lazy var errorToast = app.staticTexts
-        .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, Self.errorToastText))
+        .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, Localization.commonSomethingWentWrong))
         .firstMatch
 
     @discardableResult

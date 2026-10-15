@@ -28,7 +28,7 @@ public extension TokenIconV2 {
 
 extension TokenIconV2.Size {
     func containerWidth(atScale scale: CGFloat) -> CGFloat {
-        containerSize.width * TokenIconV2.clampedScale(scale)
+        containerSize.width * DecorationScale.clamped(scale)
     }
 
     var baseMetrics: TokenIconV2.Metrics {

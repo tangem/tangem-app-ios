@@ -14,12 +14,11 @@ import TangemUIUtils
 
 extension CollectiblesMachineView {
     struct Footer: View {
-        let expectedValueText: String?
+        let expectedValueText: String
         let openButtonText: String
-
-        @State private var isTurboModeOn = false
-
-        @ScaledMetric private var valueShimmerHeight: CGFloat = 20
+        @Binding var isTurboModeOn: Bool
+        let onTurboModeInfoTap: () -> Void
+        let onOpenTap: () -> Void
 
         var body: some View {
             VStack(spacing: Metrics.verticalSpacing) {
@@ -44,20 +43,23 @@ private extension CollectiblesMachineView.Footer {
 
     var turboModeBlock: some View {
         VStack(alignment: .leading, spacing: Metrics.turboModeSpacing) {
-            HStack(spacing: Metrics.turboModeLabelSpacing) {
-                // [REDACTED_TODO_COMMENT]
-                Text(Localization.collectiblesMachineTurboMode)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+            SwiftUI.Button(action: onTurboModeInfoTap) {
+                HStack(spacing: Metrics.turboModeLabelSpacing) {
+                    Text(Localization.collectiblesMachineTurboMode)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
-                DesignSystem.Icons.Info.regular16.image
-                    .renderingMode(.template)
-                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+                    DesignSystem.Icons.Info.regular16.image
+                        .renderingMode(.template)
+                        .foregroundStyle(DesignSystem.Color.iconSecondary)
+                }
+                .expandingHitArea(by: Metrics.turboModeInfoHitAreaInset)
             }
+            .buttonStyle(.plain)
 
             Toggle("", isOn: $isTurboModeOn)
                 .labelsHidden()
                 .accessibilityLabel(Localization.collectiblesMachineTurboMode)
-                .tint(DesignSystem.Color.bgBrand)
+                .tint(DesignSystem.Color.bgStatusInfo)
                 .fixedSize()
                 .scaleEffect(Metrics.toggleScale, anchor: .leading)
                 .frame(width: Metrics.toggleWidth, height: Metrics.toggleHeight, alignment: .leading)
@@ -69,21 +71,14 @@ private extension CollectiblesMachineView.Footer {
             Text(Localization.collectiblesMachineExpectedValue)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
-            if let expectedValueText {
-                Text(expectedValueText)
-                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
-            } else {
-                Shimmer()
-                    .frame(width: Metrics.valueShimmerWidth, height: valueShimmerHeight)
-                    .clipShape(Capsule())
-            }
+            Text(expectedValueText)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
         }
     }
 
     var openButton: some View {
-        // [REDACTED_TODO_COMMENT]
-        TangemUI.Button(label: openButtonText, accessibilityLabel: nil, action: {})
-            .styleType(.default)
+        TangemUI.Button(label: openButtonText, accessibilityLabel: nil, action: onOpenTap)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
             .size(.x12)
     }
@@ -112,13 +107,13 @@ private extension CollectiblesMachineView.Footer {
         static let topPadding: CGFloat = 16
         static let expectedValueSpacing: CGFloat = 2
         static let fadeHeight: CGFloat = 24
-        static let valueShimmerWidth: CGFloat = 72
 
         static let toggleWidth: CGFloat = 41
         static let toggleHeight: CGFloat = 25
 
         static let turboModeSpacing: CGFloat = 2
         static let turboModeLabelSpacing: CGFloat = 2
+        static let turboModeInfoHitAreaInset: CGFloat = 14
         static let toggleScale: CGFloat = 0.8
     }
 }

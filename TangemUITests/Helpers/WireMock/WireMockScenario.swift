@@ -42,11 +42,14 @@ struct WireMockRequestCountResponse: Codable {
 
 struct WireMockFindRequestsRequest: Codable {
     let method: String
-    let urlPath: String
+    var urlPath: String?
+    var urlPathPattern: String?
+    var urlPattern: String?
 }
 
 struct WireMockLoggedRequest: Codable {
     let body: String?
+    let loggedDate: Double?
 }
 
 struct WireMockFindRequestsResponse: Codable {

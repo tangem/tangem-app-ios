@@ -55,7 +55,7 @@ struct TangemPaySelectPlanView: View {
                     .onChange(of: viewModel.selectedPlanID) { _ in viewModel.onPlanSwiped() }
 
                 if viewModel.plans.count > 1 {
-                    TangemPayCardPageIndicatorRedesigned(
+                    TangemPayCardPageIndicator(
                         count: viewModel.plans.count,
                         selectedIndex: viewModel.selectedIndex
                     )
@@ -203,7 +203,7 @@ struct TangemPaySelectPlanView: View {
                 action: viewModel.select
             )
             .size(.x12)
-            .styleType(.default)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
             .loading(.spinner(if: viewModel.isPlacingOrder))
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.selectPlanSelectButton)

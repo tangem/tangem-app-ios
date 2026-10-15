@@ -15,7 +15,7 @@ final class TangemPayOrderCardDataScreen: ScreenBase<TangemPayOrderCardDataScree
         .containing(NSPredicate(
             format: "elementType == %d AND label == %@",
             XCUIElement.ElementType.textField.rawValue,
-            Field.nameOnCard.rawValue
+            Field.nameOnCard.title
         ))
         .firstMatch
 
@@ -23,7 +23,7 @@ final class TangemPayOrderCardDataScreen: ScreenBase<TangemPayOrderCardDataScree
     func waitForScreen() -> Self {
         XCTContext.runActivity(named: "Wait for the delivery address screen") { _ in
             waitAndAssertTrue(orderButton, timeout: .networkRequest, "Order card button should be displayed on the delivery address screen")
-            waitAndAssertTrue(app.staticTexts[Constants.subtitle].firstMatch, "'\(Constants.subtitle)' subtitle should be displayed")
+            waitAndAssertTrue(app.staticTexts[Localization.tangempayOrderDataSubtitle].firstMatch, "'\(Localization.tangempayOrderDataSubtitle)' subtitle should be displayed")
             return self
         }
     }
@@ -78,7 +78,7 @@ final class TangemPayOrderCardDataScreen: ScreenBase<TangemPayOrderCardDataScree
     func verifyRequiredErrors() -> Self {
         XCTContext.runActivity(named: "Verify every required field shows Required field") { _ in
             for field in Constants.requiredEditableFields {
-                verifyError(on: field, equals: Constants.requiredError)
+                verifyError(on: field, equals: Localization.tangempayOrderDataFieldRequired)
             }
             XCTAssertFalse(errorLabel(.addressLine2).exists, "Address line 2 is optional and should not show an error")
             return self
@@ -87,7 +87,7 @@ final class TangemPayOrderCardDataScreen: ScreenBase<TangemPayOrderCardDataScree
 
     @discardableResult
     func enterText(_ text: String, into field: Field) -> Self {
-        XCTContext.runActivity(named: "Enter '\(text)' into \(field.rawValue)") { _ in
+        XCTContext.runActivity(named: "Enter '\(text)' into \(field.title)") { _ in
             focus(field)
             app.typeText(text)
             dismissKeyboard()
@@ -97,8 +97,16 @@ final class TangemPayOrderCardDataScreen: ScreenBase<TangemPayOrderCardDataScree
 
     @discardableResult
     func verifyLatinOnlyError(on field: Field) -> Self {
-        XCTContext.runActivity(named: "Verify \(field.rawValue) shows Use Latin characters only") { _ in
-            verifyError(on: field, equals: Constants.latinOnlyError)
+        XCTContext.runActivity(named: "Verify \(field.title) shows Use Latin characters only") { _ in
+            verifyError(on: field, equals: Localization.tangempayOrderDataFieldLatinOnly)
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyInvalidTextError(on field: Field) -> Self {
+        XCTContext.runActivity(named: "Verify \(field.title) shows Invalid text") { _ in
+            verifyError(on: field, equals: Localization.tangempayOrderDataFieldInvalid)
             return self
         }
     }
@@ -134,7 +142,7 @@ final class TangemPayOrderCardDataScreen: ScreenBase<TangemPayOrderCardDataScree
     }
 
     private func field(_ field: Field) -> XCUIElement {
-        app.textFields[field.rawValue].firstMatch
+        app.textFields[field.title].firstMatch
     }
 
     private func errorLabel(_ field: Field) -> XCUIElement {
@@ -143,7 +151,7 @@ final class TangemPayOrderCardDataScreen: ScreenBase<TangemPayOrderCardDataScree
 
     private func focus(_ field: Field) {
         let element = self.field(field)
-        waitAndAssertTrue(element, "\(field.rawValue) field should be displayed")
+        waitAndAssertTrue(element, "\(field.title) field should be displayed")
         element.tap()
     }
 
@@ -162,14 +170,14 @@ final class TangemPayOrderCardDataScreen: ScreenBase<TangemPayOrderCardDataScree
 
     private func verifyFieldValue(_ field: Field, equals expected: String) {
         let element = self.field(field)
-        waitAndAssertTrue(element, "\(field.rawValue) field should be displayed")
-        XCTAssertTrue(element.waitForValue(expected), "\(field.rawValue) should be '\(expected)', got '\(element.getValue())'")
+        waitAndAssertTrue(element, "\(field.title) field should be displayed")
+        XCTAssertTrue(element.waitForValue(expected), "\(field.title) should be '\(expected)', got '\(element.getValue())'")
     }
 
     private func verifyError(on field: Field, equals expected: String) {
         let label = errorLabel(field)
-        waitAndAssertTrue(label, timeout: .conditional, "\(field.rawValue) should show an error")
-        XCTAssertEqual(label.label, expected, "\(field.rawValue) error should read '\(expected)'")
+        waitAndAssertTrue(label, timeout: .conditional, "\(field.title) should show an error")
+        XCTAssertEqual(label.label, expected, "\(field.title) error should read '\(expected)'")
     }
 
     private func dismissKeyboard() {
@@ -182,18 +190,34 @@ final class TangemPayOrderCardDataScreen: ScreenBase<TangemPayOrderCardDataScree
 }
 
 extension TangemPayOrderCardDataScreen {
-    enum Field: String {
-        case nameOnCard = "Name on card"
-        case country = "Country"
-        case email = "Email"
-        case firstName = "First name"
-        case lastName = "Last name"
-        case region = "Region / State"
-        case city = "City"
-        case addressLine1 = "Address line 1"
-        case addressLine2 = "Address line 2"
-        case postalCode = "Postal code"
-        case phone = "Phone"
+    enum Field {
+        case nameOnCard
+        case country
+        case email
+        case firstName
+        case lastName
+        case region
+        case city
+        case addressLine1
+        case addressLine2
+        case postalCode
+        case phone
+
+        var title: String {
+            switch self {
+            case .nameOnCard: Localization.tangempayOrderDataNameOnCard
+            case .country: Localization.tangempayOrderDataCountry
+            case .email: Localization.tangempayOrderDataEmail
+            case .firstName: Localization.tangempayOrderDataFirstName
+            case .lastName: Localization.tangempayOrderDataLastName
+            case .region: Localization.tangempayOrderDataRegion
+            case .city: Localization.tangempayOrderDataCity
+            case .addressLine1: Localization.tangempayOrderDataAddressLine1
+            case .addressLine2: Localization.tangempayOrderDataAddressLine2
+            case .postalCode: Localization.tangempayOrderDataPostalCode
+            case .phone: Localization.tangempayOrderDataPhone
+            }
+        }
 
         var identifierSuffix: String {
             "\(self)"
@@ -214,10 +238,7 @@ enum TangemPayOrderCardDataScreenElement: String, UIElement {
 
 private extension TangemPayOrderCardDataScreen {
     enum Constants {
-        static let subtitle = "Check data"
         static let phoneMaskPlaceholder = "+1 ___-___-____"
-        static let requiredError = "Required field"
-        static let latinOnlyError = "Use Latin characters only"
         static let nextFieldKey = "\n"
         static let focusChainAfterName: [Field] = [.firstName, .lastName, .region, .city, .addressLine1, .addressLine2, .postalCode, .phone]
         static let requiredEditableFields: [Field] = [.nameOnCard, .firstName, .lastName, .region, .city, .addressLine1, .postalCode, .phone]

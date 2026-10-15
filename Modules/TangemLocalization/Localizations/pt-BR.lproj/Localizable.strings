@@ -2343,6 +2343,7 @@
 "tangempay_factory_settings_warning_title" = "Entendo que perderei completamente o acesso ao meu cartão Tangem Pay e a todos os fundos nele contidos, sem possibilidade de recuperação.";
 "tangempay_failed_to_issue_card_support_description" = "Ocorreu um erro técnico. Por favor, entre em contato com o suporte.";
 "tangempay_failed_to_issue_card" = "Falha na emissão do cartão";
+"tangempay_geo_selection_search_empty" = "No results. Try to change request";
 "tangempay_get_banner_description" = "Cartão Tangem Pay grátis com até 2%% de cashback";
 "tangempay_get_tangem_pay" = "Obtenha o Tangem Pay";
 "tangempay_go_to_support" = "Acesse o Suporte";

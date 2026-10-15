@@ -23,15 +23,15 @@ struct ApproveInteractorTests {
 
     // MARK: - updateApprovePolicy
 
-    @Test("Policy change calls allowanceService and updates approveData + fees")
-    func updateApprovePolicy_permissionRequired_updatesApproveDataAndFees() async throws {
+    @Test("Policy change rebuilds approveData and refreshes fees")
+    func updateApprovePolicy_rebuildsApproveDataAndFees() async throws {
         let newTxData = Data([0x11, 0x22, 0x33])
         let newContractAddress = "0xNewContract"
         let newSpender = "0xNewSpender"
         let newApproveData = ApproveTransactionData(txData: newTxData, spender: newSpender, toContractAddress: newContractAddress)
 
         let env = makeEnv()
-        env.allowanceService.allowanceStateResult = .success(.permissionRequired(newApproveData))
+        env.allowanceService.makeApproveDataResult = .success(newApproveData)
 
         let sut = makeSUT(env: env)
         // The interactor primes the fee manager once in init; baseline those calls
@@ -39,17 +39,16 @@ struct ApproveInteractorTests {
         let inputCallsBefore = env.feeManager.updateInputCalls.count
         let feesCallsBefore = env.feeManager.updateFeesCalls
 
-        sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
+        try await sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
 
-        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore }
-
-        #expect(env.allowanceService.allowanceStateCalls.count == 1)
-        #expect(env.allowanceService.allowanceStateCalls.first?.approvePolicy == ApprovePolicy.unlimited)
-        #expect(env.allowanceService.allowanceStateCalls.first?.amount == testApproveAmount)
-        #expect(env.allowanceService.allowanceStateCalls.first?.spender == testSpender)
+        #expect(env.allowanceService.makeApproveDataCalls.count == 1)
+        #expect(env.allowanceService.makeApproveDataCalls.first?.policy == ApprovePolicy.unlimited)
+        #expect(env.allowanceService.makeApproveDataCalls.first?.amount == testApproveAmount)
+        #expect(env.allowanceService.makeApproveDataCalls.first?.spender == testSpender)
 
         #expect(sut.testApproveData.txData == newTxData)
         #expect(sut.testApproveData.toContractAddress == newContractAddress)
+        #expect(sut.approveInteractorState.policy == ApprovePolicy.unlimited)
 
         #expect(env.feeManager.updateInputCalls.count == inputCallsBefore + 1)
         #expect(env.feeManager.updateFeesCalls == feesCallsBefore + 1)
@@ -62,48 +61,10 @@ struct ApproveInteractorTests {
         }
     }
 
-    @Test("enoughAllowance response does not update approveData or fees")
-    func updateApprovePolicy_enoughAllowance_doesNotUpdateData() async throws {
+    @Test("makeApproveData throwing does not corrupt approveData or trigger fee update")
+    func updateApprovePolicy_makeApproveDataThrows_doesNotCorruptState() async throws {
         let env = makeEnv()
-        env.allowanceService.allowanceStateResult = .success(.enoughAllowance)
-
-        let sut = makeSUT(env: env)
-        let originalTxData = sut.testApproveData.txData
-        let inputCallsBefore = env.feeManager.updateInputCalls.count
-        let feesCallsBefore = env.feeManager.updateFeesCalls
-
-        sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
-        try await waitUntil { env.allowanceService.allowanceStateCalls.count >= 1 }
-
-        #expect(sut.testApproveData.txData == originalTxData)
-        #expect(env.feeManager.updateInputCalls.count == inputCallsBefore)
-        #expect(env.feeManager.updateFeesCalls == feesCallsBefore)
-    }
-
-    @Test("approveTransactionInProgress response does not update approveData or fees")
-    func updateApprovePolicy_approveTransactionInProgress_doesNotUpdateData() async throws {
-        let env = makeEnv()
-        env.allowanceService.allowanceStateResult = .success(.approveTransactionInProgress)
-
-        let sut = makeSUT(env: env)
-        let originalTxData = sut.testApproveData.txData
-        let originalContract = sut.testApproveData.toContractAddress
-        let inputCallsBefore = env.feeManager.updateInputCalls.count
-        let feesCallsBefore = env.feeManager.updateFeesCalls
-
-        sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
-        try await waitUntil { env.allowanceService.allowanceStateCalls.count >= 1 }
-
-        #expect(sut.testApproveData.txData == originalTxData)
-        #expect(sut.testApproveData.toContractAddress == originalContract)
-        #expect(env.feeManager.updateInputCalls.count == inputCallsBefore)
-        #expect(env.feeManager.updateFeesCalls == feesCallsBefore)
-    }
-
-    @Test("allowanceState throwing does not corrupt approveData or trigger fee update")
-    func updateApprovePolicy_allowanceServiceThrows_doesNotCorruptState() async throws {
-        let env = makeEnv()
-        env.allowanceService.allowanceStateResult = .failure(NSError(domain: "test", code: -1))
+        env.allowanceService.makeApproveDataResult = .failure(NSError(domain: "test", code: -1))
 
         let sut = makeSUT(env: env)
         let originalTxData = sut.testApproveData.txData
@@ -112,43 +73,93 @@ struct ApproveInteractorTests {
         let inputCallsBefore = env.feeManager.updateInputCalls.count
         let feesCallsBefore = env.feeManager.updateFeesCalls
 
-        sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
-        try await waitUntil { env.allowanceService.allowanceStateCalls.count >= 1 }
+        await #expect(throws: (any Error).self) {
+            try await sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
+        }
 
         #expect(sut.testApproveData.txData == originalTxData, "txData must not change on error")
         #expect(sut.testApproveData.toContractAddress == originalContract, "contract must not change on error")
         #expect(sut.testApproveData.spender == originalSpender, "spender must not change on error")
+        #expect(sut.approveInteractorState.policy == ApprovePolicy.specified, "policy must not change on error")
         #expect(env.feeManager.updateInputCalls.count == inputCallsBefore, "Fee input must not be updated on error")
         #expect(env.feeManager.updateFeesCalls == feesCallsBefore, "Fees must not be refreshed on error")
     }
 
-    @Test("Rapid policy toggles: only the last request takes effect")
-    func updateApprovePolicy_rapidToggle_cancelsInFlightRequest() async throws {
-        let firstData = ApproveTransactionData(txData: Data([0x01]), spender: testSpender, toContractAddress: "0xFirst")
-        let secondData = ApproveTransactionData(txData: Data([0x02]), spender: testSpender, toContractAddress: "0xSecond")
+    @Test("A rebuild cancelled before the calldata arrives leaves the state untouched")
+    func updateApprovePolicy_cancelledBeforeCalldataArrives_leavesStateUntouched() async throws {
+        let unlimitedData = ApproveTransactionData(txData: Data([0x01]), spender: testSpender, toContractAddress: "0xUnlimited")
 
         let env = makeEnv()
-        env.allowanceService.setAllowanceStateResult(.success(.permissionRequired(firstData)), for: ApprovePolicy.unlimited)
-        env.allowanceService.setAllowanceStateResult(.success(.permissionRequired(secondData)), for: ApprovePolicy.specified)
-        env.allowanceService.holdNextAllowanceStateCall()
+        env.allowanceService.setMakeApproveDataResult(.success(unlimitedData), for: ApprovePolicy.unlimited)
+        let approveDataGate = TestGate()
+        env.allowanceService.makeApproveDataGate = approveDataGate
 
         let sut = makeSUT(env: env)
+        let inputCallsBefore = env.feeManager.updateInputCalls.count
         let feesCallsBefore = env.feeManager.updateFeesCalls
 
-        // The first request suspends inside the mock until released
-        sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
-        try await waitUntil { env.allowanceService.allowanceStateCalls.count == 1 }
+        let rebuild = Task {
+            try await sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
+        }
+        try await waitUntil { env.allowanceService.makeApproveDataCalls.count == 1 }
 
-        // The second request cancels the suspended first one before it can apply its result
-        sut.updateApprovePolicy(policy: ApprovePolicy.specified)
-        env.allowanceService.releaseHeldAllowanceStateCalls()
+        rebuild.cancel()
+        approveDataGate.open()
 
-        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore }
+        await #expect(throws: CancellationError.self) {
+            try await rebuild.value
+        }
 
-        #expect(env.allowanceService.allowanceStateCalls.count == 2)
-        #expect(sut.testApproveData.txData == secondData.txData)
-        #expect(sut.testApproveData.toContractAddress == secondData.toContractAddress)
-        #expect(env.feeManager.updateFeesCalls == feesCallsBefore + 1, "The cancelled request must not trigger a fee update")
+        #expect(sut.testApproveData.txData == testTxData, "The cancelled rebuild must not replace the calldata")
+        #expect(sut.approveInteractorState.policy == ApprovePolicy.specified)
+        #expect(env.feeManager.updateInputCalls.count == inputCallsBefore)
+        #expect(env.feeManager.updateFeesCalls == feesCallsBefore, "The cancelled rebuild must not trigger a fee update")
+    }
+
+    @Test("Failed rebuild keeps the active policy, so the send uses the calldata built for it")
+    func updateApprovePolicy_failure_keepsActivePolicyForSend() async throws {
+        let env = makeEnv()
+        env.allowanceService.makeApproveDataResult = .failure(NSError(domain: "test", code: -1))
+
+        let sut = makeSUT(env: env)
+
+        await #expect(throws: (any Error).self) {
+            try await sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
+        }
+
+        try await sut.sendApproveTransaction()
+
+        guard case .approve(let sentData, _) = env.dispatcher.sendCalls.first else {
+            Issue.record("Expected .approve transaction")
+            return
+        }
+
+        #expect(sentData.txData == testTxData)
+        #expect(env.analyticsLogger.logSwapButtonPermissionApproveCalls.first == ApprovePolicy.specified)
+        #expect(env.analyticsLogger.logApproveTransactionSentCalls.first?.policy == ApprovePolicy.specified)
+    }
+
+    @Test("Revoke+approve: policy change keeps the feeUnit and tags the state with the new policy")
+    func revokeAndApprove_updateApprovePolicy_keepsFeeUnitAndUpdatesPolicy() async throws {
+        let updatedApprove = ApproveTransactionData(txData: Data([0xFF]), spender: testSpender, toContractAddress: testContractAddress)
+        let feeUnitValue: Decimal = 0.002
+
+        let env = makeEnv()
+        env.allowanceService.makeApproveDataResult = .success(updatedApprove)
+
+        let sut = makeRevokeAndApproveSUT(env: env, feeUnitValue: feeUnitValue)
+
+        try await sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
+
+        guard case .revokeAndApprove(let revoke, let approve, let feeUnit, let policy) = sut.approveInteractorState else {
+            Issue.record("Expected .revokeAndApprove state, got \(sut.approveInteractorState)")
+            return
+        }
+
+        #expect(revoke.txData == testRevokeTxData)
+        #expect(approve.txData == updatedApprove.txData)
+        #expect(feeUnit.amount.value == feeUnitValue)
+        #expect(policy == ApprovePolicy.unlimited)
     }
 
     // MARK: - sendApproveTransaction
@@ -260,12 +271,10 @@ struct ApproveInteractorTests {
         let updatedData = ApproveTransactionData(txData: updatedTxData, spender: testSpender, toContractAddress: "0xUpdatedContract")
 
         let env = makeEnv()
-        env.allowanceService.allowanceStateResult = .success(.permissionRequired(updatedData))
+        env.allowanceService.makeApproveDataResult = .success(updatedData)
 
         let sut = makeSUT(env: env)
-        let feesCallsBefore = env.feeManager.updateFeesCalls
-        sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
-        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore }
+        try await sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
 
         try await sut.sendApproveTransaction()
 
@@ -283,12 +292,10 @@ struct ApproveInteractorTests {
         let updatedData = ApproveTransactionData(txData: Data([0x01]), spender: testSpender, toContractAddress: testContractAddress)
 
         let env = makeEnv()
-        env.allowanceService.allowanceStateResult = .success(.permissionRequired(updatedData))
+        env.allowanceService.makeApproveDataResult = .success(updatedData)
 
         let sut = makeSUT(env: env)
-        let feesCallsBefore = env.feeManager.updateFeesCalls
-        sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
-        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore }
+        try await sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
 
         try await sut.sendApproveTransaction()
 
@@ -385,17 +392,15 @@ struct ApproveInteractorTests {
         )
 
         let env = makeEnv()
-        env.allowanceService.allowanceStateResult = .success(.permissionRequired(updatedData))
+        env.allowanceService.makeApproveDataResult = .success(updatedData)
 
         let sut = makeSUT(env: env)
         let originalSpender = sut.testApproveData.spender
-        let feesCallsBefore = env.feeManager.updateFeesCalls
 
-        sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
-        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore }
+        try await sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
 
         // The allowanceService is always called with the original spender
-        #expect(env.allowanceService.allowanceStateCalls.first?.spender == originalSpender)
+        #expect(env.allowanceService.makeApproveDataCalls.first?.spender == originalSpender)
     }
 
     @Test("Fee input data is .approve type, never .common/.dex/.cex — no address leakage")
@@ -407,13 +412,11 @@ struct ApproveInteractorTests {
         )
 
         let env = makeEnv()
-        env.allowanceService.allowanceStateResult = .success(.permissionRequired(updatedData))
+        env.allowanceService.makeApproveDataResult = .success(updatedData)
 
         let sut = makeSUT(env: env)
         let inputCallsBefore = env.feeManager.updateInputCalls.count
-        let feesCallsBefore = env.feeManager.updateFeesCalls
-        sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
-        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore }
+        try await sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
 
         #expect(env.feeManager.updateInputCalls.count == inputCallsBefore + 1)
 
@@ -432,19 +435,16 @@ struct ApproveInteractorTests {
         let env = makeEnv()
 
         let sut = makeSUT(env: env)
-        let feesCallsBefore = env.feeManager.updateFeesCalls
 
         // First change
         let data1 = ApproveTransactionData(txData: Data([0x01]), spender: testSpender, toContractAddress: "0xC1")
-        env.allowanceService.allowanceStateResult = .success(.permissionRequired(data1))
-        sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
-        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore }
+        env.allowanceService.makeApproveDataResult = .success(data1)
+        try await sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
 
         // Second change
         let data2 = ApproveTransactionData(txData: Data([0x02]), spender: testSpender, toContractAddress: "0xC2")
-        env.allowanceService.allowanceStateResult = .success(.permissionRequired(data2))
-        sut.updateApprovePolicy(policy: ApprovePolicy.specified)
-        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore + 1 }
+        env.allowanceService.makeApproveDataResult = .success(data2)
+        try await sut.updateApprovePolicy(policy: ApprovePolicy.specified)
 
         for input in env.feeManager.updateInputCalls {
             guard case .approve = input else {
@@ -547,7 +547,7 @@ struct ApproveInteractorTests {
     @Test("feeInput uses approve tx data with .single multiplier for single approve")
     func feeInput_approve() {
         let data = ApproveTransactionData(txData: testTxData, spender: testSpender, toContractAddress: testContractAddress)
-        let state = ApproveInteractor.ApproveInteractorState.approve(data: data)
+        let state = ApproveInteractor.ApproveInteractorState.approve(data: data, policy: ApprovePolicy.specified)
 
         guard case .approve(let txData, let toContractAddress, let feeMultiplier) = state.feeInput else {
             Issue.record("Expected .approve fee input")
@@ -567,7 +567,8 @@ struct ApproveInteractorTests {
         let state = ApproveInteractor.ApproveInteractorState.revokeAndApprove(
             revoke: ApproveTransactionData(txData: revokeTxData, spender: testSpender, toContractAddress: revokeContract),
             approve: ApproveTransactionData(txData: Data([0x02]), spender: testSpender, toContractAddress: testContractAddress),
-            feeUnit: feeUnit
+            feeUnit: feeUnit,
+            policy: ApprovePolicy.specified
         )
 
         guard case .approve(let txData, let toContractAddress, let feeMultiplier) = state.feeInput else {
@@ -680,15 +681,12 @@ struct ApproveInteractorTests {
 
     @Test("Revoke+approve: updateApprovePolicy passes feeMultiplier .triple to fee provider")
     func revokeAndApprove_updateApprovePolicy_passesFeeMultiplier() async throws {
-        let updatedRevoke = ApproveTransactionData(txData: Data([0xAA]), spender: testSpender, toContractAddress: testContractAddress)
         let updatedApprove = ApproveTransactionData(txData: Data([0xFF]), spender: testSpender, toContractAddress: testContractAddress)
         let env = makeEnv()
-        env.allowanceService.allowanceStateResult = .success(.revokeAndPermissionRequired(revoke: updatedRevoke, approve: updatedApprove))
+        env.allowanceService.makeApproveDataResult = .success(updatedApprove)
 
         let sut = makeRevokeAndApproveSUT(env: env)
-        let feesCallsBefore = env.feeManager.updateFeesCalls
-        sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
-        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore }
+        try await sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
 
         guard let input = env.feeManager.updateInputCalls.last,
               case .approve(_, _, let feeMultiplier) = input else {
@@ -703,12 +701,10 @@ struct ApproveInteractorTests {
     func approve_updateApprovePolicy_passesFeeMultiplier() async throws {
         let updatedData = ApproveTransactionData(txData: Data([0xFF]), spender: testSpender, toContractAddress: testContractAddress)
         let env = makeEnv()
-        env.allowanceService.allowanceStateResult = .success(.permissionRequired(updatedData))
+        env.allowanceService.makeApproveDataResult = .success(updatedData)
 
         let sut = makeSUT(env: env)
-        let feesCallsBefore = env.feeManager.updateFeesCalls
-        sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
-        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore }
+        try await sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
 
         guard let input = env.feeManager.updateInputCalls.last,
               case .approve(_, _, let feeMultiplier) = input else {
@@ -753,12 +749,13 @@ struct ApproveInteractorTests {
         let deadline = ContinuousClock.now + timeout
         while !condition() {
             if ContinuousClock.now >= deadline {
-                Issue.record("waitUntil timed out")
-                return
+                throw WaitUntilTimeoutError()
             }
             await Task.yield()
         }
     }
+
+    private struct WaitUntilTimeoutError: Error {}
 
     // MARK: - Helpers
 
@@ -803,8 +800,7 @@ struct ApproveInteractorTests {
         }
 
         return ApproveInteractor(
-            approveInteractorState: .approve(data: data),
-            initialPolicy: ApprovePolicy.specified,
+            approveInteractorState: .approve(data: data, policy: ApprovePolicy.specified),
             approveAmount: testApproveAmount,
             allowanceService: env.allowanceService,
             approveTransactionDispatcher: env.dispatcher,
@@ -826,8 +822,7 @@ struct ApproveInteractorTests {
         let approveData = ApproveTransactionData(txData: testTxData, spender: testSpender, toContractAddress: testContractAddress)
 
         return ApproveInteractor(
-            approveInteractorState: .revokeAndApprove(revoke: revokeData, approve: approveData, feeUnit: unit),
-            initialPolicy: ApprovePolicy.specified,
+            approveInteractorState: .revokeAndApprove(revoke: revokeData, approve: approveData, feeUnit: unit, policy: ApprovePolicy.specified),
             approveAmount: testApproveAmount,
             allowanceService: env.allowanceService,
             approveTransactionDispatcher: env.dispatcher,

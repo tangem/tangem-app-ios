@@ -32,8 +32,8 @@ struct CardanoStakingFlowProvider: GenericStakingFlowProvider {
         return try await stages.resolveCommon(action: action, stepPlan: stepPlan, enterSpendsAmount: enterSpendsAmount)
     }
 
-    /// Cardano stakes the full available balance, gated by the yield's minimum. Mirrors the legacy
-    /// restaking flow: only a `StakingValidationError` surfaces here, anything else falls through.
+    /// Cardano stakes the full available balance, gated by the yield's minimum. Only a
+    /// `StakingValidationError` surfaces here, anything else falls through.
     private func minAmount(amount: Decimal) -> StakeFlowState? {
         do {
             try minAmountValidator.validate(amount: amount)

@@ -15,9 +15,9 @@ class CommonSendStepsManager {
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
     private let feeSelectorBuilder: SendFeeSelectorBuilder
-    private let receiveTokensListBuilder: SendReceiveTokensListBuilder
+    private let receiveTokensListBuilder: SendReceiveTokensListBuilder?
 
-    private let providersSelector: SendSwapProvidersSelectorViewModel
+    private let providersSelector: SendSwapProvidersSelectorViewModel?
     private let summaryTitleProvider: SendSummaryTitleProvider
     private let selectedInitialStep: InitialStep
     private let shouldStartFromTokenList: Bool
@@ -36,8 +36,8 @@ class CommonSendStepsManager {
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep,
         feeSelectorBuilder: SendFeeSelectorBuilder,
-        receiveTokensListBuilder: SendReceiveTokensListBuilder,
-        providersSelector: SendSwapProvidersSelectorViewModel,
+        receiveTokensListBuilder: SendReceiveTokensListBuilder?,
+        providersSelector: SendSwapProvidersSelectorViewModel?,
         summaryTitleProvider: SendSummaryTitleProvider,
         initialStep: InitialStep = .amount,
         shouldStartFromTokenList: Bool = false,
@@ -208,6 +208,10 @@ extension CommonSendStepsManager: SendStepsManager {
 
 extension CommonSendStepsManager: SendAmountStepRoutable {
     func openReceiveTokensList(onDismiss: (() -> Void)?) {
+        guard let receiveTokensListBuilder else {
+            return
+        }
+
         router?.openReceiveTokensList(tokensListBuilder: receiveTokensListBuilder, onDismiss: onDismiss)
     }
 
@@ -252,6 +256,10 @@ extension CommonSendStepsManager: SendSummaryStepsRoutable {
             return
         }
 
+        guard let providersSelector else {
+            return
+        }
+
         router?.openSwapProvidersSelector(viewModel: providersSelector)
     }
 }
@@ -277,5 +285,13 @@ extension CommonSendStepsManager {
         case amount
         case amountThenSummary
         case summary
+
+        init(parameters: PredefinedSendParameters?) {
+            switch parameters?.initialStep {
+            case .none, .amount: self = .amount
+            case .amountThenSummary: self = .amountThenSummary
+            case .summary: self = .summary
+            }
+        }
     }
 }

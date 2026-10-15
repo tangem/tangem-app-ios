@@ -11,15 +11,28 @@ import TangemAssets
 
 extension Checkmark {
     struct CheckmarkMark: View {
-        let checked: Bool
+        let value: Value
+        let size: Size
 
-        @ScaledMetric private var side = Metrics.side
+        @ScaledMetric private var side: CGFloat
+
+        init(value: Value, size: Size) {
+            self.value = value
+            self.size = size
+            _side = ScaledMetric(wrappedValue: size.side)
+        }
+
+        private var checked: Bool { value == .checked }
+
+        private var circleColor: Color {
+            value == .error ? DesignSystem.Color.iconStatusError : DesignSystem.Color.iconPrimary
+        }
 
         var body: some View {
             ZStack {
-                tinted(DesignSystem.Icons.ControlCircle.regular24, color: DesignSystem.Color.iconPrimary)
+                tinted(SelectionControlGlyph.circleRegular, color: circleColor)
 
-                tinted(DesignSystem.Icons.ControlCircle.filled24, color: DesignSystem.Color.iconPrimary)
+                tinted(SelectionControlGlyph.circleFilled, color: DesignSystem.Color.iconPrimary)
                     .scaleEffect(checked ? 1 : Metrics.markInScale)
                     .opacity(checked ? 1 : 0)
                     .animation(Animations.fill, value: checked)
@@ -33,15 +46,15 @@ extension Checkmark {
         private var mark: some View {
             ZStack {
                 if checked {
-                    tinted(DesignSystem.Icons.ControlCheckmark.regular24, color: DesignSystem.Color.iconInverse)
+                    tinted(SelectionControlGlyph.checkmark, color: DesignSystem.Color.iconInverse)
                         .transition(Animations.markTransition)
                 }
             }
             .animation(Animations.mark, value: checked)
         }
 
-        private func tinted(_ icon: ImageType, color: Color) -> some View {
-            icon.image
+        private func tinted(_ glyph: SelectionControlGlyph, color: Color) -> some View {
+            glyph.image(for: size).image
                 .renderingMode(.template)
                 .resizable()
                 .frame(width: side, height: side)
@@ -54,7 +67,6 @@ extension Checkmark {
 
 private extension Checkmark.CheckmarkMark {
     enum Metrics {
-        static let side: CGFloat = 24
         static let markInScale: CGFloat = 0.5
     }
 

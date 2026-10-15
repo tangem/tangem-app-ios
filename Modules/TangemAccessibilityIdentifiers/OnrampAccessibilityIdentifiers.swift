@@ -52,6 +52,18 @@ public enum OnrampAccessibilityIdentifiers {
         return "\(paymentMethodNamePrefix)\(id)"
     }
 
+    public static func providerCount(id: String) -> String {
+        return "onrampProviderCount_\(id)"
+    }
+
+    public static func providerTime(id: String) -> String {
+        return "onrampProviderTime_\(id)"
+    }
+
+    public static func bestRateBadge(id: String) -> String {
+        return "onrampBestRateBadge_\(id)"
+    }
+
     /// Residence screen
     public static let residenceSearchField = "onrampResidenceSearchField"
 

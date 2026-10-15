@@ -11,7 +11,7 @@ import TangemAssets
 import TangemUIUtils
 
 // [REDACTED_TODO_COMMENT]
-// three go away once testers can top up on a network of their own.
+// four go away once testers can top up on a network of their own.
 struct CollectiblesDevnetMenu: View {
     let viewModel: CollectiblesDevnetMenuViewModel?
 
@@ -29,6 +29,13 @@ struct CollectiblesDevnetMenu: View {
             SwiftUI.Button(action: viewModel.onCopyFeePayerAddressTap) {
                 Label(
                     title: { Text("Copy SOL address") },
+                    icon: { DesignSystem.Icons.Copy.regular20.image.renderingMode(.template) }
+                )
+            }
+
+            SwiftUI.Button(action: viewModel.onCopyPurchaseFeePayerAddressTap) {
+                Label(
+                    title: { Text("Copy purchase SOL address") },
                     icon: { DesignSystem.Icons.Copy.regular20.image.renderingMode(.template) }
                 )
             }

@@ -30,6 +30,6 @@ struct TokenDetailsActionsView: View {
 
 private extension TokenDetailsActionsView {
     enum Constants {
-        static let bottomPadding: CGFloat = .unit(.x2)
+        static let bottomPadding: CGFloat = 8
     }
 }

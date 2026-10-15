@@ -378,11 +378,9 @@ private extension ActionButtonsBuyCoordinator {
         }
 
         return PulseMarketWidgetViewModel(
-            widgetType: .pulse,
             widgetsUpdateHandler: widgetsUpdateHandler,
             quotesRepositoryUpdateHelper: CommonMarketsQuotesUpdateHelper(),
             analyticsService: CommonMarketsWidgetAnalyticsService(),
-            includesMarketCapFilter: true,
             coordinator: self
         )
     }

@@ -88,7 +88,7 @@ private extension GlowRingModifier {
             // Throttled: the rotation is slow (full turn ≈ 24s), so 30fps looks identical to the
             // default "as fast as possible" while drawing a fraction of the frames. Paused off-screen.
             TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: isPaused)) { timeline in
-                let t = timeline.date.timeIntervalSinceReferenceDate
+                let t = GlowAnimationClock.shared.time(at: timeline.date)
                 canvasContent(width: w, height: h, phase: phaseAngle(at: t), mix: morphMix(at: t))
             }
         }
@@ -190,16 +190,5 @@ private extension GlowRingModifier {
         guard config.palette.canMorph, config.morphDuration > 0 else { return 0 }
         let progress = time.truncatingRemainder(dividingBy: config.morphDuration) / config.morphDuration
         return CGFloat(progress < 0.5 ? progress * 2 : 2 - progress * 2)
-    }
-}
-
-// MARK: - Previews
-
-#Preview {
-    ZStack {
-        Color(white: 0.04).ignoresSafeArea()
-        Color.clear
-            .frame(width: 400, height: 200)
-            .glowRing()
     }
 }

@@ -25,17 +25,15 @@ final class TangemPayWaitlistViewModel: ObservableObject {
     @Published private(set) var isMarketingConsentOn = false
     @Published private(set) var isSaving = false
 
-    private let product: TangemPayWaitlistProduct
+    private let product: TangemPayProduct
     private let country: String
     private let region: String?
     private let service: TangemPayWaitlistService
     private let idempotencyKey = TangemPayIdempotencyKey.make(UUID().uuidString)
     private let output: (Output) -> Void
 
-    private var focusedFieldID: TangemPayFormField.ID?
-
     init(
-        product: TangemPayWaitlistProduct,
+        product: TangemPayProduct,
         country: String,
         region: String?,
         service: TangemPayWaitlistService,
@@ -51,7 +49,7 @@ final class TangemPayWaitlistViewModel: ObservableObject {
     var contentState: TangemPayWaitlistContentView.State {
         TangemPayWaitlistContentView.State(
             isMarketingConsentOn: isMarketingConsentOn,
-            isSaveEnabled: field.currentError == nil,
+            isSaveEnabled: email.isNotEmpty,
             isSaving: isSaving
         )
     }
@@ -74,14 +72,6 @@ final class TangemPayWaitlistViewModel: ObservableObject {
         }
     }
 
-    func focusedFieldDidChange(to id: TangemPayFormField.ID?) {
-        if let blurredFieldID = focusedFieldID, blurredFieldID != id {
-            field.error = field.currentError
-        }
-
-        focusedFieldID = id
-    }
-
     func onCloseTap() {
         output(.close)
     }
@@ -90,8 +80,12 @@ final class TangemPayWaitlistViewModel: ObservableObject {
 // MARK: - Save
 
 private extension TangemPayWaitlistViewModel {
+    var email: String {
+        field.text.trimmed()
+    }
+
     func submit() {
-        field.error = field.currentError
+        field.error = TangemPayEmailValidator.isValid(email) ? nil : .invalidEmail
 
         guard field.error == nil, !isSaving else {
             return
@@ -115,10 +109,10 @@ private extension TangemPayWaitlistViewModel {
 
     func makeRequest() -> TangemPayJoinWaitlistRequest {
         TangemPayJoinWaitlistRequest(
-            email: field.text.trimmed(),
+            email: email,
             product: product,
-            country: country,
-            region: region,
+            countryCode: country,
+            regionCode: region,
             marketingConsent: isMarketingConsentOn
         )
     }

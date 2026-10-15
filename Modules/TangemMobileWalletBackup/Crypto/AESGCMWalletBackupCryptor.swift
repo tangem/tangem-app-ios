@@ -10,6 +10,8 @@ import CryptoKit
 import Foundation
 
 struct AESGCMWalletBackupCryptor {
+    static let keyLength = 32
+
     /// Cipher identifier written to the backup file's `crypto.cipher` field;
     /// the restore side dispatches on it, so it must never change for a shipped cipher.
     let algorithmName = "aes-256-gcm"
@@ -28,6 +30,8 @@ struct AESGCMWalletBackupCryptor {
     }
 
     private func seal(_ plaintext: Data, key: Data, nonce: Data, additionalData: Data) throws(WalletBackupCryptoError) -> WalletBackupSealedBox {
+        try validate(key: key)
+
         do {
             let sealedBox = try AES.GCM.seal(
                 plaintext,
@@ -48,6 +52,8 @@ struct AESGCMWalletBackupCryptor {
     /// Throws `WalletBackupCryptoError.invalidPassword` when authentication fails —
     /// a wrong key and a tampered file are indistinguishable for an AEAD cipher.
     func decrypt(_ sealedBox: WalletBackupSealedBox, key: Data, additionalData: Data) throws(WalletBackupCryptoError) -> Data {
+        try validate(key: key)
+
         do {
             let box = try AES.GCM.SealedBox(
                 nonce: AES.GCM.Nonce(data: sealedBox.nonce),
@@ -59,6 +65,12 @@ struct AESGCMWalletBackupCryptor {
             throw WalletBackupCryptoError.invalidPassword
         } catch {
             throw WalletBackupCryptoError.decryptionFailed(error)
+        }
+    }
+
+    private func validate(key: Data) throws(WalletBackupCryptoError) {
+        guard key.count == Self.keyLength else {
+            throw .invalidKeyLength
         }
     }
 }

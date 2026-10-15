@@ -17,10 +17,6 @@ protocol StakingNotificationManagerInput {
 }
 
 protocol StakingNotificationManager: NotificationManager {
-    func setup(provider: StakingModelStateProvider, input: StakingNotificationManagerInput)
-    func setup(provider: UnstakingModelStateProvider, input: StakingNotificationManagerInput)
-    func setup(provider: RestakingModelStateProvider, input: StakingNotificationManagerInput)
-    func setup(provider: StakingSingleActionModelStateProvider, input: StakingNotificationManagerInput)
     func setup(provider: StakeModelStateProvider, input: StakingNotificationManagerInput)
     func setup(validationStatePublisher: AnyPublisher<StakingValidationState, Never>, tokenName: String)
 }
@@ -52,160 +48,6 @@ class CommonStakingNotificationManager {
 }
 
 // MARK: - Bind
-
-private extension CommonStakingNotificationManager {
-    func update(state: StakingModel.State, yield: StakingYieldInfo) {
-        switch state {
-        case .loading:
-            hideErrorNotifications()
-        case .approveTransactionInProgress:
-            show(notification: .approveTransactionInProgress)
-            hideErrorNotifications()
-        case .blockchainAccountInitializationRequired:
-            show(notification: .tonAccountInitialization)
-            hideErrorNotifications()
-        case .blockchainAccountInitializationInProgress:
-            hideAccountInitializationNotification()
-            hideErrorNotifications()
-        case .readyToApprove:
-            hideApproveInProgressNotification()
-            hideErrorNotifications()
-        case .readyToStake(let readyToStake):
-            var events: [StakingNotificationEvent] = []
-
-            if readyToStake.isFeeIncluded {
-                let feeFiatValue = feeTokenItem.currencyId.flatMap {
-                    BalanceConverter().convertToFiat(readyToStake.fee, currencyId: $0)
-                }
-
-                let formatter = BalanceFormatter()
-                let cryptoAmountFormatted = formatter.formatCryptoBalance(readyToStake.fee, currencyCode: feeTokenItem.currencySymbol)
-                let fiatAmountFormatted = formatter.formatFiatBalance(feeFiatValue)
-
-                events.append(
-                    .feeWillBeSubtractFromSendingAmount(
-                        cryptoAmountFormatted: cryptoAmountFormatted,
-                        fiatAmountFormatted: fiatAmountFormatted
-                    )
-                )
-
-                if let amountToReduce = readyToStake.amountToReduce {
-                    let amountToReduceFormatted = formatter.formatCryptoBalance(
-                        amountToReduce,
-                        currencyCode: feeTokenItem.currencySymbol
-                    )
-
-                    events.append(
-                        .maxAmountStaking(
-                            reduceAmount: amountToReduce,
-                            reduceAmountFormatted: amountToReduceFormatted
-                        )
-                    )
-                }
-            }
-
-            if !tokenItem.supportsStakingOnDifferentValidators, readyToStake.stakeOnDifferentValidator {
-                events.append(.stakesWillMoveToNewValidator(blockchain: tokenItem.blockchain.displayName))
-            }
-
-            if case .ton = tokenItem.blockchain {
-                events.append(.tonExtraReserveInfo)
-            }
-
-            show(events: events)
-            hideErrorNotifications()
-        case .validationError(let validationError, _):
-            hideApproveInProgressNotification()
-            if case .remainingAmountIsLessThanRentExemption = validationError {
-                hideAmountRelatedNotifications()
-            }
-            showValidationError(validationError, validatesFeeOnly: false)
-        case .networkError(let error):
-            hideApproveInProgressNotification()
-            showNetworkError(error, supportsReduceAmount: true)
-        }
-    }
-
-    func update(state: UnstakingModel.State, yield: StakingYieldInfo, action: UnstakingModel.Action, stakedBalance: Decimal) {
-        switch (state, action.type) {
-        case (.ready(_, let stakesCount), .pending(.withdraw)):
-            show(events: tonNotifications(action: action, stakesCount: stakesCount) + [.withdraw])
-            hideErrorNotifications()
-        case (.loading, .pending(.withdraw)),
-             (.loading, .pending(.claimUnstaked)), (.ready, .pending(.claimUnstaked)):
-            show(events: [.withdraw])
-            hideErrorNotifications()
-        case (.loading, .pending(.claimRewards)), (.ready, .pending(.claimRewards)):
-            show(notification: .claimRewards)
-            hideErrorNotifications()
-        case (.loading, .pending(.restakeRewards)), (.ready, .pending(.restakeRewards)):
-            show(notification: .restakeRewards)
-            hideErrorNotifications()
-        case (.loading, .pending(.unlockLocked)), (.ready, .pending(.unlockLocked)):
-            show(notification: .unlock(
-                periodFormatted: yield.unbondingPeriod.formatted(formatter: daysFormatter)
-            ))
-            hideErrorNotifications()
-        case (.ready(_, let stakesCount), _):
-            showCommonUnstakingNotifications(
-                for: yield,
-                action: action,
-                stakedBalance: stakedBalance,
-                stakesCount: stakesCount
-            )
-            hideErrorNotifications()
-        case (.loading, _):
-            hideErrorNotifications()
-        case (.validationError(let validationError, _), _):
-            if case .remainingAmountIsLessThanRentExemption = validationError {
-                hideActionInfoNotifications()
-            }
-
-            showValidationError(validationError, validatesFeeOnly: true)
-        case (.networkError(let error), _):
-            showNetworkError(error)
-        }
-    }
-
-    func update(state: RestakingModel.State, action: RestakingModel.Action) {
-        switch state {
-        case .loading, .ready:
-            switch tokenItem.blockchain {
-            case .tron:
-                show(notification: .revote)
-            default:
-                break
-            }
-
-            if case .cardano = tokenItem.blockchain, case .stake = action.type {
-                show(notification: .cardanoAdditionalDeposit)
-            }
-
-            if case .pending(.restake) = action.type {
-                show(notification: .restake)
-            }
-
-            hideErrorNotifications()
-        case .networkError(let error):
-            showNetworkError(error)
-        case .validationError(let validationError, _):
-            // RestakingModel validates a zero amount even for its stake-typed Cardano "stake more" action.
-            showValidationError(validationError, validatesFeeOnly: true)
-        case .stakingValidationError(.minAmountRequirementError(let minAmount, let action)):
-            show(
-                error: .amountRequirementError(
-                    minAmount: minAmount.stringValue,
-                    blockchain: tokenItem.blockchain,
-                    actionType: action
-                )
-            )
-        default:
-            break
-        }
-    }
-}
-
-// MARK: - V2 (StakeFlowState)
 
 private extension CommonStakingNotificationManager {
     func update(state: StakeFlowState, action: StakingAction, yield: StakingYieldInfo, stakedBalance: Decimal, enterSpendsAmount: Bool) {
@@ -485,23 +327,6 @@ private extension CommonStakingNotificationManager {
         }
     }
 
-    func hideActionInfoNotifications() {
-        notificationInputsSubject.value.removeAll { input in
-            switch input.settings.event {
-            case StakingNotificationEvent.unstake,
-                 StakingNotificationEvent.withdraw,
-                 StakingNotificationEvent.claimRewards,
-                 StakingNotificationEvent.restakeRewards,
-                 StakingNotificationEvent.unlock,
-                 StakingNotificationEvent.lowStakedBalance,
-                 StakingNotificationEvent.tonUnstaking,
-                 StakingNotificationEvent.tonExtraReserveInfo:
-                true
-            default: false
-            }
-        }
-    }
-
     func hideAmountRelatedNotifications() {
         notificationInputsSubject.value.removeAll { input in
             switch input.settings.event {
@@ -541,17 +366,6 @@ private extension CommonStakingNotificationManager {
 // MARK: - NotificationManager
 
 extension CommonStakingNotificationManager: StakingNotificationManager {
-    func setup(provider: StakingModelStateProvider, input: StakingNotificationManagerInput) {
-        stateSubscription = Publishers.CombineLatest(
-            provider.state,
-            input.stakingManagerStatePublisher.compactMap { $0.yieldInfo }.removeDuplicates()
-        )
-        .withWeakCaptureOf(self)
-        .sink { manager, state in
-            manager.update(state: state.0, yield: state.1)
-        }
-    }
-
     func setup(validationStatePublisher: AnyPublisher<StakingValidationState, Never>, tokenName: String) {
         validationSubscription = validationStatePublisher
             .removeDuplicates()
@@ -560,49 +374,6 @@ extension CommonStakingNotificationManager: StakingNotificationManager {
             .sink { manager, validationState in
                 manager.update(validationState: validationState, tokenName: tokenName)
             }
-    }
-
-    func setup(provider: UnstakingModelStateProvider, input: StakingNotificationManagerInput) {
-        stateSubscription = Publishers.CombineLatest(
-            provider.statePublisher,
-            input.stakingManagerStatePublisher.compactMap { $0.yieldInfo }.removeDuplicates()
-        )
-        .withWeakCaptureOf(self)
-        .sink { manager, state in
-            manager.update(
-                state: state.0,
-                yield: state.1,
-                action: provider.stakingAction,
-                stakedBalance: provider.stakedBalance
-            )
-        }
-    }
-
-    func setup(provider: RestakingModelStateProvider, input: StakingNotificationManagerInput) {
-        stateSubscription = Publishers.CombineLatest(
-            provider.statePublisher,
-            input.stakingManagerStatePublisher.compactMap { $0.yieldInfo }.removeDuplicates()
-        )
-        .withWeakCaptureOf(self)
-        .sink { manager, state in
-            manager.update(state: state.0, action: provider.stakingAction)
-        }
-    }
-
-    func setup(provider: StakingSingleActionModelStateProvider, input: StakingNotificationManagerInput) {
-        stateSubscription = Publishers.CombineLatest(
-            provider.statePublisher,
-            input.stakingManagerStatePublisher.compactMap { $0.yieldInfo }.removeDuplicates()
-        )
-        .withWeakCaptureOf(self)
-        .sink { manager, state in
-            manager.update(
-                state: state.0,
-                yield: state.1,
-                action: provider.stakingAction,
-                stakedBalance: provider.stakingAction.amount
-            )
-        }
     }
 
     func setup(provider: StakeModelStateProvider, input: StakingNotificationManagerInput) {

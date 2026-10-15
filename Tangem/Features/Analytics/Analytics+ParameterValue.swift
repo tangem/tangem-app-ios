@@ -22,6 +22,12 @@ extension Analytics {
         case off = "Off"
         case cashback = "Cashback"
         case reactivation = "Reactivation"
+        case strict = "Strict"
+        case linkedWallet = "Linked Wallet"
+        case notActiveYet = "Not Active Yet"
+        case technical = "Technical"
+        case entry = "Entry"
+        case enrollResponse = "Enroll Response"
         case yes = "Yes"
         case no = "No"
         case `true` = "True"
@@ -74,6 +80,7 @@ extension Analytics {
         case manually = "Manually"
         case stories = "Stories"
         case deeplink = "Deeplink"
+        case predictions = "Predictions"
         case buy = "Buy"
         case sell = "Sell"
         case swap = "Swap"
@@ -321,6 +328,10 @@ extension Analytics {
         case createWalletIntro = "Create Wallet Intro"
         case addNewWallet = "Add New Wallet"
 
+        // MARK: - Social login
+
+        case socialLogin = "Social Login"
+
         case set = "Set"
         case changing = "Changing"
 
@@ -368,21 +379,21 @@ extension Analytics {
 
         // The Create Wallet sheet reuses `.create` (= "Create Wallet") from the Mobile Wallet block.
 
-        case welcomeV2IHaveWallet = "I Have Wallet"
-        case welcomeV2ImportExisting = "Import Existing"
+        case welcomeIHaveWallet = "I Have Wallet"
+        case welcomeImportExisting = "Import Existing"
 
-        case welcomeV2DismissCloseButton = "Close Button"
-        case welcomeV2DismissBackButton = "Back Button"
-        case welcomeV2Dismissed = "Dismissed"
+        case welcomeDismissCloseButton = "Close Button"
+        case welcomeDismissBackButton = "Back Button"
+        case welcomeDismissed = "Dismissed"
 
-        case welcomeV2DocumentTerms = "Terms Of Service"
-        case welcomeV2DocumentPrivacy = "Privacy Policy"
+        case welcomeDocumentTerms = "Terms Of Service"
+        case welcomeDocumentPrivacy = "Privacy Policy"
 
-        case welcomeV2MediaStageLoad = "Load"
+        case welcomeMediaStageLoad = "Load"
 
-        case welcomeV2EntryFirstLaunch = "First Launch"
-        case welcomeV2EntryNoWallets = "No Wallets"
-        case welcomeV2EntryLastWalletForgotten = "Last Wallet Forgotten"
+        case welcomeEntryFirstLaunch = "First Launch"
+        case welcomeEntryNoWallets = "No Wallets"
+        case welcomeEntryLastWalletForgotten = "Last Wallet Forgotten"
 
         // MARK: - Backend Authentication
 

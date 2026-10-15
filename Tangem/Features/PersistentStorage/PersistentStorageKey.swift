@@ -29,8 +29,6 @@ enum PersistentStorageKey {
     case walletCardsBackupReports
     case pendingStakingTransactions
     case onrampPreference
-    case tokenSearchQueryHistory
-    case tokenSearchAssetHistory
     case addressBook(cid: String)
     case coinsCategoriesCache
     case coinsGeckoCategoriesCache
@@ -62,10 +60,6 @@ enum PersistentStorageKey {
             return "staking_pending_transactions"
         case .onrampPreference:
             return "onramp_preference"
-        case .tokenSearchQueryHistory:
-            return "token_search_query_history"
-        case .tokenSearchAssetHistory:
-            return "token_search_asset_history"
         case .addressBook(let cid):
             return "address_book_\(cid)"
         case .coinsCategoriesCache:
@@ -109,10 +103,6 @@ enum PersistentStorageKey {
         case .walletConnectSessions:
             false
         case .wallets:
-            false
-        case .tokenSearchQueryHistory:
-            false
-        case .tokenSearchAssetHistory:
             false
         case .addressBook:
             // The cached blob is already AES-256-GCM encrypted, so it matches the convention of the

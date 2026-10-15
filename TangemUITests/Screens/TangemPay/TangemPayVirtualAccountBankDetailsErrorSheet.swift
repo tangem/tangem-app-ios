@@ -11,8 +11,8 @@ import TangemAccessibilityIdentifiers
 
 final class TangemPayVirtualAccountBankDetailsErrorSheet: ScreenBase<TangemPayVirtualAccountBankDetailsErrorSheetElement> {
     private lazy var icon = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.popupIcon].firstMatch
-    private lazy var title = app.staticTexts[Constants.title].firstMatch
-    private lazy var descriptionText = app.staticTexts[Constants.description].firstMatch
+    private lazy var title = app.staticTexts[Localization.tangempayVaBankingDetailsErrorTitle].firstMatch
+    private lazy var descriptionText = app.staticTexts[Localization.tangempayVaBankingDetailsErrorDescription].firstMatch
     private lazy var retryButton = button(.retryButton)
     private lazy var contactSupportButton = button(.contactSupportButton)
 
@@ -28,8 +28,8 @@ final class TangemPayVirtualAccountBankDetailsErrorSheet: ScreenBase<TangemPayVi
     func verifySheetContent() -> Self {
         XCTContext.runActivity(named: "Verify banking details error sheet content") { _ in
             waitAndAssertTrue(icon, "Warning icon should be displayed")
-            waitAndAssertTrue(title, "Sheet title '\(Constants.title)' should be displayed")
-            waitAndAssertTrue(descriptionText, "Sheet description '\(Constants.description)' should be displayed")
+            waitAndAssertTrue(title, "Sheet title '\(Localization.tangempayVaBankingDetailsErrorTitle)' should be displayed")
+            waitAndAssertTrue(descriptionText, "Sheet description '\(Localization.tangempayVaBankingDetailsErrorDescription)' should be displayed")
             // The mail composer is a system screen, so the support path is covered up to the button.
             waitAndAssertTrue(contactSupportButton, "Contact support button should be displayed")
             return self
@@ -37,10 +37,10 @@ final class TangemPayVirtualAccountBankDetailsErrorSheet: ScreenBase<TangemPayVi
     }
 
     @discardableResult
-    func tapRetry() -> TangemPayVirtualAccountBankDetailsSheet {
+    func tapRetry() -> TangemPayVirtualAccountDetailsScreen {
         XCTContext.runActivity(named: "Tap Retry to request banking details again") { _ in
             retryButton.waitAndTap()
-            return TangemPayVirtualAccountBankDetailsSheet(app)
+            return TangemPayVirtualAccountDetailsScreen(app)
         }
     }
 }
@@ -56,12 +56,5 @@ enum TangemPayVirtualAccountBankDetailsErrorSheetElement: String, UIElement {
         case .contactSupportButton:
             TangemPayAccessibilityIdentifiers.popupSecondaryButton
         }
-    }
-}
-
-private extension TangemPayVirtualAccountBankDetailsErrorSheet {
-    enum Constants {
-        static let title = "Couldn't load banking details"
-        static let description = "Please try again or contact support if the issue persists"
     }
 }

@@ -28,6 +28,11 @@ public final class CommonStakingManagerStateRepository {
 
 extension CommonStakingManagerStateRepository: StakingManagerStateRepository {
     public func storeState(_ state: StakingManagerState) {
+        if case .notEnabled = state {
+            clearState()
+            return
+        }
+
         guard let cachedStakeState = mapToCachedStakeState(state),
               let rewardType = state.rewardType,
               let apy = state.apy else { return }

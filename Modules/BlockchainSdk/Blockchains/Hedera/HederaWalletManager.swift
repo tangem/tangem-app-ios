@@ -129,7 +129,7 @@ final class HederaWalletManager: BaseWalletManager {
         erc20TokenBalances: [Token: Result<Decimal, Error>]
     ) {
         saveAssociatedTokensIfNeeded(newValue: accountBalance.associatedTokensContractAddresses)
-        tokenAssociationFeeExchangeRate = exchangeRate?.nextHBARPerUSD
+        tokenAssociationFeeExchangeRate = exchangeRate?.maxHBARPerUSD
 
         let htsTokenBalances = accountBalance.tokenBalances.reduce(into: [:]) { result, element in
             result[element.contractAddress] = Decimal(element.balance) / pow(10, element.decimalCount)
@@ -596,7 +596,7 @@ final class HederaWalletManager: BaseWalletManager {
             // this goes on UI only, will be deducted later, see transactionBuilder -> buildTransferTransactionForSign
             let additionalHBARFee = tokenCustomFeesInfo?.additionalHBARFee ?? .zero
 
-            let feeValue = exchangeRate.nextHBARPerUSD * feeBase * Constants.maxFeeMultiplier + additionalHBARFee
+            let feeValue = exchangeRate.maxHBARPerUSD * feeBase * Constants.maxFeeMultiplier + additionalHBARFee
             // Hedera fee calculation involves conversion from USD to HBar units, which ultimately results in a loss of precision.
             // Therefore, the fee value is always approximate and rounding of the fee value is mandatory.
             let feeRoundedValue = feeValue.rounded(blockchain: walletManager.wallet.blockchain, roundingMode: .up)

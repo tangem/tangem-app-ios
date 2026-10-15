@@ -22,7 +22,7 @@ final class ExpressAPIProviderStub: ExpressAPIProvider {
     func providers(branches: [ExpressBranch]) async throws -> [ExpressProvider] { [] }
 
     func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote {
-        ExpressQuote(fromAmount: .zero, expectAmount: .zero, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false)
+        ExpressQuote(fromAmount: .zero, expectAmount: .zero, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false, slippage: nil)
     }
 
     func exchangeData(item: ExpressSwappableDataItem) async throws -> ExpressTransactionData {
@@ -41,7 +41,8 @@ final class ExpressAPIProviderStub: ExpressAPIProvider {
             estimatedGasLimit: nil,
             externalTxId: nil,
             externalTxURL: nil,
-            payInAddress: ""
+            payInAddress: "",
+            slippage: nil
         )
     }
 
@@ -210,7 +211,9 @@ final class SendAnalyticsLoggerStub: SendAnalyticsLogger {
 
     // MARK: - SwapManagementModelAnalyticsLogger
 
-    func logSwapButtonSwap() {}
+    func logSwapButtonSwap(slippage: Decimal?) {}
+    func logSwapSlippageSelectorOpened() {}
+    func logSwapCustomSlippageConfirmed(slippage: Decimal?) {}
     func logSwapButtonTransfer() {}
     func logSwapTransferModeSwitched() {}
     func logSwapTransactionSent(result: TransactionDispatcherResult) {}

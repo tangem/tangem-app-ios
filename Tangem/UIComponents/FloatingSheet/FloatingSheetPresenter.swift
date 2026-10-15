@@ -12,6 +12,9 @@ import protocol TangemUI.FloatingSheetContentViewModel
 protocol FloatingSheetPresentingStateProvider: AnyObject {
     var hasPresentedSheet: Bool { get }
     var hasPresentedSheetPublisher: AnyPublisher<Bool, Never> { get }
+    var activeSheetIdPublisher: AnyPublisher<String?, Never> { get }
+
+    func containsSheet(withId id: String) -> Bool
 }
 
 @MainActor
@@ -19,6 +22,7 @@ protocol FloatingSheetPresenter: AnyObject {
     func enqueue(sheet: some FloatingSheetContentViewModel)
 
     func removeActiveSheet()
+    func removeSheet(withId id: String)
     func removeAllSheets()
 
     func pauseSheetsDisplaying()

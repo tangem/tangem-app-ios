@@ -8,7 +8,6 @@
 
 import SwiftUI
 import TangemAssets
-import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -34,7 +33,7 @@ public struct PolymarketOrderSummaryHeader: View {
     private var source: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: Constants.sourceSpacing) {
-                Text(Localization.predictionPlaceSummaryFrom)
+                Text(model.sourceTitle)
 
                 HStack(spacing: Constants.lineSpacing) {
                     model.accountIcon.image
@@ -61,12 +60,12 @@ public struct PolymarketOrderSummaryHeader: View {
                     .lineLimit(1)
                     .minimumScaleFactor(Constants.amountMinScale)
 
-                if let toWin = model.toWin {
-                    if model.isProceeds {
-                        PolymarketAmountBadge.willReceive(state: toWin)
-                    } else {
-                        PolymarketAmountBadge.toWin(state: toWin)
-                    }
+                if let caption = model.caption {
+                    Text(caption)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                        .lineLimit(1)
+                } else if let toWin = model.toWin {
+                    PolymarketAmountBadge.toWin(state: toWin)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)

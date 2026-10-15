@@ -186,11 +186,10 @@ extension PolymarketRedeemTransactionService {
             switch self {
             case .claimInProgress, .notSigned, .preparationFailed:
                 Localization.sendWithSwapSomethingWentWrong
-            // [REDACTED_TODO_COMMENT]
             case .claimFailed:
-                "The claim did not go through. Nothing left your account, and you can try again."
+                Localization.predictionClaimErrorFailed
             case .claimUnconfirmed:
-                "The claim is taking longer than usual. Check your positions before claiming again."
+                Localization.predictionClaimErrorUnconfirmed
             case .refused(let error):
                 Self.message(for: error)
             }
@@ -201,17 +200,17 @@ extension PolymarketRedeemTransactionService {
 // MARK: - What the backend's answers mean to a person
 
 private extension PolymarketRedeemTransactionService.Error {
-    // [REDACTED_TODO_COMMENT]
     static func message(for error: PolymarketRedeemError) -> String {
         switch error {
         case .relayerRejected:
-            "Polymarket refused to relay the claim. Refresh your positions and try again."
+            Localization.predictionClaimErrorRejected
+        // [REDACTED_TODO_COMMENT]
         case .notFound:
             "There is no record of this claim."
         case .upstreamUnavailable:
-            "Polymarket is unreachable right now. Try again in a few minutes."
+            Localization.predictionClaimErrorUnavailable
         case .unauthorized, .badRequest, .cancelled, .other:
-            "The claim could not be sent. Please try again."
+            Localization.predictionClaimErrorGeneric
         }
     }
 }

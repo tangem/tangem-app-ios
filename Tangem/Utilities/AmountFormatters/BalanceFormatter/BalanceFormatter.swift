@@ -193,9 +193,9 @@ struct BalanceFormatter {
     // MARK: - Factory methods
 
     /// Makes a formatter instance to be used in `formatDecimal(_:formattingOptions:formatter:)`.
-    func makeDecimalFormatter(formattingOptions: BalanceFormattingOptions) -> NumberFormatter {
+    func makeDecimalFormatter(locale: Locale = .current, formattingOptions: BalanceFormattingOptions) -> NumberFormatter {
         let formatter = NumberFormatter()
-        formatter.locale = Locale.current
+        formatter.locale = locale
         formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = formattingOptions.minFractionDigits
         formatter.maximumFractionDigits = formattingOptions.maxFractionDigits

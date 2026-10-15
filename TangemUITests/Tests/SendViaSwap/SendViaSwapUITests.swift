@@ -91,14 +91,24 @@ final class SendViaSwapUITests: BaseTestCase {
 
         let assetsScenario = ScenarioConfig(
             name: "express_api_assets",
-            initialState: "BitcoinExchangeEnabled"
+            initialState: "BitcoinExchangeEnabledWithXRP"
+        )
+
+        let coinsScenario = ScenarioConfig(
+            name: "coins_api",
+            initialState: "WithXRP"
+        )
+
+        let quotesScenario = ScenarioConfig(
+            name: "quotes_api",
+            initialState: "Ripple"
         )
 
         launchApp(
             tangemApiType: .mock,
             expressApiType: .mock,
             clearStorage: true,
-            scenarios: [bitcoinBalanceScenario, assetsScenario]
+            scenarios: [bitcoinBalanceScenario, assetsScenario, coinsScenario, quotesScenario]
         )
 
         // Open Bitcoin token and navigate to Send screen
@@ -110,18 +120,17 @@ final class SendViaSwapUITests: BaseTestCase {
             .waitForConvertButton()
             .tapConvertButton()
 
-        // Search for Ethereum token and select it with network
         sendScreen
-            .enterTokenSearch("Ethereum")
-            .waitForReceiveToken(name: Constants.ethereumTokenName)
-            .tapReceiveToken(name: Constants.ethereumTokenName)
-            .tapReceiveNetworkOption(name: "Ethereum")
+            .enterTokenSearch("XRP")
+            .waitForReceiveToken(name: Constants.xrpReceiveTokenName)
+            .tapReceiveToken(name: Constants.xrpReceiveTokenName)
+            .tapReceiveNetworkOption(name: Constants.xrpTokenName)
 
         // Fill amount and destination, proceed to Summary
         let summaryScreen = sendScreen
-            .enterReceiveAmount(Constants.sendAmount)
+            .enterReceiveAmount(Constants.xrpReceiveAmount)
             .tapNextButton()
-            .enterDestination(Constants.ethereumAddress)
+            .enterDestination(Constants.xrpAddress)
             .tapNextButtonToSummary()
             .waitForDisplay(checkValidatorBlock: false)
 
@@ -187,14 +196,23 @@ final class SendViaSwapUITests: BaseTestCase {
             .waitForDisplay()
             .waitForConvertButton()
 
-        // Select Ethereum, enter amount, then cancel conversion — verify Convert button reappears
+        // Enter an amount in regular Send before converting
+        sendScreen
+            .enterAmount(Constants.sendAmount)
+            .waitForAmountValue(Constants.sendAmount)
+
+        // Select Ethereum — verify the amount carried over (converted) into the swap's receive field
         sendScreen
             .tapConvertButton()
             .tapReceiveToken(name: Constants.ethereumTokenName)
             .tapReceiveNetworkOption(name: "Ethereum")
-            .enterReceiveAmount(Constants.sendAmount)
+            .waitForReceiveAmountConverted(from: Constants.sendAmount)
+
+        // Cancel conversion — verify Convert button reappears and the amount is preserved in regular Send
+        sendScreen
             .tapRemoveConvertButton()
             .waitForConvertButton()
+            .waitForAmountValue(Constants.sendAmount)
 
         // Re-enter conversion and select Solana
         sendScreen
@@ -297,19 +315,34 @@ final class SendViaSwapUITests: BaseTestCase {
             .waitForPendingExpressTransaction()
     }
 
-    func testSendViaSwapXRPToEthereum() {
+    func testSendViaSwapTokenWithMemoTag() {
         setAllureId(4545)
 
-        let xrpScenario = ScenarioConfig(
-            name: "user_tokens_api",
-            initialState: "XRP"
+        let bitcoinBalanceScenario = ScenarioConfig(
+            name: "bitcoin_utxo",
+            initialState: "Balance"
+        )
+
+        let assetsScenario = ScenarioConfig(
+            name: "express_api_assets",
+            initialState: "BitcoinExchangeEnabledWithXRP"
+        )
+
+        let coinsScenario = ScenarioConfig(
+            name: "coins_api",
+            initialState: "WithXRP"
+        )
+
+        let quotesScenario = ScenarioConfig(
+            name: "quotes_api",
+            initialState: "Ripple"
         )
 
         launchApp(
             tangemApiType: .mock,
             expressApiType: .mock,
             clearStorage: true,
-            scenarios: [xrpScenario]
+            scenarios: [bitcoinBalanceScenario, assetsScenario, coinsScenario, quotesScenario]
         )
 
         // Import hot wallet via seed phrase
@@ -321,29 +354,36 @@ final class SendViaSwapUITests: BaseTestCase {
             .skipAccessCode()
             .tapFinish()
 
-        // Navigate to XRP Ledger token and open Send screen
+        // Navigate to Bitcoin token and open Send screen
         let sendScreen = mainScreen
-            .tapToken(Constants.xrpTokenName)
+            .tapToken(Constants.bitcoinTokenName)
             .waitForActionButtons()
             .tapSendButton()
             .waitForDisplay()
             .waitForConvertButton()
-
-        // Select Ethereum as receive token
-        sendScreen
             .tapConvertButton()
-            .enterTokenSearch("Ethereum")
-            .waitForReceiveToken(name: Constants.ethereumTokenName)
-            .tapReceiveToken(name: Constants.ethereumTokenName)
-            .tapReceiveNetworkOption(name: "Ethereum")
 
-        // Fill amount and destination, proceed to Summary
-        let summaryScreen = sendScreen
-            .enterReceiveAmount(Constants.sendAmount)
+        // Select XRP as receive token — its network requires a destination Memo/Tag
+        sendScreen
+            .enterTokenSearch("XRP")
+            .waitForReceiveToken(name: Constants.xrpReceiveTokenName)
+            .tapReceiveToken(name: Constants.xrpReceiveTokenName)
+            .tapReceiveNetworkOption(name: Constants.xrpTokenName)
+
+        // Fill amount and destination, verify the Memo/Tag block and enter a memo
+        sendScreen
+            .enterReceiveAmount(Constants.xrpReceiveAmount)
             .tapNextButton()
-            .enterDestination(Constants.ethereumAddress)
+            .enterDestination(Constants.xrpAddress)
+            .waitForAdditionalFieldEnabled()
+            .enterAdditionalField(Constants.memoFirst)
+            .waitForAdditionalFieldValue(Constants.memoFirst)
+
+        // Proceed to Summary — verify the memo is shown there too
+        let summaryScreen = sendScreen
             .tapNextButtonToSummary()
             .waitForDisplay(checkValidatorBlock: false)
+            .waitForDestinationAdditionalField(Constants.memoFirst)
 
         // Tap Send and verify Finish screen
         let finishScreen = summaryScreen

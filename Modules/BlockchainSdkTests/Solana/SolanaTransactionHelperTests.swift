@@ -148,6 +148,26 @@ struct SolanaTransactionHelperTests {
     // MARK: - isTransactionMessage
 
     @Test
+    func isSoleRequiredSignerAcceptsOnlyTheSingleFeePayer() throws {
+        #expect(try helper.isSoleRequiredSigner(MultiSigner.feePayerKey, transaction: SoleSigner.transaction))
+        #expect(try helper.isSoleRequiredSigner(MultiSigner.ourKey, transaction: SoleSigner.transaction) == false)
+    }
+
+    @Test
+    func isSoleRequiredSignerRejectsHeaderDeclaringMoreSignersThanAccounts() throws {
+        #expect(try helper.isSoleRequiredSigner(MultiSigner.feePayerKey, transaction: SoleSigner.twoSignersDeclaredOneAccount) == false)
+    }
+
+    @Test
+    func isSoleRequiredSignerRejectsEverySignerOfMultiSignerTransaction() throws {
+        let emptySlot = Data(repeating: 0x00, count: MultiSigner.signatureLength)
+        let transaction = MultiSigner.transaction(firstSlot: emptySlot, secondSlot: emptySlot)
+
+        #expect(try helper.isSoleRequiredSigner(MultiSigner.feePayerKey, transaction: transaction) == false)
+        #expect(try helper.isSoleRequiredSigner(MultiSigner.ourKey, transaction: transaction) == false)
+    }
+
+    @Test
     func isTransactionMessageDetectsRealLegacyTransactionMessage() throws {
         let transaction = Data(hexString: SolanaTransactionHelperTests.realUnsignedTransaction)
         let message = try helper.removeSignaturesPlaceholders(from: transaction).transaction
@@ -567,6 +587,37 @@ private enum MultiSigner {
         data.append(0x01) // signature count = 1 — only one real slot
         data.append(Data(repeating: 0x00, count: signatureLength))
         data.append(message)
+        return data
+    }()
+}
+
+private enum SoleSigner {
+    static let transaction: Data = {
+        var data = Data()
+        data.append(0x01)
+        data.append(Data(repeating: 0x00, count: MultiSigner.signatureLength))
+        data.append(contentsOf: [0x01, 0x00, 0x01])
+        data.append(0x03)
+        data.append(MultiSigner.feePayerKey)
+        data.append(MultiSigner.ourKey)
+        data.append(MultiSigner.programKey)
+        data.append(MultiSigner.blockhash)
+        data.append(0x01)
+        data.append(0x02)
+        data.append(contentsOf: [0x02, 0x00, 0x01])
+        data.append(0x00)
+        return data
+    }()
+
+    static let twoSignersDeclaredOneAccount: Data = {
+        var data = Data()
+        data.append(0x01)
+        data.append(Data(repeating: 0x00, count: MultiSigner.signatureLength))
+        data.append(contentsOf: [0x02, 0x00, 0x00])
+        data.append(0x01)
+        data.append(MultiSigner.feePayerKey)
+        data.append(MultiSigner.blockhash)
+        data.append(0x00)
         return data
     }()
 }

@@ -146,6 +146,22 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
             let sectionsProvider = makeMultiWalletMainContentViewSectionsProvider(userWalletModel: model)
 
+            let mainNotificationsViewModel = MainNotificationsViewModel(
+                isEnabled: FeatureProvider.isAvailable(.hideMarketingBannersWithSystem),
+                promotionNotificationsManager: promotionNotificationsManager,
+                // Order defines display priority — force-update banner renders above the rest.
+                systemBannerItemsProvider: NotificationBannerItemsProvider(
+                    managers: [
+                        forceUpdateBannerNotificationManager,
+                        userWalletNotificationManager,
+                        yieldApyBoostBannerNotificationManager,
+                        multiWalletNotificationManager,
+                        tangemPayNotificationManager,
+                    ]
+                ),
+                tangemPayPromoManager: getTangemPayBannerNotificationManager
+            )
+
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
                 userWalletNotificationManager: userWalletNotificationManager,
@@ -153,14 +169,14 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 tokensNotificationManager: multiWalletNotificationManager,
                 promotionNotificationsManager: promotionNotificationsManager,
                 tangemPayNotificationManager: tangemPayNotificationManager,
-                getTangemPayBannerNotificationManager: getTangemPayBannerNotificationManager,
                 yieldApyBoostBannerNotificationManager: yieldApyBoostBannerNotificationManager,
                 forceUpdateBannerNotificationManager: forceUpdateBannerNotificationManager,
                 rateAppController: rateAppController,
                 nftFeatureLifecycleHandler: nftLifecycleHandler,
                 tokenRouter: tokenRouter,
                 coordinator: coordinator,
-                tokenItemPromoProvider: tokenItemPromoProvider
+                tokenItemPromoProvider: tokenItemPromoProvider,
+                mainNotificationsViewModel: mainNotificationsViewModel
             )
             viewModel.delegate = multiWalletContentDelegate
             userWalletNotificationManager.setupManager(with: viewModel)
@@ -207,12 +223,26 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             return AccountModelsAggregator(.crypto).models(from: model.accountModelsManager).first(where: \.isMainAccount)
         }()
 
+        let forceUpdateBannerNotificationManager = ForceUpdateBannerNotificationManager()
+
+        let mainNotificationsViewModel = MainNotificationsViewModel(
+            isEnabled: FeatureProvider.isAvailable(.hideMarketingBannersWithSystem),
+            promotionNotificationsManager: promotionNotificationsManager,
+            systemBannerItemsProvider: NotificationBannerItemsProvider(
+                managers: [
+                    forceUpdateBannerNotificationManager,
+                    userWalletNotificationManager,
+                ]
+            ),
+            tangemPayPromoManager: nil
+        )
+
         let viewModel = SingleWalletMainContentViewModel(
             userWalletModel: model,
             walletModel: dependencies.walletModel,
             userWalletNotificationManager: userWalletNotificationManager,
             promotionNotificationsManager: promotionNotificationsManager,
-            forceUpdateBannerNotificationManager: ForceUpdateBannerNotificationManager(),
+            forceUpdateBannerNotificationManager: forceUpdateBannerNotificationManager,
             pendingExpressTransactionsManager: expressStatusTracking.manager,
             expressStatusPollingHelper: expressStatusTracking.pollingHelper,
             tokenNotificationManager: singleWalletNotificationManager,
@@ -220,7 +250,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             tokenRouter: tokenRouter,
             delegate: singleWalletContentDelegate,
             coordinator: coordinator,
-            accountModel: accountModel
+            accountModel: accountModel,
+            mainNotificationsViewModel: mainNotificationsViewModel
         )
         userWalletNotificationManager.setupManager(with: viewModel)
         singleWalletNotificationManager.setupManager(with: viewModel)

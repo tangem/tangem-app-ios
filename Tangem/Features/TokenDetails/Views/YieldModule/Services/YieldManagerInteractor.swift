@@ -25,16 +25,19 @@ actor YieldManagerInteractor {
 
     private let transactionDispatcher: any TransactionDispatcher
     private let manager: YieldModuleManager
+    private let claimInteractor: YieldIncentivesClaimInteractor?
     private let chartMapper = YieldIncentiveChartMapper()
 
     // MARK: - Init
 
     init(
         transactionDispatcher: any TransactionDispatcher,
-        manager: YieldModuleManager
+        manager: YieldModuleManager,
+        claimInteractor: YieldIncentivesClaimInteractor?
     ) {
         self.transactionDispatcher = transactionDispatcher
         self.manager = manager
+        self.claimInteractor = claimInteractor
     }
 
     // MARK: - Public Implementation
@@ -78,16 +81,15 @@ actor YieldManagerInteractor {
 
     func getApyBreakdown() -> YieldApyBreakdown? {
         guard let marketInfo = manager.state?.marketInfo,
-              let rewardsApr = marketInfo.incentive?.rewardsApr,
-              rewardsApr > 0 else {
+              let rewardsApr = marketInfo.incentive?.rewardsApr else {
             return nil
         }
 
         return YieldApyBreakdown(baseApy: marketInfo.apy, rewardsApr: rewardsApr)
     }
 
-    func getIncentivesSummary() async -> YieldIncentivesRewardsSummary? {
-        await manager.incentivesManager?.incentives()
+    func getIncentivesSummary(forceRefresh: Bool = false) async throws -> YieldIncentivesRewardsSummary? {
+        try await manager.incentivesManager?.incentives(forceRefresh: forceRefresh)
     }
 
     func getMaxFeeNative() -> Decimal? {
@@ -191,6 +193,14 @@ actor YieldManagerInteractor {
         )
     }
 
+    func prepareWithdrawalClaim() async throws -> YieldIncentivesClaimInteractor.PreparedClaim? {
+        guard hasActiveIncentiveCampaign(), let claimInteractor, await !claimInteractor.isClaimInFlight else {
+            return nil
+        }
+
+        return try await claimInteractor.prepare()
+    }
+
     func approve(with token: TokenItem) async throws {
         guard let fee = approveFee else {
             throw YieldModuleError.feeNotFound
@@ -213,6 +223,49 @@ actor YieldManagerInteractor {
         }
 
         _ = try await manager.exit(fee: fee, transactionDispatcher: transactionDispatcher)
+    }
+
+    func exitClaimingRewards(
+        with token: TokenItem,
+        prepared: YieldIncentivesClaimInteractor.PreparedClaim,
+        isFeeCovered: (Amount) -> Bool
+    ) async throws {
+        guard let fee = exitFee else {
+            throw YieldModuleError.feeNotFound
+        }
+
+        guard let claimInteractor else {
+            throw YieldModuleError.inconsistentState
+        }
+
+        var isClaimTransactionBuilt = false
+
+        do {
+            let result = try await manager.exit(
+                fee: fee,
+                precedingTransaction: {
+                    let claimTransaction = try await claimInteractor.makeClaimTransaction(
+                        prepared: prepared,
+                        isFeeCovered: isFeeCovered
+                    )
+
+                    isClaimTransactionBuilt = true
+
+                    return claimTransaction
+                },
+                transactionDispatcher: transactionDispatcher
+            )
+
+            await claimInteractor.claimTransactionSubmitted(hash: result.precedingHash, claimedAgainst: prepared.summary)
+        } catch let error as YieldIncentivesClaimInteractor.ClaimError {
+            throw error
+        } catch {
+            guard isClaimTransactionBuilt else {
+                throw error
+            }
+
+            throw await claimInteractor.claimTransactionFailed(error: error)
+        }
     }
 
     // MARK: - Heplers
