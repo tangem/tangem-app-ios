@@ -7,13 +7,17 @@
 //
 
 import Foundation
-import MeaPushProvisioning
 import TangemFoundation
+#if canImport(MeaPushProvisioning)
+import MeaPushProvisioning
+#endif
 
 struct TangemPayAppleWalletConfigurator: Initializable {
     func initialize() {
+        #if canImport(MeaPushProvisioning)
         MeaPushProvisioning.setDebugLoggingEnabled(AppEnvironment.current.isInternalOrDebug)
 
         MeaPushProvisioning.loadConfig("mea_config")
+        #endif
     }
 }

@@ -7,9 +7,11 @@
 //
 
 import Foundation
-import MeaPushProvisioning
 import PassKit
 import TangemVisa
+
+#if canImport(MeaPushProvisioning)
+import MeaPushProvisioning
 
 final class CommonTangemPayCardTokenizationService: TangemPayCardTokenizationService {
     var isAvailable: Bool {
@@ -123,3 +125,37 @@ private extension CommonTangemPayCardTokenizationService {
     >
     typealias CompleteResult = Result<PKAddPaymentPassRequest, TangemPayCardTokenizationError>
 }
+#else
+final class CommonTangemPayCardTokenizationService: TangemPayCardTokenizationService {
+    var isAvailable: Bool { false }
+
+    func passActivationState(cardNumberEnd: String) -> PKSecureElementPass.PassActivationState? { nil }
+
+    func presentPass(cardNumberEnd: String) {}
+
+    func isWatchPaired() async -> Bool { false }
+
+    func remotePassActivationState(cardNumberEnd: String) -> PKSecureElementPass.PassActivationState? { nil }
+
+    func canAddRemotePass(cardNumberEnd: String) -> Bool { false }
+
+    func initializeTokenization(
+        cardId: String,
+        cardSecret: String
+    ) async throws(TangemPayCardTokenizationError) -> (
+        tokenizationReceipt: String,
+        requestConfiguration: PKAddPaymentPassRequestConfiguration
+    ) {
+        throw .missingTokenizationResponse
+    }
+
+    func completeTokenization(
+        tokenizationReceipt: String,
+        certificates: [Data],
+        nonce: Data,
+        nonceSignature: Data
+    ) async throws(TangemPayCardTokenizationError) -> PKAddPaymentPassRequest {
+        throw .missingPassRequest
+    }
+}
+#endif
