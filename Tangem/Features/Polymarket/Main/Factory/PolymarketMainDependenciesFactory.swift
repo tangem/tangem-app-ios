@@ -30,6 +30,7 @@ struct PolymarketMainDependenciesFactory {
             balanceProvider: balanceProvider,
             accountFundsInteractor: PolymarketAccountFundsFactory().makeInteractor(for: userWalletModel),
             positionsService: PolymarketPositionsFactory().makeService(for: userWalletModel, apiProvider: apiProvider),
+            activityService: PolymarketActivityFactory().makeService(for: userWalletModel, apiProvider: apiProvider),
             placementService: PolymarketOrderPlacementFactory().makeService(for: userWalletModel),
             clobService: PolymarketOnboardingServicesFactory.makeDefault().makeCLOBService(),
             redeemService: PolymarketRedeemFactory().makeService(for: userWalletModel),
@@ -50,6 +51,7 @@ struct PolymarketMainDependencies {
     let balanceProvider: PolymarketBalanceProvider
     let accountFundsInteractor: PolymarketAccountFundsInteractor
     let positionsService: PolymarketPositionsService
+    let activityService: PolymarketActivityService
     let placementService: PolymarketOrderPlacementService
     let clobService: PolymarketCLOBService
     let redeemService: PolymarketRedeeming
