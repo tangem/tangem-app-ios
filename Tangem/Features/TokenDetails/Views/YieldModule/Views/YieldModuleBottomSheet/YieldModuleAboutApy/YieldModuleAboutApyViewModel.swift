@@ -13,13 +13,13 @@ final class YieldModuleAboutApyViewModel {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     let baseApyText: String
-    let rewardsAprText: String
+    let rewardsApyText: String
     let usesIncentiveDesign: Bool
 
-    init(baseApy: Decimal, rewardsApr: Decimal, usesIncentiveDesign: Bool) {
+    init(baseApy: Decimal, rewardsApy: Decimal, usesIncentiveDesign: Bool) {
         let formatter = PercentFormatter()
         baseApyText = formatter.format(baseApy, option: .earn)
-        rewardsAprText = formatter.format(rewardsApr, option: .earn)
+        rewardsApyText = formatter.format(rewardsApy, option: .earn)
         self.usesIncentiveDesign = usesIncentiveDesign
     }
 
