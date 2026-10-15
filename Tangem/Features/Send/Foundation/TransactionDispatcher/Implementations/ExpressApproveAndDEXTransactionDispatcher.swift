@@ -33,10 +33,6 @@ final class ExpressApproveAndDEXTransactionDispatcher {
 // MARK: - TransactionDispatcher
 
 extension ExpressApproveAndDEXTransactionDispatcher: TransactionDispatcher {
-    var hasNFCInteraction: Bool {
-        transactionSigner.hasNFCInteraction
-    }
-
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         guard case .approveAndDex(let data, let fee, let approveData) = transaction else {
             throw TransactionDispatcherResult.Error.transactionNotFound

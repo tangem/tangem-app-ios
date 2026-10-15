@@ -264,13 +264,13 @@ private extension StatusScreenShowcase {
 
     enum ActionSigningKind: CaseIterable {
         case none
-        case cardTap
+        case requiredNFCInteraction
         case holdToConfirm
 
         var type: SigningActionButtonViewType? {
             switch self {
             case .none: nil
-            case .cardTap: .cardTap
+            case .requiredNFCInteraction: .requiredNFCInteraction
             case .holdToConfirm: .holdToConfirm
             }
         }

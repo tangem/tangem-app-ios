@@ -37,22 +37,13 @@ struct ApproveFlowView: View {
     @ViewBuilder
     private var approveButton: some View {
         if case .approve(let approveViewModel) = viewModel.state {
-            if viewModel.confirmTransactionPolicy.needsHoldToConfirm {
-                HoldToConfirmButton(
-                    title: Localization.commonApprove,
-                    isLoading: approveViewModel.state.isLoading,
-                    isDisabled: approveViewModel.state.isMainButtonDisabled,
-                    action: approveViewModel.didTapApprove
-                )
-            } else {
-                MainButton(
-                    title: Localization.commonApprove,
-                    icon: approveViewModel.tangemIconProvider.getMainButtonIcon(),
-                    isLoading: approveViewModel.state.isLoading,
-                    isDisabled: approveViewModel.state.isMainButtonDisabled,
-                    action: approveViewModel.didTapApprove
-                )
-            }
+            SigningActionButtonView(
+                type: viewModel.signingActionButtonType,
+                title: Localization.commonApprove,
+                isLoading: approveViewModel.state.isLoading,
+                isDisabled: approveViewModel.state.isMainButtonDisabled,
+                action: approveViewModel.didTapApprove
+            )
         }
     }
 
