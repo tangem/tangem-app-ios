@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 
 struct HardwareBackupTypesCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: HardwareBackupTypesCoordinator
@@ -45,8 +46,9 @@ private extension HardwareBackupTypesCoordinatorView {
             HardwareCreateWalletCoordinatorView(coordinator: coordinator)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
-                        CloseTextButton(action: self.coordinator.onHardwareCreateWalletCloseTap)
+                        CloseToolbarButton(action: self.coordinator.onHardwareCreateWalletCloseTap)
                     }
+                    .prefersVerticalBar()
                 }
         }
         .presentation(modal: true, onDismissalAttempt: coordinator.onDismissalAttempt, onDismissed: nil)

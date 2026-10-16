@@ -400,7 +400,7 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             return
         }
 
-        Task { @MainActor in
+        Task { @MainActor [self] in
             cashbackDetailViewModel = TangemPayCashbackDetailFactory.makeViewModel(
                 summary: summary,
                 userWalletId: options.userWalletInfo.id,
@@ -841,7 +841,7 @@ extension TangemPayMainCoordinator: TangemPayVirtualAccountInfoSheetRoutable {
     }
 
     func openVirtualAccountURL(_ url: URL) {
-        Task { @MainActor in
+        Task { @MainActor [self] in
             floatingSheetPresenter.pauseSheetsDisplaying()
             safariHandle = safariManager.openURL(
                 url,
@@ -1014,7 +1014,7 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
         onError: @escaping () -> Void
     ) {
         guard let tangemPayAccount = options?.tangemPayAccount else { return }
-        Task { @MainActor in
+        Task { @MainActor [self] in
             onLoadingChange(true)
             defer { onLoadingChange(false) }
             do {
@@ -1213,7 +1213,7 @@ extension TangemPayMainCoordinator: TangemPayOrderCardFlowRoutable {
     }
 
     func orderCardFlowDidFailUnexpectedly(retry: @escaping () -> Void) {
-        Task { @MainActor in
+        Task { @MainActor [self] in
             let viewModel = TangemPayErrorRetryPopupViewModel(
                 onRetry: { [weak self] in self?.retryOrderFromErrorPopup(retry) },
                 onClose: { [weak self] in self?.closeOrderErrorPopup() }
