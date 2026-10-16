@@ -15,17 +15,13 @@ struct YieldModuleRewardsBannerView: View {
     let claimAction: () -> Void
 
     var body: some View {
-        switch viewData.claimAvailability {
-        case .hidden:
-            banner
-        case .available, .disabled:
-            banner.slotEnd { claimButton }
-        }
+        banner.slotEnd { claimButton }
     }
 
     private var banner: MessageBanner<EmptyView, EmptyView, EmptyView> {
         MessageBanner(title: viewData.title, description: viewData.subtitle)
             .variant(.info)
+            .glowRing(.info)
     }
 
     private var claimButton: some View {
@@ -34,7 +30,7 @@ struct YieldModuleRewardsBannerView: View {
             accessibilityLabel: Localization.commonClaim,
             action: claimAction
         )
-        .styleType(.default)
+        .styleType(.primary)
         .size(.x9)
         .disabled(viewData.claimAvailability == .disabled)
     }
@@ -47,7 +43,6 @@ extension YieldModuleRewardsBannerView {
         enum ClaimAvailability: Equatable {
             case available
             case disabled
-            case hidden
         }
 
         let title: String

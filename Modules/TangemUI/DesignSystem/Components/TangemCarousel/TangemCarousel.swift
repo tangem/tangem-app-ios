@@ -20,7 +20,7 @@ public struct TangemCarousel<Data, Content>: View
 
     private var isEndless: Bool = false
     private var interItemSpacing: CGFloat = 0
-    private var paginationSpacing: CGFloat = SizeUnit.x4.value
+    private var paginationSpacing: CGFloat = 16
     private var paginationVerticalPadding: CGFloat = 0
     private var hidePagination: Bool = false
     private var paginationHasBackground: Bool = false

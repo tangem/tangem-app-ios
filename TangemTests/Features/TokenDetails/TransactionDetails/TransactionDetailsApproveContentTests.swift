@@ -12,6 +12,7 @@ import BlockchainSdk
 import TangemExpress
 import TangemFoundation
 import TangemLocalization
+import TangemSdk
 @testable import Tangem
 
 extension TransactionHistoryAuxDataRepositoryDependentTests {
@@ -53,6 +54,29 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
             #expect(single.icon == .token(TokenIconInfoBuilder().build(from: usdt, isCustom: false)))
         }
 
+        @Test("Takes the icon of an approved token held under several derivations from the approving wallet's derivation")
+        func iconOfTokenUnderSeveralDerivationsComesFromApprovingWallet() async throws {
+            let token = Token(name: "Tether", symbol: "USDT", contractAddress: Self.usdtContract, decimalCount: 6, id: "tether")
+            let customDerivationToken = TokenItem.token(
+                token,
+                BlockchainNetwork(Self.blockchain, derivationPath: try DerivationPath(rawPath: "m/44'/60'/1'/0/0"))
+            )
+            let approvingWalletToken = TokenItem.token(token, BlockchainNetwork(Self.blockchain, derivationPath: nil))
+
+            let walletModelsManager = WalletModelsManagerTestsMock()
+            walletModelsManager.walletModels = [
+                WalletModelTestsMock(tokenItem: customDerivationToken, isEmpty: false, isCustom: true),
+                WalletModelTestsMock(tokenItem: approvingWalletToken, isEmpty: false),
+            ]
+            let account = CryptoAccountModelMock(isMainAccount: true, walletModelsManager: walletModelsManager, onArchive: { _ in })
+
+            let single = try await withStubbedDependencies {
+                try #require(makeContent(account: account).content?.tokens?.single)
+            }
+
+            #expect(single.icon == .token(TokenIconInfoBuilder().build(from: approvingWalletToken, isCustom: false)))
+        }
+
         @Test("Falls back to the network icon when the approved token can't be resolved")
         func iconOfUnresolvedTokenFallsBackToNetwork() async throws {
             let single = try await withStubbedDependencies {
@@ -76,9 +100,12 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.TransactionD
         }
     }
 
-    func makeContent() -> (transaction: TransactionViewModel, content: TransactionDetailsGenericOperationViewData?) {
+    func makeContent(account: (any CryptoAccountModel)? = nil) -> (transaction: TransactionViewModel, content: TransactionDetailsGenericOperationViewData?) {
         let record = makeApproveRecord()
         let walletModel = CommonWalletModel.previewWalletModel(history: [record])
+        if let account {
+            walletModel.setCryptoAccount(account)
+        }
         let context = TransactionDetailsContext(walletModel: walletModel, userWalletInfo: makeUserWalletInfo(), isAccountsMode: false)
         let mapper = TransactionHistoryMapper(
             currencySymbol: "ETH",

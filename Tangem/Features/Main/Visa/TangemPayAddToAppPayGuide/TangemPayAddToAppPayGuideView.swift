@@ -19,7 +19,7 @@ struct TangemPayAddToAppPayGuideView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 32) {
-                    TangemPayCardDetailsViewRedesigned(
+                    TangemPayCardDetailsView(
                         viewModel: viewModel.tangemPayCardDetailsViewModel,
                         showsInlineDetailsButton: true
                     )

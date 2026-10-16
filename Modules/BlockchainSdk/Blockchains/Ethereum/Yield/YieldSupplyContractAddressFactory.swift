@@ -41,6 +41,8 @@ class YieldSupplyContractAddressFactory {
             AaveV3Constants.polygonAddresses
         case .sonic(false):
             AaveV3Constants.sonicAddresses
+        case .monad(false):
+            AaveV3Constants.monadAddresses
         default:
             throw YieldModuleError.unsupportedBlockchain
         }
@@ -55,6 +57,7 @@ class YieldSupplyContractAddressFactory {
             .base(testnet: false),
             .bsc(testnet: false),
             .polygon(testnet: false),
+            .monad(testnet: false),
         ]
     }
 }
@@ -119,6 +122,12 @@ extension YieldSupplyContractAddressFactory {
             processorContractAddress: "0x7255BFf778243f58B53777878B931Df596e1816A",
             factoryContractAddress: "0xF22E4A776cca26A003920538E174E3aeA8177d9f",
             swapExecutionRegistryContractAddress: "",
+        )
+
+        static let monadAddresses = YieldSupplyContractAddresses(
+            processorContractAddress: "0xA564bC954DBC4378e4df8B6fA424bc9DAD728529",
+            factoryContractAddress: "0x727fD7209582A4564566C1955E6C56ce9DF5B366",
+            swapExecutionRegistryContractAddress: "0xef250e2A35a4F454A9A497A108bA323986cD28B5",
         )
     }
 }

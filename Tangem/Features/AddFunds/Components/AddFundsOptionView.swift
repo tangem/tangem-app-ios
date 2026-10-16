@@ -19,11 +19,11 @@ struct AddFundsOptionView: View {
     let isEnabled: Bool
     let action: () -> Void
 
-    @ScaledMetric(wrappedValue: .unit(.x10)) private var iconContainerSize: CGFloat
-    @ScaledMetric(wrappedValue: .unit(.x5)) private var iconSize: CGFloat
-    @ScaledMetric(wrappedValue: .unit(.x6)) private var chevronSize: CGFloat
-    @ScaledMetric(wrappedValue: .unit(.x4)) private var horizontalPadding: CGFloat
-    @ScaledMetric(wrappedValue: .unit(.x3)) private var verticalPadding: CGFloat
+    @ScaledMetric(wrappedValue: 40) private var iconContainerSize: CGFloat
+    @ScaledMetric(wrappedValue: 20) private var iconSize: CGFloat
+    @ScaledMetric(wrappedValue: 24) private var chevronSize: CGFloat
+    @ScaledMetric(wrappedValue: 16) private var horizontalPadding: CGFloat
+    @ScaledMetric(wrappedValue: 12) private var verticalPadding: CGFloat
 
     init(viewData: ViewData, isEnabled: Bool = true, action: @escaping () -> Void) {
         self.viewData = viewData
@@ -44,7 +44,7 @@ struct AddFundsOptionView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(.rect)
             .background(Color.Tangem.Surface.level3)
-            .cornerRadiusContinuous(.unit(.x5))
+            .cornerRadiusContinuous(20)
         }
         .buttonStyle(.plain)
         .disabled(!isEnabled)

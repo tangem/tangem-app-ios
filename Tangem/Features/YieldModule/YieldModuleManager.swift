@@ -27,10 +27,18 @@ protocol YieldModuleManager {
     func enter(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String]
 
     func exitFee() async throws -> YieldTransactionFee
-    func exit(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String]
+    func exit(
+        fee: YieldTransactionFee,
+        precedingTransaction: () async throws -> BSDKTransaction?,
+        transactionDispatcher: TransactionDispatcher
+    ) async throws -> YieldExitResult
 
     func approveFee() async throws -> YieldTransactionFee
     func approve(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> String
+
+    func claimFee(to: String, data: Data) async throws -> YieldTransactionFee
+    func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee) async throws -> BSDKTransaction
+    func submitClaim(transaction: BSDKTransaction, transactionDispatcher: TransactionDispatcher) async throws -> String
 
     func currentNetworkFeeParameters() async throws -> EthereumFeeParameters
 
@@ -42,7 +50,21 @@ protocol YieldModuleManager {
     func sendTransactionSendEvent(sourceAddress: String, transactionHash: String)
 }
 
+struct YieldExitResult {
+    let exitHash: String?
+    let precedingHash: String?
+
+    init(hashes: [String], hasPrecedingTransaction: Bool) {
+        precedingHash = hasPrecedingTransaction ? hashes.first : nil
+        exitHash = hashes[safe: hasPrecedingTransaction ? 1 : 0]
+    }
+}
+
 extension YieldModuleManager {
+    func exit(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> YieldExitResult {
+        try await exit(fee: fee, precedingTransaction: { nil }, transactionDispatcher: transactionDispatcher)
+    }
+
     var marketInfoPublisher: AnyPublisher<YieldModuleMarketInfo?, Never> {
         statePublisher
             .map(\.?.marketInfo)
@@ -318,7 +340,11 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         )
     }
 
-    func exit(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String] {
+    func exit(
+        fee: YieldTransactionFee,
+        precedingTransaction: () async throws -> BSDKTransaction?,
+        transactionDispatcher: TransactionDispatcher
+    ) async throws -> YieldExitResult {
         let yieldModuleState = try await getYieldModuleState()
 
         guard case .deployed(let deployedState) = yieldModuleState,
@@ -328,13 +354,16 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             throw YieldModuleError.yieldIsNotActive
         }
 
-        let transactions = try await transactionProvider.exitTransactions(
+        let exitTransactions = try await transactionProvider.exitTransactions(
             tokenContractAddress: token.contractAddress,
             yieldContractAddress: deployedState.yieldModule,
             fee: exitFee
         )
 
-        let result = try await transactionDispatcher
+        let preceding = try await precedingTransaction()
+        let transactions = (preceding.map { [$0] } ?? []) + exitTransactions
+
+        let hashes = try await transactionDispatcher
             .send(transactions: transactions.map { .transfer($0) })
             .map(\.hash)
 
@@ -342,11 +371,13 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
         await deactivate()
 
-        if let exitHash = result.first, let firstSourceAddress = transactions.first?.sourceAddress {
+        let result = YieldExitResult(hashes: hashes, hasPrecedingTransaction: preceding != nil)
+
+        if let exitHash = result.exitHash, let exitSourceAddress = exitTransactions.first?.sourceAddress {
             await yieldModuleNetworkManager.sendTransactionEvent(
                 txHash: exitHash,
                 operation: .exit,
-                userAddress: arePushNotificationsEnabled() ? firstSourceAddress : nil
+                userAddress: arePushNotificationsEnabled() ? exitSourceAddress : nil
             )
         }
 
@@ -381,6 +412,23 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         await setNextExpectedState(.active)
 
         return hash
+    }
+
+    func claimFee(to: String, data: Data) async throws -> YieldTransactionFee {
+        try await transactionFeeProvider.claimFee(to: to, data: data)
+    }
+
+    func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee) async throws -> BSDKTransaction {
+        guard let claimFee = fee as? ClaimFee else {
+            throw YieldModuleError.feeNotFound
+        }
+
+        return try await transactionProvider.claimTransaction(to: to, data: data, fee: claimFee.fee)
+    }
+
+    func submitClaim(transaction: BSDKTransaction, transactionDispatcher: TransactionDispatcher) async throws -> String {
+        try await transactionDispatcher
+            .send(transaction: .transfer(transaction)).hash
     }
 
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo {

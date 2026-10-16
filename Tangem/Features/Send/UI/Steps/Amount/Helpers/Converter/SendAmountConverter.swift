@@ -18,7 +18,7 @@ struct SendAmountConverter {
             return nil
         }
 
-        let formatter = DecimalNumberFormatter(maximumFractionDigits: tokenItem.decimalCount)
+        let formatter = DecimalNumberFormatter(maximumFractionDigits: tokenItem.displayDecimalCount)
         return formatter.format(value: cryptoValue)
     }
 

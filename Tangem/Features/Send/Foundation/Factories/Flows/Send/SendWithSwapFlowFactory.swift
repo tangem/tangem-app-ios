@@ -28,8 +28,8 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         sendNotificationManager: sendNotificationManager,
         swapNotificationManager: swapNotificationManager
     )
-    private lazy var predefinedTransferValues = mapToPredefinedValues(parameters: predefinedSendParameters)
-    private lazy var predefinedInitialStep = mapToInitialStep(parameters: predefinedSendParameters)
+    private lazy var predefinedTransferValues = makePredefinedTransferValues(parameters: predefinedSendParameters)
+    private lazy var predefinedInitialStep = CommonSendStepsManager.InitialStep(parameters: predefinedSendParameters)
 
     lazy var transferModel = makeTransferModel(
         analyticsLogger: analyticsLogger,
@@ -66,46 +66,6 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
     }
 
-    private func mapToPredefinedValues(parameters: PredefinedSendParameters?) -> TransferModel.PredefinedValues {
-        guard let parameters else {
-            return .init()
-        }
-
-        let destination = SendDestination(value: .plain(parameters.destination), source: .qrCode)
-
-        let amount = parameters.amount.map { amount in
-            let fiatValue = tokenItem.currencyId.flatMap { currencyId in
-                BalanceConverter().convertToFiat(amount, currencyId: currencyId)
-            }
-
-            return SendAmount(type: .typical(crypto: amount, fiat: fiatValue))
-        }
-
-        let additionalField: SendDestinationAdditionalField = {
-            guard let type = SendDestinationAdditionalFieldType.type(for: tokenItem.blockchain) else {
-                return .notSupported
-            }
-
-            guard let tag = parameters.tag?.nilIfEmpty else {
-                return .empty(type: type)
-            }
-
-            do {
-                let params = try makeTransactionParametersBuilder().transactionParameters(value: tag)
-                return .filled(type: type, value: tag, params: params)
-            } catch {
-                assertionFailure("Failed to build transaction parameters for predefined tag: \(error)")
-                return .empty(type: type)
-            }
-        }()
-
-        return TransferModel.PredefinedValues(
-            destination: destination,
-            tag: additionalField,
-            amount: amount
-        )
-    }
-
     private func makeAddContactViewModel(router: SendRoutable) -> SendAddContactFinishViewModel? {
         SendAddContactFinishViewModel(
             sourceToken: sourceToken,
@@ -114,21 +74,6 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
             coordinator: router,
             analyticsLogger: CommonAddressBookAnalyticsLogger()
         )
-    }
-
-    private func mapToInitialStep(parameters: PredefinedSendParameters?) -> CommonSendStepsManager.InitialStep {
-        guard let parameters else {
-            return .amount
-        }
-
-        switch parameters.initialStep {
-        case .amount:
-            return .amount
-        case .amountThenSummary:
-            return .amountThenSummary
-        case .summary:
-            return .summary
-        }
     }
 }
 
@@ -183,7 +128,8 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
             sourceTokenInput: swapModel,
             receiveTokenInput: swapModel,
             sendFeeInput: swapModel,
-            swapModelStateProvider: swapModel
+            swapModelStateProvider: swapModel,
+            slippageInput: swapModel
         )
 
         // Logger setup

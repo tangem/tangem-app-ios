@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemLocalization
 import TangemUI
 
@@ -25,7 +26,8 @@ struct RecentRecipientsView: View {
         .tangemSearchable(
             text: $viewModel.searchText,
             isActive: $viewModel.isSearchActive,
-            prompt: Localization.commonSearch
+            prompt: Localization.commonSearch,
+            accessibilityIdentifier: TangemPayOfframpAccessibilityIdentifiers.recipientsSearchField
         )
         .autocorrectionDisabled()
         .textInputAutocapitalization(.never)

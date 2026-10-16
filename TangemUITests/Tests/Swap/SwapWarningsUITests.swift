@@ -107,7 +107,7 @@ final class SwapWarningsUITests: BaseTestCase {
         let swapScreen = prepareSwapSolanaFlow()
 
         swapScreen
-            .enterFromAmount("0.00168933")
+            .enterFromAmount("0.002580218")
             .waitForNotificationNotShown()
             .waitForConfirmButtonEnabled()
     }

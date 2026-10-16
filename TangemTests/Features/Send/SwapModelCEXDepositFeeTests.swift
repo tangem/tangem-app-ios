@@ -211,7 +211,8 @@ private extension SwapModelCEXDepositFeeTests {
             estimatedGasLimit: nil,
             externalTxId: nil,
             externalTxURL: nil,
-            payInAddress: "TCEXDepositAddress"
+            payInAddress: "TCEXDepositAddress",
+            slippage: nil
         )
     }
 

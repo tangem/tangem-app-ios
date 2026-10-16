@@ -57,11 +57,7 @@ final class EarnCoordinator: CoordinatorObject {
                 presentSource: options.presentSource
             )
 
-            if let mostlyUsedTokens = options.mostlyUsedTokens {
-                earnDataProvider.applyMostlyUsedTokens(mostlyUsedTokens)
-            } else {
-                earnDataProvider.refreshMostlyUsedTokens()
-            }
+            earnDataProvider.refreshMostlyUsedTokens()
 
             analyticsProvider.logPageOpened()
 
@@ -76,16 +72,13 @@ final class EarnCoordinator: CoordinatorObject {
 
 extension EarnCoordinator {
     struct Options {
-        let mostlyUsedTokens: [EarnTokenModel]?
         let deeplinkFilter: EarnDataFilter?
         let presentSource: MarketsNavigationPresentSource
 
         init(
-            mostlyUsedTokens: [EarnTokenModel]?,
             deeplinkFilter: EarnDataFilter? = nil,
             presentSource: MarketsNavigationPresentSource = .navigation
         ) {
-            self.mostlyUsedTokens = mostlyUsedTokens
             self.deeplinkFilter = deeplinkFilter
             self.presentSource = presentSource
         }

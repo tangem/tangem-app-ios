@@ -53,8 +53,25 @@ extension PolymarketAddFundsSheetViewModel {
 // MARK: - Private implementation
 
 private extension PolymarketAddFundsSheetViewModel {
+    var availableDepositTargets: [PolymarketAccountFundsInteractor.DepositTarget]? {
+        switch interactor.state {
+        case .ready(let readiness):
+            switch readiness.depositAvailability {
+            case .available(let depositTargets):
+                depositTargets
+            case .unavailable:
+                nil
+            }
+        case .loading, .unavailable:
+            nil
+        }
+    }
+
     func openSwap() {
-        guard let parameters = swapParametersFactory.make(depositTargets: interactor.state.depositTargets) else {
+        guard
+            let depositTargets = availableDepositTargets,
+            let parameters = swapParametersFactory.make(depositTargets: depositTargets)
+        else {
             reportUnavailableDeposit()
             return
         }
@@ -63,7 +80,12 @@ private extension PolymarketAddFundsSheetViewModel {
     }
 
     func openReceive() {
-        let networks = PolymarketDepositNetworkResolver.resolve(depositTargets: interactor.state.depositTargets)
+        guard let depositTargets = availableDepositTargets else {
+            reportUnavailableDeposit()
+            return
+        }
+
+        let networks = PolymarketDepositNetworkResolver.resolve(depositTargets: depositTargets)
 
         guard networks.isNotEmpty else {
             reportUnavailableDeposit()
