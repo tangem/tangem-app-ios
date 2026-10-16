@@ -15,6 +15,7 @@ struct TransactionDetailsAddContactHelper {
     private let isAddressBookSynced: Bool
     private let transactionType: TransactionViewModel.TransactionType
     private let interactionAddress: TransactionViewModel.InteractionAddressType
+    private let subtitleOwner: TransactionViewModel.SubtitleOwner?
 
     private var counterpartyAddress: String? {
         switch interactionAddress {
@@ -72,13 +73,15 @@ struct TransactionDetailsAddContactHelper {
         contacts: [AddressBookContact],
         isAddressBookSynced: Bool,
         transactionType: TransactionViewModel.TransactionType,
-        interactionAddress: TransactionViewModel.InteractionAddressType
+        interactionAddress: TransactionViewModel.InteractionAddressType,
+        subtitleOwner: TransactionViewModel.SubtitleOwner?
     ) {
         self.networkId = networkId
         self.contacts = contacts
         self.isAddressBookSynced = isAddressBookSynced
         self.transactionType = transactionType
         self.interactionAddress = interactionAddress
+        self.subtitleOwner = subtitleOwner
     }
 
     func addressToSave(for record: TransactionRecord) -> String? {
@@ -88,6 +91,7 @@ struct TransactionDetailsAddContactHelper {
             isAddressBookSynced,
             record.expressExtraInfo == nil,
             isPlainTransfer,
+            subtitleOwner?.isOwnWallet != true,
             let counterpartyAddress,
             !isSaved(counterpartyAddress)
         else {
