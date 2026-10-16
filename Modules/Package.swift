@@ -326,6 +326,7 @@ var featureModules: [PackageDescription.Target] {
                 "TangemLogger",
                 "TangemMacro",
                 "TangemNetworkUtils",
+                "TangemWebSocket",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
