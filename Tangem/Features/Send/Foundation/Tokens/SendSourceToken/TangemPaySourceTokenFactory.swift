@@ -56,6 +56,7 @@ struct TangemPaySourceTokenFactory {
             transactionSummaryDescriptionBuilderProvider: DefaultTransactionSummaryDescriptionBuilderProvider(tokenItem: tokenItem),
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             accountModelAnalyticsProvider: nil,
+            receivingRestrictionsProvider: TangemPayReceivingRestrictionsProvider(userWalletInfo: userWalletInfo),
             isTangemPayAccount: true,
             jointAccountPolicy: nil,
             tokenItem: tokenItem,

@@ -60,12 +60,12 @@ struct TokenActionAvailabilityProviderJointAccountTests {
         await withExpress {
             let sut = makeSUT(account: makeJointAccount())
 
-            guard case .jointAccountsComingSoon = sut.swapSourceAvailability else {
-                Issue.record("Expected .jointAccountsComingSoon, got \(sut.swapSourceAvailability)")
+            guard case .jointAccountsComingSoon = sut.swapSourceAvailability() else {
+                Issue.record("Expected .jointAccountsComingSoon, got \(sut.swapSourceAvailability())")
                 return
             }
 
-            #expect(!sut.isSwapAsSourceAvailable)
+            #expect(!sut.swapSourceAvailability().isAvailable)
         }
     }
 
@@ -84,8 +84,8 @@ struct TokenActionAvailabilityProviderJointAccountTests {
         await withExpress {
             let sut = makeSUT(account: makeJointAccount())
 
-            guard case .available = sut.swapReceiveAvailability else {
-                Issue.record("Expected .available, got \(sut.swapReceiveAvailability)")
+            guard case .available = sut.swapReceiveAvailability() else {
+                Issue.record("Expected .available, got \(sut.swapReceiveAvailability())")
                 return
             }
         }
@@ -96,8 +96,8 @@ struct TokenActionAvailabilityProviderJointAccountTests {
         await withExpress {
             let sut = makeSUT(account: nil)
 
-            guard case .available = sut.swapSourceAvailability, case .available = sut.swapReceiveAvailability else {
-                Issue.record("Expected .available on both sides, got \(sut.swapSourceAvailability) and \(sut.swapReceiveAvailability)")
+            guard case .available = sut.swapSourceAvailability(), case .available = sut.swapReceiveAvailability() else {
+                Issue.record("Expected .available on both sides, got \(sut.swapSourceAvailability()) and \(sut.swapReceiveAvailability())")
                 return
             }
         }
@@ -111,10 +111,13 @@ struct TokenActionAvailabilityProviderJointAccountTests {
 
             let sut = makeSUT(walletModel: walletModel)
 
-            guard case .customToken = sut.swapReceiveAvailability else {
-                Issue.record("Expected .customToken, got \(sut.swapReceiveAvailability)")
+            guard case .customToken = sut.swapReceiveAvailability() else {
+                Issue.record("Expected .customToken, got \(sut.swapReceiveAvailability())")
                 return
             }
+
+            #expect(!sut.swapReceiveAvailability().isAvailable)
+            #expect(!sut.swapReceiveAvailability(ignoreExpressState: true).isAvailable)
         }
     }
 
@@ -128,34 +131,57 @@ struct TokenActionAvailabilityProviderJointAccountTests {
 
             let sut = makeSUT(walletModel: walletModel)
 
-            guard case .missingAssetRequirement = sut.swapReceiveAvailability else {
-                Issue.record("Expected .missingAssetRequirement, got \(sut.swapReceiveAvailability)")
+            guard case .missingAssetRequirement = sut.swapReceiveAvailability() else {
+                Issue.record("Expected .missingAssetRequirement, got \(sut.swapReceiveAvailability())")
                 return
             }
+
+            #expect(!sut.swapReceiveAvailability().isAvailable)
+            #expect(!sut.swapReceiveAvailability(ignoreExpressState: true).isAvailable)
         }
     }
 
-    @Test("Swap into a token waits while Express availability is loading")
-    func swapIntoTokenWaitsForExpress() async {
+    @Test("Swap into a token can open, but is not confirmed, while Express availability is loading")
+    func swapIntoTokenStaysOpenWhileExpressLoads() async {
         await withExpress(swapState: .notLoaded, updateState: .updating) {
             let sut = makeSUT(account: nil)
 
-            guard case .expressLoading = sut.swapReceiveAvailability else {
-                Issue.record("Expected .expressLoading, got \(sut.swapReceiveAvailability)")
+            guard case .expressLoading = sut.swapReceiveAvailability() else {
+                Issue.record("Expected .expressLoading, got \(sut.swapReceiveAvailability())")
                 return
             }
+
+            #expect(!sut.swapReceiveAvailability().isAvailable)
+            #expect(sut.swapReceiveAvailability(ignoreExpressState: true).isAvailable)
         }
     }
 
-    @Test("Swap into a token is refused when Express availability failed to load")
-    func swapIntoTokenIsRefusedWhenExpressFailed() async {
+    @Test("Swap into a token can open, but is not confirmed, when Express availability failed to load")
+    func swapIntoTokenStaysOpenWhenExpressFailed() async {
         await withExpress(swapState: .notLoaded, updateState: .failed(error: URLError(.notConnectedToInternet))) {
             let sut = makeSUT(account: nil)
 
-            guard case .expressUnreachable = sut.swapReceiveAvailability else {
-                Issue.record("Expected .expressUnreachable, got \(sut.swapReceiveAvailability)")
+            guard case .expressUnreachable = sut.swapReceiveAvailability() else {
+                Issue.record("Expected .expressUnreachable, got \(sut.swapReceiveAvailability())")
                 return
             }
+
+            #expect(!sut.swapReceiveAvailability().isAvailable)
+            #expect(sut.swapReceiveAvailability(ignoreExpressState: true).isAvailable)
+        }
+    }
+
+    @Test("Swap from a token can open, but is not confirmed, while Express availability is loading")
+    func swapFromTokenStaysOpenWhileExpressLoads() async {
+        await withExpress(swapState: .notLoaded, updateState: .updating) {
+            let sut = makeSUT(account: nil)
+
+            guard case .expressLoading = sut.swapSourceAvailability() else {
+                Issue.record("Expected .expressLoading, got \(sut.swapSourceAvailability())")
+                return
+            }
+
+            #expect(sut.swapSourceAvailability(ignoreExpressState: true).isAvailable)
         }
     }
 
@@ -167,8 +193,46 @@ struct TokenActionAvailabilityProviderJointAccountTests {
 
             let sut = makeSUT(walletModel: walletModel)
 
-            #expect(!sut.isSwapAsSourceAvailable)
-            #expect(sut.isSwapAsReceiveAvailable)
+            #expect(!sut.swapSourceAvailability().isAvailable)
+            #expect(sut.swapReceiveAvailability().isAvailable)
+        }
+    }
+
+    @Test("Swap into a token keeps the Express alerts for the status that does not ignore Express")
+    func swapIntoTokenKeepsExpressAlerts() {
+        let builder = TokenActionAvailabilityAlertBuilder()
+
+        #expect(builder.alert(for: TokenActionAvailabilityProvider.SwapReceiveActionAvailabilityStatus.expressLoading) != nil)
+        #expect(builder.alert(for: TokenActionAvailabilityProvider.SwapReceiveActionAvailabilityStatus.expressUnreachable) != nil)
+    }
+
+    @Test("The swap token selector offers a joint account's token as a destination")
+    func swapSelectorOffersJointTokenAsDestination() async {
+        await withExpress {
+            let availability = selectorAvailability(
+                walletModel: makeWalletModel(account: makeJointAccount()),
+                direction: .fromSource(nil)
+            )
+
+            guard case .available = availability else {
+                Issue.record("Expected .available, got \(String(describing: availability))")
+                return
+            }
+        }
+    }
+
+    @Test("The swap token selector holds a joint account's token back as a source")
+    func swapSelectorHoldsJointTokenBackAsSource() async {
+        await withExpress {
+            let availability = selectorAvailability(
+                walletModel: makeWalletModel(account: makeJointAccount()),
+                direction: .toDestination(nil)
+            )
+
+            guard case .unavailable(reason: .unavailableForSwap(.sourceState(.jointAccountsComingSoon))) = availability else {
+                Issue.record("Expected the joint coming-soon source state, got \(String(describing: availability))")
+                return
+            }
         }
     }
 
@@ -176,9 +240,11 @@ struct TokenActionAvailabilityProviderJointAccountTests {
     func swapSelectorKeepsJointSourceTappable() {
         let comingSoon = TokenSelectorItem.AvailabilityType.unavailable(reason: .unavailableForSwap(.sourceState(.jointAccountsComingSoon)))
         let customSource = TokenSelectorItem.AvailabilityType.unavailable(reason: .unavailableForSwap(.sourceState(.customToken)))
+        let customDestination = TokenSelectorItem.AvailabilityType.unavailable(reason: .unavailableForSwap(.receiveState(.customToken)))
 
         #expect(!comingSoon.disablesTap)
         #expect(customSource.disablesTap)
+        #expect(customDestination.disablesTap)
     }
 }
 
@@ -197,6 +263,24 @@ private extension TokenActionAvailabilityProviderJointAccountTests {
 
             body()
         }
+    }
+
+    func selectorAvailability(
+        walletModel: WalletModelTestsMock,
+        direction: TokenSelectorItemSwapAvailabilityProvider.SwapDirection
+    ) -> TokenSelectorItem.AvailabilityType? {
+        walletModel.actionsUpdatePublisherMock = .just(output: ())
+
+        let provider = TokenSelectorItemSwapAvailabilityProvider()
+        provider.setup(directionPublisher: Just<TokenSelectorItemSwapAvailabilityProvider.SwapDirection?>(direction))
+
+        var availability: TokenSelectorItem.AvailabilityType?
+        let subscription = provider
+            .availabilityTypePublisher(userWalletInfo: makeUserWalletInfo(), walletModel: walletModel)
+            .sink { availability = $0 }
+        subscription.cancel()
+
+        return availability
     }
 
     func makeSUT(account: (any CryptoAccountModel)?) -> TokenActionAvailabilityProvider {

@@ -583,8 +583,8 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsProv
             return []
         }
 
-        return TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
-            .buildMarketsTokenContextActions()
+        let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+        return availabilityProvider.buildMarketsTokenContextActions()
     }
 }
 
@@ -660,13 +660,13 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
             case .from:
                 TokenActionAvailabilityAlertPresenter.presentOrProceed(
                     presenter: alertPresenter,
-                    swapSourceStatus: availabilityProvider.swapSourceAvailability,
+                    swapSourceStatus: availabilityProvider.swapSourceAvailability(),
                     action: openSwap
                 )
             case .to:
                 TokenActionAvailabilityAlertPresenter.presentOrProceed(
                     presenter: alertPresenter,
-                    swapReceiveStatus: availabilityProvider.swapReceiveAvailability,
+                    swapReceiveStatus: availabilityProvider.swapReceiveAvailability(),
                     action: openSwap
                 )
             }

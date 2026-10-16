@@ -71,6 +71,7 @@ struct CommonSendSourceTokenFactory {
             transactionSummaryDescriptionBuilderProvider: WalletModelTransactionSummaryDescriptionBuilderProvider(walletModel: walletModel),
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: walletModel.tokenItem),
             accountModelAnalyticsProvider: walletModel.account,
+            receivingRestrictionsProvider: WalletModelReceivingRestrictionsProvider(userWalletInfo: userWalletInfo, walletModel: walletModel),
             isTangemPayAccount: false,
             jointAccountPolicy: (walletModel.account as? any JointAccountModel)?.policy,
             tokenItem: walletModel.tokenItem,

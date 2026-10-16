@@ -33,6 +33,7 @@ protocol SendSourceToken: SendReceiveToken {
     var transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider { get }
     var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { get }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
+    var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { get }
 
     /// Whether the source token belongs to a Tangem Pay (Visa Payment) account.
     var isTangemPayAccount: Bool { get }

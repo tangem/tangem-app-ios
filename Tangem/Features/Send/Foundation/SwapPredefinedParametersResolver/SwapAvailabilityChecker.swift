@@ -23,6 +23,6 @@ struct CommonSwapAvailabilityChecker: SwapAvailabilityChecker {
         TokenActionAvailabilityProvider(
             userWalletInfo: userWalletInfo,
             walletModel: walletModel
-        ).isSwapAsSourceAvailable
+        ).swapSourceAvailability().isAvailable
     }
 }

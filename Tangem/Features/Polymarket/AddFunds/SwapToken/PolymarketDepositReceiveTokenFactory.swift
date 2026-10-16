@@ -37,6 +37,11 @@ struct PolymarketDepositReceiveTokenFactory {
             transactionSummaryDescriptionBuilderProvider: DefaultTransactionSummaryDescriptionBuilderProvider(tokenItem: tokenItem),
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             accountModelAnalyticsProvider: nil,
+            receivingRestrictionsProvider: PolymarketDepositReceivingRestrictionsProvider(
+                userWalletInfo: userWalletInfo,
+                minCheckoutUSD: depositTarget.minCheckoutUSD,
+                tokenItem: tokenItem
+            ),
             isTangemPayAccount: false,
             jointAccountPolicy: nil,
             tokenItem: tokenItem,
@@ -56,11 +61,6 @@ struct PolymarketDepositReceiveTokenFactory {
             isExemptFee: true,
             swapAvailabilityProvider: PolymarketAccountSwapAvailabilityProvider(),
             sendingRestrictionsProvider: PolymarketAccountSendingRestrictionsProvider(),
-            receivingRestrictionsProvider: PolymarketDepositReceivingRestrictionsProvider(
-                userWalletInfo: userWalletInfo,
-                minCheckoutUSD: depositTarget.minCheckoutUSD,
-                tokenItem: tokenItem
-            ),
             tokenFeeProvidersManagerProvider: feeProvidersManagerProvider,
             tokenFeeProvidersManager: feeProvidersManagerProvider.makeTokenFeeProvidersManager(),
             transactionValidator: PolymarketDepositTransactionValidator(),

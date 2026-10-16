@@ -32,6 +32,7 @@ struct CommonSendSourceToken: SendSourceToken {
     let transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider
     let blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper
     let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
+    let receivingRestrictionsProvider: any ReceivingRestrictionsProvider
     let isTangemPayAccount: Bool
     let jointAccountPolicy: JointAccountPolicy?
 

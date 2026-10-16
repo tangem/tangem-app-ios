@@ -18,13 +18,16 @@ import TangemStaking
 
 class SendSourceTokenStub: SendSourceToken {
     let tokenItem: TokenItem
+    private let receivingRestriction: ReceivedRestriction?
 
-    init(blockchain: Blockchain = .ton(curve: .ed25519, testnet: false)) {
+    init(blockchain: Blockchain = .ton(curve: .ed25519, testnet: false), receivingRestriction: ReceivedRestriction? = nil) {
         tokenItem = .blockchain(.init(blockchain, derivationPath: nil))
+        self.receivingRestriction = receivingRestriction
     }
 
     init(tokenItem: TokenItem) {
         self.tokenItem = tokenItem
+        receivingRestriction = nil
     }
 
     var isCustom: Bool { false }
@@ -62,6 +65,7 @@ class SendSourceTokenStub: SendSourceToken {
     var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { BlockchainSDKNotificationMapper(tokenItem: tokenItem) }
 
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { nil }
+    var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { ReceivingRestrictionsProviderStub(result: receivingRestriction) }
     var isTangemPayAccount: Bool { false }
     var jointAccountPolicy: JointAccountPolicy? { nil }
 }
