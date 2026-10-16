@@ -77,5 +77,5 @@ struct TokenSummaryGaugeView: View {
     }
     .padding(24)
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(Color.Tangem.Surface.level2)
+    .background(DesignSystem.Color.bgPrimary)
 }

@@ -21,8 +21,8 @@ struct AddFundsTokenInfoView: View {
             VStack(spacing: 4) {
                 LoadableTextView(
                     state: viewData.fiatBalance,
-                    font: Font.Tangem.Title44.semibold.font,
-                    textColor: .Tangem.Text.Neutral.primary,
+                    token: DesignSystem.Font.displayMediumToken,
+                    textColor: DesignSystem.Color.textPrimary,
                     loaderSize: Constants.fiatLoaderSize,
                     isSensitiveText: true
                 )
@@ -30,8 +30,8 @@ struct AddFundsTokenInfoView: View {
 
                 LoadableTextView(
                     state: viewData.cryptoBalance,
-                    font: Font.Tangem.Subheadline.regular.font,
-                    textColor: .Tangem.Text.Neutral.tertiary,
+                    token: DesignSystem.Font.subheadingMediumToken,
+                    textColor: DesignSystem.Color.textSecondary,
                     loaderSize: Constants.cryptoLoaderSize,
                     isSensitiveText: true
                 )

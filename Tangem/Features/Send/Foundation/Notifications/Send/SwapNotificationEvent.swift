@@ -256,7 +256,7 @@ extension SwapNotificationEvent: NotificationEvent {
             return .init(
                 iconType: .image(Assets.DesignSystem.attention),
                 renderingMode: .template,
-                color: .Tangem.Text.Neutral.primary,
+                color: DesignSystem.Color.textPrimary,
                 size: .init(bothDimensions: 28)
             )
         case .withdrawalNotificationEvent(let event):

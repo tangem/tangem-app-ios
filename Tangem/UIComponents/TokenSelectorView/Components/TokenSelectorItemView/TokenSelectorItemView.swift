@@ -15,7 +15,7 @@ struct TokenSelectorItemView: View {
     @ObservedObject var viewModel: TokenSelectorItemViewModel
 
     private var backgroundColor: Color {
-        return Color.Tangem.Surface.level3
+        return DesignSystem.Color.bgSecondary
     }
 
     var body: some View {

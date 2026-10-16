@@ -164,6 +164,7 @@ extension Wallet2Config: UserWalletConfig {
 
     // swiftlint:disable:next function_body_length cyclomatic_complexity
     var walletThumbnailType: ThumbnailWalletViewType? {
+        // [REDACTED_TODO_COMMENT]
         typealias CC = Color.Tangem.CardCollection
 
         if cardsCount == 1 {
@@ -512,6 +513,7 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     private func defaultWalletThumbnailType() -> ThumbnailWalletViewType {
+        // [REDACTED_TODO_COMMENT]
         typealias CC = Color.Tangem.CardCollection
 
         var isUserWalletWithRing = false

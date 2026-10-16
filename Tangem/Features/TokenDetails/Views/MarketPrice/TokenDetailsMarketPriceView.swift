@@ -100,7 +100,7 @@ struct TokenDetailsMarketPriceView: View {
     }
 }
 
-private struct NoOpButtonStyle: ButtonStyle {
+struct NoOpButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
     }
