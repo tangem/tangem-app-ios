@@ -44,6 +44,7 @@ private struct ScreenCaptureProtectionContainerView<Content: View>: UIViewContro
 
         let hostingViewController = PreferredContentSizeForwardingUIHostingController(rootView: content())
         hostingViewController.sizingOptions = .preferredContentSize
+        hostingViewController.safeAreaRegions = .keyboard
         contentViewController = hostingViewController
 
         containerViewController.addChild(contentViewController)
