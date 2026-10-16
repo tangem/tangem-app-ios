@@ -34,7 +34,7 @@ final class TangemPayCardsLimitReachedSheet: ScreenBase<TangemPayCardsLimitReach
     func verifyCancelButton() -> Self {
         XCTContext.runActivity(named: "Verify the cards limit sheet offers Cancel") { _ in
             waitAndAssertTrue(cancelButton, "Cancel button should be displayed on the cards limit sheet")
-            XCTAssertEqual(cancelButton.label, Constants.cancelTitle, "Secondary button on the cards limit sheet should read '\(Constants.cancelTitle)'")
+            XCTAssertEqual(cancelButton.label, Localization.commonCancel, "Secondary button on the cards limit sheet should read '\(Localization.commonCancel)'")
             return self
         }
     }
@@ -59,11 +59,5 @@ enum TangemPayCardsLimitReachedSheetElement: String, UIElement {
         case .cancelButton:
             TangemPayAccessibilityIdentifiers.popupSecondaryButton
         }
-    }
-}
-
-private extension TangemPayCardsLimitReachedSheet {
-    enum Constants {
-        static let cancelTitle = "Cancel"
     }
 }

@@ -20,12 +20,7 @@ struct SingleWalletMainContentRedesignedView: View {
                 WalletPromoBannerView(viewModel: walletPromoBannerViewModel)
             }
 
-            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
-
-            NotificationBannerContainer(
-                items: viewModel.notificationBannerItems,
-                stackingType: .carousel
-            )
+            MainNotificationsView(viewModel: viewModel.mainNotificationsViewModel)
 
             tokenCard
         }
@@ -94,7 +89,13 @@ private extension SingleWalletMainContentRedesignedView {
             tokenRouter: SingleTokenRoutableMock(),
             delegate: nil,
             coordinator: nil,
-            accountModel: nil
+            accountModel: nil,
+            mainNotificationsViewModel: MainNotificationsViewModel(
+                isEnabled: false,
+                promotionNotificationsManager: FakePromotionNotificationsManager(),
+                systemBannerItemsProvider: NotificationBannerItemsProvider(managers: [FakeUserWalletNotificationManager()]),
+                tangemPayPromoManager: nil
+            )
         )
     )
 }

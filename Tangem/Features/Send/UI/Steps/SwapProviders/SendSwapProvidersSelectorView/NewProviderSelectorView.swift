@@ -54,6 +54,7 @@ struct NewProviderSelectorView: View {
     private var headerView: some View {
         BottomSheetHeaderView(
             title: viewModel.viewState.title,
+            titleAccessibilityIdentifier: SendAccessibilityIdentifiers.swapProviderSelectorTitle,
             leading: { leadingHeaderButton },
             trailing: { NavigationBarButton.close(action: viewModel.dismiss) }
         )
@@ -99,6 +100,7 @@ struct NewProviderSelectorView: View {
                 return .handled
             })
             .multilineTextAlignment(.center)
+            .accessibilityIdentifier(SendAccessibilityIdentifiers.swapApproveDescription)
     }
 
     // MARK: - Button
@@ -106,7 +108,11 @@ struct NewProviderSelectorView: View {
     @ViewBuilder
     private var confirmButton: some View {
         if case .approve = viewModel.viewState {
-            MainButton(title: Localization.commonConfirm, action: viewModel.didTapConfirm)
+            MainButton(
+                title: Localization.commonConfirm,
+                accessibilityIdentifier: SendAccessibilityIdentifiers.swapApproveConfirmButton,
+                action: viewModel.didTapConfirm
+            )
         }
     }
 
@@ -171,6 +177,7 @@ struct NewProviderSelectorView: View {
     private func approveContent(menuViewModel: DefaultMenuRowViewModel<BSDKApprovePolicy>) -> some View {
         GroupedSection(menuViewModel) {
             DefaultMenuRowView(viewModel: $0, selection: $viewModel.selectedApprovePolicy, titleFont: Fonts.Regular.body)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.swapApprovePolicyRow)
         }
         .backgroundColor(Colors.Background.action)
         .padding(.horizontal, 16)

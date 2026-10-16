@@ -31,14 +31,14 @@ public struct TangemMainActionButton: View {
     }
 
     public var body: some View {
-        VStack(spacing: SizeUnit.x2.value) {
+        VStack(spacing: 8) {
             Button(icon: icon, accessibilityLabel: nil, action: action)
                 .size(Size.buttonSize)
                 .styleType(.material(.glass))
 
             Text(title)
                 .style(
-                    Font.Tangem.Subheadline.medium,
+                    DesignSystem.Font.subheadingMediumToken,
                     color: ActionControlAppearance.contentColor(isEnabled: isEnabled)
                 )
                 // [REDACTED_TODO_COMMENT]

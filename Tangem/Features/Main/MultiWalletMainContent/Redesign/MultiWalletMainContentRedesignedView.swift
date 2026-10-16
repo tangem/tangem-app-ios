@@ -20,15 +20,13 @@ struct MultiWalletMainContentRedesignedView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
-
-            notificationBanners
+            MainNotificationsView(viewModel: viewModel.mainNotificationsViewModel)
 
             pendingJointAccountsOperations
 
             VStack(spacing: 8) {
                 if let tangemPayAccountViewModel = viewModel.tangemPayAccountViewModel {
-                    TangemPayAccountViewRedesigned(viewModel: tangemPayAccountViewModel)
+                    TangemPayAccountView(viewModel: tangemPayAccountViewModel)
                 }
 
                 if let polymarketAccountViewModel = viewModel.polymarketAccountViewModel {
@@ -57,15 +55,6 @@ struct MultiWalletMainContentRedesignedView: View {
         .onDidAppear(perform: viewModel.onDidAppear)
         .onWillDisappear(perform: viewModel.onWillDisappear)
         .shtorkaCompatibleBindAlert($viewModel.error)
-    }
-
-    // MARK: - Notification Banners
-
-    private var notificationBanners: some View {
-        NotificationBannerContainer(
-            items: viewModel.notificationBannerItems,
-            stackingType: .carousel
-        )
     }
 
     // MARK: - Pending joint account operations
@@ -97,6 +86,8 @@ struct MultiWalletMainContentRedesignedView: View {
         .padding(MultiWalletMainContentConstants.collectiblesAccountPadding)
         .background(MultiWalletMainContentConstants.tokenListBackgroundColor)
         .cornerRadiusContinuous(MultiWalletMainContentConstants.cornerRadius)
+        .contentShape(.rect)
+        .buttonStyle(.defaultScaled)
     }
 
     // MARK: - Pending joint accounts
@@ -249,8 +240,6 @@ private struct TokenItemContainerView: View {
     let roundedBottomCorners: Bool
     let promoBubbleViewModel: TokenItemPromoBubbleViewModel?
 
-    @ScaledMetric private var scaleFactor: CGFloat = 1
-
     var body: some View {
         VStack(alignment: .twoLineRowLeading, spacing: 0) {
             MainPageTangemTokenRow(viewModel: item)
@@ -263,28 +252,44 @@ private struct TokenItemContainerView: View {
                 }
 
             if let promoBubbleViewModel {
-                SwiftUI.Button(action: promoBubbleViewModel.onTap) {
-                    TangemCallout(
-                        text: promoBubbleViewModel.message,
-                        arrowAlignment: .top,
-                        action: TangemCallout.Action(
-                            icon: Assets.cross16.image,
-                            closure: {
-                                withAnimation {
-                                    promoBubbleViewModel.onDismiss()
-                                }
-                            }
-                        )
-                    )
-                    .icon(promoBubbleViewModel.leadingImage)
-                    .colorPalette(.green)
-                    .alignmentGuide(.twoLineRowLeading) { _ in
-                        TangemCallout.Sizes.arrowSide * scaleFactor * 2
-                    }
-                }
-                .padding(.bottom, 12)
-                .transition(.opacity.combined(with: .move(edge: .top)))
+                TokenItemPromoCalloutView(item: item, viewModel: promoBubbleViewModel)
             }
+        }
+    }
+}
+
+// MARK: - TokenItemPromoCalloutView
+
+private struct TokenItemPromoCalloutView: View {
+    @ObservedObject var item: TokenItemViewModel
+    let viewModel: TokenItemPromoBubbleViewModel
+
+    @ScaledMetric private var scaleFactor: CGFloat = 1
+
+    @ViewBuilder
+    var body: some View {
+        if item.messageBubble == nil {
+            SwiftUI.Button(action: viewModel.onTap) {
+                TangemCallout(
+                    text: viewModel.message,
+                    arrowAlignment: .top,
+                    action: TangemCallout.Action(
+                        icon: Assets.cross16.image,
+                        closure: {
+                            withAnimation {
+                                viewModel.onDismiss()
+                            }
+                        }
+                    )
+                )
+                .icon(viewModel.leadingImage)
+                .colorPalette(.green)
+                .alignmentGuide(.twoLineRowLeading) { _ in
+                    TangemCallout.Sizes.arrowSide * scaleFactor * 2
+                }
+            }
+            .padding(.bottom, 12)
+            .transition(.opacity.combined(with: .move(edge: .top)))
         }
     }
 }

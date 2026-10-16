@@ -16,11 +16,10 @@ enum TangemPayOnboardingSource {
 }
 
 final class TangemPayOnboardingViewModel: ObservableObject {
-    @Injected(\.experimentService) private var experimentService: ExperimentService
+    @Injected(\.tangemPayOnboardingAnalytics) private var analytics: TangemPayOnboardingAnalyticsService
 
     let closeOfferScreen: @MainActor () -> Void
     @MainActor @Published private(set) var tangemPayOfferViewModel: TangemPayOfferViewModel?
-    @MainActor @Published private(set) var showNewOnboarding = false
     @MainActor @Published private(set) var regionUnavailable = false
 
     private let source: TangemPayOnboardingSource
@@ -72,15 +71,11 @@ final class TangemPayOnboardingViewModel: ObservableObject {
 
     @MainActor
     func onOfferAppear() {
-        let event: Analytics.Event = showNewOnboarding
-            ? .visaOnboardingVisaNewOnboardingPageOpened
-            : .visaOnboardingVisaActivationScreenOpened
-        Analytics.log(event, analyticsSystems: .all)
+        analytics.logNewOnboardingScreenOpened()
     }
 
     @MainActor
     private func makeOffer() {
-        showNewOnboarding = experimentService.variant(.tangemPayOnboardingVariant)?.value == OnboardingVariant.on.rawValue
         tangemPayOfferViewModel = TangemPayOfferViewModel(
             walletSelectionType: availableSelection,
             closeOfferScreen: closeOfferScreen,
@@ -105,11 +100,6 @@ final class TangemPayOnboardingViewModel: ObservableObject {
 }
 
 private extension TangemPayOnboardingViewModel {
-    enum OnboardingVariant: String {
-        case on = "newonboard_on"
-        case off = "newonboard_off"
-    }
-
     enum TangemPayOnboardingError: Error {
         case invalidDeeplink
         case offerIsNotAvailable

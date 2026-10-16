@@ -84,7 +84,7 @@ private extension MobileBackupNotFoundView {
                 accessibilityLabel: nil,
                 action: viewModel.onCreateTap
             )
-            .styleType(.default)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
             .size(.x12)
         }

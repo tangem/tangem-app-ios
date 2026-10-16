@@ -21,21 +21,6 @@ struct NewsModelMapper {
 
     // MARK: - Implementation Map DTO models
 
-    func mapToNewsModel(from response: NewsDTO.List.Item) -> TrendingNewsModel {
-        TrendingNewsModel(
-            id: String(response.id),
-            createdAt: response.createdAt,
-            score: response.score,
-            language: response.language,
-            isTrending: response.isTrending,
-            newsUrl: response.newsUrl,
-            categories: response.categories,
-            relatedTokens: response.relatedTokens,
-            title: response.title,
-            isRead: readStatusProvider.isRead(for: String(response.id))
-        )
-    }
-
     func mapCarouselNewsItem(
         from response: NewsDTO.List.Response,
         onTap: @escaping (String) -> Void
@@ -72,38 +57,6 @@ struct NewsModelMapper {
             isTrending: item.isTrending,
             newsUrl: item.newsUrl,
             isRead: readStatusProvider.isRead(for: String(item.id))
-        )
-    }
-
-    // MARK: - Implementation Map Domain models
-
-    func toTrendingCardNewsItem(
-        from item: TrendingNewsModel,
-        onTap: @escaping (String) -> Void
-    ) -> TrendingCardNewsItem {
-        TrendingCardNewsItem(
-            id: item.id,
-            title: item.title,
-            rating: formatScore(item.score),
-            timeAgo: dateFormatter.formatTimeAgo(from: item.createdAt),
-            tags: buildTags(categories: item.categories, tokens: item.relatedTokens),
-            isRead: readStatusProvider.isRead(for: item.id),
-            onTap: onTap
-        )
-    }
-
-    func toCarouselNewsItem(
-        from item: TrendingNewsModel,
-        onTap: @escaping (String) -> Void
-    ) -> CarouselNewsItem {
-        CarouselNewsItem(
-            id: item.id,
-            title: item.title,
-            rating: formatScore(item.score),
-            timeAgo: dateFormatter.formatTimeAgo(from: item.createdAt),
-            tags: buildTags(categories: item.categories, tokens: item.relatedTokens),
-            isRead: readStatusProvider.isRead(for: item.id),
-            onTap: onTap
         )
     }
 }

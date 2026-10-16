@@ -73,6 +73,16 @@ final class StakingDetailsScreen: ScreenBase<StakingDetailsScreenElement> {
     // MARK: - Action Methods
 
     @discardableResult
+    func assertStakeButtonLabel(_ expected: String) -> Self {
+        XCTContext.runActivity(named: "Assert stake button label is '\(expected)'") { _ in
+            let stakeButton = app.buttons[StakingAccessibilityIdentifiers.stakeButton]
+            waitAndAssertTrue(stakeButton, "Stake button should exist")
+            XCTAssertEqual(stakeButton.label, expected, "Stake button label should be '\(expected)' but was '\(stakeButton.label)'")
+        }
+        return self
+    }
+
+    @discardableResult
     func proceedToSendScreen() -> StakingSendScreen {
         XCTContext.runActivity(named: "Tap Stake button") { _ in
             let stakeButton = app.buttons[StakingAccessibilityIdentifiers.stakeButton]
@@ -100,6 +110,21 @@ final class StakingDetailsScreen: ScreenBase<StakingDetailsScreenElement> {
             waitAndAssertTrue(activeStakeRow, "Active staking row should be displayed")
             return self
         }
+    }
+
+    @discardableResult
+    func assertActiveStakeCount(_ expected: Int) -> Self {
+        XCTContext.runActivity(named: "Assert \(expected) active staking row(s) are displayed") { _ in
+            let rows = app.buttons.matching(identifier: StakingAccessibilityIdentifiers.activeStakeRow)
+            let predicate = NSPredicate { _, _ in rows.count == expected }
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Expected \(expected) active staking row(s) but found \(rows.count)"
+            )
+        }
+        return self
     }
 
     @discardableResult
@@ -156,6 +181,13 @@ final class StakingDetailsScreen: ScreenBase<StakingDetailsScreenElement> {
         XCTContext.runActivity(named: "Tap rewards claim block") { _ in
             rewardClaimBlock.waitAndTap()
             return SendSummaryScreen(app)
+        }
+    }
+
+    func goBack() -> TokenScreen {
+        XCTContext.runActivity(named: "Go back to token screen") { _ in
+            app.navigationBars.buttons["Back"].waitAndTap()
+            return TokenScreen(app)
         }
     }
 }

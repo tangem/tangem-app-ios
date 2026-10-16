@@ -56,6 +56,7 @@ extension Analytics {
         case productType = "Product Type"
         case sendToken = "Send Token"
         case receiveToken = "Receive Token"
+        case slippage = "Slippage"
         case type = "Type"
         case signInType = "Sign in type"
         case balance = "Balance"
@@ -109,6 +110,10 @@ extension Analytics {
         case valid = "Valid"
         case screen = "Screen"
         case campaign = "Campaign"
+        case matchMode = "Match Mode"
+        case payout = "Payout"
+        case walletsEnrolled = "Wallets Enrolled"
+        case walletsTotal = "Wallets Total"
         case searched = "Searched"
 
         case sendBlockchain = "Send Blockchain"
@@ -177,6 +182,7 @@ extension Analytics {
         case backupType = "Backup Type"
         case backupsCount = "Backup Count"
         case completedBackups = "Completed Backups"
+        case socialBackup = "Social Backup"
 
         // MARK: - News
 
@@ -232,6 +238,13 @@ extension Analytics {
         // MARK: - Tangem Pay Cashback
 
         case title = "Title"
+
+        // MARK: - Tangem Pay Residency
+
+        case country
+        case ifSuggested = "if_suggested"
+        case residencyState = "state"
+        case residencyResult = "result"
 
         // MARK: - For You
 

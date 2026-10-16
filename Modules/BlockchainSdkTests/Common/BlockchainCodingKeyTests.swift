@@ -100,4 +100,46 @@ struct BlockchainCodingKeyTests {
         #expect(mainnetLinks.testnetFaucetURL == nil)
         #expect(testnetLinks.testnetFaucetURL?.absoluteString == "https://faucet.circle.com")
     }
+
+    @Test
+    func publicMasterpieceConfiguration() {
+        let blockchain = Blockchain.publicMasterpiece
+
+        #expect(blockchain.chainId == 290290)
+        #expect(blockchain.isTestnet == false)
+        #expect(blockchain.networkId == "public-masterpiece")
+        #expect(blockchain.coinId == "public-meme-token")
+        #expect(blockchain.currencySymbol == "PMT")
+        #expect(blockchain.decimalCount == 18)
+        #expect(blockchain.displayName == "Public Masterpiece")
+        #expect(blockchain.supportsEIP1559)
+        #expect(blockchain.canHandleTokens == false)
+
+        let links = ExternalLinkProviderFactory().makeProvider(for: blockchain)
+        #expect(links.url(transaction: "hash")?.absoluteString == "https://pmtscan.com/tx/hash")
+        #expect(links.url(address: "address", contractAddress: nil)?.absoluteString == "https://pmtscan.com/address/address")
+        #expect(links.testnetFaucetURL == nil)
+    }
+
+    @Test
+    func onyxConfiguration() {
+        let mainnet = Blockchain.onyx(testnet: false)
+        let testnet = Blockchain.onyx(testnet: true)
+
+        #expect(mainnet.chainId == 327)
+        #expect(testnet.chainId == 8901)
+        #expect(mainnet.networkId == "onyx")
+        #expect(mainnet.coinId == "chain-2")
+        #expect(mainnet.currencySymbol == "XCN")
+        #expect(mainnet.decimalCount == 18)
+        #expect(mainnet.displayDecimalCount == 8)
+        #expect(!mainnet.supportsEIP1559)
+
+        let mainnetLinks = ExternalLinkProviderFactory().makeProvider(for: mainnet)
+        let testnetLinks = ExternalLinkProviderFactory().makeProvider(for: testnet)
+        #expect(mainnetLinks.url(transaction: "hash")?.absoluteString == "https://explorer.onyx.org/tx/hash")
+        #expect(testnetLinks.url(address: "address", contractAddress: nil)?.absoluteString == "https://testnet.explorer.goliath.net/address/address")
+        #expect(mainnetLinks.testnetFaucetURL == nil)
+        #expect(testnetLinks.testnetFaucetURL == nil)
+    }
 }

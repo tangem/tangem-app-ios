@@ -35,6 +35,7 @@ struct SendSwapProviderCompactView: View {
 
                     Text(Localization.expressProviderInFcaWarningList)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .accessibilityIdentifier(SendAccessibilityIdentifiers.swapProviderFCAWarning)
                 }
                 .padding(.top, 4)
                 .padding(.bottom, 12)

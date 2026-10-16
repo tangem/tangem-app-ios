@@ -11,4 +11,5 @@ protocol SwapSummaryStepRoutable: AnyObject {
     func summaryStepRequestEditReceiveToken(sourceToken: WalletTokenItem?)
     func summaryStepRequestEditFee()
     func summaryStepRequestEditProviders()
+    func summaryStepRequestEditSlippage()
 }

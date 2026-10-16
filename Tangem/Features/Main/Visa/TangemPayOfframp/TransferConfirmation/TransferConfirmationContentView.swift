@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemPay
@@ -22,8 +23,10 @@ struct TransferConfirmationContentView: View {
             VStack(spacing: .zero) {
                 VStack(spacing: Constants.sectionSpacing) {
                     amountCard
+                        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.confirmAmountCard)
 
                     railRow
+                        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.confirmRailRow)
                 }
                 .padding(.vertical, 12)
 
@@ -38,6 +41,7 @@ struct TransferConfirmationContentView: View {
         .scrollIndicators(.hidden)
         .scrollBounceBehavior(.basedOnSize)
         .offrampBottomBar { bottomBar }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
 
@@ -73,7 +77,7 @@ private extension TransferConfirmationContentView {
 
             Spacer(minLength: Constants.amountHeaderSpacing)
 
-            Text(state.balanceText)
+            SensitiveText(state.balanceText)
         }
         .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
         .lineLimit(1)
@@ -162,6 +166,7 @@ private extension TransferConfirmationContentView {
                     }
 
                     sectionCard(for: section)
+                        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.confirmSection)
                 }
             }
         }
@@ -220,10 +225,11 @@ private extension TransferConfirmationContentView {
         )
         .iconEnd(state.sendButtonIcon)
         .size(.x12)
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
         .loading(.spinner(if: state.isSending))
         .disabled(!state.isSendEnabled || state.isSending)
+        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.confirmSendButton)
     }
 }
 

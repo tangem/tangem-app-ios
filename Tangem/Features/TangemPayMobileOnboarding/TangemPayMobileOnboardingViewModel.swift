@@ -14,7 +14,7 @@ import struct TangemUIUtils.AlertBinder
 protocol TangemPayMobileOnboardingRoutable: AnyObject {
     func openMain(userWalletModel: UserWalletModel)
     func openTermsFeesAndLimits()
-    func openTos()
+    func openLegalDocument(url: URL)
 }
 
 final class TangemPayMobileOnboardingViewModel: ObservableObject {
@@ -23,6 +23,7 @@ final class TangemPayMobileOnboardingViewModel: ObservableObject {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
+    @Injected(\.tangemPayOnboardingAnalytics) private var analytics: TangemPayOnboardingAnalyticsService
 
     private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
     private let analyticsContextParams: Analytics.ContextParams = .custom(.mobileWallet)
@@ -34,7 +35,7 @@ final class TangemPayMobileOnboardingViewModel: ObservableObject {
     }
 
     func onAppear() {
-        Analytics.log(.visaOnboardingVisaShortForHWActivationScreenOpened, contextParams: analyticsContextParams)
+        analytics.logBundleScreenOpened()
     }
 
     func getCard() {
@@ -56,7 +57,8 @@ final class TangemPayMobileOnboardingViewModel: ObservableObject {
                         mnemonic: nil,
                         passphrase: nil,
                         hasMnemonicBackup: false,
-                        hasICloudBackup: false
+                        hasICloudBackup: false,
+                        hasSocialLogin: false
                     )
                 )
 
@@ -100,11 +102,12 @@ final class TangemPayMobileOnboardingViewModel: ObservableObject {
     }
 
     func onTermsTap() {
+        analytics.logTermsTapped()
         coordinator?.openTermsFeesAndLimits()
     }
 
-    func onTosTap() {
-        coordinator?.openTos()
+    func openLegalDocument(url: URL) {
+        coordinator?.openLegalDocument(url: url)
     }
 }
 

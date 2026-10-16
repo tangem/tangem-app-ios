@@ -53,7 +53,7 @@ struct TangemPayCampaignLayout<Card: View, Texts: View, Footer: View>: View {
         .safeAreaInset(edge: .bottom, spacing: 0) { footer }
         .topNavigation(leading: .none, onClose: onClose) {
             // Without a close button the bar has no content and collapses, taking the card with it.
-            Color.clear.frame(width: 0, height: .unit(.x11))
+            Color.clear.frame(width: 0, height: 44)
         }
     }
 }

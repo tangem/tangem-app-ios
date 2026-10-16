@@ -11,6 +11,7 @@ import Combine
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct SendAmountFinishView: View {
     @ObservedObject var viewModel: SendAmountFinishViewModel
@@ -27,15 +28,20 @@ struct SendAmountFinishView: View {
 
         case .double(let source, let destination):
             SendAmountFinishSmallAmountView(viewModel: source)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.finishSourceAmountBlock)
 
             SendAmountFinishSmallAmountView(viewModel: destination)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.finishDestinationAmountBlock)
 
         case .triple(let source, let destination, let provider):
             SendAmountFinishSmallAmountView(viewModel: source)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.finishSourceAmountBlock)
 
             SendAmountFinishSmallAmountView(viewModel: destination)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.finishDestinationAmountBlock)
 
             SendSwapProviderFinishView(viewModel: provider)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.finishProviderBlock)
         }
     }
 }

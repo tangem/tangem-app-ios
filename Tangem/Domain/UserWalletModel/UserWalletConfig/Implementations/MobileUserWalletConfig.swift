@@ -94,6 +94,10 @@ extension MobileUserWalletConfig: UserWalletConfig {
         mobileWalletInfo.accessCodeStatus
     }
 
+    var hasSocialLogin: Bool {
+        mobileWalletInfo.hasSocialLogin
+    }
+
     var productType: Analytics.ProductType {
         .mobileWallet
     }

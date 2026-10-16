@@ -7,7 +7,9 @@
 //
 
 import Foundation
+import UIKit
 import Combine
+import os
 import BlockchainSdk
 import CombineExt
 import TangemFoundation
@@ -21,10 +23,16 @@ final class CommonJointAccountsRepository {
     private let persistentStorage: JointAccountsPersistentStorage
     private let invitesPersistentStorage: JointAccountsInvitesPersistentStorage
     private let pendingOperationsPersistentStorage: JointAccountsPendingOperationsPersistentStorage
+    private let eTagStorage: ETagStorage
     private let isJointAccountsAvailable: Bool
 
     private lazy var autoupdater = JointAccountsRepositoryAutoupdater(innerRepository: self, isJointAccountsAvailable: isJointAccountsAvailable)
     private var loadAccountsSubscription: AnyCancellable?
+
+    private let storageReadingQueue = DispatchQueue(
+        label: "com.tangem.CommonJointAccountsRepository.storageReadingQueue",
+        qos: .userInitiated
+    )
 
     /// - Note: The list is asked for often, and every asker gets the answer of the one request that actually goes out.
     private lazy var loadJointAccountsDebouncer = Debouncer<LoadResult>(interval: Constants.debounceInterval) { [weak self] completion in
@@ -41,7 +49,7 @@ final class CommonJointAccountsRepository {
     private lazy var storageDidUpdatePublisher: AnyPublisher<[StoredJointAccount], Never> = persistentStorage
         .didUpdatePublisher
         .prepend(()) // An initial value to trigger loading from storage
-        .receive(on: DispatchQueue.global(qos: .userInitiated))
+        .receive(on: storageReadingQueue)
         .withWeakCaptureOf(self)
         .map { repository, _ in repository.persistentStorage.getList() }
         .removeDuplicates()
@@ -53,7 +61,7 @@ final class CommonJointAccountsRepository {
     private lazy var invitesStorageDidUpdatePublisher: AnyPublisher<[StoredJointAccountInvites], Never> = invitesPersistentStorage
         .didUpdatePublisher
         .prepend(()) // An initial value to trigger loading from storage
-        .receive(on: DispatchQueue.global(qos: .userInitiated))
+        .receive(on: storageReadingQueue)
         .withWeakCaptureOf(self)
         .map { repository, _ in repository.invitesPersistentStorage.getList() }
         .removeDuplicates()
@@ -65,7 +73,7 @@ final class CommonJointAccountsRepository {
     private lazy var pendingOperationsStorageDidUpdatePublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> = pendingOperationsPersistentStorage
         .didUpdatePublisher
         .prepend(()) // An initial value to trigger loading from storage
-        .receive(on: DispatchQueue.global(qos: .userInitiated))
+        .receive(on: storageReadingQueue)
         .withWeakCaptureOf(self)
         .map { repository, _ in repository.pendingOperationsPersistentStorage.getList() }
         .removeDuplicates()
@@ -80,6 +88,7 @@ final class CommonJointAccountsRepository {
         persistentStorage: JointAccountsPersistentStorage,
         invitesPersistentStorage: JointAccountsInvitesPersistentStorage,
         pendingOperationsPersistentStorage: JointAccountsPendingOperationsPersistentStorage,
+        eTagStorage: ETagStorage,
         isJointAccountsAvailable: Bool
     ) {
         self.userWalletId = userWalletId
@@ -88,6 +97,7 @@ final class CommonJointAccountsRepository {
         self.persistentStorage = persistentStorage
         self.invitesPersistentStorage = invitesPersistentStorage
         self.pendingOperationsPersistentStorage = pendingOperationsPersistentStorage
+        self.eTagStorage = eTagStorage
         self.isJointAccountsAvailable = isJointAccountsAvailable
 
         // Eager initialization of these lazy properties to ensure that there are no race conditions
@@ -119,6 +129,10 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
         invitesStorageDidUpdatePublisher
     }
 
+    var jointAccountsPendingOperations: [StoredJointAccountPendingOperations] {
+        pendingOperationsPersistentStorage.getList()
+    }
+
     var jointAccountsPendingOperationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> {
         pendingOperationsStorageDidUpdatePublisher
     }
@@ -143,6 +157,10 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
                 continuation.resume(with: result)
             })
         }
+    }
+
+    func requestFrequentUpdates() -> AnyCancellable {
+        autoupdater.requestFrequentUpdates()
     }
 
     func addNewJointAccount(withConfig config: JointAccountCreationConfig) async throws {
@@ -294,10 +312,14 @@ private extension CommonJointAccountsRepository {
     }
 
     func loadJointAccountsFromServerAsync() async throws {
-        let remoteState = try await networkService.getJointAccounts()
+        let eTagKey = ETagStorageKey.jointAccounts(walletId: userWalletId)
+        let hasStoredAccounts = persistentStorage.getList().isNotEmpty
+        let knownETag = hasStoredAccounts ? eTagStorage.loadETag(for: eTagKey) : nil
+
+        let remoteState = try await networkService.getJointAccounts(knownETag: knownETag)
         try Task.checkCancellation()
 
-        guard case .changed(let remoteJointAccounts) = remoteState else {
+        guard case .changed(let remoteJointAccounts, let eTag) = remoteState else {
             // Nothing is written: the storage already holds this very list, and rewriting it would only wake
             // every subscriber for nothing
             JointAccountsLogger.debug("The joint accounts have not changed since they were last read")
@@ -311,9 +333,15 @@ private extension CommonJointAccountsRepository {
         let accounts = remoteJointAccounts.map(StoredJointAccount.init(remote:))
         let pendingOperations = remoteJointAccounts.compactMap(StoredJointAccountPendingOperations.init(remote:))
 
+        eTagStorage.clearETag(for: eTagKey)
+
         // The operations go first, so that an account arriving in the list finds what is in flight for it already there
         try pendingOperationsPersistentStorage.replace(with: pendingOperations)
         try persistentStorage.replace(with: accounts)
+
+        if let eTag {
+            eTagStorage.saveETag(eTag, for: eTagKey)
+        }
     }
 }
 
@@ -336,16 +364,21 @@ private extension CommonJointAccountsRepository {
     enum Constants {
         static let debounceInterval = 0.3
         /// The listing is the only place an operation's progress shows up, so it is re-read this often while one is in flight.
-        static let operationsPollingInterval: Duration = .seconds(60)
+        static let regularPollingInterval: Duration = .seconds(60)
+        static let frequentPollingInterval: Duration = .seconds(2)
     }
 }
 
 extension CommonJointAccountsRepository {
     final class JointAccountsRepositoryAutoupdater {
         private weak var innerRepository: CommonJointAccountsRepository?
-        private let pollingProcessor = RepeatedTaskProcessor(duration: Constants.operationsPollingInterval)
+        private let regularPollingProcessor = RepeatedTaskProcessor(duration: Constants.regularPollingInterval)
+        private let frequentPollingProcessor = RepeatedTaskProcessor(duration: Constants.frequentPollingInterval)
+        private let frequentUpdatesRequestsCount = OSAllocatedUnfairLock(initialState: 0)
+        private let frequentUpdatesRequestsCountSubject = CurrentValueSubject<Int, Never>(0)
 
-        private var pendingOperationsSubscription: Task<Void, Never>?
+        private var pollingModeSubscription: Task<Void, Never>?
+        private var foregroundSubscription: AnyCancellable?
 
         init(innerRepository: CommonJointAccountsRepository, isJointAccountsAvailable: Bool) {
             self.innerRepository = innerRepository
@@ -356,39 +389,96 @@ extension CommonJointAccountsRepository {
         }
 
         deinit {
-            pendingOperationsSubscription?.cancel()
+            pollingModeSubscription?.cancel()
+        }
+
+        func requestFrequentUpdates() -> AnyCancellable {
+            changeFrequentUpdatesRequestsCount(by: 1)
+
+            return AnyCancellable { [weak self] in
+                self?.changeFrequentUpdatesRequestsCount(by: -1)
+            }
+        }
+
+        static func pollingMode(
+            pendingOperations: [StoredJointAccountPendingOperations],
+            accounts: [StoredJointAccount],
+            frequentUpdatesRequestsCount: Int
+        ) -> PollingMode {
+            if frequentUpdatesRequestsCount > 0 {
+                return .frequent
+            }
+
+            let hasPendingAccounts = accounts.contains { account in
+                switch account.status {
+                case .pending, .confirming: true
+                case .active, .cancelled, .unknown: false
+                }
+            }
+
+            return hasPendingAccounts || !pendingOperations.isEmpty ? .regular : .idle
+        }
+
+        private func changeFrequentUpdatesRequestsCount(by delta: Int) {
+            frequentUpdatesRequestsCount.withLockUnchecked { count in
+                count += delta
+                frequentUpdatesRequestsCountSubject.send(count)
+            }
         }
 
         /// One task reads the publisher in order, so a stop cannot overtake the start it follows.
         private func bind(innerRepository: CommonJointAccountsRepository) {
-            let publisher = innerRepository.jointAccountsPendingOperationsPublisher
+            let publisher = Publishers
+                .CombineLatest3(
+                    innerRepository.jointAccountsPendingOperationsPublisher,
+                    innerRepository.jointAccountsPublisher,
+                    frequentUpdatesRequestsCountSubject
+                )
+                .map(Self.pollingMode(pendingOperations:accounts:frequentUpdatesRequestsCount:))
+                .removeDuplicates()
 
-            pendingOperationsSubscription = Task { [weak self] in
-                for await accounts in await publisher.values {
-                    await self?.updatePolling(accounts: accounts)
+            pollingModeSubscription = Task { [weak self] in
+                for await mode in await publisher.values {
+                    await self?.updatePolling(mode: mode)
                 }
             }
+
+            foregroundSubscription = NotificationCenter.default
+                .publisher(for: UIApplication.willEnterForegroundNotification)
+                .sink { [weak innerRepository] _ in
+                    innerRepository?.initialize()
+                }
         }
 
-        /// - Note: The stage an operation names is not asked about: an account keeps a record only while the listing
-        /// carries an operation for it, and the listing dropping one is what ends it.
-        private func updatePolling(accounts: [StoredJointAccountPendingOperations]) async {
-            if accounts.isEmpty {
-                await stopPolling()
-            } else {
-                await startPolling()
+        private func updatePolling(mode: PollingMode) async {
+            switch mode {
+            case .idle:
+                await regularPollingProcessor.cancel()
+                await frequentPollingProcessor.cancel()
+            case .regular:
+                await frequentPollingProcessor.cancel()
+                await startPolling(with: regularPollingProcessor, runsImmediately: false)
+            case .frequent:
+                await regularPollingProcessor.cancel()
+                await startPolling(with: frequentPollingProcessor, runsImmediately: true)
             }
         }
 
-        private func startPolling() async {
+        private func startPolling(with processor: RepeatedTaskProcessor, runsImmediately: Bool) async {
             // The failure is logged by the load itself, and the next run is the retry
-            await pollingProcessor.start { [weak innerRepository] in
+            await processor.start(runsImmediately: runsImmediately) { [weak innerRepository] in
                 try? await innerRepository?.loadJointAccountsFromRemote()
             }
         }
+    }
+}
 
-        private func stopPolling() async {
-            await pollingProcessor.cancel()
-        }
+// MARK: - Auxiliary types
+
+extension CommonJointAccountsRepository.JointAccountsRepositoryAutoupdater {
+    enum PollingMode {
+        case idle
+        case regular
+        case frequent
     }
 }

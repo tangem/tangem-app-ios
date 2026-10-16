@@ -3,17 +3,16 @@
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2022 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import Foundation
 
 protocol WelcomeRoutable: AnyObject {
-    func openTokensList()
-    func openMail(with dataCollector: EmailDataCollector, recipient: String)
-    func openShop()
-    func openOnboarding(with input: OnboardingInput)
     func openCreateWallet()
+    func openExistingWallet()
+    func openBuyTangem()
+    func openLegal(document: WelcomeLegalDocument)
     func openMain(with userWalletModel: UserWalletModel)
-    func openScanCardManual()
+    func openOnboarding(with input: OnboardingInput)
 }

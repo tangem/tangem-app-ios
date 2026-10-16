@@ -74,6 +74,7 @@ struct PendingJointAccountItemView: View {
                 PriceChangeView(
                     state: viewModel.priceChange,
                     showSkeletonWhenLoading: false,
+                    showIconForNeutral: false,
                     useRedesignColors: true
                 )
             }
@@ -123,13 +124,13 @@ extension PendingJointAccountItemView: Setupable {
 
 private extension PendingJointAccountItemView {
     enum Constants {
-        static let contentPadding: CGFloat = .unit(.x3)
-        static let contentSpacing: CGFloat = .unit(.x3)
-        static let linesSpacing: CGFloat = .unit(.x1)
+        static let contentPadding: CGFloat = 12
+        static let contentSpacing: CGFloat = 12
+        static let linesSpacing: CGFloat = 4
 
-        static let inviteBannerHeight: CGFloat = .unit(.x8)
-        static let inviteBannerHorizontalPadding: CGFloat = .unit(.x3)
-        static let inviteBannerSpacing: CGFloat = .unit(.x2)
+        static let inviteBannerHeight: CGFloat = 32
+        static let inviteBannerHorizontalPadding: CGFloat = 12
+        static let inviteBannerSpacing: CGFloat = 8
         static let inviteBannerCornerRadius: CGFloat = 20
 
         /// Matches the press feedback of the expandable plates it stands alongside.

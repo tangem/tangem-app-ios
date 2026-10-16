@@ -243,7 +243,7 @@ private extension ManageTokensView {
     enum Constants {
         static let cardCornerRadius: CGFloat = 14
         static let redesignCardCornerRadius: CGFloat = 24
-        static let redesignSearchFieldHeight: CGFloat = .unit(.x11)
+        static let redesignSearchFieldHeight: CGFloat = 44
     }
 }
 

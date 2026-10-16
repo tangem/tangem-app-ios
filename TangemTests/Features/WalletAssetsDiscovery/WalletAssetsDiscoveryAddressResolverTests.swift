@@ -25,7 +25,8 @@ class WalletAssetsDiscoveryAddressResolverTests {
                 mnemonic: mnemonic,
                 passphrase: nil,
                 hasMnemonicBackup: true,
-                hasICloudBackup: false
+                hasICloudBackup: false,
+                hasSocialLogin: false
             )
         )
     }

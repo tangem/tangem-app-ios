@@ -11,6 +11,7 @@ import Combine
 import Testing
 import TangemFoundation
 import TangemLocalization
+import TangemUI
 @testable import Tangem
 
 @Suite("Tests for the rows the joint account composition is shown by")
@@ -40,6 +41,98 @@ struct JointAccountInviteMembersViewModelTests {
 
         #expect(creatorSide.content.members.first?.role.contains(Localization.jointAccountMembersRoleYou) == true)
         #expect(memberSide.content.members.first?.role == Localization.jointAccountInviteMembersCreator)
+    }
+
+    @Test("The creator is asked to invite members, a member who joined waits for the rest")
+    func titleAndSafetyBannerFollowTheCreatorDevice() {
+        let creatorSide = makeViewModel(membersCount: 3, members: [creator], inviteIds: ["AA", "BB"])
+        let memberSide = makeViewModel(membersCount: 3, members: [creator, member(name: "Bob", inviteId: "AA")], inviteIds: nil)
+
+        #expect(creatorSide.content.title == Localization.jointAccountInviteMembersTitle)
+        #expect(creatorSide.content.isSafetyBannerVisible)
+        #expect(memberSide.content.title == Localization.jointAccountInviteMembersWaitingTitle)
+        #expect(!memberSide.content.isSafetyBannerVisible)
+    }
+
+    @Test("Every member who joined can archive the account while it is being put together")
+    func everyJoinedMemberCanArchive() {
+        let creatorSide = makeViewModel(membersCount: 3, members: [creator], inviteIds: ["AA", "BB"])
+        let memberSide = makeViewModel(membersCount: 3, members: [creator, member(name: "Bob", inviteId: "AA")], inviteIds: nil)
+
+        #expect(creatorSide.content.canArchive)
+        #expect(memberSide.content.canArchive)
+    }
+
+    @Test("Once every slot is taken there is nobody left to invite, so the safety banner goes")
+    func confirmingAccountHasNoSafetyBanner() {
+        let viewModel = makeViewModel(
+            membersCount: 2,
+            members: [creator, member(name: "Bob", inviteId: "AA")],
+            inviteIds: ["AA"],
+            status: .confirming(safeAddress: nil)
+        )
+
+        #expect(viewModel.content.isCollecting)
+        #expect(!viewModel.content.isSafetyBannerVisible)
+    }
+
+    @Test("Whoever is not the creator waits for members, even once every slot is taken")
+    func memberWaitsWhateverTheSlots() {
+        let viewModel = makeViewModel(
+            membersCount: 2,
+            members: [creator, member(name: "Bob", inviteId: "AA")],
+            inviteIds: nil
+        )
+
+        #expect(viewModel.content.freeSlots.isEmpty)
+        #expect(viewModel.content.title == Localization.jointAccountInviteMembersWaitingTitle)
+    }
+
+    @Test("An activated account is a plain list of members, with nothing to invite or archive")
+    func activatedAccountIsPlainMembersList() {
+        let viewModel = makeViewModel(
+            membersCount: 2,
+            members: [creator, member(name: "Bob", inviteId: "AA")],
+            inviteIds: ["AA"],
+            status: .active(safeAddress: "0xSafe")
+        )
+
+        #expect(!viewModel.content.isCollecting)
+        #expect(viewModel.content.title == Localization.jointAccountMembersTitle)
+        #expect(!viewModel.content.isSafetyBannerVisible)
+        #expect(!viewModel.content.canArchive)
+    }
+
+    @Test("The row of this wallet's own address says You, whether it created the account or joined it")
+    func ownRowIsToldByAddress() {
+        let bob = member(name: "Bob", inviteId: "AA")
+
+        #expect(role(of: bob, ownAddress: bob.address.uppercased()) == Localization.jointAccountMembersRoleYou)
+        #expect(role(of: creator, ownAddress: bob.address) == Localization.jointAccountInviteMembersCreator)
+        #expect(role(of: creator, ownAddress: creator.address.uppercased()).contains(Localization.jointAccountMembersRoleYou))
+        #expect(role(of: bob, ownAddress: creator.address, isCreatorDevice: true) == Localization.jointAccountMembersRoleJoined)
+    }
+
+    @Test("A member of an account not yet activated finds their own row by the address the members service derives")
+    func joinerOwnRowOfPendingAccount() {
+        let bob = member(name: "Bob", inviteId: "AA")
+        let membersService = JointAccountMembersServiceMock(
+            slots: [.member(creator), .member(bob), .empty(invite: nil)],
+            ownAddress: bob.address
+        )
+
+        let viewModel = makeViewModel(membersCount: 3, membersService: membersService)
+
+        #expect(viewModel.content.members.map(\.role) == [Localization.jointAccountInviteMembersCreator, Localization.jointAccountMembersRoleYou])
+    }
+
+    @Test("Without an address of its own, the wallet holding the invites still tells the creator's row apart")
+    func ownRowFallsBackToInvites() {
+        let bob = member(name: "Bob", inviteId: "AA")
+
+        #expect(role(of: creator, ownAddress: nil, isCreatorDevice: true).contains(Localization.jointAccountMembersRoleYou))
+        #expect(role(of: creator, ownAddress: nil) == Localization.jointAccountInviteMembersCreator)
+        #expect(role(of: bob, ownAddress: nil, isCreatorDevice: true) == Localization.jointAccountMembersRoleJoined)
     }
 
     @Test("A slot somebody was invited into is a member rather than an invitation waiting to be sent")
@@ -123,11 +216,16 @@ struct JointAccountInviteMembersViewModelTests {
         JointAccountMember(name: name, address: "0x\(name)", role: .member(inviteId: inviteId))
     }
 
+    private func role(of member: JointAccountMember, ownAddress: String?, isCreatorDevice: Bool = false) -> String {
+        JointAccountInviteMembersViewModel.role(of: member, ownAddress: ownAddress, isCreatorDevice: isCreatorDevice)
+    }
+
     /// - Parameter inviteIds: Nil on a wallet that was handed no invites at all, which is anyone's but the creator's.
     private func makeViewModel(
         membersCount: Int,
         members: [JointAccountMember],
-        inviteIds: [String]?
+        inviteIds: [String]?,
+        status: JointAccountStatus = .pending
     ) -> JointAccountInviteMembersViewModel {
         makeViewModel(
             membersCount: membersCount,
@@ -135,19 +233,21 @@ struct JointAccountInviteMembersViewModelTests {
                 membersCount: membersCount,
                 members: members,
                 inviteIds: inviteIds
-            )
+            ),
+            status: status
         )
     }
 
     private func makeViewModel(
         membersCount: Int,
-        membersService: any JointAccountMembersService
+        membersService: any JointAccountMembersService,
+        status: JointAccountStatus = .pending
     ) -> JointAccountInviteMembersViewModel {
         let jointAccount = CommonJointAccountModel(
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
             derivationIdentity: JointAccountCompositionFixture.derivationIdentity,
             accountPolicy: JointAccountPolicy(membersCount: membersCount, signersCount: 2),
-            accountStatus: .pending,
+            accountStatus: status,
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             membersService: membersService,
@@ -156,6 +256,7 @@ struct JointAccountInviteMembersViewModelTests {
 
         return JointAccountInviteMembersViewModel(
             jointAccount: jointAccount,
+            userWalletConfig: UserWalletConfigStub(),
             coordinator: nil
         )
     }

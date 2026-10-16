@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -71,10 +72,11 @@ struct TangemPayCampaignIssueCardView: View {
             accessibilityLabel: nil,
             action: viewModel.issueCampaignCard
         )
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
         .loading(.spinner(if: viewModel.isCTALoading))
         .size(.x12)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.campaignIssueCardButton)
         .padding(.horizontal, Constants.footerHorizontalPadding)
         .padding(.vertical, Constants.footerVerticalPadding)
         .background(alignment: .bottom) {
