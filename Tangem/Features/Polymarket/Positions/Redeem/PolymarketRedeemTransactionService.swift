@@ -41,9 +41,9 @@ actor PolymarketRedeemTransactionService {
 // MARK: - PolymarketRedeeming protocol conformance
 
 extension PolymarketRedeemTransactionService: PolymarketRedeeming {
-    func claim(conditionId: String, isNegRisk: Bool) async throws -> PolymarketRedeemRecord {
+    func claim(position: PolymarketPosition) async throws -> PolymarketRedeemRecord {
         do {
-            return try await performClaim(conditionId: conditionId, isNegRisk: isNegRisk)
+            return try await performClaim(PolymarketRedeemCallRequest(position: position))
         } catch {
             throw presentable(error)
         }
@@ -53,7 +53,7 @@ extension PolymarketRedeemTransactionService: PolymarketRedeeming {
 // MARK: - Private implementation
 
 private extension PolymarketRedeemTransactionService {
-    func performClaim(conditionId: String, isNegRisk: Bool) async throws -> PolymarketRedeemRecord {
+    func performClaim(_ request: PolymarketRedeemCallRequest) async throws -> PolymarketRedeemRecord {
         guard !isClaimInProgress else {
             throw Error.claimInProgress
         }
@@ -63,14 +63,14 @@ private extension PolymarketRedeemTransactionService {
         defer { isClaimInProgress = false }
 
         let addresses = try await depositWalletResolver.resolve()
-        let call = try await redeemService.call(conditionId: conditionId, isNegRisk: isNegRisk)
+        let calls = try await redeemService.calls(for: request)
         let nonce = try await relayerService.walletNonce(ownerAddress: addresses.owner)
 
         let batch = PolymarketRelayedBatch.Unsigned(
             depositWalletAddress: addresses.depositWallet,
             nonce: nonce,
             deadline: makeDeadline(),
-            calls: [call]
+            calls: calls
         )
 
         let signed = try await signer.sign(batch, as: addresses.owner)
@@ -158,6 +158,11 @@ private extension PolymarketRedeemTransactionService {
 
             return Error.notSigned
 
+        case PolymarketRedeemError.nothingToRedeem:
+            PolymarketLogger.warning("The backend has nothing left to redeem for this position")
+
+            return Error.nothingToRedeem
+
         case let refusal as PolymarketRedeemError:
             PolymarketLogger.error("The backend refused the claim", error: refusal)
 
@@ -176,6 +181,7 @@ private extension PolymarketRedeemTransactionService {
 extension PolymarketRedeemTransactionService {
     enum Error: LocalizedError {
         case claimInProgress
+        case nothingToRedeem
         case notSigned
         case preparationFailed
         case claimFailed(PolymarketRedeemRecord)
@@ -184,7 +190,7 @@ extension PolymarketRedeemTransactionService {
 
         var errorDescription: String? {
             switch self {
-            case .claimInProgress, .notSigned, .preparationFailed:
+            case .claimInProgress, .nothingToRedeem, .notSigned, .preparationFailed:
                 Localization.sendWithSwapSomethingWentWrong
             case .claimFailed:
                 Localization.predictionClaimErrorFailed
@@ -209,7 +215,7 @@ private extension PolymarketRedeemTransactionService.Error {
             "There is no record of this claim."
         case .upstreamUnavailable:
             Localization.predictionClaimErrorUnavailable
-        case .unauthorized, .badRequest, .cancelled, .other:
+        case .unauthorized, .badRequest, .nothingToRedeem, .cancelled, .other:
             Localization.predictionClaimErrorGeneric
         }
     }

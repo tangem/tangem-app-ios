@@ -9,7 +9,7 @@
 import Foundation
 
 public protocol PolymarketRedeemService {
-    func call(conditionId: String, isNegRisk: Bool) async throws(PolymarketRedeemError) -> PolymarketRelayedBatch.Call
+    func calls(for request: PolymarketRedeemCallRequest) async throws(PolymarketRedeemError) -> [PolymarketRelayedBatch.Call]
 
     func submit(_ batch: PolymarketRelayedBatch) async throws(PolymarketRedeemError) -> PolymarketRedeemRecord
 

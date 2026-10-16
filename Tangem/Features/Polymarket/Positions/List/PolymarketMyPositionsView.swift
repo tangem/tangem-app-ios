@@ -164,6 +164,8 @@ struct PolymarketMyPositionsView: View {
     private var rows: some View {
         ForEach(viewModel.rows) { model in
             PolymarketPositionRow(model: model) { viewModel.handleViewAction(.openPositionDetails(id: model.id)) }
+                .onAppear { viewModel.handleViewAction(.onRowVisibilityChange(id: model.id, isVisible: true)) }
+                .onDisappear { viewModel.handleViewAction(.onRowVisibilityChange(id: model.id, isVisible: false)) }
         }
     }
 
