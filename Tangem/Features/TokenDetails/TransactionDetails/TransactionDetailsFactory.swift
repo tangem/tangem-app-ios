@@ -296,7 +296,7 @@ enum TransactionDetailsFactory {
     }
 
     private static func validatorContent(for target: TransactionViewModel.StakingTarget) -> TransactionDetailsInfoSectionViewData.Row.Content {
-        target.isResolved ? .text(target.name) : .address(target.address)
+        target.isResolved ? .text(target.name) : .address(target.address, copyAction: copyAddressAction(for: target.address))
     }
 
     private static func approvedTokenIcon(
