@@ -9,5 +9,5 @@
 import Foundation
 
 protocol CollectiblesPackOpener {
-    func open(txID: String) async throws -> CollectiblesPurchaseStatus
+    func open(txID: String) async throws -> CollectiblesPurchaseTransaction
 }

@@ -133,6 +133,6 @@ private extension ImagePrefetcher {
 private extension RemoteCollectiblesRevealAssetsPreloader {
     enum Constants {
         static let openingMediaWaitTimeout: Duration = .seconds(5)
-        static let wonCardImagesWaitTimeout: Duration = .seconds(2)
+        static let wonCardImagesWaitTimeout: Duration = .seconds(3)
     }
 }

@@ -18,7 +18,7 @@ extension CollectiblesInfoSheetView.Model {
             iconBackgroundColor: DesignSystem.Color.bgStatusWarningSubtle,
             title: Localization.collectiblesRegionRestrictionsTitle,
             message: Localization.collectiblesRegionRestrictionsSubtitle,
-            buttonTitle: Localization.commonClose
+            primaryButton: Button(title: Localization.commonClose)
         )
     }
 }
@@ -26,5 +26,5 @@ extension CollectiblesInfoSheetView.Model {
 // MARK: - Previews
 
 #Preview {
-    CollectiblesInfoSheetView(model: .regionRestrictions, onClose: {})
+    CollectiblesInfoSheetView(model: .regionRestrictions, onClose: {}, onPrimary: {}, onSecondary: {})
 }

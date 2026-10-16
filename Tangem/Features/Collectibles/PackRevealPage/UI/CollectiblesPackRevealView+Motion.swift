@@ -20,7 +20,7 @@ extension CollectiblesPackRevealView {
         static let cardPeakLift: CGFloat = -0.053
 
         static let frameStartScale: CGFloat = 0.8
-        static let tapSpin: Animation = .easeInOut(duration: 0.8)
+        static let tapFlip: Animation = .easeInOut(duration: 0.42)
 
         static let chromeRiseOffset: CGFloat = 30
         static let chromeRise: Animation = .timingCurve(0.25, 0.46, 0.45, 0.94, duration: 0.45)
