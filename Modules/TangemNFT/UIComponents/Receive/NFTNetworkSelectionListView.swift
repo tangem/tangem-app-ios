@@ -11,6 +11,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemUIUtils
 
 public struct NFTNetworkSelectionListView: View {
     @ObservedObject private var viewModel: NFTNetworkSelectionListViewModel
@@ -21,8 +22,9 @@ public struct NFTNetworkSelectionListView: View {
         listContent
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    CloseTextButton(action: viewModel.onCloseButtonTap)
+                    CloseToolbarButton(action: viewModel.onCloseButtonTap)
                 }
+                .prefersVerticalBar()
 
                 ToolbarItem(placement: .principal) {
                     navigationBarTitle

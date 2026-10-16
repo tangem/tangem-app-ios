@@ -292,7 +292,7 @@ extension SendCoordinator: SendRoutable {
     }
 
     func openFeeSelectorLearnMoreURL(_ url: URL) {
-        Task { @MainActor in
+        Task { @MainActor [self] in
             floatingSheetPresenter.pauseSheetsDisplaying()
             safariHandle = safariManager.openURL(
                 url,
@@ -500,7 +500,7 @@ extension SendCoordinator: ApproveRoutable {
     }
 
     func openLearnMore() {
-        Task { @MainActor in
+        Task { @MainActor [self] in
             floatingSheetPresenter.pauseSheetsDisplaying()
             safariHandle = safariManager.openURL(
                 TangemBlogUrlBuilder().url(post: .giveRevokePermission),

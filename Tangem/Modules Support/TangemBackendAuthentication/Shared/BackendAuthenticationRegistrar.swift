@@ -209,7 +209,10 @@ extension BackendAuthenticationRegistrar {
         }
     }
 
-    static func prepareMobileWalletForColdUpgrade(_ userWalletModel: some UserWalletModel) async {
+    /// - Note: Methods of the non-isolated `BackendAuthenticationRegistrar` are implicitly `nonisolated`,
+    /// and Swift 5 mode runs such `async` ones as Swift 6.2 `@concurrent`;
+    /// `nonisolated(nonsending)` keeps the non-Sendable `userWalletModel` on the caller's actor
+    nonisolated(nonsending) static func prepareMobileWalletForColdUpgrade(_ userWalletModel: some UserWalletModel) async {
         guard userWalletModel.assertIsMobileWallet() else {
             return
         }
