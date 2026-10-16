@@ -74,7 +74,7 @@ struct TokenSelectorExpandableAccountSectionView: View {
                     .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
 
                 if showsSeparators, accountViewModel.items.last?.id != item.id {
-                    Separator(height: .minimal, color: Colors.Stroke.primary)
+                    Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
                         .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
                 }
             }

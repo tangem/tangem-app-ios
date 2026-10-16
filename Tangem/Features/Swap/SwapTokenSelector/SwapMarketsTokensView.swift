@@ -15,8 +15,6 @@ import TangemUI
 struct SwapMarketsTokensView: View {
     @ObservedObject var viewModel: SwapMarketsTokensViewModel
 
-    @Environment(\.mainWindowSize) private var mainWindowSize
-
     var body: some View {
         switch viewModel.state {
         case .noResults:
@@ -73,7 +71,7 @@ struct SwapMarketsTokensView: View {
                     }
                 }
             }
-            .background(Colors.Background.action)
+            .background(DesignSystem.Color.bgSecondary)
             .cornerRadiusContinuous(Constants.cornerRadius)
         }
     }
@@ -81,11 +79,11 @@ struct SwapMarketsTokensView: View {
     private func sectionHeader(isSearching: Bool, count: Int) -> some View {
         HStack(spacing: Constants.titleCountSpacing) {
             Text(Localization.marketsCommonTitle)
-                .style(Fonts.BoldStatic.title3, color: Colors.Text.primary1)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
 
             if isSearching, count > 0 {
                 Text("\(count)")
-                    .style(Fonts.BoldStatic.title3, color: Colors.Text.tertiary)
+                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textSecondary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -97,7 +95,9 @@ struct SwapMarketsTokensView: View {
     private func loadedTokens(_ tokens: [MarketsItemViewModel]) -> some View {
         LazyVStack(spacing: 0) {
             ForEach(tokens) { item in
-                MarketsItemView(viewModel: item, cellWidth: mainWindowSize.width)
+                MarketTokenRowView(viewModel: item.tokenItemViewModel)
+                    .onAppear { item.onAppear() }
+                    .onDisappear { item.onDisappear() }
             }
         }
     }
@@ -105,7 +105,7 @@ struct SwapMarketsTokensView: View {
     private var loadingSkeletons: some View {
         VStack(spacing: 0) {
             ForEach(0 ..< Constants.skeletonItemsCount, id: \.self) { _ in
-                MarketsSkeletonItemView()
+                TokenRowMarket(.shimmer)
             }
         }
     }
@@ -113,7 +113,7 @@ struct SwapMarketsTokensView: View {
     private var loadingMoreSkeletons: some View {
         VStack(spacing: 0) {
             ForEach(0 ..< Constants.loadingMoreSkeletonItemsCount, id: \.self) { _ in
-                MarketsSkeletonItemView()
+                TokenRowMarket(.shimmer)
             }
         }
     }
@@ -194,24 +194,25 @@ private struct SwapSourceFilteredOutEmptyView: View {
                 icon
 
                 Text(Localization.swapTokenSelectorEmptyFilteredMessage)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                     .multilineTextAlignment(.center)
                     .accessibilityIdentifier(SwapAccessibilityIdentifiers.tokenSelectorFilteredOutEmptyMessage)
             }
 
-            TangemButton(
-                content: .text(AttributedString(Localization.commonSeeAll)),
+            TangemUI.Button(
+                label: AttributedString(Localization.commonSeeAll),
+                accessibilityLabel: Localization.commonSeeAll,
                 action: action
             )
-            .setStyleType(.secondary)
-            .setSize(.x9)
-            .fixedSize(horizontal: true, vertical: false)
+            .styleType(.secondary(.default))
+            .size(.x9)
+            .horizontalLayout(.intrinsic)
             .accessibilityIdentifier(SwapAccessibilityIdentifiers.tokenSelectorSeeAllButton)
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 48)
         .padding(.vertical, 24)
-        .background(Colors.Background.action)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadiusContinuous(SwapMarketsTokensView.Constants.cornerRadius)
     }
 
