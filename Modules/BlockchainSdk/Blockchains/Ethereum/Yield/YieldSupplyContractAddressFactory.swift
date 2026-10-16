@@ -124,11 +124,10 @@ extension YieldSupplyContractAddressFactory {
             swapExecutionRegistryContractAddress: "",
         )
 
-        /// Monad carries a test deployment on mainnet, not a production one.
         static let monadAddresses = YieldSupplyContractAddresses(
-            processorContractAddress: "0xcb522FEF86463A665bd5493100FCA7396786c572",
-            factoryContractAddress: "0xd2806fF93F5776FeA2F0c4863c56669Ec972525d",
-            swapExecutionRegistryContractAddress: "0x833C25c0D4Cb2A36A70ea8F3dE1D20C5B2973fC3",
+            processorContractAddress: "0xA564bC954DBC4378e4df8B6fA424bc9DAD728529",
+            factoryContractAddress: "0x727fD7209582A4564566C1955E6C56ce9DF5B366",
+            swapExecutionRegistryContractAddress: "0xef250e2A35a4F454A9A497A108bA323986cD28B5",
         )
     }
 }
