@@ -91,7 +91,7 @@ struct ExpandedAccountItemHeaderView: View {
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
-                .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiaryConstant)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
                 .frame(size: CGSize(bothDimensions: 16))
         }
         .padding(.horizontal, horizontalPadding)
@@ -126,7 +126,7 @@ struct ExpandedAccountItemHeaderView: View {
         if shouldShowBalance {
             LoadableBalanceView(
                 state: totalFiatBalance,
-                style: LoadableBalanceView.Style(font: Font.Tangem.Caption12.medium, textColor: .Tangem.Text.Neutral.tertiary),
+                style: LoadableBalanceView.Style(font: DesignSystem.Font.captionMediumToken, textColor: DesignSystem.Color.textSecondary),
                 loader: LoadableBalanceView.LoaderStyle(size: CGSize(width: 40, height: 12) * scaleFactor)
             )
             .matchedGeometryEffect(balanceGeometryEffect)
@@ -142,8 +142,8 @@ struct ExpandedAccountItemHeaderView: View {
             .frame(size: .zero)
     }
 
-    private var nameFont: TangemFontStyle {
-        Font.Tangem.Body16.medium
+    private var nameFont: TangemTypographyToken {
+        DesignSystem.Font.bodyMediumToken
     }
 
     private var horizontalPadding: CGFloat {

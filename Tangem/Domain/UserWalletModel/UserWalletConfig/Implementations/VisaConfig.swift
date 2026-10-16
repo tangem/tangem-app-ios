@@ -81,6 +81,7 @@ extension VisaConfig: UserWalletConfig {
     }
 
     var walletThumbnailType: ThumbnailWalletViewType? {
+        // [REDACTED_TODO_COMMENT]
         .card(.init(card: Color.Tangem.CardCollection.visa))
     }
 

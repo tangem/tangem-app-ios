@@ -726,7 +726,7 @@ private extension TangemPayMainCoordinator {
         Toast(
             view: TangemSnackbar(title: Localization.tangempayBankTransferRequestSent)
                 .icon(DesignSystem.Icons.Checkmark.regular20)
-                .iconColor(Color.Tangem.Graphic.Status.accent)
+                .iconColor(DesignSystem.Color.iconAccentBlue)
         )
         .present(layout: .top(padding: 12), type: .temporary())
     }

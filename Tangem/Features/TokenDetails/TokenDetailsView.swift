@@ -234,6 +234,7 @@ struct TokenDetailsView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
                 .background {
+                    // [REDACTED_TODO_COMMENT]
                     LinearGradient.Tangem.Common.tokenDetailsMarketPrice
                         .ignoresSafeArea()
                 }
@@ -241,7 +242,7 @@ struct TokenDetailsView: View {
     }
 
     private var backgroundColor: Color {
-        Color.Tangem.Surface.level2
+        DesignSystem.Color.bgPrimary
     }
 }
 

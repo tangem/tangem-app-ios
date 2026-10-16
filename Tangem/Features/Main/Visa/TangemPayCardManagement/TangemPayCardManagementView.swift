@@ -128,7 +128,7 @@ struct TangemPayCardManagementView: View {
 
                 ActivityIndicatorView(
                     style: .large,
-                    color: UIColor(Color.Tangem.Graphic.Neutral.tertiary)
+                    color: UIColor(DesignSystem.Color.iconSecondary)
                 )
             }
         }

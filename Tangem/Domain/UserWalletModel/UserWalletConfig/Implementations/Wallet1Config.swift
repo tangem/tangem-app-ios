@@ -152,6 +152,7 @@ extension Wallet1Config: UserWalletConfig {
     }
 
     var walletThumbnailType: ThumbnailWalletViewType? {
+        // [REDACTED_TODO_COMMENT]
         typealias CC = Color.Tangem.CardCollection
 
         switch card.batchId {

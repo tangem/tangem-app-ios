@@ -23,12 +23,12 @@ struct TransactionExpressSubtitleView: View {
     var body: some View {
         HStack(spacing: 4) {
             Text(model.direction.localizedPrefix)
-                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
             leadingIcon
 
             Text(model.symbol)
-                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
                 .lineLimit(1)
 
             if let owner = model.owner {
@@ -79,12 +79,12 @@ struct TransactionExpressSubtitleView: View {
 
     private var inPrefix: some View {
         Text(Localization.commonIn)
-            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
     }
 
     private func ownerName(_ name: String) -> some View {
         Text(name)
-            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
             .lineLimit(1)
     }
 }
