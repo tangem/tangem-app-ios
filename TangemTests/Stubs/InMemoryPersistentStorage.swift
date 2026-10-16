@@ -14,7 +14,10 @@ import TangemFoundation
 final class InMemoryPersistentStorage: PersistentStorageProtocol {
     var storeError: Error?
 
+    var storeCalls: Int { writes.withLock { $0 } }
+
     private let state = OSAllocatedUnfairLock(initialState: [String: Data]())
+    private let writes = OSAllocatedUnfairLock(initialState: 0)
 
     func value<T: Decodable>(for key: PersistentStorageKey) throws -> T? {
         guard let data = state.withLock({ $0[key.path] }) else {
@@ -31,6 +34,7 @@ final class InMemoryPersistentStorage: PersistentStorageProtocol {
 
         let data = try JSONEncoder().encode(value)
         state.withLock { $0[key.path] = data }
+        writes.withLock { $0 += 1 }
     }
 
     func remove(for key: PersistentStorageKey) throws {
