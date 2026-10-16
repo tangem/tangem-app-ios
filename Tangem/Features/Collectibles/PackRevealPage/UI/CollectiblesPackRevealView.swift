@@ -132,7 +132,7 @@ private extension CollectiblesPackRevealView {
             .scaleEffect(cardScale)
             .offset(y: cardLift * cardHeight)
             .contentShape(Rectangle())
-            .onTapGesture(perform: spinOnTap)
+            .onTapGesture(perform: flipOnTap)
             .position(cardCenter)
         }
     }
@@ -249,10 +249,10 @@ private extension CollectiblesPackRevealView {
         isLanded = true
     }
 
-    func spinOnTap() {
+    func flipOnTap() {
         guard isLanded, !reduceMotion else { return }
 
-        withAnimation(Motion.tapSpin) { cardRotation += 360 }
+        withAnimation(Motion.tapFlip) { cardRotation += 180 }
     }
 }
 
