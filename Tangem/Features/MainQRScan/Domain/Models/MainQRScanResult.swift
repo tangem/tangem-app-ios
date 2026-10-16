@@ -6,9 +6,12 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 enum MainQRScanResult {
     case walletConnect(WalletConnectRequestURI)
     case paymentURI(MainQRPaymentRequest)
+    case deeplink(URL)
     case plainAddress(String)
     case unrecognized
 }
