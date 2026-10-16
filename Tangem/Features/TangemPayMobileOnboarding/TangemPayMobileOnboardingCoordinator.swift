@@ -44,14 +44,6 @@ extension TangemPayMobileOnboardingCoordinator: TangemPayMobileOnboardingRoutabl
         )
     }
 
-    func openTos() {
-        webViewContainerViewModel = .init(
-            url: AppConstants.tosURL,
-            title: "",
-            withCloseButton: true
-        )
-    }
-
     func openLegalDocument(url: URL) {
         webViewContainerViewModel = .init(
             url: url,

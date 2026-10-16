@@ -39,6 +39,7 @@ struct SwapSlippageSelectorView: View {
         }
         .floatingSheetConfiguration { configuration in
             configuration.backgroundInteractionBehavior = .tapToDismiss
+            configuration.verticalSwipeBehavior = .init(target: .sheet, threshold: Constants.swipeDismissThreshold)
         }
     }
 
@@ -53,8 +54,7 @@ struct SwapSlippageSelectorView: View {
 
                 presetsView(presets)
             }
-            .focused($isInputFocused)
-            .onAppear { isInputFocused = true }
+            .task(openKeyboard)
 
         case .notCustomizable(let maxSlippage):
             MessageBanner(title: AttributedString(Localization.swapCustomSlippageInfo(maxSlippage)))
@@ -75,6 +75,7 @@ struct SwapSlippageSelectorView: View {
                     placeholderColor: DesignSystem.Color.textTertiary
                 ))
                 .alignment(.center)
+                .focused($isInputFocused)
 
             if let message = viewModel.message {
                 messageView(message)
@@ -141,10 +142,29 @@ struct SwapSlippageSelectorView: View {
     }
 }
 
+// MARK: - Keyboard
+
+private extension SwapSlippageSelectorView {
+    @MainActor
+    @Sendable
+    func openKeyboard() async {
+        UIApplication.shared.makeOverlayWindowKey()
+
+        do {
+            try await Task.sleep(for: Constants.keyboardOpeningDelay)
+        } catch {
+            return
+        }
+
+        isInputFocused = true
+    }
+}
+
 // MARK: - Constants
 
 private extension SwapSlippageSelectorView {
     enum Constants {
+        static let swipeDismissThreshold: CGFloat = 100
         static let horizontalPadding: CGFloat = 16
         static let amountTopPadding: CGFloat = 36
         static let amountBottomPadding: CGFloat = 32
@@ -164,5 +184,6 @@ private extension SwapSlippageSelectorView {
         static let dollarIconSize: CGFloat = 16
         static let confirmVerticalPadding: CGFloat = 12
         static let percentSign = "%"
+        static let keyboardOpeningDelay: Duration = .milliseconds(500)
     }
 }

@@ -64,15 +64,6 @@ enum WalletModelTransactionHistoryState: CustomStringConvertible {
     case loaded(items: [TransactionRecord])
     case error(Error)
 
-    var hasContent: Bool {
-        switch self {
-        case .loaded(let items):
-            return items.isNotEmpty
-        case .notSupported, .notLoaded, .loading, .error:
-            return false
-        }
-    }
-
     /// `.notSupported` is excluded: the history is gone for this wallet entirely, so it has to reach the UI
     /// instead of being held back. `.notLoaded` is not — a refresh resets the service to it on chains with
     /// dynamic addresses, so holding it back is what keeps the list alive there.

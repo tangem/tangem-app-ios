@@ -87,6 +87,19 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
     }
 
     @discardableResult
+    func verifyWalletsCount(_ expectedCount: Int) -> Self {
+        XCTContext.runActivity(named: "Verify \(expectedCount) saved wallet(s) are listed") { _ in
+            let walletRows = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "walletSettingsButton_"))
+            waitAndAssertTrue(walletRows.element(boundBy: expectedCount - 1), "\(expectedCount) saved wallet row(s) should exist")
+            XCTAssertTrue(
+                walletRows.element(boundBy: expectedCount).staysAbsent(for: .conditional),
+                "Details should list no more than \(expectedCount) saved wallet(s)"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func goBackToMain() -> MainScreen {
         XCTContext.runActivity(named: "Go back to main screen") { _ in
             app.navigationBars.buttons["Back"].waitAndTap()

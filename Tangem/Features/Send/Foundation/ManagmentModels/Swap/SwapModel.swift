@@ -1190,7 +1190,7 @@ extension SwapModel {
 
                 let dispatcher = source.transactionDispatcherProvider.makeTransferTransactionDispatcher()
                 let result = try await dispatcher.send(transaction: .transfer(transaction))
-                analyticsLogger.logSwapTransactionSent(result: result)
+                analyticsLogger.logTransferTransactionSent(result: result)
 
                 return result
 
@@ -2040,7 +2040,7 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
                 return balance
             case .quarter, .half, .threeQuarters:
                 let raw = balance * fraction.multiplier
-                return raw.rounded(scale: token.tokenItem.decimalCount, roundingMode: .down)
+                return raw.rounded(scale: token.tokenItem.displayDecimalCount, roundingMode: .down)
             }
         }()
         externalAmountUpdater.externalUpdate(cryptoAmount: amount)

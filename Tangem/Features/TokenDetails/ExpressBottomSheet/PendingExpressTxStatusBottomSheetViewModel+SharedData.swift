@@ -21,7 +21,7 @@ extension PendingExpressTxStatusBottomSheetViewModel {
             )
 
         case .onramp(_, _, let destination):
-            operation = .onramp(buy: destinationAmountText, to: destination.address)
+            operation = .onramp(send: sourceAmountText, receive: destinationAmountText, to: destination.address)
         }
 
         let providerInfo = "\(pendingTransaction.provider.name) \(pendingTransaction.provider.type.rawValue.uppercased())"

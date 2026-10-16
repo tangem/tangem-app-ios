@@ -13,5 +13,9 @@ import GRDB
 protocol AppDatabaseTable: Sendable {
     static var tableName: String { get }
 
-    static func registerForVersion(_ version: AppDatabaseVersion, in database: Database) throws
+    static func registerForVersion(
+        _ version: AppDatabaseVersion,
+        in database: Database,
+        migrationHelper: AppDatabaseMigrationHelper
+    ) throws
 }

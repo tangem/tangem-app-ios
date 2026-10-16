@@ -117,7 +117,7 @@ enum WalletModelTransactionHistoryPublisherFactory {
                         using: merger
                     )
                     return .loaded(items: mergedTransactions)
-                case .notSupported, .error:
+                case .notSupported:
                     // Merging can add synthetic transactions even without matching BSDK transactions.
                     let mergedTransactions = merge(
                         bsdkTransactions: [],
@@ -126,11 +126,11 @@ enum WalletModelTransactionHistoryPublisherFactory {
                         using: merger
                     )
                     return mergedTransactions.isEmpty ? transactionHistoryState : .loaded(items: mergedTransactions)
-                case .notLoaded, .loading:
+                case .notLoaded, .loading, .error:
                     return transactionHistoryState
                 }
             }
-            .eraseToAnyPublisher()
+            .retainingContent()
     }
 
     private static func merge(

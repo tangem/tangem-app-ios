@@ -251,6 +251,13 @@
 "collectibles_main_search_empty" = "No results. Try to change your wording\nor explore from the list";
 "collectibles_main_search_load_error" = "Failed to load cards list.";
 "collectibles_main_title" = "Packs account";
+"collectibles_open_pack_keep_card_button" = "Keep card";
+"collectibles_open_pack_market_value" = "Market value %@ · Insured";
+"collectibles_open_pack_pull_common" = "Common pull";
+"collectibles_open_pack_pull_epic" = "Epic pull";
+"collectibles_open_pack_pull_rare" = "Rare pull";
+"collectibles_open_pack_pull_uncommon" = "Uncommon pull";
+"collectibles_open_pack_sell_back_button" = "Sell back for %@";
 "collectibles_pack_unopened_open_pack" = "Open pack";
 "collectibles_pack_unopened_subtitle" = "Your payment went through, but you haven’t finished opening pack. Please receive your card in order to continue ripping packs";
 "collectibles_pack_unopened_title" = "You have pack unopened";
@@ -1269,6 +1276,8 @@
 "mcp_session_title" = "Connected MCP";
 "mobile_wallet_requires_min_os_warning_body" = "You must update to %1$@ before creating a mobile wallet";
 "mobile_wallet_requires_min_os_warning_title" = "Mobile Wallet requires %1$@ or later";
+"money_account_add_funds_receive_description" = "Send USDC Polygon to your account's address";
+"money_account_add_funds_swap_description" = "Use crypto from your wallet to topup your banking account";
 "money_account_main_name" = "Money account";
 "money_account_main_status_action_required" = "Action required";
 "money_account_main_status_activating" = "Activating…";
@@ -1287,7 +1296,7 @@
 "money_account_main_status_verification" = "Verification in progress…";
 "money_account_onboarding_currency_card_caption" = "Account currency";
 "money_account_onboarding_description" = "Works just like a regular bank account. But powered by crypto and fully under your control.";
-"money_account_onboarding_disclaimer" = "Tangem Pay is a financial technology company, not a bank. Banking services are provided by SSB, Member FDIC. Funds deposited at SSB are eligible for FDIC insurance up to $250,000 per depositor, per insured bank, subject to applicable limitations and FDIC rules.";
+"money_account_onboarding_disclaimer" = "Tangem Pay 是一家金融科技公司，而非銀行。銀行服務由 SSB 提供，SSB 為 FDIC 成員。存放於 SSB 的資金符合 FDIC 保險的承保資格，每位存款人於每家投保銀行最高可獲 250,000 美元保障，並受適用限制及 FDIC 規則約束。";
 "money_account_onboarding_earn_card_caption" = "Earn";
 "money_account_onboarding_fees_error" = "Failed to load fees information.\nTap to reload";
 "money_account_onboarding_fees_notice" = "SWIFT transfers aren’t supported. If you send one, it will be returned";
@@ -1712,6 +1721,9 @@
 "promo_campaign_terms_link" = "%1$@ Terms";
 "promo_campaign_unavailable_title" = "Campaign unavailable";
 "promo_campaign_whale_swap_summary_description" = "Earn cashback on every swap from $10K until the end of August.\n\nRates step up with size: 0.10%% from $10K, 0.20%% from $20K, 0.50%% from $100K.\n\nMax payout: $500 per swap, and $10,000 per wallet per swap direction until campaign lasts. Stable coin into stablecoin swaps are excluded.\n\nPayout arrives weekly in USDT or USDC address of your choice.";
+"promo_code_activation_success" = "Your promo code was successfully activated. The reward will be credited to your %@ account.";
+"promo_code_no_address_title" = "%@ address required  ";
+"promo_code_no_address" = "A %1$@ address is required to receive the bonus. Please add %1$@ to your wallet and retry the activation.";
 "push_notification_settings_banner_description" = "Push notifications are enabled but won't work until you allow them";
 "push_notification_settings_banner_title" = "Allow notifications";
 "push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
@@ -2343,7 +2355,6 @@
 "tangempay_factory_settings_warning_title" = "我明白，我將完全失去對 Tangem Pay 卡及其上所有資金的存取權，且無法挽回";
 "tangempay_failed_to_issue_card_support_description" = "出现技术错误，请联系客服";
 "tangempay_failed_to_issue_card" = "无法发行卡片";
-"tangempay_geo_selection_search_empty" = "No results. Try to change request";
 "tangempay_get_banner_description" = "免費 Tangem Pay 卡，享最高 2%% 回饋";
 "tangempay_get_tangem_pay" = "获取Tangem Pay";
 "tangempay_go_to_support" = "前往客服中心";
@@ -2466,6 +2477,7 @@
 "tangempay_remove_account" = "移除帳戶";
 "tangempay_residency_all_country" = "變更國家";
 "tangempay_residency_all_state" = "選擇其他州";
+"tangempay_residency_search_empty" = "未找到結果，請嘗試變更搜尋內容";
 "tangempay_residency_suggested_country" = "建議國家";
 "tangempay_residency_suggested_state" = " 建議州";
 "tangempay_residency_title_country" = "居住國家";
@@ -2739,10 +2751,10 @@
 "user_wallet_list_rename_popup_title" = "重新命名錢包";
 "user_wallet_list_unlock_all_with" = "用 %@ 解鎖全部";
 "virtual_account_requisites_account_number" = "Account number";
-"virtual_account_requisites_bank_address" = "Bank address";
-"virtual_account_requisites_bank_name" = "Bank name";
-"virtual_account_requisites_beneficiary_address" = "Beneficiary address";
-"virtual_account_requisites_beneficiary_name" = "Beneficiary name";
+"virtual_account_requisites_bank_address" = "銀行地址";
+"virtual_account_requisites_bank_name" = "銀行名稱";
+"virtual_account_requisites_beneficiary_address" = "收款人地址";
+"virtual_account_requisites_beneficiary_name" = "收款人姓名";
 "virtual_account_requisites_routing_number" = "Routing number";
 "visa_balance_limits_details_aml_verified" = "AML verified";
 "visa_balance_limits_details_available" = "Available";
@@ -3113,7 +3125,7 @@
 "yield_module_incentive_chart_average_apy" = "Average APY";
 "yield_module_incentive_chart_period_three_months" = "3 Months";
 "yield_module_incentive_chart_period_week" = "Week";
-"yield_module_incentive_chart_powered_by_description" = "A campaign sponsor funds extra reward tokens, distributed through Merkl.\nIncentives may end, and reward token prices can change.\nThe displayed APY includes incentive rewards after Tangem's service fee.";
+"yield_module_incentive_chart_powered_by_description" = "A campaign sponsor funds extra reward tokens, distributed through Merkl.\nIncentives may end, and reward token prices can change.";
 "yield_module_incentive_chart_powered_by_title" = "Powered by Merkl";
 "yield_module_incentive_chart_sheet_title" = "Incentivized yield";
 "yield_module_incentives_provider" = "Merkl";

@@ -12,12 +12,18 @@ import GRDB
 enum StakingTargetsCacheTable: AppDatabaseTable {
     static let tableName = "stakingTargetsCache"
 
-    static func registerForVersion(_ version: AppDatabaseVersion, in database: Database) throws {
+    static func registerForVersion(
+        _ version: AppDatabaseVersion,
+        in database: Database,
+        migrationHelper: AppDatabaseMigrationHelper
+    ) throws {
         switch version {
         case .v1:
             break
         case .v2:
             try V2.register(in: database)
+        case .v3:
+            break
         }
     }
 }

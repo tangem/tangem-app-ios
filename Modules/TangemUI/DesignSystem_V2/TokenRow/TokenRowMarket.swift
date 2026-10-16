@@ -14,6 +14,7 @@ public struct TokenRowMarket: View, Setupable {
     private let content: Content
 
     var accessibility: Accessibility = .combined(label: nil)
+    var iconIndicatorColor: Color?
 
     @Environment(\.isEnabled) private var isEnabled
 
@@ -73,7 +74,7 @@ public struct TokenRowMarket: View, Setupable {
         onTap: @escaping () -> Void
     ) -> some View {
         let mainLine = HStack(alignment: .center, spacing: slotSpacing) {
-            TokenRowTokenIcon(icon, accessibilityIdentifier: identifiers?.icon)
+            TokenRowTokenIcon(icon, indicatorColor: iconIndicatorColor, accessibilityIdentifier: identifiers?.icon)
 
             // A loading price column has no intrinsic width, so it takes an equal share instead of a fit.
             RowContentLayout(
@@ -278,5 +279,9 @@ public extension TokenRowMarket {
 
     func accessibilityIdentifiers(_ identifiers: AccessibilityIdentifiers) -> Self {
         map { $0.accessibility = .leaves(identifiers) }
+    }
+
+    func iconIndicatorColor(_ color: Color?) -> Self {
+        map { $0.iconIndicatorColor = color }
     }
 }

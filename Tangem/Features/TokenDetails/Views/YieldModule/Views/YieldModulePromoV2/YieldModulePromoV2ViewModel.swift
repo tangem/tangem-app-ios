@@ -31,7 +31,7 @@ final class YieldModulePromoV2ViewModel {
     var apyString: String { percentFormatter.format(apy, option: .interval) }
 
     var incentivisedChipText: String? {
-        marketIncentive?.rewardsApr.map {
+        marketIncentive?.grossRewardsApy.map {
             Localization.yieldModulePromoScreenIncentivisedChip(percentFormatter.format($0, option: .yieldPromo))
         }
     }

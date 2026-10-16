@@ -779,7 +779,6 @@ extension Analytics {
 
         // Tangem Pay (Visa 2.0)
 
-        case visaOnboardingVisaActivationScreenOpened = "[Visa Onboarding] Visa Activation Screen Opened"
         case visaOnboardingVisaNewOnboardingPageOpened = "[Visa Onboarding] Visa New Onboarding Page Opened"
         case visaOnboardingButtonVisaViewTerms = "[Visa Onboarding] Button - Visa View Terms"
         case visaOnboardingButtonVisaGetCard = "[Visa Onboarding] Button - Visa Get Card"

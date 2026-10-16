@@ -36,6 +36,15 @@ final class RealAssetsWidgetViewModel: ObservableObject {
         categorySelection?.category.restricted ?? false
     }
 
+    var listContentState: ListContentState {
+        switch tokenListLoadingState {
+        case .error: .failure
+        case .noResults: .empty
+        case .loading where tokenViewModels.isEmpty: .skeletons
+        case .loading, .idle, .allDataLoaded: .rows
+        }
+    }
+
     var regionRestrictionDescription: String {
         guard let regionName = categoriesSnapshot?.country.flatMap(Self.localizedRegionName(for:)) else {
             return Localization.marketsRealAssetsRegionRestrictionDescription
@@ -52,6 +61,7 @@ final class RealAssetsWidgetViewModel: ObservableObject {
     private let dataProvider = MarketsListDataProvider()
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
+    private let skeletonFloor = LoadingStateFloor()
 
     private lazy var listDataController: MarketsListDataController = .init(dataFetcher: self, cellsStateUpdater: self)
 
@@ -109,6 +119,14 @@ final class RealAssetsWidgetViewModel: ObservableObject {
         tokenListLoadingState = .loading
         dataProvider.reset()
         dataProvider.fetch("", with: filterProvider.currentFilterValue)
+    }
+
+    func onTokenRowDisappear(_ itemViewModel: MarketsItemViewModel) {
+        guard tokenViewModels.indices.contains(itemViewModel.index), tokenViewModels[itemViewModel.index] === itemViewModel else {
+            return
+        }
+
+        itemViewModel.onDisappear()
     }
 
     func onCategoryChipTap() {
@@ -353,14 +371,17 @@ private extension RealAssetsWidgetViewModel {
                     break
                 case .failedToFetchData:
                     if viewModel.dataProvider.items.isEmpty {
-                        viewModel.tokenListLoadingState = .error
-                        viewModel.quotesUpdatesScheduler.cancelUpdates()
+                        viewModel.skeletonFloor.release { [weak viewModel] in
+                            viewModel?.tokenListLoadingState = .error
+                            viewModel?.quotesUpdatesScheduler.cancelUpdates()
+                        }
                     } else {
                         viewModel.tokenListLoadingState = .loading
                     }
                 case .startInitialFetch, .cleared:
                     viewModel.tokenListLoadingState = .loading
                     viewModel.tokenViewModels.removeAll()
+                    viewModel.skeletonFloor.start()
                     viewModel.quotesUpdatesScheduler.saveQuotesUpdateDate(Date())
                     viewModel.quotesUpdatesScheduler.resetUpdates()
                 default:
@@ -393,18 +414,29 @@ private extension RealAssetsWidgetViewModel {
                     return
                 }
 
-                let tokenViewModelsToAppend = viewModel.mapToItemViewModel(items, offset: viewModel.tokenViewModels.count)
-                viewModel.tokenViewModels.append(contentsOf: tokenViewModelsToAppend)
+                guard viewModel.tokenViewModels.isEmpty else {
+                    viewModel.append(items, lastPage: lastPage)
+                    return
+                }
 
-                if viewModel.dataProvider.items.isEmpty {
-                    viewModel.tokenListLoadingState = .noResults
-                } else if lastPage {
-                    viewModel.tokenListLoadingState = .allDataLoaded
-                } else {
-                    viewModel.tokenListLoadingState = .idle
+                viewModel.skeletonFloor.release { [weak viewModel] in
+                    viewModel?.append(items, lastPage: lastPage)
                 }
             }
             .store(in: &bag)
+    }
+
+    func append(_ items: [MarketsTokenModel], lastPage: Bool) {
+        let tokenViewModelsToAppend = mapToItemViewModel(items, offset: tokenViewModels.count)
+        tokenViewModels.append(contentsOf: tokenViewModelsToAppend)
+
+        if dataProvider.items.isEmpty {
+            tokenListLoadingState = .noResults
+        } else if lastPage {
+            tokenListLoadingState = .allDataLoaded
+        } else {
+            tokenListLoadingState = .idle
+        }
     }
 
     func requestMiniCharts(forRange range: ClosedRange<Int>, interval: MarketsPriceIntervalType) {
@@ -480,6 +512,17 @@ extension RealAssetsWidgetViewModel: MarketsListStateUpdater {
         }
 
         return Set(tokenViewModels[range.lowerBound ... upperBound].map(\.tokenId))
+    }
+}
+
+// MARK: - ListContentState
+
+extension RealAssetsWidgetViewModel {
+    enum ListContentState: Hashable {
+        case failure
+        case skeletons
+        case empty
+        case rows
     }
 }
 

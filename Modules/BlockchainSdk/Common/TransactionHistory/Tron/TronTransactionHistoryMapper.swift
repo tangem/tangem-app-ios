@@ -212,7 +212,7 @@ final class TronTransactionHistoryMapper {
         let fee = Fee(Amount(with: blockchain, value: fees / blockchain.decimalValue))
         let date = Date(timeIntervalSince1970: TimeInterval(transaction.blockTime))
         let status = status(transaction)
-        let type = transactionType(transaction, amountType: amountType, votes: votes)
+        let type = transactionType(transaction, amountType: amountType, votes: votes, tokens: tokens)
         let tokenTransfers = tokenTransfers(transaction, tokens: tokens)
 
         return transactionInfos.map { transactionInfo in
@@ -284,7 +284,8 @@ final class TronTransactionHistoryMapper {
     private func transactionType(
         _ transaction: BlockBookAddressResponse.Transaction,
         amountType: Amount.AmountType,
-        votes: [Vote]
+        votes: [Vote],
+        tokens: [BlockBookAddressResponse.Token]?
     ) -> TransactionRecord.TransactionType {
         switch amountType {
         case .coin:
@@ -292,7 +293,7 @@ final class TronTransactionHistoryMapper {
             // type via the `chainExtraData` payload. Fall back to that payload in such cases.
             guard let contractTypeInt = transaction.contractType,
                   let contractType = TronContractType(rawValue: contractTypeInt) else {
-                return transactionType(fromChainExtraDataOf: transaction, votes: votes)
+                return transactionType(fromChainExtraDataOf: transaction, votes: votes, tokens: tokens)
             }
 
             switch contractType {
@@ -300,7 +301,7 @@ final class TronTransactionHistoryMapper {
                  .transferAssetContractType:
                 return .transfer
             case .triggerSmartContractType:
-                return contractCallType(transaction) ?? .contractMethodIdentifier(id: transaction.contractName ?? .unknown)
+                return contractCallType(transaction, tokens: tokens) ?? .contractMethodIdentifier(id: transaction.contractName ?? .unknown)
             case .voteWitnessContractType:
                 return .staking(type: .vote, target: votes.first?.witness)
             case .withdrawExpireUnfreezeContractType:
@@ -324,7 +325,8 @@ final class TronTransactionHistoryMapper {
     /// delivering instead of the integer `contract_type` field. The contract type arrives as a string.
     private func transactionType(
         fromChainExtraDataOf transaction: BlockBookAddressResponse.Transaction,
-        votes: [Vote]
+        votes: [Vote],
+        tokens: [BlockBookAddressResponse.Token]?
     ) -> TransactionRecord.TransactionType {
         guard
             let chainExtraData = transaction.chainExtraData,
@@ -337,7 +339,7 @@ final class TronTransactionHistoryMapper {
         case .transferContract:
             return .transfer
         case .triggerSmartContract:
-            return contractCallType(transaction) ?? .transfer
+            return contractCallType(transaction, tokens: tokens) ?? .transfer
         case .voteWitnessContract:
             return .staking(type: .vote, target: votes.first?.witness)
         case .withdrawBalanceContract:
@@ -359,7 +361,10 @@ final class TronTransactionHistoryMapper {
         }
     }
 
-    private func contractCallType(_ transaction: BlockBookAddressResponse.Transaction) -> TransactionRecord.TransactionType? {
+    private func contractCallType(
+        _ transaction: BlockBookAddressResponse.Transaction,
+        tokens: [BlockBookAddressResponse.Token]?
+    ) -> TransactionRecord.TransactionType? {
         guard let methodId = transaction.ethereumSpecific?.methodId else {
             return nil
         }
@@ -368,7 +373,29 @@ final class TronTransactionHistoryMapper {
             return .transfer
         }
 
+        if methodId.caseInsensitiveEquals(to: ApproveERC20TokenMethod.methodId), let approve = approve(transaction, tokens: tokens) {
+            return .approve(approve)
+        }
+
         return .contractMethodIdentifier(id: methodId)
+    }
+
+    private func approve(
+        _ transaction: BlockBookAddressResponse.Transaction,
+        tokens: [BlockBookAddressResponse.Token]?
+    ) -> TransactionRecord.TransactionType.Approve? {
+        guard
+            let calldata = transaction.ethereumSpecific?.data,
+            let call = TronTokenApproveCallData(calldata: calldata)
+        else {
+            return nil
+        }
+
+        let token = transaction.destinationAddress.flatMap { contract in
+            tokens?.first { $0.matching(contractAddress: contract) }
+        }
+
+        return ApproveHistoryMapper.approve(spender: call.spender, amount: call.amount, symbol: token?.symbol, decimals: token?.decimals)
     }
 
     private func contractType(_ transaction: BlockBookAddressResponse.Transaction) -> TronContractType? {
