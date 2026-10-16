@@ -10,6 +10,7 @@ import Foundation
 import Testing
 import BlockchainSdk
 import TangemFoundation
+import TangemLocalization
 @testable import Tangem
 
 extension TransactionHistoryAuxDataRepositoryDependentTests {
@@ -41,6 +42,22 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
                 Issue.record("Expected the network fee to be sensitive, got \(feeRow.content)")
                 return
             }
+        }
+
+        @Test("Copies the unresolved validator address from its row")
+        func validatorAddressIsCopyable() async throws {
+            let rows = try await withStubbedDependencies {
+                try #require(makeContent(stakingType: .withdraw)?.info?.rows)
+            }
+            let validatorRow = try #require(rows.first { $0.id == "validator" })
+
+            guard case .address(let address, let copyAction) = validatorRow.content else {
+                Issue.record("Expected the validator row to show its address, got \(validatorRow.content)")
+                return
+            }
+
+            #expect(address == Self.validator)
+            #expect(copyAction == .copy(value: Self.validator, toast: Localization.walletNotificationAddressCopied, kind: .address))
         }
     }
 }

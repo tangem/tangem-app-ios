@@ -100,10 +100,10 @@ enum Feature: String, Hashable, CaseIterable {
         case .collectibles: return .unspecified
         case .totalTokenBalanceV2: return .unspecified
         case .mobileSocialLogin: return .unspecified
-        case .realAssets: return .unspecified
+        case .realAssets: return .version("6.5")
         case .hardwareUpgradeStories: return .version("6.5")
         case .jointAccountsGaslessTokenFee: return .unspecified
-        case .merklIncentives: return .version("6.5")
+        case .merklIncentives: return .unspecified
         case .mcp: return .unspecified
         case .tangemPayChooseCountry: return .version("6.5")
         case .payBundleIntroduction: return .unspecified
