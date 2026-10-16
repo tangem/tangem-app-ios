@@ -206,9 +206,6 @@ struct ExpressCurrencyView<Content: View>: View {
         if let priceChangeState = viewModel.state.priceChangeState, let didTapNetworkFeeInfoButton {
             SwiftUI.Button(action: { didTapNetworkFeeInfoButton(priceChangeState) }) {
                 switch priceChangeState {
-                case .info:
-                    infoButtonIcon
-                        .foregroundColor(Colors.Icon.informative)
                 case .percent(let percent, _, let isHighLoss):
                     HStack(spacing: 2) {
                         Text(percent)
