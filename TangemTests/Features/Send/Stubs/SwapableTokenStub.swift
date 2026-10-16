@@ -151,7 +151,7 @@ struct SwapAvailabilityProviderStub: SwapAvailabilityProvider {
     let isSwapAvailable: Bool
 }
 
-private struct ReceivingRestrictionsProviderStub: ReceivingRestrictionsProvider {
+struct ReceivingRestrictionsProviderStub: ReceivingRestrictionsProvider {
     let result: ReceivedRestriction?
 
     var isRestrictionKnown: Bool { true }

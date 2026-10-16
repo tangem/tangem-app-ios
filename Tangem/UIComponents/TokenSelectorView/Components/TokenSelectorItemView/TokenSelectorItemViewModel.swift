@@ -80,7 +80,8 @@ extension TokenSelectorItem.AvailabilityType {
         case .available: false
         case .unavailable(.unavailableForSwap(.noAddress)): true
         case .unavailable(.unavailableForSwap(.sourceState(.customToken))): true
-        case .unavailable(.unavailableForSwap(.sourceState)): false
+        case .unavailable(.unavailableForSwap(.receiveState(.customToken))): true
+        case .unavailable(.unavailableForSwap(.sourceState)), .unavailable(.unavailableForSwap(.receiveState)): false
         case .unavailable(.unavailableForSell(.jointAccountsComingSoon)): false
         case .unavailable(.unavailableForOnramp), .unavailable(.unavailableForSell), .unavailable(.unavailableForSend): true
         }
@@ -98,5 +99,6 @@ extension TokenSelectorItemViewModel {
     enum SwapUnavailabilityReason {
         case noAddress
         case sourceState(TokenActionAvailabilityProvider.SwapSourceActionAvailabilityStatus)
+        case receiveState(TokenActionAvailabilityProvider.SwapReceiveActionAvailabilityStatus)
     }
 }

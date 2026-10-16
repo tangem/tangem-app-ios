@@ -14,7 +14,6 @@ struct CommonSendSwapableToken: SendSwapableToken {
     let isExemptFee: Bool
     let swapAvailabilityProvider: any SwapAvailabilityProvider
     let sendingRestrictionsProvider: any SendingRestrictionsProvider
-    let receivingRestrictionsProvider: any ReceivingRestrictionsProvider
     let tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider
     let tokenFeeProvidersManager: any TokenFeeProvidersManager
     let transactionValidator: any SendTransactionValidator
@@ -50,6 +49,7 @@ struct CommonSendSwapableToken: SendSwapableToken {
     var transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider { sourceToken.transactionSummaryDescriptionBuilderProvider }
     var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { sourceToken.blockchainSDKNotificationMapper }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { sourceToken.accountModelAnalyticsProvider }
+    var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { sourceToken.receivingRestrictionsProvider }
     var isTangemPayAccount: Bool { sourceToken.isTangemPayAccount }
     var jointAccountPolicy: JointAccountPolicy? { sourceToken.jointAccountPolicy }
 

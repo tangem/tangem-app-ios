@@ -193,7 +193,8 @@ final class WalletModelTestsMock: WalletModel {
     var isEmpty: Bool { _isEmpty }
     var publicKey: Wallet.PublicKey { Wallet.PublicKey(seedKey: Data(), derivationType: .none) }
     var isCustom: Bool { isCustomMock }
-    var actionsUpdatePublisher: AnyPublisher<Void, Never> { .empty }
+    var actionsUpdatePublisherMock: AnyPublisher<Void, Never> = .empty
+    var actionsUpdatePublisher: AnyPublisher<Void, Never> { actionsUpdatePublisherMock }
     var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
     var qrReceiveMessage: String { "" }
     var isDemo: Bool { false }

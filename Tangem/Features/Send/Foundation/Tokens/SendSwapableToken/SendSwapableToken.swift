@@ -16,7 +16,6 @@ protocol SendSwapableToken: SendTransferableToken, ExpressSourceWallet {
 
     var swapAvailabilityProvider: any SwapAvailabilityProvider { get }
     var sendingRestrictionsProvider: any SendingRestrictionsProvider { get }
-    var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { get }
 
     var tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider { get }
 

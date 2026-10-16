@@ -904,6 +904,57 @@ final class SwapModelTests: LeakTrackingTestSuite {
         #expect(await manager.updateAmountTypeCallCount == 0)
     }
 
+    @Test("A receive-only destination that requires a trustline maps to the trustlineRequired restriction")
+    func receiveOnlyDestinationRequiringTrustlineMapsToRestriction() async throws {
+        let receive = SendSourceTokenStub(
+            blockchain: .stellar(curve: .ed25519, testnet: false),
+            receivingRestriction: .requiresTrustline
+        )
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: receive
+        )
+
+        let restriction = try await sut.validateReceivingRestrictions(receiveAmount: 100)
+
+        guard case .trustlineRequired(let destination) = restriction else {
+            Issue.record("Expected .trustlineRequired, got \(String(describing: restriction))")
+            return
+        }
+
+        #expect(destination as AnyObject === receive)
+    }
+
+    @Test("A trustline-restricted receive-only destination blocks the providers flow without requesting quotes")
+    func trustlineRestrictedReceiveOnlyDestinationBlocksProviders() async throws {
+        let manager = ExpressManagerStub()
+        let receive = SendSourceTokenStub(
+            blockchain: .stellar(curve: .ed25519, testnet: false),
+            receivingRestriction: .requiresTrustline
+        )
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: receive,
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager)
+        )
+        let recorder = SwapProvidersStateRecorder(sut)
+
+        let baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+
+        let state = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        guard case .loaded(.swap(selected: .none, providers: let providers), .restriction(.trustlineRequired(let destination), quote: .none)) = state else {
+            Issue.record("Expected the trustlineRequired restriction without providers, got \(state)")
+            return
+        }
+
+        #expect(destination as AnyObject === receive)
+        #expect(providers.isEmpty)
+        #expect(await manager.updateAmountTypeCallCount == 0)
+    }
+
     @Test("Quotes wait for the destination trustline data instead of loading on an unknown requirement")
     func destinationWithPendingTrustlineDataHoldsQuotes() async throws {
         let manager = ExpressManagerStub()

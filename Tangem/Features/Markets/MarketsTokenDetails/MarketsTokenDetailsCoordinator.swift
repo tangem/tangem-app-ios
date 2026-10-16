@@ -918,8 +918,8 @@ extension MarketsTokenDetailsCoordinator {
         // alert it raises needs the presenter.
         let direction = SwapDirection.build(for: walletModel)
         let swapUnavailableAlert: AlertBinder? = switch direction {
-        case .from: TokenActionAvailabilityAlertBuilder().alert(for: availabilityProvider.swapSourceAvailability)
-        case .to: TokenActionAvailabilityAlertBuilder().alert(for: availabilityProvider.swapReceiveAvailability)
+        case .from: TokenActionAvailabilityAlertBuilder().alert(for: availabilityProvider.swapSourceAvailability())
+        case .to: TokenActionAvailabilityAlertBuilder().alert(for: availabilityProvider.swapReceiveAvailability())
         }
 
         if let swapUnavailableAlert {

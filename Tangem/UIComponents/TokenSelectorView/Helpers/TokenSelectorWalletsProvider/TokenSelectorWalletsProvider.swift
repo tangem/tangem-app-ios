@@ -159,25 +159,4 @@ extension TokenSelectorItem {
 
         return false
     }
-
-    func makeSendSwapableTokenFactory(expressOperationType: ExpressOperationType) -> SendSwapableTokenFactory {
-        switch kind {
-        case .crypto(let walletModel, _):
-            CommonSendSwapableTokenFactory(
-                userWalletInfo: userWalletInfo,
-                walletModel: walletModel,
-                operationType: expressOperationType
-            )
-
-        case .tangemPay(let tangemPayAccount, let accountToken, let account):
-            TangemPaySwapableTokenFactory(
-                userWalletInfo: userWalletInfo,
-                tangemPayAccount: tangemPayAccount,
-                account: account,
-                accountToken: accountToken,
-                operationType: expressOperationType,
-                receiveTokenPresentation: .tangemPayAccount
-            )
-        }
-    }
 }

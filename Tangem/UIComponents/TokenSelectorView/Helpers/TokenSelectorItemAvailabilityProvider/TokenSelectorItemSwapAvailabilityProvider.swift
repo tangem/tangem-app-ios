@@ -7,32 +7,15 @@
 //
 
 import Combine
-import TangemExpress
 import TangemFoundation
 
 final class TokenSelectorItemSwapAvailabilityProvider {
-    @Injected(\.swapRepository)
-    private var swapRepository: SwapRepository
-
-    private var availableCurrencies: CurrentValueSubject<[ExpressCurrency]?, Never> = .init(nil)
+    private var direction: CurrentValueSubject<SwapDirection?, Never> = .init(nil)
     private var directionSubscription: AnyCancellable?
 
     func setup(directionPublisher: some Publisher<SwapDirection?, Never>) {
         directionSubscription = directionPublisher
-            .withWeakCaptureOf(self)
-            .asyncMap { provider, direction in
-                switch direction {
-                case .fromSource(.some(let source)):
-                    return await provider.swapRepository.getPairs(from: source.tokenItem.expressCurrency).map(\.destination)
-
-                case .toDestination(.some(let destination)):
-                    return await provider.swapRepository.getPairs(to: destination.tokenItem.expressCurrency).map(\.source)
-
-                case .none, .fromSource, .toDestination:
-                    return .none
-                }
-            }
-            .assign(to: \.availableCurrencies.value, on: self, ownership: .weak)
+            .assign(to: \.direction.value, on: self, ownership: .weak)
     }
 }
 
@@ -41,14 +24,13 @@ final class TokenSelectorItemSwapAvailabilityProvider {
 extension TokenSelectorItemSwapAvailabilityProvider: TokenSelectorItemAvailabilityProvider {
     func availabilityTypePublisher(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) -> AnyPublisher<TokenSelectorItem.AvailabilityType, Never> {
         let availabilityTypePublisher = Publishers
-            .CombineLatest(walletModel.actionsUpdatePublisher, availableCurrencies)
-            .map { $1 }
+            .CombineLatest(walletModel.actionsUpdatePublisher, direction)
             .withWeakCaptureOf(self)
-            .map { provider, availableCurrencies in
+            .map { provider, values in
                 provider.disabledReason(
                     userWalletInfo: userWalletInfo,
                     walletModel: walletModel,
-                    availableCurrencies: availableCurrencies
+                    direction: values.1
                 )
             }
             .eraseToAnyPublisher()
@@ -63,7 +45,7 @@ private extension TokenSelectorItemSwapAvailabilityProvider {
     func disabledReason(
         userWalletInfo: UserWalletInfo,
         walletModel: any WalletModel,
-        availableCurrencies: [ExpressCurrency]?
+        direction: SwapDirection?
     ) -> TokenSelectorItem.AvailabilityType {
         let availabilityProvider = TokenActionAvailabilityProvider(
             userWalletInfo: userWalletInfo,
@@ -74,9 +56,18 @@ private extension TokenSelectorItemSwapAvailabilityProvider {
             return .unavailable(reason: .unavailableForSwap(.noAddress))
         }
 
-        let swapState = availabilityProvider.swapSourceAvailability
-        guard case .available = swapState else {
-            return .unavailable(reason: .unavailableForSwap(.sourceState(swapState)))
+        switch direction {
+        case .fromSource:
+            let swapState = availabilityProvider.swapReceiveAvailability()
+            guard swapState.isAvailable else {
+                return .unavailable(reason: .unavailableForSwap(.receiveState(swapState)))
+            }
+
+        case .toDestination, .none:
+            let swapState = availabilityProvider.swapSourceAvailability()
+            guard case .available = swapState else {
+                return .unavailable(reason: .unavailableForSwap(.sourceState(swapState)))
+            }
         }
 
         return .available

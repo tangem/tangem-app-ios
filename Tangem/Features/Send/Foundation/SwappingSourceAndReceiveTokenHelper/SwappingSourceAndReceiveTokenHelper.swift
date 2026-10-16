@@ -30,7 +30,10 @@ struct SwappingSourceAndReceiveTokenHelper {
                 }
                 .eraseToAnyPublisher()
 
-        case (_, .success), (_, .failure):
+        case (_, .success):
+            return .just(output: .unavailable)
+
+        case (_, .failure):
             return .just(output: .available)
         }
     }
