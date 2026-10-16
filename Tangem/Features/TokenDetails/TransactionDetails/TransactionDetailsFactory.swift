@@ -88,6 +88,12 @@ enum TransactionDetailsFactory {
         context: TransactionDetailsContext
     ) -> TransactionDetailsViewModel.Content {
         switch transaction.transactionType {
+        case .yieldSend where transaction.transactionType.isTransferLikeYieldSend(
+            isOutgoing: transaction.isOutgoing,
+            isFromYieldContract: transaction.isFromYieldContract
+        ):
+            return .generic(sendReceiveContent(for: transaction, record: record, context: context))
+
         case .incentiveClaim, .incentiveClaimCoin, .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit, .yieldReactivate,
              .yieldSend, .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin:
             // Only the two operations that move the balance in or out of the protocol get the paired layout;
@@ -290,7 +296,7 @@ enum TransactionDetailsFactory {
     }
 
     private static func validatorContent(for target: TransactionViewModel.StakingTarget) -> TransactionDetailsInfoSectionViewData.Row.Content {
-        target.isResolved ? .text(target.name) : .address(target.address)
+        target.isResolved ? .text(target.name) : .address(target.address, copyAction: copyAddressAction(for: target.address))
     }
 
     private static func approvedTokenIcon(

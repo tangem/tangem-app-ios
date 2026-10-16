@@ -80,10 +80,17 @@ struct TangemPayTransactionDetailsMapper {
 
     func map(collateral input: TangemPayCollateralDisplayInput) -> TangemPayTransactionDetailsDisplayModel {
         let prefix: String = input.amount > 0 ? .plusSign : .empty
+
+        let (headerTitle, icon): (String, TangemPayTransactionDetailsDisplayModel.Icon) = switch input.kind {
+        case .deposit: (Localization.tangemPayDeposit, .deposit)
+        case .withdrawal: (Localization.tangemPayWithdrawal, .withdrawal)
+        case .cashback: (Localization.tangempayCashbackTitle, .cashback)
+        }
+
         return .init(
-            headerTitle: input.isOutgoing ? Localization.tangemPayWithdrawal : Localization.tangemPayDeposit,
+            headerTitle: headerTitle,
             headerSubtitle: formatDateTime(input.postedAt),
-            icon: input.isOutgoing ? .withdrawal : .deposit,
+            icon: icon,
             amount: format(amount: input.amount, currencyCode: AppConstants.usdCurrencyCode, prefix: prefix),
             amountSubtitle: nil,
             status: nil,
@@ -118,7 +125,7 @@ struct TangemPayTransactionDetailsMapper {
         )
     }
 
-    func map(cashback: TangemPayTransactionCashback?) -> TangemPayTransactionDetailsViewModel.CashbackRowState {
+    func map(cashback: TangemPayTransactionCashback?) -> TangemPayTransactionDetailsDisplayModel.CashbackRowState {
         guard let cashback else {
             return .loaded(.init(value: .text(Localization.tangemPayTransactionDetailsCashbackNone), subvalue: nil))
         }
@@ -254,9 +261,11 @@ extension TangemPayPushPayload {
              .declinedReason17(let spend):
             mapper.map(spend: spend.displayInput(isRefund: false))
         case .collateralWithdraw(let collateral):
-            mapper.map(collateral: collateral.displayInput(isOutgoing: true))
+            mapper.map(collateral: collateral.displayInput(kind: .withdrawal))
         case .collateralDeposit(let collateral):
-            mapper.map(collateral: collateral.displayInput(isOutgoing: false))
+            mapper.map(collateral: collateral.displayInput(kind: .deposit))
+        case .cashbackTopUp(let collateral):
+            mapper.map(collateral: collateral.displayInput(kind: .cashback))
         case .cardReady, .thresholdTopUp:
             nil
         }

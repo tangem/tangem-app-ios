@@ -81,11 +81,11 @@ actor YieldManagerInteractor {
 
     func getApyBreakdown() -> YieldApyBreakdown? {
         guard let marketInfo = manager.state?.marketInfo,
-              let rewardsApr = marketInfo.incentive?.rewardsApr else {
+              let rewardsApy = marketInfo.incentive?.grossRewardsApy else {
             return nil
         }
 
-        return YieldApyBreakdown(baseApy: marketInfo.apy, rewardsApr: rewardsApr)
+        return YieldApyBreakdown(baseApy: marketInfo.apy, rewardsApy: rewardsApy)
     }
 
     func getIncentivesSummary(forceRefresh: Bool = false) async throws -> YieldIncentivesRewardsSummary? {
@@ -293,7 +293,7 @@ actor YieldManagerInteractor {
 /// Components behind the displayed rate, in the same fraction form as the market APY.
 struct YieldApyBreakdown: Equatable {
     let baseApy: Decimal
-    let rewardsApr: Decimal
+    let rewardsApy: Decimal
 }
 
 private extension YieldManagerInteractor {

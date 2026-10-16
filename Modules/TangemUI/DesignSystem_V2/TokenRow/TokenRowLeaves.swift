@@ -53,17 +53,34 @@ struct TokenRowCaptionText: View {
 struct TokenRowTokenIcon: View {
     private let icon: TokenIconInfo
     private let isGrayscale: Bool
+    private let indicatorColor: Color?
     private let accessibilityIdentifier: String?
 
-    init(_ icon: TokenIconInfo, isGrayscale: Bool = false, accessibilityIdentifier: String? = nil) {
+    init(
+        _ icon: TokenIconInfo,
+        isGrayscale: Bool = false,
+        indicatorColor: Color? = nil,
+        accessibilityIdentifier: String? = nil
+    ) {
         self.icon = icon
         self.isGrayscale = isGrayscale
+        self.indicatorColor = indicatorColor
         self.accessibilityIdentifier = accessibilityIdentifier
     }
 
     var body: some View {
-        TokenIconV2(tokenIconInfo: icon, size: TokenRowMetrics.iconSize)
+        tokenIcon
             .grayscale(isGrayscale)
             .accessibilityIdentifier(accessibilityIdentifier)
+    }
+
+    private var tokenIcon: TokenIconV2 {
+        let tokenIcon = TokenIconV2(tokenIconInfo: icon, size: TokenRowMetrics.iconSize)
+
+        guard let indicatorColor else {
+            return tokenIcon
+        }
+
+        return tokenIcon.indicatorColor(indicatorColor)
     }
 }

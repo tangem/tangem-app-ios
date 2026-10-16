@@ -132,6 +132,7 @@ struct BlockchainCodingKeyTests {
         #expect(mainnet.coinId == "chain-2")
         #expect(mainnet.currencySymbol == "XCN")
         #expect(mainnet.decimalCount == 18)
+        #expect(mainnet.displayDecimalCount == 8)
         #expect(!mainnet.supportsEIP1559)
 
         let mainnetLinks = ExternalLinkProviderFactory().makeProvider(for: mainnet)

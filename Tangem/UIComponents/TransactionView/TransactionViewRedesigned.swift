@@ -292,7 +292,8 @@ private extension TransactionViewRedesigned {
             return DesignSystem.Color.textAccentRed
         case .spend(_, _, _, let isNegativeAmount) where isNegativeAmount:
             return DesignSystem.Color.textAccentBlue
-        case .transfer where !viewModel.isOutgoing:
+        case .transfer where !viewModel.isOutgoing,
+             .cashback:
             return DesignSystem.Color.textAccentBlue
         case .spend, .transfer, .fee:
             return nil
