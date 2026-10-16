@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-protocol WebSocketConnection: AnyObject, Sendable {
+public protocol WebSocketConnection: AnyObject, Sendable {
     func send(_ message: WebSocketMessage) async throws(WebSocketTransportError)
     func receive() async throws(WebSocketTransportError) -> WebSocketMessage
     func ping() async throws(WebSocketTransportError)
