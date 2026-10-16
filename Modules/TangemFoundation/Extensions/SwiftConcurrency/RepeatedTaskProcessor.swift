@@ -10,7 +10,8 @@ import Foundation
 
 /// Runs the action every `duration`, from `start` until `cancel`, one run at a time: the next wait is counted
 /// from the end of the run before it, so two runs never overlap.
-/// The first run waits out one `duration`, since whoever starts the processor has usually just done the work itself.
+/// The first run waits out one `duration`, since whoever starts the processor has usually just done the work itself,
+/// unless it is started with `runsImmediately`.
 /// - Note: Stopping is the owner's to do, the way `SingleTaskProcessor` is stopped; an owner that goes away without
 /// stopping it takes the loop with it, since nothing else is left to end it.
 public actor RepeatedTaskProcessor {
@@ -33,7 +34,7 @@ public actor RepeatedTaskProcessor {
     }
 
     /// Starts the timer, unless one is ticking already, in which case the action it was started with stays.
-    public func start(action: @escaping @Sendable () async -> Void) {
+    public func start(runsImmediately: Bool = false, action: @escaping @Sendable () async -> Void) {
         guard !isRunning else {
             return
         }
@@ -42,6 +43,11 @@ public actor RepeatedTaskProcessor {
         let duration = duration
 
         currentTask = Task {
+            if runsImmediately {
+                try Task.checkCancellation()
+                await action()
+            }
+
             while !Task.isCancelled {
                 try await Task.sleep(for: duration)
                 // A cancellation arriving after the deadline has passed leaves the sleep to return as it would have

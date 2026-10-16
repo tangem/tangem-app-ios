@@ -24,6 +24,8 @@ struct ExpressCurrencyView<Content: View>: View {
     private var didTapChangeCurrency: () -> Void = {}
     private var didTapNetworkFeeInfoButton: ((ExpressCurrencyViewModel.PriceChangeState) -> Void)?
     private var didTapSwitchCurrency: (() -> Void)?
+    private var didTapEditSlippage: (() -> Void)?
+    private var isEditSlippageEnabled: Bool = true
     private var isCurrencySwitched: Bool = false
 
     @State private var symbolSize: CGSize = .zero
@@ -112,19 +114,13 @@ struct ExpressCurrencyView<Content: View>: View {
     private var bottomContent: some View {
         HStack(spacing: 0) {
             HStack(spacing: 4) {
-                if !viewModel.state.isFiatAmountHidden {
-                    if viewModel.state.isSwitchCurrencyAvailable, let didTapSwitchCurrency {
-                        SwiftUI.Button(action: didTapSwitchCurrency) {
-                            HStack(spacing: 4) {
-                                switchCurrencyIcon
-
-                                alternativeAmountView
-                            }
-                        }
-                        .accessibilityIdentifier(SwapAccessibilityIdentifiers.currencyToggleButton)
-                    } else {
-                        alternativeAmountView
-                    }
+                switch bottomAccessory {
+                case .editSlippage(let action):
+                    editSlippageButton(action: action)
+                case .fiatAmount:
+                    fiatAmountView
+                case .none:
+                    EmptyView()
                 }
 
                 infoButton
@@ -158,6 +154,45 @@ struct ExpressCurrencyView<Content: View>: View {
         )
     }
 
+    private var bottomAccessory: BottomAccessory {
+        if let didTapEditSlippage {
+            return .editSlippage(action: didTapEditSlippage)
+        }
+
+        return viewModel.state.isFiatAmountHidden ? .none : .fiatAmount
+    }
+
+    @ViewBuilder
+    private var fiatAmountView: some View {
+        if viewModel.state.isSwitchCurrencyAvailable, let didTapSwitchCurrency {
+            SwiftUI.Button(action: didTapSwitchCurrency) {
+                HStack(spacing: 4) {
+                    switchCurrencyIcon
+
+                    alternativeAmountView
+                }
+            }
+            .accessibilityIdentifier(SwapAccessibilityIdentifiers.currencyToggleButton)
+        } else {
+            alternativeAmountView
+        }
+    }
+
+    private func editSlippageButton(action: @escaping () -> Void) -> some View {
+        SwiftUI.Button(action: action) {
+            HStack(spacing: 4) {
+                DesignSystem.Icons.Edit.regular16.image
+                    .renderingMode(.template)
+                    .foregroundColor(Colors.Icon.informative)
+
+                Text(Localization.commonSlippage)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            }
+        }
+        .disabled(!isEditSlippageEnabled)
+        .accessibilityIdentifier(SwapAccessibilityIdentifiers.editSlippageButton)
+    }
+
     private var switchCurrencyIcon: some View {
         DesignSystem.Icons.ArrowSwapHorizontal.regular16.image
             .renderingMode(.template)
@@ -171,9 +206,6 @@ struct ExpressCurrencyView<Content: View>: View {
         if let priceChangeState = viewModel.state.priceChangeState, let didTapNetworkFeeInfoButton {
             SwiftUI.Button(action: { didTapNetworkFeeInfoButton(priceChangeState) }) {
                 switch priceChangeState {
-                case .info:
-                    infoButtonIcon
-                        .foregroundColor(Colors.Icon.informative)
                 case .percent(let percent, _, let isHighLoss):
                     HStack(spacing: 2) {
                         Text(percent)
@@ -283,6 +315,16 @@ private extension ChooseTokenPillView {
     }
 }
 
+// MARK: - BottomAccessory
+
+private extension ExpressCurrencyView {
+    enum BottomAccessory {
+        case editSlippage(action: () -> Void)
+        case fiatAmount
+        case none
+    }
+}
+
 // MARK: - Setupable
 
 extension ExpressCurrencyView: Setupable {
@@ -298,6 +340,13 @@ extension ExpressCurrencyView: Setupable {
         map {
             $0.isCurrencySwitched = isSwitched
             $0.didTapSwitchCurrency = block
+        }
+    }
+
+    func didTapEditSlippage(isEnabled: Bool, _ block: (() -> Void)?) -> Self {
+        map {
+            $0.isEditSlippageEnabled = isEnabled
+            $0.didTapEditSlippage = block
         }
     }
 }

@@ -20,7 +20,7 @@ struct MainView: View {
         content
             .onAppear(perform: viewModel.onViewAppear)
             .onDisappear(perform: viewModel.onViewDisappear)
-            .onDidAppear(perform: viewModel.onDidAppear)
+            .on(willAppear: viewModel.onWillAppear, didAppear: viewModel.onDidAppear)
             .ignoresSafeArea(.keyboard)
     }
 

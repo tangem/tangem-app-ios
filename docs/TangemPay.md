@@ -40,3 +40,7 @@ The state flows in one direction and each layer owns exactly one representation:
 backend customer info (`VisaCustomerInfoResponse`) → `TangemPayEnrollmentState`, computed by `TangemPayEnrollmentStateFetcher` in the module → `TangemPayLocalState`, owned by `TangemPayManager.refreshState()` in the app → UI decisions in `TangemPayAccountViewModel`.
 
 `TangemPayCachedLocalState` is the persisted subset used to render the main-screen row before the first refresh completes.
+
+## UI tests
+
+UI tests under `TangemUITests/Tests/TangemPay` and their page objects under `TangemUITests/Screens/TangemPay` are always updated separately from feature work. A feature change leaves them untouched, even when it breaks an existing test; the tests are brought in line in their own change.

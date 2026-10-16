@@ -113,6 +113,20 @@ final class SwapTokenSelectorScreen: ScreenBase<SwapTokenSelectorScreenElement> 
         return self
     }
 
+    @discardableResult
+    func assertTokenOrder(_ names: [String]) -> Self {
+        XCTContext.runActivity(named: "Verify token order: \(names)") { _ in
+            let positions = names.map { name -> CGFloat in
+                let element = tokenItemButton(name: name)
+                waitAndAssertTrue(element, "Token '\(name)' should be displayed in token selector list")
+                return element.frame.minY
+            }
+            let isOrdered = zip(positions, positions.dropFirst()).allSatisfy { $0 < $1 }
+            XCTAssertTrue(isOrdered, "Tokens should be listed in order \(names), but their on-screen positions were \(positions)")
+        }
+        return self
+    }
+
     /// Selects a FROM token and stays on the token selector (transitions to TO token selection)
     @discardableResult
     func selectFromToken(_ tokenName: String) -> Self {

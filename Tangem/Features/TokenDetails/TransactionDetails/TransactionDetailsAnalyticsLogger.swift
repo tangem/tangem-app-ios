@@ -200,7 +200,7 @@ final class TransactionDetailsAnalyticsLogger {
             .transactionSourceApprove
         case .stake, .unstake, .vote, .withdraw, .claimRewards, .restake:
             .transactionSourceStaking
-        case .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit, .yieldReactivate,
+        case .incentiveClaim, .incentiveClaimCoin, .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit, .yieldReactivate,
              .yieldSend, .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin:
             .yieldModuleSourceInfo
         case .gaslessTransactionFee, .networkFee, .operation, .unknownOperation:
@@ -240,7 +240,7 @@ final class TransactionDetailsAnalyticsLogger {
             .stakeActionClaimRewards
         case .restake:
             .stakeActionRestake
-        case .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit, .yieldReactivate,
+        case .incentiveClaim, .incentiveClaimCoin, .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit, .yieldReactivate,
              .yieldSend, .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin:
             .yieldModuleSourceInfo
         case .gaslessTransactionFee, .networkFee:

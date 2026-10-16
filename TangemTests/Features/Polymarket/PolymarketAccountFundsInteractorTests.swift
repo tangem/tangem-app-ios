@@ -21,6 +21,7 @@ private struct BridgeServiceStub: PolymarketBridgeService {
     var fundingAddressesError: Error?
 
     let receivedBuilderCodes = OSAllocatedUnfairLock(initialState: [String]())
+    let receivedDepositWallets = OSAllocatedUnfairLock(initialState: [String]())
     let supportedAssetsCallCount = OSAllocatedUnfairLock(initialState: 0)
 
     func supportedAssets() async throws -> [PolymarketSupportedAsset] {
@@ -35,6 +36,7 @@ private struct BridgeServiceStub: PolymarketBridgeService {
         builderCode: String
     ) async throws -> PolymarketBridgeAddresses {
         receivedBuilderCodes.withLock { $0.append(builderCode) }
+        receivedDepositWallets.withLock { $0.append(depositWalletAddress) }
 
         if let fundingAddressesError { throw fundingAddressesError }
         return fundingAddresses
@@ -142,6 +144,25 @@ private enum StubError: Error {
 
 // MARK: - Fixtures
 
+private extension PolymarketAccountFundsInteractor.State {
+    var depositAvailability: PolymarketAccountFundsInteractor.DepositAvailability? {
+        if case .ready(let readiness) = self { return readiness.depositAvailability }
+        return nil
+    }
+
+    var depositTargets: [PolymarketAccountFundsInteractor.DepositTarget] {
+        if case .available(let targets) = depositAvailability { return targets }
+        return []
+    }
+}
+
+private extension PolymarketAccountFundsInteractor.Readiness {
+    var depositTargets: [PolymarketAccountFundsInteractor.DepositTarget] {
+        if case .available(let targets) = depositAvailability { return targets }
+        return []
+    }
+}
+
 private extension PolymarketSupportedAsset {
     static func make(
         chainId: String,
@@ -219,6 +240,29 @@ struct PolymarketAddFundsPreparationTests {
         #expect(makeInteractor().state == .loading)
     }
 
+    @Test("A stream hands out the current readiness first and every preparation outcome after it")
+    func streamsEveryReadiness() async {
+        let interactor = makeInteractor(configuration: ConfigurationServiceSpy(error: StubError.offline))
+        var readiness = interactor.makeStateStream().makeAsyncIterator()
+
+        #expect(await readiness.next() == .loading)
+
+        await interactor.prepare()
+
+        #expect(await readiness.next() == .unavailable)
+    }
+
+    @Test("A screen that subscribes after the preparation finished starts from its outcome, not from loading")
+    func lateSubscriberStartsFromTheOutcome() async {
+        let interactor = makeInteractor(configuration: ConfigurationServiceSpy(error: StubError.offline))
+
+        await interactor.prepare()
+
+        var readiness = interactor.makeStateStream().makeAsyncIterator()
+
+        #expect(await readiness.next() == .unavailable)
+    }
+
     @Test("Add funds becomes available once the bridge confirms it accepts USDC on Polygon")
     func availableWhenAccepted() async {
         let interactor = makeInteractor()
@@ -269,7 +313,7 @@ struct PolymarketAddFundsPreparationTests {
         let interactor = makeInteractor(bridge: bridge)
         await interactor.prepare()
 
-        #expect(interactor.state.depositTargets.isEmpty)
+        #expect(interactor.state.depositAvailability == .unavailable)
         #expect(interactor.state.collateralMinCheckoutUSD == 2)
     }
 
@@ -394,11 +438,39 @@ struct PolymarketAddFundsPreparationTests {
 struct PolymarketAddFundsDepositWalletTests {
     @Test("The bridge is asked for the address the backend agrees on")
     func usesTheVerifiedAddress() async {
-        let interactor = makeInteractor(walletService: DepositWalletServiceStub(storedAddress: derivedDepositWallet))
+        let bridge = BridgeServiceStub()
+        let interactor = makeInteractor(
+            bridge: bridge,
+            walletService: DepositWalletServiceStub(storedAddress: derivedDepositWallet)
+        )
 
         await interactor.prepare()
 
         #expect(interactor.state.depositTargets.first != nil)
+        #expect(bridge.receivedDepositWallets.withLock { $0 } == [derivedDepositWallet])
+    }
+
+    @Test("A record the backend stores in lowercase still verifies, and the bridge is asked with the derivation, not the record")
+    func lowercaseRecordVerifiesAndTheDerivationIsSent() async {
+        let bridge = BridgeServiceStub()
+        let interactor = makeInteractor(
+            bridge: bridge,
+            walletService: DepositWalletServiceStub(storedAddress: derivedDepositWallet.lowercased())
+        )
+
+        await interactor.prepare()
+
+        #expect(interactor.state.depositWalletAddress == derivedDepositWallet)
+        #expect(bridge.receivedDepositWallets.withLock { $0 } == [derivedDepositWallet])
+    }
+
+    @Test("A record that claims the wallet is ready to trade but names no address blocks funding")
+    func unavailableWhenAReadyRecordHasNoAddress() async {
+        let interactor = makeInteractor(walletService: DepositWalletServiceStub(storedAddress: nil, status: .readyToTrade))
+
+        await interactor.prepare()
+
+        #expect(interactor.state == .unavailable)
     }
 
     @Test("A backend record that disagrees with the derivation blocks funding instead of depositing elsewhere")

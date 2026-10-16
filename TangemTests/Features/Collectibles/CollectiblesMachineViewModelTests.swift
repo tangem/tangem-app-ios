@@ -8,6 +8,7 @@
 
 import Foundation
 import Testing
+import UIKit
 import TangemTestKit
 @testable import Tangem
 
@@ -16,63 +17,41 @@ import TangemTestKit
 final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
     typealias SUT = CollectiblesMachineViewModel
 
-    @Test("Renders the header straight from the tapped pack, ahead of any response")
-    func rendersHeaderFromPack() {
+    @Test("Renders the whole screen straight from the tapped pack, ahead of any response")
+    func rendersFromPack() {
         let sut = makeSUT()
 
         #expect(sut.title == "Elite pack")
         #expect(sut.artworkURL == URL(string: "https://example.com/pack.png"))
         #expect(sut.openButtonText == "Open for \(Self.priceText(50))")
-        #expect(sut.state.isContent == false)
+
+        #expect(sut.details.tiers.map(\.tier) == [.common, .rare, .epic])
+        #expect(sut.details.cardsCountText == "1 card")
     }
 
-    @Test("First fetch lands as content")
-    func loadsContent() async {
+    @Test("Opening does not request the machine the catalogue already delivered")
+    func opensWithoutRequest() async {
         let provider = MachineProviderStub(results: [.success(Self.machine())])
         let sut = makeSUT(provider: provider)
 
-        sut.load()
-        await waitUntil { sut.state.isContent }
+        sut.onWillAppear()
+        await Task.yield()
         await stopPolling(sut)
 
-        guard case .content(let details) = sut.state else {
-            Issue.record("Expected the content state")
-            return
-        }
-
-        #expect(details.tiers.map(\.tier) == [.common, .rare, .epic])
-        #expect(details.cardsCountText == "1 card")
+        #expect(provider.loadCallsCount == 0)
     }
 
     @Test("A poll response refreshes the header and the CTA price")
     func refreshesHeaderFromPolling() async {
         let provider = MachineProviderStub(results: [.success(Self.machine(name: "Repriced pack", price: 55))])
-        let sut = makeSUT(provider: provider)
+        let sut = makeSUT(provider: provider, pollInterval: .milliseconds(10))
 
-        sut.load()
-        await waitUntil { sut.state.isContent }
+        sut.onWillAppear()
+        await waitUntil { sut.title == "Repriced pack" }
         await stopPolling(sut)
 
         #expect(sut.title == "Repriced pack")
         #expect(sut.openButtonText == "Open for \(Self.priceText(55))")
-    }
-
-    @Test("Retry refetches right away instead of waiting for the next tick")
-    func failsAndRetries() async {
-        let provider = MachineProviderStub(results: [
-            .failure(URLError(.notConnectedToInternet)),
-            .success(Self.machine()),
-        ])
-        let sut = makeSUT(provider: provider)
-
-        sut.load()
-        await waitUntil { sut.state.isFailed }
-
-        sut.retry()
-        await waitUntil { sut.state.isContent }
-        await stopPolling(sut)
-
-        #expect(provider.loadCallsCount == 2)
     }
 
     @Test("A repeated load call does not start a second polling loop")
@@ -80,18 +59,15 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
         let provider = MachineProviderStub(results: [.success(Self.machine())])
         let sut = makeSUT(provider: provider)
 
-        sut.load()
-        await waitUntil { sut.state.isContent }
+        sut.onWillAppear()
 
         let runningLoop = sut.pollingTask
-        sut.load()
+        sut.onWillAppear()
 
         // Identity rather than the call count: a second loop would be cancelled before it ever reached the provider
         #expect(sut.pollingTask == runningLoop)
 
         await stopPolling(sut)
-
-        #expect(provider.loadCallsCount == 1)
     }
 
     @Test("A silent refresh that fails leaves the last values on screen while the loop keeps polling")
@@ -103,12 +79,56 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
         ])
         let sut = makeSUT(provider: provider, pollInterval: .milliseconds(10))
 
-        sut.load()
+        sut.onWillAppear()
         // The loop is sequential, so a third call proves the second one's failure was handled to the end.
         await waitUntil { provider.loadCallsCount >= 3 }
         await stopPolling(sut)
 
-        #expect(sut.state.isContent)
+        #expect(sut.details.tiers.map(\.tier) == [.common, .rare, .epic])
+    }
+
+    @Test("Going to the background stops the polling loop")
+    func backgroundStopsPolling() async {
+        let notificationCenter = NotificationCenter()
+        let sut = makeSUT(notificationCenter: notificationCenter)
+
+        sut.onWillAppear()
+        await waitUntil { notificationCenter.post(.didEnterBackground) && sut.pollingTask == nil }
+
+        #expect(sut.pollingTask == nil)
+    }
+
+    @Test("Returning to the foreground fetches at once and resumes polling")
+    func foregroundFetchesAndResumes() async {
+        let notificationCenter = NotificationCenter()
+        let provider = MachineProviderStub(results: [.success(Self.machine(name: "Fresh pack"))])
+        let sut = makeSUT(provider: provider, notificationCenter: notificationCenter)
+
+        sut.onWillAppear()
+        await waitUntil { notificationCenter.post(.didEnterBackground) && sut.pollingTask == nil }
+        await waitUntil { notificationCenter.post(.willEnterForeground) && sut.title == "Fresh pack" }
+
+        #expect(provider.loadCallsCount == 1)
+        #expect(sut.pollingTask != nil)
+
+        await stopPolling(sut)
+    }
+
+    @Test("Returning to the foreground off the screen leaves polling stopped")
+    func foregroundOffScreenKeepsPollingStopped() async {
+        let notificationCenter = NotificationCenter()
+        let provider = MachineProviderStub(results: [.success(Self.machine())])
+        let sut = makeSUT(provider: provider, notificationCenter: notificationCenter)
+
+        sut.onWillAppear()
+        await stopPolling(sut)
+        for _ in 0 ..< 10 {
+            notificationCenter.post(.willEnterForeground)
+            await Task.yield()
+        }
+
+        #expect(sut.pollingTask == nil)
+        #expect(provider.loadCallsCount == 0)
     }
 }
 
@@ -117,12 +137,16 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
 private extension CollectiblesMachineViewModelTests {
     func makeSUT(
         provider: (any CollectiblesMachineProvider)? = nil,
-        pollInterval: Duration = .seconds(60)
+        pollInterval: Duration = .seconds(60),
+        notificationCenter: NotificationCenter = NotificationCenter()
     ) -> SUT {
         let sut = SUT(
             pack: Self.pack(),
+            routable: nil,
+            prizePoolProvider: PrizePoolProviderStub(),
             provider: provider ?? MachineProviderStub(results: [.success(Self.machine())]),
-            pollInterval: pollInterval
+            pollInterval: pollInterval,
+            notificationCenter: notificationCenter
         )
         return trackForMemoryLeaks(sut)
     }
@@ -130,12 +154,9 @@ private extension CollectiblesMachineViewModelTests {
     static func pack() -> CollectiblesPack {
         CollectiblesPack(
             id: "pokemon_50",
-            name: "Elite pack",
             loreID: "pokemon",
-            price: 50,
             currencyCode: "USD",
-            buybackRate: Decimal(string: "0.85")!,
-            artworkURL: URL(string: "https://example.com/pack.png")
+            machine: machine()
         )
     }
 
@@ -161,7 +182,7 @@ private extension CollectiblesMachineViewModelTests {
     /// Waits for the loop to unwind so the leak check does not race the in-flight request.
     func stopPolling(_ sut: SUT) async {
         let task = sut.pollingTask
-        sut.stopPolling()
+        sut.onWillDisappear()
         await task?.value
     }
 
@@ -183,8 +204,9 @@ private extension CollectiblesMachineViewModelTests {
     static func machine(name: String = "Elite pack", price: Decimal = 50) -> CollectiblesMachine {
         CollectiblesMachine(
             name: name,
-            artworkURL: nil,
+            artworkURL: URL(string: "https://example.com/pack.png"),
             price: price,
+            platformFee: 1,
             cardsPerPack: 1,
             buybackRate: Decimal(string: "0.85")!,
             expectedValue: Decimal(string: "53.95")!,
@@ -198,6 +220,13 @@ private extension CollectiblesMachineViewModelTests {
 }
 
 // MARK: - Stubs
+
+/// The pool is not under test here, an empty page keeps its view model quiet.
+private struct PrizePoolProviderStub: CollectiblesPrizePoolProvider {
+    func load(machineID: String, page: Int) async throws -> CollectiblesPrizePoolPage {
+        CollectiblesPrizePoolPage(prizes: [], hasNext: false)
+    }
+}
 
 @MainActor
 private final class MachineProviderStub: CollectiblesMachineProvider {
@@ -215,5 +244,21 @@ private final class MachineProviderStub: CollectiblesMachineProvider {
 
         let result = results.count > 1 ? results.removeFirst() : results[0]
         return try result.get()
+    }
+}
+
+private extension NotificationCenter {
+    enum AppEvent {
+        case didEnterBackground
+        case willEnterForeground
+    }
+
+    @discardableResult
+    func post(_ event: AppEvent) -> Bool {
+        switch event {
+        case .didEnterBackground: post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+        case .willEnterForeground: post(name: UIApplication.willEnterForegroundNotification, object: nil)
+        }
+        return true
     }
 }

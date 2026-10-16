@@ -16,8 +16,8 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     private lazy var freezeRowActive = button(.freezeCardRowStateActive)
     private lazy var freezeRowFrozen = button(.freezeCardRowStateFrozen)
     private lazy var moreMenuButton = button(.cardManagementMoreButton)
-    private lazy var replaceCardMenuItem = button(Constants.replaceCardTitle)
-    private lazy var closeCardMenuItem = button(Constants.closeCardTitle)
+    private lazy var replaceCardMenuItem = button(Localization.tangempayCardDetailsReissueCard)
+    private lazy var closeCardMenuItem = button(Localization.tangemPayCloseCardPopupPrimaryButtonTitle)
     private lazy var dailyLimitChangeButton = button(.dailyLimitChangeButton)
     private lazy var showDetailsButton = button(.cardDetailsShowButton)
     private lazy var hideDetailsButton = button(.cardDetailsHideButton)
@@ -28,6 +28,7 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     private lazy var copyExpirationButton = button(.cardDetailsCopyExpiration)
     private lazy var copyCvcButton = button(.cardDetailsCopyCvc)
     private lazy var applePayGuideBanner = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.addToApplePayGuideBanner].firstMatch
+    private lazy var applePayGuideBannerCloseButton = app.buttons[TangemPayAccessibilityIdentifiers.addToApplePayGuideBannerCloseButton].firstMatch
     private lazy var plasticContactSupportButton = button(.plasticContactSupportButton)
     private lazy var plasticActivateButton = button(.plasticActivateCardButton)
     /// Type-agnostic: the issuing message is a plain container, not guaranteed to surface as a specific element type.
@@ -179,7 +180,7 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     func verifyCardClosingInProgress() -> Self {
         XCTContext.runActivity(named: "Verify 'Closing your card' state") { _ in
             waitAndAssertTrue(
-                app.staticTexts[Constants.closingInProgressText].firstMatch,
+                app.staticTexts[Localization.tangempayCardPageClosingBannerTitle].firstMatch,
                 timeout: .networkRequest,
                 "'Closing your card' should be displayed while the card is being closed"
             )
@@ -191,7 +192,7 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     func waitForCardClosingCompleted() -> Self {
         XCTContext.runActivity(named: "Wait for the card closing to complete") { _ in
             XCTAssertTrue(
-                app.staticTexts[Constants.closingInProgressText].firstMatch.waitForNonExistence(timeout: .networkRequest),
+                app.staticTexts[Localization.tangempayCardPageClosingBannerTitle].firstMatch.waitForNonExistence(timeout: .networkRequest),
                 "'Closing your card' should disappear once the close order completes"
             )
             waitAndAssertTrue(changePinRow, timeout: .networkRequest, "Card actions should return after the card is closed")
@@ -218,7 +219,7 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     func verifyReplacingInProgress() -> Self {
         XCTContext.runActivity(named: "Verify 'Replacing your digital card' state") { _ in
             waitAndAssertTrue(
-                app.staticTexts[Constants.replacingInProgressText].firstMatch,
+                app.staticTexts[Localization.tangempayReissueCardInProgress].firstMatch,
                 "'Replacing your digital card' should be displayed while reissue is in progress"
             )
             return self
@@ -233,8 +234,8 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
                 timeout: .networkRequest,
                 "Issuing message should be displayed while the card is being issued"
             )
-            waitAndAssertTrue(app.staticTexts[Constants.issuingTitle].firstMatch, "Issuing title should be displayed")
-            waitAndAssertTrue(app.staticTexts[Constants.issuingDescription].firstMatch, "Issuing description should be displayed")
+            waitAndAssertTrue(app.staticTexts[Localization.tangempayIssuingNewDigitalCardTitle].firstMatch, "Issuing title should be displayed")
+            waitAndAssertTrue(app.staticTexts[Localization.tangempayReissueCardInProgressDescription].firstMatch, "Issuing description should be displayed")
             return self
         }
     }
@@ -243,7 +244,7 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     func verifyPlasticDeliveryState(email: String) -> Self {
         XCTContext.runActivity(named: "Verify the plastic card delivery state") { _ in
             let message = app.staticTexts
-                .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, Constants.plasticDeliveryMessage))
+                .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, Localization.tangempayCardDetailsDeliveryDescription(email)))
                 .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, email))
                 .firstMatch
             waitAndAssertTrue(message, timeout: .networkRequest, "Plastic delivery message with '\(email)' should be displayed")
@@ -266,9 +267,9 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     func verifyPlasticActivating() -> Self {
         XCTContext.runActivity(named: "Verify the plastic card is being activated") { _ in
             waitAndAssertTrue(
-                app.staticTexts[Constants.plasticActivatingTitle].firstMatch,
+                app.staticTexts[Localization.tangempayCardPageActivatingBannerTitle].firstMatch,
                 timeout: .networkRequest,
-                "'\(Constants.plasticActivatingTitle)' should be displayed"
+                "'\(Localization.tangempayCardPageActivatingBannerTitle)' should be displayed"
             )
             return self
         }
@@ -306,16 +307,16 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
             waitAndAssertTrue(alert, "Reissue fee error alert should be displayed")
 
             let title = alert.staticTexts
-                .element(matching: NSPredicate(format: "label CONTAINS %@", "Something went wrong"))
+                .element(matching: NSPredicate(format: "label CONTAINS %@", Localization.commonSomethingWentWrong))
                 .firstMatch
             XCTAssertTrue(title.exists, "Alert title 'Something went wrong' should be displayed")
 
             let message = alert.staticTexts
-                .element(matching: NSPredicate(format: "label CONTAINS %@", "Replacement fee info unreachable"))
+                .element(matching: NSPredicate(format: "label CONTAINS %@", Localization.tangempayReissueCardFeeUnreachableErrorTitle))
                 .firstMatch
             XCTAssertTrue(message.exists, "Alert message 'Replacement fee info unreachable' should be displayed")
 
-            alert.buttons["OK"].waitAndTap()
+            alert.buttons[Localization.commonOk].waitAndTap()
             return self
         }
     }
@@ -434,6 +435,14 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     }
 
     @discardableResult
+    func closeApplePayGuideBanner() -> Self {
+        XCTContext.runActivity(named: "Close Apple/Google Pay banner on card details") { _ in
+            applePayGuideBannerCloseButton.waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
     func tapApplePayGuideBanner() -> TangemPayAddToAppPayGuideScreen {
         XCTContext.runActivity(named: "Tap Apple/Google Pay instruction banner") { _ in
             applePayGuideBanner.waitAndTap()
@@ -460,7 +469,7 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     func verifyCardDetailsErrorToast() -> Self {
         XCTContext.runActivity(named: "Verify card details load error toast") { _ in
             let toast = app.staticTexts
-                .matching(NSPredicate(format: "label CONTAINS %@", "Failed to load data"))
+                .matching(NSPredicate(format: "label CONTAINS %@", Localization.tangempayCardDetailsErrorText))
                 .firstMatch
             waitAndAssertTrue(toast, "Card details load error toast should be displayed")
             return self
@@ -471,7 +480,7 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     func verifyFreezeErrorToast() -> Self {
         XCTContext.runActivity(named: "Verify freeze failure toast") { _ in
             let toast = app.staticTexts
-                .matching(NSPredicate(format: "label CONTAINS %@", "Failed to freeze the card"))
+                .matching(NSPredicate(format: "label CONTAINS %@", Localization.tangemPayFreezeCardFailed))
                 .firstMatch
             waitAndAssertTrue(toast, "Freeze failure toast should be displayed")
             return self
@@ -482,7 +491,7 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     func verifyUnfreezeErrorToast() -> Self {
         XCTContext.runActivity(named: "Verify unfreeze failure toast") { _ in
             let toast = app.staticTexts
-                .matching(NSPredicate(format: "label CONTAINS %@", "Failed to unfreeze the card"))
+                .matching(NSPredicate(format: "label CONTAINS %@", Localization.tangemPayUnfreezeCardFailed))
                 .firstMatch
             waitAndAssertTrue(toast, "Unfreeze failure toast should be displayed")
             return self
@@ -551,18 +560,5 @@ enum TangemPayCardDetailsScreenElement: String, UIElement {
         case .plasticActivateCardButton:
             TangemPayAccessibilityIdentifiers.plasticActivateCardButton
         }
-    }
-}
-
-private extension TangemPayCardDetailsScreen {
-    enum Constants {
-        static let replaceCardTitle = "Replace card"
-        static let replacingInProgressText = "Replacing your digital card"
-        static let issuingTitle = "Issuing a new digital card"
-        static let issuingDescription = "Usually takes up to 5 minutes. In rare cases, up to 48 hours."
-        static let closeCardTitle = "Close card"
-        static let closingInProgressText = "Closing your card"
-        static let plasticDeliveryMessage = "Your card on it's way for delivery. You will get email with updates from logistic company on"
-        static let plasticActivatingTitle = "Activating your physical card"
     }
 }

@@ -9,8 +9,6 @@
 import XCTest
 
 final class TangemPayHotWalletOnboardingUITests: BaseTestCase {
-    private let kycInProgressSubtitle = "Verification in progress"
-
     func testCardIssuing_StartsFromBanner_WhenHotWalletIsCreated() {
         setAllureId(10666)
 
@@ -24,15 +22,22 @@ final class TangemPayHotWalletOnboardingUITests: BaseTestCase {
             .skipPushNotificationsSetup()
             .verifyGetTangemPayBannerExists()
 
-        mainScreen
+        let countrySelection = mainScreen
             .tapGetTangemPayBanner()
             .waitForScreen()
-            .tapGetCard()
+            .tapGetCardExpectingCountrySelection()
 
         // The backend turns the wallet into a Paera customer once the offer is accepted
         wireMockClient.setScenarioStateSync("tangem_pay_eligibility", state: "PaeraCustomer")
 
-        mainScreen.verifyTangemPayTileSubtitle(contains: kycInProgressSubtitle)
+        countrySelection
+            .waitForScreen(title: Localization.tangempayResidencyTitleCountry)
+            .selectRow(Constants.residenceCountry)
+            .waitForScreen(title: Localization.tangempayResidencyTitleState)
+            .selectRow(Constants.residenceState)
+            .waitForClosed(title: Localization.tangempayResidencyTitleState)
+
+        mainScreen.verifyTangemPayTileSubtitle(contains: Localization.tangempayKycInProgress)
     }
 
     func testCardIssuing_StartsFromMobileOnboarding_WhenOpenedByDeeplink() {
@@ -47,7 +52,7 @@ final class TangemPayHotWalletOnboardingUITests: BaseTestCase {
             .waitForScreen()
             .tapGetCard()
             .skipPushNotificationsSetup()
-            .verifyTangemPayTileSubtitle(contains: kycInProgressSubtitle)
+            .verifyTangemPayTileSubtitle(contains: Localization.tangempayKycInProgress)
     }
 
     private func launchWithoutWallet(
@@ -65,5 +70,12 @@ final class TangemPayHotWalletOnboardingUITests: BaseTestCase {
             ] + extraScenarios,
             extraLaunchArguments: extraLaunchArguments
         )
+    }
+}
+
+private extension TangemPayHotWalletOnboardingUITests {
+    enum Constants {
+        static let residenceCountry = "United States"
+        static let residenceState = "California"
     }
 }

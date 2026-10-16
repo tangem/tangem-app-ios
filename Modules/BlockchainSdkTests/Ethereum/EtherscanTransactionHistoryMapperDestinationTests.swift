@@ -65,7 +65,58 @@ struct EtherscanTransactionHistoryMapperDestinationTests {
         #expect(try #require(records.first).destination.destinations.first?.address == .contract(tokenContract))
     }
 
+    @Test("An unverified contract is recognised by its selector alone")
+    func unverifiedContractCallIsNotAPlainTransfer() throws {
+        let record = try #require(try mapCoinCall(functionName: "", methodId: "0xb4701e3e", to: tokenContract).first)
+
+        #expect(record.destination.destinations.first?.address == .contract(tokenContract))
+        #expect(record.type == .contractMethodIdentifier(id: "0xb4701e3e"))
+    }
+
+    @Test("A plain coin transfer carries no selector and stays a transfer")
+    func plainCoinTransferNamesTheRecipient() throws {
+        let record = try #require(try mapCoinCall(functionName: "", methodId: "0x", to: recipient).first)
+
+        #expect(record.destination.destinations.first?.address == .user(recipient))
+        #expect(record.type == .transfer)
+    }
+
+    @Test("A token transfer known only by its selector still names the recipient, never the contract")
+    func tokenTransferWithOnlyASelectorNamesTheRecipient() throws {
+        let record = try #require(try mapTokenTransfer(methodId: "0xa9059cbb", functionName: "").first)
+
+        #expect(record.destination.destinations.first?.address == .user(recipient))
+    }
+
     // MARK: - Helpers
+
+    private func mapCoinCall(functionName: String?, methodId: String?, to: String) throws -> [TransactionRecord] {
+        let mapper = EtherscanTransactionHistoryMapper(blockchain: blockchain)
+        let response = EtherscanTransactionHistoryResult(
+            status: "1",
+            message: nil,
+            result: .transactions([
+                .init(
+                    confirmations: "10",
+                    contractAddress: nil,
+                    from: walletAddress,
+                    functionName: functionName,
+                    methodId: methodId,
+                    gasPrice: "30000000000",
+                    gasUsed: "46000",
+                    hash: "0xdeadbeef",
+                    input: methodId,
+                    isError: "0",
+                    timeStamp: "1700000000",
+                    to: to,
+                    txReceiptStatus: "1",
+                    value: "1000000000000000000"
+                ),
+            ])
+        )
+
+        return try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
+    }
 
     private func mapTokenTransfer(methodId: String?, functionName: String?) throws -> [TransactionRecord] {
         let mapper = EtherscanTransactionHistoryMapper(blockchain: blockchain)

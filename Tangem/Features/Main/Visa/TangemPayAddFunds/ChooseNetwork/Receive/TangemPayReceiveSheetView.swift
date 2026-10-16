@@ -83,102 +83,58 @@ private extension TangemPayReceiveSheetView {
     }
 
     var infoContent: some View {
-        VStack(spacing: .zero) {
-            warningBanner
-                .padding(.horizontal, 16)
-                .padding(.bottom, 12)
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 16) {
+                addressBlock
 
-            addressBlock
-                .padding(.horizontal, 16)
-                .padding(.top, 32)
-                .padding(.bottom, 40)
-
-            actionButtons
-                .padding(16)
-        }
-    }
-
-    var warningBanner: some View {
-        HStack(alignment: .top, spacing: 8) {
-            DesignSystem.Icons.Info.regular20.image
-                .renderingMode(.template)
-                .resizable()
-                .frame(width: 20, height: 20)
-                .foregroundStyle(DesignSystem.Color.iconStatusInfo)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(viewModel.warningTitle)
-                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
-                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetWarningTitle)
-
-                Text(Localization.receiveBottomSheetWarningMessageDescription)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetWarningDescription)
+                RedesignedReceiveNotificationsView(inputs: viewModel.notificationInputs)
             }
-            .fixedSize(horizontal: false, vertical: true)
-
-            Spacer(minLength: 0)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
         }
-        .padding(16)
-        .background(DesignSystem.Color.bgStatusInfoSubtle, in: RoundedRectangle(cornerRadius: 16))
     }
 
     var addressBlock: some View {
-        VStack(spacing: 32) {
-            HStack(spacing: 12) {
-                ForEach(viewModel.tokenIcons) { tokenIcon in
-                    icon(for: tokenIcon)
+        VStack(spacing: 20) {
+            VStack(spacing: 8) {
+                VStack(spacing: 12) {
+                    HStack(spacing: 8) {
+                        ForEach(viewModel.tokenIcons) { tokenIcon in
+                            icon(for: tokenIcon)
+                        }
+                    }
+
+                    VStack(spacing: 4) {
+                        Text(viewModel.heading)
+                            .multilineTextAlignment(.center)
+                            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetHeading)
+
+                        SUILabel(attributedAddress)
+                            .animation(nil, value: viewModel.address)
+                            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetAddress)
+                    }
+                    .padding(.horizontal, 24)
                 }
+
+                showQRCodeButton
             }
 
-            VStack(spacing: 12) {
-                VStack(spacing: 4) {
-                    Text(viewModel.heading)
-                        .multilineTextAlignment(.center)
-                        .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
-                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetHeading)
-
-                    SUILabel(attributedAddress)
-                        .animation(nil, value: viewModel.address)
-                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetAddress)
-                }
-
-                copyButton
-            }
+            actionButtons
         }
+        .padding(16)
     }
 
     func icon(for tokenIcon: TangemPayReceiveSheetViewModel.TokenIconViewData) -> some View {
-        iconContent(for: tokenIcon)
+        TokenIcon(tokenIconInfo: tokenIcon.tokenIconInfo, size: Constants.tokenIconSize, isWithOverlays: false)
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetTokenIcon(symbol: tokenIcon.symbol))
-            .overlay(Circle().strokeBorder(DesignSystem.Color.borderSecondary, lineWidth: 1))
             .networkIconOverlay(
                 imageAsset: tokenIcon.networkIcon,
-                iconSize: CGSize(bothDimensions: 26),
-                borderWidth: 2,
+                iconSize: Constants.networkIconSize,
+                borderWidth: Constants.networkIconBorderWidth,
                 borderColor: DesignSystem.Color.bgSecondary,
                 isShimmerEnabled: false
             )
-    }
-
-    @ViewBuilder
-    func iconContent(for tokenIcon: TangemPayReceiveSheetViewModel.TokenIconViewData) -> some View {
-        if tokenIcon.url == nil {
-            Text(tokenIcon.symbol)
-                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
-                .padding(4)
-                .frame(size: CGSize(bothDimensions: Constants.tokenIconSize))
-                .background(DesignSystem.Color.bgTransparentPrimary, in: Circle())
-        } else {
-            IconView(
-                url: tokenIcon.url,
-                size: CGSize(bothDimensions: Constants.tokenIconSize),
-                cornerRadius: Constants.tokenIconSize / 2,
-                forceKingfisher: true
-            )
-        }
     }
 
     var attributedAddress: NSAttributedString {
@@ -186,7 +142,7 @@ private extension TangemPayReceiveSheetView {
         paragraphStyle.lineBreakMode = .byCharWrapping
         paragraphStyle.alignment = .center
 
-        let token = DesignSystem.Font.subheadingMediumToken
+        let token = DesignSystem.Font.captionMediumToken
 
         return NSAttributedString(
             string: viewModel.address,
@@ -199,47 +155,46 @@ private extension TangemPayReceiveSheetView {
         )
     }
 
-    var copyButton: some View {
+    var showQRCodeButton: some View {
         TangemUI.Button(
-            label: AttributedString(Localization.commonCopy),
-            accessibilityLabel: Localization.commonCopy,
-            action: viewModel.copy
+            label: AttributedString(Localization.tokenReceiveShowQrCodeTitle),
+            accessibilityLabel: Localization.tokenReceiveShowQrCodeTitle,
+            action: viewModel.showQRCode
         )
-        .iconEnd(DesignSystem.Icons.Copy.regular20)
-        .size(.x8)
-        .styleType(.outline)
-        .horizontalLayout(.intrinsic)
-        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetCopyButton)
+        .iconStart(Assets.Receive.qrButtonIcon)
+        .size(.x10)
+        .styleType(.ghost)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetShowQRButton)
     }
 
     var actionButtons: some View {
         HStack(spacing: 8) {
             TangemUI.Button(
-                label: AttributedString(Localization.tangempayMultichainShowQr),
-                accessibilityLabel: Localization.tangempayMultichainShowQr,
-                action: viewModel.showQRCode
+                label: AttributedString(Localization.commonCopy),
+                accessibilityLabel: Localization.commonCopy,
+                action: viewModel.copy
             )
-            .iconEnd(DesignSystem.Icons.Qr.regular24)
+            .iconStart(DesignSystem.Icons.Copy.regular24)
             .size(.x12)
             .styleType(.secondary(.default))
-            .horizontalLayout(.infinity)
-            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetShowQRButton)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetCopyButton)
 
             TangemUI.Button(
                 label: AttributedString(Localization.commonShare),
                 accessibilityLabel: Localization.commonShare,
                 action: viewModel.share
             )
-            .iconEnd(DesignSystem.Icons.ShareIos.regular24)
+            .iconStart(DesignSystem.Icons.ShareIos.regular24)
             .size(.x12)
-            .styleType(.default)
-            .horizontalLayout(.infinity)
+            .styleType(.secondary(.default))
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.multichainReceiveSheetShareButton)
         }
     }
 
     enum Constants {
-        static let tokenIconSize: CGFloat = 80
+        static let tokenIconSize = CGSize(bothDimensions: 56)
+        static let networkIconSize = CGSize(bothDimensions: 20)
+        static let networkIconBorderWidth: Double = 1
     }
 }
 

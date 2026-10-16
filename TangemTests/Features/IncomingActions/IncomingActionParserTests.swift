@@ -124,6 +124,111 @@ struct IncomingActionParserTests {
         #expect(action == nil)
     }
 
+    @Test("A joint sent push is read as a link to the token of the account it names")
+    func jointSentPushNamesItsAccount() {
+        let action = parser.parse(push: [
+            "type": "joint_tx_sent",
+            "network_id": "polygon-pos",
+            "token_id": "polygon-ecosystem-token",
+            "user_wallet_id": Constants.walletId,
+            "account_id": Constants.accountId,
+        ])
+
+        guard case .navigation(.token(let deeplink)) = action else {
+            Issue.record("Expected a token link, got \(String(describing: action))")
+            return
+        }
+
+        #expect(deeplink.accountId == Constants.accountId.lowercased())
+        #expect(deeplink.statusUpdate == nil)
+    }
+
+    @Test("A transaction push naming an account is not taken for a joint one")
+    func transactionPushWithAccountIsNotJoint() {
+        let action = parser.parse(push: [
+            "type": "income_transaction",
+            "network_id": "polygon-pos",
+            "token_id": "polygon-ecosystem-token",
+            "user_wallet_id": Constants.walletId,
+            "account_id": Constants.accountId,
+        ])
+
+        guard case .navigation(.token(let deeplink)) = action else {
+            Issue.record("Expected a token link, got \(String(describing: action))")
+            return
+        }
+
+        #expect(deeplink.accountId == Constants.accountId.lowercased())
+        #expect(!deeplink.isJointTransaction)
+    }
+
+    @Test("A joint sent push whose account is \"null\" names no account, yet stays a joint link")
+    func jointSentPushWithNullAccount() {
+        let action = parser.parse(push: [
+            "type": "joint_tx_sent",
+            "network_id": "polygon-pos",
+            "token_id": "polygon-ecosystem-token",
+            "user_wallet_id": Constants.walletId,
+            "account_id": "null",
+        ])
+
+        guard case .navigation(.token(let deeplink)) = action else {
+            Issue.record("Expected a token link, got \(String(describing: action))")
+            return
+        }
+
+        #expect(deeplink.accountId == nil)
+        #expect(deeplink.isJointTransaction)
+    }
+
+    @Test("A joint operation push points at its operation without a derivation")
+    func jointOperationPushCarriesItsOperation() {
+        let action = parser.parse(push: [
+            "type": "joint_tx",
+            "network_id": "polygon-pos",
+            "token_id": "polygon-ecosystem-token",
+            "user_wallet_id": Constants.walletId,
+            "transaction_id": Constants.transactionId,
+        ])
+
+        guard case .navigation(.token(let deeplink)) = action else {
+            Issue.record("Expected a token link, got \(String(describing: action))")
+            return
+        }
+
+        #expect(deeplink.statusUpdate == TokenDeeplink.StatusUpdate(kind: .jointOperation, transactionId: Constants.transactionId))
+    }
+
+    @Test(
+        "A joint account push is read as the screen of the account it names",
+        arguments: [
+            ("joint_members", JointAccountDeeplink.Entry.members),
+            ("joint_overview", JointAccountDeeplink.Entry.overview),
+        ]
+    )
+    func jointAccountPush(type: String, entry: JointAccountDeeplink.Entry) {
+        let action = parser.parse(push: [
+            "type": type,
+            "user_wallet_id": Constants.walletId,
+            "account_id": Constants.accountId,
+        ])
+
+        #expect(action == .navigation(.jointAccount(
+            JointAccountDeeplink(entry: entry, userWalletId: Constants.walletId, accountId: Constants.accountId.lowercased())
+        )))
+    }
+
+    @Test("A joint account push without its account has nothing to open")
+    func jointAccountPushWithoutAccountIsNotAnAction() {
+        let action = parser.parse(push: [
+            "type": "joint_members",
+            "user_wallet_id": Constants.walletId,
+            "account_id": "null",
+        ])
+
+        #expect(action == nil)
+    }
+
     @Test("A payment push is read as the screen it asks for")
     func paymentPush() {
         let action = parser.parse(push: [
@@ -168,5 +273,6 @@ private extension IncomingActionParserTests {
     enum Constants {
         static let walletId = "7AFC37E5D8BB0C5F29C0D5FD7835A63CC6A87DA00DD8B72BBBDA5C8CF4AACA0E"
         static let transactionId = "9244b376"
+        static let accountId = "BA910A77A178F75B"
     }
 }

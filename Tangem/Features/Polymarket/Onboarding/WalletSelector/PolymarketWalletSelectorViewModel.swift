@@ -28,8 +28,19 @@ final class PolymarketWalletSelectorViewModel: ObservableObject {
         closeAction = onClose
     }
 
-    func onCloseTap() {
-        closeAction()
+    func handleViewAction(_ action: ViewAction) {
+        switch action {
+        case .close:
+            closeAction()
+        }
+    }
+}
+
+// MARK: - ViewAction
+
+extension PolymarketWalletSelectorViewModel {
+    enum ViewAction {
+        case close
     }
 }
 

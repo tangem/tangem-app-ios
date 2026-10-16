@@ -29,6 +29,7 @@ extension CollectiblesDTO {
         let stock: Tiers<Int>
         let expectedValue: Decimal
         let image: String?
+        let videoOpenPack: String?
         let categoryId: String
         let createdAt: String
         let updatedAt: String

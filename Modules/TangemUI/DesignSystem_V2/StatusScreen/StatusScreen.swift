@@ -233,7 +233,7 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
             Button(label: actionTitle, accessibilityLabel: actionTitle, action: action)
                 .iconEnd(actionIcon)
                 .size(.x12)
-                .styleType(.default)
+                .styleType(.primary)
                 .horizontalLayout(.infinity)
                 .loading(.spinner(if: isActionLoading))
                 .disabled(isActionDisabled)
@@ -420,7 +420,7 @@ private enum StatusScreenLayout {
     var footerTopPadding: CGFloat {
         switch self {
         case .compact: 12
-        case .regular: 24
+        case .regular: 8
         }
     }
 

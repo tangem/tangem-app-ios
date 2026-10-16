@@ -31,7 +31,7 @@ struct MobileCreateWalletView: View {
 private extension MobileCreateWalletView {
     var navigationBar: some View {
         NavigationBarButton.back(action: viewModel.onBackTap)
-            .padding(.leading, .unit(.x4))
+            .padding(.leading, 16)
             .frame(maxWidth: .infinity, alignment: .leading)
             .redesigned()
     }

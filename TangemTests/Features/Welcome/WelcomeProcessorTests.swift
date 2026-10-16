@@ -14,32 +14,22 @@ import Testing
 struct WelcomeProcessorTests {
     typealias State = WelcomeProcessor.State
 
-    @Test("No startup onboarding: no welcome onboarding, no deep link")
+    @Test("No startup onboarding: no deep link")
     func startup_none() {
         let state = State(startupOnboarding: nil)
-        #expect(state.welcomeOnboarding == nil)
         #expect(state.deepLink == nil)
     }
 
-    @Test("Welcome onboarding: steps captured, no deep link")
-    func startup_welcome() {
-        let state = State(startupOnboarding: .welcome(steps: [.tos]))
-        #expect(state.welcomeOnboarding == [.tos])
-        #expect(state.deepLink == nil)
-    }
-
-    @Test("Tangem Pay startup: Tangem Pay deep link, no welcome onboarding")
+    @Test("Tangem Pay startup: Tangem Pay deep link")
     func startup_tangemPay() {
         let state = State(startupOnboarding: .tangemPayMobile)
-        #expect(state.welcomeOnboarding == nil)
         #expect(state.deepLink == .tangemPay)
     }
 
-    @Test("Tangem Pay campaign startup: campaign deep link carrying the key, no welcome onboarding")
+    @Test("Tangem Pay campaign startup: campaign deep link carrying the key")
     func startup_tangemPayCampaign() {
         let campaignKey = "tpay_for_harvard123"
         let state = State(startupOnboarding: .tangemPayCampaign(campaignKey: campaignKey))
-        #expect(state.welcomeOnboarding == nil)
         #expect(state.deepLink == .tangemPayCampaign(campaignKey: campaignKey))
     }
 }

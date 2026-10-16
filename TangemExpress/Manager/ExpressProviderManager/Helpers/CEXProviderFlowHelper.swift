@@ -171,6 +171,7 @@ private extension CEXProviderFlowHelper {
             rateType: request.rateType,
             approvePolicy: request.approvePolicy,
             operationType: request.operationType,
+            slippage: request.slippage,
             quotesLoadingPerformanceTracker: request.quotesLoadingPerformanceTracker
         )
     }

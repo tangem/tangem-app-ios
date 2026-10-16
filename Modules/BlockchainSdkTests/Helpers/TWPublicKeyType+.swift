@@ -89,6 +89,8 @@ extension PublicKeyType {
              .adi,
              .electroneum,
              .arc,
+             .publicMasterpiece,
+             .onyx,
              .seiEvm:
             self = PublicKeyType.secp256k1Extended
         case .stellar,

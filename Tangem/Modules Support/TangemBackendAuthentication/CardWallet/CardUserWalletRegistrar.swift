@@ -35,11 +35,6 @@ actor CardUserWalletRegistrar {
     }
 
     nonisolated func obtainNonce(completion: @escaping () -> Void) {
-        guard FeatureProvider.isAvailable(.backendAuthentication) else {
-            completion()
-            return
-        }
-
         // Strongly capture `self` for the duration of the task to ensure that the completion handler is always called
         runTask(priority: .userInitiated) {
             await self.waitForNonce(timeout: Constants.nonceTimeout)
@@ -51,7 +46,6 @@ actor CardUserWalletRegistrar {
 
     nonisolated func registerIfNeeded(in session: CardSession, completion: @escaping () -> Void) {
         guard
-            FeatureProvider.isAvailable(.backendAuthentication),
             let card = session.environment.card,
             shouldRegisterWallet(for: card)
         else {
