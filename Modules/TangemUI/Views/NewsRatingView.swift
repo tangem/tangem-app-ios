@@ -11,28 +11,16 @@ import TangemAssets
 import TangemUIUtils
 
 public struct NewsRatingViewRedesign: View {
-    private enum RatingFont {
-        case legacy(TangemFontStyle)
-        case token(TangemTypographyToken)
-    }
-
     private let rating: String
     private let isHighlighted: Bool
     private let spacing: CGFloat
-    private let font: RatingFont
+    private let font: TangemTypographyToken
 
-    public init(rating: String, isHighlighted: Bool, spacing: CGFloat = 3.0, font: TangemFontStyle = Font.Tangem.Caption12.semibold) {
+    public init(rating: String, isHighlighted: Bool, spacing: CGFloat = 3.0, font: TangemTypographyToken = DesignSystem.Font.captionMediumToken) {
         self.rating = rating
         self.isHighlighted = isHighlighted
         self.spacing = spacing
-        self.font = .legacy(font)
-    }
-
-    public init(rating: String, isHighlighted: Bool, spacing: CGFloat = 3.0, font: TangemTypographyToken) {
-        self.rating = rating
-        self.isHighlighted = isHighlighted
-        self.spacing = spacing
-        self.font = .token(font)
+        self.font = font
     }
 
     public var body: some View {
@@ -42,22 +30,8 @@ public struct NewsRatingViewRedesign: View {
         }
     }
 
-    @ViewBuilder
     private var ratingText: some View {
-        switch font {
-        case .legacy(let style):
-            Text(rating).style(style, color: legacyTextColor)
-        case .token(let token):
-            Text(rating).style(token, color: tokenTextColor)
-        }
-    }
-
-    private var legacyTextColor: Color {
-        isHighlighted ? .Tangem.Text.Status.attention : .Tangem.Text.Neutral.secondary
-    }
-
-    private var tokenTextColor: Color {
-        isHighlighted ? DesignSystem.Color.textAccentYellow : DesignSystem.Color.textSecondary
+        Text(rating).style(font, color: isHighlighted ? DesignSystem.Color.textAccentYellow : DesignSystem.Color.textSecondary)
     }
 
     private var starIcon: some View {
@@ -69,12 +43,7 @@ public struct NewsRatingViewRedesign: View {
     }
 
     private var iconColor: Color {
-        switch font {
-        case .legacy:
-            isHighlighted ? Color.Tangem.Graphic.Status.attention : .Tangem.Graphic.Neutral.tertiary
-        case .token:
-            isHighlighted ? DesignSystem.Color.iconAccentYellow : DesignSystem.Color.iconSecondary
-        }
+        isHighlighted ? DesignSystem.Color.iconAccentYellow : DesignSystem.Color.iconSecondary
     }
 
     private enum Layout {

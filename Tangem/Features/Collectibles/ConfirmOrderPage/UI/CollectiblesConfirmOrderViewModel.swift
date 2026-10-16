@@ -21,6 +21,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     private let platformFee: Decimal
     private let total: Decimal
     private let buybackRate: Decimal
+    private let isTurboModeOn: Bool
     private let purchaseInteractor: any CollectiblesPackPurchaseInteractor
     private let revealAssetsPreloader: any CollectiblesRevealAssetsPreloader
     private let refreshBalance: () async -> Void
@@ -36,6 +37,22 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     let artworkURL: URL?
     let rows: [OrderRow]
 
+    private(set) lazy var lowInventorySheetViewModel = CollectiblesInfoSheetViewModel(
+        model: .lowInventory(
+            explorePacks: { [weak self] in self?.routable?.closePackFlow() },
+            enableTurboMode: { [weak self] in self?.routable?.returnToMachine() }
+        )
+    )
+
+    private(set) lazy var buybackCompleteSheetViewModel = CollectiblesInfoSheetViewModel(
+        model: buybackCompleteModel(amount: nil)
+    )
+
+    private(set) lazy var packUnopenedSheetViewModel = CollectiblesInfoSheetViewModel(
+        model: .packUnopened(openPack: { [weak self] in self?.approve() }),
+        actionTiming: .immediately
+    )
+
     // MARK: - Publishers
 
     @Published private(set) var buttonState: ButtonState = .balanceLoading
@@ -47,6 +64,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     init(
         machineID: String,
         machine: CollectiblesMachine,
+        isTurboModeOn: Bool,
         usdcBalanceProvider: any TokenBalanceProvider,
         purchaseInteractor: any CollectiblesPackPurchaseInteractor,
         routable: (any CollectiblesConfirmOrderRoutable)?,
@@ -58,6 +76,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         platformFee = machine.platformFee
         total = machine.price + machine.platformFee
         buybackRate = machine.buybackRate
+        self.isTurboModeOn = isTurboModeOn
         self.purchaseInteractor = purchaseInteractor
         self.revealAssetsPreloader = revealAssetsPreloader
         self.routable = routable
@@ -100,20 +119,26 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
             revealAssetsPreloader.preload(for: revealColorScheme)
         }
 
-        Task { [weak self, purchaseInteractor, revealAssetsPreloader, machineID, price, platformFee, refreshBalance] in
+        Task { [weak self, purchaseInteractor, revealAssetsPreloader, machineID, price, platformFee, isTurboModeOn, refreshBalance] in
             do {
-                let wonCard = try await purchaseInteractor.purchase(
+                let result = try await purchaseInteractor.purchase(
                     machineID: machineID,
                     price: price,
                     platformFee: platformFee,
-                    turboMode: .off,
+                    isTurboModeOn: isTurboModeOn,
                     onStep: { [weak self] step in self?.apply(step) }
                 )
-                let imageURLs = [wonCard.imageFrontURL, wonCard.imageBackURL].compactMap { $0 }
-                let assets = await revealAssetsPreloader.assets(prefetchingImages: imageURLs)
 
-                // [REDACTED_TODO_COMMENT]
-                self?.showReveal(of: wonCard, assets: assets)
+                switch result {
+                case .wonCard(let wonCard):
+                    let imageURLs = [wonCard.imageFrontURL, wonCard.imageBackURL].compactMap { $0 }
+                    let assets = await revealAssetsPreloader.assets(prefetchingImages: imageURLs)
+
+                    // [REDACTED_TODO_COMMENT]
+                    self?.showReveal(of: wonCard, assets: assets)
+                case .autoSold(let amount):
+                    self?.showBuybackComplete(amount: amount)
+                }
             } catch {
                 self?.handlePurchaseFailure(error)
             }
@@ -126,7 +151,12 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         routable?.closePackFlow()
     }
 
-    func preloadRevealAssets(for colorScheme: ColorScheme) {
+    func preloadRevealAssets(for colorScheme: ColorScheme, isReduceMotionEnabled: Bool) {
+        guard !isReduceMotionEnabled else {
+            revealColorScheme = nil
+            return
+        }
+
         revealColorScheme = colorScheme
         revealAssetsPreloader.preload(for: colorScheme)
     }
@@ -239,15 +269,45 @@ private extension CollectiblesConfirmOrderViewModel {
         updateButtonState()
     }
 
+    func showBuybackComplete(amount: Decimal?) {
+        orderPhase = .idle
+        updateButtonState()
+        buybackCompleteSheetViewModel.present(with: buybackCompleteModel(amount: amount))
+    }
+
+    func buybackCompleteModel(amount: Decimal?) -> CollectiblesInfoSheetView.Model {
+        let ticker = CollectiblesChainEnvironment.usdcTokenItem.currencySymbol
+
+        return .buybackComplete(
+            amount: amount.map { CollectiblesPriceFormatter.formatAmount($0, ticker: ticker) },
+            price: CollectiblesPriceFormatter.formatAmount(price, ticker: ticker),
+            explorePacks: { [weak self] in self?.routable?.closePackFlow() },
+            openAgain: { [weak self] in self?.approve() }
+        )
+    }
+
     func handlePurchaseFailure(_ error: any Error) {
         CollectiblesLogger.error("Collectibles pack \(machineID) purchase failed", error: error)
         orderPhase = .idle
         updateButtonState()
-        showError()
+
+        switch error as? CollectiblesPackPurchaseError {
+        case .lowInventory:
+            lowInventorySheetViewModel.present()
+        case .packUnopened, .openFailed, .prizeNotDelivered:
+            packUnopenedSheetViewModel.present()
+        // [REDACTED_TODO_COMMENT]
+        case .paymentFailed(.expired):
+            showError(message: "Your purchase has expired")
+        case .paymentFailed(.refunded):
+            showError(message: "Your payment has been refunded")
+        default:
+            showError()
+        }
     }
 
-    func showError() {
-        errorMessage = Localization.commonSomethingWentWrong
+    func showError(message: String = Localization.commonSomethingWentWrong) {
+        errorMessage = message
 
         errorDismissTask?.cancel()
         errorDismissTask = Task { [weak self] in

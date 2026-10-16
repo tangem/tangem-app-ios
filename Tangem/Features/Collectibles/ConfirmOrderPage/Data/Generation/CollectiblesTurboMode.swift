@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-enum CollectiblesTurboMode {
+enum CollectiblesTurboMode: Equatable {
     case off
     case on(buybackAddress: String?)
 }

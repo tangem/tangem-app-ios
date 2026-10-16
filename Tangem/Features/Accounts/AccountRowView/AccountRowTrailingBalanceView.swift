@@ -32,7 +32,7 @@ struct AccountRowTrailingBalanceView: View {
         Assets.failedCloud.image
             .resizable()
             .renderingMode(.template)
-            .foregroundStyle(Color.Tangem.Graphic.Neutral.quaternary)
+            .foregroundStyle(DesignSystem.Color.iconTertiary)
             .frame(width: Constants.iconSize, height: Constants.iconSize)
     }
 }
