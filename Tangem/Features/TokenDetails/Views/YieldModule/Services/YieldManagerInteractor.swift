@@ -194,7 +194,11 @@ actor YieldManagerInteractor {
     }
 
     func prepareWithdrawalClaim() async throws -> YieldIncentivesClaimInteractor.PreparedClaim? {
-        guard hasActiveIncentiveCampaign(), let claimInteractor, await !claimInteractor.isClaimInFlight else {
+        guard let claimInteractor,
+              await !claimInteractor.isClaimInFlight,
+              let summary = try await getIncentivesSummary(),
+              !summary.claimableRewards.isEmpty,
+              summary.isClaimRecommended else {
             return nil
         }
 
