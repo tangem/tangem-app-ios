@@ -184,6 +184,12 @@ extension Analytics {
         case completedBackups = "Completed Backups"
         case socialBackup = "Social Backup"
 
+        // MARK: - Social login
+
+        case consentType = "Consent Type"
+        case consentGiven = "Consent Given"
+        case consentText = "Consent Text"
+
         // MARK: - News
 
         case newsId = "News Id"

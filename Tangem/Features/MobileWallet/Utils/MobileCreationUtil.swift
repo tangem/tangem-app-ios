@@ -15,17 +15,21 @@ final class MobileCreationUtil {
 
     /// Builds a model for a brand-new mobile wallet.
     /// The caller is responsible for adding the returned model to `UserWalletRepository`.
-    func makeCreatedModel() async throws -> UserWalletModel {
+    func makeCreatedModel(
+        hasMnemonicBackup: Bool = false,
+        hasICloudBackup: Bool = false,
+        hasSocialLogin: Bool = false
+    ) async throws -> UserWalletModel {
+        let parameters = WalletInitializerParameters(
+            mnemonic: nil,
+            passphrase: nil,
+            hasMnemonicBackup: hasMnemonicBackup,
+            hasICloudBackup: hasICloudBackup,
+            hasSocialLogin: hasSocialLogin
+        )
+
         let walletInfo = try await Task.detached {
-            try await MobileWalletInitializer().initializeWallet(
-                parameters: WalletInitializerParameters(
-                    mnemonic: nil,
-                    passphrase: nil,
-                    hasMnemonicBackup: false,
-                    hasICloudBackup: false,
-                    hasSocialLogin: false
-                )
-            )
+            try await MobileWalletInitializer().initializeWallet(parameters: parameters)
         }.value
 
         guard let userWalletModel = CommonUserWalletModelFactory().makeModel(
@@ -53,6 +57,10 @@ final class MobileCreationUtil {
         return userWalletModel
     }
 
+    /// Builds the user wallet model without adding it to the repository.
+    /// Note: `MobileWalletInitializer` stores the wallet keys in the mobile wallet SDK
+    /// storage as a side effect, before the returned model is persisted anywhere.
+    ///
     /// - Parameters:
     ///   - hasMnemonicBackup: whether the user already holds the recovery phrase of the wallet being imported.
     ///   - hasICloudBackup: whether a backup of the wallet being imported already exists in iCloud.

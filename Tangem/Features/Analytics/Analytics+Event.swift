@@ -296,6 +296,15 @@ extension Analytics {
         case walletSettingsDeleteWalletError = "[Settings / Wallet Settings] Delete Wallet Error"
         case walletSettingsSocialRecoveryDeleted = "[Settings / Wallet Settings] Social Recovery Deleted"
 
+        // MARK: - Social login
+
+        case socialLoginButtonContinueWithApple = "[Onboarding / Social login] Button - Continue with Apple"
+        case socialLoginRiskConsentScreenOpened = "[Onboarding / Social login] Risk Consent Screen Opened"
+        case socialLoginErrorRiskConsentNotConfirmed = "[Onboarding / Social login] Error - Risk Consent Not Confirmed"
+        case socialLoginConsentMarketingEmails = "[Onboarding / Social login] Consent - Marketing Emails"
+        case socialLoginNoticeMinOSNotSupported = "[Onboarding / Social login] Notice - Min OS Not Supported"
+        case socialLoginErrorShown = "[Onboarding / Social login] Error Shown"
+
         // MARK: - Account Settings
 
         case accountSettingsScreenOpened = "[Settings / Account] Account Settings Screen Opened"
