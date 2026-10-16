@@ -18,7 +18,7 @@ extension CollectiblesInfoSheetView.Model {
             iconBackgroundColor: DesignSystem.Color.bgStatusInfoSubtle,
             title: Localization.collectiblesTurboModeBottomsheetTitle,
             message: Localization.collectiblesTurboModeBottomsheetMessage,
-            buttonTitle: Localization.commonGotIt
+            primaryButton: Button(title: Localization.commonGotIt)
         )
     }
 }
@@ -26,5 +26,5 @@ extension CollectiblesInfoSheetView.Model {
 // MARK: - Previews
 
 #Preview {
-    CollectiblesInfoSheetView(model: .turboMode, onClose: {})
+    CollectiblesInfoSheetView(model: .turboMode, onClose: {}, onPrimary: {}, onSecondary: {})
 }
