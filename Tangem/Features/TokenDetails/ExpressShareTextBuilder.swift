@@ -13,7 +13,7 @@ enum ExpressShareTextBuilder {
         case onramp(send: String, receive: String, to: String?)
     }
 
-    static func build(operation: Operation, providerInfo: String?, transactionId: String, onChainHash: String?) -> String {
+    static func build(operation: Operation, providerInfo: String?, transactionId: String?, onChainHash: String?) -> String {
         var lines = [Localization.commonTangem, ""]
 
         switch operation {
@@ -43,7 +43,9 @@ enum ExpressShareTextBuilder {
             lines.append(Localization.expressByProviderPlaceholder(providerInfo))
         }
 
-        lines.append(Localization.expressTransactionId(transactionId))
+        if let transactionId {
+            lines.append(Localization.expressTransactionId(transactionId))
+        }
 
         if let onChainHash {
             lines.append(Localization.expressTransactionHash(onChainHash))
