@@ -34,7 +34,7 @@ struct MarketsTokenDetailsView: View {
         rootViewWithTitle
             .background {
                 backgroundColor
-                    .ignoresSafeArea(edges: .vertical)
+                    .ignoresSafeArea()
             }
             .onAppear(perform: scrollOffsetHandler.onViewAppear)
             .if(sheetSize.isFeedSheet) { view in

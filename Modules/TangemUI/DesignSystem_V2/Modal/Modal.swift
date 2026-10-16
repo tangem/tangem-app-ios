@@ -215,7 +215,7 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
     private func leadingPolicy(_ policy: TopNavigation.LeadingPolicy) -> TopNavigation.LeadingPolicy {
         switch policy {
         case .automatic: .custom(.back { dismiss() })
-        case .custom, .none: policy
+        case .custom, .none, .image: policy
         }
     }
 

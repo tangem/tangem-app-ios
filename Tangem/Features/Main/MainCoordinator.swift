@@ -385,7 +385,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     func openHardwareBackupTypes(userWalletModel: UserWalletModel) {
         mainBottomSheetUIManager.hide()
 
-        Task { @MainActor [hardwareUpgradeStoriesFlow] in
+        Task { @MainActor [self] in
             hardwareUpgradeStoriesFlow.start(source: .main) { [weak self] in
                 self?.presentHardwareBackupTypes(userWalletModel: userWalletModel)
             }
@@ -1132,7 +1132,7 @@ private extension MainCoordinator {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(type: .swap(parameters), source: source)
 
-        Task { @MainActor [tangemStoriesPresenter] in
+        Task { @MainActor [self] in
             tangemStoriesPresenter.present(
                 story: .swap(.initialWithoutImages),
                 analyticsSource: .main,

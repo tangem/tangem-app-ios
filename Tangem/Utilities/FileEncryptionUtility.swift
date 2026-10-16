@@ -11,10 +11,11 @@ import CryptoKit
 import TangemSdk
 import TangemFoundation
 
-final class FileEncryptionUtility {
-    private let keychain: SecureStorage = .init()
+/// - Note: `@unchecked Sendable` only because the stateless `SecureStorage` from TangemSdk isn't marked `Sendable`.
+final class FileEncryptionUtility: @unchecked Sendable {
+    private static let criticalSection = OSAllocatedUnfairLock()
 
-    private var keychainKey: String { "tangem_files_symmetric_key" }
+    private let keychain = SecureStorage()
 
     func encryptData(_ data: Data) throws -> Data {
         let sealedBox = try ChaChaPoly.seal(data, using: try storedSymmetricKey())
@@ -30,23 +31,37 @@ final class FileEncryptionUtility {
 
     func clean() {
         do {
-            try keychain.delete(keychainKey)
+            try Self.criticalSection {
+                try keychain.delete(Constants.keychainKey)
+            }
         } catch {
             AppLogger.error("Failed to clean file encryption key", error: error)
         }
     }
 
     private func storedSymmetricKey() throws -> SymmetricKey {
-        if let key = try keychain.get(keychainKey) {
-            let symmetricKey: SymmetricKey = .init(data: key)
-            return symmetricKey
-        }
+        return try Self.criticalSection {
+            if let key = try keychain.get(Constants.keychainKey) {
+                return SymmetricKey(data: key)
+            }
 
-        let key = SymmetricKey(size: .bits256)
-        try keychain.store(key.dataRepresentation, forKey: keychainKey)
-        return key
+            let key = SymmetricKey(size: .bits256)
+            try keychain.store(key.dataRepresentation, forKey: Constants.keychainKey)
+
+            return key
+        }
     }
 }
+
+// MARK: - Constants
+
+private extension FileEncryptionUtility {
+    enum Constants {
+        static let keychainKey = "tangem_files_symmetric_key"
+    }
+}
+
+// MARK: - Convenience extensions
 
 extension ContiguousBytes {
     /// For some reason when working with CryptoKit.SymmetricKey the data returned through `dataRepresentation` can

@@ -25,7 +25,7 @@ struct PublisherAsyncTests {
     func returnsValueFromAsynchronousPublisher() async throws {
         nonisolated(unsafe) let subject = PassthroughSubject<Int, Never>()
 
-        Task {
+        _ = Task {
             try await Task.sleep(for: .milliseconds(50))
             subject.send(99)
         }
@@ -65,7 +65,7 @@ struct PublisherAsyncTests {
     func throwsAsynchronousUpstreamError() async {
         nonisolated(unsafe) let subject = PassthroughSubject<Int, TestError>()
 
-        Task {
+        _ = Task {
             try await Task.sleep(for: .milliseconds(50))
             subject.send(completion: .failure(TestError()))
         }
@@ -79,7 +79,7 @@ struct PublisherAsyncTests {
     func returnsOnlyFirstValueFromMultipleEmissions() async throws {
         nonisolated(unsafe) let subject = PassthroughSubject<Int, Never>()
 
-        Task {
+        _ = Task {
             try await Task.sleep(for: .milliseconds(50))
             subject.send(1)
             subject.send(2)
