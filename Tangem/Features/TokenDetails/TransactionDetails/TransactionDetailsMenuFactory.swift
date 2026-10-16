@@ -194,15 +194,15 @@ enum TransactionDetailsMenuFactory {
     static func shareText(for record: TransactionRecord, context: TransactionDetailsContext) -> String? {
         switch record.expressExtraInfo {
         case .exchange(let info):
-            return swapShareText(info, transactionId: transactionId(for: record), onChainHash: onChainHash(for: record))
+            return swapShareText(info, onChainHash: onChainHash(for: record))
         case .onramp(let info):
-            return onrampShareText(info, transactionId: transactionId(for: record), onChainHash: onChainHash(for: record), context: context)
+            return onrampShareText(info, onChainHash: onChainHash(for: record), context: context)
         case nil:
             return nil
         }
     }
 
-    private static func swapShareText(_ info: ExchangeTransactionInfo, transactionId: String, onChainHash: String?) -> String {
+    private static func swapShareText(_ info: ExchangeTransactionInfo, onChainHash: String?) -> String {
         let exchange = info.transaction
         let from = amountWithSymbol(exchange.from.normalizedAmount, info.cryptoCurrencies[exchange.from.currency]?.currencySymbol)
         let to = amountWithSymbol(exchange.to.normalizedAmount, info.cryptoCurrencies[exchange.to.currency]?.currencySymbol)
@@ -210,14 +210,13 @@ enum TransactionDetailsMenuFactory {
         return ExpressShareTextBuilder.build(
             operation: .swap(send: from, from: exchange.fromAddress, receive: to, to: exchange.payOut.address),
             providerInfo: providerInfo(info.provider),
-            transactionId: transactionId,
+            transactionId: exchange.externalTx?.id,
             onChainHash: onChainHash
         )
     }
 
     private static func onrampShareText(
         _ info: OnrampTransactionInfo,
-        transactionId: String,
         onChainHash: String?,
         context: TransactionDetailsContext
     ) -> String {
@@ -228,7 +227,7 @@ enum TransactionDetailsMenuFactory {
         return ExpressShareTextBuilder.build(
             operation: .onramp(send: send, receive: receive, to: onramp.payOut.address),
             providerInfo: providerInfo(info.provider),
-            transactionId: transactionId,
+            transactionId: onramp.externalTx?.id,
             onChainHash: onChainHash
         )
     }
