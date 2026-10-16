@@ -17,7 +17,7 @@ struct TokenSelectorLoadingView: View {
             ProgressView()
 
             Text(Localization.wcCommonLoading)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
         }
         .padding(.top, 12)
     }
