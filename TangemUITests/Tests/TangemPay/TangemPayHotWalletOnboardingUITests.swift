@@ -14,7 +14,8 @@ final class TangemPayHotWalletOnboardingUITests: BaseTestCase {
 
         launchWithoutWallet(
             eligibilityState: "Started",
-            extraScenarios: [ScenarioConfig(name: "tangem_pay_eligibility_channels", initialState: "Banner")]
+            extraScenarios: [ScenarioConfig(name: "tangem_pay_eligibility_channels", initialState: "Banner")],
+            featureToggles: Constants.marketingBannersShownWithSystemCards
         )
 
         let mainScreen = CreateWalletSelectorScreen(app)
@@ -58,12 +59,14 @@ final class TangemPayHotWalletOnboardingUITests: BaseTestCase {
     private func launchWithoutWallet(
         eligibilityState: String,
         extraScenarios: [ScenarioConfig] = [],
+        featureToggles: [String: Bool] = [:],
         extraLaunchArguments: [String] = []
     ) {
         launchApp(
             tangemApiType: .mock,
             visaApiType: .mock,
             clearStorage: true,
+            featureToggles: featureToggles,
             scenarios: [
                 ScenarioConfig(name: "tangem_pay_eligibility", initialState: eligibilityState),
                 ScenarioConfig(name: "tangem_pay_kyc_status", initialState: "InProgress"),
@@ -77,5 +80,6 @@ private extension TangemPayHotWalletOnboardingUITests {
     enum Constants {
         static let residenceCountry = "United States"
         static let residenceState = "California"
+        static let marketingBannersShownWithSystemCards = ["TWI-1841_hide_marketing_banners_while_system": false]
     }
 }

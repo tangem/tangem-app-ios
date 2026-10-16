@@ -81,7 +81,9 @@ final class TangemPayBankTransferAmountScreen: ScreenBase<TangemPayBankTransferA
             let currentValue = amountField.getValue()
             let deletions = currentValue == amountField.placeholderValue ? 0 : currentValue.count
             amountField.tap()
-            amountField.coordinate(withNormalizedOffset: Constants.textEndOffset).tap()
+            if deletions > 0 {
+                amountField.doubleTap()
+            }
             amountField.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: deletions) + amount)
             XCTAssertTrue(
                 amountField.waitForValue(where: { Self.withoutGrouping($0) == amount }),
@@ -258,6 +260,5 @@ enum TangemPayBankTransferAmountScreenElement: String, UIElement {
 private extension TangemPayBankTransferAmountScreen {
     enum Constants {
         static let groupingSeparator = ","
-        static let textEndOffset = CGVector(dx: 0.98, dy: 0.5)
     }
 }
