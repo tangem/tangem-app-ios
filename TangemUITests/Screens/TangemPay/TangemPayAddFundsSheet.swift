@@ -108,6 +108,14 @@ final class TangemPayAddFundsSheet: ScreenBase<TangemPayAddFundsSheetElement> {
     }
 
     @discardableResult
+    func verifyBankTransferOptionTitle(_ title: String) -> Self {
+        XCTContext.runActivity(named: "Verify the bank account option title is '\(title)'") { _ in
+            verifyLabel(of: bankTransferOptionButton, contains: [title], name: title)
+            return self
+        }
+    }
+
+    @discardableResult
     func verifyOptionLabels(bankTransfer: [String], swap: [String], receive: [String]) -> Self {
         XCTContext.runActivity(named: "Verify Add Funds option titles and subtitles") { _ in
             verifyLabel(of: bankTransferOptionButton, contains: bankTransfer, name: "Bank transfer")

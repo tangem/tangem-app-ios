@@ -53,6 +53,34 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
             .verifyPlanName(Constants.Plan.basic)
     }
 
+    func testSelectBasicPlan_DuringOnboarding_AddsBankAccountTopUpToPaymentAccount() {
+        setAllureId(12656)
+
+        let selectPlan = launchForOnboarding(balance: "AfterFullWithdraw")
+            .openTangemPaySelectPlan()
+            .waitForScreen()
+            .verifyPlanName(Constants.Plan.basic)
+
+        stagePlanState(Constants.PlanState.basicWithAccount)
+        stageBasicOrderIssuing()
+        let paymentAccount = selectPlan
+            .tapSelectExpectingPlanActivation()
+            .waitForScreen()
+            .verifyIssuingCardBanner()
+
+        completeBasicOrderIssuing()
+        paymentAccount
+            .waitForIssuingCardBannerHidden()
+            .tapAddFunds()
+            .waitForScreen()
+            .verifyBankTransferOptionTitle(Localization.tangempayTopupBankTransferTitle)
+            .tapBankTransferExpectingDetails()
+            .waitForScreen()
+            .verifyDetail(.bankName, equals: Constants.BankAccount.bankName)
+            .verifyDetail(.accountNumber, equals: Constants.BankAccount.accountNumber)
+            .verifyDetail(.routingNumber, equals: Constants.BankAccount.routingNumber)
+    }
+
     func testSelectPlusPlan_DuringOnboarding_CanBeCancelledBeforePayment() {
         setAllureId(10376)
 
@@ -512,6 +540,16 @@ private extension TangemPayTariffPlansUITests {
 
         enum Card {
             static let id = "mock-card-id"
+        }
+
+        enum PlanState {
+            static let basicWithAccount = "BasicWithAccount"
+        }
+
+        enum BankAccount {
+            static let bankName = "Lead Bank"
+            static let accountNumber = "1234567890"
+            static let routingNumber = "101019644"
         }
 
         enum Transaction {

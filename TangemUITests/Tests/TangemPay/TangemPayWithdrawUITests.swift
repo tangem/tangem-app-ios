@@ -219,14 +219,14 @@ final class TangemPayWithdrawUITests: BaseTestCase {
         }
     }
 
-    func testWithdraw_TransactionHashNotReceivedAfterFiveAttempts_ShowsError() {
+    func testWithdraw_TransactionHashNotReceivedAfterMaxPollAttempts_ShowsError() {
         setAllureId(9659)
 
         confirmBitcoinWithdraw(withdrawState: Constants.State.orderWithoutHash)
             .waitForErrorAlert()
 
         XCTContext.runActivity(named: "Verify the order was polled the maximum number of times") { _ in
-            XCTAssertEqual(orderRequestCount(), Constants.maxOrderPollAttempts, "The order should be polled exactly five times")
+            XCTAssertEqual(orderRequestCount(), Constants.maxOrderPollAttempts, "The order should be polled exactly \(Constants.maxOrderPollAttempts) times")
             XCTAssertEqual(exchangeSentRequestCount(), 0, "Withdrawal without a transaction hash should not be reported to Express")
         }
     }
@@ -320,7 +320,7 @@ private extension TangemPayWithdrawUITests {
         static let withdrawAmount = "5"
         static let pollsUntilTransactionHash = 4
         static let pendingOrderObservationTime: TimeInterval = 7
-        static let maxOrderPollAttempts = 5
+        static let maxOrderPollAttempts = 10
 
         enum Scenario {
             static let eligibilityChannels = "tangem_pay_eligibility_channels"
