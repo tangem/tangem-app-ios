@@ -17,9 +17,14 @@ protocol CollectiblesPackPurchaseInteractor: AnyObject {
         machineID: String,
         price: Decimal,
         platformFee: Decimal,
-        turboMode: CollectiblesTurboMode,
+        isTurboModeOn: Bool,
         onStep: @escaping (CollectiblesPackPurchaseStep) -> Void
-    ) async throws -> CollectiblesWonCard
+    ) async throws -> CollectiblesPackPurchaseResult
+}
+
+enum CollectiblesPackPurchaseResult {
+    case wonCard(CollectiblesWonCard)
+    case autoSold(amount: Decimal?)
 }
 
 enum CollectiblesPackPurchaseStep {
@@ -30,9 +35,11 @@ enum CollectiblesPackPurchaseStep {
 
 enum CollectiblesPackPurchaseError: Error {
     case accountNotReady
+    case lowInventory
     case invalidPrice
     case paymentFailed(CollectiblesPurchaseStatus)
     case paymentTimedOut
+    case packUnopened
     case openFailed
     case prizeNotDelivered
     case anotherPurchaseInProgress

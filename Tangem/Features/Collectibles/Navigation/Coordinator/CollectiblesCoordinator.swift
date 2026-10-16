@@ -108,13 +108,13 @@ extension CollectiblesCoordinator: CollectiblesMainRoutable {
 }
 
 extension CollectiblesCoordinator: CollectiblesMachineRoutable {
-    // [REDACTED_TODO_COMMENT]
-    func openConfirmOrder(machineID: String, machine: CollectiblesMachine, isTurboModeOn _: Bool) {
+    func openConfirmOrder(machineID: String, machine: CollectiblesMachine, isTurboModeOn: Bool) {
         guard confirmOrderViewModel == nil, let accountModel else { return }
 
         confirmOrderViewModel = CollectiblesConfirmOrderViewModel(
             machineID: machineID,
             machine: machine,
+            isTurboModeOn: isTurboModeOn,
             usdcBalanceProvider: accountModel.usdcTokenBalanceProvider,
             purchaseInteractor: accountModel.purchaseInteractor,
             routable: self,
@@ -127,6 +127,10 @@ extension CollectiblesCoordinator: CollectiblesMachineRoutable {
 // MARK: - CollectiblesConfirmOrderRoutable
 
 extension CollectiblesCoordinator: CollectiblesConfirmOrderRoutable {
+    func returnToMachine() {
+        closeConfirmOrder()
+    }
+
     func closePackFlow() {
         machineViewModel = nil
     }
