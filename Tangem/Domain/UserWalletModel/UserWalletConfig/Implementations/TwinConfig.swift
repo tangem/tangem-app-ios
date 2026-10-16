@@ -101,6 +101,7 @@ extension TwinConfig: UserWalletConfig {
     }
 
     var walletThumbnailType: ThumbnailWalletViewType? {
+        // [REDACTED_TODO_COMMENT]
         .twoCards(
             .init(
                 card: Color.Tangem.CardCollection.twins,

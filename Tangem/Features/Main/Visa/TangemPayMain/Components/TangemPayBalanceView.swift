@@ -19,8 +19,8 @@ struct TangemPayBalanceView: View {
         LoadableBalanceView(
             state: AttributedBalanceFormatter.decimalColored(
                 state,
-                integerFont: TangemFontStyle(DesignSystem.Font.displayMediumToken),
-                fractionalFont: TangemFontStyle(DesignSystem.Font.headingMediumToken),
+                integerFont: DesignSystem.Font.displayMediumToken,
+                fractionalFont: DesignSystem.Font.headingMediumToken,
                 integerColor: isError ? DesignSystem.Color.textStatusError : DesignSystem.Color.textPrimary,
                 fractionalColor: isError ? DesignSystem.Color.textStatusError : DesignSystem.Color.textSecondary
             ),

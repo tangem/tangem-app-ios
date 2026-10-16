@@ -84,6 +84,7 @@ extension Start2CoinConfig: UserWalletConfig {
     }
 
     var walletThumbnailType: ThumbnailWalletViewType? {
+        // [REDACTED_TODO_COMMENT]
         .card(.init(card: Color.Tangem.CardCollection.starts2com))
     }
 

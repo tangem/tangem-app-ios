@@ -104,7 +104,7 @@ private struct InfoChipsOverflowView: View {
             .renderingMode(.template)
             .resizable()
             .aspectRatio(contentMode: .fit)
-            .foregroundStyle(Color.Tangem.Markers.iconGray)
+            .foregroundStyle(DesignSystem.Color.iconSecondary)
             .frame(width: iconWidth, height: iconHeight)
             .frame(height: style.contentHeight)
             .defaultRoundedBackground(
@@ -195,21 +195,21 @@ public extension InfoChipView {
         var titleFont: TangemFontStyle {
             switch self {
             case .legacy: return TangemFontStyle(font: Fonts.Bold.caption1)
-            case .redesign: return Font.Tangem.Caption12.semibold
+            case .redesign: return TangemFontStyle(DesignSystem.Font.captionMediumToken)
             }
         }
 
         var titleColor: Color {
             switch self {
             case .legacy: return Colors.Text.secondary
-            case .redesign: return Color.Tangem.Markers.textGray
+            case .redesign: return DesignSystem.Color.textSecondary
             }
         }
 
         var backgroundColor: Color {
             switch self {
             case .legacy: return Colors.Control.unchecked
-            case .redesign: return Color.Tangem.Markers.backgroundTintedGray
+            case .redesign: return DesignSystem.Color.bgTransparentPrimary
             }
         }
     }

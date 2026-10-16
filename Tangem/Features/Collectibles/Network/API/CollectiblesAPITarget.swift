@@ -54,7 +54,8 @@ struct CollectiblesAPITarget: Moya.TargetType {
             .requestParameters(request, encoding: URLEncoding(destination: .queryString, boolEncoding: .literal))
         case .generatePurchaseTx(let request, _): .requestJSONEncodable(request)
         case .purchaseTxSent(let request, _): .requestJSONEncodable(request)
-        case .openPack(let request, _): .requestJSONEncodable(request)
+        case .openPack(let request, _):
+            .requestCompositeParameters(body: request, urlParameters: [Constants.includeNftWonKey: Constants.trueValue])
         }
     }
 
@@ -78,5 +79,14 @@ extension CollectiblesAPITarget: TargetTypeLogConvertible {
 
     var shouldLogResponseBody: Bool {
         false
+    }
+}
+
+// MARK: - Constants
+
+private extension CollectiblesAPITarget {
+    enum Constants {
+        static let includeNftWonKey = "includeNftWon"
+        static let trueValue = "true"
     }
 }

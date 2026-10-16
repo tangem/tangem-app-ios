@@ -617,7 +617,7 @@ private func makeUserWalletInfo() -> UserWalletInfo {
 private extension PolymarketWithdrawTransactionServiceTests {
     struct Context {
         let sut: PolymarketWithdrawTransactionService
-        let withdrawService: WithdrawServiceSpy
+        let withdrawService: PolymarketWithdrawServiceSpy
         let tracker = TrackerSpy()
         let bridge: BridgeServiceSpy
         let ownerAddress: String
@@ -664,7 +664,7 @@ private extension PolymarketWithdrawTransactionServiceTests {
                 ?? PolymarketBatchSigner(keysRepository: keysRepository, signer: cardSigner)
 
             let depositWallet = try PolymarketDepositWalletDeriver.derive(ownerAddress: resolvedOwner)
-            let withdrawService = WithdrawServiceSpy(submitResults: submitResults)
+            let withdrawService = PolymarketWithdrawServiceSpy(submitResults: submitResults, transactionId: transactionId)
             let bridge = BridgeServiceSpy(assets: assets, withdrawAddresses: withdrawAddresses)
 
             self.bridge = bridge
@@ -728,7 +728,7 @@ private extension PolymarketWithdrawSwapParametersTests {
             bridgeService: BridgeServiceSpy(assets: [.usdcOnPolygon]),
             configurationService: ConfigurationServiceStub(),
             relayerService: PolymarketRelayerServiceStub(),
-            withdrawService: WithdrawServiceSpy(submitResults: []),
+            withdrawService: PolymarketWithdrawServiceSpy(submitResults: [], transactionId: transactionId),
             tracker: TrackerSpy(),
             depositWalletResolver: PolymarketDepositWalletResolver(
                 walletService: PolymarketDepositWalletServiceStub(
@@ -958,40 +958,5 @@ private final class TrackerSpy: PolymarketWithdrawTracking {
 
     func track(_ record: PolymarketWithdrawRecord, deadline: Date) async {
         state.withLock { $0.append(Tracked(record: record, deadline: deadline)) }
-    }
-}
-
-private final class WithdrawServiceSpy: PolymarketWithdrawService {
-    private(set) var submitted: [PolymarketRelayedBatch] = []
-    private(set) var recordRequests = 0
-
-    private var submitResults: [Result<PolymarketWithdrawRecord, PolymarketWithdrawError>?]
-
-    init(submitResults: [Result<PolymarketWithdrawRecord, PolymarketWithdrawError>?]) {
-        self.submitResults = submitResults
-    }
-
-    func submit(_ batch: PolymarketRelayedBatch) async throws(PolymarketWithdrawError) -> PolymarketWithdrawRecord {
-        submitted.append(batch)
-
-        guard !submitResults.isEmpty else {
-            return accepted
-        }
-
-        switch submitResults.removeFirst() {
-        case .none: return accepted
-        case .success(let record): return record
-        case .failure(let error): throw error
-        }
-    }
-
-    func record(ofWithdrawal transactionId: String) async throws(PolymarketWithdrawError) -> PolymarketWithdrawRecord {
-        recordRequests += 1
-
-        return accepted
-    }
-
-    private var accepted: PolymarketWithdrawRecord {
-        PolymarketWithdrawRecord(transactionId: transactionId, state: .inProgress, transactionHash: nil)
     }
 }

@@ -178,14 +178,8 @@ struct BalanceFormatter {
         return AttributedBalanceFormatter.format(
             fiatBalance,
             decimalSeparator: formatter.decimalSeparator ?? "",
-            integerPart: AttributedBalanceFormatter.PartStyle(
-                font: formattingOptions.integerPartFont,
-                color: formattingOptions.integerPartColor
-            ),
-            fractionalPart: AttributedBalanceFormatter.PartStyle(
-                font: formattingOptions.fractionalPartFont,
-                color: formattingOptions.fractionalPartColor
-            ),
+            integerPart: formattingOptions.integerPart,
+            fractionalPart: formattingOptions.fractionalPart,
             fractionalIncludesSeparator: formattingOptions.fractionalPartIncludesDecimalSeparator
         )
     }

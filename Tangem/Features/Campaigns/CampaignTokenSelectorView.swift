@@ -36,7 +36,7 @@ struct CampaignTokenSelectorView: View {
             )
             .searchType(.native)
             .showsSeparators(false)
-            .background(Color.Tangem.Surface.level2.ignoresSafeArea())
+            .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
             .navigationTitle(Localization.swappingTokenListTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
