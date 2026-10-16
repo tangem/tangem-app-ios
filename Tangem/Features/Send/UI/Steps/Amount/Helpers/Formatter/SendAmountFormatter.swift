@@ -21,9 +21,9 @@ struct SendAmountFormatter {
         fiatCurrencyCode = fiatItem.currencyCode
         self.balanceFormatter = balanceFormatter
 
-        decimalNumberFormatter = .init(maximumFractionDigits: tokenItem.decimalCount)
+        decimalNumberFormatter = .init(maximumFractionDigits: tokenItem.displayDecimalCount)
         cryptoValueFormatter = .init(
-            decimals: tokenItem.decimalCount,
+            decimals: tokenItem.displayDecimalCount,
             currencySymbol: tokenItem.currencySymbol,
             trimFractions: false
         )

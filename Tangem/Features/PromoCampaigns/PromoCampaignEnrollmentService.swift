@@ -158,6 +158,15 @@ private extension CommonPromoCampaignEnrollmentService {
             await campaignsRepository.reloadCampaigns(for: respondedWalletIds)
         }
 
+        let isMainWalletIneligible = response.results.contains { result in
+            result.walletId.lowercased() == userWalletId.stringValue.lowercased() && result.status == .ineligible
+        }
+
+        if isMainWalletIneligible {
+            analyticsLogger.log(.enrollError(campaign: campaign, reason: .unavailable, statusCode: nil), userWalletId: userWalletId)
+            return .unavailable
+        }
+
         if enrolled.isNotEmpty {
             analyticsLogger.log(.enrollSuccessful(
                 campaign: campaign,

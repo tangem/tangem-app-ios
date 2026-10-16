@@ -35,10 +35,15 @@ struct RealAssetsContentView: View {
                     .padding(.horizontal, Layout.contentHorizontalPadding)
             }
 
-            list
+            ZStack(alignment: .topLeading) {
+                list
+                    .id(viewModel.listContentState)
+                    .transition(.listContent)
+            }
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.tokenListLoadingState)
         .animation(.easeInOut(duration: 0.3), value: viewModel.categorySelection)
+        .animation(.listContentFrameUpdate, value: viewModel.listContentState)
     }
 
     @ViewBuilder
@@ -147,32 +152,41 @@ struct RealAssetsContentView: View {
 
     @ViewBuilder
     private var list: some View {
-        switch viewModel.tokenListLoadingState {
-        case .error:
+        switch viewModel.listContentState {
+        case .failure:
             TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.tryLoadAgain)
                 .infinityFrame(axis: .horizontal, alignment: .center)
                 .padding(.vertical, Layout.stateVerticalPadding)
 
-        case .noResults:
+        case .empty:
             Text(Localization.marketsRealAssetsEmptyTitle)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .infinityFrame(axis: .horizontal, alignment: .center)
                 .padding(.vertical, Layout.stateVerticalPadding)
 
-        case .loading, .idle, .allDataLoaded:
+        case .skeletons:
+            VStack(spacing: .zero) {
+                skeletonRows
+            }
+
+        case .rows:
             LazyVStack(spacing: .zero) {
                 ForEach(viewModel.tokenViewModels) { itemViewModel in
                     MarketTokenRowView(viewModel: itemViewModel.tokenItemViewModel)
                         .onAppear(perform: itemViewModel.onAppear)
-                        .onDisappear(perform: itemViewModel.onDisappear)
+                        .onDisappear { viewModel.onTokenRowDisappear(itemViewModel) }
                 }
 
                 if viewModel.tokenListLoadingState == .loading {
-                    ForEach(0 ..< Layout.skeletonRowsCount, id: \.self) { _ in
-                        TokenRowMarket(.shimmer)
-                    }
+                    skeletonRows
                 }
             }
+        }
+    }
+
+    private var skeletonRows: some View {
+        ForEach(0 ..< Layout.skeletonRowsCount, id: \.self) { _ in
+            TokenRowMarket(.shimmer)
         }
     }
 }
@@ -186,6 +200,16 @@ private extension RealAssetsContentView {
         static let orderChipSpacing: CGFloat = 4
         static let orderChipHorizontalPadding: CGFloat = 12
     }
+}
+
+// MARK: - List content transition
+
+private extension Animation {
+    static let listContentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.3)
+}
+
+private extension AnyTransition {
+    static let listContent = AnyTransition.opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
 }
 
 private struct RealAssetsIntervalOption: TangemDropDownTextProvider {
