@@ -320,9 +320,13 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         }
 
         // Waiting when updatingTask is finished
-        Task { @MainActor in
-            try await addressDidChanged(destination: destination).value
-            stepRouter?.destinationStepFulfilled()
+        _ = Task { @MainActor in
+            do {
+                try await addressDidChanged(destination: destination).value
+                stepRouter?.destinationStepFulfilled()
+            } catch {
+                // No-op, the error is shown in the UI
+            }
         }
     }
 
@@ -377,9 +381,13 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         additionalFieldViewModel?.update(text: addressGroup.memo ?? "")
 
         // Waiting when updatingTask is finished
-        Task { @MainActor in
-            try await addressDidChanged(destination: destination).value
-            stepRouter?.destinationStepFulfilled()
+        _ = Task { @MainActor in
+            do {
+                try await addressDidChanged(destination: destination).value
+                stepRouter?.destinationStepFulfilled()
+            } catch {
+                // No-op, the error is shown in the UI
+            }
         }
     }
 

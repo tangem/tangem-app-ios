@@ -39,6 +39,8 @@ public struct HorizontalChipsView: View {
     private let verticalInset: CGFloat
     private let chipHorizontalPadding: CGFloat
 
+    @Environment(\.verticalBarEdge) private var verticalBarEdge
+
     public init(
         chips: [Chip],
         selectedId: Binding<Chip.ID?>,
@@ -72,11 +74,24 @@ public struct HorizontalChipsView: View {
             }
             .padding(.horizontal, horizontalInset)
         }
+        .scrollClipDisabledUnderVerticalBar(verticalBarEdge != nil)
         .frame(height: Constants.chipHeight)
         .padding(.vertical, verticalInset)
         .onAppear(perform: ensureDefaultSelectionIfNeeded)
         .onChange(of: chips) { _ in
             ensureDefaultSelectionIfNeeded()
+        }
+    }
+}
+
+private extension View {
+    @available(iOS, obsoleted: 17.0, message: "Drop this function and use scrollClipDisabled directly.")
+    @ViewBuilder
+    func scrollClipDisabledUnderVerticalBar(_ isDisabled: Bool) -> some View {
+        if #available(iOS 17.0, *) {
+            scrollClipDisabled(isDisabled)
+        } else {
+            self
         }
     }
 }

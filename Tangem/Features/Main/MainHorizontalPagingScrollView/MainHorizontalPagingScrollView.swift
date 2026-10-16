@@ -10,6 +10,7 @@ import SwiftUI
 import TangemFoundation
 import TangemUI
 import TangemAssets
+import TangemUIUtils
 
 struct MainHorizontalPagingScrollView: View {
     let userWalletPageBuilders: [MainUserWalletPageBuilder]
@@ -38,10 +39,13 @@ struct MainHorizontalPagingScrollView: View {
 
     @State private var contentFooterHeight = CGFloat.zero
     @State private var safeAreaInsetsTop = CGFloat.zero
+    @State private var verticalBarInsets = EdgeInsets()
 
     @ScaledMetric private var headerBalanceTextHeight = CGFloat(48)
 
     @StateObject private var scrollDetector = ScrollDetector()
+
+    @Environment(\.verticalBarEdge) private var verticalBarEdge
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -50,6 +54,7 @@ struct MainHorizontalPagingScrollView: View {
             pagingIndicator
         }
         .ignoresSafeArea(edges: .bottom)
+        .ignoresVerticalBarSafeArea()
         .northernLightsBackground(
             backgroundColor: DesignSystem.Color.bgPrimary,
             opacity: blendedValue(\.backgroundOpacity)
@@ -57,7 +62,7 @@ struct MainHorizontalPagingScrollView: View {
         .mainTopNavigation(
             scanQRCodeAction: scanQRCodeAction,
             detailsAction: detailsAction,
-            actionsHaveBackground: selectedUserWalletBalanceHasReachedNavigationBar
+            actionsHaveBackground: navigationActionsHaveBackground
         ) {
             selectedUserWalletPageBuilder.navigation
                 .opacity(selectedUserWalletScrollAdjustedValues.navigationBarBalanceOpacity)
@@ -65,6 +70,9 @@ struct MainHorizontalPagingScrollView: View {
         }
         .onGeometryChange(for: CGFloat.self, of: \.safeAreaInsets.top) { safeAreaInsetsTop in
             self.safeAreaInsetsTop = safeAreaInsetsTop
+        }
+        .onGeometryChange(for: EdgeInsets.self, of: verticalBarInsets(in:)) { verticalBarInsets in
+            self.verticalBarInsets = verticalBarInsets
         }
         .onChange(of: userWalletPageBuilders.map(\.id)) { userWalletIDs in
             pagingIndicatorAnimationIsBlocked = true
@@ -84,6 +92,14 @@ struct MainHorizontalPagingScrollView: View {
         .environmentObject(scrollDetector)
     }
 
+    private func verticalBarInsets(in geometryProxy: GeometryProxy) -> EdgeInsets {
+        switch verticalBarEdge {
+        case .leading: EdgeInsets(top: .zero, leading: geometryProxy.safeAreaInsets.leading, bottom: .zero, trailing: .zero)
+        case .trailing: EdgeInsets(top: .zero, leading: .zero, bottom: .zero, trailing: geometryProxy.safeAreaInsets.trailing)
+        case nil: EdgeInsets()
+        }
+    }
+
     @ViewBuilder
     private var horizontalScrollView: some View {
         if #available(iOS 17.0, *) {
@@ -94,7 +110,8 @@ struct MainHorizontalPagingScrollView: View {
                 containerGeometryProperties: UserWalletView.ContainerGeometryProperties(
                     safeAreaInsetsTop: safeAreaInsetsTop,
                     bottomOverlayHeight: mainShtorkaBottomInset,
-                    contentFooterHeight: contentFooterHeight
+                    contentFooterHeight: contentFooterHeight,
+                    verticalBarInsets: verticalBarInsets
                 ),
                 pullToRefreshAction: pullToRefreshAction,
                 refreshingUserWalletIDs: refreshingUserWalletIDs,
@@ -112,7 +129,8 @@ struct MainHorizontalPagingScrollView: View {
                 containerGeometryProperties: UserWalletView.ContainerGeometryProperties(
                     safeAreaInsetsTop: safeAreaInsetsTop,
                     bottomOverlayHeight: mainShtorkaBottomInset,
-                    contentFooterHeight: contentFooterHeight
+                    contentFooterHeight: contentFooterHeight,
+                    verticalBarInsets: verticalBarInsets
                 ),
                 pullToRefreshAction: pullToRefreshAction,
                 refreshingUserWalletIDs: refreshingUserWalletIDs,
@@ -141,6 +159,7 @@ struct MainHorizontalPagingScrollView: View {
 
                 Spacer()
             }
+            .verticalBarSafeAreaPadding(verticalBarInsets)
             .task(id: userWalletPageBuilders.map(\.id)) {
                 await Task.yield()
                 pagingIndicatorAnimationIsBlocked = false
@@ -163,6 +182,7 @@ struct MainHorizontalPagingScrollView: View {
                     .transition(.opacity)
             }
         }
+        .verticalBarSafeAreaPadding(verticalBarInsets)
         .animation(.easeIn(duration: 0.1), value: selectedUserWalletScrollAdjustedValues.contentFooterOverlayIsVisible)
     }
 
@@ -172,6 +192,10 @@ struct MainHorizontalPagingScrollView: View {
         }
 
         return !selectedUserWalletScrollAdjustedValues.didScrollToTop
+    }
+
+    private var navigationActionsHaveBackground: Bool {
+        verticalBarEdge != nil || selectedUserWalletBalanceHasReachedNavigationBar
     }
 
     private var selectedUserWalletBalanceHasReachedNavigationBar: Bool {

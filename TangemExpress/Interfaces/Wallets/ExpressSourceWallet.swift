@@ -52,6 +52,9 @@ public enum SupportedProvidersFilter {
     }
 }
 
+/// Legacy path of the `yieldDexTransferDetection` feature toggle. Until the app could tell
+/// a transfer from a swap, tokens in Yield mode were limited to all CEX providers and
+/// allow-listed DEX providers known to always return a real swap.
 public struct YieldProvidersFilter {
     private let allowedDEXProviderIds: Set<ExpressProvider.Id>
 

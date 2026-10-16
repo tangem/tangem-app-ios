@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol PersistentStorageProtocol {
+protocol PersistentStorageProtocol: Sendable {
     func value<T: Decodable>(for key: PersistentStorageKey) throws -> T?
     func store<T: Encodable>(value: T, for key: PersistentStorageKey) throws
     func remove(for key: PersistentStorageKey) throws

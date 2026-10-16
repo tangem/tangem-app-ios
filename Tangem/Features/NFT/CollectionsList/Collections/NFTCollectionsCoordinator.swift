@@ -99,7 +99,7 @@ final class NFTCollectionsCoordinator: CoordinatorObject {
     private func openAccountSelector(options: Options, navigationInput: NFTNavigationInput) {
         let userWalletModel = navigationInput.userWalletModel
 
-        Task { @MainActor in
+        Task { @MainActor [self] in
             floatingSheetPresenter.enqueue(
                 sheet: AccountSelectorViewModel(
                     userWalletModel: userWalletModel,

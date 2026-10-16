@@ -48,7 +48,7 @@ struct MarketsSearchView: View {
         rootView
             .background {
                 backgroundColor
-                    .ignoresSafeArea(edges: .vertical)
+                    .ignoresSafeArea()
             }
             .onAppear {
                 viewModel.onViewAppear()

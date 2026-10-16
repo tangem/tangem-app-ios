@@ -11,6 +11,7 @@ import TangemUIUtils
 
 public struct StepsFlowView: View {
     @StateObject private var viewModel: StepsFlowViewModel
+    @State private var horizontalSafeAreaInsets = EdgeInsets()
 
     private let configuration: StepsFlowConfiguration
 
@@ -35,6 +36,7 @@ public struct StepsFlowView: View {
         VStack(spacing: 0) {
             flowBar
                 .padding(flowBarEdgeInsets)
+                .displayCornerPadding()
                 .background(viewModel.currentBackgroundColor?.ignoresSafeArea())
 
             stepsContent
@@ -78,6 +80,7 @@ private extension StepsFlowView {
             LazyHStack(spacing: 0) {
                 ForEach(viewModel.steps, id: \.id) { step in
                     stepView(step)
+                        .safeAreaPadding(horizontalSafeAreaInsets)
                         .containerRelativeFrame(.horizontal)
                         .tag(step.id)
                 }
@@ -87,6 +90,14 @@ private extension StepsFlowView {
         .scrollTargetBehavior(.paging)
         .scrollPosition(id: $viewModel.currentStepId)
         .scrollDisabled(true)
+        .ignoresSafeArea(.container, edges: .horizontal)
+        .onGeometryChange(for: EdgeInsets.self, of: horizontalSafeAreaInsets(in:)) { insets in
+            horizontalSafeAreaInsets = insets
+        }
+    }
+
+    func horizontalSafeAreaInsets(in proxy: GeometryProxy) -> EdgeInsets {
+        EdgeInsets(top: .zero, leading: proxy.safeAreaInsets.leading, bottom: .zero, trailing: proxy.safeAreaInsets.trailing)
     }
 
     var tabStepsContent: some View {

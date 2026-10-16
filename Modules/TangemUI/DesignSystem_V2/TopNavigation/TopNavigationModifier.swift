@@ -7,8 +7,10 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemFoundation
+import TangemUIUtils
 
 struct TopNavigationModifier<Slot: View>: ViewModifier {
     @Environment(\.dismiss) private var dismiss
@@ -42,7 +44,7 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
         switch leadingPolicy {
         case .automatic: .back { dismiss() }
         case .custom(let action): action
-        case .none: nil
+        case .none, .image: nil
         }
     }
 
@@ -78,17 +80,42 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
 
     @ToolbarContentBuilder
     private var leadingContent: some ToolbarContent {
-        if let leading = resolvedLeading {
+        if case .image(let image, let height) = leadingPolicy {
+            leadingImageContent(image, height: height)
+        } else if let leading = resolvedLeading {
             if #available(iOS 26.0, *) {
                 ToolbarItem(placement: .topBarLeading) {
                     systemChrome([leading])
                 }
+                .prefersVerticalBar()
             } else {
                 ToolbarItem(placement: .topBarLeading) {
                     chromeButton(leading)
                 }
             }
         }
+    }
+
+    @ToolbarContentBuilder
+    private func leadingImageContent(_ image: ImageType, height: CGFloat) -> some ToolbarContent {
+        if #available(iOS 26.0, *) {
+            ToolbarItem(placement: .topBarLeading) {
+                leadingImage(image, height: height)
+            }
+            .sharedBackgroundVisibility(.hidden)
+        } else {
+            ToolbarItem(placement: .topBarLeading) {
+                leadingImage(image, height: height)
+            }
+        }
+    }
+
+    private func leadingImage(_ image: ImageType, height: CGFloat) -> some View {
+        image.image
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(height: height)
+            .fixedSize()
     }
 
     @ToolbarContentBuilder
@@ -144,6 +171,7 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
                 systemChrome(actions)
             }
             .sharedBackgroundVisibility(actionsHaveBackground ? .automatic : .hidden)
+            .prefersVerticalBar(!actions.contains(where: \.content.isTitle))
         }
 
         if let onClose {
@@ -152,8 +180,9 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
             }
 
             ToolbarItem(placement: .topBarTrailing) {
-                systemChrome([TopNavigation.Action.close(action: onClose)])
+                systemChrome([closeAction(onClose)])
             }
+            .prefersVerticalBar()
         }
     }
 
@@ -165,10 +194,14 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
                 }
 
                 if let onClose {
-                    TopNavigationCircleButton(action: TopNavigation.Action.close(action: onClose))
+                    TopNavigationCircleButton(action: closeAction(onClose))
                 }
             }
         }
+    }
+
+    private func closeAction(_ action: @escaping () -> Void) -> TopNavigation.Action {
+        TopNavigation.Action.close(accessibilityIdentifier: CommonUIAccessibilityIdentifiers.closeButton, action: action)
     }
 
     private func barTitle(_ alignment: HorizontalAlignment) -> some View {
@@ -210,7 +243,7 @@ private extension View {
     }
 }
 
-extension EnvironmentValues {
+public extension EnvironmentValues {
     /// Cleared by a container that hosts the navigation stack on its own surface and fades its content itself.
     @Entry var topNavigationDrawsBarBackground = true
 }

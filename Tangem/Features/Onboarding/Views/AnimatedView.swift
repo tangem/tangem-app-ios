@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import protocol Combine.Publisher
 
 struct AnimatedViewSettings: Equatable {
     var targetSettings: CardAnimSettings

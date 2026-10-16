@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import protocol Combine.Publisher
 
 struct CardsStackAnimatorSettings {
     let topCardSize: CGSize

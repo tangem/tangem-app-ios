@@ -8,8 +8,9 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
-class CosmosNetworkService: MultiNetworkProvider {
+final class CosmosNetworkService: MultiNetworkProvider {
     let providers: [CosmosRestProvider]
     var currentProviderIndex: Int = 0
 
@@ -31,14 +32,22 @@ class CosmosNetworkService: MultiNetworkProvider {
             cw20Tokens = []
         }
 
-        return providerPublisher {
-            $0.accounts(address: address)
-                .zip($0.balances(address: address), self.cw20TokenBalances(walletAddress: address, tokens: cw20Tokens), self.confirmedTransactionHashes(transactionHashes, with: $0))
-                .tryMap { [weak self] accountInfo, balanceInfo, cw20TokenBalances, confirmedTransactionHashes in
-                    guard
-                        let self,
-                        let sequenceNumber = UInt64(accountInfo?.account.sequence ?? "0")
-                    else {
+        return providerPublisher { [weak self] provider in
+            guard let self else {
+                return .anyFail(error: BlockchainSdkError.empty)
+            }
+
+            return provider.accounts(address: address)
+                .zip(
+                    provider.balances(address: address),
+                    cw20TokenBalances(walletAddress: address, tokens: cw20Tokens),
+                    confirmedTransactionHashes(transactionHashes, with: provider)
+                )
+                .withWeakCaptureOf(self)
+                .tryMap { service, input in
+                    let (accountInfo, balanceInfo, cw20TokenBalances, confirmedTransactionHashes) = input
+
+                    guard let sequenceNumber = UInt64(accountInfo?.account.sequence ?? "0") else {
                         throw BlockchainSdkError.failedToParseNetworkResponse()
                     }
 
@@ -49,24 +58,25 @@ class CosmosNetworkService: MultiNetworkProvider {
                         accountNumber = nil
                     }
 
-                    let rawAmount = try parseBalance(
+                    let chain = service.cosmosChain
+                    let rawAmount = try service.parseBalance(
                         balanceInfo,
-                        denomination: cosmosChain.smallestDenomination,
-                        decimalValue: cosmosChain.blockchain.decimalValue
+                        denomination: chain.smallestDenomination,
+                        decimalValue: chain.blockchain.decimalValue
                     )
-                    let amount = Amount(with: cosmosChain.blockchain, value: rawAmount)
+                    let amount = Amount(with: chain.blockchain, value: rawAmount)
 
                     let tokenAmounts: [Token: Decimal]
-                    if cosmosChain.allowCW20Tokens {
+                    if chain.allowCW20Tokens {
                         tokenAmounts = cw20TokenBalances
                     } else {
-                        tokenAmounts = Dictionary(try tokens.compactMap {
-                            guard let denomination = self.cosmosChain.tokenDenomination(contractAddress: $0.contractAddress, tokenCurrencySymbol: $0.symbol) else {
+                        tokenAmounts = Dictionary(try tokens.compactMap { token in
+                            guard let denomination = chain.tokenDenomination(contractAddress: token.contractAddress, tokenCurrencySymbol: token.symbol) else {
                                 return nil
                             }
 
-                            let balance = try self.parseBalance(balanceInfo, denomination: denomination, decimalValue: $0.decimalValue)
-                            return ($0, balance)
+                            let balance = try service.parseBalance(balanceInfo, denomination: denomination, decimalValue: token.decimalValue)
+                            return (token, balance)
                         }, uniquingKeysWith: {
                             pair1, _ in
                             pair1
@@ -86,17 +96,19 @@ class CosmosNetworkService: MultiNetworkProvider {
     }
 
     func nativeBalance(for address: String) -> AnyPublisher<Decimal, Error> {
-        providerPublisher {
-            $0.balances(address: address)
-                .tryMap { [weak self] balanceInfo -> Decimal in
+        providerPublisher { [weak self] provider in
+            provider.balances(address: address)
+                .tryMap { balanceInfo -> Decimal in
                     guard let self else {
                         throw BlockchainSdkError.empty
                     }
 
-                    return try parseBalance(
+                    let chain = self.cosmosChain
+
+                    return try self.parseBalance(
                         balanceInfo,
-                        denomination: cosmosChain.smallestDenomination,
-                        decimalValue: cosmosChain.blockchain.decimalValue
+                        denomination: chain.smallestDenomination,
+                        decimalValue: chain.blockchain.decimalValue
                     )
                 }
                 .eraseToAnyPublisher()
@@ -104,11 +116,11 @@ class CosmosNetworkService: MultiNetworkProvider {
     }
 
     func estimateGas(for transaction: Data) -> AnyPublisher<UInt64, Error> {
-        providerPublisher {
-            $0.simulate(data: transaction)
+        providerPublisher { provider in
+            provider.simulate(data: transaction)
                 .map(\.gasInfo.gasUsed)
-                .tryMap {
-                    guard let gasUsed = UInt64($0) else {
+                .tryMap { rawGasUsed in
+                    guard let gasUsed = UInt64(rawGasUsed) else {
                         throw BlockchainSdkError.failedToGetFee
                     }
 
@@ -119,8 +131,8 @@ class CosmosNetworkService: MultiNetworkProvider {
     }
 
     func send(transaction: Data) -> AnyPublisher<String, Error> {
-        providerPublisher {
-            $0.txs(data: transaction)
+        providerPublisher { provider in
+            provider.txs(data: transaction)
                 .map(\.txResponse)
                 .tryMap { txResponse in
                     guard txResponse.code == 0 else {
@@ -137,17 +149,12 @@ class CosmosNetworkService: MultiNetworkProvider {
         tokens
             .publisher
             .setFailureType(to: Error.self)
-            .flatMap { [weak self] token -> AnyPublisher<(Token, Decimal), Error> in
-                guard let self = self else {
-                    return .anyFail(error: BlockchainSdkError.empty)
-                }
-
-                return cw20TokenBalance(walletAddress: walletAddress, token: token)
+            .withWeakCaptureOf(self)
+            .flatMap { service, token -> AnyPublisher<(Token, Decimal), Error> in
+                return service.cw20TokenBalance(walletAddress: walletAddress, token: token)
             }
             .collect()
-            .map {
-                Dictionary($0) { pair1, _ in pair1 }
-            }
+            .map { Dictionary($0) { pair1, _ in pair1 } }
             .eraseToAnyPublisher()
     }
 
@@ -157,8 +164,8 @@ class CosmosNetworkService: MultiNetworkProvider {
             return .anyFail(error: BlockchainSdkError.failedToParseNetworkResponse())
         }
 
-        return providerPublisher {
-            $0.querySmartContract(contractAddress: token.contractAddress, query: query)
+        return providerPublisher { provider in
+            provider.querySmartContract(contractAddress: token.contractAddress, query: query)
                 .tryMap {
                     (result: CosmosCW20QueryResult<CosmosCW20QueryBalanceData>) -> (Token, Decimal) in
                     guard let balanceInSmallestDenomination = Decimal(string: result.data.balance) else {
@@ -176,16 +183,12 @@ class CosmosNetworkService: MultiNetworkProvider {
         hashes
             .publisher
             .setFailureType(to: Error.self)
-            .flatMap { [weak self] hash -> AnyPublisher<String?, Error> in
-                guard let self = self else {
-                    return .anyFail(error: BlockchainSdkError.empty)
-                }
-                return transactionConfirmed(hash, with: provider)
+            .withWeakCaptureOf(self)
+            .flatMap { service, hash -> AnyPublisher<String?, Error> in
+                return service.transactionConfirmed(hash, with: provider)
             }
             .collect()
-            .map {
-                $0.compactMap { $0 }
-            }
+            .map { $0.compactMap { $0 } }
             .eraseToAnyPublisher()
     }
 
