@@ -123,25 +123,13 @@ struct PolymarketTarget: Moya.TargetType {
 
         case .positions(let request):
             return .requestParameters(
-                parameters: [
-                    "depositWalletAddress": request.depositWalletAddress,
-                    "sort": request.sort.rawValue,
-                    "ascending": request.ascending,
-                    "limit": request.limit,
-                    "offset": request.offset,
-                ],
+                parameters: Self.positionsParameters(request.depositWalletAddress, page: request.page.queryParameters),
                 encoding: URLEncoding(boolEncoding: .literal)
             )
 
         case .closedPositions(let request):
             return .requestParameters(
-                parameters: [
-                    "depositWalletAddress": request.depositWalletAddress,
-                    "sort": request.sort.rawValue,
-                    "ascending": request.ascending,
-                    "limit": request.limit,
-                    "offset": request.offset,
-                ],
+                parameters: Self.positionsParameters(request.depositWalletAddress, page: request.page.queryParameters),
                 encoding: URLEncoding(boolEncoding: .literal)
             )
 
@@ -181,6 +169,12 @@ struct PolymarketTarget: Moya.TargetType {
 
     var headers: [String: String]? {
         [PolymarketBFFEnvironment.walletIdHeader: walletId]
+    }
+}
+
+private extension PolymarketTarget {
+    static func positionsParameters(_ depositWalletAddress: String, page: [String: Any]) -> [String: Any] {
+        page.merging(["depositWalletAddress": depositWalletAddress]) { current, _ in current }
     }
 }
 

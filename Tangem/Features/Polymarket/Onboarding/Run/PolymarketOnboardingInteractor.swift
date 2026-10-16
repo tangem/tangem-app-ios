@@ -484,7 +484,7 @@ private extension CommonPolymarketOnboardingInteractor {
 
     func primeBalanceCache(credentials: PolymarketL2Credentials, ownerAddress: String) async {
         do {
-            try await clobService.updateBalanceAllowance(credentials: credentials, ownerAddress: ownerAddress)
+            try await clobService.updateBalanceAllowance(.collateral, credentials: credentials, ownerAddress: ownerAddress)
         } catch {
             PolymarketLogger.error("Failed to prime the collateral balance", error: error)
         }

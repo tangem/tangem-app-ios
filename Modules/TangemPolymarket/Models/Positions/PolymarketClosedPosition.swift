@@ -77,11 +77,15 @@ public enum PolymarketClosedPositionStatus: String, Hashable, Sendable, CaseIter
 public struct PolymarketClosedPositionsPage: Hashable, Sendable {
     public let positions: [PolymarketClosedPosition]
     public let receivedCount: Int
-    public let hasNext: Bool
+    public let nextCursor: String?
 
-    public init(positions: [PolymarketClosedPosition], receivedCount: Int, hasNext: Bool) {
+    public var hasNext: Bool {
+        nextCursor != nil
+    }
+
+    public init(positions: [PolymarketClosedPosition], receivedCount: Int, nextCursor: String?) {
         self.positions = positions
         self.receivedCount = receivedCount
-        self.hasNext = hasNext
+        self.nextCursor = nextCursor
     }
 }

@@ -14,7 +14,7 @@ struct PolymarketPositionsValueTarget: Moya.TargetType {
     let baseURL: URL
     let depositWalletAddress: String
 
-    var path: String { "value" }
+    var path: String { "v2/value" }
     var method: Moya.Method { .get }
 
     var task: Moya.Task {

@@ -42,11 +42,11 @@ final class PolymarketOrderPreviewAPIProvider: PolymarketAPIProvider {
     }
 
     func positions(request: PolymarketPositionsRequest) async throws -> PolymarketPositionsPage {
-        PolymarketPositionsPage(positions: [], receivedCount: 0, hasNext: false)
+        PolymarketPositionsPage(positions: [], receivedCount: 0, nextCursor: nil)
     }
 
     func closedPositions(request: PolymarketClosedPositionsRequest) async throws -> PolymarketClosedPositionsPage {
-        PolymarketClosedPositionsPage(positions: [], receivedCount: 0, hasNext: false)
+        PolymarketClosedPositionsPage(positions: [], receivedCount: 0, nextCursor: nil)
     }
 
     func positionOutcome(request: PolymarketPositionOutcomeRequest) async throws -> PolymarketPosition? {
@@ -99,6 +99,9 @@ extension PolymarketOrderQuote {
         minOrderSize: 5,
         minOrderAmount: 1,
         tickSize: Decimal(string: "0.001")!,
-        isLive: false
+        isLive: false,
+        version: .v1,
+        exchange: "0xE111180000d2663C0091e4f400237545B87B996B",
+        signingDomainVersion: "2"
     )
 }

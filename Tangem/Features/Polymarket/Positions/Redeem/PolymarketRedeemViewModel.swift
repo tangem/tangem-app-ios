@@ -158,10 +158,7 @@ private extension PolymarketRedeemViewModel {
             }
 
             do {
-                _ = try await viewModel.redeemService.claim(
-                    conditionId: viewModel.position.conditionId,
-                    isNegRisk: viewModel.position.isNegRisk
-                )
+                _ = try await viewModel.redeemService.claim(position: viewModel.position)
 
                 guard !Task.isCancelled else { return }
 
@@ -169,6 +166,11 @@ private extension PolymarketRedeemViewModel {
                 viewModel.coordinator?.closeRedeem()
             } catch is CancellationError {
                 return
+            } catch PolymarketRedeemTransactionService.Error.nothingToRedeem {
+                guard !Task.isCancelled else { return }
+
+                viewModel.onClaimed(viewModel.position)
+                viewModel.coordinator?.closeRedeem()
             } catch {
                 guard !Task.isCancelled else { return }
 
