@@ -15,15 +15,47 @@ import Testing
 struct YieldIncentivesSurfaceStateTests {
     private typealias Fixtures = YieldIncentivesFixtures
 
-    @Test("An inactive campaign hides every incentive surface", arguments: [false, true])
-    func inactiveCampaignHidesEverything(isClaimInFlight: Bool) {
-        let state = YieldIncentivesSurfaceState.make(
+    @Test("An inactive campaign with nothing to claim hides every incentive surface", arguments: [false, true])
+    func inactiveCampaignWithoutClaimableRewardsHidesEverything(isClaimInFlight: Bool) {
+        let withoutSummary = YieldIncentivesSurfaceState.make(
             campaignActive: false,
-            summary: Fixtures.summary(),
+            summary: nil,
             isClaimInFlight: isClaimInFlight
         )
 
-        #expect(state == .none)
+        let pendingOnly = YieldIncentivesSurfaceState.make(
+            campaignActive: false,
+            summary: Fixtures.summary(rewards: [Fixtures.reward(claimableAmount: 0)]),
+            isClaimInFlight: isClaimInFlight
+        )
+
+        #expect(withoutSummary == .none)
+        #expect(pendingOnly == .none)
+    }
+
+    @Test("Rewards left claimable after the campaign ends keep the claim")
+    func claimableRewardsOutliveTheCampaign() {
+        let recommended = YieldIncentivesSurfaceState.make(
+            campaignActive: false,
+            summary: Fixtures.summary(),
+            isClaimInFlight: false
+        )
+
+        let belowThreshold = YieldIncentivesSurfaceState.make(
+            campaignActive: false,
+            summary: Fixtures.summary(isClaimRecommended: false),
+            isClaimInFlight: false
+        )
+
+        let inFlight = YieldIncentivesSurfaceState.make(
+            campaignActive: false,
+            summary: Fixtures.summary(),
+            isClaimInFlight: true
+        )
+
+        #expect(recommended == .claimAvailable)
+        #expect(belowThreshold == .belowThreshold)
+        #expect(inFlight == .claimInFlight)
     }
 
     @Test("An active campaign without a summary shows the APY overlay alone", arguments: [false, true])
