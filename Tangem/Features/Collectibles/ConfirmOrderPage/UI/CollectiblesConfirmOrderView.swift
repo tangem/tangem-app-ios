@@ -34,8 +34,11 @@ struct CollectiblesConfirmOrderView: View {
         }
         .overlay(alignment: .top) { errorSnackbar }
         .background(PopGestureDisabler(isDisabled: !isBackAvailable))
-        .onAppear { viewModel.preloadRevealAssets(for: colorScheme) }
-        .onChange(of: colorScheme, perform: viewModel.preloadRevealAssets)
+        .onAppear { viewModel.preloadRevealAssets(for: colorScheme, isReduceMotionEnabled: reduceMotion) }
+        .collectiblesInfoSheet(viewModel: viewModel.lowInventorySheetViewModel)
+        .collectiblesInfoSheet(viewModel: viewModel.packUnopenedSheetViewModel)
+        .collectiblesInfoSheet(viewModel: viewModel.buybackCompleteSheetViewModel)
+        .onChange(of: colorScheme) { viewModel.preloadRevealAssets(for: $0, isReduceMotionEnabled: reduceMotion) }
     }
 }
 
@@ -161,13 +164,12 @@ private extension CollectiblesConfirmOrderView {
             Localization.collectiblesConfirmOrderNotEnoughFundsButton
         case .balanceUnavailable:
             Localization.commonRetry
-        // [REDACTED_TODO_COMMENT]
         case .generating:
-            "Generating pack..."
+            Localization.collectiblesConfirmOrderGeneratingPackButton
         case .confirming:
-            "Confirming transaction..."
+            Localization.collectiblesConfirmOrderConfirmingTransactionButton
         case .opening, .packGenerated:
-            "Opening pack..."
+            Localization.collectiblesConfirmOrderOpeningPackButton
         case .balanceLoading, .approve:
             Localization.collectiblesConfirmOrderApproveButton
         }

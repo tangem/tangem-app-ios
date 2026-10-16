@@ -156,6 +156,49 @@ struct CollectiblesAPIServiceTests {
         #expect(openingMedia.skipAudioURL == URL(string: "https://example.com/skip.mp3"))
     }
 
+    // MARK: - Purchase
+
+    @Test("Low inventory code on generate-purchase-tx surfaces as lowInventory")
+    func mapsLowInventory() async throws {
+        CollectiblesStubURLProtocol.statusCode = 503
+        CollectiblesStubURLProtocol.responses = [
+            Data(#"{"title":"Service Unavailable","status":503,"detail":"Low inventory","code":3016,"errors":[]}"#.utf8),
+        ]
+
+        await #expect(throws: CollectiblesPurchaseGenerationError.lowInventory) {
+            _ = try await generatePurchase()
+        }
+    }
+
+    @Test("Any other backend code on generate-purchase-tx stays an .http failure")
+    func keepsOtherBackendCodes() async throws {
+        CollectiblesStubURLProtocol.statusCode = 404
+        CollectiblesStubURLProtocol.responses = [
+            Data(#"{"title":"Not Found","status":404,"detail":"Machine not found","code":3004,"errors":[]}"#.utf8),
+        ]
+
+        do {
+            _ = try await generatePurchase()
+            Issue.record("Expected .http to be thrown")
+        } catch CollectiblesAPIService.Error.http(let statusCode, _) {
+            #expect(statusCode == 404)
+        }
+    }
+
+    @Test("open-pack sends the transaction id in the body and asks for the won card in the query")
+    func openPackRequest() async throws {
+        CollectiblesStubURLProtocol.responses = [
+            Data(#"{"txId":"tx-1","status":"pack-opened","nftWon":null}"#.utf8),
+        ]
+
+        _ = try await makeSUT().openPack(txID: "tx-1", userWalletID: "wallet-1")
+
+        let body = try Self.jsonBody(CollectiblesStubURLProtocol.bodies.first)
+        #expect(body["txId"] as? String == "tx-1")
+        #expect(body.count == 1)
+        #expect(Self.queryValue("includeNftWon", of: CollectiblesStubURLProtocol.requests.first) == "true")
+    }
+
     // MARK: - Errors
 
     @Test("Non-2xx response surfaces as .http with the status code and the raw body")
@@ -197,6 +240,16 @@ private extension CollectiblesAPIServiceTests {
         )
 
         return CollectiblesAPIService(provider: TangemProvider(configuration: configuration, additionalPlugins: [DeviceInfoPlugin()]))
+    }
+
+    func generatePurchase() async throws -> CollectiblesGeneratedPurchase {
+        try await makeSUT().generatePurchase(
+            machineID: "pokemon_50",
+            fromAddress: "owner",
+            toAddress: "owner",
+            turboMode: .off,
+            userWalletID: "wallet-1"
+        )
     }
 
     static func queryValue(_ name: String, of request: URLRequest?) -> String? {

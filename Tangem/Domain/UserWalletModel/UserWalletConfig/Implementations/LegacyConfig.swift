@@ -143,6 +143,7 @@ extension LegacyConfig: UserWalletConfig {
     }
 
     var walletThumbnailType: ThumbnailWalletViewType? {
+        // [REDACTED_TODO_COMMENT]
         if walletData == nil {
             switch card.batchId {
             case "CB79":

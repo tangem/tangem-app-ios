@@ -384,7 +384,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         Toast(
             view: TangemSnackbar(title: text)
                 .icon(DesignSystem.Icons.Checkmark.regular20)
-                .iconColor(Color.Tangem.Graphic.Status.accent)
+                .iconColor(DesignSystem.Color.iconAccentBlue)
         )
         .present(layout: .top(padding: 14), type: .temporary())
     }

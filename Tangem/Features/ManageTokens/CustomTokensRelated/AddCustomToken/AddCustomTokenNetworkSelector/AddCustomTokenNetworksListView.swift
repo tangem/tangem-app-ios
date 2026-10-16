@@ -25,11 +25,11 @@ struct AddCustomTokenNetworksListView: View {
     // MARK: - Redesign-aware styling
 
     private var screenBackgroundColor: Color {
-        isRedesign ? Color.Tangem.Surface.level2 : Colors.Background.tertiary
+        isRedesign ? DesignSystem.Color.bgPrimary : Colors.Background.tertiary
     }
 
     private var cardBackgroundColor: Color {
-        isRedesign ? Color.Tangem.Surface.level3 : Colors.Background.action
+        isRedesign ? DesignSystem.Color.bgSecondary : Colors.Background.action
     }
 
     private var cardCornerRadius: CGFloat {

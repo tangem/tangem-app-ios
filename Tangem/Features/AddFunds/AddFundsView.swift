@@ -101,7 +101,7 @@ struct AddFundsView: View {
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 20)
-        .background(Color.Tangem.Surface.level2.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .navigationBarHidden(true)
     }
 
@@ -147,7 +147,7 @@ struct AddFundsView: View {
 private extension View {
     func applyFloatingSheetStyling() -> some View {
         floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = Color.Tangem.Surface.level2
+            configuration.sheetBackgroundColor = DesignSystem.Color.bgPrimary
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
     }

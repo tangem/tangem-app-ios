@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct TokenDetailsStakingView: View {
@@ -58,7 +59,7 @@ private extension TokenDetailsStakingView {
                     .scaledToFit()
                     .frame(size: CGSize(bothDimensions: iconDimension))
                     .shadow(
-                        color: Color.Tangem.Fill.Status.accent.opacity(0.35),
+                        color: DesignSystem.Color.bgAccentBlue.opacity(0.35),
                         radius: iconShadowBlurRadius,
                         x: .zero,
                         y: iconShadowOffsetX
@@ -66,11 +67,11 @@ private extension TokenDetailsStakingView {
 
                 VStack(alignment: .leading, spacing: verticalSpacing) {
                     Text(item.title)
-                        .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                         .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingTitle)
 
                     Text(item.description)
-                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -79,17 +80,17 @@ private extension TokenDetailsStakingView {
                     .setSize(.x9)
             }
             .padding(padding)
-            .background(Color.Tangem.Markers.backgroundTintedBlue, in: RoundedRectangle(cornerRadius: cornerRadius))
+            .background(DesignSystem.Color.bgStatusInfoSubtle, in: RoundedRectangle(cornerRadius: cornerRadius))
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(Color.Tangem.Fill.Status.accent.opacity(0.3), lineWidth: cornerRadius)
+                    .stroke(DesignSystem.Color.bgAccentBlue.opacity(0.3), lineWidth: cornerRadius)
                     .blur(radius: blurRadius)
                     .blendMode(.lighten)
                     .mask(RoundedRectangle(cornerRadius: cornerRadius))
             )
             .overlay {
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(Color.Tangem.Markers.borderTintedBlue, lineWidth: borderWidth)
+                    .stroke(DesignSystem.Color.borderStatusInfoSubtle, lineWidth: borderWidth)
             }
         }
         .buttonStyle(.plain)
@@ -105,7 +106,7 @@ private extension TokenDetailsStakingView {
                     .scaledToFit()
                     .frame(size: CGSize(bothDimensions: iconDimension))
                     .shadow(
-                        color: Color.Tangem.Fill.Status.accent.opacity(0.35),
+                        color: DesignSystem.Color.bgAccentBlue.opacity(0.35),
                         radius: iconShadowBlurRadius,
                         x: .zero,
                         y: iconShadowOffsetX
@@ -113,7 +114,7 @@ private extension TokenDetailsStakingView {
 
                 VStack(alignment: .leading, spacing: verticalSpacing) {
                     Text(item.title)
-                        .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                         .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingTitle)
 
                     rewardsStateView(state: item.rewardsState)
@@ -125,15 +126,15 @@ private extension TokenDetailsStakingView {
                     SensitiveText(item.fiatBalance)
 
                     SensitiveText(item.cryptoBalance)
-                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 }
                 .accessibilityIdentifier(TokenAccessibilityIdentifiers.stakingBalance)
             }
             .padding(padding)
-            .background(Color.Tangem.Surface.level3, in: RoundedRectangle(cornerRadius: cornerRadius))
+            .background(DesignSystem.Color.bgSecondary, in: RoundedRectangle(cornerRadius: cornerRadius))
             .overlay {
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(Color.Tangem.Border.Neutral.primary, lineWidth: borderWidth)
+                    .stroke(DesignSystem.Color.borderSecondary, lineWidth: borderWidth)
             }
         }
         .buttonStyle(.plain)
@@ -142,7 +143,7 @@ private extension TokenDetailsStakingView {
 
     @ViewBuilder
     func unavailableView(item: TokenDetailsStakingState.UnavailableItem) -> some View {
-        let titleColor: Color = item.action == nil ? .Tangem.Text.Neutral.tertiary : .Tangem.Text.Neutral.primary
+        let titleColor: Color = item.action == nil ? DesignSystem.Color.textSecondary : DesignSystem.Color.textPrimary
 
         let content = HStack(spacing: horizontalSpacing) {
             Assets.stakingFilledMonochrome.image
@@ -153,11 +154,11 @@ private extension TokenDetailsStakingView {
 
             VStack(alignment: .leading, spacing: verticalSpacing) {
                 Text(item.title)
-                    .style(Font.Tangem.Body16.medium, color: titleColor)
+                    .style(DesignSystem.Font.bodyMediumToken, color: titleColor)
                     .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingTitle)
 
                 Text(item.description)
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .lineLimit(nil)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
@@ -165,10 +166,10 @@ private extension TokenDetailsStakingView {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(padding)
-        .background(Color.Tangem.Surface.level3, in: RoundedRectangle(cornerRadius: cornerRadius))
+        .background(DesignSystem.Color.bgSecondary, in: RoundedRectangle(cornerRadius: cornerRadius))
         .overlay {
             RoundedRectangle(cornerRadius: cornerRadius)
-                .stroke(Color.Tangem.Border.Neutral.primary, lineWidth: borderWidth)
+                .stroke(DesignSystem.Color.borderSecondary, lineWidth: borderWidth)
         }
 
         if let action = item.action {
@@ -186,13 +187,13 @@ private extension TokenDetailsStakingView {
         switch state {
         case .claimed(let text):
             SensitiveText(text)
-                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.accent)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textAccentBlue)
         case .empty(let text):
             Text(text)
-                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
         case .auto(let text):
             Text(text)
-                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.accent)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textAccentBlue)
         }
     }
 
@@ -208,6 +209,6 @@ private extension TokenDetailsStakingView {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(padding)
-        .background(Color.Tangem.Surface.level3, in: RoundedRectangle(cornerRadius: 24))
+        .background(DesignSystem.Color.bgSecondary, in: RoundedRectangle(cornerRadius: 24))
     }
 }

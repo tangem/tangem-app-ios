@@ -75,7 +75,7 @@ public struct NavigationToolbarButton: CustomizableToolbarContent {
     }
 
     private var systemLabelColor: Color {
-        isDimmed ? Colors.Text.disabled : Color.Tangem.Graphic.Neutral.primary
+        isDimmed ? Colors.Text.disabled : DesignSystem.Color.iconPrimary
     }
 
     private var circleIconButton: some View {

@@ -30,7 +30,7 @@ struct RedesignedAccountSkeletonCardView: View {
             makeSkeletonsStack(alignment: .trailing)
         }
         .padding(12)
-        .background(Color.Tangem.Surface.level3)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadiusContinuous(24)
         .environment(\.isShimmerAnimationPaused, !isShimmerActive)
     }
@@ -60,7 +60,7 @@ extension RedesignedAccountSkeletonCardView: Setupable {
 
 #Preview {
     ZStack {
-        Color.Tangem.Surface.level2
+        DesignSystem.Color.bgPrimary
             .ignoresSafeArea()
 
         VStack(spacing: 8) {
