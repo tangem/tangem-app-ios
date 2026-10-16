@@ -32,14 +32,14 @@ struct MainNotificationsViewModelTests {
             let systemInputs = sampleInputs(count: 1)
             let promoInputs = sampleInputs(count: 2)
             let viewModel = makeViewModel(isEnabled: true, systemInputs: systemInputs, promoInputs: promoInputs)
-            let hasSystemCard = PassthroughSubject<Bool, Never>()
+            let allowedVisibility = PassthroughSubject<MainPromotionalVisibility, Never>()
 
             viewModel.bindVisibility(
-                hasSystemCardPublisher: hasSystemCard.eraseToAnyPublisher(),
+                allowedVisibilityPublisher: allowedVisibility.eraseToAnyPublisher(),
                 balanceProvider: TotalBalanceProviderMock()
             )
 
-            hasSystemCard.send(true)
+            allowedVisibility.send(.hidden)
 
             let hidden = await waitUntilConditionMet(timeout: 4) {
                 !hasMarketing(viewModel) && bannerCount(viewModel) == systemInputs.count
@@ -54,20 +54,75 @@ struct MainNotificationsViewModelTests {
             let systemInputs = sampleInputs(count: 1)
             let promoInputs = sampleInputs(count: 2)
             let viewModel = makeViewModel(isEnabled: true, systemInputs: systemInputs, promoInputs: promoInputs)
-            let hasSystemCard = PassthroughSubject<Bool, Never>()
+            let allowedVisibility = PassthroughSubject<MainPromotionalVisibility, Never>()
 
             viewModel.bindVisibility(
-                hasSystemCardPublisher: hasSystemCard.eraseToAnyPublisher(),
+                allowedVisibilityPublisher: allowedVisibility.eraseToAnyPublisher(),
                 balanceProvider: TotalBalanceProviderMock()
             )
 
-            hasSystemCard.send(false)
-            addFunds.send(true)
+            allowedVisibility.send(.all)
+            addFunds.send(false)
 
             let shown = await waitUntilConditionMet(timeout: 4) {
                 hasMarketing(viewModel) && bannerCount(viewModel) == systemInputs.count + promoInputs.count
             }
             #expect(shown)
+        }
+    }
+
+    @Test("Toggle ON shows only the promo while Get your first crypto is the only system card, without marketing flashing on open")
+    func toggleOnShowsOnlyPromoWithAddFunds() async {
+        await withControllableAddFunds { addFunds in
+            let systemInputs = sampleInputs(count: 1)
+            let promoInputs = sampleInputs(count: 2)
+            let viewModel = makeViewModel(isEnabled: true, systemInputs: systemInputs, promoInputs: promoInputs)
+            let allowedVisibility = PassthroughSubject<MainPromotionalVisibility, Never>()
+
+            viewModel.bindVisibility(
+                allowedVisibilityPublisher: allowedVisibility.eraseToAnyPublisher(),
+                balanceProvider: TotalBalanceProviderMock()
+            )
+
+            allowedVisibility.send(.all)
+            addFunds.send(true)
+            allowedVisibility.send(.tangemPayPromoOnly)
+
+            let shown = await waitUntilConditionMet(timeout: 4) {
+                bannerCount(viewModel) == systemInputs.count + promoInputs.count
+            }
+            #expect(shown)
+            #expect(!hasMarketing(viewModel))
+        }
+    }
+
+    @Test("Toggle ON hides the promo at once when another system card joins Get your first crypto")
+    func toggleOnHidesPromoWhenAnotherSystemCardAppears() async {
+        await withControllableAddFunds { addFunds in
+            let systemInputs = sampleInputs(count: 1)
+            let promoInputs = sampleInputs(count: 2)
+            let viewModel = makeViewModel(isEnabled: true, systemInputs: systemInputs, promoInputs: promoInputs)
+            let allowedVisibility = PassthroughSubject<MainPromotionalVisibility, Never>()
+
+            viewModel.bindVisibility(
+                allowedVisibilityPublisher: allowedVisibility.eraseToAnyPublisher(),
+                balanceProvider: TotalBalanceProviderMock()
+            )
+
+            allowedVisibility.send(.tangemPayPromoOnly)
+            addFunds.send(true)
+
+            let promoShown = await waitUntilConditionMet(timeout: 4) {
+                bannerCount(viewModel) == systemInputs.count + promoInputs.count
+            }
+            #expect(promoShown)
+
+            allowedVisibility.send(.hidden)
+
+            let hidden = await waitUntilConditionMet(timeout: 4) {
+                !hasMarketing(viewModel) && bannerCount(viewModel) == systemInputs.count
+            }
+            #expect(hidden)
         }
     }
 }

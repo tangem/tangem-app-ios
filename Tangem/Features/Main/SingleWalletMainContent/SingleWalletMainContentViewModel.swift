@@ -271,16 +271,20 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     // MARK: - Main notifications visibility
 
     private func bindMainNotificationsVisibility() {
-        let hasSystemCardPublisher = Publishers
+        let resolver = MainPromotionalVisibilityResolver()
+        let allowedVisibilityPublisher = Publishers
             .CombineLatest($notificationInputs, $walletPromoBannerViewModel)
             .map { notifications, walletPromoBanner in
-                !notifications.isEmpty || walletPromoBanner != nil
+                resolver.resolve(
+                    systemNotifications: notifications,
+                    hasOtherSystemContent: walletPromoBanner != nil
+                )
             }
             .removeDuplicates()
             .eraseToAnyPublisher()
 
         mainNotificationsViewModel.bindVisibility(
-            hasSystemCardPublisher: hasSystemCardPublisher,
+            allowedVisibilityPublisher: allowedVisibilityPublisher,
             balanceProvider: userWalletModel
         )
     }
