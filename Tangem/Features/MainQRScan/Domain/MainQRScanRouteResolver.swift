@@ -38,6 +38,8 @@ struct MainQRScanRouteResolver {
                 availableBlockchains: availableBlockchains,
                 availableTokenItems: availableTokenItems
             )
+        case .deeplink(let url):
+            return .deeplink(url)
         case .plainAddress(let address):
             return actionForAddress(address: address, availableBlockchains: availableBlockchains)
         case .unrecognized:

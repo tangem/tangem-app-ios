@@ -41,6 +41,7 @@ enum Feature: String, Hashable, CaseIterable {
     case tronGaslessCEX
     case tokenChartAddToPortfolio
     case marketingActivityBinding
+    case qrScanDeeplinks
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -78,6 +79,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tronGaslessCEX: return "TWI-1803_tron_gasless_cex"
         case .tokenChartAddToPortfolio: return "TWI-1857_token_chart_add_to_portfolio"
         case .marketingActivityBinding: return "TWI-1732_marketing_activity_binding"
+        case .qrScanDeeplinks: return "TWI-1690_qr_scan_deeplinks"
         }
     }
 
@@ -115,6 +117,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tronGaslessCEX: return .version("6.4.1")
         case .tokenChartAddToPortfolio: return .unspecified
         case .marketingActivityBinding: return .unspecified
+        case .qrScanDeeplinks: return .unspecified
         }
     }
 }
