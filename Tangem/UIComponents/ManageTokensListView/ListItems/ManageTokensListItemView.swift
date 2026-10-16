@@ -33,31 +33,31 @@ struct ManageTokensListItemView: View {
     // MARK: - Redesign-aware styling
 
     private var nameFont: TangemFontStyle {
-        isRedesign ? Font.Tangem.Body15.semibold : TangemFontStyle(font: Fonts.Bold.subheadline)
+        isRedesign ? TangemFontStyle(DesignSystem.Font.subheadingMediumToken) : TangemFontStyle(font: Fonts.Bold.subheadline)
     }
 
     private var nameColor: Color {
-        isRedesign ? .Tangem.Text.Neutral.primary : Colors.Text.primary1
+        isRedesign ? DesignSystem.Color.textPrimary : Colors.Text.primary1
     }
 
     private var symbolFont: TangemFontStyle {
-        isRedesign ? Font.Tangem.Caption12.regular : TangemFontStyle(font: Fonts.Regular.caption1)
+        isRedesign ? TangemFontStyle(DesignSystem.Font.captionMediumToken) : TangemFontStyle(font: Fonts.Regular.caption1)
     }
 
     private var symbolColor: Color {
-        isRedesign ? .Tangem.Text.Neutral.tertiary : Colors.Text.tertiary
+        isRedesign ? DesignSystem.Color.textSecondary : Colors.Text.tertiary
     }
 
     private var subtitleFont: TangemFontStyle {
-        isRedesign ? Font.Tangem.Caption13.regular : TangemFontStyle(font: Fonts.Regular.footnote)
+        isRedesign ? TangemFontStyle(DesignSystem.Font.subheadingMediumToken) : TangemFontStyle(font: Fonts.Regular.footnote)
     }
 
     private var subtitleColor: Color {
-        isRedesign ? .Tangem.Text.Neutral.secondary : Colors.Text.secondary
+        isRedesign ? DesignSystem.Color.textSecondary : Colors.Text.secondary
     }
 
     private var chevronColor: Color {
-        isRedesign ? .Tangem.Graphic.Neutral.tertiary : Colors.Icon.informative
+        isRedesign ? DesignSystem.Color.iconSecondary : Colors.Icon.informative
     }
 
     var body: some View {

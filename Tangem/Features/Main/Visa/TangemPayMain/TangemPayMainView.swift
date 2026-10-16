@@ -191,7 +191,7 @@ struct TangemPayMainView: View {
         .slotEnd {
             Assets.DesignSystem.warning.image
                 .renderingMode(.template)
-                .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
+                .foregroundStyle(DesignSystem.Color.iconPrimary)
         }
         .primaryButton(viewModel.awaitingDepositAddFundsButton)
         .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.awaitingDepositBanner)

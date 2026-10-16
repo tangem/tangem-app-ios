@@ -59,10 +59,10 @@ final class MarketsTokenPriceFormatter {
 
     func formatPrice(_ price: String) -> AttributedString {
         let formattingOptions = TotalBalanceFormattingOptions(
-            integerPartFont: Font.Tangem.Title44.semibold,
-            fractionalPartFont: Font.Tangem.Title44.semibold,
-            integerPartColor: .Tangem.Text.Neutral.primary,
-            fractionalPartColor: .Tangem.Text.Neutral.secondary,
+            integerPartFont: DesignSystem.Font.displayMediumToken,
+            fractionalPartFont: DesignSystem.Font.displayMediumToken,
+            integerPartColor: DesignSystem.Color.textPrimary,
+            fractionalPartColor: DesignSystem.Color.textSecondary,
             fractionalPartIncludesDecimalSeparator: true
         )
 

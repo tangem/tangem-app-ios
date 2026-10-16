@@ -87,6 +87,7 @@ extension NoteConfig: UserWalletConfig {
     }
 
     var walletThumbnailType: ThumbnailWalletViewType? {
+        // [REDACTED_TODO_COMMENT]
         typealias CC = Color.Tangem.CardCollection
 
         switch defaultBlockchain {

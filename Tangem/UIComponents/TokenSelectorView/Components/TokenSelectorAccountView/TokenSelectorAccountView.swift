@@ -23,7 +23,7 @@ struct TokenSelectorAccountView: View {
     }
 
     private var backgroundColor: Color {
-        return Color.Tangem.Surface.level3
+        return DesignSystem.Color.bgSecondary
     }
 
     @ViewBuilder
