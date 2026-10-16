@@ -7,9 +7,9 @@
 //
 
 import Foundation
-import TangemFoundation
+public import protocol TangemFoundation.UniversalError
 
-enum WebSocketTransportError: Error {
+public enum WebSocketTransportError: Error {
     case insecureURL
     case serverTrustRejected
     case handshakeRejected(statusCode: Int)
@@ -22,7 +22,7 @@ enum WebSocketTransportError: Error {
 // MARK: - UniversalError
 
 extension WebSocketTransportError: UniversalError {
-    var errorCode: Int {
+    public var errorCode: Int {
         switch self {
         case .insecureURL:
             113000000
