@@ -15,7 +15,7 @@ import TangemUI
 
 final class PolymarketEventsBlockViewModel: ObservableObject {
     @Published private(set) var categories: [PolymarketCategory] = [] {
-        didSet { categoryTabs = categories.map { PolymarketCategoryTab(id: $0.id, title: $0.label) } }
+        didSet { categoryTabs = categories.map { PolymarketCategoryTab(id: $0.id, title: $0.label, icon: $0.icon?.tabImage) } }
     }
 
     @Published private(set) var eventCards: [PolymarketEventCard.Model] = []
