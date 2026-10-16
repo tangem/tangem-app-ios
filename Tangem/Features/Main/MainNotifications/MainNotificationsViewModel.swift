@@ -32,12 +32,12 @@ final class MainNotificationsViewModel: ObservableObject {
 
     @Published private var systemBannerItems: [NotificationBannerItem] = []
     @Published private var tangemPayPromoItems: [NotificationBannerItem] = []
-    @Published private var isPromotionalVisible: Bool
+    @Published private var visibility: MainPromotionalVisibility
 
     private let isEnabled: Bool
     private let tangemPayPromoManager: NotificationManager?
     private let bannerMapper = MultiWalletNotificationBannerMapper()
-    private var hasSystemCard = false
+    private var allowedVisibility: MainPromotionalVisibility = .all
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -48,23 +48,26 @@ final class MainNotificationsViewModel: ObservableObject {
     ) {
         self.isEnabled = isEnabled
         self.tangemPayPromoManager = tangemPayPromoManager
-        isPromotionalVisible = !isEnabled
+        visibility = isEnabled ? .hidden : .all
         promotionNotificationsViewModel = PromotionNotificationsViewModel(promotionNotificationsManager: promotionNotificationsManager)
 
         bindSections(systemBannerItemsProvider: systemBannerItemsProvider, tangemPayPromoManager: tangemPayPromoManager)
     }
 
-    func bindVisibility(hasSystemCardPublisher: AnyPublisher<Bool, Never>, balanceProvider: TotalBalanceProvider) {
+    func bindVisibility(
+        allowedVisibilityPublisher: AnyPublisher<MainPromotionalVisibility, Never>,
+        balanceProvider: TotalBalanceProvider
+    ) {
         guard isEnabled else { return }
 
-        hasSystemCardPublisher
+        allowedVisibilityPublisher
             .receiveOnMain()
-            .sink { [weak self] hasSystemCard in
+            .sink { [weak self] allowedVisibility in
                 guard let self else { return }
-                self.hasSystemCard = hasSystemCard
+                self.allowedVisibility = allowedVisibility
 
-                if hasSystemCard {
-                    setPromotionalVisible(false)
+                if allowedVisibility < visibility {
+                    setVisibility(allowedVisibility)
                 }
             }
             .store(in: &bag)
@@ -73,16 +76,15 @@ final class MainNotificationsViewModel: ObservableObject {
             .CombineLatest(
                 addFundsBannerVisibilityProvider
                     .shouldShowPublisher(for: balanceProvider)
-                    .prefix(1)
-                    .mapToVoid(),
-                hasSystemCardPublisher
+                    .prefix(1),
+                allowedVisibilityPublisher
             )
             .prefix(1)
             .receiveOnMain()
-            .sink { [weak self] _, hasSystemCard in
+            .sink { [weak self] shouldShowAddFunds, allowedVisibility in
                 guard let self else { return }
-                self.hasSystemCard = hasSystemCard
-                setPromotionalVisible(!hasSystemCard)
+                self.allowedVisibility = allowedVisibility
+                setVisibility(shouldShowAddFunds ? min(allowedVisibility, .tangemPayPromoOnly) : allowedVisibility)
             }
             .store(in: &bag)
     }
@@ -90,7 +92,7 @@ final class MainNotificationsViewModel: ObservableObject {
     func refresh() {
         guard isEnabled else { return }
 
-        setPromotionalVisible(!hasSystemCard)
+        setVisibility(allowedVisibility)
     }
 }
 
@@ -115,15 +117,15 @@ private extension MainNotificationsViewModel {
         let marketing = promotionNotificationsViewModel
 
         Publishers
-            .CombineLatest3($systemBannerItems, $tangemPayPromoItems, $isPromotionalVisible)
-            .map { systemItems, promoItems, isPromotionalVisible -> [MainNotificationSection] in
+            .CombineLatest3($systemBannerItems, $tangemPayPromoItems, $visibility)
+            .map { systemItems, promoItems, visibility -> [MainNotificationSection] in
                 var sections: [MainNotificationSection] = []
 
-                if isPromotionalVisible {
+                if visibility.isMarketingVisible {
                     sections.append(.marketing(marketing))
                 }
 
-                let banners = systemItems + (isPromotionalVisible ? promoItems : [])
+                let banners = systemItems + (visibility.isTangemPayPromoVisible ? promoItems : [])
                 if !banners.isEmpty {
                     sections.append(.systemBanners(banners))
                 }
@@ -134,12 +136,12 @@ private extension MainNotificationsViewModel {
             .assign(to: &$sections)
     }
 
-    func setPromotionalVisible(_ visible: Bool) {
-        guard isPromotionalVisible != visible else { return }
+    func setVisibility(_ newVisibility: MainPromotionalVisibility) {
+        guard visibility != newVisibility else { return }
 
-        isPromotionalVisible = visible
+        visibility = newVisibility
 
-        if !visible {
+        if !newVisibility.isMarketingVisible {
             promotionNotificationsViewModel.resetVisibilityTracking()
         }
     }

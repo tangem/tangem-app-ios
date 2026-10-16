@@ -373,16 +373,20 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - Main notifications visibility
 
     private func bindMainNotificationsVisibility() {
-        let hasSystemCardPublisher = Publishers
+        let resolver = MainPromotionalVisibilityResolver()
+        let allowedVisibilityPublisher = Publishers
             .CombineLatest3($notificationInputs, $tokensNotificationInputs, $pendingJointAccountsOperationsViewData)
             .map { notifications, tokensNotifications, jointOperations in
-                !notifications.isEmpty || !tokensNotifications.isEmpty || !jointOperations.isEmpty
+                resolver.resolve(
+                    systemNotifications: notifications,
+                    hasOtherSystemContent: !tokensNotifications.isEmpty || !jointOperations.isEmpty
+                )
             }
             .removeDuplicates()
             .eraseToAnyPublisher()
 
         mainNotificationsViewModel.bindVisibility(
-            hasSystemCardPublisher: hasSystemCardPublisher,
+            allowedVisibilityPublisher: allowedVisibilityPublisher,
             balanceProvider: userWalletModel
         )
     }
