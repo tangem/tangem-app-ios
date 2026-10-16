@@ -392,7 +392,7 @@ private extension PolymarketEventsBlockViewModelTests {
     }
 
     static func category(_ id: Int) -> PolymarketCategory {
-        PolymarketCategory(id: id, label: "\(id)", iconURL: nil)
+        PolymarketCategory(id: id, label: "\(id)", icon: nil)
     }
 
     static func page(_ ids: [String], cursor: String? = nil, outcomes: [PolymarketOutcome] = []) -> PolymarketEventsPage {

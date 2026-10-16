@@ -26,7 +26,7 @@ extension PolymarketEventCard.Model {
         return PolymarketEventCard.Model(
             id: event.id,
             title: event.title,
-            category: category.map { .init(name: $0.label, iconURL: $0.iconURL) },
+            category: category.map { .init(name: $0.label, icon: $0.icon?.badgeImage) },
             volumeText: event.volume.map { MappingConstants.volumeFormatter.formatMarketCap($0) },
             imageURL: event.iconURL ?? event.imageURL,
             variant: variant,
