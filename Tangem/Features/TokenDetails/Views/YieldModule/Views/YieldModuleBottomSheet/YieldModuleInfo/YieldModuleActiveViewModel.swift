@@ -51,6 +51,9 @@ final class YieldModuleActiveViewModel: ObservableObject {
     private(set) var chartState: YieldModuleEarnInfoChartContainer.State = .loading
 
     @Published
+    private(set) var chartKind: YieldModuleEarnInfoChartContainer.Kind = .legacy
+
+    @Published
     private(set) var apyTrend: ApyTrend = .none
 
     @Published
@@ -118,6 +121,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
     private var minimalTopupAmountInFiat: Decimal?
     private var bag = Set<AnyCancellable>()
     private var marketStateTask: Task<Void, Never>?
+    private var chartTask: Task<Void, Never>?
 
     // MARK: - Init
 
@@ -256,7 +260,6 @@ final class YieldModuleActiveViewModel: ObservableObject {
             await getEarnInfoFees()
             await checkWarnings()
         }
-        Task { await fetchChartData() }
         Task { await getYieldPromoData() }
     }
 
@@ -273,6 +276,18 @@ final class YieldModuleActiveViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.refreshMarketState()
+            }
+            .store(in: &bag)
+
+        marketInfoPublisher
+            .map { [usesIncentiveDesign] marketInfo -> YieldModuleEarnInfoChartContainer.Kind in
+                usesIncentiveDesign && marketInfo?.incentive != nil ? .incentive : .legacy
+            }
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, kind in
+                viewModel.reloadChart(kind: kind)
             }
             .store(in: &bag)
 
@@ -321,9 +336,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
         let summary: YieldIncentivesRewardsSummary?
 
         do {
-            summary = hasActiveIncentiveCampaign
-                ? try await yieldManagerInteractor.getIncentivesSummary(forceRefresh: forceRefresh)
-                : nil
+            summary = try await yieldManagerInteractor.getIncentivesSummary(forceRefresh: forceRefresh)
         } catch {
             // A load that failed says nothing about the rewards, so the banner keeps whatever it already shows.
             AppLogger.error("Failed to load yield incentives", error: error)
@@ -492,22 +505,40 @@ final class YieldModuleActiveViewModel: ObservableObject {
         }
     }
 
-    @MainActor
-    private func fetchChartData() async {
+    private func reloadChart(kind: YieldModuleEarnInfoChartContainer.Kind) {
+        chartTask?.cancel()
+        chartKind = kind
         chartState = .loading
+        chartTask = Task { @MainActor [weak self] in
+            await self?.fetchChartData(kind: kind)
+        }
+    }
 
+    @MainActor
+    private func fetchChartData(kind: YieldModuleEarnInfoChartContainer.Kind) async {
         do {
             try await Task.sleep(for: .seconds(0.5))
 
-            if usesIncentiveDesign {
+            switch kind {
+            case .incentive:
                 let incentiveData = try await yieldManagerInteractor.getIncentiveChartData(period: .threeMonths)
+                try Task.checkCancellation()
                 chartState = incentiveData.baseApyData.isEmpty ? .unavailable : .incentive(incentiveData)
-            } else {
-                chartState = .legacy(try await yieldManagerInteractor.getChartData())
+
+            case .legacy:
+                let legacyData = try await yieldManagerInteractor.getChartData()
+                try Task.checkCancellation()
+                chartState = .legacy(legacyData)
             }
+        } catch is CancellationError {
+            return
         } catch {
+            guard !Task.isCancelled else {
+                return
+            }
+
             chartState = .error(action: { [weak self] in
-                await self?.fetchChartData()
+                self?.reloadChart(kind: kind)
             })
         }
     }
