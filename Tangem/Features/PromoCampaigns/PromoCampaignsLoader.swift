@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 protocol PromoCampaignsLoading {
     func loadPromoCampaigns(for wallet: PromoCampaignWallet) async throws -> [PromoCampaign]
@@ -22,7 +23,7 @@ struct CommonPromoCampaignsLoader {
 
 extension CommonPromoCampaignsLoader: PromoCampaignsLoading {
     func loadPromoCampaigns(for wallet: PromoCampaignWallet) async throws -> [PromoCampaign] {
-        let request = PromoCampaignsDTO.Request(wallet: wallet, language: Locale.deviceLanguageCode(withRegion: false))
+        let request = PromoCampaignsDTO.Request(wallet: wallet, language: Localization.languageCode)
 
         return try await tangemApiService
             .loadPromoCampaigns(request: request)
