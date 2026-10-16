@@ -10,8 +10,6 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class TangemPayMultichainReceiveSheet: ScreenBase<TangemPayMultichainReceiveSheetElement> {
-    private lazy var warningTitle = staticText(.warningTitle)
-    private lazy var warningDescription = staticText(.warningDescription)
     private lazy var heading = staticText(.heading)
     private lazy var copyButton = button(.copyButton)
     private lazy var showQRButton = button(.showQRButton)
@@ -28,14 +26,14 @@ final class TangemPayMultichainReceiveSheet: ScreenBase<TangemPayMultichainRecei
     @discardableResult
     func verifyWarning(title expectedTitle: String, description expectedDescription: String) -> Self {
         XCTContext.runActivity(named: "Verify the receive sheet warning") { _ in
-            waitAndAssertTrue(warningTitle, timeout: .conditional, "Warning title should be displayed")
-            XCTAssertEqual(warningTitle.label, expectedTitle, "Warning title should be '\(expectedTitle)'")
-
-            waitAndAssertTrue(warningDescription, "Warning description should be displayed")
-            XCTAssertEqual(
-                warningDescription.label,
-                expectedDescription,
-                "Warning description should be '\(expectedDescription)'"
+            waitAndAssertTrue(
+                element(withLabelContaining: expectedTitle),
+                timeout: .conditional,
+                "Warning title '\(expectedTitle)' should be displayed"
+            )
+            waitAndAssertTrue(
+                element(withLabelContaining: expectedDescription),
+                "Warning description '\(expectedDescription)' should be displayed"
             )
             return self
         }
@@ -112,6 +110,12 @@ final class TangemPayMultichainReceiveSheet: ScreenBase<TangemPayMultichainRecei
         }
     }
 
+    private func element(withLabelContaining text: String) -> XCUIElement {
+        app.descendants(matching: .any)
+            .matching(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, text))
+            .firstMatch
+    }
+
     private var addressLabel: XCUIElement {
         app.descendants(matching: .any)
             .matching(identifier: TangemPayAccessibilityIdentifiers.multichainReceiveSheetAddress)
@@ -120,8 +124,6 @@ final class TangemPayMultichainReceiveSheet: ScreenBase<TangemPayMultichainRecei
 }
 
 enum TangemPayMultichainReceiveSheetElement: String, UIElement {
-    case warningTitle
-    case warningDescription
     case heading
     case copyButton
     case showQRButton
@@ -129,10 +131,6 @@ enum TangemPayMultichainReceiveSheetElement: String, UIElement {
 
     var accessibilityIdentifier: String {
         switch self {
-        case .warningTitle:
-            TangemPayAccessibilityIdentifiers.multichainReceiveSheetWarningTitle
-        case .warningDescription:
-            TangemPayAccessibilityIdentifiers.multichainReceiveSheetWarningDescription
         case .heading:
             TangemPayAccessibilityIdentifiers.multichainReceiveSheetHeading
         case .copyButton:

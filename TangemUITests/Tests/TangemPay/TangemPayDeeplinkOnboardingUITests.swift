@@ -25,10 +25,10 @@ final class TangemPayDeeplinkOnboardingUITests: BaseTestCase {
         verifyValidateRequested(with: Constants.Link.onboardVisa)
     }
 
-    func testOnboardingDoesNotOpen_WhenOnboardVisaDeeplinkIsInvalid() {
+    func testRegionUnavailableShown_WhenOnboardVisaDeeplinkIsInvalid() {
         setAllureId(10415)
 
-        let mainScreen = launchAndImportHotWallet(
+        launchAndImportHotWallet(
             eligibilityState: Constants.State.notPaeraCustomer,
             scenarios: [ScenarioConfig(name: Constants.Scenario.validate, initialState: Constants.State.invalid)]
         )
@@ -36,12 +36,15 @@ final class TangemPayDeeplinkOnboardingUITests: BaseTestCase {
 
         openFromSafari(Constants.Link.onboardVisa)
 
-        TangemPayOnboardingScreen(app)
-            .verifyNotDisplayed()
+        let regionUnavailableScreen = TangemPayRegionUnavailableScreen(app)
+            .waitForScreen()
+            .verifyTitle(Localization.tangemPayUnavailableRegionTitle)
 
         verifyValidateRequested(with: Constants.Link.onboardVisa)
 
-        mainScreen.verifyTokensListInteractive()
+        regionUnavailableScreen
+            .tapGotIt()
+            .verifyTokensListInteractive()
     }
 
     func testOnboardingDoesNotOpen_WhenDeeplinkReceivedWithoutWallet() {

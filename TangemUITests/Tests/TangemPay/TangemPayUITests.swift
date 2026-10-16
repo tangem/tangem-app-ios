@@ -83,14 +83,17 @@ final class TangemPayUITests: BaseTestCase {
             .tapCard()
             .waitForScreen()
             .verifyCardActive()
+            .verifyCardActionsAvailable()
             .tapFreezeCard()
             .waitForScreen()
             .confirmFreeze()
             .verifyCardFrozen()
+            .verifyCardActionsLockedWhileFrozen()
             .tapUnfreezeCard()
             .waitForScreen()
             .confirmUnfreeze()
             .verifyCardActive()
+            .verifyCardActionsAvailable()
     }
 
     func testRevealAndCopyCardDetails_NumberExpirationCVC() {
