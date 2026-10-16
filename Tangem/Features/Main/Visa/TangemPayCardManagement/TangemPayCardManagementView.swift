@@ -292,6 +292,11 @@ struct TangemPayCardManagementView: View {
                             }
                         }
                         .disabled(closeCardRow.action == nil)
+                        .accessibilityIdentifier(
+                            viewModel.closeCardSubtitle == nil
+                                ? TangemPayAccessibilityIdentifiers.closeCardRow
+                                : TangemPayAccessibilityIdentifiers.closeCardRowLastCard
+                        )
                     }
                 } label: {
                     Image(systemName: "ellipsis")
