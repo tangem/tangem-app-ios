@@ -14,6 +14,7 @@ public enum PolymarketRedeemError: Error {
     case badRequest(detail: String?)
     case unauthorized
     case notFound
+    case nothingToRedeem
     case relayerRejected(detail: String?)
     case upstreamUnavailable(detail: String?)
     case cancelled
@@ -39,5 +40,23 @@ extension PolymarketRedeemError: PolymarketRelayedError {
         case 502: self = .upstreamUnavailable(detail: detail)
         default: self = .other(apiError)
         }
+    }
+}
+
+// MARK: - Asking for the redeem calls
+
+extension PolymarketRedeemError {
+    static func forRedeemCall(_ error: PolymarketRedeemError) -> PolymarketRedeemError {
+        guard case .other(.http(statusCode: Constants.conflictStatusCode, _)) = error else {
+            return error
+        }
+
+        return .nothingToRedeem
+    }
+}
+
+private extension PolymarketRedeemError {
+    enum Constants {
+        static let conflictStatusCode = 409
     }
 }

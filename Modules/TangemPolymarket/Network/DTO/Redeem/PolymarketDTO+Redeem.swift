@@ -10,6 +10,11 @@ import Foundation
 
 extension PolymarketDTO {
     struct RedeemCallResponse: Decodable {
+        let version: String?
+        let calls: [RedeemCall]
+    }
+
+    struct RedeemCall: Decodable {
         let target: String
         let value: String
         let data: String

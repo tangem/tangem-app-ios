@@ -30,8 +30,8 @@ final class CommonPolymarketPositionsValueService {
 // MARK: - Response mapping
 
 extension CommonPolymarketPositionsValueService {
-    static func positionsValue(from response: [PolymarketDTO.PositionsValueResponse]) -> Decimal {
-        response.first?.value ?? .zero
+    static func positionsValue(from response: PolymarketDTO.PositionsValueResponse) -> Decimal {
+        response.data.value
     }
 }
 
@@ -44,7 +44,7 @@ extension CommonPolymarketPositionsValueService: PolymarketPositionsValueService
         do {
             let response = try await provider.requestPublisher(target).async()
             let filtered = try response.filterSuccessfulStatusAndRedirectCodes()
-            let dto = try decoder.decode([PolymarketDTO.PositionsValueResponse].self, from: filtered.data)
+            let dto = try decoder.decode(PolymarketDTO.PositionsValueResponse.self, from: filtered.data)
 
             return Self.positionsValue(from: dto)
         } catch let error as CancellationError {
