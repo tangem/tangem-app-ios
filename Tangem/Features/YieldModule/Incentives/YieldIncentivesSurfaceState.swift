@@ -24,22 +24,14 @@ enum YieldIncentivesSurfaceState: Equatable {
         summary: YieldIncentivesRewardsSummary?,
         isClaimInFlight: Bool
     ) -> YieldIncentivesSurfaceState {
-        guard campaignActive else {
-            return .none
+        guard let summary, !summary.claimableRewards.isEmpty else {
+            return campaignActive ? .apyOverlayOnly : .none
         }
 
-        guard let summary else {
-            return .apyOverlayOnly
+        if isClaimInFlight {
+            return .claimInFlight
         }
 
-        if !summary.claimableRewards.isEmpty {
-            if isClaimInFlight {
-                return .claimInFlight
-            }
-
-            return summary.isClaimRecommended ? .claimAvailable : .belowThreshold
-        }
-
-        return .apyOverlayOnly
+        return summary.isClaimRecommended ? .claimAvailable : .belowThreshold
     }
 }
