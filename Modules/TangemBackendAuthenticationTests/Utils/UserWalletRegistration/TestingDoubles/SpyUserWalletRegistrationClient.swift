@@ -43,8 +43,8 @@ final class SpyUserWalletRegistrationClient: UserWalletRegistrationClient {
         return try registerResult.get()
     }
 
-    func unregister(id: UserWalletId) throws(UserWalletRegistrationClientError) -> SessionTokens {
-        state.withLock { $0.receivedMessages.append(.unregister(id)) }
+    func unregister(id: UserWalletId, shouldEraseSocialLoginData: Bool) throws(UserWalletRegistrationClientError) -> SessionTokens {
+        state.withLock { $0.receivedMessages.append(.unregister(id, shouldEraseSocialLoginData: shouldEraseSocialLoginData)) }
         return try unregisterResult.get()
     }
 }
@@ -68,7 +68,7 @@ extension SpyUserWalletRegistrationClient {
     enum Message: Equatable {
         case requestCipheredNonce(DevicePublicKey)
         case register(UserWalletRegistrationRequest)
-        case unregister(UserWalletId)
+        case unregister(UserWalletId, shouldEraseSocialLoginData: Bool)
     }
 
     private struct State {

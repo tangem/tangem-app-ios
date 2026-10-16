@@ -15,8 +15,6 @@ import TangemLocalization
 struct EarnDetailViewRedesign: View {
     @ObservedObject var viewModel: EarnDetailViewModel
 
-    @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
-
     @Environment(\.mainShtorkaSize) private var sheetSize
 
     @ScaledMetric private var contentSpacing: CGFloat = 16
@@ -27,9 +25,6 @@ struct EarnDetailViewRedesign: View {
                 view
                     .toolbar(.hidden, for: .navigationBar)
                     .navigationBarBackButtonHidden()
-            }
-            .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
-                viewModel?.onOverlayContentProgressChange(progress)
             }
     }
 }
@@ -49,7 +44,6 @@ private extension EarnDetailViewRedesign {
         ScrollView(.vertical, showsIndicators: false) {
             EarnContentView(viewModel: viewModel)
         }
-        .opacity(viewModel.overlayContentHidingProgress)
     }
 
     var navigationBar: some View {

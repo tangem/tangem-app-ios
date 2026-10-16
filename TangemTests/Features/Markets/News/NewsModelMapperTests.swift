@@ -39,28 +39,6 @@ struct NewsModelMapperTests {
         #expect(viewModel.chips.first?.title == "Markets")
     }
 
-    @Test("Maps list item to trending news model")
-    func mapsListItemToTrendingNewsModel() {
-        let provider = StubNewsReadStatusProvider(readIds: ["42"])
-        let mapper = NewsModelMapper(readStatusProvider: provider)
-        let item = Self.makeListItem(
-            id: 42,
-            score: 9.99,
-            title: "Mapped title",
-            categories: [NewsDTO.List.Category(id: 1, name: "Markets")],
-            relatedTokens: [NewsDTO.List.RelatedToken(id: "btc", symbol: "BTC", name: "Bitcoin")]
-        )
-
-        let model = mapper.mapToNewsModel(from: item)
-
-        #expect(model.id == "42")
-        #expect(model.score == 9.99)
-        #expect(model.newsUrl == item.newsUrl)
-        #expect(model.categories.map(\.name) == ["Markets"])
-        #expect(model.relatedTokens.map(\.symbol) == ["BTC"])
-        #expect(model.isRead == true)
-    }
-
     @Test("Maps response to carousel items", arguments: Self.carouselCases())
     func mapsResponseToCarouselItems(
         caseName: String,

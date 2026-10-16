@@ -91,8 +91,7 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
             sendType: .staking(
                 sourceToken,
                 manager: options.manager,
-                walletModelDependenciesProvider: options.sendInput.walletModel,
-                blockchainParams: .init(blockchain: options.sendInput.walletModel.tokenItem.blockchain)
+                walletModelDependenciesProvider: options.sendInput.walletModel
             )
         )
 
@@ -117,7 +116,7 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
         multipleRewardsCoordinator = coordinator
     }
 
-    func openUnstakingFlow(action: UnstakingModel.Action) {
+    func openUnstakingFlow(action: StakingAction) {
         guard let options else { return }
 
         let factory = CommonSendTransferableTokenFactory(
@@ -129,7 +128,7 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
         openFlow(options: options, sendType: .unstaking(sourceToken, manager: options.manager, action: action))
     }
 
-    func openRestakingFlow(action: RestakingModel.Action) {
+    func openRestakingFlow(action: StakingAction) {
         guard let options else { return }
 
         let factory = CommonSendTransferableTokenFactory(
@@ -141,7 +140,7 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
         openFlow(options: options, sendType: .restaking(sourceToken, manager: options.manager, action: action))
     }
 
-    func openStakingSingleActionFlow(action: StakingSingleActionModel.Action) {
+    func openStakingSingleActionFlow(action: StakingAction) {
         guard let options else { return }
 
         let factory = CommonSendTransferableTokenFactory(

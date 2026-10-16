@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum ExpressAmountType {
+public enum ExpressAmountType: Equatable {
     case from(Decimal)
     case to(Decimal)
 

@@ -10,8 +10,6 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class TangemPayTransactionDetailsScreen: Screen {
-    private static let errorLoadingText = "Error loading"
-
     let app: XCUIApplication
 
     init(_ app: XCUIApplication) {
@@ -64,7 +62,7 @@ final class TangemPayTransactionDetailsScreen: Screen {
             format: "identifier == %@ OR (identifier == %@ AND label CONTAINS[c] %@)",
             TangemPayAccessibilityIdentifiers.transactionDetailsCardRowRetryButton,
             TangemPayAccessibilityIdentifiers.transactionDetailsCardRow,
-            Self.errorLoadingText
+            Localization.tangempayCommonErrorLoading
         )
         return app.descendants(matching: .any).matching(predicate).firstMatch
     }
@@ -175,7 +173,7 @@ final class TangemPayTransactionDetailsScreen: Screen {
             waitAndAssertTrue(
                 cardRowLoadingError,
                 timeout: .networkRequest,
-                "Card row should show the '\(Self.errorLoadingText)' state"
+                "Card row should show the '\(Localization.tangempayCommonErrorLoading)' state"
             )
             return self
         }
@@ -202,7 +200,7 @@ final class TangemPayTransactionDetailsScreen: Screen {
     func verifyGetHelpButton() -> Self {
         XCTContext.runActivity(named: "Verify Get Help button") { _ in
             waitAndAssertTrue(mainButton, "Get Help button should be displayed")
-            XCTAssertEqual(mainButton.label, "Get Help", "Main button should be 'Get Help'. Actual: '\(mainButton.label)'")
+            XCTAssertEqual(mainButton.label, Localization.tangemPayGetHelp, "Main button should be 'Get Help'. Actual: '\(mainButton.label)'")
             return self
         }
     }

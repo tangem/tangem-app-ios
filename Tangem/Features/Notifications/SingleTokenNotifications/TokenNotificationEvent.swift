@@ -33,12 +33,28 @@ enum TokenNotificationEvent: Hashable {
 extension TokenNotificationEvent: NotificationEvent {
     var bannerKind: NotificationBannerKind? {
         switch self {
-        case .staking, .manaLevel, .maticMigration, .cloreMigration, .existentialDepositWarning:
+        case .networkNotUpdated, .staking, .manaLevel, .maticMigration, .cloreMigration, .existentialDepositWarning:
             return .status
         case .noAccount:
             return .warning
         case .rentFee:
             return .informational()
+        default:
+            return nil
+        }
+    }
+
+    var redesignedBannerContent: RedesignedBannerContent? {
+        switch self {
+        case .networkNotUpdated:
+            return .mutedLine(
+                description ?? "",
+                icon: NotificationView.MessageIcon(
+                    iconType: .image(Assets.DesignSystem.errorSync),
+                    renderingMode: .template,
+                    color: DesignSystem.Color.iconSecondary
+                )
+            )
         default:
             return nil
         }

@@ -40,6 +40,7 @@ struct AccountRowButtonView<Trailing: View>: View {
                 trailing: { trailing }
             )
             .iconSettings(iconSettings)
+            .nameBadge(viewModel.nameBadge)
         }
         .disabled(viewModel.isDisabled)
         .accessibilityIdentifier(AccountsAccessibilityIdentifiers.walletSettingsAccountRow(accountName: viewModel.name))

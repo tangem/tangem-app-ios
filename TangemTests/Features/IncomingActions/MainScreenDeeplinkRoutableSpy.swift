@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TangemFoundation
 @testable import Tangem
 
 final class MainScreenDeeplinkRoutableSpy: MainScreenDeeplinkRoutable {
@@ -17,6 +18,8 @@ final class MainScreenDeeplinkRoutableSpy: MainScreenDeeplinkRoutable {
     private(set) var swapParameters: PredefinedSwapParameters?
     private(set) var openedCampaignKey: String?
     private(set) var openedFeed: FeedSelection?
+    private(set) var selectedUserWalletId: UserWalletId?
+    private(set) var didOpenJointAccountMembers = false
 
     func openFeed(selection: FeedSelection) {
         openedFeed = selection
@@ -55,4 +58,14 @@ final class MainScreenDeeplinkRoutableSpy: MainScreenDeeplinkRoutable {
         openingAction: TangemPayOpeningAction?
     ) {}
     func openTangemPaySelectPlan(tariffPlanSelector: any TangemPayTariffPlanSelector, userWalletModel: any UserWalletModel) {}
+
+    func selectWallet(userWalletId: UserWalletId) {
+        selectedUserWalletId = userWalletId
+    }
+
+    func openJointAccountMembers(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig) {
+        didOpenJointAccountMembers = true
+    }
+
+    func expandAccount(_ jointAccount: any JointAccountModel, userWalletId: UserWalletId) {}
 }

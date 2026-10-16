@@ -13,61 +13,76 @@ import Testing
 
 @Suite("ExpressProviderFormatter — mapToBadge badge suppression", .serialized)
 struct ExpressProviderFormatterBadgeTests {
-    init() {
-        InjectedValues[\.geoEligibilityService] = StubGeoEligibilityService()
-    }
-
     @Test("Best rate badge is shown when there is no high price impact warning")
-    func bestRateBadgeShownWithoutWarning() {
-        let provider = makeAvailableProvider(isBest: true)
-        let formatter = ExpressProviderFormatter()
+    func bestRateBadgeShownWithoutWarning() async {
+        await withStubbedDependencies {
+            let provider = makeAvailableProvider(isBest: true)
+            let formatter = ExpressProviderFormatter()
 
-        let badge = formatter.mapToBadge(availableProvider: provider, hasHighPriceImpactWarning: false)
+            let badge = formatter.mapToBadge(availableProvider: provider, hasHighPriceImpactWarning: false)
 
-        #expect(badge == .bestRate)
+            #expect(badge == .bestRate)
+        }
     }
 
     @Test("Best rate badge is hidden when there is a high price impact warning")
-    func bestRateBadgeHiddenWithWarning() {
-        let provider = makeAvailableProvider(isBest: true)
-        let formatter = ExpressProviderFormatter()
+    func bestRateBadgeHiddenWithWarning() async {
+        await withStubbedDependencies {
+            let provider = makeAvailableProvider(isBest: true)
+            let formatter = ExpressProviderFormatter()
 
-        let badge = formatter.mapToBadge(availableProvider: provider, hasHighPriceImpactWarning: true)
+            let badge = formatter.mapToBadge(availableProvider: provider, hasHighPriceImpactWarning: true)
 
-        #expect(badge == nil)
+            #expect(badge == nil)
+        }
     }
 
     @Test("Best DEX rate badge is shown when the provider is the best DEX")
-    func bestDexRateBadgeShownWhenIsBestDEX() {
-        let provider = makeAvailableProvider(isBestDEX: true)
-        let formatter = ExpressProviderFormatter()
+    func bestDexRateBadgeShownWhenIsBestDEX() async {
+        await withStubbedDependencies {
+            let provider = makeAvailableProvider(isBestDEX: true)
+            let formatter = ExpressProviderFormatter()
 
-        let badge = formatter.mapToBadge(availableProvider: provider, hasHighPriceImpactWarning: false)
+            let badge = formatter.mapToBadge(availableProvider: provider, hasHighPriceImpactWarning: false)
 
-        #expect(badge == .bestDexRate)
+            #expect(badge == .bestDexRate)
+        }
     }
 
     @Test("Best DEX rate badge takes priority over best rate on the same provider")
-    func bestDexRateTakesPriorityOverBestRate() {
-        let provider = makeAvailableProvider(isBest: true, isBestDEX: true)
-        let formatter = ExpressProviderFormatter()
+    func bestDexRateTakesPriorityOverBestRate() async {
+        await withStubbedDependencies {
+            let provider = makeAvailableProvider(isBest: true, isBestDEX: true)
+            let formatter = ExpressProviderFormatter()
 
-        let badge = formatter.mapToBadge(availableProvider: provider, hasHighPriceImpactWarning: false)
+            let badge = formatter.mapToBadge(availableProvider: provider, hasHighPriceImpactWarning: false)
 
-        #expect(badge == .bestDexRate)
+            #expect(badge == .bestDexRate)
+        }
     }
 
     @Test("Best DEX rate badge is hidden when there is a high price impact warning")
-    func bestDexRateBadgeHiddenWithWarning() {
-        let provider = makeAvailableProvider(isBestDEX: true)
-        let formatter = ExpressProviderFormatter()
+    func bestDexRateBadgeHiddenWithWarning() async {
+        await withStubbedDependencies {
+            let provider = makeAvailableProvider(isBestDEX: true)
+            let formatter = ExpressProviderFormatter()
 
-        let badge = formatter.mapToBadge(availableProvider: provider, hasHighPriceImpactWarning: true)
+            let badge = formatter.mapToBadge(availableProvider: provider, hasHighPriceImpactWarning: true)
 
-        #expect(badge == nil)
+            #expect(badge == nil)
+        }
     }
 
     // MARK: - Helpers
+
+    private func withStubbedDependencies<T>(_ operation: () throws -> T) async rethrows -> T {
+        try await InjectedDependenciesIsolation.shared.run {
+            let previousGeoEligibilityService = InjectedValues[\.geoEligibilityService]
+            InjectedValues[\.geoEligibilityService] = StubGeoEligibilityService()
+            defer { InjectedValues[\.geoEligibilityService] = previousGeoEligibilityService }
+            return try operation()
+        }
+    }
 
     private func makeAvailableProvider(isBest: Bool = false, isBestDEX: Bool = false) -> ExpressAvailableProvider {
         let provider = ExpressProvider(
@@ -79,7 +94,8 @@ struct ExpressProviderFormatterBadgeTests {
             termsOfUse: nil,
             privacyPolicy: nil,
             recommended: nil,
-            slippage: nil
+            slippage: nil,
+            isCustomSlippageSupported: false
         )
 
         let context = ExpressProviderFlowContext(
@@ -89,7 +105,7 @@ struct ExpressProviderFormatterBadgeTests {
             expressFeeProvider: StubExpressFeeProvider(),
             expressAPIProvider: StubExpressAPIProvider(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: false)
+            featureFlags: ExpressFeatureFlags()
         )
 
         let available = ExpressAvailableProvider(
@@ -256,7 +272,7 @@ struct ExpressAvailableProviderBestDEXTests {
 
     private func makeProvider(id: String, type: ExpressProviderType, expectAmount: Decimal) -> ExpressAvailableProvider {
         let provider = expressProvider(id: id, type: type)
-        let quote = ExpressQuote(fromAmount: 1, expectAmount: expectAmount, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false)
+        let quote = ExpressQuote(fromAmount: 1, expectAmount: expectAmount, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false, slippage: nil)
         let fee = Fee(Amount(type: .coin, currencySymbol: "ETH", value: 0, decimals: 18))
         let state = ExpressProviderManagerState.cexPreview(.init(provider: provider, subtractFee: 0, quote: quote, fee: fee))
         return availableProvider(provider: provider, state: state)
@@ -269,7 +285,7 @@ struct ExpressAvailableProviderBestDEXTests {
 
     private func makePermissionRequiredProvider(id: String, type: ExpressProviderType, expectAmount: Decimal) -> ExpressAvailableProvider {
         let provider = expressProvider(id: id, type: type)
-        let quote = ExpressQuote(fromAmount: 1, expectAmount: expectAmount, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false)
+        let quote = ExpressQuote(fromAmount: 1, expectAmount: expectAmount, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false, slippage: nil)
         let fee = Fee(Amount(type: .coin, currencySymbol: "ETH", value: 0, decimals: 18))
         let state = ExpressProviderManagerState.permissionRequired(.init(
             provider: provider,
@@ -292,7 +308,8 @@ struct ExpressAvailableProviderBestDEXTests {
             termsOfUse: nil,
             privacyPolicy: nil,
             recommended: nil,
-            slippage: nil
+            slippage: nil,
+            isCustomSlippageSupported: false
         )
     }
 
@@ -304,7 +321,7 @@ struct ExpressAvailableProviderBestDEXTests {
             expressFeeProvider: StubExpressFeeProvider(),
             expressAPIProvider: StubExpressAPIProvider(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: false)
+            featureFlags: ExpressFeatureFlags()
         )
 
         return ExpressAvailableProvider(context: context, manager: StubExpressProviderManager(state: state))

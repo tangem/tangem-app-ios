@@ -95,7 +95,6 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         sheetRegistry.registerAddTokenFlowFloatingSheets()
         sheetRegistry.registerAddTokenFlowRedesignedFloatingSheets()
         sheetRegistry.registerTangemPayWalletSelectorSheets()
-        sheetRegistry.registerWalletSelectorSheet()
         sheetRegistry.registerCollectiblesFloatingSheets()
         sheetRegistry.registerJointAccountFloatingSheets()
         sheetRegistry.registerCloreMigrationFloatingSheets()
@@ -119,15 +118,11 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         sheetRegistry.registerTangemPayTransactionDetailsFloatingSheets()
 
         let appCoordinator = AppCoordinator()
-        let appCoordinatorView = AppCoordinatorView(coordinator: appCoordinator).environment(\.floatingSheetRegistry, sheetRegistry)
+        let appCoordinatorView = AppCoordinatorView(coordinator: appCoordinator)
+            .environment(\.floatingSheetRegistry, sheetRegistry)
+            .mainWindowSize(initial: window.screen.bounds.size)
 
-        let factory = RootViewControllerFactory()
-        let rootViewController = factory.makeRootViewController(
-            for: appCoordinatorView,
-            coordinator: appCoordinator,
-            window: window
-        )
-        window.rootViewController = rootViewController
+        window.rootViewController = UIHostingController(rootView: appCoordinatorView)
         appCoordinator.start(with: appCoordinatorOptions)
         self.appCoordinator = appCoordinator
         self.window = window
@@ -184,7 +179,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             return
         }
 
-        mainBottomSheetUIManager.hide(shouldUpdateFooterSnapshot: false)
+        mainBottomSheetUIManager.hide()
         appOverlaysManager.forceDismiss()
         startApp(scene: scene, appCoordinatorOptions: .locked)
     }

@@ -13,7 +13,7 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
         setAllureId(10382)
 
         launchForOnboarding()
-            .verifyTangemPayTileSubtitle(contains: "Select plan")
+            .verifyTangemPayTileSubtitle(contains: Localization.tangempaySelectPlanTitle)
             .openTangemPaySelectPlan()
             .waitForScreen()
             .tapCompare()
@@ -74,7 +74,7 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
         let currentPlan = paymentAccount
             .openCurrentPlan()
             .waitForScreen()
-            .verifyAwaitingDepositBanner(contains: "awaiting payment for plan fee")
+            .verifyAwaitingDepositBanner(contains: Localization.tangempayCurrentPlanAwaitingDepositNotification(Constants.Plan.plus))
         stageBasicOrderPolling()
         currentPlan.tapCancelTransition()
         assertRequestSent(cancelOrderRequestCount, since: cancelsBefore, named: "order cancellation")
@@ -160,8 +160,8 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
 
         let confirmPlan = currentPlan
             .verifyPlanName(Constants.Plan.basic)
-            .verifySection("Card related")
-            .verifySection("Plan related")
+            .verifySection(Localization.tangempayCurrentPlanSectionCard)
+            .verifySection(Localization.tangempayCurrentPlanSectionPlan)
             .verifyPlanRow("Visa Programme", contains: "Platinum")
             .verifyPlanRow("Plan fee", contains: "$0.00")
             .verifyPlanRow("Max cards issued", contains: "3")
@@ -171,7 +171,7 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
             .tapSelectExpectingConfirmation()
             .waitForScreen()
             .verifyTitle(contains: Constants.Plan.plusProgram)
-            .verifyPoint(contains: "\(Constants.Plan.plusFee) monthly fee will be taken")
+            .verifyPoint(contains: Localization.tangempaySelectPlanConfirmPointMonthlyFee(Constants.Plan.plusFee))
 
         awaitPlanFeePayment()
         let paymentAccount = confirmPlan
@@ -283,7 +283,7 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
             .tapSelectExpectingConfirmation()
             .waitForScreen()
             .verifyTitle(contains: Constants.Plan.plus)
-            .verifyPoint(contains: "No fee applied")
+            .verifyPoint(contains: Localization.tangempaySelectPlanConfirmPointNoFee)
 
         let requestsBefore = pendingTransitionRequestCount()
         stagePlanState("DowngradePending")
@@ -310,7 +310,7 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
         let staySheet = currentPlan
             .tapStayOnPlan()
             .waitForSheet()
-            .verifyContent(title: "Do you want to stay on \(Constants.Plan.plus)?", description: "Your transition on \(Constants.Plan.basic) will be canceled")
+            .verifyContent(title: Localization.tangempayCurrentPlanStaySheetTitle(Constants.Plan.plus), description: Localization.tangempayCurrentPlanStaySheetBody(Constants.Plan.basic))
 
         stagePlanState("Plus")
         staySheet
@@ -341,7 +341,7 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
             .waitForScreen()
             .tapAddCardExpectingCardsLimit()
             .waitForSheet()
-            .verifyContent(title: "Cards limit reached for this plan", description: "Upgrade plan to have more cards")
+            .verifyContent(title: Localization.tangempayMaximumCardsIssuedForPlanTitle, description: Localization.tangempayMaximumCardsIssuedForPlanDescription)
             .verifyCancelButton()
     }
 
@@ -353,7 +353,7 @@ final class TangemPayTariffPlansUITests: BaseTestCase {
             .waitForScreen()
             .tapAddCardExpectingMaximumCards()
             .waitForSheet()
-            .verifyContent(title: "Maximum Cards Issued", description: "Delete one to add a new card")
+            .verifyContent(title: Localization.tangempayMaximumCardsIssuedTitle, description: Localization.tangempayMaximumCardsIssuedDescription)
     }
 
     func testCardsLimit_OnBasicPlan_UpgradeOpensPlanSelection() {

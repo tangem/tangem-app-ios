@@ -46,18 +46,18 @@ public struct PolymarketOrderNotificationsView: View {
         case .partialFill, .noLiquidity:
             base.slotEnd { infoIcon }
         case .quoteUnavailable:
-            if let onRetry {
-                base.primaryButton(MessageBannerButton(title: Localization.commonRetry, action: onRetry))
-            } else {
-                base
-            }
+            base.primaryButton(onRetry.map { .init(title: Localization.commonRetry, action: $0) })
         case .belowMinOrder, .marketClosed, .regionRestricted:
             base
         }
     }
 
     private var infoIcon: some View {
-        DesignSystem.Icons.Info.regular20.image
+        icon(DesignSystem.Icons.Info.regular20)
+    }
+
+    private func icon(_ asset: ImageType) -> some View {
+        asset.image
             .renderingMode(.template)
             .resizable()
             .frame(width: Constants.infoIconSide, height: Constants.infoIconSide)

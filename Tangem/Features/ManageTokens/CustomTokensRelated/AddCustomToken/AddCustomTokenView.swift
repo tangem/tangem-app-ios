@@ -41,7 +41,7 @@ struct AddCustomTokenView: View {
     }
 
     private var cardCornerRadius: CGFloat {
-        isRedesign ? .unit(.x5) : Self.defaultCornerRadius
+        isRedesign ? 20 : Self.defaultCornerRadius
     }
 
     var body: some View {

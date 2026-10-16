@@ -49,6 +49,9 @@ struct SendAmountView: View {
             compactTokenData: isAmountEditable ? viewModel.compactSourceTokenViewData : nil,
             useCompactTokenRow: viewModel.forceCompactSourceTokenRow,
             expandedContentVerticalPadding: viewModel.sourceRateBadge != nil ? 45 : 51,
+            tokenAccessibilityIdentifier: isAmountEditable && (viewModel.activeField != .send || viewModel.forceCompactSourceTokenRow)
+                ? SendAccessibilityIdentifiers.sourceTokenBlock
+                : nil,
             onTapCompact: { viewModel.userDidTapCompactField(.send) }
         ) {
             sourceHeaderWithInput

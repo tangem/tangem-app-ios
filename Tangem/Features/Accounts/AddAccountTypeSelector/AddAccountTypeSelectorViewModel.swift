@@ -42,10 +42,7 @@ final class AddAccountTypeSelectorViewModel: ObservableObject {
     }
 
     func onJointAccountTap() {
-        coordinator?.openJointAccountManagement(
-            accountModelsManager: accountModelsManager,
-            userWalletConfig: userWalletConfig
-        )
+        coordinator?.openJointAccountManagement()
     }
 
     func onCloseTap() {

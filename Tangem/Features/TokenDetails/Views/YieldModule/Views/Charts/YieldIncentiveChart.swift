@@ -11,6 +11,8 @@ import SwiftUI
 import TangemAssets
 import TangemFoundation
 import TangemLocalization
+import TangemUI
+import TangemUIUtils
 
 /// Plots base supply APY with the Merkl reward cap stacked on top. Kept apart from `YieldModuleChart` because the
 /// incentivised series carries its own scale, labels and styling.
@@ -20,39 +22,31 @@ struct YieldIncentiveChart: View {
 
     var body: some View {
         let bars = makeBars()
+        let capGap = capGap
 
         return Chart {
             ForEach(bars) { bar in
-                BarMark(x: .value("Index", bar.index), y: .value("Base APY", bar.baseApy))
-                    .cornerRadius(2)
-                    .foregroundStyle(DesignSystem.Color.bgBrand)
+                BarMark(
+                    x: .value("Index", bar.index),
+                    y: .value("Base APY", bar.baseApy),
+                    width: .fixed(Constants.barWidth)
+                )
+                .cornerRadius(Constants.barCornerRadius)
+                .foregroundStyle(DesignSystem.Color.bgBrand)
 
-                if bar.rewardsApr > 0 {
+                if bar.rewardsCap > 0 {
                     BarMark(
                         x: .value("Index", bar.index),
-                        yStart: .value("Base APY", bar.baseApy + Constants.rewardsCapGap),
-                        yEnd: .value("Total APY", bar.baseApy + Constants.rewardsCapGap + bar.rewardsApr)
+                        yStart: .value("Base APY", bar.baseApy + capGap),
+                        yEnd: .value("Total APY", bar.baseApy + capGap + bar.rewardsCap),
+                        width: .fixed(Constants.barWidth)
                     )
-                    .cornerRadius(2)
+                    .cornerRadius(Constants.barCornerRadius)
                     .foregroundStyle(DesignSystem.Color.bgStatusInfoSubtle)
                 }
             }
-
-            if let averageApy {
-                RuleMark(y: .value("Average APY", averageApy))
-                    .lineStyle(.init(lineWidth: 1, dash: [4, 4]))
-                    .foregroundStyle(Colors.Icon.primary1)
-                    .annotation(position: .overlay, alignment: .leading) {
-                        Text(Localization.yieldModuleRateInfoSheetChartAverage(PercentFormatter().format(averageApy, option: .earn)))
-                            .style(Fonts.Bold.caption2, color: Colors.Text.primary2)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Rectangle().fill(Colors.Icon.primary1).cornerRadius(8, corners: .allCorners))
-                            .offset(y: -16)
-                    }
-            }
         }
-        .chartXScale(domain: -0.5 ... (Double(bars.count) - 0.5))
+        .chartXScale(domain: Constants.xDomainInset ... (Double(bars.count) + Constants.xDomainInset))
         .chartXAxis {
             AxisMarks(values: xTicks.keys.sorted()) { tick in
                 if let index = tick.as(Int.self), let label = xTicks[index] {
@@ -82,9 +76,46 @@ struct YieldIncentiveChart: View {
         .chartPlotStyle { plot in
             plot.frame(height: Constants.plotHeight)
         }
+        .chartOverlay { proxy in
+            GeometryReader { geometry in
+                averageOverlay(proxy: proxy, geometry: geometry, barsCount: bars.count)
+            }
+        }
     }
 
     // MARK: - Private Implementation
+
+    @ViewBuilder
+    private func averageOverlay(proxy: ChartProxy, geometry: GeometryProxy, barsCount: Int) -> some View {
+        if barsCount > 0,
+           let averageApy,
+           let plotStart = proxy.position(forX: Constants.xDomainInset),
+           let plotEnd = proxy.position(forX: Double(barsCount) + Constants.xDomainInset),
+           let averagePosition = proxy.position(forY: NSDecimalNumber(decimal: averageApy).doubleValue) {
+            let plotWidth = plotEnd - plotStart
+
+            HStack(spacing: Constants.averageLineSpacing) {
+                averageBadge(averageApy)
+
+                HorizontalLine()
+                    .stroke(
+                        DesignSystem.Color.iconPrimary,
+                        style: StrokeStyle(lineWidth: Constants.averageLineWidth, dash: Constants.averageLineDash)
+                    )
+                    .frame(height: Constants.averageLineWidth)
+            }
+            .frame(width: plotWidth)
+            .position(x: geometry.size.width - plotWidth / 2, y: averagePosition)
+        }
+    }
+
+    private func averageBadge(_ averageApy: Decimal) -> some View {
+        Text(Localization.yieldModuleRateInfoSheetChartAverage(PercentFormatter().format(averageApy, option: .earn)))
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
+            .padding(.horizontal, Constants.averageBadgeHorizontalPadding)
+            .padding(.vertical, Constants.averageBadgeVerticalPadding)
+            .tangemMaterialSurface(in: Capsule())
+    }
 
     private var averageApy: Decimal? {
         data?.averageApy.map { Decimal(floatLiteral: $0) / 100 }
@@ -101,7 +132,17 @@ struct YieldIncentiveChart: View {
     /// Total APY with rewards outgrows the base-yield scale, so the ceiling follows the plotted peak and only falls
     /// back to the base-yield one while the series stays below it.
     private var yDomainMax: Double {
-        let peakPercent = max(dataPeak, Constants.minYDomainMax) * 100
+        roundedDomain(for: dataPeak + capGap)
+    }
+
+    /// The design detaches the cap from the base by a constant 2pt, so the gap is carried in the data units
+    /// that map onto it at the current scale.
+    private var capGap: Double {
+        Double(Constants.capGap / Constants.plotHeight) * roundedDomain(for: dataPeak)
+    }
+
+    private func roundedDomain(for peak: Double) -> Double {
+        let peakPercent = max(peak, Constants.minYDomainMax) * 100
         let stepPercent = (peakPercent / Double(Constants.yTickCount)).rounded(.up)
 
         return stepPercent * Double(Constants.yTickCount) / 100
@@ -115,11 +156,7 @@ struct YieldIncentiveChart: View {
 
     private var dataPeak: Double {
         let barsPeak = makeBars().reduce(0.0) { peak, bar in
-            let total = bar.rewardsApr > 0
-                ? bar.baseApy + Constants.rewardsCapGap + bar.rewardsApr
-                : bar.baseApy
-
-            return max(peak, total)
+            max(peak, bar.baseApy + bar.rewardsCap)
         }
 
         return max(barsPeak, averageApy.map { NSDecimalNumber(decimal: $0).doubleValue } ?? 0)
@@ -127,14 +164,14 @@ struct YieldIncentiveChart: View {
 
     private func makeBars() -> [Bar] {
         guard let data else {
-            return (0 ..< Constants.skeletonBarsCount).map { Bar(index: $0, baseApy: 0, rewardsApr: 0) }
+            return (0 ..< Constants.skeletonBarsCount).map { Bar(index: $0, baseApy: 0, totalApy: 0) }
         }
 
         return data.baseApyData.enumerated().map { index, baseApy in
             Bar(
                 index: index,
                 baseApy: baseApy / 100,
-                rewardsApr: (data.rewardsAprData[safe: index] ?? 0) / 100
+                totalApy: (data.totalApyData[safe: index] ?? baseApy) / 100
             )
         }
     }
@@ -148,7 +185,9 @@ private extension YieldIncentiveChart {
 
         let index: Int
         let baseApy: Double
-        let rewardsApr: Double
+        let totalApy: Double
+
+        var rewardsCap: Double { max(0, totalApy - baseApy) }
     }
 }
 
@@ -160,8 +199,15 @@ private extension YieldIncentiveChart {
         static let plotHeight: CGFloat = 128
         static let minYDomainMax: Double = 0.12
         static let yTickCount = 4
-        /// Keeps the reward cap visually detached from the base segment.
-        static let rewardsCapGap: Double = 0.0015
+        static let barWidth: CGFloat = 4
+        static let barCornerRadius: CGFloat = 2
+        static let capGap: CGFloat = 2
+        static let xDomainInset: Double = -0.5
+        static let averageBadgeHorizontalPadding: CGFloat = 10
+        static let averageBadgeVerticalPadding: CGFloat = 8
+        static let averageLineSpacing: CGFloat = 4
+        static let averageLineWidth: CGFloat = 1
+        static let averageLineDash: [CGFloat] = [4, 2]
         static let skeletonBarsCount = 32
         static let skeletonTicks = [0, 7, 14, 21, 27]
         static let skeletonLabels = Array(repeating: "Aaa", count: 5)
@@ -174,7 +220,7 @@ private extension YieldIncentiveChart {
     YieldIncentiveChart(
         data: YieldIncentiveChartData(
             baseApyData: (0 ..< 28).map { 3.5 + Double($0 % 5) * 0.4 },
-            rewardsAprData: [],
+            totalApyData: [],
             xTicks: [0: "Jan", 14: "Feb"],
             averageApy: 4.3
         )
@@ -183,10 +229,12 @@ private extension YieldIncentiveChart {
 }
 
 #Preview("Merkl total") {
+    let baseApyData = (0 ..< 28).map { 4.0 + Double($0 % 4) * 0.3 }
+
     YieldIncentiveChart(
         data: YieldIncentiveChartData(
-            baseApyData: (0 ..< 28).map { 4.0 + Double($0 % 4) * 0.3 },
-            rewardsAprData: (0 ..< 28).map { 11.0 + Double($0 % 6) * 0.8 },
+            baseApyData: baseApyData,
+            totalApyData: baseApyData.enumerated().map { index, baseApy in baseApy + 11.0 + Double(index % 6) * 0.8 },
             xTicks: [0: "Jan", 14: "Feb"],
             averageApy: 17.4
         )

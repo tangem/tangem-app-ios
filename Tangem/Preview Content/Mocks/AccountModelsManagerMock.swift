@@ -193,6 +193,8 @@ extension AccountModelsManagerMock: AccountModelsManager {
         }
     }
 
+    func reloadAccountsFromRemote() async {}
+
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {
         let orderedIndicesKeyedByIdentifiers = orderedIdentifiers
             .enumerated()
@@ -217,6 +219,12 @@ extension AccountModelsManagerMock: AccountModelsManager {
     func dispose() {}
 
     func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async throws(TangemPayAuthorizationError) {}
+
+    func authorizeTangemPayOfferForResidency(
+        authorizingInteractor: any TangemPayAuthorizing
+    ) async throws(TangemPayAuthorizationError) -> (any TangemPayResidencyInteractor)? {
+        nil
+    }
 
     func acceptTangemPayCampaignOffer(
         authorizingInteractor: any TangemPayAuthorizing,

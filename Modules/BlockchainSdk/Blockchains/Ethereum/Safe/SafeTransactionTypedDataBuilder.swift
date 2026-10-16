@@ -10,8 +10,11 @@ import Foundation
 
 public extension SafeTransaction {
     func signHash(chainId: Int, safeAddress: String) -> Data {
-        let typedData = SafeTransactionTypedDataBuilder().makeTypedData(safeTransaction: self, chainId: chainId, safeAddress: safeAddress)
-        return typedData.signHash
+        typedData(chainId: chainId, safeAddress: safeAddress).signHash
+    }
+
+    func typedData(chainId: Int, safeAddress: String) -> EIP712TypedData {
+        SafeTransactionTypedDataBuilder().makeTypedData(safeTransaction: self, chainId: chainId, safeAddress: safeAddress)
     }
 }
 

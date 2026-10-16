@@ -79,7 +79,8 @@ private extension SupportedProvidersFilterTests {
             termsOfUse: nil,
             privacyPolicy: nil,
             recommended: nil,
-            slippage: nil
+            slippage: nil,
+            isCustomSlippageSupported: false
         )
     }
 }

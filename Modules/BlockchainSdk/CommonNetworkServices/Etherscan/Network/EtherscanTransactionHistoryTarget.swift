@@ -23,6 +23,7 @@ extension EtherscanTransactionHistoryTarget {
         case adi
         case igra
         case electroneum
+        case onyx
         case zkSync
     }
 
@@ -45,6 +46,8 @@ extension EtherscanTransactionHistoryTarget: TargetType {
             return URL(string: "https://explorer.igralabs.com")!
         case .electroneum:
             return URL(string: "https://blockexplorer.electroneum.com")!
+        case .onyx:
+            return URL(string: "https://explorer.onyx.org")!
         case .zkSync:
             return URL(string: "https://block-explorer-api.mainnet.zksync.io")!
         }
@@ -52,14 +55,14 @@ extension EtherscanTransactionHistoryTarget: TargetType {
 
     var path: String {
         switch configuration {
-        case .etherscan, .adi, .igra, .electroneum, .zkSync:
+        case .etherscan, .adi, .igra, .electroneum, .onyx, .zkSync:
             return "api"
         }
     }
 
     var method: Moya.Method {
         switch configuration {
-        case .etherscan, .adi, .igra, .electroneum, .zkSync:
+        case .etherscan, .adi, .igra, .electroneum, .onyx, .zkSync:
             return .get
         }
     }
@@ -69,8 +72,6 @@ extension EtherscanTransactionHistoryTarget: TargetType {
         case .etherscan(let chainId, let apiKey, _):
             var parameters: [String: Any] = [
                 "module": "account",
-                "startblock": 0,
-                "endblock": 99999999,
                 "sort": "desc",
                 "chainid": chainId,
             ]
@@ -100,7 +101,7 @@ extension EtherscanTransactionHistoryTarget: TargetType {
                     encoding: URLEncoding.queryString
                 )
             }
-        case .adi, .igra, .electroneum, .zkSync:
+        case .adi, .igra, .electroneum, .onyx, .zkSync:
             var parameters: [String: Any] = [
                 "module": "account",
                 "startblock": 0,

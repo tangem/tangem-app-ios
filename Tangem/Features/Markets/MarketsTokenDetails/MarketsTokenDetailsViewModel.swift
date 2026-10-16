@@ -14,7 +14,7 @@ import TangemLocalization
 import TangemUI
 import struct TangemUIUtils.AlertBinder
 
-final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
+final class MarketsTokenDetailsViewModel: ObservableObject {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
     @Injected(\.newsReadStatusProvider) private var readStatusProvider: NewsReadStatusProvider
@@ -29,14 +29,6 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Published private(set) var state: ViewState = .loading
     @Published var selectedPriceChangeIntervalType: MarketsPriceIntervalType
     @Published var alert: AlertBinder?
-
-    /// For unknown reasons, the `@self` and `@identity` of our view change when push navigation is performed in other
-    /// navigation controllers in the application (on the main screen for example), which causes the state of
-    /// this property to be lost if it were stored in the view as a `@State` variable.
-    /// Therefore, we store it here in the view model as the `@Published` property instead of storing it in a view.
-    ///
-    /// Our view is initially presented when the sheet is expanded, hence the `1.0` initial value.
-    @Published private(set) var overlayContentHidingInitialProgress = 1.0
 
     // MARK: Blocks
 
@@ -197,9 +189,6 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
             ? PriceAlertBellViewModel(tokenId: tokenInfo.id, coordinator: coordinator)
             : nil
 
-        // Our view is initially presented when the sheet is expanded, hence the `1.0` initial value.
-        super.init(overlayContentProgressInitialValue: 1.0)
-
         let tokenQuoteHelper = MarketsTokenQuoteHelper()
         loadedTokenDetailsPriceChangeInfo = tokenQuoteHelper.makePriceChangeIntervalsDictionary(
             from: quotesRepository.quote(for: tokenInfo.id)
@@ -284,12 +273,6 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     func onBackButtonTap() {
         coordinator?.closeModule()
-    }
-
-    func onOverlayContentStateChange(_ state: OverlayContentState) {
-        // Our view can be recreated when the bottom sheet is in a collapsed state
-        // In this case, content should be hidden (i.e. the initial progress should be zero)
-        overlayContentHidingInitialProgress = state.isCollapsed ? 0.0 : 1.0
     }
 
     func openExchangesList() {
