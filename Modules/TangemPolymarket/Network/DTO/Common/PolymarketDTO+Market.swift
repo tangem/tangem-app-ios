@@ -19,6 +19,7 @@ extension PolymarketDTO {
         let icon: String?
 
         let conditionId: String?
+        let version: String?
 
         let status: String?
         let negRisk: Bool?

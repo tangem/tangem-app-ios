@@ -10,5 +10,5 @@ import Foundation
 import TangemPolymarket
 
 protocol PolymarketRedeeming {
-    func claim(conditionId: String, isNegRisk: Bool) async throws -> PolymarketRedeemRecord
+    func claim(position: PolymarketPosition) async throws -> PolymarketRedeemRecord
 }

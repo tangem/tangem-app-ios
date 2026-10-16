@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemFoundation
+
 extension PolymarketMapper {
     func mapEvent(_ dto: PolymarketDTO.Event) -> PolymarketEvent {
         let isNegRisk = dto.negRisk ?? false
@@ -33,16 +35,19 @@ extension PolymarketMapper {
     }
 
     func mapMarket(_ dto: PolymarketDTO.Market) -> PolymarketMarket {
-        PolymarketMarket(
+        let version = PolymarketMarketVersion(apiValue: dto.version)
+
+        return PolymarketMarket(
             id: dto.id,
             conditionId: dto.conditionId,
+            version: version,
             title: dto.question,
             groupItemTitle: dto.groupItemTitle,
             imageURL: url(from: dto.image),
             iconURL: url(from: dto.icon),
             status: status(from: dto.status),
             isNegRisk: dto.negRisk ?? false,
-            isAcceptingOrders: dto.acceptingOrders ?? false,
+            isAcceptingOrders: (dto.acceptingOrders ?? false) && version.isSupported,
             startDate: date(from: dto.startDate ?? dto.startDateIso),
             endDate: date(from: dto.endDate),
             volume: dto.volume,
@@ -56,6 +61,7 @@ extension PolymarketMapper {
     func mapOutcome(_ dto: PolymarketDTO.Outcome) -> PolymarketOutcome {
         PolymarketOutcome(
             assetId: dto.assetId,
+            legacyAssetId: dto.legacyAssetId?.nilIfEmpty,
             title: dto.label,
             probability: dto.probability
         )

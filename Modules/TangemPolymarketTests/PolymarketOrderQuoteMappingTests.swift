@@ -107,6 +107,68 @@ struct PolymarketOrderQuoteMappingTests {
     }
 }
 
+// MARK: - Signing domain
+
+extension PolymarketOrderQuoteMappingTests {
+    @Test("A V2 quote carries ExchangeV3 and domain version 3")
+    func v2QuoteCarriesItsDomain() throws {
+        let quote = try mapper.mapOrderQuote(
+            .stub(version: "v2", exchange: "0xe3333700cA9d93003F00f0F71f8515005F6c00Aa", signingDomainVersion: "3")
+        )
+
+        #expect(quote.version == .v2)
+        #expect(quote.exchange == "0xe3333700cA9d93003F00f0F71f8515005F6c00Aa")
+        #expect(quote.signingDomainVersion == "3")
+        #expect(try PolymarketExchange.domain(for: quote, isNegRisk: true) == .exchangeV3)
+    }
+
+    @Test("A V1 quote keeps the exchange the market's risk mode picks")
+    func v1QuoteCarriesItsDomain() throws {
+        let quote = try mapper.mapOrderQuote(.stub())
+
+        #expect(quote.version == .v1)
+        #expect(try PolymarketExchange.domain(for: quote, isNegRisk: false) == .ctfExchange)
+        #expect(throws: PolymarketExchangeDomainError.self) {
+            try PolymarketExchange.domain(for: quote, isNegRisk: true)
+        }
+    }
+
+    @Test("A quote for a market of unknown version decodes, with nothing to sign for")
+    func unknownVersionQuoteDecodes() throws {
+        let quote = try mapper.mapOrderQuote(
+            .stub(status: "MARKET_CLOSED", version: "unknown", exchange: nil, signingDomainVersion: nil)
+        )
+
+        #expect(quote.version == .unknown("unknown"))
+        #expect(quote.exchange == nil)
+        #expect(quote.signingDomainVersion == nil)
+        #expect(throws: PolymarketExchangeDomainError.unsupportedVersion(.unknown("unknown"))) {
+            try PolymarketExchange.domain(for: quote, isNegRisk: false)
+        }
+    }
+
+    @Test("A quote without the new fields still decodes and is never signed")
+    func quoteWithoutVersionDecodes() throws {
+        let json = """
+        {
+          "status": "FULL", "side": "BUY", "shares": "1", "notional": "1", "expectedExecutionAmount": "1",
+          "averagePrice": "0.5", "worstCasePrice": "0.5",
+          "fees": { "market": "0", "builder": "0", "total": "0" },
+          "total": "1", "builderCode": "0x00000000000000000000000000000000000000000000000000000000000000aa",
+          "minOrderSize": "5", "tickSize": "0.01", "live": false
+        }
+        """
+
+        let dto = try JSONDecoder().decode(PolymarketDTO.OrderQuoteResponse.self, from: Data(json.utf8))
+        let quote = try mapper.mapOrderQuote(dto)
+
+        #expect(quote.version == .unknown(nil))
+        #expect(throws: PolymarketExchangeDomainError.self) {
+            try PolymarketExchange.domain(for: quote, isNegRisk: false)
+        }
+    }
+}
+
 // MARK: - Fixtures
 
 private extension PolymarketDTO.OrderQuoteResponse {
@@ -115,7 +177,10 @@ private extension PolymarketDTO.OrderQuoteResponse {
         side: String = "BUY",
         worstCasePrice: String = "0.735",
         minOrderAmount: String? = "1",
-        builderCode: String = "0x00000000000000000000000000000000000000000000000000000000000000aa"
+        builderCode: String = "0x00000000000000000000000000000000000000000000000000000000000000aa",
+        version: String? = "v1",
+        exchange: String? = "0xE111180000d2663C0091e4f400237545B87B996B",
+        signingDomainVersion: String? = "2"
     ) -> PolymarketDTO.OrderQuoteResponse {
         PolymarketDTO.OrderQuoteResponse(
             status: status,
@@ -131,7 +196,10 @@ private extension PolymarketDTO.OrderQuoteResponse {
             minOrderSize: "5",
             minOrderAmount: minOrderAmount,
             tickSize: "0.001",
-            live: true
+            live: true,
+            version: version,
+            exchange: exchange,
+            signingDomainVersion: signingDomainVersion
         )
     }
 
@@ -153,7 +221,10 @@ private extension PolymarketDTO.OrderQuoteResponse {
             minOrderSize: "7",
             minOrderAmount: "1",
             tickSize: "0.001",
-            live: false
+            live: false,
+            version: "v1",
+            exchange: "0xE111180000d2663C0091e4f400237545B87B996B",
+            signingDomainVersion: "2"
         )
     }
 }

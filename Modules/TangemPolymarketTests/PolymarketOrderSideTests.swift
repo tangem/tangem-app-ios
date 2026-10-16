@@ -123,7 +123,7 @@ private extension PolymarketOrderSideTests {
             depositWalletAddress: depositWallet
         )
 
-        let signedOrder = PolymarketSignedOrder(order: order, signature: "0xdeadbeef", isNegRisk: false)
+        let signedOrder = PolymarketSignedOrder(order: order, signature: "0xdeadbeef")
 
         return PolymarketMapper().mapPlaceOrderRequest(signedOrder, apiKey: "api-key")
     }

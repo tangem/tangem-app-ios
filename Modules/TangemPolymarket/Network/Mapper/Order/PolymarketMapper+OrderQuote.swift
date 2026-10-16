@@ -47,7 +47,10 @@ extension PolymarketMapper {
             minOrderSize: decimal(response.minOrderSize, field: "minOrderSize"),
             minOrderAmount: response.minOrderAmount.map { try decimal($0, field: "minOrderAmount") },
             tickSize: decimal(response.tickSize, field: "tickSize"),
-            isLive: response.live
+            isLive: response.live,
+            version: PolymarketMarketVersion(apiValue: response.version),
+            exchange: response.exchange?.nilIfEmpty,
+            signingDomainVersion: response.signingDomainVersion?.nilIfEmpty
         )
     }
 }
