@@ -79,6 +79,16 @@ struct SwappingSourceAndReceiveTokenHelperTests {
         #expect(availabilities == [false, true])
     }
 
+    @Test("A receive-only token can't become the source")
+    func receiveOnlyTokenCantBecomeTheSource() async {
+        let availability = await helper.canBeSwapped(
+            source: .success(makeToken()),
+            receive: .success(SendSourceTokenStub(blockchain: .ethereum(testnet: false)))
+        )
+
+        #expect(availability.isUnavailable)
+    }
+
     @Test("A receive side waiting for the user's choice keeps the swap available")
     func unselectedReceiveSideKeepsTheSwapAvailable() async {
         let availability = await helper.canBeSwapped(

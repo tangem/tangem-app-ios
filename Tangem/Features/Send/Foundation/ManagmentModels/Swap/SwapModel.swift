@@ -483,7 +483,7 @@ private extension SwapModel {
     }
 
     private func destinationTrustlineRestrictedProvidersState() async throws -> ProvidersState? {
-        guard let receive = receiveToken.value as? SendSwapableToken else {
+        guard let receive = receiveToken.value as? SendSourceToken else {
             return nil
         }
 
@@ -956,7 +956,7 @@ extension SwapModel {
     func validateReceivingRestrictions(receiveAmount: Decimal) async throws -> RestrictionType? {
         // Check on the minimum received amount
         // Almost impossible case because the providers check it on their side
-        guard let destination = receiveToken.value as? SendSwapableToken else {
+        guard let destination = receiveToken.value as? SendSourceToken else {
             return nil
         }
 
@@ -1098,7 +1098,7 @@ extension SwapModel {
     }
 
     func checkIncompleteBackupReceivingRestriction() async throws {
-        guard let receive = try receiveToken.get() as? SendSwapableToken else {
+        guard let receive = try receiveToken.get() as? SendSourceToken else {
             return
         }
 
@@ -1420,9 +1420,8 @@ extension SwapModel: SwapModelStateProvider {
 // MARK: - SendSourceTokenInput, SendSourceTokenOutput
 
 extension SwapModel: SwapTokenSelectorOutput {
-    func swapTokenSelectorDidRequestUpdate(sender item: TokenSelectorItem) {
-        let token = item.makeSendSwapableTokenFactory(expressOperationType: .swap)
-            .makeSwapableToken()
+    func swapTokenSelectorDidRequestUpdate(sender item: TokenSelectorItem) throws {
+        let token = try TokenSelectorItemOutputTypeBuilder(expressOperationType: .swap).makeSwapableToken(item: item)
 
         if _sourceToken.value.value?.tokenItem != token.tokenItem {
             externalAmountUpdater.externalUpdate(cryptoAmount: nil)
@@ -1432,9 +1431,8 @@ extension SwapModel: SwapTokenSelectorOutput {
         update(source: token)
     }
 
-    func swapTokenSelectorDidRequestUpdate(destination item: TokenSelectorItem) {
-        let token = item.makeSendSwapableTokenFactory(expressOperationType: .swap)
-            .makeSwapableToken()
+    func swapTokenSelectorDidRequestUpdate(destination item: TokenSelectorItem) throws {
+        let token = try TokenSelectorItemOutputTypeBuilder(expressOperationType: .swap).makeReceiveToken(item: item)
 
         if _receiveToken.value.value?.tokenItem != token.tokenItem {
             externalAmountUpdater.externalUpdate(cryptoAmount: nil)
@@ -2545,7 +2543,7 @@ extension SwapModel {
         case notEnoughReceivedAmount(minAmount: ReceivedAmountThreshold, tokenSymbol: String, reason: NotEnoughReceivedAmountReason)
         case tooMuchReceivedAmount(maxAmount: ReceivedAmountThreshold, tokenSymbol: String)
         case regionRestricted
-        case trustlineRequired(destination: any SendSwapableToken)
+        case trustlineRequired(destination: any SendSourceToken)
     }
 
     struct PermissionRequiredState {

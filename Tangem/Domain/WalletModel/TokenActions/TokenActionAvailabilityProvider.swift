@@ -9,6 +9,7 @@
 import Foundation
 import TangemLocalization
 import enum BlockchainSdk.Blockchain
+import TangemMacro
 
 struct TokenActionAvailabilityProvider {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
@@ -107,7 +108,7 @@ extension TokenActionAvailabilityProvider {
             availableActions.append(.send)
         }
 
-        if userWalletConfig.isFeatureVisible(.swapping), isSwapAsSourceAvailable {
+        if userWalletConfig.isFeatureVisible(.swapping), isSwapAvailable(direction: .build(for: walletModel)) {
             availableActions.append(.exchange)
         }
 
@@ -142,7 +143,7 @@ extension TokenActionAvailabilityProvider {
             }
         }
 
-        if userWalletConfig.isFeatureVisible(.swapping), isSwapAsSourceAvailable {
+        if userWalletConfig.isFeatureVisible(.swapping), isSwapAvailable(direction: .build(for: walletModel)) {
             availableActions.append(.exchange)
         }
 
@@ -174,6 +175,7 @@ extension TokenActionAvailabilityProvider {
 // MARK: - Swap
 
 extension TokenActionAvailabilityProvider {
+    @CaseFlagable
     enum SwapSourceActionAvailabilityStatus {
         case available
         case jointAccountsComingSoon
@@ -188,6 +190,7 @@ extension TokenActionAvailabilityProvider {
         case yieldModuleApproveNeeded
     }
 
+    @CaseFlagable
     enum SwapReceiveActionAvailabilityStatus {
         case available
         case customToken
@@ -196,30 +199,14 @@ extension TokenActionAvailabilityProvider {
         case expressLoading
     }
 
-    var isSwapAsSourceAvailable: Bool {
-        if case .available = swapSourceAvailability {
-            return true
-        }
-
-        return false
-    }
-
-    var isSwapAsReceiveAvailable: Bool {
-        if case .available = swapReceiveAvailability {
-            return true
-        }
-
-        return false
-    }
-
     func isSwapAvailable(direction: SwapDirection) -> Bool {
         switch direction {
-        case .from: isSwapAsSourceAvailable
-        case .to: isSwapAsReceiveAvailable
+        case .from: swapSourceAvailability().isAvailable
+        case .to: swapReceiveAvailability().isAvailable
         }
     }
 
-    var swapSourceAvailability: SwapSourceActionAvailabilityStatus {
+    func swapSourceAvailability(ignoreExpressState: Bool = false) -> SwapSourceActionAvailabilityStatus {
         if walletModel.isJointAccountParticipant {
             return .jointAccountsComingSoon
         }
@@ -255,6 +242,10 @@ extension TokenActionAvailabilityProvider {
             break
         }
 
+        if ignoreExpressState {
+            return .available
+        }
+
         switch expressSwapState() {
         case .available: return .available
         case .loading: return .expressLoading
@@ -262,13 +253,17 @@ extension TokenActionAvailabilityProvider {
         }
     }
 
-    var swapReceiveAvailability: SwapReceiveActionAvailabilityStatus {
+    func swapReceiveAvailability(ignoreExpressState: Bool = false) -> SwapReceiveActionAvailabilityStatus {
         if walletModel.isCustom {
             return .customToken
         }
 
         if case .assetRequirement = receiveAvailability {
             return .missingAssetRequirement
+        }
+
+        if ignoreExpressState {
+            return .available
         }
 
         switch expressSwapState() {

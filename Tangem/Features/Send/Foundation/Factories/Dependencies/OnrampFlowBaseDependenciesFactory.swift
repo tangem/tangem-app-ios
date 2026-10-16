@@ -80,7 +80,7 @@ extension OnrampFlowBaseDependenciesFactory {
             analyticsLogger: analyticsLogger,
             autoupdatingTimer: autoupdatingTimer,
             redirectSettingsBuilder: OnrampRedirectSettingsBuilder(),
-            transactionHistoryEnricherFactory: { await sourceToken.transactionHistoryEnricher },
+            transactionHistoryEnricherFactory: { [sourceToken] in await sourceToken.transactionHistoryEnricher },
             predefinedValues: predefinedValues
         )
     }

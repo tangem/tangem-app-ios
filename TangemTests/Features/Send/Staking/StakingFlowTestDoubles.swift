@@ -238,6 +238,7 @@ final class SendStakingableTokenStub: SendStakingableToken {
     var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { BlockchainSDKNotificationMapper(tokenItem: tokenItem) }
 
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { nil }
+    var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { ReceivingRestrictionsProviderStub(result: nil) }
     var isTangemPayAccount: Bool { false }
     var jointAccountPolicy: JointAccountPolicy? { nil }
 
