@@ -39,6 +39,15 @@ final class FloatingSheetViewModel: FloatingSheetPresenter, ObservableObject {
             : sheetsQueue.removeFirst()
     }
 
+    func removeSheet(withId id: String) {
+        guard activeSheet?.id != id else {
+            removeActiveSheet()
+            return
+        }
+
+        sheetsQueue.removeAll { $0.id == id }
+    }
+
     func removeAllSheets() {
         activeSheet = nil
         sheetsQueue.removeAll()
@@ -77,5 +86,13 @@ extension FloatingSheetViewModel: FloatingSheetPresentingStateProvider {
 
     var hasPresentedSheetPublisher: AnyPublisher<Bool, Never> {
         $activeSheet.map { $0 != nil }.eraseToAnyPublisher()
+    }
+
+    var activeSheetIdPublisher: AnyPublisher<String?, Never> {
+        $activeSheet.map { $0?.id }.eraseToAnyPublisher()
+    }
+
+    func containsSheet(withId id: String) -> Bool {
+        activeSheet?.id == id || sheetsQueue.contains { $0.id == id }
     }
 }

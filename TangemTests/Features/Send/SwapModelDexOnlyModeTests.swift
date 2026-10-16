@@ -275,10 +275,11 @@ private extension SwapModelDexOnlyModeTests {
             termsOfUse: nil,
             privacyPolicy: nil,
             recommended: nil,
-            slippage: nil
+            slippage: nil,
+            isCustomSlippageSupported: false
         )
 
-        let quote = ExpressQuote(fromAmount: 10, expectAmount: expectAmount, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false)
+        let quote = ExpressQuote(fromAmount: 10, expectAmount: expectAmount, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false, slippage: nil)
 
         let context = ExpressProviderFlowContext(
             provider: provider,
@@ -287,7 +288,7 @@ private extension SwapModelDexOnlyModeTests {
             expressFeeProvider: ExpressFeeProviderDummy(),
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: false)
+            featureFlags: ExpressFeatureFlags()
         )
 
         return ExpressAvailableProvider(
@@ -326,6 +327,7 @@ private actor ConfigurableExpressManagerStub: ExpressManager {
 
     func getCurrentPair() -> ExpressManagerSwappingPair? { nil }
     func getAmountType() -> ExpressAmountType? { amountType }
+    func getSlippage() -> Decimal? { nil }
 
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerState { state }
 
@@ -335,6 +337,8 @@ private actor ConfigurableExpressManagerStub: ExpressManager {
     }
 
     func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState { state }
+
+    func update(slippage: Decimal?) async -> ExpressManagerState { state }
 
     func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState { state }
 
@@ -370,6 +374,7 @@ private final class DexOnlySwapableTokenStub: SendSwapableToken {
     var tangemIconProvider: any TangemIconProvider { inner.tangemIconProvider }
     var confirmTransactionPolicy: any ConfirmTransactionPolicy { inner.confirmTransactionPolicy }
     var isTangemPayAccount: Bool { inner.isTangemPayAccount }
+    var jointAccountPolicy: JointAccountPolicy? { inner.jointAccountPolicy }
 
     // MARK: - Unused in tests
 

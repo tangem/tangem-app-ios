@@ -45,9 +45,7 @@ enum KeychainCleaner {
 
         BlindKeychainCleaner().clean()
 
-        if FeatureProvider.isAvailable(.backendAuthentication) {
-            await BackendAuthenticationAssembly.storageCleaner.clean()
-        }
+        await BackendAuthenticationAssembly.storageCleaner.clean()
     }
 
     private static func allGenericPasswordAccounts() -> [String] {

@@ -33,12 +33,13 @@ struct JointAccountMembersCountView: View {
         .translucentNavigationBar()
         .alert(item: $viewModel.alert, content: { $0.alert })
         .safeAreaInset(edge: .bottom) { footer }
+        .ignoresSafeArea(.keyboard)
     }
 
     private var titleView: some View {
         JointAccountHeaderTitle(
-            title: Localization.jointAccountMembersTitle,
-            subtitle: Localization.jointAccountMembersSubtitle(viewModel.signersCount, viewModel.membersCount)
+            title: AttributedString(Localization.jointAccountMembersTitle),
+            subtitle: viewModel.subtitle
         )
         .padding(.top, 12)
         .padding(.horizontal, 8)
@@ -79,7 +80,7 @@ struct JointAccountMembersCountView: View {
         ) {
             viewModel.onContinueTap()
         }
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
         .size(.x12)
         .padding(.horizontal, 16)
@@ -97,10 +98,7 @@ struct JointAccountMembersCountView: View {
 #Preview {
     JointAccountMembersCountView(
         viewModel: JointAccountMembersCountViewModel(
-            creationHelper: JointAccountCreationHelper(
-                userWalletConfig: UserWalletConfigStubs.walletV2Stub,
-                accountModelsManager: AccountModelsManagerMock()
-            ),
+            creationHelper: JointAccountCreationHelper(userWalletModel: FakeUserWalletModel.wallet3Cards),
             coordinator: nil
         )
     )

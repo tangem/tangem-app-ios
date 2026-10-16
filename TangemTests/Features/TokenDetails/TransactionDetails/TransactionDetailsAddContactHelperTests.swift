@@ -172,6 +172,8 @@ struct TransactionDetailsAddContactHelperTests {
         case .withdraw: break
         case .claimRewards: break
         case .restake: break
+        case .incentiveClaim: break
+        case .incentiveClaimCoin: break
         case .yieldDeploy: break
         case .yieldEnter: break
         case .yieldEnterCoin: break
@@ -205,6 +207,8 @@ struct TransactionDetailsAddContactHelperTests {
             .withdraw,
             .claimRewards,
             .restake,
+            .incentiveClaim,
+            .incentiveClaimCoin,
             .yieldDeploy,
             .yieldEnter,
             .yieldEnterCoin,

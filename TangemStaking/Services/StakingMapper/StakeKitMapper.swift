@@ -370,7 +370,8 @@ struct StakeKitMapper {
             image: validator.image.flatMap { URL(string: $0) }.map(StakingTargetImage.url),
             rewardType: rewardType,
             rewardRate: mapToRewardRate(validator: validator),
-            status: mapToValidatorStatus(validator.status)
+            status: mapToValidatorStatus(validator.status),
+            allowsPartialUnstake: validator.preferred ?? false
         )
     }
 

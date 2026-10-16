@@ -11,7 +11,7 @@ import Foundation
 public extension PolymarketMarketCard {
     struct Model: Identifiable {
         public let id: String
-        public let title: String
+        public let title: String?
         public let category: PolymarketMarketMetaRow.Category?
         public let volumeText: String?
         public let imageURL: URL?
@@ -20,7 +20,7 @@ public extension PolymarketMarketCard {
 
         public init(
             id: String,
-            title: String,
+            title: String?,
             category: PolymarketMarketMetaRow.Category? = nil,
             volumeText: String?,
             imageURL: URL?,

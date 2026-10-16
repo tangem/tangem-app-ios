@@ -26,13 +26,13 @@ final class TangemPayPlasticReissueSheet: ScreenBase<TangemPayPlasticReissueShee
     func verifyContent(country: String, deliveryFee: String, deliveryTime: String) -> Self {
         XCTContext.runActivity(named: "Verify the Replace plastic card sheet content") { _ in
             waitAndAssertTrue(icon, "Replace icon should be displayed")
-            waitAndAssertTrue(app.staticTexts[Constants.title].firstMatch, "'\(Constants.title)' should be displayed")
-            waitAndAssertTrue(app.staticTexts[Constants.description].firstMatch, "Replace plastic card description should be displayed")
-            verifyOfferInfoRow(.deliverTo, contains: [Constants.deliverToTitle, country])
-            verifyOfferInfoRow(.deliveryFee, contains: [Constants.deliveryFeeTitle, deliveryFee])
-            verifyOfferInfoRow(.deliveryTime, contains: [Constants.deliveryTimeTitle, deliveryTime])
-            XCTAssertEqual(cancelButton.label, Constants.cancelTitle, "Secondary button should read '\(Constants.cancelTitle)'")
-            XCTAssertEqual(replaceButton.label, Constants.replaceTitle, "Primary button should read '\(Constants.replaceTitle)'")
+            waitAndAssertTrue(app.staticTexts[Localization.tangempayReissuePlasticTitle].firstMatch, "'\(Localization.tangempayReissuePlasticTitle)' should be displayed")
+            waitAndAssertTrue(app.staticTexts[Localization.tangempayReissuePlasticDescription].firstMatch, "Replace plastic card description should be displayed")
+            verifyOfferInfoRow(.deliverTo, contains: [Localization.tangempayOrderTypeDeliveryTo, country])
+            verifyOfferInfoRow(.deliveryFee, contains: [Localization.tangempayOrderTypeDeliveryFee, deliveryFee])
+            verifyOfferInfoRow(.deliveryTime, contains: [Localization.tangempayOrderTypeDeliveryTime, deliveryTime])
+            XCTAssertEqual(cancelButton.label, Localization.commonCancel, "Secondary button should read '\(Localization.commonCancel)'")
+            XCTAssertEqual(replaceButton.label, Localization.tangempayCardDetailsReissueCard, "Primary button should read '\(Localization.tangempayCardDetailsReissueCard)'")
             return self
         }
     }
@@ -40,7 +40,7 @@ final class TangemPayPlasticReissueSheet: ScreenBase<TangemPayPlasticReissueShee
     @discardableResult
     func verifyNotEnoughMoney(deliveryFee: String) -> Self {
         XCTContext.runActivity(named: "Verify the balance does not cover the replacement") { _ in
-            verifyOfferInfoRow(.deliveryFee, contains: [deliveryFee, Constants.notEnoughMoney])
+            verifyOfferInfoRow(.deliveryFee, contains: [deliveryFee, Localization.tangempayOrderTypeNotEnoughMoney])
             XCTAssertTrue(replaceButton.waitForState(state: .disabled, for: .conditional), "Replace card should be disabled")
             return self
         }
@@ -50,7 +50,7 @@ final class TangemPayPlasticReissueSheet: ScreenBase<TangemPayPlasticReissueShee
     func verifyEnoughMoney(deliveryFee: String) -> Self {
         XCTContext.runActivity(named: "Verify the balance covers the replacement") { _ in
             verifyOfferInfoRow(.deliveryFee, contains: [deliveryFee])
-            verifyOfferInfoRow(.deliveryFee, doesNotContain: Constants.notEnoughMoney)
+            verifyOfferInfoRow(.deliveryFee, doesNotContain: Localization.tangempayOrderTypeNotEnoughMoney)
             XCTAssertTrue(replaceButton.waitForState(state: .enabled, for: .conditional), "Replace card should be enabled")
             return self
         }
@@ -85,18 +85,5 @@ enum TangemPayPlasticReissueSheetElement: String, UIElement {
         case .cancelButton:
             TangemPayAccessibilityIdentifiers.popupSecondaryButton
         }
-    }
-}
-
-private extension TangemPayPlasticReissueSheet {
-    enum Constants {
-        static let title = "Replace plastic card?"
-        static let description = "Your current plastic card will be immediately closed. You will get new plastic card with new card details."
-        static let deliverToTitle = "Deliver to"
-        static let deliveryFeeTitle = "Delivery fee"
-        static let deliveryTimeTitle = "Delivery time"
-        static let notEnoughMoney = "Not enough money"
-        static let cancelTitle = "Cancel"
-        static let replaceTitle = "Replace card"
     }
 }

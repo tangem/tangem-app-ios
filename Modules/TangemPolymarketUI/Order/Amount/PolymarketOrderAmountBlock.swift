@@ -14,19 +14,22 @@ import TangemUI
 public struct PolymarketOrderAmountBlock<Field: View, Footer: View>: View {
     private let title: String
     private let payment: PolymarketOrderPaymentRow.Model?
-    private let onAddFunds: (() -> Void)?
+    private let isAddFundsEnabled: Bool
+    private let onAddFunds: () -> Void
     private let field: Field
     private let footer: Footer
 
     public init(
         title: String = Localization.predictionPlaceYouWillPay,
         payment: PolymarketOrderPaymentRow.Model?,
-        onAddFunds: (() -> Void)? = nil,
+        isAddFundsEnabled: Bool,
+        onAddFunds: @escaping () -> Void,
         @ViewBuilder field: () -> Field,
         @ViewBuilder footer: () -> Footer = { EmptyView() }
     ) {
         self.title = title
         self.payment = payment
+        self.isAddFundsEnabled = isAddFundsEnabled
         self.onAddFunds = onAddFunds
         self.field = field()
         self.footer = footer()
@@ -41,7 +44,7 @@ public struct PolymarketOrderAmountBlock<Field: View, Footer: View>: View {
             if let payment {
                 Separator(color: DesignSystem.Color.borderPrimary)
 
-                PolymarketOrderPaymentRow(model: payment, onAddFunds: onAddFunds)
+                PolymarketOrderPaymentRow(model: payment, isAddFundsEnabled: isAddFundsEnabled, onAddFunds: onAddFunds)
             }
         }
         .background(DesignSystem.Color.bgSecondary)

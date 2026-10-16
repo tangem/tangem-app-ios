@@ -45,6 +45,7 @@ struct CommonSendTransferableToken: SendTransferableToken {
     var tangemIconProvider: any TangemIconProvider { sourceToken.tangemIconProvider }
     var confirmTransactionPolicy: any ConfirmTransactionPolicy { sourceToken.confirmTransactionPolicy }
     var isTangemPayAccount: Bool { sourceToken.isTangemPayAccount }
+    var jointAccountPolicy: JointAccountPolicy? { sourceToken.jointAccountPolicy }
 
     var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? {
         get async { await sourceToken.transactionHistoryEnricher }

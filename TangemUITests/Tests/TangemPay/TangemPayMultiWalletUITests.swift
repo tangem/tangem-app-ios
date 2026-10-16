@@ -71,7 +71,7 @@ private extension TangemPayMultiWalletUITests {
         }
 
         enum WalletB {
-            static let tileSubtitle = "2 cards"
+            static let tileSubtitle = Localization.tangempayCardsCount(2)
             static let balance = "$250.00"
             static let firstCardId = "mock-card-id"
             static let secondCardId = "mock-card-id-2"

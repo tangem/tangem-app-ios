@@ -20,7 +20,7 @@ public struct TangemUnableToLoadDataView: View {
     }
 
     public var body: some View {
-        VStack(spacing: SizeUnit.x3.value) {
+        VStack(spacing: 12) {
             Text(Localization.marketsLoadingErrorTitle)
                 .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
 

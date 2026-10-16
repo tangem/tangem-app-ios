@@ -23,6 +23,10 @@ extension FloatingSheetRegistry {
             NewProviderSelectorView(viewModel: viewModel)
         }
 
+        register(SwapSlippageSelectorViewModel.self) { viewModel in
+            SwapSlippageSelectorView(viewModel: viewModel)
+        }
+
         register(HighPriceImpactWarningSheetViewModel.self) { viewModel in
             HighPriceImpactWarningSheetView(viewModel: viewModel)
         }

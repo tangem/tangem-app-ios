@@ -46,8 +46,8 @@ struct TransactionsListSectionHeaderView: View {
 
             Spacer()
         }
-        .padding(.top, .unit(.x6))
-        .padding(.bottom, .unit(.x3))
+        .padding(.top, 24)
+        .padding(.bottom, 12)
     }
 }
 
@@ -63,12 +63,12 @@ struct TransactionsListRowView: View {
             openTransactionDetailsAction(viewModel)
         } label: {
             switch viewModel.display.style {
-            case .chip:
-                TransactionChipRedesigned(viewModel: viewModel)
-                    .padding(.vertical, .unit(.x1))
+            case .chip(let style):
+                TransactionChipRedesigned(viewModel: viewModel, style: style)
+                    .padding(.vertical, 4)
             case .row:
                 TransactionViewRedesigned(viewModel: viewModel)
-                    .padding(.vertical, .unit(.x3))
+                    .padding(.vertical, 12)
             }
         }
         .buttonStyle(.plain)
