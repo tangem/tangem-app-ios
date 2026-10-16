@@ -82,7 +82,7 @@ struct TransactionViewRedesigned: View {
                 .foregroundStyle(DesignSystem.Color.iconStatusWarning)
 
             Text(warningTitle(for: warning))
-                .style(Font.Tangem.Caption12.medium, color: DesignSystem.Color.textStatusWarning)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusWarning)
                 .lineLimit(2)
 
             Spacer(minLength: 0)
@@ -158,7 +158,7 @@ struct TransactionViewRedesigned: View {
     private var nameView: some View {
         HStack(spacing: 8) {
             Text(display.title.fullText)
-                .style(Font.Tangem.Body16.medium, color: nameColor)
+                .style(DesignSystem.Font.bodyMediumToken, color: nameColor)
                 .lineLimit(1)
                 .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionItem(key: transactionKey))
 
@@ -175,7 +175,7 @@ struct TransactionViewRedesigned: View {
     private func amountView(_ value: String) -> some View {
         SensitiveText(value)
             .strikethroughWhenVisible(isFailed, color: amountColor)
-            .style(Font.Tangem.Body16.medium, color: amountColor)
+            .style(DesignSystem.Font.bodyMediumToken, color: amountColor)
             .lineLimit(1)
             .layoutPriority(1)
             .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionAmount(key: transactionKey))
@@ -193,7 +193,7 @@ struct TransactionViewRedesigned: View {
 
         case .text(let description):
             Text(description)
-                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
                 .truncationMode(viewModel.transactionDescriptionTruncationMode)
                 .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionSubtitle(key: transactionKey))
@@ -222,7 +222,7 @@ struct TransactionViewRedesigned: View {
 
             if let text = viewModel.secondaryTrailingText {
                 Text(text)
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
                     .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionCurrency(key: transactionKey))
             }
@@ -263,13 +263,13 @@ private extension TransactionViewRedesigned {
 
     var nameColor: Color {
         if viewModel.isPendingSignature {
-            return .Tangem.Text.Neutral.primary
+            return DesignSystem.Color.textPrimary
         }
 
         switch viewModel.icon.status {
-        case .failed, .undefined: return .Tangem.Text.Status.warning
-        case .inProgress: return .Tangem.Text.Status.accent
-        case .confirmed: return .Tangem.Text.Neutral.primary
+        case .failed, .undefined: return DesignSystem.Color.textAccentRed
+        case .inProgress: return DesignSystem.Color.textAccentBlue
+        case .confirmed: return DesignSystem.Color.textPrimary
         }
     }
 
@@ -279,8 +279,8 @@ private extension TransactionViewRedesigned {
         }
 
         switch viewModel.icon.status {
-        case .failed, .undefined, .inProgress: return .Tangem.Text.Neutral.tertiary
-        case .confirmed: return .Tangem.Text.Neutral.primary
+        case .failed, .undefined, .inProgress: return DesignSystem.Color.textSecondary
+        case .confirmed: return DesignSystem.Color.textPrimary
         }
     }
 
@@ -289,11 +289,11 @@ private extension TransactionViewRedesigned {
 
         switch payType {
         case .spend(_, _, let isDeclined, _) where isDeclined:
-            return .Tangem.Text.Status.warning
+            return DesignSystem.Color.textAccentRed
         case .spend(_, _, _, let isNegativeAmount) where isNegativeAmount:
-            return .Tangem.Text.Status.accent
+            return DesignSystem.Color.textAccentBlue
         case .transfer where !viewModel.isOutgoing:
-            return .Tangem.Text.Status.accent
+            return DesignSystem.Color.textAccentBlue
         case .spend, .transfer, .fee:
             return nil
         }
@@ -301,17 +301,17 @@ private extension TransactionViewRedesigned {
 
     var iconBackgroundColor: Color {
         switch viewModel.icon.status {
-        case .failed, .undefined: .Tangem.Markers.backgroundTintedRed
-        case .inProgress: .Tangem.Markers.backgroundTintedBlue
-        case .confirmed: .Tangem.Markers.backgroundTintedGray
+        case .failed, .undefined: DesignSystem.Color.bgStatusErrorSubtle
+        case .inProgress: DesignSystem.Color.bgStatusInfoSubtle
+        case .confirmed: DesignSystem.Color.bgTransparentPrimary
         }
     }
 
     var iconGlyphColor: Color {
         switch viewModel.icon.status {
-        case .failed, .undefined: .Tangem.Markers.iconRed
-        case .inProgress: .Tangem.Markers.iconBlue
-        case .confirmed: .Tangem.Graphic.Neutral.secondary
+        case .failed, .undefined: DesignSystem.Color.iconAccentRed
+        case .inProgress: DesignSystem.Color.iconAccentBlue
+        case .confirmed: DesignSystem.Color.iconSecondary
         }
     }
 }

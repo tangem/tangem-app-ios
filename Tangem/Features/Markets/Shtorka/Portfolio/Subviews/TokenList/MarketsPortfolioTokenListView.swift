@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAccounts
 import TangemAssets
+import TangemUIUtils
 import TangemLocalization
 import TangemAccessibilityIdentifiers
 
@@ -76,7 +77,7 @@ private extension MarketsPortfolioTokenListView {
 
                 viewModel.barSubtitle.map {
                     Text($0)
-                        .style(Font.Tangem.Body15.regular, color: DesignSystem.Color.textSecondary)
+                        .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                 }
             }
 

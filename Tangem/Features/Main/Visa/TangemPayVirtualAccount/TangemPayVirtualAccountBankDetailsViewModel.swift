@@ -48,7 +48,7 @@ final class TangemPayVirtualAccountBankDetailsViewModel: ObservableObject, Float
         Toast(
             view: TangemSnackbar(title: Localization.commonValueCopied)
                 .icon(DesignSystem.Icons.Checkmark.regular20)
-                .iconColor(Color.Tangem.Graphic.Status.accent)
+                .iconColor(DesignSystem.Color.iconAccentBlue)
         )
         .present(layout: .top(padding: 12), type: .temporary())
     }
