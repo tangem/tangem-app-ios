@@ -17,9 +17,6 @@ extension YieldModuleDTO.Response {
         /// UTC day in the `YYYY-MM-DD` form.
         let date: String
         let baseApy: Decimal
-        /// Merkl rewards APR net of the service fee.
-        let rewardsApr: Decimal
-        /// Estimated total APY (base + net rewards).
-        let totalApyEst: Decimal
+        let grossTotalApyEst: Decimal
     }
 }

@@ -141,7 +141,7 @@ private extension GeoSelectionContentView {
     var emptyView: some View {
         messageView(
             icon: DesignSystem.Icons.Binoculars.regular20,
-            message: Localization.tangempayGeoSelectionSearchEmpty
+            message: Localization.tangempayResidencySearchEmpty
         )
     }
 

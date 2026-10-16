@@ -11,7 +11,6 @@ import TangemFoundation
 
 protocol TangemPayOnboardingAnalyticsService {
     func logBundleScreenOpened()
-    func logOfferScreenOpened()
     func logNewOnboardingScreenOpened()
     func logTermsTapped()
 }
@@ -23,10 +22,6 @@ struct CommonTangemPayOnboardingAnalyticsService: TangemPayOnboardingAnalyticsSe
             analyticsSystems: .all,
             contextParams: .custom(.mobileWallet)
         )
-    }
-
-    func logOfferScreenOpened() {
-        Analytics.log(.visaOnboardingVisaActivationScreenOpened, analyticsSystems: .all)
     }
 
     func logNewOnboardingScreenOpened() {

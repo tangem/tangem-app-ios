@@ -22,19 +22,23 @@ enum ApproveHistoryMapper {
             return nil
         }
 
-        guard !method.isUnlimited else {
-            return .init(spender: method.spender, symbol: symbol, allowance: .unlimited)
+        return approve(spender: method.spender, amount: method.amount, symbol: symbol, decimals: decimals)
+    }
+
+    static func approve(spender: String, amount: BigUInt, symbol: String?, decimals: Int?) -> TransactionRecord.TransactionType.Approve {
+        guard amount != .maxUInt256 else {
+            return .init(spender: spender, symbol: symbol, allowance: .unlimited)
         }
 
-        guard method.amount > 0 else {
-            return .init(spender: method.spender, symbol: symbol, allowance: .revoked)
+        guard amount > 0 else {
+            return .init(spender: spender, symbol: symbol, allowance: .revoked)
         }
 
-        guard let decimals, let amount = scale(method.amount, decimals: decimals) else {
-            return .init(spender: method.spender, symbol: symbol, allowance: .unscaled(method.amount))
+        guard let decimals, let scaledAmount = scale(amount, decimals: decimals) else {
+            return .init(spender: spender, symbol: symbol, allowance: .unscaled(amount))
         }
 
-        return .init(spender: method.spender, symbol: symbol, allowance: .limited(amount))
+        return .init(spender: spender, symbol: symbol, allowance: .limited(scaledAmount))
     }
 
     static func scale(_ amount: BigUInt, decimals: Int) -> Decimal? {
