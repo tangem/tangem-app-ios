@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 // MARK: - Previews
 
@@ -46,7 +47,7 @@ private extension PolymarketPositionDetailsView.Model {
         market: .init(
             id: "preview",
             title: "2026 World Cup Winner",
-            category: .init(name: "Sport", iconURL: nil),
+            category: .init(name: "Sport", icon: DesignSystem.Icons.Basketball.regular16),
             volumeText: "$6.3M",
             imageURL: nil,
             predictedText: nil,
@@ -82,7 +83,7 @@ private extension PolymarketPositionDetailsView.Model {
         market: .init(
             id: "preview",
             title: "2026 World Cup Winner",
-            category: .init(name: "Sport", iconURL: nil),
+            category: .init(name: "Sport", icon: DesignSystem.Icons.Basketball.regular16),
             volumeText: "$6.3M",
             imageURL: nil,
             predictedText: nil,
