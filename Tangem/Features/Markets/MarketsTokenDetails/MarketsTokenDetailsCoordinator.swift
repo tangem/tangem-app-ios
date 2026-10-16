@@ -727,7 +727,7 @@ extension MarketsTokenDetailsCoordinator {
         safariHandle = safariManager.openURL(url) { [weak self] _ in
             self?.safariHandle = nil
 
-            Task {
+            _ = Task {
                 try await Task.sleep(for: .seconds(1))
                 await walletModel.update(silent: true, options: .balances)
             }

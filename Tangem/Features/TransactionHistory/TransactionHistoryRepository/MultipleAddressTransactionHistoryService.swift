@@ -64,8 +64,8 @@ extension MultipleAddressTransactionHistoryService: TransactionHistoryService {
     }
 
     func update() -> AnyPublisher<Void, Never> {
-        Deferred {
-            Future { [weak self] promise in
+        Deferred { [weak self] in
+            Future { promise in
                 self?.fetch(result: promise)
             }
         }
