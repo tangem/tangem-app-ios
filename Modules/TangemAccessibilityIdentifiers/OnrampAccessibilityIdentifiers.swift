@@ -37,6 +37,30 @@ public enum OnrampAccessibilityIdentifiers {
         return "onrampProviderAmount_\(name.lowercased().replacingOccurrences(of: " ", with: "_"))"
     }
 
+    public static func providerBuyButton(name: String) -> String {
+        return "onrampProviderBuyButton_\(name.lowercased().replacingOccurrences(of: " ", with: "_"))"
+    }
+
+    public static func providerAmountBadge(name: String) -> String {
+        return "onrampProviderAmountBadge_\(name.lowercased().replacingOccurrences(of: " ", with: "_"))"
+    }
+
+    public static let finishFiatIcon = "onrampFinishFiatIcon"
+    public static let finishFiatAmount = "onrampFinishFiatAmount"
+    public static let finishCryptoAmount = "onrampFinishCryptoAmount"
+    public static let finishProviderIcon = "onrampFinishProviderIcon"
+    public static let finishProviderName = "onrampFinishProviderName"
+
+    public static func providerInfoButton(name: String) -> String {
+        return "onrampProviderInfoButton_\(name.lowercased().replacingOccurrences(of: " ", with: "_"))"
+    }
+
+    public static func providerNativeApplePayButton(name: String) -> String {
+        return "onrampProviderNativeApplePayButton_\(name.lowercased().replacingOccurrences(of: " ", with: "_"))"
+    }
+
+    public static let kycIcon = "onrampKycIcon"
+
     /// Payment methods screen
     public static let paymentMethodCard = "onrampPaymentMethodCard"
 
@@ -50,6 +74,18 @@ public enum OnrampAccessibilityIdentifiers {
 
     public static func paymentMethodName(id: String) -> String {
         return "\(paymentMethodNamePrefix)\(id)"
+    }
+
+    public static func providerCount(id: String) -> String {
+        return "onrampProviderCount_\(id)"
+    }
+
+    public static func providerTime(id: String) -> String {
+        return "onrampProviderTime_\(id)"
+    }
+
+    public static func bestRateBadge(id: String) -> String {
+        return "onrampBestRateBadge_\(id)"
     }
 
     /// Residence screen

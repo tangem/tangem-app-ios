@@ -70,6 +70,8 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         throw .unknownError(NSError.dummy)
     }
 
+    func reloadAccountsFromRemote() async {}
+
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {
         throw NSError.dummy
     }
@@ -77,6 +79,12 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
     func dispose() {}
 
     func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async throws(TangemPayAuthorizationError) {}
+
+    func authorizeTangemPayOfferForResidency(
+        authorizingInteractor: any TangemPayAuthorizing
+    ) async throws(TangemPayAuthorizationError) -> (any TangemPayResidencyInteractor)? {
+        nil
+    }
 
     func acceptTangemPayCampaignOffer(
         authorizingInteractor: any TangemPayAuthorizing,

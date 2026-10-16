@@ -12,7 +12,7 @@ protocol YieldModuleAPIService {
     func getYieldMarkets(
         chainIDs: [String]?
     ) async throws -> YieldModuleDTO.Response.MarketsInfo
-    /// Markets with the Merkl campaign overlay (`/yield-modules/markets`, enveloped response).
+    /// Markets with the Merkl campaign overlay (`/yield-modules/markets`).
     func getIncentiveYieldMarkets(
         chainIDs: [String]?
     ) async throws -> YieldModuleDTO.Response.MarketsInfo
@@ -21,6 +21,16 @@ protocol YieldModuleAPIService {
         chainId: Int,
         userAddress: String
     ) async throws -> YieldModuleDTO.Response.IncentivesInfo?
+    /// Fresh claim transaction payload — the response must never be cached or reused.
+    func getClaimCalldata(
+        chainId: Int,
+        userAddress: String
+    ) async throws -> YieldModuleDTO.Response.ClaimCalldata
+    /// `nil` on the same unsupported-chain response as `getIncentives`.
+    func getClaimHistory(
+        chainId: Int,
+        userAddress: String
+    ) async throws -> YieldModuleDTO.Response.ClaimHistory?
     /// Incentivised-yield history, ascending by date (`days` is capped at 90 by the contract).
     func getAprHistory(
         chainId: Int,

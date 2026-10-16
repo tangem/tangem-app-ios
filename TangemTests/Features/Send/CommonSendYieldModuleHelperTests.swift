@@ -474,7 +474,8 @@ private extension CommonSendYieldModuleHelperTests {
             termsOfUse: nil,
             privacyPolicy: nil,
             recommended: nil,
-            slippage: nil
+            slippage: nil,
+            isCustomSlippageSupported: false
         )
     }
 
@@ -498,7 +499,8 @@ private extension CommonSendYieldModuleHelperTests {
             estimatedGasLimit: nil,
             externalTxId: nil,
             externalTxURL: nil,
-            payInAddress: ""
+            payInAddress: "",
+            slippage: nil
         )
     }
 }
@@ -576,7 +578,8 @@ private extension ExpressTransactionData {
             estimatedGasLimit: estimatedGasLimit,
             externalTxId: externalTxId,
             externalTxURL: externalTxURL,
-            payInAddress: payInAddress
+            payInAddress: payInAddress,
+            slippage: nil
         )
     }
 }

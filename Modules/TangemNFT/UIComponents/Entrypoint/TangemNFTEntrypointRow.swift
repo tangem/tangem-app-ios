@@ -25,8 +25,8 @@ public struct TangemNFTEntrypointRow: View {
     @ScaledMetric private var thirdImageXOffset: CGFloat = -3
     @ScaledMetric private var thirdImageYOffset: CGFloat = -3
     @ScaledMetric private var fourCollectionsSpacing: CGFloat = 2
-    @ScaledMetric private var imageCornerRadius: CGFloat = .unit(.x1_5)
-    @ScaledMetric private var strokeLineWidth: CGFloat = .unit(.half)
+    @ScaledMetric private var imageCornerRadius: CGFloat = 6
+    @ScaledMetric private var strokeLineWidth: CGFloat = 2
 
     public init(viewModel: NFTEntrypointViewModel) {
         self.viewModel = viewModel
@@ -40,9 +40,9 @@ public struct TangemNFTEntrypointRow: View {
                 secondaryLeading: { subtitleText },
                 centeredTrailing: { chevronIcon }
             )
-            .padding(.unit(.x3))
+            .padding(12)
             .background(Color.Tangem.Surface.level3)
-            .cornerRadiusContinuous(.unit(.x5))
+            .cornerRadiusContinuous(20)
         }
         .buttonStyle(.defaultScaled)
         .accessibilityIdentifier(NFTAccessibilityIdentifiers.mainEntrypointRow)

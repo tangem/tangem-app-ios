@@ -102,8 +102,7 @@ extension ForYouCoordinator: ForYouRoutable {
             }
         )
 
-        // For You seeds no tokens yet → nil makes the earn list fetch its own suggestions
-        coordinator.start(with: .init(mostlyUsedTokens: nil, presentSource: .navigation))
+        coordinator.start(with: .init(presentSource: .navigation))
         earnListCoordinator = coordinator
     }
 }

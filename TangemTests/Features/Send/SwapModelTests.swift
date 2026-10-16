@@ -140,8 +140,11 @@ final class SwapModelTests: LeakTrackingTestSuite {
 
         // Stands in for the update task that `stopAutoupdating()` cancels while it is
         // suspended on `expressManager.getAmountType()` inside `updateComplementaryAmount`.
+        let gate = TestGate()
+        await manager.holdAmountTypeReads(behind: gate)
         let task = Task { try await sut.updateComplementaryAmount(state: state) }
         task.cancel()
+        gate.open()
 
         await #expect(throws: CancellationError.self) { try await task.value }
         // The receive amount stays empty: the late quote never reaches the finish screen.
@@ -246,6 +249,27 @@ final class SwapModelTests: LeakTrackingTestSuite {
         _ = try await waitForNewState(recorder, since: baseline) { _ in true }
     }
 
+    // MARK: - [REDACTED_INFO]: amount prefilled before the initial pair load
+
+    @MainActor
+    @Test("An amount prefilled before the initial pair load is quoted ([REDACTED_INFO])")
+    func amountPrefilledBeforeInitialLoadingIsQuoted() async throws {
+        let manager = ExpressManagerStub()
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager),
+            shouldStartInitialLoading: true
+        )
+
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+
+        try await waitUntil { await manager.getAmountType() == .from(1) }
+        #expect(await manager.currentPair != nil)
+        #expect(await manager.updateAmountTypeCallCount == 1)
+    }
+
     // MARK: - [REDACTED_INFO]: account funding flows
 
     @Test("Add funds auto-resolves the source token when the destination is fixed")
@@ -326,6 +350,438 @@ final class SwapModelTests: LeakTrackingTestSuite {
 
         #expect(sut.receiveToken.value?.tokenItem == receive.tokenItem)
     }
+
+    // MARK: - Receive token replacement
+
+    @Test("A crypto receive amount keeps its fiat value in the replacing token ([REDACTED_INFO])")
+    func receiveTokenReplacementConvertsCryptoAmount() async throws {
+        let amount = try await receiveAmountAfterReplacement(
+            entered: SendAmount(type: .typical(crypto: 0.1, fiat: 400)),
+            prices: ["svs-previous-coin": 4000, "svs-new-coin": 100_000]
+        )
+
+        #expect(amount?.crypto == 0.004)
+    }
+
+    @Test("A fiat receive amount stays the same fiat value in the replacing token")
+    func receiveTokenReplacementKeepsEnteredFiat() async throws {
+        let amount = try await receiveAmountAfterReplacement(
+            entered: SendAmount(type: .alternative(fiat: 50, crypto: 0.0125)),
+            prices: ["svs-previous-coin": 4000, "svs-new-coin": 100_000]
+        )
+
+        #expect(amount?.fiat == 50)
+        #expect(amount?.crypto == 0.0005)
+    }
+
+    @Test("The same asset on another network keeps the entered receive amount")
+    func receiveNetworkChangeKeepsAmount() async throws {
+        let amount = try await receiveAmountAfterReplacement(
+            entered: SendAmount(type: .typical(crypto: 100, fiat: 100)),
+            previous: makeQuotedTokenItem(currencyId: "svs-stable-coin", blockchain: .ethereum(testnet: false)),
+            replacing: makeQuotedTokenItem(currencyId: "svs-stable-coin", blockchain: .polygon(testnet: false)),
+            prices: ["svs-stable-coin": 1]
+        )
+
+        #expect(amount?.crypto == 100)
+    }
+
+    @Test("A destination-only update of the same receive token keeps the entered amount")
+    func sameReceiveTokenUpdateKeepsAmount() async throws {
+        let tokenItem = makeQuotedTokenItem(currencyId: "svs-previous-coin")
+        let amount = try await receiveAmountAfterReplacement(
+            entered: SendAmount(type: .typical(crypto: 0.1, fiat: 400)),
+            previous: tokenItem,
+            replacing: tokenItem,
+            prices: [:]
+        )
+
+        #expect(amount?.crypto == 0.1)
+    }
+
+    @Test("Without a price for the replacing token the old receive amount is not carried over")
+    func receiveTokenReplacementWithoutPriceDropsAmount() async throws {
+        let amount = try await receiveAmountAfterReplacement(
+            entered: SendAmount(type: .typical(crypto: 0.1, fiat: 400)),
+            prices: ["svs-previous-coin": 4000]
+        )
+
+        #expect(amount == nil)
+    }
+
+    // MARK: - Custom slippage
+
+    @Test("The slippage sheet keeps its provider through a fee refresh but not through a quote reload")
+    func slippageProviderFollowsReloadKind() async throws {
+        let manager = ExpressManagerStub()
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager)
+        )
+        let recorder = SwapProvidersStateRecorder(sut)
+        let defaultSlippage = Decimal(string: "0.003")!
+
+        var baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        await manager.setSelectedProvider(ExpressAvailableProviderFixture.make(
+            state: .restriction(.tooBigAmount(100, currencySymbol: "ETH"), quote: nil),
+            slippage: defaultSlippage,
+            isCustomSlippageSupported: true
+        ))
+        baseline = recorder.count
+        sut.actualizeInformation()
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        #expect(sut.slippageProvider?.slippage == defaultSlippage)
+
+        baseline = recorder.count
+        sut.actualizeInformation()
+
+        #expect(sut.slippageProvider == nil)
+
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        #expect(sut.slippageProvider?.slippage == defaultSlippage)
+
+        baseline = recorder.count
+        sut.userDidFinishSelection(feeTokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)), feeOption: .market)
+
+        let isLoadingFee = if case .loading(.fee) = recorder.latest { true } else { false }
+        #expect(isLoadingFee)
+        #expect(sut.slippageProvider?.slippage == defaultSlippage)
+
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        await manager.holdNextAmountUpdate()
+        baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 2, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: baseline) { state in
+            if case .loading = state { true } else { false }
+        }
+
+        #expect(sut.slippageProvider == nil)
+
+        await manager.releaseHeldAmountUpdate()
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        #expect(sut.slippageProvider?.slippage == defaultSlippage)
+
+        sut.update(receive: ReceiveTokenStub(blockchain: .polygon(testnet: false)))
+
+        #expect(sut.slippageProvider == nil)
+    }
+
+    @Test("Choosing another provider hands the slippage sheet the new provider right away")
+    func providerSelectionReplacesSlippageProvider() async throws {
+        let manager = ExpressManagerStub()
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager)
+        )
+        let recorder = SwapProvidersStateRecorder(sut)
+        let quotedState: ExpressProviderManagerState = .restriction(.tooBigAmount(100, currencySymbol: "ETH"), quote: nil)
+        let first = ExpressAvailableProviderFixture.make(state: quotedState, slippage: Decimal(string: "0.003"), isCustomSlippageSupported: true)
+        let second = ExpressAvailableProviderFixture.make(state: quotedState, slippage: Decimal(string: "0.01"), isCustomSlippageSupported: false)
+
+        var baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        await manager.setSelectedProvider(first)
+        baseline = recorder.count
+        sut.actualizeInformation()
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        #expect(sut.slippageProvider?.isCustomSlippageSupported == true)
+
+        baseline = recorder.count
+        sut.userDidSelect(provider: second)
+
+        #expect(sut.slippageProvider?.isCustomSlippageSupported == false)
+
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        #expect(sut.slippageProvider?.isCustomSlippageSupported == false)
+    }
+
+    @Test("A provider without a default slippage gives the slippage sheet nothing to open")
+    func providerWithoutSlippageIsNotOfferedToSelector() {
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false))
+        )
+        let quotedState: ExpressProviderManagerState = .restriction(.tooBigAmount(100, currencySymbol: "ETH"), quote: nil)
+
+        sut.userDidSelect(provider: ExpressAvailableProviderFixture.make(state: quotedState, slippage: nil))
+
+        #expect(sut.slippageProvider == nil)
+    }
+
+    @Test("Tapping the low slippage warning asks the router to open the slippage sheet")
+    func editSlippageNotificationOpensSelector() {
+        let router = SwapModelRouterSpy()
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false))
+        )
+        sut.router = router
+
+        sut.didTapNotification(with: 0, action: .editSlippage)
+
+        #expect(router.slippageSelectorOpenings == 1)
+    }
+
+    @Test("Setting a custom slippage updates the manager once, without a separate quote reload")
+    func customSlippageReachesManagerOnce() async throws {
+        let manager = ExpressManagerStub()
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            expressManager: manager
+        )
+
+        sut.userDidSet(slippage: .custom(0.005))
+        try await waitUntil { await manager.getSlippage() == 0.005 }
+
+        #expect(sut.slippage == .custom(0.005))
+        #expect(await manager.updateSlippageCallCount == 1)
+        #expect(await manager.updateTypeCallCount == 0)
+        #expect(await manager.updateAmountTypeCallCount == 0)
+    }
+
+    @Test("An amount change resets the custom slippage to Auto and flags the reset")
+    func amountChangeResetsCustomSlippage() async throws {
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false))
+        )
+        var resets: [Bool] = []
+        let cancellable = sut.isCustomSlippageResetPublisher.sink { resets.append($0) }
+
+        withExtendedLifetime(cancellable) {
+            sut.userDidSet(slippage: .custom(0.005))
+            sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+            sut.userDidSet(slippage: .custom(0.004))
+        }
+
+        #expect(resets == [false, false, true, false])
+        #expect(sut.slippage == .custom(0.004))
+    }
+
+    @Test("An amount change leaves the slippage reset to the manager instead of requoting before the new amount")
+    func amountChangeSkipsSlippageSync() async throws {
+        let manager = ExpressManagerStub()
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager)
+        )
+        let recorder = SwapProvidersStateRecorder(sut)
+
+        var baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        baseline = recorder.count
+        sut.userDidSet(slippage: .custom(0.005))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 2, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        #expect(await manager.updateSlippageCallCount == 1)
+        #expect(await manager.getSlippage() == nil)
+        #expect(sut.slippage == .auto)
+    }
+
+    @Test("Retyping the same amount within the debounce leaves the manager on the model's Auto")
+    func retypedAmountKeepsManagerInSync() async throws {
+        let manager = ExpressManagerStub()
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager)
+        )
+        let recorder = SwapProvidersStateRecorder(sut)
+
+        var baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        baseline = recorder.count
+        sut.userDidSet(slippage: .custom(0.005))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 12, fiat: nil)))
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        #expect(sut.slippage == .auto)
+        #expect(await manager.getSlippage() == nil)
+    }
+
+    @Test(
+        "The swap event reports the slippage the transaction goes out with",
+        arguments: [
+            (isSupported: true, slippage: SwapSlippage.custom(Decimal(string: "0.004")!), transaction: Decimal?.some(Decimal(string: "0.0045")!), expected: Decimal?.some(Decimal(string: "0.0045")!)),
+            (isSupported: true, slippage: SwapSlippage.custom(Decimal(string: "0.004")!), transaction: Decimal?.none, expected: Decimal?.some(Decimal(string: "0.004")!)),
+            (isSupported: true, slippage: SwapSlippage.auto, transaction: Decimal?.none, expected: Decimal?.some(Decimal(string: "0.003")!)),
+            (isSupported: false, slippage: SwapSlippage.custom(Decimal(string: "0.004")!), transaction: Decimal?.none, expected: Decimal?.some(Decimal(string: "0.003")!)),
+            (isSupported: false, slippage: SwapSlippage.custom(Decimal(string: "0.004")!), transaction: Decimal?.some(Decimal(string: "0.0045")!), expected: Decimal?.some(Decimal(string: "0.0045")!)),
+        ]
+    )
+    func swapAnalyticsSlippage(isSupported: Bool, slippage: SwapSlippage, transaction: Decimal?, expected: Decimal?) {
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false))
+        )
+        let provider = ExpressAvailableProviderFixture.make(
+            state: .idle,
+            slippage: Decimal(string: "0.003"),
+            isCustomSlippageSupported: isSupported
+        )
+
+        sut.userDidSet(slippage: slippage)
+
+        #expect(sut.swapAnalyticsSlippage(provider: provider, transactionSlippage: transaction) == expected)
+    }
+
+    @MainActor
+    @Test("A source token change resets the custom slippage")
+    func sourceChangeResetsCustomSlippage() {
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(tokenItem: .accountToken(symbol: "USDC", contract: "0xUSDC")),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false))
+        )
+
+        sut.userDidSet(slippage: .custom(0.005))
+        sut.update(source: SwapableTokenStub(tokenItem: .accountToken(symbol: "USDT", contract: "0xUSDT")))
+
+        #expect(sut.slippage == .auto)
+    }
+
+    @MainActor
+    @Test("A receive token change resets the custom slippage")
+    func receiveChangeResetsCustomSlippage() {
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false))
+        )
+
+        sut.userDidSet(slippage: .custom(0.005))
+        sut.update(receive: ReceiveTokenStub(blockchain: .polygon(testnet: false)))
+
+        #expect(sut.slippage == .auto)
+    }
+
+    @Test("A token change leaves the reset slippage to the pair update instead of requoting the outgoing pair")
+    func tokenChangeSkipsSlippageSyncForOutgoingPair() async throws {
+        let manager = ExpressManagerStub()
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager)
+        )
+        let recorder = SwapProvidersStateRecorder(sut)
+
+        var baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        baseline = recorder.count
+        sut.userDidSet(slippage: .custom(0.005))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+        #expect(await manager.getSlippage() == 0.005)
+
+        baseline = recorder.count
+        sut.update(receive: ReceiveTokenStub(blockchain: .polygon(testnet: false)))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        #expect(await manager.updateSlippageCallCount == 1)
+        #expect(await manager.getSlippage() == nil)
+        #expect(sut.slippage == .auto)
+    }
+
+    @Test(
+        "Loaded quotes keep a custom slippage only for a provider that supports it within its range",
+        arguments: [
+            (isSupported: true, defaultSlippage: Decimal(0.003), isKept: true),
+            (isSupported: true, defaultSlippage: Decimal(0.0015), isKept: false),
+            (isSupported: false, defaultSlippage: Decimal(0.003), isKept: false),
+        ]
+    )
+    func providerCompatibilityDecidesReset(isSupported: Bool, defaultSlippage: Decimal, isKept: Bool) async throws {
+        let manager = ExpressManagerStub()
+        let handler = ReconcilingPairHandlerStub(expressManager: manager)
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            expressManager: manager,
+            pairUpdateHandler: handler
+        )
+        let recorder = SwapProvidersStateRecorder(sut)
+
+        var baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        await manager.setSelectedProvider(ExpressAvailableProviderFixture.make(
+            state: .idle,
+            slippage: defaultSlippage,
+            isCustomSlippageSupported: isSupported
+        ))
+        sut.userDidSet(slippage: .custom(0.0035))
+
+        baseline = recorder.count
+        sut.actualizeInformation()
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+
+        #expect((sut.slippage == .custom(0.0035)) == isKept)
+        #expect(await manager.getSlippage() == (isKept ? 0.0035 : nil))
+    }
+
+    // MARK: - Transfer destination
+
+    @Test("A transfer pair is addressed to the receive token's own address, for the fee and for the transaction alike")
+    func transferIsAddressedToTheReceiveToken() async throws {
+        let usdc = TokenItem.accountToken(symbol: "USDC", contract: "0xUSDC")
+        let zeroFee = Fee(Amount(with: usdc.blockchain, type: usdc.amountType, value: 0))
+        let feeManager = TokenFeeProvidersManagerMock(
+            feeProvider: TokenFeeProviderStub(
+                feeTokenItem: usdc,
+                initialFee: TokenFee(option: .market, tokenItem: usdc, value: .success(zeroFee))
+            )
+        )
+        let source = SwapableTokenStub(
+            tokenItem: usdc,
+            transactionValidator: SendTransactionValidatorStub(),
+            tokenFeeProvidersManager: feeManager
+        )
+        let receive = SwapableTokenStub(tokenItem: usdc, defaultAddress: "0xBridge")
+        let sut = makeSUT(sourceToken: source, receiveToken: receive)
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+
+        let state = try await sut.mapToReadyToTransferState()
+
+        guard case .readyToTransfer(let transfer) = state else {
+            Issue.record("Expected a transfer ready to go, got \(state)")
+            return
+        }
+
+        #expect(transfer.destination == "0xBridge")
+        #expect(feeManager.updateInputCalls == [.common(amount: 1, destination: "0xBridge")])
+    }
 }
 
 // MARK: - Helpers
@@ -369,6 +825,58 @@ private extension SwapModelTests {
         return model
     }
 
+    func makeQuotedTokenItem(currencyId: String, blockchain: Blockchain = .ethereum(testnet: false)) -> TokenItem {
+        let token = Token(
+            name: currencyId,
+            symbol: currencyId.uppercased(),
+            contractAddress: "0x\(currencyId)",
+            decimalCount: 18,
+            id: currencyId
+        )
+
+        return .token(token, BlockchainNetwork(blockchain, derivationPath: nil))
+    }
+
+    func receiveAmountAfterReplacement(
+        entered: SendAmount,
+        previous: TokenItem? = nil,
+        replacing: TokenItem? = nil,
+        prices: [String: Decimal]
+    ) async throws -> SendAmount? {
+        try await InjectedDependenciesIsolation.shared.run {
+            let previousRepository = try injectQuotes(prices)
+            defer { InjectedValues.setTokenQuotesRepository(previousRepository) }
+
+            let sut = makeSUT(
+                sourceToken: SwapableTokenStub(blockchain: .polygon(testnet: false)),
+                receiveToken: SwapableTokenStub(tokenItem: previous ?? makeQuotedTokenItem(currencyId: "svs-previous-coin"))
+            )
+            sut.update(receiveAmount: entered)
+
+            sut.update(receive: SwapableTokenStub(tokenItem: replacing ?? makeQuotedTokenItem(currencyId: "svs-new-coin")))
+
+            return sut.receiveAmount.value
+        }
+    }
+
+    func injectQuotes(_ prices: [String: Decimal]) throws -> TokenQuotesRepository & TokenQuotesRepositoryUpdater {
+        let quotes = prices.reduce(into: Quotes()) { quotes, entry in
+            quotes[entry.key] = TokenQuote(
+                currencyId: entry.key,
+                price: entry.value,
+                priceUsd: entry.value,
+                priceChange24h: nil,
+                priceChange7d: nil,
+                priceChange30d: nil,
+                currencyCode: "USD"
+            )
+        }
+
+        let previous = try #require(InjectedValues[\.quotesRepository] as? TokenQuotesRepository & TokenQuotesRepositoryUpdater)
+        InjectedValues.setTokenQuotesRepository(MockTokenQuotesRepository(quotes: quotes))
+        return previous
+    }
+
     /// Waits for a state published *after* `baseline` that satisfies `predicate`. Capturing the baseline
     /// count before the triggering action makes the wait robust for back-to-back tasks, where the
     /// `CurrentValueSubject` already holds a stale terminal state from the previous task.
@@ -408,11 +916,33 @@ private extension SwapModelTests {
         throw TimeoutError()
     }
 
+    func waitUntil(_ condition: @escaping () async -> Bool) async throws {
+        for _ in 0 ..< 500 {
+            if await condition() { return }
+            try await Task.sleep(for: .milliseconds(10))
+        }
+
+        throw TimeoutError()
+    }
+
     struct TimeoutError: Error {}
     struct StubError: Error {}
 }
 
 // MARK: - Stubs
+
+private final class SwapModelRouterSpy: SwapModelRoutable {
+    private(set) var slippageSelectorOpenings = 0
+
+    func openNetworkCurrency() {}
+    func openApproveSheet() {}
+    func performSwapAction() {}
+    func openTokenDetails(userWalletId: UserWalletId, tokenItem: TokenItem) {}
+
+    func openSlippageSelector() {
+        slippageSelectorOpenings += 1
+    }
+}
 
 /// Records every arming so a test can fire a tick that a later arming has already superseded.
 private final class ManualAutoupdatingTimer: AutoupdatingTimerSetup {
@@ -430,19 +960,38 @@ private actor ExpressManagerStub: ExpressManager {
     private(set) var currentPair: ExpressManagerSwappingPair?
     private var selectedProvider: ExpressAvailableProvider?
     private var amountType: ExpressAmountType?
+    private var slippage: Decimal?
     private(set) var updateAmountTypeCallCount = 0
+    private(set) var updateTypeCallCount = 0
+    private(set) var updateSlippageCallCount = 0
 
     private var errorOnNextAmountUpdate: Error?
     private var isHoldingNextAmountUpdate = false
     private var isHeldUpdateReleased = false
     private var heldContinuation: CheckedContinuation<Void, Never>?
 
+    private var amountTypeReadGate: TestGate?
+
     func getCurrentPair() -> ExpressManagerSwappingPair? { currentPair }
-    func getAmountType() -> ExpressAmountType? { amountType }
+
+    func getAmountType() async -> ExpressAmountType? {
+        if let amountTypeReadGate {
+            await amountTypeReadGate.wait()
+        }
+
+        return amountType
+    }
+
+    func getSlippage() -> Decimal? { slippage }
+
+    func holdAmountTypeReads(behind gate: TestGate) {
+        amountTypeReadGate = gate
+    }
 
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerState {
         currentPair = pair
         amountType = nil
+        slippage = nil
         return state()
     }
 
@@ -460,6 +1009,10 @@ private actor ExpressManagerStub: ExpressManager {
         if let errorOnNextAmountUpdate {
             self.errorOnNextAmountUpdate = nil
             throw errorOnNextAmountUpdate
+        }
+
+        if amountType != self.amountType {
+            slippage = nil
         }
 
         self.amountType = amountType
@@ -487,12 +1040,20 @@ private actor ExpressManagerStub: ExpressManager {
         state()
     }
 
+    func update(slippage: Decimal?) async -> ExpressManagerState {
+        updateSlippageCallCount += 1
+        self.slippage = slippage
+        return state()
+    }
+
     func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState {
-        state()
+        selectedProvider = provider
+        return state()
     }
 
     func update(type: ExpressManagerUpdatingType) async -> ExpressManagerState {
-        state()
+        updateTypeCallCount += 1
+        return state()
     }
 
     /// Mirrors the real manager: no pair ⇒ `.idle` (the degenerate state behind the bug),
@@ -521,7 +1082,8 @@ private actor ExpressManagerStub: ExpressManager {
             estimatedGasLimit: nil,
             externalTxId: nil,
             externalTxURL: nil,
-            payInAddress: ""
+            payInAddress: "",
+            slippage: nil
         )
     }
 }
@@ -693,8 +1255,10 @@ private final class PendingAccountModelsManagerStub: AccountModelsManager {
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] { [] }
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult { .none }
+    func reloadAccountsFromRemote() async {}
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {}
     func dispose() {}
     func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async {}
+    func authorizeTangemPayOfferForResidency(authorizingInteractor: any TangemPayAuthorizing) async -> (any TangemPayResidencyInteractor)? { nil }
     func acceptTangemPayCampaignOffer(authorizingInteractor: any TangemPayAuthorizing, campaignKey: String) async {}
 }

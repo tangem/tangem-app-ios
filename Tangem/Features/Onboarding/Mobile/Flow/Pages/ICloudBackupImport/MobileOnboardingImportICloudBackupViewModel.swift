@@ -216,7 +216,8 @@ private extension MobileOnboardingImportICloudBackupViewModel {
             mnemonic: mnemonic,
             passphrase: passphrase,
             hasMnemonicBackup: false,
-            hasICloudBackup: true
+            hasICloudBackup: true,
+            hasSocialLogin: false
         )
     }
 

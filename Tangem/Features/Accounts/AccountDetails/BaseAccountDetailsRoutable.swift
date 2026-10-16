@@ -14,4 +14,5 @@ protocol CryptoAccountDetailsRoutable: AnyObject {
     func editAccount()
     func manageTokens()
     func openSupportedNetworks()
+    func openJointAccountMembers(jointAccount: any JointAccountModel)
 }

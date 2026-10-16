@@ -129,6 +129,7 @@ private extension CollectiblesMachineMapperTests {
             name: "Elite pack",
             artworkURL: nil,
             price: 50,
+            platformFee: 1,
             cardsPerPack: cardsPerPack,
             buybackRate: buybackRate,
             expectedValue: expectedValue,

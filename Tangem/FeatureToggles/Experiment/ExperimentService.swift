@@ -18,6 +18,7 @@ protocol ExperimentService {
 
     func variant(_ key: ExperimentFeatureFlagKey) -> Variant?
     func isOn(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool
+    func isOnWithoutExposure(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool
 }
 
 final class CommonExperimentService {
@@ -70,6 +71,16 @@ final class CommonExperimentService {
                 manager.setContext(for: userWalletId)
             }
             .store(in: &bag)
+    }
+
+    private func configuredClient(for key: ExperimentFeatureFlagKey) -> ExperimentClient? {
+        guard let client = _client else {
+            AppLogger.warning("Experiment \(key.rawValue) read before configure(), answering as not enrolled")
+            assertionFailure("Experiment \(key.rawValue) read before configure()")
+            return nil
+        }
+
+        return client
     }
 
     private func setContext(for userWalletId: UserWalletId?) {
@@ -128,11 +139,21 @@ final class CommonExperimentService {
 
 extension CommonExperimentService: ExperimentService {
     func variant(_ key: ExperimentFeatureFlagKey) -> Variant? {
-        _client?.variant(key.rawValue)
+        guard let client = configuredClient(for: key) else { return nil }
+
+        return client.variant(key.rawValue)
+    }
+
+    func isOnWithoutExposure(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool {
+        guard let client = configuredClient(for: key) else { return false }
+
+        return client.all()[key.rawValue]?.value == variant.rawValue
     }
 
     func isOn(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool {
-        _client?.variant(key.rawValue).value == variant.rawValue
+        guard let client = configuredClient(for: key) else { return false }
+
+        return client.variant(key.rawValue).value == variant.rawValue
     }
 }
 

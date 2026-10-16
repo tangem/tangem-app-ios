@@ -28,7 +28,7 @@ struct SupportChatInputFactoryTests {
         await InjectedEnvironment().run {
             let input = SupportChatInputFactory().makeInput(source: .deeplink)
 
-            #expect(input.source.parameterValue == .deeplink)
+            #expect(input.source.analyticsParameterValue == .deeplink)
         }
     }
 }

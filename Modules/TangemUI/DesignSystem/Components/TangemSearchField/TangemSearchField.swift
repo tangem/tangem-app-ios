@@ -31,13 +31,13 @@ public struct TangemSearchField: View, Setupable {
 
     // MARK: - Scaled properties
 
-    @ScaledMetric private var horizontalSpacing: CGFloat = .unit(.x3)
-    @ScaledMetric private var fieldHorizontalPadding: CGFloat = .unit(.x3)
-    @ScaledMetric private var fieldCornerRadius: CGFloat = .unit(.x4)
-    @ScaledMetric private var fieldSearchSpacing: CGFloat = .unit(.x1)
-    @ScaledMetric private var fieldClearSpacing: CGFloat = .unit(.x1)
-    @ScaledMetric private var searchIconSide: CGFloat = .unit(.x5)
-    @ScaledMetric private var clearIconSide: CGFloat = .unit(.x6)
+    @ScaledMetric private var horizontalSpacing: CGFloat = 12
+    @ScaledMetric private var fieldHorizontalPadding: CGFloat = 12
+    @ScaledMetric private var fieldCornerRadius: CGFloat = 16
+    @ScaledMetric private var fieldSearchSpacing: CGFloat = 4
+    @ScaledMetric private var fieldClearSpacing: CGFloat = 4
+    @ScaledMetric private var searchIconSide: CGFloat = 20
+    @ScaledMetric private var clearIconSide: CGFloat = 24
 
     // MARK: - Configuration
 

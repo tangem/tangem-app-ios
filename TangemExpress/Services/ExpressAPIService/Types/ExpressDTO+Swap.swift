@@ -69,6 +69,7 @@ extension ExpressDTO {
                 let privacyPolicy: String?
                 let recommended: Bool?
                 let slippage: Decimal?
+                let isCustomSlippageSupported: Bool?
             }
         }
 
@@ -86,6 +87,7 @@ extension ExpressDTO {
                 let fromDecimals: Int
                 let providerId: Provider.Id
                 let rateType: Provider.RateType
+                let slippage: Int?
             }
 
             struct Response: Decodable {
@@ -98,6 +100,7 @@ extension ExpressDTO {
                 let expiredAt: Date?
                 let txType: String?
                 let isRestricted: Bool?
+                let slippage: Decimal?
             }
         }
 
@@ -123,6 +126,7 @@ extension ExpressDTO {
                 let refundAddress: String?
                 let refundExtraId: String? // typically it's a memo or tag
                 let partnerOperationType: String
+                let slippage: Int?
             }
 
             struct Response: Decodable {
@@ -135,6 +139,7 @@ extension ExpressDTO {
                 let txDetailsJson: String
                 let signature: String
                 let payTill: Date?
+                let slippage: Decimal?
             }
         }
 

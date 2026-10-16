@@ -26,10 +26,6 @@ private struct TransactionHistoryAuxDataRepositoryKey: InjectionKey {
     )
 
     private static func makeStorage() -> TransactionHistoryAuxDataStorage {
-        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
-            return EmptyTransactionHistoryAuxDataStorage()
-        }
-
-        return CommonTransactionHistoryAuxDataStorage()
+        CommonTransactionHistoryAuxDataStorage()
     }
 }

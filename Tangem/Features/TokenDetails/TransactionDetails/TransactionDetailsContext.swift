@@ -50,7 +50,7 @@ struct TransactionDetailsContext {
                 return false
             }
 
-            return model.tokenItem.blockchain.networkId == blockchain.networkId
+            return model.tokenItem.blockchainNetwork == walletModel.tokenItem.blockchainNetwork
                 && comparator.addressesMatch(contractAddress, contract, blockchain: blockchain)
         }
 

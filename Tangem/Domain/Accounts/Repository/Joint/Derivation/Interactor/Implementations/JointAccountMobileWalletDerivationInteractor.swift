@@ -74,7 +74,7 @@ private extension JointAccountMobileWalletDerivationInteractor {
         seedKey: Data,
         in context: MobileWalletContext
     ) throws -> JointAccountDerivedKey {
-        if let derivedKey = try storedDerivedKey(at: derivationPath) {
+        if let derivedKey = try JointAccountDerivationUtils.storedDerivedKey(at: derivationPath, in: keysRepository) {
             return derivedKey
         }
 
@@ -87,26 +87,6 @@ private extension JointAccountMobileWalletDerivationInteractor {
 
         guard let extendedPublicKey = derivationResult[seedKey]?[derivationPath] else {
             throw Error.keyNotDerived
-        }
-
-        return try JointAccountDerivationUtils.makeDerivedKey(
-            seedKey: seedKey,
-            derivationPath: derivationPath,
-            extendedPublicKey: extendedPublicKey
-        )
-    }
-
-    /// Reads the keys repository anew on every call: `KeyInfo` is a value, so a copy taken before
-    /// `update(derivations:)` never gains the key that was just derived.
-    func storedDerivedKey(at derivationPath: DerivationPath) throws -> JointAccountDerivedKey? {
-        let masterKey = try keysRepository.masterKey(curve: JointAccountKeyPath.blockchain.curve)
-
-        guard let extendedPublicKey = masterKey.derivedKeys[derivationPath] else {
-            return nil
-        }
-
-        guard let seedKey = masterKey.publicKey else {
-            throw KeysProviderError.masterKeyNotFound
         }
 
         return try JointAccountDerivationUtils.makeDerivedKey(

@@ -56,7 +56,7 @@ private var isIOS26Available: Bool {
 public struct TangemDropDownDefaultLabel: View {
     @ScaledMetric private var iconSize: CGFloat
     @ScaledMetric private var contentHorizontalPadding: CGFloat
-    @ScaledMetric private var contentVerticalPadding: CGFloat = .unit(.x2)
+    @ScaledMetric private var contentVerticalPadding: CGFloat = 8
 
     private let text: String
     private let isRedesign: Bool
@@ -66,14 +66,14 @@ public struct TangemDropDownDefaultLabel: View {
         self.isRedesign = isRedesign
 
         _iconSize = ScaledMetric(
-            wrappedValue: isRedesign ? CGFloat.unit(.x5) : CGFloat.unit(.x6),
+            wrappedValue: isRedesign ? 20 : 24,
             relativeTo: .caption
         )
-        _contentHorizontalPadding = ScaledMetric(wrappedValue: isRedesign ? .unit(.x3) : .unit(.x2))
+        _contentHorizontalPadding = ScaledMetric(wrappedValue: isRedesign ? 12 : 8)
     }
 
     public var body: some View {
-        HStack(spacing: .unit(.half)) {
+        HStack(spacing: 2) {
             Text(text)
                 .lineLimit(1)
 
@@ -96,7 +96,7 @@ public struct TangemDropDownDefaultLabel: View {
         if isRedesign {
             Capsule()
         } else {
-            RoundedRectangle(cornerRadius: .unit(.x4))
+            RoundedRectangle(cornerRadius: 16)
         }
     }
 }

@@ -76,6 +76,7 @@ extension FakeUserWalletModel {
                 MobileWalletInfo(
                     hasMnemonicBackup: false,
                     hasICloudBackup: false,
+                    hasSocialLogin: false,
                     accessCodeStatus: .none,
                     keys: []
                 ))
@@ -94,6 +95,7 @@ extension UserWalletModelMock {
                 MobileWalletInfo(
                     hasMnemonicBackup: false,
                     hasICloudBackup: false,
+                    hasSocialLogin: false,
                     accessCodeStatus: .none,
                     keys: []
                 ))

@@ -18,6 +18,8 @@ public enum WalletBackupCryptoError: Error {
     case decryptionFailed(Error)
     /// GCM authentication failed: wrong password or a tampered file — indistinguishable by design.
     case invalidPassword
+    case invalidRecoveryKey
+    case invalidKeyLength
 }
 
 // MARK: - LocalizedError
@@ -37,6 +39,10 @@ extension WalletBackupCryptoError: LocalizedError {
             "Decryption failed: \(error.localizedDescription)"
         case .invalidPassword:
             "Wrong password or a tampered backup file"
+        case .invalidRecoveryKey:
+            "Wrong recovery key or a tampered backup file"
+        case .invalidKeyLength:
+            "The encryption key has a wrong length"
         }
     }
 }
@@ -59,6 +65,10 @@ extension WalletBackupCryptoError: UniversalError {
             110002004
         case .invalidPassword:
             110002005
+        case .invalidKeyLength:
+            110002006
+        case .invalidRecoveryKey:
+            110002007
         }
     }
 }

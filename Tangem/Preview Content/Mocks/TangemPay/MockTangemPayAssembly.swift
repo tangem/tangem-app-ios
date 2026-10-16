@@ -12,6 +12,7 @@ import TangemPay
 final class MockTangemPayAssembly: TangemPayAssembly {
     let customerWalletAddressAndSavedTokensResolver: TangemPayCustomerWalletAddressAndSavedTokensResolver
         = MockTangemPayCustomerWalletAddressAndSavedTokensResolver()
+    let cardTokenizationService: TangemPayCardTokenizationService = MockTangemPayCardTokenizationService()
 
     func makeCardDetailsRepository(for card: TangemPayCard) -> TangemPayCardDetailsRepository {
         MockTangemPayCardDetailsRepository(card: card)

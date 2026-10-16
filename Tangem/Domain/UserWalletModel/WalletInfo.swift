@@ -60,6 +60,13 @@ enum WalletInfo: Codable {
         }
     }
 
+    var promoCampaignIdentity: PromoCampaignIdentity {
+        switch self {
+        case .cardWallet(let cardInfo): .card(batchId: cardInfo.card.batchId)
+        case .mobileWallet: .mobile
+        }
+    }
+
     var keys: WalletKeys {
         switch self {
         case .cardWallet(let cardInfo): .cardWallet(keys: cardInfo.card.wallets)
@@ -71,11 +78,27 @@ enum WalletInfo: Codable {
 struct MobileWalletInfo: Codable, AnalyticsContextDataProvider {
     var hasMnemonicBackup: Bool
     var hasICloudBackup: Bool
+    let hasSocialLogin: Bool
     var accessCodeStatus: UserWalletAccessCodeStatus
     var keys: [KeyInfo]
 
     var analyticsContextData: AnalyticsContextData {
         AnalyticsContextData.mobileWallet
+    }
+}
+
+// MARK: - MobileWalletInfo backward-compatible decoding
+
+extension MobileWalletInfo {
+    /// Declared in an extension to keep the synthesized memberwise initializer.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        hasMnemonicBackup = try container.decode(Bool.self, forKey: .hasMnemonicBackup)
+        hasICloudBackup = try container.decode(Bool.self, forKey: .hasICloudBackup)
+        // Migration of wallets persisted before social login shipped: the key is missing so fall back to `false`.
+        hasSocialLogin = try container.decodeIfPresent(Bool.self, forKey: .hasSocialLogin) ?? false
+        accessCodeStatus = try container.decode(UserWalletAccessCodeStatus.self, forKey: .accessCodeStatus)
+        keys = try container.decode([KeyInfo].self, forKey: .keys)
     }
 }
 

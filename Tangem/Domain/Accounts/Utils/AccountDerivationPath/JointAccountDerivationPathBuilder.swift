@@ -44,7 +44,7 @@ extension JointAccountDerivationPathBuilder: AccountDerivationPathBuilder {
             throw .derivationNotSupported(blockchain.displayName)
         }
 
-        guard blockchain.isEvm else {
+        guard JointAccountSupportedBlockchains.contains(blockchain) else {
             throw .jointAccountsUnavailableForBlockchain(blockchain.displayName)
         }
 

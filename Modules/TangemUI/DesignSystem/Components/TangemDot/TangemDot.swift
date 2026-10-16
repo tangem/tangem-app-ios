@@ -43,33 +43,33 @@ public struct TangemDot: View {
 private extension TangemDot {
     static func dotWidth(size: Size) -> CGFloat {
         switch size {
-        case .x1: SizeUnit.x1.value
-        case .x1_5: SizeUnit.x1_5.value
-        case .x2: SizeUnit.x2.value
+        case .x1: 4
+        case .x1_5: 6
+        case .x2: 8
         }
     }
 
     static func dotHeight(size: Size) -> CGFloat {
         switch size {
-        case .x1: SizeUnit.x1.value
-        case .x1_5: SizeUnit.x1_5.value
-        case .x2: SizeUnit.x2.value
+        case .x1: 4
+        case .x1_5: 6
+        case .x2: 8
         }
     }
 
     static func horizontalPadding(size: Size) -> CGFloat {
         switch size {
-        case .x1: SizeUnit.half.value
-        case .x1_5: SizeUnit.quarter.value
-        case .x2: SizeUnit.zero.value
+        case .x1: 2
+        case .x1_5: 1
+        case .x2: 0
         }
     }
 
     static func verticalPadding(size: Size) -> CGFloat {
         switch size {
-        case .x1: SizeUnit.half.value
-        case .x1_5: SizeUnit.quarter.value
-        case .x2: SizeUnit.zero.value
+        case .x1: 2
+        case .x1_5: 1
+        case .x2: 0
         }
     }
 }

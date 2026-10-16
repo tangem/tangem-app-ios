@@ -16,7 +16,6 @@ struct TangemPayMobileOnboardingCoordinatorView: CoordinatorView {
         NavigationStack {
             if let rootViewModel = coordinator.rootViewModel {
                 TangemPayMobileOnboardingView(viewModel: rootViewModel)
-                    .navigationBarHidden(true)
             }
         }
         .sheet(item: $coordinator.webViewContainerViewModel) {

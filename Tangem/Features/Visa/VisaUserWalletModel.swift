@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemCollectibles
 import Combine
 import BlockchainSdk
 import TangemAssets
@@ -616,6 +617,12 @@ extension VisaUserWalletModel: UserWalletSerializable {
 
     func serializePrivate() -> StoredUserWallet.SensitiveInfo {
         return .cardWallet(keys: cardInfo.card.wallets)
+    }
+}
+
+extension VisaUserWalletModel: PromoCampaignIdentityProviding {
+    var promoCampaignIdentity: PromoCampaignIdentity {
+        WalletInfo.cardWallet(cardInfo).promoCampaignIdentity
     }
 }
 

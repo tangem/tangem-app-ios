@@ -309,6 +309,74 @@ struct PolymarketTotalBalanceProviderTests {
     }
 }
 
+// MARK: - The total as the Polymarket screen and the account row both show it
+
+@Suite("Polymarket formatted total balance")
+struct PolymarketFormattedTotalBalanceTests {
+    @Test("Both parts arrived, so the total is shown as a number")
+    func bothPartsArrivedShowTheTotal() {
+        let (sut, _, subject) = makeSUT(kind: .total)
+
+        subject.send(makeBalance(positionsValue: .loaded(PolymarketBalanceFixtures.bets)))
+
+        let expected = FormattedTokenBalanceType.loaded(PolymarketOrderFormatter.money(PolymarketBalanceFixtures.total))
+
+        #expect(PolymarketFormattedBalance.money(sut.balanceType) == expected)
+    }
+
+    @Test("A part still on its way reads as loading rather than as a dash")
+    func aPartStillOnItsWayReadsAsLoading() {
+        let (sut, _, subject) = makeSUT(kind: .total)
+
+        subject.send(.loading)
+
+        #expect(PolymarketFormattedBalance.money(sut.balanceType).isLoading)
+    }
+
+    @Test("Bets that failed show a dash instead of the available part passed off as the total")
+    func failedBetsShowADash() {
+        let (sut, _, subject) = makeSUT(kind: .total)
+
+        subject.send(makeBalance(positionsValue: .unknown))
+
+        #expect(PolymarketFormattedBalance.money(sut.balanceType) == .failure(.empty(BalanceFormatter.defaultEmptyBalanceString)))
+    }
+
+    @Test("A collateral request that failed shows a dash too")
+    func aFailedCollateralRequestShowsADash() {
+        struct SomeError: Error {}
+        let (sut, _, subject) = makeSUT(kind: .total)
+
+        subject.send(.failed(SomeError()))
+
+        #expect(PolymarketFormattedBalance.money(sut.balanceType) == .failure(.empty(BalanceFormatter.defaultEmptyBalanceString)))
+    }
+
+    @Test("An account with nothing to read shows a dash rather than a zero")
+    func anUnavailableAccountShowsADash() {
+        let (sut, _, subject) = makeSUT(kind: .total)
+
+        subject.send(.unavailable)
+
+        #expect(PolymarketFormattedBalance.money(sut.balanceType) == .failure(.empty(BalanceFormatter.defaultEmptyBalanceString)))
+    }
+
+    @Test("Bets that failed fall back to the last total ever seen, marked as stale")
+    func failedBetsFallBackToTheLastKnownTotal() {
+        let cached = CachedBalance(balance: PolymarketBalanceFixtures.total, date: .distantPast)
+        let (sut, _, subject) = makeSUT(kind: .total, cached: cached)
+
+        subject.send(makeBalance(positionsValue: .unknown))
+
+        guard case .failure(.cache(let shown)) = PolymarketFormattedBalance.money(sut.balanceType) else {
+            Issue.record("The last known total was dropped")
+            return
+        }
+
+        #expect(shown.balance == PolymarketOrderFormatter.money(PolymarketBalanceFixtures.total))
+    }
+}
+
 // MARK: - Doubles
 
 private final class TokenBalancesRepositorySpy: TokenBalancesRepository {

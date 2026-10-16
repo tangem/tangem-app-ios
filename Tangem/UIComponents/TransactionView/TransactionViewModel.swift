@@ -187,7 +187,8 @@ struct TransactionViewModel: Hashable, Identifiable {
                 isOutgoing: isOutgoing
             ),
             subtitleOwner: subtitleOwner,
-            expressSubtitle: expressSubtitle
+            expressSubtitle: expressSubtitle,
+            isPendingSignature: isPendingSignature
         )
     }
 
@@ -213,6 +214,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         case .claimRewards: Localization.commonClaimRewards
         case .restake: Localization.stakingRestake
         case .tangemPay(let type): type.name
+        case .incentiveClaim, .incentiveClaimCoin: Localization.transactionHistoryIncentiveRewardsClaimed
         case .yieldDeploy: Localization.yieldModuleTransactionDeployContract
         case .yieldEnter, .yieldEnterCoin: Localization.yieldModuleTransactionEnter
         case .yieldInit: Localization.yieldModuleTransactionInitialize
@@ -317,6 +319,8 @@ extension TransactionViewModel {
         case unknownOperation
         case operation(name: String)
 
+        case incentiveClaim
+        case incentiveClaimCoin
         case yieldDeploy
         case yieldEnter
         case yieldEnterCoin
@@ -347,6 +351,8 @@ extension TransactionViewModel {
             case .restake: "restake"
             case .unknownOperation: "unknownOperation"
             case .operation: "operation"
+            case .incentiveClaim: "incentiveClaim"
+            case .incentiveClaimCoin: "incentiveClaimCoin"
             case .yieldDeploy: "yieldDeploy"
             case .yieldEnter: "yieldEnter"
             case .yieldEnterCoin: "yieldEnterCoin"

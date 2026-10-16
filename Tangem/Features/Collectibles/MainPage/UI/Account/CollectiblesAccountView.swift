@@ -19,7 +19,7 @@ struct CollectiblesAccountView: View {
     let onBalanceMaxYChange: (CGFloat) -> Void
 
     @ScaledMetric private var balanceLoaderWidth: CGFloat = 190
-    @ScaledMetric private var balanceLoaderHeight: CGFloat = 40
+    @ScaledMetric private var balanceLoaderHeight: CGFloat = 52
 
     @ScaledMetric(relativeTo: DesignSystem.Font.bodyMediumToken.relativeTo)
     private var collectionTitleBarHeight: CGFloat = 20
@@ -28,7 +28,9 @@ struct CollectiblesAccountView: View {
     private var collectionSubtitleBarHeight: CGFloat = 16
 
     var body: some View {
-        content.task(viewModel.load)
+        content
+            .task(viewModel.load)
+            .alert(item: $viewModel.alert) { $0.alert }
     }
 }
 
@@ -68,9 +70,14 @@ private extension CollectiblesAccountView {
 
     func actionButtons(_ summary: Summary) -> some View {
         HStack(spacing: 0) {
-            // [REDACTED_TODO_COMMENT]
-            TangemMainActionButton(title: Localization.commonAddFunds, icon: Assets.DesignSystem.arrowDown) {}
-                .padding(.horizontal, Metrics.actionButtonHorizontalPadding)
+            TangemMainActionButton(
+                title: Localization.commonAddFunds,
+                icon: Assets.DesignSystem.arrowDown,
+                action: viewModel.addFunds,
+                reasonTapWhenDisabled: viewModel.addFunds
+            )
+            .padding(.horizontal, Metrics.actionButtonHorizontalPadding)
+            .disabled(!viewModel.vaultUsdcState.isReady)
 
             // [REDACTED_TODO_COMMENT]
             TangemMainActionButton(title: Localization.commonWithdrawal, icon: Assets.DesignSystem.arrowUp) {}
@@ -175,7 +182,7 @@ private extension CollectiblesAccountView {
         DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
         CollectiblesAccountView(
-            viewModel: CollectiblesAccountViewModel(accountModel: nil),
+            viewModel: CollectiblesAccountViewModel(accountModel: nil, routable: nil),
             balanceCoordinateSpace: .local,
             onBalanceMaxYChange: { _ in }
         )

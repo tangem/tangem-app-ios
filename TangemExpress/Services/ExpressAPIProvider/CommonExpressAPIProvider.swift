@@ -86,7 +86,8 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             toAmount: toAmount,
             fromDecimals: item.source.decimalCount,
             providerId: item.providerInfo.id,
-            rateType: rateType
+            rateType: rateType,
+            slippage: item.slippage.map(expressAPIMapper.mapToSlippageBasisPoints(fraction:))
         )
 
         let response = try await expressAPIService.exchangeQuote(request: request)
@@ -142,7 +143,8 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             toExtraId: item.destination.extraId,
             refundAddress: item.source.address,
             refundExtraId: nil, // There is no memo on the client side
-            partnerOperationType: item.operationType.rawValue
+            partnerOperationType: item.operationType.rawValue,
+            slippage: item.slippage.map(expressAPIMapper.mapToSlippageBasisPoints(fraction:))
         )
 
         ExpressLogger.info(request.logDescription)
@@ -372,6 +374,7 @@ private extension ExpressDTO.Swap.ExchangeData.Request {
             .appendingLogProperty(\.toAddress, of: self)
             // toExtraId skipped intentionally
             .appendingLogProperty(\.refundAddress, of: self)
+            .appendingLogProperty(\.slippage, of: self)
         // refundExtraId, partnerOperationType skipped intentionally
     }
 }
@@ -386,6 +389,7 @@ private extension ExpressDTO.Swap.ExchangeData.Response {
             .appendingLogProperty(\.toDecimals, of: self)
             // txDetailsJson, signature skipped intentionally
             .appendingLogProperty(\.payTill, of: self)
+            .appendingLogProperty(\.slippage, of: self)
     }
 }
 

@@ -24,6 +24,8 @@ struct TangemApiTarget: TargetType {
             AppEnvironment.current.activatePromoCodeBaseUrl
         case .promotion, .yieldBoostPromotionStatus, .promotionRegistration:
             AppEnvironment.current.apiBaseUrlv2
+        case .promoCampaigns, .promoCampaignEnrollment:
+            AppEnvironment.current.referralApiBaseUrl
         case .stories:
             // The backend example requests `/api/v2/stories` — same gateway `/api` segment
             // as notification preferences; revert to `apiBaseUrlv2` if BE drops it.
@@ -102,6 +104,10 @@ struct TangemApiTarget: TargetType {
             return "/promotion/yield-apr-boost/status"
         case .promotionRegistration:
             return "/promotion/registrations"
+        case .promoCampaigns:
+            return "/promotion"
+        case .promoCampaignEnrollment(let id, _):
+            return "/promotion/\(id)/registrations"
         case .loadPromotions:
             return "/banner/displays"
         case .hidePromotion(let request):
@@ -229,8 +235,6 @@ struct TangemApiTarget: TargetType {
             return "/news/\(requestModel.newsId)"
         case .newsCategories:
             return "/news/categories"
-        case .trendingNews:
-            return "/news/trending"
 
         // MARK: - Referral 2.0
         case .bindWalletsByCode:
@@ -248,6 +252,7 @@ struct TangemApiTarget: TargetType {
              .getUserWalletTokens,
              .loadReferralProgramInfo,
              .promotion,
+             .promoCampaigns,
              .yieldBoostPromotionStatus,
              .loadPromotions,
              .marketingCampaigns,
@@ -281,7 +286,6 @@ struct TangemApiTarget: TargetType {
              .newsList,
              .newsDetails,
              .newsCategories,
-             .trendingNews,
              .applicationVersions:
             return .get
         case .saveUserWalletTokensV2,
@@ -305,7 +309,8 @@ struct TangemApiTarget: TargetType {
              .bindWalletsByCode,
              .syncAddressBooks,
              .subscribeToPriceAlerts,
-             .promotionRegistration:
+             .promotionRegistration,
+             .promoCampaignEnrollment:
             return .post
         case .unsubscribeFromPriceAlerts:
             return .delete
@@ -337,6 +342,10 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(requestData)
         case .promotion(let request):
             return .requestParameters(request)
+        case .promoCampaigns(let request):
+            return .requestParameters(request)
+        case .promoCampaignEnrollment(_, let request):
+            return .requestJSONEncodable(request)
         case .yieldBoostPromotionStatus(let request):
             return .requestParameters(request)
         case .promotionRegistration(let request):
@@ -468,19 +477,6 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(parameters: requestModel.parameters, encoding: URLEncoding.default)
         case .newsCategories:
             return .requestPlain
-        case .trendingNews(let limit, let lang):
-            var parameters = [String: Any]()
-            if let lang {
-                parameters["lang"] = lang
-            }
-
-            if let limit {
-                parameters["limit"] = limit
-            }
-            return .requestParameters(
-                parameters: parameters,
-                encoding: URLEncoding.default
-            )
         case .newsDetails(let requestModel):
             if let lang = requestModel.lang {
                 return .requestParameters(parameters: ["lang": lang], encoding: URLEncoding.default)
@@ -524,6 +520,8 @@ struct TangemApiTarget: TargetType {
              .participateInReferralProgram,
              .createAccount,
              .promotion,
+             .promoCampaigns,
+             .promoCampaignEnrollment,
              .yieldBoostPromotionStatus,
              .promotionRegistration,
              .loadPromotions,
@@ -570,7 +568,6 @@ struct TangemApiTarget: TargetType {
              .subscribeToPriceAlerts,
              .unsubscribeFromPriceAlerts,
              .getPriceAlertsSubscriptions,
-             .trendingNews,
              .newsList,
              .newsDetails,
              .newsCategories,
@@ -578,6 +575,15 @@ struct TangemApiTarget: TargetType {
              .applicationVersions,
              .syncAddressBooks:
             return nil
+        }
+    }
+
+    var validationType: ValidationType {
+        switch type {
+        case .promoCampaigns, .promoCampaignEnrollment:
+            return .successCodes
+        default:
+            return .none
         }
     }
 }
@@ -600,6 +606,8 @@ extension TangemApiTarget {
         case activatePromoCode(requestModel: PromoCodeActivationDTO.Request)
 
         case promotion(request: BannerPromotion.Request)
+        case promoCampaigns(request: PromoCampaignsDTO.Request)
+        case promoCampaignEnrollment(id: Int, request: PromoCampaignEnrollmentDTO.Request)
         case yieldBoostPromotionStatus(request: YieldBoostPromotionDTO.Request)
         case promotionRegistration(request: PromotionRegistrationDTO.Request)
 
@@ -691,7 +699,6 @@ extension TangemApiTarget {
 
         // MARK: - News Targets
 
-        case trendingNews(limit: Int?, lang: String?)
         case newsList(_ requestModel: NewsDTO.List.Request)
         case newsDetails(_ requestModel: NewsDTO.Details.Request)
         case newsCategories
@@ -702,7 +709,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .coinsCategories, .coinsGeckoCategories, .marketIndicators, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns, .getJointAccounts, .getJointAccountInvite, .stories:
+        case .geo, .features, .apiList, .quotes, .coinsList, .coinsCategories, .coinsGeckoCategories, .marketIndicators, .tokenMarketsDetails, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns, .getJointAccounts, .getJointAccountInvite, .stories:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -759,7 +766,6 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .newsList,
              .newsCategories,
              .newsDetails,
-             .trendingNews,
              .yieldBoostPromotionStatus,
              .bindWalletsByCode,
              .createJointAccount,
@@ -769,7 +775,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .activateJointAccount,
              .createJointAccountOperation,
              .signJointAccountOperation,
-             .rejectJointAccountOperation:
+             .rejectJointAccountOperation,
+             .promoCampaignEnrollment:
             return false
         case .geo,
              .features,
@@ -779,6 +786,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .participateInReferralProgram,
              .createAccount,
              .promotion,
+             .promoCampaigns,
              .promotionRegistration,
              .loadPromotions,
              .hidePromotion,

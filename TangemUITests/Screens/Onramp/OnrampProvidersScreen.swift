@@ -120,6 +120,90 @@ final class OnrampProvidersScreen: ScreenBase<OnrampProvidersScreenElement> {
         }
     }
 
+    @discardableResult
+    func verifyProviderAmount(_ provider: String, contains expectedAmount: String) -> Self {
+        XCTContext.runActivity(named: "Validate \(provider) offer amount contains '\(expectedAmount)'") { _ in
+            let amount = providerAmount(provider)
+            waitAndAssertTrue(amount, "Offer amount of \(provider) should exist")
+            XCTAssertTrue(
+                amount.label.contains(expectedAmount),
+                "Offer amount of \(provider) should contain '\(expectedAmount)' but was '\(amount.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func verifyProvider(_ upper: String, isAbove lower: String) -> Self {
+        XCTContext.runActivity(named: "Validate \(upper) offer is displayed above \(lower) offer") { _ in
+            let upperAmount = providerAmount(upper)
+            let lowerAmount = providerAmount(lower)
+            waitAndAssertTrue(upperAmount, "Offer amount of \(upper) should exist")
+            waitAndAssertTrue(lowerAmount, "Offer amount of \(lower) should exist")
+            XCTAssertLessThan(
+                upperAmount.frame.minY,
+                lowerAmount.frame.minY,
+                "\(upper) offer should be above \(lower) offer"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func verifyProviderUnavailable(_ provider: String) -> Self {
+        XCTContext.runActivity(named: "Validate \(provider) offer is marked as not available and Buy is disabled") { _ in
+            let badge = providerAmountBadge(provider)
+            waitAndAssertTrue(badge, "Badge of \(provider) offer should exist")
+            XCTAssertEqual(badge.label, Localization.commonNotAvailable, "Badge of \(provider) offer should be 'Not available'")
+
+            let buyButton = providerBuyButton(provider)
+            waitAndAssertTrue(buyButton, "Buy button of \(provider) offer should exist")
+            XCTAssertFalse(buyButton.isEnabled, "Buy button of \(provider) offer should be disabled")
+        }
+        return self
+    }
+
+    @discardableResult
+    func verifyProviderAvailable(_ provider: String) -> Self {
+        XCTContext.runActivity(named: "Validate \(provider) offer has no restriction badge and Buy is enabled") { _ in
+            let buyButton = providerBuyButton(provider)
+            waitAndAssertTrue(buyButton, "Buy button of \(provider) offer should exist")
+            XCTAssertTrue(buyButton.isEnabled, "Buy button of \(provider) offer should be enabled")
+
+            let notAvailableBadge = app.staticTexts
+                .matching(identifier: OnrampAccessibilityIdentifiers.providerAmountBadge(name: provider))
+                .matching(NSPredicate(format: "label == %@", Localization.commonNotAvailable))
+                .firstMatch
+            XCTAssertFalse(notAvailableBadge.exists, "\(provider) offer should not be marked as not available")
+        }
+        return self
+    }
+
+    @discardableResult
+    func verifyRegionRestrictionNotificationDisplayed() -> Self {
+        XCTContext.runActivity(named: "Validate regional restrictions notification is displayed") { _ in
+            let title = app.staticTexts
+                .matching(identifier: CommonUIAccessibilityIdentifiers.notificationTitle)
+                .matching(NSPredicate(format: "label == %@", Localization.expressOnrampRestrictionsTitle))
+                .firstMatch
+            waitAndAssertTrue(title, "Regional restrictions notification should be displayed")
+        }
+        return self
+    }
+
+    private func providerAmount(_ provider: String) -> XCUIElement {
+        let query = app.staticTexts.matching(identifier: OnrampAccessibilityIdentifiers.providerAmount(name: provider))
+        return query.firstHittableElement() ?? query.firstMatch
+    }
+
+    private func providerAmountBadge(_ provider: String) -> XCUIElement {
+        app.staticTexts[OnrampAccessibilityIdentifiers.providerAmountBadge(name: provider)].firstMatch
+    }
+
+    private func providerBuyButton(_ provider: String) -> XCUIElement {
+        app.buttons[OnrampAccessibilityIdentifiers.providerBuyButton(name: provider)].firstMatch
+    }
+
     private func validateProviderCard(providerName: String) {
         XCTContext.runActivity(named: "Validate provider offer with name: \(providerName)") { _ in
             let amountId = OnrampAccessibilityIdentifiers.providerAmount(name: providerName)

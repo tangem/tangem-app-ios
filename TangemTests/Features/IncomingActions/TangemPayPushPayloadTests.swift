@@ -197,4 +197,30 @@ struct TangemPayPushPayloadTests {
 
         #expect(deeplink.payload == payload)
     }
+
+    // MARK: - Spend transaction id
+
+    private static let spendTransactionIdArguments: [(type: String, bodyFields: [String: String], expectedId: String?)] = [
+        (type: "transaction_spend", bodyFields: spendFields, expectedId: "43215123"),
+        (type: "transaction_spend_refund", bodyFields: spendFields, expectedId: "43215123"),
+        (type: "declined_top_up", bodyFields: spendFields, expectedId: "43215123"),
+        (type: "declined_reason1", bodyFields: spendFields, expectedId: "43215123"),
+        (type: "declined_reason17", bodyFields: spendFields, expectedId: "43215123"),
+        (type: "collateral_withdraw", bodyFields: collateralFields, expectedId: nil),
+        (type: "collateral_deposit", bodyFields: collateralFields, expectedId: nil),
+        (type: "card_ready", bodyFields: [:], expectedId: nil),
+        (type: "threshold1_top_up", bodyFields: [:], expectedId: nil),
+    ]
+
+    @Test("Exposes the transaction id only for spend pushes", arguments: spendTransactionIdArguments)
+    func exposesSpendTransactionId(type: String, bodyFields: [String: String], expectedId: String?) {
+        let payload = TangemPayPushParser().parse(from: Self.makeUserInfo(type: type, bodyFields: bodyFields))
+
+        guard let payload else {
+            #expect(Bool(false), "Expected parse to succeed for type '\(type)'")
+            return
+        }
+
+        #expect(payload.spendTransactionId == expectedId)
+    }
 }

@@ -33,6 +33,7 @@ struct CommonSendSourceToken: SendSourceToken {
     let tangemIconProvider: any TangemIconProvider
     let confirmTransactionPolicy: any ConfirmTransactionPolicy
     let isTangemPayAccount: Bool
+    let jointAccountPolicy: JointAccountPolicy?
 
     // MARK: - SendReceiveToken
 

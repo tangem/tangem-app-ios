@@ -43,7 +43,13 @@ final class CollectiblesLoreTabsViewModel: ObservableObject {
 
     func refresh() async {
         loadTask?.cancel()
-        state = .loading
+
+        switch state {
+        case .content, .empty:
+            break
+        case .idle, .loading, .failed:
+            state = .loading
+        }
 
         let task = runTask(in: self) { @MainActor viewModel in
             await viewModel.loadTabs()

@@ -9,13 +9,11 @@
 import Foundation
 import TangemUI
 
-/// - Note: Handed the signers already worked out. The sheet neither reads them nor keeps them in step: "someone
-///   signed" arrives as a banner rather than a push, so refreshing an open screen belongs to the domain layer and
-///   this only redraws on what it is given.
+/// - Note: Handed the signers already worked out; this only redraws on what it is given.
 final class JointAccountSignersViewModel: ObservableObject, FloatingSheetContentViewModel {
     /// Everyone on the account, answered or not — which is also how many rows there are.
-    let membersCount: Int
-    let signers: [JointAccountSignerRow.ViewData]
+    @Published private(set) var membersCount: Int
+    @Published private(set) var signers: [JointAccountSignerRow.ViewData]
 
     private weak var coordinator: JointAccountSignersRoutable?
 
@@ -27,6 +25,11 @@ final class JointAccountSignersViewModel: ObservableObject, FloatingSheetContent
         self.membersCount = membersCount
         self.signers = signers
         self.coordinator = coordinator
+    }
+
+    func update(membersCount: Int, signers: [JointAccountSignerRow.ViewData]) {
+        self.membersCount = membersCount
+        self.signers = signers
     }
 
     /// Back steps up to the operation this list belongs to; close leaves the operation altogether. The design

@@ -13,5 +13,6 @@ struct PendingTransactionDetails {
     enum TransactionType {
         case onramp
         case swap
+        case jointOperation
     }
 }

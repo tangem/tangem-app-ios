@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-public struct SlideV2: Identifiable, Equatable {
+public struct SlideV2: Identifiable, Equatable, Sendable {
     public let id: String
     public let order: Int
     public let title: String

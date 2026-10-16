@@ -13,6 +13,7 @@ class CommonSwapStepsManager {
     private let finishStep: SendFinishStep
     private let feeSelectorBuilder: SendFeeSelectorBuilder
     private let providersSelector: SendSwapProvidersSelectorViewModel
+    private let slippageSelectorBuilder: SwapSlippageSelectorBuilder
     private let tokenSelectorBuilder: SwapTokenSelectorViewModelBuilder
     private let summaryTitleProvider: SendSummaryTitleProvider
     private var stack: [SendStep]
@@ -24,6 +25,7 @@ class CommonSwapStepsManager {
         finishStep: SendFinishStep,
         feeSelectorBuilder: SendFeeSelectorBuilder,
         providersSelector: SendSwapProvidersSelectorViewModel,
+        slippageSelectorBuilder: SwapSlippageSelectorBuilder,
         tokenSelectorBuilder: SwapTokenSelectorViewModelBuilder,
         summaryTitleProvider: SendSummaryTitleProvider,
         router: SendRoutable
@@ -32,6 +34,7 @@ class CommonSwapStepsManager {
         self.finishStep = finishStep
         self.feeSelectorBuilder = feeSelectorBuilder
         self.providersSelector = providersSelector
+        self.slippageSelectorBuilder = slippageSelectorBuilder
         self.tokenSelectorBuilder = tokenSelectorBuilder
         self.summaryTitleProvider = summaryTitleProvider
         self.router = router
@@ -95,6 +98,10 @@ extension CommonSwapStepsManager: SendStepsManager {
     func performFinish() {
         next(step: finishStep)
     }
+
+    func openSlippageSelector() {
+        summaryStepRequestEditSlippage()
+    }
 }
 
 // MARK: - SwapSummaryStepRoutable
@@ -120,5 +127,9 @@ extension CommonSwapStepsManager: SwapSummaryStepRoutable {
 
     func summaryStepRequestEditProviders() {
         router?.openSwapProvidersSelector(viewModel: providersSelector)
+    }
+
+    func summaryStepRequestEditSlippage() {
+        router?.openSwapSlippageSelector(slippageSelectorBuilder: slippageSelectorBuilder)
     }
 }

@@ -75,10 +75,7 @@ struct TokenActionAvailabilityAlertBuilder {
         case .available, .hidden:
             return nil
         case .jointAccountsComingSoon:
-            return .init(
-                title: Localization.jointAccountComingSoonTitle,
-                message: Localization.jointAccountComingSoonDescription
-            )
+            return jointAccountsComingSoonAlert
         case .blockchainUnreachable, .blockchainLoading:
             return tryAgainLaterAlert
         case .cantSignLongTransactions:
@@ -134,6 +131,8 @@ struct TokenActionAvailabilityAlertBuilder {
         switch status {
         case .available:
             return nil
+        case .jointAccountsComingSoon:
+            return jointAccountsComingSoonAlert
         case .unavailable(let tokenName):
             return .init(
                 title: "",
@@ -213,6 +212,10 @@ struct TokenActionAvailabilityAlertBuilder {
 // MARK: - Private
 
 extension TokenActionAvailabilityAlertBuilder {
+    private var jointAccountsComingSoonAlert: AlertBinder {
+        .init(title: Localization.jointAccountComingSoonTitle, message: Localization.jointAccountComingSoonDescription)
+    }
+
     private var cantSignLongTransactionAlert: AlertBinder {
         .init(title: Localization.warningLongTransactionTitle, message: Localization.warningLongTransactionMessage)
     }

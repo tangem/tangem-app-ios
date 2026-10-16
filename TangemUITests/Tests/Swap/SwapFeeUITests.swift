@@ -34,6 +34,9 @@ final class SwapFeeUITests: BaseTestCase {
             .selectFeeOption(.normal)
             .validateFeeChanged()
             .waitForFeeAmountDisplayed()
+            .waitForConfirmButtonEnabled()
+
+        let marketFeeAmount = swapScreen.captureFeeAmount()
 
         swapScreen
             .tapFeeBlock()
@@ -41,6 +44,8 @@ final class SwapFeeUITests: BaseTestCase {
             .selectFeeOption(.priority)
             .validateFeeChanged()
             .waitForFeeAmountDisplayed()
+            .assertFeeAmount(notEquals: marketFeeAmount)
+            .waitForConfirmButtonEnabled()
     }
 
     func testUnableToCoverMarketAndFastFee() {

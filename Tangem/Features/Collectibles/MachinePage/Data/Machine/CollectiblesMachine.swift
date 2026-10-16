@@ -12,12 +12,14 @@ struct CollectiblesMachine {
     let name: String
     let artworkURL: URL?
     let price: Decimal
+    let platformFee: Decimal
     let cardsPerPack: Int?
     let buybackRate: Decimal
     /// Average card value in dollars; drifts in near-real time as the stock changes.
     let expectedValue: Decimal
     /// Only the tiers this machine actually carries, in rarity order.
     let tiers: [TierStats]
+    var openingVideoURL: URL?
 }
 
 extension CollectiblesMachine {

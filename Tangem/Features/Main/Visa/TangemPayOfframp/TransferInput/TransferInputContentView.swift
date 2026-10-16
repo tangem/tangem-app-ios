@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -15,10 +16,11 @@ import TangemUIUtils
 struct TransferInputContentView: View {
     @ObservedObject var amountFieldViewModel: DecimalNumberTextFieldViewModel
 
-    let state: State
+    let state: StateModel
     let action: (Action) -> Void
 
     @FocusState private var isAmountFocused: Bool
+    @State private var isContinuing = false
 
     var body: some View {
         ScrollView {
@@ -26,6 +28,7 @@ struct TransferInputContentView: View {
                 amountCard
 
                 railRow
+                    .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.amountRailRow)
             }
             .padding(.top, 12)
             .padding(.horizontal, Constants.horizontalPadding)
@@ -34,6 +37,9 @@ struct TransferInputContentView: View {
         .scrollIndicators(.hidden)
         .scrollBounceBehavior(.basedOnSize)
         .offrampBottomBar { continueButton }
+        .onAppear {
+            isContinuing = false
+        }
     }
 }
 
@@ -80,15 +86,21 @@ private extension TransferInputContentView {
                     placeholderColor: DesignSystem.Color.textTertiary
                 ))
                 .alignment(.center)
+                .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.amountField)
                 .focused($isAmountFocused)
-                .task {
-                    try? await Task.sleep(for: .seconds(Constants.amountFocusDelay))
-                    isAmountFocused = true
+                .onAppear {
+                    guard !isAmountFocused else { return }
+
+                    Task {
+                        try? await Task.sleep(for: .seconds(Constants.keyboardAppearDelay))
+                        isAmountFocused = true
+                    }
                 }
 
             Text(state.amountErrorMessage ?? "")
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusError)
                 .multilineTextAlignment(.center)
+                .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.amountErrorText)
         }
         .padding(.vertical, 38)
         .padding(.horizontal, Constants.cardHorizontalPadding)
@@ -105,7 +117,10 @@ private extension TransferInputContentView {
             SwiftUI.Button {
                 action(.tokenTap)
             } label: {
-                Row(title: token.symbol, subtitle: token.subtitle)
+                Row(title: token.symbol)
+                    .subtitleAccessory {
+                        TransferInputTokenSubtitleView(item: token)
+                    }
                     .start {
                         TokenIconV2(tokenIconInfo: token.tokenIconInfo, size: .size40)
                     }
@@ -116,6 +131,7 @@ private extension TransferInputContentView {
                         }
                     }
             }
+            .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.amountTokenRow)
         }
     }
 
@@ -127,6 +143,7 @@ private extension TransferInputContentView {
         )
         .size(.x8)
         .styleType(.secondary(.default))
+        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.amountMaxButton)
     }
 
     var chevron: some View {
@@ -193,12 +210,23 @@ private extension TransferInputContentView {
         TangemUI.Button(
             label: Localization.commonContinue,
             accessibilityLabel: nil,
-            action: { action(.continueTap) }
+            action: continueAction
         )
         .size(.x12)
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
-        .disabled(!state.isContinueEnabled)
+        .disabled(!state.isContinueEnabled || isContinuing)
+        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.amountContinueButton)
+    }
+
+    func continueAction() {
+        isContinuing = true
+        isAmountFocused = false
+
+        Task {
+            try? await Task.sleep(for: .seconds(Constants.keyboardDisappearDelay))
+            action(.continueTap)
+        }
     }
 }
 
@@ -216,14 +244,15 @@ private extension TransferInputContentView {
         static let cardVerticalPadding: CGFloat = 16
         static let cardCornerRadius: CGFloat = 24
         static let railIconSide: CGFloat = 20
-        static let amountFocusDelay: TimeInterval = 0.5
+        static let keyboardAppearDelay: TimeInterval = 0.5
+        static let keyboardDisappearDelay: TimeInterval = 0.33
     }
 }
 
-// MARK: - State
+// MARK: - State Model
 
 extension TransferInputContentView {
-    struct State {
+    struct StateModel {
         let token: TransferInputTokenItem?
         let rail: TransferInputRailItem?
         let isRailSelectable: Bool
@@ -247,7 +276,7 @@ extension TransferInputContentView {
 
 #if DEBUG
 private enum TransferInputPreview {
-    static func make(amount: Decimal?, state: TransferInputContentView.State) -> some View {
+    static func make(amount: Decimal?, state: TransferInputContentView.StateModel) -> some View {
         let fieldViewModel = DecimalNumberTextFieldViewModel(maximumFractionDigits: 2)
         fieldViewModel.update(value: amount)
 
@@ -265,8 +294,8 @@ private enum TransferInputPreview {
         isRailSelectable: Bool = true,
         amountErrorMessage: String? = nil,
         isContinueEnabled: Bool = false
-    ) -> TransferInputContentView.State {
-        TransferInputContentView.State(
+    ) -> TransferInputContentView.StateModel {
+        TransferInputContentView.StateModel(
             token: token,
             rail: rail,
             isRailSelectable: isRailSelectable,

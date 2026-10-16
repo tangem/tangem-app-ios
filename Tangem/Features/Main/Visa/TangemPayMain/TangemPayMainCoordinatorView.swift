@@ -66,7 +66,7 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
                 TangemPayAddFundsSheetView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayVirtualAccountInfoSheetViewModel.self) {
-                TangemPayVirtualAccountInfoSheetView(viewModel: $0)
+                TangemPayVirtualAccountInfoContainerView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayVirtualAccountPreparingPopupViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
@@ -120,9 +120,6 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
                 TangemPayOfframpCoordinatorView(coordinator: $0)
                     .interactiveDismissDisabled()
             }
-            .sheet(item: $coordinator.addToApplePayGuideViewModel) {
-                TangemPayAddToAppPayGuideView(viewModel: $0)
-            }
             .sheet(item: $coordinator.tangemPayPinViewModel) {
                 TangemPayPinView(viewModel: $0)
                     .presentationCornerRadius(24)
@@ -141,6 +138,12 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             }
             .fullScreenCover(item: $coordinator.virtualAccountSuccessViewModel) {
                 TangemPayVirtualAccountSuccessView(viewModel: $0)
+            }
+            .fullScreenCover(item: $coordinator.virtualAccountOnboardingViewModel) {
+                TangemPayVirtualAccountInfoContainerView(viewModel: $0)
+            }
+            .fullScreenCover(item: $coordinator.virtualAccountDetailsViewModel) {
+                TangemPayVirtualAccountDetailsView(viewModel: $0)
             }
             .fullScreenCover(item: $coordinator.cashbackDetailViewModel) {
                 TangemPayCashbackDetailView(viewModel: $0)

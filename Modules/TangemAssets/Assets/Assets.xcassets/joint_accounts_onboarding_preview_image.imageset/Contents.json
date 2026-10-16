@@ -1,8 +1,18 @@
 {
   "images" : [
     {
-      "filename" : "joint_accounts_onboarding_preview_image.pdf",
-      "idiom" : "universal"
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "joint_accounts_onboarding_preview_image@2x.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "joint_accounts_onboarding_preview_image@3x.png",
+      "idiom" : "universal",
+      "scale" : "3x"
     }
   ],
   "info" : {

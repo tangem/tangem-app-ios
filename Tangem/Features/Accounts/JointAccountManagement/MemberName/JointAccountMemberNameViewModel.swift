@@ -9,13 +9,16 @@
 import Combine
 import Foundation
 import struct TangemUIUtils.AlertBinder
-import TangemAssets
 import TangemFoundation
+import TangemUI
 
 final class JointAccountMemberNameViewModel: ObservableObject {
     @Published var alert: AlertBinder?
     @Published var name: String {
-        didSet { validate(name: name.trimmed()) }
+        didSet {
+            validate(name: name.trimmed())
+            helper.keepDraft(name: name)
+        }
     }
 
     var submitButtonTitle: String { helper.submitButtonTitle }
@@ -27,9 +30,7 @@ final class JointAccountMemberNameViewModel: ObservableObject {
         validationError != nil && validationError != .empty
     }
 
-    var submitButtonIcon: ImageType? {
-        helper.tangemIconProvider.getMainButtonIcon()?.imageType
-    }
+    var submitButtonType: SigningActionButtonViewType { helper.signingActionButtonType }
 
     var submitButtonDisabled: Bool {
         validationError != nil

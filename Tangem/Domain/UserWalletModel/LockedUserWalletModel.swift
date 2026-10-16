@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemCollectibles
 import Combine
 import TangemAssets
 import TangemSdk
@@ -148,7 +149,7 @@ final class LockedUserWalletModel: UserWalletModel {
         switch type {
         case .backupCompleted(let card, let associatedCardIds):
             if case .mobileWallet(let mobileWalletInfo) = userWallet.walletInfo {
-                MobileCleanupUtil.cleanBackup(walletId: userWalletId, analyticsContextData: mobileWalletInfo.analyticsContextData)
+                MobileCleanupUtil.cleanBackup(walletId: userWalletId, mobileWalletInfo: mobileWalletInfo)
                 syncRemoteAfterUpgrade()
             }
 
@@ -259,6 +260,12 @@ extension LockedUserWalletModel: UserWalletSerializable {
         // Replacing this with some dummy data may lead to overwrite real data on the disk, therefore do not return anything here.
         // Locked wallets should not be serialized, so this function should not be called, calling this method is a programmer error.
         preconditionFailure("'\(#function)' should not be called for locked wallets")
+    }
+}
+
+extension LockedUserWalletModel: PromoCampaignIdentityProviding {
+    var promoCampaignIdentity: PromoCampaignIdentity {
+        userWallet.walletInfo.promoCampaignIdentity
     }
 }
 

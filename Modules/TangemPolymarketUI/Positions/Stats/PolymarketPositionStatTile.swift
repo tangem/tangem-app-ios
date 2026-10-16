@@ -48,6 +48,8 @@ public struct PolymarketPositionStatTile: View {
             Text(model.caption)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
+                .minimumScaleFactor(Constants.minimumScaleFactor)
+                .layoutPriority(1)
 
             if model.onHintTap != nil {
                 DesignSystem.Icons.Info.regular16.image

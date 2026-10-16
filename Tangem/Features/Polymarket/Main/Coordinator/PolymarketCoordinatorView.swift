@@ -24,6 +24,8 @@ struct PolymarketCoordinatorView: CoordinatorView {
                 switch sheet {
                 case .send(let coordinator):
                     SendCoordinatorView(coordinator: coordinator)
+                case .supportChat(let viewModel):
+                    supportChat(viewModel: viewModel)
                 }
             }
     }
@@ -37,6 +39,15 @@ struct PolymarketCoordinatorView: CoordinatorView {
             PolymarketMainView(viewModel: viewModel)
         case nil:
             EmptyView()
+        }
+    }
+
+    private func supportChat(viewModel: SupportChatViewModel) -> some View {
+        NavigationStack {
+            SupportChatView(viewModel: viewModel)
+                .toolbar {
+                    NavigationToolbarButton.close(placement: .topBarLeading) { coordinator.sheet = nil }
+                }
         }
     }
 

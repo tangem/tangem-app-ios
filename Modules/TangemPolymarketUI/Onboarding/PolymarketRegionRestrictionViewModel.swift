@@ -46,4 +46,13 @@ public extension PolymarketRegionRestrictionViewModel {
             onClose: onClose
         )
     }
+
+    // [REDACTED_TODO_COMMENT]
+    static func quoteUnavailable(onClose: @escaping () -> Void) -> PolymarketRegionRestrictionViewModel {
+        PolymarketRegionRestrictionViewModel(
+            title: Localization.commonSomethingWentWrong,
+            message: "The current price is out of reach right now. Nothing was placed and nothing left your account.",
+            onClose: onClose
+        )
+    }
 }

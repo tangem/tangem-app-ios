@@ -18,7 +18,7 @@ struct AccountDetailsCoordinatorView: View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
                 AccountDetailsView(viewModel: rootViewModel)
-                    .navigationTitle(Localization.accountDetailsTitle)
+                    .navigationTitle(rootViewModel.title)
                     .padding(.horizontal, 16)
                     .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
                     .navigationLinks(links)
@@ -32,6 +32,9 @@ struct AccountDetailsCoordinatorView: View {
         NavHolder()
             .navigation(item: $coordinator.manageTokensCoordinator) {
                 ManageTokensCoordinatorView(coordinator: $0)
+            }
+            .navigation(item: $coordinator.jointAccountManagementCoordinator) {
+                JointAccountManagementCoordinatorView(coordinator: $0, dismissStyle: .back)
             }
     }
 
