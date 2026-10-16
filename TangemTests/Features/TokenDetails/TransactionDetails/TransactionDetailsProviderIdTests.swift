@@ -142,7 +142,8 @@ private extension TransactionDetailsProviderIdTests {
                 contacts: [],
                 isAddressBookSynced: true,
                 transactionType: .swap,
-                interactionAddress: .custom(message: "")
+                interactionAddress: .custom(message: ""),
+                subtitleOwner: nil
             )
         )
 
