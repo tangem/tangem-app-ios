@@ -226,7 +226,11 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
         return try deriveResult.get()
     }
 
-    func updateBalanceAllowance(credentials: PolymarketL2Credentials, ownerAddress: String) async throws {}
+    func updateBalanceAllowance(
+        _ asset: PolymarketBalanceAllowanceAsset,
+        credentials: PolymarketL2Credentials,
+        ownerAddress: String
+    ) async throws {}
 
     func balanceAllowance(
         credentials: PolymarketL2Credentials,

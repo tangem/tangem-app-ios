@@ -36,6 +36,15 @@ public struct PolymarketOrderPlacer {
 
 extension PolymarketOrderPlacer: PolymarketOrderPlacing {
     public func place(_ options: Options) async throws -> PolymarketOrderPlacement {
+        let domain: PolymarketExchangeDomain
+
+        do {
+            domain = try PolymarketExchange.domain(for: options.quote, isNegRisk: options.isNegRisk)
+        } catch {
+            PolymarketLogger.error("Refused to sign an order for an exchange the quote does not match", error: error)
+            throw PolymarketOrderPlacementError.notSent(underlying: error)
+        }
+
         let order = PolymarketOrderFactory.make(
             quote: options.quote,
             assetId: options.assetId,
@@ -47,7 +56,7 @@ extension PolymarketOrderPlacer: PolymarketOrderPlacing {
         do {
             let digest = try PolymarketOrderSigning.digest(
                 order: order,
-                isNegRisk: options.isNegRisk,
+                domain: domain,
                 depositWalletAddress: options.depositWalletAddress
             )
 
@@ -56,7 +65,7 @@ extension PolymarketOrderPlacer: PolymarketOrderPlacing {
             signature = try PolymarketOrderSigning.wrap(
                 signature: inner,
                 order: order,
-                isNegRisk: options.isNegRisk
+                domain: domain
             )
         } catch let error as CancellationError {
             throw error
@@ -64,14 +73,12 @@ extension PolymarketOrderPlacer: PolymarketOrderPlacing {
             throw PolymarketOrderPlacementError.notSent(underlying: error)
         }
 
-        let signedOrder = PolymarketSignedOrder(
-            order: order,
-            signature: signature,
-            isNegRisk: options.isNegRisk
-        )
+        if options.quote.side == .sell {
+            try await refreshPositionBalance(options)
+        }
 
         return try await clobService.placeOrder(
-            signedOrder,
+            PolymarketSignedOrder(order: order, signature: signature),
             credentials: options.credentials,
             ownerAddress: options.ownerAddress
         )
@@ -83,6 +90,28 @@ extension PolymarketOrderPlacer: PolymarketOrderPlacing {
         ownerAddress: String
     ) async throws -> PolymarketOrderRecord {
         try await clobService.order(id: id, credentials: credentials, ownerAddress: ownerAddress)
+    }
+}
+
+// MARK: - Private implementation
+
+private extension PolymarketOrderPlacer {
+    func refreshPositionBalance(_ options: Options) async throws {
+        guard let asset = PolymarketBalanceAllowanceAsset.position(tokenId: options.assetId, version: options.quote.version) else {
+            return
+        }
+
+        do {
+            try await clobService.updateBalanceAllowance(
+                asset,
+                credentials: options.credentials,
+                ownerAddress: options.ownerAddress
+            )
+        } catch let error as CancellationError {
+            throw error
+        } catch {
+            PolymarketLogger.error("Failed to refresh the exchange's view of the position before selling", error: error)
+        }
     }
 }
 

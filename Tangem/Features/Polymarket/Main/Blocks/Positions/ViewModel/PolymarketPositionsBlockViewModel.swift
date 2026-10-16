@@ -96,7 +96,7 @@ private extension PolymarketPositionsBlockViewModel {
 
         let activityHandler = activityHandler
 
-        guard !position.isRedeemable, position.settlement?.isResolved != true else {
+        guard !position.opensClaim else {
             routable?.openRedeem(position: position, onClaimed: { [weak activityHandler] claimed in
                 activityHandler?.claimed(claimed)
             })

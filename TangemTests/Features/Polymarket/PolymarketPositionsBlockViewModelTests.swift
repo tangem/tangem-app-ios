@@ -266,7 +266,7 @@ struct PolymarketPositionsBlockViewModelTests {
             active: [.success(PolymarketPositionsPage(
                 positions: [Self.position("a", isRedeemable: true), Self.position("b")],
                 receivedCount: 2,
-                hasNext: false
+                nextCursor: nil
             ))],
             finished: [.success(false)]
         )
@@ -327,7 +327,7 @@ struct PolymarketPositionsBlockViewModelTests {
             active: [.success(PolymarketPositionsPage(
                 positions: [Self.position("a"), Self.position("b", isRedeemable: true)],
                 receivedCount: 2,
-                hasNext: false
+                nextCursor: nil
             ))],
             finished: [.success(false)]
         )
@@ -348,7 +348,7 @@ struct PolymarketPositionsBlockViewModelTests {
             active: [.success(PolymarketPositionsPage(
                 positions: [Self.position("a", settlement: .won)],
                 receivedCount: 1,
-                hasNext: false
+                nextCursor: nil
             ))],
             finished: [.success(false)]
         )
@@ -360,6 +360,26 @@ struct PolymarketPositionsBlockViewModelTests {
 
         #expect(context.routable.detailedIDs.isEmpty)
         #expect(context.routable.redeemedIDs == ["a/1"])
+    }
+
+    @Test("A redeemable position of a market version this build does not know opens the details, not the claim")
+    func unknownVersionHasNoClaim() async throws {
+        let service = PositionsBlockServiceStub(
+            active: [.success(PolymarketPositionsPage(
+                positions: [Self.position("a", isRedeemable: true, version: .unknown("v3"))],
+                receivedCount: 1,
+                nextCursor: nil
+            ))],
+            finished: [.success(false)]
+        )
+        let context = Self.makeSUT(service: service)
+
+        try await settle { Self.rowIDs(context.sut.content) == ["a/1"] }
+
+        context.sut.handleViewAction(.openPositionDetails(id: "a/1"))
+
+        #expect(context.routable.redeemedIDs.isEmpty)
+        #expect(context.routable.detailedIDs == ["a/1"])
     }
 
     @Test("View all opens the active tab and the finished badge opens the finished one")
@@ -446,7 +466,7 @@ private extension PolymarketPositionsBlockViewModelTests {
         .success(PolymarketPositionsPage(
             positions: conditionIds.map { position($0) },
             receivedCount: conditionIds.count,
-            hasNext: false
+            nextCursor: nil
         ))
     }
 
@@ -455,12 +475,14 @@ private extension PolymarketPositionsBlockViewModelTests {
         size: Decimal = 1,
         isRedeemable: Bool = false,
         settlement: PolymarketPositionSettlement? = nil,
-        title: String = "Question"
+        title: String = "Question",
+        version: PolymarketMarketVersion? = .v1
     ) -> PolymarketPosition {
         PolymarketPosition(
             conditionId: conditionId,
             assetId: "1",
             marketId: "3",
+            version: version,
             eventId: "4",
             eventTitle: "Event",
             title: title,
@@ -525,15 +547,10 @@ private final class PositionsBlockServiceStub: PolymarketPositionsService {
             try await Task.sleep(nanoseconds: Self.slowDelay)
         }
 
-        return try result?.get() ?? PolymarketPositionsPage(positions: [], receivedCount: 0, hasNext: false)
+        return try result?.get() ?? PolymarketPositionsPage(positions: [], receivedCount: 0, nextCursor: nil)
     }
 
-    func closedPositions(
-        sort: PolymarketClosedPositionsRequest.Sort,
-        ascending: Bool,
-        limit: Int,
-        offset: Int
-    ) async throws -> PolymarketClosedPositionsPage {
+    func closedPositions(limit: Int, cursor: String?) async throws -> PolymarketClosedPositionsPage {
         let exists = try script.withLock { script in
             let result = script.finished[safe: script.finishedRequests] ?? script.finished.last
             script.finishedRequests += 1
@@ -543,17 +560,12 @@ private final class PositionsBlockServiceStub: PolymarketPositionsService {
         return PolymarketClosedPositionsPage(
             positions: exists ? [Self.closedPosition] : [],
             receivedCount: exists ? 1 : 0,
-            hasNext: false
+            nextCursor: nil
         )
     }
 
-    func openPositions(
-        sort: PolymarketPositionsRequest.Sort,
-        ascending: Bool,
-        limit: Int,
-        offset: Int
-    ) async throws -> PolymarketPositionsPage {
-        PolymarketPositionsPage(positions: [], receivedCount: 0, hasNext: false)
+    func openPositions(limit: Int, cursor: String?) async throws -> PolymarketPositionsPage {
+        PolymarketPositionsPage(positions: [], receivedCount: 0, nextCursor: nil)
     }
 
     func position(conditionId: String, assetId: String) async throws -> PolymarketPosition? {

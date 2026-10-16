@@ -20,6 +20,7 @@ struct PolymarketClosedPositionsMappingTests {
         let position = try #require(page.positions.first)
 
         #expect(page.hasNext)
+        #expect(page.nextCursor == "c2")
         #expect(position.conditionId == "0x94947a23")
         #expect(position.assetId == "10977723")
         #expect(position.title == "Will Trump nominate Stephen Miran as the next Fed chair?")
@@ -57,8 +58,8 @@ struct PolymarketClosedPositionsMappingTests {
         #expect(try #require(mapPage(Self.pageJSON).positions.first).id == "0x94947a23/10977723")
     }
 
-    @Test("A page without hasNext ends the list")
-    func missingHasNextIsFalse() throws {
+    @Test("A page without a cursor ends the list")
+    func missingCursorIsTheLastPage() throws {
         #expect(try !mapPage(Data(#"{ "positions": [] }"#.utf8)).hasNext)
     }
 }
@@ -98,7 +99,7 @@ private extension PolymarketClosedPositionsMappingTests {
         "realizedPnl": "-61428.7854",
         "status": "WON"
       }],
-      "hasNext": true
+      "nextCursor": "c2"
     }
     """.utf8)
 }
