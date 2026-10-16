@@ -26,7 +26,7 @@ struct TransactionDetailsInfoSectionViewData: Equatable {
             case text(String)
             /// A value paid out of the user's own funds, so it's masked when balances are hidden.
             case sensitiveText(String)
-            case address(String)
+            case address(String, copyAction: TransactionDetailsViewModel.ViewAction)
             /// Provider / Validator
             case link(Link)
         }
@@ -57,9 +57,9 @@ struct TransactionDetailsInfoSectionView: View {
     private func rowView(_ row: TransactionDetailsInfoSectionViewData.Row, showsDivider: Bool) -> some View {
         switch row.content {
         case .text(let value):
-            plainValueRow(title: row.title, value: value, truncationMode: .tail, showsDivider: showsDivider)
-        case .address(let value):
-            plainValueRow(title: row.title, value: value, truncationMode: .middle, showsDivider: showsDivider)
+            plainValueRow(title: row.title, value: value, truncationMode: .tail, action: nil, showsDivider: showsDivider)
+        case .address(let value, let copyAction):
+            plainValueRow(title: row.title, value: value, truncationMode: .middle, action: copyAction, showsDivider: showsDivider)
         case .sensitiveText(let value):
             TangemUI.Row(title: row.title)
                 .valueAccessory { sensitiveValue(value) }
@@ -76,13 +76,22 @@ struct TransactionDetailsInfoSectionView: View {
         }
     }
 
-    private func plainValueRow(title: String, value: String, truncationMode: Text.TruncationMode, showsDivider: Bool) -> some View {
+    private func plainValueRow(
+        title: String,
+        value: String,
+        truncationMode: Text.TruncationMode,
+        action: TransactionDetailsViewModel.ViewAction?,
+        showsDivider: Bool
+    ) -> some View {
         TangemUI.Row(title: title, value: value)
             .overrideTextColors(RowOverrideTextColors(value: DesignSystem.Color.textSecondary))
             .truncationModes(RowTruncationModes(value: truncationMode))
             .contentLead(.start)
             .valueLineLimit(1)
             .showDivider(showsDivider)
+            .ifLet(action) { view, action in
+                view.onTap { onAction(action) }
+            }
     }
 
     private func sensitiveValue(_ value: String) -> some View {
