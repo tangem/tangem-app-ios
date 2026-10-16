@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-enum PolymarketWebSocketConnectionStatus: Hashable, Sendable {
+public enum PolymarketWebSocketConnectionStatus: Hashable, Sendable {
     case idle
     case connecting
     case connected
