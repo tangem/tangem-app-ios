@@ -6,13 +6,13 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
+public import Foundation
 
-struct URLSessionWebSocketTransport: WebSocketTransport {
+public struct URLSessionWebSocketTransport: WebSocketTransport {
     /// The largest single message, in bytes, that a connection buffers in memory before `receive()` fails.
     /// URLSession defaults to 1 MiB. 5 MiB is a middle ground for typical feeds; a feature whose server
     /// sends larger messages passes its own value.
-    static let defaultMaximumMessageSize = 5 * 1024 * 1024
+    public static let defaultMaximumMessageSize = 5 * 1024 * 1024
 
     private let maximumMessageSize: Int
     private let allowsInsecureConnections: Bool
@@ -20,7 +20,7 @@ struct URLSessionWebSocketTransport: WebSocketTransport {
     /// - Parameter allowsInsecureConnections: Lets `connect` open plain `ws://` URLs for debugging, provided
     ///   App Transport Security allows insecure connections to that host. Has no effect outside `INTERNAL` and `DEBUG`
     ///   builds: a production build accepts only `wss://`, even when this is `true`.
-    init(
+    public init(
         maximumMessageSize: Int = Self.defaultMaximumMessageSize,
         allowsInsecureConnections: Bool = false
     ) {
@@ -28,7 +28,7 @@ struct URLSessionWebSocketTransport: WebSocketTransport {
         self.allowsInsecureConnections = allowsInsecureConnections
     }
 
-    func connect(to url: URL, headers: [String: String]) async throws(WebSocketTransportError) -> any WebSocketConnection {
+    public func connect(to url: URL, headers: [String: String]) async throws(WebSocketTransportError) -> any WebSocketConnection {
         guard isAllowed(url) else {
             throw .insecureURL
         }
