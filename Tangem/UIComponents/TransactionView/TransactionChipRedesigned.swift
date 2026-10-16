@@ -237,7 +237,7 @@ private enum ChipPreviewFixture {
         }
     }
     .padding()
-    .background(Color.Tangem.Surface.level1)
+    .background(DesignSystem.Color.bgPrimary)
 }
 
 #endif // DEBUG

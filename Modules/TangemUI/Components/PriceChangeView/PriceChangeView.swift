@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 import TangemFoundation
 
 public struct PriceChangeView: View {
@@ -97,7 +98,7 @@ public struct PriceChangeView: View {
     }
 
     private var defaultTextColor: Color {
-        useRedesignColors ? .Tangem.Text.Neutral.tertiary : Colors.Text.tertiary
+        useRedesignColors ? DesignSystem.Color.textSecondary : Colors.Text.tertiary
     }
 
     private var styledDashText: some View {
@@ -109,7 +110,7 @@ public struct PriceChangeView: View {
         let color = textColor ?? defaultTextColor
         Group {
             if useRedesignColors {
-                Text(text).style(Font.Tangem.Caption12.regular, color: color)
+                Text(text).style(DesignSystem.Font.captionMediumToken, color: color)
             } else {
                 Text(text).style(Fonts.Regular.caption1, color: color)
             }
@@ -172,22 +173,22 @@ public extension PriceChangeView {
         public var color: Color {
             switch self {
             case .positive:
-                return .Tangem.Text.Status.accent
+                return DesignSystem.Color.textAccentBlue
             case .neutral:
-                return .Tangem.Text.Neutral.tertiary
+                return DesignSystem.Color.textSecondary
             case .negative:
-                return .Tangem.Text.Status.warning
+                return DesignSystem.Color.textAccentRed
             }
         }
 
         public var iconColor: Color {
             switch self {
             case .positive:
-                .Tangem.Graphic.Status.accent
+                DesignSystem.Color.iconAccentBlue
             case .neutral:
-                .Tangem.Graphic.Neutral.tertiary
+                DesignSystem.Color.iconSecondary
             case .negative:
-                .Tangem.Graphic.Status.warning
+                DesignSystem.Color.iconAccentRed
             }
         }
 

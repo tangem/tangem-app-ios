@@ -103,6 +103,7 @@ extension MobileUserWalletConfig: UserWalletConfig {
     }
 
     var walletThumbnailType: ThumbnailWalletViewType? {
+        // [REDACTED_TODO_COMMENT]
         .mobileWallet(.init(icon: .Tangem.CardCollection.tangem))
     }
 

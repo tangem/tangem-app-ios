@@ -10,5 +10,6 @@ import Foundation
 
 @MainActor
 protocol CollectiblesConfirmOrderRoutable: AnyObject {
+    func returnToMachine()
     func closePackFlow()
 }

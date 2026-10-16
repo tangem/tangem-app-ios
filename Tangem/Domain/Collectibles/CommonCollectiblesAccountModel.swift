@@ -73,7 +73,7 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
         let interactor = CollectiblesPackPurchaseInteractorStore.interactor(for: manager.userWalletId) {
             let provider = CommonCollectiblesPurchaseProvider(userWalletID: manager.userWalletId.stringValue)
 
-            return CommonCollectiblesPackPurchaseInteractor(
+            return RemoteCollectiblesPackPurchaseInteractor(
                 generator: provider,
                 signer: manager,
                 sentReporter: provider,

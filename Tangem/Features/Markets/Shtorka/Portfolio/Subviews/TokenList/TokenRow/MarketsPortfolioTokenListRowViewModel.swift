@@ -130,7 +130,7 @@ private extension MarketsPortfolioTokenListRowViewModel {
                 let icon = BalanceState.Icon(
                     type: Assets.DesignSystem.attention,
                     // [DS3] kept until new DS component lands
-                    color: .Tangem.Graphic.Status.attention,
+                    color: DesignSystem.Color.iconAccentYellow,
                     location: .trailing
                 )
                 return .failed(attributedBalance, icon)
@@ -161,7 +161,7 @@ private extension MarketsPortfolioTokenListRowViewModel {
         var attributed = AttributedString(Localization.commonUnreachable)
         attributed.setFontStyle(DesignSystem.Font.captionMediumToken)
         // [DS3] kept until new DS component lands
-        attributed.foregroundColor = .Tangem.Text.Status.attention
+        attributed.foregroundColor = DesignSystem.Color.textAccentYellow
         return .attributed(attributed)
     }
 }

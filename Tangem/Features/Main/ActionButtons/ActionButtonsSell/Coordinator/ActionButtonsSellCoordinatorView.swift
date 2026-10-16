@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct ActionButtonsSellCoordinatorView: View {
     @ObservedObject var coordinator: ActionButtonsSellCoordinator
@@ -34,6 +35,7 @@ struct ActionButtonsSellCoordinatorView: View {
                 EmptyView()
             }
         }
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .animation(SendTransitions.animation, value: coordinator.viewState)
     }
 }

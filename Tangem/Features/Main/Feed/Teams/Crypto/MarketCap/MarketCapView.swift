@@ -114,7 +114,7 @@ struct MarketCapView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(metric.value)
-                    .style(Font.Tangem.Heading22.semibold, color: DesignSystem.Color.textPrimary)
+                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
                     .shimmerPlaceholder(isLoading, variant: .custom(width: Constants.valueSkeletonSize.width, height: Constants.valueSkeletonSize.height, cornerRadius: Constants.skeletonCornerRadius))
 
                 MarketIndexScaleView(progress: isLoading ? 0 : metric.progress, size: .small)

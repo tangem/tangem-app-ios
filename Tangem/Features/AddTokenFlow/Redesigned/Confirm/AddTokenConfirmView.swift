@@ -22,12 +22,12 @@ struct AddTokenConfirmView: View {
                 .padding(.bottom, AddTokenRedesignedConstants.tokenHeaderBottomSpacing)
 
             accountSelectorRow
-                .background(Color.Tangem.Surface.level3)
+                .background(DesignSystem.Color.bgSecondary)
                 .cornerRadiusContinuous(AddTokenRedesignedConstants.cornerRadius)
                 .padding(.bottom, AddTokenRedesignedConstants.itemSpacing)
 
             networkSelectorRow
-                .background(Color.Tangem.Surface.level3)
+                .background(DesignSystem.Color.bgSecondary)
                 .cornerRadiusContinuous(AddTokenRedesignedConstants.cornerRadius)
                 .padding(.bottom, AddTokenRedesignedConstants.sectionSpacing)
 

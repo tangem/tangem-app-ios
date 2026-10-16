@@ -75,9 +75,26 @@ extension CollectiblesAPIService {
         ) -> CollectiblesPurchaseTransaction {
             CollectiblesPurchaseTransaction(
                 status: mapToPurchaseStatus(transaction),
-                wonCard: transaction.nftWon.map(mapToWonCard)
+                wonCard: transaction.nftWon.map(mapToWonCard),
+                buybackAmount: transaction.buyback.flatMap(mapToBuybackAmount)
             )
         }
+
+        static func mapToBuybackAmount(_ buyback: CollectiblesDTO.PurchaseBuyback) -> Decimal? {
+            guard let toAmount = buyback.toAmount, let units = Decimal(string: toAmount) else {
+                return nil
+            }
+
+            let decimals = buyback.toDecimals ?? CollectiblesChainEnvironment.usdcTokenItem.decimalCount
+
+            return units.moveLeft(decimals: decimals)
+        }
+
+        static func mapToErrorCode(_ body: Data) -> Int? {
+            (try? errorDecoder.decode(CollectiblesDTO.ErrorResponse.self, from: body))?.code
+        }
+
+        private static let errorDecoder = JSONDecoder()
 
         static func mapToPurchaseStatus(
             _ transaction: CollectiblesDTO.PurchaseTransaction
