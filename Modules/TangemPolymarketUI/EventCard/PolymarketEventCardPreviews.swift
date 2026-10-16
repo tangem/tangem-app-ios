@@ -59,7 +59,7 @@ private extension PolymarketEventCard.Model {
         rows: [PolymarketEventCard.Row],
         additionalOutcomesCount: Int,
         isInActivePredicts: Bool = false,
-        category: PolymarketEventCard.Category? = PolymarketEventCard.Category(name: "Sport", iconURL: nil)
+        category: PolymarketEventCard.Category? = PolymarketEventCard.Category(name: "Sport", icon: DesignSystem.Icons.Basketball.regular16)
     ) -> Self {
         Self(
             id: "event",
