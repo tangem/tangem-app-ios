@@ -34,6 +34,18 @@ struct TronTransactionHistoryMapperTests {
         #expect(records[0].destination == .single(.init(address: .user(otherAddress), amount: 1)))
     }
 
+    @Test
+    func doesNotMatchWalletAddressWithDifferentCase() throws {
+        let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
+        let response = makeResponse(transactions: [
+            .init(fromAddress: walletAddress.lowercased(), toAddress: otherAddress),
+        ])
+
+        let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
+
+        #expect(records.isEmpty)
+    }
+
     @Test(arguments: [9, 57, 58])
     func excludesUnsupportedContractTypeFromHistory(contractType: Int) throws {
         let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
@@ -414,6 +426,51 @@ struct TronTransactionHistoryMapperTests {
         #expect(record.tokenTransfers.map(\.amount) == [5])
     }
 
+    // MARK: - Token history
+
+    @Test
+    func poisonedTransactionProducesNoVisibleUSDTRecords() throws {
+        let lookalikeAddress = "TLookalikeAddress0000000000000000000"
+        let fakeContract = "TFakeTokenContract000000000000000000"
+        let records = try mapTokenTransfers([
+            makeTokenTransfer(to: lookalikeAddress, contract: fakeContract, value: "1500000000"),
+            makeTokenTransfer(to: otherAddress, contract: usdtContract, value: "0"),
+        ], transactionSourceAddress: otherAddress)
+
+        #expect(records.count == 1)
+        #expect(records[0].destination == .single(.init(address: .user(otherAddress), amount: 0)))
+        #expect(visibleTokenRecords(records).isEmpty)
+    }
+
+    @Test
+    func mapsUSDTTransferFromRequestedContract() throws {
+        let records = try mapTokenTransfers([
+            makeTokenTransfer(to: otherAddress, contract: usdtContract, value: "1500000000"),
+        ])
+
+        #expect(records.count == 1)
+        #expect(records[0].destination == .single(.init(address: .user(otherAddress), amount: 1500)))
+    }
+
+    @Test
+    func mapsUSDTTransferWhenContractIsInTokenField() throws {
+        let records = try mapTokenTransfers([
+            makeTokenTransfer(to: otherAddress, token: usdtContract, value: "1500000000"),
+        ])
+
+        #expect(records.count == 1)
+        #expect(records[0].destination == .single(.init(address: .user(otherAddress), amount: 1500)))
+    }
+
+    @Test
+    func doesNotMatchTokenContractWithDifferentCase() throws {
+        let records = try mapTokenTransfers([
+            makeTokenTransfer(to: otherAddress, contract: usdtContract.lowercased(), value: "1500000000"),
+        ])
+
+        #expect(records.isEmpty)
+    }
+
     // MARK: - A NowNodes response
 
     @Test("TRC20 transfers from a NowNodes response are transfers to the contract, with the fee the wallet paid")
@@ -511,6 +568,73 @@ struct TronTransactionHistoryMapperTests {
     private var transferCalldata: String {
         "0xa9059cbb" + String(repeating: "00", count: 11) + "41a346f2bd7d43a5d90b7c57a18196be96b2840e61"
             + String(repeating: "0", count: 59) + "f4240"
+    }
+
+    private func mapTokenTransfers(
+        _ tokenTransfers: [BlockBookAddressResponse.TokenTransfer],
+        transactionSourceAddress: String? = nil
+    ) throws -> [TransactionRecord] {
+        let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
+        let transaction = BlockBookAddressResponse.Transaction(
+            fromAddress: transactionSourceAddress ?? walletAddress,
+            toAddress: usdtContract,
+            value: "0",
+            fees: "345000",
+            contractType: 31,
+            tokenTransfers: tokenTransfers
+        )
+        let usdt = BlockBookAddressResponse.Token(
+            type: "TRC20",
+            id: nil,
+            name: "Tether USD",
+            contract: usdtContract,
+            transfers: 1,
+            symbol: "USDT",
+            decimals: 6,
+            balance: nil
+        )
+        let token = Token(
+            name: "Tether USD",
+            symbol: "USDT",
+            contractAddress: usdtContract,
+            decimalCount: 6
+        )
+
+        return try mapper.mapToTransactionRecords(
+            makeResponse(transactions: [transaction], tokens: [usdt]),
+            walletAddress: walletAddress,
+            amountType: .token(value: token)
+        )
+    }
+
+    private func makeTokenTransfer(
+        to destination: String,
+        contract: String? = nil,
+        token: String? = nil,
+        value: String
+    ) -> BlockBookAddressResponse.TokenTransfer {
+        BlockBookAddressResponse.TokenTransfer(
+            type: "TRC20",
+            from: walletAddress,
+            to: destination,
+            contract: contract,
+            token: token,
+            name: "Tether USD",
+            symbol: "USDT",
+            decimals: 6,
+            value: value
+        )
+    }
+
+    private func visibleTokenRecords(_ records: [TransactionRecord]) -> [TransactionRecord] {
+        records.filter { record in
+            switch record.destination {
+            case .single(let destination):
+                return destination.amount != 0
+            case .multiple(let destinations):
+                return destinations.contains { $0.amount != 0 }
+            }
+        }
     }
 
     private func approveCalldata(addressPrefix: String, amount: String) -> String {
