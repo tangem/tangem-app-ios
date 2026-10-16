@@ -39,6 +39,10 @@ struct SocialAuthTarget: Moya.TargetType {
         }
     }
 
+    var validationType: Moya.ValidationType {
+        .successCodes
+    }
+
     var task: Moya.Task {
         switch endpoint {
         case .recoverWallet(let request):

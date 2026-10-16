@@ -201,5 +201,16 @@ extension AlertBuilder {
                 secondaryButton: .default(Text(secondaryTitle), action: secondaryAction)
             )
         }
+
+        static func withPrimaryCancelButton(
+            cancelAction: @escaping () -> Void,
+            secondaryTitle: String,
+            secondaryAction: @escaping () -> Void
+        ) -> Buttons {
+            .init(
+                primaryButton: .cancel(cancelAction),
+                secondaryButton: .default(Text(secondaryTitle), action: secondaryAction)
+            )
+        }
     }
 }
