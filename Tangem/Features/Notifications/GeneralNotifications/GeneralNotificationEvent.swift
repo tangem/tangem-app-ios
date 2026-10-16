@@ -260,7 +260,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .init(
                 iconType: .image(Assets.DesignSystem.attention),
                 renderingMode: .template,
-                color: .Tangem.Text.Neutral.primary,
+                color: DesignSystem.Color.textPrimary,
                 size: .init(bothDimensions: 28)
             )
         case .demoCard, .legacyDerivation, .systemDeprecationTemporary, .missingDerivation:
@@ -271,7 +271,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .init(
                 iconType: .image(Assets.lock),
                 renderingMode: .template,
-                color: .Tangem.Graphic.Neutral.primary
+                color: DesignSystem.Color.iconPrimary
             )
         case .mobileFinishActivation(let hasPositiveBalance, _):
             let imageType = hasPositiveBalance ? Assets.criticalAttentionShield : Assets.attentionShield
@@ -282,13 +282,13 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .init(
                 iconType: .image(DesignSystem.Icons.Bell.regular20),
                 renderingMode: .template,
-                color: .Tangem.Graphic.Neutral.primary
+                color: DesignSystem.Color.iconPrimary
             )
         case .initialWalletTokenSyncCompleted:
             return .init(
                 iconType: .image(DesignSystem.Icons.Success.regular20),
                 renderingMode: .template,
-                color: .Tangem.Graphic.Status.accent
+                color: DesignSystem.Color.iconAccentBlue
             )
         case .forceUpdateAvailable:
             return .init(iconType: .image(Assets.warningIcon), isLeading: false)
@@ -296,7 +296,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .init(
                 iconType: .image(DesignSystem.Icons.ArrowDown.regular20),
                 renderingMode: .template,
-                color: .Tangem.Text.Neutral.primary
+                color: DesignSystem.Color.textPrimary
             )
         }
     }
