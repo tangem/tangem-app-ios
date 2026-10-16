@@ -11,6 +11,7 @@ import SwiftUI
 // MARK: - Tangem colors
 
 public extension Color {
+    @available(iOS, deprecated: 100000.0, message: "Use DesignSystem.Color tokens")
     enum Tangem {
         public enum Text {}
         public enum Graphic {}

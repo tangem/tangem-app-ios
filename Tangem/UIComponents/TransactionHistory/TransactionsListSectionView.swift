@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemFoundation
 import TangemUI
 import TangemUIUtils
@@ -42,7 +43,7 @@ struct TransactionsListSectionHeaderView: View {
     var body: some View {
         HStack {
             Text(title)
-                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
 
             Spacer()
         }

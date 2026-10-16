@@ -8,27 +8,12 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct TotalBalanceFormattingOptions {
-    let integerPartFont: TangemFontStyle
-    let fractionalPartFont: TangemFontStyle
-    let integerPartColor: Color
-    let fractionalPartColor: Color
+    let integerPart: AttributedBalanceFormatter.PartStyle
+    let fractionalPart: AttributedBalanceFormatter.PartStyle
     let fractionalPartIncludesDecimalSeparator: Bool
-
-    init(
-        integerPartFont: TangemFontStyle,
-        fractionalPartFont: TangemFontStyle,
-        integerPartColor: Color,
-        fractionalPartColor: Color,
-        fractionalPartIncludesDecimalSeparator: Bool
-    ) {
-        self.integerPartFont = integerPartFont
-        self.fractionalPartFont = fractionalPartFont
-        self.integerPartColor = integerPartColor
-        self.fractionalPartColor = fractionalPartColor
-        self.fractionalPartIncludesDecimalSeparator = fractionalPartIncludesDecimalSeparator
-    }
 
     init(
         integerPartFont: TangemTypographyToken,
@@ -37,19 +22,17 @@ struct TotalBalanceFormattingOptions {
         fractionalPartColor: Color,
         fractionalPartIncludesDecimalSeparator: Bool
     ) {
-        self.integerPartFont = TangemFontStyle(integerPartFont)
-        self.fractionalPartFont = TangemFontStyle(fractionalPartFont)
-        self.integerPartColor = integerPartColor
-        self.fractionalPartColor = fractionalPartColor
+        integerPart = AttributedBalanceFormatter.PartStyle(token: integerPartFont, color: integerPartColor)
+        fractionalPart = AttributedBalanceFormatter.PartStyle(token: fractionalPartFont, color: fractionalPartColor)
         self.fractionalPartIncludesDecimalSeparator = fractionalPartIncludesDecimalSeparator
     }
 
     static var defaultOptionsRedesign: TotalBalanceFormattingOptions {
         .init(
-            integerPartFont: Font.Tangem.Title44.semibold,
-            fractionalPartFont: Font.Tangem.Heading28.semibold,
-            integerPartColor: .Tangem.Text.Neutral.primary,
-            fractionalPartColor: .Tangem.Text.Neutral.secondary,
+            integerPartFont: DesignSystem.Font.displayMediumToken,
+            fractionalPartFont: DesignSystem.Font.headingMediumToken,
+            integerPartColor: DesignSystem.Color.textPrimary,
+            fractionalPartColor: DesignSystem.Color.textSecondary,
             fractionalPartIncludesDecimalSeparator: true
         )
     }

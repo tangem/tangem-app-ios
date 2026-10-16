@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemUI
 
 @available(iOS 17.0, *)
@@ -130,6 +131,6 @@ import TangemUI
     }
     .padding()
     .dynamicTypeSize(dynamicTypeSize)
-    .background(Color.Tangem.Surface.level1)
+    .background(DesignSystem.Color.bgPrimary)
     .environment(\.colorScheme, colorScheme)
 }

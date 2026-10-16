@@ -129,7 +129,7 @@ private struct TangemPayAccountTile: View {
         Text(text)
             .style(
                 TangemRowConstants.Style.Subtitle.font,
-                color: state.isSubtitleHighlighted ? Color.Tangem.Text.Status.attention : TangemRowConstants.Style.Subtitle.color
+                color: state.isSubtitleHighlighted ? DesignSystem.Color.textAccentYellow : TangemRowConstants.Style.Subtitle.color
             )
             .lineLimit(1)
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.mainScreenTileSubtitle)

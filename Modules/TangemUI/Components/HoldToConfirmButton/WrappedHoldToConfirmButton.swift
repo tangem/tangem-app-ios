@@ -117,6 +117,7 @@ private extension WrappedHoldToConfirmButton {
 
     var progressBar: some View {
         GeometryReader { proxy in
+            // [REDACTED_TODO_COMMENT]
             Color.Tangem.Fill.Neutral.quaternary
                 .opacity(0.15)
                 .frame(width: progressWidth(in: proxy))
