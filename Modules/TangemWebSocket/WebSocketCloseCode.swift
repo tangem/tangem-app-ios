@@ -6,11 +6,15 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-struct WebSocketCloseCode: RawRepresentable, Hashable, Sendable {
-    let rawValue: UInt16
+public struct WebSocketCloseCode: RawRepresentable, Hashable, Sendable {
+    public let rawValue: UInt16
+
+    public init(rawValue: UInt16) {
+        self.rawValue = rawValue
+    }
 }
 
-extension WebSocketCloseCode {
+public extension WebSocketCloseCode {
     static let normalClosure = Self(rawValue: 1000)
     static let goingAway = Self(rawValue: 1001)
     static let protocolError = Self(rawValue: 1002)
