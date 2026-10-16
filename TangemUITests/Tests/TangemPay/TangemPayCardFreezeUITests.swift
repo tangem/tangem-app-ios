@@ -107,6 +107,7 @@ final class TangemPayCardFreezeUITests: BaseTestCase {
         .verifyEmptyTransactionsState()
         .tapCard()
         .waitForScreen()
+        .verifyCardActive()
         .tapFreezeCard()
         .waitForScreen()
         .confirmFreeze()
