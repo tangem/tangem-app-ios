@@ -36,9 +36,12 @@ final class SwapChooseTokenUITests: BaseTestCase {
             .waitForTokenAvailable("Bitcoin")
             .waitForTokenNotDisplayed("POL (ex-MATIC)")
 
+        // Jesus Coin is actually available and Salam shown-but-unavailable — the reverse of the ticket's claim.
         tokenSelector
             .waitForTokenAvailable("Jesus Coin")
             .waitForTokenUnavailable("Salam")
+
+        // [REDACTED_TODO_COMMENT]
     }
 
     func testSearchOnChooseTokenScreen() {

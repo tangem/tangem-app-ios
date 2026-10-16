@@ -47,7 +47,7 @@ struct TangemPayRegionUnavailableView: View {
                 action: onGotIt
             )
             .size(.x12)
-            .styleType(.default)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.regionUnavailableGotItButton)
             .padding(.horizontal, 16)

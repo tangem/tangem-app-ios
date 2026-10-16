@@ -45,7 +45,7 @@ struct ExpressAPIProviderFactory {
             configuration: .defaultConfiguration,
             expressAPIType: expressAPIType,
             exchangeDataDecoder: exchangeDataDecoder,
-            featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: FeatureProvider.isAvailable(.expressGeoRestrictions))
+            featureFlags: ExpressFeatureFlags()
         )
     }
 }
@@ -53,14 +53,15 @@ struct ExpressAPIProviderFactory {
 private extension ExpressAPIProviderFactory {
     func apiKey(expressAPIType: ExpressAPIType) -> String {
         switch expressAPIType {
-        case .develop, .develop2, .develop3, .stage, .stage2, .stage3, .mock:
+        case .develop, .developNew, .develop2, .develop2New, .develop3, .develop3New,
+             .stage, .develop4New, .stage2, .develop5New, .stage3, .develop6New, .mock:
             if let apiKey = keysManager.devExpressKeys?.apiKey {
                 return apiKey
             }
 
             assertionFailure("[Express] ApiKey not found")
             return ""
-        case .production:
+        case .production, .productionNew:
             return keysManager.expressKeys.apiKey
         }
     }
@@ -77,14 +78,15 @@ private extension ExpressAPIProviderFactory {
 
     func signVerifierPublicKey(expressAPIType: ExpressAPIType) -> String {
         switch expressAPIType {
-        case .develop, .develop2, .develop3, .stage, .stage2, .stage3, .mock:
+        case .develop, .developNew, .develop2, .develop2New, .develop3, .develop3New,
+             .stage, .develop4New, .stage2, .develop5New, .stage3, .develop6New, .mock:
             if let publicKey = keysManager.devExpressKeys?.signVerifierPublicKey {
                 return publicKey
             }
 
             assertionFailure("[Express] SignVerifierPublicKey not found")
             return ""
-        case .production:
+        case .production, .productionNew:
             return keysManager.expressKeys.signVerifierPublicKey
         }
     }

@@ -65,9 +65,9 @@ public struct TangemTwoLineRowLayout<
     private let secondaryTrailing: SecondaryTrailing
     private let trailingMode: TangemRowTrailingMode
 
-    @ScaledMetric private var iconSpacing: CGFloat = Constants.Spacings.imageSpacing.value
-    @ScaledMetric private var linesSpacing: CGFloat = Constants.Spacings.multilineSpacing.value
-    @ScaledMetric private var innerSpacing: CGFloat = Constants.Spacings.topLineInnerSpacing.value
+    @ScaledMetric private var iconSpacing: CGFloat = Constants.Spacings.imageSpacing
+    @ScaledMetric private var linesSpacing: CGFloat = Constants.Spacings.multilineSpacing
+    @ScaledMetric private var innerSpacing: CGFloat = Constants.Spacings.topLineInnerSpacing
 
     private var compressionPolicy: TangemRowCompressionPolicy = .trailingPreserved
 

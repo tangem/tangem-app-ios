@@ -20,12 +20,12 @@ struct YieldIncentiveChartMapper {
     }()
 
     func map(points: [YieldIncentiveAprPoint], period: YieldIncentiveChartPeriod) -> YieldIncentiveChartData {
-        let totals = points.map { NSDecimalNumber(decimal: $0.totalApyEst * 100).doubleValue }
+        let totals = points.map { NSDecimalNumber(decimal: $0.grossTotalApyEst * 100).doubleValue }
         let averageApy = totals.isEmpty ? nil : totals.reduce(0, +) / Double(totals.count)
 
         return YieldIncentiveChartData(
             baseApyData: points.map { NSDecimalNumber(decimal: $0.baseApy * 100).doubleValue },
-            rewardsAprData: points.map { NSDecimalNumber(decimal: $0.rewardsApr * 100).doubleValue },
+            totalApyData: totals,
             xTicks: makeTicks(dates: points.map(\.date), period: period),
             averageApy: averageApy
         )

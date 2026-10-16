@@ -37,7 +37,7 @@ struct AccountFormView: View {
             overlayButtonView
         }
         .padding(.horizontal, 16)
-        .background(Colors.Background.tertiary)
+        .background(viewModel.backgroundColor)
         .navigationTitle(viewModel.title)
         .navigationBarTitleDisplayMode(.inline)
         .withCloseButton(placement: .topBarTrailing, style: .icon) {
@@ -52,10 +52,8 @@ struct AccountFormView: View {
             // See https://stackoverflow.com/questions/70510596 and https://stackoverflow.com/questions/78763987 for more details
             UIResponder.current?.resignFirstResponder()
         }
-        .onAppear {
-            viewModel.onAppear()
-            isNameFocused = true
-        }
+        .onAppear(perform: viewModel.onAppear)
+        .focusOnAppear($isNameFocused, onlyOnce: true)
         .onChange(of: viewModel.selectedColor) { _ in
             isNameFocused = false
         }
@@ -138,6 +136,10 @@ struct AccountFormView: View {
                     makeIconItem(kind: imageItem.kind, isSelected: isSelected)
                 }
             )
+
+            if let wallet = viewModel.wallet {
+                AccountFormWalletRow(wallet: wallet, action: viewModel.onWalletTap)
+            }
         }
     }
 
@@ -187,6 +189,52 @@ struct AccountFormView: View {
                 Circle()
                     .strokeBorder(strokeColor, lineWidth: isSelected ? 2 : 0)
             )
+    }
+}
+
+// MARK: - Wallet row
+
+/// The wallet the account is created in, opens the wallet selection on tap.
+private struct AccountFormWalletRow: View {
+    let wallet: AccountFormWallet
+    let action: () -> Void
+
+    @State private var image: ImageValue?
+    @ScaledMetric private var imageSize = Constants.imageSize
+
+    var body: some View {
+        Row(title: Localization.commonWallet, value: wallet.name)
+            .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
+            .valueAccessory { walletImage }
+            .end { chevron }
+            .onTap(action)
+            .background(AccountFormGridViewConstants.backgroundColor)
+            .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
+            .task(id: wallet.id) {
+                image = nil
+                image = await wallet.imageProvider.loadSmallImage()
+            }
+    }
+
+    @ViewBuilder
+    private var walletImage: some View {
+        if let image {
+            image.image
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: imageSize, height: imageSize)
+        }
+    }
+
+    private var chevron: some View {
+        DesignSystem.Icons.ChevronDown.regular16.image
+            .renderingMode(.template)
+            .foregroundStyle(DesignSystem.Color.iconSecondary)
+    }
+
+    private enum Constants {
+        static let imageSize: CGFloat = 20
+        static let cornerRadius: CGFloat = 14
     }
 }
 

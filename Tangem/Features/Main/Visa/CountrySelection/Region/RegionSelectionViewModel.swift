@@ -14,7 +14,8 @@ import TangemPay
 @MainActor
 final class RegionSelectionViewModel: ObservableObject {
     @Published var searchText = ""
-    @Published private(set) var state: LoadingResult<GeoSelectionSections, any Error> = .loading
+    @Published private(set) var state: LoadingResult<GeoSelectionList, any Error> = .loading
+    @Published private(set) var loadingItemId: String?
     @Published private(set) var regions: [TangemPayGeoRegion] = []
 
     let configuration: GeoSelectionConfiguration
@@ -27,6 +28,7 @@ final class RegionSelectionViewModel: ObservableObject {
         store: TangemPayGeoStore,
         countryCode: String,
         configuration: GeoSelectionConfiguration,
+        loadingItemIdPublisher: AnyPublisher<String?, Never> = Just(nil).eraseToAnyPublisher(),
         output: @escaping (Output) -> Void
     ) {
         self.store = store
@@ -34,18 +36,18 @@ final class RegionSelectionViewModel: ObservableObject {
         self.configuration = configuration
         self.output = output
 
-        bind()
+        bind(loadingItemIdPublisher: loadingItemIdPublisher)
         store.loadRegions(countryCode: countryCode)
     }
 
-    func onItemTap(id: String) {
-        guard let region = regions.first(where: {
+    func onItemTap(id: String, isHighlighted: Bool) {
+        guard loadingItemId == nil, let region = regions.first(where: {
             $0.code == id
         }) else {
             return
         }
 
-        output(.selected(region))
+        output(.selected(region, isHighlighted: isHighlighted))
     }
 
     func onRetryTap() {
@@ -61,7 +63,7 @@ final class RegionSelectionViewModel: ObservableObject {
 
 extension RegionSelectionViewModel {
     enum Output {
-        case selected(TangemPayGeoRegion)
+        case selected(TangemPayGeoRegion, isHighlighted: Bool)
         case closed
     }
 }
@@ -69,7 +71,11 @@ extension RegionSelectionViewModel {
 // MARK: - Binding
 
 private extension RegionSelectionViewModel {
-    func bind() {
+    func bind(loadingItemIdPublisher: AnyPublisher<String?, Never>) {
+        loadingItemIdPublisher
+            .receiveOnMain()
+            .assign(to: &$loadingItemId)
+
         let regionsPublisher = store.regionsPublisher(countryCode: countryCode)
 
         regionsPublisher
@@ -80,23 +86,27 @@ private extension RegionSelectionViewModel {
         Publishers.CombineLatest(regionsPublisher, $searchText)
             .map { [configuration] state, searchText in
                 state.mapValue { regions in
-                    Self.makeSections(from: regions, searchText: searchText, configuration: configuration)
+                    Self.makeList(from: regions, searchText: searchText, configuration: configuration)
                 }
             }
             .receiveOnMain()
             .assign(to: &$state)
     }
 
-    static func makeSections(
+    static func makeList(
         from regions: [TangemPayGeoRegion],
         searchText: String,
         configuration: GeoSelectionConfiguration
-    ) -> GeoSelectionSections {
+    ) -> GeoSelectionList {
         let query = searchText.trimmed()
 
         let filtered = regions
             .filter { query.isEmpty || matches($0, query: query) }
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+
+        guard query.isEmpty else {
+            return .searchResults(filtered.map(makeItem(from:)))
+        }
 
         let highlighted: TangemPayGeoRegion? = switch configuration.highlight {
         case .none: nil
@@ -104,7 +114,7 @@ private extension RegionSelectionViewModel {
         case .selected(let code, _, _): filtered.first { $0.code == code }
         }
 
-        return GeoSelectionSections(
+        return .sections(
             highlighted: highlighted.map(makeItem(from:)),
             all: filtered.map(makeItem(from:))
         )

@@ -43,9 +43,20 @@ extension OverlayViewPresenterViewModel: OverlayViewPresentingStateProvider {
         presentedOverlay != nil
     }
 
+    var presentedOverlayId: String? {
+        presentedOverlay?.id
+    }
+
     var isPresentingPublisher: AnyPublisher<Bool, Never> {
         $presentedOverlay
             .map { $0 != nil }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    var presentedOverlayIdPublisher: AnyPublisher<String?, Never> {
+        $presentedOverlay
+            .map { $0?.id }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }

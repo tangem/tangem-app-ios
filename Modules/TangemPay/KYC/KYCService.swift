@@ -25,6 +25,8 @@ public final class KYCService {
         }
 
         let kycResponse = try await getToken()
+        try Task.checkCancellation()
+
         sdk = SNSMobileSDK(
             accessToken: kycResponse.token,
             environment: .production

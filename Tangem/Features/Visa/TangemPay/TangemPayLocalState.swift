@@ -17,6 +17,8 @@ enum TangemPayLocalState {
     case unavailable
 
     case kycRequired(TangemPayKYCInteractor)
+    case residencyRequired(any TangemPayResidencyInteractor)
+    case regionUnavailable(TangemPayUnavailableRegion, any TangemPayResidencyInteractor)
     case kycDeclined(TangemPayKYCInteractor)
     case failedToIssueCard(TangemPayAccount)
 
@@ -28,6 +30,7 @@ enum TangemPayLocalState {
 
 enum TangemPayCachedLocalState: Codable {
     case kycRequired
+    case actionRequired
     case kycDeclined
     case failedToIssueCard
     case tangemPayAccount(CardsSummary)
@@ -63,6 +66,15 @@ extension TangemPayLocalState {
         return false
     }
 
+    var isKYCRequired: Bool {
+        switch self {
+        case .kycRequired, .residencyRequired, .regionUnavailable:
+            return true
+        default:
+            return false
+        }
+    }
+
     var isFailedToIssueCard: Bool {
         if case .failedToIssueCard = self {
             return true
@@ -74,8 +86,8 @@ extension TangemPayLocalState {
         switch self {
         case .unavailable, .syncNeeded:
             return true
-        case .loading, .syncInProgress, .kycRequired, .kycDeclined,
-             .failedToIssueCard, .tangemPayAccount, .cardDeactivated,
+        case .loading, .syncInProgress, .kycRequired, .residencyRequired, .regionUnavailable,
+             .kycDeclined, .failedToIssueCard, .tangemPayAccount, .cardDeactivated,
              .planSelectNeeded:
             return false
         }
@@ -85,8 +97,8 @@ extension TangemPayLocalState {
         switch self {
         case .loading, .syncInProgress:
             return true
-        case .syncNeeded, .unavailable, .kycRequired, .kycDeclined,
-             .failedToIssueCard, .tangemPayAccount, .cardDeactivated,
+        case .syncNeeded, .unavailable, .kycRequired, .residencyRequired, .regionUnavailable,
+             .kycDeclined, .failedToIssueCard, .tangemPayAccount, .cardDeactivated,
              .planSelectNeeded:
             return false
         }
@@ -112,6 +124,8 @@ extension TangemPayLocalState {
         switch self {
         case .kycRequired:
             .kycRequired
+        case .residencyRequired, .regionUnavailable:
+            .actionRequired
         case .kycDeclined:
             .kycDeclined
         case .failedToIssueCard:

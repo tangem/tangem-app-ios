@@ -62,7 +62,9 @@ enum ExpressAvailableProviderFixture {
     /// states that arm autoupdating.
     static func make(
         state: ExpressProviderManagerState,
-        expressFeeProvider: ExpressFeeProvider = ExpressFeeProviderDummy()
+        expressFeeProvider: ExpressFeeProvider = ExpressFeeProviderDummy(),
+        slippage: Decimal? = nil,
+        isCustomSlippageSupported: Bool = false
     ) -> ExpressAvailableProvider {
         let provider = ExpressProvider(
             id: "provider",
@@ -73,7 +75,8 @@ enum ExpressAvailableProviderFixture {
             termsOfUse: nil,
             privacyPolicy: nil,
             recommended: nil,
-            slippage: nil
+            slippage: slippage,
+            isCustomSlippageSupported: isCustomSlippageSupported
         )
 
         let context = ExpressProviderFlowContext(

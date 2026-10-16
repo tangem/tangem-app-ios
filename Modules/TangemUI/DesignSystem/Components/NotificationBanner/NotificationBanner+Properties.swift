@@ -76,13 +76,13 @@ public extension NotificationBanner {
             case .text: return .zero
             case .textWithIcon(let textWithIcon):
                 return CGSize(
-                    width: textWithIcon.icon.width.value,
-                    height: textWithIcon.icon.height.value
+                    width: textWithIcon.icon.width,
+                    height: textWithIcon.icon.height
                 )
             case .textWithLoadableIcon(let data):
                 return CGSize(
-                    width: data.icon.width.value,
-                    height: data.icon.height.value
+                    width: data.icon.width,
+                    height: data.icon.height
                 )
             }
         }
@@ -114,13 +114,13 @@ public extension NotificationBanner {
         public let color: Color?
         /// Overrides the horizontal icon side; `nil` keeps the `BannerType` default (leading for promo, trailing otherwise).
         public let isLeading: Bool?
-        public let width: SizeUnit
-        public let height: SizeUnit
+        public let width: CGFloat
+        public let height: CGFloat
 
         public init(
             imageType: ImageType,
-            width: SizeUnit = .x7,
-            height: SizeUnit = .x7,
+            width: CGFloat = 28,
+            height: CGFloat = 28,
             renderingMode: Image.TemplateRenderingMode? = nil,
             color: Color? = nil,
             isLeading: Bool? = nil
@@ -146,13 +146,13 @@ public extension NotificationBanner {
 
     struct LoadableIcon: Equatable, Sendable {
         public let url: URL
-        public let width: SizeUnit
-        public let height: SizeUnit
+        public let width: CGFloat
+        public let height: CGFloat
 
         public init(
             url: URL,
-            width: SizeUnit = .x6,
-            height: SizeUnit = .x6
+            width: CGFloat = 24,
+            height: CGFloat = 24
         ) {
             self.url = url
             self.width = width

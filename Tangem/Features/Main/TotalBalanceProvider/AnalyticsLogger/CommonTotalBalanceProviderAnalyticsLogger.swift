@@ -12,15 +12,18 @@ import TangemFoundation
 
 class CommonTotalBalanceProviderAnalyticsLogger {
     private let userWalletId: UserWalletId
+    private let analyticsContextDataProvider: AnalyticsContextDataProvider
     private let calculateWalletModels: () -> [any WalletModel]
 
     private var totalBalanceStateSubscription: AnyCancellable?
 
     init(
         userWalletId: UserWalletId,
+        analyticsContextDataProvider: AnalyticsContextDataProvider,
         walletModelsManager: WalletModelsManager
     ) {
         self.userWalletId = userWalletId
+        self.analyticsContextDataProvider = analyticsContextDataProvider
 
         calculateWalletModels = { [weak walletModelsManager] in
             walletModelsManager?.walletModels ?? []
@@ -29,9 +32,11 @@ class CommonTotalBalanceProviderAnalyticsLogger {
 
     init(
         userWalletId: UserWalletId,
+        analyticsContextDataProvider: AnalyticsContextDataProvider,
         accountModelsManager: any AccountModelsManager
     ) {
         self.userWalletId = userWalletId
+        self.analyticsContextDataProvider = analyticsContextDataProvider
 
         calculateWalletModels = { [accountModelsManager] in
             AccountWalletModelsAggregator.walletModels(from: accountModelsManager)
@@ -57,17 +62,18 @@ extension CommonTotalBalanceProviderAnalyticsLogger: TotalBalanceProviderAnalyti
 
 private extension CommonTotalBalanceProviderAnalyticsLogger {
     func totalBalanceStateDidChange(state: TotalBalanceState) {
+        let contextParams = Analytics.ContextParams.custom(analyticsContextDataProvider.analyticsContextData)
         let walletModels = calculateWalletModels()
 
-        trackTokenBalanceStateChanged(state: state, tokensCount: walletModels.count)
-        trackTokenBalanceLoaded(walletModels: walletModels)
+        trackTokenBalanceStateChanged(state: state, tokensCount: walletModels.count, contextParams: contextParams)
+        trackTokenBalanceLoaded(walletModels: walletModels, contextParams: contextParams)
 
         if case .loaded(let loadedBalance) = state {
-            Analytics.logTopUpIfNeeded(balance: loadedBalance, for: userWalletId, contextParams: .userWallet(userWalletId))
+            Analytics.logTopUpIfNeeded(balance: loadedBalance, for: userWalletId, contextParams: contextParams)
         }
     }
 
-    func trackTokenBalanceStateChanged(state: TotalBalanceState, tokensCount: Int) {
+    func trackTokenBalanceStateChanged(state: TotalBalanceState, tokensCount: Int, contextParams: Analytics.ContextParams) {
         let balance: Analytics.ParameterValue? = switch state {
         case .empty: .noRate
         case .loading: .none
@@ -87,12 +93,12 @@ private extension CommonTotalBalanceProviderAnalyticsLogger {
                 .tokensCount: tokensCount.description,
             ],
             analyticsSystems: .all,
-            contextParams: .userWallet(userWalletId),
+            contextParams: contextParams,
             limit: .userWalletSession(userWalletId: userWalletId)
         )
     }
 
-    func trackTokenBalanceLoaded(walletModels: [any WalletModel]) {
+    func trackTokenBalanceLoaded(walletModels: [any WalletModel], contextParams: Analytics.ContextParams) {
         let trackedItems = walletModels.compactMap { walletModel -> (symbol: String, balance: Decimal)? in
             switch (walletModel.tokenItem.blockchain, walletModel.fiatTotalTokenBalanceProvider.balanceType) {
             case (.polkadot, .loaded(let balance)): (symbol: walletModel.tokenItem.currencySymbol, balance: balance)
@@ -112,7 +118,7 @@ private extension CommonTotalBalanceProviderAnalyticsLogger {
                     .token: symbol,
                     .state: positiveBalance ? Analytics.ParameterValue.full.rawValue : Analytics.ParameterValue.empty.rawValue,
                 ],
-                contextParams: .userWallet(userWalletId),
+                contextParams: contextParams,
                 limit: .userWalletSession(userWalletId: userWalletId, extraEventId: symbol)
             )
         }

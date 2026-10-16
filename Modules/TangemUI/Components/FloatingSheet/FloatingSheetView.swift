@@ -99,6 +99,12 @@ public struct FloatingSheetView: View {
             .background(sheetContentConfiguration.sheetBackgroundColor)
             .clipShape(roundedRectangle)
             .contentShape(roundedRectangle)
+            .tangemMaterialSurface(
+                in: roundedRectangle,
+                style: sheetContentConfiguration.sheetBackgroundMaterial ?? .default,
+                isVisible: sheetContentConfiguration.sheetBackgroundMaterial != nil,
+                shadow: nil
+            )
             .padding(.horizontal, 8)
             .padding(.leading, horizontalSafeAreaInsets.leading)
             .padding(.trailing, horizontalSafeAreaInsets.trailing)
@@ -136,7 +142,7 @@ public struct FloatingSheetView: View {
             }
     }
 
-    private var roundedRectangle: some InsettableShape {
+    private var roundedRectangle: RoundedRectangle {
         RoundedRectangle(cornerRadius: 28, style: .continuous)
     }
 

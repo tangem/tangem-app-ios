@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemFoundation
 import TangemLocalization
@@ -14,11 +15,12 @@ import TangemUI
 import TangemUIUtils
 
 struct GeoSelectionContentView: View {
-    let state: LoadingResult<GeoSelectionSections, any Error>
+    let state: LoadingResult<GeoSelectionList, any Error>
     let highlightedSectionTitle: String?
     let allSectionTitle: String?
     let hasFlags: Bool
-    let onItemTap: (String) -> Void
+    var loadingItemId: String?
+    let onItemTap: (_ id: String, _ isHighlighted: Bool) -> Void
 
     var body: some View {
         content
@@ -40,53 +42,76 @@ private extension GeoSelectionContentView {
         case .failure:
             emptyView
 
-        case .success(let sections):
-            if sections.isEmpty {
+        case .success(let selectionList):
+            if selectionList.isEmpty {
                 emptyView
             } else {
-                list(sections)
+                list(selectionList)
             }
         }
     }
 
-    func list(_ sections: GeoSelectionSections) -> some View {
+    func list(_ selectionList: GeoSelectionList) -> some View {
         ScrollView {
-            LazyVStack(
-                spacing: .zero,
-                pinnedViews: [.sectionHeaders]
-            ) {
-                if let highlighted = sections.highlighted {
-                    Section {
-                        row(highlighted)
-                    } header: {
-                        if let highlightedSectionTitle {
-                            header(highlightedSectionTitle)
-                        }
-                    }
-                }
+            LazyVStack(spacing: .zero) {
+                switch selectionList {
+                case .sections(let highlighted, let all):
+                    sections(highlighted: highlighted, all: all)
 
-                Section {
-                    ForEach(sections.all) { item in
-                        row(item)
-                    }
-                } header: {
-                    if sections.all.isNotEmpty, let allSectionTitle {
-                        header(allSectionTitle)
+                case .searchResults(let items):
+                    ForEach(items) { item in
+                        row(item, isHighlighted: false)
                     }
                 }
+            }
+        }
+        .allowsHitTesting(loadingItemId == nil)
+    }
+
+    @ViewBuilder
+    func sections(highlighted: GeoSelectionItem?, all: [GeoSelectionItem]) -> some View {
+        if let highlighted {
+            Section {
+                row(highlighted, isHighlighted: true)
+            } header: {
+                if let highlightedSectionTitle {
+                    header(highlightedSectionTitle)
+                }
+            }
+        }
+
+        Section {
+            ForEach(all) { item in
+                row(item, isHighlighted: false)
+            }
+        } header: {
+            if all.isNotEmpty, let allSectionTitle {
+                header(allSectionTitle)
             }
         }
     }
 
     @ViewBuilder
-    func row(_ item: GeoSelectionItem) -> some View {
+    func row(_ item: GeoSelectionItem, isHighlighted: Bool) -> some View {
         if hasFlags {
             Row(title: item.title)
                 .start { CountryFlagView(url: item.flagURL) }
-                .onTap { onItemTap(item.id) }
+                .end { loader(for: item) }
+                .onTap { onItemTap(item.id, isHighlighted) }
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.geoSelectionRow)
         } else {
             Row(title: item.title)
-                .onTap { onItemTap(item.id) }
+                .end { loader(for: item) }
+                .onTap { onItemTap(item.id, isHighlighted) }
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.geoSelectionRow)
+        }
+    }
+
+    @ViewBuilder
+    func loader(for item: GeoSelectionItem) -> some View {
+        if item.id == loadingItemId {
+            Loader()
+                .loaderSize(.size20)
         }
     }
 
@@ -97,7 +122,6 @@ private extension GeoSelectionContentView {
             .padding(.horizontal, Constants.horizontalPadding)
             .padding(.top, Constants.sectionSpacing)
             .padding(.bottom, Constants.titleVerticalPadding)
-            .background(DesignSystem.Color.bgPrimary)
     }
 }
 
@@ -117,8 +141,7 @@ private extension GeoSelectionContentView {
     var emptyView: some View {
         messageView(
             icon: DesignSystem.Icons.Binoculars.regular20,
-            // [REDACTED_TODO_COMMENT]
-            message: "No results. Try to change request"
+            message: Localization.tangempayResidencySearchEmpty
         )
     }
 
@@ -163,19 +186,19 @@ private extension GeoSelectionContentView {
 #Preview("Countries") {
     GeoSelectionContentView(
         state: .success(
-            GeoSelectionSections(highlighted: nil, all: GeoSelectionItem.previewCountries)
+            .sections(highlighted: nil, all: GeoSelectionItem.previewCountries)
         ),
         highlightedSectionTitle: nil,
         allSectionTitle: nil,
         hasFlags: true,
-        onItemTap: { _ in }
+        onItemTap: { _, _ in }
     )
 }
 
 #Preview("Countries with selection") {
     GeoSelectionContentView(
         state: .success(
-            GeoSelectionSections(
+            .sections(
                 highlighted: GeoSelectionItem.previewCountries[2],
                 all: GeoSelectionItem.previewCountries
             )
@@ -183,14 +206,14 @@ private extension GeoSelectionContentView {
         highlightedSectionTitle: "Selected country",
         allSectionTitle: "Change country",
         hasFlags: true,
-        onItemTap: { _ in }
+        onItemTap: { _, _ in }
     )
 }
 
 #Preview("Regions with selection") {
     GeoSelectionContentView(
         state: .success(
-            GeoSelectionSections(
+            .sections(
                 highlighted: GeoSelectionItem.previewRegions[1],
                 all: GeoSelectionItem.previewRegions
             )
@@ -198,7 +221,32 @@ private extension GeoSelectionContentView {
         highlightedSectionTitle: "Selected state",
         allSectionTitle: "Select another state",
         hasFlags: false,
-        onItemTap: { _ in }
+        onItemTap: { _, _ in }
+    )
+}
+
+#Preview("Search results") {
+    GeoSelectionContentView(
+        state: .success(
+            .searchResults(Array(GeoSelectionItem.previewCountries.prefix(2)))
+        ),
+        highlightedSectionTitle: "Selected country",
+        allSectionTitle: "Change country",
+        hasFlags: true,
+        onItemTap: { _, _ in }
+    )
+}
+
+#Preview("Item loading") {
+    GeoSelectionContentView(
+        state: .success(
+            .sections(highlighted: nil, all: GeoSelectionItem.previewCountries)
+        ),
+        highlightedSectionTitle: nil,
+        allSectionTitle: nil,
+        hasFlags: true,
+        loadingItemId: GeoSelectionItem.previewCountries[1].id,
+        onItemTap: { _, _ in }
     )
 }
 
@@ -208,17 +256,17 @@ private extension GeoSelectionContentView {
         highlightedSectionTitle: "Selected country",
         allSectionTitle: "Change country",
         hasFlags: true,
-        onItemTap: { _ in }
+        onItemTap: { _, _ in }
     )
 }
 
 #Preview("Empty") {
     GeoSelectionContentView(
-        state: .success(GeoSelectionSections(highlighted: nil, all: [])),
+        state: .success(.searchResults([])),
         highlightedSectionTitle: "Selected country",
         allSectionTitle: "Change country",
         hasFlags: true,
-        onItemTap: { _ in }
+        onItemTap: { _, _ in }
     )
 }
 
@@ -228,7 +276,7 @@ private extension GeoSelectionContentView {
         highlightedSectionTitle: "Selected country",
         allSectionTitle: "Change country",
         hasFlags: true,
-        onItemTap: { _ in }
+        onItemTap: { _, _ in }
     )
 }
 #endif
