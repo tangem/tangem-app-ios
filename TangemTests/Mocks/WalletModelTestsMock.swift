@@ -24,6 +24,7 @@ final class WalletModelTestsMock: WalletModel {
     private let _account: (any CryptoAccountModel)?
     private let _safeWalletManagerOperationsService: (any SafeWalletManagerOperationsService)?
     private let _addresses: [Address]
+    private let _isCustom: Bool
 
     var transactionCreatorMock: TransactionCreator?
     var multipleTransactionsSenderMock: MultipleTransactionsSender?
@@ -48,6 +49,7 @@ final class WalletModelTestsMock: WalletModel {
         _account = nil
         _safeWalletManagerOperationsService = nil
         _addresses = [PlainAddress(value: "mock", type: .default)]
+        _isCustom = false
     }
 
     init(fiatBalanceProvider: TokenBalanceProvider, priceChange24h: Decimal?) {
@@ -61,6 +63,7 @@ final class WalletModelTestsMock: WalletModel {
         _account = nil
         _safeWalletManagerOperationsService = nil
         _addresses = [PlainAddress(value: "mock", type: .default)]
+        _isCustom = false
     }
 
     init(
@@ -70,7 +73,8 @@ final class WalletModelTestsMock: WalletModel {
         fiatBalanceProvider: TokenBalanceProvider? = nil,
         account: (any CryptoAccountModel)? = nil,
         addresses: [Address] = [PlainAddress(value: "mock", type: .default)],
-        safeWalletManagerOperationsService: (any SafeWalletManagerOperationsService)? = nil
+        safeWalletManagerOperationsService: (any SafeWalletManagerOperationsService)? = nil,
+        isCustom: Bool = false
     ) {
         _safeWalletManagerOperationsService = safeWalletManagerOperationsService
         _tokenItem = tokenItem
@@ -82,6 +86,7 @@ final class WalletModelTestsMock: WalletModel {
         _fiatAvailableBalance = fiatBalance
         _account = account
         _addresses = addresses
+        _isCustom = isCustom
     }
 
     var quote: TokenQuote? {
@@ -175,7 +180,7 @@ final class WalletModelTestsMock: WalletModel {
     var canUseQuotes: Bool { true }
     var isEmpty: Bool { _isEmpty }
     var publicKey: Wallet.PublicKey { Wallet.PublicKey(seedKey: Data(), derivationType: .none) }
-    var isCustom: Bool { false }
+    var isCustom: Bool { _isCustom }
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { .empty }
     var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
     var qrReceiveMessage: String { "" }
