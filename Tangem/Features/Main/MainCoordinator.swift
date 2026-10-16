@@ -31,6 +31,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
     @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
 
     private let coordinatorFactory: MainCoordinatorChildFactory
@@ -206,8 +207,16 @@ extension MainCoordinator: MainRoutable {
         let dismissAction: Action<MainQRScanFlowCoordinator.DismissOptions?> = { [weak self] options in
             self?.mainQRScanFlowCoordinator = nil
 
-            if case .openFeeCurrency(let option) = options {
+            switch options {
+            case .openFeeCurrency(let option):
                 self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
+            case .openDeeplink(let url):
+                Task { @MainActor [weak self] in
+                    try? await Task.sleep(for: .seconds(Constants.qrScanDeeplinkHandoffDelay))
+                    self?.incomingActionHandler.handleIncomingURL(url)
+                }
+            case .none:
+                break
             }
         }
 
@@ -1005,6 +1014,7 @@ extension MainCoordinator {
         static let tooltipAnimationDelay: Double = 1.5
         static let tangemPayPlanActivationNavigationDelay: TimeInterval = 0.6
         static let tangemPayCampaignPresentationDelay: TimeInterval = 0.35
+        static let qrScanDeeplinkHandoffDelay: TimeInterval = 0.35
         static let tangemPayRegionReselectionPresentationDelay: TimeInterval = 0.5
     }
 }

@@ -11,6 +11,7 @@ import Foundation
 enum MainQRScanAction: Equatable {
     case walletConnect(WalletConnectRequestURI)
     case payment(MainQRResolvedPaymentRequest)
+    case deeplink(URL)
     case address(MainQRAddressRequest)
     case showNoSupportedTokens(MainQRNoSupportedTokensContext? = nil)
     case showUnrecognized

@@ -113,6 +113,9 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
 
             handlePayment(request: request, allMatches: allMatches)
 
+        case .deeplink(let url):
+            handleDeeplink(url: url)
+
         case .address(let matchResult, let sendParameters, let filter):
             openSendOrSelector(
                 matches: matchResult.filtered,
@@ -145,6 +148,12 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
         closeScanner()
         floatingSheetPresenter.enqueue(sheet: viewModel)
         dismissAction(nil)
+    }
+
+    @MainActor
+    private func handleDeeplink(url: URL) {
+        closeScanner()
+        dismissAction(.openDeeplink(url))
     }
 
     @MainActor
@@ -377,6 +386,9 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
         case .payment(let request):
             return .payment(request, allMatches: context.allMatches)
 
+        case .deeplink(let url):
+            return .deeplink(url)
+
         case .address(let request):
             let sendParameters = sendParametersFactory.makeSendParameters(
                 destination: request.destinationAddress,
@@ -486,6 +498,7 @@ extension MainQRScanFlowCoordinator {
     enum ResolvedRouteAction {
         case walletConnect(WalletConnectRequestURI)
         case payment(MainQRResolvedPaymentRequest, allMatches: [MainQRWalletModelMatch])
+        case deeplink(URL)
         case address(MatchFilterResult, sendParameters: PredefinedSendParameters, filter: MainQRScanTokenSelectorAvailabilityFilter)
         case showNoSupportedTokens(MainQRNoSupportedTokensContext?)
         case showUnrecognized
@@ -530,6 +543,7 @@ extension MainQRScanFlowCoordinator {
 
     enum DismissOptions {
         case openFeeCurrency(FeeCurrencyNavigatingDismissOption)
+        case openDeeplink(URL)
     }
 
     enum ViewState: Identifiable {
