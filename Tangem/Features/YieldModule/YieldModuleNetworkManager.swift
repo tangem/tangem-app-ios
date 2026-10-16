@@ -149,7 +149,7 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
                 YieldIncentiveAprPoint(
                     date: $0,
                     baseApy: point.baseApy / 100,
-                    totalApyEst: point.totalApyEst / 100
+                    grossTotalApyEst: point.grossTotalApyEst / 100
                 )
             }
         }

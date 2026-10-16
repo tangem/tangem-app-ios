@@ -96,14 +96,14 @@ enum Feature: String, Hashable, CaseIterable {
         case .walletCardsBackupReport: return .unspecified
         case .jointAccounts: return .unspecified
         case .ethPolLocalStakingValidation: return .unspecified
-        case .yieldDexTransferDetection: return .unspecified
+        case .yieldDexTransferDetection: return .version("6.5")
         case .collectibles: return .unspecified
         case .totalTokenBalanceV2: return .unspecified
         case .mobileSocialLogin: return .unspecified
-        case .realAssets: return .unspecified
+        case .realAssets: return .version("6.5")
         case .hardwareUpgradeStories: return .version("6.5")
         case .jointAccountsGaslessTokenFee: return .unspecified
-        case .merklIncentives: return .version("6.5")
+        case .merklIncentives: return .unspecified
         case .mcp: return .unspecified
         case .tangemPayChooseCountry: return .version("6.5")
         case .payBundleIntroduction: return .unspecified
@@ -112,7 +112,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .promoCampaignsV2: return .version("6.5")
         case .tangemPayAppleWalletProvisioning: return .unspecified
         case .customSlippage: return .version("6.5")
-        case .tronGaslessCEX: return .unspecified
+        case .tronGaslessCEX: return .version("6.4.1")
         case .tokenChartAddToPortfolio: return .unspecified
         case .marketingActivityBinding: return .unspecified
         }

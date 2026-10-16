@@ -197,7 +197,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
         coordinator?.openAboutApySheet(
             viewModel: YieldModuleAboutApyViewModel(
                 baseApy: apyBreakdown.baseApy,
-                rewardsApr: apyBreakdown.rewardsApr,
+                rewardsApy: apyBreakdown.rewardsApy,
                 usesIncentiveDesign: usesIncentiveDesign
             )
         )

@@ -166,8 +166,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
 private extension AddressBookContactManagementViewModel {
     func bind() {
         interactor.contactNamePublisher
-            .removeDuplicates()
-            .receiveOnMain()
+            .first()
             .assign(to: &$contactName)
 
         $contactName

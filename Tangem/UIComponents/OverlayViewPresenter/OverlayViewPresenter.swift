@@ -18,6 +18,7 @@ protocol OverlayViewPresenter: AnyObject {
 
 protocol OverlayViewPresentingStateProvider: AnyObject {
     var isPresenting: Bool { get }
+    var presentedOverlayId: String? { get }
     var isPresentingPublisher: AnyPublisher<Bool, Never> { get }
     var presentedOverlayIdPublisher: AnyPublisher<String?, Never> { get }
 }
@@ -37,6 +38,7 @@ struct OverlayView: Identifiable {
 
     enum PresentationStyle: Equatable {
         case sheet
+        case modal
         case fullScreenCover
     }
 }

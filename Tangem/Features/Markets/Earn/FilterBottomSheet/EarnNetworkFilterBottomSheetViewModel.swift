@@ -12,7 +12,6 @@ import BlockchainSdk
 import TangemAssets
 import TangemLocalization
 import protocol TangemUI.FloatingSheetContentViewModel
-import protocol TangemUI.TabNavigationItem
 
 @MainActor
 final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiable, FloatingSheetContentViewModel {
@@ -28,11 +27,8 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
         Localization.earnFilterNetworks
     }
 
-    var scopeBinding: Binding<EarnNetworkFilterScope> {
-        Binding(
-            get: { [weak self] in self?.draft.scope ?? .allNetworks },
-            set: { [weak self] newValue in self?.select(scope: newValue) }
-        )
+    var selectedScope: EarnNetworkFilterScope {
+        draft.scope
     }
 
     // MARK: - Identifiable
@@ -77,6 +73,10 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
 
     func onCloseTap() {
         dismiss()
+    }
+
+    func onScopeTap(_ scope: EarnNetworkFilterScope) {
+        select(scope: scope)
     }
 
     func onAllOptionTap() {
@@ -213,7 +213,7 @@ private extension EarnNetworkFilterBottomSheetViewModel {
 
 // MARK: - EarnNetworkFilterScope
 
-enum EarnNetworkFilterScope: CaseIterable, TabNavigationItem {
+enum EarnNetworkFilterScope: CaseIterable, Identifiable {
     case allNetworks
     case myNetworks
 
