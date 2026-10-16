@@ -284,7 +284,7 @@ extension UserWalletSettingsCoordinator: AddAccountTypeSelectorRoutable {
             return
         }
 
-        Task { @MainActor in
+        Task { @MainActor [self] in
             floatingSheetPresenter.removeActiveSheet()
 
             let accountModels = userWalletModel.accountModelsManager.accountModels

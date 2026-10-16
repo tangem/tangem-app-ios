@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemLocalization
 import TangemAccessibilityIdentifiers
+import TangemUIUtils
 
 struct StakingDetailsCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: StakingDetailsCoordinator
@@ -56,8 +57,9 @@ extension StakingDetailsCoordinatorView {
                 .navigationBarTitle(Text(Localization.commonStake), displayMode: .inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
-                        CloseTextButton(action: coordinator.dismiss)
+                        CloseToolbarButton(action: coordinator.dismiss)
                     }
+                    .prefersVerticalBar()
                 }
         }
     }
