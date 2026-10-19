@@ -499,9 +499,6 @@ extension Analytics {
         case promotionBannerAppeared = "[Promotion] Notice - Promotion Banner"
         case promotionBannerClicked = "[Promotion] Promo Banner Clicked"
 
-        case bitcoinPromoDeeplinkActivation = "[Promotion] Bitcoin Promo Deep Link Activation"
-        case bitcoinPromoActivation = "[Promotion] Bitcoin Promo Activation"
-
         case promotionVisaWaitlist = "[Promotion] Visa Waitlist"
         case promotionButtonJoinNow = "[Promotion] Button - Join Now"
         case promotionButtonClose = "[Promotion] Button - Close"
@@ -518,6 +515,10 @@ extension Analytics {
         case promotionBannerCarouselScrolled = "[Promo Banner] Banner Carousel Scrolled"
         case promotionBannerButtonClicked = "[Promo Banner] Banner Button Clicked"
         case promotionBannerDismissed = "[Promo Banner] Banner Dismissed"
+        case promotionBannerBannerOpen = "[Promo Banner] Banner Open"
+        case promotionBannerActivationAttempt = "[Promo Banner] Activation Attempt"
+        case promotionBannerActivationSuccess = "[Promo Banner] Activation Success"
+        case promotionBannerActivationFailed = "[Promo Banner] Activation Failed"
 
         // MARK: - Errors
 

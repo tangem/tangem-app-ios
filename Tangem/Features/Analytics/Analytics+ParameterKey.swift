@@ -156,6 +156,9 @@ extension Analytics {
 
         case displayId = "Display Id"
         case placeholder = "Placeholder"
+        case campaignId = "Campaign Id"
+        case promoCode = "Promo Code"
+        case activationTime = "Activation Time"
 
         // MARK: - Earn
 
