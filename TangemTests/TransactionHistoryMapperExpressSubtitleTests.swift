@@ -51,7 +51,7 @@ struct TransactionHistoryMapperExpressSubtitleTests {
     }
 
     @Test("After a Send&Swap to an outside address the row names nobody, while the recipient stays known for the details")
-    func sendAndSwapToAnOutsideAddress() {
+    func sendAndSwapToAnOutsideAddress() async {
         let resolver = SubtitleOwnerResolver(
             blockchain: .ethereum(testnet: false),
             currentUserWalletId: UserWalletId(value: Data()),
@@ -59,7 +59,9 @@ struct TransactionHistoryMapperExpressSubtitleTests {
             contacts: []
         )
 
-        let viewModel = makeSUT().mapTransactionViewModel(swapRecord(isOutgoing: true), subtitleOwnerResolver: resolver)
+        let viewModel = await withUserWallets([]) {
+            makeSUT().mapTransactionViewModel(swapRecord(isOutgoing: true), subtitleOwnerResolver: resolver)
+        }
 
         guard case .express(let model)? = viewModel.display.subtitle else {
             Issue.record("expected an express subtitle for a swap")
@@ -72,6 +74,31 @@ struct TransactionHistoryMapperExpressSubtitleTests {
             return
         }
         #expect(fullAddress == "0xOut")
+    }
+
+    @Test("A swap between two tokens of one account names no counterparty, so the details keep You send / You receive")
+    func swapWithinOneAccount() async throws {
+        let account = CryptoAccountModelMock(isMainAccount: true, onArchive: { _ in })
+
+        let model = try #require(await swapSubtitle(sourceAccount: account, destinationAccount: account))
+
+        #expect(model.owner == nil)
+        #expect(model.counterparty == nil, "Both legs live in the same account, so there is nobody to name as From / To")
+    }
+
+    @Test("A swap into another account of the wallet keeps that account as the counterparty, so the details name From / To")
+    func swapIntoAnotherAccount() async throws {
+        let source = CryptoAccountModelMock(isMainAccount: true, onArchive: { _ in })
+        let destination = CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }).update { $0.setName("Savings") }
+
+        let model = try #require(await swapSubtitle(sourceAccount: source, destinationAccount: destination))
+
+        guard case .accountInCurrentWallet(let name, _)? = model.counterparty else {
+            Issue.record("expected the receiving account as the counterparty")
+            return
+        }
+        #expect(name == "Savings")
+        #expect(model.owner == model.counterparty)
     }
 
     @Test("A swap whose counterparty leg is a saved contact names that contact in the row")
@@ -169,6 +196,43 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
         )
     }
 
+    func withUserWallets<T>(_ models: [UserWalletModel], operation: () -> T) async -> T {
+        await InjectedDependenciesIsolation.shared.run {
+            let previous = InjectedValues[\.userWalletRepository]
+            InjectedValues[\.userWalletRepository] = FakeUserWalletRepository(models: models)
+            defer { InjectedValues[\.userWalletRepository] = previous }
+            return operation()
+        }
+    }
+
+    func swapSubtitle(
+        sourceAccount: CryptoAccountModelMock,
+        destinationAccount: CryptoAccountModelMock
+    ) async -> TransactionDisplayModel.ExpressSubtitle? {
+        let fromAddress = "0xOwnFrom"
+        let payOutAddress = "0xOwnOut"
+        let userWalletModel = SingleAccountUserWalletModelStub(walletModels: [
+            WalletModelTestsMock(tokenItem: ExpressMergeTestDataFactory.ethereumToken, isEmpty: false, account: sourceAccount, addresses: [PlainAddress(value: fromAddress, type: .default)]),
+            WalletModelTestsMock(tokenItem: ExpressMergeTestDataFactory.bitcoinToken, isEmpty: false, account: destinationAccount, addresses: [PlainAddress(value: payOutAddress, type: .default)]),
+        ])
+        let resolver = SubtitleOwnerResolver(
+            blockchain: .ethereum(testnet: false),
+            currentUserWalletId: userWalletModel.userWalletId,
+            isAccountsMode: true,
+            contacts: []
+        )
+
+        let record = swapRecord(isOutgoing: true, fromAddress: fromAddress, payOutAddress: payOutAddress)
+        let viewModel = await withUserWallets([userWalletModel]) {
+            makeSUT().mapTransactionViewModel(record, subtitleOwnerResolver: resolver)
+        }
+
+        guard case .express(let model)? = viewModel.display.subtitle else {
+            return nil
+        }
+        return model
+    }
+
     func baseRecord(isOutgoing: Bool, extraInfo: TransactionHistoryExpressExtraInfo?) -> TransactionRecord {
         let record = TransactionRecord(
             hash: "hash",
@@ -191,6 +255,10 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
     }
 
     func swapRecord(isOutgoing: Bool) -> TransactionRecord {
+        swapRecord(isOutgoing: isOutgoing, fromAddress: "0xFrom", payOutAddress: "0xOut")
+    }
+
+    func swapRecord(isOutgoing: Bool, fromAddress: String, payOutAddress: String) -> TransactionRecord {
         let fromCurrency = ExpressMergeTestDataFactory.matchingCurrency(for: ExpressMergeTestDataFactory.ethereumToken)
         let toCurrency = ExpressMergeTestDataFactory.matchingCurrency(for: ExpressMergeTestDataFactory.bitcoinToken)
 
@@ -198,10 +266,10 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
             transaction: ExpressMergeTestDataFactory.exchangeTransaction(
                 txId: "tx",
                 status: .sending,
-                fromAddress: "0xFrom",
+                fromAddress: fromAddress,
                 payInAddress: "0xIn",
                 payInHash: nil,
-                payOutAddress: "0xOut",
+                payOutAddress: payOutAddress,
                 payOutHash: nil,
                 fromCurrency: fromCurrency,
                 fromAmount: 1,
@@ -278,4 +346,25 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
 
 private struct StubExpressSubtitleAddressesProvider: WalletModelTransactionHistoryAddressesProvider {
     let walletAddresses: [String]
+}
+
+private final class SingleAccountUserWalletModelStub: UserWalletModelMock {
+    private let id = UserWalletId(value: Data([0x16, 0x49, 0x4]))
+    private let manager: AccountModelsManager
+
+    init(walletModels: [any WalletModel]) {
+        let walletModelsManager = WalletModelsManagerTestsMock()
+        walletModelsManager.walletModels = walletModels
+        manager = AccountModelsManagerStub(
+            account: CryptoAccountModelMock(
+                isMainAccount: true,
+                walletModelsManager: walletModelsManager,
+                onArchive: { _ in }
+            )
+        )
+    }
+
+    override var userWalletId: UserWalletId { id }
+    override var accountModelsManager: AccountModelsManager { manager }
+    override var config: UserWalletConfig { UserWalletConfigStub() }
 }

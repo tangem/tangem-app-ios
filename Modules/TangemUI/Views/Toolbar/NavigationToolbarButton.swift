@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
+import TangemUIUtils
 
 /// A toolbar button used as a replacement for a system navigation toolbar button.
 ///
@@ -55,6 +56,7 @@ public struct NavigationToolbarButton: CustomizableToolbarContent {
                 .accessibilityLabel(accessibilityLabel)
                 .accessibilityIdentifier(accessibilityIdentifier)
         }
+        .prefersVerticalBar()
     }
 
     @ViewBuilder

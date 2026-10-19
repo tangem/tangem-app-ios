@@ -23,6 +23,7 @@ final class TangemPayResidencyCoordinator: CoordinatorObject {
     @Published var alert: AlertBinder?
     @Published var privacyPolicyViewModel: WebViewContainerViewModel?
     @Published private(set) var loadingItemId: String?
+    @Published private(set) var navigationStackId = UUID()
 
     private(set) var product: TangemPayProduct = .paymentAccount
     private(set) var geoStore: TangemPayGeoStore?
@@ -108,6 +109,7 @@ extension TangemPayResidencyCoordinator {
             unavailableRegion = nil
             interactor?.beginResidency()
             path = []
+            navigationStackId = UUID()
             analyticsLogger.logCountrySelectScreenOpened()
 
         case .joinWaitlist:

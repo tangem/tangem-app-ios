@@ -240,8 +240,8 @@ extension MobileOnboardingViewModel: MobileOnboardingFlowRoutable {
 
     func openBackupStorageUnavailable() {
         let input = MobileBackupStorageUnavailableInput(mode: .info)
-        runTask { [coordinator] in
-            await coordinator?.openMobileBackupStorageUnavailable(input: input)
+        runTask(in: self) { viewModel in
+            await viewModel.coordinator?.openMobileBackupStorageUnavailable(input: input)
         }
     }
 }

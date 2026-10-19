@@ -17,7 +17,13 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     private lazy var freezeRowFrozen = button(.freezeCardRowStateFrozen)
     private lazy var moreMenuButton = button(.cardManagementMoreButton)
     private lazy var replaceCardMenuItem = button(Localization.tangempayCardDetailsReissueCard)
-    private lazy var closeCardMenuItem = button(Localization.tangemPayCloseCardPopupPrimaryButtonTitle)
+    private lazy var closeCardMenuItem = app.buttons
+        .matching(NSPredicate(
+            format: "identifier IN %@",
+            [TangemPayAccessibilityIdentifiers.closeCardRow, TangemPayAccessibilityIdentifiers.closeCardRowLastCard]
+        ))
+        .firstMatch
+    private lazy var closeCardMenuItemLastCard = app.buttons[TangemPayAccessibilityIdentifiers.closeCardRowLastCard].firstMatch
     private lazy var dailyLimitChangeButton = button(.dailyLimitChangeButton)
     private lazy var showDetailsButton = button(.cardDetailsShowButton)
     private lazy var hideDetailsButton = button(.cardDetailsHideButton)
@@ -112,6 +118,35 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     }
 
     @discardableResult
+    func verifyCardActionsLockedWhileFrozen() -> Self {
+        XCTContext.runActivity(named: "Verify Details and PIN are disabled and the daily limit cannot be edited") { _ in
+            waitAndAssertTrue(showDetailsButton, "Details button should be displayed on a frozen card")
+            showDetailsButton.waitForState(state: .disabled)
+            waitAndAssertTrue(changePinRow, "PIN button should be displayed on a frozen card")
+            changePinRow.waitForState(state: .disabled)
+            verifyDailyLimitValue(contains: Constants.currencySymbol)
+            XCTAssertTrue(
+                dailyLimitChangeButton.waitForNonExistence(timeout: .conditional),
+                "Daily limit Edit button should be hidden while the card is frozen"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyCardActionsAvailable() -> Self {
+        XCTContext.runActivity(named: "Verify Details, PIN and daily limit Edit are enabled") { _ in
+            waitAndAssertTrue(showDetailsButton, "Details button should be displayed on an active card")
+            showDetailsButton.waitForState(state: .enabled)
+            waitAndAssertTrue(changePinRow, "PIN button should be displayed on an active card")
+            changePinRow.waitForState(state: .enabled)
+            waitAndAssertTrue(dailyLimitChangeButton, "Daily limit Edit button should be displayed on an active card")
+            dailyLimitChangeButton.waitForState(state: .enabled)
+            return self
+        }
+    }
+
+    @discardableResult
     func tapBack() -> TangemPayMainScreen {
         XCTContext.runActivity(named: "Tap back to return to Tangem Pay payment account") { _ in
             tapBackButton(to: TangemPayMainScreen.self)
@@ -172,6 +207,18 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
             moreMenuButton.waitAndTap()
             waitAndAssertTrue(closeCardMenuItem, "Close card menu item should be displayed")
             closeCardMenuItem.waitForState(state: .disabled)
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyCloseCardShowsLastCardHint() -> Self {
+        XCTContext.runActivity(named: "Verify Close card carries the last-card hint") { _ in
+            waitAndAssertTrue(
+                closeCardMenuItemLastCard,
+                timeout: .conditional,
+                "Close card should carry the last-card hint for the only card"
+            )
             return self
         }
     }
@@ -560,5 +607,11 @@ enum TangemPayCardDetailsScreenElement: String, UIElement {
         case .plasticActivateCardButton:
             TangemPayAccessibilityIdentifiers.plasticActivateCardButton
         }
+    }
+}
+
+private extension TangemPayCardDetailsScreen {
+    enum Constants {
+        static let currencySymbol = "$"
     }
 }

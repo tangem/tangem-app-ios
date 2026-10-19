@@ -94,7 +94,8 @@ private extension TransactionDetailsSendContentTests {
             contacts: [],
             isAddressBookSynced: true,
             transactionType: transaction.transactionType,
-            interactionAddress: transaction.interactionAddress
+            interactionAddress: transaction.interactionAddress,
+            subtitleOwner: transaction.subtitleOwner
         )
 
         let content = TransactionDetailsFactory.reduce(

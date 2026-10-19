@@ -9,6 +9,7 @@
 import Foundation
 @preconcurrency import Combine
 import TangemFoundation
+import TangemLocalization
 
 class CommonPromotionRepository {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -231,7 +232,7 @@ private extension CommonPromotionRepository {
             let request = PromotionsDTO.Load.Request(
                 walletId: userWalletId,
                 placeholder: placement,
-                language: Locale.deviceLanguageCode(withRegion: false)
+                language: Localization.languageCode
             )
 
             let items = try await tangemApiService.loadPromotions(request: request).items

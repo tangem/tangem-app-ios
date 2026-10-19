@@ -202,7 +202,7 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     }
 
     func openYieldApyBoostStory(apy: Decimal, factory: YieldModuleFlowFactory) {
-        Task { @MainActor [tangemStoriesPresenter] in
+        Task { @MainActor [self] in
             tangemStoriesPresenter.present(
                 story: .yieldFirstActivationAPYBoostStory,
                 analyticsSource: .token,
@@ -356,7 +356,7 @@ extension TokenDetailsCoordinator: TransactionDetailsRoutable {
     /// is up and resume the same instance on dismiss — the user goes out for extra on-chain detail and comes
     /// back to the full breakdown that only the sheet has.
     func openTransactionDetailsURL(_ url: URL) {
-        Task { @MainActor in
+        Task { @MainActor [self] in
             floatingSheetPresenter.pauseSheetsDisplaying()
             safariHandle = safariManager.openURL(
                 url,
@@ -370,7 +370,7 @@ extension TokenDetailsCoordinator: TransactionDetailsRoutable {
     }
 
     func shareFromTransactionDetails(text: String) {
-        Task { @MainActor in
+        Task { @MainActor [self] in
             floatingSheetPresenter.pauseSheetsDisplaying()
             let controller = UIActivityViewController(activityItems: [text], applicationActivities: nil)
             controller.completionWithItemsHandler = { [weak self] _, _, _, _ in
@@ -382,7 +382,7 @@ extension TokenDetailsCoordinator: TransactionDetailsRoutable {
 
     #if INTERNAL || DEBUG
     func openTransactionDetailsDebug(_ info: TransactionDetailsDebugInfo) {
-        Task { @MainActor in
+        Task { @MainActor [self] in
             floatingSheetPresenter.pauseSheetsDisplaying()
 
             let viewModel = TransactionDetailsDebugViewModel(info: info)
@@ -499,7 +499,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(type: .swap(parameters), source: .tokenDetails)
 
-        Task { @MainActor [tangemStoriesPresenter] in
+        Task { @MainActor [self] in
             tangemStoriesPresenter.present(
                 story: .swap(.initialWithoutImages),
                 analyticsSource: .token,
