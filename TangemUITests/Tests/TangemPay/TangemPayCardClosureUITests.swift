@@ -18,6 +18,7 @@ final class TangemPayCardClosureUITests: BaseTestCase {
             .tapCard()
             .waitForScreen()
             .verifyCloseCardDisabled()
+            .verifyCloseCardShowsLastCardHint()
     }
 
     func testCloseCardSheet_ShowsWarningContent() {

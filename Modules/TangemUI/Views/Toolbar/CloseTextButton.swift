@@ -27,3 +27,23 @@ public struct CloseTextButton: View {
         }
     }
 }
+
+public struct CloseToolbarButton: View {
+    private let action: () -> Void
+
+    @Environment(\.verticalBarEdge) private var verticalBarEdge
+
+    public init(action: @escaping () -> Void) {
+        self.action = action
+    }
+
+    public var body: some View {
+        if verticalBarEdge == nil {
+            CloseTextButton(action: action)
+        } else {
+            SwiftUI.Button(Localization.commonClose, systemImage: NavigationBarButtonRole.close.sfSymbol, action: action)
+                .labelStyle(.iconOnly)
+                .tint(Color.Tangem.Graphic.Neutral.primary)
+        }
+    }
+}

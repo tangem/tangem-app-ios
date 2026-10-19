@@ -72,7 +72,8 @@ final class WalletModelTestsMock: WalletModel {
         fiatBalanceProvider: TokenBalanceProvider? = nil,
         account: (any CryptoAccountModel)? = nil,
         addresses: [Address] = [PlainAddress(value: "mock", type: .default)],
-        safeWalletManagerOperationsService: (any SafeWalletManagerOperationsService)? = nil
+        safeWalletManagerOperationsService: (any SafeWalletManagerOperationsService)? = nil,
+        isCustom: Bool = false
     ) {
         _safeWalletManagerOperationsService = safeWalletManagerOperationsService
         _tokenItem = tokenItem
@@ -84,6 +85,7 @@ final class WalletModelTestsMock: WalletModel {
         _fiatAvailableBalance = fiatBalance
         _account = account
         _addresses = addresses
+        isCustomMock = isCustom
     }
 
     var quote: TokenQuote? {

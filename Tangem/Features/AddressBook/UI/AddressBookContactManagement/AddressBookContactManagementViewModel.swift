@@ -124,7 +124,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
 
         interactor.logWalletPickerOpened()
 
-        Task { @MainActor in
+        Task { @MainActor [self] in
             let viewModel = AccountSelectorViewModel(
                 userWalletModels: userWalletRepository.models,
                 preferredDisplayMode: .wallets,

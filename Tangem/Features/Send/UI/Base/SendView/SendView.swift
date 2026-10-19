@@ -79,10 +79,11 @@ struct SendView: View {
 
             case .closeButton:
                 ToolbarItem(placement: placement) {
-                    CloseTextButton(action: viewModel.dismiss)
+                    CloseToolbarButton(action: viewModel.dismiss)
                         .disabled(viewModel.closeButtonDisabled)
                         .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.closeButton)
                 }
+                .prefersVerticalBar()
 
             case .backButton:
                 NavigationToolbarButton.back(placement: placement, action: viewModel.userDidTapBackButton)
@@ -91,6 +92,7 @@ struct SendView: View {
                 ToolbarItem(placement: placement) {
                     dotsMenu(selectedId: selectedId, items: items)
                 }
+                .prefersVerticalBar()
             }
         }
     }
@@ -103,6 +105,7 @@ struct SendView: View {
             ToolbarItem(placement: placement) {
                 dotsMenu(selectedId: pushedTrailingMenu.selectedId, items: pushedTrailingMenu.items)
             }
+            .prefersVerticalBar()
         } else {
             switch viewModel.navigationBarSettings.trailingViewType {
             case .none:
@@ -120,6 +123,7 @@ struct SendView: View {
                             .foregroundColor(Colors.Icon.primary1)
                     }
                 }
+                .prefersVerticalBar()
 
             case .dotsButton(let action):
                 ToolbarItem(placement: placement) {
@@ -128,6 +132,7 @@ struct SendView: View {
                     }
                     .accessibilityIdentifier(OnrampAccessibilityIdentifiers.settingsButton)
                 }
+                .prefersVerticalBar()
             }
         }
     }

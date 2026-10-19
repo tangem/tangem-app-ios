@@ -138,7 +138,7 @@ extension PolymarketCoordinator {
 
 extension PolymarketCoordinator: PolymarketWelcomeRoutable {
     func onboardingDidFinish(isNewAccount: Bool) {
-        Task { @MainActor in
+        Task { @MainActor [self] in
             guard let userWalletModel = options?.userWalletModel else { return }
 
             guard isNewAccount else {

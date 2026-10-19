@@ -194,7 +194,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
             }
         }
 
-        Task { @MainActor in
+        _ = Task { @MainActor in
             coordinator.close()
             // We have to wait a little bit to while floating sheet is closed
             try await Task.sleep(for: .seconds(0.2))
