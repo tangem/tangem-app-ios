@@ -18,6 +18,7 @@ struct TangemPayMobileOnboardingCoordinatorView: CoordinatorView {
                 TangemPayMobileOnboardingView(viewModel: rootViewModel)
             }
         }
+        .environment(\.colorScheme, .dark)
         .sheet(item: $coordinator.webViewContainerViewModel) {
             WebViewContainer(viewModel: $0)
         }
