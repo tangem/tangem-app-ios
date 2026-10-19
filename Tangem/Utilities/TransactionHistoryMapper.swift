@@ -897,20 +897,20 @@ private extension TransactionHistoryMapper {
             return approveAmount(for: approve)
         case .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin:
             return makeFormattedAmount(amount, symbol: currencySymbol)
-        // Supply and Withdraw take their sign from the operation rather than the on-chain direction, which
-        // runs the other way: the funds leave the wallet on Supply and come back on Withdraw.
+        // Supply and Withdraw sign only the redesigned amount, by where the funds go: they leave the wallet
+        // on Supply and come back on Withdraw.
         case .yieldTopup:
             return makeFormattedAmount(
                 amount,
                 symbol: currencySymbol,
-                redesignedSign: yieldSign(AppConstants.plusSign, amount: amount, record: record)
+                redesignedSign: yieldSign(AppConstants.minusSign, amount: amount, record: record)
             )
         // Kept as a separate case so the `where` guard clearly applies only to `.yieldSend`.
         case .yieldSend where record.isFromYieldContract:
             return makeFormattedAmount(
                 amount,
                 symbol: currencySymbol,
-                redesignedSign: yieldSign(AppConstants.minusSign, amount: amount, record: record)
+                redesignedSign: yieldSign(AppConstants.plusSign, amount: amount, record: record)
             )
         default:
             return formatted(amount: amount, isOutgoing: record.isOutgoing, isFailed: record.status == .failed)
