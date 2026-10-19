@@ -18,14 +18,13 @@ import TangemPolymarket
 struct TransactionDispatcherResultMapper {
     func mapResult(
         _ result: TangemPayWithdrawTransactionResult,
-        txHash: String,
         signer: TangemSignerType?
     ) -> TransactionDispatcherResult {
         let signerType = signer?.analyticsParameterValue ?? Analytics.ParameterValue.unknown
         let currentHost = HostAnalyticsFormatterUtil().formattedHost(from: result.host)
 
         return TransactionDispatcherResult(
-            hash: txHash,
+            hash: result.orderID,
             url: nil,
             signerType: signerType.rawValue,
             currentHost: currentHost

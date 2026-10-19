@@ -53,12 +53,18 @@ final class TangemPayBuilder {
         signerFactory: signerFactory
     )
 
-    private lazy var transactionDispatcherFactory: (TangemPayWithdrawEligibility) -> TransactionDispatcher = { [tangemPayAssembly, withdrawTransactionService, signerFactory, walletPublicKey = TangemPayUtilities.getKey(from: keysRepository)] withdrawEligibility in
+    private lazy var withdrawExchangeSender = TangemPayWithdrawExchangeSender(
+        userWalletId: userWalletId,
+        customerService: customerService
+    )
+
+    private lazy var transactionDispatcherFactory: (TangemPayAccountToken) -> TransactionDispatcher = { [tangemPayAssembly, userWalletId, withdrawTransactionService, signerFactory, walletPublicKey = TangemPayUtilities.getKey(from: keysRepository)] accountToken in
         tangemPayAssembly.makeTransactionDispatcher(
+            userWalletId: userWalletId,
             withdrawTransactionService: withdrawTransactionService,
             signerFactory: signerFactory,
             walletPublicKey: walletPublicKey,
-            withdrawEligibility: withdrawEligibility
+            accountToken: accountToken
         )
     }
 
@@ -108,6 +114,7 @@ final class TangemPayBuilder {
             cashbackCacheStorage: AppSettings.shared,
             residencyStatusStorage: AppSettings.shared,
             waitlistService: waitlistService,
+            withdrawExchangeSender: withdrawExchangeSender,
             tangemPayAccountBuilder: self
         )
     }

@@ -1203,7 +1203,9 @@ extension SwapModel {
                 let result = try await dispatcher.send(transaction: .cex(data: data, fee: fee))
                 analyticsLogger.logSwapTransactionSent(result: result)
 
-                await notifyExpressAboutTransactionDidSent(source: source, data: data, result: result)
+                if !source.isTangemPayAccount {
+                    await notifyExpressAboutTransactionDidSent(source: source, data: data, result: result)
+                }
                 persistSentTransaction(
                     source: source,
                     receive: receive,
