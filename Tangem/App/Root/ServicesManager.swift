@@ -43,6 +43,7 @@ final class CommonServicesManager {
     @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
     @Injected(\.userWalletPushNotificationsService) private var userWalletPushNotificationsService: UserWalletPushNotificationsService
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
+    @Injected(\.mainScreenPromoSheetInteractor) private var mainScreenPromoSheetInteractor: MainScreenPromoSheetInteractor
     @Injected(\.wcService) private var wcService: any WCService
     @Injected(\.openTelemetryWrapper) private var openTelemetryWrapper: OpenTelemetryWrapper
     @Injected(\.eTagStorage) private var eTagStorage: ETagStorage
@@ -246,6 +247,7 @@ extension CommonServicesManager: ServicesManager {
         gaslessTransactionsNetworkManager.initialize()
         mobileUpgradeBannerStorageManager.initialize()
         mobileFinishActivationManager.initialize()
+        mainScreenPromoSheetInteractor.initialize()
         stakingTargetAmountLimitProvider.initialize()
         walletCardsBackupReportService.initialize()
         // Refresh the cached app-versions DTO once per session. Applied on the next launch.
