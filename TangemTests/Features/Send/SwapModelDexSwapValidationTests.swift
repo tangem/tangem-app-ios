@@ -55,6 +55,38 @@ struct SwapModelDexSwapValidationTests {
         }
     }
 
+    @Test("A receive amount below a receive-only destination's minimum blocks the swap")
+    func receiveAmountBelowAReceiveOnlyDestinationMinimumBlocksTheSwap() async throws {
+        let sut = makeSUT(
+            receiveToken: makeReceiveOnlyToken(restriction: .notEnoughReceivedAmount(minAmount: .fiatUSD(5), reason: .receivingMinimum))
+        )
+
+        let state = try await sut.map(provider: makeProvider(), dexPreview: makeDexPreview())
+
+        guard case .restriction(.notEnoughReceivedAmount(let minAmount, _, let reason), _) = state else {
+            Issue.record("Expected the minimum received amount restriction, got \(state)")
+            return
+        }
+
+        #expect(minAmount == .fiatUSD(5))
+        #expect(reason == .receivingMinimum)
+    }
+
+    @Test("A receive-only destination without a trustline blocks the swap")
+    func receiveOnlyDestinationWithoutTrustlineBlocksTheSwap() async throws {
+        let receiveToken = makeReceiveOnlyToken(restriction: .requiresTrustline)
+        let sut = makeSUT(receiveToken: receiveToken)
+
+        let state = try await sut.map(provider: makeProvider(), dexPreview: makeDexPreview())
+
+        guard case .restriction(.trustlineRequired(let destination), _) = state else {
+            Issue.record("Expected the trustline restriction, got \(state)")
+            return
+        }
+
+        #expect(destination.tokenItem == receiveToken.tokenItem)
+    }
+
     @Test("The DEX preview is validated as a transaction the provider has built")
     func dexPreviewIsValidatedAsAProviderTransaction() async throws {
         let validator = BuilderSpyTransactionValidator()
@@ -136,6 +168,13 @@ private extension SwapModelDexSwapValidationTests {
         )
     }
 
+    func makeReceiveOnlyToken(restriction: ReceivedRestriction) -> ReceiveOnlyTokenStub {
+        ReceiveOnlyTokenStub(
+            tokenItem: TokenItem.accountToken(symbol: "USDT", contract: "0xUSDT"),
+            restriction: restriction
+        )
+    }
+
     func makeProvider() -> ExpressAvailableProvider {
         ExpressAvailableProviderFixture.make(state: .idle)
     }
@@ -189,6 +228,19 @@ private extension SendReceiveTokenDestination {
 }
 
 // MARK: - Stubs
+
+private final class ReceiveOnlyTokenStub: SendSourceTokenStub {
+    private let restriction: ReceivedRestriction
+
+    init(tokenItem: TokenItem, restriction: ReceivedRestriction) {
+        self.restriction = restriction
+        super.init(tokenItem: tokenItem)
+    }
+
+    override var receivingRestrictionsProvider: any ReceivingRestrictionsProvider {
+        ReceivingRestrictionsProviderStub(result: restriction)
+    }
+}
 
 private final class BuilderSpyTransactionValidator: SendTransactionValidator {
     private let error: Error?
