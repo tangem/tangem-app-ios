@@ -826,6 +826,24 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
+    @discardableResult
+    func scrollToTop() -> Self {
+        XCTContext.runActivity(named: "Scroll the visible wallet page to the top") { _ in
+            let totalBalances = app.staticTexts.matching(identifier: MainAccessibilityIdentifiers.totalBalance)
+            for _ in 0 ..< SwipeAttempts.standard.rawValue {
+                if totalBalances.firstHittableElement(onScreen: app.frame, timeout: .quick) != nil {
+                    return self
+                }
+                revealContentTop()
+            }
+            XCTAssertNotNil(
+                totalBalances.firstHittableElement(onScreen: app.frame, timeout: .conditional),
+                "Total balance of the visible wallet should be on screen"
+            )
+            return self
+        }
+    }
+
     func openVisibleTangemPay(subtitle: String) -> TangemPayMainScreen {
         XCTContext.runActivity(named: "Open Tangem Pay from the visible tile showing '\(subtitle)'") { _ in
             visibleTangemPayTile(subtitle: subtitle).waitAndTap()
@@ -1088,7 +1106,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             scrollTokensListToVisible(tokenElement(named: tokenName))
 
             // Get all balance elements with the same accessibility identifier
-            let balanceElements = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
+            let balanceElements = visibleTokensList().staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
 
             // Wait for at least one element to exist
             let expectation = XCTNSPredicateExpectation(
@@ -1120,7 +1138,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Wait for '\(tokenName)' balance to be '\(expectedBalance)'") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
             scrollTokensListToVisible(tokenElement(named: tokenName))
-            let balance = tokensList.staticTexts
+            let balance = visibleTokensList().staticTexts
                 .matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
                 .matching(NSPredicate(format: "label == %@", expectedBalance))
                 .firstMatch
@@ -1130,11 +1148,39 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func waitForTokenBalance(tokenName: String, to change: TokenBalanceChange, from previousBalance: Decimal) -> Self {
+        XCTContext.runActivity(named: "Wait for '\(tokenName)' balance to \(change.rawValue) from \(previousBalance)") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            scrollTokensListToVisible(tokenElement(named: tokenName))
+            let balance = visibleTokensList().staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName)).firstMatch
+            let predicate = NSPredicate { _, _ in
+                guard balance.exists,
+                      let current = Decimal(string: balance.label.filter { $0.isNumber || $0 == "." }, locale: UITestLocale.locale)
+                else {
+                    return false
+                }
+
+                switch change {
+                case .increase: return current > previousBalance
+                case .decrease: return current < previousBalance
+                }
+            }
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .networkRequest),
+                .completed,
+                "'\(tokenName)' balance should \(change.rawValue) from \(previousBalance), but was '\(balance.label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func waitForTokenBalanceLoaded(tokenName: String) -> Self {
         XCTContext.runActivity(named: "Wait for '\(tokenName)' balance to be loaded") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
             scrollTokensListToVisible(tokenElement(named: tokenName))
-            let balance = tokensList.staticTexts
+            let balance = visibleTokensList().staticTexts
                 .matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
                 .matching(NSPredicate(format: "label MATCHES %@", ".*[1-9].*"))
                 .firstMatch
@@ -1465,20 +1511,40 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     private func visibleTangemPayTile(subtitle: String) -> XCUIElement {
-        let tile = app.buttons
+        let tiles = app.buttons
             .matching(identifier: TangemPayAccessibilityIdentifiers.mainScreenTile)
             .containing(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, subtitle))
-            .firstMatch
-        waitAndAssertTrue(tile, timeout: .networkRequest, "Tangem Pay tile showing '\(subtitle)' should exist")
-        scrollToElement(tile)
-        XCTAssertTrue(tile.waitForState(state: .hittable), "Tangem Pay tile showing '\(subtitle)' should be on the visible wallet page")
+        waitAndAssertTrue(tiles.firstMatch, timeout: .networkRequest, "Tangem Pay tile showing '\(subtitle)' should exist")
+
+        for _ in 0 ..< SwipeAttempts.standard.rawValue {
+            if let tile = tiles.firstHittableElement(onScreen: app.frame, timeout: .quick) {
+                return tile
+            }
+            revealContentTop()
+        }
+
+        guard let tile = tiles.firstHittableElement(onScreen: app.frame, timeout: .conditional) else {
+            XCTFail("Tangem Pay tile showing '\(subtitle)' should be on the visible wallet page")
+            return tiles.firstMatch
+        }
         return tile
+    }
+
+    private func revealContentTop() {
+        let start = app.coordinate(withNormalizedOffset: Constants.contentTopRevealStart)
+        let end = app.coordinate(withNormalizedOffset: Constants.contentTopRevealEnd)
+        start.press(forDuration: 0.1, thenDragTo: end)
     }
 
     private func tapTangemPayTile() {
         scrollToElement(tangemPayTile)
         tangemPayTile.waitAndTap()
     }
+}
+
+enum TokenBalanceChange: String {
+    case increase
+    case decrease
 }
 
 enum MainScreenElement: String, UIElement {
@@ -1555,5 +1621,7 @@ private extension MainScreen {
     enum Constants {
         static let shtorkaSearchBarInset: CGFloat = 16
         static let pushLaterTapAttempts = 3
+        static let contentTopRevealStart = CGVector(dx: 0.5, dy: 0.3)
+        static let contentTopRevealEnd = CGVector(dx: 0.5, dy: 0.7)
     }
 }

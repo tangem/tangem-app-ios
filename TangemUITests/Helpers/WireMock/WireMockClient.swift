@@ -130,6 +130,10 @@ final class WireMockClient {
         try await findRequestBodies(matching: WireMockFindRequestsRequest(method: method, urlPathPattern: urlPathPattern))
     }
 
+    func findRequestURLs(method: String, urlPath: String) async throws -> [String] {
+        try await findRequests(matching: WireMockFindRequestsRequest(method: method, urlPath: urlPath)).compactMap(\.url)
+    }
+
     func findRequestTimestamps(method: String, urlPattern: String) async throws -> [Date] {
         try await findRequests(matching: WireMockFindRequestsRequest(method: method, urlPattern: urlPattern))
             .compactMap(\.loggedDate)
@@ -292,6 +296,22 @@ final class WireMockClient {
         }
         XCTestCase().wait(for: [expectation], timeout: .networkRequest)
         return bodies
+    }
+
+    func findRequestURLsSync(method: String, urlPath: String) -> [String] {
+        var urls: [String] = []
+        let expectation = XCTestExpectation(description: "Find WireMock request URLs")
+        Task {
+            do {
+                urls = try await findRequestURLs(method: method, urlPath: urlPath)
+                expectation.fulfill()
+            } catch {
+                XCTFail("Failed to find requests for \(method) \(urlPath): \(error)")
+                expectation.fulfill()
+            }
+        }
+        XCTestCase().wait(for: [expectation], timeout: .networkRequest)
+        return urls
     }
 
     func findRequestTimestampsSync(method: String, urlPattern: String) -> [Date] {
