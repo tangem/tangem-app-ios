@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -84,12 +85,6 @@ struct AddFundsView: View {
 
     private var stackContent: some View {
         VStack(spacing: 16) {
-            AddFundsStackNavigationBar(
-                title: viewModel.title,
-                onBack: viewModel.showsBackButton ? viewModel.userDidTapBack : nil,
-                onClose: viewModel.close
-            )
-
             AddFundsTokenInfoView(viewData: viewModel.tokenInfoViewData)
                 .padding(.top, 64)
 
@@ -102,7 +97,11 @@ struct AddFundsView: View {
         .padding(.horizontal, 16)
         .padding(.bottom, 20)
         .background(Color.Tangem.Surface.level2.ignoresSafeArea())
-        .navigationBarHidden(true)
+        .topNavigation(title: viewModel.title, leading: stackLeading, onClose: viewModel.close)
+    }
+
+    private var stackLeading: TopNavigation.LeadingPolicy {
+        viewModel.showsBackButton ? .custom(.back(accessibilityIdentifier: CommonUIAccessibilityIdentifiers.backButton, action: viewModel.userDidTapBack)) : .none
     }
 
     // MARK: - Shared

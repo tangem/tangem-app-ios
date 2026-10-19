@@ -34,7 +34,7 @@ struct BackportTranslucentNavigationBar: ViewModifier {
                 Fade(position: .top)
                     .blurred()
                     .frame(height: safeAreaInsetTop)
-                    .ignoresSafeArea(edges: .top)
+                    .ignoresSafeArea(edges: [.top, .horizontal])
 
                 Spacer()
             }

@@ -26,7 +26,7 @@ final class WCMultipleTransactionAlertViewModel: ObservableObject {
     func handleViewAction(_ action: ViewAction) {
         switch action {
         case .primaryButtonTapped:
-            Task {
+            _ = Task {
                 state = .init(from: state, isLoading: true)
                 try await primaryAction()
                 state = .init(from: state, isLoading: false)

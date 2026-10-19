@@ -24,7 +24,7 @@ public final class AppDatabase: @unchecked Sendable {
                     return existingHandle
                 }
 
-                let newHandle = try Self.makeDatabaseHandle(using: databaseHandleFactory)
+                let newHandle = try Self.makeDatabaseHandle(using: databaseHandleFactory, migrationHelper: migrationHelper)
                 handle = newHandle
 
                 return newHandle
@@ -33,11 +33,16 @@ public final class AppDatabase: @unchecked Sendable {
     }
 
     private let _databaseHandle: OSAllocatedUnfairLock<DatabaseHandle?>
+    private let migrationHelper: AppDatabaseMigrationHelper
     private let databaseHandleFactory: DatabaseHandleFactory
 
     @available(iOS, deprecated: 100000.0, message: "For unit tests and DI only, use `@Injected(\\.appDatabase)` instead")
-    public init(databaseHandleFactory: @escaping DatabaseHandleFactory) {
+    public init(
+        migrationHelper: AppDatabaseMigrationHelper,
+        databaseHandleFactory: @escaping DatabaseHandleFactory
+    ) {
         _databaseHandle = OSAllocatedUnfairLock(initialState: nil)
+        self.migrationHelper = migrationHelper
         self.databaseHandleFactory = databaseHandleFactory
     }
 
@@ -99,9 +104,12 @@ public final class AppDatabase: @unchecked Sendable {
 
     // MARK: - Factory methods
 
-    private static func makeDatabaseHandle(using databaseHandleFactory: DatabaseHandleFactory) throws -> DatabaseHandle {
+    private static func makeDatabaseHandle(
+        using databaseHandleFactory: DatabaseHandleFactory,
+        migrationHelper: AppDatabaseMigrationHelper
+    ) throws -> DatabaseHandle {
         let databaseFilePath = try makeDatabaseFilePath()
-        let migrator = makeDatabaseMigrator()
+        let migrator = makeDatabaseMigrator(migrationHelper: migrationHelper)
         let databaseHandle = try databaseHandleFactory(databaseFilePath)
         try migrator.migrate(databaseHandle)
 
@@ -119,7 +127,7 @@ public final class AppDatabase: @unchecked Sendable {
             .path(percentEncoded: false)
     }
 
-    static func makeDatabaseMigrator() -> DatabaseMigrator {
+    static func makeDatabaseMigrator(migrationHelper: AppDatabaseMigrationHelper) -> DatabaseMigrator {
         var migrator = DatabaseMigrator()
 
         #if DEBUG
@@ -132,7 +140,7 @@ public final class AppDatabase: @unchecked Sendable {
         for version in AppDatabaseVersion.allCases {
             migrator.registerMigration(version.id) { database in
                 for tableKind in AppDatabaseTableKind.allCases {
-                    try tableKind.table.registerForVersion(version, in: database)
+                    try tableKind.table.registerForVersion(version, in: database, migrationHelper: migrationHelper)
                 }
             }
         }

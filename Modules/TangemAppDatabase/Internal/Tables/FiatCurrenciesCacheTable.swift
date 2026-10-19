@@ -12,11 +12,17 @@ import GRDB
 enum FiatCurrenciesCacheTable: AppDatabaseTable {
     static let tableName = "fiatCurrenciesCache"
 
-    static func registerForVersion(_ version: AppDatabaseVersion, in database: Database) throws {
+    static func registerForVersion(
+        _ version: AppDatabaseVersion,
+        in database: Database,
+        migrationHelper: AppDatabaseMigrationHelper
+    ) throws {
         switch version {
         case .v1:
             try V1.register(in: database)
         case .v2:
+            break
+        case .v3:
             break
         }
     }

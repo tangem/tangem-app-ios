@@ -157,7 +157,7 @@ extension TangemPaySelectPlanCoordinator: TangemPayComparePlansRoutable {
     }
 
     func openComparePlansURL(_ url: URL) {
-        Task { @MainActor in
+        Task { @MainActor [self] in
             floatingSheetPresenter.pauseSheetsDisplaying()
             safariHandle = safariManager.openURL(
                 url,
