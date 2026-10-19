@@ -44,6 +44,7 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
                 scrollContent
             }
             .searchable(text: $viewModel.searchText)
+            .keepsVerticalBarDuringSearch()
             .keyboardType(.asciiCapable)
             .autocorrectionDisabled()
 

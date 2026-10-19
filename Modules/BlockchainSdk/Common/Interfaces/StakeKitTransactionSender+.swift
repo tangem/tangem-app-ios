@@ -10,9 +10,11 @@ import Foundation
 
 extension StakeKitTransactionSender where
     Self: StakingTransactionsBuilder,
-    Self: WalletProvider, RawTransaction: CustomStringConvertible,
+    Self: WalletProvider,
     Self: StakeKitTransactionDataBroadcaster,
-    Self: BlockchainDataProvider {
+    Self: BlockchainDataProvider,
+    RawTransaction: CustomStringConvertible,
+    RawTransaction: Sendable {
     func sendStakeKit(
         transactions: [StakeKitTransaction],
         signer: TransactionSigner,

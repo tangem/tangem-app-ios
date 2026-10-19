@@ -61,6 +61,11 @@ struct TangemPayOnboardingContentView: View {
 
                 featureGrid
                     .padding(.top, 36)
+
+                if showsLegalLine {
+                    legalLine
+                        .padding(.top, 24)
+                }
             }
             .padding(.horizontal, 24)
             .padding(.top, heroHeight)
@@ -92,18 +97,11 @@ struct TangemPayOnboardingContentView: View {
             .frame(height: 24)
             .allowsHitTesting(false)
 
-            VStack(spacing: 12) {
-                if showsLegalLine {
-                    legalLine
-                }
-
-                getCardButton
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, bundlePanelBottomPadding(safeAreaBottom: safeAreaBottom))
-            .frame(maxWidth: .infinity)
-            .background(DesignSystem.Color.bgPrimary)
+            getCardButton
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                .padding(.bottom, bundlePanelBottomPadding(safeAreaBottom: safeAreaBottom))
+                .background(DesignSystem.Color.bgPrimary)
         }
     }
 
@@ -120,8 +118,15 @@ struct TangemPayOnboardingContentView: View {
 
                 VStack(spacing: 36) {
                     textSection
-                    featureGrid
-                        .padding(.bottom, 24)
+
+                    VStack(spacing: 24) {
+                        featureGrid
+
+                        if showsLegalLine {
+                            legalLine
+                        }
+                    }
+                    .padding(.bottom, 24)
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, -112)
@@ -224,15 +229,9 @@ struct TangemPayOnboardingContentView: View {
     }
 
     private var footer: some View {
-        VStack(spacing: 12) {
-            if showsLegalLine {
-                legalLine
-            }
-
-            getCardButton
-        }
-        .padding(.horizontal, 16)
-        .padding(.bottom, 12)
+        getCardButton
+            .padding(.horizontal, 16)
+            .padding(.bottom, 12)
     }
 
     private var getCardButton: some View {
@@ -253,6 +252,7 @@ struct TangemPayOnboardingContentView: View {
     private var legalLine: some View {
         Text(legalAttributedString)
             .multilineTextAlignment(.center)
+            .infinityFrame(axis: .horizontal)
             .environment(\.openURL, OpenURLAction { url in
                 onLegalLinkTap(url)
                 return .handled

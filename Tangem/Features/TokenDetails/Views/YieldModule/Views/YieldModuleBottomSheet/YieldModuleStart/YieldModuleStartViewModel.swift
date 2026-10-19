@@ -217,7 +217,7 @@ final class YieldModuleStartViewModel: ObservableObject {
     }
 
     private func fetchFees() {
-        Task { @MainActor in
+        Task { @MainActor [self] in
             setAllFeesState(.loading)
 
             do {

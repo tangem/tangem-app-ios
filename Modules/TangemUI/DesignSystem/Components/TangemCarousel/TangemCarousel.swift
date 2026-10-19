@@ -62,7 +62,7 @@ public struct TangemCarousel<Data, Content>: View
                 .padding(.vertical, paginationVerticalPadding)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .top)
+        .frame(minWidth: .zero, maxWidth: .infinity, alignment: .top)
         .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) { containerWidth = $0.roundedToDeviceScale() }
         .onChange(of: data.count) { _ in
             let maxIndex = max(data.count - 1, 0)

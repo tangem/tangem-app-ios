@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Combine
 import Testing
 import TangemSdk
 import TangemFoundation
@@ -71,7 +70,7 @@ private extension CommonWalletCardsBackupReportRepositoryTests {
 
             let repository = CommonWalletCardsBackupReportRepository()
             steps(repository)
-            try await storage.waitForSaves(count: 2)
+            await storage.waitForSaves(count: 2)
 
             return try await repository.pendingToDeliveryPublisher.async()
         }
@@ -103,23 +102,23 @@ private extension CommonWalletCardsBackupReportRepositoryTests {
 // MARK: - Stubs
 
 private final class SpyPersistentStorage: PersistentStorageProtocol {
-    private let savedReports = CurrentValueSubject<[WalletCardsBackupReport], Never>([])
+    private let (saves, savesContinuation) = AsyncStream<Void>.makeStream()
 
     func value<T: Decodable>(for key: PersistentStorageKey) throws -> T? {
         nil
     }
 
     func store<T: Encodable>(value: T, for key: PersistentStorageKey) throws {
-        guard let report = value as? WalletCardsBackupReport else {
+        guard value is WalletCardsBackupReport else {
             return
         }
 
-        savedReports.send(savedReports.value + [report])
+        savesContinuation.yield()
     }
 
     func remove(for key: PersistentStorageKey) throws {}
 
-    func waitForSaves(count: Int) async throws {
-        _ = try await savedReports.first { $0.count >= count }.async()
+    func waitForSaves(count: Int) async {
+        for await _ in saves.prefix(count) {}
     }
 }

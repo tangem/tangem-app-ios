@@ -12,10 +12,14 @@ import TangemFoundation
 
 /// Round-trips through `Codable` like the real storage does, so the suites also cover encoding of the cache entry.
 final class InMemoryPersistentStorage: PersistentStorageProtocol {
-    var storeError: Error?
+    var storeError: (Error & Sendable)? {
+        get { storeErrorState { $0 } }
+        set { storeErrorState { $0 = newValue } }
+    }
 
     var storeCalls: Int { writes.withLock { $0 } }
 
+    private let storeErrorState = OSAllocatedUnfairLock<(Error & Sendable)?>(initialState: nil)
     private let state = OSAllocatedUnfairLock(initialState: [String: Data]())
     private let writes = OSAllocatedUnfairLock(initialState: 0)
 

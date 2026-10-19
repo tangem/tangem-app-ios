@@ -86,7 +86,7 @@ extension CampaignCoordinator: CampaignRoutable {
     }
 
     func openLearnMore(url: URL) {
-        Task { @MainActor in
+        Task { @MainActor [self] in
             isSafariPresented = true
             floatingSheetPresenter.pauseSheetsDisplaying()
 

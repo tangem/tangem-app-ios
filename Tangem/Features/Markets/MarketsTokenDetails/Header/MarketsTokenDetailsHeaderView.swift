@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemUIUtils
 import TangemAssets
+import protocol Combine.Publisher
 
 struct MarketsTokenDetailsHeaderView: View {
     let tokenName: String
