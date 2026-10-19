@@ -130,6 +130,22 @@
         <string>%li tokens</string>
       </dict>
     </dict>
+    <key>joint_account_invite_members_still_need_to_join</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li member still needs to join</string>
+        <key>other</key>
+        <string>%li members still need to join</string>
+      </dict>
+    </dict>
     <key>joint_account_join_signatures_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -507,6 +523,22 @@
         <string>Sincronizar endereços para obter um endereço de %li rede</string>
         <key>other</key>
         <string>Sincronizar endereços para obter endereços para %li redes</string>
+      </dict>
+    </dict>
+    <key>yield_module_main_promo_tokens_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Choose from %li token</string>
+        <key>other</key>
+        <string>Choose from %li tokens</string>
       </dict>
     </dict>
   </dict>
