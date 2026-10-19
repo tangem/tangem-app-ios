@@ -81,7 +81,7 @@ final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewMode
 
     /// Delay to avoid broken animations when switching states.
     private func update(newState: ViewState) {
-        Task { @MainActor in
+        _ = Task { @MainActor in
             try await Task.sleep(for: .seconds(Constants.stateChangeDelay))
             viewState = newState
             trackAnalyticsForStateChange(state: newState)

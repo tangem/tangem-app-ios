@@ -9,7 +9,7 @@
 import Foundation
 
 public class TangemTrustEvaluatorURLSessionDelegate: NSObject, URLSessionDelegate {
-    public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+    public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping @Sendable (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         let result = TangemTrustEvaluatorUtil.evaluate(challenge: challenge)
         completionHandler(result.0, result.1)
     }
