@@ -25,6 +25,8 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
     @Injected(\.tangemPayRecentOperationsStore)
     private var tangemPayRecentOperationsStore: TangemPayRecentOperationsStore
+    @Injected(\.tangemPayPendingWithdrawExchangesStore)
+    private var tangemPayPendingWithdrawExchangesStore: TangemPayPendingWithdrawExchangesStore
 
     var shouldLockOnBackground: Bool {
         if isLocked {
@@ -270,6 +272,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
         }
         try? tangemPayAuthorizationTokensRepository.deleteTokens(customerWalletId: userWalletId.stringValue)
         tangemPayRecentOperationsStore.clear(customerWalletId: userWalletId.stringValue)
+        tangemPayPendingWithdrawExchangesStore.clear(userWalletId: userWalletId)
         tangemPayStorageCleaner.clear(customerWalletId: userWalletId.stringValue)
         tangemPayResidencyStatusStorage.deleteResidencyStatuses(userWalletId: userWalletId)
         polymarketCredentialsRepository.delete(userWalletId: userWalletId)
