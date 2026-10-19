@@ -18,10 +18,11 @@ struct TransactionHistoryOnrampAmountPrefixTests {
         "History row prefix follows the status, not the actual amount",
         arguments: OnrampTransactionStatus.allCases, [nil, Decimal(2)]
     )
-    func historyRowPrefix(status: OnrampTransactionStatus, toActualAmount: Decimal?) {
+    func historyRowPrefix(status: OnrampTransactionStatus, toActualAmount: Decimal?) throws {
         let viewModel = makeSUT().mapTransactionViewModel(makeRecord(status: status, toActualAmount: toActualAmount))
+        let value = try #require(viewModel.amount.value)
 
-        #expect(Self.prefix(of: viewModel.amount.value) == Self.expectedPrefix(for: status))
+        #expect(Self.prefix(of: value) == Self.expectedPrefix(for: status))
     }
 
     @Test("Details screen prefix follows the status", arguments: OnrampTransactionStatus.allCases)
