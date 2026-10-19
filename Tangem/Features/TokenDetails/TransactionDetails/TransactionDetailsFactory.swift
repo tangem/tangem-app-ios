@@ -537,9 +537,9 @@ enum TransactionDetailsFactory {
         switch onrampStatus {
         case .verifying:
             .kyc
-        case .paused, .waitingForPayment:
+        case .paused, .waitingForPayment, .failed, .expired, .refunded:
             .status
-        case .unknown, .created, .paymentProcessing, .paid, .sending, .refunding, .finished, .failed, .expired, .refunded:
+        case .unknown, .created, .paymentProcessing, .paid, .sending, .refunding, .finished:
             nil
         }
     }

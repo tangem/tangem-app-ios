@@ -70,14 +70,14 @@ struct TransactionHistoryMapperYieldTests {
     func supplySignIsPositive() {
         let viewModel = makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldTopup", isOutgoing: true))
 
-        #expect(viewModel.amount.value.hasPrefix(AppConstants.plusSign))
+        #expect(viewModel.amount.value?.hasPrefix(AppConstants.plusSign) == true)
     }
 
     @Test("Withdraw is signed `−` even though the funds come back to the wallet")
     func withdrawSignIsNegative() {
         let viewModel = makeSUT().mapTransactionViewModel(makeWithdrawRecord())
 
-        #expect(viewModel.amount.value.hasPrefix(AppConstants.minusSign))
+        #expect(viewModel.amount.value?.hasPrefix(AppConstants.minusSign) == true)
     }
 
     @Test("The coin variants of enable and disable stay unsigned, like the token ones")
@@ -102,7 +102,7 @@ struct TransactionHistoryMapperYieldTests {
     func failedSupplyIsUnsigned() {
         let viewModel = makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldTopup", status: .failed))
 
-        #expect(!viewModel.amount.value.hasPrefix(AppConstants.plusSign))
+        #expect(viewModel.amount.value?.hasPrefix(AppConstants.plusSign) == false)
     }
 
     // MARK: - Incentive claim
@@ -196,7 +196,7 @@ struct TransactionHistoryMapperYieldTests {
 
         #expect(viewModel.display.title.fullText == Localization.transactionHistoryWithdrawn)
         #expect(viewModel.display.subtitle == .provider(direction: .incoming, provider: .aave))
-        #expect(viewModel.amount.value.hasPrefix(AppConstants.minusSign))
+        #expect(viewModel.amount.value?.hasPrefix(AppConstants.minusSign) == true)
     }
 
     @Test("A gasless transfer that does not come from Aave is still received")
