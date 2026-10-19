@@ -13,6 +13,8 @@ protocol MainScreenPromoSheetInteractor: Initializable {
     var presentationSettings: MainScreenPromoSheetPresentationSettings { get }
 
     func claimFirstMainScreenAppearance() -> Bool
+    func hasShownSheet(managerId: String) -> Bool
+    func markSheetShownOnAppearance(_ appearancePublisher: AnyPublisher<Void, Never>, managerId: String, onShown: @escaping () -> Void)
 }
 
 final class CommonMainScreenPromoSheetInteractor {
@@ -21,6 +23,7 @@ final class CommonMainScreenPromoSheetInteractor {
     private var isOpenedFromLink = false
     private var didClaimFirstMainScreenAppearance = false
     private var incomingActionsSubscription: AnyCancellable?
+    private var shownSheetSubscription: AnyCancellable?
 
     init(incomingActionManager: IncomingActionManaging = InjectedValues[\.incomingActionManager]) {
         self.incomingActionManager = incomingActionManager
@@ -58,6 +61,24 @@ extension CommonMainScreenPromoSheetInteractor: MainScreenPromoSheetInteractor {
 
         didClaimFirstMainScreenAppearance = true
         return true
+    }
+
+    func hasShownSheet(managerId: String) -> Bool {
+        AppSettings.shared.shownMainScreenPromoSheetIds.contains(managerId)
+    }
+
+    func markSheetShownOnAppearance(_ appearancePublisher: AnyPublisher<Void, Never>, managerId: String, onShown: @escaping () -> Void) {
+        shownSheetSubscription = appearancePublisher
+            .first()
+            .withWeakCaptureOf(self)
+            .sink { interactor, _ in
+                interactor.saveShownSheet(managerId: managerId)
+                onShown()
+            }
+    }
+
+    private func saveShownSheet(managerId: String) {
+        AppSettings.shared.shownMainScreenPromoSheetIds.insert(managerId)
     }
 }
 
