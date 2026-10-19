@@ -33,6 +33,7 @@ final class MainViewModel: ObservableObject {
 
     private let mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
     private let pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
+    private let promoSheetProvider: MainScreenPromoSheetProvider
     private weak var coordinator: MainRoutable?
 
     // MARK: - Internal state
@@ -59,11 +60,13 @@ final class MainViewModel: ObservableObject {
     init(
         coordinator: MainRoutable,
         mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory,
-        pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
+        pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider,
+        promoSheetProvider: MainScreenPromoSheetProvider
     ) {
         self.coordinator = coordinator
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
         self.pushNotificationsAvailabilityProvider = pushNotificationsAvailabilityProvider
+        self.promoSheetProvider = promoSheetProvider
         nftFeatureLifecycleHandler = NFTFeatureLifecycleHandler()
 
         pages = mainUserWalletPageBuilderFactory.createPages(
@@ -84,12 +87,14 @@ final class MainViewModel: ObservableObject {
         selectedUserWalletId: UserWalletId,
         coordinator: MainRoutable,
         mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory,
-        pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
+        pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider,
+        promoSheetProvider: MainScreenPromoSheetProvider
     ) {
         self.init(
             coordinator: coordinator,
             mainUserWalletPageBuilderFactory: mainUserWalletPageBuilderFactory,
-            pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
+            pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider,
+            promoSheetProvider: promoSheetProvider
         )
 
         selectPage(userWalletId: selectedUserWalletId)
@@ -162,7 +167,7 @@ final class MainViewModel: ObservableObject {
             let handoffDeadline = DispatchTime.now() + Constants.deeplinkHandoffDelay
             mainBottomSheetUIManager.show(after: Constants.bottomSheetVisibilityColdStartDelay) { [weak self] in
                 DispatchQueue.main.asyncAfter(deadline: handoffDeadline) {
-                    self?.coordinator?.mainScreenDidAppear()
+                    self?.handOffMainScreenAppearance()
                 }
             }
         } else {
@@ -171,7 +176,7 @@ final class MainViewModel: ObservableObject {
             // A push into the stack while the screen is still fading in from the auth screen is lost, so the
             // deeplink handoff waits the fade out.
             DispatchQueue.main.asyncAfter(deadline: .now() + Constants.deeplinkHandoffDelay) { [weak self] in
-                self?.coordinator?.mainScreenDidAppear()
+                self?.handOffMainScreenAppearance()
             }
         }
     }
@@ -488,6 +493,11 @@ final class MainViewModel: ObservableObject {
             params: params,
             analyticsSystems: .all
         )
+    }
+
+    private func handOffMainScreenAppearance() {
+        coordinator?.mainScreenDidAppear()
+        promoSheetProvider.onMainScreenAppear()
     }
 
     private func openPushNotificationsAuthorizationIfNeeded() {

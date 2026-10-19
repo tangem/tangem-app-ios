@@ -43,7 +43,8 @@ struct MainView: View {
         let viewModel = MainViewModel(
             coordinator: coordinator,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator),
-            pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProviderStub()
+            pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProviderStub(),
+            promoSheetProvider: MainScreenPromoSheetProvider(managers: [])
         )
 
         return viewModel

@@ -115,7 +115,8 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
             selectedUserWalletId: options.userWalletModel.userWalletId,
             coordinator: self,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self),
-            pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
+            pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider,
+            promoSheetProvider: MainScreenPromoSheetProvider(managers: [])
         )
 
         mainViewModel = viewModel
