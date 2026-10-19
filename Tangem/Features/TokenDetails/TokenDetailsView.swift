@@ -58,6 +58,7 @@ struct TokenDetailsView: View {
                 }
                 .padding(.bottom, 40)
             }
+            .fixedSize(horizontal: false, vertical: true)
             .padding(.top, Constants.headerTopPadding)
             .readContentOffset(
                 inCoordinateSpace: .named(CoordinateSpaceName.scrollView),
