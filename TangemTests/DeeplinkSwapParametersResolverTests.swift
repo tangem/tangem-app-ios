@@ -326,6 +326,67 @@ struct DeeplinkSwapParametersResolverTests {
         #expect(result?.source == candidates[1])
         #expect(result?.appliesExtras == false)
     }
+
+    // MARK: - Joint accounts are receive-only
+
+    @Test("Requested FROM held richer in a joint account → the personal match becomes the source")
+    func requestedFromSkipsJointMatch() {
+        let candidates = [
+            candidate(index: 0, token: "ethereum", network: "ethereum", account: "acc-joint", balance: 500, canBeSource: false),
+            candidate(index: 1, token: "ethereum", network: "ethereum", account: "acc-0", balance: 10),
+            candidate(index: 2, token: "usd-coin", network: "ethereum", account: "acc-0", balance: 5),
+        ]
+        let result = select(
+            candidates: candidates,
+            deeplink: deeplink(fromToken: "ethereum", fromNetwork: "ethereum", toToken: "usd-coin", toNetwork: "ethereum")
+        )
+        #expect(result?.source == candidates[1])
+        #expect(result?.destination == candidates[2])
+        #expect(result?.appliesExtras == true)
+    }
+
+    @Test("Requested FROM held only in a joint account → best-effort personal source, TO kept")
+    func requestedFromOnlyInJointFallsBackToBestEffort() {
+        let candidates = [
+            candidate(index: 0, token: "ethereum", network: "ethereum", account: "acc-joint", balance: 500, canBeSource: false),
+            candidate(index: 1, token: "bitcoin", network: "bitcoin", account: "acc-0", balance: 20),
+            candidate(index: 2, token: "usd-coin", network: "ethereum", account: "acc-0", balance: 5),
+        ]
+        let result = select(
+            candidates: candidates,
+            deeplink: deeplink(fromToken: "ethereum", fromNetwork: "ethereum", toToken: "usd-coin", toNetwork: "ethereum")
+        )
+        #expect(result?.source == candidates[1])
+        #expect(result?.destination == candidates[2])
+        #expect(result?.appliesExtras == false)
+    }
+
+    @Test("from_user_account_id naming a joint account → best-effort personal source")
+    func fromAccountIdNamingJointFallsBackToBestEffort() {
+        let candidates = [
+            candidate(index: 0, token: "ethereum", network: "ethereum", account: "acc-joint", balance: 500, canBeSource: false),
+            candidate(index: 1, token: "ethereum", network: "ethereum", account: "acc-0", balance: 10),
+        ]
+        let result = select(
+            candidates: candidates,
+            deeplink: deeplink(fromToken: "ethereum", fromNetwork: "ethereum", fromAccountId: "acc-joint"),
+            existingAccountIds: ["acc-0", "acc-joint"]
+        )
+        #expect(result?.source == candidates[1])
+        #expect(result?.appliesExtras == false)
+    }
+
+    @Test("Only TO requested in a joint account → joint TO kept, best-effort source skips joint")
+    func onlyJointToRequestedKeepsDestination() {
+        let candidates = [
+            candidate(index: 0, token: "ethereum", network: "ethereum", account: "acc-joint", balance: 999, canBeSource: false),
+            candidate(index: 1, token: "bitcoin", network: "bitcoin", account: "acc-0", balance: 20),
+            candidate(index: 2, token: "usd-coin", network: "ethereum", account: "acc-joint", balance: 1, canBeSource: false),
+        ]
+        let result = select(candidates: candidates, deeplink: deeplink(toToken: "usd-coin", toNetwork: "ethereum"))
+        #expect(result?.source == candidates[1])
+        #expect(result?.destination == candidates[2])
+    }
 }
 
 // MARK: - Builders
@@ -350,7 +411,8 @@ private extension DeeplinkSwapParametersResolverTests {
         network: String,
         account: String? = "acc-0",
         balance: Decimal = 0,
-        swappable: Bool = true
+        swappable: Bool = true,
+        canBeSource: Bool = true
     ) -> Candidate {
         Candidate(
             index: index,
@@ -358,7 +420,8 @@ private extension DeeplinkSwapParametersResolverTests {
             networkId: network,
             accountId: account,
             fiatBalance: balance,
-            isSwappable: swappable
+            isSwappable: swappable,
+            canBeSource: canBeSource
         )
     }
 

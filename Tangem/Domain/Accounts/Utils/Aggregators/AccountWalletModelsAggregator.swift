@@ -16,8 +16,8 @@ enum AccountWalletModelsAggregator {
         case personalAndJoint
     }
 
-    static func walletModels(from accountModelsManager: AccountModelsManager) -> [any WalletModel] {
-        return walletModelsManagers(from: accountModelsManager.accountModels).flatMap { $0.walletModels }
+    static func walletModels(from accountModelsManager: AccountModelsManager, accountScope: AccountScope = .personalAndJoint) -> [any WalletModel] {
+        return walletModelsManagers(from: accountModelsManager.accountModels, accountScope: accountScope).flatMap { $0.walletModels }
     }
 
     static func walletModels(from userWalletModels: [any UserWalletModel]) -> [any WalletModel] {
