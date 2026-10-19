@@ -209,6 +209,15 @@ class BaseTestCase: XCTestCase {
         expressApiType: ExpressAPI? = nil,
         scenarios: [ScenarioConfig] = []
     ) -> MainScreen {
+        launchAndImportHotWalletRequiringPayRenewal(expressApiType: expressApiType, scenarios: scenarios)
+            .renewTangemPaySession()
+    }
+
+    @discardableResult
+    func launchAndImportHotWalletRequiringPayRenewal(
+        expressApiType: ExpressAPI? = nil,
+        scenarios: [ScenarioConfig] = []
+    ) -> MainScreen {
         launchApp(
             tangemApiType: .mock,
             expressApiType: expressApiType,
@@ -218,7 +227,7 @@ class BaseTestCase: XCTestCase {
             extraLaunchArguments: [Constants.realPayAuthorizationArgument]
         )
 
-        return importHotWallet().renewTangemPaySession()
+        return importHotWallet()
     }
 
     /// Restarts the app keeping wallets and storage, so caches written before the restart stay readable.
