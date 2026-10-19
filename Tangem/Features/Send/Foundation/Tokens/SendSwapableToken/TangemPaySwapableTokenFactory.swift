@@ -106,7 +106,7 @@ extension TangemPaySwapableTokenFactory {
             defaultAddressString: accountToken.depositAddress,
             availableBalanceProvider: availableBalanceProvider,
             fiatAvailableBalanceProvider: fiatAvailableBalanceProvider,
-            transactionDispatcher: tangemPayAccount.makeTransactionDispatcher(withdrawEligibility: accountToken.withdrawEligibility),
+            transactionDispatcher: tangemPayAccount.makeTransactionDispatcher(accountToken: accountToken),
             transactionValidator: TangemPaySendTransactionValidator(
                 availableBalanceProvider: availableBalanceProvider
             ),

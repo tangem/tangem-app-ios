@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 enum PersistentStorageKey {
     /// - Note: Superseded by `accounts(cid:)`, will be removed in future.
@@ -34,6 +35,7 @@ enum PersistentStorageKey {
     case coinsGeckoCategoriesCache
     case tangemPayRecentOperations(cid: String)
     case polymarketWithdrawRecord(cid: String)
+    case tangemPayPendingWithdrawExchanges(userWalletId: UserWalletId)
 
     var path: String {
         switch self {
@@ -71,6 +73,9 @@ enum PersistentStorageKey {
             return "tangem_pay_recent_operations_\(cid)"
         case .polymarketWithdrawRecord(let cid):
             return "polymarket_withdraw_record_\(cid)"
+        case .tangemPayPendingWithdrawExchanges(let userWalletId):
+            let pathComponent = "tangem_pay_pending_withdraw_exchanges"
+            return "\(pathComponent)_\(userWalletId.hashedStringValue(message: pathComponent))"
         }
     }
 
@@ -120,6 +125,8 @@ enum PersistentStorageKey {
             // Holds only the backend's id of the withdrawal, its state and a public Polygon hash, and the blob is
             // encrypted like every other per-wallet cache. The status poller may land an answer right as the
             // device locks, and complete protection would turn that write into a lost CONFIRMED or FAILED.
+            false
+        case .tangemPayPendingWithdrawExchanges:
             false
         }
     }
