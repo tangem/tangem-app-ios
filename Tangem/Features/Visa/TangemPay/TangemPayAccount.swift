@@ -660,7 +660,7 @@ private extension TangemPayAccount {
 
 extension TangemPayAccount: TangemPayWithdrawTransactionServiceOutput {
     func withdrawTransactionDidSent() {
-        Task {
+        _ = Task {
             // Update balance after withdraw with some delay
             try await Task.sleep(for: .seconds(5))
             await setupBalance()

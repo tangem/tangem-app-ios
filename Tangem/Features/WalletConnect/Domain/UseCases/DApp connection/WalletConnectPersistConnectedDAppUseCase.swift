@@ -16,7 +16,10 @@ final class WalletConnectPersistConnectedDAppUseCase {
         self.repository = repository
     }
 
-    func callAsFunction(
+    /// - Note: Methods of the non-isolated `WalletConnectPersistConnectedDAppUseCase` are implicitly `nonisolated`,
+    /// and Swift 5 mode runs such `async` ones as Swift 6.2 `@concurrent`;
+    /// `nonisolated(nonsending)` keeps the non-Sendable `selectedUserWallet` and `selectedAccount` on the caller's actor.
+    nonisolated(nonsending) func callAsFunction(
         connectionProposal: WalletConnectDAppConnectionProposal,
         dAppSession: WalletConnectDAppSession,
         dAppBlockchains: [WalletConnectDAppBlockchain],

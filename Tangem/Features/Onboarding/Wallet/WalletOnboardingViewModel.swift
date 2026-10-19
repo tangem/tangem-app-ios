@@ -733,13 +733,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     }
 
     private func readPrimaryCardPublisher() -> AnyPublisher<Void, Error> {
-        Deferred {
-            Future { [weak self] promise in
+        Deferred { [weak self] in
+            Future { promise in
                 guard let self = self else { return }
 
                 // Ring onboarding. Set custom image for ring.
-                backupService.config.setupForProduct(isPrimaryCardRing ? .ring : .card)
-                backupService.readPrimaryCard(cardId: input.primaryCardId) { result in
+                self.backupService.config.setupForProduct(self.isPrimaryCardRing ? .ring : .card)
+                self.backupService.readPrimaryCard(cardId: self.input.primaryCardId) { result in
                     switch result {
                     case .success:
                         promise(.success(()))
@@ -761,8 +761,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         isMainButtonBusy = true
 
         stepPublisher =
-            Deferred {
-                Future { [weak self] promise in
+            Deferred { [weak self] in
+                Future { promise in
                     self?.backupService.addBackupCard { [weak self] result in
                         switch result {
                         case .success(let card):
@@ -858,11 +858,11 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         let containsRing = backupService.allBatchIds.contains(where: { ringUtil.isRing(batchId: $0) })
 
         stepPublisher =
-            Deferred {
-                Future { [weak self] promise in
+            Deferred { [weak self] in
+                Future { promise in
                     guard let self else { return }
 
-                    backupService.proceedBackup { [weak self] result in
+                    self.backupService.proceedBackup { [weak self] result in
                         guard let self else { return }
 
                         // Ring onboarding. Reset to defaults
