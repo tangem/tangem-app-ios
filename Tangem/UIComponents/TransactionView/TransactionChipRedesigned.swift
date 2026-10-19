@@ -61,7 +61,7 @@ struct TransactionChipRedesigned: View {
         case .error:
             return nil
         case .progress, .plain, .success:
-            return viewModel.amount.displayValue?.nilIfEmpty
+            return viewModel.amount.displayValue
         }
     }
 
@@ -74,7 +74,7 @@ struct TransactionChipRedesigned: View {
 
         switch style {
         case .error:
-            return viewModel.amount.displayValue?.nilIfEmpty
+            return viewModel.amount.displayValue
         case .progress, .plain, .success:
             return nil
         }

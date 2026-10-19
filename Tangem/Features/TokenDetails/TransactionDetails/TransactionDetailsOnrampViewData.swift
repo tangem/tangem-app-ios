@@ -32,7 +32,7 @@ struct TransactionDetailsOnrampViewData: TransactionDetailsOperationViewData {
     let statusBanner: TransactionDetailsStatusBannerViewData?
     let provider: TransactionDetailsProviderInfo?
     let rate: String?
-    /// Footer button ("Go to provider" / "Go to verification"). Shown for verification / paused states
+    /// Footer button ("Go to provider" / "Go to verification"). Shown for verification / paused / unsuccessful states
     let action: TransactionDetailsActionButtonViewData?
 
     var tokensData: TransactionDetailsTokensViewData {
@@ -49,7 +49,7 @@ struct TransactionDetailsOnrampViewData: TransactionDetailsOperationViewData {
                 icon: .token(received.tokenIconInfo),
                 amountText: receivedAmountText,
                 fiatText: nil,
-                isAmountStrikethrough: false
+                isAmountStrikethrough: stage == .unsuccessful && received.amount != nil
             )
         )
     }
@@ -73,16 +73,9 @@ struct TransactionDetailsOnrampViewData: TransactionDetailsOperationViewData {
         TransactionDetailsAmountTextBuilder.build(paid.amount, symbol: paid.symbol) ?? BalanceFormatter.defaultEmptyBalanceString
     }
 
-    /// A deal that never settled delivered nothing, so a bare dash stands in for the figure the provider promised.
     private var receivedAmountText: String {
-        guard
-            stage != .unsuccessful,
-            let amountText = TransactionDetailsAmountTextBuilder.build(received.amount, symbol: received.symbol, sign: receivedPrefix)
-        else {
-            return BalanceFormatter.defaultEmptyBalanceString
-        }
-
-        return amountText
+        TransactionDetailsAmountTextBuilder.build(received.amount, symbol: received.symbol, sign: receivedPrefix)
+            ?? BalanceFormatter.defaultEmptyBalanceString
     }
 
     /// Mirrors the history row's sign, which keys off the same stage — the two surfaces must not disagree
