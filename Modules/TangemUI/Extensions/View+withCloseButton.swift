@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 
 public extension View {
     func withCloseButton(
@@ -18,8 +19,9 @@ public extension View {
             switch style {
             case .text:
                 ToolbarItem(placement: placement) {
-                    CloseTextButton(action: action)
+                    CloseToolbarButton(action: action)
                 }
+                .prefersVerticalBar()
 
             case .icon:
                 NavigationToolbarButton.close(placement: placement, action: action)

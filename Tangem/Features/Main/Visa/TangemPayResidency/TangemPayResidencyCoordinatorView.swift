@@ -21,6 +21,7 @@ struct TangemPayResidencyCoordinatorView: CoordinatorView {
                     destination: destination
                 )
         }
+        .id(coordinator.navigationStackId)
         .alert(item: $coordinator.alert) { $0.alert }
         .sheet(isPresented: $coordinator.isWaitlistPresented) {
             waitlist

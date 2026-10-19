@@ -185,6 +185,7 @@ class BaseTestCase: XCTestCase {
         accessCode: String? = nil,
         expressApiType: ExpressAPI? = nil,
         scenarios: [ScenarioConfig] = [],
+        featureToggles: [String: Bool] = [:],
         extraLaunchEnvironment: [String: String] = [:]
     ) -> MainScreen {
         let eligibilityScenario = ScenarioConfig(name: "tangem_pay_eligibility", initialState: eligibilityState)
@@ -194,6 +195,7 @@ class BaseTestCase: XCTestCase {
             expressApiType: expressApiType,
             visaApiType: .mock,
             clearStorage: true,
+            featureToggles: featureToggles,
             scenarios: [eligibilityScenario] + scenarios,
             extraLaunchEnvironment: extraLaunchEnvironment
         )

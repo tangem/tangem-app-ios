@@ -120,7 +120,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let appCoordinator = AppCoordinator()
         let appCoordinatorView = AppCoordinatorView(coordinator: appCoordinator)
             .environment(\.floatingSheetRegistry, sheetRegistry)
-            .environment(\.mainWindowSize, window.screen.bounds.size)
+            .mainWindowSize(initial: window.screen.bounds.size)
 
         window.rootViewController = UIHostingController(rootView: appCoordinatorView)
         appCoordinator.start(with: appCoordinatorOptions)

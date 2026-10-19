@@ -35,10 +35,6 @@ struct WelcomeView: View {
             .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                navigationBar
-                    .padding(.horizontal, 16)
-                    .frame(height: 44)
-
                 Spacer(minLength: 0)
 
                 titleBlock
@@ -54,11 +50,23 @@ struct WelcomeView: View {
                             startPoint: .top,
                             endPoint: .bottom
                         )
+                        .ignoresSafeArea(edges: .horizontal)
                     }
 
                 bottomContainer
             }
         }
+        .topNavigation(
+            leading: .image(Assets.newTangemLogo, height: 24),
+            actions: .one(
+                TopNavigation.Action(
+                    title: Localization.introductionButtonBuyTangem,
+                    accessibilityIdentifier: WelcomeAccessibilityIdentifiers.buyTangemButton,
+                    action: viewModel.onBuyTangemTap
+                )
+            )
+        )
+        .environment(\.topNavigationDrawsBarBackground, false)
         .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 
@@ -68,27 +76,7 @@ struct WelcomeView: View {
         case .legacy(let videoViewModel):
             WelcomeVideoBackgroundView(viewModel: videoViewModel)
         case .shared(let videoViewModel):
-            LoopingVideoBackgroundView(viewModel: videoViewModel)
-        }
-    }
-
-    private var navigationBar: some View {
-        HStack {
-            Assets.newTangemLogo.image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(height: 24)
-
-            Spacer()
-
-            TangemUI.Button(
-                label: Localization.introductionButtonBuyTangem,
-                accessibilityLabel: nil,
-                action: viewModel.onBuyTangemTap
-            )
-            .styleType(.material(.glass))
-            .size(.x11)
-            .accessibilityIdentifier(WelcomeAccessibilityIdentifiers.buyTangemButton)
+            LoopingVideoBackgroundView(viewModel: videoViewModel, fitsWithBlurredBackdropWhenWide: true)
         }
     }
 
@@ -137,7 +125,7 @@ struct WelcomeView: View {
         .background {
             Rectangle()
                 .fill(DesignSystem.Color.bgPrimary)
-                .ignoresSafeArea(edges: .bottom)
+                .ignoresSafeArea(edges: [.bottom, .horizontal])
         }
     }
 

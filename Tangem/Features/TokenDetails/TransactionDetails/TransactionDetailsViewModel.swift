@@ -457,7 +457,8 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
             contacts: contacts.filter { $0.walletId == userWalletId },
             isAddressBookSynced: isAddressBookSynced,
             transactionType: transaction.transactionType,
-            interactionAddress: transaction.interactionAddress
+            interactionAddress: transaction.interactionAddress,
+            subtitleOwner: transaction.subtitleOwner
         )
     }
 

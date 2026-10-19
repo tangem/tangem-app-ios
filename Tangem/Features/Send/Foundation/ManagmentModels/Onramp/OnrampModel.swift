@@ -584,12 +584,17 @@ extension OnrampModel: OnrampRedirectingOutput {
         persistSentTransaction(txData)
 
         stopTimer()
-        DispatchQueue.main.async {
-            self.router?.openOnrampWebView(url: data.widgetURL, onDismiss: { [weak self] in
-                self?.restartTimer()
-            }, onSuccess: { [weak self] url in
-                self?.proceedSuccess(txID: data.txId, redirectURL: data.redirectURL, url: url)
-            })
+
+        DispatchQueue.main.async { [self] in
+            router?.openOnrampWebView(
+                url: data.widgetURL,
+                onDismiss: { [weak self] in
+                    self?.restartTimer()
+                },
+                onSuccess: { [weak self] url in
+                    self?.proceedSuccess(txID: data.txId, redirectURL: data.redirectURL, url: url)
+                }
+            )
         }
     }
 

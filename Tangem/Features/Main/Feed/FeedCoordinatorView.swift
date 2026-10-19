@@ -31,6 +31,7 @@ struct FeedCoordinatorView: CoordinatorView {
                     .navigationDestination(for: FeedDestination.self) {
                         FeedDestinationView(destination: $0)
                             .scrollDisabled(sheetSize.isNonFullFeedSheet)
+                            .ignoresVerticalBarSafeArea(sheetSize.isNonFullFeedSheet)
                     }
                 }
                 .simultaneousGesture(TapGesture().onEnded {

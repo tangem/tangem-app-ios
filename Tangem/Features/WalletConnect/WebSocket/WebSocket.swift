@@ -302,10 +302,10 @@ class WebSocket {
     }
 
     private func setupPingTimer() {
-        DispatchQueue.main.async {
-            self.invalidateTimer()
-            self.pingTimer = Timer.scheduledTimer(
-                withTimeInterval: self.pingInterval,
+        DispatchQueue.main.async { [self] in
+            invalidateTimer()
+            pingTimer = Timer.scheduledTimer(
+                withTimeInterval: pingInterval,
                 repeats: true
             ) { [weak self] timer in
                 self?.sendPing()

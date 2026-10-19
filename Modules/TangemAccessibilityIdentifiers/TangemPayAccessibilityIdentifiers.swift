@@ -121,8 +121,6 @@ public enum TangemPayAccessibilityIdentifiers {
 
     // MARK: - Multichain deposit: receive sheet
 
-    public static let multichainReceiveSheetWarningTitle = "\(prefix)MultichainReceiveSheetWarningTitle"
-    public static let multichainReceiveSheetWarningDescription = "\(prefix)MultichainReceiveSheetWarningDescription"
     public static let multichainReceiveSheetHeading = "\(prefix)MultichainReceiveSheetHeading"
     public static let multichainReceiveSheetAddress = "\(prefix)MultichainReceiveSheetAddress"
     public static let multichainReceiveSheetCopyButton = "\(prefix)MultichainReceiveSheetCopyButton"
@@ -198,6 +196,8 @@ public enum TangemPayAccessibilityIdentifiers {
 
     public static let cardManagementMoreButton = "\(prefix)CardManagementMoreButton"
     public static let reissueCardRow = "\(prefix)ReissueCardRow"
+    public static let closeCardRow = "\(prefix)CloseCardRow"
+    public static let closeCardRowLastCard = "\(prefix)CloseCardRowLastCard"
     public static let reissueSheetConfirmButton = "\(prefix)ReissueSheetConfirmButton"
     public static let reissueSheetAddFundsButton = "\(prefix)ReissueSheetAddFundsButton"
 

@@ -485,9 +485,9 @@ private extension DetailsViewModel {
             case .scanTroubleshooting:
                 Analytics.log(.cantScanTheCard, params: [.source: .settings])
                 viewModel.isScanning = false
-                viewModel.openTroubleshooting(onTryAgain: { [weak self] in
-                    self?.tryAgain()
-                })
+                viewModel.openTroubleshooting { [weak viewModel] in
+                    viewModel?.tryAgain()
+                }
 
             case .success(let cardInfo):
                 Analytics.log(
