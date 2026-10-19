@@ -242,12 +242,14 @@ struct TransactionHistoryMapper {
             resolver: resolver
         )
 
+        let isCounterpartyCurrentOwner = owner == nil && counterparty?.isOwnWallet == true
+
         return TransactionDisplayModel.ExpressSubtitle(
             direction: direction,
             leading: .token(TokenIconInfoBuilder().build(from: counterpartyToken, isCustom: counterpartyToken.token?.isCustom ?? false)),
             symbol: counterpartyToken.currencySymbol,
             owner: owner,
-            counterparty: counterparty
+            counterparty: isCounterpartyCurrentOwner ? nil : counterparty
         )
     }
 
