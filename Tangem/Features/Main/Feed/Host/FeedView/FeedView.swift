@@ -35,13 +35,16 @@ struct FeedView: View {
 
             ZStack {
                 if searchViewModel.isActive {
-                    FeedSearchView(viewModel: searchViewModel)
+                    FeedSearchTabsView(viewModel: searchViewModel.tabsViewModel)
+                        .infinityFrame(alignment: .top)
                 } else {
                     feedScroll
                 }
             }
             .infinityFrame(alignment: .top)
             .animation(.easeInOut(duration: Constants.searchTransitionDuration), value: searchViewModel.isActive)
+            .scrollDismissesKeyboard(.immediately)
+            .simultaneousGesture(TapGesture().onEnded { viewModel.searchBarViewModel.endEditing() })
         }
         .infinityFrame(alignment: .top)
     }
@@ -50,11 +53,7 @@ struct FeedView: View {
         FeedSearchBarView(
             viewModel: viewModel.searchBarViewModel,
             isActive: searchViewModel.isActive,
-            onExpand: container.expand,
-            onFocus: {
-                searchViewModel.open()
-                container.expand()
-            },
+            onFocus: container.expand,
             onCancel: searchViewModel.reset,
             onHeightChange: { detentReporting?.report(searchBar: $0) }
         )

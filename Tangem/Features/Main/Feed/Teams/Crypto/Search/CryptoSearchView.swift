@@ -12,24 +12,13 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 
-struct CryptoSearchView<Header: View>: View {
+struct CryptoSearchView: View {
     @ObservedObject var viewModel: CryptoSearchViewModel
-
-    private let header: Header
-
-    init(
-        viewModel: CryptoSearchViewModel,
-        @ViewBuilder header: () -> Header = { EmptyView() }
-    ) {
-        self.viewModel = viewModel
-        self.header = header()
-    }
 
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: Constants.sectionSpacing) {
-                    header
                     if let portfolio = viewModel.portfolio {
                         FeedSearchSection(title: Localization.marketsCommonMyPortfolio) {
                             CryptoSearchPortfolioView(viewModel: portfolio)
@@ -108,13 +97,15 @@ private extension CryptoSearchView {
 
 // MARK: - Constants
 
-private enum Constants {
-    static let contentID = "cryptoSearchContent"
-    static let contentVerticalInset: CGFloat = 16
-    static let sectionSpacing: CGFloat = 24
-    static let horizontalPadding: CGFloat = 16
-    static let errorVerticalInset: CGFloat = 24
-    static let noticeSpacing: CGFloat = 8
-    static let noticeTopInset: CGFloat = 24
-    static let noticeHorizontalInset: CGFloat = 24
+private extension CryptoSearchView {
+    enum Constants {
+        static let contentID = "cryptoSearchContent"
+        static let contentVerticalInset: CGFloat = 16
+        static let sectionSpacing: CGFloat = 24
+        static let horizontalPadding: CGFloat = 16
+        static let errorVerticalInset: CGFloat = 24
+        static let noticeSpacing: CGFloat = 8
+        static let noticeTopInset: CGFloat = 24
+        static let noticeHorizontalInset: CGFloat = 24
+    }
 }

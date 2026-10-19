@@ -86,7 +86,6 @@ private extension RealAssetsSearchViewModelTests {
     func makeSUT(assetsProvider: some FeedSearchProvider<MarketsTokenModel>) -> SUT {
         let sut = SUT(
             query: query.eraseToAnyPublisher(),
-            history: HistoryProviderStub(),
             router: RouterStub(),
             assetsProvider: assetsProvider
         )
@@ -147,16 +146,6 @@ private final class SearchProviderStub: FeedSearchProvider {
         didReset = true
         stateSubject.send(.loading)
     }
-}
-
-private final class HistoryProviderStub: FeedSearchHistoryProvider {
-    var historyPublisher: AnyPublisher<FeedSearchHistory, Never> {
-        Empty<FeedSearchHistory, Never>(completeImmediately: false).eraseToAnyPublisher()
-    }
-
-    func save(query: String) {}
-    func remove(_ query: FeedRecentQuery) {}
-    func clear() {}
 }
 
 private final class RouterStub: RealAssetsFeedRoutable {
