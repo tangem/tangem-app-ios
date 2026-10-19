@@ -348,7 +348,10 @@ struct TransactionHistoryMapper {
             return nil
         }
 
-        let amountFormatted = transferAmount(from: record).legacy
+        guard let amountFormatted = transferAmount(from: record)?.legacy else {
+            return nil
+        }
+
         let date = record.date ?? Date()
         let dateFormatted = Self.dateTimeFormatter.string(from: date)
 
@@ -449,9 +452,10 @@ private extension TransactionHistoryMapper {
             index: record.index,
             interactionAddress: interaction,
             timeFormatted: timeFormatted,
-            amount: formattedAmount.legacy,
-            amountWithCurrencyCode: formattedAmount.withCurrencyCode,
-            value: formattedAmount.redesigned,
+            // [REDACTED_TODO_COMMENT]
+            amount: formattedAmount?.legacy ?? "",
+            amountWithCurrencyCode: formattedAmount?.withCurrencyCode,
+            value: formattedAmount?.redesigned,
             currencyCode: amountSymbol(for: prepared),
             isOutgoing: record.isOutgoing,
             transactionType: prepared.transactionType,
@@ -463,7 +467,7 @@ private extension TransactionHistoryMapper {
         )
     }
 
-    func transferAmount(from record: TransactionRecord) -> FormattedAmount {
+    func transferAmount(from record: TransactionRecord) -> FormattedAmount? {
         getFormattedAmount(for: prepare(record))
     }
 
@@ -874,7 +878,7 @@ private extension TransactionHistoryMapper {
 }
 
 private extension TransactionHistoryMapper {
-    func getFormattedAmount(for prepared: PreparedRecord) -> FormattedAmount {
+    func getFormattedAmount(for prepared: PreparedRecord) -> FormattedAmount? {
         let record = prepared.record
         let amount = prepared.amount
 
@@ -886,7 +890,11 @@ private extension TransactionHistoryMapper {
         case .stake, .unstake, .restake, .vote, .withdraw:
             return makeFormattedAmount(amount, symbol: currencySymbol)
         case .approve:
-            return prepared.approve.map(approveAmount(for:)) ?? makeFormattedAmount(amount, symbol: currencySymbol)
+            guard let approve = prepared.approve else {
+                return makeFormattedAmount(amount, symbol: currencySymbol)
+            }
+
+            return approveAmount(for: approve)
         case .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin:
             return makeFormattedAmount(amount, symbol: currencySymbol)
         // Supply and Withdraw take their sign from the operation rather than the on-chain direction, which
@@ -909,7 +917,13 @@ private extension TransactionHistoryMapper {
         }
     }
 
-    func onrampAmount(for record: TransactionRecord, info: OnrampTransactionInfo, amount: Decimal) -> FormattedAmount {
+    func onrampAmount(for record: TransactionRecord, info: OnrampTransactionInfo, amount: Decimal) -> FormattedAmount? {
+        guard
+            !ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash) || info.transaction.to.normalizedAmount != nil
+        else {
+            return nil
+        }
+
         let status = status(from: record)
         let tilde = "\(AppConstants.tildeSign) "
 
@@ -933,7 +947,7 @@ private extension TransactionHistoryMapper {
         return sign
     }
 
-    func approveAmount(for approve: TransactionRecord.TransactionType.Approve) -> FormattedAmount {
+    func approveAmount(for approve: TransactionRecord.TransactionType.Approve) -> FormattedAmount? {
         let symbol = approveSymbol(approve)
 
         switch approve.allowance {
@@ -950,7 +964,7 @@ private extension TransactionHistoryMapper {
         case .limited(let value):
             return makeFormattedAmount(value, symbol: symbol)
         case .unscaled:
-            return FormattedAmount(legacy: "", redesigned: "", withCurrencyCode: "")
+            return nil
         }
     }
 

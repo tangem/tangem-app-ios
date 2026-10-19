@@ -132,7 +132,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         timeFormatted: String?,
         amount: String,
         amountWithCurrencyCode: String? = nil,
-        value: String,
+        value: String?,
         currencyCode: String,
         isOutgoing: Bool,
         transactionType: TransactionViewModel.TransactionType,

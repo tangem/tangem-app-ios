@@ -78,6 +78,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
         category = displayData.categoryName
         amount = TransactionViewAmountViewData(
             amount: displayData.amount,
+            value: displayData.amount,
             type: displayData.type,
             status: displayData.status,
             isOutgoing: displayData.isOutgoing,
