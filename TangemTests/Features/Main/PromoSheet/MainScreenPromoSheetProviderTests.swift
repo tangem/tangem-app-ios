@@ -182,12 +182,77 @@ struct MainScreenPromoSheetProviderTests {
         }
     }
 
+    @Test("The sheet counts as shown only once it appears, and only once")
+    func marksShownOnAppearance() async {
+        await withProvider(managerStates: [.ready]) { provider, managers, interactor in
+            provider.onMainScreenAppear()
+            await drainMainQueue()
+
+            #expect(!interactor.hasShownSheet(managerId: managers[0].id))
+            #expect(managers[0].shownCount == 0)
+
+            managers[0].appearanceSubject.send()
+            managers[0].appearanceSubject.send()
+
+            #expect(interactor.hasShownSheet(managerId: managers[0].id))
+            #expect(managers[0].shownCount == 1)
+        }
+    }
+
+    @Test("A skipped launch does not count as shown")
+    func skipDoesNotMarkShown() async {
+        await withProvider(managerStates: [.unavailable(.dataNotReady)]) { provider, managers, interactor in
+            provider.onMainScreenAppear()
+            await drainMainQueue()
+
+            #expect(!interactor.hasShownSheet(managerId: managers[0].id))
+        }
+    }
+
+    @Test("A sheet the source could not present does not count as shown")
+    func unpresentedSheetDoesNotMarkShown() async {
+        await withProvider(managerStates: [.ready]) { provider, managers, interactor in
+            managers[0].presentsSheet = false
+
+            provider.onMainScreenAppear()
+            await drainMainQueue()
+
+            #expect(managers[0].presentCount == 1)
+            #expect(!interactor.hasShownSheet(managerId: managers[0].id))
+            #expect(managers[0].shownCount == 0)
+        }
+    }
+
+    @Test("An already shown source is neither started nor reported")
+    func alreadyShownSourceIsIgnored() async {
+        await withProvider(managerStates: [.ready], shownManagerIndices: [0]) { provider, managers, _ in
+            provider.onMainScreenAppear()
+            await drainMainQueue()
+
+            #expect(!managers[0].didStart)
+            #expect(managers[0].skipReasons.isEmpty)
+            #expect(managers.presentedIds.isEmpty)
+        }
+    }
+
+    @Test("An already shown source gives way to the next one")
+    func alreadyShownSourceGivesWay() async {
+        await withProvider(managerStates: [.ready, .ready], shownManagerIndices: [0]) { provider, managers, _ in
+            provider.onMainScreenAppear()
+            await drainMainQueue()
+
+            #expect(managers.presentedIds == [managers[1].id])
+        }
+    }
+
     private func withProvider(
         managerStates: [MainScreenPromoSheetManagerState?],
+        shownManagerIndices: Set<Int> = [],
         _ operation: (MainScreenPromoSheetProvider, [StubPromoSheetManager], StubPromoSheetInteractor) async -> Void
     ) async {
         let interactor = StubPromoSheetInteractor()
         let managers = managerStates.map { StubPromoSheetManager(state: $0) }
+        shownManagerIndices.forEach { interactor.shownManagerIds.insert(managers[$0].id) }
         let provider = makeProvider(managers: managers, interactor: interactor)
 
         await operation(provider, managers, interactor)
@@ -214,6 +279,8 @@ struct MainScreenPromoSheetProviderTests {
 private final class StubPromoSheetInteractor: MainScreenPromoSheetInteractor {
     private(set) var presentationSettings = MainScreenPromoSheetPresentationSettings(isOpenedFromLink: false)
     var didClaimFirstAppearance = false
+    var shownManagerIds: Set<String> = []
+    private var shownSheetSubscription: AnyCancellable?
 
     func initialize() {}
 
@@ -226,6 +293,19 @@ private final class StubPromoSheetInteractor: MainScreenPromoSheetInteractor {
         return true
     }
 
+    func hasShownSheet(managerId: String) -> Bool {
+        shownManagerIds.contains(managerId)
+    }
+
+    func markSheetShownOnAppearance(_ appearancePublisher: AnyPublisher<Void, Never>, managerId: String, onShown: @escaping () -> Void) {
+        shownSheetSubscription = appearancePublisher
+            .first()
+            .sink { [weak self] _ in
+                self?.shownManagerIds.insert(managerId)
+                onShown()
+            }
+    }
+
     func markOpenedFromLink() {
         presentationSettings = MainScreenPromoSheetPresentationSettings(isOpenedFromLink: true)
     }
@@ -234,7 +314,9 @@ private final class StubPromoSheetInteractor: MainScreenPromoSheetInteractor {
 private final class StubPromoSheetManager: MainScreenPromoSheetManager {
     let id = UUID().uuidString
     var handlesPresentation = true
+    var presentsSheet = true
     let state: CurrentValueSubject<MainScreenPromoSheetManagerState?, Never>
+    let appearanceSubject = PassthroughSubject<Void, Never>()
 
     private(set) var didStart = false
     private(set) var didStop = false
@@ -242,6 +324,7 @@ private final class StubPromoSheetManager: MainScreenPromoSheetManager {
     private(set) var presentCount = 0
     private(set) var presentedOnMainThread: Bool?
     private(set) var receivedPresentationSettings: [MainScreenPromoSheetPresentationSettings] = []
+    private(set) var shownCount = 0
 
     var isRunning: Bool {
         didStart && !didStop
@@ -266,9 +349,14 @@ private final class StubPromoSheetManager: MainScreenPromoSheetManager {
         return handlesPresentation
     }
 
-    func presentSheet() {
+    func presentSheet() -> AnyPublisher<Void, Never>? {
         presentCount += 1
         presentedOnMainThread = Thread.isMainThread
+        return presentsSheet ? appearanceSubject.eraseToAnyPublisher() : nil
+    }
+
+    func logShown() {
+        shownCount += 1
     }
 
     func logSkipped(_ reason: MainScreenPromoSheetSkipReason) {

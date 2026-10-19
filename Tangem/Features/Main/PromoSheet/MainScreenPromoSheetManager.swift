@@ -9,10 +9,12 @@
 import Combine
 
 protocol MainScreenPromoSheetManager: AnyObject {
+    var id: String { get }
     var statePublisher: AnyPublisher<MainScreenPromoSheetManagerState, Never> { get }
 
     func canHandlePresentation(_ settings: MainScreenPromoSheetPresentationSettings) -> Bool
-    func presentSheet()
+    func presentSheet() -> AnyPublisher<Void, Never>?
+    func logShown()
     func logSkipped(_ reason: MainScreenPromoSheetSkipReason)
 }
 

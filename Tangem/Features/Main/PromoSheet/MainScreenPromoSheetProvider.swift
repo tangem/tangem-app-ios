@@ -29,7 +29,7 @@ final class MainScreenPromoSheetProvider {
         }
 
         let presentationSettings = interactor.presentationSettings
-        let eligibleManagers = managers.filter { $0.canHandlePresentation(presentationSettings) }
+        let eligibleManagers = managers.filter { !interactor.hasShownSheet(managerId: $0.id) && $0.canHandlePresentation(presentationSettings) }
 
         guard !eligibleManagers.isEmpty else {
             return
@@ -41,14 +41,27 @@ final class MainScreenPromoSheetProvider {
             .compactMap { Self.decision(for: $0, of: eligibleManagers) }
             .first()
             .receiveOnMain()
-            .sink { decision in
-                switch decision {
-                case .show(let manager):
-                    manager.presentSheet()
-                case .skip(let manager, let reason):
-                    manager.logSkipped(reason)
-                }
+            .withWeakCaptureOf(self)
+            .sink { provider, decision in
+                provider.apply(decision)
             }
+    }
+
+    private func apply(_ decision: Decision) {
+        switch decision {
+        case .show(let manager):
+            present(manager)
+        case .skip(let manager, let reason):
+            manager.logSkipped(reason)
+        }
+    }
+
+    private func present(_ manager: MainScreenPromoSheetManager) {
+        guard let appearancePublisher = manager.presentSheet() else {
+            return
+        }
+
+        interactor.markSheetShownOnAppearance(appearancePublisher, managerId: manager.id, onShown: { manager.logShown() })
     }
 }
 

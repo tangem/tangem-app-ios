@@ -58,6 +58,41 @@ struct CommonMainScreenPromoSheetInteractorTests {
         #expect(!interactor.presentationSettings.isOpenedFromLink)
     }
 
+    @Test("A promo is recorded as shown only once its sheet appears, and only once")
+    func recordsShownOnAppearance() {
+        let originalShownIds = AppSettings.shared.shownMainScreenPromoSheetIds
+        defer { AppSettings.shared.shownMainScreenPromoSheetIds = originalShownIds }
+        AppSettings.shared.shownMainScreenPromoSheetIds = []
+
+        let interactor = makeInteractor().interactor
+        let appearance = PassthroughSubject<Void, Never>()
+        var shownCount = 0
+
+        interactor.markSheetShownOnAppearance(appearance.eraseToAnyPublisher(), managerId: "promo", onShown: { shownCount += 1 })
+
+        #expect(!interactor.hasShownSheet(managerId: "promo"))
+
+        appearance.send()
+        appearance.send()
+
+        #expect(interactor.hasShownSheet(managerId: "promo"))
+        #expect(shownCount == 1)
+        #expect(AppSettings.shared.shownMainScreenPromoSheetIds == ["promo"])
+    }
+
+    @Test("A sheet that goes away without appearing is not recorded as shown")
+    func ignoresSheetThatNeverAppeared() {
+        let interactor = makeInteractor().interactor
+        let appearance = PassthroughSubject<Void, Never>()
+        var shownCount = 0
+
+        interactor.markSheetShownOnAppearance(appearance.eraseToAnyPublisher(), managerId: "unseen-promo", onShown: { shownCount += 1 })
+        appearance.send(completion: .finished)
+
+        #expect(!interactor.hasShownSheet(managerId: "unseen-promo"))
+        #expect(shownCount == 0)
+    }
+
     private func makeInteractor() -> (interactor: CommonMainScreenPromoSheetInteractor, incomingActionManager: StubIncomingActionManager) {
         let incomingActionManager = StubIncomingActionManager()
         let interactor = CommonMainScreenPromoSheetInteractor(incomingActionManager: incomingActionManager)
