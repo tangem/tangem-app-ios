@@ -54,7 +54,6 @@ struct TangemPayMobileOnboardingView: View {
                 .accessibilityLabel(Localization.tangemPayTermsFeesLimits)
             }
         }
-        .environment(\.colorScheme, .dark)
         .alert(item: $viewModel.alert) { $0.alert }
         .onAppear(perform: viewModel.onAppear)
     }

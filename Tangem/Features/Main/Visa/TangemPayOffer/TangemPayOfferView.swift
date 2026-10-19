@@ -32,13 +32,13 @@ struct TangemPayOfferView: View {
             onGetCard: viewModel.getCard,
             onLegalLinkTap: viewModel.openLegalDocument
         )
+        .alert(item: $viewModel.alert) { $0.alert }
+        .environment(\.colorScheme, isBundleIntroductionEnabled ? .dark : colorScheme)
         .sheet(item: $viewModel.termsFeesAndLimitsViewModel) {
             WebViewContainer(viewModel: $0)
         }
         .sheet(item: $viewModel.legalDocumentViewModel) {
             WebViewContainer(viewModel: $0)
         }
-        .alert(item: $viewModel.alert) { $0.alert }
-        .environment(\.colorScheme, isBundleIntroductionEnabled ? .dark : colorScheme)
     }
 }

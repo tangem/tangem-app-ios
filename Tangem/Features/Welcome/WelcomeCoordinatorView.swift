@@ -62,6 +62,7 @@ struct WelcomeCoordinatorView: CoordinatorView {
             ZStack {
                 if let tangemPayMobileOnboardingCoordinator = coordinator.tangemPayMobileOnboardingCoordinator {
                     TangemPayMobileOnboardingCoordinatorView(coordinator: tangemPayMobileOnboardingCoordinator)
+                        .environment(\.colorScheme, systemColorScheme)
                         .transition(.opacity)
                 }
             }
