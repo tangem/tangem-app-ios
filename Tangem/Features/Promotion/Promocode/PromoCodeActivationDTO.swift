@@ -15,11 +15,18 @@ extension PromoCodeActivationDTO {
         let address: String
         let promoCode: String
         let walletId: String
+        let paymentNetwork: String?
+        let paymentCurrency: String?
     }
 
     struct Response: Decodable {
         let promoCodeId: String
         let status: Status
+        let promoProgram: PromoProgram?
+
+        struct PromoProgram: Decodable {
+            let id: String
+        }
 
         enum Status: String, Decodable {
             case activated

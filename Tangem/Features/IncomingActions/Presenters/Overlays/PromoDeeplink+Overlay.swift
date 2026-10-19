@@ -10,7 +10,7 @@ import SwiftUI
 extension PromoDeeplink: DeeplinkOverlayProviding {
     func makeOverlay(in context: DeeplinkOverlayContext) -> DeeplinkOverlayResult? {
         let view = AnyView(
-            PromocodeActivationView(promoCode: code, dismissAction: { context.dismiss() })
+            PromocodeActivationView(promoCode: code, token: token, dismissAction: { context.dismiss() })
                 .presentationBackground(.clear)
         )
 
