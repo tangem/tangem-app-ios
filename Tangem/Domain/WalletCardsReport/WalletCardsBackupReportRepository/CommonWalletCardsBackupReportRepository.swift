@@ -42,9 +42,10 @@ extension CommonWalletCardsBackupReportRepository: WalletCardsBackupReportReposi
 
             // A primary reporting itself must not fall back to its own stored record — that may be a stale
             // wallet from a previous onboarding of the same physical card (the store isn't cleared on a
-            // factory reset).
+            // factory reset). A failed step is the exception: its snapshot carries no identity.
             let isPrimaryCard = card.cardId == primaryCardId
-            let inheritedIdentity = isPrimaryCard ? nil : currentReport.cards[primaryCardId]?.identity
+            let canInheritIdentity = !isPrimaryCard || error != nil
+            let inheritedIdentity = canInheritIdentity ? currentReport.cards[primaryCardId]?.identity : nil
             let identity = card.identity ?? inheritedIdentity
 
             let appliedCard = apply(
@@ -111,7 +112,7 @@ private extension CommonWalletCardsBackupReportRepository {
             backupStatus: card.backupStatus,
             curves: card.curves,
             errorCode: error?.code,
-            errorMessage: error?.message,
+            errorMessage: error?.localizedDescription,
             deliveryState: .waitingForDelivery
         )
 
