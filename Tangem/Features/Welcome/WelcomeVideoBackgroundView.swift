@@ -13,7 +13,7 @@ struct WelcomeVideoBackgroundView: View {
     @ObservedObject var viewModel: WelcomeVideoBackgroundViewModel
 
     var body: some View {
-        VideoPlayerView(player: viewModel.player)
+        VideoPlayerView(player: viewModel.player, fitsWithBlurredBackdropWhenWide: true)
             .background(Color.black)
             .onAppear { viewModel.play() }
             .onDisappear { viewModel.stop() }

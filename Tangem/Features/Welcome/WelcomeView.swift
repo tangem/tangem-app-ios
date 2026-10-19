@@ -76,7 +76,7 @@ struct WelcomeView: View {
         case .legacy(let videoViewModel):
             WelcomeVideoBackgroundView(viewModel: videoViewModel)
         case .shared(let videoViewModel):
-            LoopingVideoBackgroundView(viewModel: videoViewModel)
+            LoopingVideoBackgroundView(viewModel: videoViewModel, fitsWithBlurredBackdropWhenWide: true)
         }
     }
 

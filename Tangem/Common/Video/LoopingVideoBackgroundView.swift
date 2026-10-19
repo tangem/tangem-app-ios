@@ -11,9 +11,10 @@ import TangemUI
 
 struct LoopingVideoBackgroundView: View {
     @ObservedObject var viewModel: LoopingVideoBackgroundViewModel
+    var fitsWithBlurredBackdropWhenWide = false
 
     var body: some View {
-        VideoPlayerView(player: viewModel.player)
+        VideoPlayerView(player: viewModel.player, fitsWithBlurredBackdropWhenWide: fitsWithBlurredBackdropWhenWide)
             .background(Color.black)
             .onAppear { viewModel.play() }
             .onDisappear { viewModel.stop() }
