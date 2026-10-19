@@ -37,7 +37,8 @@ struct CommonTronGaslessTokenFeeLoader {
 
 extension CommonTronGaslessTokenFeeLoader: TokenFeeLoader {
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
-        try await makeFee(amount: amount, destination: sourceAddress)
+        let destination = try tokenItem.blockchain.feeEstimationAddress
+        return try await makeFee(amount: amount, destination: destination)
     }
 
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee] {

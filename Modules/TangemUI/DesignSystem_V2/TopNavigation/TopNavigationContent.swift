@@ -202,13 +202,28 @@ struct TopNavigationSystemChrome: View {
     private let size = TopNavigationChromeMetrics.actionButtonSize
 
     var body: some View {
-        HStack(spacing: TopNavigationChromeMetrics.actionSpacing) {
+        VerticalBarAdaptiveStack(spacing: TopNavigationChromeMetrics.actionSpacing) {
             ForEach(actions.indices, id: \.self) { index in
                 TopNavigationActionButton(action: actions[index], size: size)
                     .contentShape(.rect)
             }
         }
         .deferringPressFeedbackToGlass()
+    }
+}
+
+private struct VerticalBarAdaptiveStack<Content: View>: View {
+    let spacing: CGFloat
+    @ViewBuilder let content: Content
+
+    @Environment(\.verticalBarEdge) private var verticalBarEdge
+
+    var body: some View {
+        let layout = verticalBarEdge == nil
+            ? AnyLayout(HStackLayout(spacing: spacing))
+            : AnyLayout(VStackLayout(spacing: spacing))
+
+        layout { content }
     }
 }
 

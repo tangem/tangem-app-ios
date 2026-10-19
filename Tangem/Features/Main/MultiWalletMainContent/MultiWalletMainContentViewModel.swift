@@ -520,12 +520,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                     .map { $0.flattened() }
                     .eraseToAnyPublisher()
             }
-            .map { pendingOperations in
+            .withWeakCaptureOf(self)
+            .map { viewModel, pendingOperations in
                 let builder = JointAccountOperationPlateViewDataBuilder()
 
                 return pendingOperations.map { pendingOperation in
-                    builder.build(pendingOperation: pendingOperation) { [weak self] in
-                        self?.coordinator?.openJointAccountOperationDetails(pendingOperation: pendingOperation)
+                    builder.build(pendingOperation: pendingOperation) { [weak viewModel] in
+                        viewModel?.coordinator?.openJointAccountOperationDetails(pendingOperation: pendingOperation)
                     }
                 }
             }

@@ -370,7 +370,7 @@ private extension MarketsTokenSearchViewModel {
     }
 
     func openPortfolioTokenList(walletModels: [any WalletModel]) {
-        Task { @MainActor [coordinator] in
+        Task { @MainActor [self] in
             coordinator?.openPortfolioTokenList(
                 walletModels: walletModels,
                 onSelect: { [weak self] walletModel in

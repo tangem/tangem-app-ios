@@ -51,9 +51,10 @@ actor CommonP2PBatchBalancesService: P2PBatchBalancesService {
             .map { Set($0) }
             .removeDuplicates()
             .debounce(for: .seconds(debounceInterval), scheduler: DispatchQueue.global(qos: .utility))
-            .sink { addresses in
-                Task { [weak self] in
-                    try? await self?.fetch(for: Array(addresses), forceRefresh: true)
+            .withWeakCaptureOf(self)
+            .sink { service, addresses in
+                Task { [weak service] in
+                    try? await service?.fetch(for: Array(addresses), forceRefresh: true)
                 }
             }
     }

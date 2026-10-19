@@ -19,6 +19,7 @@ public struct FloatingSheetView: View {
     @State private var sheetContentConfiguration = FloatingSheetConfiguration.default
 
     @State private var keyboardHeight: CGFloat = 0
+    @State private var horizontalSafeAreaInsets = EdgeInsets()
     @State private var verticalDragAmount: CGFloat = 0
     @GestureState private var isDragging = false
 
@@ -40,6 +41,8 @@ public struct FloatingSheetView: View {
             }
         }
         .ignoresSafeArea(.all, edges: .bottom)
+        .ignoresSafeArea(.container, edges: .horizontal)
+        .onGeometryChange(for: EdgeInsets.self, of: \.safeAreaInsets) { horizontalSafeAreaInsets = $0 }
         .if(sheetContentConfiguration.keyboardHandlingEnabled) { view in
             view.keyboardHeight(bindTo: $keyboardHeight)
         }
@@ -97,6 +100,8 @@ public struct FloatingSheetView: View {
             .clipShape(roundedRectangle)
             .contentShape(roundedRectangle)
             .padding(.horizontal, 8)
+            .padding(.leading, horizontalSafeAreaInsets.leading)
+            .padding(.trailing, horizontalSafeAreaInsets.trailing)
             .padding(.bottom, bottomSheetPadding)
             .padding(.bottom, keyboardHeight)
             .offset(y: verticalDragAmount)

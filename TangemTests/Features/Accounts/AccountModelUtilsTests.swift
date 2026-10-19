@@ -10,7 +10,6 @@ import Foundation
 import Testing
 import TangemAccounts
 import TangemFoundation
-import TangemSdk
 @testable import Tangem
 
 /// https://github.com/tangem-developments/tangem-app-android/blob/develop/domain/models/src/test/kotlin/com/tangem/domain/models/account/CryptoPortfolioIconTest.kt
@@ -30,8 +29,7 @@ struct AccountModelUtilsTests {
     )
     func testMainAccountIconGeneration(hexString: String, expectedColor: AccountModel.CompositeIcon.Color) {
         let expectedName: AccountModel.CompositeIcon.Name = .star
-        let rawUserWalletId = Data(hexString: hexString)
-        let userWalletId = UserWalletId(value: rawUserWalletId)
+        let userWalletId = UserWalletId(stringValue: hexString)
         let persistentConfig = AccountModelUtils.mainAccountPersistentConfig(forUserWalletWithId: userWalletId)
 
         #expect(persistentConfig.iconColor == expectedColor.rawValue)

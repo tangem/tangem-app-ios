@@ -27,7 +27,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>%li地址\n%li地址</string>
+        <string>%li个地址</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -41,7 +41,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>%li设备</string>
+        <string>%li个设备</string>
       </dict>
     </dict>
     <key>collectibles_account_collection_cards_count</key>
@@ -71,7 +71,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>%li资产\n%li资产</string>
+        <string>%li种资产</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -88,62 +88,6 @@
         <string>天</string>
       </dict>
     </dict>
-    <key>common_days_time_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>other</key>
-        <string>%li天之前</string>
-      </dict>
-    </dict>
-    <key>common_hours</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>other</key>
-        <string>%li小时</string>
-      </dict>
-    </dict>
-    <key>common_hours_time_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>other</key>
-        <string>小时之前</string>
-      </dict>
-    </dict>
-    <key>common_minutes_time_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>other</key>
-        <string>分钟之前</string>
-      </dict>
-    </dict>
     <key>common_networks_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -155,7 +99,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>%li网络</string>
+        <string>%li个网络</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
@@ -169,7 +113,23 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>%li代币</string>
+        <string>%li种代币</string>
+      </dict>
+    </dict>
+    <key>joint_account_join_signatures_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li signature</string>
+        <key>other</key>
+        <string>%li signatures</string>
       </dict>
     </dict>
     <key>joint_account_members_count</key>
@@ -200,20 +160,6 @@
         <string>需要%1$li签名</string>
       </dict>
     </dict>
-    <key>manage_tokens_number_of_wallets_ios</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%li 的 %#@total_wallets@</string>
-      <key>total_wallets</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>other</key>
-        <string>钱包</string>
-      </dict>
-    </dict>
     <key>markets_token_details_amount_exchanges</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -239,35 +185,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>基于%li排名</string>
-      </dict>
-    </dict>
-    <key>news_published_hours_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>other</key>
-        <string>小时之前</string>
-      </dict>
-    </dict>
-    <key>news_published_minutes_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>other</key>
-        <string>分钟之前</string>
+        <string>基于%li个评分</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
@@ -295,7 +213,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>%li收藏集</string>
+        <string>%li个收藏集</string>
       </dict>
       <key>nfts_count</key>
       <dict>
@@ -305,20 +223,6 @@
         <string>li</string>
         <key>other</key>
         <string>%liNFT</string>
-      </dict>
-    </dict>
-    <key>onboarding_address_sync_description</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>other</key>
-        <string>您的钱包包含%li种代币，要继续，请同步您的地址。</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>
@@ -418,7 +322,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>%li钱包</string>
+        <string>%li个钱包</string>
       </dict>
     </dict>
     <key>send_network_selection_hidden_tokens</key>
@@ -432,7 +336,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>此地址与代币不兼容</string>
+        <string>%li种代币与此地址不兼容</string>
       </dict>
     </dict>
     <key>tangempay_cards_count</key>
@@ -446,7 +350,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>%li卡片</string>
+        <string>%li张卡片</string>
       </dict>
     </dict>
     <key>tangempay_order_success_delivery_eta</key>
@@ -504,7 +408,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>头部%li资产\n头部%li资产</string>
+        <string>头部%li种资产</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
@@ -532,7 +436,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>使用您的卡片或指环获取%li网络地址</string>
+        <string>使用您的卡片或指环获取%li个网络的地址</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_no_nfc_message</key>
@@ -546,7 +450,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>同步地址以获取%li网络地址</string>
+        <string>同步地址以获取%li个网络的地址</string>
       </dict>
     </dict>
   </dict>

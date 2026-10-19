@@ -35,10 +35,6 @@ struct WelcomeV2View: View {
             .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                navigationBar
-                    .padding(.horizontal, 16)
-                    .frame(height: 44)
-
                 Spacer(minLength: 0)
 
                 titleBlock
@@ -54,32 +50,24 @@ struct WelcomeV2View: View {
                             startPoint: .top,
                             endPoint: .bottom
                         )
+                        .ignoresSafeArea(edges: .horizontal)
                     }
 
                 bottomContainer
             }
         }
-        .onFirstAppear(perform: viewModel.onFirstAppear)
-    }
-
-    private var navigationBar: some View {
-        HStack {
-            Assets.newTangemLogo.image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(height: 24)
-
-            Spacer()
-
-            TangemUI.Button(
-                label: Localization.introductionButtonBuyTangem,
-                accessibilityLabel: nil,
-                action: viewModel.onBuyTangemTap
+        .topNavigation(
+            leading: .image(Assets.newTangemLogo, height: 24),
+            actions: .one(
+                TopNavigation.Action(
+                    title: Localization.introductionButtonBuyTangem,
+                    accessibilityIdentifier: WelcomeV2AccessibilityIdentifiers.buyTangemButton,
+                    action: viewModel.onBuyTangemTap
+                )
             )
-            .styleType(.material(.glass))
-            .size(.x11)
-            .accessibilityIdentifier(WelcomeV2AccessibilityIdentifiers.buyTangemButton)
-        }
+        )
+        .environment(\.topNavigationDrawsBarBackground, false)
+        .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 
     /// All scenes are laid out at once (block keeps the tallest height, so buttons don't jump);
@@ -127,7 +115,7 @@ struct WelcomeV2View: View {
         .background {
             Rectangle()
                 .fill(DesignSystem.Color.bgPrimary)
-                .ignoresSafeArea(edges: .bottom)
+                .ignoresSafeArea(edges: [.bottom, .horizontal])
         }
     }
 

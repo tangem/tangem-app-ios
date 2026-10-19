@@ -78,6 +78,7 @@ extension Analytics {
         case sell = "Sell"
         case swap = "Swap"
         case send = "Send"
+        case transfer = "Transfer"
         case sendAndSwap = "Send&Swap"
         case from = "From"
         case to = "To"
@@ -333,7 +334,6 @@ extension Analytics {
         case txHistoryTransactionDetail = "Transaction Detail"
         case txHistoryConfirmed = "Confirmed"
         case txHistoryReceived = "Received"
-        case txHistoryTransfer = "Transfer"
         case txHistoryTopUp = "Top Up"
         case txHistoryOperation = "Operation"
 
