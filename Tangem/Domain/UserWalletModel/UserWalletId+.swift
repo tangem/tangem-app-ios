@@ -11,6 +11,10 @@ import TangemSdk
 import TangemFoundation
 
 extension UserWalletId {
+    init(stringValue: String) {
+        self.init(value: Data(hexString: stringValue))
+    }
+
     init?(cardInfo: CardInfo) {
         let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
         self.init(config: config)

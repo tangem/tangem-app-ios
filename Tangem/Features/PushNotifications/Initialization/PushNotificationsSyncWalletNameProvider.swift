@@ -72,8 +72,8 @@ final class PushNotificationsSyncWalletNameProvider {
         context: some Encodable,
         userWalletId: String
     ) -> AnyPublisher<Void, Never> {
-        Deferred {
-            Future<Void, Never> { [weak self] promise in
+        Deferred { [weak self] in
+            Future<Void, Never> { promise in
                 guard let self else {
                     promise(.success(()))
                     return

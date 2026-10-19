@@ -18,6 +18,8 @@ struct RealAssetsContentView: View {
 
     @ScaledMetric private var bannerIconSize: CGFloat = 20
     @ScaledMetric(relativeTo: .subheadline) private var orderChipHeight: CGFloat = 36
+    @ScaledMetric private var intervalChipHeight: CGFloat = 36
+    @ScaledMetric private var intervalIconSize: CGFloat = 16
 
     var body: some View {
         VStack(alignment: .leading, spacing: Layout.contentSpacing) {
@@ -33,10 +35,15 @@ struct RealAssetsContentView: View {
                     .padding(.horizontal, Layout.contentHorizontalPadding)
             }
 
-            list
+            ZStack(alignment: .topLeading) {
+                list
+                    .id(viewModel.listContentState)
+                    .transition(.listContent)
+            }
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.tokenListLoadingState)
         .animation(.easeInOut(duration: 0.3), value: viewModel.categorySelection)
+        .animation(.listContentFrameUpdate, value: viewModel.listContentState)
     }
 
     @ViewBuilder
@@ -63,15 +70,29 @@ struct RealAssetsContentView: View {
     }
 
     private var intervalDropDown: some View {
-        TangemDropDown(
-            singleSelection: Binding(
-                get: { RealAssetsIntervalOption(interval: viewModel.selectedInterval) },
-                set: { viewModel.selectedInterval = $0.interval }
-            ),
-            in: viewModel.intervalOptions.map(RealAssetsIntervalOption.init)
-        )
-        .accessibilityIdentifier { option in
-            MarketsAccessibilityIdentifiers.marketsIntervalSegment(option.interval.rawValue)
+        TangemDropDown(items: viewModel.intervalOptions.map { interval in
+            TangemDropDownItem(
+                id: interval,
+                text: RealAssetsIntervalOption(interval: interval).text,
+                isChecked: interval == viewModel.selectedInterval,
+                accessibilityIdentifier: MarketsAccessibilityIdentifiers.marketsIntervalSegment(interval.rawValue),
+                action: { viewModel.selectedInterval = interval }
+            )
+        }) {
+            HStack(spacing: 4) {
+                Text(RealAssetsIntervalOption(interval: viewModel.selectedInterval).text)
+                    .lineLimit(1)
+
+                DesignSystem.Icons.ChevronDown.regular16.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .frame(width: intervalIconSize, height: intervalIconSize)
+            }
+            .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
+            .padding(.leading, 12)
+            .padding(.trailing, 10)
+            .frame(height: intervalChipHeight)
+            .background(DesignSystem.Color.bgTransparentSecondary, in: .capsule)
         }
         .fixedSize(horizontal: true, vertical: false)
         .id(viewModel.selectedInterval)
@@ -126,36 +147,46 @@ struct RealAssetsContentView: View {
                 .frame(width: bannerIconSize, height: bannerIconSize)
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
         }
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     @ViewBuilder
     private var list: some View {
-        switch viewModel.tokenListLoadingState {
-        case .error:
+        switch viewModel.listContentState {
+        case .failure:
             TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.tryLoadAgain)
                 .infinityFrame(axis: .horizontal, alignment: .center)
                 .padding(.vertical, Layout.stateVerticalPadding)
 
-        case .noResults:
+        case .empty:
             Text(Localization.marketsRealAssetsEmptyTitle)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .infinityFrame(axis: .horizontal, alignment: .center)
                 .padding(.vertical, Layout.stateVerticalPadding)
 
-        case .loading, .idle, .allDataLoaded:
+        case .skeletons:
+            VStack(spacing: .zero) {
+                skeletonRows
+            }
+
+        case .rows:
             LazyVStack(spacing: .zero) {
                 ForEach(viewModel.tokenViewModels) { itemViewModel in
                     MarketTokenRowView(viewModel: itemViewModel.tokenItemViewModel)
                         .onAppear(perform: itemViewModel.onAppear)
-                        .onDisappear(perform: itemViewModel.onDisappear)
+                        .onDisappear { viewModel.onTokenRowDisappear(itemViewModel) }
                 }
 
                 if viewModel.tokenListLoadingState == .loading {
-                    ForEach(0 ..< Layout.skeletonRowsCount, id: \.self) { _ in
-                        TokenRowMarket(.shimmer)
-                    }
+                    skeletonRows
                 }
             }
+        }
+    }
+
+    private var skeletonRows: some View {
+        ForEach(0 ..< Layout.skeletonRowsCount, id: \.self) { _ in
+            TokenRowMarket(.shimmer)
         }
     }
 }
@@ -172,6 +203,16 @@ private extension RealAssetsContentView {
     }
 }
 
+// MARK: - List content transition
+
+private extension Animation {
+    static let listContentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.3)
+}
+
+private extension AnyTransition {
+    static let listContent = AnyTransition.opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
+}
+
 private struct RealAssetsIntervalOption: TangemDropDownTextProvider {
     let interval: MarketsPriceIntervalType
 
@@ -183,7 +224,7 @@ private struct RealAssetsIntervalOption: TangemDropDownTextProvider {
 private extension MarketsPriceIntervalType {
     var realAssetsNameLocalized: String {
         switch self {
-        case .day: Localization.marketsRealAssetsIntervalDay
+        case .day: Localization.marketsSelectorInterval24hTitle
         case .week: Localization.marketsRealAssetsIntervalWeek
         case .month: Localization.marketsRealAssetsIntervalMonth
         default: tokenDetailsNameLocalized

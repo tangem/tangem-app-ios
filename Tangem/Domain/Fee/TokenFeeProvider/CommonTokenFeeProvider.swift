@@ -227,6 +227,10 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
             return try await updateFees(amount: amount, destination: destination)
 
         case .cex(let amount, let destination):
+            guard !isTronGaslessCEXDisabled else {
+                throw TokenFeeLoaderError.tokenFeeLoaderNotFound
+            }
+
             if let destination {
                 return try await updateFees(amount: amount, destination: destination)
             }
@@ -310,13 +314,17 @@ private extension CommonTokenFeeProvider {
             }
     }
 
+    var isTronGaslessCEXDisabled: Bool {
+        tokenFeeLoader is CommonTronGaslessTokenFeeLoader && !FeatureProvider.isAvailable(.tronGaslessCEX)
+    }
+
     func updateSupportingState(input: TokenFeeProviderInputData?) {
         updateBridgeFeeSupportingState(input: input)
 
         switch input {
         case .none:
             updateState(state: .unavailable(.inputDataNotSet))
-        case .cex where tokenFeeLoader is CommonTronGaslessTokenFeeLoader:
+        case .cex where isTronGaslessCEXDisabled:
             updateState(state: .unavailable(.notSupported))
         case .common, .cex:
             // Always available. Do nothing

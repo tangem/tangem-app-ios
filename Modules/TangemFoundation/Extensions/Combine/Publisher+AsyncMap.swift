@@ -19,7 +19,7 @@ public extension Publishers {
         private let priority: TaskPriority?
         private let transform: Transform
 
-        fileprivate init(upstream: Upstream, priority: TaskPriority?, transform: @escaping @Sendable Transform) {
+        fileprivate init(upstream: Upstream, priority: TaskPriority?, transform: @escaping Transform) {
             self.upstream = upstream
             self.priority = priority
             self.transform = transform

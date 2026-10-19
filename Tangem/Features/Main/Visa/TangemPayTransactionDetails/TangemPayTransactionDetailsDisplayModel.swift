@@ -16,6 +16,8 @@ struct TangemPayTransactionDetailsDisplayModel {
     let status: TangemPayTransactionStatusView.Model?
     let rows: [Row]
     let mainButtonAction: TangemPayTransactionDetailsViewModel.MainButtonAction
+    var cardRow: CardRowState?
+    var cashbackRow: CashbackRowState?
 }
 
 extension TangemPayTransactionDetailsDisplayModel {
@@ -23,6 +25,7 @@ extension TangemPayTransactionDetailsDisplayModel {
         case merchantLogo(URL?)
         case withdrawal
         case deposit
+        case cashback
         case fee
     }
 
@@ -46,5 +49,18 @@ extension TangemPayTransactionDetailsDisplayModel {
             case amount(String)
             case text(String)
         }
+    }
+
+    enum CardRowState: Equatable {
+        case loading
+        case loaded(cardNumberEnd: String, cardName: String?)
+        case failed
+    }
+
+    enum CashbackRowState: Equatable {
+        case loading
+        case awaitingCalculation
+        case loaded(CashbackRow)
+        case failed
     }
 }

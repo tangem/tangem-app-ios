@@ -42,6 +42,7 @@ struct FeedSearchBarView: View {
                 }
             }
             .padding(.horizontal, Constants.horizontalInset)
+            .ignoresVerticalBarSafeArea(sheetSize.isNonFullFeedSheet)
             .padding(.top, Constants.topInset)
             .readGeometry(\.size.height, onChange: { reportSearchBar(height: $0) })
             .onChange(of: isActive) { isActive in

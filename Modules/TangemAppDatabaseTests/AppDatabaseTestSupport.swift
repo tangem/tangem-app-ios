@@ -16,7 +16,7 @@ import Testing
 enum AppDatabaseTestFactory {
     static func makeMigratedDatabaseQueue() throws -> DatabaseQueue {
         let databaseQueue = try DatabaseQueue()
-        let appDatabase = AppDatabase { _ in databaseQueue }
+        let appDatabase = AppDatabase(migrationHelper: AppDatabaseMigrationHelperStub.prefixing) { _ in databaseQueue }
         _ = try appDatabase.databaseHandle
 
         return databaseQueue
@@ -25,7 +25,9 @@ enum AppDatabaseTestFactory {
     /// Migrates only up to `version`, so a single schema version can be frozen on its own.
     static func makeMigratedDatabaseQueue(upTo version: AppDatabaseVersion) throws -> DatabaseQueue {
         let databaseQueue = try DatabaseQueue()
-        try AppDatabase.makeDatabaseMigrator().migrate(databaseQueue, upTo: version.id)
+        try AppDatabase
+            .makeDatabaseMigrator(migrationHelper: AppDatabaseMigrationHelperStub.prefixing)
+            .migrate(databaseQueue, upTo: version.id)
 
         return databaseQueue
     }
@@ -37,6 +39,26 @@ enum AppDatabaseTestFactory {
                 try String.fetchAll(database, sql: "SELECT sql FROM sqlite_schema WHERE sql IS NOT NULL ORDER BY name")
             }
             .joined(separator: "\n\n")
+    }
+}
+
+// MARK: - Stubs
+
+struct AppDatabaseMigrationHelperStub: AppDatabaseMigrationHelper {
+    private let makeExpressSyncMetadataV3WalletID: @Sendable (_ userWalletID: String) -> String
+
+    init(makeExpressSyncMetadataV3WalletID: @escaping @Sendable (_ userWalletID: String) -> String) {
+        self.makeExpressSyncMetadataV3WalletID = makeExpressSyncMetadataV3WalletID
+    }
+
+    func expressSyncMetadataV3WalletID(fromV2UserWalletID userWalletID: String) -> String {
+        return makeExpressSyncMetadataV3WalletID(userWalletID)
+    }
+}
+
+extension AppDatabaseMigrationHelperStub {
+    static let prefixing = AppDatabaseMigrationHelperStub { walletID in
+        return "migrated-\(walletID)"
     }
 }
 
@@ -265,9 +287,9 @@ enum AppDatabaseFixtures {
 
     // MARK: Sync metadata
 
-    static func makeFullSyncMetadataRecord(userWalletID: String, endpointType: String) -> ExpressSyncMetadataRecord {
+    static func makeFullSyncMetadataRecord(walletID: String, endpointType: String) -> ExpressSyncMetadataRecord {
         ExpressSyncMetadataRecord(
-            userWalletID: userWalletID,
+            walletID: walletID,
             endpointType: endpointType,
             archiveCursor: "archive-cursor-1",
             deltaCursor: "delta-cursor-1",
@@ -276,9 +298,9 @@ enum AppDatabaseFixtures {
         )
     }
 
-    static func makeMinimalSyncMetadataRecord(userWalletID: String, endpointType: String) -> ExpressSyncMetadataRecord {
+    static func makeMinimalSyncMetadataRecord(walletID: String, endpointType: String) -> ExpressSyncMetadataRecord {
         ExpressSyncMetadataRecord(
-            userWalletID: userWalletID,
+            walletID: walletID,
             endpointType: endpointType,
             archiveCursor: nil,
             deltaCursor: nil,

@@ -57,7 +57,7 @@ extension AccountsFeedRouter: AccountsFeedRoutable {
 
 extension AccountsFeedRouter: AddAccountTypeSelectorRoutable {
     func openCryptoAccountForm(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
-        Task { @MainActor in
+        Task { @MainActor [self] in
             guard let navigation, navigation.presented == nil,
                   validateAccountLimit(accountModelsManager: accountModelsManager) else { return }
 
@@ -77,7 +77,7 @@ extension AccountsFeedRouter: AddAccountTypeSelectorRoutable {
     }
 
     func openJointAccountManagement(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
-        Task { @MainActor in
+        Task { @MainActor [self] in
             guard let navigation, navigation.presented == nil,
                   validateAccountLimit(accountModelsManager: accountModelsManager) else { return }
 

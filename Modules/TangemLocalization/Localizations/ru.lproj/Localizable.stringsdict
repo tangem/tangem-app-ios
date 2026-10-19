@@ -118,86 +118,6 @@
         <string>дней</string>
       </dict>
     </dict>
-    <key>common_days_time_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li день назад</string>
-        <key>few</key>
-        <string>%li дня назад</string>
-        <key>many</key>
-        <string>%li дней назад</string>
-        <key>other</key>
-        <string>%li дней назад</string>
-      </dict>
-    </dict>
-    <key>common_hours</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li час</string>
-        <key>few</key>
-        <string>%li часa</string>
-        <key>many</key>
-        <string>%li часов</string>
-        <key>other</key>
-        <string>%li часа</string>
-      </dict>
-    </dict>
-    <key>common_hours_time_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%liч назад</string>
-        <key>few</key>
-        <string>%liч назад</string>
-        <key>many</key>
-        <string>%liч назад</string>
-        <key>other</key>
-        <string>%liч назад</string>
-      </dict>
-    </dict>
-    <key>common_minutes_time_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%liмин назад</string>
-        <key>few</key>
-        <string>%liмин назад</string>
-        <key>many</key>
-        <string>%liмин назад</string>
-        <key>other</key>
-        <string>%liмин назад</string>
-      </dict>
-    </dict>
     <key>common_networks_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -215,7 +135,7 @@
         <key>many</key>
         <string>%li сетей</string>
         <key>other</key>
-        <string>%li сетях</string>
+        <string>%li сетей</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
@@ -236,6 +156,22 @@
         <string>%li токенов</string>
         <key>other</key>
         <string>%li токенов</string>
+      </dict>
+    </dict>
+    <key>joint_account_join_signatures_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li signature</string>
+        <key>other</key>
+        <string>%li signatures</string>
       </dict>
     </dict>
     <key>joint_account_members_count</key>
@@ -278,26 +214,6 @@
         <string>Потребуется %1$li подписи</string>
       </dict>
     </dict>
-    <key>manage_tokens_number_of_wallets_ios</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%li из %#@total_wallets@</string>
-      <key>total_wallets</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li кошелька</string>
-        <key>few</key>
-        <string>%li кошельков</string>
-        <key>many</key>
-        <string>%li кошельков</string>
-        <key>other</key>
-        <string>%li кошельков</string>
-      </dict>
-    </dict>
     <key>markets_token_details_amount_exchanges</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -338,46 +254,6 @@
         <string>На основе %li оценок</string>
       </dict>
     </dict>
-    <key>news_published_hours_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%liч назад</string>
-        <key>few</key>
-        <string>%liч назад</string>
-        <key>many</key>
-        <string>%liч назад</string>
-        <key>other</key>
-        <string>%liч назад</string>
-      </dict>
-    </dict>
-    <key>news_published_minutes_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%liмин назад</string>
-        <key>few</key>
-        <string>%liмин назад</string>
-        <key>many</key>
-        <string>%liмин назад</string>
-        <key>other</key>
-        <string>%liмин назад</string>
-      </dict>
-    </dict>
     <key>nft_collections_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -391,11 +267,11 @@
         <key>one</key>
         <string>%li NFT</string>
         <key>few</key>
-        <string>%li NFTs</string>
+        <string>%li NFT</string>
         <key>many</key>
-        <string>%li NFTs</string>
+        <string>%li NFT</string>
         <key>other</key>
-        <string>%li NFTs</string>
+        <string>%li NFT</string>
       </dict>
     </dict>
     <key>nft_wallet_count_ios</key>
@@ -431,26 +307,6 @@
         <string>%li NFT</string>
         <key>other</key>
         <string>%li NFT</string>
-      </dict>
-    </dict>
-    <key>onboarding_address_sync_description</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>В вашем кошельке %li токен. Синхронизируйте адреса, чтобы продолжить.</string>
-        <key>few</key>
-        <string>В вашем кошельке %li токена. Синхронизируйте адреса, чтобы продолжить.</string>
-        <key>many</key>
-        <string>В вашем кошельке %li токенов. Синхронизируйте адреса, чтобы продолжить.</string>
-        <key>other</key>
-        <string>В вашем кошельке %li токенов. Синхронизируйте адреса, чтобы продолжить.</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>
@@ -600,13 +456,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li токен не совместим с этим адресом</string>
+        <string>%li токен несовместим с этим адресом</string>
         <key>few</key>
-        <string>%li токена не совместимы с этим адресом</string>
+        <string>%li токена несовместимы с этим адресом</string>
         <key>many</key>
-        <string>%li токенов не совместимо с этим адресом</string>
+        <string>%li токенов несовместимо с этим адресом</string>
         <key>other</key>
-        <string>%li токены не совместимы с этим адресом</string>
+        <string>%li токенов несовместимо с этим адресом</string>
       </dict>
     </dict>
     <key>tangempay_cards_count</key>
@@ -626,7 +482,7 @@
         <key>many</key>
         <string>%li карт</string>
         <key>other</key>
-        <string>%li карты</string>
+        <string>%li карт</string>
       </dict>
     </dict>
     <key>tangempay_order_success_delivery_eta</key>

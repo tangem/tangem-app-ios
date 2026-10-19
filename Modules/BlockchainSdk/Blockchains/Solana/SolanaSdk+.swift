@@ -15,15 +15,15 @@ extension Api {
     func getFees(
         commitment: Commitment? = nil
     ) -> AnyPublisher<SolanaSwift.Fee, Error> {
-        Deferred {
-            Future { [weak self] promise in
+        Deferred { [weak self] in
+            Future { promise in
                 guard let self = self else {
                     promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
-                getFees(commitment: commitment) {
-                    switch $0 {
+                self.getFees(commitment: commitment) { result in
+                    switch result {
                     case .failure(let error):
                         promise(.failure(error))
                     case .success(let fee):
@@ -36,15 +36,15 @@ extension Api {
     }
 
     func getFeeForMessage(_ message: String) -> AnyPublisher<FeeForMessageResult, Error> {
-        Deferred {
-            Future { [weak self] promise in
+        Deferred { [weak self] in
+            Future { promise in
                 guard let self else {
                     promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
-                getFeeForMessage(message: message) {
-                    switch $0 {
+                self.getFeeForMessage(message: message) { result in
+                    switch result {
                     case .failure(let error):
                         promise(.failure(error))
                     case .success(let feeForMessage):
@@ -60,18 +60,18 @@ extension Api {
         dataLength: UInt64,
         commitment: Commitment? = nil
     ) -> AnyPublisher<UInt64, Error> {
-        Deferred {
-            Future { [weak self] promise in
+        Deferred { [weak self] in
+            Future { promise in
                 guard let self = self else {
                     promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
-                getMinimumBalanceForRentExemption(
+                self.getMinimumBalanceForRentExemption(
                     dataLength: dataLength,
                     commitment: commitment
-                ) {
-                    switch $0 {
+                ) { result in
+                    switch result {
                     case .failure(let error):
                         promise(.failure(error))
                     case .success(let fee):
@@ -84,15 +84,15 @@ extension Api {
     }
 
     func getAccountInfo<T: BufferLayout>(account: String, decodedTo: T.Type) -> AnyPublisher<BufferInfo<T>, Error> {
-        Deferred {
-            Future { [weak self] promise in
+        Deferred { [weak self] in
+            Future { promise in
                 guard let self = self else {
                     promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
-                getAccountInfo(account: account, decodedTo: T.self) {
-                    switch $0 {
+                self.getAccountInfo(account: account, decodedTo: T.self) { result in
+                    switch result {
                     case .failure(let error):
                         promise(.failure(error))
                     case .success(let fee):
@@ -110,14 +110,14 @@ extension Api {
         programId: String? = nil,
         configs: RequestConfiguration? = nil
     ) -> AnyPublisher<[T], Error> {
-        Deferred {
-            Future { [weak self] promise in
+        Deferred { [weak self] in
+            Future { promise in
                 guard let self = self else {
                     promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
-                getTokenAccountsByOwner(pubkey: pubkey, mint: mint, programId: programId, configs: configs) {
+                self.getTokenAccountsByOwner(pubkey: pubkey, mint: mint, programId: programId, configs: configs) {
                     (result: Result<[T], Error>) in
                     switch result {
                     case .failure(let error):
@@ -132,15 +132,15 @@ extension Api {
     }
 
     func getSignatureStatuses(pubkeys: [String], configs: RequestConfiguration? = nil) -> AnyPublisher<[SignatureStatus?], Error> {
-        Deferred {
-            Future { [weak self] promise in
+        Deferred { [weak self] in
+            Future { promise in
                 guard let self = self else {
                     promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
-                getSignatureStatuses(pubkeys: pubkeys, configs: configs) {
-                    switch $0 {
+                self.getSignatureStatuses(pubkeys: pubkeys, configs: configs) { result in
+                    switch result {
                     case .failure(let error):
                         promise(.failure(error))
                     case .success(let statuses):
@@ -157,19 +157,19 @@ extension Api {
         startSendingTimestamp: Date = Date(),
         configs: RequestConfiguration = RequestConfiguration(encoding: "base64", maxRetries: 12)!
     ) -> AnyPublisher<TransactionID, Error> {
-        Deferred {
-            Future { [weak self] promise in
+        Deferred { [weak self] in
+            Future { promise in
                 guard let self = self else {
                     promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
-                sendTransaction(
+                self.sendTransaction(
                     serializedTransaction: serializedTransaction,
                     configs: configs,
                     startSendingTimestamp: startSendingTimestamp
-                ) {
-                    switch $0 {
+                ) { result in
+                    switch result {
                     case .failure(let error):
                         promise(.failure(error))
                     case .success(let statuses):
@@ -192,14 +192,14 @@ extension Action {
         allowCompoundRecipient: Bool = false,
         fromPublicKey: PublicKey
     ) -> AnyPublisher<(String, Date), Error> {
-        Deferred {
-            Future { [weak self] promise in
+        Deferred { [weak self] in
+            Future { promise in
                 guard let self else {
                     promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
-                serializeMessage(
+                self.serializeMessage(
                     to: destination,
                     amount: amount,
                     computeUnitLimit: computeUnitLimit,
@@ -207,8 +207,8 @@ extension Action {
                     allowUnfundedRecipient: allowUnfundedRecipient,
                     allowCompoundRecipient: allowCompoundRecipient,
                     fromPublicKey: fromPublicKey
-                ) {
-                    switch $0 {
+                ) { result in
+                    switch result {
                     case .failure(let error):
                         promise(.failure(error))
                     case .success(let message):
@@ -228,22 +228,22 @@ extension Action {
         allowUnfundedRecipient: Bool = false,
         signer: Signer
     ) -> AnyPublisher<TransactionID, Error> {
-        Deferred {
-            Future { [weak self] promise in
+        Deferred { [weak self] in
+            Future { promise in
                 guard let self = self else {
                     promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
-                sendSOL(
+                self.sendSOL(
                     to: destination,
                     amount: amount,
                     computeUnitLimit: computeUnitLimit,
                     computeUnitPrice: computeUnitPrice,
                     allowUnfundedRecipient: allowUnfundedRecipient,
                     signer: signer
-                ) {
-                    switch $0 {
+                ) { result in
+                    switch result {
                     case .failure(let error):
                         promise(.failure(error))
                     case .success(let transactionID):
@@ -267,14 +267,14 @@ extension Action {
         allowUnfundedRecipient: Bool = false,
         signer: Signer
     ) -> AnyPublisher<TransactionID, Error> {
-        Deferred {
-            Future { [weak self] promise in
+        Deferred { [weak self] in
+            Future { promise in
                 guard let self = self else {
                     promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
-                sendSPLTokens(
+                self.sendSPLTokens(
                     mintAddress: mintAddress,
                     tokenProgramId: tokenProgramId,
                     decimals: decimals,
@@ -285,8 +285,8 @@ extension Action {
                     computeUnitPrice: computeUnitPrice,
                     allowUnfundedRecipient: allowUnfundedRecipient,
                     signer: signer
-                ) {
-                    switch $0 {
+                ) { result in
+                    switch result {
                     case .failure(let error):
                         promise(.failure(error))
                     case .success(let transactionID):
@@ -304,20 +304,20 @@ extension Action {
         destinationAddress: String,
         allowUnfundedRecipient: Bool
     ) -> AnyPublisher<Bool, Error> {
-        Deferred {
-            Future { [weak self] promise in
+        Deferred { [weak self] in
+            Future { promise in
                 guard let self = self else {
                     promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
-                findSPLTokenDestinationAddress(
+                self.findSPLTokenDestinationAddress(
                     mintAddress: mintAddress,
                     tokenProgramId: tokenProgramId,
                     destinationAddress: destinationAddress,
                     allowUnfundedRecipient: allowUnfundedRecipient
-                ) {
-                    switch $0 {
+                ) { result in
+                    switch result {
                     case .failure(let error):
                         promise(.failure(error))
                     case .success(let response):

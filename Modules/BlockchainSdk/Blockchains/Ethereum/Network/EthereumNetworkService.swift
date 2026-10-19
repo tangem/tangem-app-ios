@@ -47,8 +47,8 @@ class EthereumNetworkService: MultiNetworkProvider {
     }
 
     func send(transaction: String) -> AnyPublisher<String, Error> {
-        providerPublisher {
-            $0.send(transaction: transaction)
+        providerPublisher { provider in
+            provider.send(transaction: transaction)
         }
     }
 
@@ -112,16 +112,16 @@ class EthereumNetworkService: MultiNetworkProvider {
     }
 
     func getFeeHistory() -> AnyPublisher<EthereumFeeHistory, Error> {
-        providerPublisher {
-            $0.getFeeHistory()
+        providerPublisher { [weak self] provider in
+            provider.getFeeHistory()
                 .tryMap { try EthereumMapper.mapFeeHistory($0) }
-                .tryCatch { [weak self] error -> AnyPublisher<EthereumFeeHistory, Error> in
+                .tryCatch { error -> AnyPublisher<EthereumFeeHistory, Error> in
                     guard let self else {
                         throw error
                     }
 
                     if case ETHError.failedToParseFeeHistory = error {
-                        return getGasPrice()
+                        return self.getGasPrice()
                             .map { EthereumMapper.mapFeeHistoryFallback(gasPrice: $0) }
                             .eraseToAnyPublisher()
                     }
@@ -133,16 +133,16 @@ class EthereumNetworkService: MultiNetworkProvider {
     }
 
     func getPriorityFee() -> AnyPublisher<BigUInt, Error> {
-        providerPublisher {
-            $0.getPriorityFee()
+        providerPublisher { provider in
+            provider.getPriorityFee()
                 .tryMap { try EthereumMapper.mapBigUInt($0) }
                 .eraseToAnyPublisher()
         }
     }
 
     func getGasPrice() -> AnyPublisher<BigUInt, Error> {
-        providerPublisher {
-            $0.getGasPrice()
+        providerPublisher { provider in
+            provider.getGasPrice()
                 .tryMap { try EthereumMapper.mapBigUInt($0) }
                 .eraseToAnyPublisher()
         }
@@ -155,8 +155,8 @@ class EthereumNetworkService: MultiNetworkProvider {
         data: String?,
         stateOverride: EthereumStateOverride? = nil
     ) -> AnyPublisher<BigUInt, Error> {
-        return providerPublisher {
-            $0.getGasLimit(to: to, from: from, value: value, data: data, stateOverride: stateOverride)
+        return providerPublisher { provider in
+            provider.getGasLimit(to: to, from: from, value: value, data: data, stateOverride: stateOverride)
                 .tryMap { try EthereumMapper.mapBigUInt($0) }
                 .eraseToAnyPublisher()
         }
@@ -183,14 +183,18 @@ class EthereumNetworkService: MultiNetworkProvider {
 
     func getAllowance(owner: String, spender: String, contractAddress: String) -> AnyPublisher<String, Error> {
         let method = AllowanceERC20TokenMethod(owner: owner, spender: spender)
-        return providerPublisher {
-            $0.call(contractAddress: contractAddress, encodedData: method.encodedData)
+        return providerPublisher { provider in
+            provider.call(contractAddress: contractAddress, encodedData: method.encodedData)
         }
     }
 
     func getBalance(_ address: String) -> AnyPublisher<Decimal, Error> {
-        providerPublisher { provider in
-            provider.getBalance(for: address)
+        providerPublisher { [weak self] provider -> AnyPublisher<Decimal, Error> in
+            guard let self else {
+                return .emptyFail
+            }
+
+            return provider.getBalance(for: address)
                 .withWeakCaptureOf(self)
                 .tryMap { networkService, result in
                     guard let value = EthereumUtils.parseEthereumDecimal(result, decimalsCount: networkService.decimals) else {
@@ -217,24 +221,24 @@ class EthereumNetworkService: MultiNetworkProvider {
     }
 
     func getPendingTxCount(_ address: String) -> AnyPublisher<Int, Error> {
-        providerPublisher {
-            $0.getPendingTxCount(for: address)
+        providerPublisher { provider in
+            provider.getPendingTxCount(for: address)
                 .tryMap { try EthereumMapper.mapInt($0) }
                 .eraseToAnyPublisher()
         }
     }
 
     func getStorageAt(address: String, slot: String) -> AnyPublisher<String, Error> {
-        providerPublisher {
-            $0.getStorageAt(address: address, slot: slot)
+        providerPublisher { provider in
+            provider.getStorageAt(address: address, slot: slot)
         }
     }
 
     func resolveAddress(hash: Data, encode name: Data) -> AnyPublisher<String, Error> {
         let method = ReadEthereumAddressEIP137TokenMethod(nameBytes: name, hashBytes: hash)
 
-        return providerPublisher {
-            $0.call(contractAddress: method.contractAddress, encodedData: method.encodedData)
+        return providerPublisher { provider in
+            provider.call(contractAddress: method.contractAddress, encodedData: method.encodedData)
         }
         .tryMap { response in
             try ENSResponseConverter.convert(response)
@@ -245,8 +249,8 @@ class EthereumNetworkService: MultiNetworkProvider {
     func resolveDomainName(address: String) -> AnyPublisher<String, Error> {
         let method = ReadEthereumNameFromReverseRecordMethod(address: address)
 
-        return providerPublisher {
-            $0.call(contractAddress: method.contractAddress, encodedData: method.encodedData)
+        return providerPublisher { provider in
+            provider.call(contractAddress: method.contractAddress, encodedData: method.encodedData)
         }
         .tryMap { response in
             try ENSNameResponseConverter.convert(response)
@@ -257,8 +261,8 @@ class EthereumNetworkService: MultiNetworkProvider {
     func read<Method: SmartContractTargetMethodType>(contractAddress: String, method: Method) -> AnyPublisher<String, Error> {
         let encodedData = abiEncoder.encode(method: method.methodName, parameters: method.parameters)
 
-        return providerPublisher {
-            $0.call(contractAddress: contractAddress, encodedData: encodedData)
+        return providerPublisher { provider in
+            provider.call(contractAddress: contractAddress, encodedData: encodedData)
         }
     }
 }
@@ -268,7 +272,11 @@ private extension EthereumNetworkService {
         address: String,
         token: Token
     ) -> AnyPublisher<(Token, Result<Decimal, Error>), Error> {
-        providerPublisher { provider -> AnyPublisher<Decimal, Error> in
+        providerPublisher { [weak self] provider -> AnyPublisher<Decimal, Error> in
+            guard let self else {
+                return .emptyFail
+            }
+
             let method = TokenBalanceERC20TokenMethod(owner: address)
 
             return provider
@@ -292,16 +300,16 @@ private extension EthereumNetworkService {
 
 extension EthereumNetworkService: EVMSmartContractInteractor {
     func ethCall<Request>(request: Request) -> AnyPublisher<String, Error> where Request: SmartContractRequest {
-        return providerPublisher {
-            $0.call(contractAddress: request.contractAddress, encodedData: request.encodedData)
+        return providerPublisher { provider in
+            provider.call(contractAddress: request.contractAddress, encodedData: request.encodedData)
         }
     }
 
     func ethCallAllProviders<Request>(
         request: Request
     ) -> AnyPublisher<[Result<String, Error>], Never> where Request: SmartContractRequest {
-        allProvidersPublisher {
-            $0.call(contractAddress: request.contractAddress, encodedData: request.encodedData)
+        allProvidersPublisher { provider in
+            provider.call(contractAddress: request.contractAddress, encodedData: request.encodedData)
         }
     }
 }

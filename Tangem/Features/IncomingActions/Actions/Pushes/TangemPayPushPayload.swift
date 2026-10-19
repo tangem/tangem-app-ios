@@ -42,6 +42,7 @@ public extension TangemPayPushPayload {
         case declinedReason17(Spend)
         case collateralWithdraw(Collateral)
         case collateralDeposit(Collateral)
+        case cashbackTopUp(Collateral)
         case thresholdTopUp
     }
 
@@ -137,6 +138,7 @@ extension TangemPayPushPayload {
         case declinedReason17 = "declined_reason17"
         case collateralWithdraw = "collateral_withdraw"
         case collateralDeposit = "collateral_deposit"
+        case cashbackTopUp = "cashback_topup"
         case thresholdTopUp = "threshold1_top_up"
     }
 
@@ -165,6 +167,7 @@ extension TangemPayPushPayload {
         case .declinedReason17: .declinedReason17
         case .collateralWithdraw: .collateralWithdraw
         case .collateralDeposit: .collateralDeposit
+        case .cashbackTopUp: .cashbackTopUp
         case .thresholdTopUp: .thresholdTopUp
         }
     }
@@ -209,7 +212,7 @@ public extension TangemPayPushPayload {
              .declinedReason16(let spend),
              .declinedReason17(let spend):
             try spend.encode(to: encoder)
-        case .collateralWithdraw(let collateral), .collateralDeposit(let collateral):
+        case .collateralWithdraw(let collateral), .collateralDeposit(let collateral), .cashbackTopUp(let collateral):
             try collateral.encode(to: encoder)
         }
     }

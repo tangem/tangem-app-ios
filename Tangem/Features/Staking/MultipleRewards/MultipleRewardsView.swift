@@ -32,8 +32,9 @@ struct MultipleRewardsView: View {
             .background(Colors.Background.tertiary)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    CloseTextButton(action: viewModel.dismiss)
+                    CloseToolbarButton(action: viewModel.dismiss)
                 }
+                .prefersVerticalBar()
             }
         }
     }

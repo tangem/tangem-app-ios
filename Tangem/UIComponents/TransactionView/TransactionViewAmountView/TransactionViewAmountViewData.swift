@@ -102,7 +102,7 @@ struct TransactionViewAmountViewData: Hashable {
         case (_, .tangemPay(.spend(_, _, _, let isNegativeAmount))) where isNegativeAmount:
             return Colors.Text.accent
 
-        case (_, .tangemPay(.transfer)) where !isOutgoing:
+        case (_, .tangemPay(.transfer)) where !isOutgoing, (_, .tangemPay(.cashback)):
             return Colors.Text.accent
 
         default:

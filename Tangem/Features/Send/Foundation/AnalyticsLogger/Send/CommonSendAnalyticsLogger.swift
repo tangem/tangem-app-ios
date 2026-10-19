@@ -711,12 +711,20 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
     }
 
     func logSwapTransactionSent(result: TransactionDispatcherResult) {
+        logSwapFlowTransactionSent(source: sourceFlow, result: result)
+    }
+
+    func logTransferTransactionSent(result: TransactionDispatcherResult) {
+        logSwapFlowTransactionSent(source: .transfer, result: result)
+    }
+
+    private func logSwapFlowTransactionSent(source: Analytics.ParameterValue, result: TransactionDispatcherResult) {
         guard let sourceTokenItem else {
             return
         }
 
         var analyticsParameters: [Analytics.ParameterKey: String] = [
-            .source: sourceFlow.rawValue,
+            .source: source.rawValue,
             .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: sourceTokenItem),
             .blockchain: sourceTokenItem.blockchain.displayName,
             .walletForm: result.signerType,

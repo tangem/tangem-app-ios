@@ -17,7 +17,7 @@ struct AppDatabaseHandleLifecycleTests {
     @Test("Factory runs exactly once across repeated accesses")
     func factoryRunsOnceAcrossRepeatedAccesses() throws {
         let factoryCallCount = OSAllocatedUnfairLock(initialState: 0)
-        let appDatabase = AppDatabase { _ in
+        let appDatabase = AppDatabase(migrationHelper: AppDatabaseMigrationHelperStub.prefixing) { _ in
             factoryCallCount { $0 += 1 }
 
             return try DatabaseQueue()
@@ -33,7 +33,7 @@ struct AppDatabaseHandleLifecycleTests {
     @Test("Factory runs exactly once under concurrent access")
     func factoryRunsOnceUnderConcurrentAccess() async throws {
         let factoryCallCount = OSAllocatedUnfairLock(initialState: 0)
-        let appDatabase = AppDatabase { _ in
+        let appDatabase = AppDatabase(migrationHelper: AppDatabaseMigrationHelperStub.prefixing) { _ in
             factoryCallCount { $0 += 1 }
 
             return try DatabaseQueue()
@@ -57,7 +57,7 @@ struct AppDatabaseHandleLifecycleTests {
         struct FactoryError: Error {}
 
         let factoryCallCount = OSAllocatedUnfairLock(initialState: 0)
-        let appDatabase = AppDatabase { _ in
+        let appDatabase = AppDatabase(migrationHelper: AppDatabaseMigrationHelperStub.prefixing) { _ in
             let callNumber = factoryCallCount { state in
                 state += 1
 
