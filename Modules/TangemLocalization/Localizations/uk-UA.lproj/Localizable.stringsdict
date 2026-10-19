@@ -118,86 +118,6 @@
         <string>днів</string>
       </dict>
     </dict>
-    <key>common_days_time_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li день тому</string>
-        <key>few</key>
-        <string>%li дні тому</string>
-        <key>many</key>
-        <string>%li днів тому</string>
-        <key>other</key>
-        <string>%li дня тому</string>
-      </dict>
-    </dict>
-    <key>common_hours</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>година</string>
-        <key>few</key>
-        <string>години</string>
-        <key>many</key>
-        <string>годин</string>
-        <key>other</key>
-        <string>години</string>
-      </dict>
-    </dict>
-    <key>common_hours_time_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li годину тому</string>
-        <key>few</key>
-        <string>%li години тому</string>
-        <key>many</key>
-        <string>%li годин тому</string>
-        <key>other</key>
-        <string>%li годин тому</string>
-      </dict>
-    </dict>
-    <key>common_minutes_time_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li хвилину тому</string>
-        <key>few</key>
-        <string>%li хвилини тому</string>
-        <key>many</key>
-        <string>%li хвилин тому</string>
-        <key>other</key>
-        <string>%li хвилин тому</string>
-      </dict>
-    </dict>
     <key>common_networks_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -215,7 +135,7 @@
         <key>many</key>
         <string>%li мереж</string>
         <key>other</key>
-        <string>%li мережі</string>
+        <string>%li мереж</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
@@ -236,6 +156,22 @@
         <string>%li токенів</string>
         <key>other</key>
         <string>%li токенів</string>
+      </dict>
+    </dict>
+    <key>joint_account_join_signatures_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li signature</string>
+        <key>other</key>
+        <string>%li signatures</string>
       </dict>
     </dict>
     <key>joint_account_members_count</key>
@@ -269,29 +205,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%1$li signature required</string>
-        <key>other</key>
-        <string>%1$li signatures required</string>
-      </dict>
-    </dict>
-    <key>manage_tokens_number_of_wallets_ios</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%li із %#@total_wallets@</string>
-      <key>total_wallets</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li гаманця</string>
+        <string>Потрібен %1$li підпис</string>
         <key>few</key>
-        <string>%li гаманців</string>
+        <string>Потрібні %1$li підписи</string>
         <key>many</key>
-        <string>%li гаманців</string>
+        <string>Потрібно %1$li підписів</string>
         <key>other</key>
-        <string>%li гаманців</string>
+        <string>Потрібно %1$li підпису</string>
       </dict>
     </dict>
     <key>markets_token_details_amount_exchanges</key>
@@ -332,46 +252,6 @@
         <string>На основі %li оцінок</string>
         <key>other</key>
         <string>На основі %li оцінок</string>
-      </dict>
-    </dict>
-    <key>news_published_hours_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li годину тому</string>
-        <key>few</key>
-        <string>%li години тому</string>
-        <key>many</key>
-        <string>%li годин тому</string>
-        <key>other</key>
-        <string>%li годин тому</string>
-      </dict>
-    </dict>
-    <key>news_published_minutes_ago</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li хвилину тому</string>
-        <key>few</key>
-        <string>%li хвилини тому</string>
-        <key>many</key>
-        <string>%li хвилин тому</string>
-        <key>other</key>
-        <string>%li хвилин тому</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
@@ -427,26 +307,6 @@
         <string>%li NFT</string>
         <key>other</key>
         <string>%li NFT</string>
-      </dict>
-    </dict>
-    <key>onboarding_address_sync_description</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>У вашому гаманці %li токен. Синхронізуйте адреси, щоб продовжити.</string>
-        <key>few</key>
-        <string>У вашому гаманці %li токени. Синхронізуйте адреси, щоб продовжити.</string>
-        <key>many</key>
-        <string>У вашому гаманці %li токенів. Синхронізуйте адреси, щоб продовжити.</string>
-        <key>other</key>
-        <string>У вашому гаманці %li токенів. Синхронізуйте адреси, щоб продовжити.</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>
@@ -558,7 +418,7 @@
         <key>one</key>
         <string>за %li гаманець</string>
         <key>few</key>
-        <string>за %li гаманця</string>
+        <string>за %li гаманці</string>
         <key>many</key>
         <string>за %li гаманців</string>
         <key>other</key>
@@ -578,7 +438,7 @@
         <key>one</key>
         <string>%li гаманець</string>
         <key>few</key>
-        <string>%li гаманця</string>
+        <string>%li гаманці</string>
         <key>many</key>
         <string>%li гаманців</string>
         <key>other</key>
@@ -622,7 +482,7 @@
         <key>many</key>
         <string>%li карток</string>
         <key>other</key>
-        <string>%li картки</string>
+        <string>%li карток</string>
       </dict>
     </dict>
     <key>tangempay_order_success_delivery_eta</key>

@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import protocol Combine.Publisher
 
 struct BlinkingModifier: ViewModifier {
     let publisher: Published<Bool>.Publisher

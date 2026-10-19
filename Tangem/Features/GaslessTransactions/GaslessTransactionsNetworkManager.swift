@@ -156,7 +156,7 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
     }
 
     func preloadFeeRecipientAddress() {
-        Task { [weak self] in
+        _ = Task { [weak self] in
             let address = try await self?.apiService.getFeeRecipientAddress()
             self?._feeRecipientAddress.withLock { $0 = address }
         }

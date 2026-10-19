@@ -259,7 +259,8 @@ private extension WCServiceV2 {
 
                 WCLogger.info("Receive message request: \(request) with verify context: \(String(describing: context))")
 
-                Task {
+                // swiftformat:disable redundantSelf
+                Task { [self] in // [REDACTED_TODO_COMMENT]
                     if Self.checkIfShouldIgnore(transactionRequest: request) {
                         WCLogger.info("Received a transaction with \(request.method) method. Rejecting and ignoring further handling.")
                         await self.reject(transactionRequest: request)
@@ -309,6 +310,7 @@ private extension WCServiceV2 {
                         self.logSignatureRequestReceiveFailed(with: error, request: request, connectedDApp: connectedDApp)
                     }
                 }
+                // swiftformat:enable redundantSelf
             }
             .store(in: &bag)
     }

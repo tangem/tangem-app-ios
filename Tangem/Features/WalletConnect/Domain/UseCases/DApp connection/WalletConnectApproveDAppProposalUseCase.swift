@@ -15,7 +15,10 @@ final class WalletConnectApproveDAppProposalUseCase {
         self.dAppProposalApprovalService = dAppProposalApprovalService
     }
 
-    func callAsFunction(
+    /// - Note: Methods of the non-isolated `WalletConnectApproveDAppProposalUseCase` are implicitly `nonisolated`,
+    /// and Swift 5 mode runs such `async` ones as Swift 6.2 `@concurrent`;
+    /// `nonisolated(nonsending)` keeps the non-Sendable `wcAccountsWalletModelProvider` and `selectedAccount` on the caller's actor.
+    nonisolated(nonsending) func callAsFunction(
         sessionProposal: WalletConnectDAppSessionProposal,
         selectedBlockchains: [Blockchain],
         wcAccountsWalletModelProvider: some WalletConnectAccountsWalletModelProvider,

@@ -112,7 +112,7 @@ struct TransactionHistoryMapper {
                     amount: $0.amount,
                     isOutgoing: $0.record.isOutgoing,
                     transactionType: $0.transactionType
-                )
+                ) && !isZeroTransferPaidByTronResources($0)
             }
 
         let mapRow = { makeTransactionViewModel(from: $0, subtitleOwnerResolver: subtitleOwnerResolver) }
@@ -388,6 +388,14 @@ private extension TransactionHistoryMapper {
             amount: transactionType.isNetworkFee ? record.fee.amount.value : transferAmountValue(from: record),
             approve: approve(from: record)
         )
+    }
+
+    func isZeroTransferPaidByTronResources(_ prepared: PreparedRecord) -> Bool {
+        !isToken
+            && prepared.record.isOutgoing
+            && prepared.transactionType == .transfer
+            && prepared.amount.isZero
+            && GaslessTransactionFeeMatcher.isFeeCoveredByTronResources(of: prepared.record, on: blockchain)
     }
 
     func approve(from record: TransactionRecord) -> TransactionRecord.TransactionType.Approve? {

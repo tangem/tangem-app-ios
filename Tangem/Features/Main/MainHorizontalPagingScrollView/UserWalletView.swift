@@ -108,6 +108,7 @@ struct UserWalletView: View {
                 }
             }
         }
+        .verticalBarSafeAreaPadding(containerGeometryProperties.verticalBarInsets)
     }
 
     private var headerTopAnchorSpacer: some View {
@@ -278,6 +279,7 @@ extension UserWalletView {
         let safeAreaInsetsTop: CGFloat
         let bottomOverlayHeight: CGFloat
         let contentFooterHeight: CGFloat
+        let verticalBarInsets: EdgeInsets
     }
 
     private enum Paddings {
