@@ -85,6 +85,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.shownStoryIds)
     var shownStoryIds: [String] = []
 
+    @AppStorageCompat(StorageType.shownMainScreenPromoSheetIds)
+    var shownMainScreenPromoSheetIds: [String] = []
+
     @AppStorageCompat(StorageType.userWalletIdsWithNFTEnabled)
     var userWalletIdsWithNFTEnabled: [String] = []
 
