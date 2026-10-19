@@ -143,15 +143,11 @@ private enum Metrics {
 private extension View {
     @ViewBuilder
     func navigationBarNeverMinimizes() -> some View {
-        #if canImport(SwiftUI, _version: 8.0.84)
         if #available(iOS 27.0, *) {
             toolbarMinimizationBehavior(.never, for: .navigationBar)
         } else {
             self
         }
-        #else
-        self
-        #endif // canImport(SwiftUI, _version: 8.0.84)
     }
 }
 
