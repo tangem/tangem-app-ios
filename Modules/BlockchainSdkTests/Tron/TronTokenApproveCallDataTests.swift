@@ -62,7 +62,7 @@ struct TronTokenApproveCallDataTests {
             "095ea7b3" + String(repeating: "00", count: 11) + "41" + spenderBody + amount + "00",
             "095ea7b3",
             "",
-        ]
+        ] as [String]
     )
     func rejectsAnyOtherLength(calldata: String) {
         #expect(TronTokenApproveCallData(calldata: calldata) == nil)
