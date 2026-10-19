@@ -244,6 +244,36 @@ extension XCUIElementQuery {
     }
 }
 
+extension XCUIElementQuery {
+    func firstHittableElement(onScreen screen: CGRect, timeout: TimeInterval = .robustUIUpdate) -> XCUIElement? {
+        var hittableElement: XCUIElement?
+        let predicate = NSPredicate { _, _ in
+            hittableElement = self.allElementsBoundByIndex.first { $0.isHittable(onScreen: screen) }
+            return hittableElement != nil
+        }
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+
+        guard XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed else {
+            return nil
+        }
+
+        return hittableElement
+    }
+}
+
+extension XCUIElement {
+    func isHittable(onScreen screen: CGRect) -> Bool {
+        guard exists else { return false }
+
+        let frame = frame
+        guard frame.width > 0, frame.height > 0, screen.contains(CGPoint(x: frame.midX, y: frame.midY)) else {
+            return false
+        }
+
+        return isHittable
+    }
+}
+
 private extension XCUIElement {
     enum Constants {
         static let holdToConfirmDuration: TimeInterval = 3
