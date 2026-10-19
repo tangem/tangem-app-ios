@@ -93,6 +93,32 @@ extension TangemPayStaleStateBannerChecks {
         }
     }
 
+    @discardableResult
+    func tapRenewSession() -> Self {
+        XCTContext.runActivity(named: "Tap Renew session") { _ in
+            let renewButton = notificationBannerButton(TangemPayAccessibilityIdentifiers.sessionExpiredNotification)
+            waitAndAssertTrue(renewButton, timeout: .networkRequest, "Session expired banner should offer to renew the session")
+            renewButton.waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyRenewSessionAvailableAfterFailure() -> Self {
+        XCTContext.runActivity(named: "Verify the failed renewal returns the Renew session button without an alert") { _ in
+            let renewButton = notificationBannerButton(TangemPayAccessibilityIdentifiers.sessionExpiredNotification)
+            let enabledRenewButton = NSPredicate(format: "exists == true AND enabled == true AND label == %@", Localization.tangempaySyncNeededButton)
+            let expectation = XCTNSPredicateExpectation(predicate: enabledRenewButton, object: renewButton)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .networkRequest),
+                .completed,
+                "Renew session button should become available again after the renewal fails"
+            )
+            XCTAssertFalse(app.alerts.firstMatch.waitForExistence(timeout: .shortUIUpdate), "A failed renewal of a mobile wallet should not show an alert")
+            return self
+        }
+    }
+
     private var sessionExpiredBanner: XCUIElement {
         banner(TangemPayAccessibilityIdentifiers.sessionExpiredNotification)
     }

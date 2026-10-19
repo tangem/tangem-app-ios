@@ -247,7 +247,80 @@ final class SwapTokenSelectorScreen: ScreenBase<SwapTokenSelectorScreenElement> 
         return self
     }
 
+    @discardableResult
+    func selectWallet(_ walletName: String) -> Self {
+        XCTContext.runActivity(named: "Select wallet '\(walletName)' in token selector") { _ in
+            let walletChips = app.buttons.matching(NSPredicate(format: "label == %@ OR label BEGINSWITH %@", walletName, "\(walletName),"))
+            guard let walletChip = walletChips.firstHittableElement(onScreen: app.frame) else {
+                XCTFail("Wallet chip '\(walletName)' should be displayed in token selector")
+                return self
+            }
+            walletChip.tap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func selectToken(_ tokenName: String, inAccount accountName: String) -> SwapScreen {
+        XCTContext.runActivity(named: "Select token '\(tokenName)' of account '\(accountName)' from token selector") { _ in
+            guard let header = accountHeaderButton(name: accountName) else {
+                guard let tokenCell = tokenItems(named: tokenName).firstHittableElement(onScreen: app.frame) else {
+                    XCTFail("Token '\(tokenName)' should be displayed in a wallet without account sections")
+                    return SwapScreen(app)
+                }
+                tokenCell.tap()
+                return SwapScreen(app)
+            }
+
+            if waitForTokenItem(named: tokenName, under: header, timeout: .quick) == nil {
+                header.tap()
+            }
+
+            if waitForTokenItem(named: tokenName, under: header, timeout: .conditional) == nil {
+                accountHeaderButton(name: accountName)?.tap()
+            }
+
+            guard let tokenCell = waitForTokenItem(named: tokenName, under: header, timeout: .robustUIUpdate) else {
+                XCTFail("Token '\(tokenName)' should be displayed in account '\(accountName)'")
+                return SwapScreen(app)
+            }
+            tokenCell.tap()
+            return SwapScreen(app)
+        }
+    }
+
     // MARK: - Private
+
+    private func accountHeaderButton(name: String) -> XCUIElement? {
+        app.buttons
+            .matching(NSPredicate(format: "label BEGINSWITH %@", name))
+            .firstHittableElement(onScreen: app.frame, timeout: .conditional)
+    }
+
+    private func waitForTokenItem(named tokenName: String, under header: XCUIElement, timeout: TimeInterval) -> XCUIElement? {
+        var tokenCell: XCUIElement?
+        let predicate = NSPredicate { [self] _, _ in
+            tokenCell = tokenItem(named: tokenName, under: header)
+            return tokenCell != nil
+        }
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+        _ = XCTWaiter().wait(for: [expectation], timeout: timeout)
+        return tokenCell
+    }
+
+    private func tokenItem(named tokenName: String, under header: XCUIElement) -> XCUIElement? {
+        guard header.exists else { return nil }
+
+        let headerMinY = header.frame.minY
+        return tokenItems(named: tokenName)
+            .allElementsBoundByIndex
+            .filter { $0.isHittable(onScreen: app.frame) && $0.frame.minY > headerMinY }
+            .min { $0.frame.minY < $1.frame.minY }
+    }
+
+    private func tokenItems(named tokenName: String) -> XCUIElementQuery {
+        app.buttons.matching(identifier: CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: tokenName))
+    }
 
     private func tokenItemButton(name: String) -> XCUIElement {
         app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: name)].firstMatch
