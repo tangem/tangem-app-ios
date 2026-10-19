@@ -18,6 +18,8 @@ import TangemTestKit
 
 @Suite("SwapModel")
 final class SwapModelTests: LeakTrackingTestSuite {
+    private let jointAccountDelegate = JointAccountModelDelegateMock()
+
     @Test("SwapModel deallocates properly without memory leaks")
     func swapModelDeallocatesProperly() async {
         let sut = makeSUT()
@@ -423,6 +425,20 @@ final class SwapModelTests: LeakTrackingTestSuite {
         #expect(sut.receiveToken.value?.tokenItem == source.tokenItem)
     }
 
+    @Test("Reversing the pair keeps a joint account's destination out of the source")
+    func pairReversalKeepsJointAccountDestination() async throws {
+        let source = SwapableTokenStub(blockchain: .ethereum(testnet: false))
+        let sut = makeSUT(sourceToken: source)
+        let item = makeJointAccountItem()
+        try sut.swapTokenSelectorDidRequestUpdate(destination: item)
+
+        sut.userDidRequestSwapSourceAndReceiveToken()
+        try await Task.sleep(for: .milliseconds(100))
+
+        #expect(sut.sourceToken.value?.tokenItem == source.tokenItem)
+        #expect(sut.receiveToken.value?.tokenItem == item.tokenItem)
+    }
+
     @Test("Reversing the pair keeps the sides when the receive token can't be swapped from", arguments: SendingRestrictionCase.allCases)
     func pairReversalKeepsSidesForRestrictedReceiveToken(restriction: SendingRestrictionCase) async throws {
         let source = SwapableTokenStub(blockchain: .ethereum(testnet: false))
@@ -779,6 +795,31 @@ final class SwapModelTests: LeakTrackingTestSuite {
 
         #expect((sut.slippage == .custom(0.0035)) == isKept)
         #expect(await manager.getSlippage() == (isKept ? 0.0035 : nil))
+    }
+
+    // MARK: - Token selector output
+
+    @Test("A joint account's token picked as the source is refused and the source stays")
+    func jointAccountTokenIsRefusedAsSource() {
+        let source = SwapableTokenStub(blockchain: .ethereum(testnet: false))
+        let sut = makeSUT(sourceToken: source)
+
+        #expect(throws: TokenSelectorItemOutputTypeBuilder.BuildError.self) {
+            try sut.swapTokenSelectorDidRequestUpdate(sender: makeJointAccountItem())
+        }
+
+        #expect(sut.sourceToken.value?.tokenItem == source.tokenItem)
+    }
+
+    @Test("A joint account's token picked as the destination becomes a receive-only token")
+    func jointAccountTokenIsAcceptedAsDestination() throws {
+        let sut = makeSUT(sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)))
+        let item = makeJointAccountItem()
+
+        try sut.swapTokenSelectorDidRequestUpdate(destination: item)
+
+        #expect(sut.receiveToken.value?.tokenItem == item.tokenItem)
+        #expect(!(sut.receiveToken.value is SendSwapableToken))
     }
 
     // MARK: - Transfer destination
@@ -1152,12 +1193,41 @@ private extension SwapModelTests {
             return .from(SwapableTokenStub(blockchain: .ethereum(testnet: false)), configuration: configuration)
         }
 
-        guard let swapableReceiveToken = receiveToken as? SendSwapableToken else {
-            Issue.record("A `.to` entry needs a swapable receive token, got \(type(of: receiveToken))")
+        guard let sourceReceiveToken = receiveToken as? SendSourceToken else {
+            Issue.record("A `.to` entry needs a source token as the receive token, got \(type(of: receiveToken))")
             return .from(SwapableTokenStub(blockchain: .ethereum(testnet: false)), configuration: configuration)
         }
 
-        return .to(swapableReceiveToken, sourceResolver: sourceTokenResolver, configuration: configuration)
+        return .to(sourceReceiveToken, sourceResolver: sourceTokenResolver, configuration: configuration)
+    }
+
+    func makeJointAccountItem() -> TokenSelectorItem {
+        let account = CommonJointAccountModel(
+            cryptoAccount: CryptoAccountModelMock(isMainAccount: false, accountType: .joint, onArchive: { _ in }),
+            derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
+            accountPolicy: JointAccountPolicy(membersCount: 2, signersCount: 2),
+            accountStatus: .pending,
+            operationsService: JointAccountOperationsServiceMock(),
+            pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
+            membersService: JointAccountMembersServiceMock(),
+            delegate: jointAccountDelegate
+        )
+        let walletModel = WalletModelTestsMock(
+            tokenItem: .blockchain(.init(.polygon(testnet: false), derivationPath: nil)),
+            isEmpty: false,
+            account: account
+        )
+        let userWalletInfo = UserWalletInfo(
+            name: "Test",
+            id: UserWalletId(value: Data([0x01])),
+            config: UserWalletConfigStub(supportedBlockchains: [.polygon(testnet: false)]),
+            backupState: .valid,
+            refcode: nil,
+            signerFactory: TangemSignerFactory(),
+            emailDataProvider: EmailDataProviderStub()
+        )
+
+        return TokenSelectorItem(userWalletInfo: userWalletInfo, kind: .crypto(walletModel, account))
     }
 
     func makeQuotedTokenItem(currencyId: String, blockchain: Blockchain = .ethereum(testnet: false)) -> TokenItem {
