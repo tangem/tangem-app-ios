@@ -50,9 +50,11 @@ extension TangemPayAddFundsSourceResolver {
         preferredCurrencies: Set<ExpressWalletCurrency>,
         availabilityChecker: FundingSourceAvailabilityChecker
     ) -> (any WalletModel)? {
+        let selectable = walletModels.filter { !$0.isJointAccountParticipant }
+
         // A currency match makes the pair a plain transfer, which needs no Express support —
         // only the send gates apply, the swap availability bar is for the swap fallback.
-        let preferred = walletModels.filter {
+        let preferred = selectable.filter {
             preferredCurrencies.contains($0.tokenItem.expressCurrency)
                 && availabilityChecker.isTransferAvailable(walletModel: $0)
         }
@@ -61,7 +63,7 @@ extension TangemPayAddFundsSourceResolver {
             return preferredSource
         }
 
-        let candidates = walletModels.filter { availabilityChecker.isSwapAvailable(walletModel: $0) }
+        let candidates = selectable.filter { availabilityChecker.isSwapAvailable(walletModel: $0) }
         return candidates.mostFiatFundedOrFirst
     }
 }
