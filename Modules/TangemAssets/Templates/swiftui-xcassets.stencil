@@ -27,6 +27,9 @@ import SwiftUI
 {% endmacro %}
 {% macro casesBlock assets folderName %}
     {% for asset in assets %}
+    {% if deprecationAttribute and ( asset.type == "color" or asset.type == "image" ) %}
+    {{deprecationAttribute}}
+    {% endif %}
     {% if asset.type == "color" %}
     {% if removeFolderName == "true" and asset.name|hasPrefix:folderName %}
     {{accessModifier}} static let {{asset.name|replace:folderName,""|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}} = {{colorType}}(name: "{{asset.value}}")
@@ -62,6 +65,10 @@ import SwiftUI
 {% endmacro %}
 {% if catalogs.count > 1 %}
 {% for catalog in catalogs %}
+{% set deprecationAttribute %}{% if catalog.name == param.deprecatedCatalog %}@available(iOS, deprecated: 100000.0, message: "{{param.deprecationMessage}}"){% endif %}{% endset %}
+{% if deprecationAttribute %}
+{{deprecationAttribute}}
+{% endif %}
 {{accessModifier}} enum {{catalog.name|swiftIdentifier:"pretty"|escapeReservedKeywords}} {
     {% filter indent:0 %}{% call enumBlock catalog.assets %}{% endfilter %}
 }
