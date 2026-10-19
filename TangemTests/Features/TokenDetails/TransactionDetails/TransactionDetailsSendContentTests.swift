@@ -10,6 +10,7 @@ import Foundation
 import Testing
 import BlockchainSdk
 import TangemFoundation
+import TangemLocalization
 @testable import Tangem
 
 /// A plain transfer never looks anything up in the aux data repository, so the suite leaves it alone.
@@ -27,24 +28,43 @@ struct TransactionDetailsSendContentTests {
         ]
     )
     func amountPutsTickerAfterNumber(isOutgoing: Bool, expected: String) throws {
-        let single = try #require(makeContent(isOutgoing: isOutgoing, status: .confirmed)?.tokens?.single)
+        let single = try #require(makeContent(type: .transfer, isOutgoing: isOutgoing, status: .confirmed)?.tokens?.single)
 
         #expect(single.amountText == expected)
     }
 
     @Test("Drops the sign of a failed transfer, like the history row does")
     func failedTransferHasNoSign() throws {
-        let single = try #require(makeContent(isOutgoing: true, status: .failed)?.tokens?.single)
+        let single = try #require(makeContent(type: .transfer, isOutgoing: true, status: .failed)?.tokens?.single)
 
         #expect(single.amountText == "0.10\u{a0}USDC")
         #expect(single.isAmountStrikethrough)
+    }
+
+    @Test(
+        "Names the counterparty of a Yield-mode transfer, like a plain transfer",
+        arguments: [
+            (isOutgoing: true, label: Localization.sendRecipient, address: "0xrecipient"),
+            (isOutgoing: false, label: Localization.commonFromAddress, address: "0xsender"),
+        ]
+    )
+    func yieldModeTransferShowsCounterparty(isOutgoing: Bool, label: String, address: String) throws {
+        let content = makeContent(type: .contractMethodName(name: "yieldSend"), isOutgoing: isOutgoing, status: .confirmed)
+        let counterparty = try #require(content?.counterparty)
+
+        #expect(counterparty.label == label)
+        #expect(counterparty.actor.displayName == address)
     }
 }
 
 // MARK: - Helpers
 
 private extension TransactionDetailsSendContentTests {
-    func makeContent(isOutgoing: Bool, status: TransactionRecord.TransactionStatus) -> TransactionDetailsGenericOperationViewData? {
+    func makeContent(
+        type: TransactionRecord.TransactionType,
+        isOutgoing: Bool,
+        status: TransactionRecord.TransactionStatus
+    ) -> TransactionDetailsGenericOperationViewData? {
         let record = TransactionRecord(
             hash: "0xsent",
             index: 0,
@@ -53,7 +73,7 @@ private extension TransactionDetailsSendContentTests {
             fee: Fee(Amount(with: Self.blockchain, value: 0.01)),
             status: status,
             isOutgoing: isOutgoing,
-            type: .transfer,
+            type: type,
             date: Date(),
             tokenTransfers: [],
             nonce: nil

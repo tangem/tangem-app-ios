@@ -51,7 +51,7 @@ final class CampaignTokenSelectorViewModel: ObservableObject, Identifiable {
     }
 
     func addToken(_ tokenItem: TokenItem) {
-        Task { @MainActor in
+        Task { @MainActor [self] in
             let configuration = AddTokenFlowConfiguration(
                 getAvailableTokenItems: { _ in [tokenItem] },
                 postAddBehavior: .executeAction { [weak self] _, _ in

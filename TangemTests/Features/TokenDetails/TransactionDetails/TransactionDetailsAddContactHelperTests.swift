@@ -162,6 +162,7 @@ struct TransactionDetailsAddContactHelperTests {
         case .tangemPay(.transfer): break
         case .tangemPay(.fee): break
         case .tangemPay(.spend): break
+        case .tangemPay(.cashback): break
         case .swap: break
         case .onramp: break
         case .approve: break
@@ -219,6 +220,7 @@ struct TransactionDetailsAddContactHelperTests {
             .unknownOperation,
             .tangemPay(.fee(name: "Service fee")),
             .tangemPay(.spend(name: "Coffee", icon: nil, isDeclined: false, isNegativeAmount: true)),
+            .tangemPay(.cashback(name: "Cashback")),
         ]
     }
 
