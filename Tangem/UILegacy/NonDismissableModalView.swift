@@ -12,40 +12,59 @@ protocol NonDismissableHostingControllerDelegate: UIAdaptivePresentationControll
     func didDisappear()
 }
 
-class NonDismissableHostingController<Content: View>: UIHostingController<Content> {
+final class NonDismissableHostingController: UIViewController {
     weak var delegate: NonDismissableHostingControllerDelegate?
 
-    var isModal: Bool = false
+    var isModal: Bool = false {
+        didSet { applyToPresentedController() }
+    }
 
-    override func willMove(toParent parent: UIViewController?) {
-        super.willMove(toParent: parent)
-        parent?.isModalInPresentation = isModal
-        parent?.presentationController?.delegate = delegate
+    private var presentedController: UIViewController? {
+        var controller: UIViewController? = parent
+        while let parent = controller?.parent {
+            controller = parent
+        }
+        return controller
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        applyToPresentedController()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
+
+        guard presentedController?.isBeingDismissed ?? true || presentedController?.presentingViewController == nil else {
+            return
+        }
+
         delegate?.didDisappear()
+    }
+
+    private func applyToPresentedController() {
+        guard let presentedController else { return }
+
+        presentedController.isModalInPresentation = isModal
+        presentedController.presentationController?.delegate = delegate
     }
 }
 
-struct NonDismissableModalView<T: View>: UIViewControllerRepresentable {
-    let view: T
+struct NonDismissableModalView: UIViewControllerRepresentable {
     let modal: Bool
     let onDismissalAttempt: (() -> Void)?
     let onDismissed: (() -> Void)?
 
-    func makeUIViewController(context: Context) -> UIHostingController<T> {
-        let controller = NonDismissableHostingController(rootView: view)
-        controller.isModal = modal
+    func makeUIViewController(context: Context) -> NonDismissableHostingController {
+        let controller = NonDismissableHostingController()
         controller.delegate = context.coordinator
+        controller.isModal = modal
         return controller
     }
 
-    func updateUIViewController(_ uiViewController: UIHostingController<T>, context: Context) {
+    func updateUIViewController(_ uiViewController: NonDismissableHostingController, context: Context) {
         context.coordinator.modalView = self
-        uiViewController.rootView = view
-        uiViewController.isModalInPresentation = modal
+        uiViewController.isModal = modal
     }
 
     func makeCoordinator() -> Coordinator {
@@ -75,7 +94,6 @@ struct NonDismissableModalView<T: View>: UIViewControllerRepresentable {
 
 extension View {
     func presentation(modal: Bool = true, onDismissalAttempt: (() -> Void)? = nil, onDismissed: (() -> Void)? = nil) -> some View {
-        NonDismissableModalView(view: self, modal: modal, onDismissalAttempt: onDismissalAttempt, onDismissed: onDismissed)
-            .edgesIgnoringSafeArea(.bottom) // Otherwise background doesn't stretch all the way
+        background(NonDismissableModalView(modal: modal, onDismissalAttempt: onDismissalAttempt, onDismissed: onDismissed))
     }
 }
