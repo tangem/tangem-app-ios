@@ -68,7 +68,7 @@ struct DeeplinkOverlayProviderTests {
         .yield(YieldDeeplink()),
         .news(NewsDeeplink(newsId: nil, categoryId: nil)),
         .newsArticle(NewsArticleDeeplink(newsId: 190801, deeplinkString: "https://tangem.com/news/markets/190801-a")),
-        .promo(PromoDeeplink(code: "PROMO", refcode: nil, campaign: nil)),
+        .promo(PromoDeeplink(code: "PROMO", token: .bitcoin, refcode: nil, campaign: nil)),
         .onboardVisa(OnboardVisaDeeplink(deeplinkString: nil)),
         .payApp(PayAppDeeplink(deeplinkString: "https://tangem.com/pay-app?id=1")),
         .jointAccountInvite(JointAccountInviteDeeplink(inviteId: "B15CF4AC")),
