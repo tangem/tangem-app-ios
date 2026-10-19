@@ -70,7 +70,7 @@ enum PredefinedSwapParameters {
         configuration: SwapFlowConfiguration = .default
     )
     case to(
-        _ receive: SendSwapableToken,
+        _ receive: SendSourceToken,
         sourceResolver: (any SwapSourceTokenResolver)? = nil,
         configuration: SwapFlowConfiguration = .default
     )
