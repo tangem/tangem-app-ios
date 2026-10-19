@@ -11,7 +11,6 @@ import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
-import TangemUIUtils
 
 /// Main is the only screen that needs a decorative logo pinned leading, a balance centred on screen and actions
 /// trailing, so it composes the shared `topNavigation` instead of adding a case to it.
@@ -25,39 +24,40 @@ import TangemUIUtils
 ///
 /// Below iOS 26 nothing morphs, but the same arrangement is used there too rather than a second layout: the
 /// actions resolve to their material pill on their own, and one path is easier to reason about than two.
+///
+/// iOS 27 no longer morphs into the leading slot, so there the logo and actions take real bar slots. The merged
+/// slot can't be used there anyway: it is sized from the content width, and iPhone Duo's inner display narrows the
+/// bar around the corner status bar, which pushed the logo off screen and the actions under the clock.
 private struct MainTopNavigationModifier<Balance: View>: ViewModifier {
     let scanQRCodeAction: () -> Void
     let detailsAction: () -> Void
     let actionsHaveBackground: Bool
     let balance: Balance
 
-    @Environment(\.verticalBarEdge) private var verticalBarEdge
-
     @State private var barWidth: CGFloat?
     @State private var logoWidth: CGFloat = .zero
     @State private var actionsWidth: CGFloat = .zero
     @State private var balanceWidth: CGFloat = .zero
 
-    private var isVerticalBar: Bool {
-        verticalBarEdge != nil
+    private var usesSystemBarSlots: Bool {
+        if #available(iOS 27.0, *) {
+            return true
+        }
+
+        return false
     }
 
     func body(content: Content) -> some View {
         content
             .topNavigation(
-                leading: .none,
-                actions: isVerticalBar ? actions : nil,
+                leading: usesSystemBarSlots ? .image(Assets.tangemIcon, height: Metrics.logoSide) : .none,
+                actions: usesSystemBarSlots ? actions : nil,
                 actionsHaveBackground: actionsHaveBackground
             ) {
-                if isVerticalBar {
+                if usesSystemBarSlots {
                     balance
                 } else {
                     mergedBarContent
-                }
-            }
-            .toolbar {
-                if isVerticalBar {
-                    logoItem
                 }
             }
             .navigationBarNeverMinimizes()
@@ -65,20 +65,6 @@ private struct MainTopNavigationModifier<Balance: View>: ViewModifier {
                 let availableWidth = contentWidth - Metrics.barHorizontalInset * 2
                 barWidth = availableWidth > .zero ? availableWidth : nil
             }
-    }
-
-    @ToolbarContentBuilder
-    private var logoItem: some ToolbarContent {
-        if #available(iOS 26.0, *) {
-            ToolbarItem(placement: .topBarLeading) {
-                logo
-            }
-            .sharedBackgroundVisibility(.hidden)
-        } else {
-            ToolbarItem(placement: .topBarLeading) {
-                logo
-            }
-        }
     }
 
     private var mergedBarContent: some View {
