@@ -16,14 +16,11 @@ import TangemUIUtils
 struct FeedSearchBarView: View {
     @ObservedObject var viewModel: FeedSearchBarViewModel
     let isActive: Bool
-    let onExpand: () -> Void
     let onFocus: () -> Void
     let onCancel: () -> Void
     let onHeightChange: (CGFloat) -> Void
 
     @Environment(\.mainShtorkaSize) private var sheetSize
-
-    @State private var isFocused = false
 
     var body: some View {
         searchBar
@@ -32,7 +29,7 @@ struct FeedSearchBarView: View {
             .accessibilityHidden(sheetSize.isNonFullFeedSheet)
             .overlay {
                 if sheetSize.isNonFullFeedSheet {
-                    SwiftUI.Button(action: onExpand) {
+                    SwiftUI.Button(action: focus) {
                         Color.clear
                             .contentShape(Capsule())
                     }
@@ -44,21 +41,20 @@ struct FeedSearchBarView: View {
             .padding(.horizontal, Constants.horizontalInset)
             .padding(.top, Constants.topInset)
             .readGeometry(\.size.height, onChange: { reportSearchBar(height: $0) })
-            .onChange(of: isActive) { isActive in
-                if !isActive {
-                    isFocused = false
-                }
-            }
             .onChange(of: sheetSize) { size in
                 if size.isNonFullFeedSheet {
-                    isFocused = false
+                    viewModel.endEditing()
                 }
             }
     }
 
+    private var showsCancelButton: Bool {
+        isActive || viewModel.isFocused
+    }
+
     private var searchBar: some View {
         HStack(spacing: 8) {
-            Search(text: $viewModel.query, isActive: $isFocused, onFocusChanged: focusDidChange)
+            Search(text: $viewModel.query, isActive: $viewModel.isFocused, onFocusChanged: focusDidChange)
                 .placeholder(Localization.marketsSearchTitlePlaceholder)
                 .showsCloseButton(false)
                 .interactiveGlass(false)
@@ -66,9 +62,8 @@ struct FeedSearchBarView: View {
                 .containerAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketFieldContainer)
                 .textFieldAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketField)
                 .clearButtonAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketClearButton)
-                .onSubmit(viewModel.submit)
 
-            if isActive {
+            if showsCancelButton {
                 TangemUI.Button(
                     icon: DesignSystem.Icons.Cross.regular20,
                     accessibilityLabel: Localization.commonCancel,
@@ -76,10 +71,16 @@ struct FeedSearchBarView: View {
                 )
                 .styleType(.material(.glass))
                 .size(.x11)
+                .accessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketCancelButton)
                 .transition(.opacity)
             }
         }
-        .animation(isActive ? Constants.openingAnimation : Constants.closingAnimation, value: isActive)
+        .animation(showsCancelButton ? Constants.openingAnimation : Constants.closingAnimation, value: showsCancelButton)
+    }
+
+    private func focus() {
+        onFocus()
+        viewModel.isFocused = true
     }
 
     private func focusDidChange(_ isFocused: Bool) {
@@ -89,7 +90,7 @@ struct FeedSearchBarView: View {
     }
 
     private func reportSearchBar(height: CGFloat) {
-        guard !isFocused, viewModel.query.isEmpty else {
+        guard !viewModel.isFocused, viewModel.query.isEmpty else {
             return
         }
 

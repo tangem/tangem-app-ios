@@ -33,6 +33,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var missingDerivationSynchronizeButton = notificationBannerButton(MainAccessibilityIdentifiers.missingDerivationNotification)
     private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
     private lazy var shtorkaExpandButton = app.buttons[MainAccessibilityIdentifiers.shtorkaExpandButton].firstMatch
+    private lazy var searchCancelButton = app.buttons[MainAccessibilityIdentifiers.searchThroughMarketCancelButton].firstMatch
     private lazy var tangemPayTile = app.buttons[TangemPayAccessibilityIdentifiers.mainScreenTile].firstMatch
     private lazy var tangemPayTileBalance = app.staticTexts[TangemPayAccessibilityIdentifiers.mainScreenTileBalance].firstMatch
     /// Type-agnostic: a decorative image inside a button is not guaranteed to stay an `Image` element.
@@ -1259,6 +1260,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Open markets sheet") { _ in
             if shtorkaExpandButton.waitForExistence(timeout: .conditional) {
                 shtorkaExpandButton.waitAndTap()
+
+                if searchCancelButton.waitForExistence(timeout: .conditional) {
+                    searchCancelButton.waitAndTap()
+                }
+
                 return MarketsAndNewsScreen(app)
             }
 
