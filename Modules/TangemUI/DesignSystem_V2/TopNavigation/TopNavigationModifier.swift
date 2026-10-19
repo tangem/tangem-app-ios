@@ -112,6 +112,7 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
 
     private func leadingImage(_ image: ImageType, height: CGFloat) -> some View {
         image.image
+            .renderingMode(.template)
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(height: height)
