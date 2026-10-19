@@ -7,6 +7,7 @@
 //
 
 import BlockchainSdk
+import TangemFoundation
 import TangemPay
 
 protocol TangemPayAssembly {
@@ -20,9 +21,10 @@ protocol TangemPayAssembly {
     func makeBiometryAuthorizer() -> TangemPayBiometryAuthorizer
 
     func makeTransactionDispatcher(
+        userWalletId: UserWalletId,
         withdrawTransactionService: TangemPayWithdrawTransactionService,
         signerFactory: TangemSignerFactory,
         walletPublicKey: Wallet.PublicKey?,
-        withdrawEligibility: TangemPayWithdrawEligibility
+        accountToken: TangemPayAccountToken
     ) -> TransactionDispatcher
 }

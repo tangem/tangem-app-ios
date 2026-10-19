@@ -12,10 +12,14 @@ import TangemPay
 import TangemVisa
 
 struct TangemPayTransactionDispatcher {
+    @Injected(\.tangemPayPendingWithdrawExchangesStore)
+    private var pendingWithdrawExchangesStore: TangemPayPendingWithdrawExchangesStore
+
+    let userWalletId: UserWalletId
     let withdrawTransactionService: TangemPayWithdrawTransactionService
     let signerFactory: TangemSignerFactory
     let walletPublicKey: Wallet.PublicKey?
-    let withdrawEligibility: TangemPayWithdrawEligibility
+    let accountToken: TangemPayAccountToken
 }
 
 // MARK: - TransactionDispatcher
@@ -24,16 +28,29 @@ extension TangemPayTransactionDispatcher: TransactionDispatcher {
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         switch transaction {
         case .transfer(let transaction):
-            return try await sendWithdraw(
+            let result = try await sendWithdraw(
                 amount: transaction.amount.value,
                 destination: transaction.destinationAddress
             )
 
+            return TransactionDispatcherResultMapper().mapResult(result, signer: .none)
+
         case .cex(let data, _):
-            return try await sendWithdraw(
+            let result = try await sendWithdraw(
                 amount: data.txValue,
                 destination: data.destinationAddress
             )
+
+            let pendingExchange = TangemPayPendingWithdrawExchange(
+                orderId: result.orderID,
+                createdAt: Date(),
+                tokenItem: accountToken.tokenItem,
+                fromAddress: data.sourceAddress ?? accountToken.depositAddress,
+                transactionData: data
+            )
+            pendingWithdrawExchangesStore.add(pendingExchange, userWalletId: userWalletId)
+
+            return TransactionDispatcherResultMapper().mapResult(result, signer: .none)
 
         default:
             throw TransactionDispatcherResult.Error.transactionNotFound
@@ -44,58 +61,26 @@ extension TangemPayTransactionDispatcher: TransactionDispatcher {
 // MARK: - Private
 
 private extension TangemPayTransactionDispatcher {
-    func sendWithdraw(amount: Decimal, destination: String) async throws -> TransactionDispatcherResult {
+    func sendWithdraw(amount: Decimal, destination: String) async throws -> TangemPayWithdrawTransactionResult {
         guard let walletPublicKey else {
             throw Error.walletPublicKeyNotFound
         }
 
-        let target = try withdrawEligibility.resolveDispatchTarget()
+        let target = try accountToken.withdrawEligibility.resolveDispatchTarget()
 
-        let result = try await withdrawTransactionService.sendWithdrawTransaction(
+        return try await withdrawTransactionService.sendWithdrawTransaction(
             amount: amount,
             destination: destination,
             walletPublicKey: walletPublicKey,
             target: target
         )
-
-        // The server needs a moment to produce a transaction hash before polling can pick it up.
-        try? await Task.sleep(for: .seconds(Self.initialPollingDelay))
-
-        let pollingSequence = PollingSequence(
-            interval: Self.interval,
-            request: { [withdrawTransactionService] in
-                try await withdrawTransactionService.getOrder(id: result.orderID)
-            }
-        )
-
-        let txHash = await pollingSequence
-            .prefix(Self.maxPollingAttempts)
-            .first(where: { $0.value?.data?.transactionHash != nil })?
-            .value?
-            .data?
-            .transactionHash
-
-        guard let txHash else {
-            throw Error.transactionHashNotFound
-        }
-
-        return TransactionDispatcherResultMapper().mapResult(
-            result,
-            txHash: txHash,
-            signer: .none
-        )
     }
 }
 
-// MARK: - Error / Constants
+// MARK: - Error
 
 extension TangemPayTransactionDispatcher {
     enum Error: LocalizedError {
         case walletPublicKeyNotFound
-        case transactionHashNotFound
     }
-
-    static let interval: TimeInterval = 3
-    static let initialPollingDelay: TimeInterval = 3
-    static let maxPollingAttempts = 10
 }
