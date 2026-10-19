@@ -244,7 +244,7 @@ private extension JointAccountManagementCoordinator {
     }
 
     func openWalletSelection(creationHelper: JointAccountCreationHelper) {
-        Task { @MainActor in
+        Task { @MainActor [self] in
             let accountSelectorViewModel = AccountSelectorViewModel(
                 userWalletModels: selectableUserWalletModels,
                 preferredDisplayMode: .wallets
