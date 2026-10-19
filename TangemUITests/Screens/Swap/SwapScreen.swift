@@ -335,6 +335,16 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     }
 
     @discardableResult
+    func waitForReceiveAccount(_ accountName: String) -> Self {
+        XCTContext.runActivity(named: "Validate 'You receive' section displays account '\(accountName)'") { _ in
+            waitAndAssertTrue(toAmountTextField, "Receive section container should exist")
+            let account = toAmountTextField.staticTexts.element(matching: NSPredicate(format: "label == %@", accountName))
+            waitAndAssertTrue(account, "Account '\(accountName)' should be displayed in 'You receive' section")
+        }
+        return self
+    }
+
+    @discardableResult
     func waitForConfirmButtonDisabled() -> Self {
         XCTContext.runActivity(named: "Validate confirm button exists and is disabled") { _ in
             waitAndAssertTrue(confirmButton, "Confirm button should exist")
@@ -1193,6 +1203,36 @@ extension SwapScreen {
                 return label.contains(Constants.fiatSign) && label != unexpected
             }
             XCTAssertTrue(isRecalculated, "Network fee amount should be recalculated from '\(unexpected)', but was '\(feeAmountText.label)'")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForNonZeroNetworkFee() -> Self {
+        XCTContext.runActivity(named: "Wait for a non-zero network fee to load") { _ in
+            let feeAmountText = app.staticTexts[SendAccessibilityIdentifiers.networkFeeAmount].firstMatch
+            waitAndAssertTrue(feeAmountText, timeout: .networkRequest, "Network fee amount should be displayed")
+            let isLoaded = waitForCondition(timeout: .networkRequest) {
+                guard feeAmountText.exists else { return false }
+                let label = feeAmountText.label
+                return label.contains(Constants.fiatSign) && label.range(of: "[1-9]", options: .regularExpression) != nil
+            }
+            XCTAssertTrue(isLoaded, "Network fee should load as a non-zero amount, but was '\(feeAmountText.label)'")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForZeroNetworkFee() -> Self {
+        XCTContext.runActivity(named: "Wait for the network fee to load as zero") { _ in
+            let feeAmountText = app.staticTexts[SendAccessibilityIdentifiers.networkFeeAmount].firstMatch
+            waitAndAssertTrue(feeAmountText, timeout: .networkRequest, "Network fee amount should be displayed")
+            let isZero = waitForCondition(timeout: .networkRequest) {
+                guard feeAmountText.exists else { return false }
+                let label = feeAmountText.label
+                return label.contains("0") && label.range(of: "[1-9]", options: .regularExpression) == nil
+            }
+            XCTAssertTrue(isZero, "Network fee should be zero, but was '\(feeAmountText.label)'")
         }
         return self
     }
