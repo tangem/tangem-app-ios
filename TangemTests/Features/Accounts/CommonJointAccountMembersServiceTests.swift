@@ -63,12 +63,12 @@ struct CommonJointAccountMembersServiceTests {
         #expect(sut.slots.allSatisfy { $0.member != nil })
     }
 
-    @Test("An account the store does not hold has no slots to speak of")
+    @Test("An account the store does not hold has no slots to speak of, this wallet's own included")
     func unknownAccountHasNoSlots() {
         let sut = JointAccountCompositionFixture.makeMembersService(repository: JointAccountsRepositoryStub())
 
         #expect(sut.slots.isEmpty)
-        #expect(!sut.isCreatorDevice)
+        #expect(sut.userRole == .outsider)
     }
 
     // MARK: - Inviting
@@ -90,44 +90,24 @@ struct CommonJointAccountMembersServiceTests {
         #expect(!full.slots.contains { $0.invite != nil })
     }
 
-    // MARK: - The creator's wallet
+    // MARK: - This wallet's own slot
 
-    @Test("The wallet the account was created from is the one it left its invites with")
-    func creatorDeviceIsTheOneHoldingTheInvites() {
-        let creator = Self.makeSUT(membersCount: 3, members: [Self.creator], inviteIds: ["AA", "BB"])
-        let member = Self.makeSUT(membersCount: 3, members: [Self.creator], inviteIds: nil)
+    /// What the role service answers is its own suite's to check; this one is about the composition it is asked
+    /// about being the slots of this account.
+    @Test("The slot the wallet holds is looked for among the account's own members")
+    func ownSlotIsLookedForAmongTheAccountsMembers() {
+        let own = JointAccountMember(name: "Me", address: Self.derivedAddress, role: .creator)
+        let sut = Self.makeSUT(membersCount: 2, members: [own, Self.member(inviteId: "AA")], inviteIds: nil, storedKeyPath: Self.ownPath)
 
-        #expect(creator.isCreatorDevice)
-        #expect(!member.isCreatorDevice)
+        #expect(sut.userRole == .member(own))
+        #expect(sut.userRole.isCreator)
     }
 
-    @Test("An account created with every slot taken leaves its creator an empty record, and the creator's wallet all the same")
-    func creatorDeviceOfAFullCompositionHoldsAnEmptyRecord() {
-        let sut = Self.makeSUT(
-            membersCount: 2,
-            members: [Self.creator, Self.member(inviteId: "AA")],
-            inviteIds: []
-        )
+    @Test("A composition this wallet holds no slot of leaves it outside")
+    func ownSlotIsAbsentFromAForeignComposition() {
+        let sut = Self.makeSUT(membersCount: 2, members: [Self.creator], inviteIds: nil, storedKeyPath: Self.ownPath)
 
-        #expect(sut.isCreatorDevice)
-    }
-
-    // MARK: - Own address
-
-    @Test("The wallet's own address is the one of the key stored at the account's derivation path")
-    func ownAddressComesFromTheStoredKey() {
-        let index = JointAccountCompositionFixture.derivationIdentity.derivationIndex
-        let sut = Self.makeSUT(storedKeyPath: JointAccountKeyPath.derivationPath(forAccountAtIndex: index))
-
-        #expect(sut.ownAddress?.lowercased() == Self.derivedAddress.lowercased())
-    }
-
-    @Test("Without a key stored for this account the wallet's own address is unknown")
-    func ownAddressIsUnknownWithoutTheStoredKey() {
-        let otherIndex = JointAccountCompositionFixture.derivationIdentity.derivationIndex + 1
-        let sut = Self.makeSUT(storedKeyPath: JointAccountKeyPath.derivationPath(forAccountAtIndex: otherIndex))
-
-        #expect(sut.ownAddress == nil)
+        #expect(sut.userRole == .outsider)
     }
 }
 
@@ -152,22 +132,35 @@ private extension CommonJointAccountMembersServiceTests {
 
     static let derivedAddress = "0x6ECa00c52AFC728CDbF42E817d712e175bb23C7d"
 
-    static func makeSUT(storedKeyPath: DerivationPath) -> CommonJointAccountMembersService {
+    static var ownPath: DerivationPath {
+        JointAccountKeyPath.derivationPath(forAccountAtIndex: JointAccountCompositionFixture.derivationIdentity.derivationIndex)
+    }
+
+    static func makeSUT(
+        membersCount: Int,
+        members: [JointAccountMember],
+        inviteIds: [String]?,
+        storedKeyPath: DerivationPath
+    ) -> CommonJointAccountMembersService {
+        JointAccountCompositionFixture.makeMembersService(
+            membersCount: membersCount,
+            members: members,
+            inviteIds: inviteIds,
+            keysProvider: KeysRepositoryTestsMock(keys: [masterKey(storedKeyPath: storedKeyPath)])
+        )
+    }
+
+    static func masterKey(storedKeyPath: DerivationPath) -> KeyInfo {
         let derivedKey = ExtendedPublicKey(
             publicKey: Data(hexString: "0241DCD64B5F4A039FC339A16300A833A883B218909F2EBCAF3906651C76842C45"),
             chainCode: Data(repeating: 0x11, count: 32)
         )
-        let masterKey = KeyInfo(
+        return KeyInfo(
             publicKey: Data(hexString: "0279BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798"),
             chainCode: Data(repeating: 0x11, count: 32),
             curve: .secp256k1,
             isImported: false,
             derivedKeys: [storedKeyPath: derivedKey]
-        )
-
-        return JointAccountCompositionFixture.makeMembersService(
-            repository: JointAccountsRepositoryStub(),
-            keysProvider: KeysRepositoryTestsMock(keys: [masterKey])
         )
     }
 
