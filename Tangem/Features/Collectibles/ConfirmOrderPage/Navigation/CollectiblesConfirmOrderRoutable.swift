@@ -10,6 +10,7 @@ import Foundation
 
 @MainActor
 protocol CollectiblesConfirmOrderRoutable: AnyObject {
+    func openPackReveal(prize: CollectiblesPackRevealView.Prize, assets: CollectiblesRevealAssets)
     func returnToMachine()
     func closePackFlow()
 }
