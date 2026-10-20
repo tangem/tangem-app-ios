@@ -276,10 +276,10 @@ public extension Button {
 
         var disabledStyle: DisabledStyle {
             switch self {
-            case .brand, .primary, .success, .material:
+            case .brand, .primary, .material:
                 .swapColors
 
-            case .secondary, .outline, .ghost:
+            case .secondary, .outline, .ghost, .success:
                 .dim
             }
         }

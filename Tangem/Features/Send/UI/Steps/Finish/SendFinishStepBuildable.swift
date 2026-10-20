@@ -8,7 +8,6 @@
 
 protocol SendFinishStepBuildable {
     var finishIO: SendFinishStepBuilder.IO { get }
-    var finishTypes: SendFinishStepBuilder.Types { get }
     var finishDependencies: SendFinishStepBuilder.Dependencies { get }
 }
 
@@ -27,7 +26,6 @@ extension SendFinishStepBuildable {
     ) -> SendFinishStepBuilder.ReturnValue {
         SendFinishStepBuilder.make(
             io: finishIO,
-            types: finishTypes,
             dependencies: finishDependencies,
             sendAmountFinishViewModel: sendAmountFinishViewModel,
             nftAssetCompactViewModel: nftAssetCompactViewModel,
@@ -48,10 +46,6 @@ enum SendFinishStepBuilder {
         let input: SendFinishInput
     }
 
-    struct Types {
-        let tokenItem: TokenItem
-    }
-
     struct Dependencies {
         let analyticsLogger: any SendFinishAnalyticsLogger
         let headerTitleProvider: any SendFinishHeaderTitleProvider
@@ -61,7 +55,6 @@ enum SendFinishStepBuilder {
 
     static func make(
         io: IO,
-        types: Types,
         dependencies: Dependencies,
         sendAmountFinishViewModel: SendAmountFinishViewModel?,
         nftAssetCompactViewModel: NFTAssetCompactViewModel?,
@@ -74,10 +67,6 @@ enum SendFinishStepBuilder {
         jointAccountSignaturesCompactViewModel: JointAccountSignaturesCompactViewModel?,
         router: SendRoutable,
     ) -> ReturnValue {
-        let settings = SendFinishViewModel.Settings(
-            possibleToShowExploreButtons: !types.tokenItem.blockchain.isTransactionAsync
-        )
-
         let viewModel = SendFinishViewModel(
             input: io.input,
             sendAmountFinishViewModel: sendAmountFinishViewModel,
@@ -89,7 +78,6 @@ enum SendFinishStepBuilder {
             onrampAmountCompactViewModel: onrampAmountCompactViewModel,
             onrampStatusCompactViewModel: onrampStatusCompactViewModel,
             jointAccountSignaturesCompactViewModel: jointAccountSignaturesCompactViewModel,
-            settings: settings,
             headerTitleProvider: dependencies.headerTitleProvider,
             analyticsLogger: dependencies.analyticsLogger,
             coordinator: router

@@ -41,7 +41,7 @@ public struct TangemNFTEntrypointRow: View {
                 centeredTrailing: { chevronIcon }
             )
             .padding(12)
-            .background(Color.Tangem.Surface.level3)
+            .background(DesignSystem.Color.bgSecondary)
             .cornerRadiusContinuous(20)
         }
         .buttonStyle(.defaultScaled)
@@ -64,7 +64,7 @@ public struct TangemNFTEntrypointRow: View {
     private var chevronIcon: some View {
         Assets.Glyphs.chevronRightNew.image
             .renderingMode(.template)
-            .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiaryConstant)
+            .foregroundStyle(DesignSystem.Color.iconSecondary)
     }
 
     // MARK: - Collection Previews
@@ -151,7 +151,7 @@ public struct TangemNFTEntrypointRow: View {
                 .if(shouldStroke) { icon in
                     icon.overlay(
                         RoundedRectangle(cornerRadius: imageCornerRadius)
-                            .strokeBorder(Color.Tangem.Surface.level3, lineWidth: strokeLineWidth)
+                            .strokeBorder(DesignSystem.Color.bgSecondary, lineWidth: strokeLineWidth)
                     )
                 }
         } else {
@@ -186,19 +186,19 @@ public struct TangemNFTEntrypointRow: View {
 
     private func dotsImage(size: CGSize) -> some View {
         RoundedRectangle(cornerRadius: imageCornerRadius)
-            .fill(Color.Tangem.Surface.level2)
+            .fill(DesignSystem.Color.bgPrimary)
             .frame(size: size)
             .overlay {
                 Assets.horizontalDots.image
                     .resizable()
-                    .foregroundStyle(Color.Tangem.Text.Neutral.secondary)
+                    .foregroundStyle(DesignSystem.Color.textSecondary)
                     .frame(size: CGSize(bothDimensions: 9) * scaleFactor)
             }
     }
 
     private func placeholder(size: CGSize) -> some View {
         RoundedRectangle(cornerRadius: imageCornerRadius)
-            .fill(Color.Tangem.Surface.level2)
+            .fill(DesignSystem.Color.bgPrimary)
             .frame(size: size)
     }
 

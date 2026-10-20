@@ -438,7 +438,7 @@ extension CommonJointAccountsRepository {
                 .removeDuplicates()
 
             pollingModeSubscription = Task { [weak self] in
-                for await mode in await publisher.values {
+                for await mode in await publisher.values_ {
                     await self?.updatePolling(mode: mode)
                 }
             }

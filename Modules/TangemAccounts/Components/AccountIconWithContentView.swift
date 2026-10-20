@@ -88,7 +88,7 @@ extension AccountIconWithContentView: Setupable {
         nameStyle(font: TangemFontStyle(font: font), color: color)
     }
 
-    public func nameStyle(font: TangemFontStyle, color: Color) -> Self {
+    private func nameStyle(font: TangemFontStyle, color: Color) -> Self {
         map {
             $0.nameFontStyle = font
             $0.nameColor = color
@@ -103,7 +103,11 @@ extension AccountIconWithContentView: Setupable {
         subtitleStyle(font: TangemFontStyle(font: font), color: color)
     }
 
-    public func subtitleStyle(font: TangemFontStyle, color: Color) -> Self {
+    public func subtitleStyle(font: TangemTypographyToken, color: Color) -> Self {
+        subtitleStyle(font: TangemFontStyle(font), color: color)
+    }
+
+    private func subtitleStyle(font: TangemFontStyle, color: Color) -> Self {
         map {
             $0.subtitleFontStyle = font
             $0.subtitleColor = color
@@ -160,8 +164,8 @@ public extension AccountIconWithContentView where Subtitle == EmptyView, Trailin
             name: "Redesigned",
             subtitle: { Text("Tangem DS tokens") }
         )
-        .nameStyle(font: Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
-        .subtitleStyle(font: Font.Tangem.Caption13.regular, color: .Tangem.Text.Neutral.tertiary)
+        .nameStyle(font: DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+        .subtitleStyle(font: DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
     }
     .padding()
 }

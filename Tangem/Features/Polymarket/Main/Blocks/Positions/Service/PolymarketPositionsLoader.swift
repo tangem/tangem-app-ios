@@ -69,12 +69,7 @@ private extension PolymarketPositionsLoader {
     }
 
     func closedPositionsPage() async throws -> PolymarketClosedPositionsPage {
-        try await service.closedPositions(
-            sort: .closedAt,
-            ascending: false,
-            limit: Constants.finishedProbeLimit,
-            offset: 0
-        )
+        try await service.closedPositions(limit: Constants.finishedProbeLimit, cursor: nil)
     }
 }
 

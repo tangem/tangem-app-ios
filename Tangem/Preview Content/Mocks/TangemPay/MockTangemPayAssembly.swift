@@ -7,6 +7,7 @@
 //
 
 import BlockchainSdk
+import TangemFoundation
 import TangemPay
 
 final class MockTangemPayAssembly: TangemPayAssembly {
@@ -28,16 +29,18 @@ final class MockTangemPayAssembly: TangemPayAssembly {
 
     /// Deliberately the real dispatcher: a hot wallet can sign once the session is renewed, so withdrawals reach the mocked backend.
     func makeTransactionDispatcher(
+        userWalletId: UserWalletId,
         withdrawTransactionService: TangemPayWithdrawTransactionService,
         signerFactory: TangemSignerFactory,
         walletPublicKey: Wallet.PublicKey?,
-        withdrawEligibility: TangemPayWithdrawEligibility
+        accountToken: TangemPayAccountToken
     ) -> TransactionDispatcher {
         TangemPayTransactionDispatcher(
+            userWalletId: userWalletId,
             withdrawTransactionService: withdrawTransactionService,
             signerFactory: signerFactory,
             walletPublicKey: walletPublicKey,
-            withdrawEligibility: withdrawEligibility
+            accountToken: accountToken
         )
     }
 }

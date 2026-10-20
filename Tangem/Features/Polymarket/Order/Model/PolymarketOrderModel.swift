@@ -508,7 +508,7 @@ private extension PolymarketOrderModel {
     }
 
     func requestQuote() async {
-        guard let amount = state.enteredAmount else { return }
+        guard let amount = state.enteredAmount, market.version.isSupported else { return }
 
         if case .empty = state.quote {
             state.quote = .loading

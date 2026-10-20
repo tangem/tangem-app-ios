@@ -17,6 +17,6 @@ struct ChooseAddressRowView: View {
             .start {
                 AddressBlockiesIconView(viewData: viewModel.addressIcon)
             }
-            .onTap(viewModel.onTap)
+            .onTap(action: viewModel.onTap)
     }
 }

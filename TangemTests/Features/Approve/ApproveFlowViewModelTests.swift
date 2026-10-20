@@ -9,6 +9,7 @@ import Foundation
 import Testing
 import Combine
 import BlockchainSdk
+import TangemUI
 @testable import Tangem
 
 @Suite("ApproveFlowViewModel")
@@ -213,8 +214,7 @@ struct ApproveFlowViewModelTests {
             title: "Test title",
             subtitle: "Test subtitle",
             feeFooterText: "Test footer",
-            tokenItem: tokenItem,
-            tangemIconProvider: ApproveTangemIconProviderStub()
+            tokenItem: tokenItem
         )
 
         let approveInput = ApproveViewModel.Input(
@@ -235,17 +235,11 @@ struct ApproveFlowViewModelTests {
             router: router,
             feeSelectorViewModel: feeSelectorViewModel,
             interactor: interactor,
-            confirmTransactionPolicy: ConfirmTransactionPolicyStub()
+            signingActionButtonType: .requiredNFCInteraction
         )
 
         let env = FlowEnv(router: router, interactor: interactor, feeManager: feeManager, analyticsLogger: analyticsLogger)
 
         return (viewModel, env)
     }
-}
-
-// MARK: - Minimal stubs for ViewModel dependencies
-
-private struct ConfirmTransactionPolicyStub: ConfirmTransactionPolicy {
-    var needsHoldToConfirm: Bool { false }
 }

@@ -20,13 +20,11 @@ struct FeedViewModelFactory {
     ) -> FeedViewModel {
         let searchBarViewModel = FeedSearchBarViewModel()
         let resultsQuery = CurrentValueSubject<String, Never>("")
-        let historyProvider = CommonFeedSearchHistoryProvider(storage: CommonFeedSearchHistoryStorage())
 
         let tabs = tabBuilders.map { $0.makeTab(context: context) }
         let searchTabs = tabBuilders.map { builder in
             builder.makeSearchTab(
                 query: resultsQuery.eraseToAnyPublisher(),
-                history: historyProvider,
                 context: context
             )
         }
@@ -36,14 +34,7 @@ struct FeedViewModelFactory {
             searchViewModel: FeedSearchViewModel(
                 searchBarViewModel: searchBarViewModel,
                 resultsQuery: resultsQuery,
-                tabsViewModel: FeedSearchTabsViewModel(tabs: searchTabs),
-                historyProvider: historyProvider,
-                marketViewModel: CryptoSearchViewModel(
-                    query: Just("").eraseToAnyPublisher(),
-                    searchesOnEmptyQuery: true,
-                    history: historyProvider,
-                    router: CryptoFeedRouter(context: context)
-                )
+                tabsViewModel: FeedSearchTabsViewModel(tabs: searchTabs)
             ),
             tabsViewModel: FeedTabsViewModel(tabs: tabs),
             widgetsViewModel: FeedWidgetsViewModel(

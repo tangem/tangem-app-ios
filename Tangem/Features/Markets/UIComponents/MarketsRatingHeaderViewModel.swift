@@ -73,8 +73,4 @@ class MarketsRatingHeaderViewModel: ObservableObject {
             }
             .store(in: &bag)
     }
-
-    func onOrderActionButtonDidTap() {
-        delegate?.orderActionButtonDidTap()
-    }
 }

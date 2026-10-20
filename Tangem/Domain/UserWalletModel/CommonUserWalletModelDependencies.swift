@@ -53,9 +53,7 @@ struct CommonUserWalletModelDependencies {
         let polymarketAccountProvider = PolymarketAccountProvider(
             builder: PolymarketAccountBuilder(
                 userWalletId: userWalletId,
-                keysRepository: keysRepository,
-                keysDerivingInteractorFactory: keysDerivingInteractorFactory,
-                areHDWalletsSupported: areHDWalletsSupported
+                keysRepository: keysRepository
             )
         )
 
@@ -300,6 +298,7 @@ private extension CommonUserWalletModelDependencies {
             tangemPayManager: tangemPayManager,
             accountModelsProvider: accountModelsProvider,
             archivedCryptoAccountsProvider: archivedCryptoAccountsProvider,
+            accountConditionsValidatorFactory: CommonAccountConditionsValidatorFactory(userWalletId: userWalletId),
             cryptoAccountModelsRegistry: cryptoAccountModelsRegistry,
             jointAccountModelsRegistry: jointAccountModelsRegistry,
             areHDWalletsSupported: areHDWalletsSupported

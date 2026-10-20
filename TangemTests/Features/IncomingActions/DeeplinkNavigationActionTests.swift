@@ -261,7 +261,7 @@ struct DeeplinkNavigationActionTests {
     func promo() {
         #expect(
             action("tangem://promo?promo_code=TANGEM&ref=friend&campaign=summer")
-                == .promo(PromoDeeplink(code: "TANGEM", refcode: "friend", campaign: "summer"))
+                == .promo(PromoDeeplink(code: "TANGEM", token: .bitcoin, refcode: "friend", campaign: "summer"))
         )
     }
 
@@ -269,7 +269,7 @@ struct DeeplinkNavigationActionTests {
     func promoWithoutReferral(rawRefcode: String) {
         #expect(
             action("tangem://promo?promo_code=TANGEM&ref=\(rawRefcode)&campaign=\(rawRefcode)")
-                == .promo(PromoDeeplink(code: "TANGEM", refcode: nil, campaign: nil))
+                == .promo(PromoDeeplink(code: "TANGEM", token: .bitcoin, refcode: nil, campaign: nil))
         )
     }
 

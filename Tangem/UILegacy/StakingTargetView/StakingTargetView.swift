@@ -124,11 +124,7 @@ struct StakingTargetView: View {
 
 // MARK: - Setupable
 
-extension StakingTargetView: Setupable {
-    func geometryEffect(_ namespace: Namespace) -> Self {
-        map { $0.namespace = namespace }
-    }
-}
+extension StakingTargetView: Setupable {}
 
 #Preview("SelectableValidatorView") {
     struct StakingValidatorPreview: View {

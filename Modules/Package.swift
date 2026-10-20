@@ -151,10 +151,11 @@ var serviceModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemBackendAuthentication",
             dependencies: [
-                .target(name: "TangemFoundation"),
-                .target(name: "TangemLogger"),
                 .product(name: "Alamofire", package: "Alamofire"),
                 .product(name: "Moya", package: "Moya"),
+                .target(name: "TangemFoundation"),
+                .target(name: "TangemLogger"),
+                .target(name: "TangemNetworkUtils"),
             ],
             swiftSettings: .swift6StrictSettings
         ),
@@ -272,6 +273,14 @@ var serviceModules: [PackageDescription.Target] {
             name: "TangemUIUtilsObjC"
         ),
         .tangemTarget(
+            name: "TangemWebSocket",
+            dependencies: [
+                "TangemFoundation",
+                "TangemNetworkUtils",
+            ],
+            swiftSettings: .swift6StrictSettings
+        ),
+        .tangemTarget(
             name: "TangemAppDatabase",
             dependencies: [
                 "TangemFoundation",
@@ -317,6 +326,7 @@ var featureModules: [PackageDescription.Target] {
                 "TangemLogger",
                 "TangemMacro",
                 "TangemNetworkUtils",
+                "TangemWebSocket",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -372,7 +382,16 @@ var featureModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemMCP",
             dependencies: [
-                "TangemFoundation",
+                .product(name: "OrderedCollections", package: "swift-collections"),
+                .product(name: "Kingfisher", package: "Kingfisher"),
+                .product(name: "Moya", package: "Moya"),
+                .target(name: "TangemAssets"),
+                .target(name: "TangemFoundation"),
+                .target(name: "TangemLocalization"),
+                .target(name: "TangemLogger"),
+                .target(name: "TangemNetworkUtils"),
+                .target(name: "TangemUI"),
+                .target(name: "TangemUIUtils"),
             ],
             swiftSettings: .swift6StrictSettings
         ),
@@ -527,6 +546,7 @@ var unitTestsModules: [PackageDescription.Target] {
                 "TangemBackendAuthentication",
                 "TangemFoundation",
                 "TangemLogger",
+                "TangemNetworkUtils",
                 .product(name: "TangemTestKit", package: "TangemTestKit"),
             ],
             swiftSettings: .swift6StrictSettings
@@ -590,6 +610,13 @@ var unitTestsModules: [PackageDescription.Target] {
                 "TangemPolymarket",
                 "Moya",
             ]
+        ),
+        .tangemTestTarget(
+            name: "TangemWebSocketTests",
+            dependencies: [
+                "TangemWebSocket",
+            ],
+            swiftSettings: .swift6StrictSettings
         ),
     ]
 }

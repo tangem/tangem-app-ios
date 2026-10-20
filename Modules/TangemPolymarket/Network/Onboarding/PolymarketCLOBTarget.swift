@@ -18,7 +18,7 @@ struct PolymarketCLOBTarget: Moya.TargetType {
     enum Target {
         case createCredentials
         case deriveCredentials
-        case updateBalanceAllowance
+        case updateBalanceAllowance(PolymarketBalanceAllowanceAsset)
         case balanceAllowance
         case placeOrder(body: Data)
         case order(id: String)
@@ -59,14 +59,10 @@ struct PolymarketCLOBTarget: Moya.TargetType {
                 parameters: [Constants.tokenIdKey: tokenId, Constants.sideKey: orderSide.matchingBookSide.rawValue],
                 encoding: URLEncoding.queryString
             )
-        case .updateBalanceAllowance, .balanceAllowance:
-            return .requestParameters(
-                parameters: [
-                    Constants.assetTypeKey: Constants.collateralAssetType,
-                    Constants.signatureTypeKey: Constants.poly1271SignatureType,
-                ],
-                encoding: URLEncoding.queryString
-            )
+        case .updateBalanceAllowance(let asset):
+            return .requestParameters(parameters: Self.parameters(for: asset), encoding: URLEncoding.queryString)
+        case .balanceAllowance:
+            return .requestParameters(parameters: Self.parameters(for: .collateral), encoding: URLEncoding.queryString)
         }
     }
 
@@ -81,12 +77,24 @@ struct PolymarketCLOBTarget: Moya.TargetType {
 }
 
 private extension PolymarketCLOBTarget {
+    static func parameters(for asset: PolymarketBalanceAllowanceAsset) -> [String: Any] {
+        var parameters: [String: Any] = [
+            Constants.assetTypeKey: asset.assetType,
+            Constants.signatureTypeKey: Constants.poly1271SignatureType,
+        ]
+
+        if let tokenId = asset.tokenId {
+            parameters[Constants.tokenIdKey] = tokenId
+        }
+
+        return parameters
+    }
+
     enum Constants {
         static let assetTypeKey = "asset_type"
         static let tokenIdKey = "token_id"
         static let sideKey = "side"
         static let signatureTypeKey = "signature_type"
-        static let collateralAssetType = "COLLATERAL"
 
         static let poly1271SignatureType = 3
 

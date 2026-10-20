@@ -44,10 +44,11 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
     private let walletDataProvider: MarketsWalletDataProvider
     private weak var coordinator: MarketsPortfolioContainerRoutable?
     private var addTokenTapAction: (() -> Void)?
+    private let showsNotSupportedWithoutMultiCurrencyWallet: Bool
 
     private let coinId: String
-    private let coinName: String
-    private let coinSymbol: String
+    private var coinName: String
+    private var coinSymbol: String
 
     // Make networks a publisher so changes trigger reactive pipeline
     private let networksSubject = CurrentValueSubject<[NetworkModel]?, Never>(nil)
@@ -63,6 +64,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
         inputData: InputData,
         walletDataProvider: MarketsWalletDataProvider,
         coordinator: MarketsPortfolioContainerRoutable?,
+        showsNotSupportedWithoutMultiCurrencyWallet: Bool,
         addTokenTapAction: (() -> Void)?
     ) {
         coinId = inputData.coinId
@@ -71,6 +73,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
         self.walletDataProvider = walletDataProvider
         self.coordinator = coordinator
         self.addTokenTapAction = addTokenTapAction
+        self.showsNotSupportedWithoutMultiCurrencyWallet = showsNotSupportedWithoutMultiCurrencyWallet
 
         bind()
     }
@@ -105,7 +108,9 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
         )
     }
 
-    func update(networks: [NetworkModel]) {
+    func update(coinName: String, coinSymbol: String, networks: [NetworkModel]) {
+        self.coinName = coinName
+        self.coinSymbol = coinSymbol
         networksSubject.send(networks)
     }
 
@@ -199,6 +204,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
             return .loading
 
         case .unsupported, .unavailable:
+            guard hasMultiCurrencyWallet || showsNotSupportedWithoutMultiCurrencyWallet else { return .hidden }
             return .notSupported
 
         case .empty:
@@ -577,8 +583,8 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsProv
             return []
         }
 
-        return TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
-            .buildMarketsTokenContextActions()
+        let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+        return availabilityProvider.buildMarketsTokenContextActions()
     }
 }
 
@@ -637,24 +643,33 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
 
-            TokenActionAvailabilityAlertPresenter.presentOrProceed(
-                presenter: alertPresenter,
-                swapStatus: availabilityProvider.swapAvailability,
-                action: {
-                    let helper = SwapPredefinedParametersHelper()
-                    guard let parameters = helper.makeParameters(
-                        walletModel: walletModel,
-                        userWalletInfo: userWalletModel.userWalletInfo,
-                        position: .automatic
-                    ) else {
-                        return
-                    }
+            let direction = SwapDirection.build(for: walletModel)
+            let openSwap = {
+                let parameters = SwapPredefinedParametersHelper().makeParameters(
+                    walletModel: walletModel,
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    position: direction
+                )
 
-                    Task { @MainActor in
-                        coordinator.openSwap(input: parameters, destination: walletModel.tokenItem)
-                    }
+                Task { @MainActor in
+                    coordinator.openSwap(input: parameters, destination: walletModel.tokenItem)
                 }
-            )
+            }
+
+            switch direction {
+            case .from:
+                TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                    presenter: alertPresenter,
+                    swapSourceStatus: availabilityProvider.swapSourceAvailability(),
+                    action: openSwap
+                )
+            case .to:
+                TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                    presenter: alertPresenter,
+                    swapReceiveStatus: availabilityProvider.swapReceiveAvailability(),
+                    action: openSwap
+                )
+            }
         case .stake:
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
             if let stakingManager = walletModel.stakingManager {

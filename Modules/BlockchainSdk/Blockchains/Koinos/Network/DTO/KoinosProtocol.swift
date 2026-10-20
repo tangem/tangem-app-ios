@@ -53,27 +53,6 @@ enum KoinosProtocol {
         let events: [EventData]
     }
 
-    struct BlockHeader: Equatable, Decodable {
-        let previous: String
-        let height: UInt64
-        let timestamp: UInt64
-        let previousStateMerkleRoot: String
-        let transactionMerkleRoot: String
-        let signer: String
-        let approvedProposals: [String]
-    }
-
-    struct BlockReceipt: Equatable, Decodable {
-        let id: String
-        let height: UInt64
-        let diskStorageUsed: String
-        let networkBandwidthUsed: String
-        let computeBandwidthUsed: String
-        let stateMerkleRoot: String
-        let events: [EventData]
-        let transactionReceipts: [TransactionReceipt]
-    }
-
     struct EventData: Equatable, Decodable {
         let sequence: Int?
         let source: String

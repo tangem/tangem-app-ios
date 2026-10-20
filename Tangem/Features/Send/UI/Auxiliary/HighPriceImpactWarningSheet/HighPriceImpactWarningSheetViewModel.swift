@@ -25,9 +25,9 @@ class HighPriceImpactWarningSheetViewModel: FloatingSheetContentViewModel, Obser
     private let highPriceImpact: HighPriceImpactCalculator.Result
     private var continuation: CheckedContinuation<UserDecision, Never>?
 
-    init(highPriceImpact: HighPriceImpactCalculator.Result, tangemIconProvider: TangemIconProvider) {
+    init(highPriceImpact: HighPriceImpactCalculator.Result, signingActionButtonType: SigningActionButtonViewType) {
         self.highPriceImpact = highPriceImpact
-        mainButtonIcon = tangemIconProvider.getMainButtonIcon()
+        mainButtonIcon = signingActionButtonType.mainButtonIcon
     }
 
     func cancel() {
