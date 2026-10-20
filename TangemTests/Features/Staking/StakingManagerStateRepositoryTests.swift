@@ -62,6 +62,7 @@ private extension StakingManagerStateRepositoryTests {
             warmupPeriod: .days(0),
             rewardClaimingType: .auto,
             rewardScheduleType: .daily,
+            rewardsIncludedInStake: true,
             maximumStakeAmount: nil
         )
     }

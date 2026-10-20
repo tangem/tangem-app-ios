@@ -157,6 +157,7 @@ private extension StakingYieldInfo {
             warmupPeriod: .days(0),
             rewardClaimingType: .auto,
             rewardScheduleType: .daily,
+            rewardsIncludedInStake: true,
             maximumStakeAmount: targets.compactMap(\.maximumStakeAmount).min()
         )
     }
