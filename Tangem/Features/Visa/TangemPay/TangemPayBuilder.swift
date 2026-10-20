@@ -70,7 +70,8 @@ final class TangemPayBuilder {
 
     private lazy var offrampOrderSigner = CommonTangemPayOfframpOrderSigner(
         signerFactory: signerFactory,
-        walletPublicKey: TangemPayUtilities.getKey(from: keysRepository)
+        walletPublicKey: TangemPayUtilities.getKey(from: keysRepository),
+        balancesService: balancesService
     )
 
     private lazy var withdrawAvailabilityProvider = TangemPayWithdrawAvailabilityProvider(

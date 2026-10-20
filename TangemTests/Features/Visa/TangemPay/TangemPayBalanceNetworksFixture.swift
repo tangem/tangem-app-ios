@@ -11,6 +11,10 @@ import TangemPay
 /// Decodes a `networks` array the way the balance endpoint sends it, so a test can state its
 /// fixture as the payload rather than as already-parsed models.
 func makeTangemPayNetworks(_ json: String) throws -> [TangemPayBalance.Network] {
+    try makeTangemPayBalance(networks: json).networks
+}
+
+func makeTangemPayBalance(networks json: String) throws -> TangemPayBalance {
     let balanceJSON = """
     {
       "fiat": {
@@ -33,5 +37,5 @@ func makeTangemPayNetworks(_ json: String) throws -> [TangemPayBalance.Network] 
     }
     """
 
-    return try JSONDecoder().decode(TangemPayBalance.self, from: Data(balanceJSON.utf8)).networks
+    return try JSONDecoder().decode(TangemPayBalance.self, from: Data(balanceJSON.utf8))
 }
