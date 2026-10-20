@@ -83,11 +83,36 @@ final class TangemPayBalanceSyncUITests: BaseTestCase {
             .verifyBalanceContains("$9.00")
     }
 
+    func testMainTotalBalance_IncludesPaymentAccountBalance() {
+        setAllureId(9689)
+
+        launchAndImportHotWallet(
+            scenarios: [ScenarioConfig(name: Constants.Scenario.balanceUpdate, initialState: Constants.State.initialBalance)]
+        )
+        .verifyTangemPayTileBalanceContains(Constants.tangemPayBalance)
+        .waitForTotalBalanceIncludingTangemPay(tokenNames: Constants.tokenNames)
+    }
+
     private func balanceRequestCount() -> Int {
         wireMockClient.requestCountSync(method: "GET", urlPathPattern: Self.balanceEndpointPattern)
     }
 
     private func customerInfoRequestCount() -> Int {
         wireMockClient.requestCountSync(method: "GET", urlPathPattern: Self.customerInfoEndpointPattern)
+    }
+}
+
+private extension TangemPayBalanceSyncUITests {
+    enum Constants {
+        static let tangemPayBalance = "$10.00"
+        static let tokenNames = ["Bitcoin", "Ethereum", "Polygon", "POL (ex-MATIC)"]
+
+        enum Scenario {
+            static let balanceUpdate = "tangem_pay_balance_update"
+        }
+
+        enum State {
+            static let initialBalance = "InitialBalance"
+        }
     }
 }
