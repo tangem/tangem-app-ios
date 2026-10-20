@@ -11,8 +11,7 @@ import Combine
 
 struct JointAccountMembersServiceMock: JointAccountMembersService {
     var slots: [JointAccountSlot] = []
-    var isCreatorDevice = false
-    var ownAddress: String?
+    var userRole: JointAccountUserRole = .outsider
 
     var slotsPublisher: AnyPublisher<[JointAccountSlot], Never> {
         Just(slots).eraseToAnyPublisher()
