@@ -38,8 +38,11 @@ struct PromoCampaignEnrollmentStateMapper {
             return .enrolled(campaignName: campaignName, walletCount: enrollments.count)
         case .alreadyEnrolled(let enrollments):
             return .alreadyEnrolled(campaignName: campaignName, wallets: mapToWallets(enrollments))
-        case .partiallyEnrolled(let enrolled, _):
-            return .partiallyEnrolled(campaignName: campaignName, enrolledWallets: mapToEnrolledWalletViewModels(enrolled))
+        case .partiallyEnrolled(let enrolled, let alreadyEnrolled):
+            return .partiallyEnrolled(
+                campaignName: campaignName,
+                enrolledWallets: mapToEnrolledWalletViewModels(enrolled + alreadyEnrolled)
+            )
         case .unavailable:
             return .campaignUnavailable
         case .temporarilyUnavailable:
@@ -79,8 +82,10 @@ private extension PromoCampaignEnrollmentStateMapper {
     }
 
     func mapToEnrolledWalletViewModels(_ enrollments: [PromoCampaignEnrollment]) -> [PromoCampaignEnrolledWalletViewModel] {
-        enrollments
-            .compactMap { userWalletModel(for: $0) }
+        let enrolledWalletIds = Set(enrollments.map(\.userWalletId))
+
+        return userWalletModels
+            .filter { enrolledWalletIds.contains($0.userWalletId) }
             .map { PromoCampaignEnrolledWalletViewModel(userWalletModel: $0) }
     }
 

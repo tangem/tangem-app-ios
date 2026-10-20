@@ -29,19 +29,20 @@ class CommonSigner {
 
 extension CommonSigner: TransactionSigner {
     func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], Error> {
-        Deferred {
-            Future { [weak self] promise in
+        Deferred { [weak self] in
+            Future { promise in
                 guard let self = self else {
                     promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
-                return sdk.sign(
+                // swiftformat:disable redundantSelf
+                return self.sdk.sign(
                     hashes: hashes,
                     walletPublicKey: walletPublicKey.seedKey,
-                    cardId: cardId,
+                    cardId: self.cardId,
                     derivationPath: walletPublicKey.derivationPath,
-                    initialMessage: initialMessage
+                    initialMessage: self.initialMessage
                 ) { signResult in
                     switch signResult {
                     case .success(let response):
@@ -53,6 +54,7 @@ extension CommonSigner: TransactionSigner {
                         promise(.failure(error))
                     }
                 }
+                // swiftformat:enable redundantSelf
             }
         }
         .eraseToAnyPublisher()

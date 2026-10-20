@@ -19,7 +19,9 @@ struct TransactionDetailsYieldTokensViewData: Equatable {
     let tokenIconInfo: TokenIconInfo
     let amountText: String
     /// Caption above the amount describing the yield action (e.g. "Supplied" / "Returned").
-    let caption: String
+    let caption: String?
+    let fiatText: String?
+    let isAmountStrikethrough: Bool
 }
 
 struct TransactionDetailsYieldTokensView: View {
@@ -38,16 +40,30 @@ struct TransactionDetailsYieldTokensView: View {
             icons
 
             VStack(spacing: 4) {
-                Text(data.caption)
-                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(1)
+                if let caption = data.caption {
+                    Text(caption)
+                        .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(1)
+                }
 
-                SensitiveText(data.amountText)
-                    .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
+                VStack(spacing: 2) {
+                    SensitiveText(data.amountText)
+                        .strikethroughWhenVisible(data.isAmountStrikethrough)
+                        .style(
+                            DesignSystem.Font.headingMediumToken,
+                            color: data.isAmountStrikethrough ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
+                        )
+                        .multilineTextAlignment(.center)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+
+                    if let fiatText = data.fiatText {
+                        SensitiveText(fiatText)
+                            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+                            .lineLimit(1)
+                    }
+                }
             }
         }
         .frame(maxWidth: .infinity)
