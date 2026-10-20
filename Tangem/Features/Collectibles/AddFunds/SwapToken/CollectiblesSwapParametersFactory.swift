@@ -34,9 +34,10 @@ enum CollectiblesSwapParametersFactory {
             availabilityChecker: CommonFundingSourceAvailabilityChecker(userWalletInfo: userWalletInfo)
         )
 
-        return .to(
-            destination,
-            sourceResolver: sourceResolver,
+        return PredefinedSwapParameters(
+            userWalletInfo: destination.userWalletInfo,
+            source: sourceResolver,
+            receive: .resolved(destination),
             configuration: SwapFlowConfiguration(
                 isPairReversalEnabled: false,
                 sourceTokenSelection: .selectable(.filtered(isIncluded: { item in

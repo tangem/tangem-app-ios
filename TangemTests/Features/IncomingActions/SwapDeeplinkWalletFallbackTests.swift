@@ -250,11 +250,6 @@ extension PredefinedSwapParameters {
     /// `true` for the best-effort fallback, whose source is a guess a resolver settles later —
     /// as opposed to a source that came from the link's own parameters.
     var isPairDeferred: Bool {
-        switch self {
-        case .from(_, .deferred, _, _):
-            return true
-        case .from, .to:
-            return false
-        }
+        source is MainSwapSourceResolver
     }
 }

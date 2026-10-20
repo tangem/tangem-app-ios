@@ -166,7 +166,11 @@ private extension SendWithSwapStaleDestinationTests {
 
         private func makeSwapModel(sourceToken: SendSwapableToken) -> SwapModel {
             SwapModel(
-                parameters: .from(sourceToken),
+                parameters: PredefinedSwapParameters(
+                    userWalletInfo: sourceToken.userWalletInfo,
+                    source: .resolved(sourceToken),
+                    receive: .userSelection
+                ),
                 expressManager: expressManager,
                 swapRepository: SwapRepositoryStub(),
                 expressPendingTransactionRepository: ExpressPendingTransactionRepositoryStub(),
@@ -176,7 +180,7 @@ private extension SendWithSwapStaleDestinationTests {
                 autoupdatingTimer: AutoupdatingTimer(),
                 pairUpdateHandler: TransferPairUpdateHandlerStub(expressManager: expressManager),
                 balanceRestrictionFeatureChecker: TransferBalanceRestrictionCheckerStub(),
-                shouldStartInitialLoading: false
+                initialResolvingPolicy: .disabled
             )
         }
 
