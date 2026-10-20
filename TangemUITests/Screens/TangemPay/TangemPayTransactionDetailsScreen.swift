@@ -67,6 +67,12 @@ final class TangemPayTransactionDetailsScreen: Screen {
         return app.descendants(matching: .any).matching(predicate).firstMatch
     }
 
+    private var cardRowRetryButton: XCUIElement {
+        app.descendants(matching: .any)
+            .matching(identifier: TangemPayAccessibilityIdentifiers.transactionDetailsCardRowRetryButton)
+            .firstMatch
+    }
+
     @discardableResult
     func waitForScreen() -> Self {
         XCTContext.runActivity(named: "Wait for transaction details screen") { _ in
@@ -183,7 +189,8 @@ final class TangemPayTransactionDetailsScreen: Screen {
     func tapCardRowRetry() -> Self {
         XCTContext.runActivity(named: "Tap retry in the card row error state") { _ in
             waitAndAssertTrue(cardRowLoadingError, "Card row retry control should be displayed")
-            cardRowLoadingError.tapEvenIfNotHittable()
+            let retryControl = cardRowRetryButton.exists ? cardRowRetryButton : cardRowLoadingError
+            retryControl.tapEvenIfNotHittable()
             return self
         }
     }

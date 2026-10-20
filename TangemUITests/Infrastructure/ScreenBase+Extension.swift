@@ -224,6 +224,20 @@ extension ScreenBase {
         }
     }
 
+    func replaceValueTypingFromEnd(in element: XCUIElement, with text: String) {
+        waitAndAssertTrue(element, "Field for replacing text should exist")
+        let focused = NSPredicate(format: "hasKeyboardFocus == true")
+        var hasFocus = false
+        for _ in 0 ..< 3 where !hasFocus {
+            element.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
+            hasFocus = XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: focused, object: element)], timeout: .shortUIUpdate) == .completed
+        }
+        XCTAssertTrue(hasFocus, "Field should get keyboard focus before replacing its value")
+
+        let deletions = element.getValue() == element.placeholderValue ? 0 : element.getValue().count
+        typeReliably(element: element, text: String(repeating: XCUIKeyboardKey.delete.rawValue, count: deletions) + text)
+    }
+
     func deleteText(element: XCUIElement) {
         if !element.hasFocus {
             element.doubleTap()
