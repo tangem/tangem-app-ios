@@ -26,6 +26,23 @@ final class TangemPayMultiWalletUITests: BaseTestCase {
         verifyWalletBData(on: mainScreen)
     }
 
+    func testAddingWallet_KeepsWalletWithPaymentAccount() {
+        setAllureId(9688)
+
+        launchAndImportHotWallet(
+            eligibilityState: Constants.State.wallet2NotCustomer,
+            scenarios: [ScenarioConfig(name: Constants.Scenario.balanceUpdate, initialState: Constants.State.initialBalance)]
+        )
+        .verifyVisibleTangemPayTile(subtitle: Constants.WalletA.tileSubtitle, balance: Constants.WalletA.balance)
+        .addNewWallet(name: .wallet2)
+        .verifyVisibleWalletHasNoTangemPayTile()
+        .openDetails()
+        .verifyWalletsCount(2)
+        .goBackToMain()
+        .swipeWalletRight()
+        .verifyVisibleTangemPayTile(subtitle: Constants.WalletA.tileSubtitle, balance: Constants.WalletA.balance)
+    }
+
     private func verifyWalletAData(on mainScreen: MainScreen) {
         mainScreen
             .verifyVisibleTangemPayTile(subtitle: Constants.WalletA.tileSubtitle, balance: Constants.WalletA.balance)
@@ -57,10 +74,13 @@ private extension TangemPayMultiWalletUITests {
     enum Constants {
         enum Scenario {
             static let multiWallet = "tangem_pay_multi_wallet"
+            static let balanceUpdate = "tangem_pay_balance_update"
         }
 
         enum State {
             static let twoCustomers = "TwoCustomers"
+            static let wallet2NotCustomer = "Wallet2NotCustomer"
+            static let initialBalance = "InitialBalance"
         }
 
         enum WalletA {
