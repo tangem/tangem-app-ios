@@ -139,7 +139,7 @@ struct PolymarketMainView: View {
         ScrollViewReader { proxy in
             scrollContent
                 .onChange(of: viewModel.scrollToTopRequest) { _ in
-                    withAnimation {
+                    withAnimation(.easeInOut(duration: Constants.scrollToTopDuration)) {
                         proxy.scrollTo(Constants.topAnchorID, anchor: .top)
                     }
                 }
@@ -185,5 +185,6 @@ extension PolymarketMainView {
         static let bannerTopSpacing: CGFloat = 24
         static let bannerIconSide: CGFloat = 20
         static let bannerAnimationDuration: TimeInterval = 0.3
+        static let scrollToTopDuration: TimeInterval = 0.6
     }
 }
