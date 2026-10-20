@@ -8,7 +8,6 @@
 
 import SwiftUI
 import TangemAssets
-import TangemLocalization
 
 public struct SigningActionButtonView: View {
     private let type: SigningActionButtonViewType
@@ -41,7 +40,6 @@ public struct SigningActionButtonView: View {
                 .horizontalLayout(.infinity)
                 .loading(.spinner(if: isLoading))
                 .disabled(isDisabled)
-                .accessibilityValue(isLoading ? Localization.commonInProgress : "")
         case .holdToConfirm:
             HoldToConfirmButton(
                 title: title,
