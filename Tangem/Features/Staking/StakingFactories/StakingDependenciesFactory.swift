@@ -51,6 +51,9 @@ class StakingDependenciesFactory {
         if AppEnvironment.current.isTestnet {
             return (.hoodi, keysManager.p2pApiKeys.hoodi)
         }
+        if !AppEnvironment.current.isProduction, FeatureStorage.instance.stakeKitAPIType == .mock {
+            return (.mock, keysManager.p2pApiKeys.mainnet)
+        }
         return (.mainnet, keysManager.p2pApiKeys.mainnet)
     }
 

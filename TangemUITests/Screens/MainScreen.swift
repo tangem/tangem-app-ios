@@ -1189,6 +1189,50 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
+    @discardableResult
+    func waitForTokenRow(_ tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Wait for '\(tokenName)' token row on main screen") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            XCTAssertTrue(
+                scrollTokensListToVisible(tokenElement(named: tokenName)),
+                "'\(tokenName)' token row should be visible after scrolling"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertEarnBadgeNotDisplayed(tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Assert earn badge is not displayed on '\(tokenName)' token row") { _ in
+            let predicate = NSPredicate { [self] _, _ in
+                earnBadgeElements(inRowOf: tokenName).isEmpty
+            }
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Earn badge should not be displayed on '\(tokenName)' token row"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertEarnBadgeDisplayed(tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Assert earn badge is displayed on '\(tokenName)' token row") { _ in
+            let predicate = NSPredicate { [self] _, _ in
+                !earnBadgeElements(inRowOf: tokenName).isEmpty
+            }
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Earn badge should be displayed on '\(tokenName)' token row"
+            )
+            return self
+        }
+    }
+
     func getTokenBalanceNumeric(tokenName: String, tokenIndex: Int = 0) -> Decimal {
         XCTContext.runActivity(named: "Get balance (numeric) for token: \(tokenName) at index: \(tokenIndex)") { _ in
             let label = getTokenBalance(tokenName: tokenName, tokenIndex: tokenIndex)
@@ -1333,6 +1377,19 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             )
             return self
         }
+    }
+
+    private func earnBadgeElements(inRowOf tokenName: String) -> [XCUIElement] {
+        let title = tokenElement(named: tokenName)
+        guard title.exists else {
+            return []
+        }
+
+        let rowFrame = title.frame
+        return app.staticTexts
+            .matching(identifier: MainAccessibilityIdentifiers.tokenItemEarnBadge)
+            .allElementsBoundByIndex
+            .filter { rowFrame.minY ... rowFrame.maxY ~= $0.frame.midY }
     }
 
     private func tokenElement(named label: String) -> XCUIElement {
