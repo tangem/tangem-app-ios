@@ -48,6 +48,16 @@ struct PolymarketPriceFormatterTests {
     func theFeedReadsAWholePercent() {
         #expect(!hasFraction(PolymarketPriceFormatter.percentText(probability("0.754"))))
     }
+
+    @Test("Half a percent rounds away from zero, as on Android", arguments: [
+        ("0.625", "0.63"),
+        ("0.645", "0.65"),
+        ("0.005", "0.01"),
+        ("0.624", "0.62"),
+    ])
+    func halfAPercentRoundsUp(_ raw: String, _ expected: String) {
+        #expect(PolymarketPriceFormatter.percentText(probability(raw)) == PolymarketPriceFormatter.percentText(probability(expected)))
+    }
 }
 
 // MARK: - Fixtures

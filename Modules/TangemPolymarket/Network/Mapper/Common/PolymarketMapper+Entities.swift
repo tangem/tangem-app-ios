@@ -30,7 +30,22 @@ extension PolymarketMapper {
             totalMarketsCount: dto.totalMarketsCount ?? dto.markets?.count ?? 0,
             isNegRisk: isNegRisk,
             displayMode: displayMode(from: dto.displayMode, isNegRisk: isNegRisk),
-            markets: (dto.markets ?? []).map(mapMarket)
+            markets: (dto.markets ?? []).map(mapMarket),
+            teams: (dto.teams ?? []).compactMap(mapTeam)
+        )
+    }
+
+    func mapTeam(_ dto: PolymarketDTO.Team) -> PolymarketTeam? {
+        guard let name = dto.name?.trimmingCharacters(in: .whitespacesAndNewlines), !name.isEmpty else {
+            return nil
+        }
+
+        return PolymarketTeam(
+            name: name,
+            abbreviation: dto.abbreviation?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty,
+            alias: dto.alias?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty,
+            logoURL: url(from: dto.logo),
+            side: dto.ordering.flatMap { PolymarketTeam.Side(rawValue: $0.lowercased()) }
         )
     }
 
