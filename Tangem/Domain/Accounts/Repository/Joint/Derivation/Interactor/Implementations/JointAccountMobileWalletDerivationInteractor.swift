@@ -74,10 +74,18 @@ private extension JointAccountMobileWalletDerivationInteractor {
         seedKey: Data,
         in context: MobileWalletContext
     ) throws -> JointAccountDerivedKey {
-        if let derivedKey = try JointAccountDerivationUtils.storedDerivedKey(at: derivationPath, in: keysRepository) {
-            return derivedKey
+        do {
+            return try JointAccountDerivationUtils.storedDerivedKey(at: derivationPath, in: keysRepository)
+        } catch JointAccountDerivationUtils.Error.keyNotStored {
+            return try deriveKey(at: derivationPath, seedKey: seedKey, in: context)
         }
+    }
 
+    func deriveKey(
+        at derivationPath: DerivationPath,
+        seedKey: Data,
+        in context: MobileWalletContext
+    ) throws -> JointAccountDerivedKey {
         let derived = try mobileWalletSdk.deriveKeys(context: context, derivationPaths: [seedKey: [derivationPath]])
         let derivationResult: DerivationResult = derived.reduce(into: [:]) { partialResult, keyInfo in
             partialResult[keyInfo.key] = .init(keys: keyInfo.value.derivedKeys)
