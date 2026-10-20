@@ -552,6 +552,14 @@ var unitTestsModules: [PackageDescription.Target] {
             swiftSettings: .swift6StrictSettings
         ),
         .tangemTestTarget(
+            name: "TangemCollectiblesTests",
+            dependencies: [
+                "TangemCollectibles",
+                .product(name: "SolanaSwift", package: "Solana.Swift"),
+            ],
+            swiftSettings: .swift6StrictSettings
+        ),
+        .tangemTestTarget(
             name: "TangemFoundationTests",
             dependencies: [
                 "TangemFoundation",
