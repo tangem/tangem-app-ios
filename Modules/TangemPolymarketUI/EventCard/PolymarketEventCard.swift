@@ -58,6 +58,7 @@ public struct PolymarketEventCard: View {
 
     private var metaRow: some View {
         PolymarketMarketMetaRow(
+            isLive: model.isLive,
             category: model.category,
             volume: model.volumeText.map { .init(title: Constants.volumePrefix, value: $0) }
         )
@@ -133,8 +134,7 @@ public struct PolymarketEventCard: View {
             }
             .style(DesignSystem.Font.bodyMediumToken, color: outcome.style.foregroundColor)
             .padding(.horizontal, 14)
-            .frame(minWidth: 56, minHeight: 36)
-            .frame(maxWidth: isWide ? .infinity : nil)
+            .frame(minWidth: isWide ? 0 : 56, maxWidth: isWide ? .infinity : nil, minHeight: 36)
             .background(outcome.style.backgroundColor, in: Capsule())
         }
         .buttonStyle(.plain)

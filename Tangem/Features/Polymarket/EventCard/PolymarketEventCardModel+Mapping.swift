@@ -20,7 +20,7 @@ extension PolymarketEventCard.Model {
         let variant: PolymarketEventCard.Variant = event.totalMarketsCount > 1 ? .multiMarket : .singleMarket
 
         let rows = event.markets.prefix(MappingConstants.maxDisplayedMarkets).map { market in
-            makeRow(market: market, onSelectOutcome: onSelectOutcome)
+            makeRow(market: market, event: event, onSelectOutcome: onSelectOutcome)
         }
 
         return PolymarketEventCard.Model(
@@ -32,21 +32,25 @@ extension PolymarketEventCard.Model {
             variant: variant,
             rows: rows,
             additionalOutcomesCount: max(0, event.totalMarketsCount - rows.count),
-            isInActivePredicts: isInActivePredicts
+            isInActivePredicts: isInActivePredicts,
+            isLive: event.isLive
         )
     }
 
     private static func makeRow(
         market: PolymarketMarket,
+        event: PolymarketEvent,
         onSelectOutcome: @escaping (PolymarketMarket, PolymarketOutcome) -> Void
     ) -> PolymarketEventCard.Row {
         let title = market.listLabel
         let subtitle = title.map { _ in PolymarketPriceFormatter.percentText(market.outcomes.first?.probability) }
 
+        let outcomeTitles = event.buttonTitles(for: market)
+
         let outcomes = market.outcomes.enumerated().map { index, outcome in
             PolymarketEventCard.Outcome(
                 id: outcome.assetId,
-                title: outcome.title,
+                title: outcomeTitles[index],
                 priceText: title == nil ? PolymarketPriceFormatter.centsText(outcome.probability) : nil,
                 style: PolymarketOutcomeStyle(outcomeIndex: index),
                 onSelect: { onSelectOutcome(market, outcome) }

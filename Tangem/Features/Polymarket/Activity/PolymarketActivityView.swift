@@ -70,6 +70,7 @@ struct PolymarketActivityView: View {
             ScrollView {
                 listContent(viewportHeight: max(proxy.size.height - headerHeight, 0))
                     .polymarketStateTransition(contentPhase)
+                    .id(viewModel.tab)
             }
             .safeAreaInset(edge: .top, spacing: 0) {
                 Color.clear.frame(height: headerHeight)
@@ -215,7 +216,7 @@ private extension PolymarketActivityView {
 private extension PolymarketActivityView {
     enum Constants {
         static let topBarTopPadding: CGFloat = 8
-        static let tabsTopPadding: CGFloat = 8
+        static let tabsTopPadding: CGFloat = 16
         static let headerBottomPadding: CGFloat = 8
         static let paginationVerticalPadding: CGFloat = 20
         static let skeletonRowCount = 12

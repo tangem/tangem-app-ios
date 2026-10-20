@@ -25,6 +25,7 @@ public extension PolymarketEventCard {
         public let rows: [Row]
         public let additionalOutcomesCount: Int
         public let isInActivePredicts: Bool
+        public let isLive: Bool
 
         public init(
             id: String,
@@ -35,7 +36,8 @@ public extension PolymarketEventCard {
             variant: Variant,
             rows: [Row],
             additionalOutcomesCount: Int,
-            isInActivePredicts: Bool
+            isInActivePredicts: Bool,
+            isLive: Bool = false
         ) {
             self.id = id
             self.title = title
@@ -46,6 +48,7 @@ public extension PolymarketEventCard {
             self.rows = rows
             self.additionalOutcomesCount = additionalOutcomesCount
             self.isInActivePredicts = isInActivePredicts
+            self.isLive = isLive
         }
     }
 
