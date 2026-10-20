@@ -80,10 +80,16 @@ extension CommonTangemPayWithdrawTransactionService: TangemPayWithdrawTransactio
             target: target
         )
 
+        let balance = try await customerInfoManagementService.getBalance()
+
+        guard let source = Source(target: target, balance: balance) else {
+            throw Error.networkMismatch
+        }
+
         let preSignature = try await customerInfoManagementService
             .getWithdrawPreSignatureInfo(request: request)
 
-        try Self.verifyPreSignature(preSignature, against: request, fiatItem: fiatItem)
+        try Self.verifyPreSignature(preSignature, against: request, source: source, fiatItem: fiatItem)
 
         let signatureInfo = try await signerFactory
             .makeSigner()
@@ -135,27 +141,31 @@ extension CommonTangemPayWithdrawTransactionService {
     static func verifyPreSignature(
         _ preSignature: TangemPayWithdrawPreSignature,
         against request: TangemPayWithdrawRequest,
+        source: Source,
         fiatItem: FiatItem
     ) throws {
+        guard preSignature.isCollateralWithdraw else {
+            throw Error.schemaMismatch
+        }
+
         let typedData = preSignature.structuredData
 
         guard let requestAmountInCents = Decimal(string: request.amountInCents) else {
             throw Error.contentMismatch
         }
 
-        let decimalCount = TangemPayUtilities.tokenDecimalCount(chainId: request.target?.chainId)
+        let decimalCount = TangemPayUtilities.tokenDecimalCount(chainId: source.chainId)
         let requestAmountInFiat = fiatItem.convertFromCents(value: requestAmountInCents)
         let expectedAmount = requestAmountInFiat * pow(10, decimalCount)
 
-        // An untargeted request names no network, so there is nothing to hold the answer to.
-        if let target = request.target {
-            guard let domainChainId = typedData.domain[DomainKey.chainId].flatMap(Self.chainId(from:)),
-                  let messageAsset = typedData.message[MessageKey.asset]?.stringValue,
-                  domainChainId == target.chainId,
-                  messageAsset.caseInsensitiveCompare(target.tokenContractAddress) == .orderedSame
-            else {
-                throw Error.networkMismatch
-            }
+        guard let domainChainId = typedData.domain[DomainKey.chainId].flatMap(Self.chainId(from:)),
+              let verifyingContract = typedData.domain[DomainKey.verifyingContract]?.stringValue,
+              let messageAsset = typedData.message[MessageKey.asset]?.stringValue,
+              domainChainId == source.chainId,
+              verifyingContract.caseInsensitiveCompare(source.depositAddress) == .orderedSame,
+              messageAsset.caseInsensitiveCompare(source.tokenContractAddress) == .orderedSame
+        else {
+            throw Error.networkMismatch
         }
 
         guard let messageRecipient = typedData.message[MessageKey.recipient]?.stringValue,
@@ -172,6 +182,41 @@ extension CommonTangemPayWithdrawTransactionService {
     }
 }
 
+// MARK: - Source
+
+extension CommonTangemPayWithdrawTransactionService {
+    struct Source: Equatable {
+        let chainId: Int
+        let tokenContractAddress: String
+        let depositAddress: String
+    }
+}
+
+extension CommonTangemPayWithdrawTransactionService.Source {
+    init?(target: TangemPayWithdrawTarget?, balance: TangemPayBalance) {
+        guard let target else {
+            self.init(
+                chainId: balance.crypto.chainId,
+                tokenContractAddress: balance.crypto.tokenContractAddress,
+                depositAddress: balance.crypto.depositAddress
+            )
+            return
+        }
+
+        let network = balance.networks.first { $0.chainId == target.chainId }
+
+        guard let depositAddress = network?.depositAddress else {
+            return nil
+        }
+
+        self.init(
+            chainId: target.chainId,
+            tokenContractAddress: target.tokenContractAddress,
+            depositAddress: depositAddress
+        )
+    }
+}
+
 private extension CommonTangemPayWithdrawTransactionService {
     /// Field names in the EIP-712 `Withdraw` message returned by the BFF.
     /// Defined by the on-chain `Collateral` v2 contract; must match byte-for-byte.
@@ -183,6 +228,7 @@ private extension CommonTangemPayWithdrawTransactionService {
 
     enum DomainKey {
         static let chainId = "chainId"
+        static let verifyingContract = "verifyingContract"
     }
 
     /// `uint256` fields reach us as a JSON number or as a quoted string, depending on the environment.
@@ -199,5 +245,6 @@ private extension CommonTangemPayWithdrawTransactionService {
         case contentMismatch
         case hashMismatch
         case networkMismatch
+        case schemaMismatch
     }
 }
