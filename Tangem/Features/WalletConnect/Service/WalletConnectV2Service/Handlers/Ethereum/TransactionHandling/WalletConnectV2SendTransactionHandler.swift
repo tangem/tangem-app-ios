@@ -94,11 +94,6 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WC
         return RPCResult.response(AnyCodable(result.hash.lowercased()))
     }
 
-    func updateTransaction(_ updatedTransaction: WalletConnectEthTransaction) {
-        wcTransaction = updatedTransaction
-        transactionToSend = nil
-    }
-
     func updateSendableTransaction(_ updatedSendableTransaction: WCSendableTransaction) {
         sendableTransaction = updatedSendableTransaction
     }

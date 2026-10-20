@@ -198,16 +198,10 @@ private struct ShimmerCustomBlock: View {
     let height: CGFloat?
     let cornerRadius: CGFloat?
 
-    /// Unit metric used as a Dynamic Type multiplier so fixed sizes scale like the text variant.
-    @ScaledMetric private var scale: CGFloat = 1
-
     var body: some View {
-        let scaledWidth = width.map { $0 * scale }
-        let scaledHeight = height.map { $0 * scale }
-        let resolvedCornerRadius: CGFloat = cornerRadius ?? (scaledHeight.map { $0 / 2 } ?? 0)
-        return RoundedRectangle(cornerRadius: resolvedCornerRadius, style: .continuous)
+        RoundedRectangle(cornerRadius: cornerRadius ?? (height.map { $0 / 2 } ?? 0), style: .continuous)
             .fill(DesignSystem.Color.bgTransparentSecondary)
             .mask { ShimmerShine() }
-            .frame(width: scaledWidth, height: scaledHeight)
+            .frame(width: width, height: height)
     }
 }

@@ -25,6 +25,8 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
     @Injected(\.tangemPayRecentOperationsStore)
     private var tangemPayRecentOperationsStore: TangemPayRecentOperationsStore
+    @Injected(\.tangemPayPendingWithdrawExchangesStore)
+    private var tangemPayPendingWithdrawExchangesStore: TangemPayPendingWithdrawExchangesStore
 
     var shouldLockOnBackground: Bool {
         if isLocked {
@@ -216,6 +218,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
             userWalletIds.forEach {
                 polymarketCredentialsRepository.delete(userWalletId: $0)
                 polymarketAccountPresenceStore.delete(userWalletId: $0)
+                PolymarketWithdrawRecordStore(userWalletId: $0).delete()
             }
 
             modelsToDelete.forEach {
@@ -269,10 +272,12 @@ final class CommonUserWalletRepository: UserWalletRepository {
         }
         try? tangemPayAuthorizationTokensRepository.deleteTokens(customerWalletId: userWalletId.stringValue)
         tangemPayRecentOperationsStore.clear(customerWalletId: userWalletId.stringValue)
+        tangemPayPendingWithdrawExchangesStore.clear(userWalletId: userWalletId)
         tangemPayStorageCleaner.clear(customerWalletId: userWalletId.stringValue)
         tangemPayResidencyStatusStorage.deleteResidencyStatuses(userWalletId: userWalletId)
         polymarketCredentialsRepository.delete(userWalletId: userWalletId)
         polymarketAccountPresenceStore.delete(userWalletId: userWalletId)
+        PolymarketWithdrawRecordStore(userWalletId: userWalletId).delete()
         try? collectiblesSessionKeyWalletStore.deleteKey(for: userWalletId)
         collectiblesAccountPresenceStore.remove(userWalletId)
 

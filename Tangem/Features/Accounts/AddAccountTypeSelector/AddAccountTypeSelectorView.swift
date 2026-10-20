@@ -18,34 +18,6 @@ struct AddAccountTypeSelectorView: View {
 
     var body: some View {
         VStack(spacing: .zero) {
-            FloatingSheetNavigationBarView(
-                title: Localization.accountFormTitleCreate,
-                backgroundColor: DesignSystem.Color.bgSecondary,
-                closeButtonAction: viewModel.onCloseTap
-            )
-
-            AddAccountTypeSelectorContentView(viewModel: viewModel)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 20)
-        }
-        .floatingSheetConfiguration {
-            $0.sheetBackgroundColor = DesignSystem.Color.bgSecondary
-            $0.backgroundInteractionBehavior = .tapToDismiss
-        }
-    }
-}
-
-struct AddAccountTypeSelectorContentView: View {
-    @ObservedObject var viewModel: AddAccountTypeSelectorViewModel
-    private let style: Style
-
-    init(viewModel: AddAccountTypeSelectorViewModel, style: Style = .cards) {
-        self.viewModel = viewModel
-        self.style = style
-    }
-
-    var body: some View {
-        VStack(spacing: style.rowSpacing) {
             row(
                 title: Localization.commonCryptoAccount,
                 subtitle: Localization.addCryptoAccountSubtitle,
@@ -74,9 +46,7 @@ struct AddAccountTypeSelectorContentView: View {
         Row(title: title, subtitle: subtitle)
             .subtitleLineLimit(nil)
             .start { iconView(icon) }
-            .onTap(action)
-            .background(style.rowBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .onTap(action: action)
             .accessibilityIdentifier(accessibilityIdentifier)
     }
 
@@ -85,43 +55,8 @@ struct AddAccountTypeSelectorContentView: View {
             .renderingMode(.template)
             .foregroundStyle(DesignSystem.Color.iconPrimary)
             .padding(10)
-            .background(style.iconBackground)
-            .clipShape(RoundedRectangle(cornerRadius: style.iconCornerRadius, style: .continuous))
-    }
-}
-
-extension AddAccountTypeSelectorContentView {
-    enum Style {
-        case cards
-        case modal
-
-        fileprivate var rowSpacing: CGFloat {
-            switch self {
-            case .cards: 8
-            case .modal: 0
-            }
-        }
-
-        fileprivate var rowBackground: Color {
-            switch self {
-            case .cards: DesignSystem.Color.bgTertiary
-            case .modal: .clear
-            }
-        }
-
-        fileprivate var iconBackground: Color {
-            switch self {
-            case .cards: DesignSystem.Color.bgTransparentSecondary
-            case .modal: DesignSystem.Color.bgTransparentOnMaterialPrimary
-            }
-        }
-
-        fileprivate var iconCornerRadius: CGFloat {
-            switch self {
-            case .cards: 8
-            case .modal: 12
-            }
-        }
+            .background(DesignSystem.Color.bgTransparentOnMaterialPrimary)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }
 
@@ -130,7 +65,6 @@ extension AddAccountTypeSelectorContentView {
 #Preview {
     AddAccountTypeSelectorView(
         viewModel: AddAccountTypeSelectorViewModel(
-            accountModelsManager: AccountModelsManagerMock(),
             userWalletConfig: UserWalletConfigStubs.walletV2Stub,
             coordinator: nil
         )

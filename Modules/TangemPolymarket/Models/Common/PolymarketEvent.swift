@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct PolymarketEvent: Hashable, Sendable {
+public struct PolymarketEvent: Hashable, Sendable, Identifiable {
     public let id: String
 
     public let slug: String

@@ -36,22 +36,16 @@ private extension CollectiblesPacksView {
         case .idle, .loading:
             CollectiblesPackGrid.Skeleton(cellsCount: Constants.skeletonCellsCount)
         case .content(let models):
-            VStack(spacing: 0) {
-                CollectiblesPackGrid(
-                    models: models,
-                    onLastItemAppear: viewModel.loadMore,
-                    onSelect: viewModel.selectPack
-                )
-                paginationFooter
-            }
-            .id(viewModel.loreID)
+            grid(models)
         case .empty(let hasQuery):
-            CollectiblesEmptyMessage(
-                icon: hasQuery ? DesignSystem.Icons.Binoculars.regular20 : DesignSystem.Icons.Stack.regular20,
-                message: emptyMessage(hasQuery: hasQuery),
-                onRetry: nil
-            )
-            .frame(minHeight: Constants.messageMinHeight)
+            emptyView(hasQuery: hasQuery)
+        case .reloading(.content(let models)):
+            grid(models)
+                .opacity(Constants.reloadingOpacity)
+                .disabled(true)
+        case .reloading(.empty(let hasQuery)):
+            emptyView(hasQuery: hasQuery)
+                .opacity(Constants.reloadingOpacity)
         case .failed:
             CollectiblesEmptyMessage(
                 icon: DesignSystem.Icons.ArrowRefresh.regular20,
@@ -60,6 +54,27 @@ private extension CollectiblesPacksView {
             )
             .frame(minHeight: Constants.messageMinHeight)
         }
+    }
+
+    func grid(_ models: [CollectiblesPackCard.Model]) -> some View {
+        VStack(spacing: 0) {
+            CollectiblesPackGrid(
+                models: models,
+                onLastItemAppear: viewModel.loadMore,
+                onSelect: viewModel.selectPack
+            )
+            paginationFooter
+        }
+        .id(viewModel.loreID)
+    }
+
+    func emptyView(hasQuery: Bool) -> some View {
+        CollectiblesEmptyMessage(
+            icon: hasQuery ? DesignSystem.Icons.Binoculars.regular20 : DesignSystem.Icons.Stack.regular20,
+            message: emptyMessage(hasQuery: hasQuery),
+            onRetry: nil
+        )
+        .frame(minHeight: Constants.messageMinHeight)
     }
 
     @ViewBuilder
@@ -95,6 +110,7 @@ private extension CollectiblesPacksView {
 private extension CollectiblesPacksView {
     enum Constants {
         static let skeletonCellsCount = 4
+        static let reloadingOpacity: CGFloat = 0.4
         static let messageMinHeight: CGFloat = 320
         static let paginationVerticalPadding: CGFloat = 16
         static let appearanceDuration: TimeInterval = 0.3

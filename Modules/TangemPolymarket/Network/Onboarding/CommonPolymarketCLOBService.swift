@@ -36,8 +36,12 @@ extension CommonPolymarketCLOBService: PolymarketCLOBService {
         try await credentials(.deriveCredentials, authHeaders: authHeaders)
     }
 
-    func updateBalanceAllowance(credentials: PolymarketL2Credentials, ownerAddress: String) async throws {
-        try await send(.updateBalanceAllowance, credentials: credentials, ownerAddress: ownerAddress)
+    func updateBalanceAllowance(
+        _ asset: PolymarketBalanceAllowanceAsset,
+        credentials: PolymarketL2Credentials,
+        ownerAddress: String
+    ) async throws {
+        try await send(.updateBalanceAllowance(asset), credentials: credentials, ownerAddress: ownerAddress)
     }
 
     func balanceAllowance(

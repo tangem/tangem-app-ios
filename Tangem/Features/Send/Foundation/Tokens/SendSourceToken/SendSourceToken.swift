@@ -9,6 +9,7 @@
 import BlockchainSdk
 import TangemExpress
 import TangemFoundation
+import TangemUI
 
 protocol SendSourceToken: SendReceiveToken {
     var userWalletInfo: UserWalletInfo { get }
@@ -29,9 +30,10 @@ protocol SendSourceToken: SendReceiveToken {
 
     // Common providers
     var transactionDispatcherProvider: any TransactionDispatcherProvider { get }
+    var transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider { get }
+    var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { get }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
-    var tangemIconProvider: any TangemIconProvider { get }
-    var confirmTransactionPolicy: any ConfirmTransactionPolicy { get }
+    var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { get }
 
     /// Whether the source token belongs to a Tangem Pay (Visa Payment) account.
     var isTangemPayAccount: Bool { get }
@@ -41,4 +43,5 @@ protocol SendSourceToken: SendReceiveToken {
 extension SendSourceToken {
     var walletTokenItem: WalletTokenItem { WalletTokenItem(userWalletId: userWalletInfo.id, tokenItem: tokenItem) }
     var possibleToConvertToFiat: Bool { fiatAvailableBalanceProvider.balanceType.value != .none }
+    var signingActionButtonType: SigningActionButtonViewType { SigningActionButtonViewTypeBuilder().build(userWalletInfo: userWalletInfo) }
 }

@@ -24,7 +24,7 @@ struct TokenSummaryMetricInfoView: View {
                 .padding(16)
         }
         .floatingSheetConfiguration { config in
-            config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+            config.sheetBackground = .color(DesignSystem.Color.bgSecondary)
             config.backgroundInteractionBehavior = .tapToDismiss
             config.verticalSwipeBehavior = .init(target: .sheet, threshold: 100)
         }

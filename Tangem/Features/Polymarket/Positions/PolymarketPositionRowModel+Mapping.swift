@@ -67,7 +67,7 @@ private extension PolymarketPositionRow.Model {
         case .won:
             return PolymarketPositionRow.Status(
                 text: Localization.predictionPositionsResultAmount(Localization.predictionPositionsWon, amount),
-                variant: position.isRedeemable ? .solid : .tinted,
+                variant: position.isRedeemable && position.opensClaim ? .solid : .tinted,
                 appearance: .success,
                 icon: DesignSystem.Icons.Success.regular16
             )

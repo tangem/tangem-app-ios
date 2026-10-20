@@ -25,6 +25,15 @@ extension PolymarketWithdrawState: Decodable {
     }
 }
 
+// MARK: - Encodable protocol conformance
+
+extension PolymarketWithdrawState: Encodable {
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
+}
+
 // MARK: - Convenience extensions
 
 public extension PolymarketWithdrawState {

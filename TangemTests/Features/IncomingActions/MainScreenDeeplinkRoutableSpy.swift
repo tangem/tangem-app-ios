@@ -25,8 +25,8 @@ final class MainScreenDeeplinkRoutableSpy: MainScreenDeeplinkRoutable {
         openedFeed = selection
     }
 
-    func openMarketsTokenDetails(tokenModel: MarketsTokenModel) {
-        openedMarketsTokenId = tokenModel.id
+    func openMarketsTokenChart(tokenId: String) {
+        openedMarketsTokenId = tokenId
     }
 
     func openBuy(userWalletModel: any UserWalletModel) {

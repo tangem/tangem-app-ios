@@ -16,11 +16,33 @@ import TangemUIUtils
 struct PolymarketMyPositionsView: View {
     @ObservedObject private var viewModel: PolymarketMyPositionsViewModel
 
+    @State private var headerHeight: CGFloat = 0
+
     init(viewModel: PolymarketMyPositionsViewModel) {
         _viewModel = ObservedObject(wrappedValue: viewModel)
     }
 
     var body: some View {
+        ZStack(alignment: .top) {
+            content
+
+            header
+        }
+        .modal(
+            item: $viewModel.finishedPosition,
+            header: { model in
+                FeedModalHeaderView(title: model.title, onClose: { viewModel.finishedPosition = nil })
+            },
+            content: { model in
+                PolymarketFinishedPositionSheetView(model: model)
+            }
+        )
+        .scrollIndicators(.hidden)
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+        .toolbar(.hidden, for: .navigationBar)
+    }
+
+    private var header: some View {
         VStack(spacing: 0) {
             PolymarketTopBar(
                 title: Localization.predictionPositionsTitle,
@@ -28,25 +50,28 @@ struct PolymarketMyPositionsView: View {
             )
             .padding(.top, Constants.topBarTopPadding)
 
-            content
+            controlsRow
+                .padding(.horizontal, Constants.horizontalPadding)
+                .padding(.top, Constants.contentTopPadding)
         }
-        .sheet(item: $viewModel.finishedPosition) { model in
-            PolymarketFinishedPositionSheetView(model: model)
-                .presentationDetents(idealHeight: Constants.finishedPositionSheetHeight)
-                .presentationBackground(DesignSystem.Color.bgPrimary)
+        .padding(.bottom, Constants.blockSpacing)
+        .readGeometry(\.size.height, bindTo: $headerHeight)
+        .background {
+            Fade(position: .top)
+                .blurred()
+                .backgroundColor(DesignSystem.Color.bgPrimary)
+                .ignoresSafeArea(edges: .top)
         }
-        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
-        .toolbar(.hidden, for: .navigationBar)
     }
 
     private var content: some View {
         GroupedScrollView(contentType: .lazy(spacing: Constants.blockSpacing)) {
-            controlsRow
-
             listSection
         }
         .horizontalPadding(Constants.horizontalPadding)
-        .padding(.top, Constants.contentTopPadding)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            Color.clear.frame(height: headerHeight)
+        }
         .refreshable { await viewModel.refresh() }
     }
 
@@ -97,8 +122,13 @@ struct PolymarketMyPositionsView: View {
         }
     }
 
-    @ViewBuilder
     private var listSection: some View {
+        listContent
+            .polymarketStateTransition(contentState)
+    }
+
+    @ViewBuilder
+    private var listContent: some View {
         switch viewModel.loadingState {
         case .loading:
             PolymarketPositionsSkeletonView(rowCount: Constants.skeletonRowCount)
@@ -112,15 +142,27 @@ struct PolymarketMyPositionsView: View {
         case .allDataLoaded where viewModel.rows.isEmpty:
             emptyState
         default:
-            rows
+            LazyVStack(spacing: Constants.blockSpacing) {
+                rows
 
-            paginationFooter
+                paginationFooter
+            }
+        }
+    }
+
+    private var contentState: PolymarketMyPositionsViewModel.LoadingState {
+        switch viewModel.loadingState {
+        case .loading, .error, .empty: viewModel.loadingState
+        case .allDataLoaded where viewModel.rows.isEmpty: .empty
+        case .loaded, .allDataLoaded, .paginationLoading, .paginationError: .loaded
         }
     }
 
     private var rows: some View {
         ForEach(viewModel.rows) { model in
             PolymarketPositionRow(model: model) { viewModel.handleViewAction(.openPositionDetails(id: model.id)) }
+                .onAppear { viewModel.handleViewAction(.onRowVisibilityChange(id: model.id, isVisible: true)) }
+                .onDisappear { viewModel.handleViewAction(.onRowVisibilityChange(id: model.id, isVisible: false)) }
         }
     }
 
@@ -130,8 +172,13 @@ struct PolymarketMyPositionsView: View {
             .frame(maxWidth: .infinity, minHeight: Constants.emptyMinHeight)
     }
 
-    @ViewBuilder
     private var paginationFooter: some View {
+        paginationFooterContent
+            .animation(.default, value: viewModel.loadingState == .paginationError)
+    }
+
+    @ViewBuilder
+    private var paginationFooterContent: some View {
         switch viewModel.loadingState {
         case .loaded:
             Color.clear
@@ -159,7 +206,6 @@ struct PolymarketMyPositionsView: View {
 private extension PolymarketMyPositionsView {
     enum Constants {
         static let topBarTopPadding: CGFloat = 8
-        static let finishedPositionSheetHeight: CGFloat = 420
         static let horizontalPadding: CGFloat = 16
         static let contentTopPadding: CGFloat = 8
         static let blockSpacing: CGFloat = 8

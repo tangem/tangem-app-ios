@@ -10,10 +10,15 @@ import Combine
 import TangemLocalization
 
 struct CryptoAccountFormViewCreator {
-    private let accountModelsManager: AccountModelsManager
+    private let userWalletModelSubject: CurrentValueSubject<any UserWalletModel, Never>
+    private let walletSelection: AccountFormWalletSelection
 
-    init(accountModelsManager: AccountModelsManager) {
-        self.accountModelsManager = accountModelsManager
+    init(
+        userWalletModelSubject: CurrentValueSubject<any UserWalletModel, Never>,
+        walletSelection: AccountFormWalletSelection
+    ) {
+        self.userWalletModelSubject = userWalletModelSubject
+        self.walletSelection = walletSelection
     }
 }
 
@@ -22,17 +27,35 @@ struct CryptoAccountFormViewCreator {
 extension CryptoAccountFormViewCreator: AccountFormViewCreator {
     var navigationTitle: String { Localization.accountFormTitleCreate }
 
-    var mainButtonTitle: String { Localization.accountFormTitleCreate }
+    var mainButtonTitle: String { Localization.commonCreateAccount }
 
     var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
-        accountModelsManager.totalCryptoAccountsCountPublisher
+        userWalletModelSubject
+            .map { $0.accountModelsManager.totalCryptoAccountsCountPublisher }
+            .switchToLatest()
+            .eraseToAnyPublisher()
+    }
+
+    var walletPublisher: AnyPublisher<AccountFormWallet?, Never> {
+        userWalletModelSubject
+            .map { [walletSelection] in walletSelection.wallet(for: $0) }
+            .eraseToAnyPublisher()
+    }
+
+    var selectableWallets: [any UserWalletModel] {
+        UserWalletModelsProvider.accountCreationCandidates(for: .crypto)
     }
 
     func handleMainButtonTap(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountFormOperationResult {
+        let accountModelsManager = userWalletModelSubject.value.accountModelsManager
         let creationResult = try await accountModelsManager.addCryptoAccount(name: name, icon: icon)
         let createdAccount = await AccountModelsManagerAccountCreationHelper(accountModelsManager: accountModelsManager)
             .createdCryptoAccountModel(with: creationResult.derivationIdentity)
 
         return .crypto(operationResult: creationResult.operationResult, createdAccount: createdAccount)
+    }
+
+    func selectWallet(_ userWalletModel: any UserWalletModel) {
+        userWalletModelSubject.send(userWalletModel)
     }
 }

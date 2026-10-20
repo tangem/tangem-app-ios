@@ -75,7 +75,7 @@ struct AddressForRewardsSection: View {
 extension AccountInlineHeaderView {
     func rowTrailingStyle() -> Self {
         iconSettings(.smallSized)
-            .nameStyle(Fonts.Regular.body, color: Color.Tangem.Graphic.Neutral.tertiary)
+            .nameStyle(Fonts.Regular.body, color: DesignSystem.Color.textSecondary)
     }
 }
 

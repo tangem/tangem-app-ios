@@ -18,10 +18,6 @@ struct PolymarketWithdrawTransactionDispatcher {
 // MARK: - TransactionDispatcher protocol conformance
 
 extension PolymarketWithdrawTransactionDispatcher: TransactionDispatcher {
-    var hasNFCInteraction: Bool {
-        signer.hasNFCInteraction
-    }
-
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         guard case .transfer(let transfer) = transaction else {
             throw TransactionDispatcherResult.Error.transactionNotFound

@@ -10,7 +10,6 @@ import Combine
 import TangemUI
 import TangemUIUtils
 import TangemFoundation
-import TangemAssets
 import TangemLocalization
 
 final class DynamicAddressesCompoundTransactionViewModel: ObservableObject {
@@ -22,8 +21,7 @@ final class DynamicAddressesCompoundTransactionViewModel: ObservableObject {
     @Published private(set) var notificationButtonIsLoading: Bool = false
     @Published private(set) var isLoading: Bool = false
     @Published private(set) var actionIsAvailable: Bool = false
-    @Published private(set) var mainButtonIcon: MainButton.Icon? = .trailing(Assets.tangemIcon)
-    @Published private(set) var needsHoldToConfirm: Bool = false
+    @Published private(set) var signingActionButtonType: SigningActionButtonViewType = .requiredNFCInteraction
 
     private let transferModel: TransferModel
     private let notificationManager: SendNotificationManager
@@ -131,15 +129,9 @@ final class DynamicAddressesCompoundTransactionViewModel: ObservableObject {
 
         transferModel.sourceTokenPublisher
             .compactMap { $0.value }
-            .map { $0.tangemIconProvider.getMainButtonIcon() }
+            .map { $0.signingActionButtonType }
             .receiveOnMain()
-            .assign(to: &$mainButtonIcon)
-
-        transferModel.sourceTokenPublisher
-            .compactMap { $0.value }
-            .map { $0.confirmTransactionPolicy.needsHoldToConfirm }
-            .receiveOnMain()
-            .assign(to: &$needsHoldToConfirm)
+            .assign(to: &$signingActionButtonType)
     }
 
     private func logNotEnoughFeeNotice(notifications: [NotificationViewInput]) {

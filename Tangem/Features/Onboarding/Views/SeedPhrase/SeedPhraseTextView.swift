@@ -91,9 +91,6 @@ struct SeedPhraseTextView: UIViewRepresentable {
 
 extension SeedPhraseTextView {
     class Coordinator: NSObject, UITextViewDelegate {
-        var isUserTypingText = false
-        var isInputValidated = false
-
         private weak var textView: UITextView?
         private unowned var inputProcessor: SeedPhraseInputProcessor
 

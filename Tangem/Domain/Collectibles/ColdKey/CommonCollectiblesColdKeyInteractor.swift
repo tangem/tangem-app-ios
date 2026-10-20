@@ -69,14 +69,31 @@ private extension CommonCollectiblesColdKeyInteractor {
     }
 
     func deriveInSession<Work: CollectiblesColdKeySessionWork>(andRun work: Work) async throws -> Work.Output {
-        let task = DeriveAndRunTask(seedKey: try seedKey(), keysRepository: keysRepository, work: work)
-            .withUserWalletRegistration()
+        let seedKey = try seedKey()
+        let derivationPath = CollectiblesAccountKeyPath.derivationPath
+        let task = DeriveAndRunCardTask<Work.Output>(
+            seedKey: seedKey,
+            derivationPath: derivationPath,
+            keysRepository: keysRepository,
+            timeout: Constants.sessionTimeout,
+            mapError: Self.sessionError(from:),
+            work: { session, derivedKey in
+                try await work.run(signer: SessionSigner(
+                    session: session,
+                    seedKey: seedKey,
+                    derivationPath: derivationPath,
+                    coldOwner: derivedKey.publicKey
+                ))
+            }
+        )
+        .withUserWalletRegistration()
         let tangemSdk = config.makeTangemSdk()
 
         do {
             return try await withCheckedThrowingContinuation { continuation in
                 tangemSdk.startSession(with: task, filter: config.cardSessionFilter) { result in
                     withExtendedLifetime(task) {}
+                    withExtendedLifetime(tangemSdk) {}
                     continuation.resume(with: result)
                 }
             }
@@ -100,68 +117,18 @@ private extension CommonCollectiblesColdKeyInteractor {
 
 // MARK: - Card session
 
-private final class DeriveAndRunTask<Work: CollectiblesColdKeySessionWork>: CardSessionRunnable {
-    typealias Response = Work.Output
-
-    private let seedKey: Data
-    private let keysRepository: KeysRepository
-    private let work: Work
-    private let derivationPath = CollectiblesAccountKeyPath.derivationPath
-
-    init(seedKey: Data, keysRepository: KeysRepository, work: Work) {
-        self.seedKey = seedKey
-        self.keysRepository = keysRepository
-        self.work = work
-    }
-
-    func run(in session: CardSession, completion: @escaping CompletionResult<Response>) {
-        runTask(in: self, priority: .userInitiated) { task in
-            let timeout = CommonCollectiblesColdKeyInteractor.Constants.sessionTimeout
-
-            do {
-                let response = try await Task.run(withTimeout: timeout) {
-                    try await task.runInternal(in: session)
-                }
-                completion(.success(response))
-            } catch let error as TaskTimeoutError {
-                CollectiblesLogger.error("Cold key session work did not finish within \(timeout)", error: error)
-                completion(.failure(.nfcTimeout))
-            } catch {
-                completion(.failure(task.sessionError(from: error)))
-            }
-        }
-    }
-
-    private func runInternal(in session: CardSession) async throws -> Response {
-        let derivationResult = try await DeriveMultipleWalletPublicKeysTask(
-            [seedKey: [derivationPath]],
-            shouldFailIfNothingDerived: true
-        )
-        .run(in: session)
-
-        guard let extendedPublicKey = derivationResult[seedKey]?[derivationPath] else {
-            throw CommonCollectiblesColdKeyInteractor.ColdKeyError.keyNotDerived
-        }
-
-        keysRepository.update(derivations: derivationResult)
-
-        let signer = SessionSigner(
-            session: session,
-            seedKey: seedKey,
-            derivationPath: derivationPath,
-            coldOwner: extendedPublicKey.publicKey
-        )
-
-        return try await work.run(signer: signer)
-    }
-
-    private func sessionError(from error: Error) -> TangemSdkError {
-        guard let coldKeyError = error as? CommonCollectiblesColdKeyInteractor.ColdKeyError else {
+private extension CommonCollectiblesColdKeyInteractor {
+    static func sessionError(from error: Error) -> TangemSdkError {
+        switch error {
+        case let error as TaskTimeoutError:
+            CollectiblesLogger.error("Cold key session work did not finish within \(Constants.sessionTimeout)", error: error)
+            return .nfcTimeout
+        case is ColdKeyError, is DeriveAndRunCardTaskError:
+            CollectiblesLogger.error("cold key session failed", error: error)
+            return .unknownError
+        default:
             return error.toTangemSdkError()
         }
-
-        CollectiblesLogger.error("cold key session failed", error: coldKeyError)
-        return .unknownError
     }
 }
 
@@ -196,7 +163,6 @@ private struct SessionSigner: CollectiblesColdKeySigner {
 private extension CommonCollectiblesColdKeyInteractor {
     enum ColdKeyError: Error {
         case coldOwnerMismatch
-        case keyNotDerived
     }
 }
 

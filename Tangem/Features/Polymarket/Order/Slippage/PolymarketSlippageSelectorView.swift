@@ -23,10 +23,6 @@ struct PolymarketSlippageSelectorView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            title
-
-            Spacer().frame(height: Constants.titleToAmountGap)
-
             amount
 
             Spacer().frame(height: Constants.amountToPresetsGap)
@@ -36,23 +32,12 @@ struct PolymarketSlippageSelectorView: View {
             Spacer().frame(height: Constants.presetsToDescriptionGap)
 
             description
-
-            Spacer(minLength: Constants.descriptionToConfirmGap)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
-        .safeAreaInset(edge: .bottom, spacing: .zero) { confirm }
-        .presentationDragIndicator(.visible)
+        .padding(.top, Constants.topPadding)
+        .padding(.bottom, Constants.bottomPadding)
+        .frame(maxWidth: .infinity)
         .focused($isInputFocused)
         .onAppear { isInputFocused = true }
-    }
-
-    private var title: some View {
-        Text(Localization.predictionPlaceSlippage)
-            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-            .lineLimit(1)
-            .frame(height: Constants.toolbarHeight)
-            .padding(.top, Constants.titleTopPadding)
     }
 
     private var amount: some View {
@@ -106,8 +91,18 @@ struct PolymarketSlippageSelectorView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, Constants.horizontalPadding)
     }
+}
 
-    private var confirm: some View {
+// MARK: - Footer
+
+struct PolymarketSlippageSelectorFooterView: View {
+    @ObservedObject private var viewModel: PolymarketSlippageSelectorViewModel
+
+    init(viewModel: PolymarketSlippageSelectorViewModel) {
+        _viewModel = ObservedObject(wrappedValue: viewModel)
+    }
+
+    var body: some View {
         TangemUI.Button(
             label: Localization.commonConfirm,
             accessibilityLabel: Localization.commonConfirm,
@@ -117,8 +112,8 @@ struct PolymarketSlippageSelectorView: View {
         .size(.x12)
         .horizontalLayout(.infinity)
         .disabled(!viewModel.isConfirmEnabled)
-        .padding(.horizontal, Constants.confirmHorizontalPadding)
-        .padding(.vertical, Constants.confirmVerticalPadding)
+        .padding(.horizontal, Constants.horizontalPadding)
+        .padding(.vertical, Constants.verticalPadding)
     }
 }
 
@@ -126,19 +121,22 @@ struct PolymarketSlippageSelectorView: View {
 
 private extension PolymarketSlippageSelectorView {
     enum Constants {
-        static let titleTopPadding: CGFloat = 16
-        static let toolbarHeight: CGFloat = 44
-        static let titleToAmountGap: CGFloat = 52
+        static let topPadding: CGFloat = 40
+        static let bottomPadding: CGFloat = 24
         static let amountToPresetsGap: CGFloat = 32
         static let presetsToDescriptionGap: CGFloat = 16
-        static let descriptionToConfirmGap: CGFloat = 24
         static let errorSpacing: CGFloat = 8
         static let presetSpacing: CGFloat = 8
         static let presetHeight: CGFloat = 32
         static let presetHorizontalPadding: CGFloat = 12
         static let horizontalPadding: CGFloat = 16
-        static let confirmHorizontalPadding: CGFloat = 16
-        static let confirmVerticalPadding: CGFloat = 12
         static let percentSign = "%"
+    }
+}
+
+private extension PolymarketSlippageSelectorFooterView {
+    enum Constants {
+        static let horizontalPadding: CGFloat = 16
+        static let verticalPadding: CGFloat = 12
     }
 }

@@ -12,11 +12,6 @@ import TangemMacro
 
 @CaseFlagable
 enum YieldModuleNotificationBannerParams: Identifiable {
-    enum Position {
-        case `default`
-        case approveTop
-    }
-
     case notEnoughFeeCurrency(feeCurrencyName: String, tokenIcon: ImageType, buttonAction: @MainActor @Sendable () -> Void)
     case approveNeeded(buttonAction: @MainActor @Sendable () -> Void)
     case feeUnreachable(buttonAction: @MainActor @Sendable () -> Void)
@@ -38,15 +33,6 @@ enum YieldModuleNotificationBannerParams: Identifiable {
             "hasUndepositedAmounts"
         case .highFees:
             "highFees"
-        }
-    }
-
-    var bannedPosition: Position {
-        switch self {
-        case .approveNeeded:
-            return .approveTop
-        default:
-            return .default
         }
     }
 }

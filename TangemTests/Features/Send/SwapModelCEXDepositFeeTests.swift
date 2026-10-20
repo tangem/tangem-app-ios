@@ -163,8 +163,7 @@ private extension SwapModelCEXDepositFeeTests {
             transactionValidator: SucceedingTransactionValidator()
         )
         let sut = SwapModel(
-            sourceToken: source,
-            receiveToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            parameters: .from(source, pair: .fixed(receive: SwapableTokenStub(blockchain: .ethereum(testnet: false)))),
             expressManager: ExpressManagerDummy(),
             swapRepository: SwapRepositoryStub(),
             expressPendingTransactionRepository: ExpressPendingTransactionRepositoryStub(),
@@ -196,23 +195,14 @@ private extension SwapModelCEXDepositFeeTests {
     }
 
     func makeTransactionData() -> ExpressTransactionData {
-        ExpressTransactionData(
-            requestId: "",
+        ExpressTransactionDataFixture.make(
             fromAmount: 10,
             toAmount: 20,
-            expressTransactionId: "",
             transactionType: .send,
             sourceAddress: "TSourceAddress",
             destinationAddress: "TCEXDepositAddress",
-            extraDestinationId: nil,
             txValue: 10,
-            txData: nil,
-            otherNativeFee: nil,
-            estimatedGasLimit: nil,
-            externalTxId: nil,
-            externalTxURL: nil,
-            payInAddress: "TCEXDepositAddress",
-            slippage: nil
+            payInAddress: "TCEXDepositAddress"
         )
     }
 

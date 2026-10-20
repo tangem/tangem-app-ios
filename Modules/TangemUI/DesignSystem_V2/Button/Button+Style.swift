@@ -72,6 +72,7 @@ extension Button {
                 .overlay { borderOverlay }
                 .overlay { pressOverlay(isPressed: configuration.isPressed) }
                 .contentShape(Capsule())
+                .compositingGroup()
         }
 
         private func materialBlurBody(configuration: Configuration) -> some View {
@@ -96,7 +97,7 @@ extension Button {
         @ViewBuilder
         private var borderOverlay: some View {
             if styleType.borderWidth > 0 {
-                Capsule().stroke(styleType.borderColor, lineWidth: styleType.borderWidth)
+                Capsule().strokeBorder(styleType.borderColor, lineWidth: styleType.borderWidth)
             }
         }
 

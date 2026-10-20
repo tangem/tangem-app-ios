@@ -12,8 +12,7 @@ import TangemAssets
 public struct FloatingSheetConfiguration: Equatable {
     public var maxHeightFraction: CGFloat
     public var sheetFrameUpdateAnimation: Animation?
-    public var sheetBackgroundColor: Color
-    public var sheetBackgroundMaterial: TangemMaterialStyle?
+    public var sheetBackground: Background
     public var backgroundInteractionBehavior: BackgroundInteractionBehavior
     public var verticalSwipeBehavior: VerticalSwipeBehavior?
     public var keyboardHandlingEnabled: Bool
@@ -22,9 +21,8 @@ public struct FloatingSheetConfiguration: Equatable {
     static let `default` = FloatingSheetConfiguration(
         maxHeightFraction: 0.8,
         sheetFrameUpdateAnimation: nil,
-        sheetBackgroundColor: Colors.Background.tertiary,
-        sheetBackgroundMaterial: nil,
-        backgroundInteractionBehavior: .consumeTouches,
+        sheetBackground: Background.color(Colors.Background.tertiary),
+        backgroundInteractionBehavior: BackgroundInteractionBehavior.consumeTouches,
         verticalSwipeBehavior: nil,
         keyboardHandlingEnabled: true,
         animatesContentWithKeyboard: false
@@ -48,6 +46,11 @@ extension FloatingSheetConfiguration {
 // MARK: - Nested types
 
 public extension FloatingSheetConfiguration {
+    enum Background: Equatable {
+        case color(Color)
+        case tangemMaterial(TangemMaterialStyle)
+    }
+
     enum BackgroundInteractionBehavior: Equatable {
         case tapToDismiss
         case passTouchesThrough

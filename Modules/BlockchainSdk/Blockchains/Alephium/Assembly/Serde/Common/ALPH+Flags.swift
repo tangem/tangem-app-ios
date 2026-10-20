@@ -16,8 +16,5 @@ extension ALPH {
         static let right: Int = 1
 
         static let noneB: UInt8 = .init(none)
-        static let someB: UInt8 = .init(some)
-        static let leftB: UInt8 = .init(left)
-        static let rightB: UInt8 = .init(right)
     }
 }

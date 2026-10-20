@@ -126,7 +126,7 @@ struct JointAccountJoinView: View {
                     .foregroundStyle(DesignSystem.Color.iconSecondary)
             }
             .showDivider(true)
-            .onTap(viewModel.onCreatorInfoTap)
+            .onTap(action: viewModel.onCreatorInfoTap)
 
         Row(title: Localization.commonWallet)
             .contentLead(.end)
@@ -149,7 +149,7 @@ struct JointAccountJoinView: View {
                 }
             }
             .if(content.isWalletSelectionAvailable) {
-                $0.onTap(viewModel.onWalletTap)
+                $0.onTap(action: viewModel.onWalletTap)
             }
     }
 

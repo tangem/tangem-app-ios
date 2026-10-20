@@ -8,7 +8,6 @@
 
 import Foundation
 import TangemLocalization
-import TangemAssets
 import TangemSdk
 import BlockchainSdk
 import TangemFoundation
@@ -64,8 +63,6 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
     var hasSocialLogin: Bool { get }
 
     var productType: Analytics.ProductType { get }
-
-    var cardHeaderImage: ImageType? { get }
 
     var walletThumbnailType: ThumbnailWalletViewType? { get }
 
@@ -140,11 +137,6 @@ extension UserWalletConfig {
     func makeActionButtonsRole() -> ActionButtonsWalletRole {
         return ActionButtonsWalletRole(providesHotCryptoTokens: true, forcesActionButtonsRow: false, preselectsUserWalletInBuy: false)
     }
-}
-
-struct TOU {
-    let id: String
-    let url: URL
 }
 
 protocol CardContainer {

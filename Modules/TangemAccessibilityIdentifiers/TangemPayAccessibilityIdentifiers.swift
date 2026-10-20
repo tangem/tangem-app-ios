@@ -20,6 +20,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let mainScreenTileCachedIcon = "\(prefix)MainScreenTileCachedIcon"
     public static let getTangemPayBanner = "\(prefix)GetTangemPayBanner"
     public static let getTangemPayBannerOpenButton = "\(prefix)GetTangemPayBannerOpenButton"
+    public static let feedBanner = "\(prefix)FeedBanner"
 
     // MARK: - Stale state notifications
 

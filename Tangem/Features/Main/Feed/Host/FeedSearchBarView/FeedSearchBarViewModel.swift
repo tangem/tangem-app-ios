@@ -10,18 +10,17 @@ import Combine
 
 final class FeedSearchBarViewModel: ObservableObject {
     @Published var query: String = ""
+    @Published var isFocused = false
 
     var queryPublisher: AnyPublisher<String, Never> {
         $query.eraseToAnyPublisher()
     }
 
-    var submitPublisher: AnyPublisher<Void, Never> {
-        submitSubject.eraseToAnyPublisher()
-    }
+    func endEditing() {
+        guard isFocused else {
+            return
+        }
 
-    private let submitSubject = PassthroughSubject<Void, Never>()
-
-    func submit() {
-        submitSubject.send()
+        isFocused = false
     }
 }

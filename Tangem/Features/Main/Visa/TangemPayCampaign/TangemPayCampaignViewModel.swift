@@ -46,14 +46,14 @@ final class TangemPayCampaignViewModel: ObservableObject {
     }
 
     /// The icon promises a card tap, so it belongs only to a single wallet that actually needs NFC —
-    /// the same rule `CommonTangemIconProvider` applies on the regular Tangem Pay offer.
+    /// the same rule `SigningActionButtonViewTypeBuilder` applies on the regular Tangem Pay offer.
     var showsCTAIcon: Bool {
         guard case .landing(let landing) = state, landing.mode == .noPay else { return false }
 
         let userWalletModels = eligibleUserWalletModels
         guard userWalletModels.count == 1, let userWalletModel = userWalletModels.first else { return false }
 
-        return userWalletModel.config.hasFeature(.nfcInteraction)
+        return SigningActionButtonViewTypeBuilder().build(config: userWalletModel.config) == .requiredNFCInteraction
     }
 
     var issueCardInfoRows: [TangemPayOrderCardInfoRow] {

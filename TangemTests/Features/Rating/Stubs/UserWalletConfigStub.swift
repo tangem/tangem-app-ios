@@ -9,7 +9,6 @@
 import BlockchainSdk
 import Combine
 import Foundation
-import TangemAssets
 import TangemSdk
 import TangemUI
 @testable import Tangem
@@ -31,7 +30,6 @@ struct UserWalletConfigStub: UserWalletConfig {
     let emailData: [EmailCollectedData] = []
     let userWalletIdSeed: Data? = nil
     let productType: Analytics.ProductType = .wallet
-    let cardHeaderImage: ImageType? = nil
     let walletThumbnailType: ThumbnailWalletViewType? = nil
     let cardSessionFilter: SessionFilter = .cardId("test")
     var contextBuilder: WalletCreationContextBuilder { fatalError("Not implemented for stub") }
@@ -51,7 +49,6 @@ struct UserWalletConfigStub: UserWalletConfig {
 // MARK: - TangemSigner
 
 final class TangemSignerStub: TangemSigner {
-    let hasNFCInteraction: Bool = false
     let latestSignerType: TangemSignerType? = nil
 
     func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
@@ -95,10 +92,6 @@ struct MainHeaderProviderFactoryStub: MainHeaderProviderFactory {
     func makeHeaderBalanceProvider(for model: UserWalletModel) -> MainHeaderBalanceProvider {
         MainHeaderBalanceProviderStub()
     }
-
-    func makeHeaderSubtitleProvider(for userWalletModel: UserWalletModel, isMultiWallet: Bool) -> MainHeaderSubtitleProvider {
-        MainHeaderSubtitleProviderStub()
-    }
 }
 
 struct MainHeaderBalanceProviderStub: MainHeaderBalanceProvider {
@@ -107,16 +100,4 @@ struct MainHeaderBalanceProviderStub: MainHeaderBalanceProvider {
     var balancePublisher: AnyPublisher<LoadableBalanceView.State, Never> {
         Just(.loaded(text: "")).eraseToAnyPublisher()
     }
-}
-
-struct MainHeaderSubtitleProviderStub: MainHeaderSubtitleProvider {
-    var isLoadingPublisher: AnyPublisher<Bool, Never> {
-        Just(false).eraseToAnyPublisher()
-    }
-
-    var subtitlePublisher: AnyPublisher<MainHeaderSubtitleInfo, Never> {
-        Just(.init(messages: [], formattingOption: .default)).eraseToAnyPublisher()
-    }
-
-    var containsSensitiveInfo: Bool { false }
 }

@@ -38,7 +38,7 @@ public struct PolymarketAmountBadge: View, Setupable {
         Text(label(amountText))
             .style(typographyToken, color: appearance.foregroundColor)
             .lineLimit(1)
-            .tangemShimmer()
+            .shimmering()
             .environment(\.isShimmerActive, isLoading)
     }
 
@@ -118,6 +118,6 @@ public extension PolymarketAmountBadge {
     }
 
     static func payout(state: State) -> PolymarketAmountBadge {
-        PolymarketAmountBadge(state: state, appearance: .info, label: Localization.predictionPositionsPayout)
+        PolymarketAmountBadge(state: state, appearance: .warning, label: Localization.predictionPositionsPayout)
     }
 }

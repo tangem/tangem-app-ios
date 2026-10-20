@@ -90,7 +90,7 @@ private struct FeedWidgetSelectorModal: ViewModifier {
             case .referral(let viewModel):
                 FeedReferralWalletSelectorView(viewModel: viewModel)
             case .accountType(let viewModel):
-                AddAccountTypeSelectorContentView(viewModel: viewModel, style: .modal)
+                AddAccountTypeSelectorView(viewModel: viewModel)
             case nil:
                 EmptyView()
             }

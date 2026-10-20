@@ -70,7 +70,11 @@ public struct PolymarketOrderSummaryHeader: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            TokenIcon(tokenIconInfo: model.tokenIconInfo, size: Constants.tokenIconSize)
+            model.accountIcon.image
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: Constants.amountIconSide, height: Constants.amountIconSide)
+                .accessibilityHidden(true)
         }
     }
 }
@@ -87,6 +91,6 @@ private extension PolymarketOrderSummaryHeader {
         static let amountSpacing: CGFloat = 12
         static let accountIconSide: CGFloat = 16
         static let amountMinScale: CGFloat = 0.5
-        static let tokenIconSize = CGSize(bothDimensions: 36)
+        static let amountIconSide: CGFloat = 36
     }
 }

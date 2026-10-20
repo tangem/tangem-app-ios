@@ -423,7 +423,6 @@ private extension CommonJointAccountOperationsServiceTests {
 
 /// Signs with a key of its own, so that what the service unmarshals is a signature that really recovers.
 private final class TangemSignerDouble: TangemSigner {
-    let hasNFCInteraction = false
     let latestSignerType: TangemSignerType? = nil
 
     private(set) var signedHashes: [Data] = []

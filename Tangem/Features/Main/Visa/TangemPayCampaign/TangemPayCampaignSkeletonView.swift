@@ -10,6 +10,8 @@ import TangemAssets
 import TangemUI
 
 struct TangemPayCampaignSkeletonView: View {
+    @ScaledMetric private var scaleFactor: CGFloat = 1
+
     var body: some View {
         TangemPayCampaignLayout(
             onClose: nil,
@@ -35,8 +37,8 @@ struct TangemPayCampaignSkeletonView: View {
         Shimmer()
             .variant(
                 .custom(
-                    width: Constants.titleWidth,
-                    height: Constants.titleHeight,
+                    width: Constants.titleWidth * scaleFactor,
+                    height: Constants.titleHeight * scaleFactor,
                     cornerRadius: Constants.titleCornerRadius
                 )
             )
@@ -53,8 +55,8 @@ struct TangemPayCampaignSkeletonView: View {
         Shimmer()
             .variant(
                 .custom(
-                    width: width,
-                    height: Constants.bulletLineHeight,
+                    width: width * scaleFactor,
+                    height: Constants.bulletLineHeight * scaleFactor,
                     cornerRadius: Constants.bulletLineCornerRadius
                 )
             )

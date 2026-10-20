@@ -388,5 +388,153 @@
         "$value": "{color.material-modal.soft-light.solid}"
       }
     }
+  },
+  "material-menu": {
+    "blur": {
+      "$extensions": {
+        "com.figma.hiddenFromPublishing": true
+      },
+      "$type": "dimension",
+      "$value": "{dimension.0}"
+    },
+    "glass": {
+      "angle": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "dimension",
+        "$value": "{dimension.0}"
+      },
+      "intensity": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "dimension",
+        "$value": "{dimension.0}"
+      },
+      "refraction": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "dimension",
+        "$value": "{dimension.0}"
+      },
+      "depth": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "dimension",
+        "$value": "{dimension.0}"
+      },
+      "dispersion": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "dimension",
+        "$value": "{dimension.0}"
+      },
+      "frost": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "dimension",
+        "$value": "{dimension.0}"
+      },
+      "splay": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "dimension",
+        "$value": "{dimension.0}"
+      }
+    },
+    "border": {
+      "material-gradient": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "color",
+        "$value": "linear-gradient(135deg, {material-menu.border.start} 0%, {material-menu.border.mid} 50%, {material-menu.border.end} 100%)"
+      },
+      "start": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.materialMenu.border.start",
+            "iOS": "DesignSystem.Color.materialMenuBorderStart"
+          },
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "color",
+        "$value": "{color.material-menu.border.start}"
+      },
+      "mid": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.materialMenu.border.mid",
+            "iOS": "DesignSystem.Color.materialMenuBorderMid"
+          },
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "color",
+        "$value": "{color.material-menu.border.mid}"
+      },
+      "end": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.materialMenu.border.end",
+            "iOS": "DesignSystem.Color.materialMenuBorderEnd"
+          },
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "color",
+        "$value": "{color.material-menu.border.end}"
+      }
+    },
+    "color": {
+      "tint": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.materialMenu.color.tint",
+            "iOS": "iosIgnores"
+          },
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "color",
+        "$value": "{color.material-menu.tint.solid}"
+      },
+      "fill": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.materialMenu.color.fill",
+            "iOS": "DesignSystem.Color.materialMenuColorFill"
+          },
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "color",
+        "$value": "{color.material-menu.fill.solid}"
+      },
+      "lighten": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "androidIgnores",
+            "iOS": "iosIgnores"
+          },
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "color",
+        "$value": "{color.material-menu.lighten.solid}"
+      },
+      "soft-light": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "androidIgnores",
+            "iOS": "iosIgnores"
+          },
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "color",
+        "$value": "{color.material-menu.soft-light.solid}"
+      }
+    }
   }
 }

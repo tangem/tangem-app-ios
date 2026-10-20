@@ -23,17 +23,6 @@ struct WCTransactionSimulationDisplayModel {
         let sections: [Section]
     }
 
-    struct ValidationBanner {
-        let type: BannerType
-        let title: String
-        let description: String
-
-        enum BannerType {
-            case malicious
-            case suspicious
-        }
-    }
-
     enum Section {
         case assetChanges(AssetChangesSection)
         case approvals(ApprovalsSection)

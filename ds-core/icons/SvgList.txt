@@ -22,6 +22,7 @@ Bag / 12, 16, 20, 24, 28, 32 / Regular
 Banknote Arrow Down / 16, 20, 24, 28 / Regular
 Banknote Arrow Horizontal / 16, 20, 24, 28 / Regular
 Banknote Wave / 16, 20, 24, 28 / Regular
+Basketball Turned / 12, 16, 20, 24, 28, 32 / Regular
 Basketball / 16, 20, 24, 28 / Regular
 Bell Cross / 20, 24, 28 / Regular
 Bell / 20, 24, 28 / Regular
@@ -32,10 +33,12 @@ Box / 12, 16, 20, 24, 28, 32 / Regular
 Calculator / 16, 20, 24 / Regular
 Calendar / 16, 20, 24, 28 / Regular
 Capsule / 12, 16, 20, 24, 28, 32 / Regular
+Car Sports / 12, 16, 20, 24, 28, 32 / Regular
 Card Plus / 20, 24, 28, 32 / Regular
 Card / 12, 16, 20, 24, 28, 32 / Regular
 Cards Star / 12, 16, 20, 24, 28, 32 / Regular
 Chair / 12, 16, 20, 24, 28, 32 / Regular
+Chart Ascending  / 12, 16, 20, 24, 28, 32 / Regular
 Chart Bar Vertical / 16, 20, 24, 28 / Regular
 Chart Line Vertical / 16, 20, 24, 28 / Regular
 Checkmark / 16, 20, 24, 28 / Regular
@@ -62,6 +65,7 @@ Copy / 12, 16, 20, 24 / Regular
 Cream Bottle / 12, 16, 20, 24, 28, 32 / Regular
 Cross Circle / 16, 20, 24 / Filled
 Cross / 12, 16, 20, 24, 28, 32 / Regular
+Document Pen / 12, 16, 20, 24, 28, 32 / Regular
 Document / 12, 16, 20, 24 / Regular
 Dot / 12, 16, 20, 24, 28, 32 / Filled
 Dots Horizontal / 12, 16, 20, 24 / Regular
@@ -72,12 +76,14 @@ Error / 16, 20, 24, 28 / Filled & Regular
 Eye Cross / 16, 20, 24, 28 / Regular
 Eye / 16, 20, 24, 28 / Regular
 Filter / 12, 16, 20, 24, 28, 32 / Regular
+Football / 12, 16, 20, 24, 28, 32 / Regular
 Fork and Knife / 12, 16, 20, 24, 28, 32 / Regular
 Gamepad / 16, 20, 24, 28 / Regular
 Gas Station / 12, 16, 20, 24, 28, 32 / Regular
 Gauge / 20, 24 / Regular
 Gear / 12, 16, 20, 24, 28, 32 / Regular
 Gift / 12, 16, 20, 24, 28, 32 / Regular
+Globe Arrow / 12, 16, 20, 24, 28, 32 / Regular
 Globe / 16, 20, 24, 28 / Regular
 Government / 16, 20, 24, 28 / Regular
 Graduation Cap / 12, 16, 20, 24, 28, 32 / Regular
@@ -87,6 +93,7 @@ Hanger / 12, 16, 20, 24, 28, 32 / Regular
 Headphones Support / 12, 16, 20, 24 / Regular
 Heart Broken / 16, 20, 24, 28, 32 / Regular
 Heart / 16, 20, 24, 28, 32 / Filled & Regular
+Hockey / 12, 16, 20, 24, 28, 32 / Regular
 Info / 16, 20, 24, 28, 32 / Regular
 Keyboard Down / 16, 20, 24 / Regular
 Keyboard Up / 16, 20, 24 / Regular
@@ -100,6 +107,7 @@ Magic Ball / 16, 20, 24, 28 / Regular
 Mail / 16, 20, 24 / Regular
 Mask / 12, 16, 20, 24, 28, 32 / Regular
 Monitor / 12, 16, 20, 24, 28, 32 / Regular
+New / 12, 16, 20, 24, 28, 32 / Regular
 Percent Backward / 20, 24, 28 / Regular
 Percent / 16, 20, 24, 28 / Regular
 Perps / 16, 20, 24, 28 / Regular
@@ -108,6 +116,7 @@ Pincode / 16, 20, 24 / Regular
 QR / 16, 20, 24, 28 / Regular
 Rocket / 16, 20, 24, 28 / Regular
 Rose / 12, 16, 20, 24, 28, 32 / Regular
+Rugby Ball / 12, 16, 20, 24, 28, 32 / Regular
 Sack / 16, 20, 24, 28 / Regular
 Scan Face / 20, 24, 28 / Regular
 Scan Finger / 20, 24, 28 / Regular
@@ -128,6 +137,7 @@ Star / 16, 20, 24, 28 / Filled & Regular
 Success / 16, 20, 24, 28, 32 / Filled & Regular
 Sun / 16, 20, 24, 28 / Regular
 Taxi / 12, 16, 20, 24, 28, 32 / Regular
+Tennis / 12, 16, 20, 24, 28, 32 / Regular
 Theater / 16, 20, 24, 28 / Regular
 Train / 12, 16, 20, 24, 28, 32 / Regular
 Trash Bin / 12, 16, 20, 24, 28 / Regular

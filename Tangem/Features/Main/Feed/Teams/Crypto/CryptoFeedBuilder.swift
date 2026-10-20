@@ -21,9 +21,8 @@ struct CryptoFeedBuilder: FeedTabBuilder {
 
     func makeSearchTab(
         query: AnyPublisher<String, Never>,
-        history: FeedSearchHistoryProvider,
         context: FeedContext
     ) -> FeedSearchTab {
-        .crypto(CryptoSearchViewModel(query: query, history: history, router: CryptoFeedRouter(context: context)))
+        .crypto(CryptoSearchViewModel(query: query, router: CryptoFeedRouter(context: context)))
     }
 }

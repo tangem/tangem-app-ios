@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import Kingfisher
 import TangemAssets
 
 public struct PolymarketMarketMetaRow: View {
@@ -35,11 +34,13 @@ public struct PolymarketMarketMetaRow: View {
 
     private func badge(_ category: Category) -> some View {
         HStack(spacing: 0) {
-            if let iconURL = category.iconURL {
-                KFImage(iconURL)
+            if let icon = category.icon {
+                icon.image
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
                     .frame(width: Constants.iconSide, height: Constants.iconSide)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
                     .accessibilityHidden(true)
             }
 
@@ -60,6 +61,13 @@ public struct PolymarketMarketMetaRow: View {
 
             Text(volume.value)
                 .foregroundStyle(DesignSystem.Color.textPrimary)
+
+            if volume.isHot {
+                Assets.Polymarket.volumeFlame.image
+                    .resizable()
+                    .frame(width: Constants.iconSide, height: Constants.iconSide)
+                    .accessibilityHidden(true)
+            }
         }
         .font(token: DesignSystem.Font.captionMediumToken)
         .lineLimit(1)
@@ -71,21 +79,23 @@ public struct PolymarketMarketMetaRow: View {
 public extension PolymarketMarketMetaRow {
     struct Category: Hashable {
         public let name: String
-        public let iconURL: URL?
+        public let icon: ImageType?
 
-        public init(name: String, iconURL: URL?) {
+        public init(name: String, icon: ImageType?) {
             self.name = name
-            self.iconURL = iconURL
+            self.icon = icon
         }
     }
 
     struct Volume: Hashable {
         public let title: String
         public let value: String
+        public let isHot: Bool
 
-        public init(title: String, value: String) {
+        public init(title: String, value: String, isHot: Bool = false) {
             self.title = title
             self.value = value
+            self.isHot = isHot
         }
     }
 }

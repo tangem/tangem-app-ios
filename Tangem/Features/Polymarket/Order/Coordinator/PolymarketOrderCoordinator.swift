@@ -11,6 +11,7 @@ import Combine
 import TangemFoundation
 import TangemPolymarket
 import TangemPolymarketUI
+import TangemUI
 
 final class PolymarketOrderCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
@@ -31,11 +32,15 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
     @Published var destination: Destination?
     @Published var sheet: Sheet?
 
-    @Published var positionDetailsCoordinator: PolymarketPositionDetailsCoordinator?
+    var offersPlacedPosition = true
+    var onPositionClosed: (() -> Void)?
+    var onLeaveClosedPosition: (() -> Void)?
+
+    private var hasClosedPosition = false
 
     private var placementService: PolymarketOrderPlacementService?
     private var account: PolymarketOrderAccount?
-    private weak var positionBuilder: PolymarketOrderFlowBuilder?
+    private var signingButtonType: SigningActionButtonViewType = .holdToConfirm
     private var regionWarningAction: (() -> Void)?
     private var placedAction: (@MainActor (PolymarketOrderIndexing) -> Void)?
     private var addFundsAction: (() -> Void)?
@@ -56,7 +61,7 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
     func start(with options: Options) {
         placementService = options.placementService
         account = options.account
-        positionBuilder = options.positionBuilder
+        signingButtonType = options.signingButtonType
         regionWarningAction = options.onRegionWarning
         placedAction = options.onPlaced
         addFundsAction = options.onAddFunds
@@ -86,11 +91,11 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
 
 extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
     func closeOrder() {
-        dismiss(with: DismissPayload(position: nil))
-    }
+        if hasClosedPosition {
+            onLeaveClosedPosition?()
+        }
 
-    func returnToMain() {
-        dismiss(with: DismissPayload(position: nil, returnsToMain: true))
+        dismiss(with: DismissPayload(position: nil))
     }
 
     func openAddFunds() {
@@ -130,20 +135,7 @@ extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
     }
 
     func openPosition(_ position: PolymarketPosition) {
-        guard let positionBuilder else {
-            dismiss(with: DismissPayload(position: position))
-            return
-        }
-
-        positionDetailsCoordinator = positionBuilder.makePositionDetails(
-            position: position,
-            onOrderPlaced: { [weak self] indexing in
-                self?.indexingTask = indexing
-                self?.placedAction?(indexing)
-            },
-            onRegionWarning: { [weak self] in self?.regionWarningAction?() },
-            onClose: { [weak self] in self?.returnToMain() }
-        )
+        dismiss(with: DismissPayload(position: position))
     }
 
     func openSlippageSelector(percent: Decimal, onConfirm: @escaping (Decimal) -> Void) {
@@ -161,6 +153,7 @@ extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
             model: model,
             account: account,
             placementService: placementService,
+            signingButtonType: signingButtonType,
             coordinator: self
         ))
     }
@@ -210,12 +203,20 @@ extension PolymarketOrderCoordinator: PolymarketOrderSummaryRoutable {
             placedAction?(indexing)
         }
 
-        destination = .result(PolymarketOrderResultViewModel(
+        let resultViewModel = PolymarketOrderResultViewModel(
             state: state,
             content: content,
             indexing: indexingTask,
+            offersPlacedPosition: offersPlacedPosition,
             coordinator: self
-        ))
+        )
+
+        if resultViewModel.closesPosition {
+            hasClosedPosition = true
+            onPositionClosed?()
+        }
+
+        destination = .result(resultViewModel)
     }
 }
 
@@ -253,7 +254,6 @@ extension PolymarketOrderCoordinator {
 extension PolymarketOrderCoordinator {
     struct DismissPayload {
         let position: PolymarketPosition?
-        var returnsToMain = false
     }
 
     struct Options {
@@ -262,6 +262,7 @@ extension PolymarketOrderCoordinator {
         let eventTitle: String
         let walletId: String
         let account: PolymarketOrderAccount?
+        let signingButtonType: SigningActionButtonViewType
         let intent: PolymarketOrderIntent
         let geoblockStateProvider: PolymarketGeoblockStateProvider
         let placementService: PolymarketOrderPlacementService
@@ -270,7 +271,6 @@ extension PolymarketOrderCoordinator {
         let isAwaitingFundsPublisher: AnyPublisher<Bool, Never>
         let collateralBalancePublisher: AnyPublisher<Decimal?, Never>
         let addFundsReadinessStream: AsyncStream<PolymarketAccountFundsInteractor.State>
-        let positionBuilder: PolymarketOrderFlowBuilder?
         let onPlaced: @MainActor (PolymarketOrderIndexing) -> Void
         let onRegionWarning: () -> Void
         let onAddFunds: () -> Void

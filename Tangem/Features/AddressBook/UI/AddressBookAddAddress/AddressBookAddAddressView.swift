@@ -79,7 +79,7 @@ struct AddressBookAddAddressView: View {
                 GroupedSection(viewModel.addressNetworksType) { networks in
                     Row(title: Localization.commonNetwork)
                         .end { makeNetworksValue(networks: networks) }
-                        .if(networks.isEditable) { $0.onTap(viewModel.userDidRequestNetworksChange) }
+                        .if(networks.isEditable) { $0.onTap(action: viewModel.userDidRequestNetworksChange) }
                 }
                 .backgroundColor(DesignSystem.Color.bgSecondary)
                 .cornerRadius(20)

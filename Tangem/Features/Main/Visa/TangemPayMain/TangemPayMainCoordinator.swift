@@ -334,7 +334,7 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         coordinator.start(with: .init(
             tangemPayAccount: options.tangemPayAccount,
             fundingFlowBuilder: Self.makeFundingFlowBuilder(options: options),
-            hasNFCInteraction: options.userWalletModel.config.hasFeature(.nfcInteraction)
+            signingActionButtonType: SigningActionButtonViewTypeBuilder().build(config: options.userWalletModel.config)
         ))
         offrampCoordinator = coordinator
     }
@@ -726,7 +726,7 @@ private extension TangemPayMainCoordinator {
         Toast(
             view: TangemSnackbar(title: Localization.tangempayBankTransferRequestSent)
                 .icon(DesignSystem.Icons.Checkmark.regular20)
-                .iconColor(Color.Tangem.Graphic.Status.accent)
+                .iconColor(DesignSystem.Color.iconAccentBlue)
         )
         .present(layout: .top(padding: 12), type: .temporary())
     }

@@ -33,7 +33,9 @@ final class FeedAddAccountUITests: BaseTestCase {
             .scanMockWallet(name: .wallet)
             .addNewWallet(name: .wallet2)
             .openMarketsSheet()
-            .openAddAccountWalletSelector()
+            .openAddAccountTypeSelector()
+            .tapCryptoAccount()
+            .openWalletSelector()
             .verifyWalletOptionDisplayed(Constants.firstWalletName)
             .verifyWalletOptionDisplayed(Constants.secondWalletName)
     }
