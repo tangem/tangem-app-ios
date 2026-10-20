@@ -21,6 +21,7 @@ final class TokenDetailsCoordinator: CoordinatorObject {
 
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.floatingSheetPresentingStateProvider) private var sheetStateProvider: any FloatingSheetPresentingStateProvider
 
     // MARK: - Root view model
 
@@ -43,6 +44,7 @@ final class TokenDetailsCoordinator: CoordinatorObject {
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     private var safariHandle: SafariHandle?
     private var transactionDetailsPresentationTask: Task<Void, Never>?
+    private var transactionDetailsSheetId: String?
 
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -143,7 +145,7 @@ extension TokenDetailsCoordinator {
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
     func openTransactionDetails(_ data: TransactionDetailsRouteData) {
-        guard transactionDetailsPresentationTask == nil else { return }
+        guard transactionDetailsPresentationTask == nil, !isTransactionDetailsSheetAlive else { return }
 
         transactionDetailsPresentationTask = Task { @MainActor [weak self] in
             guard let viewModel = self?.makeTransactionDetailsViewModel(data) else { return }
@@ -152,6 +154,7 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
 
             guard !Task.isCancelled, let self else { return }
 
+            transactionDetailsSheetId = viewModel.id
             floatingSheetPresenter.enqueue(sheet: viewModel)
             transactionDetailsPresentationTask = nil
         }
@@ -160,6 +163,10 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     func cancelTransactionDetailsPresentation() {
         transactionDetailsPresentationTask?.cancel()
         transactionDetailsPresentationTask = nil
+    }
+
+    private var isTransactionDetailsSheetAlive: Bool {
+        transactionDetailsSheetId.map { sheetStateProvider.containsSheet(withId: $0) } ?? false
     }
 
     @MainActor

@@ -162,6 +162,50 @@ final class StakingDetailsScreen: ScreenBase<StakingDetailsScreenElement> {
         }
     }
 
+    @discardableResult
+    func assertAutoClaimedRewardsText(_ expected: String) -> Self {
+        XCTContext.runActivity(named: "Assert rewards are added to the staking balance automatically") { _ in
+            waitAndAssertTrue(app.staticTexts[expected], "Auto-claimed rewards text should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertSettledStake(validator: String, amount: String) -> Self {
+        XCTContext.runActivity(named: "Assert settled stake of '\(validator)' is '\(amount)'") { _ in
+            let row = app.buttons
+                .matching(identifier: StakingAccessibilityIdentifiers.activeStakeRow)
+                .matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", validator, amount))
+                .firstMatch
+            waitAndAssertTrue(row, "Settled stake row of '\(validator)' with '\(amount)' should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertPendingStake(validator: String, amount: String) -> Self {
+        XCTContext.runActivity(named: "Assert pending stake of '\(validator)' is '\(amount)'") { _ in
+            let rowTexts = app.staticTexts.matching(identifier: StakingAccessibilityIdentifiers.activeStakeRow)
+            let validatorText = rowTexts.matching(NSPredicate(format: "label == %@", validator)).firstMatch
+            let amountText = rowTexts.matching(NSPredicate(format: "label CONTAINS %@", amount)).firstMatch
+            waitAndAssertTrue(validatorText, "Pending stake row of '\(validator)' should be displayed")
+            waitAndAssertTrue(amountText, "Pending stake row amount '\(amount)' should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertNoPendingStake() -> Self {
+        XCTContext.runActivity(named: "Assert no pending stake row is displayed") { _ in
+            let pendingTexts = app.staticTexts.matching(identifier: StakingAccessibilityIdentifiers.activeStakeRow)
+            XCTAssertTrue(
+                pendingTexts.firstMatch.waitForNonExistence(timeout: .robustUIUpdate),
+                "Pending stake row should not be displayed"
+            )
+            return self
+        }
+    }
+
     /// Tapping the active stake opens the unstake flow, which starts on the amount step (partial unstake).
     func tapActiveStake() -> StakingSendScreen {
         XCTContext.runActivity(named: "Tap active staking row") { _ in

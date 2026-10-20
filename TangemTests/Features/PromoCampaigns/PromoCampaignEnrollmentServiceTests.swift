@@ -372,7 +372,7 @@ struct PromoCampaignEnrollmentServiceTests {
         #expect(analytics.events == [.enrollButtonClicked(campaign: linkedCampaign, payoutToken: nil, walletsCount: 2)])
     }
 
-    @Test("An answer the campaign rejects every wallet in is reported as unavailable, without a code")
+    @Test("An answer the campaign rejects every wallet in is reported as unavailable with the answer's status code")
     func ineligibleAnswerIsReportedUnavailable() async throws {
         let analytics = AnalyticsLoggerSpy()
 
@@ -380,7 +380,7 @@ struct PromoCampaignEnrollmentServiceTests {
 
         #expect(analytics.events == [
             .enrollButtonClicked(campaign: linkedCampaign, payoutToken: nil, walletsCount: 2),
-            .enrollError(campaign: linkedCampaign, reason: .unavailable, statusCode: nil),
+            .enrollError(campaign: linkedCampaign, reason: .unavailable, statusCode: 200),
         ])
     }
 
@@ -392,7 +392,7 @@ struct PromoCampaignEnrollmentServiceTests {
 
         #expect(analytics.events == [
             .enrollButtonClicked(campaign: linkedCampaign, payoutToken: nil, walletsCount: 2),
-            .enrollError(campaign: linkedCampaign, reason: .unavailable, statusCode: nil),
+            .enrollError(campaign: linkedCampaign, reason: .unavailable, statusCode: 200),
         ])
     }
 
@@ -404,7 +404,7 @@ struct PromoCampaignEnrollmentServiceTests {
 
         #expect(analytics.events == [
             .enrollButtonClicked(campaign: linkedCampaign, payoutToken: nil, walletsCount: 2),
-            .enrollError(campaign: linkedCampaign, reason: .technical, statusCode: nil),
+            .enrollError(campaign: linkedCampaign, reason: .technical, statusCode: 200),
         ])
     }
 

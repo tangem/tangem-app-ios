@@ -96,9 +96,9 @@ enum TransactionDetailsFactory {
 
         case .incentiveClaim, .incentiveClaimCoin, .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit, .yieldReactivate,
              .yieldSend, .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin:
-            // Only the two operations that move the balance in or out of the protocol get the paired layout;
+            // Only the operations that move the balance in or out of the protocol get the paired layout;
             // the rest are a plain single-asset amount, which the generic block already renders.
-            guard let stage = yieldStage(for: transaction.transactionType) else {
+            guard let stage = yieldStage(for: transaction) else {
                 return .generic(genericOperationContent(
                     for: transaction,
                     record: record,
@@ -108,7 +108,7 @@ enum TransactionDetailsFactory {
                 ))
             }
 
-            return .yield(yieldContent(for: transaction, stage: stage, record: record, context: context))
+            return .yield(yieldContent(for: transaction, stage: stage, record: record, cryptoAmount: cryptoAmount, context: context))
 
         case .approve where isDecodedApprove(record):
             return .generic(approveContent(for: transaction, record: record, context: context))
@@ -367,28 +367,48 @@ enum TransactionDetailsFactory {
         for transaction: TransactionViewModel,
         stage: YieldStage,
         record: TransactionRecord,
+        cryptoAmount: Decimal,
         context: TransactionDetailsContext
     ) -> TransactionDetailsYieldViewData {
-        .init(
+        let fiat: String? = switch stage {
+        case .modeSwitch: nil
+        case .balanceMovement: fiatText(amount: cryptoAmount, currencyId: context.tokenCurrencyId)
+        }
+
+        return .init(
             tokens: TransactionDetailsYieldTokensViewData(
                 provider: stage.provider,
                 tokenIconInfo: context.tokenIconInfo,
                 amountText: transaction.amount.amountWithCurrencyCode,
-                caption: stage.caption
+                caption: stage.caption,
+                fiatText: fiat,
+                isAmountStrikethrough: isFailed(record: record)
             ),
             statusBanner: nil,
-            info: networkFeeInfo(from: record, on: context.blockchain, ignoringDirection: true),
+            info: networkFeeInfo(
+                from: record,
+                on: context.blockchain,
+                ignoringDirection: !GaslessTransactionFeeMatcher.isExecutorCall(record.type)
+            ),
             action: nil
         )
     }
 
-    private static func yieldStage(for type: TransactionViewModel.TransactionType) -> YieldStage? {
-        switch type {
+    private static func yieldStage(for transaction: TransactionViewModel) -> YieldStage? {
+        switch transaction.transactionType {
         case .yieldEnter, .yieldEnterCoin:
-            return YieldStage(provider: .leading(Assets.YieldModule.yieldModuleAaveLogo), caption: Localization.yieldModuleTransactionSupplied)
+            return .modeSwitch(provider: .leading(Assets.YieldModule.yieldModuleAaveLogo), caption: Localization.yieldModuleTransactionSupplied)
         case .yieldWithdraw, .yieldWithdrawCoin:
-            return YieldStage(provider: .trailing(Assets.YieldModule.yieldModuleAaveLogo), caption: Localization.yieldModuleTransactionReturned)
-        case .incentiveClaim, .incentiveClaimCoin, .yieldDeploy, .yieldInit, .yieldReactivate, .yieldSend, .yieldTopup,
+            return .modeSwitch(provider: .trailing(Assets.YieldModule.yieldModuleAaveLogo), caption: Localization.yieldModuleTransactionReturned)
+        case .yieldTopup:
+            return .balanceMovement
+        case .yieldSend:
+            let isTransferLike = transaction.transactionType.isTransferLikeYieldSend(
+                isOutgoing: transaction.isOutgoing,
+                isFromYieldContract: transaction.isFromYieldContract
+            )
+            return isTransferLike ? nil : .balanceMovement
+        case .incentiveClaim, .incentiveClaimCoin, .yieldDeploy, .yieldInit, .yieldReactivate,
              .stake, .unstake, .vote, .withdraw, .claimRewards, .restake,
              .approve, .gaslessTransactionFee, .networkFee, .operation, .unknownOperation,
              .transfer, .gaslessTransfer, .swap, .onramp, .tangemPay:
@@ -537,9 +557,9 @@ enum TransactionDetailsFactory {
         switch onrampStatus {
         case .verifying:
             .kyc
-        case .paused, .waitingForPayment:
+        case .paused, .waitingForPayment, .failed, .expired, .refunded:
             .status
-        case .unknown, .created, .paymentProcessing, .paid, .sending, .refunding, .finished, .failed, .expired, .refunded:
+        case .unknown, .created, .paymentProcessing, .paid, .sending, .refunding, .finished:
             nil
         }
     }
@@ -890,7 +910,7 @@ enum TransactionDetailsFactory {
                 isOutgoing: transaction.isOutgoing,
                 isFromYieldContract: transaction.isFromYieldContract
             ),
-            iconGlyph: headerIconGlyph(for: record),
+            iconGlyph: headerIconGlyph(for: transaction, record: record),
             menuSections: TransactionDetailsMenuFactory.menuSections(
                 for: record,
                 counterpartyAddress: counterpartyAddress,
@@ -901,10 +921,11 @@ enum TransactionDetailsFactory {
         )
     }
 
-    private static func headerIconGlyph(for record: TransactionRecord) -> ImageType? {
+    private static func headerIconGlyph(for transaction: TransactionViewModel, record: TransactionRecord) -> ImageType? {
         switch record.expressExtraInfo {
         case .exchange: DesignSystem.Icons.ArrowSwapHorizontal.regular20
         case .onramp: DesignSystem.Icons.Card.regular20
+        case nil where yieldStage(for: transaction) == .balanceMovement: DesignSystem.Icons.Lightning.regular20
         case nil: nil
         }
     }
@@ -1062,9 +1083,23 @@ enum TransactionDetailsFactory {
 // MARK: - Yield
 
 private extension TransactionDetailsFactory {
-    struct YieldStage {
-        let provider: TransactionDetailsYieldTokensViewData.Provider
-        let caption: String
+    enum YieldStage: Equatable {
+        case modeSwitch(provider: TransactionDetailsYieldTokensViewData.Provider, caption: String)
+        case balanceMovement
+
+        var provider: TransactionDetailsYieldTokensViewData.Provider {
+            switch self {
+            case .modeSwitch(let provider, _): provider
+            case .balanceMovement: .trailing(Assets.YieldModule.yieldModuleAaveLogo)
+            }
+        }
+
+        var caption: String? {
+            switch self {
+            case .modeSwitch(_, let caption): caption
+            case .balanceMovement: nil
+            }
+        }
     }
 }
 

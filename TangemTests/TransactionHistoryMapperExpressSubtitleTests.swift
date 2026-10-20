@@ -153,9 +153,9 @@ struct TransactionHistoryMapperExpressSubtitleTests {
     @Test("In-progress onramp with an estimated amount shows the `~` prefix and no sign")
     func onrampEstimatedAmountHasTilde() {
         let viewModel = makeSUT().mapTransactionViewModel(onrampRecord(status: .waitingForPayment, toActualAmount: nil))
-        #expect(viewModel.amount.value.hasPrefix(AppConstants.tildeSign))
-        #expect(!viewModel.amount.value.contains(AppConstants.minusSign))
-        #expect(!viewModel.amount.value.contains(AppConstants.plusSign))
+        #expect(viewModel.amount.value?.hasPrefix(AppConstants.tildeSign) == true)
+        #expect(viewModel.amount.value?.contains(AppConstants.minusSign) == false)
+        #expect(viewModel.amount.value?.contains(AppConstants.plusSign) == false)
     }
 
     @Test("Finished onramp shows the settled amount with a `+` and without the `~` prefix")
@@ -173,12 +173,33 @@ struct TransactionHistoryMapperExpressSubtitleTests {
         #expect(viewModel.amount.displayValue?.contains(AppConstants.tildeSign) == false)
     }
 
-    @Test("An unsuccessful onramp shows no amount at all")
-    func onrampUnsuccessfulAmountIsHidden() {
-        for status in [OnrampTransactionStatus.expired, .failed, .refunded] {
-            let viewModel = makeSUT().mapTransactionViewModel(onrampRecord(status: status, toActualAmount: nil))
-            #expect(viewModel.amount.displayValue == nil)
-        }
+    @Test("An unsuccessful onramp shows the promised amount unsigned", arguments: [OnrampTransactionStatus.expired, .failed, .refunded])
+    func onrampUnsuccessfulAmountIsUnsigned(status: OnrampTransactionStatus) throws {
+        let viewModel = makeSUT().mapTransactionViewModel(onrampRecord(status: status, toActualAmount: nil))
+        let value = try #require(viewModel.amount.displayValue)
+        #expect(value.hasPrefix("1"))
+        #expect(!value.contains(AppConstants.tildeSign))
+        #expect(!value.contains(AppConstants.plusSign))
+    }
+
+    @Test("An onramp the provider never quoted shows no amount", arguments: [OnrampTransactionStatus.expired, .failed, .waitingForPayment])
+    func onrampWithoutAmountShowsNoAmount(status: OnrampTransactionStatus) {
+        let record = onrampRecord(
+            status: status,
+            toAmount: nil,
+            toActualAmount: nil,
+            hash: ExpressSyntheticTxHelper(txId: "tx").makeSyntheticTxIdentifier()
+        )
+        let viewModel = makeSUT().mapTransactionViewModel(record)
+        #expect(viewModel.amount.value == nil)
+        #expect(viewModel.amount.displayValue == nil)
+    }
+
+    @Test("An onramp matched to its on-chain receive shows that amount even without a quote", arguments: [OnrampTransactionStatus.finished, .sending])
+    func matchedOnrampWithoutQuoteShowsOnChainAmount(status: OnrampTransactionStatus) throws {
+        let viewModel = makeSUT().mapTransactionViewModel(onrampRecord(status: status, toAmount: nil, toActualAmount: nil, hash: "0xReceive"))
+        let value = try #require(viewModel.amount.value)
+        #expect(value.contains("1"))
     }
 }
 
@@ -233,9 +254,9 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
         return model
     }
 
-    func baseRecord(isOutgoing: Bool, extraInfo: TransactionHistoryExpressExtraInfo?) -> TransactionRecord {
+    func baseRecord(hash: String = "hash", isOutgoing: Bool, extraInfo: TransactionHistoryExpressExtraInfo?) -> TransactionRecord {
         let record = TransactionRecord(
-            hash: "hash",
+            hash: hash,
             index: 0,
             source: .single(.init(address: "0xSource", amount: 1)),
             destination: .single(.init(address: .user("0xDestination"), amount: 1)),
@@ -291,6 +312,10 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
     }
 
     func onrampRecord(status: OnrampTransactionStatus, toActualAmount: Decimal?) -> TransactionRecord {
+        onrampRecord(status: status, toAmount: 1, toActualAmount: toActualAmount)
+    }
+
+    func onrampRecord(status: OnrampTransactionStatus, toAmount: Decimal?, toActualAmount: Decimal?, hash: String = "hash") -> TransactionRecord {
         let info = OnrampTransactionInfo(
             transaction: ExpressMergeTestDataFactory.onrampTransaction(
                 txId: "tx",
@@ -298,7 +323,7 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
                 payOutAddress: "0xOut",
                 payOutHash: nil,
                 toCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: ExpressMergeTestDataFactory.ethereumToken),
-                toAmount: 1,
+                toAmount: toAmount,
                 toActualAmount: toActualAmount,
                 createdAt: ExpressMergeTestDataFactory.baseDate,
                 updatedAt: ExpressMergeTestDataFactory.baseDate
@@ -307,7 +332,7 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
             fiatCurrency: nil,
             cryptoCurrencies: [:]
         )
-        return baseRecord(isOutgoing: false, extraInfo: .onramp(info))
+        return baseRecord(hash: hash, isOutgoing: false, extraInfo: .onramp(info))
     }
 
     func makeContact(named name: String, address: String, on blockchain: BSDKBlockchain) throws -> AddressBookContact {

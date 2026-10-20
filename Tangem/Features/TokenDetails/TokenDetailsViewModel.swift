@@ -176,8 +176,11 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     func onDisappear() {
         deeplinkHandler.endHandlingIncomingActions()
-        coordinator?.cancelTransactionDetailsPresentation()
         stopJointFrequentUpdates()
+    }
+
+    func onWillDisappear() {
+        coordinator?.cancelTransactionDetailsPresentation()
     }
 
     func onFirstAppear() {

@@ -103,10 +103,14 @@ extension CosmosChain {
                 0.025,
                 0.040,
             ]
+        case .gonka:
+            return [
+                1,
+                1.5,
+                2,
+            ]
         case .sei(let isTestnet):
             return isTestnet ? [0.08] : [0.02, 0.02, 0.04]
-        case .gonka:
-            return [0]
         case .gaia:
             fatalError()
         }
@@ -118,7 +122,7 @@ extension CosmosChain {
     /// Default multiplier value is 1
     var gasMultiplier: UInt64 {
         switch self {
-        case .cosmos, .gaia:
+        case .cosmos, .gaia, .gonka:
             return 2
         case .terraV1:
             // Since 2024/07/29, there have been multiple reports of failed Terra Classic transactions due to
@@ -127,8 +131,7 @@ extension CosmosChain {
             return 5
         case .terraV2:
             return 2
-        case .sei,
-             .gonka:
+        case .sei:
             return 2
         }
     }
@@ -139,12 +142,10 @@ extension CosmosChain {
     /// Default multiplier value is 1
     var feeMultiplier: Double {
         switch self {
-        case .cosmos, .gaia:
+        case .cosmos, .gaia, .gonka:
             return 1
         case .terraV1, .terraV2, .sei:
             return 1.5
-        case .gonka:
-            return 1
         }
     }
 

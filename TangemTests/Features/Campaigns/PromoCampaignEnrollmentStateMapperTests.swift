@@ -107,7 +107,7 @@ struct PromoCampaignEnrollmentStateMapperTests {
         #expect(wallet.payout?.address == "0xPayout")
     }
 
-    @Test("Partially enrolled lists only the wallets enrolled now")
+    @Test("Partially enrolled lists both the wallets enrolled now and the ones already enrolled, in the app's wallet order")
     @MainActor
     func partiallyEnrolled() async {
         let state = makeSUT().mapToResultState(
@@ -120,13 +120,13 @@ struct PromoCampaignEnrollmentStateMapperTests {
             return
         }
 
-        guard let enrolledWallet = enrolledWallets.first else {
-            Issue.record("Expected an enrolled wallet")
+        guard let enrolledWallet = enrolledWallets.first(where: { $0.name == "Locked wallet" }) else {
+            Issue.record("Expected the wallet enrolled now")
             return
         }
 
         #expect(campaignName == campaign.content.title)
-        #expect(enrolledWallets.map(\.name) == ["Locked wallet"])
+        #expect(enrolledWallets.map(\.name) == ["Main wallet", "Locked wallet"])
         #expect(enrolledWallet.subtitle == "Test")
         let isLocked = await waitUntilConditionMet { enrolledWallet.balanceState == .loaded(text: Localization.commonLocked) }
         #expect(isLocked)

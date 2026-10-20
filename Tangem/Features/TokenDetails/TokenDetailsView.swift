@@ -77,6 +77,7 @@ struct TokenDetailsView: View {
         .onDisappear {
             viewModel.onDisappear()
         }
+        .onWillDisappear(perform: viewModel.onWillDisappear)
         .onFirstAppear {
             viewModel.onFirstAppear()
         }
