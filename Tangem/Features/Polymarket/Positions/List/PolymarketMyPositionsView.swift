@@ -51,7 +51,6 @@ struct PolymarketMyPositionsView: View {
             .padding(.top, Constants.topBarTopPadding)
 
             controlsRow
-                .padding(.horizontal, Constants.horizontalPadding)
                 .padding(.top, Constants.contentTopPadding)
         }
         .padding(.bottom, Constants.blockSpacing)
@@ -76,12 +75,13 @@ struct PolymarketMyPositionsView: View {
     }
 
     private var controlsRow: some View {
-        HStack(spacing: Constants.controlsSpacing) {
+        HStack(alignment: .top, spacing: Constants.controlsSpacing) {
             TabNavigation(data: viewModel.tabs, selection: $viewModel.tab)
 
             Spacer(minLength: Constants.controlsSpacing)
 
             filterChip
+                .padding(.trailing, Constants.horizontalPadding)
         }
         .padding(.bottom, Constants.controlsBottomPadding)
     }
@@ -125,6 +125,7 @@ struct PolymarketMyPositionsView: View {
     private var listSection: some View {
         listContent
             .polymarketStateTransition(contentState)
+            .id(viewModel.tab)
     }
 
     @ViewBuilder
@@ -207,7 +208,7 @@ private extension PolymarketMyPositionsView {
     enum Constants {
         static let topBarTopPadding: CGFloat = 8
         static let horizontalPadding: CGFloat = 16
-        static let contentTopPadding: CGFloat = 8
+        static let contentTopPadding: CGFloat = 16
         static let blockSpacing: CGFloat = 8
         static let controlsSpacing: CGFloat = 8
         static let controlsBottomPadding: CGFloat = 8
