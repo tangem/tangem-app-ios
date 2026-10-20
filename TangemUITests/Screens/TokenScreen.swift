@@ -34,6 +34,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
 
     // Staking elements
     private lazy var nativeStakingBlock = button(.nativeStakingBlock)
+    private lazy var nativeStakingBlockOfAnyType = app.descendants(matching: .any)[TokenAccessibilityIdentifiers.nativeStakingBlock].firstMatch
     private lazy var nativeStakingTitle = staticText(.nativeStakingTitle)
     private lazy var nativeStakingChevron = image(.nativeStakingChevron)
 
@@ -144,6 +145,28 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     }
 
     @discardableResult
+    func assertNativeStakingBlockNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert native staking block is not displayed on token screen") { _ in
+            waitAndAssertTrue(totalBalance, "Total balance element should exist before checking the staking block")
+            XCTAssertTrue(
+                nativeStakingBlockOfAnyType.waitForNonExistence(timeout: .robustUIUpdate),
+                "Native staking block should not be displayed"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertNativeStakingBlockTitle(_ expected: String) -> Self {
+        XCTContext.runActivity(named: "Assert native staking block title is '\(expected)'") { _ in
+            waitAndAssertTrue(nativeStakingBlock, "Native staking block should be displayed")
+            waitAndAssertTrue(nativeStakingTitle, "Native staking title should be displayed")
+            XCTAssertEqual(nativeStakingTitle.label, expected, "Native staking block title mismatch")
+            return self
+        }
+    }
+
+    @discardableResult
     func validateTopUpWalletBannerExists() -> Self {
         XCTContext.runActivity(named: "Validate 'Top up your wallet' banner exists") { _ in
             waitAndAssertTrue(topUpBanner, "Top up wallet banner should be displayed")
@@ -221,6 +244,16 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         TokenDetailsMarketPriceScreen(app)
     }
 
+    @discardableResult
+    func pullToRefresh() -> Self {
+        XCTContext.runActivity(named: "Pull to refresh token screen") { _ in
+            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+            let finish = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 1))
+            start.press(forDuration: 0.1, thenDragTo: finish)
+            return self
+        }
+    }
+
     // MARK: - Segmented Control Methods
 
     @discardableResult
@@ -232,6 +265,14 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
             } else {
                 balanceModePicker.waitAndTap()
             }
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapTotalSegment() -> Self {
+        XCTContext.runActivity(named: "Switch to Total balance") { _ in
+            balanceModePicker.waitAndTap()
             return self
         }
     }
@@ -279,6 +320,18 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
             waitAndAssertTrue(availableBalance, "Available balance element should exist")
             return availableBalance.label
         }
+    }
+
+    var loadedTotalBalance: String? {
+        totalBalance.exists ? totalBalance.label : nil
+    }
+
+    var loadedAvailableBalance: String? {
+        availableBalance.exists ? availableBalance.label : nil
+    }
+
+    var loadedStakingBalanceCrypto: String? {
+        stakingBalanceCrypto.exists ? stakingBalanceCrypto.label : nil
     }
 
     func getStakingBalance() -> String {

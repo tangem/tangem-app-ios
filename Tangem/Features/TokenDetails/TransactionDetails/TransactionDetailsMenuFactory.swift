@@ -109,9 +109,9 @@ enum TransactionDetailsMenuFactory {
     private static func isYieldProviderInteraction(_ transactionType: TransactionViewModel.TransactionType) -> Bool {
         switch transactionType {
         case .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit,
-             .yieldReactivate, .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin:
+             .yieldReactivate, .yieldSend, .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin:
             return true
-        case .incentiveClaim, .incentiveClaimCoin, .yieldSend, .stake, .unstake, .vote, .withdraw, .claimRewards, .restake,
+        case .incentiveClaim, .incentiveClaimCoin, .stake, .unstake, .vote, .withdraw, .claimRewards, .restake,
              .approve, .gaslessTransactionFee, .gaslessTransfer, .networkFee, .operation, .unknownOperation,
              .transfer, .swap, .onramp, .tangemPay:
             return false

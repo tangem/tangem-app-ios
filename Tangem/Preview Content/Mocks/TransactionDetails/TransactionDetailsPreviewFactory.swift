@@ -96,7 +96,9 @@ enum TransactionDetailsPreviewFactory {
             provider: .leading(Assets.YieldModule.yieldModuleAaveLogo),
             tokenIconInfo: icon("Tether", color: .green),
             amountText: "1,294.23 USDT",
-            caption: "Supplied"
+            caption: "Supplied",
+            fiatText: nil,
+            isAmountStrikethrough: false
         )
     }
 
@@ -105,7 +107,9 @@ enum TransactionDetailsPreviewFactory {
             provider: .trailing(Assets.YieldModule.yieldModuleAaveLogo),
             tokenIconInfo: icon("Tether", color: .green),
             amountText: "1,294.23 USDT",
-            caption: "Returned"
+            caption: "Returned",
+            fiatText: nil,
+            isAmountStrikethrough: false
         )
     }
 
