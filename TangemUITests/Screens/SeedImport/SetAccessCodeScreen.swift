@@ -52,9 +52,15 @@ final class SetAccessCodeScreen: ScreenBase<SetAccessCodeScreenElement> {
             // Create step auto-advances to confirm once the code is full.
             enterCode(code, into: hiddenField) { [self] in confirmStepTitle.exists }
             // Field id lingers as a hidden field, so wait for the success screen, not the field to vanish.
-            enterCode(code, into: hiddenField) { [self] in successFinishButton.exists }
+            enterCode(code, into: hiddenField) { [self] in isSuccessFinishButtonOnScreen() }
             return SeedImportSuccessScreen(app)
         }
+    }
+
+    private func isSuccessFinishButtonOnScreen() -> Bool {
+        guard successFinishButton.exists else { return false }
+        let frame = successFinishButton.frame
+        return !frame.isEmpty && app.frame.contains(frame)
     }
 
     /// Steps auto-advance and swallow keystrokes, so entry stops on the step transition (doneWhen), not a digit count.
