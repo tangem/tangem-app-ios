@@ -163,7 +163,7 @@ private extension CommonPromoCampaignEnrollmentService {
         }
 
         if isMainWalletIneligible {
-            analyticsLogger.log(.enrollError(campaign: campaign, reason: .unavailable, statusCode: nil), userWalletId: userWalletId)
+            analyticsLogger.log(.enrollError(campaign: campaign, reason: .unavailable, statusCode: Constants.successStatusCode), userWalletId: userWalletId)
             return .unavailable
         }
 
@@ -185,11 +185,11 @@ private extension CommonPromoCampaignEnrollmentService {
             return .alreadyEnrolled(alreadyEnrolled)
         case (true, true):
             guard hasIneligibleWallets else {
-                analyticsLogger.log(.enrollError(campaign: campaign, reason: .technical, statusCode: nil), userWalletId: userWalletId)
+                analyticsLogger.log(.enrollError(campaign: campaign, reason: .technical, statusCode: Constants.successStatusCode), userWalletId: userWalletId)
                 return .failed
             }
 
-            analyticsLogger.log(.enrollError(campaign: campaign, reason: .unavailable, statusCode: nil), userWalletId: userWalletId)
+            analyticsLogger.log(.enrollError(campaign: campaign, reason: .unavailable, statusCode: Constants.successStatusCode), userWalletId: userWalletId)
             return .unavailable
         }
     }
@@ -244,6 +244,7 @@ private extension CommonPromoCampaignEnrollmentService {
 
 private extension CommonPromoCampaignEnrollmentService {
     enum Constants {
+        static let successStatusCode = 200
         static let campaignNotFoundStatusCode = 404
         static let campaignNotActiveStatusCode = 409
     }
