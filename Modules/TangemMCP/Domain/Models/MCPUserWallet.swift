@@ -11,25 +11,22 @@ public import enum TangemUI.ThumbnailWalletViewType
 
 public struct MCPUserWallet: Equatable, Identifiable {
     public let id: UserWalletId
-    public let thumbnail: ThumbnailWalletViewType
+    public let thumbnail: ThumbnailWalletViewType?
     public let name: String
-    public let numberOfCards: UInt
-    public let balance: String
+    public let numberOfCards: Int
     public let isLocked: Bool
 
     public init(
         id: UserWalletId,
-        thumbnail: ThumbnailWalletViewType,
+        thumbnail: ThumbnailWalletViewType?,
         name: String,
-        numberOfCards: UInt,
-        balance: String,
+        numberOfCards: Int,
         isLocked: Bool
     ) {
         self.id = id
         self.thumbnail = thumbnail
         self.name = name
         self.numberOfCards = numberOfCards
-        self.balance = balance
         self.isLocked = isLocked
     }
 }

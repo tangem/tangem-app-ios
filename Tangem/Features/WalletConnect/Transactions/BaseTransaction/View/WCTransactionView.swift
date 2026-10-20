@@ -29,7 +29,7 @@ struct WCTransactionView: View {
             .allowsHitTesting(viewModel.presentationState != .signing)
             .animation(.contentFrameUpdate, value: viewModel.presentationState)
             .floatingSheetConfiguration { configuration in
-                configuration.sheetBackgroundColor = Colors.Background.tertiary
+                configuration.sheetBackground = .color(Colors.Background.tertiary)
                 configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
                 configuration.backgroundInteractionBehavior = .consumeTouches
             }

@@ -21,14 +21,9 @@ public struct PolymarketOrderSlippageRow: View {
     }
 
     public var body: some View {
-        let row = TangemUI.Row(title: Localization.predictionPlaceSlippage, value: valueText)
+        TangemUI.Row(title: Localization.predictionPlaceSlippage, value: valueText)
             .valueAccessory { chevron }
-
-        if let onTap {
-            row.onTap(onTap)
-        } else {
-            row
-        }
+            .onTap(action: onTap)
     }
 
     @ViewBuilder

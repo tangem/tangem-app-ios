@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import struct Foundation.URL
+
 /// `GET /api/authentication/v1/mcp/device_verification`
 enum FetchMCPConnectionRequestDTO {
     enum Request {
@@ -22,7 +24,7 @@ enum FetchMCPConnectionRequestDTO {
         let clientId: String
         let clientOrigin: String?
         let clientName: String?
-        let clientNameVerified: Bool
+        let clientIconUrl: URL?
         let state: String
         let userCode: String
         let scope: String

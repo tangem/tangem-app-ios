@@ -10,6 +10,7 @@ import Foundation
 
 enum MainQRScanResult {
     case walletConnect(WalletConnectRequestURI)
+    case mcpConnectionRequest(userCode: String)
     case paymentURI(MainQRPaymentRequest)
     case deeplink(URL)
     case plainAddress(String)

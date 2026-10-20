@@ -39,7 +39,7 @@ struct YieldModuleStartView: View {
         )
         .transition(.content)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = sheetBackgroundColor
+            configuration.sheetBackground = .color(sheetBackgroundColor)
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
         }
     }

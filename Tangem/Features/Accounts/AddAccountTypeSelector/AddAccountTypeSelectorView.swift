@@ -46,7 +46,7 @@ struct AddAccountTypeSelectorView: View {
         Row(title: title, subtitle: subtitle)
             .subtitleLineLimit(nil)
             .start { iconView(icon) }
-            .onTap(action)
+            .onTap(action: action)
             .accessibilityIdentifier(accessibilityIdentifier)
     }
 

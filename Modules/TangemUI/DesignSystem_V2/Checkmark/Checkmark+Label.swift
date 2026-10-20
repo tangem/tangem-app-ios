@@ -1,5 +1,5 @@
 //
-//  Checkmark+Mark.swift
+//  Checkmark+Label.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,17 +9,21 @@
 import SwiftUI
 import TangemAssets
 
-extension Checkmark {
-    struct CheckmarkMark: View {
+public extension Checkmark {
+    struct Label: View {
         let value: Value
         let size: Size
 
         @ScaledMetric private var side: CGFloat
 
-        init(value: Value, size: Size) {
+        public init(value: Value, size: Size) {
             self.value = value
             self.size = size
             _side = ScaledMetric(wrappedValue: size.side)
+        }
+
+        public init(isChecked: Bool) {
+            self.init(value: isChecked ? .checked : .unchecked, size: .size24)
         }
 
         private var checked: Bool { value == .checked }
@@ -28,7 +32,7 @@ extension Checkmark {
             value == .error ? DesignSystem.Color.iconStatusError : DesignSystem.Color.iconPrimary
         }
 
-        var body: some View {
+        public var body: some View {
             ZStack {
                 tinted(SelectionControlGlyph.circleRegular, color: circleColor)
 
@@ -42,7 +46,6 @@ extension Checkmark {
             .frame(width: side, height: side)
         }
 
-        @ViewBuilder
         private var mark: some View {
             ZStack {
                 if checked {
@@ -65,7 +68,7 @@ extension Checkmark {
 
 // MARK: - Constants
 
-private extension Checkmark.CheckmarkMark {
+private extension Checkmark.Label {
     enum Metrics {
         static let markInScale: CGFloat = 0.5
     }

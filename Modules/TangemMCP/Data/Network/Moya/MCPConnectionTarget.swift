@@ -6,18 +6,18 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import struct Foundation.URL
-import class Foundation.JSONEncoder
-import struct Alamofire.HTTPMethod
-import Moya
+public import struct Foundation.URL
+public import class Foundation.JSONEncoder
+public import struct Alamofire.HTTPMethod
+public import Moya
 
-struct MCPConnectionTarget: Moya.TargetType {
-    let baseURL: URL
-    let path: String
-    let method: Alamofire.HTTPMethod
-    let task: Moya.Task
-    let validationType: Moya.ValidationType
-    let headers: [String: String]?
+public struct MCPConnectionTarget: Moya.TargetType {
+    public let baseURL: URL
+    public let path: String
+    public let method: Alamofire.HTTPMethod
+    public let task: Moya.Task
+    public let validationType: Moya.ValidationType
+    public let headers: [String: String]?
 
     private init(baseURL: URL, method: Alamofire.HTTPMethod, task: Moya.Task) {
         self.baseURL = baseURL

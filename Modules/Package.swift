@@ -383,11 +383,15 @@ var featureModules: [PackageDescription.Target] {
             name: "TangemMCP",
             dependencies: [
                 .product(name: "OrderedCollections", package: "swift-collections"),
+                .product(name: "Kingfisher", package: "Kingfisher"),
                 .product(name: "Moya", package: "Moya"),
                 .target(name: "TangemAssets"),
                 .target(name: "TangemFoundation"),
+                .target(name: "TangemLocalization"),
+                .target(name: "TangemLogger"),
                 .target(name: "TangemNetworkUtils"),
                 .target(name: "TangemUI"),
+                .target(name: "TangemUIUtils"),
             ],
             swiftSettings: .swift6StrictSettings
         ),
