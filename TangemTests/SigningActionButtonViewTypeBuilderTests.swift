@@ -16,7 +16,7 @@ struct SigningActionButtonViewTypeBuilderTests {
 
     @Test("A wallet that taps a card confirms with a tap and the card logo")
     func cardWalletTaps() {
-        #expect(builder.build(config: UserWalletConfigStub()) == .cardTap)
+        #expect(builder.build(config: UserWalletConfigStub()) == .requiredNFCInteraction)
     }
 
     @Test("A wallet without NFC confirms by holding the button")

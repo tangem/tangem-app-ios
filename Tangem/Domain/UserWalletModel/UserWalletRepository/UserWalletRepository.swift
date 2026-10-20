@@ -64,13 +64,4 @@ enum UserWalletRepositoryUnlockMethod {
     case biometrics(LAContext)
     case biometricsUserWallet(userWalletId: UserWalletId, context: LAContext)
     case encryptionKey(userWalletId: UserWalletId, encryptionKey: UserWalletEncryptionKey)
-
-    var analyticsValue: Analytics.ParameterValue {
-        switch self {
-        case .biometrics, .biometricsUserWallet:
-            return Analytics.ParameterValue.signInTypeBiometrics
-        case .encryptionKey:
-            return Analytics.ParameterValue.card
-        }
-    }
 }

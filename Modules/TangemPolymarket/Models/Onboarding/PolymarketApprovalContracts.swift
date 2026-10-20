@@ -18,4 +18,7 @@ enum PolymarketApprovalContracts {
 
     static let exchangeV3 = "0xe3333700cA9d93003F00f0F71f8515005F6c00Aa"
     static let routerV3 = "0x12121212006e4CD160D18e3f00711DA5c3372600"
+    static let positionManager = "0x006F54F7f9A22e0000CC2AB60031000000ae9fEF"
+    static let binaryModule = "0x1000008dD9001B968442c1000017eaE6E0dA00Ba"
+    static let negRiskModule = "0x200000900045e3B6259600682756002200028933"
 }

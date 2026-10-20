@@ -41,7 +41,7 @@ struct PolymarketSwapParametersFactory {
             sourceResolver: sourceResolver,
             configuration: SwapFlowConfiguration(
                 isPairReversalEnabled: false,
-                sourceTokenSelection: .filtered(isIncluded: { !$0.isPayAccount }),
+                sourceTokenSelection: .selectable(.filtered(isIncluded: { !$0.isPayAccount })),
                 receiveTokenSelection: .followsSource(
                     AccountFundingDestinationResolver(candidates: candidates, defaultDestination: defaultDestination)
                 ),
@@ -59,13 +59,7 @@ struct PolymarketSwapParametersFactory {
             pair: .fixed(receiveOrUserSelection: receiveToken),
             configuration: SwapFlowConfiguration(
                 isPairReversalEnabled: false,
-                sourceTokenSelection: .restricted(
-                    walletsProvider: PolymarketWithdrawSourceWalletsProvider(
-                        userWalletInfo: userWalletInfo,
-                        source: source
-                    ),
-                    allowsMarketsTokens: false
-                ),
+                sourceTokenSelection: .fixed,
                 receiveTokenSelection: .selectable(
                     .restricted(
                         walletsProvider: FilteredTokenSelectorWalletsProvider(

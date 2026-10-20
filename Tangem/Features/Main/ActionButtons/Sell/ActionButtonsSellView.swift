@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemUIUtils
 import TangemLocalization
 import TangemAccessibilityIdentifiers
 
@@ -20,7 +21,7 @@ struct ActionButtonsSellView: View {
     }
 
     private var backgroundColor: Color {
-        .Tangem.Surface.level2
+        DesignSystem.Color.bgPrimary
     }
 
     var body: some View {
@@ -51,7 +52,7 @@ struct ActionButtonsSellView: View {
             }
 
             Text(Localization.marketsSearchPortfolioHeader)
-                .style(.Tangem.Heading20.semibold.font, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
                 .padding(.leading, 8)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }

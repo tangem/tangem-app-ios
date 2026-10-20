@@ -24,8 +24,6 @@ final class PolymarketFeeBreakdownSheetViewModel: ObservableObject, Identifiable
     @Published private(set) var total: String
     @Published private(set) var isRefreshing = false
 
-    let currencyCode = PolymarketUtilities.collateralTokenItem.currencySymbol
-
     // MARK: - Dependencies
 
     private let model: PolymarketOrderModel
@@ -107,7 +105,7 @@ private extension PolymarketFeeBreakdownSheetViewModel {
             let shares = PolymarketOrderFormatter.shares(Self.captionShares(for: intent, quote: quote))
             let price = PolymarketPriceFormatter.cents(quote.averagePrice)
             let slippage = PolymarketSlippageFormatter.percentText(state.slippagePercent)
-            let currency = PolymarketUtilities.collateralTokenItem.currencySymbol
+            let currency = AppConstants.usdCurrencyCode
 
             orderTitle = Self.title(for: intent)
             orderCaption = Self.caption(for: intent, shares: shares, price: price, currency: currency, slippage: slippage)

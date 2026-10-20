@@ -48,7 +48,7 @@ public struct FilterItem: View, Setupable {
         Capsule()
             .fill(DesignSystem.Color.bgTransparentSecondary)
             .frame(width: Constants.shimmerWidth, height: height)
-            .tangemShimmer()
+            .shimmering()
             .environment(\.isShimmerActive, true)
     }
 

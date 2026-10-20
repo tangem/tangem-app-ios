@@ -41,6 +41,26 @@ public struct LoadableTextView: View {
 
     public init(
         state: State,
+        token: TangemTypographyToken,
+        textColor: Color,
+        loaderSize: CGSize,
+        loaderCornerRadiusStyle: CornerRadiusStyle = .rounded(3.0),
+        lineLimit: Int = 1,
+        isSensitiveText: Bool = false
+    ) {
+        self.init(
+            state: state,
+            style: TangemFontStyle(token),
+            textColor: textColor,
+            loaderSize: loaderSize,
+            loaderCornerRadiusStyle: loaderCornerRadiusStyle,
+            lineLimit: lineLimit,
+            isSensitiveText: isSensitiveText
+        )
+    }
+
+    init(
+        state: State,
         style: TangemFontStyle,
         textColor: Color,
         loaderSize: CGSize,
@@ -94,27 +114,21 @@ public struct LoadableTextView: View {
             ZStack {
                 styledDashText
                     .opacity(0.01)
-                skeletonView
-                    .frame(width: loaderSize.width, height: loaderSize.height)
+                Shimmer()
+                    .variant(.custom(width: loaderSize.width, height: loaderSize.height, cornerRadius: loaderCornerRadius))
             }
         case .loadingCached(let text):
             styledText(text, isSensitive: isSensitiveText)
-                .shimmer()
-                .environment(\.isShimmerActive, true)
+                .shimmering(true)
         case .loaded(let text):
             styledText(text, isSensitive: isSensitiveText)
         }
     }
 
-    @ViewBuilder
-    private var skeletonView: some View {
+    private var loaderCornerRadius: CGFloat? {
         switch loaderCornerRadiusStyle {
-        case .rounded(let radius):
-            SkeletonView()
-                .cornerRadiusContinuous(radius)
-        case .capsule:
-            SkeletonView()
-                .clipShape(Capsule())
+        case .rounded(let radius): radius
+        case .capsule: nil
         }
     }
 
@@ -178,15 +192,15 @@ public extension LoadableTextView {
             HStack(spacing: 8) {
                 LoadableTextView(
                     state: .loading,
-                    style: Font.Tangem.Caption12.regular,
-                    textColor: .Tangem.Text.Neutral.tertiary,
+                    token: DesignSystem.Font.captionMediumToken,
+                    textColor: DesignSystem.Color.textSecondary,
                     loaderSize: .init(width: 40, height: 12)
                 )
 
                 LoadableTextView(
                     state: .loaded(text: "0.21432543264 ETH"),
-                    style: Font.Tangem.Caption12.regular,
-                    textColor: .Tangem.Text.Neutral.tertiary,
+                    token: DesignSystem.Font.captionMediumToken,
+                    textColor: DesignSystem.Color.textSecondary,
                     loaderSize: .init(width: 40, height: 12)
                 )
             }
@@ -200,16 +214,16 @@ public extension LoadableTextView {
             HStack(spacing: 8) {
                 LoadableTextView(
                     state: .loading,
-                    style: Font.Tangem.Caption12.regular,
-                    textColor: .Tangem.Text.Neutral.tertiary,
+                    token: DesignSystem.Font.captionMediumToken,
+                    textColor: DesignSystem.Color.textSecondary,
                     loaderSize: .init(width: 40, height: 12),
                     loaderCornerRadiusStyle: .capsule
                 )
 
                 LoadableTextView(
                     state: .loaded(text: "0.21432543264 ETH"),
-                    style: Font.Tangem.Caption12.regular,
-                    textColor: .Tangem.Text.Neutral.tertiary,
+                    token: DesignSystem.Font.captionMediumToken,
+                    textColor: DesignSystem.Color.textSecondary,
                     loaderSize: .init(width: 40, height: 12),
                     loaderCornerRadiusStyle: .capsule
                 )
@@ -221,8 +235,8 @@ public extension LoadableTextView {
         ForEach(states.indexed(), id: \.1.1) { _, state in
             LoadableTextView(
                 state: state.0,
-                style: Font.Tangem.Caption12.regular,
-                textColor: .Tangem.Text.Neutral.tertiary,
+                token: DesignSystem.Font.captionMediumToken,
+                textColor: DesignSystem.Color.textSecondary,
                 loaderSize: .init(width: 100, height: 20)
             )
         }

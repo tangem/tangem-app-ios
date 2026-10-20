@@ -22,14 +22,6 @@ extension Array where Element: Hashable {
     }
 }
 
-extension Swift.Array where Element: Equatable {
-    mutating func appendIfNotContains(_ element: Element) {
-        if !contains(where: { $0 == element }) {
-            append(element)
-        }
-    }
-}
-
 extension Array {
     func toDictionary<Key: Hashable>(keyedBy keyPath: KeyPath<Element, Key>, useLatestValue: Bool = true) -> [Key: Element] {
         reduce(into: [:]) {

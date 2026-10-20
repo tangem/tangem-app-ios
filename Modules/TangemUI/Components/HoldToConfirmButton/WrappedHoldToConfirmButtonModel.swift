@@ -47,6 +47,7 @@ final class WrappedHoldToConfirmButtonModel: ObservableObject {
 
     private var pendingSubscription: AnyCancellable?
     private var touchesSubscription: AnyCancellable?
+    private var isConfirmedActionPending = false
 
     init(
         title: String,
@@ -122,7 +123,7 @@ private extension WrappedHoldToConfirmButtonModel {
 
 private extension WrappedHoldToConfirmButtonModel {
     func shouldObserveTouches() -> Bool {
-        !isDisabled && [.idle, .holding, .canceled].contains(state)
+        !isDisabled && !isConfirmedActionPending && [.idle, .holding, .canceled].contains(state)
     }
 
     func bindTouchesIfNeeded() {
@@ -145,10 +146,12 @@ private extension WrappedHoldToConfirmButtonModel {
             }
             .removeDuplicates()
             .sink { [weak self] hasActiveTouches in
+                guard let self else { return }
+
                 if hasActiveTouches {
-                    self?.startHolding()
-                } else {
-                    self?.cancelHolding()
+                    startHolding()
+                } else if state == .holding {
+                    cancelHolding()
                 }
             }
     }
@@ -196,6 +199,7 @@ private extension WrappedHoldToConfirmButtonModel {
     func confirm() {
         setup(state: .confirmed)
         unbindTouches()
+        isConfirmedActionPending = true
         pendingSubscription = Just(())
             .delay(for: Constants.confirmDelay, scheduler: DispatchQueue.main)
             .handleEvents(receiveOutput: { [weak self] _ in
@@ -205,27 +209,57 @@ private extension WrappedHoldToConfirmButtonModel {
             .delay(for: Constants.confirmHitInterval, scheduler: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self else { return }
+                isConfirmedActionPending = false
                 singleVibration(generator: loadingGenerator)
                 action()
             }
     }
 
     func startLoading() {
+        let isLoadingAfterAction = state == .confirmed && !isConfirmedActionPending
+
+        cancelUnconfirmedHold()
         setup(state: .loading)
-        singleVibration(generator: loadingGenerator)
+
+        if isLoadingAfterAction {
+            singleVibration(generator: loadingGenerator)
+        }
     }
 
     func stopLoading() {
-        setup(state: .idle)
+        setup(state: isConfirmedActionPending ? .confirmed : .idle)
     }
 
     func enable() {
         isDisabled = false
+
+        guard state != .loading, !isConfirmedActionPending else {
+            return
+        }
+
         setup(state: .idle)
     }
 
     func disable() {
         isDisabled = true
+        cancelUnconfirmedHold()
+
+        if [.holding, .canceled].contains(state) {
+            setup(state: .idle)
+        }
+    }
+
+    func cancelUnconfirmedHold() {
+        guard !isConfirmedActionPending else {
+            return
+        }
+
+        if state == .holding {
+            shake()
+            notificationGenerator.notificationOccurred(.error)
+        }
+
+        pendingSubscription = nil
         unbindTouches()
     }
 

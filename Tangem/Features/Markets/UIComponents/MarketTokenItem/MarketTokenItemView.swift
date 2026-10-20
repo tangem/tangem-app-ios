@@ -128,7 +128,7 @@ struct MarketTokenItemView: View {
     private func makeSkeletonView(by value: String) -> some View {
         Text(value)
             .style(Fonts.Bold.caption1, color: Colors.Text.primary1)
-            .skeletonable(isShown: true)
+            .shimmerPlaceholder(true, variant: .custom(cornerRadius: 3))
     }
 }
 
@@ -141,7 +141,6 @@ extension MarketTokenItemView {
         static let itemsHorizontalSpacing: CGFloat = 10.0
         static let chartSize: CGSize = .init(width: 56, height: 24)
         static let skeletonMediumWidthValue: String = "---------"
-        static let skeletonSmallWidthValue: String = "------"
 
         static let widthNeededForItemsExceptTextBlock: CGFloat = horizontalViewPadding * 2 + Constants.iconSize.containerSize.width + chartSize.width + itemsHorizontalSpacing * 2 + imageTrailingPadding
     }

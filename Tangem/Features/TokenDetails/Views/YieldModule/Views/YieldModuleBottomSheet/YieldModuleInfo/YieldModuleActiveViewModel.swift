@@ -94,10 +94,6 @@ final class YieldModuleActiveViewModel: ObservableObject {
         }
     }
 
-    var showsBonusPaidOutBanner: Bool {
-        promoStatus == .completed && !isBonusPaidOutBannerDismissed
-    }
-
     // MARK: - Dependencies
 
     private(set) var walletModel: any WalletModel
@@ -650,12 +646,6 @@ private extension YieldModuleActiveViewModel {
 
     func createHasUndepositedAmountsNotification(undepositedAmount: String) -> YieldModuleNotificationBannerParams {
         notificationManager.createHasUndepositedAmountsNotification(undepositedAmount: undepositedAmount)
-    }
-}
-
-extension YieldModuleActiveViewModel {
-    func onBonusPaidOutBannerDismiss() {
-        isBonusPaidOutBannerDismissed = true
     }
 }
 

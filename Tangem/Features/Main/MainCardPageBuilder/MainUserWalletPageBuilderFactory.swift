@@ -61,7 +61,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         let providerFactory = model.config.makeMainHeaderProviderFactory()
         let balanceProvider = providerFactory.makeHeaderBalanceProvider(for: model)
-        let subtitleProvider = providerFactory.makeHeaderSubtitleProvider(for: model, isMultiWallet: isMultiWalletPage)
 
         let navigationBalanceProvider = MainNavigationBalanceProvider(
             isUserWalletLocked: model.isUserWalletLocked,
@@ -74,7 +73,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             isUserWalletLocked: model.isUserWalletLocked,
             walletThumbnailType: model.config.walletThumbnailType,
             supplementInfoProvider: model,
-            subtitleProvider: subtitleProvider,
             balanceProvider: balanceProvider,
             walletAssetsDiscoveryProgressProvider: walletAssetsDiscoveryProgressProvider,
             updatePublisher: model.updatePublisher
@@ -202,7 +200,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             userWalletId: model.userWalletId,
             walletModel: dependencies.walletModel,
             walletModelsManager: dependencies.walletModelsManager,
-            tangemIconProvider: CommonTangemIconProvider(config: model.config)
+            signingActionButtonType: SigningActionButtonViewTypeBuilder().build(config: model.config)
         )
 
         let promotionNotificationsManager = CommonPromotionNotificationsManager(
@@ -286,8 +284,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let id = visaUserWalletModel.userWalletId
         let isUserWalletLocked = visaUserWalletModel.isUserWalletLocked
 
-        let subtitleProvider = VisaWalletMainHeaderSubtitleProvider(isUserWalletLocked: isUserWalletLocked, dataSource: visaUserWalletModel)
-
         let navigationBalanceProvider = MainNavigationBalanceProvider(
             isUserWalletLocked: visaUserWalletModel.isUserWalletLocked,
             totalBalanceProvider: visaUserWalletModel
@@ -299,7 +295,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             isUserWalletLocked: visaUserWalletModel.isUserWalletLocked,
             walletThumbnailType: visaUserWalletModel.config.walletThumbnailType,
             supplementInfoProvider: visaUserWalletModel,
-            subtitleProvider: subtitleProvider,
             balanceProvider: visaUserWalletModel,
             walletAssetsDiscoveryProgressProvider: walletAssetsDiscoveryProgressProvider,
             updatePublisher: visaUserWalletModel.updatePublisher

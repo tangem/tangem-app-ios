@@ -11,6 +11,7 @@ import Combine
 import BlockchainSdk
 import UIKit
 import SwiftUI
+import TangemUI
 
 final class TokenDetailsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -55,7 +56,7 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             userWalletId: options.userWalletInfo.id,
             walletModel: options.walletModel,
             walletModelsManager: options.walletModelsManager,
-            tangemIconProvider: CommonTangemIconProvider(config: options.userWalletInfo.config)
+            signingActionButtonType: SigningActionButtonViewTypeBuilder().build(userWalletInfo: options.userWalletInfo)
         )
 
         let tokenRouter = SingleTokenRouter(
@@ -243,10 +244,12 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
 
     func openDynamicAddressesEnterView(
         walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
+        signingActionButtonType: SigningActionButtonViewType,
         analyticsLogger: DynamicAddressesAnalyticsLogger
     ) {
         dynamicAddressesEnterViewModel = DynamicAddressesEnterViewModel(
             walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
+            signingActionButtonType: signingActionButtonType,
             analyticsLogger: analyticsLogger,
             coordinator: self
         )

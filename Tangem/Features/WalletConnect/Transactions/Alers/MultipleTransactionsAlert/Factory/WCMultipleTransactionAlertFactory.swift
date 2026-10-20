@@ -8,11 +8,11 @@
 
 import TangemLocalization
 import TangemAssets
+import TangemUI
 
 enum WCMultipleTransactionsAlertFactory {
     static func makeMultipleTransactionAlertState(
-        tangemIconProvider: TangemIconProvider,
-        confirmTransactionPolicy: ConfirmTransactionPolicy
+        signingActionButtonType: SigningActionButtonViewType
     ) -> WCTransactionAlertState {
         let state: WCTransactionAlertState = .init(
             title: Localization.walletConnectMultipleTransactions,
@@ -23,8 +23,7 @@ enum WCMultipleTransactionsAlertFactory {
             ),
             primaryButton: .init(title: Localization.commonSend, style: .primary, isLoading: false),
             secondaryButton: .init(title: Localization.commonBack, style: .secondary, isLoading: false),
-            tangemIcon: tangemIconProvider.getMainButtonIcon(),
-            needsHoldToConfirm: confirmTransactionPolicy.needsHoldToConfirm
+            signingActionButtonType: signingActionButtonType
         )
 
         return state

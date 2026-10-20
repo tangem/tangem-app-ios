@@ -58,6 +58,7 @@ struct TokenDetailsView: View {
                 }
                 .padding(.bottom, 40)
             }
+            .fixedSize(horizontal: false, vertical: true)
             .padding(.top, Constants.headerTopPadding)
             .readContentOffset(
                 inCoordinateSpace: .named(CoordinateSpaceName.scrollView),
@@ -235,6 +236,7 @@ struct TokenDetailsView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
                 .background {
+                    // [REDACTED_TODO_COMMENT]
                     LinearGradient.Tangem.Common.tokenDetailsMarketPrice
                         .ignoresSafeArea()
                 }
@@ -242,7 +244,7 @@ struct TokenDetailsView: View {
     }
 
     private var backgroundColor: Color {
-        Color.Tangem.Surface.level2
+        DesignSystem.Color.bgPrimary
     }
 }
 
@@ -326,7 +328,7 @@ private extension TokenDetailsView {
         userWalletId: userWalletModel.userWalletId,
         walletModel: walletModel,
         walletModelsManager: cryptoAccountModel.walletModelsManager,
-        tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true)
+        signingActionButtonType: .requiredNFCInteraction
     )
     let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
         ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)

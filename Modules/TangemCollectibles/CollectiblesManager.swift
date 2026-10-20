@@ -172,12 +172,13 @@ extension CollectiblesManager: CollectiblesOnboarder {
 
 public extension CollectiblesManager {
     var purchaseAddresses: CollectiblesPurchaseAddresses? {
-        guard case .ready(let vault) = state, let coldOwner = coldOwnerProvider.coldOwnerKey()?.blockchainKey else {
+        guard case .ready = state, let coldOwner = coldOwnerProvider.coldOwnerKey()?.blockchainKey else {
             return nil
         }
 
-        // [REDACTED_TODO_COMMENT]
-        return CollectiblesPurchaseAddresses(payer: vault.vaultAddress, prizeRecipient: coldOwner.base58EncodedString)
+        let ownerAddress = coldOwner.base58EncodedString
+
+        return CollectiblesPurchaseAddresses(player: ownerAddress, prizeRecipient: ownerAddress)
     }
 }
 

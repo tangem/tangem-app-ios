@@ -59,9 +59,8 @@ struct CampaignView: View {
 
     private var loadingContent: some View {
         VStack(spacing: 32) {
-            SkeletonView()
-                .frame(width: Constants.circleDimension, height: Constants.circleDimension)
-                .clipShape(Circle())
+            Shimmer()
+                .variant(.custom(width: Constants.circleDimension, height: Constants.circleDimension))
 
             VStack(alignment: .leading, spacing: 8) {
                 skeletonLine(width: 220, height: 20)
@@ -85,10 +84,9 @@ struct CampaignView: View {
     }
 
     private func skeletonLine(width: CGFloat? = nil, height: CGFloat) -> some View {
-        SkeletonView()
-            .frame(width: width, height: height)
+        Shimmer()
+            .variant(.custom(width: width, height: height, cornerRadius: 4))
             .frame(maxWidth: width == nil ? .infinity : nil, alignment: .leading)
-            .clipShape(RoundedRectangle(cornerRadius: 4))
     }
 
     private var statusContent: some View {
@@ -232,10 +230,8 @@ struct CampaignView: View {
         case .readyToEnroll:
             MainButton(settings: MainButton.Settings(title: Localization.promoCampaignEnroll, isLoading: viewModel.isEnrolling, action: viewModel.enroll))
         case .idle, .loading:
-            SkeletonView()
-                .frame(height: MainButton.Size.default.height)
-                .frame(maxWidth: .infinity)
-                .clipShape(RoundedRectangle(cornerRadius: MainButton.Style.primary.cornerRadius(for: .default)))
+            Shimmer()
+                .variant(.custom(height: MainButton.Size.default.height, cornerRadius: MainButton.Style.primary.cornerRadius(for: .default)))
         }
     }
 }

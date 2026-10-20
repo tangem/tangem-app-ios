@@ -290,15 +290,6 @@ final class AccountSelectorViewModel: ObservableObject {
 enum AccountAvailability: Equatable {
     case available
     case unavailable(reason: String? = nil)
-
-    var isBalanceVisible: Bool {
-        switch self {
-        case .available:
-            true
-        case .unavailable(let reason):
-            reason == nil
-        }
-    }
 }
 
 extension AccountSelectorViewModel {

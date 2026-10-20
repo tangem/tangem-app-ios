@@ -50,7 +50,6 @@ final class MarketsTokenListViewModel: ObservableObject {
     private var marketCapFormatter: MarketCapFormatter
     private var bag = Set<AnyCancellable>()
     private var currentSearchValue: String = ""
-    private var isViewVisible: Bool = false
     private var showItemsBelowCapThreshold: Bool = false
 
     private var filterItemsBelowMarketCapThreshold: Bool {

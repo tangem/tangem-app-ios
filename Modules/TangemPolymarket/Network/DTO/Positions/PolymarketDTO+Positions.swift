@@ -11,12 +11,12 @@ import Foundation
 extension PolymarketDTO {
     struct PositionsResponse: Decodable {
         let positions: [Position]
-        let hasNext: Bool?
+        let nextCursor: String?
     }
 
     struct ClosedPositionsResponse: Decodable {
         let positions: [ClosedPosition]
-        let hasNext: Bool?
+        let nextCursor: String?
     }
 
     struct ClosedPosition: Decodable {
@@ -39,6 +39,7 @@ extension PolymarketDTO {
         let conditionId: String
         let assetId: String
         let marketId: String?
+        let version: String?
         let eventId: String?
         let eventTitle: String?
         let title: String?
@@ -77,7 +78,16 @@ extension PolymarketDTO {
 
 extension PolymarketDTO {
     struct PositionsValueResponse: Decodable {
-        let user: String?
+        let data: PositionsValue
+    }
+
+    struct PositionsValue: Decodable {
+        let proxyWallet: String?
         let value: Decimal
+
+        enum CodingKeys: String, CodingKey {
+            case proxyWallet = "proxy_wallet"
+            case value
+        }
     }
 }

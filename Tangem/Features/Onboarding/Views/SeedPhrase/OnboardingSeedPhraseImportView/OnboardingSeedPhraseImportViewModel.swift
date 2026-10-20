@@ -37,12 +37,12 @@ class OnboardingSeedPhraseImportViewModel: ObservableObject {
 
     init(
         inputProcessor: SeedPhraseInputProcessor,
-        tangemIconProvider: TangemIconProvider,
+        signingActionButtonType: SigningActionButtonViewType,
         delegate: SeedPhraseImportDelegate?
     ) {
         self.inputProcessor = inputProcessor
         self.delegate = delegate
-        mainButtonIcon = tangemIconProvider.getMainButtonIcon()
+        mainButtonIcon = signingActionButtonType.mainButtonIcon
         bind()
     }
 

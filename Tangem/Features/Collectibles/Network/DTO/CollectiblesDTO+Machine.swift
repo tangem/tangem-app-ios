@@ -29,7 +29,7 @@ extension CollectiblesDTO {
         let stock: Tiers<Int>
         let expectedValue: Decimal
         let image: String?
-        let videoOpenPack: String?
+        let openPackMedia: OpenPackMedia?
         let categoryId: String
         let createdAt: String
         let updatedAt: String
@@ -37,6 +37,12 @@ extension CollectiblesDTO {
 }
 
 extension CollectiblesDTO.Machine {
+    struct OpenPackMedia: Decodable {
+        let videoLight: String?
+        let videoDark: String?
+        let skipAnimationAudio: String?
+    }
+
     struct Tiers<Value: Decodable>: Decodable {
         let common: Value?
         let uncommon: Value?
