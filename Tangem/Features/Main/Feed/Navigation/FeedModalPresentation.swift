@@ -20,8 +20,10 @@ struct FeedModalPresentation: ViewModifier {
                 item: modal,
                 size: size(for:),
                 header: header(for:),
-                content: modalContent(for:),
-                footer: footer(for:)
+                content: { modal in
+                    modalContent(for: modal)
+                        .legacyFooter { footer(for: modal) }
+                }
             )
         }
     }

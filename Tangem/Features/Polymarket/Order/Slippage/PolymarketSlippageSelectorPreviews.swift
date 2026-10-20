@@ -32,8 +32,10 @@ private struct PolymarketSlippageSelectorPreviewHost: View {
         Color.clear.modal(
             isPresented: .constant(true),
             title: Localization.predictionPlaceSlippage,
-            content: { PolymarketSlippageSelectorView(viewModel: viewModel) },
-            footer: { PolymarketSlippageSelectorFooterView(viewModel: viewModel) }
+            content: {
+                PolymarketSlippageSelectorView(viewModel: viewModel)
+                    .legacyFooter { PolymarketSlippageSelectorFooterView(viewModel: viewModel) }
+            }
         )
     }
 }
