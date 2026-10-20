@@ -14,8 +14,8 @@ import TangemUI
 import TangemPay
 
 protocol TangemPayPinCheckRoutable: AnyObject {
-    func openTangemPaySetPin(card: TangemPayCard)
     func closePinCheck()
+    func closePinCheckAndOpenSetPin(card: TangemPayCard)
 }
 
 final class TangemPayPinCheckViewModel: ObservableObject, Identifiable {
@@ -62,8 +62,7 @@ final class TangemPayPinCheckViewModel: ObservableObject, Identifiable {
 
     func changePin() {
         Analytics.log(.visaScreenChangePinOnCurrentPinClicked, contextParams: .userWallet(userWalletId))
-        coordinator?.closePinCheck()
-        coordinator?.openTangemPaySetPin(card: card)
+        coordinator?.closePinCheckAndOpenSetPin(card: card)
     }
 
     func close() {
@@ -94,5 +93,3 @@ final class TangemPayPinCheckViewModel: ObservableObject, Identifiable {
         }
     }
 }
-
-extension TangemPayPinCheckViewModel: FloatingSheetContentViewModel {}
