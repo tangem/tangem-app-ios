@@ -10,6 +10,7 @@ import Combine
 import Foundation
 import SwiftUI
 import TangemCollectibles
+import TangemFoundation
 import TangemLocalization
 
 @MainActor
@@ -24,6 +25,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     private let isTurboModeOn: Bool
     private let purchaseInteractor: any CollectiblesPackPurchaseInteractor
     private let revealAssetsPreloader: any CollectiblesRevealAssetsPreloader
+    private let delayProvider: any PollDelayProvider
     private let refreshBalance: () async -> Void
 
     private weak var routable: (any CollectiblesConfirmOrderRoutable)?
@@ -69,6 +71,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         purchaseInteractor: any CollectiblesPackPurchaseInteractor,
         routable: (any CollectiblesConfirmOrderRoutable)?,
         revealAssetsPreloader: any CollectiblesRevealAssetsPreloader,
+        delayProvider: any PollDelayProvider = TaskSleepPollDelayProvider(),
         refreshBalance: @escaping () async -> Void
     ) {
         self.machineID = machineID
@@ -80,6 +83,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         self.purchaseInteractor = purchaseInteractor
         self.revealAssetsPreloader = revealAssetsPreloader
         self.routable = routable
+        self.delayProvider = delayProvider
         self.refreshBalance = refreshBalance
         artworkURL = machine.artworkURL
         rows = [
@@ -135,7 +139,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
                     let assets = await revealAssetsPreloader.assets(prefetchingImages: imageURLs)
 
                     // [REDACTED_TODO_COMMENT]
-                    self?.showReveal(of: wonCard, assets: assets)
+                    self?.openReveal(of: wonCard, assets: assets)
                 case .autoSold(let amount):
                     self?.showBuybackComplete(amount: amount)
                 }
@@ -149,6 +153,12 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
 
     func close() {
         routable?.closePackFlow()
+    }
+
+    func show(reveal viewModel: CollectiblesPackRevealViewModel) {
+        revealViewModel = viewModel
+        orderPhase = .generated
+        updateButtonState()
     }
 
     func preloadRevealAssets(for colorScheme: ColorScheme, isReduceMotionEnabled: Bool) {
@@ -258,15 +268,9 @@ private extension CollectiblesConfirmOrderViewModel {
         updateButtonState()
     }
 
-    func showReveal(of wonCard: CollectiblesWonCard, assets: CollectiblesRevealAssets) {
-        revealViewModel = CollectiblesPackRevealViewModel(
-            darkVideoURL: assets.darkVideoURL,
-            lightVideoURL: assets.lightVideoURL,
-            prize: CollectiblesPackRevealView.Prize(wonCard: wonCard, buybackRate: buybackRate),
-            player: AVCollectiblesRevealPlayer(skipAudioURL: assets.skipAudioURL)
-        )
-        orderPhase = .generated
-        updateButtonState()
+    func openReveal(of wonCard: CollectiblesWonCard, assets: CollectiblesRevealAssets) {
+        let prize = CollectiblesPackRevealView.Prize(wonCard: wonCard, buybackRate: buybackRate)
+        routable?.openPackReveal(prize: prize, assets: assets)
     }
 
     func showBuybackComplete(amount: Decimal?) {
@@ -310,8 +314,8 @@ private extension CollectiblesConfirmOrderViewModel {
         errorMessage = message
 
         errorDismissTask?.cancel()
-        errorDismissTask = Task { [weak self] in
-            try await Task.sleep(for: Constants.errorDisplayDuration)
+        errorDismissTask = Task { [weak self, delayProvider] in
+            try await delayProvider.wait(for: Constants.errorDisplayDuration)
             self?.errorMessage = nil
             self?.errorDismissTask = nil
         }
@@ -363,6 +367,6 @@ private extension CollectiblesConfirmOrderViewModel {
 
 private extension CollectiblesConfirmOrderViewModel {
     enum Constants {
-        static let errorDisplayDuration: Duration = .seconds(3)
+        static let errorDisplayDuration: TimeInterval = 3
     }
 }

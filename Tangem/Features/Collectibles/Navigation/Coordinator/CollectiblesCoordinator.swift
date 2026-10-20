@@ -127,6 +127,16 @@ extension CollectiblesCoordinator: CollectiblesMachineRoutable {
 // MARK: - CollectiblesConfirmOrderRoutable
 
 extension CollectiblesCoordinator: CollectiblesConfirmOrderRoutable {
+    func openPackReveal(prize: CollectiblesPackRevealView.Prize, assets: CollectiblesRevealAssets) {
+        let revealViewModel = CollectiblesPackRevealViewModel(
+            darkVideoURL: assets.darkVideoURL,
+            lightVideoURL: assets.lightVideoURL,
+            prize: prize,
+            player: AVCollectiblesRevealPlayer(skipAudioURL: assets.skipAudioURL)
+        )
+        confirmOrderViewModel?.show(reveal: revealViewModel)
+    }
+
     func returnToMachine() {
         closeConfirmOrder()
     }
