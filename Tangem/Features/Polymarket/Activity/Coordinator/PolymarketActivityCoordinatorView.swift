@@ -26,11 +26,11 @@ struct PolymarketActivityCoordinatorView: CoordinatorView {
                 },
                 content: { viewModel in
                     PolymarketActivityDetailsView(model: viewModel.model)
-                },
-                footer: { viewModel in
-                    if viewModel.canGoToPredict {
-                        PolymarketActivityDetailsView.footer(onGoToPredict: { viewModel.handleViewAction(.goToPredictTapped) })
-                    }
+                        .legacyFooter {
+                            if viewModel.canGoToPredict {
+                                PolymarketActivityDetailsView.footer(onGoToPredict: { viewModel.handleViewAction(.goToPredictTapped) })
+                            }
+                        }
                 }
             )
             .scrollIndicators(.hidden)
