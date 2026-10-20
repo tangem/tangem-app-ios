@@ -70,6 +70,7 @@ extension StakingYieldInfo {
         warmupPeriod: .days(0),
         rewardClaimingType: .manual,
         rewardScheduleType: .daily,
+        rewardsIncludedInStake: false,
         maximumStakeAmount: nil
     )
 }
