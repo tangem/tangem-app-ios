@@ -245,24 +245,110 @@ struct MainScreenPromoSheetProviderTests {
         }
     }
 
+    @Test("The variant is read once, as the last step, and handed to the source")
+    func readsVariantLast() async {
+        let experiment = ExperimentServiceStub(storedVariant: "user_max_apy", isFetched: true)
+
+        await withProvider(managerStates: [.preparing], experiment: experiment) { provider, managers, _ in
+            provider.onMainScreenAppear()
+            await drainMainQueue()
+            #expect(experiment.invokedMethods.isEmpty)
+
+            managers[0].state.send(.ready)
+            await drainMainQueue()
+
+            #expect(experiment.invokedMethods == [.variant])
+            #expect(managers[0].requestedVariants == ["user_max_apy"])
+            #expect(managers.presentedIds == [managers[0].id])
+        }
+    }
+
+    @Test("Variants not fetched for the selected wallet skip without reading the variant")
+    func variantsNotFetchedSkips() async {
+        let experiment = ExperimentServiceStub(storedVariant: "user_max_apy", isFetched: false)
+
+        await withProvider(managerStates: [.ready], experiment: experiment) { provider, managers, _ in
+            provider.onMainScreenAppear()
+            await drainMainQueue()
+
+            #expect(experiment.invokedMethods.isEmpty)
+            #expect(managers[0].skipReasons == [.variantNotReady])
+            #expect(managers.presentedIds.isEmpty)
+        }
+    }
+
+    @Test("No selected wallet skips without reading the variant")
+    func noSelectedWalletSkips() async {
+        let experiment = ExperimentServiceStub(storedVariant: "user_max_apy", isFetched: true)
+
+        await withProvider(managerStates: [.ready], experiment: experiment, selectedUserWalletId: nil) { provider, managers, _ in
+            provider.onMainScreenAppear()
+            await drainMainQueue()
+
+            #expect(experiment.invokedMethods.isEmpty)
+            #expect(managers[0].skipReasons == [.variantNotReady])
+        }
+    }
+
+    @Test("A variant the source declines shows nothing and does not count as shown")
+    func declinedVariantShowsNothing() async {
+        let experiment = ExperimentServiceStub(storedVariant: "control", isFetched: true)
+
+        await withProvider(managerStates: [.ready], experiment: experiment) { provider, managers, interactor in
+            provider.onMainScreenAppear()
+            await drainMainQueue()
+
+            #expect(experiment.invokedMethods == [.variant])
+            #expect(managers.presentedIds.isEmpty)
+            #expect(managers[0].skipReasons.isEmpty)
+            #expect(!interactor.hasShownSheet(managerId: managers[0].id))
+        }
+    }
+
+    @Test("A skipped launch never reads the variant")
+    func skipNeverReadsVariant() async {
+        let experiment = ExperimentServiceStub(storedVariant: "user_max_apy", isFetched: true)
+
+        await withProvider(managerStates: [.unavailable(.dataNotReady)], experiment: experiment) { provider, _, _ in
+            provider.onMainScreenAppear()
+            await drainMainQueue()
+
+            #expect(experiment.invokedMethods.isEmpty)
+        }
+    }
+
     private func withProvider(
         managerStates: [MainScreenPromoSheetManagerState?],
         shownManagerIndices: Set<Int> = [],
+        experiment: ExperimentServiceStub = ExperimentServiceStub(storedVariant: "treatment", isFetched: true),
+        selectedUserWalletId: UserWalletId? = Self.userWalletId,
         _ operation: (MainScreenPromoSheetProvider, [StubPromoSheetManager], StubPromoSheetInteractor) async -> Void
     ) async {
         let interactor = StubPromoSheetInteractor()
         let managers = managerStates.map { StubPromoSheetManager(state: $0) }
         shownManagerIndices.forEach { interactor.shownManagerIds.insert(managers[$0].id) }
-        let provider = makeProvider(managers: managers, interactor: interactor)
+        let provider = makeProvider(
+            managers: managers,
+            interactor: interactor,
+            experiment: experiment,
+            selectedUserWalletId: selectedUserWalletId
+        )
 
         await operation(provider, managers, interactor)
     }
 
     private func makeProvider(
         managers: [StubPromoSheetManager],
-        interactor: StubPromoSheetInteractor = StubPromoSheetInteractor()
+        interactor: StubPromoSheetInteractor = StubPromoSheetInteractor(),
+        experiment: ExperimentServiceStub = ExperimentServiceStub(storedVariant: "treatment", isFetched: true),
+        selectedUserWalletId: UserWalletId? = Self.userWalletId
     ) -> MainScreenPromoSheetProvider {
-        MainScreenPromoSheetProvider(managers: managers, interactor: interactor)
+        MainScreenPromoSheetProvider(
+            managers: managers,
+            interactor: interactor,
+            experimentService: experiment,
+            selectedUserWalletId: { selectedUserWalletId }
+        )
     }
 
     private func drainMainQueue() async {
@@ -272,6 +358,8 @@ struct MainScreenPromoSheetProviderTests {
             }
         }
     }
+
+    private nonisolated static let userWalletId = UserWalletId(value: Data(repeating: 0x01, count: 32))
 }
 
 // MARK: - Stubs
@@ -313,6 +401,7 @@ private final class StubPromoSheetInteractor: MainScreenPromoSheetInteractor {
 
 private final class StubPromoSheetManager: MainScreenPromoSheetManager {
     let id = UUID().uuidString
+    let experimentKey: ExperimentFeatureFlagKey = .hardwareUpgradeStories
     var handlesPresentation = true
     var presentsSheet = true
     let state: CurrentValueSubject<MainScreenPromoSheetManagerState?, Never>
@@ -325,6 +414,7 @@ private final class StubPromoSheetManager: MainScreenPromoSheetManager {
     private(set) var presentedOnMainThread: Bool?
     private(set) var receivedPresentationSettings: [MainScreenPromoSheetPresentationSettings] = []
     private(set) var shownCount = 0
+    private(set) var requestedVariants: [String?] = []
 
     var isRunning: Bool {
         didStart && !didStop
@@ -349,7 +439,13 @@ private final class StubPromoSheetManager: MainScreenPromoSheetManager {
         return handlesPresentation
     }
 
-    func presentSheet() -> AnyPublisher<Void, Never>? {
+    func presentSheet(experimentVariant: String?) -> AnyPublisher<Void, Never>? {
+        requestedVariants.append(experimentVariant)
+
+        guard experimentVariant != "control" else {
+            return nil
+        }
+
         presentCount += 1
         presentedOnMainThread = Thread.isMainThread
         return presentsSheet ? appearanceSubject.eraseToAnyPublisher() : nil

@@ -6,9 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Combine
 import Testing
-import Experiment
 import TangemFoundation
 import TangemStories
 @testable import Tangem
@@ -55,6 +53,7 @@ struct StoriesPrefetchManagerTests {
 
             #expect(stub.invokedMethods.contains(.isOnWithoutExposure))
             #expect(!stub.invokedMethods.contains(.isOn))
+            #expect(!stub.invokedMethods.contains(.variant))
         }
     }
 
@@ -71,50 +70,13 @@ struct StoriesPrefetchManagerTests {
         FeatureProvider.isAvailable(.hardwareUpgradeStories)
     }
 
-    private func withExperiment(variant: ExperimentFeatureVariantKey?, _ operation: (StubExperimentService) -> Void) async {
+    private func withExperiment(variant: ExperimentFeatureVariantKey?, _ operation: (ExperimentServiceStub) -> Void) async {
         await InjectedDependenciesIsolation.shared.run {
             let previous = InjectedValues[\.experimentService]
-            let stub = StubExperimentService(storedVariant: variant)
+            let stub = ExperimentServiceStub(storedVariant: variant)
             InjectedValues[\.experimentService] = stub
             defer { InjectedValues[\.experimentService] = previous }
             operation(stub)
         }
-    }
-}
-
-// MARK: - Stub
-
-private final class StubExperimentService: ExperimentService {
-    enum Method: Equatable {
-        case isOn
-        case isOnWithoutExposure
-    }
-
-    let storedVariant: ExperimentFeatureVariantKey?
-
-    private let recordedMethods = OSAllocatedUnfairLock<[Method]>(initialState: [])
-
-    init(storedVariant: ExperimentFeatureVariantKey?) {
-        self.storedVariant = storedVariant
-    }
-
-    var invokedMethods: [Method] { recordedMethods.withLock { $0 } }
-
-    var variantsPublisher: AnyPublisher<Void, Never> { Empty().eraseToAnyPublisher() }
-
-    func configure() {}
-
-    func variant(_ key: ExperimentFeatureFlagKey) -> Variant? {
-        storedVariant.map { Variant($0.rawValue) }
-    }
-
-    func isOn(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool {
-        recordedMethods.withLock { $0.append(.isOn) }
-        return storedVariant == variant
-    }
-
-    func isOnWithoutExposure(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool {
-        recordedMethods.withLock { $0.append(.isOnWithoutExposure) }
-        return storedVariant == variant
     }
 }
