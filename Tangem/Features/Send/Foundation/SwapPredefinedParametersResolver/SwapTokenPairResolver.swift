@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 // MARK: - Token Details Resolver
 
@@ -91,52 +92,32 @@ private extension TokenDetailsSwapSourceResolver {
 // MARK: - Main Resolver
 
 final class MainSwapSourceResolver {
-    @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
-
     private let swapAvailabilityChecker: SwapAvailabilityChecker
     private let userWalletInfo: UserWalletInfo
     private let walletModelsProvider: MainScreenUIOrderedWalletModelsProvider
 
-    init(
-        userWalletModel: UserWalletModel,
-        swapAvailabilityChecker: SwapAvailabilityChecker
-    ) {
+    init(userWalletModel: UserWalletModel, swapAvailabilityChecker: SwapAvailabilityChecker) {
         self.swapAvailabilityChecker = swapAvailabilityChecker
         userWalletInfo = userWalletModel.userWalletInfo
         walletModelsProvider = MainScreenUIOrderedWalletModelsProvider(userWalletModel: userWalletModel)
-    }
-
-    func resolve() async -> SendSwapableToken? {
-        let walletModels = await walletModelsProvider.settledWalletModels()
-        return resolveSourceToken(from: walletModels)
-    }
-
-    static func makeBestEffortSourceToken(
-        from walletModels: [any WalletModel],
-        userWalletInfo: UserWalletInfo
-    ) -> SendSwapableToken? {
-        let expressAvailabilityProvider = InjectedValues[\.expressAvailabilityProvider]
-
-        let candidates = walletModels.filter { walletModel in
-            expressAvailabilityProvider.swapState(for: walletModel.tokenItem) != .unavailable
-        }
-
-        // Balances are usually still loading here, hence the fallback to the first candidate.
-        guard let chosenWalletModel = candidates.mostFiatFundedOrFirst else {
-            return nil
-        }
-
-        return CommonSendSwapableTokenFactory(
-            userWalletInfo: userWalletInfo,
-            walletModel: chosenWalletModel,
-            operationType: .swap
-        ).makeSwapableToken()
     }
 }
 
 // MARK: - SwapSourceTokenResolver
 
-extension MainSwapSourceResolver: SwapSourceTokenResolver {}
+extension MainSwapSourceResolver: SwapSourceTokenResolver {
+    var initialSource: LoadingResult<SendSwapableToken, any Error> { .loading }
+
+    func resolveSource(for receive: SendReceiveToken?) async throws -> SendSwapableToken {
+        let walletModels = await walletModelsProvider.settledWalletModels()
+
+        guard let source = resolveSourceToken(from: walletModels) else {
+            throw SwapModel.SwapModelError.tokenSelectionRequired
+        }
+
+        return source
+    }
+}
 
 // MARK: - Private
 

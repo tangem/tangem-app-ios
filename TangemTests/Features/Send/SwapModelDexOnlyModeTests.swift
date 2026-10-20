@@ -209,7 +209,11 @@ private extension SwapModelDexOnlyModeTests {
         let sourceToken = DexOnlySwapableTokenStub()
 
         let swapModel = SwapModel(
-            parameters: .from(sourceToken),
+            parameters: PredefinedSwapParameters(
+                userWalletInfo: sourceToken.userWalletInfo,
+                source: .resolved(sourceToken),
+                receive: .userSelection
+            ),
             expressManager: expressManager,
             swapRepository: SwapRepositoryDummy(),
             expressPendingTransactionRepository: ExpressPendingTransactionRepositoryDummy(),
@@ -219,7 +223,7 @@ private extension SwapModelDexOnlyModeTests {
             autoupdatingTimer: AutoupdatingTimer(),
             pairUpdateHandler: SwapPairUpdateHandlerDummy(),
             balanceRestrictionFeatureChecker: balanceRestrictionChecker,
-            shouldStartInitialLoading: false
+            initialResolvingPolicy: .disabled
         )
 
         return Environment(

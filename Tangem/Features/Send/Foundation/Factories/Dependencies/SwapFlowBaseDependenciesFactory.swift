@@ -20,7 +20,7 @@ extension SwapFlowBaseDependenciesFactory {
         analyticsLogger: any SendAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
         pairUpdateHandler: SwapPairUpdateHandler,
-        shouldStartInitialLoading: Bool
+        initialResolvingPolicy: SwapModel.InitialResolvingPolicy
     ) -> SwapModel {
         SwapModel(
             parameters: parameters,
@@ -33,7 +33,7 @@ extension SwapFlowBaseDependenciesFactory {
             autoupdatingTimer: autoupdatingTimer,
             pairUpdateHandler: pairUpdateHandler,
             balanceRestrictionFeatureChecker: makeSwapBalanceRestrictionFeatureChecker(),
-            shouldStartInitialLoading: shouldStartInitialLoading,
+            initialResolvingPolicy: initialResolvingPolicy,
         )
     }
 

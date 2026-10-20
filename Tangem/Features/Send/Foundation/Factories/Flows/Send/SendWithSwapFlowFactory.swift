@@ -36,13 +36,17 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         predefinedValues: predefinedTransferValues
     )
     lazy var swapModel = makeSwapModel(
-        parameters: .from(sourceToken),
+        parameters: PredefinedSwapParameters(
+            userWalletInfo: sourceToken.userWalletInfo,
+            source: .resolved(sourceToken),
+            receive: .userSelection
+        ),
         analyticsLogger: analyticsLogger,
         autoupdatingTimer: autoupdatingTimer,
         pairUpdateHandler: SendWithSwapPairUpdateHandler(
             expressManager: expressDependenciesFactory.expressManager
         ),
-        shouldStartInitialLoading: false
+        initialResolvingPolicy: .disabled
     )
     lazy var sendWithSwapModel = makeSendWithSwapModel(
         transferModel: transferModel,

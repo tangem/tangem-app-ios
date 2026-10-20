@@ -24,7 +24,7 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
             swapRepository: expressDependenciesFactory.swapRepository,
             analyticsLogger: analyticsLogger
         ),
-        shouldStartInitialLoading: true
+        initialResolvingPolicy: .enabled()
     )
     lazy var notificationManager = makeSwapNotificationManager()
     lazy var marketingBannerManager = makeSwapMarketingBannerManager()

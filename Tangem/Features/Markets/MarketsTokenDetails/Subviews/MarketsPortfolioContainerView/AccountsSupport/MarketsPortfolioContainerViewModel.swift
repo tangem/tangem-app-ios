@@ -645,11 +645,11 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
 
             let direction = SwapDirection.build(for: walletModel)
             let openSwap = {
-                let parameters = SwapPredefinedParametersHelper().makeParameters(
-                    walletModel: walletModel,
+                let parameters = SwapPredefinedParametersBuilder().makeParameters(input: .token(
                     userWalletInfo: userWalletModel.userWalletInfo,
-                    position: direction
-                )
+                    walletModel: walletModel,
+                    direction: direction
+                ))
 
                 Task { @MainActor in
                     coordinator.openSwap(input: parameters, destination: walletModel.tokenItem)

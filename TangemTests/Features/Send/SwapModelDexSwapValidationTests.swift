@@ -133,10 +133,13 @@ private extension SwapModelDexSwapValidationTests {
         receiveToken: SendReceiveToken? = nil,
         transactionValidator: SendTransactionValidator = BuilderSpyTransactionValidator()
     ) -> SwapModel {
-        SwapModel(
-            parameters: .from(
-                SwapableTokenStub(blockchain: .bitcoin(testnet: false), transactionValidator: transactionValidator),
-                pair: .fixed(receive: receiveToken ?? makeReceiveToken())
+        let sourceToken = SwapableTokenStub(blockchain: .bitcoin(testnet: false), transactionValidator: transactionValidator)
+
+        return SwapModel(
+            parameters: PredefinedSwapParameters(
+                userWalletInfo: sourceToken.userWalletInfo,
+                source: .resolved(sourceToken),
+                receive: .resolved(receiveToken ?? makeReceiveToken())
             ),
             expressManager: ExpressManagerDummy(),
             swapRepository: SwapRepositoryStub(),
@@ -147,7 +150,7 @@ private extension SwapModelDexSwapValidationTests {
             autoupdatingTimer: AutoupdatingTimer(),
             pairUpdateHandler: PairUpdateHandlerDummy(),
             balanceRestrictionFeatureChecker: BalanceRestrictionCheckerDummy(),
-            shouldStartInitialLoading: false
+            initialResolvingPolicy: .disabled
         )
     }
 

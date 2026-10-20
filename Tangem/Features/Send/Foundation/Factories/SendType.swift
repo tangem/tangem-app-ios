@@ -62,26 +62,25 @@ extension PredefinedSendParameters {
 
 /// The swap flow opens either from a known source token or into a known receive token.
 /// `configuration` locks the pair and overrides the title for account funding flows.
-enum PredefinedSwapParameters {
-    case from(
-        _ source: SendSwapableToken,
-        pair: PairResolution = .userSelection,
+struct PredefinedSwapParameters {
+    let userWalletInfo: UserWalletInfo
+    let source: any SwapSourceTokenResolver
+    let receive: any SwapReceiveTokenResolver
+    let extras: Extras?
+    let configuration: SwapFlowConfiguration
+
+    init(
+        userWalletInfo: UserWalletInfo,
+        source: some SwapSourceTokenResolver,
+        receive: some SwapReceiveTokenResolver,
         extras: Extras? = nil,
         configuration: SwapFlowConfiguration = .default
-    )
-    case to(
-        _ receive: SendSourceToken,
-        sourceResolver: (any SwapSourceTokenResolver)? = nil,
-        configuration: SwapFlowConfiguration = .default
-    )
-
-    /// How a pair with a fixed source gets settled. A known destination leaves the resolver nothing
-    /// to do, so the two can't be passed together.
-    enum PairResolution {
-        case fixed(receive: SendReceiveToken)
-        /// The source is a guess until balances settle; the resolver replaces it then.
-        case deferred(sourceResolver: any SwapSourceTokenResolver)
-        case userSelection
+    ) {
+        self.userWalletInfo = userWalletInfo
+        self.source = source
+        self.receive = receive
+        self.extras = extras
+        self.configuration = configuration
     }
 
     /// Optional preselections carried by a `tangem://swap` deeplink on top of the resolved pair: an initial
@@ -101,62 +100,6 @@ extension PredefinedSwapParameters {
     /// The wallet the swap opens for.
     var userWalletId: UserWalletId {
         userWalletInfo.id
-    }
-
-    var userWalletInfo: UserWalletInfo {
-        switch self {
-        case .from(let source, _, _, _): source.userWalletInfo
-        case .to(let receive, _, _): receive.userWalletInfo
-        }
-    }
-
-    var sourceToken: SendSwapableToken? {
-        switch self {
-        case .from(let source, _, _, _): source
-        case .to: nil
-        }
-    }
-
-    var receiveToken: SendReceiveToken? {
-        switch self {
-        case .from(_, let pair, _, _): pair.receiveToken
-        case .to(let receive, _, _): receive
-        }
-    }
-
-    var extras: Extras? {
-        switch self {
-        case .from(_, _, let extras, _): extras
-        case .to: nil
-        }
-    }
-
-    var configuration: SwapFlowConfiguration {
-        switch self {
-        case .from(_, _, _, let configuration): configuration
-        case .to(_, _, let configuration): configuration
-        }
-    }
-}
-
-extension PredefinedSwapParameters.PairResolution {
-    /// For call sites whose destination lookup can come up empty.
-    static func fixed(receiveOrUserSelection token: SendReceiveToken?) -> Self {
-        token.map { .fixed(receive: $0) } ?? .userSelection
-    }
-
-    var receiveToken: SendReceiveToken? {
-        switch self {
-        case .fixed(let token): token
-        case .deferred, .userSelection: nil
-        }
-    }
-
-    var sourceResolver: (any SwapSourceTokenResolver)? {
-        switch self {
-        case .deferred(let resolver): resolver
-        case .fixed, .userSelection: nil
-        }
     }
 }
 
