@@ -47,7 +47,11 @@ extension CommonMobileRemoveSocialWalletManager: MobileRemoveSocialWalletManager
             throw error
         }
 
-        await MobileCleanupUtil.deleteSocialBackup(walletId: walletId, analyticsContextData: analyticsContextData)
+        do {
+            try await MobileCleanupUtil.deleteSocialBackup(walletId: walletId)
+        } catch {
+            AppLogger.error("Failed to delete the social backup:", error: error)
+        }
 
         await runOnMain {
             userWalletRepository.delete(userWalletId: walletId)

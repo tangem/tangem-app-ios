@@ -23,6 +23,7 @@ final class MobileCreationUtil {
         let parameters = WalletInitializerParameters(
             mnemonic: nil,
             passphrase: nil,
+            isImported: false,
             hasMnemonicBackup: hasMnemonicBackup,
             hasICloudBackup: hasICloudBackup,
             hasSocialLogin: hasSocialLogin
@@ -76,6 +77,7 @@ final class MobileCreationUtil {
             parameters: WalletInitializerParameters(
                 mnemonic: mnemonic,
                 passphrase: passphrase,
+                isImported: true,
                 hasMnemonicBackup: hasMnemonicBackup,
                 hasICloudBackup: hasICloudBackup,
                 hasSocialLogin: hasSocialLogin

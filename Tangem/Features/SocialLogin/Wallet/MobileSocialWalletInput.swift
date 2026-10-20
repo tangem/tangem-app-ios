@@ -12,5 +12,4 @@ import TangemSocialAuthentication
 struct MobileSocialWalletInput {
     let credentials: TangemSocialAuthentication.SocialAuthCredentials
     let hasBackup: Bool
-    let source: MobileSocialLoginSource
 }

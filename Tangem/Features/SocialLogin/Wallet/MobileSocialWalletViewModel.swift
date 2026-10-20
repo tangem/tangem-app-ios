@@ -122,7 +122,7 @@ private extension MobileSocialWalletViewModel {
 
         do {
             try store(userWalletModel: wallet.userWalletModel)
-            analyticsLogger.logWalletCreated(source: input.source)
+            analyticsLogger.logWalletCreated()
             logMarketingConsentIfNeeded(mode: mode)
 
             await presentWalletCreatedToast()
@@ -180,7 +180,7 @@ private extension MobileSocialWalletViewModel {
 
         do {
             try store(userWalletModel: userWalletModel)
-            analyticsLogger.logWalletRestored(source: input.source)
+            analyticsLogger.logWalletRestored()
 
             await presentWalletAddedToast()
             await openMain(userWalletModel: userWalletModel)

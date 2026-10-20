@@ -50,12 +50,12 @@ struct MobileSocialLoginAnalyticsLogger {
         )
     }
 
-    func logWalletCreated(source: MobileSocialLoginSource) {
-        logWalletCreatedSuccessfully(creationType: .walletCreationTypeNewSocialLogin, source: source)
+    func logWalletCreated() {
+        logWalletCreatedSuccessfully(creationType: .walletCreationTypeNewSeed)
     }
 
-    func logWalletRestored(source: MobileSocialLoginSource) {
-        logWalletCreatedSuccessfully(creationType: .walletCreationTypeSocialLoginImport, source: source)
+    func logWalletRestored() {
+        logWalletCreatedSuccessfully(creationType: .walletCreationTypeSeedImport)
     }
 }
 
@@ -66,12 +66,12 @@ private extension MobileSocialLoginAnalyticsLogger {
         .custom(.mobileWallet)
     }
 
-    func logWalletCreatedSuccessfully(creationType: Analytics.ParameterValue, source: MobileSocialLoginSource) {
+    func logWalletCreatedSuccessfully(creationType: Analytics.ParameterValue) {
         var params: [Analytics.ParameterKey: String] = [
             .creationType: creationType.rawValue,
             .seedLength: Constants.seedPhraseLength,
             .passphrase: Analytics.ParameterValue.empty.rawValue,
-            .source: source.analyticsParameterValue.rawValue,
+            .source: Analytics.ParameterValue.socialLogin.rawValue,
         ]
 
         params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
