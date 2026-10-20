@@ -13,14 +13,20 @@ import TangemFoundation
 final class MainScreenPromoSheetProvider {
     private let managers: [MainScreenPromoSheetManager]
     private let interactor: MainScreenPromoSheetInteractor
+    private let experimentService: ExperimentService
+    private let selectedUserWalletId: () -> UserWalletId?
     private var decisionSubscription: AnyCancellable?
 
     init(
         managers: [MainScreenPromoSheetManager],
-        interactor: MainScreenPromoSheetInteractor = InjectedValues[\.mainScreenPromoSheetInteractor]
+        interactor: MainScreenPromoSheetInteractor = InjectedValues[\.mainScreenPromoSheetInteractor],
+        experimentService: ExperimentService = InjectedValues[\.experimentService],
+        selectedUserWalletId: @escaping () -> UserWalletId? = { InjectedValues[\.userWalletRepository].selectedModel?.userWalletId }
     ) {
         self.managers = managers
         self.interactor = interactor
+        self.experimentService = experimentService
+        self.selectedUserWalletId = selectedUserWalletId
     }
 
     func onMainScreenAppear() {
@@ -57,7 +63,15 @@ final class MainScreenPromoSheetProvider {
     }
 
     private func present(_ manager: MainScreenPromoSheetManager) {
-        guard let appearancePublisher = manager.presentSheet() else {
+        guard
+            let userWalletId = selectedUserWalletId(),
+            MainActor.assumeIsolated({ experimentService.hasFetchedVariants(for: userWalletId) })
+        else {
+            manager.logSkipped(.variantNotReady)
+            return
+        }
+
+        guard let appearancePublisher = manager.presentSheet(experimentVariant: experimentService.variant(manager.experimentKey)?.value) else {
             return
         }
 
