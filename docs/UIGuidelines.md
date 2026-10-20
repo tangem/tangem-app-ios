@@ -43,3 +43,17 @@ If the design uses a token that has no generated Swift counterpart, stop and ask
 **Reduce Transparency.** Before applying `.glassEffect` or a blur by hand, try `tangemMaterialSurface(...)` (`Modules/TangemUI/DesignSystem_V2/Material/MaterialSurface.swift`): it keeps the surfaces consistent and handles the setting in one place. On iOS 26 and later the system glass adapts to the setting by itself; the blur fallback below iOS 26 doesn't read it yet, so a surface that must stay legible there reads `accessibilityReduceTransparency` and swaps to an opaque fill, as `ModalSurface` does.
 
 **VoiceOver.** Keep it light: one combined element per row with a label, a value and traits. Apply it to the button's label rather than around the whole cell, so controls inside the row stay reachable. Placeholders that only reserve space are `.hidden()`, which keeps them out of the accessibility tree. No custom rotors or actions unless the design asks for them.
+
+## Image assets
+
+Danger fails a PR with an asset catalog file over 1.5 MB or a PDF/SVG over 64 KB that embeds a raster (`Dangerfile.precheck`). The rest is up to the author:
+
+**Vector or raster.** PDF and SVG are for true vector artwork: icons, glyphs, flat illustrations. A picture exported from Figma with a photo or a render inside goes in as PNG, or as JPEG when it is opaque.
+
+**`preserves-vector-representation`** only on a vector that is drawn larger than its natural size. With it, every scaled draw renders the PDF again at runtime on the CPU, which gets expensive with heavy PDFs; without it the app draws bitmaps rendered at build time.
+
+**Pixel size.** Export @2x/@3x for the largest size the image gets on screen (points × 3, the widest phone for a full-width image), not larger. A natural size that differs from the layout is fine as long as the view is `.resizable()`.
+
+**Format.** Opaque photos, renders and gradient backgrounds are JPEG, which the catalog stores as is; anything with transparency stays PNG. Never set `"compression-type" : "lossy"`: the HEVC it produces rendered as black-and-green garbage on iOS 18.
+
+**Leftovers.** Delete an imageset in the same change that removes its last use.
