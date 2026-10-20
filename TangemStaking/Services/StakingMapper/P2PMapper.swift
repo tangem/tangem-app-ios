@@ -45,6 +45,7 @@ struct P2PMapper {
             warmupPeriod: .days(0),
             rewardClaimingType: .auto,
             rewardScheduleType: .daily,
+            rewardsIncludedInStake: true,
             maximumStakeAmount: maximumStakeAmount
         )
     }
