@@ -18,6 +18,8 @@ final class RemoteCollectiblesRevealAssetsPreloader: CollectiblesRevealAssetsPre
 
     private let openingMedia: CollectiblesMachine.OpeningMedia
     private let openingMediaProvider: any CollectiblesOpeningMediaProvider
+    private let openingMediaWaitTimeout: Duration
+    private let wonCardImagesWaitTimeout: Duration
 
     private var openingMediaTask: Task<Void, Never>?
     private var queuedColorScheme: ColorScheme?
@@ -27,10 +29,14 @@ final class RemoteCollectiblesRevealAssetsPreloader: CollectiblesRevealAssetsPre
 
     init(
         openingMedia: CollectiblesMachine.OpeningMedia,
-        openingMediaProvider: any CollectiblesOpeningMediaProvider = RemoteCollectiblesOpeningMediaProvider()
+        openingMediaProvider: any CollectiblesOpeningMediaProvider = RemoteCollectiblesOpeningMediaProvider(),
+        openingMediaWaitTimeout: Duration = Constants.openingMediaWaitTimeout,
+        wonCardImagesWaitTimeout: Duration = Constants.wonCardImagesWaitTimeout
     ) {
         self.openingMedia = openingMedia
         self.openingMediaProvider = openingMediaProvider
+        self.openingMediaWaitTimeout = openingMediaWaitTimeout
+        self.wonCardImagesWaitTimeout = wonCardImagesWaitTimeout
     }
 
     func preload(for colorScheme: ColorScheme) {
@@ -65,8 +71,8 @@ final class RemoteCollectiblesRevealAssetsPreloader: CollectiblesRevealAssetsPre
         let start = ContinuousClock.now
         let imagesPrefetch = Task { await ImagePrefetcher.prefetch(imageURLs) }
 
-        await waitAtMost(Constants.wonCardImagesWaitTimeout) { await imagesPrefetch.value }
-        await waitAtMost(Constants.openingMediaWaitTimeout - (ContinuousClock.now - start)) { [weak self] in
+        await waitAtMost(wonCardImagesWaitTimeout) { await imagesPrefetch.value }
+        await waitAtMost(openingMediaWaitTimeout - (ContinuousClock.now - start)) { [weak self] in
             while let task = await self?.openingMediaTask {
                 await task.value
             }
