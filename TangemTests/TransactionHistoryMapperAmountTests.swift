@@ -17,15 +17,15 @@ struct TransactionHistoryMapperAmountTests {
     func failedValueIsUnsigned() {
         let viewModel = makeSUT().mapTransactionViewModel(makeRecord(status: .failed, isOutgoing: true))
 
-        #expect(!viewModel.amount.value.hasPrefix(AppConstants.minusSign))
-        #expect(!viewModel.amount.value.hasPrefix(AppConstants.plusSign))
+        #expect(viewModel.amount.value?.hasPrefix(AppConstants.minusSign) == false)
+        #expect(viewModel.amount.value?.hasPrefix(AppConstants.plusSign) == false)
     }
 
     @Test("Confirmed outgoing tx keeps the leading sign on the redesign `value`")
     func confirmedOutgoingValueIsSigned() {
         let viewModel = makeSUT().mapTransactionViewModel(makeRecord(status: .confirmed, isOutgoing: true))
 
-        #expect(viewModel.amount.value.hasPrefix(AppConstants.minusSign))
+        #expect(viewModel.amount.value?.hasPrefix(AppConstants.minusSign) == true)
     }
 
     @Test("Failed tx keeps the sign on the legacy `amount` string (redesign-vs-legacy divergence)")
