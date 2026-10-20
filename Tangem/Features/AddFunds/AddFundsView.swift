@@ -146,7 +146,7 @@ struct AddFundsView: View {
 private extension View {
     func applyFloatingSheetStyling() -> some View {
         floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = DesignSystem.Color.bgPrimary
+            configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
     }

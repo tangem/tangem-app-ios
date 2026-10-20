@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import struct Foundation.URL
 import struct OrderedCollections.OrderedSet
 
 /// Pending MCP agent connection request, fetched by user code, before the wallet owner accepts or rejects it.
@@ -34,11 +35,10 @@ extension MCPConnectionRequest {
         /// The agent display name.
         let name: String?
 
-        /// Domain the agent's registration was fetched from and confirmed by the server.
-        /// - Remark: `nil` when ``isVerified`` is `true`.
+        /// Domain the server parsed out of the client id, when it is an `http(s)` URL.
         let host: String?
 
-        /// Indicates whether the agent is among Tangem's own server-side pre-registered list.
-        let isVerified: Bool
+        /// The agent's icon, when the server has one configured for its domain.
+        let iconURL: URL?
     }
 }

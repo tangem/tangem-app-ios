@@ -184,7 +184,7 @@ public extension Row {
         map { $0.config.focusRingEnabled = on }
     }
 
-    func onTap(_ action: @escaping () -> Void) -> Self {
+    func onTap(action: (() -> Void)?) -> Self {
         map { $0.config.onTap = action }
     }
 

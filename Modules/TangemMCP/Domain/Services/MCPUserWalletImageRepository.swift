@@ -11,7 +11,7 @@ import struct TangemFoundation.UserWalletId
 
 actor MCPUserWalletImageRepository {
     private let maxConcurrentFetches: UInt
-    private let fetchImage: (UserWalletId) async -> UIImage
+    private let fetchImage: @Sendable (UserWalletId) async -> UIImage
 
     private var cache: [UserWalletId: UIImage]
     private var tasks: [UserWalletId: Task<UIImage, Never>]

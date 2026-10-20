@@ -16,16 +16,45 @@ final class MCPConnectionRequestUserWalletSelectorViewModel: ObservableObject, H
 
     @Published private(set) var state: MCPConnectionRequestUserWalletSelectorState
 
-    init(state: MCPConnectionRequestUserWalletSelectorState, selectionChanged: @escaping (MCPUserWallet) -> Void) {
-        self.state = state
+    init(
+        userWallets: [MCPUserWallet],
+        selectedUserWalletID: MCPUserWallet.ID,
+        userWalletImageRepository: MCPUserWalletImageRepository,
+        balanceUpdater: @escaping (MCPUserWallet.ID) -> AsyncStream<String>,
+        selectionChanged: @escaping (MCPUserWallet) -> Void
+    ) {
         self.selectionChanged = selectionChanged
+
+        weak var futureSelf: MCPConnectionRequestUserWalletSelectorViewModel?
+
+        state = MCPConnectionRequestUserWalletSelectorState(
+            userWallets: userWallets.map { userWallet in
+                MCPConnectionRequestUserWalletSelectorRowViewModel(
+                    state: MCPConnectionRequestUserWalletSelectorRowState(
+                        userWallet,
+                        isSelected: userWallet.id == selectedUserWalletID
+                    ),
+                    imageRepository: userWalletImageRepository,
+                    balanceUpdater: balanceUpdater,
+                    tapAction: { selectedUserWalletState in
+                        futureSelf?.handle(action: .selectionChanged(selectedUserWalletState))
+                    }
+                )
+            },
+        )
+
+        futureSelf = self
     }
 
     func handle(action: MCPConnectionRequestUserWalletSelectorAction) {
         switch action {
-        case .selectionChanged(let selectedUserWallet):
-            state.selectedUserWalletID = selectedUserWallet.id
-            selectionChanged(selectedUserWallet)
+        case .selectionChanged(let selectedUserWalletState):
+            selectionChanged(selectedUserWalletState.userWallet)
+
+            for userWalletRowViewModel in state.userWallets {
+                let isSelected = userWalletRowViewModel.state.id == selectedUserWalletState.id
+                userWalletRowViewModel.handle(action: .isSelectedChanged(isSelected))
+            }
         }
     }
 }

@@ -135,7 +135,7 @@ final class CollectiblesMainViewModel: ObservableObject {
 
 private extension CollectiblesMainViewModel {
     func observeAccountBalance() async {
-        for await summary in await accountViewModel.$summary.values {
+        for await summary in await accountViewModel.$summary.values_ {
             guard accountBalanceText != summary.fiatBalancePlainText else { continue }
 
             accountBalanceText = summary.fiatBalancePlainText
@@ -145,7 +145,7 @@ private extension CollectiblesMainViewModel {
     /// The search spans every machine, so it follows the catalogue's own count rather than the state of
     /// whichever tab is on screen - that one turns over on every switch.
     func observeSearchAvailability() async {
-        for await totalPacksCount in await loreTabsViewModel.$totalPacksCount.values {
+        for await totalPacksCount in await loreTabsViewModel.$totalPacksCount.values_ {
             let isAvailable = totalPacksCount > 0
             guard isSearchAvailable != isAvailable else { continue }
 
@@ -154,13 +154,13 @@ private extension CollectiblesMainViewModel {
     }
 
     func retryTabsOnCatalogueReload() async {
-        for await state in await packsViewModel.$state.values where state.isLoading {
+        for await state in await packsViewModel.$state.values_ where state.isLoading {
             await loreTabsViewModel.load()
         }
     }
 
     func collapseCatalogueOnTabsFailure() async {
-        for await state in await loreTabsViewModel.$state.values {
+        for await state in await loreTabsViewModel.$state.values_ {
             guard case .failed = state, !packsViewModel.state.isFailed else { continue }
 
             packsViewModel.showFailed()
@@ -170,7 +170,7 @@ private extension CollectiblesMainViewModel {
     func observeLoreSelection() async {
         var currentLoreID = loreTabsViewModel.selectedTab.kind.loreID
 
-        for await tab in await loreTabsViewModel.$selectedTab.values {
+        for await tab in await loreTabsViewModel.$selectedTab.values_ {
             let loreID = tab.kind.loreID
             guard loreID != currentLoreID else { continue }
             currentLoreID = loreID
@@ -184,7 +184,7 @@ private extension CollectiblesMainViewModel {
     func observeSearchQuery() async {
         var currentQuery = searchQuery
 
-        for await query in await $searchQuery.values {
+        for await query in await $searchQuery.values_ {
             guard query != currentQuery else { continue }
             currentQuery = query
 
@@ -194,7 +194,7 @@ private extension CollectiblesMainViewModel {
     }
 
     func observeSearchFocus() async {
-        for await isFocused in await $isSearchFieldFocused.values where isFocused {
+        for await isFocused in await $isSearchFieldFocused.values_ where isFocused {
             enterSearch()
         }
     }
@@ -228,7 +228,7 @@ private extension CollectiblesMainViewModel {
         case .loading, .reloading:
             searchResultsViewModel.showLoading()
             pendingCatalogueSync = Task { [weak self, packsViewModel] in
-                _ = await packsViewModel.$state.values.first { !$0.isLoading && !$0.isReloading }
+                _ = await packsViewModel.$state.values_.first { !$0.isLoading && !$0.isReloading }
 
                 guard let self, !Task.isCancelled else { return }
                 pendingCatalogueSync = nil

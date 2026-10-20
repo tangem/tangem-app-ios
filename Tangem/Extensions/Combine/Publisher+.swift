@@ -59,7 +59,7 @@ extension Publisher where Failure == Never {
     /// be iterated over asynchronously using `for await`. The
     /// stream will yield each output value produced by the
     /// publisher and will finish once the publisher completes.
-    var values: AsyncStream<Output> {
+    var values_: AsyncStream<Output> {
         get async {
             AsyncStream { continuation in
                 var cancellable: AnyCancellable?

@@ -28,7 +28,7 @@ struct MarketsPortfolioFlowView: View {
         .floatingSheetConfiguration { configuration in
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
             configuration.backgroundInteractionBehavior = .consumeTouches
-            configuration.sheetBackgroundColor = DesignSystem.Color.bgPrimary
+            configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
         }
     }
 }

@@ -1,6 +1,6 @@
 //
 //  FloatingSheetNavigationBarView.swift
-//  TangemApp
+//  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -8,10 +8,9 @@
 
 import SwiftUI
 import TangemAssets
-import TangemUI
-import TangemAccessibilityIdentifiers
+import TangemUIUtils
 
-struct FloatingSheetNavigationBarView: View {
+public struct FloatingSheetNavigationBarView: View {
     var title: String?
     var subtitle: String?
     var backgroundColor: Color = Colors.Background.tertiary
@@ -20,7 +19,25 @@ struct FloatingSheetNavigationBarView: View {
     var closeButtonAction: (() -> Void)?
     var titleAccessibilityIdentifier: String?
 
-    var body: some View {
+    public init(
+        title: String? = nil,
+        subtitle: String? = nil,
+        backgroundColor: Color = Colors.Background.tertiary,
+        bottomSeparatorLineIsVisible: Bool = false,
+        backButtonAction: (() -> Void)? = nil,
+        closeButtonAction: (() -> Void)? = nil,
+        titleAccessibilityIdentifier: String? = nil
+    ) {
+        self.title = title
+        self.subtitle = subtitle
+        self.backgroundColor = backgroundColor
+        self.bottomSeparatorLineIsVisible = bottomSeparatorLineIsVisible
+        self.backButtonAction = backButtonAction
+        self.closeButtonAction = closeButtonAction
+        self.titleAccessibilityIdentifier = titleAccessibilityIdentifier
+    }
+
+    public var body: some View {
         ZStack {
             buttons
                 .padding(16)

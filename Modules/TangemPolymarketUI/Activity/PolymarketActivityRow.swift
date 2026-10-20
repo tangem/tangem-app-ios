@@ -21,15 +21,8 @@ public struct PolymarketActivityRow: View {
     }
 
     public var body: some View {
-        if let onTap {
-            row.onTap(onTap)
-        } else {
-            row
-        }
-    }
-
-    private var row: Row<EmptyView, EmptyView, EmptyView, EmptyView, some View, EmptyView, EmptyView> {
         Row(title: model.title, subtitle: model.subtitle, value: model.amount)
+            .onTap(action: onTap)
             .start {
                 PolymarketActivityIcon(icon: model.icon)
                     .padding(.trailing, Constants.iconSpacingCompensation)

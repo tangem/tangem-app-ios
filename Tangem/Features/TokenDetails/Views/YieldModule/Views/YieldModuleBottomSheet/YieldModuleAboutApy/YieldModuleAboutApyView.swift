@@ -27,7 +27,7 @@ struct YieldModuleAboutApyView: View {
             content: { apyBreakdownSection }
         )
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = Colors.Background.tertiary
+            configuration.sheetBackground = .color(Colors.Background.tertiary)
         }
     }
 

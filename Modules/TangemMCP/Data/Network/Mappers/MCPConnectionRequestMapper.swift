@@ -18,7 +18,7 @@ enum MCPConnectionRequestMapper {
             id: fetchResponse.clientId,
             name: fetchResponse.clientName,
             host: fetchResponse.clientOrigin,
-            isVerified: fetchResponse.clientNameVerified
+            iconURL: fetchResponse.clientIconUrl
         )
 
         let scopes = fetchResponse.scope.split(separator: " ").map(String.init)

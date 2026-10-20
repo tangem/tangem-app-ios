@@ -23,16 +23,11 @@ public struct PolymarketOrderFeeRow: View {
     }
 
     public var body: some View {
-        let row = TangemUI.Row(title: Localization.predictionPlaceFee)
+        TangemUI.Row(title: Localization.predictionPlaceFee)
             .titleAccessory { hintIcon }
             .valueAccessory { value }
             .showDivider(showsDivider)
-
-        if let onTap {
-            row.onTap(onTap)
-        } else {
-            row
-        }
+            .onTap(action: onTap)
     }
 
     private var value: some View {
