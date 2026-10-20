@@ -21,10 +21,16 @@ protocol TangemPayOfframpOrderSigning {
 struct CommonTangemPayOfframpOrderSigner {
     private let signerFactory: TangemSignerFactory
     private let walletPublicKey: Wallet.PublicKey?
+    private let balancesService: any TangemPayBalancesService
 
-    init(signerFactory: TangemSignerFactory, walletPublicKey: Wallet.PublicKey?) {
+    init(
+        signerFactory: TangemSignerFactory,
+        walletPublicKey: Wallet.PublicKey?,
+        balancesService: any TangemPayBalancesService
+    ) {
         self.signerFactory = signerFactory
         self.walletPublicKey = walletPublicKey
+        self.balancesService = balancesService
     }
 }
 
@@ -39,9 +45,15 @@ extension CommonTangemPayOfframpOrderSigner: TangemPayOfframpOrderSigning {
             throw Error.walletPublicKeyNotFound
         }
 
+        let network = balancesService.networks.first { $0.chainId == expectation.chainId }
+
+        guard let depositAddress = network?.depositAddress else {
+            throw Error.depositAddressNotFound
+        }
+
         do {
             try TangemPayOfframpPreSignatureVerifier(fiatItem: TangemPayUtilities.fiatItem)
-                .verify(preSignature, against: expectation)
+                .verify(preSignature, against: expectation, depositAddress: depositAddress)
         } catch {
             VisaLogger.error("Tangem Pay off-ramp withdraw data does not match the order", error: error)
             throw error
@@ -61,5 +73,6 @@ extension CommonTangemPayOfframpOrderSigner: TangemPayOfframpOrderSigning {
 extension CommonTangemPayOfframpOrderSigner {
     enum Error: LocalizedError {
         case walletPublicKeyNotFound
+        case depositAddressNotFound
     }
 }
