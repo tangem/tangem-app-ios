@@ -298,6 +298,7 @@ private extension CommonUserWalletModelDependencies {
             tangemPayManager: tangemPayManager,
             accountModelsProvider: accountModelsProvider,
             archivedCryptoAccountsProvider: archivedCryptoAccountsProvider,
+            accountConditionsValidatorFactory: CommonAccountConditionsValidatorFactory(userWalletId: userWalletId),
             cryptoAccountModelsRegistry: cryptoAccountModelsRegistry,
             jointAccountModelsRegistry: jointAccountModelsRegistry,
             areHDWalletsSupported: areHDWalletsSupported
