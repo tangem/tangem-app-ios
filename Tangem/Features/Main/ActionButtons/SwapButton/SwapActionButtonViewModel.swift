@@ -161,29 +161,8 @@ private extension SwapActionButtonViewModel {
     }
 
     func openSwap() {
-        let userWalletInfo = userWalletModel.userWalletInfo
-
-        let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager, accountScope: .personal)
-
-        let bestEffort = MainSwapSourceResolver.makeBestEffortSourceToken(from: walletModels, userWalletInfo: userWalletInfo)
-        let fallback = walletModels.first.map { walletModel in
-            CommonSendSwapableTokenFactory(
-                userWalletInfo: userWalletInfo,
-                walletModel: walletModel,
-                operationType: .swap
-            ).makeSwapableToken()
-        }
-
-        guard let sourceToken = bestEffort ?? fallback else {
-            return
-        }
-
-        let resolver = MainSwapSourceResolver(
-            userWalletModel: userWalletModel,
-            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletInfo)
-        )
-
-        coordinator?.openSwap(predefinedParameters: .from(sourceToken, pair: .deferred(sourceResolver: resolver)))
+        let parameters = SwapPredefinedParametersBuilder().makeParameters(input: .main(userWalletModel: userWalletModel))
+        coordinator?.openSwap(predefinedParameters: parameters)
     }
 
     func showScheduledAlert(with message: String) {

@@ -403,12 +403,12 @@ extension MarketsTokenDetailsCoordinator: AddFundsRoutable {
     }
 
     func addFundsRequestSwap(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
-        let helper = SwapPredefinedParametersHelper()
-        let parameters = helper.makeParameters(
-            walletModel: walletModel,
+        let builder = SwapPredefinedParametersBuilder()
+        let parameters = builder.makeParameters(input: .token(
             userWalletInfo: userWalletModel.userWalletInfo,
-            position: .to
-        )
+            walletModel: walletModel,
+            direction: .to
+        ))
 
         dismissAddFunds { [weak self] in
             self?.openSwap(input: parameters, destination: walletModel.tokenItem)
@@ -927,11 +927,11 @@ extension MarketsTokenDetailsCoordinator {
             return
         }
 
-        let parameters = SwapPredefinedParametersHelper().makeParameters(
-            walletModel: walletModel,
+        let parameters = SwapPredefinedParametersBuilder().makeParameters(input: .token(
             userWalletInfo: userWalletModel.userWalletInfo,
-            position: direction
-        )
+            walletModel: walletModel,
+            direction: direction
+        ))
 
         openSwap(input: parameters, destination: walletModel.tokenItem)
     }

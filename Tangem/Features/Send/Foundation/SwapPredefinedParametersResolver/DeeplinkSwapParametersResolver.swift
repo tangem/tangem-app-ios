@@ -24,12 +24,12 @@ struct DeeplinkSwapParametersResolver {
             return nil
         }
 
-        return SwapPredefinedParametersHelper().makeParameters(
-            fromWalletModel: selection.source,
-            toWalletModel: selection.destination,
+        return SwapPredefinedParametersBuilder().makeParameters(input: .pair(
             userWalletInfo: userWalletInfo,
+            source: selection.source,
+            receive: selection.destination,
             extras: makeExtras(deeplink: deeplink, isApplicable: selection.appliesExtras)
-        )
+        ))
     }
 
     /// `from_amount` / `provider_id` are honored only for a fully-specified held pair — both sides requested
