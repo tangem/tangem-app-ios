@@ -15,7 +15,10 @@ final class TangemPayDailyLimitScreen: ScreenBase<TangemPayDailyLimitScreenEleme
     private static let hintPrefix = "Set a limit from"
     private static let hintMaxLimit = "250,000"
 
-    private lazy var amountField = textField(.dailyLimitAmountField)
+    private lazy var amountField = app.textFields
+        .matching(identifier: TangemPayDailyLimitScreenElement.dailyLimitAmountField.accessibilityIdentifier)
+        .matching(NSPredicate(format: "NOT (value BEGINSWITH %@)", Constants.currencyPrefix))
+        .firstMatch
     private lazy var setLimitsButton = button(.dailyLimitSetButton)
     private lazy var successTitle = app.staticTexts
         .matching(NSPredicate(format: "label == %@", Localization.tangempayCardPageDailyLimitSuccessTitle))
@@ -70,8 +73,7 @@ final class TangemPayDailyLimitScreen: ScreenBase<TangemPayDailyLimitScreenEleme
     func clearAndEnterAmount(_ amount: String) -> Self {
         XCTContext.runActivity(named: "Clear and enter amount '\(amount)'") { _ in
             waitAndAssertTrue(amountField, "Amount field should be displayed")
-            clearText(element: amountField)
-            typeReliably(element: amountField, text: amount)
+            replaceValueTypingFromEnd(in: amountField, with: amount)
             XCTAssertTrue(
                 amountField.waitForValue(timeout: .quick) { $0.filter(\.isNumber) == amount },
                 "Amount field should contain '\(amount)', actual: '\(amountField.getValue())'"
@@ -154,5 +156,11 @@ enum TangemPayDailyLimitScreenElement: String, UIElement {
         case .dailyLimitSetButton:
             TangemPayAccessibilityIdentifiers.dailyLimitSetButton
         }
+    }
+}
+
+private extension TangemPayDailyLimitScreen {
+    enum Constants {
+        static let currencyPrefix = "$"
     }
 }
