@@ -33,7 +33,7 @@ struct AddressBookContactAddNewAddressRowView: View {
                 .background(iconBackgroundColor)
                 .cornerRadiusContinuous(10)
         }
-        .onTap(viewModel.action)
+        .onTap(action: viewModel.action)
     }
 
     private var titleColor: Color {

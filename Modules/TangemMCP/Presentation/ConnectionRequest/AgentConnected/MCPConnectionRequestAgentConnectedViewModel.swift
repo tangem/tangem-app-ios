@@ -17,8 +17,8 @@ final class MCPConnectionRequestAgentConnectedViewModel: HashableObject {
         self.state = state
     }
 
-    func handle(viewEvent: MCPConnectionRequestAgentConnectedAction) {
-        switch viewEvent {
+    func handle(action: MCPConnectionRequestAgentConnectedAction) {
+        switch action {
         case .doneButtonTapped:
             doneButtonAction()
         }

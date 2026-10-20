@@ -32,6 +32,8 @@ struct MainQRScanRouteResolver {
         switch parser.parse(scannedCode) {
         case .walletConnect(let uri):
             return .walletConnect(uri)
+        case .mcpConnectionRequest(let userCode):
+            return .mcpConnectionRequest(userCode: userCode)
         case .paymentURI(let request):
             return actionForPayment(
                 request: request,

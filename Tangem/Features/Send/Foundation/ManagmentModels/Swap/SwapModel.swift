@@ -154,7 +154,7 @@ private extension SwapModel {
             .filter { previous, current in previous == nil && current != nil }
             .asyncMap { [weak self] _ -> ExpressProviderRateType in
                 guard let publisher = self?._providersState else { return .float }
-                let states = await publisher.dropFirst().values
+                let states = await publisher.dropFirst().values_
                 for await state in states {
                     if case .loaded(.swap(let selected, let providers), _) = state, providers.supportedRateTypes.isNotEmpty {
                         return selected?.rateType ?? .float

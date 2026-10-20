@@ -19,7 +19,7 @@ extension FloatingSheetRegistry {
     }
 
     private static func apply(config: inout FloatingSheetConfiguration) {
-        config.sheetBackgroundColor = DesignSystem.Color.bgPrimary
+        config.sheetBackground = .color(DesignSystem.Color.bgPrimary)
         config.backgroundInteractionBehavior = .tapToDismiss
     }
 }

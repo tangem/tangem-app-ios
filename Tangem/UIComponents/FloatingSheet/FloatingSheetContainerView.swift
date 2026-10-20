@@ -54,7 +54,7 @@ struct FloatingSheetContainerView<HeaderContent: View, DescriptionContent: View,
         contentView
             .animation(.contentFrameUpdate, value: state)
             .floatingSheetConfiguration { configuration in
-                configuration.sheetBackgroundColor = Colors.Background.tertiary
+                configuration.sheetBackground = .color(Colors.Background.tertiary)
                 configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
                 configuration.backgroundInteractionBehavior = .tapToDismiss
                 configuration.verticalSwipeBehavior = verticalSwipeBehavior

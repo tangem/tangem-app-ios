@@ -28,7 +28,7 @@ struct JointAccountWalletSelectionView: View {
             content: { content }
         )
         .floatingSheetConfiguration { config in
-            config.sheetBackgroundColor = DesignSystem.Color.bgPrimary
+            config.sheetBackground = .color(DesignSystem.Color.bgPrimary)
             config.backgroundInteractionBehavior = .tapToDismiss
         }
     }
