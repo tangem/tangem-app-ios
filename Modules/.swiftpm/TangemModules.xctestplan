@@ -36,6 +36,13 @@
     {
       "target" : {
         "containerPath" : "container:",
+        "identifier" : "TangemCollectiblesTests",
+        "name" : "TangemCollectiblesTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
         "identifier" : "TangemFoundationTests",
         "name" : "TangemFoundationTests"
       }
