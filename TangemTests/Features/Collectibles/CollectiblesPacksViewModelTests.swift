@@ -120,8 +120,15 @@ private extension CollectiblesPacksViewModelTests {
         return trackForMemoryLeaks(sut)
     }
 
-    func waitUntil(_ condition: @MainActor () -> Bool) async {
-        for _ in 0 ..< 100 where !condition() {
+    func waitUntil(timeout: Duration = .seconds(5), _ condition: @MainActor () -> Bool) async {
+        let deadline = ContinuousClock.now + timeout
+
+        while !condition() {
+            if ContinuousClock.now >= deadline {
+                Issue.record("waitUntil timed out")
+                return
+            }
+
             await Task.yield()
         }
     }

@@ -17,7 +17,7 @@ final class CollectiblesPacksViewModel: ObservableObject {
     private let packSelectionHandler: (CollectiblesPack) -> Void
 
     private var reloadTask: Task<Void, Error>?
-    private var paginationTask: Task<Void, Error>?
+    private var paginationTask: Task<Void, Never>?
 
     // MARK: - Publishers
 
@@ -84,16 +84,18 @@ final class CollectiblesPacksViewModel: ObservableObject {
         guard state.isContentLoaded, paginationState.allowsLoadingMore else { return }
 
         paginationState = .loading
-        paginationTask = runTask(in: self) { @MainActor viewModel in
+        paginationTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+
             do {
-                let catalogue = try await viewModel.model.loadMore()
-                viewModel.apply(catalogue)
+                let catalogue = try await model.loadMore()
+                apply(catalogue)
             } catch is CancellationError {
                 return
             } catch {
                 guard !Task.isCancelled else { return }
 
-                viewModel.paginationState = .failed
+                paginationState = .failed
             }
         }
     }
@@ -244,12 +246,12 @@ private extension CollectiblesPacksViewModel {
     func reload(debounced: Bool) {
         cancelTasks()
         paginationState = .none
-        reloadTask = runTask(in: self) { @MainActor viewModel in
+        reloadTask = Task { @MainActor [weak self] in
             if debounced {
                 try await Task.sleep(for: Constants.searchDebounce)
             }
 
-            await viewModel.fetch()
+            await self?.fetch()
         }
     }
 
