@@ -14,6 +14,7 @@ final class ShareSheet: ScreenBase<ShareSheetElement> {
 
     private lazy var activityList = otherElement(.activityList)
     private lazy var closeButton = activityList.buttons[ShareSheetElement.close.accessibilityIdentifier].firstMatch
+    private lazy var dismissRegion = otherElement(.dismissRegion)
 
     @discardableResult
     func waitForSheet() -> Self {
@@ -43,6 +44,8 @@ final class ShareSheet: ScreenBase<ShareSheetElement> {
         XCTContext.runActivity(named: "Close the system share sheet") { _ in
             if closeButton.exists {
                 closeButton.tap()
+            } else if dismissRegion.exists {
+                tapAboveSheet()
             } else {
                 activityList.swipeDown()
             }
@@ -55,11 +58,19 @@ final class ShareSheet: ScreenBase<ShareSheetElement> {
             return Destination(app)
         }
     }
+
+    private func tapAboveSheet() {
+        let sheetFrame = activityList.frame
+        app.coordinate(withNormalizedOffset: .zero)
+            .withOffset(CGVector(dx: sheetFrame.midX, dy: sheetFrame.minY / 2))
+            .tap()
+    }
 }
 
 enum ShareSheetElement: String, UIElement {
     case activityList
     case close
+    case dismissRegion
 
     var accessibilityIdentifier: String {
         switch self {
@@ -67,6 +78,8 @@ enum ShareSheetElement: String, UIElement {
             return "ActivityListView"
         case .close:
             return "Close"
+        case .dismissRegion:
+            return "PopoverDismissRegion"
         }
     }
 }
