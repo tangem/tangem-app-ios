@@ -17,6 +17,9 @@ struct TangemPayOfframpPreSignatureVerifierTests {
 
     private static let recipient = "0x059dbd5f24a000d28f83268db1c85c9c3ab6a123"
     private static let asset = "0x833589fcD6eDb6E08f4c7C32D4f71b54bdA02913"
+    private static let foreignAsset = "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2"
+    private static let depositAddress = TangemPayWithdrawTypedDataFixture.collateral.lowercased()
+    private static let foreignCollateral = "0xca4cae1f7240390c035877b56532a2ec59fa0d7c"
 
     private let verifier = Verifier(fiatItem: TangemPayUtilities.fiatItem)
 
@@ -24,7 +27,7 @@ struct TangemPayOfframpPreSignatureVerifierTests {
     func verificationAcceptsMatchingOrder() throws {
         let preSignature = try makePreSignature(amount: "8460000", chainId: 8453)
 
-        try verifier.verify(preSignature, against: makeExpectation())
+        try verifier.verify(preSignature, against: makeExpectation(), depositAddress: Self.depositAddress)
     }
 
     @Test("an order moving another amount is rejected")
@@ -32,7 +35,7 @@ struct TangemPayOfframpPreSignatureVerifierTests {
         let preSignature = try makePreSignature(amount: "846000000", chainId: 8453)
 
         #expect(throws: Verifier.Error.amountMismatch) {
-            try verifier.verify(preSignature, against: makeExpectation())
+            try verifier.verify(preSignature, against: makeExpectation(), depositAddress: Self.depositAddress)
         }
     }
 
@@ -41,7 +44,43 @@ struct TangemPayOfframpPreSignatureVerifierTests {
         let preSignature = try makePreSignature(amount: "8460000", chainId: 137)
 
         #expect(throws: Verifier.Error.networkMismatch) {
-            try verifier.verify(preSignature, against: makeExpectation())
+            try verifier.verify(preSignature, against: makeExpectation(), depositAddress: Self.depositAddress)
+        }
+    }
+
+    @Test("an order moving another token is rejected")
+    func verificationRejectsAssetMismatch() throws {
+        var fixture = makeFixture(amount: "8460000", chainId: 8453)
+        fixture.asset = Self.foreignAsset
+
+        let preSignature = try fixture.makePreSignature()
+
+        #expect(throws: Verifier.Error.networkMismatch) {
+            try verifier.verify(preSignature, against: makeExpectation(), depositAddress: Self.depositAddress)
+        }
+    }
+
+    @Test("an order bound to another collateral contract is rejected")
+    func verificationRejectsContractMismatch() throws {
+        var fixture = makeFixture(amount: "8460000", chainId: 8453)
+        fixture.verifyingContract = Self.foreignCollateral
+
+        let preSignature = try fixture.makePreSignature()
+
+        #expect(throws: Verifier.Error.networkMismatch) {
+            try verifier.verify(preSignature, against: makeExpectation(), depositAddress: Self.depositAddress)
+        }
+    }
+
+    @Test("an order whose typed data is not the collateral Withdraw is rejected")
+    func verificationRejectsSchemaMismatch() throws {
+        var fixture = makeFixture(amount: "8460000", chainId: 8453)
+        fixture.primaryType = "AddAdmin"
+
+        let preSignature = try fixture.makePreSignature()
+
+        #expect(throws: Verifier.Error.schemaMismatch) {
+            try verifier.verify(preSignature, against: makeExpectation(), depositAddress: Self.depositAddress)
         }
     }
 
@@ -50,7 +89,7 @@ struct TangemPayOfframpPreSignatureVerifierTests {
         let preSignature = try makePreSignature(amount: "8460000", chainId: 8453, hash: Data(repeating: 0, count: 32))
 
         #expect(throws: Verifier.Error.hashMismatch) {
-            try verifier.verify(preSignature, against: makeExpectation())
+            try verifier.verify(preSignature, against: makeExpectation(), depositAddress: Self.depositAddress)
         }
     }
 
@@ -65,39 +104,18 @@ struct TangemPayOfframpPreSignatureVerifierTests {
         chainId: Int,
         hash: Data? = nil
     ) throws -> TangemPayWithdrawPreSignature {
-        let json = """
-        {
-          "types": {
-            "EIP712Domain": [
-              { "name": "name", "type": "string" },
-              { "name": "chainId", "type": "uint256" }
-            ],
-            "Withdraw": [
-              { "name": "asset", "type": "address" },
-              { "name": "recipient", "type": "address" },
-              { "name": "amount", "type": "uint256" }
-            ]
-          },
-          "primaryType": "Withdraw",
-          "domain": {
-            "name": "Collateral",
-            "chainId": \(chainId)
-          },
-          "message": {
-            "asset": "\(Self.asset)",
-            "recipient": "\(Self.recipient)",
-            "amount": \(amount)
-          }
-        }
-        """
+        var fixture = makeFixture(amount: amount, chainId: chainId)
+        fixture.hash = hash
 
-        let typedData = try JSONDecoder().decode(EIP712TypedData.self, from: Data(json.utf8))
+        return try fixture.makePreSignature()
+    }
 
-        return TangemPayWithdrawPreSignature(
-            sender: "0xabe0b741c5ca100a05d62532cbebdc8891932305",
-            hash: hash ?? typedData.signHash,
-            salt: Data(),
-            structuredData: typedData
+    private func makeFixture(amount: String, chainId: Int) -> TangemPayWithdrawTypedDataFixture {
+        TangemPayWithdrawTypedDataFixture(
+            chainId: chainId,
+            asset: Self.asset,
+            recipient: Self.recipient,
+            amount: amount
         )
     }
 }
