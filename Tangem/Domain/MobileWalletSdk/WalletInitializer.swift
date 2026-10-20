@@ -20,6 +20,8 @@ protocol WalletInitializer {
 struct WalletInitializerParameters {
     let mnemonic: Mnemonic?
     let passphrase: String?
+    /// Whether the mnemonic was brought by the user rather than generated for them.
+    let isImported: Bool
     /// Whether the user already holds the recovery phrase of the wallet being initialized.
     let hasMnemonicBackup: Bool
     /// Whether a backup of the wallet being initialized already exists in iCloud.
@@ -82,7 +84,7 @@ final class MobileWalletInitializer: WalletInitializer {
                     publicKey: wallet.publicKey,
                     chainCode: wallet.chainCode,
                     curve: wallet.curve,
-                    isImported: parameters.mnemonic != nil,
+                    isImported: parameters.isImported,
                     derivedKeys: derivedKeys.derivedKeys
                 )
             )
