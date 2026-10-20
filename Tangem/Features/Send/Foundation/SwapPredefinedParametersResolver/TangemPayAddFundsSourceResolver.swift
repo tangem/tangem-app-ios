@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemExpress
 
 /// Picks the "From" token for Tangem Pay "Add funds", in priority order:
@@ -36,9 +37,16 @@ final class TangemPayAddFundsSourceResolver {
 // MARK: - SwapSourceTokenResolver
 
 extension TangemPayAddFundsSourceResolver: SwapSourceTokenResolver {
-    func resolve() async -> SendSwapableToken? {
+    var initialSource: LoadingResult<SendSwapableToken, any Error> { .loading }
+
+    func resolveSource(for receive: SendReceiveToken?) async throws -> SendSwapableToken {
         let walletModels = await walletModelsProvider.settledWalletModels()
-        return resolveSourceToken(from: walletModels)
+
+        guard let source = resolveSourceToken(from: walletModels) else {
+            throw SwapModel.SwapModelError.tokenSelectionRequired
+        }
+
+        return source
     }
 }
 
