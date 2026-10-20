@@ -355,6 +355,7 @@ struct StakeKitMapper {
             warmupPeriod: mapToPeriod(from: response.metadata.warmupPeriod),
             rewardClaimingType: mapToRewardClaimingType(from: response.metadata.rewardClaiming),
             rewardScheduleType: mapToRewardScheduleType(from: response.metadata.rewardSchedule, item: item),
+            rewardsIncludedInStake: false,
             maximumStakeAmount: nil
         )
     }

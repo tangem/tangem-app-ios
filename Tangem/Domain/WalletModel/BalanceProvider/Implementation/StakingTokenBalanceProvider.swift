@@ -105,8 +105,7 @@ extension StakingTokenBalanceProvider {
         case .availableToStake:
             return .loaded(.zero)
         case .staked(let balances):
-            let balance = balances.balances.blocked().sum()
-            return .loaded(balance)
+            return .loaded(balances.totalBalance)
         // Region block is not an error: surface the cached balance as `.loaded` so the
         // aggregated token total stays clean (a `.failure` here would poison the total).
         case .unavailableInRegion(.some(let cached)):

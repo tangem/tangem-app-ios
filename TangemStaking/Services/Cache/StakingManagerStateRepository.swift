@@ -77,7 +77,7 @@ private extension CommonStakingManagerStateRepository {
     func mapToCachedStakeState(_ state: StakingManagerState) -> CachedStakeState? {
         switch state {
         case .availableToStake: .availableToStake
-        case .staked(let stakedInfo): .staked(balance: stakedInfo.balances.blocked().sum())
+        case .staked(let stakedInfo): .staked(balance: stakedInfo.totalBalance)
         default: nil
         }
     }
