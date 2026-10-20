@@ -10,7 +10,10 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class TangemPayBankTransferAmountScreen: ScreenBase<TangemPayBankTransferAmountScreenElement> {
-    private lazy var amountField = textField(.amountField)
+    private lazy var amountField = app.textFields
+        .matching(identifier: TangemPayBankTransferAmountScreenElement.amountField.accessibilityIdentifier)
+        .matching(NSPredicate(format: "NOT (value BEGINSWITH %@)", Constants.currencyPrefix))
+        .firstMatch
     private lazy var tokenRow = button(.tokenRow)
     private lazy var continueButton = button(.continueButton)
     private lazy var maxButton = button(.maxButton)
@@ -78,13 +81,7 @@ final class TangemPayBankTransferAmountScreen: ScreenBase<TangemPayBankTransferA
     func replaceAmount(_ amount: String) -> Self {
         XCTContext.runActivity(named: "Replace the amount with '\(amount)'") { _ in
             waitAndAssertTrue(amountField, "Amount field should be displayed")
-            let currentValue = amountField.getValue()
-            let deletions = currentValue == amountField.placeholderValue ? 0 : currentValue.count
-            amountField.tap()
-            if deletions > 0 {
-                amountField.doubleTap()
-            }
-            amountField.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: deletions) + amount)
+            replaceValueTypingFromEnd(in: amountField, with: amount)
             XCTAssertTrue(
                 amountField.waitForValue(where: { Self.withoutGrouping($0) == amount }),
                 "Amount field should read '\(amount)'. Actual: '\(amountField.getValue())'"
@@ -260,5 +257,6 @@ enum TangemPayBankTransferAmountScreenElement: String, UIElement {
 private extension TangemPayBankTransferAmountScreen {
     enum Constants {
         static let groupingSeparator = ","
+        static let currencyPrefix = "$"
     }
 }
