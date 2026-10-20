@@ -42,9 +42,10 @@ extension CommonWalletCardsBackupReportRepository: WalletCardsBackupReportReposi
 
             // A primary reporting itself must not fall back to its own stored record — that may be a stale
             // wallet from a previous onboarding of the same physical card (the store isn't cleared on a
-            // factory reset).
+            // factory reset). A failed step is the exception: its snapshot carries no identity.
             let isPrimaryCard = card.cardId == primaryCardId
-            let inheritedIdentity = isPrimaryCard ? nil : currentReport.cards[primaryCardId]?.identity
+            let canInheritIdentity = !isPrimaryCard || error != nil
+            let inheritedIdentity = canInheritIdentity ? currentReport.cards[primaryCardId]?.identity : nil
             let identity = card.identity ?? inheritedIdentity
 
             let appliedCard = apply(
@@ -77,7 +78,9 @@ extension CommonWalletCardsBackupReportRepository: WalletCardsBackupReportReposi
 
             // Only cards that still hold exactly what was sent get marked: a report that landed while the
             // request was in flight put its card back to waiting on purpose.
-            let delivered = cards.cards.filter { updated.cards[$0.cardId] == $0 }
+            let delivered = cards.cards.filter {
+                $0.deliveryState == .waitingForDelivery && updated.cards[$0.cardId] == $0
+            }
 
             guard !delivered.isEmpty else {
                 return
@@ -111,7 +114,7 @@ private extension CommonWalletCardsBackupReportRepository {
             backupStatus: card.backupStatus,
             curves: card.curves,
             errorCode: error?.code,
-            errorMessage: error?.message,
+            errorMessage: error?.localizedDescription,
             deliveryState: .waitingForDelivery
         )
 
@@ -186,7 +189,7 @@ private extension WalletCardsBackupReport {
     var waitingDelivery: [WalletCardsWaitingDeliveryBackupCards] {
         var walletCards: [String: (isImported: Bool, cards: [WalletCardsBackupCard])] = [:]
 
-        for card in cards.values where card.deliveryState == .waitingForDelivery {
+        for card in cards.values {
             guard case .filled(let userWalletId, let isImported) = card.identity else {
                 continue
             }
@@ -194,14 +197,18 @@ private extension WalletCardsBackupReport {
             walletCards[userWalletId, default: (isImported, [])].cards.append(card)
         }
 
-        return walletCards.map { userWalletId, group in
-            WalletCardsWaitingDeliveryBackupCards(
-                userWalletId: userWalletId,
-                isImported: group.isImported,
-                cards: group.cards.sorted { $0.cardId < $1.cardId }
-            )
-        }
-        .sorted { $0.userWalletId < $1.userWalletId }
+        return walletCards
+            .filter { _, group in
+                group.cards.contains { $0.deliveryState == .waitingForDelivery }
+            }
+            .map { userWalletId, group in
+                WalletCardsWaitingDeliveryBackupCards(
+                    userWalletId: userWalletId,
+                    isImported: group.isImported,
+                    cards: group.cards.sorted { $0.cardId < $1.cardId }
+                )
+            }
+            .sorted { $0.userWalletId < $1.userWalletId }
     }
 }
 

@@ -219,7 +219,7 @@ final class InjectedEnvironment {
             let repository = FakeUserWalletRepository(models: [selectedWallet, otherWallet])
             repository.selectedModel = selectedWallet
             InjectedValues[\.userWalletRepository] = repository
-            InjectedValues[\.expressAvailabilityProvider] = SwapAvailableExpressProviderStub()
+            InjectedValues[\.expressAvailabilityProvider] = SwapExpressAvailabilityProviderStub()
 
             defer {
                 InjectedValues[\.userWalletRepository] = previousRepository
@@ -232,19 +232,6 @@ final class InjectedEnvironment {
 }
 
 // MARK: - Stubs and spies
-
-private final class SwapAvailableExpressProviderStub: ExpressAvailabilityProvider {
-    var hasCache: Bool { true }
-    var availabilityDidChangePublisher: AnyPublisher<Void, Never> { Empty().eraseToAnyPublisher() }
-    var expressAvailabilityUpdateStateValue: ExpressAvailabilityUpdateState { .updated }
-    var expressAvailabilityUpdateState: AnyPublisher<ExpressAvailabilityUpdateState, Never> { .just(output: .updated) }
-
-    func swapState(for tokenItem: TokenItem) -> TokenItemExpressState { .available }
-    func onrampState(for tokenItem: TokenItem) -> TokenItemExpressState { .unavailable }
-    func canSwap(tokenItem: TokenItem) -> Bool { true }
-    func canOnramp(tokenItem: TokenItem) -> Bool { false }
-    func updateExpressAvailability(for items: [TokenItem], forceReload: Bool, userWalletId: String) {}
-}
 
 private final class TokenScreenDeeplinkRoutableSpy: TokenScreenDeeplinkRoutable {
     private(set) var swapParameters: PredefinedSwapParameters?

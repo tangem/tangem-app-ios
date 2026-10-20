@@ -53,42 +53,6 @@ extension ALPH.CompactInteger {
             }
         }
 
-        static func decodeU32(_ data: Data) -> Result<ALPH.Staging<ALPH.U32>, Error> {
-            switch ALPH.ModeUtils.decode(data) {
-            case .success(let (mode, body, rest)):
-                return decodeU32(mode: mode, body: body, rest: rest)
-            case .failure(let error):
-                return .failure(error)
-            }
-        }
-
-        private static func decodeU32(mode: ALPH.Mode, body: Data, rest: Data) -> Result<ALPH.Staging<ALPH.U32>, Error> {
-            switch mode {
-            case is ALPH.FixedWidth:
-                guard let mode = mode as? ALPH.FixedWidth else {
-                    return .failure(ALPH.SerdeError.wrongFormat(message: "Unknown mode in decodeU32"))
-                }
-
-                return decodeInt(mode: mode, body: body, rest: rest).map { staging in
-                    ALPH.Staging(value: ALPH.U32.unsafe(UInt32(staging.value)), rest: staging.rest)
-                }
-
-            case is ALPH.MultiByte:
-                guard body.count >= 5 else {
-                    return .failure(ALPH.SerdeError.wrongFormat(message: "Expect 4 bytes int, but got \(body.count - 1) bytes int"))
-                }
-                if body.count == 5 {
-                    let value = ALPH.Bytes.toIntUnsafe(body.subdata(in: 1 ..< body.count))
-                    return .success(ALPH.Staging(value: ALPH.U32.unsafe(UInt32(value)), rest: rest))
-                } else {
-                    return .failure(ALPH.SerdeError.wrongFormat(message: "Expect 4 bytes int, but got \(body.count - 1) bytes int"))
-                }
-
-            default:
-                return .failure(ALPH.SerdeError.wrongFormat(message: "Unknown mode in decodeU32"))
-            }
-        }
-
         private static func decodeInt(mode: ALPH.FixedWidth, body: Data, rest: Data) -> Result<ALPH.Staging<Int>, Error> {
             switch mode {
             case is ALPH.SingleByte:

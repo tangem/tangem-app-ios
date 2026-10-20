@@ -451,7 +451,6 @@ extension HederaNetworkService: MultiNetworkProvider {
 private extension HederaNetworkService {
     enum Constants {
         static let centsPerDollar = Decimal(100)
-        static let hederaNetworkId = "hedera"
         /// Arkhia.io's free plan currently has a limit of 200 entities per single request (value found by trial and error,
         /// as there is no mention of such a limit in their docs), so this constant is limited to that limit.
         /// Still well enough for our needs, 200 unique tokens per unique Hedera account.

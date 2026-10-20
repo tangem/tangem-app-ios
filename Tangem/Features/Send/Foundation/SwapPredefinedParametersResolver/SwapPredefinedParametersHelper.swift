@@ -13,16 +13,23 @@ struct SwapPredefinedParametersHelper {
         walletModel: any WalletModel,
         userWalletInfo: UserWalletInfo,
         position: SwapDirection
-    ) -> PredefinedSwapParameters? {
+    ) -> PredefinedSwapParameters {
         switch position {
-        case .automatic:
-            return resolveParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
         case .from:
             let token = makeSwapableToken(walletModel: walletModel, userWalletInfo: userWalletInfo)
             return .from(token)
         case .to:
-            let token = makeSwapableToken(walletModel: walletModel, userWalletInfo: userWalletInfo)
-            return .to(token)
+            let receiveToken = makeReceiveToken(walletModel: walletModel, userWalletInfo: userWalletInfo)
+            let sourceResolver = TokenDetailsSwapSourceResolver(
+                swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletInfo)
+            )
+
+            guard let sourceWalletModel = sourceResolver.resolveSource(for: walletModel) else {
+                return .to(receiveToken)
+            }
+
+            let sourceToken = makeSwapableToken(walletModel: sourceWalletModel, userWalletInfo: userWalletInfo)
+            return .from(sourceToken, pair: .fixed(receive: receiveToken))
         }
     }
 
@@ -33,7 +40,7 @@ struct SwapPredefinedParametersHelper {
         extras: PredefinedSwapParameters.Extras?
     ) -> PredefinedSwapParameters {
         let source = makeSwapableToken(walletModel: fromWalletModel, userWalletInfo: userWalletInfo)
-        let receive = toWalletModel.map { makeSwapableToken(walletModel: $0, userWalletInfo: userWalletInfo) }
+        let receive = toWalletModel.map { makeReceiveToken(walletModel: $0, userWalletInfo: userWalletInfo) }
         return .from(source, pair: .fixed(receiveOrUserSelection: receive), extras: extras)
     }
 }
@@ -41,37 +48,19 @@ struct SwapPredefinedParametersHelper {
 // MARK: - Private
 
 private extension SwapPredefinedParametersHelper {
+    func makeReceiveToken(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) -> SendSourceToken {
+        if walletModel.isJointAccountParticipant {
+            return CommonSendSourceTokenFactory(userWalletInfo: userWalletInfo, walletModel: walletModel).makeSourceToken()
+        }
+
+        return makeSwapableToken(walletModel: walletModel, userWalletInfo: userWalletInfo)
+    }
+
     func makeSwapableToken(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) -> SendSwapableToken {
         CommonSendSwapableTokenFactory(
             userWalletInfo: userWalletInfo,
             walletModel: walletModel,
             operationType: .swap
         ).makeSwapableToken()
-    }
-
-    func resolveParameters(
-        walletModel: any WalletModel,
-        userWalletInfo: UserWalletInfo
-    ) -> PredefinedSwapParameters? {
-        let resolver = TokenDetailsSwapPairResolver(
-            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletInfo)
-        )
-        let resolved = resolver.resolve(walletModel: walletModel)
-
-        if let sourceWalletModel = resolved.source {
-            let sourceToken = makeSwapableToken(walletModel: sourceWalletModel, userWalletInfo: userWalletInfo)
-            let destinationToken = resolved.destination.map {
-                makeSwapableToken(walletModel: $0, userWalletInfo: userWalletInfo)
-            }
-
-            return .from(sourceToken, pair: .fixed(receiveOrUserSelection: destinationToken))
-        }
-
-        if let destinationWalletModel = resolved.destination {
-            let destinationToken = makeSwapableToken(walletModel: destinationWalletModel, userWalletInfo: userWalletInfo)
-            return .to(destinationToken)
-        }
-
-        return nil
     }
 }

@@ -38,7 +38,11 @@ public struct PolymarketOrderPaymentRow: View {
     }
 
     private var icon: some View {
-        TokenIcon(tokenIconInfo: model.tokenIconInfo, size: Constants.iconSize)
+        model.icon.image
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: Constants.iconSide, height: Constants.iconSide)
+            .accessibilityHidden(true)
     }
 
     private var texts: some View {
@@ -77,12 +81,12 @@ public struct PolymarketOrderPaymentRow: View {
 
 public extension PolymarketOrderPaymentRow {
     struct Model {
-        public let tokenIconInfo: TokenIconInfo
+        public let icon: ImageType
         public let symbol: String
         public let balanceText: String
 
-        public init(tokenIconInfo: TokenIconInfo, symbol: String, balanceText: String) {
-            self.tokenIconInfo = tokenIconInfo
+        public init(icon: ImageType, symbol: String, balanceText: String) {
+            self.icon = icon
             self.symbol = symbol
             self.balanceText = balanceText
         }
@@ -97,6 +101,6 @@ private extension PolymarketOrderPaymentRow {
         static let textSpacing: CGFloat = 2
         static let horizontalPadding: CGFloat = 16
         static let verticalPadding: CGFloat = 12
-        static let iconSize = CGSize(bothDimensions: 36)
+        static let iconSide: CGFloat = 36
     }
 }

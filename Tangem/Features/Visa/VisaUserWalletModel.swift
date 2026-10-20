@@ -10,7 +10,6 @@ import Foundation
 import TangemCollectibles
 import Combine
 import BlockchainSdk
-import TangemAssets
 import TangemVisa
 import TangemFoundation
 import TangemNFT
@@ -39,22 +38,6 @@ final class VisaUserWalletModel {
 
     var currentModelState: State {
         stateSubject.value
-    }
-
-    var balancesPublisher: AnyPublisher<AppVisaBalances?, Never> {
-        balancesSubject.eraseToAnyPublisher()
-    }
-
-    var limitsPublisher: AnyPublisher<AppVisaLimits?, Never> {
-        cardSettingsSubject
-            .map { cardSettings in
-                guard let cardSettings else {
-                    return nil
-                }
-
-                return AppVisaLimits(limits: cardSettings.limits)
-            }
-            .eraseToAnyPublisher()
     }
 
     var balances: AppVisaBalances? {
@@ -275,7 +258,7 @@ final class VisaUserWalletModel {
     }
 
     private func showRefreshTokenExpiredNotification() {
-        stateSubject.send(.failedToLoad(.missingValidRefreshToken(icon: CommonTangemIconProvider(config: config).getMainButtonIcon())))
+        stateSubject.send(.failedToLoad(.missingValidRefreshToken(icon: SigningActionButtonViewTypeBuilder().build(config: config).mainButtonIcon)))
     }
 
     private func loadBalancesAndLimits() async {
@@ -353,7 +336,7 @@ extension VisaUserWalletModel {
             )
 
         if await authorizationTokensHandler.refreshTokenExpired {
-            throw ModelError.missingValidRefreshToken(icon: CommonTangemIconProvider(config: config).getMainButtonIcon())
+            throw ModelError.missingValidRefreshToken(icon: SigningActionButtonViewTypeBuilder().build(config: config).mainButtonIcon)
         }
 
         if await authorizationTokensHandler.accessTokenExpired {
@@ -411,28 +394,6 @@ extension VisaUserWalletModel {
 extension VisaUserWalletModel: VisaRefreshTokenSaver {
     func saveRefreshTokenToStorage(refreshToken: String, visaRefreshTokenId: VisaRefreshTokenId) throws {
         try visaRefreshTokenRepository.save(refreshToken: refreshToken, visaRefreshTokenId: visaRefreshTokenId)
-    }
-}
-
-extension VisaUserWalletModel: VisaWalletMainHeaderSubtitleDataSource {
-    var fiatBalance: String {
-        BalanceFormatter().formatFiatBalance(fiatValue)
-    }
-
-    var blockchainName: String {
-        VisaUtilities.visaBlockchain.displayName
-    }
-
-    private var fiatValue: Decimal? {
-        guard
-            let balanceValue = balancesSubject.value?.available,
-            let currencyId = tokenItem?.currencyId
-        else {
-            return nil
-        }
-
-        let converter = BalanceConverter()
-        return converter.convertToFiat(balanceValue, currencyId: currencyId)
     }
 }
 
@@ -534,8 +495,6 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var name: String { userWalletModel.name }
 
-    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { userWalletModel.walletHeaderImagePublisher }
-
     var totalBalance: TotalBalanceState { userWalletModel.totalBalance }
 
     var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> { userWalletModel.totalBalancePublisher }
@@ -570,6 +529,10 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
         userWalletModel.tangemPayAuthorizingInteractor
+    }
+
+    var polymarketOwnerKeySession: PolymarketOwnerKeySession {
+        userWalletModel.polymarketOwnerKeySession
     }
 
     var userWalletPushNotificationsManager: any UserWalletPushNotificationsManager {

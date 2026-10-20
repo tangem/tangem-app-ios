@@ -40,7 +40,7 @@ struct SwapTokenSelectorView: View {
             )
             .sectionHeader(.init(title: Localization.swapYourAssetsTitle, showsItemsCount: true))
             .searchType(.native)
-            .background(Colors.Background.tertiary.ignoresSafeArea())
+            .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
             .navigationTitle(Localization.swappingTokenListTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

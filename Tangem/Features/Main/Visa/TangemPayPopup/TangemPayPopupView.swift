@@ -66,7 +66,7 @@ private extension TangemPayPopupView {
         }
         .floatingSheetConfiguration { config in
             config.backgroundInteractionBehavior = .tapToDismiss
-            config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+            config.sheetBackground = .color(DesignSystem.Color.bgSecondary)
         }
     }
 

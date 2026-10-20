@@ -163,7 +163,7 @@ private extension SwapActionButtonViewModel {
     func openSwap() {
         let userWalletInfo = userWalletModel.userWalletInfo
 
-        let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
+        let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager, accountScope: .personal)
 
         let bestEffort = MainSwapSourceResolver.makeBestEffortSourceToken(from: walletModels, userWalletInfo: userWalletInfo)
         let fallback = walletModels.first.map { walletModel in

@@ -28,7 +28,6 @@ final class ApproveViewModel: ObservableObject {
     @Published private(set) var state: State = .idle
     @Published var errorAlert: AlertBinder?
 
-    let tangemIconProvider: TangemIconProvider
     let feeFooterText: String
 
     // MARK: - Dependencies
@@ -53,7 +52,6 @@ final class ApproveViewModel: ObservableObject {
         title = input.settings.title
         subtitle = input.settings.subtitle
         feeFooterText = input.settings.feeFooterText
-        tangemIconProvider = input.settings.tangemIconProvider
 
         menuRowViewModel = .init(
             title: Localization.givePermissionRowsAmount(input.settings.tokenItem.currencySymbol),
@@ -271,6 +269,5 @@ extension ApproveViewModel {
         let subtitle: String
         let feeFooterText: String
         let tokenItem: TokenItem
-        let tangemIconProvider: TangemIconProvider
     }
 }

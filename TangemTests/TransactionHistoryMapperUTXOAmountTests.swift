@@ -86,6 +86,17 @@ struct TransactionHistoryMapperUTXOAmountTests {
         #expect(makeSUT().mapSuggestedRecord(record)?.address == Self.recipient)
     }
 
+    @Test("An incoming UTXO transaction is not suggested")
+    func incomingTransactionIsNotSuggested() throws {
+        let record = try makeRecord(
+            inputs: [("bc1qsender", #require(Decimal(stringValue: "0.002")))],
+            outputs: [(Self.owner, #require(Decimal(stringValue: "0.00199")))],
+            isOutgoing: false
+        )
+
+        #expect(makeSUT().mapSuggestedRecord(record) == nil)
+    }
+
     @Test("A UTXO transfer to the wallet's own address is not suggested, even though it cost a fee")
     func transferToItselfIsNotSuggested() throws {
         let record = try makeRecord(

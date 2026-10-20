@@ -32,10 +32,6 @@ final class MobileOnboardingRevealSeedPhraseFlowBuilder: MobileOnboardingFlowBui
 // MARK: - Navigation
 
 private extension MobileOnboardingRevealSeedPhraseFlowBuilder {
-    func openNext() {
-        next()
-    }
-
     func closeOnboarding() {
         coordinator?.closeOnboarding()
     }

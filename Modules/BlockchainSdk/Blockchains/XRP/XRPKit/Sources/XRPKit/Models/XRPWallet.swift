@@ -7,11 +7,6 @@
 
 import Foundation
 
-enum SeedType {
-    case ed25519
-    case secp256k1
-}
-
 protocol XRPWallet {
     var privateKey: String { get }
     var publicKey: String { get }
@@ -86,11 +81,5 @@ class XRPSeedWallet: XRPWallet {
         self.publicKey = publicKey
         self.seed = seed
         self.address = address
-    }
-
-    static func getSeedTypeFrom(publicKey: String) -> SeedType {
-        let data = Data(hexString: publicKey)
-        // [REDACTED_TODO_COMMENT]
-        return data.count == 33 && data[0] == 0xED ? .ed25519 : .secp256k1
     }
 }
