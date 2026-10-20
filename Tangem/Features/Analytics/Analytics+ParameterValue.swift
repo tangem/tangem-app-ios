@@ -113,8 +113,6 @@ extension Analytics {
         case walletCreationTypePrivateKey = "Private Key"
         case walletCreationTypeNewSeed = "New Seed"
         case walletCreationTypeSeedImport = "Seed Import"
-        case walletCreationTypeNewSocialLogin = "New Social Login"
-        case walletCreationTypeSocialLoginImport = "Social Login Import"
 
         case enabled = "Enabled"
         case disabled = "Disabled"

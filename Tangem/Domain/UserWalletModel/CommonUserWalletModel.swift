@@ -473,7 +473,7 @@ extension CommonUserWalletModel: DisposableEntity {
 
 private extension CommonUserWalletModel {
     func cleanMobileWallet(mobileWalletInfo: MobileWalletInfo) {
-        MobileCleanupUtil.clean(walletId: userWalletId, mobileWalletInfo: mobileWalletInfo)
+        MobileCleanupUtil.cleanAfterUpgrade(walletId: userWalletId, mobileWalletInfo: mobileWalletInfo)
     }
 }
 
