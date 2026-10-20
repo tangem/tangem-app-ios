@@ -48,6 +48,7 @@ struct WireMockFindRequestsRequest: Codable {
 }
 
 struct WireMockLoggedRequest: Codable {
+    let url: String?
     let body: String?
     let loggedDate: Double?
 }

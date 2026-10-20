@@ -51,7 +51,7 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
             let viewModel = await withStubbedDependencies { map(makeApproveRecord(symbol: nil, allowance: .unscaled(1_000_000_000))) }
 
             #expect(viewModel.transactionType == .approve)
-            #expect(viewModel.amount.value.isEmpty)
+            #expect(viewModel.amount.value == nil)
             #expect(viewModel.amount.currencyCode.isEmpty)
         }
 
