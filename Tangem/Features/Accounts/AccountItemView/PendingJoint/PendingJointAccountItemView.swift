@@ -160,11 +160,17 @@ private let previewJointAccountDelegate = JointAccountModelDelegateMock()
 
 private let previewInviteURL = URL(string: "https://tangem.com/joint-account/join/preview")
 
+private let previewCreator = JointAccountMember(
+    name: "Member 0",
+    address: "0x0000000000000000000000000000000000000000",
+    role: .creator
+)
+
 private func previewJointAccount(
     status: JointAccountStatus,
     membersCount: Int,
     takenSlotsCount: Int,
-    isCreatorDevice: Bool = false
+    userRole: JointAccountUserRole = .outsider
 ) -> any JointAccountModel {
     CommonJointAccountModel(
         cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
@@ -187,7 +193,7 @@ private func previewJointAccount(
                     )
                 )
             },
-            isCreatorDevice: isCreatorDevice
+            userRole: userRole
         ),
         delegate: previewJointAccountDelegate
     )
@@ -213,7 +219,7 @@ private func previewJointAccount(
                         status: .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"),
                         membersCount: 3,
                         takenSlotsCount: 3,
-                        isCreatorDevice: true
+                        userRole: .member(previewCreator)
                     ),
                     onTap: {}
                 )
