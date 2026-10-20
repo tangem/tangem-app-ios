@@ -23,7 +23,7 @@ struct AddTokenFlowRedesignedView: View {
             .floatingSheetConfiguration { configuration in
                 configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
                 configuration.backgroundInteractionBehavior = .consumeTouches
-                configuration.sheetBackgroundColor = sheetBackgroundColor
+                configuration.sheetBackground = .color(sheetBackgroundColor)
             }
     }
 

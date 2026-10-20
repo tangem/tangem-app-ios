@@ -22,7 +22,7 @@ extension CollectiblesInfoSheetView {
                 onSecondary: viewModel.secondary
             )
             .floatingSheetConfiguration { configuration in
-                configuration.sheetBackgroundColor = DesignSystem.Color.bgPrimary
+                configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
                 configuration.backgroundInteractionBehavior = .tapToDismiss
             }
         }

@@ -15,6 +15,7 @@ enum MCPConnectionRequestProposalAction {
     case userWalletSelectorTapped
     case userWalletSelectionUpdated(MCPUserWallet)
 
+    case applicationWillEnterForeground
     case openSystemSettingsButtonTapped
 
     case declineButtonTapped

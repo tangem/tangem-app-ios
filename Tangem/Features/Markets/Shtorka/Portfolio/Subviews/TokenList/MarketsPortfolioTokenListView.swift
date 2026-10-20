@@ -46,7 +46,7 @@ struct MarketsPortfolioTokenListView: View {
             .floatingSheetConfiguration { configuration in
                 configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
                 configuration.backgroundInteractionBehavior = .consumeTouches
-                configuration.sheetBackgroundColor = backgroundColor
+                configuration.sheetBackground = .color(backgroundColor)
             }
     }
 }

@@ -132,7 +132,7 @@ extension CommonOnrampUnknownStatusRecoveryService: OnrampUnknownStatusRecoveryS
     func start() {
         guard observationTask == nil else { return }
         observationTask = runTask(in: self) { service in
-            let stream = await service.unknownStatusRepository.recordsPublisher.values
+            let stream = await service.unknownStatusRepository.recordsPublisher.values_
             for await _ in stream {
                 guard !Task.isCancelled else { return }
                 service.runRecoveryPass()

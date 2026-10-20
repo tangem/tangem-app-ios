@@ -34,7 +34,7 @@ struct ChooseNetworkRowView: View {
             .end {
                 selectionIcon
             }
-            .onTap(viewModel.onTap)
+            .onTap(action: viewModel.onTap)
     }
 
     @ViewBuilder

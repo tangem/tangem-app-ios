@@ -58,7 +58,7 @@ struct TangemPayComparePlansSheetView: View {
         }
         .floatingSheetConfiguration { configuration in
             configuration.maxHeightFraction = Constants.maxHeightFraction
-            configuration.sheetBackgroundColor = DesignSystem.Color.bgPrimary
+            configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
         .environment(\.openURL, OpenURLAction { url in
