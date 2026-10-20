@@ -76,7 +76,7 @@ struct TransactionDetailsContentView: View {
         .animation(animatesBlockChanges ? .contentFrameUpdate : nil, value: blocks.map(\.id))
         .accessibilityIdentifier(TransactionDetailsAccessibilityIdentifiers.sheet)
         .floatingSheetConfiguration { config in
-            config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+            config.sheetBackground = .color(DesignSystem.Color.bgSecondary)
             config.backgroundInteractionBehavior = .tapToDismiss
             config.sheetFrameUpdateAnimation = .contentFrameUpdate
         }

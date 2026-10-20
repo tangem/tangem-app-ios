@@ -82,7 +82,8 @@ extension MCPConnectionRequestProposalState.AgentPermissions {
 extension MCPConnectionRequestProposalState {
     struct UserWalletSelector: Equatable {
         let label = "Wallet"
-        let enabled: Bool
+        let isSelectionAllowed: Bool
+        var isEnabled: Bool
         var selection: MCPUserWallet
     }
 }

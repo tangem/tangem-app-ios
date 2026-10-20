@@ -219,7 +219,7 @@ private struct AccountFormWalletRow: View {
     var body: some View {
         Row(title: Localization.commonWallet)
             .valueAccessory { walletValue }
-            .if(wallet.isSelectable) { $0.onTap(action) }
+            .if(wallet.isSelectable) { $0.onTap(action: action) }
             .background(DesignSystem.Color.bgSecondary)
             .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
             .accessibilityIdentifier(AccountsAccessibilityIdentifiers.accountFormWalletRow)

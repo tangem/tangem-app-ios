@@ -9,14 +9,17 @@
 import struct TangemFoundation.UserWalletId
 
 enum MCPConnectionRequestAction {
+    case viewDidLoad
+
     case backButtonTapped
     case closeButtonTapped
     case openSystemSettingsButtonTapped
 
     case userWalletSelectorTapped
     case userWalletSelectionUpdated(MCPUserWallet)
+    case userWalletSelectorAutoCloseDelayElapsed
 
     case fetchRequestFailed(MCPConnectionClientError)
     case agentConnectionRejected(Result<Void, MCPConnectionClientError>)
-    case agentConnectionAccepted(Result<String, AcceptMCPConnectionError>)
+    case agentConnectionAccepted(Result<String, MCPConnectionClientError>)
 }

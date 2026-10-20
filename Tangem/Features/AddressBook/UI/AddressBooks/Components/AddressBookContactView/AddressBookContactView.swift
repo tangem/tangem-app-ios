@@ -15,6 +15,6 @@ struct AddressBookContactView: View {
     var body: some View {
         Row(title: viewModel.title, subtitle: viewModel.subtitle)
             .start { AddressBookContactNameIconView(viewData: viewModel.iconViewData) }
-            .onTap(viewModel.action)
+            .onTap(action: viewModel.action)
     }
 }

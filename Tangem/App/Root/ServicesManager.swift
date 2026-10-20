@@ -253,6 +253,7 @@ extension CommonServicesManager: ServicesManager {
         // Refresh the cached app-versions DTO once per session. Applied on the next launch.
         forceUpdateService.refreshCache()
         appDatabase.initialize()
+        MCPModuleFactory.configure()
     }
 
     /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating

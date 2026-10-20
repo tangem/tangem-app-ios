@@ -31,7 +31,7 @@ struct AddressActionsView: View {
         }
         .floatingSheetConfiguration { configuration in
             configuration.backgroundInteractionBehavior = .tapToDismiss
-            configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+            configuration.sheetBackground = .color(DesignSystem.Color.bgSecondary)
         }
     }
 

@@ -27,25 +27,15 @@ public struct PolymarketPositionRow: View {
     }
 
     private var card: some View {
-        row
-            .frame(maxWidth: .infinity)
-            .background(DesignSystem.Color.bgSecondary)
-            .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
-    }
-
-    @ViewBuilder
-    private var row: some View {
-        let row = TangemUI.Row(title: model.question)
+        TangemUI.Row(title: model.question)
             .titleLineLimit(Constants.titleLineLimit)
             .verticalAlignment(.center)
             .end { PolymarketAvatarView(url: model.imageURL) }
             .extraBottom { footer }
-
-        if let onTap {
-            row.onTap(onTap)
-        } else {
-            row
-        }
+            .onTap(action: onTap)
+            .frame(maxWidth: .infinity)
+            .background(DesignSystem.Color.bgSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
     }
 
     private var footer: some View {

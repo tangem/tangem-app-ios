@@ -35,7 +35,7 @@ struct TransactionDetailsSignaturesView: View {
                     requiredCount: data.requiredCount
                 )
             }
-            .onTap(onTap)
+            .onTap(action: onTap)
             .background(DesignSystem.Color.bgStatusWarningSubtle)
             .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
     }

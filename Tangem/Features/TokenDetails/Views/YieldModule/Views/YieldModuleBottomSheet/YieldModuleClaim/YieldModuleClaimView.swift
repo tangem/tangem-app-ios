@@ -23,7 +23,7 @@ struct YieldModuleClaimView: View {
             .animation(.contentFrameUpdate, value: viewModel.viewState)
             .floatingSheetConfiguration { configuration in
                 configuration.maxHeightFraction = Constants.maxHeightFraction
-                configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+                configuration.sheetBackground = .color(DesignSystem.Color.bgSecondary)
                 configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
                 configuration.backgroundInteractionBehavior = viewModel.isProcessingRequest ? .consumeTouches : .tapToDismiss
                 configuration.verticalSwipeBehavior = isSwipeDismissable

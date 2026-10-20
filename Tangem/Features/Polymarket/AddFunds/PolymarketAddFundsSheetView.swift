@@ -23,7 +23,7 @@ struct PolymarketAddFundsSheetView: View {
         }
         .padding([.horizontal, .bottom], 16)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+            configuration.sheetBackground = .color(DesignSystem.Color.bgSecondary)
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
         .alert(item: $viewModel.alert) { $0.alert }
