@@ -295,6 +295,7 @@ extension Analytics {
         case walletSettingsWalletDeleted = "[Settings / Wallet Settings] Wallet Deleted"
         case walletSettingsDeleteWalletError = "[Settings / Wallet Settings] Delete Wallet Error"
         case walletSettingsSocialRecoveryDeleted = "[Settings / Wallet Settings] Social Recovery Deleted"
+        case walletSettingsSocialRecoveryDeletionError = "[Settings / Wallet Settings] Social Recovery Deletion Error"
 
         // MARK: - Social login
 
