@@ -19,6 +19,8 @@ protocol ExperimentService {
     func variant(_ key: ExperimentFeatureFlagKey) -> Variant?
     func isOn(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool
     func isOnWithoutExposure(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool
+    @MainActor
+    func hasFetchedVariants(for userWalletId: UserWalletId) -> Bool
 }
 
 final class CommonExperimentService {
@@ -38,6 +40,7 @@ final class CommonExperimentService {
     private var _client: ExperimentClient?
     private var bag: Set<AnyCancellable> = []
     private var refetchTask: Task<Void, Never>?
+    @MainActor private var fetchedUserWalletId: UserWalletId?
 
     // MARK: - Public Implementation
 
@@ -86,13 +89,18 @@ final class CommonExperimentService {
     private func setContext(for userWalletId: UserWalletId?) {
         let ctx = ExperimentWalletContext.initial(for: userWalletId)
 
-        refetchTask?.cancel()
+        let previousRefetchTask = refetchTask
+
+        previousRefetchTask?.cancel()
         refetchTask = runTask(in: self) { service in
+            await previousRefetchTask?.value
             await service.refetch(for: ctx)
         }
     }
 
     private func refetch(for ctx: ExperimentWalletContext) async {
+        await MainActor.run { fetchedUserWalletId = nil }
+
         let builder = ExperimentUserBuilder()
             .userId(ctx.userWalletId?.hashedStringValue)
             .region(ctx.region)
@@ -126,6 +134,8 @@ final class CommonExperimentService {
 
             try Task.checkCancellation()
 
+            await MainActor.run { fetchedUserWalletId = ctx.userWalletId }
+
             AppLogger.info("Experiments fetched for wallet \(ctx.userWalletId?.stringValue ?? "empty")")
         } catch is CancellationError {
             AppLogger.info("Experiment fetch cancelled for wallet \(ctx.userWalletId?.stringValue ?? "empty")")
@@ -154,6 +164,11 @@ extension CommonExperimentService: ExperimentService {
         guard let client = configuredClient(for: key) else { return false }
 
         return client.variant(key.rawValue).value == variant.rawValue
+    }
+
+    @MainActor
+    func hasFetchedVariants(for userWalletId: UserWalletId) -> Bool {
+        fetchedUserWalletId == userWalletId
     }
 }
 
