@@ -262,7 +262,7 @@ final class SwapModelTests: LeakTrackingTestSuite {
             receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
             expressManager: manager,
             pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager),
-            shouldStartInitialLoading: true
+            initialResolvingPolicy: .enabled()
         )
 
         sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
@@ -280,7 +280,7 @@ final class SwapModelTests: LeakTrackingTestSuite {
         let sut = makeSUT(
             receiveToken: SwapableTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
             sourceTokenResolver: SourceTokenResolverStub(source: resolvedSource),
-            shouldStartInitialLoading: true
+            initialResolvingPolicy: .enabled()
         )
 
         // initialLoading runs on a detached task; wait for the resolved source to land.
@@ -294,28 +294,88 @@ final class SwapModelTests: LeakTrackingTestSuite {
 
     // MARK: - [REDACTED_INFO]: deferred pair resolution
 
-    @Test("Receive selector unblocks while deferred pair resolution is still in flight ([REDACTED_INFO])")
-    func receiveSelectorUnblocksDuringDeferredPairResolution() async throws {
-        let sourceToken = SwapableTokenStub(blockchain: .ethereum(testnet: false))
-        let resolver = MainSwapSourceResolver(
-            userWalletModel: PendingResolutionUserWalletModelStub(),
-            swapAvailabilityChecker: SwapAvailabilityCheckerStub()
-        )
+    @Test("Receive selector unblocks while the source is still being resolved ([REDACTED_INFO])")
+    func receiveSelectorUnblocksWhileSourceIsResolving() async throws {
+        let resolver = ControllableSourceResolverStub(source: SwapableTokenStub(blockchain: .ethereum(testnet: false)))
         // The SUT is not leak-tracked here: the suspended resolver keeps the initial-loading
-        // task (and therefore the model) alive until the stub's publishers would emit.
-        let sut = makeSUT(
-            sourceToken: sourceToken,
-            sourceTokenResolver: resolver,
-            shouldStartInitialLoading: true
-        )
+        // task (and therefore the model) alive until the stub is released.
+        let sut = makeSUT(sourceTokenResolver: resolver, initialResolvingPolicy: .enabled())
 
         let error = try await waitForReceiveTokenFailure(sut)
         #expect(error as? SwapModel.SwapModelError == .tokenSelectionRequired)
-        // The resolver never resumed, so the pre-selected source must stay intact.
-        #expect(sut.sourceToken.value?.tokenItem == sourceToken.tokenItem)
+        #expect(sut.sourceToken.isLoading)
+    }
+
+    @Test("A resolved source that matches the receive token picked meanwhile is left to the user")
+    func resolvedSourceMatchingPickedReceiveIsNotInstalled() async throws {
+        let token = SwapableTokenStub(blockchain: .ethereum(testnet: false))
+        let resolver = ControllableSourceResolverStub(source: token)
+        let sut = makeSUT(sourceTokenResolver: resolver, initialResolvingPolicy: .enabled())
+
+        _ = try await waitForReceiveTokenFailure(sut)
+        sut.update(receive: token)
+        resolver.release()
+
+        try await waitUntil { sut.sourceToken.isFailure }
+
+        guard case .failure(let error) = sut.sourceToken else {
+            Issue.record("Expected the source to be left to the user, got \(sut.sourceToken)")
+            return
+        }
+
+        #expect(error as? SwapModel.SwapModelError == .tokenSelectionRequired)
+        #expect(sut.receiveToken.value?.tokenItem == token.tokenItem)
+    }
+
+    @Test("A receive side the resolver can't settle is left to the user")
+    func unsettledReceiveSideIsLeftToTheUser() async throws {
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveTokenResolver: ReceiveTokenResolverStub(receive: nil),
+            initialResolvingPolicy: .enabled()
+        )
+
+        let error = try await waitForReceiveTokenFailure(sut)
+
+        #expect(error as? SwapModel.SwapModelError == .tokenSelectionRequired)
+        #expect(sut.sourceToken.isSuccess)
+    }
+
+    @Test("Resolving that outlives the timeout leaves the side to the user")
+    func resolvingThatOutlivesTheTimeoutIsLeftToTheUser() async throws {
+        let resolver = ControllableSourceResolverStub(source: SwapableTokenStub(blockchain: .ethereum(testnet: false)))
+        let sut = makeSUT(
+            sourceTokenResolver: resolver,
+            initialResolvingPolicy: .enabled(timeout: .milliseconds(50))
+        )
+
+        try await waitUntil { sut.sourceToken.isFailure }
+
+        guard case .failure(let error) = sut.sourceToken else {
+            Issue.record("Expected the source to be left to the user, got \(sut.sourceToken)")
+            return
+        }
+
+        #expect(error as? SwapModel.SwapModelError == .tokenSelectionRequired)
+        resolver.release()
     }
 
     // MARK: - Destination re-resolution
+
+    @Test("The destination follows the source resolved during initial loading")
+    func destinationFollowsTheSourceResolvedInitially() async throws {
+        let resolvedSource = SwapableTokenStub(tokenItem: .accountToken(symbol: "USDT", contract: "0xUSDT"))
+        let followingDestination = SwapableTokenStub(tokenItem: .accountToken(symbol: "USDC", contract: "0xUSDC"))
+        let sut = makeSUT(
+            receiveToken: SwapableTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            sourceTokenResolver: SourceTokenResolverStub(source: resolvedSource),
+            destinationTokenResolver: DestinationTokenResolverStub(destination: followingDestination),
+            initialResolvingPolicy: .enabled()
+        )
+
+        try await waitUntil { sut.receiveToken.value?.tokenItem == followingDestination.tokenItem }
+        #expect(sut.sourceToken.value?.tokenItem == resolvedSource.tokenItem)
+    }
 
     @Test("A source change re-resolves the destination")
     func sourceChangeReresolvesDestination() {
@@ -1133,14 +1193,16 @@ private extension SwapModelTests {
         pairUpdateHandler: SwapPairUpdateHandler = SwapPairUpdateHandlerStub(),
         autoupdatingTimer: any AutoupdatingTimerSetup = AutoupdatingTimer(),
         sourceTokenResolver: (any SwapSourceTokenResolver)? = nil,
+        receiveTokenResolver: (any SwapReceiveTokenResolver)? = nil,
         destinationTokenResolver: (any SwapDestinationTokenResolver)? = nil,
-        shouldStartInitialLoading: Bool = false
+        initialResolvingPolicy: SwapModel.InitialResolvingPolicy = .disabled
     ) -> SwapModel {
         let model = SwapModel(
             parameters: makeParameters(
                 sourceToken: sourceToken,
                 receiveToken: receiveToken,
                 sourceTokenResolver: sourceTokenResolver,
+                receiveTokenResolver: receiveTokenResolver,
                 destinationTokenResolver: destinationTokenResolver
             ),
             expressManager: expressManager,
@@ -1152,7 +1214,7 @@ private extension SwapModelTests {
             autoupdatingTimer: autoupdatingTimer,
             pairUpdateHandler: pairUpdateHandler,
             balanceRestrictionFeatureChecker: SwapBalanceRestrictionFeatureCheckerStub(),
-            shouldStartInitialLoading: shouldStartInitialLoading
+            initialResolvingPolicy: initialResolvingPolicy
         )
 
         // The production factory always injects the updater; the model unwraps it implicitly
@@ -1170,6 +1232,7 @@ private extension SwapModelTests {
         sourceToken: SendSwapableToken?,
         receiveToken: SendReceiveToken?,
         sourceTokenResolver: (any SwapSourceTokenResolver)?,
+        receiveTokenResolver: (any SwapReceiveTokenResolver)?,
         destinationTokenResolver: (any SwapDestinationTokenResolver)?
     ) -> PredefinedSwapParameters {
         let configuration = SwapFlowConfiguration(
@@ -1179,26 +1242,32 @@ private extension SwapModelTests {
             summaryTitle: nil
         )
 
-        if let sourceToken {
-            let pair: PredefinedSwapParameters.PairResolution = if let sourceTokenResolver {
-                .deferred(sourceResolver: sourceTokenResolver)
-            } else {
-                .fixed(receiveOrUserSelection: receiveToken)
-            }
+        let defaultSourceToken = SwapableTokenStub(blockchain: .ethereum(testnet: false))
 
-            return .from(sourceToken, pair: pair, configuration: configuration)
+        let source: any SwapSourceTokenResolver = if let sourceTokenResolver {
+            sourceTokenResolver
+        } else if let sourceToken {
+            .resolved(sourceToken)
+        } else if receiveToken == nil {
+            .resolved(defaultSourceToken)
+        } else {
+            .userSelection
         }
 
-        guard let receiveToken else {
-            return .from(SwapableTokenStub(blockchain: .ethereum(testnet: false)), configuration: configuration)
+        let receive: any SwapReceiveTokenResolver = if let receiveTokenResolver {
+            receiveTokenResolver
+        } else if let receiveToken {
+            .resolved(receiveToken)
+        } else {
+            .userSelection
         }
 
-        guard let sourceReceiveToken = receiveToken as? SendSourceToken else {
-            Issue.record("A `.to` entry needs a source token as the receive token, got \(type(of: receiveToken))")
-            return .from(SwapableTokenStub(blockchain: .ethereum(testnet: false)), configuration: configuration)
-        }
-
-        return .to(sourceReceiveToken, sourceResolver: sourceTokenResolver, configuration: configuration)
+        return PredefinedSwapParameters(
+            userWalletInfo: (sourceToken ?? defaultSourceToken).userWalletInfo,
+            source: source,
+            receive: receive,
+            configuration: configuration
+        )
     }
 
     func makeJointAccountItem() -> TokenSelectorItem {
@@ -1673,6 +1742,31 @@ private final class DestinationTokenResolverStub: SwapDestinationTokenResolver {
     }
 }
 
+private final class ControllableSourceResolverStub: SwapSourceTokenResolver {
+    private let source: SendSwapableToken
+    private let releaseStream: AsyncStream<Void>
+    private let releaseContinuation: AsyncStream<Void>.Continuation
+
+    init(source: SendSwapableToken) {
+        self.source = source
+        (releaseStream, releaseContinuation) = AsyncStream<Void>.makeStream()
+    }
+
+    var initialSource: LoadingResult<SendSwapableToken, any Error> { .loading }
+
+    func resolveSource(for receive: SendReceiveToken?) async throws -> SendSwapableToken {
+        for await _ in releaseStream {
+            break
+        }
+
+        return source
+    }
+
+    func release() {
+        releaseContinuation.yield(())
+    }
+}
+
 private final class SourceTokenResolverStub: SwapSourceTokenResolver {
     private let source: SendSwapableToken?
 
@@ -1680,8 +1774,32 @@ private final class SourceTokenResolverStub: SwapSourceTokenResolver {
         self.source = source
     }
 
-    func resolve() async -> SendSwapableToken? {
-        source
+    var initialSource: LoadingResult<SendSwapableToken, any Error> { .loading }
+
+    func resolveSource(for receive: SendReceiveToken?) async throws -> SendSwapableToken {
+        guard let source else {
+            throw SwapModel.SwapModelError.tokenSelectionRequired
+        }
+
+        return source
+    }
+}
+
+private final class ReceiveTokenResolverStub: SwapReceiveTokenResolver {
+    private let receive: SendReceiveToken?
+
+    init(receive: SendReceiveToken?) {
+        self.receive = receive
+    }
+
+    var initialReceive: LoadingResult<SendReceiveToken, any Error> { .loading }
+
+    func resolveReceive(for source: SendSwapableToken?) async throws -> SendReceiveToken {
+        guard let receive else {
+            throw SwapModel.SwapModelError.tokenSelectionRequired
+        }
+
+        return receive
     }
 }
 
@@ -1711,51 +1829,4 @@ private final class SendAmountInteractorStub: SendAmountInteractor {
     func update(receiveType: SendAmountCalculationType) {}
     func validateExternalSourceAmount(_ amount: SendAmount?) {}
     func userDidRequestClearReceiveToken() {}
-}
-
-// MARK: - Deferred pair resolution stubs
-
-private struct SwapAvailabilityCheckerStub: SwapAvailabilityChecker {
-    func isSwapAvailable(walletModel: any WalletModel) -> Bool { true }
-}
-
-/// A wallet whose account models never arrive, keeping `MainSwapSourceResolver.resolve()`
-/// suspended — the unit-test analogue of balances that never finish loading ([REDACTED_INFO]).
-private final class PendingResolutionUserWalletModelStub: UserWalletModelMock {
-    private let pendingAccountModelsManager = PendingAccountModelsManagerStub()
-
-    override var accountModelsManager: AccountModelsManager { pendingAccountModelsManager }
-    override var config: UserWalletConfig { UserWalletConfigStub() }
-    override var signer: TangemSigner { TangemSignerStub() }
-}
-
-private final class PendingAccountModelsManagerStub: AccountModelsManager {
-    var canAddCryptoAccounts: Bool { false }
-    var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> { Empty().eraseToAnyPublisher() }
-    var hasSyncedWithRemotePublisher: AnyPublisher<Bool, Never> { Empty().eraseToAnyPublisher() }
-    var accountModels: [AccountModel] { [] }
-    var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { Empty(completeImmediately: false).eraseToAnyPublisher() }
-    var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> { Empty().eraseToAnyPublisher() }
-    var totalJointAccountsCountPublisher: AnyPublisher<Int, Never> { Empty().eraseToAnyPublisher() }
-
-    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountCreationResult {
-        AccountCreationResult(operationResult: .none, derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 0, type: .crypto))
-    }
-
-    func addJointAccount(context: JointAccountCreationContextType) async throws(AccountEditError) -> AccountCreationResult {
-        AccountCreationResult(operationResult: .none, derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 0, type: .joint))
-    }
-
-    func joinJointAccount(context: JointAccountJoinContext) async throws(AccountEditError) -> AccountCreationResult {
-        AccountCreationResult(operationResult: .none, derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 0, type: .joint))
-    }
-
-    func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] { [] }
-    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult { .none }
-    func reloadAccountsFromRemote() async {}
-    func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {}
-    func dispose() {}
-    func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async {}
-    func authorizeTangemPayOfferForResidency(authorizingInteractor: any TangemPayAuthorizing) async -> (any TangemPayResidencyInteractor)? { nil }
-    func acceptTangemPayCampaignOffer(authorizingInteractor: any TangemPayAuthorizing, campaignKey: String) async {}
 }

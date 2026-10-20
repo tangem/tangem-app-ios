@@ -265,7 +265,7 @@ private extension SwapAmountViewModel {
         switch (sourceToken, receiveToken, providersState) {
         case (.success, .success, .loaded(.swap(_, let providers), .idle)):
             isInputDisabled = providers.isEmpty
-        case (_, .failure, _), (.failure, _, _):
+        case (_, .failure, _), (.failure, _, _), (.loading, _, _):
             isInputDisabled = true
         default:
             isInputDisabled = false

@@ -130,20 +130,6 @@ extension SwapDeeplink {
             return parameters
         }
 
-        let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager, accountScope: .personal)
-
-        guard let sourceToken = MainSwapSourceResolver.makeBestEffortSourceToken(
-            from: walletModels,
-            userWalletInfo: userWalletModel.userWalletInfo
-        ) else {
-            return nil
-        }
-
-        let resolver = MainSwapSourceResolver(
-            userWalletModel: userWalletModel,
-            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
-        )
-
-        return .from(sourceToken, pair: .deferred(sourceResolver: resolver))
+        return SwapPredefinedParametersBuilder().makeParameters(input: .main(userWalletModel: userWalletModel))
     }
 }

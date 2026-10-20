@@ -111,12 +111,12 @@ extension ActionButtonsSellCoordinator: TransferRoutable {
     }
 
     func transferRequestSwap(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) {
-        let helper = SwapPredefinedParametersHelper()
-        let parameters = helper.makeParameters(
-            walletModel: walletModel,
+        let builder = SwapPredefinedParametersBuilder()
+        let parameters = builder.makeParameters(input: .token(
             userWalletInfo: userWalletInfo,
-            position: .from
-        )
+            walletModel: walletModel,
+            direction: .from
+        ))
 
         let sendCoordinator = SendCoordinator(dismissAction: { [weak self] _ in self?.dismiss() })
         sendCoordinator.start(with: .init(type: .swap(parameters), source: .actionButtons))

@@ -85,7 +85,7 @@ final class SwapModel {
         autoupdatingTimer: any AutoupdatingTimerSetup,
         pairUpdateHandler: SwapPairUpdateHandler,
         balanceRestrictionFeatureChecker: SwapBalanceRestrictionFeatureChecker,
-        shouldStartInitialLoading: Bool,
+        initialResolvingPolicy: InitialResolvingPolicy,
     ) {
         self.expressManager = expressManager
         self.swapRepository = swapRepository
@@ -98,19 +98,19 @@ final class SwapModel {
         self.parameters = parameters
         balanceRestrictionHandler = SwapBalanceRestrictionHandler(checker: balanceRestrictionFeatureChecker)
 
-        _sourceToken = .init(parameters.sourceToken.map { .success($0) } ?? .loading)
-        _receiveToken = .init(parameters.receiveToken.map { .success($0) } ?? .loading)
+        _sourceToken = .init(parameters.source.initialSource)
+        _receiveToken = .init(parameters.receive.initialReceive)
         preselectedTokenChangeAnalyticsLogger = SwapPreselectedTokenChangeAnalyticsLogger(
-            preselectedSourceTokenItem: parameters.sourceToken?.tokenItem,
-            preselectedReceiveTokenItem: parameters.receiveToken?.tokenItem,
+            preselectedSourceTokenItem: parameters.source.initialSource.value?.tokenItem,
+            preselectedReceiveTokenItem: parameters.receive.initialReceive.value?.tokenItem,
             analyticsLogger: analyticsLogger
         )
         _sourceAmount = .init(.none)
         _receiveAmount = .init(.none)
 
-        if shouldStartInitialLoading {
+        if case .enabled(let timeout) = initialResolvingPolicy {
             Task.detached { [weak self] in
-                await self?.initialLoading()
+                await self?.startInitialLoading(timeout: timeout)
             }
         }
 
@@ -1365,49 +1365,119 @@ extension SwapModel {
     }
 }
 
+// MARK: - InitialResolvingPolicy
+
+extension SwapModel {
+    enum InitialResolvingPolicy {
+        case disabled
+        case enabled(timeout: Duration = .seconds(10))
+    }
+}
+
 // MARK: - Initial (pair) loading
 
 extension SwapModel {
-    @MainActor
+    private func startInitialLoading(timeout: Duration) async {
+        do {
+            try await Task.run(withTimeout: timeout) { [weak self] in
+                await self?.initialLoading()
+                self?.initialLoadingDidFinish()
+            }
+        } catch {
+            initialLoadingDidFail()
+        }
+    }
+
     private func initialLoading() async {
-        switch parameters {
-        case .from(_, .fixed, _, _):
-            if let sourceAmount = _sourceAmount.value?.crypto {
-                update(amount: .from(sourceAmount), syncsSlippageBeforeRequest: false)
-            } else {
-                swappingPairDidChange()
+        switch (_sourceToken.value, _receiveToken.value) {
+        case (.success, .success), (.success, .failure), (.failure, .success), (.failure, .failure):
+            break
+
+        case (.success(let source), .loading):
+            await resolveInitialReceive(for: source)
+
+        case (.failure, .loading):
+            await resolveInitialReceive(for: nil)
+
+        case (.loading, .success(let receive)):
+            await resolveInitialSource(for: receive)
+
+        case (.loading, .failure):
+            await resolveInitialSource(for: nil)
+
+        case (.loading, .loading):
+            async let source: Void = resolveInitialSource(for: nil)
+            async let receive: Void = resolveInitialReceive(for: nil)
+            _ = await (source, receive)
+        }
+    }
+
+    private func resolveInitialSource(for receive: SendReceiveToken?) async {
+        do {
+            let source = try await parameters.source.resolveSource(for: receive)
+
+            try Task.checkCancellation()
+
+            // if false that means the user has already changed the source and we respect its choice
+            guard _sourceToken.value.isLoading else {
+                return
             }
 
-        case .from(_, .userSelection, _, _):
-            _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
-
-        case .from(let initialSource, .deferred(let sourceTokenResolver), _, _):
-            _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
-
-            if let resolvedSource = await sourceTokenResolver.resolve(),
-               let currentSource = _sourceToken.value.value,
-               // if false that means the user has already changed the source and we respect its choice
-               currentSource.tokenItem == initialSource.tokenItem,
-               currentSource.tokenItem != resolvedSource.tokenItem {
-                installResolvedSource(resolvedSource)
+            guard source.tokenItem != _receiveToken.value.value?.tokenItem else {
+                _sourceToken.send(.failure(SwapModelError.tokenSelectionRequired))
+                return
             }
 
-        case .to(_, let sourceTokenResolver, _):
-            // Show the "Choose token" placeholder immediately, then fill the source in once the
-            // wallet balances resolve. Respect a manual pick that lands while resolving.
-            _sourceToken.send(.failure(SwapModelError.tokenSelectionRequired))
-
-            if let sourceTokenResolver,
-               let resolvedSource = await sourceTokenResolver.resolve(),
-               case .failure(SwapModelError.tokenSelectionRequired) = _sourceToken.value {
-                installResolvedSource(resolvedSource)
+            preselectedTokenChangeAnalyticsLogger.updatePreselected(direction: .source, tokenItem: source.tokenItem)
+            _sourceToken.send(.success(source))
+            resolveDestinationTokenIfNeeded(for: source)
+        } catch {
+            if _sourceToken.value.isLoading {
+                _sourceToken.send(.failure(SwapModelError.tokenSelectionRequired))
             }
         }
     }
 
-    private func installResolvedSource(_ source: SendSwapableToken) {
-        preselectedTokenChangeAnalyticsLogger.updatePreselected(direction: .source, tokenItem: source.tokenItem)
-        update(source: source)
+    private func resolveInitialReceive(for source: SendSwapableToken?) async {
+        do {
+            let receive = try await parameters.receive.resolveReceive(for: source)
+
+            try Task.checkCancellation()
+
+            // if false that means the user has already changed the receive and we respect its choice
+            guard _receiveToken.value.isLoading else {
+                return
+            }
+
+            preselectedTokenChangeAnalyticsLogger.updatePreselected(direction: .receive, tokenItem: receive.tokenItem)
+            _receiveToken.send(.success(receive))
+        } catch {
+            if _receiveToken.value.isLoading {
+                _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
+            }
+        }
+    }
+
+    private func initialLoadingDidFail() {
+        if _sourceToken.value.isLoading {
+            _sourceToken.send(.failure(SwapModelError.tokenSelectionRequired))
+        }
+
+        if _receiveToken.value.isLoading {
+            _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
+        }
+    }
+
+    private func initialLoadingDidFinish() {
+        guard _sourceToken.value.isSuccess, _receiveToken.value.isSuccess else {
+            return
+        }
+
+        if let sourceAmount = _sourceAmount.value?.crypto {
+            update(amount: .from(sourceAmount), syncsSlippageBeforeRequest: false)
+        } else {
+            swappingPairDidChange()
+        }
     }
 }
 

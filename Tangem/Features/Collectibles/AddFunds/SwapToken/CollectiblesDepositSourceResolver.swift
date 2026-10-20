@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemExpress
 
 final class CollectiblesDepositSourceResolver {
@@ -31,9 +32,16 @@ final class CollectiblesDepositSourceResolver {
 // MARK: - SwapSourceTokenResolver
 
 extension CollectiblesDepositSourceResolver: SwapSourceTokenResolver {
-    func resolve() async -> SendSwapableToken? {
+    var initialSource: LoadingResult<SendSwapableToken, any Error> { .loading }
+
+    func resolveSource(for receive: SendReceiveToken?) async throws -> SendSwapableToken {
         let walletModels = await walletModelsProvider.settledWalletModels()
-        return resolveSourceToken(from: walletModels)
+
+        guard let source = resolveSourceToken(from: walletModels) else {
+            throw SwapModel.SwapModelError.tokenSelectionRequired
+        }
+
+        return source
     }
 }
 

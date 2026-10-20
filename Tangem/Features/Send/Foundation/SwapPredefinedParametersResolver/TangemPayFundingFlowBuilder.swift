@@ -46,9 +46,10 @@ struct TangemPayFundingFlowBuilder {
             availabilityChecker: CommonFundingSourceAvailabilityChecker(userWalletInfo: userWalletInfo)
         )
 
-        return .to(
-            receiveToken,
-            sourceResolver: sourceResolver,
+        return PredefinedSwapParameters(
+            userWalletInfo: receiveToken.userWalletInfo,
+            source: sourceResolver,
+            receive: .resolved(receiveToken),
             configuration: SwapFlowConfiguration(
                 isPairReversalEnabled: false,
                 // Funding the account from itself makes no sense.
@@ -80,8 +81,10 @@ struct TangemPayFundingFlowBuilder {
 
         let sourceToken = makeSwapableToken(accountToken: mostFunded, presentation: nil)
 
-        return .parameters(.from(
-            sourceToken,
+        return .parameters(PredefinedSwapParameters(
+            userWalletInfo: sourceToken.userWalletInfo,
+            source: .resolved(sourceToken),
+            receive: .userSelection,
             configuration: makeWithdrawConfiguration(accountTokens: accountTokens)
         ))
     }
@@ -104,9 +107,10 @@ struct TangemPayFundingFlowBuilder {
         )
         .makeSwapableToken()
 
-        return .parameters(.from(
-            sourceToken,
-            pair: .fixed(receive: receiveToken),
+        return .parameters(PredefinedSwapParameters(
+            userWalletInfo: sourceToken.userWalletInfo,
+            source: .resolved(sourceToken),
+            receive: .resolved(receiveToken),
             configuration: makeWithdrawConfiguration(accountTokens: accountTokens)
         ))
     }

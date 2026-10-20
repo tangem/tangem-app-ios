@@ -466,19 +466,19 @@ struct PolymarketWithdrawSwapParametersTests {
         let receiveToken = SwapableTokenStub(tokenItem: PolymarketUtilities.usdcTokenItem)
         let parameters = try makeSUT().make(withdrawingFrom: makeSource(), receiveToken: receiveToken)
 
-        guard case .from(_, .fixed(let receive), _, _) = parameters else {
+        guard let receive = parameters.receive as? ResolvedSwapReceiveTokenResolver else {
             Issue.record("A resolved destination must fix the receive side")
             return
         }
 
-        #expect(receive.tokenItem == receiveToken.tokenItem)
+        #expect(receive.token.tokenItem == receiveToken.tokenItem)
     }
 
     @Test("Without a destination of its own the flow leaves the receive side to the user")
     func fallsBackToUserSelection() throws {
         let parameters = try makeSUT().make(withdrawingFrom: makeSource(), receiveToken: nil)
 
-        guard case .from(_, .userSelection, _, _) = parameters else {
+        guard parameters.receive is UserSelectionSwapTokenResolver else {
             Issue.record("An unresolved destination must leave the receive side open")
             return
         }
@@ -704,13 +704,7 @@ private extension PolymarketWithdrawSwapParametersTests {
     }
 
     func makeConfiguration() throws -> SwapFlowConfiguration {
-        let parameters = try makeSUT().make(withdrawingFrom: makeSource(), receiveToken: nil)
-
-        guard case .from(_, _, _, let configuration) = parameters else {
-            throw StubError()
-        }
-
-        return configuration
+        try makeSUT().make(withdrawingFrom: makeSource(), receiveToken: nil).configuration
     }
 
     func makeSource() throws -> PolymarketWithdrawSource {

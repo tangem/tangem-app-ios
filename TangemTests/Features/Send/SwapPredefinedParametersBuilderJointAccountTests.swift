@@ -1,5 +1,5 @@
 //
-//  SwapPredefinedParametersHelperJointAccountTests.swift
+//  SwapPredefinedParametersBuilderJointAccountTests.swift
 //  TangemTests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,7 +13,7 @@ import TangemFoundation
 @testable import Tangem
 
 @Suite("Swap parameters for a joint account's token")
-struct SwapPredefinedParametersHelperJointAccountTests {
+struct SwapPredefinedParametersBuilderJointAccountTests {
     private let delegate = JointAccountModelDelegateMock()
 
     @Test("Opening a swap into a joint account's token makes it a receive-only destination")
@@ -31,13 +31,13 @@ struct SwapPredefinedParametersHelperJointAccountTests {
             )
             walletModelsManager.walletModels = [destination]
 
-            let parameters = SwapPredefinedParametersHelper().makeParameters(
-                walletModel: destination,
+            let parameters = SwapPredefinedParametersBuilder().makeParameters(input: .token(
                 userWalletInfo: makeUserWalletInfo(),
-                position: .to
-            )
+                walletModel: destination,
+                direction: .to
+            ))
 
-            let receive = try #require(parameters.receiveToken)
+            let receive = try #require(parameters.receive.initialReceive.value)
             #expect(!(receive is SendSwapableToken))
         }
     }
@@ -45,7 +45,7 @@ struct SwapPredefinedParametersHelperJointAccountTests {
 
 // MARK: - Helpers
 
-private extension SwapPredefinedParametersHelperJointAccountTests {
+private extension SwapPredefinedParametersBuilderJointAccountTests {
     func makeJointAccount(walletModelsManager: WalletModelsManager) -> any JointAccountModel {
         CommonJointAccountModel(
             cryptoAccount: CryptoAccountModelMock(

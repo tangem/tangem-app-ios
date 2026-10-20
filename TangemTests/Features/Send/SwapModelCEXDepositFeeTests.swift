@@ -163,7 +163,11 @@ private extension SwapModelCEXDepositFeeTests {
             transactionValidator: SucceedingTransactionValidator()
         )
         let sut = SwapModel(
-            parameters: .from(source, pair: .fixed(receive: SwapableTokenStub(blockchain: .ethereum(testnet: false)))),
+            parameters: PredefinedSwapParameters(
+                userWalletInfo: source.userWalletInfo,
+                source: .resolved(source),
+                receive: .resolved(SwapableTokenStub(blockchain: .ethereum(testnet: false)))
+            ),
             expressManager: ExpressManagerDummy(),
             swapRepository: SwapRepositoryStub(),
             expressPendingTransactionRepository: ExpressPendingTransactionRepositoryStub(),
@@ -173,7 +177,7 @@ private extension SwapModelCEXDepositFeeTests {
             autoupdatingTimer: AutoupdatingTimer(),
             pairUpdateHandler: PairUpdateHandlerDummy(),
             balanceRestrictionFeatureChecker: BalanceRestrictionCheckerDummy(),
-            shouldStartInitialLoading: false
+            initialResolvingPolicy: .disabled
         )
 
         return Environment(

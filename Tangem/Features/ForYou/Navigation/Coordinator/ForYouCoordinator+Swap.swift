@@ -39,11 +39,11 @@ extension ForYouCoordinator {
     }
 
     func openSwap(walletModel: any WalletModel, userWalletInfo: UserWalletInfo, direction: SwapDirection) {
-        let parameters = SwapPredefinedParametersHelper().makeParameters(
-            walletModel: walletModel,
+        let parameters = SwapPredefinedParametersBuilder().makeParameters(input: .token(
             userWalletInfo: userWalletInfo,
-            position: direction
-        )
+            walletModel: walletModel,
+            direction: direction
+        ))
 
         presentSwap(parameters: parameters)
     }

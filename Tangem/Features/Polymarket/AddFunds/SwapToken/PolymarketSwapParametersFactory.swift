@@ -36,9 +36,10 @@ struct PolymarketSwapParametersFactory {
             availabilityChecker: CommonFundingSourceAvailabilityChecker(userWalletInfo: userWalletInfo)
         )
 
-        return .to(
-            defaultDestination,
-            sourceResolver: sourceResolver,
+        return PredefinedSwapParameters(
+            userWalletInfo: defaultDestination.userWalletInfo,
+            source: sourceResolver,
+            receive: .resolved(defaultDestination),
             configuration: SwapFlowConfiguration(
                 isPairReversalEnabled: false,
                 sourceTokenSelection: .selectable(.filtered(isIncluded: { !$0.isPayAccount })),
@@ -54,9 +55,16 @@ struct PolymarketSwapParametersFactory {
         let sourceToken = PolymarketWithdrawSwapableTokenFactory(userWalletInfo: userWalletInfo, source: source)
             .makeSwapableToken()
 
-        return .from(
-            sourceToken,
-            pair: .fixed(receiveOrUserSelection: receiveToken),
+        let receive: any SwapReceiveTokenResolver = if let receiveToken {
+            .resolved(receiveToken)
+        } else {
+            .userSelection
+        }
+
+        return PredefinedSwapParameters(
+            userWalletInfo: sourceToken.userWalletInfo,
+            source: .resolved(sourceToken),
+            receive: receive,
             configuration: SwapFlowConfiguration(
                 isPairReversalEnabled: false,
                 sourceTokenSelection: .fixed,
