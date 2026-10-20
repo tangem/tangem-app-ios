@@ -58,10 +58,6 @@ private extension TangemPayPinCheckView {
         }
         .screenCaptureProtection()
         .frame(maxWidth: .infinity)
-        .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
-            configuration.backgroundInteractionBehavior = .tapToDismiss
-        }
     }
 
     var pinContent: some View {
