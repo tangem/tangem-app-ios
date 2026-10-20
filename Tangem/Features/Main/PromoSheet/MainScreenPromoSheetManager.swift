@@ -10,10 +10,11 @@ import Combine
 
 protocol MainScreenPromoSheetManager: AnyObject {
     var id: String { get }
+    var experimentKey: ExperimentFeatureFlagKey { get }
     var statePublisher: AnyPublisher<MainScreenPromoSheetManagerState, Never> { get }
 
     func canHandlePresentation(_ settings: MainScreenPromoSheetPresentationSettings) -> Bool
-    func presentSheet() -> AnyPublisher<Void, Never>?
+    func presentSheet(experimentVariant: String?) -> AnyPublisher<Void, Never>?
     func logShown()
     func logSkipped(_ reason: MainScreenPromoSheetSkipReason)
 }
@@ -31,4 +32,5 @@ enum MainScreenPromoSheetManagerState {
 enum MainScreenPromoSheetSkipReason {
     case dataNotReady
     case noEligibleContent
+    case variantNotReady
 }
