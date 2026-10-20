@@ -271,6 +271,7 @@ private extension StakingNotificationManagerTests {
             warmupPeriod: .days(0),
             rewardClaimingType: .auto,
             rewardScheduleType: .daily,
+            rewardsIncludedInStake: false,
             maximumStakeAmount: nil
         )
     }
