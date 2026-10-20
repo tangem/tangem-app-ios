@@ -22,8 +22,7 @@ struct PolymarketOrderCoordinatorView: CoordinatorView {
                 .modal(
                     item: $coordinator.sheet,
                     header: sheetHeader(for:),
-                    content: sheetContent(for:),
-                    footer: sheetFooter(for:)
+                    content: sheetContent(for:)
                 )
                 .scrollIndicators(.hidden)
         }
@@ -45,18 +44,9 @@ struct PolymarketOrderCoordinatorView: CoordinatorView {
         switch sheet {
         case .slippageSelector(let viewModel):
             PolymarketSlippageSelectorView(viewModel: viewModel)
+                .legacyFooter { PolymarketSlippageSelectorFooterView(viewModel: viewModel) }
         case .feeBreakdown(let viewModel):
             PolymarketFeeBreakdownSheetView(viewModel: viewModel)
-        }
-    }
-
-    @ViewBuilder
-    private func sheetFooter(for sheet: PolymarketOrderCoordinator.Sheet) -> some View {
-        switch sheet {
-        case .slippageSelector(let viewModel):
-            PolymarketSlippageSelectorFooterView(viewModel: viewModel)
-        case .feeBreakdown:
-            EmptyView()
         }
     }
 

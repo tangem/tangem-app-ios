@@ -26,9 +26,6 @@ struct PolymarketPositionDetailsScreen: View {
                 },
                 content: { hint in
                     PolymarketPositionHintSheetView(model: hint)
-                },
-                footer: { _ in
-                    EmptyView()
                 }
             )
             .scrollIndicators(.hidden)

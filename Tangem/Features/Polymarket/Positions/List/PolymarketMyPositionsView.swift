@@ -35,9 +35,6 @@ struct PolymarketMyPositionsView: View {
             },
             content: { model in
                 PolymarketFinishedPositionSheetView(model: model)
-            },
-            footer: { _ in
-                EmptyView()
             }
         )
         .scrollIndicators(.hidden)

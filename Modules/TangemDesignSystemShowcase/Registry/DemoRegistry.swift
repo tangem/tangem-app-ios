@@ -30,6 +30,7 @@ private extension DemoRegistry {
             DemoEntry("Checkmark", version: DSVersion(1, 1, 0), section: .ds3) { CheckmarkShowcase() },
             DemoEntry("Fade", version: DSVersion(1, 1, 0), section: .ds3) { FadeShowcase() },
             DemoEntry("FilterGroup", version: DSVersion(1, 0, 0), section: .ds3) { FilterGroupShowcase() },
+            DemoEntry("Footer", version: DSVersion(1, 0, 0), section: .ds3) { FooterShowcase() },
             DemoEntry("GlowRing", version: DSVersion(1, 1, 0), section: .ds3) { GlowRingShowcase() },
             DemoEntry("Loader", version: DSVersion(1, 0, 0), section: .ds3) { LoaderShowcase() },
             DemoEntry("MessageBanner", version: DSVersion(1, 2, 0), section: .ds3) { MessageBannerShowcase() },
