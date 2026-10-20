@@ -17,6 +17,7 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
     private lazy var buyWalletButton = button(.buyWallet)
     private lazy var termsOfServiceButton = button(.termsOfService)
     private lazy var appVersionLabel = staticText(.appVersion)
+    private lazy var getTangemPayButton = app.buttons[DetailsAccessibilityIdentifiers.getTangemPayButton].firstMatch
 
     func openWalletSettings(for walletName: String) -> CardSettingsScreen {
         XCTContext.runActivity(named: "Open wallet settings for wallet: \(walletName)") { _ in
@@ -39,9 +40,17 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
 
     func openGetTangemPay() -> TangemPayOnboardingScreen {
         XCTContext.runActivity(named: "Open Tangem Pay onboarding from details") { _ in
-            let getTangemPayButton = app.buttons[DetailsAccessibilityIdentifiers.getTangemPayButton].firstMatch
             getTangemPayButton.waitAndTapWithScroll()
             return TangemPayOnboardingScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyGetTangemPayVisible() -> Self {
+        XCTContext.runActivity(named: "Verify Get Tangem Pay row is displayed in details") { _ in
+            scrollToElement(getTangemPayButton, attempts: .lazy)
+            waitAndAssertTrue(getTangemPayButton, "Get Tangem Pay row should be displayed in details")
+            return self
         }
     }
 
