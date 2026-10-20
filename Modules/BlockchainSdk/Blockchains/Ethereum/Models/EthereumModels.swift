@@ -60,7 +60,3 @@ public struct EthereumTransaction: Decodable {
     let hash: String
     let transactionIndex: String?
 }
-
-struct EthereumPendingTransactionsInfo {
-    let statuses: [PendingTransactionRecord: PendingTransactionStatusInfo]
-}

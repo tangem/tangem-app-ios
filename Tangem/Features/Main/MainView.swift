@@ -28,7 +28,6 @@ struct MainView: View {
         MainHorizontalPagingScrollView(
             userWalletPageBuilders: viewModel.pages,
             selectedCardIndex: $viewModel.selectedCardIndex,
-            onSelectedCardChanged: viewModel.onPageChange,
             pullToRefreshAction: viewModel.pullToRefresh(userWalletID:),
             refreshingUserWalletIDs: viewModel.refreshingUserWalletIDs,
             scanQRCodeAction: viewModel.openQRScan,
@@ -44,7 +43,8 @@ struct MainView: View {
         let viewModel = MainViewModel(
             coordinator: coordinator,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator),
-            pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProviderStub()
+            pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProviderStub(),
+            promoSheetProvider: MainScreenPromoSheetProvider(managers: [])
         )
 
         return viewModel

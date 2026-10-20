@@ -21,7 +21,7 @@ extension PolymarketMapper {
                 }
             },
             receivedCount: response.positions.count,
-            hasNext: response.hasNext ?? false
+            nextCursor: response.nextCursor?.nilIfEmpty
         )
     }
 
@@ -36,7 +36,7 @@ extension PolymarketMapper {
                 }
             },
             receivedCount: response.positions.count,
-            hasNext: response.hasNext ?? false
+            nextCursor: response.nextCursor?.nilIfEmpty
         )
     }
 
@@ -63,10 +63,13 @@ extension PolymarketMapper {
     }
 
     func mapPosition(_ dto: PolymarketDTO.Position) throws -> PolymarketPosition {
-        try PolymarketPosition(
+        let version = dto.version.map { PolymarketMarketVersion(apiValue: $0) }
+
+        return try PolymarketPosition(
             conditionId: dto.conditionId,
             assetId: dto.assetId,
             marketId: dto.marketId,
+            version: version,
             eventId: dto.eventId,
             eventTitle: dto.eventTitle,
             title: dto.title ?? "",
@@ -84,7 +87,7 @@ extension PolymarketMapper {
             realizedPnl: decimal(dto.realizedPnl, field: "realizedPnl"),
             isRedeemable: dto.redeemable ?? false,
             isNegRisk: dto.negRisk ?? false,
-            isAcceptingOrders: dto.acceptingOrders ?? false,
+            isAcceptingOrders: (dto.acceptingOrders ?? false) && version?.isSupported != false,
             isLive: dto.live ?? false,
             resolutionStatus: resolutionStatus(from: dto.resolutionStatus),
             settlement: dto.status.flatMap(PolymarketPositionSettlement.init(rawValue:))
@@ -97,16 +100,6 @@ extension PolymarketMapper {
 private extension PolymarketMapper {
     enum Constants {
         static let percentScale: Decimal = 100
-    }
-
-    func decimal(_ raw: String?, field: String) throws -> Decimal {
-        guard let raw else { return 0 }
-
-        guard let value = Decimal(stringValue: raw) else {
-            throw PolymarketAPIError.decoding(field: field, value: raw)
-        }
-
-        return value
     }
 
     func closedStatus(from raw: String?) -> PolymarketClosedPositionStatus {

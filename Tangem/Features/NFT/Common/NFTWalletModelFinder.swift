@@ -62,21 +62,6 @@ enum NFTWalletModelFinder {
 // MARK: - Convenience extensions
 
 extension NFTWalletModelFinder {
-    static func isWalletModel(_ walletModel: some WalletModel, equalsTo collection: NFTCollection) -> Bool {
-        return isWalletModel(walletModel, equalsTo: collection.id)
-    }
-
-    static func isWalletModel(_ walletModel: some WalletModel, equalsTo asset: NFTAsset) -> Bool {
-        return isWalletModel(walletModel, equalsTo: asset.id)
-    }
-
-    static func findWalletModel(
-        for collection: NFTCollection,
-        in walletModels: [any WalletModel]
-    ) -> (any WalletModel)? {
-        return findWalletModel(for: collection.id, in: walletModels)
-    }
-
     static func findWalletModel(
         for asset: NFTAsset,
         in walletModels: [any WalletModel]

@@ -273,9 +273,12 @@ struct TransactionHistoryMapper {
     ) -> TransactionViewModel.SubtitleOwner? {
         guard
             let resolver,
-            let counterpartyOwner = counterparty,
-            counterpartyOwner.isOwnWallet
+            let counterpartyOwner = counterparty
         else {
+            return nil
+        }
+
+        if case .unresolved = counterpartyOwner {
             return nil
         }
 

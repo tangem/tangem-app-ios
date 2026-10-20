@@ -34,17 +34,19 @@ private extension AddressBooksLoadingView {
 }
 
 struct AddressBookContactSkeletonView: View {
+    @ScaledMetric private var scaleFactor: CGFloat = 1
+
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             Shimmer()
-                .variant(.custom(width: 40, height: 40))
+                .variant(.custom(width: 40 * scaleFactor, height: 40 * scaleFactor))
 
             VStack(alignment: .leading, spacing: 4) {
                 Shimmer()
-                    .variant(.custom(width: 143, height: 16))
+                    .variant(.custom(width: 143 * scaleFactor, height: 16 * scaleFactor))
 
                 Shimmer()
-                    .variant(.custom(width: 86, height: 12))
+                    .variant(.custom(width: 86 * scaleFactor, height: 12 * scaleFactor))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

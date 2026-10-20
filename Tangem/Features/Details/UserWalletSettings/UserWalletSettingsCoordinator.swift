@@ -44,7 +44,10 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
 
     @Published var mobileBackupTypesViewModel: MobileBackupTypesViewModel?
     @Published var accountFormViewModel: AccountFormViewModel?
+    @Published private(set) var addAccountTypeSelectorViewModel: AddAccountTypeSelectorViewModel?
+    @Published var isAddAccountTypeSelectorPresented = false
     @Published var mobileRemoveWalletViewModel: MobileRemoveWalletViewModel?
+    @Published var mobileRemoveSocialWalletViewModel: MobileRemoveSocialWalletViewModel?
 
     // MARK: - Helpers
 
@@ -55,6 +58,7 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
     private let isPresentedSubject = CurrentValueSubject<Bool, Never>(false)
     private var accountPendingNavigationSteps: [AccountPendingNavigationStep] = []
     private var accountPendingNavigationStepsProcessingSubscription: AnyCancellable?
+    private var addAccountTypeSelectorCompletion: (() -> Void)?
 
     required init(
         dismissAction: @escaping Action<OutputOptions>,
@@ -235,6 +239,20 @@ extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
         }
     }
 
+    func openMobileRemoveSocialWalletNotification(userWalletModel: UserWalletModel) {
+        let removeManager = CommonMobileRemoveSocialWalletManager(userWalletModel: userWalletModel)
+
+        let viewModel = MobileRemoveSocialWalletNotificationViewModel(
+            userWalletModel: userWalletModel,
+            removeManager: removeManager,
+            coordinator: self
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openAppSettings() {
         UIApplication.openSystemSettings()
     }
@@ -266,26 +284,28 @@ extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
 // MARK: - AddAccountTypeSelectorRoutable
 
 extension UserWalletSettingsCoordinator: AddAccountTypeSelectorRoutable {
-    func openCryptoAccountForm(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
+    func openCryptoAccountForm() {
+        dismissAddAccountTypeSelector { [weak self] in
+            guard let self, let userWalletModel else {
+                return
+            }
 
-            guard !AccountModelUtils.isAccountsLimitReached(for: .crypto, in: accountModelsManager.accountModels) else {
+            let accountModels = userWalletModel.accountModelsManager.accountModels
+
+            guard !AccountModelUtils.isAccountsLimitReached(for: .crypto, in: accountModels) else {
                 handleAccountsLimitReached()
                 return
             }
 
-            addNewAccount(accountModelsManager: accountModelsManager, userWalletConfig: userWalletConfig)
+            addNewAccount()
         }
     }
 
     func openJointAccountManagement() {
-        guard let userWalletModel else {
-            return
-        }
-
-        Task { @MainActor [self] in
-            floatingSheetPresenter.removeActiveSheet()
+        dismissAddAccountTypeSelector { [weak self] in
+            guard let self, let userWalletModel else {
+                return
+            }
 
             let accountModels = userWalletModel.accountModelsManager.accountModels
 
@@ -301,39 +321,50 @@ extension UserWalletSettingsCoordinator: AddAccountTypeSelectorRoutable {
                 popToRootAction: popToRootAction
             )
 
-            coordinator.start(with: .creation(JointAccountCreationHelper(userWalletModel: userWalletModel)))
+            coordinator.start(with: .creation(JointAccountCreationHelper(userWalletModel: userWalletModel), isWalletFixed: true))
 
             jointAccountManagementCoordinator = coordinator
         }
     }
 
-    func dismissAddAccountTypeSelector() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+    func addAccountTypeSelectorDidDismiss() {
+        let completion = addAccountTypeSelectorCompletion
+        addAccountTypeSelectorCompletion = nil
+        addAccountTypeSelectorViewModel = nil
+        completion?()
+    }
+
+    private func dismissAddAccountTypeSelector(then completion: @escaping () -> Void) {
+        addAccountTypeSelectorCompletion = completion
+        isAddAccountTypeSelectorPresented = false
     }
 }
 
 // MARK: - UserSettingsAccountsRoutable
 
 extension UserWalletSettingsCoordinator: UserSettingsAccountsRoutable {
-    func addNewAccount(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
-        accountFormViewModel = AccountFormViewModel(
-            flowType: .create(creator: CryptoAccountFormViewCreator(accountModelsManager: accountModelsManager)),
-            coordinator: self
+    func addNewAccount() {
+        guard let userWalletModel else {
+            return
+        }
+
+        let walletSelection: AccountFormWalletSelection = if UserWalletModelsProvider.accountCreationCandidates(for: .crypto).count > 1 {
+            .fixed
+        } else {
+            .hidden
+        }
+
+        let creator = CryptoAccountFormViewCreator(
+            userWalletModelSubject: CurrentValueSubject(userWalletModel),
+            walletSelection: walletSelection
         )
+
+        accountFormViewModel = AccountFormViewModel(flowType: .create(creator: creator), coordinator: self)
     }
 
-    func openAddAccountTypeSelector(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
-        let viewModel = AddAccountTypeSelectorViewModel(
-            accountModelsManager: accountModelsManager,
-            userWalletConfig: userWalletConfig,
-            coordinator: self
-        )
-
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
+    func openAddAccountTypeSelector(userWalletConfig: UserWalletConfig) {
+        addAccountTypeSelectorViewModel = AddAccountTypeSelectorViewModel(userWalletConfig: userWalletConfig, coordinator: self)
+        isAddAccountTypeSelectorPresented = true
     }
 
     /// Implementation for `UserSettingsAccountsRoutable` interface.
@@ -444,6 +475,39 @@ extension UserWalletSettingsCoordinator: MobileRemoveWalletNotificationRoutable 
 
     func dismissMobileRemoveWalletNotification() {
         floatingSheetPresenter.removeActiveSheet()
+    }
+}
+
+// MARK: - MobileRemoveSocialWalletNotificationRoutable
+
+extension UserWalletSettingsCoordinator: MobileRemoveSocialWalletNotificationRoutable {
+    func openMobileRemoveSocialWallet(removeManager: MobileRemoveSocialWalletManager) {
+        dismissMobileRemoveSocialWalletNotification()
+        mobileRemoveSocialWalletViewModel = MobileRemoveSocialWalletViewModel(
+            removeManager: removeManager,
+            coordinator: self
+        )
+    }
+
+    func openMobileOnboardingFromRemoveSocialWalletNotification(input: MobileOnboardingInput) {
+        dismissMobileRemoveSocialWalletNotification()
+        openOnboardingModal(options: .mobileInput(input))
+    }
+
+    func dismissMobileRemoveSocialWalletNotification() {
+        floatingSheetPresenter.removeActiveSheet()
+    }
+}
+
+// MARK: - MobileRemoveSocialWalletRoutable
+
+extension UserWalletSettingsCoordinator: MobileRemoveSocialWalletRoutable {
+    func removeSocialWalletClose() {
+        mobileRemoveSocialWalletViewModel = nil
+    }
+
+    func removeSocialWalletCompleted() {
+        dismiss()
     }
 }
 

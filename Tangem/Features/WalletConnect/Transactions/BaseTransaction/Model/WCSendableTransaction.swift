@@ -25,25 +25,6 @@ extension WCSendableTransaction {
         nonce = wcTransaction.nonce
     }
 
-    func toWalletConnectTransaction() -> WalletConnectEthTransaction {
-        let finalGasPrice: String?
-        if let maxFeePerGas = maxFeePerGas {
-            finalGasPrice = maxFeePerGas
-        } else {
-            finalGasPrice = gasPrice
-        }
-
-        return WalletConnectEthTransaction(
-            from: from,
-            to: to,
-            value: value,
-            data: data,
-            gas: gas,
-            gasPrice: finalGasPrice,
-            nonce: nonce
-        )
-    }
-
     func withUpdatedData(_ newData: String) -> WCSendableTransaction {
         return WCSendableTransaction(
             from: from,

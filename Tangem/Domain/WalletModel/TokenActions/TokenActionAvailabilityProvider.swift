@@ -9,6 +9,7 @@
 import Foundation
 import TangemLocalization
 import enum BlockchainSdk.Blockchain
+import TangemMacro
 
 struct TokenActionAvailabilityProvider {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
@@ -77,7 +78,7 @@ extension TokenActionAvailabilityProvider {
 
         actions.append(contentsOf: [.receive, .send])
 
-        if userWalletConfig.isFeatureVisible(.swapping), !isSwapHidden {
+        if userWalletConfig.isFeatureVisible(.swapping) {
             actions.append(.exchange)
         }
 
@@ -107,7 +108,7 @@ extension TokenActionAvailabilityProvider {
             availableActions.append(.send)
         }
 
-        if userWalletConfig.isFeatureVisible(.swapping), isSwapAvailable {
+        if userWalletConfig.isFeatureVisible(.swapping), isSwapAvailable(direction: .build(for: walletModel)) {
             availableActions.append(.exchange)
         }
 
@@ -142,7 +143,7 @@ extension TokenActionAvailabilityProvider {
             }
         }
 
-        if userWalletConfig.isFeatureVisible(.swapping), isSwapAvailable {
+        if userWalletConfig.isFeatureVisible(.swapping), isSwapAvailable(direction: .build(for: walletModel)) {
             availableActions.append(.exchange)
         }
 
@@ -174,11 +175,10 @@ extension TokenActionAvailabilityProvider {
 // MARK: - Swap
 
 extension TokenActionAvailabilityProvider {
-    enum SwapActionAvailabilityStatus {
+    @CaseFlagable
+    enum SwapSourceActionAvailabilityStatus {
         case available
-        case hidden
         case jointAccountsComingSoon
-        case unavailable(tokenName: String)
         case customToken
         case blockchainLoading
         case blockchainUnreachable
@@ -186,28 +186,27 @@ extension TokenActionAvailabilityProvider {
         case cantSignLongTransactions
         case expressUnreachable
         case expressLoading
-        case expressNotLoaded
         case missingAssetRequirement
         case yieldModuleApproveNeeded
     }
 
-    var isSwapAvailable: Bool {
-        if case .available = swapAvailability {
-            return true
-        }
-
-        return false
+    @CaseFlagable
+    enum SwapReceiveActionAvailabilityStatus {
+        case available
+        case customToken
+        case missingAssetRequirement
+        case expressUnreachable
+        case expressLoading
     }
 
-    var isSwapHidden: Bool {
-        if case .hidden = swapAvailability {
-            return true
+    func isSwapAvailable(direction: SwapDirection) -> Bool {
+        switch direction {
+        case .from: swapSourceAvailability().isAvailable
+        case .to: swapReceiveAvailability().isAvailable
         }
-
-        return false
     }
 
-    var swapAvailability: SwapActionAvailabilityStatus {
+    func swapSourceAvailability(ignoreExpressState: Bool = false) -> SwapSourceActionAvailabilityStatus {
         if walletModel.isJointAccountParticipant {
             return .jointAccountsComingSoon
         }
@@ -243,6 +242,38 @@ extension TokenActionAvailabilityProvider {
             break
         }
 
+        if ignoreExpressState {
+            return .available
+        }
+
+        switch expressSwapState() {
+        case .available: return .available
+        case .loading: return .expressLoading
+        case .unreachable: return .expressUnreachable
+        }
+    }
+
+    func swapReceiveAvailability(ignoreExpressState: Bool = false) -> SwapReceiveActionAvailabilityStatus {
+        if walletModel.isCustom {
+            return .customToken
+        }
+
+        if case .assetRequirement = receiveAvailability {
+            return .missingAssetRequirement
+        }
+
+        if ignoreExpressState {
+            return .available
+        }
+
+        switch expressSwapState() {
+        case .available: return .available
+        case .loading: return .expressLoading
+        case .unreachable: return .expressUnreachable
+        }
+    }
+
+    private func expressSwapState() -> ExpressSwapState {
         let assetsState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
         let tokenState = expressAvailabilityProvider.swapState(for: walletModel.tokenItem)
 
@@ -250,12 +281,18 @@ extension TokenActionAvailabilityProvider {
         case (.available, _):
             return .available
         case (.unavailable, .updating), (.notLoaded, .updating):
-            return .expressLoading
+            return .loading
         case (.notLoaded, .updated), (.unavailable, .updated):
             return .available // validation happens on Express screen
         case (.notLoaded, .failed), (.unavailable, .failed):
-            return .expressUnreachable
+            return .unreachable
         }
+    }
+
+    private enum ExpressSwapState {
+        case available
+        case loading
+        case unreachable
     }
 }
 
@@ -476,14 +513,6 @@ extension TokenActionAvailabilityProvider {
     enum DynamicAddressesActionAvailabilityStatus {
         case available
         case hasPendingTransaction(blockchainDisplayName: String)
-    }
-
-    var isDynamicAddressesActionAvailable: Bool {
-        if case .available = dynamicAddressesAvailability {
-            return true
-        }
-
-        return false
     }
 
     var dynamicAddressesAvailability: DynamicAddressesActionAvailabilityStatus {

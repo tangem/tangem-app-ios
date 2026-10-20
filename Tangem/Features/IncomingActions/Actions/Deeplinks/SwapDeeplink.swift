@@ -130,7 +130,7 @@ extension SwapDeeplink {
             return parameters
         }
 
-        let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
+        let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager, accountScope: .personal)
 
         guard let sourceToken = MainSwapSourceResolver.makeBestEffortSourceToken(
             from: walletModels,

@@ -34,7 +34,7 @@ public struct Checkmark: View, Setupable {
 
     public var body: some View {
         SwiftUI.Button(action: action) {
-            CheckmarkMark(value: value, size: size)
+            Checkmark.Label(value: value, size: size)
         }
         .buttonStyle(Style(expandsHitArea: expandsHitArea))
         .accessibilityAddTraits(value == .checked ? .isSelected : [])

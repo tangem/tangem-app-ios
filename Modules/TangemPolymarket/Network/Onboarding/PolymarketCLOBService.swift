@@ -14,6 +14,7 @@ public protocol PolymarketCLOBService {
     func deriveCredentials(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketL2Credentials
 
     func updateBalanceAllowance(
+        _ asset: PolymarketBalanceAllowanceAsset,
         credentials: PolymarketL2Credentials,
         ownerAddress: String
     ) async throws

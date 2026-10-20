@@ -65,23 +65,6 @@ struct PendingTransactionRecordMapper {
         )
     }
 
-    func mapToPendingTransactionRecord(
-        _ pendingTransaction: PendingTransaction,
-        blockchain: Blockchain
-    ) -> PendingTransactionRecord {
-        PendingTransactionRecord(
-            hash: pendingTransaction.hash,
-            source: pendingTransaction.source,
-            destination: pendingTransaction.destination,
-            amount: Amount(with: blockchain, value: pendingTransaction.value),
-            fee: Fee(Amount(with: blockchain, value: pendingTransaction.fee ?? 0)),
-            date: pendingTransaction.date,
-            isIncoming: pendingTransaction.isIncoming,
-            transactionType: .transfer,
-            transactionParams: pendingTransaction.transactionParams
-        )
-    }
-
     func mapToPendingTransactionRecord(record transaction: TransactionRecord, blockchain: Blockchain, address: String) -> PendingTransactionRecord {
         let isIncoming = !transaction.isOutgoing
         let outs = transaction.destination.destinations

@@ -113,6 +113,8 @@ extension Analytics {
         case walletCreationTypePrivateKey = "Private Key"
         case walletCreationTypeNewSeed = "New Seed"
         case walletCreationTypeSeedImport = "Seed Import"
+        case walletCreationTypeNewSocialLogin = "New Social Login"
+        case walletCreationTypeSocialLoginImport = "Social Login Import"
 
         case enabled = "Enabled"
         case disabled = "Disabled"
@@ -331,6 +333,7 @@ extension Analytics {
         // MARK: - Social login
 
         case socialLogin = "Social Login"
+        case consentTypeMarketingEmails = "Offers & Updates by email"
 
         case set = "Set"
         case changing = "Changing"
@@ -422,10 +425,6 @@ extension Analytics {
 
         static func successOrFailed(for boolean: Bool) -> ParameterValue {
             return boolean ? .success : .failed
-        }
-
-        static func enabledOrDisabled(for boolean: Bool) -> ParameterValue {
-            return boolean ? .enabled : .disabled
         }
 
         static func balanceState(for balance: Decimal) -> ParameterValue {

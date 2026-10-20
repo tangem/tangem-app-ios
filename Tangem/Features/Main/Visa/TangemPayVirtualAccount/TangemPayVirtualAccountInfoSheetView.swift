@@ -29,7 +29,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
         .padding(.bottom, 16)
         .animation(.contentFrameUpdate, value: viewModel.state)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+            configuration.sheetBackground = .color(DesignSystem.Color.bgSecondary)
             configuration.backgroundInteractionBehavior = .tapToDismiss
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
         }

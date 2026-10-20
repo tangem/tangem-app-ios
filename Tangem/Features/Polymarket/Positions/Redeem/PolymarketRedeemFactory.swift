@@ -12,7 +12,10 @@ import TangemPolymarket
 struct PolymarketRedeemFactory {
     private let services = PolymarketOnboardingServicesFactory.makeDefault()
 
-    func makeService(for userWalletModel: any UserWalletModel) -> PolymarketRedeeming {
+    func makeService(
+        for userWalletModel: any UserWalletModel,
+        sessionHealth: PolymarketSessionHealthChecking
+    ) -> PolymarketRedeeming {
         let walletId = userWalletModel.userWalletId.stringValue
 
         return PolymarketRedeemTransactionService(
@@ -20,7 +23,8 @@ struct PolymarketRedeemFactory {
             relayerService: services.makeRelayerService(),
             depositWalletResolver: PolymarketDepositWalletResolver(
                 walletService: services.makeWalletService(walletId: walletId),
-                ownerAddressProvider: PolymarketOnboardingFactory().makeOwnerAddressProvider(for: userWalletModel)
+                ownerAddressProvider: PolymarketOnboardingFactory().makeOwnerAddressProvider(for: userWalletModel),
+                sessionHealth: sessionHealth
             ),
             signer: PolymarketBatchSigner(
                 keysRepository: userWalletModel.keysRepository,

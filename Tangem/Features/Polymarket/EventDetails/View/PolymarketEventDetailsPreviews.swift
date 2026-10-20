@@ -150,7 +150,7 @@ private extension PolymarketEvent {
     PolymarketEventDetailsShowcase(
         content: .make(
             event: .stub,
-            category: PolymarketCategory(id: 1, label: "Sport", iconURL: nil),
+            category: PolymarketCategory(id: 1, label: "Sport", icon: .sports),
             onSelectOutcome: { _, _ in }
         )
     )
@@ -160,7 +160,7 @@ private extension PolymarketEvent {
     PolymarketEventDetailsShowcase(
         content: .make(
             event: .stub,
-            category: PolymarketCategory(id: 1, label: "Sport", iconURL: nil),
+            category: PolymarketCategory(id: 1, label: "Sport", icon: .sports),
             onSelectOutcome: { _, _ in }
         )
     )

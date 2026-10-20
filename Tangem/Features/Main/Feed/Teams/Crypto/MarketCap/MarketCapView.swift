@@ -46,7 +46,7 @@ struct MarketCapView: View {
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text(content.totalMarketCap)
                         .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
-                        .skeletonable(isShown: isLoading, size: Constants.capSkeletonSize)
+                        .shimmerPlaceholder(isLoading, variant: .custom(width: Constants.capSkeletonSize.width, height: Constants.capSkeletonSize.height, cornerRadius: Constants.skeletonCornerRadius))
 
                     priceChange(content.priceChange)
                 }
@@ -109,13 +109,13 @@ struct MarketCapView: View {
 
                 Text(metric.status)
                     .style(DesignSystem.Font.captionMediumToken, color: metric.appearance.textColor)
-                    .skeletonable(isShown: isLoading, size: Constants.statusSkeletonSize)
+                    .shimmerPlaceholder(isLoading, variant: .custom(width: Constants.statusSkeletonSize.width, height: Constants.statusSkeletonSize.height, cornerRadius: Constants.skeletonCornerRadius))
             }
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(metric.value)
-                    .style(Font.Tangem.Heading22.semibold, color: DesignSystem.Color.textPrimary)
-                    .skeletonable(isShown: isLoading, size: Constants.valueSkeletonSize)
+                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+                    .shimmerPlaceholder(isLoading, variant: .custom(width: Constants.valueSkeletonSize.width, height: Constants.valueSkeletonSize.height, cornerRadius: Constants.skeletonCornerRadius))
 
                 MarketIndexScaleView(progress: isLoading ? 0 : metric.progress, size: .small)
                     .opacity(isLoading ? 0 : 1)
@@ -139,5 +139,6 @@ private extension MarketCapView {
         static let capSkeletonSize = CGSize(width: 96, height: 22)
         static let statusSkeletonSize = CGSize(width: 64, height: 14)
         static let valueSkeletonSize = CGSize(width: 32, height: 22)
+        static let skeletonCornerRadius: CGFloat = 3
     }
 }

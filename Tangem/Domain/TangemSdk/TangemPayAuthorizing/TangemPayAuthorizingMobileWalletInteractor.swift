@@ -40,7 +40,12 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
         var derivationResult: DerivationResult = [:]
 
         do {
-            let context = try await unlock()
+            let context = try await MobileAuthUtil(
+                userWalletId: userWalletId,
+                config: userWalletConfig,
+                biometricsProvider: CommonUserWalletBiometricsProvider()
+            )
+            .unlockedContext()
             let mobileWallet = try mobileWalletSdk.deriveMasterKeys(context: context)
 
             let derivationPath = TangemPayUtilities.derivationPath
@@ -140,31 +145,6 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
         VisaLogger.info("Receive authorization tokens response")
 
         return authorizationTokensResponse
-    }
-}
-
-private extension TangemPayAuthorizingMobileWalletInteractor {
-    func unlock() async throws -> MobileWalletContext {
-        let authUtil = MobileAuthUtil(
-            userWalletId: userWalletId,
-            config: userWalletConfig,
-            biometricsProvider: CommonUserWalletBiometricsProvider()
-        )
-
-        let unlockResult = try await authUtil.unlock()
-        return try await handleUnlockResult(unlockResult, userWalletId: userWalletId)
-    }
-
-    func handleUnlockResult(
-        _ result: MobileAuthUtil.Result,
-        userWalletId: UserWalletId
-    ) async throws -> MobileWalletContext {
-        switch result {
-        case .successful(let context):
-            return context
-        case .canceled, .userWalletNeedsToDelete:
-            throw CancellationError()
-        }
     }
 }
 

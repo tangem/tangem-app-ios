@@ -26,7 +26,6 @@ struct PolymarketOrderView: View {
         VStack(spacing: 0) {
             PolymarketTopBar(
                 title: viewModel.screenTitle,
-                onBack: viewModel.showsBack ? { viewModel.handleViewAction(.close) } : nil,
                 onClose: { viewModel.handleViewAction(.close) }
             )
             .padding(.top, Constants.topBarTopPadding)
@@ -69,7 +68,10 @@ struct PolymarketOrderView: View {
                         proceedsAmount
                     }
 
-                    amountCaption
+                    if viewModel.amountCaption != nil {
+                        amountCaption
+                            .transition(.opacity)
+                    }
                 }
             } footer: {
                 if !viewModel.isAmountEditable {
@@ -97,14 +99,23 @@ struct PolymarketOrderView: View {
         .scrollDismissesKeyboard(.interactively)
         .animation(.easeInOut(duration: Constants.notificationsAnimationDuration), value: viewModel.notifications)
         .animation(.easeInOut(duration: Constants.notificationsAnimationDuration), value: viewModel.isAwaitingFunds)
+        .animation(.curve(.easeInOutRefined, duration: Constants.captionAnimationDuration), value: captionIdentity)
     }
 
     private var amountCaption: some View {
-        captionContent
-            .id(viewModel.amountCaption)
-            .transition(.opacity)
-            .frame(minHeight: viewModel.isAmountEditable ? 0 : Constants.captionMinHeight)
-            .animation(.curve(.easeInOutRefined, duration: Constants.captionAnimationDuration), value: viewModel.amountCaption)
+        ZStack {
+            captionContent
+                .id(captionIdentity)
+                .transition(.opacity)
+        }
+    }
+
+    private var captionIdentity: String {
+        switch viewModel.amountCaption {
+        case .toWin: Constants.toWinCaptionIdentity
+        case .shortfall(let text): text
+        case nil: ""
+        }
     }
 
     @ViewBuilder
@@ -117,7 +128,7 @@ struct PolymarketOrderView: View {
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusError)
                 .multilineTextAlignment(.center)
         case nil:
-            Color.clear
+            EmptyView()
         }
     }
 
@@ -137,6 +148,7 @@ struct PolymarketOrderView: View {
     private var proceedsAmount: some View {
         VStack(spacing: Constants.captionSpacing) {
             proceedsValue
+                .polymarketStateTransition(viewModel.isProceedsLoading)
 
             if let sellingText = viewModel.sellingText {
                 Text(sellingText)
@@ -167,37 +179,62 @@ struct PolymarketOrderView: View {
     }
 
     private var sellControls: some View {
-        HStack(spacing: Constants.sellControlsSpacing) {
-            ForEach(viewModel.amountFractions) { option in
-                sellControl(
-                    minWidth: Constants.chipMinWidth,
-                    isEnabled: viewModel.areFractionsEnabled && option.isEnabled
-                ) {
-                    Text(option.fraction.title)
-                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-                        .lineLimit(1)
-                } action: {
-                    viewModel.handleViewAction(.selectFraction(option.fraction))
-                }
-                .frame(maxWidth: .infinity)
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: Constants.sellControlsSpacing) {
+                fractionChips(fillsWidth: true)
+
+                stepButtons
             }
 
-            stepButton(
-                DesignSystem.Icons.SignMinus.regular20,
-                step: -1,
-                label: Constants.decreaseAccessibilityLabel,
-                isEnabled: viewModel.canDecreaseAmount
-            )
+            WrappingHStack(
+                alignment: .center,
+                horizontalSpacing: Constants.sellControlsSpacing,
+                verticalSpacing: Constants.sellControlsSpacing
+            ) {
+                fractionChips(fillsWidth: false)
 
-            stepButton(
-                DesignSystem.Icons.SignPlus.regular20,
-                step: 1,
-                label: Constants.increaseAccessibilityLabel,
-                isEnabled: viewModel.canIncreaseAmount
-            )
+                HStack(spacing: Constants.sellControlsSpacing) {
+                    stepButtons
+                }
+            }
         }
         .padding(.horizontal, Constants.horizontalPadding)
         .padding(.bottom, Constants.sellControlsBottomPadding)
+    }
+
+    private func fractionChips(fillsWidth: Bool) -> some View {
+        ForEach(viewModel.amountFractions) { option in
+            sellControl(
+                minWidth: Constants.chipMinWidth,
+                isEnabled: viewModel.areFractionsEnabled && option.isEnabled
+            ) {
+                Text(option.fraction.title)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                    .lineLimit(1)
+                    .fixedSize()
+                    .padding(.horizontal, Constants.chipHorizontalPadding)
+            } action: {
+                viewModel.handleViewAction(.selectFraction(option.fraction))
+            }
+            .frame(maxWidth: fillsWidth ? .infinity : nil)
+        }
+    }
+
+    @ViewBuilder
+    private var stepButtons: some View {
+        stepButton(
+            DesignSystem.Icons.SignMinus.regular20,
+            step: -1,
+            label: Constants.decreaseAccessibilityLabel,
+            isEnabled: viewModel.canDecreaseAmount
+        )
+
+        stepButton(
+            DesignSystem.Icons.SignPlus.regular20,
+            step: 1,
+            label: Constants.increaseAccessibilityLabel,
+            isEnabled: viewModel.canIncreaseAmount
+        )
     }
 
     private func stepButton(_ icon: ImageType, step: Int, label: String, isEnabled: Bool) -> some View {
@@ -281,6 +318,7 @@ private extension PolymarketOrderView {
         static let sellControlsSpacing: CGFloat = 4
         static let disabledControlOpacity: CGFloat = 0.4
         static let chipMinWidth: CGFloat = 56
+        static let chipHorizontalPadding: CGFloat = 8
         // [REDACTED_TODO_COMMENT]
         static let decreaseAccessibilityLabel = "Decrease"
         // [REDACTED_TODO_COMMENT]
@@ -292,8 +330,8 @@ private extension PolymarketOrderView {
         static let proceedsSkeletonHeight: CGFloat = 44
         static let proceedsLineHeight: CGFloat = 52
         static let staleOpacity: CGFloat = 0.4
-        static let captionMinHeight: CGFloat = 24
         static let captionAnimationDuration: TimeInterval = 0.2
+        static let toWinCaptionIdentity = "toWin"
         static let staleAnimationDuration: TimeInterval = 0.2
         static let sellControlsBottomPadding: CGFloat = 8
         static let contentTopPadding: CGFloat = 16

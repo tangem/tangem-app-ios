@@ -52,7 +52,7 @@ struct TangemPayFundingFlowBuilder {
             configuration: SwapFlowConfiguration(
                 isPairReversalEnabled: false,
                 // Funding the account from itself makes no sense.
-                sourceTokenSelection: .filtered(isIncluded: { !$0.isPayAccount }),
+                sourceTokenSelection: .selectable(.filtered(isIncluded: { !$0.isPayAccount })),
                 receiveTokenSelection: .followsSource(
                     AccountFundingDestinationResolver(
                         candidates: destinationCandidates,
@@ -114,7 +114,7 @@ struct TangemPayFundingFlowBuilder {
     private func makeWithdrawConfiguration(accountTokens: [TangemPayAccountToken]) -> SwapFlowConfiguration {
         SwapFlowConfiguration(
             isPairReversalEnabled: false,
-            sourceTokenSelection: makeWithdrawSourceSelection(accountTokens: accountTokens),
+            sourceTokenSelection: .selectable(makeWithdrawSourceSelection(accountTokens: accountTokens)),
             // Moving funds between the account's own tokens isn't a withdrawal.
             receiveTokenSelection: .selectable(.filtered(isIncluded: { !$0.isPayAccount })),
             summaryTitle: Localization.tangempayCardDetailsWithdraw,

@@ -32,7 +32,7 @@ struct NewsListViewModelTests {
             let didLoad = await Self.waitUntil {
                 viewModel.loadingState == .allDataLoaded
                     && viewModel.newsItems.map(\.id) == [100, 200]
-                    && viewModel.categories.map(\.id) == [1, 2]
+                    && viewModel.categories.value?.map(\.id) == [1, 2]
             }
 
             #expect(didLoad)

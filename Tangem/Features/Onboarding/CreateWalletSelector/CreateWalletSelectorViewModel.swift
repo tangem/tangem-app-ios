@@ -20,7 +20,6 @@ final class CreateWalletSelectorViewModel: ObservableObject {
     @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
 
-    let backButtonHeight: CGFloat = OnboardingLayoutConstants.navbarSize.height
     let showsBackButton: Bool
 
     let title = Localization.commonTangemWallet

@@ -30,10 +30,6 @@ final class P2PTransactionDispatcher {
 }
 
 extension P2PTransactionDispatcher: TransactionDispatcher {
-    var hasNFCInteraction: Bool {
-        transactionSigner.hasNFCInteraction
-    }
-
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         guard let stakingTransactionsSender = walletModel.p2pTransactionSender else {
             throw TransactionDispatcherResult.Error.actionNotSupported

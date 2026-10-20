@@ -20,7 +20,7 @@ struct TangemPayTransactionDetailsView: View {
             TangemPayTransactionDetailsContentView(state: displayModel, action: handle)
                 .floatingSheetConfiguration { configuration in
                     configuration.maxHeightFraction = Constants.maxHeightFraction
-                    configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+                    configuration.sheetBackground = .color(DesignSystem.Color.bgSecondary)
                     configuration.backgroundInteractionBehavior = .tapToDismiss
                 }
         } else {
@@ -51,7 +51,7 @@ struct TangemPayTransactionDetailsView: View {
         .padding(.top, 8)
         .padding(.horizontal, 16)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = Colors.Background.primary
+            configuration.sheetBackground = .color(Colors.Background.primary)
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
     }

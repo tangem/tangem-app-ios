@@ -40,12 +40,6 @@ struct SimpleAnalytics: FeeSelectorAnalytics {
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
     }
-
-    func didSelectFeeOption(_ feeOption: FeeOption) {
-        if feeOption == .custom {
-            Analytics.log(.sendCustomFeeClicked)
-        }
-    }
 }
 
 final class WCFeeSelectorFactory {

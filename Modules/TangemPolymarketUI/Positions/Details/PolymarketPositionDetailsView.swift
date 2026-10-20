@@ -9,30 +9,45 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 public struct PolymarketPositionDetailsView: View {
     private let model: Model
-    private let onClose: () -> Void
+    private let onBack: () -> Void
 
-    public init(model: Model, onClose: @escaping () -> Void) {
+    @State private var headerHeight: CGFloat = 0
+
+    public init(model: Model, onBack: @escaping () -> Void) {
         self.model = model
-        self.onClose = onClose
+        self.onBack = onBack
     }
 
     public var body: some View {
-        VStack(spacing: 0) {
-            PolymarketTopBar(onClose: onClose)
-                .padding(.top, Constants.topBarTopPadding)
-
+        ZStack(alignment: .top) {
             content
+
+            header
         }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .safeAreaInset(edge: .bottom, spacing: .zero) { footer }
         .toolbar(.hidden, for: .navigationBar)
     }
 
+    private var header: some View {
+        PolymarketTopBar(onBack: onBack)
+            .padding(.top, Constants.topBarTopPadding)
+            .padding(.bottom, Constants.headerBottomPadding)
+            .readGeometry(\.size.height, bindTo: $headerHeight)
+            .background {
+                Fade(position: .top)
+                    .blurred()
+                    .backgroundColor(DesignSystem.Color.bgPrimary)
+                    .ignoresSafeArea(edges: .top)
+            }
+    }
+
     private var content: some View {
-        ScrollView {
+        ScrollView(showsIndicators: false) {
             VStack(spacing: Constants.blockSpacing) {
                 PolymarketPositionHeader(model: model.header)
 
@@ -53,6 +68,9 @@ public struct PolymarketPositionDetailsView: View {
             }
             .padding(.horizontal, Constants.horizontalPadding)
             .padding(.bottom, Constants.contentBottomPadding)
+        }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            Color.clear.frame(height: headerHeight)
         }
     }
 
@@ -138,6 +156,7 @@ public extension PolymarketPositionDetailsView {
 private extension PolymarketPositionDetailsView {
     enum Constants {
         static let topBarTopPadding: CGFloat = 8
+        static let headerBottomPadding: CGFloat = 8
         static let horizontalPadding: CGFloat = 16
         static let blockSpacing: CGFloat = 12
         static let groupSpacing: CGFloat = 8

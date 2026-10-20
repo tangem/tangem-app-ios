@@ -56,11 +56,57 @@ final class CollectiblesPacksViewModelTests: LeakTrackingTestSuite {
 
         #expect(models.map(\.id) == ["pokemon_50"])
     }
+
+    // MARK: - Lore switch
+
+    @Test("An uncached lore switch keeps the shown packs dimmed until the new page arrives", .timeLimit(.minutes(1)))
+    func loreSwitchKeepsPacksWhileReloading() async {
+        let provider = SuspendingPacksProvider()
+        let sut = makeSUT(provider: provider)
+
+        sut.reload(loreID: Constants.otherLoreID)
+        await waitUntil { provider.loadCallsCount == 1 }
+
+        guard case .reloading(.content(let shownModels)) = sut.state else {
+            Issue.record("Expected the previous packs kept while reloading, got \(sut.state)")
+            return
+        }
+
+        #expect(shownModels.map(\.id) == ["pokemon_50", "pokemon_250"])
+
+        provider.resume(with: CollectiblesPacksPage(packs: [Self.packs()[0]], hasNext: false, cursor: nil))
+        await waitUntil { !sut.state.isReloading }
+
+        guard case .content(let models) = sut.state else {
+            Issue.record("Expected the new lore's packs, got \(sut.state)")
+            return
+        }
+
+        #expect(models.map(\.id) == ["pokemon_50"])
+    }
+
+    @Test("A failed uncached lore switch stops dimming and shows the failure", .timeLimit(.minutes(1)))
+    func failedLoreSwitchStopsReloading() async {
+        let provider = SuspendingPacksProvider()
+        let sut = makeSUT(provider: provider)
+
+        sut.reload(loreID: Constants.otherLoreID)
+        await waitUntil { provider.loadCallsCount == 1 }
+
+        provider.fail(with: URLError(.notConnectedToInternet))
+        await waitUntil { sut.state.isFailed }
+
+        #expect(sut.state.isFailed)
+    }
 }
 
 // MARK: - Helpers
 
 private extension CollectiblesPacksViewModelTests {
+    enum Constants {
+        static let otherLoreID = "sports"
+    }
+
     func makeSUT(
         provider: any CollectiblesPacksProvider = PacksProviderStub(),
         packSelectionHandler: @escaping (CollectiblesPack) -> Void = { _ in }
@@ -123,6 +169,11 @@ private final class SuspendingPacksProvider: CollectiblesPacksProvider {
 
     func resume(with page: CollectiblesPacksPage) {
         continuation?.resume(returning: page)
+        continuation = nil
+    }
+
+    func fail(with error: any Error) {
+        continuation?.resume(throwing: error)
         continuation = nil
     }
 }

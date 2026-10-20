@@ -14,7 +14,7 @@ public final class FloatingSheetRegistry {
 
     private var sheets = [ObjectIdentifier: FloatingSheetViewBuilder]()
 
-    public nonisolated init() {}
+    nonisolated init() {}
 
     public func register<SheetContentViewModel: FloatingSheetContentViewModel>(
         _ viewModelType: SheetContentViewModel.Type,
@@ -44,10 +44,12 @@ public final class FloatingSheetRegistry {
 
 // MARK: - SwiftUI.EnvironmentValues entry
 
-private let defaultRegistry = FloatingSheetRegistry()
+public extension FloatingSheetRegistry {
+    nonisolated static let `default` = FloatingSheetRegistry()
+}
 
 public extension EnvironmentValues {
-    @Entry var floatingSheetRegistry = defaultRegistry
+    @Entry var floatingSheetRegistry = FloatingSheetRegistry.default
 }
 
 private extension Dictionary where Key == ObjectIdentifier {

@@ -102,8 +102,6 @@ enum WalletOnboardingStep: Equatable {
         let cardOffset = WalletOnboardingCardLayout.origin.offset(at: .createWallet, in: container)
         return cardOffset
     }
-
-    var balanceStackOpacity: Double { 0 }
 }
 
 extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
@@ -190,10 +188,6 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         default:
             return nil
         }
-    }
-
-    var isContainSupplementButton: Bool {
-        true
     }
 
     var checkmarkText: String? {

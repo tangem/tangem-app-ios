@@ -114,7 +114,7 @@ extension PortfolioTokenItemView.RowView {
             PortfolioTokenItemView.BalanceText(value: fiat)
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                 .lineLimit(1)
-                .shimmer()
+                .shimmering()
         }
     }
 
@@ -159,7 +159,7 @@ extension PortfolioTokenItemView.RowView {
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
             }
-            .shimmer()
+            .shimmering()
         }
     }
 
@@ -170,7 +170,7 @@ extension PortfolioTokenItemView.RowView {
             Text(percent)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
-                .shimmer()
+                .shimmering()
         case .unavailable(let label):
             warningLabel(label)
         }

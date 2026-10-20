@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUIUtils
 
 /// Capsule-shaped DS-Core button. Always pill-shaped. The Material tier rides as the
@@ -84,6 +85,7 @@ public struct Button: View, Setupable {
             )
         )
         .accessibilityLabel(Text(resolvedAccessibilityLabel))
+        .accessibilityValue(Text(resolvedAccessibilityValue))
         .allowsHitTesting(loading == nil)
     }
 
@@ -167,6 +169,14 @@ public struct Button: View, Setupable {
         }
 
         return String(text.characters)
+    }
+
+    private var resolvedAccessibilityValue: String {
+        guard let loading, loading.message == nil else {
+            return ""
+        }
+
+        return Localization.commonInProgress
     }
 
     private func iconView(_ icon: ImageType) -> some View {

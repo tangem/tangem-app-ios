@@ -25,7 +25,7 @@ struct SwapOfferedTokensView: View {
                 }
 
                 Text(Localization.marketsPortfolioEligibleBlockTitle)
-                    .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 8)
                     .padding(.top, 8)
@@ -51,13 +51,13 @@ private struct SwapOfferedTokensEmptyView: View {
             icon
 
             Text(Localization.swapTokenSelectorEmptyFilteredMessage)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 48)
         .padding(.vertical, 24)
-        .background(Colors.Background.action)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadiusContinuous(SwapMarketsTokensView.Constants.cornerRadius)
     }
 
@@ -88,16 +88,16 @@ private struct SwapOfferedTokenRowView: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text(viewData.name)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                         .lineLimit(1)
 
                     Text(viewData.symbol)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                         .lineLimit(1)
                 }
 
                 Text(viewData.networkName)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
             }
 

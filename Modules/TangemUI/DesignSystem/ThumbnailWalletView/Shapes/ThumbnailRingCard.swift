@@ -9,10 +9,8 @@
 import SwiftUI
 import TangemAssets
 
-typealias ThumbnailRingCardView = ThumbnailPathBuilderView<ThumbnailRingCardPathBuilder>
-
 public enum ThumbnailRingCardPathBuilder: ThumbnailPathBuilding {
-    public struct FillColors: Equatable {
+    public struct FillColors: Equatable, Sendable {
         public let ring: Color
         public let card: Color
 

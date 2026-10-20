@@ -125,14 +125,7 @@ private extension FeedSelectionRoutingTests {
             searchViewModel: FeedSearchViewModel(
                 searchBarViewModel: searchBarViewModel,
                 resultsQuery: .init(""),
-                tabsViewModel: FeedSearchTabsViewModel(tabs: [.predictions]),
-                historyProvider: HistoryProviderStub(),
-                marketViewModel: CryptoSearchViewModel(
-                    query: searchBarViewModel.queryPublisher,
-                    history: HistoryProviderStub(),
-                    router: CryptoRouterStub(),
-                    marketsProvider: MarketsProviderStub()
-                )
+                tabsViewModel: FeedSearchTabsViewModel(tabs: [.predictions])
             ),
             tabsViewModel: FeedTabsViewModel(tabs: [.predictions, .earn(earn)]),
             widgetsViewModel: FeedWidgetsViewModel(
@@ -179,35 +172,6 @@ private final class EarnRouterStub: EarnFeedRoutable {
     func openPortfolioToken(_ walletModel: any WalletModel) {}
     func openNetworksFilter() {}
     func openTypesFilter() {}
-}
-
-private final class CryptoRouterStub: CryptoFeedRoutable {
-    func openToken(_ token: MarketsTokenModel) {}
-    func openPulseTagFilter(with input: PulseTagFilterInput) {}
-    func openMarketCapInfo(subject: MarketCapInfoSubject) {}
-    func openPortfolioToken(_ walletModel: any WalletModel) {}
-}
-
-private final class MarketsProviderStub: FeedSearchProvider {
-    typealias Item = MarketsTokenModel
-
-    var statePublisher: AnyPublisher<FeedSearchProviderState<MarketsTokenModel>, Never> {
-        Empty<FeedSearchProviderState<MarketsTokenModel>, Never>(completeImmediately: false).eraseToAnyPublisher()
-    }
-
-    func search(_ query: String) {}
-    func reset() {}
-}
-
-private final class HistoryProviderStub: FeedSearchHistoryProvider {
-    var historyPublisher: AnyPublisher<FeedSearchHistory, Never> {
-        Empty<FeedSearchHistory, Never>(completeImmediately: false).eraseToAnyPublisher()
-    }
-
-    func save(query: String) {}
-    func save(token: MarketsTokenModel) {}
-    func remove(_ query: FeedRecentQuery) {}
-    func clear() {}
 }
 
 private final class WidgetProviderSpy: FeedWidgetProvider {

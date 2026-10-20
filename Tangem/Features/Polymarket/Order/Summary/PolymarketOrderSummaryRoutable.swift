@@ -12,7 +12,6 @@ import TangemPolymarket
 protocol PolymarketOrderSummaryRoutable: AnyObject {
     func closeSummary()
     func closeOrder()
-    func returnToMain()
     func openLegalTerms(url: URL)
     func openSupport()
 

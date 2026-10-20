@@ -41,7 +41,6 @@ class FakeUserWalletRepository: UserWalletRepository {
     }
 
     func select(userWalletId: UserWalletId) {}
-    func updateSelection() {}
     func lock() {}
     func add(userWalletModel: UserWalletModel) {}
     func delete(userWalletId: UserWalletId) {}

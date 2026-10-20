@@ -29,7 +29,7 @@ struct AddressBookRowView: View {
                 .cornerRadiusContinuous(12)
         }
         .end(icon: DesignSystem.Icons.ChevronRight.regular20)
-        .onTap(viewModel.action)
+        .onTap(action: viewModel.action)
         .accessibilityIdentifier(DetailsAccessibilityIdentifiers.addressBookButton)
     }
 }
