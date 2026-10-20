@@ -191,6 +191,7 @@ final class P2PBatchBalancesServiceTests: XCTestCase {
             warmupPeriod: .days(0),
             rewardClaimingType: .auto,
             rewardScheduleType: .daily,
+            rewardsIncludedInStake: true,
             maximumStakeAmount: nil
         )
     }
