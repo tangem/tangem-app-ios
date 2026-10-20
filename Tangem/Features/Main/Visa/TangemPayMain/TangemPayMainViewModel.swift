@@ -178,6 +178,10 @@ final class TangemPayMainViewModel: ObservableObject {
             return .full
         }
 
+        if summary.displayMode == .alternative, summary.confirmedAmount != 0 {
+            return .full
+        }
+
         return summary.displayMode
     }
 
