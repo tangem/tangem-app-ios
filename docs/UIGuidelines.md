@@ -48,7 +48,11 @@ If the design uses a token that has no generated Swift counterpart, stop and ask
 
 Danger fails a PR with an asset catalog file over 1.5 MB or a PDF/SVG over 64 KB that embeds a raster (`Dangerfile.precheck`). The rest is up to the author:
 
-**Vector or raster.** PDF and SVG are for true vector artwork: icons, glyphs, flat illustrations. A picture exported from Figma with a photo or a render inside goes in as PNG, or as JPEG when it is opaque.
+**Vector or raster.** SVG is for true vector artwork: icons, glyphs, flat illustrations. A picture with a photo, a render, an effect or a person inside is a raster.
+
+**Where it comes from.** All vector artwork comes from DS-Core as SVG: the `update-dscore` workflow generates it into `Modules/TangemAssets/Assets/DSIcons.xcassets`, which is never edited by hand. Don't add vector PDFs, and adding an SVG to an asset catalog yourself is almost always a mistake — if the icon isn't in DS-Core, ask the designers to add it there. Raster images (onboarding pictures, illustrations with people, effects — anything that isn't curves scaling without loss) go into the bundle by hand: DS-Core doesn't deliver them yet, because Android has no workable pipeline for rasters.
+
+**Raster as PNG or PDF.** A raster goes in as PNG @2x/@3x, or as JPEG when it is opaque. For simplicity it can also be a single PDF with `preserves-vector-representation` off: Xcode slices it into @2x/@3x PNGs at build time, so the app ships the same bitmaps. The PDF page is the size the image is shown at in points, with the raster inside at 3× that — never a 2000×2000 PDF for an asset drawn at 64×64. A raster PDF that Danger rejects goes in as PNG instead.
 
 **`preserves-vector-representation`** only on a vector that is drawn larger than its natural size. With it, every scaled draw renders the PDF again at runtime on the CPU, which gets expensive with heavy PDFs; without it the app draws bitmaps rendered at build time.
 
@@ -57,3 +61,5 @@ Danger fails a PR with an asset catalog file over 1.5 MB or a PDF/SVG over 64 KB
 **Format.** Opaque photos, renders and gradient backgrounds are JPEG, which the catalog stores as is; anything with transparency stays PNG. Never set `"compression-type" : "lossy"`: the HEVC it produces rendered as black-and-green garbage on iOS 18.
 
 **Leftovers.** Delete an imageset in the same change that removes its last use.
+
+**Checking a change.** For pixel size, find where the image is shown and compare the @3x bitmap with the largest size it gets on screen. Flag a raster-backed SVG, a new vector PDF or a hand-added SVG that should come from DS-Core, a raster PDF with `preserves-vector-representation` on or a page larger than the size it is shown at, `preserves-vector-representation` on a vector that is never scaled up, an opaque background in PNG, `"compression-type" : "lossy"`, and an imageset left without references.
