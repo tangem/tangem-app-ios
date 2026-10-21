@@ -50,6 +50,6 @@ extension CommonOnrampRedirectingInteractor: OnrampRedirectingInteractor {
         let redirectSettings = redirectSettingsBuilder.make(provider: provider, theme: theme)
         let redirectData = try await onrampManager.loadRedirectData(provider: provider, redirectSettings: redirectSettings)
 
-        output?.redirectDataDidLoad(data: redirectData)
+        output?.redirectDataDidLoad(data: redirectData, provider: provider)
     }
 }
