@@ -26,8 +26,16 @@ final class StoriesPrefetchManager: @unchecked Sendable {
         prefetchStoriesV2(for: step)
     }
 
-    func storiesToPrefetch(for step: Step) -> [StoriesV2StoryID] {
-        step.storiesV2.filter(shouldPrefetch)
+    func storiesToPrefetch(for step: Step) async -> [StoriesV2StoryID] {
+        var stories: [StoriesV2StoryID] = []
+
+        for story in step.storiesV2 {
+            if await shouldPrefetch(story) {
+                stories.append(story)
+            }
+        }
+
+        return stories
     }
 }
 
@@ -58,7 +66,7 @@ extension StoriesPrefetchManager.Step {
 private extension StoriesPrefetchManager {
     func prefetchStoriesV2(for step: Step) {
         let task = runTask(in: self, isDetached: true, priority: .medium) { manager in
-            let stories = manager.storiesToPrefetch(for: step)
+            let stories = await manager.storiesToPrefetch(for: step)
             if !stories.isEmpty {
                 await manager.storiesV2PrefetchService.prefetch(stories)
             }
@@ -72,9 +80,9 @@ private extension StoriesPrefetchManager {
         }
     }
 
-    func shouldPrefetch(_ story: StoriesV2StoryID) -> Bool {
+    func shouldPrefetch(_ story: StoriesV2StoryID) async -> Bool {
         switch story {
-        case .hardwareUpgrade: hardwareUpgradeStoriesResolver.shouldPrefetchStories()
+        case .hardwareUpgrade: await hardwareUpgradeStoriesResolver.shouldPrefetchStories()
         case .firstTimeSwap, .firstTimeYieldPromo, .swapFirstTry: true
         }
     }

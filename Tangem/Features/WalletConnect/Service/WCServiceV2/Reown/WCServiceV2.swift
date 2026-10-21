@@ -8,6 +8,7 @@
 
 import Combine
 import ReownWalletKit
+import struct JSONRPC.JSONRPCError
 import enum BlockchainSdk.Blockchain
 import TangemFoundation
 
@@ -263,7 +264,7 @@ private extension WCServiceV2 {
                 Task { [self] in // [REDACTED_TODO_COMMENT]
                     if Self.checkIfShouldIgnore(transactionRequest: request) {
                         WCLogger.info("Received a transaction with \(request.method) method. Rejecting and ignoring further handling.")
-                        await self.reject(transactionRequest: request)
+                        await self.reject(transactionRequest: request, with: .unsupportedMethod)
                         return
                     }
 
@@ -279,8 +280,18 @@ private extension WCServiceV2 {
                     } catch {
                         let errorMessage = "Session for topic \(request.topic) not found."
                         WCLogger.error(error: errorMessage)
-                        await self.reject(transactionRequest: request)
+                        await self.reject(transactionRequest: request, with: .internalError)
                         self.transactionRequestSubject.send(.failure(error))
+                        return
+                    }
+
+                    if let resolution = WalletConnectChainRequestResolver.resolve(
+                        method: WalletConnectMethod(rawValue: request.method),
+                        params: request.params,
+                        sessionBlockchains: connectedDApp.dAppBlockchains.map(\.blockchain)
+                    ), resolution != .needsUserApproval {
+                        await self.respond(to: request, with: resolution)
+                        await self.duplicateRequestFilter.removeFootprint(for: request)
                         return
                     }
 
@@ -304,7 +315,8 @@ private extension WCServiceV2 {
                         self.transactionRequestSubject.send(.success(handleTransactionData))
                     } catch {
                         WCLogger.error("WCHandleTransactionDTO creation failed: ", error: error)
-                        await self.reject(transactionRequest: request)
+                        let rpcError = (error as? WalletConnectTransactionRequestProcessingError)?.rpcError ?? .internalError
+                        await self.reject(transactionRequest: request, with: rpcError)
 
                         self.transactionRequestSubject.send(.failure(error))
                         self.logSignatureRequestReceiveFailed(with: error, request: request, connectedDApp: connectedDApp)
@@ -502,16 +514,52 @@ private extension WCServiceV2 {
         return trimmedAddress.isEvmAddress ? trimmedAddress.lowercased() : trimmedAddress
     }
 
-    private func reject(transactionRequest: Request) async {
+    private func reject(transactionRequest: Request, with rpcError: JSONRPCError) async {
         do {
             try await walletKitClient.respond(
                 topic: transactionRequest.topic,
                 requestId: transactionRequest.id,
-                response: .error(.init(code: 0, message: ""))
+                response: .error(rpcError)
             )
+            WCLogger.info("Rejected \(transactionRequest.method) request \(transactionRequest.id) with code \(rpcError.code) on \(transactionRequest.chainId.absoluteString)")
         } catch {
             let errorMessage = "Failed to reject request with topic: \(transactionRequest.topic) for method: \(transactionRequest.method)"
             WCLogger.error(errorMessage, error: error)
+        }
+    }
+
+    private func respond(to request: Request, with resolution: WalletConnectChainRequestResolver.Resolution) async {
+        switch resolution {
+        case .switched(let blockchain), .alreadyAdded(let blockchain):
+            do {
+                try await walletKitClient.respond(topic: request.topic, requestId: request.id, response: .response(AnyCodable(String?.none)))
+                WCLogger.info("Responded to \(request.method) request \(request.id): \(blockchain.displayName) is already in the session")
+            } catch {
+                WCLogger.error("Failed to respond to \(request.method) request \(request.id)", error: error)
+                return
+            }
+
+            if case .switched = resolution {
+                await emitChainChanged(to: blockchain, topic: request.topic)
+            }
+        case .unrecognizedChain:
+            await reject(transactionRequest: request, with: .unrecognizedChain)
+        case .invalidParams:
+            await reject(transactionRequest: request, with: .invalidParams)
+        case .needsUserApproval:
+            break
+        }
+    }
+
+    private func emitChainChanged(to blockchain: BlockchainSdk.Blockchain, topic: String) async {
+        guard let chainId = WalletConnectBlockchainMapper.mapFromDomain(blockchain), let reference = Int(chainId.reference) else {
+            return
+        }
+
+        do {
+            try await walletKitClient.emit(topic: topic, event: Session.Event(name: "chainChanged", data: AnyCodable(reference)), chainId: chainId)
+        } catch {
+            WCLogger.error("Failed to emit chainChanged for \(blockchain.displayName)", error: error)
         }
     }
 

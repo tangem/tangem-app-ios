@@ -49,6 +49,10 @@ final class ExperimentServiceStub: ExperimentService {
         return storedVariant == variant.rawValue
     }
 
+    func waitForVariants(ofWalletMatching _: @escaping (UserWalletId) -> Bool) async -> Bool {
+        isFetched
+    }
+
     func hasFetchedVariants(for userWalletId: UserWalletId) -> Bool {
         isFetched
     }

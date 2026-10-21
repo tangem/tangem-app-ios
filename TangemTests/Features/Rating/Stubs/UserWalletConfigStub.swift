@@ -30,7 +30,8 @@ struct UserWalletConfigStub: UserWalletConfig {
     let embeddedBlockchain: TokenItem? = nil
     let emailData: [EmailCollectedData] = []
     let userWalletIdSeed: Data? = nil
-    let productType: Analytics.ProductType = .wallet
+    var productType: Analytics.ProductType = .wallet
+    let cardHeaderImage: ImageType? = nil
     let walletThumbnailType: ThumbnailWalletViewType? = nil
     let cardSessionFilter: SessionFilter = .cardId("test")
     var contextBuilder: WalletCreationContextBuilder { fatalError("Not implemented for stub") }

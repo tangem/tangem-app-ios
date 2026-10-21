@@ -109,8 +109,8 @@ extension CommonStoriesV2Presenter: StoriesV2Presenter {
     func forceDismiss() {
         presentCompletionTask?.cancel()
         pendingPresentCompletion = nil
-        player = nil
         sessionID = UUID()
+        player = nil
     }
 }
 

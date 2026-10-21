@@ -46,6 +46,8 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
 
     @Published private(set) var feeValidationInputs: [NotificationViewInput] = []
     @Published private(set) var simulationValidationInputs: [NotificationViewInput] = []
+    @Published private(set) var targetValidationEvents: [WCNotificationEvent] = []
+    @Published private(set) var isValidatingRecipient = false
 
     private(set) var sendableTransaction: WCSendableTransaction?
 
@@ -80,6 +82,12 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
         self.validationService = validationService
         self.analyticsLogger = analyticsLogger
 
+        let ethTransaction = WCTransactionTargetValidator.transaction(method: transactionData.method, requestData: transactionData.requestData)
+        targetValidationEvents = ethTransaction.map {
+            WCTransactionTargetValidator(blockchain: transactionData.blockchain).validateChain(of: $0)
+        } ?? []
+        isValidatingRecipient = ethTransaction?.carriesCallData ?? false
+
         Task {
             self.isDappVerified = (try? await securityManager.getDAppVerificationStatus(
                 for: transactionData.topic,
@@ -89,6 +97,8 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
             sendableTransaction = parseEthTransaction()
 
             bind()
+
+            Task { await self.validateTransactionRecipient() }
 
             await saveSuggestedDappGas()
             await setupFeeManagement()
@@ -204,6 +214,23 @@ private extension WCTransactionViewModel {
             return nil
         }
         return WCSendableTransaction(from: transaction)
+    }
+
+    func validateTransactionRecipient() async {
+        defer { isValidatingRecipient = false }
+
+        guard
+            let transaction = WCTransactionTargetValidator.transaction(method: transactionData.method, requestData: transactionData.requestData),
+            let networkProvider = getWalletModelForTransaction()?.ethereumNetworkProvider
+        else {
+            return
+        }
+
+        let events = await WCTransactionTargetValidator(blockchain: transactionData.blockchain).validateRecipient(of: transaction) { address in
+            try await networkProvider.hasCode(at: address).async()
+        }
+
+        targetValidationEvents += events
     }
 
     func showFeeSelector() {
@@ -331,6 +358,16 @@ extension WCTransactionViewModel: @preconcurrency WCFeeInteractorOutput {
 
 private extension WCTransactionViewModel {
     func sign() {
+        guard !isValidatingRecipient else {
+            WCLogger.warning("Signing \(transactionData.method.rawValue) is blocked until the recipient check finishes")
+            return
+        }
+
+        guard !targetValidationEvents.contains(where: \.blocksSigning) else {
+            WCLogger.warning("Signing \(transactionData.method.rawValue) is blocked: \(targetValidationEvents)")
+            return
+        }
+
         Task { @MainActor [weak self] in
             guard let self else { return }
 
@@ -387,10 +424,12 @@ private extension WCTransactionViewModel {
 
     private func bind() {
         $simulationState
+            .combineLatest($targetValidationEvents)
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, state in
-                let events = viewModel.validationService.validateSimulationResult(state)
+            .sink { viewModel, input in
+                let (state, targetEvents) = input
+                let events = targetEvents + viewModel.validationService.validateSimulationResult(state)
                 viewModel.simulationValidationInputs = viewModel.notificationManager.updateSimulationValidationNotifications(events)
             }
             .store(in: &bag)

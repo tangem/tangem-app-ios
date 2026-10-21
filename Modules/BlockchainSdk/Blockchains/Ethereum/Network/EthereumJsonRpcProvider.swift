@@ -84,6 +84,10 @@ final class EthereumJsonRpcProvider: HostProvider {
         requestPublisher(for: .getStorageAt(address: address, slot: slot))
     }
 
+    func getCode(address: String) -> AnyPublisher<String, Error> {
+        requestPublisher(for: .getCode(address: address))
+    }
+
     private func requestPublisher<Result: Decodable>(for targetType: EthereumTarget.EthereumTargetType) -> AnyPublisher<Result, Error> {
         let target = EthereumTarget(targetType: targetType, node: node, networkPrefix: networkPrefix)
 

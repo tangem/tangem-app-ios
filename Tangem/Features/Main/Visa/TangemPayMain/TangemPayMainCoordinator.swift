@@ -45,6 +45,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     // MARK: - Child view models (sheets)
 
     @Published var tangemPayPinViewModel: TangemPayPinViewModel?
+    @Published var tangemPayPinCheckViewModel: TangemPayPinCheckViewModel?
     @Published var tangemPayDailyLimitViewModel: TangemPayDailyLimitViewModel?
     @Published var pendingExpressTxStatusBottomSheet: PendingExpressTxStatusBottomSheetViewModel?
     @Published var virtualAccountSuccessViewModel: TangemPayVirtualAccountSuccessViewModel?
@@ -55,6 +56,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
 
     private var options: Options?
     private var safariHandle: SafariHandle?
+    private var pinCheckDismissAction: (() -> Void)?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -892,8 +894,23 @@ extension TangemPayMainCoordinator: PendingExpressTxStatusRoutable {
 extension TangemPayMainCoordinator: TangemPayPinCheckRoutable {
     func closePinCheck() {
         Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
+            tangemPayPinCheckViewModel = nil
         }
+    }
+
+    func closePinCheckAndOpenSetPin(card: TangemPayCard) {
+        Task { @MainActor [self] in
+            pinCheckDismissAction = { [weak self] in
+                self?.openTangemPaySetPin(card: card)
+            }
+            tangemPayPinCheckViewModel = nil
+        }
+    }
+
+    func pinCheckDidDismiss() {
+        let action = pinCheckDismissAction
+        pinCheckDismissAction = nil
+        action?()
     }
 }
 
@@ -919,7 +936,7 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
             coordinator: self
         )
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
+            tangemPayPinCheckViewModel = viewModel
         }
     }
 
