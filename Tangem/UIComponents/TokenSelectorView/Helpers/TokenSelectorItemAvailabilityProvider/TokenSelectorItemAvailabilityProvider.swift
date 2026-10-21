@@ -19,10 +19,6 @@ protocol TokenSelectorItemAvailabilityProvider {
 
 // MARK: - Implementations
 
-extension TokenSelectorItemAvailabilityProvider where Self == TokenSelectorItemBuyAvailabilityProvider {
-    static func buy() -> Self { .init() }
-}
-
 extension TokenSelectorItemAvailabilityProvider where Self == TokenSelectorItemSellAvailabilityProvider {
     static func sell() -> Self { .init() }
 }

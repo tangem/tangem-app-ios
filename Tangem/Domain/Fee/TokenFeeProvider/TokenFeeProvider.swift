@@ -16,7 +16,6 @@ protocol TokenFeeProvider {
     var balanceFeeTokenState: TokenBalanceType { get }
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { get }
     var formattedFeeTokenBalance: FormattedTokenBalanceType { get }
-    var usageAvailability: FeeTokenUsageAvailability { get }
     var usageAvailabilityPublisher: AnyPublisher<FeeTokenUsageAvailability, Never> { get }
 
     var state: TokenFeeProviderState { get }
@@ -38,10 +37,6 @@ protocol TokenFeeProvider {
 // MARK: - TokenFeeProvider+
 
 extension TokenFeeProvider {
-    var usageAvailability: FeeTokenUsageAvailability {
-        .available
-    }
-
     var usageAvailabilityPublisher: AnyPublisher<FeeTokenUsageAvailability, Never> {
         .just(output: .available)
     }

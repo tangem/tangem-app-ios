@@ -17,7 +17,6 @@ import struct TangemUIUtils.AlertBinder
 protocol VisaOnboardingAlertPresenter: AnyObject {
     @MainActor
     func showAlertAsync(_ alert: AlertBinder) async
-    func showAlert(_ alert: AlertBinder)
     @MainActor
     func showContactSupportAlert(for error: Error) async
 }

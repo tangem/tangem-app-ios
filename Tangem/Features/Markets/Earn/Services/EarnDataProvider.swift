@@ -13,11 +13,9 @@ import TangemFoundation
 protocol EarnDataProvider: AnyObject {
     var eventPublisher: AnyPublisher<EarnDataEvent, Never> { get }
     var mostlyUsedEventPublisher: AnyPublisher<EarnDataMostlyUsedEvent, Never> { get }
-    var canFetchMore: Bool { get }
 
     func refreshMostlyUsedTokens()
 
-    func reset()
     func fetch(with filter: EarnDataFilter)
     func fetchMore()
 }
@@ -112,16 +110,6 @@ final class CommonEarnDataService: EarnDataProvider {
                 }
             }
         }.eraseToAnyCancellable()
-    }
-
-    func reset() {
-        mostlyUsedUpdateTask?.cancel()
-        mostlyUsedUpdateTask = nil
-
-        lastFilter = nil
-        clearItems()
-        _eventSubject.send(.cleared)
-        isLoading = false
     }
 
     func fetch(with filter: EarnDataFilter) {

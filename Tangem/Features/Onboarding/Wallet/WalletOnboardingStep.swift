@@ -190,10 +190,6 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         }
     }
 
-    var checkmarkText: String? {
-        return nil
-    }
-
     var infoText: String? {
         switch self {
         case .saveUserWallet, .mobileUpgradeBiometrics:
@@ -204,7 +200,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
     }
 }
 
-extension WalletOnboardingStep: OnboardingProgressStepIndicatable {
+extension WalletOnboardingStep {
     var requiresConfetti: Bool {
         switch self {
         case .success:

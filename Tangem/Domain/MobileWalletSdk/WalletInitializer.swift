@@ -31,8 +31,6 @@ struct WalletInitializerParameters {
 }
 
 final class MobileWalletInitializer: WalletInitializer {
-    typealias Wallet = MobileWalletInfo
-
     func initializeWallet(parameters: WalletInitializerParameters) async throws -> MobileWalletInfo {
         let sdk = CommonMobileWalletSdk()
 

@@ -34,5 +34,4 @@ import Foundation
 /// one extra unused value is removed from the stack.
 struct OpCheckMultiSig: OpCodeProtocol {
     var value: UInt8 { return 0xae }
-    var name: String { return "OP_CHECKMULTISIG" }
 }

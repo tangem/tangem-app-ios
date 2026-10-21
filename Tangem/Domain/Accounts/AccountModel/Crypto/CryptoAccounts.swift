@@ -19,15 +19,6 @@ enum CryptoAccounts {
 
     /// Multiple (i.e. visible) crypto accounts per single wallet, should be rendered in the UI.
     case multiple([any CryptoAccountModel])
-
-    var state: State {
-        switch self {
-        case .single:
-            return .single
-        case .multiple:
-            return .multiple
-        }
-    }
 }
 
 // MARK: - Inner types

@@ -234,9 +234,7 @@ private final class TronGaslessNetworkManagerStub: GaslessTransactionsNetworkMan
 
     let cachedFeeRecipientAddress: String? = nil
     var availableFeeTokens: [FeeToken] { [] }
-    var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> { Just([]).eraseToAnyPublisher() }
     var availableTronFeeTokens: [TronFeeToken] { [] }
-    var availableTronFeeTokensPublisher: AnyPublisher<[TronFeeToken], Never> { Just([]).eraseToAnyPublisher() }
     var currentHost: String { "test" }
     var feeRecipientAddress: String? { nil }
 
@@ -250,7 +248,6 @@ private final class TronGaslessNetworkManagerStub: GaslessTransactionsNetworkMan
     func sendGaslessTransaction(_ transaction: GaslessTransaction, executorVersion: GaslessExecutorVersion) async throws -> String { "" }
     func sendGaslessBatchTransaction(_ transaction: GaslessBatchTransaction) async throws -> String { "" }
     func initialize() {}
-    func preloadFeeRecipientAddress() {}
 
     func estimateTronGaslessTransaction(
         _ request: TronEstimateRequest,

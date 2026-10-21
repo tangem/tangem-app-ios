@@ -27,5 +27,4 @@ import Foundation
 /// Same as OP_EQUAL, but runs OP_VERIFY afterward.
 struct OpEqualVerify: OpCodeProtocol {
     var value: UInt8 { return 0x88 }
-    var name: String { return "OP_EQUALVERIFY" }
 }

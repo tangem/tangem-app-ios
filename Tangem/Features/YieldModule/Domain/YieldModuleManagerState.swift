@@ -19,13 +19,6 @@ indirect enum YieldModuleManagerState: Equatable {
     case active(info: YieldSupplyInfo, promoStatus: YieldPromoStatus)
     case failedToLoad(error: String, cachedState: YieldModuleManagerState?)
 
-    var balance: Amount? {
-        if case .active(let value, _) = self {
-            return value.balance
-        }
-        return nil
-    }
-
     enum ProcessingAction {
         case enter
         case exit
@@ -44,10 +37,6 @@ struct YieldModuleManagerStateInfo: Equatable {
     let marketInfo: YieldModuleMarketInfo?
 
     let state: YieldModuleManagerState
-}
-
-extension YieldModuleManagerStateInfo {
-    static let empty = YieldModuleManagerStateInfo(marketInfo: nil, state: .notActive(promoStatus: .undefined))
 }
 
 extension YieldModuleManagerState {

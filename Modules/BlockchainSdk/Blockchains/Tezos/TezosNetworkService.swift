@@ -54,13 +54,6 @@ class TezosNetworkService: MultiNetworkProvider {
         }
     }
 
-    func forgeContents(headerHash: String, contents: [TezosOperationContent]) -> AnyPublisher<String, Error> {
-        providerPublisher {
-            $0.forgeContents(headerHash: headerHash, contents: contents)
-                .eraseToAnyPublisher()
-        }
-    }
-
     func checkTransaction(
         protocol: String,
         hash: String,

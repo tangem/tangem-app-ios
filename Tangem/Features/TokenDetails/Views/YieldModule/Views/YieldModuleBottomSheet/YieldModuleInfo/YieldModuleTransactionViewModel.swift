@@ -19,9 +19,6 @@ final class YieldModuleTransactionViewModel: ObservableObject {
     @Injected(\.alertPresenter)
     private var alertPresenter: any AlertPresenter
 
-    @Injected(\.userWalletRepository)
-    private var userWalletRepository: any UserWalletRepository
-
     // MARK: - ViewState
 
     let signingActionButtonType: SigningActionButtonViewType

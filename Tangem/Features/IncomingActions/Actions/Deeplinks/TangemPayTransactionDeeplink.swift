@@ -11,6 +11,4 @@ import Foundation
 /// thing that builds it, and the payload it carries is enough to show the transaction without asking anyone.
 struct TangemPayTransactionDeeplink: Equatable {
     let payload: TangemPayPushPayload
-
-    var action: DeeplinkNavigationAction { .tangemPayTransaction(self) }
 }

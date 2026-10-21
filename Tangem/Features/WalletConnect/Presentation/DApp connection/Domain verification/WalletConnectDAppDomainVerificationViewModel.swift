@@ -15,7 +15,6 @@ final class WalletConnectDAppDomainVerificationViewModel: ObservableObject {
     private let closeAction: () -> Void
     private let connectAnywayAction: (() async -> Void)?
 
-    private var cancelTask: Task<Void, Never>?
     private var connectAnywayTask: Task<Void, Never>?
 
     @Published private(set) var state: WalletConnectDAppDomainVerificationViewState

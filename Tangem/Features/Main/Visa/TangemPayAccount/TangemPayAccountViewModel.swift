@@ -14,7 +14,6 @@ import TangemPay
 import TangemUI
 
 protocol TangemPayAccountRoutable: AnyObject {
-    func openTangemPayFailedToIssueCardPopup()
     func openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
     func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
     func openTangemPayMainView(tangemPayAccount: TangemPayAccount)
