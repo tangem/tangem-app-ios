@@ -80,34 +80,13 @@ public final class MoralisEVMNFTNetworkService {
     }
 
     private func paginableRequest<T>(
-        targetFactory: MoralisPaginableResponse.TargetFactory
+        targetFactory: (_ cursor: String?) -> MoralisEVMAPITarget
     ) async -> (value: [T], errors: [NFTErrorDescriptor]) where T: Decodable, T: MoralisPaginableResponse {
-        var results: [T] = []
-        var errors: [NFTErrorDescriptor] = []
-        var cursor: String? = nil
-
-        repeat {
-            let target = targetFactory(cursor)
-
-            do {
-                let response = try await networkProvider
-                    .asyncRequest(target)
-                    .mapAPIResponse(T.self, using: decoder)
-
-                results.append(response)
-                cursor = response.cursor
-            } catch {
-                errors.append(
-                    NFTErrorDescriptor(
-                        code: error.networkErrorCodeOrNSErrorFallback,
-                        description: error.localizedDescription
-                    )
-                )
-            }
-
-        } while cursor != nil
-
-        return (results, errors: errors)
+        await MoralisCursorPaginator.loadAllPages { cursor in
+            try await networkProvider
+                .asyncRequest(targetFactory(cursor))
+                .mapAPIResponse(T.self, using: decoder)
+        }
     }
 }
 

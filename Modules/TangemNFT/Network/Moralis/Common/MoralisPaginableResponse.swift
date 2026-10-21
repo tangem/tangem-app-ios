@@ -7,7 +7,5 @@
 //
 
 protocol MoralisPaginableResponse {
-    typealias TargetFactory = (_ cursor: String?) -> MoralisEVMAPITarget
-
     var cursor: String? { get }
 }
