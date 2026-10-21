@@ -10,18 +10,22 @@ import Combine
 import Foundation
 import TangemFoundation
 import TangemStaking
-import TangemTestKit
 import Testing
 @testable import Tangem
 
 @Suite("StakeModel")
-final class StakeModelTests: LeakTrackingTestSuite {
+final class StakeModelTests {
     @Test("Deallocates without leaks")
     func noLeaks() async throws {
-        let sut = makeModel { SolanaStakingFlowProvider(action: withdraw(), stages: $0, preflightValidator: nil) }
-        // Let the init-triggered resolve finish so its in-flight task no longer holds the model.
-        _ = try await awaitReady(sut)
-        trackForMemoryLeaks(sut)
+        weak var weakModel: StakeModel?
+
+        do {
+            let sut = makeModel { SolanaStakingFlowProvider(action: withdraw(), stages: $0, preflightValidator: nil) }
+            weakModel = sut
+            _ = try await awaitReady(sut)
+        }
+
+        #expect(await waitUntilConditionMet { weakModel == nil })
     }
 
     @Test("A fixed flow resolves to ready on init")
