@@ -30,6 +30,7 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
     // MARK: - Child ViewModels
 
     @Published var destination: Destination?
+    @Published private(set) var inPlaceResult: PolymarketOrderResultViewModel?
     @Published var sheet: Sheet?
 
     var offersPlacedPosition = true
@@ -47,6 +48,7 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
     private var indexingTask: PolymarketOrderIndexing?
     private var isMarketClosedPresented = false
     private var isQuoteUnavailablePresented = false
+    private(set) var flowStyle: PolymarketOrderFlowStyle = .summaryStep
 
     // MARK: - Init
 
@@ -65,6 +67,11 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
         regionWarningAction = options.onRegionWarning
         placedAction = options.onPlaced
         addFundsAction = options.onAddFunds
+        flowStyle = PolymarketOrderFlowStyle(
+            isSingleSheetEnabled: options.isSingleSheetEnabled,
+            side: options.intent.side,
+            singleSheet: .init(placementService: options.placementService, signingButtonType: options.signingButtonType)
+        )
 
         Task { @MainActor in
             let model = PolymarketOrderModel(
@@ -82,7 +89,8 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
             )
 
             self.model = model
-            viewModel = PolymarketOrderViewModel(model: model, coordinator: self)
+
+            viewModel = PolymarketOrderViewModel(model: model, flowStyle: flowStyle, coordinator: self)
         }
     }
 }
@@ -139,7 +147,7 @@ extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
     }
 
     func openSlippageSelector(percent: Decimal, onConfirm: @escaping (Decimal) -> Void) {
-        sheet = .slippageSelector(PolymarketSlippageSelectorViewModel(percent: percent) { [weak self] confirmed in
+        sheet = .slippageSelector(PolymarketSlippageSelectorViewModel(percent: percent, isRedesigned: flowStyle.isSingleSheet) { [weak self] confirmed in
             onConfirm(confirmed)
             self?.sheet = nil
         })
@@ -193,7 +201,7 @@ extension PolymarketOrderCoordinator: PolymarketOrderSummaryRoutable {
 
     @MainActor
     func openFeeBreakdown(model: PolymarketOrderModel) {
-        sheet = .feeBreakdown(PolymarketFeeBreakdownSheetViewModel(model: model))
+        sheet = .feeBreakdown(PolymarketFeeBreakdownSheetViewModel(model: model, includesPartialQuote: flowStyle.isSingleSheet))
     }
 
     @MainActor
@@ -216,7 +224,12 @@ extension PolymarketOrderCoordinator: PolymarketOrderSummaryRoutable {
             onPositionClosed?()
         }
 
-        destination = .result(resultViewModel)
+        switch flowStyle {
+        case .summaryStep:
+            destination = .result(resultViewModel)
+        case .singleSheet:
+            inPlaceResult = resultViewModel
+        }
     }
 }
 
@@ -264,6 +277,7 @@ extension PolymarketOrderCoordinator {
         let account: PolymarketOrderAccount?
         let signingButtonType: SigningActionButtonViewType
         let intent: PolymarketOrderIntent
+        let isSingleSheetEnabled: Bool
         let geoblockStateProvider: PolymarketGeoblockStateProvider
         let placementService: PolymarketOrderPlacementService
         let positionsService: PolymarketPositionsService

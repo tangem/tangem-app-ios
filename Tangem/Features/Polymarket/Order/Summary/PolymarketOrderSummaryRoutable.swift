@@ -9,15 +9,14 @@
 import Foundation
 import TangemPolymarket
 
+@MainActor
 protocol PolymarketOrderSummaryRoutable: AnyObject {
     func closeSummary()
     func closeOrder()
     func openLegalTerms(url: URL)
     func openSupport()
 
-    @MainActor
     func openFeeBreakdown(model: PolymarketOrderModel)
 
-    @MainActor
     func openResult(state: PolymarketOrderResultViewModel.State, content: PolymarketOrderResultViewModel.Content)
 }

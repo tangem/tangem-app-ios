@@ -144,6 +144,7 @@ extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
             account: dependencies.orderAccount,
             signingButtonType: dependencies.signingButtonType,
             intent: dependencies.makeOrderIntent(for: request),
+            isSingleSheetEnabled: dependencies.isSingleSheetOrderEnabled,
             geoblockStateProvider: dependencies.geoblockStateProvider,
             placementService: dependencies.placementService,
             positionsService: dependencies.positionsService,
