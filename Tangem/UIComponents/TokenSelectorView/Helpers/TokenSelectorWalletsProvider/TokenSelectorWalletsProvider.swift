@@ -10,7 +10,6 @@ import TangemMacro
 import TangemAccounts
 import TangemLocalization
 import TangemPay
-import TangemPolymarket
 import TangemExpress
 
 protocol TokenSelectorWalletsProvider {
@@ -74,8 +73,6 @@ struct TokenSelectorItem: Hashable, Identifiable {
             walletModel.tokenItem
         case .tangemPay(_, let accountToken, _):
             accountToken.tokenItem
-        case .polymarket:
-            PolymarketUtilities.usdcTokenItem
         }
     }
 
@@ -87,11 +84,6 @@ struct TokenSelectorItem: Hashable, Identifiable {
             accountToken.isAccountWide
                 ? tangemPayAccount.balancesProvider.totalTokenBalanceProvider
                 : tangemPayAccount.balancesProvider.availableBalanceProvider(for: accountToken)
-        case .polymarket(let source):
-            PolymarketWithdrawBalanceProvider(
-                base: source.accountModel.collateralTokenBalanceProvider,
-                tokenItem: PolymarketUtilities.usdcTokenItem
-            )
         }
     }
 
@@ -103,8 +95,6 @@ struct TokenSelectorItem: Hashable, Identifiable {
             accountToken.isAccountWide
                 ? tangemPayAccount.balancesProvider.fiatTotalTokenBalanceProvider
                 : tangemPayAccount.balancesProvider.fiatAvailableBalanceProvider(for: accountToken)
-        case .polymarket(let source):
-            source.accountModel.fiatAvailableBalanceProvider
         }
     }
 
@@ -142,12 +132,11 @@ extension TokenSelectorItem {
     enum Kind {
         case crypto(any WalletModel, any CryptoAccountModel)
         case tangemPay(TangemPayAccount, TangemPayAccountToken, any TangemPayAccountModel)
-        case polymarket(PolymarketWithdrawSource)
 
         var walletModel: (any WalletModel)? {
             switch self {
             case .crypto(let walletModel, _): walletModel
-            case .tangemPay, .polymarket: nil
+            case .tangemPay: nil
             }
         }
 
@@ -155,7 +144,6 @@ extension TokenSelectorItem {
             switch self {
             case .crypto(_, let account): account
             case .tangemPay(_, _, let account): account
-            case .polymarket(let source): source.accountModel
             }
         }
     }
@@ -170,29 +158,5 @@ extension TokenSelectorItem {
         }
 
         return false
-    }
-
-    func makeSendSwapableTokenFactory(expressOperationType: ExpressOperationType) -> SendSwapableTokenFactory {
-        switch kind {
-        case .crypto(let walletModel, _):
-            CommonSendSwapableTokenFactory(
-                userWalletInfo: userWalletInfo,
-                walletModel: walletModel,
-                operationType: expressOperationType
-            )
-
-        case .tangemPay(let tangemPayAccount, let accountToken, let account):
-            TangemPaySwapableTokenFactory(
-                userWalletInfo: userWalletInfo,
-                tangemPayAccount: tangemPayAccount,
-                account: account,
-                accountToken: accountToken,
-                operationType: expressOperationType,
-                receiveTokenPresentation: .tangemPayAccount
-            )
-
-        case .polymarket(let source):
-            PolymarketWithdrawSwapableTokenFactory(userWalletInfo: userWalletInfo, source: source)
-        }
     }
 }

@@ -150,16 +150,33 @@ private extension MarketsAddTokenFlowConfigurationFactory {
             case .exchange:
                 analyticsLogger.logExchangeTapped()
 
-                let helper = SwapPredefinedParametersHelper()
-                guard let parameters = helper.makeParameters(
-                    walletModel: walletModel,
-                    userWalletInfo: userWalletInfo,
-                    position: .automatic
-                ) else {
-                    break
+                let direction = SwapDirection.build(for: walletModel)
+                let openSwap = {
+                    let parameters = SwapPredefinedParametersBuilder().makeParameters(input: .token(
+                        userWalletInfo: userWalletInfo,
+                        walletModel: walletModel,
+                        direction: direction
+                    ))
+
+                    Task { @MainActor in
+                        coordinator.openSwap(input: parameters, destination: walletModel.tokenItem)
+                    }
                 }
 
-                coordinator.openSwap(input: parameters, destination: walletModel.tokenItem)
+                switch direction {
+                case .from:
+                    TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                        presenter: InjectedValues[\.alertPresenter],
+                        swapSourceStatus: availabilityProvider.swapSourceAvailability(ignoreExpressState: true),
+                        action: openSwap
+                    )
+                case .to:
+                    TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                        presenter: InjectedValues[\.alertPresenter],
+                        swapReceiveStatus: availabilityProvider.swapReceiveAvailability(ignoreExpressState: true),
+                        action: openSwap
+                    )
+                }
 
             case .receive:
                 analyticsLogger.logReceiveTapped()

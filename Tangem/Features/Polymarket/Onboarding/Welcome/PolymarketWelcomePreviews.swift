@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemPolymarket
+import TangemUI
 
 private final class PolymarketOnboardingInteractorPreviewStub: PolymarketOnboardingInteractor {
     private let progress: [PolymarketOnboardingProgress]
@@ -39,6 +40,7 @@ private extension PolymarketWelcomeViewModel {
         let viewModel = PolymarketWelcomeViewModel(
             interactor: PolymarketOnboardingInteractorPreviewStub(progress: progress),
             hasExistingAccount: hasExistingAccount,
+            signingButtonType: .requiredNFCInteraction,
             coordinator: PolymarketWelcomeRoutablePreviewStub()
         )
 

@@ -6,9 +6,11 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
+
 struct TangemPaySendingRestrictionsProvider: SendingRestrictionsProvider {
-    var sendingRestrictions: SendingRestrictions? {
+    var sendingRestrictionsPublisher: AnyPublisher<SendingRestrictions?, Never> {
         // TangemPay doesn't have sending restrictions
-        return nil
+        .just(output: nil)
     }
 }

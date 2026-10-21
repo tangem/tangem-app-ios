@@ -642,6 +642,7 @@
 "express_error_provider_amount_roundup" = "Error %1$@. The selected provider cannot process the specified transaction. Please round the value up to %2$@ or change it";
 "express_error_swap_pair_unavailable" = "Selected provider is unavailable at the moment. Please try again later. (Code: %@)";
 "express_error_swap_unavailable" = "Swaps are unavailable at the moment. Please try again later. (Code: %@)";
+"express_error_transaction_cannot_be_created" = "The transaction cannot be created with %1$@. Please choose another provider. (Code: %2$@)";
 "express_estimated_amount" = "Estimated amount";
 "express_exchange_by" = "Exchange by %@";
 "express_exchange_notification_failed_text" = "Visit the provider's website to get a refund";
@@ -1009,6 +1010,13 @@
 "joint_account_coming_soon_title" = "Coming soon to joint accounts";
 "joint_account_confirm_account_subtitle" = "Before using your Joint Account, make sure every member sees exactly the same address.";
 "joint_account_confirm_account_title" = "Confirm the account";
+"joint_account_confirm_address_compare_subtitle" = "Contact all members outside Tangem by phone, messenger, or in person. Check that everyone sees the exact same address.";
+"joint_account_confirm_address_compare_title" = "Compare with other members";
+"joint_account_confirm_address_confirm_button" = "Checked with everyone";
+"joint_account_confirm_address_everyone_subtitle" = "Your account will be ready once all members have confirmed the address.";
+"joint_account_confirm_address_everyone_title" = "Everyone must confirm";
+"joint_account_confirm_address_label" = "Shared address";
+"joint_account_confirm_address_mismatch_button" = "Address doesn't match";
 "joint_account_confirm_shared_address" = "Confirm shared address";
 "joint_account_invite_invalid_subtitle" = "Check that you opened the correct link, or ask the account creator to send it again";
 "joint_account_invite_invalid_title" = "Invitation link isn't valid";

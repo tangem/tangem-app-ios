@@ -25,7 +25,6 @@ struct MainQRCodeContentParserTests {
         "Plain HTTP/HTTPS links are unrecognized",
         arguments: [
             "http://example.com",
-            "https://tangem.com/foo",
             "HTTPS://UPPER.example",
         ]
     )
@@ -101,10 +100,69 @@ struct MainQRCodeContentParserTests {
         #expect(request.tokenContractAddress == contract)
     }
 
+    @Test("A payment link on our domain stays a payment request")
+    func paymentLinkOnOurDomainIsPayment() {
+        let address = "bc1pw83rs5s75na2g7ec8yqgekr3ae209ye7ck2ftakjnh8tv3xzw8ls6wgt62"
+
+        guard case .paymentURI(let request) = parser.parse("https://tangem.com/pay?address=\(address)&chain=bitcoin") else {
+            Issue.record("Expected .paymentURI")
+            return
+        }
+
+        #expect(request.blockchain == .bitcoin(testnet: false))
+        #expect(request.destinationAddress == address)
+    }
+
+    // MARK: - Deeplink
+
+    @Test(
+        "Links that open a screen or a page of ours are deeplinks",
+        .enabled(if: FeatureProvider.isAvailable(.qrScanDeeplinks)),
+        arguments: [
+            "tangem://markets",
+            "tangem://promo?promo_code=TEST123",
+            "https://tangem.com/foo",
+        ]
+    )
+    func screenAndPageLinksAreDeeplinks(_ input: String) {
+        #expect(isDeeplink(parser.parse(input)))
+    }
+
+    @Test(
+        "Links of ours are not deeplinks while the feature is closed",
+        .enabled(if: !FeatureProvider.isAvailable(.qrScanDeeplinks)),
+        arguments: [
+            "tangem://markets",
+            "https://tangem.com/foo",
+        ]
+    )
+    func linksAreNotDeeplinksWhileClosed(_ input: String) {
+        #expect(!isDeeplink(parser.parse(input)))
+    }
+
+    @Test(
+        "Service links are not deeplinks",
+        arguments: [
+            "bitcoin://notanaddress",
+            "https://tangem.com/redirect?action=dismissBrowser",
+        ]
+    )
+    func serviceLinksAreNotDeeplinks(_ input: String) {
+        #expect(!isDeeplink(parser.parse(input)))
+    }
+
     // MARK: - Helpers
 
     private func isUnrecognized(_ result: MainQRScanResult) -> Bool {
         if case .unrecognized = result {
+            return true
+        }
+
+        return false
+    }
+
+    private func isDeeplink(_ result: MainQRScanResult) -> Bool {
+        if case .deeplink = result {
             return true
         }
 

@@ -80,20 +80,14 @@ final class MarketsTokenDetailsViewModel: ObservableObject {
 
     var isMarketsSheetStyle: Bool { presentationStyle == .marketsSheet }
 
-    var shouldShowPortfolioBlock: Bool {
-        switch presentationStyle {
-        case .marketsSheet, .addFundsSheet:
-            return true
-        case .fullScreenCover, .navigationStack:
-            return false
-        }
-    }
+    var usesSheetNavigationHeader: Bool { presentationStyle.isSheet }
 
     var descriptionCanBeShowed: Bool { !geoEligibilityService.isUK }
 
     var isRestrictedForCountry: Bool { tokenInfo.restrictedForCountry ?? false }
 
     let presentationStyle: MarketsTokenDetailsPresentationStyle
+    let showsPortfolioActions: Bool
 
     private var priceInfo: MarketsTokenDetailsPriceInfoHelper.PriceInfo? {
         guard let currentPrice = priceFromQuoteRepository else {
@@ -173,12 +167,14 @@ final class MarketsTokenDetailsViewModel: ObservableObject {
     init(
         tokenInfo: MarketsTokenModel,
         presentationStyle: MarketsTokenDetailsPresentationStyle,
+        showsPortfolioActions: Bool,
         dataProvider: MarketsTokenDetailsDataProvider,
         marketsQuotesUpdateHelper: MarketsQuotesUpdateHelper,
         coordinator: MarketsTokenDetailsRoutable?
     ) {
         self.tokenInfo = tokenInfo
         self.presentationStyle = presentationStyle
+        self.showsPortfolioActions = showsPortfolioActions
         self.dataProvider = dataProvider
         self.marketsQuotesUpdateHelper = marketsQuotesUpdateHelper
         self.coordinator = coordinator
@@ -283,17 +279,6 @@ final class MarketsTokenDetailsViewModel: ObservableObject {
         Analytics.log(event: .marketsChartExchangesScreenOpened, params: [.token: tokenInfo.symbol.uppercased()])
 
         coordinator?.openExchangesList(tokenId: tokenInfo.id, numberOfExchangesListedOn: numberOfExchangesListedOn)
-    }
-
-    func onGenerateAITapAction() {
-        fullDescriptionBottomSheetInfo = nil
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-            guard let self else { return }
-
-            let dataCollector = TokenErrorDescriptionDataCollector(tokenId: tokenInfo.id, tokenName: tokenInfo.name)
-            coordinator?.openMail(with: dataCollector, emailType: .appFeedback(subject: Localization.feedbackTokenDescriptionError))
-        }
     }
 
     func shareTokenDetails() {
@@ -421,6 +406,10 @@ private extension MarketsTokenDetailsViewModel {
         if tokenName.isEmpty {
             tokenName = model.name
             tokenSymbol = model.symbol
+        }
+
+        if tokenSummaryCardViewModel == nil {
+            makeTokenSummaryCardViewModel()
         }
 
         state = .loaded(model: model)
@@ -637,8 +626,12 @@ private extension MarketsTokenDetailsViewModel {
     }
 
     func makeTokenSummaryCardViewModel() {
+        guard !tokenSymbol.isEmpty else {
+            return
+        }
+
         MainActor.assumeIsolated {
-            let cardViewModel = MarketsTokenSummaryViewModel(symbol: tokenInfo.symbol) { [weak self] in
+            let cardViewModel = MarketsTokenSummaryViewModel(symbol: tokenSymbol) { [weak self] in
                 Task { @MainActor in
                     guard let self else { return }
 
@@ -666,7 +659,8 @@ private extension MarketsTokenDetailsViewModel {
         let networks = loadedInfo?.availableNetworks ?? []
 
         return TokenSummaryInput(
-            token: tokenInfo,
+            coinName: tokenName,
+            coinSymbol: tokenSymbol,
             indicators: tokenSummaryCardViewModel?.indicators ?? [],
             primaryActionPublisher: makeTokenSummaryActionPublisher(holdings: holdings, networks: networks),
             holdings: holdings,
@@ -674,8 +668,8 @@ private extension MarketsTokenDetailsViewModel {
             underivedTokens: portfolioViewModel?.matchedUnderivedTokens ?? [],
             addTokenInputData: .init(
                 coinId: tokenInfo.id,
-                coinName: tokenInfo.name,
-                coinSymbol: tokenInfo.symbol,
+                coinName: tokenName,
+                coinSymbol: tokenSymbol,
                 networks: networks
             ),
             isTokenAddedEverywhere: isTokenAddedEverywhere(networks: networks),
@@ -686,8 +680,8 @@ private extension MarketsTokenDetailsViewModel {
     private func isTokenAddedEverywhere(networks: [NetworkModel]) -> Bool {
         portfolioViewModel?.isTokenAddedEverywhere ?? TokenAdditionChecker.isCoinAddedInAllAccounts(
             coinId: tokenInfo.id,
-            coinName: tokenInfo.name,
-            coinSymbol: tokenInfo.symbol,
+            coinName: tokenName,
+            coinSymbol: tokenSymbol,
             availableNetworks: networks,
             userWalletModels: walletDataProvider.userWalletModels
         )
@@ -733,14 +727,15 @@ private extension MarketsTokenDetailsViewModel {
     }
 
     func makePortfolioViewModel() {
-        guard shouldShowPortfolioBlock else {
+        guard showsPortfolioActions else {
             return
         }
 
         portfolioViewModel = MarketsPortfolioContainerViewModel(
-            inputData: .init(coinId: tokenInfo.id, coinName: tokenInfo.name, coinSymbol: tokenInfo.symbol),
+            inputData: .init(coinId: tokenInfo.id, coinName: tokenName, coinSymbol: tokenSymbol),
             walletDataProvider: walletDataProvider,
             coordinator: coordinator,
+            showsNotSupportedWithoutMultiCurrencyWallet: presentationStyle.isSheet,
             addTokenTapAction: { [weak self] in
                 guard let self, let info = loadedInfo else {
                     return
@@ -785,7 +780,7 @@ private extension MarketsTokenDetailsViewModel {
     }
 
     private func updatePortfolio(networks: [NetworkModel]) {
-        portfolioViewModel?.update(networks: networks)
+        portfolioViewModel?.update(coinName: tokenName, coinSymbol: tokenSymbol, networks: networks)
     }
 }
 
@@ -860,4 +855,15 @@ enum MarketsTokenDetailsPresentationStyle {
     case navigationStack
     case fullScreenCover
     case addFundsSheet
+}
+
+extension MarketsTokenDetailsPresentationStyle {
+    var isSheet: Bool {
+        switch self {
+        case .marketsSheet, .addFundsSheet:
+            return true
+        case .navigationStack, .fullScreenCover:
+            return false
+        }
+    }
 }

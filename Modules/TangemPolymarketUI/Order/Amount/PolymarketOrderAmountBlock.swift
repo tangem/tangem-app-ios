@@ -11,13 +11,14 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 
-public struct PolymarketOrderAmountBlock<Field: View, Footer: View>: View {
+public struct PolymarketOrderAmountBlock<Field: View, Footer: View, Bottom: View>: View {
     private let title: String
     private let payment: PolymarketOrderPaymentRow.Model?
     private let isAddFundsEnabled: Bool
     private let onAddFunds: () -> Void
     private let field: Field
     private let footer: Footer
+    private let bottom: Bottom
 
     public init(
         title: String = Localization.predictionPlaceYouWillPay,
@@ -25,7 +26,8 @@ public struct PolymarketOrderAmountBlock<Field: View, Footer: View>: View {
         isAddFundsEnabled: Bool,
         onAddFunds: @escaping () -> Void,
         @ViewBuilder field: () -> Field,
-        @ViewBuilder footer: () -> Footer = { EmptyView() }
+        @ViewBuilder footer: () -> Footer = { EmptyView() },
+        @ViewBuilder bottom: () -> Bottom = { EmptyView() }
     ) {
         self.title = title
         self.payment = payment
@@ -33,6 +35,7 @@ public struct PolymarketOrderAmountBlock<Field: View, Footer: View>: View {
         self.onAddFunds = onAddFunds
         self.field = field()
         self.footer = footer()
+        self.bottom = bottom()
     }
 
     public var body: some View {
@@ -46,6 +49,8 @@ public struct PolymarketOrderAmountBlock<Field: View, Footer: View>: View {
 
                 PolymarketOrderPaymentRow(model: payment, isAddFundsEnabled: isAddFundsEnabled, onAddFunds: onAddFunds)
             }
+
+            bottom
         }
         .background(DesignSystem.Color.bgSecondary)
         .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))

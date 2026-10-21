@@ -11,11 +11,11 @@ import Foundation
 public struct PolymarketCategory: Hashable, Sendable {
     public let id: Int
     public let label: String
-    public let iconURL: URL?
+    public let icon: PolymarketCategoryIcon?
 
-    public init(id: Int, label: String, iconURL: URL?) {
+    public init(id: Int, label: String, icon: PolymarketCategoryIcon?) {
         self.id = id
         self.label = label
-        self.iconURL = iconURL
+        self.icon = icon
     }
 }

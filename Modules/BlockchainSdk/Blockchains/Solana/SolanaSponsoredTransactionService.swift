@@ -78,23 +78,7 @@ public final class SolanaSponsoredTransactionService {
         feePayer: Data,
         blockhash: SolanaBlockhash
     ) throws -> SolanaSelfPaidTransaction {
-        guard let feePayerKey = PublicKey(data: feePayer), feePayer.count == PublicKey.LENGTH else {
-            throw BlockchainSdkError.failedToConvertPublicKey
-        }
-
-        let transaction = SolanaSwift.Transaction.empty(feePayer: feePayerKey, recentBlockhash: blockhash.value)
-        for instruction in instructions {
-            _ = transaction.add(try instruction.transactionInstruction())
-        }
-
-        // Compiling is a pure function of the instructions, the payer and the blockhash, so the bytes handed
-        // out here are the same ones `serialize` signs off on — nothing may touch the transaction in between
-        return SolanaSelfPaidTransaction(
-            transaction: transaction,
-            feePayer: feePayerKey,
-            message: try transaction.serializeMessage().get(),
-            blockhashFetchedAt: blockhash.fetchedAt
-        )
+        try SolanaSelfPaidTransaction.make(instructions: instructions, feePayer: feePayer, blockhash: blockhash)
     }
 }
 
@@ -115,6 +99,30 @@ public struct SolanaSelfPaidTransaction {
         self.feePayer = feePayer
         self.message = message
         self.blockhashFetchedAt = blockhashFetchedAt
+    }
+
+    static func make(
+        instructions: [SolanaRawInstruction],
+        feePayer: Data,
+        blockhash: SolanaBlockhash
+    ) throws -> SolanaSelfPaidTransaction {
+        guard let feePayerKey = PublicKey(data: feePayer), feePayer.count == PublicKey.LENGTH else {
+            throw BlockchainSdkError.failedToConvertPublicKey
+        }
+
+        let transaction = SolanaSwift.Transaction.empty(feePayer: feePayerKey, recentBlockhash: blockhash.value)
+        for instruction in instructions {
+            _ = transaction.add(try instruction.transactionInstruction())
+        }
+
+        // Compiling is a pure function of the instructions, the payer and the blockhash, so the bytes handed
+        // out here are the same ones `serialize` signs off on — nothing may touch the transaction in between
+        return SolanaSelfPaidTransaction(
+            transaction: transaction,
+            feePayer: feePayerKey,
+            message: try transaction.serializeMessage().get(),
+            blockhashFetchedAt: blockhash.fetchedAt
+        )
     }
 
     public func serialized(signature: Data) throws -> Data {

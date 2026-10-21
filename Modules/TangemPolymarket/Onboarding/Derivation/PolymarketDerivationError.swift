@@ -21,6 +21,11 @@ public enum PolymarketDerivationError: Error, Equatable {
 
 public extension PolymarketDerivationError {
     init(derivationFailure error: Error) {
+        if error is CancellationError {
+            self = .cancelled
+            return
+        }
+
         guard let sdkError = error as? TangemSdkError else {
             self = .unknown
             return

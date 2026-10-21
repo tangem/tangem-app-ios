@@ -18,7 +18,7 @@ struct QuickTopUpBannerView: View {
         if viewModel.isVisible {
             VStack(alignment: .leading, spacing: 16) {
                 Label(Localization.quickTopUpTitle, systemImage: "bolt.fill")
-                    .style(Fonts.Bold.headline, color: Color.Tangem.Text.Neutral.primary)
+                    .style(Fonts.Bold.headline, color: DesignSystem.Color.textPrimary)
 
                 HStack(spacing: 8) {
                     ForEach(viewModel.chips) { chip in
@@ -33,7 +33,7 @@ struct QuickTopUpBannerView: View {
                                 .frame(height: Constants.chipHeight)
                                 .background(
                                     RoundedRectangle(cornerRadius: Constants.chipCornerRadius, style: .continuous)
-                                        .fill(Color.Tangem.Button.backgroundPrimaryInverted)
+                                        .fill(DesignSystem.Color.bgSpecialControl)
                                 )
                         }
                         .buttonStyle(.plain)

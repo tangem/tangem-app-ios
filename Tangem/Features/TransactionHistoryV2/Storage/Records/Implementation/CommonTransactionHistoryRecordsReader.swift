@@ -76,7 +76,7 @@ actor CommonTransactionHistoryRecordsReader {
                 observationTask?.cancel()
             }
 
-            for await addresses in await walletModelAddressesPublisher.values {
+            for await addresses in await walletModelAddressesPublisher.values_ {
                 observationTask?.cancel()
                 observationTask = Task { [weak self] in
                     await self?.observeRecords(for: walletModelId, addresses: addresses)

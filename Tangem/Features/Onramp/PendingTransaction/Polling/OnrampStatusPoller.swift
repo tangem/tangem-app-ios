@@ -106,7 +106,7 @@ final class OnrampStatusPoller {
             .withPrevious()
 
         pollingInitiatingTask = runTask { [weak self] in
-            let previousAndCurrentRequestsSequence = await previousAndCurrentRequestsPublisher.values
+            let previousAndCurrentRequestsSequence = await previousAndCurrentRequestsPublisher.values_
 
             for await previousAndCurrentRequests in previousAndCurrentRequestsSequence {
                 guard let self else { return }

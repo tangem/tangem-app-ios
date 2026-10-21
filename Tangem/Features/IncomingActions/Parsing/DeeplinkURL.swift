@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 /// An incoming link of ours, read once. This is where a link stops being a `URL`: the scheme and the domain
 /// are checked here, the host is normalised here, and what's left is only which kind of link it is and what
@@ -54,19 +55,11 @@ private extension DeeplinkURL.Kind {
             return
         }
 
-        guard url.scheme == Constants.webScheme, IncomingActionConstants.supportedExternalLinkHosts.contains(host) else {
+        guard url.isHTTPS, IncomingActionConstants.supportedExternalLinkHosts.contains(host) else {
             return nil
         }
 
         // A path, when there is one, starts with a "/" component that names nothing.
         self = .path(domain: host, components: Array(url.pathComponents.dropFirst()))
-    }
-}
-
-// MARK: - Constants
-
-private extension DeeplinkURL.Kind {
-    enum Constants {
-        static let webScheme = "https"
     }
 }
