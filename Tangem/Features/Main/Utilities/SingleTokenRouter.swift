@@ -111,6 +111,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
             event: .buttonExplore,
             params: [
                 .token: walletModel.tokenItem.currencySymbol,
+                .blockchain: walletModel.tokenItem.blockchain.displayName,
                 .source: analyticsSource.parameterValue.rawValue,
             ]
         )
