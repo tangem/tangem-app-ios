@@ -21,7 +21,7 @@ public enum PolymarketOrderSigningError: Error, Equatable {
 public enum PolymarketOrderSigning {
     public static func digest(
         order: PolymarketOrder,
-        isNegRisk: Bool,
+        domain: PolymarketExchangeDomain,
         depositWalletAddress: String
     ) throws(PolymarketOrderSigningError) -> Data {
         let parts: [Data] = try [
@@ -35,7 +35,7 @@ public enum PolymarketOrderSigning {
         ]
 
         let parent = keccak(concat(parts))
-        let outer: [Data] = try [Constants.eip191Prefix, domainSeparator(isNegRisk: isNegRisk), parent]
+        let outer: [Data] = try [Constants.eip191Prefix, domainSeparator(domain), parent]
 
         return keccak(concat(outer))
     }
@@ -43,12 +43,12 @@ public enum PolymarketOrderSigning {
     public static func wrap(
         signature: String,
         order: PolymarketOrder,
-        isNegRisk: Bool
+        domain: PolymarketExchangeDomain
     ) throws(PolymarketOrderSigningError) -> String {
         let description = Data(Constants.orderType.utf8)
 
         let parts: [Data] = try [
-            domainSeparator(isNegRisk: isNegRisk),
+            domainSeparator(domain),
             hashStruct(order),
             description,
             lengthSuffix(description.count),
@@ -63,13 +63,13 @@ public enum PolymarketOrderSigning {
 // MARK: - Hashing
 
 private extension PolymarketOrderSigning {
-    static func domainSeparator(isNegRisk: Bool) throws(PolymarketOrderSigningError) -> Data {
+    static func domainSeparator(_ domain: PolymarketExchangeDomain) throws(PolymarketOrderSigningError) -> Data {
         let parts: [Data] = try [
             keccak(Data(Constants.domainType.utf8)),
             keccak(Data(PolymarketExchange.domainName.utf8)),
-            keccak(Data(PolymarketExchange.domainVersion.utf8)),
+            keccak(Data(domain.version.utf8)),
             word(PolymarketExchange.chainId),
-            addressWord(PolymarketExchange.address(isNegRisk: isNegRisk)),
+            addressWord(domain.address),
         ]
 
         return keccak(concat(parts))
@@ -115,16 +115,9 @@ private extension PolymarketOrderSigning {
     }
 }
 
-// MARK: - Word encoding
+// MARK: - Unsigned integers
 
-private extension PolymarketOrderSigning {
-    static func word(_ value: UInt64) -> Data {
-        var bytes = Data(count: Constants.wordSize - MemoryLayout<UInt64>.size)
-        bytes.append(contentsOf: withUnsafeBytes(of: value.bigEndian, Array.init))
-
-        return bytes
-    }
-
+extension PolymarketOrderSigning {
     static func word(decimalString value: String) throws(PolymarketOrderSigningError) -> Data {
         guard !value.isEmpty, value.allSatisfy(\.isASCIIDigit) else {
             throw .invalidAmount(value)
@@ -152,6 +145,17 @@ private extension PolymarketOrderSigning {
         }
 
         return Data(count: Constants.wordSize - bytes.count) + Data(bytes)
+    }
+}
+
+// MARK: - Word encoding
+
+private extension PolymarketOrderSigning {
+    static func word(_ value: UInt64) -> Data {
+        var bytes = Data(count: Constants.wordSize - MemoryLayout<UInt64>.size)
+        bytes.append(contentsOf: withUnsafeBytes(of: value.bigEndian, Array.init))
+
+        return bytes
     }
 
     static func hexBytes(_ value: String, byteCount: Int) -> Data? {

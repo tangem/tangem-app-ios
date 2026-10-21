@@ -141,7 +141,7 @@ public struct PolymarketMarketCard: View {
         }
         .style(DesignSystem.Font.bodyMediumToken, color: outcome.style.foregroundColor)
         .padding(.horizontal, Constants.labelHorizontalPadding)
-        .frame(maxWidth: .infinity, minHeight: 36)
+        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 36)
         .background(outcome.style.backgroundColor, in: Capsule())
     }
 

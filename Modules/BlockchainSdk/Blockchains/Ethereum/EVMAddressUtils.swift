@@ -88,7 +88,7 @@ public enum EVMAddressUtils {
     ///
     /// - Parameter address: The hex address string (with or without 0x prefix).
     /// - Returns: The checksummed address string, or `nil` if the input is invalid.
-    static func toChecksumAddress(_ address: String) -> String? {
+    public static func toChecksumAddress(_ address: String) -> String? {
         let address = address.lowercased().removeHexPrefix()
         guard let hashData = address.data(using: .utf8) else {
             return nil

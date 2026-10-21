@@ -11,6 +11,9 @@ import TangemUI
 
 public enum PolymarketOrderNotification: String, Hashable, CaseIterable, Identifiable {
     case awaitingFunds
+    case withdrawalInProgress
+    case withdrawalSent
+    case withdrawalFailed
     case partialFill
     case noLiquidity
     case belowMinOrder
@@ -22,7 +25,7 @@ public enum PolymarketOrderNotification: String, Hashable, CaseIterable, Identif
 
     public var isBlocking: Bool {
         switch self {
-        case .awaitingFunds, .partialFill: false
+        case .awaitingFunds, .withdrawalInProgress, .withdrawalSent, .withdrawalFailed, .partialFill: false
         case .noLiquidity, .belowMinOrder, .marketClosed, .regionRestricted, .quoteUnavailable: true
         }
     }
@@ -34,6 +37,9 @@ extension PolymarketOrderNotification {
     var title: String {
         switch self {
         case .awaitingFunds: Localization.predictionPlaceNotificationAwaitingFundsTitle
+        case .withdrawalInProgress: Localization.predictionWithdrawStatusInProgressTitle
+        case .withdrawalSent: Localization.predictionWithdrawStatusSentTitle
+        case .withdrawalFailed: Localization.predictionWithdrawStatusFailedNotice
         case .partialFill: Localization.predictionPlaceNotificationPartialTitle
         case .noLiquidity: Localization.predictionPlaceNotificationNoLiquidityTitle
         case .belowMinOrder: Localization.predictionPlaceNotificationMinOrderTitle
@@ -43,9 +49,11 @@ extension PolymarketOrderNotification {
         }
     }
 
-    var message: String {
+    var message: String? {
         switch self {
         case .awaitingFunds: Localization.predictionPlaceNotificationAwaitingFundsDescription
+        case .withdrawalInProgress: Localization.predictionWithdrawStatusInProgressDescription
+        case .withdrawalSent, .withdrawalFailed: nil
         case .partialFill: Localization.predictionPlaceNotificationPartialDescription
         case .noLiquidity: Localization.predictionPlaceNotificationNoLiquidityDescription
         case .belowMinOrder: Localization.predictionPlaceNotificationMinOrderDescription
@@ -61,17 +69,17 @@ extension PolymarketOrderNotification {
 extension PolymarketOrderNotification {
     var variant: MessageBannerVariant {
         switch self {
-        case .awaitingFunds: .info
+        case .awaitingFunds, .withdrawalInProgress, .withdrawalSent: .info
         case .partialFill, .noLiquidity: .default
-        case .belowMinOrder, .marketClosed, .regionRestricted, .quoteUnavailable: .error
+        case .withdrawalFailed, .belowMinOrder, .marketClosed, .regionRestricted, .quoteUnavailable: .error
         }
     }
 
     var glowRing: GlowRingAppearance? {
         switch self {
-        case .awaitingFunds: nil
+        case .awaitingFunds, .withdrawalInProgress, .withdrawalSent: nil
         case .partialFill, .noLiquidity: .warning
-        case .belowMinOrder, .marketClosed, .regionRestricted, .quoteUnavailable: .error
+        case .withdrawalFailed, .belowMinOrder, .marketClosed, .regionRestricted, .quoteUnavailable: .error
         }
     }
 }

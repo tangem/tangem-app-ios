@@ -19,7 +19,6 @@ final class EarnSearchViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.earnAnalyticsProvider) private var analyticsProvider: EarnAnalyticsProvider
 
-    private let history: FeedSearchHistoryProvider
     private let searchProvider: any FeedSearchProvider<EarnTokenModel>
     private let router: any EarnFeedRoutable
     private let portfolioProvider: FeedSearchPortfolioProvider
@@ -36,12 +35,10 @@ final class EarnSearchViewModel: ObservableObject {
 
     init(
         query: AnyPublisher<String, Never>,
-        history: FeedSearchHistoryProvider,
         router: any EarnFeedRoutable,
         searchProvider: any FeedSearchProvider<EarnTokenModel> = EarnFeedSearchProvider(),
         portfolioProvider: FeedSearchPortfolioProvider = FeedSearchPortfolioProvider()
     ) {
-        self.history = history
         self.router = router
         self.portfolioProvider = portfolioProvider
         self.searchProvider = searchProvider
@@ -179,7 +176,6 @@ private extension EarnSearchViewModel {
     }
 
     func onSelect(_ token: EarnTokenModel) {
-        history.save(query: query)
         analyticsProvider.logOpportunitySelected(
             token: token.symbol,
             blockchain: token.networkName,

@@ -202,7 +202,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
                 option: .init(walletModel: walletModel)
             )
         case .swap:
-            openExchange()
+            openExchange(position: .build(for: walletModel))
         case .openCloreMigration:
             openCloreMigration()
         case .openDynamicAddressesEnter:
@@ -347,6 +347,7 @@ extension TokenDetailsViewModel {
             let analyticsLogger = CommonDynamicAddressesAnalyticsLogger(tokenItem: walletModel.tokenItem)
             coordinator?.openDynamicAddressesEnterView(
                 walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
+                signingActionButtonType: SigningActionButtonViewTypeBuilder().build(userWalletInfo: userWalletInfo),
                 analyticsLogger: analyticsLogger
             )
         }
@@ -698,9 +699,9 @@ private extension TokenDetailsViewModel {
         let formattedFiatBalance = balanceFormatter.formatFiatBalance(fiatBalance)
         let attributedFiatBalance = AttributedBalanceFormatter.format(
             formattedFiatBalance,
-            font: Font.Tangem.Body16.medium,
-            integerColor: .Tangem.Text.Neutral.primary,
-            fractionalColor: .Tangem.Text.Neutral.secondary
+            token: DesignSystem.Font.bodyMediumToken,
+            integerColor: DesignSystem.Color.textPrimary,
+            fractionalColor: DesignSystem.Color.textSecondary
         )
 
         let item = TokenDetailsStakingState.EnableItem(

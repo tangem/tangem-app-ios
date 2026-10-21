@@ -9,7 +9,6 @@
 import Foundation
 import TangemCollectibles
 import Combine
-import TangemAssets
 import TangemSdk
 import TangemNFT
 import BlockchainSdk
@@ -128,6 +127,10 @@ final class LockedUserWalletModel: UserWalletModel {
         UnavailableCollectiblesColdKeyInteractor()
     }
 
+    var polymarketOwnerKeySession: PolymarketOwnerKeySession {
+        UnavailablePolymarketOwnerKeySession()
+    }
+
     var name: String { userWallet.name }
     let backupInput: OnboardingInput? = nil
     var userWallet: StoredUserWallet
@@ -149,7 +152,7 @@ final class LockedUserWalletModel: UserWalletModel {
         switch type {
         case .backupCompleted(let card, let associatedCardIds):
             if case .mobileWallet(let mobileWalletInfo) = userWallet.walletInfo {
-                MobileCleanupUtil.cleanBackup(walletId: userWalletId, mobileWalletInfo: mobileWalletInfo)
+                MobileCleanupUtil.cleanBackupAfterUpgrade(walletId: userWalletId, mobileWalletInfo: mobileWalletInfo)
                 syncRemoteAfterUpgrade()
             }
 
@@ -229,12 +232,6 @@ final class LockedUserWalletModel: UserWalletModel {
     }
 }
 
-extension LockedUserWalletModel: MainHeaderSupplementInfoProvider {
-    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
-        .just(output: config.cardHeaderImage)
-    }
-}
-
 extension LockedUserWalletModel: AnalyticsContextDataProvider {
     func getAnalyticsContextData() -> AnalyticsContextData? {
         guard case .cardWallet(let cardInfo) = userWallet.walletInfo else {
@@ -292,13 +289,10 @@ extension LockedUserWalletModel: DisposableEntity {
 
 private extension LockedUserWalletModel {
     struct DummyTangemSigner: TangemSigner {
-        let hasNFCInteraction: Bool
         let latestSignerType: TangemSignerType?
 
         init(config: UserWalletConfig) {
-            let signer = config.tangemSigner
-            hasNFCInteraction = signer.hasNFCInteraction
-            latestSignerType = signer.latestSignerType
+            latestSignerType = config.tangemSigner.latestSignerType
         }
 
         func sign(dataToSign: [SignData], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], Error> {
@@ -322,7 +316,7 @@ private extension LockedUserWalletModel {
         let requiresCard: Bool
 
         init(config: UserWalletConfig) {
-            requiresCard = config.tangemSigner.hasNFCInteraction
+            requiresCard = config.hasFeature(.nfcInteraction)
         }
 
         func deriveKeys(

@@ -30,6 +30,11 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
 
     @Published private(set) var viewState: ViewState?
     @Published var destination: Destination?
+
+    @Published var redeem: PolymarketRedeemViewModel?
+    let orderPresenter = PolymarketOrderPresenter()
+
+    private var orderPresenterSubscription: AnyCancellable?
     @Published var sheet: Sheet? {
         didSet {
             guard sheet == nil else { return }
@@ -58,9 +63,11 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
 
     private var options: Options?
     private var redeemService: PolymarketRedeeming?
+    private var signingButtonType: SigningActionButtonViewType = .holdToConfirm
     private weak var regionWarning: PolymarketRegionRestrictionViewModel?
     private weak var addFundsSheet: PolymarketAddFundsSheetViewModel?
     private var sheetDismissSubscription: AnyCancellable?
+    private var isFundingSheetPresented = false
     private var dispatchedOperation: FundingOperation?
     private var dispatchedBalance: Decimal?
 
@@ -72,6 +79,11 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
     ) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
+
+        orderPresenter.mainCoordinator = self
+        orderPresenterSubscription = orderPresenter.objectWillChange.sink { [weak self] in
+            self?.objectWillChange.send()
+        }
     }
 
     func start(with options: Options) {
@@ -96,6 +108,7 @@ private extension PolymarketCoordinator {
             .withWeakCaptureOf(self)
             .sink { coordinator, _ in
                 coordinator.addFundsSheet = nil
+                coordinator.isFundingSheetPresented = false
                 coordinator.regionWarning = nil
             }
     }
@@ -154,6 +167,15 @@ private extension PolymarketCoordinator {
         let dependencies = PolymarketMainDependenciesFactory().make(for: userWalletModel)
 
         redeemService = dependencies.redeemService
+        signingButtonType = dependencies.signingButtonType
+
+        dependencies.sessionHealth.setReconnectHandler { [weak self] in
+            Task { @MainActor in self?.openReconnect() }
+        }
+
+        let activityService = dependencies.activityService
+        Task { await activityService.reconcileDeposits() }
+        Task { await dependencies.withdrawContext.tracker.resume() }
 
         viewState = .main(
             viewModel: dependencies.makeMainViewModel(routable: self),
@@ -161,10 +183,38 @@ private extension PolymarketCoordinator {
                 dependencies: dependencies,
                 onAddFunds: { [weak self] in self?.openAddFunds() },
                 onRegionWarning: { [weak self] in self?.openRegionWarning() },
-                onReturnToMain: { [weak self] in self?.popToMain() }
+                onReturnToMain: { [weak self] in self?.popToMainTop() },
+                orderPresenter: orderPresenter
             ),
             fundingFlow: PolymarketFundingFlow(dependencies: dependencies)
         )
+    }
+}
+
+// MARK: - Reconnect
+
+private extension PolymarketCoordinator {
+    @MainActor
+    func openReconnect() {
+        guard viewState?.mainViewModel != nil, let userWalletModel = options?.userWalletModel else { return }
+
+        dispatchedOperation = nil
+        dispatchedBalance = nil
+        redeemService = nil
+
+        if isFundingSheetPresented || regionWarning != nil {
+            floatingSheetPresenter.removeActiveSheet()
+        }
+
+        addFundsSheet = nil
+        isFundingSheetPresented = false
+        regionWarning = nil
+        destination = nil
+        redeem = nil
+        sheet = nil
+        orderPresenter.dismiss()
+
+        viewState = .welcome(PolymarketOnboardingFactory().makeWelcomeViewModel(for: userWalletModel, coordinator: self))
     }
 }
 
@@ -190,6 +240,16 @@ extension PolymarketCoordinator: PolymarketMainScreenRoutable {
         sheet = .supportChat(SupportChatViewModel(input: PolymarketSupportChatInputFactory().makeInput(for: userWalletModel)))
     }
 
+    @MainActor
+    func openActivity() {
+        guard let destinationFactory = viewState?.destinationFactory else { return }
+
+        destination = .activity(destinationFactory.makeActivity(
+            onRegionWarning: { [weak self] in self?.openRegionWarning() },
+            onClose: { [weak self] in self?.popToMain() }
+        ))
+    }
+
     func openEventDetails(
         eventID: String,
         category: PolymarketCategory?,
@@ -210,18 +270,27 @@ extension PolymarketCoordinator: PolymarketMainScreenRoutable {
     func openRedeem(position: PolymarketPosition, onClaimed: @escaping (PolymarketPosition?) -> Void) {
         guard let redeemService else { return }
 
-        destination = .redeem(PolymarketRedeemViewModel(
+        redeem = PolymarketRedeemViewModel(
             position: position,
             redeemService: redeemService,
+            signingButtonType: signingButtonType,
             onClaimed: onClaimed,
             coordinator: self
-        ))
+        )
     }
 
     func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void) {
+        openPositionDetails(position: position, onOrderPlaced: onOrderPlaced, scrollsMainToTopOnClose: false)
+    }
+
+    private func openPositionDetails(
+        position: PolymarketPosition,
+        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
+        scrollsMainToTopOnClose: Bool
+    ) {
         guard destination == nil else {
             replaceDestination { [weak self] in
-                self?.openPositionDetails(position: position, onOrderPlaced: onOrderPlaced)
+                self?.openPositionDetails(position: position, onOrderPlaced: onOrderPlaced, scrollsMainToTopOnClose: scrollsMainToTopOnClose)
             }
             return
         }
@@ -232,7 +301,13 @@ extension PolymarketCoordinator: PolymarketMainScreenRoutable {
             position: position,
             onOrderPlaced: onOrderPlaced,
             onRegionWarning: { [weak self] in self?.openRegionWarning() },
-            onClose: { [weak self] in self?.popToMain() }
+            onClose: { [weak self] in
+                if scrollsMainToTopOnClose {
+                    self?.popToMainTop()
+                } else {
+                    self?.popToMain()
+                }
+            }
         ))
     }
 
@@ -245,18 +320,20 @@ extension PolymarketCoordinator: PolymarketMainScreenRoutable {
     ) {
         guard let destinationFactory = viewState?.destinationFactory else { return }
 
-        destination = .order(destinationFactory.makeOrderCoordinator(
+        let coordinator = destinationFactory.makeOrderCoordinator(
             market: market,
             outcome: outcome,
             eventTitle: eventTitle,
             request: request,
-            pushesPlacedPosition: true,
             onPlaced: onPlaced,
             onOpenPosition: { [weak self] position in
-                self?.openPositionDetails(position: position, onOrderPlaced: onPlaced)
+                self?.openPositionDetails(position: position, onOrderPlaced: onPlaced, scrollsMainToTopOnClose: true)
+                self?.orderPresenter.dismiss()
             },
-            onClose: { [weak self] in self?.popToMain() }
-        ))
+            onClose: { [weak self] in self?.orderPresenter.dismiss() }
+        )
+
+        destinationFactory.presentOrder(coordinator, from: nil)
     }
 
     @MainActor
@@ -306,6 +383,7 @@ extension PolymarketCoordinator: PolymarketMainScreenRoutable {
                 let viewModel = try fundingFlow.makeAddFundsSheet(routable: self)
 
                 addFundsSheet = viewModel
+                isFundingSheetPresented = true
                 floatingSheetPresenter.enqueue(sheet: viewModel)
             } catch {
                 PolymarketLogger.error("Add funds is not available", error: error)
@@ -349,6 +427,7 @@ extension PolymarketCoordinator: PolymarketAddFundsSheetRoutable {
             guard let self else { return }
 
             addFundsSheet = nil
+            isFundingSheetPresented = false
             floatingSheetPresenter.removeActiveSheet()
             openSwap(parameters: parameters, operation: .deposit)
         }
@@ -357,6 +436,7 @@ extension PolymarketCoordinator: PolymarketAddFundsSheetRoutable {
     func closeAddFundsSheet() {
         Task { @MainActor [weak self] in
             self?.addFundsSheet = nil
+            self?.isFundingSheetPresented = false
             self?.floatingSheetPresenter.removeActiveSheet()
         }
     }
@@ -378,6 +458,7 @@ extension PolymarketCoordinator: PolymarketChooseNetworkSheetRoutable {
 
     func closeChooseNetworkSheet() {
         Task { @MainActor [weak self] in
+            self?.isFundingSheetPresented = false
             self?.floatingSheetPresenter.removeActiveSheet()
         }
     }
@@ -388,6 +469,7 @@ extension PolymarketCoordinator: PolymarketChooseNetworkSheetRoutable {
 extension PolymarketCoordinator: PolymarketReceiveSheetRoutable {
     func closeReceiveSheet() {
         Task { @MainActor [weak self] in
+            self?.isFundingSheetPresented = false
             self?.floatingSheetPresenter.removeActiveSheet()
         }
     }
@@ -454,7 +536,7 @@ extension PolymarketCoordinator {
 
 extension PolymarketCoordinator: PolymarketRedeemRoutable {
     func closeRedeem() {
-        popToMain()
+        redeem = nil
     }
 }
 
@@ -471,6 +553,11 @@ extension PolymarketCoordinator {
 
     func popToMain() {
         destination = nil
+    }
+
+    func popToMainTop() {
+        popToMain()
+        viewState?.mainViewModel?.scrollToTop()
     }
 }
 
@@ -494,6 +581,12 @@ extension PolymarketCoordinator {
             fundingFlow: PolymarketFundingFlow
         )
 
+        var mainViewModel: PolymarketMainViewModel? {
+            guard case .main(let viewModel, _, _) = self else { return nil }
+
+            return viewModel
+        }
+
         var destinationFactory: PolymarketDestinationFactory? {
             guard case .main(_, let destinationFactory, _) = self else { return nil }
 
@@ -515,9 +608,8 @@ extension PolymarketCoordinator {
         case eventDetails(PolymarketEventDetailsCoordinator)
         case positionDetails(PolymarketPositionDetailsCoordinator)
         case myPositions(PolymarketMyPositionsCoordinator)
-        case order(PolymarketOrderCoordinator)
         case tokenDetails(TokenDetailsCoordinator)
-        case redeem(PolymarketRedeemViewModel)
+        case activity(PolymarketActivityCoordinator)
     }
 
     enum Sheet: Identifiable {

@@ -20,6 +20,7 @@ actor CommonAccountModelsManager {
     private nonisolated let tangemPayManager: TangemPayManager
 
     private let archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider
+    private let accountConditionsValidatorFactory: any AccountConditionsValidatorFactory
     private let cryptoAccountModelsRegistry: CryptoAccountModelsRegistry
     private let jointAccountModelsRegistry: JointAccountModelsRegistry
 
@@ -43,6 +44,7 @@ actor CommonAccountModelsManager {
         tangemPayManager: TangemPayManager,
         accountModelsProvider: any AccountModelsProvider,
         archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
+        accountConditionsValidatorFactory: any AccountConditionsValidatorFactory,
         cryptoAccountModelsRegistry: CryptoAccountModelsRegistry,
         jointAccountModelsRegistry: JointAccountModelsRegistry,
         areHDWalletsSupported: Bool
@@ -53,6 +55,7 @@ actor CommonAccountModelsManager {
         self.tangemPayManager = tangemPayManager
         self.accountModelsProvider = accountModelsProvider
         self.archivedCryptoAccountsProvider = archivedCryptoAccountsProvider
+        self.accountConditionsValidatorFactory = accountConditionsValidatorFactory
         self.cryptoAccountModelsRegistry = cryptoAccountModelsRegistry
         self.jointAccountModelsRegistry = jointAccountModelsRegistry
         self.areHDWalletsSupported = areHDWalletsSupported
@@ -193,40 +196,6 @@ actor CommonAccountModelsManager {
             .eraseToAnyPublisher()
     }
 
-    private func makeConditionsValidator(for flow: ValidationFlow) -> any CryptoAccountConditionsValidator {
-        switch flow {
-        case .new(let newAccountName, let accountType, let remoteState):
-            return NewCryptoAccountConditionsValidator(
-                newAccountName: newAccountName,
-                accountType: accountType,
-                remoteState: remoteState
-            )
-        case .edit(let newAccountName, let derivationIdentity, let remoteState):
-            return EditCryptoAccountConditionsValidator(
-                newAccountName: newAccountName,
-                derivationIdentity: derivationIdentity,
-                remoteState: remoteState
-            )
-        case .archive(let identifier):
-            let accountModelPublisher = accountModelsPublisher
-                .compactMap { $0.cryptoAccount(with: identifier) }
-                .eraseToAnyPublisher()
-
-            return ArchivedCryptoAccountConditionsValidator(
-                userWalletId: userWalletId,
-                accountIdentifier: identifier,
-                accountModelPublisher: accountModelPublisher
-            )
-        case .unarchive(let info, let remoteState):
-            return UnarchivedCryptoAccountConditionsValidator(
-                newAccountName: info.name,
-                identifier: info.id,
-                accountType: info.derivationIdentity.type,
-                remoteState: remoteState
-            )
-        }
-    }
-
     private func editCryptoAccountModel(with config: CryptoAccountPersistentConfig) async throws(AccountEditError) {
         let remoteState: CryptoAccountsRemoteState
 
@@ -237,7 +206,7 @@ actor CommonAccountModelsManager {
             throw .unknownError(error)
         }
 
-        let validator = makeConditionsValidator(
+        let validator = accountConditionsValidatorFactory.makeValidator(
             for: .edit(
                 newAccountName: config.name,
                 derivationIdentity: config.derivationIdentity,
@@ -264,7 +233,13 @@ actor CommonAccountModelsManager {
     }
 
     private func archiveCryptoAccount(withIdentifier identifier: any AccountModelPersistentIdentifierConvertible) async throws(AccountArchivationError) {
-        let validator = makeConditionsValidator(for: .archive(identifier: identifier))
+        let accountModelPublisher = accountModelsPublisher
+            .compactMap { $0.cryptoAccount(with: identifier) }
+            .eraseToAnyPublisher()
+
+        let validator = accountConditionsValidatorFactory.makeValidator(
+            for: .archive(identifier: identifier, accountModelPublisher: accountModelPublisher)
+        )
 
         do {
             try await validator.validate()
@@ -473,7 +448,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         // Consider the scenario when there are two existing accounts named 'my account' and 'my account(1)'
         // and an archived account named 'my account'.
         while true {
-            let validator = makeConditionsValidator(for: .unarchive(info: info, remoteState: remoteState))
+            let validator = accountConditionsValidatorFactory.makeValidator(for: .unarchive(info: info, remoteState: remoteState))
             do {
                 try await validator.validate()
                 break
@@ -699,7 +674,7 @@ private extension CommonAccountModelsManager {
         accountType: AccountType
     ) async throws(AccountEditError) -> CryptoAccountsRemoteState {
         let remoteState = try await fetchRemoteState()
-        let validator = makeConditionsValidator(
+        let validator = accountConditionsValidatorFactory.makeValidator(
             for: .new(newAccountName: name, accountType: accountType, remoteState: remoteState)
         )
 
@@ -725,16 +700,5 @@ private extension CommonAccountModelsManager {
         } catch {
             AccountsLogger.error("Failed to refresh the accounts of user wallet \(userWalletId)", error: error)
         }
-    }
-}
-
-// MARK: - Auxiliary types
-
-private extension CommonAccountModelsManager {
-    private enum ValidationFlow {
-        case new(newAccountName: String, accountType: AccountType, remoteState: CryptoAccountsRemoteState)
-        case edit(newAccountName: String?, derivationIdentity: CryptoAccountDerivationIdentity, remoteState: CryptoAccountsRemoteState)
-        case archive(identifier: any AccountModelPersistentIdentifierConvertible)
-        case unarchive(info: ArchivedCryptoAccountInfo, remoteState: CryptoAccountsRemoteState)
     }
 }

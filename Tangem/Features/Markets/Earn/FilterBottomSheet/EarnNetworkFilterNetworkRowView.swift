@@ -19,38 +19,3 @@ struct EarnNetworkFilterNetworkRowInput: Identifiable {
     let isSelected: Bool
     let onTap: () -> Void
 }
-
-struct EarnNetworkFilterNetworkRowView: View {
-    let input: EarnNetworkFilterNetworkRowInput
-
-    var body: some View {
-        HStack(spacing: 12) {
-            NetworkIcon(
-                imageAsset: input.iconAsset,
-                isActive: false,
-                isMainIndicatorVisible: false,
-                size: CGSize(bothDimensions: 24)
-            )
-
-            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text(input.networkName)
-                    .lineLimit(1)
-                    .layoutPriority(-1)
-                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
-
-                Text(input.currencySymbol)
-                    .lineLimit(1)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-            }
-
-            Spacer(minLength: 0)
-
-            CheckIconView(isSelected: input.isSelected)
-        }
-        .padding(.vertical, 16)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            input.onTap()
-        }
-    }
-}

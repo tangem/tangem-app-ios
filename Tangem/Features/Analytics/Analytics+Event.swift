@@ -290,7 +290,21 @@ extension Analytics {
         case walletSettingsWalletForgotten = "[Settings / Wallet Settings] Wallet Forgotten"
         case walletSettingsLogOutRequest = "[Settings / Wallet Settings] Log Out Request"
         case walletSettingsWalletLoggedOut = "[Settings / Wallet Settings] Wallet Logged Out"
+        case walletSettingsDeleteWalletRequest = "[Settings / Wallet Settings] Delete Wallet Request"
+        case walletSettingsDeleteWalletScreenOpened = "[Settings / Wallet Settings] Delete Wallet Screen Opened"
+        case walletSettingsWalletDeleted = "[Settings / Wallet Settings] Wallet Deleted"
+        case walletSettingsDeleteWalletError = "[Settings / Wallet Settings] Delete Wallet Error"
         case walletSettingsSocialRecoveryDeleted = "[Settings / Wallet Settings] Social Recovery Deleted"
+        case walletSettingsSocialRecoveryDeletionError = "[Settings / Wallet Settings] Social Recovery Deletion Error"
+
+        // MARK: - Social login
+
+        case socialLoginButtonContinueWithApple = "[Onboarding / Social login] Button - Continue with Apple"
+        case socialLoginRiskConsentScreenOpened = "[Onboarding / Social login] Risk Consent Screen Opened"
+        case socialLoginErrorRiskConsentNotConfirmed = "[Onboarding / Social login] Error - Risk Consent Not Confirmed"
+        case socialLoginConsentMarketingEmails = "[Onboarding / Social login] Consent - Marketing Emails"
+        case socialLoginNoticeMinOSNotSupported = "[Onboarding / Social login] Notice - Min OS Not Supported"
+        case socialLoginErrorShown = "[Onboarding / Social login] Error Shown"
 
         // MARK: - Account Settings
 
@@ -486,9 +500,6 @@ extension Analytics {
         case promotionBannerAppeared = "[Promotion] Notice - Promotion Banner"
         case promotionBannerClicked = "[Promotion] Promo Banner Clicked"
 
-        case bitcoinPromoDeeplinkActivation = "[Promotion] Bitcoin Promo Deep Link Activation"
-        case bitcoinPromoActivation = "[Promotion] Bitcoin Promo Activation"
-
         case promotionVisaWaitlist = "[Promotion] Visa Waitlist"
         case promotionButtonJoinNow = "[Promotion] Button - Join Now"
         case promotionButtonClose = "[Promotion] Button - Close"
@@ -505,6 +516,10 @@ extension Analytics {
         case promotionBannerCarouselScrolled = "[Promo Banner] Banner Carousel Scrolled"
         case promotionBannerButtonClicked = "[Promo Banner] Banner Button Clicked"
         case promotionBannerDismissed = "[Promo Banner] Banner Dismissed"
+        case promotionBannerBannerOpen = "[Promo Banner] Banner Open"
+        case promotionBannerActivationAttempt = "[Promo Banner] Activation Attempt"
+        case promotionBannerActivationSuccess = "[Promo Banner] Activation Success"
+        case promotionBannerActivationFailed = "[Promo Banner] Activation Failed"
 
         // MARK: - Errors
 

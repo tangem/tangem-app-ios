@@ -25,7 +25,7 @@ struct PolymarketRedeemView: View {
             action: { viewModel.handleViewAction(.performPrimaryAction) }
         )
         .appearance(viewModel.appearance)
-        .actionIcon(viewModel.isActionClaim ? DesignSystem.Icons.LogoTangem.regular24 : nil)
+        .actionSigning(viewModel.actionSigningType)
         .actionLoading(viewModel.isClaiming)
         .footerCaption(viewModel.footerCaption)
         .details { details }

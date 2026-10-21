@@ -26,10 +26,10 @@ protocol CollectiblesStoriesEngine: AnyObject {
 
 extension CollectiblesStoriesEngine {
     var slideIndexUpdates: AsyncStream<Int> {
-        get async { await slideIndexPublisher.removeDuplicates().values }
+        get async { await slideIndexPublisher.removeDuplicates().values_ }
     }
 
     var slideProgressUpdates: AsyncStream<CGFloat> {
-        get async { await slideProgressPublisher.removeDuplicates().values }
+        get async { await slideProgressPublisher.removeDuplicates().values_ }
     }
 }

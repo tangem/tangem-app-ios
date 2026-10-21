@@ -31,8 +31,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
     @Published private(set) var mainButtonIsUpdating: Bool = false
     @Published private(set) var mainButtonIsEnabled: Bool = false
-    @Published private(set) var mainButtonIcon: MainButton.Icon?
-    @Published private(set) var mainButtonNeedsHold: Bool = false
+    @Published private(set) var mainButtonSigningActionButtonType: SigningActionButtonViewType = .requiredNFCInteraction
     @Published private(set) var mainButtonState: MainButtonState = .swap
 
     @Published private(set) var transactionDescription: AttributedString?
@@ -111,17 +110,15 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     }
 
     func bind(sourceTokenInput: SendSourceTokenInput) {
-        sourceTokenInput.sourceTokenPublisher
-            .compactMap { $0.value }
-            .map { $0.tangemIconProvider.getMainButtonIcon() }
-            .receiveOnMain()
-            .assign(to: &$mainButtonIcon)
+        if let signingActionButtonType = sourceTokenInput.sourceToken.value?.signingActionButtonType {
+            mainButtonSigningActionButtonType = signingActionButtonType
+        }
 
         sourceTokenInput.sourceTokenPublisher
             .compactMap { $0.value }
-            .map { $0.confirmTransactionPolicy.needsHoldToConfirm }
+            .map { $0.signingActionButtonType }
             .receiveOnMain()
-            .assign(to: &$mainButtonNeedsHold)
+            .assign(to: &$mainButtonSigningActionButtonType)
     }
 
     func userDidTapFee() {

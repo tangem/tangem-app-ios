@@ -46,6 +46,75 @@ final class PolymarketEventCardModelTests: XCTestCase {
         XCTAssertEqual(model.rows.first?.outcomes.map(\.style), [.affirmative, .negative, .negative])
     }
 
+    // MARK: - Team abbreviations
+
+    func testTeamOutcomesShowTheTeamAbbreviation() {
+        let market = makeMarket(outcomes: [
+            makeOutcome(id: "lions", title: "Lions", probability: 0.45),
+            makeOutcome(id: "bills", title: "Buffalo Bills", probability: 0.55),
+        ])
+        let event = makeEvent(totalMarketsCount: 1, markets: [market], teams: [
+            PolymarketTeam(name: "Detroit Lions", abbreviation: "det", alias: "Lions", logoURL: nil, side: .away),
+            PolymarketTeam(name: "Buffalo Bills", abbreviation: "buf", alias: "Bills", logoURL: nil, side: .home),
+        ])
+
+        let model = PolymarketEventCard.Model.make(event: event, category: nil, isInActivePredicts: false, onSelectOutcome: { _, _ in })
+
+        XCTAssertEqual(model.rows.first?.outcomes.map(\.title), ["DET", "BUF"])
+    }
+
+    func testARowKeepsFullNamesWhenOneTeamHasNoAbbreviation() {
+        let market = makeMarket(outcomes: [
+            makeOutcome(id: "away", title: "Away player", probability: 0.4),
+            makeOutcome(id: "home", title: "Home player", probability: 0.6),
+        ])
+        let event = makeEvent(totalMarketsCount: 1, markets: [market], teams: [
+            PolymarketTeam(name: "Away player", abbreviation: "awy", alias: nil, logoURL: nil, side: .away),
+            PolymarketTeam(name: "Home player", abbreviation: nil, alias: nil, logoURL: nil, side: .home),
+        ])
+
+        let model = PolymarketEventCard.Model.make(event: event, category: nil, isInActivePredicts: false, onSelectOutcome: { _, _ in })
+
+        XCTAssertEqual(model.rows.first?.outcomes.map(\.title), ["Away player", "Home player"])
+    }
+
+    func testOutcomesThatAreNotTeamsKeepTheirLabel() {
+        let market = makeMarket(outcomes: [
+            makeOutcome(id: "yes", title: "Yes", probability: 0.5),
+            makeOutcome(id: "draw", title: "Draw", probability: 0.3),
+            makeOutcome(id: "jazz", title: "Jazz", probability: 0.2),
+        ])
+        let event = makeEvent(totalMarketsCount: 1, markets: [market], teams: [
+            PolymarketTeam(name: "Utah Jazz", abbreviation: nil, alias: "Jazz", logoURL: nil, side: .home),
+        ])
+
+        let model = PolymarketEventCard.Model.make(event: event, category: nil, isInActivePredicts: false, onSelectOutcome: { _, _ in })
+
+        XCTAssertEqual(model.rows.first?.outcomes.map(\.title), ["Yes", "Draw", "Jazz"])
+    }
+
+    // MARK: - Live
+
+    func testLiveFollowsTheEvent() {
+        let market = makeMarket(outcomes: [makeOutcome(id: "yes", title: "Yes", probability: 0.5)])
+
+        let live = PolymarketEventCard.Model.make(
+            event: makeEvent(totalMarketsCount: 1, markets: [market], isLive: true),
+            category: nil,
+            isInActivePredicts: false,
+            onSelectOutcome: { _, _ in }
+        )
+        let notLive = PolymarketEventCard.Model.make(
+            event: makeEvent(totalMarketsCount: 1, markets: [market]),
+            category: nil,
+            isInActivePredicts: false,
+            onSelectOutcome: { _, _ in }
+        )
+
+        XCTAssertTrue(live.isLive)
+        XCTAssertFalse(notLive.isLive)
+    }
+
     // MARK: - Row cap and chip
 
     func testRowsCappedAndChipCountedFromRenderedRows() {
@@ -97,7 +166,7 @@ private extension PolymarketEventCardModelTests {
         )
     }
 
-    func makeEvent(totalMarketsCount: Int, markets: [PolymarketMarket]) -> PolymarketEvent {
+    func makeEvent(totalMarketsCount: Int, markets: [PolymarketMarket], teams: [PolymarketTeam] = [], isLive: Bool = false) -> PolymarketEvent {
         PolymarketEvent(
             id: "event",
             slug: "slug",
@@ -107,7 +176,7 @@ private extension PolymarketEventCardModelTests {
             imageURL: nil,
             iconURL: nil,
             status: .active,
-            isLive: false,
+            isLive: isLive,
             startDate: nil,
             endDate: nil,
             volume: 1_000_000,
@@ -116,7 +185,8 @@ private extension PolymarketEventCardModelTests {
             totalMarketsCount: totalMarketsCount,
             isNegRisk: false,
             displayMode: .groupedOutcomes,
-            markets: markets
+            markets: markets,
+            teams: teams
         )
     }
 }

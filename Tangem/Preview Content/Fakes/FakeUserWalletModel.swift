@@ -11,7 +11,6 @@ import TangemCollectibles
 import Combine
 import TangemSdk
 import BlockchainSdk
-import TangemAssets
 import TangemNFT
 import TangemFoundation
 import TangemPay
@@ -22,6 +21,7 @@ class FakeUserWalletModel: UserWalletModel {
     var jointAccountDerivationInteractor: JointAccountDerivationInteractor { UnavailableJointAccountDerivationInteractor() }
     var collectiblesColdKeyInteractor: CollectiblesColdKeyInteractor { UnavailableCollectiblesColdKeyInteractor() }
     var tangemPayAuthorizingInteractor: TangemPayAuthorizing { TangemPayAuthorizingMock() }
+    var polymarketOwnerKeySession: PolymarketOwnerKeySession { UnavailablePolymarketOwnerKeySession() }
 
     var keysRepository: KeysRepository {
         CommonKeysRepository(keys: .cardWallet(keys: []))
@@ -144,12 +144,6 @@ class FakeUserWalletModel: UserWalletModel {
     func addAssociatedCard(cardId: String) {}
 }
 
-extension FakeUserWalletModel: MainHeaderSupplementInfoProvider {
-    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
-        .just(output: config.cardHeaderImage)
-    }
-}
-
 extension FakeUserWalletModel: AnalyticsContextDataProvider {
     func getAnalyticsContextData() -> AnalyticsContextData? {
         return nil
@@ -196,22 +190,6 @@ extension FakeUserWalletModel {
             .visaWalletManager,
         ],
         config: UserWalletConfigStubs.visaStub
-    )
-
-    static let walletWithoutDelay = FakeUserWalletModel(
-        userWalletName: "Just A Wallet",
-        isUserWalletLocked: false,
-        isDelayed: false,
-        cardsCount: 1,
-        userWalletId: .init(with: Data.randomData(count: 32)),
-        walletManagers: [
-            .ethWithTokensManager,
-            .btcManager,
-            .polygonWithTokensManager,
-            .xrpManager,
-            .xlmManager,
-        ],
-        config: UserWalletConfigStubs.walletV2Stub
     )
 
     static let twins = FakeUserWalletModel(

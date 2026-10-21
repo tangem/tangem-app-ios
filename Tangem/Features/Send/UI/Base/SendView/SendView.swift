@@ -21,8 +21,6 @@ struct SendView: View {
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focused: Bool
 
-    private let backButtonStyle: MainButton.Style = .secondary
-    private let backButtonSize: MainButton.Size = .default
     private let bottomGradientHeight: CGFloat = 150
 
     var body: some View {
@@ -215,33 +213,27 @@ struct SendView: View {
 
     @ViewBuilder
     private func bottomActionButton(_ mainButtonType: SendMainButtonType) -> some View {
-        if viewModel.mainButtonNeedsHoldAction(mainButtonType: mainButtonType) {
-            bottomHoldAction(mainButtonType)
-        } else if viewModel.mainButtonUpdating {
-            bottomAction(type: mainButtonType, isLoading: true)
+        if let signingActionButtonType = viewModel.mainButtonSigningActionButtonType(mainButtonType: mainButtonType) {
+            SigningActionButtonView(
+                type: signingActionButtonType,
+                title: viewModel.mainButtonTitle(mainButtonType: mainButtonType),
+                isLoading: viewModel.mainButtonUpdating || viewModel.mainButtonLoading,
+                isDisabled: !viewModel.actionIsAvailable,
+                action: {
+                    viewModel.userDidTapActionButton(mainButtonType: mainButtonType)
+                }
+            )
         } else {
-            bottomAction(type: mainButtonType, isLoading: viewModel.mainButtonLoading)
+            bottomAction(type: mainButtonType, isLoading: viewModel.mainButtonUpdating || viewModel.mainButtonLoading)
         }
     }
 
     private func bottomAction(type mainButtonType: SendMainButtonType, isLoading: Bool) -> some View {
         MainButton(
             title: viewModel.mainButtonTitle(mainButtonType: mainButtonType),
-            icon: viewModel.mainButtonIcon(mainButtonType: mainButtonType),
             style: .primary,
             size: .default,
             isLoading: isLoading,
-            isDisabled: !viewModel.actionIsAvailable,
-            action: {
-                viewModel.userDidTapActionButton(mainButtonType: mainButtonType)
-            }
-        )
-    }
-
-    private func bottomHoldAction(_ mainButtonType: SendMainButtonType) -> some View {
-        HoldToConfirmButton(
-            title: viewModel.mainButtonTitle(mainButtonType: mainButtonType),
-            isLoading: viewModel.mainButtonUpdating || viewModel.mainButtonLoading,
             isDisabled: !viewModel.actionIsAvailable,
             action: {
                 viewModel.userDidTapActionButton(mainButtonType: mainButtonType)

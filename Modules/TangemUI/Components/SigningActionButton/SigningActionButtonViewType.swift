@@ -9,7 +9,7 @@
 import TangemAssets
 
 public enum SigningActionButtonViewType: Hashable, Sendable {
-    case cardTap
+    case requiredNFCInteraction
     case holdToConfirm
 }
 
@@ -18,7 +18,7 @@ public enum SigningActionButtonViewType: Hashable, Sendable {
 public extension SigningActionButtonViewType {
     var mainButtonIcon: MainButton.Icon? {
         switch self {
-        case .cardTap: .trailing(Assets.tangemIcon)
+        case .requiredNFCInteraction: .trailing(Assets.tangemIcon)
         case .holdToConfirm: nil
         }
     }
