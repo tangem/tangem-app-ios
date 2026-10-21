@@ -127,7 +127,7 @@ extension CommonWCHandlersService: WCHandlersService {
             verificationStatus: connectedDApp.verificationStatus,
             validate: { try await handler.validate() },
             accept: { try await handler.handle() },
-            reject: { RPCResult.error(.init(code: 0, message: "User rejected sign")) },
+            reject: { RPCResult.error(.userRejected) },
             updatableHandler: handler as? WCTransactionUpdatable
         )
     }

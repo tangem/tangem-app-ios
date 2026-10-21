@@ -96,6 +96,23 @@ final class TangemPayStateCachingUITests: BaseTestCase {
         .verifyTangemPayTileHasNoBalance()
     }
 
+    /// [REDACTED_INFO] Main total balance drops the cached Payment account balance and shows no outdated-balance notice when Tangem Pay customer requests fail
+    func skipped_testMainScreenShowsCachedTotalBalanceAndOutdatedNotice_WhenCustomerRequestsFail() {
+        setAllureId(9692)
+
+        let cachedTotalBalance = launchAndImportHotWallet(
+            scenarios: [ScenarioConfig(name: Self.balanceScenario, initialState: Constants.State.initialBalance)]
+        )
+        .verifyTangemPayTileBalanceContains(Self.cachedBalance)
+        .waitForTotalBalanceIncludingTangemPay(tokenNames: Constants.tokenNames)
+
+        relaunchKeepingState(scenarios: [ScenarioConfig(name: Self.sessionScenario, initialState: Self.serviceUnavailableState)])
+            .verifyTangemPayTileCachedIcon()
+            .verifyTangemPayTileBalanceContains(Self.cachedBalance)
+            .verifyOutdatedBalancesNotice()
+            .verifyTotalBalanceRemains(cachedTotalBalance)
+    }
+
     private func warmUpCacheAndRelaunch(sessionState: String) -> MainScreen {
         launchAndImportHotWallet(
             scenarios: [
@@ -118,12 +135,15 @@ final class TangemPayStateCachingUITests: BaseTestCase {
 
 private extension TangemPayStateCachingUITests {
     enum Constants {
+        static let tokenNames = ["Bitcoin", "Ethereum", "Polygon", "POL (ex-MATIC)"]
+
         enum Scenario {
             static let kycStatus = "tangem_pay_kyc_status"
         }
 
         enum State {
             static let kycInProgress = "InProgress"
+            static let initialBalance = "InitialBalance"
         }
     }
 }

@@ -54,14 +54,27 @@ extension WCHandleTransactionData {
             try await dto.validate()
         }
 
+        let request = validatedRequest.request
+        let requestDescription = "\(request.method) request \(request.id) on \(request.chainId.absoluteString)"
+
         accept = {
-            let result = try await dto.accept()
-            try await respond(validatedRequest.request.topic, validatedRequest.request.id, result)
+            let result: RPCResult
+
+            do {
+                result = try await dto.accept()
+            } catch {
+                WCLogger.error("Failed to handle \(requestDescription) on \(dto.blockchain.displayName)", error: error)
+                throw error
+            }
+
+            WCLogger.info("Accepted \(requestDescription) on \(dto.blockchain.displayName)")
+            try await respond(request.topic, request.id, result)
         }
 
         reject = {
             let result = try dto.reject()
-            try await respond(validatedRequest.request.topic, validatedRequest.request.id, result)
+            WCLogger.info("Rejected \(requestDescription) by the user")
+            try await respond(request.topic, request.id, result)
         }
 
         self.clearDuplicateFilter = clearDuplicateFilter
