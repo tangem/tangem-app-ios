@@ -102,9 +102,6 @@ final class StakingValidationHandler: StakingValidationStateProvider {
 
 // MARK: - Optional + StakingValidationHandler
 
-// Resolves transaction with validation if handler exists, or falls back to direct `stakingManager.transaction()`.
-// The handler is nil for networks out of validation scope.
-
 // MARK: - RevalidationResult
 
 extension StakingValidationHandler {

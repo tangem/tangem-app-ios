@@ -65,7 +65,6 @@ final class AddTokenConfirmViewModel: ObservableObject, Identifiable {
     private let onNetworkTapped: () -> Void
     private let onConfirmTapped: (Result<TokenItem, Error>) -> Void
     private let walletImageProvider: WalletImageProviding?
-    private var bag = Set<AnyCancellable>()
     private var saveTask: Task<Void, Never>?
 
     private var account: any CryptoAccountModel { accountSelectorCell.cryptoAccountModel }

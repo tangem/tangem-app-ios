@@ -108,10 +108,6 @@ enum TONModels {
         }
     }
 
-    struct Stack: Codable {
-        let num: String
-    }
-
     struct RunGetMethodParameters: Encodable {
         let address: String
         let method: Method

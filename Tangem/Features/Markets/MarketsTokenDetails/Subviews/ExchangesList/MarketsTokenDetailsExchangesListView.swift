@@ -16,7 +16,6 @@ import TangemAccessibilityIdentifiers
 struct MarketsTokenDetailsExchangesListView: View {
     @ObservedObject var viewModel: MarketsTokenDetailsExchangesListViewModel
 
-    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.mainShtorkaSize) private var sheetSize
 
     @State private var isListContentObscured = false

@@ -21,8 +21,6 @@ protocol WCTransactionViewModelDisplayData: AnyObject {
     var feeValidationInputs: [NotificationViewInput] { get }
     var selectedFee: WCFee? { get }
     var sendableTransaction: WCSendableTransaction? { get }
-    var feeInteractor: (any WCFeeInteractorType)? { get }
-    var feeManager: WCTransactionFeeManager { get }
 
     func getWalletModelForTransaction() -> (any WalletModel)?
     func handleViewAction(_ action: WCTransactionViewModel.ViewAction)
@@ -30,7 +28,6 @@ protocol WCTransactionViewModelDisplayData: AnyObject {
 
 @MainActor
 protocol WCTransactionDisplayModel {
-    var userWalletName: String { get }
     var connectionTargetKind: WCTransactionConnectionTargetKind? { get }
     var primaryActionButtonTitle: String { get }
     var isActionButtonBlocked: Bool { get }
@@ -60,10 +57,6 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
         self.simulationManager = simulationManager
         self.securityManager = securityManager
         self.viewModel = viewModel
-    }
-
-    var userWalletName: String {
-        transactionData.userWalletModel.name
     }
 
     var connectionTargetKind: WCTransactionConnectionTargetKind? {

@@ -22,10 +22,6 @@ class SendReceiveTokenCoordinator: CoordinatorObject {
 
     @Published private(set) var rootViewModel: SendReceiveTokensListViewModel?
 
-    // MARK: - Child view models
-
-    @Published var receiveTokenNetworkSelectorViewModel: SendReceiveTokenNetworkSelectorViewModel?
-
     // MARK: - Dependencies
 
     private let receiveTokensListBuilder: SendReceiveTokensListBuilder

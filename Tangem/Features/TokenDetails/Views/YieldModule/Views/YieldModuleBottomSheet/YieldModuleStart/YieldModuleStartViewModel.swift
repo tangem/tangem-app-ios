@@ -23,9 +23,6 @@ final class YieldModuleStartViewModel: ObservableObject {
     @Injected(\.floatingSheetPresenter)
     private var floatingSheetPresenter: any FloatingSheetPresenter
 
-    @Injected(\.userWalletRepository)
-    private var userWalletRepository: any UserWalletRepository
-
     // MARK: - View State
 
     @Published
@@ -41,9 +38,6 @@ final class YieldModuleStartViewModel: ObservableObject {
     private var previousState: ViewState?
 
     // MARK: - Published
-
-    @Published
-    var alert: AlertBinder?
 
     @Published
     private(set) var networkFeeNotification: YieldModuleNotificationBannerParams? = nil
@@ -250,7 +244,6 @@ final class YieldModuleStartViewModel: ObservableObject {
             minimalAmountState = minimalAmountState
                 .withFeeState(.loaded(text: minimalFeeFormatted.fiatFee))
                 .withFooterText(Localization.yieldModuleFeePolicySheetMinAmountNote(minimalFeeFormatted.fiatFee, minimalFeeFormatted.cryptoFee))
-
         } catch {
             minimalAmountState = minimalAmountState
                 .withFeeState(.noData)
@@ -337,7 +330,6 @@ final class YieldModuleStartViewModel: ObservableObject {
                 maxFeeFormatted.fiatFee,
                 maxFeeFormatted.cryptoFee
             )
-
         } catch {
             estimatedFeeState = estimatedFeeState.withFeeState(.noData)
             maximumFeeState = maximumFeeState.withFeeState(.noData)

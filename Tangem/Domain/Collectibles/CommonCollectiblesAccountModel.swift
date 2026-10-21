@@ -44,10 +44,6 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
         manager.state
     }
 
-    var statePublisher: AnyPublisher<CollectiblesState, Never> {
-        manager.statePublisher
-    }
-
     var hasAccount: Bool {
         manager.hasAccount
     }

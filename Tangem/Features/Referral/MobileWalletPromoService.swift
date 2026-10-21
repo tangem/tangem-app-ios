@@ -8,7 +8,6 @@
 import Combine
 
 protocol MobileWalletPromoService {
-    var shouldShowMobilePromoWalletSelector: Bool { get }
     func setNeedsPromo()
 }
 
@@ -27,8 +26,6 @@ extension InjectedValues {
 
 class CommonMobileWalletPromoService: MobileWalletPromoService {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
-    var shouldShowMobilePromoWalletSelector: Bool { AppSettings.shared.shouldShowMobilePromoWalletSelector }
 
     private var bag: Set<AnyCancellable> = []
 

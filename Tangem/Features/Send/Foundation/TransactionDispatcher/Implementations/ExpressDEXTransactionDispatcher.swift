@@ -16,7 +16,6 @@ final class ExpressDEXTransactionDispatcher {
     private let transactionSigner: TangemSigner
     private let transferTransactionDispatcher: TransactionDispatcher
 
-    private var tokenItem: TokenItem { walletModel.tokenItem }
     private var feeTokenItem: TokenItem { walletModel.feeTokenItem }
     private var transactionCreator: TransactionCreator { walletModel.transactionCreator }
 

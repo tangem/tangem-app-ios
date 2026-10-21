@@ -72,24 +72,6 @@ class AlephiumNetworkService: MultiNetworkProvider {
 
     // MARK: - Private Implementations
 
-    private func getBalance(address: String) -> AnyPublisher<AlephiumBalanceInfo, Error> {
-        providerPublisher { provider in
-            provider
-                .getBalance(address: address)
-                .tryMap {
-                    guard
-                        let balance = Decimal(stringValue: $0.balance),
-                        let lockedBalance = Decimal(stringValue: $0.lockedBalance)
-                    else {
-                        throw BlockchainSdkError.empty
-                    }
-
-                    return AlephiumBalanceInfo(value: balance, lockedValue: lockedBalance)
-                }
-                .eraseToAnyPublisher()
-        }
-    }
-
     private func getUTXO(address: String) -> AnyPublisher<[AlephiumUTXO], Error> {
         providerPublisher { provider in
             provider

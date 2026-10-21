@@ -50,9 +50,6 @@ final class MarketsTokenDetailsViewModel: ObservableObject {
     @Published private(set) var numberOfExchangesListedOn: Int?
     @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
 
-    @Published var descriptionBottomSheetInfo: DescriptionBottomSheetInfo?
-    @Published var fullDescriptionBottomSheetInfo: DescriptionBottomSheetInfo?
-
     // Private published properties used for calculation `price`, `priceChangeState` and `priceDate` properties
 
     @Published private var selectedDate: Date?

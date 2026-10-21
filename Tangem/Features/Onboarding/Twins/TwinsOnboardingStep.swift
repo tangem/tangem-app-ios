@@ -14,15 +14,11 @@ import TangemSdk
 protocol SuccessStep {
     var successTitle: String { get }
     var successButtonTitle: String { get }
-    var successMessagesOffset: CGSize { get }
 }
 
 extension SuccessStep {
     var successTitle: String { Localization.onboardingDoneHeader }
     var successButtonTitle: String { Localization.commonContinue }
-    var successMessagesOffset: CGSize {
-        .init(width: 0, height: -UIScreen.main.bounds.size.height * 0.115)
-    }
 }
 
 enum TwinsOnboardingStep: Equatable {
@@ -79,16 +75,7 @@ enum TwinsOnboardingStep: Equatable {
     }
 }
 
-extension TwinsOnboardingStep: OnboardingProgressStepIndicatable {
-    var requiresConfetti: Bool {
-        switch self {
-        case .success, .done:
-            return true
-        default:
-            return false
-        }
-    }
-
+extension TwinsOnboardingStep {
     var successCircleOpacity: Double {
         switch self {
         case .success: return 1
@@ -126,12 +113,6 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         case .saveUserWallet, .pushNotifications: return nil
         case .done, .success: return Localization.onboardingDoneBody
         case .alert: return Localization.twinsRecreateWarning
-        }
-    }
-
-    var messagesOffset: CGSize {
-        switch self {
-        default: return .zero
         }
     }
 }

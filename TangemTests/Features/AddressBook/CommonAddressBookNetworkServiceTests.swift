@@ -243,7 +243,6 @@ private final class MockTangemApiService: TangemApiService {
     func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response { fatalError("unused") }
     func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response { fatalError("unused") }
     func loadNewsCategories() async throws -> NewsDTO.Categories.Response { fatalError("unused") }
-    func saveTokens(list: AccountsDTO.Request.UserTokens, for key: String) async throws { fatalError("unused") }
     func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String, revision: String) async throws -> String? { fatalError("unused") }
     func loadHotCrypto(requestModel: HotCryptoDTO.Request) async throws -> HotCryptoDTO.Response { fatalError("unused") }
     func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError> { fatalError("unused") }
@@ -274,7 +273,6 @@ private final class MockTangemApiService: TangemApiService {
     func updateWallet(by userWalletId: String, context: some Encodable) async throws { fatalError("unused") }
     func createWallet(with context: some Encodable) async throws -> String? { fatalError("unused") }
     func saveWalletCards(userWalletId: String, cards: WalletCardsDTO.Request) async throws { fatalError("unused") }
-    func getWalletCards(userWalletId: String) async throws -> WalletCardsDTO.Response { fatalError("unused") }
     func getUserAccounts(userWalletId: String) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) { fatalError("unused") }
     func saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) { fatalError("unused") }
     func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts { fatalError("unused") }

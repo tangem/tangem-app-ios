@@ -22,10 +22,4 @@ extension AlertPresenterViewModel: AlertPresenter {
             self.alert = alert
         }
     }
-
-    func hideAlert() {
-        Task { @MainActor in
-            self.alert = nil
-        }
-    }
 }

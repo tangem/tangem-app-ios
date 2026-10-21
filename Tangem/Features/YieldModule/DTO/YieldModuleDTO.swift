@@ -13,10 +13,5 @@ enum YieldModuleDTO {}
 
 /// A second-level namespace.
 extension YieldModuleDTO {
-    enum Request {}
-}
-
-/// A second-level namespace.
-extension YieldModuleDTO {
     enum Response {}
 }

@@ -124,8 +124,6 @@ extension MoonPayService: SellService {
 
     var initializationPublisher: Published<SellServiceState>.Publisher { $initializeState }
 
-    var successCloseUrl: String { "https://success.tangem.com" }
-
     var sellRequestUrl: String { SellActionURLHelper().buildURL(scheme: .universalLink).absoluteString }
 
     func canSell(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {

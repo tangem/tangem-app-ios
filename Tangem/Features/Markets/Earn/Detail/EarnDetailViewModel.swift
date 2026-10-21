@@ -83,10 +83,6 @@ final class EarnDetailViewModel: ObservableObject {
         filterProvider.didSelectFilterType(.all)
     }
 
-    var canFetchMore: Bool {
-        dataProvider.canFetchMore
-    }
-
     var isMostlyUsedSectionVisible: Bool {
         switch mostlyUsedViewModels {
         case .loading, .failure: true

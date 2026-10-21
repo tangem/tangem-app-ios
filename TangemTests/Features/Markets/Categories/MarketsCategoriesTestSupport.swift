@@ -73,7 +73,6 @@ final class MarketsStubGeoEligibilityService: GeoEligibilityService {
     var isApplePayAllowed: Bool { true }
 
     func initialize() {}
-    func waitForGeoIpRegionIfNeeded() async {}
     func fetchGeoIpRegionCode() async -> String? { regionCode }
 }
 

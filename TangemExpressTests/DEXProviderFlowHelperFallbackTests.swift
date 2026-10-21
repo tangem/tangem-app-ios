@@ -469,13 +469,6 @@ final class SourceWalletStub: ExpressSourceWallet {
     var operationType: ExpressOperationType { .swap }
     var supportedProvidersFilter: SupportedProvidersFilter { .swap }
     var expressFeeProviderFactory: ExpressFeeProviderFactory { FeeProviderFactoryStub() }
-    var yieldContractAddress: String? { nil }
-
-    func prepareForYieldModuleDEXSwap(provider: ExpressProvider) async throws {}
-
-    func yieldModuleTransactionData(data: ExpressTransactionData, provider: ExpressProvider, spender: String?) async throws -> ExpressTransactionData {
-        throw StubError.notImplemented
-    }
 }
 
 final class ExpressAPIProviderStub: ExpressAPIProvider {

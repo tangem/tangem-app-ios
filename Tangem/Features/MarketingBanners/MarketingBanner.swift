@@ -50,8 +50,6 @@ struct MarketingBanners {
     let standalone: [MarketingBanner]
     let linked: [MarketingBanner]
 
-    static let empty = MarketingBanners(standalone: [], linked: [])
-
     func removing(hiddenCampaignIds: Set<Int>) -> MarketingBanners {
         MarketingBanners(
             standalone: standalone.filter { !hiddenCampaignIds.contains($0.id) },

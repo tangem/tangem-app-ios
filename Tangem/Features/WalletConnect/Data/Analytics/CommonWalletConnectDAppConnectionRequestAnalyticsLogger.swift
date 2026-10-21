@@ -83,15 +83,6 @@ final class CommonWalletConnectDAppConnectionRequestAnalyticsLogger: WalletConne
         Analytics.log(event: .walletConnectDAppConnectionFailed, params: [.errorCode: "\(error.errorCode)"])
     }
 
-    func logDAppDisconnected(with dAppData: WalletConnectDAppData) {
-        let params: [Analytics.ParameterKey: String] = [
-            .walletConnectDAppName: dAppData.name,
-            .walletConnectDAppUrl: dAppData.domain.absoluteString,
-        ]
-
-        Analytics.log(event: .walletConnectDAppDisconnected, params: params)
-    }
-
     private func getAnalyticsVerificationParameterValue(from verificationStatus: WalletConnectDAppVerificationStatus) -> Analytics.ParameterValue {
         switch verificationStatus {
         case .verified: .walletConnectVerified

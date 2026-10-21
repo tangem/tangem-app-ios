@@ -293,7 +293,7 @@ extension CommonStakingSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
 
 // MARK: - SendManagementModelAnalyticsLogger
 
-extension CommonStakingSendAnalyticsLogger: StakingManagementModelAnalyticsLogger {
+extension CommonStakingSendAnalyticsLogger {
     func logNoticeUninitializedAddress() {
         Analytics.log(
             event: .stakingNoticeUninitializedAddress, params: [

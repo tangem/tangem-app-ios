@@ -69,23 +69,6 @@ extension GaslessTransactionsDTO.Request {
 
 // MARK: - Pretty Printed Debug JSON
 
-extension GaslessTransactionsDTO.Request.GaslessTransaction {
-    func prettyPrinted() -> String {
-        """
-        GASLESSDEBUG
-        ========================================================
-        {
-          "gaslessTransaction": \(gaslessTransaction.prettyPrinted),
-          "signature": "\(signature)",
-          "userAddress": "\(userAddress)",
-          "chainId": \(chainId),
-          "eip7702auth": \(eip7702auth.prettyPrinted)
-        }
-        ========================================================
-        """
-    }
-}
-
 extension GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData {
     var prettyPrinted: String {
         """

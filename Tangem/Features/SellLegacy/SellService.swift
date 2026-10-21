@@ -12,8 +12,6 @@ import BlockchainSdk
 
 protocol SellService: AnyObject, Initializable {
     var initializationPublisher: Published<SellServiceState>.Publisher { get }
-    var successCloseUrl: String { get }
-    var sellRequestUrl: String { get }
 
     func canSell(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool
     func getSellUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL?

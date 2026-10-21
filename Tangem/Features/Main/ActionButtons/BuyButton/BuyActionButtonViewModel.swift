@@ -13,8 +13,6 @@ import struct TangemUIUtils.AlertBinder
 final class BuyActionButtonViewModel: ActionButtonViewModel {
     // MARK: Dependencies
 
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-
     @Injected(\.expressAvailabilityProvider)
     private var expressAvailabilityProvider: ExpressAvailabilityProvider
 

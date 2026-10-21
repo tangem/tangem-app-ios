@@ -19,7 +19,6 @@ protocol NotificationTapDelegate: AnyObject {
 /// Don't forget to setup manager with delegate for proper notification handling
 final class UserWalletNotificationManager {
     @Injected(\.deprecationService) private var deprecationService: DeprecationServicing
-    @Injected(\.userWalletDismissedNotifications) private var dismissedNotifications: UserWalletDismissedNotifications
     @Injected(\.walletAssetsDiscoveryProgressProvider) private var walletAssetsDiscoveryProgressProvider: WalletAssetsDiscoveryProgressProvider
     @Injected(\.addFundsBannerVisibilityProvider) private var addFundsBannerVisibilityProvider: AddFundsBannerVisibilityProvider
 

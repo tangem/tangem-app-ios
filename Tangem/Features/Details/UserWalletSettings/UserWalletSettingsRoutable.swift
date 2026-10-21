@@ -31,11 +31,6 @@ protocol UserWalletSettingsRoutable: AnyObject, UserSettingsAccountsRoutable {
     @MainActor
     func openHardwareBackupTypes(userWalletModel: UserWalletModel)
 
-    @MainActor
-    func closeOnboarding()
-
-    func openAppSettings()
-
     func dismiss()
 
     /// Unfortunately, we can't just observe `rootViewModel.alert` to process pending navigation steps when alert is dismissed,

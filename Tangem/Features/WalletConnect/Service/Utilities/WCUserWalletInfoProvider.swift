@@ -9,7 +9,5 @@
 import TangemFoundation
 
 protocol WCUserWalletInfoProvider: AnyObject {
-    var userWalletId: UserWalletId { get }
-    var signer: TangemSigner { get }
     var wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider { get }
 }

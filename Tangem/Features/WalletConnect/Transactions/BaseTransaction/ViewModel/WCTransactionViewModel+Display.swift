@@ -10,10 +10,6 @@ import Foundation
 import TangemUI
 
 extension WCTransactionViewModel {
-    var userWalletName: String {
-        displayModel.userWalletName
-    }
-
     var connectionTargetKind: WCTransactionConnectionTargetKind? {
         displayModel.connectionTargetKind
     }
@@ -32,9 +28,5 @@ extension WCTransactionViewModel {
 
     var signingActionButtonType: SigningActionButtonViewType {
         displayModel.signingActionButtonType
-    }
-
-    private var isDataReady: Bool {
-        displayModel.isDataReady
     }
 }

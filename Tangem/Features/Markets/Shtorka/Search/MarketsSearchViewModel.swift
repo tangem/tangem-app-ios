@@ -72,7 +72,6 @@ final class MarketsSearchViewModel: ObservableObject {
             coordinator: coordinator
         )
 
-        marketsRatingHeaderViewModel.delegate = self
         bindChildViewModels()
 
         searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
@@ -200,12 +199,6 @@ private extension MarketsSearchViewModel {
                 }
             }
             .store(in: &bag)
-    }
-}
-
-extension MarketsSearchViewModel: MarketsOrderHeaderViewModelOrderDelegate {
-    func orderActionButtonDidTap() {
-        coordinator?.openFilterOrderBottonSheet(with: filterProvider)
     }
 }
 

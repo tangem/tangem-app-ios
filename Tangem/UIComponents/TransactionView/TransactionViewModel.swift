@@ -21,7 +21,6 @@ struct TransactionViewModel: Hashable, Identifiable {
     let amount: TransactionViewAmountViewData
 
     var hash: String { id.hash }
-    var index: Int { id.index }
 
     /// Resolved at construction time by the `SubtitleOwnerResolver` for records that have a
     /// single resolvable counterparty. `nil` for legacy callers that don't run resolution.

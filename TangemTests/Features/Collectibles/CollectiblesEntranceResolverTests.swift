@@ -87,8 +87,6 @@ private final class CollectiblesAccountModelStub: CollectiblesAccountModel {
 
     var didChangePublisher: AnyPublisher<Void, Never> { Empty().eraseToAnyPublisher() }
 
-    var statePublisher: AnyPublisher<CollectiblesState, Never> { Just(state).eraseToAnyPublisher() }
-
     var hasAccountPublisher: AnyPublisher<Bool, Never> { Just(hasAccount).eraseToAnyPublisher() }
 
     func update(name: String) {}

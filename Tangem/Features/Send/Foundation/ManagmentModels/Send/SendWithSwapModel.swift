@@ -340,10 +340,6 @@ extension SendWithSwapModel: SendReceiveTokenOutput {
 // MARK: - SendReceiveTokenAmountInput
 
 extension SendWithSwapModel: SendReceiveTokenAmountInput {
-    var receiveAmount: LoadingResult<SendAmount, any Error> {
-        isSwapMode ? swapModel.receiveAmount : .failure(SendAmountError.noAmount)
-    }
-
     var receiveAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
         isSwapModePublisher
             .withWeakCaptureOf(self)
@@ -726,15 +722,6 @@ extension SendWithSwapModel: ApproveFlowDataProvider, ApproveOutput {
 extension SendWithSwapModel: TokenFeeProvidersManagerProviding {
     var tokenFeeProvidersManager: TokenFeeProvidersManager? {
         isSwapMode ? swapModel.tokenFeeProvidersManager : transferModel.tokenFeeProvidersManager
-    }
-
-    var tokenFeeProvidersManagerPublisher: AnyPublisher<TokenFeeProvidersManager, Never> {
-        isSwapModePublisher
-            .withWeakCaptureOf(self)
-            .flatMapLatest { model, isSwap in
-                isSwap ? model.swapModel.tokenFeeProvidersManagerPublisher : model.transferModel.tokenFeeProvidersManagerPublisher
-            }
-            .eraseToAnyPublisher()
     }
 }
 

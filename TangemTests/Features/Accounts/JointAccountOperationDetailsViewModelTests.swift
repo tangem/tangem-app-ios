@@ -355,8 +355,6 @@ private final class AlertPresenterSpy: AlertPresenter {
     func present(alert: AlertBinder) {
         presentedAlertsCount.value += 1
     }
-
-    func hideAlert() {}
 }
 
 private final class PendingOperationsProviderSpy: JointAccountPendingOperationsProvider {

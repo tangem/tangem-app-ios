@@ -182,19 +182,6 @@ final class MainViewModel: ObservableObject {
         }
     }
 
-    func didTapEditWallet() {
-        Analytics.log(.buttonEditWalletTapped)
-
-        if let selectedModel = userWalletRepository.selectedModel,
-           let alert = AlertBuilder.makeWalletRenamingAlert(
-               userWalletModel: selectedModel,
-               userWalletRepository: userWalletRepository,
-               updateName: nil
-           ) {
-            AppPresenter.shared.show(alert)
-        }
-    }
-
     /// Refreshes are tracked per user wallet so that a running refresh does not block swiping to another wallet,
     /// and so that the spinner survives the page being torn down and rebuilt by the pager.
     @MainActor

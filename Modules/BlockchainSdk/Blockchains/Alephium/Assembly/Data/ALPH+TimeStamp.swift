@@ -21,10 +21,6 @@ extension ALPH {
             self.millis = millis
         }
 
-        func isZero() -> Bool {
-            return millis == 0
-        }
-
         static func + (lhs: TimeStamp, rhs: Duration) -> TimeStamp {
             return unsafe(lhs.millis + rhs.millis)
         }
@@ -63,14 +59,6 @@ extension ALPH {
 
         static var zero: TimeStamp {
             return unsafe(0)
-        }
-
-        static var max: TimeStamp {
-            return unsafe(Int64.max)
-        }
-
-        static func now() -> TimeStamp {
-            return unsafe(Int64(Date().timeIntervalSince1970 * 1000))
         }
     }
 }

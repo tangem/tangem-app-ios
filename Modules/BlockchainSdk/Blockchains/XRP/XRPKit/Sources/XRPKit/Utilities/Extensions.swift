@@ -28,12 +28,6 @@ extension Data {
     }
 }
 
-extension String {
-    var isNumber: Bool {
-        return !isEmpty && rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) == nil
-    }
-}
-
 typealias Byte = UInt8
 enum Bit: Int {
     case zero

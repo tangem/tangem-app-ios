@@ -650,23 +650,7 @@ extension TangemPayAccount {
     }
 }
 
-private extension TangemPayAccount {
-    func setupBalance() async {
-        await balancesService.loadBalance()
-    }
-}
-
 // MARK: - TangemPayWithdrawTransactionServiceOutput
-
-extension TangemPayAccount: TangemPayWithdrawTransactionServiceOutput {
-    func withdrawTransactionDidSent() {
-        _ = Task {
-            // Update balance after withdraw with some delay
-            try await Task.sleep(for: .seconds(5))
-            await setupBalance()
-        }
-    }
-}
 
 // MARK: - Multi-card flow
 

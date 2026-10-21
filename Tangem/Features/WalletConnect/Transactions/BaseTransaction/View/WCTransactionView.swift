@@ -362,7 +362,3 @@ private extension AnyTransition {
         removal: .offset(y: 200).combined(with: .opacity.animation(.footerOpacity))
     )
 }
-
-private enum Constants {
-    static var scrollContentBottomPadding: CGFloat { MainButton.Size.default.height + 28 }
-}

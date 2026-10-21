@@ -32,19 +32,6 @@ enum WCApprovalAnalyzer {
         )
     }
 
-    static func createUpdatedApproval(
-        originalTransaction: WCSendableTransaction,
-        newAmount: BigUInt
-    ) -> WCSendableTransaction? {
-        guard isApprovalTransaction(originalTransaction) else { return nil }
-
-        guard let (spender, _) = extractApprovalData(from: originalTransaction.data) else { return nil }
-
-        let newData = createApprovalData(spender: spender, amount: newAmount)
-
-        return originalTransaction.withUpdatedData(newData)
-    }
-
     static func createApprovalData(spender: String, amount: BigUInt) -> String {
         let cleanSpender = spender.removeHexPrefix()
 

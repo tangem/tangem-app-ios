@@ -70,14 +70,6 @@ extension StakeKitDTO {
             }
         }
 
-        enum Get {
-            struct Request: Encodable {
-                let actionId: String
-            }
-
-            struct Response: Decodable {}
-        }
-
         enum Enter {
             struct Request: Encodable {
                 let integrationId: String

@@ -19,9 +19,6 @@ protocol TangemPayNoDepositAddressSheetRoutable: AnyObject {
 final class TangemPayNoDepositAddressSheetViewModel: FloatingSheetContentViewModel {
     nonisolated var id: String { String(describing: Self.self) }
 
-    let title = Localization.tangempayServiceUnavailableTitle
-    let subtitle = Localization.tangempayCardDetailsReceiveErrorDescription
-
     private weak var coordinator: TangemPayNoDepositAddressSheetRoutable?
 
     init(coordinator: TangemPayNoDepositAddressSheetRoutable) {

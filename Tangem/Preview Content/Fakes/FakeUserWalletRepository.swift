@@ -14,8 +14,6 @@ import TangemFoundation
 class FakeUserWalletRepository: UserWalletRepository {
     var shouldLockOnBackground: Bool { true }
 
-    var selectedUserWalletId: UserWalletId?
-
     var isLocked: Bool { false }
 
     var models: [UserWalletModel] = []
@@ -45,11 +43,9 @@ class FakeUserWalletRepository: UserWalletRepository {
     func add(userWalletModel: UserWalletModel) {}
     func delete(userWalletId: UserWalletId) {}
     func reorder(orderedUserWalletIds: [UserWalletId]) {}
-    func save() {}
     func initialize() async {}
     func updateAssociatedCard(userWalletId: UserWalletId, cardId: String) {}
     func savePublicData() {}
     func save(userWalletModel: any UserWalletModel) {}
-    func onSaveUserWalletsChanged(enabled: Bool) {}
     func onBiometricsChanged(enabled: Bool) {}
 }

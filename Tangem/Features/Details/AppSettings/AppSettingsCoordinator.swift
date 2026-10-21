@@ -45,8 +45,6 @@ extension AppSettingsCoordinator {
 // MARK: - AppSettingsRoutable
 
 extension AppSettingsCoordinator: AppSettingsRoutable {
-    func openTokenSynchronization() {}
-    func openResetSavedCards() {}
     func openAppSettings() {
         guard let settingsUrl = URL(string: UIApplication.openSettingsURLString),
               UIApplication.shared.canOpenURL(settingsUrl) else {

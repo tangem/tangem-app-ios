@@ -23,12 +23,6 @@ extension String {
         return prefix(1).capitalized + dropFirst()
     }
 
-    func remove(contentsOf strings: [String]) -> String {
-        strings.reduce(into: self) {
-            $0 = $0.remove($1)
-        }
-    }
-
     /// Converts string to underscored format (words separated by `_`).
     ///
     /// Non-word characters (anything other than letters, numbers, and underscore)

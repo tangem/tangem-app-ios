@@ -17,8 +17,3 @@ extension BadgeView.Item {
     static let recommended = Self(title: Localization.commonRecommended, style: .accent)
     static let actionRequired = Self(title: Localization.hwCloudBackupStatusActionRequired, style: .warning)
 }
-
-extension BadgeView {
-    static let done = Self(item: .done)
-    static let recommended = Self(item: .recommended)
-}

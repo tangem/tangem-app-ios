@@ -749,10 +749,6 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openSell(for: walletModel)
     }
 
-    private func openSendToSell(with request: SellCryptoRequest) {
-        tokenRouter.openSendToSell(with: request, for: walletModel)
-    }
-
     private func openAddressSelector(addresses: [Address], callback: @escaping (String) -> Void) {
         if addresses.isEmpty {
             return

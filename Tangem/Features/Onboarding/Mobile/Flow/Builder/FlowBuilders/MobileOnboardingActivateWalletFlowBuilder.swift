@@ -168,10 +168,6 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
         next()
     }
 
-    func openMain() {
-        coordinator?.openMain(userWalletModel: userWalletModel)
-    }
-
     func openConfetti() {
         coordinator?.openConfetti()
     }

@@ -15,9 +15,6 @@ import TangemLocalization
 struct WCRequestDetailsView: View {
     private let viewModel: WCRequestDetailsViewModel
 
-    @State private var contentHeight: CGFloat = 0
-    @State private var containerHeight: CGFloat = 0
-
     init(input: WCRequestDetailsInput) {
         viewModel = .init(input: input)
     }

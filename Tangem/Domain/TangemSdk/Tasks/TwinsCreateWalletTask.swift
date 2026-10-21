@@ -21,8 +21,6 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 
     typealias CommandResponse = TwinsCreateWalletTaskResponse
 
-    var message: Message? { Message(header: Localization.twinsRecreateTitlePreparing) }
-
     deinit {
         AppLogger.debug("TwinsCreateWalletTask deinit")
     }

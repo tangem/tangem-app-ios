@@ -100,10 +100,6 @@ final class CollectiblesPacksViewModel: ObservableObject {
         }
     }
 
-    func reset() {
-        reset(loreID: nil)
-    }
-
     func reset(loreID: String?) {
         cancelTasks()
         self.loreID = loreID

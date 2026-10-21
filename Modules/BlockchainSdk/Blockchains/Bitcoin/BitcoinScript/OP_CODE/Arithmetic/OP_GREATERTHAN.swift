@@ -26,5 +26,4 @@ import Foundation
 /// Returns 1 if x1 is greater than x2, 0 otherwise.
 struct OpGreaterThan: OpCodeProtocol {
     var value: UInt8 { return 0xa0 }
-    var name: String { return "OP_GREATERTHAN" }
 }

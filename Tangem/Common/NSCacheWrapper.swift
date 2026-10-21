@@ -25,12 +25,6 @@ final class NSCacheWrapper<Key, Value> where Key: Hashable {
         return valueWrapper?.value
     }
 
-    func removeValue(forKey key: Key) {
-        let keyWrapper = KeyWrapper(key: key)
-
-        cache.removeObject(forKey: keyWrapper)
-    }
-
     func removeAllObjects() {
         cache.removeAllObjects()
     }
