@@ -19,6 +19,8 @@ protocol ExperimentService {
     func variant(_ key: ExperimentFeatureFlagKey) -> Variant?
     func isOn(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool
     func isOnWithoutExposure(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool
+    func waitForVariants(ofWalletMatching isMatching: @escaping (UserWalletId) -> Bool) async -> Bool
+
     @MainActor
     func hasFetchedVariants(for userWalletId: UserWalletId) -> Bool
 }
@@ -40,6 +42,7 @@ final class CommonExperimentService {
     private var _client: ExperimentClient?
     private var bag: Set<AnyCancellable> = []
     private var refetchTask: Task<Void, Never>?
+    private let fetchedUserWalletIdsSubject = CurrentValueSubject<Set<UserWalletId>, Never>([])
     @MainActor private var fetchedUserWalletId: UserWalletId?
 
     // MARK: - Public Implementation
@@ -137,6 +140,10 @@ final class CommonExperimentService {
             await MainActor.run { fetchedUserWalletId = ctx.userWalletId }
 
             AppLogger.info("Experiments fetched for wallet \(ctx.userWalletId?.stringValue ?? "empty")")
+
+            if let userWalletId = ctx.userWalletId {
+                fetchedUserWalletIdsSubject.send(fetchedUserWalletIdsSubject.value.union([userWalletId]))
+            }
         } catch is CancellationError {
             AppLogger.info("Experiment fetch cancelled for wallet \(ctx.userWalletId?.stringValue ?? "empty")")
         } catch {
@@ -164,6 +171,14 @@ extension CommonExperimentService: ExperimentService {
         guard let client = configuredClient(for: key) else { return false }
 
         return client.variant(key.rawValue).value == variant.rawValue
+    }
+
+    func waitForVariants(ofWalletMatching isMatching: @escaping (UserWalletId) -> Bool) async -> Bool {
+        let fetched = try? await fetchedUserWalletIdsSubject
+            .first { $0.contains(where: isMatching) }
+            .async()
+
+        return fetched != nil
     }
 
     @MainActor
