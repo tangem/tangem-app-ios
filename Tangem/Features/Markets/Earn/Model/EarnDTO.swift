@@ -22,6 +22,7 @@ extension EarnDTO.List {
         let limit: Int?
         let type: EarnType?
         let networkIds: [String]?
+        let apyType: ApyType?
 
         var parameters: [String: Any] {
             var params: [String: Any] = [:]
@@ -41,6 +42,9 @@ extension EarnDTO.List {
             if let networkIds, !networkIds.isEmpty {
                 params["networkIds"] = networkIds.joined(separator: ",")
             }
+            if let apyType {
+                params["apyType"] = apyType.rawValue
+            }
 
             return params
         }
@@ -49,6 +53,11 @@ extension EarnDTO.List {
     enum EarnType: String, Encodable {
         case staking
         case yield
+    }
+
+    enum ApyType: String, Encodable {
+        case gross
+        case net
     }
 
     struct Response: Decodable {
