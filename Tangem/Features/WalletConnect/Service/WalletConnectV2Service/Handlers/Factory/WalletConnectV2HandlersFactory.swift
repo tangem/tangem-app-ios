@@ -68,7 +68,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
             )
 
         case .switchChain:
-            return try WalletConnectSwitchEthereumChainMessageHandler(requestParams: params, connectedDApp: connectedDApp)
+            throw WalletConnectTransactionRequestProcessingError.unsupportedMethod(action.rawValue)
 
         case .signTypedData, .signTypedDataV4:
             return try WalletConnectV2SignTypedDataHandler(
