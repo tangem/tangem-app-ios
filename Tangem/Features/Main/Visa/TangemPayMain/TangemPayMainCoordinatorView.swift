@@ -8,7 +8,6 @@
 
 import SwiftUI
 import TangemUI
-import TangemAssets
 
 struct TangemPayMainCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: TangemPayMainCoordinator
@@ -135,10 +134,7 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
                     .presentationCornerRadius(24)
                     .containerCornerRadius(24)
             }
-            .bottomSheet(
-                item: $coordinator.pendingExpressTxStatusBottomSheet,
-                backgroundColor: Colors.Background.tertiary
-            ) {
+            .sheet(item: $coordinator.pendingExpressTxStatusBottomSheet) {
                 PendingExpressTxStatusBottomSheetView(viewModel: $0)
             }
             .fullScreenCover(item: $coordinator.virtualAccountSuccessViewModel) {
