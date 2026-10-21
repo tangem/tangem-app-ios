@@ -292,6 +292,69 @@ struct PolymarketEventsBlockViewModelTests {
 
         #expect(context.sut.eventCards.first?.title == "b")
     }
+
+    @Test("An outcome chosen on a card drawn before a poll opens the order with the market from that poll")
+    func outcomeChosenAfterPollOpensTheFreshMarket() async throws {
+        let routable = PolymarketEventOpeningRoutableSpy()
+        let context = try await Self.makePollingContext(
+            pages: [.init(category: 1, cursor: nil): Self.page(["a"], outcomes: [Self.outcome(probability: "0.42")])],
+            routable: routable
+        )
+        let cardBeforePoll = try #require(context.sut.eventCards.first?.rows.first?.outcomes.first)
+
+        context.provider.eventPages[.init(category: 1, cursor: nil)] = Self.page(["a"], outcomes: [Self.outcome(probability: "0.55")])
+        context.clock.advance(by: 21)
+        context.sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: true))
+        try await settle { Self.priceTexts(context.sut).first == Self.cents("0.55") }
+
+        cardBeforePoll.onSelect()
+
+        #expect(routable.openedOutcomes.map(\.outcome.probability) == [Decimal(string: "0.55")])
+        #expect(routable.openedOutcomes.map(\.market.id) == ["a-market"])
+    }
+
+    // MARK: - Live quotes
+
+    @Test("A live quote puts its best ask on the outcome button, an empty ask shows a dash")
+    func liveQuoteShowsTheBestAsk() async throws {
+        let context = try await Self.makeLiveContext()
+
+        context.stream.push(PolymarketLiveQuotesFixtures.quote("a-m0-yes", bid: "0.36", ask: "0.37"))
+        context.stream.push(PolymarketLiveQuotesFixtures.quote("a-m0-no", bid: "0.62"))
+
+        try await settle { Self.priceTexts(context.sut) == [Self.cents("0.37"), BalanceFormatter.defaultEmptyBalanceString] }
+    }
+
+    @Test("A batch that changes no price on screen does not republish the cards")
+    func unchangedPricesAreNotRepublished() async throws {
+        let context = try await Self.makeLiveContext()
+        var publishes = 0
+        let subscription = context.sut.$eventCards.dropFirst().sink { _ in publishes += 1 }
+
+        context.stream.push(PolymarketLiveQuotesFixtures.quote("a-m0-yes", bid: "0.30", ask: "0.37"))
+        try await settle { Self.priceTexts(context.sut).first == Self.cents("0.37") }
+
+        context.stream.push(PolymarketLiveQuotesFixtures.quote("a-m0-yes", bid: "0.31", ask: "0.37"))
+        try await Task.sleep(nanoseconds: Self.batchSettle)
+
+        context.stream.push(PolymarketLiveQuotesFixtures.quote("a-m0-yes", bid: "0.31", ask: "0.38"))
+        try await settle { Self.priceTexts(context.sut).first == Self.cents("0.38") }
+
+        #expect(publishes == 2)
+        withExtendedLifetime(subscription) {}
+    }
+
+    @Test("A lost connection brings the prices from the backend back")
+    func lostConnectionFallsBackToBackendPrices() async throws {
+        let context = try await Self.makeLiveContext()
+
+        context.stream.push(PolymarketLiveQuotesFixtures.quote("a-m0-yes", ask: "0.37"))
+        try await settle { Self.priceTexts(context.sut).first == Self.cents("0.37") }
+
+        context.liveQuotes.statuses.push(.waitingToReconnect)
+
+        try await settle { Self.priceTexts(context.sut) == [Self.cents("0.42"), Self.cents("0.58")] }
+    }
 }
 
 // MARK: - Helpers
@@ -303,7 +366,8 @@ private extension PolymarketEventsBlockViewModelTests {
         isRegionRestricted: Bool = false,
         notificationCenter: NotificationCenter = NotificationCenter(),
         clock: PollingClock = PollingClock(),
-        outdatedDataLog: OutdatedDataLog = OutdatedDataLog()
+        outdatedDataLog: OutdatedDataLog = OutdatedDataLog(),
+        liveQuotes: PolymarketLiveQuotesSourceSpy = PolymarketLiveQuotesSourceSpy()
     ) -> PolymarketEventsBlockViewModel {
         let refreshCenter = PolymarketMainRefreshCenter()
 
@@ -314,10 +378,7 @@ private extension PolymarketEventsBlockViewModelTests {
                 fundsArrivalTracker: PolymarketFundsArrivalTracker(balancePublisher: Empty().eraseToAnyPublisher()),
                 refreshCenter: refreshCenter
             ),
-            liveQuotesTracker: PolymarketFeedLiveQuotesTracker(
-                quotes: { _ in AsyncStream { $0.finish() } },
-                statusChanges: { AsyncStream { $0.finish() } }
-            ),
+            liveQuotesTracker: liveQuotes.makeTracker(),
             isRegionRestricted: { isRegionRestricted },
             routable: routable,
             notificationCenter: notificationCenter,
@@ -340,7 +401,8 @@ private extension PolymarketEventsBlockViewModelTests {
 
     static func makePollingContext(
         categories: [Int] = [1],
-        pages: [PolymarketAPIProviderStub.EventsPageKey: PolymarketEventsPage]
+        pages: [PolymarketAPIProviderStub.EventsPageKey: PolymarketEventsPage],
+        routable: PolymarketEventOpeningRoutableSpy = PolymarketEventOpeningRoutableSpy.ignored
     ) async throws -> PollingContext {
         let provider = PolymarketAPIProviderStub()
         provider.categoryList = categories.map(category)
@@ -348,7 +410,13 @@ private extension PolymarketEventsBlockViewModelTests {
         let clock = PollingClock()
         let outdatedDataLog = OutdatedDataLog()
         let notificationCenter = NotificationCenter()
-        let sut = makeSUT(provider: provider, notificationCenter: notificationCenter, clock: clock, outdatedDataLog: outdatedDataLog)
+        let sut = makeSUT(
+            provider: provider,
+            routable: routable,
+            notificationCenter: notificationCenter,
+            clock: clock,
+            outdatedDataLog: outdatedDataLog
+        )
 
         try await settle { !sut.eventCards.isEmpty }
 
@@ -368,6 +436,46 @@ private extension PolymarketEventsBlockViewModelTests {
             context.sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: true))
             return context.provider.eventsRequests.count == count
         }
+    }
+
+    struct LiveContext {
+        let sut: PolymarketEventsBlockViewModel
+        let liveQuotes: PolymarketLiveQuotesSourceSpy
+        let stream: PolymarketLiveStreamSpy<PolymarketOutcomeQuote>
+    }
+
+    static let batchSettle: UInt64 = 600_000_000
+
+    static func makeLiveContext() async throws -> LiveContext {
+        let provider = PolymarketAPIProviderStub()
+        provider.categoryList = [category(1)]
+        provider.eventPages = [
+            .init(category: 1, cursor: nil): PolymarketEventsPage(events: [PolymarketLiveQuotesFixtures.event(id: "a")], cursor: nil, hasNext: false),
+        ]
+        let liveQuotes = PolymarketLiveQuotesSourceSpy()
+        let sut = makeSUT(provider: provider, liveQuotes: liveQuotes)
+
+        try await settle { cardIDs(sut) == ["a"] }
+
+        liveQuotes.statuses.push(.connected)
+        try await settle { liveQuotes.statuses.pulls >= 2 }
+
+        sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: true))
+        try await settle { liveQuotes.streams.count == 1 }
+
+        return LiveContext(sut: sut, liveQuotes: liveQuotes, stream: liveQuotes.streams[0])
+    }
+
+    static func priceTexts(_ sut: PolymarketEventsBlockViewModel) -> [String?] {
+        sut.eventCards.first?.rows.first?.outcomes.map(\.priceText) ?? []
+    }
+
+    static func cents(_ probability: String) -> String {
+        PolymarketPriceFormatter.centsText(Decimal(string: probability))
+    }
+
+    static func outcome(probability: String) -> PolymarketOutcome {
+        PolymarketOutcome(assetId: "yes", title: "Yes", probability: Decimal(string: probability))
     }
 
     static func cardIDs(_ sut: PolymarketEventsBlockViewModel) -> [String] {
