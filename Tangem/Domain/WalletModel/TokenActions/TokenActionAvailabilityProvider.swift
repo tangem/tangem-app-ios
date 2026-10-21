@@ -161,15 +161,6 @@ extension TokenActionAvailabilityProvider {
 
         return availableActions
     }
-
-    static func buildActionsForLockedSingleWallet() -> [TokenActionType] {
-        [
-            .receive,
-            .send,
-            .buy,
-            .sell,
-        ]
-    }
 }
 
 // MARK: - Swap

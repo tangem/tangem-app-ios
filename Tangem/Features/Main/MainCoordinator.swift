@@ -251,10 +251,6 @@ extension MainCoordinator: MainRoutable {
         modalOnboardingCoordinator = coordinator
     }
 
-    func close(newScan: Bool) {
-        popToRoot(with: .init(newScan: newScan))
-    }
-
     func openScanCardManual() {
         safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
     }
@@ -455,16 +451,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             let viewModel = TangemPayRegionUnavailablePopupViewModel(
                 region: region,
                 interactor: interactor,
-                coordinator: self
-            )
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
-    }
-
-    func openTangemPayFailedToIssueCardPopup(userWalletModel: UserWalletModel) {
-        Task { @MainActor in
-            let viewModel = TangemPayFailedToIssueCardSheetViewModel(
-                userWalletModel: userWalletModel,
                 coordinator: self
             )
             floatingSheetPresenter.enqueue(sheet: viewModel)

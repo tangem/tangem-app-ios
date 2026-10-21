@@ -70,14 +70,6 @@ private extension MarketsTokenDetailsLinksView {
     struct LinkItem: Hashable {
         let data: MarketsTokenDetailsLinkChipsData
 
-        var icon: Image? {
-            switch data.icon {
-            case .leading(let imageType): imageType.image
-            case .trailing(let imageType): imageType.image
-            case .none: nil
-            }
-        }
-
         var iconImageType: ImageType? {
             switch data.icon {
             case .leading(let imageType), .trailing(let imageType): imageType

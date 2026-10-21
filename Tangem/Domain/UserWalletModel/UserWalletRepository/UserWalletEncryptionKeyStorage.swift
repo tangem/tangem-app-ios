@@ -30,21 +30,6 @@ class UserWalletEncryptionKeyStorage {
         return keys
     }
 
-    func add(_ userWalletId: UserWalletId, encryptionKey: UserWalletEncryptionKey) {
-        guard AppSettings.shared.saveUserWallets, BiometricsUtil.isAvailable else {
-            return
-        }
-
-        do {
-            let encryptionKeyData = encryptionKey.symmetricKey.dataRepresentationWithHexConversion
-            try biometricsStorage.store(encryptionKeyData, forKey: encryptionKeyStorageKey(for: userWalletId))
-        } catch {
-            AppLogger.error("Failed to add UserWallet ID to the list", error: error)
-            Analytics.error(error: error)
-            return
-        }
-    }
-
     func delete(_ userWalletId: UserWalletId) {
         do {
             try biometricsStorage.delete(encryptionKeyStorageKey(for: userWalletId))

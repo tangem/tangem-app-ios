@@ -96,7 +96,6 @@ struct TransactionDispatcherProviderStub: TransactionDispatcherProvider {
     func makeApproveAndDEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
     func makeCEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
     func makeStakingTransactionDispatcher(analyticsLogger: any StakingAnalyticsLogger) -> TransactionDispatcher { TransactionDispatcherStub() }
-    func makeYieldModuleTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
 }
 
 // MARK: - EmailDataCollectorBuilder

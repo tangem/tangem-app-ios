@@ -19,20 +19,6 @@ protocol YieldModuleFlowFactory {
         dismissAction: @escaping Action<YieldModuleActiveCoordinator.DismissOptions?>
     ) -> YieldModuleActiveCoordinator
 
-    func makeYieldAvailableNotificationViewModel(
-        apy: Decimal,
-        style: YieldAvailableNotificationViewModel.Style,
-        onLearnMoreTap: @escaping (Decimal) -> Void,
-        onActivateTap: ((Decimal) -> Void)?
-    ) -> YieldAvailableNotificationViewModel
-
-    func makeYieldStatusViewModel(
-        state: YieldStatusViewModel.State,
-        navigationAction: @escaping () -> Void
-    ) -> YieldStatusViewModel
-
-    func makeYieldModuleBalanceInfoViewModel() -> YieldModuleBalanceInfoViewModel
-
     func makeYieldManagerInteractor() -> YieldManagerInteractor
 }
 
@@ -180,34 +166,6 @@ final class CommonYieldModuleFlowFactory {
 // MARK: - YieldModuleFlowFactory
 
 extension CommonYieldModuleFlowFactory: YieldModuleFlowFactory {
-    func makeYieldModuleBalanceInfoViewModel() -> YieldModuleBalanceInfoViewModel {
-        YieldModuleBalanceInfoViewModel(tokenName: walletModel.tokenItem.name, tokenId: walletModel.tokenItem.id)
-    }
-
-    func makeYieldStatusViewModel(state: YieldStatusViewModel.State, navigationAction: @escaping () -> Void) -> YieldStatusViewModel {
-        YieldStatusViewModel(
-            state: state,
-            yieldInteractor: makeInteractor(),
-            feeTokenItem: walletModel.feeTokenItem,
-            token: walletModel.tokenItem,
-            navigationAction: navigationAction
-        )
-    }
-
-    func makeYieldAvailableNotificationViewModel(
-        apy: Decimal,
-        style: YieldAvailableNotificationViewModel.Style,
-        onLearnMoreTap: @escaping (Decimal) -> Void,
-        onActivateTap: ((Decimal) -> Void)?
-    ) -> YieldAvailableNotificationViewModel {
-        YieldAvailableNotificationViewModel(
-            apy: apy,
-            style: style,
-            onLearnMoreTap: onLearnMoreTap,
-            onActivateTap: onActivateTap
-        )
-    }
-
     func makeYieldPromoCoordinator(
         apy: Decimal,
         isApyBoostPromo: Bool,

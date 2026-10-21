@@ -54,8 +54,6 @@ final class SendViewModel: ObservableObject {
     private weak var sourceTokenInput: SendSourceTokenInput?
     private weak var coordinator: SendRoutable?
 
-    private var bag: Set<AnyCancellable> = []
-
     private var sendTask: Task<Void, Never>?
     private var isValidSubscription: AnyCancellable?
     private var isUpdatingSubscription: AnyCancellable?

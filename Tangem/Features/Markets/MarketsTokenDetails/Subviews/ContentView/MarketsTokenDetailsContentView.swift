@@ -15,8 +15,6 @@ import TangemUIUtils
 struct MarketsTokenDetailsContentView: View {
     @ObservedObject var viewModel: MarketsTokenDetailsViewModel
 
-    @Environment(\.mainWindowSize) private var mainWindowSize
-
     private var shortDescription: String? {
         guard case .loaded(let model) = viewModel.state else {
             return nil

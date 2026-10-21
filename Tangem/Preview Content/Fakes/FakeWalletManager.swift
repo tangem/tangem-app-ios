@@ -108,10 +108,6 @@ class FakeWalletManager: WalletManager {
             .eraseToAnyPublisher()
     }
 
-    func validate(fee: BlockchainSdk.Fee) throws {}
-
-    func validate(amount: BlockchainSdk.Amount) throws {}
-
     func getFee(amount: BlockchainSdk.Amount, destination: String) -> AnyPublisher<[BlockchainSdk.Fee], Error> {
         .justWithError(output: [
             .init(amount),
@@ -183,13 +179,6 @@ extension FakeWalletManager {
     static let xlmManager: FakeWalletManager = {
         var wallet = Wallet.xlmWalletStub
         wallet.add(coinValue: 390192)
-        return FakeWalletManager(wallet: wallet)
-    }()
-
-    static let visaWalletManager: FakeWalletManager = {
-        var wallet = Wallet.polygonWalletStub
-        wallet.add(coinValue: 0)
-        wallet.add(tokenValue: 354.123, for: VisaUtilities.mockToken)
         return FakeWalletManager(wallet: wallet)
     }()
 }

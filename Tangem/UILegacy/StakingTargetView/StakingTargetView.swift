@@ -17,8 +17,6 @@ struct StakingTargetView: View {
     private let data: StakingTargetViewData
     private let selection: Binding<String>?
 
-    private var namespace: Namespace?
-
     init(data: StakingTargetViewData, selection: Binding<String>? = nil) {
         self.data = data
         self.selection = selection

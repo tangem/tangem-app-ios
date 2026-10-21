@@ -16,9 +16,6 @@ protocol ActionButtonViewModel: ObservableObject, Identifiable {
 
     @MainActor
     func tap()
-
-    @MainActor
-    func updateState(to state: ActionButtonState)
 }
 
 extension ActionButtonViewModel {

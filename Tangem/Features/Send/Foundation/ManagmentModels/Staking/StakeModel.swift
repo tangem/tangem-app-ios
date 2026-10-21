@@ -14,7 +14,6 @@ import TangemLocalization
 import struct TangemUI.TokenIconInfo
 
 protocol StakeModelStateProvider {
-    var state: StakeFlowState { get }
     var statePublisher: AnyPublisher<StakeFlowState, Never> { get }
     /// The action as currently parameterized (entered amount + selected target). Notifications key on it.
     var stakingAction: StakingAction { get }

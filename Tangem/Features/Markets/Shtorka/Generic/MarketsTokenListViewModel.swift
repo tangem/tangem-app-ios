@@ -81,8 +81,6 @@ final class MarketsTokenListViewModel: ObservableObject {
 
         marketsRatingHeaderViewModel = MarketsRatingHeaderViewModel(provider: filterProvider)
 
-        marketsRatingHeaderViewModel.delegate = self
-
         bindToCurrencyCodeUpdate()
         dataProviderBind()
         bindToHotArea()
@@ -329,12 +327,6 @@ extension MarketsTokenListViewModel: MarketsListDataFetcher {
     }
 }
 
-extension MarketsTokenListViewModel: MarketsOrderHeaderViewModelOrderDelegate {
-    func orderActionButtonDidTap() {
-        coordinator?.openFilterOrderBottonSheet(with: filterProvider)
-    }
-}
-
 extension MarketsTokenListViewModel: MarketsListStateUpdater {
     func invalidateCells(in range: ClosedRange<Int>) {
         var invalidatedIds = Set<String>()
@@ -362,11 +354,5 @@ extension MarketsTokenListViewModel: MarketsListStateUpdater {
         }
 
         quotesUpdatesScheduler.scheduleQuotesUpdate(for: idsToUpdate)
-    }
-}
-
-private extension MarketsTokenListViewModel {
-    enum Constants {
-        static let filterRequiredReloadInterval: Set<MarketsListOrderType> = [.buyers, .gainers, .losers]
     }
 }

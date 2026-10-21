@@ -105,12 +105,6 @@ final class WalletModelTestsMock: WalletModel {
         _fiatBalanceProvider
     }
 
-    func updateFiatBalance(_ newState: TokenBalanceType) {
-        if let mutableProvider = _fiatBalanceProvider as? MutableTokenBalanceProviderMock {
-            mutableProvider.updateBalance(newState)
-        }
-    }
-
     // MARK: - AvailableTokenBalanceProviderInput
 
     private let _state = CurrentValueSubject<WalletModelState?, Never>(nil)
@@ -198,7 +192,6 @@ final class WalletModelTestsMock: WalletModel {
     var actionsUpdatePublisherMock: AnyPublisher<Void, Never> = .empty
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { actionsUpdatePublisherMock }
     var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
-    var qrReceiveMessage: String { "" }
     var isDemo: Bool { false }
     var demoBalance: Decimal? { get { nil } set {} }
     var sendingRestrictions: SendingRestrictions? { sendingRestrictionsMock }
@@ -213,7 +206,6 @@ final class WalletModelTestsMock: WalletModel {
     var stakingBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var totalTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var fiatAvailableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: _fiatAvailableBalance) }
-    var fiatStakingBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var blockchainDataProvider: BlockchainDataProvider { fatalError() }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { nil }
     var assetRequirementsManagerMock: AssetRequirementsManager?
@@ -248,7 +240,6 @@ final class WalletModelTestsMock: WalletModel {
     var hasAnyPendingTransactions: Bool { false }
     var transactionHistoryPublisher: AnyPublisher<WalletModelTransactionHistoryState, Never> { .empty }
     var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> { .empty }
-    var isEmptyIncludingPendingIncomingTxs: Bool { false }
     var hasRent: Bool { false }
     var existentialDepositWarning: String? { nil }
     var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { nil }
@@ -262,9 +253,6 @@ final class WalletModelTestsMock: WalletModel {
     func exploreURL(for address: String, token: Token?) -> URL? { nil }
     func exploreTransactionURL(for hash: String) -> URL? { nil }
     func fulfillRequirements(signer: any TransactionSigner) -> AnyPublisher<Void, Error> { .empty }
-    func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> { .empty }
-    func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> { .empty }
-    func getFee(compiledTransaction data: Data) async throws -> [Fee] { [] }
     func hash(into hasher: inout Hasher) {}
     static func == (lhs: WalletModelTestsMock, rhs: WalletModelTestsMock) -> Bool { false }
 }

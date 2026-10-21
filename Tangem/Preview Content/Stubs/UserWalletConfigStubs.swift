@@ -33,9 +33,4 @@ enum UserWalletConfigStubs {
         noteData: .init(blockchain: "XLM", token: nil),
         isDemo: false
     )
-
-    static var visaStub: UserWalletConfig = VisaConfig(
-        card: .init(card: CardMock.visa.card),
-        activationLocalState: .activated(authTokens: .init(accessToken: "", refreshToken: "", authorizationType: .cardId))
-    )
 }

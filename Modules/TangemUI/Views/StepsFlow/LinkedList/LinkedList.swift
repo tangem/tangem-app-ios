@@ -38,8 +38,4 @@ class LinkedList<Element> {
 
         tail = node
     }
-
-    func forEach(_ body: (Element) -> Void) {
-        nodes.forEach { body($0.element) }
-    }
 }

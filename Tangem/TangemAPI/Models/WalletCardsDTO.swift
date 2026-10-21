@@ -15,10 +15,6 @@ enum WalletCardsDTO {
         let usedSeed: Bool
     }
 
-    struct Response: Decodable {
-        let cards: [Card]
-    }
-
     struct Card: Codable {
         let cardId: String
         let cardPublicKey: String

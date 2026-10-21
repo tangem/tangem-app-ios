@@ -12,9 +12,6 @@ import TangemFoundation
 import TangemMobileWalletSdk
 
 final class MobileSettingsUtil {
-    @Injected(\.userWalletDismissedNotifications)
-    private var dismissedNotifications: UserWalletDismissedNotifications
-
     private var isAccessCodeFeatureAvailable: Bool {
         userWalletConfig.hasFeature(.userWalletAccessCode)
     }
@@ -34,8 +31,6 @@ final class MobileSettingsUtil {
     private var userWalletConfig: UserWalletConfig {
         userWalletModel.config
     }
-
-    private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
     private let backupStatusUtil: MobileBackupStatusUtil
     private let userWalletModel: UserWalletModel
