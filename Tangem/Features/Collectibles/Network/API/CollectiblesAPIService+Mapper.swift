@@ -81,13 +81,35 @@ extension CollectiblesAPIService {
         }
 
         static func mapToBuybackAmount(_ buyback: CollectiblesDTO.PurchaseBuyback) -> Decimal? {
-            guard let toAmount = buyback.toAmount, let units = Decimal(string: toAmount) else {
+            guard let toAmount = buyback.toAmount else {
                 return nil
             }
 
             let decimals = buyback.toDecimals ?? CollectiblesChainEnvironment.usdcTokenItem.decimalCount
 
-            return units.moveLeft(decimals: decimals)
+            return try? mapToPayout(baseUnits: toAmount, decimals: decimals)
+        }
+
+        static func mapToPayout(baseUnits: String, decimals: Int) throws -> Decimal {
+            let units = try mapToBaseUnits(baseUnits)
+
+            guard units > 0 else {
+                let context = DecodingError.Context(
+                    codingPath: [],
+                    debugDescription: "Not a positive payout: \(baseUnits)"
+                )
+                throw CollectiblesAPIService.Error.decoding(.dataCorrupted(context))
+            }
+
+            guard Constants.supportedDecimals.contains(decimals) else {
+                let context = DecodingError.Context(
+                    codingPath: [],
+                    debugDescription: "Unsupported token decimals: \(decimals)"
+                )
+                throw CollectiblesAPIService.Error.decoding(.dataCorrupted(context))
+            }
+
+            return Decimal(units).moveLeft(decimals: decimals)
         }
 
         static func mapToErrorCode(_ body: Data) -> Int? {
@@ -133,6 +155,7 @@ private extension CollectiblesAPIService.Mapper {
 
     static func mapToWonCard(_ nft: CollectiblesDTO.NftWon) -> CollectiblesWonCard {
         CollectiblesWonCard(
+            nftAddress: nft.nftAddress?.trimmed().nilIfEmpty,
             imageFrontURL: nft.imageFront.flatMap(URL.init),
             imageBackURL: nft.imageBack.flatMap(URL.init),
             gradingCompany: nft.gradingCompany?.trimmed().nilIfEmpty,
@@ -211,6 +234,7 @@ private extension CollectiblesAPIService.Mapper {
         static let centsScale = Decimal(100)
         /// `instantBuybackPercent` is whole percent (85), the domain rate is a fraction (0.85).
         static let percentScale = Decimal(100)
+        static let supportedDecimals = 0 ... 18
     }
 }
 
