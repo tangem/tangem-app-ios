@@ -531,8 +531,9 @@ private extension WelcomeCoordinator {
         }
 
         let readMoreButton = ConfirmationDialogViewModel.Button(title: Localization.commonReadMore) { [weak self] in
-            self?.analytics.logTroubleshootingReadMore()
-            self?.safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
+            guard let self else { return }
+            analytics.logTroubleshootingReadMore()
+            safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
         }
 
         let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
@@ -636,7 +637,7 @@ private extension WelcomeCoordinator {
         case .web(let raw):
             // Https-only, defense in depth: this action is built locally by our own factory,
             // so the host allowlist applied to remote stories is not needed here.
-            guard let url = URL(string: raw), url.scheme?.lowercased() == "https" else { return }
+            guard let url = URL(string: raw), url.isHTTPS else { return }
             openShop(url: url, entry: .stories)
         case .screen, .deeplink, .close:
             break
