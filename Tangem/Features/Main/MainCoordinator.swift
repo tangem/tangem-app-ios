@@ -30,7 +30,10 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
+    @Injected(\.tangemStoriesViewModel) private var tangemStoriesViewModel: TangemStoriesViewModel
+    @Injected(\.storiesV2Presenter) private var storiesV2Presenter: any StoriesV2Presenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.floatingSheetPresentingStateProvider) private var sheetStateProvider: FloatingSheetPresentingStateProvider
     @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
     @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
 
@@ -116,7 +119,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
             coordinator: self,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self),
             pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider,
-            promoSheetProvider: MainScreenPromoSheetProvider(managers: [])
+            promoSheetProvider: MainScreenPromoSheetProvider(managers: [], host: self)
         )
 
         mainViewModel = viewModel
@@ -1182,6 +1185,29 @@ extension MainCoordinator: FeedHostRoutable {
             openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
         case .selectPlan(let tariffPlanSelector, let userWalletModel):
             openTangemPaySelectPlan(tariffPlanSelector: tariffPlanSelector, userWalletModel: userWalletModel)
+        }
+    }
+}
+
+// MARK: - MainScreenPromoSheetHost
+
+extension MainCoordinator: MainScreenPromoSheetHost {
+    var busySurfacePublishers: [AnyPublisher<Bool, Never>] {
+        [
+            sheetStateProvider.hasPresentedSheetPublisher,
+            mobileFinishActivationManager.isActivationPendingOrShownPublisher,
+            hasPresentedStoryPublisher,
+        ]
+    }
+
+    private var hasPresentedStoryPublisher: AnyPublisher<Bool, Never> {
+        MainActor.assumeIsolated {
+            Publishers.CombineLatest(
+                tangemStoriesViewModel.$state.map { $0 != nil },
+                storiesV2Presenter.playerPublisher.map { $0 != nil }
+            )
+            .map { $0 || $1 }
+            .eraseToAnyPublisher()
         }
     }
 }

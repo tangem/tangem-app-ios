@@ -44,7 +44,7 @@ struct MainView: View {
             coordinator: coordinator,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator),
             pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProviderStub(),
-            promoSheetProvider: MainScreenPromoSheetProvider(managers: [])
+            promoSheetProvider: MainScreenPromoSheetProvider(managers: [], host: coordinator)
         )
 
         return viewModel
