@@ -239,4 +239,11 @@ extension Button {
     func iconSize(_ side: CGFloat) -> Self {
         map { $0._iconSide = ScaledMetric(wrappedValue: side, relativeTo: .body) }
     }
+
+    func labelText(_ text: String) -> Self {
+        map {
+            guard case .label(_, let iconStart, let iconEnd) = $0.content else { return }
+            $0.content = .label(AttributedString(text), iconStart: iconStart, iconEnd: iconEnd)
+        }
+    }
 }
