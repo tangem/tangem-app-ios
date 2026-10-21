@@ -121,9 +121,9 @@ private final class CollectiblesPackPurchaseInteractorStub: CollectiblesPackPurc
         machineID: String,
         price: Decimal,
         platformFee: Decimal,
-        turboMode: CollectiblesTurboMode,
+        isTurboModeOn: Bool,
         onStep: @escaping (CollectiblesPackPurchaseStep) -> Void
-    ) async throws -> CollectiblesWonCard {
+    ) async throws -> CollectiblesPackPurchaseResult {
         throw CancellationError()
     }
 }

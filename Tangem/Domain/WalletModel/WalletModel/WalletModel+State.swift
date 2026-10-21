@@ -46,15 +46,6 @@ enum WalletModelState: Hashable, CustomStringConvertible {
         }
     }
 
-    var failureDescription: String? {
-        switch self {
-        case .failed(let localizedDescription):
-            return localizedDescription
-        default:
-            return nil
-        }
-    }
-
     var description: String {
         switch self {
         case .created: "Created"

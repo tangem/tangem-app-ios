@@ -16,12 +16,22 @@ struct TangemPayOfframpPreSignatureVerifier {
         self.fiatItem = fiatItem
     }
 
-    func verify(_ preSignature: TangemPayWithdrawPreSignature, against expectation: Expectation) throws(Error) {
+    func verify(
+        _ preSignature: TangemPayWithdrawPreSignature,
+        against expectation: Expectation,
+        depositAddress: String
+    ) throws(Error) {
+        guard preSignature.isCollateralWithdraw else {
+            throw .schemaMismatch
+        }
+
         let typedData = preSignature.structuredData
 
         guard let domainChainId = typedData.domain[DomainKey.chainId].flatMap(Self.chainId(from:)),
+              let verifyingContract = typedData.domain[DomainKey.verifyingContract]?.stringValue,
               let messageAsset = typedData.message[MessageKey.asset]?.stringValue,
               domainChainId == expectation.chainId,
+              verifyingContract.caseInsensitiveCompare(depositAddress) == .orderedSame,
               messageAsset.caseInsensitiveCompare(expectation.tokenContractAddress) == .orderedSame
         else {
             throw .networkMismatch
@@ -77,6 +87,7 @@ extension TangemPayOfframpPreSignatureVerifier {
         case amountMismatch
         case networkMismatch
         case hashMismatch
+        case schemaMismatch
     }
 }
 
@@ -90,6 +101,7 @@ private extension TangemPayOfframpPreSignatureVerifier {
 
     enum DomainKey {
         static let chainId = "chainId"
+        static let verifyingContract = "verifyingContract"
     }
 
     static func chainId(from json: JSON) -> Int? {

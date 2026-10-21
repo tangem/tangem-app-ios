@@ -26,6 +26,11 @@ public protocol PolymarketAPIProvider {
     func closedPositions(request: PolymarketClosedPositionsRequest) async throws -> PolymarketClosedPositionsPage
 
     func positionOutcome(request: PolymarketPositionOutcomeRequest) async throws -> PolymarketPosition?
+
+    func activity(request: PolymarketActivityRequest) async throws -> PolymarketActivityPage
+
+    @discardableResult
+    func reconcileDeposits(depositWalletAddress: String) async throws -> PolymarketDepositsScan
 }
 
 public extension PolymarketAPIProvider {

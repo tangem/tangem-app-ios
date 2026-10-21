@@ -64,7 +64,7 @@ private extension MobileRemoveWalletView {
     }
 
     var marks: some View {
-        CheckableButton(title: viewModel.backupInfo, isChecked: $viewModel.isBackupChecked)
+        MobileRemoveWalletCheckmarkRow(title: viewModel.backupInfo, isChecked: $viewModel.isBackupChecked)
     }
 
     func action(item: ViewModel.ActionItem) -> some View {
@@ -75,53 +75,5 @@ private extension MobileRemoveWalletView {
             action: item.action
         )
         .confirmationDialog(viewModel: $viewModel.confirmationDialog)
-    }
-}
-
-// MARK: - MarkableButton
-
-private extension MobileRemoveWalletView {
-    struct CheckableButton: View {
-        let title: String
-        @Binding var isChecked: Bool
-
-        var body: some View {
-            SwiftUI.Button(action: onTap) {
-                HStack(spacing: 12) {
-                    mark
-                    text
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .contentShape(Rectangle())
-        }
-
-        private func onTap() {
-            isChecked.toggle()
-        }
-
-        private var mark: some View {
-            Group {
-                if isChecked {
-                    Assets.circleChecked.image
-                        .renderingMode(.template)
-                        .resizable()
-                        .foregroundStyle(Colors.Control.checked)
-                } else {
-                    Circle()
-                        .strokeBorder(lineWidth: 2)
-                        .foregroundStyle(Colors.Stroke.primary)
-                }
-            }
-            .frame(width: 24, height: 24)
-            .animation(.default, value: isChecked)
-        }
-
-        private var text: some View {
-            Text(title)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
-                .multilineTextAlignment(.leading)
-                .fixedSize(horizontal: false, vertical: true)
-        }
     }
 }

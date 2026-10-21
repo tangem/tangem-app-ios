@@ -13,6 +13,7 @@ public struct PolymarketPosition: Hashable, Sendable, Identifiable {
     public let assetId: String
 
     public let marketId: String?
+    public let version: PolymarketMarketVersion?
     public let eventId: String?
     public let eventTitle: String?
 
@@ -46,6 +47,7 @@ public struct PolymarketPosition: Hashable, Sendable, Identifiable {
         conditionId: String,
         assetId: String,
         marketId: String?,
+        version: PolymarketMarketVersion? = nil,
         eventId: String?,
         eventTitle: String?,
         title: String,
@@ -71,6 +73,7 @@ public struct PolymarketPosition: Hashable, Sendable, Identifiable {
         self.conditionId = conditionId
         self.assetId = assetId
         self.marketId = marketId
+        self.version = version
         self.eventId = eventId
         self.eventTitle = eventTitle
         self.title = title
@@ -125,12 +128,16 @@ public enum PolymarketPositionSettlement: String, Hashable, Sendable, CaseIterab
 public struct PolymarketPositionsPage: Hashable, Sendable {
     public let positions: [PolymarketPosition]
     public let receivedCount: Int
-    public let hasNext: Bool
+    public let nextCursor: String?
 
-    public init(positions: [PolymarketPosition], receivedCount: Int, hasNext: Bool) {
+    public var hasNext: Bool {
+        nextCursor != nil
+    }
+
+    public init(positions: [PolymarketPosition], receivedCount: Int, nextCursor: String?) {
         self.positions = positions
         self.receivedCount = receivedCount
-        self.hasNext = hasNext
+        self.nextCursor = nextCursor
     }
 }
 

@@ -261,4 +261,9 @@ private final class StubExperimentService: ExperimentService {
 
         return fetched != nil
     }
+
+    @MainActor
+    func hasFetchedVariants(for userWalletId: UserWalletId) -> Bool {
+        fetchedUserWalletIdsSubject.value.contains(userWalletId)
+    }
 }

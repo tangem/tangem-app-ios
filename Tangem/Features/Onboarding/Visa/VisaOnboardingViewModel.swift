@@ -58,9 +58,6 @@ class VisaOnboardingViewModel: ObservableObject {
     )
 
     lazy var accessCodeSetupViewModel = VisaOnboardingAccessCodeSetupViewModel(accessCodeValidator: visaActivationManager, delegate: self)
-    lazy var walletSelectorViewModel = VisaOnboardingApproveWalletSelectorViewModel(remoteStateProvider: self, delegate: self)
-    var tangemWalletApproveViewModel: VisaOnboardingTangemWalletDeployApproveViewModel?
-    var walletConnectViewModel: VisaOnboardingWalletConnectViewModel?
     lazy var inProgressViewModel: VisaOnboardingInProgressViewModel? = VisaOnboardingViewModelsBuilder().buildInProgressModel(
         activationRemoteState: visaActivationManager.activationRemoteState,
         delegate: self
@@ -123,10 +120,6 @@ class VisaOnboardingViewModel: ObservableObject {
             self.userWalletModel = userWalletModel
         }
 
-        if steps.first == .selectWalletForApprove {
-            proceedToApproveWalletSelection(animated: false)
-        }
-
         loadImage(imageProvider: input.cardInput.cardImageProvider)
 
         bindAnalytics()
@@ -134,7 +127,7 @@ class VisaOnboardingViewModel: ObservableObject {
 
     func backButtonAction() {
         switch currentStep {
-        case .welcome, .welcomeBack, .pushNotifications, .paymentAccountDeployInProgress, .issuerProcessingInProgress, .pinSelection, .saveUserWallet, .selectWalletForApprove:
+        case .welcome, .welcomeBack, .pushNotifications, .paymentAccountDeployInProgress, .issuerProcessingInProgress, .pinSelection, .saveUserWallet:
             showCloseOnboardingAlert()
         case .accessCode:
             guard accessCodeSetupViewModel.goBack() else {
@@ -142,11 +135,6 @@ class VisaOnboardingViewModel: ObservableObject {
             }
 
             goToStep(.welcome)
-        case .approveUsingTangemWallet:
-            goToStep(.selectWalletForApprove)
-        case .approveUsingWalletConnect:
-            walletConnectViewModel?.cancelStatusUpdates()
-            goToStep(.selectWalletForApprove)
         case .success:
             break
         }
@@ -217,12 +205,6 @@ class VisaOnboardingViewModel: ObservableObject {
                     Analytics.log(.visaOnboardingActivationScreenOpened)
                 case .accessCode:
                     Analytics.log(.visaOnboardingSetAccessCodeScreenOpened)
-                case .selectWalletForApprove:
-                    Analytics.log(.visaOnboardingChooseWalletScreenOpened)
-                case .approveUsingTangemWallet:
-                    Analytics.log(.visaOnboardingTangemWalletPrepareScreenOpened)
-                case .approveUsingWalletConnect:
-                    Analytics.log(.visaOnboardingDAppScreenOpened)
                 case .paymentAccountDeployInProgress, .issuerProcessingInProgress:
                     Analytics.log(.visaOnboardingActivationInProgressScreenOpened)
                 case .pinSelection:
@@ -259,8 +241,6 @@ private extension VisaOnboardingViewModel {
                 goToStep(.accessCode)
             }
         case .accessCode:
-            goToStep(.selectWalletForApprove)
-        case .selectWalletForApprove, .approveUsingTangemWallet, .approveUsingWalletConnect:
             break
         case .issuerProcessingInProgress, .saveUserWallet, .pushNotifications:
             guard
@@ -457,7 +437,6 @@ extension VisaOnboardingViewModel: VisaOnboardingAccessCodeSetupDelegate {
         try visaActivationManager.saveAccessCode(accessCode: accessCode)
         let activationResponse = try await visaActivationManager.startActivation()
         await updateUserWalletModel(with: .init(card: activationResponse.signedActivationOrder.cardSignedOrder))
-        proceedToApproveWalletSelection()
     }
 
     func closeOnboarding() {
@@ -475,82 +454,6 @@ extension VisaOnboardingViewModel: VisaOnboardingWelcomeDelegate {
     func continueActivation() async throws {
         let activationResponse = try await visaActivationManager.startActivation()
         await updateUserWalletModel(with: .init(card: activationResponse.signedActivationOrder.cardSignedOrder))
-        proceedToApproveWalletSelection()
-    }
-}
-
-// MARK: - Approve pair search
-
-private extension VisaOnboardingViewModel {
-    func proceedToApproveWalletSelection(animated: Bool = true) {
-        guard let targetAddress = visaActivationManager.targetApproveAddress else {
-            showAlert(OnboardingError.missingTargetApproveAddress.alertBinder)
-            return
-        }
-
-        guard visaActivationManager.activationRemoteState == .customerWalletSignatureRequired else {
-            showAlert(OnboardingError.missingTargetApproveAddress.alertBinder)
-            return
-        }
-
-        let searchUtility = VisaApprovePairSearchUtility(isTestnet: FeatureStorage.instance.visaAPIType.isTestnet)
-
-        guard
-            let approvePair = searchUtility.findApprovePair(
-                for: targetAddress,
-                userWalletModels: userWalletRepository.models
-            )
-        else {
-            goToStep(.selectWalletForApprove, animated: animated)
-            return
-        }
-
-        tangemWalletApproveViewModel = .init(
-            targetWalletAddress: targetAddress,
-            delegate: self,
-            dataProvider: self,
-            approvePair: approvePair
-        )
-        goToStep(.approveUsingTangemWallet, animated: animated)
-    }
-}
-
-// MARK: - ApproveWalletSelector protocols
-
-extension VisaOnboardingViewModel: VisaOnboardingRemoteStateProvider {
-    func loadCurrentRemoteState() async throws -> VisaCardActivationRemoteState {
-        try await visaActivationManager.refreshActivationRemoteState()
-    }
-}
-
-extension VisaOnboardingViewModel: VisaOnboardingApproveWalletSelectorDelegate {
-    func useExternalWallet() {
-        walletConnectViewModel = .init(delegate: self)
-        goToStep(.approveUsingWalletConnect)
-    }
-
-    func useTangemWallet() {
-        // Default value will be removed and guard check will be added, when backend finished implementation
-        let targetApproveAddress = visaActivationManager.targetApproveAddress ?? ""
-        tangemWalletApproveViewModel = .init(
-            targetWalletAddress: targetApproveAddress,
-            delegate: self,
-            dataProvider: self
-        )
-        goToStep(.approveUsingTangemWallet)
-    }
-}
-
-extension VisaOnboardingViewModel: VisaOnboardingTangemWalletApproveDelegate {
-    func processSignedData(_ signedData: Data) async throws {
-        try await visaActivationManager.sendSignedCustomerWalletApprove(signedData)
-        await proceedFromCurrentRemoteState()
-    }
-}
-
-extension VisaOnboardingViewModel: VisaOnboardingTangemWalletApproveDataProvider {
-    func loadDataToSign() async throws -> Data {
-        return try await visaActivationManager.getCustomerWalletApproveHash()
     }
 }
 

@@ -24,6 +24,8 @@ protocol PolymarketAccountModel: BaseAccountModel where Icon == AccountModel.Sta
     /// Reads the money only. The account's own status is terminal once it is ready to trade, so the
     /// screens behind it never ask for it again.
     func refreshBalance(scope: PolymarketBalanceRefreshScope) async
+
+    func resetOnboarding(isAccountGone: Bool)
 }
 
 enum PolymarketBalanceRefreshScope {

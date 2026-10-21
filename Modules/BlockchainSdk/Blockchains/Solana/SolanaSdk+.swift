@@ -131,27 +131,6 @@ extension Api {
         .eraseToAnyPublisher()
     }
 
-    func getSignatureStatuses(pubkeys: [String], configs: RequestConfiguration? = nil) -> AnyPublisher<[SignatureStatus?], Error> {
-        Deferred { [weak self] in
-            Future { promise in
-                guard let self = self else {
-                    promise(.failure(BlockchainSdkError.empty))
-                    return
-                }
-
-                self.getSignatureStatuses(pubkeys: pubkeys, configs: configs) { result in
-                    switch result {
-                    case .failure(let error):
-                        promise(.failure(error))
-                    case .success(let statuses):
-                        promise(.success(statuses))
-                    }
-                }
-            }
-        }
-        .eraseToAnyPublisher()
-    }
-
     func sendTransaction(
         serializedTransaction: String,
         startSendingTimestamp: Date = Date(),

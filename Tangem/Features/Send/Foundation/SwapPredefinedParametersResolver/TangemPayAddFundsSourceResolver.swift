@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemExpress
 
 /// Picks the "From" token for Tangem Pay "Add funds", in priority order:
@@ -36,9 +37,16 @@ final class TangemPayAddFundsSourceResolver {
 // MARK: - SwapSourceTokenResolver
 
 extension TangemPayAddFundsSourceResolver: SwapSourceTokenResolver {
-    func resolve() async -> SendSwapableToken? {
+    var initialSource: LoadingResult<SendSwapableToken, any Error> { .loading }
+
+    func resolveSource(for receive: SendReceiveToken?) async throws -> SendSwapableToken {
         let walletModels = await walletModelsProvider.settledWalletModels()
-        return resolveSourceToken(from: walletModels)
+
+        guard let source = resolveSourceToken(from: walletModels) else {
+            throw SwapModel.SwapModelError.tokenSelectionRequired
+        }
+
+        return source
     }
 }
 
@@ -50,9 +58,11 @@ extension TangemPayAddFundsSourceResolver {
         preferredCurrencies: Set<ExpressWalletCurrency>,
         availabilityChecker: FundingSourceAvailabilityChecker
     ) -> (any WalletModel)? {
+        let selectable = walletModels.filter { !$0.isJointAccountParticipant }
+
         // A currency match makes the pair a plain transfer, which needs no Express support —
         // only the send gates apply, the swap availability bar is for the swap fallback.
-        let preferred = walletModels.filter {
+        let preferred = selectable.filter {
             preferredCurrencies.contains($0.tokenItem.expressCurrency)
                 && availabilityChecker.isTransferAvailable(walletModel: $0)
         }
@@ -61,7 +71,7 @@ extension TangemPayAddFundsSourceResolver {
             return preferredSource
         }
 
-        let candidates = walletModels.filter { availabilityChecker.isSwapAvailable(walletModel: $0) }
+        let candidates = selectable.filter { availabilityChecker.isSwapAvailable(walletModel: $0) }
         return candidates.mostFiatFundedOrFirst
     }
 }

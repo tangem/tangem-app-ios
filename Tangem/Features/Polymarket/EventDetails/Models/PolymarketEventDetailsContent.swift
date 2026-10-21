@@ -88,6 +88,7 @@ extension PolymarketEventDetailsContent {
             title: market.listLabel,
             fallbackImageURL: event.iconURL ?? event.imageURL,
             areOutcomesEnabled: areOutcomesEnabled,
+            outcomeTitles: event.buttonTitles(for: market),
             onSelectOutcome: { onSelectOutcome(market, $0) }
         )
     }

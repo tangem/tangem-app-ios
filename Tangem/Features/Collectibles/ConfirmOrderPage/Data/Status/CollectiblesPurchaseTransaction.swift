@@ -11,4 +11,5 @@ import Foundation
 struct CollectiblesPurchaseTransaction {
     let status: CollectiblesPurchaseStatus
     let wonCard: CollectiblesWonCard?
+    var buybackAmount: Decimal?
 }

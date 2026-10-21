@@ -49,18 +49,6 @@ enum ActionButtonsAnalyticsService {
         Analytics.log(event: event, params: [.token: tokenSymbol])
     }
 
-    static func trackReceiveTokenClicked(tokenSymbol: String) {
-        Analytics.log(event: .actionButtonsReceiveTokenClicked, params: [.token: tokenSymbol])
-    }
-
-    static func removeButtonClicked(tokenSymbol: String) {
-        Analytics.log(event: .actionButtonsRemoveButtonClicked, params: [.token: tokenSymbol])
-    }
-
-    static func hotTokenClicked(tokenSymbol: String) {
-        Analytics.log(event: .actionButtonsHotTokenClicked, params: [.token: tokenSymbol])
-    }
-
     static func hotTokenError(errorCode: String) {
         Analytics.log(event: .actionButtonsHotTokenError, params: [.errorCode: errorCode])
     }

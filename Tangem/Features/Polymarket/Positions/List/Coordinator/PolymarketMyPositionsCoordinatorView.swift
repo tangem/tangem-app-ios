@@ -16,6 +16,9 @@ struct PolymarketMyPositionsCoordinatorView: CoordinatorView {
     var body: some View {
         content
             .navigationLinks(links)
+            .fullScreenCover(item: $coordinator.redeem) { viewModel in
+                PolymarketRedeemView(viewModel: viewModel)
+            }
     }
 
     @ViewBuilder
@@ -31,8 +34,6 @@ struct PolymarketMyPositionsCoordinatorView: CoordinatorView {
                 switch destination {
                 case .positionDetails(let coordinator):
                     PolymarketPositionDetailsCoordinatorView(coordinator: coordinator)
-                case .redeem(let viewModel):
-                    PolymarketRedeemView(viewModel: viewModel)
                 }
             }
     }

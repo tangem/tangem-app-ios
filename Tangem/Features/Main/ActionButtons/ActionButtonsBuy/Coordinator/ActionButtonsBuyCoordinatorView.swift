@@ -42,6 +42,7 @@ struct ActionButtonsBuyCoordinatorView: View {
 
             sheets
         }
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .animation(SendTransitions.animation, value: coordinator.viewState)
     }
 

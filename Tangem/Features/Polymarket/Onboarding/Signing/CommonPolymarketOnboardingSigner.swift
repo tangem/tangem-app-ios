@@ -13,11 +13,15 @@ import TangemPolymarket
 
 final class CommonPolymarketOnboardingSigner {
     private let keysRepository: KeysRepository
-    private let signer: TangemSigner
+    private let signer: PolymarketOwnerKeySigner
 
-    init(keysRepository: KeysRepository, signer: TangemSigner) {
+    init(keysRepository: KeysRepository, signer: PolymarketOwnerKeySigner) {
         self.keysRepository = keysRepository
         self.signer = signer
+    }
+
+    convenience init(keysRepository: KeysRepository, signer: TangemSigner) {
+        self.init(keysRepository: keysRepository, signer: TangemPolymarketOwnerKeySigner(signer: signer))
     }
 }
 
@@ -76,9 +80,7 @@ private extension CommonPolymarketOnboardingSigner {
         using ownerKey: Wallet.PublicKey
     ) async throws(PolymarketSigningError) -> (auth: String, batch: String) {
         do {
-            let signatures = try await signer
-                .sign(hashes: [authDigest, batchDigest], walletPublicKey: ownerKey)
-                .async()
+            let signatures = try await signer.sign(hashes: [authDigest, batchDigest], ownerKey: ownerKey)
 
             let unmarshalled = try signatures.map { try $0.unmarshal().hexString.lowercased().addHexPrefix() }
 

@@ -131,8 +131,7 @@ private struct ModalShowcasePresenter: ViewModifier {
                 leading: configuration.showsActions ? .custom(.back { isPresented = false }) : .none,
                 actions: configuration.showsActions ? .one(TopNavigation.Action(title: "Add") { actionTaps += 1 }) : nil,
                 onDismiss: reset,
-                content: { presentedContent },
-                footer: { footer }
+                content: { presentedContent.legacyFooter { footer } }
             )
         } else {
             content.modal(
@@ -140,8 +139,7 @@ private struct ModalShowcasePresenter: ViewModifier {
                 size: configuration.size,
                 contentLayout: configuration.contentLayout,
                 onDismiss: reset,
-                content: { presentedContent },
-                footer: { footer }
+                content: { presentedContent.legacyFooter { footer } }
             )
         }
     }

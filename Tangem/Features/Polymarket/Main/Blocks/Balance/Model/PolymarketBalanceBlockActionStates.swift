@@ -15,15 +15,22 @@ struct PolymarketBalanceBlockActionStates: Equatable {
     init(
         readiness: PolymarketAccountFundsInteractor.State,
         collateralBalance: TokenBalanceType,
-        withdrawMinimum: Decimal?
+        usdToToken: (Decimal) -> Decimal,
+        isWithdrawalPending: Bool
     ) {
         addFunds = readiness.addFundsAvailability
 
         switch readiness {
         case .loading:
             withdraw = .loading
-        case .ready:
-            withdraw = Self.withdrawState(collateralBalance: collateralBalance, minimum: withdrawMinimum)
+        case .ready where isWithdrawalPending:
+            withdraw = .unavailable(.withdrawalInProgress)
+        case .ready(let readiness):
+            withdraw = Self.withdrawState(
+                withdrawalAvailability: readiness.withdrawalAvailability,
+                collateralBalance: collateralBalance,
+                usdToToken: usdToToken
+            )
         case .unavailable:
             withdraw = .unavailable(.accountUnavailable)
         }
@@ -34,8 +41,21 @@ struct PolymarketBalanceBlockActionStates: Equatable {
 
 private extension PolymarketBalanceBlockActionStates {
     static func withdrawState(
+        withdrawalAvailability: PolymarketAccountFundsInteractor.WithdrawalAvailability,
         collateralBalance: TokenBalanceType,
-        minimum: Decimal?
+        usdToToken: (Decimal) -> Decimal
+    ) -> PolymarketBalanceBlockViewModel.WithdrawState {
+        switch withdrawalAvailability {
+        case .available(let minimumUSD):
+            withdrawState(collateralBalance: collateralBalance, minimum: usdToToken(minimumUSD))
+        case .unavailable:
+            .unavailable(.minimumUnknown)
+        }
+    }
+
+    static func withdrawState(
+        collateralBalance: TokenBalanceType,
+        minimum: Decimal
     ) -> PolymarketBalanceBlockViewModel.WithdrawState {
         switch collateralBalance {
         case .loaded(let balance):
@@ -49,12 +69,12 @@ private extension PolymarketBalanceBlockActionStates {
         }
     }
 
-    static func withdrawState(forBalance balance: Decimal, minimum: Decimal?) -> PolymarketBalanceBlockViewModel.WithdrawState {
+    static func withdrawState(forBalance balance: Decimal, minimum: Decimal) -> PolymarketBalanceBlockViewModel.WithdrawState {
         guard balance > 0 else {
             return .unavailable(.emptyBalance)
         }
 
-        guard let minimum, balance < minimum else {
+        guard balance < minimum else {
             return .available
         }
 

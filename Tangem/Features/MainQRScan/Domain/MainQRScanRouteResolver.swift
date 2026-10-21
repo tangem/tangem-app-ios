@@ -32,12 +32,16 @@ struct MainQRScanRouteResolver {
         switch parser.parse(scannedCode) {
         case .walletConnect(let uri):
             return .walletConnect(uri)
+        case .mcpConnectionRequest(let userCode):
+            return .mcpConnectionRequest(userCode: userCode)
         case .paymentURI(let request):
             return actionForPayment(
                 request: request,
                 availableBlockchains: availableBlockchains,
                 availableTokenItems: availableTokenItems
             )
+        case .deeplink(let url):
+            return .deeplink(url)
         case .plainAddress(let address):
             return actionForAddress(address: address, availableBlockchains: availableBlockchains)
         case .unrecognized:

@@ -17,7 +17,7 @@ final class NewsListViewModel: ObservableObject {
     // MARK: - Published Properties
 
     @Published private(set) var newsItems: [NewsItemViewModel] = []
-    @Published private(set) var categories: [NewsDTO.Categories.Item] = []
+    @Published private(set) var categories: LoadingResult<[NewsDTO.Categories.Item], any Error> = .loading
     @Published var selectedCategoryId: Int?
     @Published private(set) var loadingState: LoadingState = .idle
 
@@ -70,7 +70,7 @@ final class NewsListViewModel: ObservableObject {
                 viewModel.categories = categories
 
                 if let incomingCategoryId = viewModel.incomingCategoryId,
-                   let category = categories.first(where: { $0.id == incomingCategoryId }) {
+                   let category = categories.value?.first(where: { $0.id == incomingCategoryId }) {
                     viewModel.incomingCategoryId = nil
                     viewModel.selectedCategoryId = category.id
                 }

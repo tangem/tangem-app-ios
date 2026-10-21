@@ -9,7 +9,6 @@
 import BlockchainSdk
 import Combine
 import Foundation
-import TangemAssets
 import TangemSdk
 import TangemUI
 @testable import Tangem
@@ -25,6 +24,7 @@ struct UserWalletConfigStub: UserWalletConfig {
     let isWalletsCreated: Bool = true
     var supportedBlockchains: Set<Blockchain> = []
     var unavailableFeatures: Set<UserWalletFeature> = []
+    var derivationStyle: DerivationStyle? = nil
     let defaultBlockchains: [TokenItem] = []
     let persistentBlockchains: [TokenItem] = []
     let embeddedBlockchain: TokenItem? = nil
@@ -51,7 +51,6 @@ struct UserWalletConfigStub: UserWalletConfig {
 // MARK: - TangemSigner
 
 final class TangemSignerStub: TangemSigner {
-    let hasNFCInteraction: Bool = false
     let latestSignerType: TangemSignerType? = nil
 
     func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
@@ -95,10 +94,6 @@ struct MainHeaderProviderFactoryStub: MainHeaderProviderFactory {
     func makeHeaderBalanceProvider(for model: UserWalletModel) -> MainHeaderBalanceProvider {
         MainHeaderBalanceProviderStub()
     }
-
-    func makeHeaderSubtitleProvider(for userWalletModel: UserWalletModel, isMultiWallet: Bool) -> MainHeaderSubtitleProvider {
-        MainHeaderSubtitleProviderStub()
-    }
 }
 
 struct MainHeaderBalanceProviderStub: MainHeaderBalanceProvider {
@@ -107,16 +102,4 @@ struct MainHeaderBalanceProviderStub: MainHeaderBalanceProvider {
     var balancePublisher: AnyPublisher<LoadableBalanceView.State, Never> {
         Just(.loaded(text: "")).eraseToAnyPublisher()
     }
-}
-
-struct MainHeaderSubtitleProviderStub: MainHeaderSubtitleProvider {
-    var isLoadingPublisher: AnyPublisher<Bool, Never> {
-        Just(false).eraseToAnyPublisher()
-    }
-
-    var subtitlePublisher: AnyPublisher<MainHeaderSubtitleInfo, Never> {
-        Just(.init(messages: [], formattingOption: .default)).eraseToAnyPublisher()
-    }
-
-    var containsSensitiveInfo: Bool { false }
 }

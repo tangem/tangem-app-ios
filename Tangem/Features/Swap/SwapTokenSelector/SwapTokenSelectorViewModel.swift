@@ -13,8 +13,8 @@ import TangemLocalization
 import TangemFoundation
 
 protocol SwapTokenSelectorOutput: AnyObject {
-    func swapTokenSelectorDidRequestUpdate(sender item: TokenSelectorItem)
-    func swapTokenSelectorDidRequestUpdate(destination item: TokenSelectorItem)
+    func swapTokenSelectorDidRequestUpdate(sender item: TokenSelectorItem) throws
+    func swapTokenSelectorDidRequestUpdate(destination item: TokenSelectorItem) throws
 }
 
 final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
@@ -31,6 +31,8 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
 
     private weak var tokenSelectorCoordinator: SwapTokenSelectorRoutable?
     private weak var marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionRoutable?
+
+    @Injected(\.alertPresenter) private var alertPresenter: any AlertPresenter
 
     private var selectedTokenItem: TokenItem?
 
@@ -100,8 +102,11 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
 
 extension SwapTokenSelectorViewModel: TokenSelectorViewModelOutput {
     func userDidSelect(item: TokenSelectorItem) {
+        guard selectToken(item) else {
+            return
+        }
+
         logPortfolioTokenSelected(item: item)
-        selectToken(item)
     }
 }
 
@@ -116,12 +121,19 @@ private extension SwapTokenSelectorViewModel {
         analyticsLogger.logTokenSelected(coinSymbol: item.tokenItem.currencySymbol)
     }
 
-    func selectToken(_ item: TokenSelectorItem) {
-        switch swapDirection {
-        case .fromSource:
-            output?.swapTokenSelectorDidRequestUpdate(destination: item)
-        case .toDestination:
-            output?.swapTokenSelectorDidRequestUpdate(sender: item)
+    @discardableResult
+    func selectToken(_ item: TokenSelectorItem) -> Bool {
+        do {
+            switch swapDirection {
+            case .fromSource:
+                try output?.swapTokenSelectorDidRequestUpdate(destination: item)
+            case .toDestination:
+                try output?.swapTokenSelectorDidRequestUpdate(sender: item)
+            }
+        } catch {
+            AppLogger.error(error: error)
+            alertPresenter.present(alert: error.alertBinder)
+            return false
         }
 
         selectedTokenItem = item.tokenItem
@@ -131,6 +143,8 @@ private extension SwapTokenSelectorViewModel {
         Task { @MainActor in
             tokenSelectorCoordinator?.closeSwapTokenSelector()
         }
+
+        return true
     }
 }
 

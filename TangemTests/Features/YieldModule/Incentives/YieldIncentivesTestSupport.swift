@@ -199,8 +199,6 @@ final class YieldClaimIncentivesManagerStub: YieldIncentivesManager {
 }
 
 final class YieldClaimDispatcherStub: TransactionDispatcher {
-    var hasNFCInteraction: Bool { false }
-
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         throw YieldIncentivesTestError.network
     }

@@ -27,12 +27,6 @@ struct CommonSendSummaryTitleProvider: SendSummaryTitleProvider {
     }
 }
 
-// MARK: - Sell
-
-struct SellSendSummaryTitleProvider: SendSummaryTitleProvider {
-    var title: String { Localization.commonSell }
-}
-
 // MARK: - Send with Swap
 
 struct SendWithSwapSummaryTitleProvider: SendSummaryTitleProvider {

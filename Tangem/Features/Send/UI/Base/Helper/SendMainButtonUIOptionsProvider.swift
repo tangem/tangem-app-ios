@@ -10,8 +10,7 @@ import TangemUI
 
 protocol SendMainButtonUIOptionsProvider {
     func mainButtonTitle(mainButtonType: SendMainButtonType, flowActionType: SendFlowActionType) -> String
-    func mainButtonNeedsHoldAction(mainButtonType: SendMainButtonType, flowActionType: SendFlowActionType) -> Bool
-    func mainButtonIcon(mainButtonType: SendMainButtonType, flowActionType: SendFlowActionType) -> MainButton.Icon?
+    func mainButtonSigningActionButtonType(mainButtonType: SendMainButtonType, flowActionType: SendFlowActionType) -> SigningActionButtonViewType?
 }
 
 extension SendMainButtonUIOptionsProvider {

@@ -35,16 +35,18 @@ struct PolymarketFundingFlow {
             throw .missingPolymarketAccountModel
         }
 
-        let fundsState = dependencies.accountFundsInteractor.state
-
-        guard let depositWalletAddress = fundsState.depositWalletAddress else {
+        guard case .ready(let readiness) = dependencies.accountFundsInteractor.state else {
             throw .missingVerifiedDepositWallet
+        }
+
+        guard case .available(let minimumUSD) = readiness.withdrawalAvailability else {
+            throw .unknownWithdrawalMinimum
         }
 
         return dependencies.withdrawContext.makeSource(
             accountModel: accountModel,
-            depositWalletAddress: depositWalletAddress,
-            minimumUSD: fundsState.collateralMinCheckoutUSD
+            depositWalletAddress: readiness.depositWalletAddress,
+            minimumUSD: minimumUSD
         )
     }
 
@@ -71,7 +73,11 @@ struct PolymarketFundingFlow {
     }
 
     func awaitDeposit(since baseline: Decimal?) {
-        dependencies.fundsArrivalTracker.startAwaitingFunds(since: baseline)
+        let activityService = dependencies.activityService
+
+        dependencies.fundsArrivalTracker.startAwaitingFunds(since: baseline) {
+            Task { await activityService.reconcileDeposits() }
+        }
     }
 
     func awaitWithdrawal(since baseline: Decimal?) {
@@ -84,4 +90,5 @@ struct PolymarketFundingFlow {
 enum PolymarketFundingError: Error {
     case missingPolymarketAccountModel
     case missingVerifiedDepositWallet
+    case unknownWithdrawalMinimum
 }

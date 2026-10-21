@@ -18,13 +18,6 @@ final class WCFeeSelectorContentViewModel: ObservableObject, FloatingSheetConten
     @Published private(set) var feesRowData: [WCFeeSelectorContentRowViewModel] = []
     @Published private(set) var doneButtonIsDisabled: Bool = false
 
-    var showDoneButton: Bool {
-        switch (savingType, selectedFeeOption) {
-        case (.doneButton, _), (.autosave, .custom): true
-        case (.autosave, _): false
-        }
-    }
-
     let dismissButtonType: FeeSelectorDismissButtonType
 
     private let input: WCFeeSelectorContentViewModelInput

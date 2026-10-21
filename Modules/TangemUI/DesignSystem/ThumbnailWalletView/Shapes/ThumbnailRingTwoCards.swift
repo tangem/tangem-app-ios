@@ -8,10 +8,8 @@
 
 import SwiftUI
 
-typealias ThumbnailRingTwoCardsView = ThumbnailPathBuilderView<ThumbnailRingTwoCardsPathBuilder>
-
 public enum ThumbnailRingTwoCardsPathBuilder: ThumbnailPathBuilding {
-    public struct FillColors: Equatable {
+    public struct FillColors: Equatable, Sendable {
         public let ring: Color
         public let card: Color
         public let secondCard: Color

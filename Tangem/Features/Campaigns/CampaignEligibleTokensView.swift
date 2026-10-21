@@ -32,7 +32,7 @@ struct CampaignEligibleTokensView: View {
                         }
                     }
                 }
-                .background(Color.Tangem.Surface.level3)
+                .background(DesignSystem.Color.bgSecondary)
                 .cornerRadiusContinuous(18)
             }
         }

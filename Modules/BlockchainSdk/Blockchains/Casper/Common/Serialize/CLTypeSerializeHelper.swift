@@ -841,10 +841,6 @@ enum CLTypeSerializeHelper {
      Serialize for CLValue of CLType Unit
         Just return emtpy String
      */
-
-    static func unitSerialize() -> String {
-        return ""
-    }
 }
 
 private extension String {

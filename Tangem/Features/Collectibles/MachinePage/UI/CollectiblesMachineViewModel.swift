@@ -198,3 +198,7 @@ extension CollectiblesMachineViewModel {
         static let paymentCurrencyCode = "USDC"
     }
 }
+
+// MARK: - Identifiable
+
+extension CollectiblesMachineViewModel: Identifiable {}

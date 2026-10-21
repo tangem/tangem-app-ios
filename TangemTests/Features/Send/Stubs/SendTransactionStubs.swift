@@ -27,7 +27,6 @@ final class TransactionRecorder: @unchecked Sendable {
 
 struct RecordingTransactionDispatcher: TransactionDispatcher {
     let recorder: TransactionRecorder
-    let hasNFCInteraction = false
 
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         if case .transfer(let bsdkTransaction) = transaction {

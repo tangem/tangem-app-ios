@@ -141,9 +141,25 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Awaiting for %li member to join</string>
+        <string>Esperando que se una %li miembro</string>
         <key>other</key>
-        <string>Awaiting for %li members to join</string>
+        <string>Esperando que se unan %li miembros</string>
+      </dict>
+    </dict>
+    <key>joint_account_invite_members_invite_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Invitar %li miembro</string>
+        <key>other</key>
+        <string>Invitar %li miembros</string>
       </dict>
     </dict>
     <key>joint_account_invite_members_invite_more</key>
@@ -157,9 +173,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Invite %li more member</string>
+        <string>Invitar %li miembro más</string>
         <key>other</key>
-        <string>Invite %li more members</string>
+        <string>Invitar %li miembros más</string>
       </dict>
     </dict>
     <key>joint_account_invite_members_still_need_to_join</key>
@@ -194,6 +210,38 @@
         <string>%li signatures</string>
       </dict>
     </dict>
+    <key>joint_account_main_waiting_confirmations</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Esperando %li confirmación</string>
+        <key>other</key>
+        <string>Esperando %li confirmaciones</string>
+      </dict>
+    </dict>
+    <key>joint_account_main_waiting_members</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Esperando %li miembro</string>
+        <key>other</key>
+        <string>Esperando %li miembros</string>
+      </dict>
+    </dict>
     <key>joint_account_members_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -221,9 +269,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li member still needs to confirm</string>
+        <string>%li miembro pendiente de confirmar</string>
         <key>other</key>
-        <string>%li members still need to confirm</string>
+        <string>%li miembros pendiente de confirmar</string>
       </dict>
     </dict>
     <key>joint_account_send_signatures_required_banner</key>

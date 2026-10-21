@@ -238,7 +238,7 @@ private extension SolanaTransactionHistoryMapper {
     ) -> TransactionKind {
         let onlyTransferPrograms = instructions.allSatisfy { instruction in
             let programId = instruction.programId
-            return programId == Constants.systemProgramId || programId == Constants.computeBudgetProgramId
+            return programId == Constants.systemProgramId || programId == SolanaComputeBudgetInstruction.programId
         }
 
         let transferInstruction = instructions.first {
@@ -508,7 +508,6 @@ private extension SolanaTransactionHistoryMapper {
 
     enum Constants {
         static let systemProgramId = "11111111111111111111111111111111"
-        static let computeBudgetProgramId = "ComputeBudget111111111111111111111111111111"
         static let stakeProgramId = "Stake11111111111111111111111111111111111111"
         static let stakeProgram = "stake"
         static let tokenProgram = "spl-token"

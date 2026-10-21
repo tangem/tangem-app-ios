@@ -209,8 +209,11 @@ private extension SwapModelDexOnlyModeTests {
         let sourceToken = DexOnlySwapableTokenStub()
 
         let swapModel = SwapModel(
-            sourceToken: sourceToken,
-            receiveToken: nil,
+            parameters: PredefinedSwapParameters(
+                userWalletInfo: sourceToken.userWalletInfo,
+                source: .resolved(sourceToken),
+                receive: .userSelection
+            ),
             expressManager: expressManager,
             swapRepository: SwapRepositoryDummy(),
             expressPendingTransactionRepository: ExpressPendingTransactionRepositoryDummy(),
@@ -220,7 +223,7 @@ private extension SwapModelDexOnlyModeTests {
             autoupdatingTimer: AutoupdatingTimer(),
             pairUpdateHandler: SwapPairUpdateHandlerDummy(),
             balanceRestrictionFeatureChecker: balanceRestrictionChecker,
-            shouldStartInitialLoading: false
+            initialResolvingPolicy: .disabled
         )
 
         return Environment(
@@ -370,11 +373,12 @@ private final class DexOnlySwapableTokenStub: SendSwapableToken {
     var emailDataCollectorBuilder: EmailDataCollectorBuilder { inner.emailDataCollectorBuilder }
     var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? { get async { await inner.transactionHistoryEnricher } }
     var transactionDispatcherProvider: any TransactionDispatcherProvider { inner.transactionDispatcherProvider }
+    var transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider { inner.transactionSummaryDescriptionBuilderProvider }
+    var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { inner.blockchainSDKNotificationMapper }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { inner.accountModelAnalyticsProvider }
-    var tangemIconProvider: any TangemIconProvider { inner.tangemIconProvider }
-    var confirmTransactionPolicy: any ConfirmTransactionPolicy { inner.confirmTransactionPolicy }
     var isTangemPayAccount: Bool { inner.isTangemPayAccount }
     var jointAccountPolicy: JointAccountPolicy? { inner.jointAccountPolicy }
+    var sendingRestrictionsProvider: any SendingRestrictionsProvider { NoSendingRestrictionsProviderStub() }
 
     // MARK: - Unused in tests
 
@@ -383,7 +387,6 @@ private final class DexOnlySwapableTokenStub: SendSwapableToken {
     var operationType: ExpressOperationType { .swap }
     var supportedProvidersFilter: SupportedProvidersFilter { .swap }
     var swapAvailabilityProvider: any SwapAvailabilityProvider { fatalError("Unused in tests") }
-    var sendingRestrictionsProvider: any SendingRestrictionsProvider { fatalError("Unused in tests") }
     var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { fatalError("Unused in tests") }
     var tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider { fatalError("Unused in tests") }
     var tokenFeeProvidersManager: any TokenFeeProvidersManager { fatalError("Unused in tests") }
@@ -392,6 +395,10 @@ private final class DexOnlySwapableTokenStub: SendSwapableToken {
     var balanceProvider: any BalanceProvider { fatalError("Unused in tests") }
     var analyticsLogger: any AnalyticsLogger { fatalError("Unused in tests") }
     var providerTransactionValidator: any ExpressProviderTransactionValidator { fatalError("Unused in tests") }
+}
+
+private struct NoSendingRestrictionsProviderStub: SendingRestrictionsProvider {
+    var sendingRestrictionsPublisher: AnyPublisher<SendingRestrictions?, Never> { .just(output: nil) }
 }
 
 private final class SwapPairUpdateHandlerDummy: SwapPairUpdateHandler {

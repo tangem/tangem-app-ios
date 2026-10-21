@@ -36,10 +36,6 @@ enum TwinsOnboardingStep: Equatable {
     case success
     case alert
 
-    static var previewCases: [TwinsOnboardingStep] {
-        [.intro(pairNumber: "2"), .done]
-    }
-
     static var twinningProcessSteps: [TwinsOnboardingStep] {
         [.first, .second, .third]
     }
@@ -79,14 +75,6 @@ enum TwinsOnboardingStep: Equatable {
             return Localization.onboardingTitleNotifications
         default:
             return Localization.twinsRecreateToolbar
-        }
-    }
-
-    func backgroundFrame(in container: CGSize) -> CGSize {
-        switch self {
-        case .done:
-            return .init(width: container.width * 0.787, height: 0.487 * container.height)
-        default: return .init(width: 10, height: 10)
         }
     }
 }
@@ -185,10 +173,6 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
             return nil
         }
     }
-
-    var isSupplementButtonVisible: Bool { false }
-
-    var isContainSupplementButton: Bool { true }
 
     var checkmarkText: String? {
         switch self {

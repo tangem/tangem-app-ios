@@ -20,10 +20,17 @@ final class PolymarketSlippageSelectorViewModel: ObservableObject {
 
     let presets: [Preset] = PolymarketSlippage.presets.map(Preset.init)
 
+    let isRedesigned: Bool
+
     private let onConfirm: (Decimal) -> Void
     private var bag: Set<AnyCancellable> = []
 
-    init(percent: Decimal = PolymarketSlippage.defaultPercent, onConfirm: @escaping (Decimal) -> Void) {
+    init(
+        percent: Decimal = PolymarketSlippage.defaultPercent,
+        isRedesigned: Bool = false,
+        onConfirm: @escaping (Decimal) -> Void
+    ) {
+        self.isRedesigned = isRedesigned
         self.onConfirm = onConfirm
 
         bind()

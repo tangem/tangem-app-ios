@@ -22,7 +22,6 @@ extension CachesDirectoryStorage.File where Self == CachesDirectoryFile {
     static var cachedYieldModuleState: Self { CachesDirectoryFile.cachedYieldModuleStateFile }
     static var cachedStakingManagerState: Self { CachesDirectoryFile.cachedStakingManagerStateFile }
     static var cachedMarketingCampaigns: Self { CachesDirectoryFile.cachedMarketingCampaignsFile }
-    static var cachedFeedSearchHistory: Self { CachesDirectoryFile.cachedFeedSearchHistoryFile }
 }
 
 enum CachesDirectoryFile: CachesDirectoryStorage.File {
@@ -34,7 +33,6 @@ enum CachesDirectoryFile: CachesDirectoryStorage.File {
     case cachedYieldModuleStateFile
     case cachedStakingManagerStateFile
     case cachedMarketingCampaignsFile
-    case cachedFeedSearchHistoryFile
 
     var name: String {
         switch self {
@@ -54,8 +52,6 @@ enum CachesDirectoryFile: CachesDirectoryStorage.File {
             return "cached_staking_manager_state"
         case .cachedMarketingCampaignsFile:
             return "cached_marketing_campaigns"
-        case .cachedFeedSearchHistoryFile:
-            return "cached_feed_search_history"
         }
     }
 }
