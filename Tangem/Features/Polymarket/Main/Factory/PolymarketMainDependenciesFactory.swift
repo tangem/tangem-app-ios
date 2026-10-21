@@ -175,13 +175,27 @@ private extension PolymarketMainDependencies {
         )
     }
 
+    @MainActor
     func makeEventsBlockViewModel(routable: PolymarketEventOpeningRoutable) -> PolymarketEventsBlockViewModel {
         PolymarketEventsBlockViewModel(
             apiProvider: apiProvider,
             refreshCenter: refreshCenter,
             activityHandler: activityHandler,
+            liveQuotesTracker: makeFeedLiveQuotesTracker(),
             isRegionRestricted: isRegionRestricted,
             routable: routable
         )
+    }
+
+    @MainActor
+    func makeFeedLiveQuotesTracker() -> PolymarketFeedLiveQuotesTracker {
+        guard FeatureProvider.isAvailable(.polymarketPhaseTwo) else {
+            return PolymarketFeedLiveQuotesTracker(
+                quotes: { _ in AsyncStream { $0.finish() } },
+                statusChanges: { AsyncStream { $0.finish() } }
+            )
+        }
+
+        return PolymarketFeedLiveQuotesTracker(liveQuotes: PolymarketLiveQuotes())
     }
 }

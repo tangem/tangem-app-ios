@@ -314,6 +314,10 @@ private extension PolymarketEventsBlockViewModelTests {
                 fundsArrivalTracker: PolymarketFundsArrivalTracker(balancePublisher: Empty().eraseToAnyPublisher()),
                 refreshCenter: refreshCenter
             ),
+            liveQuotesTracker: PolymarketFeedLiveQuotesTracker(
+                quotes: { _ in AsyncStream { $0.finish() } },
+                statusChanges: { AsyncStream { $0.finish() } }
+            ),
             isRegionRestricted: { isRegionRestricted },
             routable: routable,
             notificationCenter: notificationCenter,

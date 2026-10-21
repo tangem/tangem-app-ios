@@ -445,10 +445,10 @@ private extension PolymarketOrderModel {
         }
 
         guard state.enteredAmount != nil else {
-            quoteTask = runTask(in: self) { [delayProvider] model in
+            quoteTask = Task { [weak self, delayProvider] in
                 let polling = PollingSequence(
                     interval: Constants.pollInterval,
-                    request: { await model.requestBookPrice() },
+                    request: { await self?.requestBookPrice() },
                     delayProvider: delayProvider
                 )
 
@@ -457,14 +457,14 @@ private extension PolymarketOrderModel {
             return
         }
 
-        quoteTask = runTask(in: self) { [delayProvider] model in
+        quoteTask = Task { [weak self, delayProvider] in
             if debounced {
                 try? await delayProvider.wait(for: Constants.debounce)
             }
 
             let polling = PollingSequence(
-                interval: { model.pollInterval },
-                request: { await model.requestQuote() },
+                interval: { self?.pollInterval ?? Constants.pollInterval },
+                request: { await self?.requestQuote() },
                 delayProvider: delayProvider
             )
 
