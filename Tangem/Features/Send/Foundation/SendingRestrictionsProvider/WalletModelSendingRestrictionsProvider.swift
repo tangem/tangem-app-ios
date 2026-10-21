@@ -6,8 +6,14 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
+
 struct WalletModelSendingRestrictionsProvider: SendingRestrictionsProvider {
     let walletModel: any WalletModel
 
-    var sendingRestrictions: SendingRestrictions? { walletModel.sendingRestrictions }
+    var sendingRestrictionsPublisher: AnyPublisher<SendingRestrictions?, Never> {
+        walletModel.availableBalanceProvider.balanceTypePublisher
+            .map { [walletModel] _ in walletModel.sendingRestrictions }
+            .eraseToAnyPublisher()
+    }
 }

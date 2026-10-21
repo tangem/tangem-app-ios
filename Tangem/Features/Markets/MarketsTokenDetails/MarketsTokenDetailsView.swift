@@ -98,7 +98,7 @@ struct MarketsTokenDetailsView: View {
         ZStack {
             scrollView
 
-            if viewModel.shouldShowPortfolioBlock {
+            if viewModel.usesSheetNavigationHeader {
                 navigationBar
             }
         }
@@ -217,6 +217,13 @@ struct MarketsTokenDetailsView: View {
     private var trailingToolbarContent: some ToolbarContent {
         NavigationToolbarButton.share(placement: .topBarTrailing, action: viewModel.shareTokenDetails)
             .redesigned()
+
+        if viewModel.isAddButtonVisible {
+            NavigationToolbarButton.add(placement: .topBarTrailing, action: viewModel.onTapAddButton)
+                .redesigned()
+                .dimmed(!viewModel.isAddButtonEnabled)
+                .accessibilityLabel(Localization.commonAddToken)
+        }
     }
 
     private var navigationBarTitle: some View {
@@ -273,7 +280,7 @@ struct MarketsTokenDetailsView: View {
             .padding(.top, Constants.scrollViewContentTopInset + (sheetSize.isFeedSheet ? headerHeight : 0))
             .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame)) { contentOffset in
                 scrollOffsetHandler.contentOffsetSubject.send(contentOffset)
-                if viewModel.shouldShowPortfolioBlock {
+                if viewModel.showsPortfolioActions {
                     isListContentObscured = contentOffset.y > Constants.scrollViewContentTopInset
                 }
             }
@@ -370,7 +377,6 @@ struct MarketsTokenDetailsView: View {
 private extension MarketsTokenDetailsView {
     enum Constants {
         static let titleToButtonSpacing = 8.0
-        static let chartHeight = 200.0
         static let scrollViewContentTopInset = 14.0
         static let scrollViewVerticalPadding = 16.0
         static let shadowTopExtension = 60.0
@@ -415,6 +421,7 @@ private extension AnyTransition {
     return MarketsTokenDetailsView(viewModel: .init(
         tokenInfo: tokenInfo,
         presentationStyle: .marketsSheet,
+        showsPortfolioActions: true,
         dataProvider: .init(),
         marketsQuotesUpdateHelper: CommonMarketsQuotesUpdateHelper(),
         coordinator: nil

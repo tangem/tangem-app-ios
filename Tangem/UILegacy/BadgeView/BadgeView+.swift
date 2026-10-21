@@ -19,7 +19,6 @@ extension BadgeView.Item {
 }
 
 extension BadgeView {
-    static let noBackup = Self(item: .noBackup)
     static let done = Self(item: .done)
     static let recommended = Self(item: .recommended)
 }

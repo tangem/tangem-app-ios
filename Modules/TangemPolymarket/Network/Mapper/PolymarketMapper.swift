@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct PolymarketMapper {}
 
@@ -35,6 +36,16 @@ extension PolymarketMapper {
         return Self.isoFormatter.date(from: string)
             ?? Self.isoFractionalFormatter.date(from: string)
             ?? Self.isoDayFormatter.date(from: string)
+    }
+
+    func decimal(_ raw: String?, field: String) throws -> Decimal {
+        guard let raw else { return 0 }
+
+        guard let value = Decimal(stringValue: raw) else {
+            throw PolymarketAPIError.decoding(field: field, value: raw)
+        }
+
+        return value
     }
 }
 

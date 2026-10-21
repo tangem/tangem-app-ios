@@ -42,10 +42,6 @@ final class MarketsPortfolioMultipleTokenViewModel: ObservableObject {
         0 ..< min(tokenInfo.count, tokenIconSetMaxCount)
     }
 
-    var balancePublishers: [TokenBalancePublisher] {
-        fiatTotalTokenBalancePublishers
-    }
-
     private var tokenCurrencyCode: String {
         tokenInfo.currencyCode
     }
@@ -141,7 +137,7 @@ private extension MarketsPortfolioMultipleTokenViewModel {
                 let icon = BalanceState.Icon(
                     type: Assets.DesignSystem.attention,
                     // [DS3] kept until new DS component lands
-                    color: .Tangem.Graphic.Status.attention,
+                    color: DesignSystem.Color.iconAccentYellow,
                     location: .trailing
                 )
                 return .failed(attributedBalance, icon)
@@ -172,7 +168,7 @@ private extension MarketsPortfolioMultipleTokenViewModel {
         var attributed = AttributedString(Localization.commonUnreachable)
         attributed.setFontStyle(DesignSystem.Font.captionMediumToken)
         // [DS3] kept until new DS component lands
-        attributed.foregroundColor = .Tangem.Text.Status.attention
+        attributed.foregroundColor = DesignSystem.Color.textAccentYellow
         return .attributed(attributed)
     }
 }

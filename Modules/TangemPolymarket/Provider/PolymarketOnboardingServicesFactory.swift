@@ -7,31 +7,31 @@
 //
 
 import Foundation
+import Moya
 import TangemNetworkUtils
 
 public struct PolymarketOnboardingServicesFactory {
     private let networkConfiguration: TangemProviderConfiguration
     private let environment: () -> PolymarketBFFEnvironment
     private let serverClock: PolymarketServerClock
-
-    private var backendClockPlugins: [PolymarketServerClockPlugin] {
-        [PolymarketServerClockPlugin(serverClock: serverClock)]
-    }
+    private weak var unauthorizedObserver: PolymarketUnauthorizedObserving?
 
     public init(
         networkConfiguration: TangemProviderConfiguration,
         environment: @escaping () -> PolymarketBFFEnvironment,
-        serverClock: PolymarketServerClock
+        serverClock: PolymarketServerClock,
+        unauthorizedObserver: PolymarketUnauthorizedObserving? = nil
     ) {
         self.networkConfiguration = networkConfiguration
         self.environment = environment
         self.serverClock = serverClock
+        self.unauthorizedObserver = unauthorizedObserver
     }
 
     public func makeWalletService(walletId: String) -> PolymarketDepositWalletService {
         let provider = TangemProvider<PolymarketDepositWalletTarget>(
             configuration: networkConfiguration,
-            additionalPlugins: backendClockPlugins
+            additionalPlugins: backendPlugins(walletId: walletId)
         )
 
         return CommonPolymarketDepositWalletService(provider: provider, environment: environment, walletId: walletId)
@@ -67,7 +67,7 @@ public struct PolymarketOnboardingServicesFactory {
     ) -> PolymarketConfigurationService {
         let provider = TangemProvider<PolymarketConfigurationTarget>(
             configuration: networkConfiguration,
-            additionalPlugins: backendClockPlugins
+            additionalPlugins: backendPlugins(walletId: walletId)
         )
 
         return CommonPolymarketConfigurationService(
@@ -81,7 +81,7 @@ public struct PolymarketOnboardingServicesFactory {
     public func makeWithdrawService(walletId: String) -> PolymarketWithdrawService {
         let provider = TangemProvider<PolymarketWithdrawTarget>(
             configuration: networkConfiguration,
-            additionalPlugins: backendClockPlugins
+            additionalPlugins: backendPlugins(walletId: walletId)
         )
 
         return CommonPolymarketWithdrawService(provider: provider, environment: environment, walletId: walletId)
@@ -90,7 +90,7 @@ public struct PolymarketOnboardingServicesFactory {
     public func makeRedeemService(walletId: String) -> PolymarketRedeemService {
         let provider = TangemProvider<PolymarketRedeemTarget>(
             configuration: networkConfiguration,
-            additionalPlugins: backendClockPlugins
+            additionalPlugins: backendPlugins(walletId: walletId)
         )
 
         return CommonPolymarketRedeemService(provider: provider, environment: environment, walletId: walletId)
@@ -100,5 +100,16 @@ public struct PolymarketOnboardingServicesFactory {
         let provider = TangemProvider<PolymarketBridgeTarget>(configuration: networkConfiguration)
 
         return CommonPolymarketBridgeService(provider: provider, baseURL: PolymarketHost.bridge)
+    }
+}
+
+// MARK: - Private implementation
+
+private extension PolymarketOnboardingServicesFactory {
+    func backendPlugins(walletId: String) -> [PluginType] {
+        [
+            PolymarketServerClockPlugin(serverClock: serverClock),
+            PolymarketUnauthorizedPlugin(walletId: walletId, observer: unauthorizedObserver),
+        ]
     }
 }

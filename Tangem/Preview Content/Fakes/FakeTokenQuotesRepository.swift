@@ -86,10 +86,6 @@ class FakeTokenQuotesRepository: TokenQuotesRepository, TokenQuotesRepositoryUpd
         Just([:]).eraseToAnyPublisher()
     }
 
-    func loadPrice(currencyCode: String, currencyId: String) -> AnyPublisher<Decimal, any Error> {
-        Just(1.2345).setFailureType(to: Error.self).eraseToAnyPublisher()
-    }
-
     func saveQuotes(_ quotes: [TokenQuote]) {
         var current = currentQuotes.value
 

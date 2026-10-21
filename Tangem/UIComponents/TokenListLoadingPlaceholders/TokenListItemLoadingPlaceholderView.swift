@@ -64,9 +64,8 @@ struct TokenListItemLoadingPlaceholderView: View {
 
     @ViewBuilder
     private var leadingComponent: some View {
-        let iconPlaceholder = SkeletonView()
-            .frame(size: .init(bothDimensions: iconDimension))
-            .cornerRadius(iconDimension / 2.0)
+        let iconPlaceholder = Shimmer()
+            .variant(.custom(width: iconDimension, height: iconDimension))
 
         if hasNetworkItemPlaceholder {
             iconPlaceholder
@@ -97,36 +96,26 @@ struct TokenListItemLoadingPlaceholderView: View {
     private var leadingComponentNetworkItemPlaceholder: some View {
         let dimension = 14.0
 
-        SkeletonView()
-            .frame(size: .init(bothDimensions: dimension))
-            .cornerRadius(dimension / 2.0)
+        Shimmer()
+            .variant(.custom(width: dimension, height: dimension))
             .offset(x: networkItemPlaceholderOffset, y: -networkItemPlaceholderOffset)
     }
 
     @ViewBuilder
     private var middleComponent: some View {
         VStack(alignment: .leading, spacing: 9.0) {
-            Group {
-                SkeletonView()
-                    .frame(width: 70.0, height: 12.0)
+            Shimmer().variant(.custom(width: 70.0, height: 12.0, cornerRadius: 3.0))
 
-                SkeletonView()
-                    .frame(width: 52.0, height: 12.0)
-            }
-            .cornerRadiusContinuous(3.0)
+            Shimmer().variant(.custom(width: 52.0, height: 12.0, cornerRadius: 3.0))
         }
     }
 
     @ViewBuilder
     private var trailingComponent: some View {
         VStack(spacing: 9.0) {
-            Group {
-                SkeletonView()
+            Shimmer().variant(.custom(width: 40.0, height: 12.0, cornerRadius: 3.0))
 
-                SkeletonView()
-            }
-            .frame(width: 40.0, height: 12.0)
-            .cornerRadiusContinuous(3.0)
+            Shimmer().variant(.custom(width: 40.0, height: 12.0, cornerRadius: 3.0))
         }
     }
 }

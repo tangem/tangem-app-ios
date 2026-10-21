@@ -98,7 +98,7 @@ extension TransferNFTFlowFactory: SendGenericFlowFactory {
 
 extension TransferNFTFlowFactory: SendBaseBuildable {
     var baseIO: SendViewModelBuilder.IO {
-        SendViewModelBuilder.IO(input: sendModel, output: sendModel)
+        SendViewModelBuilder.IO(input: sendModel, output: sendModel, sourceTokenInput: sendModel)
     }
 
     var baseDependencies: SendViewModelBuilder.Dependencies {
@@ -113,7 +113,6 @@ extension TransferNFTFlowFactory: SendBaseBuildable {
                 sourceTokenInput: sendModel
             ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             mainButtonUIOptionsProvider: CommonSendMainButtonUIOptionsProvider(sourceTokenInput: sendModel)
         )
     }
@@ -176,9 +175,7 @@ extension TransferNFTFlowFactory: SendSummaryStepBuildable {
             sendFeeProvider: sendModel,
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
-            sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
-            sendWithSwapDescriptionBuilder: makeSendWithSwapTransactionSummaryDescriptionBuilder(),
-            stakingDescriptionBuilder: makeStakingTransactionSummaryDescriptionBuilder(),
+            transactionSummaryDescriptionBuilderProvider: transferableToken.transactionSummaryDescriptionBuilderProvider,
         )
     }
 }
@@ -188,10 +185,6 @@ extension TransferNFTFlowFactory: SendSummaryStepBuildable {
 extension TransferNFTFlowFactory: SendFinishStepBuildable {
     var finishIO: SendFinishStepBuilder.IO {
         SendFinishStepBuilder.IO(input: sendModel)
-    }
-
-    var finishTypes: SendFinishStepBuilder.Types {
-        SendFinishStepBuilder.Types(tokenItem: tokenItem)
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {

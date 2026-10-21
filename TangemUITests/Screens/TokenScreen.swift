@@ -175,6 +175,19 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     }
 
     @discardableResult
+    func validateTopUpWalletBanner(title: String, message: String) -> Self {
+        XCTContext.runActivity(named: "Validate 'Top up your wallet' banner title and message") { _ in
+            waitAndAssertTrue(topUpBanner, "Top up wallet banner should be displayed")
+
+            let bannerLabel = topUpBanner.label
+            XCTAssertTrue(bannerLabel.contains(title), "Top up wallet banner should contain title '\(title)' but was '\(bannerLabel)'")
+            XCTAssertTrue(bannerLabel.contains(message), "Top up wallet banner should contain message '\(message)' but was '\(bannerLabel)'")
+
+            return self
+        }
+    }
+
+    @discardableResult
     func tapGoToFeeCurrencyButton() -> TokenScreen {
         _ = XCTContext.runActivity(named: "Tap go to fee currency button") { _ in
             goToFeeCurrencyButton.waitAndTap()

@@ -26,7 +26,7 @@ struct StakingDetailsStakeViewData: Identifiable {
         switch subtitleType {
         case .active:
             return StakingAccessibilityIdentifiers.activeStakeRow
-        case .unbonding:
+        case .unbonding, .unbondingPeriod:
             return StakingAccessibilityIdentifiers.unstakingStakeRow
         case .withdraw:
             return StakingAccessibilityIdentifiers.withdrawStakeRow

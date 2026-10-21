@@ -28,7 +28,7 @@ struct TokenSelectorAccountHeaderView: View {
                 .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.tokenSelectorAccountHeader(name: name))
         case .wallet(let name):
             Text(name)
-                .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
         }
     }
 }

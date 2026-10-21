@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct ExpressTransactionData {
+public struct ExpressTransactionData: Codable {
     public let requestId: String
     public let fromAmount: Decimal
     public let toAmount: Decimal

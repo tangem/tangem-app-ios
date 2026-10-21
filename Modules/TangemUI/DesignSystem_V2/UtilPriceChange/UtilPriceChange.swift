@@ -33,7 +33,7 @@ public struct UtilPriceChange: View, Setupable {
                 .style(typography, color: direction.textColor)
                 .lineLimit(1)
         }
-        .tangemShimmer()
+        .shimmering()
         .environment(\.isShimmerActive, isUpdating)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)

@@ -105,6 +105,9 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
         case .walletConnect(let uri):
             handleWalletConnect(uri: uri)
 
+        case .mcpConnectionRequest(let userCode):
+            handleMCPConnectionRequest(userCode: userCode)
+
         case .payment(let request, let allMatches):
             if !request.request.unknownParameters.isEmpty {
                 showUnknownParametersAlert(request: request, allMatches: allMatches)
@@ -112,6 +115,9 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
             }
 
             handlePayment(request: request, allMatches: allMatches)
+
+        case .deeplink(let url):
+            handleDeeplink(url: url)
 
         case .address(let matchResult, let sendParameters, let filter):
             openSendOrSelector(
@@ -145,6 +151,25 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
         closeScanner()
         floatingSheetPresenter.enqueue(sheet: viewModel)
         dismissAction(nil)
+    }
+
+    @MainActor
+    private func handleMCPConnectionRequest(userCode: String) {
+        guard let viewModel = MCPModuleFactory.makeConnectionRequestViewModel(userCode: userCode) else {
+            assertionFailure("Attempting to open MCP connection request without user wallets. Developer mistake.")
+            showUnrecognizedAlert()
+            return
+        }
+
+        closeScanner()
+        floatingSheetPresenter.enqueue(sheet: viewModel)
+        dismissAction(nil)
+    }
+
+    @MainActor
+    private func handleDeeplink(url: URL) {
+        closeScanner()
+        dismissAction(.openDeeplink(url))
     }
 
     @MainActor
@@ -374,8 +399,14 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
         case .walletConnect(let uri):
             return .walletConnect(uri)
 
+        case .mcpConnectionRequest(let userCode):
+            return .mcpConnectionRequest(userCode: userCode)
+
         case .payment(let request):
             return .payment(request, allMatches: context.allMatches)
+
+        case .deeplink(let url):
+            return .deeplink(url)
 
         case .address(let request):
             let sendParameters = sendParametersFactory.makeSendParameters(
@@ -485,7 +516,9 @@ extension MainQRScanFlowCoordinator {
 
     enum ResolvedRouteAction {
         case walletConnect(WalletConnectRequestURI)
+        case mcpConnectionRequest(userCode: String)
         case payment(MainQRResolvedPaymentRequest, allMatches: [MainQRWalletModelMatch])
+        case deeplink(URL)
         case address(MatchFilterResult, sendParameters: PredefinedSendParameters, filter: MainQRScanTokenSelectorAvailabilityFilter)
         case showNoSupportedTokens(MainQRNoSupportedTokensContext?)
         case showUnrecognized
@@ -530,6 +563,7 @@ extension MainQRScanFlowCoordinator {
 
     enum DismissOptions {
         case openFeeCurrency(FeeCurrencyNavigatingDismissOption)
+        case openDeeplink(URL)
     }
 
     enum ViewState: Identifiable {

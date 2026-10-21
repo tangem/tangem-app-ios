@@ -80,21 +80,8 @@ extension OnrampFlowBaseDependenciesFactory {
             analyticsLogger: analyticsLogger,
             autoupdatingTimer: autoupdatingTimer,
             redirectSettingsBuilder: OnrampRedirectSettingsBuilder(),
-            transactionHistoryEnricherFactory: { await sourceToken.transactionHistoryEnricher },
+            transactionHistoryEnricherFactory: { [sourceToken] in await sourceToken.transactionHistoryEnricher },
             predefinedValues: predefinedValues
-        )
-    }
-
-    func makeOnrampBaseDataBuilder(
-        onrampRepository: OnrampRepository,
-        onrampDataRepository: OnrampDataRepository,
-        onrampRedirectingBuilder: OnrampRedirectingBuilder
-    ) -> OnrampRouterDataBuilder {
-        CommonOnrampBaseDataBuilder(
-            config: userWalletInfo.config,
-            onrampRepository: onrampRepository,
-            onrampDataRepository: onrampDataRepository,
-            onrampRedirectingBuilder: onrampRedirectingBuilder
         )
     }
 

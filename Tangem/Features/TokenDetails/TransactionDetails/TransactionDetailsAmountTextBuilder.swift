@@ -21,7 +21,7 @@ enum TransactionDetailsAmountTextBuilder {
         }
 
         if let sign = sign?.trimmed().nilIfEmpty {
-            text = sign + String.unbreakableSpace + text
+            text = sign + AppConstants.thinSpace + text
         }
 
         return text

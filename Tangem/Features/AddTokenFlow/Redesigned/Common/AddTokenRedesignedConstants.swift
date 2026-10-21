@@ -29,10 +29,6 @@ enum AddTokenRedesignedConstants {
     static let selectorRowLabelValueSpacing: CGFloat = 2
     static let chevronIconSize: CGFloat = 20
 
-    // Network picker
-    static let networkPickerSectionHeaderTopPadding: CGFloat = 24
-    static let networkPickerSectionHeaderBottomPadding: CGFloat = 10
-
     /// Account picker
     static let accountPickerScrollVerticalPadding: CGFloat = 16
 

@@ -44,6 +44,22 @@ actor CommonStoryAssetCache: StoryAssetCaching {
         }
     }
 
+    /// Deletes cache files no manifest references. An empty set is a no-op, so a failed or empty
+    /// manifest never wipes the cache; an orphan survives until it has been cold past the grace
+    /// window, so a slug that failed to resolve this session keeps its still-valid files.
+    func retainingOnly(_ keys: Set<StoryAssetCacheKey>) async {
+        guard !keys.isEmpty else { return }
+
+        let retained = Set(keys.map { fileName(checksum: $0.checksum, url: $0.url) })
+        let now = Date()
+
+        for entry in cacheEntries() where !retained.contains(entry.url.lastPathComponent) {
+            guard now.timeIntervalSince(entry.date) > Constants.orphanGraceInterval else { continue }
+
+            try? FileManager.default.removeItem(at: entry.url)
+        }
+    }
+
     // MARK: - Private
 
     private func downloadIfMissing(_ url: URL, to destination: URL) async throws -> URL {
@@ -114,6 +130,7 @@ actor CommonStoryAssetCache: StoryAssetCaching {
 extension CommonStoryAssetCache {
     enum Constants {
         static let maxBytes = 200 * 1024 * 1024
+        static let orphanGraceInterval: TimeInterval = 7 * 24 * 60 * 60
 
         static var defaultDirectory: URL {
             FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]

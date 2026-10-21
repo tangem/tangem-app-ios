@@ -130,4 +130,6 @@ private actor StubAssetCache: StoryAssetCaching {
 
         return URL(fileURLWithPath: "/local/\(checksum)")
     }
+
+    func retainingOnly(_ keys: Set<StoryAssetCacheKey>) async {}
 }

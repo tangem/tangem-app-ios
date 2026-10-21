@@ -33,10 +33,6 @@ class WebSocket {
         stateSubject.eraseToAnyPublisher()
     }
 
-    var currentState: ConnectionState {
-        stateSubject.value
-    }
-
     private var stateSubject: CurrentValueSubject<ConnectionState, Never> = .init(.readyToConnect)
     private var isWaitingForMessage: Bool = false
     private var wasConnectedAtLeastOnce: Bool = false

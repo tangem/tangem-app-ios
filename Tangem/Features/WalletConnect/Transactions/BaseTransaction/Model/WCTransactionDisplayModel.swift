@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemLocalization
+import TangemUI
 
 enum WCTransactionConnectionTargetKind {
     case wallet(name: String)
@@ -37,8 +38,7 @@ protocol WCTransactionDisplayModel {
     var isActionButtonBlocked: Bool { get }
     var isDataReady: Bool { get }
     var simulationDisplayModel: WCTransactionSimulationDisplayModel? { get }
-    var tangemIconProvider: TangemIconProvider { get }
-    var confirmTransactionPolicy: ConfirmTransactionPolicy { get }
+    var signingActionButtonType: SigningActionButtonViewType { get }
 }
 
 @MainActor
@@ -162,11 +162,7 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
         )
     }
 
-    var tangemIconProvider: TangemIconProvider {
-        CommonTangemIconProvider(config: transactionData.userWalletModel.config)
-    }
-
-    var confirmTransactionPolicy: ConfirmTransactionPolicy {
-        CommonConfirmTransactionPolicy(userWalletInfo: transactionData.userWalletModel.userWalletInfo)
+    var signingActionButtonType: SigningActionButtonViewType {
+        SigningActionButtonViewTypeBuilder().build(userWalletInfo: transactionData.userWalletModel.userWalletInfo)
     }
 }

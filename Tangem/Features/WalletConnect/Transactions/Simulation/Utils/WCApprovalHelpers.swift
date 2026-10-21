@@ -48,14 +48,6 @@ extension WCApprovalHelpers {
             case blockaidDirect
             case blockaidCalculated
         }
-
-        var reliability: Int {
-            switch source {
-            case .wallet: return 3
-            case .blockaidDirect: return 2
-            case .blockaidCalculated: return 1
-            }
-        }
     }
 }
 

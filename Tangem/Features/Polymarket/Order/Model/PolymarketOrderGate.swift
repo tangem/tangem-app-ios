@@ -14,6 +14,7 @@ struct PolymarketOrderGate {
     let notifications: [PolymarketOrderNotification]
     let amountCaption: AmountCaption?
     let isPrimaryButtonEnabled: Bool
+    let isPrimaryButtonEnabledWhileQuoting: Bool
     let canStepUp: Bool
     let canStepDown: Bool
     let selectableFractions: Set<PolymarketAmountFraction>
@@ -31,11 +32,13 @@ struct PolymarketOrderGate {
         notifications = Self.notifications(state: state, intent: intent)
         amountCaption = Self.amountCaption(state: state, intent: intent, required: required)
 
-        isPrimaryButtonEnabled = notifications.allSatisfy { !$0.isBlocking }
-            && Self.isQuotePlaceable(state: state, intent: intent)
+        let isPlaceableApartFromQuote = notifications.allSatisfy { !$0.isBlocking }
             && !state.isBelowMinAmount
             && hasSufficientBalance
             && state.geoblock == .allowed
+
+        isPrimaryButtonEnabled = isPlaceableApartFromQuote && Self.isQuotePlaceable(state: state, intent: intent)
+        isPrimaryButtonEnabledWhileQuoting = isPlaceableApartFromQuote && state.quote.isAwaitingQuote
 
         canStepUp = Self.canStepUp(state: state, intent: intent)
         canStepDown = Self.canStepDown(state: state, intent: intent)

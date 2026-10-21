@@ -28,7 +28,7 @@ struct YieldModuleAboutApyV2View: View {
             apyBreakdownSection
         }
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+            configuration.sheetBackground = .color(DesignSystem.Color.bgSecondary)
             configuration.backgroundInteractionBehavior = .tapToDismiss
             configuration.verticalSwipeBehavior = .init(target: .sheet, threshold: Constants.swipeDismissThreshold)
         }

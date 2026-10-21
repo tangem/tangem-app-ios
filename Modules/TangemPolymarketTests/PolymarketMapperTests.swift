@@ -87,6 +87,25 @@ struct PolymarketMapperTests {
         #expect(event.totalMarketsCount == 0)
         #expect(!event.hasMoreMarkets)
         #expect(event.displayMode == .plainMarkets)
+        #expect(event.teams.isEmpty)
+    }
+
+    @Test("Sports teams map with their abbreviation and side, nameless ones are dropped")
+    func teamsMapping() throws {
+        let json = #"""
+        {"event":{"eventId":"810546","slug":"nfl-det-buf","title":"Lions vs. Bills","markets":[],"teams":[
+          {"name":"Detroit Lions","abbreviation":"det","alias":"Lions","logo":"https://example.com/det.png","ordering":"away"},
+          {"name":"Buffalo Bills","abbreviation":" ","alias":null,"logo":null,"ordering":"Home"},
+          {"name":null,"abbreviation":"xxx","alias":null,"logo":null,"ordering":null}
+        ]}}
+        """#
+        let dto = try decoder.decode(PolymarketDTO.EventResponse.self, from: Data(json.utf8))
+        let event = mapper.mapEvent(dto.event)
+
+        #expect(event.teams == [
+            PolymarketTeam(name: "Detroit Lions", abbreviation: "det", alias: "Lions", logoURL: URL(string: "https://example.com/det.png"), side: .away),
+            PolymarketTeam(name: "Buffalo Bills", abbreviation: nil, alias: nil, logoURL: nil, side: .home),
+        ])
     }
 
     // MARK: - Dates

@@ -23,36 +23,25 @@ struct PolymarketSlippageSelectorView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            title
-
-            Spacer().frame(height: Constants.titleToAmountGap)
-
             amount
 
             Spacer().frame(height: Constants.amountToPresetsGap)
 
             presets
 
-            Spacer().frame(height: Constants.presetsToDescriptionGap)
+            Spacer().frame(height: viewModel.isRedesigned ? Constants.redesignedPresetsToDescriptionGap : Constants.presetsToDescriptionGap)
 
-            description
-
-            Spacer(minLength: Constants.descriptionToConfirmGap)
+            if viewModel.isRedesigned {
+                hint
+            } else {
+                description
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
-        .safeAreaInset(edge: .bottom, spacing: .zero) { confirm }
-        .presentationDragIndicator(.visible)
+        .padding(.top, Constants.topPadding)
+        .padding(.bottom, Constants.bottomPadding)
+        .frame(maxWidth: .infinity)
         .focused($isInputFocused)
         .onAppear { isInputFocused = true }
-    }
-
-    private var title: some View {
-        Text(Localization.predictionPlaceSlippage)
-            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-            .lineLimit(1)
-            .frame(height: Constants.toolbarHeight)
-            .padding(.top, Constants.titleTopPadding)
     }
 
     private var amount: some View {
@@ -77,9 +66,13 @@ struct PolymarketSlippageSelectorView: View {
 
     private var presets: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: Constants.presetSpacing) {
+            HStack(spacing: viewModel.isRedesigned ? Constants.redesignedPresetSpacing : Constants.presetSpacing) {
                 ForEach(viewModel.presets) { preset in
-                    presetChip(preset)
+                    if viewModel.isRedesigned {
+                        presetButton(preset)
+                    } else {
+                        presetChip(preset)
+                    }
                 }
             }
             .padding(.horizontal, Constants.horizontalPadding)
@@ -100,14 +93,50 @@ struct PolymarketSlippageSelectorView: View {
         .buttonStyle(.plain)
     }
 
+    private func presetButton(_ preset: PolymarketSlippageSelectorViewModel.Preset) -> some View {
+        TangemUI.Button(
+            label: preset.title,
+            accessibilityLabel: nil,
+            action: { viewModel.handleViewAction(.selectPreset(preset)) }
+        )
+        .size(.x8)
+        .styleType(.secondary(.default))
+    }
+
+    private var hint: some View {
+        HStack(alignment: .top, spacing: Constants.hintSpacing) {
+            DesignSystem.Icons.Percent.regular20.image
+                .renderingMode(.template)
+                .resizable()
+                .frame(width: Constants.hintIconSide, height: Constants.hintIconSide)
+                .foregroundStyle(DesignSystem.Color.iconPrimary)
+
+            Text(Localization.predictionPlaceSlippageSheetDescription)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, Constants.hintHorizontalPadding)
+        .padding(.vertical, Constants.hintVerticalPadding)
+    }
+
     private var description: some View {
         Text(Localization.predictionPlaceSlippageSheetDescription)
             .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, Constants.horizontalPadding)
     }
+}
 
-    private var confirm: some View {
+// MARK: - Footer
+
+struct PolymarketSlippageSelectorFooterView: View {
+    @ObservedObject private var viewModel: PolymarketSlippageSelectorViewModel
+
+    init(viewModel: PolymarketSlippageSelectorViewModel) {
+        _viewModel = ObservedObject(wrappedValue: viewModel)
+    }
+
+    var body: some View {
         TangemUI.Button(
             label: Localization.commonConfirm,
             accessibilityLabel: Localization.commonConfirm,
@@ -117,8 +146,8 @@ struct PolymarketSlippageSelectorView: View {
         .size(.x12)
         .horizontalLayout(.infinity)
         .disabled(!viewModel.isConfirmEnabled)
-        .padding(.horizontal, Constants.confirmHorizontalPadding)
-        .padding(.vertical, Constants.confirmVerticalPadding)
+        .padding(.horizontal, Constants.horizontalPadding)
+        .padding(.vertical, Constants.verticalPadding)
     }
 }
 
@@ -126,19 +155,28 @@ struct PolymarketSlippageSelectorView: View {
 
 private extension PolymarketSlippageSelectorView {
     enum Constants {
-        static let titleTopPadding: CGFloat = 16
-        static let toolbarHeight: CGFloat = 44
-        static let titleToAmountGap: CGFloat = 52
+        static let topPadding: CGFloat = 40
+        static let bottomPadding: CGFloat = 24
         static let amountToPresetsGap: CGFloat = 32
         static let presetsToDescriptionGap: CGFloat = 16
-        static let descriptionToConfirmGap: CGFloat = 24
+        static let redesignedPresetsToDescriptionGap: CGFloat = 16
+        static let redesignedPresetSpacing: CGFloat = 4
+        static let hintSpacing: CGFloat = 12
+        static let hintIconSide: CGFloat = 20
+        static let hintHorizontalPadding: CGFloat = 24
+        static let hintVerticalPadding: CGFloat = 12
         static let errorSpacing: CGFloat = 8
         static let presetSpacing: CGFloat = 8
         static let presetHeight: CGFloat = 32
         static let presetHorizontalPadding: CGFloat = 12
         static let horizontalPadding: CGFloat = 16
-        static let confirmHorizontalPadding: CGFloat = 16
-        static let confirmVerticalPadding: CGFloat = 12
         static let percentSign = "%"
+    }
+}
+
+private extension PolymarketSlippageSelectorFooterView {
+    enum Constants {
+        static let horizontalPadding: CGFloat = 16
+        static let verticalPadding: CGFloat = 12
     }
 }

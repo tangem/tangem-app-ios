@@ -65,7 +65,7 @@ private extension CommonWalletCardsBackupReportService {
         // A single consumer keeps passes sequential, so the same cards can't be sent twice; while a pass runs
         // the sequence holds only the newest value, which collapses a burst of reports into one more pass.
         deliveryTask = Task { [weak self] in
-            for await waiting in await waitings.values {
+            for await waiting in await waitings.values_ {
                 await self?.deliver(waiting: waiting)
             }
         }

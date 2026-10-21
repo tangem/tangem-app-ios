@@ -17,7 +17,7 @@ struct ActionButtonsBuyView: View {
     @ObservedObject var viewModel: ActionButtonsBuyViewModel
 
     private var backgroundColor: Color {
-        return Color.Tangem.Surface.level2
+        return DesignSystem.Color.bgPrimary
     }
 
     var body: some View {

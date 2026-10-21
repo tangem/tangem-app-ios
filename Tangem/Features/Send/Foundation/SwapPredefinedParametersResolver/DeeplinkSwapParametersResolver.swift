@@ -24,12 +24,12 @@ struct DeeplinkSwapParametersResolver {
             return nil
         }
 
-        return SwapPredefinedParametersHelper().makeParameters(
-            fromWalletModel: selection.source,
-            toWalletModel: selection.destination,
+        return SwapPredefinedParametersBuilder().makeParameters(input: .pair(
             userWalletInfo: userWalletInfo,
+            source: selection.source,
+            receive: selection.destination,
             extras: makeExtras(deeplink: deeplink, isApplicable: selection.appliesExtras)
-        )
+        ))
     }
 
     /// `from_amount` / `provider_id` are honored only for a fully-specified held pair — both sides requested
@@ -77,7 +77,8 @@ private extension DeeplinkSwapParametersResolver {
                 networkId: walletModel.tokenItem.blockchain.networkId.lowercased(),
                 accountId: DeeplinkWalletModelLocator.accountIdentifier(of: walletModel.account),
                 fiatBalance: walletModel.fiatAvailableBalanceProvider.balanceType.value ?? 0,
-                isSwappable: expressAvailabilityProvider.swapState(for: walletModel.tokenItem) == .available
+                isSwappable: expressAvailabilityProvider.swapState(for: walletModel.tokenItem) == .available,
+                canBeSource: !TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel).swapSourceAvailability().isJointAccountsComingSoon
             )
         }
 
@@ -117,6 +118,7 @@ extension DeeplinkSwapParametersResolver {
         let accountId: String?
         let fiatBalance: Decimal
         let isSwappable: Bool
+        let canBeSource: Bool
     }
 
     /// Pure FROM/TO selection over the candidates. `nil` means "open swap as from Main". `appliesExtras` is
@@ -150,7 +152,7 @@ extension DeeplinkSwapParametersResolver {
         let toRequiredAccountId = deeplink.toUserAccountId.flatMap { existingAccountIds.contains($0) ? $0 : nil }
 
         let source = fromRequested
-            ? mostFundedMatch(in: candidates, tokenId: deeplink.fromTokenId, networkId: deeplink.fromNetworkId, requiredAccountId: fromRequiredAccountId, preferredAccountId: nil)
+            ? mostFundedMatch(in: candidates.filter(\.canBeSource), tokenId: deeplink.fromTokenId, networkId: deeplink.fromNetworkId, requiredAccountId: fromRequiredAccountId, preferredAccountId: nil)
             : nil
 
         let destination = toRequested
@@ -231,7 +233,7 @@ private extension DeeplinkSwapParametersResolver {
 
     static func bestEffortSource(in candidates: [Candidate], excluding destination: Candidate?) -> Candidate? {
         candidates
-            .filter { $0.isSwappable && $0.index != destination?.index }
+            .filter { $0.isSwappable && $0.canBeSource && $0.index != destination?.index }
             .max { $0.fiatBalance < $1.fiatBalance }
     }
 }

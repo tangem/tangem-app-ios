@@ -642,6 +642,7 @@
 "express_error_provider_amount_roundup" = "エラー%1$@。選択したプロバイダーは指定された取引を処理できません。値を%2$@に切り上げるか、変更してください。";
 "express_error_swap_pair_unavailable" = "選択したプロバイダーは現在利用できません。しばらくしてからもう一度お試しください。(コード: %@)";
 "express_error_swap_unavailable" = "現在、交換はご利用いただけません。しばらくしてからもう一度お試しください。(コード: %@)";
+"express_error_transaction_cannot_be_created" = "The transaction cannot be created with %1$@. Please choose another provider. (Code: %2$@)";
 "express_estimated_amount" = "推定金額";
 "express_exchange_by" = "%@による交換";
 "express_exchange_notification_failed_text" = "返金手続きのため、プロバイダーのウェブサイトにアクセスしてください";
@@ -1009,6 +1010,13 @@
 "joint_account_coming_soon_title" = "共同アカウントでは近日対応予定";
 "joint_account_confirm_account_subtitle" = "Before using your Joint Account, make sure every member sees exactly the same address.";
 "joint_account_confirm_account_title" = "Confirm the account";
+"joint_account_confirm_address_compare_subtitle" = "Contact all members outside Tangem by phone, messenger, or in person. Check that everyone sees the exact same address.";
+"joint_account_confirm_address_compare_title" = "Compare with other members";
+"joint_account_confirm_address_confirm_button" = "Checked with everyone";
+"joint_account_confirm_address_everyone_subtitle" = "Your account will be ready once all members have confirmed the address.";
+"joint_account_confirm_address_everyone_title" = "Everyone must confirm";
+"joint_account_confirm_address_label" = "Shared address";
+"joint_account_confirm_address_mismatch_button" = "Address doesn't match";
 "joint_account_confirm_shared_address" = "Confirm shared address";
 "joint_account_invite_invalid_subtitle" = "正しいリンクを開いたことを確認するか、アカウント作成者に再送を依頼してください";
 "joint_account_invite_invalid_title" = "招待リンクが無効です";

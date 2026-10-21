@@ -13,7 +13,7 @@ import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
-public struct PolymarketEventCard: View {
+public struct PolymarketEventCard: View, Equatable {
     private let model: Model
 
     public init(model: Model) {
@@ -58,6 +58,7 @@ public struct PolymarketEventCard: View {
 
     private var metaRow: some View {
         PolymarketMarketMetaRow(
+            isLive: model.isLive,
             category: model.category,
             volume: model.volumeText.map { .init(title: Constants.volumePrefix, value: $0) }
         )
@@ -129,12 +130,13 @@ public struct PolymarketEventCard: View {
                         .lineLimit(1)
                         .fixedSize(horizontal: true, vertical: false)
                         .layoutPriority(1)
+                        .contentTransition(.numericText())
+                        .animation(Constants.priceChangeAnimation, value: priceText)
                 }
             }
             .style(DesignSystem.Font.bodyMediumToken, color: outcome.style.foregroundColor)
             .padding(.horizontal, 14)
-            .frame(minWidth: 56, minHeight: 36)
-            .frame(maxWidth: isWide ? .infinity : nil)
+            .frame(minWidth: isWide ? 0 : 56, maxWidth: isWide ? .infinity : nil, minHeight: 36)
             .background(outcome.style.backgroundColor, in: Capsule())
         }
         .buttonStyle(.plain)
@@ -193,6 +195,7 @@ private extension PolymarketEventCard {
         static let cornerRadius: CGFloat = 24
         static let outcomeSpacing: CGFloat = 4
         static let priceSeparator = String.bulletSign + " "
+        static let priceChangeAnimation = Animation.curve(.easeInOutRefined, duration: 0.3)
 
         static let volumePrefix = Localization.predictionEventTotalVolume
 

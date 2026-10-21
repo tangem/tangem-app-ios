@@ -16,19 +16,14 @@ extension SwapFlowBaseDependenciesFactory {
     // MARK: - Management Model
 
     func makeSwapModel(
-        sourceToken: SendSwapableToken?,
-        receiveToken: SendReceiveToken?,
+        parameters: PredefinedSwapParameters,
         analyticsLogger: any SendAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
         pairUpdateHandler: SwapPairUpdateHandler,
-        shouldStartInitialLoading: Bool,
-        sourceTokenResolver: (any SwapSourceTokenResolver)? = nil,
-        destinationTokenResolver: (any SwapDestinationTokenResolver)? = nil,
-        onTransactionSent: ((SwapFlowConfiguration.SwapSentTransaction) -> Void)? = nil
+        initialResolvingPolicy: SwapModel.InitialResolvingPolicy
     ) -> SwapModel {
         SwapModel(
-            sourceToken: sourceToken,
-            receiveToken: receiveToken,
+            parameters: parameters,
             expressManager: expressDependenciesFactory.expressManager,
             swapRepository: expressDependenciesFactory.swapRepository,
             expressPendingTransactionRepository: expressDependenciesFactory.expressPendingTransactionRepository,
@@ -38,10 +33,7 @@ extension SwapFlowBaseDependenciesFactory {
             autoupdatingTimer: autoupdatingTimer,
             pairUpdateHandler: pairUpdateHandler,
             balanceRestrictionFeatureChecker: makeSwapBalanceRestrictionFeatureChecker(),
-            sourceTokenResolver: sourceTokenResolver,
-            destinationTokenResolver: destinationTokenResolver,
-            onTransactionSent: onTransactionSent,
-            shouldStartInitialLoading: shouldStartInitialLoading,
+            initialResolvingPolicy: initialResolvingPolicy,
         )
     }
 

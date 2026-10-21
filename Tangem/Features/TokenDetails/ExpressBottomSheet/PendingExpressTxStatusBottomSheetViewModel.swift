@@ -16,6 +16,8 @@ import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     var transactionID: String? {
         pendingTransaction.externalTxId
     }
@@ -63,6 +65,16 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     private weak var router: PendingExpressTxStatusRoutable?
     private var externalProviderTxURL: URL? {
         pendingTransaction.externalTxURL.flatMap { URL(string: $0) }
+    }
+
+    private var refundUserWalletId: UserWalletId? {
+        guard case .swap(let source, _) = pendingTransaction.type else {
+            return nil
+        }
+
+        return userWalletRepository.models
+            .first(where: { $0.userWalletId.stringValue == source.userWalletId })?
+            .userWalletId
     }
 
     private var alreadyTrackedTokenNoticeLongTimeTransactionEvent: Bool = false
@@ -180,8 +192,12 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         Analytics.log(.tokenButtonGoToToken)
         assert(tokenItem.blockchainNetwork.derivationPath != nil)
 
+        guard let refundUserWalletId else {
+            return
+        }
+
         let feeCurrencyFinderResult = try? WalletModelFinder
-            .findWalletModel(userWalletId: userWalletInfo.id, tokenItem: tokenItem)
+            .findWalletModel(userWalletId: refundUserWalletId, tokenItem: tokenItem)
 
         guard let feeCurrencyFinderResult else {
             return
