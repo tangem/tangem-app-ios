@@ -38,7 +38,7 @@ final class PolymarketOrderSummaryViewModel: ObservableObject {
 
     private let model: PolymarketOrderModel
     private let account: PolymarketOrderAccount?
-    private let placementService: PolymarketOrderPlacementService
+    private let submission: PolymarketOrderSubmission
     private weak var coordinator: PolymarketOrderSummaryRoutable?
 
     private var placementTask: Task<Void, Never>?
@@ -55,7 +55,7 @@ final class PolymarketOrderSummaryViewModel: ObservableObject {
     ) {
         self.model = model
         self.account = account
-        self.placementService = placementService
+        submission = PolymarketOrderSubmission(model: model, placementService: placementService)
         self.signingButtonType = signingButtonType
         self.coordinator = coordinator
 
@@ -118,175 +118,55 @@ extension PolymarketOrderSummaryViewModel {
 
 private extension PolymarketOrderSummaryViewModel {
     func place() {
-        guard !isPlacing, let quote = model.state.quote.quote else { return }
+        guard !isPlacing else { return }
 
-        guard model.state.keepsQuote(at: Date()) else {
-            reportStaleQuote()
+        switch submission.readiness() {
+        case .unavailable:
             return
-        }
+        case .staleQuote:
+            reportStaleQuote()
+        case .ready(let quote):
+            isPlacing = true
 
-        isPlacing = true
+            placementTask = Task { @MainActor [weak self] in
+                guard let self else { return }
 
-        placementTask = Task { @MainActor [weak self] in
-            guard let self else { return }
-
-            do {
-                let placement = try await placementService.place(
-                    quote: quote,
-                    market: model.market,
-                    outcome: model.outcome
-                )
-
-                guard !placement.isMatchedWithoutFill(side: model.intent.side) else {
-                    PolymarketLogger.error(
-                        "The exchange matched the order and filled no shares",
-                        error: PlacementAnomaly.matchedWithoutFill
-                    )
-                    reportFailure(returningToMain: true)
-                    return
-                }
-
-                finish(
-                    with: .init(placement: placement, quotedShares: quote.shares, side: model.intent.side),
-                    placement: placement,
-                    quote: quote
-                )
-            } catch let error as PolymarketOrderPlacementError {
-                handle(error, quote: quote)
-            } catch is CancellationError {
-                resume()
-            } catch {
-                PolymarketLogger.error("Order placement failed", error: error)
-                reportFailure()
+                handle(await submission.submit(quote: quote) { self.marketRow })
             }
         }
     }
 
-    func handle(_ error: PolymarketOrderPlacementError, quote: PolymarketOrderQuote) {
-        switch error {
-        case .noLiquidity:
-            PolymarketLogger.error("The book had nothing to match the order", error: error)
-            finish(with: .noFill, placement: nil, quote: quote)
-        case _ where error.isAmbiguous:
-            PolymarketLogger.error("The order was sent and its outcome is unknown", error: error)
-            finish(with: .stillProcessing, placement: nil, quote: quote)
-        case _ where error.isUserCancellation:
+    func handle(_ outcome: PolymarketOrderSubmission.Outcome) {
+        switch outcome {
+        case .cancelled:
             resume()
-        default:
-            PolymarketLogger.error("Order placement failed", error: error)
-            reportFailure()
+        case .failed(let returningToMain):
+            reportFailure(returningToMain: returningToMain)
+        case .finished(let state, let content):
+            isPlacing = false
+            coordinator?.openResult(state: state, content: content)
         }
     }
 
-    func reportFailure(returningToMain: Bool = false) {
+    func reportFailure(returningToMain: Bool) {
         if !returningToMain {
             resume()
         }
 
-        alert = AlertBuilder.makeAlert(
-            title: Localization.commonSomethingWentWrong,
-            message: Localization.predictionPlaceErrorDescription,
-            primaryButton: .default(Text(Localization.commonSupport)) { [weak self] in
-                self?.coordinator?.openSupport()
-
-                guard returningToMain else { return }
-
-                self?.coordinator?.closeOrder()
-            },
-            secondaryButton: .cancel(Text(Localization.commonClose)) { [weak self] in
-                guard returningToMain else { return }
-
-                self?.coordinator?.closeOrder()
-            }
+        alert = PolymarketOrderSubmission.failureAlert(
+            returningToMain: returningToMain,
+            onSupport: { [weak self] in self?.coordinator?.openSupport() },
+            onClose: { [weak self] in self?.coordinator?.closeOrder() }
         )
     }
 
     func reportStaleQuote() {
         resume()
-        alert = AlertBuilder.makeOkGotItAlert(
-            message: Localization.predictionPlacePriceChangedDescription,
-            okAction: { [weak self] in self?.coordinator?.closeSummary() }
-        )
+        alert = PolymarketOrderSubmission.staleQuoteAlert { [weak self] in self?.coordinator?.closeSummary() }
     }
 
     func resume() {
         isPlacing = false
-    }
-
-    @MainActor
-    func finish(
-        with state: PolymarketOrderResultViewModel.State,
-        placement: PolymarketOrderPlacement?,
-        quote: PolymarketOrderQuote?
-    ) {
-        isPlacing = false
-        coordinator?.openResult(state: state, content: makeResultContent(placement: placement, quote: quote))
-    }
-
-    func filledMoney(_ placement: PolymarketOrderPlacement?) -> Decimal? {
-        placement?.filledMoney(side: model.intent.side)
-    }
-
-    func filledShares(_ placement: PolymarketOrderPlacement?) -> Decimal? {
-        placement?.filledShares(side: model.intent.side)
-    }
-
-    func orderedMoney(quote: PolymarketOrderQuote?) -> Decimal? {
-        switch model.intent {
-        case .buy: model.state.enteredAmount
-        case .sell: quote?.expectedExecutionAmount
-        }
-    }
-
-    func executionPrice(_ placement: PolymarketOrderPlacement?) -> Decimal? {
-        guard let money = filledMoney(placement), let shares = filledShares(placement), shares > 0 else {
-            return nil
-        }
-
-        return money / shares
-    }
-
-    var heldShares: Decimal? {
-        guard case .sell(let shares) = model.intent else { return nil }
-
-        return shares
-    }
-
-    func makeResultContent(
-        placement: PolymarketOrderPlacement?,
-        quote: PolymarketOrderQuote?
-    ) -> PolymarketOrderResultViewModel.Content {
-        .init(
-            market: makeResultMarketRow(executionPrice: executionPrice(placement)),
-            placedAt: Date(),
-            orderedAmount: orderedMoney(quote: quote),
-            filledAmount: filledMoney(placement),
-            tokensBought: filledShares(placement),
-            resolutionDate: model.market.endDate,
-            side: model.intent.side,
-            heldShares: heldShares
-        )
-    }
-
-    func makeResultMarketRow(executionPrice: Decimal?) -> PolymarketOrderMarketRow.Model {
-        guard model.intent.side == .sell else { return marketRow }
-
-        guard let executionPrice else {
-            return .make(
-                market: model.market,
-                outcome: model.outcome,
-                eventTitle: model.eventTitle,
-                isPriceUnavailable: true
-            )
-        }
-
-        return .make(
-            market: model.market,
-            outcome: model.outcome,
-            eventTitle: model.eventTitle,
-            averagePrice: executionPrice,
-            entryPrice: model.state.entryPrice
-        )
     }
 }
 
@@ -398,27 +278,5 @@ private extension PolymarketOrderSummaryViewModel {
 
     static func makeFeeText(state: PolymarketOrderModel.State) -> String {
         PolymarketOrderFormatter.money(state.quote.quote?.fees.total)
-    }
-}
-
-// MARK: - PlacementAnomaly
-
-private extension PolymarketOrderSummaryViewModel {
-    enum PlacementAnomaly: Error {
-        case matchedWithoutFill
-    }
-}
-
-// MARK: - Cancellation
-
-private extension PolymarketOrderPlacementError {
-    var isUserCancellation: Bool {
-        guard case .notSent(let underlying) = self else { return false }
-
-        if let signing = underlying as? PolymarketSigningError, case .cancelled = signing {
-            return true
-        }
-
-        return underlying is CancellationError
     }
 }
