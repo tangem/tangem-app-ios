@@ -554,8 +554,13 @@ var unitTestsModules: [PackageDescription.Target] {
         .tangemTestTarget(
             name: "TangemCollectiblesTests",
             dependencies: [
+                "BlockchainSdk",
                 "TangemCollectibles",
+                "TangemFoundation",
+                "TangemMobileWalletSdk",
                 .product(name: "SolanaSwift", package: "Solana.Swift"),
+                .product(name: "TangemSdk", package: "tangem-sdk-ios"),
+                .product(name: "TangemTestKit", package: "TangemTestKit"),
             ],
             swiftSettings: .swift6StrictSettings
         ),
