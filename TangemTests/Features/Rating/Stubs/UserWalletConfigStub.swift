@@ -9,6 +9,7 @@
 import BlockchainSdk
 import Combine
 import Foundation
+import TangemAssets
 import TangemSdk
 import TangemUI
 @testable import Tangem
