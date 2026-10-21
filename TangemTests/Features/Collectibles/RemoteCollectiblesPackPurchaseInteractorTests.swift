@@ -495,6 +495,7 @@ private extension RemoteCollectiblesPackPurchaseInteractorTests {
     nonisolated static let deliveredTransaction = CollectiblesPurchaseTransaction(
         status: .nftReceived,
         wonCard: CollectiblesWonCard(
+            nftAddress: "nft-1",
             imageFrontURL: nil,
             imageBackURL: nil,
             gradingCompany: "PSA",
