@@ -219,3 +219,55 @@ extension MoralisSolanaFixtures {
     ]
     """
 }
+
+// MARK: - Paging
+
+extension MoralisSolanaFixtures {
+    static let firstPageResponse = """
+    {
+      "meta": { "syncedAt": { "solana-mainnet": "latest" }, "unsupportedChains": [], "failedChains": [] },
+      "address": "CUfZZHt9nNsSnQUv5jhGGLbRRtudpWvzoSwbJQf7T9PW",
+      "addressType": "solana",
+      "cursor": "page-2",
+      "result": [
+        { "chainId": "solana-mainnet", "tokenAddress": "CorePage1Asset1", "tokenStandard": "MplCore", "name": "One" },
+        { "chainId": "solana-mainnet", "tokenAddress": "CorePage1Asset2", "tokenStandard": "MplCore", "name": "Two" }
+      ]
+    }
+    """
+
+    static let secondPageResponse = """
+    {
+      "meta": { "syncedAt": { "solana-mainnet": "latest" }, "unsupportedChains": [], "failedChains": [] },
+      "address": "CUfZZHt9nNsSnQUv5jhGGLbRRtudpWvzoSwbJQf7T9PW",
+      "addressType": "solana",
+      "cursor": "page-3",
+      "result": [
+        { "chainId": "solana-mainnet", "tokenAddress": "CorePage2Asset1", "tokenStandard": "MplCore", "name": "Three" }
+      ]
+    }
+    """
+
+    static let lastPageResponse = """
+    {
+      "meta": { "syncedAt": { "solana-mainnet": "latest" }, "unsupportedChains": [], "failedChains": [] },
+      "address": "CUfZZHt9nNsSnQUv5jhGGLbRRtudpWvzoSwbJQf7T9PW",
+      "addressType": "solana",
+      "cursor": null,
+      "result": [
+        { "chainId": "solana-mainnet", "tokenAddress": "CorePage3Asset1", "tokenStandard": "MplCore", "name": "Four" }
+      ]
+    }
+    """
+
+    static let pageWithoutCursorResponse = """
+    {
+      "meta": { "syncedAt": { "solana-mainnet": "latest" }, "unsupportedChains": [], "failedChains": [] },
+      "address": "CUfZZHt9nNsSnQUv5jhGGLbRRtudpWvzoSwbJQf7T9PW",
+      "addressType": "solana",
+      "result": [
+        { "chainId": "solana-mainnet", "tokenAddress": "CoreOnlyAsset", "tokenStandard": "MplCore", "name": "Only" }
+      ]
+    }
+    """
+}

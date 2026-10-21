@@ -7,7 +7,7 @@
 //
 
 extension MoralisSolanaNetworkResult {
-    struct WalletNFTsResponse: Decodable {
+    struct WalletNFTsResponse: Decodable, MoralisPaginableResponse {
         let meta: WalletNFTsMeta?
         let cursor: String?
         let result: [WalletNFT]?
