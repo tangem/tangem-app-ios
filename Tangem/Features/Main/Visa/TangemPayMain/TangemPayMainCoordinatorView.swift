@@ -126,8 +126,7 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
                 contentLayout: .intrinsic,
                 onDismiss: coordinator.pinCheckDidDismiss,
                 header: { _ in EmptyView() },
-                content: { TangemPayPinCheckView(viewModel: $0) },
-                footer: { _ in EmptyView() }
+                content: { TangemPayPinCheckView(viewModel: $0) }
             )
             .sheet(item: $coordinator.tangemPayDailyLimitViewModel) {
                 TangemPayDailyLimitView(viewModel: $0)
