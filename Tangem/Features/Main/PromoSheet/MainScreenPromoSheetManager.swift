@@ -33,4 +33,5 @@ enum MainScreenPromoSheetSkipReason {
     case dataNotReady
     case noEligibleContent
     case variantNotReady
+    case surfaceBusy
 }
