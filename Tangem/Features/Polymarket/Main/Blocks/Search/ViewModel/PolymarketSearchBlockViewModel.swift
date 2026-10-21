@@ -132,11 +132,17 @@ private extension PolymarketSearchBlockViewModel {
         )
     }
 
-    func openOrder(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {
+    func openOrder(eventID: String, marketID: String, assetId: String) {
         isFieldActive = false
 
         guard !isRegionRestricted() else {
             routable?.openRegionWarning()
+            return
+        }
+
+        guard let event = events.first(where: { $0.id == eventID }),
+              let market = event.markets.first(where: { $0.id == marketID }),
+              let outcome = market.outcomes.first(where: { $0.assetId == assetId }) else {
             return
         }
 
@@ -145,7 +151,7 @@ private extension PolymarketSearchBlockViewModel {
         routable?.openOrder(
             market: market,
             outcome: outcome,
-            eventTitle: eventTitle,
+            eventTitle: event.title,
             request: .buy,
             onPlaced: { [weak activityHandler] indexing in activityHandler?.orderPlaced(awaiting: indexing) }
         )
@@ -309,8 +315,8 @@ private extension PolymarketSearchBlockViewModel {
             event: event,
             category: nil,
             isInActivePredicts: false,
-            onSelectOutcome: { [weak self] market, outcome in
-                self?.openOrder(market: market, outcome: outcome, eventTitle: event.title)
+            onSelectOutcome: { [weak self, eventID = event.id] market, outcome in
+                self?.openOrder(eventID: eventID, marketID: market.id, assetId: outcome.assetId)
             }
         )
     }
