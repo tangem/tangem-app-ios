@@ -509,6 +509,7 @@ private extension WCServiceV2 {
                 requestId: transactionRequest.id,
                 response: .error(.init(code: 0, message: ""))
             )
+            WCLogger.info("Rejected \(transactionRequest.method) request \(transactionRequest.id) on \(transactionRequest.chainId.absoluteString)")
         } catch {
             let errorMessage = "Failed to reject request with topic: \(transactionRequest.topic) for method: \(transactionRequest.method)"
             WCLogger.error(errorMessage, error: error)

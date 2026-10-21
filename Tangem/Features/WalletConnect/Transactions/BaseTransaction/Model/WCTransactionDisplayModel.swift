@@ -18,6 +18,8 @@ enum WCTransactionConnectionTargetKind {
 protocol WCTransactionViewModelDisplayData: AnyObject {
     var simulationState: TransactionSimulationState { get }
     var feeValidationInputs: [NotificationViewInput] { get }
+    var targetValidationEvents: [WCNotificationEvent] { get }
+    var isValidatingRecipient: Bool { get }
     var selectedFee: WCFee? { get }
     var sendableTransaction: WCSendableTransaction? { get }
     var feeInteractor: (any WCFeeInteractorType)? { get }
@@ -100,6 +102,14 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
         }
 
         if case .loading = viewModel?.selectedFee?.value {
+            return true
+        }
+
+        if viewModel?.isValidatingRecipient == true {
+            return true
+        }
+
+        if viewModel?.targetValidationEvents.contains(where: \.blocksSigning) == true {
             return true
         }
 

@@ -107,6 +107,7 @@ private struct EthereumNetworkProviderStub: EthereumNetworkProvider {
     func getTxCount(_ address: String) -> AnyPublisher<Int, Error> { .empty }
     func getPendingTxCount(_ address: String) -> AnyPublisher<Int, Error> { .empty }
     func getSmartContractNonce(for address: String) -> AnyPublisher<Int, Error> { .empty }
+    func hasCode(at address: String) -> AnyPublisher<Bool, Error> { .empty }
     func getSafeNonce(for address: String) -> AnyPublisher<Int?, Error> { .empty }
     func getSafeOwners(for address: String) -> AnyPublisher<[String], Error> { .empty }
     func getSafeThreshold(for address: String) -> AnyPublisher<Int, Error> { .empty }
