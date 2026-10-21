@@ -12,6 +12,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemPolymarket
 import TangemPolymarketUI
+import TangemUI
 import TangemUIUtils
 
 @MainActor
@@ -22,6 +23,7 @@ final class PolymarketOrderViewModel: ObservableObject {
     @Published private(set) var slippageText: String
     @Published private(set) var amountCaption: AmountCaption?
     @Published private(set) var amountFractions: [FractionOption] = []
+    @Published private(set) var amountPresets: [AmountPreset] = []
     @Published private(set) var notifications: [PolymarketOrderNotification] = []
     @Published private(set) var isAwaitingFunds = false
     @Published private(set) var proceedsText = ""
@@ -32,6 +34,11 @@ final class PolymarketOrderViewModel: ObservableObject {
     @Published private(set) var canIncreaseAmount = false
     @Published private(set) var areFractionsEnabled = false
     @Published private(set) var isAddFundsEnabled = false
+    @Published private(set) var showsTotal = false
+    @Published private(set) var totalText = ""
+    @Published private(set) var isTotalLoading = false
+    @Published private(set) var isFeeBreakdownAvailable = false
+    @Published private(set) var isPlacing = false
     @Published var alert: AlertBinder?
 
     var isProceedsLoading: Bool {
@@ -42,19 +49,33 @@ final class PolymarketOrderViewModel: ObservableObject {
 
     @Published private(set) var marketRow: PolymarketOrderMarketRow.Model
     let fieldViewModel: DecimalNumberTextFieldViewModel
+    let flowStyle: PolymarketOrderFlowStyle
 
     // MARK: - Dependencies
 
     private let model: PolymarketOrderModel
+    private let submission: PolymarketOrderSubmission?
     private weak var coordinator: PolymarketOrderRoutable?
 
+    private var placementTask: Task<Void, Never>?
+    private var hintsAmount: Decimal?
+    private var pendingPlacementDate: Date?
+    private let now: () -> Date
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Init
 
-    init(model: PolymarketOrderModel, coordinator: PolymarketOrderRoutable?) {
+    init(
+        model: PolymarketOrderModel,
+        flowStyle: PolymarketOrderFlowStyle = .summaryStep,
+        coordinator: PolymarketOrderRoutable?,
+        now: @escaping () -> Date = Date.init
+    ) {
         self.model = model
+        self.flowStyle = flowStyle
         self.coordinator = coordinator
+        self.now = now
+        submission = flowStyle.singleSheet.map { PolymarketOrderSubmission(model: model, placementService: $0.placementService) }
 
         marketRow = .make(
             market: model.market,
@@ -69,6 +90,10 @@ final class PolymarketOrderViewModel: ObservableObject {
         bind()
     }
 
+    deinit {
+        placementTask?.cancel()
+    }
+
     // MARK: - View actions
 
     func handleViewAction(_ action: ViewAction) {
@@ -76,11 +101,22 @@ final class PolymarketOrderViewModel: ObservableObject {
         case .onAppear:
             model.handleViewAction(.onAppear)
         case .onDisappear:
+            dropPendingPlacement()
             model.handleViewAction(.onDisappear)
         case .close:
+            guard !isPlacing else { return }
+
             coordinator?.closeOrder()
         case .openSummary:
             coordinator?.openSummary(model: model)
+        case .placeOrder:
+            place()
+        case .openFeeBreakdown:
+            guard isFeeBreakdownAvailable else { return }
+
+            coordinator?.openFeeBreakdown(model: model)
+        case .openLegalTerms(let url):
+            coordinator?.openLegalTerms(url: url)
         case .openAddFunds:
             openAddFunds()
         case .openSlippage:
@@ -89,6 +125,11 @@ final class PolymarketOrderViewModel: ObservableObject {
             model.handleViewAction(.step(step))
         case .selectFraction(let fraction):
             model.handleViewAction(.selectFraction(fraction))
+        case .selectPreset(let preset):
+            switch preset {
+            case .amount(let amount): model.handleViewAction(.selectAmount(amount))
+            case .max: model.handleViewAction(.selectFraction(.max))
+            }
         case .retryQuote:
             model.handleViewAction(.retryQuote)
         }
@@ -112,8 +153,16 @@ extension PolymarketOrderViewModel {
         }
     }
 
+    var isSingleSheet: Bool {
+        flowStyle.isSingleSheet
+    }
+
     var nextButtonTitle: String {
-        switch model.intent {
+        if isSingleSheet {
+            return Localization.predictionPlaceButton
+        }
+
+        return switch model.intent {
         case .buy: Localization.commonNext
         case .sell: Localization.predictionCloseButton
         }
@@ -134,6 +183,19 @@ extension PolymarketOrderViewModel {
         var id: PolymarketAmountFraction { fraction }
     }
 
+    struct AmountPreset: Identifiable, Hashable {
+        enum Kind: Hashable {
+            case amount(Decimal)
+            case max
+        }
+
+        let kind: Kind
+        let title: String
+        let isEnabled: Bool
+
+        var id: Kind { kind }
+    }
+
     enum ViewAction {
         case step(Int)
         case onAppear
@@ -143,7 +205,11 @@ extension PolymarketOrderViewModel {
         case openAddFunds
         case openSlippage
         case selectFraction(PolymarketAmountFraction)
+        case selectPreset(AmountPreset.Kind)
         case retryQuote
+        case placeOrder
+        case openFeeBreakdown
+        case openLegalTerms(URL)
     }
 }
 
@@ -194,22 +260,36 @@ private extension PolymarketOrderViewModel {
 
     func update(with state: PolymarketOrderModel.State) {
         let gate = PolymarketOrderGate(state: state, intent: model.intent)
-        let keepsPreviousHints = state.enteredAmount != nil && state.quote.isAwaitingQuote && !state.quote.isResuming
+        let isAwaitingFreshQuote = state.enteredAmount != nil && state.quote.isAwaitingQuote && !state.quote.isResuming
+        let keepsPreviousHints = isAwaitingFreshQuote && (!isSingleSheet || state.enteredAmount == hintsAmount)
 
         payment = Self.makePayment(balance: state.balance, intent: model.intent)
         slippageText = PolymarketSlippageFormatter.rowText(state.slippagePercent)
-        amountCaption = makeAmountCaption(gate.amountCaption) ?? (keepsPreviousHints ? amountCaption : nil)
+        amountCaption = makeAmountCaption(gate.amountCaption) ?? previousOrPendingCaption(
+            keepsPreviousHints: keepsPreviousHints,
+            isAwaitingFreshQuote: isAwaitingFreshQuote
+        )
         amountFractions = Self.makeAmountFractions(balance: state.balance, selectable: gate.selectableFractions)
         notifications = gate.notifications.isEmpty && keepsPreviousHints ? notifications : gate.notifications
+
+        if !state.quote.isAwaitingQuote {
+            hintsAmount = state.enteredAmount
+        }
         isAwaitingFunds = state.isAwaitingFunds
         isAddFundsEnabled = state.addFundsReadiness.addFundsAvailability == .available
-        isNextEnabled = gate.isPrimaryButtonEnabled
+        isNextEnabled = gate.isPrimaryButtonEnabled || (isSingleSheet && isAwaitingFreshQuote && gate.isPrimaryButtonEnabledWhileQuoting)
+
+        if isSingleSheet {
+            updateTotal(with: state)
+            placeOnceQuoted(state: state, gate: gate)
+        }
 
         let isTradable = model.market.isAcceptingOrders && !gate.notifications.contains(.marketClosed)
 
         let isAdjustable = isTradable && (gate.canStepUp || gate.canStepDown)
 
         areFractionsEnabled = isAdjustable
+        amountPresets = makeAmountPresets(isTradable: isTradable)
         canDecreaseAmount = isAdjustable && gate.canStepDown
         canIncreaseAmount = isAdjustable && gate.canStepUp
 
@@ -253,6 +333,89 @@ private extension PolymarketOrderViewModel {
     }
 }
 
+// MARK: - Single sheet
+
+private extension PolymarketOrderViewModel {
+    func updateTotal(with state: PolymarketOrderModel.State) {
+        let quote = state.quote.quote ?? state.quote.partialQuote
+
+        showsTotal = state.enteredAmount != nil
+        totalText = PolymarketOrderFormatter.money(quote?.total)
+        isTotalLoading = showsTotal && quote == nil && state.quote.isAwaitingQuote
+        isFeeBreakdownAvailable = quote != nil
+    }
+
+    func place() {
+        guard let submission, !isPlacing, isNextEnabled else { return }
+
+        isPlacing = true
+        placeIfReady(submission, waitsForQuote: true)
+    }
+
+    func placeOnceQuoted(state: PolymarketOrderModel.State, gate: PolymarketOrderGate) {
+        guard let tapDate = pendingPlacementDate, !state.quote.isAwaitingQuote else { return }
+
+        pendingPlacementDate = nil
+
+        guard now().timeIntervalSince(tapDate) <= Constants.pendingPlacementLifetime else {
+            isPlacing = false
+            return
+        }
+
+        guard let submission, gate.isPrimaryButtonEnabled else {
+            isPlacing = false
+            return
+        }
+
+        placeIfReady(submission, waitsForQuote: false)
+    }
+
+    func dropPendingPlacement() {
+        guard pendingPlacementDate != nil else { return }
+
+        pendingPlacementDate = nil
+        isPlacing = false
+    }
+
+    func placeIfReady(_ submission: PolymarketOrderSubmission, waitsForQuote: Bool) {
+        switch submission.readiness() {
+        case .ready(let quote):
+            placementTask = Task { @MainActor [weak self] in
+                guard let self else { return }
+
+                handle(await submission.submit(quote: quote) { self.marketRow })
+            }
+        case .unavailable where waitsForQuote:
+            pendingPlacementDate = now()
+        case .unavailable:
+            isPlacing = false
+        case .staleQuote:
+            isPlacing = false
+            alert = PolymarketOrderSubmission.staleQuoteAlert(onAcknowledge: {})
+        }
+    }
+
+    func handle(_ outcome: PolymarketOrderSubmission.Outcome) {
+        switch outcome {
+        case .cancelled:
+            isPlacing = false
+        case .failed(let returningToMain):
+            if !returningToMain {
+                isPlacing = false
+            }
+
+            alert = PolymarketOrderSubmission.failureAlert(
+                returningToMain: returningToMain,
+                onSupport: { [weak self] in self?.coordinator?.openSupport() },
+                onClose: { [weak self] in self?.coordinator?.closeOrder() }
+            )
+        case .finished(let state, let content):
+            isPlacing = false
+            coordinator?.openResult(state: state, content: content)
+        }
+    }
+}
+
 // MARK: - Mapping
 
 private extension PolymarketOrderViewModel {
@@ -283,10 +446,37 @@ private extension PolymarketOrderViewModel {
         }
     }
 
+    func makeAmountPresets(isTradable: Bool) -> [AmountPreset] {
+        guard isSingleSheet, isAmountEditable else { return [] }
+
+        let amounts = Constants.amountPresets.map {
+            AmountPreset(kind: .amount($0), title: PolymarketOrderFormatter.enteredAmount($0), isEnabled: isTradable)
+        }
+
+        let isMaxEnabled = isTradable && amountFractions.contains { $0.fraction == .max && $0.isEnabled }
+        let max = AmountPreset(kind: .max, title: Localization.sendMaxAmount, isEnabled: isMaxEnabled)
+
+        return amounts + [max]
+    }
+
     func minAmountText(_ amount: Decimal) -> String {
         switch model.intent {
         case .buy: Localization.predictionPlaceMinAmountError(PolymarketOrderFormatter.money(amount))
         case .sell: Localization.predictionCloseMinSharesError(PolymarketOrderFormatter.shares(amount))
+        }
+    }
+
+    func previousOrPendingCaption(keepsPreviousHints: Bool, isAwaitingFreshQuote: Bool) -> AmountCaption? {
+        if keepsPreviousHints {
+            return amountCaption
+        }
+
+        guard isSingleSheet, isAmountEditable, isAwaitingFreshQuote else { return nil }
+
+        switch amountCaption {
+        case .toWin(let text): return .toWinLoading(text)
+        case .toWinLoading(let text): return .toWinLoading(text)
+        case .shortfall, nil: return .toWinLoading(nil)
         }
     }
 
@@ -311,6 +501,16 @@ private extension PolymarketOrderViewModel {
 extension PolymarketOrderViewModel {
     enum AmountCaption: Hashable {
         case toWin(String)
+        case toWinLoading(String?)
         case shortfall(String)
+    }
+}
+
+// MARK: - Constants
+
+private extension PolymarketOrderViewModel {
+    enum Constants {
+        static let amountPresets: [Decimal] = [100, 500, 1000, 5000]
+        static let pendingPlacementLifetime: TimeInterval = 10
     }
 }

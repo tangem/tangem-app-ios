@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemLocalization
+import TangemPolymarketUI
 import TangemUI
 
 struct PolymarketOrderCoordinatorView: CoordinatorView {
@@ -15,7 +16,7 @@ struct PolymarketOrderCoordinatorView: CoordinatorView {
 
     var body: some View {
         coordinator.viewModel.map { viewModel in
-            PolymarketOrderView(viewModel: viewModel)
+            content(orderViewModel: viewModel)
                 .toolbar(.hidden, for: .navigationBar)
                 .background(FeedPopGestureEnabler())
                 .navigationLinks(links)
@@ -28,6 +29,17 @@ struct PolymarketOrderCoordinatorView: CoordinatorView {
         }
     }
 
+    private func content(orderViewModel: PolymarketOrderViewModel) -> some View {
+        Group {
+            if let result = coordinator.inPlaceResult {
+                PolymarketOrderResultView(viewModel: result)
+            } else {
+                PolymarketOrderView(viewModel: orderViewModel)
+            }
+        }
+        .polymarketStateTransition(coordinator.inPlaceResult != nil)
+    }
+
     private func sheetHeader(for sheet: PolymarketOrderCoordinator.Sheet) -> some View {
         FeedModalHeaderView(title: sheetTitle(for: sheet), onClose: { coordinator.sheet = nil })
     }
@@ -35,7 +47,11 @@ struct PolymarketOrderCoordinatorView: CoordinatorView {
     private func sheetTitle(for sheet: PolymarketOrderCoordinator.Sheet) -> String {
         switch sheet {
         case .slippageSelector: Localization.predictionPlaceSlippage
-        case .feeBreakdown: Localization.predictionPlaceFee
+        case .feeBreakdown:
+            switch coordinator.flowStyle {
+            case .summaryStep: Localization.predictionPlaceFee
+            case .singleSheet: Localization.predictionFeeSheetTotal
+            }
         }
     }
 

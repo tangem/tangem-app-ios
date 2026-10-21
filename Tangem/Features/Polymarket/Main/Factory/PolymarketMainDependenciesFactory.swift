@@ -42,7 +42,8 @@ struct PolymarketMainDependenciesFactory {
             fundsArrivalTracker: fundsArrivalTracker,
             refreshCenter: refreshCenter,
             activityHandler: PolymarketMainActivityHandler(fundsArrivalTracker: fundsArrivalTracker, refreshCenter: refreshCenter),
-            sessionHealth: sessionHealth
+            sessionHealth: sessionHealth,
+            isSingleSheetOrderEnabled: FeatureProvider.isAvailable(.polymarketPhaseTwo)
         )
     }
 }
@@ -81,6 +82,7 @@ struct PolymarketMainDependencies {
     let refreshCenter: PolymarketMainRefreshCenter
     let activityHandler: PolymarketMainActivityHandler
     let sessionHealth: PolymarketSessionHealth
+    let isSingleSheetOrderEnabled: Bool
 
     var walletId: String {
         userWalletModel.userWalletId.stringValue

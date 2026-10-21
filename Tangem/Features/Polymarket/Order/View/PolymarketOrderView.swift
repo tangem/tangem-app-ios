@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemLocalization
+import TangemPolymarket
 import TangemPolymarketUI
 import TangemUI
 import TangemUIUtils
@@ -24,26 +25,41 @@ struct PolymarketOrderView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            PolymarketTopBar(
-                title: viewModel.screenTitle,
-                onClose: { viewModel.handleViewAction(.close) }
-            )
-            .padding(.top, Constants.topBarTopPadding)
+            topBar
+                .disabled(viewModel.isPlacing)
+                .padding(.top, viewModel.isSingleSheet ? Constants.sheetHeaderTopPadding : Constants.topBarTopPadding)
 
             content
+                .disabled(viewModel.isPlacing)
         }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .safeAreaInset(edge: .bottom, spacing: .zero) { bottomContainer }
         .onWillAppear { viewModel.handleViewAction(.onAppear) }
         .bindAlert($viewModel.alert)
+        .if(viewModel.isSingleSheet) { $0.interactiveDismissDisabled(viewModel.isPlacing) }
         .onWillDisappear { viewModel.handleViewAction(.onDisappear) }
+    }
+
+    // MARK: - Top bar
+
+    @ViewBuilder
+    private var topBar: some View {
+        if viewModel.isSingleSheet {
+            PolymarketOrderSheetHeader(model: viewModel.marketRow, onClose: { viewModel.handleViewAction(.close) })
+        } else {
+            PolymarketTopBar(title: viewModel.screenTitle, onClose: { viewModel.handleViewAction(.close) })
+        }
     }
 
     // MARK: - Bottom
 
     private var bottomContainer: some View {
         VStack(spacing: 0) {
-            nextButton
+            if let signingButtonType = viewModel.flowStyle.singleSheet?.signingButtonType {
+                placeFooter(signingButtonType: signingButtonType)
+            } else {
+                nextButton
+            }
 
             keyboardBar
         }
@@ -53,7 +69,9 @@ struct PolymarketOrderView: View {
 
     private var content: some View {
         GroupedScrollView(contentType: .plain(spacing: Constants.blockSpacing)) {
-            PolymarketOrderMarketRow(model: viewModel.marketRow)
+            if !viewModel.isSingleSheet {
+                PolymarketOrderMarketRow(model: viewModel.marketRow)
+            }
 
             PolymarketOrderAmountBlock(
                 title: viewModel.amountTitle,
@@ -77,18 +95,17 @@ struct PolymarketOrderView: View {
                 if !viewModel.isAmountEditable {
                     sellControls
                 }
+            } bottom: {
+                if !viewModel.amountPresets.isEmpty {
+                    amountPresets
+                }
             }
 
             PolymarketOrderNotificationsView(notifications: viewModel.notifications) {
                 viewModel.handleViewAction(.retryQuote)
             }
 
-            PolymarketOrderSlippageRow(
-                valueText: viewModel.slippageText,
-                onTap: { viewModel.handleViewAction(.openSlippage) }
-            )
-            .background(DesignSystem.Color.bgSecondary)
-            .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
+            detailsBlock
 
             if viewModel.isAwaitingFunds {
                 PolymarketOrderNotificationsView(notifications: [.awaitingFunds])
@@ -102,6 +119,43 @@ struct PolymarketOrderView: View {
         .animation(.curve(.easeInOutRefined, duration: Constants.captionAnimationDuration), value: captionIdentity)
     }
 
+    private var detailsBlock: some View {
+        VStack(spacing: 0) {
+            PolymarketOrderSlippageRow(
+                valueText: viewModel.slippageText,
+                showsDivider: viewModel.showsTotal,
+                onTap: { viewModel.handleViewAction(.openSlippage) }
+            )
+
+            if viewModel.isTotalLoading {
+                totalSkeleton
+                    .transition(.opacity)
+            } else if viewModel.showsTotal {
+                totalRow
+                    .transition(.opacity)
+            }
+        }
+        .background(DesignSystem.Color.bgSecondary)
+        .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
+        .animation(.curve(.easeInOutRefined, duration: Constants.captionAnimationDuration), value: viewModel.isTotalLoading)
+    }
+
+    private var totalRow: some View {
+        PolymarketOrderFeeRow(
+            title: Localization.predictionFeeSheetTotal,
+            valueText: viewModel.totalText,
+            showsDivider: false,
+            onTap: viewModel.isFeeBreakdownAvailable ? { viewModel.handleViewAction(.openFeeBreakdown) } : nil
+        )
+    }
+
+    private var totalSkeleton: some View {
+        Shimmer()
+            .variant(.text(style: .body))
+            .padding(.horizontal, Constants.horizontalPadding)
+            .padding(.vertical, Constants.totalSkeletonVerticalPadding)
+    }
+
     private var amountCaption: some View {
         ZStack {
             captionContent
@@ -112,7 +166,7 @@ struct PolymarketOrderView: View {
 
     private var captionIdentity: String {
         switch viewModel.amountCaption {
-        case .toWin: Constants.toWinCaptionIdentity
+        case .toWin, .toWinLoading: Constants.toWinCaptionIdentity
         case .shortfall(let text): text
         case nil: ""
         }
@@ -123,6 +177,8 @@ struct PolymarketOrderView: View {
         switch viewModel.amountCaption {
         case .toWin(let text):
             PolymarketAmountBadge.toWin(state: .value(text))
+        case .toWinLoading(let previous):
+            PolymarketAmountBadge.toWin(state: .loading(previousValue: previous))
         case .shortfall(let text):
             Text(text)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusError)
@@ -202,6 +258,29 @@ struct PolymarketOrderView: View {
         .padding(.bottom, Constants.sellControlsBottomPadding)
     }
 
+    private var amountPresets: some View {
+        VStack(spacing: 0) {
+            Separator(color: DesignSystem.Color.borderPrimary)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: Constants.sellControlsSpacing) {
+                    ForEach(viewModel.amountPresets) { preset in
+                        TangemUI.Button(
+                            label: preset.title,
+                            accessibilityLabel: nil,
+                            action: { viewModel.handleViewAction(.selectPreset(preset.kind)) }
+                        )
+                        .size(.x8)
+                        .styleType(.secondary(.default))
+                        .disabled(!preset.isEnabled)
+                    }
+                }
+                .padding(.horizontal, Constants.horizontalPadding)
+            }
+            .padding(.vertical, Constants.amountPresetsVerticalPadding)
+        }
+    }
+
     private func fractionChips(fillsWidth: Bool) -> some View {
         ForEach(viewModel.amountFractions) { option in
             sellControl(
@@ -273,13 +352,39 @@ struct PolymarketOrderView: View {
 
     @ViewBuilder
     private var keyboardBar: some View {
-        if isAmountFocused {
+        if isAmountFocused, !viewModel.isSingleSheet {
             PolymarketAmountFractionChips(
                 fractions: viewModel.amountFractions.filter(\.isEnabled).map(\.fraction),
                 focused: $isAmountFocused,
                 onSelect: { viewModel.handleViewAction(.selectFraction($0)) }
             )
             .transition(.opacity)
+        }
+    }
+
+    private func placeFooter(signingButtonType: SigningActionButtonViewType) -> some View {
+        VStack(spacing: Constants.footerSpacing) {
+            PolymarketLegalLine { viewModel.handleViewAction(.openLegalTerms($0)) }
+
+            SigningActionButtonView(
+                type: signingButtonType,
+                title: viewModel.nextButtonTitle,
+                isLoading: viewModel.isPlacing,
+                isDisabled: !viewModel.isNextEnabled,
+                action: {
+                    isAmountFocused = false
+                    viewModel.handleViewAction(.placeOrder)
+                }
+            )
+        }
+        .padding(.horizontal, Constants.horizontalPadding)
+        .padding(.top, Constants.buttonTopPadding)
+        .padding(.bottom, Constants.buttonBottomPadding)
+        .background {
+            Fade(position: .bottom)
+                .variant(.hard)
+                .padding(.top, -Constants.footerFadeOverhang)
+                .ignoresSafeArea(edges: .bottom)
         }
     }
 
@@ -313,12 +418,14 @@ private extension Animation {
 private extension PolymarketOrderView {
     enum Constants {
         static let topBarTopPadding: CGFloat = 8
+        static let sheetHeaderTopPadding: CGFloat = 20
         static let amountMinTextScale: CGFloat = 0.5
         static let horizontalPadding: CGFloat = 16
         static let sellControlsSpacing: CGFloat = 4
         static let disabledControlOpacity: CGFloat = 0.4
         static let chipMinWidth: CGFloat = 56
         static let chipHorizontalPadding: CGFloat = 8
+        static let amountPresetsVerticalPadding: CGFloat = 14
         // [REDACTED_TODO_COMMENT]
         static let decreaseAccessibilityLabel = "Decrease"
         // [REDACTED_TODO_COMMENT]
@@ -341,5 +448,8 @@ private extension PolymarketOrderView {
         static let buttonBottomPadding: CGFloat = 12
         static let notificationsAnimationDuration: TimeInterval = 0.3
         static let cornerRadius: CGFloat = 24
+        static let footerSpacing: CGFloat = 12
+        static let footerFadeOverhang: CGFloat = 16
+        static let totalSkeletonVerticalPadding: CGFloat = 12
     }
 }
