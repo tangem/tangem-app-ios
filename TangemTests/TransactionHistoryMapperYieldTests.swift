@@ -273,8 +273,8 @@ struct TransactionHistoryMapperYieldTests {
         let supply = makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldTopup"))
         let withdraw = makeSUT().mapTransactionViewModel(makeWithdrawRecord())
 
-        #expect(supply.amount.amountWithCurrencyCode == "−\u{a0}2.00\u{a0}ETH")
-        #expect(withdraw.amount.amountWithCurrencyCode == "+\u{a0}2.00\u{a0}ETH")
+        #expect(supply.amount.amountWithCurrencyCode == "−\u{2009}2.00\u{a0}ETH")
+        #expect(withdraw.amount.amountWithCurrencyCode == "+\u{2009}2.00\u{a0}ETH")
     }
 
     // MARK: - Approve
