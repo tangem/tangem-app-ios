@@ -74,6 +74,7 @@ extension WalletConnectV2SignTransactionHandler: WalletConnectMessageHandler, WC
     func handle() async throws -> RPCResult {
         let transactionToUse = sendableTransaction ?? WCSendableTransaction(from: wcTransaction)
         let transaction = try await transactionBuilder.buildTx(from: transactionToUse, for: walletModel)
+        WCLogger.info(transactionToUse.logDescription(method: method, blockchain: walletModel.tokenItem.blockchain))
         self.transaction = transaction
 
         guard let ethSigner = walletModel.ethereumTransactionSigner else {
