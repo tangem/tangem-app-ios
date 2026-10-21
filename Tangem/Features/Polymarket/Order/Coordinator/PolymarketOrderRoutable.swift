@@ -8,13 +8,12 @@
 
 import Foundation
 
+@MainActor
 protocol PolymarketOrderRoutable: AnyObject {
     func closeOrder()
 
-    @MainActor
     func openMarketClosed()
 
-    @MainActor
     func openQuoteUnavailable()
 
     func openAddFunds()
@@ -23,6 +22,13 @@ protocol PolymarketOrderRoutable: AnyObject {
 
     func openSlippageSelector(percent: Decimal, onConfirm: @escaping (Decimal) -> Void)
 
-    @MainActor
     func openSummary(model: PolymarketOrderModel)
+
+    func openFeeBreakdown(model: PolymarketOrderModel)
+
+    func openResult(state: PolymarketOrderResultViewModel.State, content: PolymarketOrderResultViewModel.Content)
+
+    func openLegalTerms(url: URL)
+
+    func openSupport()
 }

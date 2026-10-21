@@ -27,15 +27,18 @@ final class PolymarketFeeBreakdownSheetViewModel: ObservableObject, Identifiable
     // MARK: - Dependencies
 
     private let model: PolymarketOrderModel
+    private let includesPartialQuote: Bool
 
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Init
 
-    init(model: PolymarketOrderModel) {
+    init(model: PolymarketOrderModel, includesPartialQuote: Bool = false) {
         self.model = model
+        self.includesPartialQuote = includesPartialQuote
 
-        let content = Content(state: model.state, intent: model.intent) ?? .placeholder(intent: model.intent)
+        let content = Content(state: model.state, intent: model.intent, includesPartialQuote: includesPartialQuote)
+            ?? .placeholder(intent: model.intent)
 
         orderTitle = content.orderTitle
         orderCaption = content.orderCaption
@@ -64,7 +67,7 @@ private extension PolymarketFeeBreakdownSheetViewModel {
     }
 
     func update(with state: PolymarketOrderModel.State) {
-        guard let content = Content(state: state, intent: model.intent) else {
+        guard let content = Content(state: state, intent: model.intent, includesPartialQuote: includesPartialQuote) else {
             isRefreshing = state.quote.isAwaitingQuote
 
             if !isRefreshing {
@@ -99,8 +102,8 @@ private extension PolymarketFeeBreakdownSheetViewModel {
         let tangemBuilderFee: String
         let total: String
 
-        init?(state: PolymarketOrderModel.State, intent: PolymarketOrderIntent) {
-            guard let quote = state.quote.quote else { return nil }
+        init?(state: PolymarketOrderModel.State, intent: PolymarketOrderIntent, includesPartialQuote: Bool) {
+            guard let quote = state.quote.quote ?? (includesPartialQuote ? state.quote.partialQuote : nil) else { return nil }
 
             let shares = PolymarketOrderFormatter.shares(Self.captionShares(for: intent, quote: quote))
             let price = PolymarketPriceFormatter.cents(quote.averagePrice)

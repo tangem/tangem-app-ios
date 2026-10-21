@@ -183,4 +183,12 @@ private final class OrderRoutableSpy: PolymarketOrderRoutable {
     func openSlippageSelector(percent: Decimal, onConfirm: @escaping (Decimal) -> Void) {}
 
     func openSummary(model: PolymarketOrderModel) {}
+
+    func openFeeBreakdown(model: PolymarketOrderModel) {}
+
+    func openResult(state: PolymarketOrderResultViewModel.State, content: PolymarketOrderResultViewModel.Content) {}
+
+    func openLegalTerms(url: URL) {}
+
+    func openSupport() {}
 }

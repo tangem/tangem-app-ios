@@ -139,6 +139,8 @@ final class PolymarketOrderModel: ObservableObject {
             }
         case .selectFraction(let fraction):
             apply(fraction: fraction)
+        case .selectAmount(let amount):
+            select(amount: amount)
         case .selectSlippage(let percent):
             apply(slippagePercent: percent)
         case .step(let step):
@@ -228,6 +230,7 @@ extension PolymarketOrderModel {
         case onAppear
         case onDisappear
         case selectFraction(PolymarketAmountFraction)
+        case selectAmount(Decimal)
         case selectSlippage(Decimal)
         case step(Int)
         case retryQuote
