@@ -15,21 +15,24 @@ final class MainScreenPromoSheetProvider {
     private let interactor: MainScreenPromoSheetInteractor
     private let experimentService: ExperimentService
     private let selectedUserWalletId: () -> UserWalletId?
+    private weak var host: MainScreenPromoSheetHost?
     private var decisionSubscription: AnyCancellable?
 
     init(
         managers: [MainScreenPromoSheetManager],
+        host: MainScreenPromoSheetHost,
         interactor: MainScreenPromoSheetInteractor = InjectedValues[\.mainScreenPromoSheetInteractor],
         experimentService: ExperimentService = InjectedValues[\.experimentService],
         selectedUserWalletId: @escaping () -> UserWalletId? = { InjectedValues[\.userWalletRepository].selectedModel?.userWalletId }
     ) {
         self.managers = managers
+        self.host = host
         self.interactor = interactor
         self.experimentService = experimentService
         self.selectedUserWalletId = selectedUserWalletId
     }
 
-    func onMainScreenAppear() {
+    func onMainScreenAppear(isPushRequestScheduled: Bool) {
         guard interactor.claimFirstMainScreenAppearance() else {
             return
         }
@@ -37,16 +40,27 @@ final class MainScreenPromoSheetProvider {
         let presentationSettings = interactor.presentationSettings
         let eligibleManagers = managers.filter { !interactor.hasShownSheet(managerId: $0.id) && $0.canHandlePresentation(presentationSettings) }
 
-        guard !eligibleManagers.isEmpty else {
+        guard let firstManager = eligibleManagers.first, let host else {
             return
         }
 
-        decisionSubscription = eligibleManagers
-            .map { $0.statePublisher.prepend(.preparing) }
+        guard !isPushRequestScheduled else {
+            firstManager.logSkipped(.surfaceBusy)
+            return
+        }
+
+        let surfaceBusyPublisher = Publishers.MergeMany(host.busySurfacePublishers)
+            .filter { $0 }
+            .map { _ in Decision.skip(firstManager, reason: .surfaceBusy) }
+
+        let sourcesDecisionPublisher = eligibleManagers
+            .map { $0.statePublisher.receiveOnMain().prepend(.preparing) }
             .combineLatest()
             .compactMap { Self.decision(for: $0, of: eligibleManagers) }
+
+        decisionSubscription = surfaceBusyPublisher
+            .merge(with: sourcesDecisionPublisher)
             .first()
-            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { provider, decision in
                 provider.apply(decision)

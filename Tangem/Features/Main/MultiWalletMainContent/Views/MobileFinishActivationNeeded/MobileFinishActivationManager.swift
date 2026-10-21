@@ -17,6 +17,7 @@ final class MobileFinishActivationManager {
     private var hasPositiveBalanceSubject = PassthroughSubject<Bool, Never>()
     private var isMainAppearedSubject = CurrentValueSubject<Bool?, Never>(nil)
     private var hasMainDeepLinkSubject = CurrentValueSubject<Bool?, Never>(nil)
+    private let isActivationPendingOrShownSubject = CurrentValueSubject<Bool, Never>(false)
 
     private var isActivationNeeded: Bool = true
     private var isSubscriptionNeeded: Bool = true
@@ -29,6 +30,10 @@ final class MobileFinishActivationManager {
     private var incomingActionsSubscription: AnyCancellable?
 
     fileprivate init() {}
+
+    var isActivationPendingOrShownPublisher: AnyPublisher<Bool, Never> {
+        isActivationPendingOrShownSubject.eraseToAnyPublisher()
+    }
 
     /// Listens for the deeplinks that take the user into a flow on the main screen, so the activation sheet
     /// doesn't cut in on one. Started at launch: a link the app was opened by arrives before the main screen.
@@ -54,6 +59,8 @@ final class MobileFinishActivationManager {
         if !needBackup, !needAccessCode {
             isActivationNeeded = false
         }
+
+        isActivationPendingOrShownSubject.send(isActivationNeeded)
     }
 
     func onMain(userWalletModel: UserWalletModel, isAppeared: Bool) {
@@ -138,11 +145,14 @@ final class MobileFinishActivationManager {
             let observation,
             let userWalletModel = userWalletRepository.models[observation.userWalletId]
         else {
+            isActivationPendingOrShownSubject.send(false)
             return
         }
 
         if isMainAppeared, hasPositiveBalance, !hasMainDeepLink {
             observation.activation(userWalletModel)
+        } else {
+            isActivationPendingOrShownSubject.send(false)
         }
     }
 }
