@@ -12,10 +12,6 @@ import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
 enum AlertBuilder {
-    static var successTitle: String {
-        Localization.commonSuccess
-    }
-
     static var warningTitle: String {
         Localization.commonWarning
     }

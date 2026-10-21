@@ -9,17 +9,8 @@
 import Foundation
 
 protocol BitcoinScriptChunk {
-    /// Reference to the whole script binary data.
-    var scriptData: Data { get }
     /// A range of scriptData represented by this chunk.
     var range: Range<Int> { get }
-
-    /// Portion of scriptData defined by range.
-    var chunkData: Data { get }
-    /// OP_CODE of scriptData defined by range.
-    var opCode: OpCode { get }
-    /// String representation of a chunk.
-    var string: String { get }
 
     // OP_1NEGATE, OP_0, OP_1..OP_16 are represented as a decimal number.
     // Most compactly represented pushdata chunks >=128 bit are encoded as <hex string>
@@ -37,38 +28,6 @@ protocol BitcoinScriptChunk {
     // or very big numbers (hashes and pubkeys).
 }
 
-// MARK: - BitcoinScriptChunk extension
-
-extension BitcoinScriptChunk {
-    var opCode: OpCode {
-        return OpCodeFactory.get(with: opcodeValue)
-    }
-
-    var opcodeValue: UInt8 {
-        return UInt8(scriptData[range.lowerBound])
-    }
-
-    var chunkData: Data {
-        return scriptData.subdata(in: range)
-    }
-
-    func updated(scriptData data: Data) -> BitcoinScriptChunk {
-        if self is DataChunk {
-            return DataChunk(scriptData: data, range: range)
-        } else {
-            return OpcodeChunk(scriptData: data, range: range)
-        }
-    }
-
-    func updated(scriptData data: Data, range updatedRange: Range<Int>) -> BitcoinScriptChunk {
-        if self is DataChunk {
-            return DataChunk(scriptData: data, range: updatedRange)
-        } else {
-            return OpcodeChunk(scriptData: data, range: updatedRange)
-        }
-    }
-}
-
 // MARK: - OpcodeChunk
 
 struct OpcodeChunk: BitcoinScriptChunk {
@@ -78,10 +37,6 @@ struct OpcodeChunk: BitcoinScriptChunk {
     init(scriptData: Data, range: Range<Int>) {
         self.scriptData = scriptData
         self.range = range
-    }
-
-    var string: String {
-        return opCode.name
     }
 }
 
@@ -94,80 +49,5 @@ struct DataChunk: BitcoinScriptChunk {
     init(scriptData: Data, range: Range<Int>) {
         self.scriptData = scriptData
         self.range = range
-    }
-
-    private var data: Data {
-        var loc = 1
-        if opCode == OpCode.OP_PUSHDATA1 {
-            loc += 1
-        } else if opCode == OpCode.OP_PUSHDATA2 {
-            loc += 2
-        } else if opCode == OpCode.OP_PUSHDATA4 {
-            loc += 4
-        }
-
-        return scriptData.subdata(in: (range.lowerBound + loc) ..< (range.upperBound))
-    }
-
-    var string: String {
-        var string: String
-        guard !data.isEmpty else {
-            return "OP_0" // Empty data is encoded as OP_0.
-        }
-
-        if isASCIIData(data: data) {
-            string = String(data: data, encoding: String.Encoding.ascii)!
-
-            // Escape escapes & single quote characters.
-            string = string.replacingOccurrences(of: "\\", with: "\\\\")
-            string = string.replacingOccurrences(of: "'", with: "\\'")
-
-            // Wrap in single quotes. Why not double? Because they are already used in JSON and we don't want to multiply the mess.
-            string = "'" + string + "'"
-        } else {
-            string = data.hex()
-
-            // Shorter than 128-bit chunks are wrapped in square brackets to avoid ambiguity with big all-decimal numbers.
-            if data.count < 16 {
-                string = "[\(string)]"
-            }
-        }
-        // Non-compact data is prefixed with an appropriate length prefix.
-        if !isDataCompact {
-            var prefix = 1
-            if opCode == OpCode.OP_PUSHDATA2 {
-                prefix = 2
-            } else if opCode == OpCode.OP_PUSHDATA4 {
-                prefix = 4
-            }
-
-            string = String(prefix) + ":" + string
-        }
-        return string
-    }
-
-    /// Returns true if the data is represented with the most compact opcode.
-    var isDataCompact: Bool {
-        switch opCode.value {
-        case ...OpCode.OP_PUSHDATA1.value:
-            return true // length fits in one byte under OP_PUSHDATA1.
-        case OpCode.OP_PUSHDATA1.value:
-            return data.count >= OpCode.OP_PUSHDATA1.value // length should not be less than OP_PUSHDATA1
-        case OpCode.OP_PUSHDATA2.value:
-            return data.count > 0xff // length should not fit in one byte
-        case OpCode.OP_PUSHDATA4.value:
-            return data.count > 0xffff // length should not fit in two bytes
-        default:
-            return false
-        }
-    }
-
-    private func isASCIIData(data: Data) -> Bool {
-        for ch in data {
-            if !(ch >= 0x20 && ch <= 0x7E) {
-                return false
-            }
-        }
-        return true
     }
 }

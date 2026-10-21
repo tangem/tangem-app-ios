@@ -12,29 +12,6 @@ import SolanaSwift
 import TangemNetworkUtils
 
 extension Api {
-    func getFees(
-        commitment: Commitment? = nil
-    ) -> AnyPublisher<SolanaSwift.Fee, Error> {
-        Deferred { [weak self] in
-            Future { promise in
-                guard let self = self else {
-                    promise(.failure(BlockchainSdkError.empty))
-                    return
-                }
-
-                self.getFees(commitment: commitment) { result in
-                    switch result {
-                    case .failure(let error):
-                        promise(.failure(error))
-                    case .success(let fee):
-                        promise(.success(fee))
-                    }
-                }
-            }
-        }
-        .eraseToAnyPublisher()
-    }
-
     func getFeeForMessage(_ message: String) -> AnyPublisher<FeeForMessageResult, Error> {
         Deferred { [weak self] in
             Future { promise in

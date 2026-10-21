@@ -12,7 +12,6 @@ struct BitcoinCashNetworkParams: UTXONetworkParams {
     let p2pkhPrefix: UInt8 = 0x00
     let p2shPrefix: UInt8 = 0x05
     let bech32Prefix: String = "bitcoincash"
-    let coinType: UInt32 = 145
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinCashAll
     let dustCalculator: UTXONetworkParamsDustCalculator = .bitcoinCashMainnet
 }
@@ -26,7 +25,6 @@ struct BitcoinCashTestNetworkParams: UTXONetworkParams {
 
     /// https://gitlab.com/bitcoin-cash-node/bitcoin-cash-node/-/blob/master/src/chainparams.cpp?ref_type=heads#L467
     let bech32Prefix: String = "bchtest"
-    let coinType: UInt32 = 1
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinCashAll
     let dustCalculator: UTXONetworkParamsDustCalculator = .bitcoinCashTestnet
 }

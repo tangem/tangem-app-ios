@@ -16,7 +16,6 @@ import TangemFoundation
 /// A destination without a case here needs no line here: it goes down the chain and is shown over the main screen.
 final class MainScreenDeeplinkResponder {
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
 

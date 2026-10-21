@@ -27,33 +27,5 @@ extension ALPH {
 
         /// The optional additional data for the output, represented as a Data object
         let additionalData: Data
-
-        /// Returns true if the output is an asset
-        var isAsset: Bool {
-            return true
-        }
-
-        /// Returns a hint for the asset output
-        var hint: Hint {
-            Hint.from(self)
-        }
-
-        /// Returns true if the output is a contract
-        var isContract: Bool {
-            false
-        }
-
-        /// Deducts the gas fee from the output amount.
-        /// - Parameter fee: The amount of gas to deduct
-        /// - Returns: A new TxOutput with the deducted gas fee
-        func payGasUnsafe(fee: U256) -> TxOutput {
-            AssetOutput(
-                amount: amount.sub(fee) ?? .zero,
-                lockupScript: lockupScript,
-                lockTime: lockTime,
-                tokens: tokens,
-                additionalData: additionalData
-            )
-        }
     }
 }

@@ -19,18 +19,6 @@ enum MarketsTokenDetailsMetricsRecordType: String, Identifiable, MarketsTokenDet
 
     var id: String { rawValue }
 
-    var titleShort: String {
-        switch self {
-        case .marketCapitalization: return Localization.marketsTokenDetailsMarketCapitalization
-        case .marketRating: return Localization.marketsTokenDetailsMarketRating
-        case .tradingVolume: return Localization.marketsTokenDetailsTradingVolume
-        case .fullyDilutedValuation: return Localization.marketsTokenDetailsFullyDilutedValuation
-        case .circulatingSupply: return Localization.marketsTokenDetailsCirculatingSupply
-        case .totalSupply: return Localization.marketsTokenDetailsTotalSupply
-        case .maxSupply: return Localization.marketsTokenDetailsMaxSupply
-        }
-    }
-
     var titleFull: String {
         switch self {
         case .marketCapitalization: return Localization.marketsTokenDetailsMarketCapitalizationFull
@@ -63,9 +51,5 @@ struct MarketsTokenDetailsMetricsRecordInfo: Identifiable {
 
     var id: String {
         "\(type.id) - \(recordData)"
-    }
-
-    var title: String {
-        type.titleShort
     }
 }

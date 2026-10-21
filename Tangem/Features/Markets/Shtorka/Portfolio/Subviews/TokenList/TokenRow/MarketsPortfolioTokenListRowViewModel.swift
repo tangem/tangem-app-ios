@@ -41,10 +41,6 @@ final class MarketsPortfolioTokenListRowViewModel: ObservableObject {
         tokenInfo.iconInfo
     }
 
-    var balancePublisher: TokenBalancePublisher {
-        fiatTotalTokenBalancePublisher
-    }
-
     private var tokenCurrencyCode: String {
         tokenInfo.currencyCode
     }

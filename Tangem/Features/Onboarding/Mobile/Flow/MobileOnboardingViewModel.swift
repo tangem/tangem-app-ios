@@ -206,10 +206,6 @@ private extension MobileOnboardingViewModel {
 // MARK: - MobileOnboardingFlowRoutable
 
 extension MobileOnboardingViewModel: MobileOnboardingFlowRoutable {
-    func openMain() {
-        coordinator?.onboardingDidFinish(userWalletModel: nil)
-    }
-
     func openMain(userWalletModel: UserWalletModel) {
         coordinator?.onboardingDidFinish(userWalletModel: userWalletModel)
     }

@@ -19,8 +19,6 @@ import struct TangemSdk.Mnemonic
 import struct TangemUIUtils.AlertBinder
 
 class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, OnboardingCoordinator>, ObservableObject {
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-
     private let seedPhraseManager = SeedPhraseManager()
 
     @Published var thirdCardSettings: AnimatedViewSettings = .zero
@@ -649,7 +647,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                     )
                 )
             }
-
         } catch {
             isSupplementButtonBusy = false
             alert = error.alertBinder

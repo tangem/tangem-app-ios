@@ -241,7 +241,6 @@ private final class TokenScreenDeeplinkRoutableSpy: TokenScreenDeeplinkRoutable 
     }
 
     func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters) {}
-    func openInSafari(url: URL) {}
 }
 
 // MARK: - Observables

@@ -32,8 +32,4 @@ struct PolymarketDepositTransactionDispatcherProvider: TransactionDispatcherProv
     func makeStakingTransactionDispatcher(analyticsLogger: any StakingAnalyticsLogger) -> TransactionDispatcher {
         UnsupportedTransactionDispatcher()
     }
-
-    func makeYieldModuleTransactionDispatcher() -> TransactionDispatcher {
-        UnsupportedTransactionDispatcher()
-    }
 }

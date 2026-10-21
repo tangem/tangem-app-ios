@@ -19,7 +19,6 @@ import struct TangemSdk.SignData
 import struct TangemSdk.DerivationPath
 
 final class LockedUserWalletModel: UserWalletModel {
-    @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     let nftManager: NFTManager = NotSupportedNFTManager()
@@ -28,11 +27,7 @@ final class LockedUserWalletModel: UserWalletModel {
 
     var isUserWalletLocked: Bool { true }
 
-    var tokensCount: Int? { nil }
-
     var cardSetLabel: String { config.cardSetLabel }
-
-    var hasBackupCards: Bool { userWallet.walletInfo.hasBackupCards }
 
     var hasImportedWallets: Bool { false }
 
@@ -109,7 +104,6 @@ final class LockedUserWalletModel: UserWalletModel {
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
     var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> { .empty }
-    var tangemPayAccount: TangemPayAccount? { nil }
 
     var keysDerivingInteractor: KeysDeriving {
         DummyKeysDeriving(config: config)
@@ -232,21 +226,7 @@ final class LockedUserWalletModel: UserWalletModel {
     }
 }
 
-extension LockedUserWalletModel: AnalyticsContextDataProvider {
-    func getAnalyticsContextData() -> AnalyticsContextData? {
-        guard case .cardWallet(let cardInfo) = userWallet.walletInfo else {
-            return nil
-        }
-
-        return AnalyticsContextData(
-            productType: config.productType,
-            batchId: cardInfo.card.batchId,
-            firmware: cardInfo.card.firmwareVersion.stringValue,
-            baseCurrency: config.embeddedBlockchain?.currencySymbol,
-            userWalletId: userWalletId
-        )
-    }
-}
+extension LockedUserWalletModel: AnalyticsContextDataProvider {}
 
 extension LockedUserWalletModel: UserWalletSerializable {
     func serializePublic() -> StoredUserWallet {

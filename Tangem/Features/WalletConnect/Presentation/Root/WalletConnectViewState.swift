@@ -58,22 +58,6 @@ extension WalletConnectViewState {
         case loading(LoadingContentState)
         case content([WalletWithConnectedDApps])
 
-        var isEmpty: Bool {
-            switch self {
-            case .empty: true
-            case .loading: false
-            case .content: false
-            }
-        }
-
-        var isLoading: Bool {
-            switch self {
-            case .empty: false
-            case .loading: true
-            case .content: false
-            }
-        }
-
         var isContent: Bool {
             switch self {
             case .empty: false

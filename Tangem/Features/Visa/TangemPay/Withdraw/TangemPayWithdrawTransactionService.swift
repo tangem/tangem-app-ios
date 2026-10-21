@@ -13,10 +13,6 @@ import TangemExpress
 import TangemPay
 import TangemFoundation
 
-protocol TangemPayWithdrawTransactionServiceOutput: AnyObject {
-    func withdrawTransactionDidSent()
-}
-
 protocol TangemPayWithdrawTransactionService {
     func getOrder(id: String) async throws -> TangemPayOrderResponse
     func sendWithdrawTransaction(
@@ -25,7 +21,6 @@ protocol TangemPayWithdrawTransactionService {
         walletPublicKey: Wallet.PublicKey,
         target: TangemPayWithdrawTarget?
     ) async throws -> TangemPayWithdrawTransactionResult
-    func set(output: TangemPayWithdrawTransactionServiceOutput) async
 
     func hasActiveWithdrawOrder() async throws -> Bool
 }
@@ -37,8 +32,6 @@ actor CommonTangemPayWithdrawTransactionService {
 
     private var activeWithdrawOrderID: String?
     private var isWithdrawInProgress: Bool = false
-
-    private weak var output: TangemPayWithdrawTransactionServiceOutput?
 
     init(
         customerInfoManagementService: any CustomerInfoManagementService,
@@ -109,10 +102,6 @@ extension CommonTangemPayWithdrawTransactionService: TangemPayWithdrawTransactio
 
         activeWithdrawOrderID = response.orderID
         return response
-    }
-
-    func set(output: TangemPayWithdrawTransactionServiceOutput) {
-        self.output = output
     }
 
     func hasActiveWithdrawOrder() async throws -> Bool {

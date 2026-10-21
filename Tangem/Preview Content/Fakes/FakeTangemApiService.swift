@@ -304,10 +304,6 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func getWalletCards(userWalletId: String) async throws -> WalletCardsDTO.Response {
-        throw "Not implemented"
-    }
-
     func getUserAccounts(
         userWalletId: String
     ) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) {
@@ -385,14 +381,6 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func updateAddressBook(walletId: String, knownETag: String?, body: AddressBookDTO.UpdateRequest) async throws -> AddressBookDTO.UpdateResponse {
-        throw "Not implemented"
-    }
-
-    func getYieldMarkets() async throws -> YieldModuleDTO.Response.MarketsInfo {
-        throw "Not implemented"
-    }
-
-    func getTokenPositionInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleDTO.Response.PositionInfo {
         throw "Not implemented"
     }
 

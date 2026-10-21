@@ -13,7 +13,6 @@ import TangemFoundation
 
 protocol ReceiveAddressService: AnyObject {
     var addressTypes: [ReceiveAddressType] { get }
-    var addressInfos: [ReceiveAddressInfo] { get }
 
     func update(with addresses: [Address]) async
 }
@@ -50,12 +49,6 @@ extension CommonReceiveAddressService: ReceiveAddressService {
         ensureOnMainQueue()
 
         return _addressTypes
-    }
-
-    var addressInfos: [ReceiveAddressInfo] {
-        ensureOnMainQueue()
-
-        return _addressTypes.map(\.info)
     }
 
     func update(with addresses: [Address]) async {
@@ -113,10 +106,6 @@ class DummyReceiveAddressService: ReceiveAddressService {
 
     var addressTypes: [ReceiveAddressType] {
         _addressInfos.map { .address($0) }
-    }
-
-    var addressInfos: [ReceiveAddressInfo] {
-        _addressInfos
     }
 
     func update(with addresses: [Address]) async {

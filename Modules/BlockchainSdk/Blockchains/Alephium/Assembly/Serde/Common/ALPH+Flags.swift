@@ -11,9 +11,6 @@ import Foundation
 extension ALPH {
     enum Flags {
         static let none: Int = 0
-        static let some: Int = 1
-        static let left: Int = 0
-        static let right: Int = 1
 
         static let noneB: UInt8 = .init(none)
     }

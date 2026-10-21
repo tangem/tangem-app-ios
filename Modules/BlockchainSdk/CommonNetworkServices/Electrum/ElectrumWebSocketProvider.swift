@@ -27,15 +27,6 @@ class ElectrumWebSocketProvider: HostProvider {
         webSocketProvider = JSONRPCWebSocketProvider(url: url, ping: ping, timeoutInterval: timeoutInterval)
     }
 
-    func getBalance(identifier: Identifier) async throws -> ElectrumDTO.Response.Balance {
-        switch identifier {
-        case .address(let address):
-            return try await send(method: Method.Blockchain.Address.getBalance, parameter: [address])
-        case .scriptHash(let scriptHash):
-            return try await send(method: Method.Blockchain.ScriptHash.getBalance, parameter: [scriptHash])
-        }
-    }
-
     func getTransaction(hash: String) async throws -> ElectrumDTO.Response.Transaction {
         try await send(method: Method.Blockchain.Transaction.get, parameter: [AnyEncodable(hash), AnyEncodable(true)])
     }
@@ -47,10 +38,6 @@ class ElectrumWebSocketProvider: HostProvider {
         case .scriptHash(let scriptHash):
             return try await send(method: Method.Blockchain.ScriptHash.listunspent, parameter: [scriptHash])
         }
-    }
-
-    func send(transactionHex: String) async throws -> ElectrumDTO.Response.Broadcast {
-        try await send(method: Method.Blockchain.Transaction.broadcast, parameter: transactionHex)
     }
 
     /**

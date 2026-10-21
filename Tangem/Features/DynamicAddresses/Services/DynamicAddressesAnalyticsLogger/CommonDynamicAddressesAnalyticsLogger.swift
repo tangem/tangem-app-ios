@@ -37,14 +37,6 @@ final class CommonDynamicAddressesAnalyticsLogger: DynamicAddressesAnalyticsLogg
         Analytics.log(event: .dynamicAddressesDisabled, params: baseParams)
     }
 
-    func logDynamicAddressesNoticeUnavailable() {
-        Analytics.log(event: .dynamicAddressesNoticeUnavailable, params: baseParams)
-    }
-
-    func logDynamicAddressesErrorUnavailable() {
-        Analytics.log(event: .dynamicAddressesErrorUnavailable, params: baseParams)
-    }
-
     func logTokenNoticeNotEnoughFee(feeCurrencyBalance: Decimal) {
         guard !hasLoggedNotEnoughFeeNotice else { return }
         hasLoggedNotEnoughFeeNotice = true

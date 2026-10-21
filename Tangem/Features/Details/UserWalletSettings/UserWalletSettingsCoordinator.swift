@@ -42,7 +42,6 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var mobileBackupTypesViewModel: MobileBackupTypesViewModel?
     @Published var accountFormViewModel: AccountFormViewModel?
     @Published private(set) var addAccountTypeSelectorViewModel: AddAccountTypeSelectorViewModel?
     @Published var isAddAccountTypeSelectorPresented = false
@@ -251,15 +250,6 @@ extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
-    }
-
-    func openAppSettings() {
-        UIApplication.openSystemSettings()
-    }
-
-    @MainActor
-    func closeOnboarding() {
-        modalOnboardingCoordinator = nil
     }
 
     func dismiss() {

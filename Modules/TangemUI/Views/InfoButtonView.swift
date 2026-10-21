@@ -12,7 +12,6 @@ import TangemUIUtils
 
 public struct InfoButtonView: View {
     @State private var isTooltipShowing: Bool = false
-    @State private var tooltipSize: CGSize = .zero
 
     private let size: Size
     private let tooltipText: PopoverModifier.TextType

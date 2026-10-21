@@ -339,13 +339,6 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         offrampCoordinator = coordinator
     }
 
-    func openTangemPayWithdrawNoteSheet() {
-        Task { @MainActor in
-            let viewModel = TangemPayWithdrawNoteSheetViewModel(coordinator: self)
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
-    }
-
     func openTangemWithdrawInProgressSheet() {
         Task { @MainActor in
             let viewModel = TangemPayWithdrawInProgressSheetViewModel(coordinator: self)

@@ -21,7 +21,6 @@ class CommonUserWalletModel {
     // MARK: Services
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
     let nftManager: NFTManager
     let keysRepository: KeysRepository
@@ -113,10 +112,6 @@ extension CommonUserWalletModel: UserWalletModel {
 
     var tangemApiAuthData: TangemApiAuthorizationData? {
         walletInfo.tangemApiAuthData
-    }
-
-    var hasBackupCards: Bool {
-        walletInfo.hasBackupCards
     }
 
     var signer: TangemSigner {

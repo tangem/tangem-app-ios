@@ -18,9 +18,6 @@ import SwiftUI
 final class YieldModuleActiveViewModel: ObservableObject {
     // MARK: - Injected
 
-    @Injected(\.userWalletRepository)
-    private var userWalletRepository: any UserWalletRepository
-
     @Injected(\.marketingCampaignsRepository)
     private var marketingCampaignsRepository: MarketingCampaignsRepository
 
@@ -72,9 +69,6 @@ final class YieldModuleActiveViewModel: ObservableObject {
 
     @Published
     private(set) var promoStatus: YieldPromoStatus = .undefined
-
-    @Published
-    private var isBonusPaidOutBannerDismissed = false
 
     private let yieldPromoStatusProvider = YieldPromoStatusProvider()
     private var daysLeftToUnlockBonus: Int?
@@ -580,27 +574,6 @@ final class YieldModuleActiveViewModel: ObservableObject {
             let formatted = feeConverter.formatDecimal(undepositedAmount)
             earnInfoNotifications.append(createHasUndepositedAmountsNotification(undepositedAmount: formatted))
             logger.logEarningNoticeAmountNotDepositedShown()
-        }
-    }
-}
-
-// MARK: - View State
-
-extension YieldModuleActiveViewModel {
-    enum ViewState: Identifiable, Equatable {
-        case earnInfo
-        case stopEarning
-        case approve
-
-        var id: String {
-            switch self {
-            case .earnInfo:
-                "earnInfo"
-            case .stopEarning:
-                "stopEarning"
-            case .approve:
-                "approve"
-            }
         }
     }
 }

@@ -68,10 +68,6 @@ extension HardwareBackupTypesCoordinator: HardwareBackupTypesRoutable {
         hardwareCreateWalletCoordinator = coordinator
     }
 
-    func openMobileOnboarding(input: MobileOnboardingInput) {
-        openOnboarding(options: .mobileInput(input))
-    }
-
     func openUpgradeToHardwareWallet(userWalletModel: UserWalletModel, context: MobileWalletContext) {
         let dismissAction: Action<MobileUpgradeCoordinator.OutputOptions> = { [weak self] options in
             switch options {
@@ -107,10 +103,6 @@ extension HardwareBackupTypesCoordinator: HardwareBackupTypesRoutable {
 
     func openMain(userWalletModel: UserWalletModel) {
         dismiss(with: .main(userWalletModel: userWalletModel))
-    }
-
-    func closeOnboarding() {
-        onboardingCoordinator = nil
     }
 }
 

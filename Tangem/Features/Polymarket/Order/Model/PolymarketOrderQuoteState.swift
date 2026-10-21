@@ -57,10 +57,6 @@ enum PolymarketOrderQuoteState: Equatable {
         return false
     }
 
-    var isLive: Bool {
-        quote?.isLive ?? false
-    }
-
     init(quote: PolymarketOrderQuote) {
         switch quote.status {
         case .insufficientLiquidity: self = .unavailable(.insufficientLiquidity, quote: quote)

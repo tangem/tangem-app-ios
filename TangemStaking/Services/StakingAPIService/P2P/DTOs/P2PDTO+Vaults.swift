@@ -11,8 +11,6 @@ import TangemFoundation
 
 extension P2PDTO {
     enum Vaults {
-        typealias Response = GenericResponse<VaultsInfo>
-
         struct Vault: Decodable {
             let vaultAddress: String
             let displayName: String

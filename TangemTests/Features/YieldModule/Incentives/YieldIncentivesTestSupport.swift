@@ -247,10 +247,6 @@ final class YieldClaimManagerStub: YieldModuleManager {
         lockedState.withLock { $0.submittedTransactions }
     }
 
-    func setFeeResult(_ result: Result<YieldTransactionFee, Error>) {
-        lockedState.withLock { $0.feeResult = result }
-    }
-
     func setTransactionResult(_ result: Result<BSDKTransaction, Error>) {
         lockedState.withLock { $0.transactionResult = result }
     }

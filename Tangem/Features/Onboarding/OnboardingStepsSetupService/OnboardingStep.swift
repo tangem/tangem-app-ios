@@ -33,12 +33,11 @@ enum OnboardingSteps {
     }
 }
 
-typealias OnboardingStep = OnboardingProgressStepIndicatable & OnboardingMessagesProvider & OnboardingButtonsInfoProvider & Equatable
+typealias OnboardingStep = OnboardingMessagesProvider & OnboardingButtonsInfoProvider & Equatable
 
 protocol OnboardingMessagesProvider {
     var title: String? { get }
     var subtitle: String? { get }
-    var messagesOffset: CGSize { get }
 }
 
 protocol OnboardingButtonsInfoProvider {
@@ -46,8 +45,6 @@ protocol OnboardingButtonsInfoProvider {
     var mainButtonIcon: ImageType? { get }
     var supplementButtonTitle: String { get }
     var supplementButtonIcon: ImageType? { get }
-    var checkmarkText: String? { get }
-    var infoText: String? { get }
 }
 
 extension OnboardingButtonsInfoProvider {

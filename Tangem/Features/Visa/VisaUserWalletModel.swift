@@ -70,10 +70,6 @@ final class VisaUserWalletModel {
         false
     }
 
-    var currencySymbol: String {
-        tokenItem?.currencySymbol ?? "Not loaded"
-    }
-
     var tokenItem: TokenItem?
 
     private var cardId: String {
@@ -468,8 +464,6 @@ extension VisaUserWalletModel {
 /// We need to refactor `CommonUserWalletModel` and `UserWalletConfig` creation
 /// This is complex task, so it will be made later.
 extension VisaUserWalletModel: UserWalletModel {
-    var hasBackupCards: Bool { false }
-
     var config: any UserWalletConfig { userWalletModel.config }
 
     var userWalletId: UserWalletId { userWalletModel.userWalletId }
@@ -483,7 +477,6 @@ extension VisaUserWalletModel: UserWalletModel {
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
     var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> { .empty }
-    var tangemPayAccount: TangemPayAccount? { nil }
 
     var signer: TangemSigner { userWalletModel.signer }
 

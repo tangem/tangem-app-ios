@@ -26,5 +26,4 @@ import Foundation
 /// (x y -- x<<y) disabled.
 struct OpLShift: OpCodeProtocol {
     var value: UInt8 { return 0x98 }
-    var name: String { return "OP_LSHIFT" }
 }

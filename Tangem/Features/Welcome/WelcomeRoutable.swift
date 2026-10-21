@@ -13,6 +13,4 @@ protocol WelcomeRoutable: AnyObject {
     func openExistingWallet()
     func openBuyTangem()
     func openLegal(document: WelcomeLegalDocument)
-    func openMain(with userWalletModel: UserWalletModel)
-    func openOnboarding(with input: OnboardingInput)
 }

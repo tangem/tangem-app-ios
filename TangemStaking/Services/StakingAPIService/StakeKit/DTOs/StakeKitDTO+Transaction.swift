@@ -33,8 +33,6 @@ extension StakeKitDTO {
     }
 
     enum Transaction {
-        struct Request: Encodable {}
-
         struct Response: Decodable {
             let id: String
             let network: StakeKitNetworkType

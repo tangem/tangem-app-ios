@@ -10,5 +10,4 @@ import Combine
 
 protocol TokenFeeProvidersManagerProviding {
     var tokenFeeProvidersManager: TokenFeeProvidersManager? { get }
-    var tokenFeeProvidersManagerPublisher: AnyPublisher<TokenFeeProvidersManager, Never> { get }
 }

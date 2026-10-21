@@ -27,7 +27,6 @@ protocol UserWalletRepository {
     func delete(userWalletId: UserWalletId)
     func reorder(orderedUserWalletIds: [UserWalletId])
     func onBiometricsChanged(enabled: Bool)
-    func onSaveUserWalletsChanged(enabled: Bool)
     func savePublicData()
     func save(userWalletModel: UserWalletModel)
 }

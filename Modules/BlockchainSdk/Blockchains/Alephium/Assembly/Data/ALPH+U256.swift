@@ -22,12 +22,6 @@ extension ALPH {
             return v.isZero
         }
 
-        func addUnsafe(_ that: U256) -> U256 {
-            let underlying = v + that.v
-            precondition(U256.validate(underlying), "Addition overflow")
-            return U256.unsafe(underlying)
-        }
-
         func add(_ that: U256) -> U256? {
             let underlying = v + that.v
             return U256.validate(underlying) ? U256.unsafe(underlying) : nil
@@ -69,11 +63,6 @@ extension ALPH {
 
         static func unsafe(_ value: UInt64) -> U256 {
             return U256(BigUInt(value))
-        }
-
-        static func unsafe(_ bytes: Data) -> U256 {
-            precondition(bytes.count == 32, "Byte array must be exactly 32 bytes")
-            return U256(BigUInt(bytes))
         }
 
         static func from(_ bytes: Data) -> U256? {

@@ -137,18 +137,6 @@ extension TokensManagementFlowCoordinator: AddCustomTokenRoutable {
         restoreManage()
     }
 
-    func openWalletSelector(with dataSource: WalletSelectorDataSource) {
-        assertionFailure(
-            "Unsupported route: openWalletSelector(with:) was called in TokensManagementFlowCoordinator"
-        )
-    }
-
-    func closeWalletSelector() {
-        assertionFailure(
-            "Unsupported route: closeWalletSelector() was called in TokensManagementFlowCoordinator"
-        )
-    }
-
     func openNetworkSelector(selectedBlockchainNetworkId: String?, blockchains: [Blockchain]) {
         let viewModel = factory.makeNetworkSelectorViewModel(
             selectedBlockchainNetworkId: selectedBlockchainNetworkId,

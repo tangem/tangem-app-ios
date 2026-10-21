@@ -18,9 +18,6 @@ struct MarketsSearchView: View {
     let leadingButton: MarketsSearchNavigationBar<DefaultNavigationBarTitle>.LeadingButton
     let onLeadingButtonAction: () -> Void
 
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.mainWindowSize) private var mainWindowSize
-
     @State private var headerHeight: CGFloat = .zero
     @State private var isListContentObscured = false
 

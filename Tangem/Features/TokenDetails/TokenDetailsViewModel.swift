@@ -21,7 +21,6 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 import TangemAccessibilityIdentifiers
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
-    @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
     @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
 
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
@@ -48,18 +47,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     @Published private(set) var stakingState: TokenDetailsStakingState?
     @Published private(set) var yieldState: TokenDetailsYieldState?
-
-    var iconUrl: URL? {
-        guard let id = walletModel.tokenItem.id else {
-            return nil
-        }
-
-        return IconURLBuilder().tokenIconURL(id: id)
-    }
-
-    var customTokenColor: Color? {
-        walletModel.tokenItem.token?.customTokenColor
-    }
 
     let presentSource: TokenDetailsPresentSource
 

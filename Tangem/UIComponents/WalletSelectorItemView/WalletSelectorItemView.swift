@@ -102,13 +102,6 @@ struct WalletSelectorItemView: View {
     }
 }
 
-extension WalletSelectorItemView {
-    enum Constants {
-        static let checkedSelectedIconSize = CGSize(bothDimensions: 24)
-        static let balanceSkeletonLoaderText = "--------"
-    }
-}
-
 #Preview {
     let cardSetLabel = UserWalletModelMock().config.cardSetLabel
 

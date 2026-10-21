@@ -136,12 +136,6 @@ extension DefaultRowView {
         static let destructiveButton = Appearance(isChevronVisible: false, textColor: Colors.Text.warning)
         static let disabledDestructiveButton = Appearance(isChevronVisible: false, textColor: Colors.Text.tertiary)
         static let accentButton = Appearance(isChevronVisible: false, textColor: Colors.Text.accent)
-        static let addButton = Appearance(
-            isChevronVisible: false,
-            font: Fonts.Bold.subheadline,
-            textColor: Colors.Text.accent,
-            leadingIcon: .plus
-        )
 
         init(
             isChevronVisible: Bool = true,

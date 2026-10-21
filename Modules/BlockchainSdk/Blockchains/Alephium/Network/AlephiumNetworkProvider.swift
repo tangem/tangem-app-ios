@@ -36,10 +36,6 @@ struct AlephiumNetworkProvider: HostProvider {
 
     // MARK: - Implementation
 
-    func getBalance(address: String) -> AnyPublisher<AlephiumNetworkResponse.Balance, Error> {
-        requestPublisher(for: .init(node: node, targetType: .getBalance(address: address)))
-    }
-
     func getUTXOs(address: String) -> AnyPublisher<AlephiumNetworkResponse.UTXOs, Error> {
         requestPublisher(for: .init(node: node, targetType: .getUTXO(address: address)))
     }
@@ -52,10 +48,6 @@ struct AlephiumNetworkProvider: HostProvider {
 
     func submit(transaction: AlephiumNetworkRequest.Submit) -> AnyPublisher<AlephiumNetworkResponse.Submit, Error> {
         requestPublisher(for: .init(node: node, targetType: .submitTransaction(transaction)))
-    }
-
-    func transactionStatus(by id: String) -> AnyPublisher<AlephiumNetworkResponse.Status, Error> {
-        requestPublisher(for: .init(node: node, targetType: .transactionStatus(txId: id)))
     }
 
     // MARK: - Private Implementation

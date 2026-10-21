@@ -27,7 +27,6 @@ class VisaWalletModel {
     lazy var totalTokenBalanceProvider = makeTotalTokenBalanceProvider()
 
     lazy var fiatAvailableBalanceProvider = makeFiatAvailableBalanceProvider()
-    lazy var fiatStakingBalanceProvider = makeFiatStakingBalanceProvider()
     lazy var fiatTotalTokenBalanceProvider = makeFiatTotalTokenBalanceProvider()
 
     var demoBalance: Decimal?
@@ -101,10 +100,6 @@ extension VisaWalletModel: WalletModelBalancesProvider {
 
     func makeFiatAvailableBalanceProvider() -> TokenBalanceProvider {
         FiatTokenBalanceProvider(input: self, cryptoBalanceProvider: availableBalanceProvider)
-    }
-
-    func makeFiatStakingBalanceProvider() -> TokenBalanceProvider {
-        FiatTokenBalanceProvider(input: self, cryptoBalanceProvider: stakingBalanceProvider)
     }
 
     func makeFiatTotalTokenBalanceProvider() -> TokenBalanceProvider {
@@ -207,10 +202,6 @@ extension VisaWalletModel: WalletModelTransactionHistoryProvider {
     var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> {
         .just(output: [])
     }
-
-    var isEmptyIncludingPendingIncomingTxs: Bool {
-        true
-    }
 }
 
 extension VisaWalletModel: WalletModelRentProvider {
@@ -280,10 +271,6 @@ extension VisaWalletModel: WalletModel {
 
     var actionsUpdatePublisher: AnyPublisher<Void, Never> {
         expressAvailabilityProvider.availabilityDidChangePublisher
-    }
-
-    var qrReceiveMessage: String {
-        Localization.addressQrCodeMessageFormat(tokenItem.name, tokenItem.currencySymbol, tokenItem.blockchain.displayName)
     }
 
     var isDemo: Bool {

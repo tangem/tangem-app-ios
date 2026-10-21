@@ -14,7 +14,6 @@ final class MobileFinishActivationManager {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
-    private var hasPositiveBalanceSubject = PassthroughSubject<Bool, Never>()
     private var isMainAppearedSubject = CurrentValueSubject<Bool?, Never>(nil)
     private var hasMainDeepLinkSubject = CurrentValueSubject<Bool?, Never>(nil)
     private let isActivationPendingOrShownSubject = CurrentValueSubject<Bool, Never>(false)

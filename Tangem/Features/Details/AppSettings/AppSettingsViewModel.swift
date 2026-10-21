@@ -361,14 +361,6 @@ private extension AppSettingsViewModel {
         coordinator?.openThemeSelection()
     }
 
-    func openTokenSynchronization() {
-        coordinator?.openTokenSynchronization()
-    }
-
-    func openResetSavedCards() {
-        coordinator?.openResetSavedCards()
-    }
-
     func openBiometrySettings() {
         Analytics.log(.buttonEnableBiometricAuthentication)
         coordinator?.openAppSettings()

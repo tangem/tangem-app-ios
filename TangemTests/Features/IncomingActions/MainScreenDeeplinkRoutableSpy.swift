@@ -11,7 +11,6 @@ import TangemFoundation
 
 final class MainScreenDeeplinkRoutableSpy: MainScreenDeeplinkRoutable {
     var isRootVisible = true
-    var isShtorkaPresented = false
 
     private(set) var openedMarketsTokenId: String?
     private(set) var didOpenBuy = false

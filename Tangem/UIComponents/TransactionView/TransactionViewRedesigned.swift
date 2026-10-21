@@ -19,7 +19,6 @@ struct TransactionViewRedesigned: View {
 
     @ScaledMetric private var iconContainerSide: CGFloat = 40
     @ScaledMetric private var glyphSize: CGFloat = 20
-    @ScaledMetric private var iconBorderWidth: CGFloat = 1
     @ScaledMetric private var warningIconSize: CGFloat = 16
     @ScaledMetric private var pendingIndicatorSide: CGFloat = 16
     @ScaledMetric private var pendingIndicatorGlyphSize: CGFloat = 12

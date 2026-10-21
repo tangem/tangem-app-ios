@@ -29,12 +29,9 @@ class UserWalletModelMock: UserWalletModel {
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
     var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> { .empty }
-    var tangemPayAccount: TangemPayAccount? { nil }
 
     var name: String { "" }
-    var hasBackupCards: Bool { false }
     var emailConfig: EmailConfig? { nil }
-    var tokensCount: Int? { 7 }
     var config: UserWalletConfig { fatalError("UserWalletConfigMock doesn't exist") }
     var userWalletId: UserWalletId { .init(value: Data()) }
 

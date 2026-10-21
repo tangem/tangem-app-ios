@@ -152,12 +152,6 @@ extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorage
             }
         }
     }
-
-    func removeAll() {
-        workingQueue.async(flags: .barrier) {
-            self.unsafeSave([])
-        }
-    }
 }
 
 // MARK: - CryptoAccountsPersistentStorageController protocol conformance

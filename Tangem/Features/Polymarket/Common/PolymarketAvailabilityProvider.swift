@@ -10,8 +10,6 @@ import Combine
 import Foundation
 
 protocol PolymarketAvailabilityProvider {
-    var isAvailable: Bool { get }
-
     var isAvailablePublisher: AnyPublisher<Bool, Never> { get }
 
     func isAvailablePublisher(hasAccount: @escaping () -> Bool) -> AnyPublisher<Bool, Never>

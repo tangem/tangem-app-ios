@@ -54,16 +54,6 @@ class TezosJsonRpcProvider: HostProvider {
             .eraseToAnyPublisher()
     }
 
-    func forgeContents(headerHash: String, contents: [TezosOperationContent]) -> AnyPublisher<String, Error> {
-        let body = TezosForgeBody(branch: headerHash, contents: contents)
-
-        return requestPublisher(for: TezosTarget(node: nodeInfo, endpoint: .forgeOperations(body: body)))
-            .mapString()
-            .cleanString()
-            .mapError { $0 }
-            .eraseToAnyPublisher()
-    }
-
     func checkTransaction(
         protocol: String,
         hash: String,

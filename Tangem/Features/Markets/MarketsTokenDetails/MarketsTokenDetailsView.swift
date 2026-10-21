@@ -15,8 +15,6 @@ import TangemUIUtils
 struct MarketsTokenDetailsView: View {
     @ObservedObject var viewModel: MarketsTokenDetailsViewModel
 
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.mainWindowSize) private var mainWindowSize
     @Environment(\.mainShtorkaSize) private var sheetSize
     @Environment(\.mainShtorkaContentIsCollapsed) private var isContentCollapsed
 

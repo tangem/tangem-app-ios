@@ -16,7 +16,6 @@ struct PepecoinTestnetNetworkParams: UTXONetworkParams {
     let p2shPrefix: UInt8 = 0xc4
 
     let bech32Prefix: String = "P"
-    let coinType: UInt32 = 1
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
     let dustCalculator: UTXONetworkParamsDustCalculator = .pepecoin
 }
