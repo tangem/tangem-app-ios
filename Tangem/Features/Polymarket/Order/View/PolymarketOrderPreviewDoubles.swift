@@ -105,3 +105,13 @@ extension PolymarketOrderQuote {
         signingDomainVersion: "2"
     )
 }
+
+struct PolymarketOrderPreviewPlacementService: PolymarketOrderPlacementService {
+    func place(
+        quote: PolymarketOrderQuote,
+        market: PolymarketMarket,
+        outcome: PolymarketOutcome
+    ) async throws -> PolymarketOrderPlacement {
+        throw CancellationError()
+    }
+}
