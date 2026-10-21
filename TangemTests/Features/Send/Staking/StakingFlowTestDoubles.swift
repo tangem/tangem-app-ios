@@ -182,6 +182,7 @@ final class SendStakingableTokenStub: SendStakingableToken {
     private let dispatcher: TransactionDispatcher
     let transactionValidator: SendTransactionValidator
     let tokenFeeProvidersManager: TokenFeeProvidersManager
+    let availableBalanceProvider: TokenBalanceProvider
     var allowanceService: (any AllowanceService)?
 
     private(set) lazy var transactionDispatcherProviderStub = StakingDispatcherProviderStub(stakingDispatcher: dispatcher)
@@ -190,11 +191,13 @@ final class SendStakingableTokenStub: SendStakingableToken {
         blockchain: Blockchain = .ton(curve: .ed25519, testnet: false),
         dispatcher: TransactionDispatcher = TransactionDispatcherMock(),
         transactionValidator: SendTransactionValidator = SendTransactionValidatorMock(),
+        availableBalanceProvider: TokenBalanceProvider = TokenBalanceProviderStub(),
         allowanceService: (any AllowanceService)? = nil
     ) {
         self.blockchain = blockchain
         self.dispatcher = dispatcher
         self.transactionValidator = transactionValidator
+        self.availableBalanceProvider = availableBalanceProvider
         self.allowanceService = allowanceService
 
         let tokenItem: TokenItem = .blockchain(.init(blockchain, derivationPath: nil))
@@ -225,7 +228,6 @@ final class SendStakingableTokenStub: SendStakingableToken {
     var scaledUIAmountMultiplierResolver: ScaledUIAmountMultiplierResolver? { nil }
     var header: TokenHeader { .wallet(name: "Test", hasOnlyOneWallet: true) }
     var defaultAddressString: String { "" }
-    var availableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderStub() }
     var fiatAvailableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderStub() }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { nil }
     var emailDataCollectorBuilder: EmailDataCollectorBuilder { EmailDataCollectorBuilderStub() }

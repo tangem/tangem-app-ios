@@ -254,6 +254,44 @@ final class StakeModelTests {
         #expect(dispatcher.sendCalls.isEmpty)
     }
 
+    // MARK: - Amount adjustments
+
+    @Test("Account initialization keeps an amount that still fits the balance left after the fee")
+    func accountInitializationKeepsFittingAmount() async throws {
+        let flow = try await openAccountInitialization(balance: 100, amount: SendAmount(type: .alternative(fiat: 30, crypto: 10)))
+
+        try flow.completeInitialization()
+
+        #expect(flow.interactor.updateSourceAmountCalls.isEmpty)
+        #expect(flow.interactor.updateSourceCryptoAmountCalls.isEmpty)
+    }
+
+    @Test("Account initialization caps a fiat-entered amount at the balance left after the fee, in crypto")
+    func accountInitializationCapsAmountInCrypto() async throws {
+        let flow = try await openAccountInitialization(balance: 10, amount: SendAmount(type: .alternative(fiat: 30, crypto: 10)))
+
+        try flow.completeInitialization()
+
+        #expect(flow.interactor.updateSourceCryptoAmountCalls == [9.5])
+        #expect(flow.interactor.updateSourceAmountCalls.isEmpty)
+    }
+
+    @Test("Reduce amount notification reduces the crypto amount when the input is in fiat")
+    func reduceAmountByReducesCryptoAmount() {
+        let model = makeModel { TONStakingFlowProvider(action: stake(), stages: $0) }
+        let interactor = SendAmountInteractorMock()
+        let amountViewModel = SendAmountExternalUpdatableViewModelMock()
+        model.amountExternalUpdater = SendAmountExternalUpdater(viewModel: amountViewModel, interactor: interactor)
+        model.sourceAmountDidChanged(amount: SendAmount(type: .alternative(fiat: 30, crypto: 10)))
+
+        model.didTapNotification(with: 0, action: .reduceAmountBy(amount: 0.25, amountFormatted: "0.25 GRAM"))
+
+        withExtendedLifetime(amountViewModel) {
+            #expect(interactor.updateSourceCryptoAmountCalls == [9.75])
+            #expect(interactor.updateSourceAmountCalls.isEmpty)
+        }
+    }
+
     // MARK: - Helpers
 
     private func awaitReady(_ model: StakeModel) async throws -> StakeFlowState.Ready {
@@ -275,10 +313,49 @@ final class StakeModelTests {
         }
     }
 
+    private func awaitState(_ model: StakeModel, where matches: @escaping (StakeFlowState) -> Bool) async throws {
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            group.addTask {
+                _ = try await model.statePublisher.first(where: matches).async()
+            }
+            group.addTask {
+                try await Task.sleep(for: .seconds(5))
+                throw TimeoutError()
+            }
+            defer { group.cancelAll() }
+            try await group.next()!
+        }
+    }
+
     private struct TimeoutError: Error {}
 
     private func withdraw() -> StakingAction {
         StakingAction(amount: 10, targetType: .empty, type: .pending(.withdraw(passthroughs: ["p"])))
+    }
+
+    private func stake() -> StakingAction {
+        StakingAction(amount: 0, targetType: .empty, type: .stake)
+    }
+
+    private func openAccountInitialization(balance: Decimal, amount: SendAmount) async throws -> AccountInitializationFlow {
+        let token = SendStakingableTokenStub(availableBalanceProvider: MutableTokenBalanceProviderMock(balance: balance))
+        let initializationService = BlockchainAccountInitializationServiceMock(
+            isInitialized: false,
+            initializationFee: Fee(Amount(with: token.blockchain, type: .coin, value: 0.5))
+        )
+        let model = makeModel(token: token, accountInitializationService: initializationService) {
+            TONStakingFlowProvider(action: stake(), stages: $0)
+        }
+        let flow = AccountInitializationFlow(model: model)
+
+        model.sourceAmountDidChanged(amount: amount)
+        model.userDidSelect(target: .stub())
+        try await awaitState(model) { state in
+            if case .prerequisite(.accountInitialization(.required)) = state { true } else { false }
+        }
+        model.didTapNotification(with: 0, action: .activate)
+
+        return flow
     }
 
     private func makeModel(
@@ -286,13 +363,14 @@ final class StakeModelTests {
         token: SendStakingableTokenStub = SendStakingableTokenStub(),
         feeIncludedCalculator: FeeIncludedCalculator = FeeIncludedCalculatorStub(),
         validationHandler: StakingValidationHandler? = nil,
+        accountInitializationService: BlockchainAccountInitializationService? = nil,
         provider: (StakeStagesResolver) -> StakingFlowProvider
     ) -> StakeModel {
         let stages = StakeStagesResolver(
             stakingManager: stakingManager,
             transactionValidator: token.transactionValidator,
             feeIncludedCalculator: feeIncludedCalculator,
-            accountInitializationService: nil,
+            accountInitializationService: accountInitializationService,
             tokenItem: token.tokenItem,
             feeTokenItem: token.feeTokenItem
         )
@@ -303,7 +381,7 @@ final class StakeModelTests {
         return StakeModel(
             provider: builtProvider,
             sendSourceToken: token,
-            accountInitializationService: nil,
+            accountInitializationService: accountInitializationService,
             validationHandler: validationHandler,
             analyticsLogger: StakeModelAnalyticsLoggerMock(),
             autoupdatingTimer: AutoupdatingTimer(),
@@ -325,5 +403,40 @@ final class StakeModelTests {
         guard !stepPlan.hasValidatorSelection else { return .loading }
         let baked = provider.makeAction(amount: nil, target: nil).targetType.target
         return baked.map { .success($0) } ?? .loading
+    }
+}
+
+// MARK: - AccountInitializationFlow
+
+private final class AccountInitializationFlow {
+    let model: StakeModel
+    let interactor = SendAmountInteractorMock()
+
+    private let amountViewModel = SendAmountExternalUpdatableViewModelMock()
+    private let router = StakingModelRouterMock()
+
+    init(model: StakeModel) {
+        self.model = model
+        model.router = router
+        model.amountExternalUpdater = SendAmountExternalUpdater(viewModel: amountViewModel, interactor: interactor)
+    }
+
+    func completeInitialization() throws {
+        let viewModel = try #require(router.accountInitializationViewModel)
+        let onInitialized = try #require(Mirror(reflecting: viewModel).descendant("onInitialized") as? () -> Void)
+        onInitialized()
+    }
+}
+
+// MARK: - StakingModelRoutable
+
+private final class StakingModelRouterMock: StakingModelRoutable {
+    private(set) var accountInitializationViewModel: BlockchainAccountInitializationViewModel?
+
+    func openNetworkCurrency() {}
+    func openApproveSheet() {}
+
+    func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel) {
+        accountInitializationViewModel = viewModel
     }
 }
