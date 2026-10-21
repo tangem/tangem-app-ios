@@ -19,6 +19,16 @@ When nothing fits, check the [💠 DS Components](https://www.figma.com/design/A
 - the design system has it as a component → it is a missing DS3 component: build it in `DesignSystem_V2` with the `ds-component` skill, not in the feature;
 - otherwise → write it in the feature, from DS3 components and tokens.
 
+## Model state from the design
+
+A new view's state comes from its mock, not from an existing type. Legacy models carry what the design doesn't have (SwiftUI colors, optionals for data that is always there, fields that mean something else) and let callers build combinations the design never draws.
+
+1. Design the state from the mock, so that a combination doesn't compile when the design doesn't draw it and the app can't produce it.
+2. Then look at the old code. If it maps onto the new state cleanly, replace the legacy type with the new one and delete it.
+3. If it doesn't, keep the legacy type and add a mapping from it to the new state outside the design system, next to the code that owns the legacy type.
+
+DS3 components never take or mention legacy types.
+
 ## Tokens
 
 Pick a token by its role, not by how it looks:
