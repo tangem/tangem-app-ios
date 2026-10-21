@@ -75,6 +75,7 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WC
     func handle() async throws -> RPCResult {
         let transactionToUse = sendableTransaction ?? WCSendableTransaction(from: wcTransaction)
         let transaction = try await transactionBuilder.buildTx(from: transactionToUse, for: walletModel)
+        WCLogger.info(transactionToUse.logDescription(method: method, blockchain: walletModel.tokenItem.blockchain))
         transactionToSend = transaction
 
         guard let transaction = transactionToSend else {
@@ -82,6 +83,7 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WC
         }
 
         let result = try await transactionDispatcher.send(transaction: .transfer(transaction))
+        WCLogger.info("Sent \(method.rawValue) on \(walletModel.tokenItem.blockchain.displayName) via \(result.currentHost): \(result.hash)")
 
         Analytics.log(event: .transactionSent, params: [
             .source: Analytics.ParameterValue.transactionSourceWalletConnect.rawValue,

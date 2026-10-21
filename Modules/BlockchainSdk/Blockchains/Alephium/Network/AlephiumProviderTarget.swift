@@ -53,8 +53,13 @@ struct AlephiumProviderTarget: TargetType {
 
     var task: Moya.Task {
         switch targetType {
-        case .getBalance, .getUTXO:
+        case .getBalance:
             return .requestPlain
+        case .getUTXO:
+            return .requestParameters(
+                parameters: ["error-if-exceed-max-utxos": false],
+                encoding: URLEncoding.tangem
+            )
         case .transactionStatus(let txId):
             return .requestParameters(parameters: ["txId": txId], encoding: URLEncoding.default)
         case .buildTransaction(let transfer):
