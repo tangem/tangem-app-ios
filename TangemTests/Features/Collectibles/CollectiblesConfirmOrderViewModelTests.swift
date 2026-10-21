@@ -532,6 +532,7 @@ private extension CollectiblesConfirmOrderViewModelTests {
 
     nonisolated static func wonCard(backImageURL: URL?) -> CollectiblesWonCard {
         CollectiblesWonCard(
+            nftAddress: "nft-1",
             imageFrontURL: Constants.frontImageURL,
             imageBackURL: backImageURL,
             gradingCompany: "PSA",

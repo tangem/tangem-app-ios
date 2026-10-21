@@ -107,11 +107,80 @@ final class CollectiblesAPITargetTests {
         #expect(body["turboMode"] == nil)
         #expect(body["machineId"] as? String == "pokemon_50")
     }
+
+    // MARK: - Buyback
+
+    @Test("Buyback endpoints live under api/v1/buyback")
+    func buybackPaths() {
+        #expect(makeTarget(.buybackAvailability(.init(nftAddress: "nft-1"), userWalletID: "wallet-1")).path == "api/v1/buyback/available")
+        #expect(makeTarget(.generateBuybackData(Self.generateBuybackRequest, userWalletID: "wallet-1")).path == "api/v1/buyback/buyback-data")
+        #expect(makeTarget(.buybackTxSent(.init(buybackID: "bb-1", txHash: "hash-1"), userWalletID: "wallet-1")).path == "api/v1/buyback/buyback-tx-sent")
+        #expect(makeTarget(.buybackStatus(.init(buybackID: "bb-1"), userWalletID: "wallet-1")).path == "api/v1/buyback/status")
+    }
+
+    @Test("Buyback reads use GET and writes use POST")
+    func buybackMethods() {
+        #expect(makeTarget(.buybackAvailability(.init(nftAddress: "nft-1"), userWalletID: "wallet-1")).method == .get)
+        #expect(makeTarget(.generateBuybackData(Self.generateBuybackRequest, userWalletID: "wallet-1")).method == .post)
+        #expect(makeTarget(.buybackTxSent(.init(buybackID: "bb-1", txHash: "hash-1"), userWalletID: "wallet-1")).method == .post)
+        #expect(makeTarget(.buybackStatus(.init(buybackID: "bb-1"), userWalletID: "wallet-1")).method == .get)
+    }
+
+    @Test("Every buyback call is scoped to the wallet")
+    func buybackUserIDHeader() {
+        let expected = ["user-id": "wallet-1"]
+
+        #expect(makeTarget(.buybackAvailability(.init(nftAddress: "nft-1"), userWalletID: "wallet-1")).headers == expected)
+        #expect(makeTarget(.generateBuybackData(Self.generateBuybackRequest, userWalletID: "wallet-1")).headers == expected)
+        #expect(makeTarget(.buybackTxSent(.init(buybackID: "bb-1", txHash: "hash-1"), userWalletID: "wallet-1")).headers == expected)
+        #expect(makeTarget(.buybackStatus(.init(buybackID: "bb-1"), userWalletID: "wallet-1")).headers == expected)
+    }
+
+    @Test("available: the card address travels in the query")
+    func buybackAvailabilityQuery() throws {
+        let parameters = try queryParameters(makeTarget(.buybackAvailability(.init(nftAddress: "nft-1"), userWalletID: "wallet-1")).task)
+
+        #expect(parameters["nftAddress"] as? String == "nft-1")
+        #expect(parameters.count == 1)
+    }
+
+    @Test("status: the buyback id travels in the query under the backend's key")
+    func buybackStatusQuery() throws {
+        let parameters = try queryParameters(makeTarget(.buybackStatus(.init(buybackID: "bb-1"), userWalletID: "wallet-1")).task)
+
+        #expect(parameters["buybackId"] as? String == "bb-1")
+        #expect(parameters.count == 1)
+    }
+
+    @Test("buyback-data: the three addresses travel in the body")
+    func generateBuybackBody() throws {
+        let body = try jsonBody(makeTarget(.generateBuybackData(Self.generateBuybackRequest, userWalletID: "wallet-1")).task)
+
+        #expect(body["fromAddress"] as? String == "owner")
+        #expect(body["nftAddress"] as? String == "nft-1")
+        #expect(body["toAddress"] as? String == "vault")
+        #expect(body.count == 3)
+    }
+
+    @Test("buyback-tx-sent: the id and the hash travel in the body under the backend's keys")
+    func buybackTxSentBody() throws {
+        let body = try jsonBody(makeTarget(.buybackTxSent(.init(buybackID: "bb-1", txHash: "hash-1"), userWalletID: "wallet-1")).task)
+
+        #expect(body["buybackId"] as? String == "bb-1")
+        #expect(body["txHash"] as? String == "hash-1")
+        #expect(body.count == 2)
+    }
 }
 
 // MARK: - Helpers
 
 private extension CollectiblesAPITargetTests {
+    static let generateBuybackRequest = CollectiblesDTO.GenerateBuybackDataRequest(
+        fromAddress: "owner",
+        nftAddress: "nft-1",
+        toAddress: "vault"
+    )
+
     func makeTarget(_ target: CollectiblesAPITarget.Target) -> CollectiblesAPITarget {
         CollectiblesAPITarget(baseURL: URL(string: "https://example.com")!, target: target)
     }

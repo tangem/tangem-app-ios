@@ -199,6 +199,42 @@ struct CollectiblesAPIServiceTests {
         #expect(Self.queryValue("includeNftWon", of: CollectiblesStubURLProtocol.requests.first) == "true")
     }
 
+    // MARK: - Buyback
+
+    @Test("Reads the buyback deadline with or without fractional seconds", arguments: Self.deadlineArguments)
+    func readsBuybackDeadline(raw: String, expiresAt: Date) async throws {
+        CollectiblesStubURLProtocol.responses = [Self.buybackAvailability(expiresAt: raw)]
+
+        let offer = try #require(try await makeOfferProvider().load(nftAddress: "nft-1"))
+
+        #expect(offer.expiresAt == expiresAt)
+    }
+
+    @Test("An unreadable buyback deadline fails the answer instead of dropping the deadline")
+    func rejectsUnreadableBuybackDeadline() async throws {
+        CollectiblesStubURLProtocol.responses = [Self.buybackAvailability(expiresAt: "tomorrow")]
+
+        do {
+            _ = try await makeOfferProvider().load(nftAddress: "nft-1")
+            Issue.record("Expected .decoding to be thrown")
+        } catch CollectiblesAPIService.Error.decoding {}
+    }
+
+    @Test(
+        "The auto-sold payout is read strictly, and a malformed one is left out without failing the purchase",
+        arguments: Self.autoSoldPayoutArguments
+    )
+    func readsAutoSoldPayout(toAmount: String, toDecimals: Int, payout: Decimal?) async throws {
+        let buyback = #"{"toAmount":"\#(toAmount)","toDecimals":\#(toDecimals)}"#
+        CollectiblesStubURLProtocol.responses = [
+            Data(#"{"txId":"tx-1","status":"pack-opened","nftWon":null,"buyback":\#(buyback)}"#.utf8),
+        ]
+
+        let transaction = try await makeSUT().loadPurchaseStatus(txID: "tx-1", userWalletID: "wallet-1")
+
+        #expect(transaction.buybackAmount == payout)
+    }
+
     // MARK: - Errors
 
     @Test("Non-2xx response surfaces as .http with the status code and the raw body")
@@ -226,6 +262,24 @@ struct CollectiblesAPIServiceTests {
     }
 }
 
+// MARK: - Arguments
+
+extension CollectiblesAPIServiceTests {
+    static let deadlineArguments: [(raw: String, expiresAt: Date)] = [
+        (raw: "2026-10-20T12:00:00Z", expiresAt: Date(timeIntervalSince1970: 1_792_497_600)),
+        (raw: "2026-10-20T12:00:00.250Z", expiresAt: Date(timeIntervalSince1970: 1_792_497_600.25)),
+    ]
+
+    static let autoSoldPayoutArguments: [(toAmount: String, toDecimals: Int, payout: Decimal?)] = [
+        (toAmount: "15500000", toDecimals: 6, payout: Decimal(string: "15.5")),
+        (toAmount: "-15500000", toDecimals: 6, payout: nil),
+        (toAmount: "15500000abc", toDecimals: 6, payout: nil),
+        (toAmount: "0x10", toDecimals: 6, payout: nil),
+        (toAmount: "0", toDecimals: 6, payout: nil),
+        (toAmount: "15500000", toDecimals: 300, payout: nil),
+    ]
+}
+
 // MARK: - Helpers
 
 private extension CollectiblesAPIServiceTests {
@@ -240,6 +294,10 @@ private extension CollectiblesAPIServiceTests {
         )
 
         return CollectiblesAPIService(provider: TangemProvider(configuration: configuration, additionalPlugins: [DeviceInfoPlugin()]))
+    }
+
+    func makeOfferProvider() -> RemoteCollectiblesBuybackOfferProvider {
+        RemoteCollectiblesBuybackOfferProvider(userWalletID: "wallet-1", requester: makeSUT())
     }
 
     func generatePurchase() async throws -> CollectiblesGeneratedPurchase {
@@ -268,6 +326,10 @@ private extension CollectiblesAPIServiceTests {
     }
 
     enum TestError: Error { case notJSONBody }
+
+    static func buybackAvailability(expiresAt: String) -> Data {
+        Data(#"{"buybackAvailable":true,"buybackAmount":1550,"buybackExpiresAt":"\#(expiresAt)"}"#.utf8)
+    }
 
     static func machinesPage(machines: [String], hasNext: Bool, cursor: String? = nil) -> Data {
         let cursorJSON = cursor.map { #""\#($0)""# } ?? "null"
