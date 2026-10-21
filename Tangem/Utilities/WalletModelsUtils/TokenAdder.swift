@@ -8,16 +8,17 @@
 
 import Foundation
 import BlockchainSdk
+import TangemFoundation
 
 enum TokenAdder {
-    static func addToken(tokenItem: TokenItem) throws {
+    static func addToken(tokenItem: TokenItem, userWalletId: UserWalletId) throws {
         guard tokenItem.isToken else {
             assertionFailure("Supports only tokens. TokenItem.blockchain item may require derivation")
             throw Error.onlyTokensSupported
         }
 
         let blockchainNetwork = tokenItem.blockchainNetwork
-        let walletModelResult = try WalletModelFinder.findWalletModel(tokenItem: .blockchain(blockchainNetwork))
+        let walletModelResult = try WalletModelFinder.findWalletModel(userWalletId: userWalletId, tokenItem: .blockchain(blockchainNetwork))
         let userTokensManager = try userTokensManager(walletModelResult: walletModelResult)
         try userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem])
     }
