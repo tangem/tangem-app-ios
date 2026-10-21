@@ -24,6 +24,7 @@ struct UserWalletConfigStub: UserWalletConfig {
     let isWalletsCreated: Bool = true
     var supportedBlockchains: Set<Blockchain> = []
     var unavailableFeatures: Set<UserWalletFeature> = []
+    var derivationStyle: DerivationStyle? = nil
     let defaultBlockchains: [TokenItem] = []
     let persistentBlockchains: [TokenItem] = []
     let embeddedBlockchain: TokenItem? = nil
