@@ -7,19 +7,15 @@
 //
 
 import Combine
-import SwiftUI
-import TangemAssets
 import TangemLocalization
 
 struct JointAccountFormViewCreator {
     private let creationHelper: JointAccountCreationHelper
-    /// `nil` when there is no other wallet to create the account in — the form then leaves the wallet row out
-    /// instead of offering a selection that leads nowhere.
-    private let onWalletTap: (() -> Void)?
+    private let walletSelection: AccountFormWalletSelection
 
-    init(creationHelper: JointAccountCreationHelper, onWalletTap: (() -> Void)?) {
+    init(creationHelper: JointAccountCreationHelper, walletSelection: AccountFormWalletSelection) {
         self.creationHelper = creationHelper
-        self.onWalletTap = onWalletTap
+        self.walletSelection = walletSelection
     }
 }
 
@@ -38,8 +34,6 @@ extension JointAccountFormViewCreator: AccountFormViewCreator {
     /// about it.
     var showsAccountIndexDescription: Bool { false }
 
-    var backgroundColor: Color { DesignSystem.Color.bgPrimary }
-
     /// - Note: The joint accounts are counted apart from the wallet's own ones, and it is their count the form shows
     /// as the ordinal number of the account being created. Follows the wallet selection, since the ordinal number
     /// belongs to the wallet the account is created in.
@@ -52,20 +46,14 @@ extension JointAccountFormViewCreator: AccountFormViewCreator {
     }
 
     var walletPublisher: AnyPublisher<AccountFormWallet?, Never> {
-        guard onWalletTap != nil else {
-            return .just(output: nil)
-        }
-
-        return creationHelper
+        creationHelper
             .userWalletModelPublisher
-            .map { userWalletModel in
-                AccountFormWallet(
-                    id: userWalletModel.userWalletId,
-                    name: userWalletModel.name,
-                    imageProvider: userWalletModel.walletImageProvider
-                )
-            }
+            .map { [walletSelection] in walletSelection.wallet(for: $0) }
             .eraseToAnyPublisher()
+    }
+
+    var selectableWallets: [any UserWalletModel] {
+        UserWalletModelsProvider.accountCreationCandidates(for: .joint)
     }
 
     /// The form is only the first step of the joint account creation flow, so the entered name and icon are
@@ -76,7 +64,7 @@ extension JointAccountFormViewCreator: AccountFormViewCreator {
         return .joint(creationHelper)
     }
 
-    func handleWalletTap() {
-        onWalletTap?()
+    func selectWallet(_ userWalletModel: any UserWalletModel) {
+        creationHelper.update(userWalletModel: userWalletModel)
     }
 }

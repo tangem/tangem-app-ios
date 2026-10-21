@@ -26,6 +26,8 @@ struct PolymarketTarget: Moya.TargetType {
         case positions(PolymarketPositionsRequest)
         case closedPositions(PolymarketClosedPositionsRequest)
         case positionOutcome(PolymarketPositionOutcomeRequest)
+        case activity(PolymarketActivityRequest)
+        case reconcileDeposits(depositWalletAddress: String)
     }
 
     var path: String {
@@ -50,14 +52,18 @@ struct PolymarketTarget: Moya.TargetType {
             return "api/predictions/v1/positions/closed"
         case .positionOutcome:
             return "api/predictions/v1/positions/outcome"
+        case .activity:
+            return "api/predictions/v1/activity"
+        case .reconcileDeposits:
+            return "api/predictions/v1/activity/deposits/reconcile"
         }
     }
 
     var method: Moya.Method {
         switch target {
-        case .categories, .events, .event, .search, .series, .seriesEvents, .positions, .closedPositions, .positionOutcome:
+        case .categories, .events, .event, .search, .series, .seriesEvents, .positions, .closedPositions, .positionOutcome, .activity:
             return .get
-        case .orderQuote:
+        case .orderQuote, .reconcileDeposits:
             return .post
         }
     }
@@ -117,25 +123,13 @@ struct PolymarketTarget: Moya.TargetType {
 
         case .positions(let request):
             return .requestParameters(
-                parameters: [
-                    "depositWalletAddress": request.depositWalletAddress,
-                    "sort": request.sort.rawValue,
-                    "ascending": request.ascending,
-                    "limit": request.limit,
-                    "offset": request.offset,
-                ],
+                parameters: Self.positionsParameters(request.depositWalletAddress, page: request.page.queryParameters),
                 encoding: URLEncoding(boolEncoding: .literal)
             )
 
         case .closedPositions(let request):
             return .requestParameters(
-                parameters: [
-                    "depositWalletAddress": request.depositWalletAddress,
-                    "sort": request.sort.rawValue,
-                    "ascending": request.ascending,
-                    "limit": request.limit,
-                    "offset": request.offset,
-                ],
+                parameters: Self.positionsParameters(request.depositWalletAddress, page: request.page.queryParameters),
                 encoding: URLEncoding(boolEncoding: .literal)
             )
 
@@ -148,11 +142,39 @@ struct PolymarketTarget: Moya.TargetType {
                 ],
                 encoding: URLEncoding.queryString
             )
+
+        case .activity(let request):
+            var parameters: [String: Any] = [
+                "depositWalletAddress": request.depositWalletAddress,
+                "limit": request.limit,
+            ]
+            if let type = request.type {
+                parameters["type"] = type.rawValue
+            }
+            if let redeemResult = request.redeemResult {
+                parameters["redeemResult"] = redeemResult.rawValue
+            }
+            if let cursor = request.cursor {
+                parameters["cursor"] = cursor
+            }
+            return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+
+        case .reconcileDeposits(let depositWalletAddress):
+            return .requestParameters(
+                parameters: ["depositWalletAddress": depositWalletAddress],
+                encoding: URLEncoding.queryString
+            )
         }
     }
 
     var headers: [String: String]? {
         [PolymarketBFFEnvironment.walletIdHeader: walletId]
+    }
+}
+
+private extension PolymarketTarget {
+    static func positionsParameters(_ depositWalletAddress: String, page: [String: Any]) -> [String: Any] {
+        page.merging(["depositWalletAddress": depositWalletAddress]) { current, _ in current }
     }
 }
 

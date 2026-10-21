@@ -48,6 +48,7 @@ public struct TabNavigation<Data>: View, Setupable
             if isLoading {
                 ForEach(0 ..< placeholderCount, id: \.self) { _ in
                     TabItemPlaceholder()
+                        .transition(.opacity)
                 }
             } else {
                 ForEach(data) { item in
@@ -76,11 +77,14 @@ public struct TabNavigation<Data>: View, Setupable
                         }
                     }
                     .accessibilityIdentifier(accessibilityIdentifierFactory?(item))
+                    .id(item.id)
+                    .transition(.opacity)
                 }
             }
         }
         .environment(\.isShimmerActive, isLoading)
         .animation(Constants.selectionAnimation, value: selection.id)
+        .animation(Constants.loadingAnimation, value: isLoading)
     }
 
     private var placeholderCount: Int {
@@ -122,4 +126,5 @@ private enum Constants {
     static let pillPeakScale: CGFloat = 1.1
     static let pillScalePhaseDuration: TimeInterval = 0.2
     static let selectionAnimation: Animation = .timingCurve(0.8, 0, 0.4, 1.2, duration: 0.4)
+    static let loadingAnimation: Animation = .easeInOut(duration: 0.2)
 }

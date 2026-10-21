@@ -29,7 +29,7 @@ enum SendType {
     case onramp(SendSourceToken, parameters: PredefinedOnrampParameters = .none)
 }
 
-// MARK: - Parameters
+// MARK: - PredefinedSendParameters
 
 struct PredefinedSendParameters {
     let destination: String
@@ -58,28 +58,29 @@ extension PredefinedSendParameters {
     }
 }
 
-/// Mirrors the two `SwapFlowFactory` inits: the source side is fixed, or the receive side is.
+// MARK: - PredefinedSwapParameters
+
+/// The swap flow opens either from a known source token or into a known receive token.
 /// `configuration` locks the pair and overrides the title for account funding flows.
-enum PredefinedSwapParameters {
-    case from(
-        _ source: SendSwapableToken,
-        pair: PairResolution = .userSelection,
+struct PredefinedSwapParameters {
+    let userWalletInfo: UserWalletInfo
+    let source: any SwapSourceTokenResolver
+    let receive: any SwapReceiveTokenResolver
+    let extras: Extras?
+    let configuration: SwapFlowConfiguration
+
+    init(
+        userWalletInfo: UserWalletInfo,
+        source: some SwapSourceTokenResolver,
+        receive: some SwapReceiveTokenResolver,
         extras: Extras? = nil,
         configuration: SwapFlowConfiguration = .default
-    )
-    case to(
-        _ receive: SendSwapableToken,
-        sourceResolver: (any SwapSourceTokenResolver)? = nil,
-        configuration: SwapFlowConfiguration = .default
-    )
-
-    /// How a pair with a fixed source gets settled. A known destination leaves the resolver nothing
-    /// to do, so the two can't be passed together.
-    enum PairResolution {
-        case fixed(receive: SendReceiveToken)
-        /// The source is a guess until balances settle; the resolver replaces it then.
-        case deferred(sourceResolver: any SwapSourceTokenResolver)
-        case userSelection
+    ) {
+        self.userWalletInfo = userWalletInfo
+        self.source = source
+        self.receive = receive
+        self.extras = extras
+        self.configuration = configuration
     }
 
     /// Optional preselections carried by a `tangem://swap` deeplink on top of the resolved pair: an initial
@@ -98,41 +99,22 @@ enum PredefinedSwapParameters {
 extension PredefinedSwapParameters {
     /// The wallet the swap opens for.
     var userWalletId: UserWalletId {
-        switch self {
-        case .from(let source, _, _, _): source.userWalletInfo.id
-        case .to(let receive, _, _): receive.userWalletInfo.id
-        }
+        userWalletInfo.id
     }
 }
 
-extension PredefinedSwapParameters.PairResolution {
-    /// For call sites whose destination lookup can come up empty.
-    static func fixed(receiveOrUserSelection token: SendReceiveToken?) -> Self {
-        token.map { .fixed(receive: $0) } ?? .userSelection
-    }
-
-    var receiveToken: SendReceiveToken? {
-        switch self {
-        case .fixed(let token): token
-        case .deferred, .userSelection: nil
-        }
-    }
-
-    var sourceResolver: (any SwapSourceTokenResolver)? {
-        switch self {
-        case .deferred(let resolver): resolver
-        case .fixed, .userSelection: nil
-        }
-    }
-}
-
-/// Swap direction for a token-details entry point. `automatic` defers to the balance-based pair
-/// resolver; `from`/`to` force the current token as source/destination respectively.
+/// Which side of the swap a token-details entry point puts the current token on: `from` makes it the
+/// source, `to` the destination.
 enum SwapDirection {
-    case automatic
     case from
     case to
+
+    static func build(for walletModel: any WalletModel) -> SwapDirection {
+        walletModel.fiatAvailableBalance > 0 ? .from : .to
+    }
 }
+
+// MARK: - PredefinedSellParameters
 
 struct PredefinedSellParameters {
     let amount: Decimal
@@ -140,10 +122,14 @@ struct PredefinedSellParameters {
     let tag: String?
 }
 
+// MARK: - PredefinedNFTParameters
+
 struct PredefinedNFTParameters {
     let asset: NFTAsset
     let collection: NFTCollection
 }
+
+// MARK: - PredefinedOnrampParameters
 
 struct PredefinedOnrampParameters: Hashable {
     static let none = PredefinedOnrampParameters(amount: .none, preferredValues: .none)

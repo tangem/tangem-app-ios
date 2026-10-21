@@ -20,6 +20,9 @@ protocol ExperimentService {
     func isOn(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool
     func isOnWithoutExposure(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool
     func waitForVariants(ofWalletMatching isMatching: @escaping (UserWalletId) -> Bool) async -> Bool
+
+    @MainActor
+    func hasFetchedVariants(for userWalletId: UserWalletId) -> Bool
 }
 
 final class CommonExperimentService {
@@ -40,6 +43,7 @@ final class CommonExperimentService {
     private var bag: Set<AnyCancellable> = []
     private var refetchTask: Task<Void, Never>?
     private let fetchedUserWalletIdsSubject = CurrentValueSubject<Set<UserWalletId>, Never>([])
+    @MainActor private var fetchedUserWalletId: UserWalletId?
 
     // MARK: - Public Implementation
 
@@ -88,13 +92,18 @@ final class CommonExperimentService {
     private func setContext(for userWalletId: UserWalletId?) {
         let ctx = ExperimentWalletContext.initial(for: userWalletId)
 
-        refetchTask?.cancel()
+        let previousRefetchTask = refetchTask
+
+        previousRefetchTask?.cancel()
         refetchTask = runTask(in: self) { service in
+            await previousRefetchTask?.value
             await service.refetch(for: ctx)
         }
     }
 
     private func refetch(for ctx: ExperimentWalletContext) async {
+        await MainActor.run { fetchedUserWalletId = nil }
+
         let builder = ExperimentUserBuilder()
             .userId(ctx.userWalletId?.hashedStringValue)
             .region(ctx.region)
@@ -127,6 +136,8 @@ final class CommonExperimentService {
             }
 
             try Task.checkCancellation()
+
+            await MainActor.run { fetchedUserWalletId = ctx.userWalletId }
 
             AppLogger.info("Experiments fetched for wallet \(ctx.userWalletId?.stringValue ?? "empty")")
 
@@ -168,6 +179,11 @@ extension CommonExperimentService: ExperimentService {
             .async()
 
         return fetched != nil
+    }
+
+    @MainActor
+    func hasFetchedVariants(for userWalletId: UserWalletId) -> Bool {
+        fetchedUserWalletId == userWalletId
     }
 }
 

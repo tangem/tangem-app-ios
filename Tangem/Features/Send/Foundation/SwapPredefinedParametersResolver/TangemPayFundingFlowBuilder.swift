@@ -46,13 +46,14 @@ struct TangemPayFundingFlowBuilder {
             availabilityChecker: CommonFundingSourceAvailabilityChecker(userWalletInfo: userWalletInfo)
         )
 
-        return .to(
-            receiveToken,
-            sourceResolver: sourceResolver,
+        return PredefinedSwapParameters(
+            userWalletInfo: receiveToken.userWalletInfo,
+            source: sourceResolver,
+            receive: .resolved(receiveToken),
             configuration: SwapFlowConfiguration(
                 isPairReversalEnabled: false,
                 // Funding the account from itself makes no sense.
-                sourceTokenSelection: .filtered(isIncluded: { !$0.isPayAccount }),
+                sourceTokenSelection: .selectable(.filtered(isIncluded: { !$0.isPayAccount })),
                 receiveTokenSelection: .followsSource(
                     AccountFundingDestinationResolver(
                         candidates: destinationCandidates,
@@ -80,8 +81,10 @@ struct TangemPayFundingFlowBuilder {
 
         let sourceToken = makeSwapableToken(accountToken: mostFunded, presentation: nil)
 
-        return .parameters(.from(
-            sourceToken,
+        return .parameters(PredefinedSwapParameters(
+            userWalletInfo: sourceToken.userWalletInfo,
+            source: .resolved(sourceToken),
+            receive: .userSelection,
             configuration: makeWithdrawConfiguration(accountTokens: accountTokens)
         ))
     }
@@ -104,9 +107,10 @@ struct TangemPayFundingFlowBuilder {
         )
         .makeSwapableToken()
 
-        return .parameters(.from(
-            sourceToken,
-            pair: .fixed(receive: receiveToken),
+        return .parameters(PredefinedSwapParameters(
+            userWalletInfo: sourceToken.userWalletInfo,
+            source: .resolved(sourceToken),
+            receive: .resolved(receiveToken),
             configuration: makeWithdrawConfiguration(accountTokens: accountTokens)
         ))
     }
@@ -114,7 +118,7 @@ struct TangemPayFundingFlowBuilder {
     private func makeWithdrawConfiguration(accountTokens: [TangemPayAccountToken]) -> SwapFlowConfiguration {
         SwapFlowConfiguration(
             isPairReversalEnabled: false,
-            sourceTokenSelection: makeWithdrawSourceSelection(accountTokens: accountTokens),
+            sourceTokenSelection: .selectable(makeWithdrawSourceSelection(accountTokens: accountTokens)),
             // Moving funds between the account's own tokens isn't a withdrawal.
             receiveTokenSelection: .selectable(.filtered(isIncluded: { !$0.isPayAccount })),
             summaryTitle: Localization.tangempayCardDetailsWithdraw,

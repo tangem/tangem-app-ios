@@ -81,7 +81,7 @@ private extension CEXProviderFlowHelper {
         try Task.checkCancellation()
 
         if try !canCoverFee(amount: quote.fromAmount, estimatedFee: estimatedFee) {
-            return .restriction(.insufficientBalance(quote.fromAmount), quote: quote)
+            return .restriction(.insufficientBalanceIncludingFee, quote: quote)
         }
 
         return .cexPreview(.init(provider: provider, subtractFee: 0, quote: quote, fee: estimatedFee))
@@ -103,7 +103,7 @@ private extension CEXProviderFlowHelper {
         let subtractFee = try subtractFee(amount: request.amount, estimatedFee: estimatedFee, rateType: request.rateType)
 
         guard isEnoughAmountToSubtractFee(amount: request.amount, subtractFee: subtractFee) else {
-            return .restriction(.insufficientBalance(request.amount), quote: quote)
+            return .restriction(.insufficientBalanceIncludingFee, quote: quote)
         }
 
         // If subtraction is needed, re-quote with reduced amount

@@ -101,7 +101,7 @@ extension CommonSocialAuthProvider: SocialAuthProvider {
 
         let payload = try await backupManager.importBackup(backup, recoveryKey: recoveryKey)
 
-        return SocialAuthRecoveredBackup(userWalletId: backup.walletId, payload: payload)
+        return SocialAuthRecoveredBackup(walletId: backup.walletId, payload: payload)
     }
 }
 

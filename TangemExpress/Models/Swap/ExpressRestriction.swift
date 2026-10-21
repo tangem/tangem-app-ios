@@ -13,6 +13,7 @@ public enum ExpressRestriction {
     case tooBigAmount(_ maxAmount: Decimal, currencySymbol: String)
     case approveTransactionInProgress(spender: String)
     case insufficientBalance(_ requiredAmount: Decimal)
+    case insufficientBalanceIncludingFee
     case feeCurrencyHasZeroBalance(isFeeCurrency: Bool)
     case feeCurrencyInsufficientBalanceForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool, feeCurrencyBalance: Decimal)
     case regionRestricted

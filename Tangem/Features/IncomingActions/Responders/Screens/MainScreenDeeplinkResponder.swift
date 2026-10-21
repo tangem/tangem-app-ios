@@ -109,7 +109,7 @@ private extension MainScreenDeeplinkResponder {
 
         case .tokenChart(let deeplink):
             prepare()
-            coordinator.openMarketsTokenDetails(tokenModel: .deeplinkStub(tokenId: deeplink.tokenId))
+            coordinator.openMarketsTokenChart(tokenId: deeplink.tokenId)
 
         case .onboardVisa(let deeplink):
             return openTangemPayOnboarding(source: deeplink.onboardingSource, using: coordinator)

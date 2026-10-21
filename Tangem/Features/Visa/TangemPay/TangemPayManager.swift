@@ -77,6 +77,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     private let cashbackCacheStorage: TangemPayCashbackCacheStorage
     private let residencyStatusStorage: TangemPayResidencyStatusStorage
     private let waitlistService: TangemPayWaitlistService
+    private let withdrawExchangeSender: TangemPayWithdrawExchangeSender
     private let tangemPayAccountBuilder: TangemPayAccountBuilder
 
     private let stateSubject = CurrentValueSubject<TangemPayLocalState?, Never>(nil)
@@ -99,6 +100,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         cashbackCacheStorage: TangemPayCashbackCacheStorage,
         residencyStatusStorage: TangemPayResidencyStatusStorage,
         waitlistService: TangemPayWaitlistService,
+        withdrawExchangeSender: TangemPayWithdrawExchangeSender,
         tangemPayAccountBuilder: TangemPayAccountBuilder
     ) {
         self.userWalletId = userWalletId
@@ -116,6 +118,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         self.cashbackCacheStorage = cashbackCacheStorage
         self.residencyStatusStorage = residencyStatusStorage
         self.waitlistService = waitlistService
+        self.withdrawExchangeSender = withdrawExchangeSender
         self.tangemPayAccountBuilder = tangemPayAccountBuilder
 
         bind()
