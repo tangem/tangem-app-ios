@@ -642,6 +642,7 @@
 "express_error_provider_amount_roundup" = "Ошибка %1$@. Выбранный провайдер не может обработать указанную транзакцию. Округлите значение до %2$@ или измените его.";
 "express_error_swap_pair_unavailable" = "Выбранный провайдер недоступен для обмена. Попробуйте позже. (Код: %@)";
 "express_error_swap_unavailable" = "В данный момент обмен невозможен. Попробуйте позже. (Код: %@)";
+"express_error_transaction_cannot_be_created" = "The transaction cannot be created with %1$@. Please choose another provider. (Code: %2$@)";
 "express_estimated_amount" = "Ожидаемая сумма";
 "express_exchange_by" = "Обмен через %@";
 "express_exchange_notification_failed_text" = "Перейдите на сайт провайдера для возврата средств";
@@ -1009,6 +1010,13 @@
 "joint_account_coming_soon_title" = "Скоро в общих аккаунтах";
 "joint_account_confirm_account_subtitle" = "Before using your Joint Account, make sure every member sees exactly the same address.";
 "joint_account_confirm_account_title" = "Confirm the account";
+"joint_account_confirm_address_compare_subtitle" = "Contact all members outside Tangem by phone, messenger, or in person. Check that everyone sees the exact same address.";
+"joint_account_confirm_address_compare_title" = "Compare with other members";
+"joint_account_confirm_address_confirm_button" = "Checked with everyone";
+"joint_account_confirm_address_everyone_subtitle" = "Your account will be ready once all members have confirmed the address.";
+"joint_account_confirm_address_everyone_title" = "Everyone must confirm";
+"joint_account_confirm_address_label" = "Shared address";
+"joint_account_confirm_address_mismatch_button" = "Address doesn't match";
 "joint_account_confirm_shared_address" = "Confirm shared address";
 "joint_account_invite_invalid_subtitle" = "Проверьте, что открыли правильную ссылку, или попросите создателя аккаунта отправить её ещё раз";
 "joint_account_invite_invalid_title" = "Ссылка-приглашение недействительна";
@@ -1972,7 +1980,7 @@
 "settings_forget_wallet" = "Забыть кошелек";
 "settings_wallet_name_title" = "Имя";
 "social_agreement_action_create" = "Создать кошелёк";
-"social_login_consent_acknowledge" = "Я понимаю, что если я не сохраню свою фразу восстановления, потеря доступа к моему аккаунту %@ может навсегда лишить меня доступа к этому кошельку.";
+"social_login_consent_acknowledge" = "Я понимаю, что если я не сохраню свою фразу восстановления, то потеря доступа к моему аккаунту %@ может навсегда лишить меня доступа к этому кошельку.";
 "social_login_consent_description" = "Ключи вашего кошелька зашифрованы, а их резервная копия хранится в вашем облачном аккаунте. Tangem не может получить к ним доступ. Войдите через %1$@, чтобы восстановить кошелёк, или используйте фразу восстановления, если потеряете доступ к своему аккаунту %1$@.";
 "social_login_consent_email_sharing" = "Получать новости о продукте и эксклюзивные предложения по электронной почте";
 "social_login_consent_learn_more" = "Узнать больше";
@@ -1994,7 +2002,7 @@
 "social_login_toast_wallet_added" = "Кошелёк добавлен";
 "social_login_toast_wallet_created" = "Кошелёк создан";
 "social_wallet_delete_anyway" = "Всё равно удалить";
-"social_wallet_delete_attention_acknowledge" = "Я понимаю, что если резервная копия моей фразы восстановления не сохранена, я навсегда потеряю доступ к этому кошельку.";
+"social_wallet_delete_attention_acknowledge" = "Я понимаю, что если резервная копия моей фразы восстановления не сохранена, то я навсегда потеряю доступ к этому кошельку.";
 "social_wallet_delete_attention_description" = "Кошелёк будет удалён с этого устройства и отвязан от вашего аккаунта %1$@, а ваши зашифрованные ключи будут удалены из облака. Вход через %1$@ больше не позволит его восстановить.";
 "social_wallet_delete_confirmation_title" = "Удалить этот кошелёк и отвязать его от вашего аккаунта %1$@?";
 "social_wallet_delete_description" = "Кошелёк будет удалён с этого устройства и отвязан от вашего аккаунта %1$@, а ваши зашифрованные ключи будут удалены из облака. Вход через %1$@ больше не позволит его восстановить. Сначала сохраните резервную копию своей фразы восстановления. Без неё вы навсегда потеряете доступ к криптовалюте в этом кошельке.";
