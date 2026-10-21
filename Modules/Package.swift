@@ -562,7 +562,10 @@ var unitTestsModules: [PackageDescription.Target] {
                 .product(name: "TangemSdk", package: "tangem-sdk-ios"),
                 .product(name: "TangemTestKit", package: "TangemTestKit"),
             ],
-            swiftSettings: .swift6StrictSettings
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
         ),
         .tangemTestTarget(
             name: "TangemFoundationTests",
