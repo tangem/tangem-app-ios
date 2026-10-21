@@ -23,6 +23,9 @@ final class HardwareBackupTypesViewModel: ObservableObject {
     lazy var backupItems: [BackupItem] = makeBackupItems()
 
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.storiesV2Presenter) private var storiesPresenter: any StoriesV2Presenter
+
+    private var screenOpenedAnalyticsSubscription: AnyCancellable?
 
     private var isSeedBackupNeeded: Bool {
         !backupStatusUtil.hasMnemonicBackup
@@ -46,8 +49,22 @@ final class HardwareBackupTypesViewModel: ObservableObject {
 // MARK: - Internal methods
 
 extension HardwareBackupTypesViewModel {
+    @MainActor
     func onFirstAppear() {
-        logScreenOpenedAnalytics()
+        // Opens behind the stories player: log once it closes, not when an app lock dismisses it.
+        let sessionID = storiesPresenter.sessionID
+
+        screenOpenedAnalyticsSubscription = storiesPresenter.playerPublisher
+            .first { $0 == nil }
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                MainActor.assumeIsolated {
+                    guard viewModel.storiesPresenter.sessionID == sessionID else { return }
+
+                    viewModel.logScreenOpenedAnalytics()
+                }
+            }
     }
 }
 
