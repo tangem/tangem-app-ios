@@ -263,8 +263,11 @@ public extension Button {
 
         var pressOverlay: Color {
             switch self {
-            case .brand, .primary, .success:
+            case .brand, .success:
                 DesignSystem.Color.interactionPressStaticLight
+
+            case .primary:
+                DesignSystem.Color.interactionPressInverse
 
             case .secondary(let appearance):
                 appearance.pressOverlay
