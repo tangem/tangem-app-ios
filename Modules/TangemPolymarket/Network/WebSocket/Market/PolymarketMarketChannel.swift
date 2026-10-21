@@ -59,29 +59,40 @@ struct PolymarketMarketChannel: PolymarketWebSocketChannel, PolymarketWebSocketS
     }
 
     func topic(of update: Update) -> String {
-        update.quote.assetId
+        switch update {
+        case .bestPrices(let assetId, _, _, _): assetId
+        case .lastTrade(let assetId, _, _): assetId
+        }
     }
 
     func value(applying update: Update, to previous: PolymarketOutcomeQuote?) -> PolymarketOutcomeQuote {
-        guard !update.isSnapshot else {
-            return update.quote
+        switch update {
+        case .bestPrices(let assetId, let bestBid, let bestAsk, let updatedAt):
+            PolymarketOutcomeQuote(
+                assetId: assetId,
+                bestBid: bestBid,
+                bestAsk: bestAsk,
+                lastTradePrice: previous?.lastTradePrice,
+                updatedAt: updatedAt
+            )
+        case .lastTrade(let assetId, let price, let updatedAt):
+            PolymarketOutcomeQuote(
+                assetId: assetId,
+                bestBid: previous?.bestBid,
+                bestAsk: previous?.bestAsk,
+                lastTradePrice: price,
+                updatedAt: updatedAt
+            )
         }
-
-        return PolymarketOutcomeQuote(
-            assetId: update.quote.assetId,
-            bestBid: update.quote.bestBid ?? previous?.bestBid,
-            bestAsk: update.quote.bestAsk ?? previous?.bestAsk,
-            updatedAt: update.quote.updatedAt ?? previous?.updatedAt
-        )
     }
 }
 
 // MARK: - Update
 
 extension PolymarketMarketChannel {
-    struct Update: Equatable, Sendable {
-        let quote: PolymarketOutcomeQuote
-        let isSnapshot: Bool
+    enum Update: Equatable, Sendable {
+        case bestPrices(assetId: String, bestBid: Decimal?, bestAsk: Decimal?, updatedAt: Date?)
+        case lastTrade(assetId: String, price: Decimal, updatedAt: Date?)
     }
 }
 
@@ -95,35 +106,46 @@ private extension PolymarketMarketChannel {
     func updates(fromDTO message: PolymarketDTO.MarketChannelMessage) -> [Update] {
         let updatedAt = date(fromMilliseconds: message.timestamp)
 
-        if let priceChanges = message.priceChanges {
-            return priceChanges.map { change in
-                Update(
-                    quote: PolymarketOutcomeQuote(
-                        assetId: change.assetId,
-                        bestBid: Decimal(stringValue: change.bestBid),
-                        bestAsk: Decimal(stringValue: change.bestAsk),
-                        updatedAt: updatedAt
-                    ),
-                    isSnapshot: false
-                )
+        switch message.eventType {
+        case Constants.bookEventType:
+            guard let assetId = message.assetId, let bids = message.bids, let asks = message.asks else {
+                return []
             }
-        }
 
-        if let assetId = message.assetId, let bids = message.bids, let asks = message.asks {
             return [
-                Update(
-                    quote: PolymarketOutcomeQuote(
-                        assetId: assetId,
-                        bestBid: bids.compactMap { Decimal(stringValue: $0.price) }.max(),
-                        bestAsk: asks.compactMap { Decimal(stringValue: $0.price) }.min(),
-                        updatedAt: updatedAt
-                    ),
-                    isSnapshot: true
+                .bestPrices(
+                    assetId: assetId,
+                    bestBid: bids.compactMap { Decimal(stringValue: $0.price) }.max(),
+                    bestAsk: asks.compactMap { Decimal(stringValue: $0.price) }.min(),
+                    updatedAt: updatedAt
                 ),
             ]
+        case Constants.priceChangeEventType:
+            return (message.priceChanges ?? []).map { change in
+                .bestPrices(
+                    assetId: change.assetId,
+                    bestBid: sidePrice(change.bestBid, emptySideMarker: Constants.emptyBidMarker),
+                    bestAsk: sidePrice(change.bestAsk, emptySideMarker: Constants.emptyAskMarker),
+                    updatedAt: updatedAt
+                )
+            }
+        case Constants.lastTradeEventType:
+            guard let assetId = message.assetId, let price = Decimal(stringValue: message.price) else {
+                return []
+            }
+
+            return [.lastTrade(assetId: assetId, price: price, updatedAt: updatedAt)]
+        default:
+            return []
+        }
+    }
+
+    func sidePrice(_ value: String?, emptySideMarker: Decimal) -> Decimal? {
+        guard let price = Decimal(stringValue: value), price != emptySideMarker else {
+            return nil
         }
 
-        return []
+        return price
     }
 
     func date(fromMilliseconds milliseconds: String?) -> Date? {
@@ -141,4 +163,9 @@ private enum Constants {
     static let ping = "PING"
     static let pong = "PONG"
     static let pingInterval: Duration = .seconds(10)
+    static let bookEventType = "book"
+    static let priceChangeEventType = "price_change"
+    static let lastTradeEventType = "last_trade_price"
+    static let emptyAskMarker: Decimal = 1
+    static let emptyBidMarker: Decimal = 0
 }

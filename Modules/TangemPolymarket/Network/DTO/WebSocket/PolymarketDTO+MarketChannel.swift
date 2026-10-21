@@ -39,6 +39,7 @@ extension PolymarketDTO {
         let bids: [MarketChannelLevel]?
         let asks: [MarketChannelLevel]?
         let priceChanges: [MarketChannelPriceChange]?
+        let price: String?
         let timestamp: String?
     }
 
