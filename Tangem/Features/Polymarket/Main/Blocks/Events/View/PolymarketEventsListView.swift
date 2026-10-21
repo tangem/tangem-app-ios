@@ -58,6 +58,7 @@ private extension PolymarketEventsListView {
     var eventCards: some View {
         ForEach(viewModel.eventCards, id: \.id) { model in
             PolymarketEventCard(model: model)
+                .equatable()
                 .contentShape(.rect)
                 .onTapGesture { viewModel.handleViewAction(.openEventDetails(id: model.id)) }
                 .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
