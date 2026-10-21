@@ -1171,14 +1171,8 @@ private final class GaslessTransactionsNetworkManagerStub: GaslessTransactionsNe
     private let tronFeeTokens: [TronFeeToken]
 
     var availableFeeTokens: [FeeToken] { [] }
-    var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> {
-        Just([]).eraseToAnyPublisher()
-    }
 
     var availableTronFeeTokens: [TronFeeToken] { tronFeeTokens }
-    var availableTronFeeTokensPublisher: AnyPublisher<[TronFeeToken], Never> {
-        Just(tronFeeTokens).eraseToAnyPublisher()
-    }
 
     var currentHost: String { "test" }
     var feeRecipientAddress: String? { cachedFeeRecipientAddress }
@@ -1215,7 +1209,6 @@ private final class GaslessTransactionsNetworkManagerStub: GaslessTransactionsNe
     }
 
     func initialize() {}
-    func preloadFeeRecipientAddress() {}
 }
 
 private struct TronAccountActivationStateProviderStub: TronAccountActivationStateProvider {

@@ -230,12 +230,6 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         yieldModuleActiveCoordinator = coordinator
     }
 
-    func openYieldBalanceInfo(factory: YieldModuleFlowFactory) {
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: factory.makeYieldModuleBalanceInfoViewModel())
-        }
-    }
-
     func openCloreMigration(factory: CloreMigrationModuleFlowFactory) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: factory.makeCloreMigrationViewModel())

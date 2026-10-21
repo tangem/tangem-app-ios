@@ -16,7 +16,6 @@ protocol GaslessTransactionsAPIService {
     typealias TronFeeToken = GaslessTransactionsDTO.Response.TronFeeToken
     typealias GaslessTransaction = GaslessTransactionsDTO.Request.GaslessTransaction
     typealias GaslessBatchTransaction = GaslessTransactionsDTO.Request.GaslessBatchTransaction
-    typealias SendResponse = GaslessTransactionsDTO.Response.SendResponse
     typealias TronEstimateRequest = GaslessTransactionsDTO.Request.TronEstimate
     typealias TronEstimateResponse = GaslessTransactionsDTO.Response.TronEstimate
     typealias TronSubmitRequest = GaslessTransactionsDTO.Request.TronSubmit

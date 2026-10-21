@@ -26,29 +26,10 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     @Published var hasPendingTransactions: Bool = false
 
     @Published private var missingDerivation: Bool = false
-    @Published private var networkUnreachable: Bool = false
 
     @Injected(\.storyAvailabilityService) private var storyAvailabilityService: any StoryAvailabilityService
 
-    var imageURL: URL? { tokenIcon.imageURL }
-    var blockchainIconAsset: ImageType? { tokenIcon.blockchainIconAsset }
-    var isCustom: Bool { tokenIcon.isCustom }
-    var customTokenColor: Color? { tokenIcon.customTokenColor }
-    var hasError: Bool { missingDerivation || networkUnreachable }
     var hasZeroBalance: Bool { tokenItemInfoProvider?.balance.value ?? 0 == 0 }
-
-    var errorMessage: String? {
-        // Don't forget to add check in trailing item in `TokenItemView` when adding new error here
-        if missingDerivation {
-            return Localization.commonNoAddress
-        }
-
-        if networkUnreachable {
-            return Localization.commonUnreachable
-        }
-
-        return nil
-    }
 
     let walletModelId: WalletModelId
     let userWalletId: UserWalletId
@@ -61,7 +42,6 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
 
     private weak var tokenItemInfoProvider: TokenItemInfoProvider?
     private weak var contextActionsProvider: MarketsPortfolioContextActionsProvider?
-    private weak var contextActionsDelegate: MarketsPortfolioContextActionsDelegate?
 
     private var bag = Set<AnyCancellable>()
 
@@ -75,8 +55,7 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         tokenIcon: TokenIconInfo,
         tokenItem: TokenItem,
         tokenItemInfoProvider: TokenItemInfoProvider,
-        contextActionsProvider: MarketsPortfolioContextActionsProvider,
-        contextActionsDelegate: MarketsPortfolioContextActionsDelegate
+        contextActionsProvider: MarketsPortfolioContextActionsProvider
     ) {
         self.walletModelId = walletModelId
         self.userWalletId = userWalletId
@@ -86,14 +65,9 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         self.tokenItem = tokenItem
         self.tokenItemInfoProvider = tokenItemInfoProvider
         self.contextActionsProvider = contextActionsProvider
-        self.contextActionsDelegate = contextActionsDelegate
 
         bind()
         setupView(tokenItemInfoProvider.balance)
-    }
-
-    func didTapContextAction(_ actionType: TokenActionType) {
-        contextActionsDelegate?.didTapContextAction(actionType, walletModelId: walletModelId, userWalletId: userWalletId)
     }
 
     // MARK: - Private Implementation

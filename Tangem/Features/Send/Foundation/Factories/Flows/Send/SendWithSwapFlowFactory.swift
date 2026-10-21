@@ -10,7 +10,6 @@ import struct TangemUI.TokenIconInfo
 
 class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     var transferableToken: SendTransferableToken { sourceToken }
-    var tokenItem: TokenItem { transferableToken.tokenItem }
 
     let sourceToken: SendWithSwapToken
     private let predefinedSendParameters: PredefinedSendParameters?

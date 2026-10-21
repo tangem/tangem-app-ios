@@ -12,7 +12,6 @@ struct KaspaNetworkParams: UTXONetworkParams {
     let p2pkhPrefix: UInt8 = 0x01
     let p2shPrefix: UInt8 = 0x08
     let bech32Prefix: String = "kaspa"
-    let coinType: UInt32 = 111111
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
     let dustCalculator: UTXONetworkParamsDustCalculator = .kaspa
 }
@@ -21,7 +20,6 @@ struct KaspaTestNetworkParams: UTXONetworkParams {
     let p2pkhPrefix: UInt8 = 0x01
     let p2shPrefix: UInt8 = 0x08
     let bech32Prefix: String = "kaspatest"
-    let coinType: UInt32 = 111111
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
     let dustCalculator: UTXONetworkParamsDustCalculator = .kaspa
 }

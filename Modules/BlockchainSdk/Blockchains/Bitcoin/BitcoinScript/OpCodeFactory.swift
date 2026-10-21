@@ -44,21 +44,6 @@ enum OpCodeFactory {
     }
 
     /**
-     Returns the OpCode which a given name.
-     Returns OP_INVALIDOPCODE for unknown names.
-
-     - parameter name: String corresponding to the OpCode
-
-     - returns: The OpCode corresponding to name
-     */
-    static func get(with name: String) -> OpCode {
-        guard let item = (OpCode.list.first { $0.name == name }) else {
-            return .OP_INVALIDOPCODE
-        }
-        return item
-    }
-
-    /**
      Returns OP_1NEGATE, OP_0 .. OP_16 for ints from -1 to 16.
      Returns OP_INVALIDOPCODE for other ints.
 

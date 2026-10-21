@@ -33,7 +33,6 @@ extension ExpressSourceWallet where Self: SendSwapableToken {
     var extraId: String? { .none }
     var currency: ExpressWalletCurrency { tokenItem.expressCurrency }
     var coinCurrency: ExpressWalletCurrency { feeTokenItem.expressCurrency }
-    var feeCurrency: ExpressWalletCurrency { feeTokenItem.expressCurrency }
     var allowanceProvider: (any ExpressAllowanceProvider)? { allowanceService }
     var yieldModuleTransactionHelper: YieldModuleTransactionHelper? { sendYieldModuleHelper }
     var expressFeeProviderFactory: ExpressFeeProviderFactory { tokenFeeProvidersManagerProvider }

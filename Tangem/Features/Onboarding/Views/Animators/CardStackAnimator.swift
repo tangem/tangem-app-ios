@@ -186,7 +186,6 @@ final class CardStackAnimatorPreviewModel: ObservableObject {
     }
 
     @Published var currentCardIndex: Int = 0
-    @Published var sliderIndex: Double = 0
 
     let content: Content
 

@@ -16,7 +16,6 @@ protocol MainRoutable: AnyObject & WCTransactionRoutable {
 
     func openDetails()
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
-    func openOnboardingModal(with options: OnboardingCoordinator.Options)
     func openScanCardManual()
     func openPushNotificationsAuthorization()
     func openQRScan()

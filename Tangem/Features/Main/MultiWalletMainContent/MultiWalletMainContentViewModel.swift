@@ -878,10 +878,6 @@ extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
         coordinator?.openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
     }
 
-    func openTangemPayFailedToIssueCardPopup() {
-        coordinator?.openTangemPayFailedToIssueCardPopup(userWalletModel: userWalletModel)
-    }
-
     func openTangemPayResidency(interactor: any TangemPayResidencyInteractor) {
         coordinator?.openTangemPayResidency(interactor: interactor)
     }
@@ -1136,7 +1132,6 @@ private extension MultiWalletMainContentViewModel {
                 assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
                 return .canceled
             }
-
         } catch {
             return .failed(error: error)
         }

@@ -18,11 +18,6 @@ final class TangemPayNotificationManager {
     private var cancellable: Cancellable?
 
     /// - Note: Workaround to avoid retain cycle for `UserWalletModel` instance in the Combine pipeline
-    private var syncNeededTitle: String {
-        userWalletModel.tangemPayAuthorizingInteractor.syncNeededTitle
-    }
-
-    /// - Note: Workaround to avoid retain cycle for `UserWalletModel` instance in the Combine pipeline
     private var mainButtonIcon: MainButton.Icon? {
         SigningActionButtonViewTypeBuilder().build(config: userWalletModel.config).mainButtonIcon
     }

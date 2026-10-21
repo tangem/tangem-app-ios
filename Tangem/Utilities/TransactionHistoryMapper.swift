@@ -813,13 +813,6 @@ private extension TransactionHistoryMapper {
 }
 
 extension TransactionHistoryMapper {
-    enum Constants {
-        static let maximumFractionDigits = 8
-        static let roundingMode: NSDecimalNumber.RoundingMode = .down
-    }
-}
-
-extension TransactionHistoryMapper {
     func displayedAmountValue(from record: TransactionRecord) -> Decimal {
         prepare(record).amount
     }
@@ -851,7 +844,6 @@ private extension TransactionHistoryMapper {
             }()
 
             return sent - change
-
         } else {
             switch record.destination {
             case .single(let destination):

@@ -25,7 +25,6 @@
 import Foundation
 
 protocol OpCodeProtocol {
-    var name: String { get }
     var value: UInt8 { get }
 }
 

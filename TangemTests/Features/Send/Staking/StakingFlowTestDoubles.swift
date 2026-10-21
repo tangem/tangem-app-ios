@@ -68,8 +68,6 @@ final class StakingManagerMock: StakingManager {
     var tosURL: URL { URL(string: "https://tangem.com/tos")! }
     var privacyPolicyURL: URL { URL(string: "https://tangem.com/privacy")! }
 
-    func send(state: StakingManagerState) { stateSubject.send(state) }
-
     func updateState(loadActions: Bool, source: StakingUpdateSource) async {}
     func estimateFee(action: StakingAction) async throws -> Decimal {
         _estimateFeeCallsCount.withLock { $0 += 1 }
@@ -261,7 +259,6 @@ final class StakingDispatcherProviderStub: TransactionDispatcherProvider {
     func makeDEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
     func makeApproveAndDEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
     func makeCEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
-    func makeYieldModuleTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
 }
 
 // MARK: - StakeModelAnalyticsLogger

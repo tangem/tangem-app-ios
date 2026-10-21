@@ -465,6 +465,5 @@ extension AddressBookContactManagementViewModel {
 
         var id: String { userWalletInfo.id.stringValue }
         var name: String { userWalletInfo.name }
-        var supportedBlockchains: Set<BSDKBlockchain> { userWalletInfo.config.supportedBlockchains }
     }
 }

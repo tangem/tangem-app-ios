@@ -217,10 +217,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             priceChangeState = .empty
         }
     }
-
-    private func buildContextActions() {
-        contextActionSections = contextActionsProvider?.buildContextActions(for: self) ?? []
-    }
 }
 
 // MARK: - CustomStringConvertible
