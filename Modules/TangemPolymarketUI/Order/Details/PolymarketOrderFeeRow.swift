@@ -12,18 +12,25 @@ import TangemLocalization
 import TangemUI
 
 public struct PolymarketOrderFeeRow: View {
+    private let title: String
     private let valueText: String
     private let showsDivider: Bool
     private let onTap: (() -> Void)?
 
-    public init(valueText: String, showsDivider: Bool = true, onTap: (() -> Void)? = nil) {
+    public init(
+        title: String = Localization.predictionPlaceFee,
+        valueText: String,
+        showsDivider: Bool = true,
+        onTap: (() -> Void)? = nil
+    ) {
+        self.title = title
         self.valueText = valueText
         self.showsDivider = showsDivider
         self.onTap = onTap
     }
 
     public var body: some View {
-        TangemUI.Row(title: Localization.predictionPlaceFee)
+        TangemUI.Row(title: title)
             .titleAccessory { hintIcon }
             .valueAccessory { value }
             .showDivider(showsDivider)
