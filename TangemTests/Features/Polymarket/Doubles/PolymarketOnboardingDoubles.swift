@@ -522,6 +522,8 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
     private(set) var quoteRequests: [PolymarketOrderQuoteRequest] = []
 
     var queuedQuoteResults: [Result<PolymarketOrderQuote, Error>] = []
+    var holdsQuotes = false
+    private var heldQuotes: [CheckedContinuation<Void, Never>] = []
     var categoryList: [PolymarketCategory] = []
     var queuedCategoryResults: [Result<[PolymarketCategory], Error>] = []
     var slowEventCategories: Set<Int> = []
@@ -591,8 +593,22 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
         throw PolymarketDepositWalletServiceStub.StubError()
     }
 
+    var hasHeldQuotes: Bool {
+        !heldQuotes.isEmpty
+    }
+
+    func releaseQuotes() {
+        let held = heldQuotes
+        heldQuotes = []
+        held.forEach { $0.resume() }
+    }
+
     func orderQuote(request: PolymarketOrderQuoteRequest) async throws -> PolymarketOrderQuote {
         quoteRequests.append(request)
+
+        if holdsQuotes {
+            await withCheckedContinuation { heldQuotes.append($0) }
+        }
 
         if !queuedQuoteResults.isEmpty {
             return try queuedQuoteResults.removeFirst().get()
