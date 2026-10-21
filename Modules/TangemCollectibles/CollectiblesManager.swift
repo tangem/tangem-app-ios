@@ -27,6 +27,7 @@ public final class CollectiblesManager {
     private let transactionSender: CollectiblesColdKeyTransactionSender
     private let onboardingInteractor: CollectiblesOnboardingInteractor
     private let purchaseTransactionDispatcher: CollectiblesPurchaseTransactionDispatcher
+    private let delayProvider: any PollDelayProvider
 
     private let stateSubject = CurrentValueSubject<CollectiblesState, Never>(.unresolved)
     private let vaultUsdcStateSubject = CurrentValueSubject<CollectiblesVaultUsdcState, Never>(.loading)
@@ -48,7 +49,8 @@ public final class CollectiblesManager {
         transactionSender: CollectiblesColdKeyTransactionSender,
         onboardingInteractor: CollectiblesOnboardingInteractor,
         purchaseTransactionDispatcher: CollectiblesPurchaseTransactionDispatcher,
-        presenceStore: any CollectiblesAccountPresenceStore
+        presenceStore: any CollectiblesAccountPresenceStore,
+        delayProvider: any PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
         self.userWalletId = userWalletId
         self.coldOwnerProvider = coldOwnerProvider
@@ -61,6 +63,7 @@ public final class CollectiblesManager {
         self.onboardingInteractor = onboardingInteractor
         self.purchaseTransactionDispatcher = purchaseTransactionDispatcher
         self.presenceStore = presenceStore
+        self.delayProvider = delayProvider
 
         runTask { [weak self] in
             await self?.refreshState()
@@ -118,7 +121,8 @@ public extension CollectiblesManager {
 
         let polling = PollingSequence(
             interval: Constants.depositPollInterval,
-            request: { [weak self] in await self?.refresh(silent: true) }
+            request: { [weak self] in await self?.refresh(silent: true) },
+            delayProvider: delayProvider
         )
 
         _ = await polling
@@ -454,7 +458,7 @@ private extension CollectiblesManager {
     /// like an early one; only cancellation ends the wait before its answer.
     func waitForState(until isSatisfied: (CollectiblesState) -> Bool) async throws -> Bool {
         for _ in 0 ..< Constants.stateAdvanceAttempts {
-            try await Task.sleep(for: Constants.stateAdvanceInterval)
+            try await delayProvider.wait(for: Constants.stateAdvanceInterval)
 
             if let state = try? await resolveState(), isSatisfied(state) {
                 return true
@@ -494,7 +498,7 @@ private extension CollectiblesManager {
 private extension CollectiblesManager {
     enum Constants {
         static let stateAdvanceAttempts = 10
-        static let stateAdvanceInterval: Duration = .seconds(2)
+        static let stateAdvanceInterval: TimeInterval = 2
         static let depositPollAttempts = 18
         static let depositPollInterval: TimeInterval = 5
     }
