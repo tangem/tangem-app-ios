@@ -41,6 +41,7 @@ final class MainViewModel: ObservableObject {
     private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
 
     private var shouldDelayBottomSheetVisibility = true
+    private var didSchedulePushNotificationsAuthorization = false
     private var isLoggingOut = false
 
     /// The root of the main screen is what the user sees: set by the view controller's appearance, cleared by
@@ -497,13 +498,16 @@ final class MainViewModel: ObservableObject {
 
     private func handOffMainScreenAppearance() {
         coordinator?.mainScreenDidAppear()
-        promoSheetProvider.onMainScreenAppear()
+
+        promoSheetProvider.onMainScreenAppear(isPushRequestScheduled: didSchedulePushNotificationsAuthorization)
     }
 
     private func openPushNotificationsAuthorizationIfNeeded() {
         guard pushNotificationsAvailabilityProvider.isAvailable else {
             return
         }
+
+        didSchedulePushNotificationsAuthorization = true
 
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.pushNotificationAuthorizationRequestDelay) { [weak self] in
             self?.coordinator?.openPushNotificationsAuthorization()

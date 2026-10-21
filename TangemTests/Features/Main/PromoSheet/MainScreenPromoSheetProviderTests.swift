@@ -17,8 +17,8 @@ import TangemFoundation
 struct MainScreenPromoSheetProviderTests {
     @Test("Presents the sheet of the ready source and stops every source")
     func presentsReadySource() async {
-        await withProvider(managerStates: [.ready]) { provider, managers, _ in
-            provider.onMainScreenAppear()
+        await withProvider(managerStates: [.ready]) { provider, managers, _, _ in
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             await drainMainQueue()
 
             #expect(managers.presentedIds == [managers[0].id])
@@ -29,8 +29,8 @@ struct MainScreenPromoSheetProviderTests {
 
     @Test("Shows the first ready source in priority order and leaves no source running")
     func showsFirstReadySource() async {
-        await withProvider(managerStates: [.ready, .ready]) { provider, managers, _ in
-            provider.onMainScreenAppear()
+        await withProvider(managerStates: [.ready, .ready]) { provider, managers, _, _ in
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             await drainMainQueue()
 
             #expect(managers.presentedIds == [managers[0].id])
@@ -40,8 +40,8 @@ struct MainScreenPromoSheetProviderTests {
 
     @Test("Waits while a higher priority source is preparing, even if a lower one is ready")
     func waitsForHigherPrioritySource() async {
-        await withProvider(managerStates: [.preparing, .ready]) { provider, managers, _ in
-            provider.onMainScreenAppear()
+        await withProvider(managerStates: [.preparing, .ready]) { provider, managers, _, _ in
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             await drainMainQueue()
             #expect(managers.presentedIds.isEmpty)
 
@@ -55,8 +55,8 @@ struct MainScreenPromoSheetProviderTests {
 
     @Test("A lower priority source does not hold back a ready one above it, even before it reports anything")
     func lowerPrioritySourceDoesNotBlock() async {
-        await withProvider(managerStates: [.ready, .preparing, nil]) { provider, managers, _ in
-            provider.onMainScreenAppear()
+        await withProvider(managerStates: [.ready, .preparing, nil]) { provider, managers, _, _ in
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             await drainMainQueue()
 
             #expect(managers.presentedIds == [managers[0].id])
@@ -65,8 +65,8 @@ struct MainScreenPromoSheetProviderTests {
 
     @Test("A source that reports from a background queue is presented on the main thread")
     func presentsOnMainThreadForBackgroundSource() async {
-        await withProvider(managerStates: [.preparing]) { provider, managers, _ in
-            provider.onMainScreenAppear()
+        await withProvider(managerStates: [.preparing]) { provider, managers, _, _ in
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
 
             nonisolated(unsafe) let state = managers[0].state
             await withCheckedContinuation { continuation in
@@ -83,8 +83,8 @@ struct MainScreenPromoSheetProviderTests {
 
     @Test("Presents only once even if states keep changing")
     func presentsOnlyOnce() async {
-        await withProvider(managerStates: [.ready]) { provider, managers, _ in
-            provider.onMainScreenAppear()
+        await withProvider(managerStates: [.ready]) { provider, managers, _, _ in
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             managers[0].state.send(.ready)
             await drainMainQueue()
 
@@ -94,8 +94,8 @@ struct MainScreenPromoSheetProviderTests {
 
     @Test("When no source is available the highest priority one reports its own reason, once")
     func reportsSingleSkip() async {
-        await withProvider(managerStates: [.unavailable(.dataNotReady), .unavailable(.noEligibleContent)]) { provider, managers, _ in
-            provider.onMainScreenAppear()
+        await withProvider(managerStates: [.unavailable(.dataNotReady), .unavailable(.noEligibleContent)]) { provider, managers, _, _ in
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             await drainMainQueue()
 
             #expect(managers.presentedIds.isEmpty)
@@ -107,20 +107,23 @@ struct MainScreenPromoSheetProviderTests {
     @Test("Releasing the provider before a decision stops the sources")
     func releasingProviderStopsSources() {
         let manager = StubPromoSheetManager(state: .preparing)
-        var provider: MainScreenPromoSheetProvider? = makeProvider(managers: [manager])
+        let host = StubPromoSheetHost()
+        var provider: MainScreenPromoSheetProvider? = makeProvider(managers: [manager], host: host)
 
-        provider?.onMainScreenAppear()
-        provider = nil
+        withExtendedLifetime(host) {
+            provider?.onMainScreenAppear(isPushRequestScheduled: false)
+            provider = nil
+        }
 
         #expect(manager.didStop)
     }
 
     @Test("Evaluates only on the first main screen appearance of the process")
     func evaluatesOnlyOnFirstAppearance() async {
-        await withProvider(managerStates: [.preparing]) { provider, managers, interactor in
+        await withProvider(managerStates: [.preparing]) { provider, managers, _, interactor in
             interactor.didClaimFirstAppearance = true
 
-            provider.onMainScreenAppear()
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             managers[0].state.send(.ready)
             await drainMainQueue()
 
@@ -131,10 +134,10 @@ struct MainScreenPromoSheetProviderTests {
 
     @Test("The first main screen appearance is spent even when no source can run")
     func spendsFirstAppearanceWithoutEligibleSources() async {
-        await withProvider(managerStates: [.ready]) { provider, managers, interactor in
+        await withProvider(managerStates: [.ready]) { provider, managers, _, interactor in
             managers[0].handlesPresentation = false
 
-            provider.onMainScreenAppear()
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             await drainMainQueue()
 
             #expect(interactor.didClaimFirstAppearance)
@@ -144,10 +147,10 @@ struct MainScreenPromoSheetProviderTests {
 
     @Test("Each source decides with the presentation settings of this launch")
     func sourcesDecideWithPresentationSettings() async {
-        await withProvider(managerStates: [.ready, .ready]) { provider, managers, interactor in
+        await withProvider(managerStates: [.ready, .ready]) { provider, managers, _, interactor in
             interactor.markOpenedFromLink()
 
-            provider.onMainScreenAppear()
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             await drainMainQueue()
 
             #expect(managers[0].receivedPresentationSettings.map(\.isOpenedFromLink) == [true])
@@ -157,10 +160,10 @@ struct MainScreenPromoSheetProviderTests {
 
     @Test("A source that cannot handle the presentation is neither started nor reported")
     func sourceThatCannotHandlePresentationIsIgnored() async {
-        await withProvider(managerStates: [.ready]) { provider, managers, _ in
+        await withProvider(managerStates: [.ready]) { provider, managers, _, _ in
             managers[0].handlesPresentation = false
 
-            provider.onMainScreenAppear()
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             await drainMainQueue()
 
             #expect(!managers[0].didStart)
@@ -171,10 +174,10 @@ struct MainScreenPromoSheetProviderTests {
 
     @Test("A source that cannot handle the presentation gives way to the next one")
     func sourceThatCannotHandlePresentationGivesWay() async {
-        await withProvider(managerStates: [.ready, .ready]) { provider, managers, _ in
+        await withProvider(managerStates: [.ready, .ready]) { provider, managers, _, _ in
             managers[0].handlesPresentation = false
 
-            provider.onMainScreenAppear()
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             await drainMainQueue()
 
             #expect(!managers[0].didStart)
@@ -184,8 +187,8 @@ struct MainScreenPromoSheetProviderTests {
 
     @Test("The sheet counts as shown only once it appears, and only once")
     func marksShownOnAppearance() async {
-        await withProvider(managerStates: [.ready]) { provider, managers, interactor in
-            provider.onMainScreenAppear()
+        await withProvider(managerStates: [.ready]) { provider, managers, _, interactor in
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             await drainMainQueue()
 
             #expect(!interactor.hasShownSheet(managerId: managers[0].id))
@@ -201,8 +204,8 @@ struct MainScreenPromoSheetProviderTests {
 
     @Test("A skipped launch does not count as shown")
     func skipDoesNotMarkShown() async {
-        await withProvider(managerStates: [.unavailable(.dataNotReady)]) { provider, managers, interactor in
-            provider.onMainScreenAppear()
+        await withProvider(managerStates: [.unavailable(.dataNotReady)]) { provider, managers, _, interactor in
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             await drainMainQueue()
 
             #expect(!interactor.hasShownSheet(managerId: managers[0].id))
@@ -211,10 +214,10 @@ struct MainScreenPromoSheetProviderTests {
 
     @Test("A sheet the source could not present does not count as shown")
     func unpresentedSheetDoesNotMarkShown() async {
-        await withProvider(managerStates: [.ready]) { provider, managers, interactor in
+        await withProvider(managerStates: [.ready]) { provider, managers, _, interactor in
             managers[0].presentsSheet = false
 
-            provider.onMainScreenAppear()
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             await drainMainQueue()
 
             #expect(managers[0].presentCount == 1)
@@ -225,8 +228,8 @@ struct MainScreenPromoSheetProviderTests {
 
     @Test("An already shown source is neither started nor reported")
     func alreadyShownSourceIsIgnored() async {
-        await withProvider(managerStates: [.ready], shownManagerIndices: [0]) { provider, managers, _ in
-            provider.onMainScreenAppear()
+        await withProvider(managerStates: [.ready], shownManagerIndices: [0]) { provider, managers, _, _ in
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             await drainMainQueue()
 
             #expect(!managers[0].didStart)
@@ -237,8 +240,8 @@ struct MainScreenPromoSheetProviderTests {
 
     @Test("An already shown source gives way to the next one")
     func alreadyShownSourceGivesWay() async {
-        await withProvider(managerStates: [.ready, .ready], shownManagerIndices: [0]) { provider, managers, _ in
-            provider.onMainScreenAppear()
+        await withProvider(managerStates: [.ready, .ready], shownManagerIndices: [0]) { provider, managers, _, _ in
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             await drainMainQueue()
 
             #expect(managers.presentedIds == [managers[1].id])
@@ -249,8 +252,8 @@ struct MainScreenPromoSheetProviderTests {
     func readsVariantLast() async {
         let experiment = ExperimentServiceStub(storedVariant: "user_max_apy", isFetched: true)
 
-        await withProvider(managerStates: [.preparing], experiment: experiment) { provider, managers, _ in
-            provider.onMainScreenAppear()
+        await withProvider(managerStates: [.preparing], experiment: experiment) { provider, managers, _, _ in
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             await drainMainQueue()
             #expect(experiment.invokedMethods.isEmpty)
 
@@ -267,8 +270,8 @@ struct MainScreenPromoSheetProviderTests {
     func variantsNotFetchedSkips() async {
         let experiment = ExperimentServiceStub(storedVariant: "user_max_apy", isFetched: false)
 
-        await withProvider(managerStates: [.ready], experiment: experiment) { provider, managers, _ in
-            provider.onMainScreenAppear()
+        await withProvider(managerStates: [.ready], experiment: experiment) { provider, managers, _, _ in
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             await drainMainQueue()
 
             #expect(experiment.invokedMethods.isEmpty)
@@ -281,8 +284,8 @@ struct MainScreenPromoSheetProviderTests {
     func noSelectedWalletSkips() async {
         let experiment = ExperimentServiceStub(storedVariant: "user_max_apy", isFetched: true)
 
-        await withProvider(managerStates: [.ready], experiment: experiment, selectedUserWalletId: nil) { provider, managers, _ in
-            provider.onMainScreenAppear()
+        await withProvider(managerStates: [.ready], experiment: experiment, selectedUserWalletId: nil) { provider, managers, _, _ in
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             await drainMainQueue()
 
             #expect(experiment.invokedMethods.isEmpty)
@@ -294,8 +297,8 @@ struct MainScreenPromoSheetProviderTests {
     func declinedVariantShowsNothing() async {
         let experiment = ExperimentServiceStub(storedVariant: "control", isFetched: true)
 
-        await withProvider(managerStates: [.ready], experiment: experiment) { provider, managers, interactor in
-            provider.onMainScreenAppear()
+        await withProvider(managerStates: [.ready], experiment: experiment) { provider, managers, _, interactor in
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             await drainMainQueue()
 
             #expect(experiment.invokedMethods == [.variant])
@@ -309,11 +312,82 @@ struct MainScreenPromoSheetProviderTests {
     func skipNeverReadsVariant() async {
         let experiment = ExperimentServiceStub(storedVariant: "user_max_apy", isFetched: true)
 
-        await withProvider(managerStates: [.unavailable(.dataNotReady)], experiment: experiment) { provider, _, _ in
-            provider.onMainScreenAppear()
+        await withProvider(managerStates: [.unavailable(.dataNotReady)], experiment: experiment) { provider, _, _, _ in
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
             await drainMainQueue()
 
             #expect(experiment.invokedMethods.isEmpty)
+        }
+    }
+
+    @Test("A push permission request scheduled for this entry skips the promo before anything starts")
+    func scheduledSurfaceSkips() async {
+        await withProvider(managerStates: [.ready]) { provider, managers, _, _ in
+            provider.onMainScreenAppear(isPushRequestScheduled: true)
+            await drainMainQueue()
+
+            #expect(!managers[0].didStart)
+            #expect(managers[0].skipReasons == [.surfaceBusy])
+            #expect(managers.presentedIds.isEmpty)
+        }
+    }
+
+    @Test("Another surface already on screen skips the promo even when it is ready")
+    func busySurfaceAtEntrySkips() async {
+        await withProvider(managerStates: [.ready]) { provider, managers, host, _ in
+            host.busySurfaceSubject.send(true)
+
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
+            await drainMainQueue()
+
+            #expect(managers[0].skipReasons == [.surfaceBusy])
+            #expect(managers.presentedIds.isEmpty)
+            #expect(!managers[0].isRunning)
+        }
+    }
+
+    @Test("Another surface appearing while the data loads skips the promo")
+    func busySurfaceWhileWaitingSkips() async {
+        let experiment = ExperimentServiceStub(storedVariant: "user_max_apy", isFetched: true)
+
+        await withProvider(managerStates: [.preparing], experiment: experiment) { provider, managers, host, _ in
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
+
+            host.busySurfaceSubject.send(true)
+            host.busySurfaceSubject.send(false)
+            managers[0].state.send(.ready)
+            await drainMainQueue()
+
+            #expect(managers[0].skipReasons == [.surfaceBusy])
+            #expect(managers.presentedIds.isEmpty)
+            #expect(experiment.invokedMethods.isEmpty)
+        }
+    }
+
+    @Test("Any busy surface the host reports while the data loads skips the promo")
+    func anyBusySurfaceWhileWaitingSkips() async {
+        await withProvider(managerStates: [.preparing]) { provider, managers, host, _ in
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
+
+            host.otherBusySurfaceSubject.send(true)
+            managers[0].state.send(.ready)
+            await drainMainQueue()
+
+            #expect(managers[0].skipReasons == [.surfaceBusy])
+            #expect(managers.presentedIds.isEmpty)
+        }
+    }
+
+    @Test("Any busy surface the host reports at entry skips the promo before a ready source is shown")
+    func anyBusySurfaceAtEntrySkips() async {
+        await withProvider(managerStates: [.ready]) { provider, managers, host, _ in
+            host.otherBusySurfaceSubject.send(true)
+
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
+            await drainMainQueue()
+
+            #expect(managers[0].skipReasons == [.surfaceBusy])
+            #expect(managers.presentedIds.isEmpty)
         }
     }
 
@@ -322,29 +396,33 @@ struct MainScreenPromoSheetProviderTests {
         shownManagerIndices: Set<Int> = [],
         experiment: ExperimentServiceStub = ExperimentServiceStub(storedVariant: "treatment", isFetched: true),
         selectedUserWalletId: UserWalletId? = Self.userWalletId,
-        _ operation: (MainScreenPromoSheetProvider, [StubPromoSheetManager], StubPromoSheetInteractor) async -> Void
+        _ operation: (MainScreenPromoSheetProvider, [StubPromoSheetManager], StubPromoSheetHost, StubPromoSheetInteractor) async -> Void
     ) async {
         let interactor = StubPromoSheetInteractor()
         let managers = managerStates.map { StubPromoSheetManager(state: $0) }
         shownManagerIndices.forEach { interactor.shownManagerIds.insert(managers[$0].id) }
+        let host = StubPromoSheetHost()
         let provider = makeProvider(
             managers: managers,
+            host: host,
             interactor: interactor,
             experiment: experiment,
             selectedUserWalletId: selectedUserWalletId
         )
 
-        await operation(provider, managers, interactor)
+        await operation(provider, managers, host, interactor)
     }
 
     private func makeProvider(
         managers: [StubPromoSheetManager],
+        host: StubPromoSheetHost,
         interactor: StubPromoSheetInteractor = StubPromoSheetInteractor(),
         experiment: ExperimentServiceStub = ExperimentServiceStub(storedVariant: "treatment", isFetched: true),
         selectedUserWalletId: UserWalletId? = Self.userWalletId
     ) -> MainScreenPromoSheetProvider {
         MainScreenPromoSheetProvider(
             managers: managers,
+            host: host,
             interactor: interactor,
             experimentService: experiment,
             selectedUserWalletId: { selectedUserWalletId }
@@ -396,6 +474,15 @@ private final class StubPromoSheetInteractor: MainScreenPromoSheetInteractor {
 
     func markOpenedFromLink() {
         presentationSettings = MainScreenPromoSheetPresentationSettings(isOpenedFromLink: true)
+    }
+}
+
+private final class StubPromoSheetHost: MainScreenPromoSheetHost {
+    let busySurfaceSubject = CurrentValueSubject<Bool, Never>(false)
+    let otherBusySurfaceSubject = CurrentValueSubject<Bool, Never>(false)
+
+    var busySurfacePublishers: [AnyPublisher<Bool, Never>] {
+        [busySurfaceSubject.eraseToAnyPublisher(), otherBusySurfaceSubject.eraseToAnyPublisher()]
     }
 }
 
