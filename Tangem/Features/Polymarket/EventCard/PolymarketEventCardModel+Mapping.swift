@@ -11,16 +11,21 @@ import TangemPolymarket
 import TangemPolymarketUI
 
 extension PolymarketEventCard.Model {
+    static func displayedMarkets(of event: PolymarketEvent) -> ArraySlice<PolymarketMarket> {
+        event.markets.prefix(MappingConstants.maxDisplayedMarkets)
+    }
+
     static func make(
         event: PolymarketEvent,
         category: PolymarketCategory?,
         isInActivePredicts: Bool,
+        liveQuotesByAssetId: [String: PolymarketOutcomeQuote] = [:],
         onSelectOutcome: @escaping (PolymarketMarket, PolymarketOutcome) -> Void
     ) -> Self {
         let variant: PolymarketEventCard.Variant = event.totalMarketsCount > 1 ? .multiMarket : .singleMarket
 
-        let rows = event.markets.prefix(MappingConstants.maxDisplayedMarkets).map { market in
-            makeRow(market: market, event: event, onSelectOutcome: onSelectOutcome)
+        let rows = displayedMarkets(of: event).map { market in
+            makeRow(market: market, event: event, liveQuotesByAssetId: liveQuotesByAssetId, onSelectOutcome: onSelectOutcome)
         }
 
         return PolymarketEventCard.Model(
@@ -40,10 +45,11 @@ extension PolymarketEventCard.Model {
     private static func makeRow(
         market: PolymarketMarket,
         event: PolymarketEvent,
+        liveQuotesByAssetId: [String: PolymarketOutcomeQuote],
         onSelectOutcome: @escaping (PolymarketMarket, PolymarketOutcome) -> Void
     ) -> PolymarketEventCard.Row {
         let title = market.listLabel
-        let subtitle = title.map { _ in PolymarketPriceFormatter.percentText(market.outcomes.first?.probability) }
+        let subtitle = title.map { _ in rowPercentText(market: market, liveQuotesByAssetId: liveQuotesByAssetId) }
 
         let outcomeTitles = event.buttonTitles(for: market)
 
@@ -51,13 +57,40 @@ extension PolymarketEventCard.Model {
             PolymarketEventCard.Outcome(
                 id: outcome.assetId,
                 title: outcomeTitles[index],
-                priceText: title == nil ? PolymarketPriceFormatter.centsText(outcome.probability) : nil,
+                priceText: title == nil ? buttonPriceText(outcome: outcome, liveQuote: liveQuotesByAssetId[outcome.assetId]) : nil,
                 style: PolymarketOutcomeStyle(outcomeIndex: index),
                 onSelect: { onSelectOutcome(market, outcome) }
             )
         }
 
         return PolymarketEventCard.Row(id: market.id, title: title, subtitle: subtitle, outcomes: outcomes)
+    }
+
+    private static func buttonPriceText(outcome: PolymarketOutcome, liveQuote: PolymarketOutcomeQuote?) -> String {
+        guard let liveQuote else {
+            return PolymarketPriceFormatter.centsText(outcome.probability)
+        }
+
+        return PolymarketPriceFormatter.centsText(liveQuote.bestAsk)
+    }
+
+    private static func rowPercentText(market: PolymarketMarket, liveQuotesByAssetId: [String: PolymarketOutcomeQuote]) -> String {
+        let yesOutcome = market.outcomes.first
+        let liveProbability = yesOutcome
+            .flatMap { liveQuotesByAssetId[$0.assetId] }
+            .flatMap(liveProbability(of:))
+
+        return PolymarketPriceFormatter.percentText(liveProbability ?? yesOutcome?.probability)
+    }
+
+    private static func liveProbability(of quote: PolymarketOutcomeQuote) -> Decimal? {
+        guard let bestBid = quote.bestBid,
+              let bestAsk = quote.bestAsk,
+              bestAsk - bestBid <= MappingConstants.maxMidpointSpread else {
+            return quote.lastTradePrice
+        }
+
+        return (bestBid + bestAsk) / 2
     }
 }
 
@@ -66,6 +99,7 @@ extension PolymarketEventCard.Model {
 private extension PolymarketEventCard.Model {
     enum MappingConstants {
         static let maxDisplayedMarkets = 2
+        static let maxMidpointSpread: Decimal = 0.1
 
         static let volumeFormatter = MarketCapFormatter(
             divisorsList: AmountNotationSuffixFormatter.Divisor.defaultList,

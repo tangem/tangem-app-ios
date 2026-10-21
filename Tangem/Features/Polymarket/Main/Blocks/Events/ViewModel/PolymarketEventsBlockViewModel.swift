@@ -38,6 +38,7 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
     private let apiProvider: PolymarketAPIProvider
     private let refreshCenter: PolymarketMainRefreshCenter
     private let activityHandler: PolymarketMainActivityHandler
+    private let liveQuotesTracker: PolymarketFeedLiveQuotesTracker
     private let isRegionRestricted: () -> Bool
     private weak var routable: PolymarketEventOpeningRoutable?
     private let now: () -> Date
@@ -48,11 +49,13 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
     private var hasNext = false
     private var cache: [Int?: CategoryState] = [:]
     private var visibleEventIDs: Set<String> = []
+    private var liveQuotesByAssetId: [String: PolymarketOutcomeQuote] = [:]
     private var refreshingPages: Set<PageKey> = []
     private var lastStaleReport: Date?
 
     private var loadingTask: Task<Void, Never>?
     private var visibilityTask: Task<Void, Never>?
+    private var liveQuotesTask: Task<Void, Never>?
     private var isPollingPaused = false
     private var hasVisibilityChangedDuringTick = false
     private let poller: PolymarketForegroundPoller
@@ -61,6 +64,7 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
         apiProvider: PolymarketAPIProvider,
         refreshCenter: PolymarketMainRefreshCenter,
         activityHandler: PolymarketMainActivityHandler,
+        liveQuotesTracker: PolymarketFeedLiveQuotesTracker,
         isRegionRestricted: @escaping () -> Bool,
         routable: PolymarketEventOpeningRoutable,
         notificationCenter: NotificationCenter = .default,
@@ -70,6 +74,7 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
         self.apiProvider = apiProvider
         self.refreshCenter = refreshCenter
         self.activityHandler = activityHandler
+        self.liveQuotesTracker = liveQuotesTracker
         self.isRegionRestricted = isRegionRestricted
         self.routable = routable
         self.now = now
@@ -84,6 +89,7 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
             onTick: { [weak self] in await self?.pollVisiblePages() },
             onPause: { [weak self] in self?.pausePolling() }
         )
+        observeLiveQuotes()
         load()
     }
 }
@@ -171,9 +177,15 @@ private extension PolymarketEventsBlockViewModel {
         )
     }
 
-    func selectOutcome(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {
+    func selectOutcome(eventID: String, marketID: String, assetId: String) {
         guard !isRegionRestricted() else {
             routable?.openRegionWarning()
+            return
+        }
+
+        guard let event = feed.events.first(where: { $0.id == eventID }),
+              let market = event.markets.first(where: { $0.id == marketID }),
+              let outcome = market.outcomes.first(where: { $0.assetId == assetId }) else {
             return
         }
 
@@ -182,7 +194,7 @@ private extension PolymarketEventsBlockViewModel {
         routable?.openOrder(
             market: market,
             outcome: outcome,
-            eventTitle: eventTitle,
+            eventTitle: event.title,
             request: .buy,
             onPlaced: { [weak activityHandler] indexing in activityHandler?.orderPlaced(awaiting: indexing) }
         )
@@ -224,23 +236,31 @@ private extension PolymarketEventsBlockViewModel {
     @MainActor
     func pollVisiblePages() async {
         isPollingPaused = false
+        liveQuotesTracker.resume()
+        updateLiveQuotesTracking()
         await refreshVisiblePages()
     }
 
+    @MainActor
     func pausePolling() {
         isPollingPaused = true
         visibilityTask?.cancel()
         visibilityTask = nil
         hasVisibilityChangedDuringTick = false
+        liveQuotesTracker.pause()
+        dropUntrackedLiveQuotes()
     }
 
+    @MainActor
     func updateVisibility(eventID: String, isVisible: Bool) {
         guard isVisible else {
             visibleEventIDs.remove(eventID)
+            updateLiveQuotesTracking()
             return
         }
 
         visibleEventIDs.insert(eventID)
+        updateLiveQuotesTracking()
 
         guard visibilityTask == nil else {
             hasVisibilityChangedDuringTick = true
@@ -311,6 +331,7 @@ private extension PolymarketEventsBlockViewModel {
             }
 
             eventCards = feed.events.map(makeCard)
+            updateLiveQuotesTracking()
         } catch {
             guard !error.isCancellationError, key.generation == feed.generation else { return }
 
@@ -333,6 +354,89 @@ private extension PolymarketEventsBlockViewModel {
 
         lastStaleReport = now
         reportOutdatedData()
+    }
+}
+
+// MARK: - Live quotes
+
+private extension PolymarketEventsBlockViewModel {
+    func observeLiveQuotes() {
+        liveQuotesTask = Task { @MainActor [weak self, updates = liveQuotesTracker.updates] in
+            for await update in updates {
+                switch update {
+                case .quotes(let batch):
+                    self?.applyLiveQuotes(batch)
+                case .connectionLost:
+                    self?.dropAllLiveQuotes()
+                }
+            }
+        }
+    }
+
+    @MainActor
+    func applyLiveQuotes(_ batch: PolymarketFeedLiveQuotesTracker.QuoteBatch) {
+        let trackedQuotes = batch.quotesByAssetId.filter { liveQuotesTracker.trackedAssetIds.contains($0.key) }
+        liveQuotesByAssetId.merge(trackedQuotes) { _, newQuote in newQuote }
+        refreshCards(showingAnyOf: Set(trackedQuotes.keys))
+    }
+
+    @MainActor
+    func refreshCards(showingAnyOf assetIds: Set<String>) {
+        let affectedIndices = eventCards.indices.filter { eventCards[$0].showsOutcome(from: assetIds) }
+
+        guard !affectedIndices.isEmpty else {
+            return
+        }
+
+        let events = feed.events
+        var cards = eventCards
+
+        for index in affectedIndices {
+            guard let event = events.first(where: { $0.id == cards[index].id }) else {
+                continue
+            }
+
+            cards[index] = makeCard(for: event)
+        }
+
+        guard cards != eventCards else {
+            return
+        }
+
+        eventCards = cards
+    }
+
+    @MainActor
+    func updateLiveQuotesTracking() {
+        liveQuotesTracker.update(events: feed.events, visibleEventIDs: visibleEventIDs)
+        dropUntrackedLiveQuotes()
+    }
+
+    @MainActor
+    func dropAllLiveQuotes() {
+        let droppedAssetIds = Set(liveQuotesByAssetId.keys)
+        liveQuotesByAssetId = [:]
+        refreshCards(showingAnyOf: droppedAssetIds)
+    }
+
+    @MainActor
+    func dropUntrackedLiveQuotes() {
+        let untrackedAssetIds = Set(liveQuotesByAssetId.keys).subtracting(liveQuotesTracker.trackedAssetIds)
+
+        guard !untrackedAssetIds.isEmpty else {
+            return
+        }
+
+        untrackedAssetIds.forEach { liveQuotesByAssetId.removeValue(forKey: $0) }
+        refreshCards(showingAnyOf: untrackedAssetIds)
+    }
+}
+
+private extension PolymarketEventCard.Model {
+    func showsOutcome(from assetIds: Set<String>) -> Bool {
+        rows.contains { row in
+            row.outcomes.contains { assetIds.contains($0.id) }
+        }
     }
 }
 
@@ -425,8 +529,10 @@ private extension PolymarketEventsBlockViewModel {
         }
     }
 
+    @MainActor
     func apply(page: PolymarketEventsPage, requestCursor: String?, emptyPages: Int = 0) {
         let added = append(events: page.events, requestCursor: requestCursor)
+        updateLiveQuotesTracking()
 
         cursor = page.cursor
         hasNext = page.hasNext
@@ -463,8 +569,9 @@ private extension PolymarketEventsBlockViewModel {
             event: event,
             category: nil,
             isInActivePredicts: false,
-            onSelectOutcome: { [weak self] market, outcome in
-                self?.selectOutcome(market: market, outcome: outcome, eventTitle: event.title)
+            liveQuotesByAssetId: liveQuotesByAssetId,
+            onSelectOutcome: { [weak self, eventID = event.id] market, outcome in
+                self?.selectOutcome(eventID: eventID, marketID: market.id, assetId: outcome.assetId)
             }
         )
     }
