@@ -23,8 +23,8 @@ struct TransactionDetailsSendContentTests {
     @Test(
         "Shows the amount with the ticker after the number",
         arguments: [
-            (isOutgoing: true, expected: "−\u{a0}0.10\u{a0}USDC"),
-            (isOutgoing: false, expected: "+\u{a0}0.10\u{a0}USDC"),
+            (isOutgoing: true, expected: "−\u{2009}0.10\u{a0}USDC"),
+            (isOutgoing: false, expected: "+\u{2009}0.10\u{a0}USDC"),
         ]
     )
     func amountPutsTickerAfterNumber(isOutgoing: Bool, expected: String) throws {

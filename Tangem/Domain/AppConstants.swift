@@ -22,6 +22,7 @@ enum AppConstants {
     static let enDashSign: String = .enDashSign // medium stick (en-dash)
     static let emDashSign: String = .emDashSign // longer stick (em-dash)
     static let unbreakableSpace: String = .unbreakableSpace
+    static let thinSpace = "\u{2009}"
     static let infinitySign = "\u{221E}"
     static let tildeSign = "~"
     static let approximatelyEqualSign = "≈"
