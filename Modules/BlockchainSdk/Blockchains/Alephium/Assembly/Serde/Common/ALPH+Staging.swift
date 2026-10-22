@@ -12,9 +12,5 @@ extension ALPH {
     struct Staging<T> {
         let value: T
         let rest: Data
-
-        func mapValue<B>(_ transform: (T) -> B) -> Staging<B> {
-            return Staging<B>(value: transform(value), rest: rest)
-        }
     }
 }

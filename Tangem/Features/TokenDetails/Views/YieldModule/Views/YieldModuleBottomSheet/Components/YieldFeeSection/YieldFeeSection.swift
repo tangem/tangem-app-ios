@@ -88,24 +88,6 @@ struct YieldFeeSection<LeadingTextAccessoryView: View>: View {
     }
 }
 
-// MARK: - State
-
-extension YieldFeeSection {
-    enum State {
-        case loading
-        case loaded(fee: String)
-        case error
-
-        var isLoaded: Bool {
-            if case .loaded = self {
-                return true
-            }
-
-            return false
-        }
-    }
-}
-
 // MARK: - LoadableNetworkFeeRowView
 
 extension YieldFeeSection {

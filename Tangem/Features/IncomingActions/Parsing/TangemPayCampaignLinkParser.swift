@@ -41,7 +41,7 @@ struct TangemPayCampaignLinkParser: IncomingActionURLParser {
             return false
         }
 
-        if url.scheme == Constants.webScheme, IncomingActionConstants.supportedExternalLinkHosts.contains(host) {
+        if url.isHTTPS, IncomingActionConstants.supportedExternalLinkHosts.contains(host) {
             return true
         }
 
@@ -59,7 +59,6 @@ struct TangemPayCampaignLinkParser: IncomingActionURLParser {
 
 private extension TangemPayCampaignLinkParser {
     enum Constants {
-        static let webScheme = "https"
         static let appSchemeCampaignHost = "marketing"
     }
 }

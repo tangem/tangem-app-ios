@@ -142,7 +142,7 @@ struct OnboardingSeedPhraseImportView: View {
     OnboardingSeedPhraseImportView(
         viewModel: OnboardingSeedPhraseImportViewModel(
             inputProcessor: SeedPhraseInputProcessor(),
-            tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true),
+            signingActionButtonType: .requiredNFCInteraction,
             delegate: nil
         )
     )

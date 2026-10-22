@@ -61,6 +61,15 @@ extension MobileAuthUtil {
             return .successful(context)
         }
     }
+
+    func unlockedContext() async throws -> MobileWalletContext {
+        switch try await unlock() {
+        case .successful(let context):
+            return context
+        case .canceled, .userWalletNeedsToDelete:
+            throw CancellationError()
+        }
+    }
 }
 
 // MARK: - Unlocking

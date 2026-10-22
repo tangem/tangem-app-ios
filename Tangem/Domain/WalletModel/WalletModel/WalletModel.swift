@@ -38,7 +38,6 @@ protocol WalletModel:
     var isCustom: Bool { get }
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { get }
     var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> { get }
-    var qrReceiveMessage: String { get }
     var isDemo: Bool { get }
     var demoBalance: Decimal? { get set }
     var sendingRestrictions: SendingRestrictions? { get }
@@ -153,9 +152,6 @@ struct WalletModelUpdateOptions: OptionSet {
 
     static let balances = WalletModelUpdateOptions(rawValue: 1 << 0)
 
-    @available(*, unavailable, renamed: "onChainTransactionHistory")
-    static let transactionHistory: WalletModelUpdateOptions = .onChainTransactionHistory
-
     static let onChainTransactionHistory = WalletModelUpdateOptions(rawValue: 1 << 1)
 
     static let expressTransactionHistory = WalletModelUpdateOptions(rawValue: 1 << 2)
@@ -175,7 +171,6 @@ protocol WalletModelBalancesProvider {
     var stakingBalanceProvider: TokenBalanceProvider { get }
     var totalTokenBalanceProvider: TokenBalanceProvider { get }
     var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
-    var fiatStakingBalanceProvider: TokenBalanceProvider { get }
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { get }
 }
 
@@ -256,7 +251,6 @@ protocol WalletModelTransactionHistoryProvider {
     var hasAnyPendingTransactions: Bool { get }
     var transactionHistoryPublisher: AnyPublisher<WalletModelTransactionHistoryState, Never> { get }
     var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> { get }
-    var isEmptyIncludingPendingIncomingTxs: Bool { get }
 }
 
 // MARK: - Rent

@@ -54,9 +54,7 @@ struct WCFeeRowView: View {
     private var trailingView: some View {
         switch viewModel.components {
         case .loading:
-            SkeletonView()
-                .frame(width: 70, height: 15)
-                .cornerRadius(4, corners: .allCorners)
+            Shimmer().variant(.custom(width: 70, height: 15, cornerRadius: 4))
 
         case .success(let components):
             Text(formattedFee(components: components))

@@ -12,16 +12,6 @@ enum DeploySerialization {
      Serialization string = deployHeader.Serialization + hash + payment.Serialization + session.Serialization + approvals.Serialization
      */
 
-    static func serialize(fromDeploy: CSPRDeploy) -> String {
-        var retStr = ""
-        retStr = DeployHeaderSerialization.serialize(from: fromDeploy.header)
-        retStr = retStr + fromDeploy.hash
-        retStr = retStr + ExecutableDeployItemSerializaton.serialize(from: fromDeploy.payment!)
-        retStr = retStr + ExecutableDeployItemSerializaton.serialize(from: fromDeploy.session!)
-        retStr = retStr + DeployApprovalSerialization.serialize(from: fromDeploy.approvals)
-        return retStr
-    }
-
     /*
      Get body hash of a deploy
      - Parameter : a deploy object
@@ -194,25 +184,3 @@ enum ExecutableDeployItemSerializaton {
 /*
  Class for Approval serialization
  */
-
-enum DeployApprovalSerialization {
-    /*
-     Serialization for DeployApprovalItem list
-     - Parameter : DeployApprovalItem list
-     - Returns: String represents the serialization of the DeployApprovalItem list
-     - Rule for serialization: return value = UInt32.serialize(totalApproval) + signer + singnature
-     - If total approval = 0 then return UIn32.serialize(0) which mean "00000000"
-     */
-
-    static func serialize(from: [CSPRDeployApprovalItem]) -> String {
-        let totalApproval = from.count
-        if totalApproval == 0 {
-            return "00000000"
-        }
-        var retStr = CLTypeSerializeHelper.uInt32Serialize(input: UInt32(totalApproval))
-        for element in from {
-            retStr = retStr + element.signer + element.signature
-        }
-        return retStr
-    }
-}

@@ -18,11 +18,6 @@ public struct OnrampQuotesRequestItem {
         let wei = (amount * pow(10, pairItem.fiatCurrency.precision)) as NSDecimalNumber
         return wei.stringValue
     }
-
-    func destinationAmountWEI() -> String {
-        let wei = pairItem.destination.convertToWEI(value: amount) as NSDecimalNumber
-        return wei.stringValue
-    }
 }
 
 public extension OnrampQuotesRequestItem {

@@ -222,7 +222,8 @@ private enum ChipPreviewFixture {
                 isOutgoing: type != .yieldSend,
                 transactionType: type,
                 status: status,
-                isFromYieldContract: type == .yieldSend
+                isFromYieldContract: type == .yieldSend,
+                isTangemPayCounterparty: false
             )
         }
     }
@@ -237,7 +238,7 @@ private enum ChipPreviewFixture {
         }
     }
     .padding()
-    .background(Color.Tangem.Surface.level1)
+    .background(DesignSystem.Color.bgPrimary)
 }
 
 #endif // DEBUG

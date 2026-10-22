@@ -10,5 +10,4 @@ import Foundation
 
 protocol OnrampUnknownStatusRecoveryService: AnyObject {
     func start()
-    func cancel()
 }

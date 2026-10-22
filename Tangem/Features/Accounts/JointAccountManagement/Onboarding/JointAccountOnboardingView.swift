@@ -42,27 +42,10 @@ struct JointAccountOnboardingView: View {
         .ignoresSafeArea(.keyboard)
     }
 
-    /// The artwork carries the avatars alone, on transparency: the backdrop it sits on is a plain gradient, and
-    /// drawing it here rather than baking it into the asset keeps the asset small and the fade smooth at any width.
     private var previewImage: some View {
-        LinearGradient(
-            colors: [Constants.backdropColor, .clear],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .aspectRatio(Constants.backdropAspectRatio, contentMode: .fit)
-        .overlay(alignment: .topLeading) {
-            GeometryReader { proxy in
-                Assets.jointAccountsOnboardingPreviewImage.image
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: proxy.size.width * Constants.artworkWidthFraction)
-                    .offset(
-                        x: proxy.size.width * Constants.artworkLeadingFraction,
-                        y: proxy.size.height * Constants.artworkTopFraction
-                    )
-            }
-        }
+        Assets.jointAccountsOnboardingPreviewImage.image
+            .resizable()
+            .aspectRatio(contentMode: .fit)
     }
 
     private var content: some View {
@@ -133,15 +116,6 @@ struct JointAccountOnboardingView: View {
 
 private extension JointAccountOnboardingView {
     enum Constants {
-        /// The design lays the screen out on a 402×592 backdrop, and the artwork takes 296×222 of it at (45, 157).
-        /// Kept as fractions so the placement holds on any screen width.
-        static let backdropAspectRatio: CGFloat = 402.0 / 592.0
-        static let artworkWidthFraction: CGFloat = 296.0 / 402.0
-        static let artworkLeadingFraction: CGFloat = 45.0 / 402.0
-        static let artworkTopFraction: CGFloat = 157.0 / 592.0
-        /// Only ever this one shade, on any theme — it is part of the illustration rather than a surface.
-        static let backdropColor = Color(red: 119.0 / 255.0, green: 196.0 / 255.0, blue: 255.0 / 255.0)
-
         static let contentHorizontalPadding: CGFloat = 24
         static let titleToPointsSpacing: CGFloat = 12
         static let pointsSpacing: CGFloat = 16

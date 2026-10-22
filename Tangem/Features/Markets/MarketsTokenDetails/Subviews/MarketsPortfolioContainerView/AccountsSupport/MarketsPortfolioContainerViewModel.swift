@@ -17,7 +17,6 @@ import TangemUI
 
 /// Copy-pasted and adapted for accounts `MarketsPortfolioContainerViewModel`
 final class MarketsPortfolioContainerViewModel: ObservableObject {
-    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
     @Injected(\.cryptoAccountsGlobalStateProvider) private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
 
     // MARK: - Published Properties
@@ -44,10 +43,11 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
     private let walletDataProvider: MarketsWalletDataProvider
     private weak var coordinator: MarketsPortfolioContainerRoutable?
     private var addTokenTapAction: (() -> Void)?
+    private let showsNotSupportedWithoutMultiCurrencyWallet: Bool
 
     private let coinId: String
-    private let coinName: String
-    private let coinSymbol: String
+    private var coinName: String
+    private var coinSymbol: String
 
     // Make networks a publisher so changes trigger reactive pipeline
     private let networksSubject = CurrentValueSubject<[NetworkModel]?, Never>(nil)
@@ -63,6 +63,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
         inputData: InputData,
         walletDataProvider: MarketsWalletDataProvider,
         coordinator: MarketsPortfolioContainerRoutable?,
+        showsNotSupportedWithoutMultiCurrencyWallet: Bool,
         addTokenTapAction: (() -> Void)?
     ) {
         coinId = inputData.coinId
@@ -71,6 +72,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
         self.walletDataProvider = walletDataProvider
         self.coordinator = coordinator
         self.addTokenTapAction = addTokenTapAction
+        self.showsNotSupportedWithoutMultiCurrencyWallet = showsNotSupportedWithoutMultiCurrencyWallet
 
         bind()
     }
@@ -105,7 +107,9 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
         )
     }
 
-    func update(networks: [NetworkModel]) {
+    func update(coinName: String, coinSymbol: String, networks: [NetworkModel]) {
+        self.coinName = coinName
+        self.coinSymbol = coinSymbol
         networksSubject.send(networks)
     }
 
@@ -199,6 +203,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
             return .loading
 
         case .unsupported, .unavailable:
+            guard hasMultiCurrencyWallet || showsNotSupportedWithoutMultiCurrencyWallet else { return .hidden }
             return .notSupported
 
         case .empty:
@@ -308,8 +313,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
 
     private func buildUIFromWalletsData(_ walletsData: [WalletData]) {
         let factory = MarketsPortfolioTokenItemFactory(
-            contextActionsProvider: self,
-            contextActionsDelegate: self
+            contextActionsProvider: self
         )
 
         let hasMultipleAccounts = cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
@@ -516,14 +520,6 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
         .init(userWalletName: walletData.userWalletName, userWalletId: walletData.userWalletId)
     }
 
-    private func makeAnalyticsParams(for walletModel: any WalletModel) -> [Analytics.ParameterKey: String] {
-        [
-            .source: Analytics.ParameterValue.market.rawValue,
-            .token: walletModel.tokenItem.currencySymbol.uppercased(),
-            .blockchain: walletModel.tokenItem.blockchain.displayName,
-        ]
-    }
-
     private func determineTypeViewState(
         hasTokens: Bool,
         listStyle: TypeView.ListStyle,
@@ -577,99 +573,12 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsProv
             return []
         }
 
-        return TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
-            .buildMarketsTokenContextActions()
+        let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+        return availabilityProvider.buildMarketsTokenContextActions()
     }
 }
 
 // MARK: - MarketsPortfolioContextActionsDelegate
-
-extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDelegate {
-    func showContextAction(for viewModel: MarketsPortfolioTokenItemViewModel) {
-        withAnimation {
-            tokenWithExpandedQuickActions = (tokenWithExpandedQuickActions === viewModel) ? nil : viewModel
-        }
-    }
-
-    func didTapContextAction(_ action: TokenActionType, walletModelId: WalletModelId, userWalletId: UserWalletId) {
-        guard
-            let userWalletModel = walletDataProvider.userWalletModels[userWalletId],
-            let coordinator
-        else {
-            return
-        }
-
-        let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
-
-        guard let walletModel = walletModels.first(where: { $0.id == walletModelId }) else {
-            return
-        }
-
-        let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
-        let analyticsParams = makeAnalyticsParams(for: walletModel)
-
-        let availabilityProvider = TokenActionAvailabilityProvider(
-            userWalletInfo: userWalletModel.userWalletInfo,
-            walletModel: walletModel
-        )
-
-        switch action {
-        case .buy:
-            Analytics.log(event: .marketsChartButtonBuy, params: analyticsParams)
-            TokenActionAvailabilityAlertPresenter.presentOrProceed(
-                presenter: alertPresenter,
-                buyStatus: availabilityProvider.buyAvailablity,
-                warning: availabilityProvider.availabilityWarningType,
-                action: {
-                    coordinator.openOnramp(input: sendInput, parameters: .none)
-                }
-            )
-        case .receive:
-            Analytics.log(event: .marketsChartButtonReceive, params: analyticsParams)
-            TokenActionAvailabilityAlertPresenter.presentOrProceed(
-                presenter: alertPresenter,
-                receiveStatus: availabilityProvider.receiveAvailability,
-                warning: availabilityProvider.availabilityWarningType,
-                action: {
-                    coordinator.openReceive(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
-                }
-            )
-        case .exchange:
-            Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
-
-            TokenActionAvailabilityAlertPresenter.presentOrProceed(
-                presenter: alertPresenter,
-                swapStatus: availabilityProvider.swapAvailability,
-                action: {
-                    let helper = SwapPredefinedParametersHelper()
-                    guard let parameters = helper.makeParameters(
-                        walletModel: walletModel,
-                        userWalletInfo: userWalletModel.userWalletInfo,
-                        position: .automatic
-                    ) else {
-                        return
-                    }
-
-                    Task { @MainActor in
-                        coordinator.openSwap(input: parameters, destination: walletModel.tokenItem)
-                    }
-                }
-            )
-        case .stake:
-            Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
-            if let stakingManager = walletModel.stakingManager {
-                coordinator.openStaking(input: sendInput, stakingManager: stakingManager)
-            }
-        case .yield:
-            Analytics.log(event: .marketsChartButtonYieldMode, params: analyticsParams)
-            if let yieldModuleManager = walletModel.yieldModuleManager {
-                coordinator.openYield(input: sendInput, yieldModuleManager: yieldModuleManager)
-            }
-        case .hide, .marketsDetails, .send, .sell, .copyAddress, .swapAndSend:
-            break
-        }
-    }
-}
 
 extension MarketsPortfolioContainerViewModel {
     struct InputData {

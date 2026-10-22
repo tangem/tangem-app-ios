@@ -12,6 +12,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemPay
 import TangemSdk
+import TangemUI
 import TangemUIUtils
 
 final class TangemPayOfferViewModel: ObservableObject {
@@ -30,7 +31,7 @@ final class TangemPayOfferViewModel: ObservableObject {
             return false
         }
 
-        return userWalletModel.config.hasFeature(.nfcInteraction)
+        return SigningActionButtonViewTypeBuilder().build(config: userWalletModel.config) == .requiredNFCInteraction
     }
 
     private weak var coordinator: TangemPayOnboardingRoutable?
@@ -168,9 +169,5 @@ private extension TangemPayOfferViewModel {
                 ? Localization.commonUnknownError
                 : Localization.commonServerUnavailable
         )
-    }
-
-    enum TangemPayOfferError: Error {
-        case unableToCreateWalletPublicKey
     }
 }

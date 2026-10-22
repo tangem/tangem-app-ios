@@ -61,6 +61,8 @@ extension SolanaWalletManager: TransactionSender {
         switch transaction.amount.type {
         case .coin:
             sendPublisher = sendSol(transaction, signer: signer)
+        case .token(let token) where token.metadata.kind != .fungible:
+            sendPublisher = sendNFT(transaction, token: token, signer: signer)
         case .token(let token):
             sendPublisher = sendSplToken(transaction, token: token, signer: signer)
         case .reserve, .feeResource:
@@ -81,6 +83,14 @@ extension SolanaWalletManager: TransactionSender {
     }
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
+        if case .token(let token) = amount.type, token.metadata.kind != .fungible {
+            return getNFTFee(amount: amount, token: token, destination: destination)
+        }
+
+        return getFungibleFee(amount: amount, destination: destination)
+    }
+
+    private func getFungibleFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
         Result {
             guard let publicKey = PublicKey(data: wallet.publicKey.blockchainKey) else {
                 throw SolanaError.invalidPublicKey
@@ -194,6 +204,113 @@ extension SolanaWalletManager: TransactionSender {
             .eraseToAnyPublisher()
     }
 
+    private func getNFTFee(amount: Amount, token: Token, destination: String) -> AnyPublisher<[Fee], Error> {
+        Future.async { [weak self] in
+            guard let self else {
+                throw BlockchainSdkError.empty
+            }
+
+            let route = try await nftTransferBuilder.route(
+                assetAddress: token.contractAddress,
+                owner: wallet.address,
+                destination: destination,
+                payer: wallet.address
+            )
+
+            switch route {
+            case .splToken:
+                return try await getFungibleFee(amount: amount, destination: destination).async()
+            case .program(let plan):
+                return [try await nftFee(plan: plan)]
+            }
+        }
+        .eraseToAnyPublisher()
+    }
+
+    private func nftFee(plan: SolanaNFTTransferPlan) async throws -> Fee {
+        let parameters = nftFeeParameters(plan: plan)
+        let transaction = try await makeNFTTransaction(plan: plan, feeParameters: parameters)
+        let networkFee = try await networkService.getFeeForCompiled(message: transaction.message.base64EncodedString()).async()
+
+        var rent: Decimal = 0
+        for space in plan.createdAccountSpaces {
+            rent += try await networkService.minimalBalanceForRentExemption(dataLength: space).async()
+        }
+
+        return Fee(Amount(with: wallet.blockchain, type: .coin, value: networkFee + rent), parameters: parameters)
+    }
+
+    private func nftFeeParameters(plan: SolanaNFTTransferPlan) -> SolanaFeeParameters {
+        let usesComputeBudget = !NFCUtils.isPoorNfcQualityDevice
+
+        return SolanaFeeParameters(
+            destinationAccountExists: plan.createdAccountSpaces.isEmpty,
+            computeUnitLimit: usesComputeBudget ? plan.computeUnitLimit : nil,
+            computeUnitPrice: usesComputeBudget ? Constants.nftComputeUnitPrice : nil
+        )
+    }
+
+    private func sendNFT(_ transaction: Transaction, token: Token, signer: TransactionSigner) -> AnyPublisher<TransactionID, Error> {
+        Future.async { [weak self] in
+            guard let self else {
+                throw BlockchainSdkError.empty
+            }
+
+            let route = try await nftTransferBuilder.route(
+                assetAddress: token.contractAddress,
+                owner: transaction.sourceAddress,
+                destination: transaction.destinationAddress,
+                payer: transaction.sourceAddress
+            )
+
+            switch route {
+            case .splToken:
+                return try await sendSplToken(transaction, token: token, signer: signer).async()
+            case .program(let plan):
+                return try await sendNFT(plan: plan, feeParameters: transaction.fee.parameters, signer: signer)
+            }
+        }
+        .eraseToAnyPublisher()
+    }
+
+    private func sendNFT(plan: SolanaNFTTransferPlan, feeParameters: FeeParameters?, signer: TransactionSigner) async throws -> TransactionID {
+        guard let feeParameters = feeParameters as? SolanaFeeParameters else {
+            throw BlockchainSdkError.failedToSendTx
+        }
+
+        let transaction = try await makeNFTTransaction(plan: plan, feeParameters: feeParameters)
+        let solanaSigner = SolanaTransactionSigner(transactionSigner: signer, walletPublicKey: wallet.publicKey)
+        let signature = try await solanaSigner.sign(message: transaction.message)
+
+        do {
+            return try await networkService.sendRaw(
+                base64serializedTransaction: try transaction.serialized(signature: signature).base64EncodedString(),
+                startSendingTimestamp: transaction.blockhashFetchedAt
+            ).async()
+        } catch {
+            throw SolanaSendError.mapped(from: error)
+        }
+    }
+
+    private func makeNFTTransaction(plan: SolanaNFTTransferPlan, feeParameters: SolanaFeeParameters) async throws -> SolanaSelfPaidTransaction {
+        let computeBudgetInstructions = SolanaComputeBudgetInstruction.instructions(
+            computeUnitLimit: feeParameters.computeUnitLimit,
+            computeUnitPrice: feeParameters.computeUnitPrice
+        )
+        let blockhashFetchedAt = Date()
+        let blockhash = SolanaBlockhash(value: try await networkService.getLatestBlockhash(), fetchedAt: blockhashFetchedAt)
+
+        return try SolanaSelfPaidTransaction.make(
+            instructions: computeBudgetInstructions + plan.instructions,
+            feePayer: wallet.publicKey.blockchainKey,
+            blockhash: blockhash
+        )
+    }
+
+    private var nftTransferBuilder: SolanaNFTTransferBuilder {
+        SolanaNFTTransferBuilder(accountProvider: networkService)
+    }
+
     private func makeTokenTransferAmountPublisher(
         tokenProgramId: PublicKey,
         amount: Decimal,
@@ -253,6 +370,12 @@ extension SolanaWalletManager: TransactionSender {
         }
 
         return associatedSourceTokenAddress.base58EncodedString
+    }
+}
+
+private extension SolanaWalletManager {
+    enum Constants {
+        static let nftComputeUnitPrice: UInt64 = 1_000_000
     }
 }
 

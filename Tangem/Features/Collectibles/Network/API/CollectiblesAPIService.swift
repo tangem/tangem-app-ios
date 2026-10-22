@@ -11,6 +11,7 @@ import class Alamofire.Interceptor
 import protocol Alamofire.RequestInterceptor
 import Moya
 import TangemBackendAuthentication
+import TangemFoundation
 import TangemNetworkUtils
 
 struct CollectiblesAPIService {
@@ -18,7 +19,11 @@ struct CollectiblesAPIService {
 
     private let provider: Provider
     private let baseURL: URL = .init(string: "https://collectibles.tests-d.com/")!
-    private let decoder = JSONDecoder()
+    private let decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .customISO8601
+        return decoder
+    }()
 
     init(
         provider: Provider = TangemProvider(
@@ -86,7 +91,7 @@ extension CollectiblesAPIService {
 
 // MARK: - Networking
 
-extension CollectiblesAPIService {
+extension CollectiblesAPIService: CollectiblesAPIRequesting {
     func request<T: Decodable>(_ target: CollectiblesAPITarget.Target) async throws -> T {
         let request = CollectiblesAPITarget(baseURL: baseURL, target: target)
 

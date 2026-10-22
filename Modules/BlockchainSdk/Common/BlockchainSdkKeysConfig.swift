@@ -188,10 +188,4 @@ extension BlockchainSdkKeysConfig.GetBlockCredentials {
         let credential = credentials.first { $0.blockchain.codingKey == blockchain.codingKey && $0.type == type }
         return credential?.value ?? ""
     }
-
-    func credentials(type: TypeValue) -> [Blockchain: String] {
-        credentials
-            .filter { $0.type == type }
-            .reduce(into: [:]) { $0[$1.blockchain] = $1.value }
-    }
 }

@@ -68,12 +68,7 @@ struct MultiWalletMainContentRedesignedView: View {
     // MARK: - Polymarket account
 
     private func polymarketAccount(viewModel: AccountRowButtonViewModel) -> some View {
-        AccountRowButtonView(viewModel: viewModel) {
-            AccountRowTrailingBalanceView(viewModel: viewModel)
-        }
-        .padding(MultiWalletMainContentConstants.polymarketAccountPadding)
-        .background(MultiWalletMainContentConstants.tokenListBackgroundColor)
-        .cornerRadiusContinuous(MultiWalletMainContentConstants.cornerRadius)
+        PolymarketAccountRowView(viewModel: viewModel)
     }
 
     // MARK: - Collectibles account
@@ -301,6 +296,5 @@ private enum MultiWalletMainContentConstants {
     static let cornerRadius: CGFloat = 24
     static let tokenListBackgroundColor = DesignSystem.Color.bgSecondary
 
-    static let polymarketAccountPadding: CGFloat = 16
     static let collectiblesAccountPadding: CGFloat = 12
 }

@@ -80,12 +80,6 @@ enum TONModels {
         let hash: String
     }
 
-    /// Sequence number model
-    struct Seqno: Codable {
-        /// Container seqno number
-        let stack: [[Stack]]
-    }
-
     enum AccountState: String, Codable {
         case active
         case uninitialized
@@ -112,10 +106,6 @@ enum TONModels {
         var totalFee: Decimal {
             inFwdFee + storageFee + gasFee + fwdFee
         }
-    }
-
-    struct Stack: Codable {
-        let num: String
     }
 
     struct RunGetMethodParameters: Encodable {

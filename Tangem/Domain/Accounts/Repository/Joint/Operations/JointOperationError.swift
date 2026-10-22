@@ -29,6 +29,8 @@ enum JointOperationError: UniversalError, Equatable {
     case missingFeeParameters
     case maliciousOperation
     case securityCheckUnavailable
+    case operationNotFound
+    case notAMember
 
     var errorDescription: String? {
         switch self {
@@ -44,6 +46,8 @@ enum JointOperationError: UniversalError, Equatable {
         case .missingFeeParameters: "The fee carries no Safe operation terms"
         case .maliciousOperation: Localization.jointOperationMaliciousSubtitle
         case .securityCheckUnavailable: "The operation could not be checked for security"
+        case .operationNotFound: "The joint operation no longer exists"
+        case .notAMember: "The wallet holds no slot in this joint account"
         }
     }
 
@@ -61,6 +65,8 @@ enum JointOperationError: UniversalError, Equatable {
         case .missingFeeParameters: 100013009
         case .maliciousOperation: 100013010
         case .securityCheckUnavailable: 100013011
+        case .operationNotFound: 100013012
+        case .notAMember: 100013013
         }
     }
 }

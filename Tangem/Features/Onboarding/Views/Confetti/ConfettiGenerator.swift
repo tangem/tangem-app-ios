@@ -28,15 +28,6 @@ struct ConfettiGeneratorSettings {
     let generatorSize: CGSize
     let confettiLifetime: Float
     let generationDuration: Double
-
-    static func defaultSettings(at position: ConfettiGeneratorPosition = .aboveTop) -> ConfettiGeneratorSettings {
-        ConfettiGeneratorSettings(
-            generatorPosition: position,
-            generatorSize: CGSize(width: 100, height: 120),
-            confettiLifetime: 3.5,
-            generationDuration: 1
-        )
-    }
 }
 
 class ConfettiGenerator {

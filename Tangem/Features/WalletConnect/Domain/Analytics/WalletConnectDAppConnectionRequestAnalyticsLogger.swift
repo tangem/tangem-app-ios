@@ -22,5 +22,4 @@ protocol WalletConnectDAppConnectionRequestAnalyticsLogger {
 
     func logDAppConnected(with dAppData: WalletConnectDAppData, verificationStatus: WalletConnectDAppVerificationStatus)
     func logDAppConnectionFailed(with error: WalletConnectDAppProposalApprovalError)
-    func logDAppDisconnected(with dAppData: WalletConnectDAppData)
 }

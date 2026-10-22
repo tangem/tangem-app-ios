@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct TokenDetailsYieldView: View {
@@ -69,15 +70,15 @@ private extension TokenDetailsYieldView {
             HStack(spacing: horizontalSpacing) {
                 shadowedIcon(
                     Assets.YieldModule.yieldFilledEucalyptus.image,
-                    color: Color.Tangem.Graphic.Status.positive
+                    color: DesignSystem.Color.iconAccentGreen
                 )
 
                 VStack(alignment: .leading, spacing: verticalSpacing) {
                     Text(item.title)
-                        .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
                     Text(item.description)
-                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textAccentGreen)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -86,17 +87,17 @@ private extension TokenDetailsYieldView {
                     .setSize(.x9)
             }
             .padding(padding)
-            .background(Color.Tangem.Markers.backgroundTintedGreen, in: RoundedRectangle(cornerRadius: cornerRadius))
+            .background(DesignSystem.Color.bgStatusSuccessSubtle, in: RoundedRectangle(cornerRadius: cornerRadius))
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(Color.Tangem.Graphic.Status.positive.opacity(0.3), lineWidth: cornerRadius)
+                    .stroke(DesignSystem.Color.iconAccentGreen.opacity(0.3), lineWidth: cornerRadius)
                     .blur(radius: blurRadius)
                     .blendMode(.lighten)
                     .mask(RoundedRectangle(cornerRadius: cornerRadius))
             )
             .overlay {
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(Color.Tangem.Markers.borderTintedGreen, lineWidth: borderWidth)
+                    .stroke(DesignSystem.Color.borderStatusSuccessSubtle, lineWidth: borderWidth)
             }
         }
         .buttonStyle(.plain)
@@ -108,14 +109,14 @@ private extension TokenDetailsYieldView {
             HStack(spacing: horizontalSpacing) {
                 shadowedIcon(
                     Assets.YieldModule.yieldFilledEucalyptus.image,
-                    color: Color.Tangem.Graphic.Status.positive
+                    color: DesignSystem.Color.iconAccentGreen
                 )
 
                 VStack(alignment: .leading, spacing: verticalSpacing) {
                     Text(item.title)
 
                     Text(item.description)
-                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textAccentGreen)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -139,17 +140,17 @@ private extension TokenDetailsYieldView {
             }
         }
         .padding(padding)
-        .background(Color.Tangem.Markers.backgroundTintedGreen, in: RoundedRectangle(cornerRadius: cornerRadius))
+        .background(DesignSystem.Color.bgStatusSuccessSubtle, in: RoundedRectangle(cornerRadius: cornerRadius))
         .overlay(
             RoundedRectangle(cornerRadius: cornerRadius)
-                .stroke(Color.Tangem.Graphic.Status.positive.opacity(0.3), lineWidth: cornerRadius)
+                .stroke(DesignSystem.Color.iconAccentGreen.opacity(0.3), lineWidth: cornerRadius)
                 .blur(radius: blurRadius)
                 .blendMode(.lighten)
                 .mask(RoundedRectangle(cornerRadius: cornerRadius))
         )
         .overlay {
             RoundedRectangle(cornerRadius: cornerRadius)
-                .stroke(Color.Tangem.Markers.borderTintedGreen, lineWidth: borderWidth)
+                .stroke(DesignSystem.Color.borderStatusSuccessSubtle, lineWidth: borderWidth)
         }
     }
 
@@ -159,11 +160,11 @@ private extension TokenDetailsYieldView {
 
             VStack(alignment: .leading, spacing: verticalSpacing) {
                 Text(item.title)
-                    .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
                 HStack(spacing: spinnerSpacing) {
                     Text(item.description)
-                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
                     spinner
                 }
@@ -171,10 +172,10 @@ private extension TokenDetailsYieldView {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(padding)
-        .background(Color.Tangem.Surface.level3, in: RoundedRectangle(cornerRadius: cornerRadius))
+        .background(DesignSystem.Color.bgSecondary, in: RoundedRectangle(cornerRadius: cornerRadius))
         .overlay {
             RoundedRectangle(cornerRadius: cornerRadius)
-                .stroke(Color.Tangem.Border.Neutral.primary, lineWidth: borderWidth)
+                .stroke(DesignSystem.Color.borderSecondary, lineWidth: borderWidth)
         }
     }
 
@@ -184,7 +185,7 @@ private extension TokenDetailsYieldView {
         case .enabling:
             shadowedIcon(
                 Assets.YieldModule.yieldFilledTangerine.image,
-                color: Color.Tangem.Markers.iconYellow
+                color: DesignSystem.Color.iconAccentYellow
             )
         case .disabling:
             Assets.YieldModule.yieldFilledTangerine.image
@@ -200,19 +201,19 @@ private extension TokenDetailsYieldView {
             HStack(spacing: horizontalSpacing) {
                 shadowedIcon(
                     Assets.YieldModule.yieldFilledEucalyptus.image,
-                    color: Color.Tangem.Graphic.Status.positive
+                    color: DesignSystem.Color.iconAccentGreen
                 )
 
                 VStack(alignment: .leading, spacing: verticalSpacing) {
                     HStack(spacing: badgeSpacing) {
                         Text(item.title)
-                            .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
                         badge.map { badgeView(type: $0) }
                     }
 
                     Text(item.description)
-                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textAccentGreen)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -221,10 +222,10 @@ private extension TokenDetailsYieldView {
                     .setSize(.x9)
             }
             .padding(padding)
-            .background(Color.Tangem.Surface.level3, in: RoundedRectangle(cornerRadius: cornerRadius))
+            .background(DesignSystem.Color.bgSecondary, in: RoundedRectangle(cornerRadius: cornerRadius))
             .overlay {
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(Color.Tangem.Border.Neutral.primary, lineWidth: borderWidth)
+                    .stroke(DesignSystem.Color.borderSecondary, lineWidth: borderWidth)
             }
         }
         .buttonStyle(.plain)
@@ -242,7 +243,7 @@ private extension TokenDetailsYieldView {
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
-                .foregroundStyle(Color.Tangem.Graphic.Status.attention)
+                .foregroundStyle(DesignSystem.Color.iconAccentYellow)
                 .frame(size: CGSize(bothDimensions: badgeDimension))
                 .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.earnBlockTitleIcon)
         case .warning:
@@ -250,7 +251,7 @@ private extension TokenDetailsYieldView {
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
-                .foregroundStyle(Color.Tangem.Graphic.Neutral.secondary)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
                 .frame(size: CGSize(bothDimensions: badgeDimension))
                 .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.earnBlockTitleIcon)
         case .none:
@@ -277,7 +278,7 @@ private extension TokenDetailsYieldView {
             .renderingMode(.template)
             .resizable()
             .scaledToFit()
-            .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiaryConstant)
+            .foregroundStyle(DesignSystem.Color.iconSecondary)
             .frame(size: CGSize(bothDimensions: spinnerDimension))
             .rotationEffect(.degrees(spinnerRotation))
             .onAppear {
@@ -289,25 +290,16 @@ private extension TokenDetailsYieldView {
 
     var loadingView: some View {
         HStack(spacing: horizontalSpacing) {
-            skeletonView(width: iconDimension, height: iconDimension)
-                .shimmer()
+            Shimmer().variant(.custom(width: iconDimension, height: iconDimension))
 
             VStack(alignment: .leading, spacing: verticalSpacing) {
-                skeletonView(width: skeletonTopWidth, height: skeletonTopHeight)
-                    .shimmer()
+                Shimmer().variant(.custom(width: skeletonTopWidth, height: skeletonTopHeight))
 
-                skeletonView(width: skeletonBottomWidth, height: skeletonBottomHeight)
-                    .shimmer()
+                Shimmer().variant(.custom(width: skeletonBottomWidth, height: skeletonBottomHeight))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(padding)
-        .background(Color.Tangem.Surface.level3, in: RoundedRectangle(cornerRadius: 24))
-    }
-
-    func skeletonView(width: CGFloat, height: CGFloat) -> some View {
-        Capsule(style: .continuous)
-            .fill(Color.Tangem.Skeleton.backgroundPrimary)
-            .frame(width: width, height: height)
+        .background(DesignSystem.Color.bgSecondary, in: RoundedRectangle(cornerRadius: 24))
     }
 }

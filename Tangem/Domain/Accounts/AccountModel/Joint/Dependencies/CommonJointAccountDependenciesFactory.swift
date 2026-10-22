@@ -110,11 +110,16 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
         userTokensManager.derivationManager = accountSpecificDerivationManager
         userTokensManager.walletModelsManager = walletModelsManager
 
+        let userRoleService = CommonJointAccountUserRoleService(
+            derivationIdentity: derivationIdentity,
+            keysProvider: keysRepository
+        )
+
         let membersService = CommonJointAccountMembersService(
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
             jointAccountsRepository: jointAccountsRepository,
-            keysProvider: keysRepository
+            userRoleService: userRoleService
         )
 
         let pendingOperationsProvider = CommonJointAccountPendingOperationsProvider(

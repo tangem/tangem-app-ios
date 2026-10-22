@@ -31,10 +31,9 @@ struct MarketsCommonWidgetHeaderView: View {
             Text(headerTitle)
                 .lineLimit(1)
                 .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
-                .skeletonable(
-                    isShown: isLoadingState.isHeaderSkeletonable,
-                    size: CGSize(width: 120, height: 24) * scaleFactor,
-                    cornerStyle: .capsule
+                .shimmerPlaceholder(
+                    isLoadingState.isHeaderSkeletonable,
+                    variant: .custom(width: 120 * scaleFactor, height: 24 * scaleFactor)
                 )
 
             if let headerImage = headerImage {

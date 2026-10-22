@@ -10,14 +10,6 @@ import Foundation
 import Combine
 
 final class BalanceRestrictionFeatureAvailabilityProvider {
-    var isActionButtonsAvailablePublisher: AnyPublisher<Bool, Never> {
-        isActionButtonsAvailableSubject.eraseToAnyPublisher()
-    }
-
-    var isActionButtonsAvailable: Bool {
-        isActionButtonsAvailableSubject.value
-    }
-
     private let isBalanceRestrictionActiveSubject: CurrentValueSubject<Bool, Never>
     private let isActionButtonsAvailableSubject: CurrentValueSubject<Bool, Never>
 

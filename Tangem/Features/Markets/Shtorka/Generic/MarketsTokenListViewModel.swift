@@ -50,7 +50,6 @@ final class MarketsTokenListViewModel: ObservableObject {
     private var marketCapFormatter: MarketCapFormatter
     private var bag = Set<AnyCancellable>()
     private var currentSearchValue: String = ""
-    private var isViewVisible: Bool = false
     private var showItemsBelowCapThreshold: Bool = false
 
     private var filterItemsBelowMarketCapThreshold: Bool {
@@ -81,8 +80,6 @@ final class MarketsTokenListViewModel: ObservableObject {
         )
 
         marketsRatingHeaderViewModel = MarketsRatingHeaderViewModel(provider: filterProvider)
-
-        marketsRatingHeaderViewModel.delegate = self
 
         bindToCurrencyCodeUpdate()
         dataProviderBind()
@@ -330,12 +327,6 @@ extension MarketsTokenListViewModel: MarketsListDataFetcher {
     }
 }
 
-extension MarketsTokenListViewModel: MarketsOrderHeaderViewModelOrderDelegate {
-    func orderActionButtonDidTap() {
-        coordinator?.openFilterOrderBottonSheet(with: filterProvider)
-    }
-}
-
 extension MarketsTokenListViewModel: MarketsListStateUpdater {
     func invalidateCells(in range: ClosedRange<Int>) {
         var invalidatedIds = Set<String>()
@@ -363,11 +354,5 @@ extension MarketsTokenListViewModel: MarketsListStateUpdater {
         }
 
         quotesUpdatesScheduler.scheduleQuotesUpdate(for: idsToUpdate)
-    }
-}
-
-private extension MarketsTokenListViewModel {
-    enum Constants {
-        static let filterRequiredReloadInterval: Set<MarketsListOrderType> = [.buyers, .gainers, .losers]
     }
 }

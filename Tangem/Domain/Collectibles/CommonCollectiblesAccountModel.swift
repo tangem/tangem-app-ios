@@ -44,10 +44,6 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
         manager.state
     }
 
-    var statePublisher: AnyPublisher<CollectiblesState, Never> {
-        manager.statePublisher
-    }
-
     var hasAccount: Bool {
         manager.hasAccount
     }
@@ -73,7 +69,7 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
         let interactor = CollectiblesPackPurchaseInteractorStore.interactor(for: manager.userWalletId) {
             let provider = CommonCollectiblesPurchaseProvider(userWalletID: manager.userWalletId.stringValue)
 
-            return CommonCollectiblesPackPurchaseInteractor(
+            return RemoteCollectiblesPackPurchaseInteractor(
                 generator: provider,
                 signer: manager,
                 sentReporter: provider,

@@ -45,7 +45,7 @@ private extension MobileOnboardingImportICloudBackupListView {
         Row(title: item.title, subtitle: item.description)
             .start { itemLeadingIcon }
             .end { itemTrailingIcon }
-            .onTap(item.action)
+            .onTap(action: item.action)
             .background(Appearance.itemBackgroundColor, in: itemBackgroundShape)
     }
 

@@ -16,7 +16,6 @@ protocol OnrampFlowBaseDependenciesFactory {
 extension OnrampFlowBaseDependenciesFactory {
     var userWalletInfo: UserWalletInfo { sourceToken.userWalletInfo }
     var tokenItem: TokenItem { sourceToken.tokenItem }
-    var feeTokenItem: TokenItem { sourceToken.feeTokenItem }
 }
 
 extension OnrampFlowBaseDependenciesFactory {
@@ -80,21 +79,8 @@ extension OnrampFlowBaseDependenciesFactory {
             analyticsLogger: analyticsLogger,
             autoupdatingTimer: autoupdatingTimer,
             redirectSettingsBuilder: OnrampRedirectSettingsBuilder(),
-            transactionHistoryEnricherFactory: { await sourceToken.transactionHistoryEnricher },
+            transactionHistoryEnricherFactory: { [sourceToken] in await sourceToken.transactionHistoryEnricher },
             predefinedValues: predefinedValues
-        )
-    }
-
-    func makeOnrampBaseDataBuilder(
-        onrampRepository: OnrampRepository,
-        onrampDataRepository: OnrampDataRepository,
-        onrampRedirectingBuilder: OnrampRedirectingBuilder
-    ) -> OnrampRouterDataBuilder {
-        CommonOnrampBaseDataBuilder(
-            config: userWalletInfo.config,
-            onrampRepository: onrampRepository,
-            onrampDataRepository: onrampDataRepository,
-            onrampRedirectingBuilder: onrampRedirectingBuilder
         )
     }
 

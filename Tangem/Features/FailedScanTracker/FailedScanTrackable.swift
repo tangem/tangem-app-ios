@@ -9,7 +9,6 @@
 import Foundation
 
 protocol FailedScanTrackable {
-    var numberOfFailedAttempts: Int { get }
     var shouldDisplayAlert: Bool { get }
 
     func resetCounter()

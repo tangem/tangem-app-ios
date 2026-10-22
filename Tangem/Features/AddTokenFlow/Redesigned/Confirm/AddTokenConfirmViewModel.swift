@@ -40,7 +40,7 @@ final class AddTokenConfirmViewModel: ObservableObject, Identifiable {
 
     var confirmButtonContent: TangemButton.Content {
         let providedIcon = needsCardDerivation
-            ? CommonTangemIconProvider(config: accountSelectorCell.userWalletModel.config).getMainButtonIcon()
+            ? SigningActionButtonViewTypeBuilder().build(config: accountSelectorCell.userWalletModel.config).mainButtonIcon
             : nil
         let text = AttributedString(Localization.commonConfirm)
 
@@ -65,7 +65,6 @@ final class AddTokenConfirmViewModel: ObservableObject, Identifiable {
     private let onNetworkTapped: () -> Void
     private let onConfirmTapped: (Result<TokenItem, Error>) -> Void
     private let walletImageProvider: WalletImageProviding?
-    private var bag = Set<AnyCancellable>()
     private var saveTask: Task<Void, Never>?
 
     private var account: any CryptoAccountModel { accountSelectorCell.cryptoAccountModel }

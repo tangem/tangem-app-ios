@@ -11,7 +11,6 @@ import Foundation
 struct UnarchivedCryptoAccountConditionsValidator {
     let newAccountName: String
     let identifier: any AccountModelPersistentIdentifierConvertible
-    let accountType: AccountType
     let remoteState: CryptoAccountsRemoteState
 }
 
@@ -21,7 +20,7 @@ extension UnarchivedCryptoAccountConditionsValidator: CryptoAccountConditionsVal
     typealias ValidationError = AccountRecoveryError
 
     func validate() async throws(ValidationError) {
-        guard !AccountModelUtils.isAccountsLimitReached(for: accountType, in: remoteState) else {
+        guard !AccountModelUtils.isAccountsLimitReached(for: .crypto, in: remoteState) else {
             AccountsLogger.warning("The number of accounts exceeded the limit")
             throw .tooManyAccounts
         }

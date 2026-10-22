@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 import TangemUI
 
 struct UserWalletSettingsCoordinatorView: CoordinatorView {
@@ -48,6 +49,9 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.mobileRemoveWalletViewModel) {
                 MobileRemoveWalletView(viewModel: $0)
             }
+            .navigation(item: $coordinator.mobileRemoveSocialWalletViewModel) {
+                MobileRemoveSocialWalletView(viewModel: $0)
+            }
             .navigation(item: $coordinator.hardwareBackupTypesCoordinator) {
                 HardwareBackupTypesCoordinatorView(coordinator: $0)
             }
@@ -65,8 +69,16 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     }
             }
-            .floatingSheetContent(for: AddAccountTypeSelectorViewModel.self) {
-                AddAccountTypeSelectorView(viewModel: $0)
+            .modal(
+                isPresented: $coordinator.isAddAccountTypeSelectorPresented,
+                contentLayout: .intrinsic,
+                dragIndicator: .hidden,
+                title: Localization.accountFormTitleCreate,
+                onDismiss: coordinator.addAccountTypeSelectorDidDismiss
+            ) {
+                if let viewModel = coordinator.addAccountTypeSelectorViewModel {
+                    AddAccountTypeSelectorView(viewModel: viewModel)
+                }
             }
             .fullScreenCover(item: $coordinator.jointAccountManagementCoordinator) {
                 JointAccountManagementCoordinatorView(coordinator: $0)
@@ -77,12 +89,13 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: MobileRemoveWalletNotificationViewModel.self) {
                 MobileRemoveWalletNotificationView(viewModel: $0)
             }
-            .sheet(item: $coordinator.accountFormViewModel, onDismiss: coordinator.onAccountFormDismiss) { viewModel in
+            .floatingSheetContent(for: MobileRemoveSocialWalletNotificationViewModel.self) {
+                MobileRemoveSocialWalletNotificationView(viewModel: $0)
+            }
+            .fullScreenCover(item: $coordinator.accountFormViewModel, onDismiss: coordinator.onAccountFormDismiss) { viewModel in
                 NavigationStack {
                     AccountFormView(viewModel: viewModel)
                 }
-                .presentation(onDismissalAttempt: viewModel.onClose)
-                .presentationCornerRadius(24)
             }
     }
 }

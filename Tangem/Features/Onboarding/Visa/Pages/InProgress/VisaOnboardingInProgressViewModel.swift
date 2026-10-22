@@ -22,8 +22,6 @@ protocol VisaOnboardingInProgressDelegate: VisaOnboardingAlertPresenter {
 }
 
 class VisaOnboardingInProgressViewModel: ObservableObject {
-    @Published var isLoading: Bool = false
-
     var title: String {
         state.title
     }

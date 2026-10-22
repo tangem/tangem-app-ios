@@ -21,7 +21,6 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 import TangemAccessibilityIdentifiers
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
-    @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
     @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
 
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
@@ -48,18 +47,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     @Published private(set) var stakingState: TokenDetailsStakingState?
     @Published private(set) var yieldState: TokenDetailsYieldState?
-
-    var iconUrl: URL? {
-        guard let id = walletModel.tokenItem.id else {
-            return nil
-        }
-
-        return IconURLBuilder().tokenIconURL(id: id)
-    }
-
-    var customTokenColor: Color? {
-        walletModel.tokenItem.token?.customTokenColor
-    }
 
     let presentSource: TokenDetailsPresentSource
 
@@ -202,7 +189,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
                 option: .init(walletModel: walletModel)
             )
         case .swap:
-            openExchange()
+            openExchange(position: .build(for: walletModel))
         case .openCloreMigration:
             openCloreMigration()
         case .openDynamicAddressesEnter:
@@ -347,6 +334,7 @@ extension TokenDetailsViewModel {
             let analyticsLogger = CommonDynamicAddressesAnalyticsLogger(tokenItem: walletModel.tokenItem)
             coordinator?.openDynamicAddressesEnterView(
                 walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider,
+                signingActionButtonType: SigningActionButtonViewTypeBuilder().build(userWalletInfo: userWalletInfo),
                 analyticsLogger: analyticsLogger
             )
         }
@@ -698,9 +686,9 @@ private extension TokenDetailsViewModel {
         let formattedFiatBalance = balanceFormatter.formatFiatBalance(fiatBalance)
         let attributedFiatBalance = AttributedBalanceFormatter.format(
             formattedFiatBalance,
-            font: Font.Tangem.Body16.medium,
-            integerColor: .Tangem.Text.Neutral.primary,
-            fractionalColor: .Tangem.Text.Neutral.secondary
+            token: DesignSystem.Font.bodyMediumToken,
+            integerColor: DesignSystem.Color.textPrimary,
+            fractionalColor: DesignSystem.Color.textSecondary
         )
 
         let item = TokenDetailsStakingState.EnableItem(

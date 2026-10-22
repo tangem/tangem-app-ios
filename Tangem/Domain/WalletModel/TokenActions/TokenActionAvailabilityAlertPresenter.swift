@@ -8,14 +8,15 @@
 
 import TangemUIUtils
 
-/// The `receiveStatus` / `buyStatus` / `swapStatus` alerts stop the action, while the `warning` alert lets the user
+/// The `receiveStatus` / `buyStatus` / `swapSourceStatus` / `swapReceiveStatus` alerts stop the action, while the `warning` alert lets the user
 /// proceed with it right from the alert or leave for support, which runs `cancelAction`.
 enum TokenActionAvailabilityAlertPresenter {
     static func presentOrProceed(
         handler: inout AlertBinder?,
         receiveStatus: TokenActionAvailabilityProvider.ReceiveActionAvailabilityStatus? = nil,
         buyStatus: TokenActionAvailabilityProvider.BuyActionAvailabilityStatus? = nil,
-        swapStatus: TokenActionAvailabilityProvider.SwapActionAvailabilityStatus? = nil,
+        swapSourceStatus: TokenActionAvailabilityProvider.SwapSourceActionAvailabilityStatus? = nil,
+        swapReceiveStatus: TokenActionAvailabilityProvider.SwapReceiveActionAvailabilityStatus? = nil,
         sellStatus: TokenActionAvailabilityProvider.SellActionAvailabilityStatus? = nil,
         warning: TokenActionAvailabilityProvider.TokenActionAvailabilityWarningType? = nil,
         action: @escaping () -> Void,
@@ -24,7 +25,8 @@ enum TokenActionAvailabilityAlertPresenter {
         if let alert = alert(
             receiveStatus: receiveStatus,
             buyStatus: buyStatus,
-            swapStatus: swapStatus,
+            swapSourceStatus: swapSourceStatus,
+            swapReceiveStatus: swapReceiveStatus,
             sellStatus: sellStatus,
             warning: warning,
             action: action,
@@ -41,7 +43,8 @@ enum TokenActionAvailabilityAlertPresenter {
         presenter: AlertPresenter,
         receiveStatus: TokenActionAvailabilityProvider.ReceiveActionAvailabilityStatus? = nil,
         buyStatus: TokenActionAvailabilityProvider.BuyActionAvailabilityStatus? = nil,
-        swapStatus: TokenActionAvailabilityProvider.SwapActionAvailabilityStatus? = nil,
+        swapSourceStatus: TokenActionAvailabilityProvider.SwapSourceActionAvailabilityStatus? = nil,
+        swapReceiveStatus: TokenActionAvailabilityProvider.SwapReceiveActionAvailabilityStatus? = nil,
         sellStatus: TokenActionAvailabilityProvider.SellActionAvailabilityStatus? = nil,
         warning: TokenActionAvailabilityProvider.TokenActionAvailabilityWarningType? = nil,
         action: @escaping () -> Void,
@@ -50,7 +53,8 @@ enum TokenActionAvailabilityAlertPresenter {
         if let alert = alert(
             receiveStatus: receiveStatus,
             buyStatus: buyStatus,
-            swapStatus: swapStatus,
+            swapSourceStatus: swapSourceStatus,
+            swapReceiveStatus: swapReceiveStatus,
             sellStatus: sellStatus,
             warning: warning,
             action: action,
@@ -66,7 +70,8 @@ enum TokenActionAvailabilityAlertPresenter {
     private static func alert(
         receiveStatus: TokenActionAvailabilityProvider.ReceiveActionAvailabilityStatus?,
         buyStatus: TokenActionAvailabilityProvider.BuyActionAvailabilityStatus?,
-        swapStatus: TokenActionAvailabilityProvider.SwapActionAvailabilityStatus?,
+        swapSourceStatus: TokenActionAvailabilityProvider.SwapSourceActionAvailabilityStatus?,
+        swapReceiveStatus: TokenActionAvailabilityProvider.SwapReceiveActionAvailabilityStatus?,
         sellStatus: TokenActionAvailabilityProvider.SellActionAvailabilityStatus?,
         warning: TokenActionAvailabilityProvider.TokenActionAvailabilityWarningType?,
         action: @escaping () -> Void,
@@ -76,12 +81,13 @@ enum TokenActionAvailabilityAlertPresenter {
 
         let receiveAlert = receiveStatus.flatMap { alertBuilder.alert(for: $0) }
         let buyAlert = buyStatus.flatMap { alertBuilder.alert(for: $0) }
-        let swapAlert = swapStatus.flatMap { alertBuilder.alert(for: $0) }
+        let swapAlert = swapSourceStatus.flatMap { alertBuilder.alert(for: $0) }
+        let swapReceiveAlert = swapReceiveStatus.flatMap { alertBuilder.alert(for: $0) }
         let sellAlert = sellStatus.flatMap { alertBuilder.alert(for: $0) }
         let warningAlert = warning.flatMap {
             alertBuilder.alert(for: $0, continueAction: action, cancelAction: cancelAction)
         }
 
-        return receiveAlert ?? buyAlert ?? swapAlert ?? sellAlert ?? warningAlert
+        return receiveAlert ?? buyAlert ?? swapAlert ?? swapReceiveAlert ?? sellAlert ?? warningAlert
     }
 }

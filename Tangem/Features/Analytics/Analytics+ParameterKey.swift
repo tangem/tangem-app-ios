@@ -156,6 +156,9 @@ extension Analytics {
 
         case displayId = "Display Id"
         case placeholder = "Placeholder"
+        case campaignId = "Campaign Id"
+        case promoCode = "Promo Code"
+        case activationTime = "Activation Time"
 
         // MARK: - Earn
 
@@ -183,6 +186,12 @@ extension Analytics {
         case backupsCount = "Backup Count"
         case completedBackups = "Completed Backups"
         case socialBackup = "Social Backup"
+
+        // MARK: - Social login
+
+        case consentType = "Consent Type"
+        case consentGiven = "Consent Given"
+        case consentText = "Consent Text"
 
         // MARK: - News
 

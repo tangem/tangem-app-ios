@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Combine
 import SwiftUI
 import TangemAccessibilityIdentifiers
 import TangemAssets
@@ -25,7 +26,6 @@ struct AccountFormView: View {
     @State private var containerHeight: CGFloat = 0
 
     @State private var buttonHeight: CGFloat = 0
-    @State private var buttonMinY: CGFloat = 0
 
     @State private var shouldShowShadow = false
     @FocusState private var isNameFocused: Bool
@@ -37,14 +37,31 @@ struct AccountFormView: View {
             overlayButtonView
         }
         .padding(.horizontal, 16)
-        .background(viewModel.backgroundColor)
+        .background(DesignSystem.Color.bgPrimary)
         .navigationTitle(viewModel.title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text(viewModel.title)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+            }
+        }
         .withCloseButton(placement: .topBarTrailing, style: .icon) {
             viewModel.onClose()
         }
         .ignoresSafeArea(.keyboard)
         .alert(item: $viewModel.alert, content: { $0.alert })
+        .modal(
+            isPresented: $viewModel.isWalletSelectorPresented,
+            contentLayout: .intrinsic,
+            dragIndicator: .hidden,
+            title: Localization.commonChooseWallet
+        ) {
+            if let walletSelector = viewModel.walletSelector {
+                AccountSelectorView(viewModel: walletSelector, style: .modal)
+                    .selectionCheckmarks()
+            }
+        }
         .submitLabel(.done)
         .onSubmit {
             // Do NOT access SwiftUI internal state (@State, @FocusState, @Binding, @StateObject, etc) inside the `onSubmit(of:_:)` closure.
@@ -69,11 +86,12 @@ struct AccountFormView: View {
 
                 if let description = viewModel.description {
                     Text(description)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                         .transition(.opacity)
-                        .padding(.horizontal, 14.0)
                 }
             }
+            .padding(.top, 12)
+            .padding(.bottom, buttonHeight)
             .readGeometry(\.size.height) { height in
                 contentHeight = height
             }
@@ -92,26 +110,28 @@ struct AccountFormView: View {
     }
 
     private var overlayButtonView: some View {
-        MainButton(
-            title: viewModel.buttonTitle,
-            isLoading: viewModel.isLoading,
-            isDisabled: viewModel.mainButtonDisabled,
-            accessibilityIdentifier: AccountsAccessibilityIdentifiers.accountFormMainButton,
-            action: viewModel.onMainButtonTap
-        )
-        .padding(.bottom, 6)
-        .background(
-            ListFooterOverlayShadowView()
-                .hidden(!shouldShowShadow)
-        )
-        .readGeometry(\.frame, inCoordinateSpace: .named(CoordinateSpaceName.scrollView)) { frame in
-            buttonHeight = frame.height
-            buttonMinY = frame.minY
-        }
+        TangemUI.Button(label: viewModel.buttonTitle, accessibilityLabel: nil, action: viewModel.onMainButtonTap)
+            .styleType(.primary)
+            .size(.x12)
+            .horizontalLayout(.infinity)
+            .loading(.spinner(if: viewModel.isLoading))
+            .disabled(viewModel.mainButtonDisabled)
+            .accessibilityIdentifier(AccountsAccessibilityIdentifiers.accountFormMainButton)
+            .padding(.vertical, 12)
+            .background(alignment: .bottom) {
+                Fade(position: .bottom)
+                    .variant(.hard)
+                    .padding(.horizontal, -16)
+                    .ignoresSafeArea(edges: .bottom)
+                    .hidden(!shouldShowShadow)
+            }
+            .readGeometry(\.size.height) { height in
+                buttonHeight = height
+            }
     }
 
     private var mainContent: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 8) {
             FormHeaderView(
                 accountName: $viewModel.accountName,
                 title: Localization.accountFormName,
@@ -124,6 +144,9 @@ struct AccountFormView: View {
             AccountFormGridView(
                 selectedItem: $viewModel.selectedColor,
                 items: viewModel.colors,
+                backgroundColor: DesignSystem.Color.bgSecondary,
+                horizontalPadding: 16,
+                cornerRadius: 24,
                 content: { colorItem, isSelected in
                     makeColorItem(color: colorItem.color, isSelected: isSelected)
                 }
@@ -132,6 +155,9 @@ struct AccountFormView: View {
             AccountFormGridView(
                 selectedItem: $viewModel.selectedIcon,
                 items: viewModel.images,
+                backgroundColor: DesignSystem.Color.bgSecondary,
+                horizontalPadding: 16,
+                cornerRadius: 24,
                 content: { imageItem, isSelected in
                     makeIconItem(kind: imageItem.kind, isSelected: isSelected)
                 }
@@ -146,83 +172,78 @@ struct AccountFormView: View {
     private func makeColorItem(color: Color, isSelected: Bool) -> some View {
         Circle()
             .fill(color)
-            .overlay(makeItemOverlayView(isSelected: isSelected, strokeColor: color))
+            .frame(width: 40, height: 40)
+            .overlay(makeSelectionRing(isSelected: isSelected, color: color))
     }
 
     private func makeIconItem(kind: GridItemImageKind, isSelected: Bool) -> some View {
-        let imageSelectedColor = switch kind {
-        case .image: Colors.Text.secondary
-        case .letter: Colors.Text.accent
-        }
-
-        let imageNotSelectedColor = switch kind {
-        case .image: Colors.Text.tertiary
-        case .letter: Colors.Text.accent
+        let iconColor = switch kind {
+        case .image: isSelected ? DesignSystem.Color.iconPrimary : DesignSystem.Color.iconSecondary
+        case .letter: DesignSystem.Color.iconBrand
         }
 
         let backgroundColor = switch kind {
-        case .image: Colors.Field.focused
-        case .letter: Colors.Text.accent.opacity(0.1)
-        }
-
-        let strokeColor = switch kind {
-        case .image: Colors.Text.secondary
-        case .letter: Colors.Icon.accent
+        case .image: isSelected ? DesignSystem.Color.bgTransparentSecondary : DesignSystem.Color.bgTransparentPrimary
+        case .letter: DesignSystem.Color.bgStatusInfoSubtle
         }
 
         return Circle()
             .fill(backgroundColor)
+            .frame(width: 40, height: 40)
             .overlay(
                 kind.imageType.image
                     .renderingMode(.template)
                     .resizable()
-                    .padding(8)
-                    .foregroundStyle(isSelected ? imageSelectedColor : imageNotSelectedColor)
+                    .frame(width: 24, height: 24)
+                    .foregroundStyle(iconColor)
             )
-            .overlay(makeItemOverlayView(isSelected: isSelected, strokeColor: strokeColor))
+            .overlay(makeSelectionRing(isSelected: isSelected, color: DesignSystem.Color.borderTertiary))
     }
 
-    private func makeItemOverlayView(isSelected: Bool, strokeColor: Color) -> some View {
+    private func makeSelectionRing(isSelected: Bool, color: Color) -> some View {
         Circle()
-            .strokeBorder(AccountFormGridViewConstants.backgroundColor, lineWidth: isSelected ? 4 : 0)
-            .overlay(
-                Circle()
-                    .strokeBorder(strokeColor, lineWidth: isSelected ? 2 : 0)
-            )
+            .strokeBorder(color, lineWidth: isSelected ? 2 : 0)
+            .frame(width: 48, height: 48)
     }
 }
 
 // MARK: - Wallet row
 
-/// The wallet the account is created in, opens the wallet selection on tap.
+/// The wallet the account is created in, opens the wallet selection on tap when the wallet can be changed.
 private struct AccountFormWalletRow: View {
     let wallet: AccountFormWallet
     let action: () -> Void
 
-    @State private var image: ImageValue?
-    @ScaledMetric private var imageSize = Constants.imageSize
+    @ScaledMetric private var thumbnailSize = Constants.thumbnailSize
 
     var body: some View {
-        Row(title: Localization.commonWallet, value: wallet.name)
-            .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
-            .valueAccessory { walletImage }
-            .end { chevron }
-            .onTap(action)
-            .background(AccountFormGridViewConstants.backgroundColor)
+        Row(title: Localization.commonWallet)
+            .valueAccessory { walletValue }
+            .if(wallet.isSelectable) { $0.onTap(action: action) }
+            .background(DesignSystem.Color.bgSecondary)
             .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
-            .task(id: wallet.id) {
-                image = nil
-                image = await wallet.imageProvider.loadSmallImage()
+            .accessibilityIdentifier(AccountsAccessibilityIdentifiers.accountFormWalletRow)
+    }
+
+    private var walletValue: some View {
+        HStack(spacing: Constants.valueSpacing) {
+            walletThumbnail
+
+            Text(wallet.name)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+                .lineLimit(1)
+
+            if wallet.isSelectable {
+                chevron
             }
+        }
     }
 
     @ViewBuilder
-    private var walletImage: some View {
-        if let image {
-            image.image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: imageSize, height: imageSize)
+    private var walletThumbnail: some View {
+        if let thumbnailType = wallet.thumbnailType {
+            MiniatureWalletView(type: thumbnailType)
+                .frame(width: thumbnailSize, height: thumbnailSize)
         }
     }
 
@@ -233,8 +254,9 @@ private struct AccountFormWalletRow: View {
     }
 
     private enum Constants {
-        static let imageSize: CGFloat = 20
-        static let cornerRadius: CGFloat = 14
+        static let thumbnailSize: CGFloat = 20
+        static let cornerRadius: CGFloat = 24
+        static let valueSpacing: CGFloat = 4
     }
 }
 
@@ -249,7 +271,12 @@ extension AccountFormView {
 @available(iOS 17.0, *)
 #Preview {
     @Previewable @ObservedObject var viewModel = AccountFormViewModel(
-        flowType: .create(creator: CryptoAccountFormViewCreator(accountModelsManager: AccountModelsManagerMock())),
+        flowType: .create(
+            creator: CryptoAccountFormViewCreator(
+                userWalletModelSubject: CurrentValueSubject(FakeUserWalletModel.wallet3Cards),
+                walletSelection: .selectable
+            )
+        ),
         coordinator: nil
     )
 

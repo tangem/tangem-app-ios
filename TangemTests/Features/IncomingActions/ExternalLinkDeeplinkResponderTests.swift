@@ -81,7 +81,7 @@ private final class SafariManagerSpy: SafariManager {
         configuration: SafariConfiguration,
         onDismiss: @escaping () -> Void,
         onSuccess: @escaping (URL) -> Void
-    ) -> SafariHandle {
+    ) -> SafariHandle? {
         openedURLs.append(url)
         return SafariHandleStub(url: url)
     }

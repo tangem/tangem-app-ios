@@ -36,10 +36,6 @@ class CommonTransactionHistoryService {
 // MARK: - TransactionHistoryService
 
 extension CommonTransactionHistoryService: TransactionHistoryService {
-    var state: TransactionHistoryServiceState {
-        _state.value
-    }
-
     var statePublisher: AnyPublisher<TransactionHistoryServiceState, Never> {
         _state.eraseToAnyPublisher()
     }

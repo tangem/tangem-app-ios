@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct IconWithMessagePlaceholderView: View {
     private let icon: ImageType
@@ -21,11 +22,11 @@ struct IconWithMessagePlaceholderView: View {
             IconWithBackground(icon: icon)
 
             VStack(alignment: .leading) {
-                Color.white
-                    .skeletonable(isShown: true, size: .init(width: 40, height: 11), radius: 3)
+                Shimmer()
+                    .variant(.custom(width: 40, height: 11, cornerRadius: 3))
 
-                Color.white
-                    .skeletonable(isShown: true, size: .init(width: 102, height: 21), radius: 6)
+                Shimmer()
+                    .variant(.custom(width: 102, height: 21, cornerRadius: 6))
             }
 
             Spacer()

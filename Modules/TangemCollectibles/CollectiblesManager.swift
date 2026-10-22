@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
+public import Foundation
 public import Combine
 import BlockchainSdk
 public import TangemFoundation
@@ -27,6 +27,8 @@ public final class CollectiblesManager {
     private let transactionSender: CollectiblesColdKeyTransactionSender
     private let onboardingInteractor: CollectiblesOnboardingInteractor
     private let purchaseTransactionDispatcher: CollectiblesPurchaseTransactionDispatcher
+    private let buybackTransactionDispatcher: CollectiblesBuybackTransactionDispatcher
+    private let delayProvider: any PollDelayProvider
 
     private let stateSubject = CurrentValueSubject<CollectiblesState, Never>(.unresolved)
     private let vaultUsdcStateSubject = CurrentValueSubject<CollectiblesVaultUsdcState, Never>(.loading)
@@ -48,7 +50,9 @@ public final class CollectiblesManager {
         transactionSender: CollectiblesColdKeyTransactionSender,
         onboardingInteractor: CollectiblesOnboardingInteractor,
         purchaseTransactionDispatcher: CollectiblesPurchaseTransactionDispatcher,
-        presenceStore: any CollectiblesAccountPresenceStore
+        buybackTransactionDispatcher: CollectiblesBuybackTransactionDispatcher,
+        presenceStore: any CollectiblesAccountPresenceStore,
+        delayProvider: any PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
         self.userWalletId = userWalletId
         self.coldOwnerProvider = coldOwnerProvider
@@ -60,7 +64,9 @@ public final class CollectiblesManager {
         self.transactionSender = transactionSender
         self.onboardingInteractor = onboardingInteractor
         self.purchaseTransactionDispatcher = purchaseTransactionDispatcher
+        self.buybackTransactionDispatcher = buybackTransactionDispatcher
         self.presenceStore = presenceStore
+        self.delayProvider = delayProvider
 
         runTask { [weak self] in
             await self?.refreshState()
@@ -118,7 +124,8 @@ public extension CollectiblesManager {
 
         let polling = PollingSequence(
             interval: Constants.depositPollInterval,
-            request: { [weak self] in await self?.refresh(silent: true) }
+            request: { [weak self] in await self?.refresh(silent: true) },
+            delayProvider: delayProvider
         )
 
         _ = await polling
@@ -172,19 +179,20 @@ extension CollectiblesManager: CollectiblesOnboarder {
 
 public extension CollectiblesManager {
     var purchaseAddresses: CollectiblesPurchaseAddresses? {
-        guard case .ready(let vault) = state, let coldOwner = coldOwnerProvider.coldOwnerKey()?.blockchainKey else {
+        guard case .ready = state, let coldOwner = coldOwnerProvider.coldOwnerKey()?.blockchainKey else {
             return nil
         }
 
-        // [REDACTED_TODO_COMMENT]
-        return CollectiblesPurchaseAddresses(payer: vault.vaultAddress, prizeRecipient: coldOwner.base58EncodedString)
+        let ownerAddress = coldOwner.base58EncodedString
+
+        return CollectiblesPurchaseAddresses(player: ownerAddress, prizeRecipient: ownerAddress)
     }
 }
 
 // MARK: - Session-key operations (no card tap)
 
-extension CollectiblesManager {
-    public func signPurchase(
+public extension CollectiblesManager {
+    func signPurchase(
         _ purchase: CollectiblesPackPurchase,
         confirmedPrice: CollectiblesConfirmedPrice
     ) async throws -> CollectiblesSignedPurchase {
@@ -230,18 +238,12 @@ extension CollectiblesManager {
         return signedPurchase
     }
 
-    public func sendPurchase(_ signedPurchase: CollectiblesSignedPurchase) async throws(CollectiblesPurchaseError) {
+    func sendPurchase(_ signedPurchase: CollectiblesSignedPurchase) async throws(CollectiblesSendError) {
         try await purchaseTransactionDispatcher.send(signedPurchase)
     }
 
-    /// Countersigns a buyback transaction assembled by Collector Crypt.
-    func countersignBuyback(preparedTransaction: Data) async throws {
-        // [REDACTED_TODO_COMMENT]
-        throw NotImplementedError()
-    }
-
     /// Frees an occupied legacy buyback slot — rotation alone does not revoke an issued Metaplex delegate.
-    func revokeBuyback() async throws {
+    internal func revokeBuyback() async throws {
         // [REDACTED_TODO_COMMENT]
         throw NotImplementedError()
     }
@@ -296,6 +298,17 @@ extension CollectiblesManager {
         }
 
         await refreshState()
+    }
+
+    public func signBuyback(
+        _ preparedTransaction: Data,
+        terms: CollectiblesBuybackTerms
+    ) async throws -> CollectiblesSignedBuyback {
+        try await buybackTransactionDispatcher.sign(preparedTransaction, terms: terms)
+    }
+
+    public func sendBuyback(_ signedBuyback: CollectiblesSignedBuyback) async throws(CollectiblesSendError) {
+        try await buybackTransactionDispatcher.send(signedBuyback)
     }
 
     func withdrawToken(amount: UInt64, destination: String) async throws {
@@ -453,7 +466,7 @@ private extension CollectiblesManager {
     /// like an early one; only cancellation ends the wait before its answer.
     func waitForState(until isSatisfied: (CollectiblesState) -> Bool) async throws -> Bool {
         for _ in 0 ..< Constants.stateAdvanceAttempts {
-            try await Task.sleep(for: Constants.stateAdvanceInterval)
+            try await delayProvider.wait(for: Constants.stateAdvanceInterval)
 
             if let state = try? await resolveState(), isSatisfied(state) {
                 return true
@@ -493,7 +506,7 @@ private extension CollectiblesManager {
 private extension CollectiblesManager {
     enum Constants {
         static let stateAdvanceAttempts = 10
-        static let stateAdvanceInterval: Duration = .seconds(2)
+        static let stateAdvanceInterval: TimeInterval = 2
         static let depositPollAttempts = 18
         static let depositPollInterval: TimeInterval = 5
     }

@@ -15,21 +15,19 @@ import TangemSdk
 /// identifier.
 struct CommonJointAccountMembersService {
     private let cryptoAccountId: String
-    private let derivationPath: DerivationPath
     private let jointAccountsRepository: JointAccountsRepository
-    private let keysProvider: KeysProvider
+    private let userRoleService: JointAccountUserRoleService
     private let inviteLinkBuilder = JointAccountInviteLinkBuilder()
 
     init(
         userWalletId: UserWalletId,
         derivationIdentity: CryptoAccountDerivationIdentity,
         jointAccountsRepository: JointAccountsRepository,
-        keysProvider: KeysProvider
+        userRoleService: JointAccountUserRoleService
     ) {
         self.jointAccountsRepository = jointAccountsRepository
-        self.keysProvider = keysProvider
+        self.userRoleService = userRoleService
         cryptoAccountId = CryptoAccountModelId(userWalletId: userWalletId, derivationIdentity: derivationIdentity).rawValue.hexString
-        derivationPath = JointAccountKeyPath.derivationPath(forAccountAtIndex: derivationIdentity.derivationIndex)
     }
 }
 
@@ -53,15 +51,8 @@ extension CommonJointAccountMembersService: JointAccountMembersService {
         .eraseToAnyPublisher()
     }
 
-    var isCreatorDevice: Bool {
-        // Having the record is the answer, not what is left in it: a creator who filled every slot at creation was
-        // handed no invites and holds a record all the same
-        // [REDACTED_TODO_COMMENT]
-        jointAccountsRepository.jointAccountsInvites.first(by: cryptoAccountId) != nil
-    }
-
-    var ownAddress: String? {
-        try? JointAccountDerivationUtils.storedDerivedKey(at: derivationPath, in: keysProvider)?.address
+    var userRole: JointAccountUserRole {
+        userRoleService.role(among: slots.members)
     }
 
     func requestFrequentUpdates() -> AnyCancellable {
