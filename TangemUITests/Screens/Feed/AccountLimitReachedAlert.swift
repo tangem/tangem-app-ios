@@ -32,6 +32,7 @@ final class AccountLimitReachedAlert: Screen {
 
 private extension AccountLimitReachedAlert {
     enum Constants {
-        static let messageFragment = "Archive one to add new"
+        static let maxAccounts = 20
+        static let messageFragment = Localization.accountAddLimitDialogDescription(maxAccounts)
     }
 }
