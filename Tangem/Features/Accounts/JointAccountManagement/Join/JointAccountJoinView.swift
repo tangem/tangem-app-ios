@@ -235,6 +235,18 @@ private struct JointAccountsNetworkServicePreviewStub: JointAccountsNetworkServi
     func rejectOperation(id: String) async throws -> JointAccountOperation? {
         throw CancellationError()
     }
+
+    func getOperationsHistory(afterCursor: String?, limit: Int) async throws -> JointOperationsHistoryPage {
+        throw CancellationError()
+    }
+
+    func getOperationsHistoryDelta(beforeCursor: String?, limit: Int) async throws -> JointOperationsHistoryPage {
+        throw CancellationError()
+    }
+
+    func getOperation(id: String, knownETag: String?) async throws -> JointOperationFetchResult {
+        throw CancellationError()
+    }
 }
 
 #Preview {
