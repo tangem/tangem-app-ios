@@ -55,6 +55,19 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
     }
 
     @discardableResult
+    func verifyGetTangemPayNotVisible() -> Self {
+        XCTContext.runActivity(named: "Verify Get Tangem Pay row is not displayed in details") { _ in
+            scrollToElement(buyWalletButton, attempts: .lazy)
+            waitAndAssertTrue(buyWalletButton, "Details should display the section of the Get Tangem Pay row")
+            XCTAssertTrue(
+                getTangemPayButton.waitForNonExistence(timeout: .conditional),
+                "Get Tangem Pay row should not be displayed in details"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func openWalletConnections() -> WalletConnectionsScreen {
         XCTContext.runActivity(named: "Open WalletConnect") { _ in
             let walletConnectButton = button(.walletConnectButton)
