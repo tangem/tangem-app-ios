@@ -7,15 +7,14 @@
 //
 
 import Foundation
-import TangemPolymarket
 import TangemUI
 
 enum PolymarketOrderFlowStyle {
     case summaryStep
     case singleSheet(SingleSheet)
 
-    init(isSingleSheetEnabled: Bool, side: PolymarketOrderSide, singleSheet: @autoclosure () -> SingleSheet) {
-        self = isSingleSheetEnabled && side == .buy ? .singleSheet(singleSheet()) : .summaryStep
+    init(isSingleSheetEnabled: Bool, singleSheet: @autoclosure () -> SingleSheet) {
+        self = isSingleSheetEnabled ? .singleSheet(singleSheet()) : .summaryStep
     }
 
     var singleSheet: SingleSheet? {

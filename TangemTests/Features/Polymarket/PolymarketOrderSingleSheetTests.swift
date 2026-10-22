@@ -19,19 +19,14 @@ import TangemUI
 struct PolymarketOrderSingleSheetTests {
     // MARK: - Routing
 
-    @Test("With phase two off a buy keeps the separate fee step")
-    func toggleOffKeepsSummaryStepForBuy() {
-        #expect(!PolymarketOrderFlowStyle(isSingleSheetEnabled: false, side: .buy, singleSheet: Self.singleSheet).isSingleSheet)
+    @Test("With phase two off both placing and closing keep the separate fee step")
+    func toggleOffKeepsSummaryStep() {
+        #expect(!PolymarketOrderFlowStyle(isSingleSheetEnabled: false, singleSheet: Self.singleSheet).isSingleSheet)
     }
 
-    @Test("With phase two on a buy is placed from the single sheet")
-    func toggleOnUsesSingleSheetForBuy() {
-        #expect(PolymarketOrderFlowStyle(isSingleSheetEnabled: true, side: .buy, singleSheet: Self.singleSheet).isSingleSheet)
-    }
-
-    @Test("Closing a position keeps the fee step whatever the toggle says", arguments: [false, true])
-    func sellAlwaysKeepsSummaryStep(isSingleSheetEnabled: Bool) {
-        #expect(!PolymarketOrderFlowStyle(isSingleSheetEnabled: isSingleSheetEnabled, side: .sell, singleSheet: Self.singleSheet).isSingleSheet)
+    @Test("With phase two on both placing and closing happen on the single sheet")
+    func toggleOnUsesSingleSheet() {
+        #expect(PolymarketOrderFlowStyle(isSingleSheetEnabled: true, singleSheet: Self.singleSheet).isSingleSheet)
     }
 
     @Test("Without a placement the primary action opens the fee step and never places")
@@ -59,6 +54,50 @@ struct PolymarketOrderSingleSheetTests {
         #expect(context.sut.nextButtonTitle == Localization.predictionPlaceButton)
         #expect(context.routable.summaryOpenings == 0)
         #expect(context.placementService.placements == 1)
+    }
+
+    // MARK: - Closing a position
+
+    @Test("Closing on the fee step keeps its Close title")
+    func summaryStepCloseTitle() async throws {
+        let context = try await makeContext(isSingleSheet: false, sells: true, quote: Self.sellQuote)
+
+        #expect(context.sut.nextButtonTitle == Localization.predictionCloseButton)
+    }
+
+    @Test("Closing on the single sheet shows the proceeds and the total and offers no dollar presets")
+    func singleSheetCloseShowsProceeds() async throws {
+        let context = try await makeContext(isSingleSheet: true, sells: true, quote: Self.sellQuote)
+
+        #expect(context.sut.nextButtonTitle == Localization.predictionCloseButton)
+        #expect(!context.sut.isAmountEditable)
+        #expect(context.sut.amountPresets.isEmpty)
+        #expect(context.sut.proceedsText == PolymarketOrderFormatter.money(Self.sellQuote.expectedExecutionAmount))
+        #expect(context.sut.showsTotal)
+        #expect(context.sut.totalText == PolymarketOrderFormatter.money(Self.sellQuote.total))
+        #expect(context.sut.isFeeBreakdownAvailable)
+    }
+
+    @Test("Closing on the single sheet sells right away and hands over the whole held position")
+    func singleSheetCloseSellsDirectly() async throws {
+        let context = try await makeContext(
+            isSingleSheet: true,
+            sells: true,
+            quote: Self.sellQuote,
+            placement: .success(.stub(makingAmount: Self.heldShares, takingAmount: 7))
+        )
+
+        context.sut.handleViewAction(.placeOrder)
+
+        try await settle { context.routable.results.count == 1 }
+
+        let content = try #require(context.routable.contents.first)
+
+        #expect(context.routable.summaryOpenings == 0)
+        #expect(context.placementService.placements == 1)
+        #expect(content.side == .sell)
+        #expect(content.heldShares == Self.heldShares)
+        #expect(content.tokensBought == Self.heldShares)
     }
 
     // MARK: - Total row
@@ -320,6 +359,8 @@ struct PolymarketOrderSingleSheetTests {
 
 private extension PolymarketOrderSingleSheetTests {
     static let quote = PolymarketOrderQuote.stub(status: .full)
+    static let heldShares: Decimal = 10
+    static let sellQuote = PolymarketOrderQuote.stub(status: .full, shares: heldShares, expectedExecutionAmount: 7, total: Decimal(string: "6.5")!)
     static let singleSheet = PolymarketOrderFlowStyle.SingleSheet(placementService: PlacementServiceStub(result: nil), signingButtonType: .holdToConfirm)
 
     struct StubError: Error {}
@@ -360,6 +401,7 @@ private extension PolymarketOrderSingleSheetTests {
 
     func makeContext(
         isSingleSheet: Bool,
+        sells: Bool = false,
         enteredAmount: Decimal? = 100,
         balance: Decimal = 200,
         quote: PolymarketOrderQuote? = .stub(status: .full),
@@ -374,7 +416,7 @@ private extension PolymarketOrderSingleSheetTests {
             market: .fixture,
             outcome: .fixture,
             eventTitle: "Fixture event",
-            intent: .buy(balance: .just(output: balance)),
+            intent: sells ? .sell(shares: Self.heldShares) : .buy(balance: .just(output: balance)),
             apiProvider: api,
             geoblockStateProvider: PolymarketGeoblockStateProviderStub(state: .allowed),
             positionsService: nil,
@@ -398,7 +440,7 @@ private extension PolymarketOrderSingleSheetTests {
         model.handleViewAction(.onAppear)
 
         if let enteredAmount {
-            model.apply(enteredAmount: enteredAmount, debounced: false)
+            model.apply(enteredAmount: sells ? Self.heldShares : enteredAmount, debounced: false)
 
             if quote != nil {
                 try await settle { model.state.quote.quote != nil && (!isSingleSheet || sut.showsTotal && sut.isFeeBreakdownAvailable) }
@@ -465,6 +507,7 @@ private final class OrderRoutableSpy: PolymarketOrderRoutable {
     private(set) var feeBreakdownOpenings = 0
     private(set) var closings = 0
     private(set) var results: [PolymarketOrderResultViewModel.State] = []
+    private(set) var contents: [PolymarketOrderResultViewModel.Content] = []
 
     func closeOrder() {
         closings += 1
@@ -490,6 +533,7 @@ private final class OrderRoutableSpy: PolymarketOrderRoutable {
 
     func openResult(state: PolymarketOrderResultViewModel.State, content: PolymarketOrderResultViewModel.Content) {
         results.append(state)
+        contents.append(content)
     }
 
     func openLegalTerms(url: URL) {}

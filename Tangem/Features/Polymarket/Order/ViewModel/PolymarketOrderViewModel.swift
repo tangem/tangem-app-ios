@@ -158,12 +158,8 @@ extension PolymarketOrderViewModel {
     }
 
     var nextButtonTitle: String {
-        if isSingleSheet {
-            return Localization.predictionPlaceButton
-        }
-
-        return switch model.intent {
-        case .buy: Localization.commonNext
+        switch model.intent {
+        case .buy: isSingleSheet ? Localization.predictionPlaceButton : Localization.commonNext
         case .sell: Localization.predictionCloseButton
         }
     }
