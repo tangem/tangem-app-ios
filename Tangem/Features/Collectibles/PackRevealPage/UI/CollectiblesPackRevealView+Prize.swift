@@ -20,15 +20,13 @@ extension CollectiblesPackRevealView {
         let number: String
         let subtitle: String
         let keepTitle: String
-        let sellBackTitle: String
     }
 }
 
 // [REDACTED_TODO_COMMENT]
 extension CollectiblesPackRevealView.Prize {
-    init(wonCard: CollectiblesWonCard, buybackRate: Decimal) {
+    init(wonCard: CollectiblesWonCard) {
         let rarity = wonCard.rarity
-        let buybackValue = wonCard.insuredValue.map { $0 * buybackRate }
 
         self.init(
             imageURL: wonCard.imageFrontURL,
@@ -38,9 +36,10 @@ extension CollectiblesPackRevealView.Prize {
             glow: rarity.flatMap(Self.glow(of:)),
             name: [wonCard.year, wonCard.set].compactMap { $0 }.joined(separator: " "),
             number: wonCard.serialNumber.map { "#\($0)" } ?? "",
-            subtitle: wonCard.insuredValue.map { "Market value \(Self.formatDollars($0)) · Insured" } ?? "",
-            keepTitle: "Keep card",
-            sellBackTitle: buybackValue.map { "Sell back for \(Self.formatDollars($0))" } ?? "Sell back"
+            subtitle: wonCard.insuredValue.map {
+                "Market value \(CollectiblesPriceFormatter.formatWithCents($0)) · Insured"
+            } ?? "",
+            keepTitle: "Keep card"
         )
     }
 }
@@ -61,9 +60,5 @@ private extension CollectiblesPackRevealView.Prize {
         case .uncommon: .success
         case .epic, .legendary: .magic
         }
-    }
-
-    static func formatDollars(_ value: Decimal) -> String {
-        CollectiblesPriceFormatter.format(value, formattingOptions: .defaultFiatFormattingOptions)
     }
 }

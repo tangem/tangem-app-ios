@@ -127,12 +127,23 @@ extension CollectiblesCoordinator: CollectiblesMachineRoutable {
 // MARK: - CollectiblesConfirmOrderRoutable
 
 extension CollectiblesCoordinator: CollectiblesConfirmOrderRoutable {
-    func openPackReveal(prize: CollectiblesPackRevealView.Prize, assets: CollectiblesRevealAssets) {
+    func openPackReveal(wonCard: CollectiblesWonCard, assets: CollectiblesRevealAssets) {
+        guard let accountModel else { return }
+
+        let offerProvider = RemoteCollectiblesBuybackOfferProvider(
+            userWalletID: userWalletID,
+            requester: CollectiblesAPIService()
+        )
         let revealViewModel = CollectiblesPackRevealViewModel(
             darkVideoURL: assets.darkVideoURL,
             lightVideoURL: assets.lightVideoURL,
-            prize: prize,
-            player: AVCollectiblesRevealPlayer(skipAudioURL: assets.skipAudioURL)
+            wonCard: wonCard,
+            player: AVCollectiblesRevealPlayer(skipAudioURL: assets.skipAudioURL),
+            offerProvider: offerProvider,
+            buybackInteractor: accountModel.buybackInteractor,
+            signingActionButtonType: signingActionButtonType,
+            routable: self,
+            refreshBalance: accountModel.refreshState
         )
         confirmOrderViewModel?.show(reveal: revealViewModel)
     }
@@ -145,6 +156,10 @@ extension CollectiblesCoordinator: CollectiblesConfirmOrderRoutable {
         machineViewModel = nil
     }
 }
+
+// MARK: - CollectiblesPackRevealRoutable
+
+extension CollectiblesCoordinator: CollectiblesPackRevealRoutable {}
 
 // MARK: - Private logic
 
