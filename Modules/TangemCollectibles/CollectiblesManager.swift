@@ -189,6 +189,18 @@ public extension CollectiblesManager {
     }
 }
 
+// MARK: - Buyback
+
+public extension CollectiblesManager {
+    var buybackAddresses: CollectiblesBuybackAddresses? {
+        guard case .ready(let vault) = state, let coldOwner = coldOwnerProvider.coldOwnerKey()?.blockchainKey else {
+            return nil
+        }
+
+        return CollectiblesBuybackAddresses(owner: coldOwner.base58EncodedString, payoutRecipient: vault.vaultAddress)
+    }
+}
+
 // MARK: - Session-key operations (no card tap)
 
 public extension CollectiblesManager {
