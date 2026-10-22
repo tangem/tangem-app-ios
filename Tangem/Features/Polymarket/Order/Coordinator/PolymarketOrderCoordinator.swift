@@ -69,7 +69,6 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
         addFundsAction = options.onAddFunds
         flowStyle = PolymarketOrderFlowStyle(
             isSingleSheetEnabled: options.isSingleSheetEnabled,
-            side: options.intent.side,
             singleSheet: .init(placementService: options.placementService, signingButtonType: options.signingButtonType)
         )
 
