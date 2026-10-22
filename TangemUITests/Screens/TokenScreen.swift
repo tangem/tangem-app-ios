@@ -213,9 +213,18 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         XCTContext.runActivity(named: "Tap pending express transaction to open its details") { _ in
             waitAndAssertTrue(pendingSwapHistoryItem, "Pending swap should be displayed in history")
             scrollToElement(pendingSwapHistoryItem)
+            scrollAboveFloatingBar(pendingSwapHistoryItem)
             pendingSwapHistoryItem.waitAndTap()
         }
         return TransactionDetailsSheet(app)
+    }
+
+    private func scrollAboveFloatingBar(_ element: XCUIElement) {
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.7))
+        let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.4))
+        for _ in 0 ..< 4 where !element.isHittable {
+            start.press(forDuration: 0.1, thenDragTo: end)
+        }
     }
 
     @discardableResult
