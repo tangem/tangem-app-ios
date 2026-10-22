@@ -1014,13 +1014,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     }
 
     private func ensureWalletIsNotAlreadyAdded(mnemonic: Mnemonic, passphrase: String) throws {
-        let curve = EllipticCurve.secp256k1
-
-        let masterKeyFactory = AnyMasterKeyFactory(mnemonic: mnemonic, passphrase: passphrase)
-        let extendedPrivateKey = try masterKeyFactory.makeMasterKey(for: curve)
-        let extendedPublicKey = try extendedPrivateKey.makePublicKey(for: curve)
-        let publicKeyData = extendedPublicKey.publicKey
-        let userWalletId = UserWalletId(with: publicKeyData)
+        let userWalletId = try MnemonicUserWalletIdFactory().makeUserWalletId(mnemonic: mnemonic, passphrase: passphrase)
 
         guard !userWalletRepository.models.contains(where: { $0.userWalletId == userWalletId }) else {
             throw UserWalletRepositoryError.duplicateWalletAdded
