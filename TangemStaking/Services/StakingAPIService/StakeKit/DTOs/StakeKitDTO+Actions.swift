@@ -26,6 +26,14 @@ extension StakeKitDTO {
             case revote = "REVOTE"
             case rebond = "REBOND"
             case migrate = "MIGRATE"
+            case merge = "MERGE"
+            case unknown
+
+            init(from decoder: Decoder) throws {
+                let container = try decoder.singleValueContainer()
+                let raw = try container.decode(String.self)
+                self = ActionType(rawValue: raw) ?? .unknown
+            }
         }
 
         enum ActionStatus: String, Hashable, Codable {
