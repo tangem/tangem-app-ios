@@ -31,7 +31,7 @@ final class ApplePaySheetScreen: Screen {
 
     func close() -> OnrampScreen {
         XCTContext.runActivity(named: "Close Apple Pay sheet") { _ in
-            sheet.buttons[Constants.Identifier.dismiss].firstMatch.waitAndTap()
+            sheet.buttons.matching(NSPredicate(format: "identifier == %@ OR label == %@", Constants.Identifier.dismiss, Constants.close)).firstMatch.waitAndTap()
             XCTAssertTrue(payButton.waitForState(state: .doesntExist), "Apple Pay sheet should be dismissed")
             return OnrampScreen(app)
         }
@@ -54,7 +54,10 @@ final class ApplePaySheetScreen: Screen {
 
     private func fillEmailIfNeeded(_ email: String) {
         let addEmailRow = sheet.buttons[Constants.addEmail].firstMatch
-        let savedContactRow = sheet.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", Constants.contactPrefix)).firstMatch
+        let savedContactRow = sheet.buttons.matching(NSPredicate(
+            format: "label BEGINSWITH %@ OR (identifier == %@ AND label CONTAINS %@)",
+            Constants.contactPrefix, Constants.Identifier.contact, "@"
+        )).firstMatch
         waitForAny(addEmailRow, savedContactRow, "Apple Pay contact row should be displayed")
         guard addEmailRow.exists else { return }
 
@@ -71,14 +74,18 @@ final class ApplePaySheetScreen: Screen {
     }
 
     private func fillBillingAddressIfNeeded(_ billing: ApplePayBillingAddress) {
-        let cardRow = sheet.buttons[Constants.Identifier.card].firstMatch
+        let billingRow = sheet.buttons[Constants.Identifier.billing].firstMatch
+        let cardRow = billingRow.exists ? billingRow : sheet.buttons[Constants.Identifier.card].firstMatch
         waitAndAssertTrue(cardRow, "Apple Pay card row should exist")
         guard cardRow.label.contains(Constants.addBilling) else { return }
 
         cardRow.tap()
+        let firstField = sheet.textFields[billing.fields[0].name]
         let billingOptions = sheet.buttons.matching(NSPredicate(format: "label CONTAINS %@", Constants.addBilling))
-        waitForButtonCount(billingOptions, atLeast: 2)
-        billingOptions.allElementsBoundByIndex.last?.tap()
+        waitForAny(firstField, billingOptions.element(boundBy: 1), "Apple Pay billing form or its options should be displayed")
+        if !firstField.exists {
+            billingOptions.allElementsBoundByIndex.last?.tap()
+        }
 
         for (field, value) in billing.fields {
             let textField = sheet.textFields[field]
@@ -87,10 +94,15 @@ final class ApplePaySheetScreen: Screen {
             textField.typeText(value)
         }
 
-        let doneButtons = sheet.buttons.matching(identifier: Constants.Identifier.done)
-        waitForButtonCount(doneButtons, atLeast: 2)
-        doneButtons.allElementsBoundByIndex.last?.tap()
+        let doneButtons = sheet.buttons.matching(NSPredicate(format: "identifier == %@ OR label == %@", Constants.Identifier.done, Constants.Identifier.done))
+        waitAndAssertTrue(doneButtons.firstMatch, "Apple Pay Done button should exist")
+        if doneButtons.count >= 2 {
+            doneButtons.allElementsBoundByIndex.last?.tap()
+        }
         doneButtons.firstMatch.waitAndTap()
+        if doneButtons.firstMatch.waitForExistence(timeout: .conditional) {
+            doneButtons.firstMatch.tap()
+        }
         waitAndAssertTrue(payButton, "Apple Pay sheet should return to the payment summary after adding billing address")
     }
 
@@ -121,7 +133,7 @@ final class ApplePaySheetScreen: Screen {
     }
 
     private var payButton: XCUIElement {
-        sheet.buttons[Constants.Identifier.total].firstMatch
+        sheet.descendants(matching: .any).matching(identifier: Constants.Identifier.total).firstMatch
     }
 }
 
@@ -151,6 +163,7 @@ private extension ApplePaySheetScreen {
         static let addEmail = "Add Email Address"
         static let addBilling = "Add Billing Address"
         static let contactPrefix = "Contact"
+        static let close = "Close"
         static let passcodeButton = "Pay with Passcode"
         static let scrollAttempts = 3
 
@@ -158,6 +171,8 @@ private extension ApplePaySheetScreen {
             static let total = "total"
             static let dismiss = "dismiss"
             static let card = "pass"
+            static let billing = "billing-address"
+            static let contact = "shipping-email"
             static let done = "Done"
         }
 
