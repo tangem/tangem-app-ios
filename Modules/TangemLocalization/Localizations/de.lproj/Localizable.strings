@@ -208,6 +208,7 @@
 "choose_asset_title" = "Asset auswählen";
 "collectibles_account_collection_empty" = "Keine Karten";
 "collectibles_account_collection_row_subtitle" = "Meine Sammlung";
+"collectibles_account_reconnect_subtitle" = "Reconnect Packs account";
 "collectibles_account_withdraw" = "Auszahlung";
 "collectibles_confirm_order_approve_button" = "Genehmigen";
 "collectibles_confirm_order_confirming_transaction_button" = "Transaktion wird bestätigt...";
@@ -248,6 +249,9 @@
 "collectibles_main_pack_buyback_badge" = "Rückkauf %@";
 "collectibles_main_packs_empty" = "Hier gibt es noch keine Pakete.";
 "collectibles_main_packs_load_error" = "Das Laden der Pakete ist fehlgeschlagen. Tippen Sie hier, um erneut zu laden.";
+"collectibles_main_relink_button" = "Relink account";
+"collectibles_main_relink_description" = "Make this phone primary for Packs account";
+"collectibles_main_relink_title" = "Relink account";
 "collectibles_main_search_empty" = "Keine Ergebnisse. Versuchen Sie, Ihre Suchanfrage zu ändern, oder wählen Sie einen Begriff aus der Liste aus.";
 "collectibles_main_search_load_error" = "Die Kartenliste konnte nicht geladen werden.";
 "collectibles_main_title" = "Packs-Konto";
@@ -1008,6 +1012,8 @@
 "joint_account_activation_title" = "Sie aktivieren ein gemeinsam genutztes Konto";
 "joint_account_coming_soon_description" = "Diese Funktion wird für Gemeinschaftskonten noch nicht unterstützt. Wir arbeiten daran";
 "joint_account_coming_soon_title" = "Demnächst für Gemeinschaftskonten verfügbar";
+"joint_account_compromised_message" = "The account address on your device doesn't match the one from our servers.";
+"joint_account_compromised_title" = "Can't verify this account";
 "joint_account_confirm_account_subtitle" = "Before using your Joint Account, make sure every member sees exactly the same address.";
 "joint_account_confirm_account_title" = "Confirm the account";
 "joint_account_confirm_address_compare_subtitle" = "Contact all members outside Tangem by phone, messenger, or in person. Check that everyone sees the exact same address.";
@@ -1573,6 +1579,7 @@
 "prediction_details_market_opened" = "Markt geöffnet";
 "prediction_details_market_volume" = "Volumen:";
 "prediction_details_resolution_date" = "Beschlussdatum";
+"prediction_details_resolution_source" = "Resolution Source";
 "prediction_details_total_volume" = "Gesamtvolumen";
 "prediction_event_live" = "Live";
 "prediction_event_probability" = "Wahrscheinlichkeit";
@@ -2806,7 +2813,9 @@
 "transaction_history_supplied" = "Geliefert";
 "transaction_history_transaction_for_address" = "für: %@";
 "transaction_history_transaction_from_address" = "von: %@";
+"transaction_history_transaction_from_for_address" = "from: %1$@ for %2$@";
 "transaction_history_transaction_to_address" = "zu: %@";
+"transaction_history_transaction_to_for_address" = "to: %1$@ for %2$@";
 "transaction_history_unlimited_amount" = "Unbegrenzt %@";
 "transaction_history_unlimited" = "Unbegrenzt";
 "transaction_history_withdrawn" = "Zurückgezogen";
