@@ -232,7 +232,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
             let alert = app.alerts.firstMatch
             waitAndAssertTrue(alert, "Send unavailability alert should be displayed")
 
-            let expectedText = "Sending funds will be available once the pending transaction(s) in network \(network) is complete"
+            let expectedText = Localization.tokenButtonUnavailabilityReasonPendingTransactionSend(network)
             let message = alert.staticTexts.element(
                 matching: NSPredicate(format: NSPredicateFormat.labelContains.rawValue, expectedText)
             ).firstMatch
