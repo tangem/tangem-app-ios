@@ -95,7 +95,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .mobileWalletMultiCreation: return .unspecified
         case .priceAlertsSubscription: return .unspecified
         case .backup4cards: return .unspecified
-        case .polymarket: return .unspecified
+        case .polymarket: return .version("6.6")
         case .polymarketPhaseTwo: return .unspecified
         case .walletCardsBackupReport: return .unspecified
         case .jointAccounts: return .unspecified
