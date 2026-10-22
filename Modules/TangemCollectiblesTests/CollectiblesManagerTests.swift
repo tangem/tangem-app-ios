@@ -430,7 +430,7 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         let signed = try await sut.signPurchase(Fixtures.purchase(), confirmedPrice: Fixtures.confirmedPrice())
         doubles.chainService.sendError = try failure.makeError()
 
-        let error = await #expect(throws: CollectiblesPurchaseError.self) {
+        let error = await #expect(throws: CollectiblesSendError.self) {
             try await sut.sendPurchase(signed)
         }
 
@@ -513,8 +513,8 @@ extension CollectiblesManagerTests {
 
         var blockhashFetchedAt: Date {
             switch self {
-            case .nodeRejection, .programRejection: Date()
-            case .blockhashNotFound, .staleNodeRejection, .unknown: Fixtures.blockhashFetchedAt
+            case .blockhashNotFound, .nodeRejection, .programRejection: Date()
+            case .staleNodeRejection, .unknown: Fixtures.blockhashFetchedAt
             }
         }
 
@@ -522,7 +522,7 @@ extension CollectiblesManagerTests {
             switch self {
             case .blockhashNotFound, .staleNodeRejection: "transactionExpired"
             case .nodeRejection, .programRejection: "rejected"
-            case .unknown: "sendOutcomeUnknown"
+            case .unknown: "outcomeUnknown"
             }
         }
 
@@ -687,6 +687,12 @@ private extension CollectiblesManagerTests {
                 sessionKeySigner: sessionKeySigner,
                 transactionSender: transactionSender
             ),
+            buybackTransactionDispatcher: CollectiblesBuybackTransactionDispatcher(
+                coldOwnerProvider: coldOwnerProvider,
+                configReader: configReader,
+                coldKeyInteractorFactory: coldKeyInteractorFactory,
+                transactionSender: transactionSender
+            ),
             presenceStore: doubles.presenceStore,
             delayProvider: delayProvider
         )
@@ -747,11 +753,11 @@ private extension CollectiblesBalanceState {
     }
 }
 
-private extension CollectiblesPurchaseError {
+private extension CollectiblesSendError {
     var testDescription: String {
         switch self {
         case .transactionExpired: "transactionExpired"
-        case .sendOutcomeUnknown: "sendOutcomeUnknown"
+        case .outcomeUnknown: "outcomeUnknown"
         case .rejected: "rejected"
         }
     }

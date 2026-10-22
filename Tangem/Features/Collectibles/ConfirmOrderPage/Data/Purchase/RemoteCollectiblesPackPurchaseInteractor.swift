@@ -265,11 +265,11 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
     }
 
     func send(_ order: Order) async throws {
-        do throws(CollectiblesPurchaseError) {
+        do throws(CollectiblesSendError) {
             try await signer.sendPurchase(order.signedPurchase)
         } catch {
             switch error {
-            case .transactionExpired, .sendOutcomeUnknown:
+            case .transactionExpired, .outcomeUnknown:
                 CollectiblesLogger.info("Collectibles purchase \(order.txID) send outcome is unknown, the backend status decides")
             case .rejected:
                 throw error

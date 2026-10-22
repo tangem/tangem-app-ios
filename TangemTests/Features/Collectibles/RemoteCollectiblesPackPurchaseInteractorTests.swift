@@ -417,10 +417,10 @@ extension RemoteCollectiblesPackPurchaseInteractorTests {
         case expired
         case unknown
 
-        var error: CollectiblesPurchaseError {
+        var error: CollectiblesSendError {
             switch self {
             case .expired: .transactionExpired
-            case .unknown: .sendOutcomeUnknown
+            case .unknown: .outcomeUnknown
             }
         }
     }
@@ -524,7 +524,7 @@ private extension RemoteCollectiblesPackPurchaseInteractorTests {
         addresses: CollectiblesPurchaseAddresses? = Constants.addresses,
         generateError: (any Error)? = nil,
         signError: (any Error)? = nil,
-        sendResults: [Result<Void, CollectiblesPurchaseError>] = [.success(())],
+        sendResults: [Result<Void, CollectiblesSendError>] = [.success(())],
         reportResults: [Result<CollectiblesPurchaseStatus, any Error>] = [.success(.purchaseTxHash)],
         statuses: [CollectiblesPurchaseTransaction] = paidAndDelivered,
         statusFailures: Int = 0,
@@ -716,12 +716,12 @@ private final class PurchaseSignerStub: CollectiblesPurchaseSigner {
     private(set) var sentSignatures: [String] = []
 
     private let signError: (any Error)?
-    private var sendResults: [Result<Void, CollectiblesPurchaseError>]
+    private var sendResults: [Result<Void, CollectiblesSendError>]
 
     init(
         addresses: CollectiblesPurchaseAddresses?,
         signError: (any Error)? = nil,
-        sendResults: [Result<Void, CollectiblesPurchaseError>]
+        sendResults: [Result<Void, CollectiblesSendError>]
     ) {
         purchaseAddresses = addresses
         self.signError = signError
@@ -747,7 +747,7 @@ private final class PurchaseSignerStub: CollectiblesPurchaseSigner {
         )
     }
 
-    func sendPurchase(_ signedPurchase: CollectiblesSignedPurchase) async throws(CollectiblesPurchaseError) {
+    func sendPurchase(_ signedPurchase: CollectiblesSignedPurchase) async throws(CollectiblesSendError) {
         sentSignatures.append(signedPurchase.signature)
 
         let result = sendResults.count > 1 ? sendResults.removeFirst() : sendResults[0]
