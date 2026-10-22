@@ -16,6 +16,8 @@ final class ScanCardUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .twin)
             .validate(cardType: .twin)
+            .openMarketsSheet()
+            .verifyMarketsSheetIsDisplayed()
     }
 
     func testScanWallet2Card_MainShowed() {
@@ -25,6 +27,8 @@ final class ScanCardUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
+            .openMarketsSheet()
+            .verifyMarketsSheetIsDisplayed()
     }
 
     func testScanWallet3Card_MainShowed() {
@@ -43,6 +47,8 @@ final class ScanCardUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet)
             .validate(cardType: .wallet)
+            .openMarketsSheet()
+            .verifyMarketsSheetIsDisplayed()
     }
 
     func testScanXrpNoteCard_MainShowed() {
@@ -52,6 +58,8 @@ final class ScanCardUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .xrpNote)
             .validate(cardType: .xrpNote)
+            .openMarketsSheet()
+            .verifyMarketsSheetIsDisplayed()
     }
 
     func testScanShibaCard_MainShowed() {
@@ -61,6 +69,8 @@ final class ScanCardUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .shiba)
             .validate(cardType: .shiba)
+            .openMarketsSheet()
+            .verifyMarketsSheetIsDisplayed()
     }
 
     func testScanV3EdCard_MainShowed() {
@@ -70,6 +80,8 @@ final class ScanCardUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .xlmBird)
             .validate(cardType: .xlmBird)
+            .openMarketsSheet()
+            .verifyMarketsSheetIsDisplayed()
     }
 
     func testScanV3SeckpCard_MainShowed() {
@@ -79,6 +91,8 @@ final class ScanCardUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .v3seckp)
             .validate(cardType: .v3seckp)
+            .openMarketsSheet()
+            .verifyMarketsSheetIsDisplayed()
     }
 
     func testScanRing_MainShowed() {
@@ -88,6 +102,8 @@ final class ScanCardUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .ring)
             .validate(cardType: .ring)
+            .openMarketsSheet()
+            .verifyMarketsSheetIsDisplayed()
     }
 
     func testScan4_12Card_MainShowed() {
@@ -97,5 +113,7 @@ final class ScanCardUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .four12)
             .validate(cardType: .four12)
+            .openMarketsSheet()
+            .verifyMarketsSheetIsDisplayed()
     }
 }
