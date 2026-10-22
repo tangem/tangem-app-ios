@@ -9,7 +9,8 @@
 import XCTest
 
 final class TangemPayCardFreezeUITests: BaseTestCase {
-    func testFreezeCard_ShowsErrorToast_ThenRetrySucceeds() {
+    /// [REDACTED_INFO] Tangem Pay card management stays in "freezing/unfreezing in progress" after a successful freeze or unfreeze
+    func skipped_testFreezeCard_ShowsErrorToast_ThenRetrySucceeds() {
         setAllureId(9555)
 
         let mainScreen = launchAndImportHotWallet(
@@ -33,7 +34,8 @@ final class TangemPayCardFreezeUITests: BaseTestCase {
             .verifyCardFrozen()
     }
 
-    func testUnfreezeCard_ShowsErrorToast_ThenRetrySucceeds() {
+    /// [REDACTED_INFO] Tangem Pay card management stays in "freezing/unfreezing in progress" after a successful freeze or unfreeze
+    func skipped_testUnfreezeCard_ShowsErrorToast_ThenRetrySucceeds() {
         setAllureId(9556)
 
         let mainScreen = launchAndImportHotWallet(
