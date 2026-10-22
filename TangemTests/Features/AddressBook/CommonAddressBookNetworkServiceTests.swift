@@ -303,4 +303,13 @@ private final class MockTangemApiService: TangemApiService {
     func rejectJointAccountOperation(
         walletId: String, operationId: String
     ) async throws -> JointAccountsDTO.Response.Operation? { fatalError("unused") }
+    func getJointOperationsHistory(
+        walletId: String, request: JointAccountsDTO.Request.OperationsHistory
+    ) async throws -> JointAccountsDTO.Response.OperationsHistory { fatalError("unused") }
+    func getJointOperationsHistoryDelta(
+        walletId: String, request: JointAccountsDTO.Request.OperationsHistoryDelta
+    ) async throws -> JointAccountsDTO.Response.OperationsHistoryDelta { fatalError("unused") }
+    func getJointOperation(
+        walletId: String, operationId: String, knownETag: String?
+    ) async throws -> (eTag: String?, operation: JointAccountsDTO.Response.HistoryOperation)? { fatalError("unused") }
 }

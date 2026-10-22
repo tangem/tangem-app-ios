@@ -681,6 +681,48 @@ extension CommonTangemApiService: TangemApiService {
         }
     }
 
+    func getJointOperationsHistory(
+        walletId: String, request: JointAccountsDTO.Request.OperationsHistory
+    ) async throws -> JointAccountsDTO.Response.OperationsHistory {
+        let target = TangemApiTarget(type: .getJointOperationsHistory(walletId: walletId, request: request))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
+        }
+    }
+
+    func getJointOperationsHistoryDelta(
+        walletId: String, request: JointAccountsDTO.Request.OperationsHistoryDelta
+    ) async throws -> JointAccountsDTO.Response.OperationsHistoryDelta {
+        let target = TangemApiTarget(type: .getJointOperationsHistoryDelta(walletId: walletId, request: request))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
+        }
+    }
+
+    func getJointOperation(
+        walletId: String, operationId: String, knownETag: String?
+    ) async throws -> (eTag: String?, operation: JointAccountsDTO.Response.HistoryOperation)? {
+        let target = TangemApiTarget(type: .getJointOperation(walletId: walletId, operationId: operationId, knownETag: knownETag))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            let filteredResponse = try response.filterResponseThrowingTangemAPIError(allowRedirectCodes: true)
+
+            guard filteredResponse.statusCode != 304 else {
+                return nil
+            }
+
+            let eTag = filteredResponse.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue)
+            let operation = try filteredResponse.map(JointAccountsDTO.Response.HistoryOperation.self, using: decoder)
+
+            return (eTag: eTag, operation: operation)
+        }
+    }
+
     // MARK: - Address Book
 
     func syncAddressBooks(_ request: AddressBookDTO.SyncRequest) async throws -> AddressBookDTO.Response {
