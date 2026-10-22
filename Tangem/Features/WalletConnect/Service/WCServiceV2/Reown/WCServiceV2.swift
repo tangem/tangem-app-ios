@@ -539,27 +539,13 @@ private extension WCServiceV2 {
                 return
             }
 
-            if case .switched = resolution {
-                await emitChainChanged(to: blockchain, topic: request.topic)
-            }
+            await emitChainChanged(to: blockchain, topic: request.topic)
         case .unrecognizedChain:
             await reject(transactionRequest: request, with: .unrecognizedChain)
         case .invalidParams:
             await reject(transactionRequest: request, with: .invalidParams)
         case .needsUserApproval:
             break
-        }
-    }
-
-    private func emitChainChanged(to blockchain: BlockchainSdk.Blockchain, topic: String) async {
-        guard let chainId = WalletConnectBlockchainMapper.mapFromDomain(blockchain), let reference = Int(chainId.reference) else {
-            return
-        }
-
-        do {
-            try await walletKitClient.emit(topic: topic, event: Session.Event(name: "chainChanged", data: AnyCodable(reference)), chainId: chainId)
-        } catch {
-            WCLogger.error("Failed to emit chainChanged for \(blockchain.displayName)", error: error)
         }
     }
 
@@ -619,6 +605,45 @@ private extension WCServiceV2 {
 extension WCServiceV2 {
     func setWalletConnectEventsService(_ walletConnectEventsService: WalletConnectEventsService) {
         self.walletConnectEventsService = walletConnectEventsService
+    }
+
+    func emitChainChanged(to blockchain: BlockchainSdk.Blockchain, topic: String) async {
+        guard let chainId = WalletConnectBlockchainMapper.mapFromDomain(blockchain), let reference = Int(chainId.reference) else {
+            WCLogger.error(error: "Failed to emit chainChanged. Unsupported blockchain: \(blockchain.displayName)")
+            return
+        }
+
+        guard await waitForSession(withTopic: topic, toInclude: chainId) else {
+            WCLogger.error(error: "Failed to emit chainChanged. \(blockchain.displayName) did not appear in the session")
+            return
+        }
+
+        do {
+            try await walletKitClient.emit(topic: topic, event: Session.Event(name: "chainChanged", data: AnyCodable(reference)), chainId: chainId)
+            WCLogger.info("Emitted chainChanged to \(blockchain.displayName)")
+        } catch {
+            WCLogger.error("Failed to emit chainChanged for \(blockchain.displayName)", error: error)
+        }
+    }
+
+    private func waitForSession(withTopic topic: String, toInclude chainId: ReownWalletKit.Blockchain) async -> Bool {
+        let currentSessions = Deferred { [walletKitClient] in
+            Just(walletKitClient.getSessions())
+        }
+
+        let session = try? await walletKitClient.sessionsPublisher
+            .merge(with: currentSessions)
+            .compactMap { sessions in
+                sessions.first { session in
+                    session.topic == topic && session.namespaces.values.contains { namespace in
+                        namespace.accounts.contains { $0.blockchain == chainId }
+                    }
+                }
+            }
+            .timeout(.seconds(Constants.sessionUpdateTimeout), scheduler: DispatchQueue.global())
+            .async()
+
+        return session != nil
     }
 
     func emitEvent(_ event: Session.Event, on blockchain: BlockchainSdk.Blockchain) {
@@ -863,5 +888,13 @@ extension WCServiceV2 {
             pairingTopicToSessionProposalContinuation[topic]??.resume(throwing: error)
             pairingTopicToSessionProposalContinuation[topic] = nil
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension WCServiceV2 {
+    enum Constants {
+        static let sessionUpdateTimeout = 10
     }
 }
