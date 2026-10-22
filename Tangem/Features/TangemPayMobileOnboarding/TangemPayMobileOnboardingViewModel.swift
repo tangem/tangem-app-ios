@@ -9,10 +9,12 @@
 import Foundation
 import TangemFoundation
 import TangemMobileWalletSdk
+import TangemPay
 import struct TangemUIUtils.AlertBinder
 
 protocol TangemPayMobileOnboardingRoutable: AnyObject {
     func openMain(userWalletModel: UserWalletModel)
+    func openResidency(userWalletModel: UserWalletModel, interactor: any TangemPayResidencyInteractor)
     func openTermsFeesAndLimits()
     func openLegalDocument(url: URL)
 }
@@ -90,11 +92,9 @@ final class TangemPayMobileOnboardingViewModel: ObservableObject {
 
                 await runOnMain { viewModel.pushNotificationsInteractor.suppressAfterLoginRequestsInCurrentSession() }
 
-                try await newUserWalletModel.accountModelsManager.acceptTangemPayOffer(
-                    authorizingInteractor: newUserWalletModel.tangemPayAuthorizingInteractor
-                )
+                let residencyInteractor = try await viewModel.acceptOffer(on: newUserWalletModel)
 
-                await viewModel.didCreateWallet(newUserWalletModel)
+                await viewModel.didCreateWallet(newUserWalletModel, residencyInteractor: residencyInteractor)
             } catch {
                 AppLogger.error("Failed to create wallet", error: error)
                 await viewModel.didFailToCreateWallet()
@@ -114,9 +114,15 @@ final class TangemPayMobileOnboardingViewModel: ObservableObject {
 
 @MainActor
 private extension TangemPayMobileOnboardingViewModel {
-    func didCreateWallet(_ userWalletModel: UserWalletModel) {
+    func didCreateWallet(_ userWalletModel: UserWalletModel, residencyInteractor: (any TangemPayResidencyInteractor)?) {
         isCreating = false
-        coordinator?.openMain(userWalletModel: userWalletModel)
+
+        guard let residencyInteractor else {
+            coordinator?.openMain(userWalletModel: userWalletModel)
+            return
+        }
+
+        coordinator?.openResidency(userWalletModel: userWalletModel, interactor: residencyInteractor)
     }
 
     func didFailToCreateWallet() {
@@ -131,6 +137,21 @@ private extension TangemPayMobileOnboardingViewModel {
 }
 
 private extension TangemPayMobileOnboardingViewModel {
+    func acceptOffer(
+        on userWalletModel: UserWalletModel
+    ) async throws(TangemPayAuthorizationError) -> (any TangemPayResidencyInteractor)? {
+        guard FeatureProvider.isAvailable(.tangemPayChooseCountry) else {
+            try await userWalletModel.accountModelsManager.acceptTangemPayOffer(
+                authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor
+            )
+            return nil
+        }
+
+        return try await userWalletModel.accountModelsManager.authorizeTangemPayOfferForResidency(
+            authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor
+        )
+    }
+
     func logWalletCreatedAnalytics() {
         var params: [Analytics.ParameterKey: String] = [
             .creationType: Analytics.ParameterValue.walletCreationTypeNewSeed.rawValue,
