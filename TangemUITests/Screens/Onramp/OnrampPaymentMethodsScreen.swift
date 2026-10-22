@@ -19,6 +19,12 @@ final class OnrampPaymentMethodsScreen: ScreenBase<OnrampPaymentMethodsScreenEle
             let firstIcon = iconsQuery.firstMatch
             XCTAssertTrue(firstIcon.waitForExistence(timeout: .robustUIUpdate), "At least one payment method icon should exist")
 
+            let allIconsLoaded = XCTNSPredicateExpectation(
+                predicate: NSPredicate { _, _ in iconsQuery.count == namesQuery.count },
+                object: nil
+            )
+            _ = XCTWaiter().wait(for: [allIconsLoaded], timeout: .robustUIUpdate)
+
             let icons = iconsQuery.allElementsBoundByIndex
             let names = namesQuery.allElementsBoundByIndex
 
