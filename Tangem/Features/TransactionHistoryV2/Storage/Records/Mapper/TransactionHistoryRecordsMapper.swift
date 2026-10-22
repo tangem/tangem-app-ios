@@ -156,12 +156,12 @@ enum TransactionHistoryRecordsMapper {
 
     // MARK: Record to domain: Express exchange/onramp transactions
 
-    static func mapToTransactionHistoryExpressExtraInfo(
+    static func mapToTransactionHistoryExtraInfo(
         _ infos: [TransactionHistoryIndexInfoRecord]
-    ) -> [TransactionHistoryExpressExtraInfo] {
+    ) -> [TransactionHistoryExtraInfo] {
         return infos.compactMap { info in
             do {
-                return try mapToTransactionHistoryExpressExtraInfo(info)
+                return try mapToTransactionHistoryExtraInfo(info)
             } catch {
                 // A single malformed record shouldn't prevent the remaining ones from being mapped,
                 // therefore only log the error w/o throwing it
@@ -172,9 +172,9 @@ enum TransactionHistoryRecordsMapper {
         }
     }
 
-    private static func mapToTransactionHistoryExpressExtraInfo(
+    private static func mapToTransactionHistoryExtraInfo(
         _ info: TransactionHistoryIndexInfoRecord
-    ) throws -> TransactionHistoryExpressExtraInfo {
+    ) throws -> TransactionHistoryExtraInfo {
         let indexRecord = info.indexRecord
 
         switch indexRecord.entityType {
@@ -183,14 +183,14 @@ enum TransactionHistoryRecordsMapper {
                 throw "Missing exchange transaction \(indexRecord.entityID) referenced by an index record"
             }
 
-            return .exchange(try mapToExchangeTransactionInfo(records))
+            return .express(.exchange(try mapToExchangeTransactionInfo(records)))
 
         case TransactionHistoryIndexRecord.Values.EntityType.expressOnramp:
             guard let records = info.onrampTransaction else {
                 throw "Missing onramp transaction \(indexRecord.entityID) referenced by an index record"
             }
 
-            return .onramp(try mapToOnrampTransactionInfo(records))
+            return .express(.onramp(try mapToOnrampTransactionInfo(records)))
 
         default:
             throw "Unknown entity type \(indexRecord.entityType) of an index record for entity \(indexRecord.entityID)"
