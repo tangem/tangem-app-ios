@@ -23,7 +23,7 @@ struct PolymarketPositionsValueTargetTests {
 
     @Test("Path and method")
     func pathAndMethod() {
-        #expect(target.path == "value")
+        #expect(target.path == "v2/value")
         #expect(target.method == .get)
     }
 
@@ -51,35 +51,42 @@ struct PolymarketPositionsValueTargetTests {
 
 @Suite("Polymarket positions value mapping")
 struct PolymarketPositionsValueMappingTests {
-    @Test("The value of the first entry is the amount held in bets")
-    func firstEntryIsTheAmount() throws {
-        let response = try decode(#"[{"user":"0xdead","value":7.792}]"#)
+    @Test("The value inside the data envelope is the amount held in bets")
+    func valueIsTheAmount() throws {
+        let response = try decode(#"{"data":{"proxy_wallet":"0xdead","value":4.7834}}"#)
 
-        #expect(CommonPolymarketPositionsValueService.positionsValue(from: response) == Decimal(string: "7.792"))
+        #expect(CommonPolymarketPositionsValueService.positionsValue(from: response) == Decimal(string: "4.7834"))
     }
 
-    @Test("An empty array means no open positions, which is zero and not an absent value")
-    func emptyArrayIsZero() throws {
-        let response = try decode("[]")
+    @Test("A wallet without positions reads as zero, not as an absent value")
+    func emptyWalletIsZero() throws {
+        let response = try decode(#"{"data":{"proxy_wallet":"0xdead","value":0.0}}"#)
 
         #expect(CommonPolymarketPositionsValueService.positionsValue(from: response) == .zero)
     }
 
-    @Test("Only the first entry counts, the rest are somebody else's rows")
-    func onlyTheFirstEntryCounts() throws {
-        let response = try decode(#"[{"user":"0xdead","value":7.792},{"user":"0xbeef","value":100}]"#)
+    @Test("A plain zero reads as zero too")
+    func integerZeroIsZero() throws {
+        let response = try decode(#"{"data":{"proxy_wallet":"0xdead","value":0}}"#)
 
-        #expect(CommonPolymarketPositionsValueService.positionsValue(from: response) == Decimal(string: "7.792"))
+        #expect(CommonPolymarketPositionsValueService.positionsValue(from: response) == .zero)
     }
 
     @Test("A whole-dollar amount keeps its exact value through Decimal")
     func wholeAmountSurvivesDecoding() throws {
-        let response = try decode(#"[{"user":"0xdead","value":22.77}]"#)
+        let response = try decode(#"{"data":{"proxy_wallet":"0xdead","value":22.77}}"#)
 
         #expect(CommonPolymarketPositionsValueService.positionsValue(from: response) == Decimal(string: "22.77"))
     }
 
-    private func decode(_ json: String) throws -> [PolymarketDTO.PositionsValueResponse] {
-        try JSONDecoder().decode([PolymarketDTO.PositionsValueResponse].self, from: Data(json.utf8))
+    @Test("The retired v1 array shape is not taken for a value")
+    func legacyArrayIsRejected() {
+        #expect(throws: DecodingError.self) {
+            try decode(#"[{"user":"0xdead","value":7.792}]"#)
+        }
+    }
+
+    private func decode(_ json: String) throws -> PolymarketDTO.PositionsValueResponse {
+        try JSONDecoder().decode(PolymarketDTO.PositionsValueResponse.self, from: Data(json.utf8))
     }
 }

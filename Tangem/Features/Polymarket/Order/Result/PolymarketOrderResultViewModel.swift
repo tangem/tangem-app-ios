@@ -39,8 +39,10 @@ final class PolymarketOrderResultViewModel: ObservableObject, Identifiable {
         state: State,
         content: Content,
         indexing: PolymarketOrderIndexing? = nil,
+        offersPlacedPosition: Bool = true,
         coordinator: PolymarketOrderResultRoutable?
     ) {
+        self.offersPlacedPosition = offersPlacedPosition
         self.state = state
         self.content = content
         side = content.side
@@ -61,24 +63,45 @@ final class PolymarketOrderResultViewModel: ObservableObject, Identifiable {
         positionTask?.cancel()
     }
 
-    var actionTitle: String {
-        canViewPosition ? Constants.viewPositionTitle : Localization.predictionPlaceResultToMain
-    }
+    private let offersPlacedPosition: Bool
 
-    var secondaryActionTitle: String? {
-        canViewPosition ? Localization.predictionPlaceResultToMain : nil
+    var actionTitle: String {
+        if canViewPosition {
+            return Constants.viewPositionTitle
+        }
+
+        return Localization.commonClose
     }
 
     var action: ViewAction {
-        canViewPosition ? .openPositionDetails : .returnToMain
+        if canViewPosition {
+            return .openPositionDetails
+        }
+
+        return .close
     }
 
     var isActionDisabled: Bool {
         canViewPosition && position == nil
     }
 
+    var hidesFooter: Bool {
+        !canViewPosition
+    }
+
+    var blocksSwipeDismiss: Bool {
+        closesPosition
+    }
+
+    var closesPosition: Bool {
+        guard side == .sell, state == .placed || state == .partiallyPlaced else { return false }
+        guard let heldShares = content.heldShares, let soldShares = content.tokensBought else { return false }
+
+        return heldShares - soldShares < Constants.dustShares
+    }
+
     private var isPositionExpected: Bool {
-        side == .buy && indexing != nil && (state == .placed || state == .partiallyPlaced)
+        offersPlacedPosition && side == .buy && indexing != nil && (state == .placed || state == .partiallyPlaced)
     }
 
     private var canViewPosition: Bool {
@@ -89,8 +112,8 @@ final class PolymarketOrderResultViewModel: ObservableObject, Identifiable {
 
     func handleViewAction(_ action: ViewAction) {
         switch action {
-        case .returnToMain:
-            coordinator?.returnToMain()
+        case .close:
+            coordinator?.closeOrder()
         case .openPositionDetails:
             guard let position else { return }
 
@@ -117,10 +140,11 @@ extension PolymarketOrderResultViewModel {
         let tokensBought: Decimal?
         let resolutionDate: Date?
         let side: PolymarketOrderSide
+        var heldShares: Decimal?
     }
 
     enum ViewAction {
-        case returnToMain
+        case close
         case openPositionDetails
     }
 }
@@ -290,6 +314,7 @@ extension PolymarketOrderResultViewModel.State {
 
 private extension PolymarketOrderResultViewModel {
     enum Constants {
+        static let dustShares: Decimal = 0.01
         static let viewPositionTitle = Localization.predictionPlaceResultViewPosition
         static let partiallySoldTitle = Localization.predictionCloseResultPartiallySoldTitle
         static let noLiquidityTitle = Localization.predictionCloseResultNoFillTitle

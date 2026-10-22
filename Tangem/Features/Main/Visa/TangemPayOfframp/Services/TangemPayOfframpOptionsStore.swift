@@ -101,10 +101,6 @@ extension TangemPayOfframpOptionsStore {
             availableTokens.isNotEmpty
         }
 
-        var defaultToken: TransferInputTokenItem? {
-            availableTokens.first
-        }
-
         var defaultRail: TransferInputRailItem? {
             rails.first
         }

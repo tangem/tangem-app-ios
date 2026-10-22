@@ -92,7 +92,6 @@ extension CommonWCService: WCService {
     func emitEvent(_ event: Session.Event, on blockchain: BlockchainSdk.Blockchain) {
         v2Service.emitEvent(event, on: blockchain)
     }
-
     func emitChainChanged(to blockchain: BlockchainSdk.Blockchain, topic: String) async {
         await v2Service.emitChainChanged(to: blockchain, topic: topic)
     }

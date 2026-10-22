@@ -18,9 +18,7 @@ struct SilentPushUserInfo: @unchecked Sendable {
 
 /// A single, self-contained consumer of silent push payloads. Conformers subscribe to
 /// `SilentPushNotificationsPublishing` themselves and pick out only the payloads they care about.
-protocol SilentPushNotificationHandling: AnyObject {
-    func handle(_ userInfo: SilentPushUserInfo)
-}
+protocol SilentPushNotificationHandling: AnyObject {}
 
 /// Producer side: where the app feeds incoming silent push payloads (called from `AppDelegate`).
 protocol SilentPushNotificationsReceiving {

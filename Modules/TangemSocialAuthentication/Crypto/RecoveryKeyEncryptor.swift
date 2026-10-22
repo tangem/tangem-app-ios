@@ -20,6 +20,10 @@ struct RecoveryKeyEncryptor {
         recoveryKey: Data,
         publicKey: RecoveryPublicKeyDTO.Response
     ) throws(RecoveryKeyEncryptionError) -> String {
+        guard publicKey.alg == Constants.supportedAlgorithm else {
+            throw .unsupportedAlgorithm(publicKey.alg)
+        }
+
         guard
             let modulus = publicKey.n.base64URLDecodedData(),
             let exponent = publicKey.e.base64URLDecodedData()
@@ -64,6 +68,10 @@ private extension RecoveryKeyEncryptor {
         return key
     }
 
+    enum Constants {
+        static let supportedAlgorithm = "RSA-OAEP-256"
+    }
+
     enum DER {
         static func sequence(_ content: Data) -> Data {
             Data([0x30]) + length(of: content.count) + content
@@ -101,11 +109,14 @@ private extension RecoveryKeyEncryptor {
 // MARK: - RecoveryKeyEncryptionError
 
 enum RecoveryKeyEncryptionError: Error, LocalizedError {
+    case unsupportedAlgorithm(String)
     case invalidPublicKey
     case encryptionFailed(code: Int?)
 
     var errorDescription: String? {
         switch self {
+        case .unsupportedAlgorithm(let algorithm):
+            "The recovery public key algorithm is not supported: \(algorithm)"
         case .invalidPublicKey:
             "The recovery public key is invalid"
         case .encryptionFailed(let code):

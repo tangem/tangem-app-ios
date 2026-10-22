@@ -31,17 +31,11 @@ protocol YieldAnalyticsLogger {
     func logEarningInProgressScreenOpened()
     func logEarningFundsEarned()
     func logEarningFundsWithdrawed()
-    func logEarningEarnedFundsInfoOpened()
     func logEarningNoticeNotEnoughFeeShown(feeCurrencyBalance: Decimal)
-    func logEarningNoticeApproveNeededShown()
     func logEarningButtonGiveApprove()
     func logEarningNoticeHighNetworkFeeShown()
     func logEarningErrors(action: YieldAnalyticsAction, error: Error)
     func logEarningNoticeAmountNotDepositedShown()
-    func logEarningApyClicked(state: YieldAnalyticsState)
-
-    func logYieldNoticeShown()
-    func logYieldNoticeClicked()
 }
 
 final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
@@ -149,19 +143,11 @@ final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
         )
     }
 
-    func logEarningEarnedFundsInfoOpened() {
-        Analytics.log(event: .earningEarnedFundsInfo, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
-    }
-
     func logEarningNoticeNotEnoughFeeShown(feeCurrencyBalance: Decimal) {
         var params = tokenBlockchainParams()
         params[.balance] = Analytics.ParameterValue.balanceState(for: feeCurrencyBalance).rawValue
 
         Analytics.log(event: .earningNoticeNotEnoughFee, params: params, contextParams: .userWallet(userWalletId))
-    }
-
-    func logEarningNoticeApproveNeededShown() {
-        Analytics.log(event: .earningNoticeApproveNeeded, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
     }
 
     func logEarningButtonGiveApprove() {

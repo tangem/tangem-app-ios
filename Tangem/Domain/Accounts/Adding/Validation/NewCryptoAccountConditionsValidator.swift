@@ -10,7 +10,6 @@ import Foundation
 
 struct NewCryptoAccountConditionsValidator {
     let newAccountName: String
-    let accountType: AccountType
     let remoteState: CryptoAccountsRemoteState
 }
 
@@ -20,7 +19,7 @@ extension NewCryptoAccountConditionsValidator: CryptoAccountConditionsValidator 
     typealias ValidationError = AccountEditError
 
     func validate() async throws(ValidationError) {
-        guard !AccountModelUtils.isAccountsLimitReached(for: accountType, in: remoteState) else {
+        guard !AccountModelUtils.isAccountsLimitReached(for: .crypto, in: remoteState) else {
             AccountsLogger.warning("The number of accounts exceeded the limit")
             throw .tooManyAccounts
         }

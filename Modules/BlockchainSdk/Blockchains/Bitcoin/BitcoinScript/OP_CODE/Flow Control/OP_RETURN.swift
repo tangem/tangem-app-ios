@@ -26,5 +26,4 @@ import Foundation
 
 struct OpReturn: OpCodeProtocol {
     var value: UInt8 { return 0x6a }
-    var name: String { return "OP_RETURN" }
 }

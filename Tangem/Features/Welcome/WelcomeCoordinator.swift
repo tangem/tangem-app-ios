@@ -15,6 +15,7 @@ import TangemLocalization
 import TangemMobileWalletBackup
 import TangemStories
 import TangemUIUtils
+import struct TangemUIUtils.AlertBinder
 
 final class WelcomeCoordinator: CoordinatorObject {
     @Injected(\.welcomeBackgroundVideoProvider)
@@ -54,18 +55,23 @@ final class WelcomeCoordinator: CoordinatorObject {
     @Published var legalViewModel: WelcomeLegalViewModel?
     @Published var welcomeStoryViewModel: WelcomeStoryPresentationViewModel?
     @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
+    @Published var socialWalletViewModel: MobileSocialWalletViewModel?
     @Published var tangemPayMobileOnboardingCoordinator: TangemPayMobileOnboardingCoordinator?
     @Published var tangemPayCampaignCoordinator: TangemPayCampaignCoordinator?
     @Published var createWalletSelectorCoordinator: CreateWalletSelectorCoordinator?
     @Published private var isShopPresented = false
+    @Published private var isAppleLoginInProgress = false
 
     private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
+    private let socialLoginAnalytics = MobileSocialLoginAnalyticsLogger()
+    private lazy var socialLoginHelper = MobileSocialLoginHelper(output: self)
 
     private lazy var processor = WelcomeProcessor(isIdle: isIdlePublisher)
     private var bag: Set<AnyCancellable> = []
     private var cardScanTask: Task<Void, Never>?
     private var createMobileWalletTask: Task<Void, Never>?
     private var sheetTransitionTask: Task<Void, Never>?
+    private var appleLoginTask: Task<Void, Never>?
     private var shopSafariHandle: SafariHandle?
 
     /// `true` while nothing the user navigated to themselves is on screen. The processor gates the promo /
@@ -78,7 +84,9 @@ final class WelcomeCoordinator: CoordinatorObject {
             $importOnboardingCoordinator.map { $0 == nil }.eraseToAnyPublisher(),
             $createWalletSelectorCoordinator.map { $0 == nil }.eraseToAnyPublisher(),
             $scanTroubleshootingDialog.map { $0 == nil }.eraseToAnyPublisher(),
+            $socialWalletViewModel.map { $0 == nil }.eraseToAnyPublisher(),
             $isShopPresented.map { !$0 }.eraseToAnyPublisher(),
+            $isAppleLoginInProgress.map { !$0 }.eraseToAnyPublisher(),
         ]
         .combineLatest()
         .map { $0.allSatisfy { $0 } }
@@ -95,9 +103,7 @@ final class WelcomeCoordinator: CoordinatorObject {
     }
 
     deinit {
-        cardScanTask?.cancel()
-        createMobileWalletTask?.cancel()
-        sheetTransitionTask?.cancel()
+        cancelPendingTasks()
         AppLogger.debug("WelcomeCoordinator deinit")
     }
 
@@ -229,6 +235,13 @@ final class WelcomeCoordinator: CoordinatorObject {
         createMobileWalletTask = nil
         sheetTransitionTask?.cancel()
         sheetTransitionTask = nil
+        cancelAppleLogin()
+    }
+
+    private func cancelAppleLogin() {
+        appleLoginTask?.cancel()
+        appleLoginTask = nil
+        isAppleLoginInProgress = false
     }
 }
 
@@ -250,6 +263,7 @@ extension WelcomeCoordinator {
     func handleBackgroundSheetDismiss() {
         logVisibleSheetDismissed(reason: .welcomeDismissed)
         actionSheetViewModel = nil
+        cancelPendingTasks()
     }
 
     /// The `Sheet` param reports what was visible at dismiss time: the pushed import sheet overrides the root.
@@ -344,6 +358,7 @@ private extension WelcomeCoordinator {
                     self?.analytics.logMobileWalletButton()
                     self?.createMobileWalletShortcut()
                 },
+                onAppleSignUp: weakify(self, forFunction: WelcomeCoordinator.appleSignUp),
                 onClose: { [weak self] in
                     self?.logVisibleSheetDismissed(reason: .welcomeDismissCloseButton)
                     self?.dismissSheet()
@@ -364,6 +379,7 @@ private extension WelcomeCoordinator {
                     self?.analytics.logImportExistingWalletButton()
                     self?.presentImportWalletIfAvailable()
                 },
+                onAppleSignIn: weakify(self, forFunction: WelcomeCoordinator.appleSignIn),
                 onClose: { [weak self] in
                     self?.logVisibleSheetDismissed(reason: .welcomeDismissCloseButton)
                     self?.dismissSheet()
@@ -515,8 +531,9 @@ private extension WelcomeCoordinator {
         }
 
         let readMoreButton = ConfirmationDialogViewModel.Button(title: Localization.commonReadMore) { [weak self] in
-            self?.analytics.logTroubleshootingReadMore()
-            self?.safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
+            guard let self else { return }
+            analytics.logTroubleshootingReadMore()
+            safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
         }
 
         let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
@@ -550,6 +567,7 @@ private extension WelcomeCoordinator {
 
     func dismissSheet() {
         actionSheetViewModel = nil
+        cancelAppleLogin()
     }
 
     /// SwiftUI cannot present a fullScreenCover or a navigation push while a sheet is up, so we close
@@ -557,6 +575,7 @@ private extension WelcomeCoordinator {
     /// coordinator idle, which lets a pending deep link take the screen — hence the re-check on wake.
     func dismissSheet(then action: @MainActor @escaping (WelcomeCoordinator) -> Void) {
         actionSheetViewModel = nil
+        cancelAppleLogin()
         sheetTransitionTask?.cancel()
 
         sheetTransitionTask = Task { @MainActor [weak self] in
@@ -618,7 +637,7 @@ private extension WelcomeCoordinator {
         case .web(let raw):
             // Https-only, defense in depth: this action is built locally by our own factory,
             // so the host allowlist applied to remote stories is not needed here.
-            guard let url = URL(string: raw), url.scheme?.lowercased() == "https" else { return }
+            guard let url = URL(string: raw), url.isHTTPS else { return }
             openShop(url: url, entry: .stories)
         case .screen, .deeplink, .close:
             break
@@ -717,6 +736,33 @@ private extension WelcomeCoordinator {
         )
     }
 
+    func appleSignUp() {
+        appleLogin(source: .createWallet)
+    }
+
+    func appleSignIn() {
+        appleLogin(source: .importWallet)
+    }
+
+    private func appleLogin(source: MobileSocialLoginSource) {
+        socialLoginAnalytics.logContinueWithAppleButton(source: source)
+
+        guard mobileWalletFeatureProvider.isAvailable else {
+            socialLoginAnalytics.logMinOSNotSupportedNotice()
+            alertPresenter.present(alert: mobileWalletFeatureProvider.makeRestrictionAlert())
+            return
+        }
+
+        guard appleLoginTask == nil else { return }
+
+        isAppleLoginInProgress = true
+        appleLoginTask = runTask(in: self) { @MainActor coordinator in
+            await coordinator.socialLoginHelper.signIn()
+            coordinator.appleLoginTask = nil
+            coordinator.isAppleLoginInProgress = false
+        }
+    }
+
     func presentImportOnboarding(options: OnboardingCoordinator.Options) {
         let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] outputOptions in
             guard let self else { return }
@@ -735,12 +781,60 @@ private extension WelcomeCoordinator {
     }
 }
 
+// MARK: - MobileSocialLoginOutput
+
+extension WelcomeCoordinator: MobileSocialLoginOutput {
+    func socialLoginWillPresentSignIn() {
+        actionSheetViewModel = nil
+    }
+
+    func socialLoginLoading(_ isLoading: Bool) {
+        actionSheetViewModel?.setLoading(isLoading, for: Constants.appleLoginRowId)
+    }
+
+    func socialLoginProcessing(_ isProcessing: Bool) {
+        rootViewModel?.set(isProcessing: isProcessing)
+    }
+
+    func socialLoginCompleted(input: MobileSocialWalletInput) {
+        socialWalletViewModel = MobileSocialWalletViewModel(
+            input: input,
+            socialAuthProvider: MobileSocialLoginProviderFactory.makeProvider(),
+            backupManager: CommonMobileWalletSocialBackupManager(destination: .iCloud),
+            coordinator: self
+        )
+    }
+
+    func socialLoginFailed(failure: MobileSocialWalletFailure) {
+        socialLoginAnalytics.logErrorShown(message: failure.message)
+        rootViewModel?.showSnackbar(withMessage: failure.message)
+    }
+}
+
+// MARK: - MobileCreateSocialWalletRoutable
+
+extension WelcomeCoordinator: MobileSocialWalletRoutable {
+    func socialWalletOpenMain(userWalletModel: UserWalletModel) {
+        openMain(with: userWalletModel)
+    }
+
+    func socialWalletFailed(failure: MobileSocialWalletFailure) {
+        socialLoginAnalytics.logErrorShown(message: failure.message)
+        rootViewModel?.showSnackbar(withMessage: failure.message)
+    }
+
+    func socialWalletClose() {
+        socialWalletViewModel = nil
+    }
+}
+
 // MARK: - Constants
 
 private extension WelcomeCoordinator {
     enum Constants {
         static let sheetTransitionDelay: TimeInterval = 0.35
         static let mobileCreateRowId = "mobile"
+        static let appleLoginRowId = "appleLogin"
         static let seedPhraseLength = "12"
     }
 }

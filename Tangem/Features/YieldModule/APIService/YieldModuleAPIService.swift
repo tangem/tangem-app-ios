@@ -55,21 +55,3 @@ protocol YieldModuleAPIService {
     /// UserAddress is sent only if the user enabled push notifications, therefore optional.
     func sendTransactionEvent(txHash: String, operation: String, userAddress: String?) async throws
 }
-
-extension YieldModuleAPIService {
-    func getYieldMarkets() async throws -> YieldModuleDTO.Response.MarketsInfo {
-        try await getYieldMarkets(chainIDs: nil)
-    }
-
-    func getChart(
-        tokenContractAddress: String,
-        chainId: Int
-    ) async throws -> YieldModuleDTO.Response.Chart {
-        try await getChart(
-            tokenContractAddress: tokenContractAddress,
-            chainId: chainId,
-            window: nil,
-            bucketSizeDays: nil
-        )
-    }
-}

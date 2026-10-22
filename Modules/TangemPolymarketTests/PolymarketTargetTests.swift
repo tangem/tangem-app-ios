@@ -34,23 +34,11 @@ struct PolymarketTargetTests {
     private enum TestError: Error { case notRequestParameters }
 
     private var positionsRequest: PolymarketPositionsRequest {
-        PolymarketPositionsRequest(
-            depositWalletAddress: "0xdead",
-            sort: .initialValue,
-            ascending: false,
-            limit: 30,
-            offset: 60
-        )
+        PolymarketPositionsRequest(depositWalletAddress: "0xdead", page: .first(limit: 30))
     }
 
     private var closedPositionsRequest: PolymarketClosedPositionsRequest {
-        PolymarketClosedPositionsRequest(
-            depositWalletAddress: "0xdead",
-            sort: .realizedPnl,
-            ascending: true,
-            limit: 30,
-            offset: 60
-        )
+        PolymarketClosedPositionsRequest(depositWalletAddress: "0xdead", page: .first(limit: 30))
     }
 
     private var positionOutcomeRequest: PolymarketPositionOutcomeRequest {
@@ -143,28 +131,62 @@ struct PolymarketTargetTests {
         #expect(target(.positionOutcome(positionOutcomeRequest)).headers == expected)
     }
 
-    @Test("positions: the whole page window goes into the query")
-    func positionsParameters() throws {
+    @Test("positions: the first page asks for a size and leaves the order to the backend")
+    func positionsFirstPageParameters() throws {
         let parameters = try queryParameters(target(.positions(positionsRequest)).task)
 
         #expect(parameters["depositWalletAddress"] as? String == "0xdead")
-        #expect(parameters["sort"] as? String == "initialValue")
-        #expect(parameters["ascending"] as? Bool == false)
         #expect(parameters["limit"] as? Int == 30)
-        #expect(parameters["offset"] as? Int == 60)
-        #expect(parameters.count == 5)
+        #expect(parameters.count == 2)
     }
 
-    @Test("closed positions: the whole page window goes into the query")
-    func closedPositionsParameters() throws {
+    @Test("positions: a next page carries only the cursor")
+    func positionsNextPageParameters() throws {
+        let request = PolymarketPositionsRequest(depositWalletAddress: "0xdead", page: .next(cursor: "opaque=="))
+        let parameters = try queryParameters(target(.positions(request)).task)
+
+        #expect(parameters["depositWalletAddress"] as? String == "0xdead")
+        #expect(parameters["cursor"] as? String == "opaque==")
+        #expect(parameters.count == 2)
+    }
+
+    @Test("positions: an explicit order goes with the first page only")
+    func positionsSortedFirstPageParameters() throws {
+        let request = PolymarketPositionsRequest(
+            depositWalletAddress: "0xdead",
+            page: .first(limit: 30, sort: .totalPnl, ascending: true)
+        )
+        let parameters = try queryParameters(target(.positions(request)).task)
+
+        #expect(parameters["sort"] as? String == "totalPnl")
+        #expect(parameters["ascending"] as? Bool == true)
+        #expect(parameters["limit"] as? Int == 30)
+        #expect(parameters.count == 4)
+    }
+
+    @Test("closed positions: the first page asks for a size and leaves the order to the backend")
+    func closedPositionsFirstPageParameters() throws {
         let parameters = try queryParameters(target(.closedPositions(closedPositionsRequest)).task)
 
         #expect(parameters["depositWalletAddress"] as? String == "0xdead")
-        #expect(parameters["sort"] as? String == "realizedPnl")
-        #expect(parameters["ascending"] as? Bool == true)
         #expect(parameters["limit"] as? Int == 30)
-        #expect(parameters["offset"] as? Int == 60)
-        #expect(parameters.count == 5)
+        #expect(parameters.count == 2)
+    }
+
+    @Test("closed positions: a next page carries only the cursor")
+    func closedPositionsNextPageParameters() throws {
+        let request = PolymarketClosedPositionsRequest(depositWalletAddress: "0xdead", page: .next(cursor: "c2"))
+        let parameters = try queryParameters(target(.closedPositions(request)).task)
+
+        #expect(parameters["depositWalletAddress"] as? String == "0xdead")
+        #expect(parameters["cursor"] as? String == "c2")
+        #expect(parameters.count == 2)
+    }
+
+    @Test("A cursor, when there is one, picks the next page")
+    func pageFromCursor() {
+        #expect(PolymarketPositionsPageRequest<PolymarketPositionsRequest.Sort>.page(limit: 20, cursor: nil) == .first(limit: 20))
+        #expect(PolymarketPositionsPageRequest<PolymarketPositionsRequest.Sort>.page(limit: 20, cursor: "c") == .next(cursor: "c"))
     }
 
     @Test("position outcome: the market and the outcome identify the row")

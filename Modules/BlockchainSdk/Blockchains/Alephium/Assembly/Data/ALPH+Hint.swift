@@ -16,13 +16,6 @@ extension ALPH {
         /// The underlying integer value of the hint
         let value: Int
 
-        // MARK: - Computed Properties
-
-        /// Returns true if the hint represents an asset type
-        var isAssetType: Bool {
-            (value & 1) == 1
-        }
-
         // MARK: - Static Methods
 
         /// Creates a hint from an asset output

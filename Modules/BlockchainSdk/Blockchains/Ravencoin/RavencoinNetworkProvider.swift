@@ -24,7 +24,6 @@ class RavencoinNetworkProvider: HostProvider {
     private let provider: TangemProvider<RavencoinTarget>
 
     private let blockchain = Blockchain.ravencoin(testnet: false)
-    private var decimalValue: Decimal { blockchain.decimalValue }
 
     init(nodeInfo: NodeInfo, provider: TangemProvider<RavencoinTarget>) {
         self.nodeInfo = nodeInfo

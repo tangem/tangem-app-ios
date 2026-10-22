@@ -9,8 +9,9 @@
 import Foundation
 
 extension JointAccountsDTO.Response {
-    /// An unfinished operation. It rides inside its account in the accounts listing, since the contract has no
-    /// endpoint for reading operations on their own, and a cancelled one simply disappears from there.
+    /// An operation as every endpoint words it. Unfinished, it rides inside its account in the accounts listing,
+    /// which a cancelled one simply disappears from; the operations history and the single operation answer
+    /// report it in any stage, with the fields `HistoryOperation` adds on top.
     struct Operation {
         /// A member's answer; only the members that have answered are listed. The ones yet to answer are worked out
         /// from the account's members, matched by address case-insensitively.

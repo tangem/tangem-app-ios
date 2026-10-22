@@ -119,7 +119,7 @@ struct TransactionDetailsTokensView: View {
 
         switch icon {
         case .token(let tokenIconInfo):
-            TokenIcon(tokenIconInfo: tokenIconInfo, size: size)
+            TokenIconV2(tokenIconInfo: tokenIconInfo, size: .size72)
         case .unresolved(let network):
             Circle()
                 .fill(DesignSystem.Color.bgTertiary)
@@ -261,7 +261,7 @@ struct TransactionDetailsTokensView: View {
     private func legIcon(_ icon: TransactionDetailsTokensViewData.Leg.Icon) -> some View {
         switch icon {
         case .token(let tokenIconInfo):
-            TokenIcon(tokenIconInfo: tokenIconInfo, size: CGSize(bothDimensions: legTokenSide))
+            TokenIconV2(tokenIconInfo: tokenIconInfo, size: .size40)
         case .image(let url):
             IconView(url: url, size: CGSize(bothDimensions: legTokenSide))
                 .clipShape(.circle)

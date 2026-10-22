@@ -10,7 +10,6 @@ import Combine
 import BlockchainSdk
 
 protocol TransactionHistoryService: AnyObject, TransactionHistoryFetcher {
-    var state: TransactionHistoryServiceState { get }
     var statePublisher: AnyPublisher<TransactionHistoryServiceState, Never> { get }
 
     var items: [TransactionRecord] { get async }

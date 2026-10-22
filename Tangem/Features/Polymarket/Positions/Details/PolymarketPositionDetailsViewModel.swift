@@ -170,6 +170,11 @@ private extension PolymarketPositionDetailsViewModel {
                 let (market, outcome, eventTitle) = try await viewModel.market()
                 try Task.checkCancellation()
 
+                if case .sell = request, !viewModel.position.isTradable(as: outcome) {
+                    viewModel.coordinator?.openMarketClosed()
+                    return
+                }
+
                 viewModel.coordinator?.openOrder(
                     market: market,
                     outcome: outcome,
@@ -209,20 +214,17 @@ private extension PolymarketPositionDetailsViewModel {
     }
 
     func market() async throws -> (PolymarketMarket, PolymarketOutcome, String) {
-        guard let eventId = position.eventId, let marketId = position.marketId else {
+        guard let eventId = position.eventId else {
             throw PositionDetailsError.positionWithoutMarket
         }
 
         let event = try await apiProvider.event(id: eventId)
 
-        guard
-            let market = event.markets.first(where: { $0.id == marketId }),
-            let outcome = market.outcomes.first(where: { $0.assetId == position.assetId })
-        else {
+        guard let match = position.marketMatch(in: event.markets) else {
             throw PositionDetailsError.positionWithoutMarket
         }
 
-        return (market, outcome, event.title)
+        return (match.market, match.outcome, event.title)
     }
 
     enum PositionDetailsError: Error {

@@ -44,6 +44,7 @@ struct SupportChatView: View {
             WebView(
                 htmlString: viewModel.widgetHTML,
                 baseURL: UsedeskWebViewConstants.baseURL,
+                contentInsetAdjustmentBehavior: .never,
                 allowsJavaScript: true,
                 validatesCertificateTransparency: true,
                 messageHandlers: [

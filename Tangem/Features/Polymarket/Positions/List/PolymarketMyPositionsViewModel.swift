@@ -39,36 +39,50 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
 
     private let positionsService: PolymarketPositionsService
     private weak var coordinator: PolymarketMyPositionsRoutable?
+    private let now: () -> Date
+    private let visibilitySettleDelay: TimeInterval
+    private let poller: PolymarketForegroundPoller
 
-    private var loaded: [Row] = []
-    private var seenIDs: Set<String> = []
+    private var feed = PolymarketPagedFeed<Row>()
+    private var cursor: String?
     private var positionsGoneLocally: Set<String> = []
-    private var offset = 0
-    private var hasNext = false
+    private var visibleRowIDs: Set<String> = []
+    private var refreshingPages: Set<PageKey> = []
+    private var rejectedPages: Set<PageKey> = []
     private var loadingTask: Task<Void, Never>?
     private var orderTask: Task<Void, Never>?
     private var refreshTask: Task<Void, Never>?
-    private var pollingTask: Task<Void, Never>?
-    private let appStateObserver = AppStateObserver()
-    private var bag: Set<AnyCancellable> = []
+    private var visibilityTask: Task<Void, Never>?
+    private var isPollingPaused = false
+    private var hasVisibilityChangedDuringTick = false
 
     init(
         tab: PolymarketPositionsTab,
         positionsService: PolymarketPositionsService,
-        coordinator: PolymarketMyPositionsRoutable?
+        coordinator: PolymarketMyPositionsRoutable?,
+        notificationCenter: NotificationCenter = .default,
+        now: @escaping () -> Date = Date.init,
+        visibilitySettleDelay: TimeInterval? = nil
     ) {
         self.tab = tab
         self.positionsService = positionsService
         self.coordinator = coordinator
+        self.now = now
+        self.visibilitySettleDelay = visibilitySettleDelay ?? Constants.visibilitySettleDelay
+        poller = PolymarketForegroundPoller(interval: Constants.pollInterval, notificationCenter: notificationCenter)
 
         reload()
-        startRefreshing()
-        bindApplicationState()
+
+        poller.start(
+            onTick: { [weak self] in await self?.pollVisiblePages() },
+            onPause: { [weak self] in self?.pausePolling() }
+        )
     }
 
     deinit {
-        pollingTask?.cancel()
+        loadingTask?.cancel()
         refreshTask?.cancel()
+        visibilityTask?.cancel()
     }
 
     func orderPlaced(awaiting indexing: PolymarketOrderIndexing) {
@@ -91,34 +105,6 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
         reload()
     }
 
-    func refreshInPlace() {
-        guard loadingState != .loading, loadingState != .paginationLoading else { return }
-
-        let tab = tab
-
-        refreshTask = runTask(in: self) { @MainActor viewModel in
-            do {
-                let page = try await viewModel.page(for: tab, offset: 0)
-                try Task.checkCancellation()
-
-                guard tab == viewModel.tab else { return }
-
-                guard !viewModel.loaded.isEmpty else {
-                    viewModel.offset = 0
-                    viewModel.append(page)
-                    viewModel.settle()
-                    return
-                }
-
-                viewModel.replaceLoaded(with: page.rows)
-            } catch {
-                guard !error.isCancellationError else { return }
-
-                PolymarketLogger.error("Failed to refresh the positions list", error: error)
-            }
-        }
-    }
-
     func refresh() async {
         guard loadingState != .loading, loadingState != .paginationLoading else { return }
 
@@ -128,15 +114,13 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
 
         refreshTask = runTask(in: self) { @MainActor viewModel in
             do {
-                let page = try await viewModel.page(for: tab, offset: 0)
+                let page = try await viewModel.page(for: tab, cursor: nil)
                 try Task.checkCancellation()
 
                 guard tab == viewModel.tab else { return }
 
-                viewModel.loaded = []
-                viewModel.seenIDs = []
-                viewModel.offset = 0
-                viewModel.append(page)
+                viewModel.resetFeed()
+                viewModel.append(page, requestCursor: nil)
                 viewModel.settle()
             } catch {
                 guard !error.isCancellationError else { return }
@@ -151,11 +135,8 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
     func reload() {
         loadingTask?.cancel()
         refreshTask?.cancel()
-        loaded = []
-        seenIDs = []
+        resetFeed()
         rows = []
-        offset = 0
-        hasNext = false
         loadingState = .loading
 
         fetch()
@@ -180,6 +161,8 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
             loadMore()
         case .openPositionDetails(let id):
             openPosition(id: id)
+        case .onRowVisibilityChange(let id, let isVisible):
+            updateVisibility(rowID: id, isVisible: isVisible)
         }
     }
 }
@@ -187,6 +170,10 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
 // MARK: - Loading
 
 private extension PolymarketMyPositionsViewModel {
+    var hasNext: Bool {
+        cursor != nil
+    }
+
     func loadMore() {
         guard hasNext, loadingState != .paginationLoading, loadingState != .loading else { return }
 
@@ -196,15 +183,17 @@ private extension PolymarketMyPositionsViewModel {
 
     func fetch(attempt: Int = 0) {
         let tab = tab
+        let requestCursor = cursor
+        let generation = feed.generation
 
         loadingTask = runTask(in: self) { @MainActor viewModel in
             do {
-                let page = try await viewModel.page(for: tab, offset: viewModel.offset)
+                let page = try await viewModel.page(for: tab, cursor: requestCursor)
                 try Task.checkCancellation()
 
-                guard tab == viewModel.tab else { return }
+                guard tab == viewModel.tab, generation == viewModel.feed.generation else { return }
 
-                viewModel.append(page)
+                viewModel.append(page, requestCursor: requestCursor)
 
                 if viewModel.rows.isEmpty, viewModel.hasNext, attempt < Constants.maxEmptyPages {
                     viewModel.fetch(attempt: attempt + 1)
@@ -216,86 +205,61 @@ private extension PolymarketMyPositionsViewModel {
                 guard !error.isCancellationError else { return }
 
                 PolymarketLogger.error("Failed to load the positions list", error: error)
-                viewModel.loadingState = viewModel.loaded.isEmpty ? .error : .paginationError
+
+                if requestCursor != nil, Self.isRejectedCursor(error) {
+                    viewModel.reload()
+                    return
+                }
+
+                viewModel.loadingState = viewModel.feed.isEmpty ? .error : .paginationError
             }
         }
     }
 
-    func page(for tab: PolymarketPositionsTab, offset: Int) async throws -> Page {
+    func page(for tab: PolymarketPositionsTab, cursor: String?) async throws -> Page {
         switch tab {
         case .active:
-            let page = try await positionsService.openPositions(
-                sort: .endDate,
-                ascending: true,
-                limit: Constants.pageSize,
-                offset: offset
-            )
-            let rows = page.positions.filter { !$0.isEmptied && !positionsGoneLocally.contains($0.id) }.map(Row.open)
+            let page = try await positionsService.openPositions(limit: Constants.pageSize, cursor: cursor)
 
-            return Page(rows: rows, receivedCount: page.receivedCount, hasNext: page.hasNext)
+            return Page(rows: page.positions.map(Row.open), nextCursor: page.nextCursor)
         case .finished:
-            let page = try await positionsService.closedPositions(
-                sort: .closedAt,
-                ascending: false,
-                limit: Constants.pageSize,
-                offset: offset
-            )
-            return Page(rows: page.rows, receivedCount: page.receivedCount, hasNext: page.hasNext)
+            let page = try await positionsService.closedPositions(limit: Constants.pageSize, cursor: cursor)
+
+            return Page(rows: page.positions.map(Row.closed), nextCursor: page.nextCursor)
         }
     }
 
-    func append(_ page: Page) {
-        let fresh = page.rows.filter { seenIDs.insert($0.id).inserted }
+    static func isRejectedCursor(_ error: Error) -> Bool {
+        guard case .http(let statusCode, _) = error as? PolymarketAPIError else { return false }
 
-        loaded.append(contentsOf: fresh)
-        offset += page.receivedCount
-        hasNext = page.hasNext || page.receivedCount == Constants.pageSize
+        return statusCode == Constants.badRequestStatusCode
+    }
+
+    func append(_ page: Page, requestCursor: String?) {
+        feed.append(page.rows, requestCursor: requestCursor, at: now())
+        cursor = page.nextCursor
 
         applyFilter()
+    }
+
+    func resetFeed() {
+        feed.removeAll()
+        cursor = nil
+        refreshingPages = []
+        rejectedPages = []
+        visibilityTask?.cancel()
+        visibilityTask = nil
+        hasVisibilityChangedDuringTick = false
     }
 
     func applyFilter() {
-        rows = loaded.filter(filter.accepts).map(\.rowModel)
+        rows = feed.items.filter { isShown($0) && filter.accepts($0) }.map(\.rowModel)
     }
 
-    func replaceLoaded(with refreshed: [Row]) {
-        let byID = Dictionary(refreshed.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
-
-        loaded = loaded.map { byID[$0.id] ?? $0 }
-
-        applyFilter()
-    }
-
-    func bindApplicationState() {
-        appStateObserver.start { [weak self] isInBackground in
-            guard let self else { return }
-
-            if isInBackground {
-                stopRefreshing()
-            } else {
-                refreshInPlace()
-                startRefreshing()
-            }
-        }
-    }
-
-    func stopRefreshing() {
-        pollingTask?.cancel()
-        pollingTask = nil
-        refreshTask?.cancel()
-    }
-
-    func startRefreshing() {
-        pollingTask?.cancel()
-
-        pollingTask = Task { @MainActor [weak self] in
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(Constants.refreshInterval))
-
-                guard !Task.isCancelled, let self else { return }
-
-                refreshInPlace()
-            }
+    func isShown(_ row: Row) -> Bool {
+        switch row {
+        case .open(let position): !position.isEmptied && !positionsGoneLocally.contains(position.id)
+        case .closed: true
         }
     }
 
@@ -325,14 +289,126 @@ private extension PolymarketMyPositionsViewModel {
     }
 }
 
+// MARK: - Polling
+
+private extension PolymarketMyPositionsViewModel {
+    func pollVisiblePages() async {
+        isPollingPaused = false
+
+        guard !feed.isEmpty else {
+            if loadingState == .empty {
+                await refresh()
+            }
+
+            return
+        }
+
+        await refreshVisiblePages()
+    }
+
+    func pausePolling() {
+        isPollingPaused = true
+        visibilityTask?.cancel()
+        visibilityTask = nil
+        hasVisibilityChangedDuringTick = false
+    }
+
+    func updateVisibility(rowID: String, isVisible: Bool) {
+        guard isVisible else {
+            visibleRowIDs.remove(rowID)
+            return
+        }
+
+        visibleRowIDs.insert(rowID)
+
+        guard visibilityTask == nil else {
+            hasVisibilityChangedDuringTick = true
+            return
+        }
+
+        scheduleVisibilityTick()
+    }
+
+    func scheduleVisibilityTick() {
+        guard !isPollingPaused, visibilityTask == nil else { return }
+
+        visibilityTask = runTask(in: self) { @MainActor viewModel in
+            try? await Task.sleep(for: .seconds(viewModel.visibilitySettleDelay))
+
+            guard !Task.isCancelled else { return }
+
+            await viewModel.refreshVisiblePages()
+
+            guard !Task.isCancelled else { return }
+
+            viewModel.visibilityTask = nil
+
+            if viewModel.hasVisibilityChangedDuringTick {
+                viewModel.hasVisibilityChangedDuringTick = false
+                viewModel.scheduleVisibilityTick()
+            }
+        }
+    }
+
+    func refreshVisiblePages() async {
+        let stalePageIDs = feed.stalePageIDs(
+            showing: visibleRowIDs,
+            now: now(),
+            staleAfter: Constants.staleAfter,
+            minimumInterval: Constants.pollInterval
+        )
+
+        let generation = feed.generation
+
+        for pageID in stalePageIDs where !rejectedPages.contains(PageKey(generation: generation, pageID: pageID)) {
+            guard generation == feed.generation else { return }
+
+            await refresh(pageID: pageID)
+        }
+    }
+
+    func refresh(pageID: Int) async {
+        let key = PageKey(generation: feed.generation, pageID: pageID)
+
+        guard let page = feed.page(id: pageID), refreshingPages.insert(key).inserted else { return }
+
+        defer { refreshingPages.remove(key) }
+
+        let tab = tab
+        feed.markAttempt(pageID: pageID, at: now())
+
+        do {
+            let refreshed = try await self.page(for: tab, cursor: page.requestCursor)
+            try Task.checkCancellation()
+
+            guard key.generation == feed.generation, tab == self.tab, feed.merge(refreshed.rows, into: pageID, at: now()) > 0 else {
+                return
+            }
+
+            applyFilter()
+        } catch {
+            guard !error.isCancellationError, key.generation == feed.generation else { return }
+
+            PolymarketLogger.error("Failed to refresh a page of the positions list", error: error)
+
+            if page.requestCursor != nil, Self.isRejectedCursor(error) {
+                rejectedPages.insert(key)
+                return
+            }
+
+            feed.markFailure(pageID: pageID)
+        }
+    }
+}
+
 // MARK: - Opening a row
 
 extension PolymarketMyPositionsViewModel {
     func openPosition(id: String) {
-        guard let row = loaded.first(where: { $0.id == id }) else { return }
+        guard let row = feed.items.first(where: { $0.id == id }) else { return }
 
         switch row {
-        case .open(let position) where position.isRedeemable || position.settlement?.isResolved == true:
+        case .open(let position) where position.opensClaim:
             coordinator?.openRedeem(position: position, onClaimed: { [weak self] claimed in self?.claimed(claimed) })
         case .open(let position):
             coordinator?.openPositionDetails(
@@ -347,7 +423,7 @@ extension PolymarketMyPositionsViewModel {
 // MARK: - Row
 
 private extension PolymarketMyPositionsViewModel {
-    enum Row {
+    enum Row: Identifiable {
         case open(PolymarketPosition)
         case closed(PolymarketClosedPosition)
 
@@ -368,8 +444,12 @@ private extension PolymarketMyPositionsViewModel {
 
     struct Page {
         let rows: [Row]
-        let receivedCount: Int
-        let hasNext: Bool
+        let nextCursor: String?
+    }
+
+    struct PageKey: Hashable {
+        let generation: UUID
+        let pageID: Int
     }
 }
 
@@ -379,12 +459,6 @@ private extension PolymarketPositionTypeFilter {
         case .open(let position): accepts(position)
         case .closed(let position): accepts(position)
         }
-    }
-}
-
-private extension PolymarketClosedPositionsPage {
-    var rows: [PolymarketMyPositionsViewModel.Row] {
-        positions.map(PolymarketMyPositionsViewModel.Row.closed)
     }
 }
 
@@ -408,6 +482,7 @@ extension PolymarketMyPositionsViewModel {
         case loadNextPage
         case retryNextPage
         case openPositionDetails(id: String)
+        case onRowVisibilityChange(id: String, isVisible: Bool)
     }
 }
 
@@ -417,6 +492,9 @@ private extension PolymarketMyPositionsViewModel {
     enum Constants {
         static let pageSize = 20
         static let maxEmptyPages = 3
-        static let refreshInterval: TimeInterval = 20
+        static let pollInterval: TimeInterval = 20
+        static let staleAfter: TimeInterval = 20
+        static let visibilitySettleDelay: TimeInterval = 0.5
+        static let badRequestStatusCode = 400
     }
 }

@@ -100,11 +100,6 @@ class FakeWalletManager: WalletManager {
         wallet.add(tokenValue: 0, for: token)
     }
 
-    func addTokens(_ tokens: [BlockchainSdk.Token]) {
-        cardTokens.append(contentsOf: tokens)
-        tokens.forEach { wallet.add(tokenValue: 0, for: $0) }
-    }
-
     func send(
         _ transaction: BlockchainSdk.Transaction,
         signer: BlockchainSdk.TransactionSigner
@@ -112,10 +107,6 @@ class FakeWalletManager: WalletManager {
         Fail(error: SendTxError(error: BlockchainSdkError.empty, tx: Data.randomData(count: 32).hexString))
             .eraseToAnyPublisher()
     }
-
-    func validate(fee: BlockchainSdk.Fee) throws {}
-
-    func validate(amount: BlockchainSdk.Amount) throws {}
 
     func getFee(amount: BlockchainSdk.Amount, destination: String) -> AnyPublisher<[BlockchainSdk.Fee], Error> {
         .justWithError(output: [
@@ -188,13 +179,6 @@ extension FakeWalletManager {
     static let xlmManager: FakeWalletManager = {
         var wallet = Wallet.xlmWalletStub
         wallet.add(coinValue: 390192)
-        return FakeWalletManager(wallet: wallet)
-    }()
-
-    static let visaWalletManager: FakeWalletManager = {
-        var wallet = Wallet.polygonWalletStub
-        wallet.add(coinValue: 0)
-        wallet.add(tokenValue: 354.123, for: VisaUtilities.mockToken)
         return FakeWalletManager(wallet: wallet)
     }()
 }

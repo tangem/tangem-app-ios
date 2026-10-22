@@ -59,7 +59,3 @@ class U128Class {
         return ret
     }
 }
-
-class EraID {
-    var maxValue: UInt64?
-}

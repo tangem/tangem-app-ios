@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "order-card-bg-plus.png",
+      "filename" : "order-card-bg-plus.jpg",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "order-card-bg-plus@2x.png",
+      "filename" : "order-card-bg-plus@2x.jpg",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "order-card-bg-plus@3x.png",
+      "filename" : "order-card-bg-plus@3x.jpg",
       "idiom" : "universal",
       "scale" : "3x"
     },
@@ -22,7 +22,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "order-card-bg-plus-dark.png",
+      "filename" : "order-card-bg-plus-dark.jpg",
       "idiom" : "universal",
       "scale" : "1x"
     },
@@ -33,7 +33,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "order-card-bg-plus-dark@2x.png",
+      "filename" : "order-card-bg-plus-dark@2x.jpg",
       "idiom" : "universal",
       "scale" : "2x"
     },
@@ -44,7 +44,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "order-card-bg-plus-dark@3x.png",
+      "filename" : "order-card-bg-plus-dark@3x.jpg",
       "idiom" : "universal",
       "scale" : "3x"
     }

@@ -34,9 +34,15 @@ struct JointAccountInviteMembersViewModelTests {
         #expect(viewModel.content.totalMembersCount == 3)
     }
 
-    @Test("The wallet holding the invites is the creator's, and its own row says so")
+    @Test("The creator's own row says it is this wallet's")
     func creatorRowNamesThisWallet() {
-        let creatorSide = makeViewModel(membersCount: 2, members: [creator], inviteIds: ["AA"])
+        let creatorSide = makeViewModel(
+            membersCount: 2,
+            membersService: JointAccountMembersServiceMock(
+                slots: [.member(creator), .empty(invite: nil)],
+                userRole: .member(creator)
+            )
+        )
         let memberSide = makeViewModel(membersCount: 2, members: [creator], inviteIds: nil)
 
         #expect(creatorSide.content.members.first?.role.contains(Localization.jointAccountMembersRoleYou) == true)
@@ -44,8 +50,14 @@ struct JointAccountInviteMembersViewModelTests {
     }
 
     @Test("The creator is asked to invite members, a member who joined waits for the rest")
-    func titleAndSafetyBannerFollowTheCreatorDevice() {
-        let creatorSide = makeViewModel(membersCount: 3, members: [creator], inviteIds: ["AA", "BB"])
+    func titleAndSafetyBannerFollowTheCreator() {
+        let creatorSide = makeViewModel(
+            membersCount: 3,
+            membersService: JointAccountMembersServiceMock(
+                slots: [.member(creator), .empty(invite: nil), .empty(invite: nil)],
+                userRole: .member(creator)
+            )
+        )
         let memberSide = makeViewModel(membersCount: 3, members: [creator, member(name: "Bob", inviteId: "AA")], inviteIds: nil)
 
         #expect(creatorSide.content.title == Localization.jointAccountInviteMembersTitle)
@@ -107,10 +119,10 @@ struct JointAccountInviteMembersViewModelTests {
     func ownRowIsToldByAddress() {
         let bob = member(name: "Bob", inviteId: "AA")
 
-        #expect(role(of: bob, ownAddress: bob.address.uppercased()) == Localization.jointAccountMembersRoleYou)
-        #expect(role(of: creator, ownAddress: bob.address) == Localization.jointAccountInviteMembersCreator)
-        #expect(role(of: creator, ownAddress: creator.address.uppercased()).contains(Localization.jointAccountMembersRoleYou))
-        #expect(role(of: bob, ownAddress: creator.address, isCreatorDevice: true) == Localization.jointAccountMembersRoleJoined)
+        #expect(role(of: bob, isOwn: true) == Localization.jointAccountMembersRoleYou)
+        #expect(role(of: creator, isOwn: false) == Localization.jointAccountInviteMembersCreator)
+        #expect(role(of: creator, isOwn: true).contains(Localization.jointAccountMembersRoleYou))
+        #expect(role(of: bob, isOwn: false) == Localization.jointAccountMembersRoleJoined)
     }
 
     @Test("A member of an account not yet activated finds their own row by the address the members service derives")
@@ -118,7 +130,7 @@ struct JointAccountInviteMembersViewModelTests {
         let bob = member(name: "Bob", inviteId: "AA")
         let membersService = JointAccountMembersServiceMock(
             slots: [.member(creator), .member(bob), .empty(invite: nil)],
-            ownAddress: bob.address
+            userRole: .member(bob)
         )
 
         let viewModel = makeViewModel(membersCount: 3, membersService: membersService)
@@ -126,13 +138,27 @@ struct JointAccountInviteMembersViewModelTests {
         #expect(viewModel.content.members.map(\.role) == [Localization.jointAccountInviteMembersCreator, Localization.jointAccountMembersRoleYou])
     }
 
-    @Test("Without an address of its own, the wallet holding the invites still tells the creator's row apart")
-    func ownRowFallsBackToInvites() {
+    @Test("This wallet's own row is told by its address alone, however it is cased")
+    func ownRowIsMatchedByAddressAlone() {
+        let bob = member(name: "Bob", inviteId: "AA")
+        let membersService = JointAccountMembersServiceMock(
+            slots: [.member(creator), .member(bob)],
+            userRole: .member(JointAccountMember(name: "Robert", address: bob.address.uppercased(), role: bob.role))
+        )
+
+        let viewModel = makeViewModel(membersCount: 2, membersService: membersService)
+
+        #expect(viewModel.content.members.map(\.role) == [Localization.jointAccountInviteMembersCreator, Localization.jointAccountMembersRoleYou])
+    }
+
+    /// Guessing it from the invites named the creator's row on any wallet that happened to hold them, which stops
+    /// being this wallet once the account is read somewhere else.
+    @Test("Without an address of its own the wallet claims no row")
+    func noRowIsOwnWithoutAnAddress() {
         let bob = member(name: "Bob", inviteId: "AA")
 
-        #expect(role(of: creator, ownAddress: nil, isCreatorDevice: true).contains(Localization.jointAccountMembersRoleYou))
-        #expect(role(of: creator, ownAddress: nil) == Localization.jointAccountInviteMembersCreator)
-        #expect(role(of: bob, ownAddress: nil, isCreatorDevice: true) == Localization.jointAccountMembersRoleJoined)
+        #expect(role(of: creator, isOwn: false) == Localization.jointAccountInviteMembersCreator)
+        #expect(role(of: bob, isOwn: false) == Localization.jointAccountMembersRoleJoined)
     }
 
     @Test("A slot somebody was invited into is a member rather than an invitation waiting to be sent")
@@ -216,8 +242,8 @@ struct JointAccountInviteMembersViewModelTests {
         JointAccountMember(name: name, address: "0x\(name)", role: .member(inviteId: inviteId))
     }
 
-    private func role(of member: JointAccountMember, ownAddress: String?, isCreatorDevice: Bool = false) -> String {
-        JointAccountInviteMembersViewModel.role(of: member, ownAddress: ownAddress, isCreatorDevice: isCreatorDevice)
+    private func role(of member: JointAccountMember, isOwn: Bool) -> String {
+        JointAccountInviteMembersViewModel.role(of: member, isOwn: isOwn)
     }
 
     /// - Parameter inviteIds: Nil on a wallet that was handed no invites at all, which is anyone's but the creator's.

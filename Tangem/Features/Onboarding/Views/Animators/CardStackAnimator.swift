@@ -88,16 +88,6 @@ struct CardAnimSettings: Equatable {
             rotationAngle: .zero
         )
     }
-
-    func applySettings<Content: View>(to view: Content) -> some View {
-        view
-            .frame(size: frame)
-            .rotationEffect(rotationAngle)
-            .scaleEffect(scale)
-            .offset(offset)
-            .opacity(opacity)
-            .zIndex(zIndex)
-    }
 }
 
 struct CardStackAnimator<Card: View>: View {
@@ -196,7 +186,6 @@ final class CardStackAnimatorPreviewModel: ObservableObject {
     }
 
     @Published var currentCardIndex: Int = 0
-    @Published var sliderIndex: Double = 0
 
     let content: Content
 

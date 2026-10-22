@@ -18,10 +18,10 @@ struct JointAccountModelTests {
 
     @Test("Activating is offered to the creator of a full composition and to no one else")
     func activatingTakesTheStageAndTheCreator() {
-        let creator = makeSUT(status: .confirming(safeAddress: Self.safeAddress), isCreatorDevice: true)
-        // A member holds no invites, which is what tells them apart from the creator
-        let member = makeSUT(status: .confirming(safeAddress: Self.safeAddress), isCreatorDevice: false)
-        let stillFilling = makeSUT(status: .pending, isCreatorDevice: true)
+        let creator = makeSUT(status: .confirming(safeAddress: Self.safeAddress), userRole: .member(Self.creatorMember))
+        // The slot this wallet holds is what tells a member apart from the creator
+        let member = makeSUT(status: .confirming(safeAddress: Self.safeAddress), userRole: .member(Self.memberMember))
+        let stillFilling = makeSUT(status: .pending, userRole: .member(Self.creatorMember))
 
         #expect(creator.canActivate)
         #expect(!member.canActivate)
@@ -32,9 +32,23 @@ struct JointAccountModelTests {
     /// the creator with nothing and no reason why.
     @Test("An announced address the answer left out does not take the activate button with it")
     func activatingIsOfferedWithoutAnAnnouncedAddress() {
-        let sut = makeSUT(status: .confirming(safeAddress: nil), isCreatorDevice: true)
+        let sut = makeSUT(status: .confirming(safeAddress: nil), userRole: .member(Self.creatorMember))
 
         #expect(sut.canActivate)
+    }
+
+    @Test("A wallet that still needs the derivation to tell which slot it holds is offered nothing")
+    func activatingIsNotOfferedWhileDerivationIsNeeded() {
+        let sut = makeSUT(status: .confirming(safeAddress: Self.safeAddress), userRole: .derivationNeeded)
+
+        #expect(!sut.canActivate)
+    }
+
+    @Test("A wallet that holds no slot of the account is not offered it")
+    func activatingIsNotOfferedToAnOutsider() {
+        let sut = makeSUT(status: .confirming(safeAddress: Self.safeAddress), userRole: .outsider)
+
+        #expect(!sut.canActivate)
     }
 }
 
@@ -42,8 +56,10 @@ struct JointAccountModelTests {
 
 private extension JointAccountModelTests {
     static let safeAddress = "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"
+    static let creatorMember = JointAccountMember(name: "Isaac", address: "0xcreator", role: .creator)
+    static let memberMember = JointAccountMember(name: "Bob", address: "0xmember", role: .member(inviteId: nil))
 
-    func makeSUT(status: JointAccountStatus, isCreatorDevice: Bool) -> CommonJointAccountModel {
+    func makeSUT(status: JointAccountStatus, userRole: JointAccountUserRole) -> CommonJointAccountModel {
         CommonJointAccountModel(
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
             derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
@@ -51,7 +67,7 @@ private extension JointAccountModelTests {
             accountStatus: status,
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
-            membersService: JointAccountMembersServiceMock(isCreatorDevice: isCreatorDevice),
+            membersService: JointAccountMembersServiceMock(userRole: userRole),
             delegate: delegate
         )
     }

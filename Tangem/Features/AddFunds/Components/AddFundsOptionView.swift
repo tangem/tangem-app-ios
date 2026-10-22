@@ -43,7 +43,7 @@ struct AddFundsOptionView: View {
             .padding(.vertical, verticalPadding)
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(.rect)
-            .background(Color.Tangem.Surface.level3)
+            .background(DesignSystem.Color.bgSecondary)
             .cornerRadiusContinuous(20)
         }
         .buttonStyle(.plain)
@@ -55,13 +55,13 @@ struct AddFundsOptionView: View {
     private var iconView: some View {
         ZStack {
             Circle()
-                .fill(Color.Tangem.Markers.backgroundTintedBlue)
+                .fill(DesignSystem.Color.bgStatusInfoSubtle)
 
             viewData.icon.image
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
-                .foregroundStyle(Color.Tangem.Markers.iconBlue)
+                .foregroundStyle(DesignSystem.Color.iconAccentBlue)
                 .frame(width: iconSize, height: iconSize)
         }
         .frame(width: iconContainerSize, height: iconContainerSize)
@@ -69,13 +69,13 @@ struct AddFundsOptionView: View {
 
     private var titleView: some View {
         Text(viewData.title)
-            .style(.Tangem.Body16.medium.font, color: .Tangem.Text.Neutral.primary)
+            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
             .multilineTextAlignment(.leading)
     }
 
     private var subtitleView: some View {
         Text(viewData.subtitle)
-            .style(.Tangem.Caption12.semibold.font, color: .Tangem.Text.Neutral.primary)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
             .multilineTextAlignment(.leading)
     }
 
@@ -84,7 +84,7 @@ struct AddFundsOptionView: View {
             .renderingMode(.template)
             .resizable()
             .scaledToFit()
-            .foregroundStyle(Color.Tangem.Graphic.Neutral.secondary)
+            .foregroundStyle(DesignSystem.Color.iconSecondary)
             .frame(width: chevronSize, height: chevronSize)
     }
 }

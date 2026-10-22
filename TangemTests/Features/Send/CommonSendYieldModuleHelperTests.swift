@@ -408,7 +408,6 @@ final class CommonSendYieldModuleHelperTests: LeakTrackingTestSuite {
 
 private extension CommonSendYieldModuleHelperTests {
     var tokenContractAddress: String { "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" }
-    var recipientAddress: String { "0xd8da6bf26964af9d7eed9e03e53415d37aa96045" }
     var walletAddress: String { "0x9e4d1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b" }
     var routerAddress: String { "0x1111111254eeb25477b68fb85ed929f73a960582" }
     var spenderAddress: String { "0x000000000022d473030f116ddee9f6b43ac78ba3" }

@@ -13,7 +13,7 @@ import TangemAssets
 
 #Preview("No collections") {
     ZStack {
-        Color.Tangem.Surface.level1
+        DesignSystem.Color.bgPrimary
         TangemNFTEntrypointRow(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(state: .success(.init(value: []))),
@@ -29,7 +29,7 @@ import TangemAssets
 
 #Preview("One collection") {
     ZStack {
-        Color.Tangem.Surface.level1
+        DesignSystem.Color.bgPrimary
         TangemNFTEntrypointRow(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(
@@ -66,7 +66,7 @@ import TangemAssets
 
 #Preview("Two collections") {
     ZStack {
-        Color.Tangem.Surface.level1
+        DesignSystem.Color.bgPrimary
         TangemNFTEntrypointRow(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(
@@ -103,7 +103,7 @@ import TangemAssets
 
 #Preview("Four collections") {
     ZStack {
-        Color.Tangem.Surface.level1
+        DesignSystem.Color.bgPrimary
         TangemNFTEntrypointRow(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(
@@ -140,7 +140,7 @@ import TangemAssets
 
 #Preview("Multiple collections") {
     ZStack {
-        Color.Tangem.Surface.level1
+        DesignSystem.Color.bgPrimary
         TangemNFTEntrypointRow(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(

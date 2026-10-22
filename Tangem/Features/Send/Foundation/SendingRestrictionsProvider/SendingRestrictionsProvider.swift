@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
+
 protocol SendingRestrictionsProvider {
-    var sendingRestrictions: SendingRestrictions? { get }
+    var sendingRestrictionsPublisher: AnyPublisher<SendingRestrictions?, Never> { get }
 }

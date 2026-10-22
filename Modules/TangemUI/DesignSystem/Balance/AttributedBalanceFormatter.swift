@@ -17,13 +17,21 @@ public enum AttributedBalanceFormatter {
         /// fonts (a size split, e.g. a large integer with small decimals). For a uniform font leave
         /// this `nil` and apply the font on the view via `.style(_:)`/`.font(_:)`, so Dynamic Type
         /// scaling via `@ScaledMetric` is preserved — a baked fixed-size font would defeat it.
-        public let font: TangemFontStyle?
+        let font: Font?
+        let tracking: CGFloat
         /// `nil` leaves the part's color unset so it inherits the ambient `foregroundStyle`
         /// (e.g. an animated price-change flash).
         public let color: Color?
 
-        public init(font: TangemFontStyle?, color: Color?) {
+        public init(font: Font?, color: Color?) {
             self.font = font
+            tracking = 0
+            self.color = color
+        }
+
+        public init(token: TangemTypographyToken?, color: Color?) {
+            font = token.map { Font.system(size: $0.fontSize, weight: $0.fontWeight) }
+            tracking = token?.tracking ?? 0
             self.color = color
         }
     }
@@ -37,7 +45,8 @@ public enum AttributedBalanceFormatter {
     ) -> AttributedString {
         var attributed = AttributedString(balance)
         if let integerFont = integerPart.font {
-            attributed.setFontStyle(integerFont)
+            attributed.font = integerFont
+            attributed.tracking = integerPart.tracking
         }
 
         guard
@@ -59,8 +68,8 @@ public enum AttributedBalanceFormatter {
         }
 
         if let fractionalFont = fractionalPart.font {
-            attributed[fractionalRange].font = fractionalFont.font
-            attributed[fractionalRange].tracking = fractionalFont.tracking
+            attributed[fractionalRange].font = fractionalFont
+            attributed[fractionalRange].tracking = fractionalPart.tracking
         }
         if let fractionalColor = fractionalPart.color {
             attributed[fractionalRange].foregroundColor = fractionalColor
@@ -102,30 +111,13 @@ public enum AttributedBalanceFormatter {
         }
     }
 
-    // MARK: - Convenience (canonical colors: integer Text.Neutral.primary, fractional Text.Neutral.secondary; pass nil to inherit)
-
-    public static func format(
-        _ balance: String,
-        font: TangemFontStyle,
-        integerColor: Color? = Color.Tangem.Text.Neutral.primary,
-        fractionalColor: Color? = Color.Tangem.Text.Neutral.secondary,
-        decimalSeparator: String = Locale.current.decimalSeparator ?? ".",
-        fractionalIncludesSeparator: Bool = true
-    ) -> AttributedString {
-        format(
-            balance,
-            decimalSeparator: decimalSeparator,
-            integerPart: PartStyle(font: font, color: integerColor),
-            fractionalPart: PartStyle(font: font, color: fractionalColor),
-            fractionalIncludesSeparator: fractionalIncludesSeparator
-        )
-    }
+    // MARK: - Convenience (canonical colors: integer textPrimary, fractional textSecondary; pass nil to inherit)
 
     public static func format(
         _ balance: String,
         token: TangemTypographyToken,
-        integerColor: Color? = Color.Tangem.Text.Neutral.primary,
-        fractionalColor: Color? = Color.Tangem.Text.Neutral.secondary,
+        integerColor: Color? = DesignSystem.Color.textPrimary,
+        fractionalColor: Color? = DesignSystem.Color.textSecondary,
         decimalSeparator: String = Locale.current.decimalSeparator ?? ".",
         fractionalIncludesSeparator: Bool = true
     ) -> AttributedString {
@@ -146,7 +138,7 @@ public enum AttributedBalanceFormatter {
     /// caller-driven price-change flash animation.
     public static func dimmingDecimals(
         _ balance: String,
-        decimalColor: Color = Color.Tangem.Text.Neutral.secondary,
+        decimalColor: Color = DesignSystem.Color.textSecondary,
         decimalSeparator: String = Locale.current.decimalSeparator ?? ".",
         fractionalIncludesSeparator: Bool = true
     ) -> AttributedString {
@@ -161,26 +153,17 @@ public enum AttributedBalanceFormatter {
 
     public static func decimalColored(
         _ state: LoadableBalanceView.State,
-        integerFont: TangemFontStyle,
-        fractionalFont: TangemFontStyle,
-        integerColor: Color? = Color.Tangem.Text.Neutral.primary,
-        fractionalColor: Color? = Color.Tangem.Text.Neutral.secondary,
+        integerFont: TangemTypographyToken,
+        fractionalFont: TangemTypographyToken,
+        integerColor: Color? = DesignSystem.Color.textPrimary,
+        fractionalColor: Color? = DesignSystem.Color.textSecondary,
         fractionalIncludesSeparator: Bool = true
     ) -> LoadableBalanceView.State {
         decimalColored(
             state,
-            integerPart: PartStyle(font: integerFont, color: integerColor),
-            fractionalPart: PartStyle(font: fractionalFont, color: fractionalColor),
+            integerPart: PartStyle(token: integerFont, color: integerColor),
+            fractionalPart: PartStyle(token: fractionalFont, color: fractionalColor),
             fractionalIncludesSeparator: fractionalIncludesSeparator
         )
-    }
-
-    public static func decimalColored(
-        _ state: LoadableBalanceView.State,
-        font: TangemFontStyle,
-        integerColor: Color? = Color.Tangem.Text.Neutral.primary,
-        fractionalColor: Color? = Color.Tangem.Text.Neutral.secondary
-    ) -> LoadableBalanceView.State {
-        decimalColored(state, integerFont: font, fractionalFont: font, integerColor: integerColor, fractionalColor: fractionalColor)
     }
 }

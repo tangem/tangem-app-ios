@@ -9,7 +9,6 @@
 import Foundation
 import TangemUI
 import TangemUIUtils
-import TangemAssets
 import TangemLocalization
 
 final class DynamicAddressesEnterViewModel: ObservableObject, Identifiable {
@@ -20,6 +19,7 @@ final class DynamicAddressesEnterViewModel: ObservableObject, Identifiable {
     @Published var alert: AlertBinder?
 
     private let walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider
+    private let signingActionButtonType: SigningActionButtonViewType
     private let analyticsLogger: DynamicAddressesAnalyticsLogger
     private weak var coordinator: DynamicAddressesEnterRoutable?
 
@@ -27,10 +27,12 @@ final class DynamicAddressesEnterViewModel: ObservableObject, Identifiable {
 
     init(
         walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
+        signingActionButtonType: SigningActionButtonViewType,
         analyticsLogger: DynamicAddressesAnalyticsLogger,
         coordinator: DynamicAddressesEnterRoutable
     ) {
         self.walletModelDynamicAddressesProvider = walletModelDynamicAddressesProvider
+        self.signingActionButtonType = signingActionButtonType
         self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
 
@@ -88,7 +90,7 @@ private extension DynamicAddressesEnterViewModel {
             mainButtonIsDisabled = false
 
         case .xpubDerivationIsNeeded:
-            mainButtonIcon = .trailing(Assets.tangemIcon)
+            mainButtonIcon = signingActionButtonType.mainButtonIcon
             mainButtonIsDisabled = false
 
         case .customTokensRemoveIsNeeded:

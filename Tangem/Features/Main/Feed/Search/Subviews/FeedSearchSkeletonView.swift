@@ -10,10 +10,12 @@ import SwiftUI
 import TangemUI
 
 struct FeedSearchSkeletonView: View {
+    @ScaledMetric private var scaleFactor: CGFloat = 1
+
     var body: some View {
         VStack(alignment: .leading, spacing: Constants.headerSpacing) {
             Shimmer()
-                .variant(.custom(width: Constants.pillWidth, height: Constants.pillHeight))
+                .variant(.custom(width: Constants.pillWidth * scaleFactor, height: Constants.pillHeight * scaleFactor))
                 .padding(.horizontal, Constants.horizontalPadding)
 
             VStack(spacing: 0) {

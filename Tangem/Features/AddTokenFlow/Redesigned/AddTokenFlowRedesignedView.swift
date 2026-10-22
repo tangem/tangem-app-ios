@@ -23,8 +23,12 @@ struct AddTokenFlowRedesignedView: View {
             .floatingSheetConfiguration { configuration in
                 configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
                 configuration.backgroundInteractionBehavior = .consumeTouches
-                configuration.sheetBackgroundColor = Color.Tangem.Surface.level2
+                configuration.sheetBackground = .color(sheetBackgroundColor)
             }
+    }
+
+    private var sheetBackgroundColor: Color {
+        DesignSystem.Color.bgPrimary
     }
 
     private var contentView: some View {
@@ -45,7 +49,7 @@ struct AddTokenFlowRedesignedView: View {
                     .overlay(alignment: .bottom) { bottomFadeOverlay }
                     .safeAreaInset(edge: .bottom, spacing: 0) {
                         AccountPickerCancelButton(onCancel: viewModel.back)
-                            .background(Color.Tangem.Surface.level3)
+                            .background(sheetBackgroundColor)
                     }
                     .transition(.content)
             }
@@ -59,8 +63,8 @@ struct AddTokenFlowRedesignedView: View {
     private var bottomFadeOverlay: some View {
         LinearGradient(
             colors: [
-                Color.Tangem.Surface.level3.opacity(0),
-                Color.Tangem.Surface.level3,
+                sheetBackgroundColor.opacity(0),
+                sheetBackgroundColor,
             ],
             startPoint: .top,
             endPoint: .bottom
@@ -73,8 +77,8 @@ struct AddTokenFlowRedesignedView: View {
         ZStack(alignment: .top) {
             LinearGradient(
                 colors: [
-                    Color.Tangem.Surface.level2,
-                    Color.Tangem.Surface.level2.opacity(0),
+                    sheetBackgroundColor,
+                    sheetBackgroundColor.opacity(0),
                 ],
                 startPoint: .top,
                 endPoint: .bottom

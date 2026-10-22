@@ -803,12 +803,6 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
             .eraseToAnyPublisher()
     }
 
-    var isEmptyIncludingPendingIncomingTxs: Bool {
-        let incomingPendingTxs = wallet.pendingTransactions.filter { $0.isIncoming && $0.amount.type == amountType }
-
-        return wallet.isEmpty && incomingPendingTxs.isEmpty
-    }
-
     private func pendingTransaction(for wallet: Wallet) -> [PendingTransactionRecord] {
         wallet.pendingTransactions.filter { !$0.isDummy && $0.amount.type == amountType }
     }

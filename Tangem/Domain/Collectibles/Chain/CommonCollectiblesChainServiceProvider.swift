@@ -27,7 +27,7 @@ final class CommonCollectiblesChainServiceProvider {
 extension CommonCollectiblesChainServiceProvider: CollectiblesChainServiceProvider {
     /// Built on first use: endpoint resolution can throw, and that failure must read as a failed call,
     /// not tear down the dependency graph. Only a successful build is kept, so a failure is retried.
-    func service() throws -> SolanaSponsoredTransactionService {
+    func service() throws -> any CollectiblesChainService {
         try serviceSlot.withLock { slot in
             if let slot {
                 return slot

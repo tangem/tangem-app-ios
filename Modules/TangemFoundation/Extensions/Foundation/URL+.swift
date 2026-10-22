@@ -9,6 +9,14 @@
 import Foundation
 
 public extension URL {
+    var isHTTPS: Bool {
+        scheme?.lowercased() == "https"
+    }
+
+    var isWebURL: Bool {
+        isHTTPS || scheme?.lowercased() == "http"
+    }
+
     var topLevelDomain: String? {
         let separator = "."
         let rawHost: String?

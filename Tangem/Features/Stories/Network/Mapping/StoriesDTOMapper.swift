@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemStories
 
 /// Unknown enums degrade — skip the slide, drop the story, or hide the action — never a silent default.
@@ -168,7 +169,7 @@ struct StoriesDTOMapper {
 
     private func contentURL(_ raw: String) -> URL? {
         guard let url = URL(string: raw),
-              url.scheme?.lowercased() == Constants.contentScheme else { return nil }
+              url.isHTTPS else { return nil }
         return url
     }
 }
@@ -177,7 +178,6 @@ struct StoriesDTOMapper {
 
 private extension StoriesDTOMapper {
     enum Constants {
-        static let contentScheme = "https"
         static let defaultLanguage = "en"
         static let defaultPriority = 0
         static let defaultContentMode: StoryContentMode = .cover

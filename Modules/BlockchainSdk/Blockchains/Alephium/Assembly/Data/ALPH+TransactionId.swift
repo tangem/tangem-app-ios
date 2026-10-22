@@ -13,10 +13,6 @@ extension ALPH {
     struct TransactionId {
         let value: ALPH.Blake2b
 
-        var bytes: Data {
-            Data(value.bytes)
-        }
-
         static func hash(bytes: Data) -> TransactionId {
             TransactionId(value: ALPH.Blake2b.hash(bytes))
         }

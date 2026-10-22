@@ -40,7 +40,9 @@ enum PolymarketPriceFormatter {
             return BalanceFormatter.defaultEmptyBalanceString
         }
 
-        return percentFormatter.format(probability, option: .predictionProbability)
+        let wholePercent = (probability * Constants.percentPerUnit).rounded(roundingMode: .plain) / Constants.percentPerUnit
+
+        return percentFormatter.format(wholePercent, option: .predictionProbability)
     }
 
     private static let percentFormatter = PercentFormatter()
@@ -52,6 +54,7 @@ enum PolymarketPriceFormatter {
 private extension PolymarketPriceFormatter {
     enum Constants {
         static let centsPerUnit: Decimal = 100
+        static let percentPerUnit: Decimal = 100
         static let centsSuffix = "¢"
         static let minUnresolvedCents: Decimal = 0.1
         static let maxUnresolvedCents: Decimal = 99.9

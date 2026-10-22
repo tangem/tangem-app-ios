@@ -56,7 +56,7 @@ extension CommonCollectiblesPurchaseProvider: CollectiblesPurchaseStatusProvider
 // MARK: - CollectiblesPackOpener protocol conformance
 
 extension CommonCollectiblesPurchaseProvider: CollectiblesPackOpener {
-    func open(txID: String) async throws -> CollectiblesPurchaseStatus {
+    func open(txID: String) async throws -> CollectiblesPurchaseTransaction {
         try await service.openPack(txID: txID, userWalletID: userWalletID)
     }
 }

@@ -33,7 +33,7 @@ protocol CollectiblesPurchaseSigner: AnyObject {
         confirmedPrice: CollectiblesConfirmedPrice
     ) async throws -> CollectiblesSignedPurchase
 
-    func sendPurchase(_ signedPurchase: CollectiblesSignedPurchase) async throws(CollectiblesPurchaseError)
+    func sendPurchase(_ signedPurchase: CollectiblesSignedPurchase) async throws(CollectiblesSendError)
 }
 
 protocol CollectiblesPackPurchaseInteractorProvider: AnyObject {
@@ -51,7 +51,6 @@ protocol CollectiblesAccountModel: BaseAccountModel,
     CollectiblesPackPurchaseInteractorProvider
     where Icon == AccountModel.StandaloneIcon, ID == CollectiblesAccountId {
     var state: CollectiblesState { get }
-    var statePublisher: AnyPublisher<CollectiblesState, Never> { get }
 
     var hasAccount: Bool { get }
     var hasAccountPublisher: AnyPublisher<Bool, Never> { get }
@@ -64,10 +63,6 @@ protocol CollectiblesAccountModel: BaseAccountModel,
 extension CollectiblesAccountModel {
     var icon: AccountModel.StandaloneIcon {
         .collectibles
-    }
-
-    func edit(with editor: (any AccountModelEditor) -> Void) async throws(AccountEditError) -> Self {
-        self
     }
 
     func analyticsParameters(with builder: any AccountsAnalyticsBuilder) -> [Analytics.ParameterKey: String] {

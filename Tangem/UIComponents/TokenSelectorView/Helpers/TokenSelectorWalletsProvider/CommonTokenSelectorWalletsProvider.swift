@@ -15,9 +15,6 @@ final class CommonTokenSelectorWalletsProvider {
     @Injected(\.cryptoAccountsGlobalStateProvider)
     private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
 
-    @Injected(\.tangemPayAccountGlobalStateProvider)
-    private var tangemPayAccountGlobalStateProvider: TangemPayAccountGlobalStateProvider
-
     private let aggregator: BaseAccountModelsAggregator
 
     init(_ aggregator: BaseAccountModelsAggregator) {

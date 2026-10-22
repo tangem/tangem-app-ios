@@ -41,7 +41,8 @@ struct JointAccountOperationDetailsViewModelBuilder {
             contentPublisher: contentPublisher(of: pendingOperation.operation.id, provider: provider),
             pendingOperationsProvider: provider,
             coordinator: coordinator,
-            sign: { try await pendingOperation.sign() }
+            sign: { try await pendingOperation.sign() },
+            reject: { try await pendingOperation.reject() }
         )
     }
 }
@@ -79,6 +80,8 @@ private extension JointAccountOperationDetailsViewModelBuilder {
             signers: signersBuilder.build(pendingOperation: pendingOperation),
             answer: answer(of: pendingOperation),
             canSign: signersResolver.canSign(pendingOperation),
+            canReject: signersResolver.canReject(pendingOperation),
+            isInitiator: signersResolver.ownAnswer(of: pendingOperation) == .created,
             status: status(of: pendingOperation)
         )
     }
@@ -127,16 +130,16 @@ private extension JointAccountOperationDetailsViewModelBuilder {
     }
 
     func networkFee(of pendingOperation: JointAccountPendingOperation) -> String {
-        guard let fee = pendingOperation.fee?.value else {
+        guard let fee = pendingOperation.fee else {
             return BalanceFormatter.defaultEmptyBalanceString
         }
 
         let formattedFee = balanceFormatter.formatCryptoBalance(
-            fee,
-            currencyCode: pendingOperation.tokenItem.blockchain.currencySymbol,
+            fee.value,
+            currencyCode: fee.currencySymbol,
             formattingOptions: .sendCryptoFeeFormattingOptions
         )
 
-        return fee > 0 ? AppConstants.tildeSign + formattedFee : formattedFee
+        return fee.value > 0 ? AppConstants.tildeSign + formattedFee : formattedFee
     }
 }

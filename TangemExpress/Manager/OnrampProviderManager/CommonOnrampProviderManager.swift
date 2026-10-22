@@ -45,7 +45,7 @@ class CommonOnrampProviderManager {
 // MARK: - Private
 
 private extension CommonOnrampProviderManager {
-    func updateState() async {
+    func updateState(isSameAmount: Bool) async {
         guard _state.isSupported else {
             return
         }
@@ -57,6 +57,11 @@ private extension CommonOnrampProviderManager {
         }
 
         let previousState = _state
+        let canRestorePreviousState = switch previousState {
+        case .loaded, .restriction, .failed: isSameAmount
+        case .idle, .loading, .notSupported: false
+        }
+
         do {
             if case .idle = _state {
                 update(state: .loading)
@@ -82,14 +87,8 @@ private extension CommonOnrampProviderManager {
 
             let formatted = formatAmount(amount: amount)
             update(state: .restriction(.tooBigAmount(amount, formatted: formatted)))
-        } catch let error as MoyaError where error.isTooManyRequests {
-            let restoredState: OnrampProviderManagerState
-            if case .loading = previousState {
-                restoredState = .idle
-            } else {
-                restoredState = previousState
-            }
-            update(state: restoredState)
+        } catch let error as MoyaError where error.isTooManyRequests && canRestorePreviousState {
+            update(state: previousState)
             OnrampLogger.info(self, "Rate limited by infrastructure, restoring previous state")
         } catch let error as ExpressAPIError {
             analyticsLogger.logExpressAPIError(error, provider: expressProvider, paymentMethod: paymentMethod)
@@ -144,6 +143,8 @@ extension CommonOnrampProviderManager: OnrampProviderManager {
     }
 
     func update(amount: OnrampUpdatingAmount) async {
+        let previousAmount = _amount
+
         switch amount {
         case .clear:
             _amount = nil
@@ -153,7 +154,7 @@ extension CommonOnrampProviderManager: OnrampProviderManager {
             _amount = amount
         }
 
-        await updateState()
+        await updateState(isSameAmount: _amount == previousAmount)
     }
 
     func makeOnrampQuotesRequestItem() throws -> OnrampQuotesRequestItem {

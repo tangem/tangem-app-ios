@@ -132,9 +132,9 @@ public struct IconView<Placeholder: View>: View {
     }
 
     private var loadingPlaceholder: some View {
-        SkeletonView()
+        Shimmer()
+            .variant(.custom(cornerRadius: size.height / 2))
             .frame(width: size.width, height: size.height)
-            .cornerRadius(size.height / 2)
     }
 }
 

@@ -23,10 +23,6 @@ final class CommonPulseDataProvider: PulseDataProvider {
         isLoadingSubject.eraseToAnyPublisher()
     }
 
-    var canLoadMore: Bool {
-        listProvider.canFetchMore
-    }
-
     private let tokensSubject = CurrentValueSubject<[MarketsTokenModel], Never>([])
     private let failedSubject = CurrentValueSubject<Bool, Never>(false)
     private let isLoadingSubject = CurrentValueSubject<Bool, Never>(true)

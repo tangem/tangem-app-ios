@@ -16,7 +16,6 @@ final class RealAssetsSearchViewModel: ObservableObject {
     @Published private(set) var assets: AssetsState = .loading
     @Published private var isVisible = false
 
-    private let history: FeedSearchHistoryProvider
     private let assetsProvider: any FeedSearchProvider<MarketsTokenModel>
     private let router: any RealAssetsFeedRoutable
     private let portfolioProvider: FeedSearchPortfolioProvider
@@ -33,12 +32,10 @@ final class RealAssetsSearchViewModel: ObservableObject {
 
     init(
         query: AnyPublisher<String, Never>,
-        history: FeedSearchHistoryProvider,
         router: any RealAssetsFeedRoutable,
         assetsProvider: any FeedSearchProvider<MarketsTokenModel> = RealAssetsFeedSearchProvider(),
         portfolioProvider: FeedSearchPortfolioProvider = FeedSearchPortfolioProvider()
     ) {
-        self.history = history
         self.router = router
         self.portfolioProvider = portfolioProvider
         self.assetsProvider = assetsProvider
@@ -234,7 +231,6 @@ private extension RealAssetsSearchViewModel {
             guard let self else { return }
 
             let model = tokens.first { $0.id == model.id } ?? model
-            history.save(query: query)
 
             Analytics.log(
                 event: .marketsChartScreenOpened,

@@ -13,7 +13,6 @@ protocol VisaOTPRepository: AnyObject {
     func hasSavedOTP(cardId: String) -> Bool
     func getOTP(cardId: String) -> GenerateOTPResponse?
     func saveOTP(_ otp: GenerateOTPResponse, cardId: String)
-    func removeOTP(cardId: String)
 }
 
 final class CommonVisaOTPRepository: VisaOTPRepository {
@@ -29,9 +28,5 @@ final class CommonVisaOTPRepository: VisaOTPRepository {
 
     func saveOTP(_ otp: GenerateOTPResponse, cardId: String) {
         otpDict[cardId] = otp
-    }
-
-    func removeOTP(cardId: String) {
-        otpDict[cardId] = nil
     }
 }

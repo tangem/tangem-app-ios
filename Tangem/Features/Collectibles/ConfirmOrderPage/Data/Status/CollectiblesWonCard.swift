@@ -9,6 +9,7 @@
 import Foundation
 
 struct CollectiblesWonCard {
+    let nftAddress: String?
     let imageFrontURL: URL?
     let imageBackURL: URL?
     let gradingCompany: String?

@@ -14,8 +14,4 @@ public struct APIHeaderKeyInfo {
         self.headerName = headerName
         self.headerValue = headerValue
     }
-
-    var raw: [String: String] {
-        [headerName: headerValue]
-    }
 }

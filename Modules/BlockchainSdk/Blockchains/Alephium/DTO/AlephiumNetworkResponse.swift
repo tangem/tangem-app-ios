@@ -10,11 +10,6 @@ import Foundation
 
 /// A top-level namespace.
 enum AlephiumNetworkResponse {
-    struct Balance: Decodable {
-        let balance: String
-        let lockedBalance: String
-    }
-
     struct BuildTransferTxResult: Decodable {
         let unsignedTx: String
         let gasAmount: Int
@@ -48,15 +43,5 @@ enum AlephiumNetworkResponse {
 
     struct Submit: Decodable {
         let txId: String
-    }
-
-    struct Status: Decodable {
-        let type: StatusType
-    }
-
-    enum StatusType: String, Decodable {
-        case confirmed = "Confirmed"
-        case memPooled = "MemPooled"
-        case txNotFound = "TxNotFound"
     }
 }

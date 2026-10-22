@@ -7,13 +7,13 @@
 //
 
 import Foundation
+import TangemUI
 
 final class YieldStartFlowFactory {
     private let walletModel: any WalletModel
     private let yieldManagerInteractor: YieldManagerInteractor
     private let logger: YieldAnalyticsLogger
-    private let tangemIconProvider: TangemIconProvider
-    private let confirmTransactionPolicy: ConfirmTransactionPolicy
+    private let signingActionButtonType: SigningActionButtonViewType
     private weak var coordinator: YieldModulePromoCoordinator?
 
     private var marketIncentive: YieldModuleMarketIncentive? {
@@ -33,15 +33,13 @@ final class YieldStartFlowFactory {
         yieldManagerInteractor: YieldManagerInteractor,
         coordinator: YieldModulePromoCoordinator?,
         logger: YieldAnalyticsLogger,
-        tangemIconProvider: TangemIconProvider,
-        confirmTransactionPolicy: ConfirmTransactionPolicy
+        signingActionButtonType: SigningActionButtonViewType
     ) {
         self.walletModel = walletModel
         self.yieldManagerInteractor = yieldManagerInteractor
         self.coordinator = coordinator
         self.logger = logger
-        self.tangemIconProvider = tangemIconProvider
-        self.confirmTransactionPolicy = confirmTransactionPolicy
+        self.signingActionButtonType = signingActionButtonType
     }
 
     // MARK: - Public Implementation
@@ -72,8 +70,7 @@ final class YieldStartFlowFactory {
             coordinator: coordinator,
             yieldManagerInteractor: yieldManagerInteractor,
             logger: logger,
-            tangemIconProvider: tangemIconProvider,
-            confirmTransactionPolicy: confirmTransactionPolicy
+            signingActionButtonType: signingActionButtonType
         )
     }
 }

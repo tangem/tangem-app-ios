@@ -31,21 +31,17 @@ class CommonSwapSummaryInteractor {
     private weak var sourceTokenInput: SendSourceTokenInput?
     private weak var swapModelStateProvider: SwapModelStateProvider?
 
-    private let swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder
-
     init(
         input: SwapSummaryInput,
         output: SwapSummaryOutput,
         sourceTokenInput: SendSourceTokenInput,
         receiveTokenAmountInput: SendReceiveTokenAmountInput?,
-        swapModelStateProvider: SwapModelStateProvider,
-        swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder,
+        swapModelStateProvider: SwapModelStateProvider
     ) {
         self.input = input
         self.output = output
         self.sourceTokenInput = sourceTokenInput
         self.swapModelStateProvider = swapModelStateProvider
-        self.swapDescriptionBuilder = swapDescriptionBuilder
     }
 }
 
@@ -168,15 +164,18 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
 
 private extension CommonSwapSummaryInteractor {
     private func summaryDescription(data: SendSummaryTransactionData?) -> AttributedString? {
-        switch data {
-        case .swap(let amount, let fee, let provider, let sourceTokenItem):
-            return swapDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: provider, sourceTokenItem: sourceTokenItem)
-        case .send(let amount, let fee):
-            guard let sourceTokenItem = sourceTokenInput?.sourceToken.value?.tokenItem else {
-                return nil
-            }
+        guard let sourceToken = sourceTokenInput?.sourceToken.value else {
+            return nil
+        }
 
-            return swapDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: nil, sourceTokenItem: sourceTokenItem)
+        let descriptionBuilder = sourceToken.transactionSummaryDescriptionBuilderProvider
+            .makeSwapTransactionSummaryDescriptionBuilder()
+
+        switch data {
+        case .swap(let amount, let fee, let provider):
+            return descriptionBuilder.makeDescription(amount: amount, fee: fee, provider: provider)
+        case .send(let amount, let fee):
+            return descriptionBuilder.makeDescription(amount: amount, fee: fee, provider: nil)
         default:
             return nil
         }

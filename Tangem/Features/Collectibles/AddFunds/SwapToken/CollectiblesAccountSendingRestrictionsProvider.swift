@@ -6,8 +6,10 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
+
 struct CollectiblesAccountSendingRestrictionsProvider: SendingRestrictionsProvider {
-    var sendingRestrictions: SendingRestrictions? {
-        nil
+    var sendingRestrictionsPublisher: AnyPublisher<SendingRestrictions?, Never> {
+        .just(output: nil)
     }
 }

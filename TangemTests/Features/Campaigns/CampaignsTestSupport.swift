@@ -207,26 +207,6 @@ enum CampaignsFixtures {
             kind: .crypto(walletModel, CryptoAccountModelMock(isMainAccount: true, onArchive: { _ in }))
         )
     }
-
-    static func makeBannerData(
-        tokens: [CampaignEligibleToken] = [PromotionCampaignsFixtures.makeEligibleToken()],
-        start: Date = Date().addingTimeInterval(-.day),
-        end: Date = Date().addingTimeInterval(.day),
-        status: BannerPromotion.Response.Status = .active,
-        link: String? = "https://tangem.com/promo"
-    ) -> CampaignBannerData {
-        CampaignBannerData(
-            eligibleTokens: tokens,
-            startDate: start,
-            endDate: end,
-            campaignStatus: status,
-            link: link
-        )
-    }
-}
-
-private extension TimeInterval {
-    static let day: TimeInterval = 86400
 }
 
 enum PromoCampaignEnrollmentFixtures {

@@ -21,6 +21,7 @@ struct StatusScreenShowcase: View {
     @State private var showsSecondaryAction = false
     @State private var showsFooterCaption = false
     @State private var showsActionIcon = false
+    @State private var actionSigning: ActionSigningKind = .none
     @State private var isActionLoading = false
     @State private var isActionDisabled = false
     @State private var footerAxis: StatusScreenFooterAxis = .vertical
@@ -43,6 +44,7 @@ struct StatusScreenShowcase: View {
                 controls.picker("Footer axis", $footerAxis, options: [.vertical, .horizontal])
                 controls.toggle("Footer caption", $showsFooterCaption)
                 controls.toggle("Action icon", $showsActionIcon)
+                controls.picker("Action signing", $actionSigning)
                 controls.toggle("Action loading", $isActionLoading)
                 controls.toggle("Action disabled", $isActionDisabled)
                 controls.readout("Action taps", "\(actionTaps)")
@@ -112,6 +114,7 @@ private extension StatusScreenShowcase {
         .footerAxis(footerAxis)
         .footerCaption(showsFooterCaption ? "Network fee $0.42 · arrives in about 30 seconds" : nil)
         .actionIcon(showsActionIcon ? DesignSystem.Icons.ShareIos.regular20 : nil)
+        .actionSigning(actionSigning.type)
         .actionLoading(isActionLoading)
         .actionDisabled(isActionDisabled)
         .footerHidden(isFooterHidden)
@@ -257,6 +260,20 @@ private extension StatusScreenShowcase {
     enum AssetSlotKind: CaseIterable {
         case defaultIcon
         case custom
+    }
+
+    enum ActionSigningKind: CaseIterable {
+        case none
+        case requiredNFCInteraction
+        case holdToConfirm
+
+        var type: SigningActionButtonViewType? {
+            switch self {
+            case .none: nil
+            case .requiredNFCInteraction: .requiredNFCInteraction
+            case .holdToConfirm: .holdToConfirm
+            }
+        }
     }
 
     enum DetailsKind: CaseIterable {

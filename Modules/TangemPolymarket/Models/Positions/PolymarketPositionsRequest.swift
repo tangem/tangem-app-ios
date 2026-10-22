@@ -10,23 +10,11 @@ import Foundation
 
 public struct PolymarketPositionsRequest: Hashable, Sendable {
     public let depositWalletAddress: String
-    public let sort: Sort
-    public let ascending: Bool
-    public let limit: Int
-    public let offset: Int
+    public let page: PolymarketPositionsPageRequest<Sort>
 
-    public init(
-        depositWalletAddress: String,
-        sort: Sort = .endDate,
-        ascending: Bool = true,
-        limit: Int = 10,
-        offset: Int = 0
-    ) {
+    public init(depositWalletAddress: String, page: PolymarketPositionsPageRequest<Sort>) {
         self.depositWalletAddress = depositWalletAddress
-        self.sort = sort
-        self.ascending = ascending
-        self.limit = limit
-        self.offset = offset
+        self.page = page
     }
 }
 
@@ -34,10 +22,12 @@ public struct PolymarketPositionsRequest: Hashable, Sendable {
 
 public extension PolymarketPositionsRequest {
     enum Sort: String, Hashable, Sendable {
-        case endDate
-        case initialValue
+        case currentValue
+        case price
         case size
-        case avgPrice
-        case title
+        case unrealizedPnl
+        case realizedPnl
+        case totalPnl
+        case lastActivity
     }
 }

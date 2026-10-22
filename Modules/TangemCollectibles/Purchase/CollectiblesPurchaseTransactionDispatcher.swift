@@ -85,24 +85,24 @@ public struct CollectiblesPurchaseTransactionDispatcher {
         }
     }
 
-    func send(_ signedPurchase: CollectiblesSignedPurchase) async throws(CollectiblesPurchaseError) {
+    func send(_ signedPurchase: CollectiblesSignedPurchase) async throws(CollectiblesSendError) {
         CollectiblesLogger.debug("purchase: sending purchase_pack, signature=\(signedPurchase.signature)")
         do {
             _ = try await transactionSender.broadcast(
                 serializedTransaction: signedPurchase.serializedTransaction,
                 startSendingTimestamp: signedPurchase.blockhashFetchedAt
             )
-        } catch let error where Self.isBlockhashNotFound(error) {
-            throw CollectiblesPurchaseError.transactionExpired
-        } catch let error where Self.isRejectedByNode(error) {
-            guard Date().timeIntervalSince(signedPurchase.blockhashFetchedAt) > Constants.blockhashLifetime else {
-                throw CollectiblesPurchaseError.rejected(error)
+        } catch {
+            let sendError = CollectiblesSendError(
+                classifying: error,
+                blockhashFetchedAt: signedPurchase.blockhashFetchedAt
+            )
+
+            if case .outcomeUnknown = sendError {
+                CollectiblesLogger.error("purchase: purchase_pack outcome unknown", error: error)
             }
 
-            throw CollectiblesPurchaseError.transactionExpired
-        } catch {
-            CollectiblesLogger.error("purchase: purchase_pack outcome unknown", error: error)
-            throw CollectiblesPurchaseError.sendOutcomeUnknown
+            throw sendError
         }
         CollectiblesLogger.debug("purchase: purchase_pack sent")
     }
@@ -134,25 +134,6 @@ private extension CollectiblesPurchaseTransactionDispatcher {
         }
     }
 
-    static func isBlockhashNotFound(_ error: any Error) -> Bool {
-        let response: ResponseError? = switch error {
-        case RPCError.invalidResponse(let response): response
-        case SolanaError.invalidResponse(let response): response
-        default: nil
-        }
-
-        return response?.message?.localizedCaseInsensitiveContains(Constants.blockhashNotFoundMarker) == true
-    }
-
-    static func isRejectedByNode(_ error: any Error) -> Bool {
-        switch error {
-        case RPCError.invalidResponse, SolanaError.invalidResponse, is SolanaSendError, is CollectiblesProgramRejection:
-            true
-        default:
-            false
-        }
-    }
-
     static func memoInstruction(_ memo: String) -> CollectiblesInstruction {
         CollectiblesInstruction(programId: Constants.memoProgramId, accounts: [], data: Data(memo.utf8))
     }
@@ -176,7 +157,5 @@ private extension CollectiblesPurchaseTransactionDispatcher {
     enum Constants {
         static let chainMemoSuffix = ":open"
         static let memoProgramId = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"
-        static let blockhashNotFoundMarker = "Blockhash not found"
-        static let blockhashLifetime: TimeInterval = 120
     }
 }

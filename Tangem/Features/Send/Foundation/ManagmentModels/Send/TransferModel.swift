@@ -740,10 +740,6 @@ extension TransferModel: TokenFeeProvidersManagerProviding {
     var tokenFeeProvidersManager: TokenFeeProvidersManager? {
         _sourceToken.tokenFeeProvidersManager
     }
-
-    var tokenFeeProvidersManagerPublisher: AnyPublisher<TokenFeeProvidersManager, Never> {
-        .just(output: _sourceToken.tokenFeeProvidersManager)
-    }
 }
 
 // MARK: - FeeSelectorOutput

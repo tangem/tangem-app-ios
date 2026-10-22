@@ -124,15 +124,4 @@ private extension OnrampAmountViewModel {
             error = Localization.expressOnrampRestrictionsAmountError
         }
     }
-
-    func format(crypto: Decimal) -> LoadableTextView.State {
-        let formatted = formatter.formatCryptoBalance(crypto, currencyCode: tokenItem.currencySymbol)
-
-        if crypto > 0 {
-            return .loaded(text: "\(AppConstants.tildeSign) \(formatted)")
-        }
-
-        // Like placeholder
-        return .loaded(text: formatted)
-    }
 }

@@ -65,12 +65,6 @@ extension ActionButtonsNotificationEvent: NotificationEvent {
         }
     }
 
-    var removingOnFullLoadingState: Bool {
-        switch self {
-        case .refreshRequired, .noAvailablePairs, .sellRegionalRestriction: return false
-        }
-    }
-
     var isDismissable: Bool {
         return false
     }

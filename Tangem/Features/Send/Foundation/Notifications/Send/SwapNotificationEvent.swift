@@ -256,7 +256,7 @@ extension SwapNotificationEvent: NotificationEvent {
             return .init(
                 iconType: .image(Assets.DesignSystem.attention),
                 renderingMode: .template,
-                color: .Tangem.Text.Neutral.primary,
+                color: DesignSystem.Color.textPrimary,
                 size: .init(bothDimensions: 28)
             )
         case .withdrawalNotificationEvent(let event):
@@ -345,30 +345,6 @@ extension SwapNotificationEvent: NotificationEvent {
             return Colors.Text.accent
         default:
             return nil
-        }
-    }
-
-    var removingOnFullLoadingState: Bool {
-        switch self {
-        case .unsupportedPair, .refreshRequired, .verificationRequired, .cexOperationFailed, .refunded, .longTimeAverageDuration, .regionRestricted, .trustlineRequired:
-            return false
-        case .permissionNeeded,
-             .hasPendingTransaction,
-             .hasPendingApproveTransaction,
-             .notEnoughFeeForTokenTx,
-             .tooSmallAmountToSwap,
-             .tooBigAmountToSwap,
-             .feeWillBeSubtractFromSendingAmount,
-             .customFeeWarning,
-             .notEnoughReceivedAmount,
-             .tooMuchReceivedAmount,
-             .notEnoughBalanceForSwapping,
-             .withdrawalNotificationEvent,
-             .validationErrorEvent,
-             .highPriceImpactWarning,
-             .highNetworkFee,
-             .lowCustomSlippage:
-            return true
         }
     }
 

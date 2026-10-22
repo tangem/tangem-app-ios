@@ -35,7 +35,7 @@ struct SendReceiveTokenNetworkSelectorView: View {
                 .animation(.easeInOut, value: viewModel.state)
         }
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = Colors.Background.primary
+            configuration.sheetBackground = .color(Colors.Background.primary)
             configuration.sheetFrameUpdateAnimation = .easeInOut
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
