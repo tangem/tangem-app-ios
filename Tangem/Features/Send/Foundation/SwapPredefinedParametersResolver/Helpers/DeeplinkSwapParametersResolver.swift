@@ -24,12 +24,14 @@ struct DeeplinkSwapParametersResolver {
             return nil
         }
 
-        return SwapPredefinedParametersBuilder().makeParameters(input: .pair(
+        let builder = DeeplinkSwapPredefinedParametersBuilder(
             userWalletInfo: userWalletInfo,
             source: selection.source,
             receive: selection.destination,
             extras: makeExtras(deeplink: deeplink, isApplicable: selection.appliesExtras)
-        ))
+        )
+
+        return builder.make()
     }
 
     /// `from_amount` / `provider_id` are honored only for a fully-specified held pair — both sides requested
@@ -54,7 +56,7 @@ struct DeeplinkSwapParametersResolver {
 
 private extension DeeplinkSwapParametersResolver {
     struct SelectedPair {
-        let source: any WalletModel
+        let source: (any WalletModel)?
         let destination: (any WalletModel)?
         let appliesExtras: Bool
     }
@@ -78,7 +80,8 @@ private extension DeeplinkSwapParametersResolver {
                 accountId: DeeplinkWalletModelLocator.accountIdentifier(of: walletModel.account),
                 fiatBalance: walletModel.fiatAvailableBalanceProvider.balanceType.value ?? 0,
                 isSwappable: expressAvailabilityProvider.swapState(for: walletModel.tokenItem) == .available,
-                canBeSource: !TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel).swapSourceAvailability().isJointAccountsComingSoon
+                canBeSource: Self.canBecomeSource(walletModel: walletModel, userWalletInfo: userWalletInfo),
+                canBeReceive: Self.canBecomeReceive(walletModel: walletModel, userWalletInfo: userWalletInfo)
             )
         }
 
@@ -92,7 +95,7 @@ private extension DeeplinkSwapParametersResolver {
         }
 
         return SelectedPair(
-            source: walletModels[selection.source.index],
+            source: selection.source.map { walletModels[$0.index] },
             destination: selection.destination.map { walletModels[$0.index] },
             appliesExtras: selection.appliesExtras
         )
@@ -104,6 +107,43 @@ private extension DeeplinkSwapParametersResolver {
             .models(from: accountModelsManager)
             .compactMap { DeeplinkWalletModelLocator.accountIdentifier(of: $0) }
             .toSet()
+    }
+}
+
+// MARK: - Availability gates
+
+extension DeeplinkSwapParametersResolver {
+    static func canBecomeSource(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) -> Bool {
+        let availability = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
+            .swapSourceAvailability()
+
+        switch availability {
+        case .available,
+             .blockchainLoading,
+             .blockchainUnreachable,
+             .hasOnlyCachedBalance,
+             .expressLoading,
+             .expressUnreachable,
+             .missingAssetRequirement:
+            return true
+        case .jointAccountsComingSoon,
+             .customToken,
+             .yieldModuleApproveNeeded,
+             .cantSignLongTransactions:
+            return false
+        }
+    }
+
+    static func canBecomeReceive(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) -> Bool {
+        let availability = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
+            .swapReceiveAvailability()
+
+        switch availability {
+        case .available, .expressLoading, .expressUnreachable, .missingAssetRequirement:
+            return true
+        case .customToken:
+            return false
+        }
     }
 }
 
@@ -119,6 +159,7 @@ extension DeeplinkSwapParametersResolver {
         let fiatBalance: Decimal
         let isSwappable: Bool
         let canBeSource: Bool
+        let canBeReceive: Bool
     }
 
     /// Pure FROM/TO selection over the candidates. `nil` means "open swap as from Main". `appliesExtras` is
@@ -128,7 +169,7 @@ extension DeeplinkSwapParametersResolver {
         deeplink: SwapDeeplink,
         targetUserWalletId: String,
         existingAccountIds: Set<String>
-    ) -> (source: Candidate, destination: Candidate?, appliesExtras: Bool)? {
+    ) -> (source: Candidate?, destination: Candidate?, appliesExtras: Bool)? {
         let fromRequested = isSideRequested(
             tokenId: deeplink.fromTokenId,
             networkId: deeplink.fromNetworkId,
@@ -156,19 +197,21 @@ extension DeeplinkSwapParametersResolver {
             : nil
 
         let destination = toRequested
-            ? mostFundedMatch(in: candidates, tokenId: deeplink.toTokenId, networkId: deeplink.toNetworkId, requiredAccountId: toRequiredAccountId, preferredAccountId: source?.accountId)
+            ? mostFundedMatch(in: candidates.filter(\.canBeReceive), tokenId: deeplink.toTokenId, networkId: deeplink.toNetworkId, requiredAccountId: toRequiredAccountId, preferredAccountId: source?.accountId)
             : nil
 
         if fromRequested, toRequested, source == nil, destination == nil {
             return nil
         }
 
-        guard let resolvedSource = source ?? bestEffortSource(in: candidates, excluding: destination) else {
+        let resolvedSource = source ?? bestEffortSource(in: candidates, excluding: destination)
+
+        guard resolvedSource != nil || destination != nil else {
             return nil
         }
 
         // A token can't be both the source and the destination of a swap.
-        let resolvedDestination = destination?.index == resolvedSource.index ? nil : destination
+        let resolvedDestination = destination?.index == resolvedSource?.index ? nil : destination
 
         let appliesExtras = fromRequested && toRequested && source != nil && resolvedDestination != nil
 

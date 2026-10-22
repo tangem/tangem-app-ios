@@ -152,11 +152,12 @@ private extension MarketsAddTokenFlowConfigurationFactory {
 
                 let direction = SwapDirection.build(for: walletModel)
                 let openSwap = {
-                    let parameters = SwapPredefinedParametersBuilder().makeParameters(input: .token(
-                        userWalletInfo: userWalletInfo,
+                    let builder = TokenDetailsSwapPredefinedParametersBuilder(
                         walletModel: walletModel,
+                        userWalletInfo: userWalletInfo,
                         direction: direction
-                    ))
+                    )
+                    let parameters = builder.make()
 
                     Task { @MainActor in
                         coordinator.openSwap(input: parameters, destination: walletModel.tokenItem)

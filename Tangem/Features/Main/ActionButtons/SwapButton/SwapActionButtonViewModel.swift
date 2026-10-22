@@ -161,7 +161,8 @@ private extension SwapActionButtonViewModel {
     }
 
     func openSwap() {
-        let parameters = SwapPredefinedParametersBuilder().makeParameters(input: .main(userWalletModel: userWalletModel))
+        let builder = MainSwapPredefinedParametersBuilder(userWalletModel: userWalletModel)
+        let parameters = builder.make()
         coordinator?.openSwap(predefinedParameters: parameters)
     }
 
