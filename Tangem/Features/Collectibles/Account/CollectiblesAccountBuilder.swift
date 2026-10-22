@@ -89,7 +89,8 @@ struct CollectiblesAccountBuilder {
         return CommonCollectiblesAccountModel(
             manager: manager,
             name: Localization.collectiblesMainTitle,
-            balanceService: balanceService
+            balanceService: balanceService,
+            buybackSigningLimits: HardwareLimitationsUtil(config: config)
         )
     }
 }

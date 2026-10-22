@@ -65,6 +65,7 @@ struct CollectiblesPackRevealView: View {
                 .ignoresSafeArea()
         }
         .task(reveal)
+        .task(id: viewModel.shouldCheckOffer) { await viewModel.checkOffer() }
     }
 }
 
@@ -180,12 +181,15 @@ private extension CollectiblesPackRevealView {
                 .styleType(.secondary(.default))
                 .horizontalLayout(.infinity)
                 .size(.x12)
+                .disabled(viewModel.sellBackState.isSelling)
 
-            TangemUI.Button(label: viewModel.prize.sellBackTitle, accessibilityLabel: nil, action: viewModel.sellBack)
-                .styleType(.primary)
-                .iconEnd(DesignSystem.Icons.LogoTangem.regular24)
-                .horizontalLayout(.infinity)
-                .size(.x12)
+            SigningActionButtonView(
+                type: viewModel.signingActionButtonType,
+                title: viewModel.sellBackState.title,
+                isLoading: viewModel.sellBackState.isLoading,
+                isDisabled: viewModel.sellBackState == .unavailable,
+                action: viewModel.sellBack
+            )
         }
         .padding(.horizontal, Metrics.horizontalPadding)
         .bottomPaddingIfZeroSafeArea()
