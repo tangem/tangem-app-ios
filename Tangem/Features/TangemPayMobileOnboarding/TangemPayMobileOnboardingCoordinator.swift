@@ -15,6 +15,7 @@ class TangemPayMobileOnboardingCoordinator: CoordinatorObject {
     let popToRootAction: Action<PopToRootOptions>
 
     @Published private(set) var rootViewModel: TangemPayMobileOnboardingViewModel?
+    @Published private(set) var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
 
     @Published var webViewContainerViewModel: WebViewContainerViewModel?
 
@@ -34,6 +35,16 @@ class TangemPayMobileOnboardingCoordinator: CoordinatorObject {
 extension TangemPayMobileOnboardingCoordinator: TangemPayMobileOnboardingRoutable {
     func openMain(userWalletModel: UserWalletModel) {
         dismiss(with: .main(userWalletModel: userWalletModel))
+    }
+
+    func openResidency(userWalletModel: UserWalletModel, interactor: any TangemPayResidencyInteractor) {
+        let dismissAction: Action<TangemPayOnboardingCoordinator.DismissOptions?> = { [weak self] _ in
+            self?.openMain(userWalletModel: userWalletModel)
+        }
+
+        let coordinator = TangemPayOnboardingCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: .init(residencyInteractor: interactor))
+        tangemPayOnboardingCoordinator = coordinator
     }
 
     func openTermsFeesAndLimits() {
