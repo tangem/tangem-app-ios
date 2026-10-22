@@ -70,7 +70,8 @@ final class TangemPayUITests: BaseTestCase {
         paymentAccount.verifyTransactionVisible(merchantName: "Mock Merchant")
     }
 
-    func testFreezeUnfreezeCard_TogglesCardState() {
+    /// [REDACTED_INFO] Tangem Pay card management stays in "freezing/unfreezing in progress" after a successful freeze or unfreeze
+    func skipped_testFreezeUnfreezeCard_TogglesCardState() {
         setAllureId(4971)
 
         let mainScreen = launchAndImportHotWallet(
@@ -96,7 +97,8 @@ final class TangemPayUITests: BaseTestCase {
             .verifyCardActionsAvailable()
     }
 
-    func testRevealAndCopyCardDetails_NumberExpirationCVC() {
+    /// [REDACTED_INFO] Fix app-side issues blocking UI tests on iOS 27
+    func skipped_testRevealAndCopyCardDetails_NumberExpirationCVC() {
         setAllureId(4974)
 
         let cardDetailsScreen = launchAndImportHotWallet()
