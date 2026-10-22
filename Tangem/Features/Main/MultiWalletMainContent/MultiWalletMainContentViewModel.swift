@@ -1057,11 +1057,12 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
                 }
             )
         case .exchange:
-            let parameters = SwapPredefinedParametersBuilder().makeParameters(input: .token(
-                userWalletInfo: userWalletModel.userWalletInfo,
+            let builder = TokenDetailsSwapPredefinedParametersBuilder(
                 walletModel: walletModel,
+                userWalletInfo: userWalletModel.userWalletInfo,
                 direction: .build(for: walletModel)
-            ))
+            )
+            let parameters = builder.make()
 
             tokenRouter.openSwap(parameters: parameters)
         case .stake:

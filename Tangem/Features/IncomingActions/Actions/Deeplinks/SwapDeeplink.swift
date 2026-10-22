@@ -130,6 +130,8 @@ extension SwapDeeplink {
             return parameters
         }
 
-        return SwapPredefinedParametersBuilder().makeParameters(input: .main(userWalletModel: userWalletModel))
+        let builder = MainSwapPredefinedParametersBuilder(userWalletModel: userWalletModel)
+
+        return builder.make()
     }
 }

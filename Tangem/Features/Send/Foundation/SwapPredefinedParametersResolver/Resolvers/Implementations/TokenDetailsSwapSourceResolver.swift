@@ -1,5 +1,5 @@
 //
-//  CommonSwapTokenPairResolver.swift
+//  TokenDetailsSwapSourceResolver.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -14,10 +14,10 @@ import TangemFoundation
 final class TokenDetailsSwapSourceResolver {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
-    private let swapAvailabilityChecker: SwapAvailabilityChecker
+    private let userWalletInfo: UserWalletInfo
 
-    init(swapAvailabilityChecker: SwapAvailabilityChecker) {
-        self.swapAvailabilityChecker = swapAvailabilityChecker
+    init(userWalletInfo: UserWalletInfo) {
+        self.userWalletInfo = userWalletInfo
     }
 
     func resolveSource(for destination: any WalletModel) -> (any WalletModel)? {
@@ -50,7 +50,7 @@ private extension TokenDetailsSwapSourceResolver {
 
         for model in allModels {
             guard model.id != walletModel.id else { continue }
-            guard swapAvailabilityChecker.isSwapAvailable(walletModel: model) else { continue }
+            guard TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: model).isSwapAvailable(direction: .from) else { continue }
 
             if groups.firstInAccount == nil {
                 groups.firstInAccount = model
@@ -86,53 +86,5 @@ private extension TokenDetailsSwapSourceResolver {
         var hasExchangeableEmpty: Bool = false
         var mostFunded: (any WalletModel)?
         var firstInAccount: (any WalletModel)?
-    }
-}
-
-// MARK: - Main Resolver
-
-final class MainSwapSourceResolver {
-    private let swapAvailabilityChecker: SwapAvailabilityChecker
-    private let userWalletInfo: UserWalletInfo
-    private let walletModelsProvider: MainScreenUIOrderedWalletModelsProvider
-
-    init(userWalletModel: UserWalletModel, swapAvailabilityChecker: SwapAvailabilityChecker) {
-        self.swapAvailabilityChecker = swapAvailabilityChecker
-        userWalletInfo = userWalletModel.userWalletInfo
-        walletModelsProvider = MainScreenUIOrderedWalletModelsProvider(userWalletModel: userWalletModel)
-    }
-}
-
-// MARK: - SwapSourceTokenResolver
-
-extension MainSwapSourceResolver: SwapSourceTokenResolver {
-    var initialSource: LoadingResult<SendSwapableToken, any Error> { .loading }
-
-    func resolveSource(for receive: SendReceiveToken?) async throws -> SendSwapableToken {
-        let walletModels = await walletModelsProvider.settledWalletModels()
-
-        guard let source = resolveSourceToken(from: walletModels) else {
-            throw SwapModel.SwapModelError.tokenSelectionRequired
-        }
-
-        return source
-    }
-}
-
-// MARK: - Private
-
-private extension MainSwapSourceResolver {
-    func resolveSourceToken(from walletModels: [any WalletModel]) -> SendSwapableToken? {
-        let candidates = walletModels.filter { swapAvailabilityChecker.isSwapAvailable(walletModel: $0) }
-
-        guard let source = candidates.mostFiatFundedOrFirst else {
-            return nil
-        }
-
-        return CommonSendSwapableTokenFactory(
-            userWalletInfo: userWalletInfo,
-            walletModel: source,
-            operationType: .swap
-        ).makeSwapableToken()
     }
 }
