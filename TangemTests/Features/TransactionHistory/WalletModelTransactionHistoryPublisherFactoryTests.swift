@@ -73,7 +73,7 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.WalletModelT
             publicKey: .init(seedKey: Data(), derivationType: .none),
             addressesProvider: EmptyAddressesProvider()
         )
-        let provider = StubTransactionHistoryProvider(records: [.exchange(makeExchangeInfo(token: token))])
+        let provider = StubTransactionHistoryProvider(records: [.express(.exchange(makeExchangeInfo(token: token)))])
 
         return WalletModelTransactionHistoryPublisherFactory.makeTransactionHistoryPublisher(
             transactionHistoryPublisher: onChainState,
