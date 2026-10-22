@@ -463,7 +463,7 @@ private extension TransactionHistoryMapper {
             currencyCode: amountSymbol(for: prepared),
             isOutgoing: record.isOutgoing,
             transactionType: prepared.transactionType,
-            status: status(from: record),
+            status: displayedStatus(from: prepared),
             isFromYieldContract: record.isFromYieldContract,
             subtitleOwner: expressSubtitle == nil ? subtitleOwnerResolver?.resolve(for: ownerInteraction) : nil,
             isTangemPayCounterparty: expressSubtitle == nil && subtitleOwnerResolver?.isTangemPayDeposit(ownerInteraction) == true,
@@ -786,6 +786,17 @@ private extension TransactionHistoryMapper {
         TransactionOperationStatusMapper.viewStatus(for: record)
     }
 
+    /// The network fee is never shown as failed
+    func displayedStatus(from prepared: PreparedRecord) -> TransactionViewModel.Status {
+        let status = status(from: prepared.record)
+
+        if prepared.transactionType.isNetworkFee, status == .failed {
+            return .confirmed
+        }
+
+        return status
+    }
+
     func formatted(amount: Decimal, isOutgoing: Bool, isFailed: Bool) -> FormattedAmount {
         let sign = showSign && !amount.isZero ? (isOutgoing ? AppConstants.minusSign : AppConstants.plusSign) : ""
 
@@ -910,7 +921,7 @@ private extension TransactionHistoryMapper {
                 redesignedSign: yieldSign(AppConstants.plusSign, amount: amount, record: record)
             )
         default:
-            return formatted(amount: amount, isOutgoing: record.isOutgoing, isFailed: record.status == .failed)
+            return formatted(amount: amount, isOutgoing: record.isOutgoing, isFailed: record.status == .failed && !prepared.transactionType.isNetworkFee)
         }
     }
 
