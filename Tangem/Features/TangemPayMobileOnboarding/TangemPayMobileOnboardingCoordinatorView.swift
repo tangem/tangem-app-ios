@@ -13,12 +13,21 @@ struct TangemPayMobileOnboardingCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: TangemPayMobileOnboardingCoordinator
 
     var body: some View {
-        NavigationStack {
-            if let rootViewModel = coordinator.rootViewModel {
-                TangemPayMobileOnboardingView(viewModel: rootViewModel)
+        ZStack {
+            if let tangemPayOnboardingCoordinator = coordinator.tangemPayOnboardingCoordinator {
+                TangemPayOnboardingCoordinatorView(coordinator: tangemPayOnboardingCoordinator)
+                    .transition(.opacity)
+            } else {
+                NavigationStack {
+                    if let rootViewModel = coordinator.rootViewModel {
+                        TangemPayMobileOnboardingView(viewModel: rootViewModel)
+                    }
+                }
+                .environment(\.colorScheme, .dark)
+                .transition(.opacity)
             }
         }
-        .environment(\.colorScheme, .dark)
+        .animation(.default, value: coordinator.tangemPayOnboardingCoordinator?.id)
         .sheet(item: $coordinator.webViewContainerViewModel) {
             WebViewContainer(viewModel: $0)
         }
