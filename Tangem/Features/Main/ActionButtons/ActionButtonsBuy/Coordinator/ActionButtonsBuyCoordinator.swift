@@ -121,12 +121,12 @@ extension ActionButtonsBuyCoordinator: AddFundsRoutable {
     }
 
     func addFundsRequestSwap(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
-        let builder = SwapPredefinedParametersBuilder()
-        let parameters = builder.makeParameters(input: .token(
-            userWalletInfo: userWalletModel.userWalletInfo,
+        let builder = TokenDetailsSwapPredefinedParametersBuilder(
             walletModel: walletModel,
+            userWalletInfo: userWalletModel.userWalletInfo,
             direction: .to
-        ))
+        )
+        let parameters = builder.make()
 
         Task { @MainActor [weak self] in
             guard let self else { return }

@@ -31,11 +31,12 @@ struct SwapPredefinedParametersBuilderJointAccountTests {
             )
             walletModelsManager.walletModels = [destination]
 
-            let parameters = SwapPredefinedParametersBuilder().makeParameters(input: .token(
-                userWalletInfo: makeUserWalletInfo(),
+            let builder = TokenDetailsSwapPredefinedParametersBuilder(
                 walletModel: destination,
+                userWalletInfo: makeUserWalletInfo(),
                 direction: .to
-            ))
+            )
+            let parameters = builder.make()
 
             let receive = try #require(parameters.receive.initialReceive.value)
             #expect(!(receive is SendSwapableToken))

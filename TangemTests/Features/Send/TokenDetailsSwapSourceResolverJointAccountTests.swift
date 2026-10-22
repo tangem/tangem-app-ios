@@ -9,6 +9,7 @@
 import Foundation
 import Testing
 import BlockchainSdk
+import TangemFoundation
 @testable import Tangem
 
 @Suite("Token details swap source for a joint account's token")
@@ -37,8 +38,7 @@ struct TokenDetailsSwapSourceResolverJointAccountTests {
             )
             walletModelsManager.walletModels = [destination, fundedSibling]
 
-            let checker = FundingSourceAvailabilityCheckerStub(swapAvailable: [])
-            let sut = TokenDetailsSwapSourceResolver(swapAvailabilityChecker: checker)
+            let sut = TokenDetailsSwapSourceResolver(userWalletInfo: makeUserWalletInfo())
 
             #expect(sut.resolveSource(for: destination) == nil)
         }
@@ -63,6 +63,18 @@ private extension TokenDetailsSwapSourceResolverJointAccountTests {
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             membersService: JointAccountMembersServiceMock(),
             delegate: delegate
+        )
+    }
+
+    func makeUserWalletInfo() -> UserWalletInfo {
+        UserWalletInfo(
+            name: "Test",
+            id: UserWalletId(value: Data([0x01])),
+            config: UserWalletConfigStub(supportedBlockchains: [.polygon(testnet: false), .ethereum(testnet: false)]),
+            backupState: .valid,
+            refcode: nil,
+            signerFactory: TangemSignerFactory(),
+            emailDataProvider: EmailDataProviderStub()
         )
     }
 }
