@@ -76,6 +76,8 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
 
         try await connectedDAppRepository.replaceExistingDApp(with: updatedConnectedDApp)
 
+        await wcService.emitChainChanged(to: blockchainToAdd, topic: connectedDApp.session.topic)
+
         return JSONRPC.RPCResult.response(AnyCodable(String?.none))
     }
 
