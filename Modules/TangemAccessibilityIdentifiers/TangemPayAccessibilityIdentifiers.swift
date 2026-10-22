@@ -340,6 +340,8 @@ public enum TangemPayAccessibilityIdentifiers {
     }
 
     public static let geoSelectionRow = "\(prefix)GeoSelectionRow"
+    public static let geoSelectionSearchField = "\(prefix)GeoSelectionSearchField"
+    public static let waitlistMarketingConsentCheckbox = "\(prefix)WaitlistMarketingConsentCheckbox"
     private static let formFieldPrefix = "\(prefix)FormField"
     private static let formFieldErrorPrefix = "\(prefix)FormFieldError"
 
