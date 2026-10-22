@@ -11,8 +11,6 @@ import TangemFoundation
 import TangemSdk
 
 final class MobileCreationUtil {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
     /// Builds a model for a brand-new mobile wallet.
     /// The caller is responsible for adding the returned model to `UserWalletRepository`.
     func makeCreatedModel(
@@ -83,13 +81,6 @@ final class MobileCreationUtil {
                 hasSocialLogin: hasSocialLogin
             )
         )
-
-        let userWalletConfig = MobileUserWalletConfig(mobileWalletInfo: walletInfo)
-        let userWalletId = UserWalletId(config: userWalletConfig)
-
-        guard !userWalletRepository.models.contains(where: { $0.userWalletId == userWalletId }) else {
-            throw UserWalletRepositoryError.duplicateWalletAdded
-        }
 
         guard let userWalletModel = CommonUserWalletModelFactory().makeModel(
             walletInfo: .mobileWallet(walletInfo),
