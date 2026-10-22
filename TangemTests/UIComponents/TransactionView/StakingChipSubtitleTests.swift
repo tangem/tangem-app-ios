@@ -50,6 +50,7 @@ struct StakingChipSubtitleTests {
             legacyName: "",
             addressDestination: "Contract: 0x0000...2002",
             subtitleOwner: stakingContract,
+            isTangemPayCounterparty: false,
             expressSubtitle: nil
         )
     }
