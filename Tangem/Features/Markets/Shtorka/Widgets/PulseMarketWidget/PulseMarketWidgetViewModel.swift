@@ -286,7 +286,7 @@ private extension PulseMarketWidgetViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, state in
                 switch state {
-                case .loaded:
+                case .loaded, .allFailed:
                     viewModel.displayLoadedStateRespectingSkeletonFloor()
                 case .initialLoading:
                     viewModel.showSkeletons()
@@ -294,8 +294,6 @@ private extension PulseMarketWidgetViewModel {
                     if widgetTypes.contains(.pulse) {
                         viewModel.showSkeletons()
                     }
-                case .allFailed:
-                    return
                 }
             }
             .store(in: &bag)

@@ -1014,7 +1014,28 @@ final class MainScreen: ScreenBase<MainScreenElement> {
 
     @discardableResult
     func verifyTangemPayTileShowsKycInProgress() -> Self {
-        verifyTangemPayTileSubtitle(contains: "Verification in progress")
+        verifyTangemPayTileSubtitle(contains: Localization.tangempayKycInProgress)
+    }
+
+    @discardableResult
+    func verifyTangemPayTileShowsActionRequired() -> Self {
+        verifyTangemPayTileSubtitle(contains: Localization.moneyAccountMainStatusActionRequired)
+    }
+
+    @discardableResult
+    func openTangemPayResidency() -> TangemPayGeoSelectionScreen {
+        XCTContext.runActivity(named: "Open country selection from Tangem Pay tile") { _ in
+            tapTangemPayTile()
+            return TangemPayGeoSelectionScreen(app)
+        }
+    }
+
+    @discardableResult
+    func openTangemPayRegionUnavailablePopup() -> TangemPayRegionUnavailablePopup {
+        XCTContext.runActivity(named: "Open region unavailable sheet from Tangem Pay tile") { _ in
+            tapTangemPayTile()
+            return TangemPayRegionUnavailablePopup(app)
+        }
     }
 
     func openTangemPayKycStatusSheet() -> TangemPayKYCStatusSheet {
