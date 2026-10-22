@@ -397,6 +397,7 @@
 "common_fee_selector_option_market" = "市场";
 "common_fee_selector_option_slow" = "较慢";
 "common_finish" = "完成";
+"common_for" = "for";
 "common_forget" = "忘记";
 "common_from_account" = "从账户";
 "common_from_address" = "从地址";

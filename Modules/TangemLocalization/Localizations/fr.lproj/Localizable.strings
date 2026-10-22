@@ -397,6 +397,7 @@
 "common_fee_selector_option_market" = "Marché";
 "common_fee_selector_option_slow" = "Lent";
 "common_finish" = "Terminer";
+"common_for" = "for";
 "common_forget" = "Oublier";
 "common_from_account" = "Depuis le compte";
 "common_from_address" = "Depuis l'adresse";

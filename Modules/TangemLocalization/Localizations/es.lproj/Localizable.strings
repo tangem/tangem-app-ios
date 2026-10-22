@@ -397,6 +397,7 @@
 "common_fee_selector_option_market" = "Mercado";
 "common_fee_selector_option_slow" = "Lento";
 "common_finish" = "Finalizar";
+"common_for" = "for";
 "common_forget" = "Olvidar";
 "common_from_account" = "From account";
 "common_from_address" = "From address";

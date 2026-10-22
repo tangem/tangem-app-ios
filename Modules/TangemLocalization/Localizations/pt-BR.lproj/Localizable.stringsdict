@@ -157,9 +157,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Invite %li member</string>
+        <string>Convide mais %li membro</string>
         <key>other</key>
-        <string>Invite %li members</string>
+        <string>Convide mais %li membros</string>
       </dict>
     </dict>
     <key>joint_account_invite_members_invite_more</key>
@@ -221,9 +221,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Waiting for %li confirmation</string>
+        <string>Aguardando %li confirmação</string>
         <key>other</key>
-        <string>Waiting for %li confirmations</string>
+        <string>Aguardando %li confirmações</string>
       </dict>
     </dict>
     <key>joint_account_main_waiting_members</key>
@@ -237,9 +237,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Waiting for %li member</string>
+        <string>Aguardando %li membro</string>
         <key>other</key>
-        <string>Waiting for %li members</string>
+        <string>Aguardando %li membros</string>
       </dict>
     </dict>
     <key>joint_account_members_count</key>
