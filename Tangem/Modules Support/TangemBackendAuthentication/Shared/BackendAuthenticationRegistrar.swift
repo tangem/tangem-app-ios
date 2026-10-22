@@ -187,17 +187,14 @@ extension BackendAuthenticationRegistrar {
     }
 
     static func registerNewUnprotectedSocialMobileWallet(
-        _ userWalletModel: some UserWalletModel,
+        id: UserWalletId,
+        keys: [KeyInfo],
         recoveryEnrollment: UserWalletRecoveryEnrollment?
     ) async throws {
-        guard userWalletModel.assertIsMobileWallet() else {
-            throw BackendAuthenticationRegistrarError.registrationUnavailable
-        }
-
-        let id = userWalletModel.userWalletId
         let mobileWalletSDK = CommonMobileWalletSdk()
         let context = try mobileWalletSDK.validate(auth: .none, for: id)
-        let secp256k1PublicKey = try userWalletModel.keysRepository.masterKeyPublicKey(curve: .secp256k1)
+        let secp256k1PublicKey = try CommonKeysRepository(keys: .mobileWallet(keys: keys))
+            .masterKeyPublicKey(curve: .secp256k1)
 
         let signer = MobileUserWalletRegistrationSigner(
             context: context,
