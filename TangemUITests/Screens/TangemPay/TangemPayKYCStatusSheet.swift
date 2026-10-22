@@ -31,6 +31,21 @@ final class TangemPayKYCStatusSheet: Screen {
     }
 
     @discardableResult
+    func hideVerificationFromMain() -> MainScreen {
+        XCTContext.runActivity(named: "Hide verification from the main screen") { _ in
+            primaryButton.waitAndTap()
+            let alert = app.alerts.firstMatch
+            waitAndAssertTrue(alert, timeout: .conditional, "Hiding confirmation should be displayed")
+            alert.buttons[Localization.commonConfirm].waitAndTap()
+            XCTAssertTrue(
+                primaryButton.waitForNonExistence(timeout: .robustUIUpdate),
+                "KYC status sheet should be dismissed"
+            )
+            return MainScreen(app)
+        }
+    }
+
+    @discardableResult
     func close() -> MainScreen {
         XCTContext.runActivity(named: "Close KYC in progress sheet") { _ in
             closeButton.waitAndTap()

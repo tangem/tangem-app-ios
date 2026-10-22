@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemFoundation
 import TangemLocalization
@@ -92,6 +93,7 @@ private extension TangemPayWaitlistContentView {
             }
             .expandsHitArea(false)
             .expandingHitArea(by: Constants.checkboxHitAreaInset)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.waitlistMarketingConsentCheckbox)
 
             Text(marketingConsentText)
                 .frame(maxWidth: .infinity, alignment: .leading)
