@@ -19,23 +19,13 @@ final class CommonMarketsMainWidgetDataService {
     /// Tracks whether the initial load has completed (all widgets finished loading at least once)
     private var hasCompletedInitialLoad: Bool = false
 
-    private lazy var widgetsLoadingStates: [MarketsWidgetType: WidgetLoadingState] = {
-        let allCases = MarketsWidgetType.allCases
-        let enabledCases = allCases.filter { isEnabled(for: $0) }
+    private var widgetsLoadingStates: [MarketsWidgetType: WidgetLoadingState]
 
-        return enabledCases.reduce(into: [:]) { partialResult, widgetType in
+    // MARK: - Init
+
+    init(widgetTypes: Set<MarketsWidgetType>) {
+        widgetsLoadingStates = widgetTypes.reduce(into: [:]) { partialResult, widgetType in
             partialResult[widgetType] = .loading
-        }
-    }()
-
-    // MARK: - Private Implementation
-
-    func isEnabled(for type: MarketsWidgetType) -> Bool {
-        switch type {
-        case .market, .pulse, .news, .earn:
-            return true
-        case .realAssets:
-            return FeatureProvider.isAvailable(.realAssets)
         }
     }
 }
