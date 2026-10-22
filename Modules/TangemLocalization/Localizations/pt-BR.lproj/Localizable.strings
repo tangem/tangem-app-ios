@@ -208,6 +208,7 @@
 "choose_asset_title" = "Escolha o ativo";
 "collectibles_account_collection_empty" = "Nenhum cartão";
 "collectibles_account_collection_row_subtitle" = "Minha coleção";
+"collectibles_account_reconnect_subtitle" = "Reconectar a conta do Packs";
 "collectibles_account_withdraw" = "Saque";
 "collectibles_confirm_order_approve_button" = "Aprovar";
 "collectibles_confirm_order_confirming_transaction_button" = "Confirmando a transação...";
@@ -248,6 +249,9 @@
 "collectibles_main_pack_buyback_badge" = "Recompra de %@";
 "collectibles_main_packs_empty" = "Ainda não há pacotes disponíveis aqui";
 "collectibles_main_packs_load_error" = "Não foi possível carregar os pacotes. Toque para recarregar";
+"collectibles_main_relink_button" = "Vincular conta novamente";
+"collectibles_main_relink_description" = "Make this phone primary for Packs account";
+"collectibles_main_relink_title" = "Relink account";
 "collectibles_main_search_empty" = "Nenhum resultado. Tente alterar os termos da busca\nou explore a partir da lista";
 "collectibles_main_search_load_error" = "Não foi possível carregar a lista de cartões.";
 "collectibles_main_title" = "Conta de pacotes";
@@ -1008,6 +1012,8 @@
 "joint_account_activation_title" = "Você está ativando uma conta compartilhada";
 "joint_account_coming_soon_description" = "Esta ação ainda não é compatível com contas conjuntas. Estamos trabalhando nisso";
 "joint_account_coming_soon_title" = "Em breve nas contas conjuntas";
+"joint_account_compromised_message" = "O endereço da conta no seu dispositivo não corresponde ao registrado em nossos servidores.";
+"joint_account_compromised_title" = "Não foi possível verificar esta conta";
 "joint_account_confirm_account_subtitle" = "Antes de usar sua conta conjunta, certifique-se de que todos os membros vejam exatamente o mesmo endereço.";
 "joint_account_confirm_account_title" = "Confirmar a conta";
 "joint_account_confirm_address_compare_subtitle" = "Entre em contato com todos os membros fora do aplicativo Tangem, por telefone, mensagem ou pessoalmente. Verifique se todos veem exatamente o mesmo endereço.";
@@ -1573,6 +1579,7 @@
 "prediction_details_market_opened" = "Mercado aberto";
 "prediction_details_market_volume" = "Volume:";
 "prediction_details_resolution_date" = "Data de resolução";
+"prediction_details_resolution_source" = "Resolution Source";
 "prediction_details_total_volume" = "Volume total";
 "prediction_event_live" = "Ao vivo";
 "prediction_event_probability" = "Probabilidade";
@@ -2806,7 +2813,9 @@
 "transaction_history_supplied" = "Liquidez fornecida";
 "transaction_history_transaction_for_address" = "para: %@";
 "transaction_history_transaction_from_address" = "de: %@";
+"transaction_history_transaction_from_for_address" = "from: %1$@ for %2$@";
 "transaction_history_transaction_to_address" = "para: %@";
+"transaction_history_transaction_to_for_address" = "to: %1$@ for %2$@";
 "transaction_history_unlimited_amount" = "Ilimitado %@";
 "transaction_history_unlimited" = "Ilimitado";
 "transaction_history_withdrawn" = "Saque realizado";
