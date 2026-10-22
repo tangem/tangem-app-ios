@@ -561,14 +561,14 @@ struct TransactionHistoryExpressDataMerger {
     @inline(__always)
     private func shouldAddSyntheticTransaction(from exchangeTransaction: ExchangeTransaction) -> Bool {
         switch exchangeTransaction.status {
-        case .created:
+        case .created,
+             .expired:
             return exchangeTransaction.payIn.hash != nil
         case .unknown,
              .preview,
              .exchangeTxSent,
              .waiting,
              .waitingTxHash,
-             .expired,
              .confirming,
              .exchanging,
              .sending,
@@ -584,7 +584,7 @@ struct TransactionHistoryExpressDataMerger {
 
     @inline(__always)
     private func shouldAddSyntheticTransaction(from onrampTransaction: OnrampTransaction) -> Bool {
-        return true // Currently, there are no restrictions on onramp synthetic transactions creation
+        return onrampTransaction.status != .expired
     }
 
     @inline(__always)
