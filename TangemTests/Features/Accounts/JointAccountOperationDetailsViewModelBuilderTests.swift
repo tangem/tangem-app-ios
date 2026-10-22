@@ -94,7 +94,8 @@ private extension JointAccountOperationDetailsViewModelBuilderTests {
         return JointAccountPendingOperation(
             wallet: wallet,
             operation: JointAccountCompositionFixture.coinTransfer(status: status),
-            innerCallType: .transfer(.coin(destination: Constants.recipient, value: 1_000_000_000_000_000))
+            innerCallType: .transfer(.coin(destination: Constants.recipient, value: 1_000_000_000_000_000)),
+            feeTokenItem: Constants.coin
         )
     }
 

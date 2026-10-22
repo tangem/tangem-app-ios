@@ -53,7 +53,7 @@ struct YieldIncentiveChart: View {
                     AxisValueLabel {
                         Text(label)
                             .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
-                            .skeletonable(isShown: data == nil)
+                            .shimmerPlaceholder(data == nil)
                     }
 
                     AxisGridLine().foregroundStyle(.clear)
@@ -67,7 +67,7 @@ struct YieldIncentiveChart: View {
                     if let value = mark.as(Double.self) {
                         Text(value, format: .percent.precision(.fractionLength(0)))
                             .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
-                            .skeletonable(isShown: data == nil)
+                            .shimmerPlaceholder(data == nil)
                     }
                 }
             }

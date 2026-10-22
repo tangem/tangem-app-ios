@@ -21,11 +21,18 @@ struct JointAccountPendingOperation: Equatable {
     let wallet: JointAccountWallet
     let operation: JointAccountOperation
     let innerCallType: SafeInnerCallType
+    let feeTokenItem: TokenItem?
 
-    init(wallet: JointAccountWallet, operation: JointAccountOperation, innerCallType: SafeInnerCallType) {
+    init(
+        wallet: JointAccountWallet,
+        operation: JointAccountOperation,
+        innerCallType: SafeInnerCallType,
+        feeTokenItem: TokenItem?
+    ) {
         self.wallet = wallet
         self.operation = operation
         self.innerCallType = innerCallType
+        self.feeTokenItem = feeTokenItem
     }
 }
 
@@ -56,20 +63,12 @@ private extension JointAccountPendingOperation {
         return Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: value / tokenItem.decimalValue)
     }
 
-    /// - Returns: `nil` for a fee in a token, which this version does not quote and so cannot word.
+    /// - Returns: `nil` for a fee in a token this wallet has not added, which it cannot word.
     func operationFee() -> Amount? {
-        let safeTransaction = operation.safeTransaction
-
-        guard let value = safeTransaction.fee.decimal else {
+        guard let feeTokenItem, let value = operation.safeTransaction.fee.decimal else {
             return nil
         }
 
-        if safeTransaction.gasToken.caseInsensitiveEquals(to: SafeGasToken.coinGasTokenRawValue) {
-            return Amount(with: tokenItem.blockchain, value: value / tokenItem.blockchain.decimalValue)
-        }
-
-        assertionFailure("A joint account operation paying its fee in a token is not supported yet")
-        JointAccountsLogger.warning("An unfinished operation of a joint account pays its fee in a token")
-        return nil
+        return Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: value / feeTokenItem.decimalValue)
     }
 }

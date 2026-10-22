@@ -17,6 +17,7 @@ public enum WalletBackupStorageError: Error {
     case readFailed(Error)
     case deleteFailed(Error)
     case fileNotFound
+    case walletMismatch
 }
 
 // MARK: - LocalizedError
@@ -34,6 +35,8 @@ extension WalletBackupStorageError: LocalizedError {
             "Failed to delete the backup file: \(error.localizedDescription)"
         case .fileNotFound:
             "The backup file was not found"
+        case .walletMismatch:
+            "The backup file belongs to another wallet"
         }
     }
 }
@@ -54,6 +57,8 @@ extension WalletBackupStorageError: UniversalError {
             110003003
         case .fileNotFound:
             110003004
+        case .walletMismatch:
+            110003005
         }
     }
 }

@@ -163,13 +163,6 @@ extension FlexySizeButtonWithLeadingIcon: Setupable {
 
 // MARK: - Constants
 
-extension FixedSizeButtonWithLeadingIcon {
-    enum Constants {
-        /// - Note: Exposed for consumers of this UI component.
-        static var cornerRadius: CGFloat { ButtonWithLeadingIconContentView.cornerRadius }
-    }
-}
-
 extension FlexySizeButtonWithLeadingIcon {
     enum Constants {
         /// - Note: Exposed for consumers of this UI component.

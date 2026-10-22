@@ -12,6 +12,7 @@ import TangemLocalization
 import TangemUI
 
 struct PolymarketOverflowMenu: View {
+    let onHistory: () -> Void
     let onHowItWorks: () -> Void
     let onSupportChat: () -> Void
 
@@ -21,6 +22,13 @@ struct PolymarketOverflowMenu: View {
                 Label(
                     title: { Text(Constants.howItWorksTitle) },
                     icon: { DesignSystem.Icons.Info.regular20.image.renderingMode(.template) }
+                )
+            }
+
+            SwiftUI.Button(action: onHistory) {
+                Label(
+                    title: { Text(Constants.historyTitle) },
+                    icon: { DesignSystem.Icons.Clock.regular20.image.renderingMode(.template) }
                 )
             }
 
@@ -41,6 +49,7 @@ struct PolymarketOverflowMenu: View {
 
 private extension PolymarketOverflowMenu {
     enum Constants {
+        static let historyTitle = Localization.predictionHistoryTitle
         static let howItWorksTitle = Localization.collectiblesMainMenuHowItWorks
         static let supportChatTitle = Localization.supportChatScreenTitle
     }

@@ -20,14 +20,11 @@ struct PolymarketCoordinatorView: CoordinatorView {
             .toolbar(.hidden, for: .navigationBar)
             .background(FeedPopGestureEnabler())
             .navigationLinks(links)
-            .sheet(item: $coordinator.sheet) { sheet in
-                switch sheet {
-                case .send(let coordinator):
-                    SendCoordinatorView(coordinator: coordinator)
-                case .supportChat(let viewModel):
-                    supportChat(viewModel: viewModel)
-                }
+            .fullScreenCover(item: $coordinator.redeem) { viewModel in
+                PolymarketRedeemView(viewModel: viewModel)
             }
+            .polymarketOrderSheet(presenter: coordinator.orderPresenter, host: nil)
+            .background(PolymarketMainSheetHost(coordinator: coordinator, isActive: coordinator.orderPresenter.order == nil))
     }
 
     @ViewBuilder
@@ -42,15 +39,6 @@ struct PolymarketCoordinatorView: CoordinatorView {
         }
     }
 
-    private func supportChat(viewModel: SupportChatViewModel) -> some View {
-        NavigationStack {
-            SupportChatView(viewModel: viewModel)
-                .toolbar {
-                    NavigationToolbarButton.close(placement: .topBarLeading) { coordinator.sheet = nil }
-                }
-        }
-    }
-
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.destination) { destination in
@@ -61,12 +49,10 @@ struct PolymarketCoordinatorView: CoordinatorView {
                     PolymarketPositionDetailsCoordinatorView(coordinator: coordinator)
                 case .myPositions(let coordinator):
                     PolymarketMyPositionsCoordinatorView(coordinator: coordinator)
-                case .order(let coordinator):
-                    PolymarketOrderCoordinatorView(coordinator: coordinator)
                 case .tokenDetails(let coordinator):
                     TokenDetailsCoordinatorView(coordinator: coordinator)
-                case .redeem(let viewModel):
-                    PolymarketRedeemView(viewModel: viewModel)
+                case .activity(let coordinator):
+                    PolymarketActivityCoordinatorView(coordinator: coordinator)
                 }
             }
     }

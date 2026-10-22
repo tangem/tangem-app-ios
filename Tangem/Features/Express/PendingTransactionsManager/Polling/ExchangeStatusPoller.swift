@@ -190,7 +190,7 @@ final class ExchangeStatusPoller {
             try Task.checkCancellation()
 
             let refundedTokenItem = await handleRefundedTokenIfNeeded(
-                blockchainNetwork: transactionRecord.sourceTokenTxInfo.tokenItem.blockchainNetwork,
+                sourceTokenTxInfo: transactionRecord.sourceTokenTxInfo,
                 providerType: transactionRecord.provider.type,
                 refundedCurrency: expressTransaction.refund?.currency
             )
@@ -227,7 +227,7 @@ final class ExchangeStatusPoller {
     }
 
     private func handleRefundedTokenIfNeeded(
-        blockchainNetwork: BlockchainNetwork,
+        sourceTokenTxInfo: ExpressPendingTransactionRecord.TokenTxInfo,
         providerType: ExpressPendingTransactionRecord.ProviderType,
         refundedCurrency: ExpressCurrency?,
     ) async -> TokenItem? {
@@ -235,8 +235,13 @@ final class ExchangeStatusPoller {
             return nil
         }
 
+        let refundUserWalletId = userWalletRepository.models
+            .first(where: { $0.userWalletId.stringValue == sourceTokenTxInfo.userWalletId })?
+            .userWalletId
+
         return try? await expressRefundedTokenHandler.handle(
-            blockchainNetwork: blockchainNetwork,
+            userWalletId: refundUserWalletId,
+            blockchainNetwork: sourceTokenTxInfo.tokenItem.blockchainNetwork,
             expressCurrency: refundedCurrency
         )
     }

@@ -60,10 +60,6 @@ struct TangemPayFormField: Identifiable {
 // MARK: - Validation
 
 extension TangemPayFormField {
-    var isOptional: Bool {
-        id.isOptional
-    }
-
     var isSelectable: Bool {
         onSelect != nil
     }

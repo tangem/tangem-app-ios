@@ -29,7 +29,7 @@ public struct PageIndicatorViewRedesign: View {
         .frame(height: 32)
         .background {
             Capsule()
-                .fill(Color.Tangem.Tabs.backgroundSecondary)
+                .fill(DesignSystem.Color.bgTransparentSecondary)
                 .background(.ultraThinMaterial, in: .capsule)
         }
         .animation(.easeInOut(duration: 0.3), value: currentIndex)
@@ -39,8 +39,8 @@ public struct PageIndicatorViewRedesign: View {
         let innerSize = dotInnerSize(for: index)
         let isActive = index == currentIndex
         let color = isActive
-            ? Color.Tangem.Graphic.Neutral.primary
-            : Color.Tangem.Graphic.Neutral.tertiary
+            ? DesignSystem.Color.bgInverse
+            : DesignSystem.Color.bgTransparentSecondary
 
         return Circle()
             .fill(color)

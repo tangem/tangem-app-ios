@@ -102,11 +102,8 @@ extension MobileUserWalletConfig: UserWalletConfig {
         .mobileWallet
     }
 
-    var cardHeaderImage: ImageType? {
-        return nil
-    }
-
     var walletThumbnailType: ThumbnailWalletViewType? {
+        // [REDACTED_TODO_COMMENT]
         .mobileWallet(.init(icon: .Tangem.CardCollection.tangem))
     }
 

@@ -115,7 +115,7 @@ private extension TransactionRecord {
             isFromYieldContract: isFromYieldContract,
             isFolded: isFolded,
             nonce: nonce,
-            extraInfo: expressExtraInfo
+            extraInfo: historyExtraInfo
         )
     }
 }

@@ -8,10 +8,6 @@
 
 import Foundation
 
-struct RosettaBalanceResponse: Codable {
-    let balances: [RosettaAmount]?
-}
-
 struct RosettaSubmitResponse: Codable {
     let transactionIdentifier: RosettaTransactionIdentifier
 }

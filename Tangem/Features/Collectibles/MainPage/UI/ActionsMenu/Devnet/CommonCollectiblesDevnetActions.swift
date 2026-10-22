@@ -108,12 +108,18 @@ private extension CommonCollectiblesDevnetActions {
         )
 
         do {
-            return try await serviceProvider.service().sendSelfPaid(
+            let service = try serviceProvider.service()
+            let transaction = try service.makeSelfPaidTransaction(
                 instructions: [rawInstruction],
-                feePayer: coldKey.blockchainKey
-            ) { message in
-                try await coldKeyInteractorFactory.makeInteractor().sign(message: message, coldKey: coldKey)
-            }
+                feePayer: coldKey.blockchainKey,
+                blockhash: try await service.latestBlockhash()
+            )
+            let signature = try await coldKeyInteractorFactory.makeInteractor().sign(message: transaction.message, coldKey: coldKey)
+
+            return try await service.send(
+                serializedTransaction: try transaction.serialized(signature: signature),
+                startSendingTimestamp: transaction.blockhashFetchedAt
+            )
         } catch let sendError as SolanaSendError {
             switch sendError {
             case .alreadyProcessed:

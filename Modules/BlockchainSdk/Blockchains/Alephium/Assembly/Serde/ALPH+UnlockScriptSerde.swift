@@ -10,8 +10,6 @@ import Foundation
 
 extension ALPH {
     struct UnlockScriptSerde: Serde {
-        typealias T = UnlockScript
-
         func serialize(_ input: UnlockScript) -> Data {
             var data = Data()
             switch input {

@@ -42,7 +42,7 @@ private extension TokenRowTitleAccessory {
             .size(.x4)
             .variant(.tinted)
             .appearance(appearance(for: reward))
-            .tangemShimmer()
+            .shimmering()
             .environment(\.isShimmerActive, reward.isUpdating)
     }
 

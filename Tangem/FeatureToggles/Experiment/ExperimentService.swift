@@ -14,12 +14,18 @@ import TangemFoundation
 import Experiment
 
 protocol ExperimentService {
+    var variantsPublisher: AnyPublisher<Void, Never> { get }
+    var hasFreshVariants: Bool { get }
+
     func configure()
 
     func variant(_ key: ExperimentFeatureFlagKey) -> Variant?
     func isOn(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool
     func isOnWithoutExposure(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool
     func waitForVariants(ofWalletMatching isMatching: @escaping (UserWalletId) -> Bool) async -> Bool
+
+    @MainActor
+    func hasFetchedVariants(for userWalletId: UserWalletId) -> Bool
 }
 
 final class CommonExperimentService {
@@ -39,7 +45,10 @@ final class CommonExperimentService {
     private var _client: ExperimentClient?
     private var bag: Set<AnyCancellable> = []
     private var refetchTask: Task<Void, Never>?
+    private let variantsSubject = PassthroughSubject<Void, Never>()
+    private let freshVariants = OSAllocatedUnfairLock(initialState: false)
     private let fetchedUserWalletIdsSubject = CurrentValueSubject<Set<UserWalletId>, Never>([])
+    @MainActor private var fetchedUserWalletId: UserWalletId?
 
     // MARK: - Public Implementation
 
@@ -47,6 +56,7 @@ final class CommonExperimentService {
         let config = ExperimentConfigBuilder()
             .automaticExposureTracking(true)
             .fetchOnStart(false)
+            .fetchRetryOnFailure(false)
             .exposureTrackingProvider(AmplitudeExposureTrackingProvider())
             .build()
 
@@ -88,13 +98,20 @@ final class CommonExperimentService {
     private func setContext(for userWalletId: UserWalletId?) {
         let ctx = ExperimentWalletContext.initial(for: userWalletId)
 
-        refetchTask?.cancel()
+        let previousRefetchTask = refetchTask
+
+        previousRefetchTask?.cancel()
         refetchTask = runTask(in: self) { service in
+            await previousRefetchTask?.value
             await service.refetch(for: ctx)
         }
     }
 
     private func refetch(for ctx: ExperimentWalletContext) async {
+        await MainActor.run { fetchedUserWalletId = nil }
+        freshVariants.withLock { $0 = false }
+        variantsSubject.send()
+
         let builder = ExperimentUserBuilder()
             .userId(ctx.userWalletId?.hashedStringValue)
             .region(ctx.region)
@@ -113,37 +130,60 @@ final class CommonExperimentService {
             return
         }
 
-        do {
-            try Task.checkCancellation()
+        for (attempt, delay) in Constants.fetchRetryDelays.enumerated() {
+            do {
+                try await Task.sleep(for: delay)
+                try await fetch(user: user, with: client)
 
-            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-                client.fetch(user: user) { _, error in
-                    if let error {
-                        continuation.resume(throwing: error)
-                    } else {
-                        continuation.resume()
-                    }
+                await MainActor.run { fetchedUserWalletId = ctx.userWalletId }
+                freshVariants.withLock { $0 = true }
+                variantsSubject.send()
+
+                if let userWalletId = ctx.userWalletId {
+                    fetchedUserWalletIdsSubject.send(fetchedUserWalletIdsSubject.value.union([userWalletId]))
+                }
+
+                AppLogger.info("Experiments fetched")
+                return
+            } catch is CancellationError {
+                AppLogger.info("Experiment fetch cancelled")
+                return
+            } catch {
+                AppLogger.error("Experiment fetch attempt \(attempt + 1) failed", error: error)
+            }
+        }
+
+        variantsSubject.send()
+    }
+
+    private func fetch(user: ExperimentUser, with client: ExperimentClient) async throws {
+        try Task.checkCancellation()
+
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            client.fetch(user: user) { _, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
                 }
             }
-
-            try Task.checkCancellation()
-
-            AppLogger.info("Experiments fetched for wallet \(ctx.userWalletId?.stringValue ?? "empty")")
-
-            if let userWalletId = ctx.userWalletId {
-                fetchedUserWalletIdsSubject.send(fetchedUserWalletIdsSubject.value.union([userWalletId]))
-            }
-        } catch is CancellationError {
-            AppLogger.info("Experiment fetch cancelled for wallet \(ctx.userWalletId?.stringValue ?? "empty")")
-        } catch {
-            AppLogger.error("Experiment fetch failed for wallet \(ctx.userWalletId?.stringValue ?? "empty")", error: error)
         }
+
+        try Task.checkCancellation()
     }
 }
 
 // MARK: - ExperimentService
 
 extension CommonExperimentService: ExperimentService {
+    var variantsPublisher: AnyPublisher<Void, Never> {
+        variantsSubject.eraseToAnyPublisher()
+    }
+
+    var hasFreshVariants: Bool {
+        freshVariants.withLock { $0 }
+    }
+
     func variant(_ key: ExperimentFeatureFlagKey) -> Variant? {
         guard let client = configuredClient(for: key) else { return nil }
 
@@ -169,6 +209,11 @@ extension CommonExperimentService: ExperimentService {
 
         return fetched != nil
     }
+
+    @MainActor
+    func hasFetchedVariants(for userWalletId: UserWalletId) -> Bool {
+        fetchedUserWalletId == userWalletId
+    }
 }
 
 // MARK: - Injection
@@ -181,5 +226,13 @@ extension InjectedValues {
     var experimentService: ExperimentService {
         get { Self[ExperimentServiceKey.self] }
         set { Self[ExperimentServiceKey.self] = newValue }
+    }
+}
+
+// MARK: - Constants
+
+private extension CommonExperimentService {
+    enum Constants {
+        static let fetchRetryDelays: [Duration] = [.zero, .seconds(2), .seconds(5), .seconds(15)]
     }
 }
