@@ -397,6 +397,7 @@
 "common_fee_selector_option_market" = "マーケット";
 "common_fee_selector_option_slow" = "遅い";
 "common_finish" = "終了";
+"common_for" = "for";
 "common_forget" = "忘れる";
 "common_from_account" = "From account";
 "common_from_address" = "From address";

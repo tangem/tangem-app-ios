@@ -397,6 +397,7 @@
 "common_fee_selector_option_market" = "За ринком";
 "common_fee_selector_option_slow" = "Повільно";
 "common_finish" = "Завершити";
+"common_for" = "for";
 "common_forget" = "Забути";
 "common_from_account" = "From account";
 "common_from_address" = "From address";
