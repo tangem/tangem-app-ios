@@ -102,7 +102,6 @@ final class TangemPayBuilder {
         TangemPayManager(
             userWalletId: userWalletId,
             keysRepository: keysRepository,
-            availabilityService: availabilityService,
             authorizationService: authorizationService,
             customerService: customerService,
             enrollmentStateFetcher: enrollmentStateFetcher,

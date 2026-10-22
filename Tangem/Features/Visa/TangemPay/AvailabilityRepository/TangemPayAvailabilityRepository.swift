@@ -43,6 +43,8 @@ protocol TangemPayAvailabilityRepository {
         for customerWalletId: String
     ) -> AnyPublisher<TangemPayWalletSelectionType?, Never>
     func userDidCloseGetTangemPayBanner()
+    @discardableResult
+    func requestEligibleDistributionChannels() async -> [TangemPayDistributionChannel]
 }
 
 private struct TangemPayAvailabilityRepositoryKey: InjectionKey {
