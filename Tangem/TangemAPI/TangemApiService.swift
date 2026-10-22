@@ -244,6 +244,18 @@ protocol TangemApiService: AnyObject {
         walletId: String, operationId: String
     ) async throws -> JointAccountsDTO.Response.Operation?
 
+    func getJointOperationsHistory(
+        walletId: String, request: JointAccountsDTO.Request.OperationsHistory
+    ) async throws -> JointAccountsDTO.Response.OperationsHistory
+
+    func getJointOperationsHistoryDelta(
+        walletId: String, request: JointAccountsDTO.Request.OperationsHistoryDelta
+    ) async throws -> JointAccountsDTO.Response.OperationsHistoryDelta
+
+    func getJointOperation(
+        walletId: String, operationId: String, knownETag: String?
+    ) async throws -> (eTag: String?, operation: JointAccountsDTO.Response.HistoryOperation)?
+
     // MARK: - Address Book
 
     /// Fetches the encrypted books of the requested wallets, skipping any whose sent etag still matches.

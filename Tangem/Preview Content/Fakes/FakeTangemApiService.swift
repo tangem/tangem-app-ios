@@ -48,6 +48,9 @@ final class FakeTangemApiService: TangemApiService {
 
     var getJointAccountsHandler: ((_ knownETag: String?) async throws -> (eTag: String?, accounts: JointAccountsDTO.Response.JointAccounts)?)?
     var rejectJointAccountOperationHandler: ((_ operationId: String) async throws -> JointAccountsDTO.Response.Operation?)?
+    var getJointOperationsHistoryHandler: ((_ request: JointAccountsDTO.Request.OperationsHistory) async throws -> JointAccountsDTO.Response.OperationsHistory)?
+    var getJointOperationsHistoryDeltaHandler: ((_ request: JointAccountsDTO.Request.OperationsHistoryDelta) async throws -> JointAccountsDTO.Response.OperationsHistoryDelta)?
+    var getJointOperationHandler: ((_ operationId: String, _ knownETag: String?) async throws -> (eTag: String?, operation: JointAccountsDTO.Response.HistoryOperation)?)?
 
     init(geoIpRegionCode: String = "us") {
         self.geoIpRegionCode = geoIpRegionCode
@@ -374,6 +377,36 @@ final class FakeTangemApiService: TangemApiService {
         }
 
         return try await rejectJointAccountOperationHandler(operationId)
+    }
+
+    func getJointOperationsHistory(
+        walletId: String, request: JointAccountsDTO.Request.OperationsHistory
+    ) async throws -> JointAccountsDTO.Response.OperationsHistory {
+        guard let getJointOperationsHistoryHandler else {
+            throw "Not implemented"
+        }
+
+        return try await getJointOperationsHistoryHandler(request)
+    }
+
+    func getJointOperationsHistoryDelta(
+        walletId: String, request: JointAccountsDTO.Request.OperationsHistoryDelta
+    ) async throws -> JointAccountsDTO.Response.OperationsHistoryDelta {
+        guard let getJointOperationsHistoryDeltaHandler else {
+            throw "Not implemented"
+        }
+
+        return try await getJointOperationsHistoryDeltaHandler(request)
+    }
+
+    func getJointOperation(
+        walletId: String, operationId: String, knownETag: String?
+    ) async throws -> (eTag: String?, operation: JointAccountsDTO.Response.HistoryOperation)? {
+        guard let getJointOperationHandler else {
+            throw "Not implemented"
+        }
+
+        return try await getJointOperationHandler(operationId, knownETag)
     }
 
     func syncAddressBooks(_ request: AddressBookDTO.SyncRequest) async throws -> AddressBookDTO.Response {

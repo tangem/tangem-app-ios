@@ -367,6 +367,7 @@ private extension CommonJointAccountOperationsServiceTests {
             chainId: chainId,
             safeTransaction: SafeTransaction(innerCall: Constants.innerCall, feeParameters: Constants.feeParameters, nonce: nonce),
             status: status,
+            txHash: nil,
             initiator: Constants.members[0],
             signatures: []
         )
