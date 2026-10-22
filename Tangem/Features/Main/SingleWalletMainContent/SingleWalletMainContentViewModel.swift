@@ -333,11 +333,12 @@ extension SingleWalletMainContentViewModel: TokenItemContextActionDelegate {
                 }
             )
         case .exchange:
-            let parameters = SwapPredefinedParametersBuilder().makeParameters(input: .token(
-                userWalletInfo: userWalletInfo,
+            let builder = TokenDetailsSwapPredefinedParametersBuilder(
                 walletModel: walletModel,
+                userWalletInfo: userWalletInfo,
                 direction: .build(for: walletModel)
-            ))
+            )
+            let parameters = builder.make()
 
             contextActionTokenRouter.openSwap(parameters: parameters)
         case .sell:

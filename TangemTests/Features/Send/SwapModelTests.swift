@@ -864,7 +864,7 @@ final class SwapModelTests: LeakTrackingTestSuite {
         let source = SwapableTokenStub(blockchain: .ethereum(testnet: false))
         let sut = makeSUT(sourceToken: source)
 
-        #expect(throws: TokenSelectorItemOutputTypeBuilder.BuildError.self) {
+        #expect(throws: WalletModelSendTokenFactory.BuildError.self) {
             try sut.swapTokenSelectorDidRequestUpdate(sender: makeJointAccountItem())
         }
 

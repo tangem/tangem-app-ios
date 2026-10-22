@@ -25,7 +25,7 @@ struct TokenSelectorItemJointAccountTests {
 
         #expect(receiveToken is SendSourceToken)
         #expect(!(receiveToken is SendSwapableToken))
-        #expect(throws: TokenSelectorItemOutputTypeBuilder.BuildError.self) {
+        #expect(throws: WalletModelSendTokenFactory.BuildError.self) {
             try builder.makeSwapableToken(item: item)
         }
     }
@@ -34,7 +34,7 @@ struct TokenSelectorItemJointAccountTests {
     func jointAccountTokenAsSourceCarriesItsSourceStatus() throws {
         let builder = TokenSelectorItemOutputTypeBuilder(expressOperationType: .swap)
 
-        let error = try #require(throws: TokenSelectorItemOutputTypeBuilder.BuildError.self) {
+        let error = try #require(throws: WalletModelSendTokenFactory.BuildError.self) {
             try builder.makeSwapableToken(item: makeJointItem())
         }
 

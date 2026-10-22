@@ -750,13 +750,12 @@ extension SingleTokenBaseViewModel {
             return
         }
 
-        let builder = SwapPredefinedParametersBuilder()
-
-        let parameters = builder.makeParameters(input: .token(
-            userWalletInfo: userWalletInfo,
+        let builder = TokenDetailsSwapPredefinedParametersBuilder(
             walletModel: walletModel,
+            userWalletInfo: userWalletInfo,
             direction: position
-        ))
+        )
+        let parameters = builder.make()
 
         tokenRouter.openSwap(parameters: parameters)
     }
