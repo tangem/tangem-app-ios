@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemSdk
 import TangemMobileWalletSdk
 import BlockchainSdk
@@ -31,12 +32,14 @@ struct WalletInitializerParameters {
 }
 
 final class MobileWalletInitializer: WalletInitializer {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     func initializeWallet(parameters: WalletInitializerParameters) async throws -> MobileWalletInfo {
         let sdk = CommonMobileWalletSdk()
 
         let userWalletId = switch parameters.mnemonic {
         case .some(let mnemonic):
-            try sdk.importWallet(entropy: mnemonic.getEntropy(), passphrase: parameters.passphrase ?? "")
+            try importWallet(mnemonic: mnemonic, passphrase: parameters.passphrase ?? "", sdk: sdk)
         case .none:
             try sdk.generateWallet()
         }
@@ -91,6 +94,16 @@ final class MobileWalletInitializer: WalletInitializer {
         mobileWalletInfo.keys = keyInfos
 
         return mobileWalletInfo
+    }
+
+    private func importWallet(mnemonic: Mnemonic, passphrase: String, sdk: MobileWalletSdk) throws -> UserWalletId {
+        let userWalletId = try MnemonicUserWalletIdFactory().makeUserWalletId(mnemonic: mnemonic, passphrase: passphrase)
+
+        guard userWalletRepository.models[userWalletId] == nil else {
+            throw UserWalletRepositoryError.duplicateWalletAdded
+        }
+
+        return try sdk.importWallet(entropy: mnemonic.getEntropy(), passphrase: passphrase)
     }
 
     private func blockchainNetwork(from blockchain: Blockchain, config: UserWalletConfig) -> BlockchainNetwork {
