@@ -116,9 +116,9 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             iconName = account.icon.name
             accountName = account.name
         case .create(let creator):
-            let newIcon = AccountModelUtils.UI.newAccountIcon()
-            iconColor = newIcon.color
-            iconName = newIcon.name
+            let initialIcon = creator.initialIcon
+            iconColor = initialIcon.color
+            iconName = initialIcon.name
             accountName = creator.initialAccountName
         }
 
