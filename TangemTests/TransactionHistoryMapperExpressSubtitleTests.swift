@@ -56,7 +56,8 @@ struct TransactionHistoryMapperExpressSubtitleTests {
             blockchain: .ethereum(testnet: false),
             currentUserWalletId: UserWalletId(value: Data()),
             isAccountsMode: false,
-            contacts: []
+            contacts: [],
+            tangemPayDepositOwners: []
         )
 
         let viewModel = await withUserWallets([]) {
@@ -108,7 +109,8 @@ struct TransactionHistoryMapperExpressSubtitleTests {
             blockchain: blockchain,
             currentUserWalletId: UserWalletId(value: Data()),
             isAccountsMode: false,
-            contacts: [try makeContact(named: "Ivan", address: "0xFrom", on: blockchain)]
+            contacts: [try makeContact(named: "Ivan", address: "0xFrom", on: blockchain)],
+            tangemPayDepositOwners: []
         )
 
         let viewModel = makeSUT().mapTransactionViewModel(swapRecord(isOutgoing: false), subtitleOwnerResolver: resolver)
@@ -240,7 +242,8 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
             blockchain: .ethereum(testnet: false),
             currentUserWalletId: userWalletModel.userWalletId,
             isAccountsMode: true,
-            contacts: []
+            contacts: [],
+            tangemPayDepositOwners: []
         )
 
         let record = swapRecord(isOutgoing: true, fromAddress: fromAddress, payOutAddress: payOutAddress)

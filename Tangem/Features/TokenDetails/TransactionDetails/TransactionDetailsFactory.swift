@@ -128,6 +128,10 @@ enum TransactionDetailsFactory {
         case .gaslessTransactionFee, .networkFee:
             return .generic(feeContent(for: transaction, record: record, cryptoAmount: cryptoAmount, context: context))
 
+        case .operation where transaction.isTangemPayCounterparty,
+             .unknownOperation where transaction.isTangemPayCounterparty:
+            return .generic(sendReceiveContent(for: transaction, record: record, context: context))
+
         case .operation, .unknownOperation:
             return .generic(genericOperationContent(
                 for: transaction,
@@ -947,7 +951,8 @@ enum TransactionDetailsFactory {
                 isOutgoing: transaction.isOutgoing,
                 isFromYieldContract: transaction.isFromYieldContract,
                 legacyName: transaction.name,
-                subtitleOwner: transaction.subtitleOwner
+                subtitleOwner: transaction.subtitleOwner,
+                isTangemPayCounterparty: transaction.isTangemPayCounterparty
             )
             return (text.fullText, onChainTitleStyle(for: status))
         }
