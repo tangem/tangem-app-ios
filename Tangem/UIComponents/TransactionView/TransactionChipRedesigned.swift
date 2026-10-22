@@ -222,7 +222,8 @@ private enum ChipPreviewFixture {
                 isOutgoing: type != .yieldSend,
                 transactionType: type,
                 status: status,
-                isFromYieldContract: type == .yieldSend
+                isFromYieldContract: type == .yieldSend,
+                isTangemPayCounterparty: false
             )
         }
     }

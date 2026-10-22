@@ -449,6 +449,7 @@ private extension TransactionHistoryMapper {
         let formattedAmount = getFormattedAmount(for: prepared)
         let interaction = interactionAddress(from: record, transactionType: prepared.transactionType)
         let expressSubtitle = expressSubtitle(from: record, resolver: subtitleOwnerResolver)
+        let ownerInteraction = subtitleInteraction(from: record, fallback: interaction)
 
         return TransactionViewModel(
             hash: record.hash,
@@ -464,7 +465,8 @@ private extension TransactionHistoryMapper {
             transactionType: prepared.transactionType,
             status: status(from: record),
             isFromYieldContract: record.isFromYieldContract,
-            subtitleOwner: expressSubtitle == nil ? subtitleOwnerResolver?.resolve(for: subtitleInteraction(from: record, fallback: interaction)) : nil,
+            subtitleOwner: expressSubtitle == nil ? subtitleOwnerResolver?.resolve(for: ownerInteraction) : nil,
+            isTangemPayCounterparty: expressSubtitle == nil && subtitleOwnerResolver?.isTangemPayDeposit(ownerInteraction) == true,
             expressSubtitle: expressSubtitle,
             warning: expressWarning(from: record)
         )
