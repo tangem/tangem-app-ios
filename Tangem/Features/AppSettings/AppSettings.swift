@@ -142,7 +142,7 @@ final class AppSettings {
     var tangemPayCashbackBlockedBannerDismissedForCustomerWalletId: [String: Bool] = [:]
 
     @AppStorageCompat(StorageType.tangemPayEligibleDistributionChannels)
-    var tangemPayEligibleDistributionChannels: [String] = []
+    var tangemPayEligibleDistributionChannels: [String]? = nil
 
     @AppStorageCompat(StorageType.tangemPayShouldShowGetBanner)
     var tangemPayShouldShowGetBanner: Bool = true
