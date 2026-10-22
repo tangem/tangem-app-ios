@@ -62,9 +62,17 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     @Injected(\.tangemPayRecentOperationsStore)
     private var tangemPayRecentOperationsStore: TangemPayRecentOperationsStore
 
+    @Injected(\.tangemPayCustomerStatusChecker)
+    private var customerStatusChecker: TangemPayCustomerStatusChecker
+
+    @Injected(\.tangemPayAvailabilityRepository)
+    private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
+
+    @Injected(\.userWalletRepository)
+    private var userWalletRepository: UserWalletRepository
+
     private let userWalletId: UserWalletId
     private let keysRepository: KeysRepository
-    private let availabilityService: TangemPayAvailabilityService
     private let authorizationService: TangemPayAuthorizationService
     private let customerService: CustomerInfoManagementService
     private let enrollmentStateFetcher: TangemPayEnrollmentStateFetcher
@@ -87,7 +95,6 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     init(
         userWalletId: UserWalletId,
         keysRepository: KeysRepository,
-        availabilityService: TangemPayAvailabilityService,
         authorizationService: TangemPayAuthorizationService,
         customerService: CustomerInfoManagementService,
         enrollmentStateFetcher: TangemPayEnrollmentStateFetcher,
@@ -105,7 +112,6 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     ) {
         self.userWalletId = userWalletId
         self.keysRepository = keysRepository
-        self.availabilityService = availabilityService
         self.authorizationService = authorizationService
         self.customerService = customerService
         self.enrollmentStateFetcher = enrollmentStateFetcher
@@ -218,9 +224,17 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     }
 
     func refreshState() async {
-        guard await availabilityService.isPaeraCustomer(customerWalletId: customerWalletId) else {
+        guard await customerStatusChecker.checkIsPaeraCustomer(customerWalletId: customerWalletId) else {
             orderStatusPollingService.cancel()
             stateSubject.value = nil
+
+            runTask { [weak self] in
+                guard let self, await shouldRequestEligibleDistributionChannels() else {
+                    return
+                }
+
+                await tangemPayAvailabilityRepository.requestEligibleDistributionChannels()
+            }
             return
         }
 
@@ -416,6 +430,40 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         default:
             break
         }
+    }
+
+    private func shouldRequestEligibleDistributionChannels() async -> Bool {
+        let userWalletModels = userWalletRepository.models
+
+        let hasKnownTangemPayCustomer = userWalletModels.contains {
+            isKnownTangemPayCustomer(customerWalletId: $0.userWalletId.stringValue)
+        }
+
+        guard !hasKnownTangemPayCustomer else {
+            return false
+        }
+
+        let unlockedCustomerWalletIds = userWalletModels
+            .filter { !$0.isUserWalletLocked }
+            .map(\.userWalletId.stringValue)
+
+        let hasTangemPayCustomer = await withTaskGroup(of: Bool.self) { [customerStatusChecker] group in
+            for customerWalletId in unlockedCustomerWalletIds {
+                group.addTask {
+                    await customerStatusChecker.paeraCustomerStatus(customerWalletId: customerWalletId)
+                }
+            }
+
+            return await group.contains(true)
+        }
+
+        return !hasTangemPayCustomer
+    }
+
+    private func isKnownTangemPayCustomer(customerWalletId: String) -> Bool {
+        paeraCustomerFlagRepository.isPaeraCustomer(customerWalletId: customerWalletId)
+            || paeraCustomerFlagRepository.isKYCHidden(customerWalletId: customerWalletId)
+            || paeraCustomerFlagRepository.isTangemPayDisabled(customerWalletId: customerWalletId)
     }
 
     private func hideLocally() {
