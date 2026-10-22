@@ -17,7 +17,6 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     }
 
     private lazy var moreButton = app.navigationBars.buttons["More"].firstMatch
-    private lazy var hideTokenButton = button(.hideTokenButton)
     private lazy var topUpBanner = staticText(.topUpBanner)
     private lazy var notEnoughFeeForTransactionBanner = staticText(.notEnoughFeeForTransactionBanner)
     private lazy var goToFeeCurrencyButton = notificationBannerButton(TokenAccessibilityIdentifiers.notEnoughFeeForTransactionBanner)
@@ -55,7 +54,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
 
     func hideToken(name: String) -> MainScreen {
         moreButton.tap()
-        hideTokenButton.waitAndTap()
+        hideTokenMenuItem().waitAndTap()
         app.alerts["Hide \(name)"].buttons["Hide"].waitAndTap()
         return MainScreen(app)
     }
@@ -585,11 +584,19 @@ extension TokenScreen {
             return self
         }
     }
+
+    private func hideTokenMenuItem() -> XCUIElement {
+        let title = Localization.tokenDetailsHideToken
+        let menuButton = app.buttons[title].firstMatch
+        if menuButton.waitForExistence(timeout: .robustUIUpdate) {
+            return menuButton
+        }
+        return app.menuItems[title].firstMatch
+    }
 }
 
 enum TokenScreenElement: String, UIElement {
     case moreButton
-    case hideTokenButton
     case nativeStakingBlock
     case nativeStakingTitle
     case nativeStakingChevron
@@ -614,8 +621,6 @@ enum TokenScreenElement: String, UIElement {
         switch self {
         case .moreButton:
             return TokenAccessibilityIdentifiers.moreButton
-        case .hideTokenButton:
-            return TokenAccessibilityIdentifiers.hideTokenButton
         case .nativeStakingBlock:
             return TokenAccessibilityIdentifiers.nativeStakingBlock
         case .nativeStakingTitle:
