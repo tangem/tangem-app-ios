@@ -18,22 +18,13 @@ public struct PolymarketPositionHintSheetView: View {
     }
 
     public var body: some View {
-        VStack(spacing: 0) {
-            Text(model.title)
-                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-                .lineLimit(1)
-                .frame(height: Constants.toolbarHeight)
-                .padding(.top, Constants.titleTopPadding)
-
-            Text(model.message)
-                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.top, Constants.messageTopPadding)
-                .padding(.bottom, Constants.messageBottomPadding)
-        }
-        .padding(.horizontal, Constants.horizontalPadding)
-        .frame(maxWidth: .infinity)
-        .presentationDragIndicator(.visible)
+        Text(model.message)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.top, Constants.messageTopPadding)
+            .padding(.bottom, Constants.messageBottomPadding)
+            .padding(.horizontal, Constants.horizontalPadding)
     }
 }
 
@@ -57,10 +48,8 @@ public extension PolymarketPositionHintSheetView {
 
 private extension PolymarketPositionHintSheetView {
     enum Constants {
-        static let toolbarHeight: CGFloat = 44
-        static let titleTopPadding: CGFloat = 16
         static let horizontalPadding: CGFloat = 16
-        static let messageTopPadding: CGFloat = 16
+        static let messageTopPadding: CGFloat = 4
         static let messageBottomPadding: CGFloat = 32
     }
 }
@@ -69,12 +58,15 @@ private extension PolymarketPositionHintSheetView {
 
 #Preview {
     Color.clear
-        .sheet(isPresented: .constant(true)) {
-            PolymarketPositionHintSheetView(model: .init(
-                id: "unrealized",
-                title: "Unrealized PnL",
-                message: "Your theoretical profit or loss if you were to close position at current price. Moves dynamically until you sell or the event resolves."
-            ))
-            .presentationDetents([.height(200)])
-        }
+        .modal(
+            isPresented: .constant(true),
+            title: "Unrealized PnL",
+            content: {
+                PolymarketPositionHintSheetView(model: .init(
+                    id: "unrealized",
+                    title: "Unrealized PnL",
+                    message: "Your theoretical profit or loss if you were to close position at current price. Moves dynamically until you sell or the event resolves."
+                ))
+            }
+        )
 }

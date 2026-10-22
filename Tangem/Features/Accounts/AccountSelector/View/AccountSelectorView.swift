@@ -19,6 +19,7 @@ struct AccountSelectorView: View {
 
     private var showsBottomFade = false
     private var bottomContentInset: CGFloat = 0
+    private var showsSelectionCheckmarks = false
 
     @State private var contentBottom: CGFloat = 0
     @State private var viewportBottom: CGFloat = 0
@@ -47,6 +48,10 @@ extension AccountSelectorView: Setupable {
 
     func bottomContentInset(_ inset: CGFloat) -> Self {
         map { $0.bottomContentInset = inset }
+    }
+
+    func selectionCheckmarks(_ isEnabled: Bool = true) -> Self {
+        map { $0.showsSelectionCheckmarks = isEnabled }
     }
 }
 
@@ -195,6 +200,8 @@ private extension AccountSelectorView {
                     AccountSelectorWalletCellButtonView(walletModel: wallet) {
                         viewModel.handleViewAction(.selectItem(.wallet(wallet)))
                     }
+                    .style(style.walletCellStyle)
+                    .selection(showsSelectionCheckmarks ? viewModel.isCellSelected(for: .wallet(wallet)) : nil)
                 }
 
             case .accounts:
@@ -216,7 +223,7 @@ private extension AccountSelectorView {
             }
         }
         .background(style.cardBackground)
-        .cornerRadiusContinuous(Redesigned.cornerRadius)
+        .cornerRadiusContinuous(style.cardCornerRadius)
     }
 
     var redesignedLockedCard: some View {
@@ -225,11 +232,12 @@ private extension AccountSelectorView {
 
             ForEach(viewModel.lockedWalletItems) { wallet in
                 AccountSelectorWalletCellButtonView(walletModel: wallet) {}
+                    .style(style.walletCellStyle)
                     .disabled(true)
             }
         }
         .background(style.cardBackground)
-        .cornerRadiusContinuous(Redesigned.cornerRadius)
+        .cornerRadiusContinuous(style.cardCornerRadius)
     }
 
     func redesignedSectionHeader(_ title: String) -> some View {
@@ -244,10 +252,10 @@ private extension AccountSelectorView {
     func redesignedWalletSectionHeader(name: String, thumbnail: ThumbnailWalletViewType?) -> some View {
         HStack(spacing: Redesigned.walletHeaderSpacing) {
             Text(name)
-                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Graphic.Neutral.tertiary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
 
             thumbnail.map { type in
-                Color.Tangem.Graphic.Neutral.tertiaryConstant
+                DesignSystem.Color.iconSecondary
                     .frame(width: Redesigned.walletThumbnailWidth)
                     .mask {
                         MiniatureWalletView(type: type)
@@ -264,7 +272,6 @@ private extension AccountSelectorView {
         static let horizontalPadding: CGFloat = 16
         static let scrollVerticalPadding: CGFloat = 16
         static let sectionSpacing: CGFloat = 16
-        static let cornerRadius: CGFloat = 20
         static let cellPadding: CGFloat = 14
         static let sectionHeaderHorizontalPadding: CGFloat = 16
         static let sectionHeaderTopPadding: CGFloat = 14
@@ -280,7 +287,9 @@ extension AccountSelectorView {
     struct Style {
         let contentInsets: EdgeInsets
         fileprivate let kind: Kind
-        fileprivate var cardBackground = Color.Tangem.Surface.level3
+        fileprivate var cardBackground = DesignSystem.Color.bgSecondary
+        fileprivate var cardCornerRadius: CGFloat = 20
+        fileprivate var walletCellStyle = AccountSelectorWalletCellButtonView.Style.legacy
 
         fileprivate enum Kind {
             case legacy
@@ -305,7 +314,9 @@ extension AccountSelectorView {
         static let modal = Style(
             contentInsets: .init(),
             kind: .addTokenRedesigned,
-            cardBackground: DesignSystem.Color.bgTransparentOnMaterialPrimary
+            cardBackground: DesignSystem.Color.bgTransparentOnMaterialPrimary,
+            cardCornerRadius: 24,
+            walletCellStyle: .modal
         )
     }
 }

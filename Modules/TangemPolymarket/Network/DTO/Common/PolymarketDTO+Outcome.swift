@@ -11,6 +11,7 @@ import Foundation
 extension PolymarketDTO {
     struct Outcome: Decodable {
         let assetId: String
+        let legacyAssetId: String?
         let label: String
         let probability: Decimal?
     }

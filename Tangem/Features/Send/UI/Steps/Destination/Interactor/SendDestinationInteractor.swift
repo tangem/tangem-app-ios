@@ -363,10 +363,3 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
         dependenciesBuilder.transactionHistoryProvider.preloadTransactionHistoryIfNeeded()
     }
 }
-
-private extension CommonSendDestinationInteractor {
-    enum Constants {
-        static let numberOfRecentTransactions = 10
-        static let emptyString = ""
-    }
-}

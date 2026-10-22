@@ -7,11 +7,11 @@
 //
 
 public struct CollectiblesPurchaseAddresses: Equatable, Sendable {
-    public let payer: String
+    public let player: String
     public let prizeRecipient: String
 
-    public init(payer: String, prizeRecipient: String) {
-        self.payer = payer
+    public init(player: String, prizeRecipient: String) {
+        self.player = player
         self.prizeRecipient = prizeRecipient
     }
 }

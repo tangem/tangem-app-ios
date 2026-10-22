@@ -58,6 +58,7 @@ final class TangemPayMobileOnboardingViewModel: ObservableObject {
                     parameters: WalletInitializerParameters(
                         mnemonic: nil,
                         passphrase: nil,
+                        isImported: false,
                         hasMnemonicBackup: false,
                         hasICloudBackup: false,
                         hasSocialLogin: false

@@ -19,11 +19,6 @@ public extension LinearGradient {
 // MARK: - Common
 
 public extension LinearGradient.Tangem.Common {
-    static let purplePink = LinearGradient(
-        colors: [Color(hex: "#A3A0FF"), Color(hex: "#F79DFF")],
-        startPoint: .leading, endPoint: .trailing
-    )
-
     static let tokenDetailsMarketPrice = LinearGradient(
         colors: [
             Color.clear,

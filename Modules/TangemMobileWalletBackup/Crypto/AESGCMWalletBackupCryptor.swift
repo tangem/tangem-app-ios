@@ -22,13 +22,6 @@ struct AESGCMWalletBackupCryptor {
         try seal(plaintext, key: key, nonce: Data(AES.GCM.Nonce()), additionalData: additionalData)
     }
 
-    /// Nonce reuse under the same key breaks GCM security entirely, so passing an explicit
-    /// nonce is only justified when a deterministic result is required (fixed test vectors).
-    @available(iOS, deprecated: 100000.0, message: "Test vectors only, use encrypt(_:key:additionalData:) instead")
-    func encrypt(_ plaintext: Data, key: Data, nonce: Data, additionalData: Data) throws(WalletBackupCryptoError) -> WalletBackupSealedBox {
-        try seal(plaintext, key: key, nonce: nonce, additionalData: additionalData)
-    }
-
     private func seal(_ plaintext: Data, key: Data, nonce: Data, additionalData: Data) throws(WalletBackupCryptoError) -> WalletBackupSealedBox {
         try validate(key: key)
 

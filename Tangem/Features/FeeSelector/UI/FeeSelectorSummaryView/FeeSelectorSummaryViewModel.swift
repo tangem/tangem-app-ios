@@ -16,8 +16,6 @@ import TangemUI
 protocol FeeSelectorSummaryRoutable: AnyObject {
     func userDidRequestTokenSelector()
     func userDidRequestFeeSelector()
-
-    func userDidTapConfirmButton()
 }
 
 final class FeeSelectorSummaryViewModel: ObservableObject {

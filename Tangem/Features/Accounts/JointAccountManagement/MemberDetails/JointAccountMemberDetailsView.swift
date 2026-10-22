@@ -29,7 +29,7 @@ struct JointAccountMemberDetailsView: View {
                 .padding(Constants.horizontalPadding)
         }
         .floatingSheetConfiguration {
-            $0.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+            $0.sheetBackground = .color(DesignSystem.Color.bgSecondary)
             $0.backgroundInteractionBehavior = .tapToDismiss
         }
     }

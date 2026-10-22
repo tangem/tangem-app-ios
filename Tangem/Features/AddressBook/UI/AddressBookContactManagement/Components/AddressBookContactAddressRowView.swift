@@ -36,6 +36,6 @@ struct AddressBookContactAddressRowView: View {
                 AddressBlockiesIconView(viewData: viewModel.addressIcon)
             }
             .truncationModes(.init(title: .middle))
-            .onTap(viewModel.onTap)
+            .onTap(action: viewModel.onTap)
     }
 }

@@ -106,12 +106,4 @@ extension AccountModelsSelector where Self == ErasedAccountModelsSelector<any Ba
     static var tangemPay: Self {
         TangemPayAccountModelSelector().erased { $0 }
     }
-
-    static var polymarket: Self {
-        PolymarketAccountModelSelector().erased { $0 }
-    }
-
-    static var collectibles: Self {
-        CollectiblesAccountModelSelector().erased { $0 }
-    }
 }

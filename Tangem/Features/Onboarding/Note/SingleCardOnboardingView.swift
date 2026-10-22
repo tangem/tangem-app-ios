@@ -188,26 +188,3 @@ struct SingleCardOnboardingView: View {
 }
 
 #endif
-
-struct CardOnboardingBackgroundCircle: View {
-    let scale: CGFloat
-
-    var body: some View {
-        Circle()
-            .foregroundColor(.white)
-            .frame(size: .init(width: 664, height: 664))
-            .padding(10)
-            .overlay(
-                Circle()
-                    .foregroundColor(Colors.Old.tangemBgGray)
-                    .padding(38)
-            )
-            .background(
-                Circle()
-                    .foregroundColor(Colors.Old.tangemBgGray)
-            )
-            .edgesIgnoringSafeArea(.all)
-            .scaleEffect(scale)
-            .offset(x: 299, y: -228)
-    }
-}

@@ -73,10 +73,6 @@ extension CommonJointAccountsInvitesPersistentStorage: JointAccountsInvitesPersi
         }
     }
 
-    func getInvites(forCryptoAccountId cryptoAccountId: String) -> [StoredJointAccountInvite]? {
-        getList().first(by: cryptoAccountId)?.invites
-    }
-
     func save(_ invites: [StoredJointAccountInvite], forCryptoAccountId cryptoAccountId: String) throws {
         // This combined read-write operation must be atomic, hence the barrier flag
         try workingQueue.sync(flags: .barrier) {

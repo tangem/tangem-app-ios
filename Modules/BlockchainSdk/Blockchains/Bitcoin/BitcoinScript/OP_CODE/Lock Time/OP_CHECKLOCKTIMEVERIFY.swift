@@ -32,5 +32,4 @@ import Foundation
 /// The precise semantics are described in BIP 0065.
 struct OpCheckLockTimeVerify: OpCodeProtocol {
     var value: UInt8 { return 0xb1 }
-    var name: String { return "OP_CHECKLOCKTIMEVERIFY " }
 }

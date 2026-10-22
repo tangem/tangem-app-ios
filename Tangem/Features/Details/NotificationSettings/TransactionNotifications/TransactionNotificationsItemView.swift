@@ -37,14 +37,14 @@ struct TransactionNotificationsItemView: View {
             isMainIndicatorVisible: false,
             size: .init(bothDimensions: 24)
         )
-        .skeletonable(isShown: viewModel.isLoading, radius: 14)
+        .shimmerPlaceholder(viewModel.isLoading, variant: .custom(cornerRadius: 14))
     }
 
     @ViewBuilder
     private var content: some View {
         if viewModel.isLoading {
-            SkeletonView()
-                .frame(size: .init(width: 70, height: 20))
+            Shimmer()
+                .variant(.custom(width: 70, height: 20, cornerRadius: 0))
         } else {
             text
         }
