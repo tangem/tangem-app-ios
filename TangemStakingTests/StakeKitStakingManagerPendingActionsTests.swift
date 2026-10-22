@@ -166,6 +166,7 @@ struct StakeKitStakingManagerPendingActionsTests {
             warmupPeriod: .days(3),
             rewardClaimingType: .auto,
             rewardScheduleType: .days(min: 2, max: 3),
+            rewardsIncludedInStake: false,
             maximumStakeAmount: nil
         )
     }
