@@ -336,6 +336,7 @@ private extension CommonJointAccountPendingOperationsProviderTests {
                 nonce: 0
             ),
             status: .awaitingSignatures,
+            txHash: nil,
             initiator: creatorAddress,
             signatures: []
         )
