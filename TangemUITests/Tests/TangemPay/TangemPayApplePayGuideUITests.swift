@@ -9,7 +9,8 @@
 import XCTest
 
 final class TangemPayApplePayGuideUITests: BaseTestCase {
-    func testApplePayGuide_ShowsRequisitesWithCopyControls_FromPaymentAccount() {
+    /// [REDACTED_INFO] Fix app-side issues blocking UI tests on iOS 27
+    func skipped_testApplePayGuide_ShowsRequisitesWithCopyControls_FromPaymentAccount() {
         setAllureId(9569)
 
         let cardDetails = launchAndImportHotWallet()

@@ -130,6 +130,10 @@ struct StakeKitMapper {
 
     func mapToPendingActions(from response: StakeKitDTO.Actions.List.Response) throws -> [PendingAction] {
         try response.data.compactMap { action in
+            guard let type = mapToActionType(from: action.type) else {
+                return nil
+            }
+
             guard let amountString = action.amount, let amount = Decimal(string: amountString) else {
                 throw StakeKitMapperError.noData("PendingAction.amount not found")
             }
@@ -146,7 +150,7 @@ struct StakeKitMapper {
                 accountAddresses: action.accountAddresses,
                 status: mapToActionStatus(from: action.status),
                 amount: amount,
-                type: mapToActionType(from: action.type),
+                type: type,
                 currentStepIndex: action.currentStepIndex,
                 transactions: actionTransaction,
                 targetAddress: action.validatorAddress ?? action.validatorAddresses?.first
@@ -164,6 +168,10 @@ struct StakeKitMapper {
             throw StakeKitMapperError.noData("PendingAction.amount not found")
         }
 
+        guard let type = mapToActionType(from: response.type) else {
+            throw StakeKitMapperError.noData("PendingAction.type \(response.type) doesn't supported")
+        }
+
         let actionTransaction: [ActionTransaction] = transactions.map { transaction in
             ActionTransaction(id: transaction.id, stepIndex: transaction.stepIndex)
         }
@@ -172,7 +180,7 @@ struct StakeKitMapper {
             id: response.id,
             status: mapToActionStatus(from: response.status),
             amount: amount,
-            type: mapToActionType(from: response.type),
+            type: type,
             currentStepIndex: response.currentStepIndex,
             transactions: actionTransaction,
             targetAddress: response.validatorAddress ?? response.validatorAddresses?.first
@@ -218,7 +226,7 @@ struct StakeKitMapper {
         }
 
         return try balances.compactMap { balance in
-            guard var amount = Decimal(stringValue: balance.amount) else {
+            guard balance.type != .unknown, var amount = Decimal(stringValue: balance.amount) else {
                 return nil
             }
 
@@ -254,18 +262,19 @@ struct StakeKitMapper {
 
     func mapToStakingBalanceInfoPendingAction(
         from balance: StakeKitDTO.Balances.Response.Balance
-    ) throws -> [StakingPendingActionInfo] {
-        try balance.pendingActions.compactMap { action in
-            StakingPendingActionInfo(
-                type: try mapToActionType(from: action.type),
-                passthrough: action.passthrough
-            )
+    ) -> [StakingPendingActionInfo] {
+        balance.pendingActions.compactMap { action in
+            guard let type = mapToActionType(from: action.type) else {
+                return nil
+            }
+
+            return StakingPendingActionInfo(type: type, passthrough: action.passthrough)
         }
     }
 
     func mapToActionType(
         from actionType: StakeKitDTO.Actions.ActionType
-    ) throws -> StakingPendingActionInfo.ActionType {
+    ) -> StakingPendingActionInfo.ActionType? {
         switch actionType {
         case .stake: .stake
         case .vote: .vote
@@ -277,7 +286,7 @@ struct StakeKitMapper {
         case .unlockLocked: .unlockLocked
         case .restake: .restake
         case .claimUnstaked: .claimUnstaked
-        default: throw StakeKitMapperError.noData("PendingAction.type \(actionType) doesn't supported")
+        case .stakeLocked, .revoke, .rebond, .migrate, .merge, .unknown: nil
         }
     }
 
@@ -285,7 +294,7 @@ struct StakeKitMapper {
         from balance: StakeKitDTO.Balances.Response.Balance
     ) throws -> StakingBalanceType {
         switch balance.type {
-        case .available:
+        case .available, .unknown:
             throw StakeKitMapperError.notImplement
         case .locked:
             return .locked
@@ -305,11 +314,15 @@ struct StakeKitMapper {
 
     func mapToBalanceConstraints(
         from balanceConstraints: [StakeKitDTO.Balances.Response.Balance.PendingActionConstant]?
-    ) throws -> [StakingPendingActionConstraint]? {
-        try balanceConstraints?.map {
-            StakingPendingActionConstraint(
-                type: try mapToActionType(from: $0.type),
-                amount: .init(minimum: $0.amount.minimum, maximum: $0.amount.maximum)
+    ) -> [StakingPendingActionConstraint]? {
+        balanceConstraints?.compactMap { constraint in
+            guard let type = mapToActionType(from: constraint.type) else {
+                return nil
+            }
+
+            return StakingPendingActionConstraint(
+                type: type,
+                amount: .init(minimum: constraint.amount.minimum, maximum: constraint.amount.maximum)
             )
         }
     }
