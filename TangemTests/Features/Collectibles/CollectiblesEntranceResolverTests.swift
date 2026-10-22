@@ -107,6 +107,16 @@ private final class CollectiblesAccountModelStub: CollectiblesAccountModel {
     var purchaseInteractor: any CollectiblesPackPurchaseInteractor {
         CollectiblesPackPurchaseInteractorStub()
     }
+
+    var buybackInteractor: any CollectiblesBuybackInteractor {
+        CollectiblesBuybackInteractorStub()
+    }
+}
+
+private struct CollectiblesBuybackInteractorStub: CollectiblesBuybackInteractor {
+    func sell(nftAddress: String, offer: CollectiblesBuybackOffer) async throws {
+        throw CancellationError()
+    }
 }
 
 @MainActor

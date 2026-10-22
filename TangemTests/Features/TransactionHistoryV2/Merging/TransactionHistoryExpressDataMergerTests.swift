@@ -222,8 +222,11 @@ struct TransactionHistoryExpressDataMergerTests {
         #expect(synthetic.exchangeInfo != nil)
     }
 
-    @Test("Exchange: a `created` deal without a pay-in hash yields no synthetic record")
-    func exchangeCreatedStatusWithoutPayInHashYieldsNoSynthetic() {
+    @Test(
+        "Exchange: a deal with no on-chain leg yields a synthetic record unless it's `created` or `expired` and has no pay-in hash",
+        arguments: ExpressTransactionStatus.allCases, [nil, "0xPayInHash"] as [String?]
+    )
+    func exchangeStatusAndPayInHashGateSynthetic(status: ExpressTransactionStatus, payInHash: String?) {
         let token = ExpressMergeTestDataFactory.ethereumToken
         let merger = ExpressMergeTestDataFactory.makeMerger(
             currentToken: token,
@@ -233,10 +236,10 @@ struct TransactionHistoryExpressDataMergerTests {
 
         let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
             txId: "exchange-tx",
-            status: .created,
+            status: status,
             fromAddress: ExpressMergeTestDataFactory.ownerAddress,
             payInAddress: "0xPayIn",
-            payInHash: nil,
+            payInHash: payInHash,
             payOutAddress: "0xPayOut",
             payOutHash: nil,
             fromCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
@@ -250,45 +253,75 @@ struct TransactionHistoryExpressDataMergerTests {
             updatedAt: ExpressMergeTestDataFactory.baseDate
         )
 
+        let yieldsSynthetic = switch status {
+        case .created,
+             .expired:
+            payInHash != nil
+        case .unknown,
+             .preview,
+             .exchangeTxSent,
+             .waiting,
+             .waitingTxHash,
+             .confirming,
+             .exchanging,
+             .sending,
+             .finished,
+             .failed,
+             .txFailed,
+             .refunded,
+             .verifying,
+             .paused:
+            true
+        }
+
         let output = merger.merge(bsdkTransactions: [], exchangeTransactions: [exchange], onrampTransactions: [])
 
-        #expect(output.isEmpty)
+        #expect(output.map(\.hash) == (yieldsSynthetic ? ["ExpressSyntheticTx_exchange-tx"] : []))
     }
 
-    @Test("Exchange: a `created` deal with a pay-in hash yields a synthetic record")
-    func exchangeCreatedStatusWithPayInHashYieldsSynthetic() throws {
+    @Test("Onramp: a deal with no on-chain leg yields a synthetic record unless it's `expired`", arguments: OnrampTransactionStatus.allCases)
+    func onrampStatusGatesSynthetic(status: OnrampTransactionStatus) throws {
         let token = ExpressMergeTestDataFactory.ethereumToken
         let merger = ExpressMergeTestDataFactory.makeMerger(
             currentToken: token,
             ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
             feeTokenItem: token
         )
+        let targetAmount = try #require(Decimal(stringValue: "0.5"))
 
-        let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
-            txId: "exchange-tx",
-            status: .created,
-            fromAddress: ExpressMergeTestDataFactory.ownerAddress,
-            payInAddress: "0xPayIn",
-            payInHash: "0xPayInHash",
+        let onramp = ExpressMergeTestDataFactory.onrampTransaction(
+            txId: "onramp-tx",
+            status: status,
             payOutAddress: "0xPayOut",
             payOutHash: nil,
-            fromCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
-            fromAmount: 2,
-            fromActualAmount: nil,
-            toCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
-            toAmount: 1,
+            toCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            toAmount: targetAmount,
             toActualAmount: nil,
-            refund: nil,
             createdAt: ExpressMergeTestDataFactory.baseDate,
             updatedAt: ExpressMergeTestDataFactory.baseDate
         )
 
-        let output = merger.merge(bsdkTransactions: [], exchangeTransactions: [exchange], onrampTransactions: [])
+        let yieldsSynthetic = switch status {
+        case .expired:
+            false
+        case .unknown,
+             .created,
+             .waitingForPayment,
+             .paymentProcessing,
+             .verifying,
+             .failed,
+             .paid,
+             .sending,
+             .refunding,
+             .refunded,
+             .finished,
+             .paused:
+            true
+        }
 
-        #expect(output.count == 1)
-        let synthetic = try #require(output.first)
-        #expect(synthetic.hash == "ExpressSyntheticTx_exchange-tx")
-        #expect(synthetic.exchangeInfo != nil)
+        let output = merger.merge(bsdkTransactions: [], exchangeTransactions: [], onrampTransactions: [onramp])
+
+        #expect(output.map(\.hash) == (yieldsSynthetic ? ["ExpressSyntheticTx_onramp-tx"] : []))
     }
 
     @Test("Onramp: an active deal with no on-chain leg yields a synthetic record")

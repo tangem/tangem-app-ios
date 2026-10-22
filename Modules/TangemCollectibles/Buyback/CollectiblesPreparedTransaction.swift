@@ -36,34 +36,12 @@ struct CollectiblesPreparedTransaction {
 extension CollectiblesPreparedTransaction {
     init(serialized: Data) throws {
         var reader = BinaryReader(bytes: [UInt8](serialized))
-        let signatureCount = try Self.readLength(from: &reader)
-        let signatures = try (0 ..< signatureCount).map { _ in
-            Data(try reader.read(count: Constants.signatureLength))
-        }
-        let message = Data(serialized.dropFirst(serialized.count - reader.remainBytes))
-
-        let prefix = try reader.read()
-        let isVersioned = prefix & Constants.versionedMessageMask != 0
-
-        guard !isVersioned || prefix & ~Constants.versionedMessageMask == Constants.supportedMessageVersion else {
-            throw ParsingError.unsupportedMessageVersion
-        }
-
-        let requiredSignatures = try isVersioned ? reader.read() : prefix
-        let header = Header(
-            requiredSignatures: Int(requiredSignatures),
-            readonlySigned: Int(try reader.read()),
-            readonlyUnsigned: Int(try reader.read())
-        )
-        let accountCount = try Self.readLength(from: &reader)
-        let accountKeys = try (0 ..< accountCount).map { _ in
-            Data(try reader.read(count: Constants.publicKeyLength))
-        }
+        let signatures = try Self.readSignatures(from: &reader)
+        let message = Data(serialized.suffix(reader.remainBytes))
+        let (header, isVersioned) = try Self.readHeader(from: &reader)
+        let accountKeys = try Self.readAccountKeys(from: &reader)
         _ = try reader.read(count: Constants.blockhashLength)
-        let instructionCount = try Self.readLength(from: &reader)
-        let instructions = try (0 ..< instructionCount).map { _ in
-            try Self.readInstruction(from: &reader)
-        }
+        let instructions = try Self.readInstructions(from: &reader)
 
         if isVersioned, try Self.readLength(from: &reader) != 0 {
             throw ParsingError.addressTableLookups
@@ -113,6 +91,48 @@ extension CollectiblesPreparedTransaction {
 // MARK: - Private logic
 
 private extension CollectiblesPreparedTransaction {
+    static func readSignatures(from reader: inout BinaryReader) throws -> [Data] {
+        let signatureCount = try readLength(from: &reader)
+
+        return try (0 ..< signatureCount).map { _ in
+            Data(try reader.read(count: Constants.signatureLength))
+        }
+    }
+
+    static func readHeader(from reader: inout BinaryReader) throws -> (header: Header, isVersioned: Bool) {
+        let prefix = try reader.read()
+        let isVersioned = prefix & Constants.versionedMessageMask != 0
+
+        guard !isVersioned || prefix & ~Constants.versionedMessageMask == Constants.supportedMessageVersion else {
+            throw ParsingError.unsupportedMessageVersion
+        }
+
+        let requiredSignatures = try isVersioned ? reader.read() : prefix
+        let header = Header(
+            requiredSignatures: Int(requiredSignatures),
+            readonlySigned: Int(try reader.read()),
+            readonlyUnsigned: Int(try reader.read())
+        )
+
+        return (header, isVersioned)
+    }
+
+    static func readAccountKeys(from reader: inout BinaryReader) throws -> [Data] {
+        let accountCount = try readLength(from: &reader)
+
+        return try (0 ..< accountCount).map { _ in
+            Data(try reader.read(count: Constants.publicKeyLength))
+        }
+    }
+
+    static func readInstructions(from reader: inout BinaryReader) throws -> [Instruction] {
+        let instructionCount = try readLength(from: &reader)
+
+        return try (0 ..< instructionCount).map { _ in
+            try readInstruction(from: &reader)
+        }
+    }
+
     static func readInstruction(from reader: inout BinaryReader) throws -> Instruction {
         let programIndex = Int(try reader.read())
         let accountCount = try readLength(from: &reader)
