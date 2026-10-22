@@ -30,6 +30,10 @@ extension JointAccountFormViewCreator: AccountFormViewCreator {
     /// without naming it.
     var initialAccountName: String { Localization.commonJointAccount }
 
+    var initialIcon: AccountModel.CompositeIcon {
+        AccountModel.CompositeIcon(name: .family, color: CompositeIconColor.randomElement())
+    }
+
     /// Derivation is a matter of the wallet's own accounts; a joint account is not one of them and says nothing
     /// about it.
     var showsAccountIndexDescription: Bool { false }

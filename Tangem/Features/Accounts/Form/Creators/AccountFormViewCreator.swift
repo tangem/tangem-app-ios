@@ -19,6 +19,8 @@ protocol AccountFormViewCreator {
     /// The name the form opens with; empty means the user starts from a blank field.
     var initialAccountName: String { get }
 
+    var initialIcon: AccountModel.CompositeIcon { get }
+
     /// Whether the form explains under the name field which ordinal number the account takes, and so which
     /// derivation it gets.
     var showsAccountIndexDescription: Bool { get }
@@ -40,6 +42,7 @@ protocol AccountFormViewCreator {
 
 extension AccountFormViewCreator {
     var initialAccountName: String { "" }
+    var initialIcon: AccountModel.CompositeIcon { AccountModelUtils.UI.newAccountIcon() }
     var showsAccountIndexDescription: Bool { true }
 }
 
