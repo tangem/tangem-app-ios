@@ -332,7 +332,8 @@ private extension TransactionViewRedesigned {
                 isOutgoing: true,
                 transactionType: .transfer,
                 status: .confirmed,
-                isFromYieldContract: false
+                isFromYieldContract: false,
+                isTangemPayCounterparty: false
             )
         )
 
@@ -348,7 +349,8 @@ private extension TransactionViewRedesigned {
                 isOutgoing: true,
                 transactionType: .transfer,
                 status: .inProgress,
-                isFromYieldContract: false
+                isFromYieldContract: false,
+                isTangemPayCounterparty: false
             )
         )
 
@@ -364,7 +366,8 @@ private extension TransactionViewRedesigned {
                 isOutgoing: true,
                 transactionType: .transfer,
                 status: .failed,
-                isFromYieldContract: false
+                isFromYieldContract: false,
+                isTangemPayCounterparty: false
             )
         )
 
@@ -380,7 +383,8 @@ private extension TransactionViewRedesigned {
                 isOutgoing: false,
                 transactionType: .swap,
                 status: .confirmed,
-                isFromYieldContract: false
+                isFromYieldContract: false,
+                isTangemPayCounterparty: false
             )
         )
 
@@ -396,7 +400,8 @@ private extension TransactionViewRedesigned {
                 isOutgoing: false,
                 transactionType: .swap,
                 status: .inProgress,
-                isFromYieldContract: false
+                isFromYieldContract: false,
+                isTangemPayCounterparty: false
             )
         )
 
@@ -413,6 +418,7 @@ private extension TransactionViewRedesigned {
                 transactionType: .swap,
                 status: .inProgress,
                 isFromYieldContract: false,
+                isTangemPayCounterparty: false,
                 warning: .verifying
             )
         )
@@ -430,6 +436,7 @@ private extension TransactionViewRedesigned {
                 transactionType: .tangemPay(.spend(name: "Tangem Coffee", icon: nil, isDeclined: false, isNegativeAmount: false)),
                 status: .confirmed,
                 isFromYieldContract: false,
+                isTangemPayCounterparty: false,
                 cashback: TransactionViewModel.Cashback(formattedAmount: "+$5.00", style: .estimated)
             )
         )
@@ -447,6 +454,7 @@ private extension TransactionViewRedesigned {
                 transactionType: .tangemPay(.spend(name: "Tangem Coffee", icon: nil, isDeclined: false, isNegativeAmount: false)),
                 status: .confirmed,
                 isFromYieldContract: false,
+                isTangemPayCounterparty: false,
                 cashback: TransactionViewModel.Cashback(formattedAmount: "+$5.00", style: .confirmed)
             )
         )
@@ -464,6 +472,7 @@ private extension TransactionViewRedesigned {
                 transactionType: .tangemPay(.spend(name: "Tangem Coffee", icon: nil, isDeclined: false, isNegativeAmount: true)),
                 status: .confirmed,
                 isFromYieldContract: false,
+                isTangemPayCounterparty: false,
                 cashback: TransactionViewModel.Cashback(formattedAmount: "−$5.00", style: .confirmed)
             )
         )
@@ -481,6 +490,7 @@ private extension TransactionViewRedesigned {
                 transactionType: .transfer,
                 status: .inProgress,
                 isFromYieldContract: false,
+                isTangemPayCounterparty: false,
                 isPendingSignature: true
             )
         )

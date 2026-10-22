@@ -25,6 +25,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
     @Injected(\.cryptoAccountsGlobalStateProvider)
     private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     @Published final var alert: AlertBinder?
     @Published final var transactionHistoryState: TransactionsListView.State = .loading
@@ -102,12 +103,16 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     /// Resolver is cheap to rebuild and `isAccountsMode` can flip while the screen is alive
     /// (user adds first account), so we recompute on every history rebuild.
-    private func subtitleOwnerResolver(contacts: [AddressBookContact]) -> SubtitleOwnerResolver {
+    private func subtitleOwnerResolver(
+        contacts: [AddressBookContact],
+        tangemPayDepositOwners: [TangemPayDepositOwner]
+    ) -> SubtitleOwnerResolver {
         SubtitleOwnerResolver(
             blockchain: walletModel.tokenItem.blockchain,
             currentUserWalletId: userWalletInfo.id,
             isAccountsMode: isAccountsMode,
-            contacts: contacts
+            contacts: contacts,
+            tangemPayDepositOwners: tangemPayDepositOwners
         )
     }
 
@@ -141,6 +146,10 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             .contactsPublisher()
             .removeDuplicates()
             .eraseToAnyPublisher()
+    }
+
+    private var tangemPayDepositOwnersPublisher: some Publisher<[TangemPayDepositOwner], Never> {
+        TangemPayDepositOwnersPublisherFactory.makePublisher(userWalletRepository: userWalletRepository)
     }
 
     var isAccountsMode: Bool {
@@ -436,23 +445,33 @@ extension SingleTokenBaseViewModel {
             }
             .store(in: &bag)
 
+        // [REDACTED_TODO_COMMENT]
         walletModel.transactionHistoryPublisher
-            .combineLatest(usdRatePublisher, addressBookContactsPublisher)
+            .combineLatest(usdRatePublisher, addressBookContactsPublisher, tangemPayDepositOwnersPublisher)
             .receiveOnMain()
-            .sink { [weak self] newState, usdRate, contacts in
+            .sink { [weak self] newState, usdRate, contacts, tangemPayDepositOwners in
                 AppLogger.info(self, "New transaction history state: \(newState)")
-                self?.updateHistoryState(to: newState, usdRate: usdRate, contacts: contacts)
+                self?.updateHistoryState(
+                    to: newState,
+                    usdRate: usdRate,
+                    contacts: contacts,
+                    tangemPayDepositOwners: tangemPayDepositOwners
+                )
             }
             .store(in: &bag)
 
         jointOperationsInFlightPublisher
-            .combineLatest(addressBookContactsPublisher)
+            .combineLatest(addressBookContactsPublisher, tangemPayDepositOwnersPublisher)
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { owner, input in
-                let (jointOperations, contacts) = input
+                let (jointOperations, contacts, tangemPayDepositOwners) = input
                 owner.jointOperationsInFlight = jointOperations
-                owner.jointOperationsInFlightSection = owner.jointOperationsSection(for: jointOperations, contacts: contacts)
+                owner.jointOperationsInFlightSection = owner.jointOperationsSection(
+                    for: jointOperations,
+                    contacts: contacts,
+                    tangemPayDepositOwners: tangemPayDepositOwners
+                )
             }
             .store(in: &bag)
 
@@ -561,7 +580,12 @@ extension SingleTokenBaseViewModel {
         })
     }
 
-    private func updateHistoryState(to newState: WalletModelTransactionHistoryState, usdRate: Decimal?, contacts: [AddressBookContact]) {
+    private func updateHistoryState(
+        to newState: WalletModelTransactionHistoryState,
+        usdRate: Decimal?,
+        contacts: [AddressBookContact],
+        tangemPayDepositOwners: [TangemPayDepositOwner]
+    ) {
         switch newState {
         case .notSupported:
             transactionHistoryState = .notSupported
@@ -578,7 +602,7 @@ extension SingleTokenBaseViewModel {
                 from: records,
                 groupingStyle: .day(.long),
                 dustFilter: TransactionHistoryDustFilter(usdRate: usdRate),
-                subtitleOwnerResolver: subtitleOwnerResolver(contacts: contacts)
+                subtitleOwnerResolver: subtitleOwnerResolver(contacts: contacts, tangemPayDepositOwners: tangemPayDepositOwners)
             )
             transactionHistoryState = .loaded(listItems)
         }
@@ -586,14 +610,15 @@ extension SingleTokenBaseViewModel {
 
     private func jointOperationsSection(
         for jointOperations: [JointAccountPendingOperation],
-        contacts: [AddressBookContact]
+        contacts: [AddressBookContact],
+        tangemPayDepositOwners: [TangemPayDepositOwner]
     ) -> TransactionListItem? {
         guard jointOperations.isNotEmpty else {
             return nil
         }
 
         let builder = JointAccountOperationTransactionViewModelBuilder()
-        let resolver = subtitleOwnerResolver(contacts: contacts)
+        let resolver = subtitleOwnerResolver(contacts: contacts, tangemPayDepositOwners: tangemPayDepositOwners)
 
         let items = jointOperations.map { builder.build(pendingOperation: $0, subtitleOwnerResolver: resolver) }
         let header = items.contains(where: \.isPendingSignature)

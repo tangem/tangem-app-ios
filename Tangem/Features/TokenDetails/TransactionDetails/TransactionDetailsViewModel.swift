@@ -27,6 +27,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     @Injected(\.transactionHistoryAuxDataRepository) private var auxDataRepository: TransactionHistoryAuxDataRepository
     @Injected(\.cryptoAccountsGlobalStateProvider)
     private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     @Published private(set) var header: TransactionDetailsHeaderViewData?
     @Published private(set) var content: Content?
@@ -94,6 +95,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
             transactionHistoryPublisher: walletModel.transactionHistoryPublisher,
             contactsPublisher: AddressBookContactsAggregator.contactsPublisher(),
             syncStatePublisher: addressBookWallet.syncStatePublisher,
+            tangemPayDepositOwnersPublisher: TangemPayDepositOwnersPublisherFactory.makePublisher(userWalletRepository: userWalletRepository),
             context: context,
             mapper: mapper
         )
@@ -182,12 +184,16 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
     }
 
-    private func subtitleOwnerResolver(contacts: [AddressBookContact]) -> SubtitleOwnerResolver {
+    private func subtitleOwnerResolver(
+        contacts: [AddressBookContact],
+        tangemPayDepositOwners: [TangemPayDepositOwner]
+    ) -> SubtitleOwnerResolver {
         SubtitleOwnerResolver(
             blockchain: walletModel.tokenItem.blockchain,
             currentUserWalletId: userWalletId,
             isAccountsMode: isAccountsMode,
-            contacts: contacts
+            contacts: contacts,
+            tangemPayDepositOwners: tangemPayDepositOwners
         )
     }
 
@@ -196,6 +202,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         transactionHistoryPublisher: some Publisher<WalletModelTransactionHistoryState, Never>,
         contactsPublisher: some Publisher<[AddressBookContact], Never>,
         syncStatePublisher: some Publisher<AddressBookSyncState, Never>,
+        tangemPayDepositOwnersPublisher: some Publisher<[TangemPayDepositOwner], Never>,
         context: TransactionDetailsContext,
         mapper: TransactionHistoryMapper
     ) {
@@ -225,19 +232,24 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
                 auxDataRepository.didLoadAuxData
             }
 
+        // [REDACTED_TODO_COMMENT]
         let enrichedRecordPublisher = recordPublisher
             .combineLatest(
                 contactsPublisher.removeDuplicates(),
                 syncStatePublisher.map(\.isSynced).removeDuplicates(),
                 didLoadAuxDataPublisher
             )
+            .combineLatest(tangemPayDepositOwnersPublisher)
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .map { viewModel, args in
-                let (record, contacts, isAddressBookSynced, _) = args
+                let ((record, contacts, isAddressBookSynced, _), tangemPayDepositOwners) = args
                 let transaction = mapper.mapTransactionViewModel(
                     record,
-                    subtitleOwnerResolver: viewModel.subtitleOwnerResolver(contacts: contacts)
+                    subtitleOwnerResolver: viewModel.subtitleOwnerResolver(
+                        contacts: contacts,
+                        tangemPayDepositOwners: tangemPayDepositOwners
+                    )
                 )
 
                 return (

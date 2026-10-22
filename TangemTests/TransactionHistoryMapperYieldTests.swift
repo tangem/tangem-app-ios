@@ -342,7 +342,8 @@ private extension TransactionHistoryMapperYieldTests {
             blockchain: .ethereum(testnet: false),
             currentUserWalletId: UserWalletId(value: Data()),
             isAccountsMode: false,
-            contacts: []
+            contacts: [],
+            tangemPayDepositOwners: []
         )
     }
 
