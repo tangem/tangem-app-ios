@@ -33,7 +33,7 @@ protocol CollectiblesPurchaseSigner: AnyObject {
         confirmedPrice: CollectiblesConfirmedPrice
     ) async throws -> CollectiblesSignedPurchase
 
-    func sendPurchase(_ signedPurchase: CollectiblesSignedPurchase) async throws(CollectiblesPurchaseError)
+    func sendPurchase(_ signedPurchase: CollectiblesSignedPurchase) async throws(CollectiblesSendError)
 }
 
 protocol CollectiblesPackPurchaseInteractorProvider: AnyObject {
