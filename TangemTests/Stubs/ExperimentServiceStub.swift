@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Experiment
 import TangemFoundation
 @testable import Tangem
@@ -17,13 +18,16 @@ final class ExperimentServiceStub: ExperimentService {
         case isOnWithoutExposure
     }
 
-    private let storedVariant: String?
+    private let storedVariantState: OSAllocatedUnfairLock<String?>
     private let isFetched: Bool
     private let recordedMethods = OSAllocatedUnfairLock<[Method]>(initialState: [])
+    private let variantsSubject = PassthroughSubject<Void, Never>()
+    private let freshVariants: OSAllocatedUnfairLock<Bool>
 
     init(storedVariant: String?, isFetched: Bool) {
-        self.storedVariant = storedVariant
+        storedVariantState = OSAllocatedUnfairLock(initialState: storedVariant)
         self.isFetched = isFetched
+        freshVariants = OSAllocatedUnfairLock(initialState: isFetched)
     }
 
     convenience init(storedVariant: ExperimentFeatureVariantKey?) {
@@ -31,6 +35,29 @@ final class ExperimentServiceStub: ExperimentService {
     }
 
     var invokedMethods: [Method] { recordedMethods.withLock { $0 } }
+
+    var variantsPublisher: AnyPublisher<Void, Never> {
+        variantsSubject.eraseToAnyPublisher()
+    }
+
+    var hasFreshVariants: Bool {
+        freshVariants.withLock { $0 }
+    }
+
+    func fetch(variant: ExperimentFeatureVariantKey?) {
+        storedVariantState.withLock { $0 = variant?.rawValue }
+        freshVariants.withLock { $0 = true }
+        variantsSubject.send()
+    }
+
+    func startFetching() {
+        freshVariants.withLock { $0 = false }
+        variantsSubject.send()
+    }
+
+    private var storedVariant: String? {
+        storedVariantState.withLock { $0 }
+    }
 
     func configure() {}
 

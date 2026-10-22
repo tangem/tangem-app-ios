@@ -233,6 +233,14 @@ private final class StubExperimentService: ExperimentService {
 
     var invokedMethods: [Method] { recordedMethods.withLock { $0 } }
 
+    var variantsPublisher: AnyPublisher<Void, Never> {
+        Empty().eraseToAnyPublisher()
+    }
+
+    var hasFreshVariants: Bool {
+        storedVariant != nil
+    }
+
     func finishWalletFetch(for productType: Analytics.ProductType) {
         let userWalletId = ProductTypeWalletModelStub.userWalletId(for: productType)
         fetchedUserWalletIdsSubject.send(fetchedUserWalletIdsSubject.value.union([userWalletId]))
