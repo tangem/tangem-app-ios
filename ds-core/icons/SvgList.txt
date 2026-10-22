@@ -38,7 +38,7 @@ Card Plus / 20, 24, 28, 32 / Regular
 Card / 12, 16, 20, 24, 28, 32 / Regular
 Cards Star / 12, 16, 20, 24, 28, 32 / Regular
 Chair / 12, 16, 20, 24, 28, 32 / Regular
-Chart Ascending  / 12, 16, 20, 24, 28, 32 / Regular
+Chart Ascending / 12, 16, 20, 24, 28, 32 / Regular
 Chart Bar Vertical / 16, 20, 24, 28 / Regular
 Chart Line Vertical / 16, 20, 24, 28 / Regular
 Checkmark / 16, 20, 24, 28 / Regular
@@ -113,6 +113,7 @@ Percent / 16, 20, 24, 28 / Regular
 Perps / 16, 20, 24, 28 / Regular
 Pie Chart / 16, 20, 24, 28 / Regular
 Pincode / 16, 20, 24 / Regular
+Predictions / 12, 16, 20, 24, 28, 32 / Regular
 QR / 16, 20, 24, 28 / Regular
 Rocket / 16, 20, 24, 28 / Regular
 Rose / 12, 16, 20, 24, 28, 32 / Regular
@@ -123,6 +124,7 @@ Scan Finger / 20, 24, 28 / Regular
 Scan QR / 20, 24 / Regular
 Scan / 12, 16, 20, 24, 28 / Regular
 Search / 16, 20, 24 / Regular
+Server / 12, 16, 20, 24, 28, 32 / Filled
 Share Android / 16, 20, 24, 28 / Regular
 Share iOS / 16, 20, 24, 28 / Regular
 Shield Checkmark / 20, 24, 28 / Filled & Regular
