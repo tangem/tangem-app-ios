@@ -208,6 +208,7 @@
 "choose_asset_title" = "Choose asset";
 "collectibles_account_collection_empty" = "No cards";
 "collectibles_account_collection_row_subtitle" = "My collection";
+"collectibles_account_reconnect_subtitle" = "Reconnect Packs account";
 "collectibles_account_withdraw" = "Withdrawal";
 "collectibles_confirm_order_approve_button" = "Approve";
 "collectibles_confirm_order_confirming_transaction_button" = "Confirming transaction...";
@@ -248,6 +249,9 @@
 "collectibles_main_pack_buyback_badge" = "Buyback %@";
 "collectibles_main_packs_empty" = "There are no packs here yet";
 "collectibles_main_packs_load_error" = "Failed to load packs. Tap to reload";
+"collectibles_main_relink_button" = "Relink account";
+"collectibles_main_relink_description" = "Make this phone primary for Packs account";
+"collectibles_main_relink_title" = "Relink account";
 "collectibles_main_search_empty" = "No results. Try to change your wording\nor explore from the list";
 "collectibles_main_search_load_error" = "Failed to load cards list.";
 "collectibles_main_title" = "Packs account";
@@ -1008,6 +1012,8 @@
 "joint_account_activation_title" = "Ви активуєте спільний акаунт";
 "joint_account_coming_soon_description" = "Ця дія поки недоступна для спільних акаунтів. Ми працюємо над цим";
 "joint_account_coming_soon_title" = "Незабаром у спільних акаунтах";
+"joint_account_compromised_message" = "The account address on your device doesn't match the one from our servers.";
+"joint_account_compromised_title" = "Can't verify this account";
 "joint_account_confirm_account_subtitle" = "Before using your Joint Account, make sure every member sees exactly the same address.";
 "joint_account_confirm_account_title" = "Confirm the account";
 "joint_account_confirm_address_compare_subtitle" = "Contact all members outside Tangem by phone, messenger, or in person. Check that everyone sees the exact same address.";
@@ -1573,6 +1579,7 @@
 "prediction_details_market_opened" = "Market Opened";
 "prediction_details_market_volume" = "Volume:";
 "prediction_details_resolution_date" = "Resolution Date";
+"prediction_details_resolution_source" = "Resolution Source";
 "prediction_details_total_volume" = "Total volume";
 "prediction_event_live" = "Live";
 "prediction_event_probability" = "Probability";
@@ -2806,7 +2813,9 @@
 "transaction_history_supplied" = "Supplied";
 "transaction_history_transaction_for_address" = "для: %@";
 "transaction_history_transaction_from_address" = "від: %@";
+"transaction_history_transaction_from_for_address" = "from: %1$@ for %2$@";
 "transaction_history_transaction_to_address" = "до: %@";
+"transaction_history_transaction_to_for_address" = "to: %1$@ for %2$@";
 "transaction_history_unlimited_amount" = "Unlimited %@";
 "transaction_history_unlimited" = "Unlimited";
 "transaction_history_withdrawn" = "Withdrawn";
