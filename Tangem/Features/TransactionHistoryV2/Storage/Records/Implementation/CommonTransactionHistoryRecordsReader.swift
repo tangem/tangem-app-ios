@@ -99,7 +99,7 @@ actor CommonTransactionHistoryRecordsReader {
 
         do {
             for try await infos in observation.values(in: try appDatabase.databaseHandle) {
-                let records = TransactionHistoryRecordsMapper.mapToTransactionHistoryExpressExtraInfo(infos)
+                let records = TransactionHistoryRecordsMapper.mapToTransactionHistoryExtraInfo(infos)
                 emit(records, for: walletModelId)
             }
         } catch {

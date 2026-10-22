@@ -101,9 +101,9 @@ enum WalletModelTransactionHistoryPublisherFactory {
                 var onrampTransactions: [OnrampTransaction] = []
                 for record in records {
                     switch record {
-                    case .exchange(let transactionInfo):
+                    case .express(.exchange(let transactionInfo)):
                         exchangeTransactions.append(transactionInfo.transaction)
-                    case .onramp(let transactionInfo):
+                    case .express(.onramp(let transactionInfo)):
                         onrampTransactions.append(transactionInfo.transaction)
                     }
                 }
