@@ -124,7 +124,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
             isTurboModeOn: false
         )
         #expect(doubles.interactor.purchases == [expectedPurchase])
-        #expect(doubles.routable.revealPrizes.map(\.imageURL) == [Constants.frontImageURL])
+        #expect(doubles.routable.revealCards.map(\.imageFrontURL) == [Constants.frontImageURL])
         #expect(sut.revealViewModel == nil)
         #expect(sut.errorMessage == nil)
     }
@@ -263,7 +263,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
         await waitUntil { doubles.balanceRefresher.callsCount == 2 }
 
         #expect(doubles.interactor.purchases.count == 2)
-        #expect(doubles.routable.revealPrizes.count == 1)
+        #expect(doubles.routable.revealCards.count == 1)
     }
 
     @Test(
@@ -338,7 +338,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
 
         #expect(!sut.packUnopenedSheetViewModel.isPresented)
         #expect(doubles.interactor.purchases.count == 2)
-        #expect(doubles.routable.revealPrizes.count == 1)
+        #expect(doubles.routable.revealCards.count == 1)
     }
 
     @Test("Other failures show the generic message and restore the button", arguments: Self.genericFailures)
@@ -437,7 +437,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
         #expect(sut.errorMessage == nil)
 
         await waitUntil { doubles.balanceRefresher.callsCount == 2 }
-        #expect(doubles.routable.revealPrizes.count == 1)
+        #expect(doubles.routable.revealCards.count == 1)
     }
 }
 
@@ -550,8 +550,13 @@ private extension CollectiblesConfirmOrderViewModelTests {
         CollectiblesPackRevealViewModel(
             darkVideoURL: Constants.darkVideoURL,
             lightVideoURL: Constants.lightVideoURL,
-            prize: CollectiblesPackRevealView.Prize(wonCard: wonCard, buybackRate: Decimal(string: "0.85")!),
-            player: RevealPlayerStub()
+            wonCard: wonCard,
+            player: RevealPlayerStub(),
+            offerProvider: BuybackOfferProviderStub(),
+            buybackInteractor: BuybackInteractorStub(),
+            signingActionButtonType: .requiredNFCInteraction,
+            routable: nil,
+            refreshBalance: {}
         )
     }
 
@@ -719,6 +724,16 @@ private final class RevealPlayerStub: CollectiblesRevealPlayer {
     func skip() {}
 }
 
+private struct BuybackOfferProviderStub: CollectiblesBuybackOfferProvider {
+    func load(nftAddress: String) async throws -> CollectiblesBuybackOffer? {
+        nil
+    }
+}
+
+private struct BuybackInteractorStub: CollectiblesBuybackInteractor {
+    func sell(nftAddress: String, offer: CollectiblesBuybackOffer) async throws {}
+}
+
 private final class ManualDelayProviderStub: PollDelayProvider, Sendable {
     private let state = OSAllocatedUnfairLock(initialState: State())
 
@@ -782,13 +797,13 @@ private extension ManualDelayProviderStub {
 
 @MainActor
 private final class ConfirmOrderRoutableSpy: CollectiblesConfirmOrderRoutable {
-    private(set) var revealPrizes: [CollectiblesPackRevealView.Prize] = []
+    private(set) var revealCards: [CollectiblesWonCard] = []
     private(set) var revealAssets: [CollectiblesRevealAssets] = []
     private(set) var returnToMachineCallsCount = 0
     private(set) var closePackFlowCallsCount = 0
 
-    func openPackReveal(prize: CollectiblesPackRevealView.Prize, assets: CollectiblesRevealAssets) {
-        revealPrizes.append(prize)
+    func openPackReveal(wonCard: CollectiblesWonCard, assets: CollectiblesRevealAssets) {
+        revealCards.append(wonCard)
         revealAssets.append(assets)
     }
 

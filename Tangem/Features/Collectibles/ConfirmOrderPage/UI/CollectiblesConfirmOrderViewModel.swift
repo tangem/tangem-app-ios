@@ -21,7 +21,6 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     private let price: Decimal
     private let platformFee: Decimal
     private let total: Decimal
-    private let buybackRate: Decimal
     private let isTurboModeOn: Bool
     private let purchaseInteractor: any CollectiblesPackPurchaseInteractor
     private let revealAssetsPreloader: any CollectiblesRevealAssetsPreloader
@@ -78,7 +77,6 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         price = machine.price
         platformFee = machine.platformFee
         total = machine.price + machine.platformFee
-        buybackRate = machine.buybackRate
         self.isTurboModeOn = isTurboModeOn
         self.purchaseInteractor = purchaseInteractor
         self.revealAssetsPreloader = revealAssetsPreloader
@@ -269,8 +267,7 @@ private extension CollectiblesConfirmOrderViewModel {
     }
 
     func openReveal(of wonCard: CollectiblesWonCard, assets: CollectiblesRevealAssets) {
-        let prize = CollectiblesPackRevealView.Prize(wonCard: wonCard, buybackRate: buybackRate)
-        routable?.openPackReveal(prize: prize, assets: assets)
+        routable?.openPackReveal(wonCard: wonCard, assets: assets)
     }
 
     func showBuybackComplete(amount: Decimal?) {
