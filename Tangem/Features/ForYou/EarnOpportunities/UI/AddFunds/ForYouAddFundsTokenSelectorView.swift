@@ -40,10 +40,10 @@ private extension ForYouAddFundsTokenSelectorView {
         ZStack {
             VStack(spacing: 0) {
                 Text(viewModel.title)
-                    .style(Font.Tangem.Heading17.semibold, color: DesignSystem.Color.textPrimary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
                 Text(viewModel.subtitle)
-                    .style(Font.Tangem.Body15.regular, color: DesignSystem.Color.textSecondary)
+                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
             }
             .frame(maxWidth: .infinity)
 
@@ -59,7 +59,7 @@ private extension ForYouAddFundsTokenSelectorView {
     func sectionView(_ section: ForYouAddFundsTokenSelectorViewModel.Section) -> some View {
         VStack(spacing: 0) {
             AccountInlineHeaderView(iconData: section.accountIcon, name: section.accountName)
-                .nameStyle(Font.Tangem.Caption12.medium, color: DesignSystem.Color.textPrimary)
+                .nameStyle(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding([.horizontal, .top], 16)
                 .padding(.bottom, 8)

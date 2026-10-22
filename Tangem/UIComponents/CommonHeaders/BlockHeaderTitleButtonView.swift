@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 /// This is a common component of the system design - a common header + button.
 /// Required due to specific dimensions
@@ -47,7 +48,7 @@ struct BlockHeaderTitleButtonView: View {
         })
         .background(Colors.Button.secondary)
         .cornerRadiusContinuous(Constants.buttonCornerRadius)
-        .skeletonable(isShown: button.isLoading, size: .init(width: 60, height: 18), radius: 3, paddings: .init(top: 3, leading: 0, bottom: 3, trailing: 0))
+        .shimmerPlaceholder(button.isLoading, variant: .custom(width: 60, height: 18, cornerRadius: 3))
         .disabled(button.isDisabled)
     }
 }

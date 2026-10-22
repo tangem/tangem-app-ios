@@ -87,8 +87,6 @@ private final class CollectiblesAccountModelStub: CollectiblesAccountModel {
 
     var didChangePublisher: AnyPublisher<Void, Never> { Empty().eraseToAnyPublisher() }
 
-    var statePublisher: AnyPublisher<CollectiblesState, Never> { Just(state).eraseToAnyPublisher() }
-
     var hasAccountPublisher: AnyPublisher<Bool, Never> { Just(hasAccount).eraseToAnyPublisher() }
 
     func update(name: String) {}
@@ -121,9 +119,9 @@ private final class CollectiblesPackPurchaseInteractorStub: CollectiblesPackPurc
         machineID: String,
         price: Decimal,
         platformFee: Decimal,
-        turboMode: CollectiblesTurboMode,
+        isTurboModeOn: Bool,
         onStep: @escaping (CollectiblesPackPurchaseStep) -> Void
-    ) async throws -> CollectiblesWonCard {
+    ) async throws -> CollectiblesPackPurchaseResult {
         throw CancellationError()
     }
 }

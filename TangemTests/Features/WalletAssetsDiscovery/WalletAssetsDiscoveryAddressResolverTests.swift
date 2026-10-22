@@ -24,6 +24,7 @@ class WalletAssetsDiscoveryAddressResolverTests {
             parameters: WalletInitializerParameters(
                 mnemonic: mnemonic,
                 passphrase: nil,
+                isImported: true,
                 hasMnemonicBackup: true,
                 hasICloudBackup: false,
                 hasSocialLogin: false

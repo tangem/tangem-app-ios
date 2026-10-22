@@ -11,7 +11,6 @@ import Foundation
 protocol AnalyticsSessionContext {
     func value(forKey: AnalyticsStorageKey, scope: AnalyticsSessionContextScope) -> Any?
     func set(value: Any, forKey storageKey: AnalyticsStorageKey, scope: AnalyticsSessionContextScope)
-    func removeValue(forKey storageKey: AnalyticsStorageKey, scope: AnalyticsSessionContextScope)
 }
 
 // MARK: - Dependencies

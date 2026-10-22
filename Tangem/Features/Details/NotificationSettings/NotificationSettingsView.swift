@@ -86,10 +86,8 @@ struct NotificationSettingsView: View {
 
     /// Fixed-width capsule placeholder; without `width` it stretches to the available width.
     private func skeletonCapsule(width: CGFloat? = nil) -> some View {
-        SkeletonView()
-            .frame(width: width)
-            .frame(height: 20)
-            .clipShape(Capsule())
+        Shimmer()
+            .variant(.custom(width: width, height: 20))
     }
 
     @ViewBuilder

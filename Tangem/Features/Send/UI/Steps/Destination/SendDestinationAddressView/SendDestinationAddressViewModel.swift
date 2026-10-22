@@ -104,11 +104,6 @@ class SendDestinationAddressViewModel: ObservableObject, Identifiable {
 }
 
 extension SendDestinationAddressViewModel {
-    enum TitleType {
-        case title
-        case error(String)
-    }
-
     struct Address {
         let string: String
         let source: Analytics.DestinationAddressSource

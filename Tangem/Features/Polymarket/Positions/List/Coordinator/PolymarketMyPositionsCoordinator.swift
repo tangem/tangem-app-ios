@@ -10,6 +10,7 @@ import Combine
 import Foundation
 import TangemPolymarket
 import TangemStories
+import TangemUI
 
 final class PolymarketMyPositionsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -22,11 +23,13 @@ final class PolymarketMyPositionsCoordinator: CoordinatorObject {
     // MARK: - Child ViewModels
 
     @Published var destination: Destination?
+    @Published var redeem: PolymarketRedeemViewModel?
 
     private var apiProvider: PolymarketAPIProvider?
     private var positionsService: PolymarketPositionsService?
     private var geoblockStateProvider: PolymarketGeoblockStateProvider?
     private var redeemService: PolymarketRedeeming?
+    private var signingButtonType: SigningActionButtonViewType = .holdToConfirm
     private var onRegionWarning: (() -> Void)?
     private var onOrderPlaced: (@MainActor (PolymarketOrderIndexing) -> Void)?
     private var onClaimed: ((PolymarketPosition?) -> Void)?
@@ -48,6 +51,7 @@ final class PolymarketMyPositionsCoordinator: CoordinatorObject {
         positionsService = options.positionsService
         geoblockStateProvider = options.geoblockStateProvider
         redeemService = options.redeemService
+        signingButtonType = options.signingButtonType
         onRegionWarning = options.onRegionWarning
         onOrderPlaced = options.onOrderPlaced
         onClaimed = options.onClaimed
@@ -73,6 +77,7 @@ extension PolymarketMyPositionsCoordinator {
         let apiProvider: PolymarketAPIProvider
         let geoblockStateProvider: PolymarketGeoblockStateProvider
         let redeemService: PolymarketRedeeming
+        let signingButtonType: SigningActionButtonViewType
         let onRegionWarning: () -> Void
         let onOrderPlaced: @MainActor (PolymarketOrderIndexing) -> Void
         let onClaimed: (PolymarketPosition?) -> Void
@@ -82,7 +87,6 @@ extension PolymarketMyPositionsCoordinator {
 
     enum Destination {
         case positionDetails(PolymarketPositionDetailsCoordinator)
-        case redeem(PolymarketRedeemViewModel)
     }
 }
 
@@ -97,15 +101,16 @@ extension PolymarketMyPositionsCoordinator: PolymarketMyPositionsRoutable {
     func openRedeem(position: PolymarketPosition, onClaimed: @escaping (PolymarketPosition?) -> Void) {
         guard let redeemService else { return }
 
-        destination = .redeem(PolymarketRedeemViewModel(
+        redeem = PolymarketRedeemViewModel(
             position: position,
             redeemService: redeemService,
+            signingButtonType: signingButtonType,
             onClaimed: { [weak self] claimed in
                 onClaimed(claimed)
                 self?.onClaimed?(claimed)
             },
             coordinator: self
-        ))
+        )
     }
 
     func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void) {
@@ -146,7 +151,7 @@ extension PolymarketMyPositionsCoordinator: PolymarketMyPositionsRoutable {
 
 extension PolymarketMyPositionsCoordinator: PolymarketRedeemRoutable {
     func closeRedeem() {
-        popToPositions()
+        redeem = nil
     }
 }
 

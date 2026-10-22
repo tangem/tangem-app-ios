@@ -168,11 +168,11 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
             HStack(spacing: 8) {
                 if let sectionHeaderConfiguration {
                     Text(sectionHeaderConfiguration.title)
-                        .style(.Tangem.Heading20.semibold.font, color: .Tangem.Text.Neutral.primary)
+                        .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
 
                     if let itemsCount, let displayed = viewModel.itemsCountToDisplay(configuration: sectionHeaderConfiguration, itemsCount: itemsCount) {
                         Text("\(displayed)")
-                            .style(.Tangem.Heading20.semibold.font, color: .Tangem.Text.Neutral.tertiary)
+                            .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textSecondary)
                     }
                 }
 
@@ -283,8 +283,8 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
                     .style(
                         Fonts.Bold.subheadline,
                         color: isSelected
-                            ? Color.Tangem.Tabs.textPrimary
-                            : Color.Tangem.Tabs.textSecondary
+                            ? DesignSystem.Color.textInversePrimary
+                            : DesignSystem.Color.textSecondary
                     )
                     .lineLimit(1)
 
@@ -305,8 +305,8 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
                 )
                 .fill(
                     isSelected
-                        ? Color.Tangem.Tabs.backgroundPrimary
-                        : Color.Tangem.Tabs.backgroundSecondary
+                        ? DesignSystem.Color.bgInverse
+                        : DesignSystem.Color.bgTransparentSecondary
                 )
             )
         }
@@ -321,11 +321,11 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
 
         return HStack(spacing: 8) {
             Text(configuration.title)
-                .style(.Tangem.Heading20.semibold.font, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
 
             if let itemsCountToDisplay {
                 Text("\(itemsCountToDisplay)")
-                    .style(.Tangem.Heading20.semibold.font, color: .Tangem.Text.Neutral.tertiary)
+                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textSecondary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -364,7 +364,6 @@ extension TokenSelectorView {
 
     private enum Constants {
         static var scrollToTopAnchorID: String { "TokenSelectorView.scrollToTopAnchor" }
-        static var chipsToListExtraSpacing: CGFloat { 8 }
         static var redesignedChipHeight: CGFloat { 36 }
         static var redesignedChipCornerRadius: CGFloat { 24 }
         static var redesignedChipsSpacing: CGFloat { 8 }

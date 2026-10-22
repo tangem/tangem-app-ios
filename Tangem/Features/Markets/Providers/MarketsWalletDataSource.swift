@@ -22,10 +22,6 @@ class MarketsWalletDataProvider {
 
     var selectedUserWalletModel: UserWalletModel? { _selectedUserWalletModel.value }
 
-    var isWalletSelectorAvailable: Bool {
-        userWalletRepository.models.filter { !$0.isUserWalletLocked && $0.config.hasFeature(.multiCurrency) }.count > 1
-    }
-
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
@@ -108,10 +104,6 @@ extension MarketsWalletDataProvider {
 
 extension MarketsWalletDataProvider: WalletSelectorDataSource {
     var selectedUserWalletIdPublisher: AnyPublisher<UserWalletId?, Never> {
-        _selectedUserWalletModel.map { $0?.userWalletId }.eraseToAnyPublisher()
-    }
-
-    var selectedUserWalletModelPublisher: AnyPublisher<UserWalletId?, Never> {
         _selectedUserWalletModel.map { $0?.userWalletId }.eraseToAnyPublisher()
     }
 

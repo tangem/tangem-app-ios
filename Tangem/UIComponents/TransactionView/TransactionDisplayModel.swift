@@ -105,6 +105,7 @@ extension TransactionDisplayModel {
         legacyName: String,
         addressDestination: String?,
         subtitleOwner: TransactionViewModel.SubtitleOwner?,
+        isTangemPayCounterparty: Bool,
         expressSubtitle: ExpressSubtitle?,
         isPendingSignature: Bool = false
     ) -> TransactionDisplayModel {
@@ -116,6 +117,7 @@ extension TransactionDisplayModel {
                 isFromYieldContract: isFromYieldContract,
                 legacyName: legacyName,
                 subtitleOwner: subtitleOwner,
+                isTangemPayCounterparty: isTangemPayCounterparty,
                 isPendingSignature: isPendingSignature
             ),
             subtitle: subtitle(
@@ -193,12 +195,15 @@ extension TransactionDisplayModel {
         isFromYieldContract: Bool,
         legacyName: String,
         subtitleOwner: TransactionViewModel.SubtitleOwner?,
+        isTangemPayCounterparty: Bool,
         isPendingSignature: Bool = false
     ) -> TitleContent {
         switch transactionType {
         case .transfer where isPendingSignature:
             return .plain(Localization.commonSend)
         case .transfer, .gaslessTransfer:
+            return transferTitle(isOutgoing: isOutgoing, status: status, subtitleOwner: subtitleOwner)
+        case .operation where isTangemPayCounterparty, .unknownOperation where isTangemPayCounterparty:
             return transferTitle(isOutgoing: isOutgoing, status: status, subtitleOwner: subtitleOwner)
         case .gaslessTransactionFee, .networkFee:
             return .plain(Localization.commonNetworkFeeTitle)

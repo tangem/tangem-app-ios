@@ -880,13 +880,6 @@ struct WalletModelData {
     let balance: Amount?
 }
 
-private extension Amount {
-    var tokenYieldSupply: TokenYieldSupply? {
-        guard case .token(let token) = type else { return nil }
-        return token.metadata.yieldSupply
-    }
-}
-
 private extension Transaction {
     func ethereumTransactionDataHexString() -> String? {
         guard let params = params as? EthereumTransactionParams,
@@ -907,7 +900,6 @@ private extension PendingTransactionRecord {
 
 private extension CommonYieldModuleManager {
     enum Constants {
-        static let yieldContractRetryCount = 5
         static let updateTimeInterval: TimeInterval = 10
         static let maxUpdateIterations = 3
         static let nextExpectedStateTimeout: TimeInterval = 60

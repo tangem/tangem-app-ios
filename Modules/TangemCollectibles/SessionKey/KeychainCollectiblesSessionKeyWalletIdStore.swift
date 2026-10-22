@@ -8,12 +8,14 @@
 
 import Foundation
 public import TangemFoundation
-import TangemSdk
+public import TangemSdk
 
 public struct KeychainCollectiblesSessionKeyWalletIdStore: CollectiblesSessionKeyWalletIdStore {
-    private let secureStorage = SecureStorage()
+    private let secureStorage: any CollectiblesSecureStorage
 
-    public init() {}
+    public init(secureStorage: any CollectiblesSecureStorage = SecureStorage()) {
+        self.secureStorage = secureStorage
+    }
 
     public func sessionKeyWalletId(for userWalletId: UserWalletId) throws -> UserWalletId? {
         try secureStorage.get(account(for: userWalletId)).map(UserWalletId.init(value:))
@@ -26,7 +28,7 @@ public struct KeychainCollectiblesSessionKeyWalletIdStore: CollectiblesSessionKe
             return try secureStorage.delete(account)
         }
 
-        try secureStorage.store(sessionKeyWalletId.value, forKey: account)
+        try secureStorage.store(sessionKeyWalletId.value, forKey: account, overwrite: true)
     }
 }
 

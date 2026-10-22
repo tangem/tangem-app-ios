@@ -100,10 +100,6 @@ extension CryptoAccountModelMock: CryptoAccountModel {
         Localization.accountFormAccountIndex(0)
     }
 
-    var userWalletModel: any UserWalletModel {
-        UserWalletModelMock()
-    }
-
     func archive() async throws(AccountArchivationError) {
         onArchive(self)
     }

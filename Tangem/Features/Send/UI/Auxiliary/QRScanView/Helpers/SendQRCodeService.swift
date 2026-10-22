@@ -12,7 +12,6 @@ import Combine
 protocol SendQRCodeService {
     var qrCodeDestination: AnyPublisher<String?, Never> { get }
     var qrCodeAdditionalField: AnyPublisher<String?, Never> { get }
-    var qrCodeAmount: AnyPublisher<Decimal?, Never> { get }
 
     func qrCodeDidScanned(value: String)
 }
@@ -33,10 +32,6 @@ extension CommonSendQRCodeService: SendQRCodeService {
 
     var qrCodeAdditionalField: AnyPublisher<String?, Never> {
         _result.map { $0.memo }.eraseToAnyPublisher()
-    }
-
-    var qrCodeAmount: AnyPublisher<Decimal?, Never> {
-        _result.map { $0.amount?.value }.eraseToAnyPublisher()
     }
 
     func qrCodeDidScanned(value: String) {

@@ -15,8 +15,4 @@ extension ShapeStyle {
     func hidden(_ shouldHide: Bool) -> some ShapeStyle {
         opacity(shouldHide ? 0.0 : 1.0)
     }
-
-    func visible(_ shouldShow: Bool) -> some ShapeStyle {
-        hidden(!shouldShow)
-    }
 }

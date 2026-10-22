@@ -13,7 +13,6 @@ import TangemNetworkUtils
 
 private final class WalletConnectEnvironment {
     @Injected(\.persistentStorage) private var persistentStorage: any PersistentStorageProtocol
-    @Injected(\.userWalletRepository) private var userWalletRepository: any UserWalletRepository
 
     private lazy var walletKitClient = WalletKitClientFactory.make()
     private lazy var walletNetworkServiceFactoryProvider = WalletNetworkServiceFactoryProvider()

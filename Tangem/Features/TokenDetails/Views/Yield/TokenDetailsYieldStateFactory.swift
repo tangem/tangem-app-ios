@@ -143,16 +143,16 @@ private extension TokenDetailsYieldStateFactory {
         let promoFormattedApy = formattedApy(promoApy)
 
         var heading = AttributedString(Localization.yieldApyBoostBannerTitle)
-        heading.setFontStyle(Font.Tangem.Body16.medium)
-        heading.foregroundColor = .Tangem.Text.Neutral.primary
+        heading.setFontStyle(DesignSystem.Font.bodyMediumToken)
+        heading.foregroundColor = DesignSystem.Color.textPrimary
 
         let apyLineText = "\(Localization.yieldModuleTokenDetailsEarnNotificationApy) \(originalFormattedApy)"
             + " x\(promoMultiplier)"
             + " → \(promoFormattedApy)"
 
         var apyLine = AttributedString(apyLineText)
-        apyLine.setFontStyle(Font.Tangem.Body16.medium)
-        apyLine.foregroundColor = .Tangem.Text.Neutral.primary
+        apyLine.setFontStyle(DesignSystem.Font.bodyMediumToken)
+        apyLine.foregroundColor = DesignSystem.Color.textPrimary
 
         if let originalApyRange = apyLine.range(of: originalFormattedApy) {
             apyLine[originalApyRange].strikethroughStyle = .single

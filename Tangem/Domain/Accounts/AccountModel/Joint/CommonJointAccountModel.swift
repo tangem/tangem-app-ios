@@ -93,7 +93,7 @@ extension CommonJointAccountModel: JointAccountModel {
             return false
         }
 
-        return membersService.isCreatorDevice
+        return membersService.userRole.isCreator
     }
 
     func activate() async throws(AccountEditError) {

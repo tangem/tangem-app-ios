@@ -203,10 +203,6 @@ extension ValidationErrorEvent {
             return .critical
         }
     }
-
-    var isDismissable: Bool {
-        return false
-    }
 }
 
 // MARK: Button

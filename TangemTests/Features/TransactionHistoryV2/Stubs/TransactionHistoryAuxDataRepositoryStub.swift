@@ -44,8 +44,6 @@ final class TransactionHistoryAuxDataRepositoryStub: TransactionHistoryAuxDataRe
 
     func fiatCurrency(for asset: OnrampHistoryFiatAsset) -> OnrampFiatCurrency? { nil }
 
-    func fiatCurrency(for asset: OnrampHistoryFiatAsset) async -> OnrampFiatCurrency? { nil }
-
     func cryptoCurrency(for currency: ExpressCurrency, supportedBlockchains: Set<Blockchain>) -> TokenItem? {
         lookUp(currency)
     }

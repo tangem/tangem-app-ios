@@ -16,6 +16,5 @@ protocol EarnAnalyticsProvider: AddTokenFlowAnalyticsLogger {
     func logBestOpportunitiesFilterTypeApplied(type: String)
     func logOpportunitySelected(token: String, blockchain: String, source: String)
     func logAddTokenScreenOpened(token: String, blockchain: String, source: String)
-    func logTokenAdded(token: String, blockchain: String)
     func logBestOpportunitiesLoadError(errorCode: String, errorMessage: String)
 }

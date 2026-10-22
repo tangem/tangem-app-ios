@@ -52,7 +52,6 @@ struct SelectorReceiveAssetsContentItemView: View {
 extension SelectorReceiveAssetsContentItemView {
     enum Layout {
         enum Container {
-            static let horizontalPadding: CGFloat = 12
             static let horizontalSpacing: CGFloat = 12
         }
     }

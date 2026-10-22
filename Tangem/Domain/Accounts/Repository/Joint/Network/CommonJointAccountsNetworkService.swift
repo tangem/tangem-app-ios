@@ -106,6 +106,42 @@ extension CommonJointAccountsNetworkService: JointAccountsNetworkService {
 
         return try response.map(mapper.mapToOperation(from:))
     }
+
+    func getOperationsHistory(afterCursor: String?, limit: Int) async throws -> JointOperationsHistoryPage {
+        let response = try await tangemApiService.getJointOperationsHistory(
+            walletId: userWalletId.stringValue,
+            request: JointAccountsDTO.Request.OperationsHistory(afterCursor: afterCursor, limit: limit)
+        )
+
+        return mapper.mapToHistoryPage(from: response)
+    }
+
+    func getOperationsHistoryDelta(beforeCursor: String?, limit: Int) async throws -> JointOperationsHistoryPage {
+        let response = try await tangemApiService.getJointOperationsHistoryDelta(
+            walletId: userWalletId.stringValue,
+            request: JointAccountsDTO.Request.OperationsHistoryDelta(beforeCursor: beforeCursor, limit: limit)
+        )
+
+        return mapper.mapToHistoryPage(from: response)
+    }
+
+    func getOperation(id: String, knownETag: String?) async throws -> JointOperationFetchResult {
+        do {
+            guard let (eTag, response) = try await tangemApiService.getJointOperation(
+                walletId: userWalletId.stringValue,
+                operationId: id,
+                knownETag: knownETag
+            ) else {
+                return .notModified
+            }
+
+            return try .modified(mapper.mapToHistoryItem(from: response), eTag: eTag)
+        } catch let error as TangemAPIError where error.code == .notFound {
+            throw JointOperationError.operationNotFound
+        } catch let error as TangemAPIError where error.code == .forbidden {
+            throw JointOperationError.notAMember
+        }
+    }
 }
 
 // MARK: - Private

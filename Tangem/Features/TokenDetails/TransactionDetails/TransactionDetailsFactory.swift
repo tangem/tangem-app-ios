@@ -126,7 +126,11 @@ enum TransactionDetailsFactory {
             return .generic(stakingOperationContent(for: transaction, record: record, context: context))
 
         case .gaslessTransactionFee, .networkFee:
-            return .generic(feeContent(for: transaction, record: record, cryptoAmount: cryptoAmount, context: context))
+            return .generic(feeContent(for: transaction, cryptoAmount: cryptoAmount, context: context))
+
+        case .operation where transaction.isTangemPayCounterparty,
+             .unknownOperation where transaction.isTangemPayCounterparty:
+            return .generic(sendReceiveContent(for: transaction, record: record, context: context))
 
         case .operation, .unknownOperation:
             return .generic(genericOperationContent(
@@ -189,10 +193,6 @@ enum TransactionDetailsFactory {
         )
     }
 
-    private static func isFailed(record: TransactionRecord) -> Bool {
-        TransactionOperationStatusMapper.viewStatus(for: record) == .failed
-    }
-
     private static func genericOperationContent(
         for transaction: TransactionViewModel,
         record: TransactionRecord,
@@ -203,7 +203,7 @@ enum TransactionDetailsFactory {
         .init(
             tokens: tokensBlock(
                 for: transaction,
-                isFailed: isFailed(record: record),
+                isFailed: transaction.status == .failed,
                 caption: nil,
                 fiatText: nil,
                 icon: .token(context.tokenIconInfo)
@@ -226,12 +226,12 @@ enum TransactionDetailsFactory {
         .init(
             tokens: tokensBlock(
                 for: transaction,
-                isFailed: isFailed(record: record),
+                isFailed: transaction.status == .failed,
                 caption: nil,
                 fiatText: nil,
                 icon: .token(context.tokenIconInfo)
             ),
-            statusBanner: stakingStatusBanner(for: transaction, record: record),
+            statusBanner: stakingStatusBanner(for: transaction),
             principalAmount: nil,
             counterparty: nil,
             info: stakingInfo(for: transaction, record: record, context: context),
@@ -244,7 +244,7 @@ enum TransactionDetailsFactory {
         record: TransactionRecord,
         context: TransactionDetailsContext
     ) -> TransactionDetailsGenericOperationViewData {
-        let isFailed = isFailed(record: record)
+        let isFailed = transaction.status == .failed
 
         return .init(
             tokens: tokensBlock(
@@ -262,11 +262,8 @@ enum TransactionDetailsFactory {
         )
     }
 
-    private static func stakingStatusBanner(
-        for transaction: TransactionViewModel,
-        record: TransactionRecord
-    ) -> TransactionDetailsStatusBannerViewData? {
-        guard isFailed(record: record) else {
+    private static func stakingStatusBanner(for transaction: TransactionViewModel) -> TransactionDetailsStatusBannerViewData? {
+        guard transaction.status == .failed else {
             return nil
         }
 
@@ -328,14 +325,13 @@ enum TransactionDetailsFactory {
 
     private static func feeContent(
         for transaction: TransactionViewModel,
-        record: TransactionRecord,
         cryptoAmount: Decimal,
         context: TransactionDetailsContext
     ) -> TransactionDetailsGenericOperationViewData {
         .init(
             tokens: tokensBlock(
                 for: transaction,
-                isFailed: isFailed(record: record),
+                isFailed: transaction.status == .failed,
                 caption: nil,
                 fiatText: fiatText(amount: cryptoAmount, currencyId: context.tokenCurrencyId),
                 icon: .token(context.tokenIconInfo)
@@ -382,7 +378,7 @@ enum TransactionDetailsFactory {
                 amountText: transaction.amount.amountWithCurrencyCode,
                 caption: stage.caption,
                 fiatText: fiat,
-                isAmountStrikethrough: isFailed(record: record)
+                isAmountStrikethrough: transaction.status == .failed
             ),
             statusBanner: nil,
             info: networkFeeInfo(
@@ -717,7 +713,7 @@ enum TransactionDetailsFactory {
         return .init(
             tokens: tokensBlock(
                 for: transaction,
-                isFailed: isFailed(record: record),
+                isFailed: transaction.status == .failed,
                 caption: nil,
                 fiatText: nil,
                 icon: .token(context.tokenIconInfo)
@@ -889,7 +885,7 @@ enum TransactionDetailsFactory {
         addContactHelper: TransactionDetailsAddContactHelper,
         counterpartyAddress: String?
     ) -> TransactionDetailsHeaderViewData {
-        let status = TransactionOperationStatusMapper.viewStatus(for: record)
+        let status = transaction.status
         let title = headerTitle(for: transaction, record: record, status: status)
 
         let dateText: String
@@ -947,7 +943,8 @@ enum TransactionDetailsFactory {
                 isOutgoing: transaction.isOutgoing,
                 isFromYieldContract: transaction.isFromYieldContract,
                 legacyName: transaction.name,
-                subtitleOwner: transaction.subtitleOwner
+                subtitleOwner: transaction.subtitleOwner,
+                isTangemPayCounterparty: transaction.isTangemPayCounterparty
             )
             return (text.fullText, onChainTitleStyle(for: status))
         }

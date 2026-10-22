@@ -251,8 +251,7 @@ private extension PolymarketPlaceOrderWireFormatTests {
             timestampMillis: 1_787_300_000_000,
             builder: "0x00000000000000000000000000000000000000000000000000000000000000aa"
         ),
-        signature: "0xdeadbeef",
-        isNegRisk: false
+        signature: "0xdeadbeef"
     )
 }
 
@@ -345,7 +344,14 @@ extension PolymarketOrderPlacement {
 extension PolymarketOrderQuote {
     static let stubBuilderCode = "0x00000000000000000000000000000000000000000000000000000000000000aa"
 
-    static func stub(side: PolymarketOrderSide, notional: Decimal, shares: Decimal) -> PolymarketOrderQuote {
+    static func stub(
+        side: PolymarketOrderSide,
+        notional: Decimal,
+        shares: Decimal,
+        version: PolymarketMarketVersion = .v1,
+        exchange: String? = PolymarketApprovalContracts.ctfExchange,
+        signingDomainVersion: String? = "2"
+    ) -> PolymarketOrderQuote {
         PolymarketOrderQuote(
             status: .full,
             side: side,
@@ -360,7 +366,10 @@ extension PolymarketOrderQuote {
             minOrderSize: 7,
             minOrderAmount: 1,
             tickSize: Decimal(string: "0.001")!,
-            isLive: false
+            isLive: false,
+            version: version,
+            exchange: exchange,
+            signingDomainVersion: signingDomainVersion
         )
     }
 }

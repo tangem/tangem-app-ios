@@ -14,9 +14,6 @@ import TangemLocalization
 final class YieldTokenItemPromoProvider {
     // MARK: - Injected
 
-    @Injected(\.userWalletRepository)
-    private var userWalletRepository: UserWalletRepository
-
     @Injected(\.yieldModuleNetworkManager)
     private var yieldModuleNetworkManager: YieldModuleNetworkManager
 

@@ -59,16 +59,6 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
         try commitCache(updatedCache)
     }
 
-    func getDApp(with sessionTopic: String) throws(WalletConnectDAppPersistenceError) -> WalletConnectConnectedDApp {
-        try fetchIfNeeded()
-
-        guard let dApp = dAppsBySessionTopic[sessionTopic]?.first else {
-            throw WalletConnectDAppPersistenceError.notFound
-        }
-
-        return dApp
-    }
-
     func getDApps(with sessionTopic: String) throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {
         try fetchIfNeeded()
 

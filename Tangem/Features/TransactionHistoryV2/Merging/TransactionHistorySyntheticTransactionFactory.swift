@@ -68,7 +68,7 @@ struct TransactionHistorySyntheticTransactionFactory {
             date: exchangeTransaction.createdAt,
             tokenTransfers: [], // No inner token transfers for exchange transactions because no such information is provided by the API
             nonce: nil, // No on-chain nonce for a synthetic record
-            extraInfo: TransactionHistoryExpressExtraInfo.exchange(info)
+            extraInfo: TransactionHistoryExtraInfo.express(.exchange(info))
         )
     }
 
@@ -98,7 +98,7 @@ struct TransactionHistorySyntheticTransactionFactory {
             date: onrampTransaction.createdAt,
             tokenTransfers: [], // No inner token transfers for onramp transactions by definition
             nonce: nil, // No on-chain nonce for a synthetic record
-            extraInfo: TransactionHistoryExpressExtraInfo.onramp(info)
+            extraInfo: TransactionHistoryExtraInfo.express(.onramp(info))
         )
     }
 

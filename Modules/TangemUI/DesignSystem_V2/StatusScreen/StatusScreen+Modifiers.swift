@@ -62,7 +62,23 @@ public extension StatusScreen {
     }
 
     func actionIcon(_ icon: ImageType?) -> Self {
-        map { $0.actionIcon = icon }
+        map {
+            $0.actionIcon = icon
+
+            if icon != nil {
+                $0.actionSigningType = nil
+            }
+        }
+    }
+
+    func actionSigning(_ type: SigningActionButtonViewType?) -> Self {
+        map {
+            $0.actionSigningType = type
+
+            if type != nil {
+                $0.actionIcon = nil
+            }
+        }
     }
 
     func footerHidden(_ isHidden: Bool = true) -> Self {
@@ -121,6 +137,7 @@ private extension StatusScreen {
             $0.secondaryAction = secondaryAction
             $0.footerCaption = footerCaption
             $0.actionIcon = actionIcon
+            $0.actionSigningType = actionSigningType
             $0.isActionLoading = isActionLoading
             $0.isActionDisabled = isActionDisabled
             $0.footerAxis = footerAxis

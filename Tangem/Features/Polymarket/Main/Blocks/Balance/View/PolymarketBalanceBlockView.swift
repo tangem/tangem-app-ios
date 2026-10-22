@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemPolymarketUI
 import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
@@ -18,6 +19,7 @@ struct PolymarketBalanceBlockView: View {
 
     var body: some View {
         balanceBlock
+            .polymarketStateTransition(viewModel.isBalanceLoading)
             .bindAlert($viewModel.alert)
     }
 }
@@ -45,7 +47,7 @@ private extension PolymarketBalanceBlockView {
 
     var balanceBlockSkeleton: some View {
         VStack(spacing: Constants.balanceSpacing) {
-            skeleton(width: Constants.skeletonSelectorWidth, height: Constants.skeletonSelectorHeight)
+            Shimmer().variant(.text(style: .subheading, alignment: .center))
 
             skeleton(
                 width: Constants.skeletonAmountWidth,
@@ -63,7 +65,7 @@ private extension PolymarketBalanceBlockView {
                             cornerRadius: TangemMainActionButton.Size.buttonSide / 2
                         )
 
-                        skeleton(width: Constants.skeletonActionTitleWidth, height: Constants.skeletonSelectorHeight)
+                        Shimmer().variant(.text(style: .subheading, alignment: .center))
                     }
                     .frame(minWidth: Constants.actionWidth)
                 }
@@ -136,6 +138,8 @@ private extension PolymarketBalanceBlockView {
             .disabled(!viewModel.isWithdrawEnabled)
             .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.withdrawButton)
         }
+        .animation(.default, value: viewModel.isAddFundsEnabled)
+        .animation(.default, value: viewModel.isWithdrawEnabled)
     }
 }
 
@@ -147,13 +151,10 @@ private extension PolymarketBalanceBlockView {
         static let balanceAmountTrailingPadding: CGFloat = 4
         static let balanceLoaderSize = CGSize(width: 160, height: 40)
 
-        static let skeletonSelectorWidth: CGFloat = 150
-        static let skeletonSelectorHeight: CGFloat = 12
         static let skeletonAmountWidth: CGFloat = 170
         static let skeletonAmountHeight: CGFloat = 44
         static let skeletonActionCount = 2
         static let skeletonActionSpacing: CGFloat = 8
-        static let skeletonActionTitleWidth: CGFloat = 64
         static let balanceSelectorSpacing: CGFloat = 4
         static let selectorIconSize: CGFloat = 16
         static let balanceModeAnimationDuration: TimeInterval = 0.2

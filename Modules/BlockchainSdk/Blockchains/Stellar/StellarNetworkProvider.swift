@@ -162,17 +162,6 @@ class StellarNetworkProvider: HostProvider {
     }
 }
 
-extension StellarNetworkProvider {
-    func getSignatureCount(accountId: String) -> AnyPublisher<Int, Error> {
-        stellarSdk.operations.getAllOperations(accountId: accountId, recordsLimit: 1)
-            .map { items in
-                items.filter { $0.sourceAccount == accountId }.count
-            }
-            .mapError { [weak self] in self?.mapError($0) ?? BlockchainSdkError.empty }
-            .eraseToAnyPublisher()
-    }
-}
-
 struct StellarResponse {
     let baseReserve: Decimal
     let assetBalances: [StellarAssetResponse]

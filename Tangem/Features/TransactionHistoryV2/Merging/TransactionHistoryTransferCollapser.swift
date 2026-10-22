@@ -33,7 +33,7 @@ struct TransactionHistoryTransferCollapser {
         var groupedRecords: [GroupKey: [TransactionRecord]] = [:]
 
         for record in records {
-            let key = GroupKey(hash: record.hash, expressTransactionId: record.expressExtraInfo?.txId)
+            let key = GroupKey(hash: record.hash, groupingId: record.historyExtraInfo?.groupingId)
 
             if groupedRecords[key] == nil {
                 groupsInOrder.append(key)
@@ -123,7 +123,7 @@ private extension TransactionHistoryTransferCollapser {
             isFromYieldContract: anchor.isFromYieldContract,
             isFolded: true,
             nonce: anchor.nonce,
-            extraInfo: anchor.expressExtraInfo
+            extraInfo: anchor.historyExtraInfo
         )
     }
 
@@ -208,6 +208,6 @@ private extension TransactionHistoryTransferCollapser {
 private extension TransactionHistoryTransferCollapser {
     struct GroupKey: Hashable {
         let hash: String
-        let expressTransactionId: String?
+        let groupingId: String?
     }
 }

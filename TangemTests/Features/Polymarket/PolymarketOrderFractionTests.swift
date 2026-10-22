@@ -312,9 +312,3 @@ private extension PolymarketOrderModel {
         PolymarketOrderGate(state: state, intent: intent)
     }
 }
-
-private extension PolymarketOrderGate {
-    func isFractionSelectable(_ fraction: PolymarketAmountFraction) -> Bool {
-        selectableFractions.contains(fraction)
-    }
-}

@@ -26,5 +26,4 @@ import Foundation
 /// This used internally for assisting with transaction matching. They are invalid if used in actual scripts.
 struct OpPubkeyHash: OpCodeProtocol {
     var value: UInt8 { return 0xfd }
-    var name: String { return "OP_PUBKEYHASH" }
 }

@@ -202,6 +202,30 @@ struct PolymarketSearchBlockViewModelTests {
         #expect(routable.openedOutcomes.map(\.isBuy) == [true])
     }
 
+    @Test("An outcome chosen on a result drawn before the results refreshed opens the order with the refreshed market")
+    func outcomeChosenAfterRefreshOpensTheFreshMarket() async throws {
+        let staleOutcome = PolymarketOutcome(assetId: "yes", title: "Yes", probability: Decimal(string: "0.42"))
+        let freshOutcome = PolymarketOutcome(assetId: "yes", title: "Yes", probability: Decimal(string: "0.55"))
+        let provider = PolymarketAPIProviderStub(searchResults: [
+            .success(Self.page(events: [Self.event(id: "a", markets: [Self.market(id: "m1", outcomes: [staleOutcome])])], hasNext: false)),
+            .success(Self.page(events: [Self.event(id: "a", markets: [Self.market(id: "m1", outcomes: [freshOutcome])])], hasNext: false)),
+        ])
+        let routable = PolymarketEventOpeningRoutableSpy()
+        let sut = Self.makeSUT(provider: provider, routable: routable)
+
+        sut.query = "first"
+        try await Self.settle(sut) { $0.state == .allDataLoaded }
+        let resultBeforeRefresh = try #require(sut.eventCards.first?.rows.first?.outcomes.first)
+
+        sut.query = "second"
+        try await Self.settle(sut) { $0.eventCards.first?.rows.first?.outcomes.first?.priceText == PolymarketPriceFormatter.centsText(Decimal(string: "0.55")) }
+
+        resultBeforeRefresh.onSelect()
+
+        #expect(routable.openedOutcomes.map(\.outcome.probability) == [Decimal(string: "0.55")])
+        #expect(routable.openedOutcomes.map(\.market.id) == ["m1"])
+    }
+
     @Test("An order placed from search expects a balance change")
     func orderFromSearchExpectsBalanceChange() async throws {
         let outcome = PolymarketOutcome(assetId: "yes", title: "Yes", probability: 0.42)

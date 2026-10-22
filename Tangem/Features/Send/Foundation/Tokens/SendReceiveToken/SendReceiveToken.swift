@@ -27,18 +27,22 @@ extension SendReceiveToken {
     var presentation: SendReceiveTokenPresentation? { nil }
 }
 
-/// Overrides how a receive token is presented on the swap screen for account funding flows:
-/// a fixed currency symbol, the funded account's icon, and the denomination of its balance.
 struct SendReceiveTokenPresentation {
-    /// Currency symbol shown on the receive pill (e.g. "USD" for a Visa Payment account).
     let currencySymbol: String
     let icon: ImageType
     let balanceDenomination: BalanceDenomination
+    let appliesToSendSide: Bool
 
-    init(currencySymbol: String, icon: ImageType, balanceDenomination: BalanceDenomination = .fiat) {
+    init(
+        currencySymbol: String,
+        icon: ImageType,
+        balanceDenomination: BalanceDenomination = .fiat,
+        appliesToSendSide: Bool = false
+    ) {
         self.currencySymbol = currencySymbol
         self.icon = icon
         self.balanceDenomination = balanceDenomination
+        self.appliesToSendSide = appliesToSendSide
     }
 
     enum BalanceDenomination {
