@@ -36,9 +36,24 @@ protocol CollectiblesPurchaseSigner: AnyObject {
     func sendPurchase(_ signedPurchase: CollectiblesSignedPurchase) async throws(CollectiblesSendError)
 }
 
+protocol CollectiblesBuybackSigner: AnyObject {
+    var buybackAddresses: CollectiblesBuybackAddresses? { get }
+
+    func signBuyback(
+        _ preparedTransaction: Data,
+        terms: CollectiblesBuybackTerms
+    ) async throws -> CollectiblesSignedBuyback
+
+    func sendBuyback(_ signedBuyback: CollectiblesSignedBuyback) async throws(CollectiblesSendError)
+}
+
 protocol CollectiblesPackPurchaseInteractorProvider: AnyObject {
     @MainActor
     var purchaseInteractor: any CollectiblesPackPurchaseInteractor { get }
+}
+
+protocol CollectiblesBuybackInteractorProvider: AnyObject {
+    var buybackInteractor: any CollectiblesBuybackInteractor { get }
 }
 
 /// Refines `CollectiblesOnboarder`: the account model owns the vault's state, so it is also what walks that
@@ -48,7 +63,8 @@ protocol CollectiblesAccountModel: BaseAccountModel,
     CollectiblesBalanceSource,
     CollectiblesVaultUsdcAccountProvider,
     CollectiblesDepositAwaiter,
-    CollectiblesPackPurchaseInteractorProvider
+    CollectiblesPackPurchaseInteractorProvider,
+    CollectiblesBuybackInteractorProvider
     where Icon == AccountModel.StandaloneIcon, ID == CollectiblesAccountId {
     var state: CollectiblesState { get }
 
