@@ -104,7 +104,7 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
             .tapReceiveButton()
             .tapUnderstoodIfNeeded()
             .validateShowQRCodeButtonDisplayed()
-            .tapShowQRCode()
+            .tapShowQRCode(.segwit)
             .waitForDisplay()
     }
 
