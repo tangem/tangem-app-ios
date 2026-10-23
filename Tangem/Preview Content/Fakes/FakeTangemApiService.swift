@@ -53,6 +53,10 @@ final class FakeTangemApiService: TangemApiService {
     var getJointOperationsHistoryDeltaHandler: ((_ request: JointAccountsDTO.Request.OperationsHistoryDelta) async throws -> JointAccountsDTO.Response.OperationsHistoryDelta)?
     var getJointOperationHandler: ((_ operationId: String, _ knownETag: String?) async throws -> (eTag: String?, operation: JointAccountsDTO.Response.HistoryOperation)?)?
 
+    // MARK: - Wallet Backup Status Handlers (Tests/Previews)
+
+    var saveWalletCardsHandler: ((_ userWalletId: String, _ cards: WalletCardsDTO.Request) async throws -> Void)?
+
     init(geoIpRegionCode: String = "us") {
         self.geoIpRegionCode = geoIpRegionCode
     }
@@ -305,7 +309,11 @@ final class FakeTangemApiService: TangemApiService {
     // MARK: - Wallet Backup Status
 
     func saveWalletCards(userWalletId: String, cards: WalletCardsDTO.Request) async throws {
-        throw "Not implemented"
+        guard let saveWalletCardsHandler else {
+            throw "Not implemented"
+        }
+
+        try await saveWalletCardsHandler(userWalletId, cards)
     }
 
     func getUserAccounts(

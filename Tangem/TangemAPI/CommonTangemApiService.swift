@@ -525,7 +525,7 @@ extension CommonTangemApiService: TangemApiService {
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
             // The POST has no documented response body, so only the status/errors are validated (see saveTokens).
-            _ = try response.filterResponseThrowingTangemAPIError(allowRedirectCodes: true)
+            _ = try response.filterSuccessfulStatusAndRedirectCodes()
         }
     }
 
