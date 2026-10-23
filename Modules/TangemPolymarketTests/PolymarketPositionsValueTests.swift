@@ -7,6 +7,7 @@
 
 import Foundation
 import Testing
+import Alamofire
 import Moya
 @testable import TangemPolymarket
 
@@ -34,7 +35,7 @@ struct PolymarketPositionsValueTargetTests {
         }
 
         #expect(parameters as? [String: String] == ["user": depositWalletAddress])
-        #expect(encoding is URLEncoding)
+        #expect(encoding is Alamofire.URLEncoding)
     }
 
     @Test("The call goes straight to Polymarket, so it carries no wallet id of ours")

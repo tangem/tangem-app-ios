@@ -9,7 +9,10 @@
 {% set forceNamespaces %}{{param.forceProvidesNamespaces|default:"false"}}{% endset %}
 {% set accessModifier %}{% if param.publicAccess %}public{% else %}internal{% endif %}{% endset %}
 {% set removeFolderName %}{{param.removeFolderName|default:"false"}}{% endset %}
-import SwiftUI
+{% set importAccessModifier %}{% if param.publicAccess %}public {% endif %}{% endset %}
+{{importAccessModifier}}import struct SwiftUI.Color
+{{importAccessModifier}}import struct SwiftUI.Image
+{{importAccessModifier}}import class UIKit.UIImage
 
 // MARK: - Asset Catalogs
 
@@ -103,25 +106,17 @@ fileprivate extension UIImage {
     }
 }
 
-#if canImport(SwiftUI)
-import SwiftUI
-
 {{accessModifier}} extension ImageType {
     var image: Image {
         Image(name: name)
     }
 }
-#endif
-
-#if canImport(UIKit)
-import UIKit
 
 {{accessModifier}} extension ImageType {
     var uiImage: UIImage {
         UIImage(name: name)
     }
 }
-#endif
 {% else %}
 // No assets found
 {% endif %}

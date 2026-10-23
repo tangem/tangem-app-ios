@@ -6,7 +6,8 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import UIKit
+public import class UIKit.UIFont
+public import class UIKit.UIFontMetrics
 
 public enum UIFonts {
     public enum Regular {

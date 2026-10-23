@@ -296,7 +296,7 @@ private final class AsyncRecord<Element: Sendable>: Sendable {
     }
 
     func append(_ element: Element) {
-        let ready = state.withLock { state -> [CheckedContinuation<Element, Error>] in
+        let ready = state.withLock { state -> [CheckedContinuation<Element, any Error>] in
             state.elements.append(element)
             let index = state.elements.count - 1
             let ready = state.waiters.filter { $0.index == index }.map(\.continuation)
@@ -313,7 +313,7 @@ private final class AsyncRecord<Element: Sendable>: Sendable {
 
         return try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { continuation in
-                let ready = state.withLock { state -> Result<Element, Error>? in
+                let ready = state.withLock { state -> Result<Element, any Error>? in
                     guard !Task.isCancelled else {
                         return .failure(CancellationError())
                     }
@@ -331,7 +331,7 @@ private final class AsyncRecord<Element: Sendable>: Sendable {
                 }
             }
         } onCancel: {
-            state.withLock { state -> CheckedContinuation<Element, Error>? in
+            state.withLock { state -> CheckedContinuation<Element, any Error>? in
                 guard let position = state.waiters.firstIndex(where: { $0.id == id }) else {
                     return nil
                 }
@@ -349,7 +349,7 @@ private final class AsyncRecord<Element: Sendable>: Sendable {
     private struct Waiter {
         let id: UUID
         let index: Int
-        let continuation: CheckedContinuation<Element, Error>
+        let continuation: CheckedContinuation<Element, any Error>
     }
 }
 
@@ -370,7 +370,7 @@ private final class WebSocketConnectionSpy: WebSocketConnection {
     private let state = OSAllocatedUnfairLock(initialState: State())
 
     func receive(_ text: String) {
-        let waiter = state.withLock { state -> CheckedContinuation<WebSocketMessage, Error>? in
+        let waiter = state.withLock { state -> CheckedContinuation<WebSocketMessage, any Error>? in
             guard let waiter = state.waiter else {
                 state.incoming.append(.text(text))
                 return nil
@@ -391,7 +391,7 @@ private final class WebSocketConnectionSpy: WebSocketConnection {
         do {
             return try await withTaskCancellationHandler {
                 try await withCheckedThrowingContinuation { continuation in
-                    let message = state.withLock { state -> Result<WebSocketMessage, Error>? in
+                    let message = state.withLock { state -> Result<WebSocketMessage, any Error>? in
                         guard !state.isClosed, !Task.isCancelled else {
                             return .failure(WebSocketTransportError.cancelled)
                         }
@@ -433,7 +433,7 @@ private final class WebSocketConnectionSpy: WebSocketConnection {
 
     private struct State {
         var incoming: [WebSocketMessage] = []
-        var waiter: CheckedContinuation<WebSocketMessage, Error>?
+        var waiter: CheckedContinuation<WebSocketMessage, any Error>?
         var isClosed = false
     }
 }
@@ -446,7 +446,7 @@ private final class DelayProviderSpy: PollDelayProvider, Sendable {
 
         try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-                let (isCancelled, ready) = state.withLock { state -> (Bool, [CheckedContinuation<Void, Error>]) in
+                let (isCancelled, ready) = state.withLock { state -> (Bool, [CheckedContinuation<Void, any Error>]) in
                     guard !Task.isCancelled else {
                         return (true, [])
                     }
@@ -462,7 +462,7 @@ private final class DelayProviderSpy: PollDelayProvider, Sendable {
                 ready.forEach { $0.resume() }
             }
         } onCancel: {
-            state.withLock { state -> CheckedContinuation<Void, Error>? in
+            state.withLock { state -> CheckedContinuation<Void, any Error>? in
                 guard let index = state.parked.firstIndex(where: { $0.id == id }) else {
                     return nil
                 }
@@ -478,7 +478,7 @@ private final class DelayProviderSpy: PollDelayProvider, Sendable {
 
         try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-                let ready = state.withLock { state -> Result<Void, Error>? in
+                let ready = state.withLock { state -> Result<Void, any Error>? in
                     guard !Task.isCancelled else {
                         return .failure(CancellationError())
                     }
@@ -496,7 +496,7 @@ private final class DelayProviderSpy: PollDelayProvider, Sendable {
                 }
             }
         } onCancel: {
-            state.withLock { state -> CheckedContinuation<Void, Error>? in
+            state.withLock { state -> CheckedContinuation<Void, any Error>? in
                 guard let position = state.observers.firstIndex(where: { $0.id == id }) else {
                     return nil
                 }
@@ -526,7 +526,7 @@ private final class DelayProviderSpy: PollDelayProvider, Sendable {
             parked.filter { $0.seconds == seconds }.count
         }
 
-        mutating func takeSatisfiedObservers() -> [CheckedContinuation<Void, Error>] {
+        mutating func takeSatisfiedObservers() -> [CheckedContinuation<Void, any Error>] {
             let parked = parked
             let isSatisfied: (Observer) -> Bool = { observer in
                 parked.filter { $0.seconds == observer.seconds }.count >= observer.count
@@ -541,14 +541,14 @@ private final class DelayProviderSpy: PollDelayProvider, Sendable {
     private struct ParkedWait {
         let id: UUID
         let seconds: TimeInterval
-        let continuation: CheckedContinuation<Void, Error>
+        let continuation: CheckedContinuation<Void, any Error>
     }
 
     private struct Observer {
         let id: UUID
         let seconds: TimeInterval
         let count: Int
-        let continuation: CheckedContinuation<Void, Error>
+        let continuation: CheckedContinuation<Void, any Error>
     }
 }
 

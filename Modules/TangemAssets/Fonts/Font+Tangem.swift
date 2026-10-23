@@ -6,8 +6,16 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
-import UIKit
+public import struct CoreGraphics.CGFloat
+public import struct Foundation.AttributeContainer
+public import struct Foundation.AttributedString
+public import struct SwiftUI.Color
+public import struct SwiftUI.Font
+public import struct SwiftUI.ScaledMetric
+public import protocol SwiftUI.View
+public import struct SwiftUI.ViewBuilder
+public import protocol SwiftUI.ViewModifier
+private import class UIKit.UIFont
 
 // MARK: - TangemFontStyle
 
