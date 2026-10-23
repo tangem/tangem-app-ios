@@ -9,6 +9,7 @@
 import Foundation
 import Testing
 import UIKit
+import TangemFoundation
 import TangemTestKit
 @testable import Tangem
 
@@ -100,13 +101,18 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
 
     @Test("Returning to the foreground fetches at once and resumes polling")
     func foregroundFetchesAndResumes() async {
-        let notificationCenter = NotificationCenter()
+        let notificationCenter = ObservedNotificationCenter()
         let provider = MachineProviderStub(results: [.success(Self.machine(name: "Fresh pack"))])
         let sut = makeSUT(provider: provider, notificationCenter: notificationCenter)
 
         sut.onWillAppear()
-        await waitUntil { notificationCenter.post(.didEnterBackground) && sut.pollingTask == nil }
-        await waitUntil { notificationCenter.post(.willEnterForeground) && sut.title == "Fresh pack" }
+        await waitUntil { notificationCenter.isObserving(.didEnterBackground, .willEnterForeground) }
+
+        notificationCenter.post(.didEnterBackground)
+        await waitUntil { sut.pollingTask == nil }
+
+        notificationCenter.post(.willEnterForeground)
+        await waitUntil { sut.title == "Fresh pack" }
 
         #expect(provider.loadCallsCount == 1)
         #expect(sut.pollingTask != nil)
@@ -247,18 +253,43 @@ private final class MachineProviderStub: CollectiblesMachineProvider {
     }
 }
 
+private final class ObservedNotificationCenter: NotificationCenter, @unchecked Sendable {
+    private let observedNames = OSAllocatedUnfairLock(initialState: Set<Notification.Name>())
+
+    func isObserving(_ events: AppEvent...) -> Bool {
+        observedNames.withLock { $0.isSuperset(of: events.map(\.name)) }
+    }
+
+    override func addObserver(
+        forName name: NSNotification.Name?,
+        object obj: Any?,
+        queue: OperationQueue?,
+        using block: @escaping @Sendable (Notification) -> Void
+    ) -> any NSObjectProtocol {
+        if let name {
+            observedNames.withLock { _ = $0.insert(name) }
+        }
+
+        return super.addObserver(forName: name, object: obj, queue: queue, using: block)
+    }
+}
+
 private extension NotificationCenter {
     enum AppEvent {
         case didEnterBackground
         case willEnterForeground
+
+        var name: Notification.Name {
+            switch self {
+            case .didEnterBackground: UIApplication.didEnterBackgroundNotification
+            case .willEnterForeground: UIApplication.willEnterForegroundNotification
+            }
+        }
     }
 
     @discardableResult
     func post(_ event: AppEvent) -> Bool {
-        switch event {
-        case .didEnterBackground: post(name: UIApplication.didEnterBackgroundNotification, object: nil)
-        case .willEnterForeground: post(name: UIApplication.willEnterForegroundNotification, object: nil)
-        }
+        post(name: event.name, object: nil)
         return true
     }
 }
