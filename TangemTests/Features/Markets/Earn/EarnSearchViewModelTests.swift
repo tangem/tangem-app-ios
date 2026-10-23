@@ -56,6 +56,7 @@ private extension EarnSearchViewModelTests {
         let sut = SUT(
             query: query.eraseToAnyPublisher(),
             router: RouterStub(),
+            portfolioProvider: FeedSearchPortfolioProvider(query: query.eraseToAnyPublisher(), onSelect: { _ in }),
             searchProvider: searchProvider
         )
 
@@ -117,7 +118,6 @@ private final class SearchProviderStub: FeedSearchProvider {
 
 private final class RouterStub: EarnFeedRoutable {
     func routeOnTokenResolved(_ resolution: EarnTokenResolution, source: EarnOpportunitySource) {}
-    func openPortfolioToken(_ walletModel: any WalletModel) {}
     func openNetworksFilter() {}
     func openTypesFilter() {}
 }

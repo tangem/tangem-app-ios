@@ -17,7 +17,7 @@ struct FeedSearchTabsView: View {
     @State private var tabsHeight: CGFloat = 0
 
     var body: some View {
-        tabContent
+        pages
             .safeAreaInset(edge: .top, spacing: 0) {
                 Color.clear
                     .frame(height: tabsHeight)
@@ -27,6 +27,12 @@ struct FeedSearchTabsView: View {
                 FeedTopFade(height: Constants.fadeHeight, visibleHeight: tabsHeight + Constants.fadeBottomOverlap)
             }
             .overlay(alignment: .top) { tabsRow }
+    }
+
+    private var pages: some View {
+        FeedTabPagerView(pager: viewModel.pager, selection: viewModel.selectedTab) { page in
+            tabContent(for: page.tab)
+        }
     }
 
     private var tabsRow: some View {
@@ -40,8 +46,8 @@ struct FeedSearchTabsView: View {
     }
 
     @ViewBuilder
-    private var tabContent: some View {
-        switch viewModel.selectedTab {
+    private func tabContent(for tab: FeedSearchTab) -> some View {
+        switch tab {
         case .crypto(let cryptoViewModel):
             CryptoSearchView(viewModel: cryptoViewModel)
         case .realAssets(let realAssetsViewModel):
@@ -50,7 +56,7 @@ struct FeedSearchTabsView: View {
             EarnSearchView(viewModel: earnViewModel)
         case .predictions:
             // [REDACTED_TODO_COMMENT]
-            FeedSearchEmptyView(title: "Search is not available in \(viewModel.selectedTab.title) yet")
+            FeedSearchEmptyView(title: "Search is not available in \(tab.title) yet")
         }
     }
 

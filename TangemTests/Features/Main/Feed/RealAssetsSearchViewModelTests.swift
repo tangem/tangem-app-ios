@@ -87,6 +87,7 @@ private extension RealAssetsSearchViewModelTests {
         let sut = SUT(
             query: query.eraseToAnyPublisher(),
             router: RouterStub(),
+            portfolioProvider: FeedSearchPortfolioProvider(query: query.eraseToAnyPublisher(), onSelect: { _ in }),
             assetsProvider: assetsProvider
         )
 
@@ -150,7 +151,6 @@ private final class SearchProviderStub: FeedSearchProvider {
 
 private final class RouterStub: RealAssetsFeedRoutable {
     func openToken(_ token: MarketsTokenModel) {}
-    func openPortfolioToken(_ walletModel: any WalletModel) {}
     func openCategoryFilter(with input: RealAssetsCategoryFilterInput) {}
 }
 

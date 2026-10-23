@@ -14,7 +14,6 @@ final class EarnSearchViewModel: ObservableObject {
     @Published private(set) var query: String = ""
     @Published private(set) var portfolio: MarketsPortfolioTokenListViewModel?
     @Published private(set) var opportunities: OpportunitiesState = .loading
-    @Published private var isVisible = false
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.earnAnalyticsProvider) private var analyticsProvider: EarnAnalyticsProvider
@@ -25,6 +24,7 @@ final class EarnSearchViewModel: ObservableObject {
 
     private let resolver = EarnTokenInWalletResolver()
 
+    private var isVisible = false
     private var requestedQuery: String?
     private var loadedQuery: String?
     private var bag = Set<AnyCancellable>()
@@ -36,8 +36,8 @@ final class EarnSearchViewModel: ObservableObject {
     init(
         query: AnyPublisher<String, Never>,
         router: any EarnFeedRoutable,
-        searchProvider: any FeedSearchProvider<EarnTokenModel> = EarnFeedSearchProvider(),
-        portfolioProvider: FeedSearchPortfolioProvider = FeedSearchPortfolioProvider()
+        portfolioProvider: FeedSearchPortfolioProvider,
+        searchProvider: any FeedSearchProvider<EarnTokenModel> = EarnFeedSearchProvider()
     ) {
         self.router = router
         self.portfolioProvider = portfolioProvider
@@ -89,9 +89,7 @@ private extension EarnSearchViewModel {
             .store(in: &bag)
 
         portfolioProvider
-            .portfolioPublisher(query: $query, isVisible: $isVisible) { [weak self] walletModel in
-                self?.router.openPortfolioToken(walletModel)
-            }
+            .portfolioPublisher
             .withWeakCaptureOf(self)
             .sink { viewModel, portfolio in
                 viewModel.portfolio = portfolio
