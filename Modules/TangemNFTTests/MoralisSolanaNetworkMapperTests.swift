@@ -25,7 +25,7 @@ struct MoralisSolanaNetworkMapperTests {
         #expect(collection.name == "Collector Crypt")
         #expect(collection.id.chain == .solana)
         #expect(collection.assetsCount == 1)
-        #expect(collection.media?.url == URL(string: "https://media.moralis.io/high.png"))
+        #expect(collection.media?.url == URL(string: "https://example.com/1.png"))
 
         let asset = try #require(collection.assetsResult.value.first)
         #expect(asset.id.contractAddress == "CoreAsset1111111111111111111111111111111111")
@@ -35,11 +35,11 @@ struct MoralisSolanaNetworkMapperTests {
         #expect(asset.name == "Card #1")
         #expect(asset.description == "A graded card")
         #expect(asset.decimalCount == 0)
-        let indexedMediaURL = try #require(URL(string: "https://media.moralis.io/high.png"))
-        let metadataImageURL = try #require(URL(string: "https://example.com/1.png"))
+        let originalMediaURL = try #require(URL(string: "https://example.com/1.png"))
+        let previewMediaURL = try #require(URL(string: "https://media.moralis.io/high.png"))
         #expect(asset.mediaFiles == [
-            NFTMedia(kind: .image, url: indexedMediaURL),
-            NFTMedia(kind: .image, url: metadataImageURL),
+            NFTMedia(kind: .image, url: originalMediaURL),
+            NFTMedia(kind: .image, url: previewMediaURL),
         ])
         #expect(asset.traits == [NFTAsset.Trait(name: "Background", value: "Purple")])
     }
@@ -133,6 +133,32 @@ struct MoralisSolanaNetworkMapperTests {
         #expect(collections.count == 1)
         #expect(collections.first?.name == "Named")
         #expect(collections.first?.assetsCount == 2)
+    }
+
+    @Test
+    func putsMetadataImageBeforePreviewWhenOriginalIsEmpty() throws {
+        let coreAssets = try #require(MoralisSolanaFixtures.decodeResponse(MoralisSolanaFixtures.corePreviewFallbackResponse).result)
+
+        let collections = mapper.map(regularAssets: [], coreAssets: coreAssets, ownerAddress: ownerAddress)
+
+        let asset = try #require(collections.flatMap(\.assetsResult.value).first { $0.name == "Empty original" })
+        let metadataImageURL = try #require(URL(string: "https://example.com/3.png"))
+        let previewMediaURL = try #require(URL(string: "https://media.moralis.io/medium3.png"))
+        #expect(asset.mediaFiles == [
+            NFTMedia(kind: .image, url: metadataImageURL),
+            NFTMedia(kind: .image, url: previewMediaURL),
+        ])
+    }
+
+    @Test
+    func usesPreviewWhenOriginalAndMetadataImageAreMissing() throws {
+        let coreAssets = try #require(MoralisSolanaFixtures.decodeResponse(MoralisSolanaFixtures.corePreviewFallbackResponse).result)
+
+        let collections = mapper.map(regularAssets: [], coreAssets: coreAssets, ownerAddress: ownerAddress)
+
+        let asset = try #require(collections.flatMap(\.assetsResult.value).first { $0.name == "Preview only" })
+        let previewMediaURL = try #require(URL(string: "https://media.moralis.io/low4.png"))
+        #expect(asset.mediaFiles == [NFTMedia(kind: .image, url: previewMediaURL)])
     }
 
     @Test
