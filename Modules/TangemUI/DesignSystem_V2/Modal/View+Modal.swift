@@ -11,58 +11,14 @@ import SwiftUI
 public extension View {
     /// Presents a NavigationStack with the design system's native topNavigation toolbar.
     /// Omitting `onClose` uses the sheet's dismiss action.
-    func modal<Content: View>(
-        isPresented: Binding<Bool>,
-        size: ModalSize = .flexible,
-        contentLayout: ModalContentLayout = .scrollable,
-        dragIndicator: Visibility = .visible,
-        title: String,
-        subtitle: String? = nil,
-        leading: TopNavigation.LeadingPolicy = .none,
-        actions: TopNavigation.Actions? = nil,
-        onClose: (() -> Void)? = nil,
-        onDismiss: (() -> Void)? = nil,
-        @ViewBuilder content: @escaping () -> Content
-    ) -> some View {
-        modifier(ModalPresentationModifier(
-            isPresented: isPresented,
-            size: size,
-            contentLayout: contentLayout,
-            dragIndicator: dragIndicator,
-            navigation: ModalNavigation(title: title, subtitle: subtitle, leading: leading, actions: actions, onClose: onClose),
-            onDismiss: onDismiss,
-            header: { EmptyView() },
-            bodyContent: content
-        ))
-    }
-
-    func modal<Content: View>(
-        isPresented: Binding<Bool>,
-        size: ModalSize = .flexible,
-        contentLayout: ModalContentLayout = .scrollable,
-        dragIndicator: Visibility = .visible,
-        onDismiss: (() -> Void)? = nil,
-        @ViewBuilder content: @escaping () -> Content
-    ) -> some View {
-        modal(
-            isPresented: isPresented,
-            size: size,
-            contentLayout: contentLayout,
-            dragIndicator: dragIndicator,
-            onDismiss: onDismiss,
-            header: { EmptyView() },
-            content: content
-        )
-    }
-
-    /// A required header prevents its trailing closure from binding to the optional onDismiss callback.
     func modal<Header: View, Content: View>(
         isPresented: Binding<Bool>,
         size: ModalSize = .flexible,
         contentLayout: ModalContentLayout = .scrollable,
         dragIndicator: Visibility = .visible,
+        navigation: ModalNavigation? = nil,
+        @ViewBuilder header: @escaping () -> Header = { EmptyView() },
         onDismiss: (() -> Void)? = nil,
-        @ViewBuilder header: @escaping () -> Header,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
         modifier(ModalPresentationModifier(
@@ -70,7 +26,7 @@ public extension View {
             size: size,
             contentLayout: contentLayout,
             dragIndicator: dragIndicator,
-            navigation: nil,
+            navigation: navigation,
             onDismiss: onDismiss,
             header: header,
             bodyContent: content
@@ -81,18 +37,43 @@ public extension View {
         item: Binding<Item?>,
         size: @escaping (Item) -> ModalSize = { _ in .flexible },
         contentLayout: ModalContentLayout = .scrollable,
-        onDismiss: (() -> Void)? = nil,
+        dragIndicator: Visibility = .visible,
+        navigation: ModalNavigation? = nil,
         @ViewBuilder header: @escaping (Item) -> Header,
+        onDismiss: (() -> Void)? = nil,
         @ViewBuilder content: @escaping (Item) -> Content
     ) -> some View {
         modifier(ItemModalPresentationModifier(
             item: item,
             size: size,
             contentLayout: contentLayout,
+            dragIndicator: dragIndicator,
+            navigation: navigation,
             onDismiss: onDismiss,
             header: header,
             bodyContent: content
         ))
+    }
+
+    func modal<Item: Identifiable, Content: View>(
+        item: Binding<Item?>,
+        size: @escaping (Item) -> ModalSize = { _ in .flexible },
+        contentLayout: ModalContentLayout = .scrollable,
+        dragIndicator: Visibility = .visible,
+        navigation: ModalNavigation? = nil,
+        onDismiss: (() -> Void)? = nil,
+        @ViewBuilder content: @escaping (Item) -> Content
+    ) -> some View {
+        modal(
+            item: item,
+            size: size,
+            contentLayout: contentLayout,
+            dragIndicator: dragIndicator,
+            navigation: navigation,
+            header: { _ in EmptyView() },
+            onDismiss: onDismiss,
+            content: content
+        )
     }
 }
 
@@ -128,6 +109,8 @@ private struct ItemModalPresentationModifier<Item: Identifiable, Header: View, B
     @Binding var item: Item?
     let size: (Item) -> ModalSize
     let contentLayout: ModalContentLayout
+    let dragIndicator: Visibility
+    let navigation: ModalNavigation?
     let onDismiss: (() -> Void)?
     let header: (Item) -> Header
     let bodyContent: (Item) -> BodyContent
@@ -139,6 +122,8 @@ private struct ItemModalPresentationModifier<Item: Identifiable, Header: View, B
             Modal(
                 size: size(item),
                 contentLayout: contentLayout,
+                dragIndicator: dragIndicator,
+                navigation: navigation,
                 header: { header(item) },
                 content: { bodyContent(item) }
             )

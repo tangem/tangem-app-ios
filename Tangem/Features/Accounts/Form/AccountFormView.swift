@@ -55,7 +55,7 @@ struct AccountFormView: View {
             isPresented: $viewModel.isWalletSelectorPresented,
             contentLayout: .intrinsic,
             dragIndicator: .hidden,
-            title: Localization.commonChooseWallet
+            navigation: .title(Localization.commonChooseWallet)
         ) {
             if let walletSelector = viewModel.walletSelector {
                 AccountSelectorView(viewModel: walletSelector, style: .modal)

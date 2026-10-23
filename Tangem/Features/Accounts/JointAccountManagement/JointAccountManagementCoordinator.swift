@@ -11,8 +11,6 @@ import UIKit
 import SwiftUI
 
 final class JointAccountManagementCoordinator: CoordinatorObject {
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
-
     // MARK: - Navigation actions
 
     let dismissAction: Action<Void>
@@ -24,6 +22,11 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
 
     /// Steps pushed on top of the root of the flow's navigation stack.
     @Published var path: [Step] = []
+
+    // MARK: - Child view models
+
+    @Published var inviteSafetyViewModel: JointAccountInviteSafetyViewModel?
+    @Published var memberDetailsViewModel: JointAccountMemberDetailsViewModel?
 
     private var isCreationWalletFixed = false
 
@@ -188,9 +191,7 @@ extension JointAccountManagementCoordinator: JointAccountCreationMemberNameRouta
 
 extension JointAccountManagementCoordinator: JointAccountInviteSafetyRoutable {
     func closeInviteSafety() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+        inviteSafetyViewModel = nil
     }
 }
 
@@ -208,22 +209,16 @@ extension JointAccountManagementCoordinator: JointAccountInviteMembersRoutable {
     }
 
     func openInviteSafety() {
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: JointAccountInviteSafetyViewModel(coordinator: self))
-        }
+        inviteSafetyViewModel = JointAccountInviteSafetyViewModel(coordinator: self)
     }
 
     func openMemberDetails(name: String, address: String, accentColor: Color) {
-        let viewModel = JointAccountMemberDetailsViewModel(
+        memberDetailsViewModel = JointAccountMemberDetailsViewModel(
             name: name,
             address: address,
             accentColor: accentColor,
             coordinator: self
         )
-
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
     }
 }
 
@@ -231,9 +226,7 @@ extension JointAccountManagementCoordinator: JointAccountInviteMembersRoutable {
 
 extension JointAccountManagementCoordinator: JointAccountMemberDetailsRoutable {
     func closeMemberDetails() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+        memberDetailsViewModel = nil
     }
 }
 
