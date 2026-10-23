@@ -35,6 +35,7 @@ enum Feature: String, Hashable, CaseIterable {
     case qrScanDeeplinks
     case yieldModePromo
     case solanaPNFTAndMetaplexCore
+    case tangemPayMoneyAccount
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -66,6 +67,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .qrScanDeeplinks: return "TWI-1690_qr_scan_deeplinks"
         case .yieldModePromo: return "TWI-1762_yield_mode_promo"
         case .solanaPNFTAndMetaplexCore: return "TWI-1822_solana_pnft_and_metaplex_core"
+        case .tangemPayMoneyAccount: return "TWI-1525_money_account"
         }
     }
 
@@ -97,6 +99,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .qrScanDeeplinks: return .unspecified
         case .yieldModePromo: return .unspecified
         case .solanaPNFTAndMetaplexCore: return .unspecified
+        case .tangemPayMoneyAccount: return .unspecified
         }
     }
 }
