@@ -151,13 +151,17 @@ private extension CommonCollectiblesDevnetActions {
         return false
     }
 
-    enum DevnetActionError: Error {
-        case coldKeyNotDerived
-        case vaultNotReady
-    }
-
     enum Constants {
         static let closeAttempts = 10
         static let closeInterval: Duration = .seconds(2)
+    }
+}
+
+// MARK: - Error
+
+extension CommonCollectiblesDevnetActions {
+    enum DevnetActionError: Error {
+        case coldKeyNotDerived
+        case vaultNotReady
     }
 }

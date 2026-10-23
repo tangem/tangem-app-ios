@@ -507,7 +507,7 @@ private extension CollectiblesManager {
 
 // MARK: - Error
 
-private extension CollectiblesManager {
+extension CollectiblesManager {
     enum PurchaseError: Error {
         case vaultNotReady
         case conflictingPurchase
