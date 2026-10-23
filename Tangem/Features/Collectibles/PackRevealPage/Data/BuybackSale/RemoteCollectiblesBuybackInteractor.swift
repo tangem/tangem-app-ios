@@ -160,7 +160,7 @@ private extension RemoteCollectiblesBuybackInteractor {
 
 // MARK: - Signing failure
 
-private extension RemoteCollectiblesBuybackInteractor {
+extension RemoteCollectiblesBuybackInteractor {
     enum SigningFailure: Error {
         case transactionTooLarge
     }

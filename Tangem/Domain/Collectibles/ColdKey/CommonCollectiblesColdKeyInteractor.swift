@@ -160,7 +160,7 @@ private struct SessionSigner: CollectiblesColdKeySigner {
 
 // MARK: - Error
 
-private extension CommonCollectiblesColdKeyInteractor {
+extension CommonCollectiblesColdKeyInteractor {
     enum ColdKeyError: Error {
         case coldOwnerMismatch
     }
