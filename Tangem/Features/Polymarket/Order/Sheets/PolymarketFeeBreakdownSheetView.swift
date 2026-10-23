@@ -91,7 +91,7 @@ private extension PolymarketFeeBreakdownSheetViewModel {
 #Preview("Sheet") {
     Color.clear.modal(
         isPresented: .constant(true),
-        title: Localization.predictionPlaceFee,
+        navigation: .title(Localization.predictionPlaceFee),
         content: { PolymarketFeeBreakdownSheetView(viewModel: .preview()) }
     )
 }
@@ -100,7 +100,7 @@ private extension PolymarketFeeBreakdownSheetViewModel {
     Color.clear
         .modal(
             isPresented: .constant(true),
-            title: Localization.predictionPlaceFee,
+            navigation: .title(Localization.predictionPlaceFee),
             content: { PolymarketFeeBreakdownSheetView(viewModel: .preview()) }
         )
         .preferredColorScheme(.dark)
