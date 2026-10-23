@@ -159,7 +159,7 @@ extension MailComposePresenter {
 
 // MARK: - MFMailComposeViewControllerDelegate
 
-extension MailComposePresenter: @preconcurrency MFMailComposeViewControllerDelegate {
+extension MailComposePresenter: @MainActor MFMailComposeViewControllerDelegate {
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: (any Error)?) {
         defer {
             emailInProcess = nil

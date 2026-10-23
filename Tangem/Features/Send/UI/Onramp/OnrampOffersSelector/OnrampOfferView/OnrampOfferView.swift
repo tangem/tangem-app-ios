@@ -13,6 +13,8 @@ import TangemUI
 import TangemAccessibilityIdentifiers
 
 struct OnrampOfferView: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     let viewModel: OnrampOfferViewModel
 
     var body: some View {
@@ -46,17 +48,11 @@ struct OnrampOfferView: View {
     }
 
     private var resolvedColorScheme: ColorScheme {
-        let current = Self.appColorScheme
-        guard viewModel.isNativePayment else { return current }
-        return current == .light ? .dark : .light
-    }
-
-    private static var appColorScheme: ColorScheme {
-        switch AppSettings.shared.appTheme {
-        case .light: return .light
-        case .dark: return .dark
-        case .system: return UITraitCollection.current.userInterfaceStyle == .dark ? .dark : .light
+        guard viewModel.isNativePayment else {
+            return colorScheme
         }
+
+        return colorScheme == .light ? .dark : .light
     }
 
     private var topView: some View {

@@ -16,6 +16,7 @@ import TangemLocalization
 import TangemMCP
 import class TangemNetworkUtils.TangemProvider
 import class TangemUI.FloatingSheetRegistry
+import TangemUIUtils
 
 enum MCPModuleFactory {
     @Injected(\.floatingSheetPresenter) private static var floatingSheetPresenter: any FloatingSheetPresenter

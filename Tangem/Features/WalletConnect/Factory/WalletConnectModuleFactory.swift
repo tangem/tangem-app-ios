@@ -15,6 +15,7 @@ import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemNetworkUtils
+import TangemUIUtils
 
 @MainActor
 enum WalletConnectModuleFactory {

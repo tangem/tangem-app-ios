@@ -11,13 +11,111 @@ import TangemLocalization
 import SwiftUI
 import TangemAssets
 
+struct OnboardingWalletInfoPager: View {
+    private let infoPages: [TangemWalletOnboardingInfoPage] = TangemWalletOnboardingInfoPage.allCases
+
+    var body: some View {
+        PagerViewWithDots(infoPages) { page in
+            OnboardingMessagesView(title: page.title, subtitle: page.subtitle, onTitleTapCallback: {})
+                .padding(.horizontal, 40)
+        }
+    }
+}
+
+// MARK: - Private implementation
+
+private enum TangemWalletOnboardingInfoPage: CaseIterable {
+    case first
+    case second
+    case third
+    case fourth
+
+    var title: String {
+        switch self {
+        case .first: return Localization.onboardingWalletInfoTitleFirst
+        case .second: return Localization.onboardingWalletInfoTitleSecond
+        case .third: return Localization.onboardingWalletInfoTitleThird
+        case .fourth: return Localization.onboardingWalletInfoTitleFourth
+        }
+    }
+
+    var subtitle: String {
+        switch self {
+        case .first: return Localization.onboardingWalletInfoSubtitleFirst
+        case .second: return Localization.onboardingWalletInfoSubtitleSecond
+        case .third: return Localization.onboardingWalletInfoSubtitleThird
+        case .fourth: return Localization.onboardingWalletInfoSubtitleFourth
+        }
+    }
+}
+
+private struct PagerViewWithDots<Data, Content>: View
+    where Data: RandomAccessCollection, Data.Element: Hashable, Content: View {
+    @State private var currentIndex = 0
+    private let data: Data
+    private let content: (Data.Element) -> Content
+
+    @State private var indexUpdatePublisher: PassthroughSubject<Void, Never> = .init()
+    @State private var pageUpdateWork: DispatchWorkItem?
+
+    init(
+        _ data: Data,
+        @ViewBuilder content: @escaping (Data.Element) -> Content
+    ) {
+        self.data = data
+        self.content = content
+    }
+
+    var body: some View {
+        ZStack {
+            // let the PagerView and the dots fill the available screen
+            Color.clear
+            // render the Pager View
+            PagerView(data, indexUpdateNotifier: indexUpdatePublisher, currentIndex: $currentIndex, content: content)
+            // the dots view
+            VStack {
+                Spacer() // align the dots at the bottom
+                HStack(spacing: 6) {
+                    ForEach(0 ..< data.count, id: \.self) { index in
+                        Circle()
+                            .foregroundColor((index == currentIndex) ? Colors.Old.tangemGrayDark6 : Colors.Old.tangemGrayLight5)
+                            .frame(width: 10, height: 10)
+                    }
+                }
+            }.padding()
+        }
+        .onReceive(indexUpdatePublisher, perform: { _ in
+            pageUpdateWork?.cancel()
+            pageUpdateWork = nil
+            switchToNextPage()
+        })
+        .onAppear(perform: {
+            switchToNextPage()
+        })
+    }
+
+    private func switchToNextPage() {
+        pageUpdateWork = DispatchWorkItem {
+            var index = currentIndex + 1
+            if index >= data.count {
+                index = 0
+            }
+            withAnimation(.easeInOut(duration: 0.4)) {
+                currentIndex = index
+            }
+            switchToNextPage()
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: pageUpdateWork!)
+    }
+}
+
 private struct PagerView<Data, Content>: View
     where Data: RandomAccessCollection, Data.Element: Hashable, Content: View {
-    let indexUpdateNotifier: PassthroughSubject<Void, Never>
+    private let indexUpdateNotifier: PassthroughSubject<Void, Never>
     /// the source data to render, can be a range, an array, or any other collection of Hashable
     private let data: Data
     /// the index currently displayed page
-    @Binding var currentIndex: Int
+    @Binding private var currentIndex: Int
     /// maps data to page views
     private let content: (Data.Element) -> Content
 
@@ -53,7 +151,8 @@ private struct PagerView<Data, Content>: View
             .offset(x: -CGFloat(currentIndex) * geometry.size.width)
             // the second offset translates the page based on swipe
             .offset(x: translation)
-            .animation(.interactiveSpring())
+            .animation(.interactiveSpring(), value: currentIndex)
+            .animation(.interactiveSpring(), value: translation)
             .gesture(
                 DragGesture().updating($translation) { value, state, _ in
                     state = value.translation.width
@@ -73,109 +172,8 @@ private struct PagerView<Data, Content>: View
     }
 }
 
-private struct PagerViewWithDots<Data, Content>: View
-    where Data: RandomAccessCollection, Data.Element: Hashable, Content: View {
-    @State private var currentIndex = 0
-    private let data: Data
-    private let animated: Bool
-    private let content: (Data.Element) -> Content
-
-    @State private var indexUpdatePublisher: PassthroughSubject<Void, Never> = .init()
-    @State private var pageUpdateWork: DispatchWorkItem?
-
-    init(
-        _ data: Data,
-        animated: Bool,
-        @ViewBuilder content: @escaping (Data.Element) -> Content
-    ) {
-        self.data = data
-        self.animated = animated
-        self.content = content
-    }
-
-    var body: some View {
-        ZStack {
-            // let the PagerView and the dots fill the available screen
-            Color.clear
-            // render the Pager View
-            PagerView(data, indexUpdateNotifier: indexUpdatePublisher, currentIndex: $currentIndex, content: content)
-            // the dots view
-            VStack {
-                Spacer() // align the dots at the bottom
-                HStack(spacing: 6) {
-                    ForEach(0 ..< data.count, id: \.self) { index in
-                        Circle()
-                            .foregroundColor((index == currentIndex) ? Colors.Old.tangemGrayDark6 : Colors.Old.tangemGrayLight5)
-                            .frame(width: 10, height: 10)
-                    }
-                }
-            }.padding()
-        }
-        .onReceive(indexUpdatePublisher, perform: { _ in
-            pageUpdateWork?.cancel()
-            pageUpdateWork = nil
-            switchToNextPage()
-        })
-        .onAppear(perform: {
-            switchToNextPage()
-        })
-    }
-
-    private func switchToNextPage() {
-        guard animated else { return }
-
-        pageUpdateWork = DispatchWorkItem {
-            var index = currentIndex + 1
-            if index >= data.count {
-                index = 0
-            }
-            withAnimation(.easeInOut(duration: 0.4)) {
-                currentIndex = index
-            }
-            switchToNextPage()
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: pageUpdateWork!)
-    }
-}
-
-enum TangemWalletOnboardingInfoPage: CaseIterable {
-    case first
-    case second
-    case third
-    case fourth
-
-    var title: String {
-        switch self {
-        case .first: return Localization.onboardingWalletInfoTitleFirst
-        case .second: return Localization.onboardingWalletInfoTitleSecond
-        case .third: return Localization.onboardingWalletInfoTitleThird
-        case .fourth: return Localization.onboardingWalletInfoTitleFourth
-        }
-    }
-
-    var subtitle: String {
-        switch self {
-        case .first: return Localization.onboardingWalletInfoSubtitleFirst
-        case .second: return Localization.onboardingWalletInfoSubtitleSecond
-        case .third: return Localization.onboardingWalletInfoSubtitleThird
-        case .fourth: return Localization.onboardingWalletInfoSubtitleFourth
-        }
-    }
-}
-
-struct OnboardingWalletInfoPager: View {
-    let infoPages: [TangemWalletOnboardingInfoPage] = TangemWalletOnboardingInfoPage.allCases
-
-    let animated: Bool
-
-    var body: some View {
-        PagerViewWithDots(infoPages, animated: animated) { page in
-            OnboardingMessagesView(title: page.title, subtitle: page.subtitle, onTitleTapCallback: {})
-                .padding(.horizontal, 40)
-        }
-    }
-}
+// MARK: - Previews
 
 #Preview {
-    OnboardingWalletInfoPager(animated: true)
+    OnboardingWalletInfoPager()
 }

@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import SwiftUI
 import AVFoundation
+import TangemUIUtils
 
 class QRScanViewCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>

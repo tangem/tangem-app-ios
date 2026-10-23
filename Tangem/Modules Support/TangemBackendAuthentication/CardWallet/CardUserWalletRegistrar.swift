@@ -19,11 +19,17 @@ actor CardUserWalletRegistrar {
     private var nonceTask: NonceTask?
     private var nonceResult: Result<UserWalletRegistrationNonce?, ObtainUserWalletRegistrationNonceError>?
 
+    /// - Note: Not actor-protected since we need to access it from nonisolated contexts.
+    private let hasObtainedNonce = OSAllocatedUnfairLock(initialState: false)
+
     private var obtainedNonce: UserWalletRegistrationNonce? {
-        guard case .some(.success(let nonce)) = nonceResult else {
+        switch nonceResult {
+        case .success(let success):
+            return success
+        case .failure,
+             .none:
             return nil
         }
-        return nonce
     }
 
     init(analyticsReporter: CommonBackendAuthenticationAnalyticsReporter) {
@@ -129,6 +135,7 @@ actor CardUserWalletRegistrar {
 
         switch result {
         case .success(.some):
+            hasObtainedNonce { $0 = true }
             BackendAuthLogger.info("Obtained user wallet registration nonce")
 
         // nil: the user wallet is already registered
@@ -202,14 +209,11 @@ actor CardUserWalletRegistrar {
 
 // MARK: - CustomStringConvertible protocol conformance
 
-extension CardUserWalletRegistrar: @preconcurrency CustomStringConvertible {
-    var description: String {
-        objectDescription(
-            String(describing: Self.self),
-            userInfo: [
-                "hasObtainedNonce": obtainedNonce != nil,
-            ]
-        )
+extension CardUserWalletRegistrar: CustomStringConvertible {
+    nonisolated var description: String {
+        objectDescription(self, userInfo: [
+            "hasObtainedNonce": hasObtainedNonce { $0 },
+        ])
     }
 }
 

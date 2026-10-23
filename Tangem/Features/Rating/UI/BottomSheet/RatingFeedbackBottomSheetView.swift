@@ -74,7 +74,7 @@ private extension RatingFeedbackBottomSheetView {
             return
         }
 
-        UIApplication.shared.makeOverlayWindowKey()
+        UIApplication.overlayWindow?.makeKey()
         isFocused = true
     }
 

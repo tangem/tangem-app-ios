@@ -15,6 +15,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemPay
 import TangemUI
+import TangemUIUtils
 import TangemVisa
 
 class TangemPayMainCoordinator: CoordinatorObject {

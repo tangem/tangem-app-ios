@@ -10,9 +10,10 @@ import Foundation
 import CryptoKit
 import Combine
 import BlockchainSdk
-import class UIKit.UITraitCollection
+import class UIKit.UIApplication
 import TangemFoundation
 import TangemNetworkUtils
+import TangemUIUtils
 
 // MARK: - Models
 
@@ -90,7 +91,8 @@ class MoonPayService {
     private var availableToSell: Set<MoonpaySupportedCurrency> = []
 
     private var useDarkTheme: Bool {
-        UITraitCollection.isDarkMode
+        // Unlike `UITraitCollection.current`, safe to call anywhere on the main thread, not only from trait-aware callbacks
+        UIApplication.mainWindow?.traitCollection.userInterfaceStyle == .dark
     }
 
     private(set) var canSellCrypto = true

@@ -213,29 +213,21 @@ struct ReferralView: View {
             .defaultRoundedBackground()
 
             HStack(spacing: 12) {
-                TangemButtonLegacy(
+                MainButton(
                     title: Localization.commonCopy,
-                    systemImage: "square.on.square",
-                    iconPosition: .leading,
-                    iconPadding: 10,
+                    icon: .leading(Assets.Glyphs.copy),
+                    style: .primary,
+                    isRedesign: false,
                     action: viewModel.copyPromoCode
                 )
-                .buttonStyle(TangemButtonStyle(
-                    colorStyle: .black,
-                    layout: .flexibleWidth
-                ))
 
-                TangemButtonLegacy(
+                MainButton(
                     title: Localization.commonShare,
-                    systemImage: "arrowshape.turn.up.forward",
-                    iconPosition: .leading,
-                    iconPadding: 10,
+                    icon: .leading(Assets.share),
+                    style: .primary,
+                    isRedesign: false,
                     action: viewModel.sharePromoCode
                 )
-                .buttonStyle(TangemButtonStyle(
-                    colorStyle: .black,
-                    layout: .flexibleWidth
-                ))
             }
 
             VStack(spacing: 0) {

@@ -14,7 +14,7 @@ actor JSONRPCWebSocketProvider {
     private let connection: WebSocketConnection
 
     // Internal
-    private var requests: [Int: Continuation] = [:]
+    private var requests: [Int: ResumableOnceCheckedContinuationWrapper<Data, Error>] = [:]
     private var receiveTask: Task<Void, Never>?
     private var counter: Int = 0
 
@@ -42,7 +42,7 @@ actor JSONRPCWebSocketProvider {
         setupReceiveTask()
 
         let data: Data = try await withCheckedThrowingContinuation { continuation in
-            requests.updateValue(.init(continuation: continuation), forKey: request.id)
+            requests.updateValue(ResumableOnceCheckedContinuationWrapper(continuation), forKey: request.id)
         }
 
         try Task.checkCancellation()
@@ -65,7 +65,7 @@ actor JSONRPCWebSocketProvider {
         receiveTask?.cancel()
 
         for key in requests.keys {
-            await requests[key]?.cancel()
+            requests[key]?.resumeIfNeeded(throwing: CancellationError())
             requests.removeValue(forKey: key)
         }
     }
@@ -103,7 +103,7 @@ private extension JSONRPCWebSocketProvider {
             }
 
             if let continuation = requests[id] {
-                await continuation.resume(returning: data)
+                continuation.resumeIfNeeded(returning: data)
             } else if id == WebSocketConnection.Ping.Constants.id {
                 BSDKLogger.info(self, "The ping message response received: \(String(describing: json))")
             } else {
@@ -126,28 +126,5 @@ extension JSONRPCWebSocketProvider: HostProvider {
 extension JSONRPCWebSocketProvider: CustomStringConvertible {
     nonisolated var description: String {
         objectDescription(self)
-    }
-}
-
-private actor Continuation {
-    private let continuation: CheckedContinuation<Data, Error>
-    private var isResumed: Bool = false
-
-    init(continuation: CheckedContinuation<Data, Error>) {
-        self.continuation = continuation
-    }
-
-    func resume(returning data: Data) {
-        guard !isResumed else { return }
-
-        continuation.resume(returning: data)
-        isResumed = true
-    }
-
-    func cancel() {
-        guard !isResumed else { return }
-
-        continuation.resume(throwing: CancellationError())
-        isResumed = true
     }
 }

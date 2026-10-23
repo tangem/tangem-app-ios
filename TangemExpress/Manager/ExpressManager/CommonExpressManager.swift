@@ -344,6 +344,6 @@ extension CommonExpressManager {
 
 // MARK: - CustomStringConvertible
 
-extension CommonExpressManager: @preconcurrency CustomStringConvertible {
-    var description: String { objectDescription(self) }
+extension CommonExpressManager: CustomStringConvertible {
+    nonisolated var description: String { objectDescription(self) }
 }
