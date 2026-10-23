@@ -11,7 +11,7 @@ extension PolymarketMapper {
         PolymarketCategory(
             id: dto.id,
             label: dto.label,
-            iconURL: url(from: dto.icon)
+            icon: dto.icon.flatMap(PolymarketCategoryIcon.init(rawValue:))
         )
     }
 }

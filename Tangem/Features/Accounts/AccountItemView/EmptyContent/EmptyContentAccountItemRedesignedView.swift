@@ -17,8 +17,8 @@ struct EmptyContentAccountItemRedesignedView: View {
     var body: some View {
         VStack(spacing: 16) {
             MultiWalletTokenItemsEmptyView()
-                .iconColor(Color.Tangem.Graphic.Neutral.quaternary)
-                .textColor(Color.Tangem.Text.Neutral.tertiary)
+                .iconColor(DesignSystem.Color.iconTertiary)
+                .textColor(DesignSystem.Color.textSecondary)
                 .spacing(20)
 
             TangemUI.Button(

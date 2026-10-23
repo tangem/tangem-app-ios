@@ -69,6 +69,8 @@ public struct Row<
         tappableContent
             .overlay(alignment: .bottom) { dividerView }
             .overlay { focusRingView }
+            .allowsHitTesting(config.placeholder == nil)
+            .accessibilityHidden(config.placeholder != nil)
     }
 
     private var tappableContent: some View {
@@ -81,7 +83,7 @@ public struct Row<
     }
 
     private var coreButton: some View {
-        PressableRow(onTap: config.onTap, label: paddedContent)
+        PressableRow(onTap: config.placeholder == nil ? config.onTap : nil, label: paddedContent)
     }
 
     private var paddedContent: some View {
@@ -104,16 +106,9 @@ public struct Row<
             startContent
                 .opacity(contentOpacity)
 
-            RowContentLayout(
-                contentLead: config.contentLead,
-                minOppositeWidth: minOppositeWidth,
-                verticalAlignment: config.verticalAlignment
-            ) {
-                titleColumn
-                valueColumn
-            }
-            .frame(maxWidth: .infinity)
-            .opacity(contentOpacity)
+            middleContent
+                .frame(maxWidth: .infinity)
+                .opacity(contentOpacity)
 
             endContent
                 .opacity(contentOpacity)
@@ -122,6 +117,35 @@ public struct Row<
 
     private var contentOpacity: Double {
         isEnabled ? 1 : RowMetrics.disabledOpacity
+    }
+
+    @ViewBuilder
+    private var middleContent: some View {
+        if let placeholder = config.placeholder {
+            shimmerColumn(hasSubtitle: placeholder.hasSubtitle)
+        } else {
+            RowContentLayout(
+                contentLead: config.contentLead,
+                minOppositeWidth: minOppositeWidth,
+                verticalAlignment: config.verticalAlignment
+            ) {
+                titleColumn
+                valueColumn
+            }
+        }
+    }
+
+    private func shimmerColumn(hasSubtitle: Bool) -> some View {
+        VStack(alignment: .leading, spacing: RowMetrics.lineSpacing) {
+            Shimmer()
+                .variant(.text(style: .body))
+
+            if hasSubtitle {
+                Shimmer()
+                    .variant(.text(style: .caption))
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var titleColumn: some View {

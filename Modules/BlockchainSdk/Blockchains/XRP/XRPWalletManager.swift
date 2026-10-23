@@ -167,35 +167,6 @@ class XRPWalletManager: BaseWalletManager, WalletManager {
             }
             .eraseToAnyPublisher()
     }
-
-    private func checkTrustlineAndSendToken(
-        token: Token,
-        transaction: Transaction,
-        signer: TransactionSigner,
-        xrpTransaction: XRPTransaction,
-        hash: Data
-    ) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        networkService.getAccountTrustlines(account: decodeAddress(address: transaction.destinationAddress))
-            .tryMap { result in
-                let trustlines = try result.get()
-                let (currency, issuer) = try XRPAssetIdParser().getCurrencyCodeAndIssuer(from: token.contractAddress)
-
-                if !XRPTrustlineUtils.containsTrustline(in: trustlines, currency: currency, issuer: issuer) {
-                    throw BlockchainSdkError.noTrustlineAtDestination
-                }
-            }
-            .mapSendTxError(currentHost: currentHost)
-            .withWeakCaptureOf(self)
-            .flatMap { manager, _ in
-                manager.signAndSend(
-                    transaction: transaction,
-                    xrpTransaction: xrpTransaction,
-                    hashToSign: hash,
-                    signer: signer
-                )
-            }
-            .eraseToAnyPublisher()
-    }
 }
 
 extension XRPWalletManager: TransactionSender {

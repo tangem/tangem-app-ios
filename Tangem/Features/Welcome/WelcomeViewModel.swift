@@ -8,6 +8,9 @@
 
 import Combine
 import Foundation
+import struct TangemUI.TangemSnackbar
+import class TangemUI.Toast
+import TangemAssets
 
 final class WelcomeViewModel: ObservableObject {
     @Injected(\.welcomeEntryReasonProvider)
@@ -18,6 +21,8 @@ final class WelcomeViewModel: ObservableObject {
 
     /// `nil` while the background hands one episode over to the next and no text belongs on screen.
     @Published private(set) var scene: WelcomeScene?
+
+    @Published private(set) var isProcessing = false
 
     let videoBackground: VideoBackground
 
@@ -64,6 +69,17 @@ final class WelcomeViewModel: ObservableObject {
         let document = WelcomeLegalDocument(url: url)
         analytics.logLegalOpened(document: document.analyticsValue)
         coordinator?.openLegal(document: document)
+    }
+
+    func set(isProcessing: Bool) {
+        self.isProcessing = isProcessing
+    }
+
+    func showSnackbar(withMessage message: String) {
+        let snackbar = TangemSnackbar(title: message)
+            .icon(DesignSystem.Icons.Warning.filled20)
+            .iconColor(DesignSystem.Color.iconStatusError)
+        Toast(view: snackbar).present(layout: .top(padding: 8), type: .temporary())
     }
 
     private func bind() {

@@ -118,13 +118,13 @@ private extension RatingFeedbackBottomSheetView {
     var starIcon: some View {
         ZStack {
             Circle()
-                .fill(Color.Tangem.Graphic.Status.attention.opacity(0.1))
+                .fill(DesignSystem.Color.iconAccentYellow.opacity(0.1))
                 .frame(width: 56, height: 56)
 
             Assets.DesignSystem.ratingStarEmpty.image
                 .resizable()
                 .frame(width: 32, height: 32)
-                .foregroundStyle(Color.Tangem.Graphic.Status.attention)
+                .foregroundStyle(DesignSystem.Color.iconAccentYellow)
         }
     }
 

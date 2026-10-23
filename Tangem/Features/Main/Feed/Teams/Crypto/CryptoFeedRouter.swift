@@ -12,19 +12,16 @@ protocol CryptoFeedRoutable: AnyObject {
     func openToken(_ token: MarketsTokenModel)
     func openPulseTagFilter(with input: PulseTagFilterInput)
     func openMarketCapInfo(subject: MarketCapInfoSubject)
-    func openPortfolioToken(_ walletModel: any WalletModel)
 }
 
 final class CryptoFeedRouter {
     private weak var navigation: (any FeedNavigation)?
 
     private let popToRootAction: Action<PopToRootOptions>
-    private let portfolioTokenRouter: FeedPortfolioTokenRouter
 
     init(context: FeedContext) {
         navigation = context.navigation
         popToRootAction = context.popToRootAction
-        portfolioTokenRouter = FeedPortfolioTokenRouter(context: context)
     }
 }
 
@@ -59,9 +56,5 @@ extension CryptoFeedRouter: CryptoFeedRoutable {
         )
 
         navigation?.presentModal(.marketCapInfo(viewModel))
-    }
-
-    func openPortfolioToken(_ walletModel: any WalletModel) {
-        portfolioTokenRouter.open(walletModel)
     }
 }

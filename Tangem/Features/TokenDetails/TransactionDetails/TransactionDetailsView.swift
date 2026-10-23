@@ -13,8 +13,6 @@ import TangemAssets
 struct TransactionDetailsView: View {
     @ObservedObject var viewModel: TransactionDetailsViewModel
 
-    private let blocksSpacing: CGFloat = 12
-
     var body: some View {
         ZStack(alignment: .top) {
             if let feedback = viewModel.presentedFeedback {
@@ -78,7 +76,7 @@ struct TransactionDetailsContentView: View {
         .animation(animatesBlockChanges ? .contentFrameUpdate : nil, value: blocks.map(\.id))
         .accessibilityIdentifier(TransactionDetailsAccessibilityIdentifiers.sheet)
         .floatingSheetConfiguration { config in
-            config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+            config.sheetBackground = .color(DesignSystem.Color.bgSecondary)
             config.backgroundInteractionBehavior = .tapToDismiss
             config.sheetFrameUpdateAnimation = .contentFrameUpdate
         }

@@ -7,7 +7,6 @@
 //
 
 protocol GeoEligibilityService: Initializable {
-    func waitForGeoIpRegionIfNeeded() async
     var isUK: Bool { get }
     var isApplePayAllowed: Bool { get }
 

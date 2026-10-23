@@ -50,10 +50,3 @@ class SendDestinationAdditionalFieldViewModel: ObservableObject, Identifiable {
         text = ""
     }
 }
-
-extension SendDestinationAdditionalFieldViewModel {
-    enum TitleType {
-        case title(name: String)
-        case error(String)
-    }
-}

@@ -18,16 +18,7 @@ protocol JointAccountMembersService {
     /// nothing else to draw them from.
     var slotsPublisher: AnyPublisher<[JointAccountSlot], Never> { get }
 
-    /// Whether this wallet is the one the account was created from.
-    /// - Note: Told apart by having been handed the account's invites, which the creator alone is — the endpoint
-    /// names no wallet as this one. Having been handed them is not
-    /// the same as still holding one: an account created with every slot taken comes with none at all, and its
-    /// creator is the creator all the same.
-    /// - Warning: The invites are kept by the device that was handed them and nowhere else, so a creator who
-    /// reinstalls the app or restores the wallet elsewhere stops being told apart as one.
-    var isCreatorDevice: Bool { get }
-
-    var ownAddress: String? { get }
+    var userRole: JointAccountUserRole { get }
 
     func requestFrequentUpdates() -> AnyCancellable
 }

@@ -27,6 +27,8 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     @Published var alert: AlertBinder?
     @Published var isLoading: Bool = false
     @Published private(set) var wallet: AccountFormWallet?
+    @Published private(set) var walletSelector: AccountSelectorViewModel?
+    @Published var isWalletSelectorPresented = false
     @Published private var totalAccountsCount: Int = 0
 
     // MARK: - Static state
@@ -114,9 +116,9 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             iconName = account.icon.name
             accountName = account.name
         case .create(let creator):
-            let newIcon = AccountModelUtils.UI.newAccountIcon()
-            iconColor = newIcon.color
-            iconName = newIcon.name
+            let initialIcon = creator.initialIcon
+            iconColor = initialIcon.color
+            iconName = initialIcon.name
             accountName = creator.initialAccountName
         }
 
@@ -185,15 +187,6 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             Localization.commonSave
         case .create(let creator):
             creator.mainButtonTitle
-        }
-    }
-
-    var backgroundColor: Color {
-        switch flowType {
-        case .edit:
-            Colors.Background.tertiary
-        case .create(let creator):
-            creator.backgroundColor
         }
     }
 
@@ -268,10 +261,24 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         }
     }
 
+    @MainActor
     func onWalletTap() {
-        guard case .create(let creator) = flowType else { return }
+        guard !isLoading, case .create(let creator) = flowType else { return }
 
-        creator.handleWalletTap()
+        let wallets = creator.selectableWallets
+        let selectedMainAccount = wallets
+            .first { $0.userWalletId == wallet?.id }
+            .flatMap { AccountModelsAggregator(.crypto).models(from: $0.accountModelsManager).first(where: \.isMainAccount) }
+
+        walletSelector = AccountSelectorViewModel(
+            selectedItem: selectedMainAccount,
+            userWalletModels: wallets,
+            preferredDisplayMode: .wallets
+        ) { [weak self] selectedCell in
+            creator.selectWallet(selectedCell.userWalletModel)
+            self?.isWalletSelectorPresented = false
+        }
+        isWalletSelectorPresented = true
     }
 
     func onClose() {

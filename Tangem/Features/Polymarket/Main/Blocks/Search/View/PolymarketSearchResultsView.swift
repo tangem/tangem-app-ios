@@ -19,6 +19,7 @@ struct PolymarketSearchResultsView: View {
     var body: some View {
         content
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .polymarketStateTransition(contentState)
     }
 
     // MARK: - Content
@@ -48,9 +49,18 @@ struct PolymarketSearchResultsView: View {
         }
     }
 
+    private var contentState: PolymarketSearchBlockViewModel.State {
+        switch viewModel.state {
+        case .prompt, .loading, .noResults, .error: viewModel.state
+        case .loaded, .allDataLoaded, .paginationLoading, .paginationError: .loaded
+        }
+    }
+
     private var skeleton: some View {
-        ScrollView {
+        ScrollView(showsIndicators: false) {
             LazyVStack(spacing: Constants.contentSpacing) {
+                resultsTitle
+
                 PolymarketEventsSkeletonView()
             }
             .padding(.vertical, Constants.contentVerticalPadding)
@@ -59,7 +69,7 @@ struct PolymarketSearchResultsView: View {
     }
 
     private var results: some View {
-        ScrollView {
+        ScrollView(showsIndicators: false) {
             LazyVStack(spacing: Constants.contentSpacing) {
                 resultsTitle
 
@@ -91,8 +101,13 @@ struct PolymarketSearchResultsView: View {
 
     // MARK: - Pagination
 
-    @ViewBuilder
     private var paginationFooter: some View {
+        paginationFooterContent
+            .animation(.default, value: viewModel.state == .paginationError)
+    }
+
+    @ViewBuilder
+    private var paginationFooterContent: some View {
         switch viewModel.state {
         case .loaded:
             paginationLoader

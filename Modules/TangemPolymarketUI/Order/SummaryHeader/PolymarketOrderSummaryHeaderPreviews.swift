@@ -49,10 +49,9 @@ private extension PolymarketOrderSummaryHeader.Model {
             accountName: "Polymarket account",
             accountIcon: Assets.Polymarket.accountAvatar,
             sourceTitle: "From",
-            balanceText: "Balance: 30,000 USDC",
+            balanceText: "Balance: $30,000",
             amountText: amountText,
-            toWin: toWin,
-            tokenIconInfo: .stub
+            toWin: toWin
         )
     }
 
@@ -62,16 +61,6 @@ private extension PolymarketOrderSummaryHeader.Model {
     static let unavailableStub = stub(toWin: .unavailable)
     static let noQuoteStub = stub(toWin: nil)
     static let longAmountStub = stub(amountText: "$1,284,900.75", toWin: .value("$1,510,471.47"))
-}
-
-private extension TokenIconInfo {
-    static let stub = TokenIconInfo(
-        name: "USD Coin",
-        blockchainIconAsset: nil,
-        imageURL: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/coins/large/usd-coin.png"),
-        isCustom: false,
-        customTokenColor: nil
-    )
 }
 
 // MARK: - Previews

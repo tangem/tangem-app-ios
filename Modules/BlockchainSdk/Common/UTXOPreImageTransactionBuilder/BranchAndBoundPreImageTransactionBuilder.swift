@@ -16,7 +16,6 @@ import TangemFoundation
  */
 class BranchAndBoundPreImageTransactionBuilder {
     typealias Input = ScriptUnspentOutput
-    typealias Output = UTXOScriptType
     typealias Fee = UTXOPreImageTransactionBuilderFee
     typealias Error = UTXOPreImageTransactionBuilderError
 

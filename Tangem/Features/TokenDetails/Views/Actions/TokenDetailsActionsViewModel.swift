@@ -171,7 +171,7 @@ private extension TokenDetailsActionsViewModel {
     func perform(_ type: TokenActionType, kind: TokenDetailsActionsKind) {
         Task { @MainActor in
             if type == .exchange {
-                actionsRoutable?.performSwapAction(position: kind.swapPosition)
+                actionsRoutable?.performSwapAction(position: kind.swapPosition(for: walletModel))
             } else {
                 actionsRoutable?.performTokenAction(type)
             }

@@ -11,10 +11,13 @@ import Testing
 
 @MainActor
 func settle(
+    timeout: Duration = .seconds(3),
     until isSatisfied: () -> Bool,
     sourceLocation: SourceLocation = #_sourceLocation
 ) async throws {
-    for _ in 0 ..< PolymarketTestWaiting.settleAttempts {
+    let attempts = Int(timeout / .nanoseconds(Int64(PolymarketTestWaiting.interval)))
+
+    for _ in 0 ..< attempts {
         if isSatisfied() { return }
 
         try await Task.sleep(nanoseconds: PolymarketTestWaiting.interval)
@@ -31,7 +34,6 @@ func drain() async throws {
 }
 
 private enum PolymarketTestWaiting {
-    static let settleAttempts = 300
     static let drainAttempts = 10
     static let interval: UInt64 = 10_000_000
 }

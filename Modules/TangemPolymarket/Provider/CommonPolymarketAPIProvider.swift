@@ -20,11 +20,15 @@ public final class CommonPolymarketAPIProvider {
         networkConfiguration: TangemProviderConfiguration,
         headers: [APIHeaderKeyInfo],
         walletId: String,
-        builderCodeStore: PolymarketBuilderCodeStore
+        builderCodeStore: PolymarketBuilderCodeStore,
+        unauthorizedObserver: PolymarketUnauthorizedObserving? = nil
     ) {
         let provider = TangemProvider<PolymarketTarget>(
             configuration: networkConfiguration,
-            additionalPlugins: [NetworkHeadersPlugin(networkHeaders: headers)]
+            additionalPlugins: [
+                NetworkHeadersPlugin(networkHeaders: headers),
+                PolymarketUnauthorizedPlugin(walletId: walletId, observer: unauthorizedObserver),
+            ]
         )
         service = CommonPolymarketAPIService(provider: provider, baseURL: baseURL, walletId: walletId)
         mapper = PolymarketMapper()
@@ -88,6 +92,17 @@ extension CommonPolymarketAPIProvider: PolymarketAPIProvider {
     public func positionOutcome(request: PolymarketPositionOutcomeRequest) async throws -> PolymarketPosition? {
         let response = try await service.positionOutcome(request: request)
         return try mapper.mapPositionOutcome(response)
+    }
+
+    public func activity(request: PolymarketActivityRequest) async throws -> PolymarketActivityPage {
+        let response = try await service.activity(request: request)
+        return mapper.mapActivity(response)
+    }
+
+    @discardableResult
+    public func reconcileDeposits(depositWalletAddress: String) async throws -> PolymarketDepositsScan {
+        let response = try await service.reconcileDeposits(depositWalletAddress: depositWalletAddress)
+        return mapper.mapDepositsScan(response)
     }
 }
 

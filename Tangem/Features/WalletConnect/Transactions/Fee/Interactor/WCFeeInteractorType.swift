@@ -53,8 +53,6 @@ extension WCFee: CustomStringConvertible {
 protocol WCFeeInteractorType {
     var selectedFee: WCFee { get }
     var fees: [WCFee] { get }
-    var selectedFeePublisher: AnyPublisher<WCFee, Never> { get }
-    var customFeeService: WCCustomEvmFeeService { get }
 
     func retryFeeLoading()
 }

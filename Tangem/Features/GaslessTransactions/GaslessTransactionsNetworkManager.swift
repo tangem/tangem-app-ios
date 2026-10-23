@@ -23,9 +23,7 @@ protocol GaslessTransactionsNetworkManager {
     typealias TronSubmitResponse = GaslessTransactionsDTO.Response.TronSubmit
 
     var availableFeeTokens: [FeeToken] { get }
-    var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> { get }
     var availableTronFeeTokens: [TronFeeToken] { get }
-    var availableTronFeeTokensPublisher: AnyPublisher<[TronFeeToken], Never> { get }
 
     var currentHost: String { get }
 
@@ -44,9 +42,6 @@ protocol GaslessTransactionsNetworkManager {
 
     var cachedFeeRecipientAddress: String? { get }
     var feeRecipientAddress: String? { get async }
-    /// Fire-and-forget variant for environments without an async context.
-    /// We need this version to kick off fetching the fee recipient address early (e.g. during app startup)
-    func preloadFeeRecipientAddress()
 }
 
 final class CommonGaslessTransactionsNetworkManager {
@@ -107,16 +102,8 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
         availableFeeTokensSubject.value
     }
 
-    var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> {
-        availableFeeTokensSubject.eraseToAnyPublisher()
-    }
-
     var availableTronFeeTokens: [TronFeeToken] {
         availableTronFeeTokensSubject.value
-    }
-
-    var availableTronFeeTokensPublisher: AnyPublisher<[TronFeeToken], Never> {
-        availableTronFeeTokensSubject.eraseToAnyPublisher()
     }
 
     func initialize() {

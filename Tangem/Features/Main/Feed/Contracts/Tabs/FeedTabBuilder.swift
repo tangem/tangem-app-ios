@@ -13,7 +13,7 @@ protocol FeedTabBuilder {
 
     func makeSearchTab(
         query: AnyPublisher<String, Never>,
-        history: FeedSearchHistoryProvider,
+        portfolioProvider: FeedSearchPortfolioProvider,
         context: FeedContext
     ) -> FeedSearchTab
 }

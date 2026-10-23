@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAccessibilityIdentifiers
 import TangemAssets
+import TangemFoundation
 import TangemLocalization
 import TangemUI
 import TangemUIUtils
@@ -20,10 +21,17 @@ struct TransactionsListViewRedesigned: View {
     let reloadButtonAction: () -> Void
     let isReloadButtonBusy: Bool
     let fetchMore: FetchMore?
+    var jointOperationsSection: TransactionListItem? = nil
 
     var body: some View {
-        content
-            .frame(maxWidth: .infinity)
+        VStack(spacing: .zero) {
+            if let jointOperationsSection {
+                section(jointOperationsSection)
+            }
+
+            content
+        }
+        .frame(maxWidth: .infinity)
     }
 
     @ViewBuilder
@@ -60,20 +68,9 @@ struct TransactionsListViewRedesigned: View {
                 secondaryButton: nil
             )
         } else {
-            // The section is inlined instead of extracted into a view of its own on purpose:
-            // a custom view is opaque to the lazy stack, so it would build every row of a section at once.
             LazyVStack(spacing: .zero) {
                 ForEach(transactionItems.indexed(), id: \.1.id) { _, sectionItem in
-                    if sectionItem.header.isNotEmpty {
-                        TransactionsListSectionHeaderView(title: sectionItem.header)
-                    }
-
-                    ForEach(sectionItem.items, id: \.self) { cellItem in
-                        TransactionsListRowView(
-                            viewModel: cellItem,
-                            openTransactionDetailsAction: openTransactionDetailsAction
-                        )
-                    }
+                    section(sectionItem)
                 }
 
                 if let fetchMore {
@@ -84,6 +81,20 @@ struct TransactionsListViewRedesigned: View {
                         .id(fetchMore.id)
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private func section(_ item: TransactionListItem) -> some View {
+        if item.header.isNotEmpty {
+            TransactionsListSectionHeaderView(title: item.header)
+        }
+
+        ForEach(item.items, id: \.self) { cellItem in
+            TransactionsListRowView(
+                viewModel: cellItem,
+                openTransactionDetailsAction: openTransactionDetailsAction
+            )
         }
     }
 
@@ -114,6 +125,47 @@ struct TransactionsListViewRedesigned: View {
 
     private func errorExploreButton(action: @escaping () -> Void) -> StatusStateView.ActionButton {
         StatusStateView.ActionButton(title: Localization.commonExplore, action: action)
+    }
+}
+
+// MARK: - Section header
+
+private struct TransactionsListSectionHeaderView: View {
+    let title: String
+
+    var body: some View {
+        HStack {
+            Text(title)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+
+            Spacer()
+        }
+        .padding(.top, 24)
+        .padding(.bottom, 12)
+    }
+}
+
+// MARK: - Row
+
+private struct TransactionsListRowView: View {
+    let viewModel: TransactionViewModel
+    let openTransactionDetailsAction: (TransactionViewModel) -> Void
+
+    var body: some View {
+        SwiftUI.Button {
+            FeedbackGenerator.soft()
+            openTransactionDetailsAction(viewModel)
+        } label: {
+            switch viewModel.display.style {
+            case .chip(let style):
+                TransactionChipRedesigned(viewModel: viewModel, style: style)
+                    .padding(.vertical, 4)
+            case .row:
+                TransactionViewRedesigned(viewModel: viewModel)
+                    .padding(.vertical, 12)
+            }
+        }
+        .buttonStyle(.plain)
     }
 }
 

@@ -13,9 +13,7 @@ import Combine
 /// watchlist. Owns the optimistic-update / rollback / reconciliation flow.
 protocol PriceAlertsSubscriptionsProvider: AnyObject {
     var subscriptionsPublisher: AnyPublisher<RemotePriceAlertsSubscriptions, Never> { get }
-    var subscriptions: RemotePriceAlertsSubscriptions { get }
 
-    func isSubscribed(tokenId: PriceAlertTokenId) -> Bool
     func fetch() async throws
     func subscribe(tokenId: PriceAlertTokenId, walletIds: [String]) async throws
     func unsubscribe(tokenId: PriceAlertTokenId, walletIds: [String]) async throws

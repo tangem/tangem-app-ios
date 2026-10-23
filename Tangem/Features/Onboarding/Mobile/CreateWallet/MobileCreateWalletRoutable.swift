@@ -11,7 +11,6 @@ import Foundation
 @MainActor
 protocol MobileCreateWalletRoutable: AnyObject {
     func openImportWallet()
-    func openOnboarding(options: OnboardingCoordinator.Options)
     func closeMobileCreateWallet()
     func openTos(url: URL)
 }

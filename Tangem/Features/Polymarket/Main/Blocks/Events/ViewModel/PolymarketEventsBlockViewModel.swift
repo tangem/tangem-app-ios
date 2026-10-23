@@ -8,13 +8,14 @@
 
 import SwiftUI
 import TangemFoundation
+import TangemLocalization
 import TangemPolymarket
 import TangemPolymarketUI
 import TangemUI
 
 final class PolymarketEventsBlockViewModel: ObservableObject {
     @Published private(set) var categories: [PolymarketCategory] = [] {
-        didSet { categoryTabs = categories.map { PolymarketCategoryTab(id: $0.id, title: $0.label) } }
+        didSet { categoryTabs = categories.map { PolymarketCategoryTab(id: $0.id, title: $0.label, icon: $0.icon?.tabImage) } }
     }
 
     @Published private(set) var eventCards: [PolymarketEventCard.Model] = []
@@ -37,37 +38,58 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
     private let apiProvider: PolymarketAPIProvider
     private let refreshCenter: PolymarketMainRefreshCenter
     private let activityHandler: PolymarketMainActivityHandler
+    private let liveQuotesTracker: PolymarketFeedLiveQuotesTracker
     private let isRegionRestricted: () -> Bool
     private weak var routable: PolymarketEventOpeningRoutable?
+    private let now: () -> Date
+    private let reportOutdatedData: () -> Void
 
-    private var events: [PolymarketEvent] = []
+    private var feed = PolymarketFeedPages()
     private var cursor: String?
     private var hasNext = false
     private var cache: [Int?: CategoryState] = [:]
+    private var visibleEventIDs: Set<String> = []
+    private var liveQuotesByAssetId: [String: PolymarketOutcomeQuote] = [:]
+    private var refreshingPages: Set<PageKey> = []
+    private var lastStaleReport: Date?
 
     private var loadingTask: Task<Void, Never>?
+    private var visibilityTask: Task<Void, Never>?
+    private var liveQuotesTask: Task<Void, Never>?
+    private var isPollingPaused = false
+    private var hasVisibilityChangedDuringTick = false
     private let poller: PolymarketForegroundPoller
 
     init(
         apiProvider: PolymarketAPIProvider,
         refreshCenter: PolymarketMainRefreshCenter,
         activityHandler: PolymarketMainActivityHandler,
+        liveQuotesTracker: PolymarketFeedLiveQuotesTracker,
         isRegionRestricted: @escaping () -> Bool,
         routable: PolymarketEventOpeningRoutable,
-        notificationCenter: NotificationCenter = .default
+        notificationCenter: NotificationCenter = .default,
+        now: @escaping () -> Date = Date.init,
+        reportOutdatedData: @escaping () -> Void = PolymarketEventsBlockViewModel.presentOutdatedDataToast
     ) {
         self.apiProvider = apiProvider
         self.refreshCenter = refreshCenter
         self.activityHandler = activityHandler
+        self.liveQuotesTracker = liveQuotesTracker
         self.isRegionRestricted = isRegionRestricted
         self.routable = routable
-        poller = PolymarketForegroundPoller(interval: Constants.contentRefreshInterval, notificationCenter: notificationCenter)
+        self.now = now
+        self.reportOutdatedData = reportOutdatedData
+        poller = PolymarketForegroundPoller(interval: Constants.pollInterval, notificationCenter: notificationCenter)
 
         refreshCenter.register { [weak self] scope in
             await self?.refresh(scope: scope)
         }
 
-        poller.start(onTick: { [weak self] in await self?.refreshVisibleEvents() })
+        poller.start(
+            onTick: { [weak self] in await self?.pollVisiblePages() },
+            onPause: { [weak self] in self?.pausePolling() }
+        )
+        observeLiveQuotes()
         load()
     }
 }
@@ -84,6 +106,8 @@ extension PolymarketEventsBlockViewModel {
             retry()
         case .loadNextPage, .retryNextPage:
             loadMore()
+        case .onEventVisibilityChange(let id, let isVisible):
+            updateVisibility(eventID: id, isVisible: isVisible)
         }
     }
 
@@ -92,6 +116,7 @@ extension PolymarketEventsBlockViewModel {
         case retry
         case loadNextPage
         case retryNextPage
+        case onEventVisibilityChange(id: String, isVisible: Bool)
     }
 }
 
@@ -129,7 +154,7 @@ private extension PolymarketEventsBlockViewModel {
         cache[selectedCategoryID] = snapshot()
         selectedCategoryID = categoryID
 
-        if let cached = cache[categoryID], !cached.events.isEmpty {
+        if let cached = cache[categoryID], !cached.feed.isEmpty {
             restore(cached)
         } else {
             fetchEvents()
@@ -152,9 +177,15 @@ private extension PolymarketEventsBlockViewModel {
         )
     }
 
-    func selectOutcome(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {
+    func selectOutcome(eventID: String, marketID: String, assetId: String) {
         guard !isRegionRestricted() else {
             routable?.openRegionWarning()
+            return
+        }
+
+        guard let event = feed.events.first(where: { $0.id == eventID }),
+              let market = event.markets.first(where: { $0.id == marketID }),
+              let outcome = market.outcomes.first(where: { $0.assetId == assetId }) else {
             return
         }
 
@@ -163,7 +194,7 @@ private extension PolymarketEventsBlockViewModel {
         routable?.openOrder(
             market: market,
             outcome: outcome,
-            eventTitle: eventTitle,
+            eventTitle: event.title,
             request: .buy,
             onPlaced: { [weak activityHandler] indexing in activityHandler?.orderPlaced(awaiting: indexing) }
         )
@@ -177,20 +208,244 @@ private extension PolymarketEventsBlockViewModel {
     func refresh(scope: PolymarketMainRefreshCenter.Scope) async {
         switch scope {
         case .full:
-            loadingTask?.cancel()
-
-            loadingTask = runTask(in: self) { @MainActor viewModel in
-                if viewModel.categories.isEmpty {
-                    await viewModel.loadCategories()
-                } else {
-                    await viewModel.reloadSelectedCategory()
-                }
-            }
-
-            await loadingTask?.value
+            await reloadFeed()
         case .balance, .accountFunds:
             break
         }
+    }
+
+    @MainActor
+    func reloadFeed() async {
+        loadingTask?.cancel()
+
+        loadingTask = runTask(in: self) { @MainActor viewModel in
+            if viewModel.categories.isEmpty {
+                await viewModel.loadCategories()
+            } else {
+                await viewModel.reloadSelectedCategory()
+            }
+        }
+
+        await loadingTask?.value
+    }
+}
+
+// MARK: - Polling
+
+private extension PolymarketEventsBlockViewModel {
+    @MainActor
+    func pollVisiblePages() async {
+        isPollingPaused = false
+        liveQuotesTracker.resume()
+        updateLiveQuotesTracking()
+        await refreshVisiblePages()
+    }
+
+    @MainActor
+    func pausePolling() {
+        isPollingPaused = true
+        visibilityTask?.cancel()
+        visibilityTask = nil
+        hasVisibilityChangedDuringTick = false
+        liveQuotesTracker.pause()
+        dropUntrackedLiveQuotes()
+    }
+
+    @MainActor
+    func updateVisibility(eventID: String, isVisible: Bool) {
+        guard isVisible else {
+            visibleEventIDs.remove(eventID)
+            updateLiveQuotesTracking()
+            return
+        }
+
+        visibleEventIDs.insert(eventID)
+        updateLiveQuotesTracking()
+
+        guard visibilityTask == nil else {
+            hasVisibilityChangedDuringTick = true
+            return
+        }
+
+        scheduleVisibilityTick()
+    }
+
+    func scheduleVisibilityTick() {
+        guard !isPollingPaused, visibilityTask == nil else { return }
+
+        visibilityTask = runTask(in: self) { @MainActor viewModel in
+            try? await Task.sleep(for: .seconds(Constants.visibilitySettleDelay))
+
+            guard !Task.isCancelled else { return }
+
+            await viewModel.refreshVisiblePages()
+
+            guard !Task.isCancelled else { return }
+
+            viewModel.visibilityTask = nil
+
+            if viewModel.hasVisibilityChangedDuringTick {
+                viewModel.hasVisibilityChangedDuringTick = false
+                viewModel.scheduleVisibilityTick()
+            }
+        }
+    }
+
+    @MainActor
+    func refreshVisiblePages() async {
+        let stalePageIDs = feed.stalePageIDs(
+            showing: visibleEventIDs,
+            now: now(),
+            staleAfter: Constants.staleAfter,
+            minimumInterval: Constants.pollInterval
+        )
+
+        let generation = feed.generation
+
+        for pageID in stalePageIDs {
+            guard generation == feed.generation else { return }
+
+            await refresh(pageID: pageID)
+        }
+    }
+
+    @MainActor
+    func refresh(pageID: Int) async {
+        let key = PageKey(generation: feed.generation, pageID: pageID)
+
+        guard let page = feed.page(id: pageID), refreshingPages.insert(key).inserted else { return }
+
+        defer { refreshingPages.remove(key) }
+
+        let categoryID = selectedCategoryID
+        feed.markAttempt(pageID: pageID, at: now())
+
+        do {
+            let refreshed = try await apiProvider.events(
+                request: PolymarketEventsRequest(category: categoryID, limit: Constants.pageSize, cursor: page.requestCursor)
+            )
+            try Task.checkCancellation()
+
+            guard key.generation == feed.generation, feed.merge(refreshed.events, into: pageID, at: now()) > 0 else {
+                return
+            }
+
+            eventCards = feed.events.map(makeCard)
+            updateLiveQuotesTracking()
+        } catch {
+            guard !error.isCancellationError, key.generation == feed.generation else { return }
+
+            PolymarketLogger.error("Failed to refresh a page of the events feed", error: error)
+
+            let failures = feed.markFailure(pageID: pageID)
+
+            if failures >= Constants.staleReportFailures, feed.pageIDs(showing: visibleEventIDs).contains(pageID) {
+                reportStaleData()
+            }
+        }
+    }
+
+    func reportStaleData() {
+        let now = now()
+
+        if let lastStaleReport, now.timeIntervalSince(lastStaleReport) < Constants.staleReportCooldown {
+            return
+        }
+
+        lastStaleReport = now
+        reportOutdatedData()
+    }
+}
+
+// MARK: - Live quotes
+
+private extension PolymarketEventsBlockViewModel {
+    func observeLiveQuotes() {
+        liveQuotesTask = Task { @MainActor [weak self, updates = liveQuotesTracker.updates] in
+            for await update in updates {
+                switch update {
+                case .quotes(let batch):
+                    self?.applyLiveQuotes(batch)
+                case .connectionLost:
+                    self?.dropAllLiveQuotes()
+                }
+            }
+        }
+    }
+
+    @MainActor
+    func applyLiveQuotes(_ batch: PolymarketFeedLiveQuotesTracker.QuoteBatch) {
+        let trackedQuotes = batch.quotesByAssetId.filter { liveQuotesTracker.trackedAssetIds.contains($0.key) }
+        liveQuotesByAssetId.merge(trackedQuotes) { _, newQuote in newQuote }
+        refreshCards(showingAnyOf: Set(trackedQuotes.keys))
+    }
+
+    @MainActor
+    func refreshCards(showingAnyOf assetIds: Set<String>) {
+        let affectedIndices = eventCards.indices.filter { eventCards[$0].showsOutcome(from: assetIds) }
+
+        guard !affectedIndices.isEmpty else {
+            return
+        }
+
+        let events = feed.events
+        var cards = eventCards
+
+        for index in affectedIndices {
+            guard let event = events.first(where: { $0.id == cards[index].id }) else {
+                continue
+            }
+
+            cards[index] = makeCard(for: event)
+        }
+
+        guard cards != eventCards else {
+            return
+        }
+
+        eventCards = cards
+    }
+
+    @MainActor
+    func updateLiveQuotesTracking() {
+        liveQuotesTracker.update(events: feed.events, visibleEventIDs: visibleEventIDs)
+        dropUntrackedLiveQuotes()
+    }
+
+    @MainActor
+    func dropAllLiveQuotes() {
+        let droppedAssetIds = Set(liveQuotesByAssetId.keys)
+        liveQuotesByAssetId = [:]
+        refreshCards(showingAnyOf: droppedAssetIds)
+    }
+
+    @MainActor
+    func dropUntrackedLiveQuotes() {
+        let untrackedAssetIds = Set(liveQuotesByAssetId.keys).subtracting(liveQuotesTracker.trackedAssetIds)
+
+        guard !untrackedAssetIds.isEmpty else {
+            return
+        }
+
+        untrackedAssetIds.forEach { liveQuotesByAssetId.removeValue(forKey: $0) }
+        refreshCards(showingAnyOf: untrackedAssetIds)
+    }
+}
+
+private extension PolymarketEventCard.Model {
+    func showsOutcome(from assetIds: Set<String>) -> Bool {
+        rows.contains { row in
+            row.outcomes.contains { assetIds.contains($0.id) }
+        }
+    }
+}
+
+// MARK: - Outdated data
+
+extension PolymarketEventsBlockViewModel {
+    static func presentOutdatedDataToast() {
+        Toast(view: WarningToast(text: Localization.predictionMainDataOutdated))
+            .present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
     }
 }
 
@@ -228,38 +483,10 @@ private extension PolymarketEventsBlockViewModel {
             let page = try await events(category: firstCategoryID, cursor: nil)
             try Task.checkCancellation()
 
-            apply(page: page)
+            apply(page: page, requestCursor: nil)
         } catch {
             handleFetchFailure(error)
         }
-    }
-
-    @MainActor
-    func refreshVisibleEvents() async {
-        guard !events.isEmpty else { return }
-
-        let categoryID = selectedCategoryID
-
-        do {
-            let page = try await events(category: categoryID, cursor: nil)
-            try Task.checkCancellation()
-
-            guard categoryID == selectedCategoryID else { return }
-
-            replaceVisibleEvents(with: page.events)
-        } catch {
-            guard !error.isCancellationError else { return }
-
-            PolymarketLogger.error("Failed to refresh the events feed", error: error)
-        }
-    }
-
-    @MainActor
-    func replaceVisibleEvents(with refreshed: [PolymarketEvent]) {
-        let byID = Dictionary(refreshed.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
-
-        events = events.map { byID[$0.id] ?? $0 }
-        eventCards = events.map(makeCard)
     }
 
     @MainActor
@@ -272,7 +499,7 @@ private extension PolymarketEventsBlockViewModel {
 
             cache[categoryID] = nil
             resetEvents()
-            apply(page: page)
+            apply(page: page, requestCursor: nil)
         } catch {
             handleFetchFailure(error)
         }
@@ -285,7 +512,7 @@ private extension PolymarketEventsBlockViewModel {
             resetEvents()
         }
 
-        loadingState = events.isEmpty ? .loading : .paginationLoading
+        loadingState = feed.isEmpty ? .loading : .paginationLoading
 
         let categoryID = selectedCategoryID
         let requestCursor = more ? cursor : nil
@@ -295,15 +522,17 @@ private extension PolymarketEventsBlockViewModel {
                 let page = try await viewModel.events(category: categoryID, cursor: requestCursor)
                 try Task.checkCancellation()
 
-                viewModel.apply(page: page, emptyPages: emptyPages)
+                viewModel.apply(page: page, requestCursor: requestCursor, emptyPages: emptyPages)
             } catch {
                 viewModel.handleFetchFailure(error)
             }
         }
     }
 
-    func apply(page: PolymarketEventsPage, emptyPages: Int = 0) {
-        let added = append(events: page.events)
+    @MainActor
+    func apply(page: PolymarketEventsPage, requestCursor: String?, emptyPages: Int = 0) {
+        let added = append(events: page.events, requestCursor: requestCursor)
+        updateLiveQuotesTracking()
 
         cursor = page.cursor
         hasNext = page.hasNext
@@ -313,31 +542,19 @@ private extension PolymarketEventsBlockViewModel {
             return
         }
 
-        loadingState = events.isEmpty ? .noResults : (page.hasNext ? .loaded : .allDataLoaded)
+        loadingState = feed.isEmpty ? .noResults : (page.hasNext ? .loaded : .allDataLoaded)
     }
 
     func handleFetchFailure(_ error: Error) {
         guard !error.isCancellationError else { return }
 
-        if !events.isEmpty, Self.isStaleCursorFailure(error) {
-            cursor = nil
-        }
-
-        loadingState = events.isEmpty ? .error : .paginationError
-    }
-
-    static func isStaleCursorFailure(_ error: Error) -> Bool {
-        guard case .http(let statusCode, _) = error as? PolymarketAPIError else { return false }
-
-        return statusCode == Constants.staleCursorStatusCode
+        loadingState = feed.isEmpty ? .error : .paginationError
     }
 
     @discardableResult
-    func append(events newEvents: [PolymarketEvent]) -> Int {
-        var known = Set(events.map(\.id))
-        let fresh = newEvents.filter { known.insert($0.id).inserted }
+    func append(events newEvents: [PolymarketEvent], requestCursor: String?) -> Int {
+        let fresh = feed.append(events: newEvents, requestCursor: requestCursor, at: now())
 
-        events.append(contentsOf: fresh)
         eventCards.append(contentsOf: fresh.map(makeCard))
 
         return fresh.count
@@ -352,26 +569,32 @@ private extension PolymarketEventsBlockViewModel {
             event: event,
             category: nil,
             isInActivePredicts: false,
-            onSelectOutcome: { [weak self] market, outcome in
-                self?.selectOutcome(market: market, outcome: outcome, eventTitle: event.title)
+            liveQuotesByAssetId: liveQuotesByAssetId,
+            onSelectOutcome: { [weak self, eventID = event.id] market, outcome in
+                self?.selectOutcome(eventID: eventID, marketID: market.id, assetId: outcome.assetId)
             }
         )
     }
 
     func resetEvents() {
-        events = []
+        feed.removeAll()
         eventCards = []
         cursor = nil
         hasNext = false
+        refreshingPages = []
+        visibilityTask?.cancel()
+        visibilityTask = nil
+        hasVisibilityChangedDuringTick = false
     }
 
     func snapshot() -> CategoryState {
-        CategoryState(events: events, cursor: cursor, hasNext: hasNext)
+        CategoryState(feed: feed, cursor: cursor, hasNext: hasNext)
     }
 
     func restore(_ state: CategoryState) {
         resetEvents()
-        append(events: state.events)
+        feed = state.feed
+        eventCards = feed.events.map(makeCard)
         cursor = state.cursor
         hasNext = state.hasNext
         loadingState = state.hasNext ? .loaded : .allDataLoaded
@@ -398,16 +621,25 @@ extension PolymarketEventsBlockViewModel {
 
 private extension PolymarketEventsBlockViewModel {
     struct CategoryState {
-        let events: [PolymarketEvent]
+        let feed: PolymarketFeedPages
         let cursor: String?
         let hasNext: Bool
     }
 
+    struct PageKey: Hashable {
+        let generation: UUID
+        let pageID: Int
+    }
+
     enum Constants {
         static let pageSize = 20
-        static let staleCursorStatusCode = 502
-        static let contentRefreshInterval: TimeInterval = 20
         static let silentRetryDelay: TimeInterval = 2
         static let maxEmptyPages = 3
+        static let pollInterval: TimeInterval = 20
+        static let staleAfter: TimeInterval = 20
+        static let visibilitySettleDelay: TimeInterval = 0.5
+        static let staleReportFailures = 3
+        static let staleReportCooldown: TimeInterval = 300
+        static let toastTopPadding: CGFloat = 20
     }
 }
