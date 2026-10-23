@@ -91,11 +91,6 @@ final class TangemPayOfferViewModel: ObservableObject {
     }
 
     func acceptOffer(on userWalletModel: UserWalletModel) {
-        guard FeatureProvider.isAvailable(.tangemPayChooseCountry) else {
-            acceptOfferWithoutResidency(on: userWalletModel)
-            return
-        }
-
         isLoading = true
         runTask(in: self) { viewModel in
             do throws(TangemPayAuthorizationError) {
@@ -129,20 +124,6 @@ final class TangemPayOfferViewModel: ObservableObject {
 }
 
 private extension TangemPayOfferViewModel {
-    func acceptOfferWithoutResidency(on userWalletModel: UserWalletModel) {
-        isLoading = true
-        runTask(in: self) { viewModel in
-            do throws(TangemPayAuthorizationError) {
-                try await userWalletModel.accountModelsManager.acceptTangemPayOffer(
-                    authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor
-                )
-                await viewModel.closeOfferScreen()
-            } catch {
-                await viewModel.handleAuthorizationFailure(error)
-            }
-        }
-    }
-
     @MainActor
     func continueAfterAuthorization(residencyInteractor: (any TangemPayResidencyInteractor)?) {
         isLoading = false

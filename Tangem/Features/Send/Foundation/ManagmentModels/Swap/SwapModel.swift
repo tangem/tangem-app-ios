@@ -1127,8 +1127,7 @@ extension SwapModel {
     ) async throws -> BSDKFee {
         let manager = try provider.getTokenFeeProvidersManager()
         let shownFee = try manager.selectedTokenFee.value.get()
-        guard FeatureProvider.isAvailable(.tronGaslessCEX),
-              shownFee.parameters is TronGaslessFeeParameters else {
+        guard shownFee.parameters is TronGaslessFeeParameters else {
             return shownFee
         }
 

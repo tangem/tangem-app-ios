@@ -51,9 +51,7 @@ extension SwapFlowFactory: SendGenericFlowFactory {
         let summary = makeSwapSummaryStep(
             swapAmountViewModel: amount.viewModel,
             swapSummaryProviderViewModel: providers.compact,
-            swapSummarySlippageViewModel: FeatureProvider.isAvailable(.customSlippage)
-                ? SwapSummarySlippageViewModel(swapProvidersInput: swapModel, slippageInput: swapModel)
-                : nil,
+            swapSummarySlippageViewModel: SwapSummarySlippageViewModel(swapProvidersInput: swapModel, slippageInput: swapModel),
             feeCompactViewModel: fee.compact,
         )
 
