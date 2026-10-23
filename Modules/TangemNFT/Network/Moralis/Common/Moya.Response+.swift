@@ -24,10 +24,10 @@ extension Response {
 
     /// - Note: `Never` return type is used to silence the compiler, this method always throws an error.
     private func handleUnsuccessfulStatusCodes(with error: Error, using decoder: JSONDecoder) throws -> Never {
-        guard let apiError = try? map(MoralisEVMNetworkResult.APIError.self, using: decoder) else {
+        guard let apiError = try? map(MoralisAPIError.self, using: decoder) else {
             throw error
         }
 
-        throw MoralisEVMNFTNetworkService.Error.apiError(message: apiError.message)
+        throw apiError
     }
 }
