@@ -5,8 +5,8 @@
 {% if files %}
 {% set accessModifier %}{% if param.publicAccess %}public{% else %}internal{% endif %}{% endset %}
 {% set enumName %}{{param.enumName|default:"LottieFile"}}{% endset %}
-import Foundation
-import Lottie
+{% set importAccessModifier %}{% if param.publicAccess %}public {% endif %}{% endset %}
+{{importAccessModifier}}import class Lottie.LottieAnimation
 
 // MARK: - Lottie Files Enum
 
