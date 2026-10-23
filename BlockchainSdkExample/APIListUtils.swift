@@ -54,6 +54,7 @@ struct ConfigUtils {
             quickNodeMonadCredentials: .init(apiKey: keys.quiknodeMonadApiKey, subdomain: keys.quiknodeMonadSubdomain),
             quickNodeRobinhoodCredentials: .init(apiKey: keys.quiknodeRobinhoodApiKey, subdomain: keys.quiknodeRobinhoodSubdomain),
             quickNodeArcCredentials: .init(apiKey: keys.quiknodeArcApiKey, subdomain: keys.quiknodeArcSubdomain),
+            quickNodeSuiCredentials: .init(apiKey: keys.quiknodeSuiApiKey, subdomain: keys.quiknodeSuiSubdomain),
             bittensorDwellirKey: keys.bittensorDwellirKey,
             dwellirApiKey: keys.dwellirApiKey,
             bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
@@ -200,6 +201,8 @@ struct Keys: Decodable {
     let quiknodeRobinhoodSubdomain: String
     let quiknodeArcApiKey: String
     let quiknodeArcSubdomain: String
+    let quiknodeSuiApiKey: String
+    let quiknodeSuiSubdomain: String
     let etherscanApiKey: String
     let koinosProApiKey: String
     let bittensorDwellirKey: String
