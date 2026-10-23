@@ -9,7 +9,7 @@
 import Foundation
 import Moya
 import TangemFoundation
-@preconcurrency import TangemNetworkUtils
+import TangemNetworkUtils
 
 final class SurveySparrowRatingProvider: RatingProvider {
     // MARK: - Type Aliases

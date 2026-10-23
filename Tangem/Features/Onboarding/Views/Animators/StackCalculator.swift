@@ -8,6 +8,28 @@
 
 import SwiftUI
 
+struct StackCalculatorSettings {
+    let topCardSize: CGSize
+    let topCardOffset: CGSize
+    let cardsVerticalOffset: CGFloat
+    let scaleStep: CGFloat
+    let opacityStep: Double
+    var numberOfCards: Int
+    var maxCardsInStack: Int
+
+    static var zero: StackCalculatorSettings {
+        .init(
+            topCardSize: .zero,
+            topCardOffset: .zero,
+            cardsVerticalOffset: 0,
+            scaleStep: 0,
+            opacityStep: 0,
+            numberOfCards: 2,
+            maxCardsInStack: 2
+        )
+    }
+}
+
 // [REDACTED_TODO_COMMENT]
 struct StackCalculator {
     private(set) var prehideAnimSettings: CardAnimSettings = .zero
@@ -16,9 +38,9 @@ struct StackCalculator {
 
     private var cardsSettings: [CardAnimSettings] = []
     private var containerSize: CGSize = .zero
-    private var settings: CardsStackAnimatorSettings = .zero
+    private var settings: StackCalculatorSettings = .zero
 
-    mutating func setup(for container: CGSize, with settings: CardsStackAnimatorSettings) {
+    mutating func setup(for container: CGSize, with settings: StackCalculatorSettings) {
         containerSize = container
         self.settings = settings
         populateSettings()

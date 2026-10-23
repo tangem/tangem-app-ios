@@ -188,7 +188,7 @@ struct WalletOnboardingView: View {
                             .opacity(currentStep.successCircleOpacity)
 
                             if viewModel.isInfoPagerVisible {
-                                OnboardingWalletInfoPager(animated: viewModel.isInfoPagerVisible)
+                                OnboardingWalletInfoPager()
                                     .offset(.init(width: 0, height: size.height / 2 + infoPagerHeight / 2))
                                     .frame(height: infoPagerHeight)
                                     .zIndex(150)

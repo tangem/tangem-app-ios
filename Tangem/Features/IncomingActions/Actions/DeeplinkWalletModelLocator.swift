@@ -275,51 +275,23 @@ extension DeeplinkWalletModelLocator {
 
         await withTaskCancellationHandler {
             await withCheckedContinuation { continuation in
-                let resumeOnce = ResumeOnceContinuation(continuation)
+                let continuationWrapper = ResumableOnceCheckedContinuationWrapper<Void, Never>(continuation)
 
                 // Lets `onCancel` reach the continuation even if it fires before/while this closure runs;
                 // `set` resumes immediately when cancellation already happened (race between `onCancel` and `set`).
-                continuationCancellableWrapper.set(AnyCancellable { resumeOnce.resume() })
+                continuationCancellableWrapper.set(AnyCancellable { continuationWrapper.resumeIfNeeded() })
 
                 guard !Task.isCancelled else {
-                    resumeOnce.resume()
+                    continuationWrapper.resumeIfNeeded()
                     return
                 }
 
                 userTokensManager.sync {
-                    resumeOnce.resume()
+                    continuationWrapper.resumeIfNeeded()
                 }
             }
         } onCancel: {
             continuationCancellableWrapper.cancel()
-        }
-    }
-}
-
-// MARK: - ResumeOnceContinuation
-
-private extension DeeplinkWalletModelLocator {
-    /// Resumes the wrapped continuation exactly once, from whichever of the sync completion or the cancellation
-    /// handler fires first. Internally synchronized, hence `@unchecked Sendable`.
-    final class ResumeOnceContinuation: @unchecked Sendable {
-        private let continuation: CheckedContinuation<Void, Never>
-        private let isResumed = OSAllocatedUnfairLock(initialState: false)
-
-        init(_ continuation: CheckedContinuation<Void, Never>) {
-            self.continuation = continuation
-        }
-
-        func resume() {
-            let shouldResume = isResumed.withLock { resumed in
-                guard !resumed else { return false }
-                resumed = true
-                return true
-            }
-
-            // Resuming is performed outside the critical section to avoid potential deadlocks.
-            if shouldResume {
-                continuation.resume()
-            }
         }
     }
 }
