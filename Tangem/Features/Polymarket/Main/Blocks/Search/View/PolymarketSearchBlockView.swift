@@ -14,13 +14,17 @@ struct PolymarketSearchBlockView: View {
     @ObservedObject var viewModel: PolymarketSearchBlockViewModel
 
     var body: some View {
-        if viewModel.isSearching {
-            ZStack {
-                DesignSystem.Color.bgPrimary
-                    .ignoresSafeArea()
+        ZStack {
+            if viewModel.isSearching {
+                ZStack {
+                    DesignSystem.Color.bgPrimary
+                        .ignoresSafeArea()
 
-                PolymarketSearchResultsView(viewModel: viewModel)
+                    PolymarketSearchResultsView(viewModel: viewModel)
+                }
+                .transition(.opacity)
             }
         }
+        .animation(.default, value: viewModel.isSearching)
     }
 }

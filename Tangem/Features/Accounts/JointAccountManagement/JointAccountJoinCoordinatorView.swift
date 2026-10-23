@@ -8,6 +8,8 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
+import TangemUI
 
 struct JointAccountJoinCoordinatorView: View {
     @ObservedObject var coordinator: JointAccountJoinCoordinator
@@ -31,6 +33,20 @@ struct JointAccountJoinCoordinatorView: View {
             }
             // Attached outside of the `if let` so that the destination is registered before any step gets pushed
             .navigationDestination(for: JointAccountJoinCoordinator.Step.self) { destination(for: $0) }
+        }
+        .modal(
+            item: $coordinator.walletSelectorViewModel,
+            contentLayout: .intrinsic,
+            navigation: .title(Localization.commonChooseWallet)
+        ) {
+            AccountSelectorView(viewModel: $0, style: .modal)
+        }
+        .modal(
+            item: $coordinator.memberDetailsViewModel,
+            contentLayout: .intrinsic,
+            navigation: .closeButton()
+        ) {
+            JointAccountMemberDetailsView(viewModel: $0)
         }
     }
 

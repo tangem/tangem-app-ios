@@ -14,7 +14,6 @@ import TangemPay
 import TangemUI
 
 protocol TangemPayAccountRoutable: AnyObject {
-    func openTangemPayFailedToIssueCardPopup()
     func openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
     func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
     func openTangemPayMainView(tangemPayAccount: TangemPayAccount)
@@ -275,17 +274,6 @@ extension TangemPayAccountViewModel {
                 cached != nil
             case .rootedDevice:
                 false
-            }
-        }
-
-        var showsCachedIndicator: Bool {
-            switch self {
-            case .unavailable(let cached), .syncNeeded(let cached):
-                return cached != nil
-            case .skeleton, .normal, .kycInProgress, .actionRequired, .kycDeclined,
-                 .issuingYourCard, .failedToIssueCard, .rootedDevice,
-                 .replacingCard, .cardDeactivated, .planSelectNeeded:
-                return false
             }
         }
 

@@ -31,7 +31,6 @@ final class NewsListCoordinator: CoordinatorObject {
     // MARK: - Private Properties
 
     private var dataProvider: NewsDataProvider?
-    private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
 

@@ -88,22 +88,6 @@ public enum EthereumUtils {
         return BigUInt(data)
     }
 
-    /// Formats a BigInt object to String. The supplied number is first divided into integer and decimal part based on "toUnits",
-    /// then limit the decimal part to "decimals" symbols and uses a "decimalSeparator" as a separator.
-    /// Fallbacks to scientific format if higher precision is required.
-    ///
-    /// Returns nil of formatting is not possible to satisfy.
-    static func formatToPrecision(_ bigNumber: BigInt, numberDecimals: Int = 18, formattingDecimals: Int = 4, decimalSeparator: String = ".", fallbackToScientific: Bool = false) -> String? {
-        let magnitude = bigNumber.magnitude
-        guard let formatted = formatToPrecision(magnitude, numberDecimals: numberDecimals, formattingDecimals: formattingDecimals, decimalSeparator: decimalSeparator, fallbackToScientific: fallbackToScientific) else { return nil }
-        switch bigNumber.sign {
-        case .plus:
-            return formatted
-        case .minus:
-            return "-" + formatted
-        }
-    }
-
     /// Formats a BigUInt object to String. The supplied number is first divided into integer and decimal part based on "numberDecimals",
     /// then limits the decimal part to "formattingDecimals" symbols and uses a "decimalSeparator" as a separator.
     /// Fallbacks to scientific format if higher precision is required.

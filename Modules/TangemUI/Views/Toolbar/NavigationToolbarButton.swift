@@ -25,6 +25,7 @@ public struct NavigationToolbarButton: CustomizableToolbarContent {
     var isRedesign: Bool
     var accessibilityIdentifier: String?
     var accessibilityLabel: String?
+    var isDimmed = false
     let action: () -> Void
 
     /// Creates a navigation toolbar button.
@@ -70,9 +71,13 @@ public struct NavigationToolbarButton: CustomizableToolbarContent {
     private var systemLabelButton: some View {
         SwiftUI.Button("", systemImage: sfSymbol, action: action)
             .labelStyle(.iconOnly)
-            .tint(Color.Tangem.Graphic.Neutral.primary)
-            .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
+            .tint(systemLabelColor)
+            .foregroundStyle(systemLabelColor)
             .frame(width: 44, height: 44)
+    }
+
+    private var systemLabelColor: Color {
+        isDimmed ? Colors.Text.disabled : DesignSystem.Color.iconPrimary
     }
 
     private var circleIconButton: some View {
@@ -81,7 +86,7 @@ public struct NavigationToolbarButton: CustomizableToolbarContent {
                 .resizable()
                 .renderingMode(.template)
                 .frame(width: 20, height: 20)
-                .foregroundStyle(Colors.Icon.informative)
+                .foregroundStyle(isDimmed ? Colors.Icon.inactive : Colors.Icon.informative)
                 .padding(4)
                 .background {
                     Circle()
@@ -102,6 +107,12 @@ public extension NavigationToolbarButton {
     func accessibilityLabel(_ label: String) -> Self {
         var mutableCopy = self
         mutableCopy.accessibilityLabel = label
+        return mutableCopy
+    }
+
+    func dimmed(_ isDimmed: Bool) -> Self {
+        var mutableCopy = self
+        mutableCopy.isDimmed = isDimmed
         return mutableCopy
     }
 

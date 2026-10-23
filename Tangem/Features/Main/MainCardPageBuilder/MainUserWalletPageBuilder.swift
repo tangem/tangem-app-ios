@@ -49,13 +49,6 @@ enum MainUserWalletPageBuilder: Identifiable {
         }
     }
 
-    var isLockedWallet: Bool {
-        switch self {
-        case .lockedWallet: return true
-        case .singleWallet, .multiWallet, .visaWallet: return false
-        }
-    }
-
     var headerModel: MainHeaderViewModel {
         switch self {
         case .singleWallet(_, _, let headerModel, _): headerModel
@@ -89,10 +82,6 @@ enum MainUserWalletPageBuilder: Identifiable {
 
     var navigation: some View {
         MainNavigationView(viewModel: navigationModel)
-    }
-
-    var header: some View {
-        MainHeaderView(viewModel: headerModel)
     }
 
     @ViewBuilder

@@ -14,24 +14,12 @@ import Testing
 @Suite("Main notifications hide-while-system", .serialized)
 @MainActor
 struct MainNotificationsViewModelTests {
-    @Test("Toggle OFF keeps the marketing section and the promo banners visible")
-    func toggleOffKeepsEverythingVisible() async {
-        let systemInputs = sampleInputs(count: 1)
-        let promoInputs = sampleInputs(count: 2)
-        let viewModel = makeViewModel(isEnabled: false, systemInputs: systemInputs, promoInputs: promoInputs)
-
-        let settled = await waitUntilConditionMet(timeout: 4) {
-            hasMarketing(viewModel) && bannerCount(viewModel) == systemInputs.count + promoInputs.count
-        }
-        #expect(settled)
-    }
-
-    @Test("Toggle ON hides marketing and strips the promo while a system card is present, keeping system banners")
-    func toggleOnHidesWhileSystemPresent() async {
+    @Test("Hides marketing and strips the promo while a system card is present, keeping system banners")
+    func hidesWhileSystemPresent() async {
         await withControllableAddFunds { _ in
             let systemInputs = sampleInputs(count: 1)
             let promoInputs = sampleInputs(count: 2)
-            let viewModel = makeViewModel(isEnabled: true, systemInputs: systemInputs, promoInputs: promoInputs)
+            let viewModel = makeViewModel(systemInputs: systemInputs, promoInputs: promoInputs)
             let allowedVisibility = PassthroughSubject<MainPromotionalVisibility, Never>()
 
             viewModel.bindVisibility(
@@ -48,12 +36,12 @@ struct MainNotificationsViewModelTests {
         }
     }
 
-    @Test("Toggle ON shows marketing and the promo again once the open-check resolves without a system card")
-    func toggleOnShowsWhenNoSystemCard() async {
+    @Test("Shows marketing and the promo again once the open-check resolves without a system card")
+    func showsWhenNoSystemCard() async {
         await withControllableAddFunds { addFunds in
             let systemInputs = sampleInputs(count: 1)
             let promoInputs = sampleInputs(count: 2)
-            let viewModel = makeViewModel(isEnabled: true, systemInputs: systemInputs, promoInputs: promoInputs)
+            let viewModel = makeViewModel(systemInputs: systemInputs, promoInputs: promoInputs)
             let allowedVisibility = PassthroughSubject<MainPromotionalVisibility, Never>()
 
             viewModel.bindVisibility(
@@ -71,12 +59,12 @@ struct MainNotificationsViewModelTests {
         }
     }
 
-    @Test("Toggle ON shows only the promo while Get your first crypto is the only system card, without marketing flashing on open")
-    func toggleOnShowsOnlyPromoWithAddFunds() async {
+    @Test("Shows only the promo while Get your first crypto is the only system card, without marketing flashing on open")
+    func showsOnlyPromoWithAddFunds() async {
         await withControllableAddFunds { addFunds in
             let systemInputs = sampleInputs(count: 1)
             let promoInputs = sampleInputs(count: 2)
-            let viewModel = makeViewModel(isEnabled: true, systemInputs: systemInputs, promoInputs: promoInputs)
+            let viewModel = makeViewModel(systemInputs: systemInputs, promoInputs: promoInputs)
             let allowedVisibility = PassthroughSubject<MainPromotionalVisibility, Never>()
 
             viewModel.bindVisibility(
@@ -96,12 +84,12 @@ struct MainNotificationsViewModelTests {
         }
     }
 
-    @Test("Toggle ON hides the promo at once when another system card joins Get your first crypto")
-    func toggleOnHidesPromoWhenAnotherSystemCardAppears() async {
+    @Test("Hides the promo at once when another system card joins Get your first crypto")
+    func hidesPromoWhenAnotherSystemCardAppears() async {
         await withControllableAddFunds { addFunds in
             let systemInputs = sampleInputs(count: 1)
             let promoInputs = sampleInputs(count: 2)
-            let viewModel = makeViewModel(isEnabled: true, systemInputs: systemInputs, promoInputs: promoInputs)
+            let viewModel = makeViewModel(systemInputs: systemInputs, promoInputs: promoInputs)
             let allowedVisibility = PassthroughSubject<MainPromotionalVisibility, Never>()
 
             viewModel.bindVisibility(
@@ -131,12 +119,10 @@ struct MainNotificationsViewModelTests {
 
 private extension MainNotificationsViewModelTests {
     func makeViewModel(
-        isEnabled: Bool,
         systemInputs: [NotificationViewInput],
         promoInputs: [NotificationViewInput]
     ) -> MainNotificationsViewModel {
         MainNotificationsViewModel(
-            isEnabled: isEnabled,
             promotionNotificationsManager: FakePromotionNotificationsManager(),
             systemBannerItemsProvider: NotificationBannerItemsProvider(managers: [StubNotificationManager(inputs: systemInputs)]),
             tangemPayPromoManager: StubNotificationManager(inputs: promoInputs)

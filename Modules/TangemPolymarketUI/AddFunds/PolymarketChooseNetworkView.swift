@@ -31,7 +31,7 @@ public struct PolymarketChooseNetworkView: View {
                 .padding(.bottom, Constants.headerBottomPadding)
         }
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+            configuration.sheetBackground = .color(DesignSystem.Color.bgSecondary)
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
     }
@@ -79,7 +79,7 @@ private extension PolymarketChooseNetworkView {
                     size: CGSize(bothDimensions: Constants.iconSize)
                 )
             }
-            .onTap(row.action)
+            .onTap(action: row.action)
     }
 
     enum Constants {

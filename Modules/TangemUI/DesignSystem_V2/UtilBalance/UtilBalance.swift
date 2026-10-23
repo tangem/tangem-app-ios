@@ -31,7 +31,7 @@ public struct UtilBalance: View, Setupable {
     public var body: some View {
         label
             .lineLimit(textLineLimit)
-            .tangemShimmer()
+            .shimmering()
             .environment(\.isShimmerActive, isUpdating)
             .accessibilityIdentifier(accessibilityIdentifier)
     }

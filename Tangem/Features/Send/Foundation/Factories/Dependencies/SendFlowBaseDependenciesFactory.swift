@@ -15,7 +15,6 @@ protocol SendFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory
 extension SendFlowBaseDependenciesFactory {
     var userWalletInfo: UserWalletInfo { transferableToken.userWalletInfo }
     var tokenItem: TokenItem { transferableToken.tokenItem }
-    var feeTokenItem: TokenItem { transferableToken.feeTokenItem }
 }
 
 // MARK: - Shared dependencies

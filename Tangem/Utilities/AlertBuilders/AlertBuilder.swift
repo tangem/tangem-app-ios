@@ -12,29 +12,11 @@ import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
 enum AlertBuilder {
-    static var successTitle: String {
-        Localization.commonSuccess
-    }
-
     static var warningTitle: String {
         Localization.commonWarning
     }
 
     static var okButtonTitle: String { Localization.commonOk }
-
-    static func makeSuccessAlert(message: String, okAction: @escaping (() -> Void) = {}) -> AlertBinder {
-        .init(alert: Alert(
-            title: Text(successTitle),
-            message: Text(message),
-            dismissButton: Alert.Button.default(Text(okButtonTitle), action: okAction)
-        ))
-    }
-
-    static func makeSuccessAlertController(message: String, okAction: (() -> Void)? = nil) -> UIAlertController {
-        let alert = UIAlertController(title: successTitle, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: okButtonTitle, style: .default, handler: { _ in okAction?() }))
-        return alert
-    }
 
     static func makeAlertWithDefaultPrimaryButton(
         title: String,
@@ -212,6 +194,17 @@ extension AlertBuilder {
         static func withPrimaryCancelButton(secondaryTitle: String, secondaryAction: @escaping () -> Void) -> Buttons {
             .init(
                 primaryButton: .cancel(),
+                secondaryButton: .default(Text(secondaryTitle), action: secondaryAction)
+            )
+        }
+
+        static func withPrimaryCancelButton(
+            cancelAction: @escaping () -> Void,
+            secondaryTitle: String,
+            secondaryAction: @escaping () -> Void
+        ) -> Buttons {
+            .init(
+                primaryButton: .cancel(cancelAction),
                 secondaryButton: .default(Text(secondaryTitle), action: secondaryAction)
             )
         }

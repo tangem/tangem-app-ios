@@ -14,12 +14,16 @@ public final class MoralisSolanaNetworkService {
     private let networkConfiguration: TangemProviderConfiguration
     private let provider: TangemProvider<MoralisSolanaAPITarget>
     private let mapper: MoralisSolanaNetworkMapper
+    private let isCoreAssetsLoadingEnabled: Bool
+    private let decoder = JSONDecoder()
 
     public init(
         networkConfiguration: TangemProviderConfiguration,
-        headers: [APIHeaderKeyInfo]
+        headers: [APIHeaderKeyInfo],
+        isCoreAssetsLoadingEnabled: Bool
     ) {
         self.networkConfiguration = networkConfiguration
+        self.isCoreAssetsLoadingEnabled = isCoreAssetsLoadingEnabled
         provider = TangemProvider(
             configuration: networkConfiguration,
             additionalPlugins: [
@@ -34,47 +38,19 @@ public final class MoralisSolanaNetworkService {
 
 extension MoralisSolanaNetworkService: NFTNetworkService {
     public func getCollections(address: String) async -> NFTPartialResult<[NFTCollection]> {
-        let apiTarget = MoralisSolanaAPITarget(
-            target: .getNFTsByWallet(
-                address: address,
-                params: MoralisSolanaNetworkParams.NFTsByWallet(
-                    nftMetadata: true,
-                    mediaItems: nil,
-                    excludeSpam: true
-                )
-            )
+        async let regularAssetsResult = loadRegularAssets(address: address)
+        async let coreAssetsResult = loadCoreAssets(address: address)
+
+        let regularAssets = await regularAssetsResult
+        let coreAssets = await coreAssetsResult
+
+        let collections = mapper.map(
+            regularAssets: regularAssets.assets,
+            coreAssets: coreAssets.assets,
+            ownerAddress: address
         )
 
-        var resultCollections = [NFTCollection]()
-        var requestError: NFTErrorDescriptor?
-
-        do {
-            let assets = try await provider.asyncRequest(apiTarget)
-                .map([MoralisSolanaNetworkResult.Asset].self)
-
-            let groupedAssets = Dictionary(
-                grouping: assets,
-                by: { makeAssetsGroupingKeys(from: $0.collection) }
-            )
-
-            let keys = assets
-                .map { makeAssetsGroupingKeys(from: $0.collection) }
-                .unique()
-
-            let collections = keys.map { key in
-                let assets = groupedAssets[key, default: []]
-                return mapper.map(collection: assets.first?.collection, assets: assets, ownerAddress: address)
-            }
-
-            resultCollections.append(contentsOf: collections)
-        } catch {
-            requestError = NFTErrorDescriptor(
-                code: error.networkErrorCodeOrNSErrorFallback,
-                description: error.localizedDescription
-            )
-        }
-
-        return NFTPartialResult(value: resultCollections, errors: [requestError].compactMap { $0 })
+        return NFTPartialResult(value: collections, errors: regularAssets.errors + coreAssets.errors)
     }
 
     public func getAssets(address: String, in collection: NFTCollection) async -> NFTPartialResult<[NFTAsset]> {
@@ -98,19 +74,84 @@ extension MoralisSolanaNetworkService: NFTNetworkService {
 // MARK: - Private implementation
 
 private extension MoralisSolanaNetworkService {
-    func makeAssetsGroupingKeys(from collection: MoralisSolanaNetworkResult.Collection?) -> AssetsGroupingKey {
-        AssetsGroupingKey(
-            collectionAddress: collection?.collectionAddress,
-            collectionName: collection?.name
+    func loadRegularAssets(address: String) async -> LoadedAssets<MoralisSolanaNetworkResult.Asset> {
+        let apiTarget = MoralisSolanaAPITarget(
+            target: .getNFTsByWallet(
+                address: address,
+                params: MoralisSolanaNetworkParams.NFTsByWallet(
+                    nftMetadata: true,
+                    mediaItems: nil,
+                    excludeSpam: true
+                )
+            )
+        )
+
+        do {
+            let assets = try await provider.asyncRequest(apiTarget)
+                .map([MoralisSolanaNetworkResult.Asset].self)
+            return LoadedAssets(assets: assets, errors: [])
+        } catch {
+            return LoadedAssets(assets: [], errors: [makeErrorDescriptor(from: error)])
+        }
+    }
+
+    func loadCoreAssets(address: String) async -> LoadedAssets<MoralisSolanaNetworkResult.WalletNFT> {
+        guard isCoreAssetsLoadingEnabled else {
+            return LoadedAssets(assets: [], errors: [])
+        }
+
+        let pages = await MoralisCursorPaginator.loadAllPages { cursor in
+            let apiTarget = MoralisSolanaAPITarget(
+                target: .getNFTsByWalletEarlyAccess(
+                    address: address,
+                    params: MoralisSolanaNetworkParams.NFTsByWalletEarlyAccess(
+                        chains: NFTChain.solana.id,
+                        tokenStandards: Constants.coreTokenStandard,
+                        limit: MoralisCursorPaginator.pageSize,
+                        cursor: cursor,
+                        excludeSpam: true,
+                        includeMetadata: true,
+                        includeMedia: true
+                    )
+                )
+            )
+
+            return try await provider.asyncRequest(apiTarget)
+                .mapAPIResponse(MoralisSolanaNetworkResult.WalletNFTsResponse.self, using: decoder)
+        }
+
+        let chainErrors = pages.value
+            .flatMap { $0.meta?.failedChains ?? [] }
+            .map { makeErrorDescriptor(from: MoralisSolanaServiceError.chainFailed(code: $0.code, message: $0.error)) }
+
+        let coreAssets = pages.value
+            .flatMap { $0.result ?? [] }
+            .filter { $0.tokenStandard == Constants.coreTokenStandard }
+
+        return LoadedAssets(assets: coreAssets, errors: pages.errors + chainErrors)
+    }
+
+    func makeErrorDescriptor(from error: any Error) -> NFTErrorDescriptor {
+        NFTErrorDescriptor(
+            code: error.networkErrorCodeOrNSErrorFallback,
+            description: error.localizedDescription
         )
     }
 }
 
-// MARK: - Helpers
+// MARK: - Auxiliary types
 
 private extension MoralisSolanaNetworkService {
-    struct AssetsGroupingKey: Hashable {
-        let collectionAddress: String?
-        let collectionName: String?
+    struct LoadedAssets<Asset> {
+        let assets: [Asset]
+        let errors: [NFTErrorDescriptor]
+    }
+}
+
+// MARK: - Constants
+
+private extension MoralisSolanaNetworkService {
+    enum Constants {
+        static let coreTokenStandard = "MplCore"
     }
 }

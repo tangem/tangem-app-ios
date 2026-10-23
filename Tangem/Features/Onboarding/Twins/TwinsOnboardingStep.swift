@@ -14,15 +14,11 @@ import TangemSdk
 protocol SuccessStep {
     var successTitle: String { get }
     var successButtonTitle: String { get }
-    var successMessagesOffset: CGSize { get }
 }
 
 extension SuccessStep {
     var successTitle: String { Localization.onboardingDoneHeader }
     var successButtonTitle: String { Localization.commonContinue }
-    var successMessagesOffset: CGSize {
-        .init(width: 0, height: -UIScreen.main.bounds.size.height * 0.115)
-    }
 }
 
 enum TwinsOnboardingStep: Equatable {
@@ -35,10 +31,6 @@ enum TwinsOnboardingStep: Equatable {
     case saveUserWallet
     case success
     case alert
-
-    static var previewCases: [TwinsOnboardingStep] {
-        [.intro(pairNumber: "2"), .done]
-    }
 
     static var twinningProcessSteps: [TwinsOnboardingStep] {
         [.first, .second, .third]
@@ -81,26 +73,9 @@ enum TwinsOnboardingStep: Equatable {
             return Localization.twinsRecreateToolbar
         }
     }
-
-    func backgroundFrame(in container: CGSize) -> CGSize {
-        switch self {
-        case .done:
-            return .init(width: container.width * 0.787, height: 0.487 * container.height)
-        default: return .init(width: 10, height: 10)
-        }
-    }
 }
 
-extension TwinsOnboardingStep: OnboardingProgressStepIndicatable {
-    var requiresConfetti: Bool {
-        switch self {
-        case .success, .done:
-            return true
-        default:
-            return false
-        }
-    }
-
+extension TwinsOnboardingStep {
     var successCircleOpacity: Double {
         switch self {
         case .success: return 1
@@ -138,12 +113,6 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         case .saveUserWallet, .pushNotifications: return nil
         case .done, .success: return Localization.onboardingDoneBody
         case .alert: return Localization.twinsRecreateWarning
-        }
-    }
-
-    var messagesOffset: CGSize {
-        switch self {
-        default: return .zero
         }
     }
 }
@@ -185,10 +154,6 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
             return nil
         }
     }
-
-    var isSupplementButtonVisible: Bool { false }
-
-    var isContainSupplementButton: Bool { true }
 
     var checkmarkText: String? {
         switch self {

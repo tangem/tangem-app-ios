@@ -23,7 +23,7 @@ struct FeedSelectionRoutingTests {
             feed.apply(selection: .earn(type: .yield))
 
             #expect(feed.tabsViewModel.selectedTab.kind == .earn)
-            #expect(feed.tabsViewModel.pages.map(\.tab.kind) == [.earn])
+            #expect(feed.tabsViewModel.pager.pages.map(\.tab.kind) == [.earn])
             #expect(filterProvider.currentFilter.type == .yield)
         }
     }
@@ -36,7 +36,7 @@ struct FeedSelectionRoutingTests {
             feed.apply(selection: .earn(type: nil))
 
             #expect(feed.tabsViewModel.selectedTab.kind == .earn)
-            #expect(feed.tabsViewModel.pages.map(\.tab.kind) == [.earn])
+            #expect(feed.tabsViewModel.pager.pages.map(\.tab.kind) == [.earn])
             #expect(filterProvider.currentFilter.type == .staking)
         }
     }
@@ -50,7 +50,7 @@ struct FeedSelectionRoutingTests {
             feed.apply(selection: .crypto(categoryId: nil))
 
             #expect(feed.tabsViewModel.selectedTab.kind == .predictions)
-            #expect(feed.tabsViewModel.pages.map(\.tab.kind) == [.predictions])
+            #expect(feed.tabsViewModel.pager.pages.map(\.tab.kind) == [.predictions])
         }
     }
 
@@ -63,7 +63,7 @@ struct FeedSelectionRoutingTests {
             feed.apply(selection: .realAssets(categoryId: "commodities"))
 
             #expect(feed.tabsViewModel.selectedTab.kind == .predictions)
-            #expect(feed.tabsViewModel.pages.map(\.tab.kind) == [.predictions])
+            #expect(feed.tabsViewModel.pager.pages.map(\.tab.kind) == [.predictions])
         }
     }
 
@@ -78,7 +78,7 @@ struct FeedSelectionRoutingTests {
             )
 
             #expect(feed.tabsViewModel.selectedTab.kind == .earn)
-            #expect(feed.tabsViewModel.pages.map(\.tab.kind) == [.earn])
+            #expect(feed.tabsViewModel.pager.pages.map(\.tab.kind) == [.earn])
             #expect(filterProvider.currentFilter.type == .yield)
 
             await settleContainerReport()
@@ -125,14 +125,7 @@ private extension FeedSelectionRoutingTests {
             searchViewModel: FeedSearchViewModel(
                 searchBarViewModel: searchBarViewModel,
                 resultsQuery: .init(""),
-                tabsViewModel: FeedSearchTabsViewModel(tabs: [.predictions]),
-                historyProvider: HistoryProviderStub(),
-                marketViewModel: CryptoSearchViewModel(
-                    query: searchBarViewModel.queryPublisher,
-                    history: HistoryProviderStub(),
-                    router: CryptoRouterStub(),
-                    marketsProvider: MarketsProviderStub()
-                )
+                tabsViewModel: FeedSearchTabsViewModel(tabs: [.predictions])
             ),
             tabsViewModel: FeedTabsViewModel(tabs: [.predictions, .earn(earn)]),
             widgetsViewModel: FeedWidgetsViewModel(
@@ -176,38 +169,8 @@ private final class PromotionNotificationsManagerStub: PromotionNotificationsMan
 
 private final class EarnRouterStub: EarnFeedRoutable {
     func routeOnTokenResolved(_ resolution: EarnTokenResolution, source: EarnOpportunitySource) {}
-    func openPortfolioToken(_ walletModel: any WalletModel) {}
     func openNetworksFilter() {}
     func openTypesFilter() {}
-}
-
-private final class CryptoRouterStub: CryptoFeedRoutable {
-    func openToken(_ token: MarketsTokenModel) {}
-    func openPulseTagFilter(with input: PulseTagFilterInput) {}
-    func openMarketCapInfo(subject: MarketCapInfoSubject) {}
-    func openPortfolioToken(_ walletModel: any WalletModel) {}
-}
-
-private final class MarketsProviderStub: FeedSearchProvider {
-    typealias Item = MarketsTokenModel
-
-    var statePublisher: AnyPublisher<FeedSearchProviderState<MarketsTokenModel>, Never> {
-        Empty<FeedSearchProviderState<MarketsTokenModel>, Never>(completeImmediately: false).eraseToAnyPublisher()
-    }
-
-    func search(_ query: String) {}
-    func reset() {}
-}
-
-private final class HistoryProviderStub: FeedSearchHistoryProvider {
-    var historyPublisher: AnyPublisher<FeedSearchHistory, Never> {
-        Empty<FeedSearchHistory, Never>(completeImmediately: false).eraseToAnyPublisher()
-    }
-
-    func save(query: String) {}
-    func save(token: MarketsTokenModel) {}
-    func remove(_ query: FeedRecentQuery) {}
-    func clear() {}
 }
 
 private final class WidgetProviderSpy: FeedWidgetProvider {

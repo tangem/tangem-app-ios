@@ -10,7 +10,6 @@ import Foundation
 
 protocol ReceiveTokenWithdrawNoticeInteractor {
     func shouldShowWithdrawalAlert(for tokenItem: TokenItem) -> Bool
-    func markWithdrawalAlertShown(for tokenItem: TokenItem)
 }
 
 extension ReceiveTokenWithdrawNoticeInteractor {
@@ -38,10 +37,6 @@ final class GeneralReceiveTokenWithdrawNoticeInteractor: ReceiveTokenWithdrawNot
         shownWithdrawalAlerts[objectRepresentable] = true
 
         return !displayed
-    }
-
-    func markWithdrawalAlertShown(for tokenItem: TokenItem) {
-        shownWithdrawalAlerts[Self.storedKey(for: tokenItem)] = true
     }
 }
 

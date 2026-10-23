@@ -58,18 +58,6 @@ class FakeTokenQuotesRepository: TokenQuotesRepository, TokenQuotesRepositoryUpd
         currentQuotes.send(Dictionary(uniqueKeysWithValues: zipped))
     }
 
-    func quote(for item: TokenItem) -> TokenQuote? {
-        TokenQuote(
-            currencyId: item.currencyId!,
-            price: 1,
-            priceUsd: nil,
-            priceChange24h: 3.3,
-            priceChange7d: 43.3,
-            priceChange30d: 93.3,
-            currencyCode: AppSettings.shared.selectedCurrencyCode
-        )
-    }
-
     func quote(for currencyId: String) async throws -> TokenQuote {
         await TokenQuote(
             currencyId: currencyId,
@@ -86,10 +74,6 @@ class FakeTokenQuotesRepository: TokenQuotesRepository, TokenQuotesRepositoryUpd
         Just([:]).eraseToAnyPublisher()
     }
 
-    func loadPrice(currencyCode: String, currencyId: String) -> AnyPublisher<Decimal, any Error> {
-        Just(1.2345).setFailureType(to: Error.self).eraseToAnyPublisher()
-    }
-
     func saveQuotes(_ quotes: [TokenQuote]) {
         var current = currentQuotes.value
 
@@ -98,21 +82,5 @@ class FakeTokenQuotesRepository: TokenQuotesRepository, TokenQuotesRepositoryUpd
         }
 
         currentQuotes.send(current)
-    }
-
-    func saveQuotes(_ quotes: [Quote], currencyCode: String) {
-        let quotes = quotes.map { quote in
-            TokenQuote(
-                currencyId: quote.id,
-                price: quote.price,
-                priceUsd: quote.priceUsd,
-                priceChange24h: quote.priceChange,
-                priceChange7d: quote.priceChange7d,
-                priceChange30d: quote.priceChange30d,
-                currencyCode: currencyCode
-            )
-        }
-
-        saveQuotes(quotes)
     }
 }

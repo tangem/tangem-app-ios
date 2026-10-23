@@ -12,28 +12,8 @@ import TangemUI
 /// once on the shared registry instead of from the view hierarchy of a concrete coordinator.
 extension FloatingSheetRegistry {
     func registerJointAccountFloatingSheets() {
-        register(JointAccountWalletSelectionViewModel.self) {
-            JointAccountWalletSelectionView(viewModel: $0)
-        }
-
-        register(JointAccountMemberDetailsViewModel.self) {
-            JointAccountMemberDetailsView(viewModel: $0)
-        }
-
-        register(JointAccountInviteSafetyViewModel.self) {
-            JointAccountInviteSafetyView(viewModel: $0)
-        }
-
         register(JointAccountOperationDetailsViewModel.self) {
             JointAccountOperationDetailsView(viewModel: $0)
-        }
-
-        register(JointAccountSignersViewModel.self) {
-            JointAccountSignersView(viewModel: $0)
-        }
-
-        register(JointAccountSupportedNetworksViewModel.self) {
-            JointAccountSupportedNetworksView(viewModel: $0)
         }
     }
 }

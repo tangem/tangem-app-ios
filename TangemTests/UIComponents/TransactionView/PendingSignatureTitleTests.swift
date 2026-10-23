@@ -32,6 +32,7 @@ struct PendingSignatureTitleTests {
             legacyName: "Transfer",
             addressDestination: nil,
             subtitleOwner: nil,
+            isTangemPayCounterparty: false,
             expressSubtitle: nil,
             isPendingSignature: isPendingSignature
         ).title.fullText
