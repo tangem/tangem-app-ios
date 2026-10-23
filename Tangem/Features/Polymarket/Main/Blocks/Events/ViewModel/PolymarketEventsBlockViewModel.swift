@@ -408,7 +408,7 @@ private extension PolymarketEventsBlockViewModel {
 
     @MainActor
     func updateLiveQuotesTracking() {
-        liveQuotesTracker.update(events: feed.events, visibleEventIDs: visibleEventIDs)
+        liveQuotesTracker.update(events: feed.events, visibleEventIDs: visibleEventIDs, isLive: \.isLive)
         dropUntrackedLiveQuotes()
     }
 
