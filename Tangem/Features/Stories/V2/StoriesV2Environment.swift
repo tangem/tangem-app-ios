@@ -10,7 +10,7 @@ import Foundation
 import TangemStories
 
 private final class StoriesV2Environment {
-    let assetCache: StoryAssetCaching
+    let assetCache: FileAssetCaching
     let assetPrefetchService: StoryAssetPrefetchService
     let remoteStore: StoriesV2RemoteStore
     let prefetchService: StoriesV2PrefetchService
@@ -18,7 +18,7 @@ private final class StoriesV2Environment {
     let presenter: CommonStoriesV2Presenter
 
     init() {
-        let cache = CommonStoryAssetCache()
+        let cache = CommonFileAssetCache(directory: .storyAssets)
         assetCache = cache
         assetPrefetchService = StoryAssetPrefetchService(cache: cache)
         remoteStore = StoriesV2RemoteStore(
@@ -42,6 +42,11 @@ private extension StoriesV2Environment {
     }
 }
 
+private extension URL {
+    static let storyAssets: Self = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        .appendingPathComponent("StoryAssetCache", isDirectory: true)
+}
+
 private struct StoriesV2EnvironmentKey: InjectionKey {
     static var currentValue = StoriesV2Environment()
 }
@@ -54,7 +59,7 @@ extension InjectedValues {
         set { Self[StoriesV2EnvironmentKey.self] = newValue }
     }
 
-    var storiesV2AssetCache: StoryAssetCaching {
+    var storiesV2AssetCache: FileAssetCaching {
         storiesV2Environment.assetCache
     }
 

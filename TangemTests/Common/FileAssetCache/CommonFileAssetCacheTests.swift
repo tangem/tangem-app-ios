@@ -1,5 +1,5 @@
 //
-//  CommonStoryAssetCacheTests.swift
+//  CommonFileAssetCacheTests.swift
 //  TangemTests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,11 +9,10 @@
 import Testing
 import Foundation
 import TangemFoundation
-import TangemStories
 @testable import Tangem
 
-@Suite("CommonStoryAssetCacheTests", .timeLimit(.minutes(1)))
-final class CommonStoryAssetCacheTests {
+@Suite("CommonFileAssetCacheTests", .timeLimit(.minutes(1)))
+final class CommonFileAssetCacheTests {
     /// Own directory per test, removed in `deinit`: a shared one would let an earlier case answer a later one.
     private let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
 
@@ -25,7 +24,7 @@ final class CommonStoryAssetCacheTests {
     @Test
     func cachesAssetServedWithoutChecksum() async throws {
         let loader = SpyDataLoader()
-        let cache = CommonStoryAssetCache(directory: directory, dataLoader: loader)
+        let cache = CommonFileAssetCache(directory: directory, downloader: loader)
         let url = try #require(URL(string: "https://h/stories/promo/1.mp4"))
 
         let first = try await cache.localURL(remoteURL: url, checksum: "")
@@ -39,7 +38,7 @@ final class CommonStoryAssetCacheTests {
     @Test
     func keepsAssetsWithDifferentURLsApart() async throws {
         let loader = SpyDataLoader()
-        let cache = CommonStoryAssetCache(directory: directory, dataLoader: loader)
+        let cache = CommonFileAssetCache(directory: directory, downloader: loader)
         let first = try #require(URL(string: "https://h/stories/promo/1.mp4"))
         let second = try #require(URL(string: "https://h/stories/promo/2.mp4"))
 
@@ -53,7 +52,7 @@ final class CommonStoryAssetCacheTests {
     @Test
     func prefersChecksumOverURLSoNewContentGetsANewFile() async throws {
         let loader = SpyDataLoader()
-        let cache = CommonStoryAssetCache(directory: directory, dataLoader: loader)
+        let cache = CommonFileAssetCache(directory: directory, downloader: loader)
         let url = try #require(URL(string: "https://h/stories/promo/1.mp4"))
 
         let old = try await cache.localURL(remoteURL: url, checksum: "sha256:aaa")
@@ -66,7 +65,7 @@ final class CommonStoryAssetCacheTests {
     @Test
     func joinsDownloadAlreadyInFlight() async throws {
         let loader = GatedDataLoader()
-        let cache = CommonStoryAssetCache(directory: directory, dataLoader: loader)
+        let cache = CommonFileAssetCache(directory: directory, downloader: loader)
         let url = try #require(URL(string: "https://h/stories/promo/1.mp4"))
 
         async let first = cache.localURL(remoteURL: url, checksum: "")
@@ -88,7 +87,7 @@ final class CommonStoryAssetCacheTests {
     @Test
     func failedDownloadLeavesTheAssetFreeForTheNextCall() async throws {
         let loader = FailingOnceDataLoader()
-        let cache = CommonStoryAssetCache(directory: directory, dataLoader: loader)
+        let cache = CommonFileAssetCache(directory: directory, downloader: loader)
         let url = try #require(URL(string: "https://h/stories/promo/1.mp4"))
 
         await #expect(throws: (any Error).self) {
@@ -105,7 +104,7 @@ final class CommonStoryAssetCacheTests {
     func evictsTheOldestFileOverTheCap() async throws {
         let loader = SpyDataLoader()
         // Every stub asset is 5 bytes, so the third one pushes the cache over the cap
-        let cache = CommonStoryAssetCache(directory: directory, maxBytes: 12, dataLoader: loader)
+        let cache = CommonFileAssetCache(directory: directory, maxBytes: 12, downloader: loader)
         let first = try #require(URL(string: "https://h/stories/promo/1.mp4"))
         let second = try #require(URL(string: "https://h/stories/promo/2.mp4"))
         let third = try #require(URL(string: "https://h/stories/promo/3.mp4"))
@@ -125,7 +124,7 @@ final class CommonStoryAssetCacheTests {
     @Test
     func retainingOnlyRemovesColdOrphanButKeepsLiveAsset() async throws {
         let loader = SpyDataLoader()
-        let cache = CommonStoryAssetCache(directory: directory, dataLoader: loader)
+        let cache = CommonFileAssetCache(directory: directory, downloader: loader)
         let liveURL = try #require(URL(string: "https://h/stories/promo/live.mp4"))
         let orphanURL = try #require(URL(string: "https://h/stories/promo/orphan.mp4"))
 
@@ -133,7 +132,7 @@ final class CommonStoryAssetCacheTests {
         let orphan = try await cache.localURL(remoteURL: orphanURL, checksum: "sha256:orphan")
         ageBeyondGrace(orphan)
 
-        await cache.retainingOnly([StoryAssetCacheKey(url: liveURL, checksum: "sha256:live")])
+        await cache.retainingOnly([FileAssetCacheKey(url: liveURL, checksum: "sha256:live")])
 
         #expect(FileManager.default.fileExists(atPath: live.path))
         #expect(!FileManager.default.fileExists(atPath: orphan.path))
@@ -142,14 +141,14 @@ final class CommonStoryAssetCacheTests {
     @Test
     func retainingOnlyKeepsOrphanStillWithinGraceWindow() async throws {
         let loader = SpyDataLoader()
-        let cache = CommonStoryAssetCache(directory: directory, dataLoader: loader)
+        let cache = CommonFileAssetCache(directory: directory, downloader: loader)
         let liveURL = try #require(URL(string: "https://h/stories/promo/live.mp4"))
         let orphanURL = try #require(URL(string: "https://h/stories/promo/orphan.mp4"))
 
         let live = try await cache.localURL(remoteURL: liveURL, checksum: "sha256:live")
         let orphan = try await cache.localURL(remoteURL: orphanURL, checksum: "sha256:orphan")
 
-        await cache.retainingOnly([StoryAssetCacheKey(url: liveURL, checksum: "sha256:live")])
+        await cache.retainingOnly([FileAssetCacheKey(url: liveURL, checksum: "sha256:live")])
 
         #expect(FileManager.default.fileExists(atPath: live.path))
         #expect(FileManager.default.fileExists(atPath: orphan.path))
@@ -158,7 +157,7 @@ final class CommonStoryAssetCacheTests {
     @Test
     func retainingOnlyIsNoOpForEmptyKeys() async throws {
         let loader = SpyDataLoader()
-        let cache = CommonStoryAssetCache(directory: directory, dataLoader: loader)
+        let cache = CommonFileAssetCache(directory: directory, downloader: loader)
         let url = try #require(URL(string: "https://h/stories/promo/orphan.mp4"))
 
         let file = try await cache.localURL(remoteURL: url, checksum: "sha256:orphan")
@@ -170,12 +169,12 @@ final class CommonStoryAssetCacheTests {
     }
 
     private func ageBeyondGrace(_ url: URL) {
-        let date = Date().addingTimeInterval(-(CommonStoryAssetCache.Constants.orphanGraceInterval + 60))
+        let date = Date().addingTimeInterval(-(CommonFileAssetCache.Constants.orphanGraceInterval + 60))
         try? FileManager.default.setAttributes([.modificationDate: date], ofItemAtPath: url.path)
     }
 }
 
-private final class FailingOnceDataLoader: StoriesDataLoader {
+private final class FailingOnceDataLoader: FileAssetDownloader {
     private let state = OSAllocatedUnfairLock(initialState: 0)
 
     var attempts: Int { state.withLock { $0 } }
@@ -186,7 +185,7 @@ private final class FailingOnceDataLoader: StoriesDataLoader {
             return count
         }
 
-        guard attempt > 1 else { throw StoriesDataLoaderError.unacceptableStatusCode(500) }
+        guard attempt > 1 else { throw FileAssetDownloaderError.unacceptableStatusCode(500) }
 
         let temp = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try Data("asset".utf8).write(to: temp)
@@ -194,7 +193,7 @@ private final class FailingOnceDataLoader: StoriesDataLoader {
     }
 }
 
-private final class GatedDataLoader: StoriesDataLoader {
+private final class GatedDataLoader: FileAssetDownloader {
     private let state = OSAllocatedUnfairLock(initialState: State())
 
     private struct State {
@@ -243,7 +242,7 @@ private final class GatedDataLoader: StoriesDataLoader {
     }
 }
 
-private final class SpyDataLoader: StoriesDataLoader {
+private final class SpyDataLoader: FileAssetDownloader {
     private let state = OSAllocatedUnfairLock(initialState: [URL]())
 
     var downloadedURLs: [URL] { state.withLock { $0 } }
