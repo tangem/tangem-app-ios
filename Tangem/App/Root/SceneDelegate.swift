@@ -21,8 +21,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     var lockWindow: UIWindow?
 
-    private lazy var sheetRegistry = FloatingSheetRegistry.default
     private let incomingActionRecorder = IncomingActionRecorder()
+    private lazy var sheetRegistry = FloatingSheetRegistry.default
     private lazy var appOverlaysManager = AppOverlaysManager(sheetRegistry: sheetRegistry)
 
     private var appCoordinator: AppCoordinator?
