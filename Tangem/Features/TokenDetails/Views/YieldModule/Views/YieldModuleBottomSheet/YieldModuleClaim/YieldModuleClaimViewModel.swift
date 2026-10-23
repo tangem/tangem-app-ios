@@ -251,9 +251,9 @@ final class YieldModuleClaimViewModel: ObservableObject {
     }
 }
 
-// MARK: - FloatingSheetContentViewModel
+// MARK: - Identifiable
 
-extension YieldModuleClaimViewModel: FloatingSheetContentViewModel {}
+extension YieldModuleClaimViewModel: Identifiable {}
 
 // MARK: - View State
 

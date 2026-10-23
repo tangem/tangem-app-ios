@@ -20,16 +20,7 @@ struct YieldModuleClaimView: View {
 
     var body: some View {
         contentView
-            .animation(.contentFrameUpdate, value: viewModel.viewState)
-            .floatingSheetConfiguration { configuration in
-                configuration.maxHeightFraction = Constants.maxHeightFraction
-                configuration.sheetBackground = .color(DesignSystem.Color.bgSecondary)
-                configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
-                configuration.backgroundInteractionBehavior = viewModel.isProcessingRequest ? .consumeTouches : .tapToDismiss
-                configuration.verticalSwipeBehavior = isSwipeDismissable
-                    ? .init(target: .sheet, threshold: Constants.swipeDismissThreshold)
-                    : nil
-            }
+            .interactiveDismissDisabled(!isSwipeDismissable)
             .accessibilityAction(.escape) {
                 guard !viewModel.isProcessingRequest else { return }
 
@@ -59,39 +50,16 @@ struct YieldModuleClaimView: View {
                 toTokenAction: viewModel.onToTokenTap,
                 toYieldAction: viewModel.onCloseTap
             )
-            .frame(minHeight: Self.fullSheetHeight)
             .transition(.content)
         }
     }
 
-    private static var fullSheetHeight: CGFloat {
-        (UIApplication.mainWindow?.bounds.height ?? .zero) * Constants.maxHeightFraction
-    }
-
-    private var closeButton: some View {
-        TangemUI.Button(
-            icon: DesignSystem.Icons.Cross.regular20,
-            accessibilityLabel: Localization.commonClose,
-            action: viewModel.onCloseTap
-        )
-        .size(.x11)
-        .styleType(.material(.glass))
-        .disabled(viewModel.isProcessingRequest)
-    }
-
     private func claimContent(viewData: YieldModuleClaimViewData) -> some View {
-        VStack(spacing: .zero) {
-            headerView
-
-            ScrollView(showsIndicators: false) {
-                scrollContent(viewData: viewData)
-                    .padding(.horizontal, Constants.horizontalPadding)
-            }
-            .scrollBounceBehavior(.basedOnSize)
-            .safeAreaInset(edge: .bottom, spacing: .zero) {
+        scrollContent(viewData: viewData)
+            .padding(.horizontal, Constants.horizontalPadding)
+            .legacyFooter {
                 buttonBlock(viewData: viewData)
             }
-        }
     }
 
     private func scrollContent(viewData: YieldModuleClaimViewData) -> some View {
@@ -102,30 +70,6 @@ struct YieldModuleClaimView: View {
 
             rewardsAndFees(viewData: viewData)
         }
-    }
-
-    private var headerView: some View {
-        ZStack {
-            VStack(spacing: Constants.headerSpacing) {
-                Text(Localization.yieldModuleClaimSheetTitle)
-                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-
-                Text(Localization.yieldModuleClaimSheetSubtitle)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-            }
-            .multilineTextAlignment(.center)
-            .padding(.horizontal, Constants.headerTextHorizontalInset)
-
-            HStack(spacing: .zero) {
-                Spacer(minLength: .zero)
-
-                closeButton
-            }
-        }
-        .frame(minHeight: Constants.headerHeight)
-        .padding(.top, Constants.headerTopPadding)
-        .padding(.bottom, Constants.headerBottomPadding)
-        .padding(.horizontal, Constants.horizontalPadding)
     }
 
     private func totalView(viewData: YieldModuleClaimViewData) -> some View {
@@ -178,7 +122,6 @@ struct YieldModuleClaimView: View {
             .padding(.top, 16)
             .padding(.horizontal, Constants.horizontalPadding)
             .padding(.bottom, Constants.buttonBottomPadding)
-            .background(ListFooterOverlayShadowView())
     }
 
     private func mainButton(viewData: YieldModuleClaimViewData) -> some View {
@@ -204,15 +147,6 @@ private extension AnyTransition {
     )
 }
 
-// MARK: - Animation
-
-private extension Animation {
-    static let contentFrameUpdate = Animation.curve(
-        .easeInOutRefined,
-        duration: YieldModuleClaimView.Constants.frameUpdateDuration
-    )
-}
-
 // MARK: - Constants
 
 private extension YieldModuleClaimView {
@@ -220,17 +154,8 @@ private extension YieldModuleClaimView {
         static let horizontalPadding: CGFloat = 16
         static let footerNoteHorizontalPadding: CGFloat = 14
         static let buttonBottomPadding: CGFloat = 18
-        static let frameUpdateDuration: TimeInterval = 0.5
-        static let swipeDismissThreshold: CGFloat = 100
-        static let maxHeightFraction: CGFloat = 0.9
         static let cardCornerRadius: CGFloat = 24
         static let cardSpacing: CGFloat = 8
-        /// The toolbar row the design keeps at the top, whatever the two lines inside it measure.
-        static let headerHeight: CGFloat = 44
-        static let headerTextHorizontalInset: CGFloat = 52
-        static let headerSpacing: CGFloat = 4
-        static let headerTopPadding: CGFloat = 16
-        static let headerBottomPadding: CGFloat = 16
         static let totalTopPadding: CGFloat = 24
         static let totalBottomPadding: CGFloat = 48
     }
