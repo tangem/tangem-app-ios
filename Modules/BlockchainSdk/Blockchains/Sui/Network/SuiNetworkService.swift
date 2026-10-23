@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import GRPC
 import WalletCore
 
 final class SuiNetworkService: MultiNetworkProvider {
@@ -27,6 +28,7 @@ final class SuiNetworkService: MultiNetworkProvider {
                 guard let self else {
                     return .anyFail(error: BlockchainSdkError.networkUnavailable)
                 }
+
                 return providerPublisher { provider in
                     provider
                         .getBalance(address: nextAddress, coin: nextCoin, cursor: nextCursor)
@@ -55,4 +57,28 @@ final class SuiNetworkService: MultiNetworkProvider {
                 .sendTransaction(transaction: raw, signature: signature)
         }
     }
+
+    func shouldStopSwitching(error: Error) -> Bool {
+        guard let status = error as? GRPCStatus else {
+            return false
+        }
+
+        return !Self.providerFailureCodes.contains(status.code)
+    }
+}
+
+// MARK: - Constants
+
+private extension SuiNetworkService {
+    static let providerFailureCodes: Set<GRPCStatus.Code> = [
+        .cancelled,
+        .unknown,
+        .deadlineExceeded,
+        .permissionDenied,
+        .resourceExhausted,
+        .unimplemented,
+        .internalError,
+        .unavailable,
+        .unauthenticated,
+    ]
 }
