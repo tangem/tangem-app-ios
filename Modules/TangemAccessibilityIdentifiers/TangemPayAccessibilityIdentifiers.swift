@@ -72,7 +72,6 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let addFundsSheetReceiveOption = "\(prefix)AddFundsSheetReceiveOption"
     public static let addFundsSheetBankTransferOption = "\(prefix)AddFundsSheetBankTransferOption"
     public static let addFundsSheetCloseButton = "\(prefix)AddFundsSheetCloseButton"
-    public static let virtualAccountShowDetailsButton = "\(prefix)VirtualAccountShowDetailsButton"
     public static let virtualAccountOnboardingContinueButton = "\(prefix)VirtualAccountOnboardingContinueButton"
     public static let virtualAccountBankDetailsShareButton = "\(prefix)VirtualAccountBankDetailsShareButton"
     public static let virtualAccountFeeErrorBanner = "\(prefix)VirtualAccountFeeErrorBanner"

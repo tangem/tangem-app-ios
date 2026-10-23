@@ -10,9 +10,7 @@ enum FeedTabsRegistry {
     static func makeBuilders() -> [any FeedTabBuilder] {
         var builders: [any FeedTabBuilder] = [CryptoFeedBuilder()]
 
-        if FeatureProvider.isAvailable(.realAssets) {
-            builders.append(RealAssetsFeedBuilder())
-        }
+        builders.append(RealAssetsFeedBuilder())
 
         builders.append(EarnFeedBuilder())
 

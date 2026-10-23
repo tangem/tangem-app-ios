@@ -28,7 +28,7 @@ The feature has its own key. `FeatureDerivationPaths.tangemPay` is derived on de
 
 ## Entry points
 
-- **Enrollment / offer:** `TangemPayOnboardingCoordinator` → `TangemPayOfferViewModel` → `AccountModelsManager.acceptTangemPayOffer`.
+- **Enrollment / offer:** `TangemPayOnboardingCoordinator` → `TangemPayOfferViewModel` → `AccountModelsManager.authorizeTangemPayOfferForResidency`.
 - **Account screen:** `TangemPayMainCoordinator` with `TangemPayMainViewModel`, pushed by `MainCoordinator.openTangemPayMainView`. Deep links and push notifications arrive as `TangemPayOpeningAction`.
 - **Main-screen row:** `TangemPayAccountViewModel`, produced by `TangemPayAccountAggregator` from `MultiWalletMainContentViewModel`. Its tap handler switches on the local state.
 - **Enrolled account object handed to the UI:** `TangemPayAccount`.

@@ -18,7 +18,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
     }
 
     var tangemPayDetailsEntrypointEligibleWalletSelectionPublisher: AnyPublisher<TangemPayWalletSelectionType?, Never> {
-        tangemPayEligibleWalletSelectionPublisher(for: .details, requiresDistributionChannel: !isChooseCountryEnabled)
+        tangemPayEligibleWalletSelectionPublisher(for: .details, requiresDistributionChannel: false)
     }
 
     @Injected(\.userWalletRepository)
@@ -71,10 +71,6 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
             .map { $0 && $1 }
     }
 
-    private var isChooseCountryEnabled: Bool {
-        FeatureProvider.isAvailable(.tangemPayChooseCountry)
-    }
-
     private let availabilityService: TangemPayAvailabilityService
     private let eligibleDistributionChannelsRequests = KeyedTaskProcessor<String, [TangemPayDistributionChannel]>()
     private var bag = Set<AnyCancellable>()
@@ -110,7 +106,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
     var tangemPayFeedCardEntrypointEligibleWalletSelectionPublisher: AnyPublisher<TangemPayWalletSelectionType?, Never> {
         Publishers
             .CombineLatest(
-                tangemPayEligibleWalletSelectionPublisher(for: .banner, requiresDistributionChannel: !isChooseCountryEnabled),
+                tangemPayEligibleWalletSelectionPublisher(for: .banner, requiresDistributionChannel: false),
                 currentWalletModelsContainPaeraCustomers
             )
             .map { walletSelection, currentWalletModelsContainPaeraCustomers in

@@ -40,7 +40,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var formVariant: SwapFormVariant
     @Published var shouldAnimateBestRateBadge: Bool = true
 
-    let swapSummarySlippageViewModel: SwapSummarySlippageViewModel?
+    let swapSummarySlippageViewModel: SwapSummarySlippageViewModel
 
     var mainButtonIsLoading: Bool { isActionInProcessing }
 
@@ -60,7 +60,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         analyticsLogger: SendSummaryAnalyticsLogger,
         swapAmountViewModel: SwapAmountViewModel,
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
-        swapSummarySlippageViewModel: SwapSummarySlippageViewModel?,
+        swapSummarySlippageViewModel: SwapSummarySlippageViewModel,
         feeCompactViewModel: SendFeeCompactViewModel,
         sourceTokenInput: SendSourceTokenInput,
         formVariantResolver: SwapFormVariantResolver = SwapFormVariantResolver()
@@ -176,19 +176,17 @@ private extension SwapSummaryViewModel {
             .receiveOnMain()
             .assign(to: &$transactionDescription)
 
-        if let swapSummarySlippageViewModel {
-            Publishers.CombineLatest($formVariant, swapSummarySlippageViewModel.$isVisible)
-                .map { variant, isVisible in variant == .simple && isVisible }
-                .removeDuplicates()
-                .withWeakCaptureOf(self)
-                .sink { $0.swapAmountViewModel.update(isEditSlippageAvailable: $1) }
-                .store(in: &bag)
+        Publishers.CombineLatest($formVariant, swapSummarySlippageViewModel.$isVisible)
+            .map { variant, isVisible in variant == .simple && isVisible }
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { $0.swapAmountViewModel.update(isEditSlippageAvailable: $1) }
+            .store(in: &bag)
 
-            swapSummarySlippageViewModel.$isEditable
-                .withWeakCaptureOf(self)
-                .sink { $0.swapAmountViewModel.update(isEditSlippageEnabled: $1) }
-                .store(in: &bag)
-        }
+        swapSummarySlippageViewModel.$isEditable
+            .withWeakCaptureOf(self)
+            .sink { $0.swapAmountViewModel.update(isEditSlippageEnabled: $1) }
+            .store(in: &bag)
 
         interactor
             .isMaxAmountButtonHiddenPublisher

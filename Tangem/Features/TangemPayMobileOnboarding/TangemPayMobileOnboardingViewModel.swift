@@ -140,14 +140,7 @@ private extension TangemPayMobileOnboardingViewModel {
     func acceptOffer(
         on userWalletModel: UserWalletModel
     ) async throws(TangemPayAuthorizationError) -> (any TangemPayResidencyInteractor)? {
-        guard FeatureProvider.isAvailable(.tangemPayChooseCountry) else {
-            try await userWalletModel.accountModelsManager.acceptTangemPayOffer(
-                authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor
-            )
-            return nil
-        }
-
-        return try await userWalletModel.accountModelsManager.authorizeTangemPayOfferForResidency(
+        try await userWalletModel.accountModelsManager.authorizeTangemPayOfferForResidency(
             authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor
         )
     }

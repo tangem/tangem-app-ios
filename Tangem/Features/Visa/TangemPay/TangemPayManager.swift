@@ -413,10 +413,6 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     private func makeKYCRequiredState() -> TangemPayLocalState {
         let weakReferenceHolder = makeWeakReferenceHolder()
 
-        guard FeatureProvider.isAvailable(.tangemPayChooseCountry) else {
-            return .kycRequired(weakReferenceHolder)
-        }
-
         switch residencyStatusStorage.residencyStatus(userWalletId: userWalletId, product: .paymentAccount) {
         case .pending, .none:
             return .residencyRequired(weakReferenceHolder)
