@@ -4818,10 +4818,10 @@
 		};
 		B6C0D3F02CBDC52D001113ED /* XCRemoteSwiftPackageReference "Moya" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Moya/Moya.git";
+			repositoryURL = "git@github.com:tangem-developments/Moya.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 15.0.3;
+				kind = exactVersion;
+				version = "15.0.3-tangem1";
 			};
 		};
 		B6DBDE482F97790F00885068 /* XCRemoteSwiftPackageReference "hiero-sdk-swift" */ = {
@@ -4829,7 +4829,7 @@
 			repositoryURL = "git@github.com:tangem-developments/hiero-sdk-swift.git";
 			requirement = {
 				kind = exactVersion;
-				version = "0.49.0-tangem4";
+				version = "0.49.0-tangem5";
 			};
 		};
 		B6DDDE732CF39079008DEA94 /* XCRemoteSwiftPackageReference "BlockiesSwift" */ = {
