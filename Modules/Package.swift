@@ -33,7 +33,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/Moya/Moya.git", .upToNextMajor(from: "15.0.3")),
+        .package(url: "git@github.com:tangem-developments/Moya.git", exact: "15.0.3-tangem1"),
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.11.1")),
         .package(url: "https://github.com/onevcat/Kingfisher.git", .upToNextMajor(from: "8.7.0")),
         .package(url: "https://github.com/Flight-School/AnyCodable.git", .upToNextMajor(from: "0.6.7")),
@@ -63,7 +63,7 @@ let package = Package(
         // CombineExt
         // CryptoSwift
         .package(url: "git@github.com:tangem-developments/grpc-swift.git", exact: "1.26.2-tangem1"),
-        .package(url: "git@github.com:tangem-developments/hiero-sdk-swift.git", exact: "0.49.0-tangem4"),
+        .package(url: "git@github.com:tangem-developments/hiero-sdk-swift.git", exact: "0.49.0-tangem5"),
         .package(url: "git@github.com:tangem-developments/IcpKit.git", exact: "0.1.2-tangem5"),
         // Moya
         .package(url: "https://github.com/outfoxx/PotentCodables.git", .upToNextMajor(from: "3.2.0")),
