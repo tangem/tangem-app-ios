@@ -112,7 +112,7 @@ struct StoryAssetPrefetchServiceTests {
     }
 }
 
-private actor StubAssetCache: StoryAssetCaching {
+private actor StubAssetCache: FileAssetCaching {
     private(set) var requestedChecksums: [String] = []
 
     private let cancelsCallerOnRequest: Bool
@@ -131,5 +131,5 @@ private actor StubAssetCache: StoryAssetCaching {
         return URL(fileURLWithPath: "/local/\(checksum)")
     }
 
-    func retainingOnly(_ keys: Set<StoryAssetCacheKey>) async {}
+    func retainingOnly(_ keys: Set<FileAssetCacheKey>) async {}
 }

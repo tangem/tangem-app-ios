@@ -8,32 +8,33 @@
 
 import Foundation
 import Testing
+import TangemFoundation
 @testable import Tangem
 
 @Suite("KeyedTaskProcessorTests", .timeLimit(.minutes(1)))
 struct KeyedTaskProcessorTests {
     @Test("Callers on the same key share one task")
     func coalescesCallsOnTheSameKey() async throws {
-        let processor = KeyedTaskProcessor<String, Int>()
+        let processor = KeyedTaskProcessor<RecordingKey, Int>()
         let gate = Gate()
         let counters = Counters()
+        let keys = [RecordingKey("a"), RecordingKey("a"), RecordingKey("a")]
 
         @Sendable
-        func call(returning value: Int) async throws -> Int {
-            await counters.arrive()
-            return try await processor.execute(forKey: "a") {
+        func call(with key: RecordingKey, returning value: Int) async throws -> Int {
+            try await processor.execute(forKey: key) {
                 await counters.start()
                 await gate.wait()
                 return value
             }
         }
 
-        async let first = call(returning: 1)
-        async let second = call(returning: 2)
-        async let third = call(returning: 3)
+        async let first = call(with: keys[0], returning: 1)
+        async let second = call(with: keys[1], returning: 2)
+        async let third = call(with: keys[2], returning: 3)
 
         // Held open until every caller is in, so a late caller cannot start a task of its own
-        while await counters.arrivals < 3 {
+        while !keys.allSatisfy(\.isLookedUp) {
             await Task.yield()
         }
         await gate.open()
@@ -75,12 +76,13 @@ struct KeyedTaskProcessorTests {
 
     @Test("Joiners receive the error of the task they joined")
     func joinersReceiveTheSharedFailure() async throws {
-        let processor = KeyedTaskProcessor<String, Int>()
+        let processor = KeyedTaskProcessor<RecordingKey, Int>()
         let gate = Gate()
         let counters = Counters()
+        let joinerKey = RecordingKey("a")
 
         let first = Task {
-            try await processor.execute(forKey: "a") { () async throws -> Int in
+            try await processor.execute(forKey: RecordingKey("a")) { () async throws -> Int in
                 await counters.start()
                 await gate.wait()
                 throw SpecificError.boom
@@ -92,11 +94,10 @@ struct KeyedTaskProcessorTests {
         }
 
         let second = Task {
-            await counters.arrive()
-            return try await processor.execute(forKey: "a") { 1 }
+            try await processor.execute(forKey: joinerKey) { 1 }
         }
 
-        while await counters.arrivals == 0 {
+        while !joinerKey.isLookedUp {
             await Task.yield()
         }
         await gate.open()
@@ -127,12 +128,32 @@ extension KeyedTaskProcessorTests {
     }
 
     private actor Counters {
-        private(set) var arrivals = 0
         private(set) var starts = 0
 
-        func arrive() { arrivals += 1 }
-
         func start() { starts += 1 }
+    }
+
+    private struct RecordingKey: Hashable, Sendable {
+        private let lookup = OSAllocatedUnfairLock(initialState: false)
+
+        let name: String
+
+        init(_ name: String) {
+            self.name = name
+        }
+
+        var isLookedUp: Bool {
+            lookup.withLock { $0 }
+        }
+
+        static func == (lhs: Self, rhs: Self) -> Bool {
+            lhs.name == rhs.name
+        }
+
+        func hash(into hasher: inout Hasher) {
+            lookup.withLock { $0 = true }
+            hasher.combine(name)
+        }
     }
 
     private enum SpecificError: Error {

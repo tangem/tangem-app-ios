@@ -1,5 +1,5 @@
 //
-//  CommonStoryAssetCache.swift
+//  CommonFileAssetCache.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,31 +8,30 @@
 
 import CryptoSwift
 import Foundation
-import TangemStories
 
-/// Disk cache for story assets: a remote file is downloaded once, a local one passes through.
+/// Disk cache for remote file assets: a remote file is downloaded once, a local one passes through.
 /// Evicted LRU, capped by total size.
-actor CommonStoryAssetCache: StoryAssetCaching {
+actor CommonFileAssetCache: FileAssetCaching {
     private let dir: URL
     private let maxBytes: Int
-    private let dataLoader: StoriesDataLoader
+    private let downloader: FileAssetDownloader
 
     /// Two callers for one file share a download; the exists-check runs inside the shared task, so a
     /// caller arriving mid-write joins it instead of starting over.
     private let downloads = KeyedTaskProcessor<URL, URL>()
 
     init(
-        directory: URL = Constants.defaultDirectory,
+        directory: URL,
         maxBytes: Int = Constants.maxBytes,
-        dataLoader: StoriesDataLoader = CommonStoriesDataLoader()
+        downloader: FileAssetDownloader = CommonFileAssetDownloader()
     ) {
         dir = directory
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         self.maxBytes = maxBytes
-        self.dataLoader = dataLoader
+        self.downloader = downloader
     }
 
-    /// A new checksum means a new file, so a new story version never hits an old one. Without a
+    /// A new checksum means a new file, so updated content never hits a stale entry. Without a
     /// checksum the URL keys the entry, and content replaced behind that URL is not picked up.
     func localURL(remoteURL url: URL, checksum: String) async throws -> URL {
         if url.isFileURL { return url }
@@ -44,10 +43,10 @@ actor CommonStoryAssetCache: StoryAssetCaching {
         }
     }
 
-    /// Deletes cache files no manifest references. An empty set is a no-op, so a failed or empty
-    /// manifest never wipes the cache; an orphan survives until it has been cold past the grace
-    /// window, so a slug that failed to resolve this session keeps its still-valid files.
-    func retainingOnly(_ keys: Set<StoryAssetCacheKey>) async {
+    /// Deletes cache files whose keys the caller no longer passes. An empty set is a no-op, so a failed
+    /// or empty key list never wipes the cache; an orphan survives until it has been cold past the
+    /// grace window, so keys that failed to resolve this session keep their still-valid files.
+    func retainingOnly(_ keys: Set<FileAssetCacheKey>) async {
         guard !keys.isEmpty else { return }
 
         let retained = Set(keys.map { fileName(checksum: $0.checksum, url: $0.url) })
@@ -69,14 +68,17 @@ actor CommonStoryAssetCache: StoryAssetCaching {
         }
 
         do {
-            let tempURL = try await dataLoader.downloadFile(from: url)
+            let tempURL = try await downloader.downloadFile(from: url)
             // Atomic rename: a partially written temp file is never seen as a cache hit.
             try FileManager.default.moveItem(at: tempURL, to: destination)
             touch(destination)
             enforceSizeLimit(keeping: destination)
             return destination
         } catch {
-            AppLogger.error("Story asset download failed: \(url.lastPathComponent)", error: error)
+            AppLogger.error(
+                "File asset download failed in \(dir.lastPathComponent): \(url.lastPathComponent)",
+                error: error
+            )
             throw error
         }
     }
@@ -127,14 +129,9 @@ actor CommonStoryAssetCache: StoryAssetCaching {
 
 // MARK: - Constants
 
-extension CommonStoryAssetCache {
+extension CommonFileAssetCache {
     enum Constants {
         static let maxBytes = 200 * 1024 * 1024
         static let orphanGraceInterval: TimeInterval = 7 * 24 * 60 * 60
-
-        static var defaultDirectory: URL {
-            FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-                .appendingPathComponent("StoryAssetCache", isDirectory: true)
-        }
     }
 }

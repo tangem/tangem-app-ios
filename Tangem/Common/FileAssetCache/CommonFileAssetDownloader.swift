@@ -1,5 +1,5 @@
 //
-//  CommonStoriesDataLoader.swift
+//  CommonFileAssetDownloader.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,10 +9,10 @@
 import Foundation
 import TangemNetworkUtils
 
-struct CommonStoriesDataLoader: StoriesDataLoader {
+struct CommonFileAssetDownloader: FileAssetDownloader {
     private let session: URLSession
 
-    init(session: URLSession = TangemTrustEvaluatorUtil.makeSession(configuration: .storyAssets)) {
+    init(session: URLSession = TangemTrustEvaluatorUtil.makeSession(configuration: .fileAssets)) {
         self.session = session
     }
 
@@ -21,20 +21,20 @@ struct CommonStoriesDataLoader: StoriesDataLoader {
 
         if let httpResponse = response as? HTTPURLResponse, !(200 ..< 300).contains(httpResponse.statusCode) {
             try? FileManager.default.removeItem(at: tempURL)
-            throw StoriesDataLoaderError.unacceptableStatusCode(httpResponse.statusCode)
+            throw FileAssetDownloaderError.unacceptableStatusCode(httpResponse.statusCode)
         }
 
         return tempURL
     }
 }
 
-enum StoriesDataLoaderError: Error {
+enum FileAssetDownloaderError: Error {
     case unacceptableStatusCode(Int)
 }
 
 private extension URLSessionConfiguration {
-    /// Story videos reach several megabytes, so the resource timeout allows a slow-network download.
-    static let storyAssets: URLSessionConfiguration = {
+    /// Cached videos reach several megabytes, so the resource timeout allows a slow-network download.
+    static let fileAssets: URLSessionConfiguration = {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 30
         configuration.timeoutIntervalForResource = 300
