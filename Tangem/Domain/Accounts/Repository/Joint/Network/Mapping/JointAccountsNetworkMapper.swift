@@ -104,7 +104,7 @@ extension JointAccountsNetworkMapper {
     }
 
     func mapToOperation(from dto: JointAccountsDTO.Response.Operation) throws -> JointAccountOperation {
-        try mapToOperation(from: dto, txHash: nil)
+        try mapToOperation(from: dto, txHash: nil, finishedAt: nil, cancelReason: nil)
     }
 
     func mapToSignature(from dto: JointAccountsDTO.Response.Operation.Vote) -> JointAccountOperation.Signature {
@@ -156,18 +156,22 @@ extension JointAccountsNetworkMapper {
     }
 
     func mapToHistoryItem(from dto: JointAccountsDTO.Response.HistoryOperation) throws -> JointOperationHistoryItem {
-        let operation = try mapToOperation(from: dto.operation, txHash: dto.txHash?.lowercased())
         let createdAt = try date(dto.operation.createdAt, field: "createdAt")
         let finishedAt = try dto.finishedAt.map { try date($0, field: "finishedAt") }
+        let cancelReason = mapCancelReason(from: dto.cancelReason, operationId: dto.operation.operationId)
+        let operation = try mapToOperation(
+            from: dto.operation,
+            txHash: dto.txHash?.lowercased(),
+            finishedAt: finishedAt,
+            cancelReason: cancelReason
+        )
 
         return JointOperationHistoryItem(
             operation: operation,
             cryptoAccountId: dto.cryptoAccountId,
             safeAddress: dto.safeAddress.lowercased(),
             createdAt: createdAt,
-            finishedAt: finishedAt,
-            threshold: dto.operation.threshold,
-            cancelReason: mapCancelReason(from: dto.cancelReason, operationId: dto.operation.operationId)
+            threshold: dto.operation.threshold
         )
     }
 }
@@ -216,7 +220,12 @@ private extension JointAccountsNetworkMapper {
 
     static let dateFallbackFormatter = ISO8601DateFormatter()
 
-    func mapToOperation(from dto: JointAccountsDTO.Response.Operation, txHash: String?) throws -> JointAccountOperation {
+    func mapToOperation(
+        from dto: JointAccountsDTO.Response.Operation,
+        txHash: String?,
+        finishedAt: Date?,
+        cancelReason: JointOperationCancelReason?
+    ) throws -> JointAccountOperation {
         let signatures = dto.votes?.map(mapToSignature(from:)) ?? []
         let safeTransaction = try mapToSafeTransaction(from: dto.safeTx)
         let status = mapStatus(from: dto.status)
@@ -227,6 +236,8 @@ private extension JointAccountsNetworkMapper {
             safeTransaction: safeTransaction,
             status: status,
             txHash: txHash,
+            finishedAt: finishedAt,
+            cancelReason: cancelReason,
             initiator: dto.initiator,
             signatures: signatures
         )

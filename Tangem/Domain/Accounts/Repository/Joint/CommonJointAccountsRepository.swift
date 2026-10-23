@@ -129,14 +129,6 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
         invitesStorageDidUpdatePublisher
     }
 
-    var jointAccountsPendingOperations: [StoredJointAccountPendingOperations] {
-        pendingOperationsPersistentStorage.getList()
-    }
-
-    var jointAccountsPendingOperationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> {
-        pendingOperationsStorageDidUpdatePublisher
-    }
-
     func initialize() {
         guard isJointAccountsAvailable else {
             return
@@ -244,39 +236,6 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
         let account = try await networkService.activateJointAccount(blob: blob)
 
         try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: account))
-    }
-
-    func createOperation(_ request: JointAccountOperationRequest, forCryptoAccountId cryptoAccountId: String) async throws -> JointAccountOperation {
-        guard isJointAccountsAvailable else {
-            throw InternalError.featureUnavailable
-        }
-
-        let operation = try await networkService.createOperation(request)
-        try pendingOperationsPersistentStorage.appendNewOrUpdateExisting(operation, forCryptoAccountId: cryptoAccountId)
-
-        return operation
-    }
-
-    func signOperation(id: String, safeTransaction: SafeTransaction, signature: Data, forCryptoAccountId cryptoAccountId: String) async throws {
-        guard isJointAccountsAvailable else {
-            throw InternalError.featureUnavailable
-        }
-
-        let operation = try await networkService.signOperation(id: id, safeTransaction: safeTransaction, signature: signature)
-        try pendingOperationsPersistentStorage.appendNewOrUpdateExisting(operation, forCryptoAccountId: cryptoAccountId)
-    }
-
-    func rejectOperation(id: String, forCryptoAccountId cryptoAccountId: String) async throws {
-        guard isJointAccountsAvailable else {
-            throw InternalError.featureUnavailable
-        }
-
-        guard let operation = try await networkService.rejectOperation(id: id) else {
-            try pendingOperationsPersistentStorage.remove(operationWithId: id, forCryptoAccountId: cryptoAccountId)
-            return
-        }
-
-        try pendingOperationsPersistentStorage.appendNewOrUpdateExisting(operation, forCryptoAccountId: cryptoAccountId)
     }
 }
 
@@ -430,7 +389,7 @@ extension CommonJointAccountsRepository {
         private func bind(innerRepository: CommonJointAccountsRepository) {
             let publisher = Publishers
                 .CombineLatest3(
-                    innerRepository.jointAccountsPendingOperationsPublisher,
+                    innerRepository.pendingOperationsStorageDidUpdatePublisher,
                     innerRepository.jointAccountsPublisher,
                     frequentUpdatesRequestsCountSubject
                 )

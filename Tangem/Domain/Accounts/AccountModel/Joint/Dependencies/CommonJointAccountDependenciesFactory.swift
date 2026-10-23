@@ -21,6 +21,7 @@ struct CommonJointAccountDependenciesFactory {
     let keysRepository: KeysRepository
     let cryptoAccountsRepository: CommonCryptoAccountsRepository
     let jointAccountsRepository: JointAccountsRepository
+    let jointAccountPendingOperationsRepository: JointAccountPendingOperationsRepository
     let signerFactory: TangemSignerFactory
     /// A joint account signs with the wallet's own keys; only where the funds live differs.
     let defaultWalletFactory: AnyWalletFactory
@@ -126,6 +127,7 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
             jointAccountsRepository: jointAccountsRepository,
+            pendingOperationsRepository: jointAccountPendingOperationsRepository,
             walletModelsManager: walletModelsManager
         )
 
@@ -135,7 +137,7 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
         )
 
         let operationsService = CommonJointAccountOperationsService(
-            jointAccountsRepository: jointAccountsRepository,
+            pendingOperationsRepository: jointAccountPendingOperationsRepository,
             signerFactory: signerFactory
         )
 

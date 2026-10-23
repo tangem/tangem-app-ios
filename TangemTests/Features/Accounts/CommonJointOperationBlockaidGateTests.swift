@@ -152,6 +152,8 @@ private extension CommonJointOperationBlockaidGateTests {
             ),
             status: .awaitingSignatures,
             txHash: nil,
+            finishedAt: nil,
+            cancelReason: nil,
             initiator: Constants.recipient,
             signatures: []
         )

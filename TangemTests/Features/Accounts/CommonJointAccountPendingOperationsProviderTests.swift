@@ -212,7 +212,7 @@ struct CommonJointAccountPendingOperationsProviderTests {
     @Test("The listing dropping an operation ends it here too")
     func operationGoesWithItsRecord() throws {
         let account = makeJointAccount()
-        let repository = JointAccountsRepositoryStub(pendingOperations: [Self.record(operations: [Self.coinTransfer()])])
+        let repository = JointAccountPendingOperationsRepositoryStub(pendingOperations: [Self.record(operations: [Self.coinTransfer()])])
         let sut = Self.makeSUT(repository: repository, walletModels: [Self.makeWalletModel(tokenItem: Self.coin, account: account)]).provider
         var emittedCounts: [Int] = []
         let subscription = sut.pendingOperationsPublisher.sink { emittedCounts.append($0.count) }
@@ -246,11 +246,11 @@ private extension CommonJointAccountPendingOperationsProviderTests {
         records: [StoredJointAccountPendingOperations],
         walletModels: [any WalletModel]
     ) -> (provider: CommonJointAccountPendingOperationsProvider, walletModelsManager: WalletModelsManagerTestsMock) {
-        makeSUT(repository: JointAccountsRepositoryStub(pendingOperations: records), walletModels: walletModels)
+        makeSUT(repository: JointAccountPendingOperationsRepositoryStub(pendingOperations: records), walletModels: walletModels)
     }
 
     static func makeSUT(
-        repository: JointAccountsRepositoryStub,
+        repository: JointAccountPendingOperationsRepositoryStub,
         walletModels: [any WalletModel]
     ) -> (provider: CommonJointAccountPendingOperationsProvider, walletModelsManager: WalletModelsManagerTestsMock) {
         let walletModelsManager = WalletModelsManagerTestsMock()
@@ -260,7 +260,8 @@ private extension CommonJointAccountPendingOperationsProviderTests {
         let provider = CommonJointAccountPendingOperationsProvider(
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
-            jointAccountsRepository: repository,
+            jointAccountsRepository: JointAccountsRepositoryStub(),
+            pendingOperationsRepository: repository,
             walletModelsManager: walletModelsManager
         )
 
@@ -337,6 +338,8 @@ private extension CommonJointAccountPendingOperationsProviderTests {
             ),
             status: .awaitingSignatures,
             txHash: nil,
+            finishedAt: nil,
+            cancelReason: nil,
             initiator: creatorAddress,
             signatures: []
         )
