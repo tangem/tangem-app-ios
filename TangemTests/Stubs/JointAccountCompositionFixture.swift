@@ -100,6 +100,8 @@ enum JointAccountCompositionFixture {
             ),
             status: status,
             txHash: nil,
+            finishedAt: nil,
+            cancelReason: nil,
             initiator: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
             signatures: []
         )

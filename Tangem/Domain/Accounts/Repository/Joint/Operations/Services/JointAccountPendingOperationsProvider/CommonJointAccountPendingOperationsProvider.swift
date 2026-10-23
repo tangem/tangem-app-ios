@@ -20,6 +20,7 @@ final class CommonJointAccountPendingOperationsProvider {
     private let userWalletId: UserWalletId
     private let derivationIdentity: CryptoAccountDerivationIdentity
     private let jointAccountsRepository: JointAccountsRepository
+    private let pendingOperationsRepository: JointAccountPendingOperationsRepository
     private let walletModelsManager: WalletModelsManager
 
     private let accountId: CryptoAccountModelId
@@ -29,11 +30,13 @@ final class CommonJointAccountPendingOperationsProvider {
         userWalletId: UserWalletId,
         derivationIdentity: CryptoAccountDerivationIdentity,
         jointAccountsRepository: JointAccountsRepository,
+        pendingOperationsRepository: JointAccountPendingOperationsRepository,
         walletModelsManager: WalletModelsManager
     ) {
         self.userWalletId = userWalletId
         self.derivationIdentity = derivationIdentity
         self.jointAccountsRepository = jointAccountsRepository
+        self.pendingOperationsRepository = pendingOperationsRepository
         self.walletModelsManager = walletModelsManager
 
         accountId = CryptoAccountModelId(userWalletId: userWalletId, derivationIdentity: derivationIdentity)
@@ -131,12 +134,12 @@ final class CommonJointAccountPendingOperationsProvider {
 
 extension CommonJointAccountPendingOperationsProvider: JointAccountPendingOperationsProvider {
     var pendingOperations: [JointAccountPendingOperation] {
-        pendingOperations(in: jointAccountsRepository.jointAccountsPendingOperations, walletModels: walletModelsManager.walletModels)
+        pendingOperations(in: pendingOperationsRepository.pendingOperations, walletModels: walletModelsManager.walletModels)
     }
 
     var pendingOperationsPublisher: AnyPublisher<[JointAccountPendingOperation], Never> {
         Publishers.CombineLatest(
-            jointAccountsRepository.jointAccountsPendingOperationsPublisher,
+            pendingOperationsRepository.pendingOperationsPublisher,
             walletModelsManager.walletModelsPublisher
         )
         .withWeakCaptureOf(self)

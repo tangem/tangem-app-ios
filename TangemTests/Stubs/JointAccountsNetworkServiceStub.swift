@@ -1,0 +1,166 @@
+//
+//  JointAccountsNetworkServiceStub.swift
+//  TangemTests
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import BlockchainSdk
+import TangemFoundation
+@testable import Tangem
+
+final class JointAccountsNetworkServiceStub: JointAccountsNetworkService {
+    static let listingETag = "listing-etag"
+
+    private let state = OSAllocatedUnfairLock(initialState: State())
+    private let (firstRequestArrived, firstRequestArrivedContinuation) = AsyncStream<Void>.makeStream()
+
+    var getJointAccountsCallsCount: Int {
+        state.withLock(\.getJointAccountsCallsCount)
+    }
+
+    var sentKnownETags: [String?] {
+        state.withLock(\.sentKnownETags)
+    }
+
+    var createdRequests: [JointAccountOperationRequest] {
+        state.withLock(\.createdRequests)
+    }
+
+    var signedOperations: [(id: String, safeTransaction: SafeTransaction, signature: Data)] {
+        state.withLock(\.signedOperations)
+    }
+
+    var rejectedOperationIds: [String] {
+        state.withLock(\.rejectedOperationIds)
+    }
+
+    var operationCallsCount: Int {
+        state.withLock { $0.createdRequests.count + $0.signedOperations.count + $0.rejectedOperationIds.count }
+    }
+
+    init(
+        jointAccounts: [RemoteJointAccount] = [],
+        answersUnchanged: Bool = false,
+        error: Error? = nil,
+        suspendedFirstAnswer: JointAccountsRemoteState? = nil,
+        operationAnswer: JointAccountOperation? = nil
+    ) {
+        state.withLock {
+            $0.jointAccounts = jointAccounts
+            $0.answersUnchanged = answersUnchanged
+            $0.error = error
+            $0.suspendedFirstAnswer = suspendedFirstAnswer
+            $0.operationAnswer = operationAnswer
+        }
+    }
+
+    func waitForFirstRequest() async {
+        for await _ in firstRequestArrived {
+            return
+        }
+    }
+
+    func answerFirstRequest() {
+        state.withLock { $0.firstRequestContinuation.take() }?.resume()
+    }
+
+    func getJointAccounts(knownETag: String?) async throws -> JointAccountsRemoteState {
+        let suspendedAnswer = state.withLock { state -> JointAccountsRemoteState? in
+            state.getJointAccountsCallsCount += 1
+            state.sentKnownETags.append(knownETag)
+            return state.getJointAccountsCallsCount == 1 ? state.suspendedFirstAnswer : nil
+        }
+
+        if let suspendedAnswer {
+            await withCheckedContinuation { continuation in
+                state.withLock { $0.firstRequestContinuation = continuation }
+                firstRequestArrivedContinuation.yield()
+            }
+
+            return suspendedAnswer
+        }
+
+        return try state.withLock { state in
+            if let error = state.error {
+                throw error
+            }
+
+            return state.answersUnchanged ? .notModified : .changed(state.jointAccounts, eTag: Self.listingETag)
+        }
+    }
+
+    func createJointAccount(blob: JointAccountCreationBlob) async throws -> JointAccountCreationResult {
+        throw "Not called by these tests"
+    }
+
+    func getInvitePreview(inviteId: String) async throws -> JointAccountInvitePreview {
+        throw "Not called by these tests"
+    }
+
+    func joinJointAccount(blob: JointAccountJoinBlob) async throws -> RemoteJointAccount {
+        throw "Not called by these tests"
+    }
+
+    func activateJointAccount(blob: JointAccountActivationBlob) async throws -> RemoteJointAccount {
+        throw "Not called by these tests"
+    }
+
+    func createOperation(_ request: JointAccountOperationRequest) async throws -> JointAccountOperation {
+        state.withLock { $0.createdRequests.append(request) }
+
+        return try operationAnswer()
+    }
+
+    func signOperation(id: String, safeTransaction: SafeTransaction, signature: Data) async throws -> JointAccountOperation {
+        state.withLock { $0.signedOperations.append((id: id, safeTransaction: safeTransaction, signature: signature)) }
+
+        return try operationAnswer()
+    }
+
+    func rejectOperation(id: String) async throws -> JointAccountOperation? {
+        state.withLock { $0.rejectedOperationIds.append(id) }
+
+        return state.withLock(\.operationAnswer)
+    }
+
+    func getOperationsHistory(afterCursor: String?, limit: Int) async throws -> JointOperationsHistoryPage {
+        throw "Not called by these tests"
+    }
+
+    func getOperationsHistoryDelta(beforeCursor: String?, limit: Int) async throws -> JointOperationsHistoryPage {
+        throw "Not called by these tests"
+    }
+
+    func getOperation(id: String, knownETag: String?) async throws -> JointOperationFetchResult {
+        throw "Not called by these tests"
+    }
+
+    private func operationAnswer() throws -> JointAccountOperation {
+        guard let answer = state.withLock(\.operationAnswer) else {
+            throw "The test handed no operation for the endpoint to answer with"
+        }
+
+        return answer
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension JointAccountsNetworkServiceStub {
+    struct State {
+        var jointAccounts: [RemoteJointAccount] = []
+        var answersUnchanged = false
+        var error: Error?
+        var suspendedFirstAnswer: JointAccountsRemoteState?
+        var operationAnswer: JointAccountOperation?
+        var getJointAccountsCallsCount = 0
+        var sentKnownETags: [String?] = []
+        var createdRequests: [JointAccountOperationRequest] = []
+        var signedOperations: [(id: String, safeTransaction: SafeTransaction, signature: Data)] = []
+        var rejectedOperationIds: [String] = []
+        var firstRequestContinuation: CheckedContinuation<Void, Never>?
+    }
+}

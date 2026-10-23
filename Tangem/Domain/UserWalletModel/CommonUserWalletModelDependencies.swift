@@ -81,6 +81,7 @@ struct CommonUserWalletModelDependencies {
             refcodeProvider: walletInfo.refcodeProvider,
             cryptoAccountsRepository: accountModelsManagerDependencies.cryptoAccountsRepository,
             jointAccountsRepository: accountModelsManagerDependencies.jointAccountsRepository,
+            jointAccountPendingOperationsRepository: accountModelsManagerDependencies.jointAccountPendingOperationsRepository,
             tangemSignerFactory: tangemSignerFactory,
             tangemPayManager: tangemPayManager,
             accountModelsProvider: CompositeAccountModelsProvider([polymarketAccountProvider, collectiblesAccountProvider]),
@@ -201,21 +202,34 @@ private extension CommonUserWalletModelDependencies {
             hasTokenSynchronization: hasTokenSynchronization
         )
 
+        let isJointAccountsAvailable = FeatureProvider.isAvailable(.jointAccounts)
+        let jointAccountsNetworkService = CommonJointAccountsNetworkService(userWalletId: userWalletId)
+        let jointAccountsPendingOperationsPersistentStorage = CommonJointAccountsPendingOperationsPersistentStorage(
+            storageIdentifier: userWalletId.stringValue
+        )
+
+        let jointAccountPendingOperationsRepository = CommonJointAccountPendingOperationsRepository(
+            networkService: jointAccountsNetworkService,
+            persistentStorage: jointAccountsPendingOperationsPersistentStorage,
+            isJointAccountsAvailable: isJointAccountsAvailable
+        )
+
         let jointAccountsRepository = CommonJointAccountsRepository(
             userWalletId: userWalletId,
-            networkService: CommonJointAccountsNetworkService(userWalletId: userWalletId),
+            networkService: jointAccountsNetworkService,
             derivationInteractorFactory: jointAccountDerivationInteractorFactory,
             persistentStorage: CommonJointAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue),
             invitesPersistentStorage: CommonJointAccountsInvitesPersistentStorage(storageIdentifier: userWalletId.stringValue),
-            pendingOperationsPersistentStorage: CommonJointAccountsPendingOperationsPersistentStorage(storageIdentifier: userWalletId.stringValue),
+            pendingOperationsPersistentStorage: jointAccountsPendingOperationsPersistentStorage,
             eTagStorage: InjectedValues[\.eTagStorage],
-            isJointAccountsAvailable: FeatureProvider.isAvailable(.jointAccounts)
+            isJointAccountsAvailable: isJointAccountsAvailable
         )
 
         return AccountModelsManagerDependencies(
             networkMapper: networkMapper,
             cryptoAccountsRepository: cryptoAccountsRepository,
             jointAccountsRepository: jointAccountsRepository,
+            jointAccountPendingOperationsRepository: jointAccountPendingOperationsRepository,
             archivedCryptoAccountsProvider: networkService
         )
     }
@@ -228,6 +242,7 @@ private extension CommonUserWalletModelDependencies {
         refcodeProvider: RefcodeProvider?,
         cryptoAccountsRepository: CommonCryptoAccountsRepository,
         jointAccountsRepository: CommonJointAccountsRepository,
+        jointAccountPendingOperationsRepository: CommonJointAccountPendingOperationsRepository,
         tangemSignerFactory: TangemSignerFactory,
         tangemPayManager: TangemPayManager,
         accountModelsProvider: any AccountModelsProvider,
@@ -273,6 +288,7 @@ private extension CommonUserWalletModelDependencies {
             keysRepository: keysRepository,
             cryptoAccountsRepository: cryptoAccountsRepository,
             jointAccountsRepository: jointAccountsRepository,
+            jointAccountPendingOperationsRepository: jointAccountPendingOperationsRepository,
             signerFactory: tangemSignerFactory,
             defaultWalletFactory: config.makeAnyWalletFactory(),
             walletManagerFactory: GenericWalletManagerFactory(),
@@ -409,6 +425,7 @@ private extension CommonUserWalletModelDependencies {
         let networkMapper: CryptoAccountsNetworkMapper
         let cryptoAccountsRepository: CommonCryptoAccountsRepository
         let jointAccountsRepository: CommonJointAccountsRepository
+        let jointAccountPendingOperationsRepository: CommonJointAccountPendingOperationsRepository
         let archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider
     }
 }

@@ -393,6 +393,8 @@ private extension CommonJointAccountsRepositoryTests {
             ),
             status: .awaitingSignatures,
             txHash: nil,
+            finishedAt: nil,
+            cancelReason: nil,
             initiator: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
             signatures: [JointAccountOperation.Signature(address: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", state: .signed, at: "2026-09-02T10:15:00Z")]
         )
@@ -416,122 +418,6 @@ private extension CommonJointAccountsRepositoryTests {
 }
 
 // MARK: - Test doubles
-
-private final class JointAccountsNetworkServiceStub: JointAccountsNetworkService {
-    static let listingETag = "listing-etag"
-
-    private let state = OSAllocatedUnfairLock(initialState: State())
-    private let (firstRequestArrived, firstRequestArrivedContinuation) = AsyncStream<Void>.makeStream()
-
-    var getJointAccountsCallsCount: Int {
-        state.withLock(\.getJointAccountsCallsCount)
-    }
-
-    var sentKnownETags: [String?] {
-        state.withLock(\.sentKnownETags)
-    }
-
-    init(
-        jointAccounts: [RemoteJointAccount] = [],
-        answersUnchanged: Bool = false,
-        error: Error? = nil,
-        suspendedFirstAnswer: JointAccountsRemoteState? = nil
-    ) {
-        state.withLock {
-            $0.jointAccounts = jointAccounts
-            $0.answersUnchanged = answersUnchanged
-            $0.error = error
-            $0.suspendedFirstAnswer = suspendedFirstAnswer
-        }
-    }
-
-    func waitForFirstRequest() async {
-        for await _ in firstRequestArrived {
-            return
-        }
-    }
-
-    func answerFirstRequest() {
-        state.withLock { $0.firstRequestContinuation.take() }?.resume()
-    }
-
-    func getJointAccounts(knownETag: String?) async throws -> JointAccountsRemoteState {
-        let suspendedAnswer = state.withLock { state -> JointAccountsRemoteState? in
-            state.getJointAccountsCallsCount += 1
-            state.sentKnownETags.append(knownETag)
-            return state.getJointAccountsCallsCount == 1 ? state.suspendedFirstAnswer : nil
-        }
-
-        if let suspendedAnswer {
-            await withCheckedContinuation { continuation in
-                state.withLock { $0.firstRequestContinuation = continuation }
-                firstRequestArrivedContinuation.yield()
-            }
-
-            return suspendedAnswer
-        }
-
-        return try state.withLock { state in
-            if let error = state.error {
-                throw error
-            }
-
-            return state.answersUnchanged ? .notModified : .changed(state.jointAccounts, eTag: Self.listingETag)
-        }
-    }
-
-    func createJointAccount(blob: JointAccountCreationBlob) async throws -> JointAccountCreationResult {
-        throw "Not called by these tests"
-    }
-
-    func getInvitePreview(inviteId: String) async throws -> JointAccountInvitePreview {
-        throw "Not called by these tests"
-    }
-
-    func joinJointAccount(blob: JointAccountJoinBlob) async throws -> RemoteJointAccount {
-        throw "Not called by these tests"
-    }
-
-    func activateJointAccount(blob: JointAccountActivationBlob) async throws -> RemoteJointAccount {
-        throw "Not called by these tests"
-    }
-
-    func createOperation(_ request: JointAccountOperationRequest) async throws -> JointAccountOperation {
-        throw "Not called by these tests"
-    }
-
-    func signOperation(id: String, safeTransaction: SafeTransaction, signature: Data) async throws -> JointAccountOperation {
-        throw "Not called by these tests"
-    }
-
-    func rejectOperation(id: String) async throws -> JointAccountOperation? {
-        throw "Not called by these tests"
-    }
-
-    func getOperationsHistory(afterCursor: String?, limit: Int) async throws -> JointOperationsHistoryPage {
-        throw "Not called by these tests"
-    }
-
-    func getOperationsHistoryDelta(beforeCursor: String?, limit: Int) async throws -> JointOperationsHistoryPage {
-        throw "Not called by these tests"
-    }
-
-    func getOperation(id: String, knownETag: String?) async throws -> JointOperationFetchResult {
-        throw "Not called by these tests"
-    }
-}
-
-private extension JointAccountsNetworkServiceStub {
-    struct State {
-        var jointAccounts: [RemoteJointAccount] = []
-        var answersUnchanged = false
-        var error: Error?
-        var getJointAccountsCallsCount = 0
-        var sentKnownETags: [String?] = []
-        var suspendedFirstAnswer: JointAccountsRemoteState?
-        var firstRequestContinuation: CheckedContinuation<Void, Never>?
-    }
-}
 
 private final class JointAccountsETagStorageStub: ETagStorage {
     private let eTagLock: OSAllocatedUnfairLock<String?>
@@ -646,39 +532,5 @@ private final class JointAccountsPersistentStorageStub: JointAccountsPersistentS
 
         accountsLock.withLock { $0 = accounts }
         didUpdateSubject.send()
-    }
-}
-
-private final class JointAccountsPendingOperationsPersistentStorageStub: JointAccountsPendingOperationsPersistentStorage {
-    private let recordsLock: OSAllocatedUnfairLock<[StoredJointAccountPendingOperations]>
-    private let didUpdateSubject = PassthroughSubject<Void, Never>()
-
-    var records: [StoredJointAccountPendingOperations] {
-        recordsLock.withLock { $0 }
-    }
-
-    var didUpdatePublisher: AnyPublisher<Void, Never> {
-        didUpdateSubject.eraseToAnyPublisher()
-    }
-
-    init(records: [StoredJointAccountPendingOperations] = []) {
-        recordsLock = OSAllocatedUnfairLock(initialState: records)
-    }
-
-    func getList() -> [StoredJointAccountPendingOperations] {
-        records
-    }
-
-    func replace(with records: [StoredJointAccountPendingOperations]) throws {
-        recordsLock.withLock { $0 = records }
-        didUpdateSubject.send()
-    }
-
-    func appendNewOrUpdateExisting(_ operation: JointAccountOperation, forCryptoAccountId cryptoAccountId: String) throws {
-        throw "Not called by these tests"
-    }
-
-    func remove(operationWithId operationId: String, forCryptoAccountId cryptoAccountId: String) throws {
-        throw "Not called by these tests"
     }
 }
