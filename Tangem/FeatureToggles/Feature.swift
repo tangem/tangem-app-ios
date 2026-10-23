@@ -81,18 +81,18 @@ enum Feature: String, Hashable, CaseIterable {
         case .backup4cards: return .unspecified
         case .polymarket: return .version("6.6")
         case .polymarketPhaseTwo: return .unspecified
-        case .walletCardsBackupReport: return .unspecified
+        case .walletCardsBackupReport: return .version("6.6")
         case .jointAccounts: return .unspecified
         case .ethPolLocalStakingValidation: return .unspecified
         case .collectibles: return .unspecified
         case .totalTokenBalanceV2: return .unspecified
-        case .mobileSocialLogin: return .unspecified
+        case .mobileSocialLogin: return .version("6.6")
         case .jointAccountsGaslessTokenFee: return .unspecified
-        case .merklIncentives: return .unspecified
+        case .merklIncentives: return .version("6.6")
         case .mcp: return .unspecified
         case .payBundleIntroduction: return .unspecified
         case .tangemPayAppleWalletProvisioning: return .unspecified
-        case .tokenChartAddToPortfolio: return .unspecified
+        case .tokenChartAddToPortfolio: return .version("6.6")
         case .marketingActivityBinding: return .unspecified
         case .qrScanDeeplinks: return .unspecified
         case .yieldModePromo: return .unspecified
