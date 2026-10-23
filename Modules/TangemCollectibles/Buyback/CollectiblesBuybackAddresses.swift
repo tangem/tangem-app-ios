@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-public struct CollectiblesBuybackAddresses {
+public struct CollectiblesBuybackAddresses: Sendable {
     public let owner: String
     public let payoutRecipient: String
 
