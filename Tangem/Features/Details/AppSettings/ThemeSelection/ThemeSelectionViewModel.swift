@@ -48,7 +48,7 @@ class ThemeSelectionViewModel: ObservableObject {
         AppSettings.shared.appTheme = newOption
         Analytics.log(.appSettingsAppThemeSwitched, params: [.state: newOption.analyticsParamValue])
 
-        guard let window = UIApplication.keyWindow else {
+        guard let window = UIApplication.mainWindow else {
             return
         }
 

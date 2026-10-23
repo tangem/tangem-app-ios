@@ -12,7 +12,7 @@ import TangemUI
 import TangemFoundation
 import TangemStaking
 import TangemLocalization
-import struct TangemUIUtils.AlertBinder
+import TangemUIUtils
 
 final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
