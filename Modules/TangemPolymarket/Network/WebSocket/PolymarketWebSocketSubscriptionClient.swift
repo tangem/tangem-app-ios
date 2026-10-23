@@ -168,7 +168,10 @@ private extension PolymarketWebSocketSubscriptionClient {
             activeConnection = ActiveConnection(outgoingQueue: OutgoingQueue(manager: manager))
             syncSubscriptions()
             lastDataAt = now()
-            scheduleSilenceCheck(after: channel.silenceTimeout)
+
+            if let silenceTimeout = channel.silenceTimeout {
+                scheduleSilenceCheck(after: silenceTimeout)
+            }
 
         case .idle, .connecting, .waitingToReconnect, .stopped:
             activeConnection = nil
@@ -293,20 +296,20 @@ private extension PolymarketWebSocketSubscriptionClient {
     func silenceCheckFired() async {
         silenceTask = nil
 
-        guard activeConnection != nil, let lastDataAt else {
+        guard activeConnection != nil, let lastDataAt, let silenceTimeout = channel.silenceTimeout else {
             return
         }
 
         let silence = now() - lastDataAt
 
-        guard silence >= channel.silenceTimeout else {
-            scheduleSilenceCheck(after: channel.silenceTimeout - silence)
+        guard silence >= silenceTimeout else {
+            scheduleSilenceCheck(after: silenceTimeout - silence)
             return
         }
 
         guard !readers.isEmpty else {
             self.lastDataAt = now()
-            scheduleSilenceCheck(after: channel.silenceTimeout)
+            scheduleSilenceCheck(after: silenceTimeout)
             return
         }
 
@@ -345,12 +348,12 @@ private extension PolymarketWebSocketSubscriptionClient {
     func probeTimedOut(sentAt probeSentAt: ContinuousClock.Instant) async {
         silenceTask = nil
 
-        guard activeConnection != nil, let lastDataAt else {
+        guard activeConnection != nil, let lastDataAt, let silenceTimeout = channel.silenceTimeout else {
             return
         }
 
         guard lastDataAt < probeSentAt else {
-            scheduleSilenceCheck(after: channel.silenceTimeout - (now() - lastDataAt))
+            scheduleSilenceCheck(after: silenceTimeout - (now() - lastDataAt))
             return
         }
 
