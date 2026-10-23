@@ -52,6 +52,7 @@ struct FeedCoordinatorView: CoordinatorView {
                     FeedDestinationView(destination: $0)
                 }
                 .modifier(FeedWidgetSelectorModal(presenter: coordinator.widgetSheetPresenter))
+                .modifier(FeedWidgetStatusModal(presenter: coordinator.widgetSheetPresenter))
         }
         .modifier(FeedModalPresentation(coordinator: coordinator))
     }
@@ -101,6 +102,21 @@ private struct FeedWidgetSelectorModal: ViewModifier {
         switch presenter.selector {
         case .accountType: Localization.accountFormTitleCreate
         case .accounts, .referral, nil: Localization.commonChooseWallet
+        }
+    }
+}
+
+private struct FeedWidgetStatusModal: ViewModifier {
+    @ObservedObject var presenter: FeedWidgetSheetPresenter
+
+    func body(content: Content) -> some View {
+        content.modalStatus(isPresented: $presenter.isStatusPresented, onDismiss: presenter.statusDidDismiss) {
+            switch presenter.status {
+            case .collectiblesRegionRestricted:
+                CollectiblesRegionRestrictionsSheet(action: presenter.dismissStatus)
+            case nil:
+                EmptyView()
+            }
         }
     }
 }
