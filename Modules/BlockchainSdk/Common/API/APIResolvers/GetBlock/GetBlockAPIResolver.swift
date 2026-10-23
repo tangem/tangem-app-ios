@@ -12,11 +12,25 @@ struct GetBlockAPIResolver {
     let credentials: BlockchainSdkKeysConfig.GetBlockCredentials
 
     func resolve(for blockchain: Blockchain) -> NodeInfo? {
+        if case .sui = blockchain {
+            return resolveGRPC(for: blockchain)
+        }
+
         guard let url = generateURL(for: blockchain) else {
             return nil
         }
 
         return .init(url: url)
+    }
+
+    private func resolveGRPC(for blockchain: Blockchain) -> NodeInfo? {
+        let token = credentials.credential(for: blockchain, type: .grpc)
+
+        guard !token.isEmpty, let url = URL(string: "https://shared.us-east-1.getblock.io") else {
+            return nil
+        }
+
+        return .init(url: url, keyInfo: .init(headerName: Constants.getBlockGRPCAccessTokenHeaderName, headerValue: token))
     }
 
     private func generateURL(for blockchain: Blockchain) -> URL? {
@@ -33,7 +47,7 @@ struct GetBlockAPIResolver {
         case .cosmos, .tron, .algorand, .aptos, .tezos, .monad:
             return credentials.credential(for: blockchain, type: .rest)
         case .near, .ton, .ethereum, .ethereumClassic, .rsk, .bsc, .polygon, .fantom, .gnosis, .cronos, .zkSync, .moonbeam, .polygonZkEVM, .avalanche, .base, .xrp, .blast, .filecoin, .solana,
-             .arbitrum, .bitcoinCash, .kusama, .optimism, .polkadot, .shibarium, .sui, .telos:
+             .arbitrum, .bitcoinCash, .kusama, .optimism, .polkadot, .shibarium, .telos:
             return credentials.credential(for: blockchain, type: .jsonRpc)
         case .cardano:
             return credentials.credential(for: blockchain, type: .rosetta)

@@ -32,6 +32,7 @@ public struct BlockchainSdkKeysConfig {
     let quickNodeMonadCredentials: QuickNodeCredentials
     let quickNodeRobinhoodCredentials: QuickNodeCredentials
     let quickNodeArcCredentials: QuickNodeCredentials
+    let quickNodeSuiCredentials: QuickNodeCredentials
     let bittensorDwellirKey: String
     let dwellirApiKey: String
     let bittensorOnfinalityKey: String
@@ -64,6 +65,7 @@ public struct BlockchainSdkKeysConfig {
         quickNodeMonadCredentials: QuickNodeCredentials,
         quickNodeRobinhoodCredentials: QuickNodeCredentials,
         quickNodeArcCredentials: QuickNodeCredentials,
+        quickNodeSuiCredentials: QuickNodeCredentials,
         bittensorDwellirKey: String,
         dwellirApiKey: String,
         bittensorOnfinalityKey: String,
@@ -95,6 +97,7 @@ public struct BlockchainSdkKeysConfig {
         self.quickNodeMonadCredentials = quickNodeMonadCredentials
         self.quickNodeRobinhoodCredentials = quickNodeRobinhoodCredentials
         self.quickNodeArcCredentials = quickNodeArcCredentials
+        self.quickNodeSuiCredentials = quickNodeSuiCredentials
         self.bittensorDwellirKey = bittensorDwellirKey
         self.dwellirApiKey = dwellirApiKey
         self.bittensorOnfinalityKey = bittensorOnfinalityKey
@@ -180,6 +183,7 @@ public extension BlockchainSdkKeysConfig.GetBlockCredentials {
         case rest
         case jsonRpc
         case rosetta
+        case grpc = "gRPC"
     }
 }
 
