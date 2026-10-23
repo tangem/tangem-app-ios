@@ -28,7 +28,8 @@ struct YieldIncentiveChart: View {
             ForEach(bars) { bar in
                 BarMark(
                     x: .value("Index", bar.index),
-                    y: .value("Base APY", bar.baseApy),
+                    yStart: .value("Zero", 0),
+                    yEnd: .value("Base APY", bar.baseApy),
                     width: .fixed(Constants.barWidth)
                 )
                 .cornerRadius(Constants.barCornerRadius)
@@ -62,7 +63,10 @@ struct YieldIncentiveChart: View {
         }
         .chartYAxis {
             AxisMarks(position: .leading, values: yAxisValues) { mark in
-                AxisGridLine()
+                if let value = mark.as(Double.self), value > 0 {
+                    AxisGridLine().foregroundStyle(DesignSystem.Color.borderPrimary)
+                }
+
                 AxisValueLabel {
                     if let value = mark.as(Double.self) {
                         Text(value, format: .percent.precision(.fractionLength(0)))
@@ -72,7 +76,7 @@ struct YieldIncentiveChart: View {
                 }
             }
         }
-        .chartYScale(domain: 0.0 ... yDomainMax)
+        .chartYScale(domain: -barBottomInset ... yDomainMax)
         .chartPlotStyle { plot in
             plot.frame(height: Constants.plotHeight)
         }
@@ -133,6 +137,10 @@ struct YieldIncentiveChart: View {
     /// back to the base-yield one while the series stays below it.
     private var yDomainMax: Double {
         roundedDomain(for: dataPeak + capGap)
+    }
+
+    private var barBottomInset: Double {
+        Double(Constants.barCornerRadius / Constants.plotHeight) * yDomainMax
     }
 
     /// The design detaches the cap from the base by a constant 2pt, so the gap is carried in the data units
