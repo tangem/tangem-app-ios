@@ -11,6 +11,11 @@ import TangemWebSocket
 
 struct PolymarketSportsChannel: PolymarketWebSocketChannel {
     private let decoder = JSONDecoder()
+    private let now: @Sendable () -> Date
+
+    init(now: @escaping @Sendable () -> Date = { Date() }) {
+        self.now = now
+    }
 
     var url: URL {
         PolymarketHost.sportsChannel
@@ -20,7 +25,11 @@ struct PolymarketSportsChannel: PolymarketWebSocketChannel {
         .protocolPing(interval: Constants.pingInterval, timeout: Constants.pingTimeout)
     }
 
-    var subscribing: (any PolymarketWebSocketSubscribing<Int>)? {
+    var subscribing: (any PolymarketWebSocketSubscribing<String>)? {
+        nil
+    }
+
+    var silenceTimeout: Duration? {
         nil
     }
 
@@ -31,22 +40,23 @@ struct PolymarketSportsChannel: PolymarketWebSocketChannel {
 
         let game = try decoder.decode(PolymarketDTO.SportsChannelGame.self, from: Data(text.utf8))
 
+        guard let gameId = game.gameId else {
+            return []
+        }
+
         return [
             PolymarketLiveGame(
-                gameId: game.gameId,
-                leagueAbbreviation: game.leagueAbbreviation,
-                homeTeam: game.homeTeam,
-                awayTeam: game.awayTeam,
-                status: game.status,
-                score: game.score,
+                gameId: String(gameId),
+                score: PolymarketGameScore(parsing: game.score, period: game.period),
                 period: game.period,
                 isLive: game.live,
-                hasEnded: game.ended
+                hasEnded: game.ended,
+                receivedAt: now()
             ),
         ]
     }
 
-    func topic(of update: PolymarketLiveGame) -> Int {
+    func topic(of update: PolymarketLiveGame) -> String {
         update.gameId
     }
 

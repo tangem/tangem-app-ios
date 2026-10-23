@@ -36,6 +36,12 @@ extension PolymarketDTO {
         let markets: [Market]?
 
         let teams: [Team]?
+
+        let gameId: String?
+        let score: String?
+        let period: String?
+        let ended: Bool?
+        let dataFetchedAt: String?
     }
 
     struct Team: Decodable {

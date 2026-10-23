@@ -26,7 +26,7 @@ struct PolymarketFeedLiveQuotesTrackerTests {
             Fixtures.event(id: "e\(index)", isLive: index != 4, marketCount: index == 6 ? 3 : 1)
         }
 
-        env.sut.update(events: events, visibleEventIDs: ["e7"])
+        env.sut.update(events: events, visibleEventIDs: ["e7"], isLive: \.isLive)
 
         let expected = Set([2, 3, 5, 6, 7, 8, 9, 10, 11, 12].flatMap { Fixtures.assetIds(of: events[$0], markets: 2) })
         #expect(env.sut.trackedAssetIds == expected)
@@ -40,21 +40,21 @@ struct PolymarketFeedLiveQuotesTrackerTests {
         let env = makeSUT()
         let event = Fixtures.event(id: "a")
 
-        env.sut.update(events: [event], visibleEventIDs: ["a"])
+        env.sut.update(events: [event], visibleEventIDs: ["a"], isLive: \.isLive)
         try await settle { env.source.streams.count == 1 }
 
         env.sut.pause()
         #expect(env.sut.trackedAssetIds.isEmpty)
         try await settle { env.source.streams[0].isCancelled }
 
-        env.sut.update(events: [event], visibleEventIDs: ["a"])
+        env.sut.update(events: [event], visibleEventIDs: ["a"], isLive: \.isLive)
         try await drain()
 
         #expect(env.sut.trackedAssetIds.isEmpty)
         #expect(env.source.streams.count == 1)
 
         env.sut.resume()
-        env.sut.update(events: [event], visibleEventIDs: ["a"])
+        env.sut.update(events: [event], visibleEventIDs: ["a"], isLive: \.isLive)
 
         #expect(env.sut.trackedAssetIds == Fixtures.assetIds(of: event))
         try await settle { env.source.streams.count == 2 }
@@ -66,10 +66,10 @@ struct PolymarketFeedLiveQuotesTrackerTests {
         let first = Fixtures.event(id: "a")
         let second = Fixtures.event(id: "b")
 
-        env.sut.update(events: [first], visibleEventIDs: ["a"])
+        env.sut.update(events: [first], visibleEventIDs: ["a"], isLive: \.isLive)
         try await settle { env.source.streams.count == 1 }
 
-        env.sut.update(events: [first, second], visibleEventIDs: ["a", "b"])
+        env.sut.update(events: [first, second], visibleEventIDs: ["a", "b"], isLive: \.isLive)
         try await settle { env.source.streams.count == 2 }
         try await settle { env.source.streams[0].isCancelled }
 
@@ -85,7 +85,7 @@ struct PolymarketFeedLiveQuotesTrackerTests {
         let yes = "a-m0-yes"
         let no = "a-m0-no"
 
-        env.sut.update(events: [event], visibleEventIDs: ["a"])
+        env.sut.update(events: [event], visibleEventIDs: ["a"], isLive: \.isLive)
         try await settle { env.source.streams.count == 1 }
 
         let stream = env.source.streams[0]
@@ -108,13 +108,13 @@ struct PolymarketFeedLiveQuotesTrackerTests {
         let dropped = Fixtures.event(id: "a")
         let kept = Fixtures.event(id: "b")
 
-        env.sut.update(events: [dropped, kept], visibleEventIDs: ["a", "b"])
+        env.sut.update(events: [dropped, kept], visibleEventIDs: ["a", "b"], isLive: \.isLive)
         try await settle { env.source.streams.count == 1 }
 
         env.source.streams[0].push(Fixtures.quote("a-m0-yes", ask: "0.40"))
         try await settle { env.source.streams[0].pulls >= 2 }
 
-        env.sut.update(events: [Fixtures.event(id: "a", isLive: false), kept], visibleEventIDs: ["a", "b"])
+        env.sut.update(events: [Fixtures.event(id: "a", isLive: false), kept], visibleEventIDs: ["a", "b"], isLive: \.isLive)
         try await settle { env.source.streams.count == 2 }
         env.source.streams[1].push(Fixtures.quote("b-m0-yes", ask: "0.50"))
 
@@ -130,7 +130,7 @@ struct PolymarketFeedLiveQuotesTrackerTests {
         let yes = "a-m0-yes"
 
         try await env.connect()
-        env.sut.update(events: [Fixtures.event(id: "a")], visibleEventIDs: ["a"])
+        env.sut.update(events: [Fixtures.event(id: "a")], visibleEventIDs: ["a"], isLive: \.isLive)
         try await settle { env.source.streams.count == 1 }
 
         env.source.statuses.push(.waitingToReconnect)
@@ -157,7 +157,7 @@ struct PolymarketFeedLiveQuotesTrackerTests {
 
         statuses.push(.connected)
         try await settle { statuses.pulls >= 2 }
-        sut.update(events: [Fixtures.event(id: "a")], visibleEventIDs: ["a"])
+        sut.update(events: [Fixtures.event(id: "a")], visibleEventIDs: ["a"], isLive: \.isLive)
         try await settle { source.continuations.count == 1 }
         try await drain()
 
@@ -177,7 +177,7 @@ struct PolymarketFeedLiveQuotesTrackerTests {
         let env = makeSUT()
 
         try await env.connect()
-        env.sut.update(events: [Fixtures.event(id: "a")], visibleEventIDs: ["a"])
+        env.sut.update(events: [Fixtures.event(id: "a")], visibleEventIDs: ["a"], isLive: \.isLive)
         try await settle { env.source.streams.count == 1 }
 
         env.source.statuses.push(.stopped)
