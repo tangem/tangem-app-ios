@@ -26,9 +26,7 @@ struct YieldModuleClaimModal: View {
                 size: current.size,
                 contentLayout: current.contentLayout,
                 dragIndicator: .hidden,
-                title: current.title,
-                subtitle: current.subtitle,
-                onClose: viewModel.onCloseTap,
+                navigation: current.navigation,
                 onDismiss: onDismissed,
                 content: { YieldModuleClaimView(viewModel: viewModel) }
             )
@@ -43,11 +41,14 @@ struct YieldModuleClaimModal: View {
             Appearance(
                 size: viewData.rewardsCount > 1 ? .full : .flexible,
                 contentLayout: .scrollable,
-                title: Localization.yieldModuleClaimSheetTitle,
-                subtitle: Localization.yieldModuleClaimSheetSubtitle
+                navigation: .title(
+                    Localization.yieldModuleClaimSheetTitle,
+                    subtitle: Localization.yieldModuleClaimSheetSubtitle,
+                    onClose: viewModel.onCloseTap
+                )
             )
         case .success:
-            Appearance(size: .full, contentLayout: .fill, title: "", subtitle: nil)
+            Appearance(size: .full, contentLayout: .fill, navigation: .closeButton(onClose: viewModel.onCloseTap))
         }
     }
 }
@@ -58,7 +59,6 @@ private extension YieldModuleClaimModal {
     struct Appearance {
         let size: ModalSize
         let contentLayout: ModalContentLayout
-        let title: String
-        let subtitle: String?
+        let navigation: ModalNavigation
     }
 }
