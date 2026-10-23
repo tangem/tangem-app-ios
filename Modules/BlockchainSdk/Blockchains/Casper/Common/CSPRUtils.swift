@@ -1,46 +1,6 @@
 import Foundation
 
-private let secondInMillisecond: UInt64 = .init(1000)
-private let miniuteInMilisecond: UInt64 = .init(60 * 1000)
-private let hourInMilisecond: UInt64 = .init(3600 * 1000)
-private let dayInMilisecond: UInt64 = hourInMilisecond * 24
-private let weekInMilisecond: UInt64 = dayInMilisecond * 7
-private let monthInMilisecond: UInt64 = dayInMilisecond * 30
-private let yearInMilisecond: UInt64 = dayInMilisecond * 365
-
 enum CSPRUtils {
-    static var deploy: CSPRDeploy = .init()
-    static var isPutDeployUsingSecp256k1: Bool = false
-    static var deployHash: String = ""
-    static var putDeployCounter: Int = 0
-
-    static func miliSecondToTTL(m: UInt64) -> String {
-        if m > yearInMilisecond {
-            let totalYear = m / yearInMilisecond
-            return "\(totalYear)year"
-        } else if m > monthInMilisecond {
-            let totalMonth = m / monthInMilisecond
-            return "\(totalMonth)month"
-        } else if m > weekInMilisecond {
-            let totalWeek = m / weekInMilisecond
-            return "\(totalWeek)week"
-        } else if m > dayInMilisecond {
-            let totalDay = m / dayInMilisecond
-            return "\(totalDay)day"
-        } else if m > hourInMilisecond {
-            let totalHour = m / hourInMilisecond
-            return "\(totalHour)h"
-        } else if m > miniuteInMilisecond {
-            let totalMinute = m / miniuteInMilisecond
-            return "\(totalMinute)m"
-        } else if m > secondInMillisecond {
-            let totalSecond = m / secondInMillisecond
-            return "\(totalSecond)s"
-        } else {
-            return ""
-        }
-    }
-
     // value parse based on this site https:// docs.rs/humantime/latest/humantime/fn.parse_duration.html
 
     static func ttlToMilisecond(ttl: String) -> UInt64 {
@@ -154,31 +114,7 @@ private extension Date {
 }
 
 private extension String {
-    func utf8DecodedString() -> String {
-        let data = data(using: .utf8)
-        let message = String(data: data!, encoding: .nonLossyASCII) ?? ""
-        return message
-    }
-
-    func utf8EncodedString() -> String {
-        let messageData = data(using: .nonLossyASCII)
-        let text = String(data: messageData!, encoding: .utf8) ?? ""
-        return text
-    }
-
-    var length: Int {
-        return count
-    }
-
     subscript(i: Int) -> String {
         return self[i ..< i + 1]
-    }
-
-    func substring(fromIndex: Int) -> String {
-        return self[min(fromIndex, length) ..< length]
-    }
-
-    func substring(toIndex: Int) -> String {
-        return self[0 ..< max(0, toIndex)]
     }
 }

@@ -37,7 +37,7 @@ public struct LoadableBalanceView: View {
             switch state {
             case .loading(.some(let cached)):
                 textView(cached)
-                    .loadingShimmer(loader.appearance)
+                    .shimmering()
                     .accessibilityIdentifier(accessibilityIdentifier.map { "\($0)Shimmer" })
 
             case .loading(.none):
@@ -68,44 +68,21 @@ public struct LoadableBalanceView: View {
         .environment(\.isShimmerActive, true)
     }
 
-    @ViewBuilder
     private var placeholderView: some View {
-        switch loader.appearance {
-        case .skeleton:
-            skeletonView
-                .frame(size: loader.size)
-                .padding(loader.padding)
-                .shimmer()
-
-        case .tangemShimmer:
-            Shimmer()
-                .variant(.custom(
-                    width: loader.size.width,
-                    height: loader.size.height,
-                    cornerRadius: loader.cornerRadiusStyle.explicitCornerRadius
-                ))
-                .padding(loader.padding)
-        }
-    }
-
-    @ViewBuilder
-    private var skeletonView: some View {
-        switch loader.cornerRadiusStyle {
-        case .rounded(let radius):
-            RoundedRectangle(cornerRadius: radius, style: .continuous)
-                .fill(loader.skeletonColor)
-
-        case .capsule:
-            Capsule(style: .continuous)
-                .fill(loader.skeletonColor)
-        }
+        Shimmer()
+            .variant(.custom(
+                width: loader.size.width,
+                height: loader.size.height,
+                cornerRadius: loader.cornerRadiusStyle.explicitCornerRadius
+            ))
+            .padding(loader.padding)
     }
 
     private var cloudIcon: some View {
         Assets.failedCloud.image
             .resizable()
             .renderingMode(.template)
-            .foregroundStyle(Color.Tangem.Graphic.Neutral.quaternary)
+            .foregroundStyle(DesignSystem.Color.iconTertiary)
             .frame(size: CGSize(bothDimensions: 12))
     }
 
@@ -148,7 +125,7 @@ public extension LoadableBalanceView {
     }
 
     struct Style {
-        public let fontStyle: TangemFontStyle
+        let fontStyle: TangemFontStyle
         public let textColor: Color
 
         public init(font: Font, textColor: Color) {
@@ -156,6 +133,7 @@ public extension LoadableBalanceView {
             self.textColor = textColor
         }
 
+        @available(iOS, deprecated: 100000.0, message: "Use TangemTypographyToken")
         public init(font: TangemFontStyle, textColor: Color) {
             fontStyle = font
             self.textColor = textColor
@@ -171,35 +149,25 @@ public extension LoadableBalanceView {
         public let size: CGSize
         public let padding: EdgeInsets
         public let cornerRadiusStyle: CornerRadiusStyle
-        public let skeletonColor: Color
-        public let appearance: LoadingShimmerAppearance
 
         public init(
             size: CGSize,
             padding: EdgeInsets = .init(),
-            cornerRadiusStyle: CornerRadiusStyle = .rounded(3),
-            skeletonColor: Color = Color.Tangem.Skeleton.backgroundPrimary,
-            appearance: LoadingShimmerAppearance = .skeleton
+            cornerRadiusStyle: CornerRadiusStyle = .rounded(3)
         ) {
             self.size = size
             self.padding = padding
             self.cornerRadiusStyle = cornerRadiusStyle
-            self.skeletonColor = skeletonColor
-            self.appearance = appearance
         }
 
         public init(
             size: CGSize,
             padding: EdgeInsets = .init(),
-            cornerRadius: CGFloat,
-            skeletonColor: Color = Color.Tangem.Skeleton.backgroundPrimary,
-            appearance: LoadingShimmerAppearance = .skeleton
+            cornerRadius: CGFloat
         ) {
             self.size = size
             self.padding = padding
             cornerRadiusStyle = .rounded(cornerRadius)
-            self.skeletonColor = skeletonColor
-            self.appearance = appearance
         }
     }
 }
@@ -224,12 +192,6 @@ public extension LoadableBalanceView.LoaderStyle {
 public extension LoadableBalanceView {
     enum ContentTransitionType {
         case numeric(isCountdown: Bool)
-
-        var contentTransition: ContentTransition? {
-            switch self {
-            case .numeric(let isCountdown): .numericText(countsDown: isCountdown)
-            }
-        }
     }
 }
 
@@ -267,13 +229,13 @@ extension LoadableBalanceView: Setupable {
         VStack(alignment: .trailing, spacing: 2) {
             LoadableBalanceView(
                 state: .loading(cached: .string("1 312 422,23 $")),
-                style: .init(font: Font.Tangem.Body15.semibold, textColor: Color.Tangem.Text.Neutral.primary),
+                style: .init(font: DesignSystem.Font.subheadingMediumToken, textColor: DesignSystem.Color.textPrimary),
                 loader: .init(size: .init(width: 40, height: 12))
             )
 
             LoadableBalanceView(
                 state: .loading(cached: .string("1,23 BTC")),
-                style: .init(font: Font.Tangem.Caption12.regular, textColor: Color.Tangem.Text.Neutral.tertiary),
+                style: .init(font: DesignSystem.Font.captionMediumToken, textColor: DesignSystem.Color.textSecondary),
                 loader: .init(size: .init(width: 40, height: 12))
             )
         }
@@ -283,13 +245,13 @@ extension LoadableBalanceView: Setupable {
         VStack(alignment: .trailing, spacing: 2) {
             LoadableBalanceView(
                 state: .loading(cached: .none),
-                style: .init(font: Font.Tangem.Body15.semibold, textColor: Color.Tangem.Text.Neutral.primary),
+                style: .init(font: DesignSystem.Font.subheadingMediumToken, textColor: DesignSystem.Color.textPrimary),
                 loader: .init(size: .init(width: 40, height: 12))
             )
 
             LoadableBalanceView(
                 state: .loading(cached: .none),
-                style: .init(font: Font.Tangem.Caption12.regular, textColor: Color.Tangem.Text.Neutral.tertiary),
+                style: .init(font: DesignSystem.Font.captionMediumToken, textColor: DesignSystem.Color.textSecondary),
                 loader: .init(size: .init(width: 40, height: 12))
             )
         }
@@ -299,13 +261,13 @@ extension LoadableBalanceView: Setupable {
         VStack(alignment: .trailing, spacing: 2) {
             LoadableBalanceView(
                 state: .loaded(text: .string("1 312 422,23 $")),
-                style: .init(font: Font.Tangem.Body15.semibold, textColor: Color.Tangem.Text.Neutral.primary),
+                style: .init(font: DesignSystem.Font.subheadingMediumToken, textColor: DesignSystem.Color.textPrimary),
                 loader: .init(size: .init(width: 40, height: 12))
             )
 
             LoadableBalanceView(
                 state: .loaded(text: .string("1,23 BTC")),
-                style: .init(font: Font.Tangem.Caption12.regular, textColor: Color.Tangem.Text.Neutral.tertiary),
+                style: .init(font: DesignSystem.Font.captionMediumToken, textColor: DesignSystem.Color.textSecondary),
                 loader: .init(size: .init(width: 40, height: 12))
             )
         }
@@ -315,13 +277,13 @@ extension LoadableBalanceView: Setupable {
         VStack(alignment: .trailing, spacing: 2) {
             LoadableBalanceView(
                 state: .failed(cached: .string("1 312 422,23 $"), icon: .leading),
-                style: .init(font: Font.Tangem.Body15.semibold, textColor: Color.Tangem.Text.Neutral.primary),
+                style: .init(font: DesignSystem.Font.subheadingMediumToken, textColor: DesignSystem.Color.textPrimary),
                 loader: .init(size: .init(width: 40, height: 12))
             )
 
             LoadableBalanceView(
                 state: .failed(cached: .string("1,23 BTC")),
-                style: .init(font: Font.Tangem.Caption12.regular, textColor: Color.Tangem.Text.Neutral.tertiary),
+                style: .init(font: DesignSystem.Font.captionMediumToken, textColor: DesignSystem.Color.textSecondary),
                 loader: .init(size: .init(width: 40, height: 12))
             )
         }

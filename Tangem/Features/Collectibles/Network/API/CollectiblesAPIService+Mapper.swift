@@ -46,7 +46,7 @@ extension CollectiblesAPIService {
                 buybackRate: Decimal(machine.instantBuybackPercent) / Constants.percentScale,
                 expectedValue: machine.expectedValue / Constants.centsScale,
                 tiers: mapTiers(of: machine),
-                openingVideoURL: machine.videoOpenPack.flatMap(URL.init)
+                openingMedia: mapToOpeningMedia(machine.openPackMedia)
             )
         }
 
@@ -75,9 +75,48 @@ extension CollectiblesAPIService {
         ) -> CollectiblesPurchaseTransaction {
             CollectiblesPurchaseTransaction(
                 status: mapToPurchaseStatus(transaction),
-                wonCard: transaction.nftWon.map(mapToWonCard)
+                wonCard: transaction.nftWon.map(mapToWonCard),
+                buybackAmount: transaction.buyback.flatMap(mapToBuybackAmount)
             )
         }
+
+        static func mapToBuybackAmount(_ buyback: CollectiblesDTO.PurchaseBuyback) -> Decimal? {
+            guard let toAmount = buyback.toAmount else {
+                return nil
+            }
+
+            let decimals = buyback.toDecimals ?? CollectiblesChainEnvironment.usdcTokenItem.decimalCount
+
+            return try? mapToPayout(baseUnits: toAmount, decimals: decimals)
+        }
+
+        static func mapToPayout(baseUnits: String, decimals: Int) throws -> Decimal {
+            let units = try mapToBaseUnits(baseUnits)
+
+            guard units > 0 else {
+                let context = DecodingError.Context(
+                    codingPath: [],
+                    debugDescription: "Not a positive payout: \(baseUnits)"
+                )
+                throw CollectiblesAPIService.Error.decoding(.dataCorrupted(context))
+            }
+
+            guard Constants.supportedDecimals.contains(decimals) else {
+                let context = DecodingError.Context(
+                    codingPath: [],
+                    debugDescription: "Unsupported token decimals: \(decimals)"
+                )
+                throw CollectiblesAPIService.Error.decoding(.dataCorrupted(context))
+            }
+
+            return Decimal(units).moveLeft(decimals: decimals)
+        }
+
+        static func mapToErrorCode(_ body: Data) -> Int? {
+            (try? errorDecoder.decode(CollectiblesDTO.ErrorResponse.self, from: body))?.code
+        }
+
+        private static let errorDecoder = JSONDecoder()
 
         static func mapToPurchaseStatus(
             _ transaction: CollectiblesDTO.PurchaseTransaction
@@ -116,6 +155,7 @@ private extension CollectiblesAPIService.Mapper {
 
     static func mapToWonCard(_ nft: CollectiblesDTO.NftWon) -> CollectiblesWonCard {
         CollectiblesWonCard(
+            nftAddress: nft.nftAddress?.trimmed().nilIfEmpty,
             imageFrontURL: nft.imageFront.flatMap(URL.init),
             imageBackURL: nft.imageBack.flatMap(URL.init),
             gradingCompany: nft.gradingCompany?.trimmed().nilIfEmpty,
@@ -156,6 +196,14 @@ private extension CollectiblesAPIService.Mapper {
         machine.shortName.isEmpty ? machine.name : machine.shortName
     }
 
+    static func mapToOpeningMedia(_ media: CollectiblesDTO.Machine.OpenPackMedia?) -> CollectiblesMachine.OpeningMedia {
+        CollectiblesMachine.OpeningMedia(
+            darkVideoURL: media?.videoDark.flatMap(URL.init),
+            lightVideoURL: media?.videoLight.flatMap(URL.init),
+            skipAudioURL: media?.skipAnimationAudio.flatMap(URL.init)
+        )
+    }
+
     /// A tier the machine does not carry is absent from every dictionary (a missing key or an explicit null),
     /// so a tier with neither odds nor a value range is dropped rather than rendered blank.
     static func mapTiers(of machine: CollectiblesDTO.Machine) -> [CollectiblesMachine.TierStats] {
@@ -186,6 +234,7 @@ private extension CollectiblesAPIService.Mapper {
         static let centsScale = Decimal(100)
         /// `instantBuybackPercent` is whole percent (85), the domain rate is a fraction (0.85).
         static let percentScale = Decimal(100)
+        static let supportedDecimals = 0 ... 18
     }
 }
 

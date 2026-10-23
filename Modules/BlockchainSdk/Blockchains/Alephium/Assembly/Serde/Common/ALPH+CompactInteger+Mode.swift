@@ -46,10 +46,7 @@ extension ALPH {
 // MARK: - Modes
 
 extension ALPH {
-    protocol Mode {
-        static var prefix: Int { get }
-        static var negPrefix: Int { get }
-    }
+    protocol Mode {}
 
     protocol FixedWidth: Mode {}
 
@@ -70,8 +67,5 @@ extension ALPH {
 
     struct MultiByte: Mode {
         static let prefix: Int = 0xc0 // 0b11000000
-        static var negPrefix: Int {
-            fatalError("Not needed at all")
-        }
     }
 }

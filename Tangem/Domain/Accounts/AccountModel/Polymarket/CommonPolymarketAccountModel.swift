@@ -22,6 +22,7 @@ final class CommonPolymarketAccountModel {
     private let ownerAddressProvider: PolymarketOwnerAddressProviding
     private let balanceService: PolymarketBalanceService
     private let presenceStore: PolymarketAccountPresenceStore
+    private let depositsReconciler: PolymarketLaunchDepositsReconciling
 
     private let stateSubject = CurrentValueSubject<PolymarketAccountState?, Never>(nil)
     private let refreshProcessor = SingleTaskProcessor<Void, Never>()
@@ -37,7 +38,8 @@ final class CommonPolymarketAccountModel {
         credentialsRepository: PolymarketCredentialsRepository,
         ownerAddressProvider: PolymarketOwnerAddressProviding,
         balanceService: PolymarketBalanceService,
-        presenceStore: PolymarketAccountPresenceStore
+        presenceStore: PolymarketAccountPresenceStore,
+        depositsReconciler: PolymarketLaunchDepositsReconciling
     ) {
         id = PolymarketAccountId(userWalletId: userWalletId)
         self.userWalletId = userWalletId
@@ -48,6 +50,7 @@ final class CommonPolymarketAccountModel {
         self.ownerAddressProvider = ownerAddressProvider
         self.balanceService = balanceService
         self.presenceStore = presenceStore
+        self.depositsReconciler = depositsReconciler
     }
 }
 
@@ -108,6 +111,12 @@ extension CommonPolymarketAccountModel: PolymarketAccountModel {
             await loadBalanceIfPossible(ownerAddress: ownerAddressProvider.getOwnerAddress(), scope: scope)
         }
     }
+
+    func resetOnboarding(isAccountGone: Bool) {
+        credentialsRepository.delete(userWalletId: userWalletId)
+        balanceService.update(.unavailable)
+        stateSubject.send(isAccountGone ? nil : .syncNeeded)
+    }
 }
 
 // MARK: - Private implementation
@@ -143,9 +152,35 @@ private extension CommonPolymarketAccountModel {
     }
 
     func publishKnownAccount(ownerAddress: String?, scope: PolymarketBalanceRefreshScope) async {
-        stateSubject.send(makeReadyToTradeState(ownerAddress: ownerAddress))
+        stateSubject.send(await recheckedKnownAccountState(ownerAddress: ownerAddress))
 
         await loadBalanceIfPossible(ownerAddress: ownerAddress, scope: scope)
+    }
+
+    func recheckedKnownAccountState(ownerAddress: String?) async -> PolymarketAccountState? {
+        guard ownerAddress != nil else {
+            return makeReadyToTradeState(ownerAddress: ownerAddress)
+        }
+
+        let verdict: PolymarketSessionVerdict
+        var status: PolymarketDepositWalletStatus?
+
+        do {
+            let depositWallet = try await walletService.depositWalletState(ownerAddress: ownerAddress)
+            verdict = PolymarketSessionVerdict(status: depositWallet.status)
+            status = depositWallet.status
+        } catch {
+            verdict = PolymarketSessionVerdict(error: error)
+        }
+
+        switch verdict {
+        case .ready:
+            return makeReadyToTradeState(ownerAddress: ownerAddress)
+        case .reconnectRequired:
+            return status == .notCreated ? nil : .syncNeeded
+        case .inconclusive:
+            return stateSubject.value ?? makeReadyToTradeState(ownerAddress: ownerAddress)
+        }
     }
 
     func loadAccount(ownerAddress: String?, scope: PolymarketBalanceRefreshScope) async {
@@ -218,6 +253,8 @@ private extension CommonPolymarketAccountModel {
             return
         }
 
+        depositsReconciler.reconcileOncePerLaunch(ownerAddress: ownerAddress)
+
         let previous = balanceService.state
         balanceService.update(.loading)
 
@@ -233,6 +270,10 @@ private extension CommonPolymarketAccountModel {
                 available: balanceAllowance.balance,
                 positionsValue: await positionsValue
             )
+
+            guard credentialsRepository.load(userWalletId: userWalletId) != nil else {
+                return
+            }
 
             balanceService.update(.loaded(balance))
         } catch is CancellationError {
@@ -273,9 +314,7 @@ private extension CommonPolymarketAccountModel {
             return
         }
 
-        credentialsRepository.delete(userWalletId: userWalletId)
-        balanceService.update(.unavailable)
-        stateSubject.send(.syncNeeded)
+        resetOnboarding(isAccountGone: false)
     }
 
     func makeUnrecognizedStatusState() -> PolymarketAccountState? {

@@ -55,10 +55,6 @@ final class FeeSelectorFeesViewModel: ObservableObject {
 
     private weak var router: FeeSelectorFeesRoutable?
 
-    var selectedFee: TokenFee? {
-        provider.selectorFees.first(where: { $0.option == selectedFeeOption })
-    }
-
     init(
         provider: FeeSelectorFeesDataProvider,
         customFeeDataProvider: FeeSelectorCustomFeeDataProviding,

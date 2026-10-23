@@ -31,6 +31,7 @@ struct CollectiblesWelcomeView: View {
         }
         .safeAreaInset(edge: .bottom) {
             Footer(
+                signingActionButtonType: viewModel.signingActionButtonType,
                 isLoading: viewModel.isOnboarding,
                 onCreateAccountTap: viewModel.onCreateAccountTap,
                 onTermsTap: viewModel.onLegalTermsTap(url:)
@@ -145,5 +146,5 @@ private extension CollectiblesWelcomeView {
 // MARK: - Previews
 
 #Preview {
-    CollectiblesWelcomeView(viewModel: CollectiblesWelcomeViewModel(routable: nil), dismissStyle: .back, onDismiss: {})
+    CollectiblesWelcomeView(viewModel: CollectiblesWelcomeViewModel(routable: nil, signingActionButtonType: .requiredNFCInteraction), dismissStyle: .back, onDismiss: {})
 }

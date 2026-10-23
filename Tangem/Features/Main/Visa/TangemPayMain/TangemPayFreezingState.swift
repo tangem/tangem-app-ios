@@ -33,15 +33,6 @@ enum TangemPayFreezingState {
         }
     }
 
-    var shouldShowUnfreezeButton: Bool {
-        switch self {
-        case .frozen:
-            true
-        case .normal, .freezingInProgress, .unfreezingInProgress, .unavailable:
-            false
-        }
-    }
-
     var shouldDisableActionButtons: Bool {
         switch self {
         case .frozen, .freezingInProgress, .unfreezingInProgress:

@@ -17,12 +17,6 @@ extension ALPH {
         }
 
         static let maxPrecision: Int = 2
-        static let denominator: Int = .init(pow(10.0, Double(maxPrecision)))
-
-        func multiplied(by gas: GasBox) -> GasBox {
-            let numerator = Int(value * Double(Self.denominator))
-            return GasBox.unsafe(initialGas: gas.value * numerator / Self.denominator)
-        }
 
         static func from(_ multiplier: Double?) throws -> GasEstimationMultiplier? {
             guard let multiplier = multiplier else {

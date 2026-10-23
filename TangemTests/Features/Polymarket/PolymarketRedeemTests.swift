@@ -21,7 +21,7 @@ struct PolymarketRedeemTransactionServiceTests {
         let service = RedeemServiceSpy(submit: .confirmed, records: [])
         let sut = try makeSUT(redeemService: service)
 
-        let record = try await sut.claim(conditionId: Self.conditionId, isNegRisk: false)
+        let record = try await sut.claim(position: Self.position())
 
         #expect(record.state == .confirmed)
         #expect(service.submitted.count == 1)
@@ -32,7 +32,7 @@ struct PolymarketRedeemTransactionServiceTests {
         let service = RedeemServiceSpy(submit: .inProgress, records: [.success(.stub(state: .inProgress)), .success(.stub(state: .confirmed))])
         let sut = try makeSUT(redeemService: service)
 
-        let record = try await sut.claim(conditionId: Self.conditionId, isNegRisk: false)
+        let record = try await sut.claim(position: Self.position())
 
         #expect(record.state == .confirmed)
     }
@@ -43,7 +43,7 @@ struct PolymarketRedeemTransactionServiceTests {
         let sut = try makeSUT(redeemService: service)
 
         await #expect(throws: PolymarketRedeemTransactionService.Error.self) {
-            _ = try await sut.claim(conditionId: Self.conditionId, isNegRisk: false)
+            _ = try await sut.claim(position: Self.position())
         }
     }
 
@@ -57,7 +57,7 @@ struct PolymarketRedeemTransactionServiceTests {
         let sut = try makeSUT(redeemService: service)
 
         await #expect(throws: PolymarketRedeemTransactionService.Error.self) {
-            _ = try await sut.claim(conditionId: Self.conditionId, isNegRisk: false)
+            _ = try await sut.claim(position: Self.position())
         }
     }
 
@@ -67,7 +67,7 @@ struct PolymarketRedeemTransactionServiceTests {
         let sut = try makeSUT(redeemService: service)
 
         await #expect(throws: PolymarketRedeemTransactionService.Error.self) {
-            _ = try await sut.claim(conditionId: Self.conditionId, isNegRisk: false)
+            _ = try await sut.claim(position: Self.position())
         }
     }
 
@@ -80,7 +80,7 @@ struct PolymarketRedeemTransactionServiceTests {
         )
         let sut = try makeSUT(redeemService: service)
 
-        _ = try await sut.claim(conditionId: Self.conditionId, isNegRisk: false)
+        _ = try await sut.claim(position: Self.position())
 
         #expect(service.submitted.count == 2)
         #expect(service.submitted[0] == service.submitted[1])
@@ -92,7 +92,7 @@ struct PolymarketRedeemTransactionServiceTests {
         let sut = try makeSUT(redeemService: service)
 
         await #expect(throws: PolymarketRedeemTransactionService.Error.self) {
-            _ = try await sut.claim(conditionId: Self.conditionId, isNegRisk: false)
+            _ = try await sut.claim(position: Self.position())
         }
 
         #expect(service.submitted.count == 1)
@@ -103,7 +103,7 @@ struct PolymarketRedeemTransactionServiceTests {
         let sut = try makeSUT(redeemService: RedeemServiceSpy(submit: .confirmed, records: []), signer: CancellingSigner())
 
         await #expect(throws: CancellationError.self) {
-            _ = try await sut.claim(conditionId: Self.conditionId, isNegRisk: false)
+            _ = try await sut.claim(position: Self.position())
         }
     }
 
@@ -112,13 +112,48 @@ struct PolymarketRedeemTransactionServiceTests {
         let service = RedeemServiceSpy(submit: .confirmed, records: [])
         let sut = try makeSUT(redeemService: service)
 
-        _ = try await sut.claim(conditionId: Self.conditionId, isNegRisk: true)
+        _ = try await sut.claim(position: Self.position(isNegRisk: true))
 
         let batch = try #require(service.submitted.first)
 
         #expect(batch.calls.count == 1)
         #expect(batch.calls[0].value == "0")
-        #expect(service.requestedNegRisk == true)
+        #expect(service.request?.isNegRisk == true)
+        #expect(service.request?.conditionId == Self.conditionId)
+    }
+
+    @Test("Every call the backend handed out goes into one batch, untouched and in order")
+    func batchCarriesEveryCallInOrder() async throws {
+        let calls = [
+            PolymarketRelayedBatch.Call(target: Constants.router, data: "0xd217a3cc01"),
+            PolymarketRelayedBatch.Call(target: Constants.router, data: "0xd217a3cc00"),
+        ]
+        let service = RedeemServiceSpy(submit: .confirmed, records: [], calls: calls)
+        let sut = try makeSUT(redeemService: service)
+
+        _ = try await sut.claim(position: Self.position(version: .v2))
+
+        let batch = try #require(service.submitted.first)
+
+        #expect(batch.calls == calls)
+        #expect(service.request?.version == .v2)
+        #expect(service.request?.assetId == "7")
+    }
+
+    @Test("Nothing left to redeem is its own outcome, not a refusal")
+    func nothingToRedeemIsReported() async throws {
+        let service = RedeemServiceSpy(submit: .confirmed, records: [], callFailure: .nothingToRedeem)
+        let sut = try makeSUT(redeemService: service)
+
+        do {
+            _ = try await sut.claim(position: Self.position(version: .v2))
+            Issue.record("Expected the claim to stop before signing")
+        } catch PolymarketRedeemTransactionService.Error.nothingToRedeem {
+        } catch {
+            Issue.record("Expected nothing to redeem, got \(error)")
+        }
+
+        #expect(service.submitted.isEmpty)
     }
 
     @Test("The deadline is measured by the backend's clock, not by a device running half an hour behind")
@@ -131,7 +166,7 @@ struct PolymarketRedeemTransactionServiceTests {
         let sut = try makeSUT(redeemService: service, serverClock: serverClock)
 
         let before = Date().timeIntervalSince1970
-        _ = try await sut.claim(conditionId: Self.conditionId, isNegRisk: false)
+        _ = try await sut.claim(position: Self.position())
 
         let batch = try #require(service.submitted.first)
         let deadline = try #require(TimeInterval(batch.deadline))
@@ -164,12 +199,43 @@ struct PolymarketRedeemTransactionServiceTests {
     }
 
     static let conditionId = "0x" + String(repeating: "a", count: 64)
+
+    static func position(isNegRisk: Bool = false, version: PolymarketMarketVersion? = .v1) -> PolymarketPosition {
+        PolymarketPosition(
+            conditionId: conditionId,
+            assetId: "7",
+            marketId: "3",
+            version: version,
+            eventId: "4",
+            eventTitle: "Event",
+            title: "Question",
+            iconURL: nil,
+            endDate: nil,
+            outcome: "Yes",
+            outcomeIndex: 0,
+            size: 1,
+            avgPrice: 1,
+            curPrice: 1,
+            initialValue: 1,
+            currentValue: 1,
+            cashPnl: 0,
+            pnlRatio: 0,
+            realizedPnl: 0,
+            isRedeemable: true,
+            isNegRisk: isNegRisk,
+            isAcceptingOrders: false,
+            isLive: false,
+            resolutionStatus: .resolved,
+            settlement: .won
+        )
+    }
 }
 
 // MARK: - Doubles
 
 private enum Constants {
     static let adapter = "0xada2005600dec949baf300f4c6120000bdb6eaab"
+    static let router = "0x12121212006e4cd160d18e3f00711da5c3372600"
 }
 
 private struct StubError: Error {}
@@ -195,20 +261,26 @@ private struct CancellingSigner: PolymarketBatchSigning {
 private final class RedeemServiceSpy: PolymarketRedeemService {
     private struct State {
         var submitted: [PolymarketRelayedBatch] = []
-        var requestedNegRisk: Bool?
+        var request: PolymarketRedeemCallRequest?
         var records: [Result<PolymarketRedeemRecord, PolymarketRedeemError>]
         var submitFailures: [PolymarketRedeemError]
     }
 
     private let submitState: PolymarketRedeemState
+    private let calls: [PolymarketRelayedBatch.Call]
+    private let callFailure: PolymarketRedeemError?
     private let state: OSAllocatedUnfairLock<State>
 
     init(
         submit: PolymarketRedeemState,
         records: [Result<PolymarketRedeemRecord, PolymarketRedeemError>],
-        submitFailures: [PolymarketRedeemError] = []
+        submitFailures: [PolymarketRedeemError] = [],
+        calls: [PolymarketRelayedBatch.Call] = [PolymarketRelayedBatch.Call(target: Constants.adapter, data: "0x01b7037c")],
+        callFailure: PolymarketRedeemError? = nil
     ) {
         submitState = submit
+        self.calls = calls
+        self.callFailure = callFailure
         state = .init(initialState: State(records: records, submitFailures: submitFailures))
     }
 
@@ -216,14 +288,18 @@ private final class RedeemServiceSpy: PolymarketRedeemService {
         state.withLock { $0.submitted }
     }
 
-    var requestedNegRisk: Bool? {
-        state.withLock { $0.requestedNegRisk }
+    var request: PolymarketRedeemCallRequest? {
+        state.withLock { $0.request }
     }
 
-    func call(conditionId: String, isNegRisk: Bool) async throws(PolymarketRedeemError) -> PolymarketRelayedBatch.Call {
-        state.withLock { $0.requestedNegRisk = isNegRisk }
+    func calls(for request: PolymarketRedeemCallRequest) async throws(PolymarketRedeemError) -> [PolymarketRelayedBatch.Call] {
+        state.withLock { $0.request = request }
 
-        return PolymarketRelayedBatch.Call(target: Constants.adapter, data: "0x01b7037c")
+        if let callFailure {
+            throw callFailure
+        }
+
+        return calls
     }
 
     func submit(_ batch: PolymarketRelayedBatch) async throws(PolymarketRedeemError) -> PolymarketRedeemRecord {

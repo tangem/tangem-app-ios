@@ -30,8 +30,9 @@ enum FeedWidgetsRegistry {
             PolymarketWidgetProvider(router: PredictionsFeedRouter(host: host, widgetSheetPresenter: widgetSheetPresenter))
         )
 
-        if FeatureProvider.isAvailable(.collectibles) {
-            providers.append(CollectiblesWidgetProvider(router: CollectiblesFeedRouter(context: context, widgetSheetPresenter: widgetSheetPresenter)))
+        if FeatureProvider.isAvailable(.collectibles), let host {
+            let router = CollectiblesFeedRouter(context: context, host: host, widgetSheetPresenter: widgetSheetPresenter)
+            providers.append(CollectiblesWidgetProvider(router: router))
         }
 
         return providers

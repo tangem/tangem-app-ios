@@ -15,6 +15,8 @@ import TangemUIUtils
 struct PortfolioReviewView: View {
     @ObservedObject var viewModel: PortfolioReviewViewModel
 
+    @ScaledMetric private var scaleFactor: CGFloat = 1
+
     var body: some View {
         VStack(spacing: 8) {
             stateContent
@@ -62,7 +64,7 @@ private extension PortfolioReviewView {
 
     var periodPickerShimmer: some View {
         Shimmer()
-            .variant(.custom(height: 40, cornerRadius: 20))
+            .variant(.custom(height: 40 * scaleFactor, cornerRadius: 20))
             .frame(maxWidth: .infinity)
     }
 
@@ -70,7 +72,7 @@ private extension PortfolioReviewView {
     var chartCardSkeleton: some View {
         VStack(alignment: .leading, spacing: 16) {
             Shimmer()
-                .variant(.custom(height: 200, cornerRadius: 100))
+                .variant(.custom(height: 200 * scaleFactor, cornerRadius: 100))
                 .frame(width: 200)
                 .mask { Circle().strokeBorder(lineWidth: 28) }
                 .padding(32)
@@ -94,7 +96,7 @@ private extension PortfolioReviewView {
 
     func shimmerBar(width: CGFloat) -> some View {
         Shimmer()
-            .variant(.custom(height: 20, cornerRadius: 10))
+            .variant(.custom(height: 20 * scaleFactor, cornerRadius: 10))
             .frame(width: width)
     }
 

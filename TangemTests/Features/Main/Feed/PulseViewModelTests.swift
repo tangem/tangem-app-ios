@@ -387,7 +387,6 @@ private final class StubPulseDataProvider: PulseDataProvider {
     var tokensPublisher: AnyPublisher<[MarketsTokenModel], Never> { tokensSubject.eraseToAnyPublisher() }
     var failedPublisher: AnyPublisher<Bool, Never> { failedSubject.eraseToAnyPublisher() }
     var isLoadingPublisher: AnyPublisher<Bool, Never> { isLoadingSubject.eraseToAnyPublisher() }
-    var canLoadMore: Bool { false }
 
     func makeRowViewModel(for token: MarketsTokenModel, onTap: @escaping () -> Void) -> MarketTokenItemViewModel {
         fatalError("Not needed: the stub never publishes tokens")
@@ -438,6 +437,4 @@ private final class StubCryptoFeedRoutable: CryptoFeedRoutable {
     func openToken(_ token: MarketsTokenModel) {}
     func openPulseTagFilter(with input: PulseTagFilterInput) { tagFilterInputs.append(input) }
     func openMarketCapInfo(subject: MarketCapInfoSubject) {}
-    func openPortfolioToken(_ walletModel: any WalletModel) {}
-    func choosePortfolioToken(from walletModels: [any WalletModel]) {}
 }

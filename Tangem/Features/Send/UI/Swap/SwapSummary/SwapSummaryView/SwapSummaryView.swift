@@ -103,33 +103,20 @@ struct SwapSummaryView: View {
 
     // MARK: - Fee
 
-    @ViewBuilder
     private var feeSectionView: some View {
-        if let slippageViewModel = viewModel.swapSummarySlippageViewModel {
-            SwapSummaryFeeSectionView(
-                slippageViewModel: slippageViewModel,
-                feeViewModel: viewModel.feeCompactViewModel,
-                showsSlippage: viewModel.formVariant == .detailed,
-                slippageTapAction: {
-                    keyboardActive = false
-                    viewModel.userDidTapSlippage()
-                },
-                feeTapAction: {
-                    keyboardActive = false
-                    viewModel.userDidTapFee()
-                }
-            )
-        } else {
-            SendFeeCompactView(
-                viewModel: viewModel.feeCompactViewModel,
-                tapAction: {
-                    keyboardActive = false
-                    viewModel.userDidTapFee()
-                }
-            )
-            .accessibilityElement(children: .combine)
-            .accessibilityIdentifier(SwapAccessibilityIdentifiers.feeBlock)
-        }
+        SwapSummaryFeeSectionView(
+            slippageViewModel: viewModel.swapSummarySlippageViewModel,
+            feeViewModel: viewModel.feeCompactViewModel,
+            showsSlippage: viewModel.formVariant == .detailed,
+            slippageTapAction: {
+                keyboardActive = false
+                viewModel.userDidTapSlippage()
+            },
+            feeTapAction: {
+                keyboardActive = false
+                viewModel.userDidTapFee()
+            }
+        )
     }
 
     private var informationSection: some View {
@@ -161,32 +148,11 @@ struct SwapSummaryView: View {
         .disableAnimations() // To force `.animation(nil)` behavior
     }
 
-    @ViewBuilder
     private var mainButton: some View {
-        if viewModel.mainButtonIsUpdating {
-            mainActionButton(isLoading: true)
-        } else if viewModel.mainButtonNeedsHold {
-            mainHoldActionButton
-        } else {
-            mainActionButton(isLoading: viewModel.mainButtonIsLoading)
-        }
-    }
-
-    private func mainActionButton(isLoading: Bool) -> some View {
-        MainButton(
+        SigningActionButtonView(
+            type: viewModel.mainButtonSigningActionButtonType,
             title: viewModel.mainButtonState.title,
-            icon: viewModel.mainButtonIcon,
-            isLoading: isLoading,
-            isDisabled: !viewModel.mainButtonIsEnabled,
-            action: viewModel.userDidTapMainActionButton
-        )
-        .accessibilityIdentifier(SwapAccessibilityIdentifiers.confirmButton)
-    }
-
-    private var mainHoldActionButton: some View {
-        HoldToConfirmButton(
-            title: viewModel.mainButtonState.title,
-            isLoading: viewModel.mainButtonIsLoading,
+            isLoading: viewModel.mainButtonIsUpdating || viewModel.mainButtonIsLoading,
             isDisabled: !viewModel.mainButtonIsEnabled,
             action: viewModel.userDidTapMainActionButton
         )

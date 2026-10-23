@@ -102,18 +102,6 @@ extension BlockaidDTO {
         let spenders: [String: SpenderDetail]?
     }
 
-    struct Trace: Decodable {
-        let type: String
-        let traceType: String
-        let owner: String?
-        let spender: String?
-        let asset: Asset
-        let exposed: ExposureDetail?
-        let fromAddress: String?
-        let toAddress: String?
-        let diff: TransactionDetail?
-    }
-
     struct AddressDetail: Decodable {
         let nameTag: String?
         let contractName: String?

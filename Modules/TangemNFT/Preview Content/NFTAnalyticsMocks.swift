@@ -31,12 +31,6 @@ extension NFTAnalytics.Details {
     }
 }
 
-extension NFTAnalytics.Error {
-    static var empty: Self {
-        .init(logError: { _, _ in })
-    }
-}
-
 extension NFTAnalytics.Entrypoint {
     static var empty: Self {
         .init(logCollectionsOpen: { _, _, _, _ in })

@@ -48,7 +48,6 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Published var tangemPayPinCheckViewModel: TangemPayPinCheckViewModel?
     @Published var tangemPayDailyLimitViewModel: TangemPayDailyLimitViewModel?
     @Published var pendingExpressTxStatusBottomSheet: PendingExpressTxStatusBottomSheetViewModel?
-    @Published var virtualAccountSuccessViewModel: TangemPayVirtualAccountSuccessViewModel?
     @Published var virtualAccountOnboardingViewModel: TangemPayVirtualAccountInfoSheetViewModel?
     @Published var virtualAccountDetailsViewModel: TangemPayVirtualAccountDetailsViewModel?
     @Published var cashbackDetailViewModel: TangemPayCashbackDetailViewModel?
@@ -336,16 +335,9 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         coordinator.start(with: .init(
             tangemPayAccount: options.tangemPayAccount,
             fundingFlowBuilder: Self.makeFundingFlowBuilder(options: options),
-            hasNFCInteraction: options.userWalletModel.config.hasFeature(.nfcInteraction)
+            signingActionButtonType: SigningActionButtonViewTypeBuilder().build(config: options.userWalletModel.config)
         ))
         offrampCoordinator = coordinator
-    }
-
-    func openTangemPayWithdrawNoteSheet() {
-        Task { @MainActor in
-            let viewModel = TangemPayWithdrawNoteSheetViewModel(coordinator: self)
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
     }
 
     func openTangemWithdrawInProgressSheet() {
@@ -638,16 +630,6 @@ private extension TangemPayMainCoordinator {
     func routeVirtualAccountEntry() {
         guard let tangemPayAccount = options?.tangemPayAccount else { return }
 
-        guard FeatureProvider.isAvailable(.tangemPayOnrampV2) else {
-            switch tangemPayAccount.virtualAccountEntry {
-            case .none, .active:
-                openVirtualAccountInfoSheet()
-            case .preparing:
-                openVirtualAccountPreparingPopup()
-            }
-            return
-        }
-
         switch tangemPayAccount.virtualAccountEntry {
         case .none:
             openVirtualAccountOnboarding()
@@ -685,18 +667,6 @@ private extension TangemPayMainCoordinator {
         }
     }
 
-    func openVirtualAccountInfoSheet() {
-        guard let tangemPayAccount = options?.tangemPayAccount else { return }
-
-        Task { @MainActor in
-            let viewModel = TangemPayVirtualAccountInfoSheetViewModel(
-                tangemPayAccount: tangemPayAccount,
-                coordinator: self
-            )
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
-    }
-
     func openVirtualAccountOnboarding() {
         guard let tangemPayAccount = options?.tangemPayAccount else { return }
 
@@ -728,7 +698,7 @@ private extension TangemPayMainCoordinator {
         Toast(
             view: TangemSnackbar(title: Localization.tangempayBankTransferRequestSent)
                 .icon(DesignSystem.Icons.Checkmark.regular20)
-                .iconColor(Color.Tangem.Graphic.Status.accent)
+                .iconColor(DesignSystem.Color.iconAccentBlue)
         )
         .present(layout: .top(padding: 12), type: .temporary())
     }
@@ -771,14 +741,6 @@ extension TangemPayMainCoordinator: TangemPayVirtualAccountBankDetailsRoutable {
 
 extension TangemPayMainCoordinator: TangemPayVirtualAccountPreparingPopupRoutable {}
 
-// MARK: - TangemPayVirtualAccountSuccessRoutable
-
-extension TangemPayMainCoordinator: TangemPayVirtualAccountSuccessRoutable {
-    func closeVirtualAccountSuccess() {
-        virtualAccountSuccessViewModel = nil
-    }
-}
-
 // MARK: - TangemPayVirtualAccountInfoSheetRoutable
 
 extension TangemPayMainCoordinator: TangemPayVirtualAccountInfoSheetRoutable {
@@ -788,12 +750,6 @@ extension TangemPayMainCoordinator: TangemPayVirtualAccountInfoSheetRoutable {
 
     func virtualAccountInfoSheetDidCreateOrder() {
         Task { @MainActor in
-            guard FeatureProvider.isAvailable(.tangemPayOnrampV2) else {
-                await dismissVirtualAccountInfo()
-                virtualAccountSuccessViewModel = TangemPayVirtualAccountSuccessViewModel(coordinator: self)
-                return
-            }
-
             if virtualAccountOnboardingViewModel != nil {
                 virtualAccountOnboardingViewModel = nil
                 try? await Task.sleep(for: .seconds(0.5))
@@ -807,7 +763,7 @@ extension TangemPayMainCoordinator: TangemPayVirtualAccountInfoSheetRoutable {
         Task { @MainActor in
             await dismissVirtualAccountInfo()
 
-            if FeatureProvider.isAvailable(.tangemPayOnrampV2), let tangemPayAccount = options?.tangemPayAccount {
+            if let tangemPayAccount = options?.tangemPayAccount {
                 openVirtualAccountDetails(credentials: credentials, tangemPayAccount: tangemPayAccount)
                 return
             }

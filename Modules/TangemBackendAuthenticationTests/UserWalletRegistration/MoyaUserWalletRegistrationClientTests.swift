@@ -11,6 +11,7 @@ import Testing
 import Alamofire
 import Moya
 import TangemFoundation
+import TangemNetworkUtils
 @testable import TangemBackendAuthentication
 
 @Suite(.tags(.backendAuthentication))
@@ -120,7 +121,7 @@ struct MoyaUserWalletRegistrationClientTests {
 
     @Test
     func registerThrowsAlreadyRegisteredFor400WithMatchingProblemDetail() async throws {
-        let sut = try Self.makeSUT(statusCode: 400, responseBody: Self.problemDetailBody(.walletAlreadyRegistered))
+        let sut = try Self.makeSUT(statusCode: 400, responseBody: TangemProblemDetailError.walletAlreadyRegistered.jsonString)
 
         let error = try await #require(throws: UserWalletRegistrationClientError.self) {
             _ = try await sut.register(request: .fake)
@@ -134,7 +135,7 @@ struct MoyaUserWalletRegistrationClientTests {
 
     @Test
     func registerThrowsRegisterFailedFor400WithNonMatchingProblemDetail() async throws {
-        let sut = try Self.makeSUT(statusCode: 400, responseBody: Self.problemDetailBody(.walletNotRegistered))
+        let sut = try Self.makeSUT(statusCode: 400, responseBody: TangemProblemDetailError.walletNotRegistered.jsonString)
 
         let error = try await #require(throws: UserWalletRegistrationClientError.self) {
             _ = try await sut.register(request: .fake)
@@ -195,7 +196,7 @@ struct MoyaUserWalletRegistrationClientTests {
 
     @Test
     func unregisterThrowsWasNotRegisteredFor404WithMatchingProblemDetail() async throws {
-        let sut = try Self.makeSUT(statusCode: 404, responseBody: Self.problemDetailBody(.walletNotRegistered))
+        let sut = try Self.makeSUT(statusCode: 404, responseBody: TangemProblemDetailError.walletNotRegistered.jsonString)
 
         let error = try await #require(throws: UserWalletRegistrationClientError.self) {
             _ = try await sut.unregister(id: UserWalletId.fake, shouldEraseSocialLoginData: false)
@@ -209,7 +210,7 @@ struct MoyaUserWalletRegistrationClientTests {
 
     @Test
     func unregisterThrowsUnregisterFailedFor404WithNonMatchingProblemDetail() async throws {
-        let sut = try Self.makeSUT(statusCode: 404, responseBody: Self.problemDetailBody(.walletAlreadyRegistered))
+        let sut = try Self.makeSUT(statusCode: 404, responseBody: TangemProblemDetailError.walletAlreadyRegistered.jsonString)
 
         let error = try await #require(throws: UserWalletRegistrationClientError.self) {
             _ = try await sut.unregister(id: UserWalletId.fake, shouldEraseSocialLoginData: false)
@@ -305,9 +306,5 @@ extension MoyaUserWalletRegistrationClientTests {
     private enum StatusCodes {
         static let success = [200, 201, 202, 203, 204, 205, 206, 207, 208, 226]
         static let error = [400, 401, 403, 404, 500, 501, 512]
-    }
-
-    private static func problemDetailBody(_ response: ProblemDetailDTO.Response) -> String {
-        #"{"detail":"\#(response.detail)"}"#
     }
 }

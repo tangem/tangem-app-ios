@@ -118,9 +118,7 @@ struct WalletConnectView: View {
 
     private func loadingStateView(_ loadingContentState: WalletConnectViewState.ContentState.LoadingContentState) -> some View {
         VStack(alignment: .leading, spacing: .zero) {
-            SkeletonView()
-                .frame(width: 90, height: 18)
-                .clipShape(RoundedRectangle(cornerRadius: 4))
+            Shimmer().variant(.custom(width: 90, height: 18, cornerRadius: 4))
                 .padding(.horizontal, 14)
 
             ForEach(0 ..< loadingContentState.dAppStubsCount, id: \.self) { _ in
@@ -135,18 +133,12 @@ struct WalletConnectView: View {
 
     private var dAppLoadingStubRowView: some View {
         HStack(alignment: .bottom, spacing: 12) {
-            SkeletonView()
-                .frame(width: 36, height: 36)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+            Shimmer().variant(.custom(width: 36, height: 36, cornerRadius: 8))
 
             VStack(alignment: .leading, spacing: 6) {
-                SkeletonView()
-                    .frame(width: 74, height: 12)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                Shimmer().variant(.custom(width: 74, height: 12, cornerRadius: 4))
 
-                SkeletonView()
-                    .frame(width: 100, height: 12)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                Shimmer().variant(.custom(width: 100, height: 12, cornerRadius: 4))
             }
             .padding(.bottom, 2)
         }

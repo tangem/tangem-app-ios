@@ -13,15 +13,6 @@ import AnyCodable
 
 protocol XRPNetworkServiceType {
     var host: String { get }
-    func getFee() -> AnyPublisher<XRPFeeResponse, Error>
-    func send(blob: String) -> AnyPublisher<String, Error>
-    func getInfo(account: String) -> AnyPublisher<XrpInfoResponse, Error>
-    func checkAccountCreated(account: String) -> AnyPublisher<Bool, Error>
-    func getAccountTransactions(
-        account: String,
-        limit: Int,
-        marker: [String: AnyCodable]?
-    ) -> AnyPublisher<(transactions: [XRPTransactionInfo], marker: [String: AnyCodable]?), Error>
 }
 
 class XRPNetworkService: MultiNetworkProvider, XRPNetworkServiceType {

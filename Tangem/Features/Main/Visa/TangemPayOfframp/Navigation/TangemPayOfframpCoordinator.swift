@@ -42,7 +42,7 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
     private(set) var orderBuilder: TangemPayOfframpOrderBuilder?
     private(set) var sendUseCase: TangemPayOffRampSendUseCase?
     private(set) var analyticsLogger: (any TangemPayOfframpAnalyticsLogger)?
-    private(set) var hasNFCInteraction = false
+    private(set) var signingActionButtonType: SigningActionButtonViewType = .requiredNFCInteraction
 
     private var orderService: (any TangemPayOfframpOrderService)?
     private var orderSigner: (any TangemPayOfframpOrderSigning)?
@@ -66,7 +66,7 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        hasNFCInteraction = options.hasNFCInteraction
+        signingActionButtonType = options.signingActionButtonType
 
         let analyticsLogger = CommonTangemPayOfframpAnalyticsLogger(
             userWalletId: options.tangemPayAccount.userWalletId
@@ -168,7 +168,7 @@ extension TangemPayOfframpCoordinator {
     struct Options {
         let tangemPayAccount: TangemPayAccount
         let fundingFlowBuilder: TangemPayFundingFlowBuilder
-        let hasNFCInteraction: Bool
+        let signingActionButtonType: SigningActionButtonViewType
     }
 
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption

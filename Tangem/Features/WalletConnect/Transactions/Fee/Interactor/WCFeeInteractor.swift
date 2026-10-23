@@ -38,12 +38,6 @@ final class WCFeeInteractor: WCFeeInteractorType {
         return mapToWCFees(feesValue: networkFeesSubject.value, customFee: customFee)
     }
 
-    // MARK: - Publishers for external subscription
-
-    var selectedFeePublisher: AnyPublisher<WCFee, Never> {
-        selectedFeeSubject.eraseToAnyPublisher()
-    }
-
     // MARK: - Private Properties
 
     private let defaultFeeOptions: [FeeOption] = [.slow, .market, .fast]
@@ -297,21 +291,6 @@ extension WCFeeInteractor: WCFeeSelectorContentViewModelInput {
     var selectedSelectorFee: WCFeeSelectorFee? {
         let fee = mapToFeeSelectorFee(fee: selectedFee)
         return fee
-    }
-
-    var selectedSelectorFeePublisher: AnyPublisher<WCFeeSelectorFee, Never> {
-        selectedFeePublisher
-            .withWeakCaptureOf(self)
-            .compactMap { interactor, wcFee in
-                return interactor.mapToFeeSelectorFee(fee: wcFee)
-            }
-            .eraseToAnyPublisher()
-    }
-
-    var selectorFees: [WCFeeSelectorFee] {
-        let wcFees = fees
-        let selectorFees = wcFees.compactMap { mapToFeeSelectorFee(fee: $0) }
-        return selectorFees
     }
 }
 

@@ -20,11 +20,6 @@ protocol WCCustomAllowanceManager {
         updateAction: @MainActor @escaping (BigUInt) async -> Void,
         backAction: @MainActor @escaping () -> Void
     ) -> WCCustomAllowanceInput?
-
-    func updateApprovalTransaction(
-        originalTransaction: WCSendableTransaction,
-        newAmount: BigUInt
-    ) -> WCSendableTransaction?
 }
 
 final class CommonWCCustomAllowanceManager: WCCustomAllowanceManager {
@@ -51,16 +46,6 @@ final class CommonWCCustomAllowanceManager: WCCustomAllowanceManager {
             simulationResult: simulationResult,
             updateAction: updateAction,
             backAction: backAction
-        )
-    }
-
-    func updateApprovalTransaction(
-        originalTransaction: WCSendableTransaction,
-        newAmount: BigUInt
-    ) -> WCSendableTransaction? {
-        return WCApprovalAnalyzer.createUpdatedApproval(
-            originalTransaction: originalTransaction,
-            newAmount: newAmount
         )
     }
 }

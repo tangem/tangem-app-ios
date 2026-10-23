@@ -14,11 +14,22 @@ struct WelcomeExistingWalletActionFactory {
     struct Callbacks {
         let onHardware: () -> Void
         let onImport: () -> Void
+        let onAppleSignIn: () -> Void
         let onClose: () -> Void
     }
 
     func make(callbacks: Callbacks) -> WelcomeActionSheetViewModel {
-        WelcomeActionSheetViewModel(
+        let appleSignInItem: WelcomeActionSheetItem? = FeatureProvider.isAvailable(.mobileSocialLogin)
+            ? WelcomeActionSheetItem(
+                id: "appleLogin",
+                icon: DesignSystem.Icons.LogoApple.regular20,
+                title: Localization.introductionIHaveWalletSocialTitle(MobileBackupConstants.appleServiceName),
+                subtitle: Localization.introductionIHaveWalletSocialDescription(MobileBackupConstants.appleServiceName),
+                action: callbacks.onAppleSignIn
+            )
+            : nil
+
+        return WelcomeActionSheetViewModel(
             input: .init(
                 title: Localization.introductionButtonIHaveAWallet,
                 analyticsSheet: .welcomeIHaveWallet,
@@ -30,6 +41,7 @@ struct WelcomeExistingWalletActionFactory {
                         subtitle: Localization.introductionIHaveWalletHardwareDescription,
                         action: callbacks.onHardware
                     ),
+                    appleSignInItem,
                     WelcomeActionSheetItem(
                         id: "import",
                         icon: DesignSystem.Icons.ArrowDown.regular24,
@@ -37,7 +49,7 @@ struct WelcomeExistingWalletActionFactory {
                         subtitle: Localization.introductionCreateWalletSeedPhraseDescription,
                         action: callbacks.onImport
                     ),
-                ],
+                ].compactMap { $0 },
                 onClose: callbacks.onClose
             )
         )

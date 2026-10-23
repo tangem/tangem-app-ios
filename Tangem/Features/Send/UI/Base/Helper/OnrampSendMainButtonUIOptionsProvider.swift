@@ -9,11 +9,7 @@
 import TangemUI
 
 final class OnrampSendMainButtonUIOptionsProvider: SendMainButtonUIOptionsProvider {
-    func mainButtonNeedsHoldAction(mainButtonType: SendMainButtonType, flowActionType: SendFlowActionType) -> Bool {
-        false
-    }
-
-    func mainButtonIcon(mainButtonType: SendMainButtonType, flowActionType: SendFlowActionType) -> MainButton.Icon? {
+    func mainButtonSigningActionButtonType(mainButtonType: SendMainButtonType, flowActionType: SendFlowActionType) -> SigningActionButtonViewType? {
         nil
     }
 }

@@ -29,5 +29,4 @@ import Foundation
 ///
 struct Op0: OpCodeProtocol {
     var value: UInt8 { return 0x00 }
-    var name: String { return "OP_0" }
 }

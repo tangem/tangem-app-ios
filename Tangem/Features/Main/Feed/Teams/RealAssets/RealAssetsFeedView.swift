@@ -49,7 +49,6 @@ private extension RealAssetsFeedView {
     enum Constants {
         static let sectionSpacing: CGFloat = 20
         static let horizontalPadding: CGFloat = 16
-        static let listCornerRadius: CGFloat = 24
         static let skeletonRowsCount = 5
     }
 }
