@@ -53,7 +53,7 @@ struct FooterShowcase: View {
             }
             .modal(
                 isPresented: $isModalPresented,
-                title: "Send BTC",
+                navigation: .title("Send BTC"),
                 content: { FooterShowcaseTokenList().footer { footer } }
             )
         } matrix: {

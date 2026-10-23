@@ -73,7 +73,7 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
                 isPresented: $coordinator.isAddAccountTypeSelectorPresented,
                 contentLayout: .intrinsic,
                 dragIndicator: .hidden,
-                title: Localization.accountFormTitleCreate,
+                navigation: .title(Localization.accountFormTitleCreate),
                 onDismiss: coordinator.addAccountTypeSelectorDidDismiss
             ) {
                 if let viewModel = coordinator.addAccountTypeSelectorViewModel {

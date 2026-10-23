@@ -15,23 +15,10 @@ struct JointAccountMemberDetailsView: View {
     let viewModel: JointAccountMemberDetailsViewModel
 
     var body: some View {
-        VStack(spacing: .zero) {
-            FloatingSheetNavigationBarView(
-                backgroundColor: DesignSystem.Color.bgSecondary,
-                closeButtonAction: viewModel.onCloseTap
-            )
-
-            content
-                .padding(.horizontal, Constants.horizontalPadding)
-                .padding(.vertical, Constants.contentVerticalPadding)
-
-            closeButton
-                .padding(Constants.horizontalPadding)
-        }
-        .floatingSheetConfiguration {
-            $0.sheetBackground = .color(DesignSystem.Color.bgSecondary)
-            $0.backgroundInteractionBehavior = .tapToDismiss
-        }
+        content
+            .padding(.horizontal, Constants.horizontalPadding)
+            .padding(.vertical, Constants.contentVerticalPadding)
+            .footer { Footer(.buttons(primary: closeButton)) }
     }
 
     private var content: some View {
@@ -79,15 +66,13 @@ struct JointAccountMemberDetailsView: View {
         .horizontalLayout(.intrinsic)
     }
 
-    private var closeButton: some View {
+    private var closeButton: TangemUI.Button {
         TangemUI.Button(
             label: Localization.commonClose,
             accessibilityLabel: Localization.commonClose,
             action: viewModel.onCloseTap
         )
         .styleType(.secondary(.default))
-        .size(.x12)
-        .horizontalLayout(.infinity)
     }
 }
 
@@ -108,14 +93,14 @@ private extension JointAccountMemberDetailsView {
 // MARK: - Previews
 
 #Preview {
-    JointAccountMemberDetailsView(
-        viewModel: JointAccountMemberDetailsViewModel(
-            name: "Isaac",
-            address: "0xBef7B36845000000000000ac4e6752A9cE000000",
-            accentColor: DesignSystem.Color.bgAccentBlue,
-            coordinator: nil
+    Color.clear.modal(isPresented: .constant(true), contentLayout: .intrinsic, navigation: .closeButton()) {
+        JointAccountMemberDetailsView(
+            viewModel: JointAccountMemberDetailsViewModel(
+                name: "Isaac",
+                address: "0xBef7B36845000000000000ac4e6752A9cE000000",
+                accentColor: DesignSystem.Color.bgAccentBlue,
+                coordinator: nil
+            )
         )
-    )
-    .frame(maxHeight: .infinity, alignment: .bottom)
-    .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+    }
 }

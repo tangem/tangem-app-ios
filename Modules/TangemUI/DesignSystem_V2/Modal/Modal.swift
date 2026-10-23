@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 
 struct Modal<Header: View, Content: View>: View {
     private let size: ModalSize
@@ -26,6 +27,7 @@ struct Modal<Header: View, Content: View>: View {
     @State private var navigationBarHeight: CGFloat = 0
     @State private var isContentScrolled = false
     @State private var isSearchPresented = false
+    @State private var isPresentationSettled = false
 
     init(
         size: ModalSize = .flexible,
@@ -64,8 +66,14 @@ struct Modal<Header: View, Content: View>: View {
                     .environment(\.footerHost, footerHost)
             }
         }
-        .modifier(ModalDetentModifier(size: isSearchPresented ? .full : size, contentLayout: contentLayout, height: measuredHeight))
-        .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 1), value: idealHeight)
+        .modifier(ModalDetentModifier(
+            size: isSearchPresented ? .full : size,
+            contentLayout: contentLayout,
+            height: measuredHeight,
+            animatesChanges: isPresentationSettled
+        ))
+        .animation(heightAnimation, value: idealHeight)
+        .onFirstDidAppear { isPresentationSettled = true }
         .presentationCornerRadius(ModalAppearance.cornerRadius)
         .presentationDragIndicator(dragIndicator)
         .modifier(ModalBackgroundModifier(size: size))
@@ -221,6 +229,10 @@ struct Modal<Header: View, Content: View>: View {
             content
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+    }
+
+    private var heightAnimation: Animation? {
+        reduceMotion || !isPresentationSettled ? nil : .spring(response: 0.35, dampingFraction: 1)
     }
 
     private var idealHeight: CGFloat {
