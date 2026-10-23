@@ -20,11 +20,17 @@ struct FeedViewModelFactory {
     ) -> FeedViewModel {
         let searchBarViewModel = FeedSearchBarViewModel()
         let resultsQuery = CurrentValueSubject<String, Never>("")
+        let portfolioTokenRouter = FeedPortfolioTokenRouter(context: context)
+        let searchPortfolioProvider = FeedSearchPortfolioProvider(
+            query: resultsQuery.eraseToAnyPublisher(),
+            onSelect: portfolioTokenRouter.open
+        )
 
         let tabs = tabBuilders.map { $0.makeTab(context: context) }
         let searchTabs = tabBuilders.map { builder in
             builder.makeSearchTab(
                 query: resultsQuery.eraseToAnyPublisher(),
+                portfolioProvider: searchPortfolioProvider,
                 context: context
             )
         }
