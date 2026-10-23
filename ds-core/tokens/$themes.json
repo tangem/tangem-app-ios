@@ -465,7 +465,20 @@
       "color.material-menu.soft-light.solid": "ecd95c3df7599bddd37b63be6732652d6fb4dcaf",
       "color.material-menu.border.start": "4abced738513416beef14a6f3959d2561c37d2b3",
       "color.material-menu.border.mid": "d16ec6ef128b66d0e591d80d8e72c8f3330d8570",
-      "color.material-menu.border.end": "d683e69b7e57c769e1766d7da5be9e7cbcd3aa42"
+      "color.material-menu.border.end": "d683e69b7e57c769e1766d7da5be9e7cbcd3aa42",
+      "color.account.vital-green": "1ab3a859b9ed1feaeb0f0d344f8ee9b5b236bd69",
+      "color.account.ufo-green": "35de4dcd2f43e4f2689b8d2f9febd57b434c5884",
+      "color.account.caribbean-blue": "d7c0e663ac27ab0920436c29f11f8da18f73535c",
+      "color.account.azure-blue": "44ad97505500e7308f44ea095caaf3ec7d1e3375",
+      "color.account.palatinate-blue": "642f7adbb45f19c19ce4e3f79600c82dbccf66a7",
+      "color.account.candy-grape-fizz": "e193065cc7a70a95d56b10a7cf19ffeb707c8dcc",
+      "color.account.dull-lavender": "f63fb2bda695673e65706fae3a6918b5652a3d89",
+      "color.account.fuchsia-nebula": "e64f9421799880eb8bbe5788f7e17e95897b599b",
+      "color.account.sweet-desire": "01da364daff84809a8da145ebe2ebf3254acff36",
+      "color.account.mexican-pink": "8ac36ea42f1dcfdd2a3f5c9ab9fccc7b946383c6",
+      "color.account.pelati": "c7bf090859739ef84fd827919afb2c982ad6f88d",
+      "color.account.pattypan": "3a047f7718ae34ff4cd07ffd89b2eea61636a154",
+      "color.account.visa": "3eb4119d0b868683729e8aa801027e1c91dfe81b"
     },
     "group": "theme"
   },
@@ -722,7 +735,20 @@
       "color.material-menu.soft-light.solid": "ecd95c3df7599bddd37b63be6732652d6fb4dcaf",
       "color.material-menu.border.start": "4abced738513416beef14a6f3959d2561c37d2b3",
       "color.material-menu.border.mid": "d16ec6ef128b66d0e591d80d8e72c8f3330d8570",
-      "color.material-menu.border.end": "d683e69b7e57c769e1766d7da5be9e7cbcd3aa42"
+      "color.material-menu.border.end": "d683e69b7e57c769e1766d7da5be9e7cbcd3aa42",
+      "color.account.vital-green": "1ab3a859b9ed1feaeb0f0d344f8ee9b5b236bd69",
+      "color.account.ufo-green": "35de4dcd2f43e4f2689b8d2f9febd57b434c5884",
+      "color.account.caribbean-blue": "d7c0e663ac27ab0920436c29f11f8da18f73535c",
+      "color.account.azure-blue": "44ad97505500e7308f44ea095caaf3ec7d1e3375",
+      "color.account.palatinate-blue": "642f7adbb45f19c19ce4e3f79600c82dbccf66a7",
+      "color.account.candy-grape-fizz": "e193065cc7a70a95d56b10a7cf19ffeb707c8dcc",
+      "color.account.dull-lavender": "f63fb2bda695673e65706fae3a6918b5652a3d89",
+      "color.account.fuchsia-nebula": "e64f9421799880eb8bbe5788f7e17e95897b599b",
+      "color.account.sweet-desire": "01da364daff84809a8da145ebe2ebf3254acff36",
+      "color.account.mexican-pink": "8ac36ea42f1dcfdd2a3f5c9ab9fccc7b946383c6",
+      "color.account.pelati": "c7bf090859739ef84fd827919afb2c982ad6f88d",
+      "color.account.pattypan": "3a047f7718ae34ff4cd07ffd89b2eea61636a154",
+      "color.account.visa": "3eb4119d0b868683729e8aa801027e1c91dfe81b"
     },
     "group": "theme"
   },
