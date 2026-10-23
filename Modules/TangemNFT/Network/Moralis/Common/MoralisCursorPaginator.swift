@@ -9,6 +9,8 @@
 import Foundation
 
 enum MoralisCursorPaginator {
+    static let pageSize = 100
+
     static func loadAllPages<Response: MoralisPaginableResponse>(
         loadPage: (_ cursor: String?) async throws -> Response
     ) async -> (value: [Response], errors: [NFTErrorDescriptor]) {

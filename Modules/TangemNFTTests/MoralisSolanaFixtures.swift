@@ -14,7 +14,7 @@ enum MoralisSolanaFixtures {
         try JSONDecoder().decode(MoralisSolanaNetworkResult.WalletNFTsResponse.self, from: Data(json.utf8))
     }
 
-    static func decodeLegacyAssets(_ json: String) throws -> [MoralisSolanaNetworkResult.Asset] {
+    static func decodeRegularAssets(_ json: String) throws -> [MoralisSolanaNetworkResult.Asset] {
         try JSONDecoder().decode([MoralisSolanaNetworkResult.Asset].self, from: Data(json.utf8))
     }
 }
@@ -145,29 +145,29 @@ extension MoralisSolanaFixtures {
     }
     """
 
-    static let legacyAssetsInCoreCollection = """
+    static let regularAssetsInCoreCollection = """
     [
       {
-        "associatedTokenAddress": "LegacyAta1111111111111111111111111111111111",
-        "mint": "LegacyMint111111111111111111111111111111111",
+        "associatedTokenAddress": "RegularAta1111111111111111111111111111111111",
+        "mint": "RegularMint111111111111111111111111111111111",
         "tokenStandard": 4,
-        "name": "Legacy #1",
+        "name": "Regular #1",
         "decimals": 0,
         "collection": {
           "collectionAddress": "CoreCollection11111111111111111111111111111",
           "name": "Collector Crypt",
-          "description": "Legacy collection description"
+          "description": "Regular collection description"
         }
       }
     ]
     """
 
-    static let legacyAssetsWithOtherCollectionName = """
+    static let regularAssetsWithOtherCollectionName = """
     [
       {
-        "mint": "LegacyMint333333333333333333333333333333333",
+        "mint": "RegularMint333333333333333333333333333333333",
         "tokenStandard": 4,
-        "name": "Legacy #3",
+        "name": "Regular #3",
         "collection": { "collectionAddress": "CoreCollection11111111111111111111111111111", "name": "Other name" }
       }
     ]
@@ -209,12 +209,57 @@ extension MoralisSolanaFixtures {
     }
     """
 
-    static let legacyAssetWithoutCollection = """
+    static let regularAssetInNamedCollectionWithoutAddress = """
     [
       {
-        "mint": "LegacyMint222222222222222222222222222222222",
+        "mint": "RegularMint444444444444444444444444444444444",
+        "tokenStandard": 4,
+        "name": "Regular named loose",
+        "collection": { "collectionAddress": null, "name": "Named without address", "description": "Named description" }
+      }
+    ]
+    """
+
+    static let regularAssetWithEmptyCollectionAddress = """
+    [
+      {
+        "mint": "RegularMint555555555555555555555555555555555",
+        "tokenStandard": 4,
+        "name": "Regular empty address",
+        "collection": { "collectionAddress": "", "name": "Empty address" }
+      }
+    ]
+    """
+
+    static let regularAssetsOfOneAddressWithVariousNames = """
+    [
+      {
+        "mint": "RegularMint666666666666666666666666666666666",
+        "tokenStandard": 4,
+        "name": "Named regular",
+        "collection": { "collectionAddress": "CoreCollection77777777777777777777777777777", "name": "Regular name" }
+      },
+      {
+        "mint": "RegularMint777777777777777777777777777777777",
+        "tokenStandard": 4,
+        "name": "Empty-named regular",
+        "collection": { "collectionAddress": "CoreCollection77777777777777777777777777777", "name": "" }
+      },
+      {
+        "mint": "RegularMint888888888888888888888888888888888",
+        "tokenStandard": 4,
+        "name": "Unnamed regular",
+        "collection": { "collectionAddress": "CoreCollection77777777777777777777777777777", "name": null }
+      }
+    ]
+    """
+
+    static let regularAssetWithoutCollection = """
+    [
+      {
+        "mint": "RegularMint222222222222222222222222222222222",
         "tokenStandard": 0,
-        "name": "Legacy loose"
+        "name": "Regular loose"
       }
     ]
     """

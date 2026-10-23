@@ -109,7 +109,7 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
                     address: address,
                     params: .init(
                         chain: moralisNFTChain,
-                        limit: Constants.pageSize,
+                        limit: MoralisCursorPaginator.pageSize,
                         cursor: cursor,
                         tokenCounts: true, // Moralis doesn't return the list of assets, so this option must be turned on
                         excludeSpam: true
@@ -141,7 +141,7 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
                     params: .init(
                         chain: moralisNFTChain,
                         format: .decimal,
-                        limit: Constants.pageSize,
+                        limit: MoralisCursorPaginator.pageSize,
                         cursor: cursor,
                         excludeSpam: true,
                         tokenAddresses: nil,
@@ -257,14 +257,11 @@ private extension MoralisEVMNFTNetworkService {
 public extension MoralisEVMNFTNetworkService {
     enum Error: Swift.Error, LocalizedError {
         case unsupportedNFTChain(chain: NFTChain)
-        case apiError(message: String)
 
         public var errorDescription: String? {
             switch self {
             case .unsupportedNFTChain(let chain):
                 "Unsupported NFT chain: '\(chain)'"
-            case .apiError(let message):
-                message
             }
         }
     }
@@ -275,7 +272,6 @@ public extension MoralisEVMNFTNetworkService {
 private extension MoralisEVMNFTNetworkService {
     enum Constants {
         static let apiVersion: MoralisEVMAPITarget.Version = .v2_2
-        static let pageSize = 100
         /// In days.
         static let salePriceHistoryDuration = 365
     }
