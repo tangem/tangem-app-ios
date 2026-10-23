@@ -51,7 +51,7 @@ private extension JointAccountFinishedOperationsWalletUpdaterTests {
 
     static let ethereum = BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil)
 
-    func makeSUT() -> (JointAccountsRepositoryStub, WalletModels, JointAccountFinishedOperationsWalletUpdater) {
+    func makeSUT() -> (JointAccountPendingOperationsRepositoryStub, WalletModels, JointAccountFinishedOperationsWalletUpdater) {
         let account = makeJointAccount()
         let walletModels: WalletModels = (
             coin: makeWalletModel(tokenItem: .blockchain(Self.ethereum), account: account),
@@ -69,7 +69,7 @@ private extension JointAccountFinishedOperationsWalletUpdaterTests {
         walletModelsManager.walletModels = [walletModels.coin, walletModels.token, walletModels.otherNetwork]
         walletModelsManager.sendUpdate()
 
-        let repository = JointAccountsRepositoryStub(pendingOperations: [
+        let repository = JointAccountPendingOperationsRepositoryStub(pendingOperations: [
             JointAccountCompositionFixture.pendingOperationsRecord(operations: [JointAccountCompositionFixture.coinTransfer()]),
         ])
 
@@ -77,7 +77,8 @@ private extension JointAccountFinishedOperationsWalletUpdaterTests {
             pendingOperationsProvider: CommonJointAccountPendingOperationsProvider(
                 userWalletId: JointAccountCompositionFixture.userWalletId,
                 derivationIdentity: JointAccountCompositionFixture.derivationIdentity,
-                jointAccountsRepository: repository,
+                jointAccountsRepository: JointAccountsRepositoryStub(),
+                pendingOperationsRepository: repository,
                 walletModelsManager: walletModelsManager
             ),
             walletModelsManager: walletModelsManager

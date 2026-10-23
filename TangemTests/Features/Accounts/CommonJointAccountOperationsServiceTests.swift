@@ -301,12 +301,12 @@ private extension CommonJointAccountOperationsServiceTests {
         let records = pendingOperations.isEmpty
             ? []
             : [StoredJointAccountPendingOperations(cryptoAccountId: cryptoAccountId, operations: pendingOperations)]
-        let repository = JointAccountsRepositoryStub(pendingOperations: records, registeredOperation: registeredOperation)
+        let repository = JointAccountPendingOperationsRepositoryStub(pendingOperations: records, registeredOperation: registeredOperation)
 
         let signer = try TangemSignerDouble()
         let userWalletModel = UserWalletModelDouble(signer: signer)
         let sut = CommonJointAccountOperationsService(
-            jointAccountsRepository: repository,
+            pendingOperationsRepository: repository,
             signerFactory: TangemSignerFactory(userWalletModel: userWalletModel),
             blockaidGate: JointOperationBlockaidGateStub(verdict: blockaidVerdict)
         )
@@ -368,6 +368,8 @@ private extension CommonJointAccountOperationsServiceTests {
             safeTransaction: SafeTransaction(innerCall: Constants.innerCall, feeParameters: Constants.feeParameters, nonce: nonce),
             status: status,
             txHash: nil,
+            finishedAt: nil,
+            cancelReason: nil,
             initiator: Constants.members[0],
             signatures: []
         )
@@ -381,7 +383,7 @@ private extension CommonJointAccountOperationsServiceTests {
     /// keeps its model no more strongly than the test does.
     struct Context {
         let sut: CommonJointAccountOperationsService
-        let repository: JointAccountsRepositoryStub
+        let repository: JointAccountPendingOperationsRepositoryStub
         let signer: TangemSignerDouble
         let wallet: JointAccountWallet
         let cryptoAccountId: String
