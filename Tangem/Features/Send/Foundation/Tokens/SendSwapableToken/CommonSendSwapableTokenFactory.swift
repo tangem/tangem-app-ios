@@ -87,9 +87,12 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
 
 private extension CommonSendSwapableTokenFactory {
     func makeSupportedProvidersFilter() -> SupportedProvidersFilter {
+        let isYieldModuleActive = walletModel.yieldModuleManager?.state?.state.isEffectivelyActive == true
+
         return switch operationType {
         case .swapAndSend where FeatureProvider.isAvailable(.exchangeOnlyWithinSingleAddress): .byDifferentAddressExchangeSupport
         case .swapAndSend: .cex
+        case .swap where isYieldModuleActive: .yieldProviders(YieldProvidersFilter())
         case .swap: .swap
         case .onramp: .onramp
         }
