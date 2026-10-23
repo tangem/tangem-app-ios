@@ -12,4 +12,6 @@ enum Constants {
     static let nowNodesApiKeyHeaderName = "api-key"
     static let xApiKeyHeaderName = "x-api-key"
     static let onfinalityApiKeyHeaderName = "apikey"
+    static let getBlockGRPCAccessTokenHeaderName = "x-access-token"
+    static let quickNodeGRPCTokenHeaderName = "x-token"
 }

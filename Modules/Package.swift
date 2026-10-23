@@ -57,6 +57,9 @@ let package = Package(
         // CombineExt
         // CryptoSwift
         .package(url: "git@github.com:tangem-developments/grpc-swift.git", exact: "1.26.2-tangem1"),
+        .package(url: "https://github.com/apple/swift-log.git", .upToNextMajor(from: "1.4.4")),
+        .package(url: "https://github.com/apple/swift-nio.git", .upToNextMajor(from: "2.65.0")),
+        .package(url: "https://github.com/apple/swift-nio-http2.git", .upToNextMajor(from: "1.36.0")),
         .package(url: "git@github.com:tangem-developments/hiero-sdk-swift.git", exact: "0.49.0-tangem4"),
         .package(url: "git@github.com:tangem-developments/IcpKit.git", exact: "0.1.2-tangem5"),
         // Moya
@@ -92,10 +95,15 @@ var serviceModules: [PackageDescription.Target] {
                 .product(name: "BitcoinDevKit", package: "bdk-swift"),
                 "CombineExt",
                 "CryptoSwift",
-                .product(name: "GRPC", package: "grpc-swift"), // Not used directly, a transitive dependency of `hiero-sdk-swift`
+                .product(name: "GRPC", package: "grpc-swift"),
                 .product(name: "Hiero", package: "hiero-sdk-swift"),
                 "IcpKit",
+                .product(name: "Logging", package: "swift-log"),
                 "Moya",
+                .product(name: "NIO", package: "swift-nio"),
+                .product(name: "NIOConcurrencyHelpers", package: "swift-nio"),
+                .product(name: "NIOCore", package: "swift-nio"),
+                .product(name: "NIOHTTP2", package: "swift-nio-http2"),
                 .product(name: "OrderedCollections", package: "swift-collections"),
                 "PotentCodables", // For `PotentCBOR` only
                 .product(name: "ScaleCodec", package: "ScaleCodec.swift"),
@@ -480,6 +488,7 @@ var unitTestsModules: [PackageDescription.Target] {
                 .product(name: "ScaleCodec", package: "ScaleCodec.swift"),
                 .product(name: "stellarsdk", package: "stellar-ios-mac-sdk"),
                 .product(name: "Hiero", package: "hiero-sdk-swift"),
+                .product(name: "GRPC", package: "grpc-swift"),
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
