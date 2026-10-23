@@ -86,7 +86,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .ethPolLocalStakingValidation: return .unspecified
         case .collectibles: return .unspecified
         case .totalTokenBalanceV2: return .unspecified
-        case .mobileSocialLogin: return .version("6.6")
+        case .mobileSocialLogin: return .unspecified
         case .jointAccountsGaslessTokenFee: return .unspecified
         case .merklIncentives: return .version("6.6")
         case .mcp: return .unspecified
