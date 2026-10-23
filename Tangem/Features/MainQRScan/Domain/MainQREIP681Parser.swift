@@ -48,7 +48,7 @@ struct MainQREIP681Parser {
             pathWithoutChain.split(separator: "/", maxSplits: 1, omittingEmptySubsequences: false).first ?? ""
         )
 
-        let isTokenTransfer = pathWithoutChain.lowercased().contains(MainQRParserConstants.eip681TransferPath)
+        let isTokenTransfer = pathWithoutChain.caseInsensitiveContains(MainQRParserConstants.eip681TransferPath)
         if isTokenTransfer {
             return parseTokenTransfer(
                 queryItems: queryItems,

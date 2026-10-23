@@ -90,9 +90,8 @@ struct AddressBookBlobCodecTests {
         )
         let json = try encodedJSON(for: contact)
 
-        // TangemFoundation's `String.contains` defaults to `ignoreCase: true`, so pin the case explicitly.
-        #expect(json.contains("\"DEADBEEF\"", ignoreCase: false))
-        #expect(!json.contains("deadbeef", ignoreCase: false))
+        #expect(json.contains("\"DEADBEEF\""))
+        #expect(!json.contains("deadbeef"))
         #expect(!json.contains("3q2+7w=="))
     }
 

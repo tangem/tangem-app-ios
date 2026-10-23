@@ -8,6 +8,7 @@
 
 import XCTest
 import TangemAccessibilityIdentifiers
+import TangemFoundation
 import Foundation
 
 final class MainScreen: ScreenBase<MainScreenElement> {
@@ -1698,7 +1699,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             .allElementsBoundByIndex
             .filter { element in
                 let text = element.label
-                return text.lowercased().contains("network")
+                return text.caseInsensitiveContains("network")
             }
 
         return !networkHeaders.isEmpty

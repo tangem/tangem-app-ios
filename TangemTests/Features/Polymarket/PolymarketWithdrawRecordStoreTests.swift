@@ -75,7 +75,7 @@ struct PolymarketWithdrawRecordStoreTests {
         makeStore(storage: storage).save(makeEntry(state: .inProgress))
 
         #expect(storage.paths.count == 1)
-        #expect(storage.paths.allSatisfy { $0.hasPrefix("polymarket_withdraw_record_") && !$0.contains(userWalletId.stringValue) })
+        #expect(storage.paths.allSatisfy { $0.hasPrefix("polymarket_withdraw_record_") && !$0.caseInsensitiveContains(userWalletId.stringValue) })
     }
 
     @Test("A state this build does not know is read back as unknown, not as a failure to read")

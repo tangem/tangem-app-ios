@@ -11,6 +11,7 @@ import BinanceChain
 import Combine
 import TangemNetworkUtils
 import TangemLocalization
+import TangemFoundation
 
 class BinanceNetworkService {
     let binance: BinanceChain
@@ -107,7 +108,7 @@ class BinanceNetworkService {
 
 extension BinanceChain.Response {
     func getError() -> Error? {
-        if error?.localizedDescription.lowercased().contains("account not found") ?? false {
+        if error?.localizedDescription.caseInsensitiveContains("account not found") ?? false {
             return BlockchainSdkError.noAccount(message: Localization.noAccountSendToCreate, amountToCreate: 0)
         } else {
             return error
