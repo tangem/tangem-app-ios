@@ -6,7 +6,9 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
+public import struct SwiftUI.Color
+private import class Foundation.Scanner
+private import class UIKit.UIColor
 
 // MARK: - Tangem colors
 

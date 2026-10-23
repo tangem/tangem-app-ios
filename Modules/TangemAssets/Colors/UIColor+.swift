@@ -6,7 +6,9 @@
 //  Copyright © 2020 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
+public import struct CoreGraphics.CGFloat
+public import class UIKit.UIColor
+public import class UIKit.UITraitCollection
 
 public extension UIColor {
     /// DO NOT remove this
