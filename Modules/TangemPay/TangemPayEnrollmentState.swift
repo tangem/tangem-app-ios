@@ -8,6 +8,7 @@
 
 public enum TangemPayEnrollmentState {
     case kycRequired
+    case kycInProgress
     case kycDeclined
     case enrolled(customerInfo: VisaCustomerInfoResponse)
     case cardDeactivated(customerInfo: VisaCustomerInfoResponse)
