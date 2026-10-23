@@ -57,6 +57,7 @@ struct TransactionDisplayModel: Hashable {
         /// Yield counterparty standing in for an address — `to: ⬤ Aave` on Supply, `from: ⬤ Aave` on the Withdraw
         /// leg, `from: ⬤ Merkl` on an incentive claim.
         case provider(direction: Direction, provider: YieldProvider)
+        case sentAsset(TransactionViewModel.SentTokens)
     }
 
     enum YieldProvider: Hashable {
@@ -327,10 +328,10 @@ extension TransactionDisplayModel {
             return .text(Localization.transactionHistoryEarnedFromStake)
         }
 
-        if case .networkFee(let purpose, _) = transactionType {
+        if case .networkFee(let purpose, let sent) = transactionType {
             switch purpose {
             case .sending:
-                return .text(Localization.transactionHistoryFeeForSending)
+                return sent.map(Subtitle.sentAsset) ?? .text(Localization.transactionHistoryFeeForSending)
             case .yieldMode(let operation):
                 return .text(yieldModeFeeSubtitle(for: operation))
             case .operation:

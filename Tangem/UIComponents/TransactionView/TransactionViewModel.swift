@@ -275,6 +275,7 @@ extension TransactionViewModel {
 
     struct SentTokens: Hashable {
         let amount: String
+        let symbol: String
         let iconInfo: TokenIconInfo
     }
 

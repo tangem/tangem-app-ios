@@ -207,6 +207,12 @@ struct TransactionViewRedesigned: View {
                 accessibilityIdentifier: TxHistoryAccessibilityIdentifiers.transactionSubtitle(key: transactionKey)
             )
 
+        case .sentAsset(let sent):
+            TransactionSentAssetSubtitleView(
+                sent: sent,
+                accessibilityIdentifier: TxHistoryAccessibilityIdentifiers.transactionSubtitle(key: transactionKey)
+            )
+
         case .none:
             EmptyView()
         }
