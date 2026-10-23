@@ -11,10 +11,11 @@ public import Combine
 import BlockchainSdk
 public import TangemFoundation
 
+// [REDACTED_TODO_COMMENT]
 /// The single owner of the vault state: the app's account model wraps it rather than keeping a copy to keep
 /// in step. Built for every wallet the feature is enabled for, whether or not a vault exists —
 /// `CollectiblesState` carries the pre-vault cases and onboarding is what walks out of them.
-public final class CollectiblesManager {
+public final class CollectiblesManager: @unchecked Sendable {
     public let userWalletId: UserWalletId
 
     private let coldOwnerProvider: any CollectiblesColdOwnerProvider
