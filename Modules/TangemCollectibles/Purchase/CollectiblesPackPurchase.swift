@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-public struct CollectiblesPackPurchase {
+public struct CollectiblesPackPurchase: Sendable {
     public let memo: String
     public let usdcMint: String
     public let amount: UInt64
