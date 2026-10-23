@@ -13,7 +13,5 @@ struct JointOperationHistoryItem: Hashable {
     let cryptoAccountId: String
     let safeAddress: String
     let createdAt: Date
-    let finishedAt: Date?
     let threshold: Int
-    let cancelReason: JointOperationCancelReason?
 }
