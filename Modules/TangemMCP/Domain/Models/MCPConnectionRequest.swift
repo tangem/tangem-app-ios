@@ -19,26 +19,9 @@ struct MCPConnectionRequest: Equatable, Sendable {
     let oAuthState: String
 
     /// The agent requesting the connection.
-    let agent: Agent
+    let agent: MCPAgent
 
     // [REDACTED_TODO_COMMENT]
     /// Permissions the agent is requesting, e.g. "tokens:read".
     let scopes: OrderedSet<String>
-}
-
-extension MCPConnectionRequest {
-    /// The MCP agent requesting the connection.
-    struct Agent: Equatable, Sendable {
-        /// Opaque OAuth client_id.
-        let id: String
-
-        /// The agent display name.
-        let name: String?
-
-        /// Domain the server parsed out of the client id, when it is an `http(s)` URL.
-        let host: String?
-
-        /// The agent's icon, when the server has one configured for its domain.
-        let iconURL: URL?
-    }
 }

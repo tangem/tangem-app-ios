@@ -48,7 +48,7 @@ struct MCPConnectionRequestProposalView: View {
                 Row(title: agentState.name, subtitle: agentState.host)
                     .includeInnerPadding(false)
                     .start {
-                        agentIcon(agentState.iconURL)
+                        agentIcon(agentState.icon)
                     }
                     .transition(.opacity)
             }
@@ -70,12 +70,17 @@ struct MCPConnectionRequestProposalView: View {
                 Shimmer()
             }
             .onFailureView {
-                // [REDACTED_TODO_COMMENT]
-                Shimmer()
+                DesignSystem.Icons.Server.filled32.image
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 32, height: 32)
+                    .foregroundStyle(DesignSystem.Color.iconBrand)
+                    .frame(width: 40, height: 40)
+                    .background(DesignSystem.Color.bgStatusInfoSubtle)
             }
             .targetCache(imageCache)
             .resizable()
-            .scaledToFill()
+            .scaledToFit()
             .frame(width: 40, height: 40)
             .clipShape(.rect(cornerRadius: 12))
     }
