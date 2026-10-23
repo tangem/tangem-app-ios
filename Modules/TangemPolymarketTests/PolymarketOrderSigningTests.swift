@@ -7,6 +7,7 @@
 
 import Foundation
 import Testing
+import TangemFoundation
 import TangemSdk
 @testable import TangemPolymarket
 
