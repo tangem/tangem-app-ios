@@ -18,6 +18,7 @@ enum MCPConnectionRequestProposalAction {
     case applicationWillEnterForeground
     case openSystemSettingsButtonTapped
 
+    case navigationCloseButtonTapped
     case declineButtonTapped
     case connectButtonTapped
 }

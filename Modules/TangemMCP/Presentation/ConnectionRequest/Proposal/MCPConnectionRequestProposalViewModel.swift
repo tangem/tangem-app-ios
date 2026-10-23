@@ -11,6 +11,7 @@ import struct Combine.Published
 import class Foundation.NotificationCenter
 private import class UIKit.UIApplication
 private import struct TangemFoundation.UserWalletId
+import struct TangemLogger.Logger
 
 @MainActor
 final class MCPConnectionRequestProposalViewModel: ObservableObject, HashableObject {
@@ -19,11 +20,14 @@ final class MCPConnectionRequestProposalViewModel: ObservableObject, HashableObj
     private let notificationCenter: NotificationCenter
     private let delegate: Delegate
 
+    private let logger: TangemLogger.Logger
+
     private var connectionRequest: MCPConnectionRequest?
     private var hasRequestedPushNotificationsAuthorizationAtLeastOnce = false
 
     private var applicationLifecycleObservationTask: Task<Void, Never>?
     private var fetchConnectionRequestTask: Task<Void, Never>?
+    private var fireAndForgetRejectConnectionTask: Task<Void, Never>?
     private var rejectConnectionTask: Task<Void, Never>?
     private var acceptConnectionTask: Task<Void, Never>?
 
@@ -34,7 +38,8 @@ final class MCPConnectionRequestProposalViewModel: ObservableObject, HashableObj
         userCode: String,
         interactor: MCPConnectionRequestInteractor,
         notificationCenter: NotificationCenter = NotificationCenter.default,
-        delegate: Delegate
+        delegate: Delegate,
+        logger: TangemLogger.Logger
     ) {
         self.state = state
 
@@ -42,12 +47,13 @@ final class MCPConnectionRequestProposalViewModel: ObservableObject, HashableObj
         self.interactor = interactor
         self.notificationCenter = notificationCenter
         self.delegate = delegate
+
+        self.logger = logger
     }
 
     deinit {
         applicationLifecycleObservationTask?.cancel()
         fetchConnectionRequestTask?.cancel()
-        rejectConnectionTask?.cancel()
         acceptConnectionTask?.cancel()
     }
 }
@@ -72,6 +78,9 @@ extension MCPConnectionRequestProposalViewModel {
 
         case .openSystemSettingsButtonTapped:
             delegate.openSystemSettingsButtonTapped()
+
+        case .navigationCloseButtonTapped:
+            handleNavigationCloseButtonTapped()
 
         case .declineButtonTapped:
             handleDeclineButtonTapped()
@@ -103,20 +112,28 @@ extension MCPConnectionRequestProposalViewModel {
         let hasFinishedLoadingProposal = connectionRequest != nil
 
         guard hasFinishedLoadingProposal, hasRequestedPushNotificationsAuthorizationAtLeastOnce else { return }
+        logger.debug("App will enter foreground. Initiating fresh push permissions check.")
 
         Task { [weak self, interactor] in
             let pushNotificationsAuthorized = await interactor.ensurePushNotificationsAuthorized()
 
             guard let self else { return }
 
-            let notRejectingAtTheMoment = rejectConnectionTask == nil
-            let notAcceptingAtTheMoment = acceptConnectionTask == nil
-
-            guard pushNotificationsAuthorized, notRejectingAtTheMoment, notAcceptingAtTheMoment else {
+            guard pushNotificationsAuthorized else {
+                logger.debug("App will enter foreground. Push permissions are not granted. Connection is prohibited.")
                 return
             }
 
+            logger.debug("App will enter foreground. Push permissions are granted. Connection is allowed.")
             state.pushPermissionsBanner = nil
+
+            let notRejectingAtTheMoment = rejectConnectionTask == nil
+            let notAcceptingAtTheMoment = acceptConnectionTask == nil
+
+            guard notRejectingAtTheMoment, notAcceptingAtTheMoment else {
+                return
+            }
+
             state.declineButton.state = .enabled
             state.connectButton.state = .enabled
         }
@@ -125,19 +142,43 @@ extension MCPConnectionRequestProposalViewModel {
     private func handleFetchSucceeded(_ connectionRequest: MCPConnectionRequest) {
         self.connectionRequest = connectionRequest
 
-        state.agentSummary = .content(
-            MCPConnectionRequestProposalState.AgentSummary.Agent(
-                iconURL: connectionRequest.agent.iconURL,
-                name: connectionRequest.agent.name ?? "",
-                host: connectionRequest.agent.host ?? ""
-            )
-        )
+        state.agentSummary = .content(connectionRequest.agent)
         state.declineButton.state = .enabled
         state.connectButton.state = .enabled
     }
 
+    private func handleNavigationCloseButtonTapped() {
+        guard
+            let connectionRequest,
+            fireAndForgetRejectConnectionTask == nil,
+            rejectConnectionTask == nil
+        else {
+            return
+        }
+
+        acceptConnectionTask?.cancel()
+        acceptConnectionTask = nil
+
+        logger.debug("Fire and forget connection request reject initiated.")
+
+        // [REDACTED_USERNAME], intentionally not messing with decline and connect buttons loading or disabled state
+        // in order to keep UI clean during close transition.
+
+        fireAndForgetRejectConnectionTask = Task { [reject = interactor.reject, logger] in
+            do throws(MCPConnectionClientError) {
+                try await reject(request: connectionRequest)
+            } catch {
+                logger.error("Fire and forget connection request reject failed", error: error)
+            }
+        }
+    }
+
     private func handleDeclineButtonTapped() {
-        guard case .enabled = state.declineButton.state else {
+        guard
+            case .enabled = state.declineButton.state,
+            rejectConnectionTask == nil,
+            fireAndForgetRejectConnectionTask == nil
+        else {
             return
         }
 
@@ -166,7 +207,11 @@ extension MCPConnectionRequestProposalViewModel {
     }
 
     private func handleConnectButtonTapped() {
-        guard case .enabled = state.connectButton.state else {
+        guard
+            case .enabled = state.connectButton.state,
+            acceptConnectionTask == nil,
+            fireAndForgetRejectConnectionTask == nil
+        else {
             return
         }
 
@@ -181,7 +226,7 @@ extension MCPConnectionRequestProposalViewModel {
 
         let userWalletID = state.userWalletSelector.selection.id
 
-        acceptConnectionTask = Task { [interactor, weak self] in
+        acceptConnectionTask = Task { [interactor, logger, weak self] in
             self?.hasRequestedPushNotificationsAuthorizationAtLeastOnce = true
 
             defer {
@@ -191,6 +236,7 @@ extension MCPConnectionRequestProposalViewModel {
             }
 
             guard await interactor.ensurePushNotificationsAuthorized() else {
+                logger.debug("Push notifications are disabled. Connection is blocked.")
                 self?.state.pushPermissionsBanner = MCPConnectionRequestProposalState.PushNotificationsPermissionBanner()
                 self?.state.connectButton.state = .disabled
                 return
@@ -198,7 +244,7 @@ extension MCPConnectionRequestProposalViewModel {
 
             do throws(MCPConnectionClientError) {
                 try await interactor.accept(request: connectionRequest, for: userWalletID)
-                self?.delegate.connectionAccepted(Result.success(connectionRequest.agent.name ?? ""))
+                self?.delegate.connectionAccepted(Result.success(connectionRequest.agent.name))
             } catch {
                 self?.delegate.connectionAccepted(Result.failure(error))
             }

@@ -35,15 +35,7 @@ struct MCPConnectionRequestProposalState: Equatable {
 extension MCPConnectionRequestProposalState {
     enum AgentSummary: Equatable {
         case loading
-        case content(Agent)
-    }
-}
-
-extension MCPConnectionRequestProposalState.AgentSummary {
-    struct Agent: Equatable {
-        let iconURL: URL?
-        let name: String
-        let host: String
+        case content(MCPAgent)
     }
 }
 

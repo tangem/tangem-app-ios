@@ -38,7 +38,7 @@ public final class MCPConnectionRequestViewModel: ObservableObject, FloatingShee
         userCode: String,
         interactor: MCPConnectionRequestInteractor,
         delegate: Delegate,
-        logger: TangemLogger.Logger,
+        logger: TangemLogger.Logger
     ) {
         self.userWallets = userWallets
         self.userWalletImageRepository = userWalletImageRepository
@@ -77,7 +77,8 @@ public final class MCPConnectionRequestViewModel: ObservableObject, FloatingShee
                 connectionAccepted: { acceptResult in
                     futureSelf?.handle(action: .agentConnectionAccepted(acceptResult))
                 }
-            )
+            ),
+            logger: logger
         )
 
         self.state = MCPConnectionRequestState.proposal(proposalViewModel)
@@ -100,7 +101,7 @@ extension MCPConnectionRequestViewModel {
         case .viewDidLoad:
             proposalViewModel.handle(action: .fetchInitiated)
 
-        case .backButtonTapped:
+        case .navigationBackButtonTapped:
             guard case .userWalletSelector = state else {
                 assertionFailure("MCPConnectionRequestAction.backButtonTapped sent from unexpected state. Developer mistake.")
                 return
@@ -108,8 +109,8 @@ extension MCPConnectionRequestViewModel {
             userWalletSelectorAutoCloseTask?.cancel()
             state = .proposal(proposalViewModel)
 
-        case .closeButtonTapped:
-            delegate.closeButtonTapped()
+        case .navigationCloseButtonTapped:
+            handleNavigationCloseButtonTapped()
 
         case .openSystemSettingsButtonTapped:
             delegate.openSystemSettingsButtonTapped()
@@ -134,6 +135,18 @@ extension MCPConnectionRequestViewModel {
         case .agentConnectionAccepted(let acceptResult):
             handle(acceptResult: acceptResult)
         }
+    }
+
+    private func handleNavigationCloseButtonTapped() {
+        switch state {
+        case .proposal, .userWalletSelector:
+            proposalViewModel.handle(action: .navigationCloseButtonTapped)
+
+        case .agentConnected:
+            break
+        }
+
+        delegate.closeButtonTapped()
     }
 
     private func handleUserWalletSelectionUpdated(_ selectedUserWallet: MCPUserWallet) {
@@ -166,7 +179,7 @@ extension MCPConnectionRequestViewModel {
         case .success(let agentName):
             logger.debug("Proposal accept succeeded")
             let agentConnectedViewModel = MCPConnectionRequestAgentConnectedViewModel(
-                doneButtonAction: delegate.closeButtonTapped,
+                doneAction: delegate.closeButtonTapped,
                 state: MCPConnectionRequestAgentConnectedState(agentName: agentName)
             )
             state = .agentConnected(agentConnectedViewModel)

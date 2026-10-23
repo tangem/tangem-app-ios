@@ -9,7 +9,9 @@
 public import struct TangemFoundation.UserWalletId
 public import enum TangemUI.ThumbnailWalletViewType
 
-public struct MCPUserWallet: Equatable, Identifiable {
+// [REDACTED_TODO_COMMENT]
+
+public struct MCPUserWallet: Equatable, Identifiable, Sendable {
     public let id: UserWalletId
     public let thumbnail: ThumbnailWalletViewType?
     public let name: String

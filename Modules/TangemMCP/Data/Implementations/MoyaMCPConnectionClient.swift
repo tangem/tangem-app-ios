@@ -70,9 +70,8 @@ struct MoyaMCPConnectionClient: MCPConnectionClient {
             throw MCPConnectionClientError.acceptFailed(underlying: error)
         }
 
-        let response: Moya.Response
         do {
-            response = try await provider.request(target)
+            _ = try await provider.request(target)
         } catch {
             guard let problemDetailError = parseProblemDetail(from: error.response?.data) else {
                 throw MCPConnectionClientError.acceptFailed(underlying: error)
@@ -83,12 +82,6 @@ struct MoyaMCPConnectionClient: MCPConnectionClient {
             }
 
             throw MCPConnectionClientError.acceptFailed(underlying: problemDetailError)
-        }
-
-        do {
-            _ = try decoder.decode(MCPConnectionDecisionDTO.Response.self, from: response.data)
-        } catch {
-            throw MCPConnectionClientError.acceptFailed(underlying: error)
         }
     }
 

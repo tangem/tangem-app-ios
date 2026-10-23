@@ -235,15 +235,6 @@ private struct FloatingSheetLayout: SwiftUI.Layout {
 
 private extension View {
     @ViewBuilder
-    func geometryGroupBackport() -> some View {
-        if #available(iOS 17.0, *) {
-            geometryGroup()
-        } else {
-            transformEffect(.identity)
-        }
-    }
-
-    @ViewBuilder
     func floatingSheetBackground(
         _ backgroundConfiguration: FloatingSheetConfiguration.Background,
         in shape: some InsettableShape

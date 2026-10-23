@@ -76,6 +76,22 @@ public enum TangemMCPAssembly {
             logger: Self.configuration.logger
         )
     }
+
+    @MainActor
+    public static func makeSwapIntentViewModel(
+        agent: MCPAgent,
+        amount: String,
+        from fromToken: MCPToken,
+        to toToken: MCPToken,
+        closeAction: @escaping () -> Void,
+        proceedAction: @escaping () -> Void
+    ) -> MCPSwapIntentViewModel {
+        MCPSwapIntentViewModel(
+            closeAction: closeAction,
+            proceedAction: proceedAction,
+            state: MCPSwapIntentState(agent: agent, amount: amount, from: fromToken, to: toToken)
+        )
+    }
 }
 
 // MARK: - Error toasts
@@ -160,7 +176,11 @@ extension TangemMCPAssembly {
         let registry = configuration.floatingSheetRegistry
 
         registry.register(MCPConnectionRequestViewModel.self) { viewModel in
-            MCPConnectionRequestView(viewModel: viewModel, imageCache: kingfisherImageCache)
+            MCPConnectionRequestView(viewModel: viewModel, imageCache: Self.kingfisherImageCache)
+        }
+
+        registry.register(MCPSwapIntentViewModel.self) { viewModel in
+            MCPSwapIntentView(viewModel: viewModel, kingfisherImageCache: Self.kingfisherImageCache)
         }
     }
 }

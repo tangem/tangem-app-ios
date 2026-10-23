@@ -62,17 +62,17 @@ struct MCPConnectionRequestView: View {
         case .proposal(let proposalViewModel):
             title = proposalViewModel.state.navigationTitle
             backButtonAction = nil
-            closeButtonAction = { viewModel.handle(action: .closeButtonTapped) }
+            closeButtonAction = { viewModel.handle(action: .navigationCloseButtonTapped) }
 
         case .userWalletSelector(let userWalletSelectorViewModel):
             title = userWalletSelectorViewModel.state.navigationTitle
-            backButtonAction = { viewModel.handle(action: .backButtonTapped) }
-            closeButtonAction = { viewModel.handle(action: .closeButtonTapped) }
+            backButtonAction = { viewModel.handle(action: .navigationBackButtonTapped) }
+            closeButtonAction = { viewModel.handle(action: .navigationCloseButtonTapped) }
 
         case .agentConnected:
             title = nil
             backButtonAction = nil
-            closeButtonAction = { viewModel.handle(action: .closeButtonTapped) }
+            closeButtonAction = { viewModel.handle(action: .navigationCloseButtonTapped) }
         }
 
         return FloatingSheetNavigationBarView(

@@ -10,15 +10,19 @@ import Combine
 import class UIKit.UIApplication
 import class UIKit.UIImage
 import class Alamofire.Interceptor
-import TangemBackendAuthentication
+import enum TangemBackendAuthentication.BackendAuthenticationAssembly
 import TangemFoundation
 import TangemLocalization
 import TangemMCP
 import class TangemNetworkUtils.TangemProvider
-import TangemUI
+import class TangemUI.FloatingSheetRegistry
 
 enum MCPModuleFactory {
-    @Injected(\.userWalletRepository) static var userWalletRepository: any UserWalletRepository
+    @Injected(\.floatingSheetPresenter) private static var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.pushNotificationsPermission) private static var pushNotificationsPermission: any PushNotificationsPermissionService
+    @Injected(\.userWalletRepository) private static var userWalletRepository: any UserWalletRepository
+
+    private static let balanceFormatter = BalanceFormatter()
 
     static func configure() {
         guard FeatureProvider.isAvailable(.mcp) else { return }
@@ -45,9 +49,6 @@ enum MCPModuleFactory {
             return nil
         }
 
-        @Injected(\.floatingSheetPresenter) var floatingSheetPresenter: any FloatingSheetPresenter
-        @Injected(\.pushNotificationsPermission) var pushNotificationsPermissionService: any PushNotificationsPermissionService
-
         let userWallets = Self.userWalletRepository.models.map(MCPUserWallet.init(from:))
 
         guard !userWallets.isEmpty else {
@@ -58,7 +59,7 @@ enum MCPModuleFactory {
         let selectedUserWallet = userWallets.first { $0.id == selectedUserWalletID } ?? userWallets[0]
 
         let pushNotificationsPermissionProvider = CommonMCPPushNotificationsPermissionProvider(
-            service: pushNotificationsPermissionService
+            service: Self.pushNotificationsPermission
         )
 
         return TangemMCPAssembly.makeConnectionRequestViewModel(
@@ -69,7 +70,7 @@ enum MCPModuleFactory {
             fetchUserWalletImage: Self.makeFetchUserWalletImage(),
             updateUserWalletBalance: Self.makeUpdateUserWalletBalance(),
             openSystemSettingsAction: UIApplication.openSystemSettings,
-            closeAction: floatingSheetPresenter.removeActiveSheet
+            closeAction: Self.floatingSheetPresenter.removeActiveSheet
         )
     }
 }
@@ -90,9 +91,7 @@ extension MCPModuleFactory {
 
     private static func makeUpdateUserWalletBalance() -> @Sendable (UserWalletId) -> AsyncStream<String> {
         return { userWalletID in
-            let formatter = BalanceFormatter()
-
-            guard let userWalletModel = Self.userWalletRepository.models.first(where: { $0.userWalletId == userWalletID }) else {
+            guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletID }) else {
                 assertionFailure("UserWalletModel was not found by a provided UserWalletId. Developer mistake.")
                 return Self.wrap(publisher: Just<String>(""))
             }
@@ -106,14 +105,14 @@ extension MCPModuleFactory {
                         return "–"
 
                     case .loading(let cached):
-                        return cached.map { formatter.formatFiatBalance($0, currencyCode: currencyCode) }
+                        return cached.map { Self.balanceFormatter.formatFiatBalance($0, currencyCode: currencyCode) }
 
                     case .failed(let cached, _):
                         guard let cached else { return Localization.commonUnreachable }
-                        return formatter.formatFiatBalance(cached, currencyCode: currencyCode)
+                        return Self.balanceFormatter.formatFiatBalance(cached, currencyCode: currencyCode)
 
                     case .loaded(let balance):
-                        return formatter.formatFiatBalance(balance, currencyCode: currencyCode)
+                        return Self.balanceFormatter.formatFiatBalance(balance, currencyCode: currencyCode)
                     }
                 }
 
