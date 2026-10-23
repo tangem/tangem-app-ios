@@ -55,7 +55,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     func buttonFollowsBalance(balance: TokenBalanceType, expected: SUT.ButtonState) async {
         let (sut, _) = makeSUT(balance: balance)
 
-        await waitUntil { sut.buttonState == expected }
+        await drainMainQueue()
 
         #expect(sut.buttonState == expected)
     }
@@ -88,7 +88,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
         await waitUntil { sut.buttonState == state }
 
         sut.retryBalance()
-        await waitUntil { doubles.balanceRefresher.callsCount == refreshes }
+        await drainMainQueue()
 
         let expectedState: SUT.ButtonState = refreshes > 0 ? .balanceLoading : state
         #expect(doubles.balanceRefresher.callsCount == refreshes)
@@ -100,7 +100,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("Approve does nothing while the button is not approvable", arguments: Self.notApprovableArguments)
     func approveIgnoredWhenNotApprovable(balance: TokenBalanceType, state: SUT.ButtonState) async {
         let (sut, doubles) = makeSUT(balance: balance)
-        await waitUntil { sut.buttonState == state }
+        await drainMainQueue()
 
         sut.approve()
 
@@ -602,7 +602,7 @@ private extension CollectiblesConfirmOrderViewModelTests {
             routable: doubles.routable,
             revealAssetsPreloader: doubles.preloader,
             delayProvider: doubles.delayProvider,
-            refreshBalance: { [balanceRefresher = doubles.balanceRefresher] in balanceRefresher.refresh() }
+            refreshBalance: { @MainActor [balanceRefresher = doubles.balanceRefresher] in balanceRefresher.refresh() }
         )
         return (trackForMemoryLeaks(sut), doubles)
     }
@@ -625,6 +625,12 @@ private extension CollectiblesConfirmOrderViewModelTests {
         switch button {
         case .primary: sheet.primary()
         case .secondary: sheet.secondary()
+        }
+    }
+
+    func drainMainQueue() async {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async { continuation.resume() }
         }
     }
 
