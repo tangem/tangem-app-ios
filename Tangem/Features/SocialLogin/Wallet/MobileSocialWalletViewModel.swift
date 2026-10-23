@@ -35,6 +35,8 @@ final class MobileSocialWalletViewModel: ObservableObject {
     private let socialAuthProvider: SocialAuthProvider
     private let backupManager: MobileWalletSocialBackupManager
 
+    private var processingStartDate: Date?
+
     private weak var coordinator: MobileSocialWalletRoutable?
 
     init(
@@ -70,10 +72,12 @@ private extension MobileSocialWalletViewModel {
     }
 
     func commonFlow(mode: Mode) async {
+        processingStartDate = Date()
+
         do {
             await setupState(mode: mode)
 
-            if let walletBinding = try await existingWalletBinding() {
+            if let walletBinding = try await socialAuthProvider.existingWalletBinding(credentials: input.credentials) {
                 await restoreFlow(walletBinding: walletBinding)
             } else {
                 await createFlow(mode: mode)
@@ -126,6 +130,7 @@ private extension MobileSocialWalletViewModel {
             analyticsLogger.logWalletCreated()
             logMarketingConsentIfNeeded(mode: mode)
 
+            await waitForMinimumProcessingDuration()
             await presentWalletCreatedToast()
             await openMain(userWalletModel: userWalletModel)
         } catch {
@@ -183,6 +188,7 @@ private extension MobileSocialWalletViewModel {
             let userWalletModel = try store(preparedWallet: preparedWallet)
             analyticsLogger.logWalletRestored()
 
+            await waitForMinimumProcessingDuration()
             await presentWalletAddedToast()
             await openMain(userWalletModel: userWalletModel)
         } catch {
@@ -377,18 +383,6 @@ private extension MobileSocialWalletViewModel {
 // MARK: - Private methods
 
 private extension MobileSocialWalletViewModel {
-    func existingWalletBinding() async throws -> SocialAuthWalletBinding? {
-        let startDate = Date()
-
-        do {
-            let walletBinding = try await socialAuthProvider.existingWalletBinding(credentials: input.credentials)
-            await waitForMinimumDuration(since: startDate)
-            return walletBinding
-        } catch {
-            throw error
-        }
-    }
-
     func makeWallet() async throws -> PendingWallet {
         let recoveryKey = try SocialWalletBackupKeyGenerator().makeKey()
         let preparedWallet = try await creationUtil.prepareNewWallet(
@@ -492,8 +486,12 @@ private extension MobileSocialWalletViewModel {
         MobileSocialAgreementViewModel(coordinator: self)
     }
 
-    func waitForMinimumDuration(since startDate: Date) async {
-        let remainingDuration = Constants.walletBindingMinimumDuration - Date().timeIntervalSince(startDate)
+    func waitForMinimumProcessingDuration() async {
+        guard let processingStartDate else {
+            return
+        }
+
+        let remainingDuration = Constants.minimumProcessingDuration - Date().timeIntervalSince(processingStartDate)
 
         guard remainingDuration > 0 else {
             return
@@ -543,7 +541,7 @@ private extension MobileSocialWalletViewModel {
 
     enum Constants {
         static let toastTopPadding: CGFloat = 8
-        static let walletBindingMinimumDuration: TimeInterval = 3
+        static let minimumProcessingDuration: TimeInterval = 3
     }
 }
 
