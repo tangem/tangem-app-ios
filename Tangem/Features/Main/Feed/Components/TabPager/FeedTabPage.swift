@@ -8,11 +8,11 @@
 
 import CoreGraphics
 
-struct FeedTabPage: Identifiable {
-    let tab: FeedTab
+struct FeedTabPage<Tab: Identifiable>: Identifiable {
+    let tab: Tab
     var topInset: CGFloat = 0
     var offset: CGFloat = 0
     var isPreparing = false
 
-    var id: String { tab.id }
+    var id: Tab.ID { tab.id }
 }
