@@ -1,5 +1,5 @@
 {
-  "originHash" : "d858127f5548498fd5e83c9229355c08d529b05eb59d53f54836ba608d4bc226",
+  "originHash" : "035c57c95709c5d68254931e543c9c4c9e05db1e343e42e06d873738a7f6373d",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -285,8 +285,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/hiero-sdk-swift.git",
       "state" : {
-        "revision" : "09d379b187f1ea5b29ceabd7333a1a5644ed3148",
-        "version" : "0.49.0-tangem4"
+        "revision" : "aac23413864b69d6c7469dfb0c5b71fab8dae161",
+        "version" : "0.49.0-tangem5"
       }
     },
     {
@@ -364,10 +364,10 @@
     {
       "identity" : "moya",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Moya/Moya.git",
+      "location" : "git@github.com:tangem-developments/Moya.git",
       "state" : {
-        "revision" : "c263811c1f3dbf002be9bd83107f7cdc38992b26",
-        "version" : "15.0.3"
+        "revision" : "821a798976716e10a734e194b59c17afd7a36734",
+        "version" : "15.0.3-tangem1"
       }
     },
     {
@@ -434,15 +434,6 @@
       }
     },
     {
-      "identity" : "reactiveswift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ReactiveCocoa/ReactiveSwift.git",
-      "state" : {
-        "revision" : "c43bae3dac73fdd3cb906bd5a1914686ca71ed3c",
-        "version" : "6.7.0"
-      }
-    },
-    {
       "identity" : "regex",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sharplet/Regex.git",
@@ -458,15 +449,6 @@
       "state" : {
         "revision" : "968a82d440e51c4de18857928b60a03d36af7a2a",
         "version" : "2.3.1"
-      }
-    },
-    {
-      "identity" : "rxswift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ReactiveX/RxSwift.git",
-      "state" : {
-        "revision" : "132aea4f236ccadc51590b38af0357a331d51fa2",
-        "version" : "6.10.2"
       }
     },
     {
