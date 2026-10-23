@@ -27,8 +27,6 @@ final class CollectiblesMachineViewModel: ObservableObject {
 
     private(set) var pollingTask: Task<Void, Never>?
 
-    let turboModeInfoViewModel = CollectiblesInfoSheetViewModel(model: .turboMode)
-
     // MARK: - Publishers
 
     /// The header and the CTA render straight from the tapped pack, ahead of the first response.
@@ -39,6 +37,7 @@ final class CollectiblesMachineViewModel: ObservableObject {
     @Published private(set) var details: Details
     /// A purchase parameter, not a setting: it lives as long as the screen and rides along into the order.
     @Published var isTurboModeOn = false
+    @Published var isTurboModeInfoPresented = false
 
     // MARK: - Init
 
@@ -92,7 +91,11 @@ final class CollectiblesMachineViewModel: ObservableObject {
     }
 
     func showTurboModeInfo() {
-        turboModeInfoViewModel.present()
+        isTurboModeInfoPresented = true
+    }
+
+    func dismissTurboModeInfo() {
+        isTurboModeInfoPresented = false
     }
 }
 

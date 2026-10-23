@@ -212,7 +212,8 @@ private extension FeedCoordinator {
     /// itself: once it is gone, the screens it held go with it instead of living on until the main screen is rebuilt.
     func dropRoutes() {
         pendingDestination = nil
-        guard path.isNotEmpty || presented != nil || cover != nil || modal != nil || widgetSheetPresenter.selector != nil else {
+        guard path.isNotEmpty || presented != nil || cover != nil || modal != nil
+            || widgetSheetPresenter.selector != nil || widgetSheetPresenter.status != nil else {
             return
         }
 
@@ -221,6 +222,7 @@ private extension FeedCoordinator {
             dismissPresented()
             modal = nil
             widgetSheetPresenter.dropSelector()
+            widgetSheetPresenter.dropStatus()
             rootViewModel?.searchViewModel.reset()
         }
     }
