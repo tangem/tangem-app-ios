@@ -16,22 +16,8 @@ struct JointAccountInviteSafetyView: View {
     let viewModel: JointAccountInviteSafetyViewModel
 
     var body: some View {
-        VStack(spacing: .zero) {
-            FloatingSheetNavigationBarView(
-                title: Localization.jointAccountInviteMembersSafetySheetTitle,
-                backgroundColor: DesignSystem.Color.bgSecondary,
-                closeButtonAction: viewModel.onCloseTap
-            )
-
-            points
-
-            button
-                .padding(Constants.horizontalPadding)
-        }
-        .floatingSheetConfiguration {
-            $0.sheetBackground = .color(DesignSystem.Color.bgSecondary)
-            $0.backgroundInteractionBehavior = .tapToDismiss
-        }
+        points
+            .footer { Footer(.buttons(primary: button)) }
     }
 
     private var points: some View {
@@ -81,15 +67,13 @@ struct JointAccountInviteSafetyView: View {
         }
     }
 
-    private var button: some View {
+    private var button: TangemUI.Button {
         TangemUI.Button(
             label: Localization.commonGotIt,
             accessibilityLabel: Localization.commonGotIt,
             action: viewModel.onCloseTap
         )
         .styleType(.primary)
-        .size(.x12)
-        .horizontalLayout(.infinity)
     }
 }
 
@@ -97,7 +81,6 @@ struct JointAccountInviteSafetyView: View {
 
 private extension JointAccountInviteSafetyView {
     enum Constants {
-        static let horizontalPadding: CGFloat = 16
         static let pointsHorizontalPadding: CGFloat = 24
         static let pointsVerticalPadding: CGFloat = 22
         static let pointSpacing: CGFloat = 24
@@ -110,7 +93,11 @@ private extension JointAccountInviteSafetyView {
 // MARK: - Previews
 
 #Preview {
-    JointAccountInviteSafetyView(viewModel: JointAccountInviteSafetyViewModel(coordinator: nil))
-        .frame(maxHeight: .infinity, alignment: .bottom)
-        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+    Color.clear.modal(
+        isPresented: .constant(true),
+        contentLayout: .intrinsic,
+        navigation: .title(Localization.jointAccountInviteMembersSafetySheetTitle)
+    ) {
+        JointAccountInviteSafetyView(viewModel: JointAccountInviteSafetyViewModel(coordinator: nil))
+    }
 }
