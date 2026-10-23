@@ -12,6 +12,33 @@ import TangemLocalization
 
 struct MoralisSolanaNetworkMapper {
     func map(
+        regularAssets: [MoralisSolanaNetworkResult.Asset],
+        coreAssets: [MoralisSolanaNetworkResult.WalletNFT],
+        ownerAddress: String
+    ) -> [NFTCollection] {
+        var collections = Dictionary(grouping: regularAssets, by: { $0.collection?.collectionAddress?.nilIfEmpty })
+            .mapValues { assets in
+                map(collection: assets.first?.collection, assets: assets, ownerAddress: ownerAddress)
+            }
+
+        let groupedCoreAssets = Dictionary(grouping: coreAssets, by: { $0.collection?.address?.nilIfEmpty })
+
+        for (collectionAddress, assets) in groupedCoreAssets {
+            if let regularCollection = collections[collectionAddress] {
+                collections[collectionAddress] = join(coreAssets: assets, to: regularCollection, ownerAddress: ownerAddress)
+            } else {
+                collections[collectionAddress] = makeCollection(
+                    fromCoreAssets: assets,
+                    collectionAddress: collectionAddress,
+                    ownerAddress: ownerAddress
+                )
+            }
+        }
+
+        return Array(collections.values)
+    }
+
+    private func map(
         collection: MoralisSolanaNetworkResult.Collection?,
         assets: [MoralisSolanaNetworkResult.Asset],
         ownerAddress: String
@@ -22,38 +49,164 @@ struct MoralisSolanaNetworkMapper {
                 ownerAddress: ownerAddress,
                 // We should use collection description as an asset's description
                 // when asset's description is missing. (In case of Moralis for Solana -- always)
-                description: collection?.description
+                description: $0.collection?.description
             )
         }
 
-        // Moralis doesn't send collection image URL, so we are assigning first asset's image or animation
-        let collectionMedia = domainAssets
-            .compactMap { NFTAssetMediaExtractor.extractMedia(from: $0) }
-            .first
+        return makeCollection(
+            collectionIdentifier: collection?.collectionAddress?.nilIfEmpty,
+            name: collection?.name,
+            description: collection?.description,
+            assets: domainAssets,
+            ownerAddress: ownerAddress
+        )
+    }
 
-        guard let collection, let collectionId = collection.collectionAddress else {
+    private func join(
+        coreAssets: [MoralisSolanaNetworkResult.WalletNFT],
+        to collection: NFTCollection,
+        ownerAddress: String
+    ) -> NFTCollection {
+        let coreDomainAssets = coreAssets.compactMap {
+            makeAsset(fromCoreAsset: $0, ownerAddress: ownerAddress, fallbackDescription: collection.description)
+        }
+
+        let domainAssets = collection.assetsResult.value + coreDomainAssets
+
+        return NFTCollection(
+            collectionIdentifier: collection.id.collectionIdentifier,
+            chain: collection.id.chain,
+            contractType: collection.contractType,
+            ownerAddress: collection.id.ownerAddress,
+            name: collection.name,
+            description: collection.description,
+            media: collection.media ?? makeCollectionMedia(from: coreDomainAssets),
+            assetsCount: domainAssets.count,
+            assetsResult: NFTPartialResult(value: domainAssets)
+        )
+    }
+
+    private func makeCollection(
+        fromCoreAssets coreAssets: [MoralisSolanaNetworkResult.WalletNFT],
+        collectionAddress: String?,
+        ownerAddress: String
+    ) -> NFTCollection {
+        let domainAssets = coreAssets.compactMap {
+            makeAsset(fromCoreAsset: $0, ownerAddress: ownerAddress, fallbackDescription: nil)
+        }
+
+        return makeCollection(
+            collectionIdentifier: collectionAddress,
+            name: coreAssets.first?.collection?.name,
+            description: nil,
+            assets: domainAssets,
+            ownerAddress: ownerAddress
+        )
+    }
+
+    private func makeCollection(
+        collectionIdentifier: String?,
+        name: String?,
+        description: String?,
+        assets: [NFTAsset],
+        ownerAddress: String
+    ) -> NFTCollection {
+        let collectionMedia = makeCollectionMedia(from: assets)
+
+        guard let collectionIdentifier else {
             return NFTDummyCollectionMapper.map(
                 chain: .solana,
-                assets: domainAssets,
-                assetsCount: domainAssets.count,
+                assets: assets,
+                assetsCount: assets.count,
                 contractType: .unknown,
                 ownerAddress: ownerAddress,
-                description: collection?.description,
+                description: description,
                 media: collectionMedia
             )
         }
 
         return NFTCollection(
-            collectionIdentifier: collectionId,
+            collectionIdentifier: collectionIdentifier,
             chain: .solana,
             contractType: .unknown,
             ownerAddress: ownerAddress,
-            name: collection.name?.nilIfEmpty ?? Constants.collectionNameFallback,
-            description: collection.description,
+            name: name?.nilIfEmpty ?? Constants.collectionNameFallback,
+            description: description,
             media: collectionMedia,
-            assetsCount: domainAssets.count,
-            assetsResult: NFTPartialResult(value: domainAssets)
+            assetsCount: assets.count,
+            assetsResult: NFTPartialResult(value: assets)
         )
+    }
+
+    private func makeCollectionMedia(from assets: [NFTAsset]) -> NFTMedia? {
+        // Moralis doesn't send collection image URL, so we are assigning first asset's image or animation
+        assets
+            .compactMap { NFTAssetMediaExtractor.extractMedia(from: $0) }
+            .first
+    }
+
+    private func makeAsset(
+        fromCoreAsset coreAsset: MoralisSolanaNetworkResult.WalletNFT,
+        ownerAddress: String,
+        fallbackDescription: String?
+    ) -> NFTAsset? {
+        guard let contractAddress = coreAsset.tokenAddress?.nilIfEmpty else {
+            NFTLogger.warning(
+                String(
+                    format: "Core asset missing required fields: tokenAddress %@",
+                    String(describing: coreAsset.tokenAddress)
+                )
+            )
+            return nil
+        }
+
+        let metadata = coreAsset.metadata
+
+        return NFTAsset(
+            assetIdentifier: Constants.dummyAssetIdentifier,
+            assetContractAddress: contractAddress,
+            chain: .solana,
+            contractType: NFTContractTypeMapper.map(contractType: coreAsset.tokenStandard?.nilIfEmpty),
+            decimalCount: Constants.decimalCountFallback,
+            ownerAddress: ownerAddress,
+            name: coreAsset.name?.nilIfEmpty ?? metadata?.name?.nilIfEmpty ?? Constants.assetNameFallback,
+            description: metadata?.description?.nilIfEmpty ?? fallbackDescription,
+            salePrice: nil,
+            mediaFiles: mapToMediaFiles(coreAsset: coreAsset),
+            rarity: mapToRarity(attributes: metadata?.attributes),
+            traits: mapToTraits(attributes: metadata?.attributes)
+        )
+    }
+
+    private func mapToMediaFiles(coreAsset: MoralisSolanaNetworkResult.WalletNFT) -> [NFTMedia] {
+        let media = coreAsset.media
+        let mediaCollection = media?.mediaCollection
+
+        let indexedMedia = MoralisMediaURLMapper.map(
+            high: mediaCollection?.high?.url,
+            medium: mediaCollection?.medium?.url,
+            low: mediaCollection?.low?.url,
+            original: media?.originalMediaUrl
+        ).map { url in
+            NFTMedia(kind: NFTMediaKindMapper.map(mimetype: media?.mimetype, defaultKind: .image), url: url)
+        }
+
+        let metadataImage = MoralisMediaURLMapper.map(coreAsset.metadata?.image).map { url in
+            NFTMedia(kind: NFTMediaKindMapper.map(url, defaultKind: .image), url: url)
+        }
+
+        let mediaFiles = [indexedMedia, metadataImage].compactMap { $0 }.unique()
+
+        if mediaFiles.isEmpty {
+            NFTLogger.warning(
+                String(
+                    format: "Core asset has no media: tokenAddress %@",
+                    String(describing: coreAsset.tokenAddress)
+                )
+            )
+        }
+
+        return mediaFiles
     }
 
     private func map(

@@ -12,20 +12,22 @@ import Foundation
 import TangemExpress
 import TangemFoundation
 import TangemStaking
-import TangemUI
 @testable import Tangem
 
 // MARK: - SendSourceToken
 
 class SendSourceTokenStub: SendSourceToken {
     let tokenItem: TokenItem
+    private let receivingRestriction: ReceivedRestriction?
 
-    init(blockchain: Blockchain = .ton(curve: .ed25519, testnet: false)) {
+    init(blockchain: Blockchain = .ton(curve: .ed25519, testnet: false), receivingRestriction: ReceivedRestriction? = nil) {
         tokenItem = .blockchain(.init(blockchain, derivationPath: nil))
+        self.receivingRestriction = receivingRestriction
     }
 
     init(tokenItem: TokenItem) {
         self.tokenItem = tokenItem
+        receivingRestriction = nil
     }
 
     var isCustom: Bool { false }
@@ -56,9 +58,14 @@ class SendSourceTokenStub: SendSourceToken {
     var emailDataCollectorBuilder: EmailDataCollectorBuilder { EmailDataCollectorBuilderStub() }
     var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? { get async { nil } }
     var transactionDispatcherProvider: any TransactionDispatcherProvider { TransactionDispatcherProviderStub() }
+    var transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider {
+        DefaultTransactionSummaryDescriptionBuilderProvider(tokenItem: tokenItem)
+    }
+
+    var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { BlockchainSDKNotificationMapper(tokenItem: tokenItem) }
+
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { nil }
-    var tangemIconProvider: any TangemIconProvider { TangemIconProviderStub() }
-    var confirmTransactionPolicy: any ConfirmTransactionPolicy { ConfirmTransactionPolicyStub() }
+    var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { ReceivingRestrictionsProviderStub(result: receivingRestriction) }
     var isTangemPayAccount: Bool { false }
     var jointAccountPolicy: JointAccountPolicy? { nil }
 }
@@ -72,23 +79,9 @@ struct TokenBalanceProviderStub: TokenBalanceProvider {
     let formattedBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> = Just(.loading(.empty("-"))).eraseToAnyPublisher()
 }
 
-// MARK: - TangemIconProvider
-
-private struct TangemIconProviderStub: TangemIconProvider {
-    func getMainButtonIcon() -> MainButton.Icon? { nil }
-}
-
-// MARK: - ConfirmTransactionPolicy
-
-private struct ConfirmTransactionPolicyStub: ConfirmTransactionPolicy {
-    let needsHoldToConfirm: Bool = false
-}
-
 // MARK: - TransactionDispatcher
 
 struct TransactionDispatcherStub: TransactionDispatcher {
-    let hasNFCInteraction: Bool = false
-
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         throw NSError(domain: "stub", code: 0)
     }
@@ -103,7 +96,6 @@ struct TransactionDispatcherProviderStub: TransactionDispatcherProvider {
     func makeApproveAndDEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
     func makeCEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
     func makeStakingTransactionDispatcher(analyticsLogger: any StakingAnalyticsLogger) -> TransactionDispatcher { TransactionDispatcherStub() }
-    func makeYieldModuleTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
 }
 
 // MARK: - EmailDataCollectorBuilder

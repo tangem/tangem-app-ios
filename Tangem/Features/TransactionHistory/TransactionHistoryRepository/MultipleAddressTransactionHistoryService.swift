@@ -38,10 +38,6 @@ class MultipleAddressTransactionHistoryService {
 // MARK: - TransactionHistoryService
 
 extension MultipleAddressTransactionHistoryService: TransactionHistoryService {
-    var state: TransactionHistoryServiceState {
-        _state.value
-    }
-
     var statePublisher: AnyPublisher<TransactionHistoryServiceState, Never> {
         _state.eraseToAnyPublisher()
     }

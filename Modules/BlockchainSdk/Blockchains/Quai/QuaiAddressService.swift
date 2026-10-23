@@ -57,11 +57,3 @@ extension QuaiAddressService: AddressValidator {
         }
     }
 }
-
-// MARK: - Constants
-
-extension QuaiAddressService {
-    enum Constants {
-        static let expectedZone: QuaiZoneType = .cyprus1
-    }
-}

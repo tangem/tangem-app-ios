@@ -29,8 +29,6 @@ class DefaultTokenItemInfoProvider {
 extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
     var id: WalletModelId.ID { walletModel.id.id }
 
-    var tokenItem: TokenItem { walletModel.tokenItem }
-
     var quote: WalletModelRate {
         walletModel.rate
     }

@@ -34,6 +34,9 @@ struct WelcomeCoordinatorView: CoordinatorView {
                 CreateWalletSelectorCoordinatorView(coordinator: $0)
                     .environment(\.colorScheme, systemColorScheme)
             }
+            .navigation(item: $coordinator.socialWalletViewModel) {
+                MobileSocialWalletView(viewModel: $0)
+            }
     }
 
     private var content: some View {

@@ -16,7 +16,6 @@ import TangemFoundation
 /// A destination without a case here needs no line here: it goes down the chain and is shown over the main screen.
 final class MainScreenDeeplinkResponder {
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
 
@@ -109,7 +108,7 @@ private extension MainScreenDeeplinkResponder {
 
         case .tokenChart(let deeplink):
             prepare()
-            coordinator.openMarketsTokenDetails(tokenModel: .deeplinkStub(tokenId: deeplink.tokenId))
+            coordinator.openMarketsTokenChart(tokenId: deeplink.tokenId)
 
         case .onboardVisa(let deeplink):
             return openTangemPayOnboarding(source: deeplink.onboardingSource, using: coordinator)

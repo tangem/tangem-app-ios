@@ -11,8 +11,6 @@ import Combine
 import TangemFoundation
 
 final class MarketsItemViewModel: Identifiable, ObservableObject {
-    @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
-
     // MARK: - Published
 
     @Published private(set) var tokenItemViewModel: MarketTokenItemViewModel

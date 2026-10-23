@@ -16,7 +16,6 @@ final class ExpressDEXTransactionDispatcher {
     private let transactionSigner: TangemSigner
     private let transferTransactionDispatcher: TransactionDispatcher
 
-    private var tokenItem: TokenItem { walletModel.tokenItem }
     private var feeTokenItem: TokenItem { walletModel.feeTokenItem }
     private var transactionCreator: TransactionCreator { walletModel.transactionCreator }
 
@@ -34,10 +33,6 @@ final class ExpressDEXTransactionDispatcher {
 // MARK: - TransactionDispatcher
 
 extension ExpressDEXTransactionDispatcher: TransactionDispatcher {
-    var hasNFCInteraction: Bool {
-        transactionSigner.hasNFCInteraction
-    }
-
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         guard case .dex(let data, let fee) = transaction else {
             throw TransactionDispatcherResult.Error.transactionNotFound

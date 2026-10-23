@@ -29,10 +29,14 @@ public struct TangemPayEnrollmentStateFetcher {
             return (.cardDeactivated(customerInfo: customerInfo), customerId)
         }
 
-        guard customerInfo.kyc?.status == .approved else {
-            if case .declined = customerInfo.kyc?.status {
-                return (.kycDeclined, customerId)
-            }
+        switch customerInfo.kyc?.status {
+        case .approved:
+            break
+        case .declined:
+            return (.kycDeclined, customerId)
+        case .inProgress:
+            return (.kycInProgress, customerId)
+        case .required, .expired, .undefined, nil:
             return (.kycRequired, customerId)
         }
 

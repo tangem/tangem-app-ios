@@ -166,8 +166,11 @@ private extension SendWithSwapStaleDestinationTests {
 
         private func makeSwapModel(sourceToken: SendSwapableToken) -> SwapModel {
             SwapModel(
-                sourceToken: sourceToken,
-                receiveToken: nil,
+                parameters: PredefinedSwapParameters(
+                    userWalletInfo: sourceToken.userWalletInfo,
+                    source: .resolved(sourceToken),
+                    receive: .userSelection
+                ),
                 expressManager: expressManager,
                 swapRepository: SwapRepositoryStub(),
                 expressPendingTransactionRepository: ExpressPendingTransactionRepositoryStub(),
@@ -177,7 +180,7 @@ private extension SendWithSwapStaleDestinationTests {
                 autoupdatingTimer: AutoupdatingTimer(),
                 pairUpdateHandler: TransferPairUpdateHandlerStub(expressManager: expressManager),
                 balanceRestrictionFeatureChecker: TransferBalanceRestrictionCheckerStub(),
-                shouldStartInitialLoading: false
+                initialResolvingPolicy: .disabled
             )
         }
 
@@ -290,7 +293,6 @@ private final class TransferSwapableTokenStub: SendSourceTokenStub, SendSwapable
     var isExemptFee: Bool { false }
     var swapAvailabilityProvider: any SwapAvailabilityProvider { AlwaysAvailableSwapAvailabilityProviderStub() }
     var sendingRestrictionsProvider: any SendingRestrictionsProvider { NoSendingRestrictionsProviderStub() }
-    var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { NoReceivingRestrictionsProviderStub() }
     var supportedProvidersFilter: SupportedProvidersFilter { .byDifferentAddressExchangeSupport }
     var sendYieldModuleHelper: SendYieldModuleHelper? { nil }
     var operationType: ExpressOperationType { .swapAndSend }
@@ -308,12 +310,7 @@ private struct AlwaysAvailableSwapAvailabilityProviderStub: SwapAvailabilityProv
 }
 
 private struct NoSendingRestrictionsProviderStub: SendingRestrictionsProvider {
-    var sendingRestrictions: SendingRestrictions? { nil }
-}
-
-private struct NoReceivingRestrictionsProviderStub: ReceivingRestrictionsProvider {
-    var isRestrictionKnown: Bool { true }
-    func restriction(expectAmount: Decimal) async throws -> ReceivedRestriction? { nil }
+    var sendingRestrictionsPublisher: AnyPublisher<SendingRestrictions?, Never> { .just(output: nil) }
 }
 
 // MARK: - Express stubs

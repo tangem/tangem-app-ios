@@ -96,14 +96,6 @@ extension CommonWCService: WCService {
     func emitChainChanged(to blockchain: BlockchainSdk.Blockchain, topic: String) async {
         await v2Service.emitChainChanged(to: blockchain, topic: topic)
     }
-
-    func disconnectAllSessionsForUserWallet(with userWalletId: String) {
-        v2Service.disconnectAllSessionsForUserWallet(with: userWalletId)
-    }
-
-    func handleHiddenBlockchainFromCurrentUserWallet(_ blockchain: BlockchainSdk.Blockchain) {
-        v2Service.handleHiddenBlockchainFromCurrentUserWallet(blockchain)
-    }
 }
 
 // MARK: - IncomingActionResponder

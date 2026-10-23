@@ -19,8 +19,6 @@ protocol WCTransactionValidationService {
     func validateBalance(transactionAmount: Decimal, fee: Fee?, availableBalance: Decimal, blockchainName: String) -> [WCNotificationEvent]
 
     func validateSimulationResult(_ state: TransactionSimulationState) -> [WCNotificationEvent]
-
-    func validateNetworkStatus(isReachable: Bool) -> [WCNotificationEvent]
 }
 
 final class CommonWCTransactionValidationService: WCTransactionValidationService {
@@ -98,9 +96,5 @@ final class CommonWCTransactionValidationService: WCTransactionValidationService
         default:
             return []
         }
-    }
-
-    func validateNetworkStatus(isReachable: Bool) -> [WCNotificationEvent] {
-        return isReachable ? [] : [.networkFeeUnreachable]
     }
 }

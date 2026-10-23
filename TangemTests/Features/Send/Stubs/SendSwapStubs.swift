@@ -175,9 +175,7 @@ final class SendAnalyticsLoggerStub: SendAnalyticsLogger {
 
     func logFeeSelected(tokenFee: TokenFee) {}
     func logFeeSelected(_ feeOption: FeeOption) {}
-    func logSendNoticeTransactionDelaysArePossible() {}
     func logFeeStepOpened() {}
-    func logFeeStepReopened() {}
     func logFeeSummaryOpened() {}
     func logFeeTokensOpened(availableTokenFees: [TokenFee]) {}
 

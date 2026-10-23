@@ -47,7 +47,11 @@ final class FakeTangemApiService: TangemApiService {
     // MARK: - Joint Accounts Handlers (Tests/Previews)
 
     var getJointAccountsHandler: ((_ knownETag: String?) async throws -> (eTag: String?, accounts: JointAccountsDTO.Response.JointAccounts)?)?
+    var createJointAccountOperationHandler: ((_ body: JointAccountsDTO.Request.CreateOperation) async throws -> JointAccountsDTO.Response.Operation)?
     var rejectJointAccountOperationHandler: ((_ operationId: String) async throws -> JointAccountsDTO.Response.Operation?)?
+    var getJointOperationsHistoryHandler: ((_ request: JointAccountsDTO.Request.OperationsHistory) async throws -> JointAccountsDTO.Response.OperationsHistory)?
+    var getJointOperationsHistoryDeltaHandler: ((_ request: JointAccountsDTO.Request.OperationsHistoryDelta) async throws -> JointAccountsDTO.Response.OperationsHistoryDelta)?
+    var getJointOperationHandler: ((_ operationId: String, _ knownETag: String?) async throws -> (eTag: String?, operation: JointAccountsDTO.Response.HistoryOperation)?)?
 
     init(geoIpRegionCode: String = "us") {
         self.geoIpRegionCode = geoIpRegionCode
@@ -84,10 +88,6 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadQuotes(requestModel: QuotesDTO.Request) -> AnyPublisher<[Quote], Error> {
-        .anyFail(error: "Not implemented")
-    }
-
-    func loadRates(for coinIds: [String]) -> AnyPublisher<[String: Decimal], Error> {
         .anyFail(error: "Not implemented")
     }
 
@@ -308,10 +308,6 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func getWalletCards(userWalletId: String) async throws -> WalletCardsDTO.Response {
-        throw "Not implemented"
-    }
-
     func getUserAccounts(
         userWalletId: String
     ) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) {
@@ -365,7 +361,11 @@ final class FakeTangemApiService: TangemApiService {
     func createJointAccountOperation(
         walletId: String, body: JointAccountsDTO.Request.CreateOperation
     ) async throws -> JointAccountsDTO.Response.Operation {
-        throw "Not implemented"
+        guard let createJointAccountOperationHandler else {
+            throw "Not implemented"
+        }
+
+        return try await createJointAccountOperationHandler(body)
     }
 
     func signJointAccountOperation(
@@ -384,19 +384,41 @@ final class FakeTangemApiService: TangemApiService {
         return try await rejectJointAccountOperationHandler(operationId)
     }
 
+    func getJointOperationsHistory(
+        walletId: String, request: JointAccountsDTO.Request.OperationsHistory
+    ) async throws -> JointAccountsDTO.Response.OperationsHistory {
+        guard let getJointOperationsHistoryHandler else {
+            throw "Not implemented"
+        }
+
+        return try await getJointOperationsHistoryHandler(request)
+    }
+
+    func getJointOperationsHistoryDelta(
+        walletId: String, request: JointAccountsDTO.Request.OperationsHistoryDelta
+    ) async throws -> JointAccountsDTO.Response.OperationsHistoryDelta {
+        guard let getJointOperationsHistoryDeltaHandler else {
+            throw "Not implemented"
+        }
+
+        return try await getJointOperationsHistoryDeltaHandler(request)
+    }
+
+    func getJointOperation(
+        walletId: String, operationId: String, knownETag: String?
+    ) async throws -> (eTag: String?, operation: JointAccountsDTO.Response.HistoryOperation)? {
+        guard let getJointOperationHandler else {
+            throw "Not implemented"
+        }
+
+        return try await getJointOperationHandler(operationId, knownETag)
+    }
+
     func syncAddressBooks(_ request: AddressBookDTO.SyncRequest) async throws -> AddressBookDTO.Response {
         throw "Not implemented"
     }
 
     func updateAddressBook(walletId: String, knownETag: String?, body: AddressBookDTO.UpdateRequest) async throws -> AddressBookDTO.UpdateResponse {
-        throw "Not implemented"
-    }
-
-    func getYieldMarkets() async throws -> YieldModuleDTO.Response.MarketsInfo {
-        throw "Not implemented"
-    }
-
-    func getTokenPositionInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleDTO.Response.PositionInfo {
         throw "Not implemented"
     }
 

@@ -19,18 +19,4 @@ enum ExpressCurrencyViewType: Hashable {
         case .receive: Localization.swappingToTitle
         }
     }
-
-    func prefix(wallet: String) -> String {
-        switch self {
-        case .send: Localization.commonFromWalletName(wallet)
-        case .receive: Localization.commonToWalletName(wallet)
-        }
-    }
-
-    func prefix() -> String {
-        switch self {
-        case .send: Localization.commonFrom
-        case .receive: Localization.commonTo
-        }
-    }
 }

@@ -7,11 +7,11 @@
 //
 
 struct TokenActionAvailabilityAnalyticsMapper {
-    func mapToParameterValue(_ status: TokenActionAvailabilityProvider.SwapActionAvailabilityStatus) -> Analytics.ParameterValue {
+    func mapToParameterValue(_ status: TokenActionAvailabilityProvider.SwapSourceActionAvailabilityStatus) -> Analytics.ParameterValue {
         switch status {
-        case .available, .hidden:
+        case .available:
             return Analytics.ParameterValue.available
-        case .unavailable, .jointAccountsComingSoon:
+        case .jointAccountsComingSoon:
             return Analytics.ParameterValue.unavailable
         case .customToken:
             return Analytics.ParameterValue.customToken
@@ -27,12 +27,25 @@ struct TokenActionAvailabilityAnalyticsMapper {
             return Analytics.ParameterValue.assetsError
         case .expressLoading:
             return Analytics.ParameterValue.assetsLoading
-        case .expressNotLoaded:
-            return Analytics.ParameterValue.assetsNotFound
         case .missingAssetRequirement:
             return Analytics.ParameterValue.missingAssetRequirement
         case .yieldModuleApproveNeeded:
             return Analytics.ParameterValue.yieldModuleApproveNeeded
+        }
+    }
+
+    func mapToParameterValue(_ status: TokenActionAvailabilityProvider.SwapReceiveActionAvailabilityStatus) -> Analytics.ParameterValue {
+        switch status {
+        case .available:
+            return Analytics.ParameterValue.available
+        case .customToken:
+            return Analytics.ParameterValue.customToken
+        case .missingAssetRequirement:
+            return Analytics.ParameterValue.missingAssetRequirement
+        case .expressUnreachable:
+            return Analytics.ParameterValue.assetsError
+        case .expressLoading:
+            return Analytics.ParameterValue.assetsLoading
         }
     }
 

@@ -11,8 +11,6 @@ import TangemFoundation
 
 extension P2PDTO {
     enum AccountSummary {
-        typealias Response = GenericResponse<AccountSummaryInfo>
-
         struct AccountSummaryInfo: Decodable {
             let delegatorAddress: String
             let vaultAddress: String

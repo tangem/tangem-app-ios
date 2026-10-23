@@ -14,10 +14,7 @@ final class CryptoSearchViewModel: ObservableObject {
     @Published private(set) var query: String = ""
     @Published private(set) var portfolio: MarketsPortfolioTokenListViewModel?
     @Published private(set) var markets: MarketsState = .loading
-    @Published private var isVisible = false
 
-    private let searchesOnEmptyQuery: Bool
-    private let history: FeedSearchHistoryProvider
     private let marketsProvider: any FeedSearchProvider<MarketsTokenModel>
     private let router: any CryptoFeedRoutable
     private let portfolioProvider: FeedSearchPortfolioProvider
@@ -29,20 +26,17 @@ final class CryptoSearchViewModel: ObservableObject {
 
     private var tokens: [MarketsTokenModel] = []
     private var showsTokensUnderCap = false
+    private var isVisible = false
     private var requestedQuery: String?
     private var loadedQuery: String?
     private var bag = Set<AnyCancellable>()
 
     init(
         query: AnyPublisher<String, Never>,
-        searchesOnEmptyQuery: Bool = false,
-        history: FeedSearchHistoryProvider,
         router: any CryptoFeedRoutable,
-        marketsProvider: any FeedSearchProvider<MarketsTokenModel> = MarketsFeedSearchProvider(),
-        portfolioProvider: FeedSearchPortfolioProvider = FeedSearchPortfolioProvider()
+        portfolioProvider: FeedSearchPortfolioProvider,
+        marketsProvider: any FeedSearchProvider<MarketsTokenModel> = MarketsFeedSearchProvider()
     ) {
-        self.searchesOnEmptyQuery = searchesOnEmptyQuery
-        self.history = history
         self.router = router
         self.portfolioProvider = portfolioProvider
         self.marketsProvider = marketsProvider
@@ -130,9 +124,7 @@ private extension CryptoSearchViewModel {
             .store(in: &bag)
 
         portfolioProvider
-            .portfolioPublisher(query: $query, isVisible: $isVisible) { [weak self] walletModel in
-                self?.router.openPortfolioToken(walletModel)
-            }
+            .portfolioPublisher
             .withWeakCaptureOf(self)
             .sink { viewModel, portfolio in
                 viewModel.portfolio = portfolio
@@ -165,10 +157,6 @@ private extension CryptoSearchViewModel {
             tokens = []
             markets = .loading
             marketsProvider.reset()
-            if searchesOnEmptyQuery {
-                requestedQuery = query
-                loadMarketsIfNeeded()
-            }
             return
         }
 
@@ -193,7 +181,7 @@ private extension CryptoSearchViewModel {
 
 private extension CryptoSearchViewModel {
     func apply(_ state: FeedSearchProviderState<MarketsTokenModel>) {
-        guard query.isNotEmpty || searchesOnEmptyQuery else {
+        guard query.isNotEmpty else {
             return
         }
 
@@ -225,7 +213,7 @@ private extension CryptoSearchViewModel {
     }
 
     func makeResultsState() -> MarketsState {
-        let visible = query.isEmpty || showsTokensUnderCap ? tokens : tokens.filter { !($0.isUnderMarketCapLimit ?? false) }
+        let visible = showsTokensUnderCap ? tokens : tokens.filter { !($0.isUnderMarketCapLimit ?? false) }
 
         return .results(visible.map(makeRow(for:)), hasTokensUnderCap: visible.count != tokens.count)
     }
@@ -254,7 +242,6 @@ private extension CryptoSearchViewModel {
             guard let self else { return }
 
             let model = tokens.first { $0.id == model.id } ?? model
-            history.save(query: query)
 
             Analytics.log(
                 event: .marketsChartScreenOpened,

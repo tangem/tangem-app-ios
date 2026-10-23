@@ -11,7 +11,7 @@ import Combine
 import TangemExpress
 
 protocol TransactionHistoryRecordsReader: Sendable {
-    typealias Record = TransactionHistoryExpressExtraInfo
+    typealias Record = TransactionHistoryExtraInfo
 
     func updates(
         for walletModelId: WalletModelId,

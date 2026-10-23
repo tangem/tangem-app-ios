@@ -27,5 +27,4 @@ import Foundation
 /// Removes the top stack item.
 struct OpDrop: OpCodeProtocol {
     var value: UInt8 { return 0x75 }
-    var name: String { return "OP_DROP" }
 }

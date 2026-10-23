@@ -40,15 +40,4 @@ struct AvailabilityReceiveFlowFactory {
 
         return receiveMainViewModel
     }
-
-    // MARK: - Private Implementation
-
-    /// Legacy flow. Remove when ReceiveBottomSheet did removed.
-    private func makeDependenciesBuilder() -> ReceiveDependenciesBuilder {
-        ReceiveDependenciesBuilder(
-            flow: flow,
-            tokenItem: tokenItem,
-            addressTypesProvider: addressTypesProvider
-        )
-    }
 }

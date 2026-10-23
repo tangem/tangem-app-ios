@@ -11,12 +11,4 @@ class RuntimeArgs {
      - Parameter:  a list of NamedArg
      - Returns:  RuntimeArgs object
      */
-
-    static func fromListToRuntimeArgs(from: [NamedArg]) -> RuntimeArgs {
-        let ret = RuntimeArgs()
-        for i in from {
-            ret.listNamedArg.append(i)
-        }
-        return ret
-    }
 }

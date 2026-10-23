@@ -22,6 +22,9 @@ extension MoralisSolanaAPITarget {
     enum Target {
         /// https://docs.moralis.com/web3-data-api/solana/reference/get-sol-nfts?network=mainnet&address=kXB7FfzdrfZpAZEW3TZcp8a8CwQbsowa6BdfAHZ4gVs&nftMetadata=true
         case getNFTsByWallet(address: String, params: MoralisSolanaNetworkParams.NFTsByWallet)
+        /// Early-access successor of `getNFTsByWallet` that also returns Metaplex Core assets.
+        /// Used only for Metaplex Core NFTs until it leaves early access; everything else still comes from `getNFTsByWallet`.
+        case getNFTsByWalletEarlyAccess(address: String, params: MoralisSolanaNetworkParams.NFTsByWalletEarlyAccess)
     }
 }
 
@@ -29,25 +32,34 @@ extension MoralisSolanaAPITarget {
 
 extension MoralisSolanaAPITarget: TargetType {
     var baseURL: URL {
-        return URL(string: "https://solana-gateway.moralis.io/")!
+        switch target {
+        case .getNFTsByWallet:
+            URL(string: "https://solana-gateway.moralis.io/")!
+        case .getNFTsByWalletEarlyAccess:
+            URL(string: "https://api.moralis.com/")!
+        }
     }
 
     var path: String {
         switch target {
         case .getNFTsByWallet(let address, _):
             "account/mainnet/\(address)/nft"
+        case .getNFTsByWalletEarlyAccess(let address, _):
+            "v1/wallets/\(address)/nfts"
         }
     }
 
     var method: Moya.Method {
         switch target {
-        case .getNFTsByWallet: .get
+        case .getNFTsByWallet, .getNFTsByWalletEarlyAccess: .get
         }
     }
 
     var task: Moya.Task {
         switch target {
         case .getNFTsByWallet(_, let params):
+            .requestParameters(params, encoding: urlEncoding)
+        case .getNFTsByWalletEarlyAccess(_, let params):
             .requestParameters(params, encoding: urlEncoding)
         }
     }

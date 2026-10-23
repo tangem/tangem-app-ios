@@ -35,14 +35,6 @@ extension CommonKeysManager: KeysManager {
         MoonPayKeys(apiKey: keys.moonPayApiKey, secretApiKey: keys.moonPayApiSecretKey)
     }
 
-    var mercuryoWidgetId: String {
-        keys.mercuryoWidgetId
-    }
-
-    var mercuryoSecret: String {
-        keys.mercuryoSecret
-    }
-
     var blockchainSdkKeysConfig: BlockchainSdkKeysConfig {
         BlockchainSdkKeysConfig(
             blockchairApiKeys: keys.blockchairApiKeys,
@@ -79,10 +71,6 @@ extension CommonKeysManager: KeysManager {
         )
     }
 
-    var tangemComAuthorization: String? {
-        keys.tangemComAuthorization
-    }
-
     var amplitudeApiKey: String {
         switch AppEnvironment.current {
         case .production:
@@ -94,18 +82,6 @@ extension CommonKeysManager: KeysManager {
 
     var otlpApiKey: String {
         keys.otplApiKey
-    }
-
-    var appsFlyerConfig: AppsFlyerConfig {
-        keys.appsFlyer
-    }
-
-    var utorgSID: String {
-        "tangemTEST"
-    }
-
-    var infuraProjectId: String {
-        keys.infuraProjectId
     }
 
     var expressKeys: ExpressKeys {

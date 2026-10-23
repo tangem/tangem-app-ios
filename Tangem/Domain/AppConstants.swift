@@ -15,9 +15,6 @@ enum AppConstants {
         UIScreen.main.bounds.width < 375 || UIScreen.main.bounds.height < 650
     }
 
-    static let messageForTokensKey = "TokensSymmetricKey"
-    static let maximumFractionDigitsForBalance = 8
-
     static let defaultScrollViewKeyboardDismissMode = UIScrollView.KeyboardDismissMode.onDrag
 
     static let minusSign: String = .minusSign // shorter stick
@@ -25,6 +22,7 @@ enum AppConstants {
     static let enDashSign: String = .enDashSign // medium stick (en-dash)
     static let emDashSign: String = .emDashSign // longer stick (em-dash)
     static let unbreakableSpace: String = .unbreakableSpace
+    static let thinSpace = "\u{2009}"
     static let infinitySign = "\u{221E}"
     static let tildeSign = "~"
     static let approximatelyEqualSign = "≈"
@@ -35,7 +33,6 @@ enum AppConstants {
     static let usdSign = "$"
     static let audCurrencyCode = "AUD"
     static let eurCurrencyCode = "EUR"
-    static let eurSign = "€"
     static let cadCurrencyCode = "CAD"
     static let gbpCurrencyCode = "GBP"
 

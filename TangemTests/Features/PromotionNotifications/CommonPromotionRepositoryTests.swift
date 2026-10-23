@@ -83,7 +83,7 @@ final class CommonPromotionRepositoryTests {
         }
     }
 
-    @Test("With promo campaigns on, a campaign banner shows only while its campaign is open to the wallet")
+    @Test("A campaign banner shows only while its campaign is open to the wallet")
     func campaignBannersFollowCampaigns() async throws {
         let api = FakeTangemApiService()
         api.loadPromotionsHandler = { _ in
@@ -102,7 +102,7 @@ final class CommonPromotionRepositoryTests {
         ])
 
         try await withInjectedPromotionDependencies(api, promoCampaignsRepository: campaigns) {
-            let sut = CommonPromotionRepository(isPromoCampaignsEnabled: { true })
+            let sut = CommonPromotionRepository()
 
             await sut.loadPromotions(userWalletId: walletA)
 
@@ -124,7 +124,7 @@ final class CommonPromotionRepositoryTests {
         let campaigns = PromoCampaignsProviderStub(campaigns: [walletA: [Self.makeCampaign(id: 15, isEnrolled: false)]])
 
         try await withInjectedPromotionDependencies(api, promoCampaignsRepository: campaigns) {
-            let sut = CommonPromotionRepository(isPromoCampaignsEnabled: { true })
+            let sut = CommonPromotionRepository()
 
             await sut.loadPromotions(userWalletId: walletA)
             await sut.loadPromotions(userWalletId: walletB)
@@ -147,7 +147,7 @@ final class CommonPromotionRepositoryTests {
         let received = OSAllocatedUnfairLock<[[Int]]>(initialState: [])
 
         try await withInjectedPromotionDependencies(api, promoCampaignsRepository: campaigns) {
-            let sut = CommonPromotionRepository(isPromoCampaignsEnabled: { true })
+            let sut = CommonPromotionRepository()
             let subscription = sut
                 .promotionsPublisher(userWalletId: walletA, placeholder: .main)
                 .sink { promotions in received.withLock { $0.append(promotions.map(\.id)) } }
@@ -183,27 +183,6 @@ final class CommonPromotionRepositoryTests {
             let promotions = try await Self.waitForPromotions(sut, userWalletId: walletA)
 
             #expect(promotions.map(\.id) == [2])
-        }
-    }
-
-    @Test("With promo campaigns off, campaign banners are hidden and the rest are shown")
-    func campaignsOffHidesCampaignBanners() async throws {
-        let api = FakeTangemApiService()
-        api.loadPromotionsHandler = { _ in
-            PromotionsDTO.Load.Response(items: [
-                Self.makeItem(id: 1),
-                Self.makeItem(id: 2, campaignId: 15),
-            ])
-        }
-        let campaigns = PromoCampaignsProviderStub(campaigns: [walletA: [Self.makeCampaign(id: 15, isEnrolled: false)]])
-
-        try await withInjectedPromotionDependencies(api, promoCampaignsRepository: campaigns) {
-            let sut = CommonPromotionRepository(isPromoCampaignsEnabled: { false })
-
-            await sut.loadPromotions(userWalletId: walletA)
-
-            let promotions = try await Self.waitForPromotions(sut, userWalletId: walletA)
-            #expect(promotions.map(\.id) == [1])
         }
     }
 }

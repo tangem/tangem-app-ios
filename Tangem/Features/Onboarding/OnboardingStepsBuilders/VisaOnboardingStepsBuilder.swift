@@ -30,14 +30,6 @@ struct VisaOnboardingStepsBuilder {
         return steps
     }
 
-    private var approveSteps: [VisaOnboardingStep] {
-        [
-            .selectWalletForApprove,
-            .approveUsingTangemWallet,
-            .approveUsingWalletConnect,
-        ]
-    }
-
     private var pinSelectionSteps: [VisaOnboardingStep] {
         [.pinSelection, .issuerProcessingInProgress]
     }
@@ -64,7 +56,6 @@ struct VisaOnboardingStepsBuilder {
 
             fallthrough
         case .customerWalletSignatureRequired:
-            steps.append(contentsOf: approveSteps)
             fallthrough
         case .paymentAccountDeploying:
             steps.append(contentsOf: [.paymentAccountDeployInProgress] + pinSelectionSteps)
@@ -91,7 +82,6 @@ extension VisaOnboardingStepsBuilder: OnboardingStepsBuilder {
         case .notStartedActivation:
             steps.append(
                 contentsOf: [.welcome, .accessCode]
-                    + approveSteps
                     + [.paymentAccountDeployInProgress]
                     + pinSelectionSteps
             )

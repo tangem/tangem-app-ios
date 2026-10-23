@@ -70,11 +70,11 @@ extension AccountInlineHeaderView: Setupable {
     }
 
     public func font(_ font: Font) -> Self {
-        self.font(TangemFontStyle(font: font))
+        map { $0.fontStyle = TangemFontStyle(font: font) }
     }
 
-    public func font(_ fontStyle: TangemFontStyle) -> Self {
-        map { $0.fontStyle = fontStyle }
+    public func font(_ token: TangemTypographyToken) -> Self {
+        map { $0.fontStyle = TangemFontStyle(token) }
     }
 
     public func textColor(_ color: Color) -> Self {
@@ -82,12 +82,15 @@ extension AccountInlineHeaderView: Setupable {
     }
 
     public func nameStyle(_ font: Font, color: Color) -> Self {
-        nameStyle(TangemFontStyle(font: font), color: color)
+        map {
+            $0.fontStyle = TangemFontStyle(font: font)
+            $0.textColor = color
+        }
     }
 
-    public func nameStyle(_ fontStyle: TangemFontStyle, color: Color) -> Self {
+    public func nameStyle(_ token: TangemTypographyToken, color: Color) -> Self {
         map {
-            $0.fontStyle = fontStyle
+            $0.fontStyle = TangemFontStyle(token)
             $0.textColor = color
         }
     }

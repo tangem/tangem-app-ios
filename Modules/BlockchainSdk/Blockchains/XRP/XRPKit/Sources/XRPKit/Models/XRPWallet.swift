@@ -7,18 +7,12 @@
 
 import Foundation
 
-enum SeedType {
-    case ed25519
-    case secp256k1
-}
-
 protocol XRPWallet {
     var privateKey: String { get }
     var publicKey: String { get }
     var address: String { get }
     var accountID: [UInt8] { get }
 
-    static func deriveAddress(publicKey: String) -> String
     static func accountID(for address: String) -> [UInt8]
     static func validate(address: String) -> Bool
 }
@@ -27,20 +21,6 @@ extension XRPWallet {
     var accountID: [UInt8] {
         let accountID = Data(hex: publicKey).sha256Ripemd160
         return [UInt8](accountID)
-    }
-
-    /// Derive a standard XRP address from a key.
-    ///
-    /// - Parameter publicKey: hexadecimal key
-    /// - Returns: standard XRP address encoded using XRP alphabet
-    ///
-    static func deriveAddress(publicKey: String) -> String {
-        let accountID = Data(hex: publicKey).sha256Ripemd160
-        let prefixedAccountID = Data([0x00]) + accountID
-        let checksum = Data(prefixedAccountID).sha256().sha256().prefix(through: 3)
-        let addrrssData = prefixedAccountID + checksum
-        let address = XRPBase58.getString(from: addrrssData)
-        return address
     }
 
     static func accountID(for address: String) -> [UInt8] {
@@ -86,11 +66,5 @@ class XRPSeedWallet: XRPWallet {
         self.publicKey = publicKey
         self.seed = seed
         self.address = address
-    }
-
-    static func getSeedTypeFrom(publicKey: String) -> SeedType {
-        let data = Data(hexString: publicKey)
-        // [REDACTED_TODO_COMMENT]
-        return data.count == 33 && data[0] == 0xED ? .ed25519 : .secp256k1
     }
 }

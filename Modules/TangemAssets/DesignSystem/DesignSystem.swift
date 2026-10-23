@@ -6,8 +6,13 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
-import UIKit
+public import struct CoreGraphics.CGFloat
+public import struct SwiftUI.Color
+public import struct SwiftUI.Font
+public import protocol SwiftUI.View
+public import class UIKit.UIColor
+public import class UIKit.UIFont
+public import class UIKit.UIFontMetrics
 
 // The `DesignSystem` namespace tree itself is generated from the DS-Core
 // `codeSyntax.iOS` paths into `Generated/DesignSystem/Namespaces+Generated.swift`.

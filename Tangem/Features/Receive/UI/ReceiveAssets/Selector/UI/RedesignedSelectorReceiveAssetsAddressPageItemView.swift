@@ -94,9 +94,7 @@ struct RedesignedSelectorReceiveAssetsAddressPageItemView: View {
                 .lineLimit(1)
 
             if viewModel.isLoading {
-                SkeletonView()
-                    .frame(width: 80, height: 14)
-                    .cornerRadiusContinuous(4)
+                Shimmer().variant(.custom(width: 80, height: 14, cornerRadius: 4))
             } else {
                 Text(viewModel.address)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)

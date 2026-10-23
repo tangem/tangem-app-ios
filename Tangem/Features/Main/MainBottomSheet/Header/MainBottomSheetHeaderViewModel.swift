@@ -83,14 +83,6 @@ extension MainBottomSheetHeaderViewModel {
         case clearInput
         case cancelInput
 
-        var textValue: String? {
-            switch self {
-            case .textInput(let textInput): return textInput
-            case .clearInput: return nil
-            case .cancelInput: return nil
-            }
-        }
-
         static func == (lhs: SearchInput, rhs: SearchInput) -> Bool {
             switch (lhs, rhs) {
             case (.textInput(let lhsText), .textInput(let rhsText)):

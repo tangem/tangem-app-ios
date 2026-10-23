@@ -14,9 +14,7 @@ import TangemAssets
 import TangemMacro
 import TangemAccessibilityIdentifiers
 
-protocol SendFeeSelectorRoutable: FeeSelectorRoutable {
-    func openFeeSelectorLearnMoreURL(_ url: URL)
-}
+protocol SendFeeSelectorRoutable: FeeSelectorRoutable {}
 
 final class SendFeeSelectorViewModel: ObservableObject, FloatingSheetContentViewModel {
     // MARK: - Published
@@ -33,10 +31,6 @@ final class SendFeeSelectorViewModel: ObservableObject, FloatingSheetContentView
     // MARK: - Dependencies
 
     private weak var router: SendFeeSelectorRoutable?
-
-    // MARK: - Properties
-
-    private var cancellables: Set<AnyCancellable> = []
 
     // MARK: - Init
 

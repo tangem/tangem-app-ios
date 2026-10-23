@@ -144,27 +144,14 @@ struct MoralisEVMNetworkMapper {
             return nil
         }
 
-        var mediaURL: URL?
         let collection = media.mediaCollection
 
-        let mediaURLs = [
-            collection?.high?.url,
-            collection?.medium?.url,
-            collection?.low?.url,
-            media.originalMediaUrl,
-        ]
-
-        for urlString in mediaURLs {
-            if let url = urlString?
-                .nilIfEmpty
-                .flatMap(URL.init(string:))
-                .map(NFTIPFSURLConverter.convert(_:)) {
-                mediaURL = url
-                break
-            }
-        }
-
-        guard let mediaURL else {
+        guard let mediaURL = MoralisMediaURLMapper.map(
+            high: collection?.high?.url,
+            medium: collection?.medium?.url,
+            low: collection?.low?.url,
+            original: media.originalMediaUrl
+        ) else {
             NFTLogger.warning(
                 String(
                     format: "Media missing required fields: high.url %@, medium.url %@, low.url %@, original_media_url %@",

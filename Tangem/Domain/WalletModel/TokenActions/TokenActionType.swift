@@ -81,10 +81,6 @@ enum TokenActionType {
         }
     }
 
-    var analyticsParameterValue: String {
-        rawCaseValue.capitalizingFirstLetter()
-    }
-
     var accessibilityIdentifier: String? {
         switch self {
         case .buy:

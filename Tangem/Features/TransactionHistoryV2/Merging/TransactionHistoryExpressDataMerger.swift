@@ -203,7 +203,7 @@ struct TransactionHistoryExpressDataMerger {
         )
         let rows = gaslessFeeAttacher.attach(gaslessFees, to: transferCollapser.collapse(paidOutput))
 
-        return sortedRecords(rows + standaloneTransactions)
+        return TransactionHistoryRecordsSorter.sorted(rows + standaloneTransactions)
     }
 
     // MARK: - Leg claiming (Exchange)
@@ -558,39 +558,17 @@ struct TransactionHistoryExpressDataMerger {
         return grouped
     }
 
-    private func sortedRecords(_ records: [TransactionRecord]) -> [TransactionRecord] {
-        return records.sorted { lhs, rhs in
-            let lhsDate = lhs.date ?? .distantFuture
-            let rhsDate = rhs.date ?? .distantFuture
-            if lhsDate != rhsDate {
-                return lhsDate > rhsDate // timestamp (date) DESC
-            }
-
-            let lhsNonce = lhs.nonce ?? -1
-            let rhsNonce = rhs.nonce ?? -1
-            if lhsNonce != rhsNonce {
-                return lhsNonce > rhsNonce // IFNULL(nonce, -1) DESC
-            }
-
-            if lhs.hash != rhs.hash {
-                return lhs.hash < rhs.hash // hash ASC
-            }
-
-            return lhs.index < rhs.index // index ASC
-        }
-    }
-
     @inline(__always)
     private func shouldAddSyntheticTransaction(from exchangeTransaction: ExchangeTransaction) -> Bool {
         switch exchangeTransaction.status {
-        case .created:
+        case .created,
+             .expired:
             return exchangeTransaction.payIn.hash != nil
         case .unknown,
              .preview,
              .exchangeTxSent,
              .waiting,
              .waitingTxHash,
-             .expired,
              .confirming,
              .exchanging,
              .sending,
@@ -606,7 +584,7 @@ struct TransactionHistoryExpressDataMerger {
 
     @inline(__always)
     private func shouldAddSyntheticTransaction(from onrampTransaction: OnrampTransaction) -> Bool {
-        return true // Currently, there are no restrictions on onramp synthetic transactions creation
+        return onrampTransaction.status != .expired
     }
 
     @inline(__always)

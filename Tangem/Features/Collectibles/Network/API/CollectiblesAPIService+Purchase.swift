@@ -22,9 +22,13 @@ extension CollectiblesAPIService {
             toAddress: toAddress,
             turboMode: Mapper.mapToTurboMode(turboMode)
         )
-        let response: CollectiblesDTO.GeneratePurchaseTxResponse = try await request(
-            .generatePurchaseTx(generateRequest, userWalletID: userWalletID)
-        )
+        let response: CollectiblesDTO.GeneratePurchaseTxResponse
+
+        do {
+            response = try await request(.generatePurchaseTx(generateRequest, userWalletID: userWalletID))
+        } catch Error.http(_, let body) where Mapper.mapToErrorCode(body) == ErrorCode.lowInventory {
+            throw CollectiblesPurchaseGenerationError.lowInventory
+        }
 
         return try Mapper.mapToGeneratedPurchase(response)
     }
@@ -50,11 +54,19 @@ extension CollectiblesAPIService {
         return Mapper.mapToPurchaseTransaction(transaction)
     }
 
-    func openPack(txID: String, userWalletID: String) async throws -> CollectiblesPurchaseStatus {
+    func openPack(txID: String, userWalletID: String) async throws -> CollectiblesPurchaseTransaction {
         let transaction: CollectiblesDTO.PurchaseTransaction = try await request(
             .openPack(.init(txID: txID), userWalletID: userWalletID)
         )
 
-        return Mapper.mapToPurchaseStatus(transaction)
+        return Mapper.mapToPurchaseTransaction(transaction)
+    }
+}
+
+// MARK: - Error codes
+
+private extension CollectiblesAPIService {
+    enum ErrorCode {
+        static let lowInventory = 3016
     }
 }

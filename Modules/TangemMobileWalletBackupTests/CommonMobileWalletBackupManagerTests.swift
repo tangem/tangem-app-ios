@@ -513,9 +513,10 @@ private extension CommonMobileWalletBackupManagerTests {
         MobileWalletContext(walletID: walletId, authentication: .none)
     }
 
+    @concurrent
     func expectStorageUnavailable<T>(
         sourceLocation: SourceLocation = #_sourceLocation,
-        _ operation: () async throws -> T
+        _ operation: @concurrent () async throws -> T
     ) async {
         do {
             _ = try await operation()
@@ -527,9 +528,10 @@ private extension CommonMobileWalletBackupManagerTests {
         }
     }
 
+    @concurrent
     func expectFileNotFound(
         sourceLocation: SourceLocation = #_sourceLocation,
-        _ operation: () async throws -> Void
+        _ operation: @concurrent () async throws -> Void
     ) async {
         do {
             try await operation()

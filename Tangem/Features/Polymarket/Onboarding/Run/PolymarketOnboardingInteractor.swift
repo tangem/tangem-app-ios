@@ -17,6 +17,7 @@ protocol PolymarketOnboardingInteractor {
 final class CommonPolymarketOnboardingInteractor {
     private let userWalletId: UserWalletId
     private let ownerAddressProvider: PolymarketOwnerAddressProviding
+    private let ownerKeySession: PolymarketOwnerKeySession
     private let signer: PolymarketOnboardingSigning
     private let credentialsRepository: PolymarketCredentialsRepository
     private let geoblockService: PolymarketGeoblockService
@@ -29,6 +30,7 @@ final class CommonPolymarketOnboardingInteractor {
     init(
         userWalletId: UserWalletId,
         ownerAddressProvider: PolymarketOwnerAddressProviding,
+        ownerKeySession: PolymarketOwnerKeySession,
         signer: PolymarketOnboardingSigning,
         credentialsRepository: PolymarketCredentialsRepository,
         geoblockService: PolymarketGeoblockService,
@@ -40,6 +42,7 @@ final class CommonPolymarketOnboardingInteractor {
     ) {
         self.userWalletId = userWalletId
         self.ownerAddressProvider = ownerAddressProvider
+        self.ownerKeySession = ownerKeySession
         self.signer = signer
         self.credentialsRepository = credentialsRepository
         self.geoblockService = geoblockService
@@ -90,53 +93,15 @@ private extension CommonPolymarketOnboardingInteractor {
         do {
             continuation.yield(.deriving)
 
-            let addresses = try await deriveAddresses()
-            let poller = makePoller(addresses: addresses)
-            let stored = try await readDepositWallet(ownerAddress: addresses.owner)
-            try stored.ensureMatches(derived: addresses.depositWallet)
+            let preparation: Preparation
 
-            var status = stored.status
-
-            if status == .unknown {
-                switch try await poller.pollUntilRecognised(from: status, reporting: continuation) {
-                case .reached(let recognised):
-                    status = recognised
-                case .ceiling(let reported):
-                    continuation.yield(.handedOff(reported))
-                    return
-                }
+            if let ownerAddress = ownerAddressProvider.getOwnerAddress() {
+                preparation = try await prepareWithStoredKey(ownerAddress: ownerAddress, reporting: continuation)
+            } else {
+                preparation = try await prepareInOwnerKeySession(reporting: continuation)
             }
 
-            let credentials = credentialsRepository.load(userWalletId: userWalletId)
-            let isNewAccount = status != .readyToTrade
-
-            if !status.owesApprovals, let credentials {
-                try await finish(
-                    addresses: addresses,
-                    status: status,
-                    credentials: credentials,
-                    poller: poller,
-                    isNewAccount: isNewAccount,
-                    reporting: continuation
-                )
-                return
-            }
-
-            try await ensureRegionAllows(status: status)
-
-            continuation.yield(.awaitingSignature)
-
-            let signatures = try await sign(addresses: addresses)
-
-            try await settle(
-                addresses: addresses,
-                status: status,
-                storedCredentials: credentials,
-                signatures: signatures,
-                poller: poller,
-                isNewAccount: isNewAccount,
-                reporting: continuation
-            )
+            try await complete(preparation, reporting: continuation)
         } catch let error as PolymarketOnboardingError {
             guard !error.isCancellation else { return }
 
@@ -146,6 +111,95 @@ private extension CommonPolymarketOnboardingInteractor {
         } catch {
             PolymarketLogger.error("The onboarding run failed", error: error)
             continuation.yield(.failed(.unknown))
+        }
+    }
+
+    func prepareWithStoredKey(
+        ownerAddress: String,
+        reporting continuation: PolymarketOnboardingContinuation
+    ) async throws -> Preparation {
+        let addresses = try makeAddresses(ownerAddress: ownerAddress)
+        var status = try await readStatus(addresses: addresses)
+
+        if status == .unknown {
+            switch try await makePoller(addresses: addresses).pollUntilRecognised(from: status, reporting: continuation) {
+            case .reached(let recognised):
+                status = recognised
+            case .ceiling(let reported):
+                return .handedOff(reported)
+            }
+        }
+
+        return try await prepareSignatures(addresses: addresses, status: status, signer: signer, reporting: continuation)
+    }
+
+    func prepareInOwnerKeySession(reporting continuation: PolymarketOnboardingContinuation) async throws -> Preparation {
+        try await ownerKeySession.derive { [self] owner in
+            let addresses = try makeAddresses(ownerAddress: owner.ownerAddress)
+            let status = try await readStatus(addresses: addresses)
+
+            guard status != .unknown else {
+                PolymarketLogger.error(error: "The backend reports an unrecognised status, ending the owner key session")
+                throw PolymarketOnboardingError.wallet(.upstreamUnavailable(detail: nil))
+            }
+
+            return try await prepareSignatures(
+                addresses: addresses,
+                status: status,
+                signer: owner.signer,
+                reporting: continuation
+            )
+        }
+    }
+
+    func prepareSignatures(
+        addresses: Addresses,
+        status: PolymarketDepositWalletStatus,
+        signer: PolymarketOnboardingSigning,
+        reporting continuation: PolymarketOnboardingContinuation
+    ) async throws -> Preparation {
+        let account = Account(
+            addresses: addresses,
+            status: status,
+            storedCredentials: credentialsRepository.load(userWalletId: userWalletId)
+        )
+
+        if !status.owesApprovals, let credentials = account.storedCredentials {
+            return .authorised(account, credentials: credentials)
+        }
+
+        try await ensureRegionAllows(status: status)
+
+        continuation.yield(.awaitingSignature)
+
+        let signatures = try await sign(addresses: addresses, signer: signer)
+
+        return .signed(account, signatures: signatures)
+    }
+
+    func complete(_ preparation: Preparation, reporting continuation: PolymarketOnboardingContinuation) async throws {
+        switch preparation {
+        case .handedOff(let status):
+            continuation.yield(.handedOff(status))
+        case .authorised(let account, let credentials):
+            try await finish(
+                addresses: account.addresses,
+                status: account.status,
+                credentials: credentials,
+                poller: makePoller(addresses: account.addresses),
+                isNewAccount: account.isNewAccount,
+                reporting: continuation
+            )
+        case .signed(let account, let signatures):
+            try await settle(
+                addresses: account.addresses,
+                status: account.status,
+                storedCredentials: account.storedCredentials,
+                signatures: signatures,
+                poller: makePoller(addresses: account.addresses),
+                isNewAccount: account.isNewAccount,
+                reporting: continuation
+            )
         }
     }
 
@@ -162,28 +216,40 @@ private extension CommonPolymarketOnboardingInteractor {
 // MARK: - Addresses
 
 private extension CommonPolymarketOnboardingInteractor {
-    func deriveAddresses() async throws -> Addresses {
-        let owner: String
-
-        do {
-            owner = try await ownerAddressProvider.deriveOwnerAddress()
-        } catch {
-            throw PolymarketOnboardingError.derivation(error)
-        }
-
+    func makeAddresses(ownerAddress owner: String) throws(PolymarketOnboardingError) -> Addresses {
         do {
             let depositWallet = try PolymarketDepositWalletDeriver.derive(ownerAddress: owner)
 
             return Addresses(owner: owner, depositWallet: depositWallet)
         } catch {
             PolymarketLogger.error("Failed to derive the deposit wallet", error: error)
-            throw PolymarketOnboardingError.depositWalletDerivation
+            throw .depositWalletDerivation
         }
     }
 
     struct Addresses {
         let owner: String
         let depositWallet: String
+    }
+}
+
+// MARK: - Preparation
+
+private extension CommonPolymarketOnboardingInteractor {
+    enum Preparation {
+        case handedOff(PolymarketDepositWalletStatus)
+        case authorised(Account, credentials: PolymarketL2Credentials)
+        case signed(Account, signatures: PolymarketOnboardingSignatures)
+    }
+
+    struct Account {
+        let addresses: Addresses
+        let status: PolymarketDepositWalletStatus
+        let storedCredentials: PolymarketL2Credentials?
+
+        var isNewAccount: Bool {
+            status != .readyToTrade
+        }
     }
 }
 
@@ -197,12 +263,19 @@ private extension CommonPolymarketOnboardingInteractor {
             throw PolymarketOnboardingError.wallet(error)
         }
     }
+
+    func readStatus(addresses: Addresses) async throws -> PolymarketDepositWalletStatus {
+        let stored = try await readDepositWallet(ownerAddress: addresses.owner)
+        try stored.ensureMatches(derived: addresses.depositWallet)
+
+        return stored.status
+    }
 }
 
 // MARK: - Signatures
 
 private extension CommonPolymarketOnboardingInteractor {
-    func sign(addresses: Addresses) async throws -> PolymarketOnboardingSignatures {
+    func sign(addresses: Addresses, signer: PolymarketOnboardingSigning) async throws -> PolymarketOnboardingSignatures {
         let nonce: String
 
         do {
@@ -411,7 +484,7 @@ private extension CommonPolymarketOnboardingInteractor {
 
     func primeBalanceCache(credentials: PolymarketL2Credentials, ownerAddress: String) async {
         do {
-            try await clobService.updateBalanceAllowance(credentials: credentials, ownerAddress: ownerAddress)
+            try await clobService.updateBalanceAllowance(.collateral, credentials: credentials, ownerAddress: ownerAddress)
         } catch {
             PolymarketLogger.error("Failed to prime the collateral balance", error: error)
         }

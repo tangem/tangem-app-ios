@@ -29,20 +29,6 @@ enum WalletConnectAccountsMapper {
     static func map(
         from blockchain: BlockchainSdk.Blockchain,
         wcAccountsWalletModelProvider: some WalletConnectAccountsWalletModelProvider,
-        accountId: String,
-        preferredCAIPReference: String?
-    ) -> [ReownWalletKit.Account] {
-        map(
-            from: blockchain,
-            wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
-            preferredCAIPReference: preferredCAIPReference,
-            accountId: accountId
-        )
-    }
-
-    static func map(
-        from blockchain: BlockchainSdk.Blockchain,
-        wcAccountsWalletModelProvider: some WalletConnectAccountsWalletModelProvider,
         preferredCAIPReference: String?,
         accountId: String
     ) -> [ReownWalletKit.Account] {

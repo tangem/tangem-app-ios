@@ -16,10 +16,7 @@ import BlockchainSdk
 struct CommonTokenFeeProviderTronRoutingTests {
     private let tronFeeTokenItem: TokenItem = .blockchain(.init(.tron(testnet: false), derivationPath: nil))
 
-    @Test(
-        "a CEX preview without a deposit address uses the Tron estimation address",
-        .enabled(if: FeatureProvider.isAvailable(.tronGaslessCEX))
-    )
+    @Test("a CEX preview without a deposit address uses the Tron estimation address")
     func cexInput_tronGaslessLoader_previewQuotesEstimationAddress() async throws {
         let networkManager = TronGaslessNetworkManagerStub(compensationAmountRaw: "2500000")
         let loader = makeTronGaslessLoader(networkManager: networkManager)
@@ -31,39 +28,6 @@ struct CommonTokenFeeProviderTronRoutingTests {
         let request = try #require(networkManager.estimateRequests.first)
         #expect(request.toAddress == "TA4Tkaj2nAJjkVbDHdUQDxYCbLfsZzS8pA")
         #expect(request.amount == "10000000")
-    }
-
-    @Test(
-        "a CEX input is unsupported with a Tron gasless loader",
-        .enabled(if: !FeatureProvider.isAvailable(.tronGaslessCEX))
-    )
-    func cexInput_tronGaslessLoader_notSupported() async {
-        let networkManager = TronGaslessNetworkManagerStub(compensationAmountRaw: "2500000")
-        let loader = makeTronGaslessLoader(networkManager: networkManager)
-        let sut = makeSUT(loader: loader)
-
-        sut.setup(input: .cex(amount: 10))
-        await sut.updateFees().value
-
-        #expect(networkManager.estimateRequests.isEmpty)
-        guard case .unavailable(.notSupported) = sut.state else {
-            Issue.record("Expected .unavailable(.notSupported), got \(sut.state)")
-            return
-        }
-    }
-
-    @Test("a CEX transaction input reaches a regular loader with its destination")
-    func cexTransactionInput_routesToRegularLoader() async throws {
-        let loader = CEXTokenFeeLoaderSpy(fees: [makeFee(4)])
-        let sut = makeSUT(loader: loader)
-
-        sut.setup(input: .cex(amount: 10, destination: "TDestinationAddress"))
-        await sut.updateFees().value
-
-        #expect(loader.receivedAmount == 10)
-        #expect(loader.receivedDestination == "TDestinationAddress")
-        let fee = try sut.selectedTokenFee.value.get()
-        #expect(fee.amount.value == 4)
     }
 
     @Test("a Tron DEX input reaches the Tron loader and lands available")
@@ -187,26 +151,6 @@ private enum StubError: Error {
     case notNeeded
 }
 
-private final class CEXTokenFeeLoaderSpy: TokenFeeLoader {
-    private(set) var receivedAmount: Decimal?
-    private(set) var receivedDestination: String?
-    private let fees: [BSDKFee]
-
-    init(fees: [BSDKFee]) {
-        self.fees = fees
-    }
-
-    func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
-        throw StubError.notNeeded
-    }
-
-    func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee] {
-        receivedAmount = amount
-        receivedDestination = destination
-        return fees
-    }
-}
-
 private final class TronTokenFeeLoaderSpy: TronTokenFeeLoader {
     private(set) var receivedRequests: [TronFeeRequestData] = []
     private let fees: [BSDKFee]
@@ -234,9 +178,7 @@ private final class TronGaslessNetworkManagerStub: GaslessTransactionsNetworkMan
 
     let cachedFeeRecipientAddress: String? = nil
     var availableFeeTokens: [FeeToken] { [] }
-    var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> { Just([]).eraseToAnyPublisher() }
     var availableTronFeeTokens: [TronFeeToken] { [] }
-    var availableTronFeeTokensPublisher: AnyPublisher<[TronFeeToken], Never> { Just([]).eraseToAnyPublisher() }
     var currentHost: String { "test" }
     var feeRecipientAddress: String? { nil }
 
@@ -250,7 +192,6 @@ private final class TronGaslessNetworkManagerStub: GaslessTransactionsNetworkMan
     func sendGaslessTransaction(_ transaction: GaslessTransaction, executorVersion: GaslessExecutorVersion) async throws -> String { "" }
     func sendGaslessBatchTransaction(_ transaction: GaslessBatchTransaction) async throws -> String { "" }
     func initialize() {}
-    func preloadFeeRecipientAddress() {}
 
     func estimateTronGaslessTransaction(
         _ request: TronEstimateRequest,

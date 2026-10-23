@@ -102,10 +102,6 @@ final class TangemPayMainViewModel: ObservableObject {
         !inlineNotifications.isEmpty
     }
 
-    var shouldDimTransactions: Bool {
-        isStale && tangemPayTransactionHistoryState.isLoaded
-    }
-
     var isDeactivated: Bool {
         tangemPayAccount.isDeactivated
     }
@@ -179,6 +175,10 @@ final class TangemPayMainViewModel: ObservableObject {
 
     private var cashbackDisplayMode: TangemPayCashback.DisplayMode {
         guard case .available(let summary) = cashback else {
+            return .full
+        }
+
+        if summary.displayMode == .alternative, summary.confirmedAmount != 0 {
             return .full
         }
 
@@ -319,8 +319,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     private var isBankTransferPending: Bool {
-        guard FeatureProvider.isAvailable(.tangemPayOnrampV2),
-              case .preparing = tangemPayAccount.virtualAccountEntry else {
+        guard case .preparing = tangemPayAccount.virtualAccountEntry else {
             return false
         }
 
@@ -981,8 +980,6 @@ private extension TangemPayMainViewModel {
     }
 
     func bindVirtualAccountBanner() {
-        guard FeatureProvider.isAvailable(.tangemPayOnrampV2) else { return }
-
         Publishers.CombineLatest(
             tangemPayAccount.virtualAccountEntryPublisher,
             tangemPayAccount.virtualAccountCreationFailedPublisher
@@ -1107,7 +1104,7 @@ private extension TangemPayMainViewModel {
     }
 
     var mainButtonIcon: MainButton.Icon? {
-        CommonTangemIconProvider(config: userWalletInfo.config).getMainButtonIcon()
+        SigningActionButtonViewTypeBuilder().build(config: userWalletInfo.config).mainButtonIcon
     }
 }
 

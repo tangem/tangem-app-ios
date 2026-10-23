@@ -19,20 +19,14 @@ public struct PolymarketFinishedPositionSheetView: View {
 
     public var body: some View {
         VStack(spacing: Constants.blockSpacing) {
-            Text(model.title)
-                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-                .lineLimit(1)
-                .frame(height: Constants.toolbarHeight)
-                .padding(.top, Constants.titleTopPadding)
-
             PolymarketPositionHeader(model: model.header)
 
             PolymarketDetailsRowsBlock(rows: model.rows)
         }
+        .padding(.top, Constants.topPadding)
         .padding(.horizontal, Constants.horizontalPadding)
         .padding(.bottom, Constants.bottomPadding)
         .frame(maxWidth: .infinity)
-        .presentationDragIndicator(.visible)
     }
 }
 
@@ -65,8 +59,7 @@ private extension PolymarketFinishedPositionSheetView {
     enum Constants {
         static let blockSpacing: CGFloat = 16
         static let horizontalPadding: CGFloat = 16
-        static let toolbarHeight: CGFloat = 44
-        static let titleTopPadding: CGFloat = 16
+        static let topPadding: CGFloat = 4
         static let bottomPadding: CGFloat = 24
     }
 }

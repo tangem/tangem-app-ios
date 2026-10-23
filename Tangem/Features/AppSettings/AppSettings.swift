@@ -73,9 +73,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.appTheme, store: .standard)
     var appTheme: ThemeOption = .system
 
-    @AppStorageCompat(StorageType.userDidSwipeWalletsOnMainScreen)
-    var userDidSwipeWalletsOnMainScreen: Bool = false
-
     @AppStorageCompat(StorageType.userDidTapSendScreenSummary)
     var userDidTapSendScreenSummary: Bool = false
 
@@ -87,6 +84,9 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.shownStoryIds)
     var shownStoryIds: [String] = []
+
+    @AppStorageCompat(StorageType.shownMainScreenPromoSheetIds)
+    var shownMainScreenPromoSheetIds: [String] = []
 
     @AppStorageCompat(StorageType.userWalletIdsWithNFTEnabled)
     var userWalletIdsWithNFTEnabled: [String] = []
@@ -126,6 +126,9 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.polymarketHadPositions)
     var polymarketHadPositions: [String: Bool] = [:]
+
+    @AppStorageCompat(StorageType.polymarketShownPositionsCount)
+    var polymarketShownPositionsCount: [String: Int] = [:]
     @AppStorageCompat(StorageType.collectiblesHasAccount)
     var collectiblesHasAccount: [String: Bool] = [:]
 
@@ -139,7 +142,7 @@ final class AppSettings {
     var tangemPayCashbackBlockedBannerDismissedForCustomerWalletId: [String: Bool] = [:]
 
     @AppStorageCompat(StorageType.tangemPayEligibleDistributionChannels)
-    var tangemPayEligibleDistributionChannels: [String] = []
+    var tangemPayEligibleDistributionChannels: [String]? = nil
 
     @AppStorageCompat(StorageType.tangemPayShouldShowGetBanner)
     var tangemPayShouldShowGetBanner: Bool = true

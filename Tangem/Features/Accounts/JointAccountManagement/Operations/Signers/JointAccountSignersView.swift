@@ -33,7 +33,7 @@ struct JointAccountSignersView: View {
                 .padding(.bottom, Constants.contentBottomPadding)
         }
         .floatingSheetConfiguration {
-            $0.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+            $0.sheetBackground = .color(DesignSystem.Color.bgSecondary)
             $0.backgroundInteractionBehavior = .tapToDismiss
         }
     }

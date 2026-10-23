@@ -7,6 +7,7 @@
 //
 
 import BlockchainSdk
+import TangemFoundation
 import TangemPay
 
 final class CommonTangemPayAssembly: TangemPayAssembly {
@@ -27,16 +28,18 @@ final class CommonTangemPayAssembly: TangemPayAssembly {
     }
 
     func makeTransactionDispatcher(
+        userWalletId: UserWalletId,
         withdrawTransactionService: TangemPayWithdrawTransactionService,
         signerFactory: TangemSignerFactory,
         walletPublicKey: Wallet.PublicKey?,
-        withdrawEligibility: TangemPayWithdrawEligibility
+        accountToken: TangemPayAccountToken
     ) -> TransactionDispatcher {
         TangemPayTransactionDispatcher(
+            userWalletId: userWalletId,
             withdrawTransactionService: withdrawTransactionService,
             signerFactory: signerFactory,
             walletPublicKey: walletPublicKey,
-            withdrawEligibility: withdrawEligibility
+            accountToken: accountToken
         )
     }
 }

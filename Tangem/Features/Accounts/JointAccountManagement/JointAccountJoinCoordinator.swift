@@ -14,7 +14,6 @@ import TangemUI
 final class JointAccountJoinCoordinator: CoordinatorObject {
     // MARK: - Injected
 
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Navigation actions
@@ -31,6 +30,11 @@ final class JointAccountJoinCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var jointAccountManagementCoordinator: JointAccountManagementCoordinator?
+
+    // MARK: - Child view models
+
+    @Published var memberDetailsViewModel: JointAccountMemberDetailsViewModel?
+    @Published var walletSelectorViewModel: AccountSelectorViewModel?
 
     // MARK: - Dependencies
 
@@ -132,33 +136,20 @@ extension JointAccountJoinCoordinator: JointAccountJoinRoutable {
     }
 
     func openCreatorDetails(name: String, address: String, accentColor: Color) {
-        let viewModel = JointAccountMemberDetailsViewModel(
+        memberDetailsViewModel = JointAccountMemberDetailsViewModel(
             name: name,
             address: address,
             accentColor: accentColor,
             coordinator: self
         )
-
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
     }
 
     func openWalletSelection(accountSelectorViewModel: AccountSelectorViewModel) {
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(
-                sheet: JointAccountWalletSelectionViewModel(
-                    accountSelectorViewModel: accountSelectorViewModel,
-                    close: floatingSheetPresenter.removeActiveSheet
-                )
-            )
-        }
+        walletSelectorViewModel = accountSelectorViewModel
     }
 
     func closeWalletSelection() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+        walletSelectorViewModel = nil
     }
 
     func continueJoin(userWalletModel: any UserWalletModel, preview: JointAccountInvitePreview) {
@@ -206,8 +197,6 @@ extension JointAccountJoinCoordinator: JointAccountJoinMemberNameRoutable {
 
 extension JointAccountJoinCoordinator: JointAccountMemberDetailsRoutable {
     func closeMemberDetails() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+        memberDetailsViewModel = nil
     }
 }

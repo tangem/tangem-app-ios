@@ -186,6 +186,35 @@ extension BackendAuthenticationRegistrar {
         registerMobileWallet(id: id, context: context, trigger: .afterAccessCodeUnlock, mobileWalletSDK: CommonMobileWalletSdk())
     }
 
+    static func registerNewUnprotectedSocialMobileWallet(
+        id: UserWalletId,
+        keys: [KeyInfo],
+        recoveryEnrollment: UserWalletRecoveryEnrollment?
+    ) async throws {
+        let mobileWalletSDK = CommonMobileWalletSdk()
+        let context = try mobileWalletSDK.validate(auth: .none, for: id)
+        let secp256k1PublicKey = try CommonKeysRepository(keys: .mobileWallet(keys: keys))
+            .masterKeyPublicKey(curve: .secp256k1)
+
+        let signer = MobileUserWalletRegistrationSigner(
+            context: context,
+            secp256k1PublicKey: secp256k1PublicKey,
+            mobileWalletSDK: mobileWalletSDK
+        )
+
+        try await BackendAuthenticationAssembly.registerMobileUserWallet(
+            id: id,
+            recoveryEnrollment: recoveryEnrollment,
+            signer: signer
+        )
+        BackendAuthLogger.info("Registered social mobile wallet \(id.stringValue.masked())")
+    }
+
+    static func unregisterSocialMobileWallet(id: UserWalletId) async throws {
+        try await BackendAuthenticationAssembly.unregisterUserWallet(id: id, shouldEraseSocialLoginData: true)
+        BackendAuthLogger.info("Unregistered social mobile wallet \(id.stringValue.masked())")
+    }
+
     private static func registerMobileWallet(
         id: UserWalletId,
         context: MobileWalletContext,

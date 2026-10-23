@@ -11,16 +11,19 @@ import TangemLocalization
 
 enum PromocodeActivationError: LocalizedError {
     case activationError
-    case noAddress
+    case noAddress(currencyName: String)
     case alreadyActivated
     case invalidCode
+    case campaignExpired
+    case invalidAddress
+    case networkError
 
     var title: String {
         switch self {
-        case .activationError:
+        case .activationError, .campaignExpired, .invalidAddress, .networkError:
             return Localization.bitcoinPromoActivationErrorTitle
-        case .noAddress:
-            return Localization.bitcoinPromoNoAddressTitle
+        case .noAddress(let currencyName):
+            return Localization.promoCodeNoAddressTitle(currencyName)
         case .alreadyActivated:
             return Localization.bitcoinPromoAlreadyActivatedTitle
         case .invalidCode:
@@ -28,25 +31,31 @@ enum PromocodeActivationError: LocalizedError {
         }
     }
 
-    var analyticsEventParameter: String {
+    var analyticsErrorCode: String {
         switch self {
         case .activationError:
-            return "Error"
+            return "internal_error"
         case .noAddress:
-            return "No Address"
+            return "address_missing"
         case .alreadyActivated:
-            return "Already Used"
+            return "already_used"
         case .invalidCode:
-            return "Invalid"
+            return "invalid_code"
+        case .campaignExpired:
+            return "campaign_expired"
+        case .invalidAddress:
+            return "invalid_address"
+        case .networkError:
+            return "network_error"
         }
     }
 
     var errorDescription: String? {
         switch self {
-        case .activationError:
+        case .activationError, .campaignExpired, .invalidAddress, .networkError:
             return Localization.bitcoinPromoActivationError
-        case .noAddress:
-            return Localization.bitcoinPromoNoAddress
+        case .noAddress(let currencyName):
+            return Localization.promoCodeNoAddress(currencyName)
         case .alreadyActivated:
             return Localization.bitcoinPromoAlreadyActivated
         case .invalidCode:
@@ -58,12 +67,16 @@ enum PromocodeActivationError: LocalizedError {
 extension PromocodeActivationError {
     init(apiCode: TangemAPIError.ErrorCode) {
         switch apiCode {
-        case .badRequest, .forbidden:
-            self = .activationError
+        case .badRequest:
+            self = .invalidAddress
         case .notFound:
             self = .invalidCode
         case .conflict:
             self = .alreadyActivated
+        case .unprocessableEntity:
+            self = .campaignExpired
+        case .unknown:
+            self = .networkError
         default:
             self = .activationError
         }

@@ -17,6 +17,7 @@ struct ButtonShowcase: View {
     @State private var appearance: TangemUI.Button.Appearance = .default
     @State private var size: TangemUI.Button.Size = .x12
     @State private var horizontalLayout: TangemUI.Button.HorizontalLayout = .intrinsic
+    @State private var confirmation: Confirmation = .tap
     @State private var contentKind: ContentKind = .label
     @State private var label = "Send"
     @State private var iconStartEnabled = false
@@ -26,6 +27,7 @@ struct ButtonShowcase: View {
     @State private var loadingMessage = "Signing transaction"
     @State private var simulatedLoadDuration: Double = 2
     @State private var simulatedLoadTask: Task<Void, Never>?
+    @State private var loadingHoldStyles: Set<TangemUI.Button.HoldStyle> = []
     @State private var tapCount = 0
 
     var body: some View {
@@ -38,8 +40,14 @@ struct ButtonShowcase: View {
             case .material:
                 controls.picker("Material", $material)
                 controls.note("Switch the stage background to gradient to tell glass from blur.")
-            case .brand, .primary, .outline, .ghost, .success:
+            case .brand, .primary:
+                controls.picker("Confirm", $confirmation)
+            case .outline, .ghost, .success:
                 EmptyView()
+            }
+
+            if holdStyle != nil {
+                controls.note("Hold until the fill completes: the button turns into a spinner and the demo plays the caller's load for the simulated duration. Hold shows the spinner without a message.")
             }
 
             controls.picker("Size", $size)
@@ -90,6 +98,22 @@ struct ButtonShowcase: View {
                 }
             }
 
+            DSShowcaseGroup("Hold to confirm") {
+                DSShowcaseMatrix(rows: TangemUI.Button.HoldStyle.allCases, columns: MatrixState.allCases) { style, state in
+                    TangemUI.Button.holdToConfirm(
+                        label: "Confirm",
+                        style: style,
+                        accessibilityLabel: nil,
+                        isLoading: state == .enabled && loadingHoldStyles.contains(style),
+                        action: {
+                            tapCount += 1
+                            startSimulatedHoldLoad(style: style)
+                        }
+                    )
+                    .disabled(state == .disabled)
+                }
+            }
+
             DSShowcaseGroup("Size") {
                 DSShowcaseMatrix(rows: TangemUI.Button.Size.allCases, columns: [ContentKind.label, .iconOnly]) { size, content in
                     sampleButton(size: size, content: content)
@@ -105,18 +129,50 @@ struct ButtonShowcase: View {
         }
     }
 
+    @ViewBuilder
     private var liveButton: some View {
-        button(
-            content: contentKind,
-            iconStart: iconStartEnabled ? DesignSystem.Icons.ArrowUp.regular20 : nil,
-            iconEnd: iconEndEnabled ? DesignSystem.Icons.ArrowDown.regular20 : nil,
-            action: { tapCount += 1 }
-        )
-        .size(size)
-        .styleType(styleKind.styleType(appearance: appearance, material: material))
-        .horizontalLayout(horizontalLayout)
-        .loading(loadingKind.loading(message: loadingMessage))
-        .disabled(!isEnabled)
+        if let holdStyle {
+            TangemUI.Button.holdToConfirm(
+                label: contentKind == .longLabel ? Self.longLabel : label,
+                style: holdStyle,
+                accessibilityLabel: nil,
+                size: size,
+                horizontalLayout: horizontalLayout,
+                iconStart: liveIconStart,
+                iconEnd: liveIconEnd,
+                isLoading: loadingKind != .none,
+                action: {
+                    tapCount += 1
+                    startSimulatedLoad()
+                }
+            )
+            .disabled(!isEnabled)
+        } else {
+            button(content: contentKind, iconStart: liveIconStart, iconEnd: liveIconEnd, action: { tapCount += 1 })
+                .size(size)
+                .styleType(styleKind.styleType(appearance: appearance, material: material))
+                .horizontalLayout(horizontalLayout)
+                .loading(loadingKind.loading(message: loadingMessage))
+                .disabled(!isEnabled)
+        }
+    }
+
+    private var liveIconStart: ImageType? {
+        iconStartEnabled ? DesignSystem.Icons.ArrowUp.regular20 : nil
+    }
+
+    private var liveIconEnd: ImageType? {
+        iconEndEnabled ? DesignSystem.Icons.ArrowDown.regular20 : nil
+    }
+
+    private var holdStyle: TangemUI.Button.HoldStyle? {
+        guard confirmation == .hold, contentKind != .iconOnly else { return nil }
+
+        switch styleKind {
+        case .brand: return .brand
+        case .primary: return .primary
+        case .secondary, .material, .outline, .ghost, .success: return nil
+        }
     }
 
     private func sampleButton(
@@ -141,13 +197,15 @@ struct ButtonShowcase: View {
                 .iconStart(iconStart)
                 .iconEnd(iconEnd)
         case .longLabel:
-            TangemUI.Button(label: "Swap 0.8421 ETH to USDT on Arbitrum One with the best available rate", accessibilityLabel: nil, action: action)
+            TangemUI.Button(label: Self.longLabel, accessibilityLabel: nil, action: action)
                 .iconStart(iconStart)
                 .iconEnd(iconEnd)
         case .iconOnly:
             TangemUI.Button(icon: DesignSystem.Icons.ArrowDown.regular24, accessibilityLabel: "Receive", action: action)
         }
     }
+
+    private static let longLabel = "Swap 0.8421 ETH to USDT on Arbitrum One with the best available rate"
 
     private func startSimulatedLoad() {
         simulatedLoadTask?.cancel()
@@ -162,6 +220,15 @@ struct ButtonShowcase: View {
 
             loadingKind = .none
             simulatedLoadTask = nil
+        }
+    }
+
+    private func startSimulatedHoldLoad(style: TangemUI.Button.HoldStyle) {
+        loadingHoldStyles.insert(style)
+
+        Task { @MainActor in
+            try? await ContinuousClock().sleep(for: .seconds(simulatedLoadDuration))
+            loadingHoldStyles.remove(style)
         }
     }
 }
@@ -189,6 +256,11 @@ private extension ButtonShowcase {
         }
     }
 
+    enum Confirmation: CaseIterable {
+        case tap
+        case hold
+    }
+
     enum ContentKind: CaseIterable {
         case label
         case longLabel
@@ -214,4 +286,5 @@ private extension ButtonShowcase {
         case disabled
     }
 }
+
 #endif

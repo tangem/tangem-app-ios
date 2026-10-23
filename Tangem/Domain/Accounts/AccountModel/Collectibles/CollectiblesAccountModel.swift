@@ -33,12 +33,27 @@ protocol CollectiblesPurchaseSigner: AnyObject {
         confirmedPrice: CollectiblesConfirmedPrice
     ) async throws -> CollectiblesSignedPurchase
 
-    func sendPurchase(_ signedPurchase: CollectiblesSignedPurchase) async throws(CollectiblesPurchaseError)
+    func sendPurchase(_ signedPurchase: CollectiblesSignedPurchase) async throws(CollectiblesSendError)
+}
+
+protocol CollectiblesBuybackSigner: AnyObject {
+    var buybackAddresses: CollectiblesBuybackAddresses? { get }
+
+    func signBuyback(
+        _ preparedTransaction: Data,
+        terms: CollectiblesBuybackTerms
+    ) async throws -> CollectiblesSignedBuyback
+
+    func sendBuyback(_ signedBuyback: CollectiblesSignedBuyback) async throws(CollectiblesSendError)
 }
 
 protocol CollectiblesPackPurchaseInteractorProvider: AnyObject {
     @MainActor
     var purchaseInteractor: any CollectiblesPackPurchaseInteractor { get }
+}
+
+protocol CollectiblesBuybackInteractorProvider: AnyObject {
+    var buybackInteractor: any CollectiblesBuybackInteractor { get }
 }
 
 /// Refines `CollectiblesOnboarder`: the account model owns the vault's state, so it is also what walks that
@@ -48,10 +63,10 @@ protocol CollectiblesAccountModel: BaseAccountModel,
     CollectiblesBalanceSource,
     CollectiblesVaultUsdcAccountProvider,
     CollectiblesDepositAwaiter,
-    CollectiblesPackPurchaseInteractorProvider
+    CollectiblesPackPurchaseInteractorProvider,
+    CollectiblesBuybackInteractorProvider
     where Icon == AccountModel.StandaloneIcon, ID == CollectiblesAccountId {
     var state: CollectiblesState { get }
-    var statePublisher: AnyPublisher<CollectiblesState, Never> { get }
 
     var hasAccount: Bool { get }
     var hasAccountPublisher: AnyPublisher<Bool, Never> { get }
@@ -64,10 +79,6 @@ protocol CollectiblesAccountModel: BaseAccountModel,
 extension CollectiblesAccountModel {
     var icon: AccountModel.StandaloneIcon {
         .collectibles
-    }
-
-    func edit(with editor: (any AccountModelEditor) -> Void) async throws(AccountEditError) -> Self {
-        self
     }
 
     func analyticsParameters(with builder: any AccountsAnalyticsBuilder) -> [Analytics.ParameterKey: String] {

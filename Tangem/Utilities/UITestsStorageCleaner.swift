@@ -77,7 +77,7 @@ enum UITestsStorageCleaner {
         AppSettings.shared.tangemPayIsPaeraCustomer = [:]
         AppSettings.shared.tangemPayIsDisabledForCustomerWalletId = [:]
         AppSettings.shared.tangemPayIsKYCHiddenForCustomerWalletId = [:]
-        AppSettings.shared.tangemPayEligibleDistributionChannels = []
+        AppSettings.shared.tangemPayEligibleDistributionChannels = nil
         AppSettings.shared.tangemPayShouldShowGetBanner = true
         AppSettings.shared.tangemPayCachedLocalState = [:]
         AppSettings.shared.tangemPayCachedTransactionHistory = [:]

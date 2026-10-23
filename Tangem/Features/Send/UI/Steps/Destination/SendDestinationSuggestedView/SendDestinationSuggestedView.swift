@@ -16,9 +16,6 @@ import TangemAccessibilityIdentifiers
 struct SendDestinationSuggestedView: View {
     let viewModel: SendDestinationSuggestedViewModel
 
-    private let cellVerticalSpacing: Double = 4
-    private let cellHorizontalSpacing: Double = 12
-
     var body: some View {
         userWalletsSection
 

@@ -30,7 +30,11 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
+    @Injected(\.tangemStoriesViewModel) private var tangemStoriesViewModel: TangemStoriesViewModel
+    @Injected(\.storiesV2Presenter) private var storiesV2Presenter: any StoriesV2Presenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.floatingSheetPresentingStateProvider) private var sheetStateProvider: FloatingSheetPresentingStateProvider
+    @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
     @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
 
     private let coordinatorFactory: MainCoordinatorChildFactory
@@ -114,7 +118,8 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
             selectedUserWalletId: options.userWalletModel.userWalletId,
             coordinator: self,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self),
-            pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
+            pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider,
+            promoSheetProvider: MainScreenPromoSheetProvider(managers: [], host: self)
         )
 
         mainViewModel = viewModel
@@ -206,8 +211,16 @@ extension MainCoordinator: MainRoutable {
         let dismissAction: Action<MainQRScanFlowCoordinator.DismissOptions?> = { [weak self] options in
             self?.mainQRScanFlowCoordinator = nil
 
-            if case .openFeeCurrency(let option) = options {
+            switch options {
+            case .openFeeCurrency(let option):
                 self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
+            case .openDeeplink(let url):
+                Task { @MainActor [weak self] in
+                    try? await Task.sleep(for: .seconds(Constants.qrScanDeeplinkHandoffDelay))
+                    self?.incomingActionHandler.handleIncomingURL(url)
+                }
+            case .none:
+                break
             }
         }
 
@@ -236,10 +249,6 @@ extension MainCoordinator: MainRoutable {
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
-    }
-
-    func close(newScan: Bool) {
-        popToRoot(with: .init(newScan: newScan))
     }
 
     func openScanCardManual() {
@@ -442,16 +451,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             let viewModel = TangemPayRegionUnavailablePopupViewModel(
                 region: region,
                 interactor: interactor,
-                coordinator: self
-            )
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
-    }
-
-    func openTangemPayFailedToIssueCardPopup(userWalletModel: UserWalletModel) {
-        Task { @MainActor in
-            let viewModel = TangemPayFailedToIssueCardSheetViewModel(
-                userWalletModel: userWalletModel,
                 coordinator: self
             )
             floatingSheetPresenter.enqueue(sheet: viewModel)
@@ -692,6 +691,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         let coordinator = CollectiblesCoordinator(
             dismissAction: { [weak self] in
                 self?.collectiblesCoordinator = nil
+                self?.mainBottomSheetUIManager.show()
             },
             popToRootAction: popToRootAction
         )
@@ -848,9 +848,17 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     }
 
     func openMarketsTokenDetails(tokenModel: MarketsTokenModel) {
+        openMarketsTokenDetails(options: .init(info: tokenModel, style: .navigationStack))
+    }
+
+    func openMarketsTokenChart(tokenId: String) {
+        openMarketsTokenDetails(options: .tokenChartDeeplink(tokenId: tokenId))
+    }
+
+    private func openMarketsTokenDetails(options: MarketsTokenDetailsCoordinator.Options) {
         mainBottomSheetUIManager.hide()
         let coordinator = coordinatorFactory.makeMarketsTokenDetailsCoordinator()
-        coordinator.start(with: .init(info: tokenModel, style: .navigationStack))
+        coordinator.start(with: options)
         marketsTokenDetailsCoordinator = coordinator
     }
 
@@ -996,6 +1004,7 @@ extension MainCoordinator {
         static let tooltipAnimationDelay: Double = 1.5
         static let tangemPayPlanActivationNavigationDelay: TimeInterval = 0.6
         static let tangemPayCampaignPresentationDelay: TimeInterval = 0.35
+        static let qrScanDeeplinkHandoffDelay: TimeInterval = 0.35
         static let tangemPayRegionReselectionPresentationDelay: TimeInterval = 0.5
     }
 }
@@ -1162,6 +1171,29 @@ extension MainCoordinator: FeedHostRoutable {
             openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
         case .selectPlan(let tariffPlanSelector, let userWalletModel):
             openTangemPaySelectPlan(tariffPlanSelector: tariffPlanSelector, userWalletModel: userWalletModel)
+        }
+    }
+}
+
+// MARK: - MainScreenPromoSheetHost
+
+extension MainCoordinator: MainScreenPromoSheetHost {
+    var busySurfacePublishers: [AnyPublisher<Bool, Never>] {
+        [
+            sheetStateProvider.hasPresentedSheetPublisher,
+            mobileFinishActivationManager.isActivationPendingOrShownPublisher,
+            hasPresentedStoryPublisher,
+        ]
+    }
+
+    private var hasPresentedStoryPublisher: AnyPublisher<Bool, Never> {
+        MainActor.assumeIsolated {
+            Publishers.CombineLatest(
+                tangemStoriesViewModel.$state.map { $0 != nil },
+                storiesV2Presenter.playerPublisher.map { $0 != nil }
+            )
+            .map { $0 || $1 }
+            .eraseToAnyPublisher()
         }
     }
 }

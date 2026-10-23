@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemPolymarket
+import TangemUI
 
 struct PolymarketOnboardingFactory {
     private let services = PolymarketOnboardingServicesFactory.makeDefault()
@@ -20,6 +21,7 @@ struct PolymarketOnboardingFactory {
         PolymarketWelcomeViewModel(
             interactor: makeInteractor(for: userWalletModel),
             hasExistingAccount: hasExistingAccount(for: userWalletModel),
+            signingButtonType: SigningActionButtonViewTypeBuilder().build(config: userWalletModel.config),
             coordinator: coordinator
         )
     }
@@ -34,6 +36,7 @@ struct PolymarketOnboardingFactory {
         CommonPolymarketOnboardingInteractor(
             userWalletId: userWalletModel.userWalletId,
             ownerAddressProvider: makeOwnerAddressProvider(for: userWalletModel),
+            ownerKeySession: userWalletModel.polymarketOwnerKeySession,
             signer: CommonPolymarketOnboardingSigner(
                 keysRepository: userWalletModel.keysRepository,
                 signer: userWalletModel.signer
@@ -52,10 +55,6 @@ struct PolymarketOnboardingFactory {
 
 extension PolymarketOnboardingFactory {
     func makeOwnerAddressProvider(for userWalletModel: any UserWalletModel) -> PolymarketOwnerAddressProviding {
-        CommonPolymarketOwnerAddressProvider(
-            keysRepository: userWalletModel.keysRepository,
-            keysDerivingFactory: PolymarketKeysDeriving(provider: userWalletModel),
-            areHDWalletsSupported: userWalletModel.config.hasFeature(.hdWallets)
-        )
+        CommonPolymarketOwnerAddressProvider(keysRepository: userWalletModel.keysRepository)
     }
 }

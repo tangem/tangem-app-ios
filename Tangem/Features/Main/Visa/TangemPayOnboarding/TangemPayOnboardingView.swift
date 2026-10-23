@@ -36,7 +36,7 @@ struct TangemPayOnboardingView: View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 20, height: 20)
-                                .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
+                                .foregroundStyle(DesignSystem.Color.iconPrimary)
                         }
                     }
 

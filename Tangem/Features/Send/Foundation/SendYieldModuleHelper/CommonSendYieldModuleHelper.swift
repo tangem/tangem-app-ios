@@ -19,20 +19,17 @@ final class CommonSendYieldModuleHelper: SendYieldModuleHelper {
     private let currency: ExpressWalletCurrency
     private let swapExecutionRegistryProvider: YieldModuleSwapExecutionRegistryProvider?
     private let yieldModuleUpgradeHandler: YieldModuleUpgradeHandler?
-    private let isTransferDetectionAvailable: Bool
 
     init(
         yieldContractAddress: String,
         currency: ExpressWalletCurrency,
         swapExecutionRegistryProvider: YieldModuleSwapExecutionRegistryProvider?,
-        yieldModuleUpgradeHandler: YieldModuleUpgradeHandler?,
-        isTransferDetectionAvailable: Bool
+        yieldModuleUpgradeHandler: YieldModuleUpgradeHandler?
     ) {
         yieldContract = yieldContractAddress
         self.currency = currency
         self.swapExecutionRegistryProvider = swapExecutionRegistryProvider
         self.yieldModuleUpgradeHandler = yieldModuleUpgradeHandler
-        self.isTransferDetectionAvailable = isTransferDetectionAvailable
     }
 
     func prepareForYieldModuleDEXSwap(provider: ExpressProvider) async throws {
@@ -58,12 +55,6 @@ final class CommonSendYieldModuleHelper: SendYieldModuleHelper {
 
         guard let txData = data.txData else {
             throw ExpressProviderError.yieldModuleSwapUnavailable(.transactionDataNotFound)
-        }
-
-        // Legacy flow preserved as is. This check and flow will be removed
-        // when the feature toggle for `isTransferDetectionAvailable` is removed
-        guard isTransferDetectionAvailable else {
-            return try await makeSwapCallData(data: data, txData: txData, spender: spender)
         }
 
         let isTransferCalldata = TransferERC20TokenMethod.isEncodedCall(txData)

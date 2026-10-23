@@ -32,13 +32,6 @@ enum TangemPayOfferAvailability {
         case .notAvailable: return nil
         }
     }
-
-    var isAvailable: Bool {
-        switch self {
-        case .available: true
-        case .notAvailable: false
-        }
-    }
 }
 
 protocol TangemPayAvailabilityRepository {
@@ -50,6 +43,7 @@ protocol TangemPayAvailabilityRepository {
         for customerWalletId: String
     ) -> AnyPublisher<TangemPayWalletSelectionType?, Never>
     func userDidCloseGetTangemPayBanner()
+    @discardableResult
     func requestEligibleDistributionChannels() async -> [TangemPayDistributionChannel]
 }
 

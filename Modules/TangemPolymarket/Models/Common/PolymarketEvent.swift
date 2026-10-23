@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct PolymarketEvent: Hashable, Sendable {
+public struct PolymarketEvent: Hashable, Sendable, Identifiable {
     public let id: String
 
     public let slug: String
@@ -37,6 +37,8 @@ public struct PolymarketEvent: Hashable, Sendable {
 
     public let markets: [PolymarketMarket]
 
+    public let teams: [PolymarketTeam]
+
     public var hasMoreMarkets: Bool {
         markets.count < totalMarketsCount
     }
@@ -59,7 +61,8 @@ public struct PolymarketEvent: Hashable, Sendable {
         totalMarketsCount: Int,
         isNegRisk: Bool,
         displayMode: PolymarketDisplayMode,
-        markets: [PolymarketMarket]
+        markets: [PolymarketMarket],
+        teams: [PolymarketTeam] = []
     ) {
         self.id = id
         self.slug = slug
@@ -79,5 +82,6 @@ public struct PolymarketEvent: Hashable, Sendable {
         self.isNegRisk = isNegRisk
         self.displayMode = displayMode
         self.markets = markets
+        self.teams = teams
     }
 }

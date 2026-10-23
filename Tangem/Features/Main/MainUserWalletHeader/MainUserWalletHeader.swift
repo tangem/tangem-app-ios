@@ -65,10 +65,8 @@ struct MainUserWalletHeader: View {
                 textColor: DesignSystem.Color.textPrimary
             ),
             loader: LoadableBalanceView.LoaderStyle(
-                // Unscaled on purpose — the DS3 shimmer block applies Dynamic Type scaling itself.
-                size: Sizes.balanceSkeletonSize,
-                cornerRadiusStyle: .capsule,
-                appearance: .tangemShimmer
+                size: Sizes.balanceSkeletonSize * scaleFactor,
+                cornerRadiusStyle: .capsule
             ),
             accessibilityIdentifier: MainAccessibilityIdentifiers.totalBalance
         )

@@ -208,6 +208,7 @@
 "choose_asset_title" = "Choose asset";
 "collectibles_account_collection_empty" = "No cards";
 "collectibles_account_collection_row_subtitle" = "My collection";
+"collectibles_account_reconnect_subtitle" = "Reconnect Packs account";
 "collectibles_account_withdraw" = "Withdrawal";
 "collectibles_confirm_order_approve_button" = "Approve";
 "collectibles_confirm_order_confirming_transaction_button" = "Confirming transaction...";
@@ -248,6 +249,9 @@
 "collectibles_main_pack_buyback_badge" = "Buyback %@";
 "collectibles_main_packs_empty" = "There are no packs here yet";
 "collectibles_main_packs_load_error" = "Failed to load packs. Tap to reload";
+"collectibles_main_relink_button" = "Relink account";
+"collectibles_main_relink_description" = "Make this phone primary for Packs account";
+"collectibles_main_relink_title" = "Relink account";
 "collectibles_main_search_empty" = "No results. Try to change your wording\nor explore from the list";
 "collectibles_main_search_load_error" = "Failed to load cards list.";
 "collectibles_main_title" = "Packs account";
@@ -393,6 +397,7 @@
 "common_fee_selector_option_market" = "マーケット";
 "common_fee_selector_option_slow" = "遅い";
 "common_finish" = "終了";
+"common_for" = "for";
 "common_forget" = "忘れる";
 "common_from_account" = "From account";
 "common_from_address" = "From address";
@@ -642,6 +647,7 @@
 "express_error_provider_amount_roundup" = "エラー%1$@。選択したプロバイダーは指定された取引を処理できません。値を%2$@に切り上げるか、変更してください。";
 "express_error_swap_pair_unavailable" = "選択したプロバイダーは現在利用できません。しばらくしてからもう一度お試しください。(コード: %@)";
 "express_error_swap_unavailable" = "現在、交換はご利用いただけません。しばらくしてからもう一度お試しください。(コード: %@)";
+"express_error_transaction_cannot_be_created" = "The transaction cannot be created with %1$@. Please choose another provider. (Code: %2$@)";
 "express_estimated_amount" = "推定金額";
 "express_exchange_by" = "%@による交換";
 "express_exchange_notification_failed_text" = "返金手続きのため、プロバイダーのウェブサイトにアクセスしてください";
@@ -1007,8 +1013,17 @@
 "joint_account_activation_title" = "共有アカウントを有効化しようとしています";
 "joint_account_coming_soon_description" = "この操作は共同アカウントではまだサポートされていません。現在対応中です";
 "joint_account_coming_soon_title" = "共同アカウントでは近日対応予定";
+"joint_account_compromised_message" = "The account address on your device doesn't match the one from our servers.";
+"joint_account_compromised_title" = "Can't verify this account";
 "joint_account_confirm_account_subtitle" = "Before using your Joint Account, make sure every member sees exactly the same address.";
 "joint_account_confirm_account_title" = "Confirm the account";
+"joint_account_confirm_address_compare_subtitle" = "Contact all members outside Tangem by phone, messenger, or in person. Check that everyone sees the exact same address.";
+"joint_account_confirm_address_compare_title" = "Compare with other members";
+"joint_account_confirm_address_confirm_button" = "Checked with everyone";
+"joint_account_confirm_address_everyone_subtitle" = "Your account will be ready once all members have confirmed the address.";
+"joint_account_confirm_address_everyone_title" = "Everyone must confirm";
+"joint_account_confirm_address_label" = "Shared address";
+"joint_account_confirm_address_mismatch_button" = "Address doesn't match";
 "joint_account_confirm_shared_address" = "Confirm shared address";
 "joint_account_invite_invalid_subtitle" = "正しいリンクを開いたことを確認するか、アカウント作成者に再送を依頼してください";
 "joint_account_invite_invalid_title" = "招待リンクが無効です";
@@ -1565,6 +1580,7 @@
 "prediction_details_market_opened" = "マーケット開始日";
 "prediction_details_market_volume" = "Volume:";
 "prediction_details_resolution_date" = "Resolution Date";
+"prediction_details_resolution_source" = "Resolution Source";
 "prediction_details_total_volume" = "Total volume";
 "prediction_event_live" = "Live";
 "prediction_event_probability" = "Probability";
@@ -2798,7 +2814,9 @@
 "transaction_history_supplied" = "Supplied";
 "transaction_history_transaction_for_address" = "対象：%@";
 "transaction_history_transaction_from_address" = "送金元: %@";
+"transaction_history_transaction_from_for_address" = "from: %1$@ for %2$@";
 "transaction_history_transaction_to_address" = "送金先: %@";
+"transaction_history_transaction_to_for_address" = "to: %1$@ for %2$@";
 "transaction_history_unlimited_amount" = "Unlimited %@";
 "transaction_history_unlimited" = "Unlimited";
 "transaction_history_withdrawn" = "出金済み";

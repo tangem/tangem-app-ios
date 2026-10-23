@@ -9,7 +9,6 @@
 import TangemMacro
 
 protocol UserWalletBackupStatusProvider {
-    var hasBackupCards: Bool { get }
     var backupState: UserWalletBackupState { get }
 }
 

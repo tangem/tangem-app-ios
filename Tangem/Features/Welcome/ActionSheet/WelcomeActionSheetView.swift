@@ -28,7 +28,7 @@ struct WelcomeActionSheetView: View {
         .floatingSheetConfiguration { config in
             config.backgroundInteractionBehavior = .tapToDismiss
             config.verticalSwipeBehavior = .init(target: .sheet, threshold: Constants.swipeDismissThreshold)
-            config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+            config.sheetBackground = .color(DesignSystem.Color.bgSecondary)
             config.sheetFrameUpdateAnimation = .contentFrameUpdate
         }
     }
@@ -72,7 +72,7 @@ struct WelcomeActionSheetView: View {
                         .tint(DesignSystem.Color.iconSecondary)
                 }
             }
-            .onTap(item.action)
+            .onTap(action: item.action)
             .accessibilityIdentifier(rowAccessibilityIdentifier(for: item))
     }
 

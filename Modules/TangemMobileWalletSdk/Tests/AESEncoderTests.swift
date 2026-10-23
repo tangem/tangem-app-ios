@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 import Testing
+import TangemSdk
 @testable import TangemMobileWalletSdk
 import Foundation
 
@@ -50,7 +51,7 @@ struct AESEncoderTests {
 
         let encrypted = try AESEncoder.encryptWithPassword(password: password, content: data)
 
-        #expect(throws: Error.self, "Decryption should fail with wrong password", performing: {
+        #expect(throws: (any Error).self, "Decryption should fail with wrong password", performing: {
             try AESEncoder.decryptWithPassword(password: wrongPassword, encryptedData: encrypted)
         })
     }
@@ -62,7 +63,7 @@ struct AESEncoderTests {
         let data = "Secret".data(using: .utf8)!
         let encrypted = try AESEncoder.encryptAES(rawEncryptionKey: key, rawData: data)
 
-        #expect(throws: Error.self, "Decryption should fail with wrong key", performing: {
+        #expect(throws: (any Error).self, "Decryption should fail with wrong key", performing: {
             try AESEncoder.decryptAES(rawEncryptionKey: wrongKey, encryptedData: encrypted)
         })
     }

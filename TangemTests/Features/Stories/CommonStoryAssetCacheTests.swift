@@ -9,6 +9,7 @@
 import Testing
 import Foundation
 import TangemFoundation
+import TangemStories
 @testable import Tangem
 
 @Suite("CommonStoryAssetCacheTests", .timeLimit(.minutes(1)))
@@ -119,6 +120,58 @@ final class CommonStoryAssetCacheTests {
         #expect(!FileManager.default.fileExists(atPath: oldest.path))
         #expect(FileManager.default.fileExists(atPath: middle.path))
         #expect(FileManager.default.fileExists(atPath: newest.path))
+    }
+
+    @Test
+    func retainingOnlyRemovesColdOrphanButKeepsLiveAsset() async throws {
+        let loader = SpyDataLoader()
+        let cache = CommonStoryAssetCache(directory: directory, dataLoader: loader)
+        let liveURL = try #require(URL(string: "https://h/stories/promo/live.mp4"))
+        let orphanURL = try #require(URL(string: "https://h/stories/promo/orphan.mp4"))
+
+        let live = try await cache.localURL(remoteURL: liveURL, checksum: "sha256:live")
+        let orphan = try await cache.localURL(remoteURL: orphanURL, checksum: "sha256:orphan")
+        ageBeyondGrace(orphan)
+
+        await cache.retainingOnly([StoryAssetCacheKey(url: liveURL, checksum: "sha256:live")])
+
+        #expect(FileManager.default.fileExists(atPath: live.path))
+        #expect(!FileManager.default.fileExists(atPath: orphan.path))
+    }
+
+    @Test
+    func retainingOnlyKeepsOrphanStillWithinGraceWindow() async throws {
+        let loader = SpyDataLoader()
+        let cache = CommonStoryAssetCache(directory: directory, dataLoader: loader)
+        let liveURL = try #require(URL(string: "https://h/stories/promo/live.mp4"))
+        let orphanURL = try #require(URL(string: "https://h/stories/promo/orphan.mp4"))
+
+        let live = try await cache.localURL(remoteURL: liveURL, checksum: "sha256:live")
+        let orphan = try await cache.localURL(remoteURL: orphanURL, checksum: "sha256:orphan")
+
+        await cache.retainingOnly([StoryAssetCacheKey(url: liveURL, checksum: "sha256:live")])
+
+        #expect(FileManager.default.fileExists(atPath: live.path))
+        #expect(FileManager.default.fileExists(atPath: orphan.path))
+    }
+
+    @Test
+    func retainingOnlyIsNoOpForEmptyKeys() async throws {
+        let loader = SpyDataLoader()
+        let cache = CommonStoryAssetCache(directory: directory, dataLoader: loader)
+        let url = try #require(URL(string: "https://h/stories/promo/orphan.mp4"))
+
+        let file = try await cache.localURL(remoteURL: url, checksum: "sha256:orphan")
+        ageBeyondGrace(file)
+
+        await cache.retainingOnly([])
+
+        #expect(FileManager.default.fileExists(atPath: file.path))
+    }
+
+    private func ageBeyondGrace(_ url: URL) {
+        let date = Date().addingTimeInterval(-(CommonStoryAssetCache.Constants.orphanGraceInterval + 60))
+        try? FileManager.default.setAttributes([.modificationDate: date], ofItemAtPath: url.path)
     }
 }
 

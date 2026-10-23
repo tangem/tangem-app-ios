@@ -208,6 +208,7 @@
 "choose_asset_title" = "Choose asset";
 "collectibles_account_collection_empty" = "No cards";
 "collectibles_account_collection_row_subtitle" = "My collection";
+"collectibles_account_reconnect_subtitle" = "Reconnect Packs account";
 "collectibles_account_withdraw" = "Withdrawal";
 "collectibles_confirm_order_approve_button" = "Approve";
 "collectibles_confirm_order_confirming_transaction_button" = "Confirming transaction...";
@@ -248,6 +249,9 @@
 "collectibles_main_pack_buyback_badge" = "Buyback %@";
 "collectibles_main_packs_empty" = "There are no packs here yet";
 "collectibles_main_packs_load_error" = "Failed to load packs. Tap to reload";
+"collectibles_main_relink_button" = "Relink account";
+"collectibles_main_relink_description" = "Make this phone primary for Packs account";
+"collectibles_main_relink_title" = "Relink account";
 "collectibles_main_search_empty" = "No results. Try to change your wording\nor explore from the list";
 "collectibles_main_search_load_error" = "Failed to load cards list.";
 "collectibles_main_title" = "Packs account";
@@ -393,6 +397,7 @@
 "common_fee_selector_option_market" = "За ринком";
 "common_fee_selector_option_slow" = "Повільно";
 "common_finish" = "Завершити";
+"common_for" = "for";
 "common_forget" = "Забути";
 "common_from_account" = "From account";
 "common_from_address" = "From address";
@@ -642,6 +647,7 @@
 "express_error_provider_amount_roundup" = "Помилка %1$@. Обраний провайдер не може обробити зазначену транзакцію. Округліть значення до %2$@ або змініть його.";
 "express_error_swap_pair_unavailable" = "Наразі обраний провайдер недоступний для обміну. Спробуй пізніше. (Код: %@)";
 "express_error_swap_unavailable" = "Наразі обмін неможливий. Спробуй пізніше. (Код: %@)";
+"express_error_transaction_cannot_be_created" = "The transaction cannot be created with %1$@. Please choose another provider. (Code: %2$@)";
 "express_estimated_amount" = "Очікувана сума";
 "express_exchange_by" = "Обмін через %@";
 "express_exchange_notification_failed_text" = "Перейдіть на сайт провайдера для повернення коштів";
@@ -1007,8 +1013,17 @@
 "joint_account_activation_title" = "Ви активуєте спільний акаунт";
 "joint_account_coming_soon_description" = "Ця дія поки недоступна для спільних акаунтів. Ми працюємо над цим";
 "joint_account_coming_soon_title" = "Незабаром у спільних акаунтах";
+"joint_account_compromised_message" = "The account address on your device doesn't match the one from our servers.";
+"joint_account_compromised_title" = "Can't verify this account";
 "joint_account_confirm_account_subtitle" = "Before using your Joint Account, make sure every member sees exactly the same address.";
 "joint_account_confirm_account_title" = "Confirm the account";
+"joint_account_confirm_address_compare_subtitle" = "Contact all members outside Tangem by phone, messenger, or in person. Check that everyone sees the exact same address.";
+"joint_account_confirm_address_compare_title" = "Compare with other members";
+"joint_account_confirm_address_confirm_button" = "Checked with everyone";
+"joint_account_confirm_address_everyone_subtitle" = "Your account will be ready once all members have confirmed the address.";
+"joint_account_confirm_address_everyone_title" = "Everyone must confirm";
+"joint_account_confirm_address_label" = "Shared address";
+"joint_account_confirm_address_mismatch_button" = "Address doesn't match";
 "joint_account_confirm_shared_address" = "Confirm shared address";
 "joint_account_invite_invalid_subtitle" = "Перевірте, чи відкрили правильне посилання, або попросіть творця акаунта надіслати його ще раз";
 "joint_account_invite_invalid_title" = "Посилання для запрошення недійсне";
@@ -1565,6 +1580,7 @@
 "prediction_details_market_opened" = "Market Opened";
 "prediction_details_market_volume" = "Volume:";
 "prediction_details_resolution_date" = "Resolution Date";
+"prediction_details_resolution_source" = "Resolution Source";
 "prediction_details_total_volume" = "Total volume";
 "prediction_event_live" = "Live";
 "prediction_event_probability" = "Probability";
@@ -1972,7 +1988,7 @@
 "settings_forget_wallet" = "Забути гаманець";
 "settings_wallet_name_title" = "Ім'я";
 "social_agreement_action_create" = "Створити гаманець";
-"social_login_consent_acknowledge" = "Я розумію, що якщо я не збережу свою фразу відновлення, втрата доступу до мого акаунта %@ може назавжди позбавити мене доступу до цього гаманця.";
+"social_login_consent_acknowledge" = "Я розумію, що якщо я не збережу свою фразу відновлення, то втрата доступу до мого акаунта %@ може назавжди позбавити мене доступу до цього гаманця.";
 "social_login_consent_description" = "Ключі вашого гаманця зашифровано, а їхня резервна копія зберігається у вашому хмарному акаунті. Tangem не може отримати до них доступ. Увійдіть через %1$@, щоб відновити гаманець, або скористайтеся фразою відновлення, якщо втратите доступ до свого акаунта %1$@.";
 "social_login_consent_email_sharing" = "Отримувати новини про продукт та ексклюзивні пропозиції електронною поштою";
 "social_login_consent_learn_more" = "Дізнатися більше";
@@ -1994,7 +2010,7 @@
 "social_login_toast_wallet_added" = "Гаманець додано";
 "social_login_toast_wallet_created" = "Гаманець створено";
 "social_wallet_delete_anyway" = "Усе одно видалити";
-"social_wallet_delete_attention_acknowledge" = "Я розумію, що якщо резервну копію моєї фрази відновлення не збережено, я назавжди втрачу доступ до цього гаманця.";
+"social_wallet_delete_attention_acknowledge" = "Я розумію, що якщо резервну копію моєї фрази відновлення не збережено, то я назавжди втрачу доступ до цього гаманця.";
 "social_wallet_delete_attention_description" = "Гаманець буде видалено з цього пристрою та відв’язано від вашого акаунта %1$@, а ваші зашифровані ключі буде видалено з хмари. Вхід через %1$@ більше не дасть змоги відновити його.";
 "social_wallet_delete_confirmation_title" = "Видалити цей гаманець і відв’язати його від вашого акаунта %1$@?";
 "social_wallet_delete_description" = "Гаманець буде видалено з цього пристрою та відв’язано від вашого акаунта %1$@, а ваші зашифровані ключі буде видалено з хмари. Вхід через %1$@ більше не дасть змоги відновити його. Спочатку збережіть резервну копію своєї фрази відновлення. Без неї ви назавжди втратите доступ до криптовалюти в цьому гаманці.";
@@ -2798,7 +2814,9 @@
 "transaction_history_supplied" = "Supplied";
 "transaction_history_transaction_for_address" = "для: %@";
 "transaction_history_transaction_from_address" = "від: %@";
+"transaction_history_transaction_from_for_address" = "from: %1$@ for %2$@";
 "transaction_history_transaction_to_address" = "до: %@";
+"transaction_history_transaction_to_for_address" = "to: %1$@ for %2$@";
 "transaction_history_unlimited_amount" = "Unlimited %@";
 "transaction_history_unlimited" = "Unlimited";
 "transaction_history_withdrawn" = "Withdrawn";

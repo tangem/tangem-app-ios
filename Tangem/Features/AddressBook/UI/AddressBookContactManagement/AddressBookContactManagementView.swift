@@ -98,7 +98,7 @@ struct AddressBookContactManagementView: View {
             GroupedSection(viewModel.selectedWallet) { wallet in
                 Row(title: Localization.addressBookSaveToWalletTitle)
                     .end { makeWalletValue(wallet: wallet) }
-                    .if(wallet.isEditable) { $0.onTap(viewModel.userDidRequestWalletChange) }
+                    .if(wallet.isEditable) { $0.onTap(action: viewModel.userDidRequestWalletChange) }
 
             } footer: {
                 Text(Localization.addressBookSaveWalletToDescription)
@@ -117,7 +117,7 @@ struct AddressBookContactManagementView: View {
                             .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textAccentRed)
                             .lineLimit(1)
                     }
-                    .onTap(viewModel.userDidRequestDelete)
+                    .onTap(action: viewModel.userDidRequestDelete)
                     .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: 0, horizontalPadding: 0, cornerRadius: 24)
                     .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             }

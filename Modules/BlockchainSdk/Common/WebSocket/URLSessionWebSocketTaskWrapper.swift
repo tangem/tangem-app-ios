@@ -98,14 +98,6 @@ class URLSessionWebSocketTaskWrapper {
         // Important for release of the session's delegate
         session?.invalidateAndCancel()
     }
-
-    func cancel() async -> URLSessionWebSocketTask.CloseCode {
-        _sessionWebSocketTask?.cancel(with: .goingAway, reason: nil)
-
-        return await withCheckedContinuation { [weak self] continuation in
-            self?.webSocketTaskDidClose.set(continuation)
-        }
-    }
 }
 
 // MARK: - CustomStringConvertible
