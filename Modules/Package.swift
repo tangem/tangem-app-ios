@@ -25,6 +25,12 @@ let package = Package(
                 "BlockchainSdk",
             ]
         ),
+        .library(
+            name: "TangemSnapshotTestSupport",
+            targets: [
+                "TangemSnapshotTestSupport",
+            ]
+        ),
     ],
     dependencies: [
         .package(url: "https://github.com/Moya/Moya.git", .upToNextMajor(from: "15.0.3")),
@@ -73,8 +79,18 @@ let package = Package(
         .package(url: "git@github.com:tangem-developments/ton-swift.git", exact: "1.0.17-tangem1"),
         .package(url: "https://github.com/attaswift/BigInt.git", .upToNextMajor(from: "5.3.0")),
         .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.3.0")),
+        .package(url: "https://github.com/pointfreeco/swift-snapshot-testing.git", .upToNextMajor(from: "1.18.4")),
     ],
-    targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
+    targets: [
+        modulesWrapperLibrary,
+        .tangemTarget(
+            name: "TangemSnapshotTestSupport",
+            dependencies: [
+                "TangemAssets",
+                .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
+            ]
+        ),
+    ] + serviceModules + featureModules + unitTestsModules
 )
 
 // MARK: - Service Modules
