@@ -31,6 +31,7 @@ import Foundation
 /// `111` - SocialAuthentication `SocialAuthError`
 /// `112` - Polymarket `Polymarket+UniversalError`
 /// `113` - WebSocket `WebSocketTransportError`
+/// `114` - Collectibles `Collectibles+UniversalError`
 public protocol UniversalError: LocalizedError {
     var errorCode: Int { get }
 }
