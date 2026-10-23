@@ -92,7 +92,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .jointAccountsGaslessTokenFee: return .unspecified
         case .merklIncentives: return .version("6.6")
         case .mcp: return .unspecified
-        case .payBundleIntroduction: return .unspecified
+        case .payBundleIntroduction: return .version("6.7")
         case .tangemPayAppleWalletProvisioning: return .unspecified
         case .tokenChartAddToPortfolio: return .version("6.6")
         case .marketingActivityBinding: return .unspecified

@@ -65,13 +65,7 @@ struct TangemPayOnboardingSheetBackground: View {
                 .frame(height: max(0, heroHeight + Metrics.photoFadeEndBelowTitle - Metrics.photoFadeHeight))
 
             LinearGradient(
-                stops: [
-                    .init(color: DesignSystem.Color.bgPrimary.opacity(0), location: 0),
-                    .init(color: DesignSystem.Color.bgPrimary.opacity(0.3), location: 0.25),
-                    .init(color: DesignSystem.Color.bgPrimary.opacity(0.58), location: 0.5),
-                    .init(color: DesignSystem.Color.bgPrimary.opacity(0.86), location: 0.75),
-                    .init(color: DesignSystem.Color.bgPrimary, location: 1),
-                ],
+                stops: Self.photoFadeStops,
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -83,8 +77,15 @@ struct TangemPayOnboardingSheetBackground: View {
         .allowsHitTesting(false)
     }
 
+    private static let photoFadeStops: [Gradient.Stop] = (0 ... Metrics.photoFadeStepCount).map { step in
+        let location = CGFloat(step) / CGFloat(Metrics.photoFadeStepCount)
+        let opacity = location * location * (3 - 2 * location)
+        return Gradient.Stop(color: DesignSystem.Color.bgPrimary.opacity(opacity), location: location)
+    }
+
     private enum Metrics {
         static let photoFadeHeight: CGFloat = 150
         static let photoFadeEndBelowTitle: CGFloat = 32
+        static let photoFadeStepCount = 16
     }
 }
