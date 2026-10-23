@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct CollectiblesSignedBuyback {
+public struct CollectiblesSignedBuyback: Sendable {
     public let signature: String
 
     let serializedTransaction: Data
