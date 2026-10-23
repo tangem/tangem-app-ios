@@ -81,7 +81,7 @@ private struct FeedWidgetSelectorModal: ViewModifier {
             isPresented: $presenter.isSelectorPresented,
             contentLayout: .intrinsic,
             dragIndicator: .hidden,
-            title: title,
+            navigation: .title(title),
             onDismiss: presenter.selectorDidDismiss
         ) {
             switch presenter.selector {

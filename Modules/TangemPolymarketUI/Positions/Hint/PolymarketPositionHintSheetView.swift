@@ -60,7 +60,7 @@ private extension PolymarketPositionHintSheetView {
     Color.clear
         .modal(
             isPresented: .constant(true),
-            title: "Unrealized PnL",
+            navigation: .title("Unrealized PnL"),
             content: {
                 PolymarketPositionHintSheetView(model: .init(
                     id: "unrealized",
