@@ -172,6 +172,39 @@ extension JointAccountsNetworkMapper {
     }
 }
 
+// MARK: - Refusals
+
+extension JointAccountsNetworkMapper {
+    func mapToRefusal(from error: TangemAPIError) -> JointOperationRefusal? {
+        guard error.code == .badRequest, let reasonCode = error.reasonCode else {
+            return nil
+        }
+
+        switch reasonCode {
+        case "UNSUPPORTED_CHAIN":
+            return .unsupportedChain
+        case "NONCE_MISMATCH":
+            return .nonceMismatch
+        case "INVALID_BASE_GAS":
+            return .invalidBaseGas
+        case "GAS_PRICE_TOO_LOW":
+            return .gasPriceTooLow
+        case "GAS_PRICE_TOO_HIGH":
+            return .gasPriceTooHigh
+        case "GAS_TOKEN_NOT_ALLOWED":
+            return .gasTokenNotAllowed
+        case "INVALID_REFUND_RECEIVER":
+            return .invalidRefundReceiver
+        case "INVALID_SAFE_OPERATION":
+            return .invalidSafeOperation
+        case "INVALID_SAFE_ADDRESS":
+            return .invalidSafeAddress
+        default:
+            return .unknown(reasonCode)
+        }
+    }
+}
+
 // MARK: - Private
 
 private extension JointAccountsNetworkMapper {
