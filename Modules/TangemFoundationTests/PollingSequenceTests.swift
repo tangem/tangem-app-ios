@@ -66,7 +66,7 @@ final class PollingSequenceTests: XCTestCase {
             delayProvider: delayProvider
         )
 
-        var results: [Result<Int, Error>] = []
+        var results: [Result<Int, any Error>] = []
         sequence: for await result in polling {
             results.append(result)
             if case .failure = result {
@@ -95,7 +95,7 @@ final class PollingSequenceTests: XCTestCase {
         )
 
         let task = Task {
-            var results: [Result<Int, Error>] = []
+            var results: [Result<Int, any Error>] = []
             for await result in polling {
                 results.append(result)
             }

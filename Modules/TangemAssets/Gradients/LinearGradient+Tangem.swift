@@ -6,7 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
+public import struct SwiftUI.Color
+public import struct SwiftUI.LinearGradient
 
 // MARK: - Tangem Linear gradients
 

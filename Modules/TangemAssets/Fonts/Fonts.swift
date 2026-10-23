@@ -6,7 +6,7 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
+public import struct SwiftUI.Font
 
 public enum Fonts {
     public enum Regular {
