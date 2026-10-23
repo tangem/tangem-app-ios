@@ -77,13 +77,23 @@ extension CommonJointAccountsNetworkService: JointAccountsNetworkService {
     }
 
     func createOperation(_ request: JointAccountOperationRequest) async throws -> JointAccountOperation {
-        let response = try await tangemApiService.createJointAccountOperation(
-            walletId: userWalletId.stringValue,
-            body: mapper.mapToRequest(from: request)
-        )
-        invalidateJointAccountsETag()
+        do {
+            let response = try await tangemApiService.createJointAccountOperation(
+                walletId: userWalletId.stringValue,
+                body: mapper.mapToRequest(from: request)
+            )
+            invalidateJointAccountsETag()
 
-        return try mapper.mapToOperation(from: response)
+            return try mapper.mapToOperation(from: response)
+        } catch let error as TangemAPIError where error.code == .conflict {
+            throw JointOperationError.networkBusy
+        } catch let error as TangemAPIError {
+            guard let refusal = mapper.mapToRefusal(from: error) else {
+                throw error
+            }
+
+            throw JointOperationError.refused(refusal)
+        }
     }
 
     func signOperation(id: String, safeTransaction: SafeTransaction, signature: Data) async throws -> JointAccountOperation {
