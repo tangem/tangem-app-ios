@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemPolymarket
 import TangemPolymarketUI
 
@@ -17,6 +18,7 @@ extension PolymarketMarketCard.Model {
         fallbackImageURL: URL? = nil,
         predictedText: String? = nil,
         areOutcomesEnabled: Bool = true,
+        outcomeTitles: [String]? = nil,
         onSelectOutcome: @escaping (PolymarketOutcome) -> Void
     ) -> Self {
         Self(
@@ -28,7 +30,7 @@ extension PolymarketMarketCard.Model {
             outcomes: market.outcomes.enumerated().map { index, outcome in
                 PolymarketMarketCard.Outcome(
                     id: outcome.assetId,
-                    title: outcome.title,
+                    title: outcomeTitles?[safe: index] ?? outcome.title,
                     priceText: PolymarketPriceFormatter.centsText(outcome.probability, isResolved: market.status == .closed),
                     style: PolymarketOutcomeStyle(outcomeIndex: index),
                     isEnabled: areOutcomesEnabled,

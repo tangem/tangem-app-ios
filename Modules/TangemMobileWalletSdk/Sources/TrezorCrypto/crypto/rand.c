@@ -23,18 +23,19 @@
 
 #include <TrezorCrypto/rand.h>
 #include <Security/Security.h>
+#include <stdlib.h>
 
 uint32_t __attribute__((weak)) random32(void) {
     uint32_t result = 0;
     OSStatus status = SecRandomCopyBytes(kSecRandomDefault, sizeof(result), &result);
     if (status != errSecSuccess) {
-        return 0;
+        abort();
     }
     return result;
 }
 
 void __attribute__((weak)) random_buffer(uint8_t *buf, size_t len) {
     if (SecRandomCopyBytes(kSecRandomDefault, len, buf) != errSecSuccess) {
-        memset(buf, 0, len);
+        abort();
     }
 }

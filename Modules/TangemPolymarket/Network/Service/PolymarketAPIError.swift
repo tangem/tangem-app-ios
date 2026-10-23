@@ -34,6 +34,7 @@ public struct PolymarketProblemDetail: Decodable, Hashable, Sendable {
     public let detail: String?
     public let instance: String?
     public let error: String?
+    public let traceId: String?
 
     public var message: String? {
         detail ?? error ?? title
@@ -45,7 +46,8 @@ public struct PolymarketProblemDetail: Decodable, Hashable, Sendable {
         status: Int? = nil,
         detail: String? = nil,
         instance: String? = nil,
-        error: String? = nil
+        error: String? = nil,
+        traceId: String? = nil
     ) {
         self.type = type
         self.title = title
@@ -53,6 +55,7 @@ public struct PolymarketProblemDetail: Decodable, Hashable, Sendable {
         self.detail = detail
         self.instance = instance
         self.error = error
+        self.traceId = traceId
     }
 }
 

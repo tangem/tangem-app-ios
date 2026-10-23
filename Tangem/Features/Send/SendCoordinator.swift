@@ -290,18 +290,6 @@ extension SendCoordinator: SendRoutable {
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
-
-    func openFeeSelectorLearnMoreURL(_ url: URL) {
-        Task { @MainActor [self] in
-            floatingSheetPresenter.pauseSheetsDisplaying()
-            safariHandle = safariManager.openURL(
-                url,
-                configuration: .init(),
-                onDismiss: { [weak self] in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
-                onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
-            )
-        }
-    }
 }
 
 // MARK: - SendDestinationRoutable

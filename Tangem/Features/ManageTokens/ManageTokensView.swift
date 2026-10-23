@@ -28,11 +28,11 @@ struct ManageTokensView: View {
     // MARK: - Redesign-aware styling
 
     private var viewBackgroundColor: Color {
-        isRedesign ? Color.Tangem.Surface.level2 : style.viewBackgroundColor
+        isRedesign ? DesignSystem.Color.bgPrimary : style.viewBackgroundColor
     }
 
     private var listBackgroundColor: Color {
-        isRedesign ? Color.Tangem.Surface.level3 : style.listBackgroundColor
+        isRedesign ? DesignSystem.Color.bgSecondary : style.listBackgroundColor
     }
 
     private var listCornerRadius: CGFloat {
@@ -40,7 +40,7 @@ struct ManageTokensView: View {
     }
 
     private var cardBackgroundColor: Color {
-        isRedesign ? Color.Tangem.Surface.level3 : Colors.Background.action
+        isRedesign ? DesignSystem.Color.bgSecondary : Colors.Background.action
     }
 
     private var cardCornerRadius: CGFloat {
@@ -48,15 +48,15 @@ struct ManageTokensView: View {
     }
 
     private var rowTitleFont: TangemFontStyle {
-        isRedesign ? Font.Tangem.Body15.semibold : TangemFontStyle(font: Fonts.Bold.subheadline)
+        isRedesign ? TangemFontStyle(DesignSystem.Font.subheadingMediumToken) : TangemFontStyle(font: Fonts.Bold.subheadline)
     }
 
     private var rowTitleColor: Color {
-        isRedesign ? .Tangem.Text.Neutral.primary : Colors.Text.primary1
+        isRedesign ? DesignSystem.Color.textPrimary : Colors.Text.primary1
     }
 
     private var accentColor: Color {
-        isRedesign ? Color.Tangem.Graphic.Status.accent : Colors.Icon.accent
+        isRedesign ? DesignSystem.Color.iconAccentBlue : Colors.Icon.accent
     }
 
     var body: some View {
@@ -125,19 +125,10 @@ struct ManageTokensView: View {
     @ViewBuilder
     private var searchField: some View {
         if isRedesign {
-            TangemSearchField(
-                text: $viewModel.searchText,
-                clearAction: { viewModel.searchText = "" },
-                cancelAction: {
-                    viewModel.searchText = ""
-                    UIApplication.shared.endEditing()
-                }
-            )
-            .placeholder(text: Localization.commonSearch)
-            .cornerStyle(.capsule)
-            .configure(disablesAutocorrection: true)
-            .textFieldAccessibilityIdentifier(ManageTokensAccessibilityIdentifiers.searchField)
-            .frame(height: Constants.redesignSearchFieldHeight)
+            Search(text: $viewModel.searchText)
+                .placeholder(Localization.commonSearch)
+                .textFieldAccessibilityIdentifier(ManageTokensAccessibilityIdentifiers.searchField)
+                .autocorrectionDisabled()
         } else {
             CustomSearchBar(
                 searchText: $viewModel.searchText,
@@ -243,7 +234,6 @@ private extension ManageTokensView {
     enum Constants {
         static let cardCornerRadius: CGFloat = 14
         static let redesignCardCornerRadius: CGFloat = 24
-        static let redesignSearchFieldHeight: CGFloat = 44
     }
 }
 

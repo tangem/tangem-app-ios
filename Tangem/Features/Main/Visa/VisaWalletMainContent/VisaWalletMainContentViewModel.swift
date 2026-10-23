@@ -19,7 +19,6 @@ import struct TangemUIUtils.AlertBinder
 protocol VisaWalletRoutable: AnyObject {
     func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo])
     func openInSafari(url: URL)
-    func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters)
     func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord, emailConfig: EmailConfig)
 }
 

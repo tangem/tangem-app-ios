@@ -15,7 +15,6 @@ protocol MarketsTokenDetailsBottomSheetRouter: AnyObject {
 }
 
 protocol MarketsTokenDetailsInfoDescriptionProvider {
-    var titleShort: String { get }
     var titleFull: String { get }
     var infoDescription: String { get }
 }

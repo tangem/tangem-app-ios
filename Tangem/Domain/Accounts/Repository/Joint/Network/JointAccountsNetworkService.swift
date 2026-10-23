@@ -52,6 +52,14 @@ protocol JointAccountsNetworkService {
     /// - Returns: The operation with its progress recounted, or nil when this very call deleted it — the initiator's
     /// reject always does, a co-signer's once the threshold becomes unreachable.
     func rejectOperation(id: String) async throws -> JointAccountOperation?
+
+    // MARK: - Operations history
+
+    func getOperationsHistory(afterCursor: String?, limit: Int) async throws -> JointOperationsHistoryPage
+
+    func getOperationsHistoryDelta(beforeCursor: String?, limit: Int) async throws -> JointOperationsHistoryPage
+
+    func getOperation(id: String, knownETag: String?) async throws -> JointOperationFetchResult
 }
 
 /// What a read of the list answers with.

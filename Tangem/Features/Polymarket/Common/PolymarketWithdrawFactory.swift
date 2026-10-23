@@ -12,9 +12,17 @@ import TangemPolymarket
 struct PolymarketWithdrawFactory {
     private let services = PolymarketOnboardingServicesFactory.makeDefault()
 
-    func makeContext(for userWalletModel: any UserWalletModel) -> PolymarketWithdrawContext {
+    func makeContext(
+        for userWalletModel: any UserWalletModel,
+        sessionHealth: PolymarketSessionHealthChecking
+    ) -> PolymarketWithdrawContext {
         let walletId = userWalletModel.userWalletId.stringValue
         let signer = userWalletModel.signer
+        let withdrawService = services.makeWithdrawService(walletId: walletId)
+        let tracker = PolymarketWithdrawTracker(
+            withdrawService: withdrawService,
+            store: PolymarketWithdrawRecordStore(userWalletId: userWalletModel.userWalletId)
+        )
 
         let transactionService = PolymarketWithdrawTransactionService(
             bridgeService: services.makeBridgeService(),
@@ -23,27 +31,35 @@ struct PolymarketWithdrawFactory {
                 store: InjectedValues[\.polymarketBuilderCodeStore]
             ),
             relayerService: services.makeRelayerService(),
-            withdrawService: services.makeWithdrawService(walletId: walletId),
+            withdrawService: withdrawService,
+            tracker: tracker,
             depositWalletResolver: PolymarketDepositWalletResolver(
                 walletService: services.makeWalletService(walletId: walletId),
-                ownerAddressProvider: PolymarketOnboardingFactory().makeOwnerAddressProvider(for: userWalletModel)
+                ownerAddressProvider: PolymarketOnboardingFactory().makeOwnerAddressProvider(for: userWalletModel),
+                sessionHealth: sessionHealth
             ),
             signer: PolymarketBatchSigner(keysRepository: userWalletModel.keysRepository, signer: signer),
-            serverClock: InjectedValues[\.polymarketServerClock]
+            serverClock: InjectedValues[\.polymarketServerClock],
+            sessionHealth: sessionHealth
         )
 
-        return PolymarketWithdrawContext(transactionService: transactionService, signer: signer)
+        return PolymarketWithdrawContext(
+            transactionService: transactionService,
+            tracker: tracker,
+            signer: signer
+        )
     }
 }
 
 struct PolymarketWithdrawContext {
     let transactionService: PolymarketWithdrawTransactionService
+    let tracker: PolymarketWithdrawTracker
     let signer: TangemSigner
 
     func makeSource(
         accountModel: any PolymarketAccountModel,
         depositWalletAddress: String,
-        minimumUSD: Decimal?
+        minimumUSD: Decimal
     ) -> PolymarketWithdrawSource {
         PolymarketWithdrawSource(
             accountModel: accountModel,

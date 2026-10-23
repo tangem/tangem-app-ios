@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUIUtils
 import TangemAssets
+import TangemLocalization
 
 // MARK: - View
 
@@ -90,6 +91,7 @@ private extension WrappedHoldToConfirmButton {
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(Text(viewModel.labelTitle))
             .accessibilityHint(Text(configuration.cancelTitle))
+            .accessibilityValue(isLoadingState ? Localization.commonInProgress : "")
             .accessibilityAddTraits(.isButton)
             .disabled(viewModel.isDisabled)
     }
@@ -115,6 +117,7 @@ private extension WrappedHoldToConfirmButton {
 
     var progressBar: some View {
         GeometryReader { proxy in
+            // [REDACTED_TODO_COMMENT]
             Color.Tangem.Fill.Neutral.quaternary
                 .opacity(0.15)
                 .frame(width: progressWidth(in: proxy))

@@ -50,7 +50,7 @@ struct NetworkSelectorItemView: View {
             .contentShape(.rect)
         }
         .accessibilityIdentifier(TokenAccessibilityIdentifiers.networkCell(for: viewModel.networkName))
-        .buttonStyle(.plain)
+        .buttonStyle(NoOpButtonStyle())
         .disabled(viewModel.isReadonly)
     }
 
@@ -77,10 +77,10 @@ struct NetworkSelectorItemView: View {
 
         case .tintedCapsule:
             Text(Localization.commonAdded)
-                .style(Fonts.Regular.caption1, color: Color.Tangem.Markers.textGray)
+                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                 .padding(.vertical, 4)
                 .padding(.horizontal, 8)
-                .background(Color.Tangem.Markers.backgroundTintedGray)
+                .background(DesignSystem.Color.bgTransparentPrimary)
                 .clipShape(Capsule())
         }
     }

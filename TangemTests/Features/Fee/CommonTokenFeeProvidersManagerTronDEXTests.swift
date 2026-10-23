@@ -184,10 +184,7 @@ struct CommonTokenFeeProvidersManagerTronDEXTests {
         #expect(provider.setupCalls.isEmpty)
     }
 
-    @Test(
-        "transactionFee for a CEX deposit quotes the amount that will be sent",
-        .enabled(if: FeatureProvider.isAvailable(.tronGaslessCEX))
-    )
+    @Test("transactionFee for a CEX deposit quotes the amount that will be sent")
     func transactionFee_cex_quotesTxValueAndDepositAddress() async throws {
         let loadedFee = BSDKFee(BSDKAmount(with: .tron(testnet: false), value: 1))
         let provider = makeProvider(loadedFee: loadedFee)
@@ -203,29 +200,6 @@ struct CommonTokenFeeProvidersManagerTronDEXTests {
         )))
 
         #expect(provider.setupCalls == [.common(amount: 10, destination: depositAddress)])
-        #expect(provider.updateFeesCallCount == 1)
-        #expect(result.amount.value == 1)
-    }
-
-    @Test(
-        "transactionFee for a CEX deposit quotes the sent amount as a CEX transfer",
-        .enabled(if: !FeatureProvider.isAvailable(.tronGaslessCEX))
-    )
-    func transactionFee_cex_quotesTxValueAsCEXInput() async throws {
-        let loadedFee = BSDKFee(BSDKAmount(with: .tron(testnet: false), value: 1))
-        let provider = makeProvider(loadedFee: loadedFee)
-        let sut = CommonTokenFeeProvidersManager(feeProviders: [provider], initialSelectedProvider: provider, ownerAddress: nil)
-        let depositAddress = "TCEXDepositAddress"
-
-        let result = try await sut.transactionFee(data: .cex(data: makeExpressTransactionData(
-            destinationAddress: depositAddress,
-            fromAmount: 99,
-            txValue: 10,
-            txData: nil,
-            transactionType: .send
-        )))
-
-        #expect(provider.setupCalls == [.cex(amount: 10, destination: depositAddress)])
         #expect(provider.updateFeesCallCount == 1)
         #expect(result.amount.value == 1)
     }

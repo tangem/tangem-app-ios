@@ -22,5 +22,20 @@ struct YieldModuleActiveCoordinatorView: View {
                 }
             }
         }
+        .background {
+            claimModal
+        }
+    }
+
+    @ViewBuilder
+    private var claimModal: some View {
+        if let viewModel = coordinator.claimViewModel {
+            YieldModuleClaimModal(
+                viewModel: viewModel,
+                isPresented: $coordinator.isClaimSheetShown,
+                onDismissed: coordinator.claimSheetDidDismiss
+            )
+            .id(viewModel.id)
+        }
     }
 }

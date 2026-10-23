@@ -15,10 +15,6 @@ extension ALPH {
 
         let bytes: Data
 
-        var length: Int {
-            bytes.count
-        }
-
         static func hash(_ input: Data) -> Blake2b {
             let hash = input.hashBlake2b(outputLength: defaultLength) ?? Data()
             return Blake2b(bytes: hash)

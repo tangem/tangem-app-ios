@@ -392,6 +392,7 @@ private extension CommonJointAccountsRepositoryTests {
                 nonce: 7
             ),
             status: .awaitingSignatures,
+            txHash: nil,
             initiator: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
             signatures: [JointAccountOperation.Signature(address: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", state: .signed, at: "2026-09-02T10:15:00Z")]
         )
@@ -504,6 +505,18 @@ private final class JointAccountsNetworkServiceStub: JointAccountsNetworkService
     }
 
     func rejectOperation(id: String) async throws -> JointAccountOperation? {
+        throw "Not called by these tests"
+    }
+
+    func getOperationsHistory(afterCursor: String?, limit: Int) async throws -> JointOperationsHistoryPage {
+        throw "Not called by these tests"
+    }
+
+    func getOperationsHistoryDelta(beforeCursor: String?, limit: Int) async throws -> JointOperationsHistoryPage {
+        throw "Not called by these tests"
+    }
+
+    func getOperation(id: String, knownETag: String?) async throws -> JointOperationFetchResult {
         throw "Not called by these tests"
     }
 }

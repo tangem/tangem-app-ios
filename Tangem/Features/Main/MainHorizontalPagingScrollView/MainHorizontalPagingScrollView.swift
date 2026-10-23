@@ -16,7 +16,6 @@ struct MainHorizontalPagingScrollView: View {
     let userWalletPageBuilders: [MainUserWalletPageBuilder]
 
     let selectedCardIndex: Binding<Int>
-    let onSelectedCardChanged: (CardsInfoPageChangeReason) -> Void
 
     let pullToRefreshAction: @MainActor (UserWalletId) -> Void
     let refreshingUserWalletIDs: Set<UserWalletId>
@@ -106,7 +105,6 @@ struct MainHorizontalPagingScrollView: View {
             HorizontalPagingScrollView(
                 userWalletPageBuilders: userWalletPageBuilders,
                 selectedCardIndex: selectedCardIndex,
-                onSelectedCardChanged: onSelectedCardChanged,
                 containerGeometryProperties: UserWalletView.ContainerGeometryProperties(
                     safeAreaInsetsTop: safeAreaInsetsTop,
                     bottomOverlayHeight: mainShtorkaBottomInset,
@@ -125,7 +123,6 @@ struct MainHorizontalPagingScrollView: View {
             HorizontalPagingScrollViewBackport(
                 userWalletPageBuilders: userWalletPageBuilders,
                 selectedCardIndex: selectedCardIndex,
-                onSelectedCardChanged: onSelectedCardChanged,
                 containerGeometryProperties: UserWalletView.ContainerGeometryProperties(
                     safeAreaInsetsTop: safeAreaInsetsTop,
                     bottomOverlayHeight: mainShtorkaBottomInset,
@@ -335,7 +332,6 @@ extension MainHorizontalPagingScrollView {
         let userWalletPageBuilders: [MainUserWalletPageBuilder]
 
         let selectedCardIndex: Binding<Int>
-        let onSelectedCardChanged: (CardsInfoPageChangeReason) -> Void
 
         let containerGeometryProperties: UserWalletView.ContainerGeometryProperties
 
@@ -356,7 +352,6 @@ extension MainHorizontalPagingScrollView {
         init(
             userWalletPageBuilders: [MainUserWalletPageBuilder],
             selectedCardIndex: Binding<Int>,
-            onSelectedCardChanged: @escaping (CardsInfoPageChangeReason) -> Void,
             containerGeometryProperties: UserWalletView.ContainerGeometryProperties,
             pullToRefreshAction: @MainActor @escaping (UserWalletId) -> Void,
             refreshingUserWalletIDs: Set<UserWalletId>,
@@ -368,7 +363,6 @@ extension MainHorizontalPagingScrollView {
             self.userWalletPageBuilders = userWalletPageBuilders
 
             self.selectedCardIndex = selectedCardIndex
-            self.onSelectedCardChanged = onSelectedCardChanged
 
             self.containerGeometryProperties = containerGeometryProperties
 
@@ -454,7 +448,6 @@ extension MainHorizontalPagingScrollView {
             }
 
             selectedCardIndex.wrappedValue = newSelectedCardIndex
-            onSelectedCardChanged(.byGesture)
         }
 
         private func updateScrollPositionIDIfNeeded(from newSelectedCardIndex: Int) {

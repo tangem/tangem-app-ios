@@ -21,7 +21,6 @@ struct TransactionViewModel: Hashable, Identifiable {
     let amount: TransactionViewAmountViewData
 
     var hash: String { id.hash }
-    var index: Int { id.index }
 
     /// Resolved at construction time by the `SubtitleOwnerResolver` for records that have a
     /// single resolvable counterparty. `nil` for legacy callers that don't run resolution.
@@ -37,6 +36,8 @@ struct TransactionViewModel: Hashable, Identifiable {
     let cashback: Cashback?
 
     let isPendingSignature: Bool
+
+    let isTangemPayCounterparty: Bool
 
     var inProgress: Bool {
         status == .inProgress
@@ -139,6 +140,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         status: TransactionViewModel.Status,
         isFromYieldContract: Bool,
         subtitleOwner: SubtitleOwner? = nil,
+        isTangemPayCounterparty: Bool,
         expressSubtitle: TransactionDisplayModel.ExpressSubtitle? = nil,
         cardName: String? = nil,
         warning: Warning? = nil,
@@ -170,6 +172,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         self.transactionType = transactionType
         self.status = status
         self.subtitleOwner = subtitleOwner
+        self.isTangemPayCounterparty = isTangemPayCounterparty
         self.cardName = cardName
         self.warning = warning
         self.cashback = cashback
@@ -187,6 +190,7 @@ struct TransactionViewModel: Hashable, Identifiable {
                 isOutgoing: isOutgoing
             ),
             subtitleOwner: subtitleOwner,
+            isTangemPayCounterparty: isTangemPayCounterparty,
             expressSubtitle: expressSubtitle,
             isPendingSignature: isPendingSignature
         )
@@ -271,6 +275,7 @@ extension TransactionViewModel {
 
     struct SentTokens: Hashable {
         let amount: String
+        let symbol: String
         let iconInfo: TokenIconInfo
     }
 

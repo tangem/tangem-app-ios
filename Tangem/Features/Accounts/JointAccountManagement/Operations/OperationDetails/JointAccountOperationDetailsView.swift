@@ -81,7 +81,7 @@ private extension JointAccountOperationDetailsViewModel {
             recipient: "33Bd321fS2p2o8Bk7mQwXeATkLQ3B36Yv2p210xxdSga21412B",
             recipientBlockiesImage: nil,
             networkFee: "~0.00056 ETH",
-            signingActionButtonType: .cardTap,
+            signingActionButtonType: .requiredNFCInteraction,
             content: .init(
                 collectedSignaturesCount: 1,
                 requiredSignaturesCount: 3,
@@ -102,12 +102,15 @@ private extension JointAccountOperationDetailsViewModel {
                 ],
                 answer: answer,
                 canSign: true,
+                canReject: true,
+                isInitiator: false,
                 status: status
             ),
             contentPublisher: .empty,
             pendingOperationsProvider: nil,
             coordinator: nil,
-            sign: {}
+            sign: {},
+            reject: {}
         )
     }
 }

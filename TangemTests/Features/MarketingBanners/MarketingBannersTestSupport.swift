@@ -125,6 +125,23 @@ func waitUntilConditionMet(
     return condition()
 }
 
+func waitUntilMainActorConditionMet(
+    timeout: TimeInterval = 2.0,
+    condition: @escaping @MainActor () -> Bool
+) async -> Bool {
+    let deadline = Date().addingTimeInterval(timeout)
+
+    while Date() < deadline {
+        if await condition() {
+            return true
+        }
+
+        try? await Task.sleep(nanoseconds: 25_000_000)
+    }
+
+    return await condition()
+}
+
 /// Waits for an emission satisfying `condition`, re-subscribing between bounded attempts.
 /// `Publishers.AsyncMap` can lose an emission when its transform task finishes before `flatMap`
 /// subscribes to the inner subject, so a single subscription may legitimately never fire.

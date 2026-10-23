@@ -101,10 +101,6 @@ private extension WalletConnectNetworksSelectorViewState.AvailableSection {
                 .map(WalletConnectNetworksSelectorViewState.AvailableSection.AvailableBlockchain.init)
         )
     }
-
-    var selectedBlockchains: [Blockchain] {
-        blockchains.compactMap(\.selectedBlockchain)
-    }
 }
 
 private extension WalletConnectNetworksSelectorViewState.AvailableSection.AvailableBlockchain {

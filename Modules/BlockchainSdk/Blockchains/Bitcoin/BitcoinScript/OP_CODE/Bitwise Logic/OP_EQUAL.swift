@@ -27,5 +27,4 @@ import Foundation
 /// Returns 1 if the inputs are exactly equal, 0 otherwise.
 struct OpEqual: OpCodeProtocol {
     var value: UInt8 { return 0x87 }
-    var name: String { return "OP_EQUAL" }
 }

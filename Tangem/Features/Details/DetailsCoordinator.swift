@@ -36,7 +36,6 @@ final class DetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var tangemPayWalletSelectorViewModel: TangemPayWalletSelectorViewModel?
     @Published var tosViewModel: DetailsTOSViewModel?
     @Published var environmentSetupCoordinator: EnvironmentSetupCoordinator?
     @Published var logsViewModel: LogsViewModel?

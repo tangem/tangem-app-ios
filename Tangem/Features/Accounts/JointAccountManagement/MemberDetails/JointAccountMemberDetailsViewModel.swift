@@ -12,7 +12,7 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 
-final class JointAccountMemberDetailsViewModel: FloatingSheetContentViewModel {
+final class JointAccountMemberDetailsViewModel: Identifiable {
     let name: String
     let address: String
     let accentColor: Color

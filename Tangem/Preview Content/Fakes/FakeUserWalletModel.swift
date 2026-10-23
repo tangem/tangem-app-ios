@@ -11,7 +11,6 @@ import TangemCollectibles
 import Combine
 import TangemSdk
 import BlockchainSdk
-import TangemAssets
 import TangemNFT
 import TangemFoundation
 import TangemPay
@@ -22,6 +21,7 @@ class FakeUserWalletModel: UserWalletModel {
     var jointAccountDerivationInteractor: JointAccountDerivationInteractor { UnavailableJointAccountDerivationInteractor() }
     var collectiblesColdKeyInteractor: CollectiblesColdKeyInteractor { UnavailableCollectiblesColdKeyInteractor() }
     var tangemPayAuthorizingInteractor: TangemPayAuthorizing { TangemPayAuthorizingMock() }
+    var polymarketOwnerKeySession: PolymarketOwnerKeySession { UnavailablePolymarketOwnerKeySession() }
 
     var keysRepository: KeysRepository {
         CommonKeysRepository(keys: .cardWallet(keys: []))
@@ -30,7 +30,6 @@ class FakeUserWalletModel: UserWalletModel {
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
     var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> { .empty }
-    var tangemPayAccount: TangemPayAccount? { nil }
 
     private(set) var name: String
     let emailData: [EmailCollectedData] = []
@@ -43,7 +42,6 @@ class FakeUserWalletModel: UserWalletModel {
     let isUserWalletLocked: Bool
     let userWalletId: UserWalletId
     var cardsCount: Int
-    var hasBackupCards: Bool { cardsCount > 1 }
     var emailConfig: EmailConfig? { nil }
     var cardSetLabel: String { config.cardSetLabel }
 
@@ -90,7 +88,6 @@ class FakeUserWalletModel: UserWalletModel {
         return nil
     }
 
-    var tokensCount: Int? { 0 }
     var updatePublisher: AnyPublisher<UpdateResult, Never> { _updatePublisher.eraseToAnyPublisher() }
 
     private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
@@ -144,17 +141,7 @@ class FakeUserWalletModel: UserWalletModel {
     func addAssociatedCard(cardId: String) {}
 }
 
-extension FakeUserWalletModel: MainHeaderSupplementInfoProvider {
-    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
-        .just(output: config.cardHeaderImage)
-    }
-}
-
-extension FakeUserWalletModel: AnalyticsContextDataProvider {
-    func getAnalyticsContextData() -> AnalyticsContextData? {
-        return nil
-    }
-}
+extension FakeUserWalletModel: AnalyticsContextDataProvider {}
 
 // MARK: - DisposableEntity protocol conformance
 
@@ -182,34 +169,6 @@ extension FakeUserWalletModel {
             .btcManager,
             .polygonWithTokensManager,
             .xrpManager,
-        ],
-        config: UserWalletConfigStubs.walletV2Stub
-    )
-
-    static let visa = FakeUserWalletModel(
-        userWalletName: "Tangem Visa",
-        isUserWalletLocked: false,
-        isDelayed: false,
-        cardsCount: 1,
-        userWalletId: .init(with: Data.randomData(count: 32)),
-        walletManagers: [
-            .visaWalletManager,
-        ],
-        config: UserWalletConfigStubs.visaStub
-    )
-
-    static let walletWithoutDelay = FakeUserWalletModel(
-        userWalletName: "Just A Wallet",
-        isUserWalletLocked: false,
-        isDelayed: false,
-        cardsCount: 1,
-        userWalletId: .init(with: Data.randomData(count: 32)),
-        walletManagers: [
-            .ethWithTokensManager,
-            .btcManager,
-            .polygonWithTokensManager,
-            .xrpManager,
-            .xlmManager,
         ],
         config: UserWalletConfigStubs.walletV2Stub
     )

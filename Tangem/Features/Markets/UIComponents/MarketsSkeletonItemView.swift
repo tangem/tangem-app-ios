@@ -53,11 +53,7 @@ struct MarketsSkeletonItemView: View {
     private func makeSkeletonView(by value: String) -> some View {
         Text(value)
             .style(DesignSystem.Font.captionMediumToken, color: .clear)
-            .overlay {
-                Shimmer()
-                    .variant(.custom(cornerRadius: 3))
-            }
-            .accessibilityHidden(true)
+            .shimmerPlaceholder(true, variant: .custom(cornerRadius: 3))
     }
 }
 

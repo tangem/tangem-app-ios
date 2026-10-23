@@ -31,11 +31,6 @@ enum RavencoinDTO {
                 self.pageNum = pageNum
             }
         }
-
-        struct Response: Decodable {
-            let pagesTotal: Int
-            let txs: [TransactionInfo.Response]
-        }
     }
 
     enum TransactionInfo {

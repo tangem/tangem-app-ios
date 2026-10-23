@@ -134,10 +134,3 @@ extension CommonFeeSelectorInteractor: FeeSelectorCustomFeeDataProviding {
         (selectedTokenFeeProvider as? FeeSelectorCustomFeeDataProviding)?.customFeeProvider
     }
 }
-
-extension CommonFeeSelectorInteractor {
-    struct State {
-        let selectedTokenFeeProvider: any TokenFeeProvider
-        let selectedFee: TokenFee
-    }
-}

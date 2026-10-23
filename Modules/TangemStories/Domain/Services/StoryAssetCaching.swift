@@ -11,4 +11,6 @@ import Foundation
 /// Returns a local file URL for a remote asset, downloading and caching it once.
 public protocol StoryAssetCaching: Sendable {
     func localURL(remoteURL url: URL, checksum: String) async throws -> URL
+
+    func retainingOnly(_ keys: Set<StoryAssetCacheKey>) async
 }

@@ -9,7 +9,6 @@
 import Foundation
 import TangemCollectibles
 import Combine
-import TangemAssets
 import TangemNFT
 import BlockchainSdk
 import TangemFoundation
@@ -21,6 +20,7 @@ class UserWalletModelMock: UserWalletModel {
     var jointAccountDerivationInteractor: JointAccountDerivationInteractor { UnavailableJointAccountDerivationInteractor() }
     var collectiblesColdKeyInteractor: CollectiblesColdKeyInteractor { UnavailableCollectiblesColdKeyInteractor() }
     var tangemPayAuthorizingInteractor: TangemPayAuthorizing { TangemPayAuthorizingMock() }
+    var polymarketOwnerKeySession: PolymarketOwnerKeySession { UnavailablePolymarketOwnerKeySession() }
 
     var keysRepository: KeysRepository {
         CommonKeysRepository(keys: .cardWallet(keys: []))
@@ -29,12 +29,9 @@ class UserWalletModelMock: UserWalletModel {
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
     var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> { .empty }
-    var tangemPayAccount: TangemPayAccount? { nil }
 
     var name: String { "" }
-    var hasBackupCards: Bool { false }
     var emailConfig: EmailConfig? { nil }
-    var tokensCount: Int? { 7 }
     var config: UserWalletConfig { fatalError("UserWalletConfigMock doesn't exist") }
     var userWalletId: UserWalletId { .init(value: Data()) }
 
@@ -59,8 +56,6 @@ class UserWalletModelMock: UserWalletModel {
     }
 
     var backupInput: OnboardingInput? { nil }
-
-    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { .empty }
 
     var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> { .empty }
 
@@ -106,8 +101,6 @@ class UserWalletModelMock: UserWalletModel {
     var refcodeProvider: RefcodeProvider? {
         return nil
     }
-
-    func getAnalyticsContextData() -> AnalyticsContextData? { nil }
 
     var backupState: UserWalletBackupState { .valid }
 

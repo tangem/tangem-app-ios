@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUIUtils
+import BlurSwiftUI
 
 public struct FloatingSheetView: View {
     private let viewModel: (any FloatingSheetContentViewModel)?
@@ -96,15 +97,10 @@ public struct FloatingSheetView: View {
                         transaction.animation = nil
                     }
             }
-            .background(sheetContentConfiguration.sheetBackgroundColor)
+            .geometryGroupBackport()
+            .floatingSheetBackground(sheetContentConfiguration.sheetBackground, in: roundedRectangle)
             .clipShape(roundedRectangle)
             .contentShape(roundedRectangle)
-            .tangemMaterialSurface(
-                in: roundedRectangle,
-                style: sheetContentConfiguration.sheetBackgroundMaterial ?? .default,
-                isVisible: sheetContentConfiguration.sheetBackgroundMaterial != nil,
-                shadow: nil
-            )
             .padding(.horizontal, 8)
             .padding(.leading, horizontalSafeAreaInsets.leading)
             .padding(.trailing, horizontalSafeAreaInsets.trailing)
@@ -234,5 +230,30 @@ private struct FloatingSheetLayout: SwiftUI.Layout {
         guard let content = subviews.first else { return }
 
         content.place(at: bounds.origin, anchor: .topLeading, proposal: ProposedViewSize(width: bounds.width, height: bounds.height))
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func geometryGroupBackport() -> some View {
+        if #available(iOS 17.0, *) {
+            geometryGroup()
+        } else {
+            transformEffect(.identity)
+        }
+    }
+
+    @ViewBuilder
+    func floatingSheetBackground(
+        _ backgroundConfiguration: FloatingSheetConfiguration.Background,
+        in shape: some InsettableShape
+    ) -> some View {
+        switch backgroundConfiguration {
+        case .color(let color):
+            background(color)
+
+        case .tangemMaterial(let materialStyle):
+            tangemMaterialSurface(in: shape, style: materialStyle, isVisible: true, shadow: nil)
+        }
     }
 }

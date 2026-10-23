@@ -121,10 +121,10 @@ struct JointAccountOperationDetailsViewModelTests {
 
     @Test("The Sign button is confirmed the way the wallet signs")
     func signButtonFollowsTheSigner() {
-        let cardButton = signButton(in: makeViewModel(signingActionButtonType: .cardTap))
+        let cardButton = signButton(in: makeViewModel(signingActionButtonType: .requiredNFCInteraction))
         let holdButton = signButton(in: makeViewModel(signingActionButtonType: .holdToConfirm))
 
-        #expect(cardButton?.signingType == .cardTap)
+        #expect(cardButton?.signingType == .requiredNFCInteraction)
         #expect(holdButton?.signingType == .holdToConfirm)
     }
 
@@ -142,6 +142,76 @@ struct JointAccountOperationDetailsViewModelTests {
         }.first
 
         #expect(copyAction == .copy(value: "0xrecipient", toast: Localization.walletNotificationAddressCopied, kind: .address))
+    }
+
+    @Test("The header menu deletes for the initiator, declines for a co-signer and offers neither once sending", .timeLimit(.minutes(1)))
+    func headerMenuRejectsByRole() async throws {
+        let viewModel = makeViewModel()
+
+        updates.send(makeContent(collectedSignaturesCount: 1, canReject: true, isInitiator: true))
+        _ = try await viewModel.$content.first { $0.isInitiator }.async()
+        #expect(rejectAction(in: viewModel)?.title == Localization.commonDelete)
+
+        updates.send(makeContent(collectedSignaturesCount: 1, canReject: true))
+        _ = try await viewModel.$content.first { !$0.isInitiator }.async()
+        #expect(rejectAction(in: viewModel)?.title == Localization.commonDecline)
+
+        updates.send(makeContent(collectedSignaturesCount: 3, canReject: true, status: .sending))
+        _ = try await viewModel.$content.first { $0.status == .sending }.async()
+        #expect(rejectAction(in: viewModel) == nil)
+    }
+
+    @Test("A co-signer's decline keeps the sheet open and answers it as declined", .timeLimit(.minutes(1)))
+    func declineAnswersTheOperation() async throws {
+        let viewModel = makeViewModel()
+
+        viewModel.rejectOperation()
+        _ = try await viewModel.$isRejecting.first { !$0 }.async()
+
+        #expect(viewModel.answer == .declined)
+        #expect(coordinator.closeCount.value == 0)
+    }
+
+    @Test("The initiator's delete closes the sheet", .timeLimit(.minutes(1)))
+    func deleteClosesTheSheet() async throws {
+        let viewModel = makeViewModel(isInitiator: true)
+
+        viewModel.rejectOperation()
+        _ = try await viewModel.$isRejecting.first { !$0 }.async()
+
+        #expect(coordinator.closeCount.value == 1)
+    }
+
+    @Test("An operation already gone closes the sheet without an alert", .timeLimit(.minutes(1)))
+    func rejectingAGoneOperationClosesTheSheet() async throws {
+        let viewModel = makeViewModel(reject: { throw TangemAPIError(code: .notFound) })
+
+        viewModel.rejectOperation()
+        _ = try await viewModel.$isRejecting.first { !$0 }.async()
+
+        #expect(coordinator.closeCount.value == 1)
+        #expect(alertPresenter.presentedAlertsCount.value == 0)
+    }
+
+    @Test("An operation past its threshold is explained before the sheet closes", .timeLimit(.minutes(1)))
+    func rejectingPastTheThresholdShowsAnAlert() async throws {
+        let viewModel = makeViewModel(reject: { throw TangemAPIError(code: .conflict) })
+
+        viewModel.rejectOperation()
+        _ = try await viewModel.$isRejecting.first { !$0 }.async()
+
+        #expect(alertPresenter.presentedAlertsCount.value == 1)
+        #expect(coordinator.closeCount.value == 0)
+    }
+
+    @Test("Delete or Decline asks for confirmation before anything is sent")
+    func rejectAsksForConfirmation() {
+        let viewModel = makeViewModel()
+
+        viewModel.handleViewAction(.rejectOperation)
+
+        #expect(alertPresenter.presentedAlertsCount.value == 1)
+        #expect(!viewModel.isRejecting)
     }
 
     @Test("Frequent updates are held only while the sheet is on screen")
@@ -184,8 +254,10 @@ struct JointAccountOperationDetailsViewModelTests {
     // MARK: - Helpers
 
     private func makeViewModel(
-        signingActionButtonType: SigningActionButtonViewType = .cardTap,
-        sign: @escaping () async throws -> Void = {}
+        signingActionButtonType: SigningActionButtonViewType = .requiredNFCInteraction,
+        isInitiator: Bool = false,
+        sign: @escaping () async throws -> Void = {},
+        reject: @escaping () async throws -> Void = {}
     ) -> JointAccountOperationDetailsViewModel {
         JointAccountOperationDetailsViewModel(
             tokenIconInfo: TokenIconInfo(
@@ -201,12 +273,13 @@ struct JointAccountOperationDetailsViewModelTests {
             recipientBlockiesImage: nil,
             networkFee: "~0.0005 ETH",
             signingActionButtonType: signingActionButtonType,
-            content: makeContent(collectedSignaturesCount: 1),
+            content: makeContent(collectedSignaturesCount: 1, isInitiator: isInitiator),
             contentPublisher: updates.eraseToAnyPublisher(),
             pendingOperationsProvider: provider,
             coordinator: coordinator,
             alertPresenter: alertPresenter,
-            sign: sign
+            sign: sign,
+            reject: reject
         )
     }
 
@@ -215,6 +288,8 @@ struct JointAccountOperationDetailsViewModelTests {
         requiredSignaturesCount: Int = 3,
         membersCount: Int = 3,
         signers: [JointAccountSignerRow.ViewData] = [],
+        canReject: Bool = false,
+        isInitiator: Bool = false,
         status: JointAccountOperationDetailsViewModel.Status = .awaitingSignatures
     ) -> JointAccountOperationDetailsViewModel.Content {
         JointAccountOperationDetailsViewModel.Content(
@@ -224,6 +299,8 @@ struct JointAccountOperationDetailsViewModelTests {
             signers: signers,
             answer: .awaiting,
             canSign: true,
+            canReject: canReject,
+            isInitiator: isInitiator,
             status: status
         )
     }
@@ -251,6 +328,10 @@ struct JointAccountOperationDetailsViewModelTests {
         }.first
     }
 
+    private func rejectAction(in viewModel: JointAccountOperationDetailsViewModel) -> TransactionDetailsHeaderViewData.MenuAction? {
+        viewModel.header.menuSections.flatMap(\.actions).first { $0.action == .rejectOperation }
+    }
+
     private func signaturesRow(in viewModel: JointAccountOperationDetailsViewModel) -> TransactionDetailsSignaturesViewData? {
         viewModel.blocks.lazy.compactMap { block in
             if case .signatures(let data) = block { data } else { nil }
@@ -274,8 +355,6 @@ private final class AlertPresenterSpy: AlertPresenter {
     func present(alert: AlertBinder) {
         presentedAlertsCount.value += 1
     }
-
-    func hideAlert() {}
 }
 
 private final class PendingOperationsProviderSpy: JointAccountPendingOperationsProvider {

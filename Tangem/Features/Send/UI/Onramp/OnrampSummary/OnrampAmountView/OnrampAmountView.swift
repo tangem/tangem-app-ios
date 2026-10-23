@@ -47,20 +47,20 @@ struct OnrampAmountView: View {
                     .fill(Colors.Field.focused)
                     .frame(width: 75, height: 16)
                     .padding(.vertical, 1)
-                    .shimmer()
+                    .shimmering()
 
                 // Text field
                 RoundedRectangle(cornerRadius: 4)
                     .fill(Colors.Field.focused)
                     .frame(width: 140, height: 42)
-                    .shimmer()
+                    .shimmering()
             }
 
             // Fiat token icon
             Capsule()
                 .fill(Colors.Field.focused)
                 .frame(width: 83, height: 28)
-                .shimmer()
+                .shimmering()
         }
     }
 

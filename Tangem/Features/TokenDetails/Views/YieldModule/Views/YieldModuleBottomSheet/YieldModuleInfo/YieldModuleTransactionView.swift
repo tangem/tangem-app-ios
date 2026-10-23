@@ -28,7 +28,7 @@ struct YieldModuleTransactionView: View {
         )
         .transition(.content)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = Colors.Background.tertiary
+            configuration.sheetBackground = .color(Colors.Background.tertiary)
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
         }
     }
@@ -52,29 +52,9 @@ struct YieldModuleTransactionView: View {
             .frame(size: .init(bothDimensions: 56))
     }
 
-    @ViewBuilder
     private var mainButton: some View {
-        if viewModel.confirmTransactionPolicy.needsHoldToConfirm {
-            mainActionHoldButton
-        } else {
-            mainActionButton
-        }
-    }
-
-    private var mainActionButton: some View {
-        MainButton(settings: .init(
-            title: viewModel.action.buttonTitle,
-            icon: viewModel.tangemIconProvider.getMainButtonIcon(),
-            style: .primary,
-            isLoading: viewModel.isProcessingRequest,
-            isDisabled: !viewModel.isActionButtonAvailable,
-            action: viewModel.onActionTap
-        ))
-        .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.confirmButton)
-    }
-
-    private var mainActionHoldButton: some View {
-        HoldToConfirmButton(
+        SigningActionButtonView(
+            type: viewModel.signingActionButtonType,
             title: viewModel.action.buttonTitle,
             isLoading: viewModel.isProcessingRequest,
             isDisabled: !viewModel.isActionButtonAvailable,

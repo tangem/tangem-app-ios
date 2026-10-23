@@ -218,9 +218,7 @@ struct OnrampOfferView: View {
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
                 IconView(url: viewModel.provider.paymentType.themedImageURL(isDark: resolvedColorScheme == .dark), size: .height(16)) {
-                    SkeletonView()
-                        .frame(width: 30, height: 16)
-                        .cornerRadiusContinuous(6)
+                    Shimmer().variant(.custom(width: 30, height: 16, cornerRadius: 6))
                 }
                 .foregroundStyle(Colors.Icon.secondary)
             }

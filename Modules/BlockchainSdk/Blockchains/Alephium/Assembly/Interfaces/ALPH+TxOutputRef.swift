@@ -10,14 +10,5 @@ import Foundation
 
 extension ALPH {
     /// A protocol representing a transaction output reference in the Alephium blockchain
-    protocol TxOutputRef: Hashable {
-        /// The hint for the output reference
-        var hint: Hint { get }
-        /// The key for the output reference
-        var key: TxOutputRefKey { get }
-        /// Whether the output is an asset type
-        var isAssetType: Bool { get }
-        /// Whether the output is a contract type
-        var isContractType: Bool { get }
-    }
+    protocol TxOutputRef: Hashable {}
 }

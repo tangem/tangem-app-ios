@@ -14,5 +14,5 @@ protocol OnrampRedirectingInput: AnyObject {
 }
 
 protocol OnrampRedirectingOutput: AnyObject {
-    func redirectDataDidLoad(data: OnrampRedirectData)
+    func redirectDataDidLoad(data: OnrampRedirectData, provider: OnrampProvider)
 }

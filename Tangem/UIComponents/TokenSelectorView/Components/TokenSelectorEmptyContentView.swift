@@ -15,9 +15,9 @@ struct TokenSelectorEmptyContentView: View {
 
     var body: some View {
         Text(message)
-            .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             .multilineTextAlignment(.center)
             .infinityFrame(axis: .horizontal)
-            .defaultRoundedBackground(with: Colors.Background.action)
+            .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary)
     }
 }

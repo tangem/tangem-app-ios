@@ -114,7 +114,7 @@ extension JointAccountSendFlowFactory: SendGenericFlowFactory {
 
 extension JointAccountSendFlowFactory: SendBaseBuildable {
     var baseIO: SendViewModelBuilder.IO {
-        SendViewModelBuilder.IO(input: sendModel, output: sendModel)
+        SendViewModelBuilder.IO(input: sendModel, output: sendModel, sourceTokenInput: sendModel)
     }
 
     var baseDependencies: SendViewModelBuilder.Dependencies {
@@ -129,7 +129,6 @@ extension JointAccountSendFlowFactory: SendBaseBuildable {
                 sourceTokenInput: sendModel
             ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             mainButtonUIOptionsProvider: JointAccountSendMainButtonUIOptionsProvider(
                 base: CommonSendMainButtonUIOptionsProvider(sourceTokenInput: sendModel)
             )
@@ -214,9 +213,7 @@ extension JointAccountSendFlowFactory: SendSummaryStepBuildable {
             sendFeeProvider: sendModel,
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
-            sendDescriptionBuilder: JointAccountSendTransactionSummaryDescriptionBuilder(tokenItem: tokenItem, policy: policy),
-            sendWithSwapDescriptionBuilder: makeSendWithSwapTransactionSummaryDescriptionBuilder(),
-            stakingDescriptionBuilder: makeStakingTransactionSummaryDescriptionBuilder(),
+            transactionSummaryDescriptionBuilderProvider: transferableToken.transactionSummaryDescriptionBuilderProvider,
         )
     }
 }
@@ -226,10 +223,6 @@ extension JointAccountSendFlowFactory: SendSummaryStepBuildable {
 extension JointAccountSendFlowFactory: SendFinishStepBuildable {
     var finishIO: SendFinishStepBuilder.IO {
         SendFinishStepBuilder.IO(input: sendModel)
-    }
-
-    var finishTypes: SendFinishStepBuilder.Types {
-        SendFinishStepBuilder.Types(tokenItem: tokenItem)
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {

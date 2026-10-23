@@ -43,12 +43,6 @@ public struct NFTErrorDescriptor: Equatable, Hashable, Sendable {
 
 // MARK: - Extensions
 
-extension NFTPartialResult where T == [NFTCollection] {
-    var assetsOrCollectionHadErrorsUpdating: Bool {
-        hasErrors || value.contains { $0.assetsResult.hasErrors }
-    }
-}
-
 extension NFTPartialResult: ExpressibleByArrayLiteral where T: ExpressibleByArrayLiteral, T: RangeReplaceableCollection {
     public init(arrayLiteral elements: T.Element...) {
         self.init(value: T(elements), errors: [])

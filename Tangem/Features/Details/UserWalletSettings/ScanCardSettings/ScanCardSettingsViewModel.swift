@@ -11,8 +11,6 @@ import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
 final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
     @Published var icon: LoadingResult<ImageValue, Never> = .loading
     @Published var isLoading: Bool = false
     @Published var alert: AlertBinder?

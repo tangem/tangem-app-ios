@@ -11,6 +11,7 @@ import enum Moya.MoyaError
 import class Moya.MoyaProvider
 import class Moya.Response
 import TangemFoundation
+private import TangemNetworkUtils
 
 struct MoyaUserWalletRegistrationClient: UserWalletRegistrationClient {
     private let provider: MoyaProvider<UserWalletTarget>
@@ -40,7 +41,7 @@ struct MoyaUserWalletRegistrationClient: UserWalletRegistrationClient {
         } catch {
             throw error.isTimeout
                 ? UserWalletRegistrationClientError.requestNonceTimeout
-                : UserWalletRegistrationClientError.requestNonceFailed(underlying: error)
+                : wrapped(moyaError: error, into: UserWalletRegistrationClientError.requestNonceFailed)
         }
 
         do {
@@ -60,13 +61,15 @@ struct MoyaUserWalletRegistrationClient: UserWalletRegistrationClient {
         do {
             response = try await provider.request(target)
         } catch {
-            switch error.response?.statusCode {
-            case 400 where isWalletAlreadyRegistered(error.response?.data):
-                throw UserWalletRegistrationClientError.alreadyRegistered
-
-            default:
+            guard let problemDetailsError = parseProblemDetail(from: error.response?.data) else {
                 throw UserWalletRegistrationClientError.registerFailed(underlying: error)
             }
+
+            if problemDetailsError == .walletAlreadyRegistered {
+                throw UserWalletRegistrationClientError.alreadyRegistered
+            }
+
+            throw UserWalletRegistrationClientError.registerFailed(underlying: problemDetailsError)
         }
 
         do {
@@ -92,13 +95,15 @@ struct MoyaUserWalletRegistrationClient: UserWalletRegistrationClient {
         do {
             response = try await provider.request(target)
         } catch {
-            switch error.response?.statusCode {
-            case 404 where isWalletNotRegistered(error.response?.data):
-                throw UserWalletRegistrationClientError.wasNotRegistered
-
-            default:
+            guard let problemDetailsError = parseProblemDetail(from: error.response?.data) else {
                 throw UserWalletRegistrationClientError.unregisterFailed(underlying: error)
             }
+
+            if problemDetailsError == .walletNotRegistered {
+                throw UserWalletRegistrationClientError.wasNotRegistered
+            }
+
+            throw UserWalletRegistrationClientError.unregisterFailed(underlying: problemDetailsError)
         }
 
         do {
@@ -110,19 +115,22 @@ struct MoyaUserWalletRegistrationClient: UserWalletRegistrationClient {
     }
 }
 
-// MARK: - ProblemDetail parsing
+// MARK: - TangemProblemDetailError parsing
 
 extension MoyaUserWalletRegistrationClient {
-    private func isWalletAlreadyRegistered(_ responseBody: Data?) -> Bool {
-        parseProblemDetail(from: responseBody) == ProblemDetailDTO.Response.walletAlreadyRegistered
+    private func wrapped(
+        moyaError: MoyaError,
+        into clientError: (any Error) -> UserWalletRegistrationClientError
+    ) -> UserWalletRegistrationClientError {
+        guard let problemDetailsError = parseProblemDetail(from: moyaError.response?.data) else {
+            return clientError(moyaError)
+        }
+
+        return clientError(problemDetailsError)
     }
 
-    private func isWalletNotRegistered(_ responseBody: Data?) -> Bool {
-        parseProblemDetail(from: responseBody) == ProblemDetailDTO.Response.walletNotRegistered
-    }
-
-    private func parseProblemDetail(from responseBody: Data?) -> ProblemDetailDTO.Response? {
+    private func parseProblemDetail(from responseBody: Data?) -> TangemProblemDetailError? {
         guard let responseBody else { return nil }
-        return try? decoder.decode(ProblemDetailDTO.Response.self, from: responseBody)
+        return try? decoder.decode(TangemProblemDetailError.self, from: responseBody)
     }
 }

@@ -82,7 +82,3 @@ extension PrivateInfo {
         static let packagingVersion: UInt8 = 1
     }
 }
-
-enum PrivateInfoError: Error {
-    case invalidData
-}

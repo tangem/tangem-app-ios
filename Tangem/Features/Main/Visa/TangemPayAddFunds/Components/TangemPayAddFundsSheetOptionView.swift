@@ -97,17 +97,11 @@ extension TangemPayAddFundsSheetOptionView {
         var icon: ImageType {
             switch self {
             case .receive:
-                FeatureProvider.isAvailable(.tangemPayOnrampV2)
-                    ? DesignSystem.Icons.Grid.regular20
-                    : Assets.Visa.grid
+                DesignSystem.Icons.Grid.regular20
             case .swap:
-                FeatureProvider.isAvailable(.tangemPayOnrampV2)
-                    ? DesignSystem.Icons.ArrowSwapHorizontal.regular20
-                    : DesignSystem.Icons.LogoTangem.regular20
+                DesignSystem.Icons.ArrowSwapHorizontal.regular20
             case .bankTransfer(let pending):
-                FeatureProvider.isAvailable(.tangemPayOnrampV2)
-                    ? (pending ? DesignSystem.Icons.Clock.regular20 : DesignSystem.Icons.Government.regular20)
-                    : Assets.Visa.fiat
+                pending ? DesignSystem.Icons.Clock.regular20 : DesignSystem.Icons.Government.regular20
             }
         }
 

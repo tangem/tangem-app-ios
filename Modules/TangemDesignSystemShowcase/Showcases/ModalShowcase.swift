@@ -126,13 +126,14 @@ private struct ModalShowcasePresenter: ViewModifier {
                 isPresented: $isPresented,
                 size: configuration.size,
                 contentLayout: configuration.contentLayout,
-                title: showsAccountSelection ? "Choose an account" : "Send to \(depth == 1 ? "Main account" : "account \(depth)")",
-                subtitle: showsAccountSelection ? "Select an account to continue" : "Bitcoin · 0.0421 BTC",
-                leading: configuration.showsActions ? .custom(.back { isPresented = false }) : .none,
-                actions: configuration.showsActions ? .one(TopNavigation.Action(title: "Add") { actionTaps += 1 }) : nil,
+                navigation: .title(
+                    showsAccountSelection ? "Choose an account" : "Send to \(depth == 1 ? "Main account" : "account \(depth)")",
+                    subtitle: showsAccountSelection ? "Select an account to continue" : "Bitcoin · 0.0421 BTC",
+                    leading: configuration.showsActions ? .custom(.back { isPresented = false }) : .none,
+                    actions: configuration.showsActions ? .one(TopNavigation.Action(title: "Add") { actionTaps += 1 }) : nil
+                ),
                 onDismiss: reset,
-                content: { presentedContent },
-                footer: { footer }
+                content: { presentedContent.legacyFooter { footer } }
             )
         } else {
             content.modal(
@@ -140,8 +141,7 @@ private struct ModalShowcasePresenter: ViewModifier {
                 size: configuration.size,
                 contentLayout: configuration.contentLayout,
                 onDismiss: reset,
-                content: { presentedContent },
-                footer: { footer }
+                content: { presentedContent.legacyFooter { footer } }
             )
         }
     }

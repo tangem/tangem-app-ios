@@ -37,14 +37,6 @@ enum TotalBalanceState: Hashable {
         }
     }
 
-    var hasPositiveBalance: Bool {
-        let balance: Decimal = switch self {
-        case .loaded(let balance): balance
-        default: 0
-        }
-        return balance > 0
-    }
-
     var hasAnyPositiveBalance: Bool {
         switch self {
         case .loading(let cached), .failed(let cached, _):

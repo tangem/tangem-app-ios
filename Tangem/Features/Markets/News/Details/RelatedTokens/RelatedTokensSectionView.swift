@@ -16,8 +16,6 @@ import TangemUIUtils
 struct RelatedTokensSectionView: View {
     @ObservedObject var viewModel: RelatedTokensViewModel
 
-    @Environment(\.mainWindowSize) private var mainWindowSize
-
     var body: some View {
         redesignContent
     }

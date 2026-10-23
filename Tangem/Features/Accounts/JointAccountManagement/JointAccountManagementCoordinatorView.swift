@@ -7,6 +7,8 @@
 //
 
 import SwiftUI
+import TangemLocalization
+import TangemUI
 
 struct JointAccountManagementCoordinatorView: View {
     @ObservedObject var coordinator: JointAccountManagementCoordinator
@@ -14,6 +16,25 @@ struct JointAccountManagementCoordinatorView: View {
     var dismissStyle: JointAccountInviteMembersView.DismissStyle = .close
 
     var body: some View {
+        content
+            .modal(
+                item: $coordinator.inviteSafetyViewModel,
+                contentLayout: .intrinsic,
+                navigation: .title(Localization.jointAccountInviteMembersSafetySheetTitle)
+            ) {
+                JointAccountInviteSafetyView(viewModel: $0)
+            }
+            .modal(
+                item: $coordinator.memberDetailsViewModel,
+                contentLayout: .intrinsic,
+                navigation: .closeButton()
+            ) {
+                JointAccountMemberDetailsView(viewModel: $0)
+            }
+    }
+
+    @ViewBuilder
+    private var content: some View {
         switch dismissStyle {
         case .close:
             NavigationStack(path: $coordinator.path) {

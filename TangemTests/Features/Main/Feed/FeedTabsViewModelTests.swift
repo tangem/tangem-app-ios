@@ -21,8 +21,8 @@ struct FeedTabsViewModelTests {
         viewModel.selectTab(kind: .earn)
 
         #expect(viewModel.selectedTab.kind == .earn)
-        #expect(viewModel.pages.map(\.tab.kind) == [.earn])
-        #expect(viewModel.pages.map(\.offset) == [0])
+        #expect(viewModel.pager.pages.map(\.tab.kind) == [.earn])
+        #expect(viewModel.pager.pages.map(\.offset) == [0])
     }
 
     @Test("A kind this build has no tab for lands on the default one")
@@ -32,7 +32,7 @@ struct FeedTabsViewModelTests {
         viewModel.selectTab(kind: .realAssets)
 
         #expect(viewModel.selectedTab.kind == .predictions)
-        #expect(viewModel.pages.map(\.tab.kind) == [.predictions])
+        #expect(viewModel.pager.pages.map(\.tab.kind) == [.predictions])
     }
 
     @Test("A tap leaves the slide to the pager")
@@ -42,7 +42,7 @@ struct FeedTabsViewModelTests {
         viewModel.onSelectTab(viewModel.tabs[1])
 
         #expect(viewModel.selectedTab.kind == .earn)
-        #expect(viewModel.pages.map(\.tab.kind) == [.predictions])
+        #expect(viewModel.pager.pages.map(\.tab.kind) == [.predictions])
     }
 }
 
@@ -75,7 +75,6 @@ private final class PromotionNotificationsManagerStub: PromotionNotificationsMan
 
 private final class EarnRouterStub: EarnFeedRoutable {
     func routeOnTokenResolved(_ resolution: EarnTokenResolution, source: EarnOpportunitySource) {}
-    func openPortfolioToken(_ walletModel: any WalletModel) {}
     func openNetworksFilter() {}
     func openTypesFilter() {}
 }

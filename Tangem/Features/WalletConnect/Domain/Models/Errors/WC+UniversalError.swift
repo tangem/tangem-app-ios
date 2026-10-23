@@ -133,6 +133,8 @@ extension WalletConnectTransactionRequestProcessingError: UniversalError {
             107009020
         case .accountNotFound:
             1007009021
+        case .forbiddenTypedData:
+            107009022
         }
     }
 }

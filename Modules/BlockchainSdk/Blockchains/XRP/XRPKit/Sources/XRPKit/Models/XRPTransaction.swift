@@ -9,7 +9,6 @@ import Foundation
 import TangemFoundation
 
 let HASH_TX_SIGN: [UInt8] = [0x53, 0x54, 0x58, 0x00]
-let HASH_TX_SIGN_TESTNET: [UInt8] = [0x73, 0x74, 0x78, 0x00]
 
 class XRPTransaction {
     var fields: [String: Any] = [:]
@@ -50,11 +49,6 @@ class XRPTransaction {
 
     func getBlob() -> String {
         return Serializer().serializeTx(tx: fields, forSigning: false).hex(.uppercase)
-    }
-
-    func getJSONString() -> String {
-        let jsonData = try! JSONSerialization.data(withJSONObject: fields, options: .prettyPrinted)
-        return String(data: jsonData, encoding: .utf8)!
     }
 
     private func enforceJSONTypes(fields: [String: Any]) -> [String: Any] {

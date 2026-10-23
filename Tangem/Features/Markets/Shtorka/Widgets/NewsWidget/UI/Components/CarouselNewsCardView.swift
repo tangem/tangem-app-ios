@@ -73,7 +73,7 @@ struct CarouselNewsCardView: View {
     private func contentView(for item: CarouselNewsItem) -> some View {
         VStack(alignment: .leading, spacing: .zero) {
             NewsRatingViewRedesign(rating: "\(item.rating) • \(item.timeAgo)", isHighlighted: false)
-                .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
+                .shimmerPlaceholder(isLoading, variant: .custom(cornerRadius: Layout.Skeleton.cornerRadius))
 
             FixedSpacer(height: 8)
 
@@ -83,12 +83,12 @@ struct CarouselNewsCardView: View {
                 .lineLimit(Layout.RedesignCard.titleLineLimit)
                 .truncationMode(.tail)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
-                .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
+                .shimmerPlaceholder(isLoading, variant: .custom(cornerRadius: Layout.Skeleton.cornerRadius))
 
             Spacer(minLength: 8)
 
             InfoChipsRowView(chips: item.tags, alignment: .leading, style: .redesign)
-                .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
+                .shimmerPlaceholder(isLoading, variant: .custom(cornerRadius: Layout.Skeleton.cornerRadius))
         }
     }
 
@@ -103,14 +103,6 @@ struct CarouselNewsCardView: View {
 
 extension CarouselNewsCardView {
     enum Layout {
-        enum MainCard {
-            static let verticalSpacing: CGFloat = .zero
-            static let padding: CGFloat = 14
-            static let cornerRadius: CGFloat = 14
-            static let width: CGFloat = 228
-            static let height: CGFloat = 136
-        }
-
         enum RedesignCard {
             static let padding: CGFloat = 16
             static let cornerRadius: CGFloat = 24
@@ -118,17 +110,6 @@ extension CarouselNewsCardView {
             static let width: CGFloat = 280
             static let contentHeight: CGFloat = 132
             static let titleLineLimit: Int = 3
-        }
-
-        enum Spacing {
-            static let afterRating: CGFloat = 8
-            static let afterTitle: CGFloat = 16
-        }
-
-        enum Shadow {
-            static let colorOpacity: Double = 0.05
-            static let radius: CGFloat = 4
-            static let yOffset: CGFloat = 8
         }
 
         enum ReadState {

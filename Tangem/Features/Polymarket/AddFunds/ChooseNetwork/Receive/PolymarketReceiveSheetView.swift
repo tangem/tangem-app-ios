@@ -27,7 +27,7 @@ struct PolymarketReceiveSheetView: View {
         }
         .id(viewModel.address)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+            configuration.sheetBackground = .color(DesignSystem.Color.bgSecondary)
             configuration.backgroundInteractionBehavior = .tapToDismiss
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
         }
@@ -40,7 +40,10 @@ private extension PolymarketReceiveSheetView {
     var header: some View {
         BottomSheetHeaderView(
             title: Localization.domainReceiveAssetsNavigationTitle,
-            leading: { backButton },
+            leading: {
+                backButton
+                    .animation(.headerOpacity, value: viewModel.isBackButtonVisible)
+            },
             trailing: { closeButton }
         )
         .titleFont(DesignSystem.Font.bodyMediumToken.font)
@@ -59,6 +62,7 @@ private extension PolymarketReceiveSheetView {
             )
             .size(.x11)
             .styleType(.material(.glass))
+            .transition(.opacity)
         }
     }
 
@@ -76,13 +80,16 @@ private extension PolymarketReceiveSheetView {
 // MARK: - Content
 
 private extension PolymarketReceiveSheetView {
-    @ViewBuilder
     var content: some View {
-        switch viewModel.viewState {
-        case .info:
-            infoContent
-        case .qrCode(let qrCodeViewModel):
-            RedesignedQRCodeReceiveAssetsView(viewModel: qrCodeViewModel)
+        ZStack {
+            switch viewModel.viewState {
+            case .info:
+                infoContent
+                    .transition(.content)
+            case .qrCode(let qrCodeViewModel):
+                RedesignedQRCodeReceiveAssetsView(viewModel: qrCodeViewModel)
+                    .transition(.content)
+            }
         }
     }
 
@@ -252,5 +259,13 @@ private extension PolymarketReceiveSheetView {
 }
 
 private extension Animation {
+    static let headerOpacity = Animation.curve(.easeOutStandard, duration: 0.2)
     static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
+}
+
+private extension AnyTransition {
+    static let content = AnyTransition.asymmetric(
+        insertion: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3).delay(0.2)),
+        removal: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
+    )
 }

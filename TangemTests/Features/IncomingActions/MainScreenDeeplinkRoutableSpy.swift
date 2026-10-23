@@ -11,7 +11,6 @@ import TangemFoundation
 
 final class MainScreenDeeplinkRoutableSpy: MainScreenDeeplinkRoutable {
     var isRootVisible = true
-    var isShtorkaPresented = false
 
     private(set) var openedMarketsTokenId: String?
     private(set) var didOpenBuy = false
@@ -25,8 +24,8 @@ final class MainScreenDeeplinkRoutableSpy: MainScreenDeeplinkRoutable {
         openedFeed = selection
     }
 
-    func openMarketsTokenDetails(tokenModel: MarketsTokenModel) {
-        openedMarketsTokenId = tokenModel.id
+    func openMarketsTokenChart(tokenId: String) {
+        openedMarketsTokenId = tokenId
     }
 
     func openBuy(userWalletModel: any UserWalletModel) {

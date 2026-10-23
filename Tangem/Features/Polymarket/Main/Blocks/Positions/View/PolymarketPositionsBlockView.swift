@@ -14,12 +14,28 @@ struct PolymarketPositionsBlockView: View {
     @ObservedObject var viewModel: PolymarketPositionsBlockViewModel
 
     var body: some View {
+        content
+            .polymarketStateTransition(phase)
+    }
+
+    private var phase: String {
+        switch viewModel.content {
+        case .hidden: "hidden"
+        case .skeleton: "skeleton"
+        case .failed: "failed"
+        case .positions: "positions"
+        case .noActivePositions: "noActivePositions"
+        }
+    }
+
+    @ViewBuilder
+    private var content: some View {
         switch viewModel.content {
         case .hidden:
             EmptyView()
-        case .skeleton:
+        case .skeleton(let rowCount):
             container {
-                PolymarketPositionsSkeletonView(rowCount: Constants.skeletonRowCount)
+                PolymarketPositionsSkeletonView(rowCount: rowCount)
             }
         case .failed:
             container {
@@ -57,13 +73,5 @@ private extension PolymarketPositionsBlockView {
             onOpenFinished: { viewModel.handleViewAction(.openMyPositions(.finished)) },
             content: content
         )
-    }
-}
-
-// MARK: - Constants
-
-private extension PolymarketPositionsBlockView {
-    enum Constants {
-        static let skeletonRowCount = 3
     }
 }
