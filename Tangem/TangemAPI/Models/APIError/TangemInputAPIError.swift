@@ -14,11 +14,13 @@ struct TangemInputAPIError: Decodable {
         case statusCode
         case error
         case message
+        case code
     }
 
     let statusCode: TangemAPIError.ErrorCode
     let error: String?
     let message: [String]
+    let code: String?
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -35,5 +37,6 @@ struct TangemInputAPIError: Decodable {
         statusCode = try container.decode(TangemAPIError.ErrorCode.self, forKey: .statusCode)
         error = try? container.decodeIfPresent(String.self, forKey: .error)
         message = messages
+        code = try? container.decodeIfPresent(String.self, forKey: .code)
     }
 }

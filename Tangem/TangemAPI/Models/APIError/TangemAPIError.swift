@@ -11,14 +11,16 @@ import Foundation
 struct TangemAPIError: Decodable, LocalizedError {
     let code: ErrorCode
     let message: String?
+    let reasonCode: String?
 
     var errorDescription: String? {
         message ?? code.description
     }
 
-    init(code: TangemAPIError.ErrorCode, message: String? = nil) {
+    init(code: TangemAPIError.ErrorCode, message: String? = nil, reasonCode: String? = nil) {
         self.code = code
         self.message = message
+        self.reasonCode = reasonCode
     }
 }
 

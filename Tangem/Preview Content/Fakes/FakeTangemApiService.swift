@@ -47,6 +47,7 @@ final class FakeTangemApiService: TangemApiService {
     // MARK: - Joint Accounts Handlers (Tests/Previews)
 
     var getJointAccountsHandler: ((_ knownETag: String?) async throws -> (eTag: String?, accounts: JointAccountsDTO.Response.JointAccounts)?)?
+    var createJointAccountOperationHandler: ((_ body: JointAccountsDTO.Request.CreateOperation) async throws -> JointAccountsDTO.Response.Operation)?
     var rejectJointAccountOperationHandler: ((_ operationId: String) async throws -> JointAccountsDTO.Response.Operation?)?
     var getJointOperationsHistoryHandler: ((_ request: JointAccountsDTO.Request.OperationsHistory) async throws -> JointAccountsDTO.Response.OperationsHistory)?
     var getJointOperationsHistoryDeltaHandler: ((_ request: JointAccountsDTO.Request.OperationsHistoryDelta) async throws -> JointAccountsDTO.Response.OperationsHistoryDelta)?
@@ -360,7 +361,11 @@ final class FakeTangemApiService: TangemApiService {
     func createJointAccountOperation(
         walletId: String, body: JointAccountsDTO.Request.CreateOperation
     ) async throws -> JointAccountsDTO.Response.Operation {
-        throw "Not implemented"
+        guard let createJointAccountOperationHandler else {
+            throw "Not implemented"
+        }
+
+        return try await createJointAccountOperationHandler(body)
     }
 
     func signJointAccountOperation(

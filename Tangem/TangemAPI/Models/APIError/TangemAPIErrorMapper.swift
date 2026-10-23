@@ -38,7 +38,7 @@ enum TangemAPIErrorMapper {
     private static func mapFromInputAPIError(_ body: Data, using decoder: JSONDecoder) throws -> TangemAPIError {
         let error = try decoder.decode(TangemInputAPIError.self, from: body)
 
-        return TangemAPIError(code: error.statusCode, message: error.message.first ?? error.error)
+        return TangemAPIError(code: error.statusCode, message: error.message.first ?? error.error, reasonCode: error.code)
     }
 
     private static func mapFromStatusCode(_ statusCode: Int) -> TangemAPIError? {
