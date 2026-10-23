@@ -34,6 +34,7 @@ final class CommonYieldModuleNetworkManager {
     private let yieldModuleAPIService: YieldModuleAPIService
     private let yieldMarketsRepository: YieldModuleMarketsRepository
     private let yieldModuleChartManager: YieldModuleChartManager
+    private let blockchainAvailability: YieldModuleBlockchainAvailability
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
@@ -46,11 +47,13 @@ final class CommonYieldModuleNetworkManager {
     init(
         yieldModuleAPIService: YieldModuleAPIService,
         yieldMarketsRepository: YieldModuleMarketsRepository,
-        yieldModuleChartManager: YieldModuleChartManager
+        yieldModuleChartManager: YieldModuleChartManager,
+        blockchainAvailability: YieldModuleBlockchainAvailability = YieldModuleBlockchainAvailability()
     ) {
         self.yieldModuleAPIService = yieldModuleAPIService
         self.yieldMarketsRepository = yieldMarketsRepository
         self.yieldModuleChartManager = yieldModuleChartManager
+        self.blockchainAvailability = blockchainAvailability
 
         bind()
     }
@@ -269,9 +272,9 @@ private extension CommonYieldModuleNetworkManager {
                 ? try await yieldModuleAPIService.getIncentiveYieldMarkets(chainIDs: chainIDs)
                 : try await yieldModuleAPIService.getYieldMarkets(chainIDs: chainIDs)
 
-            let markets = response.tokens.map {
-                YieldModuleMarketInfo(dto: $0, includeIncentive: includeIncentive)
-            }
+            let markets = response.tokens
+                .map { YieldModuleMarketInfo(dto: $0, includeIncentive: includeIncentive) }
+                .filter { blockchainAvailability.isAvailable(chainId: $0.chainId) }
 
             return (markets, response)
         } catch {
@@ -281,7 +284,9 @@ private extension CommonYieldModuleNetworkManager {
                 return ([], nil)
             }
 
-            let markets = cachedMarkets.markets.map(YieldModuleMarketInfo.init(from:))
+            let markets = cachedMarkets.markets
+                .map(YieldModuleMarketInfo.init(from:))
+                .filter { blockchainAvailability.isAvailable(chainId: $0.chainId) }
 
             return (markets, nil)
         }
