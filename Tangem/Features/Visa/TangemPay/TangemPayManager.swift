@@ -284,6 +284,10 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
             orderStatusPollingService.cancel()
             stateSubject.value = makeKYCRequiredState()
 
+        case .kycInProgress:
+            orderStatusPollingService.cancel()
+            stateSubject.value = .kycRequired(weakReferenceHolder)
+
         case .kycDeclined:
             orderStatusPollingService.cancel()
             stateSubject.value = .kycDeclined(weakReferenceHolder)
@@ -414,18 +418,16 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         }
 
         switch residencyStatusStorage.residencyStatus(userWalletId: userWalletId, product: .paymentAccount) {
-        case .pending:
+        case .pending, .none:
             return .residencyRequired(weakReferenceHolder)
         case .unavailable(let region):
             return .regionUnavailable(region, weakReferenceHolder)
-        case .none:
-            return .kycRequired(weakReferenceHolder)
         }
     }
 
     private func applyResidencyStatus() {
         switch stateSubject.value {
-        case .kycRequired, .residencyRequired, .regionUnavailable:
+        case .residencyRequired, .regionUnavailable:
             stateSubject.value = makeKYCRequiredState()
         default:
             break
