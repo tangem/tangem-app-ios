@@ -91,7 +91,7 @@ struct NowNodesAPIResolver {
         case .ravencoin:
             link = "https://rvn.nownodes.io/\(apiKey)"
         case .sui:
-            link = "https://sui.nownodes.io/\(apiKey)"
+            link = "https://sui-grpc.nownodes.io"
         case .tezos:
             link = "https://xtz.nownodes.io/\(apiKey)"
         case .odysseyChain:

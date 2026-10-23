@@ -1,0 +1,128 @@
+// Subset of the Sui gRPC API v2 (https://github.com/MystenLabs/sui-apis, proto/sui/rpc/v2, commit aa9ba2c)
+// Copyright (c) Mysten Labs, Inc.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Only the messages and fields the wallet reads are declared. Field numbers and the package must stay
+// identical to upstream: the package forms the gRPC method path and unknown fields are skipped on decode.
+
+syntax = "proto3";
+
+package sui.rpc.v2;
+
+import "google/protobuf/field_mask.proto";
+
+service LedgerService {
+  rpc GetEpoch(GetEpochRequest) returns (GetEpochResponse);
+}
+
+service StateService {
+  rpc ListOwnedObjects(ListOwnedObjectsRequest) returns (ListOwnedObjectsResponse);
+}
+
+service TransactionExecutionService {
+  rpc ExecuteTransaction(ExecuteTransactionRequest) returns (ExecuteTransactionResponse);
+  rpc SimulateTransaction(SimulateTransactionRequest) returns (SimulateTransactionResponse);
+}
+
+message GetEpochRequest {
+  optional uint64 epoch = 1;
+  optional google.protobuf.FieldMask read_mask = 2;
+}
+
+message GetEpochResponse {
+  optional Epoch epoch = 1;
+}
+
+message ListOwnedObjectsRequest {
+  optional string owner = 1;
+  optional uint32 page_size = 2;
+  optional bytes page_token = 3;
+  optional google.protobuf.FieldMask read_mask = 4;
+  optional string object_type = 5;
+}
+
+message ListOwnedObjectsResponse {
+  repeated Object objects = 1;
+  optional bytes next_page_token = 2;
+}
+
+message ExecuteTransactionRequest {
+  optional Transaction transaction = 1;
+  repeated UserSignature signatures = 2;
+  optional google.protobuf.FieldMask read_mask = 3;
+}
+
+message ExecuteTransactionResponse {
+  optional ExecutedTransaction transaction = 1;
+}
+
+message SimulateTransactionRequest {
+  optional Transaction transaction = 1;
+  optional google.protobuf.FieldMask read_mask = 2;
+}
+
+message SimulateTransactionResponse {
+  optional ExecutedTransaction transaction = 1;
+}
+
+message Bcs {
+  optional string name = 1;
+  optional bytes value = 2;
+}
+
+message Epoch {
+  optional uint64 epoch = 1;
+  optional uint64 reference_gas_price = 8;
+}
+
+message Object {
+  optional string object_id = 2;
+  optional uint64 version = 3;
+  optional string digest = 4;
+  optional string object_type = 6;
+  optional string previous_transaction = 10;
+  optional uint64 balance = 101;
+}
+
+message Transaction {
+  optional Bcs bcs = 1;
+  optional string digest = 2;
+  optional GasPayment gas_payment = 6;
+}
+
+message GasPayment {
+  optional string owner = 2;
+  optional uint64 price = 3;
+  optional uint64 budget = 4;
+}
+
+message UserSignature {
+  optional Bcs bcs = 1;
+}
+
+message ExecutedTransaction {
+  optional string digest = 1;
+  optional Transaction transaction = 2;
+  optional TransactionEffects effects = 4;
+}
+
+message TransactionEffects {
+  optional ExecutionStatus status = 4;
+  optional GasCostSummary gas_used = 6;
+}
+
+message ExecutionStatus {
+  optional bool success = 1;
+  optional ExecutionError error = 2;
+}
+
+message ExecutionError {
+  optional string description = 1;
+}
+
+message GasCostSummary {
+  optional uint64 computation_cost = 1;
+  optional uint64 storage_cost = 2;
+  optional uint64 storage_rebate = 3;
+  optional uint64 non_refundable_storage_fee = 4;
+}
