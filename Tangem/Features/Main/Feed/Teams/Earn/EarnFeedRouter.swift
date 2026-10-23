@@ -10,7 +10,6 @@ import TangemUI
 
 protocol EarnFeedRoutable: AnyObject {
     func routeOnTokenResolved(_ resolution: EarnTokenResolution, source: EarnOpportunitySource)
-    func openPortfolioToken(_ walletModel: any WalletModel)
     func openNetworksFilter()
     func openTypesFilter()
 }
@@ -40,10 +39,6 @@ extension EarnFeedRouter: EarnFeedRoutable {
         case .alreadyAdded(let walletModel, _):
             portfolioTokenRouter.push(walletModel)
         }
-    }
-
-    func openPortfolioToken(_ walletModel: any WalletModel) {
-        portfolioTokenRouter.open(walletModel)
     }
 
     func openNetworksFilter() {
