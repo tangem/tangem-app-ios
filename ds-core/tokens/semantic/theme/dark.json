@@ -2141,6 +2141,138 @@
           "$value": "rgba({palette.blue.80}, 0)"
         }
       }
+    },
+    "account": {
+      "vital-green": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.account.vitalGreen",
+            "iOS": "DesignSystem.Colors.accountVitalGreen"
+          }
+        },
+        "$type": "color",
+        "$value": "#6dbb14"
+      },
+      "ufo-green": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.account.ufoGreen",
+            "iOS": "DesignSystem.Colors.accountUFOGreen"
+          }
+        },
+        "$type": "color",
+        "$value": "#20c47a"
+      },
+      "caribbean-blue": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.account.caribbeanBlue",
+            "iOS": "DesignSystem.Colors.accountCaribbeanBlue"
+          }
+        },
+        "$type": "color",
+        "$value": "#07a3e0"
+      },
+      "azure-blue": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.account.azureBlue",
+            "iOS": "DesignSystem.Colors.accountAzureBlue"
+          }
+        },
+        "$type": "color",
+        "$value": "#0f7afe"
+      },
+      "palatinate-blue": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.account.palatinateBlue",
+            "iOS": "DesignSystem.Colors.accountPalatinateBlue"
+          }
+        },
+        "$type": "color",
+        "$value": "#1553fe"
+      },
+      "candy-grape-fizz": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.account.candyGrapeFizz",
+            "iOS": "DesignSystem.Colors.accountCandyGrapeFizz"
+          }
+        },
+        "$type": "color",
+        "$value": "#5b15f3"
+      },
+      "dull-lavender": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.account.dullLavender",
+            "iOS": "DesignSystem.Colors.accountDullLavender"
+          }
+        },
+        "$type": "color",
+        "$value": "#9030fe"
+      },
+      "fuchsia-nebula": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.account.fuchsiaNebula",
+            "iOS": "DesignSystem.Colors.accountFuchsiaNebula"
+          }
+        },
+        "$type": "color",
+        "$value": "#ba49f7"
+      },
+      "sweet-desire": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.account.sweetDesire",
+            "iOS": "DesignSystem.Colors.accountSweetDesire"
+          }
+        },
+        "$type": "color",
+        "$value": "#c420d0"
+      },
+      "mexican-pink": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.account.mexicanPink",
+            "iOS": "DesignSystem.Colors.accountMexicanPink"
+          }
+        },
+        "$type": "color",
+        "$value": "#eb4a9f"
+      },
+      "pelati": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.account.pelati",
+            "iOS": "DesignSystem.Colors.accountPelati"
+          }
+        },
+        "$type": "color",
+        "$value": "#f44946"
+      },
+      "pattypan": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.account.pattypan",
+            "iOS": "DesignSystem.Colors.accountPattypan"
+          }
+        },
+        "$type": "color",
+        "$value": "#ff8e23"
+      },
+      "visa": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.account.visa",
+            "iOS": "DesignSystem.Colors.accountVisa"
+          }
+        },
+        "$type": "color",
+        "$value": "#593bf3"
+      }
     }
   }
 }
