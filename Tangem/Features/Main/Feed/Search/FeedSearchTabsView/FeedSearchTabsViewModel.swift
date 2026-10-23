@@ -12,6 +12,7 @@ final class FeedSearchTabsViewModel: ObservableObject {
     @Published private(set) var selectedTab: FeedSearchTab
 
     let tabs: [FeedSearchTab]
+    let pager: FeedTabPager<FeedSearchTab>
 
     private var isSearching = false
 
@@ -19,6 +20,7 @@ final class FeedSearchTabsViewModel: ObservableObject {
         self.tabs = tabs
 
         selectedTab = tabs[0]
+        pager = FeedTabPager(tabs: tabs, selectedTab: tabs[0])
     }
 
     func onSelectTab(_ tab: FeedSearchTab) {
@@ -33,6 +35,10 @@ final class FeedSearchTabsViewModel: ObservableObject {
     func setSearching(_ isSearching: Bool) {
         self.isSearching = isSearching
         syncVisibility()
+
+        if !isSearching {
+            pager.show(selectedTab)
+        }
     }
 
     private func syncVisibility() {

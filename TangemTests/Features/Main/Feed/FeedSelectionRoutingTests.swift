@@ -23,7 +23,7 @@ struct FeedSelectionRoutingTests {
             feed.apply(selection: .earn(type: .yield))
 
             #expect(feed.tabsViewModel.selectedTab.kind == .earn)
-            #expect(feed.tabsViewModel.pages.map(\.tab.kind) == [.earn])
+            #expect(feed.tabsViewModel.pager.pages.map(\.tab.kind) == [.earn])
             #expect(filterProvider.currentFilter.type == .yield)
         }
     }
@@ -36,7 +36,7 @@ struct FeedSelectionRoutingTests {
             feed.apply(selection: .earn(type: nil))
 
             #expect(feed.tabsViewModel.selectedTab.kind == .earn)
-            #expect(feed.tabsViewModel.pages.map(\.tab.kind) == [.earn])
+            #expect(feed.tabsViewModel.pager.pages.map(\.tab.kind) == [.earn])
             #expect(filterProvider.currentFilter.type == .staking)
         }
     }
@@ -50,7 +50,7 @@ struct FeedSelectionRoutingTests {
             feed.apply(selection: .crypto(categoryId: nil))
 
             #expect(feed.tabsViewModel.selectedTab.kind == .predictions)
-            #expect(feed.tabsViewModel.pages.map(\.tab.kind) == [.predictions])
+            #expect(feed.tabsViewModel.pager.pages.map(\.tab.kind) == [.predictions])
         }
     }
 
@@ -63,7 +63,7 @@ struct FeedSelectionRoutingTests {
             feed.apply(selection: .realAssets(categoryId: "commodities"))
 
             #expect(feed.tabsViewModel.selectedTab.kind == .predictions)
-            #expect(feed.tabsViewModel.pages.map(\.tab.kind) == [.predictions])
+            #expect(feed.tabsViewModel.pager.pages.map(\.tab.kind) == [.predictions])
         }
     }
 
@@ -78,7 +78,7 @@ struct FeedSelectionRoutingTests {
             )
 
             #expect(feed.tabsViewModel.selectedTab.kind == .earn)
-            #expect(feed.tabsViewModel.pages.map(\.tab.kind) == [.earn])
+            #expect(feed.tabsViewModel.pager.pages.map(\.tab.kind) == [.earn])
             #expect(filterProvider.currentFilter.type == .yield)
 
             await settleContainerReport()
@@ -169,7 +169,6 @@ private final class PromotionNotificationsManagerStub: PromotionNotificationsMan
 
 private final class EarnRouterStub: EarnFeedRoutable {
     func routeOnTokenResolved(_ resolution: EarnTokenResolution, source: EarnOpportunitySource) {}
-    func openPortfolioToken(_ walletModel: any WalletModel) {}
     func openNetworksFilter() {}
     func openTypesFilter() {}
 }

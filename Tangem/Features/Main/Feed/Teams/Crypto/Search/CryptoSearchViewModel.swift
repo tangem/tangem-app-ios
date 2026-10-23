@@ -14,7 +14,6 @@ final class CryptoSearchViewModel: ObservableObject {
     @Published private(set) var query: String = ""
     @Published private(set) var portfolio: MarketsPortfolioTokenListViewModel?
     @Published private(set) var markets: MarketsState = .loading
-    @Published private var isVisible = false
 
     private let marketsProvider: any FeedSearchProvider<MarketsTokenModel>
     private let router: any CryptoFeedRoutable
@@ -27,6 +26,7 @@ final class CryptoSearchViewModel: ObservableObject {
 
     private var tokens: [MarketsTokenModel] = []
     private var showsTokensUnderCap = false
+    private var isVisible = false
     private var requestedQuery: String?
     private var loadedQuery: String?
     private var bag = Set<AnyCancellable>()
@@ -34,8 +34,8 @@ final class CryptoSearchViewModel: ObservableObject {
     init(
         query: AnyPublisher<String, Never>,
         router: any CryptoFeedRoutable,
-        marketsProvider: any FeedSearchProvider<MarketsTokenModel> = MarketsFeedSearchProvider(),
-        portfolioProvider: FeedSearchPortfolioProvider = FeedSearchPortfolioProvider()
+        portfolioProvider: FeedSearchPortfolioProvider,
+        marketsProvider: any FeedSearchProvider<MarketsTokenModel> = MarketsFeedSearchProvider()
     ) {
         self.router = router
         self.portfolioProvider = portfolioProvider
@@ -124,9 +124,7 @@ private extension CryptoSearchViewModel {
             .store(in: &bag)
 
         portfolioProvider
-            .portfolioPublisher(query: $query, isVisible: $isVisible) { [weak self] walletModel in
-                self?.router.openPortfolioToken(walletModel)
-            }
+            .portfolioPublisher
             .withWeakCaptureOf(self)
             .sink { viewModel, portfolio in
                 viewModel.portfolio = portfolio

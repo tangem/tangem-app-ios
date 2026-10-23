@@ -14,7 +14,6 @@ final class RealAssetsSearchViewModel: ObservableObject {
     @Published private(set) var query: String = ""
     @Published private(set) var portfolio: MarketsPortfolioTokenListViewModel?
     @Published private(set) var assets: AssetsState = .loading
-    @Published private var isVisible = false
 
     private let assetsProvider: any FeedSearchProvider<MarketsTokenModel>
     private let router: any RealAssetsFeedRoutable
@@ -26,6 +25,7 @@ final class RealAssetsSearchViewModel: ObservableObject {
     private var visibleResultIDs: Set<String> = []
 
     private var tokens: [MarketsTokenModel] = []
+    private var isVisible = false
     private var requestedQuery: String?
     private var loadedQuery: String?
     private var bag = Set<AnyCancellable>()
@@ -33,8 +33,8 @@ final class RealAssetsSearchViewModel: ObservableObject {
     init(
         query: AnyPublisher<String, Never>,
         router: any RealAssetsFeedRoutable,
-        assetsProvider: any FeedSearchProvider<MarketsTokenModel> = RealAssetsFeedSearchProvider(),
-        portfolioProvider: FeedSearchPortfolioProvider = FeedSearchPortfolioProvider()
+        portfolioProvider: FeedSearchPortfolioProvider,
+        assetsProvider: any FeedSearchProvider<MarketsTokenModel> = RealAssetsFeedSearchProvider()
     ) {
         self.router = router
         self.portfolioProvider = portfolioProvider
@@ -118,9 +118,7 @@ private extension RealAssetsSearchViewModel {
             .store(in: &bag)
 
         portfolioProvider
-            .portfolioPublisher(query: $query, isVisible: $isVisible) { [weak self] walletModel in
-                self?.router.openPortfolioToken(walletModel)
-            }
+            .portfolioPublisher
             .withWeakCaptureOf(self)
             .sink { viewModel, portfolio in
                 viewModel.portfolio = portfolio
