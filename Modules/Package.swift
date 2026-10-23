@@ -430,10 +430,6 @@ var featureModules: [PackageDescription.Target] {
                 "TangemMacro",
                 "TangemMobileWalletSdk",
             ],
-            swiftSettings: [
-                // [REDACTED_TODO_COMMENT]
-                .swiftLanguageMode(.v5),
-            ]
         ),
         .tangemTarget(
             name: "TangemPay",

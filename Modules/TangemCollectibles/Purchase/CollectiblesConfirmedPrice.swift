@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-public struct CollectiblesConfirmedPrice {
+public struct CollectiblesConfirmedPrice: Sendable {
     public let amount: UInt64
     public let feeAmount: UInt64
 

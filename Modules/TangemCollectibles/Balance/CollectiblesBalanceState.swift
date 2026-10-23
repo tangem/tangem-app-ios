@@ -10,7 +10,7 @@ import Foundation
 import TangemMacro
 
 @CaseFlagable
-public enum CollectiblesBalanceState {
+public enum CollectiblesBalanceState: Sendable {
     case loading
     case loaded(UInt64)
     case failed(Error)
