@@ -13,7 +13,9 @@ import TangemUI
 import TangemUIUtils
 
 struct CollectiblesConfirmOrderView: View {
-    @ObservedObject var viewModel: CollectiblesConfirmOrderViewModel
+    typealias ViewModel = CollectiblesConfirmOrderViewModel
+
+    @ObservedObject var viewModel: ViewModel
 
     let onBack: () -> Void
 
@@ -35,9 +37,15 @@ struct CollectiblesConfirmOrderView: View {
         .overlay(alignment: .top) { errorSnackbar }
         .background(PopGestureDisabler(isDisabled: !isBackAvailable))
         .onAppear { viewModel.preloadRevealAssets(for: colorScheme, isReduceMotionEnabled: reduceMotion) }
-        .collectiblesInfoSheet(viewModel: viewModel.lowInventorySheetViewModel)
-        .collectiblesInfoSheet(viewModel: viewModel.packUnopenedSheetViewModel)
-        .collectiblesInfoSheet(viewModel: viewModel.buybackCompleteSheetViewModel)
+        .modalStatus(item: $viewModel.sheet, onDismiss: viewModel.sheetDidDismiss) { sheet in
+            StatusSheet(
+                sheet: sheet,
+                onExplorePacks: viewModel.explorePacks,
+                onEnableTurboMode: viewModel.enableTurboMode,
+                onOpenPack: viewModel.openUnopenedPack,
+                onOpenAgain: viewModel.openAgain
+            )
+        }
         .onChange(of: colorScheme) { viewModel.preloadRevealAssets(for: $0, isReduceMotionEnabled: reduceMotion) }
     }
 }
