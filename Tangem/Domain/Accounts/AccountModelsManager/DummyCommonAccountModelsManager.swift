@@ -72,8 +72,6 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
 
     func dispose() {}
 
-    func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async throws(TangemPayAuthorizationError) {}
-
     func authorizeTangemPayOfferForResidency(
         authorizingInteractor: any TangemPayAuthorizing
     ) async throws(TangemPayAuthorizationError) -> (any TangemPayResidencyInteractor)? {

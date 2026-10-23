@@ -61,9 +61,6 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayAddFundsSheetViewModel.self) {
                 TangemPayAddFundsSheetView(viewModel: $0)
             }
-            .floatingSheetContent(for: TangemPayVirtualAccountInfoSheetViewModel.self) {
-                TangemPayVirtualAccountInfoContainerView(viewModel: $0)
-            }
             .floatingSheetContent(for: TangemPayVirtualAccountPreparingPopupViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
@@ -134,9 +131,6 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.pendingExpressTxStatusBottomSheet) {
                 PendingExpressTxStatusBottomSheetView(viewModel: $0)
-            }
-            .fullScreenCover(item: $coordinator.virtualAccountSuccessViewModel) {
-                TangemPayVirtualAccountSuccessView(viewModel: $0)
             }
             .fullScreenCover(item: $coordinator.virtualAccountOnboardingViewModel) {
                 TangemPayVirtualAccountInfoContainerView(viewModel: $0)

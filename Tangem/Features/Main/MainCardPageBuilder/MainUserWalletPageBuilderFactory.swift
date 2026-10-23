@@ -145,7 +145,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             let sectionsProvider = makeMultiWalletMainContentViewSectionsProvider(userWalletModel: model)
 
             let mainNotificationsViewModel = MainNotificationsViewModel(
-                isEnabled: FeatureProvider.isAvailable(.hideMarketingBannersWithSystem),
                 promotionNotificationsManager: promotionNotificationsManager,
                 // Order defines display priority — force-update banner renders above the rest.
                 systemBannerItemsProvider: NotificationBannerItemsProvider(
@@ -224,7 +223,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let forceUpdateBannerNotificationManager = ForceUpdateBannerNotificationManager()
 
         let mainNotificationsViewModel = MainNotificationsViewModel(
-            isEnabled: FeatureProvider.isAvailable(.hideMarketingBannersWithSystem),
             promotionNotificationsManager: promotionNotificationsManager,
             systemBannerItemsProvider: NotificationBannerItemsProvider(
                 managers: [

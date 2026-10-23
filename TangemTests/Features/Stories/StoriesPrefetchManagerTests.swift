@@ -16,10 +16,7 @@ import TangemStories
 
 @Suite("StoriesPrefetchManagerTests", .serialized)
 struct StoriesPrefetchManagerTests {
-    @Test(
-        "The control arm prefetches nothing, so it never downloads the promo videos",
-        .enabled(if: Self.areReleaseGatesOpen)
-    )
+    @Test("The control arm prefetches nothing, so it never downloads the promo videos")
     func controlArmPrefetchesNothing() async {
         await withExperiment(variant: .control) { stub, _ in
             stub.finishWalletFetch(for: .mobileWallet)
@@ -28,10 +25,7 @@ struct StoriesPrefetchManagerTests {
         }
     }
 
-    @Test(
-        "An experiment with no stored variant prefetches nothing",
-        .enabled(if: Self.areReleaseGatesOpen)
-    )
+    @Test("An experiment with no stored variant prefetches nothing")
     func unresolvedExperimentPrefetchesNothing() async {
         await withExperiment(variant: nil) { stub, _ in
             stub.finishWalletFetch(for: .mobileWallet)
@@ -40,10 +34,7 @@ struct StoriesPrefetchManagerTests {
         }
     }
 
-    @Test(
-        "The treatment arm prefetches the upgrade promo it will be shown",
-        .enabled(if: Self.areReleaseGatesOpen)
-    )
+    @Test("The treatment arm prefetches the upgrade promo it will be shown")
     func treatmentArmPrefetchesTheUpgradeStory() async {
         await withExperiment(variant: .treatment) { stub, _ in
             stub.finishWalletFetch(for: .mobileWallet)
@@ -52,10 +43,7 @@ struct StoriesPrefetchManagerTests {
         }
     }
 
-    @Test(
-        "The prefetch decision reads the arm without recording an exposure",
-        .enabled(if: Self.areReleaseGatesOpen)
-    )
+    @Test("The prefetch decision reads the arm without recording an exposure")
     func prefetchDecisionRecordsNoExposure() async {
         await withExperiment(variant: .treatment) { stub, _ in
             stub.finishWalletFetch(for: .mobileWallet)
@@ -69,7 +57,6 @@ struct StoriesPrefetchManagerTests {
 
     @Test(
         "The prefetch decision waits for the wallet's experiments before reading the arm",
-        .enabled(if: Self.areReleaseGatesOpen),
         .timeLimit(.minutes(1))
     )
     func prefetchDecisionWaitsForWalletExperiments() async {
@@ -94,7 +81,6 @@ struct StoriesPrefetchManagerTests {
 
     @Test(
         "App start prefetches the upgrade story for the treatment arm only",
-        .enabled(if: Self.areReleaseGatesOpen),
         arguments: [
             (ExperimentFeatureVariantKey.treatment, [StoriesV2StoryID.hardwareUpgrade]),
             (.control, []),
@@ -113,7 +99,6 @@ struct StoriesPrefetchManagerTests {
 
     @Test(
         "A card wallet's experiments fetch leaves the decision to the mobile wallet's one",
-        .enabled(if: Self.areReleaseGatesOpen),
         .timeLimit(.minutes(1))
     )
     func cardWalletFetchWaitsForMobileWalletFetch() async {
@@ -132,7 +117,6 @@ struct StoriesPrefetchManagerTests {
 
     @Test(
         "A mobile wallet added later still gets the upgrade story prefetched",
-        .enabled(if: Self.areReleaseGatesOpen),
         .timeLimit(.minutes(1))
     )
     func mobileWalletAddedLaterGetsTheStoryPrefetched() async {
@@ -150,10 +134,7 @@ struct StoriesPrefetchManagerTests {
         }
     }
 
-    @Test(
-        "Without a mobile wallet the upgrade story is not shown and no exposure is recorded",
-        .enabled(if: Self.areReleaseGatesOpen)
-    )
+    @Test("Without a mobile wallet the upgrade story is not shown and no exposure is recorded")
     func noMobileWalletShowsNothing() async {
         await withExperiment(variant: .treatment, walletProductTypes: [.wallet]) { stub, _ in
             #expect(!HardwareUpgradeStoriesResolver().shouldShowStories())
@@ -161,10 +142,7 @@ struct StoriesPrefetchManagerTests {
         }
     }
 
-    @Test(
-        "One mobile wallet among card wallets is enough to show the upgrade story",
-        .enabled(if: Self.areReleaseGatesOpen)
-    )
+    @Test("One mobile wallet among card wallets is enough to show the upgrade story")
     func oneMobileWalletShowsTheStory() async {
         await withExperiment(variant: .treatment, walletProductTypes: [.wallet, .mobileWallet]) { stub, _ in
             #expect(HardwareUpgradeStoriesResolver().shouldShowStories())
@@ -173,10 +151,6 @@ struct StoriesPrefetchManagerTests {
     }
 
     // MARK: - Helpers
-
-    private static var areReleaseGatesOpen: Bool {
-        FeatureProvider.isAvailable(.hardwareUpgradeStories)
-    }
 
     private func withExperiment(
         variant: ExperimentFeatureVariantKey?,

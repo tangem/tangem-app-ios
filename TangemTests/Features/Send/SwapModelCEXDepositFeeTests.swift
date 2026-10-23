@@ -47,10 +47,7 @@ struct SwapModelCEXDepositFeeTests {
         #expect(env.manager.transactionFeeDataCalls.isEmpty)
     }
 
-    @Test(
-        "a higher Tron gasless deposit quote is not signed",
-        .enabled(if: FeatureProvider.isAvailable(.tronGaslessCEX))
-    )
+    @Test("a higher Tron gasless deposit quote is not signed")
     func tronGaslessFeeIncreased_throws() async throws {
         let shown = makeGaslessFee(compensation: 1, quoteId: "shown")
         let quoted = makeGaslessFee(compensation: Decimal(string: "2.5")!, quoteId: "quoted")
@@ -72,10 +69,7 @@ struct SwapModelCEXDepositFeeTests {
         #expect(env.manager.transactionFeeDataCalls.count == 1)
     }
 
-    @Test(
-        "an equal Tron gasless deposit quote is the fee that is signed",
-        .enabled(if: FeatureProvider.isAvailable(.tronGaslessCEX))
-    )
+    @Test("an equal Tron gasless deposit quote is the fee that is signed")
     func tronGaslessFeeUnchanged_returnsQuotedFee() async throws {
         let shown = makeGaslessFee(compensation: Decimal(string: "2.5")!, quoteId: "shown")
         let quoted = makeGaslessFee(compensation: Decimal(string: "2.5")!, quoteId: "quoted")
@@ -93,10 +87,7 @@ struct SwapModelCEXDepositFeeTests {
         #expect(env.manager.transactionFeeDataCalls.count == 1)
     }
 
-    @Test(
-        "a Tron gasless quote in another fee token is not signed",
-        .enabled(if: FeatureProvider.isAvailable(.tronGaslessCEX))
-    )
+    @Test("a Tron gasless quote in another fee token is not signed")
     func tronGaslessFeeCurrencyChanged_throws() async throws {
         let shown = makeGaslessFee(compensation: 1, quoteId: "shown")
         let quoted = BSDKFee(BSDKAmount(with: .tron(testnet: false), value: 1))
@@ -114,28 +105,6 @@ struct SwapModelCEXDepositFeeTests {
         } catch {
             Issue.record("Unexpected error: \(error)")
         }
-    }
-
-    @Test(
-        "a Tron gasless deposit quote stays the fee the user saw",
-        .enabled(if: !FeatureProvider.isAvailable(.tronGaslessCEX))
-    )
-    func tronGaslessFee_keepsShownFee() async throws {
-        let shown = makeGaslessFee(compensation: 1, quoteId: "shown")
-        let previewFee = makeGaslessFee(compensation: Decimal(string: "0.5")!, quoteId: "preview")
-        let quoted = makeGaslessFee(compensation: Decimal(string: "2.5")!, quoteId: "quoted")
-        let env = makeEnvironment(shown: shown, quoted: quoted)
-
-        let fee = try await env.sut.cexDepositFee(
-            provider: env.provider,
-            data: makeTransactionData(),
-            preview: makePreview(fee: previewFee),
-            source: env.source
-        )
-
-        let parameters = try #require(fee.parameters as? TronGaslessFeeParameters)
-        #expect(parameters.quoteId == "shown")
-        #expect(env.manager.transactionFeeDataCalls.isEmpty)
     }
 }
 

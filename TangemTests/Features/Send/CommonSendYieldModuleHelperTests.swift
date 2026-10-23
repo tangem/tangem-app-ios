@@ -287,22 +287,6 @@ final class CommonSendYieldModuleHelperTests: LeakTrackingTestSuite {
         }
     }
 
-    // MARK: - Legacy path (toggle off)
-
-    @Test("Wraps a transfer into the swap call when transfer detection is unavailable")
-    func legacyPathWrapsTransferCalldataIntoSwapCall() async throws {
-        let sut = makeSUT(isTransferDetectionAvailable: false)
-
-        let result = try await sut.yieldModuleTransactionData(
-            data: makeExpressTransactionData(destinationAddress: tokenContractAddress, txData: transferCalldata),
-            provider: makeProvider(),
-            spender: spenderAddress
-        )
-
-        #expect(result.destinationAddress == yieldContractAddress)
-        #expect(result.txData?.hasPrefix(yieldSwapMethodId) == true)
-    }
-
     // MARK: - Error branch
 
     @Test("Rejects a transfer of the swapped token addressed to a router")
@@ -434,8 +418,7 @@ private extension CommonSendYieldModuleHelperTests {
 
     func makeSUT(
         swapExecutionRegistry: SwapExecutionRegistrySpy? = SwapExecutionRegistrySpy(),
-        upgradeHandler: UpgradeHandlerSpy? = nil,
-        isTransferDetectionAvailable: Bool = true
+        upgradeHandler: UpgradeHandlerSpy? = nil
     ) -> CommonSendYieldModuleHelper {
         let sut = CommonSendYieldModuleHelper(
             yieldContractAddress: yieldContractAddress,
@@ -446,8 +429,7 @@ private extension CommonSendYieldModuleHelperTests {
                 symbol: "USDC"
             ),
             swapExecutionRegistryProvider: swapExecutionRegistry,
-            yieldModuleUpgradeHandler: upgradeHandler,
-            isTransferDetectionAvailable: isTransferDetectionAvailable
+            yieldModuleUpgradeHandler: upgradeHandler
         )
 
         if let swapExecutionRegistry {

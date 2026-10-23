@@ -37,40 +37,14 @@ public enum SupportedProvidersFilter {
     public static let cex: SupportedProvidersFilter = .byTypes([.cex])
 
     case byTypes([ExpressProviderType])
-    case yieldProviders(YieldProvidersFilter)
     case byDifferentAddressExchangeSupport
 
     public func isSupported(provider: ExpressProvider) -> Bool {
         switch self {
         case .byTypes(let types):
             return types.contains(provider.type)
-        case .yieldProviders(let filter):
-            return filter.isSupported(provider: provider)
         case .byDifferentAddressExchangeSupport:
             return !provider.exchangeOnlyWithinSingleAddress
         }
-    }
-}
-
-/// Legacy path of the `yieldDexTransferDetection` feature toggle. Until the app could tell
-/// a transfer from a swap, tokens in Yield mode were limited to all CEX providers and
-/// allow-listed DEX providers known to always return a real swap.
-public struct YieldProvidersFilter {
-    private let allowedDEXProviderIds: Set<ExpressProvider.Id>
-
-    public init(allowedDEXProviderIds: Set<ExpressProvider.Id> = ExpressConstants.yieldModuleDEXProviderIds) {
-        self.allowedDEXProviderIds = allowedDEXProviderIds
-    }
-
-    public func isSupported(provider: ExpressProvider) -> Bool {
-        if provider.type.isCEX {
-            return true
-        }
-
-        if provider.type.isDEX {
-            return allowedDEXProviderIds.contains(provider.id)
-        }
-
-        return false
     }
 }

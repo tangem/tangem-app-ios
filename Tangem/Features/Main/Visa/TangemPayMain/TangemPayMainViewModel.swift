@@ -319,8 +319,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     private var isBankTransferPending: Bool {
-        guard FeatureProvider.isAvailable(.tangemPayOnrampV2),
-              case .preparing = tangemPayAccount.virtualAccountEntry else {
+        guard case .preparing = tangemPayAccount.virtualAccountEntry else {
             return false
         }
 
@@ -981,8 +980,6 @@ private extension TangemPayMainViewModel {
     }
 
     func bindVirtualAccountBanner() {
-        guard FeatureProvider.isAvailable(.tangemPayOnrampV2) else { return }
-
         Publishers.CombineLatest(
             tangemPayAccount.virtualAccountEntryPublisher,
             tangemPayAccount.virtualAccountCreationFailedPublisher

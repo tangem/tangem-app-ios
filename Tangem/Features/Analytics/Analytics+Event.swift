@@ -918,7 +918,6 @@ extension Analytics {
         case visaVATopupButtonClicked = "[Visa VA Topup] Visa VA Topup Button Clicked"
         case visaVATopupConditionsPopupShowedFirstTime = "[Visa VA Topup] Conditions Popup Showed First Time"
         case visaVATopupShowDetailsFirstTimeClicked = "[Visa VA Topup] Show Details First Time Clicked"
-        case visaVATopupSuccessScreenActivation = "[Visa VA Topup] Success Screen Activation"
         case visaVATopupPreparationPopupShowed = "[Visa VA Topup] Preparation Popup Showed"
         case visaVATopupConditionsPopupShowed = "[Visa VA Topup] Conditions Popup Showed"
         case visaVATopupShowDetailsClicked = "[Visa VA Topup] Show Details Clicked"
