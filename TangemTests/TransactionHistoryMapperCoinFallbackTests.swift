@@ -16,6 +16,7 @@ import TangemLocalization
 struct TransactionHistoryMapperCoinFallbackTests {
     private static let walletAddress = "0xWalletAddress"
     private static let contractAddress = "0xContractAddress"
+    private static let unregisteredTokenContract = "0x000000000000000000000000000000000000dEaD"
     private static var feeValue: Decimal {
         get throws {
             try #require(Decimal(stringValue: "0.00003936"))
@@ -102,6 +103,24 @@ struct TransactionHistoryMapperCoinFallbackTests {
         let viewModel = try makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: methodName))
 
         #expect(viewModel.display.subtitle == .text(Localization.transactionHistoryFeeForSending))
+    }
+
+    @Test("The fee for a token send names the token it sent", arguments: [Blockchain.ethereum(testnet: false), .tron(testnet: false)])
+    func theFeeForATokenSendNamesTheToken(blockchain: Blockchain) throws {
+        let isTron = if case .tron = blockchain { true } else { false }
+        let record = try makeRecord(
+            methodName: "transfer",
+            type: isTron ? .transfer : nil,
+            tokenTransfers: [
+                makeTokenTransfer(from: Self.walletAddress, amount: 1_000_000, contract: Self.unregisteredTokenContract),
+            ]
+        )
+
+        let viewModel = makeSUT(isToken: false, blockchain: blockchain).mapTransactionViewModel(record)
+        let sent = try #require(sentTokens(of: viewModel))
+
+        #expect(sent.symbol == "USDT")
+        #expect(viewModel.display.subtitle == .sentAsset(sent))
     }
 
     @Test("The fee for a call the wallet cannot name says it paid for an operation")

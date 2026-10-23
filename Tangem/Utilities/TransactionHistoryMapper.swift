@@ -764,7 +764,7 @@ private extension TransactionHistoryMapper {
         let tokenItem = resolvedToken ?? makeTokenItem(for: first, symbol: symbol, decimals: decimals)
         let iconInfo = TokenIconInfoBuilder().build(from: tokenItem, isCustom: resolvedToken == nil)
 
-        return .init(amount: amountText, iconInfo: iconInfo)
+        return .init(amount: amountText, symbol: symbol, iconInfo: iconInfo)
     }
 
     func makeTokenItem(

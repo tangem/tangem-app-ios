@@ -144,3 +144,26 @@ struct TransactionProviderSubtitleView: View {
         }
     }
 }
+
+struct TransactionSentAssetSubtitleView: View {
+    let sent: TransactionViewModel.SentTokens
+    let accessibilityIdentifier: String
+
+    @ScaledMetric private var glyphSize: CGFloat = 16
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Text(Localization.commonSend)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+
+            // [REDACTED_TODO_COMMENT]
+            TokenIcon(tokenIconInfo: sent.iconInfo, size: CGSize(bothDimensions: glyphSize), isWithOverlays: false)
+
+            Text(sent.symbol)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
+        }
+        .lineLimit(1)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier(accessibilityIdentifier)
+    }
+}
