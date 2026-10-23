@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemFoundation
 
 /// Redirects WireMock-bound traffic to the local instance specified via the `WIREMOCK_BASE_URL` env variable.
 ///
@@ -49,9 +50,9 @@ struct WireMockRedirectPlugin: PluginType {
             return request
         }
 
-        if host.contains(Self.wireMockRemoteHost) {
+        if host.caseInsensitiveContains(Self.wireMockRemoteHost) {
             // Already pointing at WireMock; nothing to localize when the override is the remote host too.
-            guard overrideComponents.host?.contains(Self.wireMockRemoteHost) != true else {
+            guard overrideComponents.host?.caseInsensitiveContains(Self.wireMockRemoteHost) != true else {
                 return request
             }
         } else if Self.thirdPartyMockedHosts.contains(host) {
