@@ -493,20 +493,6 @@ extension CommonAccountModelsManager: AccountModelsManager {
         await accountsLoad
     }
 
-    func acceptTangemPayOffer(
-        authorizingInteractor: any TangemPayAuthorizing
-    ) async throws(TangemPayAuthorizationError) {
-        try await tangemPayManager.authorizeWithCustomerWallet(
-            authorizingInteractor: authorizingInteractor,
-            showSyncInProgress: false
-        )
-        guard tangemPayManager.state?.isKYCRequired == true else {
-            return
-        }
-
-        await launchKYCAndWait()
-    }
-
     func authorizeTangemPayOfferForResidency(
         authorizingInteractor: any TangemPayAuthorizing
     ) async throws(TangemPayAuthorizationError) -> (any TangemPayResidencyInteractor)? {
