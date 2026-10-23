@@ -26,9 +26,6 @@ struct WalletCardsBackupCard: Codable, Equatable {
     /// The error from the card's last failed backup command, cleared once the card is reported successfully.
     var errorCode: Int?
     var errorMessage: String?
-    /// Whether the back end knows this card's state. Reset to `.waitingForDelivery` whenever the card's
-    /// reported state changes.
-    var deliveryState: DeliveryState
 }
 
 // MARK: - Identity
@@ -40,18 +37,6 @@ extension WalletCardsBackupCard {
     enum Identity: Codable, Equatable {
         case blank(primaryCardId: String)
         case filled(userWalletId: String, isImported: Bool)
-    }
-}
-
-// MARK: - DeliveryState
-
-extension WalletCardsBackupCard {
-    /// Raw-valued by name so a persisted state survives cases being added or reordered.
-    enum DeliveryState: String, Codable {
-        case waitingForDelivery
-        case delivered
-        /// Came from the back end rather than from observing the card, so there is nothing to send back.
-        case loaded
     }
 }
 
@@ -134,7 +119,6 @@ extension WalletCardsBackupCard: CustomStringConvertible {
             "backupStatus": "\(backupStatus?.rawValue ?? "—")",
             "curves": "\(curves.count)",
             "error": "\(errorMessage ?? "-") (\(errorCode?.description ?? "-"))",
-            "deliveryState": "\(deliveryState.rawValue)",
         ])
     }
 }

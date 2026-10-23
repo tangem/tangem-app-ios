@@ -13,9 +13,10 @@ import Foundation
 /// the store bounded, and the wallet a card belongs to lives on the card's `identity`.
 struct WalletCardsBackupReport: Codable {
     var cards: [String: WalletCardsBackupCard]
+    var pendingReports: [WalletCardsWaitingDeliveryBackupCards]
 
     static var empty: WalletCardsBackupReport {
-        WalletCardsBackupReport(cards: [:])
+        WalletCardsBackupReport(cards: [:], pendingReports: [])
     }
 }
 
@@ -30,6 +31,7 @@ extension WalletCardsBackupReport: CustomStringConvertible {
 
         return objectDescription("WalletCardsBackupReport", userInfo: [
             "cards": "\(cards.count)\(cardLines)",
+            "pendingReports": "\(pendingReports.count)",
         ])
     }
 }

@@ -23,9 +23,9 @@ struct CommonWalletCardsBackupReportRepositoryTests {
             repository.store(card: makeCard(identity: nil), primaryCardId: Constants.primaryCardId, error: error)
         }
 
-        #expect(pending.map(\.userWalletId) == [Constants.userWalletId])
-        #expect(pending.first?.cards.map(\.cardId) == [Constants.primaryCardId])
-        #expect(pending.first?.cards.first?.errorCode == error.code)
+        #expect(pending.map(\.userWalletId) == [Constants.userWalletId, Constants.userWalletId])
+        #expect(pending.last?.cards.map(\.cardId) == [Constants.primaryCardId])
+        #expect(pending.last?.cards.first?.errorCode == error.code)
     }
 
     @Test("A successful primary step without a wallet doesn't pick up the wallet stored for the card")
@@ -35,7 +35,7 @@ struct CommonWalletCardsBackupReportRepositoryTests {
             repository.store(card: makeCard(identity: nil), primaryCardId: Constants.primaryCardId, error: nil)
         }
 
-        #expect(pending.isEmpty)
+        #expect(pending.count == 1)
     }
 
     @Test("A failure is reported with the error's description")
@@ -49,7 +49,7 @@ struct CommonWalletCardsBackupReportRepositoryTests {
             )
         }
 
-        let backupCard = pending.first?.cards.first { $0.cardId == Constants.backupCardId }
+        let backupCard = pending.last?.cards.first { $0.cardId == Constants.backupCardId }
 
         #expect(backupCard?.errorCode == error.code)
         #expect(backupCard?.errorMessage == error.localizedDescription)
@@ -72,7 +72,7 @@ private extension CommonWalletCardsBackupReportRepositoryTests {
             steps(repository)
             await storage.waitForSaves(count: 2)
 
-            return try await repository.pendingToDeliveryPublisher.async()
+            return try await repository.pendingReportsPublisher.async()
         }
     }
 
