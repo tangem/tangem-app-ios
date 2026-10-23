@@ -780,7 +780,7 @@ private extension CommonYieldModuleManager {
                 return false
             }
 
-            return dataHex.hasPrefix(method.methodId.removeHexPrefix().lowercased())
+            return dataHex.caseInsensitiveHasPrefix(method.methodId.removeHexPrefix())
         }
     }
 
@@ -793,11 +793,11 @@ private extension CommonYieldModuleManager {
             guard let dataHex = record.ethereumTransactionDataHexString() else { return false }
 
             let methodMatch = methods.contains { method in
-                dataHex.hasPrefix(method.methodId.removeHexPrefix().lowercased())
+                dataHex.caseInsensitiveHasPrefix(method.methodId.removeHexPrefix())
             }
 
-            let tokenMatch = dataHex.contains(token.contractAddress.removeHexPrefix().lowercased())
-            let yieldModuleMatch = yieldContract.flatMap { dataHex.contains($0.removeHexPrefix().lowercased()) } ?? false
+            let tokenMatch = dataHex.caseInsensitiveContains(token.contractAddress.removeHexPrefix())
+            let yieldModuleMatch = yieldContract.flatMap { dataHex.caseInsensitiveContains($0.removeHexPrefix()) } ?? false
 
             return methodMatch && (tokenMatch || yieldModuleMatch)
         }
@@ -885,7 +885,7 @@ private extension Transaction {
         guard let params = params as? EthereumTransactionParams,
               let data = params.data else { return nil }
 
-        return data.hexString.lowercased()
+        return data.hexString
     }
 }
 
@@ -894,7 +894,7 @@ private extension PendingTransactionRecord {
         guard let params = transactionParams as? EthereumTransactionParams,
               let data = params.data else { return nil }
 
-        return data.hexString.lowercased()
+        return data.hexString
     }
 }
 

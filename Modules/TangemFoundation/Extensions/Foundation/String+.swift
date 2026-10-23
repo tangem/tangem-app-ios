@@ -15,10 +15,6 @@ public extension String {
         String(prefix(length))
     }
 
-    func contains(_ string: String, ignoreCase: Bool = true) -> Bool {
-        return range(of: string, options: ignoreCase ? .caseInsensitive : []) != nil
-    }
-
     func hasHexPrefix() -> Bool {
         return lowercased().hasPrefix(hexPrefix)
     }
