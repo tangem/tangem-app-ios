@@ -157,7 +157,7 @@ struct TransactionChipRedesigned: View {
         case .provider(let direction, let provider) where isCounterpartyVisible:
             TransactionProviderSubtitleView(direction: direction, provider: provider)
 
-        case .owner, .text, .express, .provider, .none:
+        case .owner, .text, .express, .provider, .sentAsset, .none:
             EmptyView()
         }
     }
