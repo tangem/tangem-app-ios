@@ -17,6 +17,7 @@
 		3075F0D02DCA6B430094B4C7 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 3075F0CF2DCA6B430094B4C7 /* Kingfisher */; };
 		5DAC0888251391D900B73E8B /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DAC08832513917F00B73E8B /* CoreNFC.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		798508AE2DF1AF9100388668 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = 798508AD2DF1AF9100388668 /* TangemModules */; };
+		7A40FB85A08EB46BDCB899D4 /* TangemSnapshotTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 8D1C1FEF576829ADF69539AF /* TangemSnapshotTestSupport */; };
 		B0776C372DA69090004A8765 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = B0776C362DA69090004A8765 /* Lottie */; };
 		B099337F2B5517E800240CDB /* TangemVisa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B09933772B5517E300240CDB /* TangemVisa.framework */; };
 		B099338A2B5517EC00240CDB /* TangemVisa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B09933772B5517E300240CDB /* TangemVisa.framework */; };
@@ -80,6 +81,7 @@
 		DCB616E72CB3A63800BE4481 /* ReownWalletKit in Frameworks */ = {isa = PBXBuildFile; productRef = DCB616E62CB3A63800BE4481 /* ReownWalletKit */; };
 		DCED46532EF04FD20021AC0D /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DCED46522EF04FD20021AC0D /* CryptoSwift */; };
 		DCED46552EF04FDB0021AC0D /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DCED46542EF04FDB0021AC0D /* CryptoSwift */; };
+		DFC5DA237B3ACD473078667A /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = 65B17FFBE77ED307C42BF348 /* TangemModules */; };
 		EF9E299D2B4F0C9100418559 /* TangemExpress.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF9E29932B4F0C8800418559 /* TangemExpress.framework */; };
 		EF9E29A82B4F0C9900418559 /* TangemExpress.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF9E29932B4F0C8800418559 /* TangemExpress.framework */; };
 		EF9E29A92B4F0C9900418559 /* TangemExpress.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EF9E29932B4F0C8800418559 /* TangemExpress.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -108,6 +110,13 @@
 			remoteInfo = "Tangem Tap";
 		};
 		5D3F77E424BF56DC00E8695B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5D3F77BA24BF56D800E8695B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5D3F77C124BF56D800E8695B;
+			remoteInfo = "Tangem Tap";
+		};
+		8435920C42CDD31632B65228 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5D3F77BA24BF56D800E8695B /* Project object */;
 			proxyType = 1;
@@ -218,6 +227,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		294C4969F21A5233BD3F9CDD /* TangemSnapshotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemSnapshotTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D1553682FEC18DB00BF1F88 /* TangemNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TangemNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F184EBAB4A0E9D2286980C2 /* ios_cio_config.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ios_cio_config.json; sourceTree = "<group>"; };
 		5D3F77C224BF56D800E8695B /* Tangem.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tangem.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -333,6 +343,7 @@
 		C21C401B2F7D736000CF1555 /* TangemVisaTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TangemVisaTests; sourceTree = "<group>"; };
 		C21CA0CD2F7EB69D00CF1555 /* Tangem */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C21CAD382F7EB69E00CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, 2D5C483A2FEC214200A41A24 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Tangem; sourceTree = "<group>"; };
 		C21CAD4C2F7ECF2E00CF1555 /* BlockchainSdkExample */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C21CCB2D2F7ED3C500CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = BlockchainSdkExample; sourceTree = "<group>"; };
+		DE55159CD47D2142B0CFA0BB /* TangemSnapshotTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = TangemSnapshotTests; path = TangemSnapshotTests/Sources; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -437,6 +448,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EEAA1CEAB51CD2CA06A6222D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DFC5DA237B3ACD473078667A /* TangemModules in Frameworks */,
+				7A40FB85A08EB46BDCB899D4 /* TangemSnapshotTestSupport in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EF9E29902B4F0C8800418559 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -497,6 +517,7 @@
 			children = (
 				C21CA0CD2F7EB69D00CF1555 /* Tangem */,
 				C21C3A3E2F7D6CD300CF1555 /* TangemTests */,
+				DE55159CD47D2142B0CFA0BB /* TangemSnapshotTests */,
 				C21C3C852F7D6D8300CF1555 /* TangemUITests */,
 				C2A96C022F7EE114001D0602 /* TangemIntent */,
 				C21C3DA02F7D6E4A00CF1555 /* TangemExpress */,
@@ -518,6 +539,7 @@
 			children = (
 				5D3F77C224BF56D800E8695B /* Tangem.app */,
 				5D3F77D824BF56DC00E8695B /* TangemTests.xctest */,
+				294C4969F21A5233BD3F9CDD /* TangemSnapshotTests.xctest */,
 				5D3F77E324BF56DC00E8695B /* TangemUITests.xctest */,
 				EF9E29932B4F0C8800418559 /* TangemExpress.framework */,
 				EF9E299C2B4F0C8D00418559 /* TangemExpressTests.xctest */,
@@ -728,6 +750,31 @@
 			productReference = 5D3F77E324BF56DC00E8695B /* TangemUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		640931FD38671B45D38AEBB7 /* TangemSnapshotTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F5032831D7200070CC43E586 /* Build configuration list for PBXNativeTarget "TangemSnapshotTests" */;
+			buildPhases = (
+				288DB3E0D4CCD95FEE508562 /* Sources */,
+				EEAA1CEAB51CD2CA06A6222D /* Frameworks */,
+				2A3D20C729289107FF53AA7A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5CB7F3AACD5C5CF19361ABBE /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				DE55159CD47D2142B0CFA0BB /* TangemSnapshotTests */,
+			);
+			name = TangemSnapshotTests;
+			packageProductDependencies = (
+				65B17FFBE77ED307C42BF348 /* TangemModules */,
+				8D1C1FEF576829ADF69539AF /* TangemSnapshotTestSupport */,
+			);
+			productName = TangemSnapshotTests;
+			productReference = 294C4969F21A5233BD3F9CDD /* TangemSnapshotTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		B09933762B5517E300240CDB /* TangemVisa */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B09933982B5517EE00240CDB /* Build configuration list for PBXNativeTarget "TangemVisa" */;
@@ -930,6 +977,10 @@
 						CreatedOnToolsVersion = 11.5;
 						TestTargetID = 5D3F77C124BF56D800E8695B;
 					};
+					640931FD38671B45D38AEBB7 = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = 5D3F77C124BF56D800E8695B;
+					};
 					B09933762B5517E300240CDB = {
 						CreatedOnToolsVersion = 15.0;
 						LastSwiftMigration = 1500;
@@ -1013,6 +1064,7 @@
 			targets = (
 				5D3F77C124BF56D800E8695B /* Tangem */,
 				5D3F77D724BF56DC00E8695B /* TangemTests */,
+				640931FD38671B45D38AEBB7 /* TangemSnapshotTests */,
 				5D3F77E224BF56DC00E8695B /* TangemUITests */,
 				EF9E29922B4F0C8800418559 /* TangemExpress */,
 				EF9E299B2B4F0C8C00418559 /* TangemExpressTests */,
@@ -1027,6 +1079,13 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		2A3D20C729289107FF53AA7A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2D1553662FEC18DB00BF1F88 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1112,6 +1171,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		288DB3E0D4CCD95FEE508562 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2D1553642FEC18DB00BF1F88 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1197,6 +1263,11 @@
 			isa = PBXTargetDependency;
 			target = 2D1553672FEC18DB00BF1F88 /* TangemNotificationServiceExtension */;
 			targetProxy = 2D15536D2FEC18DB00BF1F88 /* PBXContainerItemProxy */;
+		};
+		5CB7F3AACD5C5CF19361ABBE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5D3F77C124BF56D800E8695B /* Tangem */;
+			targetProxy = 8435920C42CDD31632B65228 /* PBXContainerItemProxy */;
 		};
 		5D3F77DA24BF56DC00E8695B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1370,6 +1441,31 @@
 				VERSION_INFO_PREFIX = "";
 			};
 			name = "Release(internal)";
+		};
+		0D5B66381C21400466229194 /* Debug(production) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4897UJ6D8C;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				OTHER_SWIFT_FLAGS = "$(inherited) -Xcc -Wno-incomplete-umbrella";
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemSnapshotTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tangem.app/Tangem";
+			};
+			name = "Debug(production)";
 		};
 		10DA19B71D5817E36C72F2E4 /* Debug(internal) */ = {
 			isa = XCBuildConfiguration;
@@ -2374,6 +2470,57 @@
 			};
 			name = "Release(production)";
 		};
+		6AF55CF4CF87C5EABC1642B3 /* Release(production) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4897UJ6D8C;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				OTHER_SWIFT_FLAGS = "$(inherited) -Xcc -Wno-incomplete-umbrella";
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemSnapshotTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = RELEASE;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tangem.app/Tangem";
+			};
+			name = "Release(production)";
+		};
+		7A92D0BC18653A68C24D6842 /* Debug(internal) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4897UJ6D8C;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				OTHER_SWIFT_FLAGS = "$(inherited) -Xcc -Wno-incomplete-umbrella";
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemSnapshotTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tangem.app/Tangem";
+			};
+			name = "Debug(internal)";
+		};
 		7E429E35CE2C46B8CAA98C6E /* Debug(internal) */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2543,6 +2690,32 @@
 				VERSION_INFO_PREFIX = "";
 			};
 			name = "Debug(internal)";
+		};
+		8C8767BEDFEA22133F9143A3 /* Release(internal) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4897UJ6D8C;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				OTHER_SWIFT_FLAGS = "$(inherited) -Xcc -Wno-incomplete-umbrella";
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemSnapshotTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = RELEASE;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tangem.app/Tangem";
+			};
+			name = "Release(internal)";
 		};
 		948A657C91B3B0BD94F09E65 /* Release(internal) */ = {
 			isa = XCBuildConfiguration;
@@ -4514,6 +4687,17 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = "Release(production)";
 		};
+		F5032831D7200070CC43E586 /* Build configuration list for PBXNativeTarget "TangemSnapshotTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0D5B66381C21400466229194 /* Debug(production) */,
+				7A92D0BC18653A68C24D6842 /* Debug(internal) */,
+				6AF55CF4CF87C5EABC1642B3 /* Release(production) */,
+				8C8767BEDFEA22133F9143A3 /* Release(internal) */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = "Release(production)";
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
@@ -4764,6 +4948,10 @@
 			package = 3075F0CE2DCA6B3A0094B4C7 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
 		};
+		65B17FFBE77ED307C42BF348 /* TangemModules */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TangemModules;
+		};
 		798508AD2DF1AF9100388668 /* TangemModules */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F92DB9C52CD4C24800C16530 /* XCLocalSwiftPackageReference "Modules" */;
@@ -4773,6 +4961,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B6C0D3F02CBDC52D001113ED /* XCRemoteSwiftPackageReference "Moya" */;
 			productName = Moya;
+		};
+		8D1C1FEF576829ADF69539AF /* TangemSnapshotTestSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TangemSnapshotTestSupport;
 		};
 		B0776C362DA69090004A8765 /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
