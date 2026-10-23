@@ -138,6 +138,76 @@ struct CommonJointAccountsNetworkServiceTests {
         }
     }
 
+    @Test(
+        "A refusal of a new operation names the reason the endpoint gave, one this version has never heard of included",
+        arguments: [
+            ("UNSUPPORTED_CHAIN", JointOperationRefusal.unsupportedChain),
+            ("NONCE_MISMATCH", .nonceMismatch),
+            ("INVALID_BASE_GAS", .invalidBaseGas),
+            ("GAS_PRICE_TOO_LOW", .gasPriceTooLow),
+            ("GAS_PRICE_TOO_HIGH", .gasPriceTooHigh),
+            ("GAS_TOKEN_NOT_ALLOWED", .gasTokenNotAllowed),
+            ("INVALID_REFUND_RECEIVER", .invalidRefundReceiver),
+            ("INVALID_SAFE_OPERATION", .invalidSafeOperation),
+            ("INVALID_SAFE_ADDRESS", .invalidSafeAddress),
+            ("STALE_NONCE", .unknown("STALE_NONCE")),
+        ]
+    )
+    func aRefusedOperationIsNamed(reasonCode: String, expected: JointOperationRefusal) async {
+        let apiService = FakeTangemApiService()
+
+        apiService.createJointAccountOperationHandler = { _ in
+            throw TangemAPIError(code: .badRequest, message: "The request has nonce 7. The Safe is at nonce 8", reasonCode: reasonCode)
+        }
+
+        await Self.withInjected(apiService: apiService, eTagStorage: ETagStorageStub()) {
+            let sut = CommonJointAccountsNetworkService(userWalletId: Self.userWalletId)
+
+            await #expect(throws: JointOperationError.refused(expected)) {
+                try await sut.createOperation(Self.operationRequest())
+            }
+        }
+    }
+
+    @Test("A new operation in a network that already carries an unfinished one is refused as the network being busy")
+    func aConflictingOperationIsRefusedAsNetworkBusy() async {
+        let apiService = FakeTangemApiService()
+
+        apiService.createJointAccountOperationHandler = { _ in throw TangemAPIError(code: .conflict) }
+
+        await Self.withInjected(apiService: apiService, eTagStorage: ETagStorageStub()) {
+            let sut = CommonJointAccountsNetworkService(userWalletId: Self.userWalletId)
+
+            await #expect(throws: JointOperationError.networkBusy) {
+                try await sut.createOperation(Self.operationRequest())
+            }
+        }
+    }
+
+    @Test(
+        "A refusal of a new operation that names no reason reaches the caller as it came",
+        arguments: [
+            TangemAPIError(code: .badRequest),
+            TangemAPIError(code: .notFound, reasonCode: "NONCE_MISMATCH"),
+        ]
+    )
+    func anUnnamedRefusalPassesThrough(refusal: TangemAPIError) async throws {
+        let apiService = FakeTangemApiService()
+
+        apiService.createJointAccountOperationHandler = { _ in throw refusal }
+
+        try await Self.withInjected(apiService: apiService, eTagStorage: ETagStorageStub()) {
+            let sut = CommonJointAccountsNetworkService(userWalletId: Self.userWalletId)
+
+            let error = try await #require(throws: TangemAPIError.self) {
+                try await sut.createOperation(Self.operationRequest())
+            }
+
+            #expect(error.code == refusal.code)
+            #expect(error.reasonCode == refusal.reasonCode)
+        }
+    }
+
     @Test("A history read passes its cursor and page size through and leaves the listing's tag alone")
     func aHistoryReadKeepsTheListingETag() async throws {
         let apiService = FakeTangemApiService()
@@ -200,6 +270,15 @@ private extension CommonJointAccountsNetworkServiceTests {
         """
 
         return try JSONDecoder().decode(JointAccountsDTO.Response.HistoryOperation.self, from: Data(json.utf8))
+    }
+
+    static func operationRequest() -> JointAccountOperationRequest {
+        JointAccountOperationRequest(
+            safeAddress: "0x8f3ac21b7e5f4552091a69125d5dfcb7b8c26590",
+            chainId: 1,
+            safeTransaction: JointAccountCompositionFixture.coinTransfer().safeTransaction,
+            signature: Data(repeating: 0x1B, count: 65)
+        )
     }
 
     static func withInjected<T>(
