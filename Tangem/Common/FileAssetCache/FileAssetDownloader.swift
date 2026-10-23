@@ -1,5 +1,5 @@
 //
-//  StoriesDataLoader.swift
+//  FileAssetDownloader.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// Downloads a story asset file to a temporary location; the caller owns moving it to a permanent one.
-protocol StoriesDataLoader {
+/// Downloads a file to a temporary location; the caller owns moving it to a permanent one.
+protocol FileAssetDownloader {
     func downloadFile(from url: URL) async throws -> URL
 }
