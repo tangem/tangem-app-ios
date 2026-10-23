@@ -69,9 +69,7 @@ struct TangemPayVirtualAccountOnboardingView: View {
             texts
 
             TangemPayVirtualAccountFeeListView(
-                header: Localization.tangempayBankTransferOnboardingFeeHeader,
                 state: viewModel.state,
-                rowsHorizontalPadding: 0,
                 reload: viewModel.reloadFees
             )
 

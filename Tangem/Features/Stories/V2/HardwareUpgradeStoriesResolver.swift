@@ -17,10 +17,9 @@ struct HardwareUpgradeStoriesResolver {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     /// Reads the experiment variant, which emits an Amplitude `$exposure` — call it on the upgrade
-    /// tap and nowhere else. A closed release gate returns before the read, keeping the gate and the
-    /// `control` variant apart in analytics: no exposure means the user never entered the experiment.
+    /// tap and nowhere else.
     func shouldShowStories() -> Bool {
-        guard FeatureProvider.isAvailable(.hardwareUpgradeStories), !mobileWalletIds.isEmpty else {
+        guard !mobileWalletIds.isEmpty else {
             return false
         }
 
@@ -28,10 +27,7 @@ struct HardwareUpgradeStoriesResolver {
     }
 
     func shouldPrefetchStories() async -> Bool {
-        guard
-            FeatureProvider.isAvailable(.hardwareUpgradeStories),
-            await experimentService.waitForVariants(ofWalletMatching: { mobileWalletIds.contains($0) })
-        else {
+        guard await experimentService.waitForVariants(ofWalletMatching: { mobileWalletIds.contains($0) }) else {
             return false
         }
 
