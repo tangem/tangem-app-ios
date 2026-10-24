@@ -65,14 +65,14 @@ public struct TangemSegmentedPicker<Data>: View, Setupable
         self.data = data
         _selection = selection
 
-        _spacing = ScaledMetric(wrappedValue: .unit(.x1))
-        _padding = ScaledMetric(wrappedValue: .unit(.half))
-        _separatorWidth = ScaledMetric(wrappedValue: .unit(.eighth))
-        _separatorPadding = ScaledMetric(wrappedValue: .unit(.x2))
-        _shadowRadius = ScaledMetric(wrappedValue: .unit(.half))
-        _shadowY = ScaledMetric(wrappedValue: .unit(.half))
-        _contentHorizontalPadding = ScaledMetric(wrappedValue: .unit(.x3))
-        _contentVerticalPadding = ScaledMetric(wrappedValue: .unit(.x2))
+        _spacing = ScaledMetric(wrappedValue: 4)
+        _padding = ScaledMetric(wrappedValue: 2)
+        _separatorWidth = ScaledMetric(wrappedValue: 0.5)
+        _separatorPadding = ScaledMetric(wrappedValue: 8)
+        _shadowRadius = ScaledMetric(wrappedValue: 2)
+        _shadowY = ScaledMetric(wrappedValue: 2)
+        _contentHorizontalPadding = ScaledMetric(wrappedValue: 12)
+        _contentVerticalPadding = ScaledMetric(wrappedValue: 8)
     }
 
     public var body: some View {

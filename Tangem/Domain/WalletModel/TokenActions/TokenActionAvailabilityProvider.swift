@@ -318,6 +318,7 @@ extension TokenActionAvailabilityProvider {
 extension TokenActionAvailabilityProvider {
     enum SellActionAvailabilityStatus {
         case available
+        case jointAccountsComingSoon
         case unavailable(tokenName: String)
         case zeroWalletBalance
         case cantSignLongTransactions
@@ -340,6 +341,10 @@ extension TokenActionAvailabilityProvider {
     }
 
     var sellAvailability: SellActionAvailabilityStatus {
+        if walletModel.isJointAccountParticipant {
+            return .jointAccountsComingSoon
+        }
+
         if let disabledLocalizedReason = userWalletConfig.getDisabledLocalizedReason(for: .exchange) {
             return .demo(disabledLocalizedReason: disabledLocalizedReason)
         }

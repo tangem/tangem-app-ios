@@ -46,7 +46,8 @@ struct SupportedProvidersFilterTests {
         arguments: [
             ("cex-provider", ExpressProviderType.cex, true),
             ("1inch", .dex, true),
-            ("li-fi", .dexBridge, false),
+            ("swapkit", .dex, true),
+            ("li-fi", .dexBridge, true),
             ("unsupported-dex", .dex, false),
             ("unsupported-bridge", .dexBridge, false),
             ("onramp-provider", .onramp, false),
@@ -79,7 +80,8 @@ private extension SupportedProvidersFilterTests {
             termsOfUse: nil,
             privacyPolicy: nil,
             recommended: nil,
-            slippage: nil
+            slippage: nil,
+            isCustomSlippageSupported: false
         )
     }
 }

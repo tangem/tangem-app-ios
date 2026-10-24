@@ -22,17 +22,30 @@ protocol WalletBackupStorage {
     func delete(file: WalletBackupStorageFile) async throws
 }
 
-/// Stores backup files in the `Documents` folder of the app's ubiquity container.
+/// Stores backup files in one folder of the app's ubiquity container.
 final class ICloudBackupStorage: WalletBackupStorage, Sendable {
+    enum Directory {
+        case documents
+        case socialBackup
+
+        var pathComponent: String {
+            switch self {
+            case .documents: "Documents"
+            case .socialBackup: "SocialBackup"
+            }
+        }
+    }
+
     /// `url(forUbiquityContainerIdentifier:)` and `NSFileCoordinator` perform blocking I/O —
     /// potentially long while iCloud holds the file — which must not occupy a cooperative-pool
     /// thread, hence a plain dispatch queue.
     private let queue = DispatchQueue(label: "com.tangem.ICloudBackupStorage.storage")
 
-    /// System-defined subdirectory name: only the contents of `Documents` are surfaced
-    /// in iCloud Drive, the rest of the container stays app-private. There is no API
-    /// constant for it.
-    private let documentsPath = "Documents"
+    private let directory: Directory
+
+    init(directory: Directory) {
+        self.directory = directory
+    }
 
     var isAvailable: Bool {
         FileManager.default.ubiquityIdentityToken != nil
@@ -94,11 +107,11 @@ final class ICloudBackupStorage: WalletBackupStorage, Sendable {
 private extension ICloudBackupStorage {
     func writeData(_ data: Data, fileName: String) throws {
         let fileManager = FileManager()
-        let documentsURL = try documentsDirectoryURL(fileManager: fileManager)
-        let fileURL = documentsURL.appendingPathComponent(fileName, isDirectory: false)
+        let directoryURL = try directoryURL(fileManager: fileManager)
+        let fileURL = directoryURL.appendingPathComponent(fileName, isDirectory: false)
 
         do {
-            try fileManager.createDirectory(at: documentsURL, withIntermediateDirectories: true)
+            try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
         } catch {
             throw WalletBackupStorageError.writeFailed(error)
         }
@@ -170,19 +183,19 @@ private extension ICloudBackupStorage {
 
     func list() throws -> [WalletBackupStorageFile] {
         let fileManager = FileManager()
-        let documentsURL = try documentsDirectoryURL(fileManager: fileManager)
+        let directoryURL = try directoryURL(fileManager: fileManager)
 
-        guard fileManager.fileExists(atPath: documentsURL.path) else {
+        guard fileManager.fileExists(atPath: directoryURL.path) else {
             return []
         }
 
         do {
-            return try fileManager.contentsOfDirectory(atPath: documentsURL.path)
+            return try fileManager.contentsOfDirectory(atPath: directoryURL.path)
                 .map(normalizedFileName)
                 .map { name in
                     WalletBackupStorageFile(
                         name: name,
-                        url: documentsURL.appendingPathComponent(name, isDirectory: false)
+                        url: directoryURL.appendingPathComponent(name, isDirectory: false)
                     )
                 }
         } catch {
@@ -190,14 +203,14 @@ private extension ICloudBackupStorage {
         }
     }
 
-    func documentsDirectoryURL(fileManager: FileManager) throws -> URL {
+    func directoryURL(fileManager: FileManager) throws -> URL {
         // `nil` means the first container from the app's
         // `com.apple.developer.icloud-container-identifiers` entitlement.
         guard let containerURL = fileManager.url(forUbiquityContainerIdentifier: nil) else {
             throw WalletBackupStorageError.storageUnavailable
         }
 
-        return containerURL.appendingPathComponent(documentsPath, isDirectory: true)
+        return containerURL.appendingPathComponent(directory.pathComponent, isDirectory: true)
     }
 
     /// Files that exist in the cloud but are not downloaded to this device are enumerated

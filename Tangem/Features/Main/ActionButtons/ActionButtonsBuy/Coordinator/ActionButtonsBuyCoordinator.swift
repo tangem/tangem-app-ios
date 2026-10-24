@@ -372,17 +372,10 @@ private extension ActionButtonsBuyCoordinator {
     }
 
     func makePulseMarketWidgetViewModel() -> PulseMarketWidgetViewModel? {
-        let widgetsUpdateHandler = CommonMarketsMainWidgetDataService()
-        for widgetType in [MarketsWidgetType.market, .news, .earn] {
-            widgetsUpdateHandler.performUpdateLoading(state: .loaded, for: widgetType)
-        }
-
-        return PulseMarketWidgetViewModel(
-            widgetType: .pulse,
-            widgetsUpdateHandler: widgetsUpdateHandler,
+        PulseMarketWidgetViewModel(
+            widgetsUpdateHandler: CommonMarketsMainWidgetDataService(widgetTypes: [.pulse]),
             quotesRepositoryUpdateHelper: CommonMarketsQuotesUpdateHelper(),
             analyticsService: CommonMarketsWidgetAnalyticsService(),
-            includesMarketCapFilter: true,
             coordinator: self
         )
     }

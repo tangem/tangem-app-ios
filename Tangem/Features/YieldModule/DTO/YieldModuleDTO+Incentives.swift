@@ -15,6 +15,7 @@ extension YieldModuleDTO.Response {
         let moduleAddress: String?
         let rewards: [IncentiveReward]
         let lastUpdatedAt: Date
+        let claimRecommended: Bool
     }
 
     struct IncentiveReward: Decodable, Equatable {
@@ -27,7 +28,6 @@ extension YieldModuleDTO.Response {
         let serviceFeeRateBps: Int
         let estimatedServiceFeeUsd: Decimal
         let estimatedNetValueUsd: Decimal
-        let claimRecommended: Bool
         let finalDestination: String
 
         enum CodingKeys: String, CodingKey {
@@ -40,7 +40,6 @@ extension YieldModuleDTO.Response {
             case serviceFeeRateBps
             case estimatedServiceFeeUsd
             case estimatedNetValueUsd
-            case claimRecommended
             case finalDestination
         }
 
@@ -104,7 +103,6 @@ extension YieldModuleDTO.Response {
             }
             self.estimatedNetValueUsd = estimatedNetValueUsd
 
-            claimRecommended = try container.decode(Bool.self, forKey: .claimRecommended)
             finalDestination = try container.decode(String.self, forKey: .finalDestination)
         }
     }

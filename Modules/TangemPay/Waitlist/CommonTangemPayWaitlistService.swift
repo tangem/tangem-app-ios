@@ -11,6 +11,7 @@ import Foundation
 final class CommonTangemPayWaitlistService {
     private let apiService: TangemPayAPIService<TangemPayWaitlistAPITarget>
     private let apiType: VisaAPIType
+    private let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
 
     private let encoder: JSONEncoder = {
         let encoder = JSONEncoder()
@@ -20,9 +21,11 @@ final class CommonTangemPayWaitlistService {
 
     init(
         apiType: VisaAPIType,
+        authorizationTokensHandler: TangemPayAuthorizationTokensHandler,
         apiService: TangemPayAPIService<TangemPayWaitlistAPITarget>
     ) {
         self.apiType = apiType
+        self.authorizationTokensHandler = authorizationTokensHandler
         self.apiService = apiService
     }
 }
@@ -33,6 +36,8 @@ extension CommonTangemPayWaitlistService: TangemPayWaitlistService {
         idempotencyKey: String
     ) async throws(TangemPayWaitlistError) -> TangemPayJoinWaitlistResponse {
         do {
+            try await authorizationTokensHandler.prepare()
+
             return try await apiService.request(
                 .init(
                     target: .joinWaitlist(request: request, idempotencyKey: idempotencyKey),

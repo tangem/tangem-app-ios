@@ -43,6 +43,11 @@ final class PromotionNotificationsViewModel: ObservableObject {
         }
     }
 
+    func resetVisibilityTracking() {
+        isViewVisible = false
+        currentIndex = 0
+    }
+
     private func bind() {
         promotionNotificationsManager
             .notificationPublisher

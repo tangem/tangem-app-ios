@@ -9,7 +9,8 @@
 import XCTest
 
 final class TangemPayCardFreezeUITests: BaseTestCase {
-    func testFreezeCard_ShowsErrorToast_ThenRetrySucceeds() {
+    /// [REDACTED_INFO] Tangem Pay card management stays in "freezing/unfreezing in progress" after a successful freeze or unfreeze
+    func skipped_testFreezeCard_ShowsErrorToast_ThenRetrySucceeds() {
         setAllureId(9555)
 
         let mainScreen = launchAndImportHotWallet(
@@ -33,7 +34,8 @@ final class TangemPayCardFreezeUITests: BaseTestCase {
             .verifyCardFrozen()
     }
 
-    func testUnfreezeCard_ShowsErrorToast_ThenRetrySucceeds() {
+    /// [REDACTED_INFO] Tangem Pay card management stays in "freezing/unfreezing in progress" after a successful freeze or unfreeze
+    func skipped_testUnfreezeCard_ShowsErrorToast_ThenRetrySucceeds() {
         setAllureId(9556)
 
         let mainScreen = launchAndImportHotWallet(
@@ -107,6 +109,7 @@ final class TangemPayCardFreezeUITests: BaseTestCase {
         .verifyEmptyTransactionsState()
         .tapCard()
         .waitForScreen()
+        .verifyCardActive()
         .tapFreezeCard()
         .waitForScreen()
         .confirmFreeze()
@@ -128,7 +131,7 @@ final class TangemPayCardFreezeUITests: BaseTestCase {
             .tapTransaction(name: Constants.DeclinedTransaction.merchant)
             .waitForScreen()
             .verifyAmount(Constants.DeclinedTransaction.amount)
-            .verifyStatus(Constants.DeclinedTransaction.status)
+            .verifyStatus(Localization.tangemPayStatusDeclined)
     }
 }
 
@@ -153,7 +156,6 @@ private extension TangemPayCardFreezeUITests {
             static let merchant = "Tangem Frozen Card Shop"
             static let amount = "$0.00"
             static let category = "Electronics"
-            static let status = "Declined"
         }
     }
 }

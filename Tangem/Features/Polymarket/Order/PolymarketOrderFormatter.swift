@@ -10,16 +10,14 @@ import Foundation
 import TangemPolymarket
 
 enum PolymarketOrderFormatter {
+    /// The collateral trades one to one with the dollar, so its amounts are drawn with the dollar sign and
+    /// are never converted into the currency the app is set to.
     static func money(_ value: Decimal?) -> String {
         formatter.formatFiatBalance(value, currencyCode: Constants.currencyCode)
     }
 
     static func enteredAmount(_ value: Decimal?) -> String {
         formatter.formatFiatBalance(value, currencyCode: Constants.currencyCode, formattingOptions: .enteredAmount)
-    }
-
-    static func collateralBalance(_ value: Decimal?) -> String {
-        formatter.formatCryptoBalance(value, currencyCode: PolymarketUtilities.collateralTokenItem.currencySymbol)
     }
 
     static func shares(_ value: Decimal?) -> String {

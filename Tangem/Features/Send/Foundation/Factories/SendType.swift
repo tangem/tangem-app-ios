@@ -21,12 +21,11 @@ enum SendType {
     case staking(
         SendStakingableToken,
         manager: StakingManager,
-        walletModelDependenciesProvider: WalletModelDependenciesProvider,
-        blockchainParams: StakingBlockchainParams
+        walletModelDependenciesProvider: WalletModelDependenciesProvider
     )
-    case unstaking(SendStakingableToken, manager: StakingManager, action: UnstakingModel.Action)
-    case restaking(SendStakingableToken, manager: StakingManager, action: RestakingModel.Action)
-    case stakingSingleAction(SendStakingableToken, manager: StakingManager, action: StakingSingleActionModel.Action)
+    case unstaking(SendStakingableToken, manager: StakingManager, action: StakingAction)
+    case restaking(SendStakingableToken, manager: StakingManager, action: StakingAction)
+    case stakingSingleAction(SendStakingableToken, manager: StakingManager, action: StakingAction)
     case onramp(SendSourceToken, parameters: PredefinedOnrampParameters = .none)
 }
 

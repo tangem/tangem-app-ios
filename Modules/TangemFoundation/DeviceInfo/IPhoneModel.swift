@@ -39,10 +39,16 @@ public enum IPhoneModel {
     case iPhone16Plus
     case iPhone16Pro
     case iPhone16ProMax
+    case iPhone16e
     case iPhone17
     case iPhone17Pro
     case iPhone17ProMax
     case iPhoneAir
+    case iPhone17e
+    case iPhone18Pro
+    case iPhone18ProMax
+    case iPhoneDuo
+    case unknown(identifier: String)
 
     public var name: String {
         switch self {
@@ -77,10 +83,16 @@ public enum IPhoneModel {
         case .iPhone16Plus: return "iPhone 16 Plus"
         case .iPhone16Pro: return "iPhone 16 Pro"
         case .iPhone16ProMax: return "iPhone 16 Pro Max"
+        case .iPhone16e: return "iPhone 16e"
         case .iPhone17: return "iPhone 17"
         case .iPhone17Pro: return "iPhone 17 Pro"
         case .iPhone17ProMax: return "iPhone 17 Pro Max"
         case .iPhoneAir: return "iPhone Air"
+        case .iPhone17e: return "iPhone 17e"
+        case .iPhone18Pro: return "iPhone 18 Pro"
+        case .iPhone18ProMax: return "iPhone 18 Pro Max"
+        case .iPhoneDuo: return "iPhone Duo"
+        case .unknown(let identifier): return identifier
         }
     }
 
@@ -129,12 +141,17 @@ public enum IPhoneModel {
         case "iPhone17,2": self = .iPhone16ProMax
         case "iPhone17,3": self = .iPhone16
         case "iPhone17,4": self = .iPhone16Plus
+        case "iPhone17,5": self = .iPhone16e
         case "iPhone18,1": self = .iPhone17Pro
         case "iPhone18,2": self = .iPhone17ProMax
         case "iPhone18,3": self = .iPhone17
         case "iPhone18,4": self = .iPhoneAir
+        case "iPhone18,5": self = .iPhone17e
+        case "iPhone19,2": self = .iPhone18Pro
+        case "iPhone19,3", "iPhone19,7": self = .iPhone18ProMax
+        case "iPhone19,4": self = .iPhoneDuo
         default:
-            return nil
+            self = .unknown(identifier: modelIdentifier)
         }
     }
 }

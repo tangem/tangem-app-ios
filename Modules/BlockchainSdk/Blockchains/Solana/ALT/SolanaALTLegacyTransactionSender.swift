@@ -42,6 +42,12 @@ struct SolanaALTLegacyTransactionSender {
     /// - Throws: An error if sending fails at any step.
     @discardableResult
     mutating func buildForSend(message: LegacyMessage) async throws -> String {
+        try SolanaALTSignerGuard.validate(
+            header: message.header,
+            staticAccountKeys: message.staticAccountKeys,
+            walletPublicKey: walletPublicKey
+        )
+
         let (staticAccountKeys, altKeys) = accountKeysSplitProvider.splitStaticAccountKeys(legacy: message)
 
         let addressLookupTableAccounts = try await lookupTableCreator.createLookupTableAccounts(

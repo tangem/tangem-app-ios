@@ -12,19 +12,12 @@ import TangemAccessibilityIdentifiers
 final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     private lazy var title = staticText(.title)
     private lazy var finishButton = button(.finishButton)
-    // HoldToConfirmButton (hot wallet) is not a native Button, XCUITest sees it as otherElement
-    private lazy var holdFinishButton = otherElement(.finishButton)
     private lazy var amountValue = staticText(.amountValue)
     private lazy var validatorBlock = staticText(.validatorBlock)
     private lazy var networkFeeBlock = otherElement(.networkFeeBlock)
     private lazy var networkFeeAmount = staticText(.networkFeeAmount)
     private lazy var amountBlock = button(.amountBlock)
     private lazy var destinationBlock = button(.destinationBlock)
-
-    /// Returns the active finish/send button regardless of type (regular Button or HoldToConfirmButton)
-    private var activeFinishButton: XCUIElement {
-        finishButton.exists ? finishButton : holdFinishButton
-    }
 
     @discardableResult
     func waitForAmountValue(_ expectedAmount: String) -> Self {
@@ -47,9 +40,7 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
         XCTContext.runActivity(named: "Wait for display: Send Summary Screen") { _ in
             waitAndAssertTrue(title, "Title should exists")
 
-            // Check for either regular Button or HoldToConfirmButton (hot wallet)
-            let buttonFound = finishButton.waitForExistence(timeout: .quick) || holdFinishButton.waitForExistence(timeout: .robustUIUpdate)
-            XCTAssertTrue(buttonFound, "Finish flow button should exists")
+            waitAndAssertTrue(finishButton, "Finish flow button should exists")
 
             // Fee loads independently of the button/title and can still be in flight once those appear, so this needs an actual wait.
             waitAndAssertTrue(networkFeeBlock, "Network fee block should be displayed")
@@ -62,15 +53,30 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     }
 
     @discardableResult
+    func tapValidatorBlock() -> StakingTargetsScreen {
+        XCTContext.runActivity(named: "Tap validator block to open the validator list") { _ in
+            waitAndAssertTrue(validatorBlock, "Validator block should exist")
+            validatorBlock.waitAndTap()
+        }
+        return StakingTargetsScreen(app)
+    }
+
+    @discardableResult
+    func assertValidatorName(_ expected: String) -> Self {
+        XCTContext.runActivity(named: "Assert validator block shows '\(expected)'") { _ in
+            XCTAssertTrue(
+                waitForValidatorLabel(containing: expected, timeout: .robustUIUpdate),
+                "Validator block should show '\(expected)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
     func tapSendButton() -> SendFinishScreen {
-        XCTContext.runActivity(named: "Tap Send button on Summary screen") { _ in
-            if finishButton.exists {
-                finishButton.waitAndTap()
-            } else {
-                // HoldToConfirmButton requires a long press (1.5s hold duration)
-                waitAndAssertTrue(holdFinishButton, "Hold-to-confirm button should exist")
-                holdFinishButton.press(forDuration: 4.0)
-            }
+        XCTContext.runActivity(named: "Confirm Send on Summary screen") { _ in
+            waitAndAssertTrue(finishButton, "'Send' button should exist")
+            finishButton.holdToConfirm()
         }
         return SendFinishScreen(app)
     }
@@ -88,6 +94,22 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
                 XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
                 .completed,
                 "Crypto amount should contain '\(expectedAmount)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertFiatAmountDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert a fiat amount is displayed on the summary") { _ in
+            waitAndAssertTrue(amountBlock, "Amount block should exist")
+
+            let predicate = NSPredicate(format: "label CONTAINS %@", "$")
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: amountBlock)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Amount block should display a fiat value but was '\(amountBlock.label)'"
             )
         }
         return self
@@ -288,6 +310,15 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
         }
         return self
     }
+
+    private func waitForValidatorLabel(containing text: String, timeout: TimeInterval) -> Bool {
+        let predicate = NSPredicate { _, _ in
+            let button = self.app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Validator")).firstMatch
+            return button.exists && button.label.contains(text)
+        }
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
+    }
 }
 
 // MARK: - Gasless (fee coverage)
@@ -344,8 +375,8 @@ extension SendSummaryScreen {
     @discardableResult
     func assertSendButtonEnabled() -> Self {
         XCTContext.runActivity(named: "Assert 'Send' button is enabled") { _ in
-            waitAndAssertTrue(activeFinishButton, "'Send' button should exist")
-            XCTAssertTrue(activeFinishButton.isEnabled, "'Send' button should be enabled")
+            waitAndAssertTrue(finishButton, "'Send' button should exist")
+            XCTAssertTrue(finishButton.isEnabled, "'Send' button should be enabled")
             return self
         }
     }
@@ -428,6 +459,139 @@ extension SendSummaryScreen {
     }
 }
 
+extension SendSummaryScreen {
+    @discardableResult
+    func waitForSendAmount(containing expected: String) -> Self {
+        XCTContext.runActivity(named: "Wait for send amount on summary to contain '\(expected)'") { _ in
+            waitForLabel(of: sendAmountValue, containing: expected, "Send amount")
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForReceiveAmount(containing expected: String) -> Self {
+        XCTContext.runActivity(named: "Wait for receive amount on summary to contain '\(expected)'") { _ in
+            waitForLabel(of: receiveAmountValue, containing: expected, "Receive amount")
+            return self
+        }
+    }
+
+    func getReceiveAmountValue() -> String {
+        XCTContext.runActivity(named: "Get receive amount on summary") { _ in
+            waitAndAssertTrue(receiveAmountValue, "Receive amount should be displayed on the summary")
+            return receiveAmountValue.label
+        }
+    }
+
+    func waitForReceiveAmountChanged(from previousAmount: String, timeout: TimeInterval) -> String {
+        XCTContext.runActivity(named: "Wait for receive amount to change from '\(previousAmount)'") { _ in
+            let predicate = NSPredicate(format: "label != %@ AND label MATCHES %@", previousAmount, Constants.containsDigitPattern)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: receiveAmountValue)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: timeout),
+                .completed,
+                "Receive amount should change from '\(previousAmount)' within \(timeout) seconds"
+            )
+            return receiveAmountValue.label
+        }
+    }
+
+    @discardableResult
+    func waitForSendButtonEnabled() -> Self {
+        XCTContext.runActivity(named: "Wait for 'Send' button to be enabled") { _ in
+            waitAndAssertTrue(finishButton, "'Send' button should exist")
+            XCTAssertTrue(finishButton.waitForState(state: .enabled), "'Send' button should be enabled")
+            return self
+        }
+    }
+
+    @discardableResult
+    func returnFromBrowser() -> Self {
+        XCTContext.runActivity(named: "Return to the app from the browser") { _ in
+            app.activate()
+            waitAndAssertTrue(title, "Summary should be displayed after returning from the browser")
+            return self
+        }
+    }
+
+    func getNetworkFeeNumericValue() -> Decimal {
+        XCTContext.runActivity(named: "Get network fee numeric value") { _ in
+            waitAndAssertTrue(networkFeeAmount, "Network fee amount element should exist")
+            return firstNumber(in: networkFeeAmount.label)
+        }
+    }
+
+    @discardableResult
+    func waitForNetworkFeeIncreased(from previousFee: Decimal) -> Self {
+        XCTContext.runActivity(named: "Wait for network fee to increase from \(previousFee)") { _ in
+            let predicate = NSPredicate { [self] object, _ in
+                guard let label = (object as? XCUIElement)?.label,
+                      label.range(of: Constants.numberPattern, options: .regularExpression) != nil else {
+                    return false
+                }
+                return firstNumber(in: label) > previousFee
+            }
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: networkFeeAmount)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Network fee '\(networkFeeAmount.label)' should be higher than \(previousFee)"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForFCAWarning() -> Self {
+        XCTContext.runActivity(named: "Wait for FCA warning on the summary provider") { _ in
+            let warning = app.descendants(matching: .any)[SendAccessibilityIdentifiers.swapProviderFCAWarning].firstMatch
+            waitAndAssertTrue(warning, "FCA warning should be displayed under the provider")
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapLegalLink(_ title: String) -> Self {
+        XCTContext.runActivity(named: "Tap '\(title)' link in the provider legal text") { _ in
+            let description = app.staticTexts[SendAccessibilityIdentifiers.summaryTransactionDescription].firstMatch
+            waitAndAssertTrue(description, "Provider legal text should be displayed")
+            let link = description.links.matching(NSPredicate(format: "label == %@", title)).firstMatch
+            waitAndAssertTrue(link, "'\(title)' link should be displayed in the provider legal text")
+            link.tapEvenIfNotHittable()
+            return self
+        }
+    }
+
+    private var sendAmountValue: XCUIElement {
+        app.buttons[SendAccessibilityIdentifiers.fromWalletButton].firstMatch
+            .staticTexts[SendAccessibilityIdentifiers.sendAmountViewValue].firstMatch
+    }
+
+    private var receiveAmountValue: XCUIElement {
+        app.buttons[SendAccessibilityIdentifiers.receiveTokenBlock].firstMatch
+            .staticTexts[SendAccessibilityIdentifiers.sendAmountViewValue].firstMatch
+    }
+
+    private func waitForLabel(of element: XCUIElement, containing expected: String, _ name: String) {
+        waitAndAssertTrue(element, "\(name) should be displayed on the summary")
+        let predicate = NSPredicate(format: "label CONTAINS %@", expected)
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: element)
+        XCTAssertEqual(
+            XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+            .completed,
+            "\(name) should contain '\(expected)' but was '\(element.label)'"
+        )
+    }
+
+    private func firstNumber(in text: String) -> Decimal {
+        guard let range = text.range(of: Constants.numberPattern, options: .regularExpression) else {
+            XCTFail("'\(text)' should contain a number")
+            return 0
+        }
+        return NumericValueHelper.parseNumericValue(from: String(text[range]))
+    }
+}
+
 // MARK: - Staking (unstake / withdraw / claim confirm)
 
 extension SendSummaryScreen {
@@ -436,8 +600,7 @@ extension SendSummaryScreen {
     func waitForStakingConfirm() -> Self {
         XCTContext.runActivity(named: "Wait for staking confirm screen") { _ in
             waitAndAssertTrue(title, "Title should exist")
-            let buttonFound = finishButton.waitForExistence(timeout: .quick) || holdFinishButton.waitForExistence(timeout: .robustUIUpdate)
-            XCTAssertTrue(buttonFound, "Confirm button should exist")
+            waitAndAssertTrue(finishButton, "Confirm button should exist")
             waitAndAssertTrue(networkFeeBlock, "Network fee block should be displayed")
             return self
         }
@@ -458,8 +621,8 @@ extension SendSummaryScreen {
             let rentBanner = app.descendants(matching: .any)[SendAccessibilityIdentifiers.remainingAmountIsLessThanRentExemptionBanner].firstMatch
             XCTAssertTrue(rentBanner.waitForExistence(timeout: .robustUIUpdate), "Rent-fee 'Invalid amount' warning should be displayed on the confirm screen")
 
-            waitAndAssertTrue(activeFinishButton, "Confirm button should exist")
-            XCTAssertFalse(activeFinishButton.isEnabled, "Confirm button should be blocked while the rent-fee warning is shown")
+            waitAndAssertTrue(finishButton, "Confirm button should exist")
+            XCTAssertFalse(finishButton.isEnabled, "Confirm button should be blocked while the rent-fee warning is shown")
             return self
         }
     }
@@ -494,5 +657,12 @@ enum SendSummaryScreenElement: String, UIElement {
         case .destinationBlock:
             return SendAccessibilityIdentifiers.summaryDestinationBlock
         }
+    }
+}
+
+private extension SendSummaryScreen {
+    enum Constants {
+        static let numberPattern = "[0-9][0-9,]*(\\.[0-9]+)?"
+        static let containsDigitPattern = ".*[0-9].*"
     }
 }

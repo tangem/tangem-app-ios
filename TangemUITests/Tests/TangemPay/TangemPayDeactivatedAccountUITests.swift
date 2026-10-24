@@ -13,7 +13,7 @@ final class TangemPayDeactivatedAccountUITests: BaseTestCase {
         setAllureId(9714)
 
         launchWithDeactivatedAccount()
-            .verifyTangemPayTileSubtitle(Constants.Text.accountClosed)
+            .verifyTangemPayTileSubtitle(Localization.tangempayStatusDeactivated)
     }
 
     func testPaymentAccountShowsClosedAccountBlock_WhenAccountIsDeactivated() {
@@ -86,10 +86,6 @@ private extension TangemPayDeactivatedAccountUITests {
         enum Token {
             static let bitcoin = "Bitcoin"
             static let bitcoinTopUpAmount = "0.001"
-        }
-
-        enum Text {
-            static let accountClosed = "Account closed"
         }
     }
 }

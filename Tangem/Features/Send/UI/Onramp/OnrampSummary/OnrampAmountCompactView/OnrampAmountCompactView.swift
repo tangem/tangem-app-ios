@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 
@@ -27,6 +28,7 @@ struct OnrampAmountCompactView: View {
                 // Kingfisher shows a gray background even if it has a cached image
                 forceKingfisher: false
             )
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.finishFiatIcon)
 
             VStack(spacing: 12) {
                 textView
@@ -44,11 +46,13 @@ struct OnrampAmountCompactView: View {
                 .prefixSuffixOptions(viewModel.currentFieldOptions)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
                 .disabled(true) // TextField is read only
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.finishFiatAmount)
 
             // Keep empty text so that the view maintains its place in the layout
             Text(viewModel.alternativeAmount ?? " ")
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .lineLimit(1)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.finishCryptoAmount)
         }
     }
 
@@ -63,9 +67,11 @@ struct OnrampAmountCompactView: View {
                 // Kingfisher shows a gray background even if it has a cached image
                 forceKingfisher: false
             )
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.finishProviderIcon)
 
             Text(viewModel.providerName ?? "")
                 .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.finishProviderName)
         }
     }
 }

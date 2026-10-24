@@ -93,7 +93,7 @@ private enum OfframpBottomBarMetrics {
     .offrampBottomBar {
         TangemUI.Button(label: "Continue", accessibilityLabel: nil, action: {})
             .size(.x12)
-            .styleType(.default)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
     }
 }

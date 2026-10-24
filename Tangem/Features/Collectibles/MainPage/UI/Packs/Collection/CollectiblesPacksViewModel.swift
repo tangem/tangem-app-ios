@@ -23,6 +23,7 @@ final class CollectiblesPacksViewModel: ObservableObject {
 
     @Published private(set) var state: State = .idle
     @Published private(set) var paginationState: PaginationState = .none
+    @Published private(set) var loreID: String?
 
     // MARK: - Init
 
@@ -52,7 +53,6 @@ final class CollectiblesPacksViewModel: ObservableObject {
     }
 
     func refresh() async {
-        state = .loading
         reload()
 
         _ = await reloadTask?.result
@@ -60,6 +60,7 @@ final class CollectiblesPacksViewModel: ObservableObject {
 
     func reload(loreID: String?) {
         cancelTasks()
+        self.loreID = loreID
 
         guard let catalogue = model.switchLore(loreID) else {
             state = .loading
@@ -93,6 +94,7 @@ final class CollectiblesPacksViewModel: ObservableObject {
 
     func reset(loreID: String?) {
         cancelTasks()
+        self.loreID = loreID
         model.reset(loreID: loreID)
         state = .idle
         paginationState = .none
@@ -217,7 +219,10 @@ private extension CollectiblesPacksViewModel {
     func fetch() async {
         guard !Task.isCancelled else { return }
 
-        if !state.isContentLoaded {
+        switch state {
+        case .content, .empty:
+            break
+        case .idle, .loading, .failed:
             state = .loading
         }
 

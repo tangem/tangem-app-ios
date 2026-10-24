@@ -9,6 +9,8 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
+import TangemUIUtils
 
 struct FeeSelectorFeesRowView: SelectableSectionRow {
     private let viewModel: FeeSelectorFeesRowViewModel
@@ -59,6 +61,7 @@ struct FeeSelectorFeesRowView: SelectableSectionRow {
                 .foregroundStyle(isSelected ? Colors.Icon.accent : Colors.Text.tertiary)
                 .frame(width: 24, height: 24)
         }
+        .accessibilityIdentifier(isSelected ? FeeAccessibilityIdentifiers.feeOptionSelectedIndicator : nil)
     }
 
     private var content: some View {
