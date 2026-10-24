@@ -14,7 +14,7 @@ import TangemUIUtils
 struct TokenDetailsActionsButtonsRowView: View {
     let buttons: [TokenDetailsActionsButton]
 
-    @ScaledMetric(wrappedValue: .unit(.x6)) private var spacing: CGFloat
+    @ScaledMetric private var spacing: CGFloat = 24
 
     var body: some View {
         HStack(spacing: spacing) {

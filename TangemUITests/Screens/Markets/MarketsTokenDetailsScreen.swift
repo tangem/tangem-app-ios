@@ -161,6 +161,14 @@ final class MarketsTokenDetailsScreen: ScreenBase<MarketsTokenDetailsScreenEleme
     // MARK: - Add Funds Actions
 
     @discardableResult
+    func waitForAddFundsButton() -> Self {
+        XCTContext.runActivity(named: "Validate Markets token details screen is displayed") { _ in
+            waitAndAssertTrue(addFundsButton, "Add funds button should exist on Markets token details screen")
+            return self
+        }
+    }
+
+    @discardableResult
     func tapAddFunds() -> AddFundsScreen {
         XCTContext.runActivity(named: "Tap Add funds button on Markets token details screen") { _ in
             addFundsButton.waitAndTapWithScroll()

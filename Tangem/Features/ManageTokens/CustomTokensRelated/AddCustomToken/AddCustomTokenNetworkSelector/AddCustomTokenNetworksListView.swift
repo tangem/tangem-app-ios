@@ -33,7 +33,7 @@ struct AddCustomTokenNetworksListView: View {
     }
 
     private var cardCornerRadius: CGFloat {
-        isRedesign ? .unit(.x5) : 14
+        isRedesign ? 20 : 14
     }
 
     var body: some View {

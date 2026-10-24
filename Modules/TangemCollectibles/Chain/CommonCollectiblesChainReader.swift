@@ -1,0 +1,87 @@
+//
+//  CommonCollectiblesChainReader.swift
+//  TangemCollectibles
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+public import Foundation
+import BlockchainSdk
+
+public final class CommonCollectiblesChainReader {
+    private let serviceProvider: any CollectiblesChainServiceProvider
+
+    public init(serviceProvider: any CollectiblesChainServiceProvider) {
+        self.serviceProvider = serviceProvider
+    }
+}
+
+// MARK: - CollectiblesVaultReader protocol conformance
+
+extension CommonCollectiblesChainReader: CollectiblesVaultReader {
+    public func vaultInfo(coldOwner: Data) async throws -> CollectiblesVaultInfo? {
+        let program = try CollectiblesVaultProgram(programId: CollectiblesChainEnvironment.programId)
+        let vaultAddress = try program.vaultAddress(coldOwner: coldOwner)
+
+        guard let account = try await serviceProvider.service().account(address: vaultAddress) else {
+            return nil
+        }
+
+        do {
+            return try program.vaultInfo(coldOwner: coldOwner, accountOwner: account.owner, accountData: account.data)
+        } catch {
+            // The refresh swallows what it gets back, so a rejected account is only visible from here
+            CollectiblesLogger.error("Vault account rejected", error: error)
+            throw error
+        }
+    }
+}
+
+// MARK: - CollectiblesConfigReader protocol conformance
+
+extension CommonCollectiblesChainReader: CollectiblesConfigReader {
+    public func configInfo() async throws -> CollectiblesConfigInfo {
+        let program = try CollectiblesVaultProgram(programId: CollectiblesChainEnvironment.programId)
+        let configAddress = try program.configAddress()
+
+        guard let account = try await serviceProvider.service().account(address: configAddress) else {
+            throw ReadError.configMissing
+        }
+
+        return try program.configInfo(accountOwner: account.owner, accountData: account.data)
+    }
+}
+
+// MARK: - CollectiblesVaultUsdcReader protocol conformance
+
+extension CommonCollectiblesChainReader: CollectiblesVaultUsdcReader {
+    public func usdcAccount(coldOwner: Data) async throws -> CollectiblesVaultUsdcInfo {
+        let program = try CollectiblesVaultProgram(programId: CollectiblesChainEnvironment.programId)
+        let usdcMint = try await configInfo().usdcMint
+        let address = try program.vaultUsdcAddress(coldOwner: coldOwner, usdcMint: usdcMint)
+        guard let account = try await serviceProvider.service().account(address: address) else {
+            return CollectiblesVaultUsdcInfo(account: nil, balance: 0)
+        }
+
+        let balance = try program.vaultUsdcBalance(
+            coldOwner: coldOwner,
+            usdcMint: usdcMint,
+            accountOwner: account.owner,
+            accountData: account.data
+        )
+
+        return CollectiblesVaultUsdcInfo(
+            account: CollectiblesVaultUsdcAccount(address: address, mint: usdcMint.base58EncodedString),
+            balance: balance
+        )
+    }
+}
+
+// MARK: - Private implementation
+
+private extension CommonCollectiblesChainReader {
+    enum ReadError: Error {
+        case configMissing
+    }
+}

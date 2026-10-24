@@ -51,9 +51,9 @@ extension ApproveFlowInput {
     func makeApproveInteractorState() -> ApproveInteractor.ApproveInteractorState {
         switch approvalFlow {
         case .approve:
-            return .approve(data: approveData)
+            return .approve(data: approveData, policy: selectedPolicy)
         case .revokeAndApprove(let revokeData, let feeUnit):
-            return .revokeAndApprove(revoke: revokeData, approve: approveData, feeUnit: feeUnit)
+            return .revokeAndApprove(revoke: revokeData, approve: approveData, feeUnit: feeUnit, policy: selectedPolicy)
         }
     }
 }

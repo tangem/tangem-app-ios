@@ -15,8 +15,7 @@ import TangemExpress
 extension TransactionHistoryAuxDataRepositoryDependentTests {
     /// An approve is denominated in the token it grants, which is not the viewed currency when it shows up in the coin
     /// history. Etherscan-like providers (e.g. on Polygon) know nothing about that token, so the mapper finds it by the
-    /// contract the approve was sent to. The lookup ships behind the new transaction history, so the tests that need it
-    /// run only where that toggle is on.
+    /// contract the approve was sent to.
     @Suite("TransactionHistoryMapper approve amount")
     final class TransactionHistoryMapperApproveTests {
         private static let blockchain = Blockchain.polygon(testnet: false)
@@ -52,16 +51,13 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
             let viewModel = await withStubbedDependencies { map(makeApproveRecord(symbol: nil, allowance: .unscaled(1_000_000_000))) }
 
             #expect(viewModel.transactionType == .approve)
-            #expect(viewModel.amount.value.isEmpty)
+            #expect(viewModel.amount.value == nil)
             #expect(viewModel.amount.currencyCode.isEmpty)
         }
 
         // MARK: - Approved token lookup
 
-        @Test(
-            "A revoke of a token the provider didn't know is denominated in the found token",
-            .enabled(if: FeatureProvider.isAvailable(.transactionHistoryV2))
-        )
+        @Test("A revoke of a token the provider didn't know is denominated in the found token")
         func revokeTakesFoundTokenSymbol() async {
             registerUSDC()
 
@@ -71,10 +67,7 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
             #expect(viewModel.amount.value == BalanceFormatter().formatDecimal(0))
         }
 
-        @Test(
-            "An unscaled allowance is scaled by the found token's decimals, not the coin's",
-            .enabled(if: FeatureProvider.isAvailable(.transactionHistoryV2))
-        )
+        @Test("An unscaled allowance is scaled by the found token's decimals, not the coin's")
         func unscaledAllowanceIsScaledByFoundToken() async {
             registerUSDC()
 
@@ -86,10 +79,7 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
             #expect(viewModel.amount.amountWithCurrencyCode == "1,000.00\u{a0}USDC")
         }
 
-        @Test(
-            "An unscaled allowance is scaled even when the provider reported the symbol, keeping that symbol",
-            .enabled(if: FeatureProvider.isAvailable(.transactionHistoryV2))
-        )
+        @Test("An unscaled allowance is scaled even when the provider reported the symbol, keeping that symbol")
         func unscaledAllowanceWithProviderSymbolIsScaled() async {
             registerUSDC()
 
@@ -99,20 +89,14 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
             #expect(viewModel.amount.value == BalanceFormatter().formatDecimal(1000))
         }
 
-        @Test(
-            "Looks the token up by the normalized destination contract on the viewed network",
-            .enabled(if: FeatureProvider.isAvailable(.transactionHistoryV2))
-        )
+        @Test("Looks the token up by the normalized destination contract on the viewed network")
         func lookupUsesNormalizedContract() async {
             await withStubbedDependencies { _ = map(makeApproveRecord(symbol: nil, allowance: .revoked)) }
 
             #expect(auxDataRepository.requestedCurrencies == [Self.usdcCurrency])
         }
 
-        @Test(
-            "A complete approve from the provider is formatted as is without a lookup",
-            .enabled(if: FeatureProvider.isAvailable(.transactionHistoryV2))
-        )
+        @Test("A complete approve from the provider is formatted as is without a lookup")
         func completeApproveSkipsLookup() async {
             registerUSDC()
 

@@ -9,6 +9,7 @@
 import Foundation
 import TangemLocalization
 import TangemUI
+import TangemCollectibles
 
 extension CollectiblesAccountViewModel {
     enum Mapper {

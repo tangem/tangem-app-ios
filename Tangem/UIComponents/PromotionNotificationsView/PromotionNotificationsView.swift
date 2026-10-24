@@ -13,7 +13,7 @@ import TangemUIUtils
 struct PromotionNotificationsView: View {
     @ObservedObject var viewModel: PromotionNotificationsViewModel
 
-    var paginationSpacing: CGFloat = SizeUnit.x4.value
+    var paginationSpacing: CGFloat = 16
     var paginationMinHeight: CGFloat?
 
     var body: some View {

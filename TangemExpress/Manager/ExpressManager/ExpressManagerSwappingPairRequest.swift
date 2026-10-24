@@ -14,6 +14,7 @@ public struct ExpressManagerSwappingPairRequest {
     public let rateType: ExpressProviderRateType
     public let approvePolicy: ApprovePolicy
     public let operationType: ExpressOperationType
+    public let slippage: Decimal?
 
     public var amount: Decimal {
         amountType.amount

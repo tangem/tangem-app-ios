@@ -25,6 +25,7 @@ final class AccountDetailsCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var manageTokensCoordinator: ManageTokensCoordinator?
+    @Published var jointAccountManagementCoordinator: JointAccountManagementCoordinator?
 
     // MARK: - Child view models
 
@@ -86,6 +87,32 @@ extension AccountDetailsCoordinator: CryptoAccountDetailsRoutable {
         guard let options else { return }
 
         options.account.resolve(using: ManageTokensResolver(coordinator: self, options: options))
+    }
+
+    func openJointAccountMembers(jointAccount: any JointAccountModel) {
+        guard let userWalletConfig = options?.userWalletConfig else {
+            return
+        }
+
+        let coordinator = JointAccountManagementCoordinator(
+            dismissAction: { [weak self] in
+                self?.jointAccountManagementCoordinator = nil
+                self?.closeIfArchived(jointAccount)
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .members(jointAccount: jointAccount, userWalletConfig: userWalletConfig))
+        jointAccountManagementCoordinator = coordinator
+    }
+}
+
+private extension AccountDetailsCoordinator {
+    func closeIfArchived(_ jointAccount: any JointAccountModel) {
+        guard let options, options.accountModelsManager.accountModels.cryptoAccount(with: jointAccount.id) == nil else {
+            return
+        }
+
+        dismiss()
     }
 }
 

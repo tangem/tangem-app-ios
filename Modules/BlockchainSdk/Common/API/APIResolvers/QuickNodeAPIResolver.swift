@@ -16,6 +16,10 @@ struct QuickNodeAPIResolver {
             return nil
         }
 
+        if case .sui = blockchain {
+            return resolveGRPC(credentials: credentials)
+        }
+
         guard var url = URL(string: "https://\(credentials.subdomain)/\(credentials.apiKey)") else {
             return nil
         }
@@ -28,6 +32,18 @@ struct QuickNodeAPIResolver {
         }
 
         return NodeInfo(url: url)
+    }
+
+    private func resolveGRPC(credentials: BlockchainSdkKeysConfig.QuickNodeCredentials) -> NodeInfo? {
+        guard
+            !credentials.subdomain.isEmpty,
+            !credentials.apiKey.isEmpty,
+            let url = URL(string: "https://\(credentials.subdomain):9000")
+        else {
+            return nil
+        }
+
+        return NodeInfo(url: url, keyInfo: .init(headerName: Constants.quickNodeGRPCTokenHeaderName, headerValue: credentials.apiKey))
     }
 
     private func resolveCredentials(for blockchain: Blockchain) -> BlockchainSdkKeysConfig.QuickNodeCredentials? {
@@ -48,6 +64,8 @@ struct QuickNodeAPIResolver {
             return keysConfig.quickNodeRobinhoodCredentials
         case .arc:
             return keysConfig.quickNodeArcCredentials
+        case .sui:
+            return keysConfig.quickNodeSuiCredentials
         default:
             return nil
         }

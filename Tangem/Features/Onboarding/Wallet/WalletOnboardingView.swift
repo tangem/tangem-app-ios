@@ -89,7 +89,7 @@ struct WalletOnboardingView: View {
     }
 
     private var contentTopPadding: CGFloat {
-        isModallyPresented ? .unit(.x4) : 0
+        isModallyPresented ? 16 : 0
     }
 
     var body: some View {
@@ -119,7 +119,7 @@ struct WalletOnboardingView: View {
                             ),
                             leftButtons: {
                                 NavigationBarButton.back(action: viewModel.backButtonAction)
-                                    .padding(.leading, .unit(.x4))
+                                    .padding(.leading, 16)
                                     .visible(viewModel.isBackButtonVisible)
                                     .disabled(!viewModel.isBackButtonEnabled)
                                     .redesigned()

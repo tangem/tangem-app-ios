@@ -10,14 +10,7 @@ import Testing
 @testable import Tangem
 
 /// Single source of truth for co-brand campaign link parsing.
-/// The campaign key is read through `TangemPayCampaignService.campaignKey(fromDeepLinkValue:)`, which is gated
-/// on the feature toggle — with it off every case here would pass for the wrong reason, so the suite is skipped
-/// instead.
-@Suite(
-    "Tests for how a campaign link is read",
-    .serialized,
-    .enabled(if: FeatureProvider.isAvailable(.tangemPayCustomCards))
-)
+@Suite("Tests for how a campaign link is read", .serialized)
 struct TangemPayCampaignLinkParserTests {
     private let parser = TangemPayCampaignLinkParser()
     private let campaignKey = "tpay_for_harvard123"

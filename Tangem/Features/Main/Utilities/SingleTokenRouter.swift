@@ -23,11 +23,6 @@ protocol SingleTokenRoutable {
     func openMarketsTokenDetails(for tokenItem: TokenItem)
     func openInSafari(url: URL)
     func openOnramp(walletModel: any WalletModel, parameters: PredefinedOnrampParameters)
-    func openPendingExpressTransactionDetails(
-        pendingTransaction: PendingTransaction,
-        tokenItem: TokenItem,
-        pendingTransactionsManager: PendingExpressTransactionsManager
-    )
     func openYieldModule(walletModel: any WalletModel)
 }
 
@@ -116,6 +111,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
             event: .buttonExplore,
             params: [
                 .token: walletModel.tokenItem.currencySymbol,
+                .blockchain: walletModel.tokenItem.blockchain.displayName,
                 .source: analyticsSource.parameterValue.rawValue,
             ]
         )
@@ -148,15 +144,6 @@ final class SingleTokenRouter: SingleTokenRoutable {
 
     func openInSafari(url: URL) {
         coordinator?.openInSafari(url: url)
-    }
-
-    func openPendingExpressTransactionDetails(pendingTransaction: PendingTransaction, tokenItem: TokenItem, pendingTransactionsManager: any PendingExpressTransactionsManager) {
-        coordinator?.openPendingExpressTransactionDetails(
-            pendingTransaction: pendingTransaction,
-            tokenItem: tokenItem,
-            userWalletInfo: userWalletInfo,
-            pendingTransactionsManager: pendingTransactionsManager
-        )
     }
 
     func openYieldModule(walletModel: any WalletModel) {}

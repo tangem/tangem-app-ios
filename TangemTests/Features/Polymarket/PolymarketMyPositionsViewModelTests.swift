@@ -79,7 +79,7 @@ struct PolymarketMyPositionsViewModelTests {
 
         try await settle { sut.loadingState == .loaded }
 
-        sut.handleViewAction(.loadMore)
+        sut.handleViewAction(.loadNextPage)
         try await settle { sut.loadingState == .allDataLoaded }
 
         #expect(service.openOffsets == [0, 20])
@@ -92,7 +92,7 @@ struct PolymarketMyPositionsViewModelTests {
         let sut = PolymarketMyPositionsViewModel(tab: .active, positionsService: service, coordinator: nil)
 
         try await settle { sut.loadingState == .allDataLoaded }
-        sut.handleViewAction(.loadMore)
+        sut.handleViewAction(.loadNextPage)
 
         #expect(service.openOffsets == [0])
     }
@@ -105,7 +105,7 @@ struct PolymarketMyPositionsViewModelTests {
 
         try await settle { sut.loadingState == .allDataLoaded || sut.loadingState == .loaded }
 
-        sut.handleViewAction(.filterSelected(.won))
+        sut.handleViewAction(.selectFilter(.won))
         try await settle { sut.loadingState == .loaded }
 
         #expect(sut.rows.isEmpty)
@@ -122,7 +122,7 @@ struct PolymarketMyPositionsViewModelTests {
         let sut = PolymarketMyPositionsViewModel(tab: .active, positionsService: service, coordinator: nil)
 
         try await settle { sut.loadingState == .loaded }
-        sut.handleViewAction(.filterSelected(.won))
+        sut.handleViewAction(.selectFilter(.won))
         try await settle { sut.loadingState == .allDataLoaded }
 
         #expect(sut.rows.count == 2)
@@ -138,7 +138,7 @@ struct PolymarketMyPositionsViewModelTests {
         let sut = PolymarketMyPositionsViewModel(tab: .active, positionsService: service, coordinator: nil)
 
         try await settle { sut.loadingState == .allDataLoaded }
-        sut.handleViewAction(.filterSelected(.active))
+        sut.handleViewAction(.selectFilter(.active))
         sut.tab = .finished
         try await settle { sut.loadingState == .allDataLoaded }
 
@@ -156,7 +156,7 @@ struct PolymarketMyPositionsViewModelTests {
 
         try await settle { sut.loadingState == .loaded }
 
-        sut.handleViewAction(.loadMore)
+        sut.handleViewAction(.loadNextPage)
         try await settle { sut.loadingState == .allDataLoaded }
 
         #expect(service.openOffsets == [0, 3])
@@ -174,7 +174,7 @@ struct PolymarketMyPositionsViewModelTests {
         try await settle { sut.loadingState == .error }
         #expect(sut.rows.isEmpty)
 
-        sut.handleViewAction(.retryTapped)
+        sut.handleViewAction(.retry)
         try await settle { sut.loadingState == .allDataLoaded }
 
         #expect(sut.rows.count == 2)
@@ -190,7 +190,7 @@ struct PolymarketMyPositionsViewModelTests {
 
         try await settle { sut.loadingState == .loaded }
 
-        sut.handleViewAction(.loadMore)
+        sut.handleViewAction(.loadNextPage)
         try await settle { sut.loadingState == .paginationError }
 
         #expect(sut.rows.count == 2)
@@ -204,7 +204,7 @@ struct PolymarketMyPositionsViewModelTests {
         try await settle { sut.loadingState == .allDataLoaded }
         #expect(sut.emptyMessage == PolymarketPositionsTab.active.emptyMessage)
 
-        sut.handleViewAction(.filterSelected(.won))
+        sut.handleViewAction(.selectFilter(.won))
         try await settle { sut.loadingState == .empty }
         #expect(sut.emptyMessage != PolymarketPositionsTab.active.emptyMessage)
     }
@@ -213,16 +213,6 @@ struct PolymarketMyPositionsViewModelTests {
 // MARK: - Helpers
 
 private extension PolymarketMyPositionsViewModelTests {
-    func settle(until isSatisfied: () -> Bool) async throws {
-        for _ in 0 ..< 200 {
-            if isSatisfied() { return }
-
-            try await Task.sleep(nanoseconds: 10_000_000)
-        }
-
-        Issue.record("The positions list never settled")
-    }
-
     static func openPage(
         count: Int,
         hasNext: Bool,
@@ -396,7 +386,7 @@ private final class MyPositionsRoutableSpy: PolymarketMyPositionsRoutable {
     }
 
     @MainActor
-    func openRedeem(position: PolymarketPosition, onClaimed: @escaping () -> Void) {
+    func openRedeem(position: PolymarketPosition, onClaimed: @escaping (PolymarketPosition?) -> Void) {
         opened.withLock { $0.redeemed.append(position) }
     }
 }

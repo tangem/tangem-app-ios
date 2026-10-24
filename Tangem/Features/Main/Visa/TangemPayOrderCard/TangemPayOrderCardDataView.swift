@@ -100,7 +100,7 @@ struct TangemPayOrderCardDataView: View {
             action: placeOrder
         )
         .size(.x12)
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
         .loading(.spinner(if: viewModel.isPlacingOrder))
         .disabled(!viewModel.isOrderEnabled)

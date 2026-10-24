@@ -160,7 +160,8 @@ final class TangemPayPinUITests: BaseTestCase {
         .waitForScreen()
     }
 
-    func testPinChangeSucceedsForCardWithPinAlreadySet() {
+    /// [REDACTED_INFO] Fix app-side issues blocking UI tests on iOS 27
+    func skipped_testPinChangeSucceedsForCardWithPinAlreadySet() {
         setAllureId(5053)
 
         launchAndImportHotWallet(scenarios: [

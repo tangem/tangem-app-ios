@@ -255,6 +255,18 @@ extension EthereumWalletManager: EthereumNetworkProvider {
             .eraseToAnyPublisher()
     }
 
+    func hasCode(at address: String) -> AnyPublisher<Bool, Error> {
+        addressConverter.convertToETHAddressPublisher(address)
+            .withWeakCaptureOf(self)
+            .flatMap { walletManager, convertedAddress in
+                walletManager.networkService.getCode(address: convertedAddress)
+            }
+            .map { code in
+                !code.removeHexPrefix().isEmpty
+            }
+            .eraseToAnyPublisher()
+    }
+
     /// - Returns: `nil` when there is no code at the address: the Safe is not deployed in this network yet, and its
     /// first operation is what deploys it, at nonce zero.
     func getSafeNonce(for address: String) -> AnyPublisher<Int?, Error> {

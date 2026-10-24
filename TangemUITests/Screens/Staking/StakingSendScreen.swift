@@ -47,6 +47,15 @@ final class StakingSendScreen: ScreenBase<StakingSendScreenElement> {
     }
 
     @discardableResult
+    func assertMaxButtonEnabled() -> Self {
+        XCTContext.runActivity(named: "Assert Max button exists and is enabled") { _ in
+            XCTAssertTrue(maxButton.waitForExistence(timeout: .robustUIUpdate), "Max button should exist")
+            XCTAssertTrue(maxButton.waitForState(state: .enabled), "Max button should be enabled")
+        }
+        return self
+    }
+
+    @discardableResult
     func goToSummary() -> SendSummaryScreen {
         XCTContext.runActivity(named: "Tap Next button") { _ in
             XCTAssertTrue(nextButton.isEnabled, "Next button should be enabled")

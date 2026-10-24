@@ -9,14 +9,13 @@
 import XCTest
 
 final class TangemPayHotWalletOnboardingUITests: BaseTestCase {
-    private let kycInProgressSubtitle = "Verification in progress"
-
     func testCardIssuing_StartsFromBanner_WhenHotWalletIsCreated() {
         setAllureId(10666)
 
         launchWithoutWallet(
             eligibilityState: "Started",
-            extraScenarios: [ScenarioConfig(name: "tangem_pay_eligibility_channels", initialState: "Banner")]
+            extraScenarios: [ScenarioConfig(name: "tangem_pay_eligibility_channels", initialState: "Banner")],
+            featureToggles: Constants.marketingBannersShownWithSystemCards
         )
 
         let mainScreen = CreateWalletSelectorScreen(app)
@@ -24,15 +23,22 @@ final class TangemPayHotWalletOnboardingUITests: BaseTestCase {
             .skipPushNotificationsSetup()
             .verifyGetTangemPayBannerExists()
 
-        mainScreen
+        let countrySelection = mainScreen
             .tapGetTangemPayBanner()
             .waitForScreen()
-            .tapGetCard()
+            .tapGetCardExpectingCountrySelection()
 
         // The backend turns the wallet into a Paera customer once the offer is accepted
         wireMockClient.setScenarioStateSync("tangem_pay_eligibility", state: "PaeraCustomer")
 
-        mainScreen.verifyTangemPayTileSubtitle(contains: kycInProgressSubtitle)
+        countrySelection
+            .waitForScreen(title: Localization.tangempayResidencyTitleCountry)
+            .selectRow(Constants.residenceCountry)
+            .waitForScreen(title: Localization.tangempayResidencyTitleState)
+            .selectRow(Constants.residenceState)
+            .waitForClosed(title: Localization.tangempayResidencyTitleState)
+
+        mainScreen.verifyTangemPayTileSubtitle(contains: Localization.tangempayKycInProgress)
     }
 
     func testCardIssuing_StartsFromMobileOnboarding_WhenOpenedByDeeplink() {
@@ -47,23 +53,33 @@ final class TangemPayHotWalletOnboardingUITests: BaseTestCase {
             .waitForScreen()
             .tapGetCard()
             .skipPushNotificationsSetup()
-            .verifyTangemPayTileSubtitle(contains: kycInProgressSubtitle)
+            .verifyTangemPayTileSubtitle(contains: Localization.tangempayKycInProgress)
     }
 
     private func launchWithoutWallet(
         eligibilityState: String,
         extraScenarios: [ScenarioConfig] = [],
+        featureToggles: [String: Bool] = [:],
         extraLaunchArguments: [String] = []
     ) {
         launchApp(
             tangemApiType: .mock,
             visaApiType: .mock,
             clearStorage: true,
+            featureToggles: featureToggles,
             scenarios: [
                 ScenarioConfig(name: "tangem_pay_eligibility", initialState: eligibilityState),
                 ScenarioConfig(name: "tangem_pay_kyc_status", initialState: "InProgress"),
             ] + extraScenarios,
             extraLaunchArguments: extraLaunchArguments
         )
+    }
+}
+
+private extension TangemPayHotWalletOnboardingUITests {
+    enum Constants {
+        static let residenceCountry = "United States"
+        static let residenceState = "California"
+        static let marketingBannersShownWithSystemCards = ["TWI-1841_hide_marketing_banners_while_system": false]
     }
 }

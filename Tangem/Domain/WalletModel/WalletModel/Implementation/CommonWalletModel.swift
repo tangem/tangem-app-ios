@@ -42,6 +42,7 @@ class CommonWalletModel {
     private let tokenBalancesRepository: TokenBalancesRepository
     private let walletManager: WalletManager
     private let _stakingManager: StakingManager?
+    private let isYieldModuleSupported: Bool
     private lazy var _yieldModuleManager = makeYieldModuleManager()
     private let _transactionHistoryService: TransactionHistoryService?
     private let _receiveAddressService: ReceiveAddressService
@@ -93,6 +94,7 @@ class CommonWalletModel {
         tokenItem: TokenItem,
         walletManager: WalletManager,
         stakingManager: StakingManager?,
+        isYieldModuleSupported: Bool,
         featureManager: WalletModelFeaturesManager,
         transactionHistoryUpdater: TransactionHistoryUpdater,
         transactionHistoryService: TransactionHistoryService?,
@@ -106,6 +108,7 @@ class CommonWalletModel {
         self.featureManager = featureManager
         self.transactionHistoryUpdater = transactionHistoryUpdater
         _stakingManager = stakingManager
+        self.isYieldModuleSupported = isYieldModuleSupported
         _transactionHistoryService = transactionHistoryService
         _receiveAddressService = receiveAddressService
         self.tokenItem = tokenItem
@@ -606,7 +609,8 @@ extension CommonWalletModel: WalletModelHelpers {
     }
 
     func makeYieldModuleManager() -> (YieldModuleManager & YieldModuleManagerUpdater)? {
-        guard case .token(let token, _) = tokenItem,
+        guard isYieldModuleSupported,
+              case .token(let token, _) = tokenItem,
               let yieldSupplyService = walletManager.yieldSupplyService,
               let ethereumNetworkProvider
         else {
@@ -754,6 +758,10 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
     }
 
     var hasPendingTransactions: Bool {
+        if jointAccountOperationsInFlight.contains(where: { $0.tokenItem == tokenItem }) {
+            return true
+        }
+
         // For bitcoin we check only outgoing transaction
         // because we will not use unconfirmed utxo
         if case .bitcoin = blockchainNetwork.blockchain {
@@ -764,6 +772,10 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
     }
 
     var hasAnyPendingTransactions: Bool {
+        if jointAccountOperationsInFlight.contains(where: { $0.tokenItem.blockchainNetwork == blockchainNetwork }) {
+            return true
+        }
+
         // For bitcoin we check only outgoing transaction
         // because we will not use unconfirmed utxo
         if case .bitcoin = blockchainNetwork.blockchain {
@@ -771,6 +783,14 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
         }
 
         return wallet.hasPendingTx
+    }
+
+    private var jointAccountOperationsInFlight: [JointAccountPendingOperation] {
+        guard let jointAccount = account as? any JointAccountModel else {
+            return []
+        }
+
+        return jointAccount.jointAccountPendingOperationsProvider.pendingOperations.filter { $0.operation.status.isInFlight }
     }
 
     var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> {

@@ -24,14 +24,14 @@ struct TransactionDetailsProviderNavigationSourceTests {
         #expect(source(forOnramp: .verifying) == .kyc)
     }
 
-    @Test(arguments: [OnrampTransactionStatus.paused, .waitingForPayment])
+    @Test(arguments: [OnrampTransactionStatus.paused, .waitingForPayment, .failed, .expired, .refunded])
     func onrampWaitingOnTheProviderReportsTheStatusBlock(status: OnrampTransactionStatus) {
         #expect(source(forOnramp: status) == .status)
     }
 
     @Test(arguments: [
         OnrampTransactionStatus.unknown, .created, .paymentProcessing, .paid, .sending,
-        .refunding, .finished, .failed, .expired, .refunded,
+        .refunding, .finished,
     ])
     func onrampWithNothingToFollowUpOnOffersNoProviderLink(status: OnrampTransactionStatus) {
         #expect(source(forOnramp: status) == nil)

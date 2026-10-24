@@ -25,4 +25,5 @@ class TokenWithoutDerivationInfoProvider: TokenItemInfoProvider {
     var hasPendingTransactions: AnyPublisher<Bool, Never> { .just(output: false) }
     var leadingBadgePublisher: AnyPublisher<TokenItemViewModel.LeadingBadge?, Never> { .just(output: nil) }
     var trailingBadgePublisher: AnyPublisher<TokenItemViewModel.TrailingBadge?, Never> { .just(output: nil) }
+    var messageBubblePublisher: AnyPublisher<TokenItemViewModel.MessageBubble?, Never> { .just(output: nil) }
 }

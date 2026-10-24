@@ -16,11 +16,11 @@ struct QuickTopUpBannerView: View {
 
     var body: some View {
         if viewModel.isVisible {
-            VStack(alignment: .leading, spacing: SizeUnit.x4.value) {
+            VStack(alignment: .leading, spacing: 16) {
                 Label(Localization.quickTopUpTitle, systemImage: "bolt.fill")
                     .style(Fonts.Bold.headline, color: Color.Tangem.Text.Neutral.primary)
 
-                HStack(spacing: SizeUnit.x2.value) {
+                HStack(spacing: 8) {
                     ForEach(viewModel.chips) { chip in
                         SwiftUI.Button {
                             viewModel.onChipSelected(chip.id)
@@ -40,7 +40,7 @@ struct QuickTopUpBannerView: View {
                     }
                 }
             }
-            .padding(SizeUnit.x3.value)
+            .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
             .glowBorder(effect: .bannerMagic)
         }

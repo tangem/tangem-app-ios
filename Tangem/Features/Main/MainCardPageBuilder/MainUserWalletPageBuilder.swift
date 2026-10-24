@@ -56,19 +56,6 @@ enum MainUserWalletPageBuilder: Identifiable {
         }
     }
 
-    private var bottomSheetFooterViewModel: MainBottomSheetFooterViewModel? {
-        switch self {
-        case .singleWallet(_, _, _, let bodyModel):
-            return bodyModel?.bottomSheetFooterViewModel
-        case .multiWallet(_, _, _, let bodyModel):
-            return bodyModel.bottomSheetFooterViewModel
-        case .lockedWallet(_, _, _, let bodyModel):
-            return bodyModel.bottomSheetFooterViewModel
-        case .visaWallet:
-            return nil
-        }
-    }
-
     var headerModel: MainHeaderViewModel {
         switch self {
         case .singleWallet(_, _, let headerModel, _): headerModel
@@ -134,19 +121,6 @@ enum MainUserWalletPageBuilder: Identifiable {
             MarketsHintView()
         case .singleWallet, .visaWallet:
             EmptyView()
-        }
-    }
-
-    @ViewBuilder
-    var bottomOverlay: some View {
-        // The pager reserves the new sheet's measured inset; its search bar is presented separately.
-        if FeatureProvider.isAvailable(.newShtorkaEnabled) {
-            // [REDACTED_TODO_COMMENT]
-            EmptyView()
-        } else if let bottomSheetFooterViewModel {
-            MainBottomSheetFooterView(viewModel: bottomSheetFooterViewModel)
-        } else {
-            EmptyMainFooterView()
         }
     }
 

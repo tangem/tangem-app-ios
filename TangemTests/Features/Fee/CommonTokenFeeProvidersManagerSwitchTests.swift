@@ -474,29 +474,13 @@ struct WalletModelTokenFeeProvidersManagerProviderTronGaslessAvailabilityTests {
         )
     }
 
-    @Test(
-        "Non-activated Tron account exposes the sent token when gasless activation is available",
-        .enabled(if: FeatureProvider.isAvailable(.tronGaslessActivation))
-    )
+    @Test("Non-activated Tron account exposes the sent token when gasless activation is available")
     func nonActivatedAccountWithSupportedToken_exposesSentToken() async {
         await assertAvailableTokenAddresses(
             tokenAddress: feeTokenAddress,
             isAccountActivated: false,
             expectedAddresses: [feeTokenAddress],
             expectedMinimumBalance: 5
-        )
-    }
-
-    @Test(
-        "Non-activated Tron account hides gasless fees when activation is unavailable",
-        .enabled(if: !FeatureProvider.isAvailable(.tronGaslessActivation))
-    )
-    func nonActivatedAccountWithSupportedToken_hidesGaslessWhenActivationUnavailable() async {
-        await assertAvailableTokenAddresses(
-            tokenAddress: feeTokenAddress,
-            isAccountActivated: false,
-            expectedAddresses: [],
-            expectedMinimumBalance: nil
         )
     }
 
@@ -981,56 +965,58 @@ struct GaslessYieldFeeTests {
 
     @Test("Yield fee remains reachable when the plain gasless quote reverts")
     func yieldFeeReachableAfterPlainGaslessQuoteRevert() async throws {
-        let previousNetworkManager = InjectedValues[\.gaslessTransactionsNetworkManager]
-        InjectedValues[\.gaslessTransactionsNetworkManager] = GaslessTransactionsNetworkManagerStub(
-            feeRecipientAddress: "0x0000000000000000000000000000000000000001"
-        )
-        defer {
-            InjectedValues[\.gaslessTransactionsNetworkManager] = previousNetworkManager
-        }
-
-        let blockchain = BSDKBlockchain.polygon(testnet: false)
-        let token = Token(
-            name: "USDT",
-            symbol: "USDT",
-            contractAddress: "0x0000000000000000000000000000000000000002",
-            decimalCount: 6,
-            id: blockchain.coinId
-        )
-        let feeToken = BSDKToken(
-            name: token.name,
-            symbol: token.symbol,
-            contractAddress: token.contractAddress,
-            decimalCount: token.decimalCount,
-            id: token.id
-        )
-        let yieldFee = BSDKFee(BSDKAmount(with: blockchain, type: .token(value: feeToken), value: 2))
-        let feeProvider = GaslessTransactionFeeProviderStub(
-            plainError: JSONRPC.APIError(code: 3, message: "ERC20: transfer amount exceeds balance"),
-            yieldFee: yieldFee
-        )
-
-        let sut = CommonGaslessTokenFeeLoader(
-            tokenItem: .token(token, .init(blockchain, derivationPath: nil)),
-            feeToken: feeToken,
-            gaslessTransactionFeeProvider: feeProvider,
-            yieldFeeContext: GaslessYieldFeeContext(
-                yieldContractAddress: "0x0000000000000000000000000000000000000003",
-                yieldModuleBalance: 100,
-                feeTokenBalanceProvider: TokenBalanceProviderTestsMock(balance: 120),
-                versionChecker: nil
+        try await InjectedDependenciesIsolation.shared.run {
+            let previousNetworkManager = InjectedValues[\.gaslessTransactionsNetworkManager]
+            InjectedValues[\.gaslessTransactionsNetworkManager] = GaslessTransactionsNetworkManagerStub(
+                feeRecipientAddress: "0x0000000000000000000000000000000000000001"
             )
-        )
+            defer {
+                InjectedValues[\.gaslessTransactionsNetworkManager] = previousNetworkManager
+            }
 
-        let fees = try await sut.getFee(
-            amount: 1,
-            destination: "0x0000000000000000000000000000000000000004"
-        )
+            let blockchain = BSDKBlockchain.polygon(testnet: false)
+            let token = Token(
+                name: "USDT",
+                symbol: "USDT",
+                contractAddress: "0x0000000000000000000000000000000000000002",
+                decimalCount: 6,
+                id: blockchain.coinId
+            )
+            let feeToken = BSDKToken(
+                name: token.name,
+                symbol: token.symbol,
+                contractAddress: token.contractAddress,
+                decimalCount: token.decimalCount,
+                id: token.id
+            )
+            let yieldFee = BSDKFee(BSDKAmount(with: blockchain, type: .token(value: feeToken), value: 2))
+            let feeProvider = GaslessTransactionFeeProviderStub(
+                plainError: JSONRPC.APIError(code: 3, message: "ERC20: transfer amount exceeds balance"),
+                yieldFee: yieldFee
+            )
 
-        #expect(fees.count == 1)
-        #expect(fees.first?.amount.value == yieldFee.amount.value)
-        #expect(feeProvider.getGaslessFeeCallCount == 1)
-        #expect(feeProvider.getGaslessYieldFeeCallCount == 1)
+            let sut = CommonGaslessTokenFeeLoader(
+                tokenItem: .token(token, .init(blockchain, derivationPath: nil)),
+                feeToken: feeToken,
+                gaslessTransactionFeeProvider: feeProvider,
+                yieldFeeContext: GaslessYieldFeeContext(
+                    yieldContractAddress: "0x0000000000000000000000000000000000000003",
+                    yieldModuleBalance: 100,
+                    feeTokenBalanceProvider: TokenBalanceProviderTestsMock(balance: 120),
+                    versionChecker: nil
+                )
+            )
+
+            let fees = try await sut.getFee(
+                amount: 1,
+                destination: "0x0000000000000000000000000000000000000004"
+            )
+
+            #expect(fees.count == 1)
+            #expect(fees.first?.amount.value == yieldFee.amount.value)
+            #expect(feeProvider.getGaslessFeeCallCount == 1)
+            #expect(feeProvider.getGaslessYieldFeeCallCount == 1)
+        }
     }
 }
 

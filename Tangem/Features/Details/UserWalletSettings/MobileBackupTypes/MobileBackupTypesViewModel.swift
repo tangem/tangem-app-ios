@@ -61,7 +61,7 @@ private extension MobileBackupTypesViewModel {
     func makeBackupSections() -> [Section] {
         let commonSection = Section(
             title: nil,
-            items: [makeSeedBackupItem(), makeICloudBackupItem()]
+            items: makeBackupItems()
         )
         return [commonSection]
     }
@@ -73,9 +73,17 @@ private extension MobileBackupTypesViewModel {
         )
         let otherMethodsSection = Section(
             title: Localization.hwBackupSectionOtherTitle,
-            items: [makeSeedBackupItem(), makeICloudBackupItem()]
+            items: makeBackupItems()
         )
         return [commonSection, otherMethodsSection]
+    }
+
+    func makeBackupItems() -> [SectionItem] {
+        var items = [makeSeedBackupItem()]
+        if !userWalletModel.config.hasSocialLogin {
+            items.append(makeICloudBackupItem())
+        }
+        return items
     }
 
     func makeSeedBackupItem() -> SectionItem {

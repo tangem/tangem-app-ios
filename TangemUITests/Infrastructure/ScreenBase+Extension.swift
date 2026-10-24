@@ -196,6 +196,48 @@ extension ScreenBase {
         }
     }
 
+    /// Clears a field via the "Select All" edit menu, robust to the caret landing before the value.
+    func clearTextBySelectingAll(element: XCUIElement) {
+        scrollToElement(element)
+        if !element.hasFocus {
+            element.tap()
+        }
+
+        guard let value = element.value as? String, !value.isEmpty else {
+            return
+        }
+
+        element.doubleTap()
+
+        let selectAllMenuItem = app.menuItems["Select All"].firstMatch
+        let selectAllButton = app.buttons["Select All"].firstMatch
+        if selectAllMenuItem.waitForExistence(timeout: .shortUIUpdate) {
+            selectAllMenuItem.tap()
+            element.typeText(XCUIKeyboardKey.delete.rawValue)
+        } else if selectAllButton.waitForExistence(timeout: .shortUIUpdate) {
+            selectAllButton.tap()
+            element.typeText(XCUIKeyboardKey.delete.rawValue)
+        } else {
+            for _ in 0 ..< value.count {
+                element.typeText(XCUIKeyboardKey.delete.rawValue)
+            }
+        }
+    }
+
+    func replaceValueTypingFromEnd(in element: XCUIElement, with text: String) {
+        waitAndAssertTrue(element, "Field for replacing text should exist")
+        let focused = NSPredicate(format: "hasKeyboardFocus == true")
+        var hasFocus = false
+        for _ in 0 ..< 3 where !hasFocus {
+            element.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
+            hasFocus = XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: focused, object: element)], timeout: .shortUIUpdate) == .completed
+        }
+        XCTAssertTrue(hasFocus, "Field should get keyboard focus before replacing its value")
+
+        let deletions = element.getValue() == element.placeholderValue ? 0 : element.getValue().count
+        typeReliably(element: element, text: String(repeating: XCUIKeyboardKey.delete.rawValue, count: deletions) + text)
+    }
+
     func deleteText(element: XCUIElement) {
         if !element.hasFocus {
             element.doubleTap()

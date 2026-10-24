@@ -10,6 +10,7 @@ import Foundation
 import Testing
 import BlockchainSdk
 import TangemFoundation
+import TangemAccounts
 @testable import Tangem
 @testable import TangemExpress
 
@@ -83,6 +84,34 @@ struct TransactionDetailsAddContactHelperTests {
         )
 
         #expect(helper.addressToSave(for: makeRecord(expressBranch: nil)) == nil)
+    }
+
+    // MARK: - Own wallet counterparty
+
+    @Test(arguments: ownWalletSubtitleOwners)
+    func hidesTheActionForATransferBetweenOwnWallets(subtitleOwner: TransactionViewModel.SubtitleOwner) {
+        let helper = makeHelper(
+            contacts: [],
+            isAddressBookSynced: true,
+            transactionType: .transfer,
+            interactionAddress: .user(counterparty),
+            subtitleOwner: subtitleOwner
+        )
+
+        #expect(helper.addressToSave(for: makeRecord(expressBranch: nil)) == nil)
+    }
+
+    @Test
+    func keepsTheActionForAnUnresolvedCounterparty() {
+        let helper = makeHelper(
+            contacts: [],
+            isAddressBookSynced: true,
+            transactionType: .transfer,
+            interactionAddress: .user(counterparty),
+            subtitleOwner: .unresolved(short: "0x5aae…aed", fullAddress: counterparty, blockiesImage: nil)
+        )
+
+        #expect(helper.addressToSave(for: makeRecord(expressBranch: nil)) == counterparty)
     }
 
     // MARK: - Address book state
@@ -172,6 +201,8 @@ struct TransactionDetailsAddContactHelperTests {
         case .withdraw: break
         case .claimRewards: break
         case .restake: break
+        case .incentiveClaim: break
+        case .incentiveClaimCoin: break
         case .yieldDeploy: break
         case .yieldEnter: break
         case .yieldEnterCoin: break
@@ -205,6 +236,8 @@ struct TransactionDetailsAddContactHelperTests {
             .withdraw,
             .claimRewards,
             .restake,
+            .incentiveClaim,
+            .incentiveClaimCoin,
             .yieldDeploy,
             .yieldEnter,
             .yieldEnterCoin,
@@ -244,20 +277,32 @@ struct TransactionDetailsAddContactHelperTests {
         ]
     }
 
+    private static var ownWalletSubtitleOwners: [TransactionViewModel.SubtitleOwner] {
+        let icon = AccountIconView.ViewData.composite(backgroundColor: .purple, nameMode: .letter("M"))
+
+        return [
+            .accountInCurrentWallet(name: "Main account", icon: icon),
+            .accountInOtherWallet(accountName: "Main account", accountIcon: icon),
+            .wallet(name: "Wallet 2", imageProvider: nil, thumbnailType: nil),
+        ]
+    }
+
     // MARK: - Fixtures
 
     private func makeHelper(
         contacts: [AddressBookContact],
         isAddressBookSynced: Bool,
         transactionType: TransactionViewModel.TransactionType,
-        interactionAddress: TransactionViewModel.InteractionAddressType
+        interactionAddress: TransactionViewModel.InteractionAddressType,
+        subtitleOwner: TransactionViewModel.SubtitleOwner? = nil
     ) -> TransactionDetailsAddContactHelper {
         TransactionDetailsAddContactHelper(
             networkId: AddressBookNetworkID(blockchain.networkId),
             contacts: contacts,
             isAddressBookSynced: isAddressBookSynced,
             transactionType: transactionType,
-            interactionAddress: interactionAddress
+            interactionAddress: interactionAddress,
+            subtitleOwner: subtitleOwner
         )
     }
 

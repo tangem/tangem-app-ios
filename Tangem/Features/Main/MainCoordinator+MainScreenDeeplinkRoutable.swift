@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 extension MainCoordinator: MainScreenDeeplinkRoutable {
     var isRootVisible: Bool {
@@ -25,5 +26,18 @@ extension MainCoordinator: MainScreenDeeplinkRoutable {
 
     func openSell(userWalletModel: any UserWalletModel) {
         openSell(userWalletModel: userWalletModel, tokenSelectorViewModel: .deeplinkSell())
+    }
+
+    func selectWallet(userWalletId: UserWalletId) {
+        mainViewModel?.selectPage(userWalletId: userWalletId)
+    }
+
+    func expandAccount(_ jointAccount: any JointAccountModel, userWalletId: UserWalletId) {
+        @Injected(\.expandableAccountItemStateStorageProvider)
+        var expandableAccountItemStateStorageProvider: ExpandableAccountItemStateStorageProvider
+
+        expandableAccountItemStateStorageProvider
+            .makeStateStorage(for: userWalletId)
+            .setIsExpanded(true, for: jointAccount)
     }
 }

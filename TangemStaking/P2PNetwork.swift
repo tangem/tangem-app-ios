@@ -7,10 +7,12 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 public enum P2PNetwork: String {
     case mainnet
     case hoodi
+    case mock
 
     public var apiBaseUrl: URL {
         switch self {
@@ -18,10 +20,17 @@ public enum P2PNetwork: String {
             return URL(string: "https://api.p2p.org/".appending(path))!
         case .hoodi:
             return URL(string: "https://api-test.p2p.org/".appending(path))!
+        case .mock:
+            return URL(string: "\(WireMockEnvironment.baseURL)/p2p_api/".appending(path))!
         }
     }
 
     private var path: String {
-        "api/v1/staking/pool/\(rawValue)"
+        switch self {
+        case .mainnet, .mock:
+            return "api/v1/staking/pool/mainnet"
+        case .hoodi:
+            return "api/v1/staking/pool/hoodi"
+        }
     }
 }
