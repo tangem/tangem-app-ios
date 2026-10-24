@@ -69,7 +69,7 @@ public final class CommonMobileWalletBackupManager: MobileWalletBackupManager {
 
     public convenience init(destination: MobileWalletBackupDestination) {
         let storage: WalletBackupStorage = switch destination {
-        case .iCloud: ICloudBackupStorage()
+        case .iCloud: ICloudBackupStorage(directory: .documents)
         }
 
         self.init(

@@ -257,7 +257,8 @@ extension DEXProviderFlowHelper {
             allowanceContract: quote.allowanceContract,
             quoteId: quote.quoteId,
             txType: quote.txType,
-            isRestricted: quote.isRestricted
+            isRestricted: quote.isRestricted,
+            slippage: data.slippage ?? quote.slippage
         )
 
         return .dexPreview(.init(provider: provider, data: data, fee: fee, quote: quoteData))
@@ -387,7 +388,8 @@ extension DEXProviderFlowHelper {
             allowanceContract: quote.allowanceContract,
             quoteId: quote.quoteId,
             txType: quote.txType,
-            isRestricted: quote.isRestricted
+            isRestricted: quote.isRestricted,
+            slippage: data.slippage ?? quote.slippage
         )
 
         let approveFlowData = ExpressProviderManagerState.DEXWithApprovePreview.DEXWithApproveFlowApproveData(

@@ -8,23 +8,31 @@
 
 import Combine
 import Foundation
+import SwiftUI
+import TangemAssets
+import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 
 final class JointAccountMembersCountViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
-    /// The screen opens on the smallest composition there is, and on every one of its members having to sign, so
-    /// that whatever the creator leaves untouched is the strictest account rather than a middling one.
-    @Published var membersCount: Int = Constants.membersCountRange.lowerBound {
+    /// The screen first opens on the smallest composition there is, and on every one of its members having to sign, so
+    /// that whatever the creator leaves untouched is the strictest account rather than a middling one. Coming back to
+    /// it opens the composition chosen before.
+    @Published var membersCount: Int {
         // A composition can't require more signatures than it has members
         didSet { signersCount = min(signersCount, membersCount) }
     }
 
-    @Published var signersCount: Int = Constants.membersCountRange.lowerBound
+    @Published var signersCount: Int {
+        didSet { keepDraft() }
+    }
 
     var memberStates: [JointAccountMemberCircle.State] { members() }
     var membersCountRange: ClosedRange<Int> { Constants.membersCountRange }
     var signersCountRange: ClosedRange<Int> { Constants.minimumSignersCount ... membersCount }
+
+    var subtitle: AttributedString { makeSubtitle() }
 
     private let creationHelper: JointAccountCreationHelper
     private weak var coordinator: JointAccountMembersCountRoutable?
@@ -35,10 +43,13 @@ final class JointAccountMembersCountViewModel: ObservableObject {
     ) {
         self.creationHelper = creationHelper
         self.coordinator = coordinator
+        let membersCount = creationHelper.membersCount ?? Constants.membersCountRange.lowerBound
+        _membersCount = Published(initialValue: membersCount)
+        _signersCount = Published(initialValue: min(creationHelper.signersCount ?? membersCount, membersCount))
     }
 
     func onContinueTap() {
-        creationHelper.update(membersCount: membersCount, signersCount: signersCount)
+        keepDraft()
         coordinator?.continueMembersCount(creationHelper: creationHelper)
     }
 
@@ -57,6 +68,24 @@ final class JointAccountMembersCountViewModel: ObservableObject {
 // MARK: - Private
 
 private extension JointAccountMembersCountViewModel {
+    func makeSubtitle() -> AttributedString {
+        let signersCount = String(signersCount)
+        let membersCount = String(membersCount)
+        let signersPart = Localization.jointAccountMembersSubtitleHelperPart(signersCount, membersCount).trimmed()
+        var subtitle = AttributedString(Localization.jointAccountMembersSubtitle(signersCount, membersCount))
+
+        if let range = subtitle.range(of: signersPart) {
+            subtitle[range].foregroundColor = DesignSystem.Color.textPrimary
+            return subtitle
+        }
+
+        return subtitle
+    }
+
+    func keepDraft() {
+        creationHelper.update(membersCount: membersCount, signersCount: signersCount)
+    }
+
     func members() -> [JointAccountMemberCircle.State] {
         (0 ..< Constants.membersCountRange.upperBound).map { index -> JointAccountMemberCircle.State in
             switch index {

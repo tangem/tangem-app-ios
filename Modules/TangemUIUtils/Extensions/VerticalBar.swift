@@ -10,15 +10,11 @@ import SwiftUI
 
 public extension EnvironmentValues {
     var verticalBarEdge: HorizontalEdge? {
-        #if canImport(SwiftUI, _version: 8.0.85)
         if #available(iOS 27.1, *) {
             return toolbarVerticalEdge
         } else {
             return nil
         }
-        #else
-        return nil
-        #endif // canImport(SwiftUI, _version: 8.0.85)
     }
 }
 
@@ -47,15 +43,11 @@ private struct VerticalBarPreferringToolbarContentWrapper<Content: ToolbarConten
 
     @ToolbarContentBuilder
     var body: some ToolbarContent {
-        #if canImport(SwiftUI, _version: 8.0.85)
         if #available(iOS 27.1, *) {
             content.axisBehavior(isPreferred ? .verticalPreferred : .automatic)
         } else {
             content
         }
-        #else
-        content
-        #endif // canImport(SwiftUI, _version: 8.0.85)
     }
 }
 
@@ -66,14 +58,10 @@ private struct VerticalBarPreferringCustomizableToolbarContentWrapper<Content: C
 
     @ToolbarContentBuilder
     var body: some CustomizableToolbarContent {
-        #if canImport(SwiftUI, _version: 8.0.85)
         if #available(iOS 27.1, *) {
             content.axisBehavior(isPreferred ? .verticalPreferred : .automatic)
         } else {
             content
         }
-        #else
-        content
-        #endif // canImport(SwiftUI, _version: 8.0.85)
     }
 }

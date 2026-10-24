@@ -170,7 +170,8 @@ final class CommonSendYieldModuleHelper: SendYieldModuleHelper {
             estimatedGasLimit: data.estimatedGasLimit,
             externalTxId: data.externalTxId,
             externalTxURL: data.externalTxURL,
-            payInAddress: data.payInAddress
+            payInAddress: data.payInAddress,
+            slippage: data.slippage
         )
     }
 

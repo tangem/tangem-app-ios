@@ -50,10 +50,10 @@ extension BlockaidDTO {
         }
 
         struct SimulationParams: Decodable {
-            let from: String
-            let to: String
-            let value: String
-            let data: String
+            let from: String?
+            let to: String?
+            let value: String?
+            let data: String?
             let blockTag: String
             let chain: String
         }

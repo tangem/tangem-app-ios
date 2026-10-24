@@ -11,9 +11,12 @@ import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct JointAccountInviteMembersView: View {
     @ObservedObject var viewModel: JointAccountInviteMembersViewModel
+
+    let dismissStyle: DismissStyle
 
     var body: some View {
         ZStack {
@@ -21,11 +24,13 @@ struct JointAccountInviteMembersView: View {
 
             VStack(spacing: .zero) {
                 GroupedScrollView(contentType: .plain(alignment: .leading, spacing: 24)) {
-                    titleView
+                    if isCollecting {
+                        titleView
+                    }
 
                     takenSlotsSection
 
-                    if viewModel.content.freeSlots.isNotEmpty {
+                    if isCollecting, viewModel.content.freeSlots.isNotEmpty {
                         freeSlotsSection
                     }
                 }
@@ -35,17 +40,22 @@ struct JointAccountInviteMembersView: View {
                 }
             }
         }
-        .topNavigation(leading: .none, actions: actions, onClose: viewModel.onCloseTap)
-        .alert(item: $viewModel.alert, content: { $0.alert })
-        .confirmationDialog(
-            Localization.accountDetailsArchiveJointDescription,
-            isPresented: $viewModel.isArchiveConfirmationPresented,
-            titleVisibility: .visible
+        .topNavigation(
+            leading: dismissStyle == .back ? .automatic : .none,
+            actions: actions,
+            onClose: dismissStyle == .close ? viewModel.onCloseTap : nil
         ) {
-            SwiftUI.Button(Localization.accountDetailsArchive, role: .destructive) {
-                viewModel.onArchiveConfirmTap()
+            if !isCollecting {
+                TopNavigationTitleContent(title: viewModel.content.title)
             }
         }
+        .onWillAppear(perform: viewModel.onWillAppear)
+        .onWillDisappear(perform: viewModel.onWillDisappear)
+        .alert(item: $viewModel.alert, content: { $0.alert })
+    }
+
+    private var isCollecting: Bool {
+        viewModel.content.isCollecting
     }
 
     /// The menu holds nothing but archiving, so a member who cannot archive gets no menu rather than an empty one.
@@ -58,15 +68,13 @@ struct JointAccountInviteMembersView: View {
     }
 
     private var activateButton: some View {
-        TangemUI.Button(
-            label: Localization.jointAccountActivationAccountButtonTitle,
-            accessibilityLabel: Localization.jointAccountActivationAccountButtonTitle,
+        SigningActionButtonView(
+            type: viewModel.signingActionButtonType,
+            title: Localization.jointAccountActivationAccountButtonTitle,
+            isLoading: viewModel.isActivating,
+            isDisabled: false,
             action: viewModel.onActivateTap
         )
-        .styleType(.default)
-        .size(.x12)
-        .horizontalLayout(.infinity)
-        .loading(.spinner(if: viewModel.isActivating))
         .padding(.horizontal, Constants.activateButtonHorizontalPadding)
         .padding(.vertical, Constants.activateButtonVerticalPadding)
     }
@@ -79,7 +87,7 @@ struct JointAccountInviteMembersView: View {
                 TopNavigation.MenuItem(
                     title: Localization.accountDetailsArchive,
                     role: .destructive,
-                    action: viewModel.onArchiveTap
+                    action: { viewModel.onArchiveTap() }
                 ),
             ]
         )
@@ -87,7 +95,7 @@ struct JointAccountInviteMembersView: View {
 
     private var titleView: some View {
         JointAccountHeaderTitle(
-            title: Localization.jointAccountInviteMembersTitle,
+            title: viewModel.content.title,
             subtitle: Localization.jointAccountInviteMembersSubtitle(
                 viewModel.content.joinedMembersCount,
                 viewModel.content.totalMembersCount
@@ -99,7 +107,9 @@ struct JointAccountInviteMembersView: View {
 
     private var takenSlotsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            safetyBanner
+            if viewModel.content.isSafetyBannerVisible {
+                safetyBanner
+            }
 
             ForEach(viewModel.content.members) { member in
                 joinedMemberView(member)
@@ -151,7 +161,7 @@ struct JointAccountInviteMembersView: View {
     private func freeSlotView(_ freeSlot: JointAccountInviteMembersViewModel.FreeSlotViewData) -> some View {
         JointAccountMemberRow(
             avatar: .emptySlot,
-            title: Localization.jointAccountInviteMembersNewMember,
+            title: Localization.jointAccountInviteMembersMember,
             subtitle: Localization.jointAccountInviteMembersNotInvited,
             accessory: accessory(for: freeSlot)
         )
@@ -163,6 +173,15 @@ struct JointAccountInviteMembersView: View {
         }
 
         return .invite(action: { viewModel.onInviteTap(inviteURL: inviteURL) })
+    }
+}
+
+// MARK: - DismissStyle
+
+extension JointAccountInviteMembersView {
+    enum DismissStyle {
+        case back
+        case close
     }
 }
 

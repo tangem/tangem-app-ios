@@ -9,7 +9,6 @@
 enum FeedWidgetsRegistry {
     static func makeProviders(
         context: FeedContext,
-        container: any FeedContainer,
         host: FeedHostRoutable?,
         widgetSheetPresenter: FeedWidgetSheetPresenter
     ) -> [FeedWidgetProvider] {
@@ -27,9 +26,9 @@ enum FeedWidgetsRegistry {
         providers.append(EarnWidgetProvider(router: EarnWidgetRouter(navigation: context.navigation, forYouRouter: forYouRouter)))
         providers.append(ReferralWidgetProvider(router: ReferralFeedRouter(context: context, widgetSheetPresenter: widgetSheetPresenter)))
 
-        if FeatureProvider.isAvailable(.polymarket) {
-            providers.append(PolymarketWidgetProvider(router: PredictionsFeedRouter(context: context, container: container)))
-        }
+        providers.append(
+            PolymarketWidgetProvider(router: PredictionsFeedRouter(host: host, widgetSheetPresenter: widgetSheetPresenter))
+        )
 
         if FeatureProvider.isAvailable(.collectibles) {
             providers.append(CollectiblesWidgetProvider(router: CollectiblesFeedRouter(context: context, widgetSheetPresenter: widgetSheetPresenter)))

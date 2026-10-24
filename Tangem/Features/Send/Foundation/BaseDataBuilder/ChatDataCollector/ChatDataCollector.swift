@@ -7,24 +7,25 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemLocalization
 
 /// Builds the pre-filled message and user identity for the support chat opened from a Send/Express flow.
 protocol ChatDataCollector {
     var message: String { get }
     /// Wallet id used as `userIdentifier` in the support chat (Usedesk userIdentify).
-    var userIdentifier: String? { get }
+    var userWalletId: UserWalletId? { get }
 }
 
 /// Used by flows that don't pre-fill the chat (transfer, approve, staking).
 struct EmptyChatDataCollector: ChatDataCollector {
     var message: String { "" }
-    var userIdentifier: String? { nil }
+    var userWalletId: UserWalletId? { nil }
 }
 
 /// Pre-fills the support chat with the swap operation context.
 struct SwapChatDataCollector: ChatDataCollector {
-    let userIdentifier: String?
+    let userWalletId: UserWalletId?
     let fromAddress: String
     let sentToken: String
     let toAddress: String

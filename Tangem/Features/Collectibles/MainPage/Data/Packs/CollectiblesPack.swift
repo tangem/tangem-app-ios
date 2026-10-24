@@ -10,11 +10,7 @@ import Foundation
 
 struct CollectiblesPack {
     let id: String
-    let name: String
     let loreID: String
-    let price: Decimal
     let currencyCode: String
-    /// Kept per pack because the partner quotes it per machine — never hardcode a rate.
-    let buybackRate: Decimal?
-    let artworkURL: URL?
+    let machine: CollectiblesMachine
 }

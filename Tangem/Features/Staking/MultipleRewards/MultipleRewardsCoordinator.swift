@@ -62,7 +62,7 @@ extension MultipleRewardsCoordinator {
 // MARK: - MultipleRewardsRoutable
 
 extension MultipleRewardsCoordinator: MultipleRewardsRoutable {
-    func openStakingSingleActionFlow(action: UnstakingModel.Action) {
+    func openStakingSingleActionFlow(action: StakingAction) {
         guard let options else { return }
 
         let sourceTokenFactory = CommonSendTransferableTokenFactory(

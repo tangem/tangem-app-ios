@@ -20,6 +20,7 @@ protocol SwapNotificationManager: NotificationManager {
         receiveTokenInput: SendReceiveTokenInput,
         sendFeeInput: SendFeeInput,
         swapModelStateProvider: SwapModelStateProvider,
+        slippageInput: SwapSlippageInput,
     )
 }
 
@@ -29,6 +30,7 @@ final class CommonSwapNotificationManager {
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
 
     private let balanceFormatter = BalanceFormatter()
+    private let percentFormatter = PercentFormatter()
     private let highNetworkFeeWarningCalculator = HighNetworkFeeWarningCalculator()
 
     private weak var delegate: NotificationTapDelegate?
@@ -56,6 +58,7 @@ private extension CommonSwapNotificationManager {
         receiveTokenInput: SendReceiveTokenInput,
         sendFeeInput: SendFeeInput,
         swapModelStateProvider: SwapModelStateProvider,
+        slippageInput: SwapSlippageInput,
     ) {
         let selectedFeePublisher = sendFeeInput.selectedFeePublisher
             .mapToOptional()
@@ -82,9 +85,19 @@ private extension CommonSwapNotificationManager {
                 .filter { $0.filter(loading: [.providers, .rates]) },
             highNetworkFeePublisher
         )
+        .combineLatest(slippageInput.slippagePublisher.removeDuplicates())
         .receive(on: DispatchQueue.main)
         .withWeakCaptureOf(self)
-        .map { $0.mapToNotificationInputs(source: $1.0, receive: $1.1, state: $1.2, selectedFee: $1.3) }
+        .map { manager, args in
+            let ((source, receive, state, selectedFee), slippage) = args
+            return manager.mapToNotificationInputs(
+                source: source,
+                receive: receive,
+                state: state,
+                selectedFee: selectedFee,
+                slippage: slippage
+            )
+        }
         .assign(to: \.notificationInputsSubject.value, on: self, ownership: .weak)
 
         analyticsServiceCancellable = Publishers.CombineLatest(
@@ -103,19 +116,18 @@ private extension CommonSwapNotificationManager {
         source: LoadingResult<SendSourceToken, any Error>,
         receive: LoadingResult<SendReceiveToken, any Error>,
         state: SwapModel.ProvidersState,
-        selectedFee: TokenFee?
+        selectedFee: TokenFee?,
+        slippage: SwapSlippage
     ) -> [NotificationViewInput] {
         let factory = NotificationsFactory()
-        let events = mapToEvents(source: source, receive: receive, state: state, selectedFee: selectedFee)
-        let inputs = events.map { event in
+        let events = mapToEvents(source: source, receive: receive, state: state, selectedFee: selectedFee, slippage: slippage)
+        return events.map { event in
             let input = factory.buildNotificationInput(for: event) { [weak self] id, actionType in
                 self?.delegate?.didTapNotification(with: id, action: actionType)
             }
 
             return input
         }
-
-        return inputs
     }
 
     func mapHighNetworkFeeEvent(selectedFee: TokenFee?) -> [SwapNotificationEvent] {
@@ -130,11 +142,43 @@ private extension CommonSwapNotificationManager {
 // MARK: - Providers state mapping
 
 extension CommonSwapNotificationManager {
+    func mapLowCustomSlippageEvent(
+        sourceTokenItem: TokenItem,
+        receiveTokenItem: TokenItem,
+        selected: ExpressAvailableProvider?,
+        state: SwapModel.LoadedState,
+        slippage: SwapSlippage
+    ) -> [SwapNotificationEvent] {
+        let provider: ExpressProvider? = switch state {
+        case .idle, .requiredRefresh: nil
+        default: selected?.provider
+        }
+
+        guard case .custom(let customSlippage) = slippage,
+              let provider,
+              provider.isCustomSlippageSupported,
+              let defaultSlippage = provider.slippage,
+              customSlippage < SwapSlippageBounds(defaultSlippage: defaultSlippage).warningThreshold else {
+            return []
+        }
+
+        let analyticsParams: [Analytics.ParameterKey: String] = [
+            .slippage: SendAnalyticsHelper.makeAnalyticsSlippage(customSlippage),
+            .sendToken: sourceTokenItem.currencySymbol,
+            .sendBlockchain: sourceTokenItem.blockchain.displayName,
+            .receiveToken: receiveTokenItem.currencySymbol,
+            .receiveBlockchain: receiveTokenItem.blockchain.displayName,
+        ]
+
+        return [.lowCustomSlippage(slippage: percentFormatter.format(customSlippage, option: .customSlippage), analyticsParams: analyticsParams)]
+    }
+
     func mapToEvents(
         source: LoadingResult<SendSourceToken, any Error>,
         receive: LoadingResult<SendReceiveToken, any Error>,
         state: SwapModel.ProvidersState,
-        selectedFee: TokenFee?
+        selectedFee: TokenFee?,
+        slippage: SwapSlippage
     ) -> [SwapNotificationEvent] {
         switch (source, receive, state) {
         // Expected when couldn't load the providers list
@@ -160,7 +204,15 @@ extension CommonSwapNotificationManager {
 
         case (.success(let source), .success(let receive), .loaded(.swap(let selected, _), let state)):
             let events = mapLoadedStateEvents(source: source, receive: receive, provider: selected, state: state)
-            return events + mapHighNetworkFeeEvent(selectedFee: selectedFee)
+            return events
+                + mapHighNetworkFeeEvent(selectedFee: selectedFee)
+                + mapLowCustomSlippageEvent(
+                    sourceTokenItem: source.tokenItem,
+                    receiveTokenItem: receive.tokenItem,
+                    selected: selected,
+                    state: state,
+                    slippage: slippage
+                )
 
         default:
             return []
@@ -503,13 +555,15 @@ extension CommonSwapNotificationManager: SwapNotificationManager {
         sourceTokenInput: any SendSourceTokenInput,
         receiveTokenInput: any SendReceiveTokenInput,
         sendFeeInput: any SendFeeInput,
-        swapModelStateProvider: any SwapModelStateProvider
+        swapModelStateProvider: any SwapModelStateProvider,
+        slippageInput: any SwapSlippageInput
     ) {
         bind(
             sourceTokenInput: sourceTokenInput,
             receiveTokenInput: receiveTokenInput,
             sendFeeInput: sendFeeInput,
-            swapModelStateProvider: swapModelStateProvider
+            swapModelStateProvider: swapModelStateProvider,
+            slippageInput: slippageInput
         )
     }
 

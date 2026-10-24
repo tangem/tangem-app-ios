@@ -26,7 +26,8 @@ extension StakingYieldInfo {
                 image: URL(string: "https://assets.stakek.it/validators/infstones.png").map(StakingTargetImage.url),
                 rewardType: .apr,
                 rewardRate: 0.08,
-                status: .active
+                status: .active,
+                allowsPartialUnstake: true
             ),
             .init(
                 address: UUID().uuidString,
@@ -36,7 +37,8 @@ extension StakingYieldInfo {
                 image: URL(string: "https://assets.stakek.it/validators/aconcagua.png").map(StakingTargetImage.url),
                 rewardType: .apr,
                 rewardRate: 0.032,
-                status: .active
+                status: .active,
+                allowsPartialUnstake: true
             ),
         ],
         preferredTargets: [
@@ -48,7 +50,8 @@ extension StakingYieldInfo {
                 image: URL(string: "https://assets.stakek.it/validators/infstones.png").map(StakingTargetImage.url),
                 rewardType: .apr,
                 rewardRate: 0.08,
-                status: .active
+                status: .active,
+                allowsPartialUnstake: true
             ),
             .init(
                 address: UUID().uuidString,
@@ -58,7 +61,8 @@ extension StakingYieldInfo {
                 image: URL(string: "https://assets.stakek.it/validators/aconcagua.png").map(StakingTargetImage.url),
                 rewardType: .apr,
                 rewardRate: 0.032,
-                status: .active
+                status: .active,
+                allowsPartialUnstake: true
             ),
         ],
         item: .init(network: .tron, contractAddress: nil, name: "", decimals: 0, symbol: ""),
@@ -66,6 +70,7 @@ extension StakingYieldInfo {
         warmupPeriod: .days(0),
         rewardClaimingType: .manual,
         rewardScheduleType: .daily,
+        rewardsIncludedInStake: false,
         maximumStakeAmount: nil
     )
 }

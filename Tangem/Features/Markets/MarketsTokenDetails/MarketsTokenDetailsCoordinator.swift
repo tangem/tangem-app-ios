@@ -22,7 +22,6 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
-    @Injected(\.overlayContentStateController) private var bottomSheetStateController: OverlayContentStateController
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 

@@ -268,7 +268,7 @@ final class SendAddressUITests: BaseTestCase {
 
         let tokenName = "Dogecoin"
         let sendAmount = "1"
-        let txHistoryScenarioState = "2OutgoingTransactions"
+        let txHistoryScenarioState = "2OutgoingTransactionsToExternalAddressIOS"
 
         let dogecoinScenario = ScenarioConfig(
             name: "user_tokens_api",

@@ -243,37 +243,3 @@ private enum Constants {
 
     static let pressAnimation: Animation = .timingCurve(0.8, 0, 0.6, 1, duration: 0.2)
 }
-
-// MARK: - Previews
-
-@available(iOS 17.0, *)
-#Preview {
-    @Previewable @State var isActive = true
-
-    VStack(alignment: .leading, spacing: 20) {
-        ForEach(FilterItem.Variant.allCases, id: \.self) { variant in
-            VStack(alignment: .leading, spacing: 8) {
-                Text(String(describing: variant))
-                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
-
-                HStack(spacing: 4) {
-                    FilterItem(.inactive(label: "Label")) {}
-                    FilterItem(.active(value: "Value")) {}
-                        .onClear {}
-                    FilterItem(.active(value: "Value", counter: 1)) {}
-                        .onClear {}
-                    FilterItem(.loading) {}
-                }
-                .environment(\.filterItemVariant, variant)
-            }
-        }
-
-        FilterItem(isActive ? .active(value: "Ethereum") : .inactive(label: "Network")) {
-            isActive = true
-        }
-        .onClear { isActive = false }
-    }
-    .padding(16)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .background(DesignSystem.Color.bgPrimary)
-}

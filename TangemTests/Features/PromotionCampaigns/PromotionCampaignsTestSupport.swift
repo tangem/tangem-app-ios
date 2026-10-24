@@ -74,6 +74,24 @@ enum PromotionCampaignsFixtures {
         )
     }
 
+    static func makeEligibleToken(
+        tokenId: String? = "usd-coin",
+        tokenAddress: String = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        tokenSymbol: String = "USDC",
+        tokenName: String = "USD Coin",
+        networkId: String = "ethereum",
+        decimals: Int? = 6
+    ) -> CampaignEligibleToken {
+        CampaignEligibleToken(
+            tokenId: tokenId,
+            tokenAddress: tokenAddress,
+            tokenSymbol: tokenSymbol,
+            tokenName: tokenName,
+            networkId: networkId,
+            decimals: decimals
+        )
+    }
+
     static func makeEnrollmentStatusResponse(
         promoEnrollmentStatus: YieldBoostPromotionDTO.PromoEnrollmentStatus = .notStarted,
         networkId: String? = nil,

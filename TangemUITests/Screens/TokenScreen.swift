@@ -17,7 +17,6 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     }
 
     private lazy var moreButton = app.navigationBars.buttons["More"].firstMatch
-    private lazy var hideTokenButton = button(.hideTokenButton)
     private lazy var topUpBanner = staticText(.topUpBanner)
     private lazy var notEnoughFeeForTransactionBanner = staticText(.notEnoughFeeForTransactionBanner)
     private lazy var goToFeeCurrencyButton = notificationBannerButton(TokenAccessibilityIdentifiers.notEnoughFeeForTransactionBanner)
@@ -34,6 +33,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
 
     // Staking elements
     private lazy var nativeStakingBlock = button(.nativeStakingBlock)
+    private lazy var nativeStakingBlockOfAnyType = app.descendants(matching: .any)[TokenAccessibilityIdentifiers.nativeStakingBlock].firstMatch
     private lazy var nativeStakingTitle = staticText(.nativeStakingTitle)
     private lazy var nativeStakingChevron = image(.nativeStakingChevron)
 
@@ -44,6 +44,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     private lazy var totalBalance = staticText(.totalBalance)
     private lazy var availableBalance = staticText(.availableBalance)
     private lazy var stakingBalance = staticText(.stakingBalance)
+    private lazy var stakingBalanceCrypto = app.staticTexts.matching(identifier: TokenAccessibilityIdentifiers.stakingBalance).element(boundBy: 1)
 
     private lazy var pendingSwapHistoryItem = app.staticTexts[
         TxHistoryAccessibilityIdentifiers.transactionItem(key: Constants.swapTransactionKey)
@@ -53,7 +54,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
 
     func hideToken(name: String) -> MainScreen {
         moreButton.tap()
-        hideTokenButton.waitAndTap()
+        hideTokenMenuItem().waitAndTap()
         app.alerts["Hide \(name)"].buttons["Hide"].waitAndTap()
         return MainScreen(app)
     }
@@ -143,6 +144,28 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     }
 
     @discardableResult
+    func assertNativeStakingBlockNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert native staking block is not displayed on token screen") { _ in
+            waitAndAssertTrue(totalBalance, "Total balance element should exist before checking the staking block")
+            XCTAssertTrue(
+                nativeStakingBlockOfAnyType.waitForNonExistence(timeout: .robustUIUpdate),
+                "Native staking block should not be displayed"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertNativeStakingBlockTitle(_ expected: String) -> Self {
+        XCTContext.runActivity(named: "Assert native staking block title is '\(expected)'") { _ in
+            waitAndAssertTrue(nativeStakingBlock, "Native staking block should be displayed")
+            waitAndAssertTrue(nativeStakingTitle, "Native staking title should be displayed")
+            XCTAssertEqual(nativeStakingTitle.label, expected, "Native staking block title mismatch")
+            return self
+        }
+    }
+
+    @discardableResult
     func validateTopUpWalletBannerExists() -> Self {
         XCTContext.runActivity(named: "Validate 'Top up your wallet' banner exists") { _ in
             waitAndAssertTrue(topUpBanner, "Top up wallet banner should be displayed")
@@ -190,9 +213,18 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         XCTContext.runActivity(named: "Tap pending express transaction to open its details") { _ in
             waitAndAssertTrue(pendingSwapHistoryItem, "Pending swap should be displayed in history")
             scrollToElement(pendingSwapHistoryItem)
+            scrollAboveFloatingBar(pendingSwapHistoryItem)
             pendingSwapHistoryItem.waitAndTap()
         }
         return TransactionDetailsSheet(app)
+    }
+
+    private func scrollAboveFloatingBar(_ element: XCUIElement) {
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.7))
+        let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.4))
+        for _ in 0 ..< 4 where !element.isHittable {
+            start.press(forDuration: 0.1, thenDragTo: end)
+        }
     }
 
     @discardableResult
@@ -207,6 +239,16 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         TokenDetailsMarketPriceScreen(app)
     }
 
+    @discardableResult
+    func pullToRefresh() -> Self {
+        XCTContext.runActivity(named: "Pull to refresh token screen") { _ in
+            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+            let finish = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 1))
+            start.press(forDuration: 0.1, thenDragTo: finish)
+            return self
+        }
+    }
+
     // MARK: - Segmented Control Methods
 
     @discardableResult
@@ -218,6 +260,14 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
             } else {
                 balanceModePicker.waitAndTap()
             }
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapTotalSegment() -> Self {
+        XCTContext.runActivity(named: "Switch to Total balance") { _ in
+            balanceModePicker.waitAndTap()
             return self
         }
     }
@@ -267,10 +317,29 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         }
     }
 
+    var loadedTotalBalance: String? {
+        totalBalance.exists ? totalBalance.label : nil
+    }
+
+    var loadedAvailableBalance: String? {
+        availableBalance.exists ? availableBalance.label : nil
+    }
+
+    var loadedStakingBalanceCrypto: String? {
+        stakingBalanceCrypto.exists ? stakingBalanceCrypto.label : nil
+    }
+
     func getStakingBalance() -> String {
         XCTContext.runActivity(named: "Get staking balance") { _ in
             waitAndAssertTrue(stakingBalance, "Staking balance element should exist")
             return stakingBalance.label
+        }
+    }
+
+    func getStakingBalanceCrypto() -> String {
+        XCTContext.runActivity(named: "Get staking balance crypto value") { _ in
+            waitAndAssertTrue(stakingBalanceCrypto, "Staking balance crypto element should exist")
+            return stakingBalanceCrypto.label
         }
     }
 
@@ -450,6 +519,17 @@ extension TokenScreen {
     }
 
     @discardableResult
+    func waitForTransactionSubtitle(contains text: String) -> Self {
+        XCTContext.runActivity(named: "Wait for a transaction subtitle containing '\(text)'") { _ in
+            let predicate = NSPredicate(format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "txHistoryTransactionSubtitle_", text)
+            let subtitle = app.staticTexts.matching(predicate).firstMatch
+            scrollToElement(subtitle)
+            waitAndAssertTrue(subtitle, "A transaction subtitle containing '\(text)' should be displayed in history")
+            return self
+        }
+    }
+
+    @discardableResult
     func assertTransactionAmount(key: String, contains amount: String) -> Self {
         XCTContext.runActivity(named: "Assert transaction '\(key)' amount contains '\(amount)'") { _ in
             let element = app.staticTexts[TxHistoryAccessibilityIdentifiers.transactionAmount(key: key)].firstMatch
@@ -513,11 +593,19 @@ extension TokenScreen {
             return self
         }
     }
+
+    private func hideTokenMenuItem() -> XCUIElement {
+        let title = Localization.tokenDetailsHideToken
+        let menuButton = app.buttons[title].firstMatch
+        if menuButton.waitForExistence(timeout: .robustUIUpdate) {
+            return menuButton
+        }
+        return app.menuItems[title].firstMatch
+    }
 }
 
 enum TokenScreenElement: String, UIElement {
     case moreButton
-    case hideTokenButton
     case nativeStakingBlock
     case nativeStakingTitle
     case nativeStakingChevron
@@ -542,8 +630,6 @@ enum TokenScreenElement: String, UIElement {
         switch self {
         case .moreButton:
             return TokenAccessibilityIdentifiers.moreButton
-        case .hideTokenButton:
-            return TokenAccessibilityIdentifiers.hideTokenButton
         case .nativeStakingBlock:
             return TokenAccessibilityIdentifiers.nativeStakingBlock
         case .nativeStakingTitle:

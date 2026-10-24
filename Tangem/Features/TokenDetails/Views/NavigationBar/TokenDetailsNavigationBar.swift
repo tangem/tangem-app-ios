@@ -10,30 +10,31 @@ import SwiftUI
 import TangemAccounts
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct TokenDetailsNavigationBar: View {
     let viewModel: TokenDetailsNavigationBarViewModel
 
-    @ScaledMetric private var walletThumbnailScaledSide = CGFloat.unit(.x5)
+    @ScaledMetric private var walletThumbnailScaledSide: CGFloat = 20
 
     var body: some View {
-        VStack(spacing: .unit(.x1)) {
+        VStack(spacing: 4) {
             title
             subtitle
         }
     }
 
     private var title: some View {
-        HStack(spacing: .unit(.x1)) {
+        HStack(spacing: 4) {
             Text(viewModel.title.tokenName)
                 .layoutPriority(1)
                 .accessibilityIdentifier(TokenAccessibilityIdentifiers.tokenNameLabel)
 
             storage
         }
-        .foregroundStyle(Color.Tangem.Text.Neutral.primary)
-        .font(Font.Tangem.Body16.semibold)
+        .foregroundStyle(DesignSystem.Color.textPrimary)
+        .font(token: DesignSystem.Font.bodyMediumToken)
     }
 
     @ViewBuilder
@@ -52,14 +53,14 @@ struct TokenDetailsNavigationBar: View {
 
     private func accountStorage(_ icon: AccountIconView.ViewData, _ accountName: String) -> some View {
         ViewThatFits(in: .horizontal) {
-            HStack(spacing: .unit(.x1)) {
+            HStack(spacing: 4) {
                 preposition
 
                 AccountIconView(data: icon, settings: .smallSized)
                 Text(accountName)
             }
 
-            HStack(spacing: .unit(.x1)) {
+            HStack(spacing: 4) {
                 preposition
                 AccountIconView(data: icon, settings: .smallSized)
             }
@@ -70,7 +71,7 @@ struct TokenDetailsNavigationBar: View {
 
     private func walletStorage(_ walletName: String, _ thumbnail: ThumbnailWalletViewType?) -> some View {
         ViewThatFits(in: .horizontal) {
-            HStack(spacing: .unit(.x1)) {
+            HStack(spacing: 4) {
                 preposition
 
                 Text(walletName)
@@ -81,7 +82,7 @@ struct TokenDetailsNavigationBar: View {
                 }
             }
 
-            HStack(spacing: .unit(.x1)) {
+            HStack(spacing: 4) {
                 preposition
 
                 if let thumbnail {
@@ -105,12 +106,12 @@ struct TokenDetailsNavigationBar: View {
     private var preposition: some View {
         if let preposition = viewModel.title.storedIn.preposition {
             Text(preposition)
-                .foregroundStyle(Color.Tangem.Text.Neutral.tertiary)
+                .foregroundStyle(DesignSystem.Color.textSecondary)
         }
     }
 
     private var subtitle: some View {
         Text(viewModel.subtitle)
-            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
     }
 }

@@ -226,7 +226,7 @@ private extension TangemPayCashbackUITests {
         }
 
         enum Formatting {
-            static let locale = Locale(identifier: "en_US")
+            static let locale = UITestLocale.locale
             static let timeZone = TimeZone.gmt
 
             static let calendar: Calendar = {

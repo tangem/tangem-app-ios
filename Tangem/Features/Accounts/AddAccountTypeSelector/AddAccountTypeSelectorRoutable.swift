@@ -12,10 +12,9 @@ protocol AddAccountTypeSelectorRoutable: AnyObject {
         userWalletConfig: UserWalletConfig
     )
 
-    func openJointAccountManagement(
-        accountModelsManager: any AccountModelsManager,
-        userWalletConfig: UserWalletConfig
-    )
+    /// - Note: Takes nothing: the joint account flow lets the user pick the wallet the account is created in, so
+    /// the wallet the selector was opened from is only its starting point, which the coordinator already knows.
+    func openJointAccountManagement()
 
     func dismissAddAccountTypeSelector()
 }

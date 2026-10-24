@@ -48,7 +48,7 @@ public extension PolymarketOutcomeStyle {
 
     var foregroundColor: Color {
         switch self {
-        case .affirmative: DesignSystem.Color.textBrand
+        case .affirmative: DesignSystem.Color.textStatusInfo
         case .negative: DesignSystem.Color.textStatusError
         }
     }

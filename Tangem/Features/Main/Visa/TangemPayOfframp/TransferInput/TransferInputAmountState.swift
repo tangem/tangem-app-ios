@@ -8,7 +8,6 @@
 
 import Foundation
 import TangemLocalization
-import TangemPay
 
 enum TransferInputAmountState: Equatable {
     case empty
@@ -25,26 +24,12 @@ enum TransferInputAmountState: Equatable {
         case .empty, .valid:
             nil
         case .outOfRange(let min, let max):
-            Localization.tangempayWithdrawBankAmountErrorRange(Self.format(min), Self.format(max))
+            Localization.tangempayWithdrawBankAmountErrorRange(
+                TangemPayOfframpAmountFormatter.format(min),
+                TangemPayOfframpAmountFormatter.format(max)
+            )
         case .notEnoughFunds:
             Localization.tangempayWithdrawBankAmountNotEnoughFunds
         }
-    }
-}
-
-// MARK: - Bounds formatting
-
-private extension TransferInputAmountState {
-    static func format(_ value: Decimal) -> String {
-        BalanceFormatter().formatFiatBalance(
-            value,
-            currencyCode: TangemPayUtilities.fiatItem.currencyCode,
-            formattingOptions: .init(
-                minFractionDigits: 0,
-                maxFractionDigits: 2,
-                formatEpsilonAsLowestRepresentableValue: false,
-                roundingType: .default(roundingMode: .down, scale: 2)
-            )
-        )
     }
 }

@@ -102,7 +102,7 @@ final class TangemPayMultipleCardsUITests: BaseTestCase {
             .verifyTransactionVisible(merchantName: "Card issue fee")
             .tapTransactionRow(containing: "Card issue fee")
             .waitForScreen()
-            .verifyFeeDetails(title: "Fee", amount: "-$1.00", category: "Service fees")
+            .verifyFeeDetails(title: Localization.tangemPayFeeTitle, amount: "-$1.00", category: Localization.tangemPayFeeSubtitle)
     }
 
     func testIssuingCard_ShowsProgressScreen() {
@@ -142,12 +142,12 @@ final class TangemPayMultipleCardsUITests: BaseTestCase {
         mainScreen.verifyTangemPayTileSubtitle("*4242")
 
         issueCard(from: mainScreen, cardsStateAfterIssue: "TwoCards")
-            .verifyTangemPayTileSubtitle("2 cards")
+            .verifyTangemPayTileSubtitle(Localization.tangempayCardsCount(2))
 
         wireMockClient.setScenarioStateSync("tangem_pay_card_issue_order", state: "Started")
 
         issueCard(from: mainScreen, cardsStateAfterIssue: "ThreeCards")
-            .verifyTangemPayTileSubtitle("3 cards")
+            .verifyTangemPayTileSubtitle(Localization.tangempayCardsCount(3))
     }
 
     func testActiveOrderAtLaunch_ShowsProgressScreen() {

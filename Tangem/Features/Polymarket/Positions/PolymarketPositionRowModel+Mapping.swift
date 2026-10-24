@@ -150,7 +150,7 @@ extension PolymarketPositionRow.Model {
     }
 
     static func status(for closedPosition: PolymarketClosedPosition) -> PolymarketPositionRow.Status {
-        let amount = PolymarketOrderFormatter.money(abs(closedPosition.realizedPnl))
+        let amount = PolymarketOrderFormatter.money(abs(PolymarketOrderFormatter.displayedMoney(closedPosition.realizedPnl)))
 
         switch closedPosition.status {
         case .won:

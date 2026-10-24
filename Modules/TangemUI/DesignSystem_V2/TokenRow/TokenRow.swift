@@ -358,6 +358,7 @@ private extension TokenRow {
                 valueColumn
             }
             .frame(maxWidth: .infinity)
+            .alignmentGuide(.twoLineRowLeading) { $0[.leading] }
         }
     }
 

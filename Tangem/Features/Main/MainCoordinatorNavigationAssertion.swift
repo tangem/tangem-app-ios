@@ -26,7 +26,7 @@ extension MainCoordinatorNavigationAssertion: UINavigationControllerDelegate {
             return
         }
 
-        if !mainBottomSheetUIManager.isShown || mainBottomSheetUIManager.hasPendingSnapshotUpdate {
+        if !mainBottomSheetUIManager.isShown {
             return
         }
 

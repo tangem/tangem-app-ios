@@ -22,4 +22,17 @@ enum CollectiblesDismissStyle {
             NavigationBarButton.close(action: action)
         }
     }
+
+    func toolbarButton(placement: ToolbarItemPlacement, action: @escaping () -> Void) -> NavigationToolbarButton {
+        let button: NavigationToolbarButton
+
+        switch self {
+        case .back:
+            button = .back(placement: placement, action: action)
+        case .close:
+            button = .close(placement: placement, action: action)
+        }
+
+        return button.redesigned()
+    }
 }

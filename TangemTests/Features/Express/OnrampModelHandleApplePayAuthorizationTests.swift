@@ -25,8 +25,6 @@ final class OnrampModelHandleApplePayAuthorizationTests {
     init() {
         pendingTransactionRepositoryStub = StubOnrampPendingTransactionRepository(eventLog: eventLog)
         unknownStatusRepositoryStub = StubOnrampUnknownStatusRepository()
-        InjectedValues[\.onrampPendingTransactionsRepository] = pendingTransactionRepositoryStub
-        InjectedValues[\.onrampUnknownStatusRepository] = unknownStatusRepositoryStub
 
         // The model presents alerts through the shared presenter, so the log is fed by observing it.
         // `dropFirst` skips the value a previous test may have left behind.
@@ -39,26 +37,30 @@ final class OnrampModelHandleApplePayAuthorizationTests {
 
     @Test("Native payment success → result.succeed() once with .success status")
     func nativePaymentSucceeds() async {
-        let manager = StubOnrampManager(mode: .nativePayment(StubFixtures.makeNativePaymentData()))
-        let model = makeModel(onrampManager: manager)
+        await withStubbedDependencies {
+            let manager = StubOnrampManager(mode: .nativePayment(StubFixtures.makeNativePaymentData()))
+            let model = makeModel(onrampManager: manager)
 
-        let outcome = await runHandleAndAwaitResult(on: model)
+            let outcome = await runHandleAndAwaitResult(on: model)
 
-        #expect(outcome.callCount == 1)
-        #expect(outcome.lastStatus == .success)
-        #expect(outcome.lastErrors.isEmpty)
+            #expect(outcome.callCount == 1)
+            #expect(outcome.lastStatus == .success)
+            #expect(outcome.lastErrors.isEmpty)
+        }
     }
 
     @Test("Widget fallback → result.fail() once with .failure status and no errors")
     func widgetFallbackFails() async {
-        let manager = StubOnrampManager(mode: .widget(StubFixtures.makeRedirectData()))
-        let model = makeModel(onrampManager: manager)
+        await withStubbedDependencies {
+            let manager = StubOnrampManager(mode: .widget(StubFixtures.makeRedirectData()))
+            let model = makeModel(onrampManager: manager)
 
-        let outcome = await runHandleAndAwaitResult(on: model)
+            let outcome = await runHandleAndAwaitResult(on: model)
 
-        #expect(outcome.callCount == 1)
-        #expect(outcome.lastStatus == .failure)
-        #expect(outcome.lastErrors.isEmpty)
+            #expect(outcome.callCount == 1)
+            #expect(outcome.lastStatus == .failure)
+            #expect(outcome.lastErrors.isEmpty)
+        }
     }
 
     /// Widget fallback now opens the KYC sheet (giving the user a chance to opt
@@ -66,221 +68,261 @@ final class OnrampModelHandleApplePayAuthorizationTests {
     /// Verify, which calls back through the `onProceedToWidget` closure.
     @Test("Widget fallback opens KYC sheet on applePaySheetDidFinish after calling result.fail()")
     func widgetFallbackOpensSheetBeforeFail() async {
-        let manager = StubOnrampManager(mode: .widget(StubFixtures.makeRedirectData()))
-        let router = StubOnrampModelRoutable(eventLog: eventLog)
-        let model = makeModel(onrampManager: manager)
-        model.router = router
+        await withStubbedDependencies {
+            let manager = StubOnrampManager(mode: .widget(StubFixtures.makeRedirectData()))
+            let router = StubOnrampModelRoutable(eventLog: eventLog)
+            let model = makeModel(onrampManager: manager)
+            model.router = router
 
-        _ = await runHandleAndAwaitResult(on: model)
-        #expect(eventLog.events == [.resultHandler])
-        #expect(router.openKYCCallCount == 0)
+            _ = await runHandleAndAwaitResult(on: model)
+            #expect(eventLog.events == [.resultHandler])
+            #expect(router.openKYCCallCount == 0)
 
-        await finishApplePaySheet(on: model)
+            await finishApplePaySheet(on: model)
 
-        #expect(eventLog.events == [.resultHandler, .kycSheetOpened])
-        #expect(router.openKYCCallCount == 1)
+            #expect(eventLog.events == [.resultHandler, .kycSheetOpened])
+            #expect(router.openKYCCallCount == 1)
+        }
     }
 
     @Test("Verify tap fires redirect → transactionDidSend recorded")
     func verifyTapRecordsTransaction() async {
-        let manager = StubOnrampManager(mode: .widget(StubFixtures.makeRedirectData()))
-        let router = StubOnrampModelRoutable(eventLog: eventLog)
-        let model = makeModel(onrampManager: manager)
-        model.router = router
+        await withStubbedDependencies {
+            let manager = StubOnrampManager(mode: .widget(StubFixtures.makeRedirectData()))
+            let router = StubOnrampModelRoutable(eventLog: eventLog)
+            let model = makeModel(onrampManager: manager)
+            model.router = router
 
-        _ = await runHandleAndAwaitResult(on: model)
-        await finishApplePaySheet(on: model)
+            _ = await runHandleAndAwaitResult(on: model)
+            await finishApplePaySheet(on: model)
 
-        await runOnMain { router.lastOnProceedToWidget?() }
+            await runOnMain { router.lastOnProceedToWidget?() }
 
-        #expect(eventLog.events.contains(.transactionDidSend))
+            #expect(eventLog.events.contains(.transactionDidSend))
+        }
     }
 
     @Test("Thrown non-PassKit error → result.fail() once with scrubbed errors")
     func errorPathFailsWithScrubbedError() async {
-        let stubError = NSError(domain: "TestDomain", code: 7, userInfo: nil)
-        let manager = StubOnrampManager(mode: .throwsError(stubError))
-        let model = makeModel(onrampManager: manager)
+        await withStubbedDependencies {
+            let stubError = NSError(domain: "TestDomain", code: 7, userInfo: nil)
+            let manager = StubOnrampManager(mode: .throwsError(stubError))
+            let model = makeModel(onrampManager: manager)
 
-        let outcome = await runHandleAndAwaitResult(on: model)
+            let outcome = await runHandleAndAwaitResult(on: model)
 
-        #expect(outcome.callCount == 1)
-        #expect(outcome.lastStatus == .failure)
-        // Non-PKPaymentErrorDomain errors are dropped by ApplePayAuthorizationResult.fail
-        // so PassKit can dismiss instead of waiting for an inline correction.
-        #expect(outcome.lastErrors.isEmpty)
+            #expect(outcome.callCount == 1)
+            #expect(outcome.lastStatus == .failure)
+            // Non-PKPaymentErrorDomain errors are dropped by ApplePayAuthorizationResult.fail
+            // so PassKit can dismiss instead of waiting for an inline correction.
+            #expect(outcome.lastErrors.isEmpty)
+        }
     }
 
     @Test("Thrown PassKit error → result.fail(error) forwards the error")
     func errorPathForwardsPassKitError() async {
-        let passKitError = NSError(
-            domain: PKPaymentErrorDomain,
-            code: PKPaymentError.Code.billingContactInvalidError.rawValue,
-            userInfo: nil
-        )
-        let manager = StubOnrampManager(mode: .throwsError(passKitError))
-        let model = makeModel(onrampManager: manager)
+        await withStubbedDependencies {
+            let passKitError = NSError(
+                domain: PKPaymentErrorDomain,
+                code: PKPaymentError.Code.billingContactInvalidError.rawValue,
+                userInfo: nil
+            )
+            let manager = StubOnrampManager(mode: .throwsError(passKitError))
+            let model = makeModel(onrampManager: manager)
 
-        let outcome = await runHandleAndAwaitResult(on: model)
+            let outcome = await runHandleAndAwaitResult(on: model)
 
-        #expect(outcome.callCount == 1)
-        #expect(outcome.lastStatus == .failure)
-        #expect(outcome.lastErrors.count == 1)
-        #expect((outcome.lastErrors.first as NSError?)?.domain == PKPaymentErrorDomain)
+            #expect(outcome.callCount == 1)
+            #expect(outcome.lastStatus == .failure)
+            #expect(outcome.lastErrors.count == 1)
+            #expect((outcome.lastErrors.first as NSError?)?.domain == PKPaymentErrorDomain)
+        }
     }
 
     @Test("Cancellation → result.fail() once with no errors")
     func cancellationFailsWithoutError() async {
-        let manager = StubOnrampManager(mode: .throwsError(CancellationError()))
-        let model = makeModel(onrampManager: manager)
+        await withStubbedDependencies {
+            let manager = StubOnrampManager(mode: .throwsError(CancellationError()))
+            let model = makeModel(onrampManager: manager)
 
-        let outcome = await runHandleAndAwaitResult(on: model)
+            let outcome = await runHandleAndAwaitResult(on: model)
 
-        #expect(outcome.callCount == 1)
-        #expect(outcome.lastStatus == .failure)
-        #expect(outcome.lastErrors.isEmpty)
+            #expect(outcome.callCount == 1)
+            #expect(outcome.lastStatus == .failure)
+            #expect(outcome.lastErrors.isEmpty)
+        }
     }
 
     @Test("A region-restricted provider is rejected before the payment request leaves the app")
     func regionRestrictedProviderIsRejected() async {
-        let manager = StubOnrampManager(mode: .nativePayment(StubFixtures.makeNativePaymentData()))
-        let model = makeModel(onrampManager: manager)
-        let restricted = OnrampTestFixtures.makeProvider(
-            state: .loaded(OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: "quote-id", isRestricted: true))
-        )
+        await withStubbedDependencies {
+            let manager = StubOnrampManager(mode: .nativePayment(StubFixtures.makeNativePaymentData()))
+            let model = makeModel(onrampManager: manager)
+            let restricted = OnrampTestFixtures.makeProvider(
+                state: .loaded(OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: "quote-id", isRestricted: true))
+            )
 
-        let outcome = await runHandleAndAwaitResult(on: model, provider: restricted)
+            let outcome = await runHandleAndAwaitResult(on: model, provider: restricted)
 
-        #expect(outcome.callCount == 1)
-        #expect(outcome.lastStatus == .failure)
-        #expect(await manager.loadNativePaymentDataCallCount == 0)
+            #expect(outcome.callCount == 1)
+            #expect(outcome.lastStatus == .failure)
+            #expect(await manager.loadNativePaymentDataCallCount == 0)
+        }
     }
 
     // MARK: - Deferred completion on applePaySheetDidFinish
 
     @Test("Native payment success defers openFinishStep() until applePaySheetDidFinish()")
     func finishStepFiresOnDidFinish() async {
-        let manager = StubOnrampManager(mode: .nativePayment(StubFixtures.makeNativePaymentData()))
-        let router = StubOnrampModelRoutable(eventLog: eventLog)
-        let model = makeModel(onrampManager: manager)
-        model.router = router
+        await withStubbedDependencies {
+            let manager = StubOnrampManager(mode: .nativePayment(StubFixtures.makeNativePaymentData()))
+            let router = StubOnrampModelRoutable(eventLog: eventLog)
+            let model = makeModel(onrampManager: manager)
+            model.router = router
 
-        _ = await runHandleAndAwaitResult(on: model)
-        // Sheet still up: nothing routed yet.
-        #expect(!eventLog.events.contains(.finishStepOpened))
+            _ = await runHandleAndAwaitResult(on: model)
+            // Sheet still up: nothing routed yet.
+            #expect(!eventLog.events.contains(.finishStepOpened))
 
-        await finishApplePaySheet(on: model)
+            await finishApplePaySheet(on: model)
 
-        #expect(eventLog.events.filter { $0 == .finishStepOpened }.count == 1)
-        #expect(!eventLog.events.contains(.alertShown))
+            #expect(eventLog.events.filter { $0 == .finishStepOpened }.count == 1)
+            #expect(!eventLog.events.contains(.alertShown))
 
-        // Second dismiss must not re-trigger (pending state cleared).
-        await finishApplePaySheet(on: model)
-        #expect(eventLog.events.filter { $0 == .finishStepOpened }.count == 1)
+            // Second dismiss must not re-trigger (pending state cleared).
+            await finishApplePaySheet(on: model)
+            #expect(eventLog.events.filter { $0 == .finishStepOpened }.count == 1)
+        }
     }
 
     @Test("Thrown error defers alert until applePaySheetDidFinish()")
     func errorFiresAlertOnDidFinish() async {
-        let stubError = NSError(domain: "TestDomain", code: 7, userInfo: nil)
-        let manager = StubOnrampManager(mode: .throwsError(stubError))
-        let router = StubOnrampModelRoutable(eventLog: eventLog)
-        let model = makeModel(onrampManager: manager)
-        model.router = router
+        await withStubbedDependencies {
+            let stubError = NSError(domain: "TestDomain", code: 7, userInfo: nil)
+            let manager = StubOnrampManager(mode: .throwsError(stubError))
+            let router = StubOnrampModelRoutable(eventLog: eventLog)
+            let model = makeModel(onrampManager: manager)
+            model.router = router
 
-        _ = await runHandleAndAwaitResult(on: model)
-        // Sheet still up: alert not shown yet.
-        #expect(!eventLog.events.contains(.alertShown))
+            _ = await runHandleAndAwaitResult(on: model)
+            // Sheet still up: alert not shown yet.
+            #expect(!eventLog.events.contains(.alertShown))
 
-        await finishApplePaySheet(on: model)
+            await finishApplePaySheet(on: model)
 
-        #expect(eventLog.events.filter { $0 == .alertShown }.count == 1)
-        #expect(!eventLog.events.contains(.finishStepOpened))
+            #expect(eventLog.events.filter { $0 == .alertShown }.count == 1)
+            #expect(!eventLog.events.contains(.finishStepOpened))
 
-        // Second dismiss must not re-trigger.
-        await finishApplePaySheet(on: model)
-        #expect(eventLog.events.filter { $0 == .alertShown }.count == 1)
+            // Second dismiss must not re-trigger.
+            await finishApplePaySheet(on: model)
+            #expect(eventLog.events.filter { $0 == .alertShown }.count == 1)
+        }
     }
 
     @Test("PassKit-domain error is not deferred as an alert on applePaySheetDidFinish()")
     func passKitErrorDoesNotDeferAlert() async {
-        let passKitError = NSError(
-            domain: PKPaymentErrorDomain,
-            code: PKPaymentError.Code.billingContactInvalidError.rawValue,
-            userInfo: nil
-        )
-        let manager = StubOnrampManager(mode: .throwsError(passKitError))
-        let router = StubOnrampModelRoutable(eventLog: eventLog)
-        let model = makeModel(onrampManager: manager)
-        model.router = router
+        await withStubbedDependencies {
+            let passKitError = NSError(
+                domain: PKPaymentErrorDomain,
+                code: PKPaymentError.Code.billingContactInvalidError.rawValue,
+                userInfo: nil
+            )
+            let manager = StubOnrampManager(mode: .throwsError(passKitError))
+            let router = StubOnrampModelRoutable(eventLog: eventLog)
+            let model = makeModel(onrampManager: manager)
+            model.router = router
 
-        _ = await runHandleAndAwaitResult(on: model)
-        await finishApplePaySheet(on: model)
+            _ = await runHandleAndAwaitResult(on: model)
+            await finishApplePaySheet(on: model)
 
-        #expect(!eventLog.events.contains(.alertShown))
-        #expect(!eventLog.events.contains(.finishStepOpened))
+            #expect(!eventLog.events.contains(.alertShown))
+            #expect(!eventLog.events.contains(.finishStepOpened))
+        }
     }
 
     @Test("applePaySheetDidFinish() with no pending completion is a no-op")
     func didFinishWithoutPendingCompletionDoesNothing() async {
-        let manager = StubOnrampManager(mode: .nativePayment(StubFixtures.makeNativePaymentData()))
-        let router = StubOnrampModelRoutable(eventLog: eventLog)
-        let model = makeModel(onrampManager: manager)
-        model.router = router
+        await withStubbedDependencies {
+            let manager = StubOnrampManager(mode: .nativePayment(StubFixtures.makeNativePaymentData()))
+            let router = StubOnrampModelRoutable(eventLog: eventLog)
+            let model = makeModel(onrampManager: manager)
+            model.router = router
 
-        await finishApplePaySheet(on: model)
+            await finishApplePaySheet(on: model)
 
-        #expect(!eventLog.events.contains(.finishStepOpened))
-        #expect(!eventLog.events.contains(.alertShown))
+            #expect(!eventLog.events.contains(.finishStepOpened))
+            #expect(!eventLog.events.contains(.alertShown))
+        }
     }
 
     // MARK: - Timeout fallback ([REDACTED_INFO])
 
     @Test("Express timeout → /history/onramp returns matching tx → result.succeed() and pending tx recorded")
     func timeoutWithHistoryMatchSucceeds() async {
-        let historyItem = StubFixtures.makeHistoryItem(toContractAddress: ExpressConstants.coinContractAddress, toNetwork: "ethereum")
-        let manager = StubOnrampManager(mode: .throwsError(StubFixtures.makeExpressTimeoutError()), historyMode: .returns([historyItem]))
-        let model = makeModel(onrampManager: manager)
+        await withStubbedDependencies {
+            let historyItem = StubFixtures.makeHistoryItem(toContractAddress: ExpressConstants.coinContractAddress, toNetwork: "ethereum")
+            let manager = StubOnrampManager(mode: .throwsError(StubFixtures.makeExpressTimeoutError()), historyMode: .returns([historyItem]))
+            let model = makeModel(onrampManager: manager)
 
-        let outcome = await runHandleAndAwaitResult(on: model)
+            let outcome = await runHandleAndAwaitResult(on: model)
 
-        #expect(outcome.callCount == 1)
-        #expect(outcome.lastStatus == .success)
-        #expect(outcome.lastErrors.isEmpty)
-        #expect(eventLog.events.contains(.transactionAddedFromHistory))
-        #expect(unknownStatusRepositoryStub.trackedRecords.isEmpty)
+            #expect(outcome.callCount == 1)
+            #expect(outcome.lastStatus == .success)
+            #expect(outcome.lastErrors.isEmpty)
+            #expect(eventLog.events.contains(.transactionAddedFromHistory))
+            #expect(unknownStatusRepositoryStub.trackedRecords.isEmpty)
+        }
     }
 
     @Test("Express timeout → /history/onramp empty → result.fail() and no unknown-status record")
     func timeoutWithEmptyHistoryFails() async {
-        let manager = StubOnrampManager(mode: .throwsError(StubFixtures.makeExpressTimeoutError()), historyMode: .returns([]))
-        let model = makeModel(onrampManager: manager)
+        await withStubbedDependencies {
+            let manager = StubOnrampManager(mode: .throwsError(StubFixtures.makeExpressTimeoutError()), historyMode: .returns([]))
+            let model = makeModel(onrampManager: manager)
 
-        let outcome = await runHandleAndAwaitResult(on: model)
+            let outcome = await runHandleAndAwaitResult(on: model)
 
-        #expect(outcome.callCount == 1)
-        #expect(outcome.lastStatus == .failure)
-        #expect(!eventLog.events.contains(.transactionDidSend))
-        #expect(unknownStatusRepositoryStub.trackedRecords.isEmpty)
+            #expect(outcome.callCount == 1)
+            #expect(outcome.lastStatus == .failure)
+            #expect(!eventLog.events.contains(.transactionDidSend))
+            #expect(unknownStatusRepositoryStub.trackedRecords.isEmpty)
+        }
     }
 
     @Test("Express timeout → /history/onramp throws → result.fail() and unknown-status record persisted")
     func timeoutWithHistoryFailureMarksUnknown() async {
-        let manager = StubOnrampManager(
-            mode: .throwsError(StubFixtures.makeExpressTimeoutError()),
-            historyMode: .throwsError(URLError(.notConnectedToInternet))
-        )
-        let model = makeModel(onrampManager: manager)
+        await withStubbedDependencies {
+            let manager = StubOnrampManager(
+                mode: .throwsError(StubFixtures.makeExpressTimeoutError()),
+                historyMode: .throwsError(URLError(.notConnectedToInternet))
+            )
+            let model = makeModel(onrampManager: manager)
 
-        let outcome = await runHandleAndAwaitResult(on: model)
+            let outcome = await runHandleAndAwaitResult(on: model)
 
-        #expect(outcome.callCount == 1)
-        #expect(outcome.lastStatus == .failure)
-        #expect(!eventLog.events.contains(.transactionDidSend))
-        #expect(unknownStatusRepositoryStub.trackedRecords.count == 1)
-        #expect(unknownStatusRepositoryStub.trackedRecords.first?.payoutAddress == "0xtest")
+            #expect(outcome.callCount == 1)
+            #expect(outcome.lastStatus == .failure)
+            #expect(!eventLog.events.contains(.transactionDidSend))
+            #expect(unknownStatusRepositoryStub.trackedRecords.count == 1)
+            #expect(unknownStatusRepositoryStub.trackedRecords.first?.payoutAddress == "0xtest")
+        }
     }
 
     // MARK: - Helpers
+
+    private func withStubbedDependencies<T>(_ operation: () async throws -> T) async rethrows -> T {
+        try await InjectedDependenciesIsolation.shared.run {
+            let previousPendingTransactionsRepository = InjectedValues[\.onrampPendingTransactionsRepository]
+            let previousUnknownStatusRepository = InjectedValues[\.onrampUnknownStatusRepository]
+            InjectedValues[\.onrampPendingTransactionsRepository] = pendingTransactionRepositoryStub
+            InjectedValues[\.onrampUnknownStatusRepository] = unknownStatusRepositoryStub
+            defer {
+                InjectedValues[\.onrampPendingTransactionsRepository] = previousPendingTransactionsRepository
+                InjectedValues[\.onrampUnknownStatusRepository] = previousUnknownStatusRepository
+            }
+            return try await operation()
+        }
+    }
 
     private func makeModel(onrampManager: OnrampManager) -> OnrampModel {
         OnrampModel(

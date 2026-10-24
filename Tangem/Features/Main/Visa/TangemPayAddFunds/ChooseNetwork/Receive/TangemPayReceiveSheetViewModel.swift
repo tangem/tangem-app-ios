@@ -28,7 +28,7 @@ final class TangemPayReceiveSheetViewModel: ObservableObject, FloatingSheetConte
 
     let tokenIcons: [TokenIconViewData]
     let heading: String
-    let warningTitle: String
+    let notificationInputs: [NotificationViewInput]
     let address: String
 
     private let input: Input
@@ -43,14 +43,24 @@ final class TangemPayReceiveSheetViewModel: ObservableObject, FloatingSheetConte
 
         let symbols = input.tokens.map(\.symbol).joined(separator: " \(Localization.commonOr) ")
         heading = Localization.receiveBottomSheetWarningMessageCompact(symbols, input.networkTitle)
-        warningTitle = Localization.receiveBottomSheetWarningTitle(symbols, input.networkTitle)
+        notificationInputs = [
+            NotificationViewInput(
+                style: .plain,
+                severity: .info,
+                settings: .init(
+                    event: ReceiveNotificationEvent.irreversibleLossNotification(assetSymbol: symbols, networkName: input.networkTitle),
+                    dismissAction: nil
+                )
+            ),
+        ]
 
+        let tokenIconInfoBuilder = TokenIconInfoBuilder()
         let networkIcon = NetworkImageProvider().provide(by: input.blockchain, filled: true)
         tokenIcons = input.tokens.map { token in
             TokenIconViewData(
                 id: token.contractAddress,
                 symbol: token.symbol,
-                url: IconURLBuilder().tokenIconURL(optionalId: Self.coinId(for: token.symbol), size: .large),
+                tokenIconInfo: tokenIconInfoBuilder.build(from: Self.tokenItem(for: token, in: input.blockchain), isCustom: false),
                 networkIcon: networkIcon
             )
         }
@@ -126,16 +136,20 @@ private extension TangemPayReceiveSheetViewModel {
     var primaryTokenItem: TokenItem {
         let token = input.tokens.first { Self.coinId(for: $0.symbol) != nil } ?? input.tokens.first
 
-        return TokenItem.token(
+        return Self.tokenItem(for: token, in: input.blockchain)
+    }
+
+    static func tokenItem(for token: Input.Token?, in blockchain: Blockchain) -> TokenItem {
+        TokenItem.token(
             Token(
                 name: token?.symbol ?? "",
                 symbol: token?.symbol ?? "",
                 contractAddress: token?.contractAddress ?? "",
                 decimalCount: Constants.stablecoinDecimalCount,
-                id: token.flatMap { Self.coinId(for: $0.symbol) },
+                id: token.flatMap { coinId(for: $0.symbol) },
                 metadata: .fungibleTokenMetadata
             ),
-            BlockchainNetwork(input.blockchain, derivationPath: nil)
+            BlockchainNetwork(blockchain, derivationPath: nil)
         )
     }
 
@@ -163,7 +177,7 @@ extension TangemPayReceiveSheetViewModel {
     struct TokenIconViewData: Identifiable, Equatable {
         let id: String
         let symbol: String
-        let url: URL?
+        let tokenIconInfo: TokenIconInfo
         let networkIcon: ImageType
     }
 

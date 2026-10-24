@@ -22,7 +22,8 @@ final class MobileCreationUtil {
                     mnemonic: nil,
                     passphrase: nil,
                     hasMnemonicBackup: false,
-                    hasICloudBackup: false
+                    hasICloudBackup: false,
+                    hasSocialLogin: false
                 )
             )
         }.value
@@ -55,18 +56,21 @@ final class MobileCreationUtil {
     /// - Parameters:
     ///   - hasMnemonicBackup: whether the user already holds the recovery phrase of the wallet being imported.
     ///   - hasICloudBackup: whether a backup of the wallet being imported already exists in iCloud.
+    ///   - hasSocialLogin: whether the wallet being imported was created through social login.
     func makeImportedModel(
         mnemonic: Mnemonic,
         passphrase: String?,
         hasMnemonicBackup: Bool,
-        hasICloudBackup: Bool
+        hasICloudBackup: Bool,
+        hasSocialLogin: Bool
     ) async throws -> UserWalletModel {
         let walletInfo = try await MobileWalletInitializer().initializeWallet(
             parameters: WalletInitializerParameters(
                 mnemonic: mnemonic,
                 passphrase: passphrase,
                 hasMnemonicBackup: hasMnemonicBackup,
-                hasICloudBackup: hasICloudBackup
+                hasICloudBackup: hasICloudBackup,
+                hasSocialLogin: hasSocialLogin
             )
         )
 

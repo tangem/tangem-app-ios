@@ -12,4 +12,8 @@ import Foundation
 struct HederaExchangeRate {
     let currentHBARPerUSD: Decimal
     let nextHBARPerUSD: Decimal
+
+    var maxHBARPerUSD: Decimal {
+        max(currentHBARPerUSD, nextHBARPerUSD)
+    }
 }

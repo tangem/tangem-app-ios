@@ -16,7 +16,12 @@ struct CollectiblesPacksView: View {
     @ObservedObject var viewModel: CollectiblesPacksViewModel
 
     var body: some View {
-        content.task(viewModel.load)
+        ZStack(alignment: .top) {
+            content
+        }
+        .animation(.easeInOut(duration: Constants.appearanceDuration), value: viewModel.state.isLoading)
+        .animation(.easeInOut(duration: Constants.appearanceDuration), value: viewModel.loreID)
+        .task(viewModel.load)
     }
 }
 
@@ -39,6 +44,7 @@ private extension CollectiblesPacksView {
                 )
                 paginationFooter
             }
+            .id(viewModel.loreID)
         case .empty(let hasQuery):
             CollectiblesEmptyMessage(
                 icon: hasQuery ? DesignSystem.Icons.Binoculars.regular20 : DesignSystem.Icons.Stack.regular20,
@@ -66,9 +72,12 @@ private extension CollectiblesPacksView {
                 .infinityFrame(axis: .horizontal)
                 .padding(.vertical, Constants.paginationVerticalPadding)
         case .failed:
-            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.loadMore)
-                .infinityFrame(axis: .horizontal)
-                .padding(.vertical, Constants.paginationVerticalPadding)
+            CollectiblesEmptyMessage(
+                icon: DesignSystem.Icons.ArrowRefresh.regular20,
+                message: Localization.marketsLoadingErrorTitle,
+                onRetry: viewModel.loadMore,
+                verticalPadding: Constants.paginationVerticalPadding
+            )
         }
     }
 }
@@ -88,6 +97,7 @@ private extension CollectiblesPacksView {
         static let skeletonCellsCount = 4
         static let messageMinHeight: CGFloat = 320
         static let paginationVerticalPadding: CGFloat = 16
+        static let appearanceDuration: TimeInterval = 0.3
     }
 }
 
@@ -96,7 +106,21 @@ private extension CollectiblesPacksView {
 private struct PreviewPacksProvider: CollectiblesPacksProvider {
     func load(loreID: String?, query: String, cursor: String?) async throws -> CollectiblesPacksPage {
         let packs = (1 ... 4).map { index in
-            CollectiblesPack(id: "pack-\(index)", name: "Elite \(index)", loreID: "pokemon", price: Decimal(50 * index), currencyCode: "USD", buybackRate: 0.85, artworkURL: nil)
+            CollectiblesPack(
+                id: "pack-\(index)",
+                loreID: "pokemon",
+                currencyCode: "USD",
+                machine: CollectiblesMachine(
+                    name: "Elite \(index)",
+                    artworkURL: nil,
+                    price: Decimal(50 * index),
+                    platformFee: 1,
+                    cardsPerPack: 1,
+                    buybackRate: 0.85,
+                    expectedValue: Decimal(55 * index),
+                    tiers: []
+                )
+            )
         }
         return CollectiblesPacksPage(packs: packs, hasNext: false, cursor: nil)
     }

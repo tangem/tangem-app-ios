@@ -34,10 +34,6 @@ enum WalletModelTransactionHistoryPublisherFactory {
         // shorter merged list, which is how the reported partial loss of rows happens.
         let transactionHistoryPublisher = transactionHistoryPublisher.retainingContent()
 
-        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
-            return transactionHistoryPublisher.eraseToAnyPublisher()
-        }
-
         let walletModelAddressesPublisher = walletPublisher
             .map { $0.addresses.map(\.value) }
             .removeDuplicates()

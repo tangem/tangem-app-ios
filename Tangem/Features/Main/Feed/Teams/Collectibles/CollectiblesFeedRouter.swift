@@ -68,7 +68,7 @@ private extension CollectiblesFeedRouter {
                 navigation.present(.collectibles(coordinator))
 
             case .regionRestricted:
-                widgetSheetPresenter.enqueue(CollectiblesGeoblockViewModel())
+                widgetSheetPresenter.enqueue(CollectiblesInfoSheetViewModel(model: .regionRestrictions))
             }
         }
     }

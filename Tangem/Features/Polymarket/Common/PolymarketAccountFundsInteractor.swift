@@ -11,8 +11,8 @@ import BlockchainSdk
 import TangemFoundation
 import TangemPolymarket
 
-final class PolymarketAccountFundsInteractor {
-    var state: State { storedState.withLock { $0 } }
+actor PolymarketAccountFundsInteractor {
+    nonisolated var state: State { storedState.withLock { $0 } }
 
     private let bridgeService: PolymarketBridgeService
     private let configurationService: PolymarketConfigurationService
@@ -21,6 +21,7 @@ final class PolymarketAccountFundsInteractor {
     private let supportedBlockchains: Set<Blockchain>
 
     private let storedState = OSAllocatedUnfairLock(initialState: State.loading)
+    private var subscribers = AsyncStream<State>.MulticastSubscribers<UUID>()
 
     init(
         bridgeService: PolymarketBridgeService,
@@ -34,6 +35,22 @@ final class PolymarketAccountFundsInteractor {
         self.walletService = walletService
         self.ownerAddressProvider = ownerAddressProvider
         self.supportedBlockchains = supportedBlockchains
+    }
+}
+
+// MARK: - Observation
+
+extension PolymarketAccountFundsInteractor {
+    nonisolated func makeStateStream() -> AsyncStream<State> {
+        .multicast(
+            with: self,
+            onSubscribe: { interactor, id, continuation in
+                interactor.subscribers.subscribe(id: id, continuation: continuation, currentValue: interactor.state)
+            },
+            onUnsubscribe: { interactor, id in
+                interactor.subscribers.unsubscribe(id: id)
+            }
+        )
     }
 }
 
@@ -56,12 +73,12 @@ extension PolymarketAccountFundsInteractor {
             )
 
             let assets = await bridgeAssets
-            let depositTargets = depositTargets(assets: assets, addresses: await bridgeAddresses)
+            let addresses = await bridgeAddresses
 
             return store(.ready(Readiness(
                 depositWalletAddress: depositWalletAddress,
-                depositTargets: depositTargets,
-                collateralMinCheckoutUSD: collateralMinCheckoutUSD(in: assets)
+                collateralMinCheckoutUSD: collateralMinCheckoutUSD(in: assets),
+                depositAvailability: depositAvailability(assets: assets, addresses: addresses)
             )))
         } catch {
             guard !Task.isCancelled else { return state }
@@ -79,6 +96,7 @@ private extension PolymarketAccountFundsInteractor {
         guard !Task.isCancelled else { return self.state }
 
         storedState.withLock { $0 = state }
+        subscribers.yield(state)
 
         return state
     }
@@ -107,22 +125,24 @@ private extension PolymarketAccountFundsInteractor {
         }
     }
 
-    func depositTargets(
+    func depositAvailability(
         assets: [PolymarketSupportedAsset]?,
         addresses: PolymarketBridgeAddresses?
-    ) -> [DepositTarget] {
+    ) -> DepositAvailability {
         guard let assets, let addresses else {
-            return []
+            return .unavailable
         }
 
         let acceptedAssets = PolymarketDepositAssetCatalog.acceptedAssets(from: assets)
 
         guard !acceptedAssets.isEmpty else {
             PolymarketLogger.warning("A deposit is unavailable: the bridge accepts none of the assets the app offers")
-            return []
+            return .unavailable
         }
 
-        return makeDepositTargets(from: acceptedAssets, addresses: addresses)
+        let targets = makeDepositTargets(from: acceptedAssets, addresses: addresses)
+
+        return targets.isEmpty ? .unavailable : .available(targets)
     }
 
     /// The withdrawal floor is a fact of the bridge, so it must not depend on anything that
@@ -203,9 +223,20 @@ extension PolymarketAccountFundsInteractor {
         case ready(Readiness)
         case unavailable
 
-        var depositTargets: [DepositTarget] {
-            if case .ready(let readiness) = self { return readiness.depositTargets }
-            return []
+        var addFundsAvailability: AddFundsAvailability {
+            switch self {
+            case .loading:
+                .loading
+            case .ready(let readiness):
+                switch readiness.depositAvailability {
+                case .available:
+                    .available
+                case .unavailable:
+                    .unavailable
+                }
+            case .unavailable:
+                .unavailable
+            }
         }
 
         var collateralMinCheckoutUSD: Decimal? {
@@ -221,8 +252,19 @@ extension PolymarketAccountFundsInteractor {
 
     struct Readiness: Equatable {
         let depositWalletAddress: String
-        let depositTargets: [DepositTarget]
         let collateralMinCheckoutUSD: Decimal?
+        let depositAvailability: DepositAvailability
+    }
+
+    enum DepositAvailability: Equatable {
+        case available([DepositTarget])
+        case unavailable
+    }
+
+    enum AddFundsAvailability: Equatable {
+        case loading
+        case available
+        case unavailable
     }
 
     struct DepositTarget: Equatable {

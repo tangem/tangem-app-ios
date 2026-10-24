@@ -39,7 +39,6 @@ final class EarnDeeplinkCoordinator: ObservableObject {
         )
 
         earnCoordinator.start(with: .init(
-            mostlyUsedTokens: nil,
             deeplinkFilter: deeplinkFilter,
             presentSource: .deeplink
         ))

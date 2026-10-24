@@ -14,18 +14,21 @@ struct SupportChatInputFactory {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     @MainActor
-    func makeInput(source: Analytics.SupportChatSource) -> SupportChatInputModel {
-        let data = userWalletRepository.models.map {
+    func makeInput(source: SupportChatSource) -> SupportChatInputModel {
+        SupportChatInputModel(
+            logsComposer: LogsComposer(infoProvider: DetailsFeedbackDataCollector(data: makeWalletsData())),
+            userWalletId: userWalletRepository.selectedModel?.userWalletId,
+            source: source
+        )
+    }
+
+    @MainActor
+    func makeWalletsData() -> [DetailsFeedbackData] {
+        userWalletRepository.models.map {
             DetailsFeedbackData(
                 userWalletEmailData: $0.emailData,
                 walletModels: AccountWalletModelsAggregator.walletModels(from: $0.accountModelsManager)
             )
         }
-
-        return SupportChatInputModel(
-            logsComposer: LogsComposer(infoProvider: DetailsFeedbackDataCollector(data: data)),
-            userIdentifier: userWalletRepository.selectedModel?.userWalletId.stringValue.lowercased(),
-            source: source
-        )
     }
 }

@@ -306,7 +306,7 @@
           "com.figma.hiddenFromPublishing": true
         },
         "$type": "color",
-        "$value": "linear-gradient(135deg, {material.border.start} 0%, {material.border.mid} 50%, {material.border.end} 100%)"
+        "$value": "linear-gradient(135deg, {material-modal.border.start} 0%, {material-modal.border.mid} 50%, {material-modal.border.end} 100%)"
       },
       "start": {
         "$extensions": {
@@ -317,7 +317,7 @@
           "com.figma.hiddenFromPublishing": true
         },
         "$type": "color",
-        "$value": "{color.material.border.start}"
+        "$value": "{color.material-modal.border.start}"
       },
       "mid": {
         "$extensions": {
@@ -328,7 +328,7 @@
           "com.figma.hiddenFromPublishing": true
         },
         "$type": "color",
-        "$value": "{color.material.border.mid}"
+        "$value": "{color.material-modal.border.mid}"
       },
       "end": {
         "$extensions": {
@@ -339,7 +339,7 @@
           "com.figma.hiddenFromPublishing": true
         },
         "$type": "color",
-        "$value": "{color.material.border.end}"
+        "$value": "{color.material-modal.border.end}"
       }
     },
     "color": {
@@ -352,7 +352,7 @@
           "com.figma.hiddenFromPublishing": true
         },
         "$type": "color",
-        "$value": "{color.material.tint.solid}"
+        "$value": "{color.material-modal.tint.solid}"
       },
       "fill": {
         "$extensions": {
@@ -363,7 +363,7 @@
           "com.figma.hiddenFromPublishing": true
         },
         "$type": "color",
-        "$value": "{color.material.fill.solid}"
+        "$value": "{color.material-modal.fill.solid}"
       },
       "lighten": {
         "$extensions": {
@@ -374,7 +374,7 @@
           "com.figma.hiddenFromPublishing": true
         },
         "$type": "color",
-        "$value": "{color.material.lighten.solid}"
+        "$value": "{color.material-modal.lighten.solid}"
       },
       "soft-light": {
         "$extensions": {
@@ -385,7 +385,7 @@
           "com.figma.hiddenFromPublishing": true
         },
         "$type": "color",
-        "$value": "{color.material.soft-light.solid}"
+        "$value": "{color.material-modal.soft-light.solid}"
       }
     }
   }

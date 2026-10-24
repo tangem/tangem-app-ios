@@ -18,7 +18,8 @@ extension SendSummaryStepBuildable {
         sendAmountCompactViewModel: SendAmountCompactViewModel? = nil,
         nftAssetCompactViewModel: NFTAssetCompactViewModel? = nil,
         stakingTargetsCompactViewModel: StakingTargetsCompactViewModel? = nil,
-        sendFeeCompactViewModel: SendFeeCompactViewModel? = nil
+        sendFeeCompactViewModel: SendFeeCompactViewModel? = nil,
+        jointAccountSignaturesCompactViewModel: JointAccountSignaturesCompactViewModel? = nil
     ) -> SendSummaryStepBuilder.ReturnValue {
         SendSummaryStepBuilder.make(
             io: summaryIO,
@@ -29,6 +30,7 @@ extension SendSummaryStepBuildable {
             nftAssetCompactViewModel: nftAssetCompactViewModel,
             stakingTargetsCompactViewModel: stakingTargetsCompactViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
+            jointAccountSignaturesCompactViewModel: jointAccountSignaturesCompactViewModel,
         )
     }
 }
@@ -95,7 +97,8 @@ enum SendSummaryStepBuilder {
         sendAmountCompactViewModel: SendAmountCompactViewModel?,
         nftAssetCompactViewModel: NFTAssetCompactViewModel?,
         stakingTargetsCompactViewModel: StakingTargetsCompactViewModel?,
-        sendFeeCompactViewModel: SendFeeCompactViewModel?
+        sendFeeCompactViewModel: SendFeeCompactViewModel?,
+        jointAccountSignaturesCompactViewModel: JointAccountSignaturesCompactViewModel?
     ) -> ReturnValue {
         let interactor = CommonSendSummaryInteractor(
             input: io.input,
@@ -116,7 +119,8 @@ enum SendSummaryStepBuilder {
             nftAssetCompactViewModel: nftAssetCompactViewModel,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             stakingTargetsCompactViewModel: stakingTargetsCompactViewModel,
-            sendFeeCompactViewModel: sendFeeCompactViewModel
+            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            jointAccountSignaturesCompactViewModel: jointAccountSignaturesCompactViewModel
         )
 
         let step = SendSummaryStep(

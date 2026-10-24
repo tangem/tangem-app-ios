@@ -53,17 +53,17 @@ private extension PolymarketMarketCard.Model {
         )
     }
 
-    static let binaryStub = stub(outcomes: [.stub("Yes", "15¢", .affirmative), .stub("No", "84¢", .negative)])
+    static let binaryStub = stub(outcomes: [.stub("Yes", "15.4¢", .affirmative), .stub("No", "84.1¢", .negative)])
 
     static let predictedStub = stub(
         predictedText: "$50 for Yes",
-        outcomes: [.stub("Yes", "15¢", .affirmative), .stub("No", "84¢", .negative)]
+        outcomes: [.stub("Yes", "15.4¢", .affirmative), .stub("No", "84.1¢", .negative)]
     )
 
     static let threeWayStub = stub(outcomes: [
-        .stub("Yes", "15¢", .affirmative),
-        .stub("Draw", "1¢", .negative),
-        .stub("No", "84¢", .negative),
+        .stub("Yes", "15.4¢", .affirmative),
+        .stub("Draw", "0.5¢", .negative),
+        .stub("No", "84.1¢", .negative),
     ])
 }
 

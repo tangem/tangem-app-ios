@@ -39,7 +39,7 @@ final class TangemPayCashbackScreen: ScreenBase<TangemPayCashbackScreenElement> 
     func verifyEarnedHeader(amount: String, month: String) -> Self {
         XCTContext.runActivity(named: "Verify the header shows '\(amount) earned in \(month)'") { _ in
             waitAndAssertTrue(headerTitle, timeout: .networkRequest, "Cashback screen header should be displayed")
-            XCTAssertEqual(headerTitle.label, "\(amount) earned in \(month)", "Header should show the month accruals")
+            XCTAssertEqual(headerTitle.label, Localization.tangempayCashbackEarnedTitle(amount, month), "Header should show the month accruals")
             return self
         }
     }
@@ -48,9 +48,12 @@ final class TangemPayCashbackScreen: ScreenBase<TangemPayCashbackScreenElement> 
     func verifyEmptyHeader() -> Self {
         XCTContext.runActivity(named: "Verify the empty state header") { _ in
             waitAndAssertTrue(headerTitle, timeout: .networkRequest, "Cashback screen header should be displayed")
-            XCTAssertTrue(headerTitle.label.contains(Constants.emptyTitleFirstLine), "Empty header should invite to start spending")
-            XCTAssertTrue(headerTitle.label.contains(Constants.emptyTitleSecondLine), "Empty header should invite to earn cashback")
-            XCTAssertEqual(headerSubtitle.label, Constants.emptySubtitle, "Empty header subtitle mismatch")
+            XCTAssertEqual(
+                headerTitle.label.singleLine,
+                Localization.tangempayCashbackEmptyTitle.singleLine,
+                "Empty header should invite to start spending and earn cashback"
+            )
+            XCTAssertEqual(headerSubtitle.label, Localization.tangempayCashbackEmptySubtitle, "Empty header subtitle mismatch")
             return self
         }
     }
@@ -59,7 +62,7 @@ final class TangemPayCashbackScreen: ScreenBase<TangemPayCashbackScreenElement> 
     func verifyPayoutWindow(_ window: String) -> Self {
         XCTContext.runActivity(named: "Verify the payout window '\(window)'") { _ in
             waitAndAssertTrue(headerSubtitle, "Payout window should be displayed")
-            XCTAssertEqual(headerSubtitle.label, "Will be deposited on \(window)", "Payout window mismatch")
+            XCTAssertEqual(headerSubtitle.label, Localization.tangempayCashbackDepositedOn(window), "Payout window mismatch")
             return self
         }
     }
@@ -77,7 +80,7 @@ final class TangemPayCashbackScreen: ScreenBase<TangemPayCashbackScreenElement> 
     func verifyRefundBanner() -> Self {
         XCTContext.runActivity(named: "Verify the refund banner") { _ in
             waitAndAssertTrue(infoBanner, "Refund banner should be displayed")
-            XCTAssertEqual(infoBanner.label, Constants.refundBanner, "Refund banner text mismatch")
+            XCTAssertEqual(infoBanner.label, Localization.tangempayCashbackRefundBanner, "Refund banner text mismatch")
             return self
         }
     }
@@ -88,7 +91,7 @@ final class TangemPayCashbackScreen: ScreenBase<TangemPayCashbackScreenElement> 
             waitAndAssertTrue(infoBanner, "Payout banner should be displayed")
             XCTAssertEqual(
                 infoBanner.label,
-                "Cashback \(amount) for \(month) will be deposited till \(payoutDate)",
+                Localization.tangempayCashbackDepositBanner(amount, month, payoutDate),
                 "Payout banner text mismatch"
             )
             return self
@@ -99,8 +102,14 @@ final class TangemPayCashbackScreen: ScreenBase<TangemPayCashbackScreenElement> 
     func verifyRateCard(rate: String, plan: String) -> Self {
         XCTContext.runActivity(named: "Verify the cashback rate card") { _ in
             waitAndAssertTrue(rateCard, "Cashback rate card should be displayed")
-            XCTAssertTrue(rateCard.label.contains("Cashback \(rate)%"), "Rate card should show the rate, got '\(rateCard.label)'")
-            XCTAssertTrue(rateCard.label.contains("With your \(plan) plan"), "Rate card should show the plan, got '\(rateCard.label)'")
+            XCTAssertTrue(
+                rateCard.label.contains(Localization.tangempayCashbackRateTitle(rate)),
+                "Rate card should show the rate, got '\(rateCard.label)'"
+            )
+            XCTAssertTrue(
+                rateCard.label.contains(Localization.tangempayCashbackRateSubtitle(plan)),
+                "Rate card should show the plan, got '\(rateCard.label)'"
+            )
             return self
         }
     }
@@ -109,8 +118,14 @@ final class TangemPayCashbackScreen: ScreenBase<TangemPayCashbackScreenElement> 
     func verifyAccrualsCard() -> Self {
         XCTContext.runActivity(named: "Verify the Accruals card") { _ in
             waitAndAssertTrue(accrualsCard, "Accruals card should be displayed")
-            XCTAssertTrue(accrualsCard.label.contains(Constants.accrualsTitle), "Accruals card title mismatch, got '\(accrualsCard.label)'")
-            XCTAssertTrue(accrualsCard.label.contains(Constants.accrualsSubtitle), "Accruals card subtitle mismatch, got '\(accrualsCard.label)'")
+            XCTAssertTrue(
+                accrualsCard.label.contains(Localization.tangempayCashbackAccrualsTitle),
+                "Accruals card title mismatch, got '\(accrualsCard.label)'"
+            )
+            XCTAssertTrue(
+                accrualsCard.label.contains(Localization.tangempayCashbackAccrualsSubtitle),
+                "Accruals card subtitle mismatch, got '\(accrualsCard.label)'"
+            )
             return self
         }
     }
@@ -120,7 +135,7 @@ final class TangemPayCashbackScreen: ScreenBase<TangemPayCashbackScreenElement> 
         XCTContext.runActivity(named: "Verify the chart title '\(amount) earned in total'") { _ in
             scrollToElement(chartTotal)
             waitAndAssertTrue(chartTotal, "Chart title should be displayed")
-            XCTAssertEqual(chartTotal.label, "\(amount) earned in total", "Chart title mismatch")
+            XCTAssertEqual(chartTotal.label, Localization.tangempayCashbackTotalEarned(amount), "Chart title mismatch")
             return self
         }
     }
@@ -164,7 +179,7 @@ final class TangemPayCashbackScreen: ScreenBase<TangemPayCashbackScreenElement> 
     func verifyFailedState() -> Self {
         XCTContext.runActivity(named: "Verify the Cashback screen failure state") { _ in
             waitAndAssertTrue(errorTitle, timeout: .networkRequest, "Failure message should be displayed")
-            XCTAssertTrue(errorTitle.label.contains(Constants.errorTitle), "Failure message mismatch, got '\(errorTitle.label)'")
+            XCTAssertEqual(errorTitle.label.singleLine, Localization.tangempayCashbackErrorTitle.singleLine, "Failure message mismatch")
             waitAndAssertTrue(reloadButton, "Reload button should be displayed")
             return self
         }
@@ -217,14 +232,8 @@ enum TangemPayCashbackScreenElement: String, UIElement {
     }
 }
 
-private extension TangemPayCashbackScreen {
-    enum Constants {
-        static let emptyTitleFirstLine = "Start spending"
-        static let emptyTitleSecondLine = "and earn cashback"
-        static let emptySubtitle = "Collected amount will be shown here"
-        static let refundBanner = "We received a refund for a purchase for which cashback had previously been awarded"
-        static let accrualsTitle = "Accruals"
-        static let accrualsSubtitle = "Limits and exceptions"
-        static let errorTitle = "Failed to load page."
+private extension String {
+    var singleLine: String {
+        replacingOccurrences(of: "\n", with: " ")
     }
 }

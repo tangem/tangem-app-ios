@@ -10,6 +10,6 @@ import Foundation
 import TangemStaking
 
 protocol MultipleRewardsRoutable: AnyObject {
-    func openStakingSingleActionFlow(action: UnstakingModel.Action)
+    func openStakingSingleActionFlow(action: StakingAction)
     func dismiss()
 }

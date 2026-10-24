@@ -14,6 +14,9 @@ final class TransactionDetailsSheet: ScreenBase<TransactionDetailsSheetElement> 
     private lazy var providerRow = app.descendants(matching: .any)[
         TransactionDetailsAccessibilityIdentifiers.infoRow(id: Constants.providerRowId)
     ].firstMatch
+    private lazy var rateRow = app.descendants(matching: .any)[
+        TransactionDetailsAccessibilityIdentifiers.infoRow(id: Constants.rateRowId)
+    ].firstMatch
 
     @discardableResult
     func waitForDisplay() -> Self {
@@ -34,6 +37,56 @@ final class TransactionDetailsSheet: ScreenBase<TransactionDetailsSheetElement> 
                 .completed,
                 "Provider row should contain '\(expected)' but was '\(providerRow.label)'"
             )
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertHeaderDateDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert the header date is displayed") { _ in
+            // The header date text inherits the sheet's own identifier rather than its own, so match by content.
+            let dateTexts = app.staticTexts.matching(identifier: TransactionDetailsAccessibilityIdentifiers.sheet)
+                .matching(NSPredicate(format: "(label CONTAINS[c] %@ OR label CONTAINS[c] %@) AND label CONTAINS %@", "AM", "PM", ":"))
+            waitAndAssertTrue(dateTexts.firstMatch, "Header date should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertHeaderTitle(contains expected: String) -> Self {
+        XCTContext.runActivity(named: "Assert header title contains '\(expected)'") { _ in
+            // The header title text inherits the sheet's own identifier rather than its own, so match by content.
+            let titleTexts = app.staticTexts.matching(identifier: TransactionDetailsAccessibilityIdentifiers.sheet)
+                .matching(NSPredicate(format: "label CONTAINS[c] %@", expected))
+            waitAndAssertTrue(titleTexts.firstMatch, timeout: .networkRequest, "Header title should contain '\(expected)'")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertLegAmountDisplayed(legId: String) -> Self {
+        XCTContext.runActivity(named: "Assert the '\(legId)' leg amount is displayed") { _ in
+            // Several elements here share one identifier (SwiftUI propagation); only the amount has a decimal point.
+            let legElements = app.descendants(matching: .any).matching(identifier: TransactionDetailsAccessibilityIdentifiers.tokensLeg(id: legId))
+            let amountText = legElements.matching(NSPredicate(format: "label MATCHES %@", ".*[0-9]+\\.[0-9]+.*")).firstMatch
+            waitAndAssertTrue(amountText, "'\(legId)' leg should display an amount")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertRateRowDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert rate row is displayed") { _ in
+            waitAndAssertTrue(rateRow, "Rate row should exist")
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapProviderRow() -> Self {
+        XCTContext.runActivity(named: "Tap provider row to navigate to the provider") { _ in
+            waitAndAssertTrue(providerRow, "Provider row should exist")
+            providerRow.waitAndTap()
         }
         return self
     }
@@ -81,5 +134,6 @@ enum TransactionDetailsSheetElement: String, UIElement {
 private extension TransactionDetailsSheet {
     enum Constants {
         static let providerRowId = "provider"
+        static let rateRowId = "rate"
     }
 }

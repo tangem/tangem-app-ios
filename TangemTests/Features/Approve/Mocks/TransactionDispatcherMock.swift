@@ -20,10 +20,13 @@ final class TransactionDispatcherMock: TransactionDispatcher {
 
     private(set) var sendCalls: [TransactionDispatcherTransactionType] = []
 
+    var sendGate: TestGate?
+
     // MARK: - TransactionDispatcher
 
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         sendCalls.append(transaction)
+        await sendGate?.wait()
         return try sendResult.get()
     }
 

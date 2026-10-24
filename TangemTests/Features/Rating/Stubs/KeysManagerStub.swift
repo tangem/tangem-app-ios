@@ -100,6 +100,7 @@ extension BlockchainSdkKeysConfig {
         quickNodeMonadCredentials: .init(apiKey: "", subdomain: ""),
         quickNodeRobinhoodCredentials: .init(apiKey: "", subdomain: ""),
         quickNodeArcCredentials: .init(apiKey: "", subdomain: ""),
+        quickNodeSuiCredentials: .init(apiKey: "", subdomain: ""),
         bittensorDwellirKey: "",
         dwellirApiKey: "",
         bittensorOnfinalityKey: "",

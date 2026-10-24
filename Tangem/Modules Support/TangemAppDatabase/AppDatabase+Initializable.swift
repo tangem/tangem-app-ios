@@ -14,9 +14,6 @@ import TangemAppDatabase
 extension AppDatabase: Initializable {
     func initialize() {
         AppDatabaseDropUtil.dropIfScheduled()
-
-        if FeatureProvider.isAvailable(.transactionHistoryV2) {
-            prepare()
-        }
+        prepare()
     }
 }

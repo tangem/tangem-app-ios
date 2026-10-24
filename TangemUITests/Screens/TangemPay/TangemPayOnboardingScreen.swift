@@ -43,6 +43,14 @@ final class TangemPayOnboardingScreen: Screen {
     }
 
     @discardableResult
+    func tapGetCardExpectingCountrySelection() -> TangemPayGeoSelectionScreen {
+        XCTContext.runActivity(named: "Tap Get card button and expect the country of residence selection") { _ in
+            getCardButton.waitAndTap()
+            return TangemPayGeoSelectionScreen(app)
+        }
+    }
+
+    @discardableResult
     func tapGetCardExpectingWalletSelector() -> TangemPayWalletSelectorSheet {
         XCTContext.runActivity(named: "Tap Get card button and expect wallet selection") { _ in
             getCardButton.waitAndTap()

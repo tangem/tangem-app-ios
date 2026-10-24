@@ -22,7 +22,6 @@ public struct PolymarketOrderSlippageRow: View {
 
     public var body: some View {
         let row = TangemUI.Row(title: Localization.predictionPlaceSlippage, value: valueText)
-            .titleAccessory { PolymarketHintIcon(asset: DesignSystem.Icons.Info.regular16) }
             .valueAccessory { chevron }
 
         if let onTap {

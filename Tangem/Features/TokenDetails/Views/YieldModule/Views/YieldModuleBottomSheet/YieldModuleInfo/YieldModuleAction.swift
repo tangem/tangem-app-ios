@@ -10,7 +10,7 @@ import TangemLocalization
 import TangemAssets
 
 enum YieldModuleAction {
-    case stop(tokenName: String)
+    case stop(tokenName: String, mayClaimRewards: Bool)
     case approve
 
     var title: String {
@@ -24,7 +24,7 @@ enum YieldModuleAction {
 
     var description: String {
         switch self {
-        case .stop(let tokenName):
+        case .stop(let tokenName, _):
             Localization.yieldModuleStopEarningSheetDescription(tokenName)
         case .approve:
             Localization.yieldModuleApproveSheetSubtitle

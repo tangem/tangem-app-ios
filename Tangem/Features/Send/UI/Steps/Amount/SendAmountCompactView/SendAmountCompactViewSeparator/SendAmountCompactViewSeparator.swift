@@ -15,11 +15,10 @@ struct SendAmountCompactViewSeparator: View {
 
     var body: some View {
         ZStack(alignment: .center) {
-            Line()
+            HorizontalLine()
                 .stroke(style: StrokeStyle(lineWidth: 3, lineCap: .round, dash: [1, 7]))
                 .foregroundStyle(Colors.Background.tertiary)
                 .frame(height: 3)
-                .offset(y: 1.5)
 
             separatorTitle
                 .background(Colors.Background.tertiary)
@@ -50,16 +49,5 @@ extension SendAmountCompactViewSeparator {
     enum SeparatorStyle: Hashable {
         case title(String)
         case swapIcon
-    }
-}
-
-private extension SendAmountCompactViewSeparator {
-    struct Line: Shape {
-        func path(in rect: CGRect) -> Path {
-            var path = Path()
-            path.move(to: CGPoint(x: 0, y: 0))
-            path.addLine(to: CGPoint(x: rect.width, y: 0))
-            return path
-        }
     }
 }

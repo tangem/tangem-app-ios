@@ -173,7 +173,8 @@ private extension SwapModelDexSwapValidationTests {
             allowanceContract: nil,
             quoteId: nil,
             txType: nil,
-            isRestricted: false
+            isRestricted: false,
+            slippage: nil
         )
     }
 
@@ -193,7 +194,8 @@ private extension SwapModelDexSwapValidationTests {
             estimatedGasLimit: nil,
             externalTxId: nil,
             externalTxURL: nil,
-            payInAddress: ""
+            payInAddress: "",
+            slippage: nil
         )
     }
 
@@ -252,9 +254,11 @@ private final class BuilderSpyTransactionValidator: SendTransactionValidator {
 private actor ExpressManagerDummy: ExpressManager {
     func getCurrentPair() -> ExpressManagerSwappingPair? { nil }
     func getAmountType() -> ExpressAmountType? { nil }
+    func getSlippage() -> Decimal? { nil }
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerState { .idle }
     func update(amountType: ExpressAmountType?) async throws -> ExpressManagerState { .idle }
     func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState { .idle }
+    func update(slippage: Decimal?) async -> ExpressManagerState { .idle }
     func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState { .idle }
     func update(type: ExpressManagerUpdatingType) async -> ExpressManagerState { .idle }
 

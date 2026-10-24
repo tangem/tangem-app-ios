@@ -50,7 +50,7 @@ extension Button {
             case .material(let material):
                 materialVariantBody(configuration: configuration, material: material)
 
-            case .brand, .default, .secondary, .outline, .ghost, .positive:
+            case .brand, .primary, .secondary, .outline, .ghost, .success:
                 fixedChromeBody(configuration: configuration)
             }
         }

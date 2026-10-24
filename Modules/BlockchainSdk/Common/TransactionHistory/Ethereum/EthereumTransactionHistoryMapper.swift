@@ -14,13 +14,15 @@ final class EthereumTransactionHistoryMapper {
     private let blockchain: Blockchain
     private var transactionIndicesCounter: [String: Int] = [:]
     private let aaveTokens: Set<String>?
+    private let isSafe: Bool
 
     private var decimalValue: Decimal {
         blockchain.decimalValue
     }
 
-    init(blockchain: Blockchain) {
+    init(blockchain: Blockchain, isSafe: Bool = false) {
         self.blockchain = blockchain
+        self.isSafe = isSafe
         aaveTokens = AAVETokenRepository.tokens(for: blockchain)
     }
 }
@@ -49,9 +51,14 @@ extension EthereumTransactionHistoryMapper: TransactionHistoryMapper {
                     return
                 }
 
+                let execution = safeExecution(transaction, walletAddress: walletAddress)
+
                 switch amountType {
                 case .coin, .reserve:
-                    guard let info = extractTransactionInfo(from: transaction, walletAddress: walletAddress) else {
+                    guard
+                        let info = execution.map({ transactionInfo(from: $0, walletAddress: walletAddress) })
+                        ?? extractTransactionInfo(from: transaction, walletAddress: walletAddress)
+                    else {
                         return
                     }
 
@@ -60,6 +67,7 @@ extension EthereumTransactionHistoryMapper: TransactionHistoryMapper {
                         transactionInfos: [info],
                         amountType: amountType,
                         feeValue: feeValue,
+                        execution: execution,
                         tokensByContract: tokensByContract
                     )
                 case .token(let token):
@@ -84,6 +92,7 @@ extension EthereumTransactionHistoryMapper: TransactionHistoryMapper {
                         transactionInfos: outgoingTransactionInfos + incomingTransactionInfos,
                         amountType: amountType,
                         feeValue: feeValue,
+                        execution: execution,
                         tokensByContract: tokensByContract
                     )
                 case .feeResource:
@@ -163,6 +172,30 @@ private extension EthereumTransactionHistoryMapper {
             source: source,
             destination: destination,
             isOutgoing: isOutgoing
+        )
+    }
+
+    func safeExecution(
+        _ transaction: BlockBookAddressResponse.Transaction,
+        walletAddress: String
+    ) -> SafeExecutionHistoryMapper.Execution? {
+        guard isSafe, status(transaction) != .failed else {
+            return nil
+        }
+
+        return SafeExecutionHistoryMapper.execution(
+            calldata: transaction.ethereumSpecific?.data,
+            target: transaction.compat.vout.first?.addresses?.first,
+            walletAddress: walletAddress,
+            blockchain: blockchain
+        )
+    }
+
+    func transactionInfo(from execution: SafeExecutionHistoryMapper.Execution, walletAddress: String) -> TransactionInfo {
+        TransactionInfo(
+            source: TransactionRecord.Source(address: walletAddress, amount: execution.amount),
+            destination: TransactionRecord.Destination(address: execution.destination, amount: execution.amount),
+            isOutgoing: true
         )
     }
 
@@ -290,11 +323,16 @@ private extension EthereumTransactionHistoryMapper {
         transactionInfos: [TransactionInfo],
         amountType: Amount.AmountType,
         feeValue: Decimal,
+        execution: SafeExecutionHistoryMapper.Execution?,
         tokensByContract: [String: BlockBookAddressResponse.Token]
     ) -> [TransactionRecord] {
         let hash = transaction.txid
-        let fee = Fee(Amount(with: blockchain, value: feeValue / blockchain.decimalValue))
-        let type = transactionType(transaction, tokensByContract: tokensByContract)
+        let fee = execution?.fee ?? Fee(Amount(with: blockchain, value: feeValue / blockchain.decimalValue))
+        let type: TransactionRecord.TransactionType = switch (execution, amountType) {
+        case (.some, .token): .transfer
+        case (.some(let execution), _): execution.type
+        case (nil, _): transactionType(transaction, tokensByContract: tokensByContract)
+        }
 
         return transactionInfos.map { transactionInfo in
             let index = transactionIndicesCounter[hash, default: 0]

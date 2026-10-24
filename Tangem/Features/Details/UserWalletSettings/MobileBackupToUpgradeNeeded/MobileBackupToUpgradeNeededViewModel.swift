@@ -43,7 +43,9 @@ final class MobileBackupToUpgradeNeededViewModel {
         self.coordinator = coordinator
 
         title = Localization.hwUpgradeSaveSeedTitle
-        description = Localization.hwUpgradeSaveSeedDescription
+        description = userWalletModel.config.hasSocialLogin
+            ? Localization.hwUpgradeSaveSeedDescriptionSocial(MobileBackupConstants.appleServiceName)
+            : Localization.hwUpgradeSaveSeedDescription
         actionTitle = Localization.hwUpgradeSaveSeedAction
 
         logScreenOpenedAnalytics()
@@ -154,6 +156,7 @@ private extension MobileBackupToUpgradeNeededViewModel {
         let statusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
         params[.backupManual] = .affirmativeOrNegative(for: statusUtil.hasMnemonicBackup)
         params[.backupCloud] = statusUtil.hasICloudBackup ? .done : .incomplete
+        params[.socialBackup] = .affirmativeOrNegative(for: statusUtil.hasSocialLogin)
 
         Analytics.log(
             .walletSettingsNoticeBackupFirst,

@@ -31,7 +31,7 @@ struct TangemPayTransactionDetailsContentView: View {
                 action: { action(.mainButton) }
             )
             .size(.x12)
-            .styleType(.default)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
             .padding(16)
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsMainButton)

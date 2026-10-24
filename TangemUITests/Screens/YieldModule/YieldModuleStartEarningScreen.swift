@@ -18,7 +18,7 @@ final class YieldModuleStartEarningScreen: ScreenBase<YieldModuleStartEarningScr
     func holdToStartEarning() -> TokenScreen {
         XCTContext.runActivity(named: "Hold 'Start earning' button to confirm activation") { _ in
             waitAndAssertTrue(startEarningButton, "'Start earning' button should be displayed")
-            startEarningButton.press(forDuration: YieldModuleHoldToConfirm.duration)
+            startEarningButton.holdToConfirm()
             XCTAssertTrue(
                 startEarningButton.waitForNonExistence(timeout: .robustUIUpdate),
                 "'Start earning' button should be dismissed after confirmation"

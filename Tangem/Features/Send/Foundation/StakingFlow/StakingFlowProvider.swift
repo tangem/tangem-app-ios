@@ -97,10 +97,10 @@ extension GenericStakingFlowProvider {
         )
     }
 
-    /// Partial unstake needs both the chain's permission and a preferred validator on the position.
+    /// Partial unstake needs both the chain's permission and a target on the position that allows it.
     var isPartialUnstakeAllowed: Bool {
         guard chainAllowsPartialUnstake, let target = action.targetType.target else { return false }
-        return target.preferred
+        return target.allowsPartialUnstake
     }
 }
 

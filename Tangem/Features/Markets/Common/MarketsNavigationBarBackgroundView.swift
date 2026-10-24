@@ -11,22 +11,11 @@ import TangemAssets
 import TangemUI
 
 struct MarketsNavigationBarBackgroundView<Overlay>: View where Overlay: View {
-    let backdropViewColor: Color
-    let overlayContentHidingProgress: CGFloat
-    let isNavigationBarBackgroundBackdropViewHidden: Bool
     let isListContentObscured: Bool
     @ViewBuilder var overlay: Overlay
 
     var body: some View {
         ZStack {
-            // A backdrop view with a solid background color, placed underneath the translucent navigation bar background
-            // and visible when this translucent navigation bar background becomes transparent on bottom sheet minimizing.
-            // Prevents the content of the list from being visible through the transparent translucent navigation bar background
-            // (it just looks ugly).
-            backdropViewColor
-                .hidden(isNavigationBarBackgroundBackdropViewHidden)
-                .animation(.linear(duration: 0.1), value: isNavigationBarBackgroundBackdropViewHidden)
-
             // Translucent navigation bar background, visible when list content is obscured by the navigation bar/overlay
             Rectangle()
                 .fill(.bar)
@@ -37,7 +26,6 @@ struct MarketsNavigationBarBackgroundView<Overlay>: View where Overlay: View {
                 .overlay(alignment: .bottom) {
                     listOverlaySeparator
                 }
-                .opacity(overlayContentHidingProgress) // Hides translucent navigation bar background on bottom sheet minimizing
         }
         .background {
             // This invisible background view prevents touches from passing through the `MarketsNavigationBarBackgroundView`
@@ -55,18 +43,8 @@ struct MarketsNavigationBarBackgroundView<Overlay>: View where Overlay: View {
 // MARK: - Convenience extensions
 
 extension MarketsNavigationBarBackgroundView where Overlay == EmptyView {
-    init(
-        backdropViewColor: Color,
-        overlayContentHidingProgress: CGFloat,
-        isNavigationBarBackgroundBackdropViewHidden: Bool,
-        isListContentObscured: Bool
-    ) {
-        self.init(
-            backdropViewColor: backdropViewColor,
-            overlayContentHidingProgress: overlayContentHidingProgress,
-            isNavigationBarBackgroundBackdropViewHidden: isNavigationBarBackgroundBackdropViewHidden,
-            isListContentObscured: isListContentObscured
-        ) {
+    init(isListContentObscured: Bool) {
+        self.init(isListContentObscured: isListContentObscured) {
             EmptyView()
         }
     }

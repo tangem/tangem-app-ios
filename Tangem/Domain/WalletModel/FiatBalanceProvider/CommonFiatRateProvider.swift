@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemFoundation
 
 final class CommonFiatRateProvider {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
@@ -15,6 +16,7 @@ final class CommonFiatRateProvider {
 
     private var appCurrencyCodeCancellable: AnyCancellable?
     private var quotesCancellable: AnyCancellable?
+    private let rateUpdateCancellable = OSAllocatedUnfairLock<AnyCancellable?>(initialState: nil)
 
     private lazy var rateSubject: CurrentValueSubject<WalletModelRate, Never> = .init(
         .loading(cached: quotesRepository.quote(for: tokenItem))
@@ -45,7 +47,13 @@ extension CommonFiatRateProvider: FiatRateProvider {
         }
 
         rateSubject.send(.loading(cached: rateSubject.value.quote))
-        quotesRepository.loadQuotes(currencyIds: [currencyId])
+
+        let cancellable = quotesRepository
+            .loadQuotes(currencyIds: [currencyId])
+            .withWeakCaptureOf(self)
+            .sink { $0.updateWalletModelRate(quotes: $1) }
+
+        rateUpdateCancellable.withLock { $0 = cancellable }
     }
 }
 

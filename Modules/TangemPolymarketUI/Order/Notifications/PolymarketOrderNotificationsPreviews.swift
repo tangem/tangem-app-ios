@@ -25,8 +25,6 @@ private struct PolymarketOrderNotificationsShowcase: View {
                     title: "Blocking only",
                     notifications: PolymarketOrderNotification.allCases.filter(\.isBlocking)
                 )
-
-                section(title: "Quote failure without a retry handler", notifications: [.quoteUnavailable], onRetry: nil)
             }
             .padding(.horizontal, Constants.horizontalPadding)
             .padding(.vertical, Constants.sectionSpacing)
@@ -36,14 +34,13 @@ private struct PolymarketOrderNotificationsShowcase: View {
 
     private func section(
         title: String,
-        notifications: [PolymarketOrderNotification],
-        onRetry: (() -> Void)? = {}
+        notifications: [PolymarketOrderNotification]
     ) -> some View {
         VStack(alignment: .leading, spacing: Constants.titleSpacing) {
             Text(title)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textTertiary)
 
-            PolymarketOrderNotificationsView(notifications: notifications, onRetry: onRetry)
+            PolymarketOrderNotificationsView(notifications: notifications)
         }
     }
 }

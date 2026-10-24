@@ -89,6 +89,9 @@ extension SwapFlowFactory: SendGenericFlowFactory {
         let summary = makeSwapSummaryStep(
             swapAmountViewModel: amount.viewModel,
             swapSummaryProviderViewModel: providers.compact,
+            swapSummarySlippageViewModel: FeatureProvider.isAvailable(.customSlippage)
+                ? SwapSummarySlippageViewModel(swapProvidersInput: swapModel, slippageInput: swapModel)
+                : nil,
             feeCompactViewModel: fee.compact,
         )
 
@@ -114,7 +117,8 @@ extension SwapFlowFactory: SendGenericFlowFactory {
             sourceTokenInput: swapModel,
             receiveTokenInput: swapModel,
             sendFeeInput: swapModel,
-            swapModelStateProvider: swapModel
+            swapModelStateProvider: swapModel,
+            slippageInput: swapModel
         )
 
         // Logger setup
@@ -137,6 +141,10 @@ extension SwapFlowFactory: SendGenericFlowFactory {
             finishStep: finish,
             feeSelectorBuilder: fee.feeSelectorBuilder,
             providersSelector: providers.selector,
+            slippageSelectorBuilder: SwapSlippageSelectorBuilder(
+                slippageInput: swapModel,
+                slippageOutput: swapModel
+            ),
             tokenSelectorBuilder: tokenSelectorBuilder,
             summaryTitleProvider: makeSummaryTitleProvider(),
             router: router

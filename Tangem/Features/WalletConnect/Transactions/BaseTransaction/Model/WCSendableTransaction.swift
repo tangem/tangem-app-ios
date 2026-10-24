@@ -1,4 +1,6 @@
 import Foundation
+import BlockchainSdk
+import TangemFoundation
 
 struct WCSendableTransaction {
     let from: String
@@ -40,7 +42,8 @@ extension WCSendableTransaction {
             data: data,
             gas: gas,
             gasPrice: finalGasPrice,
-            nonce: nonce
+            nonce: nonce,
+            chainId: nil
         )
     }
 
@@ -56,5 +59,21 @@ extension WCSendableTransaction {
             maxPriorityFeePerGas: maxPriorityFeePerGas,
             nonce: nonce
         )
+    }
+}
+
+// MARK: - Logging
+
+extension WCSendableTransaction {
+    func logDescription(method: WalletConnectMethod, blockchain: Blockchain) -> String {
+        let chainId = blockchain.chainId.map(String.init) ?? "none"
+        let dataSize = (data?.removeHexPrefix().count ?? 0) / 2
+
+        return """
+        Building \(method.rawValue) on \(blockchain.displayName) (chain ID \(chainId)): \
+        from \(from), to \(to), value \(value ?? "none"), nonce \(nonce ?? "none"), gas \(gas ?? "none"), \
+        gasPrice \(gasPrice ?? "none"), maxFeePerGas \(maxFeePerGas ?? "none"), \
+        maxPriorityFeePerGas \(maxPriorityFeePerGas ?? "none"), data \(dataSize) bytes
+        """
     }
 }

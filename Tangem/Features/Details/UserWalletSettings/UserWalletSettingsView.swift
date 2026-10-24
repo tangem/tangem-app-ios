@@ -34,6 +34,8 @@ struct UserWalletSettingsView: View {
 
             nftSection
 
+            socialLogOutSection
+
             forgetSection
         }
         .interContentPadding(8)
@@ -140,6 +142,13 @@ struct UserWalletSettingsView: View {
                 .confirmationDialog(viewModel: $viewModel.forgetWalletConfirmationDialog)
         } footer: {
             DefaultFooterView(Localization.settingsForgetWalletFooter)
+        }
+    }
+
+    private var socialLogOutSection: some View {
+        GroupedSection(viewModel.socialLogOutViewModel) {
+            DefaultRowView(viewModel: $0)
+                .appearance(.plainButton)
         }
     }
 }

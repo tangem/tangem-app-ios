@@ -44,8 +44,8 @@ final class CommonPolymarketBalanceProvider: PolymarketBalanceProvider {
                     return .just(output: .failure(.empty(BalanceFormatter.defaultEmptyBalanceString)))
                 }
 
-                return accountModel.fiatAvailableBalanceProvider.balanceTypePublisher
-                    .map(CommonPolymarketBalanceProvider.makeFormattedBalance(from:))
+                return accountModel.collateralTokenBalanceProvider.balanceTypePublisher
+                    .map(PolymarketFormattedBalance.money)
                     .eraseToAnyPublisher()
             }
             .switchToLatest()
@@ -59,9 +59,7 @@ final class CommonPolymarketBalanceProvider: PolymarketBalanceProvider {
                     return .just(output: .failure(.empty(BalanceFormatter.defaultEmptyBalanceString)))
                 }
 
-                return accountModel.fiatTotalTokenBalanceProvider.balanceTypePublisher
-                    .map(CommonPolymarketBalanceProvider.makeFormattedBalance(from:))
-                    .eraseToAnyPublisher()
+                return accountModel.formattedTotalBalancePublisher
             }
             .switchToLatest()
             .eraseToAnyPublisher()
@@ -110,16 +108,5 @@ private extension CommonPolymarketBalanceProvider {
         }
 
         return AccountModelsAggregator(.polymarket).modelPublisher(from: accountModelsManager)
-    }
-
-    static func makeFormattedBalance(from balanceType: TokenBalanceType) -> FormattedTokenBalanceType {
-        switch balanceType {
-        case .empty:
-            return .failure(.empty(BalanceFormatter.defaultEmptyBalanceString))
-        case .loading, .failure, .loaded:
-            let builder = FormattedTokenBalanceTypeBuilder(format: { BalanceFormatter().formatFiatBalance($0) })
-
-            return builder.mapToFormattedTokenBalanceType(type: balanceType)
-        }
     }
 }

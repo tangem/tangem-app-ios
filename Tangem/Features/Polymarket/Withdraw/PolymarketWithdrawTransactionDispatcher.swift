@@ -23,29 +23,25 @@ extension PolymarketWithdrawTransactionDispatcher: TransactionDispatcher {
     }
 
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
-        switch transaction {
-        case .transfer(let transaction):
-            return try await withdraw(
-                amount: transaction.amount.value,
-                destination: transaction.destinationAddress
-            )
-
-        default:
+        guard case .transfer(let transfer) = transaction else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
-    }
-}
 
-// MARK: - Private implementation
+        let mapper = TransactionDispatcherResultMapper()
 
-private extension PolymarketWithdrawTransactionDispatcher {
-    func withdraw(amount: Decimal, destination: String) async throws -> TransactionDispatcherResult {
-        let record = try await withdrawTransactionService.withdraw(amount: amount, to: destination)
+        do {
+            let record = try await withdrawTransactionService.withdraw(
+                amount: transfer.amount.value,
+                to: transfer.destinationAddress
+            )
 
-        return TransactionDispatcherResultMapper().mapResult(
-            record,
-            host: PolymarketBFFEnvironment.current().baseURL.absoluteString,
-            signer: signer.latestSignerType
-        )
+            return mapper.mapResult(
+                record,
+                host: PolymarketBFFEnvironment.current().baseURL.absoluteString,
+                signer: signer.latestSignerType
+            )
+        } catch {
+            throw mapper.mapError(error.toUniversalError(), transaction: transaction)
+        }
     }
 }

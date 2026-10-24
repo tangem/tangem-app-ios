@@ -17,22 +17,19 @@ final class TangemPayOnboardingUITests: BaseTestCase {
         launchAndImportHotWallet(
             eligibilityState: "Started",
             accessCode: accessCode,
-            scenarios: [ScenarioConfig(name: "tangem_pay_eligibility_channels", initialState: "Banner")]
+            scenarios: [ScenarioConfig(name: "tangem_pay_eligibility_channels", initialState: "Banner")],
+            featureToggles: Constants.marketingBannersShownWithSystemCards
         )
         .verifyGetTangemPayBannerExists()
     }
 
-    func testOnboarding_OpensFromAppDetails_WhenDetailsChannelReceived() {
+    func testOnboarding_OpensFromAppDetails_WhenGetTangemPayTapped() {
         setAllureId(9673)
 
-        launchAndImportHotWallet(
-            eligibilityState: "Started",
-            accessCode: accessCode,
-            scenarios: [ScenarioConfig(name: "tangem_pay_eligibility_channels", initialState: "BannerAndDetails")]
-        )
-        .openDetails()
-        .openGetTangemPay()
-        .waitForScreen()
+        launchAndImportHotWallet(eligibilityState: "Started", accessCode: accessCode)
+            .openDetails()
+            .openGetTangemPay()
+            .waitForScreen()
     }
 
     func testGetTangemPayFromAppDetails_ListsWalletsWithoutTangemPay_WhenSeveralWalletsAdded() {
@@ -52,20 +49,23 @@ final class TangemPayOnboardingUITests: BaseTestCase {
     func skipped_testGetCardFromMainBanner_OpensWalletSelection_WhenSeveralWalletsAdded() {
         setAllureId(9638)
 
-        launchWithTwoWalletsWithoutTangemPay()
-            .verifyGetTangemPayBannerExists()
-            .tapGetTangemPayBanner()
-            .waitForScreen()
-            .tapGetCardExpectingWalletSelector()
-            .waitForSheet()
-            .verifyWalletListed(Constants.Wallet.hot)
-            .verifyWalletListed(Constants.Wallet.mockCard)
+        launchWithTwoWalletsWithoutTangemPay(
+            scenarios: [ScenarioConfig(name: "tangem_pay_eligibility_channels", initialState: "BannerAndDetails")]
+        )
+        .verifyGetTangemPayBannerExists()
+        .tapGetTangemPayBanner()
+        .waitForScreen()
+        .tapGetCardExpectingWalletSelector()
+        .waitForSheet()
+        .verifyWalletListed(Constants.Wallet.hot)
+        .verifyWalletListed(Constants.Wallet.mockCard)
     }
 
-    private func launchWithTwoWalletsWithoutTangemPay() -> MainScreen {
+    private func launchWithTwoWalletsWithoutTangemPay(scenarios: [ScenarioConfig] = []) -> MainScreen {
         launchAndImportHotWallet(
             eligibilityState: "Started",
-            scenarios: [ScenarioConfig(name: "tangem_pay_eligibility_channels", initialState: "BannerAndDetails")]
+            scenarios: scenarios,
+            featureToggles: Constants.marketingBannersShownWithSystemCards
         )
         .addNewWallet(name: .wallet2)
         .swipeWalletRight()
@@ -74,6 +74,8 @@ final class TangemPayOnboardingUITests: BaseTestCase {
 
 private extension TangemPayOnboardingUITests {
     enum Constants {
+        static let marketingBannersShownWithSystemCards = ["TWI-1841_hide_marketing_banners_while_system": false]
+
         enum Wallet {
             static let hot = "Wallet"
             static let mockCard = "Wallet 2"
