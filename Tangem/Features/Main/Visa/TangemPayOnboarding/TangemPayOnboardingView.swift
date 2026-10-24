@@ -19,14 +19,8 @@ struct TangemPayOnboardingView: View {
                 if viewModel.regionUnavailable {
                     TangemPayRegionUnavailableView(onGotIt: viewModel.closeOfferScreen)
                 } else if let tangemPayOfferViewModel = viewModel.tangemPayOfferViewModel {
-                    Group {
-                        if viewModel.showNewOnboarding {
-                            TangemPayOfferViewV2(viewModel: tangemPayOfferViewModel)
-                        } else {
-                            TangemPayOfferView(viewModel: tangemPayOfferViewModel)
-                        }
-                    }
-                    .onAppear(perform: viewModel.onOfferAppear)
+                    TangemPayOfferView(viewModel: tangemPayOfferViewModel)
+                        .onAppear(perform: viewModel.onOfferAppear)
                 } else {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle())
@@ -34,7 +28,7 @@ struct TangemPayOnboardingView: View {
                 }
             }
             .toolbar {
-                if viewModel.showNewOnboarding, let tangemPayOfferViewModel = viewModel.tangemPayOfferViewModel {
+                if let tangemPayOfferViewModel = viewModel.tangemPayOfferViewModel {
                     ToolbarItem(placement: .topBarTrailing) {
                         SwiftUI.Button(action: tangemPayOfferViewModel.termsFeesAndLimits) {
                             Assets.Visa.tangemPayOnboardingNewDoc.image

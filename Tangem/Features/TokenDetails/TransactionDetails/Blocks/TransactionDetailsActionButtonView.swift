@@ -21,6 +21,7 @@ struct TransactionDetailsActionButtonViewData: Equatable {
     let action: TransactionDetailsViewModel.ViewAction
     var isBusy: Bool = false
     var isEnabled: Bool = true
+    var signingType: SigningActionButtonViewType? = nil
 }
 
 struct TransactionDetailsActionButtonView: View {
@@ -28,6 +29,21 @@ struct TransactionDetailsActionButtonView: View {
     let onTap: () -> Void
 
     var body: some View {
+        switch data.signingType {
+        case .none:
+            button
+        case .some(let signingType):
+            SigningActionButtonView(
+                type: signingType,
+                title: data.title,
+                isLoading: data.isBusy,
+                isDisabled: !data.isEnabled,
+                action: onTap
+            )
+        }
+    }
+
+    private var button: some View {
         TangemUI.Button(
             label: data.title,
             accessibilityLabel: data.title,
@@ -43,7 +59,7 @@ struct TransactionDetailsActionButtonView: View {
 
     private var styleType: TangemUI.Button.StyleType {
         switch data.style {
-        case .default: .default
+        case .default: .primary
         case .secondary: .secondary(.default)
         }
     }

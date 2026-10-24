@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemLocalization
 import TangemUI
 
@@ -23,9 +24,14 @@ struct CountrySelectionView: View {
             highlightedSectionTitle: viewModel.configuration.highlight?.sectionTitle,
             allSectionTitle: viewModel.configuration.highlight?.allSectionTitle,
             hasFlags: true,
-            onItemTap: viewModel.onItemTap(id:)
+            loadingItemId: viewModel.loadingItemId,
+            onItemTap: viewModel.onItemTap(id:isHighlighted:)
         )
-        .tangemSearchable(text: $viewModel.searchText, prompt: Localization.commonSearch)
+        .tangemSearchable(
+            text: $viewModel.searchText,
+            prompt: Localization.commonSearch,
+            accessibilityIdentifier: TangemPayAccessibilityIdentifiers.geoSelectionSearchField
+        )
         .autocorrectionDisabled()
         .textInputAutocapitalization(.never)
         .topNavigation(

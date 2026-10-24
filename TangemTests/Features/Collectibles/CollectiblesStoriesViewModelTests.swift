@@ -37,14 +37,18 @@ final class CollectiblesStoriesViewModelTests: LeakTrackingTestSuite {
 
         #expect(sut.isFinished)
         #expect(engine.nextSlideCallsCount == 0)
+        #expect(engine.finishCallsCount == 1)
     }
 
     @Test("Close finishes the story")
     func closeFinishes() {
-        let sut = makeSUT()
+        let engine = StoriesEngineStub()
+
+        let sut = makeSUT(engine: engine)
         sut.onCloseTap()
 
         #expect(sut.isFinished)
+        #expect(engine.closeCallsCount == 1)
     }
 
     @Test("Backward and pause are left to the engine")
@@ -88,6 +92,8 @@ private final class StoriesEngineStub: CollectiblesStoriesEngine {
     private(set) var nextSlideCallsCount = 0
     private(set) var previousSlideCallsCount = 0
     private(set) var pausedStates: [Bool] = []
+    private(set) var closeCallsCount = 0
+    private(set) var finishCallsCount = 0
 
     var slideIndexPublisher: AnyPublisher<Int, Never> {
         Empty().eraseToAnyPublisher()
@@ -109,5 +115,13 @@ private final class StoriesEngineStub: CollectiblesStoriesEngine {
 
     func setPaused(_ isPaused: Bool) {
         pausedStates.append(isPaused)
+    }
+
+    func close() {
+        closeCallsCount += 1
+    }
+
+    func finish() {
+        finishCallsCount += 1
     }
 }

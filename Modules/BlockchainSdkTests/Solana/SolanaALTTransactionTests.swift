@@ -45,10 +45,124 @@ struct SolanaALTTransactionTests {
 
         #expect(!buildForSend.isEmpty)
     }
+
+    @Test(arguments: [Fixtures.legacyWalletNotSigner, Fixtures.legacyWalletCoSigner])
+    func legacyRebuildRejectsMessageWhereWalletIsNotSoleSigner(transaction: String) async throws {
+        var sender = makeLegacySender(lookupTableCreator: UnreachableLookupTableCreator())
+        let message = try legacyMessage(from: transaction)
+
+        await #expect(throws: SolanaBSDKError.walletIsNotSoleRequiredSigner) {
+            try await sender.buildForSend(message: message)
+        }
+    }
+
+    @Test
+    func legacyRebuildKeepsWalletAsSoleSigner() async throws {
+        var sender = makeLegacySender(lookupTableCreator: makeDummyLookupTableCreator())
+        let message = try legacyMessage(from: Fixtures.legacyWalletSolePayer)
+
+        let buildForSend = try await sender.buildForSend(message: message)
+        let rebuilt = try VersionedTransaction.deserialize(data: Data(base64Encoded: buildForSend)!, isIncludeSignature: true)
+
+        guard case .v0(let rebuiltMessage) = rebuilt.message else {
+            throw Error.transactionDecodeError
+        }
+
+        #expect(rebuiltMessage.header.numRequiredSignatures == 1)
+        #expect(rebuiltMessage.staticAccountKeys.first == walletPublicKey)
+    }
+
+    @Test(arguments: [Fixtures.v0WalletNotSigner, Fixtures.v0WalletCoSigner])
+    func v0RebuildRejectsMessageWhereWalletIsNotSoleSigner(transaction: String) async throws {
+        var sender = SolanaALTMessageV0TransactionSender(
+            walletPublicKey: walletPublicKey,
+            accountKeysSplitProvider: SolanaAccountKeysSplitUtils(),
+            sendBuilder: makeDummySendBuilder(),
+            blockhashProvider: makeDummyBlockhashProvider(),
+            lookupTableDispatcher: UnreachableLookupTableDispatcher()
+        )
+        let versioned = try VersionedTransaction.deserialize(data: Data(hexString: transaction))
+
+        guard case .v0(let message) = versioned.message else {
+            throw Error.transactionDecodeError
+        }
+
+        await #expect(throws: SolanaBSDKError.walletIsNotSoleRequiredSigner) {
+            try await sender.buildForSend(message: message)
+        }
+    }
+}
+
+private extension SolanaALTTransactionTests {
+    func legacyMessage(from transaction: String) throws -> LegacyMessage {
+        let versioned = try VersionedTransaction.deserialize(data: Data(hexString: transaction))
+
+        guard case .legacy(let message) = versioned.message else {
+            throw Error.transactionDecodeError
+        }
+
+        return message
+    }
+
+    func makeLegacySender(lookupTableCreator: SolanaALTLookupTableCreator) -> SolanaALTLegacyTransactionSender {
+        SolanaALTLegacyTransactionSender(
+            walletPublicKey: walletPublicKey,
+            accountKeysSplitProvider: SolanaAccountKeysSplitUtils(),
+            sendBuilder: makeDummySendBuilder(),
+            blockhashProvider: makeDummyBlockhashProvider(),
+            lookupTableCreator: lookupTableCreator
+        )
+    }
+
+    func makeDummyLookupTableCreator() -> SolanaDummyALTLookupTableCreator {
+        SolanaDummyALTLookupTableCreator(
+            lookupTableAccountKey: "HZMD3eHQobUMmPCJ8uWa9ifGG2M478TSJwJmhu6c2ufM",
+            lookupTableAccountDecodeState: Data(hexString: Fixtures.lookupTableState)
+        )
+    }
+
+    func makeDummyBlockhashProvider() -> SolanaDummyALTBlockhashProvider {
+        SolanaDummyALTBlockhashProvider(dummyBlockhash: "HHnEdN5iDoa9xBQ7km25cDjE9GD9TgQF5QMLmATicmqN")
+    }
+
+    func makeDummySendBuilder() -> SolanaDummyALTSendTransactionBuilder {
+        SolanaDummyALTSendTransactionBuilder(walletPublicKey: walletPublicKey, signature: Data(hexString: Fixtures.signature))
+    }
+}
+
+private struct UnreachableLookupTableCreator: SolanaALTLookupTableCreator {
+    func createLookupTableAccounts(accountKeys: [PublicKey], authority: PublicKey, payer: PublicKey) async throws -> AddressLookupTableAccount {
+        throw SolanaALTTransactionTests.Error.lookupTableMustNotBeTouched
+    }
+
+    func extendedLookupTableAccounts(lookupTableAddress: PublicKey, authority: PublicKey, payer: PublicKey, addresses: [PublicKey]) async throws {
+        throw SolanaALTTransactionTests.Error.lookupTableMustNotBeTouched
+    }
+}
+
+private struct UnreachableLookupTableDispatcher: SolanaALTLookupTableDispatcher {
+    func dispatchLookupTableAccount(staticKeys: [PublicKey], altKeys: [PublicKey]) async throws -> AddressLookupTableAccount? {
+        throw SolanaALTTransactionTests.Error.lookupTableMustNotBeTouched
+    }
+
+    func prepareExistLookupTableAccounts(message: MessageV0) async throws -> [AddressLookupTableAccount] {
+        throw SolanaALTTransactionTests.Error.lookupTableMustNotBeTouched
+    }
 }
 
 extension SolanaALTTransactionTests {
     enum Error: Swift.Error {
         case transactionDecodeError
+        case lookupTableMustNotBeTouched
+    }
+
+    enum Fixtures {
+        static let legacyWalletNotSigner = "010001032759b45b174d731859b9f3fa4640436812dc913de8499e7e4866df8a510e4ffaefc956a850e3dd3f49236e234b1f9ef97bc6bd4cc8f62a453790ffda215c1cd080947a5b60bd63353a2ece7b336a253d8bb7a3cc72d9640ee18351fb114b2c1ec0f9cc700ed98ed4b658ed2c471b73aaa3cf61022d5cc2cf5ddba3df2bd4700a010201010101"
+        static let legacyWalletCoSigner = "020001032759b45b174d731859b9f3fa4640436812dc913de8499e7e4866df8a510e4ffaefc956a850e3dd3f49236e234b1f9ef97bc6bd4cc8f62a453790ffda215c1cd080947a5b60bd63353a2ece7b336a253d8bb7a3cc72d9640ee18351fb114b2c1ec0f9cc700ed98ed4b658ed2c471b73aaa3cf61022d5cc2cf5ddba3df2bd4700a010201010101"
+        static let legacyWalletSolePayer = "01000103efc956a850e3dd3f49236e234b1f9ef97bc6bd4cc8f62a453790ffda215c1cd02759b45b174d731859b9f3fa4640436812dc913de8499e7e4866df8a510e4ffa80947a5b60bd63353a2ece7b336a253d8bb7a3cc72d9640ee18351fb114b2c1ec0f9cc700ed98ed4b658ed2c471b73aaa3cf61022d5cc2cf5ddba3df2bd4700a010201000101"
+        static let v0WalletNotSigner = "80010001032759b45b174d731859b9f3fa4640436812dc913de8499e7e4866df8a510e4ffaefc956a850e3dd3f49236e234b1f9ef97bc6bd4cc8f62a453790ffda215c1cd080947a5b60bd63353a2ece7b336a253d8bb7a3cc72d9640ee18351fb114b2c1ec0f9cc700ed98ed4b658ed2c471b73aaa3cf61022d5cc2cf5ddba3df2bd4700a01020101010100"
+        static let v0WalletCoSigner = "8002000103efc956a850e3dd3f49236e234b1f9ef97bc6bd4cc8f62a453790ffda215c1cd02759b45b174d731859b9f3fa4640436812dc913de8499e7e4866df8a510e4ffa80947a5b60bd63353a2ece7b336a253d8bb7a3cc72d9640ee18351fb114b2c1ec0f9cc700ed98ed4b658ed2c471b73aaa3cf61022d5cc2cf5ddba3df2bd4700a01020100010100"
+        static let signature = "21978ac8afff90421f9dc964f0391464569d3f32abf92f7846b9c493ddb4fabdb5de6245210b3e1f78ae94a7e8552805ba30534016af3e3edd2c91fe9cb2e201"
+        static let lookupTableState = "7b226c617374457874656e646564536c6f74223a3335353630313539312c226c617374457874656e646564536c6f745374617274496e646578223a302c22616464726573736573223a5b2248393257474c6a6657506b47484c55415a66697547706d5661684a5936644646386b65515062543661706346222c223131313131313131313131313131313131313131313131313131313131313131222c2241546f6b656e47507662644756787231623268765a62736971573578574832356566544e734c4a41386b6e4c222c22436f6d70757465427564676574313131313131313131313131313131313131313131313131313131313131222c22484e6172667843336b594d4d68466b7855466559623877485664507a59357439707570715735664c326d654d222c22536f3131313131313131313131313131313131313131313131313131313131313131313131313131313132222c22546f6b656e6b65675166655a79694e77414a624e62474b5046584357754276663953733632335651354441225d2c22617574686f72697479223a2248393257474c6a6657506b47484c55415a66697547706d5661684a5936644646386b65515062543661706346222c2274797065496e646578223a312c22646561637469766174696f6e536c6f74223a31383434363734343037333730393535313631357d"
     }
 }

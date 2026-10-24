@@ -40,17 +40,3 @@ struct PolymarketGeoblockStateProviderTests {
         #expect(provider.state == .allowed)
     }
 }
-
-// MARK: - Helpers
-
-private extension PolymarketGeoblockStateProviderTests {
-    func settle(until isSatisfied: () -> Bool) async throws {
-        for _ in 0 ..< 200 {
-            if isSatisfied() { return }
-
-            try await Task.sleep(nanoseconds: 10_000_000)
-        }
-
-        Issue.record("The region state never settled")
-    }
-}

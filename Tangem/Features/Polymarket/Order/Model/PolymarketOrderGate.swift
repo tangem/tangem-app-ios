@@ -14,6 +14,9 @@ struct PolymarketOrderGate {
     let notifications: [PolymarketOrderNotification]
     let amountCaption: AmountCaption?
     let isPrimaryButtonEnabled: Bool
+    let canStepUp: Bool
+    let canStepDown: Bool
+    let selectableFractions: Set<PolymarketAmountFraction>
 
     init(state: PolymarketOrderModel.State, intent: PolymarketOrderIntent) {
         let required = switch intent {
@@ -33,6 +36,10 @@ struct PolymarketOrderGate {
             && !state.isBelowMinAmount
             && hasSufficientBalance
             && state.geoblock == .allowed
+
+        canStepUp = Self.canStepUp(state: state, intent: intent)
+        canStepDown = Self.canStepDown(state: state, intent: intent)
+        selectableFractions = Self.selectableFractions(state: state, intent: intent)
     }
 }
 
@@ -44,13 +51,37 @@ extension PolymarketOrderGate {
         case belowMinAmount(Decimal)
         case notEnoughForBet
         case notEnoughForFees
-        case notEnoughLiquidity
     }
 }
 
 // MARK: - Private implementation
 
 private extension PolymarketOrderGate {
+    static func canStepUp(state: PolymarketOrderModel.State, intent: PolymarketOrderIntent) -> Bool {
+        guard let balance = state.balance else { return false }
+
+        return (state.enteredAmount ?? intent.floor(balance: balance)) < balance
+    }
+
+    static func canStepDown(state: PolymarketOrderModel.State, intent: PolymarketOrderIntent) -> Bool {
+        guard let balance = state.balance else { return false }
+
+        let floor = intent.floor(balance: balance)
+
+        return (state.enteredAmount ?? floor) > floor
+    }
+
+    static func selectableFractions(
+        state: PolymarketOrderModel.State,
+        intent: PolymarketOrderIntent
+    ) -> Set<PolymarketAmountFraction> {
+        guard let balance = state.balance, balance > 0 else { return [] }
+
+        let floor = intent.floor(balance: balance)
+
+        return Set(PolymarketAmountFraction.allCases.filter { balance * $0.multiplier >= floor })
+    }
+
     static func isQuotePlaceable(state: PolymarketOrderModel.State, intent: PolymarketOrderIntent) -> Bool {
         guard let status = state.quote.quote?.status else { return false }
 
@@ -74,22 +105,20 @@ private extension PolymarketOrderGate {
                 }
             case .full, .belowMinOrderAmount, .insufficientLiquidity, .marketClosed, .undefined: break
             }
-        case .unavailable(let unavailability):
+        case .unavailable(let unavailability, _):
             switch unavailability {
             case .insufficientLiquidity:
-                if case .buy = intent {
-                    notifications.append(.noLiquidity)
-                }
+                notifications.append(.noLiquidity)
             case .marketClosed: notifications.append(.marketClosed)
             case .undefined: notifications.append(.quoteUnavailable)
             }
         case .failed:
             notifications.append(.quoteUnavailable)
-        case .empty, .loading:
+        case .empty, .loading, .resuming:
             break
         }
 
-        if state.geoblock == .blocked {
+        if state.geoblock.isBlocked {
             notifications.append(.regionRestricted)
         }
 
@@ -101,10 +130,6 @@ private extension PolymarketOrderGate {
         intent: PolymarketOrderIntent,
         required: Decimal?
     ) -> AmountCaption? {
-        if case .sell = intent, case .unavailable(.insufficientLiquidity) = state.quote {
-            return .notEnoughLiquidity
-        }
-
         if state.isBelowMinAmount, let minAmount = state.minAmount {
             return .belowMinAmount(minAmount)
         }

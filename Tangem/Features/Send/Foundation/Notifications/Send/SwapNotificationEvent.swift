@@ -55,6 +55,7 @@ enum SwapNotificationEvent: Hashable {
     case customFeeWarning(CustomFeeWarning)
 
     case highNetworkFee
+    case lowCustomSlippage(slippage: String, analyticsParams: [Analytics.ParameterKey: String])
 }
 
 extension SwapNotificationEvent: NotificationEvent {
@@ -113,6 +114,8 @@ extension SwapNotificationEvent: NotificationEvent {
             return .string(Localization.swappingTradeTooLargeTitle)
         case .highNetworkFee:
             return .string(Localization.highFeeWarningTitle)
+        case .lowCustomSlippage(let slippage, _):
+            return .string(Localization.swapSlippageWarningTitle(slippage))
         }
     }
 
@@ -177,6 +180,8 @@ extension SwapNotificationEvent: NotificationEvent {
             return Localization.swappingTradeTooLargeText
         case .highNetworkFee:
             return Localization.highFeeWarningDescription
+        case .lowCustomSlippage:
+            return Localization.swapSlippageWarningText
         }
     }
 
@@ -193,6 +198,7 @@ extension SwapNotificationEvent: NotificationEvent {
              .highPriceImpactWarning(.negligible, _), // Filtered out in SwapNotificationManager, kept for exhaustiveness
              .highPriceImpactWarning(.warningLoss, _),
              .highNetworkFee,
+             .lowCustomSlippage,
              .trustlineRequired:
             return .secondary
         case .highPriceImpactWarning(.highLossLowAmount, _), .highPriceImpactWarning(.highLossHighAmount, _):
@@ -229,6 +235,7 @@ extension SwapNotificationEvent: NotificationEvent {
              .highPriceImpactWarning(.negligible, _), // Filtered out in SwapNotificationManager, kept for exhaustiveness
              .highPriceImpactWarning(.warningLoss, _),
              .highNetworkFee,
+             .lowCustomSlippage,
              .trustlineRequired:
             return .init(iconType: .image(Assets.attention))
         case .highPriceImpactWarning(.highLossLowAmount, _), .highPriceImpactWarning(.highLossHighAmount, _):
@@ -283,6 +290,7 @@ extension SwapNotificationEvent: NotificationEvent {
              .highPriceImpactWarning(.negligible, _), // Filtered out in SwapNotificationManager, kept for exhaustiveness
              .highPriceImpactWarning(.warningLoss, _),
              .highNetworkFee,
+             .lowCustomSlippage,
              .trustlineRequired:
             return .warning
         case .highPriceImpactWarning(.highLossLowAmount, _),
@@ -322,6 +330,15 @@ extension SwapNotificationEvent: NotificationEvent {
         }
     }
 
+    var tapAction: NotificationButtonActionType? {
+        switch self {
+        case .lowCustomSlippage:
+            return .editSlippage
+        default:
+            return nil
+        }
+    }
+
     var descriptionLinkTint: Color? {
         switch self {
         case .permissionNeeded:
@@ -349,7 +366,8 @@ extension SwapNotificationEvent: NotificationEvent {
              .withdrawalNotificationEvent,
              .validationErrorEvent,
              .highPriceImpactWarning,
-             .highNetworkFee:
+             .highNetworkFee,
+             .lowCustomSlippage:
             return true
         }
     }
@@ -380,6 +398,8 @@ extension SwapNotificationEvent {
             .swapNoticeUnavailableToSwapPair
         case .regionRestricted:
             .swapNoticeGeoRestriction
+        case .lowCustomSlippage:
+            .swapWarningCustomSlippageThreshold
         case .longTimeAverageDuration:
             // Sending from in place PendingExpressTxStatusBottomSheetViewModel.swift
             nil
@@ -403,6 +423,8 @@ extension SwapNotificationEvent {
         case .notEnoughBalanceForSwapping(let params):
             params
         case .regionRestricted(let params):
+            params
+        case .lowCustomSlippage(_, let params):
             params
         default:
             [:]

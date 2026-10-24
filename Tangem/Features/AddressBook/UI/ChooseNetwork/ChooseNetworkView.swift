@@ -106,7 +106,7 @@ struct ChooseNetworkView: View {
             accessibilityLabel: Localization.commonDone,
             action: viewModel.done
         )
-        .styleType(.default)
+        .styleType(.primary)
         .size(.x12)
         .horizontalLayout(.infinity)
         .disabled(!viewModel.isDoneEnabled)

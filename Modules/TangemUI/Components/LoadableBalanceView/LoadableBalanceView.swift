@@ -106,7 +106,7 @@ public struct LoadableBalanceView: View {
             .resizable()
             .renderingMode(.template)
             .foregroundStyle(Color.Tangem.Graphic.Neutral.quaternary)
-            .frame(size: CGSize(bothDimensions: .unit(.x3)))
+            .frame(size: CGSize(bothDimensions: 12))
     }
 
     @ViewBuilder

@@ -20,12 +20,12 @@ public struct PageIndicatorViewRedesign: View {
     private let maxVisibleDots = 5
 
     public var body: some View {
-        HStack(spacing: .unit(.x2)) {
+        HStack(spacing: 8) {
             ForEach(visibleIndices, id: \.self) { index in
                 dot(for: index)
             }
         }
-        .padding(.horizontal, .unit(.x3))
+        .padding(.horizontal, 12)
         .frame(height: 32)
         .background {
             Capsule()

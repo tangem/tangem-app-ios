@@ -27,7 +27,7 @@ struct TokenSelectorExpandableAccountSectionView: View {
         return ExpandableItemView(
             isExpanded: expandableViewModel.isExpanded,
             backgroundColor: Color.Tangem.Surface.level3,
-            cornerRadius: .unit(.x6),
+            cornerRadius: 24,
             backgroundGeometryEffect: effects.background,
             expandedViewTransition: Constants.expandedContentTransition,
             collapsedView: {

@@ -18,7 +18,7 @@ final class AppScanTask: CardSessionRunnable {
         var options: PreflightReadMode.Options = [.readMasterSecret, .verifyBackup]
 
         if shouldCheckAccessCode {
-            options.insert(.accessCodeCheck)
+            options.insert(.welcomeBackCheck)
         }
 
         return .fullCardRead(options: options)

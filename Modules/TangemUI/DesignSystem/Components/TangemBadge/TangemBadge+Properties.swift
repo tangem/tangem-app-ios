@@ -17,33 +17,33 @@ public extension TangemBadge {
 
         var baseHeight: CGFloat {
             switch self {
-            case .x4: SizeUnit.x4.value
-            case .x6: SizeUnit.x6.value
-            case .x9: SizeUnit.x9.value
+            case .x4: 16
+            case .x6: 24
+            case .x9: 36
             }
         }
 
         var baseIconSize: CGFloat {
             switch self {
-            case .x4: SizeUnit.x3.value
-            case .x6: SizeUnit.x4.value
-            case .x9: SizeUnit.x4.value
+            case .x4: 12
+            case .x6: 16
+            case .x9: 16
             }
         }
 
         var baseHorizontalPadding: CGFloat {
             switch self {
-            case .x4: SizeUnit.x1.value
-            case .x6: SizeUnit.x2.value
-            case .x9: SizeUnit.x3.value
+            case .x4: 4
+            case .x6: 8
+            case .x9: 12
             }
         }
 
         var baseContentSpacing: CGFloat {
             switch self {
-            case .x4: SizeUnit.half.value
-            case .x6: SizeUnit.x1.value
-            case .x9: SizeUnit.x1.value
+            case .x4: 2
+            case .x6: 4
+            case .x9: 4
             }
         }
 
@@ -62,9 +62,9 @@ public extension TangemBadge {
 
         func cornerRadius(for size: Size) -> CGFloat {
             switch size {
-            case .x4: SizeUnit.x1.value
-            case .x6: SizeUnit.x2.value
-            case .x9: SizeUnit.x2.value
+            case .x4: 4
+            case .x6: 8
+            case .x9: 8
             }
         }
     }

@@ -95,8 +95,36 @@ private final class CollectiblesAccountModelStub: CollectiblesAccountModel {
 
     func onboard() async throws {}
 
+    var vaultUsdcStatePublisher: AnyPublisher<CollectiblesVaultUsdcState, Never> {
+        Just(.loading).eraseToAnyPublisher()
+    }
+
     func refreshState() async {
         refreshCount += 1
+    }
+
+    func awaitDeposit() async {}
+
+    @MainActor
+    var purchaseInteractor: any CollectiblesPackPurchaseInteractor {
+        CollectiblesPackPurchaseInteractorStub()
+    }
+}
+
+@MainActor
+private final class CollectiblesPackPurchaseInteractorStub: CollectiblesPackPurchaseInteractor {
+    func hasUnfinishedPurchase(machineID: String) -> Bool {
+        false
+    }
+
+    func purchase(
+        machineID: String,
+        price: Decimal,
+        platformFee: Decimal,
+        turboMode: CollectiblesTurboMode,
+        onStep: @escaping (CollectiblesPackPurchaseStep) -> Void
+    ) async throws -> CollectiblesWonCard {
+        throw CancellationError()
     }
 }
 

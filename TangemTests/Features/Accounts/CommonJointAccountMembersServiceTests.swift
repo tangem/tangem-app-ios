@@ -8,6 +8,7 @@
 
 import Foundation
 import Testing
+import TangemSdk
 @testable import Tangem
 
 @Suite("Tests for what a joint account's members service says about its slots")
@@ -110,6 +111,24 @@ struct CommonJointAccountMembersServiceTests {
 
         #expect(sut.isCreatorDevice)
     }
+
+    // MARK: - Own address
+
+    @Test("The wallet's own address is the one of the key stored at the account's derivation path")
+    func ownAddressComesFromTheStoredKey() {
+        let index = JointAccountCompositionFixture.derivationIdentity.derivationIndex
+        let sut = Self.makeSUT(storedKeyPath: JointAccountKeyPath.derivationPath(forAccountAtIndex: index))
+
+        #expect(sut.ownAddress?.lowercased() == Self.derivedAddress.lowercased())
+    }
+
+    @Test("Without a key stored for this account the wallet's own address is unknown")
+    func ownAddressIsUnknownWithoutTheStoredKey() {
+        let otherIndex = JointAccountCompositionFixture.derivationIdentity.derivationIndex + 1
+        let sut = Self.makeSUT(storedKeyPath: JointAccountKeyPath.derivationPath(forAccountAtIndex: otherIndex))
+
+        #expect(sut.ownAddress == nil)
+    }
 }
 
 // MARK: - Helpers
@@ -128,6 +147,27 @@ private extension CommonJointAccountMembersServiceTests {
             membersCount: membersCount,
             members: members,
             inviteIds: inviteIds
+        )
+    }
+
+    static let derivedAddress = "0x6ECa00c52AFC728CDbF42E817d712e175bb23C7d"
+
+    static func makeSUT(storedKeyPath: DerivationPath) -> CommonJointAccountMembersService {
+        let derivedKey = ExtendedPublicKey(
+            publicKey: Data(hexString: "0241DCD64B5F4A039FC339A16300A833A883B218909F2EBCAF3906651C76842C45"),
+            chainCode: Data(repeating: 0x11, count: 32)
+        )
+        let masterKey = KeyInfo(
+            publicKey: Data(hexString: "0279BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798"),
+            chainCode: Data(repeating: 0x11, count: 32),
+            curve: .secp256k1,
+            isImported: false,
+            derivedKeys: [storedKeyPath: derivedKey]
+        )
+
+        return JointAccountCompositionFixture.makeMembersService(
+            repository: JointAccountsRepositoryStub(),
+            keysProvider: KeysRepositoryTestsMock(keys: [masterKey])
         )
     }
 

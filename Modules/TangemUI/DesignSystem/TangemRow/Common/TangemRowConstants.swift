@@ -28,11 +28,11 @@ public enum TangemRowConstants {
     }
 
     enum Spacings {
-        static let imageSpacing = SizeUnit.x3
-        static let multilineSpacing = SizeUnit.x1
+        static let imageSpacing: CGFloat = 12
+        static let multilineSpacing: CGFloat = 4
 
-        static let topLineInnerSpacing = SizeUnit.x1
-        static let bottomLineInnerSpacing = SizeUnit.x1
+        static let topLineInnerSpacing: CGFloat = 4
+        static let bottomLineInnerSpacing: CGFloat = 4
     }
 
     enum Layout {

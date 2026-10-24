@@ -116,6 +116,54 @@
         <string>%li トークン</string>
       </dict>
     </dict>
+    <key>joint_account_invite_members_awaiting_to_join</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Awaiting for %li member to join</string>
+        <key>other</key>
+        <string>Awaiting for %li members to join</string>
+      </dict>
+    </dict>
+    <key>joint_account_invite_members_invite_more</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Invite %li more member</string>
+        <key>other</key>
+        <string>Invite %li more members</string>
+      </dict>
+    </dict>
+    <key>joint_account_invite_members_still_need_to_join</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li member still needs to join</string>
+        <key>other</key>
+        <string>%li members still need to join</string>
+      </dict>
+    </dict>
     <key>joint_account_join_signatures_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -144,6 +192,22 @@
         <string>li</string>
         <key>other</key>
         <string>%li人</string>
+      </dict>
+    </dict>
+    <key>joint_account_members_still_need_to_confirm</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li member still needs to confirm</string>
+        <key>other</key>
+        <string>%li members still need to confirm</string>
       </dict>
     </dict>
     <key>joint_account_send_signatures_required_banner</key>
@@ -451,6 +515,22 @@
         <string>li</string>
         <key>other</key>
         <string>アドレスを同期して、%liネットワークのアドレスを取得します</string>
+      </dict>
+    </dict>
+    <key>yield_module_main_promo_tokens_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Choose from %li token</string>
+        <key>other</key>
+        <string>Choose from %li tokens</string>
       </dict>
     </dict>
   </dict>

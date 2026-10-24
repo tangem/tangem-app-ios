@@ -18,9 +18,9 @@ enum MarketsTokenItemsProvider {
         supportedBlockchains: Set<Blockchain>,
         cryptoAccount: any CryptoAccountModel
     ) -> [TokenItem] {
-        let filteredBlockchains = !cryptoAccount.isMainAccount
-            ? AccountDerivationPathHelper.filterBlockchainsSupportingAccounts(supportedBlockchains)
-            : supportedBlockchains
+        let filteredBlockchains = supportedBlockchains.filter {
+            AccountBlockchainManageabilityChecker.canManageBlockchain($0, for: cryptoAccount)
+        }
 
         let tokenItemMapper = TokenItemMapper(supportedBlockchains: filteredBlockchains)
 

@@ -67,20 +67,13 @@ private extension ActionsMenu {
         CollectiblesDevnetMenu(viewModel: viewModel.devnet)
     }
 
-    @ViewBuilder
     var trigger: some View {
-        let icon = DesignSystem.Icons.DotsVertical.regular20.image
+        DesignSystem.Icons.DotsVertical.regular20.image
             .resizable()
             .renderingMode(.template)
             .foregroundStyle(DesignSystem.Color.iconPrimary)
             .frame(size: CGSize(bothDimensions: Metrics.iconSide))
-            .padding(Metrics.iconPadding)
-
-        if #available(iOS 26.0, *) {
-            icon.glassEffect(.regular.interactive(), in: .circle)
-        } else {
-            icon.background(Circle().fill(Colors.Button.secondary))
-        }
+            .contentShape(.rect)
     }
 }
 
@@ -89,7 +82,6 @@ private extension ActionsMenu {
 private extension ActionsMenu {
     enum Metrics {
         static let iconSide: CGFloat = 20
-        static let iconPadding: CGFloat = 12
     }
 }
 

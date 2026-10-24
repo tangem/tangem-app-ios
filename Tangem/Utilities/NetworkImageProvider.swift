@@ -213,6 +213,10 @@ struct NetworkImageProvider: NFTChainIconProvider {
             filled ? Tokens.electroneumFill : Tokens.electroneum
         case .arc:
             filled ? Tokens.arcFill : Tokens.arc
+        case .publicMasterpiece:
+            filled ? Tokens.publicmasterpieceFill : Tokens.publicmasterpiece
+        case .onyx:
+            filled ? Tokens.onyxFill : Tokens.onyx
         case .seiEvm:
             filled ? Tokens.seiFill : Tokens.sei
         }

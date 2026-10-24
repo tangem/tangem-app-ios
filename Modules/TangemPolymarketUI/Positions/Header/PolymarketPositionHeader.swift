@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemFoundation
 import TangemUI
 
 public struct PolymarketPositionHeader: View {
@@ -48,10 +49,21 @@ public struct PolymarketPositionHeader: View {
                 .aspectRatio(contentMode: .fit)
                 .frame(width: Constants.changeIconSide, height: Constants.changeIconSide)
                 .foregroundStyle(model.changeType.iconColor)
+                .accessibilityHidden(true)
 
             Text(model.changeText)
                 .style(DesignSystem.Font.headingMediumToken, color: model.changeType.color)
                 .lineLimit(1)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(changeAccessibilityLabel)
+    }
+
+    private var changeAccessibilityLabel: String {
+        switch model.changeType {
+        case .positive: "\(String.plusSign) \(model.changeText)"
+        case .negative: "\(String.minusSign) \(model.changeText)"
+        case .neutral: model.changeText
         }
     }
 

@@ -61,17 +61,23 @@ final class CampaignUserWalletModelStub: UserWalletModelMock {
     private let isLocked: Bool
     private let stubbedConfig: UserWalletConfig
     private let userTokensManager: UserTokensManager
+    private let walletModelsManager: WalletModelsManager
+    private let jointAccounts: [any JointAccountModel]
 
     init(
         walletIdSeed: String,
         isLocked: Bool = false,
         config: UserWalletConfig = UserWalletConfigStub(),
-        userTokensManager: UserTokensManager = UserTokensManagerMock()
+        userTokensManager: UserTokensManager = UserTokensManagerMock(),
+        walletModelsManager: WalletModelsManager = WalletModelsManagerMock(),
+        jointAccounts: [any JointAccountModel] = []
     ) {
         id = UserWalletId(value: Data(walletIdSeed.utf8))
         self.isLocked = isLocked
         stubbedConfig = config
         self.userTokensManager = userTokensManager
+        self.walletModelsManager = walletModelsManager
+        self.jointAccounts = jointAccounts
     }
 
     override var userWalletId: UserWalletId { id }
@@ -79,13 +85,14 @@ final class CampaignUserWalletModelStub: UserWalletModelMock {
     override var config: UserWalletConfig { stubbedConfig }
     override var signer: TangemSigner { TangemSignerStub() }
     override var accountModelsManager: AccountModelsManager {
-        AccountModelsManagerStub(
-            account: CryptoAccountModelMock(
-                isMainAccount: true,
-                userTokensManager: userTokensManager,
-                onArchive: { _ in }
-            )
+        let mainAccount = CryptoAccountModelMock(
+            isMainAccount: true,
+            walletModelsManager: walletModelsManager,
+            userTokensManager: userTokensManager,
+            onArchive: { _ in }
         )
+
+        return AccountModelsManagerStub(accounts: [.standard(.single(mainAccount))] + (jointAccounts.isEmpty ? [] : [.joint(jointAccounts)]))
     }
 }
 
@@ -131,7 +138,10 @@ final class AccountModelsManagerStub: AccountModelsManager {
         throw .tooManyAccounts
     }
 
+    func reloadAccountsFromRemote() async {}
+
     func acceptTangemPayOffer(authorizingInteractor: TangemPayAuthorizing) async {}
+    func authorizeTangemPayOfferForResidency(authorizingInteractor: any TangemPayAuthorizing) async -> (any TangemPayResidencyInteractor)? { nil }
     func acceptTangemPayCampaignOffer(authorizingInteractor: TangemPayAuthorizing, campaignKey: String) async {}
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {}
     func dispose() {}
@@ -199,7 +209,7 @@ enum CampaignsFixtures {
     }
 
     static func makeBannerData(
-        tokens: [BannerPromotion.Response.Token] = [PromotionCampaignsFixtures.makeToken()],
+        tokens: [CampaignEligibleToken] = [PromotionCampaignsFixtures.makeEligibleToken()],
         start: Date = Date().addingTimeInterval(-.day),
         end: Date = Date().addingTimeInterval(.day),
         status: BannerPromotion.Response.Status = .active,
@@ -217,4 +227,44 @@ enum CampaignsFixtures {
 
 private extension TimeInterval {
     static let day: TimeInterval = 86400
+}
+
+enum PromoCampaignEnrollmentFixtures {
+    static func wallet(name: String, hasPayout: Bool) -> PromoCampaignEnrollmentWallet {
+        PromoCampaignEnrollmentWallet(
+            name: name,
+            subtitle: "3 cards",
+            imageProvider: CardImageProviderMock(),
+            payout: hasPayout ? PromoCampaignEnrollmentWallet.Payout(
+                address: "0x33Bd321f9a0c4e1b7d2E5f8a6C3b21412B"
+            ) : nil
+        )
+    }
+
+    static func enrolledWallet(name: String) -> PromoCampaignEnrolledWalletViewModel {
+        PromoCampaignEnrolledWalletViewModel(
+            name: name,
+            subtitle: "3 cards",
+            imageProvider: CardImageProviderMock(),
+            isUserWalletLocked: false,
+            totalBalancePublisher: .just(output: .empty)
+        )
+    }
+}
+
+enum CampaignJointAccountFixtures {
+    private static let delegate = JointAccountModelDelegateMock()
+
+    static func makeJointAccount(walletModelsManager: WalletModelsManager = WalletModelsManagerMock()) -> any JointAccountModel {
+        CommonJointAccountModel(
+            cryptoAccount: CryptoAccountModelMock(isMainAccount: false, walletModelsManager: walletModelsManager, onArchive: { _ in }),
+            derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
+            accountPolicy: JointAccountPolicy(membersCount: 2, signersCount: 2),
+            accountStatus: .active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"),
+            operationsService: JointAccountOperationsServiceMock(),
+            pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
+            membersService: JointAccountMembersServiceMock(),
+            delegate: delegate
+        )
+    }
 }

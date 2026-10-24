@@ -18,4 +18,10 @@ enum JointAccountSupportedBlockchains {
         .bsc(testnet: false),
         .polygon(testnet: false),
     ]
+
+    private static let networkIds = Set(all.map(\.networkId))
+
+    static func contains(_ blockchain: Blockchain) -> Bool {
+        networkIds.contains(blockchain.networkId)
+    }
 }

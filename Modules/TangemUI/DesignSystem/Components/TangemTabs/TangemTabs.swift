@@ -28,9 +28,9 @@ public struct TangemTabs<Data>: View
         self.data = data
         _selection = selection
 
-        _spacing = ScaledMetric(wrappedValue: .unit(.x2))
-        _contentHorizontalPadding = ScaledMetric(wrappedValue: .unit(.x3))
-        _contentVerticalPadding = ScaledMetric(wrappedValue: .unit(.x2))
+        _spacing = ScaledMetric(wrappedValue: 8)
+        _contentHorizontalPadding = ScaledMetric(wrappedValue: 12)
+        _contentVerticalPadding = ScaledMetric(wrappedValue: 8)
     }
 
     public var body: some View {

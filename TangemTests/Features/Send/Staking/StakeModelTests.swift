@@ -34,6 +34,54 @@ final class StakeModelTests: LeakTrackingTestSuite {
         #expect(ready.fee == 2)
     }
 
+    @Test("A flow that opens with a known target estimates the fee once")
+    func knownTargetEstimatesOnce() async throws {
+        let manager = StakingManagerMock(estimateFeeResult: .success(1))
+        let model = makeModel(stakingManager: manager) {
+            EthereumP2PStakingFlowProvider(
+                action: StakingAction(amount: 7, targetType: .target(.stub()), type: .pending(.withdraw(passthroughs: ["p"]))),
+                stages: $0
+            )
+        }
+
+        _ = try await awaitReady(model)
+        #expect(manager.estimateFeeCallsCount == 1)
+    }
+
+    @Test("A partial unstake estimates the preset amount on open")
+    func presetAmountEstimatedOnOpen() async throws {
+        let manager = StakingManagerMock(estimateFeeResult: .success(1))
+        let model = makeModel(stakingManager: manager) {
+            EthereumP2PStakingFlowProvider(
+                action: StakingAction(amount: 7, targetType: .target(.stub()), type: .unstake),
+                stages: $0
+            )
+        }
+
+        let ready = try await awaitReady(model)
+        #expect(ready.amount == 7)
+        #expect(manager.estimateFeeCallsCount == 1)
+    }
+
+    @Test("A validator-selecting flow estimates only once a validator is picked")
+    func validatorFlowWaitsForPick() async throws {
+        let manager = StakingManagerMock(estimateFeeResult: .success(1))
+        let model = makeModel(stakingManager: manager) {
+            EthereumP2PStakingFlowProvider(
+                action: StakingAction(amount: 0, targetType: .empty, type: .stake),
+                stages: $0
+            )
+        }
+        #expect(manager.estimateFeeCallsCount == 0)
+
+        model.sourceAmountDidChanged(amount: SendAmount(type: .typical(crypto: 5, fiat: nil)))
+        model.userDidSelect(target: .stub())
+
+        let ready = try await awaitReady(model)
+        #expect(ready.amount == 5)
+        #expect(manager.estimateFeeCallsCount == 1)
+    }
+
     @Test("An editable flow resolves once an amount is entered")
     func editableResolvesAfterAmount() async throws {
         // P2P partial unstake: amount is editable, the target rides on the action (no validator step to wait for).
@@ -256,8 +304,7 @@ final class StakeModelTests: LeakTrackingTestSuite {
             analyticsLogger: StakeModelAnalyticsLoggerMock(),
             autoupdatingTimer: AutoupdatingTimer(),
             initialAmount: makeInitialAmount(stepPlan: stepPlan, token: token),
-            initialTarget: makeInitialTarget(stepPlan: stepPlan, provider: builtProvider),
-            shouldUpdateStateInitially: !stepPlan.amount.isEditable && !stepPlan.hasValidatorSelection
+            initialTarget: makeInitialTarget(stepPlan: stepPlan, provider: builtProvider)
         )
     }
 

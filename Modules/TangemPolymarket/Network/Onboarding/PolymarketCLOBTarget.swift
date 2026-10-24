@@ -22,7 +22,7 @@ struct PolymarketCLOBTarget: Moya.TargetType {
         case balanceAllowance
         case placeOrder(body: Data)
         case order(id: String)
-        case price(tokenId: String, side: PolymarketOrderSide)
+        case price(tokenId: String, orderSide: PolymarketOrderSide)
     }
 
     var path: String {
@@ -54,9 +54,9 @@ struct PolymarketCLOBTarget: Moya.TargetType {
             return .requestPlain
         case .placeOrder(let body):
             return .requestData(body)
-        case .price(let tokenId, let side):
+        case .price(let tokenId, let orderSide):
             return .requestParameters(
-                parameters: [Constants.tokenIdKey: tokenId, Constants.sideKey: side.rawValue],
+                parameters: [Constants.tokenIdKey: tokenId, Constants.sideKey: orderSide.matchingBookSide.rawValue],
                 encoding: URLEncoding.queryString
             )
         case .updateBalanceAllowance, .balanceAllowance:

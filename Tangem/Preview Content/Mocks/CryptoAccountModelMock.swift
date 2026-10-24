@@ -53,7 +53,7 @@ final class CryptoAccountModelMock {
     ) {
         // A wallet of its own per mock, so that two of them never answer to the same identifier
         id = CryptoAccountModelId(
-            userWalletId: UserWalletId(value: .randomData(count: 32)),
+            userWalletId: UserWalletId(value: Data.uniqueMockWalletID()),
             derivationIdentity: CryptoAccountDerivationIdentity(
                 derivationIndex: isMainAccount ? AccountModelUtils.mainAccountDerivationIndex : 1,
                 type: accountType
@@ -159,5 +159,17 @@ extension CryptoAccountModelMock {
         func setIcon(_ icon: AccountModel.CompositeIcon) {
             cryptoAccountModel.icon = icon
         }
+    }
+}
+
+// MARK: - Identifier
+
+private extension Data {
+    static func uniqueMockWalletID() -> Data {
+        Data((0 ..< Constants.walletIDLength).map { _ in UInt8.random(in: .min ... .max) })
+    }
+
+    enum Constants {
+        static let walletIDLength = 32
     }
 }

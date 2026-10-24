@@ -20,6 +20,8 @@ enum WCNotificationEvent: Equatable {
     case suspiciousTransaction(description: String)
     case maliciousTransaction(description: String)
     case validationFailed
+    case recipientIsNotContract(blockchainName: String)
+    case chainMismatch(blockchainName: String, declaredChainId: Int)
 }
 
 extension WCNotificationEvent {
@@ -28,11 +30,20 @@ extension WCNotificationEvent {
         case simulationValidation
     }
 
+    var blocksSigning: Bool {
+        switch self {
+        case .chainMismatch:
+            return true
+        default:
+            return false
+        }
+    }
+
     var notificationType: NotificationType {
         switch self {
         case .customFeeTooHigh, .customFeeTooLow, .insufficientBalance, .insufficientBalanceForFee, .networkFeeUnreachable:
             return .feeValidation
-        case .suspiciousTransaction, .maliciousTransaction, .validationFailed:
+        case .suspiciousTransaction, .maliciousTransaction, .validationFailed, .recipientIsNotContract, .chainMismatch:
             return .simulationValidation
         }
     }
@@ -49,6 +60,8 @@ extension WCNotificationEvent: NotificationEvent {
         case .suspiciousTransaction: "wcSuspiciousTransaction".hashValue
         case .maliciousTransaction: "wcMaliciousTransaction".hashValue
         case .validationFailed: "validationFailed".hashValue
+        case .recipientIsNotContract: "wcRecipientIsNotContract".hashValue
+        case .chainMismatch: "wcChainMismatch".hashValue
         }
     }
 
@@ -70,6 +83,8 @@ extension WCNotificationEvent: NotificationEvent {
             return .string(Localization.wcMaliciousTransaction)
         case .validationFailed:
             return .string(Localization.wcUnknownTxNotificationTitle)
+        case .recipientIsNotContract, .chainMismatch:
+            return .string(Localization.commonSomethingWentWrong)
         }
     }
 
@@ -91,6 +106,10 @@ extension WCNotificationEvent: NotificationEvent {
             return description
         case .validationFailed:
             return Localization.wcUnknownTxNotificationDescription
+        case .recipientIsNotContract:
+            return Localization.genericErrorCode("wcRecipientIsNotContract")
+        case .chainMismatch:
+            return Localization.genericErrorCode("wcChainMismatch")
         }
     }
 
@@ -98,7 +117,7 @@ extension WCNotificationEvent: NotificationEvent {
         switch self {
         case .customFeeTooHigh, .customFeeTooLow, .suspiciousTransaction, .validationFailed:
             return .secondary
-        case .insufficientBalance, .insufficientBalanceForFee, .networkFeeUnreachable, .maliciousTransaction:
+        case .insufficientBalance, .insufficientBalanceForFee, .networkFeeUnreachable, .maliciousTransaction, .recipientIsNotContract, .chainMismatch:
             return .action
         }
     }
@@ -107,7 +126,7 @@ extension WCNotificationEvent: NotificationEvent {
         switch self {
         case .customFeeTooHigh, .customFeeTooLow, .suspiciousTransaction, .validationFailed:
             return .init(iconType: .image(Assets.attention))
-        case .insufficientBalance, .insufficientBalanceForFee, .networkFeeUnreachable, .maliciousTransaction:
+        case .insufficientBalance, .insufficientBalanceForFee, .networkFeeUnreachable, .maliciousTransaction, .recipientIsNotContract, .chainMismatch:
             return .init(iconType: .image(Assets.redCircleWarning))
         }
     }
@@ -116,7 +135,7 @@ extension WCNotificationEvent: NotificationEvent {
         switch self {
         case .customFeeTooHigh, .customFeeTooLow, .suspiciousTransaction, .validationFailed:
             return .warning
-        case .insufficientBalance, .insufficientBalanceForFee, .networkFeeUnreachable, .maliciousTransaction:
+        case .insufficientBalance, .insufficientBalanceForFee, .networkFeeUnreachable, .maliciousTransaction, .recipientIsNotContract, .chainMismatch:
             return .critical
         }
     }

@@ -41,10 +41,26 @@ final class TangemPayAddFundsSheet: ScreenBase<TangemPayAddFundsSheetElement> {
     }
 
     @discardableResult
-    func tapBankTransfer() -> TangemPayVirtualAccountInfoSheet {
+    func tapBankTransfer() -> TangemPayVirtualAccountOnboardingScreen {
         XCTContext.runActivity(named: "Tap Bank transfer option on Add Funds sheet") { _ in
             bankTransferOptionButton.waitAndTap()
-            return TangemPayVirtualAccountInfoSheet(app)
+            return TangemPayVirtualAccountOnboardingScreen(app)
+        }
+    }
+
+    @discardableResult
+    func tapBankTransferExpectingDetails() -> TangemPayVirtualAccountDetailsScreen {
+        XCTContext.runActivity(named: "Tap Bank transfer option to open Virtual account details") { _ in
+            bankTransferOptionButton.waitAndTap()
+            return TangemPayVirtualAccountDetailsScreen(app)
+        }
+    }
+
+    @discardableResult
+    func tapBankTransferExpectingError() -> TangemPayVirtualAccountBankDetailsErrorSheet {
+        XCTContext.runActivity(named: "Tap Bank transfer option expecting the banking details error") { _ in
+            bankTransferOptionButton.waitAndTap()
+            return TangemPayVirtualAccountBankDetailsErrorSheet(app)
         }
     }
 
@@ -74,19 +90,27 @@ final class TangemPayAddFundsSheet: ScreenBase<TangemPayAddFundsSheetElement> {
 
     @discardableResult
     func verifyOptionsOrder() -> Self {
-        XCTContext.runActivity(named: "Verify Add Funds options are ordered bank transfer, swap, receive") { _ in
-            waitAndAssertTrue(bankTransferOptionButton, "Bank transfer option should be displayed")
+        XCTContext.runActivity(named: "Verify Add Funds options are ordered swap, receive, bank transfer") { _ in
             waitAndAssertTrue(swapOptionButton, "Swap option should be displayed")
             waitAndAssertTrue(receiveOptionButton, "Receive option should be displayed")
+            waitAndAssertTrue(bankTransferOptionButton, "Bank transfer option should be displayed")
 
-            XCTAssertTrue(
-                bankTransferOptionButton.frame.minY < swapOptionButton.frame.minY,
-                "Bank transfer option should be listed above the Swap option"
-            )
             XCTAssertTrue(
                 swapOptionButton.frame.minY < receiveOptionButton.frame.minY,
                 "Swap option should be listed above the Receive option"
             )
+            XCTAssertTrue(
+                receiveOptionButton.frame.minY < bankTransferOptionButton.frame.minY,
+                "Receive option should be listed above the Bank transfer option"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyBankTransferOptionTitle(_ title: String) -> Self {
+        XCTContext.runActivity(named: "Verify the bank account option title is '\(title)'") { _ in
+            verifyLabel(of: bankTransferOptionButton, contains: [title], name: title)
             return self
         }
     }

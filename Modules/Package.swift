@@ -36,7 +36,7 @@ let package = Package(
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.9.0")),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMajor(from: "1.9.0")),
         .package(url: "https://github.com/groue/GRDB.swift.git", .upToNextMajor(from: "7.1.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "5.2.3"),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "5.3.2"),
         // When a Swift macro target (`TangemMacro`) is used in the same package (`TangemModules`) in which it is defined,
         // and that package contains a test target (`BlockchainSdkTests`) that uses macros from that macro target,
         // this causes linker to incorrectly link the macros target plugin (build for macOS) into the iOS test binary,
@@ -57,6 +57,9 @@ let package = Package(
         // CombineExt
         // CryptoSwift
         .package(url: "git@github.com:tangem-developments/grpc-swift.git", exact: "1.26.2-tangem1"),
+        .package(url: "https://github.com/apple/swift-log.git", .upToNextMajor(from: "1.4.4")),
+        .package(url: "https://github.com/apple/swift-nio.git", .upToNextMajor(from: "2.65.0")),
+        .package(url: "https://github.com/apple/swift-nio-http2.git", .upToNextMajor(from: "1.36.0")),
         .package(url: "git@github.com:tangem-developments/hiero-sdk-swift.git", exact: "0.49.0-tangem4"),
         .package(url: "git@github.com:tangem-developments/IcpKit.git", exact: "0.1.2-tangem5"),
         // Moya
@@ -92,10 +95,15 @@ var serviceModules: [PackageDescription.Target] {
                 .product(name: "BitcoinDevKit", package: "bdk-swift"),
                 "CombineExt",
                 "CryptoSwift",
-                .product(name: "GRPC", package: "grpc-swift"), // Not used directly, a transitive dependency of `hiero-sdk-swift`
+                .product(name: "GRPC", package: "grpc-swift"),
                 .product(name: "Hiero", package: "hiero-sdk-swift"),
                 "IcpKit",
+                .product(name: "Logging", package: "swift-log"),
                 "Moya",
+                .product(name: "NIO", package: "swift-nio"),
+                .product(name: "NIOConcurrencyHelpers", package: "swift-nio"),
+                .product(name: "NIOCore", package: "swift-nio"),
+                .product(name: "NIOHTTP2", package: "swift-nio-http2"),
                 .product(name: "OrderedCollections", package: "swift-collections"),
                 "PotentCodables", // For `PotentCBOR` only
                 .product(name: "ScaleCodec", package: "ScaleCodec.swift"),
@@ -341,8 +349,13 @@ var featureModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemSocialAuthentication",
             dependencies: [
+                .product(name: "Alamofire", package: "Alamofire"),
+                "Moya",
+                "TangemBackendAuthentication",
                 "TangemFoundation",
                 "TangemLogger",
+                "TangemMobileWalletBackup",
+                "TangemNetworkUtils",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -395,9 +408,18 @@ var featureModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemCollectibles",
             dependencies: [
+                "BlockchainSdk",
                 .product(name: "SolanaSwift", package: "Solana.Swift"),
+                .product(name: "TangemSdk", package: "tangem-sdk-ios"),
+                "TangemFoundation",
+                "TangemLogger",
+                "TangemMacro",
+                "TangemMobileWalletSdk",
             ],
-            swiftSettings: .swift6StrictSettings
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
         ),
         .tangemTarget(
             name: "TangemPay",
@@ -414,6 +436,18 @@ var featureModules: [PackageDescription.Target] {
                 // [REDACTED_TODO_COMMENT]
                 .swiftLanguageMode(.v5),
             ]
+        ),
+        .tangemTarget(
+            name: "TangemDesignSystemShowcase",
+            dependencies: [
+                "Kingfisher",
+                "TangemAssets",
+                "TangemFoundation",
+                "TangemLocalization",
+                "TangemUI",
+                "TangemUIUtils",
+            ],
+            swiftSettings: .swift6StrictSettings
         ),
         .tangemTarget(
             name: "TangemStories",
@@ -454,6 +488,7 @@ var unitTestsModules: [PackageDescription.Target] {
                 .product(name: "ScaleCodec", package: "ScaleCodec.swift"),
                 .product(name: "stellarsdk", package: "stellar-ios-mac-sdk"),
                 .product(name: "Hiero", package: "hiero-sdk-swift"),
+                .product(name: "GRPC", package: "grpc-swift"),
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]

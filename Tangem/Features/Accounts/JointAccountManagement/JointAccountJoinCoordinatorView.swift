@@ -13,6 +13,14 @@ struct JointAccountJoinCoordinatorView: View {
     @ObservedObject var coordinator: JointAccountJoinCoordinator
 
     var body: some View {
+        if let jointAccountManagementCoordinator = coordinator.jointAccountManagementCoordinator {
+            JointAccountManagementCoordinatorView(coordinator: jointAccountManagementCoordinator)
+        } else {
+            joinFlow
+        }
+    }
+
+    private var joinFlow: some View {
         NavigationStack(path: $coordinator.path) {
             ZStack {
                 DesignSystem.Color.bgPrimary.ignoresSafeArea()

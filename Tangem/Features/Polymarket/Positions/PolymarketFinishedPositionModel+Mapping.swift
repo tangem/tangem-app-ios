@@ -31,8 +31,8 @@ private extension PolymarketFinishedPositionSheetView.Model {
         PolymarketPositionHeader.Model(
             iconURL: closedPosition.iconURL,
             changeText: PolymarketPositionRow.Model.changeText(closedPosition: closedPosition),
-            changeType: PriceChangeView.ChangeType(from: closedPosition.realizedPnl),
-            valueText: PolymarketOrderFormatter.money(abs(closedPosition.realizedPnl)),
+            changeType: PriceChangeView.ChangeType(from: PolymarketOrderFormatter.displayedMoney(closedPosition.realizedPnl)),
+            valueText: PolymarketOrderFormatter.money(abs(PolymarketOrderFormatter.displayedMoney(closedPosition.realizedPnl))),
             question: closedPosition.title.nilIfEmpty ?? Localization.predictionPositionsUnavailable,
             outcomeTitle: closedPosition.outcome,
             outcomeStyle: PolymarketOutcomeStyle(outcomeIndex: closedPosition.outcomeIndex, name: closedPosition.outcome),

@@ -18,6 +18,7 @@ public struct ExpressSwappableDataItem {
     public let providerInfo: ProviderInfo
     public let operationType: ExpressOperationType
     public let quoteId: String?
+    public let slippage: Decimal?
 
     public var amount: Decimal {
         amountType.amount

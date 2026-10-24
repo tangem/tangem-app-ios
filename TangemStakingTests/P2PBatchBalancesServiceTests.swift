@@ -173,7 +173,8 @@ final class P2PBatchBalancesServiceTests: XCTestCase {
             rewardType: .apy,
             rewardRate: .zero,
             status: .active,
-            maximumStakeAmount: nil
+            maximumStakeAmount: nil,
+            allowsPartialUnstake: true
         )
 
         return StakingYieldInfo(
@@ -190,6 +191,7 @@ final class P2PBatchBalancesServiceTests: XCTestCase {
             warmupPeriod: .days(0),
             rewardClaimingType: .auto,
             rewardScheduleType: .daily,
+            rewardsIncludedInStake: true,
             maximumStakeAmount: nil
         )
     }

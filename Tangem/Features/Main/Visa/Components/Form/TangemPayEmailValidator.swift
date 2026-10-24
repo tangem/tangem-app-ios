@@ -18,6 +18,6 @@ enum TangemPayEmailValidator {
 
 private extension TangemPayEmailValidator {
     enum Constants {
-        static let pattern = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+        static let pattern = "^(?=.{1,254}$)[^@\\s]+@[^@\\s.]+\\.[^@\\s]{2,}$"
     }
 }

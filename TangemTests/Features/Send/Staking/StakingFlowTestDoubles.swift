@@ -17,7 +17,12 @@ import TangemUI
 // MARK: - StakingTargetInfo
 
 extension StakingTargetInfo {
-    static func stub(address: String = "0xvault", preferred: Bool = true) -> StakingTargetInfo {
+    static func stub(
+        address: String = "0xvault",
+        preferred: Bool = true,
+        status: StakingTargetInfoStatus = .active,
+        allowsPartialUnstake: Bool = true
+    ) -> StakingTargetInfo {
         StakingTargetInfo(
             address: address,
             name: "Validator",
@@ -26,7 +31,8 @@ extension StakingTargetInfo {
             image: nil,
             rewardType: .apr,
             rewardRate: 0,
-            status: .active
+            status: status,
+            allowsPartialUnstake: allowsPartialUnstake
         )
     }
 }
@@ -41,6 +47,9 @@ final class StakingManagerMock: StakingManager {
     var estimateFeeResult: Result<Decimal, Error>
     var transactionResult: Result<StakingTransactionAction, Error> = .failure(StakingManagerMockError.notStubbed)
     private(set) var sentActions: [StakingAction] = []
+    private let _estimateFeeCallsCount = OSAllocatedUnfairLock(initialState: 0)
+
+    var estimateFeeCallsCount: Int { _estimateFeeCallsCount.withLock { $0 } }
 
     init(
         state: StakingManagerState = .loading(cached: nil),
@@ -63,7 +72,11 @@ final class StakingManagerMock: StakingManager {
     func send(state: StakingManagerState) { stateSubject.send(state) }
 
     func updateState(loadActions: Bool, source: StakingUpdateSource) async {}
-    func estimateFee(action: StakingAction) async throws -> Decimal { try estimateFeeResult.get() }
+    func estimateFee(action: StakingAction) async throws -> Decimal {
+        _estimateFeeCallsCount.withLock { $0 += 1 }
+        return try estimateFeeResult.get()
+    }
+
     func transaction(action: StakingAction) async throws -> StakingTransactionAction { try transactionResult.get() }
     func transactionDidSent(action: StakingAction) { sentActions.append(action) }
 }
@@ -223,6 +236,7 @@ final class SendStakingableTokenStub: SendStakingableToken {
     var tangemIconProvider: any TangemIconProvider { StakingTangemIconProviderStub() }
     var confirmTransactionPolicy: any ConfirmTransactionPolicy { StakingConfirmTransactionPolicyStub() }
     var isTangemPayAccount: Bool { false }
+    var jointAccountPolicy: JointAccountPolicy? { nil }
 
     var transactionCreator: SendTransactionCreator { SendTransactionCreatorStub() }
 }

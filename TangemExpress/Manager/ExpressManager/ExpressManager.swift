@@ -14,6 +14,7 @@ import BlockchainSdk
 public protocol ExpressManager: Actor {
     func getCurrentPair() async -> ExpressManagerSwappingPair?
     func getAmountType() async -> ExpressAmountType?
+    func getSlippage() async -> Decimal?
 
     /// Recreates providers. Does not update quotes.
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerState
@@ -23,6 +24,9 @@ public protocol ExpressManager: Actor {
 
     /// Updates state (fee) for the selected provider with a new `ApprovePolicy`.
     func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState
+
+    /// Sets a user-chosen slippage as a fraction (0.005 = 0.5%), or nil to fall back to each provider's default.
+    func update(slippage: Decimal?) async -> ExpressManagerState
 
     /// Preserves the selected provider across autoupdate cycles.
     func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState

@@ -24,6 +24,8 @@ struct WalletInitializerParameters {
     let hasMnemonicBackup: Bool
     /// Whether a backup of the wallet being initialized already exists in iCloud.
     let hasICloudBackup: Bool
+    /// Whether the wallet being initialized was created through social login.
+    let hasSocialLogin: Bool
 }
 
 final class MobileWalletInitializer: WalletInitializer {
@@ -50,6 +52,7 @@ final class MobileWalletInitializer: WalletInitializer {
         var mobileWalletInfo = MobileWalletInfo(
             hasMnemonicBackup: parameters.hasMnemonicBackup,
             hasICloudBackup: parameters.hasICloudBackup,
+            hasSocialLogin: parameters.hasSocialLogin,
             accessCodeStatus: .none,
             keys: []
         )

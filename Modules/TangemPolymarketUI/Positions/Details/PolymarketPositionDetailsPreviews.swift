@@ -63,6 +63,7 @@ private extension PolymarketPositionDetailsView.Model {
             .init(title: "Status", value: "Open"),
             .init(title: "Resolution Date", value: "22.03.2026"),
         ],
+        openEventDetails: {},
         secondaryAction: .init(title: "Close", isEnabled: true, perform: {}),
         primaryAction: .init(title: "Buy", isEnabled: true, perform: {})
     )
@@ -98,6 +99,7 @@ private extension PolymarketPositionDetailsView.Model {
             .init(title: "Status", value: "Pending", subvalue: "Awaiting the final result"),
             .init(title: "Resolution Date", value: "22.03.2026", hasHint: true),
         ],
+        openEventDetails: {},
         secondaryAction: .init(title: "Close", isEnabled: false, perform: {}),
         primaryAction: .init(title: "Buy", isEnabled: false, perform: {})
     )
@@ -115,6 +117,7 @@ private extension PolymarketPositionDetailsView.Model {
             stats: stats,
             rows: rows.map { $0.title == "Status" ? .init(title: $0.title, value: status) : $0 },
             notice: notice,
+            openEventDetails: {},
             secondaryAction: secondaryAction.map { .init(title: $0.title, isEnabled: false, perform: $0.perform) },
             primaryAction: primaryAction.map { .init(title: $0.title, isEnabled: false, perform: $0.perform) }
         )

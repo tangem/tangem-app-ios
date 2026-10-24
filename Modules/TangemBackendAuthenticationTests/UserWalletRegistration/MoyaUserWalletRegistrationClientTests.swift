@@ -169,7 +169,7 @@ struct MoyaUserWalletRegistrationClientTests {
             responseBody: TokensResponseFixture.valid(accessToken: expectedAccessToken, refreshToken: expectedRefreshToken)
         )
 
-        let sessionTokens = try await sut.unregister(id: UserWalletId.fake)
+        let sessionTokens = try await sut.unregister(id: UserWalletId.fake, shouldEraseSocialLoginData: false)
 
         #expect(sessionTokens.accessToken.jwt == expectedAccessToken)
         #expect(sessionTokens.refreshToken?.jwt == expectedRefreshToken)
@@ -184,7 +184,7 @@ struct MoyaUserWalletRegistrationClientTests {
         )
 
         let error = try await #require(throws: UserWalletRegistrationClientError.self) {
-            _ = try await sut.unregister(id: UserWalletId.fake)
+            _ = try await sut.unregister(id: UserWalletId.fake, shouldEraseSocialLoginData: false)
         }
 
         guard case .unregisterFailed = error else {
@@ -198,7 +198,7 @@ struct MoyaUserWalletRegistrationClientTests {
         let sut = try Self.makeSUT(statusCode: 404, responseBody: Self.problemDetailBody(.walletNotRegistered))
 
         let error = try await #require(throws: UserWalletRegistrationClientError.self) {
-            _ = try await sut.unregister(id: UserWalletId.fake)
+            _ = try await sut.unregister(id: UserWalletId.fake, shouldEraseSocialLoginData: false)
         }
 
         guard case .wasNotRegistered = error else {
@@ -212,7 +212,7 @@ struct MoyaUserWalletRegistrationClientTests {
         let sut = try Self.makeSUT(statusCode: 404, responseBody: Self.problemDetailBody(.walletAlreadyRegistered))
 
         let error = try await #require(throws: UserWalletRegistrationClientError.self) {
-            _ = try await sut.unregister(id: UserWalletId.fake)
+            _ = try await sut.unregister(id: UserWalletId.fake, shouldEraseSocialLoginData: false)
         }
 
         guard case .unregisterFailed = error else {
@@ -226,7 +226,7 @@ struct MoyaUserWalletRegistrationClientTests {
         let sut = try Self.makeSUT(statusCode: errorStatusCode)
 
         let error = try await #require(throws: UserWalletRegistrationClientError.self) {
-            _ = try await sut.unregister(id: UserWalletId.fake)
+            _ = try await sut.unregister(id: UserWalletId.fake, shouldEraseSocialLoginData: false)
         }
 
         guard case .unregisterFailed = error else {

@@ -54,7 +54,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
 
             texts
 
-            VStack(spacing: viewModel.state == .failed ? 10 : 24) {
+            VStack(spacing: viewModel.state == .failed ? 10 : 12) {
                 feeSection
 
                 banner
@@ -104,7 +104,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
     private var texts: some View {
         VStack(spacing: 8) {
             Text(Localization.tangempayBankTransferIntroTitle)
-                .font(token: DesignSystem.Font.headingMediumToken)
+                .font(token: DesignSystem.Font.headingSmallToken)
                 .foregroundStyle(DesignSystem.Color.textPrimary)
 
             Text(Localization.tangempayBankTransferIntroSubtitle)
@@ -116,88 +116,17 @@ struct TangemPayVirtualAccountInfoSheetView: View {
         .padding(.horizontal, 16)
     }
 
-    @ViewBuilder
     private var feeSection: some View {
-        switch viewModel.state {
-        case .loading:
-            feeList(achFee: nil, fedwireFee: nil, isLoading: true)
-        case .loaded(let achFee, let fedwireFee):
-            feeList(achFee: achFee, fedwireFee: fedwireFee, isLoading: false)
-        case .failed:
-            feeErrorBanner
-        }
-    }
-
-    private func feeList(achFee: String?, fedwireFee: String?, isLoading: Bool) -> some View {
-        let showsAch = isLoading || achFee != nil
-        let showsFedwire = isLoading || fedwireFee != nil
-
-        return VStack(spacing: 12) {
-            HStack(spacing: 0) {
-                Text(Localization.tangempayBankTransferFeeHeader)
-                    .font(token: DesignSystem.Font.subheadingMediumToken)
-                    .foregroundStyle(DesignSystem.Color.textSecondary)
-
-                Spacer(minLength: 0)
-            }
-
-            if showsAch {
-                feeRow(title: Localization.tangempayBankTransferFeeAch, value: achFee, fee: .ach)
-            }
-
-            if showsAch, showsFedwire {
-                DesignSystem.Color.borderSecondary
-                    .frame(height: 2)
-            }
-
-            if showsFedwire {
-                feeRow(title: Localization.tangempayBankTransferFeeFedwire, value: fedwireFee, fee: .fedwire)
-            }
-        }
-        .padding(.horizontal, 16)
-    }
-
-    private var feeErrorBanner: some View {
-        MessageBanner(
-            title: Localization.tangempayBankTransferFeeErrorTitle,
-            description: Localization.tangempayBankTransferFeeErrorSubtitle
+        TangemPayVirtualAccountFeeListView(
+            header: Localization.tangempayBankTransferFeeHeader,
+            state: viewModel.state,
+            rowsHorizontalPadding: 16,
+            reload: viewModel.reloadFees
         )
-        .variant(.error)
-        .slotEnd {
-            DesignSystem.Icons.ArrowRefresh.regular20.image
-                .renderingMode(.template)
-                .foregroundStyle(DesignSystem.Color.iconPrimary)
-        }
-        .onTap(viewModel.reloadFees)
-        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountFeeErrorBanner)
-    }
-
-    private func feeRow(title: String, value: String?, fee: TangemPayAccessibilityIdentifiers.VirtualAccountFee) -> some View {
-        HStack(spacing: 0) {
-            Text(verbatim: title)
-                .font(token: DesignSystem.Font.bodyMediumToken)
-                .foregroundStyle(DesignSystem.Color.textPrimary)
-                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountFeeTitle(fee))
-
-            Spacer(minLength: 0)
-
-            if let value {
-                Text(verbatim: value)
-                    .font(token: DesignSystem.Font.bodyMediumToken)
-                    .foregroundStyle(DesignSystem.Color.textPrimary)
-                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountFeeValue(fee))
-            }
-        }
-        .overlay(alignment: .trailing) {
-            if value == nil {
-                Shimmer()
-                    .variant(.text(style: .body, alignment: .trailing))
-            }
-        }
     }
 
     private var banner: some View {
-        HStack(alignment: .center, spacing: 8) {
+        HStack(alignment: .top, spacing: 8) {
             DesignSystem.Icons.Info.regular20.image
                 .renderingMode(.template)
                 .resizable()
@@ -211,8 +140,8 @@ struct TangemPayVirtualAccountInfoSheetView: View {
 
             Spacer(minLength: 0)
         }
-        .padding(12)
-        .background(DesignSystem.Color.bgStatusInfoSubtle, in: RoundedRectangle(cornerRadius: 14))
+        .padding(16)
+        .background(DesignSystem.Color.bgStatusInfoSubtle, in: RoundedRectangle(cornerRadius: 16))
     }
 
     private var footer: some View {
@@ -222,8 +151,8 @@ struct TangemPayVirtualAccountInfoSheetView: View {
                 accessibilityLabel: Localization.tangempayBankTransferShowDetails,
                 action: viewModel.showDetails
             )
-            .styleType(.default)
-            .size(.x14)
+            .styleType(.primary)
+            .size(.x12)
             .horizontalLayout(.infinity)
             .loading(.spinner(if: viewModel.isLoading))
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountShowDetailsButton)
@@ -238,10 +167,10 @@ struct TangemPayVirtualAccountInfoSheetView: View {
                     .foregroundStyle(DesignSystem.Color.textSecondary)
                     .tint(DesignSystem.Color.textPrimary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, SizeUnit.x3.value)
+                    .padding(.horizontal, 12)
             }
         }
-        .padding(.top, 24)
+        .padding(.top, 28)
     }
 }
 

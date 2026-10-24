@@ -114,6 +114,8 @@ extension WalletNetworkServiceFactory {
              .adi,
              .electroneum,
              .arc,
+             .publicMasterpiece,
+             .onyx,
              .seiEvm,
              .decimal,
              .xdc,

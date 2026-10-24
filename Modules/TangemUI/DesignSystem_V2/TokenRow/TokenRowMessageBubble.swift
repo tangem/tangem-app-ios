@@ -20,52 +20,42 @@ public struct TokenRowMessageBubble: View {
     }
 
     public var body: some View {
-        TangemMessageBubble(text: model.text, onClose: model.onClose)
-            .variant(variant)
+        TangemMessageBubble(text: model.text)
+            .variant(model.variant)
             .icon(model.icon)
+            .trailingAccessory(model.trailingAccessory)
             .lineLimit(1)
             .contentShape(Rectangle())
             .onTapGesture { if isEnabled { model.onTap() } }
     }
 }
 
-// MARK: - Appearance
-
-private extension TokenRowMessageBubble {
-    var variant: TangemMessageBubble.Variant {
-        switch model.accent {
-        case .yield: return .success
-        case .staking: return .info
-        }
-    }
-}
-
 // MARK: - Model
 
 public extension TokenRowMessageBubble {
-    typealias Accent = TokenRowAccent
+    typealias Variant = TangemMessageBubble.Variant
+    typealias TrailingAccessory = TangemMessageBubble.TrailingAccessory
 
     struct Model: Equatable {
         public let text: String
-        public let accent: Accent
+        public let variant: Variant
         public let icon: ImageType?
+        public let trailingAccessory: TrailingAccessory?
         @IgnoredEquatable
         public var onTap: () -> Void
-        @IgnoredEquatable
-        public var onClose: () -> Void
 
         public init(
             text: String,
-            accent: Accent,
+            variant: Variant,
             icon: ImageType? = nil,
-            onTap: @escaping () -> Void,
-            onClose: @escaping () -> Void
+            trailingAccessory: TrailingAccessory?,
+            onTap: @escaping () -> Void
         ) {
             self.text = text
-            self.accent = accent
+            self.variant = variant
             self.icon = icon
+            self.trailingAccessory = trailingAccessory
             self.onTap = onTap
-            self.onClose = onClose
         }
     }
 }

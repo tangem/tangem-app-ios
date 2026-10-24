@@ -208,7 +208,7 @@ private extension TokenIconV2 {
     }
 
     var clampedScale: CGFloat {
-        TokenIconV2.clampedScale(scale)
+        DecorationScale.clamped(scale)
     }
 
     var metrics: Metrics {
@@ -245,12 +245,6 @@ extension TokenIconV2: Setupable {
 extension TokenIconV2 {
     enum Constants {
         static let grayscaleOpacity: CGFloat = 0.4
-        static let minDynamicTypeMultiplier: CGFloat = 1
-        static let maxDynamicTypeMultiplier: CGFloat = 1.5
-    }
-
-    static func clampedScale(_ scale: CGFloat) -> CGFloat {
-        min(max(scale, Constants.minDynamicTypeMultiplier), Constants.maxDynamicTypeMultiplier)
     }
 }
 
@@ -264,11 +258,11 @@ private struct IconCutouts: ViewModifier {
     /// Anchors and `.offset(x:)` both flip under RTL (verified), so raw LTR offsets keep each hole
     /// concentric with its element. Do NOT add a manual RTL sign flip — it double-mirrors and breaks RTL.
     func body(content: Content) -> some View {
-        content.mask {
-            Rectangle()
-                .overlay(alignment: .topTrailing) { networkHole }
-                .overlay(alignment: .bottomTrailing) { indicatorHole }
-                .compositingGroup()
+        content.cutOutMask {
+            networkHole
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+            indicatorHole
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
         }
     }
 
@@ -277,10 +271,8 @@ private struct IconCutouts: ViewModifier {
         if cutsNetworkHole {
             let outset = metrics.networkOverhang + metrics.cutoutGap
 
-            Circle()
-                .frame(size: CGSize(bothDimensions: metrics.cutoutDiameter))
+            CutOutHole(diameter: metrics.cutoutDiameter)
                 .offset(x: outset, y: -outset)
-                .blendMode(.destinationOut)
         }
     }
 
@@ -289,10 +281,8 @@ private struct IconCutouts: ViewModifier {
         if cutsIndicatorHole {
             let inset = metrics.indicatorInset - metrics.cutoutGap
 
-            Circle()
-                .frame(size: CGSize(bothDimensions: metrics.indicatorCutoutDiameter))
+            CutOutHole(diameter: metrics.indicatorCutoutDiameter)
                 .offset(x: -inset, y: -inset)
-                .blendMode(.destinationOut)
         }
     }
 }

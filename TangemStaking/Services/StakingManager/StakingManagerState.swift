@@ -129,3 +129,10 @@ public extension StakingManagerState {
         public let canStakeMore: Bool
     }
 }
+
+public extension StakingManagerState.Staked {
+    var totalBalance: Decimal {
+        let blockedBalances = balances.blocked()
+        return yieldInfo.rewardsIncludedInStake ? blockedBalances.stakes().sum() : blockedBalances.sum()
+    }
+}

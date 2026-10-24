@@ -26,6 +26,10 @@ public enum StakingAccessibilityIdentifiers {
     public static let unstakingStakeRow = "stakingUnstakingStakeRow"
     public static let withdrawStakeRow = "stakingWithdrawStakeRow"
 
+    public static func stakingTargetsButton(name: String) -> String {
+        "stakingTargets_button_\(name)"
+    }
+
     /// Rewards section
     public static let rewardClaimBlock = "stakingRewardClaimBlock"
     public static let noRewardsToClaim = "stakingNoRewardsToClaim"
