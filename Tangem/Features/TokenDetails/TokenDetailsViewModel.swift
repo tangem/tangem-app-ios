@@ -61,10 +61,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         walletModel.tokenItem.token?.customTokenColor
     }
 
-    var showsPendingExpressTransactionsBlock: Bool {
-        !FeatureProvider.isAvailable(.transactionHistoryV2)
-    }
-
     let presentSource: TokenDetailsPresentSource
 
     private weak var coordinator: (any TokenDetailsRoutable)?
@@ -139,12 +135,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     func openTransactionDetails(_ transaction: TransactionViewModel) {
         if let jointOperation = jointOperation(for: transaction) {
-            coordinator?.openJointAccountOperationDetails(pendingOperation: jointOperation)
-            return
-        }
-
-        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
-            openTransactionExplorer(transaction: transaction.hash)
+            coordinator?.openJointAccountOperationDetails(pendingOperation: jointOperation, userWalletInfo: userWalletInfo)
             return
         }
 
@@ -180,10 +171,15 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     func onAppear() {
         logScreenOpenedAnalytics()
         deeplinkHandler.beginHandlingIncomingActions()
+        startJointFrequentUpdates()
     }
 
     func onDisappear() {
         deeplinkHandler.endHandlingIncomingActions()
+        stopJointFrequentUpdates()
+    }
+
+    func onWillDisappear() {
         coordinator?.cancelTransactionDetailsPresentation()
     }
 
@@ -198,7 +194,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .yieldBoostPromoLater,
              .openGetTangemPay,
              .closeGetTangemPay,
-             .removeTangemPayAccount:
+             .removeTangemPayAccount,
+             .editSlippage:
             break
         case .openFeeCurrency:
             coordinator?.proceedFeeCurrencyNavigatingDismissOption(
@@ -226,6 +223,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .leaveAmount,
              .openLink,
              .openDeeplink,
+             .openPromoCampaign,
              .stake,
              .openFeedbackMail,
              .openAppStoreReview,
@@ -518,11 +516,9 @@ private extension TokenDetailsViewModel {
             })
         }
 
-        if FeatureProvider.isAvailable(.transactionHistoryV2) {
-            items.append(DotsMenuItem(type: .explore) { [weak self] in
-                self?.openExplorer()
-            })
-        }
+        items.append(DotsMenuItem(type: .explore) { [weak self] in
+            self?.openExplorer()
+        })
 
         var destructiveItems: [DotsMenuItem] = []
 
@@ -537,6 +533,20 @@ private extension TokenDetailsViewModel {
             DotsMenuSection(id: "destructive", items: destructiveItems),
         ]
         .filter { $0.items.isNotEmpty }
+    }
+
+    private func bindJointOperationDetails(operationId: String) {
+        jointOperationsInFlightPublisher
+            .compactMap { operations in operations.first { $0.operation.id == operationId } }
+            .timeout(.seconds(Constants.jointOperationAppearanceTimeout), scheduler: DispatchQueue.main)
+            .prefix(1)
+            .receiveOnMain()
+            .sink { [weak self] pendingOperation in
+                guard let self else { return }
+
+                coordinator?.openJointAccountOperationDetails(pendingOperation: pendingOperation, userWalletInfo: userWalletInfo)
+            }
+            .store(in: &bag)
     }
 
     private func bind() {
@@ -555,7 +565,9 @@ private extension TokenDetailsViewModel {
             .store(in: &bag)
 
         if let pendingTransactionDetails {
-            if FeatureProvider.isAvailable(.transactionHistoryV2) {
+            if pendingTransactionDetails.type == .jointOperation {
+                bindJointOperationDetails(operationId: pendingTransactionDetails.id)
+            } else {
                 walletModel.transactionHistoryPublisher
                     .compactMap { state -> TransactionRecord? in
                         guard case .loaded(let records) = state else { return nil }
@@ -565,20 +577,6 @@ private extension TokenDetailsViewModel {
                     .receive(on: DispatchQueue.main)
                     .sink { [weak self] _ in
                         self?.openExpressTransactionDetails(expressTransactionId: pendingTransactionDetails.id)
-                    }
-                    .store(in: &bag)
-            } else {
-                $pendingExpressTransactions
-                    .filter { !$0.isEmpty }
-                    .prefix(1)
-                    .sink { [weak self] pendingTransactions in
-                        guard let self,
-                              let matchingTransaction = pendingTransactions.first(where: { $0.id == pendingTransactionDetails.id })
-                        else {
-                            return
-                        }
-
-                        didTapPendingExpressTransaction(id: matchingTransaction.id)
                     }
                     .store(in: &bag)
             }
@@ -886,6 +884,14 @@ extension TokenDetailsViewModel: TokenDetailsBalanceDataProvider {
 // MARK: - TokenDetailsActionsRoutable
 
 extension TokenDetailsViewModel: TokenDetailsActionsRoutable {}
+
+// MARK: - Constants
+
+private extension TokenDetailsViewModel {
+    enum Constants {
+        static let jointOperationAppearanceTimeout: TimeInterval = 10
+    }
+}
 
 extension TokenDetailsViewModel {
     func makeYieldModuleFlowFactory(manager: YieldModuleManager) -> YieldModuleFlowFactory? {

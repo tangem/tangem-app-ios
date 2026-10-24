@@ -55,7 +55,7 @@ private extension Footer {
     var createAccountButton: some View {
         TangemUI.Button(label: Localization.collectiblesWelcomeCreateAccountButton, accessibilityLabel: nil, action: onCreateAccountTap)
             .iconEnd(DesignSystem.Icons.LogoTangem.regular24)
-            .styleType(.default)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
             .size(.x12)
             .loading(.spinner(if: isLoading))

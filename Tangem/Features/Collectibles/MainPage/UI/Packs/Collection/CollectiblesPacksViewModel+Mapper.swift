@@ -23,10 +23,10 @@ private extension CollectiblesPacksViewModel.Mapper {
     static func makeCardModel(_ pack: CollectiblesPack) -> CollectiblesPackCard.Model {
         CollectiblesPackCard.Model(
             id: pack.id,
-            title: pack.name,
-            priceText: CollectiblesPriceFormatter.format(pack.price, currencyCode: pack.currencyCode),
-            buybackText: pack.buybackRate.map(makeBuybackText),
-            artworkURL: pack.artworkURL
+            title: pack.machine.name,
+            priceText: CollectiblesPriceFormatter.format(pack.machine.price, currencyCode: pack.currencyCode),
+            buybackText: makeBuybackText(rate: pack.machine.buybackRate),
+            artworkURL: pack.machine.artworkURL
         )
     }
 

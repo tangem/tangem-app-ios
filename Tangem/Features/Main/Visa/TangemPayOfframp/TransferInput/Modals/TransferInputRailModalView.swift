@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemPay
@@ -68,6 +69,7 @@ private extension TransferInputRailModalView {
                 checkmark(isChecked: item.rail == selection)
             }
             .onTap { selection = item.rail }
+            .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.railSheetOption)
     }
 }
 

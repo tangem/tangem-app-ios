@@ -16,7 +16,7 @@ import TangemUI
 /// Every member of the account is listed, including the ones that have not answered: the endpoint reports the
 /// answers alone, so the rest are worked out from the account's composition.
 struct JointAccountSignersView: View {
-    let viewModel: JointAccountSignersViewModel
+    @ObservedObject var viewModel: JointAccountSignersViewModel
 
     var body: some View {
         VStack(spacing: .zero) {

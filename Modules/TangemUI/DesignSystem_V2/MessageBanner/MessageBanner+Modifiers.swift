@@ -40,6 +40,16 @@ public enum MessageBannerContentAlign: Sendable, Hashable, CaseIterable {
     }
 }
 
+public struct MessageBannerOverrideTextColors: Equatable {
+    public var title: Color?
+    public var description: Color?
+
+    public init(title: Color? = nil, description: Color? = nil) {
+        self.title = title
+        self.description = description
+    }
+}
+
 public struct MessageBannerButton {
     public let title: String
     public let action: () -> Void
@@ -77,6 +87,7 @@ struct MessageBannerConfiguration {
     var glowRing: GlowRingAppearance?
     var titleLineLimit: Int?
     var descriptionLineLimit: Int?
+    var overrideTextColors: MessageBannerOverrideTextColors = .init()
     var secondaryButton: MessageBannerButton?
     var primaryButton: MessageBannerButton?
     var onTap: (() -> Void)?
@@ -142,6 +153,10 @@ public extension MessageBanner {
 
     func descriptionLineLimit(_ limit: Int?) -> Self {
         map { $0.config.descriptionLineLimit = limit }
+    }
+
+    func overrideTextColors(_ colors: MessageBannerOverrideTextColors) -> Self {
+        map { $0.config.overrideTextColors = colors }
     }
 
     func secondaryButton(_ button: Button?) -> Self {

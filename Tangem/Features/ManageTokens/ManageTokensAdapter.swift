@@ -65,8 +65,9 @@ class ManageTokensAdapter {
         userTokensManager = settings.context.userTokensManager
         analyticsSourceRawValue = settings.analyticsSourceRawValue
 
+        let heldNetworkIds = Set(settings.context.userTokensManager.userTokens.map(\.blockchain.networkId))
         let filteredBlockchains = settings.supportedBlockchains.filter { blockchain in
-            settings.context.canManageBlockchain(blockchain)
+            settings.context.canManageBlockchain(blockchain) || heldNetworkIds.contains(blockchain.networkId)
         }
 
         loader = TokensListDataLoader(supportedBlockchains: filteredBlockchains)
@@ -158,6 +159,16 @@ private extension ManageTokensAdapter {
 
     func onSelect(_ selected: Bool, _ tokenItem: TokenItem) {
         if selected {
+            if !isAdded(tokenItem), !context.canManageBlockchain(tokenItem.blockchain) {
+                displayAlertAndUpdateSelection(
+                    for: tokenItem,
+                    title: Localization.commonAttention,
+                    message: Localization.jointAccountSettingsNetworksInfo
+                )
+
+                return
+            }
+
             if !hardwareLimitationUtil.canAdd(tokenItem) {
                 displayAlertAndUpdateSelection(
                     for: tokenItem,
@@ -271,14 +282,22 @@ private extension ManageTokensAdapter {
         return binding
     }
 
-    func mapToListItemViewModel(coinModel: CoinModel) -> ManageTokensListItemViewModel {
-        let networkItems = coinModel.items.enumerated().map { index, item in
+    func mapToListItemViewModel(coinModel: CoinModel) -> ManageTokensListItemViewModel? {
+        let items = coinModel.items.filter { item in
+            context.canManageBlockchain(item.tokenItem.blockchain) || isAdded(item.tokenItem)
+        }
+
+        guard items.isNotEmpty else {
+            return nil
+        }
+
+        let networkItems = items.enumerated().map { index, item in
             ManageTokensItemNetworkSelectorViewModel(
                 tokenItem: item.tokenItem,
                 isReadonly: false,
                 isSelected: bindSelection(item.tokenItem),
                 isCopied: bindCopy(),
-                position: .init(with: index, total: coinModel.items.count)
+                position: .init(with: index, total: items.count)
             )
         }
 

@@ -31,6 +31,7 @@ public struct StakingYieldInfo: Hashable {
 
     public let rewardClaimingType: RewardClaimingType
     public let rewardScheduleType: RewardScheduleType
+    public let rewardsIncludedInStake: Bool
 
     public let maximumStakeAmount: Decimal?
 
@@ -48,6 +49,7 @@ public struct StakingYieldInfo: Hashable {
         warmupPeriod: Period,
         rewardClaimingType: RewardClaimingType,
         rewardScheduleType: RewardScheduleType,
+        rewardsIncludedInStake: Bool,
         maximumStakeAmount: Decimal?
     ) {
         self.id = id
@@ -63,6 +65,7 @@ public struct StakingYieldInfo: Hashable {
         self.warmupPeriod = warmupPeriod
         self.rewardClaimingType = rewardClaimingType
         self.rewardScheduleType = rewardScheduleType
+        self.rewardsIncludedInStake = rewardsIncludedInStake
         self.maximumStakeAmount = maximumStakeAmount
     }
 }

@@ -12,7 +12,7 @@ import Combine
 import CombineExt
 import struct TangemUIUtils.AlertBinder
 
-final class MarketsSearchViewModel: MarketsBaseViewModel {
+final class MarketsSearchViewModel: ObservableObject {
     private typealias SearchInput = MainBottomSheetHeaderViewModel.SearchInput
 
     // MARK: - Published Properties
@@ -22,11 +22,6 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
     @Published private(set) var tokenListViewModel: MarketsTokenListViewModel
     @Published private(set) var isSearching: Bool = false
     @Published private(set) var isSearchFieldFocused: Bool = false
-
-    override var overlayContentHidingProgress: CGFloat {
-        // Prevents unwanted content hiding (see [REDACTED_INFO]
-        isViewVisible ? super.overlayContentHidingProgress : 1.0
-    }
 
     // MARK: - Private Properties
 
@@ -42,8 +37,6 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
     private var bag = Set<AnyCancellable>()
 
     private var currentSearchValue: String = ""
-    private var isViewVisible: Bool = false
-    private var isBottomSheetExpanded: Bool = false
     private var showItemsBelowCapThreshold: Bool = false
 
     private var filterItemsBelowMarketCapThreshold: Bool {
@@ -84,12 +77,6 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
             coordinator: coordinator
         )
 
-        // `OverlayContentStateObserver` doesn't provide an initial progress/state snapshot.
-        // When this screen is pushed into a `NavigationStack`, the overlay is typically already expanded,
-        // and without a proper initial value the content would stay hidden (opacity == 0).
-        super.init(overlayContentProgressInitialValue: 1.0)
-
-        headerViewModel.delegate = self
         marketsRatingHeaderViewModel.delegate = self
         bindChildViewModels()
 
@@ -103,32 +90,12 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
         AppLogger.debug("MarketsSearchViewModel deinit")
     }
 
-    /// Handles `SwiftUI.View.onAppear(perform:)`.
     func onViewAppear() {
-        isViewVisible = true
+        tokenListViewModel.resumeQuotesUpdates()
     }
 
-    /// Handles `SwiftUI.View.onDisappear(perform:)`.
     func onViewDisappear() {
-        isViewVisible = false
-    }
-
-    func onOverlayContentStateChange(_ state: OverlayContentState) {
-        switch state {
-        case .expanded:
-            // Need for locked fetchMore process when bottom sheet not yet open
-            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.bottomSheetExpandedDelay) {
-                self.isBottomSheetExpanded = true
-            }
-
-            Analytics.log(.marketsScreenOpened)
-
-            headerViewModel.onBottomSheetExpand(isTapGesture: state.isTapGesture)
-            quotesUpdatesScheduler.forceUpdate()
-        case .collapsed:
-            isBottomSheetExpanded = false
-            quotesUpdatesScheduler.cancelUpdates()
-        }
+        tokenListViewModel.pauseQuotesUpdates()
     }
 
     func onTryLoadList() {
@@ -255,12 +222,6 @@ private extension MarketsSearchViewModel {
     }
 }
 
-extension MarketsSearchViewModel: MainBottomSheetHeaderViewModelDelegate {
-    func isViewVisibleForHeaderViewModel(_ viewModel: MainBottomSheetHeaderViewModel) -> Bool {
-        return isViewVisible
-    }
-}
-
 extension MarketsSearchViewModel: MarketsOrderHeaderViewModelOrderDelegate {
     func orderActionButtonDidTap() {
         coordinator?.openFilterOrderBottonSheet(with: filterProvider)
@@ -270,9 +231,6 @@ extension MarketsSearchViewModel: MarketsOrderHeaderViewModelOrderDelegate {
 private extension MarketsSearchViewModel {
     enum Constants {
         static let filterRequiredReloadInterval: Set<MarketsListOrderType> = [.buyers, .gainers, .losers]
-
-        /// Need for locked fetchMore process when bottom sheet not yet open
-        static let bottomSheetExpandedDelay: Double = 0.5
 
         /// Need for smooth switching animation
         static let searchFieldAnimationDelay: Double = 0.3

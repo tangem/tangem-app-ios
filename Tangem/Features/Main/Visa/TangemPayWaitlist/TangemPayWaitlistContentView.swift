@@ -7,21 +7,23 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct TangemPayWaitlistContentView: View {
     @Binding var field: TangemPayFormField
-
-    let focused: FocusState<TangemPayFormField.ID?>.Binding
     let state: State
     let action: (Action) -> Void
 
+    @FocusState private var emailFocused: TangemPayFormField.ID?
+
     var body: some View {
         content
-            .offrampBottomBar(pinnedBehindKeyboard: true) { bottomBar }
+            .offrampBottomBar { bottomBar }
             .environment(\.openURL, OpenURLAction { url in
                 action(.privacyPolicyTap(url))
                 return .handled
@@ -37,9 +39,18 @@ private extension TangemPayWaitlistContentView {
             VStack(alignment: .leading, spacing: Constants.headerToFieldSpacing) {
                 header
 
-                TangemPayFormFieldView(field: $field, focused: focused)
+                TangemPayFormFieldView(field: $field, focused: $emailFocused)
+                    .disabled(state.isSaving)
                     .onChange(of: field.text) { _ in
                         action(.emailChanged)
+                    }
+                    .onAppear {
+                        guard emailFocused == nil else { return }
+
+                        Task {
+                            try? await Task.sleep(for: .seconds(0.5))
+                            emailFocused = .email
+                        }
                     }
             }
             .padding(.horizontal, Constants.horizontalPadding)
@@ -72,17 +83,22 @@ private extension TangemPayWaitlistContentView {
 
             saveButton
         }
+        .lockedGeometry()
     }
 
     var marketingConsent: some View {
-        HStack(alignment: .top, spacing: Constants.consentSpacing) {
+        HStack(alignment: .center, spacing: Constants.consentSpacing) {
             Checkbox(value: state.isMarketingConsentOn ? .checked : .unchecked) {
                 action(.marketingConsentTap)
             }
+            .expandsHitArea(false)
+            .expandingHitArea(by: Constants.checkboxHitAreaInset)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.waitlistMarketingConsentCheckbox)
 
             Text(marketingConsentText)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .disabled(state.isSaving)
     }
 
     var marketingConsentText: AttributedString {
@@ -103,10 +119,13 @@ private extension TangemPayWaitlistContentView {
         TangemUI.Button(
             label: Localization.commonSave,
             accessibilityLabel: nil,
-            action: { action(.saveTap) }
+            action: {
+                emailFocused = nil
+                action(.saveTap)
+            }
         )
         .size(.x12)
-        .styleType(.default)
+        .styleType(.primary)
         .horizontalLayout(.infinity)
         .loading(.spinner(if: state.isSaving))
         .disabled(!state.isSaveEnabled)
@@ -123,6 +142,20 @@ private extension TangemPayWaitlistContentView {
         static let headerToFieldSpacing: CGFloat = 32
         static let bottomBarSpacing: CGFloat = 16
         static let consentSpacing: CGFloat = 12
+        static let checkboxHitAreaInset: CGFloat = 10
+    }
+}
+
+// MARK: - Geometry
+
+private extension View {
+    @ViewBuilder
+    func lockedGeometry() -> some View {
+        if #available(iOS 17.0, *) {
+            geometryGroup()
+        } else {
+            self
+        }
     }
 }
 
@@ -157,11 +190,8 @@ extension TangemPayWaitlistContentView {
         placeholder: Localization.tangempayWaitlistEmailPlaceholder
     )
 
-    @Previewable @FocusState var focused: TangemPayFormField.ID?
-
     TangemPayWaitlistContentView(
         field: $field,
-        focused: $focused,
         state: TangemPayWaitlistContentView.State(
             isMarketingConsentOn: false,
             isSaveEnabled: false,
@@ -182,11 +212,8 @@ extension TangemPayWaitlistContentView {
         error: .invalidEmail
     )
 
-    @Previewable @FocusState var focused: TangemPayFormField.ID?
-
     TangemPayWaitlistContentView(
         field: $field,
-        focused: $focused,
         state: TangemPayWaitlistContentView.State(
             isMarketingConsentOn: false,
             isSaveEnabled: false,
@@ -210,7 +237,6 @@ extension TangemPayWaitlistContentView {
 
     TangemPayWaitlistContentView(
         field: $field,
-        focused: $focused,
         state: TangemPayWaitlistContentView.State(
             isMarketingConsentOn: true,
             isSaveEnabled: true,
@@ -230,11 +256,8 @@ extension TangemPayWaitlistContentView {
         text: "satoshi.nakamoto@tangem.com"
     )
 
-    @Previewable @FocusState var focused: TangemPayFormField.ID?
-
     TangemPayWaitlistContentView(
         field: $field,
-        focused: $focused,
         state: TangemPayWaitlistContentView.State(
             isMarketingConsentOn: false,
             isSaveEnabled: true,

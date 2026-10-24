@@ -51,7 +51,7 @@ struct TransactionHistoryMapperExpressSubtitleTests {
     }
 
     @Test("After a Send&Swap to an outside address the row names nobody, while the recipient stays known for the details")
-    func sendAndSwapToAnOutsideAddress() {
+    func sendAndSwapToAnOutsideAddress() async {
         let resolver = SubtitleOwnerResolver(
             blockchain: .ethereum(testnet: false),
             currentUserWalletId: UserWalletId(value: Data()),
@@ -59,7 +59,9 @@ struct TransactionHistoryMapperExpressSubtitleTests {
             contacts: []
         )
 
-        let viewModel = makeSUT().mapTransactionViewModel(swapRecord(isOutgoing: true), subtitleOwnerResolver: resolver)
+        let viewModel = await withUserWallets([]) {
+            makeSUT().mapTransactionViewModel(swapRecord(isOutgoing: true), subtitleOwnerResolver: resolver)
+        }
 
         guard case .express(let model)? = viewModel.display.subtitle else {
             Issue.record("expected an express subtitle for a swap")
@@ -72,6 +74,31 @@ struct TransactionHistoryMapperExpressSubtitleTests {
             return
         }
         #expect(fullAddress == "0xOut")
+    }
+
+    @Test("A swap between two tokens of one account names no counterparty, so the details keep You send / You receive")
+    func swapWithinOneAccount() async throws {
+        let account = CryptoAccountModelMock(isMainAccount: true, onArchive: { _ in })
+
+        let model = try #require(await swapSubtitle(sourceAccount: account, destinationAccount: account))
+
+        #expect(model.owner == nil)
+        #expect(model.counterparty == nil, "Both legs live in the same account, so there is nobody to name as From / To")
+    }
+
+    @Test("A swap into another account of the wallet keeps that account as the counterparty, so the details name From / To")
+    func swapIntoAnotherAccount() async throws {
+        let source = CryptoAccountModelMock(isMainAccount: true, onArchive: { _ in })
+        let destination = CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }).update { $0.setName("Savings") }
+
+        let model = try #require(await swapSubtitle(sourceAccount: source, destinationAccount: destination))
+
+        guard case .accountInCurrentWallet(let name, _)? = model.counterparty else {
+            Issue.record("expected the receiving account as the counterparty")
+            return
+        }
+        #expect(name == "Savings")
+        #expect(model.owner == model.counterparty)
     }
 
     @Test("Onramp subtitle shows the paid fiat with a `from:` prefix and no owner")
@@ -103,9 +130,9 @@ struct TransactionHistoryMapperExpressSubtitleTests {
     @Test("In-progress onramp with an estimated amount shows the `~` prefix and no sign")
     func onrampEstimatedAmountHasTilde() {
         let viewModel = makeSUT().mapTransactionViewModel(onrampRecord(status: .waitingForPayment, toActualAmount: nil))
-        #expect(viewModel.amount.value.hasPrefix(AppConstants.tildeSign))
-        #expect(!viewModel.amount.value.contains(AppConstants.minusSign))
-        #expect(!viewModel.amount.value.contains(AppConstants.plusSign))
+        #expect(viewModel.amount.value?.hasPrefix(AppConstants.tildeSign) == true)
+        #expect(viewModel.amount.value?.contains(AppConstants.minusSign) == false)
+        #expect(viewModel.amount.value?.contains(AppConstants.plusSign) == false)
     }
 
     @Test("Finished onramp shows the settled amount with a `+` and without the `~` prefix")
@@ -123,12 +150,33 @@ struct TransactionHistoryMapperExpressSubtitleTests {
         #expect(viewModel.amount.displayValue?.contains(AppConstants.tildeSign) == false)
     }
 
-    @Test("An unsuccessful onramp shows no amount at all")
-    func onrampUnsuccessfulAmountIsHidden() {
-        for status in [OnrampTransactionStatus.expired, .failed, .refunded] {
-            let viewModel = makeSUT().mapTransactionViewModel(onrampRecord(status: status, toActualAmount: nil))
-            #expect(viewModel.amount.displayValue == nil)
-        }
+    @Test("An unsuccessful onramp shows the promised amount unsigned", arguments: [OnrampTransactionStatus.expired, .failed, .refunded])
+    func onrampUnsuccessfulAmountIsUnsigned(status: OnrampTransactionStatus) throws {
+        let viewModel = makeSUT().mapTransactionViewModel(onrampRecord(status: status, toActualAmount: nil))
+        let value = try #require(viewModel.amount.displayValue)
+        #expect(value.hasPrefix("1"))
+        #expect(!value.contains(AppConstants.tildeSign))
+        #expect(!value.contains(AppConstants.plusSign))
+    }
+
+    @Test("An onramp the provider never quoted shows no amount", arguments: [OnrampTransactionStatus.expired, .failed, .waitingForPayment])
+    func onrampWithoutAmountShowsNoAmount(status: OnrampTransactionStatus) {
+        let record = onrampRecord(
+            status: status,
+            toAmount: nil,
+            toActualAmount: nil,
+            hash: ExpressSyntheticTxHelper(txId: "tx").makeSyntheticTxIdentifier()
+        )
+        let viewModel = makeSUT().mapTransactionViewModel(record)
+        #expect(viewModel.amount.value == nil)
+        #expect(viewModel.amount.displayValue == nil)
+    }
+
+    @Test("An onramp matched to its on-chain receive shows that amount even without a quote", arguments: [OnrampTransactionStatus.finished, .sending])
+    func matchedOnrampWithoutQuoteShowsOnChainAmount(status: OnrampTransactionStatus) throws {
+        let viewModel = makeSUT().mapTransactionViewModel(onrampRecord(status: status, toAmount: nil, toActualAmount: nil, hash: "0xReceive"))
+        let value = try #require(viewModel.amount.value)
+        #expect(value.contains("1"))
     }
 }
 
@@ -146,9 +194,46 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
         )
     }
 
-    func baseRecord(isOutgoing: Bool, extraInfo: TransactionHistoryExpressExtraInfo?) -> TransactionRecord {
+    func withUserWallets<T>(_ models: [UserWalletModel], operation: () -> T) async -> T {
+        await InjectedDependenciesIsolation.shared.run {
+            let previous = InjectedValues[\.userWalletRepository]
+            InjectedValues[\.userWalletRepository] = FakeUserWalletRepository(models: models)
+            defer { InjectedValues[\.userWalletRepository] = previous }
+            return operation()
+        }
+    }
+
+    func swapSubtitle(
+        sourceAccount: CryptoAccountModelMock,
+        destinationAccount: CryptoAccountModelMock
+    ) async -> TransactionDisplayModel.ExpressSubtitle? {
+        let fromAddress = "0xOwnFrom"
+        let payOutAddress = "0xOwnOut"
+        let userWalletModel = SingleAccountUserWalletModelStub(walletModels: [
+            WalletModelTestsMock(tokenItem: ExpressMergeTestDataFactory.ethereumToken, isEmpty: false, account: sourceAccount, addresses: [PlainAddress(value: fromAddress, type: .default)]),
+            WalletModelTestsMock(tokenItem: ExpressMergeTestDataFactory.bitcoinToken, isEmpty: false, account: destinationAccount, addresses: [PlainAddress(value: payOutAddress, type: .default)]),
+        ])
+        let resolver = SubtitleOwnerResolver(
+            blockchain: .ethereum(testnet: false),
+            currentUserWalletId: userWalletModel.userWalletId,
+            isAccountsMode: true,
+            contacts: []
+        )
+
+        let record = swapRecord(isOutgoing: true, fromAddress: fromAddress, payOutAddress: payOutAddress)
+        let viewModel = await withUserWallets([userWalletModel]) {
+            makeSUT().mapTransactionViewModel(record, subtitleOwnerResolver: resolver)
+        }
+
+        guard case .express(let model)? = viewModel.display.subtitle else {
+            return nil
+        }
+        return model
+    }
+
+    func baseRecord(hash: String = "hash", isOutgoing: Bool, extraInfo: TransactionHistoryExpressExtraInfo?) -> TransactionRecord {
         let record = TransactionRecord(
-            hash: "hash",
+            hash: hash,
             index: 0,
             source: .single(.init(address: "0xSource", amount: 1)),
             destination: .single(.init(address: .user("0xDestination"), amount: 1)),
@@ -168,6 +253,10 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
     }
 
     func swapRecord(isOutgoing: Bool) -> TransactionRecord {
+        swapRecord(isOutgoing: isOutgoing, fromAddress: "0xFrom", payOutAddress: "0xOut")
+    }
+
+    func swapRecord(isOutgoing: Bool, fromAddress: String, payOutAddress: String) -> TransactionRecord {
         let fromCurrency = ExpressMergeTestDataFactory.matchingCurrency(for: ExpressMergeTestDataFactory.ethereumToken)
         let toCurrency = ExpressMergeTestDataFactory.matchingCurrency(for: ExpressMergeTestDataFactory.bitcoinToken)
 
@@ -175,10 +264,10 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
             transaction: ExpressMergeTestDataFactory.exchangeTransaction(
                 txId: "tx",
                 status: .sending,
-                fromAddress: "0xFrom",
+                fromAddress: fromAddress,
                 payInAddress: "0xIn",
                 payInHash: nil,
-                payOutAddress: "0xOut",
+                payOutAddress: payOutAddress,
                 payOutHash: nil,
                 fromCurrency: fromCurrency,
                 fromAmount: 1,
@@ -200,6 +289,10 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
     }
 
     func onrampRecord(status: OnrampTransactionStatus, toActualAmount: Decimal?) -> TransactionRecord {
+        onrampRecord(status: status, toAmount: 1, toActualAmount: toActualAmount)
+    }
+
+    func onrampRecord(status: OnrampTransactionStatus, toAmount: Decimal?, toActualAmount: Decimal?, hash: String = "hash") -> TransactionRecord {
         let info = OnrampTransactionInfo(
             transaction: ExpressMergeTestDataFactory.onrampTransaction(
                 txId: "tx",
@@ -207,7 +300,7 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
                 payOutAddress: "0xOut",
                 payOutHash: nil,
                 toCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: ExpressMergeTestDataFactory.ethereumToken),
-                toAmount: 1,
+                toAmount: toAmount,
                 toActualAmount: toActualAmount,
                 createdAt: ExpressMergeTestDataFactory.baseDate,
                 updatedAt: ExpressMergeTestDataFactory.baseDate
@@ -216,7 +309,7 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
             fiatCurrency: nil,
             cryptoCurrencies: [:]
         )
-        return baseRecord(isOutgoing: false, extraInfo: .onramp(info))
+        return baseRecord(hash: hash, isOutgoing: false, extraInfo: .onramp(info))
     }
 }
 
@@ -224,4 +317,25 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
 
 private struct StubExpressSubtitleAddressesProvider: WalletModelTransactionHistoryAddressesProvider {
     let walletAddresses: [String]
+}
+
+private final class SingleAccountUserWalletModelStub: UserWalletModelMock {
+    private let id = UserWalletId(value: Data([0x16, 0x49, 0x4]))
+    private let manager: AccountModelsManager
+
+    init(walletModels: [any WalletModel]) {
+        let walletModelsManager = WalletModelsManagerTestsMock()
+        walletModelsManager.walletModels = walletModels
+        manager = AccountModelsManagerStub(
+            account: CryptoAccountModelMock(
+                isMainAccount: true,
+                walletModelsManager: walletModelsManager,
+                onArchive: { _ in }
+            )
+        )
+    }
+
+    override var userWalletId: UserWalletId { id }
+    override var accountModelsManager: AccountModelsManager { manager }
+    override var config: UserWalletConfig { UserWalletConfigStub() }
 }

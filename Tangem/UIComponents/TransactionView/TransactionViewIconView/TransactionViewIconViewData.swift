@@ -36,7 +36,7 @@ struct TransactionViewIconViewData: Hashable {
             return DesignSystem.Icons.ArrowSwapHorizontal.regular20.image
         case .onramp:
             return DesignSystem.Icons.Card.regular20.image
-        case .transfer, .operation, .unknownOperation, .tangemPay(.transfer), .yieldTopup, .yieldSend, .gaslessTransfer:
+        case .transfer, .operation, .unknownOperation, .tangemPay(.transfer), .incentiveClaim, .yieldTopup, .yieldSend, .gaslessTransfer:
             return isOutgoing ? Assets.arrowUpMini.image : Assets.arrowDownMini.image
         case .gaslessTransactionFee, .networkFee:
             return DesignSystem.Icons.Percent.regular20.image
@@ -49,7 +49,7 @@ struct TransactionViewIconViewData: Hashable {
         case .tangemPay(.spend):
             return Assets.Visa.otherTransaction.image
         case .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin,
-             .yieldDeploy, .yieldInit, .yieldReactivate:
+             .incentiveClaimCoin, .yieldDeploy, .yieldInit, .yieldReactivate:
             return DesignSystem.Icons.ChartLineVertical.regular20.image
         }
     }
@@ -63,7 +63,7 @@ struct TransactionViewIconViewData: Hashable {
         case .yieldSend where isFromYieldContract:
             return Assets.arrowUpMini.image
         case .yieldSend, .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin,
-             .yieldInit, .yieldDeploy, .yieldReactivate,
+             .incentiveClaim, .incentiveClaimCoin, .yieldInit, .yieldDeploy, .yieldReactivate,
              .transfer, .swap, .onramp, .stake, .unstake, .vote, .restake, .withdraw,
              .claimRewards, .approve, .operation, .unknownOperation,
              .gaslessTransactionFee, .gaslessTransfer, .networkFee, .tangemPay:

@@ -12,7 +12,7 @@ import TangemUI
 struct TokenDetailsActionRowsListView: View {
     let items: [TokenDetailsActionRowItem]
 
-    @ScaledMetric(wrappedValue: .unit(.x2)) private var rowSpacing: CGFloat
+    @ScaledMetric private var rowSpacing: CGFloat = 8
 
     var body: some View {
         VStack(spacing: rowSpacing) {

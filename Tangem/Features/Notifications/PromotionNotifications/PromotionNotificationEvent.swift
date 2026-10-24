@@ -7,6 +7,7 @@
 //
 
 import TangemAssets
+import TangemUI
 import Foundation
 
 struct PromotionNotificationEvent: NotificationEvent {
@@ -25,14 +26,18 @@ struct PromotionNotificationEvent: NotificationEvent {
 
     var colorScheme: NotificationView.ColorScheme { promotion.placeholder == .main ? .primary : .action }
     var severity: NotificationView.Severity { .info }
+    var bannerKind: NotificationBannerKind? { .informational(.leading) }
+    var bannerRing: NotificationBanner.Ring? { .off }
     var isDismissable: Bool { promotion.dismissable }
 
     var analyticsEvent: Analytics.Event? { nil }
     var analyticsParams: [Analytics.ParameterKey: String] {
-        [
+        var params: [Analytics.ParameterKey: String] = [
             .displayId: "\(promotion.id)",
             .placeholder: promotion.placeholder.rawValue,
         ]
+        params[.campaign] = promotion.campaignName
+        return params
     }
 
     var isOneShotAnalyticsEvent: Bool { false }

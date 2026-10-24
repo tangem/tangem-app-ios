@@ -80,6 +80,7 @@ final class CollectiblesStoriesViewModel: ObservableObject {
 
     func onContinueTap() {
         guard !isOnLastSlide else {
+            engine.finish()
             isFinished = true
             return
         }
@@ -88,6 +89,7 @@ final class CollectiblesStoriesViewModel: ObservableObject {
     }
 
     func onCloseTap() {
+        engine.close()
         isFinished = true
     }
 }

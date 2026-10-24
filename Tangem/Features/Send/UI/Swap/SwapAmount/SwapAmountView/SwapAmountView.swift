@@ -113,6 +113,7 @@ struct SwapAmountView: View {
         .didTapNetworkFeeInfoButton { type in
             viewModel.userDidTapNetworkFeeInfoButton(type.message)
         }
+        .didTapEditSlippage(isEnabled: viewModel.isEditSlippageEnabled, viewModel.isEditSlippageAvailable ? { viewModel.userDidTapEditSlippage() } : nil)
         .defaultRoundedBackground(with: Colors.Background.action)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier(SwapAccessibilityIdentifiers.toAmountTextField)

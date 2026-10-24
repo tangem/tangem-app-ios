@@ -8,5 +8,5 @@
 
 protocol JointAccountOnboardingRoutable: AnyObject {
     func closeOnboarding()
-    func continueOnboarding()
+    func continueOnboarding(creationHelper: JointAccountCreationHelper)
 }

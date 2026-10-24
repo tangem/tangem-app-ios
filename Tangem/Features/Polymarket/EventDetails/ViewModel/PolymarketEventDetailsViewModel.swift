@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 import SwiftUI
 import TangemFoundation
 import TangemLocalization
@@ -30,6 +31,9 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
     private var loadingTask: Task<Void, Never>?
     private var pollingTask: Task<Void, Never>?
     private var hasReportedStaleData = false
+    private var isVisible = false
+    private var isInBackground = false
+    private let appStateObserver = AppStateObserver()
 
     init(
         eventID: String,
@@ -46,6 +50,7 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
         self.onOrderPlaced = onOrderPlaced
         self.coordinator = coordinator
 
+        bindApplicationState()
         load()
     }
 
@@ -54,18 +59,39 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
         pollingTask?.cancel()
     }
 
+    // MARK: - View actions
+
+    func handleViewAction(_ action: ViewAction) {
+        switch action {
+        case .onAppear:
+            isVisible = true
+            updatePolling(refreshingNow: true)
+        case .onDisappear:
+            isVisible = false
+            updatePolling(refreshingNow: false)
+        case .close:
+            dismiss()
+        case .retry:
+            load()
+        case .toggleClosedMarkets:
+            toggleClosedMarkets()
+        case .expandDescription:
+            expandDescription()
+        }
+    }
+
     // MARK: - Actions
 
-    func load() {
+    private func load() {
         loadingTask?.cancel()
-        pollingTask?.cancel()
+        stopPolling()
         state = .loading
 
         loadingTask = runTask(in: self) { @MainActor viewModel in
             do {
                 let event = try await viewModel.event()
                 viewModel.state = .content(viewModel.makeContent(from: event))
-                viewModel.startPolling()
+                viewModel.updatePolling(refreshingNow: false)
             } catch {
                 guard !error.isCancellationError else { return }
 
@@ -74,33 +100,51 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func dismiss() {
+    private func dismiss() {
         coordinator?.dismissEventDetails()
     }
 
-    func resumePolling() {
-        guard pollingTask == nil, case .content = state else { return }
+    private func bindApplicationState() {
+        appStateObserver.start { [weak self] isInBackground in
+            guard let self else { return }
 
-        startPolling()
+            self.isInBackground = isInBackground
+            updatePolling(refreshingNow: true)
+        }
     }
 
-    func stopPolling() {
+    private func updatePolling(refreshingNow: Bool) {
+        guard isVisible, !isInBackground, case .content = state else {
+            stopPolling()
+            return
+        }
+
+        guard pollingTask == nil else { return }
+
+        startPolling(refreshingNow: refreshingNow)
+    }
+
+    private func stopPolling() {
         pollingTask?.cancel()
         pollingTask = nil
     }
 
-    func expandDescription() {
+    private func expandDescription() {
         isDescriptionExpanded = true
     }
 
-    func toggleClosedMarkets() {
+    private func toggleClosedMarkets() {
         isClosedMarketsExpanded.toggle()
     }
 
     // MARK: - Loading
 
-    private func startPolling() {
+    private func startPolling(refreshingNow: Bool = false) {
         pollingTask = Task { @MainActor [weak self] in
+            if refreshingNow {
+                await self?.refreshContent()
+            }
+
             while !Task.isCancelled {
                 try? await Task.sleep(nanoseconds: Constants.pollInterval)
 
@@ -154,7 +198,7 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
     }
 
     private func selectOutcome(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String) {
-        guard geoblockStateProvider.state != .blocked else {
+        guard !geoblockStateProvider.state.isBlocked else {
             coordinator?.openRegionWarning()
             return
         }
@@ -170,6 +214,17 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
 }
 
 // MARK: - State
+
+extension PolymarketEventDetailsViewModel {
+    enum ViewAction {
+        case onAppear
+        case onDisappear
+        case close
+        case retry
+        case toggleClosedMarkets
+        case expandDescription
+    }
+}
 
 extension PolymarketEventDetailsViewModel {
     enum State {

@@ -17,4 +17,5 @@ enum SolanaBSDKError: Error {
     case durableNonceTransaction
     case unexpectedTransactionMutation
     case programIdOutsideStaticKeys
+    case walletIsNotSoleRequiredSigner
 }

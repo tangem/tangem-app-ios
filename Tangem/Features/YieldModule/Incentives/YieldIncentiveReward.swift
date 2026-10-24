@@ -27,7 +27,6 @@ struct YieldIncentiveReward: Equatable {
     let serviceFeeRateBps: Int
     let estimatedServiceFeeUsd: Decimal
     let estimatedNetValueUsd: Decimal
-    let claimRecommended: Bool
     let destination: Destination
 
     var isSupported: Bool {
@@ -41,10 +40,6 @@ struct YieldIncentiveReward: Equatable {
 
     var isClaimable: Bool {
         claimableAmount > 0 && isSupported
-    }
-
-    var hasPending: Bool {
-        pendingAmount > 0 && isSupported
     }
 
     var estimatedNetClaimableAmount: BigUInt {
@@ -72,7 +67,6 @@ extension YieldIncentiveReward {
             serviceFeeRateBps: clamp(dto.serviceFeeRateBps, min: 0, max: Constants.maxServiceFeeRateBps),
             estimatedServiceFeeUsd: dto.estimatedServiceFeeUsd,
             estimatedNetValueUsd: dto.estimatedNetValueUsd,
-            claimRecommended: dto.claimRecommended,
             destination: Destination(rawValue: dto.finalDestination.lowercased()) ?? .unsupported
         )
     }

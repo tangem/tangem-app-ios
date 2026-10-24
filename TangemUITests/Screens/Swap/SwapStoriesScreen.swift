@@ -11,7 +11,9 @@ import TangemAccessibilityIdentifiers
 
 final class SwapStoriesScreen: ScreenBase<SwapStoriesScreenElement> {
     private lazy var closeButton = button(.closeButton)
-    private lazy var storyContainer = image(.storyContainer)
+    private lazy var storyContainer = app.images.matching(
+        NSPredicate(format: "identifier BEGINSWITH %@", StoriesAccessibilityIdentifiers.storyContainer)
+    ).firstMatch
 
     @discardableResult
     func assertStoriesDisplayed() -> Self {
@@ -45,6 +47,15 @@ final class SwapStoriesScreen: ScreenBase<SwapStoriesScreenElement> {
                 timeout: .robustUIUpdate,
                 "Close button should be visible on current story page"
             )
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertCurrentStoryPage(_ index: Int) -> Self {
+        XCTContext.runActivity(named: "Assert current story page is \(index)") { _ in
+            let page = app.images[StoriesAccessibilityIdentifiers.storyContainer(page: index)].firstMatch
+            waitAndAssertTrue(page, "Story page \(index) should be displayed")
             return self
         }
     }

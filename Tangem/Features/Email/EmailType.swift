@@ -99,6 +99,7 @@ enum EmailCollectedDataType {
     case visaDisputeTransaction(VisaDisputeTransactionData)
     case mobileWallet(MobileWalletData)
     case tangemPayCustomerId
+    case polymarket(PolymarketData)
 
     enum CardData: String {
         case cardId = "Card ID"
@@ -176,7 +177,15 @@ enum EmailCollectedDataType {
     enum MobileWalletData: String {
         case hasSeedPhraseBackup = "Mobile Wallet is backed up (seed phrase)"
         case hasICloudBackup = "Mobile Wallet is backed up (cloud)"
+        case hasSocialBackup = "Mobile Wallet is backed up (social)"
         case hasAccessCode = "Mobile Wallet has access code"
+    }
+
+    enum PolymarketData: String {
+        case accountState = "Polymarket account state"
+        case depositWalletAddress = "Polymarket deposit wallet address"
+        case availableBalance = "Polymarket available balance"
+        case totalBalance = "Polymarket total balance"
     }
 
     var title: String {
@@ -192,6 +201,7 @@ enum EmailCollectedDataType {
         case .visaDisputeTransaction(let data): return data.rawValue + ": "
         case .mobileWallet(let data): return data.rawValue + ": "
         case .tangemPayCustomerId: return "Tangem Pay Customer ID: "
+        case .polymarket(let data): return data.rawValue + ": "
         }
     }
 }

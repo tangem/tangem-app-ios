@@ -85,45 +85,31 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
     private let layout = StatusScreenLayout.current
 
     @State private var entrance = EntranceState()
-    @State private var footerHeight: CGFloat = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var probedCornerRadius: CGFloat?
     @Environment(\.containerCornerRadius) private var announcedCornerRadius
 
-    /// The content reserves a strip for the footer mid-entrance (measured footer height
-    /// minus the fade overlap — see `StatusScreenMetrics`), reproducing the Figma
-    /// content-area squeeze that lifts the centered header.
+    /// The footer takes part in the layout from the first frame, overlapping the content by
+    /// its fade strip (see `StatusScreenMetrics`), so the centered header stays put while
+    /// the footer and details fade in.
     public var body: some View {
-        VStack(spacing: 0) {
-            header
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        VStack(spacing: -Metrics.footerContentOverlap) {
+            VStack(spacing: 0) {
+                header
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            details
-        }
-        .padding(.bottom, contentBottomInset)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(alignment: .bottom) {
+                details
+            }
+            .padding(.bottom, Metrics.contentFooterBaseInset)
+
             if !isFooterHidden {
                 footer
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background { background }
         .background { ContainerCornerRadiusReader { probedCornerRadius = $0 } }
         .onAppear(perform: startEntrance)
-    }
-
-    private var contentBottomInset: CGFloat {
-        guard !isFooterHidden else {
-            return Metrics.contentFooterBaseInset
-        }
-
-        let reserve = footerHeight > 0
-            ? footerHeight - Metrics.footerContentOverlap
-            : Metrics.contentFooterFallbackReserve
-
-        return entrance.isFooterSlotReserved
-            ? Metrics.contentFooterBaseInset + reserve
-            : Metrics.contentFooterBaseInset
     }
 
     // MARK: - Header
@@ -156,9 +142,6 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
         }
     }
 
-    /// Every first-act slot is reserved up front; the title starts 18 pt higher and eases
-    /// down while the icon draws (the exported Figma render moves it monotonically — the
-    /// spec's overshoot curve does not actually bounce there).
     private var textsWrapper: some View {
         VStack(spacing: Metrics.textSpacing) {
             Text(title)
@@ -172,14 +155,13 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
         }
         .multilineTextAlignment(.center)
         .frame(maxWidth: .infinity)
-        .offset(y: entrance.isTitleSettled ? 0 : Metrics.textsEntranceOffset)
     }
 
     // MARK: - Details
 
     @ViewBuilder
     private var details: some View {
-        if Details.self != EmptyView.self, entrance.isDetailsVisible {
+        if Details.self != EmptyView.self {
             detailsContent
                 .frame(maxWidth: .infinity)
                 // The details area is fixed-height in the design; the flexible header above
@@ -187,7 +169,7 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, Metrics.detailsHorizontalPadding)
                 .padding(.vertical, layout.detailsVerticalPadding)
-                .transition(.opacity.animation(Animations.detailsFade))
+                .opacity(entrance.isDetailsVisible ? 1 : 0)
         }
     }
 
@@ -214,7 +196,6 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
         }
         .opacity(entrance.isFooterFadedIn ? 1 : 0)
         .offset(y: entrance.isFooterSettled ? 0 : Metrics.footerEntranceOffset)
-        .onGeometryChange(for: CGFloat.self, of: { $0.size.height }, action: { footerHeight = $0 })
     }
 
     private var buttons: some View {
@@ -233,7 +214,7 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
             Button(label: actionTitle, accessibilityLabel: actionTitle, action: action)
                 .iconEnd(actionIcon)
                 .size(.x12)
-                .styleType(.default)
+                .styleType(.primary)
                 .horizontalLayout(.infinity)
                 .loading(.spinner(if: isActionLoading))
                 .disabled(isActionDisabled)
@@ -288,12 +269,10 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
 
         withAnimation(Animations.assetSlotFade) { entrance.isAssetSlotFadedIn = true }
         withAnimation(Animations.assetSlotSettle) { entrance.isAssetSlotSettled = true }
-        withAnimation(Animations.titleSettle) { entrance.isTitleSettled = true }
         withAnimation(Animations.secondaryTextReveal) { entrance.isSecondaryTextVisible = true }
-        withAnimation(Animations.detailsLayoutShift) { entrance.isDetailsVisible = true }
+        withAnimation(Animations.detailsFade) { entrance.isDetailsVisible = true }
         withAnimation(Animations.circlesReveal) { entrance.areCirclesVisible = true }
         withAnimation(Animations.glowRingReveal) { entrance.isGlowRingVisible = true }
-        withAnimation(Animations.footerSlotReserve) { entrance.isFooterSlotReserved = true }
         withAnimation(Animations.footerFade) { entrance.isFooterFadedIn = true }
         withAnimation(Animations.footerSettle) { entrance.isFooterSettled = true }
     }
@@ -324,25 +303,21 @@ private struct AxisStack<Content: View>: View {
 private struct EntranceState {
     var isAssetSlotFadedIn = false
     var isAssetSlotSettled = false
-    var isTitleSettled = false
     var isSecondaryTextVisible = false
     var isDetailsVisible = false
     var areCirclesVisible = false
     var isGlowRingVisible = false
     var isFooterFadedIn = false
-    var isFooterSlotReserved = false
     var isFooterSettled = false
 
     static let settled: Self = .init(
         isAssetSlotFadedIn: true,
         isAssetSlotSettled: true,
-        isTitleSettled: true,
         isSecondaryTextVisible: true,
         isDetailsVisible: true,
         areCirclesVisible: true,
         isGlowRingVisible: true,
         isFooterFadedIn: true,
-        isFooterSlotReserved: true,
         isFooterSettled: true
     )
 }
@@ -350,23 +325,20 @@ private struct EntranceState {
 // MARK: - Animations
 
 /// Entrance choreography measured frame-by-frame from the exported Figma preview
-/// (`export_video` of the Animation section, 60 fps): the title eases 18 pt down at
-/// 430–570 ms monotonically while the icon draws (430–900 ms incl. bounce), the
-/// description/badge fade in right as the drawing finishes (570–730 ms), then the
-/// second act from 1000 ms — the content area shrinks to make room for the footer
-/// (lifting the header ~30 pt), background circles and the glow ring fade in, details
-/// appear, and the footer rises from the bottom edge at 1150–1400 ms.
+/// (`export_video` of the Animation section, 60 fps): the icon draws at 430–900 ms
+/// (incl. bounce), the description/badge fade in right as the drawing finishes
+/// (570–730 ms), then the second act from 1000 ms — background circles, the glow ring
+/// and details fade in, and the footer rises from the bottom edge at 1150–1400 ms. Unlike
+/// the Figma preview, the layout is fixed from the first frame on purpose: the title doesn't
+/// ease down and the content area doesn't squeeze, so the header never moves.
 private enum StatusScreenAnimations {
     static let assetSlotDelay: TimeInterval = 0.3
     static let assetSlotFade = Animation.timingCurve(0.5, 0, 0.5, 1, duration: 0.3).delay(assetSlotDelay)
     static let assetSlotSettle = Animation.timingCurve(0.45, 1.45, 0.8, 1, duration: 0.3).delay(assetSlotDelay)
-    static let titleSettle = Animation.easeOut(duration: 0.15).delay(0.43)
     static let secondaryTextReveal = Animation.easeInOut(duration: 0.16).delay(0.57)
     static let detailsFade = Animation.easeInOut(duration: 0.2).delay(1.0)
-    static let detailsLayoutShift = Animation.timingCurve(0, 0.4, 0.3, 1, duration: 0.3).delay(1.0)
     static let circlesReveal = Animation.easeInOut(duration: 0.4).delay(1.0)
     static let glowRingReveal = Animation.timingCurve(0.5, 0, 0.5, 1, duration: 0.2).delay(1.0)
-    static let footerSlotReserve = Animation.timingCurve(0, 0.4, 0.3, 1, duration: 0.3).delay(1.0)
     static let footerFade = Animation.easeInOut(duration: 0.2).delay(1.15)
     static let footerSettle = Animation.timingCurve(0, 0.4, 0.3, 1, duration: 0.25).delay(1.15)
 }
@@ -377,7 +349,7 @@ private enum StatusScreenAnimations {
 /// the header overruns its slot and rides up under the status bar, and the glow ring's
 /// rounded clip carves corners out of a display that has square ones. `compact` retunes the
 /// vertical rhythm for those; the footer keeps its overall height in both sizes, so the
-/// entrance choreography (which reserves that height mid-flight) is unaffected.
+/// strip the content reserves for it is the same.
 private enum StatusScreenLayout {
     case compact
     case regular
@@ -420,7 +392,7 @@ private enum StatusScreenLayout {
     var footerTopPadding: CGFloat {
         switch self {
         case .compact: 12
-        case .regular: 24
+        case .regular: 8
         }
     }
 
@@ -450,13 +422,11 @@ private enum StatusScreenMetrics {
     static let footerHorizontalPadding: CGFloat = 16
     static let footerButtonSpacing: CGFloat = 8
     static let footerCaptionSpacing: CGFloat = 12
-    /// Figma's content area runs 820 pt up front and squeezes when the footer arrives.
-    /// The footer overlaps the content by a fixed fade strip, so the squeeze is the
-    /// measured footer height minus that overlap (60 pt for the single-button footer,
-    /// matching the 820 → 760 spec).
+    /// The footer overlaps the content by a fixed fade strip. Figma squeezes the content
+    /// area from 820 to 760 pt when the footer arrives; the app keeps the 760 pt layout
+    /// from the first frame instead, on purpose, so the header never jumps.
     static let contentFooterBaseInset: CGFloat = 20
     static let footerContentOverlap: CGFloat = 20
-    static let contentFooterFallbackReserve: CGFloat = 60
 
     static let circleSize: CGFloat = 360
     static let dimCircleOpacity: Double = 0.1
@@ -468,7 +438,6 @@ private enum StatusScreenMetrics {
     static let circleEntranceScale: CGFloat = 0.4
 
     static let assetSlotEntranceOffset: CGFloat = 36
-    static let textsEntranceOffset: CGFloat = -18
     static let footerEntranceOffset: CGFloat = 90
 }
 

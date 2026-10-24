@@ -13,7 +13,7 @@ final class TangemPayKYCDeclinedSheet: Screen {
     let app: XCUIApplication
 
     private lazy var primaryButton = app.buttons[TangemPayAccessibilityIdentifiers.kycDeclinedSheetPrimaryButton].firstMatch
-    private lazy var title = app.staticTexts["Rejected"].firstMatch
+    private lazy var title = app.staticTexts[Localization.tangempayKycRejected].firstMatch
 
     init(_ app: XCUIApplication) {
         self.app = app

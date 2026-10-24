@@ -18,11 +18,11 @@ extension TangemPayStaleStateBannerChecks {
         XCTContext.runActivity(named: "Verify session expired banner is displayed") { _ in
             waitAndAssertTrue(sessionExpiredBanner, timeout: .networkRequest, "Session expired banner should be displayed")
             waitAndAssertTrue(
-                bannerText(containing: "Payment account session expired"),
+                bannerText(containing: Localization.tangempaySyncNeededTitle),
                 "Session expired banner should show the title"
             )
             waitAndAssertTrue(
-                bannerText(containing: "Use your card or ring to renew session"),
+                bannerText(containing: Localization.tangempaySyncNeededBody),
                 "Session expired banner should show the description"
             )
             return self
@@ -45,11 +45,11 @@ extension TangemPayStaleStateBannerChecks {
         XCTContext.runActivity(named: "Verify connection issues banner is displayed") { _ in
             waitAndAssertTrue(serviceUnavailableBanner, timeout: .networkRequest, "Connection issues banner should be displayed")
             waitAndAssertTrue(
-                bannerText(containing: "Connection issues"),
+                bannerText(containing: Localization.tangempayTemporarilyUnavailable),
                 "Connection issues banner should show the title"
             )
             waitAndAssertTrue(
-                bannerText(containing: "Service unreachable. However, card payments are still working."),
+                bannerText(containing: Localization.tangempayServiceUnreachableTryLater),
                 "Connection issues banner should show the description"
             )
             return self
@@ -72,7 +72,7 @@ extension TangemPayStaleStateBannerChecks {
         XCTContext.runActivity(named: "Verify Renew session button is displayed on the banner") { _ in
             let renewButton = notificationBannerButton(TangemPayAccessibilityIdentifiers.sessionExpiredNotification)
             waitAndAssertTrue(renewButton, "Renew session button should be displayed on the session expired banner")
-            XCTAssertEqual(renewButton.label, "Renew session", "Banner button should be the Renew session action")
+            XCTAssertEqual(renewButton.label, Localization.tangempaySyncNeededButton, "Banner button should be the Renew session action")
             return self
         }
     }
@@ -89,6 +89,32 @@ extension TangemPayStaleStateBannerChecks {
                 sessionExpiredBanner.waitForNonExistence(timeout: .networkRequest),
                 "Session expired banner should disappear once the session is renewed"
             )
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapRenewSession() -> Self {
+        XCTContext.runActivity(named: "Tap Renew session") { _ in
+            let renewButton = notificationBannerButton(TangemPayAccessibilityIdentifiers.sessionExpiredNotification)
+            waitAndAssertTrue(renewButton, timeout: .networkRequest, "Session expired banner should offer to renew the session")
+            renewButton.waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyRenewSessionAvailableAfterFailure() -> Self {
+        XCTContext.runActivity(named: "Verify the failed renewal returns the Renew session button without an alert") { _ in
+            let renewButton = notificationBannerButton(TangemPayAccessibilityIdentifiers.sessionExpiredNotification)
+            let enabledRenewButton = NSPredicate(format: "exists == true AND enabled == true AND label == %@", Localization.tangempaySyncNeededButton)
+            let expectation = XCTNSPredicateExpectation(predicate: enabledRenewButton, object: renewButton)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .networkRequest),
+                .completed,
+                "Renew session button should become available again after the renewal fails"
+            )
+            XCTAssertFalse(app.alerts.firstMatch.waitForExistence(timeout: .shortUIUpdate), "A failed renewal of a mobile wallet should not show an alert")
             return self
         }
     }

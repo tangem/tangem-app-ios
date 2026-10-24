@@ -52,6 +52,11 @@ final class ActionButtonsBuyViewModel: ObservableObject {
 
     func onAppear() {
         ActionButtonsAnalyticsService.trackScreenOpened(.buy)
+        pulseMarketWidgetViewModel?.resumeQuotesUpdates()
+    }
+
+    func onDisappear() {
+        pulseMarketWidgetViewModel?.pauseQuotesUpdates()
     }
 
     func close() {

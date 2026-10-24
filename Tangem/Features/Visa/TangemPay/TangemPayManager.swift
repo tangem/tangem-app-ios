@@ -75,6 +75,8 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     private let cachedStateStorage: TangemPayCachedStateStorage
     private let customerInfoCacheStorage: TangemPayCustomerInfoCacheStorage
     private let cashbackCacheStorage: TangemPayCashbackCacheStorage
+    private let residencyStatusStorage: TangemPayResidencyStatusStorage
+    private let waitlistService: TangemPayWaitlistService
     private let tangemPayAccountBuilder: TangemPayAccountBuilder
 
     private let stateSubject = CurrentValueSubject<TangemPayLocalState?, Never>(nil)
@@ -95,6 +97,8 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         cachedStateStorage: TangemPayCachedStateStorage,
         customerInfoCacheStorage: TangemPayCustomerInfoCacheStorage,
         cashbackCacheStorage: TangemPayCashbackCacheStorage,
+        residencyStatusStorage: TangemPayResidencyStatusStorage,
+        waitlistService: TangemPayWaitlistService,
         tangemPayAccountBuilder: TangemPayAccountBuilder
     ) {
         self.userWalletId = userWalletId
@@ -110,6 +114,8 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         self.cachedStateStorage = cachedStateStorage
         self.customerInfoCacheStorage = customerInfoCacheStorage
         self.cashbackCacheStorage = cashbackCacheStorage
+        self.residencyStatusStorage = residencyStatusStorage
+        self.waitlistService = waitlistService
         self.tangemPayAccountBuilder = tangemPayAccountBuilder
 
         bind()
@@ -173,13 +179,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         runTask { [self] in
             do {
                 try await customerService.cancelKYC()
-                paeraCustomerFlagRepository.setIsKYCHidden(true, for: customerWalletId)
-                paeraCustomerFlagRepository.setIsPaeraCustomer(false, for: customerWalletId)
-                paeraCustomerFlagRepository.setShouldShowGetBanner(false)
-                customerInfoCacheStorage.clearCachedCustomerInfo(customerWalletId: customerWalletId)
-                cashbackCacheStorage.clearCachedCashbackSummary(customerWalletId: customerWalletId)
-                tangemPayRecentOperationsStore.clear(customerWalletId: customerWalletId)
-                stateSubject.value = nil
+                hideLocally()
                 onFinish(true)
             } catch {
                 VisaLogger.error("Failed to cancel KYC", error: error)
@@ -191,6 +191,27 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
 
     func removeAccount(onFinish: @escaping (Bool) -> Void) {
         cancelKYC(onFinish: onFinish)
+    }
+
+    func hideAccountFromHome() {
+        orderStatusPollingService.cancel()
+        hideLocally()
+    }
+
+    func beginResidency() {
+        residencyStatusStorage.setResidencyStatus(.pending, userWalletId: userWalletId, product: .paymentAccount)
+        applyResidencyStatus()
+    }
+
+    func completeResidency(_ result: TangemPayResidencyResult) {
+        switch result {
+        case .eligible:
+            residencyStatusStorage.clearResidencyStatus(userWalletId: userWalletId, product: .paymentAccount)
+        case .unavailable(let region):
+            residencyStatusStorage.setResidencyStatus(.unavailable(region), userWalletId: userWalletId, product: .paymentAccount)
+        }
+
+        applyResidencyStatus()
     }
 
     func refreshState() async {
@@ -226,7 +247,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
             return
         }
 
-        let weakReferenceHolder = TangemPayManagerWeakReferenceHolder(tangemPayManager: self)
+        let weakReferenceHolder = makeWeakReferenceHolder()
 
         switch enrollmentState {
         case .enrolled(let customerInfo):
@@ -244,7 +265,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
 
         case .kycRequired:
             orderStatusPollingService.cancel()
-            stateSubject.value = .kycRequired(weakReferenceHolder)
+            stateSubject.value = makeKYCRequiredState()
 
         case .kycDeclined:
             orderStatusPollingService.cancel()
@@ -258,14 +279,18 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
 
     func renewSession(
         authorizingInteractor: TangemPayAuthorizing,
-        completion: @escaping () -> Void
+        completion: @escaping (TangemPayAuthorizationError?) -> Void
     ) {
         runTask { [self] in
-            try? await authorizeWithCustomerWallet(
-                authorizingInteractor: authorizingInteractor,
-                showSyncInProgress: true
-            )
-            completion()
+            do {
+                try await authorizeWithCustomerWallet(
+                    authorizingInteractor: authorizingInteractor,
+                    showSyncInProgress: true
+                )
+                completion(nil)
+            } catch {
+                completion(error as? TangemPayAuthorizationError)
+            }
         }
     }
 
@@ -358,6 +383,46 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     func cancelTariffPlanPendingTransition() async throws {
         try await customerService.cancelTariffPlanPendingTransition()
         await refreshState()
+    }
+
+    private func makeWeakReferenceHolder() -> TangemPayManagerWeakReferenceHolder {
+        TangemPayManagerWeakReferenceHolder(tangemPayManager: self, waitlistService: waitlistService)
+    }
+
+    private func makeKYCRequiredState() -> TangemPayLocalState {
+        let weakReferenceHolder = makeWeakReferenceHolder()
+
+        guard FeatureProvider.isAvailable(.tangemPayChooseCountry) else {
+            return .kycRequired(weakReferenceHolder)
+        }
+
+        switch residencyStatusStorage.residencyStatus(userWalletId: userWalletId, product: .paymentAccount) {
+        case .pending:
+            return .residencyRequired(weakReferenceHolder)
+        case .unavailable(let region):
+            return .regionUnavailable(region, weakReferenceHolder)
+        case .none:
+            return .kycRequired(weakReferenceHolder)
+        }
+    }
+
+    private func applyResidencyStatus() {
+        switch stateSubject.value {
+        case .kycRequired, .residencyRequired, .regionUnavailable:
+            stateSubject.value = makeKYCRequiredState()
+        default:
+            break
+        }
+    }
+
+    private func hideLocally() {
+        paeraCustomerFlagRepository.setIsKYCHidden(true, for: customerWalletId)
+        paeraCustomerFlagRepository.setIsPaeraCustomer(false, for: customerWalletId)
+        paeraCustomerFlagRepository.setShouldShowGetBanner(false)
+        customerInfoCacheStorage.clearCachedCustomerInfo(customerWalletId: customerWalletId)
+        cashbackCacheStorage.clearCachedCashbackSummary(customerWalletId: customerWalletId)
+        tangemPayRecentOperationsStore.clear(customerWalletId: customerWalletId)
+        stateSubject.value = nil
     }
 
     private func makePaymentAccount(

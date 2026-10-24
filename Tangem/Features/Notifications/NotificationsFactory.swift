@@ -54,7 +54,15 @@ struct NotificationsFactory {
         for event: Event,
         action: NotificationView.NotificationButtonTapAction?
     ) -> NotificationView.Style {
-        guard let action, let buttonAction = event.buttonAction else {
+        guard let action else {
+            return .plain
+        }
+
+        if let tapAction = event.tapAction {
+            return .tappable(hasChevron: true, action: { id in action(id, tapAction) })
+        }
+
+        guard let buttonAction = event.buttonAction else {
             return .plain
         }
 

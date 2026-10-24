@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 
@@ -80,7 +81,8 @@ private extension OfframpFormKeyboardToolbar {
             action: { action(.dismissKeyboard) }
         )
         .size(.x10)
-        .styleType(.default)
+        .styleType(.primary)
+        .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.formKeyboardDismissButton)
     }
 }
 

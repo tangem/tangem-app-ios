@@ -47,6 +47,22 @@ struct PolymarketOrderRecordTests {
         #expect(record.isFullyMatched)
     }
 
+    @Test("Dust rounds to nothing in money and is still a filled sale")
+    func dustIsStillAFill() {
+        let record = PolymarketOrderRecord(
+            status: .matched,
+            originalSize: Decimal(string: "0.4")!,
+            matchedSize: Decimal(string: "0.4")!,
+            price: Decimal(string: "0.01")!
+        )
+
+        let placement = PolymarketOrderPlacement.settled(record, orderId: "order", side: .sell)
+
+        #expect(record.executedAmount == 0)
+        #expect(!placement.isMatchedWithoutFill(side: .sell))
+        #expect(placement.filledShares(side: .sell) == Decimal(string: "0.4")!)
+    }
+
     @Test("A status this build does not know is not mistaken for a match")
     func unknownStatusIsNotAMatch() {
         #expect(PolymarketOrderRecordStatus(rawValue: "ORDER_STATUS_SOMETHING_NEW") == nil)

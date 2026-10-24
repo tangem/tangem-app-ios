@@ -76,8 +76,9 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
 
         try await connectedDAppRepository.replaceExistingDApp(with: updatedConnectedDApp)
 
-        let emptyResponse = AnyCodable("")
-        return JSONRPC.RPCResult.response(emptyResponse)
+        await wcService.emitChainChanged(to: blockchainToAdd, topic: connectedDApp.session.topic)
+
+        return JSONRPC.RPCResult.response(AnyCodable(String?.none))
     }
 
     // MARK: - Private methods
@@ -150,7 +151,7 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
 // MARK: - Nested types
 
 extension WalletConnectAddEthereumChainMessageHandler {
-    private struct RequestParameterEntry: Codable {
+    struct RequestParameterEntry: Codable {
         let chainId: String
         let blockExplorerUrls: [String]
         let nativeCurrency: NativeCurrency

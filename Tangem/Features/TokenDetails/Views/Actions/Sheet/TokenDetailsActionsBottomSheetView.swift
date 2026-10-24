@@ -14,8 +14,8 @@ import TangemLocalization
 struct TokenDetailsActionsBottomSheetView: View {
     @ObservedObject var viewModel: TokenDetailsActionsBottomSheetViewModel
 
-    @ScaledMetric(wrappedValue: .unit(.x4)) private var horizontalPadding: CGFloat
-    @ScaledMetric(wrappedValue: .unit(.x4)) private var bottomPadding: CGFloat
+    @ScaledMetric private var horizontalPadding: CGFloat = 16
+    @ScaledMetric private var bottomPadding: CGFloat = 16
 
     var body: some View {
         Group {
@@ -36,7 +36,7 @@ struct TokenDetailsActionsBottomSheetView: View {
         VStack(spacing: .zero) {
             FloatingSheetNavigationBarView(
                 title: viewModel.title,
-                backgroundColor: Color.Tangem.Surface.level2,
+                backgroundColor: DesignSystem.Color.bgPrimary,
                 closeButtonAction: viewModel.onClose
             )
 
@@ -48,11 +48,11 @@ struct TokenDetailsActionsBottomSheetView: View {
                 .padding(.top, bottomPadding)
                 .padding(.bottom, bottomPadding)
         }
-        .background(Color.Tangem.Surface.level2)
+        .background(DesignSystem.Color.bgPrimary)
         // Scoped to the actions branch so receive keeps ReceiveMainView's own configuration; the
         // frame-update animation must live here to keep the actions->receive height change animated.
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = Color.Tangem.Surface.level2
+            configuration.sheetBackgroundColor = DesignSystem.Color.bgPrimary
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }

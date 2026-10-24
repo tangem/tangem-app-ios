@@ -20,15 +20,17 @@ struct YieldModuleMarketInfo: Codable, Equatable {
 
     /// The total comes from the backend as is — the app never sums APY components locally.
     var effectiveApy: Decimal {
-        incentive?.totalApyEst ?? apy
+        incentive?.grossTotalApyEst ?? apy
     }
 }
 
 /// Merkl campaign overlay of an active market, in the same fraction form as `apy`.
-/// `rewardsApr` is net of the Tangem service fee; surfaces that show the reward component hide it when `nil`.
+/// Surfaces that show the reward component hide it when `grossRewardsApy` is `nil`.
 struct YieldModuleMarketIncentive: Codable, Equatable {
-    let rewardsApr: Decimal?
-    let totalApyEst: Decimal
+    let grossRewardsApy: Decimal?
+    let netRewardsApy: Decimal?
+    let grossTotalApyEst: Decimal
+    let netTotalApyEst: Decimal?
 }
 
 extension YieldModuleMarketInfo {
@@ -40,9 +42,7 @@ extension YieldModuleMarketInfo {
             chainId: dto.chainId,
             maxFeeNative: dto.maxFeeNative,
             maxFeeUSD: dto.maxFeeUSD,
-            incentive: includeIncentive
-                ? Self.makeIncentive(hasActiveCampaign: dto.hasActiveCampaign, rewardsApr: dto.rewardsApr, totalApyEst: dto.totalApyEst)
-                : nil
+            incentive: includeIncentive ? Self.makeIncentive(dto: dto) : nil
         )
     }
 
@@ -58,19 +58,17 @@ extension YieldModuleMarketInfo {
         )
     }
 
-    private static func makeIncentive(
-        hasActiveCampaign: Bool?,
-        rewardsApr: Decimal?,
-        totalApyEst: Decimal?
-    ) -> YieldModuleMarketIncentive? {
-        // A missing `rewardsApr` must not kill the whole overlay — only the reward-component surfaces need it.
-        guard hasActiveCampaign == true, let totalApyEst else {
+    private static func makeIncentive(dto: YieldModuleDTO.Response.MarketInfo) -> YieldModuleMarketIncentive? {
+        // A missing `grossRewardsApy` must not kill the whole overlay — only the reward-component surfaces need it.
+        guard dto.hasActiveCampaign == true, let grossTotalApyEst = dto.grossTotalApyEst else {
             return nil
         }
 
         return YieldModuleMarketIncentive(
-            rewardsApr: rewardsApr.map { $0 / 100 },
-            totalApyEst: totalApyEst / 100
+            grossRewardsApy: dto.grossRewardsApy.map { $0 / 100 },
+            netRewardsApy: dto.netRewardsApy.map { $0 / 100 },
+            grossTotalApyEst: grossTotalApyEst / 100,
+            netTotalApyEst: dto.netTotalApyEst.map { $0 / 100 }
         )
     }
 }

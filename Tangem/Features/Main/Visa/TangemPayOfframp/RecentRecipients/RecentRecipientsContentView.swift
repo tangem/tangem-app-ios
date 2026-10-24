@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -24,6 +25,7 @@ struct RecentRecipientsContentView: View {
                         Row(title: recipient.name, subtitle: recipient.subtitle)
                             .start { monogram(recipient.monogram) }
                             .onTap { onRecipientTap(recipient.id) }
+                            .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.recipientsRow)
                     }
                 } header: {
                     if !recipients.isEmpty {
@@ -72,6 +74,7 @@ private extension RecentRecipientsContentView {
             Text(Localization.tangempayWithdrawBankRecipientsSearchEmpty)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
+                .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.recipientsSearchEmpty)
         }
         .padding(.horizontal, Constants.horizontalPadding)
         .infinityFrame()

@@ -28,14 +28,7 @@ final class AccountFormScreen: ScreenBase<AccountFormScreenElement> {
     @discardableResult
     func clearNameAndType(_ name: String) -> Self {
         XCTContext.runActivity(named: "Clear name and type: '\(name)'") { _ in
-            scrollToElement(nameInput)
-            let clearButton = app.buttons["Clear text"].firstMatch
-            if !nameInput.hasFocus {
-                nameInput.tap()
-            }
-            if clearButton.exists {
-                clearButton.tap()
-            }
+            clearTextBySelectingAll(element: nameInput)
             typeReliably(element: nameInput, text: name)
             dismissKeyboard()
             return self

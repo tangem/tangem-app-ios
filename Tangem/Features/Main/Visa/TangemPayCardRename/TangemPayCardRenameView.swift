@@ -7,10 +7,6 @@
 //
 
 import SwiftUI
-import TangemAssets
-import TangemLocalization
-import TangemUI
-import TangemUIUtils
 
 struct TangemPayCardRenameView: View {
     @ObservedObject var viewModel: TangemPayCardRenameViewModel

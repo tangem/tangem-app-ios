@@ -139,7 +139,8 @@ private extension StakingYieldInfo {
                 rewardType: .apy,
                 rewardRate: 0.05,
                 status: limit != nil ? .active : .full,
-                maximumStakeAmount: limit
+                maximumStakeAmount: limit,
+                allowsPartialUnstake: true
             )
         }
         return StakingYieldInfo(
@@ -156,6 +157,7 @@ private extension StakingYieldInfo {
             warmupPeriod: .days(0),
             rewardClaimingType: .auto,
             rewardScheduleType: .daily,
+            rewardsIncludedInStake: true,
             maximumStakeAmount: targets.compactMap(\.maximumStakeAmount).min()
         )
     }

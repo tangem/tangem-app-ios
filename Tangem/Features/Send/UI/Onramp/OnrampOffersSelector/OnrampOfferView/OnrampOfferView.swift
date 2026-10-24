@@ -116,6 +116,7 @@ struct OnrampOfferView: View {
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.provider.name))
 
             OnrampAmountBadge(badge: viewModel.amount.badge)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmountBadge(name: viewModel.provider.name))
 
             if let infoAction = viewModel.amount.infoAction {
                 SwiftUI.Button(action: infoAction) {
@@ -124,6 +125,7 @@ struct OnrampOfferView: View {
                         .foregroundStyle(Colors.Icon.informative)
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerInfoButton(name: viewModel.provider.name))
             }
         }
     }
@@ -175,12 +177,14 @@ struct OnrampOfferView: View {
                 .size(.medium)
                 .style(.primary)
                 .disabled(!viewModel.isAvailable)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerBuyButton(name: viewModel.provider.name))
         case .nativeApplePay(let onTap):
             PKPaymentButtonRepresentable(action: onTap)
                 .frame(width: 66, height: 32)
                 .clipShape(Capsule())
                 .disabled(!viewModel.isAvailable)
                 .opacity(viewModel.isAvailable ? 1 : 0.4)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerNativeApplePayButton(name: viewModel.provider.name))
         }
     }
 

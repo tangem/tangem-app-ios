@@ -172,6 +172,8 @@ struct SupportedBlockchains {
             .robinhood(testnet: false),
             .electroneum(testnet: false),
             .arc(testnet: false),
+            .publicMasterpiece,
+            .onyx(testnet: false),
         ]
     }
 
@@ -247,6 +249,7 @@ struct SupportedBlockchains {
             .electroneum(testnet: true),
             .seiEvm(testnet: true),
             .arc(testnet: true),
+            .onyx(testnet: true),
         ]
     }
 

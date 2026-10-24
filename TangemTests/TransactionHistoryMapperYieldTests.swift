@@ -19,16 +19,16 @@ struct TransactionHistoryMapperYieldTests {
 
     @Test("Enabling and disabling Yield Mode stays a chip, for both the token and the coin variant")
     func enableDisableAreChips() {
-        #expect(makeSUT(isToken: true).mapTransactionViewModel(makeYieldRecord(method: "yieldEnter")).display.style == .chip)
-        #expect(makeSUT(isToken: false).mapTransactionViewModel(makeYieldRecord(method: "yieldEnter")).display.style == .chip)
-        #expect(makeSUT(isToken: true).mapTransactionViewModel(makeYieldRecord(method: "yieldWithdraw")).display.style == .chip)
-        #expect(makeSUT(isToken: false).mapTransactionViewModel(makeYieldRecord(method: "yieldWithdraw")).display.style == .chip)
+        #expect(makeSUT(isToken: true).mapTransactionViewModel(makeYieldRecord(method: "yieldEnter")).display.style == .chip(.plain))
+        #expect(makeSUT(isToken: false).mapTransactionViewModel(makeYieldRecord(method: "yieldEnter")).display.style == .chip(.plain))
+        #expect(makeSUT(isToken: true).mapTransactionViewModel(makeYieldRecord(method: "yieldWithdraw")).display.style == .chip(.plain))
+        #expect(makeSUT(isToken: false).mapTransactionViewModel(makeYieldRecord(method: "yieldWithdraw")).display.style == .chip(.plain))
     }
 
     @Test("Supply and Withdraw are chips")
     func supplyAndWithdrawAreChips() {
-        #expect(makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldTopup")).display.style == .chip)
-        #expect(makeSUT().mapTransactionViewModel(makeWithdrawRecord()).display.style == .chip)
+        #expect(makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldTopup")).display.style == .chip(.plain))
+        #expect(makeSUT().mapTransactionViewModel(makeWithdrawRecord()).display.style == .chip(.plain))
     }
 
     @Test("Contract lifecycle calls are full rows")
@@ -66,18 +66,18 @@ struct TransactionHistoryMapperYieldTests {
 
     // MARK: - Type-driven sign
 
-    @Test("Supply is signed `+` even though the funds leave the wallet")
-    func supplySignIsPositive() {
+    @Test("Supply is signed `−`: the funds leave the wallet")
+    func supplySignIsNegative() {
         let viewModel = makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldTopup", isOutgoing: true))
 
-        #expect(viewModel.amount.value.hasPrefix(AppConstants.plusSign))
+        #expect(viewModel.amount.value?.hasPrefix(AppConstants.minusSign) == true)
     }
 
-    @Test("Withdraw is signed `−` even though the funds come back to the wallet")
-    func withdrawSignIsNegative() {
+    @Test("Withdraw is signed `+`: the funds come back to the wallet")
+    func withdrawSignIsPositive() {
         let viewModel = makeSUT().mapTransactionViewModel(makeWithdrawRecord())
 
-        #expect(viewModel.amount.value.hasPrefix(AppConstants.minusSign))
+        #expect(viewModel.amount.value?.hasPrefix(AppConstants.plusSign) == true)
     }
 
     @Test("The coin variants of enable and disable stay unsigned, like the token ones")
@@ -94,23 +94,89 @@ struct TransactionHistoryMapperYieldTests {
 
     @Test("The sign the redesign invents never reaches the legacy amount string")
     func legacyAmountStaysUnsigned() {
-        #expect(!makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldTopup")).amount.amount.hasPrefix(AppConstants.plusSign))
-        #expect(!makeSUT().mapTransactionViewModel(makeWithdrawRecord()).amount.amount.hasPrefix(AppConstants.minusSign))
+        for record in [makeYieldRecord(method: "yieldTopup"), makeWithdrawRecord()] {
+            let amount = makeSUT().mapTransactionViewModel(record).amount.amount
+
+            #expect(!amount.hasPrefix(AppConstants.minusSign))
+            #expect(!amount.hasPrefix(AppConstants.plusSign))
+        }
     }
 
     @Test("A failed Supply drops the sign, matching the strikethrough treatment of every other type")
     func failedSupplyIsUnsigned() {
         let viewModel = makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldTopup", status: .failed))
 
-        #expect(!viewModel.amount.value.hasPrefix(AppConstants.plusSign))
+        #expect(viewModel.amount.value?.hasPrefix(AppConstants.minusSign) == false)
+        #expect(viewModel.amount.value?.hasPrefix(AppConstants.plusSign) == false)
+    }
+
+    // MARK: - Incentive claim
+
+    @Test("The claim is a chip on the coin screen and a full row on the reward token")
+    func claimStyleDependsOnTheScreen() {
+        #expect(makeSUT(isToken: false).mapTransactionViewModel(makeClaimRecord()).display.style == .chip(.success))
+        #expect(makeSUT(isToken: true).mapTransactionViewModel(makeClaimRecord()).display.style == .row)
+    }
+
+    @Test("Only a settled claim goes green; in flight and failed keep the treatment every chip shares")
+    func claimCoinChipStyleFollowsStatus() {
+        let sut = makeSUT(isToken: false)
+        let make = { (status: TransactionRecord.TransactionStatus) in
+            sut.mapTransactionViewModel(makeClaimRecord(status: status)).display.style
+        }
+
+        #expect(make(.unconfirmed) == .chip(.progress))
+        #expect(make(.confirmed) == .chip(.success))
+        #expect(make(.failed) == .chip(.error))
+    }
+
+    @Test("The coin chip states the claim and nothing else, as no reward reaches that balance")
+    func claimCoinChipIsLabelOnly() {
+        let viewModel = makeSUT(isToken: false).mapTransactionViewModel(makeClaimRecord())
+
+        #expect(viewModel.amount.displayValue == nil)
+        #expect(viewModel.display.subtitle == nil)
+    }
+
+    @Test("The reward row keeps its amount and names Merkl instead of the module address it came from")
+    func claimRowKeepsAmountAndNamesTheProvider() {
+        let viewModel = makeSUT(isToken: true)
+            .mapTransactionViewModel(makeClaimRecord(), subtitleOwnerResolver: makeResolver())
+
+        #expect(viewModel.amount.displayValue != nil)
+        #expect(viewModel.display.subtitle == .provider(direction: .incoming, provider: .merkl))
+    }
+
+    @Test("The coin chip names the claim and follows its status")
+    func claimCoinTitleFollowsStatus() {
+        let sut = makeSUT(isToken: false)
+        let make = { (status: TransactionRecord.TransactionStatus) in
+            sut.mapTransactionViewModel(makeClaimRecord(status: status)).display.title
+        }
+
+        #expect(make(.unconfirmed) == .plain(Localization.transactionHistoryClaimingIncentiveRewards))
+        #expect(make(.confirmed) == .plain(Localization.transactionHistoryIncentiveRewardsClaimed))
+        #expect(make(.failed) == .plain(Localization.transactionHistoryStatusIncentiveRewardsClaimFailed))
+    }
+
+    @Test("The reward row reads as the incoming transfer it is")
+    func claimRowFollowsItsDirection() {
+        let sut = makeSUT(isToken: true)
+        let make = { (status: TransactionRecord.TransactionStatus) in
+            sut.mapTransactionViewModel(makeClaimRecord(status: status)).display.title
+        }
+
+        #expect(make(.unconfirmed) == .plain(Localization.commonReceiving))
+        #expect(make(.confirmed) == .plain(Localization.commonReceived))
+        #expect(make(.failed) == .plain(Localization.transactionHistoryStatusReceiveFailed))
     }
 
     // MARK: - Provider subtitle
 
     @Test("Supply names the provider it sends to, Withdraw the one it comes back from")
     func supplyAndWithdrawNameTheProvider() {
-        #expect(makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldTopup")).display.subtitle == .provider(direction: .outgoing))
-        #expect(makeSUT().mapTransactionViewModel(makeWithdrawRecord()).display.subtitle == .provider(direction: .incoming))
+        #expect(makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldTopup")).display.subtitle == .provider(direction: .outgoing, provider: .aave))
+        #expect(makeSUT().mapTransactionViewModel(makeWithdrawRecord()).display.subtitle == .provider(direction: .incoming, provider: .aave))
     }
 
     @Test("A transfer-like yieldSend keeps its counterparty subtitle instead of the provider")
@@ -134,8 +200,8 @@ struct TransactionHistoryMapperYieldTests {
         let viewModel = makeSUT().mapTransactionViewModel(record)
 
         #expect(viewModel.display.title.fullText == Localization.transactionHistoryWithdrawn)
-        #expect(viewModel.display.subtitle == .provider(direction: .incoming))
-        #expect(viewModel.amount.value.hasPrefix(AppConstants.minusSign))
+        #expect(viewModel.display.subtitle == .provider(direction: .incoming, provider: .aave))
+        #expect(viewModel.amount.value?.hasPrefix(AppConstants.plusSign) == true)
     }
 
     @Test("A gasless transfer that does not come from Aave is still received")
@@ -207,8 +273,8 @@ struct TransactionHistoryMapperYieldTests {
         let supply = makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldTopup"))
         let withdraw = makeSUT().mapTransactionViewModel(makeWithdrawRecord())
 
-        #expect(supply.amount.amountWithCurrencyCode == "+\u{a0}2.00\u{a0}ETH")
-        #expect(withdraw.amount.amountWithCurrencyCode == "−\u{a0}2.00\u{a0}ETH")
+        #expect(supply.amount.amountWithCurrencyCode == "−\u{a0}2.00\u{a0}ETH")
+        #expect(withdraw.amount.amountWithCurrencyCode == "+\u{a0}2.00\u{a0}ETH")
     }
 
     // MARK: - Approve
@@ -290,6 +356,10 @@ private extension TransactionHistoryMapperYieldTests {
 
     func title(_ record: TransactionRecord) -> String {
         makeSUT().mapTransactionViewModel(record).display.title.fullText
+    }
+
+    func makeClaimRecord(status: TransactionRecord.TransactionStatus = .confirmed) -> TransactionRecord {
+        makeRecord(type: .contractMethodName(name: "yieldClaim"), isOutgoing: false, status: status)
     }
 
     /// `yieldSend` from the Aave contract — the Withdraw leg, which arrives as an incoming transfer.

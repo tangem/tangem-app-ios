@@ -66,6 +66,16 @@ public struct SolanaTransactionHelper {
         return signedTransaction
     }
 
+    public func isSoleRequiredSigner(_ publicKey: Data, transaction: Data) throws -> Bool {
+        let message = try removeSignaturesPlaceholders(from: transaction).transaction
+
+        guard isTransactionMessage(message) else {
+            return false
+        }
+
+        return try readSignerPublicKeys(from: message, maxSigners: Int.max) == [publicKey]
+    }
+
     public func replaceRecentBlockhash(_ blockhash: Data, in transaction: Data) throws -> Data {
         guard blockhash.count == Constants.blockhashLength else {
             throw SolanaBSDKError.invalidBlockhashLength

@@ -17,6 +17,7 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
     private lazy var buyWalletButton = button(.buyWallet)
     private lazy var termsOfServiceButton = button(.termsOfService)
     private lazy var appVersionLabel = staticText(.appVersion)
+    private lazy var getTangemPayButton = app.buttons[DetailsAccessibilityIdentifiers.getTangemPayButton].firstMatch
 
     func openWalletSettings(for walletName: String) -> CardSettingsScreen {
         XCTContext.runActivity(named: "Open wallet settings for wallet: \(walletName)") { _ in
@@ -39,9 +40,30 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
 
     func openGetTangemPay() -> TangemPayOnboardingScreen {
         XCTContext.runActivity(named: "Open Tangem Pay onboarding from details") { _ in
-            let getTangemPayButton = app.buttons[DetailsAccessibilityIdentifiers.getTangemPayButton].firstMatch
             getTangemPayButton.waitAndTapWithScroll()
             return TangemPayOnboardingScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyGetTangemPayVisible() -> Self {
+        XCTContext.runActivity(named: "Verify Get Tangem Pay row is displayed in details") { _ in
+            scrollToElement(getTangemPayButton, attempts: .lazy)
+            waitAndAssertTrue(getTangemPayButton, "Get Tangem Pay row should be displayed in details")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyGetTangemPayNotVisible() -> Self {
+        XCTContext.runActivity(named: "Verify Get Tangem Pay row is not displayed in details") { _ in
+            scrollToElement(buyWalletButton, attempts: .lazy)
+            waitAndAssertTrue(buyWalletButton, "Details should display the section of the Get Tangem Pay row")
+            XCTAssertTrue(
+                getTangemPayButton.waitForNonExistence(timeout: .conditional),
+                "Get Tangem Pay row should not be displayed in details"
+            )
+            return self
         }
     }
 
@@ -83,6 +105,19 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
         XCTContext.runActivity(named: "Tap App Settings button") { _ in
             appSettingsButton.waitAndTap()
             return AppSettingsScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyWalletsCount(_ expectedCount: Int) -> Self {
+        XCTContext.runActivity(named: "Verify \(expectedCount) saved wallet(s) are listed") { _ in
+            let walletRows = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "walletSettingsButton_"))
+            waitAndAssertTrue(walletRows.element(boundBy: expectedCount - 1), "\(expectedCount) saved wallet row(s) should exist")
+            XCTAssertTrue(
+                walletRows.element(boundBy: expectedCount).staysAbsent(for: .conditional),
+                "Details should list no more than \(expectedCount) saved wallet(s)"
+            )
+            return self
         }
     }
 

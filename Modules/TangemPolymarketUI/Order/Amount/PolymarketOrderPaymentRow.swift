@@ -14,10 +14,12 @@ import TangemUIUtils
 
 public struct PolymarketOrderPaymentRow: View {
     private let model: Model
-    private let onAddFunds: (() -> Void)?
+    private let isAddFundsEnabled: Bool
+    private let onAddFunds: () -> Void
 
-    public init(model: Model, onAddFunds: (() -> Void)? = nil) {
+    public init(model: Model, isAddFundsEnabled: Bool, onAddFunds: @escaping () -> Void) {
         self.model = model
+        self.isAddFundsEnabled = isAddFundsEnabled
         self.onAddFunds = onAddFunds
     }
 
@@ -55,11 +57,19 @@ public struct PolymarketOrderPaymentRow: View {
         TangemUI.Button(
             label: Localization.commonAddFunds,
             accessibilityLabel: Localization.commonAddFunds,
-            action: { onAddFunds?() }
+            action: onAddFunds
         )
         .size(.x8)
         .styleType(.secondary(.default))
-        .disabled(onAddFunds == nil)
+        .disabled(!isAddFundsEnabled)
+        .overlay {
+            if !isAddFundsEnabled {
+                Color.clear
+                    .contentShape(.rect)
+                    .onTapGesture(perform: onAddFunds)
+                    .environment(\.isEnabled, true)
+            }
+        }
     }
 }
 

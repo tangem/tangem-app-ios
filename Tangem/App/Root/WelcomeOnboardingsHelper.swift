@@ -9,30 +9,15 @@
 import Foundation
 
 struct WelcomeOnboardingsHelper {
-    @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
-
     func getStartupOnboarding() -> WelcomeStartupOnboarding? {
         // More specific than the generic Tangem Pay onboarding link, so it wins.
-        if FeatureProvider.isAvailable(.tangemPayCustomCards),
-           let campaignKey = TangemPayCampaignService().pendingCampaignKey {
+        if let campaignKey = TangemPayCampaignService().pendingCampaignKey {
             return .tangemPayCampaign(campaignKey: campaignKey)
         }
 
         let needsTangemPayOnboarding = TangemPayMobileOnboardingService().isOnboardingNeeded
         if needsTangemPayOnboarding {
             return .tangemPayMobile
-        } else {
-            let pushFactory = PushNotificationsHelpersFactory()
-            let isPushNotificationsAvailable = pushFactory
-                .makeAvailabilityProviderForWelcomeOnboarding(using: pushNotificationsInteractor)
-                .isAvailable
-
-            let stepsBuilder = WelcomeOnboardingStepsBuilder(isPushNotificationsAvailable: isPushNotificationsAvailable)
-            let steps = stepsBuilder.buildSteps()
-
-            if !steps.isEmpty {
-                return .welcome(steps: steps)
-            }
         }
 
         return nil
@@ -40,7 +25,6 @@ struct WelcomeOnboardingsHelper {
 }
 
 enum WelcomeStartupOnboarding {
-    case welcome(steps: [WelcomeOnboardingStep])
     case tangemPayMobile
     case tangemPayCampaign(campaignKey: String)
 }

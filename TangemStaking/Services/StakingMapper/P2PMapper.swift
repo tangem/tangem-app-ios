@@ -45,6 +45,7 @@ struct P2PMapper {
             warmupPeriod: .days(0),
             rewardClaimingType: .auto,
             rewardScheduleType: .daily,
+            rewardsIncludedInStake: true,
             maximumStakeAmount: maximumStakeAmount
         )
     }
@@ -168,7 +169,8 @@ struct P2PMapper {
             rewardType: rewardType,
             rewardRate: (vault.apy ?? .zero) / Constants.percentMultiplier,
             status: isAvailable ? .active : .full,
-            maximumStakeAmount: remaining
+            maximumStakeAmount: remaining,
+            allowsPartialUnstake: true
         )
     }
 

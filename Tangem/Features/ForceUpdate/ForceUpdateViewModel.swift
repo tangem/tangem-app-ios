@@ -90,13 +90,13 @@ final class ForceUpdateViewModel {
     var primaryButton: ButtonModel? {
         switch reason {
         case .requiresAppUpdate:
-            return ButtonModel(title: Localization.forceUpdateAction, style: .default) { [weak self] in
+            return ButtonModel(title: Localization.forceUpdateAction, style: .primary) { [weak self] in
                 self?.openAppStore()
             }
         case .requiresOSUpdate:
             return nil
         case .brick:
-            return ButtonModel(title: Localization.commonContactSupport, style: .default) { [weak self] in
+            return ButtonModel(title: Localization.commonContactSupport, style: .primary) { [weak self] in
                 self?.openSupport()
             }
         }

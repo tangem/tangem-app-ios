@@ -13,6 +13,7 @@ public protocol NotificationBannerContainerItem: Identifiable {
     var bannerType: NotificationBanner.BannerType { get }
     var variant: MessageBannerVariant? { get }
     var ring: NotificationBanner.Ring? { get }
+    var textColors: MessageBannerOverrideTextColors { get }
     var priority: NotificationBanner.Priority { get }
     /// Overrides the default `bannerType.isStackable` decision for this specific item; `nil` keeps the default.
     var stackableOverride: Bool? { get }
@@ -22,6 +23,7 @@ public protocol NotificationBannerContainerItem: Identifiable {
 public extension NotificationBannerContainerItem {
     var variant: MessageBannerVariant? { nil }
     var ring: NotificationBanner.Ring? { nil }
+    var textColors: MessageBannerOverrideTextColors { .init() }
     var accessibilityIdentifier: String? { nil }
     var priority: NotificationBanner.Priority { .mid }
     var stackableOverride: Bool? { nil }
@@ -76,12 +78,13 @@ public struct NotificationBannerContainer<Item: NotificationBannerContainerItem>
         if items.isEmpty {
             EmptyView()
         } else {
-            LazyVStack(spacing: SizeUnit.x2.value) {
+            LazyVStack(spacing: 8) {
                 ForEach(nonStackableItems) { item in
                     NotificationMessageBanner(
                         bannerType: item.bannerType,
                         variant: item.variant,
                         ring: item.ring,
+                        textColors: item.textColors,
                         accessibilityIdentifier: item.accessibilityIdentifier
                     )
                 }
@@ -102,6 +105,7 @@ public struct NotificationBannerContainer<Item: NotificationBannerContainerItem>
                     bannerType: item.bannerType,
                     variant: item.variant,
                     ring: item.ring,
+                    textColors: item.textColors,
                     accessibilityIdentifier: item.accessibilityIdentifier
                 )
             }
@@ -113,6 +117,7 @@ public struct NotificationBannerContainer<Item: NotificationBannerContainerItem>
                     bannerType: item.bannerType,
                     variant: item.variant,
                     ring: isTop ? item.ring : NotificationBanner.Ring.off,
+                    textColors: item.textColors,
                     accessibilityIdentifier: item.accessibilityIdentifier
                 )
                 .background(
@@ -125,7 +130,7 @@ public struct NotificationBannerContainer<Item: NotificationBannerContainerItem>
                         removal: .opacity
                     )
                 )
-                .padding(.horizontal, SizeUnit.x4.value)
+                .padding(.horizontal, 16)
             }
         }
     }

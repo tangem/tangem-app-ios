@@ -13,7 +13,7 @@ struct PolymarketFundingFlow {
     let dependencies: PolymarketMainDependencies
 
     var isRegionBlocked: Bool {
-        dependencies.geoblockStateProvider.state == .blocked
+        dependencies.geoblockStateProvider.state.isBlocked
     }
 
     func makeAddFundsSheet(
@@ -66,12 +66,16 @@ struct PolymarketFundingFlow {
             .make(withdrawingFrom: source, receiveToken: receiveToken)
     }
 
-    func awaitDeposit() {
-        dependencies.fundsArrivalTracker.startAwaitingFunds()
+    var currentBalance: Decimal? {
+        dependencies.fundsArrivalTracker.currentBalance
     }
 
-    func awaitWithdrawal() {
-        dependencies.fundsArrivalTracker.startAwaitingWithdrawal()
+    func awaitDeposit(since baseline: Decimal?) {
+        dependencies.fundsArrivalTracker.startAwaitingFunds(since: baseline)
+    }
+
+    func awaitWithdrawal(since baseline: Decimal?) {
+        dependencies.fundsArrivalTracker.startAwaitingBalanceChange(since: baseline)
     }
 }
 

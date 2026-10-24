@@ -18,19 +18,22 @@ struct CommonWalletModelsFactory {
     private let walletModelFeaturesManagerFactory: WalletModelFeaturesManagerFactory
     private let transactionHistoryServiceProvider: TransactionHistoryServiceProvider
     private let transactionHistoryUpdater: TransactionHistoryUpdater
+    private let isEarnSupported: Bool
 
     init(
         config: UserWalletConfig,
         userWalletId: UserWalletId,
         walletModelFeaturesManagerFactory: WalletModelFeaturesManagerFactory,
         transactionHistoryServiceProvider: TransactionHistoryServiceProvider,
-        transactionHistoryUpdater: TransactionHistoryUpdater
+        transactionHistoryUpdater: TransactionHistoryUpdater,
+        isEarnSupported: Bool
     ) {
         self.config = config
         self.userWalletId = userWalletId
         self.walletModelFeaturesManagerFactory = walletModelFeaturesManagerFactory
         self.transactionHistoryServiceProvider = transactionHistoryServiceProvider
         self.transactionHistoryUpdater = transactionHistoryUpdater
+        self.isEarnSupported = isEarnSupported
     }
 
     private func isMainCoinCustom(
@@ -53,7 +56,8 @@ struct CommonWalletModelsFactory {
     func makeStakingManager(publicKey: Data, tokenItem: TokenItem, address: String) -> StakingManager? {
         let featureProvider = StakingFeatureProvider(config: config)
 
-        guard let integrationId = featureProvider.yieldId(for: tokenItem),
+        guard isEarnSupported,
+              let integrationId = featureProvider.yieldId(for: tokenItem),
               let item = tokenItem.stakingTokenItem else {
             return nil
         }
@@ -117,6 +121,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     tokenItem: tokenItem,
                     address: walletManager.wallet.address
                 ),
+                isYieldModuleSupported: isEarnSupported,
                 featureManager: featureManager,
                 transactionHistoryUpdater: transactionHistoryUpdater,
                 transactionHistoryService: transactionHistoryService,
@@ -128,6 +133,9 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
 
             models.append(mainCoinModel)
         }
+
+        let isTokenYieldModuleSupported = isEarnSupported
+            && YieldModuleBlockchainAvailability().isAvailable(on: blockchainNetwork.blockchain)
 
         walletManager.cardTokens.forEach { token in
             let amountType: Amount.AmountType = .token(value: token)
@@ -155,6 +163,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                         tokenItem: tokenItem,
                         address: walletManager.wallet.address
                     ),
+                    isYieldModuleSupported: isTokenYieldModuleSupported,
                     featureManager: featureManager,
                     transactionHistoryUpdater: transactionHistoryUpdater,
                     transactionHistoryService: transactionHistoryService,

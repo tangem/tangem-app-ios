@@ -38,6 +38,46 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
+    func makePredefinedTransferValues(parameters: PredefinedSendParameters?) -> TransferModel.PredefinedValues {
+        guard let parameters else {
+            return .init()
+        }
+
+        let destination = SendDestination(value: .plain(parameters.destination), source: .qrCode)
+
+        let amount = parameters.amount.map { amount in
+            let fiatValue = tokenItem.currencyId.flatMap { currencyId in
+                BalanceConverter().convertToFiat(amount, currencyId: currencyId)
+            }
+
+            return SendAmount(type: .typical(crypto: amount, fiat: fiatValue))
+        }
+
+        let additionalField: SendDestinationAdditionalField = {
+            guard let type = SendDestinationAdditionalFieldType.type(for: tokenItem.blockchain) else {
+                return .notSupported
+            }
+
+            guard let tag = parameters.tag?.nilIfEmpty else {
+                return .empty(type: type)
+            }
+
+            do {
+                let params = try makeTransactionParametersBuilder().transactionParameters(value: tag)
+                return .filled(type: type, value: tag, params: params)
+            } catch {
+                assertionFailure("Failed to build transaction parameters for predefined tag: \(error)")
+                return .empty(type: type)
+            }
+        }()
+
+        return TransferModel.PredefinedValues(
+            destination: destination,
+            tag: additionalField,
+            amount: amount
+        )
+    }
+
     // MARK: - Services
 
     func makeSendAlertBuilder() -> SendAlertBuilder {

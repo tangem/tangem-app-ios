@@ -41,6 +41,8 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var formVariant: SwapFormVariant
     @Published var shouldAnimateBestRateBadge: Bool = true
 
+    let swapSummarySlippageViewModel: SwapSummarySlippageViewModel?
+
     var mainButtonIsLoading: Bool { isActionInProcessing }
 
     private let interactor: SwapSummaryInteractor
@@ -48,6 +50,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     private let marketingBannerManager: SwapMarketingBannerManager
     private let analyticsLogger: SendSummaryAnalyticsLogger
     private let formVariantResolver: SwapFormVariantResolver
+    private var bag: Set<AnyCancellable> = []
 
     weak var router: SwapSummaryStepRoutable?
 
@@ -58,6 +61,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         analyticsLogger: SendSummaryAnalyticsLogger,
         swapAmountViewModel: SwapAmountViewModel,
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
+        swapSummarySlippageViewModel: SwapSummarySlippageViewModel?,
         feeCompactViewModel: SendFeeCompactViewModel,
         sourceTokenInput: SendSourceTokenInput,
         formVariantResolver: SwapFormVariantResolver = SwapFormVariantResolver()
@@ -68,6 +72,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         self.analyticsLogger = analyticsLogger
         self.swapAmountViewModel = swapAmountViewModel
         self.swapSummaryProviderViewModel = swapSummaryProviderViewModel
+        self.swapSummarySlippageViewModel = swapSummarySlippageViewModel
         self.feeCompactViewModel = feeCompactViewModel
         self.formVariantResolver = formVariantResolver
         formVariant = formVariantResolver.currentVariant()
@@ -123,6 +128,10 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         router?.summaryStepRequestEditFee()
     }
 
+    func userDidTapSlippage() {
+        router?.summaryStepRequestEditSlippage()
+    }
+
     func userDidTapAmountFraction(_ fraction: SwapAmountFraction) {
         analyticsLogger.logTapAmountFraction(fraction)
         interactor.userDidRequestSourceAmount(fraction: fraction)
@@ -147,6 +156,10 @@ extension SwapSummaryViewModel: SwapAmountCompactRoutable {
     func userDidTapChangeReceiveTokenButton(sourceToken: SendSourceToken?) {
         router?.summaryStepRequestEditReceiveToken(sourceToken: sourceToken?.walletTokenItem)
     }
+
+    func userDidTapEditSlippage() {
+        userDidTapSlippage()
+    }
 }
 
 // MARK: - SwapSummaryProviderRoutable
@@ -165,6 +178,20 @@ private extension SwapSummaryViewModel {
             .transactionDescription
             .receiveOnMain()
             .assign(to: &$transactionDescription)
+
+        if let swapSummarySlippageViewModel {
+            Publishers.CombineLatest($formVariant, swapSummarySlippageViewModel.$isVisible)
+                .map { variant, isVisible in variant == .simple && isVisible }
+                .removeDuplicates()
+                .withWeakCaptureOf(self)
+                .sink { $0.swapAmountViewModel.update(isEditSlippageAvailable: $1) }
+                .store(in: &bag)
+
+            swapSummarySlippageViewModel.$isEditable
+                .withWeakCaptureOf(self)
+                .sink { $0.swapAmountViewModel.update(isEditSlippageEnabled: $1) }
+                .store(in: &bag)
+        }
 
         interactor
             .isMaxAmountButtonHiddenPublisher

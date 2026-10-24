@@ -18,4 +18,11 @@ public enum PolymarketOrderSide: String, Hashable, Sendable {
         case .sell: 1
         }
     }
+
+    var matchingBookSide: PolymarketOrderSide {
+        switch self {
+        case .buy: .sell
+        case .sell: .buy
+        }
+    }
 }

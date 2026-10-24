@@ -135,6 +135,22 @@ struct MainScreenDeeplinkResponderTests {
             #expect(!coordinator.didOpenBuy)
         }
     }
+
+    @Test(
+        "A joint account link naming a wallet this device doesn't have is passed on",
+        .enabled(if: FeatureProvider.isAvailable(.jointAccounts))
+    )
+    func passesOnJointAccountOfUnknownWallet() async {
+        await withMainScreen { responder, coordinator in
+            let deeplink = JointAccountDeeplink(entry: .members, userWalletId: "no such wallet", accountId: "BA910A77")
+
+            let shown = responder.didReceiveIncomingAction(.navigation(.jointAccount(deeplink)))
+
+            #expect(!shown)
+            #expect(coordinator.selectedUserWalletId == nil)
+            #expect(!coordinator.didOpenJointAccountMembers)
+        }
+    }
 }
 
 // MARK: - Environment
@@ -166,10 +182,10 @@ private extension MainScreenDeeplinkResponderTests {
     }
 
     func withPendingCampaign(_ campaignKey: String?, _ body: () async -> Void) async {
-        let previousKey = AppSettings.shared.pendingTangemPayCampaignKey
-        AppSettings.shared.pendingTangemPayCampaignKey = campaignKey
+        let previousStorage = InjectedValues[\.tangemPayCampaignKeyStorage]
+        InjectedValues[\.tangemPayCampaignKeyStorage] = TangemPayCampaignKeyStorageStub(pendingCampaignKey: campaignKey)
 
-        defer { AppSettings.shared.pendingTangemPayCampaignKey = previousKey }
+        defer { InjectedValues[\.tangemPayCampaignKeyStorage] = previousStorage }
 
         await body()
     }

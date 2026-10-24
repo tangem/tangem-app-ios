@@ -15,6 +15,7 @@ public struct ExpressQuote: Hashable {
     public let quoteId: String?
     public let txType: ExpressTransactionType?
     public let isRestricted: Bool
+    public let slippage: Decimal?
 
     public var rate: Decimal {
         if !fromAmount.isZero {

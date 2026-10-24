@@ -42,10 +42,12 @@ public final class StoryPlayerViewModel: ObservableObject {
     /// Whether the slide on screen still owes a Slide Viewed.
     private var isFreshView = true
     private var loopsWatched = 0
+    private var hasPlayedThrough = false
     private var pauseReasons: Set<PauseReason> = []
     private var visibleViews = 0
     private var lifecycleObservers: [NSObjectProtocol] = []
     private let effectiveEndBehavior: EndBehavior
+    private let holdsLastSlide: Bool
 
     public init(
         story: StoryV2,
@@ -53,6 +55,7 @@ public final class StoryPlayerViewModel: ObservableObject {
         analytics: (any StoriesAnalyticsProvider)? = nil,
         hapticPlayer: (any StoryHapticPlaying)? = nil,
         clock: any ProgressClock = RealProgressClock(),
+        holdsLastSlide: Bool = false,
         onAction: ((StoryActionV2) -> Void)? = nil,
         onFinished: @escaping (_ exitReason: StoryExitReason, _ action: StoryActionV2?) -> Void
     ) {
@@ -66,6 +69,7 @@ public final class StoryPlayerViewModel: ObservableObject {
         self.onAction = onAction
         self.onFinished = onFinished
         effectiveEndBehavior = story.effectiveEndBehavior
+        self.holdsLastSlide = holdsLastSlide
 
         let first = SlidePlayerViewModel(slide: story.slides[0], clock: clock, hapticPlayer: hapticPlayer)
         window[0] = first
@@ -287,7 +291,13 @@ public final class StoryPlayerViewModel: ObservableObject {
         switch effectiveEndBehavior {
         case .finish:
             reportSlideViewed(advanceReason: reason)
-            finalize(exitReason: .completed, action: nil)
+
+            guard holdsLastSlide, reason == .auto else {
+                finalize(exitReason: .completed, action: nil)
+                return
+            }
+
+            hasPlayedThrough = true
         case .loop:
             // Only an unattended wrap is a full cycle: tapping past the last slide reaches the
             // start without ever finishing it, so it stays a manual advance and leaves both the
@@ -316,7 +326,7 @@ public final class StoryPlayerViewModel: ObservableObject {
             slidesTotal: story.slides.count,
             watched: viewedSlideIndices.count,
             loopsWatched: loopsWatched,
-            completed: loopsWatched > 0 || exitReason == .completed,
+            completed: loopsWatched > 0 || hasPlayedThrough || exitReason == .completed,
             exitReason: exitReason,
             action: action,
             source: source

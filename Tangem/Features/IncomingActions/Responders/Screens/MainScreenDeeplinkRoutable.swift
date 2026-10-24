@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 /// What the main screen can open natively for a deeplink — the very navigation a tap performs.
 protocol MainScreenDeeplinkRoutable: AnyObject {
@@ -38,4 +39,7 @@ protocol MainScreenDeeplinkRoutable: AnyObject {
         openingAction: TangemPayOpeningAction?
     )
     func openTangemPaySelectPlan(tariffPlanSelector: any TangemPayTariffPlanSelector, userWalletModel: any UserWalletModel)
+    func selectWallet(userWalletId: UserWalletId)
+    func openJointAccountMembers(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig)
+    func expandAccount(_ jointAccount: any JointAccountModel, userWalletId: UserWalletId)
 }

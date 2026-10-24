@@ -13,8 +13,6 @@ import Foundation
 struct YieldIncentiveAprPoint: Equatable {
     let date: Date
     let baseApy: Decimal
-    /// Merkl rewards APR net of the service fee.
-    let rewardsApr: Decimal
-    /// Estimated total APY (base + net rewards) as sent by the backend — never summed locally.
-    let totalApyEst: Decimal
+    /// Estimated total APY (base + gross rewards) as sent by the backend — never summed locally.
+    let grossTotalApyEst: Decimal
 }

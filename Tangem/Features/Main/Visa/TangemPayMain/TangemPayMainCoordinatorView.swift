@@ -8,7 +8,6 @@
 
 import SwiftUI
 import TangemUI
-import TangemAssets
 
 struct TangemPayMainCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: TangemPayMainCoordinator
@@ -56,9 +55,6 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayNoDepositAddressSheetViewModel.self) {
                 TangemPayNoDepositAddressSheetView(viewModel: $0)
             }
-            .floatingSheetContent(for: TangemPayPinCheckViewModel.self) {
-                TangemPayPinCheckView(viewModel: $0)
-            }
             .floatingSheetContent(for: TangemPayWithdrawInProgressSheetViewModel.self) {
                 TangemPayWithdrawInProgressSheetView(viewModel: $0)
             }
@@ -66,7 +62,7 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
                 TangemPayAddFundsSheetView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayVirtualAccountInfoSheetViewModel.self) {
-                TangemPayVirtualAccountInfoSheetView(viewModel: $0)
+                TangemPayVirtualAccountInfoContainerView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayVirtualAccountPreparingPopupViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
@@ -120,27 +116,35 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
                 TangemPayOfframpCoordinatorView(coordinator: $0)
                     .interactiveDismissDisabled()
             }
-            .sheet(item: $coordinator.addToApplePayGuideViewModel) {
-                TangemPayAddToAppPayGuideView(viewModel: $0)
-            }
             .sheet(item: $coordinator.tangemPayPinViewModel) {
                 TangemPayPinView(viewModel: $0)
                     .presentationCornerRadius(24)
                     .containerCornerRadius(24)
             }
+            .modal(
+                item: $coordinator.tangemPayPinCheckViewModel,
+                contentLayout: .intrinsic,
+                onDismiss: coordinator.pinCheckDidDismiss,
+                header: { _ in EmptyView() },
+                content: { TangemPayPinCheckView(viewModel: $0) },
+                footer: { _ in EmptyView() }
+            )
             .sheet(item: $coordinator.tangemPayDailyLimitViewModel) {
                 TangemPayDailyLimitView(viewModel: $0)
                     .presentationCornerRadius(24)
                     .containerCornerRadius(24)
             }
-            .bottomSheet(
-                item: $coordinator.pendingExpressTxStatusBottomSheet,
-                backgroundColor: Colors.Background.tertiary
-            ) {
+            .sheet(item: $coordinator.pendingExpressTxStatusBottomSheet) {
                 PendingExpressTxStatusBottomSheetView(viewModel: $0)
             }
             .fullScreenCover(item: $coordinator.virtualAccountSuccessViewModel) {
                 TangemPayVirtualAccountSuccessView(viewModel: $0)
+            }
+            .fullScreenCover(item: $coordinator.virtualAccountOnboardingViewModel) {
+                TangemPayVirtualAccountInfoContainerView(viewModel: $0)
+            }
+            .fullScreenCover(item: $coordinator.virtualAccountDetailsViewModel) {
+                TangemPayVirtualAccountDetailsView(viewModel: $0)
             }
             .fullScreenCover(item: $coordinator.cashbackDetailViewModel) {
                 TangemPayCashbackDetailView(viewModel: $0)

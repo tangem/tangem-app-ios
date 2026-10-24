@@ -43,7 +43,7 @@ struct OrganizeTokensListFooterRedesigned: View {
                 accessibilityLabel: nil,
                 action: actionsHandler.onApplyButtonTap
             )
-            .styleType(.default)
+            .styleType(.primary)
             .size(buttonSize)
             .horizontalLayout(.infinity)
             .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.applyButton)

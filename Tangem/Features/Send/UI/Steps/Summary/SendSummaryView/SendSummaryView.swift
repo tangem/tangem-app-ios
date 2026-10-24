@@ -27,6 +27,10 @@ struct SendSummaryView: View {
 
             feeSectionView
 
+            if let jointAccountSignaturesCompactViewModel = viewModel.jointAccountSignaturesCompactViewModel {
+                JointAccountSignaturesCompactView(viewModel: jointAccountSignaturesCompactViewModel)
+            }
+
             notificationsView
         }
         .safeAreaInset(edge: .bottom, spacing: .zero) {
@@ -106,6 +110,7 @@ struct SendSummaryView: View {
     private var descriptionView: some View {
         if let transactionDescription = viewModel.transactionDescription {
             Text(transactionDescription)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.summaryTransactionDescription)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
