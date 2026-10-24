@@ -9,6 +9,10 @@
 import Foundation
 
 enum SendAnalyticsHelper {
+    static func makeAnalyticsSlippage(_ slippage: Decimal) -> String {
+        (slippage * 100).rounded(scale: 2, roundingMode: .plain).description
+    }
+
     static func makeAnalyticsTokenName(from tokenItem: TokenItem) -> String {
         switch tokenItem.token?.metadata.kind {
         case .nonFungible:

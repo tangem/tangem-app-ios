@@ -50,6 +50,47 @@ struct TangemPayNetworkRowResolverTests {
         #expect(TangemPayNetworkRowResolver.resolve(networks).isEmpty)
     }
 
+    @Test("The receive sheet lists USDC before USDT whatever order the backend sends")
+    func receiveInputListsUSDCFirst() throws {
+        let network = try #require(makeTangemPayNetworks(Self.polygonPayload(status: "ENABLED")).first)
+
+        let input = TangemPayNetworkRowResolver.receiveInput(for: network, depositAddress: "0xdeposit")
+
+        #expect(input?.tokens.map(\.symbol) == ["USDC", "USDT"])
+    }
+
+    @Test("An enabled network's row lists USDC before USDT whatever order the backend sends")
+    func enabledRowSubtitleListsUSDCFirst() throws {
+        let networks = try makeTangemPayNetworks(Self.polygonPayload(status: "ENABLED"))
+
+        #expect(TangemPayNetworkRowResolver.resolve(networks).map(\.subtitle) == ["USDC, USDT"])
+    }
+
+    @Test("A network without a contract yet lists USDC before USDT")
+    func notIssuedRowSubtitleListsUSDCFirst() throws {
+        let networks = try makeTangemPayNetworks(Self.polygonPayload(status: "NOT_ISSUED"))
+
+        #expect(TangemPayNetworkRowResolver.resolve(networks).map(\.subtitle) == ["USDC, USDT"])
+    }
+
+    private static func polygonPayload(status: String) -> String {
+        """
+        [
+          {
+            "name": "polygon",
+            "isTestnet": false,
+            "chainId": 137,
+            "status": "\(status)",
+            "depositAddress": "0xdeposit",
+            "tokens": [
+              { "token": "USDT", "tokenContractAddress": "0xpolygonusdt" },
+              { "token": "USDC", "tokenContractAddress": "0xpolygonusdc" }
+            ]
+          }
+        ]
+        """
+    }
+
     private static let optimismPayload = """
     [
       {

@@ -69,6 +69,10 @@ class IncomingActionParser {
             return URL(string: link).flatMap(parseIncomingURL)
         }
 
+        if let payload = JointAccountPushPayload(userInfo: userInfo) {
+            return .navigation(payload.action)
+        }
+
         // A temporary crutch, while the push of deeplink transactions is not formed on the back, but is collected locally
         guard let payload = TransactionPushPayload(userInfo: userInfo) else {
             return nil
@@ -80,7 +84,8 @@ class IncomingActionParser {
             tokenId: payload.tokenId,
             userWalletId: payload.userWalletId,
             derivationPath: payload.derivationPath,
-            transactionId: payload.transactionId
+            transactionId: payload.transactionId,
+            accountId: payload.accountId
         ).buildURL(scheme: .withoutRedirectUniversalLink)
 
         return parseIncomingURL(url)

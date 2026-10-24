@@ -50,7 +50,7 @@ class AmountInputFieldModel: ObservableObject {
         let factory = SendDecimalNumberTextField.PrefixSuffixOptionsFactory()
         prefixSuffixOptionsFactory = factory
 
-        cryptoTextFieldViewModel = DecimalNumberTextFieldViewModel(maximumFractionDigits: tokenItem.decimalCount)
+        cryptoTextFieldViewModel = DecimalNumberTextFieldViewModel(maximumFractionDigits: tokenItem.displayDecimalCount)
         fiatTextFieldViewModel = DecimalNumberTextFieldViewModel(maximumFractionDigits: fiatItem.fractionDigits)
         cryptoTextFieldOptions = factory.makeCryptoOptions(cryptoCurrencyCode: tokenItem.currencySymbol)
         fiatTextFieldOptions = factory.makeFiatOptions(fiatCurrencyCode: fiatItem.currencyCode)
@@ -96,7 +96,7 @@ class AmountInputFieldModel: ObservableObject {
     func reconfigure(tokenItem: TokenItem, fiatItem: FiatItem) {
         currencyId = tokenItem.currencyId
 
-        cryptoTextFieldViewModel.update(maximumFractionDigits: tokenItem.decimalCount)
+        cryptoTextFieldViewModel.update(maximumFractionDigits: tokenItem.displayDecimalCount)
         cryptoTextFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: tokenItem.currencySymbol)
 
         fiatTextFieldViewModel.update(maximumFractionDigits: fiatItem.fractionDigits)

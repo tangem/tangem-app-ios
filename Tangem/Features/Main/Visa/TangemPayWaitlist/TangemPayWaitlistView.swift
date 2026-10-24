@@ -22,24 +22,10 @@ struct TangemPayWaitlistView: View {
     var body: some View {
         TangemPayWaitlistContentView(
             field: $viewModel.field,
-            focused: $focusedField,
             state: viewModel.contentState,
-            action: handle
+            action: viewModel.handle
         )
         .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
-        .onChange(of: focusedField, perform: viewModel.focusedFieldDidChange(to:))
         .alert(item: $viewModel.alert) { $0.alert }
-    }
-}
-
-// MARK: - Actions
-
-private extension TangemPayWaitlistView {
-    func handle(_ action: TangemPayWaitlistContentView.Action) {
-        if case .saveTap = action {
-            focusedField = nil
-        }
-
-        viewModel.handle(action)
     }
 }

@@ -7,21 +7,25 @@
 //
 
 import Foundation
+import Combine
+import SwiftUI
 import UIKit
 import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemUI
-import struct TangemUIUtils.AlertBinder
 
 /// An operation of a joint account laid out as the transaction details it will become once it is sent.
 ///
 /// - Note: Handed an operation already read out of its signed payload. The sheet does no parsing, no digest of its
 ///   own and no signing — that belongs to the domain layer over the Safe support in the SDK.
 final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingSheetContentViewModel {
-    @Published var alert: AlertBinder?
     @Published private(set) var isSigning = false
     @Published private(set) var viewState: ViewState = .details
+    @Published private(set) var content: Content
+    @Published private(set) var answer: Answer
+
+    private let alertPresenter: AlertPresenter
 
     let tokenIconInfo: TokenIconInfo
     /// Written out for display, and taken from the payload's own `value` rather than from a field on the response.
@@ -33,23 +37,15 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     /// reason to redo it on every recomputation.
     let recipientBlockiesImage: UIImage?
     let networkFee: String
-    /// Includes the initiator's signature, so it is never zero for an operation that exists.
-    let collectedSignaturesCount: Int
-    /// How many of the members have to sign for the operation to go through.
-    let requiredSignaturesCount: Int
-    /// Everyone on the account. Kept apart from the threshold because the copy needs both: the progress line
-    /// counts the answers against the roster, while the footer names the threshold against it.
-    let membersCount: Int
-    /// Every member of the account with where they stand on the operation, laid out ahead of the tap that opens
-    /// them: the sheet reads an operation as it was handed over and does not follow it any further.
-    let signers: [JointAccountSignerRow.ViewData]
 
-    @Published private(set) var answer: Answer
-
-    private let canSign: Bool
+    private let signingActionButtonType: SigningActionButtonViewType
     private let sign: () async throws -> Void
+    private let pendingOperationsProvider: (any JointAccountPendingOperationsProvider)?
     private weak var coordinator: JointAccountOperationDetailsRoutable?
     private var signTask: Task<Void, Never>?
+    private var isClosing = false
+    private var updatesSubscription: AnyCancellable?
+    private var frequentUpdatesSubscription: AnyCancellable?
 
     init(
         tokenIconInfo: TokenIconInfo,
@@ -58,43 +54,68 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         recipient: String,
         recipientBlockiesImage: UIImage?,
         networkFee: String,
-        collectedSignaturesCount: Int,
-        requiredSignaturesCount: Int,
-        membersCount: Int,
-        signers: [JointAccountSignerRow.ViewData],
-        answer: Answer,
-        canSign: Bool,
+        signingActionButtonType: SigningActionButtonViewType,
+        content: Content,
+        contentPublisher: AnyPublisher<Content, Never>,
+        pendingOperationsProvider: (any JointAccountPendingOperationsProvider)?,
         coordinator: JointAccountOperationDetailsRoutable?,
+        alertPresenter: AlertPresenter = InjectedValues[\.alertPresenter],
         sign: @escaping () async throws -> Void
     ) {
-        self.canSign = canSign
-        self.sign = sign
-        self.signers = signers
         self.tokenIconInfo = tokenIconInfo
         self.cryptoAmount = cryptoAmount
         self.fiatAmount = fiatAmount
         self.recipient = recipient
         self.recipientBlockiesImage = recipientBlockiesImage
         self.networkFee = networkFee
-        self.collectedSignaturesCount = collectedSignaturesCount
-        self.requiredSignaturesCount = requiredSignaturesCount
-        self.membersCount = membersCount
-        self.answer = answer
+        self.signingActionButtonType = signingActionButtonType
+        self.content = content
+        answer = content.answer
+        self.sign = sign
+        self.pendingOperationsProvider = pendingOperationsProvider
         self.coordinator = coordinator
+        self.alertPresenter = alertPresenter
+
+        bind(contentPublisher: contentPublisher)
     }
 
-    /// Neutral icon and title by design: the warning-coloured line under the title is what says the operation is
-    /// still waiting, and repeating that in the title would say it twice.
+    /// While signatures are collected the icon and title stay neutral by design: the warning-coloured line under the
+    /// title is what says the operation is still waiting, and repeating that in the title would say it twice.
     var header: TransactionDetailsHeaderViewData {
         TransactionDetailsHeaderViewData(
-            title: Localization.commonSend,
-            titleStyle: .neutral,
-            date: Localization.transactionHistoryPending,
-            subtitleStyle: .warning,
-            operationIcon: TransactionViewIconViewData(type: .transfer, status: .confirmed, isOutgoing: true),
+            title: headerTitle,
+            titleStyle: content.status == .sending ? .active : .neutral,
+            date: headerSubtitle,
+            subtitleStyle: content.status == .awaitingSignatures ? .warning : .secondary,
+            operationIcon: TransactionViewIconViewData(
+                type: .transfer,
+                status: content.status == .sending ? .inProgress : .confirmed,
+                isOutgoing: true
+            ),
             iconGlyph: nil,
-            menuSections: []
+            menuSections: [
+                .init(
+                    id: Constants.addressMenuSectionID,
+                    actions: [TransactionDetailsMenuFactory.copyAddressAction(for: recipient)]
+                ),
+            ]
         )
+    }
+
+    private var headerTitle: String {
+        switch content.status {
+        case .awaitingSignatures: Localization.commonSend
+        case .sending: Localization.commonSending
+        case .sent: Localization.commonSent
+        }
+    }
+
+    private var headerSubtitle: String {
+        switch content.status {
+        case .awaitingSignatures: Localization.transactionHistoryPending
+        case .sending: Localization.jointOperationSendingToNetwork
+        case .sent(let date): TransactionDetailsFactory.headerDateFormatter.string(from: date)
+        }
     }
 
     var blocks: [TransactionDetailsBlock] {
@@ -108,17 +129,62 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         ].compactMap { $0 }
     }
 
+    func onAppear() {
+        frequentUpdatesSubscription = pendingOperationsProvider?.requestFrequentUpdates()
+    }
+
+    func onDisappear() {
+        frequentUpdatesSubscription = nil
+    }
+
     func handleViewAction(_ action: TransactionDetailsViewModel.ViewAction) {
         switch action {
         case .close:
-            coordinator?.closeOperationDetails()
+            close()
         case .signOperation:
             signOperation()
         case .openSigners:
             openSigners()
+        case .copy(let value, let toast, _):
+            copy(value, toast: toast)
         default:
             break
         }
+    }
+}
+
+// MARK: - Updates
+
+private extension JointAccountOperationDetailsViewModel {
+    func bind(contentPublisher: AnyPublisher<Content, Never>) {
+        updatesSubscription = contentPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, content in
+                viewModel.updateContent(content)
+            }
+    }
+
+    func updateContent(_ content: Content) {
+        self.content = content
+
+        if answer == .awaiting, !isSigning {
+            answer = content.answer
+        }
+
+        if case .signers(let signersViewModel) = viewState {
+            signersViewModel.update(membersCount: content.membersCount, signers: content.signers)
+        }
+    }
+
+    func close() {
+        guard !isClosing else {
+            return
+        }
+
+        isClosing = true
+        frequentUpdatesSubscription = nil
+        coordinator?.closeOperationDetails()
     }
 }
 
@@ -127,12 +193,28 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
 private extension JointAccountOperationDetailsViewModel {
     func openSigners() {
         let viewModel = JointAccountSignersViewModel(
-            membersCount: membersCount,
-            signers: signers,
+            membersCount: content.membersCount,
+            signers: content.signers,
             coordinator: self
         )
 
         viewState = .signers(viewModel)
+    }
+}
+
+// MARK: - Copying
+
+private extension JointAccountOperationDetailsViewModel {
+    func copy(_ value: String, toast text: String) {
+        UIPasteboard.general.string = value
+        FeedbackGenerator.selectionChanged()
+
+        Toast(
+            view: TangemSnackbar(title: text)
+                .icon(DesignSystem.Icons.Checkmark.regular20)
+                .iconColor(Color.Tangem.Graphic.Status.accent)
+        )
+        .present(layout: .top(padding: 14), type: .temporary())
     }
 }
 
@@ -144,7 +226,7 @@ extension JointAccountOperationDetailsViewModel: JointAccountSignersRoutable {
     }
 
     func closeSigners() {
-        coordinator?.closeOperationDetails()
+        close()
     }
 }
 
@@ -177,16 +259,16 @@ private extension JointAccountOperationDetailsViewModel {
             return
         }
 
+        if answer == .awaiting {
+            answer = content.answer
+        }
+
         guard !error.isCancellationError else {
             return
         }
 
         JointAccountsLogger.error("Failed to sign a joint account operation", error: error)
-        alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
-            title: Localization.commonSomethingWentWrong,
-            message: Localization.accountGenericErrorDialogMessage,
-            buttonText: Localization.commonOk
-        )
+        alertPresenter.present(alert: JointAccountOperationSigningErrorAlert(error: error).alertBinder)
     }
 }
 
@@ -213,7 +295,7 @@ private extension JointAccountOperationDetailsViewModel {
                     recipient,
                     blockiesImage: AddressBlockiesIconViewData(image: recipientBlockiesImage)
                 ),
-                copyAction: nil
+                copyAction: TransactionDetailsMenuFactory.copyAddressAction(for: recipient).action
             )
         )
     }
@@ -221,9 +303,9 @@ private extension JointAccountOperationDetailsViewModel {
     var signaturesBlock: TransactionDetailsBlock {
         .signatures(
             TransactionDetailsSignaturesViewData(
-                title: Localization.jointOperationSignaturesProgress(collectedSignaturesCount, membersCount),
-                collectedCount: collectedSignaturesCount,
-                membersCount: membersCount
+                title: Localization.jointOperationSignaturesProgress(content.collectedSignaturesCount, content.requiredSignaturesCount),
+                collectedCount: content.collectedSignaturesCount,
+                requiredCount: content.requiredSignaturesCount
             )
         )
     }
@@ -242,29 +324,34 @@ private extension JointAccountOperationDetailsViewModel {
         )
     }
 
-    var signBlock: TransactionDetailsBlock {
-        .action(
+    var signBlock: TransactionDetailsBlock? {
+        guard content.status == .awaitingSignatures else {
+            return nil
+        }
+
+        return .action(
             TransactionDetailsActionButtonViewData(
                 title: signTitle,
-                icon: isSignEnabled ? DesignSystem.Icons.LogoTangem.regular20 : nil,
+                icon: nil,
                 style: .default,
                 action: .signOperation,
                 isBusy: isSigning,
-                isEnabled: isSignEnabled
+                isEnabled: isSignEnabled,
+                signingType: signingActionButtonType
             )
         )
     }
 
     var signTitle: String {
         switch answer {
-        case .awaiting: Localization.commonSign
-        case .signed: Localization.jointOperationSigned
-        case .declined: Localization.jointOperationDeclined
+        case .awaiting: return Localization.commonSign
+        case .signed: return Localization.jointOperationSigned
+        case .declined: return Localization.jointOperationDeclined
         }
     }
 
     var isSignEnabled: Bool {
-        guard canSign else {
+        guard content.canSign else {
             return false
         }
 
@@ -276,14 +363,26 @@ private extension JointAccountOperationDetailsViewModel {
 
     /// A member who declined is told the operation is not dead: the others can still reach the threshold without
     /// them, which is the whole point of a threshold below the member count.
-    var footerBlock: TransactionDetailsBlock {
+    var footerBlock: TransactionDetailsBlock? {
+        let requiredSignaturesCount = content.requiredSignaturesCount
+        let membersCount = content.membersCount
+
+        switch content.status {
+        case .sending:
+            return nil
+        case .sent:
+            return .caption(Localization.jointOperationSentFooter(content.collectedSignaturesCount, membersCount))
+        case .awaitingSignatures:
+            break
+        }
+
         switch answer {
         case .awaiting:
-            .caption(Localization.jointOperationAutoSendsFooter(requiredSignaturesCount, membersCount))
+            return .caption(Localization.jointOperationAutoSendsFooter(requiredSignaturesCount, membersCount))
         case .signed:
-            .caption(Localization.jointOperationSignedFooter(requiredSignaturesCount, membersCount))
+            return .caption(Localization.jointOperationSignedFooter(requiredSignaturesCount, membersCount))
         case .declined:
-            .caption(Localization.jointOperationDeclinedFooter(requiredSignaturesCount, membersCount))
+            return .caption(Localization.jointOperationDeclinedFooter(requiredSignaturesCount, membersCount))
         }
     }
 }
@@ -293,6 +392,7 @@ private extension JointAccountOperationDetailsViewModel {
 private extension JointAccountOperationDetailsViewModel {
     enum Constants {
         static let networkFeeRowID = "joint_operation_network_fee"
+        static let addressMenuSectionID = "joint_operation_address"
     }
 }
 
@@ -311,5 +411,27 @@ extension JointAccountOperationDetailsViewModel {
         case awaiting
         case signed
         case declined
+    }
+
+    enum Status: Equatable {
+        case awaitingSignatures
+        case sending
+        case sent(at: Date)
+    }
+
+    struct Content {
+        /// Includes the initiator's signature, so it is never zero for an operation that exists.
+        let collectedSignaturesCount: Int
+        /// How many of the members have to sign for the operation to go through.
+        let requiredSignaturesCount: Int
+        /// Everyone on the account. Kept apart from the threshold because the copy needs both: the signatures row
+        /// counts against the threshold, while the footers and the signers screen name the roster.
+        let membersCount: Int
+        /// Every member of the account with where they stand on the operation, laid out ahead of the tap that opens
+        /// them.
+        let signers: [JointAccountSignerRow.ViewData]
+        let answer: Answer
+        let canSign: Bool
+        let status: Status
     }
 }

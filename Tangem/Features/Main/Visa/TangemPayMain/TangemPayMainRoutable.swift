@@ -17,7 +17,6 @@ protocol TangemPayMainRoutable: AnyObject {
     func openCardsLimitReachedSheet()
     func openIssueAdditionalCardCostPopup(offer: TangemPayCustomerOffer, fee: TangemPayCustomerOffer.Fee, issueCard: @escaping () async throws -> Void)
     func openOrderCardType(cardType: TangemPayOrderCardType?)
-    func openAddToApplePayGuide(viewModel: TangemPayCardDetailsViewModel)
 
     func openTangemPayAddFundsSheet(input: TangemPayAddFundsSheetViewModel.Input)
     func openVAOnramp()

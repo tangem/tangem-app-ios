@@ -23,7 +23,7 @@ struct TransactionSubtitleView: View {
     @ScaledMetric private var glyphSize: CGFloat = 16
 
     var body: some View {
-        HStack(spacing: .unit(.x1)) {
+        HStack(spacing: 4) {
             prefixView
             ownerView
         }
@@ -40,7 +40,7 @@ struct TransactionSubtitleView: View {
         switch owner {
         case .accountInCurrentWallet(let name, let icon),
              .accountInOtherWallet(let name, let icon):
-            HStack(spacing: .unit(.x1)) {
+            HStack(spacing: 4) {
                 AccountIconView(data: icon)
                     .settings(.smallSized)
                 Text(name)
@@ -50,7 +50,7 @@ struct TransactionSubtitleView: View {
             }
 
         case .wallet(let name, _, let thumbnailType):
-            HStack(spacing: .unit(.x1)) {
+            HStack(spacing: 4) {
                 Text(name)
                     .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
                     .lineLimit(1)
@@ -63,7 +63,7 @@ struct TransactionSubtitleView: View {
             }
 
         case .contact(let name, let icon, _):
-            HStack(spacing: .unit(.x1)) {
+            HStack(spacing: 4) {
                 AddressBookContactNameIconView(viewData: icon, size: 16)
 
                 Text(name)
@@ -73,7 +73,7 @@ struct TransactionSubtitleView: View {
             }
 
         case .unresolved(let short, _, let blockiesImage):
-            HStack(spacing: .unit(.x1)) {
+            HStack(spacing: 4) {
                 addressBlockies(image: blockiesImage)
                 Text(short)
                     .style(Font.Tangem.Caption12.semibold, color: addressColor)
@@ -104,27 +104,43 @@ struct TransactionSubtitleView: View {
     }
 }
 
-/// Renders `to: ⬤ Aave` — the yield provider standing in for a counterparty on the Supply and Withdraw rows.
+/// Renders `to: ⬤ Aave` on Supply and Withdraw, `from: ⬤ Merkl` on an incentive claim — the yield provider
+/// standing in for a counterparty address.
 struct TransactionProviderSubtitleView: View {
     let direction: TransactionDisplayModel.Direction
+    let provider: TransactionDisplayModel.YieldProvider
     var accessibilityIdentifier: String? = nil
 
     @ScaledMetric private var glyphSize: CGFloat = 16
 
     var body: some View {
-        HStack(spacing: .unit(.x1)) {
+        HStack(spacing: 4) {
             Text(direction.localizedPrefix)
                 .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
 
-            Assets.YieldModule.yieldModuleAaveLogo.image
+            logo
                 .resizable()
                 .frame(width: glyphSize, height: glyphSize)
                 .clipShape(Circle())
 
-            Text(Localization.yieldModuleProvider)
+            Text(name)
                 .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
                 .accessibilityIdentifier(accessibilityIdentifier)
         }
         .lineLimit(1)
+    }
+
+    private var logo: Image {
+        switch provider {
+        case .aave: Assets.YieldModule.yieldModuleAaveLogo.image
+        case .merkl: Assets.YieldModule.yieldModuleMerklLogo.image
+        }
+    }
+
+    private var name: String {
+        switch provider {
+        case .aave: Localization.yieldModuleProvider
+        case .merkl: Localization.yieldModuleIncentivesProvider
+        }
     }
 }

@@ -13,7 +13,7 @@ import TangemUIUtils
 
 public struct TangemMessageBubble: View, Setupable {
     private let text: String
-    private let closeAction: () -> Void
+    private var trailingAccessory: TrailingAccessory?
     private var variant: Variant = .neutral
     private var icon: ImageType?
     private var textLineLimit: Int? = Metrics.textLineLimit
@@ -24,15 +24,20 @@ public struct TangemMessageBubble: View, Setupable {
     @ScaledMetric private var cornerRadius: CGFloat = Metrics.cornerRadius
     @ScaledMetric private var tipLeadingInset: CGFloat = Metrics.tipLeadingInset
 
+    public init(text: String) {
+        self.text = text
+    }
+
     public init(text: String, onClose: @escaping () -> Void) {
         self.text = text
-        closeAction = onClose
+        trailingAccessory = .close(action: onClose)
     }
 
     public var body: some View {
         HStack(alignment: .top, spacing: Metrics.itemSpacing) {
             if let icon {
                 tintedIcon(icon)
+                    .accessibilityHidden(true)
             }
 
             Text(text)
@@ -42,7 +47,11 @@ public struct TangemMessageBubble: View, Setupable {
                     view.accessibilityIdentifier(identifier)
                 }
 
-            closeButton
+            switch trailingAccessory {
+            case .close(let action): closeButton(action: action)
+            case .icon(let icon, let action): trailingIcon(icon, action: action)
+            case .none: EmptyView()
+            }
         }
         .padding(.top, Metrics.paddingTop)
         .padding(.bottom, Metrics.paddingBottom)
@@ -58,24 +67,35 @@ public struct TangemMessageBubble: View, Setupable {
             .resizable()
             .frame(width: iconSize, height: iconSize)
             .foregroundStyle(variant.palette.icon)
-            .accessibilityHidden(true)
     }
 
-    private var closeButton: some View {
-        SwiftUI.Button(action: closeAction) {
-            DesignSystem.Icons.CrossCircle.filled16.image
-                .renderingMode(.template)
-                .resizable()
-                .frame(width: iconSize, height: iconSize)
-                .foregroundStyle(variant.palette.icon)
+    private func iconButton(_ icon: ImageType, action: @escaping () -> Void) -> some View {
+        SwiftUI.Button(action: action) {
+            tintedIcon(icon)
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
-        .padding(.leading, Metrics.closeWrapperLeadingPadding)
-        .accessibilityLabel(Text(Localization.commonClose))
-        .ifLet(closeAccessibilityIdentifier) { view, identifier in
-            view.accessibilityIdentifier(identifier)
+    }
+
+    @ViewBuilder
+    private func trailingIcon(_ icon: ImageType, action: (() -> Void)?) -> some View {
+        if let action {
+            iconButton(icon, action: action)
+                .padding(.leading, Metrics.trailingAccessoryLeadingPadding)
+        } else {
+            tintedIcon(icon)
+                .accessibilityHidden(true)
+                .padding(.leading, Metrics.trailingAccessoryLeadingPadding)
         }
+    }
+
+    private func closeButton(action: @escaping () -> Void) -> some View {
+        iconButton(DesignSystem.Icons.CrossCircle.filled16, action: action)
+            .padding(.leading, Metrics.trailingAccessoryLeadingPadding)
+            .accessibilityLabel(Text(Localization.commonClose))
+            .ifLet(closeAccessibilityIdentifier) { view, identifier in
+                view.accessibilityIdentifier(identifier)
+            }
     }
 
     private var closeAccessibilityIdentifier: String? {
@@ -99,6 +119,10 @@ public extension TangemMessageBubble {
         map { $0.variant = variant }
     }
 
+    func trailingAccessory(_ trailingAccessory: TrailingAccessory?) -> Self {
+        map { $0.trailingAccessory = trailingAccessory }
+    }
+
     func icon(_ icon: ImageType?) -> Self {
         map { $0.icon = icon }
     }
@@ -114,7 +138,7 @@ public extension TangemMessageBubble {
 
 // MARK: - Geometry
 
-extension TangemMessageBubble {
+public extension TangemMessageBubble {
     static let tipLeadingInset: CGFloat = Metrics.tipLeadingInset
 }
 
@@ -127,6 +151,23 @@ public extension TangemMessageBubble {
         case error
         case warning
         case info
+    }
+
+    enum TrailingAccessory: Equatable {
+        case close(action: () -> Void)
+        case icon(ImageType, action: (() -> Void)? = nil)
+
+        public static var chevron: Self {
+            .icon(DesignSystem.Icons.ChevronRight.regular16)
+        }
+
+        public static func == (lhs: Self, rhs: Self) -> Bool {
+            switch (lhs, rhs) {
+            case (.close, .close): true
+            case (.icon(let lhsIcon, let lhsAction), .icon(let rhsIcon, let rhsAction)): lhsIcon == rhsIcon && (lhsAction == nil) == (rhsAction == nil)
+            default: false
+            }
+        }
     }
 }
 
@@ -205,7 +246,7 @@ private extension TangemMessageBubble {
         static let paddingBottom: CGFloat = 4
         static let paddingLeading: CGFloat = 8
         static let paddingTrailing: CGFloat = 4
-        static let closeWrapperLeadingPadding: CGFloat = 4
+        static let trailingAccessoryLeadingPadding: CGFloat = 4
         static let tipSize: CGFloat = 8
         static let tipLeadingInset: CGFloat = 16
     }

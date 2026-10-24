@@ -16,7 +16,7 @@ struct TransactionViewAmountViewData: Hashable {
     /// invents for Supply and Withdraw.
     let amountWithCurrencyCode: String
     /// Numeric portion without currency suffix, used by the redesigned two-line amount layout.
-    let value: String
+    let value: String?
     /// Currency code shown on the secondary trailing line in the redesigned layout.
     let currencyCode: String
     let type: TransactionViewModel.TransactionType
@@ -27,7 +27,7 @@ struct TransactionViewAmountViewData: Hashable {
     init(
         amount: String,
         amountWithCurrencyCode: String? = nil,
-        value: String? = nil,
+        value: String?,
         currencyCode: String = "",
         type: TransactionViewModel.TransactionType,
         status: TransactionViewModel.Status,
@@ -36,7 +36,7 @@ struct TransactionViewAmountViewData: Hashable {
     ) {
         self.amount = amount
         self.amountWithCurrencyCode = amountWithCurrencyCode ?? amount
-        self.value = value ?? amount
+        self.value = value
         self.currencyCode = currencyCode
         self.type = type
         self.status = status
@@ -54,6 +54,8 @@ struct TransactionViewAmountViewData: Hashable {
              .yieldWithdrawCoin,
              .yieldEnterCoin,
              .yieldReactivate,
+             .incentiveClaim,
+             .incentiveClaimCoin,
              .yieldDeploy,
              .yieldInit,
              .gaslessTransactionFee,
@@ -79,12 +81,6 @@ struct TransactionViewAmountViewData: Hashable {
     /// coin-variant enable and disable.
     var displayValue: String? {
         if TransactionDisplayModel.isLabelOnlyChip(transactionType: type, isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract) {
-            return nil
-        }
-
-        // No crypto reaches the wallet on a top-up that never settled, so the row states no amount at all
-        // rather than striking through the figure the provider once promised.
-        if case .onramp = type, status == .failed {
             return nil
         }
 

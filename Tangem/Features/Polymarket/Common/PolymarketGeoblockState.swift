@@ -12,4 +12,8 @@ enum PolymarketGeoblockState: Hashable {
     case unknown
     case allowed
     case blocked
+
+    var isBlocked: Bool {
+        self == .blocked
+    }
 }

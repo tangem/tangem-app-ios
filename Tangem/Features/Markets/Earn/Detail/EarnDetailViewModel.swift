@@ -11,7 +11,7 @@ import Combine
 import TangemFoundation
 
 @MainActor
-final class EarnDetailViewModel: MarketsBaseViewModel {
+final class EarnDetailViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -51,8 +51,6 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
         self.coordinator = coordinator
         self.analyticsProvider = analyticsProvider
         self.presentSource = presentSource
-
-        super.init(overlayContentProgressInitialValue: 1.0)
 
         bind()
 

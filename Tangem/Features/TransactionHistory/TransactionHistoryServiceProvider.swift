@@ -9,6 +9,8 @@
 import BlockchainSdk
 
 struct TransactionHistoryServiceProvider {
+    var isSafe = false
+
     func makeTransactionHistoryService(tokenItem: TokenItem, walletManager: any WalletManager) -> TransactionHistoryService? {
         if tokenItem.blockchain.isDynamicAddressesSupported {
             return WalletTransactionHistoryService(
@@ -29,7 +31,7 @@ struct TransactionHistoryServiceProvider {
         if let address = addresses.singleElement {
             let factory = TransactionHistoryFactoryProvider().factory
 
-            guard let provider = factory.makeProvider(for: tokenItem.blockchain, isToken: tokenItem.isToken) else {
+            guard let provider = factory.makeProvider(for: tokenItem.blockchain, isToken: tokenItem.isToken, isSafe: isSafe) else {
                 return nil
             }
 
@@ -42,7 +44,7 @@ struct TransactionHistoryServiceProvider {
 
         let multiAddressProviders: [String: BlockchainSdk.TransactionHistoryProvider] = addresses.reduce(into: [:]) { result, address in
             let factory = TransactionHistoryFactoryProvider().factory
-            if let provider = factory.makeProvider(for: tokenItem.blockchain, isToken: tokenItem.isToken) {
+            if let provider = factory.makeProvider(for: tokenItem.blockchain, isToken: tokenItem.isToken, isSafe: isSafe) {
                 result[address] = provider
             }
         }

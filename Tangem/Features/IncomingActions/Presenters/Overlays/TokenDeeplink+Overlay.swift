@@ -11,7 +11,7 @@ extension TokenDeeplink: DeeplinkOverlayProviding {
     func makeOverlay(in context: DeeplinkOverlayContext) -> DeeplinkOverlayResult? {
         // The wallet the link names has to be on the device; the token itself may still be on its way from
         // the backend, so the link is claimed now and the screen shown when it lands.
-        guard findUserWalletModel() != nil else {
+        guard !isJointTransaction || FeatureProvider.isAvailable(.jointAccounts), findUserWalletModel() != nil else {
             return nil
         }
 

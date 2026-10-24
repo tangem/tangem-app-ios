@@ -12,12 +12,31 @@ import TangemAccessibilityIdentifiers
 final class OnrampCurrencySelectorScreen: ScreenBase<OnrampCurrencySelectorScreenElement> {
     private lazy var popularSection = staticText(.popularSection)
     private lazy var otherSection = staticText(.otherSection)
+    private lazy var retryButton = button(.retryButton)
 
     @discardableResult
     func validate() -> Self {
         XCTContext.runActivity(named: "Validate OnRamp Currency Selector screen elements") { _ in
             XCTAssertTrue(popularSection.waitForExistence(timeout: .robustUIUpdate), "Popular section should exist")
             XCTAssertTrue(otherSection.waitForExistence(timeout: .robustUIUpdate), "Other section should exist")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForLoadError() -> Self {
+        XCTContext.runActivity(named: "Validate currencies load error is displayed") { _ in
+            waitAndAssertTrue(app.staticTexts[Localization.marketsLoadingErrorTitle].firstMatch, "Load error title should exist")
+            waitAndAssertTrue(retryButton, "Try again button should exist")
+            XCTAssertEqual(retryButton.label, Localization.tryToLoadDataAgainButtonTitle, "Retry button title mismatch")
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapTryAgain() -> Self {
+        XCTContext.runActivity(named: "Tap Try again on currencies load error") { _ in
+            retryButton.waitAndTap()
         }
         return self
     }
@@ -44,6 +63,7 @@ final class OnrampCurrencySelectorScreen: ScreenBase<OnrampCurrencySelectorScree
 enum OnrampCurrencySelectorScreenElement: String, UIElement {
     case popularSection
     case otherSection
+    case retryButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -51,6 +71,8 @@ enum OnrampCurrencySelectorScreenElement: String, UIElement {
             return OnrampAccessibilityIdentifiers.currencySelectorPopularSection
         case .otherSection:
             return OnrampAccessibilityIdentifiers.currencySelectorOtherSection
+        case .retryButton:
+            return CommonUIAccessibilityIdentifiers.retryButton
         }
     }
 }

@@ -114,6 +114,8 @@ public extension Blockchain {
         case .adi: break
         case .electroneum: break
         case .arc: break
+        case .publicMasterpiece: break
+        case .onyx: break
             // READ BELOW:
             //
             // Did you get a compilation error here? If so, add your new blockchain to the array below
@@ -220,6 +222,8 @@ public extension Blockchain {
             .adi(testnet: false),
             .electroneum(testnet: false),
             .arc(testnet: false),
+            .publicMasterpiece,
+            .onyx(testnet: false),
         ]
     }
 }

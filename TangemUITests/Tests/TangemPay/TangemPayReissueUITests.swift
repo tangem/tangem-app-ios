@@ -71,7 +71,7 @@ final class TangemPayReissueUITests: BaseTestCase {
             .verifyTransactionVisible(merchantName: "Card replacement fee")
             .tapTransactionRow(containing: "Card replacement fee")
             .waitForScreen()
-            .verifyFeeDetails(title: "Fee", amount: "-$1.00", category: "Service fees")
+            .verifyFeeDetails(title: Localization.tangemPayFeeTitle, amount: "-$1.00", category: Localization.tangemPayFeeSubtitle)
     }
 
     func testReissueEndToEnd_ReplacesCardWithNewDetails() {

@@ -7,43 +7,19 @@
 //
 
 import Foundation
-import TangemPolymarket
 
 protocol PolymarketMainRoutable: AnyObject {
     func dismiss()
-
     func openRegionWarning()
-
-    @MainActor
-    func openMyPositions(
-        tab: PolymarketPositionsTab,
-        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
-        onClaimed: @escaping () -> Void
-    )
-
-    func openAddFunds()
-
-    @MainActor
-    func openRedeem(position: PolymarketPosition, onClaimed: @escaping () -> Void)
 
     @MainActor
     func openHowItWorks()
 
-    func openWithdraw()
-
-    func openEventDetails(
-        eventID: String,
-        category: PolymarketCategory?,
-        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
-    )
-
-    func openPositionDetails(position: PolymarketPosition, onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void)
-
-    func openOrder(
-        market: PolymarketMarket,
-        outcome: PolymarketOutcome,
-        eventTitle: String,
-        request: PolymarketOrderRequest,
-        onPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
-    )
+    @MainActor
+    func openSupportChat()
 }
+
+typealias PolymarketMainScreenRoutable = PolymarketMainRoutable
+    & PolymarketBalanceBlockRoutable
+    & PolymarketPositionsBlockRoutable
+    & PolymarketEventOpeningRoutable

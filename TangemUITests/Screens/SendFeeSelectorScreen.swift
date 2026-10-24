@@ -18,9 +18,9 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
     // MARK: - Bitcoin Custom Fee Fields
 
     private lazy var maxFeeField = app.textFields[FeeAccessibilityIdentifiers.customFeeMaxFeeField]
+    private lazy var maxFeePerGasField = app.textFields[FeeAccessibilityIdentifiers.customFeeMaxFeePerGasField]
     private lazy var satoshiPerByteField = app.textFields[FeeAccessibilityIdentifiers.customFeeSatoshiPerByteField]
     private lazy var nonceField = app.textFields[FeeAccessibilityIdentifiers.customFeeNonceField]
-    private lazy var feeUpToField = app.textFields[FeeAccessibilityIdentifiers.customFeeTotalAmountField]
 
     @discardableResult
     func waitForDisplay(cryptoSymbol: String, fiatSymbol: String, includeCustom: Bool = true) -> Self {
@@ -118,11 +118,10 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
     @discardableResult
     func setLowCustomFee() -> Self {
         XCTContext.runActivity(named: "Set low custom fee") { _ in
-            waitAndAssertTrue(feeUpToField, "Fee up to field should exist")
-            feeUpToField.waitAndTap()
-            feeUpToField.typeText(XCUIKeyboardKey.delete.rawValue)
-            feeUpToField.typeText(XCUIKeyboardKey.delete.rawValue)
-            feeUpToField.typeText("2")
+            waitAndAssertTrue(maxFeePerGasField, "Max fee field should exist")
+            maxFeePerGasField.waitAndTap()
+            clearTextBySelectingAll(element: maxFeePerGasField)
+            maxFeePerGasField.typeText("1")
         }
         return self
     }
@@ -130,12 +129,10 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
     @discardableResult
     func setHighCustomFee() -> Self {
         XCTContext.runActivity(named: "Set high custom fee") { _ in
-            waitAndAssertTrue(feeUpToField, "Fee up to field should exist")
-            feeUpToField.waitAndTap()
-            feeUpToField.typeText(XCUIKeyboardKey.delete.rawValue)
-            feeUpToField.typeText(XCUIKeyboardKey.delete.rawValue)
-            feeUpToField.typeText(XCUIKeyboardKey.delete.rawValue)
-            feeUpToField.typeText("3")
+            waitAndAssertTrue(maxFeePerGasField, "Max fee field should exist")
+            maxFeePerGasField.waitAndTap()
+            clearTextBySelectingAll(element: maxFeePerGasField)
+            maxFeePerGasField.typeText("1000")
         }
         return self
     }
@@ -249,6 +246,62 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
             .completed,
             "\(optionName) fee option should display \(cryptoSymbol) and \(fiatSymbol) amounts"
         )
+    }
+}
+
+extension SendFeeSelectorScreen {
+    enum SpeedOption: String {
+        case market = "Market"
+        case fast = "Fast"
+    }
+
+    @discardableResult
+    func assertOptionSelected(_ option: SpeedOption) -> Self {
+        XCTContext.runActivity(named: "Validate \(option.rawValue) fee option is selected") { _ in
+            let indicator = speedOptionButton(option).descendants(matching: .any)[FeeAccessibilityIdentifiers.feeOptionSelectedIndicator]
+            waitAndAssertTrue(indicator, "\(option.rawValue) fee option should be selected")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertOptionNotSelected(_ option: SpeedOption) -> Self {
+        XCTContext.runActivity(named: "Validate \(option.rawValue) fee option is not selected") { _ in
+            let indicator = speedOptionButton(option).descendants(matching: .any)[FeeAccessibilityIdentifiers.feeOptionSelectedIndicator]
+            XCTAssertTrue(indicator.waitForNonExistence(timeout: .quick), "\(option.rawValue) fee option should not be selected")
+        }
+        return self
+    }
+
+    func getCryptoFee(of option: SpeedOption, cryptoSymbol: String) -> Decimal {
+        XCTContext.runActivity(named: "Get \(option.rawValue) fee in \(cryptoSymbol)") { _ in
+            let button = speedOptionButton(option)
+            waitAndAssertTrue(button, "\(option.rawValue) fee option should exist")
+            let label = button.label
+            let pattern = NSRegularExpression.escapedPattern(for: cryptoSymbol) + "\\s*[0-9][0-9.,]*"
+            guard let range = label.range(of: pattern, options: .regularExpression) else {
+                XCTFail("\(option.rawValue) fee option label '\(label)' should contain a \(cryptoSymbol) amount")
+                return 0
+            }
+            let amount = label[range].replacingOccurrences(of: cryptoSymbol, with: "").trimmingCharacters(in: .whitespaces)
+            return NumericValueHelper.parseNumericValue(from: amount)
+        }
+    }
+
+    @discardableResult
+    func selectFastAndWaitForClose() -> SendSummaryScreen {
+        XCTContext.runActivity(named: "Select Fast fee option and wait for the fee selector to close") { _ in
+            fastOption.waitAndTap()
+            XCTAssertTrue(fastOption.waitForNonExistence(timeout: .robustUIUpdate), "Fee selector should close after selecting Fast")
+        }
+        return SendSummaryScreen(app)
+    }
+
+    private func speedOptionButton(_ option: SpeedOption) -> XCUIElement {
+        switch option {
+        case .market: marketOption
+        case .fast: fastOption
+        }
     }
 }
 

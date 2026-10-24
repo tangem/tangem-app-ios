@@ -19,6 +19,8 @@ struct YieldModuleAPITarget: TargetType {
         case markets(chains: [String]?)
         case incentiveMarkets(chains: [String]?)
         case incentives(chainId: Int, userAddress: String)
+        case claimCalldata(chainId: Int, userAddress: String)
+        case claimHistory(chainId: Int, userAddress: String)
         case aprHistory(chainId: Int, tokenAddress: String, days: Int)
         case token(tokenContractAddress: String, chainId: Int)
         case chart(tokenContractAddress: String, chainId: Int, window: String?, bucketSizeDays: Int?)
@@ -55,7 +57,7 @@ struct YieldModuleAPITarget: TargetType {
 
     var baseURL: URL {
         switch target {
-        case .markets, .incentiveMarkets, .incentives, .aprHistory, .token, .chart, .activate, .deactivate:
+        case .markets, .incentiveMarkets, .incentives, .claimCalldata, .claimHistory, .aprHistory, .token, .chart, .activate, .deactivate:
             yieldBaseURL
         case .transactionEvents:
             tangemApiBaseURL
@@ -70,6 +72,10 @@ struct YieldModuleAPITarget: TargetType {
             return "/yield-modules/markets"
         case .incentives(let chainId, let userAddress):
             return "/yield-modules/\(chainId)/\(userAddress)/incentives"
+        case .claimCalldata(let chainId, let userAddress):
+            return "/yield-modules/\(chainId)/\(userAddress)/claim-calldata"
+        case .claimHistory(let chainId, let userAddress):
+            return "/yield-modules/\(chainId)/\(userAddress)/claim-history"
         case .aprHistory(let chainId, let tokenAddress, _):
             return "/yield-modules/\(chainId)/\(tokenAddress)/apr-history"
         case .token(let tokenContractAddress, let chainId):
@@ -87,7 +93,7 @@ struct YieldModuleAPITarget: TargetType {
 
     var method: Moya.Method {
         switch target {
-        case .markets, .incentiveMarkets, .incentives, .aprHistory, .token, .chart:
+        case .markets, .incentiveMarkets, .incentives, .claimCalldata, .claimHistory, .aprHistory, .token, .chart:
             return .get
         case .activate, .deactivate, .transactionEvents:
             return .post
@@ -112,7 +118,7 @@ struct YieldModuleAPITarget: TargetType {
                 parameters: ["days": days],
                 encoding: URLEncoding(destination: .queryString)
             )
-        case .markets(.none), .incentiveMarkets(.none), .incentives, .token:
+        case .markets(.none), .incentiveMarkets(.none), .incentives, .claimCalldata, .claimHistory, .token:
             return .requestPlain
         case .chart(_, _, let window, let bucketSizeDays):
             var parameters: [String: Any] = [:]
@@ -152,8 +158,21 @@ struct YieldModuleAPITarget: TargetType {
         switch target {
         case .activate(_, _, _, let userWalletId):
             return ["userWalletId": "\(userWalletId)"]
-        case .markets, .incentiveMarkets, .incentives, .aprHistory, .token, .chart, .deactivate, .transactionEvents:
+        case .markets, .incentiveMarkets, .incentives, .claimCalldata, .claimHistory, .aprHistory, .token, .chart, .deactivate, .transactionEvents:
             return nil
+        }
+    }
+}
+
+// MARK: - CachePolicyProvider
+
+extension YieldModuleAPITarget: CachePolicyProvider {
+    var cachePolicy: URLRequest.CachePolicy {
+        switch target {
+        case .claimCalldata, .incentives, .claimHistory:
+            return .reloadIgnoringLocalAndRemoteCacheData
+        default:
+            return .useProtocolCachePolicy
         }
     }
 }

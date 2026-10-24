@@ -47,6 +47,13 @@ extension StakeKitDTO {
                     case rewards
                     case locked
                     case unlocking
+                    case unknown
+
+                    init(from decoder: Decoder) throws {
+                        let container = try decoder.singleValueContainer()
+                        let raw = try container.decode(String.self)
+                        self = BalanceType(rawValue: raw) ?? .unknown
+                    }
                 }
 
                 struct PendingAction: Decodable {

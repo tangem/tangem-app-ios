@@ -73,7 +73,7 @@ private extension TangemPayTransactionDispatcher {
         )
 
         let txHash = await pollingSequence
-            .prefix(5)
+            .prefix(Self.maxPollingAttempts)
             .first(where: { $0.value?.data?.transactionHash != nil })?
             .value?
             .data?
@@ -101,4 +101,5 @@ extension TangemPayTransactionDispatcher {
 
     static let interval: TimeInterval = 3
     static let initialPollingDelay: TimeInterval = 3
+    static let maxPollingAttempts = 10
 }

@@ -72,7 +72,7 @@ struct TransactionViewRedesigned: View {
     }
 
     private func warningView(_ warning: TransactionViewModel.Warning) -> some View {
-        HStack(spacing: .unit(.x3)) {
+        HStack(spacing: 12) {
             DesignSystem.Icons.Error.filled16.image
                 .renderingMode(.template)
                 .resizable()
@@ -87,7 +87,7 @@ struct TransactionViewRedesigned: View {
 
             Spacer(minLength: 0)
         }
-        .padding(.top, .unit(.x2))
+        .padding(.top, 8)
     }
 
     private func warningTitle(for warning: TransactionViewModel.Warning) -> String {
@@ -156,7 +156,7 @@ struct TransactionViewRedesigned: View {
     }
 
     private var nameView: some View {
-        HStack(spacing: .unit(.x2)) {
+        HStack(spacing: 8) {
             Text(display.title.fullText)
                 .style(Font.Tangem.Body16.medium, color: nameColor)
                 .lineLimit(1)
@@ -201,9 +201,10 @@ struct TransactionViewRedesigned: View {
         case .express(let model):
             TransactionExpressSubtitleView(model: model)
 
-        case .provider(let direction):
+        case .provider(let direction, let provider):
             TransactionProviderSubtitleView(
                 direction: direction,
+                provider: provider,
                 accessibilityIdentifier: TxHistoryAccessibilityIdentifiers.transactionSubtitle(key: transactionKey)
             )
 
@@ -261,10 +262,14 @@ private extension TransactionViewRedesigned {
     var isFailed: Bool { viewModel.icon.status == .failed }
 
     var nameColor: Color {
+        if viewModel.isPendingSignature {
+            return .Tangem.Text.Neutral.primary
+        }
+
         switch viewModel.icon.status {
-        case .failed, .undefined: .Tangem.Text.Status.warning
-        case .inProgress: .Tangem.Text.Status.accent
-        case .confirmed: .Tangem.Text.Neutral.primary
+        case .failed, .undefined: return .Tangem.Text.Status.warning
+        case .inProgress: return .Tangem.Text.Status.accent
+        case .confirmed: return .Tangem.Text.Neutral.primary
         }
     }
 

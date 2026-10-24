@@ -120,6 +120,8 @@ struct AddressTypesConfig {
              .adi,
              .electroneum,
              .arc,
+             .publicMasterpiece,
+             .onyx,
              .seiEvm:
             return [.default]
         }

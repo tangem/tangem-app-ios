@@ -10,9 +10,13 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct JointAccountSupportedNetworksView: View {
     let viewModel: JointAccountSupportedNetworksViewModel
+
+    @State private var contentBottom: CGFloat = 0
+    @State private var viewportBottom: CGFloat = 0
 
     var body: some View {
         VStack(spacing: .zero) {
@@ -37,26 +41,38 @@ struct JointAccountSupportedNetworksView: View {
 
     private var networks: some View {
         ViewThatFits(in: .vertical) {
-            networksCard
+            networksList
+                .roundedBackground(with: DesignSystem.Color.bgTertiary, padding: .zero, radius: Constants.cornerRadius)
 
-            ScrollView(.vertical) {
-                networksCard
+            ScrollView(.vertical, showsIndicators: false) {
+                networksList
+                    .readGeometry(inCoordinateSpace: .global) { contentBottom = $0.frame.maxY }
             }
             .scrollBounceBehavior(.basedOnSize)
-            .overlay(alignment: .bottom) {
-                Fade(position: .bottom)
-            }
+            .readGeometry(inCoordinateSpace: .global) { viewportBottom = $0.frame.maxY }
+            .overlay(alignment: .bottom) { bottomFade }
+            .roundedBackground(with: DesignSystem.Color.bgTertiary, padding: .zero, radius: Constants.cornerRadius)
         }
     }
 
-    private var networksCard: some View {
+    private var hasContentBelowViewport: Bool {
+        contentBottom - viewportBottom > Constants.scrollEndTolerance
+    }
+
+    private var networksList: some View {
         VStack(spacing: .zero) {
             ForEach(viewModel.networks) { network in
                 networkRow(network)
             }
         }
-        .background(DesignSystem.Color.bgTertiary)
-        .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
+    }
+
+    private var bottomFade: some View {
+        Fade(position: .bottom)
+            .backgroundColor(DesignSystem.Color.bgTertiary)
+            .frame(height: Constants.fadeHeight)
+            .hidden(!hasContentBelowViewport)
+            .animation(.easeInOut(duration: Constants.fadeAnimationDuration), value: hasContentBelowViewport)
     }
 
     private func networkRow(_ network: JointAccountSupportedNetworksViewModel.NetworkViewData) -> some View {
@@ -94,6 +110,9 @@ private extension JointAccountSupportedNetworksView {
         static let horizontalPadding: CGFloat = 16
         static let contentVerticalPadding: CGFloat = 16
         static let cornerRadius: CGFloat = 24
+        static let fadeHeight: CGFloat = 40
+        static let fadeAnimationDuration: TimeInterval = 0.25
+        static let scrollEndTolerance: CGFloat = 1
         static let iconSize = CGSize(bothDimensions: 40)
     }
 }

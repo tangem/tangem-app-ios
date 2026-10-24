@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 
@@ -28,6 +29,7 @@ struct TangemPayFormFieldView: View {
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusError)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.formFieldError(String(describing: field.id)))
             }
         }
     }
@@ -81,6 +83,7 @@ private extension TangemPayFormFieldView {
                 .tint(DesignSystem.Color.textPrimary)
                 .disabled(field.isSelectable)
                 .allowsHitTesting(!field.isSelectable)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.formField(String(describing: field.id)))
 
             Spacer(minLength: Constants.clearButtonSpacing)
 

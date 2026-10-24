@@ -25,6 +25,7 @@ public struct PolymarketOrderResultDetailsView: View {
             }
 
             PolymarketOrderMarketRow(model: model.market)
+                .backgroundColor(DesignSystem.Color.bgTransparentPrimary)
 
             if let tokensBoughtText = model.tokensBoughtText {
                 rows(tokensBoughtText: tokensBoughtText)
@@ -53,26 +54,15 @@ public struct PolymarketOrderResultDetailsView: View {
     private func rows(tokensBoughtText: String) -> some View {
         VStack(spacing: 0) {
             TangemUI.Row(title: model.tokensTitle, value: tokensBoughtText)
-                .titleAccessory { PolymarketHintIcon(asset: DesignSystem.Icons.Info.regular16) }
-                .showDivider(model.executionPriceText != nil || model.resolutionDateText != nil)
-
-            if let executionPriceText = model.executionPriceText {
-                // [REDACTED_TODO_COMMENT]
-                TangemUI.Row(title: "Execution price", value: executionPriceText)
-                    .showDivider(model.resolutionDateText != nil)
-            }
+                .overrideTextColors(Constants.valueColors)
+                .showDivider(model.resolutionDateText != nil)
 
             if let resolutionDateText = model.resolutionDateText {
                 TangemUI.Row(title: Localization.predictionDetailsResolutionDate, value: resolutionDateText)
-                    .showDivider(model.fee != nil)
-            }
-
-            if let fee = model.fee {
-                PolymarketOrderFeeRow(currencyCode: fee.currencyCode, valueText: fee.valueText)
+                    .overrideTextColors(Constants.valueColors)
+                    .showDivider(false)
             }
         }
-        .background(DesignSystem.Color.bgSecondary)
-        .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
     }
 }
 
@@ -83,37 +73,21 @@ public extension PolymarketOrderResultDetailsView {
         public let banner: Banner?
         public let market: PolymarketOrderMarketRow.Model
         public let tokensBoughtText: String?
-        public let executionPriceText: String?
         public let resolutionDateText: String?
         public let tokensTitle: String
-        public let fee: Fee?
 
         public init(
             banner: Banner?,
             market: PolymarketOrderMarketRow.Model,
             tokensBoughtText: String?,
-            executionPriceText: String? = nil,
             resolutionDateText: String?,
-            tokensTitle: String = Localization.predictionPlaceResultTokensBought,
-            fee: Fee? = nil
+            tokensTitle: String = Localization.predictionPlaceResultTokensBought
         ) {
             self.banner = banner
             self.market = market
             self.tokensBoughtText = tokensBoughtText
-            self.executionPriceText = executionPriceText
             self.resolutionDateText = resolutionDateText
             self.tokensTitle = tokensTitle
-            self.fee = fee
-        }
-    }
-
-    struct Fee {
-        public let currencyCode: String
-        public let valueText: String
-
-        public init(currencyCode: String, valueText: String) {
-            self.currencyCode = currencyCode
-            self.valueText = valueText
         }
     }
 
@@ -158,7 +132,7 @@ private extension PolymarketOrderResultDetailsView.Style {
 private extension PolymarketOrderResultDetailsView {
     enum Constants {
         static let spacing: CGFloat = 8
-        static let cornerRadius: CGFloat = 24
         static let infoIconSide: CGFloat = 20
+        static let valueColors = RowOverrideTextColors(value: DesignSystem.Color.textSecondary)
     }
 }

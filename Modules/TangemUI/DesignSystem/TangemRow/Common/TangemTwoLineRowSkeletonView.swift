@@ -10,8 +10,8 @@ import SwiftUI
 
 public struct TangemTwoLineRowSkeletonView: View {
     @ScaledMetric private var iconSize: CGFloat = 40
-    @ScaledMetric private var horizontalPadding: CGFloat = SizeUnit.x4.value
-    @ScaledMetric private var verticalPadding: CGFloat = SizeUnit.x3.value
+    @ScaledMetric private var horizontalPadding: CGFloat = 16
+    @ScaledMetric private var verticalPadding: CGFloat = 12
 
     @ScaledMetric private var primaryBarHeight: CGFloat = 20
     @ScaledMetric private var primaryLeadingBarWidth: CGFloat = 110

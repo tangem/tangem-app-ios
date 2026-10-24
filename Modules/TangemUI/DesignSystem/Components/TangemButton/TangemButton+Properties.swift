@@ -224,19 +224,17 @@ public extension TangemButton {
         case x8
         case x7
 
-        public var sizeUnit: SizeUnit {
+        var height: CGFloat {
             switch self {
-            case .x15: return .x15
-            case .x12: return .x12
-            case .x11: return .x11
-            case .x10: return .x10
-            case .x9: return .x9
-            case .x8: return .x8
-            case .x7: return .x7
+            case .x15: 60
+            case .x12: 48
+            case .x11: 44
+            case .x10: 40
+            case .x9: 36
+            case .x8: 32
+            case .x7: 28
             }
         }
-
-        var height: CGFloat { sizeUnit.value }
 
         var font: Font {
             switch self {
@@ -254,24 +252,24 @@ public extension TangemButton {
 
         var horizontalInsets: CGFloat {
             switch self {
-            case .x15, .x12: SizeUnit.x6.value
-            case .x11, .x10, .x9, .x8: SizeUnit.x3.value
-            case .x7: SizeUnit.x2.value
+            case .x15, .x12: 24
+            case .x11, .x10, .x9, .x8: 12
+            case .x7: 8
             }
         }
 
         var cornerRadius: CGFloat {
             switch self {
-            case .x15: SizeUnit.x4.value
-            case .x12: SizeUnit.x3.value
-            case .x11, .x10, .x9, .x8, .x7: SizeUnit.x2.value
+            case .x15: 16
+            case .x12: 12
+            case .x11, .x10, .x9, .x8, .x7: 8
             }
         }
 
         var iconSize: CGFloat {
             switch self {
-            case .x15, .x12: SizeUnit.x7.value
-            case .x11, .x10, .x9, .x8, .x7: SizeUnit.x5.value
+            case .x15, .x12: 28
+            case .x11, .x10, .x9, .x8, .x7: 20
             }
         }
     }

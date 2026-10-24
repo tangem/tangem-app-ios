@@ -80,10 +80,9 @@ class BaseTestCase: XCTestCase {
             arguments.append("-uitest-keep-wallets")
         }
 
-        // Defaults first, then per-test overrides, then run-wide CI/Allure ones (UITEST_FEATURE_TOGGLES) win.
+        // Per-test overrides first, then run-wide CI/Allure ones (UITEST_FEATURE_TOGGLES) win.
         // Keys are Feature names (e.g. TWI-1259_tron_gasless); the app skips unknown ones.
-        let resolvedFeatureToggles = Constants.defaultFeatureToggles
-            .merging(featureToggles) { _, perTest in perTest }
+        let resolvedFeatureToggles = featureToggles
             .merging(FeatureToggleUITestsOverridesProvider.runOverrides) { _, runOverride in runOverride }
         for (key, isEnabled) in resolvedFeatureToggles {
             arguments.append("-uitest-feature-\(key)-\(isEnabled ? "on" : "off")")
@@ -92,7 +91,7 @@ class BaseTestCase: XCTestCase {
         arguments.append(contentsOf: extraLaunchArguments)
 
         // Pin locale/language so currency, number and date assertions don't depend on the simulator region.
-        arguments.append(contentsOf: ["-AppleLocale", "en_US", "-AppleLanguages", "(en)"])
+        arguments.append(contentsOf: UITestLocale.launchArguments)
 
         app.launchArguments = arguments
 
@@ -186,6 +185,7 @@ class BaseTestCase: XCTestCase {
         accessCode: String? = nil,
         expressApiType: ExpressAPI? = nil,
         scenarios: [ScenarioConfig] = [],
+        featureToggles: [String: Bool] = [:],
         extraLaunchEnvironment: [String: String] = [:]
     ) -> MainScreen {
         let eligibilityScenario = ScenarioConfig(name: "tangem_pay_eligibility", initialState: eligibilityState)
@@ -195,6 +195,7 @@ class BaseTestCase: XCTestCase {
             expressApiType: expressApiType,
             visaApiType: .mock,
             clearStorage: true,
+            featureToggles: featureToggles,
             scenarios: [eligibilityScenario] + scenarios,
             extraLaunchEnvironment: extraLaunchEnvironment
         )
@@ -208,6 +209,15 @@ class BaseTestCase: XCTestCase {
         expressApiType: ExpressAPI? = nil,
         scenarios: [ScenarioConfig] = []
     ) -> MainScreen {
+        launchAndImportHotWalletRequiringPayRenewal(expressApiType: expressApiType, scenarios: scenarios)
+            .renewTangemPaySession()
+    }
+
+    @discardableResult
+    func launchAndImportHotWalletRequiringPayRenewal(
+        expressApiType: ExpressAPI? = nil,
+        scenarios: [ScenarioConfig] = []
+    ) -> MainScreen {
         launchApp(
             tangemApiType: .mock,
             expressApiType: expressApiType,
@@ -217,7 +227,7 @@ class BaseTestCase: XCTestCase {
             extraLaunchArguments: [Constants.realPayAuthorizationArgument]
         )
 
-        return importHotWallet().renewTangemPaySession()
+        return importHotWallet()
     }
 
     /// Restarts the app keeping wallets and storage, so caches written before the restart stay readable.
@@ -267,9 +277,6 @@ class BaseTestCase: XCTestCase {
 
 private extension BaseTestCase {
     enum Constants {
-        /// The OpenTelemetry exporter has no UI-test stub and would reach the production endpoint on every launch.
-        static let defaultFeatureToggles = ["TWI-1627_opentelemetry_metrics_mirroring": false]
-
         /// Keeps `TangemPayMocksConfigurator` from injecting synthetic authorization tokens.
         static let realPayAuthorizationArgument = "-uitest-tangempay-real-authorization"
     }

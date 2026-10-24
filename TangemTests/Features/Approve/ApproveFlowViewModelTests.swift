@@ -9,7 +9,6 @@ import Foundation
 import Testing
 import Combine
 import BlockchainSdk
-import TangemUI
 @testable import Tangem
 
 @Suite("ApproveFlowViewModel")
@@ -161,7 +160,7 @@ struct ApproveFlowViewModelTests {
         let feeUnit = Fee(Amount(with: .ethereum(testnet: false), value: 0.001))
         let revokeData = ApproveTransactionData(txData: Data([0x00]), spender: "0xSpender", toContractAddress: "0xContract")
         let approveData = ApproveTransactionData(txData: Data([0x01]), spender: "0xSpender", toContractAddress: "0xContract")
-        let state = ApproveInteractor.ApproveInteractorState.revokeAndApprove(revoke: revokeData, approve: approveData, feeUnit: feeUnit)
+        let state = ApproveInteractor.ApproveInteractorState.revokeAndApprove(revoke: revokeData, approve: approveData, feeUnit: feeUnit, policy: ApprovePolicy.specified)
 
         let (_, env) = makeSUT(interactorState: state)
 
@@ -201,8 +200,7 @@ struct ApproveFlowViewModelTests {
         )
 
         let interactor = ApproveInteractor(
-            approveInteractorState: interactorState ?? .approve(data: defaultApproveData),
-            initialPolicy: ApprovePolicy.specified,
+            approveInteractorState: interactorState ?? .approve(data: defaultApproveData, policy: ApprovePolicy.specified),
             approveAmount: 100,
             allowanceService: allowanceService,
             approveTransactionDispatcher: dispatcher,
@@ -216,13 +214,12 @@ struct ApproveFlowViewModelTests {
             subtitle: "Test subtitle",
             feeFooterText: "Test footer",
             tokenItem: tokenItem,
-            selectedPolicy: ApprovePolicy.specified,
-            tangemIconProvider: TangemIconProviderStub()
+            tangemIconProvider: ApproveTangemIconProviderStub()
         )
 
         let approveInput = ApproveViewModel.Input(
             settings: settings,
-            feeFormatter: FeeFormatterStub(),
+            feeFormatter: ApproveFeeFormatterStub(),
             interactor: interactor
         )
 
@@ -248,24 +245,6 @@ struct ApproveFlowViewModelTests {
 }
 
 // MARK: - Minimal stubs for ViewModel dependencies
-
-private struct TangemIconProviderStub: TangemIconProvider {
-    func getMainButtonIcon() -> MainButton.Icon? { nil }
-}
-
-private struct FeeFormatterStub: FeeFormatter {
-    func formattedFeeComponents(
-        fee: Decimal,
-        currencySymbol: String,
-        currencyId: String?,
-        isFeeApproximate: Bool,
-        formattingOptions: BalanceFormattingOptions
-    ) -> FormattedFeeComponents {
-        FormattedFeeComponents(cryptoFee: "", fiatFee: nil)
-    }
-
-    func format(fee: Decimal, currencySymbol: String, currencyId: String?, isFeeApproximate: Bool) -> String { "" }
-}
 
 private struct ConfirmTransactionPolicyStub: ConfirmTransactionPolicy {
     var needsHoldToConfirm: Bool { false }

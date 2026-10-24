@@ -24,8 +24,6 @@ struct FeedDestinationView: View {
             ForYouCoordinatorView(coordinator: coordinator)
                 .background(FeedPopGestureEnabler())
                 .toolbar(.hidden, for: .navigationBar)
-        case .polymarket(let coordinator):
-            PolymarketCoordinatorView(coordinator: coordinator)
         case .collectibles(let coordinator):
             NavigationStack {
                 CollectiblesCoordinatorView(coordinator: coordinator, dismissStyle: .close)

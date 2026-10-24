@@ -195,8 +195,12 @@ actor CommonAccountModelsManager {
 
     private func makeConditionsValidator(for flow: ValidationFlow) -> any CryptoAccountConditionsValidator {
         switch flow {
-        case .new(let newAccountName, let remoteState):
-            return NewCryptoAccountConditionsValidator(newAccountName: newAccountName, remoteState: remoteState)
+        case .new(let newAccountName, let accountType, let remoteState):
+            return NewCryptoAccountConditionsValidator(
+                newAccountName: newAccountName,
+                accountType: accountType,
+                remoteState: remoteState
+            )
         case .edit(let newAccountName, let derivationIdentity, let remoteState):
             return EditCryptoAccountConditionsValidator(
                 newAccountName: newAccountName,
@@ -217,6 +221,7 @@ actor CommonAccountModelsManager {
             return UnarchivedCryptoAccountConditionsValidator(
                 newAccountName: info.name,
                 identifier: info.id,
+                accountType: info.derivationIdentity.type,
                 remoteState: remoteState
             )
         }
@@ -338,7 +343,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
             throw .unknownError(AccountModelsManagerError.addingCryptoAccountsNotSupported)
         }
 
-        let remoteState = try await validatedRemoteState(forNewAccountNamed: name)
+        let remoteState = try await validatedRemoteState(forNewAccountNamed: name, accountType: .crypto)
 
         let newAccountIdentity = CryptoAccountDerivationIdentity(
             derivationIndex: remoteState.nextCryptoDerivationIndex,
@@ -369,7 +374,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
             throw .unknownError(AccountModelsManagerError.addingJointAccountNotSupported)
         }
 
-        let remoteState = try await validatedRemoteState(forNewAccountNamed: context.name)
+        let remoteState = try await validatedRemoteState(forNewAccountNamed: context.name, accountType: .joint)
 
         guard let nextDerivationIndex = remoteState.nextJointDerivationIndex else {
             throw .unknownError(AccountModelsManagerError.addingJointAccountNotSupported)
@@ -409,7 +414,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         // this user's to pick or to change, so there is nothing here to hold them to — only the index to derive at
         let remoteState = try await fetchRemoteState()
 
-        guard remoteState.accounts.count < AccountModelUtils.maxNumberOfAccounts else {
+        guard !AccountModelUtils.isAccountsLimitReached(for: .joint, in: remoteState) else {
             AccountsLogger.warning("The number of accounts exceeded the limit")
             throw .tooManyAccounts
         }
@@ -501,6 +506,18 @@ extension CommonAccountModelsManager: AccountModelsManager {
         }
     }
 
+    func reloadAccountsFromRemote() async {
+        async let accountsLoad: Void = refreshCryptoAccounts()
+
+        do {
+            try await jointAccountsRepository.loadJointAccountsFromRemote()
+        } catch {
+            AccountsLogger.error("Failed to reload the joint accounts of user wallet \(userWalletId)", error: error)
+        }
+
+        await accountsLoad
+    }
+
     func acceptTangemPayOffer(
         authorizingInteractor: any TangemPayAuthorizing
     ) async throws(TangemPayAuthorizationError) {
@@ -508,11 +525,32 @@ extension CommonAccountModelsManager: AccountModelsManager {
             authorizingInteractor: authorizingInteractor,
             showSyncInProgress: false
         )
-        guard case .kycRequired = tangemPayManager.state else {
+        guard tangemPayManager.state?.isKYCRequired == true else {
             return
         }
 
         await launchKYCAndWait()
+    }
+
+    func authorizeTangemPayOfferForResidency(
+        authorizingInteractor: any TangemPayAuthorizing
+    ) async throws(TangemPayAuthorizationError) -> (any TangemPayResidencyInteractor)? {
+        try await tangemPayManager.authorizeWithCustomerWallet(
+            authorizingInteractor: authorizingInteractor,
+            showSyncInProgress: false
+        )
+
+        guard tangemPayManager.state?.isKYCRequired == true else {
+            return nil
+        }
+
+        tangemPayManager.beginResidency()
+
+        guard case .residencyRequired(let residencyInteractor) = tangemPayManager.state else {
+            return nil
+        }
+
+        return residencyInteractor
     }
 
     func acceptTangemPayCampaignOffer(
@@ -533,12 +571,14 @@ extension CommonAccountModelsManager: AccountModelsManager {
         let stateAfterAuthorization = tangemPayManager.state
 
         switch stateAfterAuthorization {
-        case .kycRequired, .planSelectNeeded:
+        case .kycRequired, .residencyRequired, .regionUnavailable, .planSelectNeeded:
             do {
                 try await tangemPayManager.placeCampaignCardIssueOrder(campaignKey: campaignKey)
             } catch {
                 throw .order(error)
             }
+
+            tangemPayManager.completeResidency(.eligible)
         case .tangemPayAccount, .cardDeactivated, .failedToIssueCard:
             throw .accountAlreadyExists
         case .kycDeclined, .unavailable, .syncNeeded, .syncInProgress, .loading, .none:
@@ -549,7 +589,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
             throw .unexpectedState
         }
 
-        guard case .kycRequired = tangemPayManager.state else {
+        guard tangemPayManager.state?.isKYCRequired == true else {
             return
         }
 
@@ -652,10 +692,16 @@ private extension CommonAccountModelsManager {
         }
     }
 
-    /// The remote state an account this wallet names is created against, checked against the name it is given.
-    func validatedRemoteState(forNewAccountNamed name: String) async throws(AccountEditError) -> CryptoAccountsRemoteState {
+    /// The remote state an account this wallet names is created against, checked against the name it is given and
+    /// the limit of its type.
+    func validatedRemoteState(
+        forNewAccountNamed name: String,
+        accountType: AccountType
+    ) async throws(AccountEditError) -> CryptoAccountsRemoteState {
         let remoteState = try await fetchRemoteState()
-        let validator = makeConditionsValidator(for: .new(newAccountName: name, remoteState: remoteState))
+        let validator = makeConditionsValidator(
+            for: .new(newAccountName: name, accountType: accountType, remoteState: remoteState)
+        )
 
         do {
             try await validator.validate()
@@ -686,7 +732,7 @@ private extension CommonAccountModelsManager {
 
 private extension CommonAccountModelsManager {
     private enum ValidationFlow {
-        case new(newAccountName: String, remoteState: CryptoAccountsRemoteState)
+        case new(newAccountName: String, accountType: AccountType, remoteState: CryptoAccountsRemoteState)
         case edit(newAccountName: String?, derivationIdentity: CryptoAccountDerivationIdentity, remoteState: CryptoAccountsRemoteState)
         case archive(identifier: any AccountModelPersistentIdentifierConvertible)
         case unarchive(info: ArchivedCryptoAccountInfo, remoteState: CryptoAccountsRemoteState)

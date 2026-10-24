@@ -242,12 +242,14 @@ struct TransactionHistoryMapper {
             resolver: resolver
         )
 
+        let isCounterpartyCurrentOwner = owner == nil && counterparty?.isOwnWallet == true
+
         return TransactionDisplayModel.ExpressSubtitle(
             direction: direction,
             leading: .token(TokenIconInfoBuilder().build(from: counterpartyToken, isCustom: counterpartyToken.token?.isCustom ?? false)),
             symbol: counterpartyToken.currencySymbol,
             owner: owner,
-            counterparty: counterparty
+            counterparty: isCounterpartyCurrentOwner ? nil : counterparty
         )
     }
 
@@ -346,7 +348,10 @@ struct TransactionHistoryMapper {
             return nil
         }
 
-        let amountFormatted = transferAmount(from: record).legacy
+        guard let amountFormatted = transferAmount(from: record)?.legacy else {
+            return nil
+        }
+
         let date = record.date ?? Date()
         let dateFormatted = Self.dateTimeFormatter.string(from: date)
 
@@ -420,10 +425,7 @@ private extension TransactionHistoryMapper {
     }
 
     func approvedToken(for record: TransactionRecord) -> TokenItem? {
-        guard
-            FeatureProvider.isAvailable(.transactionHistoryV2),
-            let contract = record.approvedTokenContract
-        else {
+        guard let contract = record.approvedTokenContract else {
             return nil
         }
 
@@ -450,9 +452,10 @@ private extension TransactionHistoryMapper {
             index: record.index,
             interactionAddress: interaction,
             timeFormatted: timeFormatted,
-            amount: formattedAmount.legacy,
-            amountWithCurrencyCode: formattedAmount.withCurrencyCode,
-            value: formattedAmount.redesigned,
+            // [REDACTED_TODO_COMMENT]
+            amount: formattedAmount?.legacy ?? "",
+            amountWithCurrencyCode: formattedAmount?.withCurrencyCode,
+            value: formattedAmount?.redesigned,
             currencyCode: amountSymbol(for: prepared),
             isOutgoing: record.isOutgoing,
             transactionType: prepared.transactionType,
@@ -464,7 +467,7 @@ private extension TransactionHistoryMapper {
         )
     }
 
-    func transferAmount(from record: TransactionRecord) -> FormattedAmount {
+    func transferAmount(from record: TransactionRecord) -> FormattedAmount? {
         getFormattedAmount(for: prepare(record))
     }
 
@@ -508,7 +511,7 @@ private extension TransactionHistoryMapper {
         switch transactionType {
         case .stake, .unstake, .vote, .withdraw, .claimRewards, .restake, .operation, .unknownOperation:
             break
-        case .transfer, .swap, .onramp, .approve,
+        case .transfer, .swap, .onramp, .approve, .incentiveClaim, .incentiveClaimCoin,
              .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit, .yieldReactivate, .yieldSend,
              .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin,
              .gaslessTransactionFee, .gaslessTransfer, .networkFee, .tangemPay:
@@ -533,7 +536,7 @@ private extension TransactionHistoryMapper {
     }
 
     private func makeStakingTarget(forAddress address: String) -> TransactionViewModel.StakingTarget {
-        guard FeatureProvider.isAvailable(.transactionHistoryV2), let stakingNetwork else {
+        guard let stakingNetwork else {
             return TransactionViewModel.StakingTarget(address: address, resolvedName: nil)
         }
 
@@ -638,6 +641,8 @@ private extension TransactionHistoryMapper {
         case "redelegate": .restake
         case "yieldEnter" where !isToken: .yieldEnterCoin
         case "yieldEnter": .yieldEnter
+        case "yieldClaim" where !isToken: .incentiveClaimCoin
+        case "yieldClaim": .incentiveClaim
         case "yieldWithdraw" where !isToken: .yieldWithdrawCoin
         case "yieldWithdraw": .yieldWithdraw
         case "yieldReactivate": .yieldReactivate
@@ -658,7 +663,7 @@ private extension TransactionHistoryMapper {
         for type: TransactionViewModel.TransactionType,
         record: TransactionRecord
     ) -> TransactionViewModel.TransactionType {
-        guard !isToken, FeatureProvider.isAvailable(.transactionHistoryV2) else {
+        guard !isToken else {
             return type
         }
 
@@ -710,6 +715,8 @@ private extension TransactionHistoryMapper {
              .claimRewards,
              .restake,
              .operation,
+             .incentiveClaim,
+             .incentiveClaimCoin,
              .yieldEnter,
              .yieldWithdraw,
              .gaslessTransactionFee,
@@ -871,7 +878,7 @@ private extension TransactionHistoryMapper {
 }
 
 private extension TransactionHistoryMapper {
-    func getFormattedAmount(for prepared: PreparedRecord) -> FormattedAmount {
+    func getFormattedAmount(for prepared: PreparedRecord) -> FormattedAmount? {
         let record = prepared.record
         let amount = prepared.amount
 
@@ -883,30 +890,40 @@ private extension TransactionHistoryMapper {
         case .stake, .unstake, .restake, .vote, .withdraw:
             return makeFormattedAmount(amount, symbol: currencySymbol)
         case .approve:
-            return prepared.approve.map(approveAmount(for:)) ?? makeFormattedAmount(amount, symbol: currencySymbol)
+            guard let approve = prepared.approve else {
+                return makeFormattedAmount(amount, symbol: currencySymbol)
+            }
+
+            return approveAmount(for: approve)
         case .yieldEnter, .yieldEnterCoin, .yieldWithdraw, .yieldWithdrawCoin:
             return makeFormattedAmount(amount, symbol: currencySymbol)
-        // Supply and Withdraw take their sign from the operation rather than the on-chain direction, which
-        // runs the other way: the funds leave the wallet on Supply and come back on Withdraw.
+        // Supply and Withdraw sign only the redesigned amount, by where the funds go: they leave the wallet
+        // on Supply and come back on Withdraw.
         case .yieldTopup:
             return makeFormattedAmount(
                 amount,
                 symbol: currencySymbol,
-                redesignedSign: yieldSign(AppConstants.plusSign, amount: amount, record: record)
+                redesignedSign: yieldSign(AppConstants.minusSign, amount: amount, record: record)
             )
         // Kept as a separate case so the `where` guard clearly applies only to `.yieldSend`.
         case .yieldSend where record.isFromYieldContract:
             return makeFormattedAmount(
                 amount,
                 symbol: currencySymbol,
-                redesignedSign: yieldSign(AppConstants.minusSign, amount: amount, record: record)
+                redesignedSign: yieldSign(AppConstants.plusSign, amount: amount, record: record)
             )
         default:
             return formatted(amount: amount, isOutgoing: record.isOutgoing, isFailed: record.status == .failed)
         }
     }
 
-    func onrampAmount(for record: TransactionRecord, info: OnrampTransactionInfo, amount: Decimal) -> FormattedAmount {
+    func onrampAmount(for record: TransactionRecord, info: OnrampTransactionInfo, amount: Decimal) -> FormattedAmount? {
+        guard
+            !ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash) || info.transaction.to.normalizedAmount != nil
+        else {
+            return nil
+        }
+
         let status = status(from: record)
         let tilde = "\(AppConstants.tildeSign) "
 
@@ -930,7 +947,7 @@ private extension TransactionHistoryMapper {
         return sign
     }
 
-    func approveAmount(for approve: TransactionRecord.TransactionType.Approve) -> FormattedAmount {
+    func approveAmount(for approve: TransactionRecord.TransactionType.Approve) -> FormattedAmount? {
         let symbol = approveSymbol(approve)
 
         switch approve.allowance {
@@ -947,7 +964,7 @@ private extension TransactionHistoryMapper {
         case .limited(let value):
             return makeFormattedAmount(value, symbol: symbol)
         case .unscaled:
-            return FormattedAmount(legacy: "", redesigned: "", withCurrencyCode: "")
+            return nil
         }
     }
 

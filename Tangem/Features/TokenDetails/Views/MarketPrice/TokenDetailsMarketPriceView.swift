@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct TokenDetailsMarketPriceView: View {
@@ -21,18 +22,18 @@ struct TokenDetailsMarketPriceView: View {
 
                 Spacer(minLength: .zero)
 
-                HStack(spacing: .unit(.x4)) {
+                HStack(spacing: 16) {
                     miniChart
                     expandButton
                 }
             }
-            .foregroundStyle(Color.Tangem.Text.Neutral.primary)
-            .padding(.horizontal, .unit(.x4))
-            .padding(.vertical, .unit(.x3))
-            .frame(height: .unit(.x16))
+            .foregroundStyle(DesignSystem.Color.textPrimary)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .frame(height: 64)
             .frame(maxWidth: .infinity)
             .if(!isLiquidGlassSupported) { view in
-                view.background(Color.Tangem.Surface.level3)
+                view.background(DesignSystem.Color.bgSecondary)
             }
             .clipShape(.capsule)
             .contentShape(.capsule)
@@ -51,14 +52,14 @@ struct TokenDetailsMarketPriceView: View {
     }
 
     private var labels: some View {
-        VStack(alignment: .leading, spacing: .unit(.x1)) {
+        VStack(alignment: .leading, spacing: 4) {
             Text(viewModel.title)
-                .font(Font.Tangem.Body16.medium)
+                .font(token: DesignSystem.Font.bodyMediumToken)
                 .accessibilityIdentifier(TokenAccessibilityIdentifiers.marketPriceTitle)
 
-            HStack(spacing: .unit(.x1)) {
+            HStack(spacing: 4) {
                 Text(viewModel.subtitle)
-                    .font(Font.Tangem.Caption12.semibold)
+                    .font(token: DesignSystem.Font.captionMediumToken)
                     .accessibilityIdentifier(TokenAccessibilityIdentifiers.marketPricePrice)
 
                 PriceChangeView(
@@ -77,10 +78,10 @@ struct TokenDetailsMarketPriceView: View {
         switch viewModel.miniChartPoints {
         case .success(let points):
             LineChartView(
-                color: viewModel.priceChange.changeType?.color ?? Color.Tangem.Text.Neutral.tertiary,
+                color: viewModel.priceChange.changeType?.color ?? DesignSystem.Color.textSecondary,
                 data: points
             )
-            .frame(width: .unit(.x13))
+            .frame(width: 52)
             .accessibilityIdentifier(TokenAccessibilityIdentifiers.marketPriceChart)
 
         case .loading:

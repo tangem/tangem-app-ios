@@ -14,18 +14,21 @@ import TangemUI
 public struct PolymarketOrderFeeRow: View {
     private let currencyCode: String
     private let valueText: String
+    private let showsDivider: Bool
     private let onTap: (() -> Void)?
 
-    public init(currencyCode: String, valueText: String, onTap: (() -> Void)? = nil) {
+    public init(currencyCode: String, valueText: String, showsDivider: Bool = true, onTap: (() -> Void)? = nil) {
         self.currencyCode = currencyCode
         self.valueText = valueText
+        self.showsDivider = showsDivider
         self.onTap = onTap
     }
 
     public var body: some View {
         let row = TangemUI.Row(title: Localization.predictionPlaceFee)
+            .titleAccessory { hintIcon }
             .valueAccessory { value }
-            .showDivider()
+            .showDivider(showsDivider)
 
         if let onTap {
             row.onTap(onTap)
@@ -42,10 +45,13 @@ public struct PolymarketOrderFeeRow: View {
             Text(valueText)
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
+        }
+    }
 
-            if onTap != nil {
-                PolymarketHintIcon(asset: DesignSystem.Icons.Info.regular16)
-            }
+    @ViewBuilder
+    private var hintIcon: some View {
+        if onTap != nil {
+            PolymarketHintIcon(asset: DesignSystem.Icons.Info.regular16)
         }
     }
 }

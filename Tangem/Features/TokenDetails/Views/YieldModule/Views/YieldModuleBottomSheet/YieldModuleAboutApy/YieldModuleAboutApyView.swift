@@ -43,7 +43,7 @@ struct YieldModuleAboutApyView: View {
                 .padding(.horizontal, 4)
 
             YieldFeeSection(
-                sectionState: .init(feeState: .loaded(text: viewModel.rewardsAprText)),
+                sectionState: .init(feeState: .loaded(text: viewModel.rewardsApyText)),
                 leadingTitle: Localization.yieldModuleAboutApyExtraRewardsTitle,
                 needsBackground: false
             )

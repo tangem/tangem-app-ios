@@ -123,7 +123,8 @@ private extension ExpressCEXTransactionDispatcherTronGaslessTests {
             estimatedGasLimit: nil,
             externalTxId: nil,
             externalTxURL: nil,
-            payInAddress: depositAddress
+            payInAddress: depositAddress,
+            slippage: nil
         )
     }
 

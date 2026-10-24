@@ -15,18 +15,42 @@ final class SwapUITests: BaseTestCase {
     func testSwapCommission_validateReceivedAmount() {
         setAllureId(3546)
 
-        launchApp(tangemApiType: .mock, expressApiType: .mock)
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            scenarios: [
+                ScenarioConfig(name: Constants.polygonQuoteScenario, initialState: Constants.amountDependentQuoteState),
+            ]
+        )
 
-        CreateWalletSelectorScreen(app)
+        let swapScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapSwapButton()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
             .chooseReceiveToken("Ethereum")
+
+        swapScreen
             .enterFromAmount(amountToEnter)
             .waitForFeeCalculation()
             .validateReceivedAmount()
+
+        swapScreen
+            .tapFeeBlock()
+            .waitForFeeSelectorToAppear()
+            .waitForFeeOptionSelected(.normal)
+            .waitForFeeOptionNotSelected(.priority)
+            .selectFeeOption(.normal)
+            .validateFeeChanged()
+
+        let initialReceiveAmount = swapScreen.captureReceiveAmount()
+
+        swapScreen
+            .enterFromAmount("10")
+            .waitForFeeAmountDisplayed()
+            .validateReceivedAmount()
+            .assertReceiveAmount(notEquals: initialReceiveAmount)
     }
 
     func testChangeCommissionType_receivedAmountChanged() {
@@ -34,20 +58,35 @@ final class SwapUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock, expressApiType: .mock)
 
-        CreateWalletSelectorScreen(app)
+        let swapScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapSwapButton()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
             .chooseReceiveToken("Ethereum")
+
+        swapScreen
             .enterFromAmount(amountToEnter)
             .waitForFeeCalculation()
+            .validateReceivedAmount()
+
+        swapScreen
             .tapFeeBlock()
             .waitForFeeSelectorToAppear()
+            .waitForFeeOptionSelected(.normal)
+            .waitForFeeOptionNotSelected(.priority)
+            .assertFeeOptionsHaveDifferentFees()
             .selectFeeOption(.priority)
             .validateFeeChanged()
-            .validateReceivedAmount()
+
+        swapScreen
+            .tapFeeBlock()
+            .waitForFeeSelectorToAppear()
+            .waitForFeeOptionSelected(.priority)
+            .waitForFeeOptionNotSelected(.normal)
+            .selectFeeOption(.normal)
+            .validateFeeChanged()
     }
 
     func testSwapNoInternet_showConnectionError() {
@@ -70,5 +109,12 @@ final class SwapUITests: BaseTestCase {
             .chooseReceiveToken("Ethereum")
             .enterFromAmount(amountToEnter)
             .waitErrorShown(title: "Error", message: "There was an error. Please try again.")
+    }
+}
+
+private extension SwapUITests {
+    enum Constants {
+        static let polygonQuoteScenario = "exchange_quote_polygon"
+        static let amountDependentQuoteState = "NonProportionalRate"
     }
 }

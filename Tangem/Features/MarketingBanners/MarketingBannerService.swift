@@ -80,14 +80,9 @@ private extension MarketingBannerService {
         let balanceConverter = balanceConverter
 
         let banners = Publishers.CombineLatest(campaigns, amount.prepend(nil).removeDuplicates())
-            .asyncMap { [weak self] campaigns, amount -> MarketingBanners in
+            .asyncMap { campaigns, amount -> MarketingBanners in
                 let usdAmount = await Self.usdValue(amount, balanceConverter: balanceConverter)
-
-                guard let self else {
-                    return .empty
-                }
-
-                return selectBanners(from: campaigns, usdAmount: usdAmount)
+                return Self.selectBanners(from: campaigns, usdAmount: usdAmount)
             }
 
         return Publishers.CombineLatest(banners, HiddenMarketingCampaignsStorage.hiddenCampaignIdsPublisher)
@@ -140,7 +135,7 @@ private extension MarketingBannerService {
         return try? await balanceConverter.convertToUsd(amount.value, currencyId: amount.currencyId)
     }
 
-    func selectBanners(
+    static func selectBanners(
         from campaigns: [MarketingCampaignsDTO.Campaign],
         usdAmount: Decimal?
     ) -> MarketingBanners {
@@ -151,7 +146,7 @@ private extension MarketingBannerService {
 // MARK: - Amount filter
 
 extension MarketingBannerService {
-    func satisfiesAmount(_ campaign: MarketingCampaignsDTO.Campaign, usd: Decimal?) -> Bool {
+    static func satisfiesAmount(_ campaign: MarketingCampaignsDTO.Campaign, usd: Decimal?) -> Bool {
         if campaign.minAmount == nil, campaign.maxAmount == nil {
             return true
         }

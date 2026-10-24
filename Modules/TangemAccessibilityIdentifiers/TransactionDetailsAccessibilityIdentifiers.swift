@@ -14,4 +14,8 @@ public enum TransactionDetailsAccessibilityIdentifiers {
     public static func infoRow(id: String) -> String {
         "transactionDetailsInfoRow_\(id)"
     }
+
+    public static func tokensLeg(id: String) -> String {
+        "transactionDetailsTokensLeg_\(id)"
+    }
 }

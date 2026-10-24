@@ -8,12 +8,15 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 import TangemUIUtils
 
 struct CollectiblesEmptyMessage: View {
     let icon: ImageType
     let message: String
     let onRetry: (() -> Void)?
+    var isRetrying = false
+    var verticalPadding: CGFloat = Metrics.verticalPadding
 
     var body: some View {
         VStack(spacing: Metrics.spacing) {
@@ -24,7 +27,7 @@ struct CollectiblesEmptyMessage: View {
                 .multilineTextAlignment(.center)
         }
         .padding(.horizontal, Metrics.horizontalPadding)
-        .padding(.vertical, Metrics.verticalPadding)
+        .padding(.vertical, verticalPadding)
         .infinityFrame(axis: .horizontal)
     }
 }
@@ -35,15 +38,27 @@ private extension CollectiblesEmptyMessage {
     @ViewBuilder
     var iconView: some View {
         if let onRetry {
-            SwiftUI.Button(action: onRetry) {
-                glyph(color: DesignSystem.Color.iconInverse)
+            if isRetrying {
+                retryLoader
                     .background(DesignSystem.Color.bgInverse, in: Circle())
+            } else {
+                SwiftUI.Button(action: onRetry) {
+                    glyph(color: DesignSystem.Color.iconInverse)
+                        .background(DesignSystem.Color.bgInverse, in: Circle())
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         } else {
             glyph(color: DesignSystem.Color.iconSecondary)
                 .background(DesignSystem.Color.bgTransparentPrimary, in: Circle())
         }
+    }
+
+    var retryLoader: some View {
+        Loader()
+            .loaderSize(.size20)
+            .loaderColor(DesignSystem.Color.iconInverse)
+            .frame(size: CGSize(bothDimensions: Metrics.containerSize))
     }
 
     func glyph(color: Color) -> some View {

@@ -22,8 +22,17 @@ extension CommonJointOperationParametersProvider: JointOperationParametersProvid
             gasPriceMarginPercent: Constants.gasPriceMarginPercent,
             safeTxGasBufferPercent: Constants.safeTxGasBufferPercent,
             gasToken: gasToken,
-            refundReceiver: Constants.refundReceiver
+            refundReceiver: refundReceiver
         )
+    }
+
+    private var refundReceiver: String {
+        switch FeatureStorage.instance.tangemAPIType {
+        case .prod:
+            return Constants.prodRefundReceiver
+        case .dev, .stage, .mock:
+            return Constants.devRefundReceiver
+        }
     }
 }
 
@@ -35,10 +44,9 @@ private extension CommonJointOperationParametersProvider {
     /// on real operations, since a fee this generous shows large.
     enum Constants {
         /// The joint relayer's treasury, which the endpoint compares the field against exactly. It is not the one the
-        /// gasless relayer is refunded to — the two are different services with different wallets — and it is the
-        /// address of the dev environment: the contract does not report it yet, so production's has to come from a
-        /// later change rather than from here.
-        static let refundReceiver = "0x5F2C435DF8D00D0cF842a52Dd166B1Dcd69734C2"
+        /// gasless relayer is refunded to — the two are different services with different wallets.
+        static let prodRefundReceiver = "0x2fD66Abd3BFeffA81851A9C61c10E979369A031c"
+        static let devRefundReceiver = "0x5F2C435DF8D00D0cF842a52Dd166B1Dcd69734C2"
         static let baseGas = BigUInt(110_000)
         static let deployGas = BigUInt(300_000)
         static let gasPriceMarginPercent = BigUInt(100)

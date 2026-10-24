@@ -1,0 +1,36 @@
+//
+//  SupportChatSource.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import Foundation
+
+enum SupportChatSource {
+    case settings
+    case swap
+    case deeplink
+    case polymarket
+    case socialLogin
+
+    var analyticsParameterValue: Analytics.ParameterValue {
+        switch self {
+        case .settings: .settings
+        case .swap: .swap
+        case .deeplink: .deeplink
+        case .polymarket: .predictions
+        case .socialLogin: .socialLogin
+        }
+    }
+
+    var topic: SupportChatTopic? {
+        switch self {
+        case .swap: .swap
+        case .polymarket: .polymarket
+        case .socialLogin: .socialLogin
+        case .settings, .deeplink: nil
+        }
+    }
+}

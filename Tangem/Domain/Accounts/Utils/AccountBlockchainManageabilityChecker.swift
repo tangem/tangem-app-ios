@@ -11,21 +11,31 @@ import BlockchainSdk
 
 enum AccountBlockchainManageabilityChecker {
     /// Checks if an account can manage a specific blockchain.
-    /// Main accounts can manage any blockchain. Non-main accounts can only manage blockchains that support multiple accounts.
+    /// Main accounts can manage any blockchain. Non-main accounts can only manage blockchains that support multiple accounts,
+    /// joint accounts only the ones from `JointAccountSupportedBlockchains`.
     static func canManageBlockchain(_ blockchain: Blockchain, for account: any CryptoAccountModel) -> Bool {
-        isMainAccountOrSatisfiesPredicate(for: account) {
+        if account is any JointAccountModel {
+            return JointAccountSupportedBlockchains.contains(blockchain)
+        }
+
+        return isMainAccountOrSatisfiesPredicate(for: account) {
             AccountDerivationPathHelper(blockchain: blockchain).areAccountsAvailableForBlockchain()
         }
     }
 
     /// Checks if an account can manage a network by its networkId.
-    /// Main accounts can manage any network. Non-main accounts can only manage networks that support multiple accounts.
+    /// Main accounts can manage any network. Non-main accounts can only manage networks that support multiple accounts,
+    /// joint accounts only the ones from `JointAccountSupportedBlockchains`.
     static func canManageNetwork(
         _ networkId: String,
         for account: any CryptoAccountModel,
         in supportedBlockchains: Set<Blockchain>
     ) -> Bool {
-        isMainAccountOrSatisfiesPredicate(for: account) {
+        if account is any JointAccountModel {
+            return supportedBlockchains[networkId].map { canManageBlockchain($0, for: account) } ?? false
+        }
+
+        return isMainAccountOrSatisfiesPredicate(for: account) {
             blockchainSupportsAccounts(networkId: networkId, in: supportedBlockchains)
         }
     }

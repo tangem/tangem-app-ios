@@ -24,7 +24,7 @@ protocol TangemPayAccountModel: BaseAccountModel where Icon == AccountModel.Stan
     func refreshState() async
     func renewSession(
         authorizingInteractor: TangemPayAuthorizing,
-        completion: @escaping () -> Void
+        completion: @escaping (TangemPayAuthorizationError?) -> Void
     )
 }
 

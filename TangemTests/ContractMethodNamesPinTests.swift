@@ -23,6 +23,8 @@ struct ContractMethodNamesPinTests {
             ("0xf9b181bf", "gaslessTransaction"),
             ("0x0779afe6", "yieldSend"),
             ("0x79be55f7", "yieldEnter"),
+            ("0xb4701e3e", "yieldClaim"),
+            ("0xbebc896c", "yieldClaim"),
             ("0xb9de6a93", "yieldTopup"),
             ("0xc65e6dcf", "yieldWithdraw"),
             ("0xcbeda14c", "yieldDeploy"),

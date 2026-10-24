@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemCollectibles
 import TangemFoundation
 import TangemNFT
 import TangemMobileWalletSdk
@@ -35,7 +36,7 @@ struct CommonUserWalletModelDependencies {
         let keysDerivingInteractorFactory = KeysDerivingInteractorFactory()
         let tangemSignerFactory = TangemSignerFactory()
         let jointAccountDerivationInteractorFactory = JointAccountDerivationInteractorFactory()
-        let collectiblesColdKeyInteractorFactory = CollectiblesColdKeyInteractorFactory()
+        let collectiblesColdKeyInteractorFactory = CommonCollectiblesColdKeyInteractorFactory()
 
         let derivationManager = Self.makeDerivationManager(
             keysRepository: keysRepository,
@@ -105,8 +106,11 @@ struct CommonUserWalletModelDependencies {
         // once the backend subscriptions contract is finalized. Using the stub for now.
         priceAlertsSubscriptionsProvider = PriceAlertsSubscriptionsProviderStub()
 
+        let analyticsContextDataProvider = CommonAnalyticsContextDataProvider(walletInfo: walletInfo)
+
         totalBalanceProvider = Self.makeTotalBalanceProvider(
             userWalletId: userWalletId,
+            analyticsContextDataProvider: analyticsContextDataProvider,
             accountModelsManager: accountModelsManager
         )
 
@@ -128,7 +132,8 @@ struct CommonUserWalletModelDependencies {
             keysDerivingInteractorFactory: keysDerivingInteractorFactory,
             tangemSignerFactory: tangemSignerFactory,
             jointAccountDerivationInteractorFactory: jointAccountDerivationInteractorFactory,
-            collectiblesColdKeyInteractorFactory: collectiblesColdKeyInteractorFactory
+            collectiblesColdKeyInteractorFactory: collectiblesColdKeyInteractorFactory,
+            analyticsContextDataProvider: analyticsContextDataProvider
         )
     }
 
@@ -140,6 +145,7 @@ struct CommonUserWalletModelDependencies {
         userWalletModelConfigurableDependencies.tangemSignerFactory.configure(with: model)
         userWalletModelConfigurableDependencies.jointAccountDerivationInteractorFactory.configure(with: model)
         userWalletModelConfigurableDependencies.collectiblesColdKeyInteractorFactory.configure(with: model)
+        userWalletModelConfigurableDependencies.analyticsContextDataProvider.configure(userWalletModel: model)
     }
 }
 
@@ -204,6 +210,7 @@ private extension CommonUserWalletModelDependencies {
             persistentStorage: CommonJointAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue),
             invitesPersistentStorage: CommonJointAccountsInvitesPersistentStorage(storageIdentifier: userWalletId.stringValue),
             pendingOperationsPersistentStorage: CommonJointAccountsPendingOperationsPersistentStorage(storageIdentifier: userWalletId.stringValue),
+            eTagStorage: InjectedValues[\.eTagStorage],
             isJointAccountsAvailable: FeatureProvider.isAvailable(.jointAccounts)
         )
 
@@ -318,10 +325,12 @@ private extension CommonUserWalletModelDependencies {
 
     static func makeTotalBalanceProvider(
         userWalletId: UserWalletId,
+        analyticsContextDataProvider: AnalyticsContextDataProvider,
         accountModelsManager: AccountModelsManager
     ) -> TotalBalanceProvider {
         let analyticsLogger = CommonTotalBalanceProviderAnalyticsLogger(
             userWalletId: userWalletId,
+            analyticsContextDataProvider: analyticsContextDataProvider,
             accountModelsManager: accountModelsManager
         )
 
@@ -391,7 +400,8 @@ private extension CommonUserWalletModelDependencies {
         let keysDerivingInteractorFactory: KeysDerivingInteractorFactory
         let tangemSignerFactory: TangemSignerFactory
         let jointAccountDerivationInteractorFactory: JointAccountDerivationInteractorFactory
-        let collectiblesColdKeyInteractorFactory: CollectiblesColdKeyInteractorFactory
+        let collectiblesColdKeyInteractorFactory: CommonCollectiblesColdKeyInteractorFactory
+        let analyticsContextDataProvider: CommonAnalyticsContextDataProvider
     }
 
     /// Represents dependencies related to crypto accounts models that are required for `AccountModelsManager` initialization,

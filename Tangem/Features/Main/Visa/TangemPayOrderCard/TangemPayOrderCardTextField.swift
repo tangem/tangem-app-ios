@@ -163,8 +163,12 @@ extension TangemPayOrderCardTextField {
             shouldChangeCharactersIn range: NSRange,
             replacementString string: String
         ) -> Bool {
-            guard let mask = parent.mask, textField.markedTextRange == nil else {
+            guard textField.markedTextRange == nil else {
                 return true
+            }
+
+            guard let mask = parent.mask else {
+                return applyLengthLimit(to: textField, changing: range, with: string)
             }
 
             let current = (textField.text ?? "") as NSString
@@ -189,6 +193,29 @@ extension TangemPayOrderCardTextField {
             // once that has happened.
             let isPaste = string.count > 1
             moveCaret(after: digitsBeforeCaret, in: textField, mask: mask, deferred: isPaste)
+
+            return false
+        }
+
+        private func applyLengthLimit(
+            to textField: UITextField,
+            changing range: NSRange,
+            with string: String
+        ) -> Bool {
+            guard
+                let maxLength = parent.field.maxLength,
+                let capped = TangemPayOrderFormValidator.capped(
+                    textField.text ?? "",
+                    replacing: range,
+                    with: string,
+                    maxLength: maxLength
+                )
+            else {
+                return true
+            }
+
+            textField.text = capped
+            update(text: capped)
 
             return false
         }

@@ -12,6 +12,20 @@ import XCTest
 final class MarketsAndNewsScreen: ScreenBase<MarketsAndNewsScreenElement> {
     private lazy var searchField = textField(.searchThroughMarketField)
     private lazy var searchFieldContainer = button(.searchThroughMarketFieldContainer)
+    private lazy var addAccountBanner = app.buttons[AccountsAccessibilityIdentifiers.feedAddAccountBanner].firstMatch
+    private lazy var forYouWidget = app.buttons[MainAccessibilityIdentifiers.feedForYouWidget].firstMatch
+
+    @discardableResult
+    func openAddAccountTypeSelector() -> AddAccountTypeSelectorSheet {
+        tapAddAccountBanner()
+        return AddAccountTypeSelectorSheet(app)
+    }
+
+    @discardableResult
+    func openAddAccountWalletSelector() -> AddAccountWalletSelectorSheet {
+        tapAddAccountBanner()
+        return AddAccountWalletSelectorSheet(app)
+    }
 
     @discardableResult
     func openTokenList() -> MarketsScreen {
@@ -71,6 +85,24 @@ final class MarketsAndNewsScreen: ScreenBase<MarketsAndNewsScreenElement> {
         XCTContext.runActivity(named: "Verify Markets sheet is displayed") { _ in
             waitAndAssertTrue(searchField, "Markets sheet should be displayed with search field")
             return self
+        }
+    }
+
+    @discardableResult
+    func verifyAddAccountBannerNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Verify 'Add account' banner is not displayed in the feed") { _ in
+            waitAndAssertTrue(forYouWidget, "Feed widgets should be rendered before checking the 'Add account' banner")
+            XCTAssertTrue(
+                addAccountBanner.waitForNonExistence(timeout: .robustUIUpdate),
+                "'Add account' banner should not be displayed for a Note card"
+            )
+            return self
+        }
+    }
+
+    private func tapAddAccountBanner() {
+        XCTContext.runActivity(named: "Tap 'Add account' banner in the feed") { _ in
+            addAccountBanner.waitAndTap()
         }
     }
 

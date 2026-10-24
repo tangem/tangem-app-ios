@@ -79,8 +79,8 @@ public struct AccountIconView: View {
     private var label: some View {
         switch data {
         case .composite(_, .letter(let letter, let config)):
-            Text(letter)
-                .style(settings.letterFontStyle, color: Colors.Text.constantWhite)
+            Text(letter.uppercased())
+                .style(settings.letterFont, color: Colors.Text.constantWhite)
                 // Needed for scale animation. E.g. on Main
                 .minimumScaleFactor(config.minimumScaleFactor)
 
@@ -158,48 +158,48 @@ public extension AccountIconView {
     struct Settings {
         public let padding: CGFloat
         public let size: CGSize
-        let letterFontStyle: Font
+        let letterFont: TangemFontStyle
 
         public static let extraLargeSized: Self = .init(
             padding: 34,
             size: CGSize(bothDimensions: 60),
-            letterFontStyle: Fonts.Bold.largeTitle
+            letterFont: TangemFontStyle(DesignSystem.Font.displayMediumToken)
         )
 
         public static let largeSized: Self = .init(
             padding: 24,
             size: CGSize(bothDimensions: 40),
-            letterFontStyle: Fonts.Bold.largeTitle
+            letterFont: TangemFontStyle(font: Fonts.Bold.largeTitle)
         )
 
         public static let redesignDefaultSized: Self = .init(
             padding: 8,
             size: CGSize(bothDimensions: 24),
-            letterFontStyle: Fonts.Bold.title2
+            letterFont: TangemFontStyle(font: Fonts.Bold.title2)
         )
 
         public static let defaultSized: Self = .init(
             padding: 8,
             size: CGSize(bothDimensions: 20),
-            letterFontStyle: Fonts.Bold.title3
+            letterFont: TangemFontStyle(font: Fonts.Bold.title3)
         )
 
         public static let mediumSized: Self = .init(
             padding: 8,
             size: CGSize(bothDimensions: 14),
-            letterFontStyle: Fonts.Bold.body
+            letterFont: TangemFontStyle(font: Fonts.Bold.body)
         )
 
         public static let smallSized: Self = .init(
             padding: 4,
             size: CGSize(bothDimensions: 10),
-            letterFontStyle: Fonts.Bold.footnote
+            letterFont: TangemFontStyle(font: Fonts.Bold.footnote)
         )
 
         public static let extraSmallSized: Self = .init(
             padding: 3,
             size: CGSize(bothDimensions: 8),
-            letterFontStyle: Fonts.Bold.caption2
+            letterFont: TangemFontStyle(font: Fonts.Bold.caption2)
         )
     }
 }

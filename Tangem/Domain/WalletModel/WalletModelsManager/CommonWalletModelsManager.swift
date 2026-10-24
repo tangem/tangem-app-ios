@@ -154,7 +154,7 @@ class CommonWalletModelsManager {
         // Therefore, n=5 is a reasonable limit for concurrent network requests (as for now)
         let maxConcurrentUpdates = 5
         let count = walletModels.count
-        let options: WalletModelUpdateOptions = FeatureProvider.isAvailable(.transactionHistoryV2) ? [.balances, .expressTransactionHistory] : .balances
+        let options: WalletModelUpdateOptions = [.balances, .expressTransactionHistory]
         // Single token shared across the batch of all wallet models, so all updates belong to the same cycle
         let updateToken = UUID()
 

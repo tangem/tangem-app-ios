@@ -10,5 +10,6 @@
 enum UnregisterWalletDTO {
     struct Request: Encodable {
         let walletId: String
+        let eraseData: Bool
     }
 }

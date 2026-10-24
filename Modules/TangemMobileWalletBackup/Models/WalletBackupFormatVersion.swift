@@ -30,18 +30,12 @@ extension WalletBackupFormatVersion {
     /// all, or a format from a future version.
     init?(fileData: Data) {
         guard
-            let fileVersion = try? WalletBackupJSONCodec.decode(FileVersion.self, from: fileData),
-            let version = WalletBackupFormatVersion(rawValue: fileVersion.version)
+            let rawVersion = WalletBackupVersionReader.version(in: fileData),
+            let version = WalletBackupFormatVersion(rawValue: rawVersion)
         else {
             return nil
         }
 
         self = version
-    }
-
-    /// Reads only the `version` field, tolerating everything else: the full schema
-    /// of the file is not known until the version is.
-    private struct FileVersion: Decodable {
-        let version: Int
     }
 }

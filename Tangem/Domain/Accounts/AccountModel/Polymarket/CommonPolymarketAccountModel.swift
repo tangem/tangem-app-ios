@@ -26,7 +26,8 @@ final class CommonPolymarketAccountModel {
     private let stateSubject = CurrentValueSubject<PolymarketAccountState?, Never>(nil)
     private let refreshProcessor = SingleTaskProcessor<Void, Never>()
     private let lastPositionsValue = OSAllocatedUnfairLock<Decimal?>(initialState: nil)
-    private let positionsReads = OSAllocatedUnfairLock<Int>(initialState: 0)
+    private let fullRounds = OSAllocatedUnfairLock<Int>(initialState: 0)
+    private let stateReads = OSAllocatedUnfairLock<Int>(initialState: 0)
 
     init(
         userWalletId: UserWalletId,
@@ -73,14 +74,20 @@ extension CommonPolymarketAccountModel: PolymarketAccountModel {
         balanceService.collateralTokenBalanceProvider
     }
 
+    var collateralTotalBalanceProvider: TokenBalanceProvider {
+        balanceService.collateralTotalBalanceProvider
+    }
+
     func refreshState(scope: PolymarketBalanceRefreshScope) async {
-        let positionsReadsBefore = positionsReads.withLock { $0 }
+        let fullRoundsBefore = fullRounds.withLock { $0 }
+        let stateReadsBefore = stateReads.withLock { $0 }
 
         await runRound(scope: scope)
 
-        let joinedARoundThatSkippedThePositions = scope == .full && positionsReads.withLock { $0 } == positionsReadsBefore
+        let joinedARoundThatSkippedTheState = stateReads.withLock { $0 } == stateReadsBefore
+        let joinedARoundThatDidNotWantThePositions = scope == .full && fullRounds.withLock { $0 } == fullRoundsBefore
 
-        guard joinedARoundThatSkippedThePositions else {
+        guard joinedARoundThatSkippedTheState || joinedARoundThatDidNotWantThePositions else {
             return
         }
 
@@ -90,6 +97,8 @@ extension CommonPolymarketAccountModel: PolymarketAccountModel {
     func refreshBalance(scope: PolymarketBalanceRefreshScope) async {
         await refreshProcessor.execute { [weak self] in
             guard let self else { return }
+
+            recordRound(scope: scope)
 
             guard stateSubject.value?.isActive == true else {
                 await loadState(scope: scope)
@@ -108,11 +117,21 @@ private extension CommonPolymarketAccountModel {
         await refreshProcessor.execute { [weak self] in
             guard let self else { return }
 
+            recordRound(scope: scope)
+
             await loadState(scope: scope)
         }
     }
 
+    func recordRound(scope: PolymarketBalanceRefreshScope) {
+        guard scope == .full else { return }
+
+        fullRounds.withLock { $0 += 1 }
+    }
+
     func loadState(scope: PolymarketBalanceRefreshScope) async {
+        stateReads.withLock { $0 += 1 }
+
         let ownerAddress = ownerAddressProvider.getOwnerAddress()
 
         guard !presenceStore.hasAccount(userWalletId: userWalletId) else {
@@ -231,8 +250,6 @@ private extension CommonPolymarketAccountModel {
 
             return known.map { .reused($0) } ?? .unknown
         }
-
-        positionsReads.withLock { $0 += 1 }
 
         do {
             let depositWalletAddress = try PolymarketDepositWalletDeriver.derive(ownerAddress: ownerAddress)

@@ -27,9 +27,8 @@ enum ScreenDeeplinkVisibility {
 
     /// The shtorka is the one presentation its screens are still seen through: the main screen shows it over
     /// itself, and the feed opens a token screen inside it. It steps aside for anything shown over the app, so
-    /// what is presented while it is up is the shtorka itself. Only the native one is presented at all — the
-    /// one it replaces lives in a container of the window's root.
+    /// what is presented while it is up is the shtorka itself.
     private static var isShtorkaPresented: Bool {
-        FeatureProvider.isAvailable(.newShtorkaEnabled) && InjectedValues[\.mainBottomSheetUIManager].isShown
+        InjectedValues[\.mainBottomSheetUIManager].isShown
     }
 }

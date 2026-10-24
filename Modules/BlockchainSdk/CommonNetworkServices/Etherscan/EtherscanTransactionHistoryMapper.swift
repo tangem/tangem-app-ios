@@ -13,9 +13,11 @@ final class EtherscanTransactionHistoryMapper {
     private let blockchain: Blockchain
     private var transactionIndicesCounter: [String: Int] = [:]
     private let aaveTokens: Set<String>?
+    private let isSafe: Bool
 
-    init(blockchain: Blockchain) {
+    init(blockchain: Blockchain, isSafe: Bool = false) {
         self.blockchain = blockchain
+        self.isSafe = isSafe
         aaveTokens = AAVETokenRepository.tokens(for: blockchain)
     }
 
@@ -79,6 +81,10 @@ final class EtherscanTransactionHistoryMapper {
         case .coin where transaction.isContractInteraction, .token where transaction.isContractInteraction:
             let methodName = transaction.functionName?.components(separatedBy: Constants.methodNameSeparator).first?.nilIfEmpty
 
+            if isSafe, case .token = amountType, transaction.methodId?.caseInsensitiveEquals(to: SafeExecTransactionMethod.methodId) == true {
+                return .transfer
+            }
+
             if methodName == Constants.tokenTransferMethodName {
                 return .transfer
             }
@@ -134,6 +140,23 @@ final class EtherscanTransactionHistoryMapper {
         case .coin, .reserve, .token, .feeResource:
             return false
         }
+    }
+
+    private func safeExecution(
+        _ transaction: EtherscanTransactionHistoryResult.Transaction,
+        walletAddress: String,
+        amountType: Amount.AmountType
+    ) -> SafeExecutionHistoryMapper.Execution? {
+        guard isSafe, case .coin = amountType, mapStatus(transaction) != .failed else {
+            return nil
+        }
+
+        return SafeExecutionHistoryMapper.execution(
+            calldata: transaction.input,
+            target: transaction.to,
+            walletAddress: walletAddress,
+            blockchain: blockchain
+        )
     }
 
     private func tokenTransfer(_ transaction: EtherscanTransactionHistoryResult.Transaction) -> [TransactionRecord.TokenTransfer] {
@@ -208,30 +231,33 @@ extension EtherscanTransactionHistoryMapper: TransactionHistoryMapper {
                 return nil
             }
 
-            let isOutgoing = sourceAddress.caseInsensitiveEquals(to: walletAddress)
+            let execution = safeExecution(transaction, walletAddress: walletAddress, amountType: amountType)
+
+            let isOutgoing = execution != nil || sourceAddress.caseInsensitiveEquals(to: walletAddress)
+            let amount = execution?.amount ?? transactionAmount
 
             let source = TransactionRecord.Source(
-                address: sourceAddress,
-                amount: transactionAmount
+                address: execution == nil ? sourceAddress : walletAddress,
+                amount: amount
             )
 
-            let type = mapType(transaction, amountType: amountType)
+            let type = execution?.type ?? mapType(transaction, amountType: amountType)
 
-            let destinationAddressType: TransactionRecord.Destination.Address = {
+            let destinationAddressType: TransactionRecord.Destination.Address = execution?.destination ?? {
                 if case .transfer = type {
                     return .user(destinationAddress)
                 }
 
                 let isTokenTransfer = transaction.contractAddress?.nilIfEmpty != nil
 
-                if !isTokenTransfer, transaction.functionName?.nilIfEmpty != nil {
+                if !isTokenTransfer, transaction.isContractInteraction {
                     return .contract(destinationAddress)
                 }
 
                 return .user(destinationAddress)
             }()
 
-            let destination: TransactionRecord.Destination = .init(address: destinationAddressType, amount: transactionAmount)
+            let destination: TransactionRecord.Destination = .init(address: destinationAddressType, amount: amount)
 
             guard let timeStamp = TimeInterval(transaction.timeStamp) else {
                 BSDKLogger.error(error: "Transaction with invalid timeStamp \(transaction) received")
@@ -248,12 +274,12 @@ extension EtherscanTransactionHistoryMapper: TransactionHistoryMapper {
                 index: index,
                 source: .single(source),
                 destination: .single(destination),
-                fee: mapFee(transaction),
+                fee: execution?.fee ?? mapFee(transaction),
                 status: mapStatus(transaction),
                 isOutgoing: isOutgoing,
                 type: type,
                 date: Date(timeIntervalSince1970: timeStamp),
-                tokenTransfers: tokenTransfer(transaction),
+                tokenTransfers: execution?.tokenTransfers ?? tokenTransfer(transaction),
                 isFromYieldContract: isFromYieldContract,
                 nonce: nil
             )
@@ -281,7 +307,9 @@ private extension EtherscanTransactionHistoryMapper {
 
 private extension EtherscanTransactionHistoryResult.Transaction {
     var isContractInteraction: Bool {
-        return contractAddress?.nilIfEmpty != nil || functionName?.nilIfEmpty != nil
+        return contractAddress?.nilIfEmpty != nil
+            || functionName?.nilIfEmpty != nil
+            || methodId?.removeHexPrefix().nilIfEmpty != nil
     }
 
     var isFromTransactionList: Bool {

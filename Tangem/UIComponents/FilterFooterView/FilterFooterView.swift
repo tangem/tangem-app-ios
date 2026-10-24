@@ -32,7 +32,7 @@ struct FilterFooterView: View {
 
                     TangemUI.Button(label: Localization.commonApply, accessibilityLabel: Localization.commonApply, action: onApply)
                         .size(.x12)
-                        .styleType(.default)
+                        .styleType(.primary)
                         .horizontalLayout(.infinity)
                         .accessibilityIdentifier(applyAccessibilityIdentifier)
                 }

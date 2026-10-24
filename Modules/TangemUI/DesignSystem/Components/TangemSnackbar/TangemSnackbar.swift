@@ -17,8 +17,8 @@ public struct TangemSnackbar: View, Setupable {
     private var icon: ImageType?
     private var iconColor: Color = .Tangem.Graphic.Neutral.secondary
 
-    @ScaledMetric private var iconSize: CGFloat = .unit(.x5)
-    @ScaledMetric private var rightLayoutHeight: CGFloat = .unit(.x11)
+    @ScaledMetric private var iconSize: CGFloat = 20
+    @ScaledMetric private var rightLayoutHeight: CGFloat = 44
 
     public init(title: String, action: Action? = nil) {
         self.title = title
@@ -47,11 +47,11 @@ private extension TangemSnackbar {
     }
 
     var shape: some InsettableShape {
-        RoundedRectangle(cornerRadius: .unit(.x5), style: .continuous)
+        RoundedRectangle(cornerRadius: 20, style: .continuous)
     }
 
     var rightLayout: some View {
-        HStack(spacing: .unit(.x4)) {
+        HStack(spacing: 16) {
             contentRow
                 .lineLimit(1)
 
@@ -59,8 +59,8 @@ private extension TangemSnackbar {
                 actionButton(action)
             }
         }
-        .padding(.leading, .unit(.x5))
-        .padding(.trailing, action == nil ? .unit(.x5) : .unit(.x3))
+        .padding(.leading, 20)
+        .padding(.trailing, action == nil ? 20 : 12)
         .frame(height: rightLayoutHeight)
     }
 
@@ -68,20 +68,20 @@ private extension TangemSnackbar {
         VStack(alignment: .trailing, spacing: 0) {
             contentRow
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.top, .unit(.x4))
-                .padding(.trailing, .unit(.x3))
+                .padding(.top, 16)
+                .padding(.trailing, 12)
 
             if let action {
                 actionButton(action)
             }
         }
-        .padding(.leading, .unit(.x5))
-        .padding(.trailing, .unit(.x2))
-        .padding(.bottom, .unit(.x2))
+        .padding(.leading, 20)
+        .padding(.trailing, 8)
+        .padding(.bottom, 8)
     }
 
     var contentRow: some View {
-        HStack(spacing: .unit(.x2)) {
+        HStack(spacing: 8) {
             if let icon {
                 icon.image
                     .resizable()

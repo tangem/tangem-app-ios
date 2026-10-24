@@ -11,10 +11,13 @@ import TangemPay
 /// Provides scoped access to `TangemPayManager` via protocol conformances.
 /// Weak reference avoids retain cycles (stored as associated value in `TangemPayLocalState`).
 final class TangemPayManagerWeakReferenceHolder {
+    let waitlistService: TangemPayWaitlistService
+
     private weak var tangemPayManager: TangemPayManager?
 
-    init(tangemPayManager: TangemPayManager?) {
+    init(tangemPayManager: TangemPayManager, waitlistService: TangemPayWaitlistService) {
         self.tangemPayManager = tangemPayManager
+        self.waitlistService = waitlistService
     }
 }
 
@@ -35,6 +38,22 @@ extension TangemPayManagerWeakReferenceHolder: TangemPayKYCInteractor {
         } else {
             onFinish(false)
         }
+    }
+}
+
+// MARK: - TangemPayManagerWeakReferenceHolder+TangemPayResidencyInteractor
+
+extension TangemPayManagerWeakReferenceHolder: TangemPayResidencyInteractor {
+    func beginResidency() {
+        tangemPayManager?.beginResidency()
+    }
+
+    func completeResidency(_ result: TangemPayResidencyResult) {
+        tangemPayManager?.completeResidency(result)
+    }
+
+    func hideAccountFromHome() {
+        tangemPayManager?.hideAccountFromHome()
     }
 }
 

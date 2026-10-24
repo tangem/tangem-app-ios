@@ -11,6 +11,7 @@ import SwiftUI
 struct CollectiblesStoriesOverlayView: View {
     @ObservedObject var viewModel: CollectiblesStoriesViewModel
 
+    let onShown: () -> Void
     let onDismiss: () -> Void
 
     @State private var isVisible = false
@@ -18,12 +19,24 @@ struct CollectiblesStoriesOverlayView: View {
     var body: some View {
         CollectiblesStoriesView(viewModel: viewModel)
             .opacity(isVisible ? 1 : 0)
-            .onAppear(perform: onAppear)
+            .task(show)
             .task(id: viewModel.isFinished, dismiss)
     }
 }
 
 private extension CollectiblesStoriesOverlayView {
+    func show() async {
+        withAnimation(Constants.animation) { isVisible = true }
+
+        do {
+            try await Task.sleep(for: .seconds(Constants.fadeDuration))
+        } catch {
+            return
+        }
+
+        onShown()
+    }
+
     func dismiss() async {
         guard viewModel.isFinished else { return }
 
@@ -36,10 +49,6 @@ private extension CollectiblesStoriesOverlayView {
         }
 
         onDismiss()
-    }
-
-    func onAppear() {
-        withAnimation(Constants.animation) { isVisible = true }
     }
 }
 

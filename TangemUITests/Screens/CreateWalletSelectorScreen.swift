@@ -61,7 +61,7 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
         XCTContext.runActivity(named: "Import mobile wallet via recovery phrase") { _ in
             tapExistingWallet()
             tapActionSheetRow(.importRow)
-            return WelcomeV2ImportSheetScreen(app).tapRecoveryPhrase()
+            return WelcomeImportSheetScreen(app).tapRecoveryPhrase()
         }
     }
 
@@ -126,15 +126,15 @@ enum CreateWalletSelectorScreenElement: String, UIElement {
     var accessibilityIdentifier: String {
         switch self {
         case .createWalletButton:
-            WelcomeV2AccessibilityIdentifiers.createWalletButton
+            WelcomeAccessibilityIdentifiers.createWalletButton
         case .existingWalletButton:
-            WelcomeV2AccessibilityIdentifiers.existingWalletButton
+            WelcomeAccessibilityIdentifiers.existingWalletButton
         case .hardwareRow:
-            WelcomeV2AccessibilityIdentifiers.actionSheetHardwareRow
+            WelcomeAccessibilityIdentifiers.actionSheetHardwareRow
         case .mobileRow:
-            WelcomeV2AccessibilityIdentifiers.actionSheetMobileRow
+            WelcomeAccessibilityIdentifiers.actionSheetMobileRow
         case .importRow:
-            WelcomeV2AccessibilityIdentifiers.actionSheetImportRow
+            WelcomeAccessibilityIdentifiers.actionSheetImportRow
         }
     }
 }

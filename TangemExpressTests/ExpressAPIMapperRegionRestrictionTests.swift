@@ -13,27 +13,17 @@ import Testing
 struct ExpressAPIMapperRegionRestrictionTests {
     // MARK: - Swap
 
-    @Test("A restricted exchange quote keeps the flag when the feature is on")
-    func exchangeQuoteKeepsRestrictionWhenEnabled() throws {
-        let quote = try makeMapper(isRegionRestrictionsEnabled: true)
+    @Test("A restricted exchange quote keeps the flag")
+    func exchangeQuoteKeepsRestriction() throws {
+        let quote = try makeMapper()
             .mapToExpressQuote(response: Self.makeExchangeQuoteResponse(isRestricted: true))
 
         #expect(quote.isRestricted)
     }
 
-    /// The toggle gates the flag in the mapper so that with the feature off every consumer — including the
-    /// best-provider selection inside the module — behaves exactly as it did before the flag existed.
-    @Test("A restricted exchange quote drops the flag when the feature is off")
-    func exchangeQuoteDropsRestrictionWhenDisabled() throws {
-        let quote = try makeMapper(isRegionRestrictionsEnabled: false)
-            .mapToExpressQuote(response: Self.makeExchangeQuoteResponse(isRestricted: true))
-
-        #expect(!quote.isRestricted)
-    }
-
     @Test("An exchange quote without the field is not restricted")
     func exchangeQuoteWithoutFieldIsNotRestricted() throws {
-        let quote = try makeMapper(isRegionRestrictionsEnabled: true)
+        let quote = try makeMapper()
             .mapToExpressQuote(response: Self.makeExchangeQuoteResponse(isRestricted: nil))
 
         #expect(!quote.isRestricted)
@@ -41,25 +31,17 @@ struct ExpressAPIMapperRegionRestrictionTests {
 
     // MARK: - Onramp
 
-    @Test("A restricted onramp quote keeps the flag when the feature is on")
-    func onrampQuoteKeepsRestrictionWhenEnabled() throws {
-        let quote = try makeMapper(isRegionRestrictionsEnabled: true)
+    @Test("A restricted onramp quote keeps the flag")
+    func onrampQuoteKeepsRestriction() throws {
+        let quote = try makeMapper()
             .mapToOnrampQuote(response: Self.makeOnrampQuoteResponse(isRestricted: true))
 
         #expect(quote.isRestricted)
     }
 
-    @Test("A restricted onramp quote drops the flag when the feature is off")
-    func onrampQuoteDropsRestrictionWhenDisabled() throws {
-        let quote = try makeMapper(isRegionRestrictionsEnabled: false)
-            .mapToOnrampQuote(response: Self.makeOnrampQuoteResponse(isRestricted: true))
-
-        #expect(!quote.isRestricted)
-    }
-
     @Test("An onramp quote without the field is not restricted")
     func onrampQuoteWithoutFieldIsNotRestricted() throws {
-        let quote = try makeMapper(isRegionRestrictionsEnabled: true)
+        let quote = try makeMapper()
             .mapToOnrampQuote(response: Self.makeOnrampQuoteResponse(isRestricted: nil))
 
         #expect(!quote.isRestricted)
@@ -69,10 +51,10 @@ struct ExpressAPIMapperRegionRestrictionTests {
 // MARK: - Helpers
 
 private extension ExpressAPIMapperRegionRestrictionTests {
-    func makeMapper(isRegionRestrictionsEnabled: Bool) -> ExpressAPIMapper {
+    func makeMapper() -> ExpressAPIMapper {
         ExpressAPIMapper(
             exchangeDataDecoder: StubExchangeDataDecoder(),
-            featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: isRegionRestrictionsEnabled)
+            featureFlags: ExpressFeatureFlags()
         )
     }
 
@@ -86,7 +68,8 @@ private extension ExpressAPIMapperRegionRestrictionTests {
             quoteId: "quote-id",
             expiredAt: nil,
             txType: nil,
-            isRestricted: isRestricted
+            isRestricted: isRestricted,
+            slippage: nil
         )
     }
 

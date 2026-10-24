@@ -17,8 +17,15 @@ final class PolymarketFundsArrivalTracker: ObservableObject {
     private let balancePublisher: AnyPublisher<Decimal?, Never>
     private let delayProvider: PollDelayProvider
 
+    private let latestBalance = OSAllocatedUnfairLock<Decimal?>(initialState: nil)
+
     private var windowTask: Task<Void, Never>?
     private var balanceSubscription: AnyCancellable?
+    private var latestBalanceSubscription: AnyCancellable?
+
+    var currentBalance: Decimal? {
+        latestBalance.withLock { $0 }
+    }
 
     init(
         balancePublisher: AnyPublisher<Decimal?, Never>,
@@ -26,29 +33,55 @@ final class PolymarketFundsArrivalTracker: ObservableObject {
     ) {
         self.balancePublisher = balancePublisher
         self.delayProvider = delayProvider
+
+        trackLatestBalance()
     }
 
     deinit {
         windowTask?.cancel()
     }
 
-    func startAwaitingFunds() {
+    func startAwaitingFunds(since baseline: Decimal? = nil) {
+        guard !hasChanged(since: baseline) else {
+            closeWindow()
+            return
+        }
+
         isAwaitingFunds = true
-        openWindow()
+        openWindow(since: baseline)
     }
 
-    func startAwaitingWithdrawal() {
-        openWindow()
+    func startAwaitingBalanceChange(since baseline: Decimal? = nil) {
+        guard !hasChanged(since: baseline) else {
+            closeWindow()
+            return
+        }
+
+        openWindow(since: baseline)
     }
 }
 
 // MARK: - The window
 
 private extension PolymarketFundsArrivalTracker {
-    func openWindow() {
+    func trackLatestBalance() {
+        latestBalanceSubscription = balancePublisher
+            .compactMap { $0 }
+            .sink { [latestBalance] balance in
+                latestBalance.withLock { $0 = balance }
+            }
+    }
+
+    func hasChanged(since baseline: Decimal?) -> Bool {
+        guard let baseline, let currentBalance else { return false }
+
+        return currentBalance != baseline
+    }
+
+    func openWindow(since baseline: Decimal?) {
         windowTask?.cancel()
         isBalanceChangeExpected = true
-        observeBalance()
+        observeBalance(since: baseline)
 
         windowTask = Task { @MainActor [weak self] in
             try? await self?.delayProvider.wait(for: Constants.windowDuration)
@@ -59,11 +92,15 @@ private extension PolymarketFundsArrivalTracker {
         }
     }
 
-    func observeBalance() {
-        balanceSubscription = balancePublisher
+    func observeBalance(since baseline: Decimal?) {
+        let balances = balancePublisher
             .compactMap { $0 }
             .removeDuplicates()
-            .dropFirst()
+
+        let changes = baseline.map { baseline in balances.filter { $0 != baseline }.eraseToAnyPublisher() }
+            ?? balances.dropFirst().eraseToAnyPublisher()
+
+        balanceSubscription = changes
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { tracker, _ in
