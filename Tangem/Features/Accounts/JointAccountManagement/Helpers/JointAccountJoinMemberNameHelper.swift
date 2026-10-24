@@ -7,6 +7,7 @@
 //
 
 import TangemLocalization
+import TangemUI
 
 /// The member name step as the join flow uses it: the name introduces this wallet to an account somebody else made,
 /// and submitting it signs the invited terms and takes the slot.
@@ -36,10 +37,13 @@ extension JointAccountJoinMemberNameHelper: JointAccountMemberNameHelper {
 
     var initialName: String { "" }
 
-    var tangemIconProvider: TangemIconProvider { CommonTangemIconProvider(config: userWalletModel.config) }
+    var signingActionButtonType: SigningActionButtonViewType { SigningActionButtonViewTypeBuilder().build(config: userWalletModel.config) }
 
     /// Nothing is gathered before this step in the join flow, so leaving costs the user only the typed name.
     var hasUnsavedChanges: Bool { false }
+
+    /// The join flow has no earlier step to return to, so there is nowhere to keep the name.
+    func keepDraft(name: String) {}
 
     func submit(name: String) async throws(AccountEditError) {
         let context = JointAccountJoinContext(
@@ -48,13 +52,20 @@ extension JointAccountJoinMemberNameHelper: JointAccountMemberNameHelper {
             memberName: name
         )
 
-        // The identity the slot was taken under is of no use here: the flow closes and the account arrives with the list
-        _ = try await userWalletModel.accountModelsManager.joinJointAccount(context: context)
+        let accountModelsManager = userWalletModel.accountModelsManager
+        let joinResult = try await accountModelsManager.joinJointAccount(context: context)
+
+        let creationHelper = AccountModelsManagerAccountCreationHelper(accountModelsManager: accountModelsManager)
+        let jointAccount = await creationHelper.createdJointAccountModel(with: joinResult.derivationIdentity)
 
         let routable = routable
 
         await MainActor.run {
-            routable?.closeJoinedAccount()
+            if let jointAccount {
+                routable?.openJoinedAccount(jointAccount: jointAccount, userWalletConfig: userWalletModel.config)
+            } else {
+                routable?.closeJoinedAccount()
+            }
         }
     }
 }
@@ -62,6 +73,6 @@ extension JointAccountJoinMemberNameHelper: JointAccountMemberNameHelper {
 // MARK: - Routable
 
 protocol JointAccountJoinMemberNameRoutable: AnyObject {
-    /// Leaves the flow once the slot is taken — the account shows up in the wallet on its own.
+    func openJoinedAccount(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig)
     func closeJoinedAccount()
 }

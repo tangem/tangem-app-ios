@@ -28,7 +28,7 @@ final class CommonOpenTelemetryWrapper: OpenTelemetryWrapper {
     fileprivate init() {}
 
     func configure() {
-        guard FeatureProvider.isAvailable(.openTelemetryMetrics) else {
+        guard !AppEnvironment.current.isDebug else {
             return
         }
 

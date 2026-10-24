@@ -7,14 +7,18 @@
 //
 
 import SwiftUI
+import Kingfisher
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct TangemPaySmallCardView: View {
     enum State {
-        case issued(cardNumberEnd: String)
+        case issued(cardNumberEnd: String, isFrozen: Bool, isPhysical: Bool, thumbnailURL: URL?)
         case issuing
         case replacing
-        case closing
+        /// It's used when user requested to issue the card but don't have money on account to do that.
+        /// For example select paid plan after onboarding
+        case ghost
     }
 
     let state: State
@@ -23,86 +27,100 @@ struct TangemPaySmallCardView: View {
         ZStack(alignment: .topLeading) {
             background
 
-            Text("VISA")
-                .font(.system(size: 7, weight: .bold))
-                .italic()
-                .foregroundColor(.white)
-                .padding(.leading, 27)
-                .padding(.top, 3)
+            icon
+                .offset(x: 3, y: 2)
 
-            bottomLeadingContent
+            Assets.Visa.logo.image
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 22, height: 8)
+                .offset(x: 28, y: 4)
+
+            cardNumber
         }
-        .frame(width: 48, height: 32)
-        .clipShape(RoundedRectangle(cornerRadius: 4))
+        .frame(width: 56, height: 40, alignment: .topLeading)
+        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
         .overlay {
-            RoundedRectangle(cornerRadius: 4)
-                .stroke(
-                    LinearGradient(
-                        stops: [
-                            .init(color: Colors.Stroke.primary.opacity(0.1), location: 0),
-                            .init(color: Colors.Stroke.primary, location: 1),
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    ),
-                    lineWidth: 1
-                )
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .stroke(Color.white.opacity(0.05), lineWidth: 1)
         }
     }
 
     @ViewBuilder
     private var background: some View {
         switch state {
-        case .issued:
-            ZStack {
-                Color.Tangem.Visa.cardDetailBackground
-
-                LinearGradient(
-                    colors: [
-                        .clear,
-                        Color.Tangem.Button.backgroundAccent.opacity(0.5),
-                    ],
-                    startPoint: UnitPoint(x: 0.1, y: 0.85),
-                    endPoint: UnitPoint(x: 0.95, y: 0.0)
-                )
-            }
-        case .issuing, .replacing, .closing:
-            Color.Tangem.Graphic.Neutral.quaternary
+        case .issued(_, _, _, let thumbnailURL):
+            KFImage(thumbnailURL)
+                .placeholder {
+                    Assets.Visa.chipIssued.image
+                        .resizable()
+                }
+                .resizable()
+        case .issuing, .replacing, .ghost:
+            Assets.Visa.chipIssuing.image
+                .resizable()
         }
     }
 
     @ViewBuilder
-    private var bottomLeadingContent: some View {
+    private var icon: some View {
         switch state {
-        case .issued(let cardNumberEnd):
-            Text(cardNumberEnd)
-                .font(.system(size: 8, weight: .semibold))
-                .foregroundColor(.white)
-                .tracking(0.06)
-                .padding(.leading, 3)
-                .padding(.top, 20)
-        case .issuing:
-            bottomLeftIssuingIcon
-        case .replacing, .closing:
-            Image(systemName: "arrow.triangle.2.circlepath")
-                .font(.system(size: 8, weight: .semibold))
-                .foregroundColor(.white)
-                .padding(.leading, 3)
-                .padding(.top, 20)
+        case .issued(_, let isFrozen, let isPhysical, _):
+            if isFrozen {
+                DesignSystem.Icons.Snowflake.regular16.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 12, height: 12)
+                    .foregroundStyle(.white)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountCardFrozenIcon)
+            } else if !isPhysical {
+                Image(systemName: "cloud.fill")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 6)
+                    .foregroundStyle(.white)
+                    .frame(width: 12, height: 12)
+            }
+        case .issuing, .replacing, .ghost:
+            DesignSystem.Icons.Clock.regular16.image
+                .renderingMode(.template)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 12, height: 12)
+                .foregroundStyle(.white)
         }
     }
 
-    private var bottomLeftIssuingIcon: some View {
-        VStack {
-            Spacer(minLength: 0)
-            HStack {
-                Assets.Visa.cardInProgressInactive.image
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 16, height: 16)
-                Spacer(minLength: 0)
-            }
+    @ViewBuilder
+    private var cardNumber: some View {
+        switch state {
+        case .issued(let cardNumberEnd, _, _, _):
+            numberText(cardNumberEnd)
+        case .ghost:
+            numberText("0000")
+        case .issuing, .replacing:
+            EmptyView()
         }
-        .padding(3)
     }
+
+    private func numberText(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 10, weight: .semibold))
+            .foregroundStyle(.white)
+            .frame(width: 50, height: 12, alignment: .trailing)
+            .offset(x: 0, y: 23)
+    }
+}
+
+// MARK: - Previews
+
+#Preview {
+    HStack(spacing: 8) {
+        TangemPaySmallCardView(state: .issued(cardNumberEnd: "9092", isFrozen: false, isPhysical: false, thumbnailURL: nil))
+        TangemPaySmallCardView(state: .issued(cardNumberEnd: "9092", isFrozen: true, isPhysical: false, thumbnailURL: nil))
+        TangemPaySmallCardView(state: .issuing)
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(DesignSystem.Color.bgPrimary)
 }

@@ -657,6 +657,7 @@ extension TransferModel: NotificationTapDelegate {
              .stake,
              .openLink,
              .openDeeplink,
+             .openPromoCampaign,
              .swap,
              .openFeedbackMail,
              .openAppStoreReview,
@@ -682,7 +683,8 @@ extension TransferModel: NotificationTapDelegate {
              .yieldBoostPromoLater,
              .openGetTangemPay,
              .closeGetTangemPay,
-             .removeTangemPayAccount:
+             .removeTangemPayAccount,
+             .editSlippage:
             assertionFailure("Notification tap not handled")
         }
     }

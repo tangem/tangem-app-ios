@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Combine
 import BlockchainSdk
 import TangemFoundation
 @testable import Tangem
@@ -16,12 +15,10 @@ final class AllowanceServiceMock: AllowanceService {
 
     private struct State {
         var allowanceStateResult: Result<AllowanceState, Error> = .success(.enoughAllowance)
-        var allowanceStateResultsByPolicy: [ApprovePolicy: Result<AllowanceState, Error>] = [:]
-        var shouldHoldNextAllowanceStateCall = false
-        var heldCallsAreReleased = false
-        var heldCallContinuations: [CheckedContinuation<Void, Never>] = []
-        var allowanceStateCalls: [(amount: Decimal, spender: String, approvePolicy: ApprovePolicy)] = []
         var markApproveTransactionSentCalls: [String] = []
+        var makeApproveDataResult: Result<ApproveTransactionData, Error>?
+        var makeApproveDataResultsByPolicy: [ApprovePolicy: Result<ApproveTransactionData, Error>] = [:]
+        var makeApproveDataCalls: [(spender: String, amount: Decimal, policy: ApprovePolicy)] = []
     }
 
     private let state = OSAllocatedUnfairLock(initialState: State())
@@ -33,69 +30,31 @@ final class AllowanceServiceMock: AllowanceService {
         set { state { $0.allowanceStateResult = newValue } }
     }
 
-    func setAllowanceStateResult(_ result: Result<AllowanceState, Error>, for policy: ApprovePolicy) {
-        state { $0.allowanceStateResultsByPolicy[policy] = result }
+    var makeApproveDataResult: Result<ApproveTransactionData, Error>? {
+        get { state { $0.makeApproveDataResult } }
+        set { state { $0.makeApproveDataResult = newValue } }
     }
 
-    // MARK: - Gate
-
-    func holdNextAllowanceStateCall() {
-        state { state in
-            state.shouldHoldNextAllowanceStateCall = true
-            state.heldCallsAreReleased = false
-        }
+    func setMakeApproveDataResult(_ result: Result<ApproveTransactionData, Error>, for policy: ApprovePolicy) {
+        state { $0.makeApproveDataResultsByPolicy[policy] = result }
     }
 
-    func releaseHeldAllowanceStateCalls() {
-        let continuations = state { state in
-            state.heldCallsAreReleased = true
-            let held = state.heldCallContinuations
-            state.heldCallContinuations = []
-            return held
-        }
-
-        continuations.forEach { $0.resume() }
-    }
+    var makeApproveDataGate: TestGate?
 
     // MARK: - Call tracking
-
-    var allowanceStateCalls: [(amount: Decimal, spender: String, approvePolicy: ApprovePolicy)] {
-        state { $0.allowanceStateCalls }
-    }
 
     var markApproveTransactionSentCalls: [String] {
         state { $0.markApproveTransactionSentCalls }
     }
 
+    var makeApproveDataCalls: [(spender: String, amount: Decimal, policy: ApprovePolicy)] {
+        state { $0.makeApproveDataCalls }
+    }
+
     // MARK: - AllowanceService
 
     func allowanceState(amount: Decimal, spender: String, approvePolicy: ApprovePolicy) async throws -> AllowanceState {
-        let shouldHold = state { state in
-            state.allowanceStateCalls.append((amount, spender, approvePolicy))
-            let shouldHold = state.shouldHoldNextAllowanceStateCall
-            state.shouldHoldNextAllowanceStateCall = false
-            return shouldHold
-        }
-
-        if shouldHold {
-            await withCheckedContinuation { continuation in
-                let resumeImmediately = state { state in
-                    if state.heldCallsAreReleased {
-                        return true
-                    }
-
-                    state.heldCallContinuations.append(continuation)
-                    return false
-                }
-
-                if resumeImmediately {
-                    continuation.resume()
-                }
-            }
-        }
-
-        let result = state { $0.allowanceStateResultsByPolicy[approvePolicy] ?? $0.allowanceStateResult }
-        return try result.get()
+        try allowanceStateResult.get()
     }
 
     func markApproveTransactionSent(spender: String) async {
@@ -103,6 +62,16 @@ final class AllowanceServiceMock: AllowanceService {
     }
 
     func makeApproveData(spender: String, amount: Decimal, policy: ApprovePolicy) async throws -> ApproveTransactionData {
-        ApproveTransactionData(txData: Data(), spender: spender, toContractAddress: "")
+        state { $0.makeApproveDataCalls.append((spender, amount, policy)) }
+
+        await makeApproveDataGate?.wait()
+
+        let result = state { $0.makeApproveDataResultsByPolicy[policy] ?? $0.makeApproveDataResult }
+
+        guard let result else {
+            return ApproveTransactionData(txData: Data(), spender: spender, toContractAddress: "")
+        }
+
+        return try result.get()
     }
 }

@@ -8,4 +8,5 @@
 
 enum WalletBackupConstants {
     static let fileNameSuffix = ".backup.json"
+    static let socialBackupFileName = "social-backup.json"
 }

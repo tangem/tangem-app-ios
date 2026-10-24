@@ -26,7 +26,8 @@ struct TransactionDetailsProviderIdTests {
         termsOfUse: nil,
         privacyPolicy: nil,
         recommended: nil,
-        slippage: nil
+        slippage: nil,
+        isCustomSlippageSupported: false
     )
 
     @Test("A swap the provider gave an id offers to copy it as Swap ID instead of the Transaction ID")
@@ -66,8 +67,8 @@ struct TransactionDetailsProviderIdTests {
         }
     }
 
-    @Test("A shared deal names the Express id and the on-chain hash, never the provider's id")
-    func sharedDealNamesTheExpressIdAndHash() throws {
+    @Test("A shared deal names the provider's id and the on-chain hash, never the Express id")
+    func sharedDealNamesTheProviderIdAndHash() throws {
         let records = [
             makeRecord(.exchange(makeExchangeInfo(externalTxId: Self.providerId, provider: Self.knownProvider))),
             makeRecord(.onramp(makeOnrampInfo(externalTxId: Self.providerId, provider: Self.knownProvider))),
@@ -77,9 +78,24 @@ struct TransactionDetailsProviderIdTests {
             let lines = try shareLines(for: record)
 
             #expect(lines.first == Localization.commonTangem)
-            #expect(lines.contains(Localization.expressTransactionId(Self.expressTxId)))
+            #expect(lines.contains(Localization.expressTransactionId(Self.providerId)))
             #expect(lines.contains(Localization.expressTransactionHash(record.hash)))
-            #expect(!lines.contains { $0.contains(Self.providerId) })
+            #expect(!lines.contains { $0.contains(Self.expressTxId) })
+        }
+    }
+
+    @Test("A shared deal the provider hasn't given an id yet has no ID line")
+    func sharedDealWithoutProviderIdHasNoIdLine() throws {
+        let records = [
+            makeRecord(.exchange(makeExchangeInfo(externalTxId: nil, provider: Self.knownProvider))),
+            makeRecord(.onramp(makeOnrampInfo(externalTxId: nil, provider: Self.knownProvider))),
+        ]
+
+        for record in records {
+            let lines = try shareLines(for: record)
+
+            #expect(!lines.contains { $0.hasPrefix(Localization.expressTransactionId("")) })
+            #expect(!lines.contains { $0.contains(Self.expressTxId) })
         }
     }
 
@@ -126,7 +142,8 @@ private extension TransactionDetailsProviderIdTests {
                 contacts: [],
                 isAddressBookSynced: true,
                 transactionType: .swap,
-                interactionAddress: .custom(message: "")
+                interactionAddress: .custom(message: ""),
+                subtitleOwner: nil
             )
         )
 

@@ -12,16 +12,27 @@ import TangemAssets
 extension Checkbox {
     struct CheckboxMark: View {
         let value: Value
+        let size: Size
 
-        @ScaledMetric private var side = Metrics.side
+        @ScaledMetric private var side: CGFloat
 
-        private var isFilled: Bool { value != .unchecked }
+        init(value: Value, size: Size) {
+            self.value = value
+            self.size = size
+            _side = ScaledMetric(wrappedValue: size.side)
+        }
+
+        private var isFilled: Bool { value == .checked || value == .indeterminate }
+
+        private var boxColor: Color {
+            value == .error ? DesignSystem.Color.iconStatusError : DesignSystem.Color.iconPrimary
+        }
 
         var body: some View {
             ZStack {
-                tinted(DesignSystem.Icons.ControlBox.regular24, color: DesignSystem.Color.iconPrimary)
+                tinted(SelectionControlGlyph.boxRegular, color: boxColor)
 
-                tinted(DesignSystem.Icons.ControlBox.filled24, color: DesignSystem.Color.iconPrimary)
+                tinted(SelectionControlGlyph.boxFilled, color: DesignSystem.Color.iconPrimary)
                     .scaleEffect(isFilled ? 1 : Metrics.markInScale)
                     .opacity(isFilled ? 1 : 0)
                     .animation(Animations.fill, value: isFilled)
@@ -34,21 +45,21 @@ extension Checkbox {
         private var mark: some View {
             ZStack {
                 switch value {
-                case .unchecked:
+                case .unchecked, .error:
                     EmptyView()
                 case .checked:
-                    tinted(DesignSystem.Icons.ControlCheckmark.regular24, color: DesignSystem.Color.iconInverse)
+                    tinted(SelectionControlGlyph.checkmark, color: DesignSystem.Color.iconInverse)
                         .transition(Animations.markTransition)
                 case .indeterminate:
-                    tinted(DesignSystem.Icons.ControlIndeterminate.regular24, color: DesignSystem.Color.iconInverse)
+                    tinted(SelectionControlGlyph.indeterminate, color: DesignSystem.Color.iconInverse)
                         .transition(Animations.markTransition)
                 }
             }
             .animation(Animations.mark, value: value)
         }
 
-        private func tinted(_ icon: ImageType, color: Color) -> some View {
-            icon.image
+        private func tinted(_ glyph: SelectionControlGlyph, color: Color) -> some View {
+            glyph.image(for: size).image
                 .renderingMode(.template)
                 .resizable()
                 .frame(width: side, height: side)
@@ -61,7 +72,6 @@ extension Checkbox {
 
 private extension Checkbox.CheckboxMark {
     enum Metrics {
-        static let side: CGFloat = 24
         static let markInScale: CGFloat = 0.5
     }
 

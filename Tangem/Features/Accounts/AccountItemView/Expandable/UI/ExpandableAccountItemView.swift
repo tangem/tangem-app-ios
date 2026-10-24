@@ -49,6 +49,7 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
                     totalFiatBalance: viewModel.totalFiatBalance,
                     priceChange: viewModel.priceChange,
                     currencyCode: nil,
+                    hasOperationsInFlight: viewModel.hasOperationsInFlight,
                     iconGeometryEffect: effects.icon,
                     iconBackgroundGeometryEffect: effects.iconBackground,
                     nameGeometryEffect: effects.name,

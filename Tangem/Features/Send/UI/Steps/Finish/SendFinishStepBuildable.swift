@@ -22,6 +22,7 @@ extension SendFinishStepBuildable {
         sendFeeFinishViewModel: SendFeeFinishViewModel? = nil,
         onrampAmountCompactViewModel: OnrampAmountCompactViewModel? = nil,
         onrampStatusCompactViewModel: OnrampStatusCompactViewModel? = nil,
+        jointAccountSignaturesCompactViewModel: JointAccountSignaturesCompactViewModel? = nil,
         router: SendRoutable,
     ) -> SendFinishStepBuilder.ReturnValue {
         SendFinishStepBuilder.make(
@@ -36,6 +37,7 @@ extension SendFinishStepBuildable {
             sendFeeFinishViewModel: sendFeeFinishViewModel,
             onrampAmountCompactViewModel: onrampAmountCompactViewModel,
             onrampStatusCompactViewModel: onrampStatusCompactViewModel,
+            jointAccountSignaturesCompactViewModel: jointAccountSignaturesCompactViewModel,
             router: router,
         )
     }
@@ -69,6 +71,7 @@ enum SendFinishStepBuilder {
         sendFeeFinishViewModel: SendFeeFinishViewModel?,
         onrampAmountCompactViewModel: OnrampAmountCompactViewModel?,
         onrampStatusCompactViewModel: OnrampStatusCompactViewModel?,
+        jointAccountSignaturesCompactViewModel: JointAccountSignaturesCompactViewModel?,
         router: SendRoutable,
     ) -> ReturnValue {
         let settings = SendFinishViewModel.Settings(
@@ -85,6 +88,7 @@ enum SendFinishStepBuilder {
             sendFeeFinishViewModel: sendFeeFinishViewModel,
             onrampAmountCompactViewModel: onrampAmountCompactViewModel,
             onrampStatusCompactViewModel: onrampStatusCompactViewModel,
+            jointAccountSignaturesCompactViewModel: jointAccountSignaturesCompactViewModel,
             settings: settings,
             headerTitleProvider: dependencies.headerTitleProvider,
             analyticsLogger: dependencies.analyticsLogger,

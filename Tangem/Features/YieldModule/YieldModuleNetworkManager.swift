@@ -23,6 +23,8 @@ protocol YieldModuleNetworkManager {
     func fetchChartData(tokenContractAddress: String, chainId: Int) async throws -> YieldChartData
     func fetchAprHistory(tokenContractAddress: String, chainId: Int, days: Int) async throws -> [YieldIncentiveAprPoint]
     func fetchIncentives(chainId: Int, userAddress: String) async throws -> YieldIncentivesRewardsSummary?
+    func fetchClaimCalldata(chainId: Int, userAddress: String) async throws -> YieldClaimCalldata
+    func fetchClaimHistory(chainId: Int, userAddress: String) async throws -> [YieldClaimHistoryEntry]?
     func activate(tokenContractAddress: String, walletAddress: String, chainId: Int, userWalletId: String) async throws
     func deactivate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws
     func sendTransactionEvent(txHash: String, operation: YieldModuleOperation, userAddress: String?) async
@@ -32,6 +34,7 @@ final class CommonYieldModuleNetworkManager {
     private let yieldModuleAPIService: YieldModuleAPIService
     private let yieldMarketsRepository: YieldModuleMarketsRepository
     private let yieldModuleChartManager: YieldModuleChartManager
+    private let blockchainAvailability: YieldModuleBlockchainAvailability
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
@@ -44,11 +47,13 @@ final class CommonYieldModuleNetworkManager {
     init(
         yieldModuleAPIService: YieldModuleAPIService,
         yieldMarketsRepository: YieldModuleMarketsRepository,
-        yieldModuleChartManager: YieldModuleChartManager
+        yieldModuleChartManager: YieldModuleChartManager,
+        blockchainAvailability: YieldModuleBlockchainAvailability = YieldModuleBlockchainAvailability()
     ) {
         self.yieldModuleAPIService = yieldModuleAPIService
         self.yieldMarketsRepository = yieldMarketsRepository
         self.yieldModuleChartManager = yieldModuleChartManager
+        self.blockchainAvailability = blockchainAvailability
 
         bind()
     }
@@ -147,8 +152,7 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
                 YieldIncentiveAprPoint(
                     date: $0,
                     baseApy: point.baseApy / 100,
-                    rewardsApr: point.rewardsApr / 100,
-                    totalApyEst: point.totalApyEst / 100
+                    grossTotalApyEst: point.grossTotalApyEst / 100
                 )
             }
         }
@@ -158,6 +162,18 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
         let incentives = try await yieldModuleAPIService.getIncentives(chainId: chainId, userAddress: userAddress)
 
         return incentives.flatMap(YieldIncentivesRewardsSummary.init(dto:))
+    }
+
+    func fetchClaimCalldata(chainId: Int, userAddress: String) async throws -> YieldClaimCalldata {
+        let calldata = try await yieldModuleAPIService.getClaimCalldata(chainId: chainId, userAddress: userAddress)
+
+        return YieldClaimCalldata(dto: calldata)
+    }
+
+    func fetchClaimHistory(chainId: Int, userAddress: String) async throws -> [YieldClaimHistoryEntry]? {
+        let history = try await yieldModuleAPIService.getClaimHistory(chainId: chainId, userAddress: userAddress)
+
+        return history?.claims.map(YieldClaimHistoryEntry.init(dto:))
     }
 
     private static let aprHistoryDateFormatter: DateFormatter = {
@@ -256,9 +272,9 @@ private extension CommonYieldModuleNetworkManager {
                 ? try await yieldModuleAPIService.getIncentiveYieldMarkets(chainIDs: chainIDs)
                 : try await yieldModuleAPIService.getYieldMarkets(chainIDs: chainIDs)
 
-            let markets = response.tokens.map {
-                YieldModuleMarketInfo(dto: $0, includeIncentive: includeIncentive)
-            }
+            let markets = response.tokens
+                .map { YieldModuleMarketInfo(dto: $0, includeIncentive: includeIncentive) }
+                .filter { blockchainAvailability.isAvailable(chainId: $0.chainId) }
 
             return (markets, response)
         } catch {
@@ -268,7 +284,9 @@ private extension CommonYieldModuleNetworkManager {
                 return ([], nil)
             }
 
-            let markets = cachedMarkets.markets.map(YieldModuleMarketInfo.init(from:))
+            let markets = cachedMarkets.markets
+                .map(YieldModuleMarketInfo.init(from:))
+                .filter { blockchainAvailability.isAvailable(chainId: $0.chainId) }
 
             return (markets, nil)
         }
@@ -308,6 +326,7 @@ private struct YieldModuleNetworkManagerKey: InjectionKey {
                     additionalPlugins: [
                         DeviceInfoPlugin(),
                         YieldModuleAuthorizationPlugin(),
+                        CachePolicyPlugin(),
                     ]
                 ),
                 yieldModuleAPIType: apiType,

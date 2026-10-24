@@ -180,7 +180,7 @@ struct TokenSummaryView: View {
                 accessibilityLabel: primaryAction.title,
                 action: viewModel.primaryActionTapped
             )
-            .styleType(.default)
+            .styleType(.primary)
             .size(.x12)
             .horizontalLayout(.infinity)
             .disabled(!primaryAction.isEnabled)

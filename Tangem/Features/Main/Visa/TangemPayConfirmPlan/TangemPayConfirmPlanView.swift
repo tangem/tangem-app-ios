@@ -107,7 +107,7 @@ struct TangemPayConfirmPlanView: View {
                 action: viewModel.confirm
             )
             .size(.x12)
-            .styleType(.default)
+            .styleType(.primary)
             .horizontalLayout(.infinity)
             .loading(.spinner(if: viewModel.isProcessing))
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.confirmPlanPrimaryButton)

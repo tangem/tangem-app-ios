@@ -234,6 +234,12 @@ class EthereumNetworkService: MultiNetworkProvider {
         }
     }
 
+    func getCode(address: String) -> AnyPublisher<String, Error> {
+        providerPublisher { provider in
+            provider.getCode(address: address)
+        }
+    }
+
     func resolveAddress(hash: Data, encode name: Data) -> AnyPublisher<String, Error> {
         let method = ReadEthereumAddressEIP137TokenMethod(nameBytes: name, hashBytes: hash)
 

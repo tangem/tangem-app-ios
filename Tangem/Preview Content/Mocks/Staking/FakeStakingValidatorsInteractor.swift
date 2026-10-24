@@ -21,7 +21,8 @@ struct FakeStakingValidatorsInteractor: StakingTargetsInteractor {
                 image: .url(URL(string: "https://assets.stakek.it/validators/infstones.png")!),
                 rewardType: .apr,
                 rewardRate: Decimal(0.008),
-                status: .active
+                status: .active,
+                allowsPartialUnstake: true
             ),
             .init(
                 address: UUID().uuidString,
@@ -31,7 +32,8 @@ struct FakeStakingValidatorsInteractor: StakingTargetsInteractor {
                 image: .url(URL(string: "https://assets.stakek.it/validators/coinbase.png")!),
                 rewardType: .apr,
                 rewardRate: Decimal(0.023),
-                status: .active
+                status: .active,
+                allowsPartialUnstake: true
             ),
         ])
     }

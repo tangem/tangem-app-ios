@@ -9,12 +9,6 @@
 import Foundation
 
 struct PushNotificationsHelpersFactory {
-    func makeAvailabilityProviderForWelcomeOnboarding(
-        using interactor: PushNotificationsInteractor
-    ) -> PushNotificationsAvailabilityProvider {
-        return makeTrampolineForFlow(.welcomeOnboarding, using: interactor)
-    }
-
     func makeAvailabilityProviderForWalletOnboarding(
         using interactor: PushNotificationsInteractor
     ) -> PushNotificationsAvailabilityProvider {
@@ -31,12 +25,6 @@ struct PushNotificationsHelpersFactory {
         using interactor: PushNotificationsInteractor
     ) -> PushNotificationsAvailabilityProvider {
         return makeTrampolineForFlow(.afterLoginBanner, using: interactor)
-    }
-
-    func makePermissionManagerForWelcomeOnboarding(
-        using interactor: PushNotificationsInteractor
-    ) -> PushNotificationsPermissionManager {
-        return makeTrampolineForFlow(.welcomeOnboarding, using: interactor)
     }
 
     func makePermissionManagerForWalletOnboarding(

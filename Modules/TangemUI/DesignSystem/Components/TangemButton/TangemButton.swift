@@ -85,7 +85,7 @@ public struct TangemButton: View, Setupable {
             imageView(from: icon.image)
 
         case .combined(let text, let icon, let iconPosition):
-            HStack(spacing: SizeUnit.x1.value) {
+            HStack(spacing: 4) {
                 switch iconPosition {
                 case .left:
                     imageView(from: icon.image)
