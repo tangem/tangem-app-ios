@@ -59,7 +59,7 @@ extension PolymarketEventCard.Model {
         outcomeLabelStyle: PolymarketEventCard.OutcomeLabelStyle,
         onSelectOutcome: @escaping (PolymarketMarket, PolymarketOutcome) -> Void
     ) -> PolymarketEventCard.Row {
-        let title = market.listLabel
+        let title = event.listLabel(for: market)
         let subtitle = title.map { _ in rowPercentText(market: market, liveQuotesByAssetId: liveQuotesByAssetId) }
 
         let outcomeTitles = event.buttonTitles(for: market)
