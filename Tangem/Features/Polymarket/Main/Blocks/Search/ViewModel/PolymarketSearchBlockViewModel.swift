@@ -130,6 +130,7 @@ private extension PolymarketSearchBlockViewModel {
 
         routable?.openEventDetails(
             eventID: eventID,
+            placeholder: events.first { $0.id == eventID }.map(PolymarketEventPlaceholder.init(event:)),
             category: nil,
             onOrderPlaced: { [weak activityHandler] indexing in activityHandler?.orderPlaced(awaiting: indexing) }
         )

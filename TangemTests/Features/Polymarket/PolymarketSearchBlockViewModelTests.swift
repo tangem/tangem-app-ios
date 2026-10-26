@@ -173,6 +173,7 @@ struct PolymarketSearchBlockViewModelTests {
         sut.handleViewAction(.openEventDetails(id: "a"))
 
         #expect(routable.openedEventIDs == ["a"])
+        #expect(routable.openedEventTitles == ["a"])
         #expect(routable.openedEventCategories == [nil])
         #expect(!sut.isFieldActive)
         #expect(sut.isSearching)

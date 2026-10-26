@@ -55,6 +55,33 @@ struct PolymarketActivityDetailsModelTests {
     }
 }
 
+@Suite("Polymarket history details routing")
+struct PolymarketActivityDetailsRoutingTests {
+    @Test("Going to the prediction opens its event with the event title as the loading placeholder")
+    @MainActor
+    func goToPredictPassesTheEventTitle() {
+        let routable = PolymarketActivityRoutableSpy()
+        let viewModel = PolymarketActivityDetailsViewModel(record: .make(eventTitle: "Lions vs. Bills"), coordinator: routable)
+
+        viewModel.handleViewAction(.goToPredictTapped)
+
+        #expect(routable.openedEventIDs == ["event-1"])
+        #expect(routable.openedEventTitles == ["Lions vs. Bills"])
+    }
+
+    @Test("An event with an empty title opens without a placeholder")
+    @MainActor
+    func emptyTitleOpensWithoutAPlaceholder() {
+        let routable = PolymarketActivityRoutableSpy()
+        let viewModel = PolymarketActivityDetailsViewModel(record: .make(eventTitle: ""), coordinator: routable)
+
+        viewModel.handleViewAction(.goToPredictTapped)
+
+        #expect(routable.openedEventIDs == ["event-1"])
+        #expect(routable.openedEventTitles == [nil])
+    }
+}
+
 extension PolymarketActivityDetailsModelTests {
     struct HeadlineCase: Sendable, CustomTestStringConvertible {
         let type: PolymarketActivityType
@@ -77,6 +104,39 @@ private extension PolymarketActivityRecord {
             market: nil,
             order: nil,
             redeemResult: result
+        )
+    }
+
+    static func make(eventTitle: String) -> PolymarketActivityRecord {
+        PolymarketActivityRecord(
+            id: "1",
+            type: .buy,
+            occurredAt: Date(timeIntervalSince1970: 0),
+            amount: 5,
+            transactionHash: nil,
+            market: PolymarketActivityMarket(
+                conditionId: "condition-1",
+                outcomeIndex: 0,
+                shares: 10,
+                outcome: "Yes",
+                marketId: "market-1",
+                slug: nil,
+                title: "Lions win?",
+                iconURL: nil,
+                imageURL: nil,
+                endDate: nil,
+                isNegRisk: false,
+                event: PolymarketActivityEvent(
+                    eventId: "event-1",
+                    slug: nil,
+                    title: eventTitle,
+                    iconURL: nil,
+                    imageURL: nil,
+                    endDate: nil
+                )
+            ),
+            order: nil,
+            redeemResult: nil
         )
     }
 }

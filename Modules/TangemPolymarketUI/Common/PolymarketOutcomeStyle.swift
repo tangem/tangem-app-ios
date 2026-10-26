@@ -55,4 +55,12 @@ public extension PolymarketOutcomeStyle {
         case .neutral: DesignSystem.Color.textPrimary
         }
     }
+
+    var chartColor: PolymarketProbabilityChart.SeriesColor {
+        switch self {
+        case .affirmative: .affirmative
+        case .negative: .negative
+        case .neutral: .draw
+        }
+    }
 }
