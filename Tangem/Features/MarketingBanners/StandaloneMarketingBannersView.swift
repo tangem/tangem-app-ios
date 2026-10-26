@@ -16,5 +16,6 @@ struct StandaloneMarketingBannersView: View {
         TangemCarousel(banners) { banner in
             StandaloneMarketingBannerView(viewModel: banner)
         }
+        .interItemSpacing(16)
     }
 }
