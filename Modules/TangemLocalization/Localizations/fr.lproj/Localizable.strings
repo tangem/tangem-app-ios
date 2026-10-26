@@ -30,6 +30,8 @@
 "account_details_archive_joint_description" = "Cela masque le compte pour vous et désactive ses notifications. Les autres membres conservent leur accès, et vous pouvez le récupérer à tout moment.";
 "account_details_archive" = "Compte archivé";
 "account_details_archiving" = "Archivage...";
+"account_details_joint_members_confirmed" = "%1$@ of %2$@ confirmed";
+"account_details_joint_members_joined" = "%1$@ of %2$@ joined";
 "account_details_joint_members_progress" = "%1$@/%2$@ personnes";
 "account_details_joint_networks_info" = "Réseaux pris en charge.";
 "account_details_joint_pending_description" = "En attente que des membres rejoignent";
@@ -208,7 +210,7 @@
 "choose_asset_title" = "Choose asset";
 "collectibles_account_collection_empty" = "No cards";
 "collectibles_account_collection_row_subtitle" = "My collection";
-"collectibles_account_reconnect_subtitle" = "Reconnect Packs account";
+"collectibles_account_reconnect_subtitle" = "Reconnect required";
 "collectibles_account_withdraw" = "Withdrawal";
 "collectibles_confirm_order_approve_button" = "Approve";
 "collectibles_confirm_order_confirming_transaction_button" = "Confirming transaction...";
@@ -1086,6 +1088,7 @@
 "joint_account_join_title" = "Vous avez été invité(e) à %1$@";
 "joint_account_join_to_account_btn_text" = "Rejoindre le compte";
 "joint_account_join_to_approve" = "To approve";
+"joint_account_main_cant_verify" = "Can't verify";
 "joint_account_members_progress" = "%1$@ sur %2$@ membres";
 "joint_account_members_role_joined" = "A rejoint";
 "joint_account_members_role_you" = "Vous";
@@ -3025,6 +3028,7 @@
 "warning_express_not_enough_fee_for_token_tx_description" = "Pour effectuer une transaction, vous devez déposer %1$@ %2$@";
 "warning_express_not_enough_fee_for_token_tx_title" = "Impossible de couvrir %@ frais";
 "warning_express_notification_invalid_reserve_amount_title" = "Le montant à recevoir doit être d'au moins %@";
+"warning_express_pair_unavailable_message_v2" = "The provider can’t exchange your selected pair right now. Please choose another provider. (Code %@)";
 "warning_express_pair_unavailable_message" = "Cela peut se produire car le fournisseur n'est actuellement pas en mesure d'échanger la paire que vous avez sélectionnée. Veuillez patienter un instant et réessayer. (Code %@)";
 "warning_express_pair_unavailable_title" = "La paire sélectionnée est temporairement indisponible";
 "warning_express_providers_fca_warning_description" = "Certains fournisseurs ne sont pas autorisés par la Financial Conduct Authority (FCA) du Royaume-Uni. Vous devriez éviter de les utiliser.";
@@ -3044,6 +3048,8 @@
 "warning_hedera_token_association_not_enough_hbar_message" = "%@ insuffisant. Renflouez votre compte Hedera pour associer ce jeton";
 "warning_incomplete_backup_notification_message" = "Nous avons constaté que le processus d'activation de la carte n'a pas été effectué correctement en raison de problèmes avec le module NFC de votre appareil ou d'une méthode incorrecte pour maintenir les cartes sur votre téléphone. Veuillez contacter notre équipe d'assistance pour plus de détails.";
 "warning_incomplete_backup_notification_title" = "Action requise. N'utilisez pas votre portefeuille!";
+"warning_incomplete_balance_message" = "This address has more than %1$@ UTXOs, so the %2$@ network returns only part of them. Your funds are safe. To see the full balance, consolidate UTXOs by sending %3$@ to your own address.";
+"warning_incomplete_balance_title" = "Balance may be incomplete";
 "warning_ios_deprecation_ended_message" = "La prise en charge d’iOS %1$@ a pris fin le %2$@. Pour continuer à recevoir les mises à jour de l’app et garantir un fonctionnement complet, veuillez mettre à jour vers la dernière version d’iOS.";
 "warning_ios_deprecation_message" = "La prise en charge d’iOS %1$@ prendra fin le %2$@. Pour continuer à recevoir les mises à jour de l’app et garantir un fonctionnement complet, veuillez mettre à jour vers la dernière version d’iOS.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Êtes-vous sûr(e) de vouloir annuler la transaction ? Vous ne pourrez plus réessayer.";
