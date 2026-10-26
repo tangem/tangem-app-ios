@@ -28,12 +28,14 @@ final class SuiNetworkProvider: HostProvider {
     private let stateClient: Sui_Rpc_V2_StateServiceAsyncClient
     private let executionClient: Sui_Rpc_V2_TransactionExecutionServiceAsyncClient
 
-    init(node: NodeInfo, networkConfiguration: TangemProviderConfiguration) {
+    init?(node: NodeInfo, networkConfiguration: TangemProviderConfiguration) {
         self.node = node
+
+        guard let host = node.url.host else { return nil }
 
         connection = ClientConnection
             .usingPlatformAppropriateTLS(for: Self.eventLoopGroup)
-            .connect(host: node.url.host ?? "", port: node.url.port ?? Constants.defaultPort)
+            .connect(host: host, port: node.url.port ?? Constants.defaultPort)
 
         let callOptions = Self.makeCallOptions(node: node, networkConfiguration: networkConfiguration)
         ledgerClient = Sui_Rpc_V2_LedgerServiceAsyncClient(channel: connection, defaultCallOptions: callOptions)
@@ -45,11 +47,43 @@ final class SuiNetworkProvider: HostProvider {
         _ = connection.close()
     }
 
-    func getBalance(address: String, coin: String, cursor: String?) -> AnyPublisher<SuiGetCoins, Error> {
+    func getCoins(address: String) -> AnyPublisher<[SuiGetCoins.Coin], Error> {
         perform(method: "StateService.ListOwnedObjects") { provider in
-            let request = try provider.mapper.makeListCoinsRequest(address: address, cursor: cursor)
-            let response = try await provider.stateClient.listOwnedObjects(request)
-            return try provider.mapper.mapToCoins(response: response)
+            var coins: [SuiGetCoins.Coin] = []
+            var cursor: String?
+
+            repeat {
+                let request = try provider.mapper.makeListCoinsRequest(address: address, cursor: cursor)
+                let response = try await provider.stateClient.listOwnedObjects(request)
+                let page = try provider.mapper.mapToCoins(response: response)
+                coins += page.data
+                cursor = page.hasNextPage ? page.nextCursor : nil
+            } while cursor != nil
+
+            return coins
+        }
+    }
+
+    func getBalances(address: String) -> AnyPublisher<[SuiBalance], Error> {
+        perform(method: "StateService.ListBalances") { provider in
+            var balances: [SuiBalance] = []
+            var pageToken: Data?
+
+            repeat {
+                let request = provider.mapper.makeListBalancesRequest(address: address, pageToken: pageToken)
+                let response = try await provider.stateClient.listBalances(request)
+                balances += try provider.mapper.mapToBalances(response: response)
+                pageToken = response.nextPageToken.isEmpty ? nil : response.nextPageToken
+            } while pageToken != nil
+
+            return balances
+        }
+    }
+
+    func getServiceInfo() -> AnyPublisher<SuiServiceInfo, Error> {
+        perform(method: "LedgerService.GetServiceInfo") { provider in
+            let response = try await provider.ledgerClient.getServiceInfo(provider.mapper.makeGetServiceInfoRequest())
+            return try provider.mapper.mapToServiceInfo(response: response)
         }
     }
 
@@ -111,7 +145,7 @@ private extension SuiNetworkProvider {
 
         return CallOptions(
             customMetadata: metadata,
-            timeLimit: .timeout(.milliseconds(Int64(timeout * 1000)))
+            timeLimit: .timeout(.seconds(Int64(timeout)))
         )
     }
 }
