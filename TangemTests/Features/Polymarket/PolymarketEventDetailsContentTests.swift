@@ -13,6 +13,42 @@ import TangemPolymarket
 
 @Suite("Polymarket event details mapping")
 struct PolymarketEventDetailsContentTests {
+    @Test("A 24h change of a thousand percent and more is abbreviated like the total volume")
+    func hugeVolumeChangeIsAbbreviated() {
+        let content = PolymarketEventDetailsContent.make(
+            event: Self.makeEvent(markets: [], volume: 1_000_000, volume24h: 999_990),
+            category: nil,
+            abbreviatesHugeVolumeChange: true,
+            onSelectOutcome: { _, _ in }
+        )
+
+        #expect(content.volumeChange.text.hasSuffix("M" + PercentFormatter.Suffix.default.value))
+        #expect(content.volumeChange.text.count < 10)
+    }
+
+    @Test("Without phase two a huge 24h change keeps the regular percent format")
+    func hugeVolumeChangeStaysRegularWithoutPhaseTwo() {
+        let content = PolymarketEventDetailsContent.make(
+            event: Self.makeEvent(markets: [], volume: 1_000_000, volume24h: 999_990),
+            category: nil,
+            onSelectOutcome: { _, _ in }
+        )
+
+        #expect(content.volumeChange.text == PercentFormatter().format(99999, option: .priceChange))
+    }
+
+    @Test("A 24h change below a thousand percent keeps the regular percent format")
+    func regularVolumeChangeIsNotAbbreviated() {
+        let content = PolymarketEventDetailsContent.make(
+            event: Self.makeEvent(markets: [], volume: 300, volume24h: 100),
+            category: nil,
+            abbreviatesHugeVolumeChange: true,
+            onSelectOutcome: { _, _ in }
+        )
+
+        #expect(content.volumeChange.text == PercentFormatter().format(0.5, option: .priceChange))
+    }
+
     @Test("Markets follow the order the backend gave them")
     func explicitOrderIsFollowed() {
         let content = Self.makeContent(markets: [
@@ -178,7 +214,7 @@ private extension PolymarketEventDetailsContentTests {
         )
     }
 
-    static func makeEvent(markets: [PolymarketMarket]) -> PolymarketEvent {
+    static func makeEvent(markets: [PolymarketMarket], volume: Decimal? = nil, volume24h: Decimal? = nil) -> PolymarketEvent {
         PolymarketEvent(
             id: "event",
             slug: "event",
@@ -191,8 +227,8 @@ private extension PolymarketEventDetailsContentTests {
             isLive: false,
             startDate: nil,
             endDate: nil,
-            volume: nil,
-            volume24h: nil,
+            volume: volume,
+            volume24h: volume24h,
             liquidity: nil,
             totalMarketsCount: markets.count,
             isNegRisk: false,

@@ -26,6 +26,7 @@ public struct PolymarketMarket: Hashable, Sendable {
 
     public let startDate: Date?
     public let endDate: Date?
+    public let closedDate: Date?
 
     public let volume: Decimal?
     public let volume24h: Decimal?
@@ -48,6 +49,7 @@ public struct PolymarketMarket: Hashable, Sendable {
         isAcceptingOrders: Bool,
         startDate: Date?,
         endDate: Date?,
+        closedDate: Date? = nil,
         volume: Decimal?,
         volume24h: Decimal?,
         liquidity: Decimal?,
@@ -66,6 +68,7 @@ public struct PolymarketMarket: Hashable, Sendable {
         self.isAcceptingOrders = isAcceptingOrders
         self.startDate = startDate
         self.endDate = endDate
+        self.closedDate = closedDate
         self.volume = volume
         self.volume24h = volume24h
         self.liquidity = liquidity

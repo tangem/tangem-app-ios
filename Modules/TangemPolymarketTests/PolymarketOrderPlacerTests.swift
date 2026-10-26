@@ -244,6 +244,10 @@ private final class StubCLOBService: PolymarketCLOBService, @unchecked Sendable 
         0
     }
 
+    func priceHistory(tokenId: String, query: PolymarketPriceHistoryQuery) async throws -> [PolymarketPricePoint] {
+        []
+    }
+
     private(set) var placedOrder: PolymarketSignedOrder?
     private(set) var refreshedAssets: [PolymarketBalanceAllowanceAsset] = []
     private(set) var events: [Event] = []

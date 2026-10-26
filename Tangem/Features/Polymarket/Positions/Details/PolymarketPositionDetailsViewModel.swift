@@ -107,6 +107,7 @@ private extension PolymarketPositionDetailsViewModel {
 
         coordinator?.openEventDetails(
             eventID: eventId,
+            placeholder: position.eventTitle?.nilIfEmpty.map { PolymarketEventPlaceholder(title: $0, marketsCount: nil) },
             category: nil,
             onOrderPlaced: { [weak self] indexing in
                 self?.onOrderPlaced(indexing)

@@ -58,6 +58,8 @@ final class PolymarketActivityServiceStub: PolymarketActivityService {
 
 final class PolymarketActivityRoutableSpy: PolymarketActivityRoutable, PolymarketActivityDetailsRoutable {
     private(set) var openedRecords: [PolymarketActivityRecord] = []
+    private(set) var openedEventIDs: [String] = []
+    private(set) var openedEventTitles: [String?] = []
     private(set) var closeCount = 0
 
     func closeActivity() {
@@ -72,5 +74,8 @@ final class PolymarketActivityRoutableSpy: PolymarketActivityRoutable, Polymarke
 
     func closeActivityDetails() {}
 
-    func openActivityEvent(eventID: String) {}
+    func openActivityEvent(eventID: String, placeholder: PolymarketEventPlaceholder?) {
+        openedEventIDs.append(eventID)
+        openedEventTitles.append(placeholder?.title)
+    }
 }

@@ -12,15 +12,23 @@ import TangemPolymarket
 extension PolymarketEvent {
     // [REDACTED_TODO_COMMENT]
     var moneyline: PolymarketMoneyline? {
+        guard !hasMoreMarkets else {
+            return nil
+        }
+
+        return moneyline(in: markets)
+    }
+
+    func moneyline(in markets: [PolymarketMarket]) -> PolymarketMoneyline? {
         guard
             let home = teams.first(where: { $0.side == .home }),
-            let away = teams.first(where: { $0.side == .away }),
-            !hasMoreMarkets
+            let away = teams.first(where: { $0.side == .away })
         else {
             return nil
         }
 
-        return singleMarketMoneyline(home: home, away: away) ?? marketPerOutcomeMoneyline(home: home, away: away)
+        return singleMarketMoneyline(in: markets, home: home, away: away)
+            ?? marketPerOutcomeMoneyline(in: markets, home: home, away: away)
     }
 }
 
@@ -51,7 +59,7 @@ extension PolymarketMoneyline {
 // MARK: - Private
 
 private extension PolymarketEvent {
-    func singleMarketMoneyline(home: PolymarketTeam, away: PolymarketTeam) -> PolymarketMoneyline? {
+    func singleMarketMoneyline(in markets: [PolymarketMarket], home: PolymarketTeam, away: PolymarketTeam) -> PolymarketMoneyline? {
         guard
             markets.count == 1,
             let market = markets.first,
@@ -69,7 +77,7 @@ private extension PolymarketEvent {
         )
     }
 
-    func marketPerOutcomeMoneyline(home: PolymarketTeam, away: PolymarketTeam) -> PolymarketMoneyline? {
+    func marketPerOutcomeMoneyline(in markets: [PolymarketMarket], home: PolymarketTeam, away: PolymarketTeam) -> PolymarketMoneyline? {
         guard
             markets.count == Constants.marketPerOutcomeCount,
             let homePick = yesPick(in: markets.first { $0.groupItemTitle.flatMap(team(named:)) == home }),

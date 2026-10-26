@@ -49,6 +49,7 @@ extension PolymarketEventDetailsContent {
     static func make(
         event: PolymarketEvent,
         category: PolymarketCategory?,
+        abbreviatesHugeVolumeChange: Bool = false,
         onSelectOutcome: @escaping (PolymarketMarket, PolymarketOutcome) -> Void
     ) -> Self {
         let ordered = event.markets.orderedForDisplay
@@ -61,7 +62,7 @@ extension PolymarketEventDetailsContent {
             isLive: event.isLive,
             categoryName: category?.label,
             volumeText: event.volume.map(MappingConstants.volumeFormatter.formatMarketCap),
-            volumeChange: volumeChange(event: event),
+            volumeChange: volumeChange(event: event, abbreviatesHugeChange: abbreviatesHugeVolumeChange),
             activeMarkets: visible.filter { $0.displaySection == .active }.map { market in
                 makeCard(
                     market: market,
@@ -95,7 +96,7 @@ extension PolymarketEventDetailsContent {
         )
     }
 
-    private static func volumeChange(event: PolymarketEvent) -> VolumeChange {
+    private static func volumeChange(event: PolymarketEvent, abbreviatesHugeChange: Bool) -> VolumeChange {
         guard
             let volume = event.volume,
             let volume24h = event.volume24h,
@@ -108,9 +109,23 @@ extension PolymarketEventDetailsContent {
         let ratio = volume24h / previous
 
         return VolumeChange(
-            text: MappingConstants.percentFormatter.format(ratio, option: .priceChange),
+            text: abbreviatesHugeChange ? compactVolumeChangeText(ratio: ratio) : MappingConstants.percentFormatter.format(ratio, option: .priceChange),
             type: PriceChangeView.ChangeType(from: ratio)
         )
+    }
+
+    private static func compactVolumeChangeText(ratio: Decimal) -> String {
+        let percent = ratio * MappingConstants.percentMultiplier
+
+        guard abs(percent) >= MappingConstants.compactPercentThreshold else {
+            return MappingConstants.percentFormatter.format(ratio, option: .priceChange)
+        }
+
+        let notation = MappingConstants.percentNotationFormatter.formatWithNotation(percent)
+        let number = MappingConstants.compactPercentNumberFormatter.string(from: notation.decimal as NSDecimalNumber)
+            ?? "\(notation.decimal)"
+
+        return number + notation.suffix + PercentFormatter.Suffix.default.value
     }
 }
 
@@ -151,6 +166,18 @@ private extension PolymarketMarket {
 private extension PolymarketEventDetailsContent {
     enum MappingConstants {
         static let percentFormatter = PercentFormatter()
+        static let percentMultiplier: Decimal = 100
+        static let compactPercentThreshold: Decimal = 1000
+        static let percentNotationFormatter = AmountNotationSuffixFormatter()
+        static let compactPercentNumberFormatter: NumberFormatter = {
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            formatter.locale = .current
+            formatter.minimumFractionDigits = 0
+            formatter.maximumFractionDigits = 2
+            return formatter
+        }()
+
         static let volumeFormatter = MarketCapFormatter(
             divisorsList: AmountNotationSuffixFormatter.Divisor.defaultList,
             baseCurrencyCode: AppConstants.usdCurrencyCode,

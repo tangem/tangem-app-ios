@@ -94,7 +94,7 @@ struct PolymarketEventDetailsView: View {
     private var content: some View {
         switch viewModel.state {
         case .loading:
-            PolymarketEventDetailsSkeletonView()
+            skeleton
                 .padding(.top, barHeight > 0 ? barHeight : Constants.estimatedBarHeight)
 
         case .failed(let failure):
@@ -111,6 +111,10 @@ struct PolymarketEventDetailsView: View {
             LazyVStack(spacing: 0) {
                 header(content)
 
+                if viewModel.isChartEnabled {
+                    chartSection
+                }
+
                 marketsSection(content)
 
                 summarySection(content)
@@ -118,6 +122,7 @@ struct PolymarketEventDetailsView: View {
             .readContentOffset(inCoordinateSpace: .named(Constants.scrollSpace)) { updateTitleTransfer(contentOffset: $0) }
         }
         .scrollBounceBehavior(.basedOnSize)
+        .if(viewModel.usesPhaseTwoLayout) { $0.refreshable { await viewModel.refresh() } }
         .coordinateSpace(name: Constants.scrollSpace)
         .safeAreaInset(edge: .top, spacing: 0) {
             Color.clear.frame(height: barHeight)
@@ -130,6 +135,7 @@ struct PolymarketEventDetailsView: View {
         VStack(alignment: .leading, spacing: Constants.headerSpacing) {
             Text(content.title)
                 .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
+                .lineLimit(viewModel.usesPhaseTwoLayout ? Constants.headerTitleLineLimit : nil)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .scaleEffect(pageTitleScale, anchor: .topLeading)
@@ -199,6 +205,50 @@ struct PolymarketEventDetailsView: View {
         }
         .font(token: DesignSystem.Font.captionMediumToken)
         .lineLimit(1)
+    }
+
+    // MARK: - Skeleton
+
+    @ViewBuilder
+    private var skeleton: some View {
+        if viewModel.usesPhaseTwoLayout {
+            PolymarketEventDetailsSkeletonView(
+                title: viewModel.placeholder?.title,
+                showsChart: viewModel.isChartEnabled,
+                showsVolumeChange: true,
+                legendLineCount: viewModel.legendLineCount
+            )
+        } else {
+            PolymarketEventDetailsSkeletonView()
+        }
+    }
+
+    // MARK: - Chart
+
+    private var chartSection: some View {
+        chartContent
+            .polymarketStateTransition(viewModel.chart.phase)
+    }
+
+    @ViewBuilder
+    private var chartContent: some View {
+        switch viewModel.chart {
+        case .loading:
+            PolymarketProbabilityChart.skeleton(legendLineCount: viewModel.legendLineCount)
+                .padding(.horizontal, Constants.horizontalPadding)
+
+        case .loaded(let model):
+            PolymarketProbabilityChart(model: model)
+                .padding(.horizontal, Constants.horizontalPadding)
+
+        case .failed:
+            // [REDACTED_TODO_COMMENT]
+            PolymarketEmptyMessageView(message: "Failed to load the chart.\nTap to reload", onRetry: { viewModel.handleViewAction(.retryChart) })
+                .padding(.horizontal, Constants.horizontalPadding)
+
+        case .unavailable:
+            EmptyView()
+        }
     }
 
     // MARK: - Markets
@@ -348,6 +398,24 @@ private extension PolymarketEventDetailsViewModel.State {
     }
 }
 
+private extension PolymarketEventDetailsViewModel.ChartState {
+    enum Phase {
+        case loading
+        case loaded
+        case failed
+        case unavailable
+    }
+
+    var phase: Phase {
+        switch self {
+        case .loading: .loading
+        case .loaded: .loaded
+        case .failed: .failed
+        case .unavailable: .unavailable
+        }
+    }
+}
+
 // MARK: - Failure copy
 
 private extension PolymarketEventDetailsViewModel.Failure {
@@ -378,6 +446,7 @@ private extension PolymarketEventDetailsView {
         static let collapsedTitleSpacing: CGFloat = 4
         static let barSubtitleSpacing: CGFloat = 4
         static let titleTransferDistance: CGFloat = 40
+        static let headerTitleLineLimit = 3
         static let pageHandoffShare: CGFloat = 0.55
         static let barHandoffShare: CGFloat = 0.55
         static let pageTitleTravelX: CGFloat = 100

@@ -16,11 +16,13 @@ final class PolymarketActivityDetailsViewModel: ObservableObject, Identifiable {
     let canGoToPredict: Bool
 
     private let eventID: String?
+    private let eventPlaceholder: PolymarketEventPlaceholder?
     private weak var coordinator: PolymarketActivityDetailsRoutable?
 
     init(record: PolymarketActivityRecord, coordinator: PolymarketActivityDetailsRoutable) {
         model = .make(record: record)
         eventID = record.market?.event?.eventId.nilIfEmpty
+        eventPlaceholder = record.market?.event?.title.nilIfEmpty.map { PolymarketEventPlaceholder(title: $0, marketsCount: nil) }
         canGoToPredict = eventID != nil
         self.coordinator = coordinator
     }
@@ -37,7 +39,7 @@ extension PolymarketActivityDetailsViewModel {
         case .goToPredictTapped:
             guard let eventID else { return }
 
-            coordinator?.openActivityEvent(eventID: eventID)
+            coordinator?.openActivityEvent(eventID: eventID, placeholder: eventPlaceholder)
         }
     }
 
@@ -54,5 +56,5 @@ protocol PolymarketActivityDetailsRoutable: AnyObject {
     func closeActivityDetails()
 
     @MainActor
-    func openActivityEvent(eventID: String)
+    func openActivityEvent(eventID: String, placeholder: PolymarketEventPlaceholder?)
 }
