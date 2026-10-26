@@ -340,6 +340,14 @@ extension CommonTangemApiService: TangemApiService {
         try await self.request(for: .marketingCampaigns(parameters: request.parameters), decoder: decoder)
     }
 
+    func bindMarketingActivityWallets(uid: String, request: MarketingActivityDTO.BindWallets.Request) async throws {
+        let target = TangemApiTarget(type: .bindMarketingActivityWallets(uid: uid, request))
+
+        try await withErrorLoggingPipeline(target: target) {
+            _ = try await provider.asyncRequest(target).filterSuccessfulStatusCodes()
+        }
+    }
+
     func loadAPIList() async throws -> APIListDTO {
         try await request(for: .apiList)
     }
