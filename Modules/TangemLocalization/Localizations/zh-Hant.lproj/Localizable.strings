@@ -30,6 +30,8 @@
 "account_details_archive_joint_description" = "This only hides the account for you and turns off notifications for it. Other members keep their access, and you can always get it back.";
 "account_details_archive" = "Archive account";
 "account_details_archiving" = "Archiving...";
+"account_details_joint_members_confirmed" = "%1$@ of %2$@ confirmed";
+"account_details_joint_members_joined" = "%1$@ of %2$@ joined";
 "account_details_joint_members_progress" = "%1$@/%2$@ people";
 "account_details_joint_networks_info" = "Supported networks.";
 "account_details_joint_pending_description" = "Waiting for members to join";
@@ -208,7 +210,7 @@
 "choose_asset_title" = "Choose asset";
 "collectibles_account_collection_empty" = "No cards";
 "collectibles_account_collection_row_subtitle" = "My collection";
-"collectibles_account_reconnect_subtitle" = "Reconnect Packs account";
+"collectibles_account_reconnect_subtitle" = "Reconnect required";
 "collectibles_account_withdraw" = "Withdrawal";
 "collectibles_confirm_order_approve_button" = "Approve";
 "collectibles_confirm_order_confirming_transaction_button" = "Confirming transaction...";
@@ -1086,6 +1088,7 @@
 "joint_account_join_title" = "You've been invited to %1$@";
 "joint_account_join_to_account_btn_text" = "Join account";
 "joint_account_join_to_approve" = "To approve";
+"joint_account_main_cant_verify" = "Can't verify";
 "joint_account_members_progress" = "%1$@ of %2$@ members";
 "joint_account_members_role_joined" = "Joined";
 "joint_account_members_role_you" = "You";
@@ -3025,6 +3028,7 @@
 "warning_express_not_enough_fee_for_token_tx_description" = "To make a transaction you need to deposit some %1$@ %2$@";
 "warning_express_not_enough_fee_for_token_tx_title" = "Unable to cover %@ fee";
 "warning_express_notification_invalid_reserve_amount_title" = "The amount to receive must be at least %@";
+"warning_express_pair_unavailable_message_v2" = "The provider can’t exchange your selected pair right now. Please choose another provider. (Code %@)";
 "warning_express_pair_unavailable_message" = "This may occur because the provider is currently unable to exchange your selected pair. Please wait a moment and try again. (Code %@)";
 "warning_express_pair_unavailable_title" = "Selected pair temporarily unavailable";
 "warning_express_providers_fca_warning_description" = "Some providers are not authorized by the UK Financial Conduct Authority. You should avoid dealing with them.";
@@ -3044,6 +3048,8 @@
 "warning_hedera_token_association_not_enough_hbar_message" = "Not enough %@. Top up your Hedera account to associate this token";
 "warning_incomplete_backup_notification_message" = "We found out that the card activation process has not been completed accordingly due to issues with your device's NFC module or the incorrect way of tapping the cards to the phone. Please get in touch with our Support team for more details.";
 "warning_incomplete_backup_notification_title" = "Action is required. Don't use your wallet!";
+"warning_incomplete_balance_message" = "This address has more than %1$@ UTXOs, so the %2$@ network returns only part of them. Your funds are safe. To see the full balance, consolidate UTXOs by sending %3$@ to your own address.";
+"warning_incomplete_balance_title" = "Balance may be incomplete";
 "warning_ios_deprecation_ended_message" = "對 iOS %1$@ 的支援已於 %2$@ 結束。為了繼續接收 App 更新並確保完整功能，請更新至最新版本的 iOS。";
 "warning_ios_deprecation_message" = "對 iOS %1$@ 的支援將於 %2$@ 結束。為了繼續接收 App 更新並確保完整功能，請更新至最新版本的 iOS。";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Are you sure you want to cancel the transaction? You will not be able to retry the transaction";
