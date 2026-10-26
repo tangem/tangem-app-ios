@@ -190,7 +190,7 @@ struct PolymarketSearchBlockViewModelTests {
         sut.query = "uzbekistan"
         try await Self.settle(sut) { $0.state == .allDataLoaded }
 
-        let selected = try #require(sut.eventCards.first?.rows.first?.outcomes.first)
+        let selected = try #require(sut.eventCards.first?.regularModel?.rows.first?.outcomes.first)
         selected.onSelect()
 
         #expect(!sut.isFieldActive)
@@ -215,10 +215,10 @@ struct PolymarketSearchBlockViewModelTests {
 
         sut.query = "first"
         try await Self.settle(sut) { $0.state == .allDataLoaded }
-        let resultBeforeRefresh = try #require(sut.eventCards.first?.rows.first?.outcomes.first)
+        let resultBeforeRefresh = try #require(sut.eventCards.first?.regularModel?.rows.first?.outcomes.first)
 
         sut.query = "second"
-        try await Self.settle(sut) { $0.eventCards.first?.rows.first?.outcomes.first?.priceText == PolymarketPriceFormatter.centsText(Decimal(string: "0.55")) }
+        try await Self.settle(sut) { $0.eventCards.first?.regularModel?.rows.first?.outcomes.first?.priceText == PolymarketPriceFormatter.centsText(Decimal(string: "0.55")) }
 
         resultBeforeRefresh.onSelect()
 
@@ -238,7 +238,7 @@ struct PolymarketSearchBlockViewModelTests {
         sut.query = "uzbekistan"
         try await Self.settle(sut) { $0.state == .allDataLoaded }
 
-        let selected = try #require(sut.eventCards.first?.rows.first?.outcomes.first)
+        let selected = try #require(sut.eventCards.first?.regularModel?.rows.first?.outcomes.first)
         selected.onSelect()
         routable.lastOnPlaced?(Task { nil })
 
@@ -274,7 +274,7 @@ struct PolymarketSearchBlockViewModelTests {
         sut.query = "uzbekistan"
         try await Self.settle(sut) { $0.state == .allDataLoaded }
 
-        let selected = try #require(sut.eventCards.first?.rows.first?.outcomes.first)
+        let selected = try #require(sut.eventCards.first?.regularModel?.rows.first?.outcomes.first)
         selected.onSelect()
 
         #expect(routable.openedOutcomes.isEmpty)

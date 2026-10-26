@@ -12,6 +12,7 @@ import TangemAssets
 public enum PolymarketOutcomeStyle: Hashable {
     case affirmative
     case negative
+    case neutral
 }
 
 // MARK: - Domain mapping
@@ -43,6 +44,7 @@ public extension PolymarketOutcomeStyle {
         switch self {
         case .affirmative: DesignSystem.Color.bgStatusInfoSubtle
         case .negative: DesignSystem.Color.bgStatusErrorSubtle
+        case .neutral: DesignSystem.Color.bgTransparentPrimary
         }
     }
 
@@ -50,6 +52,7 @@ public extension PolymarketOutcomeStyle {
         switch self {
         case .affirmative: DesignSystem.Color.textStatusInfo
         case .negative: DesignSystem.Color.textStatusError
+        case .neutral: DesignSystem.Color.textPrimary
         }
     }
 }

@@ -18,7 +18,7 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
         didSet { categoryTabs = categories.map { PolymarketCategoryTab(id: $0.id, title: $0.label, icon: $0.icon?.tabImage) } }
     }
 
-    @Published private(set) var eventCards: [PolymarketEventCard.Model] = []
+    @Published private(set) var eventCards: [PolymarketFeedCard] = []
     @Published private(set) var selectedCategoryID: Int?
     @Published private(set) var loadingState: LoadingState = .loading
 
@@ -451,10 +451,15 @@ private extension PolymarketEventsBlockViewModel {
     }
 }
 
-private extension PolymarketEventCard.Model {
+private extension PolymarketFeedCard {
     func showsOutcome(from assetIds: Set<String>) -> Bool {
-        rows.contains { row in
-            row.outcomes.contains { assetIds.contains($0.id) }
+        switch self {
+        case .regular(let model):
+            model.rows.contains { row in
+                row.outcomes.contains { assetIds.contains($0.id) }
+            }
+        case .liveGame(let model):
+            model.outcomes.contains { assetIds.contains($0.id) }
         }
     }
 }
@@ -513,7 +518,35 @@ private extension PolymarketEventsBlockViewModel {
         }
 
         liveGamesByGameId[game.gameId] = game
+        refreshCards(showingGames: [game.gameId])
         updateLiveQuotesTracking()
+    }
+
+    @MainActor
+    func refreshCards(showingGames gameIds: Set<String>) {
+        let affectedEvents = feed.events.filter { event in
+            event.game.map { gameIds.contains($0.gameId) } ?? false
+        }
+
+        guard !affectedEvents.isEmpty else {
+            return
+        }
+
+        var cards = eventCards
+
+        for event in affectedEvents {
+            guard let index = cards.firstIndex(where: { $0.id == event.id }) else {
+                continue
+            }
+
+            cards[index] = makeCard(for: event)
+        }
+
+        guard cards != eventCards else {
+            return
+        }
+
+        eventCards = cards
     }
 
     @MainActor
@@ -525,6 +558,7 @@ private extension PolymarketEventsBlockViewModel {
         }
 
         droppedGameIds.forEach { liveGamesByGameId.removeValue(forKey: $0) }
+        refreshCards(showingGames: droppedGameIds)
         updateLiveQuotesTracking()
     }
 
@@ -667,14 +701,12 @@ private extension PolymarketEventsBlockViewModel {
         categories.first { $0.id == selectedCategoryID }
     }
 
-    func makeCard(for event: PolymarketEvent) -> PolymarketEventCard.Model {
+    func makeCard(for event: PolymarketEvent) -> PolymarketFeedCard {
         .make(
             event: event,
-            category: nil,
-            isInActivePredicts: false,
+            usesPhaseTwoCards: usesPhaseTwoCards,
+            liveGame: liveGame(for: event),
             liveQuotesByAssetId: liveQuotesByAssetId,
-            isLiveBadgePulsing: usesPhaseTwoCards,
-            outcomeLabelStyle: usesPhaseTwoCards ? .compact : .bulletSeparated,
             onSelectOutcome: { [weak self, eventID = event.id] market, outcome in
                 self?.selectOutcome(eventID: eventID, marketID: market.id, assetId: outcome.assetId)
             }
