@@ -240,6 +240,106 @@ struct SuiGRPCMapperTests {
             try mapper.mapToExecuteTransaction(response: response)
         }
     }
+
+    // MARK: - Balances
+
+    @Test
+    func listBalancesRequestCarriesPageToken() {
+        let pageToken = Data([0x01, 0x02])
+
+        let request = mapper.makeListBalancesRequest(address: address, pageToken: pageToken)
+
+        #expect(request.owner == address)
+        #expect(request.pageSize == 1000)
+        #expect(request.pageToken == pageToken)
+        #expect(!mapper.makeListBalancesRequest(address: address, pageToken: nil).hasPageToken)
+    }
+
+    @Test
+    func mapsBalancesAndNormalizesSuiType() throws {
+        var response = Sui_Rpc_V2_ListBalancesResponse()
+        response.balances = [
+            makeBalance(coinType: paddedSui, balance: 3000, addressBalance: 2000),
+            makeBalance(coinType: usdc, balance: 500, addressBalance: 0),
+        ]
+
+        let balances = try mapper.mapToBalances(response: response)
+
+        #expect(balances.count == 2)
+        #expect(balances[0].coinType == .sui)
+        #expect(balances[0].balance == 3000)
+        #expect(balances[0].addressBalance == 2000)
+        #expect(try balances[1].coinType == SuiCoinObject.CoinType(string: usdc))
+        #expect(balances[1].balance == 500)
+        #expect(balances[1].addressBalance == 0)
+    }
+
+    @Test
+    func skipsBalancesWithGenericCoinType() throws {
+        var response = Sui_Rpc_V2_ListBalancesResponse()
+        response.balances = [makeBalance(coinType: "0x2::lp::LP<0x2::sui::SUI, \(usdc)>", balance: 1, addressBalance: 1)]
+
+        #expect(try mapper.mapToBalances(response: response).isEmpty)
+    }
+
+    @Test
+    func skipsBalancesWithoutKnownCoinType() throws {
+        var balanceWithoutCoinType = Sui_Rpc_V2_Balance()
+        balanceWithoutCoinType.balance = 1
+
+        var genericBalanceWithoutTotal = Sui_Rpc_V2_Balance()
+        genericBalanceWithoutTotal.coinType = "0x2::lp::LP<0x2::sui::SUI, \(usdc)>"
+
+        var response = Sui_Rpc_V2_ListBalancesResponse()
+        response.balances = [
+            balanceWithoutCoinType,
+            genericBalanceWithoutTotal,
+            makeBalance(coinType: paddedSui, balance: 7, addressBalance: 2),
+        ]
+
+        let balances = try mapper.mapToBalances(response: response)
+
+        #expect(balances.count == 1)
+        #expect(balances.first?.coinType == .sui)
+        #expect(balances.first?.balance == 7)
+    }
+
+    @Test
+    func failsOnBalanceWithoutTotal() {
+        var balance = Sui_Rpc_V2_Balance()
+        balance.coinType = paddedSui
+
+        var response = Sui_Rpc_V2_ListBalancesResponse()
+        response.balances = [balance]
+
+        #expect(throws: BlockchainSdkError.self) {
+            try mapper.mapToBalances(response: response)
+        }
+    }
+
+    // MARK: - Service info
+
+    @Test
+    func mapsServiceInfo() throws {
+        var response = Sui_Rpc_V2_GetServiceInfoResponse()
+        response.chainID = "4btiuiMPvEENsttpZC7CZ53DruC3MAgfznDbASZ7DR6S"
+        response.epoch = 1292
+
+        let serviceInfo = try mapper.mapToServiceInfo(response: response)
+
+        #expect(serviceInfo.chainIdentifier == "4btiuiMPvEENsttpZC7CZ53DruC3MAgfznDbASZ7DR6S")
+        #expect(serviceInfo.epoch == 1292)
+    }
+
+    @Test
+    func serviceInfoFailsWithoutChainIdentifier() {
+        var response = Sui_Rpc_V2_GetServiceInfoResponse()
+        response.epoch = 1292
+
+        #expect(throws: BlockchainSdkError.self) {
+            try mapper.mapToServiceInfo(response: response)
+        }
+    }
 }
 
 // MARK: - Helpers
@@ -253,5 +353,13 @@ private extension SuiGRPCMapperTests {
         object.objectType = type
         object.balance = balance
         return object
+    }
+
+    func makeBalance(coinType: String, balance: UInt64, addressBalance: UInt64) -> Sui_Rpc_V2_Balance {
+        var result = Sui_Rpc_V2_Balance()
+        result.coinType = coinType
+        result.balance = balance
+        result.addressBalance = addressBalance
+        return result
     }
 }
