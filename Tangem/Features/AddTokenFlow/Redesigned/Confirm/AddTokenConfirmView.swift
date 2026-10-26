@@ -160,14 +160,17 @@ struct AddTokenConfirmView: View {
     // MARK: - Confirm Button
 
     private var confirmButton: some View {
-        TangemButton(
-            content: viewModel.confirmButtonContent,
+        TangemUI.Button(
+            label: Localization.commonConfirm,
+            accessibilityLabel: nil,
             action: viewModel.handleConfirmTap
         )
-        .setStyleType(.primary)
-        .setHorizontalLayout(.infinity)
-        .setSize(.x12)
-        .setButtonState(isLoading: viewModel.isSaving, isDisabled: viewModel.isTokenAlreadyAdded)
+        .iconEnd(viewModel.confirmButtonIcon)
+        .styleType(.primary)
+        .horizontalLayout(.infinity)
+        .size(.x12)
+        .loading(.spinner(if: viewModel.isSaving))
+        .disabled(viewModel.isTokenAlreadyAdded)
         .accessibilityIdentifier(TokenAccessibilityIdentifiers.addTokenButton)
     }
 }

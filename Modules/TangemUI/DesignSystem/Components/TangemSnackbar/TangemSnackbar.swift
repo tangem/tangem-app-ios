@@ -96,12 +96,13 @@ private extension TangemSnackbar {
     }
 
     func actionButton(_ action: Action) -> some View {
-        TangemButton(
-            content: .text(AttributedString(action.title)),
+        Button(
+            label: action.title,
+            accessibilityLabel: nil,
             action: action.handler
         )
-        .setStyleType(.secondary)
-        .setSize(.x7)
+        .styleType(.secondary(.default))
+        .size(.x7)
     }
 }
 

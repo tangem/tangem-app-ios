@@ -52,18 +52,14 @@ struct AddressBooksEmptyView: View {
     }
 
     private var addContactButton: some View {
-        TangemButton(
-            content: .combined(
-                text: AttributedString(Localization.addressBookAddContact),
-                icon: DesignSystem.Icons.SignPlus.regular20,
-                iconPosition: .right
-            ),
+        TangemUI.Button(
+            label: Localization.addressBookAddContact,
+            accessibilityLabel: nil,
             action: onAddContactTap
         )
-        .setStyleType(.primary)
-        .setCornerStyle(.rounded)
-        .setSize(.x10)
-        .setHorizontalLayout(.intrinsic)
+        .iconEnd(DesignSystem.Icons.SignPlus.regular20)
+        .styleType(.primary)
+        .size(.x10)
     }
 }
 

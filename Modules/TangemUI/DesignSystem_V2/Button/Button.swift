@@ -73,7 +73,7 @@ public struct Button: View, Setupable {
     }
 
     public var body: some View {
-        SwiftUI.Button(action: action) {
+        SwiftUI.Button(action: performActionIfIdle) {
             label
         }
         .buttonStyle(
@@ -91,6 +91,14 @@ public struct Button: View, Setupable {
 
     private var isLoading: Bool {
         loading != nil
+    }
+
+    private func performActionIfIdle() {
+        guard !isLoading else {
+            return
+        }
+
+        action()
     }
 
     private var label: some View {
