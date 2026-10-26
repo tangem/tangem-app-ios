@@ -12,7 +12,18 @@ import TangemPolymarketUI
 
 extension PolymarketEventCard.Model {
     static func displayedMarkets(of event: PolymarketEvent) -> ArraySlice<PolymarketMarket> {
-        event.markets.prefix(MappingConstants.maxDisplayedMarkets)
+        if let moneyline = event.moneyline, let draw = moneyline.draw {
+            return [moneyline.home.pick.market, draw.market, moneyline.away.pick.market][...]
+        }
+
+        return event.markets.prefix(maxDisplayedMarkets(of: event))
+    }
+
+    private static func maxDisplayedMarkets(of event: PolymarketEvent) -> Int {
+        let isThreeWayMatch = event.teams.count == MappingConstants.matchTeamsCount
+            && event.totalMarketsCount == MappingConstants.threeWayMoneylineMarketsCount
+
+        return isThreeWayMatch ? MappingConstants.threeWayMoneylineMarketsCount : MappingConstants.maxDisplayedMarkets
     }
 
     static func make(
@@ -123,6 +134,8 @@ extension PolymarketEventCard.Model {
 private extension PolymarketEventCard.Model {
     enum MappingConstants {
         static let maxDisplayedMarkets = 2
+        static let matchTeamsCount = 2
+        static let threeWayMoneylineMarketsCount = 3
         static let maxMidpointSpread: Decimal = 0.1
 
         static let volumeFormatter = MarketCapFormatter(
