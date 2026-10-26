@@ -197,7 +197,7 @@ extension TokenActionAvailabilityProvider {
         }
     }
 
-    func swapSourceAvailability(ignoreExpressState: Bool = false) -> SwapSourceActionAvailabilityStatus {
+    func swapSourceAvailability() -> SwapSourceActionAvailabilityStatus {
         if walletModel.isJointAccountParticipant {
             return .jointAccountsComingSoon
         }
@@ -233,10 +233,6 @@ extension TokenActionAvailabilityProvider {
             break
         }
 
-        if ignoreExpressState {
-            return .available
-        }
-
         switch expressSwapState() {
         case .available: return .available
         case .loading: return .expressLoading
@@ -244,17 +240,13 @@ extension TokenActionAvailabilityProvider {
         }
     }
 
-    func swapReceiveAvailability(ignoreExpressState: Bool = false) -> SwapReceiveActionAvailabilityStatus {
+    func swapReceiveAvailability() -> SwapReceiveActionAvailabilityStatus {
         if walletModel.isCustom {
             return .customToken
         }
 
         if case .assetRequirement = receiveAvailability {
             return .missingAssetRequirement
-        }
-
-        if ignoreExpressState {
-            return .available
         }
 
         switch expressSwapState() {
