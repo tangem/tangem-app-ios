@@ -93,6 +93,8 @@ struct PolymarketMyPositionsView: View {
             filterItem
                 .allowsHitTesting(false)
         }
+        .fixedSize()
+        .id(viewModel.filter)
     }
 
     @ViewBuilder
