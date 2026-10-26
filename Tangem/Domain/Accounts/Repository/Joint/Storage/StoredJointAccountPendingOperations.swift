@@ -16,8 +16,6 @@ import Foundation
 struct StoredJointAccountPendingOperations: Codable, Equatable {
     let cryptoAccountId: String
     /// Never empty: an account the listing reported nothing for has no record here at all.
-    /// - Note: Everything the listing carried, whatever stage it names — the listing dropping an operation is what
-    /// ends it, and which of them are worth showing is for whoever shows them to decide.
     let operations: [JointAccountOperation]
 }
 

@@ -18,24 +18,24 @@ import TangemFoundation
 
 @Suite("Tests for keeping a wallet's unfinished joint account operations")
 struct CommonJointAccountPendingOperationsRepositoryTests {
-    @Test("The operation the endpoint registers is stored under its account")
-    func registeredOperationIsStored() async throws {
-        let storage = JointAccountsPendingOperationsPersistentStorageStub()
+    @Test("The operation the endpoint registers is handed to the synchronizer under its account")
+    func registeredOperationIsApplied() async throws {
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub()
         let networkService = JointAccountsNetworkServiceStub(operationAnswer: Self.operation())
-        let sut = Self.makeSUT(networkService: networkService, storage: storage)
+        let sut = Self.makeSUT(networkService: networkService, synchronizer: synchronizer)
 
         let operation = try await sut.createOperation(Self.request(), forCryptoAccountId: Self.accountId)
 
         #expect(operation == Self.operation())
         #expect(networkService.createdRequests == [Self.request()])
-        #expect(storage.records == [Self.record(operations: [Self.operation()])])
+        #expect(synchronizer.appliedUpdates == [.operation(Self.operation(), cryptoAccountId: Self.accountId)])
     }
 
-    @Test("A signed operation is sent with its transaction and signature and stored as the endpoint now reports it")
-    func signedOperationReplacesTheStoredOne() async throws {
-        let storage = JointAccountsPendingOperationsPersistentStorageStub(records: [Self.record(operations: [Self.operation()])])
+    @Test("A signed operation is sent with its transaction and signature, and the endpoint's answer is applied")
+    func signedOperationIsApplied() async throws {
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub()
         let networkService = JointAccountsNetworkServiceStub(operationAnswer: Self.operation(status: .pending))
-        let sut = Self.makeSUT(networkService: networkService, storage: storage)
+        let sut = Self.makeSUT(networkService: networkService, synchronizer: synchronizer)
 
         try await sut.signOperation(
             id: Self.operationId,
@@ -49,39 +49,39 @@ struct CommonJointAccountPendingOperationsRepositoryTests {
         #expect(signed.id == Self.operationId)
         #expect(signed.safeTransaction == Self.safeTransaction())
         #expect(signed.signature == Self.signature)
-        #expect(storage.records == [Self.record(operations: [Self.operation(status: .pending)])])
+        #expect(synchronizer.appliedUpdates == [.operation(Self.operation(status: .pending), cryptoAccountId: Self.accountId)])
     }
 
-    @Test("A rejected operation the endpoint still reports is stored as it now stands")
-    func rejectedOperationStillReportedIsStored() async throws {
-        let storage = JointAccountsPendingOperationsPersistentStorageStub(records: [Self.record(operations: [Self.operation()])])
-        let networkService = JointAccountsNetworkServiceStub(operationAnswer: Self.operation(signatures: [Self.signed, Self.declined]))
-        let sut = Self.makeSUT(networkService: networkService, storage: storage)
+    @Test("A rejected operation the endpoint still reports is applied as it now stands")
+    func rejectedOperationStillReportedIsApplied() async throws {
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub()
+        let answer = Self.operation(signatures: [Self.signed, Self.declined])
+        let networkService = JointAccountsNetworkServiceStub(operationAnswer: answer)
+        let sut = Self.makeSUT(networkService: networkService, synchronizer: synchronizer)
 
         try await sut.rejectOperation(id: Self.operationId, forCryptoAccountId: Self.accountId)
 
         #expect(networkService.rejectedOperationIds == [Self.operationId])
-        #expect(storage.records == [Self.record(operations: [Self.operation(signatures: [Self.signed, Self.declined])])])
+        #expect(synchronizer.appliedUpdates == [.operation(answer, cryptoAccountId: Self.accountId)])
     }
 
-    @Test("A rejected operation the endpoint deleted is dropped from the store")
-    func rejectedOperationDeletedByTheEndpointIsDropped() async throws {
-        let storage = JointAccountsPendingOperationsPersistentStorageStub(records: [Self.record(operations: [Self.operation()])])
+    @Test("A rejected operation the endpoint deleted is removed")
+    func rejectedOperationDeletedByTheEndpointIsRemoved() async throws {
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub()
         let networkService = JointAccountsNetworkServiceStub(operationAnswer: nil)
-        let sut = Self.makeSUT(networkService: networkService, storage: storage)
+        let sut = Self.makeSUT(networkService: networkService, synchronizer: synchronizer)
 
         try await sut.rejectOperation(id: Self.operationId, forCryptoAccountId: Self.accountId)
 
         #expect(networkService.rejectedOperationIds == [Self.operationId])
-        #expect(storage.records.flatMap(\.operations).isEmpty)
+        #expect(synchronizer.appliedUpdates == [.operationRemoved(id: Self.operationId, cryptoAccountId: Self.accountId)])
     }
 
-    @Test("Nothing is sent to the endpoint while the feature is off, and what is stored stands")
+    @Test("Nothing is sent or applied while the feature is off")
     func nothingIsSentWhileTheFeatureIsOff() async throws {
-        let stored = Self.record(operations: [Self.operation()])
-        let storage = JointAccountsPendingOperationsPersistentStorageStub(records: [stored])
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub()
         let networkService = JointAccountsNetworkServiceStub(operationAnswer: Self.operation(status: .pending))
-        let sut = Self.makeSUT(networkService: networkService, storage: storage, isJointAccountsAvailable: false)
+        let sut = Self.makeSUT(networkService: networkService, synchronizer: synchronizer, isJointAccountsAvailable: false)
 
         await #expect(throws: CommonJointAccountPendingOperationsRepository.InternalError.featureUnavailable) {
             try await sut.createOperation(Self.request(), forCryptoAccountId: Self.accountId)
@@ -99,23 +99,19 @@ struct CommonJointAccountPendingOperationsRepositoryTests {
         }
 
         #expect(networkService.operationCallsCount == 0)
-        #expect(storage.records == [stored])
+        #expect(synchronizer.appliedUpdates.isEmpty)
     }
 
-    @Test("What is stored is emitted right away, and what is written to the storage afterwards follows")
-    func publisherFollowsTheStorage() async throws {
+    @Test("What the synchronizer holds is what the repository hands out")
+    func pendingOperationsFollowTheSynchronizer() async throws {
         let stored = Self.record(operations: [Self.operation()])
-        let storage = JointAccountsPendingOperationsPersistentStorageStub(records: [stored])
-        let sut = Self.makeSUT(networkService: JointAccountsNetworkServiceStub(), storage: storage)
-        var iterator = await sut.pendingOperationsPublisher.values_.makeAsyncIterator()
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub(pendingOperations: [stored])
+        let sut = Self.makeSUT(networkService: JointAccountsNetworkServiceStub(), synchronizer: synchronizer)
 
-        let emittedFirst = await iterator.next()
-        try storage.replace(with: [])
-        let emittedNext = await iterator.next()
+        let emitted = try await sut.pendingOperationsPublisher.async()
 
-        #expect(emittedFirst == [stored])
-        #expect(emittedNext == [])
-        withExtendedLifetime(sut) {}
+        #expect(sut.pendingOperations == [stored])
+        #expect(emitted == [stored])
     }
 }
 
@@ -134,12 +130,12 @@ private extension CommonJointAccountPendingOperationsRepositoryTests {
 
     static func makeSUT(
         networkService: JointAccountsNetworkService,
-        storage: JointAccountsPendingOperationsPersistentStorage,
+        synchronizer: JointAccountPendingOperationsSynchronizer,
         isJointAccountsAvailable: Bool = true
     ) -> CommonJointAccountPendingOperationsRepository {
         CommonJointAccountPendingOperationsRepository(
             networkService: networkService,
-            persistentStorage: storage,
+            synchronizer: synchronizer,
             isJointAccountsAvailable: isJointAccountsAvailable
         )
     }

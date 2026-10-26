@@ -25,6 +25,22 @@ struct JointAccountOperation: Hashable, Identifiable, Codable {
 }
 
 extension JointAccountOperation {
+    func settingFinishedAt(_ finishedAt: Date) -> JointAccountOperation {
+        JointAccountOperation(
+            id: id,
+            chainId: chainId,
+            safeTransaction: safeTransaction,
+            status: status,
+            txHash: txHash,
+            finishedAt: finishedAt,
+            cancelReason: cancelReason,
+            initiator: initiator,
+            signatures: signatures
+        )
+    }
+}
+
+extension JointAccountOperation {
     struct Signature: Hashable, Codable {
         /// - Warning: Raw values are what a stored record keeps, so they cannot change silently.
         enum State: String, Hashable, Codable {

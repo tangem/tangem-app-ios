@@ -204,13 +204,13 @@ private extension CommonUserWalletModelDependencies {
 
         let isJointAccountsAvailable = FeatureProvider.isAvailable(.jointAccounts)
         let jointAccountsNetworkService = CommonJointAccountsNetworkService(userWalletId: userWalletId)
-        let jointAccountsPendingOperationsPersistentStorage = CommonJointAccountsPendingOperationsPersistentStorage(
-            storageIdentifier: userWalletId.stringValue
+        let jointAccountPendingOperationsSynchronizer = CommonJointAccountPendingOperationsSynchronizer(
+            persistentStorage: CommonJointAccountsPendingOperationsPersistentStorage(storageIdentifier: userWalletId.stringValue)
         )
 
         let jointAccountPendingOperationsRepository = CommonJointAccountPendingOperationsRepository(
             networkService: jointAccountsNetworkService,
-            persistentStorage: jointAccountsPendingOperationsPersistentStorage,
+            synchronizer: jointAccountPendingOperationsSynchronizer,
             isJointAccountsAvailable: isJointAccountsAvailable
         )
 
@@ -220,7 +220,7 @@ private extension CommonUserWalletModelDependencies {
             derivationInteractorFactory: jointAccountDerivationInteractorFactory,
             persistentStorage: CommonJointAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue),
             invitesPersistentStorage: CommonJointAccountsInvitesPersistentStorage(storageIdentifier: userWalletId.stringValue),
-            pendingOperationsPersistentStorage: jointAccountsPendingOperationsPersistentStorage,
+            pendingOperationsSynchronizer: jointAccountPendingOperationsSynchronizer,
             eTagStorage: InjectedValues[\.eTagStorage],
             isJointAccountsAvailable: isJointAccountsAvailable
         )

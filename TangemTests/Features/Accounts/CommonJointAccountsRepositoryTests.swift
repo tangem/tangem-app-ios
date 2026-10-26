@@ -76,7 +76,11 @@ struct CommonJointAccountsRepositoryTests {
             Self.remoteAccount(status: .active(safeAddress: "0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21b"), operations: [operation]),
             Self.remoteAccount(cryptoAccountId: Self.otherAccountId),
         ])
-        let sut = Self.makeSUT(networkService: networkService, storage: storage, pendingOperationsStorage: pendingOperationsStorage)
+        let sut = Self.makeSUT(
+            networkService: networkService,
+            storage: storage,
+            pendingOperationsSynchronizer: CommonJointAccountPendingOperationsSynchronizer(persistentStorage: pendingOperationsStorage)
+        )
 
         try await sut.loadJointAccountsFromRemote()
 
@@ -91,7 +95,11 @@ struct CommonJointAccountsRepositoryTests {
             StoredJointAccountPendingOperations(cryptoAccountId: Self.accountId, operations: [Self.operation()]),
         ])
         let networkService = JointAccountsNetworkServiceStub(jointAccounts: [Self.remoteAccount()])
-        let sut = Self.makeSUT(networkService: networkService, storage: storage, pendingOperationsStorage: pendingOperationsStorage)
+        let sut = Self.makeSUT(
+            networkService: networkService,
+            storage: storage,
+            pendingOperationsSynchronizer: CommonJointAccountPendingOperationsSynchronizer(persistentStorage: pendingOperationsStorage)
+        )
 
         try await sut.loadJointAccountsFromRemote()
 
@@ -248,6 +256,63 @@ struct CommonJointAccountsRepositoryTests {
         #expect(storage.accounts.first?.status == .confirming(safeAddress: Self.safeAddress))
     }
 
+    @Test("A listing answered after an operation was written locally keeps that operation, and its tag is not kept")
+    func aListingAnsweredAfterALocalWriteKeepsIt() async throws {
+        let operation = Self.operation()
+        let storage = JointAccountsPersistentStorageStub(accounts: [])
+        let pendingOperationsStorage = JointAccountsPendingOperationsPersistentStorageStub()
+        let synchronizer = CommonJointAccountPendingOperationsSynchronizer(persistentStorage: pendingOperationsStorage)
+        let eTagStorage = JointAccountsETagStorageStub()
+        let networkService = JointAccountsNetworkServiceStub(
+            suspendedFirstAnswer: .changed([Self.remoteAccount(status: .active(safeAddress: Self.safeAddress))], eTag: "stale-etag")
+        )
+        let sut = Self.makeSUT(
+            networkService: networkService,
+            storage: storage,
+            pendingOperationsSynchronizer: synchronizer,
+            eTagStorage: eTagStorage
+        )
+
+        let read = Task { try await sut.loadJointAccountsFromRemote() }
+        await networkService.waitForFirstRequest()
+        try await synchronizer.apply(.operation(operation, cryptoAccountId: Self.accountId))
+        networkService.answerFirstRequest()
+        try await read.value
+
+        #expect(pendingOperationsStorage.records == [StoredJointAccountPendingOperations(cryptoAccountId: Self.accountId, operations: [operation])])
+        #expect(networkService.getJointAccountsCallsCount == 1)
+        #expect(eTagStorage.eTag == nil)
+        #expect(storage.accounts.map(\.cryptoAccountId) == [Self.accountId])
+    }
+
+    @Test("The read after a listing that a local write was replayed over is a full one, and it is taken as it is")
+    func theReadAfterAReplayedListingIsAFullOne() async throws {
+        let storage = JointAccountsPersistentStorageStub(accounts: [])
+        let pendingOperationsStorage = JointAccountsPendingOperationsPersistentStorageStub()
+        let synchronizer = CommonJointAccountPendingOperationsSynchronizer(persistentStorage: pendingOperationsStorage)
+        let eTagStorage = JointAccountsETagStorageStub()
+        let networkService = JointAccountsNetworkServiceStub(
+            suspendedFirstAnswer: .changed([Self.remoteAccount(status: .active(safeAddress: Self.safeAddress))], eTag: "stale-etag")
+        )
+        let sut = Self.makeSUT(
+            networkService: networkService,
+            storage: storage,
+            pendingOperationsSynchronizer: synchronizer,
+            eTagStorage: eTagStorage
+        )
+
+        let read = Task { try await sut.loadJointAccountsFromRemote() }
+        await networkService.waitForFirstRequest()
+        try await synchronizer.apply(.operation(Self.operation(), cryptoAccountId: Self.accountId))
+        networkService.answerFirstRequest()
+        try await read.value
+        try await sut.loadJointAccountsFromRemote()
+
+        #expect(networkService.sentKnownETags == [nil, nil])
+        #expect(pendingOperationsStorage.records.isEmpty)
+        #expect(eTagStorage.eTag == JointAccountsNetworkServiceStub.listingETag)
+    }
+
     @Test("A wallet with nothing stored reads the list in full, so a tag that outlived the storage cannot answer it with a 304", arguments: [false, true])
     func theKnownETagIsSentOnlyOverAStoredList(hasStoredAccounts: Bool) async throws {
         let storage = JointAccountsPersistentStorageStub(accounts: hasStoredAccounts ? [Self.storedAccount()] : [])
@@ -290,6 +355,16 @@ struct CommonJointAccountsRepositoryTests {
 
         #expect(mode == .idle)
     }
+
+    @Test("A finished operation kept for the day does not keep the listing polling")
+    func finishedOperationsAreNotPolled() {
+        let mode = Self.pollingMode(
+            pendingOperations: [StoredJointAccountPendingOperations(cryptoAccountId: Self.accountId, operations: [Self.operation(status: .executed)])],
+            accounts: [Self.storedAccount(status: .active(safeAddress: Self.safeAddress))]
+        )
+
+        #expect(mode == .idle)
+    }
 }
 
 // MARK: - Helpers
@@ -302,7 +377,9 @@ private extension CommonJointAccountsRepositoryTests {
         networkService: JointAccountsNetworkService,
         storage: JointAccountsPersistentStorage,
         invitesStorage: JointAccountsInvitesPersistentStorage = JointAccountsInvitesPersistentStorageStub(),
-        pendingOperationsStorage: JointAccountsPendingOperationsPersistentStorage = JointAccountsPendingOperationsPersistentStorageStub(),
+        pendingOperationsSynchronizer: JointAccountPendingOperationsSynchronizer = CommonJointAccountPendingOperationsSynchronizer(
+            persistentStorage: JointAccountsPendingOperationsPersistentStorageStub()
+        ),
         eTagStorage: ETagStorage = JointAccountsETagStorageStub(),
         isJointAccountsAvailable: Bool = true
     ) -> CommonJointAccountsRepository {
@@ -312,7 +389,7 @@ private extension CommonJointAccountsRepositoryTests {
             derivationInteractorFactory: JointAccountDerivationInteractorFactory(),
             persistentStorage: storage,
             invitesPersistentStorage: invitesStorage,
-            pendingOperationsPersistentStorage: pendingOperationsStorage,
+            pendingOperationsSynchronizer: pendingOperationsSynchronizer,
             eTagStorage: eTagStorage,
             isJointAccountsAvailable: isJointAccountsAvailable
         )
@@ -375,7 +452,7 @@ private extension CommonJointAccountsRepositoryTests {
         )
     }
 
-    static func operation(chainId: Int = 1) -> JointAccountOperation {
+    static func operation(chainId: Int = 1, status: JointAccountOperationStatus = .awaitingSignatures) -> JointAccountOperation {
         JointAccountOperation(
             id: "0E2F4A6C-8D0B-4C5E-9F1A-2D4B6C8E0F2A",
             chainId: chainId,
@@ -391,7 +468,7 @@ private extension CommonJointAccountsRepositoryTests {
                 refundReceiver: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
                 nonce: 7
             ),
-            status: .awaitingSignatures,
+            status: status,
             txHash: nil,
             finishedAt: nil,
             cancelReason: nil,

@@ -35,41 +35,4 @@ final class JointAccountsPendingOperationsPersistentStorageStub: JointAccountsPe
         recordsLock.withLock { $0 = records }
         didUpdateSubject.send()
     }
-
-    func appendNewOrUpdateExisting(_ operation: JointAccountOperation, forCryptoAccountId cryptoAccountId: String) throws {
-        edit(operationsForCryptoAccountId: cryptoAccountId) { operations in
-            if let index = operations.firstIndex(where: { $0.id == operation.id }) {
-                operations[index] = operation
-            } else {
-                operations.append(operation)
-            }
-        }
-    }
-
-    func remove(operationWithId operationId: String, forCryptoAccountId cryptoAccountId: String) throws {
-        edit(operationsForCryptoAccountId: cryptoAccountId) { operations in
-            operations.removeAll { $0.id == operationId }
-        }
-    }
-
-    private func edit(operationsForCryptoAccountId cryptoAccountId: String, _ edit: (inout [JointAccountOperation]) -> Void) {
-        recordsLock.withLock { records in
-            let index = records.firstIndex(by: cryptoAccountId)
-            var operations = index.map { records[$0].operations } ?? []
-            edit(&operations)
-
-            switch (index, operations.isEmpty) {
-            case (let index?, true):
-                records.remove(at: index)
-            case (let index?, false):
-                records[index] = StoredJointAccountPendingOperations(cryptoAccountId: cryptoAccountId, operations: operations)
-            case (nil, true):
-                return
-            case (nil, false):
-                records.append(StoredJointAccountPendingOperations(cryptoAccountId: cryptoAccountId, operations: operations))
-            }
-        }
-
-        didUpdateSubject.send()
-    }
 }
