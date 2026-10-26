@@ -42,8 +42,7 @@ struct PolymarketWebSocketSubscriptionClientTests {
     @Test("A reader coming back before the socket closes gets no value cached for the readers that left")
     func quickReturnDoesNotReplayOldValues() async throws {
         let env = makeSUT()
-        let reader = await env.read(["a"])
-        let connection = try await env.transport.connections.element(at: 0)
+        let (reader, connection) = try await env.readOneTopic()
 
         connection.receive("a=1")
         #expect(try await reader.values.element(at: 0) == 1)
@@ -61,8 +60,7 @@ struct PolymarketWebSocketSubscriptionClientTests {
     @Test("A reader coming back after the socket closed gets no value from the previous connection")
     func returnAfterDisconnectDoesNotReplayOldValues() async throws {
         let env = makeSUT()
-        let reader = await env.read(["a"])
-        let connection = try await env.transport.connections.element(at: 0)
+        let (reader, connection) = try await env.readOneTopic()
 
         connection.receive("a=1")
         #expect(try await reader.values.element(at: 0) == 1)
@@ -102,8 +100,7 @@ struct PolymarketWebSocketSubscriptionClientTests {
     @Test("Silence is counted from the last data, not from the connection")
     func silenceIsCountedFromTheLastData() async throws {
         let env = makeSUT()
-        let reader = await env.read(["a"])
-        let connection = try await env.transport.connections.element(at: 0)
+        let (reader, connection) = try await env.readOneTopic()
         try await env.delayProvider.parkedWaits(of: Constants.silenceTimeout, count: 1)
 
         env.clock.advance(by: .seconds(30))
@@ -126,8 +123,7 @@ struct PolymarketWebSocketSubscriptionClientTests {
     @Test("Data arriving after the silence probe keeps the socket open")
     func answeredProbeKeepsTheConnection() async throws {
         let env = makeSUT()
-        let reader = await env.read(["a"])
-        let connection = try await env.transport.connections.element(at: 0)
+        let (reader, connection) = try await env.readOneTopic()
 
         try await env.probe(connection)
         env.clock.advance(by: .seconds(1))
@@ -159,8 +155,7 @@ struct PolymarketWebSocketSubscriptionClientTests {
     @Test("Silence with no readers left only starts a new countdown")
     func silenceWithoutReadersOnlyRearms() async throws {
         let env = makeSUT()
-        let reader = await env.read(["a"])
-        let connection = try await env.transport.connections.element(at: 0)
+        let (reader, connection) = try await env.readOneTopic()
         try await env.delayProvider.parkedWaits(of: Constants.silenceTimeout, count: 1)
 
         reader.stop()
@@ -204,10 +199,16 @@ private extension PolymarketWebSocketSubscriptionClientTests {
             ReaderSpy(stream: await sut.values(for: topics))
         }
 
-        func readTwoTopics() async throws -> (ReaderSpy, ReaderSpy, WebSocketConnectionSpy) {
-            let readerOfA = await read(["a"])
+        func readOneTopic() async throws -> (ReaderSpy, WebSocketConnectionSpy) {
+            let reader = await read(["a"])
             let connection = try await transport.connections.element(at: 0)
             try await connection.sent.element(at: 0)
+
+            return (reader, connection)
+        }
+
+        func readTwoTopics() async throws -> (ReaderSpy, ReaderSpy, WebSocketConnectionSpy) {
+            let (readerOfA, connection) = try await readOneTopic()
 
             let readerOfB = await read(["b"])
             try await connection.sent.element(at: 1)

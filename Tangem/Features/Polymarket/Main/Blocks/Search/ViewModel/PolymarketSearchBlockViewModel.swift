@@ -24,7 +24,7 @@ final class PolymarketSearchBlockViewModel: ObservableObject {
     }
 
     @Published private(set) var isSearching = false
-    @Published private(set) var eventCards: [PolymarketEventCard.Model] = []
+    @Published private(set) var eventCards: [PolymarketFeedCard] = []
     @Published private(set) var state: State = .prompt
 
     private let apiProvider: PolymarketAPIProvider
@@ -313,13 +313,12 @@ private extension PolymarketSearchBlockViewModel {
         hasNext = false
     }
 
-    func makeCard(for event: PolymarketEvent) -> PolymarketEventCard.Model {
+    func makeCard(for event: PolymarketEvent) -> PolymarketFeedCard {
         .make(
             event: event,
-            category: nil,
-            isInActivePredicts: false,
-            isLiveBadgePulsing: usesPhaseTwoCards,
-            outcomeLabelStyle: usesPhaseTwoCards ? .compact : .bulletSeparated,
+            usesPhaseTwoCards: usesPhaseTwoCards,
+            liveGame: nil,
+            liveQuotesByAssetId: [:],
             onSelectOutcome: { [weak self, eventID = event.id] market, outcome in
                 self?.openOrder(eventID: eventID, marketID: market.id, assetId: outcome.assetId)
             }
