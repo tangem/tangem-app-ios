@@ -48,8 +48,7 @@ final class TangemPayEligibilityUITests: BaseTestCase {
 
         launchAndImportHotWallet(
             eligibilityState: Constants.State.wallet2NotCustomer,
-            scenarios: [ScenarioConfig(name: Constants.Scenario.channels, initialState: Constants.State.bannerChannel)],
-            featureToggles: Constants.marketingBannersShownWithSystemCards
+            scenarios: [ScenarioConfig(name: Constants.Scenario.channels, initialState: Constants.State.bannerChannel)]
         )
         .verifyTangemPayTileExists()
         .addNewWallet(name: .wallet2)
@@ -67,17 +66,15 @@ final class TangemPayEligibilityUITests: BaseTestCase {
     }
 
     private func launchWithoutTangemPay(channelsState: String) -> MainScreen {
-        launchAndImportHotWallet(
+        launchAndImportHotWalletWithoutSystemBanners(
             eligibilityState: Constants.State.notCustomer,
-            scenarios: [ScenarioConfig(name: Constants.Scenario.channels, initialState: channelsState)],
-            featureToggles: Constants.marketingBannersShownWithSystemCards
+            scenarios: [ScenarioConfig(name: Constants.Scenario.channels, initialState: channelsState)]
         )
     }
 }
 
 private extension TangemPayEligibilityUITests {
     enum Constants {
-        static let marketingBannersShownWithSystemCards = ["TWI-1841_hide_marketing_banners_while_system": false]
         static let channelsEndpoint = "/bff-v2/v1/eligibility/channels"
 
         enum Scenario {
