@@ -32,7 +32,7 @@ extension PolymarketPositionDetailsView.Model {
             notice: notice(position: position),
             openEventDetails: openEventDetails,
             secondaryAction: action(
-                title: Localization.commonClose,
+                title: Localization.predictionCashOut,
                 isEnabled: canTrade(position) && !isOrderLoading,
                 isLoading: loadingSide == .sell,
                 perform: onClosePosition
