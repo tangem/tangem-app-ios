@@ -29,6 +29,19 @@ struct SuiGetCoins {
     let nextCursor: String?
 }
 
+struct SuiBalance {
+    let coinType: SuiCoinObject.CoinType
+    let balance: Decimal
+    let addressBalance: Decimal
+}
+
+// MARK: - ServiceInfo
+
+struct SuiServiceInfo {
+    let chainIdentifier: String
+    let epoch: UInt64
+}
+
 // MARK: - GasPrice
 
 typealias SuiReferenceGasPrice = String

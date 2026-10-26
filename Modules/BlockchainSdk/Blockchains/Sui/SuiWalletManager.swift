@@ -21,27 +21,22 @@ final class SuiWalletManager: BaseWalletManager, WalletManager {
 
     func updateWalletManager(address: String) async throws {
         do {
-            let result = try await networkService.getBalance(address: address, coinType: .sui, cursor: nil).async()
-            let coins = try result.get()
-            updateWallet(coins: coins, tokens: cardTokens)
+            async let balances = networkService.getBalances(address: address).async()
+            async let coins = networkService.getCoins(address: address).async()
 
+            try await updateWallet(balances: balances, coins: coins, tokens: cardTokens)
         } catch {
             wallet.clearAmounts()
             throw error
         }
     }
 
-    func updateWallet(coins: [SuiGetCoins.Coin], tokens: [Token]) {
+    func updateWallet(balances: [SuiBalance], coins: [SuiGetCoins.Coin], tokens: [Token]) {
         let objects = coins.compactMap {
             try? SuiCoinObject.from($0)
         }
 
-        let totalBalance = objects
-            .filter { $0.coinType == SuiCoinObject.CoinType.sui }
-            .reduce(into: Decimal.zero) { partialResult, coin in
-                partialResult += coin.balance
-            }
-
+        let totalBalance = balances.first { $0.coinType == .sui }?.balance ?? .zero
         let coinValue = totalBalance / wallet.blockchain.decimalValue
 
         if coinValue != wallet.amounts[.coin]?.value {
@@ -49,25 +44,15 @@ final class SuiWalletManager: BaseWalletManager, WalletManager {
         }
 
         for token in tokens {
-            let tokenBalance = objects
-                .filter {
-                    do {
-                        let normalizeContractType = try SuiCoinObject.CoinType(string: token.contractAddress)
-                        return $0.coinType.string == normalizeContractType.string
-                    } catch {
-                        return false
-                    }
-                }
-                .reduce(into: Decimal.zero) { partialResult, coin in
-                    partialResult += coin.balance
-                }
+            let coinType = try? SuiCoinObject.CoinType(string: token.contractAddress)
+            let tokenBalance = balances.first { $0.coinType == coinType }?.balance ?? .zero
 
             let decimalTokenBalance = tokenBalance / token.decimalValue
             wallet.add(tokenValue: decimalTokenBalance, for: token)
         }
 
         wallet.add(coinValue: coinValue)
-        transactionBuilder.update(coins: objects)
+        transactionBuilder.update(coins: objects, balances: balances)
     }
 }
 
@@ -80,13 +65,21 @@ extension SuiWalletManager: BlockchainDataProvider {
 extension SuiWalletManager: TransactionFeeProvider {
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], any Error> {
         return networkService.getReferenceGasPrice()
+            .zip(getServiceInfoIfNeeded())
             .withWeakCaptureOf(self)
-            .flatMap { manager, referencedGasPrice -> AnyPublisher<SuiInspectTransaction, any Error> in
+            .flatMap { manager, output -> AnyPublisher<SuiInspectTransaction, any Error> in
+                let (referencedGasPrice, serviceInfo) = output
+
                 guard let decimalGasPrice = Decimal(stringValue: referencedGasPrice) else {
                     return .anyFail(error: BlockchainSdkError.failedToParseNetworkResponse())
                 }
 
-                return manager.estimateFee(amount: amount, destination: destination, referenceGasPrice: decimalGasPrice)
+                return manager.estimateFee(
+                    amount: amount,
+                    destination: destination,
+                    referenceGasPrice: decimalGasPrice,
+                    serviceInfo: serviceInfo
+                )
             }
             .withWeakCaptureOf(self)
             .tryMap { manager, inspectTransaction in
@@ -111,9 +104,19 @@ extension SuiWalletManager: TransactionFeeProvider {
             .eraseToAnyPublisher()
     }
 
-    private func estimateFee(amount: Amount, destination: String, referenceGasPrice: Decimal) -> AnyPublisher<SuiInspectTransaction, any Error> {
+    private func estimateFee(
+        amount: Amount,
+        destination: String,
+        referenceGasPrice: Decimal,
+        serviceInfo: SuiServiceInfo?
+    ) -> AnyPublisher<SuiInspectTransaction, any Error> {
         return Result {
-            try transactionBuilder.buildForInspect(amount: amount, destination: destination, referenceGasPrice: referenceGasPrice)
+            try transactionBuilder.buildForInspect(
+                amount: amount,
+                destination: destination,
+                referenceGasPrice: referenceGasPrice,
+                serviceInfo: serviceInfo
+            )
         }
         .publisher
         .withWeakCaptureOf(self)
@@ -123,7 +126,7 @@ extension SuiWalletManager: TransactionFeeProvider {
         .mapError { [weak self] error in
             guard
                 let self,
-                transactionBuilder.checkIfCoinGasBalanceIsNotEnoughForTokenTransaction()
+                transactionBuilder.checkIfSuiBalanceIsNotEnoughForTokenTransaction()
             else {
                 return error
             }
@@ -136,36 +139,57 @@ extension SuiWalletManager: TransactionFeeProvider {
 
 extension SuiWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: any TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        return Result {
-            try transactionBuilder.buildForSign(transaction: transaction)
-        }
-        .publisher
-        .withWeakCaptureOf(self)
-        .flatMap { (manager, dataHash: Data) -> AnyPublisher<SignatureInfo, Error> in
-            signer.sign(hash: dataHash, walletPublicKey: manager.wallet.publicKey)
-        }
-        .withWeakCaptureOf(self)
-        .tryMap { manager, signatureInfo -> (txBytes: String, signature: String) in
-            let output = try manager.transactionBuilder.buildForSend(transaction: transaction, signature: signatureInfo.signature)
-            return output
-        }
-        .withWeakCaptureOf(self)
-        .flatMap { manager, builtTransaction -> AnyPublisher<SuiExecuteTransaction, Error> in
-            return manager.networkService
-                .sendTransaction(transaction: builtTransaction.txBytes, signature: builtTransaction.signature)
-                .mapAndEraseSendTxError(tx: builtTransaction.txBytes, currentHost: manager.currentHost)
-                .eraseToAnyPublisher()
-        }
-        .withWeakCaptureOf(self)
-        .tryMap { manager, tx in
-            let mapper = PendingTransactionRecordMapper()
-            let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: tx.digest)
+        return getServiceInfoIfNeeded()
+            .withWeakCaptureOf(self)
+            .tryMap { manager, serviceInfo -> (transactionBytes: String, dataHash: Data) in
+                let transactionBytes = try manager.transactionBuilder.buildTransaction(transaction: transaction, serviceInfo: serviceInfo)
+                let dataHash = try manager.transactionBuilder.buildForSign(transactionBytes: transactionBytes)
+                return (transactionBytes, dataHash)
+            }
+            .withWeakCaptureOf(self)
+            .flatMap { manager, output -> AnyPublisher<(transactionBytes: String, signatureInfo: SignatureInfo), Error> in
+                signer.sign(hash: output.dataHash, walletPublicKey: manager.wallet.publicKey)
+                    .map { (output.transactionBytes, $0) }
+                    .eraseToAnyPublisher()
+            }
+            .withWeakCaptureOf(self)
+            .tryMap { manager, output -> (txBytes: String, signature: String) in
+                try manager.transactionBuilder.buildForSend(
+                    transactionBytes: output.transactionBytes,
+                    signature: output.signatureInfo.signature
+                )
+            }
+            .withWeakCaptureOf(self)
+            .flatMap { manager, builtTransaction -> AnyPublisher<SuiExecuteTransaction, Error> in
+                return manager.networkService
+                    .sendTransaction(transaction: builtTransaction.txBytes, signature: builtTransaction.signature)
+                    .mapAndEraseSendTxError(tx: builtTransaction.txBytes, currentHost: manager.currentHost)
+                    .eraseToAnyPublisher()
+            }
+            .withWeakCaptureOf(self)
+            .tryMap { manager, tx in
+                let mapper = PendingTransactionRecordMapper()
+                let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: tx.digest)
 
-            manager.wallet.addPendingTransaction(record)
+                manager.wallet.addPendingTransaction(record)
 
-            return TransactionSendResult(hash: tx.digest, currentProviderHost: manager.currentHost)
+                return TransactionSendResult(hash: tx.digest, currentProviderHost: manager.currentHost)
+            }
+            .mapSendTxError(currentHost: currentHost)
+            .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - Private
+
+private extension SuiWalletManager {
+    func getServiceInfoIfNeeded() -> AnyPublisher<SuiServiceInfo?, Error> {
+        guard transactionBuilder.requiresServiceInfo else {
+            return .justWithError(output: nil)
         }
-        .mapSendTxError(currentHost: currentHost)
-        .eraseToAnyPublisher()
+
+        return networkService.getServiceInfo()
+            .map { $0 }
+            .eraseToAnyPublisher()
     }
 }
