@@ -9,42 +9,20 @@
 import Foundation
 import Combine
 import BlockchainSdk
-import CombineExt
-import TangemFoundation
 
 final class CommonJointAccountPendingOperationsRepository {
     private let networkService: JointAccountsNetworkService
-    private let persistentStorage: JointAccountsPendingOperationsPersistentStorage
+    private let synchronizer: JointAccountPendingOperationsSynchronizer
     private let isJointAccountsAvailable: Bool
-
-    private let storageReadingQueue = DispatchQueue(
-        label: "com.tangem.CommonJointAccountPendingOperationsRepository.storageReadingQueue",
-        qos: .userInitiated
-    )
-
-    /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
-    private lazy var storageDidUpdatePublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> = persistentStorage
-        .didUpdatePublisher
-        .prepend(()) // An initial value to trigger loading from storage
-        .receive(on: storageReadingQueue)
-        .withWeakCaptureOf(self)
-        .map { repository, _ in repository.persistentStorage.getList() }
-        .removeDuplicates()
-        .receiveOnMain()
-        .share(replay: 1)
-        .eraseToAnyPublisher()
 
     init(
         networkService: JointAccountsNetworkService,
-        persistentStorage: JointAccountsPendingOperationsPersistentStorage,
+        synchronizer: JointAccountPendingOperationsSynchronizer,
         isJointAccountsAvailable: Bool
     ) {
         self.networkService = networkService
-        self.persistentStorage = persistentStorage
+        self.synchronizer = synchronizer
         self.isJointAccountsAvailable = isJointAccountsAvailable
-
-        // Eager initialization of these lazy properties to ensure that there are no race conditions
-        _ = storageDidUpdatePublisher
     }
 }
 
@@ -52,11 +30,11 @@ final class CommonJointAccountPendingOperationsRepository {
 
 extension CommonJointAccountPendingOperationsRepository: JointAccountPendingOperationsRepository {
     var pendingOperations: [StoredJointAccountPendingOperations] {
-        persistentStorage.getList()
+        synchronizer.pendingOperations
     }
 
     var pendingOperationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> {
-        storageDidUpdatePublisher
+        synchronizer.pendingOperationsPublisher
     }
 
     func createOperation(_ request: JointAccountOperationRequest, forCryptoAccountId cryptoAccountId: String) async throws -> JointAccountOperation {
@@ -65,7 +43,7 @@ extension CommonJointAccountPendingOperationsRepository: JointAccountPendingOper
         }
 
         let operation = try await networkService.createOperation(request)
-        try persistentStorage.appendNewOrUpdateExisting(operation, forCryptoAccountId: cryptoAccountId)
+        try await synchronizer.apply(.operation(operation, cryptoAccountId: cryptoAccountId))
 
         return operation
     }
@@ -76,7 +54,7 @@ extension CommonJointAccountPendingOperationsRepository: JointAccountPendingOper
         }
 
         let operation = try await networkService.signOperation(id: id, safeTransaction: safeTransaction, signature: signature)
-        try persistentStorage.appendNewOrUpdateExisting(operation, forCryptoAccountId: cryptoAccountId)
+        try await synchronizer.apply(.operation(operation, cryptoAccountId: cryptoAccountId))
     }
 
     func rejectOperation(id: String, forCryptoAccountId cryptoAccountId: String) async throws {
@@ -85,11 +63,11 @@ extension CommonJointAccountPendingOperationsRepository: JointAccountPendingOper
         }
 
         guard let operation = try await networkService.rejectOperation(id: id) else {
-            try persistentStorage.remove(operationWithId: id, forCryptoAccountId: cryptoAccountId)
+            try await synchronizer.apply(.operationRemoved(id: id, cryptoAccountId: cryptoAccountId))
             return
         }
 
-        try persistentStorage.appendNewOrUpdateExisting(operation, forCryptoAccountId: cryptoAccountId)
+        try await synchronizer.apply(.operation(operation, cryptoAccountId: cryptoAccountId))
     }
 }
 
