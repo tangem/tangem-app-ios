@@ -95,7 +95,7 @@ struct SwapSummarySlippageViewModelTests {
 
     @Test("Allows editing exactly while the sheet has a provider to open with")
     func editableFollowsSlippageProvider() async throws {
-        let provider = ExpressAvailableProviderFixture.make(state: .idle).provider
+        let providerSlippage = SwapProviderSlippage(defaultSlippage: Decimal(string: "0.003")!, isCustomSlippageSupported: true)
         let slippageInput = SlippageInputStub()
         let viewModel = SwapSummarySlippageViewModel(
             swapProvidersInput: SwapProvidersInputStub(selected: .loading),
@@ -103,8 +103,8 @@ struct SwapSummarySlippageViewModelTests {
         )
         let recorder = ValueRecorder(publisher: viewModel.$isEditable)
 
-        slippageInput.providerSubject.send(provider)
-        slippageInput.providerSubject.send(nil)
+        slippageInput.providerSlippageSubject.send(providerSlippage)
+        slippageInput.providerSlippageSubject.send(nil)
         try await recorder.waitForValues(count: 3)
 
         #expect(recorder.values == [false, true, false])
@@ -158,13 +158,13 @@ private final class ValueRecorder<Value> {
 
 private final class SlippageInputStub: SwapSlippageInput {
     let subject = CurrentValueSubject<SwapSlippage, Never>(.auto)
-    let providerSubject = CurrentValueSubject<ExpressProvider?, Never>(nil)
+    let providerSlippageSubject = CurrentValueSubject<SwapProviderSlippage?, Never>(nil)
     let resetSubject = CurrentValueSubject<Bool, Never>(false)
 
     var slippage: SwapSlippage { subject.value }
     var slippagePublisher: AnyPublisher<SwapSlippage, Never> { subject.eraseToAnyPublisher() }
-    var slippageProvider: ExpressProvider? { providerSubject.value }
-    var slippageProviderPublisher: AnyPublisher<ExpressProvider?, Never> { providerSubject.eraseToAnyPublisher() }
+    var providerSlippage: SwapProviderSlippage? { providerSlippageSubject.value }
+    var providerSlippagePublisher: AnyPublisher<SwapProviderSlippage?, Never> { providerSlippageSubject.eraseToAnyPublisher() }
     var isCustomSlippageResetPublisher: AnyPublisher<Bool, Never> { resetSubject.eraseToAnyPublisher() }
 }
 
