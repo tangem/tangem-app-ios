@@ -60,6 +60,42 @@ struct PolymarketMapperTests {
         #expect(market.status == .unknown("settling"))
     }
 
+    @Test("An empty, blank or missing cursor ends the feed even when the page claims there is more", arguments: [
+        #""cursor": """#,
+        #""cursor": "   ""#,
+        #""cursor": null"#,
+    ])
+    func blankCursorEndsFeed(cursorField: String) throws {
+        let json = Data(#"{ "events": [], \#(cursorField), "hasNext": true }"#.utf8)
+        let page = try mapper.mapEventsPage(decoder.decode(PolymarketDTO.EventsPageResponse.self, from: json))
+
+        #expect(page.cursor == nil)
+        #expect(!page.hasNext)
+    }
+
+    @Test("A page that says there is no more ends the feed even when it still carries a cursor")
+    func lastPageEndsFeedDespiteCursor() throws {
+        let json = Data(#"{ "events": [], "cursor": "cursor-2", "hasNext": false }"#.utf8)
+        let page = try mapper.mapEventsPage(decoder.decode(PolymarketDTO.EventsPageResponse.self, from: json))
+
+        #expect(page.cursor == nil)
+        #expect(!page.hasNext)
+    }
+
+    @Test("A blank next cursor ends the positions, closed positions and activity lists", arguments: ["", "   "])
+    func blankNextCursorEndsLists(cursor: String) throws {
+        let positionsJSON = Data(#"{ "positions": [], "nextCursor": "\#(cursor)" }"#.utf8)
+        let activityJSON = Data(#"{ "items": [], "nextCursor": "\#(cursor)" }"#.utf8)
+
+        let positions = try mapper.mapPositions(decoder.decode(PolymarketDTO.PositionsResponse.self, from: positionsJSON))
+        let closedPositions = try mapper.mapClosedPositions(decoder.decode(PolymarketDTO.ClosedPositionsResponse.self, from: positionsJSON))
+        let activity = try mapper.mapActivity(decoder.decode(PolymarketDTO.ActivityResponse.self, from: activityJSON))
+
+        #expect(!positions.hasNext)
+        #expect(!closedPositions.hasNext)
+        #expect(activity.nextCursor == nil)
+    }
+
     @Test("Market statuses map active, closed and archived apart")
     func marketStatusMapping() throws {
         let json = #"""

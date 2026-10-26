@@ -31,6 +31,10 @@ extension PolymarketMapper {
         return URL(string: string)
     }
 
+    func cursor(from raw: String?) -> String? {
+        raw?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
+    }
+
     func date(from string: String?) -> Date? {
         guard let string, !string.isEmpty else { return nil }
         return Self.isoFormatter.date(from: string)
