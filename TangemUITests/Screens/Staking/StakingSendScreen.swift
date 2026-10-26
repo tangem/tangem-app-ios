@@ -39,6 +39,19 @@ final class StakingSendScreen: ScreenBase<StakingSendScreenElement> {
     }
 
     @discardableResult
+    func replaceStakingAmount(_ amount: String) -> Self {
+        XCTContext.runActivity(named: "Replace prefilled amount with '\(amount)'") { _ in
+            waitAndAssertTrue(amountTextField, "Amount text field should exist")
+            amountTextField.coordinate(withNormalizedOffset: CGVector(dx: 0.98, dy: 0.5)).tap()
+            let currentValue = amountTextField.value as? String ?? ""
+            let deletions = String(repeating: XCUIKeyboardKey.delete.rawValue, count: currentValue.count)
+            amountTextField.typeText(deletions)
+            amountTextField.typeText(amount)
+        }
+        return self
+    }
+
+    @discardableResult
     func tapMaxAmount() -> Self {
         XCTContext.runActivity(named: "Tap Max to fill the full amount") { _ in
             maxButton.waitAndTap()
@@ -58,7 +71,7 @@ final class StakingSendScreen: ScreenBase<StakingSendScreenElement> {
     @discardableResult
     func goToSummary() -> SendSummaryScreen {
         XCTContext.runActivity(named: "Tap Next button") { _ in
-            XCTAssertTrue(nextButton.isEnabled, "Next button should be enabled")
+            XCTAssertTrue(nextButton.waitForState(state: .enabled), "Next button should be enabled")
             nextButton.waitAndTap()
         }
         return SendSummaryScreen(app)
