@@ -87,7 +87,7 @@ extension PolymarketEventDetailsContent {
     ) -> PolymarketMarketCard.Model {
         .make(
             market: market,
-            title: market.listLabel,
+            title: event.listLabel(for: market),
             fallbackImageURL: event.iconURL ?? event.imageURL,
             areOutcomesEnabled: areOutcomesEnabled,
             outcomeTitles: event.buttonTitles(for: market),
