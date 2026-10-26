@@ -29,6 +29,8 @@ extension Analytics {
         case dynamicAddress = "Dynamic Address"
         case tokens = "Tokens"
         case tokensCount = "Tokens Count"
+        case apy = "APY"
+        case closeMethod = "Close Method"
         case tokenFound = "Token Found"
         case derivationPath = "Derivation Path"
         case derivation = "Derivation"
