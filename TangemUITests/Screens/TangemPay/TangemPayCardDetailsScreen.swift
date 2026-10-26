@@ -195,7 +195,7 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     @discardableResult
     func tapCloseCard() -> TangemPayCloseCardSheet {
         XCTContext.runActivity(named: "Open Close card from more menu") { _ in
-            moreMenuButton.waitAndTap()
+            tapMoreMenu()
             closeCardMenuItem.waitAndTap()
             return TangemPayCloseCardSheet(app)
         }
@@ -204,7 +204,7 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     @discardableResult
     func verifyCloseCardDisabled() -> Self {
         XCTContext.runActivity(named: "Verify Close card is displayed but disabled") { _ in
-            moreMenuButton.waitAndTap()
+            tapMoreMenu()
             waitAndAssertTrue(closeCardMenuItem, "Close card menu item should be displayed")
             closeCardMenuItem.waitForState(state: .disabled)
             return self
@@ -546,8 +546,13 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     }
 
     private func openReplaceCardFromMoreMenu() {
-        moreMenuButton.waitAndTap()
+        tapMoreMenu()
         replaceCardMenuItem.waitAndTap()
+    }
+
+    private func tapMoreMenu() {
+        waitAndAssertTrue(moreMenuButton, "More menu button should be displayed")
+        moreMenuButton.tapPreferringHittable()
     }
 }
 

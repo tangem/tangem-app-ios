@@ -129,6 +129,12 @@ extension XCUIElement {
         }
     }
 
+    func tapPreferringHittable(timeout: TimeInterval = .shortUIUpdate) {
+        let hittable = XCTNSPredicateExpectation(predicate: NSPredicate(format: NSPredicateFormat.hittable.rawValue), object: self)
+        _ = XCTWaiter().wait(for: [hittable], timeout: timeout)
+        tapEvenIfNotHittable()
+    }
+
     /// Waits for a finite, non-empty frame so later hittability reads don't abort on a stale snapshot.
     @discardableResult
     func waitForStableFrame(timeout: TimeInterval = .conditional) -> Bool {

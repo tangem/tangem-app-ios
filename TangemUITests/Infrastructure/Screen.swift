@@ -25,8 +25,11 @@ extension Screen {
                 CommonUIAccessibilityIdentifiers.backButton,
                 "BackButton"
             )
+            let systemBackButtons = app.navigationBars.buttons.matching(
+                NSPredicate(format: "identifier == '' AND label == %@", ScreenConstants.systemBackLabel)
+            )
             // A just-dismissed sheet can leave its own back button in the tree, so the hittable match is taken.
-            guard let backButton = app.buttons.matching(predicate).firstHittableElement() else {
+            guard let backButton = firstHittableElement(in: [app.buttons.matching(predicate), systemBackButtons]) else {
                 XCTFail("Back button should become hittable")
                 return Destination(app)
             }
@@ -89,4 +92,21 @@ extension Screen {
             message ?? "Element should exist after waiting for \(timeout) seconds"
         )
     }
+
+    private func firstHittableElement(in queries: [XCUIElementQuery], timeout: TimeInterval = .robustUIUpdate) -> XCUIElement? {
+        var hittableElement: XCUIElement?
+        let predicate = NSPredicate { _, _ in
+            hittableElement = queries.lazy.compactMap { $0.allElementsBoundByIndex.first { $0.isHittable } }.first
+            return hittableElement != nil
+        }
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+        guard XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed else {
+            return nil
+        }
+        return hittableElement
+    }
+}
+
+private enum ScreenConstants {
+    static let systemBackLabel = "Back"
 }
