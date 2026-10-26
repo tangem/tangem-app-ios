@@ -55,8 +55,45 @@ struct PolymarketEventDetailsContentTests {
         ])
 
         #expect(content.activeMarkets.map(\.id) == ["open"])
-        #expect(content.closedMarkets.map(\.id) == ["closed", "archived"])
+        #expect(content.closedMarkets.map(\.id) == ["closed"])
         #expect(content.closedMarkets.allSatisfy { $0.outcomes.isNotEmpty })
+        #expect(content.closedMarkets.allSatisfy { $0.outcomes.allSatisfy { !$0.isEnabled } })
+    }
+
+    @Test("Archived markets are shown in neither the open nor the closed list")
+    func archivedMarketsAreHidden() {
+        let content = Self.makeContent(markets: [
+            Self.makeMarket(id: "open", status: .active),
+            Self.makeMarket(id: "archived", status: .archived),
+            Self.makeMarket(id: "closed", status: .closed),
+        ])
+
+        #expect(content.activeMarkets.map(\.id) == ["open"])
+        #expect(content.closedMarkets.map(\.id) == ["closed"])
+        #expect(content.showsClosedMarketsToggle)
+    }
+
+    @Test("An event whose only finished markets are archived shows no closed section")
+    func onlyArchivedFinishedMarketsHideClosedSection() {
+        let content = Self.makeContent(markets: [
+            Self.makeMarket(id: "open", status: .active),
+            Self.makeMarket(id: "archived", status: .archived),
+        ])
+
+        #expect(content.activeMarkets.map(\.id) == ["open"])
+        #expect(content.closedMarkets.isEmpty)
+        #expect(!content.showsClosedMarketsToggle)
+    }
+
+    @Test("An event left with archived markets only shows them as closed instead of an empty list")
+    func onlyArchivedMarketsAreShownAsClosed() {
+        let content = Self.makeContent(markets: [
+            Self.makeMarket(id: "first", status: .archived),
+            Self.makeMarket(id: "second", status: .archived),
+        ])
+
+        #expect(content.activeMarkets.isEmpty)
+        #expect(content.closedMarkets.map(\.id) == ["first", "second"])
         #expect(content.closedMarkets.allSatisfy { $0.outcomes.allSatisfy { !$0.isEnabled } })
     }
 
