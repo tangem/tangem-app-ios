@@ -50,6 +50,7 @@ Chevron Left / 12, 16, 20, 24, 28, 32 / Regular
 Chevron Right / 12, 16, 20, 24, 28, 32 / Regular
 Chevron Up / 12, 16, 20, 24, 28, 32 / Regular
 Clapper Board / 12, 16, 20, 24, 28, 32 / Regular
+Clock Hands / 12 / Regular
 Clock / 12, 16, 20, 24, 28, 32 / Regular
 Clothing / 12, 16, 20, 24, 28, 32 / Regular
 Cloud Exclamation / 12, 16, 20, 24, 28, 32 / Regular
