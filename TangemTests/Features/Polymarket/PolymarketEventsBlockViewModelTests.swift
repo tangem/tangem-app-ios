@@ -133,7 +133,7 @@ struct PolymarketEventsBlockViewModelTests {
 
         try await settle { Self.cardIDs(sut) == ["a"] }
 
-        let selected = try #require(sut.eventCards.first?.rows.first?.outcomes.first)
+        let selected = try #require(sut.eventCards.first?.regularModel?.rows.first?.outcomes.first)
         selected.onSelect()
 
         #expect(routable.openedOutcomes.isEmpty)
@@ -290,7 +290,7 @@ struct PolymarketEventsBlockViewModelTests {
         try await settle { Self.cardIDs(context.sut) == ["b"] }
         try await Task.sleep(nanoseconds: PolymarketAPIProviderStub.slowEventsDelay * 2)
 
-        #expect(context.sut.eventCards.first?.title == "b")
+        #expect(context.sut.eventCards.first?.regularModel?.title == "b")
     }
 
     @Test("An outcome chosen on a card drawn before a poll opens the order with the market from that poll")
@@ -300,7 +300,7 @@ struct PolymarketEventsBlockViewModelTests {
             pages: [.init(category: 1, cursor: nil): Self.page(["a"], outcomes: [Self.outcome(probability: "0.42")])],
             routable: routable
         )
-        let cardBeforePoll = try #require(context.sut.eventCards.first?.rows.first?.outcomes.first)
+        let cardBeforePoll = try #require(context.sut.eventCards.first?.regularModel?.rows.first?.outcomes.first)
 
         context.provider.eventPages[.init(category: 1, cursor: nil)] = Self.page(["a"], outcomes: [Self.outcome(probability: "0.55")])
         context.clock.advance(by: 21)
@@ -472,7 +472,7 @@ private extension PolymarketEventsBlockViewModelTests {
     }
 
     static func priceTexts(_ sut: PolymarketEventsBlockViewModel) -> [String?] {
-        sut.eventCards.first?.rows.first?.outcomes.map(\.priceText) ?? []
+        sut.eventCards.first?.regularModel?.rows.first?.outcomes.map(\.priceText) ?? []
     }
 
     static func cents(_ probability: String) -> String {
