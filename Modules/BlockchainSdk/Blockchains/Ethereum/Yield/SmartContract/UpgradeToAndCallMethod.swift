@@ -22,8 +22,12 @@ public struct UpgradeToAndCallMethod {
         self.callData = callData
     }
 
-    public static func isEncodedCall(_ data: String) -> Bool {
-        data.removeHexPrefix().hasPrefix(methodId.removeHexPrefix())
+    public static func isEncodedCall(_ calldata: Data) -> Bool {
+        calldata.starts(with: Data(hexString: methodId))
+    }
+
+    public static func isEncodedCall(_ calldata: String) -> Bool {
+        isEncodedCall(Data(hexString: calldata))
     }
 }
 
