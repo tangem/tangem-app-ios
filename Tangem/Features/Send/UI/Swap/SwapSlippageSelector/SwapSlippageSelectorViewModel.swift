@@ -9,7 +9,6 @@
 import Combine
 import Foundation
 import TangemFoundation
-import TangemExpress
 import TangemLocalization
 import TangemUI
 
@@ -25,20 +24,16 @@ final class SwapSlippageSelectorViewModel: ObservableObject, FloatingSheetConten
     private let output: SwapSlippageOutput
     private var bag: Set<AnyCancellable> = []
 
-    init?(
-        provider: ExpressProvider,
+    init(
+        providerSlippage: SwapProviderSlippage,
         slippage: SwapSlippage,
         output: SwapSlippageOutput,
         percentFormatter: PercentFormatter = PercentFormatter()
     ) {
-        guard let defaultSlippage = provider.slippage else {
-            return nil
-        }
-
         self.output = output
 
-        guard let bounds = provider.customSlippageBounds else {
-            content = .notCustomizable(maxSlippage: percentFormatter.format(defaultSlippage, option: .customSlippage))
+        guard let bounds = providerSlippage.customSlippageBounds else {
+            content = .notCustomizable(maxSlippage: percentFormatter.format(providerSlippage.defaultSlippage, option: .customSlippage))
             isConfirmEnabled = true
             return
         }
