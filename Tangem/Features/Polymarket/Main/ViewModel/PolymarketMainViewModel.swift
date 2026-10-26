@@ -64,6 +64,7 @@ final class PolymarketMainViewModel: ObservableObject {
         bindGeoblockState()
         bindFundsArrival()
         bindWithdrawal()
+        bindSearch()
     }
 }
 
@@ -143,6 +144,20 @@ private extension PolymarketMainViewModel {
 
                 if isRestricted {
                     viewModel.coordinator?.openRegionWarning()
+                }
+            }
+            .store(in: &bag)
+    }
+
+    func bindSearch() {
+        searchViewModel
+            .$isSearching
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(eventsViewModel)
+            .sink { eventsViewModel, isSearching in
+                MainActor.assumeIsolated {
+                    eventsViewModel.setPollingSuspended(isSearching)
                 }
             }
             .store(in: &bag)

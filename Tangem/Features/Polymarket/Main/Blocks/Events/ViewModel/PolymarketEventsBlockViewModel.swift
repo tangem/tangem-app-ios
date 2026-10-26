@@ -131,6 +131,15 @@ extension PolymarketEventsBlockViewModel {
     }
 }
 
+// MARK: - Polling suspension
+
+extension PolymarketEventsBlockViewModel {
+    @MainActor
+    func setPollingSuspended(_ isSuspended: Bool) {
+        poller.setSuspended(isSuspended)
+    }
+}
+
 // MARK: - Actions
 
 private extension PolymarketEventsBlockViewModel {

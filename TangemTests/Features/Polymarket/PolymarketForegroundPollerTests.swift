@@ -42,6 +42,44 @@ struct PolymarketForegroundPollerTests {
         try await settle { context.log.ticks >= ticksBeforeBackground + 2 }
         withExtendedLifetime(context.poller) {}
     }
+
+    @Test("A suspended poller stops ticking, stays quiet on coming back from background and ticks at once when resumed")
+    func pausesWhileSuspended() async throws {
+        let context = Self.makeSUT(interval: 0.2)
+
+        try await settle { context.log.ticks >= 1 }
+
+        context.poller.setSuspended(true)
+        #expect(context.log.pauses == 1)
+
+        let ticksBeforeSuspension = context.log.ticks
+        context.notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+        context.notificationCenter.post(name: UIApplication.willEnterForegroundNotification, object: nil)
+        try await Task.sleep(nanoseconds: 500_000_000)
+        #expect(context.log.ticks == ticksBeforeSuspension)
+
+        context.poller.setSuspended(false)
+        try await settle { context.log.ticks == ticksBeforeSuspension + 1 }
+
+        try await settle { context.log.ticks >= ticksBeforeSuspension + 2 }
+    }
+
+    @Test("Suspending again right after resuming drops the queued tick")
+    func quickResumeAndSuspendDoesNotTick() async throws {
+        let context = Self.makeSUT(interval: 0.2)
+
+        try await settle { context.log.ticks >= 1 }
+
+        context.poller.setSuspended(true)
+        let ticksBeforeSuspension = context.log.ticks
+
+        context.poller.setSuspended(false)
+        context.poller.setSuspended(true)
+        try await Task.sleep(nanoseconds: 500_000_000)
+
+        #expect(context.log.ticks == ticksBeforeSuspension)
+        #expect(context.log.pauses == 2)
+    }
 }
 
 // MARK: - Helpers
