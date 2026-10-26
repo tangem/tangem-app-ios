@@ -13,9 +13,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>pessoa</string>
+        <string>%li pessoa</string>
         <key>other</key>
-        <string>pessoas</string>
+        <string>%li pessoas</string>
       </dict>
     </dict>
     <key>address_book_addresses</key>
@@ -189,9 +189,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li member still needs to join</string>
+        <string>%li membro ainda precisa entrar</string>
         <key>other</key>
-        <string>%li members still need to join</string>
+        <string>%li membros ainda precisam entrar</string>
       </dict>
     </dict>
     <key>joint_account_join_signatures_count</key>
