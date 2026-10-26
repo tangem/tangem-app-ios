@@ -72,6 +72,38 @@ struct PolymarketEventDetailsContentTests {
         #expect(content.activeMarkets.first { $0.id == "paused" }?.outcomes.contains { $0.isEnabled } == false)
         #expect(content.activeMarkets.first { $0.id == "paused" }?.outcomes.isNotEmpty == true)
     }
+
+    @Test("Outcomes of a closed market show a dash instead of the price")
+    func closedMarketOutcomesShowDash() {
+        let content = Self.makeContent(markets: [
+            Self.makeMarket(id: "open", status: .active),
+            Self.makeMarket(id: "closed", status: .closed),
+            Self.makeMarket(id: "archived", status: .archived),
+        ])
+
+        let closedPrices = content.closedMarkets.flatMap(\.outcomes).map(\.priceText)
+        let openPrices = content.activeMarkets.flatMap(\.outcomes).map(\.priceText)
+
+        #expect(closedPrices.count == 4)
+        #expect(closedPrices.allSatisfy { $0 == BalanceFormatter.defaultEmptyBalanceString })
+        #expect(openPrices.count == 2)
+        #expect(!openPrices.contains(BalanceFormatter.defaultEmptyBalanceString))
+    }
+
+    @Test("Outcomes of a market that stopped taking orders show a dash instead of the price")
+    func pausedMarketOutcomesShowDash() {
+        let content = Self.makeContent(markets: [
+            Self.makeMarket(id: "taking", isAcceptingOrders: true),
+            Self.makeMarket(id: "paused", isAcceptingOrders: false),
+        ])
+
+        let takingPrices = content.activeMarkets.first { $0.id == "taking" }?.outcomes.map(\.priceText) ?? []
+        let pausedPrices = content.activeMarkets.first { $0.id == "paused" }?.outcomes.map(\.priceText)
+
+        #expect(takingPrices.count == 2)
+        #expect(!takingPrices.contains(BalanceFormatter.defaultEmptyBalanceString))
+        #expect(pausedPrices == [BalanceFormatter.defaultEmptyBalanceString, BalanceFormatter.defaultEmptyBalanceString])
+    }
 }
 
 // MARK: - Fixtures
