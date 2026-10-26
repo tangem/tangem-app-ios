@@ -30,6 +30,8 @@
 "account_details_archive_joint_description" = "这只会隐藏您的帐户并关闭其通知。其他成员仍可访问该帐户，您也可以随时恢复帐户。";
 "account_details_archive" = "存档帐户";
 "account_details_archiving" = "存档...";
+"account_details_joint_members_confirmed" = "%1$@ of %2$@ confirmed";
+"account_details_joint_members_joined" = "%1$@ of %2$@ joined";
 "account_details_joint_members_progress" = "%1$@/%2$@ 人";
 "account_details_joint_networks_info" = "支持的网络。";
 "account_details_joint_pending_description" = "等待成员加入";
@@ -208,7 +210,7 @@
 "choose_asset_title" = "Choose asset";
 "collectibles_account_collection_empty" = "No cards";
 "collectibles_account_collection_row_subtitle" = "My collection";
-"collectibles_account_reconnect_subtitle" = "Reconnect Packs account";
+"collectibles_account_reconnect_subtitle" = "Reconnect required";
 "collectibles_account_withdraw" = "Withdrawal";
 "collectibles_confirm_order_approve_button" = "Approve";
 "collectibles_confirm_order_confirming_transaction_button" = "Confirming transaction...";
@@ -401,6 +403,7 @@
 "common_forget" = "忘记";
 "common_from_account" = "从账户";
 "common_from_address" = "从地址";
+"common_from_lowercase" = "from";
 "common_from_wallet_name" = "从 %@";
 "common_from_wallet" = "从钱包";
 "common_from" = "从";
@@ -1085,6 +1088,7 @@
 "joint_account_join_title" = "您已受邀参加 %1$@";
 "joint_account_join_to_account_btn_text" = "联合账户";
 "joint_account_join_to_approve" = "To approve";
+"joint_account_main_cant_verify" = "Can't verify";
 "joint_account_members_progress" = "%2$@ 分之 %1$@ 的成员";
 "joint_account_members_role_joined" = "已加入";
 "joint_account_members_role_you" = "你";
@@ -1329,6 +1333,7 @@
 "mcp_intent_cant_reach_title" = "Can’t reach intent";
 "mcp_intent_proceed" = "Proceed";
 "mcp_intent_processed_title" = "This intent has already been processed";
+"mcp_intent_unknown_agent_name" = "AI";
 "mcp_send_intent_cant_reach_title" = "Can’t reach intent";
 "mcp_send_intent_offer_description" = "The agent is asking to send from your account. You’ll review the details next.";
 "mcp_send_intent_offer_title" = "%1$@ Agent wants to send %2$@";
@@ -1377,6 +1382,9 @@
 "money_account_onboarding_transfers_card_caption" = "Money in. Money out.";
 "money_account_onboarding_transfers_card_subtitle" = "with a dedicated account with banking details";
 "money_account_onboarding_transfers_card_title" = "Send and receive fiat payments";
+"money_account_send_bank_transfer_unavailable" = "Unavailable";
+"money_account_send_unavailable_description" = "Try again in 5 minutes";
+"money_account_send_unavailable_title" = "Operation currently unavailable";
 "news_all_news" = "所有新闻";
 "news_like" = "喜欢";
 "news_quick_recap" = "快速回顾";
@@ -1570,6 +1578,7 @@
 "prediction_add_funds_receive_title" = "From another wallet or exchange";
 "prediction_add_funds_swap_subtitle" = "Use crypto in your Tangem wallet to top up your Polymarket account";
 "prediction_add_funds_swap_title" = "From your Tangem Wallet";
+"prediction_cash_out" = "Cash Out";
 "prediction_claim_error_failed" = "The claim did not go through. Nothing left your account, and you can try again.";
 "prediction_claim_error_generic" = "The claim could not be sent. Please try again.";
 "prediction_claim_error_rejected" = "Polymarket refused to relay the claim. Refresh your positions and try again.";
@@ -2505,6 +2514,8 @@
 "tangempay_onboarding_security_title" = "无与伦比的隐私保护";
 "tangempay_onboarding_setup_wallet_description" = "并将 Tangem Pay 绑定到该钱包";
 "tangempay_onboarding_setup_wallet_title" = "我们将创建新钱包";
+"tangempay_onboarding_success_description" = "Products activation might take a few minutes to finish";
+"tangempay_onboarding_success_title" = "Tangem Pay is activating";
 "tangempay_onboarding_title" = "立即获取你的 Tangem Pay 卡";
 "tangempay_order_card_error_active_order" = "卡片订单正在处理中。";
 "tangempay_order_card_error_insufficient_balance" = "余额不足以支付配送费。请增加资金后重试。";
@@ -2686,6 +2697,7 @@
 "tangempay_withdraw_bank_geo_country_selected" = "已选国家";
 "tangempay_withdraw_bank_geo_state_selected" = "已选州";
 "tangempay_withdraw_bank_geo_state_title" = "州";
+"tangempay_withdraw_bank_network_fee_unreachable" = "Network fee info unreachable. Check your internet connection or tap to refresh";
 "tangempay_withdraw_bank_offramp_unavailable" = "Off-ramp 不可用";
 "tangempay_withdraw_bank_placeholder_address_line1" = "例如：Ebunike St., Apt. 32";
 "tangempay_withdraw_bank_placeholder_bank_name" = "例如：Goldman Sachs";
@@ -2826,6 +2838,7 @@
 "transaction_history_transaction_for_address" = "为 %@";
 "transaction_history_transaction_from_address" = "来自 %@";
 "transaction_history_transaction_from_for_address" = "from: %1$@ for %2$@";
+"transaction_history_transaction_from_from_address" = "from: %1$@ from %2$@";
 "transaction_history_transaction_to_address" = "到： %@";
 "transaction_history_transaction_to_for_address" = "to: %1$@ for %2$@";
 "transaction_history_unlimited_amount" = "Unlimited %@";
@@ -3016,6 +3029,7 @@
 "warning_express_not_enough_fee_for_token_tx_description" = "要进行交易，您需要存入一些 %1$@ %2$@";
 "warning_express_not_enough_fee_for_token_tx_title" = "无法覆盖 %@ 费用";
 "warning_express_notification_invalid_reserve_amount_title" = "收到的金额必须至少 %@";
+"warning_express_pair_unavailable_message_v2" = "The provider can’t exchange your selected pair right now. Please choose another provider. (Code %@)";
 "warning_express_pair_unavailable_message" = "这可能是因为供应商目前无法为您更换所选交易对。请稍等片刻后重试。（代码） %@）";
 "warning_express_pair_unavailable_title" = "所选交易对暂时不可用";
 "warning_express_providers_fca_warning_description" = "部分服务提供商未经英国金融行为监管局授权，请避免与其进行交易。";
@@ -3035,6 +3049,8 @@
 "warning_hedera_token_association_not_enough_hbar_message" = "%@不够。请为您的 Hedera 账户充值以关联此代币";
 "warning_incomplete_backup_notification_message" = "我们发现，由于您的设备NFC模块存在问题，或者将卡片轻触手机的方式不正确，导致卡片激活流程未能正常完成。请联系我们的客服团队以获取更多详情。";
 "warning_incomplete_backup_notification_title" = "必须采取行动。不要用你的钱包！";
+"warning_incomplete_balance_message" = "This address has more than %1$@ UTXOs, so the %2$@ network returns only part of them. Your funds are safe. To see the full balance, consolidate UTXOs by sending %3$@ to your own address.";
+"warning_incomplete_balance_title" = "Balance may be incomplete";
 "warning_ios_deprecation_ended_message" = "对 iOS %1$@ 的支持已于 %2$@终止。要继续接收应用程序更新并确保完整功能，请更新至最新版本的 iOS。";
 "warning_ios_deprecation_message" = "对 iOS %1$@ 的支持将于 %2$@终止。要继续接收应用程序更新并确保完整功能，请更新至最新版本的 iOS。";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "您确定要取消交易吗？取消后您将无法再次尝试交易。";
