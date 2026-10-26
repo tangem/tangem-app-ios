@@ -115,13 +115,12 @@ struct PolymarketEventDetailsContentTests {
         let content = Self.makeContent(markets: [
             Self.makeMarket(id: "open", status: .active),
             Self.makeMarket(id: "closed", status: .closed),
-            Self.makeMarket(id: "archived", status: .archived),
         ])
 
         let closedPrices = content.closedMarkets.flatMap(\.outcomes).map(\.priceText)
         let openPrices = content.activeMarkets.flatMap(\.outcomes).map(\.priceText)
 
-        #expect(closedPrices.count == 4)
+        #expect(closedPrices.count == 2)
         #expect(closedPrices.allSatisfy { $0 == BalanceFormatter.defaultEmptyBalanceString })
         #expect(openPrices.count == 2)
         #expect(!openPrices.contains(BalanceFormatter.defaultEmptyBalanceString))

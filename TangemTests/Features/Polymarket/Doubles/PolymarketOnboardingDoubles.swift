@@ -580,7 +580,7 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
             throw error
         }
 
-        return eventPages[key] ?? PolymarketEventsPage(events: [], cursor: nil, hasNext: false)
+        return eventPages[key] ?? PolymarketEventsPage(events: [], cursor: nil)
     }
 
     struct EventsPageKey: Hashable {
