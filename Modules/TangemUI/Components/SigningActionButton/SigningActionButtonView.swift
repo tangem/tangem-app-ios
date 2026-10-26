@@ -33,7 +33,7 @@ public struct SigningActionButtonView: View {
     public var body: some View {
         switch type {
         case .requiredNFCInteraction:
-            Button(label: title, accessibilityLabel: nil, action: performActionIfIdle)
+            Button(label: title, accessibilityLabel: nil, action: action)
                 .iconEnd(DesignSystem.Icons.LogoTangem.regular24)
                 .styleType(.primary)
                 .size(.x12)
@@ -48,18 +48,6 @@ public struct SigningActionButtonView: View {
                 action: action
             )
         }
-    }
-}
-
-// MARK: - Private
-
-private extension SigningActionButtonView {
-    func performActionIfIdle() {
-        guard !isLoading else {
-            return
-        }
-
-        action()
     }
 }
 

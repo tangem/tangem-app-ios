@@ -26,14 +26,14 @@ public struct TangemUnableToLoadDataView: View {
             Text(Localization.marketsLoadingErrorTitle)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
-            TangemButton(
-                content: .text(AttributedString(Localization.tryToLoadDataAgainButtonTitle)),
+            Button(
+                label: Localization.tryToLoadDataAgainButtonTitle,
+                accessibilityLabel: nil,
                 action: retryButtonAction
             )
-            .setButtonState(isLoading: isButtonBusy)
-            .setStyleType(.secondary)
-            .setHorizontalLayout(.intrinsic)
-            .setSize(.x9)
+            .loading(.spinner(if: isButtonBusy))
+            .styleType(.secondary(.default))
+            .size(.x9)
             .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.retryButton)
         }
     }
