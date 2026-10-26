@@ -52,6 +52,8 @@ extension PolymarketEventDetailsContent {
         onSelectOutcome: @escaping (PolymarketMarket, PolymarketOutcome) -> Void
     ) -> Self {
         let ordered = event.markets.orderedForDisplay
+        let shown = ordered.filter { $0.displaySection != .hidden }
+        let visible = shown.isEmpty ? ordered : shown
 
         return Self(
             iconURL: event.iconURL ?? event.imageURL,
@@ -60,7 +62,7 @@ extension PolymarketEventDetailsContent {
             categoryName: category?.label,
             volumeText: event.volume.map(MappingConstants.volumeFormatter.formatMarketCap),
             volumeChange: volumeChange(event: event),
-            activeMarkets: ordered.filter(\.isTradable).map { market in
+            activeMarkets: visible.filter { $0.displaySection == .active }.map { market in
                 makeCard(
                     market: market,
                     event: event,
@@ -68,7 +70,7 @@ extension PolymarketEventDetailsContent {
                     onSelectOutcome: onSelectOutcome
                 )
             },
-            closedMarkets: ordered.filter { !$0.isTradable }.map { market in
+            closedMarkets: visible.filter { $0.displaySection != .active }.map { market in
                 makeCard(market: market, event: event, areOutcomesEnabled: false, onSelectOutcome: onSelectOutcome)
             },
             description: event.description?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty,
@@ -128,11 +130,18 @@ private extension [PolymarketMarket] {
     }
 }
 
+private enum MarketDisplaySection {
+    case active
+    case closed
+    case hidden
+}
+
 private extension PolymarketMarket {
-    var isTradable: Bool {
+    var displaySection: MarketDisplaySection {
         switch status {
-        case .active, .unknown: true
-        case .closed, .archived: false
+        case .active, .unknown: .active
+        case .closed: .closed
+        case .archived: .hidden
         }
     }
 }

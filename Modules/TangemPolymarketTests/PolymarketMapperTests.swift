@@ -60,6 +60,21 @@ struct PolymarketMapperTests {
         #expect(market.status == .unknown("settling"))
     }
 
+    @Test("Market statuses map active, closed and archived apart")
+    func marketStatusMapping() throws {
+        let json = #"""
+        {"event":{"eventId":"e1","slug":"e1","title":"Event","markets":[
+          {"id":"m1","question":"Open?","status":"active"},
+          {"id":"m2","question":"Closed?","status":"closed"},
+          {"id":"m3","question":"Archived?","status":"archived"}
+        ]}}
+        """#
+        let dto = try decoder.decode(PolymarketDTO.EventResponse.self, from: Data(json.utf8))
+        let event = mapper.mapEvent(dto.event)
+
+        #expect(event.markets.map(\.status) == [.active, .closed, .archived])
+    }
+
     // MARK: - Search
 
     @Test("Search response maps the page/total envelope")
