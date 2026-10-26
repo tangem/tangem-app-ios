@@ -21,11 +21,13 @@ public class ExpressAvailableProvider {
 
     public var isBest: Bool { _isBest { $0 } }
     public var isBestDEX: Bool { _isBestDEX { $0 } }
+    public var defaultSlippage: Decimal? { _quoteDefaultSlippage { $0 } ?? provider.slippage }
 
     // MARK: - Updatable state
 
     private let _isBest = OSAllocatedUnfairLock<Bool>(initialState: false)
     private let _isBestDEX = OSAllocatedUnfairLock<Bool>(initialState: false)
+    private let _quoteDefaultSlippage = OSAllocatedUnfairLock<Decimal?>(initialState: nil)
 
     init(context: ExpressProviderFlowContext, manager: ExpressProviderManager) {
         self.context = context
@@ -59,6 +61,10 @@ extension ExpressAvailableProvider {
         }
 
         await manager.update(request: request)
+
+        if request.slippage == nil, !Task.isCancelled, let quote = manager.getState().quote {
+            _quoteDefaultSlippage { $0 = quote.slippage }
+        }
     }
 
     func requestData(request: ExpressAvailableProviderUpdatingRequest) async throws -> ExpressTransactionData {
@@ -72,6 +78,7 @@ extension ExpressAvailableProvider {
     func reset() {
         _isBest { $0 = false }
         _isBestDEX { $0 = false }
+        _quoteDefaultSlippage { $0 = nil }
 
         manager.reset()
     }
