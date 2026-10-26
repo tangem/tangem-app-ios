@@ -31,7 +31,9 @@ extension PolymarketMarketCard.Model {
                 PolymarketMarketCard.Outcome(
                     id: outcome.assetId,
                     title: outcomeTitles?[safe: index] ?? outcome.title,
-                    priceText: PolymarketPriceFormatter.centsText(outcome.probability, isResolved: market.status == .closed),
+                    priceText: areOutcomesEnabled
+                        ? PolymarketPriceFormatter.centsText(outcome.probability)
+                        : BalanceFormatter.defaultEmptyBalanceString,
                     style: PolymarketOutcomeStyle(outcomeIndex: index),
                     isEnabled: areOutcomesEnabled,
                     onSelect: { onSelectOutcome(outcome) }
