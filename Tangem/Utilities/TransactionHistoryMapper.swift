@@ -244,11 +244,17 @@ struct TransactionHistoryMapper {
 
         let isCounterpartyCurrentOwner = owner == nil && counterparty?.isOwnWallet == true
 
+        let recipient = outsideRecipient(
+            payOutAddress: exchange.payOut.address,
+            payOutToken: info.cryptoCurrencies[exchange.to.currency],
+            resolver: resolver
+        )
+
         return TransactionDisplayModel.ExpressSubtitle(
             direction: direction,
             leading: .token(TokenIconInfoBuilder().build(from: counterpartyToken, isCustom: counterpartyToken.token?.isCustom ?? false)),
             symbol: counterpartyToken.currencySymbol,
-            owner: owner,
+            owner: recipient ?? owner,
             counterparty: isCounterpartyCurrentOwner ? nil : counterparty
         )
     }
@@ -264,6 +270,23 @@ struct TransactionHistoryMapper {
             owner: nil,
             counterparty: nil
         )
+    }
+
+    private func outsideRecipient(
+        payOutAddress: String?,
+        payOutToken: TokenItem?,
+        resolver: SubtitleOwnerResolver?
+    ) -> TransactionViewModel.SubtitleOwner? {
+        guard
+            let payOutAddress,
+            let payOutToken,
+            let payOutOwner = resolver?.resolve(address: payOutAddress, blockchain: payOutToken.blockchain),
+            !payOutOwner.isOwnWallet
+        else {
+            return nil
+        }
+
+        return payOutOwner
     }
 
     private func counterpartyOwner(

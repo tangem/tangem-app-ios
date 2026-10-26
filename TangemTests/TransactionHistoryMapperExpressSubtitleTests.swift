@@ -50,25 +50,32 @@ struct TransactionHistoryMapperExpressSubtitleTests {
         #expect(incomingModel.symbol == ExpressMergeTestDataFactory.ethereumToken.currencySymbol)
     }
 
-    @Test("After a Send&Swap to an outside address the row names nobody, while the recipient stays known for the details")
-    func sendAndSwapToAnOutsideAddress() async {
-        let resolver = SubtitleOwnerResolver(
-            blockchain: .ethereum(testnet: false),
-            currentUserWalletId: UserWalletId(value: Data()),
-            isAccountsMode: false,
-            contacts: [],
-            tangemPayDepositOwners: []
-        )
+    @Test("A Send&Swap to an outside address names that address as the recipient on both legs", arguments: [true, false])
+    func sendAndSwapToAnOutsideAddress(isOutgoing: Bool) async throws {
+        let model = try #require(await outsidePayOutSubtitle(isOutgoing: isOutgoing, contacts: []))
 
-        let viewModel = await withUserWallets([]) {
-            makeSUT().mapTransactionViewModel(swapRecord(isOutgoing: true), subtitleOwnerResolver: resolver)
-        }
-
-        guard case .express(let model)? = viewModel.display.subtitle else {
-            Issue.record("expected an express subtitle for a swap")
+        guard case .unresolved(_, let fullAddress, _)? = model.owner else {
+            Issue.record("expected the row to name the outside pay-out address, got \(String(describing: model.owner))")
             return
         }
-        #expect(model.owner == nil)
+        #expect(fullAddress == "0xOut")
+    }
+
+    @Test("A Send&Swap to a saved contact names that contact as the recipient on both legs", arguments: [true, false])
+    func sendAndSwapToContact(isOutgoing: Bool) async throws {
+        let contact = try makeContact(named: "Ivan", address: "0xOut", on: .bitcoin(testnet: false))
+        let model = try #require(await outsidePayOutSubtitle(isOutgoing: isOutgoing, contacts: [contact]))
+
+        guard case .contact(let name, _, _)? = model.owner else {
+            Issue.record("expected the row to name the contact as the recipient, got \(String(describing: model.owner))")
+            return
+        }
+        #expect(name == "Ivan")
+    }
+
+    @Test("After a Send&Swap to an outside address the recipient stays known for the details")
+    func sendAndSwapKeepsTheCounterpartyForTheDetails() async throws {
+        let model = try #require(await outsidePayOutSubtitle(isOutgoing: true, contacts: []))
 
         guard case .unresolved(_, let fullAddress, _)? = model.counterparty else {
             Issue.record("expected the pay-out address to resolve to an outside one")
@@ -100,30 +107,6 @@ struct TransactionHistoryMapperExpressSubtitleTests {
         }
         #expect(name == "Savings")
         #expect(model.owner == model.counterparty)
-    }
-
-    @Test("A swap whose counterparty leg is a saved contact names that contact in the row")
-    func swapWithContactCounterparty() throws {
-        let blockchain = BSDKBlockchain.ethereum(testnet: false)
-        let resolver = SubtitleOwnerResolver(
-            blockchain: blockchain,
-            currentUserWalletId: UserWalletId(value: Data()),
-            isAccountsMode: false,
-            contacts: [try makeContact(named: "Ivan", address: "0xFrom", on: blockchain)],
-            tangemPayDepositOwners: []
-        )
-
-        let viewModel = makeSUT().mapTransactionViewModel(swapRecord(isOutgoing: false), subtitleOwnerResolver: resolver)
-
-        guard case .express(let model)? = viewModel.display.subtitle else {
-            Issue.record("expected an express subtitle for a swap")
-            return
-        }
-        guard case .contact(let name, _, _)? = model.owner else {
-            Issue.record("expected the row to name the contact, got \(String(describing: model.owner))")
-            return
-        }
-        #expect(name == "Ivan")
     }
 
     @Test("Onramp subtitle shows the paid fiat with a `from:` prefix and no owner")
@@ -226,6 +209,25 @@ private extension TransactionHistoryMapperExpressSubtitleTests {
             defer { InjectedValues[\.userWalletRepository] = previous }
             return operation()
         }
+    }
+
+    func outsidePayOutSubtitle(isOutgoing: Bool, contacts: [AddressBookContact]) async -> TransactionDisplayModel.ExpressSubtitle? {
+        let resolver = SubtitleOwnerResolver(
+            blockchain: .ethereum(testnet: false),
+            currentUserWalletId: UserWalletId(value: Data()),
+            isAccountsMode: false,
+            contacts: contacts,
+            tangemPayDepositOwners: []
+        )
+
+        let viewModel = await withUserWallets([]) {
+            makeSUT().mapTransactionViewModel(swapRecord(isOutgoing: isOutgoing), subtitleOwnerResolver: resolver)
+        }
+
+        guard case .express(let model)? = viewModel.display.subtitle else {
+            return nil
+        }
+        return model
     }
 
     func swapSubtitle(
