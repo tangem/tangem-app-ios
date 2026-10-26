@@ -30,6 +30,7 @@ final class PolymarketSearchBlockViewModel: ObservableObject {
     private let apiProvider: PolymarketAPIProvider
     private let activityHandler: PolymarketMainActivityHandler
     private let isRegionRestricted: () -> Bool
+    private let usesPhaseTwoCards: Bool
     private let debounceInterval: DispatchQueue.SchedulerTimeType.Stride
     private weak var routable: PolymarketEventOpeningRoutable?
 
@@ -48,12 +49,14 @@ final class PolymarketSearchBlockViewModel: ObservableObject {
         apiProvider: PolymarketAPIProvider,
         activityHandler: PolymarketMainActivityHandler,
         isRegionRestricted: @escaping () -> Bool,
+        usesPhaseTwoCards: Bool,
         routable: PolymarketEventOpeningRoutable,
         debounceInterval: DispatchQueue.SchedulerTimeType.Stride = .milliseconds(Constants.debounceMilliseconds)
     ) {
         self.apiProvider = apiProvider
         self.activityHandler = activityHandler
         self.isRegionRestricted = isRegionRestricted
+        self.usesPhaseTwoCards = usesPhaseTwoCards
         self.routable = routable
         self.debounceInterval = debounceInterval
 
@@ -315,6 +318,8 @@ private extension PolymarketSearchBlockViewModel {
             event: event,
             category: nil,
             isInActivePredicts: false,
+            isLiveBadgePulsing: usesPhaseTwoCards,
+            outcomeLabelStyle: usesPhaseTwoCards ? .compact : .bulletSeparated,
             onSelectOutcome: { [weak self, eventID = event.id] market, outcome in
                 self?.openOrder(eventID: eventID, marketID: market.id, assetId: outcome.assetId)
             }

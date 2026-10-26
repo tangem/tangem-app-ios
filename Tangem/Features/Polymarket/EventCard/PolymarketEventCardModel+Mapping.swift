@@ -20,25 +20,35 @@ extension PolymarketEventCard.Model {
         category: PolymarketCategory?,
         isInActivePredicts: Bool,
         liveQuotesByAssetId: [String: PolymarketOutcomeQuote] = [:],
+        isLiveBadgePulsing: Bool = false,
+        outcomeLabelStyle: PolymarketEventCard.OutcomeLabelStyle = .bulletSeparated,
         onSelectOutcome: @escaping (PolymarketMarket, PolymarketOutcome) -> Void
     ) -> Self {
         let variant: PolymarketEventCard.Variant = event.totalMarketsCount > 1 ? .multiMarket : .singleMarket
 
         let rows = displayedMarkets(of: event).map { market in
-            makeRow(market: market, event: event, liveQuotesByAssetId: liveQuotesByAssetId, onSelectOutcome: onSelectOutcome)
+            makeRow(
+                market: market,
+                event: event,
+                liveQuotesByAssetId: liveQuotesByAssetId,
+                outcomeLabelStyle: outcomeLabelStyle,
+                onSelectOutcome: onSelectOutcome
+            )
         }
 
         return PolymarketEventCard.Model(
             id: event.id,
             title: event.title,
             category: category.map { .init(name: $0.label, icon: $0.icon?.badgeImage) },
-            volumeText: event.volume.map { MappingConstants.volumeFormatter.formatMarketCap($0) },
+            volumeText: volumeText(of: event),
             imageURL: event.iconURL ?? event.imageURL,
             variant: variant,
             rows: rows,
             additionalOutcomesCount: max(0, event.totalMarketsCount - rows.count),
             isInActivePredicts: isInActivePredicts,
-            isLive: event.isLive
+            isLive: event.isLive,
+            isLiveBadgePulsing: isLiveBadgePulsing,
+            outcomeLabelStyle: outcomeLabelStyle
         )
     }
 
@@ -46,6 +56,7 @@ extension PolymarketEventCard.Model {
         market: PolymarketMarket,
         event: PolymarketEvent,
         liveQuotesByAssetId: [String: PolymarketOutcomeQuote],
+        outcomeLabelStyle: PolymarketEventCard.OutcomeLabelStyle,
         onSelectOutcome: @escaping (PolymarketMarket, PolymarketOutcome) -> Void
     ) -> PolymarketEventCard.Row {
         let title = market.listLabel
@@ -57,7 +68,9 @@ extension PolymarketEventCard.Model {
             PolymarketEventCard.Outcome(
                 id: outcome.assetId,
                 title: outcomeTitles[index],
-                priceText: title == nil ? buttonPriceText(outcome: outcome, liveQuote: liveQuotesByAssetId[outcome.assetId]) : nil,
+                priceText: title == nil
+                    ? buttonPriceText(outcome: outcome, liveQuote: liveQuotesByAssetId[outcome.assetId], style: outcomeLabelStyle)
+                    : nil,
                 style: PolymarketOutcomeStyle(outcomeIndex: index),
                 onSelect: { onSelectOutcome(market, outcome) }
             )
@@ -66,12 +79,23 @@ extension PolymarketEventCard.Model {
         return PolymarketEventCard.Row(id: market.id, title: title, subtitle: subtitle, outcomes: outcomes)
     }
 
-    private static func buttonPriceText(outcome: PolymarketOutcome, liveQuote: PolymarketOutcomeQuote?) -> String {
-        guard let liveQuote else {
-            return PolymarketPriceFormatter.centsText(outcome.probability)
-        }
+    static func volumeText(of event: PolymarketEvent) -> String? {
+        event.volume.map { MappingConstants.volumeFormatter.formatMarketCap($0) }
+    }
 
-        return PolymarketPriceFormatter.centsText(liveQuote.bestAsk)
+    static func buttonPriceText(
+        outcome: PolymarketOutcome,
+        liveQuote: PolymarketOutcomeQuote?,
+        style: PolymarketEventCard.OutcomeLabelStyle
+    ) -> String {
+        let price = liveQuote.map(\.bestAsk) ?? outcome.probability
+
+        switch style {
+        case .bulletSeparated:
+            return PolymarketPriceFormatter.centsText(price)
+        case .compact:
+            return PolymarketPriceFormatter.wholeCentsText(price)
+        }
     }
 
     private static func rowPercentText(market: PolymarketMarket, liveQuotesByAssetId: [String: PolymarketOutcomeQuote]) -> String {

@@ -11,11 +11,6 @@ import TangemWebSocket
 
 struct PolymarketSportsChannel: PolymarketWebSocketChannel {
     private let decoder = JSONDecoder()
-    private let now: @Sendable () -> Date
-
-    init(now: @escaping @Sendable () -> Date = { Date() }) {
-        self.now = now
-    }
 
     var url: URL {
         PolymarketHost.sportsChannel
@@ -50,8 +45,7 @@ struct PolymarketSportsChannel: PolymarketWebSocketChannel {
                 score: PolymarketGameScore(parsing: game.score, period: game.period),
                 period: game.period,
                 isLive: game.live,
-                hasEnded: game.ended,
-                receivedAt: now()
+                hasEnded: game.ended
             ),
         ]
     }

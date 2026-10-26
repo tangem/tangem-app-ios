@@ -45,8 +45,7 @@ extension PolymarketMapper {
             gameId: gameId,
             score: PolymarketGameScore(parsing: dto.score, period: dto.period),
             period: dto.period,
-            hasEnded: dto.ended ?? false,
-            dataFetchedAt: date(from: dto.dataFetchedAt)
+            hasEnded: dto.ended ?? false
         )
     }
 

@@ -41,7 +41,6 @@ extension PolymarketDTO {
         let score: String?
         let period: String?
         let ended: Bool?
-        let dataFetchedAt: String?
     }
 
     struct Team: Decodable {

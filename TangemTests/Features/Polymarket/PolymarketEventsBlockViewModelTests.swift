@@ -379,6 +379,11 @@ private extension PolymarketEventsBlockViewModelTests {
                 refreshCenter: refreshCenter
             ),
             liveQuotesTracker: liveQuotes.makeTracker(),
+            liveGamesTracker: PolymarketFeedLiveGamesTracker(
+                games: { _ in AsyncStream { $0.finish() } },
+                statusChanges: { AsyncStream { $0.finish() } }
+            ),
+            usesPhaseTwoCards: false,
             isRegionRestricted: { isRegionRestricted },
             routable: routable,
             notificationCenter: notificationCenter,

@@ -176,6 +176,7 @@ extension PolymarketDestinationFactory: PolymarketEventDetailsBuilder {
             category: category,
             apiProvider: dependencies.apiProvider,
             geoblockStateProvider: dependencies.geoblockStateProvider,
+            isLiveBadgePulsing: dependencies.isPhaseTwoAvailable,
             onOrderPlaced: onOrderPlaced,
             onRegionWarning: onRegionWarning,
             orderBuilder: self

@@ -21,6 +21,7 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
     @Published private(set) var isClosedMarketsExpanded = false
 
     let eventID: String
+    let isLiveBadgePulsing: Bool
 
     private let category: PolymarketCategory?
     private let apiProvider: PolymarketAPIProvider
@@ -40,10 +41,12 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
         category: PolymarketCategory?,
         apiProvider: PolymarketAPIProvider,
         geoblockStateProvider: PolymarketGeoblockStateProvider,
+        isLiveBadgePulsing: Bool,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
         coordinator: PolymarketEventDetailsRoutable
     ) {
         self.eventID = eventID
+        self.isLiveBadgePulsing = isLiveBadgePulsing
         self.category = category
         self.apiProvider = apiProvider
         self.geoblockStateProvider = geoblockStateProvider

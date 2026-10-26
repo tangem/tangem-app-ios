@@ -154,7 +154,7 @@ struct PolymarketEventDetailsView: View {
             verticalSpacing: Constants.metaSpacing
         ) {
             if content.isLive {
-                liveBadge
+                PolymarketLiveBadge(isPulsing: viewModel.isLiveBadgePulsing)
             }
 
             if let categoryName = content.categoryName {
@@ -174,15 +174,6 @@ struct PolymarketEventDetailsView: View {
             .size(.x4)
             .variant(.tinted)
             .appearance(.neutral)
-    }
-
-    private var liveBadge: some View {
-        // [REDACTED_TODO_COMMENT]
-        Badge(label: "Live", accessibilityLabel: nil)
-            .size(.x4)
-            .variant(.solid)
-            .appearance(.success)
-            .slotStart(DesignSystem.Icons.Dot.filled12)
     }
 
     private func volumeChange(_ change: PolymarketEventDetailsContent.VolumeChange) -> some View {
