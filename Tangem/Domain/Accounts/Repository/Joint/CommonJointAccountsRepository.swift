@@ -22,7 +22,7 @@ final class CommonJointAccountsRepository {
     private let derivationInteractorFactory: JointAccountDerivationInteractorFactory
     private let persistentStorage: JointAccountsPersistentStorage
     private let invitesPersistentStorage: JointAccountsInvitesPersistentStorage
-    private let pendingOperationsPersistentStorage: JointAccountsPendingOperationsPersistentStorage
+    private let pendingOperationsSynchronizer: JointAccountPendingOperationsSynchronizer
     private let eTagStorage: ETagStorage
     private let isJointAccountsAvailable: Bool
 
@@ -69,25 +69,13 @@ final class CommonJointAccountsRepository {
         .share(replay: 1)
         .eraseToAnyPublisher()
 
-    /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
-    private lazy var pendingOperationsStorageDidUpdatePublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> = pendingOperationsPersistentStorage
-        .didUpdatePublisher
-        .prepend(()) // An initial value to trigger loading from storage
-        .receive(on: storageReadingQueue)
-        .withWeakCaptureOf(self)
-        .map { repository, _ in repository.pendingOperationsPersistentStorage.getList() }
-        .removeDuplicates()
-        .receiveOnMain()
-        .share(replay: 1)
-        .eraseToAnyPublisher()
-
     init(
         userWalletId: UserWalletId,
         networkService: JointAccountsNetworkService,
         derivationInteractorFactory: JointAccountDerivationInteractorFactory,
         persistentStorage: JointAccountsPersistentStorage,
         invitesPersistentStorage: JointAccountsInvitesPersistentStorage,
-        pendingOperationsPersistentStorage: JointAccountsPendingOperationsPersistentStorage,
+        pendingOperationsSynchronizer: JointAccountPendingOperationsSynchronizer,
         eTagStorage: ETagStorage,
         isJointAccountsAvailable: Bool
     ) {
@@ -96,7 +84,7 @@ final class CommonJointAccountsRepository {
         self.derivationInteractorFactory = derivationInteractorFactory
         self.persistentStorage = persistentStorage
         self.invitesPersistentStorage = invitesPersistentStorage
-        self.pendingOperationsPersistentStorage = pendingOperationsPersistentStorage
+        self.pendingOperationsSynchronizer = pendingOperationsSynchronizer
         self.eTagStorage = eTagStorage
         self.isJointAccountsAvailable = isJointAccountsAvailable
 
@@ -104,7 +92,6 @@ final class CommonJointAccountsRepository {
         _ = loadJointAccountsDebouncer
         _ = storageDidUpdatePublisher
         _ = invitesStorageDidUpdatePublisher
-        _ = pendingOperationsStorageDidUpdatePublisher
 
         _ = autoupdater
     }
@@ -274,6 +261,7 @@ private extension CommonJointAccountsRepository {
         let eTagKey = ETagStorageKey.jointAccounts(walletId: userWalletId)
         let hasStoredAccounts = persistentStorage.getList().isNotEmpty
         let knownETag = hasStoredAccounts ? eTagStorage.loadETag(for: eTagKey) : nil
+        let pendingOperationsCheckpoint = await pendingOperationsSynchronizer.checkpoint
 
         let remoteState = try await networkService.getJointAccounts(knownETag: knownETag)
         try Task.checkCancellation()
@@ -295,10 +283,12 @@ private extension CommonJointAccountsRepository {
         eTagStorage.clearETag(for: eTagKey)
 
         // The operations go first, so that an account arriving in the list finds what is in flight for it already there
-        try pendingOperationsPersistentStorage.replace(with: pendingOperations)
+        try await pendingOperationsSynchronizer.apply(listing: pendingOperations, requestedAt: pendingOperationsCheckpoint)
         try persistentStorage.replace(with: accounts)
 
-        if let eTag {
+        let hasLocalWritesSinceRequest = await pendingOperationsSynchronizer.checkpoint != pendingOperationsCheckpoint
+
+        if let eTag, !hasLocalWritesSinceRequest {
             eTagStorage.saveETag(eTag, for: eTagKey)
         }
     }
@@ -375,7 +365,11 @@ extension CommonJointAccountsRepository {
                 }
             }
 
-            return hasPendingAccounts || !pendingOperations.isEmpty ? .regular : .idle
+            let hasOperationsInFlight = pendingOperations.contains { record in
+                record.operations.contains { $0.status.isInFlight }
+            }
+
+            return hasPendingAccounts || hasOperationsInFlight ? .regular : .idle
         }
 
         private func changeFrequentUpdatesRequestsCount(by delta: Int) {
@@ -389,7 +383,7 @@ extension CommonJointAccountsRepository {
         private func bind(innerRepository: CommonJointAccountsRepository) {
             let publisher = Publishers
                 .CombineLatest3(
-                    innerRepository.pendingOperationsStorageDidUpdatePublisher,
+                    innerRepository.pendingOperationsSynchronizer.pendingOperationsPublisher,
                     innerRepository.jointAccountsPublisher,
                     frequentUpdatesRequestsCountSubject
                 )

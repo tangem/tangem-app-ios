@@ -82,7 +82,11 @@ enum JointAccountCompositionFixture {
         StoredJointAccountPendingOperations(cryptoAccountId: caseFlippedCryptoAccountId, operations: operations)
     }
 
-    static func coinTransfer(id: String = "coin", status: JointAccountOperationStatus = .awaitingSignatures) -> JointAccountOperation {
+    static func coinTransfer(
+        id: String = "coin",
+        status: JointAccountOperationStatus = .awaitingSignatures,
+        finishedAt: Date? = nil
+    ) -> JointAccountOperation {
         JointAccountOperation(
             id: id,
             chainId: 1,
@@ -100,7 +104,7 @@ enum JointAccountCompositionFixture {
             ),
             status: status,
             txHash: nil,
-            finishedAt: nil,
+            finishedAt: finishedAt,
             cancelReason: nil,
             initiator: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
             signatures: []
