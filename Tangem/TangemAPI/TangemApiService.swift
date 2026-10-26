@@ -121,6 +121,7 @@ protocol TangemApiService: AnyObject {
     // MARK: - Marketing
 
     func loadMarketingCampaigns(request: MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response
+    func bindMarketingActivityWallets(uid: String, request: MarketingActivityDTO.BindWallets.Request) async throws
 
     // MARK: - Configs
 

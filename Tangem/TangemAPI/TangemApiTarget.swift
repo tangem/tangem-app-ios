@@ -20,6 +20,11 @@ struct TangemApiTarget: TargetType {
         switch type {
         case .rawData(let fullURL):
             fullURL
+        case .bindMarketingActivityWallets(let uid, _):
+            MarketingActivityURLBuilderUtil().bindWalletsURL(
+                baseURL: AppEnvironment.current.apiBaseUrlWithGatewaySegment,
+                uid: uid
+            )
         case .activatePromoCode:
             AppEnvironment.current.activatePromoCodeBaseUrl
         case .promotion, .yieldBoostPromotionStatus, .promotionRegistration:
@@ -117,6 +122,8 @@ struct TangemApiTarget: TargetType {
             return "/banner/displays/\(request.displayId)"
         case .marketingCampaigns:
             return "/marketing/campaigns"
+        case .bindMarketingActivityWallets:
+            return ""
         case .createAccount:
             return "/user-network-account"
         case .apiList:
@@ -319,6 +326,7 @@ struct TangemApiTarget: TargetType {
              .createWallet,
              .saveWalletCards,
              .bindWalletsByCode,
+             .bindMarketingActivityWallets,
              .syncAddressBooks,
              .subscribeToPriceAlerts,
              .promotionRegistration,
@@ -368,6 +376,8 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(request)
         case .marketingCampaigns(let parameters):
             return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
+        case .bindMarketingActivityWallets(_, let request):
+            return .requestJSONEncodable(request)
         case .createAccount(let parameters):
             return .requestJSONEncodable(parameters)
         case .apiList:
@@ -594,6 +604,7 @@ struct TangemApiTarget: TargetType {
              .newsDetails,
              .newsCategories,
              .bindWalletsByCode,
+             .bindMarketingActivityWallets,
              .applicationVersions,
              .syncAddressBooks:
             return nil
@@ -638,6 +649,7 @@ extension TangemApiTarget {
         case hidePromotion(request: PromotionsDTO.Hide.Request)
 
         case marketingCampaigns(parameters: [String: Any])
+        case bindMarketingActivityWallets(uid: String, _ request: MarketingActivityDTO.BindWallets.Request)
 
         case story(_ id: String)
         case stories(slugs: [String], language: String)
@@ -753,6 +765,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .getJointOperationsHistoryDelta(let walletId, _),
              .getJointOperation(let walletId, _, _):
             return path.replacingOccurrences(of: walletId, with: "{walletId}")
+        case .bindMarketingActivityWallets(let uid, _):
+            return MarketingActivityURLBuilderUtil().bindWalletsLoggablePath(uid: uid)
         default:
             return path
         }
@@ -797,6 +811,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .newsDetails,
              .yieldBoostPromotionStatus,
              .bindWalletsByCode,
+             .bindMarketingActivityWallets,
              .createJointAccount,
              .joinJointAccount,
              .getJointAccountInvite,
