@@ -542,23 +542,23 @@ final class SwapModelTests: LeakTrackingTestSuite {
         sut.actualizeInformation()
         _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
 
-        #expect(sut.slippageProvider?.slippage == defaultSlippage)
+        #expect(sut.providerSlippage?.defaultSlippage == defaultSlippage)
 
         baseline = recorder.count
         sut.actualizeInformation()
 
-        #expect(sut.slippageProvider == nil)
+        #expect(sut.providerSlippage == nil)
 
         _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
 
-        #expect(sut.slippageProvider?.slippage == defaultSlippage)
+        #expect(sut.providerSlippage?.defaultSlippage == defaultSlippage)
 
         baseline = recorder.count
         sut.userDidFinishSelection(feeTokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)), feeOption: .market)
 
         let isLoadingFee = if case .loading(.fee) = recorder.latest { true } else { false }
         #expect(isLoadingFee)
-        #expect(sut.slippageProvider?.slippage == defaultSlippage)
+        #expect(sut.providerSlippage?.defaultSlippage == defaultSlippage)
 
         _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
 
@@ -569,16 +569,16 @@ final class SwapModelTests: LeakTrackingTestSuite {
             if case .loading = state { true } else { false }
         }
 
-        #expect(sut.slippageProvider == nil)
+        #expect(sut.providerSlippage == nil)
 
         await manager.releaseHeldAmountUpdate()
         _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
 
-        #expect(sut.slippageProvider?.slippage == defaultSlippage)
+        #expect(sut.providerSlippage?.defaultSlippage == defaultSlippage)
 
         sut.update(receive: ReceiveTokenStub(blockchain: .polygon(testnet: false)))
 
-        #expect(sut.slippageProvider == nil)
+        #expect(sut.providerSlippage == nil)
     }
 
     @Test("Choosing another provider hands the slippage sheet the new provider right away")
@@ -604,16 +604,16 @@ final class SwapModelTests: LeakTrackingTestSuite {
         sut.actualizeInformation()
         _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
 
-        #expect(sut.slippageProvider?.isCustomSlippageSupported == true)
+        #expect(sut.providerSlippage?.isCustomSlippageSupported == true)
 
         baseline = recorder.count
         sut.userDidSelect(provider: second)
 
-        #expect(sut.slippageProvider?.isCustomSlippageSupported == false)
+        #expect(sut.providerSlippage?.isCustomSlippageSupported == false)
 
         _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
 
-        #expect(sut.slippageProvider?.isCustomSlippageSupported == false)
+        #expect(sut.providerSlippage?.isCustomSlippageSupported == false)
     }
 
     @Test("A provider without a default slippage gives the slippage sheet nothing to open")
@@ -626,7 +626,7 @@ final class SwapModelTests: LeakTrackingTestSuite {
 
         sut.userDidSelect(provider: ExpressAvailableProviderFixture.make(state: quotedState, slippage: nil))
 
-        #expect(sut.slippageProvider == nil)
+        #expect(sut.providerSlippage == nil)
     }
 
     @Test("Tapping the low slippage warning asks the router to open the slippage sheet")

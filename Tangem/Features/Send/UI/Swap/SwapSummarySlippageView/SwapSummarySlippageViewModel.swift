@@ -31,7 +31,7 @@ final class SwapSummarySlippageViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$isVisible)
 
-        slippageInput.slippageProviderPublisher
+        slippageInput.providerSlippagePublisher
             .map { $0 != nil }
             .removeDuplicates()
             .receiveOnMain()
