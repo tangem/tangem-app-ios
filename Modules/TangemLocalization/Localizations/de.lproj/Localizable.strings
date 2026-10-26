@@ -401,6 +401,7 @@
 "common_forget" = "Entfernen";
 "common_from_account" = "Vom Konto";
 "common_from_address" = "Absenderadresse";
+"common_from_lowercase" = "from";
 "common_from_wallet_name" = "Von %@";
 "common_from_wallet" = "Aus der Wallet";
 "common_from" = "Vom";
@@ -1329,6 +1330,7 @@
 "mcp_intent_cant_reach_title" = "Can’t reach intent";
 "mcp_intent_proceed" = "Proceed";
 "mcp_intent_processed_title" = "This intent has already been processed";
+"mcp_intent_unknown_agent_name" = "AI";
 "mcp_send_intent_cant_reach_title" = "Can’t reach intent";
 "mcp_send_intent_offer_description" = "The agent is asking to send from your account. You’ll review the details next.";
 "mcp_send_intent_offer_title" = "%1$@ Agent wants to send %2$@";
@@ -1377,6 +1379,9 @@
 "money_account_onboarding_transfers_card_caption" = "Einnahmen. Ausgaben.";
 "money_account_onboarding_transfers_card_subtitle" = "mit einem eigens dafür eingerichteten Konto mit Bankverbindung";
 "money_account_onboarding_transfers_card_title" = "Fiat-Zahlungen senden und empfangen";
+"money_account_send_bank_transfer_unavailable" = "Unavailable";
+"money_account_send_unavailable_description" = "Try again in 5 minutes";
+"money_account_send_unavailable_title" = "Operation currently unavailable";
 "news_all_news" = "Alle Neuigkeiten";
 "news_like" = "Gefällt mir";
 "news_quick_recap" = "Kurze Zusammenfassung";
@@ -2505,6 +2510,8 @@
 "tangempay_onboarding_security_title" = "Unerreichte Privatsphäre";
 "tangempay_onboarding_setup_wallet_description" = "Und verknüpfen Tangem Pay damit";
 "tangempay_onboarding_setup_wallet_title" = "Wir erstellen eine neue Wallet";
+"tangempay_onboarding_success_description" = "Products activation might take a few minutes to finish";
+"tangempay_onboarding_success_title" = "Tangem Pay is activating";
 "tangempay_onboarding_title" = "Holen Sie sich Ihre Tangem Pay Karte";
 "tangempay_order_card_error_active_order" = "Eine Kartenbestellung ist bereits in Bearbeitung.";
 "tangempay_order_card_error_insufficient_balance" = "Nicht genügend Guthaben für die Lieferung. Laden Sie Guthaben auf und versuchen Sie es erneut.";
@@ -2686,6 +2693,7 @@
 "tangempay_withdraw_bank_geo_country_selected" = "Ausgewähltes Land";
 "tangempay_withdraw_bank_geo_state_selected" = "Ausgewählter Staat";
 "tangempay_withdraw_bank_geo_state_title" = "Bundesland";
+"tangempay_withdraw_bank_network_fee_unreachable" = "Network fee info unreachable. Check your internet connection or tap to refresh";
 "tangempay_withdraw_bank_offramp_unavailable" = "Nicht verfügbar";
 "tangempay_withdraw_bank_placeholder_address_line1" = "z. B. Ebunike-Straße, Wohnung 32";
 "tangempay_withdraw_bank_placeholder_bank_name" = "z. B. Goldman Sachs";
@@ -2826,6 +2834,7 @@
 "transaction_history_transaction_for_address" = "für: %@";
 "transaction_history_transaction_from_address" = "von: %@";
 "transaction_history_transaction_from_for_address" = "from: %1$@ for %2$@";
+"transaction_history_transaction_from_from_address" = "from: %1$@ from %2$@";
 "transaction_history_transaction_to_address" = "zu: %@";
 "transaction_history_transaction_to_for_address" = "to: %1$@ for %2$@";
 "transaction_history_unlimited_amount" = "Unbegrenzt %@";
