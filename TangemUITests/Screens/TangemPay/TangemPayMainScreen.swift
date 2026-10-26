@@ -349,7 +349,7 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     @discardableResult
     func openRemoveAccountFromMoreActions() -> Self {
         XCTContext.runActivity(named: "Tap Remove account in more actions menu") { _ in
-            moreActionsButton.waitAndTap()
+            tapMoreActions()
             removeAccountMenuItem.waitAndTap()
             return self
         }
@@ -375,7 +375,7 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     @discardableResult
     func openMoreActionsMenu() -> Self {
         XCTContext.runActivity(named: "Open the more actions menu") { _ in
-            moreActionsButton.waitAndTap()
+            tapMoreActions()
             return self
         }
     }
@@ -796,6 +796,11 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
             .matching(identifier: identifier)
             .matching(NSPredicate(format: "label == %@", label))
             .firstMatch
+    }
+
+    private func tapMoreActions() {
+        waitAndAssertTrue(moreActionsButton, "More actions button should be displayed")
+        moreActionsButton.tapPreferringHittable()
     }
 
     private func cardDeactivatedBannerElement(labelContaining text: String) -> XCUIElement {
