@@ -79,7 +79,7 @@ private extension CollectiblesMainView {
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
             if viewModel.showsBalanceInNavigationBar {
-                Text(viewModel.accountBalanceText)
+                SensitiveText(viewModel.accountBalanceText)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             }
         }
