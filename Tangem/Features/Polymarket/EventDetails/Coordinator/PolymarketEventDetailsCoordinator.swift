@@ -48,6 +48,7 @@ final class PolymarketEventDetailsCoordinator: CoordinatorObject {
             category: options.category,
             apiProvider: options.apiProvider,
             geoblockStateProvider: options.geoblockStateProvider,
+            isLiveBadgePulsing: options.isLiveBadgePulsing,
             onOrderPlaced: options.onOrderPlaced,
             coordinator: self
         )
@@ -62,6 +63,7 @@ extension PolymarketEventDetailsCoordinator {
         let category: PolymarketCategory?
         let apiProvider: PolymarketAPIProvider
         let geoblockStateProvider: PolymarketGeoblockStateProvider
+        let isLiveBadgePulsing: Bool
         let onOrderPlaced: @MainActor (PolymarketOrderIndexing) -> Void
         let onRegionWarning: () -> Void
         let orderBuilder: PolymarketOrderFlowBuilder
