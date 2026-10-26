@@ -297,8 +297,7 @@ struct PolymarketEventsBlockViewModelTests {
         context.provider.slowEventCategories = [1]
         context.provider.eventPages[.init(category: 1, cursor: nil)] = PolymarketEventsPage(
             events: [Self.event(id: "b", title: "stale"), Self.event(id: "a")],
-            cursor: nil,
-            hasNext: false
+            cursor: nil
         )
         context.clock.advance(by: 21)
         context.sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: true))
@@ -624,7 +623,7 @@ private extension PolymarketEventsBlockViewModelTests {
         let provider = PolymarketAPIProviderStub()
         provider.categoryList = [category(1)]
         provider.eventPages = [
-            .init(category: 1, cursor: nil): PolymarketEventsPage(events: [PolymarketLiveQuotesFixtures.event(id: "a")], cursor: nil, hasNext: false),
+            .init(category: 1, cursor: nil): PolymarketEventsPage(events: [PolymarketLiveQuotesFixtures.event(id: "a")], cursor: nil),
         ]
         let liveQuotes = PolymarketLiveQuotesSourceSpy()
         let sut = makeSUT(provider: provider, liveQuotes: liveQuotes)
@@ -734,8 +733,7 @@ private extension PolymarketEventsBlockViewModelTests {
     static func page(_ ids: [String], cursor: String? = nil, outcomes: [PolymarketOutcome] = []) -> PolymarketEventsPage {
         PolymarketEventsPage(
             events: ids.map { event(id: $0, outcomes: outcomes) },
-            cursor: cursor,
-            hasNext: cursor != nil
+            cursor: cursor
         )
     }
 
