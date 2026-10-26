@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
+import TangemFoundation
 import TangemPolymarket
 
 @MainActor
@@ -13,6 +15,7 @@ final class PolymarketFeedLiveGamesTracker {
     let updates: AsyncStream<Update>
 
     private let reader: PolymarketLiveTopicsReader<String, PolymarketLiveGame>
+    private let delayProvider: any PollDelayProvider
     private let updatesContinuation: AsyncStream<Update>.Continuation
 
     private var readerTask: Task<Void, Never>?
@@ -25,9 +28,11 @@ final class PolymarketFeedLiveGamesTracker {
 
     init(
         games: @escaping @Sendable (Set<String>) async -> AsyncStream<PolymarketLiveGame>,
-        statusChanges: @escaping @Sendable () async -> AsyncStream<PolymarketWebSocketConnectionStatus>
+        statusChanges: @escaping @Sendable () async -> AsyncStream<PolymarketWebSocketConnectionStatus>,
+        delayProvider: any PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
         reader = PolymarketLiveTopicsReader(values: games, statusChanges: statusChanges)
+        self.delayProvider = delayProvider
         (updates, updatesContinuation) = AsyncStream.makeStream(of: Update.self)
 
         readerTask = Task { [weak self, readerUpdates = reader.updates] in
@@ -114,9 +119,9 @@ private extension PolymarketFeedLiveGamesTracker {
             return
         }
 
-        silenceTasks[game.gameId] = Task { [weak self, gameId = game.gameId] in
+        silenceTasks[game.gameId] = Task { [weak self, delayProvider, gameId = game.gameId] in
             do {
-                try await Task.sleep(for: Constants.silenceTimeout)
+                try await delayProvider.wait(for: Constants.silenceTimeout)
             } catch {
                 return
             }
@@ -146,5 +151,5 @@ private extension PolymarketFeedLiveGamesTracker {
 // MARK: - Constants
 
 private enum Constants {
-    static let silenceTimeout: Duration = .seconds(10 * 60)
+    static let silenceTimeout: TimeInterval = 10 * 60
 }

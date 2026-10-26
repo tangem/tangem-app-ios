@@ -527,6 +527,7 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
     var categoryList: [PolymarketCategory] = []
     var queuedCategoryResults: [Result<[PolymarketCategory], Error>] = []
     var slowEventCategories: Set<Int> = []
+    var slowEventsIgnoreCancellation = false
 
     static let slowEventsDelay: UInt64 = 200_000_000
     var eventPages: [EventsPageKey: PolymarketEventsPage] = [:]
@@ -566,7 +567,11 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
         eventsRequests.append(request)
 
         if let category = request.category, slowEventCategories.contains(category) {
-            try await Task.sleep(nanoseconds: Self.slowEventsDelay)
+            if slowEventsIgnoreCancellation {
+                await Task.detached { try? await Task.sleep(nanoseconds: Self.slowEventsDelay) }.value
+            } else {
+                try await Task.sleep(nanoseconds: Self.slowEventsDelay)
+            }
         }
 
         let key = EventsPageKey(category: request.category, cursor: request.cursor)
