@@ -136,6 +136,18 @@ final class StakingDetailsScreen: ScreenBase<StakingDetailsScreenElement> {
     }
 
     @discardableResult
+    func assertWithdrawEntryReadyToWithdraw() -> Self {
+        XCTContext.runActivity(named: "Assert withdraw entry shows '\(Localization.stakingReadyToWithdraw)'") { _ in
+            let entry = app.buttons
+                .matching(identifier: StakingAccessibilityIdentifiers.withdrawStakeRow)
+                .matching(NSPredicate(format: "label CONTAINS %@", Localization.stakingReadyToWithdraw))
+                .firstMatch
+            waitAndAssertTrue(entry, "Withdraw entry should show '\(Localization.stakingReadyToWithdraw)'")
+            return self
+        }
+    }
+
+    @discardableResult
     func assertWithdrawEntryNotDisplayed() -> Self {
         XCTContext.runActivity(named: "Assert withdraw entry is no longer displayed") { _ in
             XCTAssertTrue(
@@ -158,6 +170,74 @@ final class StakingDetailsScreen: ScreenBase<StakingDetailsScreenElement> {
     func assertNoRewardsToClaim() -> Self {
         XCTContext.runActivity(named: "Assert 'no rewards to claim' text is displayed") { _ in
             waitAndAssertTrue(noRewardsToClaim, "'No rewards to claim' text should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertRewardsAmount(_ amount: String) -> Self {
+        XCTContext.runActivity(named: "Assert rewards block shows '\(amount)'") { _ in
+            let block = app.buttons
+                .matching(identifier: StakingAccessibilityIdentifiers.rewardClaimBlock)
+                .matching(NSPredicate(format: "label CONTAINS %@", amount))
+                .firstMatch
+            waitAndAssertTrue(block, "Rewards block with '\(amount)' should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertActiveStakeAmount(_ amount: String) -> Self {
+        XCTContext.runActivity(named: "Assert active stake amount is '\(amount)'") { _ in
+            let row = app.buttons
+                .matching(identifier: StakingAccessibilityIdentifiers.activeStakeRow)
+                .matching(NSPredicate(format: "label CONTAINS %@", amount))
+                .firstMatch
+            waitAndAssertTrue(row, "Active stake row with '\(amount)' should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertNoActiveStake() -> Self {
+        XCTContext.runActivity(named: "Assert no active staking row is displayed") { _ in
+            let rows = app.descendants(matching: .any).matching(identifier: StakingAccessibilityIdentifiers.activeStakeRow)
+            XCTAssertTrue(
+                rows.firstMatch.waitForNonExistence(timeout: .robustUIUpdate),
+                "Active staking row should not be displayed"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertUnstakingAmount(_ amount: String) -> Self {
+        XCTContext.runActivity(named: "Assert unstaking amount is '\(amount)'") { _ in
+            let row = app.descendants(matching: .any)
+                .matching(identifier: StakingAccessibilityIdentifiers.unstakingStakeRow)
+                .matching(NSPredicate(format: "label CONTAINS %@", amount))
+                .firstMatch
+            waitAndAssertTrue(row, "Unstaking entry with '\(amount)' should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertStakeAvailableWithoutPositions() -> Self {
+        XCTContext.runActivity(named: "Assert staking screen without positions is displayed") { _ in
+            waitAndAssertTrue(annualPercentageRateValue, "Annual percentage rate should be displayed")
+            assertStakeButtonLabel(Localization.commonStake)
+            for identifier in [
+                StakingAccessibilityIdentifiers.activeStakeRow,
+                StakingAccessibilityIdentifiers.unstakingStakeRow,
+                StakingAccessibilityIdentifiers.withdrawStakeRow,
+            ] {
+                let rows = app.descendants(matching: .any).matching(identifier: identifier)
+                XCTAssertTrue(
+                    rows.firstMatch.waitForNonExistence(timeout: .robustUIUpdate),
+                    "No position rows should be displayed, but '\(identifier)' was found"
+                )
+            }
             return self
         }
     }

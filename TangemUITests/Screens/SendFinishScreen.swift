@@ -134,6 +134,20 @@ final class SendFinishScreen: ScreenBase<SendFinishScreenElement> {
     }
 
     @discardableResult
+    func assertStakingSuccessContent() -> Self {
+        XCTContext.runActivity(named: "Assert the staking success screen content is displayed") { _ in
+            waitForDisplay()
+            assertHeaderTitle(Localization.sentTransactionSentTitle)
+            assertAmountDisplayed()
+            let networkFee = app.descendants(matching: .any)[SendAccessibilityIdentifiers.networkFeeBlock].firstMatch
+            waitAndAssertTrue(networkFee, "Network fee block should be displayed on the success screen")
+            assertExploreButtonDisplayed()
+            waitAndAssertTrue(shareButton, "Share button should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
     func assertExploreButtonDisplayed() -> Self {
         XCTContext.runActivity(named: "Assert 'Explore' button is displayed") { _ in
             waitAndAssertTrue(exploreButton, "Explore button should be displayed")
