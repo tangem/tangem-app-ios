@@ -100,7 +100,7 @@ struct HighPriceImpactCalculator {
     }
 
     private func makeMessage(input: Input, level: Level) -> String {
-        let slippageFormatted: String? = input.provider.slippage.map { slippage in
+        let slippageFormatted: String? = input.slippage.map { slippage in
             percentFormatter.format(slippage, option: .slippage)
         }
 
@@ -137,6 +137,7 @@ struct HighPriceImpactCalculator {
 extension HighPriceImpactCalculator {
     struct Input {
         let provider: ExpressProvider
+        let slippage: Decimal?
         let sourceToken: TokenItem
         let destinationToken: TokenItem
         let sourceAmount: Decimal
