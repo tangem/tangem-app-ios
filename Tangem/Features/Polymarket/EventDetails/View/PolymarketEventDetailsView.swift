@@ -285,6 +285,9 @@ struct PolymarketEventDetailsView: View {
 
     private func infoRow(title: String, value: String, showsDivider: Bool) -> some View {
         Row(title: title, value: value)
+            .contentLead(.end)
+            .titleLineLimit(nil)
+            .valueLineLimit(nil)
             .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
             .showDivider(showsDivider)
     }
