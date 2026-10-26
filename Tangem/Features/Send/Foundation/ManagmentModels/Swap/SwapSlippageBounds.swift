@@ -25,6 +25,18 @@ struct SwapSlippageBounds {
         self.defaultSlippage = Self.normalized(defaultSlippage)
     }
 
+    init?(defaultSlippage: Decimal?, isCustomSlippageSupported: Bool) {
+        guard isCustomSlippageSupported, let defaultSlippage else {
+            return nil
+        }
+
+        self.init(defaultSlippage: defaultSlippage)
+
+        guard isValid else {
+            return nil
+        }
+    }
+
     func accepts(_ slippage: Decimal) -> Bool {
         slippage >= minSlippage && slippage <= maxSlippage
     }
@@ -34,16 +46,26 @@ struct SwapSlippageBounds {
     }
 }
 
-// MARK: - ExpressProvider
+// MARK: - SwapProviderSlippage
 
-extension ExpressProvider {
+struct SwapProviderSlippage: Equatable {
+    let defaultSlippage: Decimal
+    let isCustomSlippageSupported: Bool
+
     var customSlippageBounds: SwapSlippageBounds? {
-        guard isCustomSlippageSupported, let slippage else {
-            return nil
-        }
+        SwapSlippageBounds(defaultSlippage: defaultSlippage, isCustomSlippageSupported: isCustomSlippageSupported)
+    }
+}
 
-        let bounds = SwapSlippageBounds(defaultSlippage: slippage)
-        return bounds.isValid ? bounds : nil
+// MARK: - ExpressAvailableProvider
+
+extension ExpressAvailableProvider {
+    var providerSlippage: SwapProviderSlippage? {
+        defaultSlippage.map { SwapProviderSlippage(defaultSlippage: $0, isCustomSlippageSupported: provider.isCustomSlippageSupported) }
+    }
+
+    var customSlippageBounds: SwapSlippageBounds? {
+        SwapSlippageBounds(defaultSlippage: defaultSlippage, isCustomSlippageSupported: provider.isCustomSlippageSupported)
     }
 }
 
