@@ -66,11 +66,15 @@ final class TangemPayWithdrawUITests: BaseTestCase {
             .chooseTokenFromEmptySelector("Bitcoin")
             .enterFromAmount("5")
 
+        let withdrawsBefore = withdrawRequestCount()
         let before = exchangeSentRequestCount()
         swapScreen.confirmSwap()
         SendFinishScreen(app).waitForDisplay()
+        waitForWireMockRequestCount(method: "POST", urlPattern: Constants.Endpoint.exchangeSentPattern, toExceed: before)
 
         XCTContext.runActivity(named: "Verify swap was submitted exactly once") { _ in
+            let withdrawsDelta = withdrawRequestCount() - withdrawsBefore
+            XCTAssertEqual(withdrawsDelta, 1, "Withdrawal should be submitted exactly once, but delta was \(withdrawsDelta)")
             let after = exchangeSentRequestCount()
             XCTAssertEqual(after - before, 1, "Swap should be submitted exactly once, but delta was \(after - before)")
         }
@@ -197,36 +201,44 @@ final class TangemPayWithdrawUITests: BaseTestCase {
         }
     }
 
-    func testWithdraw_StaysOnSwapUntilTransactionHashArrives() {
+    func testWithdraw_OpensFinishBeforeTransactionHash_ReportsExchangeAfterIt() {
         setAllureId(9660)
 
-        confirmBitcoinWithdraw(withdrawState: Constants.State.orderPendingFirstPoll)
-            .verifyFinishScreenNotOpened(within: Constants.pendingOrderObservationTime)
+        confirmBitcoinWithdraw(withdrawState: Constants.State.orderWithoutHash)
+        SendFinishScreen(app).waitForDisplay()
+        waitForWireMockRequestCount(urlPattern: Constants.Endpoint.withdrawOrder, toExceed: 0)
 
-        XCTContext.runActivity(named: "Verify the order is being polled while the Swap screen stays open") { _ in
-            XCTAssertGreaterThan(orderRequestCount(), 0, "The order should already be polled while the transaction hash is missing")
+        XCTContext.runActivity(named: "Verify the exchange is not reported while the order has no transaction hash") { _ in
+            XCTAssertEqual(exchangeSentRequestCount(), 0, "Exchange should not be reported to Express before the transaction hash arrives")
         }
 
-        SwapScreen(app).validateSwapScreenDisplayed()
-        SendFinishScreen(app).waitForDisplay()
+        XCTContext.runActivity(named: "Let the order return the transaction hash") { _ in
+            wireMockClient.setScenarioStateSync(Constants.Scenario.withdraw, state: Constants.State.orderHashReady)
+        }
 
-        XCTContext.runActivity(named: "Verify the order was polled until the transaction hash arrived") { _ in
-            XCTAssertEqual(
-                orderRequestCount(),
-                Constants.pollsUntilTransactionHash,
-                "The order should be polled again after each response without a transaction hash"
+        waitForWireMockRequestCount(method: "POST", urlPattern: Constants.Endpoint.exchangeSentPattern, toExceed: 0)
+        verifyOrderPollingStopped()
+
+        XCTContext.runActivity(named: "Verify the exchange was reported with the order transaction hash") { _ in
+            let exchangeSentBodies = wireMockClient.findRequestBodiesSync(method: "POST", urlPath: Constants.Endpoint.exchangeSentPattern)
+            XCTAssertEqual(exchangeSentBodies.count, 1, "Exchange should be reported to Express exactly once")
+            XCTAssertTrue(
+                exchangeSentBodies.first?.contains(Constants.transactionHash) ?? false,
+                "Exchange should be reported with the order transaction hash: \(exchangeSentBodies.first ?? "none")"
             )
         }
     }
 
-    func testWithdraw_TransactionHashNotReceivedAfterMaxPollAttempts_ShowsError() {
+    func testWithdraw_TransactionHashNotReceived_ShowsFinishWithoutReportingExchange() {
         setAllureId(9659)
 
         confirmBitcoinWithdraw(withdrawState: Constants.State.orderWithoutHash)
-            .waitForErrorAlert()
+        let finishScreen = SendFinishScreen(app).waitForDisplay()
 
-        XCTContext.runActivity(named: "Verify the order was polled the maximum number of times") { _ in
-            XCTAssertEqual(orderRequestCount(), Constants.maxOrderPollAttempts, "The order should be polled exactly \(Constants.maxOrderPollAttempts) times")
+        waitForWireMockRequestCount(urlPattern: Constants.Endpoint.withdrawOrder, toExceed: Constants.minPollsWithoutHash - 1)
+        finishScreen.assertStillDisplayedWithoutAlert()
+
+        XCTContext.runActivity(named: "Verify the exchange is not reported while the transaction hash is missing") { _ in
             XCTAssertEqual(exchangeSentRequestCount(), 0, "Withdrawal without a transaction hash should not be reported to Express")
         }
     }
@@ -293,6 +305,22 @@ final class TangemPayWithdrawUITests: BaseTestCase {
         wireMockClient.requestCountSync(method: "GET", urlPathPattern: Constants.Endpoint.withdrawOrder)
     }
 
+    private func verifyOrderPollingStopped() {
+        XCTContext.runActivity(named: "Verify the order is not polled after the transaction hash arrived") { _ in
+            let pollsAfterHash = orderRequestCount()
+            let newPoll = XCTNSPredicateExpectation(
+                predicate: NSPredicate { [self] _, _ in orderRequestCount() > pollsAfterHash },
+                object: nil
+            )
+            newPoll.isInverted = true
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [newPoll], timeout: Constants.pollingStopObservationTime),
+                .completed,
+                "The order should not be polled after the transaction hash arrived"
+            )
+        }
+    }
+
     private func onlyWithdrawRequestBody() -> [String: Any] {
         let bodies = wireMockClient.findRequestBodiesSync(method: "POST", urlPath: Constants.Endpoint.withdraw)
 
@@ -318,9 +346,9 @@ private extension TangemPayWithdrawUITests {
         static let enabledNetworkTokenCount = 2
         static let bitcoinName = "Bitcoin"
         static let withdrawAmount = "5"
-        static let pollsUntilTransactionHash = 4
-        static let pendingOrderObservationTime: TimeInterval = 7
-        static let maxOrderPollAttempts = 10
+        static let pollingStopObservationTime: TimeInterval = 7
+        static let minPollsWithoutHash = 3
+        static let transactionHash = "0xdeadbeef00000000000000000000000000000000000000000000000000000001"
 
         enum Scenario {
             static let eligibilityChannels = "tangem_pay_eligibility_channels"
@@ -336,7 +364,7 @@ private extension TangemPayWithdrawUITests {
             static let payWithdrawAllNetworks = "PayWithdrawAllNetworks"
             static let withdrawDataError = "WithdrawDataError"
             static let withdrawError = "WithdrawError"
-            static let orderPendingFirstPoll = "OrderPendingFirstPoll"
+            static let orderHashReady = "OrderHashReady"
             static let orderWithoutHash = "OrderWithoutHash"
             static let withdrawableOnlyOnNetwork: [(TangemPayNetwork, String)] = [
                 (.bsc, "WithdrawableOnlyOnBsc"),

@@ -808,6 +808,55 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func dismissMobileUpgradeBannerIfShown() -> Self {
+        XCTContext.runActivity(named: "Tap Later on the hardware upgrade banner if it is shown") { _ in
+            waitAndAssertTrue(totalBalance, "Total balance should be displayed")
+            let positiveBalanceLoaded = XCTNSPredicateExpectation(
+                predicate: NSPredicate { [totalBalance] _, _ in
+                    totalBalance.label.contains(where: { Constants.nonZeroDigits.contains($0) })
+                },
+                object: nil
+            )
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [positiveBalanceLoaded], timeout: .networkRequest),
+                .completed,
+                "Positive total balance should be loaded before checking the hardware upgrade banner"
+            )
+
+            let upgradeBannerTitle = app.staticTexts
+                .matching(NSPredicate(format: "label == %@", Localization.hwUpgradeToColdBannerTitle))
+                .firstMatch
+            guard upgradeBannerTitle.waitForExistence(timeout: .conditional) else {
+                return self
+            }
+
+            let laterButtons = app.buttons
+                .matching(identifier: CommonUIAccessibilityIdentifiers.notificationButton)
+                .matching(NSPredicate(format: "label == %@", Localization.commonLater))
+            let screenFrame = app.windows.firstMatch.frame
+            let onScreenLaterButton = {
+                laterButtons.allElementsBoundByIndex.first { screenFrame.contains($0.frame) }
+            }
+            let laterButtonVisible = XCTNSPredicateExpectation(
+                predicate: NSPredicate { _, _ in onScreenLaterButton() != nil },
+                object: nil
+            )
+            guard XCTWaiter().wait(for: [laterButtonVisible], timeout: .robustUIUpdate) == .completed,
+                  let visibleLaterButton = onScreenLaterButton() else {
+                XCTFail("Later button of the hardware upgrade banner should be visible")
+                return self
+            }
+            visibleLaterButton.tap()
+
+            XCTAssertTrue(
+                upgradeBannerTitle.waitForNonExistence(timeout: .robustUIUpdate),
+                "Hardware upgrade banner should be closed"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func verifyGetTangemPayBannerNotDisplayed() -> Self {
         XCTContext.runActivity(named: "Verify Get Tangem Pay banner is not displayed") { _ in
             waitAndAssertTrue(tokensList, "Main screen should be displayed")
@@ -1859,5 +1908,6 @@ private extension MainScreen {
         static let contentTopRevealStart = CGVector(dx: 0.5, dy: 0.3)
         static let contentTopRevealEnd = CGVector(dx: 0.5, dy: 0.7)
         static let fiatRoundingStep: Decimal = 0.01
+        static let nonZeroDigits = "123456789"
     }
 }

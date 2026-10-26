@@ -750,15 +750,6 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     }
 
     @discardableResult
-    func verifyFinishScreenNotOpened(within timeout: TimeInterval) -> Self {
-        XCTContext.runActivity(named: "Verify finish screen is not opened while the transaction is pending") { _ in
-            let finishHeader = app.staticTexts[SendAccessibilityIdentifiers.finishHeader]
-            XCTAssertFalse(finishHeader.waitForExistence(timeout: timeout), "Finish screen should not be opened before the transaction hash arrives")
-        }
-        return self
-    }
-
-    @discardableResult
     func waitForErrorAlert() -> Self {
         XCTContext.runActivity(named: "Assert error alert is shown and finish screen is not opened") { _ in
             let alert = app.alerts[Constants.errorAlertTitle].firstMatch
