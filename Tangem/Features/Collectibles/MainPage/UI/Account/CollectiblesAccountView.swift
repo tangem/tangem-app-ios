@@ -54,7 +54,7 @@ private extension CollectiblesAccountView {
                 loader: .init(size: CGSize(width: balanceLoaderWidth, height: balanceLoaderHeight))
             )
 
-            Text(summary.cryptoBalanceText)
+            SensitiveText(summary.cryptoBalanceText)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .shimmering()
                 .padding(.top, Metrics.cryptoBalanceTopPadding)
