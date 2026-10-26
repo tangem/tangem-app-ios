@@ -948,7 +948,7 @@ private extension EthereumWalletManager {
         }
 
         let transactionData = data ?? Data()
-        guard !UpgradeToAndCallMethod.isEncodedCall(transactionData.hexString.addHexPrefix()) else {
+        guard !UpgradeToAndCallMethod.isEncodedCall(transactionData) else {
             return nil
         }
 

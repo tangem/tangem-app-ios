@@ -84,6 +84,39 @@ struct GaslessYieldFeeTests {
         #expect(parameters.gasLimit == 32_000 + 70_000 + 84_000 + EthereumFeeParametersConstants.gaslessBaseGasBuffer)
     }
 
+    @Test("Yield transaction fee does not wrap a user transaction that is already upgrade wrapped")
+    func yieldTransactionFeeKeepsAlreadyWrappedUserTransaction() async throws {
+        let sut = makeSUT(gasLimitResults: [
+            .success(32_000),
+            .success(50_000),
+            .success(60_000),
+        ])
+
+        let wrappedData = UpgradeToAndCallMethod(
+            newImplementation: Self.upgradeImplementation,
+            callData: Data([0x12, 0x34])
+        ).data
+
+        let doubleWrappedData = UpgradeToAndCallMethod(
+            newImplementation: Self.upgradeImplementation,
+            callData: wrappedData
+        ).encodedData
+
+        _ = try await sut.getGaslessYieldTransactionFee(
+            feeToken: Self.feeToken,
+            destination: Self.upgradeYieldFeeOptions.yieldContractAddress,
+            value: "0x0",
+            data: wrappedData,
+            otherNativeFee: nil,
+            feeRecipientAddress: Self.feeRecipientAddress,
+            nativeToFeeTokenRate: 1,
+            yieldFeeOptions: Self.upgradeYieldFeeOptions
+        )
+
+        #expect(sut.gasLimitRequests.count == 3)
+        #expect(!sut.gasLimitRequests.contains { $0.data?.caseInsensitiveEquals(to: doubleWrappedData) == true })
+    }
+
     /// The gasless flow builds its amount from the token item, which carries no yield supply metadata. Without
     /// it the payload moves the token straight out of the account, where a supplied balance no longer sits, and
     /// the transfer reverts.
