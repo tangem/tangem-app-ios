@@ -265,6 +265,22 @@ struct PolymarketEventsBlockViewModelTests {
         try await settle { context.provider.eventsRequests.count == 2 }
     }
 
+    @Test("While search is open a page coming on screen is not asked for, closing search asks for it at once")
+    func suspendedPollingSkipsRefreshes() async throws {
+        let context = try await Self.makePollingContext(pages: [.init(category: 1, cursor: nil): Self.page(["a"])])
+
+        context.sut.setPollingSuspended(true)
+
+        context.clock.advance(by: 21)
+        context.sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: true))
+        try await Task.sleep(nanoseconds: Self.visibilitySettle)
+
+        #expect(context.provider.eventsRequests.count == 1)
+
+        context.sut.setPollingSuspended(false)
+        try await settle { context.provider.eventsRequests.count == 2 }
+    }
+
     @Test("A poll answer arriving after the tab changed is not merged into the new tab")
     func pollAnswerAfterTabChangeIsDropped() async throws {
         let context = try await Self.makePollingContext(
