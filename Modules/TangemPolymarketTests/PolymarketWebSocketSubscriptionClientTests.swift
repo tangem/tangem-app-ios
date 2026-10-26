@@ -152,6 +152,23 @@ struct PolymarketWebSocketSubscriptionClientTests {
         withExtendedLifetime((readerOfA, readerOfB)) {}
     }
 
+    @Test("A channel without a silence timeout, like the sports one, never probes or reconnects a quiet socket")
+    func channelWithoutSilenceTimeoutNeverProbes() async throws {
+        let env = makeSUT(silenceTimeout: nil)
+        let (reader, connection) = try await env.readOneTopic()
+
+        connection.receive("a=1")
+        #expect(try await reader.values.element(at: 0) == 1)
+
+        reader.stop()
+        try await env.delayProvider.parkedWaits(of: Constants.disconnectDelay, count: 2)
+        try await env.delayProvider.parkedWaits(of: Constants.keepaliveInterval, count: 1)
+
+        #expect(env.delayProvider.parkedSeconds == [Constants.unsubscribeDelay, Constants.disconnectDelay, Constants.keepaliveInterval].map { $0 / .seconds(1) })
+        #expect(connection.sent.elements == [.text("subscribe-first:a")])
+        #expect(env.transport.connections.elements.count == 1)
+    }
+
     @Test("Silence with no readers left only starts a new countdown")
     func silenceWithoutReadersOnlyRearms() async throws {
         let env = makeSUT()
@@ -173,13 +190,13 @@ struct PolymarketWebSocketSubscriptionClientTests {
 // MARK: - Helpers
 
 private extension PolymarketWebSocketSubscriptionClientTests {
-    func makeSUT() -> Environment {
+    func makeSUT(silenceTimeout: Duration? = Constants.silenceTimeout) -> Environment {
         let transport = WebSocketTransportSpy()
         let delayProvider = DelayProviderSpy()
         let clock = ClockStub()
 
         let sut = PolymarketWebSocketSubscriptionClient(
-            channel: ChannelStub(),
+            channel: ChannelStub(silenceTimeout: silenceTimeout),
             transport: transport,
             delayProvider: delayProvider,
             notificationCenter: NotificationCenter(),
@@ -233,6 +250,7 @@ private extension PolymarketWebSocketSubscriptionClientTests {
         static let disconnectDelay: Duration = .seconds(5)
         static let silenceTimeout: Duration = .seconds(60)
         static let probeTimeout: Duration = .seconds(10)
+        static let keepaliveInterval: Duration = .seconds(10)
     }
 }
 
@@ -244,12 +262,14 @@ private struct ChannelStub: PolymarketWebSocketChannel, PolymarketWebSocketSubsc
         let value: Int
     }
 
+    let silenceTimeout: Duration?
+
     var url: URL {
         URL(string: "wss://channel.test")!
     }
 
     var keepalive: PolymarketWebSocketConnectionManager.Keepalive {
-        .protocolPing(interval: .seconds(10), timeout: .seconds(10))
+        .protocolPing(interval: PolymarketWebSocketSubscriptionClientTests.Constants.keepaliveInterval, timeout: .seconds(10))
     }
 
     var subscribing: (any PolymarketWebSocketSubscribing<String>)? {
@@ -505,6 +525,10 @@ private final class DelayProviderSpy: PollDelayProvider, Sendable {
                 return state.observers.remove(at: position).continuation
             }?.resume(throwing: CancellationError())
         }
+    }
+
+    var parkedSeconds: [TimeInterval] {
+        state.withLock { $0.parked.map(\.seconds).sorted() }
     }
 
     func release(_ duration: Duration) {

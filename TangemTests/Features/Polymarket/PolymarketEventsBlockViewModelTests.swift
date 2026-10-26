@@ -10,6 +10,7 @@ import Combine
 import Foundation
 import Testing
 import UIKit
+import TangemFoundation
 import TangemPolymarket
 import TangemPolymarketUI
 @testable import Tangem
@@ -17,6 +18,8 @@ import TangemPolymarketUI
 @Suite("Polymarket events block")
 @MainActor
 struct PolymarketEventsBlockViewModelTests {
+    private typealias Games = PolymarketLiveGamesFixtures
+
     @Test("Coming back to a visited category shows it again without asking the backend")
     func visitedCategoryComesFromCache() async throws {
         let provider = PolymarketAPIProviderStub()
@@ -371,6 +374,157 @@ struct PolymarketEventsBlockViewModelTests {
 
         try await settle { Self.priceTexts(context.sut) == [Self.cents("0.42"), Self.cents("0.58")] }
     }
+
+    // MARK: - Live games
+
+    @Test("Each button of a soccer card opens the order for its own market and outcome")
+    func liveCardButtonsBuyTheirOwnOutcome() async throws {
+        let routable = PolymarketEventOpeningRoutableSpy()
+        let context = try await Self.makeGameContext(events: [Games.soccer()], routable: routable)
+        let card = try #require(context.sut.eventCards.first?.liveGameModel)
+
+        card.outcomes.forEach { $0.onSelect() }
+
+        #expect(routable.openedOutcomes.map(\.market.id) == ["1201001-ars", "1201001-draw", "1201001-che"])
+        #expect(routable.openedOutcomes.map(\.outcome.assetId) == ["1201001-ars-yes", "1201001-draw-yes", "1201001-che-yes"])
+    }
+
+    @Test("A live quote puts its price on the matching button of a live match card")
+    func liveQuoteReachesTheLiveCard() async throws {
+        let context = try await Self.makeGameContext(events: [Games.soccer()])
+        context.sut.handleViewAction(.onEventVisibilityChange(id: "1201001", isVisible: true))
+        try await settle { context.liveQuotes.streams.count == 1 }
+
+        context.liveQuotes.streams[0].push(PolymarketLiveQuotesFixtures.quote("1201001-draw-yes", bid: "0.26", ask: "0.27"))
+
+        try await settle {
+            context.sut.eventCards.first?.liveGameModel?.outcomes[safe: 1]?.priceText == PolymarketPriceFormatter.wholeCentsText(Decimal(string: "0.27"))
+        }
+    }
+
+    @Test("When the socket and the feed put a match on the same stage, the card shows the socket score, because the feed score lags behind")
+    func socketScoreWinsOnTheSameStage() async throws {
+        let context = try await Self.makeGameContext(events: [Games.basketball()])
+
+        context.push(Games.liveGame(Games.basketballGameId, score: "100-101"))
+
+        try await settle { Self.liveScore(context.sut)?.away == "100" }
+    }
+
+    @Test("A lost socket brings the score from REST back")
+    func lostSocketFallsBackToRest() async throws {
+        let context = try await Self.makeGameContext(events: [Games.basketball()])
+
+        context.push(Games.liveGame(Games.basketballGameId, score: "100-101"))
+        try await settle { Self.liveScore(context.sut)?.away == "100" }
+
+        context.liveGames.statuses.push(.waitingToReconnect)
+
+        try await settle { Self.liveScore(context.sut)?.away == "98" }
+    }
+
+    @Test("After a real reconnection only the pages on screen are asked again, each with its own cursor")
+    func reconnectionRefetchesVisiblePages() async throws {
+        let provider = PolymarketAPIProviderStub()
+        provider.eventPages = [
+            .init(category: 1, cursor: nil): PolymarketEventsPage(events: [Games.soccer()], cursor: "c1", hasNext: true),
+            .init(category: 1, cursor: "c1"): PolymarketEventsPage(events: [Games.basketball()], cursor: nil, hasNext: false),
+        ]
+        let context = try await Self.makeGameContext(provider: provider)
+        context.sut.handleViewAction(.loadNextPage)
+        try await settle { context.sut.eventCards.count == 2 }
+        context.sut.handleViewAction(.onEventVisibilityChange(id: "1197295", isVisible: true))
+        try await Task.sleep(nanoseconds: Self.visibilitySettle)
+        let requestsBefore = provider.eventsRequests.count
+
+        context.reconnect()
+
+        try await settle { provider.eventsRequests.count == requestsBefore + 1 }
+        try await drain()
+        #expect(provider.eventsRequests.dropFirst(requestsBefore).map(\.cursor) == ["c1"])
+    }
+
+    @Test("A second reconnection while the first refetch still waits for the backend asks for the page again")
+    func secondReconnectionDuringARefetchStillRefetches() async throws {
+        let provider = PolymarketAPIProviderStub()
+        provider.slowEventCategories = [1]
+        provider.slowEventsIgnoreCancellation = true
+        let context = try await Self.makeGameContext(events: [Games.basketball()], provider: provider)
+        context.sut.handleViewAction(.onEventVisibilityChange(id: "1197295", isVisible: true))
+        try await Task.sleep(nanoseconds: Self.visibilitySettle)
+        let requestsBefore = provider.eventsRequests.count
+
+        context.reconnect()
+        try await settle { provider.eventsRequests.count == requestsBefore + 1 }
+        context.reconnect()
+
+        try await settle { provider.eventsRequests.count == requestsBefore + 2 }
+    }
+
+    @Test("A match the socket reports started gets its quotes followed before REST catches up")
+    func socketStartFollowsQuotes() async throws {
+        let match = Games.basketball(isLive: false, score: nil, period: nil)
+        let context = try await Self.makeGameContext(events: [match])
+        context.sut.handleViewAction(.onEventVisibilityChange(id: match.id, isVisible: true))
+        try await drain()
+        #expect(context.liveQuotes.streams.isEmpty)
+
+        context.push(Games.liveGame(Games.basketballGameId, score: "2-0", period: "Q1"))
+
+        try await settle { context.liveQuotes.streams.last?.assetIds.contains("1197295-phi") == true }
+    }
+
+    @Test("Without phase two a live match stays on the regular card with the bullet")
+    func withoutPhaseTwoMatchesKeepTheRegularCard() async throws {
+        let context = try await Self.makeGameContext(events: [Games.basketball(), Self.event(id: "rain")], usesPhaseTwoCards: false)
+
+        #expect(context.sut.eventCards.map(\.regularModel?.outcomeLabelStyle) == [.bulletSeparated, .bulletSeparated])
+    }
+
+    @Test("With phase two a live match gets the live card and the other cards the compact buttons")
+    func withPhaseTwoMatchesGetTheLiveCard() async throws {
+        let context = try await Self.makeGameContext(events: [Games.basketball(), Self.event(id: "rain")])
+
+        #expect(context.sut.eventCards.first?.liveGameModel != nil)
+        #expect(context.sut.eventCards.last?.regularModel?.outcomeLabelStyle == .compact)
+    }
+
+    @Test("A frame matching what the card already shows does not republish, and a frame of one match leaves the other cards as they were")
+    func framesRepublishOnlyWhatChanged() async throws {
+        let context = try await Self.makeGameContext(events: [Games.basketball(), Games.soccer()])
+        let soccerCard = context.sut.eventCards.last
+        var publishes = 0
+        let subscription = context.sut.$eventCards.dropFirst().sink { _ in publishes += 1 }
+
+        context.push(Games.liveGame(Games.basketballGameId, score: "98-101"))
+        context.push(Games.liveGame(Games.basketballGameId, score: "100-101"))
+        try await settle { Self.liveScore(context.sut)?.away == "100" }
+
+        #expect(publishes == 1)
+        #expect(context.sut.eventCards.last == soccerCard)
+        withExtendedLifetime(subscription) {}
+    }
+
+    @Test("Coming back to a category from the cache follows its matches again")
+    func restoredCategoryFollowsItsMatches() async throws {
+        let provider = PolymarketAPIProviderStub()
+        provider.categoryList = [Self.category(1), Self.category(2)]
+        provider.eventPages = [
+            .init(category: 1, cursor: nil): PolymarketEventsPage(events: [Games.basketball()], cursor: nil, hasNext: false),
+            .init(category: 2, cursor: nil): Self.page(["b"]),
+        ]
+        let context = try await Self.makeGameContext(provider: provider)
+
+        context.sut.selectedCategoryTab.wrappedValue = PolymarketCategoryTab(id: 2, title: "")
+        try await settle { Self.cardIDs(context.sut) == ["b"] }
+        context.sut.selectedCategoryTab.wrappedValue = PolymarketCategoryTab(id: 1, title: "")
+        try await settle { Self.cardIDs(context.sut) == ["1197295"] }
+        try await drain()
+
+        context.push(Games.liveGame(Games.basketballGameId, score: "100-101"))
+
+        try await settle { Self.liveScore(context.sut)?.away == "100" }
+    }
 }
 
 // MARK: - Helpers
@@ -383,7 +537,9 @@ private extension PolymarketEventsBlockViewModelTests {
         notificationCenter: NotificationCenter = NotificationCenter(),
         clock: PollingClock = PollingClock(),
         outdatedDataLog: OutdatedDataLog = OutdatedDataLog(),
-        liveQuotes: PolymarketLiveQuotesSourceSpy = PolymarketLiveQuotesSourceSpy()
+        liveQuotes: PolymarketLiveQuotesSourceSpy = PolymarketLiveQuotesSourceSpy(),
+        liveGames: PolymarketLiveGamesSourceSpy = PolymarketLiveGamesSourceSpy(),
+        usesPhaseTwoCards: Bool = false
     ) -> PolymarketEventsBlockViewModel {
         let refreshCenter = PolymarketMainRefreshCenter()
 
@@ -395,11 +551,8 @@ private extension PolymarketEventsBlockViewModelTests {
                 refreshCenter: refreshCenter
             ),
             liveQuotesTracker: liveQuotes.makeTracker(),
-            liveGamesTracker: PolymarketFeedLiveGamesTracker(
-                games: { _ in AsyncStream { $0.finish() } },
-                statusChanges: { AsyncStream { $0.finish() } }
-            ),
-            usesPhaseTwoCards: false,
+            liveGamesTracker: liveGames.makeTracker(),
+            usesPhaseTwoCards: usesPhaseTwoCards,
             isRegionRestricted: { isRegionRestricted },
             routable: routable,
             notificationCenter: notificationCenter,
@@ -485,6 +638,56 @@ private extension PolymarketEventsBlockViewModelTests {
         try await settle { liveQuotes.streams.count == 1 }
 
         return LiveContext(sut: sut, liveQuotes: liveQuotes, stream: liveQuotes.streams[0])
+    }
+
+    struct GameContext {
+        let sut: PolymarketEventsBlockViewModel
+        let liveGames: PolymarketLiveGamesSourceSpy
+        let liveQuotes: PolymarketLiveQuotesSourceSpy
+
+        func push(_ game: PolymarketLiveGame) {
+            guard let stream = liveGames.streams.last else {
+                Issue.record("No games are followed")
+                return
+            }
+
+            stream.push(game)
+        }
+
+        func reconnect() {
+            liveGames.statuses.push(.waitingToReconnect)
+            liveGames.statuses.push(.connected)
+        }
+    }
+
+    static func makeGameContext(
+        events: [PolymarketEvent] = [],
+        provider: PolymarketAPIProviderStub = PolymarketAPIProviderStub(),
+        routable: PolymarketEventOpeningRoutableSpy = PolymarketEventOpeningRoutableSpy.ignored,
+        usesPhaseTwoCards: Bool = true
+    ) async throws -> GameContext {
+        if provider.categoryList.isEmpty {
+            provider.categoryList = [category(1)]
+        }
+
+        if !events.isEmpty {
+            provider.eventPages[.init(category: 1, cursor: nil)] = PolymarketEventsPage(events: events, cursor: nil, hasNext: false)
+        }
+
+        let liveGames = PolymarketLiveGamesSourceSpy()
+        let liveQuotes = PolymarketLiveQuotesSourceSpy()
+        let sut = makeSUT(provider: provider, routable: routable, liveQuotes: liveQuotes, liveGames: liveGames, usesPhaseTwoCards: usesPhaseTwoCards)
+
+        try await settle { !sut.eventCards.isEmpty }
+        liveGames.statuses.push(.connected)
+        try await settle { liveGames.statuses.pulls >= 2 }
+        try await drain()
+
+        return GameContext(sut: sut, liveGames: liveGames, liveQuotes: liveQuotes)
+    }
+
+    static func liveScore(_ sut: PolymarketEventsBlockViewModel) -> PolymarketLiveGameCard.Score? {
+        sut.eventCards.first { $0.id == "1197295" }?.liveGameModel?.score
     }
 
     static func priceTexts(_ sut: PolymarketEventsBlockViewModel) -> [String?] {

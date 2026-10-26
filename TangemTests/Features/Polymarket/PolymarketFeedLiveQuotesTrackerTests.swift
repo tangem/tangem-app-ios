@@ -35,6 +35,28 @@ struct PolymarketFeedLiveQuotesTrackerTests {
         #expect(env.source.streams.first?.assetIds == expected)
     }
 
+    @Test("A soccer match also follows the Yes of its draw, which its card shows though the two displayed markets leave it out")
+    func drawOutsideTheDisplayedMarketsIsTracked() async throws {
+        let env = makeSUT()
+        let match = PolymarketLiveGamesFixtures.soccer()
+
+        env.sut.update(events: [match], visibleEventIDs: [match.id], isLive: \.isLive)
+
+        #expect(env.sut.trackedAssetIds.contains("1201001-draw-yes"))
+        try await settle { env.source.streams.count == 1 }
+        #expect(env.source.streams.first?.assetIds.contains("1201001-draw-yes") == true)
+    }
+
+    @Test("A match whose page left markets out follows only the markets its card shows")
+    func partialMatchFollowsOnlyItsDisplayedMarkets() {
+        let env = makeSUT()
+        let match = PolymarketLiveGamesFixtures.soccer(totalMarketsCount: 4)
+
+        env.sut.update(events: [match], visibleEventIDs: [match.id], isLive: \.isLive)
+
+        #expect(env.sut.trackedAssetIds == ["1201001-ars-yes", "1201001-ars-no", "1201001-che-yes", "1201001-che-no"])
+    }
+
     @Test("Updates while paused are ignored until the tracker is resumed")
     func pausedTrackerIgnoresUpdates() async throws {
         let env = makeSUT()
