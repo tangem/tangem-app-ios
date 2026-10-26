@@ -63,7 +63,7 @@ final class SwapSlippageState {
             return false
         }
 
-        guard let bounds = selected.provider.customSlippageBounds else {
+        guard let bounds = selected.customSlippageBounds else {
             return true
         }
 
