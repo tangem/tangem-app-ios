@@ -1029,6 +1029,8 @@ extension Analytics {
         case earningNoticeHighNetworkFee = "[Earning] Notice - High Network Fee"
         case earningErrors = "[Earning] Earn Errors"
         case earningNoticeAmountNotDeposited = "[Earning] Notice - Amount Not Deposited"
+        case earningPromoScreenClosed = "[Earning] Promo Screen Closed"
+        case earningButtonTryYieldMode = "[Earning] Button - Try Yield Mode"
         case mainNoticeYieldPromo = "[Main Screen] Yield Promo"
         case mainNoticeYieldPromoClicked = "[Main Screen] Yield Promo Clicked"
         case mainScreenButtonExploreYieldMode = "[Main Screen] Button - Explore Yield mode"
