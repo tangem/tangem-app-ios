@@ -166,14 +166,14 @@ private extension NotificationMessageBanner {
         switch buttons {
         case .none:
             return (nil, nil)
-        case .one(let model, let identifier):
-            let button = messageBannerButton(from: model, accessibilityIdentifier: identifier)
-            return model.styleType == .secondary ? (nil, button) : (button, nil)
-        case .two(let left, let right, let leftIdentifier, let rightIdentifier):
-            let leftButton = messageBannerButton(from: left, accessibilityIdentifier: leftIdentifier)
-            let rightButton = messageBannerButton(from: right, accessibilityIdentifier: rightIdentifier)
+        case .one(let item):
+            let button = messageBannerButton(from: item)
+            return item.isSecondary ? (nil, button) : (button, nil)
+        case .two(let left, let right):
+            let leftButton = messageBannerButton(from: left)
+            let rightButton = messageBannerButton(from: right)
 
-            if right.styleType == .secondary, left.styleType != .secondary {
+            if right.isSecondary, !left.isSecondary {
                 return (leftButton, rightButton)
             }
 
@@ -191,42 +191,30 @@ private extension NotificationMessageBanner {
         }
     }
 
-    func messageBannerButton(
-        from model: TangemButton.Model,
-        accessibilityIdentifier: String?
-    ) -> MessageBannerButton {
+    func messageBannerButton(from item: NotificationBanner.ButtonItem) -> MessageBannerButton {
         let title: String
         let iconStart: ImageType?
         let iconEnd: ImageType?
 
-        switch model.content {
-        case .text(let text):
+        switch item.model.content {
+        case .label(let text, let start, let end):
             title = String(text.characters)
-            iconStart = nil
-            iconEnd = nil
-        case .icon(let image):
+            iconStart = start
+            iconEnd = end
+        case .iconOnly(let image):
             title = ""
             iconStart = image
             iconEnd = nil
-        case .combined(let text, let image, let position):
-            title = String(text.characters)
-            switch position {
-            case .left:
-                iconStart = image
-                iconEnd = nil
-            case .right:
-                iconStart = nil
-                iconEnd = image
-            }
         }
 
         return MessageBannerButton(
             title: title,
             iconStart: iconStart,
             iconEnd: iconEnd,
-            isLoading: model.isLoading,
-            accessibilityIdentifier: accessibilityIdentifier,
-            action: model.action
+            isLoading: item.isLoading,
+            accessibilityLabel: item.model.accessibilityLabel,
+            accessibilityIdentifier: item.accessibilityIdentifier,
+            action: item.model.action
         )
     }
 }

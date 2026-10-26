@@ -164,13 +164,28 @@ public extension NotificationBanner {
 public extension NotificationBanner {
     enum Buttons: Equatable, Sendable {
         case none
-        case one(TangemButton.Model, accessibilityIdentifier: String?)
-        case two(
-            left: TangemButton.Model,
-            right: TangemButton.Model,
-            leftAccessibilityIdentifier: String?,
-            rightAccessibilityIdentifier: String?
-        )
+        case one(ButtonItem)
+        case two(left: ButtonItem, right: ButtonItem)
+    }
+
+    struct ButtonItem: Hashable, Sendable {
+        public let model: Button.Model
+        public let isLoading: Bool
+        public let accessibilityIdentifier: String?
+
+        public init(model: Button.Model, isLoading: Bool = false, accessibilityIdentifier: String? = nil) {
+            self.model = model
+            self.isLoading = isLoading
+            self.accessibilityIdentifier = accessibilityIdentifier
+        }
+
+        var isSecondary: Bool {
+            if case .secondary = model.styleType {
+                return true
+            }
+
+            return false
+        }
     }
 
     enum BannerAction: Equatable, Sendable {

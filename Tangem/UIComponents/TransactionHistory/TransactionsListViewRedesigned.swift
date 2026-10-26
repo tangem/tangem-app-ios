@@ -219,18 +219,15 @@ private struct StatusStateView: View {
     }
 
     private func actionButton(_ button: ActionButton) -> some View {
-        TangemButton(
-            content: .combined(
-                text: AttributedString(button.title),
-                icon: button.icon,
-                iconPosition: .right
-            ),
+        TangemUI.Button(
+            label: button.title,
+            accessibilityLabel: nil,
             action: button.action
         )
-        .setStyleType(.secondary)
-        .setSize(.x10)
-        .setHorizontalLayout(.intrinsic)
-        .setButtonState(isLoading: button.isLoading)
+        .iconEnd(button.icon)
+        .styleType(.secondary(.default))
+        .size(.x10)
+        .loading(.spinner(if: button.isLoading))
     }
 }
 

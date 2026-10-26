@@ -127,13 +127,14 @@ private struct AccountPickerCancelButton: View {
     let onCancel: () -> Void
 
     var body: some View {
-        TangemButton(
-            content: .text(AttributedString(Localization.commonCancel)),
+        TangemUI.Button(
+            label: Localization.commonCancel,
+            accessibilityLabel: nil,
             action: onCancel
         )
-        .setStyleType(.secondary)
-        .setSize(.x12)
-        .setHorizontalLayout(.infinity)
+        .styleType(.secondary(.default))
+        .size(.x12)
+        .horizontalLayout(.infinity)
         .padding(.horizontal, AddTokenRedesignedConstants.horizontalPadding)
         .padding(.bottom, AddTokenRedesignedConstants.accountPickerScrollVerticalPadding)
     }

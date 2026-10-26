@@ -268,19 +268,11 @@ private extension MultiWalletNotificationBannerMapper {
         case 0:
             return .none
         case 1:
-            let button = notificationButtons[0]
-            return .one(
-                mapButton(button, notificationId: notificationId),
-                accessibilityIdentifier: buttonAccessibilityIdentifier(for: button.actionType)
-            )
+            return .one(mapButton(notificationButtons[0], notificationId: notificationId))
         default:
-            let left = notificationButtons[0]
-            let right = notificationButtons[1]
             return .two(
-                left: mapButton(left, notificationId: notificationId),
-                right: mapButton(right, notificationId: notificationId),
-                leftAccessibilityIdentifier: buttonAccessibilityIdentifier(for: left.actionType),
-                rightAccessibilityIdentifier: buttonAccessibilityIdentifier(for: right.actionType)
+                left: mapButton(notificationButtons[0], notificationId: notificationId),
+                right: mapButton(notificationButtons[1], notificationId: notificationId)
             )
         }
     }
@@ -303,70 +295,41 @@ private extension MultiWalletNotificationBannerMapper {
     func mapButton(
         _ button: NotificationView.NotificationButton,
         notificationId: NotificationViewId
-    ) -> TangemButton.Model {
+    ) -> NotificationBanner.ButtonItem {
         let actionType = button.actionType
 
-        return TangemButton.Model(
+        let model = TangemUI.Button.Model(
             content: mapButtonContent(actionType),
+            accessibilityLabel: nil,
             styleType: mapButtonStyleType(actionType.style),
-            cornerStyle: .rounded,
-            isLoading: button.isLoading,
             action: { button.action(notificationId, actionType) }
+        )
+
+        return NotificationBanner.ButtonItem(
+            model: model,
+            isLoading: button.isLoading,
+            accessibilityIdentifier: buttonAccessibilityIdentifier(for: actionType)
         )
     }
 
-    func mapButtonContent(_ actionType: NotificationButtonActionType) -> TangemButton.Content {
-        let title = actionType.title
-        let icon = actionType.icon
+    func mapButtonContent(_ actionType: NotificationButtonActionType) -> TangemUI.Button.Content {
+        let title = AttributedString(actionType.title)
 
-        if title.isNotEmpty {
-            if let icon {
-                switch icon {
-                case .leading(let imageType):
-                    return .combined(
-                        text: .init(title),
-                        icon: imageType,
-                        iconPosition: .left
-                    )
-                case .trailing(let imageType):
-                    return .combined(
-                        text: .init(title),
-                        icon: imageType,
-                        iconPosition: .right
-                    )
-                }
-            } else {
-                return .text(.init(title))
-            }
-        } else {
-            if let icon {
-                switch icon {
-                case .leading(let imageType):
-                    return .combined(
-                        text: .init(title),
-                        icon: imageType,
-                        iconPosition: .left
-                    )
-                case .trailing(let imageType):
-                    return .combined(
-                        text: .init(title),
-                        icon: imageType,
-                        iconPosition: .right
-                    )
-                }
-            } else {
-                assertionFailure(
-                    "There is no icon nor text, so what should be displayed?"
-                )
-                return .text(.init(title))
-            }
+        switch actionType.icon {
+        case .leading(let imageType):
+            return .label(title, iconStart: imageType, iconEnd: nil)
+        case .trailing(let imageType):
+            return .label(title, iconStart: nil, iconEnd: imageType)
+        case .none:
+            assert(!title.characters.isEmpty, "There is no icon nor text, so what should be displayed?")
+            return .label(title)
         }
     }
 
-    func mapButtonStyleType(_ style: MainButton.Style) -> TangemButton.StyleType {
+    func mapButtonStyleType(_ style: MainButton.Style) -> TangemUI.Button.StyleType {
         switch style {
         case .primary: .primary
-        case .secondary: .secondary
+        case .secondary: .secondary(.default)
         }
     }
 
