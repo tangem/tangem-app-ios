@@ -27,6 +27,7 @@ protocol PolymarketPositionDetailsRoutable: AnyObject {
 
     func openEventDetails(
         eventID: String,
+        placeholder: PolymarketEventPlaceholder?,
         category: PolymarketCategory?,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
     )

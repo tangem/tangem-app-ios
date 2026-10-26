@@ -14,6 +14,7 @@ enum PolymarketHost {
     static let clob = URL(string: "https://clob.polymarket.com")!
     static let bridge = URL(string: "https://bridge.polymarket.com")!
     static let dataAPI = URL(string: "https://data-api.polymarket.com")!
+    static let gamma = URL(string: "https://gamma-api.polymarket.com")!
     static let marketChannel = URL(string: "wss://ws-subscriptions-clob.polymarket.com/ws/market")!
     static let sportsChannel = URL(string: "wss://sports-api.polymarket.com/ws")!
 }

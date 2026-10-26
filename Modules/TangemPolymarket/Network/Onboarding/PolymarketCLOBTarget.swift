@@ -23,6 +23,7 @@ struct PolymarketCLOBTarget: Moya.TargetType {
         case placeOrder(body: Data)
         case order(id: String)
         case price(tokenId: String, orderSide: PolymarketOrderSide)
+        case priceHistory(tokenId: String, query: PolymarketPriceHistoryQuery)
     }
 
     var path: String {
@@ -38,13 +39,22 @@ struct PolymarketCLOBTarget: Moya.TargetType {
         case .placeOrder: "/order"
         case .order(let id): "/data/order/\(id)"
         case .price: "/price"
+        case .priceHistory: "/prices-history"
         }
     }
 
     var method: Moya.Method {
         switch target {
-        case .createCredentials, .placeOrder: .post
-        case .deriveCredentials, .updateBalanceAllowance, .balanceAllowance, .order, .price: .get
+        case .createCredentials,
+             .placeOrder:
+            .post
+        case .deriveCredentials,
+             .updateBalanceAllowance,
+             .balanceAllowance,
+             .order,
+             .price,
+             .priceHistory:
+            .get
         }
     }
 
@@ -59,6 +69,8 @@ struct PolymarketCLOBTarget: Moya.TargetType {
                 parameters: [Constants.tokenIdKey: tokenId, Constants.sideKey: orderSide.matchingBookSide.rawValue],
                 encoding: URLEncoding.queryString
             )
+        case .priceHistory(let tokenId, let query):
+            return .requestParameters(parameters: Self.parameters(tokenId: tokenId, query: query), encoding: URLEncoding.queryString)
         case .updateBalanceAllowance(let asset):
             return .requestParameters(parameters: Self.parameters(for: asset), encoding: URLEncoding.queryString)
         case .balanceAllowance:
@@ -70,13 +82,39 @@ struct PolymarketCLOBTarget: Moya.TargetType {
         switch target {
         case .placeOrder:
             return authHeaders.merging(Constants.jsonHeaders) { current, _ in current }
-        case .createCredentials, .deriveCredentials, .updateBalanceAllowance, .balanceAllowance, .order, .price:
+        case .createCredentials,
+             .deriveCredentials,
+             .updateBalanceAllowance,
+             .balanceAllowance,
+             .order,
+             .price,
+             .priceHistory:
             return authHeaders
         }
     }
 }
 
 private extension PolymarketCLOBTarget {
+    static func parameters(tokenId: String, query: PolymarketPriceHistoryQuery) -> [String: Any] {
+        var parameters: [String: Any] = [
+            Constants.marketKey: tokenId,
+            Constants.fidelityKey: query.fidelityMinutes,
+        ]
+
+        switch query.window {
+        case .interval(let interval):
+            parameters[Constants.intervalKey] = interval.rawValue
+        case .range(let start, let end):
+            parameters[Constants.startTimestampKey] = Int(start.timeIntervalSince1970)
+
+            if let end {
+                parameters[Constants.endTimestampKey] = Int(end.timeIntervalSince1970)
+            }
+        }
+
+        return parameters
+    }
+
     static func parameters(for asset: PolymarketBalanceAllowanceAsset) -> [String: Any] {
         var parameters: [String: Any] = [
             Constants.assetTypeKey: asset.assetType,
@@ -94,6 +132,11 @@ private extension PolymarketCLOBTarget {
         static let assetTypeKey = "asset_type"
         static let tokenIdKey = "token_id"
         static let sideKey = "side"
+        static let marketKey = "market"
+        static let intervalKey = "interval"
+        static let fidelityKey = "fidelity"
+        static let startTimestampKey = "startTs"
+        static let endTimestampKey = "endTs"
         static let signatureTypeKey = "signature_type"
 
         static let poly1271SignatureType = 3
