@@ -58,8 +58,6 @@ struct SwapSlippageSelectorView: View {
 
         case .notCustomizable(let maxSlippage):
             MessageBanner(title: AttributedString(Localization.swapCustomSlippageInfo(maxSlippage)))
-                .variant(.info)
-                .glowRing(.info)
                 .padding(.horizontal, Constants.horizontalPadding)
                 .padding(.vertical, Constants.bannerVerticalPadding)
         }
