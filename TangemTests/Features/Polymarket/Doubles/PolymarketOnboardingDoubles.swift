@@ -216,6 +216,10 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
         return try queuedPriceResults.removeFirst().get()
     }
 
+    func priceHistory(tokenId: String, query: PolymarketPriceHistoryQuery) async throws -> [PolymarketPricePoint] {
+        []
+    }
+
     func createCredentials(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketL2Credentials {
         credentialRequests += 1
         return try createResult.get()
@@ -685,6 +689,7 @@ final class PolymarketEventOpeningRoutableSpy: PolymarketEventOpeningRoutable {
     static let ignored = PolymarketEventOpeningRoutableSpy()
 
     private(set) var openedEventIDs: [String] = []
+    private(set) var openedEventTitles: [String?] = []
     private(set) var openedOutcomes: [(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String, isBuy: Bool)] = []
     private(set) var openedEventCategories: [PolymarketCategory?] = []
     private(set) var regionWarningOpenings = 0
@@ -696,10 +701,12 @@ final class PolymarketEventOpeningRoutableSpy: PolymarketEventOpeningRoutable {
 
     func openEventDetails(
         eventID: String,
+        placeholder: PolymarketEventPlaceholder?,
         category: PolymarketCategory?,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
     ) {
         openedEventIDs.append(eventID)
+        openedEventTitles.append(placeholder?.title)
         openedEventCategories.append(category)
         lastOnPlaced = onOrderPlaced
     }

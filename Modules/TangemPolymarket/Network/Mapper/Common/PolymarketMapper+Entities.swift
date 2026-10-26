@@ -79,6 +79,7 @@ extension PolymarketMapper {
             isAcceptingOrders: (dto.acceptingOrders ?? false) && version.isSupported,
             startDate: date(from: dto.startDate ?? dto.startDateIso),
             endDate: date(from: dto.endDate),
+            closedDate: date(from: dto.closedTime),
             volume: dto.volume,
             volume24h: dto.volume24hr,
             liquidity: dto.liquidity,

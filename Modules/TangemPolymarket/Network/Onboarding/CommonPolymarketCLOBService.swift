@@ -110,6 +110,13 @@ extension CommonPolymarketCLOBService: PolymarketCLOBService {
         return try mapper.mapPrice(dto)
     }
 
+    func priceHistory(tokenId: String, query: PolymarketPriceHistoryQuery) async throws -> [PolymarketPricePoint] {
+        let target = PolymarketCLOBTarget.Target.priceHistory(tokenId: tokenId, query: query)
+        let dto: PolymarketDTO.PriceHistoryResponse = try await request(target, authHeaders: [:])
+
+        return mapper.mapPriceHistory(dto)
+    }
+
     func order(
         id: String,
         credentials: PolymarketL2Credentials,

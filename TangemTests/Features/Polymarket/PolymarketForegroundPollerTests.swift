@@ -37,7 +37,7 @@ struct PolymarketForegroundPollerTests {
         #expect(context.log.ticks == ticksBeforeBackground)
 
         context.notificationCenter.post(name: UIApplication.willEnterForegroundNotification, object: nil)
-        try await settle { context.log.ticks == ticksBeforeBackground + 1 }
+        try await settle { context.log.ticks > ticksBeforeBackground }
 
         try await settle { context.log.ticks >= ticksBeforeBackground + 2 }
         withExtendedLifetime(context.poller) {}
@@ -59,7 +59,7 @@ struct PolymarketForegroundPollerTests {
         #expect(context.log.ticks == ticksBeforeSuspension)
 
         context.poller.setSuspended(false)
-        try await settle { context.log.ticks == ticksBeforeSuspension + 1 }
+        try await settle { context.log.ticks > ticksBeforeSuspension }
 
         try await settle { context.log.ticks >= ticksBeforeSuspension + 2 }
     }

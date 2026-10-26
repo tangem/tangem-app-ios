@@ -45,9 +45,12 @@ final class PolymarketEventDetailsCoordinator: CoordinatorObject {
 
         rootViewModel = PolymarketEventDetailsViewModel(
             eventID: options.eventID,
+            placeholder: options.placeholder,
             category: options.category,
             apiProvider: options.apiProvider,
             geoblockStateProvider: options.geoblockStateProvider,
+            chartServices: options.chartServices,
+            usesPhaseTwoLayout: options.usesPhaseTwoLayout,
             isLiveBadgePulsing: options.isLiveBadgePulsing,
             onOrderPlaced: options.onOrderPlaced,
             coordinator: self
@@ -60,9 +63,12 @@ final class PolymarketEventDetailsCoordinator: CoordinatorObject {
 extension PolymarketEventDetailsCoordinator {
     struct Options {
         let eventID: String
+        let placeholder: PolymarketEventPlaceholder?
         let category: PolymarketCategory?
         let apiProvider: PolymarketAPIProvider
         let geoblockStateProvider: PolymarketGeoblockStateProvider
+        let chartServices: PolymarketEventDetailsViewModel.ChartServices?
+        let usesPhaseTwoLayout: Bool
         let isLiveBadgePulsing: Bool
         let onOrderPlaced: @MainActor (PolymarketOrderIndexing) -> Void
         let onRegionWarning: () -> Void

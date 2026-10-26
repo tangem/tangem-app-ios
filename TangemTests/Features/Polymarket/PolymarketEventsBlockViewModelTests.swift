@@ -426,8 +426,8 @@ struct PolymarketEventsBlockViewModelTests {
     func reconnectionRefetchesVisiblePages() async throws {
         let provider = PolymarketAPIProviderStub()
         provider.eventPages = [
-            .init(category: 1, cursor: nil): PolymarketEventsPage(events: [Games.soccer()], cursor: "c1", hasNext: true),
-            .init(category: 1, cursor: "c1"): PolymarketEventsPage(events: [Games.basketball()], cursor: nil, hasNext: false),
+            .init(category: 1, cursor: nil): PolymarketEventsPage(events: [Games.soccer()], cursor: "c1"),
+            .init(category: 1, cursor: "c1"): PolymarketEventsPage(events: [Games.basketball()], cursor: nil),
         ]
         let context = try await Self.makeGameContext(provider: provider)
         context.sut.handleViewAction(.loadNextPage)
@@ -509,7 +509,7 @@ struct PolymarketEventsBlockViewModelTests {
         let provider = PolymarketAPIProviderStub()
         provider.categoryList = [Self.category(1), Self.category(2)]
         provider.eventPages = [
-            .init(category: 1, cursor: nil): PolymarketEventsPage(events: [Games.basketball()], cursor: nil, hasNext: false),
+            .init(category: 1, cursor: nil): PolymarketEventsPage(events: [Games.basketball()], cursor: nil),
             .init(category: 2, cursor: nil): Self.page(["b"]),
         ]
         let context = try await Self.makeGameContext(provider: provider)
@@ -670,7 +670,7 @@ private extension PolymarketEventsBlockViewModelTests {
         }
 
         if !events.isEmpty {
-            provider.eventPages[.init(category: 1, cursor: nil)] = PolymarketEventsPage(events: events, cursor: nil, hasNext: false)
+            provider.eventPages[.init(category: 1, cursor: nil)] = PolymarketEventsPage(events: events, cursor: nil)
         }
 
         let liveGames = PolymarketLiveGamesSourceSpy()

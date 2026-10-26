@@ -125,11 +125,13 @@ extension PolymarketPositionDetailsCoordinator: PolymarketPositionDetailsRoutabl
 
     func openEventDetails(
         eventID: String,
+        placeholder: PolymarketEventPlaceholder?,
         category: PolymarketCategory?,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
     ) {
         guard let coordinator = eventBuilder?.makeEventDetailsCoordinator(
             eventID: eventID,
+            placeholder: placeholder,
             category: category,
             onOrderPlaced: onOrderPlaced,
             onRegionWarning: openRegionWarning,

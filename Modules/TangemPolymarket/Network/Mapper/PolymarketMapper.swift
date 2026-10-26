@@ -37,8 +37,8 @@ extension PolymarketMapper {
 
     func date(from string: String?) -> Date? {
         guard let string, !string.isEmpty else { return nil }
-        return Self.isoFormatter.date(from: string)
-            ?? Self.isoFractionalFormatter.date(from: string)
+        return isoDate(from: string)
+            ?? isoDate(from: Self.internetDateTime(fromSpaceSeparated: string))
             ?? Self.isoDayFormatter.date(from: string)
     }
 
@@ -73,4 +73,37 @@ private extension PolymarketMapper {
         formatter.formatOptions = [.withFullDate]
         return formatter
     }()
+}
+
+// MARK: - Date parsing
+
+private extension PolymarketMapper {
+    func isoDate(from string: String?) -> Date? {
+        guard let string else { return nil }
+
+        return Self.isoFormatter.date(from: string) ?? Self.isoFractionalFormatter.date(from: string)
+    }
+
+    static func internetDateTime(fromSpaceSeparated string: String) -> String? {
+        guard string.contains(DateConstants.spaceSeparator) else { return nil }
+
+        let dateTime = string.replacingOccurrences(of: DateConstants.spaceSeparator, with: DateConstants.timeSeparator)
+
+        guard dateTime.range(of: DateConstants.hourOnlyOffsetPattern, options: .regularExpression) != nil else {
+            return dateTime
+        }
+
+        return dateTime + DateConstants.zeroMinutesOffset
+    }
+}
+
+// MARK: - Constants
+
+private extension PolymarketMapper {
+    enum DateConstants {
+        static let spaceSeparator = " "
+        static let timeSeparator = "T"
+        static let hourOnlyOffsetPattern = "[+-][0-9]{2}$"
+        static let zeroMinutesOffset = ":00"
+    }
 }

@@ -252,6 +252,7 @@ extension PolymarketCoordinator: PolymarketMainScreenRoutable {
 
     func openEventDetails(
         eventID: String,
+        placeholder: PolymarketEventPlaceholder?,
         category: PolymarketCategory?,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void
     ) {
@@ -259,6 +260,7 @@ extension PolymarketCoordinator: PolymarketMainScreenRoutable {
 
         destination = .eventDetails(destinationFactory.makeEventDetailsCoordinator(
             eventID: eventID,
+            placeholder: placeholder,
             category: category,
             onOrderPlaced: onOrderPlaced,
             onRegionWarning: { [weak self] in self?.openRegionWarning() },

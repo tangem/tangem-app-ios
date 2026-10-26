@@ -29,6 +29,7 @@ extension PolymarketDTO {
         let endDate: String?
         let startDateIso: String?
         let endDateIso: String?
+        let closedTime: String?
 
         let volume: Decimal?
         let volume24hr: Decimal?

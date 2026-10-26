@@ -164,6 +164,7 @@ extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
 extension PolymarketDestinationFactory: PolymarketEventDetailsBuilder {
     func makeEventDetailsCoordinator(
         eventID: String,
+        placeholder: PolymarketEventPlaceholder?,
         category: PolymarketCategory?,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
         onRegionWarning: @escaping () -> Void,
@@ -173,9 +174,12 @@ extension PolymarketDestinationFactory: PolymarketEventDetailsBuilder {
 
         coordinator.start(with: .init(
             eventID: eventID,
+            placeholder: placeholder,
             category: category,
             apiProvider: dependencies.apiProvider,
             geoblockStateProvider: dependencies.geoblockStateProvider,
+            chartServices: makeEventChartServices(),
+            usesPhaseTwoLayout: dependencies.isPhaseTwoAvailable,
             isLiveBadgePulsing: dependencies.isPhaseTwoAvailable,
             onOrderPlaced: onOrderPlaced,
             onRegionWarning: onRegionWarning,
@@ -183,5 +187,18 @@ extension PolymarketDestinationFactory: PolymarketEventDetailsBuilder {
         ))
 
         return coordinator
+    }
+}
+
+// MARK: - Event chart
+
+private extension PolymarketDestinationFactory {
+    func makeEventChartServices() -> PolymarketEventDetailsViewModel.ChartServices? {
+        guard dependencies.isPhaseTwoAvailable else { return nil }
+
+        return PolymarketEventDetailsViewModel.ChartServices(
+            clobService: dependencies.clobService,
+            sportsService: PolymarketOnboardingServicesFactory.makeDefault().makeEventSportsService()
+        )
     }
 }
