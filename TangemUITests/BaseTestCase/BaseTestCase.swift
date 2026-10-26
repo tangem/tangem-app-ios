@@ -203,6 +203,18 @@ class BaseTestCase: XCTestCase {
         return importHotWallet(accessCode: accessCode)
     }
 
+    @discardableResult
+    func launchAndImportHotWalletWithoutSystemBanners(
+        eligibilityState: String = "PaeraCustomer",
+        accessCode: String? = nil,
+        scenarios: [ScenarioConfig] = []
+    ) -> MainScreen {
+        let mainScreen = launchAndImportHotWallet(eligibilityState: eligibilityState, accessCode: accessCode, scenarios: scenarios)
+            .dismissMobileUpgradeBannerIfShown()
+        pullToRefresh()
+        return mainScreen
+    }
+
     /// Signing a withdrawal needs the key the Tangem Pay authorization derives, so the synthetic tokens are skipped.
     @discardableResult
     func launchAndImportHotWalletWithRealPayAuthorization(
