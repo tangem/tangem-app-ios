@@ -166,15 +166,29 @@ private extension MarketsAddTokenFlowConfigurationFactory {
 
                 switch direction {
                 case .from:
+                    let swapSourceStatus = availabilityProvider.swapSourceAvailability()
+
+                    guard !SwapSourceIgnoringExpressEligibility.canBecomeSource(for: swapSourceStatus) else {
+                        openSwap()
+                        return
+                    }
+
                     TokenActionAvailabilityAlertPresenter.presentOrProceed(
                         presenter: InjectedValues[\.alertPresenter],
-                        swapSourceStatus: availabilityProvider.swapSourceAvailability(ignoreExpressState: true),
+                        swapSourceStatus: swapSourceStatus,
                         action: openSwap
                     )
                 case .to:
+                    let swapReceiveStatus = availabilityProvider.swapReceiveAvailability()
+
+                    guard !SwapReceiveIgnoringExpressEligibility.canBecomeReceive(for: swapReceiveStatus) else {
+                        openSwap()
+                        return
+                    }
+
                     TokenActionAvailabilityAlertPresenter.presentOrProceed(
                         presenter: InjectedValues[\.alertPresenter],
-                        swapReceiveStatus: availabilityProvider.swapReceiveAvailability(ignoreExpressState: true),
+                        swapReceiveStatus: swapReceiveStatus,
                         action: openSwap
                     )
                 }

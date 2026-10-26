@@ -24,35 +24,12 @@ struct SwapNavigatingDismissOption {
             return nil
         }
 
-        let sourceToken = CommonSendSwapableTokenFactory(
-            userWalletInfo: sourceResult.userWalletModel.userWalletInfo,
-            walletModel: sourceResult.walletModel,
-            operationType: .swap
-        ).makeSwapableToken()
-
-        // The receive side must be wallet-model-backed: the regular swap flow has no
-        // destination step and requires a real address (SwapModel.mapToReadyToTransferState).
-        let receiveToken = (try? WalletModelFinder.findWalletModel(userWalletId: userWalletId, tokenItem: receiveTokenItem))
-            .map { result in
-                CommonSendSwapableTokenFactory(
-                    userWalletInfo: result.userWalletModel.userWalletInfo,
-                    walletModel: result.walletModel,
-                    operationType: .swap
-                ).makeSwapableToken()
-            }
-
-        let receive: any SwapReceiveTokenResolver = if let receiveToken {
-            .resolved(receiveToken)
-        } else {
-            .userSelection
-        }
-
-        let parameters = PredefinedSwapParameters(
-            userWalletInfo: sourceToken.userWalletInfo,
-            source: .resolved(sourceToken),
-            receive: receive
+        let builder = ManualSwapFromSendPredefinedParametersBuilder(
+            userWalletId: userWalletId,
+            source: sourceResult,
+            receiveTokenItem: receiveTokenItem
         )
 
-        return SendCoordinator.Options(type: .swap(parameters), source: source)
+        return SendCoordinator.Options(type: .swap(builder.make()), source: source)
     }
 }

@@ -72,7 +72,9 @@ private extension DeeplinkSwapParametersResolver {
         let expressAvailabilityProvider = InjectedValues[\.expressAvailabilityProvider]
 
         let candidates = walletModels.enumerated().map { index, walletModel in
-            Candidate(
+            let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
+
+            return Candidate(
                 index: index,
                 // Lowercased to match against the deeplink's already-lowercased token/network ids.
                 tokenId: walletModel.tokenItem.id?.lowercased(),
@@ -80,8 +82,8 @@ private extension DeeplinkSwapParametersResolver {
                 accountId: DeeplinkWalletModelLocator.accountIdentifier(of: walletModel.account),
                 fiatBalance: walletModel.fiatAvailableBalanceProvider.balanceType.value ?? 0,
                 isSwappable: expressAvailabilityProvider.swapState(for: walletModel.tokenItem) == .available,
-                canBeSource: Self.canBecomeSource(walletModel: walletModel, userWalletInfo: userWalletInfo),
-                canBeReceive: Self.canBecomeReceive(walletModel: walletModel, userWalletInfo: userWalletInfo)
+                canBeSource: SwapSourcePreselectionEligibility.canBecomeSource(for: availabilityProvider.swapSourceAvailability()),
+                canBeReceive: SwapReceivePreselectionEligibility.canBecomeReceive(for: availabilityProvider.swapReceiveAvailability())
             )
         }
 
@@ -107,43 +109,6 @@ private extension DeeplinkSwapParametersResolver {
             .models(from: accountModelsManager)
             .compactMap { DeeplinkWalletModelLocator.accountIdentifier(of: $0) }
             .toSet()
-    }
-}
-
-// MARK: - Availability gates
-
-extension DeeplinkSwapParametersResolver {
-    static func canBecomeSource(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) -> Bool {
-        let availability = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
-            .swapSourceAvailability()
-
-        switch availability {
-        case .available,
-             .blockchainLoading,
-             .blockchainUnreachable,
-             .hasOnlyCachedBalance,
-             .expressLoading,
-             .expressUnreachable,
-             .missingAssetRequirement:
-            return true
-        case .jointAccountsComingSoon,
-             .customToken,
-             .yieldModuleApproveNeeded,
-             .cantSignLongTransactions:
-            return false
-        }
-    }
-
-    static func canBecomeReceive(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) -> Bool {
-        let availability = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
-            .swapReceiveAvailability()
-
-        switch availability {
-        case .available, .expressLoading, .expressUnreachable, .missingAssetRequirement:
-            return true
-        case .customToken:
-            return false
-        }
     }
 }
 

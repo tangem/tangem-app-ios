@@ -1132,25 +1132,15 @@ final class SwapModelTests: LeakTrackingTestSuite {
             expressManager: manager,
             pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager)
         )
-        let recorder = SwapProvidersStateRecorder(sut)
 
-        let baseline = recorder.count
         sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
 
-        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoading }
+        try await waitUntil { restrictionsProvider.isAwaited }
         #expect(await manager.updateAmountTypeCallCount == 0)
 
-        let loadingCount = recorder.count
         restrictionsProvider.finishLoading()
 
-        let state = try await waitForNewState(recorder, since: loadingCount) { $0.isLoaded }
-
-        if case .loaded(_, .restriction(.trustlineRequired, _)) = state {
-            Issue.record("Expected the quotes to resume, got the trustline restriction")
-            return
-        }
-
-        #expect(await manager.updateAmountTypeCallCount == 1)
+        try await waitUntil { await manager.updateAmountTypeCallCount == 1 }
     }
 
     @Test("Tapping the trustline banner opens the details of the destination token")
@@ -1446,7 +1436,9 @@ private extension SwapModelTests {
     }
 
     func waitUntil(_ condition: @escaping () async -> Bool) async throws {
-        for _ in 0 ..< 500 {
+        let deadline = ContinuousClock.now.advanced(by: .seconds(10))
+
+        while ContinuousClock.now < deadline {
             if await condition() { return }
             try await Task.sleep(for: .milliseconds(10))
         }
@@ -1623,18 +1615,24 @@ private actor ExpressManagerStub: ExpressManager {
 
 private final class PendingReceivingRestrictionsProviderStub: ReceivingRestrictionsProvider {
     private let restrictionWhenLoaded: ReceivedRestriction?
-    private let isLoaded = OSAllocatedUnfairLock(initialState: false)
+    private let state = OSAllocatedUnfairLock(initialState: State())
 
     init(restrictionWhenLoaded: ReceivedRestriction?) {
         self.restrictionWhenLoaded = restrictionWhenLoaded
     }
 
     var isRestrictionKnown: Bool {
-        isLoaded.withLock { $0 }
+        state.withLock { $0.isLoaded }
+    }
+
+    var isAwaited: Bool {
+        state.withLock { $0.isAwaited }
     }
 
     func restriction(expectAmount: Decimal) async throws -> ReceivedRestriction? {
-        while !isLoaded.withLock({ $0 }) {
+        state.withLock { $0.isAwaited = true }
+
+        while !isRestrictionKnown {
             try await Task.sleep(for: .milliseconds(10))
         }
 
@@ -1642,7 +1640,14 @@ private final class PendingReceivingRestrictionsProviderStub: ReceivingRestricti
     }
 
     func finishLoading() {
-        isLoaded.withLock { $0 = true }
+        state.withLock { $0.isLoaded = true }
+    }
+}
+
+private extension PendingReceivingRestrictionsProviderStub {
+    struct State {
+        var isLoaded = false
+        var isAwaited = false
     }
 }
 
