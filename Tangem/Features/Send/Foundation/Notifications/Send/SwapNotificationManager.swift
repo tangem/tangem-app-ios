@@ -149,16 +149,15 @@ extension CommonSwapNotificationManager {
         state: SwapModel.LoadedState,
         slippage: SwapSlippage
     ) -> [SwapNotificationEvent] {
-        let provider: ExpressProvider? = switch state {
+        let providerSlippage: SwapProviderSlippage? = switch state {
         case .idle, .requiredRefresh: nil
-        default: selected?.provider
+        default: selected?.providerSlippage
         }
 
         guard case .custom(let customSlippage) = slippage,
-              let provider,
-              provider.isCustomSlippageSupported,
-              let defaultSlippage = provider.slippage,
-              customSlippage < SwapSlippageBounds(defaultSlippage: defaultSlippage).warningThreshold else {
+              let providerSlippage,
+              providerSlippage.isCustomSlippageSupported,
+              customSlippage < SwapSlippageBounds(defaultSlippage: providerSlippage.defaultSlippage).warningThreshold else {
             return []
         }
 

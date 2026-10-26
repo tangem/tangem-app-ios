@@ -36,7 +36,7 @@ final class SwapModel {
 
     private let _providersState = CurrentValueSubject<ProvidersState, Never>(.idle)
     private let slippageState = SwapSlippageState()
-    private let _slippageProvider = CurrentValueSubject<ExpressProvider?, Never>(nil)
+    private let _providerSlippage = CurrentValueSubject<SwapProviderSlippage?, Never>(nil)
 
     private let _transactionTime = PassthroughSubject<Date?, Never>()
     private let _transactionURL = PassthroughSubject<URL?, Never>()
@@ -257,7 +257,7 @@ extension SwapModel {
 
         if wallet.tokenItem != _sourceToken.value.value?.tokenItem {
             slippageState.reset()
-            _slippageProvider.send(nil)
+            _providerSlippage.send(nil)
         }
         _sourceToken.send(.success(wallet))
         resolveDestinationTokenIfNeeded(for: wallet)
@@ -275,7 +275,7 @@ extension SwapModel {
 
         if wallet.tokenItem != _receiveToken.value.value?.tokenItem {
             slippageState.reset()
-            _slippageProvider.send(nil)
+            _providerSlippage.send(nil)
         }
         _receiveToken.send(.success(wallet))
         swappingPairDidChange()
@@ -459,20 +459,16 @@ private extension SwapModel {
 
         logErrorIfNeeded(providersState: providersState)
         _providersState.send(providersState)
-        updateSlippageProvider(providersState: providersState)
+        updateProviderSlippage(providersState: providersState)
     }
 
-    private func updateSlippageProvider(providersState: ProvidersState) {
+    private func updateProviderSlippage(providersState: ProvidersState) {
         switch providersState {
         case .loading(.provider), .loading(.autoupdate), .loading(.fee):
             return
         default:
-            setSlippageProvider(mapToLoadingExpressAvailableProvider(providersState: providersState)?.value?.provider)
+            _providerSlippage.send(mapToLoadingExpressAvailableProvider(providersState: providersState)?.value?.providerSlippage)
         }
-    }
-
-    private func setSlippageProvider(_ provider: ExpressProvider?) {
-        _slippageProvider.send(provider?.slippage == nil ? nil : provider)
     }
 
     private func refreshDexOnlyProvidersMode() async throws {
@@ -736,6 +732,7 @@ extension SwapModel {
 
         let input = HighPriceImpactCalculator.Input(
             provider: provider,
+            slippage: quote.slippage ?? provider.slippage,
             sourceToken: source,
             destinationToken: destination,
             sourceAmount: quote.fromAmount,
@@ -1726,7 +1723,7 @@ extension SwapModel: SendSwapProvidersInput {
 
 extension SwapModel: SendSwapProvidersOutput {
     func userDidSelect(provider: ExpressAvailableProvider) {
-        setSlippageProvider(provider.provider)
+        _providerSlippage.send(provider.providerSlippage)
 
         updateTask(loadingType: .provider) { expressManager in
             await expressManager.updateSelectedProvider(provider: provider)
@@ -1743,7 +1740,7 @@ extension SwapModel {
         }
 
         guard provider.provider.isCustomSlippageSupported, case .custom(let value) = slippageState.slippage else {
-            return provider.provider.slippage
+            return provider.defaultSlippage
         }
 
         return value
@@ -1761,12 +1758,12 @@ extension SwapModel: SwapSlippageInput, SwapSlippageOutput {
         slippageState.slippagePublisher
     }
 
-    var slippageProvider: ExpressProvider? {
-        _slippageProvider.value
+    var providerSlippage: SwapProviderSlippage? {
+        _providerSlippage.value
     }
 
-    var slippageProviderPublisher: AnyPublisher<ExpressProvider?, Never> {
-        _slippageProvider.eraseToAnyPublisher()
+    var providerSlippagePublisher: AnyPublisher<SwapProviderSlippage?, Never> {
+        _providerSlippage.eraseToAnyPublisher()
     }
 
     var isCustomSlippageResetPublisher: AnyPublisher<Bool, Never> {
@@ -1780,7 +1777,7 @@ extension SwapModel: SwapSlippageInput, SwapSlippageOutput {
     func userDidSet(slippage: SwapSlippage) {
         switch slippage {
         case .auto:
-            analyticsLogger.logSwapCustomSlippageConfirmed(slippage: slippageProvider?.slippage)
+            analyticsLogger.logSwapCustomSlippageConfirmed(slippage: providerSlippage?.defaultSlippage)
         case .custom(let value):
             analyticsLogger.logSwapCustomSlippageConfirmed(slippage: value)
         }
