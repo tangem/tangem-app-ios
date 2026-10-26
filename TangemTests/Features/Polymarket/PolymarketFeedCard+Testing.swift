@@ -17,4 +17,12 @@ extension PolymarketFeedCard {
 
         return model
     }
+
+    var liveGameModel: PolymarketLiveGameCard.Model? {
+        guard case .liveGame(let model) = self else {
+            return nil
+        }
+
+        return model
+    }
 }
