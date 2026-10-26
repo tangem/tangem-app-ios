@@ -10,6 +10,7 @@ import Combine
 import Foundation
 import Testing
 import TangemPolymarket
+import TangemPolymarketUI
 @testable import Tangem
 
 @Suite("Polymarket search")
@@ -301,6 +302,17 @@ struct PolymarketSearchBlockViewModelTests {
         #expect(sut.eventCards.isEmpty)
         #expect(sut.state == .prompt)
     }
+
+    @Test("With phase two a live match found by search gets the live card, from REST")
+    func liveMatchInSearchGetsTheLiveCard() async throws {
+        let provider = PolymarketAPIProviderStub(searchResults: [.success(Self.page(events: [PolymarketLiveGamesFixtures.basketball()], hasNext: false))])
+        let sut = Self.makeSUT(provider: provider, usesPhaseTwoCards: true)
+
+        sut.query = "cavaliers"
+        try await Self.settle(sut) { $0.state == .allDataLoaded }
+
+        #expect(sut.eventCards.first?.liveGameModel?.score == PolymarketLiveGameCard.Score(home: "101", away: "98"))
+    }
 }
 
 // MARK: - Fixtures
@@ -310,7 +322,8 @@ private extension PolymarketSearchBlockViewModelTests {
         provider: PolymarketAPIProvider,
         routable: PolymarketEventOpeningRoutableSpy = PolymarketEventOpeningRoutableSpy.ignored,
         isRegionRestricted: Bool = false,
-        fundsArrivalTracker: PolymarketFundsArrivalTracker = PolymarketFundsArrivalTracker(balancePublisher: Empty().eraseToAnyPublisher())
+        fundsArrivalTracker: PolymarketFundsArrivalTracker = PolymarketFundsArrivalTracker(balancePublisher: Empty().eraseToAnyPublisher()),
+        usesPhaseTwoCards: Bool = false
     ) -> PolymarketSearchBlockViewModel {
         PolymarketSearchBlockViewModel(
             apiProvider: provider,
@@ -319,7 +332,7 @@ private extension PolymarketSearchBlockViewModelTests {
                 refreshCenter: PolymarketMainRefreshCenter()
             ),
             isRegionRestricted: { isRegionRestricted },
-            usesPhaseTwoCards: false,
+            usesPhaseTwoCards: usesPhaseTwoCards,
             routable: routable,
             debounceInterval: .zero
         )
