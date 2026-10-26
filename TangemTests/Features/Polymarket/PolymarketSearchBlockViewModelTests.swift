@@ -319,6 +319,7 @@ private extension PolymarketSearchBlockViewModelTests {
                 refreshCenter: PolymarketMainRefreshCenter()
             ),
             isRegionRestricted: { isRegionRestricted },
+            usesPhaseTwoCards: false,
             routable: routable,
             debounceInterval: .zero
         )

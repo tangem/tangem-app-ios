@@ -13,13 +13,11 @@ public struct PolymarketEventGame: Hashable, Sendable {
     public let score: PolymarketGameScore
     public let period: String?
     public let hasEnded: Bool
-    public let dataFetchedAt: Date?
 
-    public init(gameId: String, score: PolymarketGameScore, period: String?, hasEnded: Bool, dataFetchedAt: Date?) {
+    public init(gameId: String, score: PolymarketGameScore, period: String?, hasEnded: Bool) {
         self.gameId = gameId
         self.score = score
         self.period = period
         self.hasEnded = hasEnded
-        self.dataFetchedAt = dataFetchedAt
     }
 }

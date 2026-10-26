@@ -24,6 +24,7 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
 
     private(set) var categoryTabs: [PolymarketCategoryTab] = []
 
+    @MainActor
     var selectedCategoryTab: Binding<PolymarketCategoryTab> {
         Binding(
             get: { self.categoryTabs.first { $0.id == self.selectedCategoryID } ?? self.categoryTabs.first ?? PolymarketCategoryTab(id: 0, title: "") },
@@ -39,6 +40,8 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
     private let refreshCenter: PolymarketMainRefreshCenter
     private let activityHandler: PolymarketMainActivityHandler
     private let liveQuotesTracker: PolymarketFeedLiveQuotesTracker
+    private let liveGamesTracker: PolymarketFeedLiveGamesTracker
+    private let usesPhaseTwoCards: Bool
     private let isRegionRestricted: () -> Bool
     private weak var routable: PolymarketEventOpeningRoutable?
     private let now: () -> Date
@@ -50,12 +53,15 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
     private var cache: [Int?: CategoryState] = [:]
     private var visibleEventIDs: Set<String> = []
     private var liveQuotesByAssetId: [String: PolymarketOutcomeQuote] = [:]
+    private var liveGamesByGameId: [String: PolymarketLiveGame] = [:]
     private var refreshingPages: Set<PageKey> = []
     private var lastStaleReport: Date?
 
     private var loadingTask: Task<Void, Never>?
     private var visibilityTask: Task<Void, Never>?
     private var liveQuotesTask: Task<Void, Never>?
+    private var liveGamesTask: Task<Void, Never>?
+    private var reconnectRefetchTask: Task<Void, Never>?
     private var isPollingPaused = false
     private var hasVisibilityChangedDuringTick = false
     private let poller: PolymarketForegroundPoller
@@ -65,6 +71,8 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
         refreshCenter: PolymarketMainRefreshCenter,
         activityHandler: PolymarketMainActivityHandler,
         liveQuotesTracker: PolymarketFeedLiveQuotesTracker,
+        liveGamesTracker: PolymarketFeedLiveGamesTracker,
+        usesPhaseTwoCards: Bool,
         isRegionRestricted: @escaping () -> Bool,
         routable: PolymarketEventOpeningRoutable,
         notificationCenter: NotificationCenter = .default,
@@ -75,6 +83,8 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
         self.refreshCenter = refreshCenter
         self.activityHandler = activityHandler
         self.liveQuotesTracker = liveQuotesTracker
+        self.liveGamesTracker = liveGamesTracker
+        self.usesPhaseTwoCards = usesPhaseTwoCards
         self.isRegionRestricted = isRegionRestricted
         self.routable = routable
         self.now = now
@@ -90,6 +100,7 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
             onPause: { [weak self] in self?.pausePolling() }
         )
         observeLiveQuotes()
+        observeLiveGames()
         load()
     }
 }
@@ -147,6 +158,7 @@ private extension PolymarketEventsBlockViewModel {
         fetchEvents()
     }
 
+    @MainActor
     func select(categoryID: Int?) {
         guard selectedCategoryID != categoryID else { return }
 
@@ -238,6 +250,8 @@ private extension PolymarketEventsBlockViewModel {
         isPollingPaused = false
         liveQuotesTracker.resume()
         updateLiveQuotesTracking()
+        liveGamesTracker.resume()
+        updateLiveGamesTracking()
         await refreshVisiblePages()
     }
 
@@ -246,9 +260,13 @@ private extension PolymarketEventsBlockViewModel {
         isPollingPaused = true
         visibilityTask?.cancel()
         visibilityTask = nil
+        reconnectRefetchTask?.cancel()
+        reconnectRefetchTask = nil
         hasVisibilityChangedDuringTick = false
         liveQuotesTracker.pause()
         dropUntrackedLiveQuotes()
+        liveGamesTracker.pause()
+        dropAllLiveGames()
     }
 
     @MainActor
@@ -332,6 +350,7 @@ private extension PolymarketEventsBlockViewModel {
 
             eventCards = feed.events.map(makeCard)
             updateLiveQuotesTracking()
+            updateLiveGamesTracking()
         } catch {
             guard !error.isCancellationError, key.generation == feed.generation else { return }
 
@@ -408,7 +427,7 @@ private extension PolymarketEventsBlockViewModel {
 
     @MainActor
     func updateLiveQuotesTracking() {
-        liveQuotesTracker.update(events: feed.events, visibleEventIDs: visibleEventIDs, isLive: \.isLive)
+        liveQuotesTracker.update(events: feed.events, visibleEventIDs: visibleEventIDs, isLive: isLive)
         dropUntrackedLiveQuotes()
     }
 
@@ -437,6 +456,89 @@ private extension PolymarketEventCard.Model {
         rows.contains { row in
             row.outcomes.contains { assetIds.contains($0.id) }
         }
+    }
+}
+
+// MARK: - Live games
+
+private extension PolymarketEventsBlockViewModel {
+    func observeLiveGames() {
+        liveGamesTask = Task { @MainActor [weak self, updates = liveGamesTracker.updates] in
+            for await update in updates {
+                switch update {
+                case .game(let game):
+                    self?.applyLiveGame(game)
+                case .silent(let gameId):
+                    self?.dropLiveGames(withIds: [gameId])
+                case .connectionLost:
+                    self?.dropAllLiveGames()
+                case .reconnected:
+                    self?.refetchFeedAfterReconnect()
+                }
+            }
+        }
+    }
+
+    func refetchFeedAfterReconnect() {
+        guard !isPollingPaused else {
+            return
+        }
+
+        let generation = feed.generation
+        let pageIDs = feed.pageIDs(showing: visibleEventIDs)
+
+        let previousTask = reconnectRefetchTask
+        previousTask?.cancel()
+        reconnectRefetchTask = Task { @MainActor [weak self] in
+            await previousTask?.value
+
+            for pageID in pageIDs {
+                guard let self, !Task.isCancelled, generation == feed.generation else { return }
+
+                await refresh(pageID: pageID)
+            }
+        }
+    }
+
+    @MainActor
+    func updateLiveGamesTracking() {
+        liveGamesTracker.update(events: feed.events)
+        dropLiveGames(withIds: Set(liveGamesByGameId.keys).subtracting(liveGamesTracker.trackedGameIds))
+    }
+
+    @MainActor
+    func applyLiveGame(_ game: PolymarketLiveGame) {
+        guard liveGamesTracker.trackedGameIds.contains(game.gameId) else {
+            return
+        }
+
+        liveGamesByGameId[game.gameId] = game
+        updateLiveQuotesTracking()
+    }
+
+    @MainActor
+    func dropLiveGames(withIds gameIds: Set<String>) {
+        let droppedGameIds = gameIds.intersection(liveGamesByGameId.keys)
+
+        guard !droppedGameIds.isEmpty else {
+            return
+        }
+
+        droppedGameIds.forEach { liveGamesByGameId.removeValue(forKey: $0) }
+        updateLiveQuotesTracking()
+    }
+
+    @MainActor
+    func dropAllLiveGames() {
+        dropLiveGames(withIds: Set(liveGamesByGameId.keys))
+    }
+
+    func isLive(_ event: PolymarketEvent) -> Bool {
+        PolymarketGameState(event: event, liveGame: liveGame(for: event))?.isLive ?? event.isLive
+    }
+
+    func liveGame(for event: PolymarketEvent) -> PolymarketLiveGame? {
+        event.game.flatMap { liveGamesByGameId[$0.gameId] }
     }
 }
 
@@ -533,6 +635,7 @@ private extension PolymarketEventsBlockViewModel {
     func apply(page: PolymarketEventsPage, requestCursor: String?, emptyPages: Int = 0) {
         let added = append(events: page.events, requestCursor: requestCursor)
         updateLiveQuotesTracking()
+        updateLiveGamesTracking()
 
         cursor = page.cursor
         hasNext = page.hasNext
@@ -570,6 +673,8 @@ private extension PolymarketEventsBlockViewModel {
             category: nil,
             isInActivePredicts: false,
             liveQuotesByAssetId: liveQuotesByAssetId,
+            isLiveBadgePulsing: usesPhaseTwoCards,
+            outcomeLabelStyle: usesPhaseTwoCards ? .compact : .bulletSeparated,
             onSelectOutcome: { [weak self, eventID = event.id] market, outcome in
                 self?.selectOutcome(eventID: eventID, marketID: market.id, assetId: outcome.assetId)
             }
@@ -591,10 +696,12 @@ private extension PolymarketEventsBlockViewModel {
         CategoryState(feed: feed, cursor: cursor, hasNext: hasNext)
     }
 
+    @MainActor
     func restore(_ state: CategoryState) {
         resetEvents()
         feed = state.feed
         eventCards = feed.events.map(makeCard)
+        updateLiveGamesTracking()
         cursor = state.cursor
         hasNext = state.hasNext
         loadingState = state.hasNext ? .loaded : .allDataLoaded
