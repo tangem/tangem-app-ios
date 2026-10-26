@@ -16,6 +16,11 @@ internal protocol Sui_Rpc_V2_LedgerServiceClientProtocol: GRPCClient {
   var serviceName: String { get }
   var interceptors: Sui_Rpc_V2_LedgerServiceClientInterceptorFactoryProtocol? { get }
 
+  func getServiceInfo(
+    _ request: Sui_Rpc_V2_GetServiceInfoRequest,
+    callOptions: CallOptions?
+  ) -> UnaryCall<Sui_Rpc_V2_GetServiceInfoRequest, Sui_Rpc_V2_GetServiceInfoResponse>
+
   func getEpoch(
     _ request: Sui_Rpc_V2_GetEpochRequest,
     callOptions: CallOptions?
@@ -25,6 +30,24 @@ internal protocol Sui_Rpc_V2_LedgerServiceClientProtocol: GRPCClient {
 extension Sui_Rpc_V2_LedgerServiceClientProtocol {
   internal var serviceName: String {
     return "sui.rpc.v2.LedgerService"
+  }
+
+  /// Unary call to GetServiceInfo
+  ///
+  /// - Parameters:
+  ///   - request: Request to send to GetServiceInfo.
+  ///   - callOptions: Call options.
+  /// - Returns: A `UnaryCall` with futures for the metadata, status and response.
+  internal func getServiceInfo(
+    _ request: Sui_Rpc_V2_GetServiceInfoRequest,
+    callOptions: CallOptions? = nil
+  ) -> UnaryCall<Sui_Rpc_V2_GetServiceInfoRequest, Sui_Rpc_V2_GetServiceInfoResponse> {
+    return self.makeUnaryCall(
+      path: Sui_Rpc_V2_LedgerServiceClientMetadata.Methods.getServiceInfo.path,
+      request: request,
+      callOptions: callOptions ?? self.defaultCallOptions,
+      interceptors: self.interceptors?.makeGetServiceInfoInterceptors() ?? []
+    )
   }
 
   /// Unary call to GetEpoch
@@ -108,6 +131,11 @@ internal protocol Sui_Rpc_V2_LedgerServiceAsyncClientProtocol: GRPCClient {
   static var serviceDescriptor: GRPCServiceDescriptor { get }
   var interceptors: Sui_Rpc_V2_LedgerServiceClientInterceptorFactoryProtocol? { get }
 
+  func makeGetServiceInfoCall(
+    _ request: Sui_Rpc_V2_GetServiceInfoRequest,
+    callOptions: CallOptions?
+  ) -> GRPCAsyncUnaryCall<Sui_Rpc_V2_GetServiceInfoRequest, Sui_Rpc_V2_GetServiceInfoResponse>
+
   func makeGetEpochCall(
     _ request: Sui_Rpc_V2_GetEpochRequest,
     callOptions: CallOptions?
@@ -122,6 +150,18 @@ extension Sui_Rpc_V2_LedgerServiceAsyncClientProtocol {
 
   internal var interceptors: Sui_Rpc_V2_LedgerServiceClientInterceptorFactoryProtocol? {
     return nil
+  }
+
+  internal func makeGetServiceInfoCall(
+    _ request: Sui_Rpc_V2_GetServiceInfoRequest,
+    callOptions: CallOptions? = nil
+  ) -> GRPCAsyncUnaryCall<Sui_Rpc_V2_GetServiceInfoRequest, Sui_Rpc_V2_GetServiceInfoResponse> {
+    return self.makeAsyncUnaryCall(
+      path: Sui_Rpc_V2_LedgerServiceClientMetadata.Methods.getServiceInfo.path,
+      request: request,
+      callOptions: callOptions ?? self.defaultCallOptions,
+      interceptors: self.interceptors?.makeGetServiceInfoInterceptors() ?? []
+    )
   }
 
   internal func makeGetEpochCall(
@@ -139,6 +179,18 @@ extension Sui_Rpc_V2_LedgerServiceAsyncClientProtocol {
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension Sui_Rpc_V2_LedgerServiceAsyncClientProtocol {
+  internal func getServiceInfo(
+    _ request: Sui_Rpc_V2_GetServiceInfoRequest,
+    callOptions: CallOptions? = nil
+  ) async throws -> Sui_Rpc_V2_GetServiceInfoResponse {
+    return try await self.performAsyncUnaryCall(
+      path: Sui_Rpc_V2_LedgerServiceClientMetadata.Methods.getServiceInfo.path,
+      request: request,
+      callOptions: callOptions ?? self.defaultCallOptions,
+      interceptors: self.interceptors?.makeGetServiceInfoInterceptors() ?? []
+    )
+  }
+
   internal func getEpoch(
     _ request: Sui_Rpc_V2_GetEpochRequest,
     callOptions: CallOptions? = nil
@@ -171,6 +223,9 @@ internal struct Sui_Rpc_V2_LedgerServiceAsyncClient: Sui_Rpc_V2_LedgerServiceAsy
 
 internal protocol Sui_Rpc_V2_LedgerServiceClientInterceptorFactoryProtocol: Sendable {
 
+  /// - Returns: Interceptors to use when invoking 'getServiceInfo'.
+  func makeGetServiceInfoInterceptors() -> [ClientInterceptor<Sui_Rpc_V2_GetServiceInfoRequest, Sui_Rpc_V2_GetServiceInfoResponse>]
+
   /// - Returns: Interceptors to use when invoking 'getEpoch'.
   func makeGetEpochInterceptors() -> [ClientInterceptor<Sui_Rpc_V2_GetEpochRequest, Sui_Rpc_V2_GetEpochResponse>]
 }
@@ -180,11 +235,18 @@ internal enum Sui_Rpc_V2_LedgerServiceClientMetadata {
     name: "LedgerService",
     fullName: "sui.rpc.v2.LedgerService",
     methods: [
+      Sui_Rpc_V2_LedgerServiceClientMetadata.Methods.getServiceInfo,
       Sui_Rpc_V2_LedgerServiceClientMetadata.Methods.getEpoch,
     ]
   )
 
   internal enum Methods {
+    internal static let getServiceInfo = GRPCMethodDescriptor(
+      name: "GetServiceInfo",
+      path: "/sui.rpc.v2.LedgerService/GetServiceInfo",
+      type: GRPCCallType.unary
+    )
+
     internal static let getEpoch = GRPCMethodDescriptor(
       name: "GetEpoch",
       path: "/sui.rpc.v2.LedgerService/GetEpoch",
@@ -202,6 +264,11 @@ internal protocol Sui_Rpc_V2_StateServiceClientProtocol: GRPCClient {
     _ request: Sui_Rpc_V2_ListOwnedObjectsRequest,
     callOptions: CallOptions?
   ) -> UnaryCall<Sui_Rpc_V2_ListOwnedObjectsRequest, Sui_Rpc_V2_ListOwnedObjectsResponse>
+
+  func listBalances(
+    _ request: Sui_Rpc_V2_ListBalancesRequest,
+    callOptions: CallOptions?
+  ) -> UnaryCall<Sui_Rpc_V2_ListBalancesRequest, Sui_Rpc_V2_ListBalancesResponse>
 }
 
 extension Sui_Rpc_V2_StateServiceClientProtocol {
@@ -224,6 +291,24 @@ extension Sui_Rpc_V2_StateServiceClientProtocol {
       request: request,
       callOptions: callOptions ?? self.defaultCallOptions,
       interceptors: self.interceptors?.makeListOwnedObjectsInterceptors() ?? []
+    )
+  }
+
+  /// Unary call to ListBalances
+  ///
+  /// - Parameters:
+  ///   - request: Request to send to ListBalances.
+  ///   - callOptions: Call options.
+  /// - Returns: A `UnaryCall` with futures for the metadata, status and response.
+  internal func listBalances(
+    _ request: Sui_Rpc_V2_ListBalancesRequest,
+    callOptions: CallOptions? = nil
+  ) -> UnaryCall<Sui_Rpc_V2_ListBalancesRequest, Sui_Rpc_V2_ListBalancesResponse> {
+    return self.makeUnaryCall(
+      path: Sui_Rpc_V2_StateServiceClientMetadata.Methods.listBalances.path,
+      request: request,
+      callOptions: callOptions ?? self.defaultCallOptions,
+      interceptors: self.interceptors?.makeListBalancesInterceptors() ?? []
     )
   }
 }
@@ -294,6 +379,11 @@ internal protocol Sui_Rpc_V2_StateServiceAsyncClientProtocol: GRPCClient {
     _ request: Sui_Rpc_V2_ListOwnedObjectsRequest,
     callOptions: CallOptions?
   ) -> GRPCAsyncUnaryCall<Sui_Rpc_V2_ListOwnedObjectsRequest, Sui_Rpc_V2_ListOwnedObjectsResponse>
+
+  func makeListBalancesCall(
+    _ request: Sui_Rpc_V2_ListBalancesRequest,
+    callOptions: CallOptions?
+  ) -> GRPCAsyncUnaryCall<Sui_Rpc_V2_ListBalancesRequest, Sui_Rpc_V2_ListBalancesResponse>
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
@@ -317,6 +407,18 @@ extension Sui_Rpc_V2_StateServiceAsyncClientProtocol {
       interceptors: self.interceptors?.makeListOwnedObjectsInterceptors() ?? []
     )
   }
+
+  internal func makeListBalancesCall(
+    _ request: Sui_Rpc_V2_ListBalancesRequest,
+    callOptions: CallOptions? = nil
+  ) -> GRPCAsyncUnaryCall<Sui_Rpc_V2_ListBalancesRequest, Sui_Rpc_V2_ListBalancesResponse> {
+    return self.makeAsyncUnaryCall(
+      path: Sui_Rpc_V2_StateServiceClientMetadata.Methods.listBalances.path,
+      request: request,
+      callOptions: callOptions ?? self.defaultCallOptions,
+      interceptors: self.interceptors?.makeListBalancesInterceptors() ?? []
+    )
+  }
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
@@ -330,6 +432,18 @@ extension Sui_Rpc_V2_StateServiceAsyncClientProtocol {
       request: request,
       callOptions: callOptions ?? self.defaultCallOptions,
       interceptors: self.interceptors?.makeListOwnedObjectsInterceptors() ?? []
+    )
+  }
+
+  internal func listBalances(
+    _ request: Sui_Rpc_V2_ListBalancesRequest,
+    callOptions: CallOptions? = nil
+  ) async throws -> Sui_Rpc_V2_ListBalancesResponse {
+    return try await self.performAsyncUnaryCall(
+      path: Sui_Rpc_V2_StateServiceClientMetadata.Methods.listBalances.path,
+      request: request,
+      callOptions: callOptions ?? self.defaultCallOptions,
+      interceptors: self.interceptors?.makeListBalancesInterceptors() ?? []
     )
   }
 }
@@ -355,6 +469,9 @@ internal protocol Sui_Rpc_V2_StateServiceClientInterceptorFactoryProtocol: Senda
 
   /// - Returns: Interceptors to use when invoking 'listOwnedObjects'.
   func makeListOwnedObjectsInterceptors() -> [ClientInterceptor<Sui_Rpc_V2_ListOwnedObjectsRequest, Sui_Rpc_V2_ListOwnedObjectsResponse>]
+
+  /// - Returns: Interceptors to use when invoking 'listBalances'.
+  func makeListBalancesInterceptors() -> [ClientInterceptor<Sui_Rpc_V2_ListBalancesRequest, Sui_Rpc_V2_ListBalancesResponse>]
 }
 
 internal enum Sui_Rpc_V2_StateServiceClientMetadata {
@@ -363,6 +480,7 @@ internal enum Sui_Rpc_V2_StateServiceClientMetadata {
     fullName: "sui.rpc.v2.StateService",
     methods: [
       Sui_Rpc_V2_StateServiceClientMetadata.Methods.listOwnedObjects,
+      Sui_Rpc_V2_StateServiceClientMetadata.Methods.listBalances,
     ]
   )
 
@@ -370,6 +488,12 @@ internal enum Sui_Rpc_V2_StateServiceClientMetadata {
     internal static let listOwnedObjects = GRPCMethodDescriptor(
       name: "ListOwnedObjects",
       path: "/sui.rpc.v2.StateService/ListOwnedObjects",
+      type: GRPCCallType.unary
+    )
+
+    internal static let listBalances = GRPCMethodDescriptor(
+      name: "ListBalances",
+      path: "/sui.rpc.v2.StateService/ListBalances",
       type: GRPCCallType.unary
     )
   }
