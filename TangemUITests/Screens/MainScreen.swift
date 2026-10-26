@@ -1366,6 +1366,16 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
+    func loadedTokenBalanceNumeric(tokenName: String) -> Decimal? {
+        let balance = visibleTokensList().staticTexts
+            .matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
+            .firstMatch
+        guard balance.exists else {
+            return nil
+        }
+        return Decimal(string: balance.label.filter { $0.isNumber || $0 == "." }, locale: UITestLocale.locale)
+    }
+
     func getTokenBalanceNumeric(tokenName: String, tokenIndex: Int = 0) -> Decimal {
         XCTContext.runActivity(named: "Get balance (numeric) for token: \(tokenName) at index: \(tokenIndex)") { _ in
             let label = getTokenBalance(tokenName: tokenName, tokenIndex: tokenIndex)
