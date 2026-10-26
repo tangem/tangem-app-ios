@@ -30,6 +30,8 @@
 "account_details_archive_joint_description" = "Dadurch wird das Konto lediglich für Sie ausgeblendet und die Benachrichtigungen dafür deaktiviert. Andere Mitglieder behalten weiterhin Zugriff darauf, und Sie können es jederzeit wieder aktivieren.";
 "account_details_archive" = "Archivkonto";
 "account_details_archiving" = "Archivierung...";
+"account_details_joint_members_confirmed" = "%1$@ of %2$@ confirmed";
+"account_details_joint_members_joined" = "%1$@ of %2$@ joined";
 "account_details_joint_members_progress" = "%1$@/%2$@ Menschen";
 "account_details_joint_networks_info" = "Text über Netzwerke.";
 "account_details_joint_pending_description" = "Das Konto wird derzeit noch mit Mitgliedern befüllt";
@@ -208,7 +210,7 @@
 "choose_asset_title" = "Asset auswählen";
 "collectibles_account_collection_empty" = "Keine Karten";
 "collectibles_account_collection_row_subtitle" = "Meine Sammlung";
-"collectibles_account_reconnect_subtitle" = "Reconnect Packs account";
+"collectibles_account_reconnect_subtitle" = "Reconnect required";
 "collectibles_account_withdraw" = "Auszahlung";
 "collectibles_confirm_order_approve_button" = "Genehmigen";
 "collectibles_confirm_order_confirming_transaction_button" = "Transaktion wird bestätigt...";
@@ -401,6 +403,7 @@
 "common_forget" = "Entfernen";
 "common_from_account" = "Vom Konto";
 "common_from_address" = "Absenderadresse";
+"common_from_lowercase" = "from";
 "common_from_wallet_name" = "Von %@";
 "common_from_wallet" = "Aus der Wallet";
 "common_from" = "Vom";
@@ -1085,6 +1088,7 @@
 "joint_account_join_title" = "Sie wurden eingeladen zu %1$@";
 "joint_account_join_to_account_btn_text" = "Jetzt anmelden";
 "joint_account_join_to_approve" = "Genehmigen";
+"joint_account_main_cant_verify" = "Can't verify";
 "joint_account_members_progress" = "%1$@ von %2$@ Mitglieder";
 "joint_account_members_role_joined" = "Beigetreten";
 "joint_account_members_role_you" = "Du";
@@ -1329,6 +1333,7 @@
 "mcp_intent_cant_reach_title" = "Can’t reach intent";
 "mcp_intent_proceed" = "Proceed";
 "mcp_intent_processed_title" = "This intent has already been processed";
+"mcp_intent_unknown_agent_name" = "AI";
 "mcp_send_intent_cant_reach_title" = "Can’t reach intent";
 "mcp_send_intent_offer_description" = "The agent is asking to send from your account. You’ll review the details next.";
 "mcp_send_intent_offer_title" = "%1$@ Agent wants to send %2$@";
@@ -1377,6 +1382,9 @@
 "money_account_onboarding_transfers_card_caption" = "Einnahmen. Ausgaben.";
 "money_account_onboarding_transfers_card_subtitle" = "mit einem eigens dafür eingerichteten Konto mit Bankverbindung";
 "money_account_onboarding_transfers_card_title" = "Fiat-Zahlungen senden und empfangen";
+"money_account_send_bank_transfer_unavailable" = "Unavailable";
+"money_account_send_unavailable_description" = "Try again in 5 minutes";
+"money_account_send_unavailable_title" = "Operation currently unavailable";
 "news_all_news" = "Alle Neuigkeiten";
 "news_like" = "Gefällt mir";
 "news_quick_recap" = "Kurze Zusammenfassung";
@@ -1570,6 +1578,7 @@
 "prediction_add_funds_receive_title" = "Von einer anderen Wallet oder Börse";
 "prediction_add_funds_swap_subtitle" = "Nutzen Sie Kryptowährung in Ihrer Tangem-Wallet, um Ihr Polymarket-Konto aufzuladen";
 "prediction_add_funds_swap_title" = "Aus Ihrer Tangem Wallet";
+"prediction_cash_out" = "Cash Out";
 "prediction_claim_error_failed" = "Die Abbuchung wurde nicht ausgeführt. Es wurde kein Betrag von Ihrem Konto abgebucht, und Sie können es erneut versuchen.";
 "prediction_claim_error_generic" = "Die Forderung konnte nicht gesendet werden. Bitte versuchen Sie es erneut.";
 "prediction_claim_error_rejected" = "Polymarket hat die Übermittlung des Antrags abgelehnt. Aktualisieren Sie Ihre Positionen und versuchen Sie es erneut.";
@@ -2505,6 +2514,8 @@
 "tangempay_onboarding_security_title" = "Unerreichte Privatsphäre";
 "tangempay_onboarding_setup_wallet_description" = "Und verknüpfen Tangem Pay damit";
 "tangempay_onboarding_setup_wallet_title" = "Wir erstellen eine neue Wallet";
+"tangempay_onboarding_success_description" = "Products activation might take a few minutes to finish";
+"tangempay_onboarding_success_title" = "Tangem Pay is activating";
 "tangempay_onboarding_title" = "Holen Sie sich Ihre Tangem Pay Karte";
 "tangempay_order_card_error_active_order" = "Eine Kartenbestellung ist bereits in Bearbeitung.";
 "tangempay_order_card_error_insufficient_balance" = "Nicht genügend Guthaben für die Lieferung. Laden Sie Guthaben auf und versuchen Sie es erneut.";
@@ -2686,6 +2697,7 @@
 "tangempay_withdraw_bank_geo_country_selected" = "Ausgewähltes Land";
 "tangempay_withdraw_bank_geo_state_selected" = "Ausgewählter Staat";
 "tangempay_withdraw_bank_geo_state_title" = "Bundesland";
+"tangempay_withdraw_bank_network_fee_unreachable" = "Network fee info unreachable. Check your internet connection or tap to refresh";
 "tangempay_withdraw_bank_offramp_unavailable" = "Nicht verfügbar";
 "tangempay_withdraw_bank_placeholder_address_line1" = "z. B. Ebunike-Straße, Wohnung 32";
 "tangempay_withdraw_bank_placeholder_bank_name" = "z. B. Goldman Sachs";
@@ -2826,6 +2838,7 @@
 "transaction_history_transaction_for_address" = "für: %@";
 "transaction_history_transaction_from_address" = "von: %@";
 "transaction_history_transaction_from_for_address" = "from: %1$@ for %2$@";
+"transaction_history_transaction_from_from_address" = "from: %1$@ from %2$@";
 "transaction_history_transaction_to_address" = "zu: %@";
 "transaction_history_transaction_to_for_address" = "to: %1$@ for %2$@";
 "transaction_history_unlimited_amount" = "Unbegrenzt %@";
@@ -3016,6 +3029,7 @@
 "warning_express_not_enough_fee_for_token_tx_description" = "Um eine Transaktion durchzuführen, musst du etwas %1$@ %2$@ einzahlen";
 "warning_express_not_enough_fee_for_token_tx_title" = "Die Gebühr %@ kann nicht gedeckt werden";
 "warning_express_notification_invalid_reserve_amount_title" = "Der zu erhaltende Betrag muss mindestens %@ betragen";
+"warning_express_pair_unavailable_message_v2" = "The provider can’t exchange your selected pair right now. Please choose another provider. (Code %@)";
 "warning_express_pair_unavailable_message" = "Dies kann passieren, weil der Anbieter derzeit nicht in der Lage ist, dein ausgewähltes Paar zu swappen. Bitte warte einen Moment und versuche es später erneut. (Code %@)";
 "warning_express_pair_unavailable_title" = "Ausgewähltes Paar vorübergehend nicht verfügbar";
 "warning_express_providers_fca_warning_description" = "Einige Anbieter sind nicht von der britischen Finanzaufsichtsbehörde (FCA) zugelassen. Sie sollten den Umgang mit ihnen vermeiden.";
@@ -3035,6 +3049,8 @@
 "warning_hedera_token_association_not_enough_hbar_message" = "Nicht genug %@. Lade dein Hedera-Konto auf, um dieses Token zuzuordnen";
 "warning_incomplete_backup_notification_message" = "Es scheint, dass die Aktivierung der Karte oder des Rings nicht korrekt abgeschlossen wurde. Dies kann an einem Problem mit dem NFC-Modul deines Gerätes oder an einem falschen Tippen der Karte oder Ring auf dein Gerät liegen. Bitte wende dich an unser Support-Team, um Unterstützung zu erhalten.";
 "warning_incomplete_backup_notification_title" = "Handeln ist gefragt. Benutzen Sie nicht Ihr Wallet!";
+"warning_incomplete_balance_message" = "This address has more than %1$@ UTXOs, so the %2$@ network returns only part of them. Your funds are safe. To see the full balance, consolidate UTXOs by sending %3$@ to your own address.";
+"warning_incomplete_balance_title" = "Balance may be incomplete";
 "warning_ios_deprecation_ended_message" = "Der Support für iOS %1$@ wurde am %2$@ eingestellt. Um weiterhin App-Updates zu erhalten und die volle Funktionalität sicherzustellen, aktualisieren Sie bitte auf die neueste iOS-Version.";
 "warning_ios_deprecation_message" = "Der Support für iOS %1$@ endet am %2$@. Um weiterhin App-Updates zu erhalten und die volle Funktionalität sicherzustellen, aktualisieren Sie bitte auf die neueste iOS-Version.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Bist Du sicher, dass Du die Transaktion stornieren willst? Du kannst die Transaktion nicht erneut starten.";

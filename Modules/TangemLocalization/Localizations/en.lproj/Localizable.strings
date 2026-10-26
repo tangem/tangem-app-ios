@@ -30,6 +30,8 @@
 "account_details_archive_joint_description" = "This only hides the account for you and turns off notifications for it. Other members keep their access, and you can always get it back.";
 "account_details_archive" = "Archive account";
 "account_details_archiving" = "Archiving...";
+"account_details_joint_members_confirmed" = "%1$@ of %2$@ confirmed";
+"account_details_joint_members_joined" = "%1$@ of %2$@ joined";
 "account_details_joint_members_progress" = "%1$@/%2$@ people";
 "account_details_joint_networks_info" = "Supported networks.";
 "account_details_joint_pending_description" = "Waiting for members to join";
@@ -208,7 +210,7 @@
 "choose_asset_title" = "Choose asset";
 "collectibles_account_collection_empty" = "No cards";
 "collectibles_account_collection_row_subtitle" = "My collection";
-"collectibles_account_reconnect_subtitle" = "Reconnect Packs account";
+"collectibles_account_reconnect_subtitle" = "Reconnect required";
 "collectibles_account_withdraw" = "Withdrawal";
 "collectibles_confirm_order_approve_button" = "Approve";
 "collectibles_confirm_order_confirming_transaction_button" = "Confirming transaction...";
@@ -401,6 +403,7 @@
 "common_forget" = "Forget";
 "common_from_account" = "From account";
 "common_from_address" = "From address";
+"common_from_lowercase" = "from";
 "common_from_wallet_name" = "From %@";
 "common_from_wallet" = "From wallet";
 "common_from" = "From";
@@ -1085,6 +1088,7 @@
 "joint_account_join_title" = "You've been invited to %1$@";
 "joint_account_join_to_account_btn_text" = "Join account";
 "joint_account_join_to_approve" = "To approve";
+"joint_account_main_cant_verify" = "Can't verify";
 "joint_account_members_progress" = "%1$@ of %2$@ members";
 "joint_account_members_role_joined" = "Joined";
 "joint_account_members_role_you" = "You";
@@ -1329,6 +1333,7 @@
 "mcp_intent_cant_reach_title" = "Can’t reach intent";
 "mcp_intent_proceed" = "Proceed";
 "mcp_intent_processed_title" = "This intent has already been processed";
+"mcp_intent_unknown_agent_name" = "AI";
 "mcp_send_intent_cant_reach_title" = "Can’t reach intent";
 "mcp_send_intent_offer_description" = "The agent is asking to send from your account. You’ll review the details next.";
 "mcp_send_intent_offer_title" = "%1$@ Agent wants to send %2$@";
@@ -1377,6 +1382,9 @@
 "money_account_onboarding_transfers_card_caption" = "Money in. Money out.";
 "money_account_onboarding_transfers_card_subtitle" = "with a dedicated account with banking details";
 "money_account_onboarding_transfers_card_title" = "Send and receive fiat payments";
+"money_account_send_bank_transfer_unavailable" = "Unavailable";
+"money_account_send_unavailable_description" = "Try again in 5 minutes";
+"money_account_send_unavailable_title" = "Operation currently unavailable";
 "news_all_news" = "All news";
 "news_like" = "Like";
 "news_quick_recap" = "Quick recap";
@@ -1570,6 +1578,7 @@
 "prediction_add_funds_receive_title" = "From another wallet or exchange";
 "prediction_add_funds_swap_subtitle" = "Use crypto in your Tangem wallet to top up your Polymarket account";
 "prediction_add_funds_swap_title" = "From your Tangem Wallet";
+"prediction_cash_out" = "Cash Out";
 "prediction_claim_error_failed" = "The claim did not go through. Nothing left your account, and you can try again.";
 "prediction_claim_error_generic" = "The claim could not be sent. Please try again.";
 "prediction_claim_error_rejected" = "Polymarket refused to relay the claim. Refresh your positions and try again.";
@@ -2505,6 +2514,8 @@
 "tangempay_onboarding_security_title" = "Unrivaled privacy";
 "tangempay_onboarding_setup_wallet_description" = "And link a payment card to it";
 "tangempay_onboarding_setup_wallet_title" = "We'll set up a wallet";
+"tangempay_onboarding_success_description" = "Products activation might take a few minutes to finish";
+"tangempay_onboarding_success_title" = "Tangem Pay is activating";
 "tangempay_onboarding_title" = "Get your Tangem Pay Card in minutes";
 "tangempay_order_card_error_active_order" = "A card order is already in progress.";
 "tangempay_order_card_error_insufficient_balance" = "Not enough money for delivery. Add funds and try again.";
@@ -2686,6 +2697,7 @@
 "tangempay_withdraw_bank_geo_country_selected" = "Selected country";
 "tangempay_withdraw_bank_geo_state_selected" = "Selected state";
 "tangempay_withdraw_bank_geo_state_title" = "State";
+"tangempay_withdraw_bank_network_fee_unreachable" = "Network fee info unreachable. Check your internet connection or tap to refresh";
 "tangempay_withdraw_bank_offramp_unavailable" = "Off-ramp unavailable";
 "tangempay_withdraw_bank_placeholder_address_line1" = "Eg., Ebunike st., Apt. 32";
 "tangempay_withdraw_bank_placeholder_bank_name" = "Eg., Goldman Sachs";
@@ -2826,6 +2838,7 @@
 "transaction_history_transaction_for_address" = "for: %@";
 "transaction_history_transaction_from_address" = "from: %@";
 "transaction_history_transaction_from_for_address" = "from: %1$@ for %2$@";
+"transaction_history_transaction_from_from_address" = "from: %1$@ from %2$@";
 "transaction_history_transaction_to_address" = "to: %@";
 "transaction_history_transaction_to_for_address" = "to: %1$@ for %2$@";
 "transaction_history_unlimited_amount" = "Unlimited %@";
@@ -3016,6 +3029,7 @@
 "warning_express_not_enough_fee_for_token_tx_description" = "To make a transaction you need to deposit some %1$@ %2$@";
 "warning_express_not_enough_fee_for_token_tx_title" = "Unable to cover %@ fee";
 "warning_express_notification_invalid_reserve_amount_title" = "The amount to receive must be at least %@";
+"warning_express_pair_unavailable_message_v2" = "The provider can’t exchange your selected pair right now. Please choose another provider. (Code %@)";
 "warning_express_pair_unavailable_message" = "This may occur because the provider is currently unable to exchange your selected pair. Please wait a moment and try again. (Code %@)";
 "warning_express_pair_unavailable_title" = "Selected pair temporarily unavailable";
 "warning_express_providers_fca_warning_description" = "Some providers are not authorized by the UK Financial Conduct Authority. You should avoid dealing with them.";
@@ -3035,6 +3049,8 @@
 "warning_hedera_token_association_not_enough_hbar_message" = "Not enough %@. Top up your Hedera account to associate this token";
 "warning_incomplete_backup_notification_message" = "We found out that the card activation process has not been completed accordingly due to issues with your device's NFC module or the incorrect way of tapping the cards to the phone. Please get in touch with our Support team for more details.";
 "warning_incomplete_backup_notification_title" = "Action is required. Don't use your wallet!";
+"warning_incomplete_balance_message" = "This address has more than %1$@ UTXOs, so the %2$@ network returns only part of them. Your funds are safe. To see the full balance, consolidate UTXOs by sending %3$@ to your own address.";
+"warning_incomplete_balance_title" = "Balance may be incomplete";
 "warning_ios_deprecation_ended_message" = "Support for iOS %1$@ ended on %2$@. To continue receiving app updates and ensure full functionality, please update to the latest version of iOS.";
 "warning_ios_deprecation_message" = "Support for iOS %1$@ will end on %2$@. To continue receiving app updates and ensure full functionality, please update to the latest version of iOS.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Are you sure you want to cancel the transaction? You will not be able to retry the transaction";
