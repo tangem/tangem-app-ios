@@ -56,12 +56,7 @@ private extension TangemPayPinCheckView {
 
             changePinButton
         }
-        .screenCaptureProtection()
         .frame(maxWidth: .infinity)
-        .floatingSheetConfiguration { configuration in
-            configuration.sheetBackground = .color(DesignSystem.Color.bgSecondary)
-            configuration.backgroundInteractionBehavior = .tapToDismiss
-        }
     }
 
     var pinContent: some View {
@@ -80,6 +75,7 @@ private extension TangemPayPinCheckView {
                         length: viewModel.pinCodeLength,
                         isDisabled: true
                     )
+                    .screenCaptureProtection()
                     .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinCheckValue)
                 }
             }
