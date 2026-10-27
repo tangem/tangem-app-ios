@@ -229,7 +229,7 @@ struct NewsPagerView: View {
 
     private var pagerContent: some View {
         TabView(selection: currentIndexBinding) {
-            ForEach(Array(viewModel.newsIds.enumerated()), id: \.element) { index, newsId in
+            ForEach(indexed: viewModel.newsIds, id: \.1) { index, newsId in
                 NewsPageContentView(newsId: newsId, viewModel: viewModel)
                     .if(sheetSize.isFeedSheet) { view in
                         view.safeAreaInset(edge: .top, spacing: 0) {

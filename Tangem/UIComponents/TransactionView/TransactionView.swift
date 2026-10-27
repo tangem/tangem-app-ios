@@ -330,7 +330,7 @@ enum TransactionViewPreviewData {
 
 #Preview("previewViewModels") {
     VStack {
-        ForEach(TransactionViewPreviewData.previewViewModels) {
+        ForEach(TransactionViewPreviewData.previewViewModels, id: \.self) {
             TransactionView(viewModel: $0)
         }
     }
@@ -339,7 +339,7 @@ enum TransactionViewPreviewData {
 
 #Preview("figmaViewModels1") {
     VStack {
-        ForEach(TransactionViewPreviewData.figmaViewModels1) {
+        ForEach(TransactionViewPreviewData.figmaViewModels1, id: \.self) {
             TransactionView(viewModel: $0)
         }
     }
@@ -348,7 +348,7 @@ enum TransactionViewPreviewData {
 
 #Preview("figmaViewModels2") {
     VStack {
-        ForEach(TransactionViewPreviewData.figmaViewModels2) {
+        ForEach(TransactionViewPreviewData.figmaViewModels2, id: \.self) {
             TransactionView(viewModel: $0)
         }
     }

@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct DefaultPickerRowView: View {
     private let viewModel: DefaultPickerRowViewModel
@@ -41,8 +42,8 @@ struct DefaultPickerRowView: View {
 
     private var segmentedPicker: some View {
         Picker("", selection: $selection) {
-            ForEach(viewModel.options.indices, id: \.self) { index in
-                Text(viewModel.displayOptions[index]).tag(viewModel.options[index])
+            ForEach(indexed: viewModel.options, id: \.0) { index, option in
+                Text(viewModel.displayOptions[index]).tag(option)
             }
         }
         .labelsHidden()

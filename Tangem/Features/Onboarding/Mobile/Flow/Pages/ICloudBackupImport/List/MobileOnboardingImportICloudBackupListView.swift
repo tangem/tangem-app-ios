@@ -31,7 +31,7 @@ private extension MobileOnboardingImportICloudBackupListView {
     var content: some View {
         ScrollView(.vertical) {
             VStack(spacing: Layout.itemsSpacing) {
-                ForEach(Array(viewModel.items.enumerated()), id: \.offset) { _, item in
+                ForEach(indexed: viewModel.items, id: \.0) { _, item in
                     itemView(item)
                 }
             }

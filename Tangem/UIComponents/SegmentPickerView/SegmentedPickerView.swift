@@ -78,7 +78,7 @@ public struct SegmentedPickerView<Option: Hashable & Identifiable, SelectionView
 
     private var content: some View {
         HStack(spacing: interSegmentSpacing) {
-            ForEach(Array(zip(options.indices, options)), id: \.1.id) { index, option in
+            ForEach(indexed: options) { index, option in
                 Segment(
                     isPressed: .init(
                         get: { optionIsPressed[option.id, default: false] },
