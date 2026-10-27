@@ -205,24 +205,22 @@ struct MultiWalletMainContentRedesignedView: View {
             let isFirstVisibleSection = hasTitle && sectionIndex == 0
             let topEdgeCornerRadius = isFirstVisibleSection ? MultiWalletMainContentConstants.cornerRadius : nil
 
-            LazyVStack(spacing: .zero) {
-                TokenSectionView(
-                    title: section.model.title,
-                    topEdgeCornerRadius: topEdgeCornerRadius,
-                    backgroundColor: MultiWalletMainContentConstants.tokenListBackgroundColor
+            TokenSectionView(
+                title: section.model.title,
+                topEdgeCornerRadius: topEdgeCornerRadius,
+                backgroundColor: MultiWalletMainContentConstants.tokenListBackgroundColor
+            )
+
+            ForEach(indexed: section.items.indexed()) { itemIndex, item in
+                let isLastItem = sectionIndex == sections.count - 1 && itemIndex == section.items.count - 1
+                let hasPromoBubble = viewModel.tokenItemPromoBubbleViewModel?.id == item.id
+                let promoBubbleViewModel = hasPromoBubble ? viewModel.tokenItemPromoBubbleViewModel : nil
+
+                TokenItemContainerView(
+                    item: item,
+                    roundedBottomCorners: roundBottomCorners && isLastItem,
+                    promoBubbleViewModel: promoBubbleViewModel
                 )
-
-                ForEach(indexed: section.items.indexed()) { itemIndex, item in
-                    let isLastItem = sectionIndex == sections.count - 1 && itemIndex == section.items.count - 1
-                    let hasPromoBubble = viewModel.tokenItemPromoBubbleViewModel?.id == item.id
-                    let promoBubbleViewModel = hasPromoBubble ? viewModel.tokenItemPromoBubbleViewModel : nil
-
-                    TokenItemContainerView(
-                        item: item,
-                        roundedBottomCorners: roundBottomCorners && isLastItem,
-                        promoBubbleViewModel: promoBubbleViewModel
-                    )
-                }
             }
         }
     }
