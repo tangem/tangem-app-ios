@@ -110,7 +110,7 @@ Mask / 12, 16, 20, 24, 28, 32 / Regular
 Monitor / 12, 16, 20, 24, 28, 32 / Regular
 New / 12, 16, 20, 24, 28, 32 / Regular
 Percent Backward / 20, 24, 28 / Regular
-Percent / 16, 20, 24, 28 / Regular
+Percent / 12, 16, 20, 24, 28 / Regular
 Perps / 16, 20, 24, 28 / Regular
 Pie Chart / 16, 20, 24, 28 / Regular
 Pincode / 16, 20, 24 / Regular
