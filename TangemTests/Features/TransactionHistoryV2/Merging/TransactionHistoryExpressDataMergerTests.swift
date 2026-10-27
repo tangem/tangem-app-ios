@@ -223,7 +223,7 @@ struct TransactionHistoryExpressDataMergerTests {
     }
 
     @Test(
-        "Exchange: a deal with no on-chain leg yields a synthetic record unless it's `created` or `expired` and has no pay-in hash",
+        "Exchange: a deal with no on-chain leg yields a synthetic record unless it's `expired`, or `created` with no pay-in hash",
         arguments: ExpressTransactionStatus.allCases, [nil, "0xPayInHash"] as [String?]
     )
     func exchangeStatusAndPayInHashGateSynthetic(status: ExpressTransactionStatus, payInHash: String?) {
@@ -254,9 +254,10 @@ struct TransactionHistoryExpressDataMergerTests {
         )
 
         let yieldsSynthetic = switch status {
-        case .created,
-             .expired:
+        case .created:
             payInHash != nil
+        case .expired:
+            false
         case .unknown,
              .preview,
              .exchangeTxSent,
@@ -322,6 +323,152 @@ struct TransactionHistoryExpressDataMergerTests {
         let output = merger.merge(bsdkTransactions: [], exchangeTransactions: [], onrampTransactions: [onramp])
 
         #expect(output.map(\.hash) == (yieldsSynthetic ? ["ExpressSyntheticTx_onramp-tx"] : []))
+    }
+
+    @Test("Exchange: an expired deal doesn't take the on-chain pay-in that another deal names by hash")
+    func exchangeExpiredDealLeavesPayInToTheDealNamingIt() throws {
+        let token = ExpressMergeTestDataFactory.ethereumToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
+            feeTokenItem: token
+        )
+
+        let onChain = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xPayInHash",
+            isOutgoing: true,
+            sources: [ExpressMergeTestDataFactory.ownerAddress],
+            destinations: [("0xRouter", 208)],
+            date: ExpressMergeTestDataFactory.baseDate.addingTimeInterval(24),
+            index: 0,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: token
+        )
+        let expired = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "expired-tx",
+            status: .expired,
+            fromAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payInAddress: "0xRouter",
+            payInHash: nil,
+            payOutAddress: "0xPayOut",
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            fromAmount: 208,
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            toAmount: 1,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate.addingTimeInterval(18),
+            updatedAt: ExpressMergeTestDataFactory.baseDate.addingTimeInterval(18)
+        )
+        let finished = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "finished-tx",
+            status: .finished,
+            fromAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payInAddress: "0xRouter",
+            payInHash: "0xPayInHash",
+            payOutAddress: "0xPayOut",
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            fromAmount: 208,
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            toAmount: 1,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let output = merger.merge(bsdkTransactions: [onChain], exchangeTransactions: [expired, finished], onrampTransactions: [])
+
+        #expect(output.map(\.hash) == ["0xPayInHash"])
+        #expect(try #require(output.first).exchangeInfo?.transaction.txId == "finished-tx")
+    }
+
+    @Test("Exchange: an expired deal leaves an incoming transfer of a similar amount unenriched")
+    func exchangeExpiredDealLeavesIncomingTransferUnenriched() throws {
+        let token = ExpressMergeTestDataFactory.ethereumToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
+            feeTokenItem: token
+        )
+
+        let onChain = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xIncomingHash",
+            isOutgoing: false,
+            sources: ["0xCounterparty"],
+            destinations: [(ExpressMergeTestDataFactory.ownerAddress, try #require(Decimal(stringValue: "205.3252861")))],
+            date: ExpressMergeTestDataFactory.baseDate.addingTimeInterval(198),
+            index: 0,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: token
+        )
+        let expired = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "expired-tx",
+            status: .expired,
+            fromAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payInAddress: "0xRouter",
+            payInHash: nil,
+            payOutAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            fromAmount: try #require(Decimal(stringValue: "19.1")),
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            toAmount: try #require(Decimal(stringValue: "211.820487719096956382")),
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let output = merger.merge(bsdkTransactions: [onChain], exchangeTransactions: [expired], onrampTransactions: [])
+
+        #expect(output.map(\.hash) == ["0xIncomingHash"])
+        #expect(try #require(output.first).isEnriched == false)
+    }
+
+    @Test("Onramp: an expired deal leaves an incoming transfer of a similar amount unenriched")
+    func onrampExpiredDealLeavesIncomingTransferUnenriched() throws {
+        let token = ExpressMergeTestDataFactory.ethereumToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
+            feeTokenItem: token
+        )
+
+        let onChain = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xIncomingHash",
+            isOutgoing: false,
+            sources: ["0xCounterparty"],
+            destinations: [("0xPayOut", try #require(Decimal(stringValue: "0.49")))],
+            date: ExpressMergeTestDataFactory.baseDate.addingTimeInterval(60),
+            index: 0,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: token
+        )
+        let expired = ExpressMergeTestDataFactory.onrampTransaction(
+            txId: "expired-tx",
+            status: .expired,
+            payOutAddress: "0xPayOut",
+            payOutHash: nil,
+            toCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            toAmount: Decimal(stringValue: "0.5"),
+            toActualAmount: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let output = merger.merge(bsdkTransactions: [onChain], exchangeTransactions: [], onrampTransactions: [expired])
+
+        #expect(output.map(\.hash) == ["0xIncomingHash"])
+        #expect(try #require(output.first).isEnriched == false)
     }
 
     @Test("Onramp: an active deal with no on-chain leg yields a synthetic record")
