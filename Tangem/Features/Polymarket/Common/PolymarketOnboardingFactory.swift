@@ -35,6 +35,7 @@ struct PolymarketOnboardingFactory {
     func makeInteractor(for userWalletModel: any UserWalletModel) -> PolymarketOnboardingInteractor {
         CommonPolymarketOnboardingInteractor(
             userWalletId: userWalletModel.userWalletId,
+            hasExistingAccount: { hasExistingAccount(for: userWalletModel) },
             ownerAddressProvider: makeOwnerAddressProvider(for: userWalletModel),
             ownerKeySession: userWalletModel.polymarketOwnerKeySession,
             signer: CommonPolymarketOnboardingSigner(
