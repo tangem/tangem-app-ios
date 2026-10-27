@@ -21,7 +21,7 @@ struct YieldModuleClaimRewardsSectionView: View {
                 .padding(.horizontal, Constants.rowHorizontalPadding)
                 .padding(.vertical, Constants.headerVerticalPadding)
 
-            ForEach(Array(section.rewards.enumerated()), id: \.element.id) { index, reward in
+            ForEach(indexed: section.rewards) { index, reward in
                 if index > 0 {
                     Separator(color: DesignSystem.Color.borderSecondary)
                         .padding(.horizontal, Constants.rowHorizontalPadding)

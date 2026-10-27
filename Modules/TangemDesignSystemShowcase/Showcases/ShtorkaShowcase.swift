@@ -490,11 +490,11 @@ private struct ShtorkaMockBackdrop: View {
 
                 input
 
-                ForEach(Self.walletNames.indices, id: \.self) { index in
+                ForEach(indexed: Self.walletNames, id: \.0) { index, walletName in
                     SwiftUI.Button {
                         onRowTap(index)
                     } label: {
-                        Text(Self.walletNames[index])
+                        Text(walletName)
                             .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                             .lineLimit(1)
                             .padding(.horizontal, 16)

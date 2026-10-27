@@ -46,7 +46,7 @@ struct TransactionDetailsInfoSectionView: View {
 
     var body: some View {
         VStack(spacing: .zero) {
-            ForEach(Array(data.rows.enumerated()), id: \.element.id) { index, row in
+            ForEach(indexed: data.rows) { index, row in
                 rowView(row, showsDivider: index != data.rows.count - 1)
                     .accessibilityIdentifier(TransactionDetailsAccessibilityIdentifiers.infoRow(id: row.id))
             }

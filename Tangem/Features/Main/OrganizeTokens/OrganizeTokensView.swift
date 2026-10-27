@@ -176,13 +176,13 @@ struct OrganizeTokensView: View {
             cornerRadius: contentCornerRadius
         )
 
-        return ForEach(indexed: viewModel.sections.indexed()) { outerSectionIndex, outerSectionViewModel in
+        return ForEach(indexed: viewModel.sections) { outerSectionIndex, outerSectionViewModel in
             Section(
                 content: {
-                    ForEach(indexed: outerSectionViewModel.items.indexed()) { innerSectionIndex, innerSectionViewModel in
+                    ForEach(indexed: outerSectionViewModel.items) { innerSectionIndex, innerSectionViewModel in
                         Section(
                             content: {
-                                ForEach(indexed: innerSectionViewModel.items.indexed()) { itemIndex, itemViewModel in
+                                ForEach(indexed: innerSectionViewModel.items) { itemIndex, itemViewModel in
                                     let indexPath = OrganizeTokensIndexPath(
                                         outerSection: outerSectionIndex,
                                         innerSection: innerSectionIndex,

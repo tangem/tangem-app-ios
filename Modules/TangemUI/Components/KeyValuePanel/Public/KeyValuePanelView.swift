@@ -42,7 +42,7 @@ public struct KeyValuePanelView: View {
                 }
 
                 LazyVGrid(columns: gridItems, alignment: .center, spacing: Constants.interitemSpacing) {
-                    ForEach(viewData.keyValues.indexed(), id: \.0) { _, pair in
+                    ForEach(indexed: viewData.keyValues, id: \.0) { _, pair in
                         KeyValuePairView(pair: pair)
                             .frame(maxWidth: itemWidth, alignment: .leading)
                     }

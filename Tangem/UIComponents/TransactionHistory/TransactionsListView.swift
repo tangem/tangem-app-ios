@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemLocalization
+import TangemUI
 import TangemUIUtils
 
 struct TransactionsListView: View {
@@ -157,7 +158,7 @@ struct TransactionsListView: View {
             noTransactionsContent
         } else {
             LazyVStack(spacing: 0) {
-                ForEach(transactionItems.indexed(), id: \.1.id) { sectionIndex, sectionItem in
+                ForEach(indexed: transactionItems) { sectionIndex, sectionItem in
                     VStack(spacing: 0) {
                         if sectionIndex == 0 {
                             header
@@ -166,7 +167,7 @@ struct TransactionsListView: View {
                         makeSectionHeader(for: sectionItem, atIndex: sectionIndex, withVerticalPadding: true)
                     }
 
-                    ForEach(sectionItem.items.indexed(), id: \.1) { cellIndex, cellItem in
+                    ForEach(indexed: sectionItem.items, id: \.1) { cellIndex, cellItem in
                         Button {
                             exploreTransactionAction(cellItem.hash)
                         } label: {

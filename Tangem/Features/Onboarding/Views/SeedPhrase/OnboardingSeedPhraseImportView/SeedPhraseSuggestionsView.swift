@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct SeedPhraseSuggestionsView: View {
     let suggestions: [String]
@@ -31,8 +32,8 @@ struct SeedPhraseSuggestionsView: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 0) {
-                ForEach(0 ..< suggestions.count, id: \.self) { index in
-                    suggestionBubble(with: suggestions[index], index: index)
+                ForEach(indexed: suggestions, id: \.0) { index, suggestion in
+                    suggestionBubble(with: suggestion, index: index)
                 }
             }
             .padding(.horizontal, 16)

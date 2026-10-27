@@ -37,7 +37,7 @@ struct MainQRScanTokenSelectorWalletItemView: View {
         case .accounts(let accounts):
             let compatibleAccounts = accounts.filter(\.hasCompatibleItems)
 
-            ForEach(Array(compatibleAccounts.enumerated()), id: \.element.id) { index, account in
+            ForEach(indexed: compatibleAccounts) { index, account in
                 MainQRScanTokenSelectorAccountSectionView(viewModel: account)
                     .padding(.bottom, index == compatibleAccounts.count - 1 ? 0.0 : Constants.accountsListVerticalSpacing)
             }
@@ -84,7 +84,7 @@ struct MainQRScanTokenSelectorWalletItemView: View {
                 .zIndex(100.0)
 
                 if viewModel.isOpen {
-                    ForEach(Array(accounts.enumerated()), id: \.element.id) { index, account in
+                    ForEach(indexed: accounts) { index, account in
                         MainQRScanTokenSelectorAccountSectionView(
                             viewModel: account,
                             headerOverride: accountHeaderOverride

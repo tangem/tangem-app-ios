@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct FeedPortfolioDonutView: View {
     var body: some View {
@@ -15,10 +16,10 @@ struct FeedPortfolioDonutView: View {
             ring.stroke(DesignSystem.Color.paletteOpaqueBaseBlack20, lineWidth: Constants.lineWidth)
             ring.stroke(DesignSystem.Color.paletteOpaqueBaseWhite20, lineWidth: Constants.lineWidth)
 
-            ForEach(Constants.arcs.indices, id: \.self) { index in
+            ForEach(indexed: Constants.arcs, id: \.0) { _, arc in
                 ring
-                    .trim(from: 0, to: Constants.arcs[index].sweep / 360)
-                    .stroke(Constants.arcs[index].color, style: StrokeStyle(lineWidth: Constants.lineWidth, lineCap: .round))
+                    .trim(from: 0, to: arc.sweep / 360)
+                    .stroke(arc.color, style: StrokeStyle(lineWidth: Constants.lineWidth, lineCap: .round))
                     .rotationEffect(.degrees(-90))
             }
         }

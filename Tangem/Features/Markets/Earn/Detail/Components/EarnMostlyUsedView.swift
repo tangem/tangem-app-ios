@@ -59,7 +59,7 @@ struct EarnMostlyUsedView: View {
     private func loadedView(viewModels: [EarnTokenItemViewModel]) -> some View {
         ScrollView(.horizontal) {
             LazyHStack(spacing: Layout.cardSpacing) {
-                ForEach(Array(viewModels.enumerated()), id: \.element.id) { index, viewModel in
+                ForEach(indexed: viewModels) { index, viewModel in
                     EarnTokenTileView(viewModel: viewModel)
                         .onAppear {
                             if index == fourthItemAppearIndex {

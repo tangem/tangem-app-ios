@@ -231,7 +231,7 @@ private enum ChipPreviewFixture {
 
 #Preview("Chip variants") {
     VStack(spacing: 8) {
-        ForEach(Array(ChipPreviewFixture.combinations.enumerated()), id: \.offset) { _, model in
+        ForEach(indexed: ChipPreviewFixture.combinations, id: \.0) { _, model in
             if case .chip(let style) = model.display.style {
                 TransactionChipRedesigned(viewModel: model, style: style)
             }

@@ -16,7 +16,7 @@ struct PromoCampaignBlocksView: View {
 
     var body: some View {
         VStack(spacing: Constants.blockSpacing) {
-            ForEach(Array(blocks.enumerated()), id: \.offset) { _, block in
+            ForEach(indexed: blocks, id: \.0) { _, block in
                 blockView(block)
             }
         }
