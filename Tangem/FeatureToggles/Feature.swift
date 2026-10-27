@@ -34,6 +34,7 @@ enum Feature: String, Hashable, CaseIterable {
     case marketingActivityBinding
     case qrScanDeeplinks
     case yieldModePromo
+    case swapBestRateDefaultProvider
     case solanaPNFTAndMetaplexCore
     case tangemPayMoneyAccount
 
@@ -66,6 +67,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .marketingActivityBinding: return "TWI-1732_marketing_activity_binding"
         case .qrScanDeeplinks: return "TWI-1690_qr_scan_deeplinks"
         case .yieldModePromo: return "TWI-1762_yield_mode_promo"
+        case .swapBestRateDefaultProvider: return "[REDACTED_INFO]_swap_best_rate_default_provider"
         case .solanaPNFTAndMetaplexCore: return "TWI-1822_solana_pnft_and_metaplex_core"
         case .tangemPayMoneyAccount: return "TWI-1525_money_account"
         }
@@ -98,6 +100,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .marketingActivityBinding: return .unspecified
         case .qrScanDeeplinks: return .unspecified
         case .yieldModePromo: return .unspecified
+        case .swapBestRateDefaultProvider: return .unspecified
         case .solanaPNFTAndMetaplexCore: return .unspecified
         case .tangemPayMoneyAccount: return .unspecified
         }
