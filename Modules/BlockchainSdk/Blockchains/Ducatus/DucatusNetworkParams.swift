@@ -13,6 +13,5 @@ struct DucatusNetworkParams: UTXONetworkParams {
     let p2shPrefix: UInt8 = 0x33
     let bech32Prefix: String = "duc"
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
-    let coinType: UInt32 = 0
     let dustCalculator: UTXONetworkParamsDustCalculator = .ducatus
 }

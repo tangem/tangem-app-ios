@@ -41,6 +41,18 @@ struct SwapNavigatingDismissOption {
                 ).makeSwapableToken()
             }
 
-        return SendCoordinator.Options(type: .swap(.from(sourceToken, pair: .fixed(receiveOrUserSelection: receiveToken))), source: source)
+        let receive: any SwapReceiveTokenResolver = if let receiveToken {
+            .resolved(receiveToken)
+        } else {
+            .userSelection
+        }
+
+        let parameters = PredefinedSwapParameters(
+            userWalletInfo: sourceToken.userWalletInfo,
+            source: .resolved(sourceToken),
+            receive: receive
+        )
+
+        return SendCoordinator.Options(type: .swap(parameters), source: source)
     }
 }

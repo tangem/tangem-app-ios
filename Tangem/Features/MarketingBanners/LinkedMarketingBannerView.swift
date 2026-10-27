@@ -53,7 +53,7 @@ struct LinkedMarketingBannerView: View {
             .padding(.top, Self.contentVerticalInset + Self.topOverlap)
             .padding(.bottom, Self.contentVerticalInset)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(viewModel.backgroundColorHex.map { Color(hex: $0, fallback: Color.Tangem.Markers.backgroundTintedBlue) } ?? Color.Tangem.Markers.backgroundTintedBlue)
+            .background(viewModel.backgroundColorHex.map { Color(hex: $0, fallback: DesignSystem.Color.bgStatusInfoSubtle) } ?? DesignSystem.Color.bgStatusInfoSubtle)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

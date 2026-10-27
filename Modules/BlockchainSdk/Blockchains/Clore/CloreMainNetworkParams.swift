@@ -23,9 +23,6 @@ struct CloreMainNetworkParams: UTXONetworkParams {
     /// Don't use in this network
     let bech32Prefix: String = "bc"
 
-    /// https://gitlab.com/cloreai-public/blockchain/-/blob/main/src/chainparams.cpp#L196
-    let coinType: UInt32 = 1313
-
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
     let dustCalculator: UTXONetworkParamsDustCalculator = BitcoinUTXONetworkParamsDustCalculator(dustRelayTxFee: 3000)
 }

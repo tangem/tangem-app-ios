@@ -27,5 +27,4 @@ import Foundation
 /// Marks transaction as invalid if the relative lock time of the input (enforced by BIP 0068 with nSequence) is not equal to or longer than the value of the top stack item. The precise semantics are described in BIP 0112.
 struct OpCheckSequenceVerify: OpCodeProtocol {
     var value: UInt8 { return 0xb2 }
-    var name: String { return "OP_CHECKSEQUENCEVERIFY" }
 }

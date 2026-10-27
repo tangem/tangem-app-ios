@@ -20,11 +20,11 @@ final class NetworkSelectorItemViewModel: Identifiable, ObservableObject {
     let onTap: (() -> Void)?
 
     var networkNameForegroundColor: Color {
-        isReadonly ? Colors.Text.disabled : Colors.Text.primary1
+        isReadonly ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
     }
 
     var contractNameForegroundColor: Color {
-        isReadonly ? Colors.Text.disabled : Colors.Text.tertiary
+        DesignSystem.Color.textTertiary
     }
 
     var iconImageAsset: ImageType {

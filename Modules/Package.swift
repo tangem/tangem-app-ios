@@ -25,9 +25,15 @@ let package = Package(
                 "BlockchainSdk",
             ]
         ),
+        .library(
+            name: "TangemSnapshotTestSupport",
+            targets: [
+                "TangemSnapshotTestSupport",
+            ]
+        ),
     ],
     dependencies: [
-        .package(url: "https://github.com/Moya/Moya.git", .upToNextMajor(from: "15.0.3")),
+        .package(url: "git@github.com:tangem-developments/Moya.git", exact: "15.0.3-tangem1"),
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.11.1")),
         .package(url: "https://github.com/onevcat/Kingfisher.git", .upToNextMajor(from: "8.7.0")),
         .package(url: "https://github.com/Flight-School/AnyCodable.git", .upToNextMajor(from: "0.6.7")),
@@ -36,7 +42,7 @@ let package = Package(
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.9.0")),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMajor(from: "1.9.0")),
         .package(url: "https://github.com/groue/GRDB.swift.git", .upToNextMajor(from: "7.1.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "5.3.2"),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "5.3.3"),
         // When a Swift macro target (`TangemMacro`) is used in the same package (`TangemModules`) in which it is defined,
         // and that package contains a test target (`BlockchainSdkTests`) that uses macros from that macro target,
         // this causes linker to incorrectly link the macros target plugin (build for macOS) into the iOS test binary,
@@ -60,7 +66,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-log.git", .upToNextMajor(from: "1.4.4")),
         .package(url: "https://github.com/apple/swift-nio.git", .upToNextMajor(from: "2.65.0")),
         .package(url: "https://github.com/apple/swift-nio-http2.git", .upToNextMajor(from: "1.36.0")),
-        .package(url: "git@github.com:tangem-developments/hiero-sdk-swift.git", exact: "0.49.0-tangem4"),
+        .package(url: "git@github.com:tangem-developments/hiero-sdk-swift.git", exact: "0.49.0-tangem5"),
         .package(url: "git@github.com:tangem-developments/IcpKit.git", exact: "0.1.2-tangem5"),
         // Moya
         .package(url: "https://github.com/outfoxx/PotentCodables.git", .upToNextMajor(from: "3.2.0")),
@@ -76,8 +82,18 @@ let package = Package(
         .package(url: "git@github.com:tangem-developments/ton-swift.git", exact: "1.0.17-tangem1"),
         .package(url: "https://github.com/attaswift/BigInt.git", .upToNextMajor(from: "5.3.0")),
         .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.3.0")),
+        .package(url: "https://github.com/pointfreeco/swift-snapshot-testing.git", .upToNextMajor(from: "1.18.4")),
     ],
-    targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
+    targets: [
+        modulesWrapperLibrary,
+        .tangemTarget(
+            name: "TangemSnapshotTestSupport",
+            dependencies: [
+                "TangemAssets",
+                .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
+            ]
+        ),
+    ] + serviceModules + featureModules + unitTestsModules
 )
 
 // MARK: - Service Modules
@@ -131,7 +147,8 @@ var serviceModules: [PackageDescription.Target] {
             ]
         ),
         .tangemTarget(
-            name: "TangemAccessibilityIdentifiers"
+            name: "TangemAccessibilityIdentifiers",
+            swiftSettings: .swift6StrictSettings
         ),
         .tangemTarget(
             name: "TangemAnalytics",
@@ -154,15 +171,17 @@ var serviceModules: [PackageDescription.Target] {
             resources: [
                 .process("Assets"),
                 .process("LottieAnimations"),
-            ]
+            ],
+            swiftSettings: .swift6StrictSettings
         ),
         .tangemTarget(
             name: "TangemBackendAuthentication",
             dependencies: [
-                .target(name: "TangemFoundation"),
-                .target(name: "TangemLogger"),
                 .product(name: "Alamofire", package: "Alamofire"),
                 .product(name: "Moya", package: "Moya"),
+                .target(name: "TangemFoundation"),
+                .target(name: "TangemLogger"),
+                .target(name: "TangemNetworkUtils"),
             ],
             swiftSettings: .swift6StrictSettings
         ),
@@ -176,7 +195,8 @@ var serviceModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemLocalization",
             exclude: ["Templates"],
-            resources: [.process("Localizations")]
+            resources: [.process("Localizations")],
+            swiftSettings: .swift6StrictSettings
         ),
         .tangemTarget(
             name: "TangemLogger",
@@ -280,6 +300,14 @@ var serviceModules: [PackageDescription.Target] {
             name: "TangemUIUtilsObjC"
         ),
         .tangemTarget(
+            name: "TangemWebSocket",
+            dependencies: [
+                "TangemFoundation",
+                "TangemNetworkUtils",
+            ],
+            swiftSettings: .swift6StrictSettings
+        ),
+        .tangemTarget(
             name: "TangemAppDatabase",
             dependencies: [
                 "TangemFoundation",
@@ -325,6 +353,7 @@ var featureModules: [PackageDescription.Target] {
                 "TangemLogger",
                 "TangemMacro",
                 "TangemNetworkUtils",
+                "TangemWebSocket",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -380,7 +409,16 @@ var featureModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemMCP",
             dependencies: [
-                "TangemFoundation",
+                .product(name: "OrderedCollections", package: "swift-collections"),
+                .product(name: "Kingfisher", package: "Kingfisher"),
+                .product(name: "Moya", package: "Moya"),
+                .target(name: "TangemAssets"),
+                .target(name: "TangemFoundation"),
+                .target(name: "TangemLocalization"),
+                .target(name: "TangemLogger"),
+                .target(name: "TangemNetworkUtils"),
+                .target(name: "TangemUI"),
+                .target(name: "TangemUIUtils"),
             ],
             swiftSettings: .swift6StrictSettings
         ),
@@ -416,10 +454,6 @@ var featureModules: [PackageDescription.Target] {
                 "TangemMacro",
                 "TangemMobileWalletSdk",
             ],
-            swiftSettings: [
-                // [REDACTED_TODO_COMMENT]
-                .swiftLanguageMode(.v5),
-            ]
         ),
         .tangemTarget(
             name: "TangemPay",
@@ -536,15 +570,33 @@ var unitTestsModules: [PackageDescription.Target] {
                 "TangemBackendAuthentication",
                 "TangemFoundation",
                 "TangemLogger",
+                "TangemNetworkUtils",
                 .product(name: "TangemTestKit", package: "TangemTestKit"),
             ],
             swiftSettings: .swift6StrictSettings
         ),
         .tangemTestTarget(
+            name: "TangemCollectiblesTests",
+            dependencies: [
+                "BlockchainSdk",
+                "TangemCollectibles",
+                "TangemFoundation",
+                "TangemMobileWalletSdk",
+                .product(name: "SolanaSwift", package: "Solana.Swift"),
+                .product(name: "TangemSdk", package: "tangem-sdk-ios"),
+                .product(name: "TangemTestKit", package: "TangemTestKit"),
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTestTarget(
             name: "TangemFoundationTests",
             dependencies: [
                 "TangemFoundation",
-            ]
+            ],
+            swiftSettings: .swift6StrictSettings
         ),
         .tangemTestTarget(
             name: "TangemLoggerTests",
@@ -570,7 +622,8 @@ var unitTestsModules: [PackageDescription.Target] {
                 "TangemFoundation",
                 "TangemMobileWalletBackup",
                 "TangemMobileWalletSdk",
-            ]
+            ],
+            swiftSettings: .swift6StrictSettings
         ),
         .tangemTestTarget(
             name: "TangemMobileWalletSdkTests",
@@ -579,26 +632,37 @@ var unitTestsModules: [PackageDescription.Target] {
                 "TangemFoundation",
                 "TangemMobileWalletSdk",
                 "TrezorCrypto",
-            ]
+            ],
+            swiftSettings: .swift6StrictSettings
         ),
         .tangemTestTarget(
             name: "TangemNFTTests",
             dependencies: [
                 "TangemNFT",
-            ]
+            ],
+            swiftSettings: .swift6StrictSettings
         ),
         .tangemTestTarget(
             name: "TangemPayTests",
             dependencies: [
                 "TangemPay",
-            ]
+            ],
+            swiftSettings: .swift6StrictSettings
         ),
         .tangemTestTarget(
             name: "TangemPolymarketTests",
             dependencies: [
                 "TangemPolymarket",
                 "Moya",
-            ]
+            ],
+            swiftSettings: .swift6StrictSettings
+        ),
+        .tangemTestTarget(
+            name: "TangemWebSocketTests",
+            dependencies: [
+                "TangemWebSocket",
+            ],
+            swiftSettings: .swift6StrictSettings
         ),
     ]
 }

@@ -197,11 +197,11 @@ final class UserSettingsAccountsViewModel: ObservableObject {
                 .productType: userWalletConfig.productType.rawValue,
                 .source: Analytics.ParameterValue.settings.rawValue,
             ])
-            coordinator?.addNewAccount(accountModelsManager: accountModelsManager, userWalletConfig: userWalletConfig)
+            coordinator?.addNewAccount()
             return
         }
 
-        coordinator?.openAddAccountTypeSelector(accountModelsManager: accountModelsManager, userWalletConfig: userWalletConfig)
+        coordinator?.openAddAccountTypeSelector(userWalletConfig: userWalletConfig)
     }
 
     private func handleAccountLimitReached() {

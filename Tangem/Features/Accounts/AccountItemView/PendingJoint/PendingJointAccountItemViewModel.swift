@@ -26,7 +26,7 @@ final class PendingJointAccountItemViewModel: Identifiable, ObservableObject {
     /// balance that cannot exist yet.
     @Published private(set) var balance: String
     @Published private(set) var status: String
-    @Published private(set) var isInviteActionVisible: Bool
+    @Published private(set) var action: Action?
 
     let priceChange: PriceChangeView.State
 
@@ -50,8 +50,7 @@ final class PendingJointAccountItemViewModel: Identifiable, ObservableObject {
         status = Self.status(of: jointAccount.status, slots: slots)
         balance = BalanceFormatter().formatFiatBalance(.zero, currencyCode: AppSettings.shared.selectedCurrencyCode)
         priceChange = PriceChangeUtility().convertToPriceChangeState(changePercent: .zero)
-        // Inviting takes both a slot to fill and an invite to fill it with
-        isInviteActionVisible = slots.contains { $0.invite != nil }
+        action = Self.action(of: jointAccount, slots: slots)
 
         bind()
     }
@@ -92,7 +91,16 @@ final class PendingJointAccountItemViewModel: Identifiable, ObservableObject {
         name = jointAccount.name
         iconData = AccountModelUtils.UI.iconViewData(accountModel: jointAccount)
         status = Self.status(of: jointAccount.status, slots: slots)
-        isInviteActionVisible = slots.contains { $0.invite != nil }
+        action = Self.action(of: jointAccount, slots: slots)
+    }
+
+    private static func action(of jointAccount: any JointAccountModel, slots: [JointAccountSlot]) -> Action? {
+        if jointAccount.canActivate {
+            return .activate
+        }
+
+        // Inviting takes both a slot to fill and an invite to fill it with
+        return slots.contains { $0.invite != nil } ? .invite : nil
     }
 
     private static func status(of status: JointAccountStatus, slots: [JointAccountSlot]) -> String {
@@ -106,5 +114,14 @@ final class PendingJointAccountItemViewModel: Identifiable, ObservableObject {
 
             return Localization.jointAccountMembersProgress(slots.members.count, slots.count)
         }
+    }
+}
+
+// MARK: - Auxiliary types
+
+extension PendingJointAccountItemViewModel {
+    enum Action {
+        case invite
+        case activate
     }
 }

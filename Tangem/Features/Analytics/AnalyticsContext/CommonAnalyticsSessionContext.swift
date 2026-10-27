@@ -32,12 +32,6 @@ class CommonAnalyticsSessionContext: AnalyticsSessionContext {
         analyticsStorage.set(value, storageKey: storageKey, id: id)
     }
 
-    func removeValue(forKey storageKey: AnalyticsStorageKey, scope: AnalyticsSessionContextScope) {
-        guard let id = makeId(for: scope) else { return }
-
-        analyticsStorage.removeValue(storageKey, id: id)
-    }
-
     private func makeId(for scope: AnalyticsSessionContextScope) -> String? {
         switch scope {
         case .userWallet(let userWalletId):
@@ -97,16 +91,6 @@ private class AnalyticsStorage {
             UserDefaults.standard.set(value, forKey: rawKey)
         } else {
             tempStorage[rawKey] = value
-        }
-    }
-
-    func removeValue(_ storageKey: AnalyticsStorageKey, id: String) {
-        let rawKey = makeRawKey(from: storageKey, id: id)
-
-        if storageKey.isPermanent {
-            UserDefaults.standard.removeObject(forKey: rawKey)
-        } else {
-            tempStorage[rawKey] = nil
         }
     }
 

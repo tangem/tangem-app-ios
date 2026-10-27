@@ -162,21 +162,23 @@ final class CampaignViewModel: ObservableObject, FloatingSheetContentViewModel {
 
         isEnrolling = true
 
-        enrollTask = runTask(in: self) { viewModel in
+        enrollTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+
             do {
-                let result = try await viewModel.cashbackPromoService.register(registration)
+                let result = try await cashbackPromoService.register(registration)
 
                 guard !Task.isCancelled else {
                     return
                 }
 
-                await viewModel.handleRegistration(result)
+                handleRegistration(result)
             } catch {
                 guard !Task.isCancelled else {
                     return
                 }
 
-                await viewModel.handleRegistrationError()
+                handleRegistrationError()
             }
         }
     }
@@ -206,16 +208,18 @@ private extension CampaignViewModel {
         viewState = .loading
         loadingFloor.start()
 
-        campaignLoadTask = runTask(in: self) { viewModel in
-            let campaign = await viewModel.cashbackPromoService.campaign(id: viewModel.campaignId)
+        campaignLoadTask = Task { @MainActor [weak self] in
+            guard let self else { return }
 
-            await viewModel.loadingFloor.wait()
+            let campaign = await cashbackPromoService.campaign(id: campaignId)
+
+            await loadingFloor.wait()
 
             guard !Task.isCancelled else {
                 return
             }
 
-            await viewModel.handle(campaign: campaign)
+            handle(campaign: campaign)
         }
     }
 

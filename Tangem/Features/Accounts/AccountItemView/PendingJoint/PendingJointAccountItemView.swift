@@ -31,8 +31,8 @@ struct PendingJointAccountItemView: View {
             VStack(spacing: Constants.contentSpacing) {
                 header
 
-                if viewModel.isInviteActionVisible {
-                    inviteBanner
+                if let action = viewModel.action {
+                    actionBanner(for: action)
                 }
             }
             .padding(Constants.contentPadding)
@@ -82,29 +82,43 @@ struct PendingJointAccountItemView: View {
         .linesSpacing(Constants.linesSpacing)
     }
 
-    // MARK: - Invite banner
+    // MARK: - Action banner
 
-    private var inviteBanner: some View {
-        HStack(spacing: Constants.inviteBannerSpacing) {
-            DesignSystem.Icons.UserPlus.regular16.image
+    private func actionBanner(for action: PendingJointAccountItemViewModel.Action) -> some View {
+        HStack(spacing: Constants.actionBannerSpacing) {
+            icon(for: action)
                 .renderingMode(.template)
                 .foregroundStyle(DesignSystem.Color.iconStatusWarning)
 
-            Text(Localization.jointAccountInviteMembersToJoin)
+            Text(title(for: action))
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
                 .lineLimit(1)
 
-            Spacer(minLength: Constants.inviteBannerSpacing)
+            Spacer(minLength: Constants.actionBannerSpacing)
 
             DesignSystem.Icons.ChevronRight.regular12.image
                 .renderingMode(.template)
                 .foregroundStyle(DesignSystem.Color.iconSecondary)
         }
-        .padding(.horizontal, Constants.inviteBannerHorizontalPadding)
-        .frame(height: Constants.inviteBannerHeight)
+        .padding(.horizontal, Constants.actionBannerHorizontalPadding)
+        .frame(height: Constants.actionBannerHeight)
         .frame(maxWidth: .infinity)
         .background(DesignSystem.Color.bgStatusWarningSubtle)
-        .cornerRadiusContinuous(Constants.inviteBannerCornerRadius)
+        .cornerRadiusContinuous(Constants.actionBannerCornerRadius)
+    }
+
+    private func icon(for action: PendingJointAccountItemViewModel.Action) -> Image {
+        switch action {
+        case .invite: DesignSystem.Icons.UserPlus.regular16.image
+        case .activate: DesignSystem.Icons.WalletCheckmark.regular16.image
+        }
+    }
+
+    private func title(for action: PendingJointAccountItemViewModel.Action) -> String {
+        switch action {
+        case .invite: Localization.jointAccountInviteMembersToJoin
+        case .activate: Localization.jointAccountActivationAccountButtonTitle
+        }
     }
 }
 
@@ -128,10 +142,10 @@ private extension PendingJointAccountItemView {
         static let contentSpacing: CGFloat = 12
         static let linesSpacing: CGFloat = 4
 
-        static let inviteBannerHeight: CGFloat = 32
-        static let inviteBannerHorizontalPadding: CGFloat = 12
-        static let inviteBannerSpacing: CGFloat = 8
-        static let inviteBannerCornerRadius: CGFloat = 20
+        static let actionBannerHeight: CGFloat = 32
+        static let actionBannerHorizontalPadding: CGFloat = 12
+        static let actionBannerSpacing: CGFloat = 8
+        static let actionBannerCornerRadius: CGFloat = 20
 
         /// Matches the press feedback of the expandable plates it stands alongside.
         static let pressedScale: CGFloat = 0.98
@@ -146,10 +160,17 @@ private let previewJointAccountDelegate = JointAccountModelDelegateMock()
 
 private let previewInviteURL = URL(string: "https://tangem.com/joint-account/join/preview")
 
+private let previewCreator = JointAccountMember(
+    name: "Member 0",
+    address: "0x0000000000000000000000000000000000000000",
+    role: .creator
+)
+
 private func previewJointAccount(
     status: JointAccountStatus,
     membersCount: Int,
-    takenSlotsCount: Int
+    takenSlotsCount: Int,
+    userRole: JointAccountUserRole = .outsider
 ) -> any JointAccountModel {
     CommonJointAccountModel(
         cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
@@ -171,7 +192,8 @@ private func previewJointAccount(
                         role: index == 0 ? .creator : .member(inviteId: nil)
                     )
                 )
-            }
+            },
+            userRole: userRole
         ),
         delegate: previewJointAccountDelegate
     )
@@ -193,7 +215,12 @@ private func previewJointAccount(
 
             PendingJointAccountItemView(
                 viewModel: PendingJointAccountItemViewModel(
-                    jointAccount: previewJointAccount(status: .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"), membersCount: 3, takenSlotsCount: 3),
+                    jointAccount: previewJointAccount(
+                        status: .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"),
+                        membersCount: 3,
+                        takenSlotsCount: 3,
+                        userRole: .member(previewCreator)
+                    ),
                     onTap: {}
                 )
             )

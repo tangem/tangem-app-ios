@@ -56,7 +56,7 @@ struct AddressBookContactManagementCoordinatorView: CoordinatorView {
                 }
             )
             .floatingSheetConfiguration { config in
-                config.sheetBackgroundColor = DesignSystem.Color.bgPrimary
+                config.sheetBackground = .color(DesignSystem.Color.bgPrimary)
             }
         }
     }

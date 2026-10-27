@@ -45,7 +45,7 @@ struct ReceiveBottomSheetNotificationInputsFactory {
                     settings: .init(
                         event: ReceiveNotificationEvent.unsupportedTokenWarning(
                             title: Localization.nftReceiveUnsupportedTypes,
-                            description: Localization.nftReceiveUnsupportedTypesDescription,
+                            description: solanaUnsupportedNFTTypesDescription,
                             tokenItem: tokenItem
                         ),
                         dismissAction: nil
@@ -158,5 +158,15 @@ struct ReceiveBottomSheetNotificationInputsFactory {
             // No additional notifications for these blockchains
             return baseNotificationInputs
         }
+    }
+}
+
+// MARK: - Private Implementation
+
+private extension ReceiveBottomSheetNotificationInputsFactory {
+    var solanaUnsupportedNFTTypesDescription: String {
+        FeatureProvider.isAvailable(.solanaPNFTAndMetaplexCore)
+            ? Localization.nftReceiveUnsupportedCnftDescription
+            : Localization.nftReceiveUnsupportedTypesDescription
     }
 }

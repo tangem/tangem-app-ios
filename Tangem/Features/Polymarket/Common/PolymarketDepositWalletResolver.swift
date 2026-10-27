@@ -12,6 +12,7 @@ import TangemPolymarket
 struct PolymarketDepositWalletResolver {
     let walletService: PolymarketDepositWalletService
     let ownerAddressProvider: PolymarketOwnerAddressProviding
+    var sessionHealth: PolymarketSessionHealthChecking?
 
     func resolve() async throws -> PolymarketDepositWalletAddresses {
         guard let ownerAddress = ownerAddressProvider.getOwnerAddress() else {
@@ -24,6 +25,7 @@ struct PolymarketDepositWalletResolver {
         try stored.ensureMatches(derived: derived)
 
         guard stored.address != nil, stored.status == .readyToTrade else {
+            await sessionHealth?.report(stored.status)
             throw PolymarketAccountFundsError.depositWalletNotReadyToTrade(stored.status)
         }
 

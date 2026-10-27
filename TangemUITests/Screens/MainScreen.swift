@@ -20,7 +20,6 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var addAndManageAddTokensRow = app.buttons[TokensManagementChooserAccessibilityIdentifiers.addTokensRow].firstMatch
     private lazy var detailsButton = button(.detailsButton)
     private lazy var actionButtonsList = otherElement(.actionButtonsList)
-    private lazy var headerCardImage = image(.headerCardImage)
     private lazy var totalBalance = staticText(.totalBalance)
     private lazy var totalBalanceShimmer = otherElement(.totalBalanceShimmer)
     /// Type-agnostic: redesign exposes this as `Button`, legacy as `Other`. Drop after redesign rollout.
@@ -34,6 +33,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var missingDerivationSynchronizeButton = notificationBannerButton(MainAccessibilityIdentifiers.missingDerivationNotification)
     private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
     private lazy var shtorkaExpandButton = app.buttons[MainAccessibilityIdentifiers.shtorkaExpandButton].firstMatch
+    private lazy var searchCancelButton = app.buttons[MainAccessibilityIdentifiers.searchThroughMarketCancelButton].firstMatch
     private lazy var tangemPayTile = app.buttons[TangemPayAccessibilityIdentifiers.mainScreenTile].firstMatch
     private lazy var tangemPayTileBalance = app.staticTexts[TangemPayAccessibilityIdentifiers.mainScreenTileBalance].firstMatch
     /// Type-agnostic: a decorative image inside a button is not guaranteed to stay an `Image` element.
@@ -651,6 +651,14 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func verifyWalletNameDisplayed(_ walletName: String) -> Self {
+        XCTContext.runActivity(named: "Verify wallet '\(walletName)' is displayed on main screen") { _ in
+            waitAndAssertTrue(app.staticTexts[walletName].firstMatch, "Wallet '\(walletName)' should be displayed on main screen")
+            return self
+        }
+    }
+
+    @discardableResult
     func addNewSingleCurrencyWallet(name: CardMockAccessibilityIdentifiers, walletName: String) -> Self {
         XCTContext.runActivity(named: "Add new single-currency wallet: \(name.rawValue)") { _ in
             openDetails()
@@ -795,6 +803,55 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Tap Later on Get Tangem Pay banner") { _ in
             waitAndAssertTrue(getTangemPayBanner, timeout: .networkRequest, "Get Tangem Pay banner should be displayed on main screen")
             getTangemPayBannerLaterButton.waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func dismissMobileUpgradeBannerIfShown() -> Self {
+        XCTContext.runActivity(named: "Tap Later on the hardware upgrade banner if it is shown") { _ in
+            waitAndAssertTrue(totalBalance, "Total balance should be displayed")
+            let positiveBalanceLoaded = XCTNSPredicateExpectation(
+                predicate: NSPredicate { [totalBalance] _, _ in
+                    totalBalance.label.contains(where: { Constants.nonZeroDigits.contains($0) })
+                },
+                object: nil
+            )
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [positiveBalanceLoaded], timeout: .networkRequest),
+                .completed,
+                "Positive total balance should be loaded before checking the hardware upgrade banner"
+            )
+
+            let upgradeBannerTitle = app.staticTexts
+                .matching(NSPredicate(format: "label == %@", Localization.hwUpgradeToColdBannerTitle))
+                .firstMatch
+            guard upgradeBannerTitle.waitForExistence(timeout: .conditional) else {
+                return self
+            }
+
+            let laterButtons = app.buttons
+                .matching(identifier: CommonUIAccessibilityIdentifiers.notificationButton)
+                .matching(NSPredicate(format: "label == %@", Localization.commonLater))
+            let screenFrame = app.windows.firstMatch.frame
+            let onScreenLaterButton = {
+                laterButtons.allElementsBoundByIndex.first { screenFrame.contains($0.frame) }
+            }
+            let laterButtonVisible = XCTNSPredicateExpectation(
+                predicate: NSPredicate { _, _ in onScreenLaterButton() != nil },
+                object: nil
+            )
+            guard XCTWaiter().wait(for: [laterButtonVisible], timeout: .robustUIUpdate) == .completed,
+                  let visibleLaterButton = onScreenLaterButton() else {
+                XCTFail("Later button of the hardware upgrade banner should be visible")
+                return self
+            }
+            visibleLaterButton.tap()
+
+            XCTAssertTrue(
+                upgradeBannerTitle.waitForNonExistence(timeout: .robustUIUpdate),
+                "Hardware upgrade banner should be closed"
+            )
             return self
         }
     }
@@ -1048,15 +1105,6 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             scrollToElement(tangemPayTile)
             tangemPayTile.waitAndTap()
             return TangemPayKYCDeclinedSheet(app)
-        }
-    }
-
-    @discardableResult
-    func longPressWalletHeader() -> Self {
-        XCTContext.runActivity(named: "Long press wallet header") { _ in
-            waitAndAssertTrue(headerCardImage, "Header card image should exist")
-            headerCardImage.press(forDuration: 1.0)
-            return self
         }
     }
 
@@ -1484,6 +1532,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Open markets sheet") { _ in
             if shtorkaExpandButton.waitForExistence(timeout: .conditional) {
                 shtorkaExpandButton.waitAndTap()
+
+                if searchCancelButton.waitForExistence(timeout: .conditional) {
+                    searchCancelButton.waitAndTap()
+                }
+
                 return MarketsAndNewsScreen(app)
             }
 
@@ -1789,7 +1842,6 @@ enum MainScreenElement: String, UIElement {
     case organizeTokensButton
     case detailsButton
     case actionButtonsList
-    case headerCardImage
     case totalBalance
     case totalBalanceShimmer
     case missingDerivationNotification
@@ -1812,8 +1864,6 @@ enum MainScreenElement: String, UIElement {
             MainAccessibilityIdentifiers.detailsButton
         case .actionButtonsList:
             TokenAccessibilityIdentifiers.actionButtonsList
-        case .headerCardImage:
-            MainAccessibilityIdentifiers.headerCardImage
         case .totalBalance:
             MainAccessibilityIdentifiers.totalBalance
         case .totalBalanceShimmer:
@@ -1858,5 +1908,6 @@ private extension MainScreen {
         static let contentTopRevealStart = CGVector(dx: 0.5, dy: 0.3)
         static let contentTopRevealEnd = CGVector(dx: 0.5, dy: 0.7)
         static let fiatRoundingStep: Decimal = 0.01
+        static let nonZeroDigits = "123456789"
     }
 }

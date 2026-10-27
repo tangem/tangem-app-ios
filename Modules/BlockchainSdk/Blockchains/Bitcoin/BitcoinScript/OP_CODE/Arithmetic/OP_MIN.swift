@@ -27,5 +27,4 @@ import Foundation
 /// Returns the smaller of a and b.
 struct OpMin: OpCodeProtocol {
     var value: UInt8 { return 0xa3 }
-    var name: String { return "OP_MIN" }
 }

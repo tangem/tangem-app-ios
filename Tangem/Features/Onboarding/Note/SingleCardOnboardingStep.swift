@@ -91,8 +91,6 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
         }
     }
 
-    var isSupplementButtonVisible: Bool { false }
-
     var supplementButtonTitle: String {
         switch self {
         case .createWallet: return Localization.onboardingCreateWalletButtonCreateWallet
@@ -108,10 +106,6 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
         }
     }
 
-    var checkmarkText: String? {
-        return nil
-    }
-
     var infoText: String? {
         switch self {
         case .saveUserWallet:
@@ -122,16 +116,7 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
     }
 }
 
-extension SingleCardOnboardingStep: OnboardingProgressStepIndicatable {
-    var requiresConfetti: Bool {
-        switch self {
-        case .success:
-            return true
-        default:
-            return false
-        }
-    }
-
+extension SingleCardOnboardingStep {
     var successCircleOpacity: Double {
         self == .success ? 1.0 : 0.0
     }

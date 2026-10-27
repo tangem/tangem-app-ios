@@ -7,6 +7,7 @@
 
 import Foundation
 import Testing
+@testable import BlockchainSdk
 @testable import Tangem
 
 @Suite("DeeplinkSwapParametersResolver selection")
@@ -326,6 +327,212 @@ struct DeeplinkSwapParametersResolverTests {
         #expect(result?.source == candidates[1])
         #expect(result?.appliesExtras == false)
     }
+
+    // MARK: - Joint accounts are receive-only
+
+    @Test("Requested FROM held richer in a joint account → the personal match becomes the source")
+    func requestedFromSkipsJointMatch() {
+        let candidates = [
+            candidate(index: 0, token: "ethereum", network: "ethereum", account: "acc-joint", balance: 500, canBeSource: false),
+            candidate(index: 1, token: "ethereum", network: "ethereum", account: "acc-0", balance: 10),
+            candidate(index: 2, token: "usd-coin", network: "ethereum", account: "acc-0", balance: 5),
+        ]
+        let result = select(
+            candidates: candidates,
+            deeplink: deeplink(fromToken: "ethereum", fromNetwork: "ethereum", toToken: "usd-coin", toNetwork: "ethereum")
+        )
+        #expect(result?.source == candidates[1])
+        #expect(result?.destination == candidates[2])
+        #expect(result?.appliesExtras == true)
+    }
+
+    @Test("Requested FROM held only in a joint account → best-effort personal source, TO kept")
+    func requestedFromOnlyInJointFallsBackToBestEffort() {
+        let candidates = [
+            candidate(index: 0, token: "ethereum", network: "ethereum", account: "acc-joint", balance: 500, canBeSource: false),
+            candidate(index: 1, token: "bitcoin", network: "bitcoin", account: "acc-0", balance: 20),
+            candidate(index: 2, token: "usd-coin", network: "ethereum", account: "acc-0", balance: 5),
+        ]
+        let result = select(
+            candidates: candidates,
+            deeplink: deeplink(fromToken: "ethereum", fromNetwork: "ethereum", toToken: "usd-coin", toNetwork: "ethereum")
+        )
+        #expect(result?.source == candidates[1])
+        #expect(result?.destination == candidates[2])
+        #expect(result?.appliesExtras == false)
+    }
+
+    @Test("from_user_account_id naming a joint account → best-effort personal source")
+    func fromAccountIdNamingJointFallsBackToBestEffort() {
+        let candidates = [
+            candidate(index: 0, token: "ethereum", network: "ethereum", account: "acc-joint", balance: 500, canBeSource: false),
+            candidate(index: 1, token: "ethereum", network: "ethereum", account: "acc-0", balance: 10),
+        ]
+        let result = select(
+            candidates: candidates,
+            deeplink: deeplink(fromToken: "ethereum", fromNetwork: "ethereum", fromAccountId: "acc-joint"),
+            existingAccountIds: ["acc-0", "acc-joint"]
+        )
+        #expect(result?.source == candidates[1])
+        #expect(result?.appliesExtras == false)
+    }
+
+    @Test("Only TO requested in a joint account → joint TO kept, best-effort source skips joint")
+    func onlyJointToRequestedKeepsDestination() {
+        let candidates = [
+            candidate(index: 0, token: "ethereum", network: "ethereum", account: "acc-joint", balance: 999, canBeSource: false),
+            candidate(index: 1, token: "bitcoin", network: "bitcoin", account: "acc-0", balance: 20),
+            candidate(index: 2, token: "usd-coin", network: "ethereum", account: "acc-joint", balance: 1, canBeSource: false),
+        ]
+        let result = select(candidates: candidates, deeplink: deeplink(toToken: "usd-coin", toNetwork: "ethereum"))
+        #expect(result?.source == candidates[1])
+        #expect(result?.destination == candidates[2])
+    }
+
+    @Test("Only TO requested and no token can be the source → TO kept, source left to the user")
+    func onlyToRequestedWithoutAnySourceKeepsDestination() throws {
+        let candidates = [
+            candidate(index: 0, token: "ethereum", network: "ethereum", account: "acc-joint", balance: 999, canBeSource: false),
+            candidate(index: 1, token: "usd-coin", network: "ethereum", account: "acc-joint", balance: 1, canBeSource: false),
+        ]
+        let result = try #require(select(candidates: candidates, deeplink: deeplink(toToken: "usd-coin", toNetwork: "ethereum")))
+        #expect(result.source == nil)
+        #expect(result.destination == candidates[1])
+        #expect(result.appliesExtras == false)
+    }
+
+    @Test("Requested FROM not held and no other source → TO kept, source left to the user")
+    func missingFromWithoutAnySourceKeepsDestination() throws {
+        let candidates = [
+            candidate(index: 0, token: "ethereum", network: "ethereum", balance: 999, canBeSource: false),
+            candidate(index: 1, token: "usd-coin", network: "ethereum", balance: 1, canBeSource: false),
+        ]
+        let result = try #require(select(
+            candidates: candidates,
+            deeplink: deeplink(fromToken: "bitcoin", fromNetwork: "bitcoin", toToken: "usd-coin", toNetwork: "ethereum")
+        ))
+        #expect(result.source == nil)
+        #expect(result.destination == candidates[1])
+        #expect(result.appliesExtras == false)
+    }
+
+    // MARK: - Receive gate
+
+    @Test("Requested TO that the receive status refuses → FROM kept, TO left to the user")
+    func refusedToIsNotPreselected() {
+        let candidates = [
+            candidate(index: 0, token: "ethereum", network: "ethereum", balance: 100),
+            candidate(index: 1, token: "usd-coin", network: "ethereum", balance: 5, canBeReceive: false),
+        ]
+        let result = select(
+            candidates: candidates,
+            deeplink: deeplink(fromToken: "ethereum", fromNetwork: "ethereum", toToken: "usd-coin", toNetwork: "ethereum")
+        )
+        #expect(result?.source == candidates[0])
+        #expect(result?.destination == nil)
+        #expect(result?.appliesExtras == false)
+    }
+
+    @Test("A refused TO gives way to the same token in another account that the receive status accepts")
+    func refusedToFallsBackToAcceptedMatch() {
+        let candidates = [
+            candidate(index: 0, token: "ethereum", network: "ethereum", account: "acc-0", balance: 100),
+            candidate(index: 1, token: "usd-coin", network: "ethereum", account: "acc-0", balance: 50, canBeReceive: false),
+            candidate(index: 2, token: "usd-coin", network: "ethereum", account: "acc-1", balance: 1),
+        ]
+        let result = select(candidates: candidates, deeplink: deeplink(toToken: "usd-coin", toNetwork: "ethereum"))
+        #expect(result?.source == candidates[0])
+        #expect(result?.destination == candidates[2])
+    }
+}
+
+// MARK: - Availability gates
+
+@Suite("DeeplinkSwapParametersResolver availability gates")
+struct DeeplinkSwapParametersResolverGateTests {
+    @Test("A plain token can be both the FROM and the TO")
+    func plainTokenPassesBothGates() async {
+        await withSwappableExpress {
+            let walletModel = makeWalletModel()
+
+            #expect(DeeplinkSwapParametersResolver.canBecomeSource(walletModel: walletModel, userWalletInfo: userWalletInfo))
+            #expect(DeeplinkSwapParametersResolver.canBecomeReceive(walletModel: walletModel, userWalletInfo: userWalletInfo))
+        }
+    }
+
+    @Test("A custom token is refused on both sides")
+    func customTokenIsRefusedOnBothSides() async {
+        await withSwappableExpress {
+            let walletModel = makeWalletModel(isCustom: true)
+
+            #expect(!DeeplinkSwapParametersResolver.canBecomeSource(walletModel: walletModel, userWalletInfo: userWalletInfo))
+            #expect(!DeeplinkSwapParametersResolver.canBecomeReceive(walletModel: walletModel, userWalletInfo: userWalletInfo))
+        }
+    }
+
+    @Test("A token the card can't sign for is refused as the FROM but kept as the TO")
+    func longHashTokenIsRefusedOnlyAsSource() async {
+        await withSwappableExpress {
+            let walletModel = makeWalletModel()
+            walletModel.sendingRestrictionsMock = .cantSignLongTransactions
+
+            #expect(!DeeplinkSwapParametersResolver.canBecomeSource(walletModel: walletModel, userWalletInfo: userWalletInfo))
+            #expect(DeeplinkSwapParametersResolver.canBecomeReceive(walletModel: walletModel, userWalletInfo: userWalletInfo))
+        }
+    }
+
+    @Test("A token whose balance is only cached can still be the FROM")
+    func cachedBalanceTokenStaysASource() async {
+        await withSwappableExpress {
+            let walletModel = makeWalletModel()
+            walletModel.sendingRestrictionsMock = .hasOnlyCachedBalance
+
+            #expect(DeeplinkSwapParametersResolver.canBecomeSource(walletModel: walletModel, userWalletInfo: userWalletInfo))
+        }
+    }
+
+    @Test("A token waiting for its trustline to load is kept on both sides")
+    func missingAssetRequirementIsKeptOnBothSides() async {
+        await withSwappableExpress {
+            let stellar: Blockchain = .stellar(curve: .ed25519, testnet: false)
+            let walletModel = makeWalletModel()
+            walletModel.assetRequirementsManagerMock = AssetRequirementsManagerStub(
+                condition: .requiresTrustline(
+                    blockchain: stellar,
+                    trustlineReserve: Amount(with: stellar, value: 0.5),
+                    isProcessing: false
+                )
+            )
+
+            #expect(DeeplinkSwapParametersResolver.canBecomeSource(walletModel: walletModel, userWalletInfo: userWalletInfo))
+            #expect(DeeplinkSwapParametersResolver.canBecomeReceive(walletModel: walletModel, userWalletInfo: userWalletInfo))
+        }
+    }
+}
+
+private extension DeeplinkSwapParametersResolverGateTests {
+    var userWalletInfo: UserWalletInfo {
+        SendSourceTokenStub().userWalletInfo
+    }
+
+    func makeWalletModel(isCustom: Bool = false) -> WalletModelTestsMock {
+        WalletModelTestsMock(
+            tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
+            isEmpty: false,
+            fiatBalance: 10,
+            isCustom: isCustom
+        )
+    }
+
+    func withSwappableExpress(_ body: () async -> Void) async {
+        await InjectedDependenciesIsolation.shared.run {
+            let previousProvider = InjectedValues[\.expressAvailabilityProvider]
+            InjectedValues[\.expressAvailabilityProvider] = SwapExpressAvailabilityProviderStub()
+            defer { InjectedValues[\.expressAvailabilityProvider] = previousProvider }
+
+            await body()
+        }
+    }
 }
 
 // MARK: - Builders
@@ -335,7 +542,7 @@ private extension DeeplinkSwapParametersResolverTests {
         candidates: [Candidate],
         deeplink: SwapDeeplink,
         existingAccountIds: Set<String> = []
-    ) -> (source: Candidate, destination: Candidate?, appliesExtras: Bool)? {
+    ) -> (source: Candidate?, destination: Candidate?, appliesExtras: Bool)? {
         DeeplinkSwapParametersResolver.selectCandidates(
             candidates: candidates,
             deeplink: deeplink,
@@ -350,7 +557,9 @@ private extension DeeplinkSwapParametersResolverTests {
         network: String,
         account: String? = "acc-0",
         balance: Decimal = 0,
-        swappable: Bool = true
+        swappable: Bool = true,
+        canBeSource: Bool = true,
+        canBeReceive: Bool = true
     ) -> Candidate {
         Candidate(
             index: index,
@@ -358,7 +567,9 @@ private extension DeeplinkSwapParametersResolverTests {
             networkId: network,
             accountId: account,
             fiatBalance: balance,
-            isSwappable: swappable
+            isSwappable: swappable,
+            canBeSource: canBeSource,
+            canBeReceive: canBeReceive
         )
     }
 

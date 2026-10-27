@@ -33,7 +33,6 @@ final class TangemSignerFactory {
 // MARK: - Fallback stub
 
 private struct DeallocatedUserWalletModelSigner: TangemSigner {
-    var hasNFCInteraction: Bool { false }
     var latestSignerType: TangemSignerType? { nil }
 
     func sign(dataToSign: [SignData], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], Error> {

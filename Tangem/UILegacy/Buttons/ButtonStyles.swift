@@ -200,10 +200,6 @@ struct TangemButtonStyle: ButtonStyle {
     }
 }
 
-extension ButtonStyle where Self == TangemButtonStyle {
-    static var tangemStyle: TangemButtonStyle { .init() }
-}
-
 #Preview {
     VStack(alignment: .center, spacing: 16.0) {
         TangemButtonLegacy(
@@ -263,12 +259,5 @@ extension ButtonStyle where Self == TangemButtonStyle {
                 layout: .flexibleWidth,
                 font: .system(size: 18)
             ))
-    }
-}
-
-struct TangemTokenButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .background(configuration.isPressed ? Colors.Old.tangemBtnHoverBg : Color.white)
     }
 }

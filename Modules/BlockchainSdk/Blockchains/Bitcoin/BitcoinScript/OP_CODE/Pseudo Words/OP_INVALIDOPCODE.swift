@@ -26,5 +26,4 @@ import Foundation
 
 struct OpInvalidOpCode: OpCodeProtocol {
     var value: UInt8 { return 0xff }
-    var name: String { return "OP_INVALIDOPCODE" }
 }

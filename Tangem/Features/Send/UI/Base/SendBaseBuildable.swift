@@ -25,6 +25,7 @@ enum SendViewModelBuilder {
     struct IO {
         let input: SendBaseInput
         let output: SendBaseOutput
+        var sourceTokenInput: (any SendSourceTokenInput)?
     }
 
     struct Dependencies {
@@ -33,7 +34,6 @@ enum SendViewModelBuilder {
         let approveViewModelInputDataBuilder: any SendApproveViewModelInputDataBuilder
         let feeCurrencyProviderDataBuilder: any SendFeeCurrencyProviderDataBuilder
         let analyticsLogger: any SendBaseViewAnalyticsLogger
-        let blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper
         let mainButtonUIOptionsProvider: any SendMainButtonUIOptionsProvider
     }
 
@@ -56,7 +56,7 @@ enum SendViewModelBuilder {
             approveViewModelInputDataBuilder: dependencies.approveViewModelInputDataBuilder,
             feeCurrencyProviderDataBuilder: dependencies.feeCurrencyProviderDataBuilder,
             analyticsLogger: dependencies.analyticsLogger,
-            blockchainSDKNotificationMapper: dependencies.blockchainSDKNotificationMapper,
+            sourceTokenInput: io.sourceTokenInput,
             coordinator: router
         )
 

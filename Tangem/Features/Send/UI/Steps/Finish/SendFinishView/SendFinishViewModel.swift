@@ -35,7 +35,6 @@ class SendFinishViewModel: ObservableObject, Identifiable {
     @Published private(set) var onrampAmountCompactViewModel: OnrampAmountCompactViewModel?
     @Published private(set) var onrampStatusCompactViewModel: OnrampStatusCompactViewModel?
 
-    private let settings: Settings
     private let headerTitleProvider: any SendFinishHeaderTitleProvider
     private let analyticsLogger: SendFinishAnalyticsLogger
 
@@ -52,7 +51,6 @@ class SendFinishViewModel: ObservableObject, Identifiable {
         onrampAmountCompactViewModel: OnrampAmountCompactViewModel?,
         onrampStatusCompactViewModel: OnrampStatusCompactViewModel?,
         jointAccountSignaturesCompactViewModel: JointAccountSignaturesCompactViewModel?,
-        settings: Settings,
         headerTitleProvider: any SendFinishHeaderTitleProvider,
         analyticsLogger: SendFinishAnalyticsLogger,
         coordinator: SendRoutable
@@ -66,7 +64,6 @@ class SendFinishViewModel: ObservableObject, Identifiable {
         self.onrampAmountCompactViewModel = onrampAmountCompactViewModel
         self.onrampStatusCompactViewModel = onrampStatusCompactViewModel
         self.jointAccountSignaturesCompactViewModel = jointAccountSignaturesCompactViewModel
-        self.settings = settings
         self.headerTitleProvider = headerTitleProvider
         self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
@@ -104,19 +101,9 @@ class SendFinishViewModel: ObservableObject, Identifiable {
             .receiveOnMain()
             .assign(to: &$transactionSentTime)
 
-        guard settings.possibleToShowExploreButtons else {
-            return
-        }
-
         input
             .transactionURL
             .receiveOnMain()
             .assign(to: &$transactionURL)
-    }
-}
-
-extension SendFinishViewModel {
-    struct Settings {
-        let possibleToShowExploreButtons: Bool
     }
 }

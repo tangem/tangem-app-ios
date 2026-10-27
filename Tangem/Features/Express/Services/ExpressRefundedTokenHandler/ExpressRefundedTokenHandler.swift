@@ -8,7 +8,8 @@
 
 import Foundation
 import TangemExpress
+import TangemFoundation
 
 protocol ExpressRefundedTokenHandler {
-    func handle(blockchainNetwork: BlockchainNetwork, expressCurrency: ExpressCurrency) async throws -> TokenItem
+    func handle(userWalletId: UserWalletId?, blockchainNetwork: BlockchainNetwork, expressCurrency: ExpressCurrency) async throws -> TokenItem
 }

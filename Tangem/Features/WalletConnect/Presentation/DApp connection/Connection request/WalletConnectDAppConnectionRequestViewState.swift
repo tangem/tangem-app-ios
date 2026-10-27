@@ -135,17 +135,6 @@ extension WalletConnectDAppConnectionRequestViewState {
         let target: Target
         let state: State
 
-        var trailingIconAsset: ImageType? {
-            switch state {
-            case .loading:
-                nil
-            case .content where selectionIsAvailable == false:
-                nil
-            case .content:
-                Assets.Glyphs.selectIcon
-            }
-        }
-
         init(selectionIsAvailable: Bool, targetName: String, target: Target, state: State) {
             self.selectionIsAvailable = selectionIsAvailable
             self.targetName = targetName

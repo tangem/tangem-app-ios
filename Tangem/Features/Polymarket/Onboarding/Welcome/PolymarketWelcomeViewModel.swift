@@ -21,6 +21,7 @@ final class PolymarketWelcomeViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
     let copy: PolymarketWelcomeCopy
+    let signingButtonType: SigningActionButtonViewType
 
     var isRunning: Bool { runState != .idle }
 
@@ -34,9 +35,11 @@ final class PolymarketWelcomeViewModel: ObservableObject {
     init(
         interactor: PolymarketOnboardingInteractor,
         hasExistingAccount: Bool,
+        signingButtonType: SigningActionButtonViewType,
         coordinator: PolymarketWelcomeRoutable
     ) {
         self.interactor = interactor
+        self.signingButtonType = signingButtonType
         self.coordinator = coordinator
 
         copy = PolymarketWelcomeCopy(hasExistingAccount: hasExistingAccount)
@@ -137,7 +140,7 @@ private extension PolymarketWelcomeViewModel {
     @MainActor
     func presentAccountCreatedToast() {
         // [REDACTED_TODO_COMMENT]
-        Toast(view: SuccessToast(text: "Prediction account is ready"))
+        Toast(view: SuccessToast(text: "Predictions account is ready"))
             .present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
     }
 

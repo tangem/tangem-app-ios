@@ -16,12 +16,19 @@ final class CommonCollectiblesAccountModel {
 
     private let manager: CollectiblesManager
     private let balanceService: any CollectiblesBalanceService
+    private let buybackSigningLimits: any CollectiblesBuybackSigningLimits
     private let nameSubject: CurrentValueSubject<String, Never>
 
-    init(manager: CollectiblesManager, name: String, balanceService: any CollectiblesBalanceService) {
+    init(
+        manager: CollectiblesManager,
+        name: String,
+        balanceService: any CollectiblesBalanceService,
+        buybackSigningLimits: any CollectiblesBuybackSigningLimits
+    ) {
         id = CollectiblesAccountId(userWalletId: manager.userWalletId)
         self.manager = manager
         self.balanceService = balanceService
+        self.buybackSigningLimits = buybackSigningLimits
         nameSubject = CurrentValueSubject(name)
     }
 }
@@ -42,10 +49,6 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
 
     var state: CollectiblesState {
         manager.state
-    }
-
-    var statePublisher: AnyPublisher<CollectiblesState, Never> {
-        manager.statePublisher
     }
 
     var hasAccount: Bool {
@@ -73,7 +76,7 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
         let interactor = CollectiblesPackPurchaseInteractorStore.interactor(for: manager.userWalletId) {
             let provider = CommonCollectiblesPurchaseProvider(userWalletID: manager.userWalletId.stringValue)
 
-            return CommonCollectiblesPackPurchaseInteractor(
+            return RemoteCollectiblesPackPurchaseInteractor(
                 generator: provider,
                 signer: manager,
                 sentReporter: provider,
@@ -84,6 +87,19 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
         interactor.update(signer: manager)
 
         return interactor
+    }
+
+    var buybackInteractor: any CollectiblesBuybackInteractor {
+        let userWalletID = manager.userWalletId.stringValue
+        let requester = CollectiblesAPIService()
+
+        return RemoteCollectiblesBuybackInteractor(
+            generator: RemoteCollectiblesBuybackTransactionGenerator(userWalletID: userWalletID, requester: requester),
+            signer: manager,
+            signingLimits: buybackSigningLimits,
+            sentReporter: RemoteCollectiblesBuybackSentReporter(userWalletID: userWalletID, requester: requester),
+            statusProvider: RemoteCollectiblesBuybackStatusProvider(userWalletID: userWalletID, requester: requester)
+        )
     }
 
     func update(name: String) {
@@ -110,3 +126,7 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
 // MARK: - CollectiblesPurchaseSigner
 
 extension CollectiblesManager: CollectiblesPurchaseSigner {}
+
+// MARK: - CollectiblesBuybackSigner
+
+extension CollectiblesManager: CollectiblesBuybackSigner {}

@@ -7,10 +7,9 @@
 //
 
 import Foundation
-import TangemUI
 
 /// - Note: Handed the signers already worked out; this only redraws on what it is given.
-final class JointAccountSignersViewModel: ObservableObject, FloatingSheetContentViewModel {
+final class JointAccountSignersViewModel: ObservableObject {
     /// Everyone on the account, answered or not — which is also how many rows there are.
     @Published private(set) var membersCount: Int
     @Published private(set) var signers: [JointAccountSignerRow.ViewData]

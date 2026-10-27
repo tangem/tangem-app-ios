@@ -13,14 +13,7 @@ import TangemSdk
 import BlockchainSdk
 
 class TwinsWalletCreationUtil {
-    static let twinFileName = "TwinPublicKey"
-
     var twinPairCardId: String?
-
-    /// Determines is user start twin wallet creation from Twin card with first number
-    var isStartedFromFirstNumber: Bool {
-        twinData.series.number == 1
-    }
 
     var stepCardNumber: Int {
         let series = twinData.series

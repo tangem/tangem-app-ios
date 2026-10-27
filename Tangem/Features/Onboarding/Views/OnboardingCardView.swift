@@ -20,13 +20,6 @@ struct OnboardingCardView: View {
             case .light: return Assets.Onboarding.lightCard
             }
         }
-
-        var blankCardType: BlankCard.CardType {
-            switch self {
-            case .dark: return .dark
-            case .light: return .light
-            }
-        }
     }
 
     var placeholderCardType: CardType

@@ -100,14 +100,6 @@ extension EnvironmentSetupCoordinator: EnvironmentSetupRoutable {
         openSparrowSurveyDemo(withToken: token, surveyType: .CLASSIC)
     }
 
-    func openSparrowSurveyChatDemo(withToken token: String) {
-        openSparrowSurveyDemo(withToken: token, surveyType: .CHAT)
-    }
-
-    func openSparrowSurveyNPSDemo(withToken token: String) {
-        openSparrowSurveyDemo(withToken: token, surveyType: .NPS)
-    }
-
     private func openSparrowSurveyDemo(
         withToken token: String,
         surveyType: SurveySparrow.SurveyType

@@ -15,8 +15,6 @@ import TangemTestKit
 @Suite("RatingViewModel")
 @MainActor
 final class RatingViewModelTests: LeakTrackingTestSuite {
-    typealias Rating = RatingModel.Rating
-
     /// The view model holds its presenter weakly, so the suite keeps it alive for the duration of a test.
     private var feedbackPresenter: RatingFeedbackPresenterSpy?
 
