@@ -42,7 +42,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     private let signingActionButtonType: SigningActionButtonViewType
     private let sign: () async throws -> Void
     private let reject: () async throws -> Void
-    private let pendingOperationsProvider: (any JointAccountPendingOperationsProvider)?
+    private let poller: any JointAccountPendingOperationPoller
     private weak var coordinator: JointAccountOperationDetailsRoutable?
     private var signTask: Task<Void, Never>?
     private var rejectTask: Task<Void, Never>?
@@ -60,7 +60,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         signingActionButtonType: SigningActionButtonViewType,
         content: Content,
         contentPublisher: AnyPublisher<Content, Never>,
-        pendingOperationsProvider: (any JointAccountPendingOperationsProvider)?,
+        poller: any JointAccountPendingOperationPoller,
         coordinator: JointAccountOperationDetailsRoutable?,
         alertPresenter: AlertPresenter = InjectedValues[\.alertPresenter],
         sign: @escaping () async throws -> Void,
@@ -77,7 +77,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         answer = content.answer
         self.sign = sign
         self.reject = reject
-        self.pendingOperationsProvider = pendingOperationsProvider
+        self.poller = poller
         self.coordinator = coordinator
         self.alertPresenter = alertPresenter
 
@@ -136,7 +136,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     }
 
     func onAppear() {
-        frequentUpdatesSubscription = pendingOperationsProvider?.requestFrequentUpdates()
+        frequentUpdatesSubscription = poller.requestFrequentUpdates()
     }
 
     func onDisappear() {

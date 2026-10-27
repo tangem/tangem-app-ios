@@ -77,7 +77,6 @@ private extension JointAccountFinishedOperationsWalletUpdaterTests {
             pendingOperationsProvider: CommonJointAccountPendingOperationsProvider(
                 userWalletId: JointAccountCompositionFixture.userWalletId,
                 derivationIdentity: JointAccountCompositionFixture.derivationIdentity,
-                jointAccountsRepository: JointAccountsRepositoryStub(),
                 pendingOperationsRepository: repository,
                 walletModelsManager: walletModelsManager
             ),

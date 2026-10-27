@@ -13,7 +13,7 @@ import TangemFoundation
 
 actor CommonJointAccountPendingOperationsSynchronizer {
     /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
-    nonisolated let pendingOperationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never>
+    nonisolated let operationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never>
 
     private nonisolated let persistentStorage: JointAccountsPendingOperationsPersistentStorage
     private let merger: JointAccountPendingOperationsMerger
@@ -33,7 +33,7 @@ actor CommonJointAccountPendingOperationsSynchronizer {
             qos: .userInitiated
         )
 
-        pendingOperationsPublisher = persistentStorage
+        operationsPublisher = persistentStorage
             .didUpdatePublisher
             .prepend(()) // An initial value to trigger loading from storage
             .receive(on: storageReadingQueue)
@@ -48,7 +48,7 @@ actor CommonJointAccountPendingOperationsSynchronizer {
 // MARK: - JointAccountPendingOperationsSynchronizer protocol conformance
 
 extension CommonJointAccountPendingOperationsSynchronizer: JointAccountPendingOperationsSynchronizer {
-    nonisolated var pendingOperations: [StoredJointAccountPendingOperations] {
+    nonisolated var operations: [StoredJointAccountPendingOperations] {
         persistentStorage.getList()
     }
 
@@ -62,6 +62,18 @@ extension CommonJointAccountPendingOperationsSynchronizer: JointAccountPendingOp
 
         let stored = persistentStorage.getList()
         try write(merger.merge(stored, applying: update), over: stored)
+    }
+
+    func apply(
+        refreshedOperation operation: JointAccountOperation,
+        forCryptoAccountId cryptoAccountId: String,
+        requestedAt checkpoint: JointAccountPendingOperationsCheckpoint
+    ) throws {
+        let unseenUpdates = localUpdates.filter { $0.version > checkpoint.version }.map(\.update)
+
+        let stored = persistentStorage.getList()
+        let refreshed = merger.merge(stored, applying: .operationRefreshed(operation, cryptoAccountId: cryptoAccountId))
+        try write(unseenUpdates.reduce(refreshed) { merger.merge($0, applying: $1) }, over: stored)
     }
 
     func apply(listing: [StoredJointAccountPendingOperations], requestedAt checkpoint: JointAccountPendingOperationsCheckpoint) throws {

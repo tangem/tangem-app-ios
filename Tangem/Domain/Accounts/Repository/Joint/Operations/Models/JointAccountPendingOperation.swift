@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 import BlockchainSdk
 import TangemFoundation
 
@@ -20,19 +21,33 @@ struct JointAccountPendingOperation: Equatable {
 
     let wallet: JointAccountWallet
     let operation: JointAccountOperation
+    @IgnoredEquatable
+    var operationPublisher: AnyPublisher<JointAccountOperation, Never>
     let innerCallType: SafeInnerCallType
     let feeTokenItem: TokenItem?
 
     init(
         wallet: JointAccountWallet,
         operation: JointAccountOperation,
+        operationPublisher: AnyPublisher<JointAccountOperation, Never>,
         innerCallType: SafeInnerCallType,
         feeTokenItem: TokenItem?
     ) {
         self.wallet = wallet
         self.operation = operation
+        self.operationPublisher = operationPublisher
         self.innerCallType = innerCallType
         self.feeTokenItem = feeTokenItem
+    }
+
+    func updating(operation: JointAccountOperation) -> JointAccountPendingOperation {
+        JointAccountPendingOperation(
+            wallet: wallet,
+            operation: operation,
+            operationPublisher: operationPublisher,
+            innerCallType: innerCallType,
+            feeTokenItem: feeTokenItem
+        )
     }
 }
 
@@ -47,6 +62,14 @@ extension JointAccountPendingOperation {
     /// Declines the operation, which the initiator's own answer ends outright.
     func reject() async throws {
         try await wallet.reject(operation)
+    }
+}
+
+// MARK: - JointAccountPendingOperationPoller protocol conformance
+
+extension JointAccountPendingOperation: JointAccountPendingOperationPoller {
+    func requestFrequentUpdates() -> AnyCancellable? {
+        wallet.account?.jointAccountPendingOperationsProvider.requestFrequentUpdates(operationId: operation.id)
     }
 }
 

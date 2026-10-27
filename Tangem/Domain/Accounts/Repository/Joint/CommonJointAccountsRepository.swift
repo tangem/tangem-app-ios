@@ -312,7 +312,8 @@ extension CommonJointAccountsRepository {
 private extension CommonJointAccountsRepository {
     enum Constants {
         static let debounceInterval = 0.3
-        /// The listing is the only place an operation's progress shows up, so it is re-read this often while one is in flight.
+        /// The listing is the only place an account waiting for its members or its activation moves on, so it is re-read
+        /// this often until every account has settled.
         static let regularPollingInterval: Duration = .seconds(60)
         static let frequentPollingInterval: Duration = .seconds(2)
     }
@@ -325,6 +326,7 @@ extension CommonJointAccountsRepository {
         private let frequentPollingProcessor = RepeatedTaskProcessor(duration: Constants.frequentPollingInterval)
         private let frequentUpdatesRequestsCount = OSAllocatedUnfairLock(initialState: 0)
         private let frequentUpdatesRequestsCountSubject = CurrentValueSubject<Int, Never>(0)
+        private let pollingModeResolver = PollingModeResolver()
 
         private var pollingModeSubscription: Task<Void, Never>?
         private var foregroundSubscription: AnyCancellable?
@@ -349,29 +351,6 @@ extension CommonJointAccountsRepository {
             }
         }
 
-        static func pollingMode(
-            pendingOperations: [StoredJointAccountPendingOperations],
-            accounts: [StoredJointAccount],
-            frequentUpdatesRequestsCount: Int
-        ) -> PollingMode {
-            if frequentUpdatesRequestsCount > 0 {
-                return .frequent
-            }
-
-            let hasPendingAccounts = accounts.contains { account in
-                switch account.status {
-                case .pending, .confirming: true
-                case .active, .cancelled, .unknown: false
-                }
-            }
-
-            let hasOperationsInFlight = pendingOperations.contains { record in
-                record.operations.contains { $0.status.isInFlight }
-            }
-
-            return hasPendingAccounts || hasOperationsInFlight ? .regular : .idle
-        }
-
         private func changeFrequentUpdatesRequestsCount(by delta: Int) {
             frequentUpdatesRequestsCount.withLockUnchecked { count in
                 count += delta
@@ -382,12 +361,8 @@ extension CommonJointAccountsRepository {
         /// One task reads the publisher in order, so a stop cannot overtake the start it follows.
         private func bind(innerRepository: CommonJointAccountsRepository) {
             let publisher = Publishers
-                .CombineLatest3(
-                    innerRepository.pendingOperationsSynchronizer.pendingOperationsPublisher,
-                    innerRepository.jointAccountsPublisher,
-                    frequentUpdatesRequestsCountSubject
-                )
-                .map(Self.pollingMode(pendingOperations:accounts:frequentUpdatesRequestsCount:))
+                .CombineLatest(innerRepository.jointAccountsPublisher, frequentUpdatesRequestsCountSubject)
+                .map(pollingModeResolver.pollingMode(accounts:frequentUpdatesRequestsCount:))
                 .removeDuplicates()
 
             pollingModeSubscription = Task { [weak self] in
@@ -433,5 +408,22 @@ extension CommonJointAccountsRepository.JointAccountsRepositoryAutoupdater {
         case idle
         case regular
         case frequent
+    }
+
+    struct PollingModeResolver {
+        func pollingMode(accounts: [StoredJointAccount], frequentUpdatesRequestsCount: Int) -> PollingMode {
+            if frequentUpdatesRequestsCount > 0 {
+                return .frequent
+            }
+
+            let hasPendingAccounts = accounts.contains { account in
+                switch account.status {
+                case .pending, .confirming: true
+                case .active, .cancelled, .unknown: false
+                }
+            }
+
+            return hasPendingAccounts ? .regular : .idle
+        }
     }
 }

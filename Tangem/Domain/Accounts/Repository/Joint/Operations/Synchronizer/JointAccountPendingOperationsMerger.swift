@@ -48,8 +48,12 @@ private extension JointAccountPendingOperationsMerger {
         now: Date
     ) -> [StoredJointAccountPendingOperations] {
         let merged = switch update {
-        case .operation(let operation, let cryptoAccountId):
+        case .localOperation(let operation, let cryptoAccountId):
             upsert(operation, forCryptoAccountId: cryptoAccountId, in: stored, now: now)
+        case .operationAdded(let operation, let cryptoAccountId):
+            add(operation, forCryptoAccountId: cryptoAccountId, to: stored, now: now)
+        case .operationRefreshed(let operation, let cryptoAccountId):
+            refresh(operation, forCryptoAccountId: cryptoAccountId, in: stored, now: now)
         case .operationRemoved(let id, let cryptoAccountId):
             remove(operationWithId: id, forCryptoAccountId: cryptoAccountId, from: stored)
         }
@@ -62,23 +66,15 @@ private extension JointAccountPendingOperationsMerger {
         into stored: [StoredJointAccountPendingOperations],
         now: Date
     ) -> [StoredJointAccountPendingOperations] {
-        var merged = finishedOperations(of: stored)
+        var merged = stored
 
         for record in listing {
             for operation in record.operations where !finishedOperationChecker.isFinished(operation) {
-                merged = upsert(operation, forCryptoAccountId: record.cryptoAccountId, in: merged, now: now)
+                merged = merge(merged, applying: .operationAdded(operation, cryptoAccountId: record.cryptoAccountId), now: now)
             }
         }
 
         return merged
-    }
-
-    func finishedOperations(of records: [StoredJointAccountPendingOperations]) -> [StoredJointAccountPendingOperations] {
-        records.compactMap { record in
-            let operations = record.operations.filter { finishedOperationChecker.isFinished($0) }
-
-            return operations.isEmpty ? nil : StoredJointAccountPendingOperations(cryptoAccountId: record.cryptoAccountId, operations: operations)
-        }
     }
 
     func removeExpired(from records: [StoredJointAccountPendingOperations], now: Date) -> [StoredJointAccountPendingOperations] {
@@ -103,6 +99,36 @@ private extension JointAccountPendingOperationsMerger {
                 operations.append(stamped(operation, finishedAt: now))
             }
         }
+    }
+
+    func add(
+        _ operation: JointAccountOperation,
+        forCryptoAccountId cryptoAccountId: String,
+        to stored: [StoredJointAccountPendingOperations],
+        now: Date
+    ) -> [StoredJointAccountPendingOperations] {
+        let isStored = stored.first(by: cryptoAccountId)?.operations.contains { $0.id == operation.id } == true
+
+        guard !isStored else {
+            return stored
+        }
+
+        return upsert(operation, forCryptoAccountId: cryptoAccountId, in: stored, now: now)
+    }
+
+    func refresh(
+        _ operation: JointAccountOperation,
+        forCryptoAccountId cryptoAccountId: String,
+        in stored: [StoredJointAccountPendingOperations],
+        now: Date
+    ) -> [StoredJointAccountPendingOperations] {
+        let isStored = stored.first(by: cryptoAccountId)?.operations.contains { $0.id == operation.id } == true
+
+        guard isStored || finishedOperationChecker.isFinished(operation) else {
+            return stored
+        }
+
+        return upsert(operation, forCryptoAccountId: cryptoAccountId, in: stored, now: now)
     }
 
     func resolve(stored: JointAccountOperation, incoming: JointAccountOperation, now: Date) -> JointAccountOperation {

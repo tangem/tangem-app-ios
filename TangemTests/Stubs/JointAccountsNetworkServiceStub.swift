@@ -37,8 +37,22 @@ final class JointAccountsNetworkServiceStub: JointAccountsNetworkService {
         state.withLock(\.rejectedOperationIds)
     }
 
+    var fetchedOperations: [(id: String, knownETag: String?)] {
+        state.withLock(\.fetchedOperations)
+    }
+
+    func waitForFetches(reaching count: Int) async throws {
+        for _ in 0 ..< 200 where fetchedOperations.count < count {
+            try await Task.sleep(for: .milliseconds(10))
+        }
+
+        guard fetchedOperations.count >= count else {
+            throw "The operation was read \(fetchedOperations.count) times, fewer than the \(count) awaited"
+        }
+    }
+
     var operationCallsCount: Int {
-        state.withLock { $0.createdRequests.count + $0.signedOperations.count + $0.rejectedOperationIds.count }
+        state.withLock { $0.createdRequests.count + $0.signedOperations.count + $0.rejectedOperationIds.count + $0.fetchedOperations.count }
     }
 
     init(
@@ -46,7 +60,8 @@ final class JointAccountsNetworkServiceStub: JointAccountsNetworkService {
         answersUnchanged: Bool = false,
         error: Error? = nil,
         suspendedFirstAnswer: JointAccountsRemoteState? = nil,
-        operationAnswer: JointAccountOperation? = nil
+        operationAnswer: JointAccountOperation? = nil,
+        fetchedOperationAnswers: [Result<JointOperationFetchResult, Error>] = []
     ) {
         state.withLock {
             $0.jointAccounts = jointAccounts
@@ -54,6 +69,7 @@ final class JointAccountsNetworkServiceStub: JointAccountsNetworkService {
             $0.error = error
             $0.suspendedFirstAnswer = suspendedFirstAnswer
             $0.operationAnswer = operationAnswer
+            $0.fetchedOperationAnswers = fetchedOperationAnswers
         }
     }
 
@@ -135,7 +151,17 @@ final class JointAccountsNetworkServiceStub: JointAccountsNetworkService {
     }
 
     func getOperation(id: String, knownETag: String?) async throws -> JointOperationFetchResult {
-        throw "Not called by these tests"
+        let answer = state.withLock { state -> Result<JointOperationFetchResult, Error>? in
+            state.fetchedOperations.append((id: id, knownETag: knownETag))
+
+            return state.fetchedOperationAnswers.count > 1 ? state.fetchedOperationAnswers.removeFirst() : state.fetchedOperationAnswers.first
+        }
+
+        guard let answer else {
+            throw "The test handed no answer for the endpoint to read the operation with"
+        }
+
+        return try answer.get()
     }
 
     private func operationAnswer() throws -> JointAccountOperation {
@@ -156,6 +182,8 @@ private extension JointAccountsNetworkServiceStub {
         var error: Error?
         var suspendedFirstAnswer: JointAccountsRemoteState?
         var operationAnswer: JointAccountOperation?
+        var fetchedOperationAnswers: [Result<JointOperationFetchResult, Error>] = []
+        var fetchedOperations: [(id: String, knownETag: String?)] = []
         var getJointAccountsCallsCount = 0
         var sentKnownETags: [String?] = []
         var createdRequests: [JointAccountOperationRequest] = []

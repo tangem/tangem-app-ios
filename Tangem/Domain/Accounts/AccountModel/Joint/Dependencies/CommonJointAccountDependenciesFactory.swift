@@ -126,7 +126,6 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
         let pendingOperationsProvider = CommonJointAccountPendingOperationsProvider(
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
-            jointAccountsRepository: jointAccountsRepository,
             pendingOperationsRepository: jointAccountPendingOperationsRepository,
             walletModelsManager: walletModelsManager
         )
