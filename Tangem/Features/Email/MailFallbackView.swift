@@ -24,12 +24,12 @@ struct MailFallbackView: View {
         VStack(spacing: 0) {
             VStack(spacing: 8) {
                 Text(Localization.commonContactSupport)
-                    .style(Fonts.Bold.title2, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.title2, color: DesignSystem.Color.textPrimary)
                     .multilineTextAlignment(.center)
                     .accessibilityIdentifier(MailAccessibilityIdentifiers.fallbackTitle)
 
                 Text(Localization.emailFallbackAlertDescription)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                     .multilineTextAlignment(.center)
             }
             .padding(.top, 24)
@@ -43,7 +43,7 @@ struct MailFallbackView: View {
                 openMailAction()
             } label: {
                 Text(Localization.emailFallbackAlertOpenMailButton)
-                    .style(Fonts.Regular.body, color: Colors.Text.accent)
+                    .style(Fonts.Regular.body, color: DesignSystem.Color.textAccentBlue)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
             }
@@ -56,7 +56,7 @@ struct MailFallbackView: View {
                 shareLogsAction()
             } label: {
                 Text(Localization.emailFallbackAlertShareLogsButton)
-                    .style(Fonts.Regular.body, color: Colors.Text.accent)
+                    .style(Fonts.Regular.body, color: DesignSystem.Color.textAccentBlue)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
             }

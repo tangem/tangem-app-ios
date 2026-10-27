@@ -49,7 +49,7 @@ struct YieldModuleStartView: View {
         case .incentiveRateInfo:
             DesignSystem.Color.bgPrimary
         case .rateInfo, .startEarning, .feePolicy:
-            Colors.Background.tertiary
+            DesignSystem.Color.bgPrimary
         }
     }
 
@@ -58,7 +58,7 @@ struct YieldModuleStartView: View {
         case .incentiveRateInfo:
             DesignSystem.Color.bgPrimary
         case .rateInfo, .startEarning, .feePolicy:
-            Colors.Background.primary
+            DesignSystem.Color.bgPrimary
         }
     }
 
@@ -101,12 +101,12 @@ struct YieldModuleStartView: View {
     private var rateInfoSubtitleFooter: some View {
         HStack(spacing: .zero) {
             Text(Localization.yieldModuleRateInfoSheetPoweredBy)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 .padding(.trailing, 6)
 
             Assets.YieldModule.yieldModuleAaveLogo.image.padding(.trailing, 2)
 
-            Text(Localization.yieldModuleProvider.uppercased()).style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            Text(Localization.yieldModuleProvider.uppercased()).style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
         }
     }
 

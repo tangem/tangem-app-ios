@@ -96,33 +96,40 @@ extension NotificationView {
         @ViewBuilder
         var background: some View {
             switch self {
-            case .critical: Colors.Icon.warning.opacity(0.3)
-            case .primary: Colors.Background.primary
-            case .secondary: Colors.Button.disabled
-            case .action: Colors.Background.action
+            case .critical: DesignSystem.Color.bgStatusErrorSubtle
+            case .primary: DesignSystem.Color.bgSecondary
+            case .secondary: DesignSystem.Color.bgTransparentPrimary
+            case .action: DesignSystem.Color.bgSecondary
+            }
+        }
+
+        var borderColor: Color? {
+            switch self {
+            case .secondary: DesignSystem.Color.borderPrimary
+            case .primary, .action, .critical: nil
             }
         }
 
         var dismissButtonColor: Color {
             switch self {
             case .primary, .secondary, .action, .critical:
-                return Colors.Icon.inactive
+                return DesignSystem.Color.iconTertiary
             }
         }
 
         var titleColor: Color {
             switch self {
             case .primary, .secondary, .action, .critical:
-                return Colors.Text.primary1
+                return DesignSystem.Color.textPrimary
             }
         }
 
         var messageColor: Color {
             switch self {
             case .critical:
-                return Colors.Text.primary1
+                return DesignSystem.Color.textPrimary
             case .primary, .secondary, .action:
-                return Colors.Text.tertiary
+                return DesignSystem.Color.textSecondary
             }
         }
     }

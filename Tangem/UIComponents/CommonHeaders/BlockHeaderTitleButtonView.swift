@@ -33,20 +33,20 @@ struct BlockHeaderTitleButtonView: View {
             HStack(spacing: 2) {
                 if let asset = button.asset {
                     asset.image
-                        .foregroundStyle(button.isDisabled ? Colors.Icon.inactive : Colors.Icon.primary1)
+                        .foregroundStyle(button.isDisabled ? DesignSystem.Color.iconTertiary : DesignSystem.Color.iconPrimary)
                 }
 
                 Text(button.title)
                     .style(
                         Fonts.Regular.footnote.bold(),
-                        color: button.isDisabled ? Colors.Icon.inactive : Colors.Text.primary1
+                        color: button.isDisabled ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
                     )
             }
             .padding(.leading, 8)
             .padding(.trailing, 10)
             .padding(.vertical, 4)
         })
-        .background(Colors.Button.secondary)
+        .background(DesignSystem.Color.bgTransparentSecondary)
         .cornerRadiusContinuous(Constants.buttonCornerRadius)
         .shimmerPlaceholder(button.isLoading, variant: .custom(width: 60, height: 18, cornerRadius: 3))
         .disabled(button.isDisabled)

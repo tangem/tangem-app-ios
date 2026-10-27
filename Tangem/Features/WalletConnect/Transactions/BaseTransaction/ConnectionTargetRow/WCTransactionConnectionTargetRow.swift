@@ -27,7 +27,7 @@ struct WCTransactionConnectionTargetRow: View {
     private func makeWalletRow(name: String) -> some View {
         rowContent(label: Localization.wcCommonWallet) {
             Text(name)
-                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.body, color: DesignSystem.Color.textSecondary)
         }
     }
 
@@ -39,7 +39,7 @@ struct WCTransactionConnectionTargetRow: View {
             )
             .iconSettings(.smallSized)
             .font(Fonts.Regular.body)
-            .textColor(Colors.Text.tertiary)
+            .textColor(DesignSystem.Color.textSecondary)
         }
     }
 
@@ -52,11 +52,11 @@ struct WCTransactionConnectionTargetRow: View {
                 .renderingMode(.template)
                 .resizable()
                 .frame(width: 24, height: 24)
-                .foregroundStyle(Colors.Icon.accent)
+                .foregroundStyle(DesignSystem.Color.iconAccentBlue)
                 .padding(.trailing, 8)
 
             Text(label)
-                .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                .style(Fonts.Regular.body, color: DesignSystem.Color.textPrimary)
                 .padding(.trailing, 8)
 
             Spacer()

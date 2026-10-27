@@ -12,7 +12,7 @@ import TangemAssets
 struct TokenSectionView: View {
     let title: String?
     let topEdgeCornerRadius: CGFloat?
-    var backgroundColor: Color = Colors.Background.primary
+    var backgroundColor: Color = DesignSystem.Color.bgSecondary
 
     var body: some View {
         if let title = title {

@@ -71,7 +71,7 @@ struct TransactionView: View {
     private var name: some View {
         HStack(spacing: 8) {
             Text(viewModel.display.title.fullText)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.leading)
                 .lineLimit(1)
 
@@ -86,7 +86,7 @@ struct TransactionView: View {
         if let localizeDestination = viewModel.getTransactionDescription() {
             Text(localizeDestination)
                 .multilineTextAlignment(.leading)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
                 .truncationMode(viewModel.transactionDescriptionTruncationMode)
         }
@@ -101,7 +101,7 @@ struct TransactionView: View {
 
     private var subtitle: some View {
         Text(viewModel.subtitleText)
-            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
     }
 }
 

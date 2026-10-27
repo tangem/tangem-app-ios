@@ -37,7 +37,7 @@ struct OnrampCountrySelectorView: View {
 
             contentView
         }
-        .background(Colors.Background.primary.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
     }
 }
 

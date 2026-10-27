@@ -22,7 +22,7 @@ struct CreateWalletSelectorView: View {
     var body: some View {
         content
             .allowsHitTesting(!viewModel.isScanning)
-            .background(Colors.Background.plain.ignoresSafeArea())
+            .background(DesignSystem.Color.bgBase.ignoresSafeArea())
             .onFirstAppear(perform: viewModel.onFirstAppear)
             .alert(item: $viewModel.alert, content: { $0.alert })
             .environment(\.colorScheme, .dark)
@@ -70,10 +70,10 @@ private extension CreateWalletSelectorView {
     var info: some View {
         VStack(spacing: 0) {
             Text(viewModel.title)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
 
             Text(viewModel.description)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 8)
@@ -136,14 +136,14 @@ private extension CreateWalletSelectorView {
         SwiftUI.Button(action: item.action) {
             HStack(spacing: 0) {
                 Text(item.title)
-                    .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.callout, color: DesignSystem.Color.textPrimary)
 
                 Assets.chevronRight.image
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 20, height: 20)
-                    .foregroundStyle(Colors.Icon.primary1)
+                    .foregroundStyle(DesignSystem.Color.iconPrimary)
             }
             .frame(maxWidth: .infinity)
         }
@@ -162,7 +162,7 @@ private extension CreateWalletSelectorView {
             .frame(height: 2)
 
             Text(viewModel.otherMethodTitle)
-                .style(Fonts.Bold.caption1, color: Colors.Text.secondary)
+                .style(Fonts.Bold.caption1, color: DesignSystem.Color.textSecondary)
 
             HorizontalDots(
                 color: Colors.Control.key,
@@ -181,11 +181,11 @@ private extension CreateWalletSelectorView {
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
-                .foregroundStyle(Colors.Icon.accent)
+                .foregroundStyle(DesignSystem.Color.iconAccentBlue)
                 .frame(width: 16, height: 16)
 
             Text(item.title)
-                .style(Fonts.Bold.footnote, color: Colors.Text.secondary)
+                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
         }
     }

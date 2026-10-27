@@ -80,7 +80,7 @@ struct MainQRScanTokenSelectorWalletItemView: View {
                     toggleAction: { viewModel.toggleIsOpen() }
                 )
                 .padding(.bottom, Constants.accountsListVerticalSpacing)
-                .background(Colors.Background.tertiary)
+                .background(DesignSystem.Color.bgPrimary)
                 .zIndex(100.0)
 
                 if viewModel.isOpen {
@@ -94,7 +94,7 @@ struct MainQRScanTokenSelectorWalletItemView: View {
                     .zIndex(50.0)
                     .transition(.move(edge: .top))
                 } else {
-                    Separator(color: Colors.Stroke.primary)
+                    Separator(color: DesignSystem.Color.borderSecondary)
                         .transition(.opacity)
                 }
             }

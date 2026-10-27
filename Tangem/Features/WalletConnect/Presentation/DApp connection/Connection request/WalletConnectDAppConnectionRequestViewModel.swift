@@ -505,7 +505,7 @@ extension WalletConnectDAppConnectionRequestViewState {
 
         let verificationStatusIconConfig = EntitySummaryView.ViewState.TitleInfoConfig(
             imageType: Assets.Glyphs.verified,
-            foregroundColor: Colors.Icon.accent,
+            foregroundColor: DesignSystem.Color.iconAccentBlue,
             onTap: verifiedDomainAction
         )
 

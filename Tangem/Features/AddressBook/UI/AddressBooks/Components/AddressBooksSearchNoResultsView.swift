@@ -44,5 +44,5 @@ struct AddressBooksSearchNoResultsView: View {
 
 #Preview {
     AddressBooksSearchNoResultsView()
-        .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
+        .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
 }

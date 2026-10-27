@@ -19,10 +19,10 @@ struct SeedPhraseSuggestionsView: View {
             suggestionTapped(index)
         } label: {
             Text(text)
-                .style(Fonts.Regular.footnote, color: Colors.Text.primary2)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textInversePrimary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 6)
-                .background(Colors.Icon.primary1)
+                .background(DesignSystem.Color.bgInverse)
                 .cornerRadiusContinuous(10)
                 .padding(.all, 4)
         }

@@ -15,7 +15,7 @@ public struct GrabberView: View {
 
     public var body: some View {
         Capsule(style: .continuous)
-            .fill(Colors.Icon.inactive)
+            .fill(DesignSystem.Color.iconTertiary)
             .frame(size: CGSize(width: 32.0, height: 4.0))
             .padding(.vertical, 8)
             .infinityFrame(axis: .horizontal)

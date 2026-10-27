@@ -19,7 +19,7 @@ struct ArchivedAccountsView: View {
         content
             .task { await viewModel.fetchArchivedAccounts() }
             .frame(maxWidth: .infinity)
-            .background(Colors.Background.secondary.ignoresSafeArea())
+            .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
             .alert(item: $viewModel.alertBinder, content: { $0.alert })
     }
 
@@ -58,7 +58,7 @@ struct ArchivedAccountsView: View {
             Spacer()
 
             ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.informative))
+                .progressViewStyle(CircularProgressViewStyle(tint: DesignSystem.Color.iconSecondary))
                 .scaleEffect(1.1)
 
             Spacer()

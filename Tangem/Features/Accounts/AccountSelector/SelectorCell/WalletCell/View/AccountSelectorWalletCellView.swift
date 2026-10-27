@@ -46,7 +46,7 @@ struct AccountSelectorWalletCellButtonView: View {
                 Text(viewModel.walletModel.name)
                     .style(
                         style.titleFont,
-                        color: viewModel.isDisabled ? Colors.Text.disabled : style.titleColor
+                        color: viewModel.isDisabled ? DesignSystem.Color.textTertiary : style.titleColor
                     )
 
                 walletDescription
@@ -150,11 +150,11 @@ struct AccountSelectorWalletCellButtonView: View {
     private func lockedWalletDescription(_ cardSetLabel: String) -> some View {
         HStack(spacing: 4) {
             Text(cardSetLabel)
-                .style(style.subtitleFont, color: Colors.Text.disabled)
+                .style(style.subtitleFont, color: DesignSystem.Color.textTertiary)
 
             Assets.Glyphs.lockNew.image
                 .renderingMode(.template)
-                .foregroundStyle(Colors.Icon.inactive)
+                .foregroundStyle(DesignSystem.Color.iconTertiary)
         }
     }
 }
@@ -188,9 +188,9 @@ extension AccountSelectorWalletCellButtonView {
             iconSide: 36,
             iconSkeletonHeight: 22,
             titleFont: TangemFontStyle(font: Fonts.Bold.subheadline),
-            titleColor: Colors.Text.primary1,
+            titleColor: DesignSystem.Color.textPrimary,
             subtitleFont: TangemFontStyle(font: Fonts.Regular.caption1),
-            subtitleColor: Colors.Text.tertiary
+            subtitleColor: DesignSystem.Color.textSecondary
         )
 
         static let modal = Style(

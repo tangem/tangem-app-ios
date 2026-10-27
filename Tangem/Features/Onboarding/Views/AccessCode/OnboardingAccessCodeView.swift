@@ -58,7 +58,7 @@ struct OnboardingAccessCodeView: View {
     private var titleView: some View {
         VStack(spacing: 10) {
             Text(viewModel.state.title)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
                 .minimumScaleFactor(0.3)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 50)
@@ -68,7 +68,7 @@ struct OnboardingAccessCodeView: View {
 
             if let hint = viewModel.state.hint {
                 Text(hint)
-                    .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.callout, color: DesignSystem.Color.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
             }
@@ -82,7 +82,7 @@ struct OnboardingAccessCodeView: View {
             VStack(spacing: 0) {
                 Assets.Onboarding.inputWithLock.image
                     .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.inactive)
+                    .foregroundStyle(DesignSystem.Color.iconTertiary)
                     .scaleEffect(AppConstants.isSmallScreen ? 0.7 : 1)
 
                 titleView
@@ -114,7 +114,7 @@ struct OnboardingAccessCodeView: View {
         VStack(alignment: .leading, spacing: 8) {
             CustomPasswordTextField(
                 placeholder: Localization.detailsManageSecurityAccessCode,
-                color: Colors.Text.primary1,
+                color: DesignSystem.Color.textPrimary,
                 password: viewModel.state == .inputCode ? $viewModel.firstEnteredCode : $viewModel.secondEnteredCode,
                 onCommit: {}
             )
@@ -124,7 +124,7 @@ struct OnboardingAccessCodeView: View {
             Text(viewModel.error.description)
                 .multilineTextAlignment(.leading)
                 .lineLimit(2)
-                .style(Fonts.Regular.footnote, color: Colors.Text.warning)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textAccentRed)
                 .id("error_\(viewModel.error.rawValue)")
                 .hidden(viewModel.error.isErrorHidden)
         }
@@ -136,19 +136,19 @@ struct OnboardingAccessCodeView: View {
                 HStack(alignment: .center, spacing: 16) {
                     feature.icon.image
                         .renderingMode(.template)
-                        .foregroundStyle(Colors.Icon.primary1)
+                        .foregroundStyle(DesignSystem.Color.iconPrimary)
                         .frame(width: 42, height: 42, alignment: .center)
                         .background(
-                            Colors.Background.secondary
+                            DesignSystem.Color.bgPrimary
                                 .clipShape(Circle())
                         )
 
                     VStack(alignment: .leading, spacing: 3) {
                         Text(feature.title)
-                            .style(Fonts.Bold.callout, color: Colors.Icon.primary1)
+                            .style(Fonts.Bold.callout, color: DesignSystem.Color.textPrimary)
 
                         Text(feature.description)
-                            .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                            .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }

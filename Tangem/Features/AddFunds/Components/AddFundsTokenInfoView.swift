@@ -55,7 +55,7 @@ struct AddFundsTokenInfoView: View {
                 capsule {
                     HStack(spacing: 6) {
                         Text(walletBadge.name)
-                            .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                            .style(Fonts.Bold.footnote, color: DesignSystem.Color.textPrimary)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
 
@@ -80,7 +80,7 @@ struct AddFundsTokenInfoView: View {
             .padding(.vertical, 6)
             .background(
                 Capsule()
-                    .fill(Colors.Background.action)
+                    .fill(DesignSystem.Color.bgSecondary)
             )
     }
 }

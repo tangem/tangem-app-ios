@@ -18,6 +18,6 @@ struct DefaultHeaderView: View {
 
     var body: some View {
         Text(title)
-            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
     }
 }

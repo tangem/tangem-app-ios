@@ -70,16 +70,16 @@ struct StakingTargetView: View {
     private var topLineView: some View {
         HStack(alignment: .top, spacing: 0) {
             Text(data.name)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
             if data.isPartner {
                 FixedSpacer(width: 6)
 
                 Text(Localization.stakingValidatorsLabel)
-                    .style(Fonts.Bold.caption2, color: Colors.Text.constantWhite)
+                    .style(Fonts.Bold.caption2, color: DesignSystem.Color.textStaticDarkPrimary)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 2)
-                    .background(Colors.Text.accent)
+                    .background(DesignSystem.Color.bgAccentBlue)
                     .cornerRadiusContinuous(6)
             }
 
@@ -87,7 +87,7 @@ struct StakingTargetView: View {
                 Spacer(minLength: 4)
 
                 Text(balance.fiat)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
             }
         }
     }
@@ -102,7 +102,7 @@ struct StakingTargetView: View {
                     Spacer(minLength: 4)
 
                     Text(balance.crypto)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                 }
             }
         }
@@ -163,7 +163,7 @@ extension StakingTargetView: Setupable {}
                 }
                 .padding()
             }
-            .background(Colors.Background.secondary.ignoresSafeArea())
+            .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         }
     }
 

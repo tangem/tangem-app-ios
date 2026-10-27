@@ -22,7 +22,7 @@ struct GetTokenActionRowView: View {
         title: String,
         subtitle: String? = nil,
         showNotificationBadge: Bool = false,
-        style: Style = .colored(Colors.Icon.accent)
+        style: Style = .colored(DesignSystem.Color.iconAccentBlue)
     ) {
         self.icon = icon
         self.title = title
@@ -37,12 +37,12 @@ struct GetTokenActionRowView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
                 if let subtitle {
                     Text(subtitle)
                         .multilineTextAlignment(.leading)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                 }
             }
 
@@ -60,8 +60,8 @@ struct GetTokenActionRowView: View {
             )
         case .solid:
             makeIconView(
-                backgroundColor: Colors.Background.tertiary,
-                foregroundColor: Colors.Icon.primary1
+                backgroundColor: DesignSystem.Color.bgPrimary,
+                foregroundColor: DesignSystem.Color.iconPrimary
             )
         }
     }
@@ -84,7 +84,7 @@ struct GetTokenActionRowView: View {
             iconImage
                 .foregroundStyle(foregroundColor)
         }
-        .unreadNotificationBadge(showNotificationBadge, badgeColor: Colors.Icon.accent)
+        .unreadNotificationBadge(showNotificationBadge, badgeColor: DesignSystem.Color.iconAccentBlue)
     }
 }
 

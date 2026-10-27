@@ -27,7 +27,7 @@ struct MCPConnectionRequestView: View {
         .scrollBounceBehavior(.basedOnSize)
         .animation(.contentFrameUpdate, value: viewModel.state)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackground = .color(Colors.Background.tertiary)
+            configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
             configuration.backgroundInteractionBehavior = .consumeTouches
         }
@@ -77,7 +77,7 @@ struct MCPConnectionRequestView: View {
 
         return FloatingSheetNavigationBarView(
             title: title,
-            backgroundColor: Colors.Background.tertiary,
+            backgroundColor: DesignSystem.Color.bgPrimary,
             bottomSeparatorLineIsVisible: false,
             backButtonAction: backButtonAction,
             closeButtonAction: closeButtonAction

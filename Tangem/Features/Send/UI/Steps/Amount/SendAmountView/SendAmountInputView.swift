@@ -50,15 +50,15 @@ private extension SendAmountInputView {
                     .resizable()
                     .renderingMode(.template)
                     .frame(width: 10, height: 10)
-                    .foregroundColor(Colors.Icon.informative)
+                    .foregroundColor(DesignSystem.Color.iconSecondary)
 
                 Text(badge.title)
-                    .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption2, color: DesignSystem.Color.textSecondary)
             }
             .padding(4)
             .overlay(
                 RoundedRectangle(cornerRadius: 6)
-                    .stroke(Colors.Stroke.primary, lineWidth: 1)
+                    .stroke(DesignSystem.Color.borderSecondary, lineWidth: 1)
             )
         }
         .accessibilityIdentifier(SendAccessibilityIdentifiers.rateBadge)
@@ -99,11 +99,11 @@ private extension SendAmountInputView {
                 switch bottomInfoText {
                 case .info(let string):
                     Text(string)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.attention)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textAccentYellow)
                         .padding(.vertical, 8)
                 case .error(let string):
                     Text(string)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.warning)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textAccentRed)
                         .padding(.vertical, 8)
                         .optionalAccessibilityIdentifier(accessibilityConfiguration?.errorIdentifier)
                 }
@@ -121,7 +121,7 @@ private extension SendAmountInputView {
                 .optionalAccessibilityIdentifier(accessibilityConfiguration?.toggleButtonIdentifier)
             } else {
                 Text(" ")
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                     .padding(.vertical, 8)
             }
         }
@@ -138,7 +138,7 @@ private extension SendAmountInputView {
 
             HStack(spacing: 4) {
                 Text(field.alternativeAmount)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.secondary)
+                    .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
                     .optionalAccessibilityIdentifier(accessibilityConfiguration?.alternativeAmountIdentifier(useFiatCalculation))
 

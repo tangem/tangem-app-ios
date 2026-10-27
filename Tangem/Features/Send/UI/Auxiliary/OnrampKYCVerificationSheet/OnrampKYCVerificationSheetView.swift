@@ -32,11 +32,11 @@ struct OnrampKYCVerificationSheetView: View {
 
                 VStack(spacing: 8) {
                     Text(Localization.onrampKycVerificationTitle)
-                        .style(Fonts.BoldStatic.title3, color: Colors.Text.primary1)
+                        .style(Fonts.BoldStatic.title3, color: DesignSystem.Color.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
 
                     Text(Localization.onrampKycVerificationSubtitle(viewModel.providerName))
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .multilineTextAlignment(.center)
@@ -72,18 +72,18 @@ struct OnrampKYCVerificationSheetView: View {
             .renderingMode(.template)
             .resizable()
             .frame(width: 32, height: 32)
-            .foregroundStyle(Colors.Icon.accent)
+            .foregroundStyle(DesignSystem.Color.iconAccentBlue)
             .padding(12)
-            .background(Circle().fill(Colors.Icon.accent.opacity(0.1)))
+            .background(Circle().fill(DesignSystem.Color.bgAccentBlueSubtle))
             .accessibilityIdentifier(OnrampAccessibilityIdentifiers.kycIcon)
     }
 
     private var whatsImportantSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(Localization.onrampKycVerificationWhatsImportant)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
 
-            Separator(height: .minimal, color: Colors.Stroke.primary)
+            Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
 
             VStack(alignment: .leading, spacing: 8) {
                 bulletItem(Localization.onrampKycVerificationBulletFree)
@@ -94,17 +94,17 @@ struct OnrampKYCVerificationSheetView: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 14)
-                .fill(Colors.Background.action)
+                .fill(DesignSystem.Color.bgSecondary)
         )
     }
 
     private func bulletItem(_ text: String) -> some View {
         HStack(alignment: .top, spacing: 8) {
             Text(AppConstants.dotSign)
-                .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textPrimary)
 
             Text(text)
-                .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }

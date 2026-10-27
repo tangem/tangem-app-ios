@@ -17,7 +17,7 @@ struct PendingExpressTxStatusRow: View {
         VStack(alignment: .leading, spacing: 0) {
             if !isFirstRow {
                 Assets.verticalLine.image
-                    .foregroundColor(Colors.Field.focused)
+                    .foregroundColor(DesignSystem.Color.borderSecondary)
             }
 
             HStack(spacing: 12) {
@@ -74,31 +74,31 @@ extension PendingExpressTxStatusRow {
 
         var circleColor: Color {
             switch self {
-            case .empty, .checkmark: return Colors.Field.focused
+            case .empty, .checkmark: return DesignSystem.Color.borderSecondary
             case .loader: return Color.clear
             case .cross(let passed):
-                return passed ? Colors.Field.focused : Colors.Icon.warning
-            case .exclamationMark: return Colors.Icon.attention
+                return passed ? DesignSystem.Color.borderSecondary : DesignSystem.Color.borderAccentRed
+            case .exclamationMark: return DesignSystem.Color.borderAccentYellow
             }
         }
 
         var iconColor: Color {
             switch self {
             case .empty: return Color.clear
-            case .loader, .checkmark: return Colors.Text.primary1
+            case .loader, .checkmark: return DesignSystem.Color.iconPrimary
             case .cross(let passed):
-                return passed ? Colors.Text.primary1 : Colors.Icon.warning
-            case .exclamationMark: return Colors.Icon.attention
+                return passed ? DesignSystem.Color.iconPrimary : DesignSystem.Color.iconAccentRed
+            case .exclamationMark: return DesignSystem.Color.iconAccentYellow
             }
         }
 
         var textColor: Color {
             switch self {
-            case .checkmark, .loader: return Colors.Text.primary1
-            case .empty: return Colors.Text.disabled
+            case .checkmark, .loader: return DesignSystem.Color.textPrimary
+            case .empty: return DesignSystem.Color.textTertiary
             case .cross(let passed):
-                return passed ? Colors.Text.primary1 : Colors.Text.warning
-            case .exclamationMark: return Colors.Text.attention
+                return passed ? DesignSystem.Color.textPrimary : DesignSystem.Color.textAccentRed
+            case .exclamationMark: return DesignSystem.Color.textAccentYellow
             }
         }
 

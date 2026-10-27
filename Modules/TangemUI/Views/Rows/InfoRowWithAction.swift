@@ -38,10 +38,10 @@ public struct InfoRowWithAction<Icon: View>: View {
             content: {
                 VStack(alignment: .leading, spacing: 2.0) {
                     Text(title)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
 
                     Text(value)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                 }
             },
             trailingIcon: {

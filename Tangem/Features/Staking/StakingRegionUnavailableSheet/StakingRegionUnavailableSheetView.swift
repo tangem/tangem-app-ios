@@ -16,7 +16,7 @@ struct StakingRegionUnavailableSheetView: View {
         BottomSheetErrorContentView(
             icon: .init(
                 icon: DesignSystem.Icons.Error.regular28,
-                overlay: DesignSystem.Color.iconStatusWarning,
+                overlay: DesignSystem.Color.bgStatusWarningSubtle,
                 tint: DesignSystem.Color.iconStatusWarning
             ),
             title: viewModel.title,

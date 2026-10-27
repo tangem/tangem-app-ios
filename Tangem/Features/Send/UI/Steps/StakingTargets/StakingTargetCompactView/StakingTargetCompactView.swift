@@ -29,13 +29,13 @@ struct StakingTargetCompactView: View {
 
             HStack(spacing: 0) {
                 Text(data.name)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
                 if let aprFormatted = data.aprFormatted {
                     Spacer()
 
                     Text(aprFormatted)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
                         .animation(nil, value: aprFormatted)
                 }
             }

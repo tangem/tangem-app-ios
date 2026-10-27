@@ -142,11 +142,11 @@ extension HorizontalChipsView {
         }
 
         private var backgroundColor: Color {
-            isSelected ? Colors.Button.primary : Colors.Button.secondary
+            isSelected ? DesignSystem.Color.bgInverse : DesignSystem.Color.bgTransparentSecondary
         }
 
         private var foregroundColor: Color {
-            isSelected ? Colors.Text.primary2 : Colors.Text.primary1
+            isSelected ? DesignSystem.Color.textInversePrimary : DesignSystem.Color.textPrimary
         }
     }
 }

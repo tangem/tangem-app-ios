@@ -17,11 +17,11 @@ struct ExpressCurrencyErrorHeaderView: View {
         switch errorState {
         case .insufficientFunds:
             Text(Localization.swappingInsufficientFunds)
-                .style(Fonts.Regular.caption1, color: Colors.Text.warning)
+                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textAccentRed)
         case .error(let text):
             // Use for generic error
             Text(text)
-                .style(Fonts.Regular.caption1, color: Colors.Text.warning)
+                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textAccentRed)
         }
     }
 }

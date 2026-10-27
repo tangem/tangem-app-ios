@@ -25,19 +25,19 @@ struct NFTAssetCompactView: View {
             HStack(spacing: .zero) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(viewModel.assetTitle)
-                        .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                        .style(Fonts.Regular.body, color: DesignSystem.Color.textPrimary)
 
                     Text(viewModel.assetSubtitle)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                 }
 
                 Spacer(minLength: 4)
 
                 NFTSendAssetImageViewFactory(nftChainIconProvider: viewModel.nftChainIconProvider)
-                    .makeImageView(for: viewModel.asset, borderColor: Colors.Background.action, cornerRadius: 8)
+                    .makeImageView(for: viewModel.asset, borderColor: DesignSystem.Color.bgSecondary, cornerRadius: 8)
                     .frame(size: .init(bothDimensions: 36))
             }
         }
-        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 14, horizontalPadding: 14)
+        .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: 14, horizontalPadding: 14)
     }
 }

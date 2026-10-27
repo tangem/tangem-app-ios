@@ -20,7 +20,7 @@ struct AccountDetailsCoordinatorView: View {
                 AccountDetailsView(viewModel: rootViewModel)
                     .navigationTitle(rootViewModel.title)
                     .padding(.horizontal, 16)
-                    .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+                    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
                     .navigationLinks(links)
             }
 

@@ -35,10 +35,10 @@ struct WCTransactionAddressRowView: View {
             viewModel.icon.image
                 .resizable()
                 .frame(width: 24, height: 24)
-                .foregroundStyle(Colors.Icon.accent)
+                .foregroundStyle(DesignSystem.Color.iconAccentBlue)
 
             Text(viewModel.label)
-                .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                .style(Fonts.Regular.body, color: DesignSystem.Color.textPrimary)
                 .padding(.horizontal, 4)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -46,7 +46,7 @@ struct WCTransactionAddressRowView: View {
 
     private var address: some View {
         Text(viewModel.address)
-            .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+            .style(Fonts.Regular.body, color: DesignSystem.Color.textSecondary)
             .truncationMode(.middle)
             .lineLimit(1)
             .padding(.horizontal, 4)

@@ -24,20 +24,20 @@ struct WCDappTitleView: View {
                 HStack(alignment: .top, spacing: 4) {
                     Text(dAppData.name)
                         .lineLimit(2)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
                     if isVerified {
                         Assets.Glyphs.verified.image
                             .resizable()
                             .frame(width: 16, height: 16)
-                            .foregroundStyle(Colors.Icon.accent)
+                            .foregroundStyle(DesignSystem.Color.iconAccentBlue)
                             .padding(.top, 2)
                     }
                 }
 
                 Text(dAppData.domain.host ?? "")
                     .lineLimit(1)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
             }
             .multilineTextAlignment(.leading)
         }
@@ -69,8 +69,8 @@ struct WCDappTitleView: View {
             .resizable()
             .scaledToFit()
             .frame(width: 20, height: 20)
-            .foregroundStyle(Colors.Icon.accent)
+            .foregroundStyle(DesignSystem.Color.iconAccentBlue)
             .frame(width: 36, height: 36)
-            .background(Colors.Icon.accent.opacity(0.1))
+            .background(DesignSystem.Color.bgAccentBlueSubtle)
     }
 }

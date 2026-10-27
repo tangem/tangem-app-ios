@@ -57,7 +57,7 @@ private extension MobileOnboardingSeedPhraseRecoveryView {
 
             VStack(spacing: 16) {
                 Text(viewModel.responsibilityDescription)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 16)
@@ -79,10 +79,10 @@ private extension MobileOnboardingSeedPhraseRecoveryView {
     func infoView(item: ViewModel.InfoItem) -> some View {
         VStack(spacing: 12) {
             Text(item.title)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
 
             Text(item.description)
-                .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                .style(Fonts.Regular.callout, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
         }
     }

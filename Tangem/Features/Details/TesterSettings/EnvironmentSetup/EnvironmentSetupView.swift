@@ -21,7 +21,7 @@ struct EnvironmentSetupView: View {
 
     var body: some View {
         ZStack {
-            Colors.Background.secondary.edgesIgnoringSafeArea(.all)
+            DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all)
 
             GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 16)) {
                 if !viewModel.isSearching {
@@ -44,7 +44,7 @@ struct EnvironmentSetupView: View {
 
                 if viewModel.isSearching, viewModel.featureStateViewModels.isEmpty {
                     Text("No feature toggles found")
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                         .padding(.top, 32)
                 }
 

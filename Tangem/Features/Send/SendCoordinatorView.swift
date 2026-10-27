@@ -29,12 +29,12 @@ struct SendCoordinatorView: CoordinatorView {
             NavigationStack {
                 content
             }
-            .tint(Colors.Text.primary1)
+            .tint(DesignSystem.Color.textPrimary)
             .interactiveDismissDisabled(interactiveDismissDisabled)
 
         case .pushed:
             content
-                .tint(Colors.Text.primary1)
+                .tint(DesignSystem.Color.textPrimary)
         }
     }
 
@@ -69,7 +69,7 @@ struct SendCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.onrampCountryDetectionCoordinator) {
                 OnrampCountryDetectionCoordinatorView(coordinator: $0)
                     .interactiveDismissDisabled(true)
-                    .presentationBackground(Colors.Background.tertiary)
+                    .presentationBackground(DesignSystem.Color.bgPrimary)
             }
             .sheet(item: $coordinator.qrScanViewCoordinator) {
                 QRScanViewCoordinatorView(coordinator: $0).ignoresSafeArea()

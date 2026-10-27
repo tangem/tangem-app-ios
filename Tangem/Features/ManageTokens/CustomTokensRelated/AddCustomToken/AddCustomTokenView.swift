@@ -33,11 +33,11 @@ struct AddCustomTokenView: View {
     // MARK: - Redesign-aware styling
 
     private var screenBackgroundColor: Color {
-        isRedesign ? DesignSystem.Color.bgPrimary : Colors.Background.tertiary
+        isRedesign ? DesignSystem.Color.bgPrimary : DesignSystem.Color.bgPrimary
     }
 
     private var cardBackgroundColor: Color {
-        isRedesign ? DesignSystem.Color.bgSecondary : Colors.Background.action
+        isRedesign ? DesignSystem.Color.bgSecondary : DesignSystem.Color.bgSecondary
     }
 
     private var cardCornerRadius: CGFloat {
@@ -48,7 +48,7 @@ struct AddCustomTokenView: View {
         ScrollView {
             VStack(spacing: 0) {
                 Text(Localization.customTokenSubtitle)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 38)
                     .padding(.bottom, 22)
@@ -71,7 +71,7 @@ struct AddCustomTokenView: View {
     private var networkSelectorContent: some View {
         LazyVStack(alignment: .leading) {
             Text(Localization.addCustomTokenChooseNetwork)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.secondary)
+                .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textSecondary)
                 .padding(.horizontal, 8)
 
             AddCustomTokenNetworksListView(viewModel: viewModel.networkSelectorViewModel, isWithPadding: false)
@@ -188,7 +188,7 @@ struct AddCustomTokenView: View {
     }
 
     private var separator: some View {
-        Separator(height: .minimal, color: Colors.Stroke.primary)
+        Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
             .padding(.leading, 16)
     }
 }
@@ -202,17 +202,17 @@ private struct ItemSelectorRow: View {
     var body: some View {
         HStack(spacing: 16) {
             Text(title)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             if let selectedItem {
                 Text(selectedItem)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
             }
 
             Assets.chevron.image
                 .renderingMode(.template)
-                .foregroundColor(Colors.Icon.informative)
+                .foregroundColor(DesignSystem.Color.iconSecondary)
         }
     }
 }
@@ -234,11 +234,11 @@ private struct TextInputWithTitle: View {
         VStack(alignment: .leading, spacing: 4) {
             ZStack(alignment: .leadingFirstTextBaseline) {
                 Text(error?.localizedDescription ?? "")
-                    .style(Fonts.Regular.caption1, color: Colors.Text.warning)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textAccentRed)
                     .hidden(error == nil)
 
                 Text(title)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                     .hidden(error != nil)
             }
 
@@ -249,7 +249,7 @@ private struct TextInputWithTitle: View {
                     actionButtonTapped: .constant(false),
                     handleKeyboard: true,
                     keyboard: keyboardType,
-                    textColor: isEnabled ? UIColor.textPrimary1 : UIColor.textDisabled,
+                    textColor: isEnabled ? UIColor.textPrimary1 : UIColor(DesignSystem.Color.textTertiary),
                     font: UIFonts.Regular.subheadline,
                     placeholder: placeholder,
                     isEnabled: isEnabled

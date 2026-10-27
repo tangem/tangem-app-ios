@@ -16,7 +16,7 @@ struct NFTNetworkSelectionListItemView: View {
     let viewData: NFTNetworkSelectionListItemViewData
 
     private var textColor: Color {
-        viewData.isAvailable ? Colors.Text.primary1 : Colors.Text.disabled
+        viewData.isAvailable ? DesignSystem.Color.textPrimary : DesignSystem.Color.textTertiary
     }
 
     var body: some View {

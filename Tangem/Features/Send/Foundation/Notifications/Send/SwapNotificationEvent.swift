@@ -342,7 +342,7 @@ extension SwapNotificationEvent: NotificationEvent {
     var descriptionLinkTint: Color? {
         switch self {
         case .permissionNeeded:
-            return Colors.Text.accent
+            return DesignSystem.Color.textAccentBlue
         default:
             return nil
         }

@@ -42,11 +42,11 @@ struct CloreMigrationView: View {
     private var texts: some View {
         VStack(spacing: 8) {
             Text(Localization.warningCloreMigrationSheetTitle)
-                .style(Fonts.Bold.title2, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title2, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.center)
 
             Text(Localization.warningCloreMigrationSheetDescription)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
         }
     }
@@ -67,7 +67,7 @@ struct CloreMigrationView: View {
                 signButton
             }
             .frame(height: 32)
-            .defaultRoundedBackground(with: Colors.Background.action)
+            .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary)
 
             HStack {
                 CustomTextField(
@@ -84,7 +84,7 @@ struct CloreMigrationView: View {
                 copyButton
             }
             .frame(height: 32)
-            .defaultRoundedBackground(with: Colors.Background.action)
+            .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary)
         }
     }
 

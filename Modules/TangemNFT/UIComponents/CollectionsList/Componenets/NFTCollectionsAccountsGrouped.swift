@@ -27,7 +27,7 @@ struct NFTCollectionsAccountsGrouped: View {
                         .settings(.smallSized)
 
                     Text(accountWithCollectionViewModels.accountData.name)
-                        .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.footnote, color: DesignSystem.Color.textPrimary)
                 }
                 .padding(.top, 14)
             }
