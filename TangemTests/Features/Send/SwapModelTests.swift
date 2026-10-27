@@ -1571,6 +1571,8 @@ private actor ExpressManagerStub: ExpressManager {
         return state()
     }
 
+    func update(prefersDEX: Bool) async {}
+
     func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState {
         selectedProvider = provider
         return state()

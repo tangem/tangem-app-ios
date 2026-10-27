@@ -34,6 +34,7 @@ struct SwapModelDexOnlyModeTests {
         #expect(quote.expectAmount == 90)
         #expect(environment.swapModel.expressProviders.map(\.provider.id) == ["dex"])
         #expect(environment.swapModel.isDexOnlyProvidersMode)
+        #expect(await environment.expressManager.prefersDEX == true)
         #expect(environment.swapModel.receiveAmount.value?.crypto == 90)
     }
 
@@ -172,6 +173,7 @@ struct SwapModelDexOnlyModeTests {
 
         #expect(environment.swapModel.expressProviders.map(\.provider.id) == ["dex", "cex"])
         #expect(!environment.swapModel.isDexOnlyProvidersMode)
+        #expect(await environment.expressManager.prefersDEX == false)
     }
 
     @Test("Mode switches off and CEX providers reappear once the wallet is funded")
@@ -189,6 +191,7 @@ struct SwapModelDexOnlyModeTests {
 
         _ = try await updateAmountAndWaitForLoadedState(environment: environment, amount: 5)
         #expect(!environment.swapModel.isDexOnlyProvidersMode)
+        #expect(await environment.expressManager.prefersDEX == false)
         #expect(environment.swapModel.expressProviders.map(\.provider.id) == ["dex", "cex"])
     }
 }
@@ -323,6 +326,7 @@ private final class BalanceRestrictionCheckerStub: SwapBalanceRestrictionFeature
 private actor ConfigurableExpressManagerStub: ExpressManager {
     private var state: ExpressManagerState = .idle
     private var amountType: ExpressAmountType?
+    private(set) var prefersDEX: Bool?
 
     func configure(state: ExpressManagerState) {
         self.state = state
@@ -342,6 +346,10 @@ private actor ConfigurableExpressManagerStub: ExpressManager {
     func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState { state }
 
     func update(slippage: Decimal?) async -> ExpressManagerState { state }
+
+    func update(prefersDEX: Bool) async {
+        self.prefersDEX = prefersDEX
+    }
 
     func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState { state }
 

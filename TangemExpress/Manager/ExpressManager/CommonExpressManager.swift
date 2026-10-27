@@ -26,6 +26,7 @@ actor CommonExpressManager {
     private var _amountType: ExpressAmountType?
     private var _approvePolicy: ApprovePolicy = .specified
     private var _slippage: Decimal?
+    private var _prefersDEX = false
 
     /// A deeplink-preferred provider, selected over the "best" pick whenever it's among the current pair's
     /// providers (surviving quote reloads). Cleared when the pair changes or the user picks a provider.
@@ -179,6 +180,20 @@ extension CommonExpressManager: ExpressManager {
         return currentState
     }
 
+    func update(prefersDEX: Bool) {
+        _prefersDEX = prefersDEX
+
+        guard featureFlags.isSwapBestRateDefaultProviderEnabled,
+              prefersDEX,
+              case .swap(.some(let selected), let providers) = currentState,
+              !selected.provider.type.isDEX else {
+            return
+        }
+
+        let candidates = providers.availableProviders(rate: selected.rateType)
+        update(state: .swap(selected: selectedProvider(from: candidates), providers: providers))
+    }
+
     func update(type: ExpressManagerUpdatingType) async -> ExpressManagerState {
         guard case .swap(.some(let selectedProvider), let providers) = currentState else {
             return currentState
@@ -280,10 +295,6 @@ private extension CommonExpressManager {
         return state
     }
 
-    func bestProvider(from providers: [ExpressAvailableProvider]) -> ExpressAvailableProvider? {
-        providers.bestPreferringDEX()
-    }
-
     /// Honors a deeplink-preferred provider when it's among the candidates, otherwise falls back to the best one.
     func selectedProvider(from providers: [ExpressAvailableProvider]) -> ExpressAvailableProvider? {
         if let preferredProviderId = _preferredProviderId,
@@ -291,7 +302,8 @@ private extension CommonExpressManager {
             return preferred
         }
 
-        return bestProvider(from: providers)
+        let prefersDEX = _prefersDEX || !featureFlags.isSwapBestRateDefaultProviderEnabled
+        return prefersDEX ? providers.bestPreferringDEX() : providers.best()
     }
 
     func preferredRate(

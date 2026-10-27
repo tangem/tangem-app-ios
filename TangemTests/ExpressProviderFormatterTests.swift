@@ -241,6 +241,22 @@ struct ExpressAvailableProviderBestDEXTests {
         #expect(preferring == attractively)
     }
 
+    // MARK: - sortedByAttractively
+
+    @Test("Keeps the best DEX at its rate position")
+    func keepsBestDEXAtRatePosition() {
+        let cexHigh = makeProvider(id: "cex-high", type: .cex, expectAmount: 100)
+        let dex = makeProvider(id: "dex", type: .dex, expectAmount: 90)
+        let cexLow = makeProvider(id: "cex-low", type: .cex, expectAmount: 80)
+        let providers = [cexLow, dex, cexHigh]
+        providers.updateIsBestFlagPreferringDEX()
+
+        let sorted = providers.sortedByAttractively()
+
+        #expect(dex.isBestDEX)
+        #expect(sorted.map(\.provider.id) == ["cex-high", "dex", "cex-low"])
+    }
+
     // MARK: - permission-required DEX exclusion
 
     @Test("bestPreferringDEX skips a permission-required DEX and picks the next ready DEX")

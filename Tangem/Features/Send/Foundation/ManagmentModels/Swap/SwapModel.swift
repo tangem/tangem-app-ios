@@ -476,6 +476,7 @@ private extension SwapModel {
         }
 
         try await balanceRestrictionHandler.refreshDexOnlyProvidersMode(for: sourceToken)
+        await expressManager.update(prefersDEX: balanceRestrictionHandler.isDexOnlyProvidersMode)
     }
 
     private func destinationTrustlineRestrictedProvidersState() async throws -> ProvidersState? {
