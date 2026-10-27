@@ -29,6 +29,7 @@ class SendSourceTokenStub: SendSourceToken {
     }
 
     var isCustom: Bool { false }
+    var isCustomSlippageAllowed: Bool { true }
     var fiatItem: FiatItem { FiatItem(iconURL: nil, currencyCode: "USD") }
     var destination: SendReceiveTokenDestination? { nil }
 

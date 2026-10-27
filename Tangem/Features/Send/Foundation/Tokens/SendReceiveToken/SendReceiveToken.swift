@@ -21,6 +21,7 @@ protocol SendReceiveToken: SendGenericToken, ExpressDestinationWallet {
     /// When set, the receive side is rendered abstractly (e.g. a payment account with a fixed
     /// currency symbol). `nil` keeps the standard token rendering.
     var presentation: SendReceiveTokenPresentation? { get }
+    var isCustomSlippageAllowed: Bool { get }
 }
 
 extension SendReceiveToken {
