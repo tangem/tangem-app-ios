@@ -22,7 +22,7 @@ struct AccountRowTrailingBalanceView: View {
         } else if let balanceState = viewModel.trailingBalanceState {
             LoadableBalanceView(
                 state: balanceState,
-                style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
+                style: .init(font: Fonts.Regular.subheadline, textColor: DesignSystem.Color.textPrimary),
                 loader: .init(size: CGSize(width: loaderWidth, height: loaderHeight))
             )
         }

@@ -29,7 +29,7 @@ struct DefaultPickerRowView: View {
         case .segmented:
             VStack(alignment: .leading) {
                 Text(viewModel.title)
-                    .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.callout, color: DesignSystem.Color.textPrimary)
 
                 segmentedPicker
             }

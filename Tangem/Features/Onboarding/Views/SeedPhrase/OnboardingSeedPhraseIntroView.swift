@@ -21,30 +21,30 @@ struct OnboardingSeedPhraseIntroView: View {
             Spacer()
 
             Assets.Onboarding.listWithPencil.image
-                .foregroundColor(Colors.Icon.inactive)
+                .foregroundColor(DesignSystem.Color.iconTertiary)
 
             VStack(spacing: 14) {
                 Text(Localization.onboardingSeedPhraseIntroLegacy)
                     .style(
                         Fonts.Bold.caption2,
-                        color: Colors.Icon.warning
+                        color: DesignSystem.Color.textAccentRed
                     )
                     .padding(.vertical, 5)
                     .padding(.horizontal, 10)
-                    .background(Colors.Icon.warning.opacity(0.12))
+                    .background(DesignSystem.Color.bgAccentRedSubtle)
                     .cornerRadiusContinuous(8)
 
                 Text(Localization.onboardingSeedIntroTitle)
                     .style(
                         Fonts.Bold.title1,
-                        color: Colors.Text.primary1
+                        color: DesignSystem.Color.textPrimary
                     )
                     .multilineTextAlignment(.center)
 
                 Text(Localization.onboardingSeedIntroMessage)
                     .style(
                         Fonts.Regular.callout,
-                        color: Colors.Text.secondary
+                        color: DesignSystem.Color.textSecondary
                     )
                     .lineSpacing(2)
                     .multilineTextAlignment(.center)
@@ -55,19 +55,19 @@ struct OnboardingSeedPhraseIntroView: View {
                 HStack {
                     Assets.arrowRightUpMini.image
                         .renderingMode(.template)
-                        .foregroundColor(Colors.Icon.primary1)
+                        .foregroundColor(DesignSystem.Color.iconPrimary)
 
                     Text(Localization.onboardingSeedButtonReadMore)
                         .style(
                             Fonts.Bold.subheadline,
-                            color: Colors.Text.primary1
+                            color: DesignSystem.Color.textPrimary
                         )
                 }
                 .padding(.vertical, 7)
                 .padding(.horizontal, 14)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Colors.Field.focused, lineWidth: 1)
+                        .stroke(DesignSystem.Color.borderSecondary, lineWidth: 1)
                 )
             }
             .padding(.top, 12)

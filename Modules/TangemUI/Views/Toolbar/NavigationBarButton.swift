@@ -50,7 +50,7 @@ public struct NavigationBarButton: View {
     private var systemLabelButton: some View {
         SwiftUI.Button(action: action) {
             Text(Image(systemName: sfSymbol))
-                .foregroundStyle(isDimmed ? Colors.Text.disabled : Colors.Text.primary1)
+                .foregroundStyle(isDimmed ? DesignSystem.Color.iconTertiary : DesignSystem.Color.iconPrimary)
                 .font(.title2)
                 .frame(width: 44, height: 44)
         }
@@ -62,11 +62,11 @@ public struct NavigationBarButton: View {
                 .resizable()
                 .renderingMode(.template)
                 .frame(width: 20, height: 20)
-                .foregroundStyle(isDimmed ? Colors.Icon.inactive : Colors.Icon.informative)
+                .foregroundStyle(isDimmed ? DesignSystem.Color.iconTertiary : DesignSystem.Color.iconSecondary)
                 .padding(4)
                 .background {
                     Circle()
-                        .fill(Colors.Button.secondary)
+                        .fill(DesignSystem.Color.bgTransparentSecondary)
                 }
                 .contentShape(.rect)
         }

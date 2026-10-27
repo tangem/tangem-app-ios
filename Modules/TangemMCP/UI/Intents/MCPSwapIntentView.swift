@@ -37,13 +37,13 @@ struct MCPSwapIntentView: View {
         }
         .floatingSheetConfiguration { configuration in
             configuration.backgroundInteractionBehavior = .consumeTouches
-            configuration.sheetBackground = .color(Colors.Background.tertiary)
+            configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
         }
     }
 
     private var navigationBar: some View {
         FloatingSheetNavigationBarView(
-            backgroundColor: Colors.Background.tertiary,
+            backgroundColor: DesignSystem.Color.bgPrimary,
             closeButtonAction: { viewModel.handle(action: .closeButtonTapped) }
         )
     }

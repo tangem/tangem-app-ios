@@ -65,7 +65,7 @@ struct SupportChatView: View {
             case .failure:
                 Color.white
                 Text(Localization.commonSomethingWentWrong)
-                    .style(Fonts.Regular.body, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.body, color: DesignSystem.Color.textStaticLightSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 16)
             case .success:
@@ -82,10 +82,10 @@ struct SupportChatView: View {
             .disabled(viewModel.isSendingLogs)
         } label: {
             if viewModel.isSendingLogs {
-                ActivityIndicatorView(style: .medium, color: UIColor(Colors.Text.primary1))
+                ActivityIndicatorView(style: .medium, color: UIColor(DesignSystem.Color.iconPrimary))
             } else {
                 Image(systemName: "ellipsis")
-                    .foregroundColor(Colors.Text.primary1)
+                    .foregroundColor(DesignSystem.Color.iconPrimary)
             }
         }
         .disabled(viewModel.isSendingLogs)

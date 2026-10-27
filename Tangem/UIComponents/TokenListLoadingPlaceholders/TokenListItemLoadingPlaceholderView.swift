@@ -32,7 +32,7 @@ struct TokenListItemLoadingPlaceholderView: View {
             .frame(height: height)
             .padding(.horizontal, 14.0)
         }
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgSecondary)
     }
 
     private var iconDimension: CGFloat {
@@ -124,8 +124,7 @@ struct TokenListItemLoadingPlaceholderView: View {
 
 #Preview {
     ZStack {
-        Colors.Background
-            .secondary
+        DesignSystem.Color.bgPrimary
             .ignoresSafeArea()
 
         VStack {

@@ -16,7 +16,7 @@ struct SecurityModeView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            Colors.Background.secondary.edgesIgnoringSafeArea(.all)
+            DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all)
 
             GroupedScrollView {
                 GroupedSection(viewModel.securityViewModels) {

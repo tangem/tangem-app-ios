@@ -29,7 +29,7 @@ struct SendSwapProviderBestRateAnimationBadgeView: View {
 
             if isOpen {
                 Text(Localization.expressProviderBestRate)
-                    .style(Fonts.Bold.caption2, color: Colors.Text.constantWhite)
+                    .style(Fonts.Bold.caption2, color: DesignSystem.Color.textStaticDarkPrimary)
                     .padding(.trailing, 6)
             }
         }
@@ -37,10 +37,10 @@ struct SendSwapProviderBestRateAnimationBadgeView: View {
         .readGeometry(\.frame.size, bindTo: $size)
         .background(
             RoundedRectangle(cornerRadius: size.height / 2, style: .continuous)
-                .fill(Colors.Icon.accent)
+                .fill(DesignSystem.Color.bgAccentBlue)
                 .overlay(
                     RoundedRectangle(cornerRadius: size.height / 2, style: .continuous)
-                        .stroke(Colors.Background.action, lineWidth: lineWidth)
+                        .stroke(DesignSystem.Color.bgSecondary, lineWidth: lineWidth)
                 )
         )
         .animation(.easeOut(duration: duration), value: isOpen)
@@ -57,7 +57,7 @@ struct SendSwapProviderBestRateAnimationBadgeView: View {
             .resizable()
             .frame(size: .init(bothDimensions: isOpen ? 10 : 8))
             .padding(.all, isOpen ? 4 : 2)
-            .background(Circle().fill(Colors.Icon.accent))
+            .background(Circle().fill(DesignSystem.Color.bgAccentBlue))
     }
 
     private func animate() {

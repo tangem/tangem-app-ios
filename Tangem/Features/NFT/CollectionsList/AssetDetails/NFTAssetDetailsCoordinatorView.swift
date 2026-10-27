@@ -52,7 +52,7 @@ struct NFTAssetDetailsCoordinatorView: View {
         NavHolder()
             .bottomSheet(
                 item: $coordinator.extendedInfoViewData,
-                settings: .init(backgroundColor: Colors.Background.action)
+                settings: .init(backgroundColor: DesignSystem.Color.bgSecondary)
             ) {
                 NFTAssetExtendedInfoView(
                     viewData: $0,

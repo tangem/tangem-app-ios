@@ -18,7 +18,7 @@ struct OrganizeTokensListInnerSectionView: View {
     var body: some View {
         HStack(spacing: 12.0) {
             Text(title)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -27,7 +27,7 @@ struct OrganizeTokensListInnerSectionView: View {
             if isDraggable {
                 Assets.OrganizeTokens.groupDragAndDropIcon
                     .image
-                    .foregroundColor(Colors.Icon.informative)
+                    .foregroundColor(DesignSystem.Color.iconSecondary)
                     .overlay(
                         OrganizeTokensDragAndDropGestureMarkView(context: .init(identifier: identifier))
                             .frame(size: Constants.dragAndDropTapZoneSize)
@@ -64,8 +64,8 @@ private extension OrganizeTokensListInnerSectionView {
                 isDraggable: false
             )
         }
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgSecondary)
     }
     .padding()
-    .background(Colors.Background.secondary)
+    .background(DesignSystem.Color.bgPrimary)
 }

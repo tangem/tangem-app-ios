@@ -199,7 +199,7 @@ private struct BackgroundViewRepresentable: UIViewRepresentable {
 
     func makeUIView(context: Context) -> UIView {
         let view = UIView()
-        view.backgroundColor = UIColor(Colors.Overlays.overlaySecondary)
+        view.backgroundColor = UIColor(DesignSystem.Color.overlayModal)
 
         let anyGestureRecognizer = UITapGestureRecognizer()
         anyGestureRecognizer.delegate = context.coordinator

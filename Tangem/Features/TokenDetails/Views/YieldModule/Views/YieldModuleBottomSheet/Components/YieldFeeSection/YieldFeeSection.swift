@@ -69,7 +69,7 @@ struct YieldFeeSection<LeadingTextAccessoryView: View>: View {
 
             .if(needsBackground) { view in
                 view.defaultRoundedBackground(
-                    with: Colors.Background.action,
+                    with: DesignSystem.Color.bgSecondary,
                     verticalPadding: 14
                 )
             }
@@ -115,19 +115,19 @@ extension YieldFeeSection {
                     Text(leadingTitle)
                         .style(
                             Fonts.Regular.body,
-                            color: isHighlighted ? Colors.Text.warning : Colors.Text.primary1
+                            color: isHighlighted ? DesignSystem.Color.textAccentRed : DesignSystem.Color.textPrimary
                         )
 
                     Spacer()
 
                     HStack {
                         leadingTextAccessoryView
-                            .foregroundStyle(isHighlighted ? Colors.Text.warning : Colors.Text.tertiary)
+                            .foregroundStyle(isHighlighted ? DesignSystem.Color.iconAccentRed : DesignSystem.Color.iconSecondary)
 
                         LoadableTextView(
                             state: state,
                             font: Fonts.Regular.body,
-                            textColor: isHighlighted ? Colors.Text.warning : Colors.Text.tertiary,
+                            textColor: isHighlighted ? DesignSystem.Color.textAccentRed : DesignSystem.Color.textSecondary,
                             loaderSize: .init(width: 90, height: 20)
                         )
                     }
@@ -173,10 +173,10 @@ extension YieldFeeSection {
             var attr = AttributedString(fullText)
 
             attr.font = Fonts.Regular.footnote
-            attr.foregroundColor = Colors.Text.tertiary
+            attr.foregroundColor = DesignSystem.Color.textSecondary
 
             if let linkTitle, let range = attr.range(of: linkTitle) {
-                attr[range].foregroundColor = isLinkActive ? Colors.Text.accent : Colors.Text.disabled
+                attr[range].foregroundColor = isLinkActive ? DesignSystem.Color.textAccentBlue : DesignSystem.Color.textTertiary
 
                 if let url {
                     attr[range].link = url

@@ -40,7 +40,7 @@ struct ExpressTokenItemView: View {
                 Text(viewModel.name)
                     .style(
                         Fonts.Bold.subheadline,
-                        color: viewModel.isDisable ? Colors.Text.tertiary : Colors.Text.primary1
+                        color: viewModel.isDisable ? DesignSystem.Color.textSecondary : DesignSystem.Color.textPrimary
                     )
 
                 Spacer(minLength: 4)
@@ -48,20 +48,20 @@ struct ExpressTokenItemView: View {
                 SensitiveText(viewModel.fiatBalance)
                     .style(
                         Fonts.Regular.subheadline,
-                        color: viewModel.isDisable ? Colors.Text.tertiary : Colors.Text.primary1
+                        color: viewModel.isDisable ? DesignSystem.Color.textSecondary : DesignSystem.Color.textPrimary
                     )
             }
 
             HStack(spacing: .zero) {
                 Text(viewModel.symbol)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
                 Spacer(minLength: 4)
 
                 SensitiveText(viewModel.balance)
                     .style(
                         Fonts.Regular.footnote,
-                        color: viewModel.isDisable ? Colors.Text.disabled : Colors.Text.tertiary
+                        color: viewModel.isDisable ? DesignSystem.Color.textTertiary : DesignSystem.Color.textSecondary
                     )
             }
         }
@@ -122,7 +122,7 @@ struct ExpressTokenItemView: View {
     ]
 
     ZStack {
-        Colors.Background.secondary
+        DesignSystem.Color.bgPrimary
 
         GroupedSection(viewModels) {
             ExpressTokenItemView(viewModel: $0)

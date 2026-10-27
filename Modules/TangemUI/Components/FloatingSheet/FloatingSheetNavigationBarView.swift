@@ -13,7 +13,7 @@ import TangemUIUtils
 public struct FloatingSheetNavigationBarView: View {
     var title: String?
     var subtitle: String?
-    var backgroundColor: Color = Colors.Background.tertiary
+    var backgroundColor: Color = DesignSystem.Color.bgPrimary
     var bottomSeparatorLineIsVisible = false
     var backButtonAction: (() -> Void)?
     var closeButtonAction: (() -> Void)?
@@ -22,7 +22,7 @@ public struct FloatingSheetNavigationBarView: View {
     public init(
         title: String? = nil,
         subtitle: String? = nil,
-        backgroundColor: Color = Colors.Background.tertiary,
+        backgroundColor: Color = DesignSystem.Color.bgPrimary,
         bottomSeparatorLineIsVisible: Bool = false,
         backButtonAction: (() -> Void)? = nil,
         closeButtonAction: (() -> Void)? = nil,
@@ -45,13 +45,13 @@ public struct FloatingSheetNavigationBarView: View {
             VStack(spacing: .zero) {
                 if let title {
                     Text(title)
-                        .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.body, color: DesignSystem.Color.textPrimary)
                         .accessibilityIdentifier(titleAccessibilityIdentifier)
                 }
 
                 if let subtitle {
                     Text(subtitle)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                 }
             }
             .padding(.vertical, 12)
@@ -61,7 +61,7 @@ public struct FloatingSheetNavigationBarView: View {
         .overlay(alignment: .bottom) {
             Divider()
                 .frame(height: 1)
-                .overlay(Colors.Stroke.secondary)
+                .overlay(DesignSystem.Color.borderTertiary)
                 .opacity(bottomSeparatorLineIsVisible ? 0.3 : 0)
         }
         .contentShape(.rect)

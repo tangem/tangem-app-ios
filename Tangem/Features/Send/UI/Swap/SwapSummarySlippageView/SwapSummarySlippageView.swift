@@ -51,8 +51,8 @@ struct SwapSummarySlippageView: View {
 
     private var valueColor: Color {
         switch viewModel.value {
-        case .auto(isHighlighted: true): Colors.Text.attention
-        case .auto, .custom: Colors.Text.tertiary
+        case .auto(isHighlighted: true): DesignSystem.Color.textAccentYellow
+        case .auto, .custom: DesignSystem.Color.textSecondary
         }
     }
 }

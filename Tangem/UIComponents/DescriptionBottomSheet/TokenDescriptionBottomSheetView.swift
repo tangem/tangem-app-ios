@@ -40,14 +40,14 @@ private extension TokenDescriptionBottomSheetView {
     var generatedWithAILabel: some View {
         HStack(spacing: 12) {
             Assets.stars.image
-                .foregroundStyle(Colors.Icon.accent)
+                .foregroundStyle(DesignSystem.Color.iconAccentBlue)
 
             Text(Localization.informationGeneratedWithAi)
                 .multilineTextAlignment(.leading)
-                .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .defaultRoundedBackground(with: Colors.Background.tertiary)
+        .defaultRoundedBackground(with: DesignSystem.Color.bgPrimary)
     }
 }
 

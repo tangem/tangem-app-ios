@@ -30,10 +30,10 @@ public struct NetworkIcon: View {
     private var background: some View {
         if isDisabled {
             Circle()
-                .foregroundColor(Colors.Button.disabled)
+                .foregroundColor(DesignSystem.Color.bgDisabled)
         } else if !isActive {
             Circle()
-                .foregroundColor(Colors.Button.secondary)
+                .foregroundColor(DesignSystem.Color.bgTransparentSecondary)
         }
     }
 
@@ -77,9 +77,9 @@ private struct MainNetworkIndicator: View {
 
     var body: some View {
         Circle()
-            .foregroundColor(Colors.Icon.accent)
+            .foregroundColor(DesignSystem.Color.iconAccentBlue)
             .padding(borderPadding)
-            .background(Circle().fill(Colors.Background.primary))
+            .background(Circle().fill(DesignSystem.Color.bgSecondary))
     }
 }
 

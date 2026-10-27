@@ -36,7 +36,7 @@ struct OnrampCurrencySelectorView: View {
 
             contentView
         }
-        .background(Colors.Background.primary.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .onAppear(perform: viewModel.onAppear)
     }
 }
@@ -115,7 +115,7 @@ private extension OnrampCurrencySelectorView {
 
     func sectionViewTitle(_ title: String) -> some View {
         Text(title)
-            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
             .padding(.top, 12)
             .padding(.bottom, 8)
     }

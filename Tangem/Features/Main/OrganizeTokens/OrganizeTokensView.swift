@@ -90,10 +90,7 @@ struct OrganizeTokensView: View {
     }
 
     private var cellBackgroundColor: Color {
-        if isRedesign {
-            return DesignSystem.Color.bgSecondary
-        }
-        return Colors.Background.action
+        DesignSystem.Color.bgSecondary
     }
 
     // MARK: - Layout (redesign-aware)

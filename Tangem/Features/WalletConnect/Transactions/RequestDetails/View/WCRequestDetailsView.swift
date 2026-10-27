@@ -37,7 +37,7 @@ struct WCRequestDetailsView: View {
         VStack(alignment: .leading, spacing: 14) {
             if let sectionTitle = section.sectionTitle {
                 Text(sectionTitle)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
                     .padding(.bottom, 14)
             }
 
@@ -48,7 +48,7 @@ struct WCRequestDetailsView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.init(top: 12, leading: 16, bottom: 14, trailing: 16))
-        .background(Colors.Background.action)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadius(14, corners: .allCorners)
         .multilineTextAlignment(.leading)
     }
@@ -56,10 +56,10 @@ struct WCRequestDetailsView: View {
     private func requestDataSectionItem(_ item: WCTransactionDetailsSection.WCTransactionDetailsItem) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(item.title)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
             Text(item.value)
-                .style(Fonts.Regular.callout, color: Colors.Text.primary1)
+                .style(Fonts.Regular.callout, color: DesignSystem.Color.textPrimary)
         }
         .frame(maxHeight: .infinity)
     }

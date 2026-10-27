@@ -20,7 +20,7 @@ struct SupportedBlockchainsPreferencesView: View {
             }
         }
         .interContentPadding(8)
-        .background(Colors.Background.secondary.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .navigationTitle(Text("Supported blockchains"))
         .navigationBarTitleDisplayMode(.inline)
     }

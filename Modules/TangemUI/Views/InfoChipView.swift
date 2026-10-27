@@ -201,7 +201,7 @@ public extension InfoChipView {
 
         var titleColor: Color {
             switch self {
-            case .legacy: return Colors.Text.secondary
+            case .legacy: return DesignSystem.Color.textSecondary
             case .redesign: return DesignSystem.Color.textSecondary
             }
         }

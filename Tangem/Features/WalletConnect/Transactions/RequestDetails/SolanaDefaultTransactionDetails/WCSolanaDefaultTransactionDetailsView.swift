@@ -20,7 +20,7 @@ struct WCSolanaDefaultTransactionDetailsView: View {
 
             WCTransactionNetworkRow(blockchain: .solana(curve: .ed25519_slip0010, testnet: false))
         }
-        .background(Colors.Background.action)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadius(14, corners: .allCorners)
     }
 
@@ -33,7 +33,7 @@ struct WCSolanaDefaultTransactionDetailsView: View {
     }
 
     private var separator: some View {
-        Separator(height: .minimal, color: Colors.Stroke.primary)
+        Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
             .padding(.leading, 46)
             .padding(.trailing, 14)
     }

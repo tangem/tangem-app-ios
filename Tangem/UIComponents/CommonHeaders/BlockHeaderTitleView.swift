@@ -48,7 +48,7 @@ struct BlockHeaderTitleView<TrailingView: View>: View {
     private var headerView: some View {
         Text(title)
             .lineLimit(1)
-            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
             .if(trailingItem == nil, transform: { view in
                 view
                     .padding(.top, Constants.topPaddingTitle)

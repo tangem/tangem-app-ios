@@ -17,10 +17,10 @@ struct ExpressMoreProvidersSoonView: View {
         VStack(spacing: 4) {
             Assets.expressMoreProvidersIcon.image
                 .renderingMode(.template)
-                .foregroundStyle(Colors.Icon.inactive)
+                .foregroundStyle(DesignSystem.Color.iconTertiary)
 
             Text(text)
-                .style(Fonts.Regular.footnote, color: Colors.Icon.informative)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
         }
     }

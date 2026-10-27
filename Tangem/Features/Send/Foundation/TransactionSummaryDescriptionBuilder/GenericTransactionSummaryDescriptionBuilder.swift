@@ -18,7 +18,7 @@ extension GenericTransactionSummaryDescriptionBuilder {
         var attributedString = AttributedString(description)
 
         attributedString.font = Fonts.Regular.caption1
-        attributedString.foregroundColor = Colors.Text.tertiary
+        attributedString.foregroundColor = DesignSystem.Color.textSecondary
         richTexts.forEach { rich in
             if let range = attributedString.range(of: rich) {
                 attributedString[range].font = Fonts.Bold.caption1

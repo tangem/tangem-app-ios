@@ -45,7 +45,7 @@ struct LinkedMarketingBannerView: View {
                 }
 
                 Text(viewModel.text)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.accent)
+                    .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textAccentBlue)
 
                 Spacer(minLength: 0)
             }

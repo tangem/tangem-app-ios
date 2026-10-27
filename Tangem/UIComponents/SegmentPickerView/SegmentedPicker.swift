@@ -50,7 +50,7 @@ struct SegmentedPicker<Option: Hashable & Identifiable>: View {
         .insets(Constants.insets)
         .segmentedControlSlidingAnimation(.default)
         .segmentedControl(interSegmentSpacing: Constants.interSegmentSpacing)
-        .background(Colors.Button.secondary)
+        .background(DesignSystem.Color.bgTransparentSecondary)
         .clipShape(RoundedRectangle(cornerRadius: Constants.containerCornerRadius))
     }
 
@@ -59,12 +59,12 @@ struct SegmentedPicker<Option: Hashable & Identifiable>: View {
             Text(title)
                 .minimumScaleFactor(0.9)
                 .font(Fonts.Bold.footnote)
-                .foregroundStyle(isEnabled ? Colors.Text.primary1 : Colors.Text.disabled)
+                .foregroundStyle(isEnabled ? DesignSystem.Color.textPrimary : DesignSystem.Color.textTertiary)
                 .opacity(isSelected ? 1.0 : 0.0)
 
             Text(title)
                 .font(Fonts.Regular.footnote)
-                .foregroundStyle(isEnabled ? Colors.Text.primary1 : Colors.Text.disabled)
+                .foregroundStyle(isEnabled ? DesignSystem.Color.textPrimary : DesignSystem.Color.textTertiary)
                 .opacity(isSelected ? 0.0 : 1.0)
         }
         .animation(.default, value: isSelected)
@@ -74,7 +74,7 @@ struct SegmentedPicker<Option: Hashable & Identifiable>: View {
     }
 
     private var selectionView: some View {
-        Colors.Background.primary
+        DesignSystem.Color.bgSecondary
             .clipShape(RoundedRectangle(cornerRadius: Constants.selectionViewCornerRadius))
     }
 }

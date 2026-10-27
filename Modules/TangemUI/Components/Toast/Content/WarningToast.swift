@@ -24,11 +24,11 @@ public struct WarningToast: View {
                 .frame(width: 16, height: 16)
 
             Text(text)
-                .style(Fonts.Regular.footnote, color: Colors.Text.disabled)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textInverseSecondary)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
-        .background(Colors.Icon.secondary)
+        .background(DesignSystem.Color.bgInverse)
         .cornerRadiusContinuous(10)
     }
 }

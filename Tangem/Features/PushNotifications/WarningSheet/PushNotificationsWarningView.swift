@@ -22,7 +22,7 @@ struct PushNotificationsWarningView: View {
 
             footer
         }
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgPrimary)
         .onAppear(perform: viewModel.onViewAppear)
         .floatingSheetConfiguration { configuration in
             configuration.backgroundInteractionBehavior = .tapToDismiss
@@ -44,7 +44,7 @@ private extension PushNotificationsWarningView {
         VStack(spacing: .zero) {
             ZStack {
                 Circle()
-                    .fill(Colors.Icon.attention.opacity(0.1))
+                    .fill(DesignSystem.Color.bgAccentYellowSubtle)
                     .frame(width: 56, height: 56)
 
                 Assets.attention.image
@@ -54,13 +54,13 @@ private extension PushNotificationsWarningView {
             }
 
             Text(Localization.pushNotificationWarningSheetTitle)
-                .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title3, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 24)
 
             Text(Localization.pushNotificationWarningSheetDescription)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 8)

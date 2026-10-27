@@ -47,7 +47,7 @@ public struct NFTCollectionsListView: View {
         .navigationTitle(Localization.nftWalletTitle)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal, 16)
-        .background(Colors.Background.secondary)
+        .background(DesignSystem.Color.bgPrimary)
         .onAppear(perform: viewModel.onViewAppear)
         .scrollDismissesKeyboard(.immediately)
         .onDidAppear {
@@ -94,9 +94,9 @@ public struct NFTCollectionsListView: View {
     private var noCollectionsTexts: some View {
         VStack(spacing: 8) {
             Text(Localization.nftCollectionsEmptyTitle)
-                .style(Fonts.BoldStatic.title3, color: Colors.Text.primary1)
+                .style(Fonts.BoldStatic.title3, color: DesignSystem.Color.textPrimary)
             Text(Localization.nftCollectionsEmptyDescription)
-                .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                .style(Fonts.Regular.callout, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
         }
     }
@@ -112,7 +112,7 @@ public struct NFTCollectionsListView: View {
 
     private var emptySearchView: some View {
         Text(Localization.nftEmptySearch)
-            .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+            .style(Fonts.Bold.caption1, color: DesignSystem.Color.textSecondary)
     }
 
     private func collectionsContent(from displayMode: NFTCollectionsListViewModel.DisplayMode) -> some View {
@@ -281,7 +281,7 @@ private extension NFTCollectionsListView {
         }
 
         enum RoundedBackground {
-            static let color = Colors.Background.action
+            static let color = DesignSystem.Color.bgSecondary
             static let padding: CGFloat = 14
             static let radius: CGFloat = 14
         }
@@ -349,7 +349,7 @@ let collections = (0 ... 20).map {
 
 #Preview("Multiple collections") {
     ZStack {
-        Colors.Background.secondary
+        DesignSystem.Color.bgPrimary
         NFTCollectionsListView(
             viewModel: .init(
                 nftManager: NFTManagerMock(
@@ -374,7 +374,7 @@ let collections = (0 ... 20).map {
 
 #Preview("Multiple collections with loading error") {
     ZStack {
-        Colors.Background.secondary
+        DesignSystem.Color.bgPrimary
         NavigationStack {
             NFTCollectionsListView(
                 viewModel: .init(
@@ -399,7 +399,7 @@ let collections = (0 ... 20).map {
 
 #Preview("Loading collections") {
     ZStack {
-        Colors.Background.secondary
+        DesignSystem.Color.bgPrimary
         NavigationStack {
             NFTCollectionsListView(
                 viewModel: .init(
@@ -424,7 +424,7 @@ let collections = (0 ... 20).map {
 
 #Preview("Failed to load collections") {
     ZStack {
-        Colors.Background.secondary
+        DesignSystem.Color.bgPrimary
         NavigationStack {
             NFTCollectionsListView(
                 viewModel: .init(
@@ -449,7 +449,7 @@ let collections = (0 ... 20).map {
 
 #Preview("No Collections") {
     ZStack {
-        Colors.Background.secondary
+        DesignSystem.Color.bgPrimary
         NavigationStack {
             NFTCollectionsListView(
                 viewModel: .init(

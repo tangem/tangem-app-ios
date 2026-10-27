@@ -19,7 +19,7 @@ struct AddWalletSelectorView: View {
         content
             .padding(.horizontal, 16)
             .navigationBarItems(trailing: navigationBarTrailingItem)
-            .background(Colors.Background.secondary)
+            .background(DesignSystem.Color.bgPrimary)
             .alert(item: $viewModel.alert, content: { $0.alert })
     }
 }
@@ -31,7 +31,7 @@ private extension AddWalletSelectorView {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 24) {
                 Text(viewModel.screenTitle)
-                    .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -71,7 +71,7 @@ private extension AddWalletSelectorView {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(14)
-            .background(Colors.Background.primary)
+            .background(DesignSystem.Color.bgSecondary)
             .cornerRadius(14, corners: .allCorners)
         }
     }
@@ -89,7 +89,7 @@ private extension AddWalletSelectorView {
 
                 Text(item.subtitle)
                     .multilineTextAlignment(.leading)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -98,7 +98,7 @@ private extension AddWalletSelectorView {
             Assets.chevronRightWithOffset24.image
                 .renderingMode(.template)
                 .resizable()
-                .foregroundStyle(Colors.Text.tertiary)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
                 .frame(width: 24, height: 24)
         }
     }
@@ -106,7 +106,7 @@ private extension AddWalletSelectorView {
     func walletDescriptionHeader(title: String, badge: BadgeView.Item?) -> some View {
         Group {
             Text(title)
-                .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                .style(Fonts.Bold.body, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -117,7 +117,7 @@ private extension AddWalletSelectorView {
     func buyButton(item: ViewModel.BuyItem) -> some View {
         HStack(spacing: 0) {
             Text(item.title)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -125,16 +125,16 @@ private extension AddWalletSelectorView {
 
             SwiftUI.Button(action: item.buttonAction) {
                 Text(item.buttonTitle)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                     .padding(.vertical, 8)
                     .padding(.horizontal, 16)
-                    .background(Colors.Button.secondary)
+                    .background(DesignSystem.Color.bgTransparentSecondary)
                     .cornerRadius(24, corners: .allCorners)
             }
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 14)
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadius(14, corners: .allCorners)
     }
 }

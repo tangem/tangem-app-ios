@@ -18,7 +18,7 @@ struct MobileBackupTypesView: View {
     var body: some View {
         content
             .padding(.horizontal, 16)
-            .background(Colors.Background.secondary.ignoresSafeArea())
+            .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
             .navigationTitle(viewModel.navTitle)
             .onFirstAppear(perform: viewModel.onFirstAppear)
     }
@@ -42,7 +42,7 @@ private extension MobileBackupTypesView {
         VStack(alignment: .leading, spacing: 8) {
             section.title.map {
                 Text($0)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
                     .padding(.leading, 14)
             }
 

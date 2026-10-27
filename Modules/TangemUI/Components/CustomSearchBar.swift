@@ -65,13 +65,13 @@ public struct CustomSearchBar: View {
         HStack(spacing: 4) {
             Assets.search.image
                 .renderingMode(.template)
-                .foregroundColor(Colors.Icon.informative)
+                .foregroundColor(DesignSystem.Color.iconSecondary)
                 .frame(width: 16, height: 16)
                 .padding(.all, 4)
 
             HStack(spacing: 4) {
                 TextField(placeholder, text: $searchText, prompt: placeholderView)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
                     .keyboardType(keyboardType)
                     .autocorrectionDisabled()
                     .focused($isFocused)
@@ -94,7 +94,7 @@ public struct CustomSearchBar: View {
     private var placeholderView: Text {
         Text(placeholder)
             .font(Fonts.Regular.subheadline)
-            .foregroundColor(Colors.Text.tertiary)
+            .foregroundColor(DesignSystem.Color.textSecondary)
     }
 
     private var clearButton: some View {
@@ -108,7 +108,7 @@ public struct CustomSearchBar: View {
             Assets.clear.image
                 .renderingMode(.template)
                 .frame(width: 16, height: 16)
-                .foregroundColor(Colors.Icon.informative)
+                .foregroundColor(DesignSystem.Color.iconSecondary)
                 .padding(.all, 4)
         }
         .accessibilityIdentifier(clearButtonAccessibilityIdentifier)
@@ -125,7 +125,7 @@ public struct CustomSearchBar: View {
             UIApplication.shared.endEditing()
         } label: {
             Text(Localization.commonCancel)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
         }
     }
 
@@ -136,13 +136,13 @@ public struct CustomSearchBar: View {
         switch style {
         case .default:
             background
-                .fill(Colors.Field.primary)
+                .fill(DesignSystem.Color.bgTertiary)
         case .translucent:
             background
                 .fill(.bar)
         case .focused:
             background
-                .fill(Colors.Field.focused)
+                .fill(DesignSystem.Color.bgTransparentSecondary)
         }
     }
 }
@@ -189,7 +189,7 @@ public extension CustomSearchBar {
     .padding(.horizontal, 16)
     .padding(.top, 20)
     .padding(.bottom, max(UIApplication.safeAreaInsets.bottom, 20))
-    .background(Colors.Background.primary)
+    .background(DesignSystem.Color.bgPrimary)
 }
 
 @available(iOS 17.0, *)

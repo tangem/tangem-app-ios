@@ -22,7 +22,7 @@ struct YieldModuleActiveContentView: View {
 
     var body: some View {
         ZStack {
-            Colors.Background.tertiary
+            DesignSystem.Color.bgPrimary
                 .edgesIgnoringSafeArea(.all)
 
             scrollView
@@ -101,7 +101,7 @@ struct YieldModuleActiveContentView: View {
         switch viewModel.apyTrend {
         case .increased, .loading:
             Triangle()
-                .fill(Colors.Icon.accent)
+                .fill(DesignSystem.Color.iconAccentBlue)
                 .frame(width: 12, height: 10)
                 .shimmerPlaceholder(viewModel.apyState == .loading)
 
@@ -121,33 +121,33 @@ struct YieldModuleActiveContentView: View {
                 LoadableTextView(
                     state: viewModel.apyState,
                     font: Fonts.Bold.title2,
-                    textColor: Colors.Text.accent,
+                    textColor: DesignSystem.Color.textAccentBlue,
                     loaderSize: .init(width: 100, height: 28)
                 )
             }
             .padding(.bottom, 16)
 
-            Separator(color: Colors.Stroke.primary)
+            Separator(color: DesignSystem.Color.borderSecondary)
                 .padding(.bottom, 8)
                 .padding(.horizontal, -16)
 
             YieldModuleEarnInfoChartContainer(kind: .legacy, state: viewModel.chartState)
 
             if let promoBonusText = viewModel.promoBonusText {
-                Separator(color: Colors.Stroke.primary)
+                Separator(color: DesignSystem.Color.borderSecondary)
                     .padding(.vertical, 14)
                     .padding(.horizontal, -16)
 
                 promoBonusButton(text: promoBonusText)
             }
         }
-        .defaultRoundedBackground(with: Colors.Background.action)
+        .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary)
     }
 
     private var currentApyTitle: some View {
         HStack(spacing: 4) {
             Text(Localization.yieldModuleEarnSheetCurrentApyTitle)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
 
             if viewModel.apyBreakdown != nil {
                 apyInfoButton
@@ -159,7 +159,7 @@ struct YieldModuleActiveContentView: View {
         SwiftUI.Button(action: viewModel.onApyInfoTap) {
             Assets.infoCircle16.image
                 .renderingMode(.template)
-                .foregroundStyle(Colors.Icon.informative)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
                 // Grows the 16pt icon to the 44pt accessibility touch target without moving the layout.
                 .padding(Constants.apyInfoTouchPadding)
                 .contentShape(Rectangle())
@@ -173,17 +173,17 @@ struct YieldModuleActiveContentView: View {
             HStack(spacing: 12) {
                 Assets.Accounts.gift.image
                     .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.accent)
+                    .foregroundStyle(DesignSystem.Color.iconAccentBlue)
 
                 Text(text)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                     .multilineTextAlignment(.leading)
 
                 Spacer()
 
                 Assets.chevronRight.image
                     .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.informative)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
             }
         }
     }
@@ -191,14 +191,14 @@ struct YieldModuleActiveContentView: View {
     private var myFundsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(Localization.yieldModuleEarnSheetMyFundsTitle)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
 
             providerTitle
 
             myFundsDescription
         }
         .padding(.top, 4)
-        .defaultRoundedBackground(with: Colors.Background.action)
+        .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary)
     }
 
     private var providerTitle: some View {
@@ -208,7 +208,7 @@ struct YieldModuleActiveContentView: View {
                 .frame(size: .init(bothDimensions: 20))
 
             Text(Localization.yieldModuleProvider)
-                .style(Fonts.Bold.title2, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title2, color: DesignSystem.Color.textPrimary)
         }
     }
 
@@ -221,7 +221,7 @@ struct YieldModuleActiveContentView: View {
                     return .handled
                 })
 
-            Separator(color: Colors.Stroke.primary)
+            Separator(color: DesignSystem.Color.borderSecondary)
                 .padding(.horizontal, 4)
 
             YieldFeeSection(
@@ -241,7 +241,7 @@ struct YieldModuleActiveContentView: View {
                     needsBackground: false
                 )
 
-                Separator(color: Colors.Stroke.primary)
+                Separator(color: DesignSystem.Color.borderSecondary)
                     .padding(.horizontal, 4)
 
                 YieldFeeSection(
@@ -250,7 +250,7 @@ struct YieldModuleActiveContentView: View {
                     needsBackground: false
                 )
 
-                Separator(color: Colors.Stroke.primary)
+                Separator(color: DesignSystem.Color.borderSecondary)
                     .padding(.horizontal, 4)
 
                 YieldFeeSection(
@@ -264,7 +264,7 @@ struct YieldModuleActiveContentView: View {
                     }
                 )
             }
-            .defaultRoundedBackground(with: Colors.Background.action)
+            .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary)
 
             if let footerText = viewModel.earInfoFooterText {
                 Text(footerText)

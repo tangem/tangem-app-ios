@@ -33,7 +33,7 @@ private extension MobileBackupSeedPhraseTypeView {
                 chevronIcon
             }
             .padding(14)
-            .background(Colors.Background.primary)
+            .background(DesignSystem.Color.bgSecondary)
             .cornerRadius(14, corners: .allCorners)
         }
         .buttonStyle(.plain)
@@ -47,7 +47,7 @@ private extension MobileBackupSeedPhraseTypeView {
                 verticalSpacing: 4
             ) {
                 Text(item.title)
-                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.body, color: DesignSystem.Color.textPrimary)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -55,7 +55,7 @@ private extension MobileBackupSeedPhraseTypeView {
             }
 
             Text(item.description)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -66,7 +66,7 @@ private extension MobileBackupSeedPhraseTypeView {
         Assets.chevronRightWithOffset24.image
             .renderingMode(.template)
             .resizable()
-            .foregroundStyle(Colors.Text.tertiary)
+            .foregroundStyle(DesignSystem.Color.iconSecondary)
             .frame(width: 24, height: 24)
     }
 }

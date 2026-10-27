@@ -18,7 +18,7 @@ public struct BaseOneLineRowDefaultTitleView: View {
 
     public var body: some View {
         Text(title)
-            .style(Fonts.Regular.body, color: Colors.Text.primary1)
+            .style(Fonts.Regular.body, color: DesignSystem.Color.textPrimary)
             .lineLimit(1)
     }
 }

@@ -53,7 +53,7 @@ struct ExpressCurrencyView<Content: View>: View {
 
             LoadableBalanceView(
                 state: viewModel.state.balanceState,
-                style: .init(font: Fonts.Regular.footnote, textColor: Colors.Text.tertiary),
+                style: .init(font: Fonts.Regular.footnote, textColor: DesignSystem.Color.textSecondary),
                 loader: .init(
                     size: CGSize(width: 72, height: 12),
                     padding: .init(top: 2, leading: 0, bottom: 2, trailing: 0),
@@ -99,7 +99,7 @@ struct ExpressCurrencyView<Content: View>: View {
                     Assets.chevronDownMini.image
                         .resizable()
                         .renderingMode(.template)
-                        .foregroundColor(Colors.Icon.informative)
+                        .foregroundColor(DesignSystem.Color.iconSecondary)
                         .frame(size: chevronIconSize)
                         // View have to keep size of the view same for both cases
                         .opacity(viewModel.state.canChangeCurrency ? 1 : 0)
@@ -131,7 +131,7 @@ struct ExpressCurrencyView<Content: View>: View {
             LoadableTextView(
                 state: viewModel.state.symbolState,
                 font: Fonts.Bold.footnote,
-                textColor: Colors.Text.primary1,
+                textColor: DesignSystem.Color.textPrimary,
                 loaderSize: CGSize(width: 30, height: 14),
                 lineLimit: 1,
                 isSensitiveText: false
@@ -147,7 +147,7 @@ struct ExpressCurrencyView<Content: View>: View {
         LoadableTextView(
             state: viewModel.state.alternativeAmountState,
             font: Fonts.Regular.footnote,
-            textColor: Colors.Text.tertiary,
+            textColor: DesignSystem.Color.textSecondary,
             loaderSize: CGSize(width: 70, height: 12),
             lineLimit: 1,
             isSensitiveText: false
@@ -183,10 +183,10 @@ struct ExpressCurrencyView<Content: View>: View {
             HStack(spacing: 4) {
                 DesignSystem.Icons.Edit.regular16.image
                     .renderingMode(.template)
-                    .foregroundColor(Colors.Icon.informative)
+                    .foregroundColor(DesignSystem.Color.iconSecondary)
 
                 Text(Localization.commonSlippage)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
             }
         }
         .disabled(!isEditSlippageEnabled)
@@ -196,7 +196,7 @@ struct ExpressCurrencyView<Content: View>: View {
     private var switchCurrencyIcon: some View {
         DesignSystem.Icons.ArrowSwapHorizontal.regular16.image
             .renderingMode(.template)
-            .foregroundColor(Colors.Icon.informative)
+            .foregroundColor(DesignSystem.Color.iconSecondary)
             .rotation3DEffect(.degrees(isCurrencySwitched ? 180 : .zero), axis: (1, 0, 0))
             .animation(SendAmountInputConstants.animation, value: isCurrencySwitched)
     }
@@ -209,10 +209,10 @@ struct ExpressCurrencyView<Content: View>: View {
                 case .percent(let percent, _, let isHighLoss):
                     HStack(spacing: 2) {
                         Text(percent)
-                            .style(Fonts.Regular.footnote, color: isHighLoss ? Colors.Text.warning : Colors.Text.attention)
+                            .style(Fonts.Regular.footnote, color: isHighLoss ? DesignSystem.Color.textAccentRed : DesignSystem.Color.textAccentYellow)
 
                         infoButtonIcon
-                            .foregroundColor(isHighLoss ? Colors.Icon.warning : Colors.Icon.attention)
+                            .foregroundColor(isHighLoss ? DesignSystem.Color.iconAccentRed : DesignSystem.Color.iconAccentYellow)
                     }
                 }
             }
@@ -239,7 +239,7 @@ struct ExpressCurrencyView<Content: View>: View {
             Assets.emptyTokenList.image
                 .renderingMode(.template)
                 .resizable()
-                .foregroundColor(Colors.Icon.inactive)
+                .foregroundColor(DesignSystem.Color.iconTertiary)
                 .frame(size: imageSize)
         case .tokenSelectionRequired:
             EmptyView()
@@ -266,20 +266,20 @@ struct ChooseTokenPillView: View {
         SwiftUI.Button(action: action) {
             HStack(spacing: 6) {
                 Text(Localization.commonChooseToken)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                     .lineLimit(1)
 
                 Assets.chevronDown24.image
                     .resizable()
                     .renderingMode(.template)
-                    .foregroundColor(Colors.Icon.informative)
+                    .foregroundColor(DesignSystem.Color.iconSecondary)
                     .frame(width: 20, height: 20)
             }
             .padding(.vertical, 8)
             .padding(.leading, 16)
             .padding(.trailing, 12)
             .background {
-                Colors.Button.secondary
+                DesignSystem.Color.bgTransparentSecondary
 
                 emphasisOverlay
             }
@@ -356,5 +356,5 @@ extension ExpressCurrencyView: Setupable {
 #Preview {
     ChooseTokenPillView(action: {})
         .padding()
-        .background(Colors.Background.action)
+        .background(DesignSystem.Color.bgSecondary)
 }

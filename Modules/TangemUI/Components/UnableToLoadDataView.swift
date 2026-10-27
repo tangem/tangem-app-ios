@@ -24,22 +24,22 @@ public struct UnableToLoadDataView: View {
     public var body: some View {
         VStack(spacing: 12) {
             Text(Localization.marketsLoadingErrorTitle)
-                .style(Fonts.Bold.caption1.weight(.medium), color: Colors.Text.tertiary)
+                .style(Fonts.Bold.caption1.weight(.medium), color: DesignSystem.Color.textSecondary)
 
             SwiftUI.Button(action: retryButtonAction, label: {
                 HStack(spacing: .zero) {
                     Text(Localization.tryToLoadDataAgainButtonTitle)
-                        .style(Fonts.Bold.caption1.weight(.medium), color: Colors.Text.primary1)
+                        .style(Fonts.Bold.caption1.weight(.medium), color: DesignSystem.Color.textPrimary)
                 }
                 .hidden(isButtonBusy)
                 .overlay {
                     if isButtonBusy {
                         ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.informative))
+                            .progressViewStyle(CircularProgressViewStyle(tint: DesignSystem.Color.iconSecondary))
                     }
                 }
             })
-            .roundedBackground(with: Colors.Button.secondary, verticalPadding: 6, horizontalPadding: 12, radius: 10)
+            .roundedBackground(with: DesignSystem.Color.bgTransparentSecondary, verticalPadding: 6, horizontalPadding: 12, radius: 10)
             .disabled(isButtonBusy)
             .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.retryButton)
         }

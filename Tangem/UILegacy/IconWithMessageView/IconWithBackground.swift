@@ -16,7 +16,7 @@ struct IconWithBackground: View {
     init(
         icon: ImageType,
         settings: Settings = .init(
-            backgroundColor: Colors.Button.secondary,
+            backgroundColor: DesignSystem.Color.bgTransparentSecondary,
             padding: 14,
             cornerRadius: 16
         )

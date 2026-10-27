@@ -75,7 +75,7 @@ final class QRCodeReceiveAssetsViewModel: ObservableObject, Identifiable {
         let attributes: [NSAttributedString.Key: Any] = [
             .paragraphStyle: paragraphStyle,
             .font: UIFonts.Bold.callout,
-            .foregroundColor: UIColor(Colors.Text.primary1),
+            .foregroundColor: UIColor(DesignSystem.Color.textPrimary),
         ]
 
         return NSAttributedString(string: address, attributes: attributes)
