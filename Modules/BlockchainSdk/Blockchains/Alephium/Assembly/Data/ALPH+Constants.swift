@@ -21,6 +21,7 @@ extension ALPH {
 
         static let maxTxInputNum: Int = 256
         static let maxTxOutputNum: Int = 256
+        static let maxNodeUtxosNum: Int = 5000
 
         static let dustAmountValue = Decimal(stringValue: "0.001")!
 
