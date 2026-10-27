@@ -700,20 +700,21 @@ final class SwapModelTests: LeakTrackingTestSuite {
         #expect(resets.allSatisfy { !$0 })
     }
 
-    @Test("Reversing a pair that turns an account into the destination drops the custom slippage to Auto")
-    func reversalToAccountDestinationResetsCustomSlippage() {
-        let sut = makeSUT(
-            sourceToken: SwapableTokenStub(
-                tokenItem: .blockchain(.init(.polygon(testnet: false), derivationPath: nil)),
-                isCustomSlippageAllowed: false
-            ),
-            receiveToken: SwapableTokenStub(blockchain: .ethereum(testnet: false))
+    @Test("Reversing a pair that turns an account into the destination drops the custom slippage to Auto", .timeLimit(.minutes(1)))
+    func reversalToAccountDestinationResetsCustomSlippage() async {
+        let source = SwapableTokenStub(
+            tokenItem: .blockchain(.init(.polygon(testnet: false), derivationPath: nil)),
+            isCustomSlippageAllowed: false
         )
+        let sut = makeSUT(sourceToken: source, receiveToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)))
 
         sut.userDidSet(slippage: .custom(0.005))
-        sut.userDidRequestSwapSourceAndReceiveToken()
+        #expect(sut.slippage == .custom(0.005))
 
-        #expect(sut.slippage == .auto)
+        sut.userDidRequestSwapSourceAndReceiveToken()
+        _ = await sut.slippagePublisher.values.first { $0 == .auto }
+
+        #expect(sut.receiveToken.value?.tokenItem == source.tokenItem)
     }
 
     @Test("A regular destination of the same asset keeps the custom slippage")
