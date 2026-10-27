@@ -30,7 +30,7 @@ private extension MobileBackupTypesView {
     var content: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 20) {
-                ForEach(Array(viewModel.sections.enumerated()), id: \.offset) { _, section in
+                ForEach(indexed: viewModel.sections, id: \.0) { _, section in
                     sectionView(section)
                 }
             }
@@ -47,7 +47,7 @@ private extension MobileBackupTypesView {
             }
 
             VStack(spacing: 8) {
-                ForEach(Array(section.items.enumerated()), id: \.offset) { _, item in
+                ForEach(indexed: section.items, id: \.0) { _, item in
                     sectionItemView(item)
                 }
             }

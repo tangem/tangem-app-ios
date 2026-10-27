@@ -188,7 +188,7 @@ struct WalletConnectDAppConnectionRequestView: View {
         _ availableSelectionMode: WalletConnectDAppConnectionRequestViewState.NetworksSection.AvailableSelectionMode
     ) -> some View {
         HStack(spacing: -8) {
-            ForEach(availableSelectionMode.blockchainLogoAssets.indexed(), id: \.0) { index, blockchainLogoAsset in
+            ForEach(indexed: availableSelectionMode.blockchainLogoAssets, id: \.0) { _, blockchainLogoAsset in
                 ZStack {
                     Circle()
                         .fill(DesignSystem.Color.bgSecondary)

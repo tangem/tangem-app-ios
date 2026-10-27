@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemAccessibilityIdentifiers
+import TangemUI
 
 struct PendingExpressTxStatusView: View {
     let title: String
@@ -58,7 +59,7 @@ struct PendingExpressTxStatusView: View {
 
     private var statusesView: some View {
         VStack(spacing: 0) {
-            ForEach(statusesList.indexed(), id: \.1) { index, status in
+            ForEach(indexed: statusesList) { index, status in
                 PendingExpressTxStatusRow(isFirstRow: index == 0, info: status)
             }
         }

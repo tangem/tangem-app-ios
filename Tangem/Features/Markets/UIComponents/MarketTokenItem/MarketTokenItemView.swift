@@ -151,7 +151,7 @@ extension MarketTokenItemView {
 
     return GeometryReader { proxy in
         ScrollView(.vertical) {
-            ForEach(tokens.indexed(), id: \.1.id) { index, token in
+            ForEach(tokens) { token in
                 MarketTokenItemView(
                     viewModel: .init(
                         tokenModel: token,
