@@ -76,7 +76,7 @@ struct TransactionHistoryExpressDataMerger {
         // Lazily built once on first use and shared across the send / receive matchers (see their `inout` param).
         var bsdkTransactionsGroupedByDestinationAddressString: [String: [TransactionRecord]]?
 
-        for exchangeTransaction in exchangeTransactions {
+        for exchangeTransaction in exchangeTransactions where shouldMergeTransaction(from: exchangeTransaction) {
             let provider = auxDataRepository.provider(id: exchangeTransaction.providerId, branch: .swap)
             let cryptoCurrencies = auxDataRepository.cryptoCurrencies(for: exchangeTransaction.expressCurrencies)
             let info = ExchangeTransactionInfo(
@@ -145,7 +145,7 @@ struct TransactionHistoryExpressDataMerger {
             }
         }
 
-        for onrampTransaction in onrampTransactions {
+        for onrampTransaction in onrampTransactions where shouldMergeTransaction(from: onrampTransaction) {
             let provider = auxDataRepository.provider(id: onrampTransaction.providerId, branch: .onramp)
             let fiatCurrency = auxDataRepository.fiatCurrency(for: onrampTransaction.from)
             let cryptoCurrencies = auxDataRepository.cryptoCurrencies(for: onrampTransaction.expressCurrencies)
@@ -559,13 +559,13 @@ struct TransactionHistoryExpressDataMerger {
     }
 
     @inline(__always)
-    private func shouldAddSyntheticTransaction(from exchangeTransaction: ExchangeTransaction) -> Bool {
+    private func shouldMergeTransaction(from exchangeTransaction: ExchangeTransaction) -> Bool {
         switch exchangeTransaction.status {
-        case .created,
-             .expired:
-            return exchangeTransaction.payIn.hash != nil
+        case .expired:
+            return false
         case .unknown,
              .preview,
+             .created,
              .exchangeTxSent,
              .waiting,
              .waitingTxHash,
@@ -583,8 +583,53 @@ struct TransactionHistoryExpressDataMerger {
     }
 
     @inline(__always)
+    private func shouldMergeTransaction(from onrampTransaction: OnrampTransaction) -> Bool {
+        switch onrampTransaction.status {
+        case .expired:
+            return false
+        case .unknown,
+             .created,
+             .waitingForPayment,
+             .paymentProcessing,
+             .verifying,
+             .failed,
+             .paid,
+             .sending,
+             .refunding,
+             .refunded,
+             .finished,
+             .paused:
+            return true
+        }
+    }
+
+    @inline(__always)
+    private func shouldAddSyntheticTransaction(from exchangeTransaction: ExchangeTransaction) -> Bool {
+        switch exchangeTransaction.status {
+        case .created:
+            return exchangeTransaction.payIn.hash != nil
+        case .unknown,
+             .preview,
+             .exchangeTxSent,
+             .waiting,
+             .waitingTxHash,
+             .expired,
+             .confirming,
+             .exchanging,
+             .sending,
+             .finished,
+             .failed,
+             .txFailed,
+             .refunded,
+             .verifying,
+             .paused:
+            return true
+        }
+    }
+
+    @inline(__always)
     private func shouldAddSyntheticTransaction(from onrampTransaction: OnrampTransaction) -> Bool {
-        return onrampTransaction.status != .expired
+        return true // Currently, there are no restrictions on onramp synthetic transactions creation
     }
 
     @inline(__always)
