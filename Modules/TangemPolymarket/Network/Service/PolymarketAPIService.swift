@@ -19,4 +19,8 @@ protocol PolymarketAPIService {
     func closedPositions(request: PolymarketClosedPositionsRequest) async throws -> PolymarketDTO.ClosedPositionsResponse
 
     func positionOutcome(request: PolymarketPositionOutcomeRequest) async throws -> PolymarketDTO.PositionOutcomeResponse
+
+    func activity(request: PolymarketActivityRequest) async throws -> PolymarketDTO.ActivityResponse
+
+    func reconcileDeposits(depositWalletAddress: String) async throws -> PolymarketDTO.DepositsReconcileResponse
 }

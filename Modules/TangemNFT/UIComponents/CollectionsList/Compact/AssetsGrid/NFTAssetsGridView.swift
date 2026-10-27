@@ -27,7 +27,6 @@ struct NFTAssetsGridView: View {
 
 extension NFTAssetsGridView {
     enum Constants {
-        static let interitemSpacing: CGFloat = 12
         static let rowsSpacing: CGFloat = 20
     }
 }

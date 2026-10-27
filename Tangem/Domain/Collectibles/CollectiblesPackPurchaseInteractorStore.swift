@@ -10,12 +10,12 @@ import TangemFoundation
 
 @MainActor
 enum CollectiblesPackPurchaseInteractorStore {
-    private static var interactors: [UserWalletId: CommonCollectiblesPackPurchaseInteractor] = [:]
+    private static var interactors: [UserWalletId: RemoteCollectiblesPackPurchaseInteractor] = [:]
 
     static func interactor(
         for userWalletId: UserWalletId,
-        make: () -> CommonCollectiblesPackPurchaseInteractor
-    ) -> CommonCollectiblesPackPurchaseInteractor {
+        make: () -> RemoteCollectiblesPackPurchaseInteractor
+    ) -> RemoteCollectiblesPackPurchaseInteractor {
         if let interactor = interactors[userWalletId] {
             return interactor
         }

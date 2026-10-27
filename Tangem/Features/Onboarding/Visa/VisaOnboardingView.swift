@@ -87,16 +87,6 @@ struct VisaOnboardingView: View {
             VisaOnboardingWelcomeView(viewModel: viewModel.welcomeViewModel)
         case .accessCode:
             VisaOnboardingAccessCodeSetupView(viewModel: viewModel.accessCodeSetupViewModel)
-        case .selectWalletForApprove:
-            VisaOnboardingApproveWalletSelectorView(viewModel: viewModel.walletSelectorViewModel)
-        case .approveUsingTangemWallet:
-            if let viewModel = viewModel.tangemWalletApproveViewModel {
-                VisaOnboardingTangemWalletDeployApproveView(viewModel: viewModel)
-            }
-        case .approveUsingWalletConnect:
-            if let viewModel = viewModel.walletConnectViewModel {
-                VisaOnboardingWalletConnectView(viewModel: viewModel)
-            }
         case .paymentAccountDeployInProgress, .issuerProcessingInProgress:
             if let viewModel = viewModel.inProgressViewModel {
                 VisaOnboardingInProgressView(viewModel: viewModel)

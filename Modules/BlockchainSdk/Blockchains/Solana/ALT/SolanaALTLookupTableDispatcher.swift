@@ -190,25 +190,3 @@ extension SolanaCommonALTLookupTableDispatcher {
         static let waitTimeBetweenALTAddressesExpectCompletion: UInt64 = 5_000_000_000 // 5 sec
     }
 }
-
-// MARK: - Dummy
-
-struct SolanaDummyALTLookupTableDispatcher: SolanaALTLookupTableDispatcher {
-    private let lookupTableAccountKey: String
-    private let lookupTableAccountDecodeState: Data
-
-    init(lookupTableAccountKey: String, lookupTableAccountDecodeState: Data) {
-        self.lookupTableAccountKey = lookupTableAccountKey
-        self.lookupTableAccountDecodeState = lookupTableAccountDecodeState
-    }
-
-    func dispatchLookupTableAccount(staticKeys: [PublicKey], altKeys: [PublicKey]) async throws -> AddressLookupTableAccount? {
-        let key = PublicKey(string: lookupTableAccountKey)!
-        let state = try JSONDecoder().decode(AddressLookupTableState.self, from: lookupTableAccountDecodeState)
-        return AddressLookupTableAccount(key: key, state: state)
-    }
-
-    func prepareExistLookupTableAccounts(message: MessageV0) async throws -> [AddressLookupTableAccount] {
-        return []
-    }
-}

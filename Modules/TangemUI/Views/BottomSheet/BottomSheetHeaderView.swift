@@ -127,9 +127,9 @@ extension BottomSheetHeaderView: Setupable {
         map { $0.titleStyle = TangemFontStyle(font: font) }
     }
 
-    public func titleStyle(_ style: TangemFontStyle, color: Color) -> Self {
+    public func titleStyle(_ token: TangemTypographyToken, color: Color) -> Self {
         map {
-            $0.titleStyle = style
+            $0.titleStyle = TangemFontStyle(token)
             $0.titleColor = color
         }
     }

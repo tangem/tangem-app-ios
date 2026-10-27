@@ -87,7 +87,8 @@ private extension EarnFeedSearchProvider {
                 page: page,
                 limit: Constants.pageSize,
                 type: nil,
-                networkIds: nil
+                networkIds: nil,
+                apyType: FeatureProvider.isAvailable(.merklIncentives) ? .gross : nil
             )
 
             let response = try await tangemApiService.loadEarnYieldMarkets(requestModel: request)

@@ -56,14 +56,16 @@ struct MarketsTokenSummaryView: View {
 /// Shown both by the card itself while its indicators load and by the coin page's block skeletons, so the
 /// page-wide skeleton and the card's own loading state are the same view in the same place.
 struct MarketsTokenSummaryPlaceholderView: View {
+    @ScaledMetric private var scaleFactor: CGFloat = 1
+
     var body: some View {
         VStack(alignment: .leading, spacing: CardLayout.trackSpacing) {
             VStack(alignment: .leading, spacing: CardLayout.titleSpacing) {
                 Shimmer()
-                    .variant(.custom(height: DesignSystem.Font.captionMediumToken.lineHeight))
+                    .variant(.custom(height: DesignSystem.Font.captionMediumToken.lineHeight * scaleFactor))
 
                 Shimmer()
-                    .variant(.custom(height: DesignSystem.Font.headingSmallToken.lineHeight))
+                    .variant(.custom(height: DesignSystem.Font.headingSmallToken.lineHeight * scaleFactor))
             }
 
             Shimmer()

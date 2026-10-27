@@ -36,7 +36,6 @@ final class ControllableTokenFeeProviderStub: TokenFeeProvider {
     // MARK: - Test mutators
 
     func set(state: TokenFeeProviderState) { _state.send(state) }
-    func set(balance: TokenBalanceType) { _balance.send(balance) }
     func set(selectedTokenFee fee: TokenFee) { _selectedTokenFee.send(fee) }
 
     // MARK: - TokenFeeProvider

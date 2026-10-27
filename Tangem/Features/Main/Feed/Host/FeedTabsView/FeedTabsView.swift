@@ -21,27 +21,22 @@ struct FeedTabsView: View {
     let onChipsHeightChange: (CGFloat) -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.layoutDirection) private var layoutDirection
     @Environment(\.mainShtorkaSize) private var sheetSize
 
     @State private var chipsHeight: CGFloat = 0
-    @State private var contentWidth: CGFloat = 0
-    @State private var slideGeneration = 0
     @State private var pendingTab: FeedTab?
 
     var body: some View {
         LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
             Section {
-                ZStack(alignment: .top) {
-                    ForEach(viewModel.pages) { page in
-                        tabContent(for: page.tab)
-                            .padding(.top, page.topInset)
-                            .lockedGeometry()
-                            .offset(x: page.offset * slideWidth)
-                            .opacity(page.isPreparing ? 0 : 1)
-                            .allowsHitTesting(!page.isPreparing)
-                            .accessibilityHidden(page.isPreparing)
-                    }
+                FeedTabPagerView(
+                    pager: viewModel.pager,
+                    selection: viewModel.selectedTab,
+                    onPageChange: { move(to: viewModel.resolve(scrollTarget(for: $0, pinTabs: false))) },
+                    onSettle: viewModel.pagesDidSettle
+                ) { page in
+                    tabContent(for: page.tab)
+                        .padding(.top, page.topInset)
                 }
                 .clipped()
                 .reverseMask(alignment: .top) {
@@ -49,7 +44,6 @@ struct FeedTabsView: View {
                         pinnedTabsFade
                     }
                 }
-                .onGeometryChange(for: CGFloat.self, of: \.size.width) { contentWidth = $0 }
                 .padding(.bottom, Constants.tabContentBottomInset)
             } header: {
                 if viewModel.tabs.count > 1 {
@@ -69,7 +63,6 @@ struct FeedTabsView: View {
                 .id(FeedConstants.tabsAnchorID)
         }
         .onAppear { move(to: scrollTarget(for: viewModel.selectedTab, pinTabs: false)) }
-        .onChange(of: viewModel.selectedTab.id) { _ in show(viewModel.selectedTab) }
         .onReceive(viewModel.tabSelectionPublisher, perform: expandAndSelect)
         .onChange(of: viewportHeight) { _ in
             guard sheetSize == .full, let pendingTab else { return }
@@ -155,46 +148,6 @@ struct FeedTabsView: View {
         viewModel.onSelectTab(tab)
     }
 
-    private var slideWidth: CGFloat {
-        layoutDirection == .leftToRight ? contentWidth : -contentWidth
-    }
-
-    private func show(_ tab: FeedTab) {
-        let target = scrollTarget(for: tab, pinTabs: false)
-
-        guard #available(iOS 17.0, *), !reduceMotion else {
-            move(to: viewModel.showInstantly(tab, target: target))
-            return
-        }
-
-        move(to: viewModel.startSlide(to: tab, target: target))
-        slideGeneration += 1
-        let generation = slideGeneration
-
-        Task { @MainActor in
-            try? await ContinuousClock().sleep(for: .milliseconds(Constants.slideDelay))
-            guard generation == slideGeneration else { return }
-
-            var preparationTransaction = Transaction()
-            preparationTransaction.disablesAnimations = true
-            let didPreparePage = withTransaction(preparationTransaction) {
-                viewModel.prepareSlide()
-            }
-            if didPreparePage {
-                try? await ContinuousClock().sleep(for: .milliseconds(Constants.slideDelay))
-                guard generation == slideGeneration else { return }
-            }
-
-            withAnimation(Constants.slideAnimation) {
-                viewModel.slide()
-            } completion: {
-                guard generation == slideGeneration else { return }
-
-                viewModel.settleSlide()
-            }
-        }
-    }
-
     private func scrollTarget(for tab: FeedTab, pinTabs: Bool) -> FeedScrollTarget? {
         scrollTarget(tab.id, pinTabs, areChipsPinned)
     }
@@ -225,20 +178,5 @@ private extension FeedTabsView {
         static let fadeHeight: CGFloat = 96
         static let fadeBottomOverlap: CGFloat = 9
         static let pinDuration: TimeInterval = 0.3
-        static let slideDelay = 50
-        static let slideAnimation: Animation = .interpolatingSpring(mass: 1, stiffness: 400, damping: 40)
-    }
-}
-
-// MARK: - Geometry
-
-private extension View {
-    @ViewBuilder
-    func lockedGeometry() -> some View {
-        if #available(iOS 17.0, *) {
-            geometryGroup()
-        } else {
-            self
-        }
     }
 }

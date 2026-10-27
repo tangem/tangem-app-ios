@@ -20,16 +20,6 @@ import Foundation
 
 enum ElectrumDTO {
     enum Response {
-        struct Balance: Decodable {
-            let confirmed: Int
-            let unconfirmed: Int
-        }
-
-        struct History: Decodable {
-            let height: Decimal
-            let txHash: String
-        }
-
         struct ListUnspent: Decodable {
             let hasToken: Bool?
             let height: Decimal
@@ -37,10 +27,6 @@ enum ElectrumDTO {
             let txHash: String
             let txPos: Int
             let value: Decimal
-        }
-
-        struct Broadcast: Decodable {
-            let txHash: String
         }
 
         struct Transaction: Decodable {

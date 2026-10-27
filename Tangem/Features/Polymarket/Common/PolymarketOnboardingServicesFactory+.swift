@@ -17,7 +17,8 @@ extension PolymarketOnboardingServicesFactory {
                 urlSessionConfiguration: .polymarketConfiguration
             ),
             environment: PolymarketBFFEnvironment.current,
-            serverClock: InjectedValues[\.polymarketServerClock]
+            serverClock: InjectedValues[\.polymarketServerClock],
+            unauthorizedObserver: InjectedValues[\.polymarketUnauthorizedEvents]
         )
     }
 }

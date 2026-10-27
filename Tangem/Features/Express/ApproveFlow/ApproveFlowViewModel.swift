@@ -32,7 +32,7 @@ final class ApproveFlowViewModel: ObservableObject, FloatingSheetContentViewMode
 
     // MARK: - Dependencies
 
-    let confirmTransactionPolicy: ConfirmTransactionPolicy
+    let signingActionButtonType: SigningActionButtonViewType
 
     private let approveViewModel: ApproveViewModel
     private let feeSelectorViewModel: FeeSelectorTokensViewModel?
@@ -48,14 +48,14 @@ final class ApproveFlowViewModel: ObservableObject, FloatingSheetContentViewMode
         router: ApproveRoutable,
         feeSelectorViewModel: FeeSelectorTokensViewModel?,
         interactor: ApproveInteractor,
-        confirmTransactionPolicy: ConfirmTransactionPolicy
+        signingActionButtonType: SigningActionButtonViewType
     ) {
         coordinatorRouter = router
 
         self.feeSelectorViewModel = feeSelectorViewModel
         self.interactor = interactor
         self.approveViewModel = approveViewModel
-        self.confirmTransactionPolicy = confirmTransactionPolicy
+        self.signingActionButtonType = signingActionButtonType
 
         state = .approve(approveViewModel)
 

@@ -13,11 +13,6 @@ import enum BlockchainSdk.JSON
 
 extension GaslessTransactionBuilder {
     struct GaslessTransactionsEIP712Util {
-        let domainName = "Tangem7702GaslessExecutor"
-        let domainVersion = "1"
-        let primaryType = "GaslessTransaction"
-        let batchPrimaryType = "GaslessBatchTransaction"
-
         // MARK: - Public Implementation
 
         /// Each executor generation declares its own `Transaction` struct, and the struct is hashed into the digest
@@ -71,7 +66,7 @@ extension GaslessTransactionBuilder {
                     .init(name: "baseGas", type: "uint256"),
                     .init(name: "feeReceiver", type: "address"),
                 ],
-                batchPrimaryType: [
+                GaslessTypedDataSchema.batchPrimaryType: [
                     .init(name: "transactions", type: "Transaction[]"),
                     .init(name: "fee", type: "Fee"),
                     .init(name: "nonce", type: "uint256"),
@@ -79,8 +74,8 @@ extension GaslessTransactionBuilder {
             ]
 
             let domain: JSON = .object([
-                "name": .string(domainName),
-                "version": .string(domainVersion),
+                "name": .string(GaslessTypedDataSchema.domainName),
+                "version": .string(GaslessTypedDataSchema.domainVersion),
                 "chainId": .number(chainId),
                 "verifyingContract": .string(verifyingContract),
             ])
@@ -105,7 +100,7 @@ extension GaslessTransactionBuilder {
                 "nonce": .string(nonce),
             ])
 
-            return EIP712TypedData(types: types, primaryType: batchPrimaryType, domain: domain, message: message)
+            return EIP712TypedData(types: types, primaryType: GaslessTypedDataSchema.batchPrimaryType, domain: domain, message: message)
         }
 
         // MARK: - Private Implementation
@@ -142,7 +137,7 @@ extension GaslessTransactionBuilder {
                     .init(name: "baseGas", type: "uint256"),
                     .init(name: "feeReceiver", type: "address"),
                 ],
-                primaryType: [
+                GaslessTypedDataSchema.singlePrimaryType: [
                     .init(name: "transaction", type: "Transaction"),
                     .init(name: "fee", type: "Fee"),
                     .init(name: "nonce", type: "uint256"),
@@ -150,8 +145,8 @@ extension GaslessTransactionBuilder {
             ]
 
             let domain: JSON = .object([
-                "name": .string(domainName),
-                "version": .string(domainVersion),
+                "name": .string(GaslessTypedDataSchema.domainName),
+                "version": .string(GaslessTypedDataSchema.domainVersion),
                 "chainId": .number(chainId),
                 "verifyingContract": .string(verifyingContract),
             ])
@@ -174,7 +169,7 @@ extension GaslessTransactionBuilder {
                 "nonce": .string(nonce),
             ])
 
-            return EIP712TypedData(types: types, primaryType: primaryType, domain: domain, message: message)
+            return EIP712TypedData(types: types, primaryType: GaslessTypedDataSchema.singlePrimaryType, domain: domain, message: message)
         }
     }
 }

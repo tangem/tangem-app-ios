@@ -10,13 +10,12 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemAccessibilityIdentifiers
-import TangemLocalization
 
 struct TokenSelectorItemView: View {
     @ObservedObject var viewModel: TokenSelectorItemViewModel
 
     private var backgroundColor: Color {
-        return Color.Tangem.Surface.level3
+        return DesignSystem.Color.bgSecondary
     }
 
     var body: some View {
@@ -30,7 +29,7 @@ struct TokenSelectorItemView: View {
                 },
                 primaryLeadingView: {
                     Text(viewModel.name)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                         .lineLimit(1)
                 },
                 primaryTrailingView: { primaryTrailingView },
@@ -50,7 +49,7 @@ struct TokenSelectorItemView: View {
         case .available:
             LoadableBalanceView(
                 state: viewModel.fiatBalance,
-                style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
+                style: .init(font: DesignSystem.Font.bodyMediumToken, textColor: DesignSystem.Color.textPrimary),
                 loader: .init(size: .init(width: 40, height: 12))
             )
             .layoutPriority(3)
@@ -65,7 +64,7 @@ struct TokenSelectorItemView: View {
         case .available:
             LoadableBalanceView(
                 state: viewModel.cryptoBalance,
-                style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
+                style: .init(font: DesignSystem.Font.captionMediumToken, textColor: DesignSystem.Color.textSecondary),
                 loader: .init(size: .init(width: 40, height: 12))
             )
             .layoutPriority(3)
@@ -75,25 +74,8 @@ struct TokenSelectorItemView: View {
     }
 
     private var secondaryLeadingView: some View {
-        Group {
-            switch viewModel.availabilityType {
-            case .available:
-                Text(viewModel.symbol)
-            case .unavailable(.unavailableForOnramp):
-                Text(Localization.tokensListUnavailableToPurchaseHeader)
-            case .unavailable(.unavailableForSwap(.swapState(.jointAccountsComingSoon))):
-                Text(Localization.commonComingSoon)
-            case .unavailable(.unavailableForSwap):
-                Text(Localization.tokensListUnavailableToSwapSourceHeader)
-            case .unavailable(.unavailableForSell(.jointAccountsComingSoon)):
-                Text(Localization.commonComingSoon)
-            case .unavailable(.unavailableForSell):
-                Text(Localization.tokensListUnavailableToSellHeader)
-            case .unavailable(.unavailableForSend):
-                Text(viewModel.symbol)
-            }
-        }
-        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-        .lineLimit(1)
+        Text(viewModel.secondaryLeadingText)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+            .lineLimit(1)
     }
 }

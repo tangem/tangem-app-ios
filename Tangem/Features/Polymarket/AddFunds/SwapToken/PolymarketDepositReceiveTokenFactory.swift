@@ -28,15 +28,20 @@ struct PolymarketDepositReceiveTokenFactory {
             isCustom: false,
             defaultAddressString: depositTarget.fundingAddress,
             availableBalanceProvider: balanceProvider,
-            fiatAvailableBalanceProvider: accountModel.fiatAvailableBalanceProvider,
+            fiatAvailableBalanceProvider: PolymarketUSDBalanceProvider(collateralBalanceProvider: balanceProvider),
             allowanceService: nil,
             withdrawalNotificationProvider: nil,
             scaledUIAmountMultiplierResolver: nil,
             emailDataCollectorBuilder: PolymarketAccountEmailDataCollectorBuilder(),
             transactionDispatcherProvider: PolymarketDepositTransactionDispatcherProvider(),
+            transactionSummaryDescriptionBuilderProvider: DefaultTransactionSummaryDescriptionBuilderProvider(tokenItem: tokenItem),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             accountModelAnalyticsProvider: nil,
-            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config),
-            confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
+            receivingRestrictionsProvider: PolymarketDepositReceivingRestrictionsProvider(
+                userWalletInfo: userWalletInfo,
+                minCheckoutUSD: depositTarget.minCheckoutUSD,
+                tokenItem: tokenItem
+            ),
             isTangemPayAccount: false,
             jointAccountPolicy: nil,
             tokenItem: tokenItem,
@@ -56,11 +61,6 @@ struct PolymarketDepositReceiveTokenFactory {
             isExemptFee: true,
             swapAvailabilityProvider: PolymarketAccountSwapAvailabilityProvider(),
             sendingRestrictionsProvider: PolymarketAccountSendingRestrictionsProvider(),
-            receivingRestrictionsProvider: PolymarketDepositReceivingRestrictionsProvider(
-                userWalletInfo: userWalletInfo,
-                minCheckoutUSD: depositTarget.minCheckoutUSD,
-                tokenItem: tokenItem
-            ),
             tokenFeeProvidersManagerProvider: feeProvidersManagerProvider,
             tokenFeeProvidersManager: feeProvidersManagerProvider.makeTokenFeeProvidersManager(),
             transactionValidator: PolymarketDepositTransactionValidator(),
@@ -75,7 +75,7 @@ struct PolymarketDepositReceiveTokenFactory {
             operationType: .swap,
             supportedProvidersFilter: .swap,
             isCustomSlippageAllowed: accountModel.resolve(using: CustomSlippageAvailabilityResolver()),
-            presentation: makePresentation(tokenItem: tokenItem)
+            presentation: makePresentation()
         )
     }
 }
@@ -83,11 +83,10 @@ struct PolymarketDepositReceiveTokenFactory {
 // MARK: - Private implementation
 
 private extension PolymarketDepositReceiveTokenFactory {
-    func makePresentation(tokenItem: TokenItem) -> SendReceiveTokenPresentation {
+    func makePresentation() -> SendReceiveTokenPresentation {
         SendReceiveTokenPresentation(
-            currencySymbol: tokenItem.currencySymbol,
-            icon: Assets.Polymarket.accountAvatar,
-            balanceDenomination: .token
+            currencySymbol: AppConstants.usdCurrencyCode,
+            icon: Assets.Polymarket.accountAvatar
         )
     }
 

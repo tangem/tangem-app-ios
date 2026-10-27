@@ -91,7 +91,7 @@ final class TransactionDetailsAnalyticsLogger {
 
     private func logScreenOpened(_ state: State) {
         var params = actionParams(state)
-        params[.status] = Self.status(for: state.record).rawValue
+        params[.status] = Self.status(for: state.transaction.status).rawValue
         params[.title] = Self.title(for: state.transaction)
 
         Analytics.log(event: .transactionDetailScreenOpened, params: params)
@@ -177,8 +177,8 @@ final class TransactionDetailsAnalyticsLogger {
         ]
     }
 
-    private static func status(for record: TransactionRecord) -> Analytics.ParameterValue {
-        switch TransactionOperationStatusMapper.viewStatus(for: record) {
+    private static func status(for status: TransactionViewModel.Status) -> Analytics.ParameterValue {
+        switch status {
         case .confirmed: .txHistoryConfirmed
         case .inProgress: .pending
         case .failed: .failed

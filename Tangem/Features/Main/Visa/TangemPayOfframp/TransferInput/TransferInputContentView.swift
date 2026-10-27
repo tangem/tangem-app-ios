@@ -235,8 +235,6 @@ private extension TransferInputContentView {
 private extension TransferInputContentView {
     enum Constants {
         static let sectionSpacing: CGFloat = 8
-        static let cardSpacing: CGFloat = 8
-        static let amountSpacing: CGFloat = 52
         static let accessorySpacing: CGFloat = 12
         static let horizontalPadding: CGFloat = 16
         static let bottomPadding: CGFloat = 8

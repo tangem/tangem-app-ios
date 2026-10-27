@@ -26,5 +26,4 @@ import Foundation
 /// 1 is subtracted from the input.
 struct Op1Sub: OpCodeProtocol {
     var value: UInt8 { return 0x8c }
-    var name: String { return "OP_1SUB" }
 }

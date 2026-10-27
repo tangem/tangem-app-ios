@@ -344,9 +344,9 @@ private final class SendSwapableTokenStub: SendSwapableToken {
     var emailDataCollectorBuilder: EmailDataCollectorBuilder { inner.emailDataCollectorBuilder }
     var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? { get async { await inner.transactionHistoryEnricher } }
     var transactionDispatcherProvider: any TransactionDispatcherProvider { inner.transactionDispatcherProvider }
+    var transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider { inner.transactionSummaryDescriptionBuilderProvider }
+    var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { inner.blockchainSDKNotificationMapper }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { inner.accountModelAnalyticsProvider }
-    var tangemIconProvider: any TangemIconProvider { inner.tangemIconProvider }
-    var confirmTransactionPolicy: any ConfirmTransactionPolicy { inner.confirmTransactionPolicy }
     var isTangemPayAccount: Bool { inner.isTangemPayAccount }
     var jointAccountPolicy: JointAccountPolicy? { inner.jointAccountPolicy }
 

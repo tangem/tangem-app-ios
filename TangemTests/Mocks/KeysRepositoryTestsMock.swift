@@ -12,11 +12,9 @@ import Combine
 
 final class KeysRepositoryTestsMock: KeysRepository {
     private let storedKeys: CurrentValueSubject<[KeyInfo], Never>
-    private let persists: Bool
 
-    init(keys: [KeyInfo], persists: Bool = true) {
+    init(keys: [KeyInfo]) {
         storedKeys = .init(keys)
-        self.persists = persists
     }
 
     var keys: [KeyInfo] { storedKeys.value }
@@ -26,10 +24,6 @@ final class KeysRepositoryTestsMock: KeysRepository {
     }
 
     func update(derivations: DerivationResult) {
-        guard persists else {
-            return
-        }
-
         storedKeys.value = storedKeys.value.map { key in
             guard let publicKey = key.publicKey, let derived = derivations[publicKey] else {
                 return key

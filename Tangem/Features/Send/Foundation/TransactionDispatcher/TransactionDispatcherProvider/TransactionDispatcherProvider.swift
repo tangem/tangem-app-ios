@@ -16,7 +16,6 @@ protocol TransactionDispatcherProvider {
     func makeApproveAndDEXTransactionDispatcher() -> TransactionDispatcher
     func makeCEXTransactionDispatcher() -> TransactionDispatcher
     func makeStakingTransactionDispatcher(analyticsLogger: any StakingAnalyticsLogger) -> TransactionDispatcher
-    func makeYieldModuleTransactionDispatcher() -> TransactionDispatcher
 }
 
 enum TransactionDispatcherProviderError: LocalizedError {

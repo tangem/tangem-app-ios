@@ -144,13 +144,6 @@ private actor Continuation {
         isResumed = true
     }
 
-    func resume(throwing error: any Error) {
-        guard !isResumed else { return }
-
-        continuation.resume(throwing: error)
-        isResumed = true
-    }
-
     func cancel() {
         guard !isResumed else { return }
 

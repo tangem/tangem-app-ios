@@ -133,9 +133,3 @@ extension TangemPayNotificationEvent {
         false
     }
 }
-
-private extension TangemPayNotificationEvent {
-    enum Constants {
-        static let defaultIconSize = CGSize(bothDimensions: 36)
-    }
-}

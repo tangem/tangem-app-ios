@@ -10,37 +10,53 @@ import Foundation
 import TangemFoundation
 
 final class FeedSearchPortfolioProvider {
-    private let walletModelsAggregator: WalletModelsAggregator
-    private let matcher = FeedSearchPortfolioMatcher()
-
-    init(walletModelsAggregator: WalletModelsAggregator = CommonWalletModelsAggregator()) {
-        self.walletModelsAggregator = walletModelsAggregator
+    var portfolioPublisher: AnyPublisher<MarketsPortfolioTokenListViewModel?, Never> {
+        portfolioSubject.eraseToAnyPublisher()
     }
 
-    func portfolioPublisher(
-        query: some Publisher<String, Never>,
-        isVisible: some Publisher<Bool, Never>,
+    private let walletModelsAggregator: WalletModelsAggregator
+    private let matcher = FeedSearchPortfolioMatcher()
+    private let onSelect: (any WalletModel) -> Void
+    private let portfolioSubject = CurrentValueSubject<MarketsPortfolioTokenListViewModel?, Never>(nil)
+
+    private var bag = Set<AnyCancellable>()
+
+    init(
+        query: AnyPublisher<String, Never>,
+        walletModelsAggregator: WalletModelsAggregator = CommonWalletModelsAggregator(),
         onSelect: @escaping (any WalletModel) -> Void
-    ) -> AnyPublisher<MarketsPortfolioTokenListViewModel?, Never> {
-        Publishers.CombineLatest3(query, isVisible, walletModelsAggregator.walletModelsPublisher)
+    ) {
+        self.walletModelsAggregator = walletModelsAggregator
+        self.onSelect = onSelect
+
+        bind(to: query)
+    }
+}
+
+// MARK: - Binding
+
+private extension FeedSearchPortfolioProvider {
+    func bind(to query: AnyPublisher<String, Never>) {
+        let trimmedQuery = query
+            .map { $0.trimmed() }
+            .removeDuplicates()
+
+        Publishers.CombineLatest(trimmedQuery, walletModelsAggregator.walletModelsPublisher)
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .map { provider, input in
-                let (query, isVisible, walletModels) = input
-                return isVisible ? provider.makePortfolio(query: query, walletModels: walletModels, onSelect: onSelect) : nil
+                let (query, walletModels) = input
+                return provider.makePortfolio(query: query, walletModels: walletModels)
             }
-            .eraseToAnyPublisher()
+            .subscribe(portfolioSubject)
+            .store(in: &bag)
     }
 }
 
 // MARK: - Private
 
 private extension FeedSearchPortfolioProvider {
-    func makePortfolio(
-        query: String,
-        walletModels: [any WalletModel],
-        onSelect: @escaping (any WalletModel) -> Void
-    ) -> MarketsPortfolioTokenListViewModel? {
+    func makePortfolio(query: String, walletModels: [any WalletModel]) -> MarketsPortfolioTokenListViewModel? {
         let matches = matcher.matches(query: query, walletModels: walletModels)
 
         guard matches.isNotEmpty else {

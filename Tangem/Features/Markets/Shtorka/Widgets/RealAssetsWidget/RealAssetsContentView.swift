@@ -195,7 +195,6 @@ private extension RealAssetsContentView {
     enum Layout {
         static let contentHorizontalPadding: CGFloat = 16
         static let contentSpacing: CGFloat = 12
-        static let listCornerRadius: CGFloat = 24
         static let stateVerticalPadding: CGFloat = 64
         static let skeletonRowsCount = 5
         static let orderChipSpacing: CGFloat = 4

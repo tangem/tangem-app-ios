@@ -41,7 +41,6 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
         let sourceToken = sourceTokenFactory.makeSourceToken()
 
         let sendingRestrictionsProvider = TangemPaySendingRestrictionsProvider()
-        let receivingRestrictionsProvider = TangemPayReceivingRestrictionsProvider(userWalletInfo: userWalletInfo)
 
         let tokenFeeProvidersManagerProvider = TangemPayTokenFeeProvidersManagerProvider(
             feeTokenItem: feeTokenItem,
@@ -69,7 +68,6 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
             isExemptFee: true,
             swapAvailabilityProvider: swapAvailabilityProvider,
             sendingRestrictionsProvider: sendingRestrictionsProvider,
-            receivingRestrictionsProvider: receivingRestrictionsProvider,
             tokenFeeProvidersManagerProvider: tokenFeeProvidersManagerProvider,
             tokenFeeProvidersManager: tokenFeeProvidersManager,
             transactionValidator: transactionValidator,
@@ -109,7 +107,7 @@ extension TangemPaySwapableTokenFactory {
             defaultAddressString: accountToken.depositAddress,
             availableBalanceProvider: availableBalanceProvider,
             fiatAvailableBalanceProvider: fiatAvailableBalanceProvider,
-            transactionDispatcher: tangemPayAccount.makeTransactionDispatcher(withdrawEligibility: accountToken.withdrawEligibility),
+            transactionDispatcher: tangemPayAccount.makeTransactionDispatcher(accountToken: accountToken),
             transactionValidator: TangemPaySendTransactionValidator(
                 availableBalanceProvider: availableBalanceProvider
             ),

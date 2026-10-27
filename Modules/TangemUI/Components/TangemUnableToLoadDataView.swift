@@ -7,6 +7,8 @@
 //
 
 import SwiftUI
+import TangemAssets
+import TangemUIUtils
 import TangemLocalization
 import TangemAccessibilityIdentifiers
 
@@ -22,7 +24,7 @@ public struct TangemUnableToLoadDataView: View {
     public var body: some View {
         VStack(spacing: 12) {
             Text(Localization.marketsLoadingErrorTitle)
-                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
             TangemButton(
                 content: .text(AttributedString(Localization.tryToLoadDataAgainButtonTitle)),

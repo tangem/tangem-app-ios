@@ -95,7 +95,7 @@ struct NFTDetailsHeaderView: View {
                 // Fallback empty string is not visible since the skeleton is shown during loading
                 Text(model.fiat.value ?? "")
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    .skeletonable(isShown: model.fiat.isLoading, size: .init(width: 68.0, height: 18.0))
+                    .shimmerPlaceholder(model.fiat.isLoading, variant: .custom(width: 68, height: 18, cornerRadius: 3))
             }
         }
     }

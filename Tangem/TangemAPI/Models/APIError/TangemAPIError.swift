@@ -11,14 +11,16 @@ import Foundation
 struct TangemAPIError: Decodable, LocalizedError {
     let code: ErrorCode
     let message: String?
+    let reasonCode: String?
 
     var errorDescription: String? {
         message ?? code.description
     }
 
-    init(code: TangemAPIError.ErrorCode, message: String? = nil) {
+    init(code: TangemAPIError.ErrorCode, message: String? = nil, reasonCode: String? = nil) {
         self.code = code
         self.message = message
+        self.reasonCode = reasonCode
     }
 }
 
@@ -49,6 +51,7 @@ extension TangemAPIError {
         case notFound = 404
         case conflict = 409
         case optimisticLockingFailed = 412
+        case unprocessableEntity = 422
 
         /// The description for local errors, for server errors description will be gotten from api
         var description: String? {
@@ -66,7 +69,8 @@ extension TangemAPIError {
                  .networkAccountServiceInternalError,
                  .networkAccountsPerCardLimitReached,
                  .conflict,
-                 .optimisticLockingFailed:
+                 .optimisticLockingFailed,
+                 .unprocessableEntity:
                 return nil
             case .decode:
                 return "Decoding error"
