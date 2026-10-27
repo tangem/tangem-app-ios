@@ -1578,6 +1578,7 @@
 "prediction_add_funds_receive_title" = "Von einer anderen Wallet oder Börse";
 "prediction_add_funds_swap_subtitle" = "Nutzen Sie Kryptowährung in Ihrer Tangem-Wallet, um Ihr Polymarket-Konto aufzuladen";
 "prediction_add_funds_swap_title" = "Aus Ihrer Tangem Wallet";
+"prediction_cash_out" = "Cash Out";
 "prediction_claim_error_failed" = "Die Abbuchung wurde nicht ausgeführt. Es wurde kein Betrag von Ihrem Konto abgebucht, und Sie können es erneut versuchen.";
 "prediction_claim_error_generic" = "Die Forderung konnte nicht gesendet werden. Bitte versuchen Sie es erneut.";
 "prediction_claim_error_rejected" = "Polymarket hat die Übermittlung des Antrags abgelehnt. Aktualisieren Sie Ihre Positionen und versuchen Sie es erneut.";
