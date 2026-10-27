@@ -574,6 +574,56 @@ final class SwapModelTests: LeakTrackingTestSuite {
         #expect(sut.slippage == .custom(0.004))
     }
 
+    @Test("An account destination of the same asset drops the custom slippage to Auto")
+    func accountDestinationResetsCustomSlippage() {
+        let blockchain = Blockchain.polygon(testnet: false)
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: blockchain)
+        )
+
+        var resets: [Bool] = []
+        let cancellable = sut.isCustomSlippageResetPublisher.sink { resets.append($0) }
+
+        withExtendedLifetime(cancellable) {
+            sut.userDidSet(slippage: .custom(0.005))
+            sut.update(receive: ReceiveTokenStub(blockchain: blockchain, isCustomSlippageAllowed: false))
+        }
+
+        #expect(sut.slippage == .auto)
+        #expect(resets.allSatisfy { !$0 })
+    }
+
+    @Test("Reversing a pair that turns an account into the destination drops the custom slippage to Auto")
+    func reversalToAccountDestinationResetsCustomSlippage() {
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(
+                tokenItem: .blockchain(.init(.polygon(testnet: false), derivationPath: nil)),
+                isCustomSlippageAllowed: false
+            ),
+            receiveToken: SwapableTokenStub(blockchain: .ethereum(testnet: false))
+        )
+
+        sut.userDidSet(slippage: .custom(0.005))
+        sut.userDidRequestSwapSourceAndReceiveToken()
+
+        #expect(sut.slippage == .auto)
+    }
+
+    @Test("A regular destination of the same asset keeps the custom slippage")
+    func sameAssetDestinationKeepsCustomSlippage() {
+        let blockchain = Blockchain.polygon(testnet: false)
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: blockchain)
+        )
+
+        sut.userDidSet(slippage: .custom(0.005))
+        sut.update(receive: ReceiveTokenStub(blockchain: blockchain))
+
+        #expect(sut.slippage == .custom(0.005))
+    }
+
     @Test("An amount change leaves the slippage reset to the manager instead of requoting before the new amount")
     func amountChangeSkipsSlippageSync() async throws {
         let manager = ExpressManagerStub()
@@ -1154,9 +1204,11 @@ private enum SwapPairHandlerError: Error {
 
 private final class ReceiveTokenStub: SendReceiveToken {
     let tokenItem: TokenItem
+    let isCustomSlippageAllowed: Bool
 
-    init(blockchain: Blockchain) {
+    init(blockchain: Blockchain, isCustomSlippageAllowed: Bool = true) {
         tokenItem = .blockchain(.init(blockchain, derivationPath: nil))
+        self.isCustomSlippageAllowed = isCustomSlippageAllowed
     }
 
     var isCustom: Bool { false }
