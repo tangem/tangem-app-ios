@@ -27,5 +27,4 @@ import Foundation
 /// The number -1 is pushed onto the stack.
 struct Op1Negate: OpCodeProtocol {
     var value: UInt8 { return 0x4f }
-    var name: String { return "OP_1NEGATE" }
 }

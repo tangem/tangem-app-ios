@@ -356,10 +356,6 @@ extension TokenNotificationEvent {
         case incompleteKaspaTokenTransaction(revealTransaction: KaspaTokenRevealTransaction)
         case missingTokenTrustline(MissingTrustlineInfo)
     }
-
-    struct YieldAvailableConfiguration: Hashable {
-        let apy: String
-    }
 }
 
 // MARK: Analytics info

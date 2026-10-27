@@ -56,7 +56,6 @@ private extension TangemPayPinCheckView {
 
             changePinButton
         }
-        .screenCaptureProtection()
         .frame(maxWidth: .infinity)
     }
 
@@ -76,6 +75,7 @@ private extension TangemPayPinCheckView {
                         length: viewModel.pinCodeLength,
                         isDisabled: true
                     )
+                    .screenCaptureProtection()
                     .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinCheckValue)
                 }
             }

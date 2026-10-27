@@ -8,7 +8,6 @@
 
 protocol SendSwapProvidersBuildable {
     var swapProvidersIO: SendSwapProvidersBuilder.IO { get }
-    var swapProvidersTypes: SendSwapProvidersBuilder.Types { get }
     var swapProvidersDependencies: SendSwapProvidersBuilder.Dependencies { get }
 }
 
@@ -16,7 +15,6 @@ extension SendSwapProvidersBuildable {
     func makeSwapProviders(router: SendSwapProvidersRoutable) -> SendSwapProvidersBuilder.ReturnValue {
         SendSwapProvidersBuilder.make(
             io: swapProvidersIO,
-            types: swapProvidersTypes,
             dependencies: swapProvidersDependencies,
             router: router
         )
@@ -34,10 +32,6 @@ enum SendSwapProvidersBuilder {
         let receiveTokenAmountInput: SendReceiveTokenAmountInput?
     }
 
-    struct Types {
-        let tokenItem: TokenItem
-    }
-
     struct Dependencies {
         let analyticsLogger: any SendSwapProvidersAnalyticsLogger
         let expressProviderFormatter: ExpressProviderFormatter
@@ -46,16 +40,16 @@ enum SendSwapProvidersBuilder {
 
     typealias ReturnValue = (selector: SendSwapProvidersSelectorViewModel, compact: SwapSummaryProviderViewModel)
 
-    static func make(io: IO, types: Types, dependencies: Dependencies, router: SendSwapProvidersRoutable) -> ReturnValue {
+    static func make(io: IO, dependencies: Dependencies, router: SendSwapProvidersRoutable) -> ReturnValue {
         let providersSelector = SendSwapProvidersSelectorViewModel(
             input: io.input,
             output: io.output,
             router: router,
             approveInput: io.approveInput,
             approveOutput: io.approveOutput,
+            sourceTokenInput: io.sourceTokenInput,
             receiveTokenInput: io.receiveTokenInput,
             receiveTokenAmountInput: io.receiveTokenAmountInput,
-            tokenItem: types.tokenItem,
             expressProviderFormatter: dependencies.expressProviderFormatter,
             priceChangeFormatter: dependencies.priceChangeFormatter,
             analyticsLogger: dependencies.analyticsLogger

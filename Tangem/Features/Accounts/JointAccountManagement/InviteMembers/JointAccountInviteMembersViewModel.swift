@@ -179,8 +179,7 @@ private extension JointAccountInviteMembersViewModel {
     /// - Note: An account the store no longer holds has no slots, and the screen says so rather than keeping rows
     /// whose invite links and activate button no longer lead anywhere.
     static func makeContent(of jointAccount: any JointAccountModel, slots: [JointAccountSlot]) -> Content {
-        let isCreatorDevice = jointAccount.jointAccountMembersService.isCreatorDevice
-        let ownAddress = jointAccount.jointAccountMembersService.ownAddress
+        let userRole = jointAccount.jointAccountMembersService.userRole
 
         let members = slots.enumerated().compactMap { index, slot -> MemberViewData? in
             guard case .member(let member) = slot else {
@@ -194,7 +193,7 @@ private extension JointAccountInviteMembersViewModel {
                     letter: member.name.prefix(1).uppercased(),
                     color: CompositeIconColorPalette.color(for: iconColor(at: index))
                 ),
-                role: role(of: member, ownAddress: ownAddress, isCreatorDevice: isCreatorDevice)
+                role: role(of: member, isOwn: userRole.member?.address.caseInsensitiveEquals(to: member.address) ?? false)
             )
         }
 
@@ -212,9 +211,9 @@ private extension JointAccountInviteMembersViewModel {
         let isCollecting = status.isPending || status.isConfirming
 
         return Content(
-            title: title(isCollecting: isCollecting, isCreatorDevice: isCreatorDevice),
+            title: title(isCollecting: isCollecting, isCreator: userRole.isCreator),
             isCollecting: isCollecting,
-            isSafetyBannerVisible: isCreatorDevice && status.isPending,
+            isSafetyBannerVisible: userRole.isCreator && status.isPending,
             members: members,
             freeSlots: freeSlots,
             isActivationAvailable: jointAccount.canActivate,
@@ -222,8 +221,8 @@ private extension JointAccountInviteMembersViewModel {
         )
     }
 
-    static func title(isCollecting: Bool, isCreatorDevice: Bool) -> String {
-        switch (isCollecting, isCreatorDevice) {
+    static func title(isCollecting: Bool, isCreator: Bool) -> String {
+        switch (isCollecting, isCreator) {
         case (false, _): Localization.jointAccountMembersTitle
         case (true, true): Localization.jointAccountInviteMembersTitle
         case (true, false): Localization.jointAccountInviteMembersWaitingTitle
@@ -234,14 +233,7 @@ private extension JointAccountInviteMembersViewModel {
 // MARK: - Member appearance
 
 extension JointAccountInviteMembersViewModel {
-    static func role(of member: JointAccountMember, ownAddress: String?, isCreatorDevice: Bool) -> String {
-        let isOwn: Bool
-        if let ownAddress {
-            isOwn = member.address.caseInsensitiveEquals(to: ownAddress)
-        } else {
-            isOwn = member.role == .creator && isCreatorDevice
-        }
-
+    static func role(of member: JointAccountMember, isOwn: Bool) -> String {
         switch (member.role, isOwn) {
         case (.creator, true):
             return "\(Localization.jointAccountMembersRoleYou) \(AppConstants.dotSign) \(Localization.jointAccountInviteMembersCreator)"

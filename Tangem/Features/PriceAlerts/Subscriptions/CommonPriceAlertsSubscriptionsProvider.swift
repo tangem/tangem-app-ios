@@ -29,14 +29,6 @@ extension CommonPriceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvid
         subscriptionsSubject.eraseToAnyPublisher()
     }
 
-    var subscriptions: RemotePriceAlertsSubscriptions {
-        subscriptionsSubject.value
-    }
-
-    func isSubscribed(tokenId: PriceAlertTokenId) -> Bool {
-        subscriptions.isSubscribed(tokenId: tokenId)
-    }
-
     func fetch() async throws {
         do {
             let tokenIds = try await tangemApiService.priceAlertsSubscriptions(userWalletId: walletId)

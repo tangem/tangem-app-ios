@@ -81,13 +81,6 @@ struct LineChartView: View {
     }
 }
 
-extension LineChartView {
-    struct Item: Identifiable, Equatable {
-        let id: Int
-        let value: Double
-    }
-}
-
 #Preview {
     HStack(spacing: 30) {
         LineChartView(

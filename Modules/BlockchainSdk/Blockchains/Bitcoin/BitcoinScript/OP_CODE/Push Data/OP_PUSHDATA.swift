@@ -31,17 +31,14 @@ import Foundation
 /// The next 1-byte contains the number of bytes to be pushed onto the stack (allows pushing 0..255 bytes).
 struct OpPushData1: OpCodeProtocol {
     var value: UInt8 { return 0x4c }
-    var name: String { return "OP_PUSHDATA1" }
 }
 
 /// The next 2-bytes contain the number of bytes to be pushed onto the stack in little endian order (allows pushing 0..65535 bytes).
 struct OpPushData2: OpCodeProtocol {
     var value: UInt8 { return 0x4d }
-    var name: String { return "OP_PUSHDATA2" }
 }
 
 /// The next 4-bytes contain the number of bytes to be pushed onto the stack in little endian order (allows pushing 0..4294967295 bytes)
 struct OpPushData4: OpCodeProtocol {
     var value: UInt8 { return 0x4e }
-    var name: String { return "OP_PUSHDATA4" }
 }

@@ -15,7 +15,6 @@ import Testing
 @Suite("YieldIncentivesClaimInteractor", .serialized, .timeLimit(.minutes(1)))
 struct YieldIncentivesClaimInteractorTests {
     private typealias Fixtures = YieldIncentivesFixtures
-    private typealias ClaimError = YieldIncentivesClaimInteractor.ClaimError
 
     @Test("A preparation carries the validated destination, payload and fee")
     func preparationCarriesTheValidatedPayload() async throws {

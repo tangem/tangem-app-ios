@@ -31,14 +31,15 @@ enum JointAccountCompositionFixture {
         status: JointAccountStatus = .pending,
         membersCount: Int,
         members: [JointAccountMember],
-        inviteIds: [String]?
+        inviteIds: [String]?,
+        keysProvider: KeysProvider = KeysRepositoryTestsMock(keys: [])
     ) -> CommonJointAccountMembersService {
         let repository = JointAccountsRepositoryStub(
             jointAccounts: [storedAccount(status: status, membersCount: membersCount, members: members)],
             invites: invitesRecords(inviteIds: inviteIds)
         )
 
-        return makeMembersService(repository: repository)
+        return makeMembersService(repository: repository, keysProvider: keysProvider)
     }
 
     static func makeMembersService(
@@ -49,7 +50,10 @@ enum JointAccountCompositionFixture {
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
             jointAccountsRepository: repository,
-            keysProvider: keysProvider
+            userRoleService: CommonJointAccountUserRoleService(
+                derivationIdentity: derivationIdentity,
+                keysProvider: keysProvider
+            )
         )
     }
 
@@ -95,6 +99,7 @@ enum JointAccountCompositionFixture {
                 nonce: 0
             ),
             status: status,
+            txHash: nil,
             initiator: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
             signatures: []
         )

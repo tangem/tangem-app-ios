@@ -17,13 +17,10 @@ protocol WalletCardsBackupReportRepository {
     /// once that primary becomes `.filled`, the group's still-`.blank` cards are filled too.
     func store(card: WalletCardsCurrentlyProcessedCard, primaryCardId: String, error: TangemSdkError?)
 
-    /// Cards the back end hasn't accepted yet — never delivered, or changed since they were — grouped into one
-    /// entry per wallet. A `.blank` card has no wallet to be delivered under and stays out until its identity
-    /// arrives. Emits the current state on subscription and after every change to the store.
-    var pendingToDeliveryPublisher: AnyPublisher<[WalletCardsWaitingDeliveryBackupCards], Never> { get }
+    var pendingReportsPublisher: AnyPublisher<[WalletCardsWaitingDeliveryBackupCards], Never> { get }
+    var oldestPendingReport: WalletCardsWaitingDeliveryBackupCards? { get }
 
-    /// Marks the cards the back end has just accepted, so they stop being reported as waiting.
-    func markDelivered(report: WalletCardsWaitingDeliveryBackupCards)
+    func removePendingReport(_ report: WalletCardsWaitingDeliveryBackupCards)
 }
 
 // MARK: - DI

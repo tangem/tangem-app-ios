@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 import TangemFoundation
 
 public struct PriceChangeView: View {
@@ -16,20 +17,23 @@ public struct PriceChangeView: View {
     private let showIconForNeutral: Bool
     /// [REDACTED_INFO]: Remove this flag and legacy colors when the redesign feature toggle is deleted
     private let useRedesignColors: Bool
-    private let shimmerAppearance: LoadingShimmerAppearance
+    private let isCapsuleSkeleton: Bool
+    private let skeletonSize: CGSize
 
     public init(
         state: State,
         showSkeletonWhenLoading: Bool = true,
         showIconForNeutral: Bool = true,
         useRedesignColors: Bool = false,
-        shimmerAppearance: LoadingShimmerAppearance = .skeleton
+        isCapsuleSkeleton: Bool = false,
+        skeletonSize: CGSize = CGSize(width: 40, height: 12)
     ) {
         self.state = state
         self.showSkeletonWhenLoading = showSkeletonWhenLoading
         self.showIconForNeutral = showIconForNeutral
         self.useRedesignColors = useRedesignColors
-        self.shimmerAppearance = shimmerAppearance
+        self.isCapsuleSkeleton = isCapsuleSkeleton
+        self.skeletonSize = skeletonSize
     }
 
     public var body: some View {
@@ -53,8 +57,7 @@ public struct PriceChangeView: View {
             changeContent(changeType: changeType, text: text)
         case .loadingCached(let changeType, let text):
             changeContent(changeType: changeType, text: text)
-                .loadingShimmer(shimmerAppearance)
-                .environment(\.isShimmerActive, true)
+                .shimmering(true)
         }
     }
 
@@ -70,26 +73,13 @@ public struct PriceChangeView: View {
         }
     }
 
-    @ViewBuilder
     private var skeleton: some View {
-        switch shimmerAppearance {
-        case .skeleton:
-            legacySkeleton
-
-        case .tangemShimmer:
-            Shimmer()
-                .variant(.custom(width: Constants.skeletonSize.width, height: Constants.skeletonSize.height))
-        }
-    }
-
-    @ViewBuilder
-    private var legacySkeleton: some View {
-        let base = SkeletonView().frame(width: Constants.skeletonSize.width, height: Constants.skeletonSize.height)
-        if useRedesignColors {
-            base.clipShape(.capsule)
-        } else {
-            base.cornerRadiusContinuous(3)
-        }
+        Shimmer()
+            .variant(.custom(
+                width: skeletonSize.width,
+                height: skeletonSize.height,
+                cornerRadius: useRedesignColors || isCapsuleSkeleton ? nil : 3
+            ))
     }
 
     private func shouldShowIcon(for changeType: ChangeType) -> Bool {
@@ -108,7 +98,7 @@ public struct PriceChangeView: View {
     }
 
     private var defaultTextColor: Color {
-        useRedesignColors ? .Tangem.Text.Neutral.tertiary : Colors.Text.tertiary
+        useRedesignColors ? DesignSystem.Color.textSecondary : Colors.Text.tertiary
     }
 
     private var styledDashText: some View {
@@ -120,20 +110,12 @@ public struct PriceChangeView: View {
         let color = textColor ?? defaultTextColor
         Group {
             if useRedesignColors {
-                Text(text).style(Font.Tangem.Caption12.regular, color: color)
+                Text(text).style(DesignSystem.Font.captionMediumToken, color: color)
             } else {
                 Text(text).style(Fonts.Regular.caption1, color: color)
             }
         }
         .lineLimit(1)
-    }
-}
-
-// MARK: - Constants
-
-private extension PriceChangeView {
-    enum Constants {
-        static let skeletonSize = CGSize(width: 40, height: 12)
     }
 }
 
@@ -191,22 +173,22 @@ public extension PriceChangeView {
         public var color: Color {
             switch self {
             case .positive:
-                return .Tangem.Text.Status.accent
+                return DesignSystem.Color.textAccentBlue
             case .neutral:
-                return .Tangem.Text.Neutral.tertiary
+                return DesignSystem.Color.textSecondary
             case .negative:
-                return .Tangem.Text.Status.warning
+                return DesignSystem.Color.textAccentRed
             }
         }
 
         public var iconColor: Color {
             switch self {
             case .positive:
-                .Tangem.Graphic.Status.accent
+                DesignSystem.Color.iconAccentBlue
             case .neutral:
-                .Tangem.Graphic.Neutral.tertiary
+                DesignSystem.Color.iconSecondary
             case .negative:
-                .Tangem.Graphic.Status.warning
+                DesignSystem.Color.iconAccentRed
             }
         }
 

@@ -519,20 +519,6 @@ public extension CollectiblesVaultProgram {
             return dailyCap >= spentToday ? dailyCap - spentToday : 0
         }
 
-        static func remainingToday(vault: Vault, now: Date) -> UInt64 {
-            remainingToday(dailyCap: vault.dailyCap, spentToday: vault.spentToday, dayIndex: vault.dayIndex, now: now)
-        }
-
-        /// - Parameter feeAmount: the backend's `fee_amount` — the program checks the caps against `amount + fee_amount`.
-        static func fitsCaps(amount: UInt64, feeAmount: UInt64, vault: Vault, now: Date) -> Bool {
-            fitsCaps(
-                amount: amount,
-                feeAmount: feeAmount,
-                perSpinCap: vault.perSpinCap,
-                remainingToday: remainingToday(vault: vault, now: now)
-            )
-        }
-
         static func fitsCaps(amount: UInt64, feeAmount: UInt64, vault: CollectiblesVaultInfo, now: Date) -> Bool {
             fitsCaps(
                 amount: amount,

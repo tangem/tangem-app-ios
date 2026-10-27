@@ -213,23 +213,13 @@ final class TangemPayBankOfframpTransferUITests: TangemPayBankOfframpUITestCase 
             .verifyRecentRecipient(.john)
     }
 
-    func testConfirmation_EditsTransferData() {
+    func testConfirmation_EditsAmountSourceAndRail() {
         setAllureId(12196)
 
         let michael = TangemPayBankTransferWizardScreen.RecipientDetails.michael
-        let emily = TangemPayBankTransferWizardScreen.RecipientDetails.emily
         let bankOfAmerica = TangemPayBankTransferWizardScreen.BankDetails.bankOfAmerica
-        let jpMorganChase = TangemPayBankTransferWizardScreen.BankDetails.jpMorganChase
 
-        let confirm = openPaymentAccount(balance: .bankOfframp)
-            .tapWithdrawOpeningHub()
-            .tapToPersonalAccount()
-            .enterAmount(Constants.Amount.transfer)
-            .tapContinueToTransferType()
-            .selectTransferType(.ownAccount)
-            .selectAccountType(.checking)
-            .fillRecipientDetails(michael)
-            .fillBankDetails(bankOfAmerica)
+        let confirm = openOwnCheckingConfirmation(recipient: michael, bank: bankOfAmerica)
             .verifyAmountCard(amount: Constants.Amount.sent, balance: Constants.Balance.polygon)
             .verifyRail(.ach)
             .verifyRailEditable(true)
@@ -241,6 +231,23 @@ final class TangemPayBankOfframpTransferUITests: TangemPayBankOfframpUITestCase 
             .tapContinueToConfirmation()
             .verifyAmountCard(amount: Constants.Amount.editedSent, balance: Constants.Balance.arbitrum)
             .verifyRail(.wire)
+            .verifyRecipientDetails([michael.accountNumber, bankOfAmerica.name])
+
+        let ordersBefore = bankOfframpOrderCount(matching: Constants.Order.editedAmountSourceAndRail)
+        confirm.tapSend()
+        verifyBankOfframpOrderSent(Constants.Order.editedAmountSourceAndRail, since: ordersBefore)
+    }
+
+    func testConfirmation_EditsRecipientAndBankDetails() {
+        setAllureId(13175)
+
+        let michael = TangemPayBankTransferWizardScreen.RecipientDetails.michael
+        let emily = TangemPayBankTransferWizardScreen.RecipientDetails.emily
+        let bankOfAmerica = TangemPayBankTransferWizardScreen.BankDetails.bankOfAmerica
+        let jpMorganChase = TangemPayBankTransferWizardScreen.BankDetails.jpMorganChase
+
+        let confirm = openOwnCheckingConfirmation(recipient: michael, bank: bankOfAmerica)
+            .verifyRecipientDetails([michael.accountNumber, michael.city, bankOfAmerica.name])
             .tapSection(containing: michael.accountNumber)
             .verifyFieldValue(.accountNumber, michael.accountNumber)
             .replaceText(in: .accountNumber, with: emily.accountNumber)
@@ -252,9 +259,9 @@ final class TangemPayBankOfframpTransferUITests: TangemPayBankOfframpUITestCase 
             .tapContinueToConfirmation()
             .verifyRecipientDetails([jpMorganChase.name])
 
-        let ordersBefore = bankOfframpOrderCount(matching: Constants.Order.editedOwnPersonalChecking)
+        let ordersBefore = bankOfframpOrderCount(matching: Constants.Order.editedRecipientAndBank)
         confirm.tapSend()
-        verifyBankOfframpOrderSent(Constants.Order.editedOwnPersonalChecking, since: ordersBefore)
+        verifyBankOfframpOrderSent(Constants.Order.editedRecipientAndBank, since: ordersBefore)
     }
 
     func testRecentRecipient_DetailsNotEditable() {
@@ -367,6 +374,21 @@ final class TangemPayBankOfframpTransferUITests: TangemPayBankOfframpUITestCase 
             .waitForRecipientDetailsForm()
         verify(businessWizard, rejects: [Constants.Invalid.businessName], in: .businessName, with: latinOnly)
         verify(businessWizard, accepts: [Constants.Valid.businessName], in: .businessName)
+    }
+
+    private func openOwnCheckingConfirmation(
+        recipient: TangemPayBankTransferWizardScreen.RecipientDetails,
+        bank: TangemPayBankTransferWizardScreen.BankDetails
+    ) -> TangemPayBankTransferConfirmScreen {
+        openPaymentAccount(balance: .bankOfframp)
+            .tapWithdrawOpeningHub()
+            .tapToPersonalAccount()
+            .enterAmount(Constants.Amount.transfer)
+            .tapContinueToTransferType()
+            .selectTransferType(.ownAccount)
+            .selectAccountType(.checking)
+            .fillRecipientDetails(recipient)
+            .fillBankDetails(bank)
     }
 
     private func openPersonalRecipientForm() -> TangemPayBankTransferWizardScreen {
@@ -553,11 +575,24 @@ private extension TangemPayBankOfframpTransferUITests {
                 )
             )
 
-            static let editedOwnPersonalChecking = TangemPayBankOfframpOrderRequest(
+            static let editedAmountSourceAndRail = TangemPayBankOfframpOrderRequest(
                 amountInCents: 700,
                 chainId: TangemPayNetwork.arbitrum.chainId,
                 details: .init(
                     rail: Rail.wire,
+                    bankAccountType: AccountType.checking,
+                    beneficiaryType: Beneficiary.individual,
+                    isThirdParty: false,
+                    accountNumber: "9876543210",
+                    bankName: "Bank of America"
+                )
+            )
+
+            static let editedRecipientAndBank = TangemPayBankOfframpOrderRequest(
+                amountInCents: 500,
+                chainId: TangemPayNetwork.polygon.chainId,
+                details: .init(
+                    rail: Rail.ach,
                     bankAccountType: AccountType.checking,
                     beneficiaryType: Beneficiary.individual,
                     isThirdParty: false,

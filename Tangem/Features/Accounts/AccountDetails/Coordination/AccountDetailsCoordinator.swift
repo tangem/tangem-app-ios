@@ -9,8 +9,6 @@
 import Foundation
 
 final class AccountDetailsCoordinator: CoordinatorObject {
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
-
     // MARK: - Navigation actions
 
     let dismissAction: Action<Void>
@@ -30,6 +28,7 @@ final class AccountDetailsCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var editAccountViewModel: AccountFormViewModel?
+    @Published var supportedNetworksViewModel: JointAccountSupportedNetworksViewModel?
 
     init(
         dismissAction: @escaping Action<Void>,
@@ -78,9 +77,7 @@ extension AccountDetailsCoordinator: CryptoAccountDetailsRoutable {
     }
 
     func openSupportedNetworks() {
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: JointAccountSupportedNetworksViewModel(coordinator: self))
-        }
+        supportedNetworksViewModel = JointAccountSupportedNetworksViewModel(coordinator: self)
     }
 
     func manageTokens() {
@@ -120,9 +117,7 @@ private extension AccountDetailsCoordinator {
 
 extension AccountDetailsCoordinator: JointAccountSupportedNetworksRoutable {
     func closeSupportedNetworks() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+        supportedNetworksViewModel = nil
     }
 }
 

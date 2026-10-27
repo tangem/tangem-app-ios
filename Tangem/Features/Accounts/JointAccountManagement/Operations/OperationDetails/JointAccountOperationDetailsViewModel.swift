@@ -21,6 +21,7 @@ import TangemUI
 ///   own and no signing — that belongs to the domain layer over the Safe support in the SDK.
 final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingSheetContentViewModel {
     @Published private(set) var isSigning = false
+    @Published private(set) var isRejecting = false
     @Published private(set) var viewState: ViewState = .details
     @Published private(set) var content: Content
     @Published private(set) var answer: Answer
@@ -40,9 +41,11 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
 
     private let signingActionButtonType: SigningActionButtonViewType
     private let sign: () async throws -> Void
+    private let reject: () async throws -> Void
     private let pendingOperationsProvider: (any JointAccountPendingOperationsProvider)?
     private weak var coordinator: JointAccountOperationDetailsRoutable?
     private var signTask: Task<Void, Never>?
+    private var rejectTask: Task<Void, Never>?
     private var isClosing = false
     private var updatesSubscription: AnyCancellable?
     private var frequentUpdatesSubscription: AnyCancellable?
@@ -60,7 +63,8 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         pendingOperationsProvider: (any JointAccountPendingOperationsProvider)?,
         coordinator: JointAccountOperationDetailsRoutable?,
         alertPresenter: AlertPresenter = InjectedValues[\.alertPresenter],
-        sign: @escaping () async throws -> Void
+        sign: @escaping () async throws -> Void,
+        reject: @escaping () async throws -> Void
     ) {
         self.tokenIconInfo = tokenIconInfo
         self.cryptoAmount = cryptoAmount
@@ -72,6 +76,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         self.content = content
         answer = content.answer
         self.sign = sign
+        self.reject = reject
         self.pendingOperationsProvider = pendingOperationsProvider
         self.coordinator = coordinator
         self.alertPresenter = alertPresenter
@@ -98,7 +103,8 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
                     id: Constants.addressMenuSectionID,
                     actions: [TransactionDetailsMenuFactory.copyAddressAction(for: recipient)]
                 ),
-            ]
+                rejectMenuSection,
+            ].compactMap { $0 }
         )
     }
 
@@ -143,6 +149,8 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
             close()
         case .signOperation:
             signOperation()
+        case .rejectOperation:
+            confirmRejection()
         case .openSigners:
             openSigners()
         case .copy(let value, let toast, _):
@@ -168,7 +176,7 @@ private extension JointAccountOperationDetailsViewModel {
     func updateContent(_ content: Content) {
         self.content = content
 
-        if answer == .awaiting, !isSigning {
+        if answer == .awaiting, !isSigning, !isRejecting {
             answer = content.answer
         }
 
@@ -212,7 +220,7 @@ private extension JointAccountOperationDetailsViewModel {
         Toast(
             view: TangemSnackbar(title: text)
                 .icon(DesignSystem.Icons.Checkmark.regular20)
-                .iconColor(Color.Tangem.Graphic.Status.accent)
+                .iconColor(DesignSystem.Color.iconAccentBlue)
         )
         .present(layout: .top(padding: 14), type: .temporary())
     }
@@ -272,9 +280,114 @@ private extension JointAccountOperationDetailsViewModel {
     }
 }
 
+// MARK: - Rejecting
+
+extension JointAccountOperationDetailsViewModel {
+    func rejectOperation() {
+        guard rejectTask == nil, !isSigning else {
+            return
+        }
+
+        let isInitiator = content.isInitiator
+
+        isRejecting = true
+        rejectTask = runTask(in: self) { viewModel in
+            do {
+                try await viewModel.reject()
+                await viewModel.finishRejecting(isInitiator: isInitiator, with: nil)
+            } catch {
+                await viewModel.finishRejecting(isInitiator: isInitiator, with: error)
+            }
+        }
+    }
+
+    private func confirmRejection() {
+        guard rejectTask == nil, !isSigning else {
+            return
+        }
+
+        let isInitiator = content.isInitiator
+
+        alertPresenter.present(alert: AlertBuilder.makeAlert(
+            title: isInitiator ? Localization.jointOperationDeleteAlertTitle : Localization.jointOperationDeclineAlertTitle,
+            message: isInitiator ? Localization.jointOperationDeleteAlertMessage : Localization.jointOperationDeclineAlertMessage,
+            primaryButton: .destructive(Text(isInitiator ? Localization.commonDelete : Localization.commonDecline)) { [weak self] in
+                self?.rejectOperation()
+            },
+            secondaryButton: .cancel()
+        ))
+    }
+
+    @MainActor
+    private func finishRejecting(isInitiator: Bool, with error: (any Error)?) {
+        isRejecting = false
+        rejectTask = nil
+
+        guard let error else {
+            if isInitiator {
+                close()
+                showDeletedToast()
+                return
+            }
+
+            answer = .declined
+            return
+        }
+
+        if answer == .awaiting {
+            answer = content.answer
+        }
+
+        guard !error.isCancellationError else {
+            return
+        }
+
+        JointAccountsLogger.error("Failed to reject a joint account operation", error: error)
+
+        switch (error as? TangemAPIError)?.code {
+        case .notFound:
+            close()
+        case .conflict:
+            alertPresenter.present(alert: AlertBuilder.makeAlertWithDefaultPrimaryButton(
+                title: Localization.jointOperationThresholdReachedTitle,
+                message: Localization.jointOperationThresholdReachedSubtitle,
+                buttonText: Localization.commonGotIt,
+                buttonAction: { [weak self] in self?.close() }
+            ))
+        default:
+            alertPresenter.present(alert: JointAccountOperationSigningErrorAlert(error: error).alertBinder)
+        }
+    }
+
+    private func showDeletedToast() {
+        Toast(
+            view: TangemSnackbar(title: Localization.jointOperationDeletedSnackbar)
+                .icon(DesignSystem.Icons.TrashBin.regular20)
+                .iconColor(DesignSystem.Color.iconStatusError)
+        )
+        .present(layout: .top(padding: 14), type: .temporary())
+    }
+}
+
 // MARK: - Blocks
 
 private extension JointAccountOperationDetailsViewModel {
+    var rejectMenuSection: TransactionDetailsHeaderViewData.MenuSection? {
+        guard content.canReject, content.status == .awaitingSignatures, answer != .declined else {
+            return nil
+        }
+
+        let action = TransactionDetailsHeaderViewData.MenuAction(
+            id: Constants.rejectMenuActionID,
+            title: content.isInitiator ? Localization.commonDelete : Localization.commonDecline,
+            icon: content.isInitiator ? DesignSystem.Icons.TrashBin.regular24 : DesignSystem.Icons.Cross.regular24,
+            action: .rejectOperation,
+            role: .destructive
+        )
+
+        return .init(id: Constants.rejectMenuSectionID, actions: [action])
+    }
+
     var amountBlock: TransactionDetailsBlock {
         .tokens(
             TransactionDetailsTokensViewData(
@@ -335,7 +448,7 @@ private extension JointAccountOperationDetailsViewModel {
                 icon: nil,
                 style: .default,
                 action: .signOperation,
-                isBusy: isSigning,
+                isBusy: isSigning || isRejecting,
                 isEnabled: isSignEnabled,
                 signingType: signingActionButtonType
             )
@@ -351,7 +464,7 @@ private extension JointAccountOperationDetailsViewModel {
     }
 
     var isSignEnabled: Bool {
-        guard content.canSign else {
+        guard content.canSign, !isRejecting else {
             return false
         }
 
@@ -393,6 +506,8 @@ private extension JointAccountOperationDetailsViewModel {
     enum Constants {
         static let networkFeeRowID = "joint_operation_network_fee"
         static let addressMenuSectionID = "joint_operation_address"
+        static let rejectMenuSectionID = "joint_operation_reject"
+        static let rejectMenuActionID = "rejectOperation"
     }
 }
 
@@ -432,6 +547,8 @@ extension JointAccountOperationDetailsViewModel {
         let signers: [JointAccountSignerRow.ViewData]
         let answer: Answer
         let canSign: Bool
+        let canReject: Bool
+        let isInitiator: Bool
         let status: Status
     }
 }

@@ -273,9 +273,12 @@ struct TransactionHistoryMapper {
     ) -> TransactionViewModel.SubtitleOwner? {
         guard
             let resolver,
-            let counterpartyOwner = counterparty,
-            counterpartyOwner.isOwnWallet
+            let counterpartyOwner = counterparty
         else {
+            return nil
+        }
+
+        if case .unresolved = counterpartyOwner {
             return nil
         }
 
@@ -446,6 +449,7 @@ private extension TransactionHistoryMapper {
         let formattedAmount = getFormattedAmount(for: prepared)
         let interaction = interactionAddress(from: record, transactionType: prepared.transactionType)
         let expressSubtitle = expressSubtitle(from: record, resolver: subtitleOwnerResolver)
+        let ownerInteraction = subtitleInteraction(from: record, fallback: interaction)
 
         return TransactionViewModel(
             hash: record.hash,
@@ -459,9 +463,10 @@ private extension TransactionHistoryMapper {
             currencyCode: amountSymbol(for: prepared),
             isOutgoing: record.isOutgoing,
             transactionType: prepared.transactionType,
-            status: status(from: record),
+            status: displayedStatus(from: prepared),
             isFromYieldContract: record.isFromYieldContract,
-            subtitleOwner: expressSubtitle == nil ? subtitleOwnerResolver?.resolve(for: subtitleInteraction(from: record, fallback: interaction)) : nil,
+            subtitleOwner: expressSubtitle == nil ? subtitleOwnerResolver?.resolve(for: ownerInteraction) : nil,
+            isTangemPayCounterparty: expressSubtitle == nil && subtitleOwnerResolver?.isTangemPayDeposit(ownerInteraction) == true,
             expressSubtitle: expressSubtitle,
             warning: expressWarning(from: record)
         )
@@ -759,7 +764,7 @@ private extension TransactionHistoryMapper {
         let tokenItem = resolvedToken ?? makeTokenItem(for: first, symbol: symbol, decimals: decimals)
         let iconInfo = TokenIconInfoBuilder().build(from: tokenItem, isCustom: resolvedToken == nil)
 
-        return .init(amount: amountText, iconInfo: iconInfo)
+        return .init(amount: amountText, symbol: symbol, iconInfo: iconInfo)
     }
 
     func makeTokenItem(
@@ -779,6 +784,17 @@ private extension TransactionHistoryMapper {
 
     func status(from record: TransactionRecord) -> TransactionViewModel.Status {
         TransactionOperationStatusMapper.viewStatus(for: record)
+    }
+
+    /// The network fee is never shown as failed
+    func displayedStatus(from prepared: PreparedRecord) -> TransactionViewModel.Status {
+        let status = status(from: prepared.record)
+
+        if prepared.transactionType.isNetworkFee, status == .failed {
+            return .confirmed
+        }
+
+        return status
     }
 
     func formatted(amount: Decimal, isOutgoing: Bool, isFailed: Bool) -> FormattedAmount {
@@ -806,13 +822,6 @@ private extension TransactionHistoryMapper {
             redesigned: redesignedSign + formattedAmount,
             withCurrencyCode: TransactionDetailsAmountTextBuilder.build(formattedAmount, symbol: symbol, sign: redesignedSign) ?? formattedAmount
         )
-    }
-}
-
-extension TransactionHistoryMapper {
-    enum Constants {
-        static let maximumFractionDigits = 8
-        static let roundingMode: NSDecimalNumber.RoundingMode = .down
     }
 }
 
@@ -848,7 +857,6 @@ private extension TransactionHistoryMapper {
             }()
 
             return sent - change
-
         } else {
             switch record.destination {
             case .single(let destination):
@@ -913,7 +921,7 @@ private extension TransactionHistoryMapper {
                 redesignedSign: yieldSign(AppConstants.plusSign, amount: amount, record: record)
             )
         default:
-            return formatted(amount: amount, isOutgoing: record.isOutgoing, isFailed: record.status == .failed)
+            return formatted(amount: amount, isOutgoing: record.isOutgoing, isFailed: record.status == .failed && !prepared.transactionType.isNetworkFee)
         }
     }
 

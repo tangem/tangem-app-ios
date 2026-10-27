@@ -219,7 +219,7 @@ final class InjectedEnvironment {
             let repository = FakeUserWalletRepository(models: [selectedWallet, otherWallet])
             repository.selectedModel = selectedWallet
             InjectedValues[\.userWalletRepository] = repository
-            InjectedValues[\.expressAvailabilityProvider] = SwapAvailableExpressProviderStub()
+            InjectedValues[\.expressAvailabilityProvider] = SwapExpressAvailabilityProviderStub()
 
             defer {
                 InjectedValues[\.userWalletRepository] = previousRepository
@@ -233,19 +233,6 @@ final class InjectedEnvironment {
 
 // MARK: - Stubs and spies
 
-private final class SwapAvailableExpressProviderStub: ExpressAvailabilityProvider {
-    var hasCache: Bool { true }
-    var availabilityDidChangePublisher: AnyPublisher<Void, Never> { Empty().eraseToAnyPublisher() }
-    var expressAvailabilityUpdateStateValue: ExpressAvailabilityUpdateState { .updated }
-    var expressAvailabilityUpdateState: AnyPublisher<ExpressAvailabilityUpdateState, Never> { .just(output: .updated) }
-
-    func swapState(for tokenItem: TokenItem) -> TokenItemExpressState { .available }
-    func onrampState(for tokenItem: TokenItem) -> TokenItemExpressState { .unavailable }
-    func canSwap(tokenItem: TokenItem) -> Bool { true }
-    func canOnramp(tokenItem: TokenItem) -> Bool { false }
-    func updateExpressAvailability(for items: [TokenItem], forceReload: Bool, userWalletId: String) {}
-}
-
 private final class TokenScreenDeeplinkRoutableSpy: TokenScreenDeeplinkRoutable {
     private(set) var swapParameters: PredefinedSwapParameters?
 
@@ -254,7 +241,6 @@ private final class TokenScreenDeeplinkRoutableSpy: TokenScreenDeeplinkRoutable 
     }
 
     func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters) {}
-    func openInSafari(url: URL) {}
 }
 
 // MARK: - Observables
@@ -263,11 +249,6 @@ extension PredefinedSwapParameters {
     /// `true` for the best-effort fallback, whose source is a guess a resolver settles later —
     /// as opposed to a source that came from the link's own parameters.
     var isPairDeferred: Bool {
-        switch self {
-        case .from(_, .deferred, _, _):
-            return true
-        case .from, .to:
-            return false
-        }
+        source is MainSwapSourceResolver
     }
 }

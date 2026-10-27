@@ -35,7 +35,7 @@ final class ReferralViewModel: ObservableObject {
     @Published private(set) var viewState: ViewState = .loading
 
     var mainButtonIcon: MainButton.Icon? {
-        CommonTangemIconProvider(config: userWalletModel.config).getMainButtonIcon()
+        SigningActionButtonViewTypeBuilder().build(config: userWalletModel.config).mainButtonIcon
     }
 
     @MainActor
@@ -179,17 +179,6 @@ final class ReferralViewModel: ObservableObject {
         Analytics.log(.referralButtonShareCode)
         let shareActivityVC = UIActivityViewController(activityItems: [shareLink], applicationActivities: nil)
         AppPresenter.shared.show(shareActivityVC)
-    }
-
-    @MainActor
-    func updateAccount(_ newAccount: any CryptoAccountModel) {
-        let accountData = SelectedAccountViewData(
-            id: newAccount.id,
-            iconViewData: AccountModelUtils.UI.iconViewData(icon: newAccount.icon.erased, accountName: newAccount.name),
-            name: newAccount.name
-        )
-
-        updateViewState(to: viewState.updateAccountData(with: accountData))
     }
 
     @MainActor
@@ -554,11 +543,6 @@ extension ReferralViewModel {
         return Localization.referralPointDiscountDescriptionValue("\(info.conditions.discount.amount)\(info.conditions.discount.type.symbol)")
     }
 
-    var hasPurchases: Bool {
-        let count = referralProgramInfo?.referral?.walletsPurchased ?? 0
-        return count > 0
-    }
-
     var numberOfWalletsBought: String {
         let count = referralProgramInfo?.referral?.walletsPurchased ?? 0
         return Localization.referralWalletsPurchasedCount(count)
@@ -625,7 +609,6 @@ extension ReferralViewModel {
         return Localization.referralTosEnroledPrefix + " "
     }
 
-    var isProgramInfoLoaded: Bool { referralProgramInfo != nil }
     var isAlreadyReferral: Bool { referralProgramInfo?.referral != nil }
 }
 

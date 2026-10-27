@@ -27,18 +27,24 @@ public struct PolymarketAmountBadge: View, Setupable {
     }
 
     public var body: some View {
-        text
-            .padding(.horizontal, Constants.horizontalPadding)
-            .padding(.vertical, Constants.verticalPadding)
-            .frame(minHeight: Constants.minHeight)
-            .background(appearance.backgroundColor, in: Capsule())
+        if case .loading(.none) = state {
+            Shimmer()
+                .frame(width: Constants.placeholderWidth, height: Constants.minHeight)
+                .clipShape(Capsule())
+        } else {
+            text
+                .padding(.horizontal, Constants.horizontalPadding)
+                .padding(.vertical, Constants.verticalPadding)
+                .frame(minHeight: Constants.minHeight)
+                .background(appearance.backgroundColor, in: Capsule())
+        }
     }
 
     private var text: some View {
         Text(label(amountText))
             .style(typographyToken, color: appearance.foregroundColor)
             .lineLimit(1)
-            .tangemShimmer()
+            .shimmering()
             .environment(\.isShimmerActive, isLoading)
     }
 
@@ -107,6 +113,7 @@ private extension PolymarketAmountBadge {
         static let horizontalPadding: CGFloat = 8
         static let verticalPadding: CGFloat = 2
         static let minHeight: CGFloat = 24
+        static let placeholderWidth: CGFloat = 120
     }
 }
 
@@ -118,6 +125,6 @@ public extension PolymarketAmountBadge {
     }
 
     static func payout(state: State) -> PolymarketAmountBadge {
-        PolymarketAmountBadge(state: state, appearance: .info, label: Localization.predictionPositionsPayout)
+        PolymarketAmountBadge(state: state, appearance: .warning, label: Localization.predictionPositionsPayout)
     }
 }

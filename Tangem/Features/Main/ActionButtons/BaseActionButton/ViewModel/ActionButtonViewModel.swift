@@ -16,17 +16,9 @@ protocol ActionButtonViewModel: ObservableObject, Identifiable {
 
     @MainActor
     func tap()
-
-    @MainActor
-    func updateState(to state: ActionButtonState)
 }
 
 extension ActionButtonViewModel {
-    // [REDACTED_INFO]: only the legacy `ActionButtonView` reads this; remove with that view (redesign uses `isDimmed`).
-    var isDisabled: Bool {
-        viewState == .disabled
-    }
-
     var isDimmed: Bool {
         switch viewState {
         case .restricted, .loading, .disabled:

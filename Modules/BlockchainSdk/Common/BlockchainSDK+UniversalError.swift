@@ -190,15 +190,6 @@ extension CasperError: UniversalError {
     }
 }
 
-extension ChiaError: UniversalError {
-    public var errorCode: Int {
-        switch self {
-        case .invalidHumanReadablePart:
-            102005000
-        }
-    }
-}
-
 extension ETHError: UniversalError {
     public var errorCode: Int {
         switch self {

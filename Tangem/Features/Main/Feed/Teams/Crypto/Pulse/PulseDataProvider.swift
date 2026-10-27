@@ -12,7 +12,6 @@ protocol PulseDataProvider {
     var tokensPublisher: AnyPublisher<[MarketsTokenModel], Never> { get }
     var failedPublisher: AnyPublisher<Bool, Never> { get }
     var isLoadingPublisher: AnyPublisher<Bool, Never> { get }
-    var canLoadMore: Bool { get }
 
     func makeRowViewModel(for token: MarketsTokenModel, onTap: @escaping () -> Void) -> MarketTokenItemViewModel
     /// `isCategoryUserInitiated` is false when the view model dropped a category the tag does not support.

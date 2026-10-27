@@ -27,5 +27,4 @@ import Foundation
 /// Same as OP_CHECKSIG, but OP_VERIFY is executed afterward.
 struct OpCheckSigVerify: OpCodeProtocol {
     var value: UInt8 { return 0xad }
-    var name: String { return "OP_CHECKSIGVERIFY" }
 }

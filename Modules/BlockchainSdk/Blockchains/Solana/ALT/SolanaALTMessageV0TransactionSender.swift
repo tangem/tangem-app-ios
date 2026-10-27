@@ -206,28 +206,15 @@ private extension SolanaALTMessageV0TransactionSender {
     ///   - newProgramIdIndex: New programId index
     /// - Returns: Updated instruction data
     private func patchComputeBudgetIfNeeded(_ instr: MessageCompiledInstruction, newAllKeys: [PublicKey], newProgramIdIndex: Int) throws -> [UInt8] {
-        let computeBudgetProgramId = "ComputeBudget111111111111111111111111111111"
-
         // Check if this is a ComputeBudget setComputeUnitLimit instruction
-        guard instr.data.count == 5,
-              newProgramIdIndex < newAllKeys.count,
-              newAllKeys[newProgramIdIndex].base58EncodedString == computeBudgetProgramId else {
+        guard newProgramIdIndex < newAllKeys.count,
+              newAllKeys[newProgramIdIndex].base58EncodedString == SolanaComputeBudgetInstruction.programId,
+              let currentBudget = SolanaComputeBudgetInstruction.computeUnitLimit(fromData: instr.data) else {
             return instr.data
         }
 
-        let discriminator = instr.data[0]
-        let budgetData = Data(instr.data[1 ... 4])
-
-        let currentBudget: UInt32 = budgetData.withUnsafeBytes { ptr in
-            ptr.load(as: UInt32.self)
-        }
-
         let increasedBudget = UInt32(Int(currentBudget) * 120 / 100) // Increase by 20%
-        var increasedBudgetLE = increasedBudget.littleEndian
-        let increasedBudgetBytes = Data(bytes: &increasedBudgetLE, count: MemoryLayout<UInt32>.size)
-
-        var newData = [UInt8(discriminator)]
-        newData.append(contentsOf: increasedBudgetBytes)
+        let newData = [UInt8](SolanaComputeBudgetInstruction.setComputeUnitLimit(increasedBudget).data)
 
         BSDKLogger.debug("ALT: [REMAP] ComputeBudget increased from \(currentBudget) to \(increasedBudget)")
 

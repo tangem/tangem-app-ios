@@ -19,9 +19,15 @@ struct RealAssetsFeedBuilder: FeedTabBuilder {
 
     func makeSearchTab(
         query: AnyPublisher<String, Never>,
-        history: FeedSearchHistoryProvider,
+        portfolioProvider: FeedSearchPortfolioProvider,
         context: FeedContext
     ) -> FeedSearchTab {
-        .realAssets(RealAssetsSearchViewModel(query: query, history: history, router: RealAssetsFeedRouter(context: context)))
+        .realAssets(
+            RealAssetsSearchViewModel(
+                query: query,
+                router: RealAssetsFeedRouter(context: context),
+                portfolioProvider: portfolioProvider
+            )
+        )
     }
 }

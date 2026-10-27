@@ -32,8 +32,8 @@ public struct SigningActionButtonView: View {
 
     public var body: some View {
         switch type {
-        case .cardTap:
-            Button(label: title, accessibilityLabel: nil, action: action)
+        case .requiredNFCInteraction:
+            Button(label: title, accessibilityLabel: nil, action: performActionIfIdle)
                 .iconEnd(DesignSystem.Icons.LogoTangem.regular24)
                 .styleType(.primary)
                 .size(.x12)
@@ -51,13 +51,25 @@ public struct SigningActionButtonView: View {
     }
 }
 
+// MARK: - Private
+
+private extension SigningActionButtonView {
+    func performActionIfIdle() {
+        guard !isLoading else {
+            return
+        }
+
+        action()
+    }
+}
+
 // MARK: - Previews
 
 #Preview {
     VStack(spacing: 16) {
-        SigningActionButtonView(type: .cardTap, title: "Sign", isLoading: false, isDisabled: false, action: {})
-        SigningActionButtonView(type: .cardTap, title: "Sign", isLoading: true, isDisabled: false, action: {})
-        SigningActionButtonView(type: .cardTap, title: "Sign", isLoading: false, isDisabled: true, action: {})
+        SigningActionButtonView(type: .requiredNFCInteraction, title: "Sign", isLoading: false, isDisabled: false, action: {})
+        SigningActionButtonView(type: .requiredNFCInteraction, title: "Sign", isLoading: true, isDisabled: false, action: {})
+        SigningActionButtonView(type: .requiredNFCInteraction, title: "Sign", isLoading: false, isDisabled: true, action: {})
         SigningActionButtonView(type: .holdToConfirm, title: "Sign", isLoading: false, isDisabled: false, action: {})
         SigningActionButtonView(type: .holdToConfirm, title: "Sign", isLoading: true, isDisabled: false, action: {})
         SigningActionButtonView(type: .holdToConfirm, title: "Sign", isLoading: false, isDisabled: true, action: {})

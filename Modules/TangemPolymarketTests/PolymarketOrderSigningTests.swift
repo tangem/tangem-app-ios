@@ -7,6 +7,7 @@
 
 import Foundation
 import Testing
+import TangemFoundation
 import TangemSdk
 @testable import TangemPolymarket
 
@@ -18,7 +19,7 @@ struct PolymarketOrderSigningTests {
     func digestMatchesVector() throws {
         let digest = try PolymarketOrderSigning.digest(
             order: Self.order,
-            isNegRisk: false,
+            domain: .ctfExchange,
             depositWalletAddress: Self.depositWallet
         )
 
@@ -29,24 +30,62 @@ struct PolymarketOrderSigningTests {
     func negRiskDigestMatchesVector() throws {
         let digest = try PolymarketOrderSigning.digest(
             order: Self.order,
-            isNegRisk: true,
+            domain: .negRiskCtfExchange,
             depositWalletAddress: Self.depositWallet
         )
 
         #expect(digest.hexString.lowercased() == "97d4ba244f6511157a7682dbe340477437aa5db39aa5ccd87b221604164dbeca")
     }
 
+    @Test("A V2 order signs for ExchangeV3 under domain version 3")
+    func exchangeV3DigestMatchesVector() throws {
+        let digest = try PolymarketOrderSigning.digest(
+            order: Self.order,
+            domain: .exchangeV3,
+            depositWalletAddress: Self.depositWallet
+        )
+
+        #expect(digest.hexString.lowercased() == "c6aa11eb9fb04bbc85c50287c29ac221b06515f7d6462525be1d9785d7745f5d")
+    }
+
+    @Test("The domain version is part of what is signed, not only the exchange address")
+    func domainVersionChangesTheDigest() throws {
+        let wrongVersion = PolymarketExchangeDomain(address: PolymarketApprovalContracts.exchangeV3, version: "2")
+
+        let digest = try PolymarketOrderSigning.digest(
+            order: Self.order,
+            domain: wrongVersion,
+            depositWalletAddress: Self.depositWallet
+        )
+
+        #expect(digest.hexString.lowercased() == "b7661215cb5b2a3b49271317da518711f8030aed787bea880513d313583d922a")
+    }
+
+    @Test("The V2 tail carries the ExchangeV3 domain separator and the same order hash")
+    func exchangeV3WrapCarriesTheTail() throws {
+        let wrapped = try PolymarketOrderSigning.wrap(
+            signature: Self.innerSignature,
+            order: Self.order,
+            domain: .exchangeV3
+        )
+
+        let tail = Self.tail(of: wrapped)
+
+        #expect(tail.prefix(Self.wordDigits) == "466c63910185bbd55e8679264200c4e0abdcbb0c6264eb3d41d13326022e095b")
+        #expect(tail.dropFirst(Self.wordDigits).prefix(Self.wordDigits) == "345bc1910f4a991a6b3deb33f798f6fbb2536a185d922c896dd8daee671bcd05")
+    }
+
     @Test("The two exchanges never produce the same digest for one order")
     func exchangesDoNotCollide() throws {
         let standard = try PolymarketOrderSigning.digest(
             order: Self.order,
-            isNegRisk: false,
+            domain: .ctfExchange,
             depositWalletAddress: Self.depositWallet
         )
 
         let negRisk = try PolymarketOrderSigning.digest(
             order: Self.order,
-            isNegRisk: true,
+            domain: .negRiskCtfExchange,
             depositWalletAddress: Self.depositWallet
         )
 
@@ -57,13 +96,13 @@ struct PolymarketOrderSigningTests {
     func depositWalletChangesTheDigest() throws {
         let mine = try PolymarketOrderSigning.digest(
             order: Self.order,
-            isNegRisk: false,
+            domain: .ctfExchange,
             depositWalletAddress: Self.depositWallet
         )
 
         let other = try PolymarketOrderSigning.digest(
             order: Self.order,
-            isNegRisk: false,
+            domain: .ctfExchange,
             depositWalletAddress: "0x4130efa9e628a991520be60f2e948a4f9be52fbc"
         )
 
@@ -74,13 +113,13 @@ struct PolymarketOrderSigningTests {
     func everyFieldChangesTheDigest(_ mutation: PolymarketOrderMutation) throws {
         let original = try PolymarketOrderSigning.digest(
             order: Self.order,
-            isNegRisk: false,
+            domain: .ctfExchange,
             depositWalletAddress: Self.depositWallet
         )
 
         let mutated = try PolymarketOrderSigning.digest(
             order: mutation.apply(to: Self.order),
-            isNegRisk: false,
+            domain: .ctfExchange,
             depositWalletAddress: Self.depositWallet
         )
 
@@ -94,7 +133,7 @@ struct PolymarketOrderSigningTests {
         let wrapped = try PolymarketOrderSigning.wrap(
             signature: Self.innerSignature,
             order: Self.order,
-            isNegRisk: false
+            domain: .ctfExchange
         )
 
         #expect(wrapped.hasPrefix(Self.innerSignature))
@@ -105,7 +144,7 @@ struct PolymarketOrderSigningTests {
         let wrapped = try PolymarketOrderSigning.wrap(
             signature: Self.innerSignature,
             order: Self.order,
-            isNegRisk: false
+            domain: .ctfExchange
         )
 
         #expect(wrapped.contains("3264e159346253e26a64e00b69032db0e7d32f94628de3e6eecb50304d7af3d2"))
@@ -117,7 +156,7 @@ struct PolymarketOrderSigningTests {
         let wrapped = try PolymarketOrderSigning.wrap(
             signature: Self.innerSignature,
             order: Self.order,
-            isNegRisk: false
+            domain: .ctfExchange
         )
 
         #expect(wrapped.hasSuffix("00ba"))
@@ -128,7 +167,7 @@ struct PolymarketOrderSigningTests {
         let wrapped = try PolymarketOrderSigning.wrap(
             signature: Self.innerSignature,
             order: Self.order,
-            isNegRisk: false
+            domain: .ctfExchange
         )
 
         let tail = wrapped.removeHexPrefix().count - Self.innerSignature.removeHexPrefix().count
@@ -141,13 +180,13 @@ struct PolymarketOrderSigningTests {
         let standard = try PolymarketOrderSigning.wrap(
             signature: Self.innerSignature,
             order: Self.order,
-            isNegRisk: false
+            domain: .ctfExchange
         )
 
         let negRisk = try PolymarketOrderSigning.wrap(
             signature: Self.innerSignature,
             order: Self.order,
-            isNegRisk: true
+            domain: .negRiskCtfExchange
         )
 
         let standardTail = Self.tail(of: standard)
@@ -162,7 +201,7 @@ struct PolymarketOrderSigningTests {
         let wrapped = try PolymarketOrderSigning.wrap(
             signature: Self.innerSignature.uppercased(),
             order: Self.order,
-            isNegRisk: false
+            domain: .ctfExchange
         )
 
         #expect(wrapped.hasPrefix("0x"))
@@ -180,7 +219,7 @@ struct PolymarketOrderSigningTests {
         #expect(throws: PolymarketOrderSigningError.invalidAddress(address)) {
             try PolymarketOrderSigning.digest(
                 order: Self.order,
-                isNegRisk: false,
+                domain: .ctfExchange,
                 depositWalletAddress: address
             )
         }
@@ -193,7 +232,7 @@ struct PolymarketOrderSigningTests {
         #expect(throws: PolymarketOrderSigningError.invalidWord("0x00aa")) {
             try PolymarketOrderSigning.digest(
                 order: order,
-                isNegRisk: false,
+                domain: .ctfExchange,
                 depositWalletAddress: Self.depositWallet
             )
         }
@@ -206,7 +245,7 @@ struct PolymarketOrderSigningTests {
         #expect(throws: PolymarketOrderSigningError.invalidAmount(amount)) {
             try PolymarketOrderSigning.digest(
                 order: order,
-                isNegRisk: false,
+                domain: .ctfExchange,
                 depositWalletAddress: Self.depositWallet
             )
         }
@@ -220,7 +259,7 @@ struct PolymarketOrderSigningTests {
         #expect(throws: PolymarketOrderSigningError.invalidAmount(amount)) {
             try PolymarketOrderSigning.digest(
                 order: order,
-                isNegRisk: false,
+                domain: .ctfExchange,
                 depositWalletAddress: Self.depositWallet
             )
         }
@@ -230,13 +269,13 @@ struct PolymarketOrderSigningTests {
     func zeroIsEncodedOnce() throws {
         let plain = try PolymarketOrderSigning.digest(
             order: Self.order.replacing(makerAmount: "0"),
-            isNegRisk: false,
+            domain: .ctfExchange,
             depositWalletAddress: Self.depositWallet
         )
 
         let padded = try PolymarketOrderSigning.digest(
             order: Self.order.replacing(makerAmount: "0000"),
-            isNegRisk: false,
+            domain: .ctfExchange,
             depositWalletAddress: Self.depositWallet
         )
 
@@ -249,7 +288,7 @@ struct PolymarketOrderSigningTests {
 
         let digest = try PolymarketOrderSigning.digest(
             order: Self.order.replacing(makerAmount: amount),
-            isNegRisk: false,
+            domain: .ctfExchange,
             depositWalletAddress: Self.depositWallet
         )
 

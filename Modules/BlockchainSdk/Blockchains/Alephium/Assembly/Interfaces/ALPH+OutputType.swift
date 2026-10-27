@@ -10,8 +10,5 @@ import Foundation
 
 extension ALPH {
     /// A protocol representing an output type in the Alephium blockchain
-    protocol OutputType {
-        /// The cached level of the output
-        var cachedLevel: Int { get }
-    }
+    protocol OutputType {}
 }

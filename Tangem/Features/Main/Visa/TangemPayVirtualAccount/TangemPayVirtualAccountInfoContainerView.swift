@@ -11,10 +11,6 @@ struct TangemPayVirtualAccountInfoContainerView: View {
     @ObservedObject var viewModel: TangemPayVirtualAccountInfoSheetViewModel
 
     var body: some View {
-        if FeatureProvider.isAvailable(.tangemPayOnrampV2) {
-            TangemPayVirtualAccountOnboardingView(viewModel: viewModel)
-        } else {
-            TangemPayVirtualAccountInfoSheetView(viewModel: viewModel)
-        }
+        TangemPayVirtualAccountOnboardingView(viewModel: viewModel)
     }
 }

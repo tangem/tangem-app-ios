@@ -210,7 +210,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     func renewTangemPaySession() {
-        guard let tangemPayAccountModel = AccountModelsAggregator(.tangemPay).model(from: userWalletModel.accountModelsManager) else {
+        guard let tangemPayAccountModel = AccountModelsAggregator(.tangemPay)
+            .model(from: userWalletModel.accountModelsManager)
+        else {
             return
         }
         Analytics.log(.mainNoticeScanYourCardTapped)
@@ -256,7 +258,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     func onAddTokensTap() {
-        guard let mainAccount = AccountModelsAggregator(.crypto).models(from: userWalletModel.accountModelsManager).first(where: { $0.isMainAccount }) else {
+        guard let mainAccount = AccountModelsAggregator(.crypto)
+            .models(from: userWalletModel.accountModelsManager)
+            .first(where: { $0.isMainAccount })
+        else {
             return
         }
 
@@ -491,7 +496,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                             return
                         }
 
-                        viewModel.coordinator?.openJointAccountMembers(jointAccount: pendingJointAccount, userWalletConfig: viewModel.userWalletModel.config)
+                        viewModel.coordinator?.openJointAccountMembers(
+                            jointAccount: pendingJointAccount,
+                            userWalletConfig: viewModel.userWalletModel.config
+                        )
                     }
                 }
             }
@@ -523,7 +531,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                             return
                         }
 
-                        viewModel.coordinator?.openJointAccountOperationDetails(pendingOperation: pendingOperation, userWalletInfo: viewModel.userWalletModel.userWalletInfo)
+                        viewModel.coordinator?.openJointAccountOperationDetails(
+                            pendingOperation: pendingOperation,
+                            userWalletInfo: viewModel.userWalletModel.userWalletInfo
+                        )
                     }
                 }
             }
@@ -601,7 +612,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private func tokenItemTapped(_ walletModelId: WalletModelId) {
         guard
             let walletModel = findWalletModel(with: walletModelId),
-            TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel).isTokenInteractionAvailable()
+            TokenActionAvailabilityProvider(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                walletModel: walletModel
+            ).isTokenInteractionAvailable()
         else {
             return
         }
@@ -756,7 +770,10 @@ extension MultiWalletMainContentViewModel {
     }
 
     private func openManageTokens() {
-        guard let mainAccount = AccountModelsAggregator(.crypto).models(from: userWalletModel.accountModelsManager).first(where: \.isMainAccount) else {
+        guard let mainAccount = AccountModelsAggregator(.crypto)
+            .models(from: userWalletModel.accountModelsManager)
+            .first(where: \.isMainAccount)
+        else {
             return
         }
 
@@ -765,7 +782,10 @@ extension MultiWalletMainContentViewModel {
 
     private func openAddFunds() {
         let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
-        coordinator?.openBuy(userWalletModels: userWalletModels, preferredWalletId: ActionButtonsBuyPreselection.userWalletId(for: userWalletModel))
+        coordinator?.openBuy(
+            userWalletModels: userWalletModels,
+            preferredWalletId: ActionButtonsBuyPreselection.userWalletId(for: userWalletModel)
+        )
     }
 
     private func openBackupErrorSupport() {
@@ -856,10 +876,6 @@ extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
 
     func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor) {
         coordinator?.openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
-    }
-
-    func openTangemPayFailedToIssueCardPopup() {
-        coordinator?.openTangemPayFailedToIssueCardPopup(userWalletModel: userWalletModel)
     }
 
     func openTangemPayResidency(interactor: any TangemPayResidencyInteractor) {
@@ -1000,7 +1016,10 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             return
         }
 
-        let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+        let availabilityProvider = TokenActionAvailabilityProvider(
+            userWalletInfo: userWalletModel.userWalletInfo,
+            walletModel: walletModel
+        )
 
         switch action {
         case .buy:
@@ -1038,13 +1057,12 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
                 }
             )
         case .exchange:
-            guard let parameters = SwapPredefinedParametersHelper().makeParameters(
+            let builder = TokenDetailsSwapPredefinedParametersBuilder(
                 walletModel: walletModel,
                 userWalletInfo: userWalletModel.userWalletInfo,
-                position: .automatic
-            ) else {
-                return
-            }
+                direction: .build(for: walletModel)
+            )
+            let parameters = builder.make()
 
             tokenRouter.openSwap(parameters: parameters)
         case .stake:
@@ -1115,7 +1133,6 @@ private extension MultiWalletMainContentViewModel {
                 assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
                 return .canceled
             }
-
         } catch {
             return .failed(error: error)
         }

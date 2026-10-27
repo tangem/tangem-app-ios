@@ -43,13 +43,11 @@ protocol AccountModelsManager: AccountModelsReordering, DisposableEntity {
 
     func reloadAccountsFromRemote() async
 
-    func acceptTangemPayOffer(authorizingInteractor: TangemPayAuthorizing) async throws(TangemPayAuthorizationError)
-
     func authorizeTangemPayOfferForResidency(
         authorizingInteractor: TangemPayAuthorizing
     ) async throws(TangemPayAuthorizationError) -> (any TangemPayResidencyInteractor)?
 
-    /// Same as `acceptTangemPayOffer`, but the campaign's card issue order is placed before KYC so that the
+    /// Authorizes the customer wallet and launches KYC, placing the campaign's card issue order before KYC so that the
     /// tariff plan selection screen never appears.
     func acceptTangemPayCampaignOffer(
         authorizingInteractor: TangemPayAuthorizing,

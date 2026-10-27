@@ -14,6 +14,8 @@ import TangemUIUtils
 struct CollectiblesInfoSheetView: View {
     let model: Model
     let onClose: () -> Void
+    let onPrimary: () -> Void
+    let onSecondary: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -35,7 +37,15 @@ extension CollectiblesInfoSheetView {
         let iconBackgroundColor: Color
         let title: String
         let message: String
-        let buttonTitle: String
+        let primaryButton: Button
+        var secondaryButton: Button?
+    }
+}
+
+extension CollectiblesInfoSheetView.Model {
+    struct Button {
+        let title: String
+        var action: (() -> Void)?
     }
 }
 
@@ -89,12 +99,21 @@ private extension CollectiblesInfoSheetView {
     }
 
     var footer: some View {
-        TangemUI.Button(label: model.buttonTitle, accessibilityLabel: nil, action: onClose)
-            .styleType(.primary)
-            .horizontalLayout(.infinity)
-            .size(.x12)
-            .padding(.horizontal, Metrics.horizontalPadding)
-            .padding(.vertical, Metrics.footerVerticalPadding)
+        VStack(spacing: Metrics.buttonsSpacing) {
+            if let secondaryButton = model.secondaryButton {
+                TangemUI.Button(label: secondaryButton.title, accessibilityLabel: nil, action: onSecondary)
+                    .styleType(.secondary(.default))
+                    .horizontalLayout(.infinity)
+                    .size(.x12)
+            }
+
+            TangemUI.Button(label: model.primaryButton.title, accessibilityLabel: nil, action: onPrimary)
+                .styleType(.primary)
+                .horizontalLayout(.infinity)
+                .size(.x12)
+        }
+        .padding(.horizontal, Metrics.horizontalPadding)
+        .padding(.vertical, Metrics.footerVerticalPadding)
     }
 }
 
@@ -116,6 +135,7 @@ extension CollectiblesInfoSheetView {
         static let contentBottomPadding: CGFloat = 48
 
         static let footerVerticalPadding: CGFloat = 8
+        static let buttonsSpacing: CGFloat = 8
 
         static let estimatedHeight: CGFloat = 380
     }

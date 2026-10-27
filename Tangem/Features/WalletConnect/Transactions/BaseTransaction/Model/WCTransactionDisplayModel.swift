@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemLocalization
+import TangemUI
 
 enum WCTransactionConnectionTargetKind {
     case wallet(name: String)
@@ -22,8 +23,6 @@ protocol WCTransactionViewModelDisplayData: AnyObject {
     var isValidatingRecipient: Bool { get }
     var selectedFee: WCFee? { get }
     var sendableTransaction: WCSendableTransaction? { get }
-    var feeInteractor: (any WCFeeInteractorType)? { get }
-    var feeManager: WCTransactionFeeManager { get }
 
     func getWalletModelForTransaction() -> (any WalletModel)?
     func handleViewAction(_ action: WCTransactionViewModel.ViewAction)
@@ -31,14 +30,12 @@ protocol WCTransactionViewModelDisplayData: AnyObject {
 
 @MainActor
 protocol WCTransactionDisplayModel {
-    var userWalletName: String { get }
     var connectionTargetKind: WCTransactionConnectionTargetKind? { get }
     var primaryActionButtonTitle: String { get }
     var isActionButtonBlocked: Bool { get }
     var isDataReady: Bool { get }
     var simulationDisplayModel: WCTransactionSimulationDisplayModel? { get }
-    var tangemIconProvider: TangemIconProvider { get }
-    var confirmTransactionPolicy: ConfirmTransactionPolicy { get }
+    var signingActionButtonType: SigningActionButtonViewType { get }
 }
 
 @MainActor
@@ -62,10 +59,6 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
         self.simulationManager = simulationManager
         self.securityManager = securityManager
         self.viewModel = viewModel
-    }
-
-    var userWalletName: String {
-        transactionData.userWalletModel.name
     }
 
     var connectionTargetKind: WCTransactionConnectionTargetKind? {
@@ -162,11 +155,7 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
         )
     }
 
-    var tangemIconProvider: TangemIconProvider {
-        CommonTangemIconProvider(config: transactionData.userWalletModel.config)
-    }
-
-    var confirmTransactionPolicy: ConfirmTransactionPolicy {
-        CommonConfirmTransactionPolicy(userWalletInfo: transactionData.userWalletModel.userWalletInfo)
+    var signingActionButtonType: SigningActionButtonViewType {
+        SigningActionButtonViewTypeBuilder().build(userWalletInfo: transactionData.userWalletModel.userWalletInfo)
     }
 }

@@ -1,0 +1,37 @@
+{
+  "configurations" : [
+    {
+      "id" : "5B8C2E61-3F0D-4A7B-9C1E-8D2F6A4B7C30",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "environmentVariableEntries" : [
+      {
+        "key" : "TANGEM_SNAPSHOT_HOST",
+        "value" : "1"
+      },
+      {
+        "key" : "TZ",
+        "value" : "UTC"
+      }
+    ],
+    "language" : "en",
+    "region" : "US"
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:TangemApp.xcodeproj",
+        "identifier" : "640931FD38671B45D38AEBB7",
+        "name" : "TangemSnapshotTests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -17,7 +17,6 @@ public struct TangemTokenRow: View {
 
     private let viewData: TangemTokenRowViewData
 
-    @ScaledMetric private var priceChangeIconSpacing: CGFloat = TangemTokenRowConstants.Spacings.priceChangeIconSpacing
     @ScaledMetric private var scaleFactor: CGFloat = 1
 
     public init(viewData: TangemTokenRowViewData) {
@@ -216,7 +215,7 @@ public struct TangemTokenRow: View {
             .size(.x4)
             .variant(.tinted)
             .appearance(info.isActive ? .info : .neutral)
-            .tangemShimmer()
+            .shimmering()
             .environment(\.isShimmerActive, info.isUpdating)
             .accessibilityIdentifier(viewData.accessibilityIdentifiers?.rewardsBadge)
     }
@@ -349,5 +348,3 @@ private extension TangemTokenRowViewData.BalanceValue {
         return false
     }
 }
-
-// MARK: Look for previews in `TangemTokenRowPreviews` file

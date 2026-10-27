@@ -27,7 +27,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
 
         await withInjectedCampaignDependencies(spy.fake, userWalletRepository: repository) {
             let sut = makeSUT()
-            #expect(await waitUntilConditionMet { sut.viewState == .summary })
+            #expect(await waitUntilMainActorConditionMet { sut.viewState == .summary })
         }
     }
 
@@ -38,7 +38,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
 
         await withInjectedCampaignDependencies(spy.fake, userWalletRepository: repository) {
             let sut = makeSUT(campaignId: "unknown-campaign")
-            #expect(await waitUntilConditionMet { sut.viewState == .campaignNotActive })
+            #expect(await waitUntilMainActorConditionMet { sut.viewState == .campaignNotActive })
         }
     }
 
@@ -49,7 +49,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
 
         await withInjectedCampaignDependencies(spy.fake, userWalletRepository: repository) {
             let sut = makeSUT()
-            #expect(await waitUntilConditionMet { sut.viewState == .campaignNotActive })
+            #expect(await waitUntilMainActorConditionMet { sut.viewState == .campaignNotActive })
         }
     }
 
@@ -63,7 +63,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
 
         await withInjectedCampaignDependencies(spy.fake, userWalletRepository: repository) {
             let sut = makeSUT()
-            #expect(await waitUntilConditionMet { sut.viewState == .campaignNotActive })
+            #expect(await waitUntilMainActorConditionMet { sut.viewState == .campaignNotActive })
         }
     }
 
@@ -76,7 +76,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
 
         await withInjectedCampaignDependencies(spy.fake, userWalletRepository: repository) {
             let sut = makeSUT()
-            #expect(await waitUntilConditionMet { sut.viewState == .campaignNotActive })
+            #expect(await waitUntilMainActorConditionMet { sut.viewState == .campaignNotActive })
         }
     }
 
@@ -89,7 +89,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
 
         await withInjectedCampaignDependencies(spy.fake, userWalletRepository: repository) {
             let sut = makeSUT()
-            #expect(await waitUntilConditionMet { sut.viewState == .campaignNotActive })
+            #expect(await waitUntilMainActorConditionMet { sut.viewState == .campaignNotActive })
         }
     }
 
@@ -101,7 +101,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
         await withInjectedCampaignDependencies(spy.fake, userWalletRepository: repository) {
             let sut = makeSUT()
 
-            #expect(await waitUntilConditionMet { sut.viewState == .summary })
+            #expect(await waitUntilMainActorConditionMet { sut.viewState == .summary })
             #expect(spy.requestedWalletIds.count == 1)
         }
     }
@@ -159,7 +159,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
 
             sut.enroll()
 
-            #expect(await waitUntilConditionMet { sut.viewState == .enrollSuccess })
+            #expect(await waitUntilMainActorConditionMet { sut.viewState == .enrollSuccess })
             #expect(!sut.isEnrolling)
 
             let request = try #require(recordedRequests.withLock { $0.first })
@@ -185,7 +185,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
 
             sut.enroll()
 
-            #expect(await waitUntilConditionMet { sut.viewState == .alreadyActivated })
+            #expect(await waitUntilMainActorConditionMet { sut.viewState == .alreadyActivated })
             #expect(!sut.isEnrolling)
         }
     }
@@ -201,7 +201,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
 
             sut.enroll()
 
-            #expect(await waitUntilConditionMet { coordinator.errorToastTexts.count == 1 })
+            #expect(await waitUntilMainActorConditionMet { coordinator.errorToastTexts.count == 1 })
             #expect(!sut.isEnrolling)
             #expect(sut.viewState == .readyToEnroll)
         }
@@ -227,7 +227,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
             sut.enroll()
             await gate.open()
 
-            #expect(await waitUntilConditionMet { sut.viewState == .enrollSuccess })
+            #expect(await waitUntilMainActorConditionMet { sut.viewState == .enrollSuccess })
             #expect(registerCallCount.withLock { $0 } == 1)
         }
     }

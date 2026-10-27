@@ -60,8 +60,14 @@ final class CommonJointAccountPendingOperationsProvider {
             let innerCallType = try SafeInnerCallTypeParser.parse(operation.safeTransaction.innerCall)
             let walletModel = try walletModel(relatedTo: innerCallType, chainId: operation.chainId, among: walletModels)
             let wallet = try walletBuilder.build(walletModel: walletModel)
+            let feeTokenItem = feeTokenItem(of: operation, through: walletModel, among: walletModels)
 
-            return JointAccountPendingOperation(wallet: wallet, operation: operation, innerCallType: innerCallType)
+            return JointAccountPendingOperation(
+                wallet: wallet,
+                operation: operation,
+                innerCallType: innerCallType,
+                feeTokenItem: feeTokenItem
+            )
         } catch {
             // Expected while a token another member added is not added here yet, so noted rather than reported
             JointAccountsLogger.info("An unfinished operation of a joint account is left out: \(error)")
@@ -76,13 +82,11 @@ final class CommonJointAccountPendingOperationsProvider {
         chainId: Int,
         among walletModels: [any WalletModel]
     ) throws -> any WalletModel {
-        let walletModelsInNetwork = walletModels.filter { $0.tokenItem.blockchain.chainId == chainId }
-
         let walletModel: (any WalletModel)? = switch innerCallType {
         case .transfer(.coin):
-            walletModelsInNetwork.first { $0.tokenItem.isBlockchain }
+            walletModels.first { $0.tokenItem.blockchain.chainId == chainId && $0.tokenItem.isBlockchain }
         case .transfer(.token(let contractAddress, _, _)):
-            walletModelsInNetwork.first { $0.tokenItem.contractAddress?.caseInsensitiveEquals(to: contractAddress) == true }
+            self.walletModel(contractAddress: contractAddress, chainId: chainId, among: walletModels)
         }
 
         guard let walletModel else {
@@ -90,6 +94,36 @@ final class CommonJointAccountPendingOperationsProvider {
         }
 
         return walletModel
+    }
+
+    private func feeTokenItem(
+        of operation: JointAccountOperation,
+        through walletModel: any WalletModel,
+        among walletModels: [any WalletModel]
+    ) -> TokenItem? {
+        let gasToken = operation.safeTransaction.gasToken
+
+        if gasToken.caseInsensitiveEquals(to: SafeGasToken.coinGasTokenRawValue) {
+            return .blockchain(walletModel.tokenItem.blockchainNetwork)
+        }
+
+        guard let feeWalletModel = self.walletModel(contractAddress: gasToken, chainId: operation.chainId, among: walletModels) else {
+            JointAccountsLogger.info("The fee of an unfinished operation of a joint account is in a token not added here")
+            return nil
+        }
+
+        return feeWalletModel.tokenItem
+    }
+
+    private func walletModel(
+        contractAddress: String,
+        chainId: Int,
+        among walletModels: [any WalletModel]
+    ) -> (any WalletModel)? {
+        walletModels.first {
+            $0.tokenItem.blockchain.chainId == chainId
+                && $0.tokenItem.contractAddress?.caseInsensitiveEquals(to: contractAddress) == true
+        }
     }
 }
 

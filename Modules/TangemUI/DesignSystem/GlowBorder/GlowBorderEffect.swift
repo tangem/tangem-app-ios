@@ -62,23 +62,4 @@ public enum GlowBorderEffect: Equatable, Sendable {
             })
         }
     }
-
-    var strokeGradientColors: [Color] {
-        switch self {
-        case .none, .bannerCard, .bannerMagic:
-            return [
-                Color.Tangem.Border.Neutral.banner.opacity(0.3),
-                Color.Tangem.Border.Neutral.banner,
-                Color.Tangem.Border.Neutral.banner.opacity(0.3),
-                Color.Tangem.Border.Neutral.banner,
-            ]
-        case .bannerWarning:
-            return [
-                Color(red: 228 / 255, green: 72 / 255, blue: 72 / 255).opacity(0.3),
-                Color(red: 228 / 255, green: 72 / 255, blue: 72 / 255),
-                Color(red: 228 / 255, green: 72 / 255, blue: 72 / 255).opacity(0.3),
-                Color(red: 228 / 255, green: 72 / 255, blue: 72 / 255),
-            ]
-        }
-    }
 }

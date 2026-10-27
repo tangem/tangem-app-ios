@@ -20,18 +20,12 @@ extension ALPH {
         static let maxALPHValue: U256 = .unsafe(billion).mulUnsafe(coinInOneALPH)
 
         static let maxTxInputNum: Int = 256
-        static let maxTxOutputNum: Int = 256
         static let maxNodeUtxosNum: Int = 5000
 
         static let dustAmountValue = Decimal(stringValue: "0.001")!
 
         static let minimalGasBox: GasBox = .unsafe(initialGas: minimalGas)
         static let nonCoinbaseMinValue: Decimal = .init(stringValue: "100")!
-
-        static var nonCoinbaseMinGasPrice: GasPrice {
-            let u256 = Constants.nanoALPH(amount: nonCoinbaseMinValue.uint64Value)
-            return GasPrice(value: u256)
-        }
 
         static var dustUtxoAmount: U256 {
             Constants.nanoALPH(amount: dustAmountValue.uint64Value)

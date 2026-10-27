@@ -13,7 +13,6 @@ class TwinsFinalizeWalletCreationTask: CardSessionRunnable {
     var shouldAskForAccessCode: Bool { false }
 
     private let fileToWrite: Data
-    var requiresPin2: Bool { true }
     private var scanCommand: AppScanTask?
 
     init(fileToWrite: Data) {

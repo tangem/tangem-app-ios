@@ -140,7 +140,6 @@ final class AccountModelsManagerStub: AccountModelsManager {
 
     func reloadAccountsFromRemote() async {}
 
-    func acceptTangemPayOffer(authorizingInteractor: TangemPayAuthorizing) async {}
     func authorizeTangemPayOfferForResidency(authorizingInteractor: any TangemPayAuthorizing) async -> (any TangemPayResidencyInteractor)? { nil }
     func acceptTangemPayCampaignOffer(authorizingInteractor: TangemPayAuthorizing, campaignKey: String) async {}
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {}
@@ -207,26 +206,6 @@ enum CampaignsFixtures {
             kind: .crypto(walletModel, CryptoAccountModelMock(isMainAccount: true, onArchive: { _ in }))
         )
     }
-
-    static func makeBannerData(
-        tokens: [CampaignEligibleToken] = [PromotionCampaignsFixtures.makeEligibleToken()],
-        start: Date = Date().addingTimeInterval(-.day),
-        end: Date = Date().addingTimeInterval(.day),
-        status: BannerPromotion.Response.Status = .active,
-        link: String? = "https://tangem.com/promo"
-    ) -> CampaignBannerData {
-        CampaignBannerData(
-            eligibleTokens: tokens,
-            startDate: start,
-            endDate: end,
-            campaignStatus: status,
-            link: link
-        )
-    }
-}
-
-private extension TimeInterval {
-    static let day: TimeInterval = 86400
 }
 
 enum PromoCampaignEnrollmentFixtures {

@@ -19,8 +19,8 @@ import TangemUIUtils
 public struct Search: View, Setupable {
     // MARK: - Dependencies
 
-    @Binding private var text: String
-    private let isActive: Binding<Bool>?
+    @Binding var text: String
+    let isActive: Binding<Bool>?
     private let clearAction: (() -> Void)?
     private let cancelAction: (() -> Void)?
     private let onFocusChanged: ((Bool) -> Void)?

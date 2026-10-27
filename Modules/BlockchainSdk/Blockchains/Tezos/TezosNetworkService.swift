@@ -40,13 +40,6 @@ class TezosNetworkService: MultiNetworkProvider {
         }
     }
 
-    func checkPublicKeyRevealed(address: String) -> AnyPublisher<Bool, Error> {
-        providerPublisher {
-            $0.checkPublicKeyRevealed(address: address)
-                .eraseToAnyPublisher()
-        }
-    }
-
     func getHeader() -> AnyPublisher<TezosHeader, Error> {
         providerPublisher {
             $0.getHeader()
@@ -57,13 +50,6 @@ class TezosNetworkService: MultiNetworkProvider {
 
                     return TezosHeader(protocol: proto, hash: hash)
                 }
-                .eraseToAnyPublisher()
-        }
-    }
-
-    func forgeContents(headerHash: String, contents: [TezosOperationContent]) -> AnyPublisher<String, Error> {
-        providerPublisher {
-            $0.forgeContents(headerHash: headerHash, contents: contents)
                 .eraseToAnyPublisher()
         }
     }

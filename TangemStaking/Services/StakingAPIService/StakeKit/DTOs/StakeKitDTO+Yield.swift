@@ -135,40 +135,5 @@ extension StakeKitDTO {
                 }
             }
         }
-
-        enum Balance {
-            struct Request: Encodable {
-                let integrationId: String
-                let address: Address
-            }
-
-            struct Response: Decodable {
-                let groupId: String
-                let type: BalanceType
-                let amount: String
-                let date: Date?
-                let pricePerShare: String
-                let pendingActions: [PendingAction]
-                let token: Token
-                let validatorAddress: String?
-                let providerId: String?
-
-                enum BalanceType: String, Decodable {
-                    case available
-                    case staked
-                    case unstaking
-                    case unstaked
-                    case preparing
-                    case rewards
-                    case locked
-                    case unlocking
-                }
-
-                struct PendingAction: Decodable {
-                    let type: Actions.ActionType
-                    let passthrough: String
-                }
-            }
-        }
     }
 }

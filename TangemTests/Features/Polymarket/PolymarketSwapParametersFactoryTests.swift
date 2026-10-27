@@ -44,25 +44,26 @@ struct PolymarketSwapParametersFactoryTests {
     @Test("The receive side is addressed to the funding address the bridge issued")
     func receiveTokenCarriesFundingAddress() throws {
         let parameters = try #require(makeSUT().make(depositTargets: [Self.depositTarget]))
-        let receive = try #require(receiveToken(from: parameters))
+        let receive = try #require(parameters.receive.initialReceive.value)
 
         #expect(receive.destination?.destination.transactionAddress == Self.fundingAddress)
         #expect(receive.destination?.destinationTag == nil)
     }
 
-    @Test("The account's balance is shown in its own units, not converted to fiat")
-    func balanceIsDenominatedInTheAccountToken() throws {
+    @Test("The account is shown in dollars, as Tangem Pay shows its own, not in the coin it holds")
+    func accountIsPresentedInDollars() throws {
         let parameters = try #require(makeSUT().make(depositTargets: [Self.depositTarget]))
-        let receive = try #require(receiveToken(from: parameters))
+        let receive = try #require(parameters.receive.initialReceive.value)
         let presentation = try #require(receive.presentation)
 
-        #expect(presentation.balanceDenomination == .token)
+        #expect(presentation.balanceDenomination == .fiat)
+        #expect(presentation.currencySymbol == AppConstants.usdCurrencyCode)
     }
 
     @Test("The receive side is the token the bridge accepts, not the pUSD the account holds")
     func receiveTokenIsUSDCOnPolygon() throws {
         let parameters = try #require(makeSUT().make(depositTargets: [Self.depositTarget]))
-        let receive = try #require(receiveToken(from: parameters))
+        let receive = try #require(parameters.receive.initialReceive.value)
 
         #expect(receive.tokenItem == PolymarketUtilities.usdcTokenItem)
     }
@@ -75,7 +76,7 @@ struct PolymarketSwapParametersFactoryTests {
     @Test("Neither side of the pair can be swapped away from the deposit")
     func pairIsLocked() throws {
         let parameters = try #require(makeSUT().make(depositTargets: [Self.depositTarget]))
-        let config = try #require(configuration(from: parameters))
+        let config = parameters.configuration
 
         #expect(config.isPairReversalEnabled == false)
         #expect(config.receiveTokenSelection.isSelectionEnabled == false)
@@ -85,13 +86,13 @@ struct PolymarketSwapParametersFactoryTests {
     func sourceIsPreselected() throws {
         let parameters = try #require(makeSUT().make(depositTargets: [Self.depositTarget]))
 
-        #expect(sourceResolver(from: parameters) is PolymarketDepositSourceResolver)
+        #expect(parameters.source is PolymarketDepositSourceResolver)
     }
 
     @Test("An ordinary crypto token survives the filter that keeps the payment account out")
     func cryptoTokensRemainDepositSources() throws {
         let parameters = try #require(makeSUT().make(depositTargets: [Self.depositTarget]))
-        let config = try #require(configuration(from: parameters))
+        let config = parameters.configuration
         let provider = try #require(config.sourceTokenSelection.walletsProvider as? FilteredTokenSelectorWalletsProvider)
 
         #expect(provider.isIncluded(CampaignsFixtures.makeTokenSelectorItem()))
@@ -138,25 +139,10 @@ private extension PolymarketSwapParametersFactoryTests {
         )
     }
 
-    func receiveToken(from parameters: PredefinedSwapParameters) -> SendReceiveToken? {
-        guard case .to(let token, _, _) = parameters else { return nil }
-        return token
-    }
-
-    func sourceResolver(from parameters: PredefinedSwapParameters) -> (any SwapSourceTokenResolver)? {
-        guard case .to(_, let resolver, _) = parameters else { return nil }
-        return resolver
-    }
-
-    func configuration(from parameters: PredefinedSwapParameters) -> SwapFlowConfiguration? {
-        guard case .to(_, _, let configuration) = parameters else { return nil }
-        return configuration
-    }
-
     func multiNetworkDestinationResolver() throws -> any SwapDestinationTokenResolver {
         let factory = makeSUT(supportedBlockchains: [PolymarketUtilities.blockchain, .base(testnet: false)])
         let parameters = try #require(factory.make(depositTargets: [Self.depositTarget, Self.baseDepositTarget]))
 
-        return try #require(configuration(from: parameters)?.receiveTokenSelection.destinationResolver)
+        return try #require(parameters.configuration.receiveTokenSelection.destinationResolver)
     }
 }

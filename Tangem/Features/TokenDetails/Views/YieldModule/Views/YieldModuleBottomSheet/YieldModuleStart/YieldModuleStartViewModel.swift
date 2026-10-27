@@ -23,9 +23,6 @@ final class YieldModuleStartViewModel: ObservableObject {
     @Injected(\.floatingSheetPresenter)
     private var floatingSheetPresenter: any FloatingSheetPresenter
 
-    @Injected(\.userWalletRepository)
-    private var userWalletRepository: any UserWalletRepository
-
     // MARK: - View State
 
     @Published
@@ -36,15 +33,11 @@ final class YieldModuleStartViewModel: ObservableObject {
         }
     }
 
-    let tangemIconProvider: TangemIconProvider
-    let confirmTransactionPolicy: ConfirmTransactionPolicy
+    let signingActionButtonType: SigningActionButtonViewType
 
     private var previousState: ViewState?
 
     // MARK: - Published
-
-    @Published
-    var alert: AlertBinder?
 
     @Published
     private(set) var networkFeeNotification: YieldModuleNotificationBannerParams? = nil
@@ -118,8 +111,7 @@ final class YieldModuleStartViewModel: ObservableObject {
         coordinator: YieldModulePromoCoordinator?,
         yieldManagerInteractor: YieldManagerInteractor,
         logger: YieldAnalyticsLogger,
-        tangemIconProvider: TangemIconProvider,
-        confirmTransactionPolicy: ConfirmTransactionPolicy
+        signingActionButtonType: SigningActionButtonViewType
     ) {
         self.viewState = viewState
         self.marketIncentive = marketIncentive
@@ -128,8 +120,7 @@ final class YieldModuleStartViewModel: ObservableObject {
         self.coordinator = coordinator
         self.yieldManagerInteractor = yieldManagerInteractor
         self.logger = logger
-        self.tangemIconProvider = tangemIconProvider
-        self.confirmTransactionPolicy = confirmTransactionPolicy
+        self.signingActionButtonType = signingActionButtonType
 
         networkFeeState = .init(
             footerText: Localization.yieldModuleStartEarningSheetNextDepositsV2(walletModel.tokenItem.currencySymbol),
@@ -253,7 +244,6 @@ final class YieldModuleStartViewModel: ObservableObject {
             minimalAmountState = minimalAmountState
                 .withFeeState(.loaded(text: minimalFeeFormatted.fiatFee))
                 .withFooterText(Localization.yieldModuleFeePolicySheetMinAmountNote(minimalFeeFormatted.fiatFee, minimalFeeFormatted.cryptoFee))
-
         } catch {
             minimalAmountState = minimalAmountState
                 .withFeeState(.noData)
@@ -340,7 +330,6 @@ final class YieldModuleStartViewModel: ObservableObject {
                 maxFeeFormatted.fiatFee,
                 maxFeeFormatted.cryptoFee
             )
-
         } catch {
             estimatedFeeState = estimatedFeeState.withFeeState(.noData)
             maximumFeeState = maximumFeeState.withFeeState(.noData)

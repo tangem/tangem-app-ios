@@ -24,26 +24,20 @@ class CommonSendSummaryInteractor {
     private weak var swapModelStateProvider: SwapModelStateProvider?
     private weak var validationStateProvider: StakingValidationStateProvider?
 
-    private let sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder
-    private let sendWithSwapDescriptionBuilder: SendWithSwapTransactionSummaryDescriptionBuilder
-    private let stakingDescriptionBuilder: StakingTransactionSummaryDescriptionBuilder
+    private let transactionSummaryDescriptionBuilderProvider: TransactionSummaryDescriptionBuilderProvider
 
     init(
         input: SendSummaryInput,
         output: SendSummaryOutput,
         swapModelStateProvider: SwapModelStateProvider?,
         validationStateProvider: StakingValidationStateProvider?,
-        sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder,
-        sendWithSwapDescriptionBuilder: SendWithSwapTransactionSummaryDescriptionBuilder,
-        stakingDescriptionBuilder: StakingTransactionSummaryDescriptionBuilder
+        transactionSummaryDescriptionBuilderProvider: TransactionSummaryDescriptionBuilderProvider
     ) {
         self.input = input
         self.output = output
         self.swapModelStateProvider = swapModelStateProvider
         self.validationStateProvider = validationStateProvider
-        self.sendDescriptionBuilder = sendDescriptionBuilder
-        self.sendWithSwapDescriptionBuilder = sendWithSwapDescriptionBuilder
-        self.stakingDescriptionBuilder = stakingDescriptionBuilder
+        self.transactionSummaryDescriptionBuilderProvider = transactionSummaryDescriptionBuilderProvider
     }
 }
 
@@ -106,14 +100,17 @@ private extension CommonSendSummaryInteractor {
         case .none:
             return nil
         case .staking(let amount, let schedule):
-            let description = stakingDescriptionBuilder.makeDescription(amount: amount, schedule: schedule)
-            return description
+            return transactionSummaryDescriptionBuilderProvider
+                .makeStakingTransactionSummaryDescriptionBuilder()
+                .makeDescription(amount: amount, schedule: schedule)
         case .send(let amount, let fee):
-            let description = sendDescriptionBuilder.makeDescription(amount: amount, fee: fee)
-            return description
-        case .swap(let amount, let fee, let provider, let sourceTokenItem):
-            let description = sendWithSwapDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: provider, sourceTokenItem: sourceTokenItem)
-            return description
+            return transactionSummaryDescriptionBuilderProvider
+                .makeSendTransactionSummaryDescriptionBuilder()
+                .makeDescription(amount: amount, fee: fee)
+        case .swap(let amount, let fee, let provider):
+            return transactionSummaryDescriptionBuilderProvider
+                .makeSendWithSwapTransactionSummaryDescriptionBuilder()
+                .makeDescription(amount: amount, fee: fee, provider: provider)
         }
     }
 }

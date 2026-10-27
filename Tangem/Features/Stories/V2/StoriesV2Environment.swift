@@ -10,17 +10,22 @@ import Foundation
 import TangemStories
 
 private final class StoriesV2Environment {
+    let assetCache: StoryAssetCaching
     let assetPrefetchService: StoryAssetPrefetchService
     let remoteStore: StoriesV2RemoteStore
     let prefetchService: StoriesV2PrefetchService
+    let reconcileService: StoryAssetReconcileService
     let presenter: CommonStoriesV2Presenter
 
     init() {
-        assetPrefetchService = StoryAssetPrefetchService(cache: CommonStoryAssetCache())
+        let cache = CommonStoryAssetCache()
+        assetCache = cache
+        assetPrefetchService = StoryAssetPrefetchService(cache: cache)
         remoteStore = StoriesV2RemoteStore(
             mapper: StoriesDTOMapper(allowedWebHosts: Constants.allowedWebHosts, origin: .remote)
         )
         prefetchService = StoriesV2PrefetchService()
+        reconcileService = StoryAssetReconcileService()
         presenter = CommonStoriesV2Presenter()
     }
 }
@@ -49,8 +54,16 @@ extension InjectedValues {
         set { Self[StoriesV2EnvironmentKey.self] = newValue }
     }
 
+    var storiesV2AssetCache: StoryAssetCaching {
+        storiesV2Environment.assetCache
+    }
+
     var storiesV2AssetPrefetchService: StoryAssetPrefetchService {
         storiesV2Environment.assetPrefetchService
+    }
+
+    var storiesV2ReconcileService: StoryAssetReconcileService {
+        storiesV2Environment.reconcileService
     }
 
     var storiesV2RemoteStore: StoriesV2RemoteStore {

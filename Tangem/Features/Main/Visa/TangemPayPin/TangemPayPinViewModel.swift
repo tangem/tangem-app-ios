@@ -81,10 +81,6 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
         coordinator?.closeTangemPayPin()
     }
 
-    func submit() {
-        submit(pin: pin)
-    }
-
     private func submit(pin: String) {
         Analytics.log(.visaScreenChangePinSubmitClicked, contextParams: .userWallet(userWalletId))
 

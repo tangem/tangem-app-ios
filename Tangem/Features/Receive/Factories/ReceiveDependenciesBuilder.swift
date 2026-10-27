@@ -38,10 +38,6 @@ struct ReceiveDependenciesBuilder {
         )
     }
 
-    func makeReceiveBottomSheetNotificationInputsFactory() -> ReceiveBottomSheetNotificationInputsFactory {
-        ReceiveBottomSheetNotificationInputsFactory(flow: flow)
-    }
-
     func makeAnalyticsLogger() -> ReceiveAnalyticsLogger {
         CommonReceiveAnalyticsLogger(flow: flow, tokenItem: tokenItem)
     }

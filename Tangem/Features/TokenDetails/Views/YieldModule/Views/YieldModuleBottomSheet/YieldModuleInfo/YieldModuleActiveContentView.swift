@@ -103,7 +103,7 @@ struct YieldModuleActiveContentView: View {
             Triangle()
                 .fill(Colors.Icon.accent)
                 .frame(width: 12, height: 10)
-                .skeletonable(isShown: viewModel.apyState == .loading)
+                .shimmerPlaceholder(viewModel.apyState == .loading)
 
         case .none:
             EmptyView()
@@ -186,37 +186,6 @@ struct YieldModuleActiveContentView: View {
                     .foregroundStyle(Colors.Icon.informative)
             }
         }
-    }
-
-    private var bonusPaidOutBanner: some View {
-        HStack(spacing: 12) {
-            Assets.Send.arrowDown.image
-                .renderingMode(.template)
-                .resizable()
-                .frame(width: 20, height: 20)
-                .foregroundStyle(Colors.Icon.accent)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(Localization.yieldApyBoostPromoBonusPaidOutTitle)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-                    .multilineTextAlignment(.leading)
-
-                Text(Localization.yieldApyBoostPromoBonusPaidOutSubtitle)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    .multilineTextAlignment(.leading)
-            }
-
-            Spacer()
-
-            SwiftUI.Button(action: viewModel.onBonusPaidOutBannerDismiss) {
-                Assets.crossBig.image
-                    .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.inactive)
-            }
-            .frame(maxHeight: .infinity, alignment: .top)
-        }
-        .padding(8)
-        .defaultRoundedBackground(with: Colors.Background.action)
     }
 
     private var myFundsSection: some View {

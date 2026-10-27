@@ -30,8 +30,11 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
 
     private(set) var usesIncentiveDesign = false
 
-    /// Held weakly: the presenter owns the sheet, so the reference goes away with it however it was dismissed.
-    private weak var claimViewModel: YieldModuleClaimViewModel?
+    @Published
+    private(set) var claimViewModel: YieldModuleClaimViewModel?
+
+    @Published
+    var isClaimSheetShown = false
 
     private weak var transactionViewModel: YieldModuleTransactionViewModel?
 
@@ -81,16 +84,16 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
 
     func openClaimSheet(viewModel: YieldModuleClaimViewModel) {
         claimViewModel = viewModel
-
-        Task { @MainActor [weak self] in
-            self?.floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
     }
 
     func closeClaimSheet() {
         Task { @MainActor [weak self] in
-            self?.floatingSheetPresenter.removeActiveSheet()
+            self?.isClaimSheetShown = false
         }
+    }
+
+    func claimSheetDidDismiss() {
+        claimViewModel = nil
     }
 
     func openAboutApySheet(viewModel: YieldModuleAboutApyViewModel) {

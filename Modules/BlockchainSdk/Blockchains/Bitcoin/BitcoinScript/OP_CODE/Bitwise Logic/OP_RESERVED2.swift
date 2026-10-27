@@ -26,5 +26,4 @@ import Foundation
 
 struct OpReserved2: OpCodeProtocol {
     var value: UInt8 { return 0x8a }
-    var name: String { return "OP_RESERVED2" }
 }

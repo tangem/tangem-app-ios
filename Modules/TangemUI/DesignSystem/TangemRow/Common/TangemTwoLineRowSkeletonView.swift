@@ -43,27 +43,23 @@ public struct TangemTwoLineRowSkeletonView: View {
     }
 
     private var primaryLeadingSkeleton: some View {
-        SkeletonView()
-            .frame(width: primaryLeadingBarWidth, height: primaryBarHeight)
-            .cornerRadius(primaryBarHeight / 2)
+        Shimmer()
+            .variant(.custom(width: primaryLeadingBarWidth, height: primaryBarHeight))
     }
 
     private var primaryTrailingSkeleton: some View {
-        SkeletonView()
-            .frame(width: primaryTrailingBarWidth, height: primaryBarHeight)
-            .cornerRadius(primaryBarHeight / 2)
+        Shimmer()
+            .variant(.custom(width: primaryTrailingBarWidth, height: primaryBarHeight))
     }
 
     private var secondaryLeadingSkeleton: some View {
-        SkeletonView()
-            .frame(width: secondaryBarWidth, height: secondaryBarHeight)
-            .cornerRadius(secondaryBarHeight / 2)
+        Shimmer()
+            .variant(.custom(width: secondaryBarWidth, height: secondaryBarHeight))
     }
 
     private var secondaryTrailingSkeleton: some View {
-        SkeletonView()
-            .frame(width: secondaryBarWidth, height: secondaryBarHeight)
-            .cornerRadius(secondaryBarHeight / 2)
+        Shimmer()
+            .variant(.custom(width: secondaryBarWidth, height: secondaryBarHeight))
     }
 }
 

@@ -10,7 +10,6 @@ import Foundation
 import Testing
 import Commons
 import TangemSdk
-import TangemFoundation
 import BlockchainSdk
 @testable import Tangem
 
@@ -48,7 +47,12 @@ struct WalletConnectSolanaSignMessageHandlerTests {
             request: AnyCodable(WalletConnectSolanaSignMessageDTO.Response(message: message)),
             signer: signer,
             blockchainId: Payload.blockchain.networkId,
-            wcAccountsWalletModelProvider: WalletModelProviderStub(),
+            wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProviderStub(
+                walletModel: WalletModelTestsMock(
+                    tokenItem: .blockchain(.init(Payload.blockchain, derivationPath: nil)),
+                    isEmpty: false
+                )
+            ),
             accountId: "account"
         )
     }
@@ -88,41 +92,4 @@ private enum Payload {
         data.append(contentsOf: [0x01, 0x00, 0x00])
         return data
     }()
-}
-
-private final class WalletConnectSignerSpy: WalletConnectSigner {
-    private let state = OSAllocatedUnfairLock(initialState: [Data]())
-
-    var signedData: [Data] {
-        state.withLock { $0 }
-    }
-
-    func sign(data: Data, using walletModel: any WalletModel) async throws -> Data {
-        state.withLock { $0.append(data) }
-        return Data(repeating: 0x01, count: 64)
-    }
-
-    func sign(hashes: [Data], using walletModel: any WalletModel) async throws -> [Data] {
-        state.withLock { $0.append(contentsOf: hashes) }
-        return hashes.map { _ in Data(repeating: 0x01, count: 64) }
-    }
-}
-
-private struct WalletModelProviderStub: WalletConnectAccountsWalletModelProvider {
-    private let walletModel = WalletModelTestsMock(
-        tokenItem: .blockchain(.init(Payload.blockchain, derivationPath: nil)),
-        isEmpty: false
-    )
-
-    func getModel(with address: String, blockchainId: String, accountId: String) throws -> any WalletModel {
-        walletModel
-    }
-
-    func getModels(with blockchainId: String, accountId: String) -> [any WalletModel] {
-        [walletModel]
-    }
-
-    func getModel(with blockchainId: String, accountId: String) -> (any WalletModel)? {
-        walletModel
-    }
 }

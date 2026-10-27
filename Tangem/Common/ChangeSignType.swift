@@ -25,17 +25,6 @@ enum ChangeSignType: Int, Hashable {
         }
     }
 
-    var imageType: ImageType {
-        switch self {
-        case .positive:
-            return Assets.quotePositive
-        case .neutral:
-            return Assets.quoteNeutral
-        case .negative:
-            return Assets.quoteNegative
-        }
-    }
-
     var textColor: Color {
         switch self {
         case .positive:

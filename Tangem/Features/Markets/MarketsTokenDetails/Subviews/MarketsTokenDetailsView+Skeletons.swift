@@ -12,7 +12,7 @@ import TangemUI
 
 extension MarketsTokenDetailsView {
     struct DescriptionBlockSkeletons: View {
-        private let lineHeight: CGFloat = 16
+        @ScaledMetric private var lineHeight: CGFloat = 16
 
         var body: some View {
             VStack(alignment: .leading, spacing: 5) {
@@ -31,6 +31,8 @@ extension MarketsTokenDetailsView {
     }
 
     struct ContentBlockSkeletons: View {
+        @ScaledMetric private var scaleFactor: CGFloat = 1
+
         var body: some View {
             VStack(spacing: Constants.blockSpacing) {
                 MarketsTokenSummaryPlaceholderView()
@@ -216,7 +218,7 @@ extension MarketsTokenDetailsView {
 
         private func skeletonView(width: CGFloat, height: CGFloat) -> some View {
             Shimmer()
-                .variant(.custom(height: height))
+                .variant(.custom(height: height * scaleFactor))
                 .frame(idealWidth: width == .infinity ? nil : width, maxWidth: width)
         }
     }

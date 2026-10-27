@@ -62,17 +62,80 @@ struct PolymarketOnboardingInteractorTests {
         #expect(signer.signCalls == 0)
     }
 
-    @Test("Re-authorising an account that owes nothing does not consult the region")
-    func readyAccountSkipsTheRegionCheck() async throws {
+    @Test("Re-authorising an existing account never consults the region")
+    func existingAccountSkipsTheRegionCheck() async throws {
+        let geoblockService = PolymarketGeoblockServiceStub(isBlocked: true)
         let sut = try makeSUT(
             walletService: makeWalletService(statuses: [.readyToTrade]),
             credentials: PolymarketCredentialsRepositoryStub.credentials,
-            geoblockService: PolymarketGeoblockServiceStub(isBlocked: true)
+            geoblockService: geoblockService,
+            hasExistingAccount: { true }
         )
 
         let progress = await sut.collectProgress()
 
         #expect(progress.last?.isReady == true)
+        #expect(geoblockService.calls == 0)
+    }
+
+    @Test("An existing account that owes approvals restores in a single card session without consulting the region")
+    func existingAccountRestoresWithoutTheRegionCheck() async throws {
+        let geoblockService = PolymarketGeoblockServiceStub(isBlocked: true)
+        let session = PolymarketOwnerKeySessionSpy()
+        let service = try makeWalletService(statuses: [.deployed, .readyToTrade])
+        let sut = try makeSUT(
+            walletService: service,
+            geoblockService: geoblockService,
+            ownerKeySession: session,
+            isKeyStored: false,
+            hasExistingAccount: { true }
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.isReady == true)
+        #expect(geoblockService.calls == 0)
+        #expect(session.prompts == 1)
+        #expect(session.signer.signCalls == 1)
+        #expect(service.submittedBatches.count == 1)
+    }
+
+    @Test("An account found after the welcome screen opened is still never checked against the region")
+    func accountFoundBeforeStartSkipsTheRegionCheck() async throws {
+        let geoblockService = PolymarketGeoblockServiceStub(isBlocked: true)
+        var hasExistingAccount = false
+        let sut = try makeSUT(
+            walletService: makeWalletService(statuses: [.readyToTrade]),
+            credentials: PolymarketCredentialsRepositoryStub.credentials,
+            geoblockService: geoblockService,
+            hasExistingAccount: { hasExistingAccount }
+        )
+
+        hasExistingAccount = true
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.isReady == true)
+        #expect(geoblockService.calls == 0)
+    }
+
+    @Test("A known account the backend no longer has is checked against the region before it is created again")
+    func goneAccountIsCheckedAgainstTheRegion() async throws {
+        let geoblockService = PolymarketGeoblockServiceStub(isBlocked: true)
+        let signer = PolymarketOnboardingSignerSpy()
+        let service = try makeWalletService(statuses: [.notCreated])
+        let sut = try makeSUT(
+            walletService: service,
+            signer: signer,
+            geoblockService: geoblockService,
+            hasExistingAccount: { true }
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.failure?.isRegionBlocked == true)
+        #expect(geoblockService.calls == 1)
+        #expect(signer.signCalls == 0)
+        #expect(service.deployCalls == 0)
     }
 
     @Test("A refused deployment ends the run rather than being retried behind the user")
@@ -166,6 +229,27 @@ struct PolymarketOnboardingInteractorTests {
         #expect(signer.signCalls == 1)
         #expect(service.deployCalls == 1)
         #expect(service.submittedBatches.count == 1)
+    }
+
+    @Test("A ready wallet the backend demoted to deployed signs only the approvals again")
+    func demotedWalletOnlyRedoesApprovals() async throws {
+        let service = try makeWalletService(statuses: [.deployed, .readyToTrade])
+        let clobService = PolymarketCLOBServiceStub()
+        let signer = PolymarketOnboardingSignerSpy()
+        let sut = try makeSUT(
+            walletService: service,
+            credentials: PolymarketCredentialsRepositoryStub.credentials,
+            signer: signer,
+            clobService: clobService
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.isReady == true)
+        #expect(service.deployCalls == 0)
+        #expect(clobService.credentialRequests == 0)
+        #expect(signer.signCalls == 1)
+        #expect(service.submittedBatches.map(\.calls) == [PolymarketApprovalCalls.make()])
     }
 
     @Test("The batch that reaches the backend is byte for byte the one the card signed")
@@ -292,6 +376,134 @@ struct PolymarketOnboardingInteractorTests {
         #expect(progress.last?.isReady == true)
     }
 
+    @Test("A first activation derives, reads the backend and signs behind a single prompt")
+    func firstActivationAsksOnce() async throws {
+        let storedKeySigner = PolymarketOnboardingSignerSpy()
+        let session = PolymarketOwnerKeySessionSpy()
+        let service = try makeWalletService(statuses: [.notCreated, .deployed, .readyToTrade])
+        let sut = try makeSUT(walletService: service, signer: storedKeySigner, ownerKeySession: session, isKeyStored: false)
+
+        let progress = await sut.collectProgress()
+        let awaitingSignatureIndex = try #require(progress.firstIndex { $0.isAwaitingSignature })
+        let firstWorkingIndex = try #require(progress.firstIndex { $0.isWorking })
+
+        #expect(progress.first?.isDeriving == true)
+        #expect(awaitingSignatureIndex < firstWorkingIndex)
+        #expect(progress.last?.isReady == true)
+        #expect(session.prompts == 1)
+        #expect(session.signer.signCalls == 1)
+        #expect(storedKeySigner.signCalls == 0)
+        #expect(service.submittedBatches.count == 1)
+    }
+
+    @Test("A first activation that owes nothing ends the prompt without a signature")
+    func firstActivationWithNothingToSignAsksOnce() async throws {
+        let storedKeySigner = PolymarketOnboardingSignerSpy()
+        let session = PolymarketOwnerKeySessionSpy()
+        let sut = try makeSUT(
+            walletService: makeWalletService(statuses: [.readyToTrade]),
+            credentials: PolymarketCredentialsRepositoryStub.credentials,
+            signer: storedKeySigner,
+            ownerKeySession: session,
+            isKeyStored: false
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.isReady == true)
+        #expect(session.prompts == 1)
+        #expect(session.signer.signCalls == 0)
+        #expect(storedKeySigner.signCalls == 0)
+    }
+
+    @Test("An unrecognised status on a first activation fails inside the single prompt instead of asking again")
+    func firstActivationWithUnrecognisedStatusFails() async throws {
+        let storedKeySigner = PolymarketOnboardingSignerSpy()
+        let session = PolymarketOwnerKeySessionSpy()
+        let service = try makeWalletService(statuses: [.unknown])
+        let sut = try makeSUT(walletService: service, signer: storedKeySigner, ownerKeySession: session, isKeyStored: false)
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.failure?.isWallet == true)
+        #expect(progress.last?.failure?.isRetryable == true)
+        #expect(session.prompts == 1)
+        #expect(session.signer.signCalls == 0)
+        #expect(storedKeySigner.signCalls == 0)
+        #expect(service.requestedOwnerAddresses.count == 1)
+    }
+
+    @Test("A blocked region on a first activation stops the run before the card is scanned")
+    func firstActivationInABlockedRegionNeverAsksForTheCard() async throws {
+        let session = PolymarketOwnerKeySessionSpy()
+        let service = try makeWalletService(statuses: [.notCreated])
+        let sut = try makeSUT(
+            walletService: service,
+            geoblockService: PolymarketGeoblockServiceStub(isBlocked: true),
+            ownerKeySession: session,
+            isKeyStored: false
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.first?.isDeriving == true)
+        #expect(progress.last?.failure?.isRegionBlocked == true)
+        #expect(session.prompts == 0)
+        #expect(session.signer.signCalls == 0)
+        #expect(service.requestedOwnerAddresses.isEmpty)
+    }
+
+    @Test("An allowed region on a first activation is checked once and then opens the card session")
+    func firstActivationInAnAllowedRegionOpensTheSession() async throws {
+        let geoblockService = PolymarketGeoblockServiceStub(isBlocked: false)
+        let session = PolymarketOwnerKeySessionSpy()
+        let sut = try makeSUT(
+            walletService: makeWalletService(statuses: [.notCreated, .deployed, .readyToTrade]),
+            geoblockService: geoblockService,
+            ownerKeySession: session,
+            isKeyStored: false
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.isReady == true)
+        #expect(geoblockService.calls == 1)
+        #expect(session.prompts == 1)
+        #expect(session.signer.signCalls == 1)
+    }
+
+    @Test("Dismissing the first-activation prompt ends the run quietly")
+    func dismissedFirstActivationPromptIsNotAFailure() async throws {
+        let session = PolymarketOwnerKeySessionSpy(error: .derivation(.cancelled))
+        let sut = try makeSUT(
+            walletService: makeWalletService(statuses: [.notCreated]),
+            ownerKeySession: session,
+            isKeyStored: false
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.allSatisfy { $0.failure == nil })
+        #expect(session.prompts == 1)
+    }
+
+    @Test("A stored owner key never opens the first-activation session")
+    func storedKeySkipsTheOwnerKeySession() async throws {
+        let signer = PolymarketOnboardingSignerSpy()
+        let session = PolymarketOwnerKeySessionSpy()
+        let sut = try makeSUT(
+            walletService: makeWalletService(statuses: [.notCreated, .deployed, .readyToTrade]),
+            signer: signer,
+            ownerKeySession: session
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.isReady == true)
+        #expect(session.prompts == 0)
+        #expect(signer.signCalls == 1)
+    }
+
     @Test("A run the user walked away from ends quietly instead of reporting a failure")
     func cancellationIsNeverReportedAsFailure() async throws {
         let service = PolymarketDepositWalletServiceStub(stateResults: [.failure(.cancelled)])
@@ -337,11 +549,19 @@ private extension PolymarketOnboardingInteractorTests {
         signer: PolymarketOnboardingSigning = PolymarketOnboardingSignerSpy(),
         geoblockService: PolymarketGeoblockService = PolymarketGeoblockServiceStub(),
         clobService: PolymarketCLOBService = PolymarketCLOBServiceStub(),
-        serverClock: PolymarketServerClock = PolymarketServerClock()
+        serverClock: PolymarketServerClock = PolymarketServerClock(),
+        ownerKeySession: PolymarketOwnerKeySession = PolymarketOwnerKeySessionSpy(),
+        isKeyStored: Bool = true,
+        hasExistingAccount: @escaping () -> Bool = { false }
     ) throws -> CommonPolymarketOnboardingInteractor {
         CommonPolymarketOnboardingInteractor(
             userWalletId: Self.userWalletId,
-            ownerAddressProvider: PolymarketOwnerAddressProviderStub(derived: PolymarketOwnerAddressProviderStub.ownerAddress),
+            hasExistingAccount: hasExistingAccount,
+            ownerAddressProvider: PolymarketOwnerAddressProviderStub(
+                derived: PolymarketOwnerAddressProviderStub.ownerAddress,
+                isStored: isKeyStored
+            ),
+            ownerKeySession: ownerKeySession,
             signer: signer,
             credentialsRepository: credentialsRepository ?? PolymarketCredentialsRepositoryStub(stored: credentials),
             geoblockService: geoblockService,

@@ -53,31 +53,35 @@ extension CommonWalletCardsBackupReportService: WalletCardsBackupReportService {
 
 private extension CommonWalletCardsBackupReportService {
     func bind() {
-        let waitings = Publishers.CombineLatest(
+        let deliveryTriggers = Publishers.CombineLatest(
             reachabilityProvider.isReachablePublisher,
-            repository.pendingToDeliveryPublisher,
+            repository.pendingReportsPublisher.map(\.last?.id),
         )
-        .map { isReachable, waiting in
-            isReachable ? waiting : []
+        .removeDuplicates(by: ==)
+        .filter { isReachable, newestReportId in
+            isReachable && newestReportId != nil
         }
-        .filter { !$0.isEmpty }
 
-        // A single consumer keeps passes sequential, so the same cards can't be sent twice; while a pass runs
-        // the sequence holds only the newest value, which collapses a burst of reports into one more pass.
+        // A single consumer keeps passes sequential, so the same cards can't be sent twice.
         deliveryTask = Task { [weak self] in
-            for await waiting in await waitings.values {
-                await self?.deliver(waiting: waiting)
+            for await _ in await deliveryTriggers.values_ {
+                await self?.deliverPendingReports()
             }
         }
     }
 
-    func deliver(waiting: [WalletCardsWaitingDeliveryBackupCards]) async {
-        await TaskGroup.executeKeepingOrder(items: waiting) { [weak self] report in
-            await self?.deliver(report: report)
+    func deliverPendingReports() async {
+        while let report = repository.oldestPendingReport {
+            switch await deliver(report: report) {
+            case .delivered, .refused:
+                repository.removePendingReport(report)
+            case .postponed:
+                return
+            }
         }
     }
 
-    func deliver(report: WalletCardsWaitingDeliveryBackupCards) async {
+    func deliver(report: WalletCardsWaitingDeliveryBackupCards) async -> DeliveryResult {
         let request = WalletCardsDTO.Request(
             cards: report.cards.map(mapToDTO),
             usedSeed: report.isImported
@@ -85,10 +89,14 @@ private extension CommonWalletCardsBackupReportService {
 
         do {
             try await apiService.saveWalletCards(userWalletId: report.userWalletId, cards: request)
-            repository.markDelivered(report: report)
             WalletCardsReporterLogger.info("Delivered \(report.cards.count) card(s) of a wallet")
+            return .delivered
+        } catch where error.isRefusedByBackEnd {
+            WalletCardsReporterLogger.error("The back end refused the wallet cards backup report", error: error)
+            return .refused
         } catch {
             WalletCardsReporterLogger.error("Couldn't deliver the wallet cards backup report", error: error)
+            return .postponed
         }
     }
 
@@ -105,5 +113,28 @@ private extension CommonWalletCardsBackupReportService {
             errorCode: card.errorCode?.description,
             errorMessage: card.errorMessage
         )
+    }
+}
+
+// MARK: - DeliveryResult
+
+private extension CommonWalletCardsBackupReportService {
+    enum DeliveryResult {
+        case delivered
+        case refused
+        case postponed
+    }
+}
+
+// MARK: - Error
+
+private extension Error {
+    var isRefusedByBackEnd: Bool {
+        guard let statusCode = asMoyaError?.response?.statusCode else {
+            return false
+        }
+
+        let isRetryableClientError = [408, 429].contains(statusCode)
+        return (400 ... 499).contains(statusCode) && !isRetryableClientError
     }
 }

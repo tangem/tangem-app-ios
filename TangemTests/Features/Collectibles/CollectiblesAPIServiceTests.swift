@@ -139,6 +139,102 @@ struct CollectiblesAPIServiceTests {
         #expect(headers["version"]?.isEmpty == false)
     }
 
+    // MARK: - Opening media
+
+    @Test("Opening media keeps every file the backend sends, even without the other theme's video")
+    func keepsPartialOpeningMedia() async throws {
+        let media = #"""
+        {"videoLight":null,"videoDark":"https://example.com/dark.mp4","skipAnimationAudio":"https://example.com/skip.mp3"}
+        """#
+        CollectiblesStubURLProtocol.responses = [Data(Self.machineJSON(openPackMedia: media).utf8)]
+
+        let machine = try await makeSUT().load(id: "pokemon_50")
+        let openingMedia = machine.openingMedia
+
+        #expect(openingMedia.darkVideoURL == URL(string: "https://example.com/dark.mp4"))
+        #expect(openingMedia.lightVideoURL == nil)
+        #expect(openingMedia.skipAudioURL == URL(string: "https://example.com/skip.mp3"))
+    }
+
+    // MARK: - Purchase
+
+    @Test("Low inventory code on generate-purchase-tx surfaces as lowInventory")
+    func mapsLowInventory() async throws {
+        CollectiblesStubURLProtocol.statusCode = 503
+        CollectiblesStubURLProtocol.responses = [
+            Data(#"{"title":"Service Unavailable","status":503,"detail":"Low inventory","code":3016,"errors":[]}"#.utf8),
+        ]
+
+        await #expect(throws: CollectiblesPurchaseGenerationError.lowInventory) {
+            _ = try await generatePurchase()
+        }
+    }
+
+    @Test("Any other backend code on generate-purchase-tx stays an .http failure")
+    func keepsOtherBackendCodes() async throws {
+        CollectiblesStubURLProtocol.statusCode = 404
+        CollectiblesStubURLProtocol.responses = [
+            Data(#"{"title":"Not Found","status":404,"detail":"Machine not found","code":3004,"errors":[]}"#.utf8),
+        ]
+
+        do {
+            _ = try await generatePurchase()
+            Issue.record("Expected .http to be thrown")
+        } catch CollectiblesAPIService.Error.http(let statusCode, _) {
+            #expect(statusCode == 404)
+        }
+    }
+
+    @Test("open-pack sends the transaction id in the body and asks for the won card in the query")
+    func openPackRequest() async throws {
+        CollectiblesStubURLProtocol.responses = [
+            Data(#"{"txId":"tx-1","status":"pack-opened","nftWon":null}"#.utf8),
+        ]
+
+        _ = try await makeSUT().openPack(txID: "tx-1", userWalletID: "wallet-1")
+
+        let body = try Self.jsonBody(CollectiblesStubURLProtocol.bodies.first)
+        #expect(body["txId"] as? String == "tx-1")
+        #expect(body.count == 1)
+        #expect(Self.queryValue("includeNftWon", of: CollectiblesStubURLProtocol.requests.first) == "true")
+    }
+
+    // MARK: - Buyback
+
+    @Test("Reads the buyback deadline with or without fractional seconds", arguments: Self.deadlineArguments)
+    func readsBuybackDeadline(raw: String, expiresAt: Date) async throws {
+        CollectiblesStubURLProtocol.responses = [Self.buybackAvailability(expiresAt: raw)]
+
+        let offer = try #require(try await makeOfferProvider().load(nftAddress: "nft-1"))
+
+        #expect(offer.expiresAt == expiresAt)
+    }
+
+    @Test("An unreadable buyback deadline fails the answer instead of dropping the deadline")
+    func rejectsUnreadableBuybackDeadline() async throws {
+        CollectiblesStubURLProtocol.responses = [Self.buybackAvailability(expiresAt: "tomorrow")]
+
+        do {
+            _ = try await makeOfferProvider().load(nftAddress: "nft-1")
+            Issue.record("Expected .decoding to be thrown")
+        } catch CollectiblesAPIService.Error.decoding {}
+    }
+
+    @Test(
+        "The auto-sold payout is read strictly, and a malformed one is left out without failing the purchase",
+        arguments: Self.autoSoldPayoutArguments
+    )
+    func readsAutoSoldPayout(toAmount: String, toDecimals: Int, payout: Decimal?) async throws {
+        let buyback = #"{"toAmount":"\#(toAmount)","toDecimals":\#(toDecimals)}"#
+        CollectiblesStubURLProtocol.responses = [
+            Data(#"{"txId":"tx-1","status":"pack-opened","nftWon":null,"buyback":\#(buyback)}"#.utf8),
+        ]
+
+        let transaction = try await makeSUT().loadPurchaseStatus(txID: "tx-1", userWalletID: "wallet-1")
+
+        #expect(transaction.buybackAmount == payout)
+    }
+
     // MARK: - Errors
 
     @Test("Non-2xx response surfaces as .http with the status code and the raw body")
@@ -166,6 +262,24 @@ struct CollectiblesAPIServiceTests {
     }
 }
 
+// MARK: - Arguments
+
+extension CollectiblesAPIServiceTests {
+    static let deadlineArguments: [(raw: String, expiresAt: Date)] = [
+        (raw: "2026-10-20T12:00:00Z", expiresAt: Date(timeIntervalSince1970: 1_792_497_600)),
+        (raw: "2026-10-20T12:00:00.250Z", expiresAt: Date(timeIntervalSince1970: 1_792_497_600.25)),
+    ]
+
+    static let autoSoldPayoutArguments: [(toAmount: String, toDecimals: Int, payout: Decimal?)] = [
+        (toAmount: "15500000", toDecimals: 6, payout: Decimal(string: "15.5")),
+        (toAmount: "-15500000", toDecimals: 6, payout: nil),
+        (toAmount: "15500000abc", toDecimals: 6, payout: nil),
+        (toAmount: "0x10", toDecimals: 6, payout: nil),
+        (toAmount: "0", toDecimals: 6, payout: nil),
+        (toAmount: "15500000", toDecimals: 300, payout: nil),
+    ]
+}
+
 // MARK: - Helpers
 
 private extension CollectiblesAPIServiceTests {
@@ -180,6 +294,20 @@ private extension CollectiblesAPIServiceTests {
         )
 
         return CollectiblesAPIService(provider: TangemProvider(configuration: configuration, additionalPlugins: [DeviceInfoPlugin()]))
+    }
+
+    func makeOfferProvider() -> RemoteCollectiblesBuybackOfferProvider {
+        RemoteCollectiblesBuybackOfferProvider(userWalletID: "wallet-1", requester: makeSUT())
+    }
+
+    func generatePurchase() async throws -> CollectiblesGeneratedPurchase {
+        try await makeSUT().generatePurchase(
+            machineID: "pokemon_50",
+            fromAddress: "owner",
+            toAddress: "owner",
+            turboMode: .off,
+            userWalletID: "wallet-1"
+        )
     }
 
     static func queryValue(_ name: String, of request: URLRequest?) -> String? {
@@ -199,6 +327,10 @@ private extension CollectiblesAPIServiceTests {
 
     enum TestError: Error { case notJSONBody }
 
+    static func buybackAvailability(expiresAt: String) -> Data {
+        Data(#"{"buybackAvailable":true,"buybackAmount":1550,"buybackExpiresAt":"\#(expiresAt)"}"#.utf8)
+    }
+
     static func machinesPage(machines: [String], hasNext: Bool, cursor: String? = nil) -> Data {
         let cursorJSON = cursor.map { #""\#($0)""# } ?? "null"
         return Data(#"{"machines":[\#(machines.joined(separator: ","))],"hasNext":\#(hasNext),"cursor":\#(cursorJSON)}"#.utf8)
@@ -206,7 +338,8 @@ private extension CollectiblesAPIServiceTests {
 
     static func machineJSON(
         externalId: String = "pokemon_50",
-        commonRange: String = #"{"start":3000,"end":6000}"#
+        commonRange: String = #"{"start":3000,"end":6000}"#,
+        openPackMedia: String = "null"
     ) -> String {
         #"""
         {"id":"01a03802-433f-7ae5-a996-f981048a0a18","externalId":"\#(externalId)","name":"Elite Pokémon Gacha Pack",
@@ -215,7 +348,8 @@ private extension CollectiblesAPIServiceTests {
         "tierRanges":{"common":\#(commonRange),"rare":{"start":11000,"end":25000},"epic":{"start":25000,"end":500100},"legendary":null},
         "stock":{"common":214,"rare":383,"epic":200,"legendary":null},
         "expectedValue":5450,"image":"https://example.com/pack.png","categoryId":"pokemon","contains":1,
-        "fee":200,"feeAmount":100,"createdAt":"2026-08-25T08:21:07.518119Z","updatedAt":"2026-09-07T04:34:30.860676Z"}
+        "fee":200,"feeAmount":100,"createdAt":"2026-08-25T08:21:07.518119Z","updatedAt":"2026-09-07T04:34:30.860676Z",
+        "openPackMedia":\#(openPackMedia)}
         """#
     }
 }

@@ -32,6 +32,9 @@ extension PolymarketDTO {
         let minOrderAmount: String?
         let tickSize: String
         let live: Bool
+        let version: String?
+        let exchange: String?
+        let signingDomainVersion: String?
     }
 
     struct OrderQuoteFees: Decodable {

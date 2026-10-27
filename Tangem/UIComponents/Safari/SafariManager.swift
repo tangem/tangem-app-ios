@@ -8,6 +8,7 @@
 
 import Foundation
 import SafariServices
+import TangemFoundation
 
 // MARK: - SafariManager
 
@@ -18,14 +19,14 @@ protocol SafariManager {
         configuration: SafariConfiguration,
         onDismiss: @escaping () -> Void,
         onSuccess: @escaping (URL) -> Void
-    ) -> SafariHandle
+    ) -> SafariHandle?
 
     /// For any calls without callback
     func openURL(_ url: URL, configuration: SafariConfiguration)
 }
 
 extension SafariManager {
-    func openURL(_ url: URL, configuration: SafariConfiguration = .init(), onSuccess: @escaping (URL) -> Void = { _ in }) -> SafariHandle {
+    func openURL(_ url: URL, configuration: SafariConfiguration = .init(), onSuccess: @escaping (URL) -> Void = { _ in }) -> SafariHandle? {
         openURL(url, configuration: configuration, onDismiss: {}, onSuccess: onSuccess)
     }
 
@@ -70,7 +71,13 @@ class CommonSafariManager: NSObject, SafariManager {
         configuration: SafariConfiguration,
         onDismiss: @escaping () -> Void,
         onSuccess: @escaping (URL) -> Void
-    ) -> SafariHandle {
+    ) -> SafariHandle? {
+        guard url.isWebURL else {
+            AppLogger.warning("Can't open a non-web URL in Safari: \(url)")
+            onDismiss()
+            return nil
+        }
+
         AppLogger.info("Open URL: \(url)")
         let controller = SFSafariViewController(url: url)
         controller.modalPresentationStyle = .pageSheet

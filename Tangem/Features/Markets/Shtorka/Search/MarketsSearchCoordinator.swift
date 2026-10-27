@@ -23,7 +23,6 @@ final class MarketsSearchCoordinator: CoordinatorObject {
     // MARK: - Coordinators
 
     @Published var tokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
-    @Published var marketsSearchCoordinator: MarketsSearchCoordinator?
 
     // MARK: - Child ViewModels
 
@@ -71,12 +70,6 @@ extension MarketsSearchCoordinator {
 // MARK: - MarketsRoutable
 
 extension MarketsSearchCoordinator: MarketsRoutable {
-    func openFilterOrderBottonSheet(with provider: MarketsListDataFilterProvider) {
-        marketsListOrderBottomSheetViewModel = .init(from: provider, onDismiss: { [weak self] in
-            self?.marketsListOrderBottomSheetViewModel = nil
-        })
-    }
-
     func openMarketsTokenDetails(for tokenInfo: MarketsTokenModel) {
         let tokenDetailsCoordinator = MarketsTokenDetailsCoordinator(
             dismissAction: { [weak self] in

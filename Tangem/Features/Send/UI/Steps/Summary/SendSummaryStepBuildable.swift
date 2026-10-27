@@ -64,26 +64,20 @@ enum SendSummaryStepBuilder {
         let notificationManager: any NotificationManager
         let autoupdatingTimer: AutoupdatingTimer?
         let analyticsLogger: any SendSummaryAnalyticsLogger
-        let sendDescriptionBuilder: any SendTransactionSummaryDescriptionBuilder
-        let sendWithSwapDescriptionBuilder: any SendWithSwapTransactionSummaryDescriptionBuilder
-        let stakingDescriptionBuilder: any StakingTransactionSummaryDescriptionBuilder
+        let transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider
 
         init(
             sendFeeProvider: any SendFeeUpdater,
             notificationManager: any NotificationManager,
             autoupdatingTimer: AutoupdatingTimer? = nil,
             analyticsLogger: any SendSummaryAnalyticsLogger,
-            sendDescriptionBuilder: any SendTransactionSummaryDescriptionBuilder,
-            sendWithSwapDescriptionBuilder: any SendWithSwapTransactionSummaryDescriptionBuilder,
-            stakingDescriptionBuilder: any StakingTransactionSummaryDescriptionBuilder
+            transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider
         ) {
             self.sendFeeProvider = sendFeeProvider
             self.notificationManager = notificationManager
             self.autoupdatingTimer = autoupdatingTimer
             self.analyticsLogger = analyticsLogger
-            self.sendDescriptionBuilder = sendDescriptionBuilder
-            self.sendWithSwapDescriptionBuilder = sendWithSwapDescriptionBuilder
-            self.stakingDescriptionBuilder = stakingDescriptionBuilder
+            self.transactionSummaryDescriptionBuilderProvider = transactionSummaryDescriptionBuilderProvider
         }
     }
 
@@ -105,9 +99,7 @@ enum SendSummaryStepBuilder {
             output: io.output,
             swapModelStateProvider: io.swapModelStateProvider,
             validationStateProvider: io.validationStateProvider,
-            sendDescriptionBuilder: dependencies.sendDescriptionBuilder,
-            sendWithSwapDescriptionBuilder: dependencies.sendWithSwapDescriptionBuilder,
-            stakingDescriptionBuilder: dependencies.stakingDescriptionBuilder
+            transactionSummaryDescriptionBuilderProvider: dependencies.transactionSummaryDescriptionBuilderProvider
         )
 
         let viewModel = SendSummaryViewModel(

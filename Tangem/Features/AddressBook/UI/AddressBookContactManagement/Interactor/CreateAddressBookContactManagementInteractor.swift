@@ -97,7 +97,7 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
     var mainButtonIconPublisher: AnyPublisher<MainButton.Icon?, Never> {
         walletSubject
             .map { addressBookWallet in
-                CommonTangemIconProvider(config: addressBookWallet.wallet.config).getMainButtonIcon()
+                SigningActionButtonViewTypeBuilder().build(config: addressBookWallet.wallet.config).mainButtonIcon
             }
             .eraseToAnyPublisher()
     }

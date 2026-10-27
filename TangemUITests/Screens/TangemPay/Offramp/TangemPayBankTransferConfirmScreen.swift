@@ -114,9 +114,9 @@ final class TangemPayBankTransferConfirmScreen: ScreenBase<TangemPayBankTransfer
 
     @discardableResult
     func tapSend() -> TangemPayBankTransferSuccessScreen {
-        XCTContext.runActivity(named: "Tap Send") { _ in
+        XCTContext.runActivity(named: "Hold Send to confirm") { _ in
             XCTAssertTrue(sendButton.waitForState(state: .enabled, for: .conditional), "Send should be enabled")
-            sendButton.waitAndTap()
+            sendButton.holdToConfirm(timeout: .conditional)
             return TangemPayBankTransferSuccessScreen(app)
         }
     }

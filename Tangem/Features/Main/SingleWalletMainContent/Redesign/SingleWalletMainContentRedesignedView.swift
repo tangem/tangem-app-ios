@@ -91,7 +91,6 @@ private extension SingleWalletMainContentRedesignedView {
             coordinator: nil,
             accountModel: nil,
             mainNotificationsViewModel: MainNotificationsViewModel(
-                isEnabled: false,
                 promotionNotificationsManager: FakePromotionNotificationsManager(),
                 systemBannerItemsProvider: NotificationBannerItemsProvider(managers: [FakeUserWalletNotificationManager()]),
                 tangemPayPromoManager: nil

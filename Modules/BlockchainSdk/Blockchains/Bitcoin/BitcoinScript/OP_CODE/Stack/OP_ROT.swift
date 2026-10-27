@@ -27,5 +27,4 @@ import Foundation
 /// The top three items on the stack are rotated to the left.
 struct OpRot: OpCodeProtocol {
     var value: UInt8 { return 0x7b }
-    var name: String { return "OP_ROT" }
 }
