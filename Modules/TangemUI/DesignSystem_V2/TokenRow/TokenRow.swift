@@ -97,7 +97,6 @@ private extension TokenRow {
                     contentLead: balance.hasSkeleton ? .equal : .end,
                     titleColumn: titleColumn(
                         title: title,
-                        isTitleDimmed: balance.isStale,
                         quote: quote,
                         priceChange: priceChange,
                         titleAccessory: titleAccessory.map { titleAccessoryView($0) }
@@ -372,14 +371,13 @@ private extension TokenRow {
 
     func titleColumn(
         title: String,
-        isTitleDimmed: Bool = false,
         quote: String?,
         priceChange: TokenRowPriceChange?,
         titleAccessory: some View
     ) -> some View {
         VStack(alignment: .leading, spacing: lineSpacing) {
             HStack(alignment: .center, spacing: inlineSpacing) {
-                titleText(title, isDimmed: isTitleDimmed)
+                titleText(title)
 
                 titleAccessory
             }
@@ -407,8 +405,8 @@ private extension TokenRow {
 // MARK: - Leaves
 
 private extension TokenRow {
-    func titleText(_ text: String, isDimmed: Bool = false) -> some View {
-        TokenRowTitleText(text, isDimmed: isDimmed, accessibilityIdentifier: identifiers?.name)
+    func titleText(_ text: String) -> some View {
+        TokenRowTitleText(text, accessibilityIdentifier: identifiers?.name)
     }
 
     func captionText(_ text: String) -> some View {
