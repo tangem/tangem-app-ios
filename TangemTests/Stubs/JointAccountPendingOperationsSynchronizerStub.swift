@@ -12,7 +12,7 @@ import TangemFoundation
 @testable import Tangem
 
 final class JointAccountPendingOperationsSynchronizerStub: JointAccountPendingOperationsSynchronizer {
-    let pendingOperations: [StoredJointAccountPendingOperations]
+    private let pendingOperationsSubject: CurrentValueSubject<[StoredJointAccountPendingOperations], Never>
     private let appliedUpdatesLock = OSAllocatedUnfairLock<[JointAccountPendingOperationsUpdate]>(initialState: [])
 
     var appliedUpdates: [JointAccountPendingOperationsUpdate] {
@@ -20,11 +20,19 @@ final class JointAccountPendingOperationsSynchronizerStub: JointAccountPendingOp
     }
 
     init(pendingOperations: [StoredJointAccountPendingOperations] = []) {
-        self.pendingOperations = pendingOperations
+        pendingOperationsSubject = CurrentValueSubject(pendingOperations)
     }
 
-    var pendingOperationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> {
-        Just(pendingOperations).eraseToAnyPublisher()
+    func store(pendingOperations: [StoredJointAccountPendingOperations]) {
+        pendingOperationsSubject.send(pendingOperations)
+    }
+
+    var operations: [StoredJointAccountPendingOperations] {
+        pendingOperationsSubject.value
+    }
+
+    var operationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> {
+        pendingOperationsSubject.eraseToAnyPublisher()
     }
 
     var checkpoint: JointAccountPendingOperationsCheckpoint {
@@ -33,6 +41,14 @@ final class JointAccountPendingOperationsSynchronizerStub: JointAccountPendingOp
 
     func apply(_ update: JointAccountPendingOperationsUpdate) throws {
         appliedUpdatesLock.withLock { $0.append(update) }
+    }
+
+    func apply(
+        refreshedOperation operation: JointAccountOperation,
+        forCryptoAccountId cryptoAccountId: String,
+        requestedAt checkpoint: JointAccountPendingOperationsCheckpoint
+    ) throws {
+        try apply(.operationRefreshed(operation, cryptoAccountId: cryptoAccountId))
     }
 
     func apply(listing: [StoredJointAccountPendingOperations], requestedAt checkpoint: JointAccountPendingOperationsCheckpoint) throws {

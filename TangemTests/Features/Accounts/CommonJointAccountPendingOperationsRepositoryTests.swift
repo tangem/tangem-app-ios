@@ -28,7 +28,7 @@ struct CommonJointAccountPendingOperationsRepositoryTests {
 
         #expect(operation == Self.operation())
         #expect(networkService.createdRequests == [Self.request()])
-        #expect(synchronizer.appliedUpdates == [.operation(Self.operation(), cryptoAccountId: Self.accountId)])
+        #expect(synchronizer.appliedUpdates == [.localOperation(Self.operation(), cryptoAccountId: Self.accountId)])
     }
 
     @Test("A signed operation is sent with its transaction and signature, and the endpoint's answer is applied")
@@ -49,7 +49,7 @@ struct CommonJointAccountPendingOperationsRepositoryTests {
         #expect(signed.id == Self.operationId)
         #expect(signed.safeTransaction == Self.safeTransaction())
         #expect(signed.signature == Self.signature)
-        #expect(synchronizer.appliedUpdates == [.operation(Self.operation(status: .pending), cryptoAccountId: Self.accountId)])
+        #expect(synchronizer.appliedUpdates == [.localOperation(Self.operation(status: .pending), cryptoAccountId: Self.accountId)])
     }
 
     @Test("A rejected operation the endpoint still reports is applied as it now stands")
@@ -62,7 +62,7 @@ struct CommonJointAccountPendingOperationsRepositoryTests {
         try await sut.rejectOperation(id: Self.operationId, forCryptoAccountId: Self.accountId)
 
         #expect(networkService.rejectedOperationIds == [Self.operationId])
-        #expect(synchronizer.appliedUpdates == [.operation(answer, cryptoAccountId: Self.accountId)])
+        #expect(synchronizer.appliedUpdates == [.localOperation(answer, cryptoAccountId: Self.accountId)])
     }
 
     @Test("A rejected operation the endpoint deleted is removed")
@@ -97,21 +97,126 @@ struct CommonJointAccountPendingOperationsRepositoryTests {
         await #expect(throws: CommonJointAccountPendingOperationsRepository.InternalError.featureUnavailable) {
             try await sut.rejectOperation(id: Self.operationId, forCryptoAccountId: Self.accountId)
         }
+        await #expect(throws: CommonJointAccountPendingOperationsRepository.InternalError.featureUnavailable) {
+            _ = try await sut.reloadPendingOperation(with: Self.operationId, in: Self.accountId, knownETag: nil)
+        }
 
         #expect(networkService.operationCallsCount == 0)
         #expect(synchronizer.appliedUpdates.isEmpty)
     }
 
-    @Test("What the synchronizer holds is what the repository hands out")
-    func pendingOperationsFollowTheSynchronizer() async throws {
-        let stored = Self.record(operations: [Self.operation()])
-        let synchronizer = JointAccountPendingOperationsSynchronizerStub(pendingOperations: [stored])
+    @Test("No frequent updates are handed back for an operation that is no longer in flight")
+    func noFrequentUpdatesForAnOperationNoLongerInFlight() {
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub(pendingOperations: [Self.record(operations: [Self.operation(status: .executed)])])
         let sut = Self.makeSUT(networkService: JointAccountsNetworkServiceStub(), synchronizer: synchronizer)
 
-        let emitted = try await sut.pendingOperationsPublisher.async()
+        #expect(sut.requestFrequentUpdates(operationId: Self.operationId) == nil)
+    }
 
-        #expect(sut.pendingOperations == [stored])
-        #expect(emitted == [stored])
+    @Test("Frequent updates asked for an operation in flight read it anew under its account right away")
+    func frequentUpdatesReadTheOperationRightAway() async throws {
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub(pendingOperations: [Self.record(operations: [Self.operation()])])
+        let networkService = JointAccountsNetworkServiceStub(fetchedOperationAnswers: [.success(.notModified)])
+        let sut = Self.makeSUT(networkService: networkService, synchronizer: synchronizer)
+
+        try await Self.readAnewOnce(through: sut, networkService: networkService)
+
+        #expect(networkService.fetchedOperations.map(\.id) == [Self.operationId])
+    }
+
+    @Test("An operation keeps its poller, and the tag it learnt, for as long as it is in flight")
+    func pollerIsKeptWhileTheOperationIsInFlight() async throws {
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub(pendingOperations: [Self.record(operations: [Self.operation()])])
+        let networkService = JointAccountsNetworkServiceStub(fetchedOperationAnswers: [
+            .success(.modified(Self.historyItem(status: .pending), eTag: "v2")),
+            .success(.notModified),
+        ])
+        let sut = Self.makeSUT(networkService: networkService, synchronizer: synchronizer)
+
+        try await Self.readAnewOnce(through: sut, networkService: networkService)
+        synchronizer.store(pendingOperations: [Self.record(operations: [Self.operation(status: .pending)])])
+        try await Self.readAnewOnce(through: sut, networkService: networkService)
+
+        #expect(networkService.fetchedOperations.map(\.knownETag) == [nil, "v2"])
+    }
+
+    @Test("A poller goes with its operation when the store drops it, and a new one comes with the operation's return")
+    func pollerGoesWithItsOperation() async throws {
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub(pendingOperations: [Self.record(operations: [Self.operation()])])
+        let networkService = JointAccountsNetworkServiceStub(fetchedOperationAnswers: [
+            .success(.modified(Self.historyItem(status: .awaitingSignatures), eTag: "v2")),
+            .success(.notModified),
+        ])
+        let sut = Self.makeSUT(networkService: networkService, synchronizer: synchronizer)
+
+        try await Self.readAnewOnce(through: sut, networkService: networkService)
+        synchronizer.store(pendingOperations: [])
+        synchronizer.store(pendingOperations: [Self.record(operations: [Self.operation()])])
+        try await Self.readAnewOnce(through: sut, networkService: networkService)
+
+        #expect(networkService.fetchedOperations.map(\.knownETag) == [nil, nil])
+    }
+
+    @Test("An operation is read anew with the poller's tag, applied under its account, and the answer is handed back")
+    func operationReadAnewIsApplied() async throws {
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub(pendingOperations: [Self.record(operations: [Self.operation()])])
+        let item = Self.historyItem(status: .pending)
+        let networkService = JointAccountsNetworkServiceStub(fetchedOperationAnswers: [.success(.modified(item, eTag: "v2"))])
+        let sut = Self.makeSUT(networkService: networkService, synchronizer: synchronizer)
+
+        let result = try await sut.reloadPendingOperation(with: Self.operationId, in: Self.accountId, knownETag: "v1")
+
+        #expect(networkService.fetchedOperations.map(\.id) == [Self.operationId])
+        #expect(networkService.fetchedOperations.map(\.knownETag) == ["v1"])
+        #expect(synchronizer.appliedUpdates == [.operationRefreshed(item.operation, cryptoAccountId: Self.accountId)])
+        #expect(result == .modified(item, eTag: "v2"))
+    }
+
+    @Test(
+        "An operation the endpoint no longer knows, or no longer shows this wallet, is removed",
+        arguments: [JointOperationError.operationNotFound, .notAMember]
+    )
+    func operationGoneFromTheEndpointIsRemoved(error: JointOperationError) async throws {
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub(pendingOperations: [Self.record(operations: [Self.operation()])])
+        let networkService = JointAccountsNetworkServiceStub(fetchedOperationAnswers: [.failure(error)])
+        let sut = Self.makeSUT(networkService: networkService, synchronizer: synchronizer)
+
+        let result = try await sut.reloadPendingOperation(with: Self.operationId, in: Self.accountId, knownETag: nil)
+
+        #expect(result == .notModified)
+        #expect(synchronizer.appliedUpdates == [.operationRemoved(id: Self.operationId, cryptoAccountId: Self.accountId)])
+    }
+
+    @Test("A finished operation kept for the day is not read anew")
+    func finishedOperationIsNotRead() async throws {
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub(pendingOperations: [Self.record(operations: [Self.operation(status: .executed)])])
+        let networkService = JointAccountsNetworkServiceStub(fetchedOperationAnswers: [.success(.notModified)])
+        let sut = Self.makeSUT(networkService: networkService, synchronizer: synchronizer)
+
+        _ = try await sut.reloadPendingOperation(with: Self.operationId, in: Self.accountId, knownETag: nil)
+
+        #expect(networkService.fetchedOperations.isEmpty)
+        #expect(synchronizer.appliedUpdates.isEmpty)
+    }
+
+    @Test("An operation no longer stored is not read")
+    func operationNoLongerStoredIsNotRead() async throws {
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub()
+        let networkService = JointAccountsNetworkServiceStub(fetchedOperationAnswers: [.success(.notModified)])
+        let sut = Self.makeSUT(networkService: networkService, synchronizer: synchronizer)
+
+        _ = try await sut.reloadPendingOperation(with: Self.operationId, in: Self.accountId, knownETag: nil)
+
+        #expect(networkService.fetchedOperations.isEmpty)
+        #expect(synchronizer.appliedUpdates.isEmpty)
+    }
+
+    @Test("Nothing is polled while the feature is off")
+    func nothingIsPolledWhileTheFeatureIsOff() {
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub(pendingOperations: [Self.record(operations: [Self.operation()])])
+        let sut = Self.makeSUT(networkService: JointAccountsNetworkServiceStub(), synchronizer: synchronizer, isJointAccountsAvailable: false)
+
+        #expect(sut.requestFrequentUpdates(operationId: Self.operationId) == nil)
     }
 }
 
@@ -140,6 +245,17 @@ private extension CommonJointAccountPendingOperationsRepositoryTests {
         )
     }
 
+    static func readAnewOnce(
+        through sut: CommonJointAccountPendingOperationsRepository,
+        networkService: JointAccountsNetworkServiceStub
+    ) async throws {
+        let fetchesCount = networkService.fetchedOperations.count
+        let subscription = try #require(sut.requestFrequentUpdates(operationId: operationId))
+        try await networkService.waitForFetches(reaching: fetchesCount + 1)
+        subscription.cancel()
+        try await Task.sleep(for: .milliseconds(50))
+    }
+
     static func record(operations: [JointAccountOperation]) -> StoredJointAccountPendingOperations {
         StoredJointAccountPendingOperations(cryptoAccountId: accountId, operations: operations)
     }
@@ -163,12 +279,23 @@ private extension CommonJointAccountPendingOperationsRepositoryTests {
         )
     }
 
+    static func historyItem(status: JointAccountOperationStatus) -> JointOperationHistoryItem {
+        JointOperationHistoryItem(
+            operation: operation(status: status),
+            cryptoAccountId: accountId,
+            safeAddress: safeAddress,
+            createdAt: Date(timeIntervalSince1970: 1_767_225_600),
+            threshold: 2
+        )
+    }
+
     static func operation(
+        id: String = operationId,
         status: JointAccountOperationStatus = .awaitingSignatures,
         signatures: [JointAccountOperation.Signature] = [signed]
     ) -> JointAccountOperation {
         JointAccountOperation(
-            id: operationId,
+            id: id,
             chainId: 1,
             safeTransaction: safeTransaction(),
             status: status,

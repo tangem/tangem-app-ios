@@ -88,8 +88,8 @@ struct CommonJointAccountsRepositoryTests {
         #expect(pendingOperationsStorage.records == [StoredJointAccountPendingOperations(cryptoAccountId: Self.accountId, operations: [operation])])
     }
 
-    @Test("An account with nothing in flight any more takes its operations record away")
-    func settledOperationsAreDropped() async throws {
+    @Test("An operation the listing no longer reports is left to its poller rather than dropped")
+    func operationNoLongerListedIsKept() async throws {
         let storage = JointAccountsPersistentStorageStub(accounts: [Self.storedAccount()])
         let pendingOperationsStorage = JointAccountsPendingOperationsPersistentStorageStub(records: [
             StoredJointAccountPendingOperations(cryptoAccountId: Self.accountId, operations: [Self.operation()]),
@@ -104,7 +104,7 @@ struct CommonJointAccountsRepositoryTests {
         try await sut.loadJointAccountsFromRemote()
 
         #expect(storage.accounts.count == 1)
-        #expect(pendingOperationsStorage.records.isEmpty)
+        #expect(pendingOperationsStorage.records == [StoredJointAccountPendingOperations(cryptoAccountId: Self.accountId, operations: [Self.operation()])])
     }
 
     @Test("An account the endpoint no longer reports is no longer stored")
@@ -275,7 +275,7 @@ struct CommonJointAccountsRepositoryTests {
 
         let read = Task { try await sut.loadJointAccountsFromRemote() }
         await networkService.waitForFirstRequest()
-        try await synchronizer.apply(.operation(operation, cryptoAccountId: Self.accountId))
+        try await synchronizer.apply(.localOperation(operation, cryptoAccountId: Self.accountId))
         networkService.answerFirstRequest()
         try await read.value
 
@@ -285,7 +285,7 @@ struct CommonJointAccountsRepositoryTests {
         #expect(storage.accounts.map(\.cryptoAccountId) == [Self.accountId])
     }
 
-    @Test("The read after a listing that a local write was replayed over is a full one, and it is taken as it is")
+    @Test("The read after a listing that a local write was replayed over is a full one")
     func theReadAfterAReplayedListingIsAFullOne() async throws {
         let storage = JointAccountsPersistentStorageStub(accounts: [])
         let pendingOperationsStorage = JointAccountsPendingOperationsPersistentStorageStub()
@@ -303,13 +303,13 @@ struct CommonJointAccountsRepositoryTests {
 
         let read = Task { try await sut.loadJointAccountsFromRemote() }
         await networkService.waitForFirstRequest()
-        try await synchronizer.apply(.operation(Self.operation(), cryptoAccountId: Self.accountId))
+        try await synchronizer.apply(.localOperation(Self.operation(), cryptoAccountId: Self.accountId))
         networkService.answerFirstRequest()
         try await read.value
         try await sut.loadJointAccountsFromRemote()
 
         #expect(networkService.sentKnownETags == [nil, nil])
-        #expect(pendingOperationsStorage.records.isEmpty)
+        #expect(pendingOperationsStorage.records == [StoredJointAccountPendingOperations(cryptoAccountId: Self.accountId, operations: [Self.operation()])])
         #expect(eTagStorage.eTag == JointAccountsNetworkServiceStub.listingETag)
     }
 
@@ -339,29 +339,9 @@ struct CommonJointAccountsRepositoryTests {
         #expect(mode == .regular)
     }
 
-    @Test("An operation in flight is polled regularly")
-    func pendingOperationsArePolledRegularly() {
-        let mode = Self.pollingMode(
-            pendingOperations: [StoredJointAccountPendingOperations(cryptoAccountId: Self.accountId, operations: [Self.operation()])],
-            accounts: [Self.storedAccount(status: .active(safeAddress: Self.safeAddress))]
-        )
-
-        #expect(mode == .regular)
-    }
-
-    @Test("Nothing is polled once every account has settled and no operation is in flight")
+    @Test("Nothing is polled once every account has settled")
     func settledAccountsAreNotPolled() {
         let mode = Self.pollingMode(accounts: [Self.storedAccount(status: .active(safeAddress: Self.safeAddress))])
-
-        #expect(mode == .idle)
-    }
-
-    @Test("A finished operation kept for the day does not keep the listing polling")
-    func finishedOperationsAreNotPolled() {
-        let mode = Self.pollingMode(
-            pendingOperations: [StoredJointAccountPendingOperations(cryptoAccountId: Self.accountId, operations: [Self.operation(status: .executed)])],
-            accounts: [Self.storedAccount(status: .active(safeAddress: Self.safeAddress))]
-        )
 
         #expect(mode == .idle)
     }
@@ -411,12 +391,10 @@ private extension CommonJointAccountsRepositoryTests {
     static let safeAddress = "0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21b"
 
     static func pollingMode(
-        pendingOperations: [StoredJointAccountPendingOperations] = [],
         accounts: [StoredJointAccount],
         frequentUpdatesRequestsCount: Int = 0
     ) -> CommonJointAccountsRepository.JointAccountsRepositoryAutoupdater.PollingMode {
-        CommonJointAccountsRepository.JointAccountsRepositoryAutoupdater.pollingMode(
-            pendingOperations: pendingOperations,
+        CommonJointAccountsRepository.JointAccountsRepositoryAutoupdater.PollingModeResolver().pollingMode(
             accounts: accounts,
             frequentUpdatesRequestsCount: frequentUpdatesRequestsCount
         )

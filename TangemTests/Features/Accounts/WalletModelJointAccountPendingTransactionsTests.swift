@@ -148,9 +148,12 @@ private extension WalletModelJointAccountPendingTransactionsTests {
             .transfer(.coin(destination: recipient, value: 1_000_000_000_000_000))
         }
 
+        let operation = JointAccountCompositionFixture.coinTransfer(status: status)
+
         return JointAccountPendingOperation(
             wallet: wallet,
-            operation: JointAccountCompositionFixture.coinTransfer(status: status),
+            operation: operation,
+            operationPublisher: Just(operation).eraseToAnyPublisher(),
             innerCallType: innerCallType,
             feeTokenItem: .blockchain(tokenItem.blockchainNetwork)
         )
@@ -166,7 +169,7 @@ private final class PendingOperationsProviderStub: JointAccountPendingOperations
         Just(pendingOperations).eraseToAnyPublisher()
     }
 
-    func requestFrequentUpdates() -> AnyCancellable {
-        AnyCancellable {}
+    func requestFrequentUpdates(operationId: String) -> AnyCancellable? {
+        nil
     }
 }
