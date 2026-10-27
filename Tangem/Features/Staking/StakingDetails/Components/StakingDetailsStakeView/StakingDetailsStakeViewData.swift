@@ -80,12 +80,12 @@ struct StakingDetailsStakeViewData: Identifiable {
 
     private func string(_ text: String, accent: String? = nil) -> AttributedString {
         var string = AttributedString(text)
-        string.foregroundColor = Colors.Text.tertiary
+        string.foregroundColor = DesignSystem.Color.textSecondary
         string.font = Fonts.Regular.caption1
 
         if let accent {
             var accent = AttributedString(accent)
-            accent.foregroundColor = Colors.Text.accent
+            accent.foregroundColor = DesignSystem.Color.textAccentBlue
             accent.font = Fonts.Regular.caption1
             return string + " " + accent
         }

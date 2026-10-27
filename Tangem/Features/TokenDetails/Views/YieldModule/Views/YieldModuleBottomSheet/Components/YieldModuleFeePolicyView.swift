@@ -43,7 +43,7 @@ extension YieldModuleStartView {
                         needsBackground: false
                     )
 
-                    Separator(color: Colors.Stroke.primary)
+                    Separator(color: DesignSystem.Color.borderSecondary)
                         .padding(.horizontal, 4)
 
                     YieldFeeSection(
@@ -52,11 +52,11 @@ extension YieldModuleStartView {
                         needsBackground: false
                     )
                 }
-                .defaultRoundedBackground(with: Colors.Background.action)
+                .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary)
 
                 if let footerText {
                     Text(footerText)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                         .padding(.horizontal, 14)
                 }
             }
@@ -64,7 +64,7 @@ extension YieldModuleStartView {
 
         private var serviceFeeText: some View {
             Text(Localization.yieldModuleFeePolicyTangemServiceFeeTitle)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
         }
     }
 }

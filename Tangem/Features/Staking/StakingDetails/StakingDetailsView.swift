@@ -62,7 +62,7 @@ struct StakingDetailsView: View {
                 .padding(.horizontal, 16)
         }
         .readGeometry(bindTo: $viewGeometryInfo)
-        .background(Colors.Background.secondary)
+        .background(DesignSystem.Color.bgPrimary)
         .navigationTitle(viewModel.title)
         .navigationBarTitleDisplayMode(.inline)
         .accessibilityIdentifier(StakingAccessibilityIdentifiers.title)
@@ -71,7 +71,7 @@ struct StakingDetailsView: View {
         .alert(item: $viewModel.alert) { $0.alert }
         .bottomSheet(
             item: $viewModel.descriptionBottomSheetInfo,
-            backgroundColor: Colors.Background.tertiary
+            backgroundColor: DesignSystem.Color.bgPrimary
         ) {
             DescriptionBottomSheetView(
                 info: DescriptionBottomSheetInfo(title: $0.title, description: $0.description)
@@ -103,7 +103,7 @@ struct StakingDetailsView: View {
             .font(Fonts.Bold.title1)
             .foregroundStyle(
                 LinearGradient(
-                    colors: [Colors.Text.constantWhite, Colors.Text.stakingGradient],
+                    colors: [DesignSystem.Color.textStaticDarkPrimary, Colors.Text.stakingGradient],
                     startPoint: .leading,
                     endPoint: .trailing
                 )

@@ -22,7 +22,7 @@ public struct HideKeyboardButton: View {
         } label: {
             Assets.hideKeyboard.image
                 .renderingMode(.template)
-                .foregroundColor(Colors.Icon.primary1)
+                .foregroundColor(DesignSystem.Color.iconPrimary)
         }
     }
 }

@@ -43,7 +43,7 @@ struct YieldModulePromoView: View {
                 SwiftUI.Button(Localization.yieldModulePromoScreenHowItWorksButtonTitle) {
                     viewModel.onHowItWorksTap()
                 }
-                .foregroundColor(Colors.Text.primary1)
+                .foregroundColor(DesignSystem.Color.textPrimary)
             }
         }
     }
@@ -51,7 +51,7 @@ struct YieldModulePromoView: View {
     // MARK: - Sub Views
 
     private var background: some View {
-        Colors.Background.tertiary.ignoresSafeArea()
+        DesignSystem.Color.bgPrimary.ignoresSafeArea()
     }
 
     private var topLogo: some View {
@@ -69,11 +69,11 @@ struct YieldModulePromoView: View {
         SwiftUI.Button(action: { viewModel.onInterestRateInfoTap() }) {
             HStack(spacing: 4) {
                 Text(Localization.yieldModulePromoScreenVariableRateInfoV2)
-                    .style(Fonts.Bold.caption1, color: Colors.Text.secondary)
+                    .style(Fonts.Bold.caption1, color: DesignSystem.Color.textSecondary)
 
                 Assets.infoCircle16.image
                     .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.informative)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 4)
@@ -147,7 +147,7 @@ struct YieldModulePromoView: View {
                 .resizable()
                 .renderingMode(.template)
                 .frame(size: .init(bothDimensions: 24))
-                .foregroundStyle(Colors.Icon.accent)
+                .foregroundStyle(DesignSystem.Color.iconAccentBlue)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(viewModel.makeApyBoostBlockTitleString())
@@ -165,7 +165,7 @@ struct YieldModulePromoView: View {
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 14)
-        .background(Colors.Background.action)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadiusContinuous(14)
     }
 }
@@ -189,8 +189,8 @@ private extension YieldModulePromoView {
                 iconView
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(title).style(Fonts.Bold.callout, color: Colors.Text.primary1)
-                    Text(subtitle).style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                    Text(title).style(Fonts.Bold.callout, color: DesignSystem.Color.textPrimary)
+                    Text(subtitle).style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                 }
 
                 Spacer()

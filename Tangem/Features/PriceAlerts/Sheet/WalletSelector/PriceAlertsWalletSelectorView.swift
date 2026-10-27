@@ -17,7 +17,7 @@ struct PriceAlertsWalletSelectorView: View {
         VStack(spacing: 16) {
             // [REDACTED_TODO_COMMENT]
             Text("Choose wallet")
-                .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title3, color: DesignSystem.Color.textPrimary)
 
             Button(action: viewModel.closeAction) {
                 Text("Close")

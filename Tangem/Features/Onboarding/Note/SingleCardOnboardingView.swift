@@ -164,7 +164,7 @@ struct SingleCardOnboardingView: View {
         }
         .alert(item: $viewModel.alert, content: { $0.alert })
         .onAppear(perform: viewModel.onAppear)
-        .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
+        .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
     }
 }
 

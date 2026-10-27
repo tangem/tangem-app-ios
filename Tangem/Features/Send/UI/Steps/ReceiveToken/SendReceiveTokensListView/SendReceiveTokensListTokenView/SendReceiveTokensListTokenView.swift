@@ -21,10 +21,10 @@ struct SendReceiveTokensListTokenView: View {
 
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text(viewModel.name)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
                     Text(viewModel.symbol)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                 }
 
                 Spacer()

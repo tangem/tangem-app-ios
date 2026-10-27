@@ -53,7 +53,7 @@ struct ActiveStakingView: View {
         HStack {
             VStack(alignment: .leading, spacing: 8) {
                 Text(title)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
                     .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingTitle)
 
                 balanceView
@@ -72,17 +72,17 @@ struct ActiveStakingView: View {
         switch data.balance {
         case .loadingError:
             Text(Localization.stakingNotificationNetworkErrorText)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
         case .balance(let balance, _):
             HStack(spacing: 4) {
                 SensitiveText(balance.fiat)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
 
                 Text(AppConstants.dotSign)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textPrimary)
 
                 SensitiveText(balance.crypto)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
             }
             .truncationMode(.middle)
             .lineLimit(1)
@@ -97,13 +97,13 @@ struct ActiveStakingView: View {
             EmptyView()
         case .noRewards:
             Text(Localization.stakingDetailsNoRewardsToClaim)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
         case .rewardsToClaim(let string):
             SensitiveText(builder: Localization.stakingDetailsRewardsToClaim, sensitive: string)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
         case .compoundedRewardsEarned(let cryptoFormatted):
             SensitiveText(builder: Localization.stakingDetailsAutocompoundRewardsEarned, sensitive: cryptoFormatted)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
         }
     }
 
@@ -115,7 +115,7 @@ struct ActiveStakingView: View {
         case .balance:
             Assets.chevron.image
                 .renderingMode(.template)
-                .foregroundColor(Colors.Icon.informative)
+                .foregroundColor(DesignSystem.Color.iconSecondary)
                 .padding(.trailing, 2)
                 .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingChevron)
         }

@@ -49,13 +49,13 @@ struct WCFeeSelectorContentRowView: SelectableSectionRow {
     private var icon: some View {
         ZStack(alignment: .center) {
             RoundedRectangle(cornerRadius: 36 / 2)
-                .fill(isSelected ? Colors.Icon.accent.opacity(0.1) : Colors.Background.tertiary)
+                .fill(isSelected ? DesignSystem.Color.bgAccentBlueSubtle : DesignSystem.Color.bgPrimary)
                 .frame(width: 36, height: 36)
 
             viewModel.feeOption.icon.image
                 .resizable()
                 .renderingMode(.template)
-                .foregroundStyle(isSelected ? Colors.Icon.accent : Colors.Text.tertiary)
+                .foregroundStyle(isSelected ? DesignSystem.Color.iconAccentBlue : DesignSystem.Color.iconSecondary)
                 .frame(width: 24, height: 24)
         }
     }
@@ -63,11 +63,11 @@ struct WCFeeSelectorContentRowView: SelectableSectionRow {
     private var content: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(viewModel.feeOption.title)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.leading)
 
             Text(viewModel.feeComponents.formatted)
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
         }
     }
 
@@ -79,7 +79,7 @@ struct WCFeeSelectorContentRowView: SelectableSectionRow {
                     FeeSelectorCustomFeeRowView(viewModel: customFieldViewModel)
 
                     if customFieldViewModel.id != viewModel.customFields.last?.id {
-                        Separator(color: Colors.Stroke.primary)
+                        Separator(color: DesignSystem.Color.borderSecondary)
                     }
                 }
             }

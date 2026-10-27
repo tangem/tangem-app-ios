@@ -41,7 +41,7 @@ struct VisaWalletMainContentView: View {
             )
         }
         .padding(.horizontal, 16)
-        .bottomSheet(item: $viewModel.balancesAndLimitsViewModel, backgroundColor: Colors.Background.tertiary) { model in
+        .bottomSheet(item: $viewModel.balancesAndLimitsViewModel, backgroundColor: DesignSystem.Color.bgPrimary) { model in
             VisaBalancesLimitsBottomSheetView(viewModel: model)
         }
         .shtorkaCompatibleBindAlert($viewModel.alert)
@@ -58,14 +58,14 @@ struct VisaWalletMainContentView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(Localization.visaMainBalancesAndLimits)
-                            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                            .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
 
                         HStack(alignment: .firstTextBaseline, spacing: 4) {
                             Text(viewModel.cryptoLimitText)
-                                .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textPrimary)
 
                             Text(viewModel.numberOfDaysLimitText)
-                                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                         }
                         .shimmerPlaceholder(viewModel.isBalancesAndLimitsBlockLoading, variant: .custom(width: 160, height: 18, cornerRadius: 4))
                     }

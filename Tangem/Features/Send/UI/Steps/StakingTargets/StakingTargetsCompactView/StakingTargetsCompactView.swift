@@ -21,7 +21,7 @@ struct StakingTargetsCompactView: View {
             DefaultHeaderView(Localization.stakingValidator)
                 .padding(.top, 12)
         }
-        .settings(\.backgroundColor, Colors.Background.action)
+        .settings(\.backgroundColor, DesignSystem.Color.bgSecondary)
         .contentShape(Rectangle())
     }
 }

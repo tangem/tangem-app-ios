@@ -17,7 +17,7 @@ struct OnrampRedirectingView: View {
 
     var body: some View {
         ZStack {
-            Colors.Background.tertiary.ignoresSafeArea()
+            DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
             content
         }
@@ -43,10 +43,10 @@ struct OnrampRedirectingView: View {
 
             VStack(alignment: .center, spacing: 12) {
                 Text(Localization.onrampRedirectingToProviderTitle(viewModel.providerName))
-                    .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.title3, color: DesignSystem.Color.textPrimary)
 
                 Text(Localization.onrampRedirectingToProviderSubtitle(viewModel.providerName))
-                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                     .multilineTextAlignment(.center)
             }
         }
@@ -56,12 +56,12 @@ struct OnrampRedirectingView: View {
     var tangemIcon: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 8)
-                .fill(Colors.Background.action)
+                .fill(DesignSystem.Color.bgSecondary)
                 .frame(width: 64, height: 64)
 
             Assets.tangemIconMedium.image
                 .renderingMode(.template)
-                .foregroundColor(Colors.Icon.primary1)
+                .foregroundColor(DesignSystem.Color.iconPrimary)
         }
     }
 }

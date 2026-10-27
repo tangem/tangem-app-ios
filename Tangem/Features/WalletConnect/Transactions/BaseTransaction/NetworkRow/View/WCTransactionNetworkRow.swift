@@ -24,15 +24,15 @@ struct WCTransactionNetworkRow: View {
             Assets.Glyphs.networkNew.image
                 .resizable()
                 .frame(width: 24, height: 24)
-                .foregroundStyle(Colors.Icon.accent)
+                .foregroundStyle(DesignSystem.Color.iconAccentBlue)
 
             Text(Localization.wcCommonNetwork)
-                .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                .style(Fonts.Regular.body, color: DesignSystem.Color.textPrimary)
 
             Spacer()
 
             Text(viewModel.blockchainName)
-                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.body, color: DesignSystem.Color.textSecondary)
 
             viewModel.blockchainIcon.image
                 .resizable()

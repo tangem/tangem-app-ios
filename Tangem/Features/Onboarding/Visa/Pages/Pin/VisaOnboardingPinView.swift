@@ -18,12 +18,12 @@ struct VisaOnboardingPinView: View {
         VStack(spacing: 40) {
             VStack(spacing: 10) {
                 Text(Localization.visaOnboardingPinCodeTitle)
-                    .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
                     .multilineTextAlignment(.center)
                     .padding(.top, 32)
 
                 Text(Localization.visaOnboardingPinCodeDescription)
-                    .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.callout, color: DesignSystem.Color.textSecondary)
                     .multilineTextAlignment(.center)
             }
             .padding(.horizontal, 40)
@@ -38,7 +38,7 @@ struct VisaOnboardingPinView: View {
                 Text(viewModel.errorMessage ?? " ")
                     .lineLimit(2)
                     .multilineTextAlignment(.center)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.warning)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textAccentRed)
                     .hidden(viewModel.errorMessage == nil)
                     .padding(.horizontal, 16)
             }

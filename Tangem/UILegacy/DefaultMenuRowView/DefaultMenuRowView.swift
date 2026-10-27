@@ -27,7 +27,7 @@ struct DefaultMenuRowView<Action: DefaultMenuRowViewModelAction>: View {
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
             Text(viewModel.title)
-                .style(titleFont, color: Colors.Text.primary1)
+                .style(titleFont, color: DesignSystem.Color.textPrimary)
 
             Spacer()
 
@@ -40,16 +40,16 @@ struct DefaultMenuRowView<Action: DefaultMenuRowViewModelAction>: View {
         OptionPicker(selection: $selection, options: viewModel.actions) {
             HStack(spacing: 8) {
                 Text(selection.title)
-                    .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.body, color: DesignSystem.Color.textPrimary)
                     .animation(.none, value: selection.title)
 
                 Assets.chevronDownMini.image
                     .renderingMode(.template)
-                    .foregroundColor(Colors.Icon.primary1)
+                    .foregroundColor(DesignSystem.Color.iconPrimary)
             }
         } content: { action in
             Text(action.title)
-                .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                .style(Fonts.Regular.body, color: DesignSystem.Color.textPrimary)
         }
     }
 }
@@ -84,7 +84,7 @@ private enum DefaultMenuRowPreviewActionType: DefaultMenuRowViewModelAction, Cas
         selection: $selectedAction
     )
     .padding(.horizontal, 16)
-    .background(Colors.Background.secondary)
+    .background(DesignSystem.Color.bgPrimary)
     .preferredColorScheme(.light)
 }
 
@@ -100,7 +100,7 @@ private enum DefaultMenuRowPreviewActionType: DefaultMenuRowViewModelAction, Cas
         selection: $selectedAction
     )
     .padding(.horizontal, 16)
-    .background(Colors.Background.secondary)
+    .background(DesignSystem.Color.bgPrimary)
     .preferredColorScheme(.dark)
 }
 

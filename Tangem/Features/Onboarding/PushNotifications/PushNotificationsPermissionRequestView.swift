@@ -33,7 +33,7 @@ struct PushNotificationsPermissionRequestView: View {
                     FixedSpacer(height: 28.0)
 
                     Text(Localization.userPushNotificationAgreementHeader)
-                        .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier(PushPermissionAccessibilityIdentifiers.title)
@@ -111,12 +111,12 @@ struct PushNotificationsPermissionRequestView: View {
     private var iconColor: Color {
         switch colorScheme {
         case .light:
-            return Colors.Icon.inactive
+            return DesignSystem.Color.iconTertiary
         case .dark:
-            return Colors.Icon.primary1
+            return DesignSystem.Color.iconPrimary
         @unknown default:
             assertionFailure("Unknown color scheme '\(String(describing: colorScheme))' received")
-            return Colors.Icon.inactive
+            return DesignSystem.Color.iconTertiary
         }
     }
 

@@ -59,7 +59,7 @@ struct KeyboardToolbarViewModifier<ToolbarContent: View>: ViewModifier {
         VStack(spacing: .zero) {
             Divider()
                 .frame(height: 1)
-                .overlay(Colors.Stroke.primary)
+                .overlay(DesignSystem.Color.borderSecondary)
 
             toolbarContent
         }
@@ -68,7 +68,7 @@ struct KeyboardToolbarViewModifier<ToolbarContent: View>: ViewModifier {
     @ViewBuilder
     private var toolbarBackground: some View {
         if #unavailable(iOS 26.0) {
-            Colors.Background.primary
+            DesignSystem.Color.bgPrimary
         }
     }
 

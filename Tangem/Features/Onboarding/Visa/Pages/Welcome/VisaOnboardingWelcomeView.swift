@@ -28,7 +28,7 @@ struct VisaOnboardingWelcomeView: View {
                     let imageHeight = imageWidth * imageAspectRatio
                     let imageFrameSize = CGSize(width: imageWidth, height: imageHeight)
                     Circle()
-                        .fill(Colors.Stroke.primary)
+                        .fill(DesignSystem.Color.bgTransparentSecondary)
                         .frame(size: .init(bothDimensions: imageWidth - backgroundCircleHorizontalOffset * 2))
 
                     OnboardingCardView(
@@ -42,11 +42,11 @@ struct VisaOnboardingWelcomeView: View {
 
                 VStack(spacing: 14) {
                     Text(viewModel.title)
-                        .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
 
                     Text(viewModel.description)
                         .multilineTextAlignment(.center)
-                        .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                        .style(Fonts.Regular.callout, color: DesignSystem.Color.textSecondary)
                 }
                 .padding(.top, verticalPadding)
                 .padding(.horizontal, 26)

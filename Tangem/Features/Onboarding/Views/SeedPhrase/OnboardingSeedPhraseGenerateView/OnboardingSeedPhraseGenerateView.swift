@@ -51,10 +51,10 @@ struct OnboardingSeedPhraseGenerateView: View {
     private var header: some View {
         VStack(spacing: 14) {
             Text(Localization.onboardingSeedGenerateTitle)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
 
             Text(viewModel.selectedLength.descriptionMessage)
-                .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                .style(Fonts.Regular.callout, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(2)
                 .padding(.horizontal, 54)

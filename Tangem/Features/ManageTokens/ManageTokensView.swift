@@ -40,7 +40,7 @@ struct ManageTokensView: View {
     }
 
     private var cardBackgroundColor: Color {
-        isRedesign ? DesignSystem.Color.bgSecondary : Colors.Background.action
+        isRedesign ? DesignSystem.Color.bgSecondary : DesignSystem.Color.bgSecondary
     }
 
     private var cardCornerRadius: CGFloat {
@@ -52,11 +52,11 @@ struct ManageTokensView: View {
     }
 
     private var rowTitleColor: Color {
-        isRedesign ? DesignSystem.Color.textPrimary : Colors.Text.primary1
+        isRedesign ? DesignSystem.Color.textPrimary : DesignSystem.Color.textPrimary
     }
 
     private var accentColor: Color {
-        isRedesign ? DesignSystem.Color.iconAccentBlue : Colors.Icon.accent
+        isRedesign ? DesignSystem.Color.iconAccentBlue : DesignSystem.Color.iconAccentBlue
     }
 
     var body: some View {
@@ -207,7 +207,7 @@ extension ManageTokensView {
             listBackgroundColor: .clear,
             listHasRoundedCorners: false,
             outerHorizontalPadding: 0,
-            viewBackgroundColor: Colors.Background.primary
+            viewBackgroundColor: DesignSystem.Color.bgPrimary
         )
 
         static let addAndManage = Style(
@@ -215,10 +215,10 @@ extension ManageTokensView {
             searchBarHorizontalPadding: 0,
             showsScrollDivider: false,
             addCustomTokenPlacement: .inlineRow,
-            listBackgroundColor: Colors.Background.action,
+            listBackgroundColor: DesignSystem.Color.bgSecondary,
             listHasRoundedCorners: true,
             outerHorizontalPadding: 16,
-            viewBackgroundColor: Colors.Background.tertiary
+            viewBackgroundColor: DesignSystem.Color.bgPrimary
         )
 
         enum AddCustomTokenPlacement {

@@ -19,14 +19,6 @@ public extension UIColor {
         return UIColor(named: "BackgroundPrimary", in: .module, compatibleWith: nil)!
     }
 
-    @nonobjc static var backgroundSecondary: UIColor {
-        return UIColor(named: "BackgroundSecondary", in: .module, compatibleWith: nil)!
-    }
-
-    @nonobjc static var backgroundPlain: UIColor {
-        return UIColor(named: "BackgroundPlain", in: .module, compatibleWith: nil)!
-    }
-
     @nonobjc static var inputAccessoryViewTintColor: UIColor {
         return UIColor(named: "ButtonPrimary", in: .module, compatibleWith: nil)!
     }
@@ -43,10 +35,6 @@ public extension UIColor {
         return UIColor(named: "TextPrimary1", in: .module, compatibleWith: nil)!
     }
 
-    @nonobjc static var textDisabled: UIColor {
-        return UIColor(named: "TextDisabled", in: .module, compatibleWith: nil)!
-    }
-
     @nonobjc static var iconInformative: UIColor {
         return UIColor(named: "IconInformative", in: .module, compatibleWith: nil)!
     }
@@ -55,20 +43,12 @@ public extension UIColor {
         UIColor(named: "IconAccent", in: .module, compatibleWith: nil)!
     }
 
-    @nonobjc static var iconInactive: UIColor {
-        UIColor(named: "IconInactive", in: .module, compatibleWith: nil)!
-    }
-
     @nonobjc static var iconWarning: UIColor {
         UIColor(named: "IconWarning", in: .module, compatibleWith: nil)!
     }
 
     @nonobjc static var textTertiary: UIColor {
         UIColor(named: "TextTertiary", in: .module, compatibleWith: nil)!
-    }
-
-    @nonobjc static var textSecondary: UIColor {
-        UIColor(named: "TextSecondary", in: .module, compatibleWith: nil)!
     }
 
     @nonobjc static var textPrimary2: UIColor {

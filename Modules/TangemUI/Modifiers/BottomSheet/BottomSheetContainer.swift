@@ -365,7 +365,7 @@ private enum BottomSheetContainerPreviewData {
     @Previewable @StateObject var coordinator = BottomSheetContainerPreviewData.BottomSheetCoordinator()
 
     ZStack {
-        Colors.Background.primary
+        DesignSystem.Color.bgPrimary
             .edgesIgnoringSafeArea(.all)
 
         SwiftUI.Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
@@ -375,7 +375,7 @@ private enum BottomSheetContainerPreviewData {
         .offset(y: -200)
 
         NavHolder()
-            .bottomSheet(item: $coordinator.item, backgroundColor: Colors.Background.tertiary) {
+            .bottomSheet(item: $coordinator.item, backgroundColor: DesignSystem.Color.bgPrimary) {
                 BottomSheetContainerPreviewData.BottomSheetView(viewModel: $0)
             }
     }

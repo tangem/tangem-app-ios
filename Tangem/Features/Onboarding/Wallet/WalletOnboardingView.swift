@@ -104,7 +104,7 @@ struct WalletOnboardingView: View {
                     let size = geom.size
                     ZStack(alignment: .center) {
                         Circle()
-                            .foregroundColor(Colors.Button.secondary)
+                            .foregroundColor(DesignSystem.Color.bgTransparentSecondary)
                             .frame(size: viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundFrame(containerSize: size) : .zero)
                             .offset(viewModel.isInitialAnimPlayed ? currentStep.backgroundOffset(in: size) : .zero)
                             .opacity(viewModel.isCustomContentVisible ? 0 : 1)
@@ -243,7 +243,7 @@ struct WalletOnboardingView: View {
         .preference(key: ModalSheetPreferenceKey.self, value: viewModel.isModal)
         .onAppear(perform: viewModel.onAppear)
         .onModalDetection { isModallyPresented = $0 }
-        .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
+        .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
     }
 }
 

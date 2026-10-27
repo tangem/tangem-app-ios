@@ -30,10 +30,10 @@ struct HotCryptoAddToPortfolioBottomSheetView: View {
 
                 VStack(spacing: 6) {
                     Text(viewModel.token.name)
-                        .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.callout, color: DesignSystem.Color.textPrimary)
 
                     Text(Localization.hotCryptoTokenNetwork(viewModel.tokenNetworkName))
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 }
             }
 

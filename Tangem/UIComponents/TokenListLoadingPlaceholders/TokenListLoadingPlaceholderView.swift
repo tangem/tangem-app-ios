@@ -29,8 +29,7 @@ struct TokenListLoadingPlaceholderView: View {
 
 #Preview {
     ZStack {
-        Colors.Background
-            .secondary
+        DesignSystem.Color.bgPrimary
             .ignoresSafeArea()
 
         TokenListLoadingPlaceholderView()

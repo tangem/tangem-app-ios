@@ -71,5 +71,5 @@ struct AddressBooksUpdateRequiredView: View {
 
 #Preview {
     AddressBooksUpdateRequiredView(onUpdateTap: {})
-        .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
+        .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
 }

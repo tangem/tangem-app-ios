@@ -98,7 +98,7 @@ final class YieldModulePromoViewModel {
         return styled(
             Localization.yieldModulePromoScreenTitleV2(apyString),
             font: Fonts.Bold.title1,
-            color: Colors.Text.primary1
+            color: DesignSystem.Color.textPrimary
         )
     }
 
@@ -109,17 +109,17 @@ final class YieldModulePromoViewModel {
         )
 
         var attributedString = AttributedString(string)
-        attributedString.foregroundColor = Colors.Text.tertiary
+        attributedString.foregroundColor = DesignSystem.Color.textSecondary
         attributedString.font = Fonts.Regular.footnote
 
         if let tosRange = attributedString.range(of: Localization.commonTermsOfUse) {
             attributedString[tosRange].link = tosUrl
-            attributedString[tosRange].foregroundColor = Colors.Text.accent
+            attributedString[tosRange].foregroundColor = DesignSystem.Color.textAccentBlue
         }
 
         if let privacyRange = attributedString.range(of: Localization.commonPrivacyPolicy) {
             attributedString[privacyRange].link = privacyPolicyUrl
-            attributedString[privacyRange].foregroundColor = Colors.Text.accent
+            attributedString[privacyRange].foregroundColor = DesignSystem.Color.textAccentBlue
         }
 
         return attributedString
@@ -130,7 +130,7 @@ final class YieldModulePromoViewModel {
         let font = Fonts.Bold.title2
         let boostedApyString = PercentFormatter().format(apy * Self.apyBoostMultiplier, option: .yieldPromo)
 
-        var attributed = styled(template, font: font, color: Colors.Text.primary1)
+        var attributed = styled(template, font: font, color: DesignSystem.Color.textPrimary)
 
         guard let range = attributed.range(of: apyString) else {
             return attributed
@@ -139,10 +139,10 @@ final class YieldModulePromoViewModel {
         let strikethroughApy = styled(
             PercentFormatter().format(apy, option: .yieldPromo),
             font: font,
-            color: Colors.Text.accent,
+            color: DesignSystem.Color.textAccentBlue,
             strikethrough: true
         )
-        let arrowAndBoostedApy = styled(" → \(boostedApyString)", font: font, color: Colors.Text.accent)
+        let arrowAndBoostedApy = styled(" → \(boostedApyString)", font: font, color: DesignSystem.Color.textAccentBlue)
 
         attributed.replaceSubrange(range, with: strikethroughApy + arrowAndBoostedApy)
         return attributed
@@ -151,11 +151,11 @@ final class YieldModulePromoViewModel {
     func makeApyBoostBlockTitleString() -> AttributedString {
         let bold = Fonts.Bold.subheadline
         let regular = Fonts.Regular.subheadline
-        let accent = Colors.Text.accent
+        let accent = DesignSystem.Color.textAccentBlue
         let boostedApyString = PercentFormatter().format(apy * Self.apyBoostMultiplier, option: .yieldPromo)
 
-        return styled(Localization.commonYieldMode, font: bold, color: Colors.Text.primary1)
-            + styled(" \(AppConstants.dotSign) ", font: regular, color: Colors.Text.tertiary)
+        return styled(Localization.commonYieldMode, font: bold, color: DesignSystem.Color.textPrimary)
+            + styled(" \(AppConstants.dotSign) ", font: regular, color: DesignSystem.Color.textSecondary)
             + styled(Localization.yieldModuleTokenDetailsEarnNotificationApy + " ", font: bold, color: accent)
             + styled(PercentFormatter().format(apy, option: .yieldPromo), font: bold, color: accent, strikethrough: true)
             + styled(" x\(Self.apyBoostMultiplier) → \(boostedApyString)", font: bold, color: accent)
@@ -166,16 +166,16 @@ final class YieldModulePromoViewModel {
         let termsText = Localization.yieldApyBoostPromoTermsAndConditions
         let fullText = "\(Localization.yieldApyBoostPromoEligibilityText) \(learnMoreText) \(termsText)"
 
-        var attributed = styled(fullText, font: Fonts.Regular.footnote, color: Colors.Text.tertiary)
+        var attributed = styled(fullText, font: Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
         if let learnMoreRange = attributed.range(of: learnMoreText) {
             attributed[learnMoreRange].link = Self.apyBoostLearnMoreLink
-            attributed[learnMoreRange].foregroundColor = Colors.Text.accent
+            attributed[learnMoreRange].foregroundColor = DesignSystem.Color.textAccentBlue
         }
 
         if let termsRange = attributed.range(of: termsText) {
             attributed[termsRange].link = apyBoostPromoTerms
-            attributed[termsRange].foregroundColor = Colors.Text.accent
+            attributed[termsRange].foregroundColor = DesignSystem.Color.textAccentBlue
         }
 
         return attributed

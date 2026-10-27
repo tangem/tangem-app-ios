@@ -23,14 +23,14 @@ struct TransactionsListView: View {
     var body: some View {
         content
             .frame(maxWidth: .infinity)
-            .background(Colors.Background.primary)
+            .background(DesignSystem.Color.bgSecondary)
             .cornerRadiusContinuous(14)
     }
 
     private var header: some View {
         HStack {
             Text(Localization.commonTransactions)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
 
             Spacer()
 
@@ -39,10 +39,10 @@ struct TransactionsListView: View {
                     HStack(spacing: 4) {
                         Assets.compass.image
                             .renderingMode(.template)
-                            .foregroundStyle(Colors.Icon.informative)
+                            .foregroundStyle(DesignSystem.Color.iconSecondary)
 
                         Text(Localization.commonExplorer)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                            .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                     }
                 }
                 .ifLet(exploreConfirmationDialog) { view, exploreConfirmationDialogViewModel in
@@ -71,11 +71,11 @@ struct TransactionsListView: View {
         VStack(spacing: 20) {
             Assets.compassBig.image
                 .renderingMode(.template)
-                .foregroundColor(Colors.Icon.inactive)
+                .foregroundColor(DesignSystem.Color.iconTertiary)
 
             Text(Localization.transactionHistoryNotSupportedDescription)
                 .multilineTextAlignment(.center)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 .padding(.horizontal, 36)
 
             if let exploreAction {
@@ -106,11 +106,11 @@ struct TransactionsListView: View {
         VStack(spacing: 22) {
             Assets.emptyHistory.image
                 .renderingMode(.template)
-                .foregroundColor(Colors.Icon.inactive)
+                .foregroundColor(DesignSystem.Color.iconTertiary)
 
             Text(Localization.transactionHistoryEmptyTransactions)
                 .multilineTextAlignment(.center)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 .padding(.horizontal, 16)
 
             if let exploreAction {
@@ -128,11 +128,11 @@ struct TransactionsListView: View {
         VStack(spacing: 20) {
             Assets.fileExclamationMark.image
                 .renderingMode(.template)
-                .foregroundColor(Colors.Icon.inactive)
+                .foregroundColor(DesignSystem.Color.iconTertiary)
 
             Text(Localization.transactionHistoryErrorFailedToLoad)
                 .multilineTextAlignment(.center)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 .padding(.horizontal, 36)
 
             HStack(spacing: 8.0) {
@@ -179,7 +179,7 @@ struct TransactionsListView: View {
 
                 if let fetchMore {
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.primary1))
+                        .progressViewStyle(CircularProgressViewStyle(tint: DesignSystem.Color.iconPrimary))
                         .padding(.vertical)
                         .onAppear {
                             fetchMore.start()
@@ -199,7 +199,7 @@ struct TransactionsListView: View {
     ) -> some View {
         HStack {
             Text(item.header)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
             Spacer()
         }
@@ -248,7 +248,7 @@ struct TransactionsListView: View {
                     .cornerRadiusContinuous(FlexySizeButtonWithLeadingIcon.Constants.cornerRadius)
 
                 ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.primary1))
+                    .progressViewStyle(CircularProgressViewStyle(tint: DesignSystem.Color.iconPrimary))
             }
             .hidden(!isReloadButtonBusy)
         )
@@ -278,7 +278,7 @@ extension TransactionsListView {
 
 extension TransactionsListView {
     enum Constants {
-        static let buttonBackgroundColor = Colors.Button.secondary
+        static let buttonBackgroundColor = DesignSystem.Color.bgTransparentSecondary
     }
 }
 
@@ -355,7 +355,7 @@ struct TransactionsListPreview: View {
                 .padding(.horizontal, 16)
             }
         }
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
     }
 }
 

@@ -31,7 +31,7 @@ public struct NFTEntrypointView: View {
             }
             .padding(Constants.padding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Colors.Background.primary)
+            .background(DesignSystem.Color.bgSecondary)
             .cornerRadius(Constants.cornerRadius, corners: .allCorners)
         }
         .buttonStyle(.defaultScaled)
@@ -125,17 +125,17 @@ public struct NFTEntrypointView: View {
     private var textsView: some View {
         VStack(alignment: .leading, spacing: Constants.Texts.interitemSpacing) {
             Text(viewModel.title)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
             Text(viewModel.subtitle)
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
         }
     }
 
     private var chevron: some View {
         Assets.chevronRight.image
             .frame(size: Constants.chevronSize)
-            .foregroundStyle(Colors.Icon.informative)
+            .foregroundStyle(DesignSystem.Color.iconSecondary)
     }
 
     @ViewBuilder
@@ -145,7 +145,7 @@ public struct NFTEntrypointView: View {
                 .if(shouldStroke) { icon in
                     icon.overlay(
                         RoundedRectangle(cornerRadius: Constants.imageCornerRadius)
-                            .strokeBorder(Colors.Background.primary, lineWidth: Constants.strokeLineWidth)
+                            .strokeBorder(DesignSystem.Color.bgSecondary, lineWidth: Constants.strokeLineWidth)
                     )
                 }
         } else {
@@ -180,19 +180,19 @@ public struct NFTEntrypointView: View {
 
     private func dotsImage(size: CGSize) -> some View {
         RoundedRectangle(cornerRadius: Constants.imageCornerRadius)
-            .fill(Colors.Field.focused)
+            .fill(DesignSystem.Color.bgTransparentSecondary)
             .frame(size: size)
             .overlay {
                 Assets.horizontalDots.image
                     .resizable()
-                    .foregroundStyle(Colors.Text.secondary)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
                     .frame(size: Constants.MultipleCollections.dotsImageSize)
             }
     }
 
     private func placeholder(size: CGSize) -> some View {
         RoundedRectangle(cornerRadius: Constants.imageCornerRadius)
-            .fill(Colors.Field.primary)
+            .fill(DesignSystem.Color.bgTertiary)
             .frame(size: size)
     }
 }
@@ -243,7 +243,7 @@ extension NFTEntrypointView {
 
 #Preview("No collections") {
     ZStack {
-        Colors.Field.primary
+        DesignSystem.Color.bgTertiary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(state: .success(.init(value: []))),
@@ -259,7 +259,7 @@ extension NFTEntrypointView {
 
 #Preview("One collection") {
     ZStack {
-        Colors.Field.primary
+        DesignSystem.Color.bgTertiary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(
@@ -296,7 +296,7 @@ extension NFTEntrypointView {
 
 #Preview("Two collections") {
     ZStack {
-        Colors.Field.primary
+        DesignSystem.Color.bgTertiary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(
@@ -333,7 +333,7 @@ extension NFTEntrypointView {
 
 #Preview("Three collections") {
     ZStack {
-        Colors.Field.primary
+        DesignSystem.Color.bgTertiary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(
@@ -370,7 +370,7 @@ extension NFTEntrypointView {
 
 #Preview("Four collections") {
     ZStack {
-        Colors.Field.primary
+        DesignSystem.Color.bgTertiary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(
@@ -407,7 +407,7 @@ extension NFTEntrypointView {
 
 #Preview("Multiple collections") {
     ZStack {
-        Colors.Field.primary
+        DesignSystem.Color.bgTertiary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(

@@ -38,7 +38,7 @@ private extension MobileUnlockView {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Text(viewModel.title)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
                 .accessibilityIdentifier(AuthAccessibilityIdentifiers.mobileUnlockTitle)
 
             OnboardingPinStackView(
@@ -76,7 +76,7 @@ private extension MobileUnlockView {
 
     func infoWarningView(item: ViewModel.InfoWarningItem) -> some View {
         Text(item.title)
-            .style(Fonts.Regular.footnote, color: Colors.Text.warning)
+            .style(Fonts.Regular.footnote, color: DesignSystem.Color.textAccentRed)
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
     }
@@ -84,10 +84,10 @@ private extension MobileUnlockView {
     func unlockButton(item: ViewModel.UnlockItem) -> some View {
         SwiftUI.Button(action: item.action) {
             Text(item.title)
-                .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+                .style(Fonts.Bold.callout, color: DesignSystem.Color.textPrimary)
                 .padding(.vertical, 12)
                 .frame(maxWidth: .infinity, alignment: .center)
-                .background(Colors.Button.secondary)
+                .background(DesignSystem.Color.bgTransparentSecondary)
                 .cornerRadius(14, corners: .allCorners)
         }
     }

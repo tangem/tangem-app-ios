@@ -28,7 +28,7 @@ struct AddressBookContactManagementView: View {
             header
         }
         .infinityFrame(axis: .vertical, alignment: .top)
-        .background(DesignSystem.Color.bgBase.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .safeAreaInset(edge: .bottom) { bottomButton }
         .navigationBarHidden(true)
         .alert(item: $viewModel.alert) { $0.alert }

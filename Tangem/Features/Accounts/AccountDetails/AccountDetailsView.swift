@@ -48,10 +48,10 @@ struct AccountDetailsView: View {
             content: {
                 VStack(alignment: .leading, spacing: 2.0) {
                     Text(Localization.accountFormName)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
 
                     Text(viewModel.accountName)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                         .accessibilityIdentifier(AccountsAccessibilityIdentifiers.accountDetailsAccountName)
                 }
             },
@@ -65,7 +65,7 @@ struct AccountDetailsView: View {
                 }
             }
         )
-        .defaultRoundedBackground(with: Colors.Background.action)
+        .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary)
     }
 
     private var managementSection: some View {
@@ -80,7 +80,7 @@ struct AccountDetailsView: View {
                     })
             }
         }
-        .backgroundColor(Colors.Background.action)
+        .backgroundColor(DesignSystem.Color.bgSecondary)
     }
 
     private var archiveAccountSection: some View {
@@ -90,7 +90,7 @@ struct AccountDetailsView: View {
         } footer: {
             DefaultFooterView(Localization.accountDetailsArchiveDescription)
         }
-        .backgroundColor(Colors.Background.action)
+        .backgroundColor(DesignSystem.Color.bgSecondary)
         .animation(.default, value: viewModel.archivingState)
         .confirmationDialog(
             Localization.accountDetailsArchiveDescription,

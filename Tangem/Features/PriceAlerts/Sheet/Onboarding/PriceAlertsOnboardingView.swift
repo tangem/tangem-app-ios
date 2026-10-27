@@ -17,14 +17,14 @@ struct PriceAlertsOnboardingView: View {
         VStack(spacing: 16) {
             DesignSystem.Icons.Bell.regular28.image
                 .renderingMode(.template)
-                .foregroundStyle(Colors.Icon.accent)
+                .foregroundStyle(DesignSystem.Color.iconAccentBlue)
 
             // [REDACTED_TODO_COMMENT]
             Text("Token added to watchlist")
-                .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title3, color: DesignSystem.Color.textPrimary)
 
             Text("you will receive price alerts")
-                .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
 
             Button(action: viewModel.gotItAction) {
                 Text("Got it")

@@ -18,7 +18,7 @@ struct GetTokenView: View {
     var body: some View {
         VStack(spacing: 0) {
             EntitySummaryView(viewState: viewModel.tokenItemViewState, kingfisherImageCache: .default)
-                .defaultRoundedBackground(with: Colors.Background.action)
+                .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary)
                 .padding(.bottom, 14)
 
             VStack(spacing: 0) {
@@ -47,7 +47,7 @@ struct GetTokenView: View {
                 )
                 .asTappableRow { viewModel.handleViewEvent(.receiveTapped) }
             }
-            .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: 0)
+            .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: 0, horizontalPadding: 0)
             .padding(.bottom, 24)
 
             MainButton(

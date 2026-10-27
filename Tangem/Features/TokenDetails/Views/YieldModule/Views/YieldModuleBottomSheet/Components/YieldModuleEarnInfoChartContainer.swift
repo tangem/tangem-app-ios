@@ -52,12 +52,12 @@ struct YieldModuleEarnInfoChartContainer: View {
         VStack {
             VStack(spacing: 12) {
                 Text(text)
-                    .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption2, color: DesignSystem.Color.textSecondary)
 
                 if let retryAction {
                     SwiftUI.Button(action: { Task { await retryAction() } }) {
                         Text(Localization.alertButtonTryAgain)
-                            .style(Fonts.Regular.caption2, color: Colors.Text.primary1)
+                            .style(Fonts.Regular.caption2, color: DesignSystem.Color.textPrimary)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
                             .background(Capsule().fill(Color.gray.opacity(0.2)))
@@ -66,7 +66,7 @@ struct YieldModuleEarnInfoChartContainer: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .defaultRoundedBackground(with: Colors.Background.action)
+        .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary)
     }
 }
 

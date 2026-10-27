@@ -23,7 +23,7 @@ struct CampaignTokenSelectorView: View {
                 },
                 headerContent: {
                     Text(Localization.marketsSearchPortfolioHeader)
-                        .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.title3, color: DesignSystem.Color.textPrimary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 8)
                 },

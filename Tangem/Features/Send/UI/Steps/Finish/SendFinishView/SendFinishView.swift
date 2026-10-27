@@ -71,11 +71,11 @@ struct SendFinishView: View {
 
             VStack(spacing: 4) {
                 Text(viewModel.headerTitle)
-                    .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.title3, color: DesignSystem.Color.textPrimary)
                     .accessibilityIdentifier(SendAccessibilityIdentifiers.finishHeader)
 
                 Text(transactionTime)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                     .accessibilityIdentifier(SendAccessibilityIdentifiers.finishTransactionTime)
             }
             .lineLimit(1)

@@ -22,7 +22,7 @@ struct InformationHiddenBalancesView: View {
         VStack(spacing: 30) {
             Assets.crossedEyeIcon.image
                 .renderingMode(.template)
-                .foregroundColor(Colors.Icon.primary1)
+                .foregroundColor(DesignSystem.Color.iconPrimary)
 
             textView
 
@@ -35,10 +35,10 @@ struct InformationHiddenBalancesView: View {
     private var textView: some View {
         VStack(spacing: 10) {
             Text(Localization.balanceHiddenTitle)
-                .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                .style(Fonts.Regular.title1, color: DesignSystem.Color.textPrimary)
 
             Text(Localization.balanceHiddenDescription)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
         }
         .multilineTextAlignment(.center)
         .padding(.horizontal, 24)
@@ -84,7 +84,7 @@ private final class BottomSheetCoordinator: ObservableObject, InformationHiddenB
     @Previewable @StateObject var coordinator = BottomSheetCoordinator()
 
     ZStack {
-        Colors.Background.primary
+        DesignSystem.Color.bgPrimary
             .edgesIgnoringSafeArea(.all)
 
         SwiftUI.Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
@@ -94,7 +94,7 @@ private final class BottomSheetCoordinator: ObservableObject, InformationHiddenB
         .offset(y: -200)
 
         NavHolder()
-            .bottomSheet(item: $coordinator.item, backgroundColor: Colors.Background.tertiary) {
+            .bottomSheet(item: $coordinator.item, backgroundColor: DesignSystem.Color.bgPrimary) {
                 InformationHiddenBalancesView(viewModel: $0)
             }
     }
@@ -106,7 +106,7 @@ private final class BottomSheetCoordinator: ObservableObject, InformationHiddenB
     @Previewable @StateObject var coordinator = BottomSheetCoordinator()
 
     ZStack {
-        Colors.Background.primary
+        DesignSystem.Color.bgPrimary
             .edgesIgnoringSafeArea(.all)
 
         SwiftUI.Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
@@ -116,7 +116,7 @@ private final class BottomSheetCoordinator: ObservableObject, InformationHiddenB
         .offset(y: -200)
 
         NavHolder()
-            .bottomSheet(item: $coordinator.item, backgroundColor: Colors.Background.tertiary) {
+            .bottomSheet(item: $coordinator.item, backgroundColor: DesignSystem.Color.bgPrimary) {
                 InformationHiddenBalancesView(viewModel: $0)
             }
     }
