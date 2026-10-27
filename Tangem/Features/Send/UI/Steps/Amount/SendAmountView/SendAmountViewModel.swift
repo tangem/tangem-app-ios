@@ -434,6 +434,15 @@ private extension SendAmountViewModel {
         default:
             break
         }
+
+        if FeatureProvider.isAvailable(.hideRejectedSwapProviders), lastUpdateSource == .receive, rateTypes == [.float] {
+            let sourceValue: Decimal? = switch sourceAmountField.amountType {
+            case .crypto: sourceAmountField.cryptoTextFieldViewModel.value
+            case .fiat: sourceAmountField.fiatTextFieldViewModel.value
+            }
+
+            textFieldValueDidChanged(amount: sourceValue)
+        }
     }
 
     func textFieldValueDidChanged(amount: Decimal?) {

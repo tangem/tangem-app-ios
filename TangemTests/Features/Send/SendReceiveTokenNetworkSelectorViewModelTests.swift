@@ -10,6 +10,7 @@ import BlockchainSdk
 import Combine
 import Foundation
 import TangemFoundation
+import TangemLocalization
 import Testing
 @testable import TangemExpress
 @testable import Tangem
@@ -86,6 +87,43 @@ final class SendReceiveTokenNetworkSelectorViewModelTests {
             Issue.record("Expected .notSupported, got \(state)")
             return
         }
+    }
+
+    @Test(
+        "A failed pairs request shows the translated Express error",
+        .enabled(if: FeatureProvider.isAvailable(.hideRejectedSwapProviders))
+    )
+    func pairsRequestFailureShowsTranslatedError() async throws {
+        let repository = SwapRepositoryConfigurableStub(
+            pairs: [],
+            providers: [],
+            updatePairsError: ExpressAPIError(code: 2200, value: nil)
+        )
+
+        let state = try await loadedState(repository: repository, networks: [polygonItem])
+
+        guard case .notSupported(let text) = state else {
+            Issue.record("Expected .notSupported, got \(state)")
+            return
+        }
+        #expect(text == Localization.expressErrorSwapUnavailable(2200))
+    }
+
+    @Test(
+        "Without the toggle, a failed pairs request shows the error description",
+        .enabled(if: !FeatureProvider.isAvailable(.hideRejectedSwapProviders))
+    )
+    func pairsRequestFailureShowsErrorDescriptionWithoutToggle() async throws {
+        let error = ExpressAPIError(code: 2200, description: "Core: swaps are unavailable", value: nil)
+        let repository = SwapRepositoryConfigurableStub(pairs: [], providers: [], updatePairsError: error)
+
+        let state = try await loadedState(repository: repository, networks: [polygonItem])
+
+        guard case .notSupported(let text) = state else {
+            Issue.record("Expected .notSupported, got \(state)")
+            return
+        }
+        #expect(text == error.errorDescription)
     }
 
     @Test("Manual swap is not suggested when the source token can't be swapped")
@@ -258,6 +296,7 @@ private actor SwapRepositoryConfigurableStub: SwapRepository {
     private let pairsToReturn: [ExpressPair]
     private let providersToReturn: [ExpressProvider]
     private let pairsAvailableOnlyAfterUpdate: Bool
+    private let updatePairsError: Error?
 
     private var updatePairsCalled = false
     private(set) var updatePairsCallsCount = 0
@@ -265,16 +304,22 @@ private actor SwapRepositoryConfigurableStub: SwapRepository {
     init(
         pairs: [ExpressPair],
         providers: [ExpressProvider],
-        pairsAvailableOnlyAfterUpdate: Bool = false
+        pairsAvailableOnlyAfterUpdate: Bool = false,
+        updatePairsError: Error? = nil
     ) {
         pairsToReturn = pairs
         providersToReturn = providers
         self.pairsAvailableOnlyAfterUpdate = pairsAvailableOnlyAfterUpdate
+        self.updatePairsError = updatePairsError
     }
 
     func updatePairs(from wallet: ExpressWalletCurrency, to currencies: [ExpressWalletCurrency], userWalletInfo: UserWalletInfo) async throws {
         updatePairsCallsCount += 1
         updatePairsCalled = true
+
+        if let updatePairsError {
+            throw updatePairsError
+        }
     }
 
     func updatePairs(for wallet: ExpressWalletCurrency, userWalletInfo: UserWalletInfo) async throws {

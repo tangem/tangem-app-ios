@@ -45,7 +45,9 @@ struct ExpressAPIProviderFactory {
             configuration: .defaultConfiguration,
             expressAPIType: expressAPIType,
             exchangeDataDecoder: exchangeDataDecoder,
-            featureFlags: ExpressFeatureFlags()
+            featureFlags: ExpressFeatureFlags(
+                isHideRejectedSwapProvidersEnabled: FeatureProvider.isAvailable(.hideRejectedSwapProviders)
+            )
         )
     }
 }

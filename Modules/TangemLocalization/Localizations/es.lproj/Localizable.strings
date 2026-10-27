@@ -2176,7 +2176,7 @@
 "swap_in_progress" = "Intercambio en curso";
 "swap_simple_mode" = "Modo sencillo";
 "swap_slippage_error" = "Cantidad no soportada";
-"swap_slippage_info_text" = "es la diferencia entre el precio de ejecución esperado y el real causada por cambios en el precio de mercado o la liquidez.";
+"swap_slippage_info_text" = "es el cambio de precio desde que firma hasta que su transacción llega al proveedor. Se ejecuta al precio de ese momento, dentro de su tolerancia de deslizamiento.";
 "swap_slippage_warning_text" = "El intercambio podría fallar si se alcanza el umbral de deslizamiento.";
 "swap_slippage_warning_title" = "Se ha establecido el deslizamiento en %@";
 "swap_story_first_subtitle_v2" = "Intercambie criptos directamente en Tangem\nSin transferencias adicionales\nSin mover fondos a exchanges";

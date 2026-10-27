@@ -472,6 +472,9 @@ final class SourceWalletStub: ExpressSourceWallet {
 }
 
 final class ExpressAPIProviderStub: ExpressAPIProvider {
+    var exchangeDataError: Error?
+    var cancelsCurrentTaskOnExchangeData = false
+
     func assets(currencies: Set<ExpressWalletCurrency>) async throws -> [ExpressAsset] { [] }
     func pairs(from: Set<ExpressWalletCurrency>, to: Set<ExpressWalletCurrency>) async throws -> [ExpressPair] { [] }
     func providers(branches: [ExpressBranch]) async throws -> [ExpressProvider] { [] }
@@ -481,7 +484,15 @@ final class ExpressAPIProviderStub: ExpressAPIProvider {
     }
 
     func exchangeData(item: ExpressSwappableDataItem) async throws -> ExpressTransactionData {
-        ExpressTransactionData(
+        if cancelsCurrentTaskOnExchangeData {
+            withUnsafeCurrentTask { $0?.cancel() }
+        }
+
+        if let exchangeDataError {
+            throw exchangeDataError
+        }
+
+        return ExpressTransactionData(
             requestId: "",
             fromAmount: .zero,
             toAmount: .zero,

@@ -89,7 +89,7 @@ public struct TangemExpressFactory {
                 DeviceInfoPlugin(),
             ]
         )
-        let service = CommonExpressAPIService(provider: provider, expressAPIType: expressAPIType)
+        let service = CommonExpressAPIService(provider: provider, expressAPIType: expressAPIType, featureFlags: featureFlags)
         let mapper = ExpressAPIMapper(exchangeDataDecoder: exchangeDataDecoder, featureFlags: featureFlags)
         return CommonExpressAPIProvider(expressAPIService: service, expressAPIMapper: mapper)
     }

@@ -210,6 +210,7 @@ final class SendAnalyticsLoggerStub: SendAnalyticsLogger {
     // MARK: - SwapManagementModelAnalyticsLogger
 
     func logSwapButtonSwap(slippage: Decimal?) {}
+    func logSwapProviderHidden(providerName: String, errorCode: Int?) {}
     func logSwapSlippageSelectorOpened() {}
     func logSwapCustomSlippageConfirmed(slippage: Decimal?) {}
     func logSwapButtonTransfer() {}

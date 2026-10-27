@@ -32,6 +32,8 @@ actor CommonExpressManager {
     /// providers (surviving quote reloads). Cleared when the pair changes or the user picks a provider.
     private var _preferredProviderId: ExpressProvider.Id?
 
+    private var _hiddenProviderIds: Set<ExpressProvider.Id> = []
+
     // MARK: - State
 
     private var currentState: ExpressManagerState = .idle
@@ -79,6 +81,7 @@ extension CommonExpressManager: ExpressManager {
             if !sameAsPrevious {
                 _preferredProviderId = nil
                 _slippage = nil
+                _hiddenProviderIds = []
             }
         }
 
@@ -209,7 +212,13 @@ extension CommonExpressManager: ExpressManager {
         }
 
         let request = makeRequest()
-        return try await selectedProvider.requestData(request: request)
+
+        do {
+            return try await selectedProvider.requestData(request: request)
+        } catch let error as ExpressExchangeDataError where error.hidesProvider {
+            hide(provider: error.provider)
+            throw error
+        }
     }
 }
 
@@ -251,7 +260,9 @@ private extension CommonExpressManager {
         let providers = try await expressRepository.providers(for: pair)
 
         let supported = providers.filter { provider in
-            allSet.contains(provider.id) && pair.source.supportedProvidersFilter.isSupported(provider: provider)
+            allSet.contains(provider.id)
+                && pair.source.supportedProvidersFilter.isSupported(provider: provider)
+                && isVisible(provider)
         }
 
         let make: (ExpressProvider, ExpressProviderRateType) throws -> ExpressAvailableProvider = { provider, rateType in
@@ -285,6 +296,24 @@ private extension CommonExpressManager {
         }
 
         return currentState
+    }
+
+    func hide(provider: ExpressProvider) {
+        _hiddenProviderIds.insert(provider.id)
+
+        guard case .swap(let selected, let providers) = currentState else {
+            return
+        }
+
+        let visible = providers.filter { isVisible($0.provider) }
+        let candidates = visible.availableProviders(rate: preferredRate(visible, requested: selected?.rateType ?? .float))
+        candidates.updateIsBestFlagPreferringDEX()
+
+        update(state: .swap(selected: selectedProvider(from: candidates), providers: visible))
+    }
+
+    func isVisible(_ provider: ExpressProvider) -> Bool {
+        !_hiddenProviderIds.contains(provider.id)
     }
 
     @discardableResult
