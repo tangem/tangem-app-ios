@@ -90,7 +90,7 @@ extension SwapFlowFactory: SendGenericFlowFactory {
             swapAmountViewModel: amount.viewModel,
             swapSummaryProviderViewModel: providers.compact,
             swapSummarySlippageViewModel: FeatureProvider.isAvailable(.customSlippage)
-                ? SwapSummarySlippageViewModel(swapProvidersInput: swapModel, slippageInput: swapModel)
+                ? SwapSummarySlippageViewModel(swapProvidersInput: swapModel, receiveTokenInput: swapModel, slippageInput: swapModel)
                 : nil,
             feeCompactViewModel: fee.compact,
         )
