@@ -43,8 +43,8 @@ public struct NetworksIconsView: View, Setupable {
 
     public var body: some View {
         HStack(spacing: -overlap) {
-            ForEach(visibleIcons.indices, id: \.self) { index in
-                iconSlot(for: visibleIcons[index])
+            ForEach(indexed: visibleIcons, id: \.0) { _, icon in
+                iconSlot(for: icon)
             }
 
             if overflow > 0 {

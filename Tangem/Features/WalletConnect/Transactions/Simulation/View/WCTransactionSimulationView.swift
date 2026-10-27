@@ -73,7 +73,7 @@ struct WCTransactionSimulationView: View {
     }
 
     private func content(for successContent: WCTransactionSimulationDisplayModel.SuccessContent) -> some View {
-        ForEach(Array(successContent.sections.enumerated()), id: \.offset) { index, section in
+        ForEach(indexed: successContent.sections, id: \.0) { _, section in
             switch section {
             case .assetChanges(let assetChanges):
                 assetChangesSection(assetChanges)
@@ -90,7 +90,7 @@ struct WCTransactionSimulationView: View {
     private func assetChangesSection(_ assetChanges: WCTransactionSimulationDisplayModel.AssetChangesSection) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             if !assetChanges.sendItems.isEmpty {
-                ForEach(Array(assetChanges.sendItems.enumerated()), id: \.offset) { index, item in
+                ForEach(indexed: assetChanges.sendItems, id: \.0) { _, item in
                     assetItemRow(item)
 
                     if assetChanges.sendItems.last != item {
@@ -106,7 +106,7 @@ struct WCTransactionSimulationView: View {
             }
 
             if !assetChanges.receiveItems.isEmpty {
-                ForEach(Array(assetChanges.receiveItems.enumerated()), id: \.offset) { index, item in
+                ForEach(indexed: assetChanges.receiveItems, id: \.0) { _, item in
                     assetItemRow(item)
 
                     if assetChanges.receiveItems.last != item {
@@ -120,7 +120,7 @@ struct WCTransactionSimulationView: View {
 
     private func approvalsSection(_ approvals: WCTransactionSimulationDisplayModel.ApprovalsSection) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            ForEach(Array(approvals.items.enumerated()), id: \.offset) { index, item in
+            ForEach(indexed: approvals.items, id: \.0) { _, item in
                 approvalItemRow(item)
             }
         }

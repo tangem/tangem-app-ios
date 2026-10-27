@@ -21,7 +21,7 @@ struct CarouselNewsView: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: Layout.cardSpacing) {
-                ForEach(Array(displayItems.enumerated()), id: \.element.id) { index, item in
+                ForEach(indexed: displayItems) { index, item in
                     CarouselNewsCardView(item: item, isLoading: itemsState.isLoading)
                         .id(item.id)
                         .onAppear {

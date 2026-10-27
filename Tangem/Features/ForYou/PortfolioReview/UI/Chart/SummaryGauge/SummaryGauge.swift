@@ -187,7 +187,7 @@ private extension SummaryGaugeView {
 
     return ScrollView {
         VStack(spacing: 24) {
-            ForEach(Array(portfolios.enumerated()), id: \.offset) { _, assets in
+            ForEach(indexed: portfolios, id: \.0) { _, assets in
                 SummaryGaugeView(assets: ranked(assets), selectedID: .constant(nil))
             }
 

@@ -56,7 +56,7 @@ private extension EarnCalculatorView {
 
     var inputs: some View {
         VStack(spacing: Constants.inputsSpacing) {
-            ForEach(Array(viewModel.state.inputs.enumerated()), id: \.element.id) { index, input in
+            ForEach(indexed: viewModel.state.inputs) { index, input in
                 if index > 0 {
                     Rectangle()
                         .fill(DesignSystem.Color.borderSecondary)

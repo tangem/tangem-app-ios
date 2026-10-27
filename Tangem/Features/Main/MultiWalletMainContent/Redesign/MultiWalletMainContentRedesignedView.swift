@@ -200,7 +200,7 @@ struct MultiWalletMainContentRedesignedView: View {
         sections: [MultiWalletMainContentPlainSection],
         roundBottomCorners: Bool = false
     ) -> some View {
-        ForEach(indexed: sections.indexed()) { sectionIndex, section in
+        ForEach(indexed: sections) { sectionIndex, section in
             let hasTitle = section.model.title != nil
             let isFirstVisibleSection = hasTitle && sectionIndex == 0
             let topEdgeCornerRadius = isFirstVisibleSection ? MultiWalletMainContentConstants.cornerRadius : nil
@@ -211,7 +211,7 @@ struct MultiWalletMainContentRedesignedView: View {
                 backgroundColor: MultiWalletMainContentConstants.tokenListBackgroundColor
             )
 
-            ForEach(indexed: section.items.indexed()) { itemIndex, item in
+            ForEach(indexed: section.items) { itemIndex, item in
                 let isLastItem = sectionIndex == sections.count - 1 && itemIndex == section.items.count - 1
                 let hasPromoBubble = viewModel.tokenItemPromoBubbleViewModel?.id == item.id
                 let promoBubbleViewModel = hasPromoBubble ? viewModel.tokenItemPromoBubbleViewModel : nil

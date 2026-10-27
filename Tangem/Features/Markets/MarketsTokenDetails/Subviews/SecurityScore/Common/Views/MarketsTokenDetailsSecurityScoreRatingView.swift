@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAccessibilityIdentifiers
 import TangemAssets
+import TangemUI
 import TangemUIUtils
 
 struct MarketsTokenDetailsSecurityScoreRatingView: View {
@@ -21,7 +22,7 @@ struct MarketsTokenDetailsSecurityScoreRatingView: View {
                 .accessibilityIdentifier(MarketsAccessibilityIdentifiers.securityScoreValue)
 
             Group {
-                ForEach(viewData.ratingBullets.indexed(), id: \.0) { _, ratingBullet in
+                ForEach(indexed: viewData.ratingBullets, id: \.0) { _, ratingBullet in
                     RatingBulletView(ratingBullet: ratingBullet)
                 }
             }

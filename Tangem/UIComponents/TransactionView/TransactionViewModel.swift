@@ -15,7 +15,7 @@ import TangemFoundation
 import TangemMacro
 import TangemUI
 
-struct TransactionViewModel: Hashable, Identifiable {
+struct TransactionViewModel: Hashable {
     let id: TransactionRecord.ID
     let icon: TransactionViewIconViewData
     let amount: TransactionViewAmountViewData

@@ -15,7 +15,7 @@ struct TangemPayOrderCardInfoRowsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
+            ForEach(indexed: rows) { index, row in
                 Row(title: row.title, subvalue: row.subvalue)
                     .valueAccessory { valueView(row) }
                     .verticalAlignment(.top)

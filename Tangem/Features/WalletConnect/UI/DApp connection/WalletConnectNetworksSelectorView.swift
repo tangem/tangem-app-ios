@@ -50,7 +50,7 @@ struct WalletConnectNetworksSelectorView: View {
     private var availableSection: some View {
         if !viewModel.state.availableSection.blockchains.isEmpty {
             sectionContainer(viewModel.state.availableSection.headerTitle) {
-                ForEach(indexed: viewModel.state.availableSection.blockchains.indexed(), content: availableBlockchainRow)
+                ForEach(indexed: viewModel.state.availableSection.blockchains, content: availableBlockchainRow)
             }
         }
     }

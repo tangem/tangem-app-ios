@@ -69,7 +69,7 @@ struct TransactionsListViewRedesigned: View {
             )
         } else {
             LazyVStack(spacing: .zero) {
-                ForEach(transactionItems.indexed(), id: \.1.id) { _, sectionItem in
+                ForEach(transactionItems) { sectionItem in
                     section(sectionItem)
                 }
 

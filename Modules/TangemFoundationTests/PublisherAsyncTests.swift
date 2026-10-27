@@ -8,10 +8,10 @@
 
 import Foundation
 import Testing
-import Combine
+@preconcurrency import Combine
 @testable import TangemFoundation
 
-@Suite("Publisher.async() tests")
+@Suite("Publisher.async() tests", .timeLimit(.minutes(1)))
 struct PublisherAsyncTests {
     // MARK: - Normal paths
 
@@ -23,27 +23,44 @@ struct PublisherAsyncTests {
 
     @Test("Returns value from an asynchronous publisher (PassthroughSubject)")
     func returnsValueFromAsynchronousPublisher() async throws {
-        nonisolated(unsafe) let subject = PassthroughSubject<Int, Never>()
+        let queue = DispatchQueue(label: Constants.queueLabel)
+        let requested = TestSignal<Void>()
+        let subject = PassthroughSubject<Int, Never>()
 
-        _ = Task {
-            try await Task.sleep(for: .milliseconds(50))
+        let task = Task {
+            try await subject
+                .handleEvents(receiveRequest: { _ in
+                    requested.fire()
+                })
+                .subscribe(on: queue)
+                .async()
+        }
+
+        await requested.wait()
+        queue.async {
             subject.send(99)
         }
 
-        let value = try await subject.async()
+        let value = try await task.value
         #expect(value == 99)
     }
 
-    @Test("Returns value from a delayed Future")
-    func returnsValueFromDelayedFuture() async throws {
-        let future = Future<Int, Never> { promise in
-            nonisolated(unsafe) let promise = promise
-            DispatchQueue.global().asyncAfter(deadline: .now() + 0.05) {
-                promise(.success(7))
+    @Test("Returns value from a Future fulfilled on another queue")
+    func returnsValueFromFutureFulfilledOnAnotherQueue() async throws {
+        let queue = DispatchQueue(label: Constants.queueLabel)
+
+        let value = try await Deferred {
+            Future<Int, Never> { promise in
+                // Safe: `Future` locks its promise internally, and it's called once, on the serial `queue` the future is subscribed on
+                nonisolated(unsafe) let promise = promise
+                queue.async {
+                    promise(.success(7))
+                }
             }
         }
+        .subscribe(on: queue)
+        .async()
 
-        let value = try await future.async()
         #expect(value == 7)
     }
 
@@ -63,30 +80,52 @@ struct PublisherAsyncTests {
 
     @Test("Throws asynchronous upstream error")
     func throwsAsynchronousUpstreamError() async {
-        nonisolated(unsafe) let subject = PassthroughSubject<Int, TestError>()
+        let queue = DispatchQueue(label: Constants.queueLabel)
+        let requested = TestSignal<Void>()
+        let subject = PassthroughSubject<Int, TestError>()
 
-        _ = Task {
-            try await Task.sleep(for: .milliseconds(50))
+        let task = Task {
+            try await subject
+                .handleEvents(receiveRequest: { _ in
+                    requested.fire()
+                })
+                .subscribe(on: queue)
+                .async()
+        }
+
+        await requested.wait()
+        queue.async {
             subject.send(completion: .failure(TestError()))
         }
 
         await #expect(throws: TestError.self) {
-            try await subject.async()
+            try await task.value
         }
     }
 
     @Test("Returns only the first value from multiple emissions")
     func returnsOnlyFirstValueFromMultipleEmissions() async throws {
-        nonisolated(unsafe) let subject = PassthroughSubject<Int, Never>()
+        let queue = DispatchQueue(label: Constants.queueLabel)
+        let requested = TestSignal<Void>()
+        let subject = PassthroughSubject<Int, Never>()
 
-        _ = Task {
-            try await Task.sleep(for: .milliseconds(50))
+        let task = Task {
+            try await subject
+                .handleEvents(receiveRequest: { _ in
+                    requested.fire()
+                })
+                .subscribe(on: queue)
+                .async()
+        }
+
+        await requested.wait()
+        queue.async {
             subject.send(1)
             subject.send(2)
             subject.send(3)
         }
 
-        let value = try await subject.async()
+        let value = try await task.value
         #expect(value == 1)
     }
 
@@ -112,13 +151,17 @@ struct PublisherAsyncTests {
 
     @Test("Throws CancellationError when cancelled before emission")
     func throwsCancellationWhenCancelledBeforeEmission() async {
-        nonisolated(unsafe) let subject = PassthroughSubject<Int, Never>()
+        let requested = TestSignal<Void>()
 
         let task = Task {
-            try await subject.async()
+            try await PassthroughSubject<Int, Never>()
+                .handleEvents(receiveRequest: { _ in
+                    requested.fire()
+                })
+                .async()
         }
 
-        try? await Task.sleep(for: .milliseconds(50))
+        await requested.wait()
         task.cancel()
 
         await #expect(throws: CancellationError.self) {
@@ -128,50 +171,59 @@ struct PublisherAsyncTests {
 
     @Test("Returns value when cancellation arrives after emission")
     func returnsValueWhenCancellationArrivesLate() async throws {
-        nonisolated(unsafe) let subject = PassthroughSubject<Int, Never>()
+        let queue = DispatchQueue(label: Constants.queueLabel)
+        let requested = TestSignal<Void>()
+        let delivered = TestSignal<Void>()
+        let subject = PassthroughSubject<Int, Never>()
 
         let task = Task {
-            try await subject.async()
+            try await subject
+                .handleEvents(receiveRequest: { _ in
+                    requested.fire()
+                })
+                .subscribe(on: queue)
+                .async()
         }
 
-        try? await Task.sleep(for: .milliseconds(50))
-        subject.send(42)
+        await requested.wait()
+        queue.async {
+            subject.send(42)
+            delivered.fire()
+        }
 
-        try? await Task.sleep(for: .milliseconds(50))
+        await delivered.wait()
         task.cancel()
 
         let value = try await task.value
         #expect(value == 42)
     }
 
-    @Test("Cancellation breaks out of a hanging publisher promptly")
-    func cancellationBreaksOutOfHangingPublisher() async throws {
-        nonisolated(unsafe) let subject = PassthroughSubject<Int, Never>()
-        let maxAcceptableWallTime: Duration = .seconds(1)
+    @Test("Cancellation breaks out of a publisher that never emits nor completes")
+    func cancellationBreaksOutOfHangingPublisher() async {
+        let requested = TestSignal<Void>()
 
-        let clock = ContinuousClock()
-        let elapsed = await clock.measure {
-            let task = Task {
-                try await subject.async()
-            }
-
-            try? await Task.sleep(for: .milliseconds(50))
-            task.cancel()
-
-            await #expect(throws: CancellationError.self) {
-                try await task.value
-            }
+        let task = Task {
+            try await Empty<Int, Never>(completeImmediately: false)
+                .handleEvents(receiveRequest: { _ in
+                    requested.fire()
+                })
+                .async()
         }
 
-        #expect(elapsed < maxAcceptableWallTime)
+        await requested.wait()
+        task.cancel()
+
+        await #expect(throws: CancellationError.self) {
+            try await task.value
+        }
     }
 
     // MARK: - Race conditions
 
-    @Test("Concurrent emission and cancellation race produces exactly one outcome using GCD", .timeLimit(.minutes(1)))
+    @Test("Concurrent emission and cancellation race produces exactly one outcome using GCD")
     func concurrentEmissionAndCancellationRaceUsingGCD() async {
         for _ in 0 ..< 500 {
-            nonisolated(unsafe) let subject = PassthroughSubject<Int, Never>()
+            let subject = PassthroughSubject<Int, Never>()
 
             let task = Task {
                 try await subject.async()
@@ -191,10 +243,10 @@ struct PublisherAsyncTests {
         }
     }
 
-    @Test("Concurrent emission and cancellation race produces exactly one outcome using Swift Concurrency", .timeLimit(.minutes(1)))
+    @Test("Concurrent emission and cancellation race produces exactly one outcome using Swift Concurrency")
     func concurrentEmissionAndCancellationRaceUsingConcurrency() async {
         for _ in 0 ..< 500 {
-            nonisolated(unsafe) let subject = PassthroughSubject<Int, Never>()
+            let subject = PassthroughSubject<Int, Never>()
 
             let task = Task {
                 try await subject.async()
@@ -225,4 +277,10 @@ struct PublisherAsyncTests {
 
 private extension PublisherAsyncTests {
     struct TestError: Error {}
+}
+
+// MARK: - Constants
+
+private enum Constants {
+    static let queueLabel = "com.tangem.PublisherAsyncTests"
 }

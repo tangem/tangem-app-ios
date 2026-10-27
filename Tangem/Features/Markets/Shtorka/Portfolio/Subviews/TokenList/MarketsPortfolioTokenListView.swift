@@ -257,7 +257,7 @@ private extension MarketsPortfolioTokenListView {
 private extension MarketsPortfolioTokenListView {
     func tokenRows(_ items: [ViewModel.TokenRow]) -> some View {
         VStack(spacing: tokenRowsSpacing) {
-            ForEach(Array(items.enumerated()), id: \.offset) { _, item in
+            ForEach(indexed: items, id: \.0) { _, item in
                 token(row: item)
             }
         }

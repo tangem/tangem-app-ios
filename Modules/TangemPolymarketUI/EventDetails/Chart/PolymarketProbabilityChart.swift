@@ -151,7 +151,7 @@ public struct PolymarketProbabilityChart: View {
                     }
 
                 HStack(spacing: 0) {
-                    ForEach(Array(Constants.skeletonDateLabelWidths.enumerated()), id: \.offset) { index, width in
+                    ForEach(indexed: Constants.skeletonDateLabelWidths, id: \.0) { index, width in
                         skeletonBar(width: width)
 
                         if index != Constants.skeletonDateLabelWidths.count - 1 {
@@ -290,7 +290,7 @@ public struct PolymarketProbabilityChart: View {
 
     private func grid(_ scale: Scale) -> some View {
         GeometryReader { proxy in
-            ForEach(Array(scale.ticks.enumerated()), id: \.offset) { _, tick in
+            ForEach(indexed: scale.ticks, id: \.0) { _, tick in
                 gridLine
                     .frame(height: Constants.gridLineWidth)
                     .offset(y: scale.y(for: tick, in: proxy.size.height) - Constants.gridLineWidth / 2)
@@ -371,7 +371,7 @@ public struct PolymarketProbabilityChart: View {
 
     private func probabilityLabels(_ scale: Scale, text: @escaping (Decimal) -> String) -> some View {
         GeometryReader { proxy in
-            ForEach(Array(scale.ticks.enumerated()), id: \.offset) { _, tick in
+            ForEach(indexed: scale.ticks, id: \.0) { _, tick in
                 Text(text(Decimal(tick)))
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .monospacedDigit()
@@ -388,7 +388,7 @@ public struct PolymarketProbabilityChart: View {
 
     private func dateLabels(_ labels: [String]) -> some View {
         HStack(spacing: 0) {
-            ForEach(Array(labels.enumerated()), id: \.offset) { index, label in
+            ForEach(indexed: labels, id: \.0) { index, label in
                 Text(label)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .fixedSize()

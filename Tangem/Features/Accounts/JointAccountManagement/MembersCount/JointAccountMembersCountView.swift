@@ -47,7 +47,7 @@ struct JointAccountMembersCountView: View {
 
     private var membersView: some View {
         HStack(spacing: 8) {
-            ForEach(Array(viewModel.memberStates.enumerated()), id: \.offset) { _, state in
+            ForEach(indexed: viewModel.memberStates, id: \.0) { _, state in
                 JointAccountMemberCircle(state: state)
             }
         }

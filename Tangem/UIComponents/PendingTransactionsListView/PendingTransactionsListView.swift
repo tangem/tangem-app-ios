@@ -14,7 +14,7 @@ struct PendingTransactionsListView: View {
     let exploreTransactionAction: (String) -> Void
 
     var body: some View {
-        ForEach(items) { item in
+        ForEach(items, id: \.self) { item in
             Button {
                 exploreTransactionAction(item.hash)
             } label: {

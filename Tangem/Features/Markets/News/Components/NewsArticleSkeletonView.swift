@@ -103,10 +103,10 @@ private extension NewsArticleSkeletonView {
 
         private var contentSkeletonLines: some View {
             VStack(alignment: .leading, spacing: 8) {
-                ForEach(0 ..< contentLineWidths.count, id: \.self) { index in
+                ForEach(indexed: contentLineWidths, id: \.0) { _, lineWidth in
                     Shimmer()
                         .variant(.custom(
-                            width: (contentWidth - 32) * contentLineWidths[index],
+                            width: (contentWidth - 32) * lineWidth,
                             height: 16 * scaleFactor,
                             cornerRadius: 8
                         ))

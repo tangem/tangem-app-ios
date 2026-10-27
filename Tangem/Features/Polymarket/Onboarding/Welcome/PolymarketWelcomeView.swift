@@ -154,7 +154,7 @@ struct PolymarketWelcomeView: View {
 
     private var questions: some View {
         VStack(spacing: 0) {
-            ForEach(Array(viewModel.copy.questions.enumerated()), id: \.element.id) { index, question in
+            ForEach(indexed: viewModel.copy.questions) { index, question in
                 questionSection(question, isFirst: index == 0)
             }
         }

@@ -148,7 +148,7 @@ private extension TangemSegmentedPicker {
     }
 
     var separators: some View {
-        ForEach(Array(segmentsPreference.enumerated()), id: \.offset) { index, preference in
+        ForEach(indexed: segmentsPreference, id: \.0) { _, preference in
             separator(
                 offsetX: preference.frame.maxX,
                 opacity: preference.separatorOpacity

@@ -70,7 +70,7 @@ public struct PolymarketEventCard: View, Equatable {
     @ViewBuilder
     private var marketBody: some View {
         VStack(spacing: 0) {
-            ForEach(Array(model.rows.enumerated()), id: \.element.id) { index, row in
+            ForEach(indexed: model.rows) { index, row in
                 marketRow(row)
 
                 if model.variant == .multiMarket, index < model.rows.count - 1 {

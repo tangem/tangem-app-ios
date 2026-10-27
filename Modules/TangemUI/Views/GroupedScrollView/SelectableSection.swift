@@ -44,7 +44,7 @@ public struct SelectableSection<Model: Identifiable, Content: SelectableSectionR
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ForEach(models.indexed(), id: \.1.id) { index, model in
+            ForEach(indexed: models) { index, model in
                 let nextIsSelected = models[safe: index + 1].map { content($0).isSelected } ?? false
                 let rowView = content(model)
                 let currentIsSelected = rowView.isSelected

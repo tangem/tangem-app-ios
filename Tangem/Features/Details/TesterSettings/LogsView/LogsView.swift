@@ -23,7 +23,7 @@ struct LogsView: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Menu {
-                    ForEach(viewModel.categories.indexed(), id: \.1) { index, category in
+                    ForEach(indexed: viewModel.categories, id: \.1) { index, category in
                         SwiftUI.Button(category, action: { viewModel.selectedCategoryIndex = index })
                     }
                 } label: {
