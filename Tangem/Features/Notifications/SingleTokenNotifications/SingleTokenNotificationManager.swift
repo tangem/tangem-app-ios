@@ -98,6 +98,10 @@ final class SingleTokenNotificationManager {
             events.append(.existentialDepositWarning(message: existentialWarning))
         }
 
+        if let incompleteBalanceWarning = (walletModel as? IncompleteBalanceInfoProvider)?.incompleteBalanceWarning {
+            events.append(.incompleteBalance(message: incompleteBalanceWarning))
+        }
+
         if let feeResourceInfoProvider = walletModel as? FeeResourceInfoProvider,
            let currentResource = feeResourceInfoProvider.feeResourceBalance,
            let maxResource = feeResourceInfoProvider.maxResourceBalance {
