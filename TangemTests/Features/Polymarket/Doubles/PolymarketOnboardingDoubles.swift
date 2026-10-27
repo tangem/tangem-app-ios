@@ -654,6 +654,8 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
 // MARK: - Geoblock
 
 final class PolymarketGeoblockServiceStub: PolymarketGeoblockService {
+    private(set) var calls = 0
+
     private let result: Result<PolymarketGeoblock, Error>
 
     init(isBlocked: Bool = false) {
@@ -665,7 +667,9 @@ final class PolymarketGeoblockServiceStub: PolymarketGeoblockService {
     }
 
     func geoblock() async throws -> PolymarketGeoblock {
-        try result.get()
+        calls += 1
+
+        return try result.get()
     }
 }
 

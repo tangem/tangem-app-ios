@@ -16,6 +16,7 @@ protocol PolymarketOnboardingInteractor {
 
 final class CommonPolymarketOnboardingInteractor {
     private let userWalletId: UserWalletId
+    private let hasExistingAccount: () -> Bool
     private let ownerAddressProvider: PolymarketOwnerAddressProviding
     private let ownerKeySession: PolymarketOwnerKeySession
     private let signer: PolymarketOnboardingSigning
@@ -29,6 +30,7 @@ final class CommonPolymarketOnboardingInteractor {
 
     init(
         userWalletId: UserWalletId,
+        hasExistingAccount: @escaping () -> Bool,
         ownerAddressProvider: PolymarketOwnerAddressProviding,
         ownerKeySession: PolymarketOwnerKeySession,
         signer: PolymarketOnboardingSigning,
@@ -41,6 +43,7 @@ final class CommonPolymarketOnboardingInteractor {
         pollInterval: TimeInterval = PolymarketDepositWalletPoller.Constants.interval
     ) {
         self.userWalletId = userWalletId
+        self.hasExistingAccount = hasExistingAccount
         self.ownerAddressProvider = ownerAddressProvider
         self.ownerKeySession = ownerKeySession
         self.signer = signer
@@ -58,9 +61,11 @@ final class CommonPolymarketOnboardingInteractor {
 
 extension CommonPolymarketOnboardingInteractor: PolymarketOnboardingInteractor {
     func onboard() -> AsyncStream<PolymarketOnboardingProgress> {
-        AsyncStream { continuation in
+        let isRememberedAccount = hasExistingAccount()
+
+        return AsyncStream { continuation in
             let task = Task {
-                await onboard(reporting: continuation)
+                await onboard(isRememberedAccount: isRememberedAccount, reporting: continuation)
                 continuation.finish()
             }
 
@@ -72,9 +77,7 @@ extension CommonPolymarketOnboardingInteractor: PolymarketOnboardingInteractor {
 // MARK: - The run
 
 private extension CommonPolymarketOnboardingInteractor {
-    func ensureRegionAllows(status: PolymarketDepositWalletStatus) async throws {
-        guard status.owesApprovals else { return }
-
+    func ensureRegionAllows() async throws {
         do {
             let geoblock = try await geoblockService.geoblock()
 
@@ -89,16 +92,24 @@ private extension CommonPolymarketOnboardingInteractor {
         }
     }
 
-    func onboard(reporting continuation: PolymarketOnboardingContinuation) async {
+    func onboard(isRememberedAccount: Bool, reporting continuation: PolymarketOnboardingContinuation) async {
         do {
             continuation.yield(.deriving)
+
+            if !isRememberedAccount {
+                try await ensureRegionAllows()
+            }
 
             let preparation: Preparation
 
             if let ownerAddress = ownerAddressProvider.getOwnerAddress() {
-                preparation = try await prepareWithStoredKey(ownerAddress: ownerAddress, reporting: continuation)
+                preparation = try await prepareWithStoredKey(
+                    ownerAddress: ownerAddress,
+                    isRememberedAccount: isRememberedAccount,
+                    reporting: continuation
+                )
             } else {
-                preparation = try await prepareInOwnerKeySession(reporting: continuation)
+                preparation = try await prepareInOwnerKeySession(isRememberedAccount: isRememberedAccount, reporting: continuation)
             }
 
             try await complete(preparation, reporting: continuation)
@@ -116,6 +127,7 @@ private extension CommonPolymarketOnboardingInteractor {
 
     func prepareWithStoredKey(
         ownerAddress: String,
+        isRememberedAccount: Bool,
         reporting continuation: PolymarketOnboardingContinuation
     ) async throws -> Preparation {
         let addresses = try makeAddresses(ownerAddress: ownerAddress)
@@ -130,10 +142,19 @@ private extension CommonPolymarketOnboardingInteractor {
             }
         }
 
-        return try await prepareSignatures(addresses: addresses, status: status, signer: signer, reporting: continuation)
+        return try await prepareSignatures(
+            addresses: addresses,
+            status: status,
+            signer: signer,
+            isRememberedAccount: isRememberedAccount,
+            reporting: continuation
+        )
     }
 
-    func prepareInOwnerKeySession(reporting continuation: PolymarketOnboardingContinuation) async throws -> Preparation {
+    func prepareInOwnerKeySession(
+        isRememberedAccount: Bool,
+        reporting continuation: PolymarketOnboardingContinuation
+    ) async throws -> Preparation {
         try await ownerKeySession.derive { [self] owner in
             let addresses = try makeAddresses(ownerAddress: owner.ownerAddress)
             let status = try await readStatus(addresses: addresses)
@@ -147,6 +168,7 @@ private extension CommonPolymarketOnboardingInteractor {
                 addresses: addresses,
                 status: status,
                 signer: owner.signer,
+                isRememberedAccount: isRememberedAccount,
                 reporting: continuation
             )
         }
@@ -156,6 +178,7 @@ private extension CommonPolymarketOnboardingInteractor {
         addresses: Addresses,
         status: PolymarketDepositWalletStatus,
         signer: PolymarketOnboardingSigning,
+        isRememberedAccount: Bool,
         reporting continuation: PolymarketOnboardingContinuation
     ) async throws -> Preparation {
         let account = Account(
@@ -168,7 +191,9 @@ private extension CommonPolymarketOnboardingInteractor {
             return .authorised(account, credentials: credentials)
         }
 
-        try await ensureRegionAllows(status: status)
+        if isRememberedAccount, status == .notCreated {
+            try await ensureRegionAllows()
+        }
 
         continuation.yield(.awaitingSignature)
 
