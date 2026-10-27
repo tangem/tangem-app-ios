@@ -57,7 +57,16 @@ struct CEXProviderFlowHelper {
             quoteId: quoteId
         )
 
-        let data = try await expressAPIProvider.exchangeData(item: item)
+        let data: ExpressTransactionData
+        do {
+            data = try await expressAPIProvider.exchangeData(item: item)
+        } catch where context.featureFlags.isHideRejectedSwapProvidersEnabled && !Task.isCancelled {
+            throw ExpressExchangeDataError(
+                provider: provider,
+                currencySymbol: pair.currencySymbol(for: adjustedRequest.amountType),
+                underlying: error
+            )
+        }
         try Task.checkCancellation()
 
         return data

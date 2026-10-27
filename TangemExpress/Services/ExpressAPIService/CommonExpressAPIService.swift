@@ -14,10 +14,11 @@ import TangemNetworkUtils
 final class CommonExpressAPIService {
     private let provider: TangemProvider<ExpressAPITarget>
     private let expressAPIType: ExpressAPIType
+    private let featureFlags: ExpressFeatureFlags
 
     private let decoder: JSONDecoder
 
-    init(provider: TangemProvider<ExpressAPITarget>, expressAPIType: ExpressAPIType) {
+    init(provider: TangemProvider<ExpressAPITarget>, expressAPIType: ExpressAPIType, featureFlags: ExpressFeatureFlags) {
         assert(
             provider.plugins.contains(where: { $0 is ExpressAuthorizationPlugin }),
             "Should contains ExpressAuthorizationPlugin"
@@ -25,6 +26,7 @@ final class CommonExpressAPIService {
 
         self.provider = provider
         self.expressAPIType = expressAPIType
+        self.featureFlags = featureFlags
 
         decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601WithFractionalSeconds
@@ -148,7 +150,7 @@ private extension CommonExpressAPIService {
     func tryMapErrorFromBody(response: Response) -> ExpressAPIError? {
         do {
             let error = try decoder.decode(ExpressDTO.APIError.Response.self, from: response.data)
-            return error.error
+            return featureFlags.isHideRejectedSwapProvidersEnabled ? error.error.withoutDescription : error.error
         } catch {
             return nil
         }

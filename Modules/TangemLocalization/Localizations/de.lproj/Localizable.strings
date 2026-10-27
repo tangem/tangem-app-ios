@@ -2176,7 +2176,7 @@
 "swap_in_progress" = "Tausch läuft";
 "swap_simple_mode" = "Einfacher Modus";
 "swap_slippage_error" = "Nicht unterstützter Betrag";
-"swap_slippage_info_text" = "ist die Differenz zwischen dem erwarteten und dem tatsächlichen Ausführungskurs, die durch Marktpreis- oder Liquiditätsänderungen verursacht wird";
+"swap_slippage_info_text" = "ist die Preisänderung zwischen Signatur und Eingang der Transaktion beim Anbieter. Sie wird zum dann gültigen Preis innerhalb Ihrer Slippage-Toleranz ausgeführt.";
 "swap_slippage_warning_text" = "Der Swap kann fehlschlagen, wenn der Slippage-Grenzwert erreicht wird";
 "swap_slippage_warning_title" = "Die Slippage ist festgelegt %@";
 "swap_story_first_subtitle_v2" = "Tauschen Sie Kryptowährungen direkt in Tangem\nkeine zusätzlichen Überweisungen\nkeine Verschiebung von Geldern zu Börsen";

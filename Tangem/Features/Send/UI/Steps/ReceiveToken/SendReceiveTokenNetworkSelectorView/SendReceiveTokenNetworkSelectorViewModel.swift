@@ -121,7 +121,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
                 viewModel.analyticsLogger.logSendSwapCantSwapThisToken(token: viewModel.coin.symbol)
                 await runOnMain { viewModel.state = .notSupported(text: Localization.expressSwapNotSupportedText) }
             } catch {
-                await runOnMain { viewModel.state = .notSupported(text: error.localizedDescription) }
+                await runOnMain { viewModel.state = .notSupported(text: error.localizedExpressMessage) }
             }
         }
     }
