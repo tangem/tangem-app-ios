@@ -34,6 +34,7 @@ struct CommonSendSourceToken: SendSourceToken {
     let confirmTransactionPolicy: any ConfirmTransactionPolicy
     let isTangemPayAccount: Bool
     let jointAccountPolicy: JointAccountPolicy?
+    let isCustomSlippageAllowed = true
 
     // MARK: - SendReceiveToken
 

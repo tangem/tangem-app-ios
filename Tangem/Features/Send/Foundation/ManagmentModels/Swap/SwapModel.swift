@@ -298,6 +298,10 @@ private extension SwapModel {
     }
 
     func swappingPairDidChange() {
+        if _receiveToken.value.value?.isCustomSlippageAllowed == false {
+            slippageState.set(.auto, for: currentSlippagePair)
+        }
+
         let loadingType: (ExpressManager) async -> LoadingType? = { [weak self] _ in
             guard let self else {
                 return nil
