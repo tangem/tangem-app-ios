@@ -1578,6 +1578,7 @@
 "prediction_add_funds_receive_title" = "De outra carteira ou exchange";
 "prediction_add_funds_swap_subtitle" = "Use criptomoedas da sua carteira Tangem para adicionar fundos à sua conta da Polymarket";
 "prediction_add_funds_swap_title" = "Da sua carteira Tangem";
+"prediction_cash_out" = "Cash Out";
 "prediction_claim_error_failed" = "O resgate não foi concluído. Nenhum valor saiu da conta, e você pode tentar novamente.";
 "prediction_claim_error_generic" = "O resgate não pôde ser enviado. Por favor, tente novamente.";
 "prediction_claim_error_rejected" = "A Polymarket recusou o envio da solicitação. Atualize suas posições e tente novamente.";

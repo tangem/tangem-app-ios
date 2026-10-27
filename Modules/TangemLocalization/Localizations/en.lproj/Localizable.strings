@@ -1578,6 +1578,7 @@
 "prediction_add_funds_receive_title" = "From another wallet or exchange";
 "prediction_add_funds_swap_subtitle" = "Use crypto in your Tangem wallet to top up your Polymarket account";
 "prediction_add_funds_swap_title" = "From your Tangem Wallet";
+"prediction_cash_out" = "Cash Out";
 "prediction_claim_error_failed" = "The claim did not go through. Nothing left your account, and you can try again.";
 "prediction_claim_error_generic" = "The claim could not be sent. Please try again.";
 "prediction_claim_error_rejected" = "Polymarket refused to relay the claim. Refresh your positions and try again.";
