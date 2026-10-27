@@ -11,7 +11,7 @@ import TangemUI
 
 struct SigningActionButtonViewTypeBuilder {
     func build(config: UserWalletConfig) -> SigningActionButtonViewType {
-        config.hasFeature(.nfcInteraction) ? .cardTap : .holdToConfirm
+        config.hasFeature(.nfcInteraction) ? .requiredNFCInteraction : .holdToConfirm
     }
 
     func build(userWalletInfo: UserWalletInfo) -> SigningActionButtonViewType {

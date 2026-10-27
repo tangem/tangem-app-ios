@@ -20,7 +20,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     var navbarSize: CGSize { OnboardingLayoutConstants.navbarSize }
     var progressBarHeight: CGFloat { OnboardingLayoutConstants.progressBarHeight }
     var progressBarPadding: CGFloat { OnboardingLayoutConstants.progressBarPadding }
-    let resetAnimDuration: Double = 0.3
 
     @Published var steps: [Step] = []
     @Published var currentStepIndex: Int = 0
@@ -285,12 +284,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
             onOnboardingFinished(for: input.primaryCardId)
         }
-    }
-
-    func loadImage(imageLoadInput: CardImageProvider.Input) async -> Image {
-        let imageProvider = CardImageProvider(input: imageLoadInput)
-        let imageValue = await imageProvider.loadLargeImage()
-        return imageValue.image
     }
 
     func setupContainer(with size: CGSize) {

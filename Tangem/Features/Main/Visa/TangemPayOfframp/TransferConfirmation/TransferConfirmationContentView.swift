@@ -218,17 +218,13 @@ private extension TransferConfirmationContentView {
     }
 
     var sendButton: some View {
-        TangemUI.Button(
-            label: Localization.commonSend,
-            accessibilityLabel: nil,
+        SigningActionButtonView(
+            type: state.signingActionButtonType,
+            title: Localization.commonSend,
+            isLoading: state.isSending,
+            isDisabled: !state.isSendEnabled,
             action: { action(.sendTap) }
         )
-        .iconEnd(state.sendButtonIcon)
-        .size(.x12)
-        .styleType(.primary)
-        .horizontalLayout(.infinity)
-        .loading(.spinner(if: state.isSending))
-        .disabled(!state.isSendEnabled || state.isSending)
         .accessibilityIdentifier(TangemPayOfframpAccessibilityIdentifiers.confirmSendButton)
     }
 }
@@ -249,7 +245,6 @@ private extension TransferConfirmationContentView {
         static let amountMinimumScaleFactor: CGFloat = 0.5
         static let accountAvatarSide: CGFloat = 16
         static let tokenIconToSymbolSpacing: CGFloat = 2
-        static let accessorySpacing: CGFloat = 12
         static let railIconSide: CGFloat = 20
         static let railTitleSpacing: CGFloat = 12
         static let railValueSpacing: CGFloat = 8
@@ -272,7 +267,7 @@ extension TransferConfirmationContentView {
         let isRailSelectable: Bool
         let sections: [TransferConfirmationSection]
         let footerNote: String?
-        let sendButtonIcon: ImageType?
+        let signingActionButtonType: SigningActionButtonViewType
         let isSendEnabled: Bool
         let isSending: Bool
     }
@@ -338,7 +333,7 @@ private enum TransferConfirmationPreview {
             isRailSelectable: true,
             sections: sections,
             footerNote: "You are sending $501 including a ACH fee of $1",
-            sendButtonIcon: Assets.tangemIcon,
+            signingActionButtonType: .requiredNFCInteraction,
             isSendEnabled: true,
             isSending: isSending
         )

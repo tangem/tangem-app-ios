@@ -26,40 +26,32 @@ import Foundation
 
 struct OpNop1: OpCodeProtocol {
     var value: UInt8 { return 0xb0 }
-    var name: String { return "OP_NOP1" }
 }
 
 struct OpNop4: OpCodeProtocol {
     var value: UInt8 { return 0xb3 }
-    var name: String { return "OP_NOP4" }
 }
 
 struct OpNop5: OpCodeProtocol {
     var value: UInt8 { return 0xb4 }
-    var name: String { return "OP_NOP5" }
 }
 
 struct OpNop6: OpCodeProtocol {
     var value: UInt8 { return 0xb5 }
-    var name: String { return "OP_NOP6" }
 }
 
 struct OpNop7: OpCodeProtocol {
     var value: UInt8 { return 0xb6 }
-    var name: String { return "OP_NOP8" }
 }
 
 struct OpNop8: OpCodeProtocol {
     var value: UInt8 { return 0xb7 }
-    var name: String { return "OP_NOP8" }
 }
 
 struct OpNop9: OpCodeProtocol {
     var value: UInt8 { return 0xb8 }
-    var name: String { return "OP_NOP9" }
 }
 
 struct OpNop10: OpCodeProtocol {
     var value: UInt8 { return 0xb9 }
-    var name: String { return "OP_NOP10" }
 }

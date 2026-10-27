@@ -22,7 +22,7 @@ protocol MainScreenDeeplinkRoutable: AnyObject {
         pendingTransactionDetails: PendingTransactionDetails?
     )
     func openStaking(options: StakingDetailsCoordinator.Options)
-    func openMarketsTokenDetails(tokenModel: MarketsTokenModel)
+    func openMarketsTokenChart(tokenId: String)
     func openBuy(userWalletModel: any UserWalletModel)
     func openSell(userWalletModel: any UserWalletModel)
     func openSwap(parameters: PredefinedSwapParameters)

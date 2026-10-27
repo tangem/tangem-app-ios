@@ -56,11 +56,9 @@ public struct PolymarketOrder: Hashable, Sendable {
 public struct PolymarketSignedOrder: Hashable, Sendable {
     public let order: PolymarketOrder
     public let signature: String
-    public let isNegRisk: Bool
 
-    public init(order: PolymarketOrder, signature: String, isNegRisk: Bool) {
+    public init(order: PolymarketOrder, signature: String) {
         self.order = order
         self.signature = signature
-        self.isNegRisk = isNegRisk
     }
 }

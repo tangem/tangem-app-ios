@@ -24,11 +24,6 @@ struct RavencoinTestNetworkParams: UTXONetworkParams {
     /// Don't use in this network
     let bech32Prefix: String = "bc"
 
-    /// https://github.com/RavenProject/Ravencoin/blob/master/src/chainparams.cpp#L428
-    /// Raven BIP44 cointype in testnet
-    /// nExtCoinType = 1;
-    let coinType: UInt32 = 1
-
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
 
     let dustCalculator: UTXONetworkParamsDustCalculator = .ravencoinTestnet

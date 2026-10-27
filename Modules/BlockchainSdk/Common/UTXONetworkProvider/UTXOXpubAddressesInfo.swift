@@ -18,8 +18,6 @@ extension UTXOXpubAddressesInfo {
         let usedAddress: UTXOUsedAddress
         let transfers: Int
         let balance: Decimal
-
-        var isUsed: Bool { transfers > 0 }
     }
 }
 

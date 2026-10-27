@@ -13,9 +13,7 @@ import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct TangemPayVirtualAccountFeeListView: View {
-    let header: String
     let state: TangemPayVirtualAccountInfoSheetViewModel.State
-    let rowsHorizontalPadding: CGFloat
     let reload: () -> Void
 
     var body: some View {
@@ -48,7 +46,7 @@ struct TangemPayVirtualAccountFeeListView: View {
     private func feeList(@ViewBuilder rows: () -> some View) -> some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                Text(header)
+                Text(Localization.tangempayBankTransferOnboardingFeeHeader)
                     .font(token: DesignSystem.Font.subheadingMediumToken)
                     .foregroundStyle(DesignSystem.Color.textSecondary)
 
@@ -58,7 +56,6 @@ struct TangemPayVirtualAccountFeeListView: View {
 
             rows()
         }
-        .padding(.horizontal, rowsHorizontalPadding)
     }
 
     private var divider: some View {
@@ -116,30 +113,22 @@ struct TangemPayVirtualAccountFeeListView: View {
 #Preview {
     VStack(spacing: 32) {
         TangemPayVirtualAccountFeeListView(
-            header: Localization.tangempayBankTransferOnboardingFeeHeader,
             state: .loading,
-            rowsHorizontalPadding: 0,
             reload: {}
         )
 
         TangemPayVirtualAccountFeeListView(
-            header: Localization.tangempayBankTransferOnboardingFeeHeader,
             state: .loaded(.previews),
-            rowsHorizontalPadding: 0,
             reload: {}
         )
 
         TangemPayVirtualAccountFeeListView(
-            header: Localization.tangempayBankTransferOnboardingFeeHeader,
             state: .empty,
-            rowsHorizontalPadding: 0,
             reload: {}
         )
 
         TangemPayVirtualAccountFeeListView(
-            header: Localization.tangempayBankTransferOnboardingFeeHeader,
             state: .failed,
-            rowsHorizontalPadding: 0,
             reload: {}
         )
     }

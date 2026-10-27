@@ -11,6 +11,8 @@ import TangemUI
 import TangemAssets
 
 struct TangemPayCashbackDetailSkeletonView: View {
+    @ScaledMetric private var scaleFactor: CGFloat = 1
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
@@ -33,8 +35,8 @@ struct TangemPayCashbackDetailSkeletonView: View {
 private extension TangemPayCashbackDetailSkeletonView {
     var header: some View {
         VStack(spacing: 8) {
-            Shimmer().variant(.custom(width: 236, height: 30, cornerRadius: 8))
-            Shimmer().variant(.custom(width: 100, height: 12, cornerRadius: 16))
+            Shimmer().variant(.custom(width: 236 * scaleFactor, height: 30 * scaleFactor, cornerRadius: 8))
+            Shimmer().variant(.custom(width: 100 * scaleFactor, height: 12 * scaleFactor, cornerRadius: 16))
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 32)
@@ -43,15 +45,15 @@ private extension TangemPayCashbackDetailSkeletonView {
 
     var summaryCards: some View {
         HStack(spacing: 8) {
-            Shimmer().variant(.custom(height: 132, cornerRadius: 24))
-            Shimmer().variant(.custom(height: 132, cornerRadius: 24))
+            Shimmer().variant(.custom(height: 132 * scaleFactor, cornerRadius: 24))
+            Shimmer().variant(.custom(height: 132 * scaleFactor, cornerRadius: 24))
         }
         .padding(.bottom, 16)
     }
 
     var chartSection: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Shimmer().variant(.custom(width: 200, height: 24, cornerRadius: 16))
+            Shimmer().variant(.custom(width: 200 * scaleFactor, height: 24 * scaleFactor, cornerRadius: 16))
                 .padding(.vertical, 16)
 
             Color.clear
@@ -66,7 +68,7 @@ private extension TangemPayCashbackDetailSkeletonView {
         HStack(spacing: 16) {
             ForEach(recentMonths, id: \.self) { month in
                 VStack(alignment: .center, spacing: 8) {
-                    Shimmer().variant(.custom(height: 2, cornerRadius: 2))
+                    Shimmer().variant(.custom(height: 2 * scaleFactor, cornerRadius: 2))
 
                     Text(month)
                         .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textTertiary)
@@ -78,8 +80,8 @@ private extension TangemPayCashbackDetailSkeletonView {
 
     var transactionsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Shimmer().variant(.custom(width: 200, height: 20, cornerRadius: 16))
-            Shimmer().variant(.custom(height: 110, cornerRadius: 24))
+            Shimmer().variant(.custom(width: 200 * scaleFactor, height: 20 * scaleFactor, cornerRadius: 16))
+            Shimmer().variant(.custom(height: 110 * scaleFactor, cornerRadius: 24))
         }
         .padding(.vertical, 16)
     }

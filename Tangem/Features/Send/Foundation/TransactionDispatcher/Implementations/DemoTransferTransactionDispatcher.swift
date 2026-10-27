@@ -27,10 +27,6 @@ class DemoTransferTransactionDispatcher {
 // MARK: - TransactionDispatcher
 
 extension DemoTransferTransactionDispatcher: TransactionDispatcher {
-    var hasNFCInteraction: Bool {
-        true
-    }
-
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         let hash = Data.randomData(count: 32)
         let mapper = TransactionDispatcherResultMapper()

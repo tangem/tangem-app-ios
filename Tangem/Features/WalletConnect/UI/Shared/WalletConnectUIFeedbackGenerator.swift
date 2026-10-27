@@ -17,10 +17,6 @@ final class WalletConnectUIFeedbackGenerator: WalletConnectHapticFeedbackGenerat
         notificationGenerator = UINotificationFeedbackGenerator()
     }
 
-    func selectionChanged() {
-        selectionFeedbackGenerator.selectionChanged()
-    }
-
     func prepareNotificationFeedback() {
         notificationGenerator.prepare()
     }

@@ -138,20 +138,6 @@ extension NewsDetailsViewModel {
             sources = response.relatedArticles.map { Source(from: $0, dateFormatter: dateFormatter) }
         }
 
-        static let placeholder = ArticleModel(
-            id: 0,
-            title: String(repeating: " ", count: 50),
-            score: "0.0",
-            relativeTime: "",
-            isTrending: false,
-            categories: [],
-            relatedTokens: [],
-            shortContent: String(repeating: " ", count: 100),
-            content: String(repeating: " ", count: 300),
-            newsUrl: "",
-            sources: []
-        )
-
         private init(
             id: Int,
             title: String,
@@ -185,15 +171,9 @@ extension NewsDetailsViewModel {
     }
 
     struct RelatedToken: Identifiable, Equatable {
-        private static let iconBuilder = IconURLBuilder()
-
         let id: String
         let symbol: String
         let name: String
-
-        var iconURL: URL {
-            Self.iconBuilder.tokenIconURL(id: id, size: .small)
-        }
     }
 
     struct Source: Identifiable, Equatable {

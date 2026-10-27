@@ -89,11 +89,11 @@ private extension PolymarketBalanceDisplay {
         AttributedBalanceFormatter.decimalColored(
             stateBuilder.build(type: Self.steady(formatted), icon: .leading),
             integerPart: .init(
-                font: TangemFontStyle(DesignSystem.Font.displayMediumToken),
+                token: DesignSystem.Font.displayMediumToken,
                 color: DesignSystem.Color.textPrimary
             ),
             fractionalPart: .init(
-                font: TangemFontStyle(DesignSystem.Font.headingMediumToken),
+                token: DesignSystem.Font.headingMediumToken,
                 color: DesignSystem.Color.textPrimary
             )
         )

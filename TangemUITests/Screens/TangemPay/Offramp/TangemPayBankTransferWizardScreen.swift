@@ -197,10 +197,7 @@ final class TangemPayBankTransferWizardScreen: ScreenBase<TangemPayBankTransferW
         assertPresent(element, "\(formField.rawValue) field should be displayed")
         let currentText = hasText(element) ? element.getValue() : ""
         guard currentText != text else { return }
-        if isCoveredByKeyboard(element) {
-            dismissKeyboard()
-        }
-        element.tap()
+        focus(element)
         if !currentText.isEmpty {
             element.coordinate(withNormalizedOffset: Constants.textEndOffset).tap()
         }
@@ -209,6 +206,20 @@ final class TangemPayBankTransferWizardScreen: ScreenBase<TangemPayBankTransferW
             element.getValue() == text || element.waitForValue(where: { $0 == text }),
             "\(formField.rawValue) should read '\(text)'. Actual: '\(element.getValue())'"
         )
+    }
+
+    private func focus(_ element: XCUIElement) {
+        let focused = NSPredicate(format: "hasKeyboardFocus == true")
+        var hasFocus = false
+        for _ in 0 ..< Constants.focusAttempts where !hasFocus {
+            if isCoveredByKeyboard(element) {
+                dismissKeyboard()
+            }
+            element.tap()
+            hasFocus = focused.evaluate(with: element)
+                || XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: focused, object: element)], timeout: .shortUIUpdate) == .completed
+        }
+        XCTAssertTrue(hasFocus, "\(element.identifier) should get keyboard focus")
     }
 
     private func tapFormContinue() {
@@ -222,10 +233,15 @@ final class TangemPayBankTransferWizardScreen: ScreenBase<TangemPayBankTransferW
     private func dismissKeyboard() {
         let keyboard = app.keyboards.firstMatch
         guard keyboard.exists else { return }
-        if keyboardDismissButton.exists {
+        if !keyboardDismissButton.exists {
+            waitAndAssertTrue(keyboardDismissButton, "Keyboard dismiss button should be displayed")
+        }
+        for _ in 0 ..< Constants.keyboardDismissAttempts {
+            _ = keyboardDismissButton.waitForState(state: .hittable, for: .quick)
             keyboardDismissButton.tap()
-        } else {
-            keyboardDismissButton.waitAndTap()
+            if keyboard.waitForNonExistence(timeout: .shortUIUpdate) {
+                return
+            }
         }
         XCTAssertTrue(keyboard.waitForNonExistence(timeout: .conditional), "Keyboard should be dismissed")
     }
@@ -379,5 +395,7 @@ private extension TangemPayBankTransferWizardScreen {
     enum Constants {
         static let textEndOffset = CGVector(dx: 0.98, dy: 0.5)
         static let keyboardTopInset: CGFloat = 16
+        static let keyboardDismissAttempts = 3
+        static let focusAttempts = 3
     }
 }

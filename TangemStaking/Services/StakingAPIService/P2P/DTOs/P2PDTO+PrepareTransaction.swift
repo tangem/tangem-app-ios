@@ -16,8 +16,6 @@ extension P2PDTO {
             let amount: Decimal
         }
 
-        typealias Response = GenericResponse<PrepareTransactionInfo>
-
         struct PrepareTransactionInfo: Decodable {
             let amount: Decimal
             let vaultAddress: String

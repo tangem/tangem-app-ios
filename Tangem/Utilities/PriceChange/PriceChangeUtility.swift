@@ -46,9 +46,3 @@ struct PriceChangeUtility {
         return convertToPriceChangeState(changePercent: priceChangePercentage)
     }
 }
-
-private extension PriceChangeUtility {
-    enum Constants {
-        static let percentDivider: Decimal = 0.01
-    }
-}

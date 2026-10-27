@@ -22,11 +22,6 @@ class AmountInputFieldModel: ObservableObject {
     @Published var possibleToConvertToFiat: Bool
     @Published var bottomInfoText: SendAmountViewModel.BottomInfoTextType?
 
-    var useFiatCalculation: Bool {
-        get { amountType == .fiat }
-        set { amountType = newValue ? .fiat : .crypto }
-    }
-
     // MARK: - Callbacks
 
     var onValueChanged: ((Decimal?) -> Void)?
