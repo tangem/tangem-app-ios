@@ -36,6 +36,13 @@ public extension CollectiblesState {
         case .unresolved, .notOnboarded, .coldOwnerNotDerived: false
         }
     }
+
+    var isRelinkRequired: Bool {
+        switch self {
+        case .rekeyRequired: true
+        case .unresolved, .notOnboarded, .coldOwnerNotDerived, .ready: false
+        }
+    }
 }
 
 /// Domain representation of the on-chain `Vault` account (legacy buyback fields omitted).

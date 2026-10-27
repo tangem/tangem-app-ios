@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 import Testing
 import UIKit
 import TangemFoundation
@@ -136,6 +137,24 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
         #expect(sut.pollingTask == nil)
         #expect(provider.loadCallsCount == 0)
     }
+
+    @Test("A pack can't be opened while the account has to be relinked")
+    func relinkLocksOpening() async {
+        let sut = makeSUT(relinkStatusProvider: RelinkStatusProviderStub())
+
+        await waitUntil { sut.isRelinkRequired }
+
+        #expect(sut.isOpenLocked)
+    }
+
+    @Test("A pack with an unfinished purchase can still be opened while the account has to be relinked")
+    func unfinishedPurchaseKeepsOpeningAvailable() async {
+        let sut = makeSUT(relinkStatusProvider: RelinkStatusProviderStub(), hasUnfinishedPurchase: { true })
+
+        await waitUntil { sut.isRelinkRequired }
+
+        #expect(!sut.isOpenLocked)
+    }
 }
 
 // MARK: - Helpers
@@ -143,6 +162,8 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
 private extension CollectiblesMachineViewModelTests {
     func makeSUT(
         provider: (any CollectiblesMachineProvider)? = nil,
+        relinkStatusProvider: (any CollectiblesRelinkStatusProvider)? = nil,
+        hasUnfinishedPurchase: @escaping @MainActor () -> Bool = { false },
         pollInterval: Duration = .seconds(60),
         notificationCenter: NotificationCenter = NotificationCenter()
     ) -> SUT {
@@ -150,6 +171,8 @@ private extension CollectiblesMachineViewModelTests {
             pack: Self.pack(),
             routable: nil,
             prizePoolProvider: PrizePoolProviderStub(),
+            relinkStatusProvider: relinkStatusProvider,
+            hasUnfinishedPurchase: hasUnfinishedPurchase,
             provider: provider ?? MachineProviderStub(results: [.success(Self.machine())]),
             pollInterval: pollInterval,
             notificationCenter: notificationCenter
@@ -164,25 +187,6 @@ private extension CollectiblesMachineViewModelTests {
             currencyCode: "USD",
             machine: machine()
         )
-    }
-
-    func waitUntil(
-        timeout: Duration = .seconds(5),
-        _ condition: @escaping @MainActor () -> Bool
-    ) async {
-        let deadline = ContinuousClock.now + timeout
-        while !condition() {
-            if ContinuousClock.now >= deadline {
-                Issue.record("waitUntil timed out")
-                return
-            }
-            // Respects the suite's time limit: swallowing the cancellation would spin the loop to its own deadline.
-            do {
-                try await Task.sleep(for: .milliseconds(10))
-            } catch {
-                return
-            }
-        }
     }
 
     /// Waits for the loop to unwind so the leak check does not race the in-flight request.
@@ -226,6 +230,11 @@ private extension CollectiblesMachineViewModelTests {
 }
 
 // MARK: - Stubs
+
+private final class RelinkStatusProviderStub: CollectiblesRelinkStatusProvider {
+    var isRelinkRequiredPublisher: AnyPublisher<Bool, Never> { Just(true).eraseToAnyPublisher() }
+    var isRelinkingPublisher: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
+}
 
 /// The pool is not under test here, an empty page keeps its view model quiet.
 private struct PrizePoolProviderStub: CollectiblesPrizePoolProvider {

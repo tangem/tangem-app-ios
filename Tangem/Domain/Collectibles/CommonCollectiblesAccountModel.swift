@@ -71,6 +71,17 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
         manager.vaultUsdcStatePublisher
     }
 
+    var isRelinkRequiredPublisher: AnyPublisher<Bool, Never> {
+        manager.statePublisher
+            .map(\.isRelinkRequired)
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    var isRelinkingPublisher: AnyPublisher<Bool, Never> {
+        manager.isOnboardingPublisher
+    }
+
     @MainActor
     var purchaseInteractor: any CollectiblesPackPurchaseInteractor {
         let interactor = CollectiblesPackPurchaseInteractorStore.interactor(for: manager.userWalletId) {
