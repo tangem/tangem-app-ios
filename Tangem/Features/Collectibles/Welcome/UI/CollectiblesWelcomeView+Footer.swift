@@ -16,15 +16,16 @@ private typealias Footer = CollectiblesWelcomeView.Footer
 extension CollectiblesWelcomeView {
     struct Footer: View {
         let signingActionButtonType: SigningActionButtonViewType
+        let actionTitle: String
         let isLoading: Bool
-        let onCreateAccountTap: () -> Void
+        let onActionTap: () -> Void
         let onTermsTap: (URL) -> Void
 
         var body: some View {
             VStack(spacing: 12) {
                 legalTerms
 
-                createAccountButton
+                actionButton
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
@@ -53,13 +54,13 @@ private extension Footer {
             })
     }
 
-    var createAccountButton: some View {
+    var actionButton: some View {
         SigningActionButtonView(
             type: signingActionButtonType,
-            title: Localization.collectiblesWelcomeCreateAccountButton,
+            title: actionTitle,
             isLoading: isLoading,
             isDisabled: false,
-            action: onCreateAccountTap
+            action: onActionTap
         )
     }
 
@@ -104,6 +105,12 @@ private extension Footer {
     ZStack(alignment: .bottom) {
         DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
-        Footer(signingActionButtonType: .requiredNFCInteraction, isLoading: false, onCreateAccountTap: {}, onTermsTap: { _ in })
+        Footer(
+            signingActionButtonType: .requiredNFCInteraction,
+            actionTitle: Localization.collectiblesWelcomeCreateAccountButton,
+            isLoading: false,
+            onActionTap: {},
+            onTermsTap: { _ in }
+        )
     }
 }

@@ -9,6 +9,7 @@
 import Foundation
 import Testing
 import TangemFoundation
+import TangemTestKit
 @testable import TangemCollectibles
 @testable import Tangem
 
@@ -318,22 +319,6 @@ private extension RemoteCollectiblesBuybackInteractorTests {
 
     func sell(_ sut: SUT, offer: CollectiblesBuybackOffer = Constants.offer) async throws {
         try await sut.sell(nftAddress: Constants.nftAddress, offer: offer)
-    }
-
-    func waitUntil(timeout: Duration = .seconds(5), _ condition: @escaping @MainActor () -> Bool) async {
-        let deadline = ContinuousClock.now + timeout
-        while !condition() {
-            if ContinuousClock.now >= deadline {
-                Issue.record("waitUntil timed out")
-                return
-            }
-
-            do {
-                try await Task.sleep(for: .milliseconds(10))
-            } catch {
-                return
-            }
-        }
     }
 }
 

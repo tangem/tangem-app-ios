@@ -34,6 +34,7 @@ struct CollectiblesMachineView: View {
             Footer(
                 expectedValueText: viewModel.details.expectedValueText,
                 openButtonText: viewModel.openButtonText,
+                isOpenLocked: viewModel.isOpenLocked,
                 isTurboModeOn: $viewModel.isTurboModeOn,
                 onTurboModeInfoTap: viewModel.showTurboModeInfo,
                 onOpenTap: viewModel.openOrder
@@ -271,6 +272,8 @@ private struct PreviewMachineProvider: CollectiblesMachineProvider {
                 ),
                 routable: nil,
                 prizePoolProvider: PreviewPrizePoolProvider(),
+                relinkStatusProvider: nil,
+                hasUnfinishedPurchase: { false },
                 provider: PreviewMachineProvider()
             ),
             onClose: {}

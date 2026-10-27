@@ -33,13 +33,15 @@ private extension CollectiblesCoordinatorView {
                 switch state {
                 case .welcome(let viewModel):
                     CollectiblesWelcomeView(viewModel: viewModel, dismissStyle: dismissStyle, onDismiss: coordinator.dismiss)
-                case .main(let viewModel, let actionsMenuViewModel):
+                case .main(let viewModel, let banners, let actionsMenuViewModel):
                     CollectiblesMainView(
                         viewModel: viewModel,
+                        banners: banners,
                         actionsMenuViewModel: actionsMenuViewModel,
                         dismissStyle: dismissStyle,
                         onDismiss: coordinator.dismiss
                     )
+                    .shtorkaCompatibleFullScreenCover(item: $coordinator.reconnectionViewModel, content: reconnection)
                 }
             }
             .transition(.opacity.animation(.easeIn))
@@ -48,6 +50,10 @@ private extension CollectiblesCoordinatorView {
 
     func machine(_ viewModel: CollectiblesMachineViewModel) -> some View {
         MachineFlow(coordinator: coordinator, viewModel: viewModel)
+    }
+
+    func reconnection(_ viewModel: CollectiblesWelcomeViewModel) -> some View {
+        CollectiblesWelcomeView(viewModel: viewModel, dismissStyle: .close, onDismiss: { coordinator.closeReconnection() })
     }
 
     @ViewBuilder

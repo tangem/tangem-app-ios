@@ -21,6 +21,11 @@ protocol CollectiblesVaultUsdcAccountProvider: AnyObject {
     var vaultUsdcStatePublisher: AnyPublisher<CollectiblesVaultUsdcState, Never> { get }
 }
 
+protocol CollectiblesRelinkStatusProvider: AnyObject {
+    var isRelinkRequiredPublisher: AnyPublisher<Bool, Never> { get }
+    var isRelinkingPublisher: AnyPublisher<Bool, Never> { get }
+}
+
 protocol CollectiblesDepositAwaiter: AnyObject {
     func awaitDeposit() async
 }
@@ -62,6 +67,7 @@ protocol CollectiblesAccountModel: BaseAccountModel,
     CollectiblesOnboarder,
     CollectiblesBalanceSource,
     CollectiblesVaultUsdcAccountProvider,
+    CollectiblesRelinkStatusProvider,
     CollectiblesDepositAwaiter,
     CollectiblesPackPurchaseInteractorProvider,
     CollectiblesBuybackInteractorProvider

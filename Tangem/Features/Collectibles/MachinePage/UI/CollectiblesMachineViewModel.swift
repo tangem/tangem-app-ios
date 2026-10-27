@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 import TangemLocalization
 
 @MainActor
@@ -18,6 +19,7 @@ final class CollectiblesMachineViewModel: ObservableObject {
     private let provider: any CollectiblesMachineProvider
     private let pollInterval: Duration
     private let appStateObserver: AppStateObserver
+    private let hasUnfinishedPurchase: @MainActor () -> Bool
     private weak var routable: (any CollectiblesMachineRoutable)?
 
     private var machine: CollectiblesMachine
@@ -27,12 +29,17 @@ final class CollectiblesMachineViewModel: ObservableObject {
 
     private(set) var pollingTask: Task<Void, Never>?
 
+    var isOpenLocked: Bool {
+        isRelinkRequired && !hasUnfinishedPurchase()
+    }
+
     // MARK: - Publishers
 
     /// The header and the CTA render straight from the tapped pack, ahead of the first response.
     @Published private(set) var title: String
     @Published private(set) var artworkURL: URL?
     @Published private(set) var openButtonText: String
+    @Published private(set) var isRelinkRequired = false
 
     @Published private(set) var details: Details
     /// A purchase parameter, not a setting: it lives as long as the screen and rides along into the order.
@@ -45,6 +52,8 @@ final class CollectiblesMachineViewModel: ObservableObject {
         pack: CollectiblesPack,
         routable: (any CollectiblesMachineRoutable)?,
         prizePoolProvider: any CollectiblesPrizePoolProvider,
+        relinkStatusProvider: (any CollectiblesRelinkStatusProvider)?,
+        hasUnfinishedPurchase: @escaping @MainActor () -> Bool,
         provider: any CollectiblesMachineProvider = CollectiblesAPIService(),
         pollInterval: Duration = Constants.defaultPollInterval,
         notificationCenter: NotificationCenter = .default
@@ -58,12 +67,17 @@ final class CollectiblesMachineViewModel: ObservableObject {
         self.routable = routable
         self.provider = provider
         self.pollInterval = pollInterval
+        self.hasUnfinishedPurchase = hasUnfinishedPurchase
         prizePoolViewModel = CollectiblesPrizePoolViewModel(machineID: pack.id, provider: prizePoolProvider)
         appStateObserver = AppStateObserver(notificationCenter: notificationCenter)
 
         appStateObserver.start { [weak self] isInBackground in
             self?.updateAppActivity(isActive: !isInBackground)
         }
+
+        relinkStatusProvider?.isRelinkRequiredPublisher
+            .receiveOnMain()
+            .assign(to: &$isRelinkRequired)
     }
 
     deinit {

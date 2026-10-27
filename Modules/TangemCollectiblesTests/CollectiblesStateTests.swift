@@ -16,6 +16,11 @@ struct CollectiblesStateTests {
     func accountVisibility(state: CollectiblesState, isVisible: Bool) {
         #expect(state.isAccountVisible == isVisible)
     }
+
+    @Test("Only a vault naming another session key needs a relink", arguments: Self.relinkArguments)
+    func relinkRequirement(state: CollectiblesState, isRelinkRequired: Bool) {
+        #expect(state.isRelinkRequired == isRelinkRequired)
+    }
 }
 
 // MARK: - Arguments
@@ -27,6 +32,14 @@ extension CollectiblesStateTests {
         (state: .unresolved, isVisible: false),
         (state: .notOnboarded, isVisible: false),
         (state: .coldOwnerNotDerived, isVisible: false),
+    ]
+
+    static let relinkArguments: [(state: CollectiblesState, isRelinkRequired: Bool)] = [
+        (state: .ready(Constants.vaultInfo), isRelinkRequired: false),
+        (state: .rekeyRequired(Constants.vaultInfo), isRelinkRequired: true),
+        (state: .unresolved, isRelinkRequired: false),
+        (state: .notOnboarded, isRelinkRequired: false),
+        (state: .coldOwnerNotDerived, isRelinkRequired: false),
     ]
 }
 

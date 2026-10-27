@@ -27,8 +27,13 @@ final class CollectiblesAccountViewModel: ObservableObject {
 
     @Published private(set) var summary: CollectiblesAccountView.Summary = .placeholder
     @Published private(set) var vaultUsdcState: CollectiblesVaultUsdcState = .loading
+    @Published private(set) var isRefreshing = false
+
     @Published var alert: AlertBinder?
-    @Published private var isRefreshing = false
+
+    var isBalanceUpdating: Bool {
+        isRefreshing || summary.isUsdcLoading
+    }
 
     // MARK: - Init
 
@@ -86,13 +91,12 @@ private extension CollectiblesAccountViewModel {
         }
 
         Publishers
-            .CombineLatest3(
+            .CombineLatest(
                 accountModel.fiatTotalTokenBalanceProvider.formattedBalanceTypePublisher,
-                accountModel.usdcTokenBalanceProvider.balanceTypePublisher,
-                $isRefreshing
+                accountModel.usdcTokenBalanceProvider.balanceTypePublisher
             )
             .receiveOnMain()
-            .map { fiat, usdc, isRefreshing in Mapper.map(fiat: fiat, usdc: usdc, isRefreshing: isRefreshing) }
+            .map { fiat, usdc in Mapper.map(fiat: fiat, usdc: usdc) }
             .assign(to: &$summary)
 
         accountModel.vaultUsdcStatePublisher

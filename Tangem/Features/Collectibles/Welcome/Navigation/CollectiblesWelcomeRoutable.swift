@@ -12,4 +12,5 @@ import Foundation
 protocol CollectiblesWelcomeRoutable: AnyObject {
     func openStories()
     func openLegalTerms(url: URL)
+    func closeReconnection()
 }
