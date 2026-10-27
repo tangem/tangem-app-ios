@@ -33,9 +33,11 @@ public final class CollectiblesManager: @unchecked Sendable {
 
     private let stateSubject = CurrentValueSubject<CollectiblesState, Never>(.unresolved)
     private let vaultUsdcStateSubject = CurrentValueSubject<CollectiblesVaultUsdcState, Never>(.loading)
+    private let isOnboardingSubject = CurrentValueSubject<Bool, Never>(false)
     private let lastVaultUsdcBalance = OSAllocatedUnfairLock<UInt64?>(initialState: nil)
 
     private let refreshProcessor = SingleTaskProcessor<Bool, Never>()
+    private let onboardingProcessor = SingleTaskProcessor<Void, any Error>()
     private let purchaseSigningTasks = OSAllocatedUnfairLock<[String: Task<CollectiblesSignedPurchase, any Error>]>(
         initialState: [:]
     )
@@ -138,10 +140,29 @@ public extension CollectiblesManager {
 // MARK: - CollectiblesOnboarder protocol conformance
 
 extension CollectiblesManager: CollectiblesOnboarder {
+    public var isOnboardingPublisher: AnyPublisher<Bool, Never> {
+        isOnboardingSubject
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     /// Walks the resolved state toward `.ready`, applying the one thing it is missing and resolving again —
     /// the loop the agreed onboarding flow is drawn as. Every step reads before it writes, so an interrupted
     /// run is resumed by calling this again rather than repaired.
     public func onboard() async throws {
+        try await onboardingProcessor.execute { [weak self] in
+            guard let self else {
+                return
+            }
+
+            try await runOnboarding()
+        }
+    }
+
+    private func runOnboarding() async throws {
+        isOnboardingSubject.send(true)
+        defer { isOnboardingSubject.send(false) }
+
         var performedSteps: Set<CollectiblesOnboardingInteractor.OnboardingStep> = []
 
         while true {

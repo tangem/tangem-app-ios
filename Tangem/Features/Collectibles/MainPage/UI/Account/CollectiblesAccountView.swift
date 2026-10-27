@@ -15,6 +15,7 @@ import TangemUIUtils
 struct CollectiblesAccountView: View {
     @ObservedObject var viewModel: CollectiblesAccountViewModel
 
+    let banners: Banners
     let balanceCoordinateSpace: CoordinateSpace
     let onBalanceMaxYChange: (CGFloat) -> Void
 
@@ -41,8 +42,13 @@ private extension CollectiblesAccountView {
         VStack(spacing: 0) {
             balance(viewModel.summary)
 
-            collectionRow(viewModel.summary)
-                .padding(.top, Metrics.collectionRowTopPadding)
+            VStack(spacing: Metrics.bannerSpacing) {
+                banners
+                    .padding(.horizontal, Metrics.horizontalPadding)
+
+                collectionRow(viewModel.summary)
+            }
+            .padding(.top, Metrics.collectionRowTopPadding)
         }
     }
 
@@ -63,7 +69,7 @@ private extension CollectiblesAccountView {
             actionButtons(summary)
                 .padding(.top, Metrics.actionButtonsTopPadding)
         }
-        .environment(\.isShimmerActive, summary.isBalanceUpdating)
+        .environment(\.isShimmerActive, viewModel.isBalanceUpdating)
         .infinityFrame(axis: .horizontal)
         .padding(.top, Metrics.topPadding)
     }
@@ -88,7 +94,7 @@ private extension CollectiblesAccountView {
 
     @ViewBuilder
     func collectionRow(_ summary: Summary) -> some View {
-        if summary.isBalanceUpdating {
+        if viewModel.isBalanceUpdating {
             collectionRowSkeleton
         } else {
             // [REDACTED_TODO_COMMENT]
@@ -164,6 +170,7 @@ private extension CollectiblesAccountView {
         static let actionButtonHorizontalPadding: CGFloat = 16
 
         static let collectionRowTopPadding: CGFloat = 24
+        static let bannerSpacing: CGFloat = 8
         static let collectionRowCornerRadius: CGFloat = 24
         static let collectionIconSize: CGFloat = 40
 
@@ -183,6 +190,7 @@ private extension CollectiblesAccountView {
 
         CollectiblesAccountView(
             viewModel: CollectiblesAccountViewModel(accountModel: nil, routable: nil),
+            banners: CollectiblesAccountView.Banners(relinkBannerViewModel: nil),
             balanceCoordinateSpace: .local,
             onBalanceMaxYChange: { _ in }
         )

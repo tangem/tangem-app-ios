@@ -97,6 +97,14 @@ private final class CollectiblesAccountModelStub: CollectiblesAccountModel {
         Just(.loading).eraseToAnyPublisher()
     }
 
+    var isRelinkRequiredPublisher: AnyPublisher<Bool, Never> {
+        Just(false).eraseToAnyPublisher()
+    }
+
+    var isRelinkingPublisher: AnyPublisher<Bool, Never> {
+        Just(false).eraseToAnyPublisher()
+    }
+
     func refreshState() async {
         refreshCount += 1
     }
