@@ -35,7 +35,7 @@ extension Error {
     }
 }
 
-private struct BindableErrorWrapper: BindableError {
+struct BindableErrorWrapper: BindableError {
     var binder: AlertBinder {
         alertBinder(okAction: {})
     }
