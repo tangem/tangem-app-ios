@@ -41,12 +41,13 @@ final class SwapRatingUITests: BaseTestCase {
             .tapCloseButton()
             .waitForPendingExpressTransaction()
 
+        wireMockClient.setScenarioStateSync(Constants.exchangeStatusScenario, state: Constants.finishedState)
+        wireMockClient.setScenarioStateSync(Constants.historyScenario, state: Constants.historyFinishedState)
+
         let statusSheet = tokenScreen
+            .pullToRefresh()
             .tapPendingExpressTransaction()
             .waitForDisplay()
-
-        // Only a finished swap is rateable, and a finished one leaves the token screen, so the status is flipped here.
-        wireMockClient.setScenarioStateSync(Constants.exchangeStatusScenario, state: Constants.finishedState)
 
         statusSheet
             .assertRatingBlockDisplayed()
@@ -64,5 +65,7 @@ private extension SwapRatingUITests {
         static let exchangeStatusScenario = "exchange_status_provider"
         static let pendingState = "Changelly"
         static let finishedState = "Finished"
+        static let historyScenario = "exchange_history"
+        static let historyFinishedState = "SwapFinished"
     }
 }
