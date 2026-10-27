@@ -17,7 +17,7 @@ struct CurrencySelectView: View {
 
     var body: some View {
         ZStack {
-            Colors.Background.secondary.ignoresSafeArea()
+            DesignSystem.Color.bgPrimary.ignoresSafeArea()
             content
         }
         .navigationTitle(Localization.detailsRowTitleCurrency)
@@ -57,7 +57,7 @@ struct CurrencySelectView: View {
 
         case .failure(let error):
             Text(error.localizedDescription)
-                .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                .style(Fonts.Regular.body, color: DesignSystem.Color.textPrimary)
                 .padding(.horizontal, 16)
         }
     }
@@ -66,7 +66,7 @@ struct CurrencySelectView: View {
         SwiftUI.Button(action: { viewModel.handle(viewEvent: .currencySelected(currency)) }) {
             HStack(spacing: .zero) {
                 Text(currency.title)
-                    .style(Fonts.Regular.callout, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.callout, color: DesignSystem.Color.textPrimary)
 
                 if currency.isSelected {
                     Spacer()
@@ -75,7 +75,7 @@ struct CurrencySelectView: View {
                         .resizable()
                         .renderingMode(.template)
                         .frame(width: 16, height: 16)
-                        .foregroundColor(Colors.Icon.accent)
+                        .foregroundColor(DesignSystem.Color.iconAccentBlue)
                 }
             }
             .lineLimit(1)

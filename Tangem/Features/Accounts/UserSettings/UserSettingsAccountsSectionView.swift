@@ -61,6 +61,6 @@ struct UserSettingsAccountsSectionView: View {
     private var trailingChevron: some View {
         Assets.chevronRight.image
             .renderingMode(.template)
-            .foregroundStyle(Colors.Icon.informative)
+            .foregroundStyle(DesignSystem.Color.iconSecondary)
     }
 }

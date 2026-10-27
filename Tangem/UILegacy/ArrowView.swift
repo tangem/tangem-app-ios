@@ -13,7 +13,7 @@ struct ArrowView: View {
     let position: ItemPosition
     let width: CGFloat
     let height: CGFloat
-    let color = Colors.Stroke.secondary
+    let color = DesignSystem.Color.borderTertiary
     /// Use this offset when arrow origin should be shifted from the center of the view
     var arrowCenterXOffset: CGFloat?
 

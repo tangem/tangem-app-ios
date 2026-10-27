@@ -300,7 +300,7 @@ struct TangemPayCardManagementView: View {
                     }
                 } label: {
                     Image(systemName: "ellipsis")
-                        .foregroundColor(Colors.Icon.primary1)
+                        .foregroundColor(DesignSystem.Color.iconPrimary)
                         .accessibilityLabel(Localization.commonMore)
                 }
                 .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardManagementMoreButton)

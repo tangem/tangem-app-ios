@@ -28,11 +28,11 @@ enum ChangeSignType: Int, Hashable {
     var textColor: Color {
         switch self {
         case .positive:
-            return Colors.Text.accent
+            return DesignSystem.Color.textAccentBlue
         case .neutral:
-            return Colors.Text.tertiary
+            return DesignSystem.Color.textSecondary
         case .negative:
-            return Colors.Text.warning
+            return DesignSystem.Color.textAccentRed
         }
     }
 

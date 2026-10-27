@@ -24,14 +24,14 @@ public struct SuccessToast: View {
                 .renderingMode(.template)
                 .resizable()
                 .frame(width: 12, height: 12)
-                .foregroundColor(Colors.Icon.accent)
+                .foregroundColor(DesignSystem.Color.iconAccentBlue)
 
             Text(text)
-                .style(Fonts.Regular.footnote, color: Colors.Text.disabled)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textInverseSecondary)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
-        .background(Colors.Icon.secondary)
+        .background(DesignSystem.Color.bgInverse)
         .cornerRadiusContinuous(10)
         .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.successToast)
     }

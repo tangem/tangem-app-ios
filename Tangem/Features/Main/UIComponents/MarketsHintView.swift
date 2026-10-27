@@ -47,7 +47,7 @@ struct MarketsHintView: View {
             Text(Localization.marketsHint)
                 .multilineTextAlignment(.center)
                 .lineLimit(4)
-                .style(Fonts.Regular.footnote, color: Colors.Icon.informative)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
             Assets.chevronDown12.image
         }

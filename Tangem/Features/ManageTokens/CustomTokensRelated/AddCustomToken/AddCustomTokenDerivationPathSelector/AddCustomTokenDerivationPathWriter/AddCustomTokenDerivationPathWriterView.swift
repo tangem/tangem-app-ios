@@ -19,7 +19,7 @@ struct AddCustomTokenDerivationPathWriterView: View {
     /// It's strange but if we set color directly to `TextField`
     /// the color doesn't change when user is typing
     /// https://www.hackingwithswift.com/forums/100-days-of-swiftui/unusual-behavior-when-trying-to-change-the-style-of-the-text-in-a-swiftui-textfield/28414
-    @State private var textFieldColor: Color = Colors.Text.primary1
+    @State private var textFieldColor: Color = DesignSystem.Color.textPrimary
 
     init(viewModel: AddCustomTokenDerivationPathWriterViewModel, style: Style = .legacy) {
         self.viewModel = viewModel
@@ -32,7 +32,7 @@ struct AddCustomTokenDerivationPathWriterView: View {
             .navigationBarTitleDisplayMode(.inline)
             .alert(item: $viewModel.alert, content: { $0.alert })
             .onChange(of: viewModel.derivationPathState) { state in
-                textFieldColor = state.isFailure ? Colors.Text.warning : Colors.Text.primary1
+                textFieldColor = state.isFailure ? DesignSystem.Color.textAccentRed : DesignSystem.Color.textPrimary
             }
     }
 
@@ -61,7 +61,7 @@ private extension AddCustomTokenDerivationPathWriterView {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 16)
         }
-        .background(Colors.Background.tertiary.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
     }
 }
 
@@ -100,7 +100,7 @@ private extension AddCustomTokenDerivationPathWriterView {
         GroupedSection(viewModel) { _ in
             TextField(text: $viewModel.derivationPathText) {
                 Text(Localization.customTokenCustomDerivationPlaceholder)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.disabled)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textTertiary)
             }
             .font(Fonts.Regular.subheadline)
             .foregroundStyle(textFieldColor)
@@ -110,16 +110,16 @@ private extension AddCustomTokenDerivationPathWriterView {
             .accessibilityIdentifier(AddCustomTokenAccessibilityIdentifiers.derivationPathField)
         } header: {
             Text(Localization.customTokenCustomDerivation)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
         } footer: {
             if case .failure(.some(let hint)) = viewModel.derivationPathState {
                 Text(hint)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.warning)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textAccentRed)
             }
         }
         .innerContentPadding(12)
         .interItemSpacing(4)
-        .backgroundColor(Colors.Background.action)
+        .backgroundColor(DesignSystem.Color.bgSecondary)
     }
 }
 

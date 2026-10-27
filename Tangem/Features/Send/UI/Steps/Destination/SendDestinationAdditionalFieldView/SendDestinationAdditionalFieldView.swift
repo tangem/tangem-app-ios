@@ -39,7 +39,7 @@ struct SendDestinationAdditionalFieldView: View {
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             case .some(let string):
                 Text(string)
-                    .style(DesignSystem.Font.captionMediumToken, color: Colors.Text.warning)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textAccentRed)
                     .accessibilityIdentifier(SendAccessibilityIdentifiers.invalidMemoBanner)
             }
         }
@@ -49,7 +49,7 @@ struct SendDestinationAdditionalFieldView: View {
     private var textField: some View {
         TextField(viewModel.placeholder, text: $viewModel.text)
             .autocorrectionDisabled()
-            .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+            .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
             .disabled(viewModel.disabled)
             .accessibilityIdentifier(SendAccessibilityIdentifiers.additionalFieldTextField)
     }
@@ -77,7 +77,7 @@ struct SendDestinationAdditionalFieldView: View {
             Assets.clear.image
                 .resizable()
                 .renderingMode(.template)
-                .foregroundStyle(Colors.Icon.informative)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
                 .frame(width: 24, height: 24)
         }
         .accessibilityIdentifier(SendAccessibilityIdentifiers.additionalFieldClearButton)

@@ -71,7 +71,7 @@ struct AddTokenFlowView: View {
 
         return FloatingSheetNavigationBarView(
             title: title,
-            backgroundColor: Colors.Background.tertiary,
+            backgroundColor: DesignSystem.Color.bgPrimary,
             backButtonAction: backButtonAction,
             closeButtonAction: closeButtonAction
         )

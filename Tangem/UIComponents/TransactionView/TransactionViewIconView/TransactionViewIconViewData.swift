@@ -74,19 +74,19 @@ struct TransactionViewIconViewData: Hashable {
     var iconColor: Color {
         switch status {
         case .inProgress:
-            return Colors.Icon.accent
+            return DesignSystem.Color.iconAccentBlue
         case .confirmed:
-            return Colors.Icon.informative
+            return DesignSystem.Color.iconSecondary
         case .failed, .undefined:
-            return Colors.Icon.warning
+            return DesignSystem.Color.iconAccentRed
         }
     }
 
     var iconBackgroundColor: Color {
         switch status {
-        case .inProgress: return Colors.Icon.accent.opacity(0.1)
-        case .confirmed: return Colors.Button.secondary
-        case .failed, .undefined: return Colors.Icon.warning.opacity(0.1)
+        case .inProgress: return DesignSystem.Color.bgAccentBlueSubtle
+        case .confirmed: return DesignSystem.Color.bgTransparentSecondary
+        case .failed, .undefined: return DesignSystem.Color.bgAccentRedSubtle
         }
     }
 }

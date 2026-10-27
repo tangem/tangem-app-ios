@@ -47,25 +47,25 @@ struct DynamicAddressesEnterView: View {
 
     private var avatarView: some View {
         Circle()
-            .fill(Colors.Icon.accent.opacity(0.1))
+            .fill(DesignSystem.Color.bgAccentBlueSubtle)
             .frame(width: 72, height: 72)
             .overlay {
                 Assets.dynamicAddressesRowsIcon.image
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 40, height: 40)
-                    .foregroundStyle(Colors.Icon.accent)
+                    .foregroundStyle(DesignSystem.Color.iconAccentBlue)
             }
     }
 
     private var descriptionSection: some View {
         VStack(spacing: 8) {
             Text(Localization.dynamicAddresses)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.center)
 
             Text(Localization.dynamicAddressesEnterSubtitle)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
         }
     }
@@ -93,14 +93,14 @@ struct DynamicAddressesEnterView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 24, height: 24)
-                .foregroundStyle(Colors.Icon.accent)
+                .foregroundStyle(DesignSystem.Color.iconAccentBlue)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .style(Fonts.Bold.callout, color: Colors.Icon.primary1)
+                    .style(Fonts.Bold.callout, color: DesignSystem.Color.textPrimary)
 
                 Text(description)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
             }
         }
     }

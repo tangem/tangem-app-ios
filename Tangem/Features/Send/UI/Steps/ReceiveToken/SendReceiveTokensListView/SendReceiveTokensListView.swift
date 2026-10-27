@@ -46,14 +46,14 @@ struct SendReceiveTokensListView: View {
                 GroupedSection(viewModel.items, isLazy: true) {
                     SendReceiveTokensListTokenView(viewModel: $0)
                 }
-                .backgroundColor(Colors.Background.action)
+                .backgroundColor(DesignSystem.Color.bgSecondary)
                 .horizontalPadding(16)
                 .interItemSpacing(16)
                 .innerContentPadding(16)
 
                 if viewModel.canFetchMore {
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.primary1))
+                        .progressViewStyle(CircularProgressViewStyle(tint: DesignSystem.Color.iconPrimary))
                         .padding(.vertical, 16)
                         .onAppear(perform: viewModel.fetchMore)
                 }
@@ -61,7 +61,7 @@ struct SendReceiveTokensListView: View {
             .scrollDismissesKeyboard(.interactively)
         }
         .animation(.default, value: viewModel.onboardNotification == nil)
-        .background(Colors.Background.tertiary)
+        .background(DesignSystem.Color.bgPrimary)
         .onAppear(perform: viewModel.onAppear)
         .onReceive(viewModel.$isFocused) { isFocused in
             self.isFocused = isFocused

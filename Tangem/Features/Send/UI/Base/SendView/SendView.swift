@@ -25,12 +25,12 @@ struct SendView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            Colors.Background.tertiary.ignoresSafeArea()
+            DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
             currentPage
                 // Important!!
                 // When the currentPage has removal transition
-                // It immediately disappears below `Colors.Background.tertiary.ignoresSafeArea()`
+                // It immediately disappears below `DesignSystem.Color.bgPrimary.ignoresSafeArea()`
                 // Because the `currentPage` lost the `zIndex`
                 .zIndex(1)
                 .focused($focused)
@@ -120,7 +120,7 @@ struct SendView: View {
                     SwiftUI.Button(action: action) {
                         Assets.qrCode.image
                             .renderingMode(.template)
-                            .foregroundColor(Colors.Icon.primary1)
+                            .foregroundColor(DesignSystem.Color.iconPrimary)
                     }
                 }
                 .prefersVerticalBar()
@@ -161,7 +161,7 @@ struct SendView: View {
         case .some(let title):
             Text(title)
                 .multilineTextAlignment(.center)
-                .style(Fonts.BoldStatic.body, color: Colors.Text.primary1)
+                .style(Fonts.BoldStatic.body, color: DesignSystem.Color.textPrimary)
                 .lineLimit(1)
                 .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewTitle)
         }

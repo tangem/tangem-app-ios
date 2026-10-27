@@ -34,7 +34,7 @@ struct SquaredOrRectangleImageView: View {
     }
 
     private var background: some View {
-        Colors.Field.focused
+        DesignSystem.Color.bgTransparentSecondary
             .frame(maxWidth: .infinity)
             .aspectRatio(1, contentMode: .fit)
             .cornerRadiusContinuous(cornerRadius)
@@ -68,7 +68,7 @@ struct SquaredOrRectangleImageView: View {
         Assets.Nft.assetImagePlaceholder.image
             .resizable()
             .renderingMode(.template)
-            .foregroundStyle(Colors.Icon.primary1)
+            .foregroundStyle(DesignSystem.Color.iconPrimary)
             .frame(width: containerSize.width / 3, height: containerSize.height / 3)
     }
 

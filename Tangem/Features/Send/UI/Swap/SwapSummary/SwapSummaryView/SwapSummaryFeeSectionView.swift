@@ -30,7 +30,7 @@ struct SwapSummaryFeeSectionView: View {
                     SwapSummarySlippageView(viewModel: slippageViewModel, tapAction: slippageTapAction)
 
                     if feeViewModel.feeCompactViewIsVisible {
-                        Separator(color: Colors.Stroke.primary)
+                        Separator(color: DesignSystem.Color.borderSecondary)
                             .padding(.horizontal, 14)
                     }
                 }
@@ -42,7 +42,7 @@ struct SwapSummaryFeeSectionView: View {
                         .accessibilityIdentifier(SwapAccessibilityIdentifiers.feeBlock)
                 }
             }
-            .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: .zero, horizontalPadding: .zero)
+            .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: .zero, horizontalPadding: .zero)
         }
     }
 }

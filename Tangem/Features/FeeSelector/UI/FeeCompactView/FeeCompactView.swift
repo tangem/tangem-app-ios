@@ -50,7 +50,7 @@ struct FeeCompactView: View {
                     LoadableTextView(
                         state: viewModel.selectedFeeComponents,
                         font: Fonts.Regular.body,
-                        textColor: Colors.Text.tertiary,
+                        textColor: DesignSystem.Color.textSecondary,
                         loaderSize: CGSize(width: 40, height: 15)
                     )
                     .accessibilityIdentifier(SendAccessibilityIdentifiers.networkFeeAmount)
@@ -72,7 +72,7 @@ struct FeeCompactView: View {
     private func styled(_ row: some View) -> some View {
         switch style {
         case .card:
-            row.defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 11, horizontalPadding: 14)
+            row.defaultRoundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: 11, horizontalPadding: 14)
         case .embedded:
             row
                 .padding(.vertical, 11)
@@ -87,10 +87,10 @@ struct FeeCompactView: View {
     private var tokenItemBadge: some View {
         if let currencySymbol = viewModel.selectedFeeTokenCurrencySymbol {
             Text(currencySymbol)
-                .style(Fonts.Bold.caption2, color: Colors.Text.secondary)
+                .style(Fonts.Bold.caption2, color: DesignSystem.Color.textSecondary)
                 .padding(.vertical, 3)
                 .padding(.horizontal, 6)
-                .background(Colors.Background.tertiary)
+                .background(DesignSystem.Color.bgTransparentPrimary)
                 .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                 .accessibilityIdentifier(SendAccessibilityIdentifiers.networkFeeCurrencySymbol)
         }

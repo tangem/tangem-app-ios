@@ -18,7 +18,7 @@ struct PendingJointAccountItemView: View {
     @ObservedObject var viewModel: PendingJointAccountItemViewModel
 
     private var cornerRadius: CGFloat = 14
-    private var backgroundColor: Color = Colors.Background.primary
+    private var backgroundColor: Color = DesignSystem.Color.bgSecondary
 
     init(viewModel: PendingJointAccountItemViewModel) {
         self.viewModel = viewModel

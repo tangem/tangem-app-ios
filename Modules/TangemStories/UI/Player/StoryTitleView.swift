@@ -17,11 +17,11 @@ struct StoryTitleView: View {
     var body: some View {
         VStack(spacing: 8) {
             Text(title)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
                 .lineLimit(3)
 
             Text(subtitle)
-                .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                .style(Fonts.Regular.callout, color: DesignSystem.Color.textSecondary)
         }
         .multilineTextAlignment(.center)
         .frame(maxWidth: .infinity)

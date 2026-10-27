@@ -15,9 +15,9 @@ struct OnboardingBottomFadeBackground: View {
     var body: some View {
         LinearGradient(
             colors: [
-                Colors.Background.fadeStart,
-                Colors.Background.fadeEnd,
-                Colors.Background.fadeEnd,
+                DesignSystem.Color.bgPrimary.opacity(0),
+                DesignSystem.Color.bgPrimary,
+                DesignSystem.Color.bgPrimary,
             ],
             startPoint: .top,
             endPoint: .bottom

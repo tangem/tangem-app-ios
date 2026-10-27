@@ -232,10 +232,10 @@ final class YieldModuleActiveViewModel: ObservableObject {
 
         var attr = AttributedString(fullString)
         attr.font = Fonts.Regular.caption1
-        attr.foregroundColor = Colors.Text.tertiary
+        attr.foregroundColor = DesignSystem.Color.textSecondary
 
         if let range = attr.range(of: Localization.commonReadMore) {
-            attr[range].foregroundColor = Colors.Text.accent
+            attr[range].foregroundColor = DesignSystem.Color.textAccentBlue
             attr[range].link = readMoreURL
         }
 

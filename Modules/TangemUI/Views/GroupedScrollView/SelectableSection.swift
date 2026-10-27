@@ -59,7 +59,7 @@ public struct SelectableSection<Model: Identifiable, Content: SelectableSectionR
                             if currentIsSelected {
                                 SelectionOverlay()
                             } else if shouldShowSeparator, areSeparatorsEnabled {
-                                Separator(color: Colors.Stroke.primary)
+                                Separator(color: DesignSystem.Color.borderSecondary)
                                     .padding(.leading, separatorPadding.leading)
                                     .padding(.trailing, separatorPadding.trailing)
                             }

@@ -243,10 +243,10 @@ final class AccountDetailsViewModel: ObservableObject {
         let moreInfo = Localization.jointAccountMoreInfo
         var hint = AttributedString(Localization.jointAccountSettingsNetworksInfo + " " + moreInfo)
         hint.font = Fonts.Regular.caption1
-        hint.foregroundColor = Colors.Text.tertiary
+        hint.foregroundColor = DesignSystem.Color.textSecondary
 
         if let range = hint.range(of: moreInfo) {
-            hint[range].foregroundColor = Colors.Text.accent
+            hint[range].foregroundColor = DesignSystem.Color.textAccentBlue
             // Tap on "link" will handle as navigation
             hint[range].link = URL(string: "about:blank")
         }

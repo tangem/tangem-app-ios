@@ -16,12 +16,12 @@ public struct SelectionOverlay: View {
     public var body: some View {
         Color.clear.overlay {
             RoundedRectangle(cornerRadius: 14)
-                .stroke(Colors.Icon.accent, lineWidth: 1)
+                .stroke(DesignSystem.Color.borderAccentBlue, lineWidth: 1)
         }
         .padding(1)
         .overlay {
             RoundedRectangle(cornerRadius: 14)
-                .stroke(Colors.Icon.accent.opacity(0.15), lineWidth: Constants.secondStrokeLineWidth)
+                .stroke(DesignSystem.Color.borderAccentBlue.opacity(0.15), lineWidth: Constants.secondStrokeLineWidth)
         }
     }
 }

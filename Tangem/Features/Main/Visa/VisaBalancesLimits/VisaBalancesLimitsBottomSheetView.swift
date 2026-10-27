@@ -18,16 +18,16 @@ struct VisaBalancesLimitsBottomSheetView: View {
     var body: some View {
         VStack(spacing: 10) {
             Text(Localization.visaMainBalancesAndLimits)
-                .style(Fonts.Bold.headline, color: Colors.Text.primary1)
+                .style(Fonts.Bold.headline, color: DesignSystem.Color.textPrimary)
                 .padding(.vertical, 10)
                 .padding(.horizontal, 16)
 
             VStack(spacing: 14) {
                 balancesView
-                    .roundedBackground(with: Colors.Background.action, verticalPadding: 8, horizontalPadding: 14)
+                    .roundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: 8, horizontalPadding: 14)
 
                 limitsView
-                    .roundedBackground(with: Colors.Background.action, verticalPadding: 8, horizontalPadding: 14)
+                    .roundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: 8, horizontalPadding: 14)
             }
         }
         .padding(.horizontal, 16)
@@ -66,19 +66,19 @@ struct VisaBalancesLimitsBottomSheetView: View {
     private func sectionHeaderLine(leadingText: String, trailingText: String? = nil, infoAction: @escaping () -> Void) -> some View {
         HStack {
             Text(leadingText)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
 
             Spacer()
 
             if let trailingText {
                 Text(trailingText)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
             }
 
             SwiftUI.Button(action: infoAction) {
                 Assets.infoCircle20.image
                     .renderingMode(.template)
-                    .foregroundColor(Colors.Icon.inactive)
+                    .foregroundColor(DesignSystem.Color.iconTertiary)
             }
         }
         .padding(.top, 4)
@@ -88,12 +88,12 @@ struct VisaBalancesLimitsBottomSheetView: View {
     private func recordLine(with title: String, amount: String) -> some View {
         HStack(spacing: 8) {
             Text(title)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
             Spacer()
 
             SensitiveText(amount)
-                .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textPrimary)
         }
         .padding(.vertical, 8)
     }
@@ -106,7 +106,7 @@ private struct PreviewBottomSheet: View {
         SwiftUI.Button(action: generateBottomSheet) {
             Text("Open Balances & Limits")
         }
-        .bottomSheet(item: $viewModel, backgroundColor: Colors.Background.tertiary) { model in
+        .bottomSheet(item: $viewModel, backgroundColor: DesignSystem.Color.bgPrimary) { model in
             VisaBalancesLimitsBottomSheetView(viewModel: model)
         }
     }

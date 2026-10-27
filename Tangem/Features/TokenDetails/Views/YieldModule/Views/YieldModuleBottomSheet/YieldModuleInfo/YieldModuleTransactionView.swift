@@ -28,7 +28,7 @@ struct YieldModuleTransactionView: View {
         )
         .transition(.content)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackground = .color(Colors.Background.tertiary)
+            configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
         }
     }

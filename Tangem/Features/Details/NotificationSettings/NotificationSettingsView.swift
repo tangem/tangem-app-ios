@@ -16,7 +16,7 @@ struct NotificationSettingsView: View {
 
     var body: some View {
         content
-            .background(Colors.Background.secondary.ignoresSafeArea())
+            .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
             .navigationTitle(Localization.pushNotificationSettingsTitle)
             .navigationBarTitleDisplayMode(.inline)
             .alert(item: $viewModel.alert) { $0.alert }
@@ -108,7 +108,7 @@ struct NotificationSettingsView: View {
                         Text("\(Localization.pushNotificationSettingsTransactionAlertsSubtitle) ")
                             + readMoreText
                     }
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
                     .multilineTextAlignment(.leading)
                 }
@@ -143,7 +143,7 @@ struct NotificationSettingsView: View {
 
     private var readMoreText: Text {
         let text = Localization.pushNotificationsMoreInfo.replacingOccurrences(of: " ", with: String.unbreakableSpace)
-        return Text(text).foregroundColor(Colors.Text.accent)
+        return Text(text).foregroundColor(DesignSystem.Color.textAccentBlue)
     }
 }
 

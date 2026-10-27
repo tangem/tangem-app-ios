@@ -40,7 +40,7 @@ struct PriceAlertsWatchlistItemView: View {
 
     private var symbolView: some View {
         Text(viewModel.symbol)
-            .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
             .lineLimit(1)
     }
 
@@ -51,10 +51,10 @@ struct PriceAlertsWatchlistItemView: View {
     private var deleteButton: some View {
         SwiftUI.Button(action: onDelete) {
             Text(Localization.commonDelete)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
-                .background(Colors.Button.secondary)
+                .background(DesignSystem.Color.bgTransparentSecondary)
                 .clipShape(Capsule())
         }
         .buttonStyle(.plain)

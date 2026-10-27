@@ -44,14 +44,14 @@ private extension ForYouAccountSelectorView {
                 .padding(.horizontal, 16)
             }
         }
-        .background(Colors.Background.action)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadius(24, corners: .allCorners)
     }
 
     func walletHeader(_ section: ForYouAccountSelectorSection) -> some View {
         HStack(spacing: 8) {
             Text(section.walletName)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
             section.walletThumbnailType.map { type in
                 MiniatureWalletView(type: type)

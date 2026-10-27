@@ -28,12 +28,12 @@ struct BottomSheetInfoView: View {
 
             VStack(spacing: 10) {
                 Text(viewModel.title)
-                    .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
                     .multilineTextAlignment(.center)
 
                 if let description = viewModel.description {
                     Text(description)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.secondary)
+                        .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textSecondary)
                         .multilineTextAlignment(.center)
                 }
             }
@@ -81,7 +81,7 @@ struct BottomSheetInfoView: View {
         .offset(y: -200)
 
         NavHolder()
-            .bottomSheet(item: $item, backgroundColor: Colors.Background.tertiary) {
+            .bottomSheet(item: $item, backgroundColor: DesignSystem.Color.bgPrimary) {
                 BottomSheetInfoView(viewModel: $0)
             }
     }

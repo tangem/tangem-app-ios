@@ -25,7 +25,7 @@ struct MobileFinishActivationNeededView: View {
                 .padding(.top, 46)
         }
         .padding(16)
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgPrimary)
         .floatingSheetConfiguration { configuration in
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
@@ -45,13 +45,13 @@ private extension MobileFinishActivationNeededView {
             attentionIcon
 
             Text(viewModel.title)
-                .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title3, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 24)
 
             Text(viewModel.description)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.top, 8)
                 .fixedSize(horizontal: false, vertical: true)
@@ -61,7 +61,7 @@ private extension MobileFinishActivationNeededView {
     var attentionIcon: some View {
         ZStack {
             Circle()
-                .fill(viewModel.iconBgColor.opacity(0.1))
+                .fill(viewModel.iconBgColor)
                 .frame(width: 56, height: 56)
 
             viewModel.iconType.image

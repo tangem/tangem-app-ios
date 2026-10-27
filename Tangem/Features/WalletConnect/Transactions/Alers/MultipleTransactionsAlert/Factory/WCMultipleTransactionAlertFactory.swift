@@ -19,7 +19,7 @@ enum WCMultipleTransactionsAlertFactory {
             subtitle: Localization.walletConnectMultipleTransactionsDescription,
             icon: .init(
                 asset: Assets.blueCircleWarning,
-                color: Colors.Icon.accent
+                color: DesignSystem.Color.iconAccentBlue
             ),
             primaryButton: .init(title: Localization.commonSend, style: .primary, isLoading: false),
             secondaryButton: .init(title: Localization.commonBack, style: .secondary, isLoading: false),

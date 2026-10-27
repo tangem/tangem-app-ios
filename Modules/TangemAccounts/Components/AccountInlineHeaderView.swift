@@ -17,7 +17,7 @@ public struct AccountInlineHeaderView: View {
     private var iconSettings: AccountIconView.Settings = .extraSmallSized
     private var spacing: CGFloat = Constants.spacing
     private var fontStyle = TangemFontStyle(font: Fonts.Bold.footnote)
-    private var textColor: Color = Colors.Text.primary1
+    private var textColor: Color = DesignSystem.Color.textPrimary
     private var expandsHorizontally: Bool = false
     private var iconGeometryEffect: GeometryEffectPropertiesModel?
     private var iconBackgroundGeometryEffect: GeometryEffectPropertiesModel?

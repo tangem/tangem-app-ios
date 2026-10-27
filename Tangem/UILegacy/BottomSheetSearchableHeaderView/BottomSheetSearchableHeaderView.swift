@@ -59,7 +59,7 @@ struct BottomSheetSearchableHeaderView: View {
                     .resizable()
                     .renderingMode(.template)
                     .frame(width: 24, height: 24)
-                    .foregroundColor(Colors.Icon.primary1)
+                    .foregroundColor(DesignSystem.Color.iconPrimary)
             }
         }
     }

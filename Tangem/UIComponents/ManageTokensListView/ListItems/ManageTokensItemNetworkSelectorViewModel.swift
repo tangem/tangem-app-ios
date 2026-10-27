@@ -26,7 +26,7 @@ class ManageTokensItemNetworkSelectorViewModel: Identifiable, ObservableObject {
     let hasContextMenu: Bool
     let contractNameForegroundColor: Color
 
-    var networkNameForegroundColor: Color { isSelected ? Colors.Text.primary1 : Colors.Text.secondary }
+    var networkNameForegroundColor: Color { isSelected ? DesignSystem.Color.textPrimary : DesignSystem.Color.textSecondary }
 
     private var isSelectedBinding: Binding<Bool>
     private var bag = Set<AnyCancellable>()
@@ -50,7 +50,7 @@ class ManageTokensItemNetworkSelectorViewModel: Identifiable, ObservableObject {
         networkName = tokenItem.blockchain.displayName
         contractName = tokenItem.contractName
         hasContextMenu = tokenItem.isToken
-        contractNameForegroundColor = tokenItem.isBlockchain ? Colors.Text.accent : Colors.Text.tertiary
+        contractNameForegroundColor = tokenItem.isBlockchain ? DesignSystem.Color.textAccentBlue : DesignSystem.Color.textSecondary
 
         self.isSelected = isSelected.wrappedValue
 

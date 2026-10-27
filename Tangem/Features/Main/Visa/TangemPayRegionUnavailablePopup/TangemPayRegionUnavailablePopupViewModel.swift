@@ -39,11 +39,11 @@ final class TangemPayRegionUnavailablePopupViewModel: TangemPayPopupViewModel {
 
     var description: AttributedString {
         var start = AttributedString(Localization.moneyAccountMainStatusDialogCountryNotSupportedDescription + " ")
-        start.foregroundColor = Colors.Text.secondary
+        start.foregroundColor = DesignSystem.Color.textSecondary
 
         var end = AttributedString(Localization.commonContactSupport)
         end.link = URL(string: "blank:url")
-        end.foregroundColor = Colors.Text.primary1
+        end.foregroundColor = DesignSystem.Color.textPrimary
 
         return start + end
     }

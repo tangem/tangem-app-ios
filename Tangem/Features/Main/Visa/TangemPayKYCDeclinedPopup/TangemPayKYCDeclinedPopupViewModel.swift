@@ -44,11 +44,11 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
 
     var description: AttributedString {
         var start = AttributedString(Localization.tangempayKycRejectedDescription + " ")
-        start.foregroundColor = Colors.Text.secondary
+        start.foregroundColor = DesignSystem.Color.textSecondary
 
         var end = AttributedString(Localization.tangempayKycRejectedDescriptionSpan)
         end.link = URL(string: "blank:url")
-        end.foregroundColor = Colors.Text.accent
+        end.foregroundColor = DesignSystem.Color.textAccentBlue
 
         return start + end
     }

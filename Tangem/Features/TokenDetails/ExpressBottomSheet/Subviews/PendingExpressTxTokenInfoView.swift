@@ -22,13 +22,13 @@ struct PendingExpressTxTokenInfoView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 SensitiveText(amountText)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textPrimary)
 
                 if fiatAmountTextState != .noData {
                     LoadableTextView(
                         state: fiatAmountTextState,
                         font: Fonts.Regular.caption1,
-                        textColor: Colors.Text.tertiary,
+                        textColor: DesignSystem.Color.textSecondary,
                         loaderSize: .init(width: 52, height: 12),
                         isSensitiveText: true
                     )

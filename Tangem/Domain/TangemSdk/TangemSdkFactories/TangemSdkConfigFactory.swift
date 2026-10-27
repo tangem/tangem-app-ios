@@ -32,7 +32,7 @@ struct TangemSdkConfigFactory {
         }
 
         config.biometricsLocalizedReason = Localization.biometryTouchIdReason
-        config.style.colors.tint = Colors.Text.accent
+        config.style.colors.tint = DesignSystem.Color.textAccentBlue
         config.style.colors.tintUIColor = UIColor.textAccent
         Config.useDevApi = FeatureStorage.instance.tangemAPIType != .prod
         Config.extendedBackup = FeatureProvider.isAvailable(.backup4cards)

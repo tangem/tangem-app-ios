@@ -25,7 +25,7 @@ struct TokenItemViewLeadingComponent: View {
 }
 
 extension TokenItemViewLeadingComponent {
-    init(from tokenItemViewModel: TokenItemViewModel, networkBorderColor: Color = Colors.Background.primary) {
+    init(from tokenItemViewModel: TokenItemViewModel, networkBorderColor: Color = DesignSystem.Color.bgSecondary) {
         self.init(
             tokenIconInfo: .init(
                 name: tokenItemViewModel.name,
@@ -46,7 +46,7 @@ extension TokenItemViewLeadingComponent {
         blockchainIconAsset: ImageType?,
         hasMonochromeIcon: Bool,
         isCustom: Bool,
-        networkBorderColor: Color = Colors.Background.primary
+        networkBorderColor: Color = DesignSystem.Color.bgSecondary
     ) {
         self.init(
             tokenIconInfo: .init(

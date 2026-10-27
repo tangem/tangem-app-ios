@@ -18,7 +18,7 @@ struct LogsView: View {
         GroupedScrollView(contentType: .lazy(alignment: .leading, spacing: .zero)) {
             content
         }
-        .background(Colors.Background.tertiary.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .alert(item: $viewModel.alert) { $0.alert }
         .toolbar {
             ToolbarItem(placement: .principal) {
@@ -35,7 +35,7 @@ struct LogsView: View {
                             .rotationEffect(.degrees(90))
                             .frame(width: 10, height: 10)
                     }
-                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.body, color: DesignSystem.Color.textPrimary)
                 }
             }
 
@@ -63,7 +63,7 @@ struct LogsView: View {
             .infinityFrame()
         case .failure(let failure):
             Text(failure.localizedDescription)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
                 .infinityFrame()
         }
     }

@@ -62,11 +62,11 @@ struct NFTCompactAssetView: View {
     private func makeTexts(title: String, subtitle: String?) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                 .shimmering()
 
             Text(subtitle ?? "")
-                .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textSecondary)
                 .shimmering()
         }
     }

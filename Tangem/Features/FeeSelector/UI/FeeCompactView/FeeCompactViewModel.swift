@@ -23,11 +23,11 @@ class FeeCompactViewModel: ObservableObject, Identifiable {
     var infoButtonString: AttributedString {
         let readMore = Localization.commonReadMore
         var attributed = AttributedString(Localization.commonFeeSelectorFooter(readMore))
-        attributed.foregroundColor = Colors.Text.primary2
+        attributed.foregroundColor = DesignSystem.Color.textInversePrimary
         attributed.font = Fonts.Regular.caption1
 
         if let range = attributed.range(of: readMore) {
-            attributed[range].foregroundColor = Colors.Text.accent
+            attributed[range].foregroundColor = DesignSystem.Color.textAccentBlue
             attributed[range].link = TangemBlogUrlBuilder().url(post: .fee)
         }
 

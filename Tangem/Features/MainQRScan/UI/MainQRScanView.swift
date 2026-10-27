@@ -59,7 +59,7 @@ struct MainQRScanView: View {
     // MARK: - Dimming Overlay
 
     private var dimmingOverlay: some View {
-        Colors.Overlays.overlaySecondary
+        DesignSystem.Color.overlayModal
             .ignoresSafeArea()
             .reverseMask(alignment: .center) {
                 scannerRectangle(fillColor: .black)
@@ -73,7 +73,7 @@ struct MainQRScanView: View {
             SwiftUI.Button(action: viewModel.onCloseTapped) {
                 Image(systemName: "xmark")
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(Colors.Text.constantWhite)
+                    .foregroundColor(DesignSystem.Color.iconStaticDark)
                     .contentShape(Rectangle())
             }
             .padding(7)
@@ -82,7 +82,7 @@ struct MainQRScanView: View {
 
             SwiftUI.Button(action: viewModel.toggleFlash) {
                 (viewModel.isFlashActive ? Assets.flashDisabled.image : Assets.flash.image)
-                    .foregroundColor(Colors.Text.constantWhite)
+                    .foregroundColor(DesignSystem.Color.iconStaticDark)
             }
             .padding(7)
         }
@@ -100,7 +100,7 @@ struct MainQRScanView: View {
                     cornerRadius: 16,
                     lineWidth: 4
                 )
-                .stroke(Colors.Icon.constant, lineWidth: 4)
+                .stroke(DesignSystem.Color.iconStaticDark, lineWidth: 4)
                 .padding(.horizontal, 38)
                 .padding(.vertical, -2)
             }
@@ -122,7 +122,7 @@ struct MainQRScanView: View {
 
     private var hintView: some View {
         Text(viewModel.hintText)
-            .style(Fonts.Regular.subheadline, color: Colors.Text.constantWhite)
+            .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textStaticDarkPrimary)
             .frame(maxWidth: 200)
             .multilineTextAlignment(.center)
     }

@@ -19,10 +19,10 @@ struct OnboardingTermsOfServiceFooter: View {
         let full = Localization.onboardingCreateWalletTermOfConditionsText(link)
         var attributed = AttributedString(full)
         attributed.font = Fonts.Regular.footnote
-        attributed.foregroundColor = Colors.Text.tertiary
+        attributed.foregroundColor = DesignSystem.Color.textSecondary
         if let range = attributed.range(of: link) {
             attributed[range].link = AppConstants.tosURL
-            attributed[range].foregroundColor = Colors.Text.accent
+            attributed[range].foregroundColor = DesignSystem.Color.textAccentBlue
         }
         return attributed
     }

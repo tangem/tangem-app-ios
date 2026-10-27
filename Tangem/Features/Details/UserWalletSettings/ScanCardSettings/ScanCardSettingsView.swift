@@ -41,14 +41,14 @@ struct ScanCardSettingsView: View {
             .bottomPaddingIfZeroSafeArea()
         }
         .alert(item: $viewModel.alert) { $0.alert }
-        .background(Colors.Background.tertiary.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
     }
 
     @ViewBuilder
     private var topView: some View {
         ZStack(alignment: .center) {
             Circle()
-                .fill(Colors.Button.secondary)
+                .fill(DesignSystem.Color.bgTransparentSecondary)
                 .padding(.horizontal, 30)
 
             image
@@ -60,10 +60,10 @@ struct ScanCardSettingsView: View {
     private var bottomView: some View {
         VStack(alignment: .center, spacing: 16) {
             Text(Localization.scanCardSettingsTitle)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
 
             Text(Localization.scanCardSettingsMessage)
-                .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                .style(Fonts.Regular.callout, color: DesignSystem.Color.textSecondary)
         }
         .multilineTextAlignment(.center)
         .padding(.horizontal, 40)

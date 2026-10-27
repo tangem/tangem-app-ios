@@ -14,7 +14,7 @@ struct CheckIconView: View {
 
     var body: some View {
         Assets.check.image
-            .foregroundColor(Colors.Icon.accent)
+            .foregroundColor(DesignSystem.Color.iconAccentBlue)
             // Need to cover empty place if unchecking
             .opacity(isSelected ? 1 : 0)
             .frame(width: 20, height: 20)

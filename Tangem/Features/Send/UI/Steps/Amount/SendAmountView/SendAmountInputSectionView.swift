@@ -29,7 +29,7 @@ struct SendAmountInputSectionView<ExpandedContent: View>: View {
                 expandedContent()
                     .padding(.vertical, expandedContentVerticalPadding)
 
-                Separator(color: Colors.Stroke.primary)
+                Separator(color: DesignSystem.Color.borderSecondary)
             }
 
             if let tokenData = (isExpanded && !useCompactTokenRow) ? expandedTokenData : compactTokenData {
@@ -43,6 +43,6 @@ struct SendAmountInputSectionView<ExpandedContent: View>: View {
                     }
             }
         }
-        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0)
+        .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: 0)
     }
 }

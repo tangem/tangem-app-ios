@@ -39,7 +39,7 @@ struct UserWalletSettingsView: View {
             forgetSection
         }
         .interContentPadding(8)
-        .background(Colors.Background.secondary.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .navigationTitle(Localization.walletSettingsTitle)
         .navigationBarTitleDisplayMode(.inline)
         .alert(item: $viewModel.alert) { $0.alert }
@@ -86,12 +86,12 @@ struct UserWalletSettingsView: View {
     private var mobileUpgradeSubsection: some View {
         if let mobileUpgradeViewModel = viewModel.mobileUpgradeViewModel {
             VStack(alignment: .leading, spacing: 12) {
-                Separator(height: .exact(0.5), color: Colors.Stroke.primary)
+                Separator(height: .exact(0.5), color: DesignSystem.Color.borderSecondary)
 
                 DefaultRowView(viewModel: mobileUpgradeViewModel)
                     .appearance(.init(
                         isChevronVisible: false,
-                        textColor: Colors.Text.accent,
+                        textColor: DesignSystem.Color.textAccentBlue,
                         hasVerticalPadding: false
                     ))
             }

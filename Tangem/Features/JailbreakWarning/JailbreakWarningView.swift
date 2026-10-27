@@ -19,7 +19,7 @@ struct JailbreakWarningView: View {
 
             ZStack(alignment: .center) {
                 Circle()
-                    .fill(Colors.Icon.warning.opacity(0.1))
+                    .fill(DesignSystem.Color.bgAccentRedSubtle)
                     .frame(width: 72, height: 72)
 
                 Assets.redCircleWarning20Outline.image
@@ -29,13 +29,13 @@ struct JailbreakWarningView: View {
             .padding(20)
 
             Text(viewModel.title)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
                 .minimumScaleFactor(0.4)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 12)
 
             Text(viewModel.subtitle)
-                .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                .style(Fonts.Regular.callout, color: DesignSystem.Color.textSecondary)
                 .minimumScaleFactor(0.4)
                 .padding(.horizontal, 48)
                 .multilineTextAlignment(.center)

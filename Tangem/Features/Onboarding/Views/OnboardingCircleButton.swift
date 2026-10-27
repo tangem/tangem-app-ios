@@ -63,7 +63,7 @@ struct OnboardingCircleButton: View {
     var state: State
     var size: Size = .default
 
-    private let backgroundColor = Colors.Background.primary
+    private let backgroundColor = DesignSystem.Color.bgSecondary
     private var buttonSize: CGSize { size.buttonSize }
     private var successButtonSize: CGSize {
         .init(width: buttonSize.width * 0.657, height: buttonSize.height * 0.657)
@@ -81,7 +81,7 @@ struct OnboardingCircleButton: View {
                         Assets.Onboarding.refresh.image
                             .resizable()
                             .renderingMode(.template)
-                            .foregroundColor(state == .refreshButton ? Colors.Old.tangemGrayDark6 : backgroundColor)
+                            .foregroundColor(state == .refreshButton ? DesignSystem.Color.iconPrimary : backgroundColor)
                             .frame(size: size.refreshImageSize)
                     )
             })
@@ -97,11 +97,11 @@ struct OnboardingCircleButton: View {
             .opacity(state == .activityIndicator ? 1.0 : 0.0)
             Circle()
                 .frame(size: buttonSize)
-                .foregroundColor(Colors.Icon.accent)
+                .foregroundColor(DesignSystem.Color.bgAccentBlue)
                 .opacity(0.2)
                 .cornerRadius(buttonSize.height / 2)
                 .scaleEffect(state == .doneCheckmark ? 1.0 : 0.0001)
-            Colors.Icon.accent
+            DesignSystem.Color.bgAccentBlue
                 .frame(size: successButtonSize)
                 .cornerRadius(successButtonSize.height)
                 .overlay(
@@ -117,7 +117,7 @@ struct OnboardingCircleButton: View {
     var body: some View {
         Circle()
             .strokeBorder(style: StrokeStyle(lineWidth: 1))
-            .foregroundColor(state == .doneCheckmark ? Colors.Icon.accent : Colors.Old.tangemGrayLight4)
+            .foregroundColor(state == .doneCheckmark ? DesignSystem.Color.borderAccentBlue : DesignSystem.Color.borderSecondary)
             .background(backgroundView)
             .frame(size: buttonSize)
     }

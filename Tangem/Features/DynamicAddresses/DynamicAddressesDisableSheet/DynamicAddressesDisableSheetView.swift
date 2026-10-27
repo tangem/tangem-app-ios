@@ -51,10 +51,10 @@ struct DynamicAddressesDisableSheetView: View {
 
             VStack(spacing: 8) {
                 Text(Localization.dynamicAddressesDisableTitle)
-                    .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.title3, color: DesignSystem.Color.textPrimary)
 
                 Text(Localization.dynamicAddressesDisableDescription)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                     .multilineTextAlignment(.center)
             }
         }

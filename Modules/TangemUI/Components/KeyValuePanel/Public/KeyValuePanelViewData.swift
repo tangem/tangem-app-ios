@@ -19,7 +19,7 @@ public struct KeyValuePanelViewData: Identifiable {
     public init(
         header: Header?,
         keyValues: [KeyValuePairViewData],
-        backgroundColor: Color? = Colors.Background.action
+        backgroundColor: Color? = DesignSystem.Color.bgSecondary
     ) {
         self.header = header
         self.keyValues = keyValues

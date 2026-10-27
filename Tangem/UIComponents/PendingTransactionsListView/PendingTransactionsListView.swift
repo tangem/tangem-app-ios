@@ -23,7 +23,7 @@ struct PendingTransactionsListView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadiusContinuous(14)
     }
 }

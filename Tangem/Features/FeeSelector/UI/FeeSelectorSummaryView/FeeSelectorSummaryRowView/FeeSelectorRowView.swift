@@ -46,14 +46,14 @@ struct FeeSelectorRowView: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(viewModel.title)
                 .lineLimit(1)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.leading)
 
             switch viewModel.subtitle {
             case .balance(let state):
                 LoadableBalanceView(
                     state: state,
-                    style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
+                    style: .init(font: Fonts.Regular.caption1, textColor: DesignSystem.Color.textSecondary),
                     loader: .init(size: CGSize(width: 100, height: 14))
                 )
             case .fee(let state):
@@ -72,9 +72,9 @@ struct FeeSelectorRowView: View {
     private func feeSubtitleColor() -> Color {
         switch viewModel.availability {
         case .available(true), .unavailable(true):
-            return Colors.Text.warning
+            return DesignSystem.Color.textAccentRed
         case .available(false), .unavailable(false):
-            return Colors.Text.tertiary
+            return DesignSystem.Color.textSecondary
         }
     }
 
@@ -108,7 +108,7 @@ struct FeeSelectorRowView: View {
 
     private var backgroundView: some View {
         RoundedRectangle(cornerRadius: 14, style: .continuous)
-            .fill(Colors.Background.action)
+            .fill(DesignSystem.Color.bgSecondary)
     }
 
     @ViewBuilder
@@ -117,25 +117,25 @@ struct FeeSelectorRowView: View {
             Assets.Glyphs.selectIcon.image
                 .renderingMode(.template)
                 .resizable()
-                .foregroundStyle(Colors.Text.tertiary)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
                 .frame(width: 18, height: 24)
         }
     }
 
     private var feeIconBackgroundColor: Color {
         if viewModel.selectAction != nil {
-            return viewModel.isSelected ? Colors.Icon.accent.opacity(0.1) : Colors.Background.tertiary
+            return viewModel.isSelected ? DesignSystem.Color.bgAccentBlueSubtle : DesignSystem.Color.bgTransparentPrimary
         }
 
-        return Colors.Icon.accent.opacity(0.1)
+        return DesignSystem.Color.bgAccentBlueSubtle
     }
 
     private var feeIconColor: Color {
         if viewModel.selectAction != nil {
-            return viewModel.isSelected ? Colors.Icon.accent : Colors.Text.tertiary
+            return viewModel.isSelected ? DesignSystem.Color.iconAccentBlue : DesignSystem.Color.iconSecondary
         }
 
-        return Colors.Icon.accent
+        return DesignSystem.Color.iconAccentBlue
     }
 
     // MARK: - Private Implementation
@@ -155,7 +155,7 @@ struct FeeSelectorRowView: View {
 
 #Preview("Summary Row Variants") {
     ZStack {
-        Colors.Background.tertiary.ignoresSafeArea()
+        DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
         ScrollView {
             VStack(spacing: 16) {
@@ -242,7 +242,7 @@ struct FeeSelectorRowView: View {
                 )
             }
             .padding(.horizontal, 24)
-            .background(Colors.Background.tertiary)
+            .background(DesignSystem.Color.bgPrimary)
         }
     }
 }

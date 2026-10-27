@@ -27,14 +27,14 @@ struct FeatureStateRowView: View {
         VStack(alignment: .leading) {
             VStack(alignment: .leading, spacing: 0) {
                 Text(viewModel.feature.name)
-                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.body, color: DesignSystem.Color.textPrimary)
 
                 Text("Release version: \(viewModel.releaseVersionInfo)")
-                    .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                     .padding(.top, 4)
 
                 Text("Default state: \(viewModel.defaultState)")
-                    .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                     .padding(.top, 2)
             }
 

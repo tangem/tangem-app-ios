@@ -18,7 +18,7 @@ extension ExpressProvider {
         func makeBaseAttributedString(for text: String) -> AttributedString {
             var attributedString = AttributedString(text)
             attributedString.font = Fonts.Regular.caption1
-            attributedString.foregroundColor = Colors.Text.tertiary
+            attributedString.foregroundColor = DesignSystem.Color.textSecondary
             return attributedString
         }
 
@@ -28,7 +28,7 @@ extension ExpressProvider {
             }
 
             attributedString[range].link = url
-            attributedString[range].foregroundColor = Colors.Text.accent
+            attributedString[range].foregroundColor = DesignSystem.Color.textAccentBlue
         }
 
         if let termsOfUse = termsOfUse, let privacyPolicy = privacyPolicy {

@@ -30,19 +30,19 @@ struct SendAmountFinishLargeAmountView: View {
 
             VStack(alignment: .center, spacing: 4) {
                 Text(viewModel.amountText)
-                    .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.title1, color: DesignSystem.Color.textPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(SendAmountStep.Constants.amountMinTextScale)
                     .accessibilityIdentifier(SendAccessibilityIdentifiers.finishAmountValue)
 
                 // Keep empty text so that the view maintains its place in the layout
                 Text(viewModel.alternativeAmount ?? " ")
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
             }
             .infinityFrame(axis: .horizontal, alignment: .center)
         }
         .padding(.top, 4)
-        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 20, horizontalPadding: 14)
+        .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: 20, horizontalPadding: 14)
     }
 }

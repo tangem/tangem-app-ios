@@ -23,7 +23,7 @@ struct WCEthPersonalSignTransactionView: View {
             WCTransactionNetworkRow(blockchain: blockchain)
             addressRowView
         }
-        .background(Colors.Background.action)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadius(14, corners: .allCorners)
     }
 
@@ -44,7 +44,7 @@ struct WCEthPersonalSignTransactionView: View {
     }
 
     private var separator: some View {
-        Separator(height: .minimal, color: Colors.Stroke.primary)
+        Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
             .padding(.leading, 46)
             .padding(.trailing, 14)
     }

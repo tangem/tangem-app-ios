@@ -42,11 +42,11 @@ struct BasicTooltipView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .lineLimit(1)
-                        .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.footnote, color: DesignSystem.Color.textPrimary)
 
                     Text(message)
                         .lineLimit(3)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                        .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 }
 
                 Spacer(minLength: 8)
@@ -57,14 +57,14 @@ struct BasicTooltipView: View {
             .padding(.horizontal, 14)
             .padding(.bottom, 14)
             .defaultRoundedBackground(
-                with: Colors.Background.action,
+                with: DesignSystem.Color.bgSecondary,
                 verticalPadding: .zero,
                 horizontalPadding: .zero
             )
             .shadow(color: .black.opacity(0.12), radius: 40, x: 0, y: 4)
 
             Triangle()
-                .foregroundStyle(Colors.Background.action)
+                .foregroundStyle(DesignSystem.Color.bgSecondary)
                 .frame(size: .init(width: 20, height: 8))
                 .rotationEffect(.degrees(180))
         }
@@ -76,7 +76,7 @@ struct BasicTooltipView: View {
     private var leadingIconView: some View {
         if let leadingIcon {
             Circle()
-                .fill(Colors.Icon.accent)
+                .fill(DesignSystem.Color.bgAccentBlue)
                 .frame(size: .init(width: 20, height: 20))
                 .overlay(
                     leadingIcon
@@ -95,7 +95,7 @@ struct BasicTooltipView: View {
             Assets.cross16
                 .image
                 .renderingMode(.template)
-                .foregroundStyle(Colors.Text.secondary)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
                 .frame(width: 24, height: 24)
         }
         .buttonStyle(.plain)

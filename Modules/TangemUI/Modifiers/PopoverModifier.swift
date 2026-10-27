@@ -39,7 +39,7 @@ public struct PopoverModifier: ViewModifier {
                     .presentationCompactAdaptation(.popover)
                     .presentationBackgroundInteraction(.automatic)
                     .presentationCornerRadius(14)
-                    .presentationBackground(Colors.Icon.secondary)
+                    .presentationBackground(DesignSystem.Color.bgInverse)
             })
     }
 
@@ -48,7 +48,7 @@ public struct PopoverModifier: ViewModifier {
         switch text {
         case .rich(let text):
             Text(.init(text))
-                .style(Fonts.Regular.footnote, color: Colors.Text.primary2)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textInversePrimary)
         case .attributed(let text):
             Text(text)
         }

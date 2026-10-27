@@ -22,25 +22,25 @@ struct CampaignTokenRowView: View {
             },
             primaryLeadingView: {
                 Text(viewModel.name)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                     .lineLimit(1)
             },
             primaryTrailingView: {
                 LoadableBalanceView(
                     state: viewModel.fiatBalance,
-                    style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
+                    style: .init(font: Fonts.Regular.subheadline, textColor: DesignSystem.Color.textPrimary),
                     loader: .init(size: .init(width: 40, height: 12))
                 )
             },
             secondaryLeadingView: {
                 Text(networkName)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
             },
             secondaryTrailingView: {
                 LoadableBalanceView(
                     state: viewModel.cryptoBalance,
-                    style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
+                    style: .init(font: Fonts.Regular.caption1, textColor: DesignSystem.Color.textSecondary),
                     loader: .init(size: .init(width: 40, height: 12))
                 )
             }

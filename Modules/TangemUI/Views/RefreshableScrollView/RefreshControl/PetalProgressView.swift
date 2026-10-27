@@ -16,7 +16,7 @@ public struct PetalProgressView: View {
     private let petals: Int = 8
     private let size: CGFloat = 30
     private let lineWidth: CGFloat = 4
-    private let color: Color = Colors.Text.tertiary
+    private let color: Color = DesignSystem.Color.iconSecondary
     private let centerPadding: CGFloat = 10
     private let minOpacity: Double = 0.2
 

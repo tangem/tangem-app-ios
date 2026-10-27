@@ -34,7 +34,7 @@ struct OnrampCountryView: View {
 
             Text(data.name)
                 .lineLimit(1)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                 .padding(.trailing, 6)
 
             Spacer()
@@ -42,12 +42,12 @@ struct OnrampCountryView: View {
             if !data.isAvailable {
                 Text(Localization.onrampCountryUnavailable)
                     .lineLimit(1)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
             } else if data.isSelected {
                 Assets.checkmark20.image
                     .resizable()
                     .frame(size: .init(bothDimensions: 24))
-                    .foregroundColor(Colors.Icon.accent)
+                    .foregroundColor(DesignSystem.Color.iconAccentBlue)
             }
         }
         .padding(.vertical, 14)

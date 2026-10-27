@@ -20,13 +20,13 @@ struct SendReceiveTokenNetworkSelectorNetworkView: View {
 
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text(viewModel.name)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
                     if let network = viewModel.network {
                         Text(network)
                             .style(
                                 Fonts.Regular.caption1,
-                                color: viewModel.isMainNetwork ? Colors.Text.accent : Colors.Text.tertiary
+                                color: viewModel.isMainNetwork ? DesignSystem.Color.textAccentBlue : DesignSystem.Color.textSecondary
                             )
                     }
                 }

@@ -34,11 +34,11 @@ struct VisaTransactionDetailsView: View {
                         Assets.attention20.image
 
                         Text(Localization.visaTxDisputeButton)
-                            .style(Fonts.Bold.subheadline.weight(.medium), color: Colors.Text.primary1)
+                            .style(Fonts.Bold.subheadline.weight(.medium), color: DesignSystem.Color.textPrimary)
                     }
                     .frame(maxWidth: .infinity, minHeight: 40, maxHeight: 40, alignment: .center)
                     .background(
-                        Colors.Background.action
+                        DesignSystem.Color.bgSecondary
                             .cornerRadiusContinuous(10)
                     )
                 }
@@ -47,7 +47,7 @@ struct VisaTransactionDetailsView: View {
             .navigationTitle(Text(Localization.visaTransactionDetailsHeader))
             .navigationBarTitleDisplayMode(.inline)
             .padding(.bottom, 10)
-            .background(Colors.Background.tertiary.ignoresSafeArea())
+            .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         }
     }
 
@@ -55,7 +55,7 @@ struct VisaTransactionDetailsView: View {
         VStack(spacing: 12) {
             HStack {
                 Text(Localization.visaTransactionDetailsTitle)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
 
                 Spacer()
             }
@@ -65,7 +65,7 @@ struct VisaTransactionDetailsView: View {
                 merchantInfo
             }
         }
-        .defaultRoundedBackground(with: Colors.Background.action)
+        .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary)
     }
 
     private var merchantInfo: some View {
@@ -81,7 +81,7 @@ struct VisaTransactionDetailsView: View {
         VStack(spacing: 12) {
             HStack {
                 Text(Localization.visaTransactionDetailsTransactionRequest)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
 
                 Spacer()
 
@@ -89,10 +89,10 @@ struct VisaTransactionDetailsView: View {
                     Button(action: exploreAction, label: {
                         HStack(spacing: 4) {
                             Assets.compassExplore.image
-                                .foregroundColor(Colors.Icon.informative)
+                                .foregroundColor(DesignSystem.Color.iconSecondary)
 
                             Text(Localization.commonExplore)
-                                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                         }
                     })
                 }
@@ -106,7 +106,7 @@ struct VisaTransactionDetailsView: View {
                 recordLine(title: Localization.visaTransactionDetailsTransactionStatus, value: info.status)
             }
         }
-        .defaultRoundedBackground(with: Colors.Background.action)
+        .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary)
     }
 
     private func commonTransactionInfoView(_ info: CommonTransactionInfo) -> some View {
@@ -124,14 +124,14 @@ struct VisaTransactionDetailsView: View {
     private func recordLine(title: String, value: String) -> some View {
         HStack(alignment: .firstTextBaseline) {
             Text(title)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 .frame(minWidth: 80, alignment: .leading)
 
             Spacer(minLength: 10)
 
             Text(value)
                 .multilineTextAlignment(.trailing)
-                .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textPrimary)
         }
         .padding(.vertical, 8)
     }

@@ -502,5 +502,5 @@ private extension TransactionViewRedesigned {
         )
     }
     .padding()
-    .background(Colors.Background.secondary)
+    .background(DesignSystem.Color.bgPrimary)
 }

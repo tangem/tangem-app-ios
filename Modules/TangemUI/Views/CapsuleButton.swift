@@ -159,26 +159,26 @@ public extension CapsuleButton {
 
         func textColor(isDisabled: Bool) -> Color {
             switch self {
-            case .primary: isDisabled ? Colors.Text.disabled : Colors.Text.primary2
-            case .secondary: isDisabled ? Colors.Text.disabled : Colors.Text.primary1
+            case .primary: isDisabled ? DesignSystem.Color.textTertiary : DesignSystem.Color.textInversePrimary
+            case .secondary: isDisabled ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
             }
         }
 
         func iconColor(isDisabled: Bool) -> Color {
             if isDisabled {
-                return Colors.Icon.inactive
+                return DesignSystem.Color.iconTertiary
             }
 
             return switch self {
-            case .primary: Colors.Icon.primary2
-            case .secondary: Colors.Icon.informative
+            case .primary: DesignSystem.Color.iconInverse
+            case .secondary: DesignSystem.Color.iconSecondary
             }
         }
 
         func background(isDisabled: Bool) -> Color {
             switch self {
-            case .primary: isDisabled ? Colors.Button.disabled : Colors.Button.primary
-            case .secondary: isDisabled ? Colors.Button.disabled : Colors.Button.secondary
+            case .primary: isDisabled ? DesignSystem.Color.bgDisabled : DesignSystem.Color.bgInverse
+            case .secondary: isDisabled ? DesignSystem.Color.bgDisabled : DesignSystem.Color.bgTertiary
             }
         }
     }

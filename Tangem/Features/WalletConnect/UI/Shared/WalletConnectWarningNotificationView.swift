@@ -42,9 +42,9 @@ struct WalletConnectWarningNotificationView: View {
     private var bodyTextColor: Color {
         switch viewModel.containerStyle {
         case .standAloneSection:
-            Colors.Text.primary1
+            DesignSystem.Color.textPrimary
         case .embedded:
-            Colors.Text.tertiary
+            DesignSystem.Color.textSecondary
         }
     }
 
@@ -61,15 +61,15 @@ struct WalletConnectWarningNotificationView: View {
 private extension WalletConnectWarningNotificationViewModel.Severity {
     var tintColor: Color {
         switch self {
-        case .attention: Colors.Text.primary1
-        case .critical: Colors.Icon.warning
+        case .attention: DesignSystem.Color.textPrimary
+        case .critical: DesignSystem.Color.textAccentRed
         }
     }
 
     var backgroundColor: Color {
         switch self {
-        case .attention: Colors.Button.disabled
-        case .critical: Colors.Icon.warning.opacity(0.1)
+        case .attention: DesignSystem.Color.bgDisabled
+        case .critical: DesignSystem.Color.bgAccentRedSubtle
         }
     }
 }

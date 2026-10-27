@@ -35,12 +35,12 @@ struct DefaultWarningRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 if let title = viewModel.title {
                     Text(title)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
                 Text(viewModel.subtitle)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -49,7 +49,7 @@ struct DefaultWarningRow: View {
             rightView
         }
         .padding(.vertical, 16)
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgSecondary)
         .contentShape(Rectangle())
         .cornerRadius(12)
     }
@@ -58,7 +58,7 @@ struct DefaultWarningRow: View {
     private var leftView: some View {
         baseAdditionalView(type: viewModel.leftView)
             .padding(10)
-            .background(Colors.Background.secondary)
+            .background(DesignSystem.Color.bgPrimary)
             .cornerRadius(40)
     }
 
@@ -67,7 +67,7 @@ struct DefaultWarningRow: View {
         baseAdditionalView(type: viewModel.rightView)
             .padding(.vertical, 7)
             .padding(.horizontal, 14)
-            .background(Colors.Button.secondary)
+            .background(DesignSystem.Color.bgTransparentSecondary)
             .cornerRadius(10)
     }
 
@@ -82,7 +82,7 @@ struct DefaultWarningRow: View {
                 .frame(width: 20, height: 20)
         case .loader:
             ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.informative))
+                .progressViewStyle(CircularProgressViewStyle(tint: DesignSystem.Color.iconSecondary))
                 .frame(width: 20, height: 20)
         }
     }
@@ -120,7 +120,7 @@ struct DefaultWarningRow: View {
     ]
 
     ZStack {
-        Colors.Background.secondary
+        DesignSystem.Color.bgPrimary
 
         VStack {
             ForEach(viewModels) {

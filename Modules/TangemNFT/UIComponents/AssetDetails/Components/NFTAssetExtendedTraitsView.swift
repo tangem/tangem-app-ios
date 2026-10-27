@@ -25,7 +25,7 @@ public struct NFTAssetExtendedTraitsView: View {
             Spacer()
         }
         .padding(.horizontal, 16)
-        .background(Colors.Background.tertiary)
+        .background(DesignSystem.Color.bgPrimary)
         .navigationTitle(Localization.nftTraitsTitle)
         .navigationBarTitleDisplayMode(.inline)
     }

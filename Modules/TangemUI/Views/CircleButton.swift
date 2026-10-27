@@ -84,19 +84,19 @@ public extension CircleButton {
 
         func iconColor(isDisabled: Bool) -> Color {
             if isDisabled {
-                return Colors.Icon.inactive
+                return DesignSystem.Color.iconTertiary
             }
 
             return switch self {
-            case .primary: Colors.Icon.primary2
-            case .secondary: Colors.Icon.informative
+            case .primary: DesignSystem.Color.iconInverse
+            case .secondary: DesignSystem.Color.iconSecondary
             }
         }
 
         func background(isDisabled: Bool) -> Color {
             switch self {
-            case .primary: isDisabled ? Colors.Button.disabled : Colors.Button.primary
-            case .secondary: isDisabled ? Colors.Button.disabled : Colors.Button.secondary
+            case .primary: isDisabled ? DesignSystem.Color.bgDisabled : DesignSystem.Color.bgInverse
+            case .secondary: isDisabled ? DesignSystem.Color.bgDisabled : DesignSystem.Color.bgTransparentSecondary
             }
         }
     }

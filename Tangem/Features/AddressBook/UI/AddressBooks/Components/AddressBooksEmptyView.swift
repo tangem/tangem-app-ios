@@ -67,5 +67,5 @@ struct AddressBooksEmptyView: View {
 
 #Preview {
     AddressBooksEmptyView(onAddContactTap: {})
-        .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
+        .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
 }

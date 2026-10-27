@@ -65,7 +65,7 @@ extension RatingView {
         )
 
         static let legacy = BackgroundStyle(
-            color: Colors.Background.action,
+            color: DesignSystem.Color.bgSecondary,
             cornerRadius: 14,
             verticalPadding: 12,
             horizontalPadding: 14

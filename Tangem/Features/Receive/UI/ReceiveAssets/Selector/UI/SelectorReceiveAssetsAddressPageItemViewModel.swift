@@ -98,7 +98,7 @@ final class SelectorReceiveAssetsAddressPageItemViewModel: ObservableObject {
 
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFonts.Regular.footnote,
-            .foregroundColor: UIColor(Colors.Text.tertiary),
+            .foregroundColor: UIColor(DesignSystem.Color.textSecondary),
             .paragraphStyle: paragraph,
         ]
 

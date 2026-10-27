@@ -51,7 +51,7 @@ struct PushNotificationsMainView: View {
         }
         .onDisappear(perform: viewModel.onDismiss)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackground = .color(Colors.Background.primary)
+            configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
             configuration.sheetFrameUpdateAnimation = isFrameUpdateAnimationEnabled ? .contentFrameUpdate : nil
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }

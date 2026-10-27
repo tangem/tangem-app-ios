@@ -23,7 +23,7 @@ struct OnrampPaymentMethodIconView: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 8)
-                .fill(Colors.Field.focused)
+                .fill(DesignSystem.Color.bgTransparentSecondary)
                 .frame(size: CGSize(width: 36, height: 36))
 
             IconView(

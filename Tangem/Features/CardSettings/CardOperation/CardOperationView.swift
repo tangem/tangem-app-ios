@@ -29,7 +29,7 @@ struct CardOperationView: View {
             )
         }
         .padding([.horizontal, .bottom], 16)
-        .background(Colors.Background.secondary.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .navigationBarTitle(viewModel.title)
         .alert(item: $viewModel.error) { $0.alert }
     }
@@ -39,13 +39,13 @@ struct CardOperationView: View {
             Image(systemName: "exclamationmark.circle")
                 .resizable()
                 .frame(width: 100, height: 100)
-                .foregroundColor(Colors.Icon.attention)
+                .foregroundColor(DesignSystem.Color.iconAccentYellow)
 
             Text(Localization.commonWarning.uppercased())
-                .style(Fonts.Regular.largeTitle, color: Colors.Icon.attention)
+                .style(Fonts.Regular.largeTitle, color: DesignSystem.Color.textAccentYellow)
 
             Text(viewModel.alert)
-                .style(Fonts.Regular.title2, color: Colors.Text.primary1)
+                .style(Fonts.Regular.title2, color: DesignSystem.Color.textPrimary)
         }
         .multilineTextAlignment(.center)
         .padding(.horizontal, 30)

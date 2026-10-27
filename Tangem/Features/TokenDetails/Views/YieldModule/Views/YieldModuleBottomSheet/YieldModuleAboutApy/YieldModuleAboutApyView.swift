@@ -27,7 +27,7 @@ struct YieldModuleAboutApyView: View {
             content: { apyBreakdownSection }
         )
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackground = .color(Colors.Background.tertiary)
+            configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
         }
     }
 
@@ -39,7 +39,7 @@ struct YieldModuleAboutApyView: View {
                 needsBackground: false
             )
 
-            Separator(color: Colors.Stroke.primary)
+            Separator(color: DesignSystem.Color.borderSecondary)
                 .padding(.horizontal, 4)
 
             YieldFeeSection(
@@ -48,6 +48,6 @@ struct YieldModuleAboutApyView: View {
                 needsBackground: false
             )
         }
-        .defaultRoundedBackground(with: Colors.Background.action)
+        .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary)
     }
 }

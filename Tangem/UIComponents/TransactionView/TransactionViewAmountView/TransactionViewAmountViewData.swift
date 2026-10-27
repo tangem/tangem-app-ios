@@ -90,19 +90,19 @@ struct TransactionViewAmountViewData: Hashable {
     var amountColor: Color {
         switch (status, type) {
         case (.failed, _):
-            return Colors.Text.warning
+            return DesignSystem.Color.textAccentRed
 
         case (_, .tangemPay(.spend(_, _, let isDeclined, _))) where isDeclined:
-            return Colors.Text.warning
+            return DesignSystem.Color.textAccentRed
 
         case (_, .tangemPay(.spend(_, _, _, let isNegativeAmount))) where isNegativeAmount:
-            return Colors.Text.accent
+            return DesignSystem.Color.textAccentBlue
 
         case (_, .tangemPay(.transfer)) where !isOutgoing, (_, .tangemPay(.cashback)):
-            return Colors.Text.accent
+            return DesignSystem.Color.textAccentBlue
 
         default:
-            return Colors.Text.primary1
+            return DesignSystem.Color.textPrimary
         }
     }
 }

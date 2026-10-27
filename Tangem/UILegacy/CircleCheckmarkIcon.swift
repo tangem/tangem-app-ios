@@ -22,7 +22,7 @@ struct CircleCheckmarkIcon: View {
                 Assets.check.image
                     .resizable()
                     .renderingMode(.template)
-                    .foregroundColor(Colors.Background.action)
+                    .foregroundColor(DesignSystem.Color.iconInverse)
                     .frame(width: 12, height: 12)
             }
         }
@@ -35,7 +35,7 @@ struct CircleCheckmarkIcon: View {
         @State private var size: CGSize = .zero
         var body: some View {
             ZStack {
-                Colors.Background.action
+                DesignSystem.Color.bgSecondary
 
                 VStack {
                     CircleCheckmarkIcon(isSelected: true)

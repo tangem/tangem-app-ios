@@ -29,7 +29,7 @@ struct WCTransactionView: View {
             .allowsHitTesting(viewModel.presentationState != .signing)
             .animation(.contentFrameUpdate, value: viewModel.presentationState)
             .floatingSheetConfiguration { configuration in
-                configuration.sheetBackground = .color(Colors.Background.tertiary)
+                configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
                 configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
                 configuration.backgroundInteractionBehavior = .consumeTouches
             }
@@ -88,7 +88,7 @@ struct WCTransactionView: View {
 
         return FloatingSheetNavigationBarView(
             title: title,
-            backgroundColor: Colors.Background.tertiary,
+            backgroundColor: DesignSystem.Color.bgPrimary,
             backButtonAction: backButtonAction,
             closeButtonAction: closeButtonAction,
             titleAccessibilityIdentifier: WalletConnectAccessibilityIdentifiers.headerTitle
@@ -133,7 +133,7 @@ struct WCTransactionView: View {
         .padding(16)
         .background {
             ListFooterOverlayShadowView(
-                color: Colors.Background.tertiary,
+                color: DesignSystem.Color.bgPrimary,
                 opacities: [0.0, 0.95, 1]
             )
             .padding(.top, 6)
@@ -266,7 +266,7 @@ private extension WCTransactionView {
     var dappInfoSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(Localization.wcRequestFrom)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
                 .padding(.bottom, 14)
                 .lineLimit(1)
 
@@ -276,14 +276,14 @@ private extension WCTransactionView {
                 kingfisherImageCache: kingfisherImageCache
             )
 
-            Separator(height: .minimal, color: Colors.Stroke.primary)
+            Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
                 .padding(.vertical, 12)
 
             transactionRequest
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 14)
-        .background(Colors.Background.action)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadius(14, corners: .allCorners)
     }
 
@@ -292,15 +292,15 @@ private extension WCTransactionView {
             HStack(alignment: .center, spacing: 8) {
                 Assets.Glyphs.docNew.image
                     .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.accent)
+                    .foregroundStyle(DesignSystem.Color.iconAccentBlue)
 
                 Text(Localization.wcTransactionRequest)
-                    .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.body, color: DesignSystem.Color.textPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 Assets.Glyphs.chevronRightNew.image
                     .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.informative)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
             }
             .contentShape(.rect)
         }
@@ -339,7 +339,7 @@ private extension WCTransactionView {
     private var addChainContextRow: some View {
         if let connectionTargetKind = viewModel.connectionTargetKind {
             WCTransactionConnectionTargetRow(kind: connectionTargetKind)
-                .background(Colors.Background.action)
+                .background(DesignSystem.Color.bgSecondary)
                 .cornerRadius(14, corners: .allCorners)
         }
     }

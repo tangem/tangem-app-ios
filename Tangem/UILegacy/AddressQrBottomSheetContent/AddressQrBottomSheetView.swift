@@ -43,7 +43,7 @@ struct AddressQrBottomSheetContent: View {
                 .frame(maxWidth: 225)
                 .font(.system(size: 18, weight: .regular))
                 .multilineTextAlignment(.center)
-                .foregroundColor(Colors.Old.tangemGrayDark)
+                .foregroundColor(DesignSystem.Color.textSecondary)
             HStack(spacing: 10) {
                 SwiftUI.Button(action: {
                     showCheckmark = true
@@ -64,7 +64,7 @@ struct AddressQrBottomSheetContent: View {
                             .truncationMode(.middle)
                             .frame(maxWidth: 100)
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(Colors.Icon.primary1)
+                            .foregroundColor(DesignSystem.Color.textPrimary)
 
                         Group {
                             showCheckmark ?
@@ -74,19 +74,19 @@ struct AddressQrBottomSheetContent: View {
                                 .id("2")
                         }
                         .frame(width: 18, height: 18)
-                        .foregroundColor(Colors.Icon.accent)
+                        .foregroundColor(DesignSystem.Color.iconAccentBlue)
                     }
                     .frame(height: 40)
                     .padding(.horizontal, 16)
-                    .background(Colors.Old.tangemBgGray)
+                    .background(DesignSystem.Color.bgBase)
                     .cornerRadius(20)
                 })
                 SwiftUI.Button(action: { showShareSheet() }, label: {
                     Image(systemName: "arrowshape.turn.up.right")
                         .frame(height: 40)
-                        .foregroundColor(Colors.Icon.accent)
+                        .foregroundColor(DesignSystem.Color.iconAccentBlue)
                         .padding(.horizontal, 16)
-                        .background(Colors.Old.tangemBgGray)
+                        .background(DesignSystem.Color.bgBase)
                         .cornerRadius(20)
                 })
             }
@@ -116,7 +116,7 @@ struct AddressQrBottomSheetContent: View {
                 .padding()
         })
         NavHolder()
-            .bottomSheet(item: $isBottomSheetPresented, backgroundColor: Colors.Background.tertiary) { _ in
+            .bottomSheet(item: $isBottomSheetPresented, backgroundColor: DesignSystem.Color.bgPrimary) { _ in
                 AddressQrBottomSheetContent(
                     viewModel: .init(
                         shareAddress: "eth:0x01232483902f903678a098bce",

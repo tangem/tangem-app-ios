@@ -25,16 +25,16 @@ struct SendAmountFinishSmallAmountView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(viewModel.amountText)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                         .lineLimit(1)
                         .minimumScaleFactor(SendAmountStep.Constants.amountMinTextScale)
 
                     Text(viewModel.alternativeAmount ?? " ")
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                 }
                 .infinityFrame(axis: .horizontal, alignment: .leading)
             }
         }
-        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 14, horizontalPadding: 14)
+        .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: 14, horizontalPadding: 14)
     }
 }

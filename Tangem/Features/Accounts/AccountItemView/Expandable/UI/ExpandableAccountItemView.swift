@@ -18,7 +18,7 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
     let expandedView: ExpandedView
 
     private var cornerRadius: CGFloat = 14
-    private var backgroundColor: Color = Colors.Background.primary
+    private var backgroundColor: Color = DesignSystem.Color.bgSecondary
 
     init(
         viewModel: ExpandableAccountItemViewModel,

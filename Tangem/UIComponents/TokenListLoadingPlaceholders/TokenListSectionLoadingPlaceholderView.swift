@@ -21,7 +21,7 @@ struct TokenListSectionLoadingPlaceholderView: View {
             .padding(.horizontal, 14.0)
             .padding(.vertical, 12.0)
         }
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgSecondary)
     }
 }
 
@@ -29,8 +29,7 @@ struct TokenListSectionLoadingPlaceholderView: View {
 
 #Preview {
     ZStack {
-        Colors.Background
-            .secondary
+        DesignSystem.Color.bgPrimary
             .ignoresSafeArea()
 
         VStack {

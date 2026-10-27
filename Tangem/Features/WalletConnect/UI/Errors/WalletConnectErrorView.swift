@@ -21,12 +21,12 @@ struct WalletConnectErrorView: View {
 
             VStack(spacing: 8) {
                 Text(viewModel.state.title)
-                    .style(Fonts.Bold.title3.weight(.semibold), color: Colors.Text.primary1)
+                    .style(Fonts.Bold.title3.weight(.semibold), color: DesignSystem.Color.textPrimary)
                     .lineLimit(2)
                     .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.errorViewTitle)
 
                 Text(LocalizedStringKey(viewModel.state.subtitle))
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                     .lineLimit(6)
                     .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.errorViewSubtitle)
             }
@@ -35,7 +35,7 @@ struct WalletConnectErrorView: View {
         .padding(.top, 8)
         .padding(.horizontal, 32)
         .padding(.bottom, 44)
-        .background(Colors.Background.tertiary)
+        .background(DesignSystem.Color.bgPrimary)
         .frame(maxWidth: .infinity)
         .environment(\.openURL, OpenURLAction { _ in
             viewModel.handle(viewEvent: .contactSupportLinkTapped)

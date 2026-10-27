@@ -33,7 +33,7 @@ struct MainQRScanTokenSelectorView: View {
         .keyboardType(.asciiCapable)
         .autocorrectionDisabled()
         .scrollDismissesKeyboard(.interactively)
-        .background(Colors.Background.tertiary.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .navigationTitle(Localization.commonTokenSend)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -72,7 +72,7 @@ struct MainQRScanTokenSelectorView: View {
             Spacer(minLength: 220.0)
 
             Text(Localization.commonNoResults)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .center)
 
             Spacer(minLength: 0.0)

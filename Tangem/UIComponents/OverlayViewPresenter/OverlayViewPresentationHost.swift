@@ -81,7 +81,7 @@ private extension OverlayViewPresentationHost {
     func present(_ overlay: OverlayView) {
         // Presented from outside the app's own hierarchy, so what it would have inherited there is handed to it.
         let rootView = overlay.view
-            .accentColor(Colors.Text.primary1)
+            .accentColor(DesignSystem.Color.textPrimary)
             .environment(\.floatingSheetRegistry, sheetRegistry)
             .environment(\.mainWindowSize, UIApplication.mainWindow?.screen.bounds.size ?? .zero)
 

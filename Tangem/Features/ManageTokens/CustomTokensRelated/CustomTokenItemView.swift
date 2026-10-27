@@ -25,14 +25,14 @@ struct CustomTokenItemView: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text(info.name)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
                     Text(info.symbol)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                 }
 
                 Text(Localization.commonCustom)
-                    .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.caption1, color: DesignSystem.Color.textSecondary)
             }
 
             Spacer(minLength: 16)
@@ -41,14 +41,14 @@ struct CustomTokenItemView: View {
                 removeAction(info)
             } label: {
                 Text(Localization.manageTokensRemove)
-                    .style(Fonts.Bold.caption1, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.caption1, color: DesignSystem.Color.textPrimary)
                     .padding(.vertical, 4)
                     .padding(.horizontal, 10)
-                    .background(Colors.Button.secondary)
+                    .background(DesignSystem.Color.bgTransparentSecondary)
                     .cornerRadiusContinuous(20)
             }
         }
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgSecondary)
         .padding(.all, 16)
     }
 }

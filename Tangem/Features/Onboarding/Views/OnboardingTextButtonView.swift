@@ -66,7 +66,7 @@ struct OnboardingTextButtonView: View {
     var infoTextView: some View {
         if let infoText = infoText {
             Text(infoText)
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 16)
         }

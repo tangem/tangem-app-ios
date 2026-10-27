@@ -54,7 +54,7 @@ struct WalletConnectDAppConnectionView: View {
             value: viewModel.state.connectionRequestState?.networksWarningSection
         )
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackground = .color(Colors.Background.tertiary)
+            configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
             configuration.backgroundInteractionBehavior = .consumeTouches
         }
@@ -95,7 +95,7 @@ struct WalletConnectDAppConnectionView: View {
         switch viewModel.state {
         case .connectionRequest(let viewModel):
             title = viewModel.state.navigationTitle
-            backgroundColor = Colors.Background.tertiary
+            backgroundColor = DesignSystem.Color.bgPrimary
             backButtonAction = nil
             closeButtonAction = { viewModel.handle(viewEvent: .navigationCloseButtonTapped) }
 
@@ -107,19 +107,19 @@ struct WalletConnectDAppConnectionView: View {
 
         case .networkSelector(let viewModel):
             title = viewModel.state.navigationBarTitle
-            backgroundColor = Colors.Background.tertiary
+            backgroundColor = DesignSystem.Color.bgPrimary
             backButtonAction = { viewModel.handle(viewEvent: .navigationBackButtonTapped) }
             closeButtonAction = nil
 
         case .connectionTarget(let viewModel):
             title = viewModel.state.navigationBarTitle
-            backgroundColor = Colors.Background.tertiary
+            backgroundColor = DesignSystem.Color.bgPrimary
             backButtonAction = { self.viewModel.openConnectionRequest() }
             closeButtonAction = nil
 
         case .error(let viewModel):
             title = nil
-            backgroundColor = Colors.Background.tertiary
+            backgroundColor = DesignSystem.Color.bgPrimary
             backButtonAction = nil
             closeButtonAction = { viewModel.handle(viewEvent: .closeButtonTapped) }
         }
@@ -164,7 +164,7 @@ struct WalletConnectDAppConnectionView: View {
         }
         .background {
             ListFooterOverlayShadowView(
-                color: Colors.Background.tertiary,
+                color: DesignSystem.Color.bgPrimary,
                 opacities: [0.0, 0.95, 1]
             )
             .padding(.top, 6)

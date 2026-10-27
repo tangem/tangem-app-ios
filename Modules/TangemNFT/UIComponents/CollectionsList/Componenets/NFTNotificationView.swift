@@ -22,7 +22,7 @@ struct NFTNotificationView: View {
         content
             .frame(maxWidth: .infinity, alignment: .leading)
             .roundedBackground(
-                with: Colors.Button.disabled,
+                with: DesignSystem.Color.bgDisabled,
                 verticalPadding: 12,
                 horizontalPadding: 14
             )
@@ -42,11 +42,11 @@ struct NFTNotificationView: View {
     private var texts: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(viewData.title)
-                .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textPrimary)
                 .shimmering()
 
             Text(viewData.subtitle)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 .shimmering()
         }
     }

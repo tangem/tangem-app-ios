@@ -31,11 +31,11 @@ struct StorySegmentedProgressBar: View {
         HStack(spacing: Layout.spacing) {
             ForEach(0 ..< slides, id: \.self) { index in
                 Capsule()
-                    .fill(Colors.Icon.primary1.opacity(0.3))
+                    .fill(DesignSystem.Color.iconPrimary.opacity(0.3))
                     .frame(width: width, height: Layout.height)
                     .overlay(alignment: .leading) {
                         Capsule()
-                            .fill(Colors.Icon.primary1)
+                            .fill(DesignSystem.Color.iconPrimary)
                             .frame(width: width * fill(for: index), height: Layout.height)
                     }
                     .clipped()

@@ -32,10 +32,10 @@ struct WalletConnectDAppDomainVerificationView: View {
 
             VStack(spacing: 8) {
                 Text(viewModel.state.title)
-                    .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.title3, color: DesignSystem.Color.textPrimary)
 
                 Text(viewModel.state.body)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
             }
 
             Spacer()
@@ -61,25 +61,25 @@ struct WalletConnectDAppDomainVerificationView: View {
 private extension WalletConnectDAppDomainVerificationViewState.Severity {
     var iconColor: Color {
         switch self {
-        case .verified: Colors.Icon.accent
-        case .attention: Colors.Icon.attention
-        case .critical: Colors.Icon.warning
+        case .verified: DesignSystem.Color.iconAccentBlue
+        case .attention: DesignSystem.Color.iconAccentYellow
+        case .critical: DesignSystem.Color.iconAccentRed
         }
     }
 
     var badgeForegroundColor: Color {
         switch self {
         case .verified: .clear
-        case .attention: Colors.Text.primary1
-        case .critical: Colors.Text.warning
+        case .attention: DesignSystem.Color.textPrimary
+        case .critical: DesignSystem.Color.textAccentRed
         }
     }
 
     var badgeBackgroundColor: Color {
         switch self {
         case .verified: .clear
-        case .attention: Colors.Button.disabled
-        case .critical: Colors.Text.warning.opacity(0.1)
+        case .attention: DesignSystem.Color.bgDisabled
+        case .critical: DesignSystem.Color.bgAccentRedSubtle
         }
     }
 

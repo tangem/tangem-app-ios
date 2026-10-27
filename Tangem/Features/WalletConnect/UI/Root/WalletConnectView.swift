@@ -31,7 +31,7 @@ struct WalletConnectView: View {
             if viewModel.state.contentState.isContent {
                 newConnectionButton
                     .background {
-                        ListFooterOverlayShadowView(color: Colors.Background.secondary)
+                        ListFooterOverlayShadowView(color: DesignSystem.Color.bgPrimary)
                             .transition(.opacity)
                     }
                     .padding(.horizontal, 16)
@@ -45,7 +45,7 @@ struct WalletConnectView: View {
             navigationButton
         }
         .alert(for: viewModel.state.dialog, dismissAction: dismissDialogAction)
-        .background(Colors.Background.secondary)
+        .background(DesignSystem.Color.bgPrimary)
         .onAppear {
             viewModel.handle(viewEvent: .viewDidAppear)
         }
@@ -65,7 +65,7 @@ struct WalletConnectView: View {
                 } label: {
                     viewModel.state.navigationBar.trailingButtonAsset
                         .image
-                        .foregroundStyle(Colors.Icon.primary1)
+                        .foregroundStyle(DesignSystem.Color.iconPrimary)
                 }
             }
         }
@@ -101,11 +101,11 @@ struct WalletConnectView: View {
 
             VStack(spacing: 8) {
                 Text(emptyContentState.title)
-                    .style(Fonts.Regular.title3.weight(.semibold), color: Colors.Text.primary1)
+                    .style(Fonts.Regular.title3.weight(.semibold), color: DesignSystem.Color.textPrimary)
                     .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.noSessionsTitle)
 
                 Text(emptyContentState.subtitle)
-                    .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.callout, color: DesignSystem.Color.textSecondary)
                     .multilineTextAlignment(.center)
                     .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.noSessionsDescription)
             }
@@ -126,7 +126,7 @@ struct WalletConnectView: View {
             }
         }
         .padding(.top, 12)
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgSecondary)
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .padding(.vertical, 12)
     }
@@ -158,7 +158,7 @@ struct WalletConnectView: View {
         VStack(alignment: .leading, spacing: 12) {
             if shouldShowWalletName(for: wallet) {
                 Text(wallet.walletName)
-                    .style(Fonts.Bold.headline, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.headline, color: DesignSystem.Color.textPrimary)
                     .padding(.horizontal, 14)
             }
 
@@ -170,7 +170,7 @@ struct WalletConnectView: View {
                 VStack(alignment: .leading, spacing: .zero) {
                     if shouldShowWalletName(for: wallet) {
                         Text(wallet.walletName)
-                            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                            .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
                             .padding(.bottom, 8)
                             .padding(.horizontal, 14)
                     }
@@ -178,7 +178,7 @@ struct WalletConnectView: View {
                     ForEach(wallet.walletLevelDApps, content: dAppRowView)
                 }
                 .padding(.top, 12)
-                .background(Colors.Background.primary)
+                .background(DesignSystem.Color.bgSecondary)
                 .clipShape(RoundedRectangle(cornerRadius: 14))
             }
         }
@@ -194,7 +194,7 @@ struct WalletConnectView: View {
 
             ForEach(section.dApps, content: dAppRowView)
         }
-        .background(Colors.Background.action)
+        .background(DesignSystem.Color.bgSecondary)
         .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
@@ -207,7 +207,7 @@ struct WalletConnectView: View {
             .settings(.smallSized)
 
             Text(section.name)
-                .style(Fonts.Regular.caption1, color: Colors.Text.primary1)
+                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textPrimary)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -225,20 +225,20 @@ struct WalletConnectView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(alignment: .top, spacing: 6) {
                         Text(dApp.name)
-                            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                            .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
                         if let verifiedDomainIconAsset = dApp.verifiedDomainIconAsset {
                             verifiedDomainIconAsset
                                 .image
                                 .resizable()
                                 .frame(width: 16, height: 16)
-                                .foregroundStyle(Colors.Icon.accent)
+                                .foregroundStyle(DesignSystem.Color.iconAccentBlue)
                                 .padding(.top, 2)
                         }
                     }
 
                     Text(dApp.domain)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                         .lineLimit(1)
                 }
             }
@@ -271,9 +271,9 @@ struct WalletConnectView: View {
             .resizable()
             .scaledToFit()
             .frame(width: 20, height: 20)
-            .foregroundStyle(Colors.Icon.accent)
+            .foregroundStyle(DesignSystem.Color.iconAccentBlue)
             .frame(width: 36, height: 36)
-            .background(Colors.Icon.accent.opacity(0.1))
+            .background(DesignSystem.Color.bgAccentBlueSubtle)
     }
 
     private func remoteIcon(_ iconURL: URL) -> some View {

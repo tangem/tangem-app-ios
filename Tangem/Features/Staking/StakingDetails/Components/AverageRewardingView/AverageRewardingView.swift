@@ -26,10 +26,10 @@ struct AverageRewardingView: View {
     private var leadingView: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(data.rewardType)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
             Text(data.rewardFormatted)
-                .style(Fonts.Regular.callout, color: Colors.Text.accent)
+                .style(Fonts.Regular.callout, color: DesignSystem.Color.textAccentBlue)
         }
         .infinityFrame(axis: .horizontal, alignment: .leading)
     }
@@ -37,12 +37,12 @@ struct AverageRewardingView: View {
     private var trailingView: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(Localization.stakingDetailsEstimatedProfit(data.periodProfitFormatted))
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
             LoadableTextView(
                 state: data.profitFormatted,
                 font: Fonts.Regular.callout,
-                textColor: Colors.Text.primary1,
+                textColor: DesignSystem.Color.textPrimary,
                 loaderSize: CGSize(width: 40, height: 14)
             )
         }
@@ -53,7 +53,7 @@ struct AverageRewardingView: View {
 
 #Preview("AverageRewardingView") {
     ZStack {
-        Colors.Background.secondary.ignoresSafeArea()
+        DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
         GroupedSection([
             AverageRewardingViewData(

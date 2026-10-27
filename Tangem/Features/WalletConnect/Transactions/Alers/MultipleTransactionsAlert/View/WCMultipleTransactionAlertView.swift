@@ -15,7 +15,7 @@ struct WCMultipleTransactionAlertView: View {
 
     var body: some View {
         content
-            .background(Colors.Background.tertiary)
+            .background(DesignSystem.Color.bgPrimary)
             .frame(maxWidth: .infinity)
     }
 
@@ -26,12 +26,12 @@ struct WCMultipleTransactionAlertView: View {
 
             VStack(spacing: 8) {
                 Text(viewModel.state.title)
-                    .style(Fonts.Bold.title3.weight(.semibold), color: Colors.Text.primary1)
+                    .style(Fonts.Bold.title3.weight(.semibold), color: DesignSystem.Color.textPrimary)
                     .lineLimit(2)
                     .padding(.horizontal, 16)
 
                 Text(LocalizedStringKey(viewModel.state.subtitle))
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                     .lineLimit(6)
                     .padding(.init(top: 0, leading: 16, bottom: 50, trailing: 16))
             }

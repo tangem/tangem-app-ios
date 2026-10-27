@@ -59,7 +59,7 @@ struct YieldModuleActiveContentV2View: View {
         .safeAreaInset(edge: .bottom) {
             button
                 .padding(.horizontal, 16)
-                .background(ListFooterOverlayShadowView())
+                .background(ListFooterOverlayShadowView(color: DesignSystem.Color.bgSecondary))
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)

@@ -39,6 +39,6 @@ struct LendingPairIcon: View {
             .scaledToFit()
             .frame(size: iconsSize)
             .padding(halo)
-            .background(Circle().fill(Colors.Background.tertiary))
+            .background(Circle().fill(DesignSystem.Color.bgPrimary))
     }
 }
