@@ -20,7 +20,6 @@ protocol AddressBookAddAddressOutput: AnyObject {
 }
 
 protocol AddressBookAddAddressInteractor {
-    var addressValid: AnyPublisher<Bool, Never> { get }
     var addressError: AnyPublisher<String?, Never> { get }
     var additionalFieldType: AnyPublisher<SendDestinationAdditionalFieldType?, Never> { get }
     var addressAdditionalFieldError: AnyPublisher<String?, Never> { get }
@@ -104,10 +103,6 @@ final class CommonAddressBookAddAddressInteractor {
 // MARK: - AddressBookAddAddressInteractor
 
 extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor {
-    var addressValid: AnyPublisher<Bool, Never> {
-        _addressValid.eraseToAnyPublisher()
-    }
-
     var addressError: AnyPublisher<String?, Never> {
         _addressError.map { $0?.localizedDescription }.eraseToAnyPublisher()
     }
@@ -175,11 +170,9 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
             let params = try TransactionParamsBuilder(blockchain: blockchain).transactionParameters(value: value)
             _additionalField.send(.filled(type: fieldType, value: value, params: params))
             _addressAdditionalFieldError.send(nil)
-
         } catch TransactionParamsBuilderError.extraIdNotSupported {
             _additionalField.send(.notSupported)
             _addressAdditionalFieldError.send(nil)
-
         } catch {
             _additionalField.send(.notSupported)
             _addressAdditionalFieldError.send(error)

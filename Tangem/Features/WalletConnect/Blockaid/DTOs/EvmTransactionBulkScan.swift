@@ -27,13 +27,6 @@ extension BlockaidDTO {
                 let value: String
                 let data: String
             }
-
-            struct TransactionParams: Codable {
-                let from: String
-                let to: String
-                let data: String
-                let value: String
-            }
         }
 
         typealias Response = [ResponseElement]

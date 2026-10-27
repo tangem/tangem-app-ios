@@ -11,7 +11,7 @@ import BlockchainSdk
 import TangemAssets
 import TangemUI
 
-final class JointAccountSupportedNetworksViewModel: ObservableObject, FloatingSheetContentViewModel {
+final class JointAccountSupportedNetworksViewModel: Identifiable {
     let networks: [NetworkViewData]
 
     private weak var coordinator: JointAccountSupportedNetworksRoutable?

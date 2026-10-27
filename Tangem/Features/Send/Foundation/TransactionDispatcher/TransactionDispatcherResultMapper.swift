@@ -18,14 +18,13 @@ import TangemPolymarket
 struct TransactionDispatcherResultMapper {
     func mapResult(
         _ result: TangemPayWithdrawTransactionResult,
-        txHash: String,
         signer: TangemSignerType?
     ) -> TransactionDispatcherResult {
         let signerType = signer?.analyticsParameterValue ?? Analytics.ParameterValue.unknown
         let currentHost = HostAnalyticsFormatterUtil().formattedHost(from: result.host)
 
         return TransactionDispatcherResult(
-            hash: txHash,
+            hash: result.orderID,
             url: nil,
             signerType: signerType.rawValue,
             currentHost: currentHost
@@ -53,17 +52,11 @@ struct TransactionDispatcherResultMapper {
     ) -> TransactionDispatcherResult {
         let signerType = signer?.analyticsParameterValue ?? Analytics.ParameterValue.unknown
 
-        let explorerURL = record.transactionHash.flatMap { hash in
-            ExternalLinkProviderFactory()
-                .makeProvider(for: PolymarketUtilities.blockchain)
-                .url(transaction: hash)
-        }
-
         return TransactionDispatcherResult(
             // The relayer does not always attach a Polygon hash, and the withdrawal is identified by its
             // own id everywhere else, so that is what the finish step falls back to.
             hash: record.transactionHash ?? record.transactionId,
-            url: explorerURL,
+            url: nil,
             signerType: signerType.rawValue,
             currentHost: HostAnalyticsFormatterUtil().formattedHost(from: host)
         )
@@ -119,11 +112,14 @@ struct TransactionDispatcherResultMapper {
         signer: TangemSignerType?,
         isToken: Bool
     ) -> TransactionDispatcherResult {
-        let factory = ExternalLinkProviderFactory()
-        let provider = factory.makeProvider(for: blockchain)
-        let explorerUrl = isToken
-            ? provider.tokenUrl(transaction: hash)
-            : provider.url(transaction: hash)
+        let explorerUrl: URL? = {
+            if blockchain.isTransactionAsync {
+                return nil
+            }
+
+            let provider = ExternalLinkProviderFactory().makeProvider(for: blockchain)
+            return isToken ? provider.tokenUrl(transaction: hash) : provider.url(transaction: hash)
+        }()
 
         let signerType = signer?.analyticsParameterValue ?? Analytics.ParameterValue.unknown
         let currentHost = HostAnalyticsFormatterUtil().formattedHost(from: currentProviderHost)

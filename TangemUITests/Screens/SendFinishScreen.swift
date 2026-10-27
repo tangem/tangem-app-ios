@@ -32,6 +32,15 @@ final class SendFinishScreen: ScreenBase<SendFinishScreenElement> {
     }
 
     @discardableResult
+    func assertStillDisplayedWithoutAlert() -> Self {
+        XCTContext.runActivity(named: "Assert finish screen stays open without an alert") { _ in
+            XCTAssertTrue(headerTitle.exists, "Finish screen should stay open")
+            XCTAssertFalse(app.alerts.firstMatch.exists, "No alert should be shown over the finish screen")
+            return self
+        }
+    }
+
+    @discardableResult
     func assertHeaderTitle(_ expected: String) -> Self {
         XCTContext.runActivity(named: "Assert finish header title is '\(expected)'") { _ in
             waitAndAssertTrue(headerTitle, "Finish header title should be displayed")

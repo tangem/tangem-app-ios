@@ -8,10 +8,11 @@
 
 import TangemExpress
 import TangemFoundation
+import TangemUI
 
 struct ApproveFlowFactory {
     let approveInput: ApproveViewModel.Input
-    let confirmTransactionPolicy: ConfirmTransactionPolicy
+    let signingActionButtonType: SigningActionButtonViewType
 
     func make(router: ApproveRoutable) -> ApproveFlowViewModel {
         var feeSelectorViewModel: FeeSelectorTokensViewModel?
@@ -27,7 +28,7 @@ struct ApproveFlowFactory {
             router: router,
             feeSelectorViewModel: feeSelectorViewModel,
             interactor: approveInput.interactor,
-            confirmTransactionPolicy: confirmTransactionPolicy
+            signingActionButtonType: signingActionButtonType
         )
     }
 }

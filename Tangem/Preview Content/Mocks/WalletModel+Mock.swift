@@ -78,9 +78,6 @@ class EthereumWalletManagerMock: WalletManager {
         .empty
     }
 
-    func validate(fee: BlockchainSdk.Fee) throws {}
-    func validate(amount: BlockchainSdk.Amount) throws {}
-
     func updateWalletManager(address: String) async throws {}
 
     func getFee(amount: BlockchainSdk.Amount, destination: String) -> AnyPublisher<[BlockchainSdk.Fee], Error> {

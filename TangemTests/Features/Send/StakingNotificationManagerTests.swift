@@ -373,8 +373,6 @@ private struct StakeModelStateProviderStub: StakeModelStateProvider {
     let stakedBalance: Decimal
     let enterSpendsAmount: Bool
 
-    var state: StakeFlowState { stateSubject.value }
-
     var statePublisher: AnyPublisher<StakeFlowState, Never> {
         stateSubject.eraseToAnyPublisher()
     }

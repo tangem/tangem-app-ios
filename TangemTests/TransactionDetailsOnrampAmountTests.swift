@@ -21,14 +21,14 @@ struct TransactionDetailsOnrampAmountTests {
     func inProgressReceivedAmountIsEstimated() throws {
         let legs = try #require(makeViewData(stage: .inProgress, receivedAmount: "1800").legs)
 
-        #expect(legs.to.amountText == "~\u{a0}1800\u{a0}POL")
+        #expect(legs.to.amountText == "~\u{2009}1800\u{a0}POL")
     }
 
     @Test("Finished signs the received amount as a delivery")
     func finishedReceivedAmountIsSigned() throws {
         let legs = try #require(makeViewData(stage: .finished, receivedAmount: "1800").legs)
 
-        #expect(legs.to.amountText == "+\u{a0}1800\u{a0}POL")
+        #expect(legs.to.amountText == "+\u{2009}1800\u{a0}POL")
     }
 
     @Test("A settled top-up with no known amount falls back to a dash", arguments: [nil, ""] as [String?])

@@ -27,7 +27,6 @@ final class TransactionRecorder: @unchecked Sendable {
 
 struct RecordingTransactionDispatcher: TransactionDispatcher {
     let recorder: TransactionRecorder
-    let hasNFCInteraction = false
 
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         if case .transfer(let bsdkTransaction) = transaction {
@@ -47,12 +46,10 @@ struct RecordingTransactionDispatcherProvider: TransactionDispatcherProvider {
     func makeApproveAndDEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
     func makeCEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
     func makeStakingTransactionDispatcher(analyticsLogger: any StakingAnalyticsLogger) -> TransactionDispatcher { TransactionDispatcherStub() }
-    func makeYieldModuleTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
 }
 
 final class InformationRelevanceServiceStub: InformationRelevanceService {
     var isActual: Bool { true }
-    func informationDidUpdated() {}
     func updateInformation() -> AnyPublisher<InformationRelevanceServiceUpdateResult, Error> {
         Just(.ok).setFailureType(to: Error.self).eraseToAnyPublisher()
     }

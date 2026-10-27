@@ -60,12 +60,6 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         []
     }
 
-    func archiveCryptoAccount(
-        withIdentifier identifier: any AccountModelPersistentIdentifierConvertible
-    ) throws(AccountArchivationError) {
-        throw .unknownError(NSError.dummy)
-    }
-
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountRecoveryError) -> AccountOperationResult {
         throw .unknownError(NSError.dummy)
     }
@@ -77,8 +71,6 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
     }
 
     func dispose() {}
-
-    func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async throws(TangemPayAuthorizationError) {}
 
     func authorizeTangemPayOfferForResidency(
         authorizingInteractor: any TangemPayAuthorizing

@@ -117,7 +117,6 @@ extension StakeKitStakingManager: StakingManager {
                 // to keep them in sync
                 _updateWalletBalancesSubject.send(())
             }
-
         } catch is CancellationError {
             // Ignored intentionally
             return
@@ -157,26 +156,31 @@ extension StakeKitStakingManager: StakingManager {
     }
 
     func transaction(action: StakingAction) async throws -> StakingTransactionAction {
+        let transactionAction: StakingTransactionAction
+
         switch (state, action.type) {
         case (.loading, _):
             try await waitForLoadingCompletion()
             return try await transaction(action: action)
         case (.availableToStake, .stake), (.staked, .stake):
-            return try await getStakeTransactionInfo(
+            transactionAction = try await getStakeTransactionInfo(
                 request: mapToActionGenericRequest(action: action)
             )
         case (.staked, .unstake):
-            return try await getUnstakeTransactionInfo(
+            transactionAction = try await getUnstakeTransactionInfo(
                 request: mapToActionGenericRequest(action: action)
             )
         case (.staked, .pending(let type)):
-            return try await getPendingTransactionInfo(
+            transactionAction = try await getPendingTransactionInfo(
                 request: mapToActionGenericRequest(action: action),
                 type: type
             )
         default:
             throw StakingManagerError.stakingManagerStateNotSupportTransactionAction(action: action, state: state)
         }
+
+        submittedActions.prepare(action: action)
+        return transactionAction
     }
 
     func transactionDidSent(action: StakingAction) {
@@ -393,30 +397,6 @@ private extension StakeKitStakingManager {
             target: action.targetInfo?.address,
             integrationId: integrationId,
             tronResource: getTronResource()
-        )
-    }
-
-    func mapToStakingBalance(
-        action: PendingAction,
-        yield: StakingYieldInfo,
-        balanceType: StakingBalanceType
-    ) -> StakingBalance {
-        let targetType: StakingTargetType = {
-            guard let address = action.targetAddress,
-                  let target = yield.targets.first(where: { $0.address == address }) else {
-                return .empty
-            }
-
-            return .target(target)
-        }()
-
-        return StakingBalance(
-            item: yield.item,
-            amount: action.amount,
-            balanceType: balanceType,
-            targetType: targetType,
-            inProgress: true,
-            actions: []
         )
     }
 

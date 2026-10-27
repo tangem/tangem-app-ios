@@ -93,9 +93,3 @@ private extension StakingTargetsViewModel {
             .store(in: &bag)
     }
 }
-
-extension StakingTargetsViewModel {
-    struct Input {
-        let targets: [StakingTargetInfo]
-    }
-}

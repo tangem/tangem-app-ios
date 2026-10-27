@@ -31,6 +31,10 @@ public struct PolymarketOrderQuote: Hashable, Sendable {
 
     public let isLive: Bool
 
+    public let version: PolymarketMarketVersion
+    public let exchange: String?
+    public let signingDomainVersion: String?
+
     public init(
         status: PolymarketQuoteStatus,
         side: PolymarketOrderSide,
@@ -45,7 +49,10 @@ public struct PolymarketOrderQuote: Hashable, Sendable {
         minOrderSize: Decimal,
         minOrderAmount: Decimal?,
         tickSize: Decimal,
-        isLive: Bool
+        isLive: Bool,
+        version: PolymarketMarketVersion,
+        exchange: String?,
+        signingDomainVersion: String?
     ) {
         self.status = status
         self.side = side
@@ -61,6 +68,9 @@ public struct PolymarketOrderQuote: Hashable, Sendable {
         self.minOrderAmount = minOrderAmount
         self.tickSize = tickSize
         self.isLive = isLive
+        self.version = version
+        self.exchange = exchange
+        self.signingDomainVersion = signingDomainVersion
     }
 }
 

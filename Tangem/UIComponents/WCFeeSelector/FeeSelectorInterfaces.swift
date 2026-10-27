@@ -28,9 +28,7 @@ struct WCFeeSelectorFee {
 
 protocol WCFeeSelectorContentViewModelInput: AnyObject {
     var selectedSelectorFee: WCFeeSelectorFee? { get }
-    var selectedSelectorFeePublisher: AnyPublisher<WCFeeSelectorFee, Never> { get }
 
-    var selectorFees: [WCFeeSelectorFee] { get }
     var selectorFeesPublisher: AnyPublisher<LoadingResult<[WCFeeSelectorFee], Never>, Never> { get }
 }
 

@@ -37,11 +37,6 @@ final class MarketsSearchViewModel: ObservableObject {
     private var bag = Set<AnyCancellable>()
 
     private var currentSearchValue: String = ""
-    private var showItemsBelowCapThreshold: Bool = false
-
-    private var filterItemsBelowMarketCapThreshold: Bool {
-        isSearching && !showItemsBelowCapThreshold
-    }
 
     // MARK: - Init
 
@@ -77,7 +72,6 @@ final class MarketsSearchViewModel: ObservableObject {
             coordinator: coordinator
         )
 
-        marketsRatingHeaderViewModel.delegate = self
         bindChildViewModels()
 
         searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
@@ -96,20 +90,6 @@ final class MarketsSearchViewModel: ObservableObject {
 
     func onViewDisappear() {
         tokenListViewModel.pauseQuotesUpdates()
-    }
-
-    func onTryLoadList() {
-        tokenListViewModel.onTryLoadList()
-    }
-
-    func onSearchButtonAction() {
-        Analytics.log(.marketsTokenSearchedClicked)
-
-        isSearching = true
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.searchFieldAnimationDelay) {
-            self.headerViewModel.inputShouldBecomeFocused = true
-        }
     }
 }
 
@@ -222,17 +202,8 @@ private extension MarketsSearchViewModel {
     }
 }
 
-extension MarketsSearchViewModel: MarketsOrderHeaderViewModelOrderDelegate {
-    func orderActionButtonDidTap() {
-        coordinator?.openFilterOrderBottonSheet(with: filterProvider)
-    }
-}
-
 private extension MarketsSearchViewModel {
     enum Constants {
         static let filterRequiredReloadInterval: Set<MarketsListOrderType> = [.buyers, .gainers, .losers]
-
-        /// Need for smooth switching animation
-        static let searchFieldAnimationDelay: Double = 0.3
     }
 }

@@ -17,41 +17,12 @@ enum WalletModelState: Hashable, CustomStringConvertible {
     case noAccount(message: String, amountToCreate: Decimal)
     case failed(error: String)
 
-    var isLoading: Bool {
-        switch self {
-        case .loading, .created:
-            return true
-        default:
-            return false
-        }
-    }
-
     var isBlockchainUnreachable: Bool {
         switch self {
         case .failed:
             return true
         default:
             return false
-        }
-    }
-
-    var errorDescription: String? {
-        switch self {
-        case .failed(let localizedDescription):
-            return localizedDescription
-        case .noAccount(let message, _):
-            return message
-        default:
-            return nil
-        }
-    }
-
-    var failureDescription: String? {
-        switch self {
-        case .failed(let localizedDescription):
-            return localizedDescription
-        default:
-            return nil
         }
     }
 

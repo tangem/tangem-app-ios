@@ -240,7 +240,6 @@ private struct StubGeoEligibilityService: GeoEligibilityService {
     var isUK: Bool { false }
 
     func initialize() {}
-    func waitForGeoIpRegionIfNeeded() async {}
     func fetchGeoIpRegionCode() async -> String? { nil }
 }
 

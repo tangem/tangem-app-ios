@@ -199,8 +199,6 @@ final class YieldClaimIncentivesManagerStub: YieldIncentivesManager {
 }
 
 final class YieldClaimDispatcherStub: TransactionDispatcher {
-    var hasNFCInteraction: Bool { false }
-
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         throw YieldIncentivesTestError.network
     }
@@ -247,10 +245,6 @@ final class YieldClaimManagerStub: YieldModuleManager {
 
     var submittedTransactions: [BSDKTransaction] {
         lockedState.withLock { $0.submittedTransactions }
-    }
-
-    func setFeeResult(_ result: Result<YieldTransactionFee, Error>) {
-        lockedState.withLock { $0.feeResult = result }
     }
 
     func setTransactionResult(_ result: Result<BSDKTransaction, Error>) {

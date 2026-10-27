@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 public protocol IncomingURLValidator {
     func validate(_ url: URL) -> Bool
@@ -18,7 +19,7 @@ public struct CommonIncomingURLValidator {
 
 extension CommonIncomingURLValidator: IncomingURLValidator {
     public func validate(_ url: URL) -> Bool {
-        guard let scheme = url.scheme, let host = url.host?.lowercased() else {
+        guard let host = url.host?.lowercased() else {
             return false
         }
 
@@ -26,7 +27,7 @@ extension CommonIncomingURLValidator: IncomingURLValidator {
             return true
         }
 
-        guard scheme == "https" else {
+        guard url.isHTTPS else {
             return false
         }
 

@@ -104,18 +104,7 @@ extension JointAccountsNetworkMapper {
     }
 
     func mapToOperation(from dto: JointAccountsDTO.Response.Operation) throws -> JointAccountOperation {
-        let signatures = dto.votes?.map(mapToSignature(from:)) ?? []
-        let safeTransaction = try mapToSafeTransaction(from: dto.safeTx)
-        let status = mapStatus(from: dto.status)
-
-        return JointAccountOperation(
-            id: dto.operationId,
-            chainId: dto.chainId,
-            safeTransaction: safeTransaction,
-            status: status,
-            initiator: dto.initiator,
-            signatures: signatures
-        )
+        try mapToOperation(from: dto, txHash: nil)
     }
 
     func mapToSignature(from dto: JointAccountsDTO.Response.Operation.Vote) -> JointAccountOperation.Signature {
@@ -145,9 +134,139 @@ extension JointAccountsNetworkMapper {
     }
 }
 
+// MARK: - Operations history
+
+extension JointAccountsNetworkMapper {
+    func mapToHistoryPage(from response: JointAccountsDTO.Response.OperationsHistory) -> JointOperationsHistoryPage {
+        JointOperationsHistoryPage(
+            items: mapToHistoryItems(from: response.items),
+            nextCursor: response.pagination.endCursor,
+            startDeltaCursor: response.pagination.startDeltaCursor,
+            hasMore: response.pagination.hasMore
+        )
+    }
+
+    func mapToHistoryPage(from response: JointAccountsDTO.Response.OperationsHistoryDelta) -> JointOperationsHistoryPage {
+        JointOperationsHistoryPage(
+            items: mapToHistoryItems(from: response.items),
+            nextCursor: response.pagination.startCursor,
+            startDeltaCursor: nil,
+            hasMore: response.pagination.hasMore
+        )
+    }
+
+    func mapToHistoryItem(from dto: JointAccountsDTO.Response.HistoryOperation) throws -> JointOperationHistoryItem {
+        let operation = try mapToOperation(from: dto.operation, txHash: dto.txHash?.lowercased())
+        let createdAt = try date(dto.operation.createdAt, field: "createdAt")
+        let finishedAt = try dto.finishedAt.map { try date($0, field: "finishedAt") }
+
+        return JointOperationHistoryItem(
+            operation: operation,
+            cryptoAccountId: dto.cryptoAccountId,
+            safeAddress: dto.safeAddress.lowercased(),
+            createdAt: createdAt,
+            finishedAt: finishedAt,
+            threshold: dto.operation.threshold,
+            cancelReason: mapCancelReason(from: dto.cancelReason, operationId: dto.operation.operationId)
+        )
+    }
+}
+
+// MARK: - Refusals
+
+extension JointAccountsNetworkMapper {
+    func mapToRefusal(from error: TangemAPIError) -> JointOperationRefusal? {
+        guard error.code == .badRequest, let reasonCode = error.reasonCode else {
+            return nil
+        }
+
+        switch reasonCode {
+        case "UNSUPPORTED_CHAIN":
+            return .unsupportedChain
+        case "NONCE_MISMATCH":
+            return .nonceMismatch
+        case "INVALID_BASE_GAS":
+            return .invalidBaseGas
+        case "GAS_PRICE_TOO_LOW":
+            return .gasPriceTooLow
+        case "GAS_PRICE_TOO_HIGH":
+            return .gasPriceTooHigh
+        case "GAS_TOKEN_NOT_ALLOWED":
+            return .gasTokenNotAllowed
+        case "INVALID_REFUND_RECEIVER":
+            return .invalidRefundReceiver
+        case "INVALID_SAFE_OPERATION":
+            return .invalidSafeOperation
+        case "INVALID_SAFE_ADDRESS":
+            return .invalidSafeAddress
+        default:
+            return .unknown(reasonCode)
+        }
+    }
+}
+
 // MARK: - Private
 
 private extension JointAccountsNetworkMapper {
+    static let dateFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    static let dateFallbackFormatter = ISO8601DateFormatter()
+
+    func mapToOperation(from dto: JointAccountsDTO.Response.Operation, txHash: String?) throws -> JointAccountOperation {
+        let signatures = dto.votes?.map(mapToSignature(from:)) ?? []
+        let safeTransaction = try mapToSafeTransaction(from: dto.safeTx)
+        let status = mapStatus(from: dto.status)
+
+        return JointAccountOperation(
+            id: dto.operationId,
+            chainId: dto.chainId,
+            safeTransaction: safeTransaction,
+            status: status,
+            txHash: txHash,
+            initiator: dto.initiator,
+            signatures: signatures
+        )
+    }
+
+    func mapToHistoryItems(from dtos: [JointAccountsDTO.Response.HistoryOperation]) -> [JointOperationHistoryItem] {
+        dtos.compactMap { dto in
+            do {
+                return try mapToHistoryItem(from: dto)
+            } catch {
+                JointAccountsLogger.warning("Skipping the joint operation '\(dto.operation.operationId)' of the history: \(error)")
+                return nil
+            }
+        }
+    }
+
+    func mapCancelReason(from rawValue: String?, operationId: String) -> JointOperationCancelReason? {
+        guard let rawValue else {
+            return nil
+        }
+
+        switch rawValue {
+        case "initiator":
+            return .initiator
+        case "threshold":
+            return .threshold
+        default:
+            JointAccountsLogger.warning("The joint operation '\(operationId)' was cancelled for a reason this version has never heard of: \(rawValue)")
+            return nil
+        }
+    }
+
+    func date(_ string: String, field: String) throws -> Date {
+        guard let date = Self.dateFormatter.date(from: string) ?? Self.dateFallbackFormatter.date(from: string) else {
+            throw JointAccountsNetworkMapperError.malformedOperation(field: field)
+        }
+
+        return date
+    }
+
     func mapStatus(from dto: JointAccountsDTO.Response.JointAccount) throws -> JointAccountStatus {
         switch dto.status {
         case .pending:

@@ -37,10 +37,6 @@ final class WelcomeVideoBackgroundViewModel: ObservableObject {
         player?.play()
     }
 
-    func pause() {
-        player?.pause()
-    }
-
     func stop() {
         player?.pause()
 

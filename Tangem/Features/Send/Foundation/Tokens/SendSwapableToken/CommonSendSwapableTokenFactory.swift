@@ -26,10 +26,6 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
         let sourceToken = sourceTokenFactory.makeSourceToken()
 
         let sendingRestrictionsProvider = WalletModelSendingRestrictionsProvider(walletModel: walletModel)
-        let receivingRestrictionsProvider = WalletModelReceivingRestrictionsProvider(
-            userWalletInfo: userWalletInfo,
-            walletModel: walletModel
-        )
 
         let swapTokenFeeProvidersManagerProvider = WalletModelTokenFeeProvidersManagerProvider(
             walletModel: walletModel,
@@ -75,7 +71,6 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
             isExemptFee: false,
             swapAvailabilityProvider: swapAvailabilityProvider,
             sendingRestrictionsProvider: sendingRestrictionsProvider,
-            receivingRestrictionsProvider: receivingRestrictionsProvider,
             tokenFeeProvidersManagerProvider: swapTokenFeeProvidersManagerProvider,
             tokenFeeProvidersManager: transferTokenFeeProvidersManager,
             transactionValidator: transactionValidator,
@@ -115,8 +110,7 @@ private extension CommonSendSwapableTokenFactory {
             yieldContractAddress: yieldContractAddress,
             currency: walletModel.tokenItem.expressCurrency,
             swapExecutionRegistryProvider: walletModel.yieldModuleManager?.swapExecutionRegistryProvider,
-            yieldModuleUpgradeHandler: makeYieldModuleUpgradeHandler(),
-            isTransferDetectionAvailable: FeatureProvider.isAvailable(.yieldDexTransferDetection)
+            yieldModuleUpgradeHandler: makeYieldModuleUpgradeHandler()
         )
     }
 

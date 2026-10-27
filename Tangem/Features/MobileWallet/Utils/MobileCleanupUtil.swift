@@ -12,9 +12,9 @@ import TangemMobileWalletBackup
 import TangemMobileWalletSdk
 
 enum MobileCleanupUtil {
-    static func clean(walletId: UserWalletId, mobileWalletInfo: MobileWalletInfo) {
+    static func cleanAfterUpgrade(walletId: UserWalletId, mobileWalletInfo: MobileWalletInfo) {
         cleanMobileWallet(walletId: walletId)
-        cleanBackup(walletId: walletId, mobileWalletInfo: mobileWalletInfo)
+        cleanBackupAfterUpgrade(walletId: walletId, mobileWalletInfo: mobileWalletInfo)
     }
 
     static func cleanMobileWallet(walletId: UserWalletId) {
@@ -26,11 +26,11 @@ enum MobileCleanupUtil {
         }
     }
 
-    static func cleanBackup(walletId: UserWalletId, mobileWalletInfo: MobileWalletInfo) {
+    static func cleanBackupAfterUpgrade(walletId: UserWalletId, mobileWalletInfo: MobileWalletInfo) {
         let analyticsContextData = mobileWalletInfo.analyticsContextData
 
         if mobileWalletInfo.hasSocialLogin {
-            cleanSocialBackup(walletId: walletId, analyticsContextData: analyticsContextData)
+            cleanSocialBackupAfterUpgrade(walletId: walletId, analyticsContextData: analyticsContextData)
         } else {
             cleanICloudBackup(walletId: walletId, analyticsContextData: analyticsContextData)
         }
@@ -45,13 +45,9 @@ enum MobileCleanupUtil {
         }
     }
 
-    static func cleanSocialBackup(walletId: UserWalletId, analyticsContextData: AnalyticsContextData) {
-        runTask(isDetached: true) {
-            await deleteSocialBackup(
-                walletId: walletId,
-                analyticsContextData: analyticsContextData
-            )
-        }
+    static func deleteSocialBackup(walletId: UserWalletId) async throws {
+        let backupManager = CommonMobileWalletSocialBackupManager(destination: .iCloud)
+        try await backupManager.deleteBackup(userWalletId: walletId)
     }
 }
 
@@ -69,13 +65,15 @@ private extension MobileCleanupUtil {
         }
     }
 
-    static func deleteSocialBackup(walletId: UserWalletId, analyticsContextData: AnalyticsContextData) async {
-        do {
-            let backupManager = CommonMobileWalletSocialBackupManager(destination: .iCloud)
-            try await backupManager.deleteBackup(userWalletId: walletId)
-            logSocialRecoveryDeletedAnalytics(analyticsContextData: analyticsContextData)
-        } catch {
-            AppLogger.error("Failed to delete the social backup:", error: error)
+    static func cleanSocialBackupAfterUpgrade(walletId: UserWalletId, analyticsContextData: AnalyticsContextData) {
+        runTask(isDetached: true) {
+            do {
+                try await deleteSocialBackup(walletId: walletId)
+                logSocialRecoveryDeletedAnalytics(analyticsContextData: analyticsContextData)
+            } catch {
+                AppLogger.error("Failed to delete the social backup:", error: error)
+                logSocialRecoveryDeletionErrorAnalytics(error: error, analyticsContextData: analyticsContextData)
+            }
         }
     }
 }
@@ -100,5 +98,16 @@ private extension MobileCleanupUtil {
 
     static func logSocialRecoveryDeletedAnalytics(analyticsContextData: AnalyticsContextData) {
         Analytics.log(.walletSettingsSocialRecoveryDeleted, contextParams: .custom(analyticsContextData))
+    }
+
+    static func logSocialRecoveryDeletionErrorAnalytics(
+        error: Error,
+        analyticsContextData: AnalyticsContextData
+    ) {
+        Analytics.log(
+            event: .walletSettingsSocialRecoveryDeletionError,
+            params: MobileBackupStatusUtil.errorAnalyticsParams(error),
+            contextParams: .custom(analyticsContextData)
+        )
     }
 }

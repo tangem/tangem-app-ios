@@ -19,9 +19,6 @@ protocol TangemPayNoDepositAddressSheetRoutable: AnyObject {
 final class TangemPayNoDepositAddressSheetViewModel: FloatingSheetContentViewModel {
     nonisolated var id: String { String(describing: Self.self) }
 
-    let title = Localization.tangempayServiceUnavailableTitle
-    let subtitle = Localization.tangempayCardDetailsReceiveErrorDescription
-
     private weak var coordinator: TangemPayNoDepositAddressSheetRoutable?
 
     init(coordinator: TangemPayNoDepositAddressSheetRoutable) {
@@ -30,15 +27,6 @@ final class TangemPayNoDepositAddressSheetViewModel: FloatingSheetContentViewMod
 
     func close() {
         coordinator?.closeNoDepositAddressSheet()
-    }
-
-    var primaryButtonSettings: MainButton.Settings {
-        MainButton.Settings(
-            title: Localization.commonGotIt,
-            style: .secondary,
-            size: .default,
-            action: close
-        )
     }
 }
 

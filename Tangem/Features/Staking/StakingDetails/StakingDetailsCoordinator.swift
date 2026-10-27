@@ -205,8 +205,4 @@ extension StakingDetailsCoordinator: TokenScreenDeeplinkRoutable {
         coordinator.start(with: .init(type: .onramp(sourceToken, parameters: parameters), source: .stakingDetails))
         sendCoordinator = coordinator
     }
-
-    func openInSafari(url: URL) {
-        safariManager.openURL(url)
-    }
 }

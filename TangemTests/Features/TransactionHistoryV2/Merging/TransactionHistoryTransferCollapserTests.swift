@@ -225,6 +225,20 @@ struct TransactionHistoryTransferCollapserTests {
         #expect(collapsed.filter(\.isEnriched).count == 1)
     }
 
+    @Test("A folded row keeps the deal its transfers were claimed for")
+    func aFoldedRowKeepsItsDeal() throws {
+        let info = TransactionHistoryExpressExtraInfo.exchange(makeExchangeInfo(txId: "deal"))
+
+        let collapsed = makeCollapser().collapse([
+            transfer(index: 0, from: Self.owner, to: Self.pool, amount: 1).withExpressExtraInfo(info),
+            transfer(index: 1, from: Self.owner, to: Self.pool, amount: 1).withExpressExtraInfo(info),
+        ])
+
+        let record = try #require(collapsed.singleElement)
+        #expect(record.isFolded)
+        #expect(record.historyExtraInfo == .express(info))
+    }
+
     @Test("A lone transfer is passed through untouched")
     func aLoneTransferIsUntouched() {
         let records = [transfer(index: 0, from: Self.owner, to: Self.pool, amount: 1)]

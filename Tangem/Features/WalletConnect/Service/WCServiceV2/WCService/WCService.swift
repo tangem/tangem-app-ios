@@ -25,7 +25,4 @@ protocol WCService: IncomingActionResponder {
     func updateSession(withTopic topic: String, namespaces: [String: SessionNamespace]) async throws
     func emitEvent(_ event: Session.Event, on blockchain: BlockchainSdk.Blockchain)
     func emitChainChanged(to blockchain: BlockchainSdk.Blockchain, topic: String) async
-
-    func disconnectAllSessionsForUserWallet(with userWalletId: String)
-    func handleHiddenBlockchainFromCurrentUserWallet(_ blockchain: BlockchainSdk.Blockchain)
 }

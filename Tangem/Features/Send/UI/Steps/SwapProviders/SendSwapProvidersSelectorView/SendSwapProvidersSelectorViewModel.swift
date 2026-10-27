@@ -45,10 +45,10 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
     private weak var router: SendSwapProvidersRoutable?
     private weak var approveInput: SwapApproveInput?
     private weak var approveOutput: SwapApproveOutput?
+    private weak var sourceTokenInput: SendSourceTokenInput?
     private weak var receiveTokenInput: SendReceiveTokenInput?
     private weak var receiveTokenAmountInput: SendReceiveTokenAmountInput?
 
-    private let tokenItem: TokenItem
     private let expressProviderFormatter: ExpressProviderFormatter
     private let priceChangeFormatter: PriceChangeFormatter
     private let analyticsLogger: SendSwapProvidersAnalyticsLogger
@@ -61,9 +61,9 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
         router: SendSwapProvidersRoutable,
         approveInput: SwapApproveInput,
         approveOutput: SwapApproveOutput,
+        sourceTokenInput: SendSourceTokenInput,
         receiveTokenInput: SendReceiveTokenInput,
         receiveTokenAmountInput: SendReceiveTokenAmountInput?,
-        tokenItem: TokenItem,
         expressProviderFormatter: ExpressProviderFormatter,
         priceChangeFormatter: PriceChangeFormatter,
         analyticsLogger: SendSwapProvidersAnalyticsLogger
@@ -73,9 +73,9 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
         self.router = router
         self.approveInput = approveInput
         self.approveOutput = approveOutput
+        self.sourceTokenInput = sourceTokenInput
         self.receiveTokenInput = receiveTokenInput
         self.receiveTokenAmountInput = receiveTokenAmountInput
-        self.tokenItem = tokenItem
         self.expressProviderFormatter = expressProviderFormatter
         self.priceChangeFormatter = priceChangeFormatter
         self.analyticsLogger = analyticsLogger
@@ -124,10 +124,14 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
 extension SendSwapProvidersSelectorViewModel {
     @MainActor
     func openApprove() {
+        guard let sourceToken = sourceTokenInput?.sourceToken.value else {
+            return
+        }
+
         selectedApprovePolicy = approveInput?.approvePolicy ?? .specified
 
         let menuViewModel = DefaultMenuRowViewModel<BSDKApprovePolicy>(
-            title: Localization.givePermissionRowsAmount(tokenItem.currencySymbol),
+            title: Localization.givePermissionRowsAmount(sourceToken.tokenItem.currencySymbol),
             actions: [.unlimited, .specified]
         )
 
@@ -232,7 +236,7 @@ private extension SendSwapProvidersSelectorViewModel {
         subtitles.append(
             expressProviderFormatter.mapToRateSubtitle(
                 state: state,
-                senderTokenItem: tokenItem,
+                senderTokenItem: sourceTokenInput?.sourceToken.value?.tokenItem,
                 destinationTokenItem: destinationTokenItem,
                 option: .exchangeReceivedAmount
             )

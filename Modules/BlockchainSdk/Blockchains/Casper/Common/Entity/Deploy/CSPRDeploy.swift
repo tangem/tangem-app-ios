@@ -52,12 +52,6 @@ class CSPRDeploy {
     }
 }
 
-class CSPRNamedArgJson: Codable {
-    var clType: String
-    var bytes: String
-    var parsed: String
-}
-
 /*
  Class for DeployApprovalItem object
  */

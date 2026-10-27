@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 
 public struct PolymarketNoActivePositionsView: View {
@@ -50,9 +51,8 @@ public struct PolymarketNoActivePositionsView: View {
 
 private extension PolymarketNoActivePositionsView {
     enum Constants {
-        // [REDACTED_TODO_COMMENT]
-        static let title = "You don't have active predictions"
-        static let subtitle = "Explore new events"
+        static let title = Localization.predictionMainEmptyPositionsTitle
+        static let subtitle = Localization.predictionMainEmptyPositionsSubtitle
         static let spacing: CGFloat = 16
         static let verticalPadding: CGFloat = 24
         static let cornerRadius: CGFloat = 24

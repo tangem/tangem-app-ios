@@ -24,6 +24,7 @@ enum WalletConnectTransactionRequestProcessingError: LocalizedError {
     case missingGasLoader
     case eraseMultipleTransactions
     case accountNotFound
+    case forbiddenTypedData(WCEthTypedDataValidator.ValidationError)
 
     var errorDescription: String? {
         switch self {
@@ -68,6 +69,9 @@ enum WalletConnectTransactionRequestProcessingError: LocalizedError {
 
         case .accountNotFound:
             "Account not found."
+
+        case .forbiddenTypedData(let error):
+            "Typed data is not allowed to be signed: \(error)"
         }
     }
 }

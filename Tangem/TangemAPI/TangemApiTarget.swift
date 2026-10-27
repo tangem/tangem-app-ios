@@ -67,7 +67,10 @@ struct TangemApiTarget: TargetType {
              .activateJointAccount,
              .createJointAccountOperation,
              .signJointAccountOperation,
-             .rejectJointAccountOperation:
+             .rejectJointAccountOperation,
+             .getJointOperationsHistory,
+             .getJointOperationsHistoryDelta,
+             .getJointOperation:
             // The joint accounts contract documents these as `/api/v1/wallets/{walletId}/joint-accounts...`, unlike
             // the plain `/v1/wallets/{walletId}/accounts` it describes beside them, so only these carry the segment
             AppEnvironment.current.apiBaseUrlWithGatewaySegment
@@ -221,6 +224,12 @@ struct TangemApiTarget: TargetType {
             return "/wallets/\(walletId)/joint-accounts/operations/\(operationId)/sign"
         case .rejectJointAccountOperation(let walletId, let operationId):
             return "/wallets/\(walletId)/joint-accounts/operations/\(operationId)/reject"
+        case .getJointOperationsHistory(let walletId, _):
+            return "/wallets/\(walletId)/joint-accounts/operations/history"
+        case .getJointOperationsHistoryDelta(let walletId, _):
+            return "/wallets/\(walletId)/joint-accounts/operations/history/delta"
+        case .getJointOperation(let walletId, let operationId, _):
+            return "/wallets/\(walletId)/joint-accounts/operations/\(operationId)"
 
         // MARK: - Address Book
         case .syncAddressBooks:
@@ -278,6 +287,9 @@ struct TangemApiTarget: TargetType {
              .getArchivedUserAccounts,
              .getJointAccounts,
              .getJointAccountInvite,
+             .getJointOperationsHistory,
+             .getJointOperationsHistoryDelta,
+             .getJointOperation,
              .getUserWallets,
              .getUserWallet,
              .getWalletCards,
@@ -451,6 +463,12 @@ struct TangemApiTarget: TargetType {
         // MARK: - Joint accounts
         case .getJointAccounts, .getJointAccountInvite:
             return .requestPlain
+        case .getJointOperationsHistory(_, let request):
+            return .requestParameters(request)
+        case .getJointOperationsHistoryDelta(_, let request):
+            return .requestParameters(request)
+        case .getJointOperation:
+            return .requestPlain
         case .createJointAccount(_, let body):
             return .requestJSONEncodable(body)
         case .joinJointAccount(_, let body):
@@ -502,6 +520,8 @@ struct TangemApiTarget: TargetType {
         case .getJointAccounts(_, let knownETag):
             // The tag of the last answer, so that an unchanged list comes back as a 304 with no body rather than
             // being read in full once a minute. Opaque: whatever the endpoint issued is sent back as it was
+            return knownETag.map { [TangemAPIHeaders.ifNoneMatch.rawValue: $0] }
+        case .getJointOperation(_, _, let knownETag):
             return knownETag.map { [TangemAPIHeaders.ifNoneMatch.rawValue: $0] }
         case .saveUserWalletTokensV2(_, _, let revision):
             // The accounts ETag, the same lock `saveUserAccounts` carries: a joint account's token list is one list
@@ -562,6 +582,8 @@ struct TangemApiTarget: TargetType {
              .createJointAccountOperation,
              .signJointAccountOperation,
              .rejectJointAccountOperation,
+             .getJointOperationsHistory,
+             .getJointOperationsHistoryDelta,
              .createWallet,
              .getNotificationPreferences,
              .updateNotificationPreferences,
@@ -692,6 +714,9 @@ extension TangemApiTarget {
         case createJointAccountOperation(walletId: String, body: JointAccountsDTO.Request.CreateOperation)
         case signJointAccountOperation(walletId: String, operationId: String, body: JointAccountsDTO.Request.SignOperation)
         case rejectJointAccountOperation(walletId: String, operationId: String)
+        case getJointOperationsHistory(walletId: String, request: JointAccountsDTO.Request.OperationsHistory)
+        case getJointOperationsHistoryDelta(walletId: String, request: JointAccountsDTO.Request.OperationsHistoryDelta)
+        case getJointOperation(walletId: String, operationId: String, knownETag: String?)
 
         // Address Book
         case syncAddressBooks(_ request: AddressBookDTO.SyncRequest)
@@ -709,7 +734,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .coinsCategories, .coinsGeckoCategories, .marketIndicators, .tokenMarketsDetails, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns, .getJointAccounts, .getJointAccountInvite, .stories:
+        case .geo, .features, .apiList, .quotes, .coinsList, .coinsCategories, .coinsGeckoCategories, .marketIndicators, .tokenMarketsDetails, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns, .getJointAccounts, .getJointAccountInvite, .getJointOperationsHistory, .getJointOperationsHistoryDelta, .getJointOperation, .stories:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -724,6 +749,10 @@ extension TangemApiTarget: TargetTypeLogConvertible {
             // An invite is the account's access secret, and the path is logged for every request — unlike the body,
             // which this endpoint already withholds
             return path.replacingOccurrences(of: inviteId, with: inviteId.masked())
+        case .getJointOperationsHistory(let walletId, _),
+             .getJointOperationsHistoryDelta(let walletId, _),
+             .getJointOperation(let walletId, _, _):
+            return path.replacingOccurrences(of: walletId, with: "{walletId}")
         default:
             return path
         }
@@ -776,6 +805,9 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .createJointAccountOperation,
              .signJointAccountOperation,
              .rejectJointAccountOperation,
+             .getJointOperationsHistory,
+             .getJointOperationsHistoryDelta,
+             .getJointOperation,
              .promoCampaignEnrollment:
             return false
         case .geo,

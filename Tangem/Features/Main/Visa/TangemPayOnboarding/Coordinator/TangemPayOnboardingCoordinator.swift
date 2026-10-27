@@ -149,10 +149,6 @@ extension TangemPayOnboardingCoordinator: TangemPayOnboardingRoutable {
     }
 
     private func prefetchCountriesIfNeeded() {
-        guard FeatureProvider.isAvailable(.tangemPayChooseCountry) else {
-            return
-        }
-
         geoStore.loadCountries()
     }
 

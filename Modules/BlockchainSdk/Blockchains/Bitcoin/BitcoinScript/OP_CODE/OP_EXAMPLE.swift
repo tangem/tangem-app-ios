@@ -27,5 +27,4 @@ import Foundation
 /// This class should be removed when all OP_CODEs are implemented
 class OpExample: OpCodeProtocol {
     var value: UInt8 { return 0x00 }
-    var name: String { return "OP_EXAMPLE" }
 }

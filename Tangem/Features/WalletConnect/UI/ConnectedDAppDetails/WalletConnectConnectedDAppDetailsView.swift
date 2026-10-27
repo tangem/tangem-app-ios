@@ -41,7 +41,7 @@ struct WalletConnectConnectedDAppDetailsView: View {
         .coordinateSpace(name: Layout.scrollViewCoordinateSpace)
         .animation(.contentFrameUpdate, value: viewModel.state)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = Colors.Background.tertiary
+            configuration.sheetBackground = .color(Colors.Background.tertiary)
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }

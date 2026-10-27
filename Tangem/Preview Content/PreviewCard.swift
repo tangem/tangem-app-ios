@@ -48,37 +48,11 @@ enum PreviewCard {
         }
     }
 
-    var blockchain: Blockchain? {
-        switch self {
-        case .ethereum:
-            return .ethereum(testnet: false)
-        case .stellar:
-            return .stellar(curve: .ed25519_slip0010, testnet: false)
-        case .cardanoNote:
-            return .cardano(extended: false)
-        default:
-            return nil
-        }
-    }
-
-    var blockchainNetwork: BlockchainNetwork? {
-        blockchain.map { BlockchainNetwork($0, derivationPath: nil) }
-    }
-
     var publicKey: Data {
         // [REDACTED_TODO_COMMENT]
         switch self {
         default:
             return Data(count: 32)
-        }
-    }
-
-    var isNote: Bool {
-        switch self {
-        case .cardanoNote, .ethEmptyNote, .cardanoNoteEmptyWallet:
-            return true
-        default:
-            return false
         }
     }
 

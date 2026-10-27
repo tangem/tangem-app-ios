@@ -66,10 +66,6 @@ class AppSettingsViewModel: ObservableObject {
         hasProtectedWallets && useBiometricAuthentication
     }
 
-    private var showingBiometryWarning: Bool {
-        warningViewModel != nil
-    }
-
     init(coordinator: AppSettingsRoutable) {
         self.coordinator = coordinator
 
@@ -363,14 +359,6 @@ private extension AppSettingsViewModel {
 
     func openThemeSelection() {
         coordinator?.openThemeSelection()
-    }
-
-    func openTokenSynchronization() {
-        coordinator?.openTokenSynchronization()
-    }
-
-    func openResetSavedCards() {
-        coordinator?.openResetSavedCards()
     }
 
     func openBiometrySettings() {

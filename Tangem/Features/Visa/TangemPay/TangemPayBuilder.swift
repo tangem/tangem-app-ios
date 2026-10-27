@@ -53,18 +53,25 @@ final class TangemPayBuilder {
         signerFactory: signerFactory
     )
 
-    private lazy var transactionDispatcherFactory: (TangemPayWithdrawEligibility) -> TransactionDispatcher = { [tangemPayAssembly, withdrawTransactionService, signerFactory, walletPublicKey = TangemPayUtilities.getKey(from: keysRepository)] withdrawEligibility in
+    private lazy var withdrawExchangeSender = TangemPayWithdrawExchangeSender(
+        userWalletId: userWalletId,
+        customerService: customerService
+    )
+
+    private lazy var transactionDispatcherFactory: (TangemPayAccountToken) -> TransactionDispatcher = { [tangemPayAssembly, userWalletId, withdrawTransactionService, signerFactory, walletPublicKey = TangemPayUtilities.getKey(from: keysRepository)] accountToken in
         tangemPayAssembly.makeTransactionDispatcher(
+            userWalletId: userWalletId,
             withdrawTransactionService: withdrawTransactionService,
             signerFactory: signerFactory,
             walletPublicKey: walletPublicKey,
-            withdrawEligibility: withdrawEligibility
+            accountToken: accountToken
         )
     }
 
     private lazy var offrampOrderSigner = CommonTangemPayOfframpOrderSigner(
         signerFactory: signerFactory,
-        walletPublicKey: TangemPayUtilities.getKey(from: keysRepository)
+        walletPublicKey: TangemPayUtilities.getKey(from: keysRepository),
+        balancesService: balancesService
     )
 
     private lazy var withdrawAvailabilityProvider = TangemPayWithdrawAvailabilityProvider(
@@ -95,7 +102,6 @@ final class TangemPayBuilder {
         TangemPayManager(
             userWalletId: userWalletId,
             keysRepository: keysRepository,
-            availabilityService: availabilityService,
             authorizationService: authorizationService,
             customerService: customerService,
             enrollmentStateFetcher: enrollmentStateFetcher,
@@ -108,6 +114,7 @@ final class TangemPayBuilder {
             cashbackCacheStorage: AppSettings.shared,
             residencyStatusStorage: AppSettings.shared,
             waitlistService: waitlistService,
+            withdrawExchangeSender: withdrawExchangeSender,
             tangemPayAccountBuilder: self
         )
     }

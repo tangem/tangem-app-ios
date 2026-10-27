@@ -34,21 +34,18 @@ final class MainNotificationsViewModel: ObservableObject {
     @Published private var tangemPayPromoItems: [NotificationBannerItem] = []
     @Published private var visibility: MainPromotionalVisibility
 
-    private let isEnabled: Bool
     private let tangemPayPromoManager: NotificationManager?
     private let bannerMapper = MultiWalletNotificationBannerMapper()
     private var allowedVisibility: MainPromotionalVisibility = .all
     private var bag = Set<AnyCancellable>()
 
     init(
-        isEnabled: Bool,
         promotionNotificationsManager: PromotionNotificationsManager,
         systemBannerItemsProvider: NotificationBannerItemsProvider,
         tangemPayPromoManager: NotificationManager?
     ) {
-        self.isEnabled = isEnabled
         self.tangemPayPromoManager = tangemPayPromoManager
-        visibility = isEnabled ? .hidden : .all
+        visibility = .hidden
         promotionNotificationsViewModel = PromotionNotificationsViewModel(promotionNotificationsManager: promotionNotificationsManager)
 
         bindSections(systemBannerItemsProvider: systemBannerItemsProvider, tangemPayPromoManager: tangemPayPromoManager)
@@ -58,8 +55,6 @@ final class MainNotificationsViewModel: ObservableObject {
         allowedVisibilityPublisher: AnyPublisher<MainPromotionalVisibility, Never>,
         balanceProvider: TotalBalanceProvider
     ) {
-        guard isEnabled else { return }
-
         allowedVisibilityPublisher
             .receiveOnMain()
             .sink { [weak self] allowedVisibility in
@@ -90,8 +85,6 @@ final class MainNotificationsViewModel: ObservableObject {
     }
 
     func refresh() {
-        guard isEnabled else { return }
-
         setVisibility(allowedVisibility)
     }
 }

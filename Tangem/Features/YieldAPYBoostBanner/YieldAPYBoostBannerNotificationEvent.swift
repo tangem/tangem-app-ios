@@ -23,7 +23,7 @@ struct YieldAPYBoostBannerNotificationEvent: NotificationEvent, Hashable {
                 + " " + AppConstants.dotSign + " "
                 + Localization.yieldApyBoostBannerTitleApyMultiplied
         )
-        redesignTitle.setFontStyle(Font.Tangem.Body15.semibold)
+        redesignTitle.setFontStyle(DesignSystem.Font.subheadingMediumToken)
         return .attributed(redesignTitle)
     }
 

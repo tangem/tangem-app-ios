@@ -19,7 +19,7 @@ final class CollectiblesPrizePoolViewModel: ObservableObject {
 
     private var prizes: [CollectiblesPrize] = []
     private var nextPage: Int?
-    private var loadingTask: Task<Void, Error>?
+    private var loadingTask: Task<Void, Never>?
 
     // MARK: - Publishers
 
@@ -89,17 +89,19 @@ extension CollectiblesPrizePoolViewModel {
 
 private extension CollectiblesPrizePoolViewModel {
     func fetch(page: Int) {
-        loadingTask = runTask(in: self) { @MainActor viewModel in
+        loadingTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+
             do {
-                let loaded = try await viewModel.provider.load(machineID: viewModel.machineID, page: page)
+                let loaded = try await provider.load(machineID: machineID, page: page)
                 try Task.checkCancellation()
-                viewModel.loadingTask = nil
-                viewModel.apply(loaded, requestedPage: page)
+                loadingTask = nil
+                apply(loaded, requestedPage: page)
             } catch is CancellationError {
                 return
             } catch {
-                viewModel.loadingTask = nil
-                viewModel.fail()
+                loadingTask = nil
+                fail()
             }
         }
     }

@@ -9,8 +9,6 @@
 import Foundation
 
 protocol ChiaCondition {
-    var conditionCode: Int64 { get set }
-
     func toProgram() -> ClvmProgram
 }
 

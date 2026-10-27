@@ -17,8 +17,6 @@ struct StakingTargetView: View {
     private let data: StakingTargetViewData
     private let selection: Binding<String>?
 
-    private var namespace: Namespace?
-
     init(data: StakingTargetViewData, selection: Binding<String>? = nil) {
         self.data = data
         self.selection = selection
@@ -124,11 +122,7 @@ struct StakingTargetView: View {
 
 // MARK: - Setupable
 
-extension StakingTargetView: Setupable {
-    func geometryEffect(_ namespace: Namespace) -> Self {
-        map { $0.namespace = namespace }
-    }
-}
+extension StakingTargetView: Setupable {}
 
 #Preview("SelectableValidatorView") {
     struct StakingValidatorPreview: View {

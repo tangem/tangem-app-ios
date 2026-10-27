@@ -14,9 +14,7 @@ final class RealAssetsSearchViewModel: ObservableObject {
     @Published private(set) var query: String = ""
     @Published private(set) var portfolio: MarketsPortfolioTokenListViewModel?
     @Published private(set) var assets: AssetsState = .loading
-    @Published private var isVisible = false
 
-    private let history: FeedSearchHistoryProvider
     private let assetsProvider: any FeedSearchProvider<MarketsTokenModel>
     private let router: any RealAssetsFeedRoutable
     private let portfolioProvider: FeedSearchPortfolioProvider
@@ -27,18 +25,17 @@ final class RealAssetsSearchViewModel: ObservableObject {
     private var visibleResultIDs: Set<String> = []
 
     private var tokens: [MarketsTokenModel] = []
+    private var isVisible = false
     private var requestedQuery: String?
     private var loadedQuery: String?
     private var bag = Set<AnyCancellable>()
 
     init(
         query: AnyPublisher<String, Never>,
-        history: FeedSearchHistoryProvider,
         router: any RealAssetsFeedRoutable,
-        assetsProvider: any FeedSearchProvider<MarketsTokenModel> = RealAssetsFeedSearchProvider(),
-        portfolioProvider: FeedSearchPortfolioProvider = FeedSearchPortfolioProvider()
+        portfolioProvider: FeedSearchPortfolioProvider,
+        assetsProvider: any FeedSearchProvider<MarketsTokenModel> = RealAssetsFeedSearchProvider()
     ) {
-        self.history = history
         self.router = router
         self.portfolioProvider = portfolioProvider
         self.assetsProvider = assetsProvider
@@ -121,9 +118,7 @@ private extension RealAssetsSearchViewModel {
             .store(in: &bag)
 
         portfolioProvider
-            .portfolioPublisher(query: $query, isVisible: $isVisible) { [weak self] walletModel in
-                self?.router.openPortfolioToken(walletModel)
-            }
+            .portfolioPublisher
             .withWeakCaptureOf(self)
             .sink { viewModel, portfolio in
                 viewModel.portfolio = portfolio
@@ -234,7 +229,6 @@ private extension RealAssetsSearchViewModel {
             guard let self else { return }
 
             let model = tokens.first { $0.id == model.id } ?? model
-            history.save(query: query)
 
             Analytics.log(
                 event: .marketsChartScreenOpened,

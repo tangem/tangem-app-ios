@@ -10,7 +10,6 @@ import Foundation
 import Combine
 
 protocol ForceUpdateService: AnyObject {
-    var state: ForceUpdateState { get }
     var statePublisher: AnyPublisher<ForceUpdateState, Never> { get }
 
     var startupBlockingReason: ForceUpdateReason? { get }

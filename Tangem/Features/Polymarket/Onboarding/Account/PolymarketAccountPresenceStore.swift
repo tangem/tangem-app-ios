@@ -16,6 +16,9 @@ protocol PolymarketAccountPresenceStore {
     func hadPositions(userWalletId: UserWalletId) -> Bool
     func markPositionsExisted(for userWalletId: UserWalletId)
 
+    func shownPositionsCount(userWalletId: UserWalletId) -> Int?
+    func setShownPositionsCount(_ count: Int, for userWalletId: UserWalletId)
+
     func delete(userWalletId: UserWalletId)
 }
 
@@ -38,9 +41,18 @@ extension AppSettings: PolymarketAccountPresenceStore {
         polymarketHadPositions[positionsKey(for: userWalletId)] = true
     }
 
+    func shownPositionsCount(userWalletId: UserWalletId) -> Int? {
+        polymarketShownPositionsCount[shownPositionsCountKey(for: userWalletId)]
+    }
+
+    func setShownPositionsCount(_ count: Int, for userWalletId: UserWalletId) {
+        polymarketShownPositionsCount[shownPositionsCountKey(for: userWalletId)] = count
+    }
+
     func delete(userWalletId: UserWalletId) {
         polymarketHasAccount[accountKey(for: userWalletId)] = nil
         polymarketHadPositions[positionsKey(for: userWalletId)] = nil
+        polymarketShownPositionsCount[shownPositionsCountKey(for: userWalletId)] = nil
     }
 }
 
@@ -53,5 +65,9 @@ private extension AppSettings {
 
     func positionsKey(for userWalletId: UserWalletId) -> String {
         userWalletId.hashedStringValue(message: StorageType.polymarketHadPositions.rawValue)
+    }
+
+    func shownPositionsCountKey(for userWalletId: UserWalletId) -> String {
+        userWalletId.hashedStringValue(message: StorageType.polymarketShownPositionsCount.rawValue)
     }
 }

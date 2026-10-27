@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemAssets
 import TangemExpress
 import TangemPolymarket
 
@@ -42,15 +43,16 @@ struct PolymarketWithdrawSwapableTokenFactory: SendSwapableTokenFactory {
             isCustom: false,
             defaultAddressString: source.depositWalletAddress,
             availableBalanceProvider: balanceProvider,
-            fiatAvailableBalanceProvider: accountModel.fiatAvailableBalanceProvider,
+            fiatAvailableBalanceProvider: PolymarketUSDBalanceProvider(collateralBalanceProvider: balanceProvider),
             allowanceService: nil,
             withdrawalNotificationProvider: nil,
             scaledUIAmountMultiplierResolver: nil,
             emailDataCollectorBuilder: PolymarketAccountEmailDataCollectorBuilder(),
             transactionDispatcherProvider: transactionDispatcherProvider,
+            transactionSummaryDescriptionBuilderProvider: DefaultTransactionSummaryDescriptionBuilderProvider(tokenItem: tokenItem),
+            blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
             accountModelAnalyticsProvider: nil,
-            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config),
-            confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
+            receivingRestrictionsProvider: PolymarketWithdrawReceivingRestrictionsProvider(),
             isTangemPayAccount: false,
             jointAccountPolicy: nil,
             tokenItem: tokenItem,
@@ -70,7 +72,6 @@ struct PolymarketWithdrawSwapableTokenFactory: SendSwapableTokenFactory {
             isExemptFee: true,
             swapAvailabilityProvider: PolymarketAccountSwapAvailabilityProvider(),
             sendingRestrictionsProvider: PolymarketAccountSendingRestrictionsProvider(),
-            receivingRestrictionsProvider: PolymarketWithdrawReceivingRestrictionsProvider(),
             tokenFeeProvidersManagerProvider: feeProvidersManagerProvider,
             tokenFeeProvidersManager: feeProvidersManagerProvider.makeTokenFeeProvidersManager(),
             transactionValidator: transactionValidator,
@@ -89,7 +90,7 @@ struct PolymarketWithdrawSwapableTokenFactory: SendSwapableTokenFactory {
 
             supportedProvidersFilter: .cex,
             isCustomSlippageAllowed: accountModel.resolve(using: CustomSlippageAvailabilityResolver()),
-            presentation: nil
+            presentation: makePresentation()
         )
     }
 }
@@ -97,6 +98,14 @@ struct PolymarketWithdrawSwapableTokenFactory: SendSwapableTokenFactory {
 // MARK: - Private implementation
 
 private extension PolymarketWithdrawSwapableTokenFactory {
+    func makePresentation() -> SendReceiveTokenPresentation {
+        SendReceiveTokenPresentation(
+            currencySymbol: AppConstants.usdCurrencyCode,
+            icon: Assets.Polymarket.accountAvatar,
+            appliesToSendSide: true
+        )
+    }
+
     func makeFiatItem() -> FiatItem {
         FiatItem(
             iconURL: IconURLBuilder().fiatIconURL(currencyCode: AppSettings.shared.selectedCurrencyCode),

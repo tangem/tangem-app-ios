@@ -24,8 +24,6 @@ final class PreviewTransactionHistoryService {
 // MARK: - TransactionHistoryService
 
 extension PreviewTransactionHistoryService: TransactionHistoryService {
-    var state: TransactionHistoryServiceState { .loaded }
-
     var statePublisher: AnyPublisher<TransactionHistoryServiceState, Never> {
         .just(output: .loaded)
     }

@@ -18,7 +18,6 @@ public struct SegmentedPickerView<Option: Hashable & Identifiable, SelectionView
     @Environment(\.segmentedControlInsets) var segmentedControlInsets
     @Environment(\.segmentedControlInterSegmentSpacing) var interSegmentSpacing
     @Environment(\.segmentedControlSlidingAnimation) var slidingAnimation
-    @Environment(\.segmentedControlContentStyle) var contentStyle
 
     @Environment(\.isEnabled) private var isEnabled
 

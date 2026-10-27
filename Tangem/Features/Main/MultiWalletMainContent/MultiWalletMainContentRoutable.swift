@@ -26,7 +26,6 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
     func openTangemPayResidency(interactor: any TangemPayResidencyInteractor)
     func openTangemPayRegionUnavailablePopup(region: TangemPayUnavailableRegion, interactor: any TangemPayResidencyInteractor)
-    func openTangemPayFailedToIssueCardPopup(userWalletModel: UserWalletModel)
     func openTangemPayMainView(
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,

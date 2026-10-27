@@ -26,5 +26,4 @@ import Foundation
 /// (x y -- x%y)
 struct OpMod: OpCodeProtocol {
     var value: UInt8 { return 0x97 }
-    var name: String { return "OP_MOD" }
 }

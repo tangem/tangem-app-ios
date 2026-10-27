@@ -10,6 +10,7 @@ import Foundation
 import enum Moya.MoyaError
 import class Moya.MoyaProvider
 import class Moya.Response
+private import TangemNetworkUtils
 
 struct MoyaDeviceRegistrationClient: DeviceRegistrationClient {
     private let provider: MoyaProvider<BackendAuthenticationTarget>
@@ -32,7 +33,7 @@ struct MoyaDeviceRegistrationClient: DeviceRegistrationClient {
         } catch {
             throw error.isTimeout
                 ? DeviceRegistrationClientError.requestNonceTimeout
-                : DeviceRegistrationClientError.requestNonceFailed(underlying: error)
+                : wrapped(moyaError: error, into: DeviceRegistrationClientError.requestNonceFailed)
         }
 
         do {
@@ -60,12 +61,15 @@ struct MoyaDeviceRegistrationClient: DeviceRegistrationClient {
         do {
             response = try await provider.request(target)
         } catch {
-            switch error.response?.statusCode {
-            case 409:
-                throw DeviceRegistrationClientError.alreadyRegistered
-            default:
+            guard let problemDetailError = parseProblemDetail(from: error.response?.data) else {
                 throw DeviceRegistrationClientError.registerFailed(underlying: error)
             }
+
+            if problemDetailError == .deviceAlreadyRegistered {
+                throw DeviceRegistrationClientError.alreadyRegistered
+            }
+
+            throw DeviceRegistrationClientError.registerFailed(underlying: problemDetailError)
         }
 
         do {
@@ -74,5 +78,25 @@ struct MoyaDeviceRegistrationClient: DeviceRegistrationClient {
         } catch {
             throw DeviceRegistrationClientError.registerFailed(underlying: error)
         }
+    }
+}
+
+// MARK: - TangemProblemDetailError parsing
+
+extension MoyaDeviceRegistrationClient {
+    private func wrapped(
+        moyaError: MoyaError,
+        into clientError: (any Error) -> DeviceRegistrationClientError
+    ) -> DeviceRegistrationClientError {
+        guard let problemDetailError = parseProblemDetail(from: moyaError.response?.data) else {
+            return clientError(moyaError)
+        }
+
+        return clientError(problemDetailError)
+    }
+
+    private func parseProblemDetail(from responseBody: Data?) -> TangemProblemDetailError? {
+        guard let responseBody else { return nil }
+        return try? decoder.decode(TangemProblemDetailError.self, from: responseBody)
     }
 }

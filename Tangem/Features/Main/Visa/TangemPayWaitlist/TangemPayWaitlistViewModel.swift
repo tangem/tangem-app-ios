@@ -71,10 +71,6 @@ final class TangemPayWaitlistViewModel: ObservableObject {
             submit()
         }
     }
-
-    func onCloseTap() {
-        output(.close)
-    }
 }
 
 // MARK: - Save

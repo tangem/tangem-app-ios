@@ -151,7 +151,8 @@ private extension WalletModelJointAccountPendingTransactionsTests {
         return JointAccountPendingOperation(
             wallet: wallet,
             operation: JointAccountCompositionFixture.coinTransfer(status: status),
-            innerCallType: innerCallType
+            innerCallType: innerCallType,
+            feeTokenItem: .blockchain(tokenItem.blockchainNetwork)
         )
     }
 }

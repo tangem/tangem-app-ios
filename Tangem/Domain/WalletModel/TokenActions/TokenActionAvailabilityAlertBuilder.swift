@@ -70,9 +70,27 @@ struct TokenActionAvailabilityAlertBuilder {
         }
     }
 
-    func alert(for status: TokenActionAvailabilityProvider.SwapActionAvailabilityStatus) -> AlertBinder? {
+    func alert(for status: TokenActionAvailabilityProvider.SwapReceiveActionAvailabilityStatus) -> AlertBinder? {
         switch status {
-        case .available, .hidden:
+        case .available:
+            return nil
+        case .customToken:
+            return .init(
+                title: "",
+                message: Localization.tokenButtonUnavailabilityReasonCustomToken
+            )
+        case .missingAssetRequirement:
+            return .init(title: "", message: Localization.warningReceiveBlockedTokenTrustlineRequiredMessage)
+        case .expressLoading:
+            return expressLoadingAlert
+        case .expressUnreachable:
+            return tryAgainLaterAlert
+        }
+    }
+
+    func alert(for status: TokenActionAvailabilityProvider.SwapSourceActionAvailabilityStatus) -> AlertBinder? {
+        switch status {
+        case .available:
             return nil
         case .jointAccountsComingSoon:
             return jointAccountsComingSoonAlert
@@ -87,17 +105,10 @@ struct TokenActionAvailabilityAlertBuilder {
             )
         case .expressLoading:
             return expressLoadingAlert
-        case .expressNotLoaded:
-            return tryAgainLaterAlert
         case .expressUnreachable:
             return tryAgainLaterAlert
         case .hasOnlyCachedBalance:
             return outOfDateBalanceAlert
-        case .unavailable(let tokenName):
-            return .init(
-                title: "",
-                message: Localization.tokenButtonUnavailabilityReasonNotExchangeable(tokenName)
-            )
         case .missingAssetRequirement:
             return .init(title: "", message: Localization.warningReceiveBlockedTokenTrustlineRequiredMessage)
         case .yieldModuleApproveNeeded:

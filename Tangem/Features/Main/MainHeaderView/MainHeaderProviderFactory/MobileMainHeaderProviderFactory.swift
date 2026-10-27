@@ -16,13 +16,4 @@ struct MobileMainHeaderProviderFactory: MainHeaderProviderFactory {
             mainBalanceFormatter: MainHeaderBalanceFormatter()
         )
     }
-
-    func makeHeaderSubtitleProvider(for userWalletModel: UserWalletModel, isMultiWallet: Bool) -> MainHeaderSubtitleProvider {
-        let isBackupNeeded = MobileBackupStatusUtil(userWalletModel: userWalletModel).isBackupNeeded
-        return MobileMainHeaderSubtitleProvider(
-            isUserWalletLocked: userWalletModel.isUserWalletLocked,
-            isBackupNeeded: isBackupNeeded,
-            updatePublisher: userWalletModel.updatePublisher
-        )
-    }
 }
