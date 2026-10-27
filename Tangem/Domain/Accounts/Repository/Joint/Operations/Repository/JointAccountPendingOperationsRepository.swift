@@ -11,11 +11,17 @@ import Combine
 import BlockchainSdk
 
 protocol JointAccountPendingOperationsRepository {
-    var pendingOperations: [StoredJointAccountPendingOperations] { get }
+    var operations: [StoredJointAccountPendingOperations] { get }
 
-    /// - Note: Kept apart from the accounts as well: an operation moves on its own occasions — a co-signer answers,
-    /// the relayer executes — and none of them is a change to the account it belongs to.
-    var pendingOperationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> { get }
+    var operationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> { get }
+
+    func operationPublisher(id: String, in cryptoAccountId: String) -> AnyPublisher<JointAccountOperation, Never>
+
+    /// Has the operation read anew far more often than its regular pace, for as long as the returned token is kept.
+    /// - Returns: `nil` when nothing polls the operation — it is no longer in flight, or joint accounts are off — so
+    /// there is no faster pace to ask for.
+    /// - Note: The faster pace ends with the operation, whoever still holds the token.
+    func requestFrequentUpdates(operationId: String) -> AnyCancellable?
 
     /// Registers the operation a member signed and stores it among the account's.
     /// - Returns: The operation as the endpoint registered it, with that signature already counted.

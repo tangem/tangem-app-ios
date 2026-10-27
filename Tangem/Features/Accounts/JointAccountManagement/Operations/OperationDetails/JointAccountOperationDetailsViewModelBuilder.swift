@@ -26,7 +26,6 @@ struct JointAccountOperationDetailsViewModelBuilder {
         userWalletInfo: UserWalletInfo,
         coordinator: JointAccountOperationDetailsRoutable?
     ) -> JointAccountOperationDetailsViewModel {
-        let provider = pendingOperation.wallet.account?.jointAccountPendingOperationsProvider
         let tokenItem = pendingOperation.tokenItem
 
         return JointAccountOperationDetailsViewModel(
@@ -38,8 +37,8 @@ struct JointAccountOperationDetailsViewModelBuilder {
             networkFee: networkFee(of: pendingOperation),
             signingActionButtonType: SigningActionButtonViewTypeBuilder().build(userWalletInfo: userWalletInfo),
             content: content(of: pendingOperation),
-            contentPublisher: contentPublisher(of: pendingOperation.operation.id, provider: provider),
-            pendingOperationsProvider: provider,
+            contentPublisher: contentPublisher(of: pendingOperation),
+            poller: pendingOperation,
             coordinator: coordinator,
             sign: { try await pendingOperation.sign() },
             reject: { try await pendingOperation.reject() }
@@ -47,22 +46,12 @@ struct JointAccountOperationDetailsViewModelBuilder {
     }
 }
 
-// MARK: - Following the listing
+// MARK: - Following the operation
 
 extension JointAccountOperationDetailsViewModelBuilder {
-    func contentPublisher(
-        of operationId: String,
-        provider: (any JointAccountPendingOperationsProvider)?
-    ) -> AnyPublisher<JointAccountOperationDetailsViewModel.Content, Never> {
-        guard let provider else {
-            return .empty
-        }
-
-        return provider
-            .pendingOperationsPublisher
-            .compactMap { operations in operations.first { $0.operation.id == operationId } }
-            .removeDuplicates()
-            .map { pendingOperation in content(of: pendingOperation) }
+    func contentPublisher(of pendingOperation: JointAccountPendingOperation) -> AnyPublisher<JointAccountOperationDetailsViewModel.Content, Never> {
+        pendingOperation.operationPublisher
+            .map { operation in content(of: pendingOperation.updating(operation: operation)) }
             .eraseToAnyPublisher()
     }
 }

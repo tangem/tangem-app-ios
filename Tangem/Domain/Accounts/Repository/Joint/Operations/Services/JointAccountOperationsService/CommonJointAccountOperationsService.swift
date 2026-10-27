@@ -160,7 +160,7 @@ private extension CommonJointAccountOperationsService {
     /// - Note: Read off the store rather than off the list the screens are given, which leaves out an operation in a
     /// token this device has not added — an operation nobody here can show holds the network all the same.
     func ensureNetworkIsFree(chainId: Int, cryptoAccountId: String) async throws {
-        let records = try await pendingOperationsRepository.pendingOperationsPublisher.async()
+        let records = try await pendingOperationsRepository.operationsPublisher.async()
         let operations = records.first(by: cryptoAccountId)?.operations ?? []
         let isBusy = operations.contains { $0.chainId == chainId && $0.status.isInFlight }
 

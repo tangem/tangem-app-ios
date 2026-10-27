@@ -107,7 +107,7 @@ private extension JointAccountOperationDetailsViewModel {
                 status: status
             ),
             contentPublisher: .empty,
-            pendingOperationsProvider: nil,
+            poller: JointAccountPendingOperationPollerMock(),
             coordinator: nil,
             sign: {},
             reject: {}

@@ -21,10 +21,10 @@ struct CommonJointAccountPendingOperationsSynchronizerTests {
         let storage = JointAccountsPendingOperationsPersistentStorageStub()
         let sut = Self.makeSUT(storage: storage)
 
-        try await sut.apply(.operation(Self.operation, cryptoAccountId: Self.accountId))
+        try await sut.apply(.localOperation(Self.operation, cryptoAccountId: Self.accountId))
 
         #expect(storage.records == [Self.record])
-        #expect(sut.pendingOperations == [Self.record])
+        #expect(sut.operations == [Self.record])
     }
 
     @Test("An operation that has finished stays, stamped with the time it was learnt of")
@@ -32,7 +32,7 @@ struct CommonJointAccountPendingOperationsSynchronizerTests {
         let storage = JointAccountsPendingOperationsPersistentStorageStub(records: [Self.record])
         let sut = Self.makeSUT(storage: storage, dateProvider: FixedDateProvider(now: Self.now))
 
-        try await sut.apply(.operation(JointAccountCompositionFixture.coinTransfer(status: .cancelled), cryptoAccountId: Self.accountId))
+        try await sut.apply(.localOperation(JointAccountCompositionFixture.coinTransfer(status: .cancelled), cryptoAccountId: Self.accountId))
 
         #expect(storage.records == [Self.record(JointAccountCompositionFixture.coinTransfer(status: .cancelled, finishedAt: Self.now))])
     }
@@ -49,15 +49,15 @@ struct CommonJointAccountPendingOperationsSynchronizerTests {
         #expect(storage.records.isEmpty)
     }
 
-    @Test("A listing replaces what is stored")
-    func listingReplacesTheStorage() async throws {
+    @Test("A listing only adds, and what is stored stays as it is")
+    func listingLeavesTheStorageAlone() async throws {
         let storage = JointAccountsPendingOperationsPersistentStorageStub(records: [Self.record])
         let sut = Self.makeSUT(storage: storage)
         let checkpoint = await sut.checkpoint
 
         try await sut.apply(listing: [], requestedAt: checkpoint)
 
-        #expect(storage.records.isEmpty)
+        #expect(storage.records == [Self.record])
     }
 
     @Test("A listing requested before an operation was written locally keeps that operation")
@@ -66,7 +66,7 @@ struct CommonJointAccountPendingOperationsSynchronizerTests {
         let sut = Self.makeSUT(storage: storage)
         let checkpoint = await sut.checkpoint
 
-        try await sut.apply(.operation(Self.operation, cryptoAccountId: Self.accountId))
+        try await sut.apply(.localOperation(Self.operation, cryptoAccountId: Self.accountId))
         try await sut.apply(listing: [], requestedAt: checkpoint)
 
         #expect(storage.records == [Self.record])
@@ -84,23 +84,62 @@ struct CommonJointAccountPendingOperationsSynchronizerTests {
         #expect(storage.records.isEmpty)
     }
 
-    @Test("A listing requested after an operation was written locally is taken as it is")
-    func listingRequestedAfterALocalWriteWins() async throws {
-        let storage = JointAccountsPendingOperationsPersistentStorageStub()
+    @Test("A listing requested after an operation was removed locally brings it back, since the endpoint still reports it")
+    func listingRequestedAfterALocalRemovalWins() async throws {
+        let storage = JointAccountsPendingOperationsPersistentStorageStub(records: [Self.record])
         let sut = Self.makeSUT(storage: storage)
 
-        try await sut.apply(.operation(Self.operation, cryptoAccountId: Self.accountId))
+        try await sut.apply(.operationRemoved(id: Self.operation.id, cryptoAccountId: Self.accountId))
         let checkpoint = await sut.checkpoint
-        try await sut.apply(listing: [], requestedAt: checkpoint)
+        try await sut.apply(listing: [Self.record], requestedAt: checkpoint)
 
-        #expect(storage.records.isEmpty)
+        #expect(storage.records == [Self.record])
+    }
+
+    @Test("A listing requested before an operation was read anew does not take back what the read stored")
+    func listingRequestedBeforeAReadAnewKeepsIt() async throws {
+        let storage = JointAccountsPendingOperationsPersistentStorageStub(records: [Self.record])
+        let sut = Self.makeSUT(storage: storage)
+        let pending = JointAccountCompositionFixture.coinTransfer(status: .pending)
+        let checkpoint = await sut.checkpoint
+
+        try await sut.apply(refreshedOperation: pending, forCryptoAccountId: Self.accountId, requestedAt: checkpoint)
+        try await sut.apply(listing: [Self.record], requestedAt: checkpoint)
+
+        #expect(storage.records == [Self.record(pending)])
+    }
+
+    @Test("A read anew requested before an operation was written locally keeps that write")
+    func readAnewRequestedBeforeALocalWriteKeepsIt() async throws {
+        let storage = JointAccountsPendingOperationsPersistentStorageStub(records: [Self.record])
+        let sut = Self.makeSUT(storage: storage)
+        let signed = JointAccountCompositionFixture.coinTransfer(status: .pending)
+        let checkpoint = await sut.checkpoint
+
+        try await sut.apply(.localOperation(signed, cryptoAccountId: Self.accountId))
+        try await sut.apply(refreshedOperation: Self.operation, forCryptoAccountId: Self.accountId, requestedAt: checkpoint)
+
+        #expect(storage.records == [Self.record(signed)])
+    }
+
+    @Test("A read anew requested after an operation was written locally is taken as it is")
+    func readAnewRequestedAfterALocalWriteWins() async throws {
+        let storage = JointAccountsPendingOperationsPersistentStorageStub(records: [Self.record])
+        let sut = Self.makeSUT(storage: storage)
+        let signed = JointAccountCompositionFixture.coinTransfer(status: .pending)
+
+        try await sut.apply(.localOperation(signed, cryptoAccountId: Self.accountId))
+        let checkpoint = await sut.checkpoint
+        try await sut.apply(refreshedOperation: Self.operation, forCryptoAccountId: Self.accountId, requestedAt: checkpoint)
+
+        #expect(storage.records == [Self.record])
     }
 
     @Test("What is stored is emitted right away, and every write follows")
     func publisherFollowsTheStorage() async throws {
         let storage = JointAccountsPendingOperationsPersistentStorageStub(records: [Self.record])
         let sut = Self.makeSUT(storage: storage)
-        var iterator = await sut.pendingOperationsPublisher.values_.makeAsyncIterator()
+        var iterator = await sut.operationsPublisher.values_.makeAsyncIterator()
 
         let emittedFirst = await iterator.next()
         try await sut.apply(.operationRemoved(id: Self.operation.id, cryptoAccountId: Self.accountId))
