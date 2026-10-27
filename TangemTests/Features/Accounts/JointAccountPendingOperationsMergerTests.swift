@@ -20,7 +20,7 @@ struct JointAccountPendingOperationsMergerTests {
 
     @Test("An operation of an account nothing is stored for gets a record of its own")
     func operationOfANewAccountIsAdded() {
-        let merged = sut.merge([], applying: .operation(Self.operation("a"), cryptoAccountId: Self.accountId))
+        let merged = sut.merge([], applying: .localOperation(Self.operation("a"), cryptoAccountId: Self.accountId))
 
         #expect(merged == [Self.record(Self.operation("a"))])
     }
@@ -29,7 +29,7 @@ struct JointAccountPendingOperationsMergerTests {
     func operationIsUpdatedInPlace() {
         let stored = [Self.record(Self.operation("a"), Self.operation("b"))]
 
-        let merged = sut.merge(stored, applying: .operation(Self.operation("a", status: .pending), cryptoAccountId: Self.accountId))
+        let merged = sut.merge(stored, applying: .localOperation(Self.operation("a", status: .pending), cryptoAccountId: Self.accountId))
 
         #expect(merged == [Self.record(Self.operation("a", status: .pending), Self.operation("b"))])
     }
@@ -41,7 +41,7 @@ struct JointAccountPendingOperationsMergerTests {
     func finishedOperationIsKeptAndStamped(status: JointAccountOperationStatus) {
         let stored = [Self.record(Self.operation("a", status: .pending), Self.operation("b"))]
 
-        let merged = sut.merge(stored, applying: .operation(Self.operation("a", status: status), cryptoAccountId: Self.accountId))
+        let merged = sut.merge(stored, applying: .localOperation(Self.operation("a", status: status), cryptoAccountId: Self.accountId))
 
         #expect(merged == [Self.record(Self.operation("a", status: status, finishedAt: Self.now), Self.operation("b"))])
     }
@@ -51,7 +51,7 @@ struct JointAccountPendingOperationsMergerTests {
         let stored = [Self.record(Self.operation("a", status: .pending))]
         let finished = Self.operation("a", status: .executed, finishedAt: Self.now.addingTimeInterval(-60))
 
-        let merged = sut.merge(stored, applying: .operation(finished, cryptoAccountId: Self.accountId))
+        let merged = sut.merge(stored, applying: .localOperation(finished, cryptoAccountId: Self.accountId))
 
         #expect(merged == [Self.record(finished)])
     }
@@ -60,7 +60,7 @@ struct JointAccountPendingOperationsMergerTests {
     func finishedOperationIsNotDowngraded() {
         let stored = [Self.record(Self.operation("a", status: .executed, finishedAt: Self.now.addingTimeInterval(-60)))]
 
-        let merged = sut.merge(stored, applying: .operation(Self.operation("a", status: .pending), cryptoAccountId: Self.accountId))
+        let merged = sut.merge(stored, applying: .localOperation(Self.operation("a", status: .pending), cryptoAccountId: Self.accountId))
 
         #expect(merged == stored)
     }
@@ -70,14 +70,14 @@ struct JointAccountPendingOperationsMergerTests {
         let earlier = Self.now.addingTimeInterval(-60)
         let stored = [Self.record(Self.operation("a", status: .executed, finishedAt: earlier))]
 
-        let merged = sut.merge(stored, applying: .operation(Self.operation("a", status: .executed), cryptoAccountId: Self.accountId))
+        let merged = sut.merge(stored, applying: .localOperation(Self.operation("a", status: .executed), cryptoAccountId: Self.accountId))
 
         #expect(merged == [Self.record(Self.operation("a", status: .executed, finishedAt: earlier))])
     }
 
     @Test("A finished operation of an account nothing is stored for gets a record of its own as well")
     func finishedOperationOfANewAccountIsAdded() {
-        let merged = sut.merge([], applying: .operation(Self.operation("a", status: .executed), cryptoAccountId: Self.accountId))
+        let merged = sut.merge([], applying: .localOperation(Self.operation("a", status: .executed), cryptoAccountId: Self.accountId))
 
         #expect(merged == [Self.record(Self.operation("a", status: .executed, finishedAt: Self.now))])
     }
@@ -112,8 +112,8 @@ struct JointAccountPendingOperationsMergerTests {
         #expect(merged == [Self.record(Self.operation("a"), Self.operation("c", status: .pending))])
     }
 
-    @Test("The listing leaves the stored finished operations alone and drops the in-flight ones it no longer reports")
-    func listingKeepsFinishedAndDropsUnreportedInFlight() {
+    @Test("The listing only adds what it reports, and every stored operation stays as it is, the ones it no longer reports included")
+    func listingOnlyAddsWhatItReports() {
         let finished = Self.operation("a", status: .executed, finishedAt: Self.now.addingTimeInterval(-60))
         let cancelled = Self.operation("e", status: .cancelled, finishedAt: Self.now.addingTimeInterval(-60))
         let stored = [
@@ -125,9 +125,19 @@ struct JointAccountPendingOperationsMergerTests {
         let merged = sut.merge(listing: listing, into: stored, replaying: [])
 
         #expect(merged == [
-            Self.record(finished, Self.operation("c")),
+            Self.record(finished, Self.operation("b"), Self.operation("c")),
             Self.record(cancelled, cryptoAccountId: Self.otherAccountId),
         ])
+    }
+
+    @Test("An operation in flight already stored is not overwritten by what the listing reports of it")
+    func listingDoesNotOverwriteAStoredOperationInFlight() {
+        let stored = [Self.record(Self.operation("a", status: .pending))]
+        let listing = [Self.record(Self.operation("a"))]
+
+        let merged = sut.merge(listing: listing, into: stored, replaying: [])
+
+        #expect(merged == stored)
     }
 
     @Test("A stored finished operation the listing still reports in flight stays finished")
@@ -147,7 +157,7 @@ struct JointAccountPendingOperationsMergerTests {
         let fresh = Self.operation("b", status: .cancelled, finishedAt: Self.now.addingTimeInterval(-Self.day + 1))
         let stored = [Self.record(dayOld, fresh, Self.operation("c"))]
 
-        let afterAnUpdate = sut.merge(stored, applying: .operation(Self.operation("c", status: .pending), cryptoAccountId: Self.accountId))
+        let afterAnUpdate = sut.merge(stored, applying: .localOperation(Self.operation("c", status: .pending), cryptoAccountId: Self.accountId))
         let afterAListing = sut.merge(listing: [Self.record(Self.operation("c"))], into: stored, replaying: [])
 
         #expect(afterAnUpdate == [Self.record(fresh, Self.operation("c", status: .pending))])
@@ -162,10 +172,10 @@ struct JointAccountPendingOperationsMergerTests {
         ]
 
         let merged = sut.merge(listing: listing, into: [], replaying: [
-            .operation(Self.operation("a", status: .pending), cryptoAccountId: Self.accountId),
+            .localOperation(Self.operation("a", status: .pending), cryptoAccountId: Self.accountId),
             .operationRemoved(id: "b", cryptoAccountId: Self.accountId),
-            .operation(Self.operation("c", status: .cancelled), cryptoAccountId: Self.otherAccountId),
-            .operation(Self.operation("d"), cryptoAccountId: Self.otherAccountId),
+            .localOperation(Self.operation("c", status: .cancelled), cryptoAccountId: Self.otherAccountId),
+            .localOperation(Self.operation("d"), cryptoAccountId: Self.otherAccountId),
         ])
 
         #expect(merged == [
@@ -174,11 +184,35 @@ struct JointAccountPendingOperationsMergerTests {
         ])
     }
 
+    @Test("An operation read anew updates the stored one")
+    func refreshedOperationUpdatesTheStoredOne() {
+        let merged = sut.merge(
+            [Self.record(Self.operation("a"))],
+            applying: .operationRefreshed(Self.operation("a", status: .pending), cryptoAccountId: Self.accountId)
+        )
+
+        #expect(merged == [Self.record(Self.operation("a", status: .pending))])
+    }
+
+    @Test("An operation in flight read anew after the store dropped it is not brought back")
+    func refreshedOperationInFlightIsNotBroughtBack() {
+        let merged = sut.merge([], applying: .operationRefreshed(Self.operation("a", status: .pending), cryptoAccountId: Self.accountId))
+
+        #expect(merged.isEmpty)
+    }
+
+    @Test("A finished operation read anew after the store dropped it is kept for the day")
+    func refreshedFinishedOperationIsKept() {
+        let merged = sut.merge([], applying: .operationRefreshed(Self.operation("a", status: .executed), cryptoAccountId: Self.accountId))
+
+        #expect(merged == [Self.record(Self.operation("a", status: .executed, finishedAt: Self.now))])
+    }
+
     @Test("The account is matched however its identifier is spelled")
     func accountIsMatchedIgnoringCase() {
         let stored = [Self.record(Self.operation("a"), cryptoAccountId: Self.accountId.lowercased())]
 
-        let merged = sut.merge(stored, applying: .operation(Self.operation("b"), cryptoAccountId: Self.accountId.uppercased()))
+        let merged = sut.merge(stored, applying: .localOperation(Self.operation("b"), cryptoAccountId: Self.accountId.uppercased()))
 
         #expect(merged == [Self.record(Self.operation("a"), Self.operation("b"), cryptoAccountId: Self.accountId.lowercased())])
     }

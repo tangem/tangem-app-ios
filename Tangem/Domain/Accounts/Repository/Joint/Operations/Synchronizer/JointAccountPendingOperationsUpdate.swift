@@ -9,6 +9,8 @@
 import Foundation
 
 enum JointAccountPendingOperationsUpdate: Equatable {
-    case operation(JointAccountOperation, cryptoAccountId: String)
+    case localOperation(JointAccountOperation, cryptoAccountId: String)
+    case operationAdded(JointAccountOperation, cryptoAccountId: String)
+    case operationRefreshed(JointAccountOperation, cryptoAccountId: String)
     case operationRemoved(id: String, cryptoAccountId: String)
 }

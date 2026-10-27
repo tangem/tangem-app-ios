@@ -17,5 +17,5 @@ protocol JointAccountPendingOperationsProvider {
 
     var pendingOperationsPublisher: AnyPublisher<[JointAccountPendingOperation], Never> { get }
 
-    func requestFrequentUpdates() -> AnyCancellable
+    func requestFrequentUpdates(operationId: String) -> AnyCancellable?
 }

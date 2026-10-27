@@ -13,10 +13,11 @@ import TangemFoundation
 @testable import Tangem
 
 final class JointAccountPendingOperationsRepositoryStub: JointAccountPendingOperationsRepository {
-    private let pendingOperationsSubject: CurrentValueSubject<[StoredJointAccountPendingOperations], Never>
+    private let synchronizer: JointAccountPendingOperationsSynchronizerStub
     private let operationCalls = OSAllocatedUnfairLock(initialState: OperationCalls())
     /// What `createOperation` answers with; a test that only looks at what was asked hands none.
     private let registeredOperation: JointAccountOperation?
+    private let frequentUpdatesRequests = OSAllocatedUnfairLock(initialState: [String: Int]())
 
     var createdOperations: [(request: JointAccountOperationRequest, cryptoAccountId: String)] {
         operationCalls.withLock(\.created)
@@ -30,25 +31,40 @@ final class JointAccountPendingOperationsRepositoryStub: JointAccountPendingOper
         operationCalls.withLock(\.rejected)
     }
 
+    func frequentUpdatesRequestsCount(operationId: String) -> Int {
+        frequentUpdatesRequests.withLock { $0[operationId] ?? 0 }
+    }
+
     init(
         pendingOperations: [StoredJointAccountPendingOperations] = [],
         registeredOperation: JointAccountOperation? = nil
     ) {
-        pendingOperationsSubject = CurrentValueSubject(pendingOperations)
+        synchronizer = JointAccountPendingOperationsSynchronizerStub(pendingOperations: pendingOperations)
         self.registeredOperation = registeredOperation
     }
 
-    /// The unfinished operations the listing would have brought.
     func store(pendingOperations: [StoredJointAccountPendingOperations]) {
-        pendingOperationsSubject.send(pendingOperations)
+        synchronizer.store(pendingOperations: pendingOperations)
     }
 
-    var pendingOperations: [StoredJointAccountPendingOperations] {
-        pendingOperationsSubject.value
+    var operations: [StoredJointAccountPendingOperations] {
+        synchronizer.operations
     }
 
-    var pendingOperationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> {
-        pendingOperationsSubject.eraseToAnyPublisher()
+    var operationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> {
+        synchronizer.operationsPublisher
+    }
+
+    func operationPublisher(id: String, in cryptoAccountId: String) -> AnyPublisher<JointAccountOperation, Never> {
+        synchronizer.operationPublisher(id: id, in: cryptoAccountId)
+    }
+
+    func requestFrequentUpdates(operationId: String) -> AnyCancellable? {
+        frequentUpdatesRequests.withLock { $0[operationId, default: 0] += 1 }
+
+        return AnyCancellable { [weak self] in
+            self?.frequentUpdatesRequests.withLock { $0[operationId, default: 0] -= 1 }
+        }
     }
 
     func createOperation(_ request: JointAccountOperationRequest, forCryptoAccountId cryptoAccountId: String) async throws -> JointAccountOperation {

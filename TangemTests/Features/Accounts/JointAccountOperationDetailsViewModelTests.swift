@@ -21,7 +21,7 @@ import TangemUIUtils
 struct JointAccountOperationDetailsViewModelTests {
     private let updates = PassthroughSubject<JointAccountOperationDetailsViewModel.Content, Never>()
     private let coordinator = RoutableSpy()
-    private let provider = PendingOperationsProviderSpy()
+    private let poller = PollerSpy()
     private let alertPresenter = AlertPresenterSpy()
 
     @Test("A new signature on the open operation reaches the sheet", .timeLimit(.minutes(1)))
@@ -76,7 +76,7 @@ struct JointAccountOperationDetailsViewModelTests {
         _ = try await viewModel.$answer.first { $0 == .signed }.async()
 
         #expect(coordinator.closeCount.value == 0)
-        #expect(provider.activeRequestsCount == 1)
+        #expect(poller.activeRequestsCount == 1)
     }
 
     @Test("Closing the sheet twice closes it once")
@@ -88,7 +88,7 @@ struct JointAccountOperationDetailsViewModelTests {
         viewModel.handleViewAction(.close)
 
         #expect(coordinator.closeCount.value == 1)
-        #expect(provider.activeRequestsCount == 0)
+        #expect(poller.activeRequestsCount == 0)
     }
 
     @Test("An operation being sent can no longer be signed", .timeLimit(.minutes(1)))
@@ -218,13 +218,13 @@ struct JointAccountOperationDetailsViewModelTests {
     func frequentUpdatesFollowVisibility() {
         let viewModel = makeViewModel()
 
-        #expect(provider.activeRequestsCount == 0)
+        #expect(poller.activeRequestsCount == 0)
 
         viewModel.onAppear()
-        #expect(provider.activeRequestsCount == 1)
+        #expect(poller.activeRequestsCount == 1)
 
         viewModel.onDisappear()
-        #expect(provider.activeRequestsCount == 0)
+        #expect(poller.activeRequestsCount == 0)
     }
 
     @Test("A signature that fails tells the member so", .timeLimit(.minutes(1)))
@@ -275,7 +275,7 @@ struct JointAccountOperationDetailsViewModelTests {
             signingActionButtonType: signingActionButtonType,
             content: makeContent(collectedSignaturesCount: 1, isInitiator: isInitiator),
             contentPublisher: updates.eraseToAnyPublisher(),
-            pendingOperationsProvider: provider,
+            poller: poller,
             coordinator: coordinator,
             alertPresenter: alertPresenter,
             sign: sign,
@@ -357,16 +357,10 @@ private final class AlertPresenterSpy: AlertPresenter {
     }
 }
 
-private final class PendingOperationsProviderSpy: JointAccountPendingOperationsProvider {
+private final class PollerSpy: JointAccountPendingOperationPoller {
     private(set) var activeRequestsCount = 0
 
-    var pendingOperations: [JointAccountPendingOperation] { [] }
-
-    var pendingOperationsPublisher: AnyPublisher<[JointAccountPendingOperation], Never> {
-        Empty().eraseToAnyPublisher()
-    }
-
-    func requestFrequentUpdates() -> AnyCancellable {
+    func requestFrequentUpdates() -> AnyCancellable? {
         activeRequestsCount += 1
 
         return AnyCancellable { [weak self] in
