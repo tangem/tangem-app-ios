@@ -19,7 +19,7 @@ struct ICPExternalLinkProvider: ExternalLinkProvider {
         baseExplorerURL?.appendingPathComponent("tokens/account").appendingPathComponent(address)
     }
 
-    func url(transaction hash: String) -> URL? {
-        baseExplorerURL?.appendingPathComponent("tokens/tx-hash").appendingPathComponent(hash)
+    func url(transaction blockIndex: String) -> URL? {
+        baseExplorerURL?.appendingPathComponent("tokens/tx").appendingPathComponent(blockIndex)
     }
 }
