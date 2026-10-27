@@ -10,8 +10,6 @@ import Combine
 import Foundation
 
 protocol PolymarketAvailabilityProvider {
-    var isAvailablePublisher: AnyPublisher<Bool, Never> { get }
-
     func isAvailablePublisher(hasAccount: @escaping () -> Bool) -> AnyPublisher<Bool, Never>
 }
 
@@ -21,21 +19,20 @@ protocol PolymarketAvailabilityProvider {
 struct CommonPolymarketAvailabilityProvider: PolymarketAvailabilityProvider {
     private let experimentService: ExperimentService
     private let isToggleOn: () -> Bool
+    private let accountPresenceChangesPublisher: AnyPublisher<Void, Never>
 
     init(
         experimentService: ExperimentService = InjectedValues[\.experimentService],
-        isToggleOn: @escaping () -> Bool = { FeatureProvider.isAvailable(.polymarket) }
+        isToggleOn: @escaping () -> Bool = { FeatureProvider.isAvailable(.polymarket) },
+        accountPresenceChangesPublisher: AnyPublisher<Void, Never> = AppSettings.shared.$polymarketHasAccount.mapToVoid().eraseToAnyPublisher()
     ) {
         self.experimentService = experimentService
         self.isToggleOn = isToggleOn
+        self.accountPresenceChangesPublisher = accountPresenceChangesPublisher
     }
 
     var isAvailable: Bool {
         isToggleOn() && experimentService.hasFreshVariants && experimentService.isOn(.polymarket, variant: .on)
-    }
-
-    var isAvailablePublisher: AnyPublisher<Bool, Never> {
-        makeAvailabilityPublisher { isAvailable }
     }
 
     func isAvailable(hasAccount: () -> Bool) -> Bool {
@@ -43,18 +40,11 @@ struct CommonPolymarketAvailabilityProvider: PolymarketAvailabilityProvider {
     }
 
     func isAvailablePublisher(hasAccount: @escaping () -> Bool) -> AnyPublisher<Bool, Never> {
-        makeAvailabilityPublisher { isAvailable(hasAccount: hasAccount) }
-    }
-}
-
-// MARK: - Private
-
-private extension CommonPolymarketAvailabilityProvider {
-    func makeAvailabilityPublisher(_ isAvailable: @escaping () -> Bool) -> AnyPublisher<Bool, Never> {
         experimentService
             .variantsPublisher
-            .map { _ in isAvailable() }
-            .prepend(isAvailable())
+            .merge(with: accountPresenceChangesPublisher)
+            .map { _ in isAvailable(hasAccount: hasAccount) }
+            .prepend(isAvailable(hasAccount: hasAccount))
             .removeDuplicates()
             .eraseToAnyPublisher()
     }

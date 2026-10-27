@@ -40,7 +40,7 @@ struct PolymarketAvailabilityProviderTests {
         let sut = CommonPolymarketAvailabilityProvider(experimentService: experimentService, isToggleOn: { true })
         let values = OSAllocatedUnfairLock<[Bool]>(initialState: [])
 
-        let cancellable = sut.isAvailablePublisher.sink { value in values.withLock { $0.append(value) } }
+        let cancellable = sut.isAvailablePublisher(hasAccount: { false }).sink { value in values.withLock { $0.append(value) } }
 
         experimentService.startFetching()
         experimentService.fetch(variant: .on)
@@ -80,13 +80,36 @@ struct PolymarketAvailabilityProviderTests {
         let sut = CommonPolymarketAvailabilityProvider(experimentService: experimentService, isToggleOn: { true })
         let values = OSAllocatedUnfairLock<[Bool]>(initialState: [])
 
-        let cancellable = sut.isAvailablePublisher.sink { value in values.withLock { $0.append(value) } }
+        let cancellable = sut.isAvailablePublisher(hasAccount: { false }).sink { value in values.withLock { $0.append(value) } }
 
         experimentService.fetch(variant: .on)
         experimentService.fetch(variant: .on)
         experimentService.fetch(variant: nil)
 
         #expect(values.withLock { $0 } == [false, true, false])
+
+        cancellable.cancel()
+    }
+
+    @Test("A wallet opens the feature once its account appears, with the experiment off")
+    func accountAppearingOpensTheFeature() {
+        let presenceChanges = PassthroughSubject<Void, Never>()
+        let hasAccount = OSAllocatedUnfairLock(initialState: false)
+        let sut = CommonPolymarketAvailabilityProvider(
+            experimentService: ExperimentServiceStub(storedVariant: .control),
+            isToggleOn: { true },
+            accountPresenceChangesPublisher: presenceChanges.eraseToAnyPublisher()
+        )
+        let values = OSAllocatedUnfairLock<[Bool]>(initialState: [])
+
+        let cancellable = sut
+            .isAvailablePublisher(hasAccount: { hasAccount.withLock { $0 } })
+            .sink { value in values.withLock { $0.append(value) } }
+
+        hasAccount.withLock { $0 = true }
+        presenceChanges.send(())
+
+        #expect(values.withLock { $0 } == [false, true])
 
         cancellable.cancel()
     }

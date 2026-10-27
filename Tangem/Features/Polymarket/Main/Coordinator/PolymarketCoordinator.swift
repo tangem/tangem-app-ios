@@ -141,6 +141,8 @@ extension PolymarketCoordinator: PolymarketWelcomeRoutable {
         Task { @MainActor [self] in
             guard let userWalletModel = options?.userWalletModel else { return }
 
+            AppSettings.shared.markAccountExists(for: userWalletModel.userWalletId)
+
             guard isNewAccount else {
                 showMain(for: userWalletModel)
                 return
