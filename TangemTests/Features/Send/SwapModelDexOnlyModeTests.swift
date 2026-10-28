@@ -359,6 +359,7 @@ private final class DexOnlySwapableTokenStub: SendSwapableToken {
 
     var tokenItem: TokenItem { inner.tokenItem }
     var isCustom: Bool { inner.isCustom }
+    var isCustomSlippageAllowed: Bool { true }
     var fiatItem: FiatItem { inner.fiatItem }
     var userWalletInfo: UserWalletInfo { inner.userWalletInfo }
     var id: WalletModelId { inner.id }

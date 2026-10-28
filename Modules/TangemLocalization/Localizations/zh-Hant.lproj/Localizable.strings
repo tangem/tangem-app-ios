@@ -1179,7 +1179,7 @@
 "main_add_funds_promo_title" = "Get your first crypto";
 "main_empty_tokens_list_message" = "To begin tracking your crypto assets and transactions, add tokens";
 "main_manage_tokens" = "管理代幣";
-"main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
+"main_qr_scan_hint" = "Send crypto, connect to dApps, or open links.";
 "main_scan_card_warning_view_subtitle" = "要訪問所有的網路您需要掃描卡片";
 "main_scan_card_warning_view_title" = "掃描卡片";
 "manage_tokens_remove" = "Remove";
@@ -2176,7 +2176,7 @@
 "swap_in_progress" = "Swap in progress";
 "swap_simple_mode" = "Simple mode";
 "swap_slippage_error" = "Unsupported amount";
-"swap_slippage_info_text" = "is the difference between the expected and actual execution price caused by market price or liquidity changes";
+"swap_slippage_info_text" = "is the price change from the moment you sign until your transaction reaches the provider. It’s executed at the price at that moment, within your slippage tolerance.";
 "swap_slippage_warning_text" = "Swap may fail if the slippage threshold is hit";
 "swap_slippage_warning_title" = "Slippage is set %@";
 "swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers\nNo moving funds to exchanges";
@@ -3136,8 +3136,11 @@
 "wc_connection_reqeust_will_not" = "Will not be able to";
 "wc_connection_reqeust_would_like" = "Would like to";
 "wc_connection_request" = "Connection request";
+"wc_connections_agents_error_title" = "AI agents unavailable";
 "wc_connections_agents_title" = "Connected Agents";
 "wc_connections_dapps_title" = "Connected dApps";
+"wc_connections_empty_desc" = "Connect to dApps via WalletConnect or AI agents via MCP. Manage all your connections in one place.";
+"wc_connections_empty_title" = "No connections yet";
 "wc_connections_subtitle" = "Connect to dApps or MCP";
 "wc_connections" = "Connections";
 "wc_contents" = "Contents";

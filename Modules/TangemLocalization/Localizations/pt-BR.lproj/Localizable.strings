@@ -30,8 +30,8 @@
 "account_details_archive_joint_description" = "Isso apenas oculta a conta para você e desativa as notificações dela. Os outros membros continuam tendo acesso, e você pode recuperá-la a qualquer momento.";
 "account_details_archive" = "Conta arquivada";
 "account_details_archiving" = "Arquivando...";
-"account_details_joint_members_confirmed" = "%1$@ of %2$@ confirmed";
-"account_details_joint_members_joined" = "%1$@ of %2$@ joined";
+"account_details_joint_members_confirmed" = "%1$@ de %2$@ confirmados";
+"account_details_joint_members_joined" = "%1$@ de %2$@ participantes ingressaram";
 "account_details_joint_members_progress" = "%1$@/%2$@ pessoas";
 "account_details_joint_networks_info" = "Texto sobre redes.";
 "account_details_joint_pending_description" = "A conta ainda está sendo preenchida com membros";
@@ -403,7 +403,7 @@
 "common_forget" = "Esquecer";
 "common_from_account" = "Da conta";
 "common_from_address" = "Do endereço";
-"common_from_lowercase" = "from";
+"common_from_lowercase" = "de";
 "common_from_wallet_name" = "De %@";
 "common_from_wallet" = "Da carteira";
 "common_from" = "De";
@@ -1088,7 +1088,7 @@
 "joint_account_join_title" = "Você foi convidado a participar de %1$@";
 "joint_account_join_to_account_btn_text" = "Entrar na conta";
 "joint_account_join_to_approve" = "Para aprovação";
-"joint_account_main_cant_verify" = "Can't verify";
+"joint_account_main_cant_verify" = "Não foi possível verificar";
 "joint_account_members_progress" = "%1$@ de %2$@ membros";
 "joint_account_members_role_joined" = "Entrou";
 "joint_account_members_role_you" = "Você";
@@ -1578,7 +1578,7 @@
 "prediction_add_funds_receive_title" = "De outra carteira ou exchange";
 "prediction_add_funds_swap_subtitle" = "Use criptomoedas da sua carteira Tangem para adicionar fundos à sua conta da Polymarket";
 "prediction_add_funds_swap_title" = "Da sua carteira Tangem";
-"prediction_cash_out" = "Cash Out";
+"prediction_cash_out" = "Sacar";
 "prediction_claim_error_failed" = "O resgate não foi concluído. Nenhum valor saiu da conta, e você pode tentar novamente.";
 "prediction_claim_error_generic" = "O resgate não pôde ser enviado. Por favor, tente novamente.";
 "prediction_claim_error_rejected" = "A Polymarket recusou o envio da solicitação. Atualize suas posições e tente novamente.";
@@ -2176,7 +2176,7 @@
 "swap_in_progress" = "Troca em andamento";
 "swap_simple_mode" = "Modo simples";
 "swap_slippage_error" = "Valor não compatível";
-"swap_slippage_info_text" = "é a diferença entre o preço de execução esperado e o preço de execução efetivo, causada por alterações no preço de mercado ou na liquidez";
+"swap_slippage_info_text" = "é a variação de preço entre a sua assinatura e a chegada da transação ao provedor. Ela é executada ao preço desse momento, dentro da sua tolerância de slippage.";
 "swap_slippage_warning_text" = "A troca poderá falhar se o limite de slippage for atingido";
 "swap_slippage_warning_title" = "Slippage definido em %@";
 "swap_story_first_subtitle_v2" = "Troque criptomoedas diretamente na Tangem\nSem transferências adicionais\nSem movimentação de fundos para corretoras";
@@ -3029,7 +3029,7 @@
 "warning_express_not_enough_fee_for_token_tx_description" = "Para efetuar uma transação, você precisa depositar algum valor. %1$@ %2$@";
 "warning_express_not_enough_fee_for_token_tx_title" = "Não foi possível cobrir %@ taxa";
 "warning_express_notification_invalid_reserve_amount_title" = "O valor a receber deve ser de pelo menos %@";
-"warning_express_pair_unavailable_message_v2" = "The provider can’t exchange your selected pair right now. Please choose another provider. (Code %@)";
+"warning_express_pair_unavailable_message_v2" = "No momento, o provedor não pode trocar o par selecionado. Por favor, escolha outro provedor. (Código %@)";
 "warning_express_pair_unavailable_message" = "Isso pode ocorrer porque o provedor não consegue, no momento, realizar a troca do par selecionado. Aguarde um momento e tente novamente. (Código) %@)";
 "warning_express_pair_unavailable_title" = "O par selecionado está temporariamente indisponível.";
 "warning_express_providers_fca_warning_description" = "Alguns fornecedores não são autorizados pela Autoridade de Conduta Financeira do Reino Unido. Você deve evitar negociar com eles.";
@@ -3049,8 +3049,8 @@
 "warning_hedera_token_association_not_enough_hbar_message" = "Não há %@ suficiente. Recarregue sua conta Hedera para associar este token.";
 "warning_incomplete_backup_notification_message" = "Identificamos que o processo de ativação do cartão não foi concluído corretamente devido a problemas com o módulo NFC do seu dispositivo ou à forma incorreta de aproximar o cartão do telefone. Entre em contato com nossa equipe de suporte para obter mais informações.";
 "warning_incomplete_backup_notification_title" = "É necessário realizar uma ação. Não use sua carteira!";
-"warning_incomplete_balance_message" = "This address has more than %1$@ UTXOs, so the %2$@ network returns only part of them. Your funds are safe. To see the full balance, consolidate UTXOs by sending %3$@ to your own address.";
-"warning_incomplete_balance_title" = "Balance may be incomplete";
+"warning_incomplete_balance_message" = "Esse endereço possui mais de %1$@ UTXOs, por isso a rede %2$@ retorna apenas parte deles. Seus fundos estão seguros. Para visualizar o saldo total, consolide os UTXOs enviando %3$@ para seu próprio endereço.";
+"warning_incomplete_balance_title" = "O saldo pode estar incompleto";
 "warning_ios_deprecation_ended_message" = "O suporte ao iOS %1$@ foi encerrado em %2$@. Para continuar recebendo atualizações do aplicativo e garantir o funcionamento completo, atualize para a versão mais recente do iOS.";
 "warning_ios_deprecation_message" = "Suporte para iOS %1$@ terminará em %2$@. Para continuar recebendo atualizações do aplicativo e garantir o funcionamento completo, atualize para a versão mais recente do iOS.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Tem certeza de que deseja cancelar a transação? Você não poderá tentar realizá-la novamente.";
@@ -3136,8 +3136,11 @@
 "wc_connection_reqeust_will_not" = "Não será possível";
 "wc_connection_reqeust_would_like" = "Gostaria de";
 "wc_connection_request" = "Solicitação de conexão";
+"wc_connections_agents_error_title" = "AI agents unavailable";
 "wc_connections_agents_title" = "Agentes conectados";
 "wc_connections_dapps_title" = "dApps conectados";
+"wc_connections_empty_desc" = "Connect to dApps via WalletConnect or AI agents via MCP. Manage all your connections in one place.";
+"wc_connections_empty_title" = "No connections yet";
 "wc_connections_subtitle" = "Conecte-se a dApps ou MCP";
 "wc_connections" = "Conexões";
 "wc_contents" = "Conteúdo";
