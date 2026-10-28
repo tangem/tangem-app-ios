@@ -108,6 +108,7 @@ enum TokenFeeLoaderError: LocalizedError {
     case missingFeeRecipientAddress
     case notEnoughFeeBalance
     case noLatestImplementationForUpgrade
+    case yieldModuleVersionUnsupported
     case gaslessExecutionReverted(gaslessMinTokenAmount: Decimal)
     case executionReverted
 
@@ -124,6 +125,7 @@ enum TokenFeeLoaderError: LocalizedError {
         case .missingFeeRecipientAddress: "Missing fee recipient address"
         case .notEnoughFeeBalance: "Not enough fee balance"
         case .noLatestImplementationForUpgrade: "No latest implementation for upgrade"
+        case .yieldModuleVersionUnsupported: "Yield module version does not support yield-paid fee"
         case .gaslessExecutionReverted(let gaslessMinTokenAmount): "Gasless fee estimation execution reverted, min token amount: \(gaslessMinTokenAmount)"
         case .executionReverted: "Execution reverted"
         }

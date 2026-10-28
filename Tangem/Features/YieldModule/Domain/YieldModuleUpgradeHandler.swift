@@ -33,19 +33,32 @@ protocol YieldModuleUpgradeHandler {
 
 final class CommonYieldModuleUpgradeHandler: YieldModuleUpgradeHandler {
     private let versionChecker: YieldModuleVersionChecker
+    private let versionResolver: YieldModuleVersionResolver?
     private let yieldModuleAddress: String
 
     init(
         versionChecker: YieldModuleVersionChecker,
+        versionResolver: YieldModuleVersionResolver?,
         yieldModuleAddress: String
     ) {
         self.versionChecker = versionChecker
+        self.versionResolver = versionResolver
         self.yieldModuleAddress = yieldModuleAddress
     }
 
     func upgradeWrappedDataIfNeeded(_ data: ExpressTransactionData) async throws -> ExpressTransactionData {
         guard !isUpgradeWrapped(data) else {
             return data
+        }
+
+        if let versionResolver {
+            let status = try await swapCapableStatus(versionResolver: versionResolver)
+
+            guard case .upgradeAvailable(let implementation, _) = status else {
+                return data
+            }
+
+            return wrapWithUpgrade(data: data, latestImplementation: implementation)
         }
 
         let status = try await versionChecker.checkVersion(userModuleAddress: yieldModuleAddress)
@@ -62,6 +75,11 @@ final class CommonYieldModuleUpgradeHandler: YieldModuleUpgradeHandler {
     }
 
     func checkSwapAvailability() async throws {
+        if let versionResolver {
+            _ = try await swapCapableStatus(versionResolver: versionResolver)
+            return
+        }
+
         let status = try await versionChecker.checkVersion(userModuleAddress: yieldModuleAddress)
 
         if case .outdated(canUpgrade: false, _) = status {
@@ -81,6 +99,16 @@ final class CommonYieldModuleUpgradeHandler: YieldModuleUpgradeHandler {
 // MARK: - Private
 
 private extension CommonYieldModuleUpgradeHandler {
+    func swapCapableStatus(versionResolver: YieldModuleVersionResolver) async throws -> YieldModuleUpgradeStatus {
+        let status = try await versionResolver.resolveStatus(moduleAddress: yieldModuleAddress)
+
+        guard status.supports(.v2) else {
+            throw ExpressProviderError.yieldModuleSwapUnavailable(.moduleUpgradeUnavailable)
+        }
+
+        return status
+    }
+
     func wrapWithUpgrade(data: ExpressTransactionData, latestImplementation: String) -> ExpressTransactionData {
         guard let originalTxData = data.txData else {
             return data
