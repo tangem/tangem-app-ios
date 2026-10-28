@@ -29,6 +29,68 @@ public struct UpgradeToAndCallMethod {
     public static func isEncodedCall(_ calldata: String) -> Bool {
         isEncodedCall(Data(hexString: calldata))
     }
+
+    /// Wraps a Yield Module call into `upgradeToAndCall` so the module is upgraded in the same transaction.
+    ///
+    /// The call is returned unchanged when there is no implementation to upgrade to
+    /// or when it is already an `upgradeToAndCall` call.
+    ///
+    /// - Parameters:
+    ///   - callData: Encoded call to the Yield Module.
+    ///   - newImplementation: Address of the implementation to upgrade to, or `nil` when no upgrade is needed.
+    /// - Returns: The wrapped call, or `callData` as is.
+    public static func wrapIfNeeded(_ callData: Data, newImplementation: String?) -> Data {
+        guard let newImplementation, !isEncodedCall(callData) else {
+            return callData
+        }
+
+        return UpgradeToAndCallMethod(newImplementation: newImplementation, callData: callData).data
+    }
+}
+
+// MARK: - Decoding
+
+public extension UpgradeToAndCallMethod {
+    /// Decodes an `upgradeToAndCall(address,bytes)` call back into the implementation address and the wrapped call.
+    ///
+    /// - Parameter calldata: Encoded transaction data.
+    /// - Returns: `nil` when the data is not an `upgradeToAndCall` call or its ABI layout is malformed.
+    init?(calldata: Data) {
+        guard Self.isEncodedCall(calldata) else {
+            return nil
+        }
+
+        let arguments = Data(calldata.dropFirst(Constants.methodIdLength))
+
+        guard arguments.count >= Constants.headLength else {
+            return nil
+        }
+
+        let implementationSlot = arguments.prefix(Constants.slotLength)
+
+        guard implementationSlot.prefix(Constants.addressPaddingLength).allSatisfy({ $0 == 0 }) else {
+            return nil
+        }
+
+        let offset = BigUInt(Data(arguments[Constants.slotLength ..< Constants.headLength]))
+
+        guard offset <= BigUInt(arguments.count - Constants.slotLength) else {
+            return nil
+        }
+
+        let lengthStart = Int(offset)
+        let payloadStart = lengthStart + Constants.slotLength
+        let length = BigUInt(Data(arguments[lengthStart ..< payloadStart]))
+
+        guard length <= BigUInt(arguments.count - payloadStart) else {
+            return nil
+        }
+
+        self.init(
+            newImplementation: Data(implementationSlot.suffix(Constants.addressLength)).hex().addHexPrefix(),
+            callData: Data(arguments[payloadStart ..< payloadStart + Int(length)])
+        )
+    }
 }
 
 extension UpgradeToAndCallMethod: SmartContractMethod {
@@ -63,5 +125,17 @@ extension UpgradeToAndCallMethod: SmartContractMethod {
         }
 
         return result
+    }
+}
+
+// MARK: - Constants
+
+private extension UpgradeToAndCallMethod {
+    enum Constants {
+        static let methodIdLength = 4
+        static let slotLength = 32
+        static let addressLength = 20
+        static let addressPaddingLength = slotLength - addressLength
+        static let headLength = slotLength * 2
     }
 }
