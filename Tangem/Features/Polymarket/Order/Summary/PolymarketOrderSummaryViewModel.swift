@@ -127,6 +127,7 @@ private extension PolymarketOrderSummaryViewModel {
             reportStaleQuote()
         case .ready(let quote):
             isPlacing = true
+            model.handleViewAction(.holdQuote)
 
             placementTask = Task { @MainActor [weak self] in
                 guard let self else { return }
@@ -167,6 +168,7 @@ private extension PolymarketOrderSummaryViewModel {
 
     func resume() {
         isPlacing = false
+        model.handleViewAction(.releaseQuote)
     }
 }
 

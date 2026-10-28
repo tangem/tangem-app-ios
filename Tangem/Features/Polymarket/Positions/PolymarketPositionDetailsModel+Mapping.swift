@@ -19,9 +19,11 @@ extension PolymarketPositionDetailsView.Model {
         openEventDetails: @escaping () -> Void,
         onClosePosition: @escaping () -> Void,
         onBuy: @escaping () -> Void,
+        onMarketUnavailable: @escaping () -> Void,
         onHint: @escaping (PolymarketPositionHintSheetView.Model) -> Void,
         loadingSide: PolymarketOrderSide?
     ) -> Self {
+        let availability = TradeAvailability(position: position)
         let isOrderLoading = loadingSide != nil
 
         return Self(
@@ -33,15 +35,19 @@ extension PolymarketPositionDetailsView.Model {
             openEventDetails: openEventDetails,
             secondaryAction: action(
                 title: Localization.predictionCashOut,
-                isEnabled: canTrade(position) && !isOrderLoading,
+                availability: availability,
+                isOrderLoading: isOrderLoading,
                 isLoading: loadingSide == .sell,
-                perform: onClosePosition
+                perform: onClosePosition,
+                onMarketUnavailable: onMarketUnavailable
             ),
             primaryAction: action(
                 title: Localization.commonBuy,
-                isEnabled: canTrade(position) && !isOrderLoading,
+                availability: availability,
+                isOrderLoading: isOrderLoading,
                 isLoading: loadingSide == .buy,
-                perform: onBuy
+                perform: onBuy,
+                onMarketUnavailable: onMarketUnavailable
             )
         )
     }
@@ -53,8 +59,10 @@ private extension PolymarketPositionDetailsView.Model {
     static func header(position: PolymarketPosition) -> PolymarketPositionHeader.Model {
         PolymarketPositionHeader.Model(
             iconURL: position.iconURL,
-            changeText: changeText(position: position),
-            changeType: PriceChangeView.ChangeType(from: displayedMoney(position.cashPnl)),
+            change: PolymarketPositionRow.Change(
+                text: changeText(position: position),
+                type: PriceChangeView.ChangeType(from: displayedMoney(position.cashPnl))
+            ),
             valueText: money(position.currentValue),
             question: question(position: position),
             outcomeTitle: position.outcome,
@@ -93,14 +101,14 @@ private extension PolymarketPositionDetailsView.Model {
                 id: Constants.unrealizedTileID,
                 caption: Localization.predictionPositionsUnrealizedPnl,
                 value: signedMoney(position.cashPnl),
-                tone: PolymarketValueTone(displayedMoney(position.cashPnl)),
+                tone: PolymarketValueTone(pnl: displayedMoney(position.cashPnl)),
                 onHintTap: { onHint(.unrealizedPnl) }
             ),
             .init(
                 id: Constants.realizedTileID,
                 caption: Localization.predictionPositionsRealizedPnl,
                 value: signedMoney(position.realizedPnl),
-                tone: PolymarketValueTone(displayedMoney(position.realizedPnl)),
+                tone: PolymarketValueTone(pnl: displayedMoney(position.realizedPnl)),
                 onHintTap: { onHint(.realizedPnl) }
             ),
         ]
@@ -130,20 +138,41 @@ private extension PolymarketPositionDetailsView.Model {
         }
     }
 
-    static func canTrade(_ position: PolymarketPosition) -> Bool {
-        position.resolutionStatus == .open
-            && position.isAcceptingOrders
-            && position.marketId != nil
-            && position.eventId != nil
-    }
-
     static func action(
         title: String,
-        isEnabled: Bool,
-        isLoading: Bool = false,
-        perform: @escaping () -> Void
+        availability: TradeAvailability,
+        isOrderLoading: Bool,
+        isLoading: Bool,
+        perform: @escaping () -> Void,
+        onMarketUnavailable: @escaping () -> Void
     ) -> PolymarketPositionDetailsView.Action {
-        PolymarketPositionDetailsView.Action(title: title, isEnabled: isEnabled, isLoading: isLoading, perform: perform)
+        switch availability {
+        case .tradable:
+            PolymarketPositionDetailsView.Action(title: title, isEnabled: !isOrderLoading, isLoading: isLoading, perform: perform)
+        case .marketUnavailable:
+            PolymarketPositionDetailsView.Action(title: title, isEnabled: !isOrderLoading, perform: onMarketUnavailable)
+        case .locked:
+            PolymarketPositionDetailsView.Action(title: title, isEnabled: false, perform: perform)
+        }
+    }
+}
+
+// MARK: - Trade availability
+
+private extension PolymarketPositionDetailsView.Model {
+    enum TradeAvailability {
+        case tradable
+        case marketUnavailable
+        case locked
+
+        init(position: PolymarketPosition) {
+            if position.resolutionStatus == .open {
+                let canTrade = position.isAcceptingOrders && position.marketId != nil && position.eventId != nil
+                self = canTrade ? .tradable : .locked
+            } else {
+                self = PolymarketPositionDetailsView.Model.notice(position: position) == nil ? .marketUnavailable : .locked
+            }
+        }
     }
 }
 
@@ -241,11 +270,12 @@ extension PolymarketPositionDetailsPhaseTwoView.Model {
         openEventDetails: @escaping () -> Void,
         onClosePosition: @escaping () -> Void,
         onBuy: @escaping () -> Void,
+        onMarketUnavailable: @escaping () -> Void,
         onHint: @escaping (PolymarketPositionHintSheetView.Model) -> Void,
         loadingSide: PolymarketOrderSide?
     ) -> Self {
+        let availability = Values.TradeAvailability(position: position)
         let isOrderLoading = loadingSide != nil
-        let isTradable = Values.canTrade(position) && !isOrderLoading
 
         return Self(
             summary: .init(
@@ -267,15 +297,19 @@ extension PolymarketPositionDetailsPhaseTwoView.Model {
             rows: rows(position: position),
             secondaryAction: Values.action(
                 title: Localization.predictionCashOut,
-                isEnabled: isTradable,
+                availability: availability,
+                isOrderLoading: isOrderLoading,
                 isLoading: loadingSide == .sell,
-                perform: onClosePosition
+                perform: onClosePosition,
+                onMarketUnavailable: onMarketUnavailable
             ),
             primaryAction: Values.action(
                 title: Localization.commonBuy,
-                isEnabled: isTradable,
+                availability: availability,
+                isOrderLoading: isOrderLoading,
                 isLoading: loadingSide == .buy,
-                perform: onBuy
+                perform: onBuy,
+                onMarketUnavailable: onMarketUnavailable
             )
         )
     }

@@ -108,9 +108,12 @@ private extension PolymarketPositionRow.Model {
     }
 
     static func glowRing(position: PolymarketPosition) -> GlowRingAppearance? {
-        guard position.settlement != nil else { return nil }
-
-        return position.lifetimePnl < 0 ? .error : .info
+        switch position.settlement {
+        case .won: .info
+        case .lost: .error
+        case .split, .unknown: PolymarketOrderFormatter.displayedMoney(position.cashPnl) < 0 ? .error : .info
+        case nil: nil
+        }
     }
 }
 
@@ -124,29 +127,10 @@ extension PolymarketPositionRow.Model {
             imageURL: closedPosition.iconURL,
             outcomeTitle: closedPosition.outcome,
             outcomeStyle: PolymarketOutcomeStyle(outcomeIndex: closedPosition.outcomeIndex, name: closedPosition.outcome),
-            change: PolymarketPositionRow.Change(
-                text: changeText(closedPosition: closedPosition),
-                type: PriceChangeView.ChangeType(from: PolymarketOrderFormatter.displayedMoney(closedPosition.realizedPnl))
-            ),
+            change: nil,
             trailing: .status(status(for: closedPosition)),
             glowRing: nil
         )
-    }
-
-    static func changeText(closedPosition: PolymarketClosedPosition) -> String {
-        let amount = PolymarketOrderFormatter.money(abs(PolymarketOrderFormatter.displayedMoney(closedPosition.realizedPnl)))
-
-        guard let costBasis = costBasis(closedPosition: closedPosition) else { return amount }
-
-        let percent = percentFormatter.format(closedPosition.realizedPnl / costBasis, option: .priceChange)
-
-        return "\(amount) (\(percent))"
-    }
-
-    static func costBasis(closedPosition: PolymarketClosedPosition) -> Decimal? {
-        let costBasis = closedPosition.totalBought * closedPosition.avgPrice
-
-        return costBasis > 0 ? costBasis : nil
     }
 
     static func status(for closedPosition: PolymarketClosedPosition) -> PolymarketPositionRow.Status {

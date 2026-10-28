@@ -129,7 +129,6 @@ private extension PolymarketWebSocketSubscriptionClient {
         scheduleUnsubscribeIfNeeded()
 
         if readers.isEmpty {
-            activeConnection?.latestValues = [:]
             scheduleDisconnect()
         }
     }
@@ -197,13 +196,18 @@ private extension PolymarketWebSocketSubscriptionClient {
 
 private extension PolymarketWebSocketSubscriptionClient {
     func syncSubscriptions() {
-        guard let connection = activeConnection, let subscribing = channel.subscribing else {
+        guard let connection = activeConnection else {
             return
         }
 
         let newTopics = wantedTopics.subtracting(connection.subscribedTopics)
 
         guard !newTopics.isEmpty else {
+            return
+        }
+
+        guard let subscribing = channel.subscribing else {
+            activeConnection?.subscribedTopics.formUnion(newTopics)
             return
         }
 
@@ -393,20 +397,23 @@ private extension PolymarketWebSocketSubscriptionClient {
 
         let topics = unwantedTopics
 
-        guard let connection = activeConnection, let subscribing = channel.subscribing, !topics.isEmpty else {
+        guard let connection = activeConnection, !topics.isEmpty else {
             return
         }
 
-        let message: WebSocketMessage
+        if let subscribing = channel.subscribing {
+            let message: WebSocketMessage
 
-        do {
-            message = try subscribing.unsubscribeMessage(for: topics)
-        } catch {
-            PolymarketLogger.error("Subscription client: failed to encode an unsubscription", error: error)
-            return
+            do {
+                message = try subscribing.unsubscribeMessage(for: topics)
+            } catch {
+                PolymarketLogger.error("Subscription client: failed to encode an unsubscription", error: error)
+                return
+            }
+
+            connection.outgoingQueue.send(message)
         }
 
-        connection.outgoingQueue.send(message)
         activeConnection?.subscribedTopics.subtract(topics)
         forgetUnfollowedValues()
     }

@@ -37,7 +37,7 @@ final class PolymarketOrderModel: ObservableObject {
     private let collateralBalancePublisher: AnyPublisher<Decimal?, Never>
     private let addFundsReadinessStream: AsyncStream<PolymarketAccountFundsInteractor.State>
     private let delayProvider: PollDelayProvider
-    private let appStateObserver: AppStateObserver
+    private let appStateObserver: AppStateObserving
 
     // MARK: - Private state
 
@@ -45,6 +45,8 @@ final class PolymarketOrderModel: ObservableObject {
     private var heldSharesTask: Task<Decimal?, Never>?
     private var addFundsReadinessTask: Task<Void, Never>?
     private var visibleScreens = 0
+    private var isQuoteHeld = false
+    private var sharesArrivedWhileHeld: Decimal?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Init
@@ -62,7 +64,7 @@ final class PolymarketOrderModel: ObservableObject {
         collateralBalancePublisher: AnyPublisher<Decimal?, Never>,
         addFundsReadinessStream: AsyncStream<PolymarketAccountFundsInteractor.State>,
         delayProvider: PollDelayProvider = TaskSleepPollDelayProvider(),
-        notificationCenter: NotificationCenter = .default
+        appStateObserver: AppStateObserving = AppStateObserver()
     ) {
         self.market = market
         self.outcome = outcome
@@ -76,7 +78,7 @@ final class PolymarketOrderModel: ObservableObject {
         self.collateralBalancePublisher = collateralBalancePublisher
         self.addFundsReadinessStream = addFundsReadinessStream
         self.delayProvider = delayProvider
-        appStateObserver = AppStateObserver(notificationCenter: notificationCenter)
+        self.appStateObserver = appStateObserver
 
         amountField = DecimalNumberTextFieldViewModel(maximumFractionDigits: intent.fractionDigits)
 
@@ -147,6 +149,22 @@ final class PolymarketOrderModel: ObservableObject {
             self.step(by: step)
         case .retryQuote:
             restartQuoteLoop(debounced: false)
+        case .holdQuote:
+            isQuoteHeld = true
+            suspendQuoteLoop()
+        case .releaseQuote:
+            guard isQuoteHeld else { return }
+
+            isQuoteHeld = false
+
+            if let shares = sharesArrivedWhileHeld {
+                sharesArrivedWhileHeld = nil
+                applyHeldShares(shares)
+            }
+
+            if visibleScreens > 0 {
+                restartQuoteLoop(debounced: false, resuming: true)
+            }
         }
     }
 }
@@ -169,7 +187,7 @@ extension PolymarketOrderModel {
     }
 
     private func step(by step: Int) {
-        guard let balance = state.balance else { return }
+        guard !isQuoteHeld, let balance = state.balance else { return }
 
         let floor = intent.floor(balance: balance)
         let current = state.enteredAmount ?? floor
@@ -191,6 +209,8 @@ extension PolymarketOrderModel {
     /// single mutation, otherwise the old answer is published against the new amount for one pass and the gate
     /// reads it as a verdict on what the user has just typed.
     func apply(enteredAmount: Decimal?, debounced: Bool) {
+        guard !isQuoteHeld else { return }
+
         var updated = state
         updated.enteredAmount = enteredAmount
         updated.quote = .empty
@@ -234,6 +254,8 @@ extension PolymarketOrderModel {
         case selectSlippage(Decimal)
         case step(Int)
         case retryQuote
+        case holdQuote
+        case releaseQuote
     }
 }
 
@@ -310,7 +332,7 @@ private extension PolymarketOrderModel {
 
 private extension PolymarketOrderModel {
     func apply(slippagePercent: Decimal) {
-        guard slippagePercent != state.slippagePercent else { return }
+        guard !isQuoteHeld, slippagePercent != state.slippagePercent else { return }
 
         state.slippagePercent = slippagePercent
         restartQuoteLoop(debounced: false)
@@ -323,6 +345,8 @@ private extension PolymarketOrderModel {
     }
 
     func select(amount: Decimal) {
+        guard !isQuoteHeld else { return }
+
         amountField.update(value: amount)
 
         let quotable = amount >= Constants.minQuotableAmount ? amount : nil
@@ -402,6 +426,11 @@ private extension PolymarketOrderModel {
     func applyHeldShares(_ size: Decimal?) {
         guard case .sell = intent, let size, size != state.balance else { return }
 
+        guard !isQuoteHeld else {
+            sharesArrivedWhileHeld = size
+            return
+        }
+
         let heldWholePosition = state.enteredAmount == state.balance
 
         state.balance = size
@@ -433,6 +462,8 @@ private extension PolymarketOrderModel {
 
 private extension PolymarketOrderModel {
     func restartQuoteLoop(debounced: Bool, resuming: Bool = false) {
+        guard !isQuoteHeld else { return }
+
         quoteTask?.cancel()
 
         var updated = state
