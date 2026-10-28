@@ -108,15 +108,18 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.offrampCoordinator) {
                 TangemPayOfframpCoordinatorView(coordinator: $0)
                     .interactiveDismissDisabled()
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.tangemPayPinViewModel) {
                 TangemPayPinView(viewModel: $0)
                     .presentationCornerRadius(24)
                     .containerCornerRadius(24)
+                    .softTopScrollEdgeEffect()
             }
             .modal(
                 item: $coordinator.tangemPayPinCheckViewModel,
@@ -128,26 +131,33 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
                 TangemPayDailyLimitView(viewModel: $0)
                     .presentationCornerRadius(24)
                     .containerCornerRadius(24)
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.pendingExpressTxStatusBottomSheet) {
                 PendingExpressTxStatusBottomSheetView(viewModel: $0)
+                    .softTopScrollEdgeEffect()
             }
             .fullScreenCover(item: $coordinator.virtualAccountOnboardingViewModel) {
                 TangemPayVirtualAccountInfoContainerView(viewModel: $0)
+                    .softTopScrollEdgeEffect()
             }
             .fullScreenCover(item: $coordinator.virtualAccountDetailsViewModel) {
                 TangemPayVirtualAccountDetailsView(viewModel: $0)
+                    .softTopScrollEdgeEffect()
             }
             .fullScreenCover(item: $coordinator.cashbackDetailViewModel) {
                 TangemPayCashbackDetailView(viewModel: $0)
+                    .softTopScrollEdgeEffect()
             }
             .fullScreenCover(item: $coordinator.orderCardCoordinator) {
                 TangemPayOrderCardCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
             }
             .fullScreenCover(item: $coordinator.activateCardViewModel) { viewModel in
                 NavigationStack {
                     TangemPayActivateCardView(viewModel: viewModel)
                 }
+                .softTopScrollEdgeEffect()
             }
     }
 }

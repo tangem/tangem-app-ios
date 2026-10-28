@@ -32,6 +32,7 @@ struct TransferInputView: View {
                 onClose: { viewModel.isTokenModalPresented = false }
             )
             .presentationDetents(idealHeight: Constants.tokenModalIdealHeight)
+            .softTopScrollEdgeEffect()
         }
         .sheet(isPresented: $viewModel.isRailModalPresented) {
             TransferInputRailModalView(
@@ -40,6 +41,7 @@ struct TransferInputView: View {
                 onClose: { viewModel.isRailModalPresented = false }
             )
             .presentationDetents(idealHeight: Constants.railModalIdealHeight)
+            .softTopScrollEdgeEffect()
         }
         .onAppear(perform: viewModel.onAppear)
     }

@@ -55,21 +55,25 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.stakingDetailsCoordinator) { coordinator in
                 StakingDetailsCoordinatorView(coordinator: coordinator)
                     .stakingNavigationView()
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.yieldModuleActiveCoordinator) {
                 YieldModuleActiveCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
             }
             .sheet(
                 item: $coordinator.addFundsViewModel,
                 onDismiss: coordinator.addFundsDidDismiss,
-                content: { viewModel in NavigationStack { AddFundsView(viewModel: viewModel) } }
+                content: { viewModel in NavigationStack { AddFundsView(viewModel: viewModel) }.softTopScrollEdgeEffect() }
             )
             .sheet(item: $coordinator.tokenSummaryViewModel, onDismiss: coordinator.tokenSummaryDidDismiss) {
                 TokenSummaryView(viewModel: $0)
                     .presentationDetents([.large])
+                    .softTopScrollEdgeEffect()
             }
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
@@ -98,6 +102,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                             }
                         }
                 }
+                .softTopScrollEdgeEffect()
             }
             .fullScreenCover(item: $coordinator.tokenDetailsCoordinator) { item in
                 NavigationStack {
@@ -109,6 +114,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                             .redesigned()
                         }
                 }
+                .softTopScrollEdgeEffect()
             }
     }
 

@@ -28,6 +28,7 @@ struct TangemPayOfferView: View {
         .alert(item: $viewModel.alert) { $0.alert }
         .sheet(item: $viewModel.termsFeesAndLimitsViewModel) {
             WebViewContainer(viewModel: $0)
+                .softTopScrollEdgeEffect()
         }
     }
 }

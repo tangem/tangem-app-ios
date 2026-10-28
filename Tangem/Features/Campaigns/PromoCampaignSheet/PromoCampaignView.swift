@@ -58,6 +58,7 @@ struct PromoCampaignView: View {
         .onFirstAppear(perform: viewModel.onFirstAppear)
         .sheet(item: $viewModel.tokenSelectorViewModel) { tokenSelectorViewModel in
             CampaignTokenSelectorView(viewModel: tokenSelectorViewModel)
+                .softTopScrollEdgeEffect()
         }
     }
 
