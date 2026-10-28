@@ -123,6 +123,11 @@ protocol TangemApiService: AnyObject {
     func loadMarketingCampaigns(request: MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response
     func bindMarketingActivityWallets(uid: String, request: MarketingActivityDTO.BindWallets.Request) async throws
 
+    // MARK: - Survey responses
+
+    func submitSurveyResponse(request: SurveyResponsesDTO.Submit.Request) async throws
+    func loadSurveyResponseStatus(request: SurveyResponsesDTO.Status.Request) async throws -> SurveyResponsesDTO.Status.Response
+
     // MARK: - Configs
 
     func loadFeatures() async throws -> [String: Bool]
