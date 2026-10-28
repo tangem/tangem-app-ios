@@ -24,7 +24,6 @@ struct JointAccountOperationPlate: View {
     /// first would put them out of reach.
     private var banner: some View {
         let banner = MessageBanner(title: viewData.title, description: viewData.subtitle)
-            .variant(.default)
             .glowRing(.warning)
             .slotEnd {
                 JointAccountSignatureProgressRing(
