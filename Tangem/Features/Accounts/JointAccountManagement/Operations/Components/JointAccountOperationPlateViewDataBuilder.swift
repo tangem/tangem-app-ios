@@ -13,7 +13,6 @@ import TangemLocalization
 /// Words an unfinished operation the way the main screen's plate shows it.
 struct JointAccountOperationPlateViewDataBuilder {
     private let balanceFormatter = BalanceFormatter()
-    private let signersResolver = JointAccountOperationSignersResolver()
 
     /// - Note: An amount this version cannot state is shown the way an unknown balance is, rather than costing the
     /// operation its plate.
@@ -31,7 +30,7 @@ struct JointAccountOperationPlateViewDataBuilder {
         let destination = AddressFormatter(address: pendingOperation.destination).truncated()
 
         let tokenName = pendingOperation.tokenItem.name
-        let title = signersResolver.ownAnswer(of: pendingOperation) == .created
+        let title = pendingOperation.isInitiator
             ? Localization.jointOperationBannerTitleOwn(tokenName)
             : Localization.jointOperationBannerTitle(initiatorName, tokenName)
 
