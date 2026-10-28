@@ -658,6 +658,14 @@ var unitTestsModules: [PackageDescription.Target] {
             swiftSettings: .swift6StrictSettings
         ),
         .tangemTestTarget(
+            name: "TangemSocialAuthenticationTests",
+            dependencies: [
+                "TangemFoundation",
+                "TangemSocialAuthentication",
+            ],
+            swiftSettings: .swift6StrictSettings
+        ),
+        .tangemTestTarget(
             name: "TangemWebSocketTests",
             dependencies: [
                 "TangemWebSocket",
