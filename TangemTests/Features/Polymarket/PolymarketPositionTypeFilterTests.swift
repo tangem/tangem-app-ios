@@ -59,7 +59,6 @@ struct PolymarketPositionTypeFilterTests {
         (.lost, .lost),
         (.split, .split),
         (.closed, .closed),
-        (.unknown, .unknown),
     ])
     func closedRowsFollowStatus(filter: PolymarketPositionTypeFilter, status: PolymarketClosedPositionStatus) {
         #expect(filter.accepts(Self.closed(status: status)))
@@ -69,10 +68,18 @@ struct PolymarketPositionTypeFilterTests {
         }
     }
 
-    @Test("An unrecognised ending is its own state, not every state")
-    func unknownStaysUnknown() {
-        #expect(PolymarketPositionTypeFilter.unknown.accepts(Self.open(resolution: .unknown, settlement: .unknown)))
-        #expect(!PolymarketPositionTypeFilter.unknown.accepts(Self.open(resolution: .resolved, settlement: .won)))
+    @Test("An unrecognised ending is listed only under All")
+    func unknownIsListedUnderAll() {
+        let openRow = Self.open(resolution: .unknown, settlement: .unknown)
+        let closedRow = Self.closed(status: .unknown)
+
+        #expect(PolymarketPositionTypeFilter.all.accepts(openRow))
+        #expect(PolymarketPositionTypeFilter.all.accepts(closedRow))
+
+        for filter in PolymarketPositionTypeFilter.allCases where filter != .all {
+            #expect(!filter.accepts(openRow))
+            #expect(!filter.accepts(closedRow))
+        }
     }
 
     @Test("Nothing closed is live, so the live states match no closed row", arguments: [

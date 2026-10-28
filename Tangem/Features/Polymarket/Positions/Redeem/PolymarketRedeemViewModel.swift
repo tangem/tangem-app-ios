@@ -109,11 +109,16 @@ extension PolymarketRedeemViewModel {
     }
 
     var footerCaption: String? {
-        guard outcome.paysOut else { return nil }
-
-        return position.isRedeemable
-            ? Localization.predictionPositionResultBalanceNote
-            : Localization.predictionPositionResultPayoutPendingNote
+        switch outcome {
+        case .won, .split:
+            position.isRedeemable
+                ? Localization.predictionPositionResultBalanceNote
+                : Localization.predictionPositionResultPayoutPendingNote
+        case .lost:
+            position.isRedeemable ? Localization.predictionPositionResultCloseNote : nil
+        case .undetermined:
+            nil
+        }
     }
 
     var marketRow: PolymarketOrderMarketRow.Model {
@@ -208,7 +213,7 @@ private extension PolymarketRedeemViewModel {
     }
 
     var lostAmount: Decimal {
-        abs(position.lifetimePnl)
+        abs(PolymarketOrderFormatter.displayedMoney(position.cashPnl))
     }
 }
 

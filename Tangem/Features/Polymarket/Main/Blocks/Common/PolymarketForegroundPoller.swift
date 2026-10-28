@@ -7,12 +7,14 @@
 //
 
 import Foundation
+import TangemFoundation
 
 final class PolymarketForegroundPoller {
     typealias Tick = @MainActor () async -> Void
 
     private let interval: TimeInterval
-    private let appStateObserver: AppStateObserver
+    private let appStateObserver: AppStateObserving
+    private let delayProvider: PollDelayProvider
 
     private var loopTask: Task<Void, Never>?
     private var onTick: Tick?
@@ -20,9 +22,18 @@ final class PolymarketForegroundPoller {
     private var isInBackground = false
     private var isSuspended = false
 
-    init(interval: TimeInterval, notificationCenter: NotificationCenter = .default) {
+    convenience init(interval: TimeInterval, notificationCenter: NotificationCenter = .default) {
+        self.init(
+            interval: interval,
+            appStateObserver: AppStateObserver(notificationCenter: notificationCenter),
+            delayProvider: TaskSleepPollDelayProvider()
+        )
+    }
+
+    init(interval: TimeInterval, appStateObserver: AppStateObserving, delayProvider: PollDelayProvider) {
         self.interval = interval
-        appStateObserver = AppStateObserver(notificationCenter: notificationCenter)
+        self.appStateObserver = appStateObserver
+        self.delayProvider = delayProvider
     }
 
     deinit {
@@ -82,6 +93,7 @@ private extension PolymarketForegroundPoller {
         loopTask?.cancel()
 
         let interval = interval
+        let delayProvider = delayProvider
 
         loopTask = Task { @MainActor [weak self] in
             if tickingNow {
@@ -91,7 +103,7 @@ private extension PolymarketForegroundPoller {
             }
 
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(interval))
+                try? await delayProvider.wait(for: interval)
 
                 guard !Task.isCancelled, let self, isActive else { return }
 
