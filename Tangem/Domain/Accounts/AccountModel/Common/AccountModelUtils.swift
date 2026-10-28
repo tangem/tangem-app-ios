@@ -15,17 +15,25 @@ enum AccountModelUtils {
 
     static var maxNumberOfAccounts: Int { Constants.maxNumberOfAccounts }
 
+    static func maxNumberOfAccounts(for type: AccountType) -> Int {
+        switch type {
+        case .crypto, .joint: Constants.maxNumberOfAccounts
+        case .collectibles: Constants.maxNumberOfCollectiblesAccounts
+        }
+    }
+
     static func isAccountsLimitReached(for type: AccountType, in accountModels: [AccountModel]) -> Bool {
         let accountsCount = switch type {
         case .crypto: accountModels.cryptoAccountsCount
         case .joint: AccountModelsAggregator(.joint).models(from: accountModels).count
+        case .collectibles: AccountModelsAggregator(.collectibles).model(from: accountModels) == nil ? 0 : 1
         }
 
-        return accountsCount >= maxNumberOfAccounts
+        return accountsCount >= maxNumberOfAccounts(for: type)
     }
 
     static func isAccountsLimitReached(for type: AccountType, in remoteState: CryptoAccountsRemoteState) -> Bool {
-        remoteState.accounts.count(where: { $0.derivationIdentity.type == type }) >= maxNumberOfAccounts
+        remoteState.accounts.count(where: { $0.derivationIdentity.type == type }) >= maxNumberOfAccounts(for: type)
     }
 
     @available(iOS, deprecated: 100000.0, message: "Accessing raw derivation indices is discouraged and should be used only if absolutely necessary")
@@ -95,6 +103,7 @@ private extension AccountModelUtils {
         static let mainAccountIconName: AccountModel.CompositeIcon.Name = .star
         static let maxAccountNameLength = 20
         static let maxNumberOfAccounts = 20
+        static let maxNumberOfCollectiblesAccounts = 1
         static let hashMultiplier = 31
     }
 }
