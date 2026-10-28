@@ -15,7 +15,13 @@ final class OnrampMarketingBannerManager {
     @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
 
     private let service = MarketingBannerService()
+    private let externalLinkResponder = ExternalLinkDeeplinkResponder()
+    private lazy var callToActionActionPerformer = CallToActionMarketingBannerActionPerformer(
+        incomingActionHandler: incomingActionHandler,
+        externalLinkResponder: externalLinkResponder
+    )
     private let standaloneBannersSubject = CurrentValueSubject<[StandaloneMarketingBannerViewModel], Never>([])
+    private let callToActionBannersSubject = CurrentValueSubject<[CallToActionMarketingBanner], Never>([])
     private let linkedBannersSubject = CurrentValueSubject<[MarketingBanner], Never>([])
     private var subscription: AnyCancellable?
 }
@@ -52,6 +58,7 @@ extension OnrampMarketingBannerManager {
             .sink { manager, banners in
                 manager.standaloneBannersSubject.send(banners.standalone.map { manager.makeStandaloneViewModel(for: $0) })
                 manager.linkedBannersSubject.send(banners.linked)
+                manager.callToActionBannersSubject.send(banners.callToAction.compactMap { CallToActionMarketingBannerViewModelFactory.make(from: $0) })
             }
     }
 }
@@ -75,6 +82,18 @@ private extension OnrampMarketingBannerManager {
             action: action,
             dismiss: banner.isDismissible ? { HiddenMarketingCampaignsStorage.hide(campaignId: banner.id) } : nil
         )
+    }
+}
+
+// MARK: - Call-to-action banners
+
+extension OnrampMarketingBannerManager {
+    var callToActionBannersPublisher: AnyPublisher<[CallToActionMarketingBanner], Never> {
+        callToActionBannersSubject.removeDuplicates().eraseToAnyPublisher()
+    }
+
+    func perform(_ action: CallToActionMarketingBannerAction) {
+        callToActionActionPerformer.perform(action)
     }
 }
 

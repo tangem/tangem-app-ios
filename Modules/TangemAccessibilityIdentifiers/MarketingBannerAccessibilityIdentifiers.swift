@@ -12,4 +12,12 @@ public enum MarketingBannerAccessibilityIdentifiers {
     public static func standaloneBanner(id: Int) -> String {
         "marketingBanner_standalone_\(id)"
     }
+
+    public static func callToActionBanner(id: Int) -> String {
+        "marketingBanner_callToAction_\(id)"
+    }
+
+    public static func callToActionBannerButton(id: Int) -> String {
+        "marketingBanner_callToAction_button_\(id)"
+    }
 }
