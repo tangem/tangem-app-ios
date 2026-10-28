@@ -244,6 +244,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let transactionDetailsCategoryRow = "\(prefix)TransactionDetailsCategoryRow"
     public static let transactionDetailsMccRow = "\(prefix)TransactionDetailsMccRow"
     public static let transactionDetailsCardRow = "\(prefix)TransactionDetailsCardRow"
+    public static let transactionDetailsCashback = "\(prefix)TransactionDetailsCashback"
     public static let transactionDetailsCardRowRetryButton = "\(prefix)TransactionDetailsCardRowRetryButton"
     public static let transactionDetailsMainButton = "\(prefix)TransactionDetailsMainButton"
 
@@ -328,7 +329,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let cashbackDetailErrorTitle = "\(prefix)CashbackDetailErrorTitle"
     public static let cashbackChartTotal = "\(prefix)CashbackChartTotal"
     public static let cashbackChartMonthPrefix = "\(prefix)CashbackChartMonth"
-    private static let cashbackChartValuePrefix = "\(prefix)CashbackChartValue"
+    public static let cashbackChartValuePrefix = "\(prefix)CashbackChartValue"
     public static let cashbackAdditionalSectionTitle = "\(prefix)CashbackAdditionalSectionTitle"
 
     public static func cashbackChartMonth(_ month: String) -> String {
