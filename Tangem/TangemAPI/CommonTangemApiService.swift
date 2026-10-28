@@ -348,6 +348,20 @@ extension CommonTangemApiService: TangemApiService {
         }
     }
 
+    // MARK: - Survey responses
+
+    func submitSurveyResponse(request: SurveyResponsesDTO.Submit.Request) async throws {
+        let target = TangemApiTarget(type: .submitSurveyResponse(request))
+
+        try await withErrorLoggingPipeline(target: target) {
+            _ = try await protectedProvider.asyncRequest(target).filterResponseThrowingTangemAPIError(allowRedirectCodes: false)
+        }
+    }
+
+    func loadSurveyResponseStatus(request: SurveyResponsesDTO.Status.Request) async throws -> SurveyResponsesDTO.Status.Response {
+        try await requestProtected(for: .surveyResponseStatus(request), decoder: decoder)
+    }
+
     func loadAPIList() async throws -> APIListDTO {
         try await request(for: .apiList)
     }
