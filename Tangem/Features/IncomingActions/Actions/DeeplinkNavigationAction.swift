@@ -34,6 +34,8 @@ enum DeeplinkNavigationAction: Equatable {
     case payCustomCard(PayCustomCardDeeplink)
     case support(SupportDeeplink)
     case tangemPayTransaction(TangemPayTransactionDeeplink)
+    case mcpIntent(MCPIntentDeeplink)
+    case mcpAuthorization(MCPAuthorizationDeeplink)
 }
 
 // MARK: - Identity
@@ -95,6 +97,8 @@ extension DeeplinkNavigationAction {
         JointAccountInviteDeeplink.host: JointAccountInviteDeeplink.self,
         JointAccountDeeplink.host: JointAccountDeeplink.self,
         SupportDeeplink.host: SupportDeeplink.self,
+        MCPAuthorizationDeeplink.host: MCPAuthorizationDeeplink.self,
+        MCPIntentDeeplink.host: MCPIntentDeeplink.self,
     ]
 
     /// Keyed by the first component of the path for the same reason. The rest of the shape is each

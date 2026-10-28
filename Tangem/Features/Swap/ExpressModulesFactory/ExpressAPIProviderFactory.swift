@@ -46,6 +46,7 @@ struct ExpressAPIProviderFactory {
             expressAPIType: expressAPIType,
             exchangeDataDecoder: exchangeDataDecoder,
             featureFlags: ExpressFeatureFlags(
+                isSwapBestRateDefaultProviderEnabled: FeatureProvider.isAvailable(.swapBestRateDefaultProvider),
                 isHideRejectedSwapProvidersEnabled: FeatureProvider.isAvailable(.hideRejectedSwapProviders)
             )
         )

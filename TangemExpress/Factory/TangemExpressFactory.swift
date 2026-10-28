@@ -18,7 +18,8 @@ public struct TangemExpressFactory {
         expressAPIProvider: ExpressAPIProvider,
         expressRepository: ExpressRepository,
         featureFlags: ExpressFeatureFlags,
-        preferredProviderId: ExpressProvider.Id? = nil
+        preferredProviderId: ExpressProvider.Id? = nil,
+        mcpIntentID: String? = nil
     ) -> ExpressManager {
         let factory = CommonExpressProviderManagerFactory(
             expressAPIProvider: expressAPIProvider,
@@ -31,7 +32,8 @@ public struct TangemExpressFactory {
             expressProviderManagerFactory: factory,
             expressRepository: expressRepository,
             featureFlags: featureFlags,
-            preferredProviderId: preferredProviderId
+            preferredProviderId: preferredProviderId,
+            mcpIntentID: mcpIntentID
         )
     }
 
@@ -56,13 +58,11 @@ public struct TangemExpressFactory {
     }
 
     public func makeOnrampRepository(storage: OnrampStorage) -> OnrampRepository {
-        let repository = CommonOnrampRepository(storage: storage)
-        return repository
+        CommonOnrampRepository(storage: storage)
     }
 
     public func makeOnrampDataRepository(expressAPIProvider: ExpressAPIProvider) -> OnrampDataRepository {
-        let repository = CommonOnrampDataRepository(provider: expressAPIProvider)
-        return repository
+        CommonOnrampDataRepository(provider: expressAPIProvider)
     }
 
     // MARK: - API

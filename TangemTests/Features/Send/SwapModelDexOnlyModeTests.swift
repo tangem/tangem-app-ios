@@ -294,7 +294,7 @@ private extension SwapModelDexOnlyModeTests {
             expressFeeProvider: ExpressFeeProviderDummy(),
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags()
+            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
         )
 
         return ExpressAvailableProvider(

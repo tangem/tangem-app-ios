@@ -17,6 +17,7 @@ public protocol ExpressAPIProvider {
     func providers(branches: [ExpressBranch]) async throws -> [ExpressProvider]
     func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote
     func exchangeData(item: ExpressSwappableDataItem) async throws -> ExpressTransactionData
+    func exchangeIntent(mcpIntentID: String) async throws -> ExchangeMCPIntent
     func exchangeStatus(transactionId: String) async throws -> ExchangeTransaction
     func exchangeSent(result: ExpressTransactionSentResult) async throws
 

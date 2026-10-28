@@ -94,7 +94,7 @@ private extension ExpressAPIMapperExchangeDataTests {
     func makeMapper(details: DecodedTransactionDetails) -> ExpressAPIMapper {
         ExpressAPIMapper(
             exchangeDataDecoder: CannedExchangeDataDecoderStub(details: details),
-            featureFlags: ExpressFeatureFlags()
+            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
         )
     }
 
@@ -140,7 +140,8 @@ private extension ExpressAPIMapperExchangeDataTests {
             refundAddress: sourceAddress,
             refundExtraId: nil,
             partnerOperationType: ExpressOperationType.swap.rawValue,
-            slippage: nil
+            slippage: nil,
+            intentId: nil
         )
     }
 
@@ -173,7 +174,8 @@ private extension ExpressAPIMapperExchangeDataTests {
             providerInfo: .init(id: "provider", type: .dex),
             operationType: .swap,
             quoteId: nil,
-            slippage: nil
+            slippage: nil,
+            mcpIntentID: nil
         )
     }
 }

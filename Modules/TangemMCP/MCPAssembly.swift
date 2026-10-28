@@ -1,5 +1,5 @@
 //
-//  TangemMCPAssembly.swift
+//  MCPAssembly.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -15,7 +15,9 @@ public import TangemUI
 public import struct TangemFoundation.UserWalletId
 public import struct TangemLogger.Logger
 
-public enum TangemMCPAssembly {
+public enum MCPAssembly {
+    public static let fetchMCPAgent = FetchMCPAgentUseCase(client: Self.agentClient, logger: Self.configuration.logger)
+
     @MainActor
     public static func makeConnectionRequestViewModel(
         userCode: String,
@@ -27,20 +29,13 @@ public enum TangemMCPAssembly {
         openSystemSettingsAction: @escaping () -> Void,
         closeAction: @escaping () -> Void
     ) -> MCPConnectionRequestViewModel {
-        let client = MoyaMCPConnectionClient(
-            provider: Self.configuration.provider,
-            baseURL: Self.configuration.baseURL,
-            encoder: JSONEncoder(),
-            decoder: JSONDecoder()
-        )
-
         let interactor = MCPConnectionRequestInteractor(
-            fetchRequest: FetchMCPConnectionRequestUseCase(client: client),
+            fetchRequest: FetchMCPConnectionRequestUseCase(client: Self.connectionClient),
             ensurePushNotificationsAuthorized: EnsurePushNotificationsAuthorizedUseCase(
                 provider: pushNotificationsPermissionProvider
             ),
-            reject: RejectMCPConnectionUseCase(client: client),
-            accept: AcceptMCPConnectionUseCase(client: client)
+            reject: RejectMCPConnectionUseCase(client: Self.connectionClient),
+            accept: AcceptMCPConnectionUseCase(client: Self.connectionClient)
         )
 
         let userWalletImageRepository = MCPUserWalletImageRepository(maxConcurrentFetches: 6, fetchImage: fetchUserWalletImage)
@@ -80,16 +75,30 @@ public enum TangemMCPAssembly {
     @MainActor
     public static func makeSwapIntentViewModel(
         agent: MCPAgent,
-        amount: String,
-        from fromToken: MCPToken,
-        to toToken: MCPToken,
+        fromAmount: MCPSwapAmount,
+        toToken: MCPToken,
         closeAction: @escaping () -> Void,
         proceedAction: @escaping () -> Void
     ) -> MCPSwapIntentViewModel {
         MCPSwapIntentViewModel(
             closeAction: closeAction,
             proceedAction: proceedAction,
-            state: MCPSwapIntentState(agent: agent, amount: amount, from: fromToken, to: toToken)
+            state: MCPSwapIntentState(agent: agent, fromAmount: fromAmount, toToken: toToken)
+        )
+    }
+
+    @MainActor
+    public static func makeSwapIntentViewModel(
+        agent: MCPAgent,
+        fromToken: MCPToken,
+        toAmount: MCPSwapAmount,
+        closeAction: @escaping () -> Void,
+        proceedAction: @escaping () -> Void
+    ) -> MCPSwapIntentViewModel {
+        MCPSwapIntentViewModel(
+            closeAction: closeAction,
+            proceedAction: proceedAction,
+            state: MCPSwapIntentState(agent: agent, fromToken: fromToken, toAmount: toAmount)
         )
     }
 }
@@ -98,7 +107,7 @@ public enum TangemMCPAssembly {
 
 // [REDACTED_TODO_COMMENT]
 
-extension TangemMCPAssembly {
+extension MCPAssembly {
     @MainActor
     private static func presentToast(for fetchRequestError: MCPConnectionClientError) {
         let errorMessage = "MCP connection proposal fetch failed"
@@ -131,22 +140,25 @@ extension TangemMCPAssembly {
 
 // MARK: - Configuration
 
-extension TangemMCPAssembly {
+extension MCPAssembly {
     public struct Configuration: Sendable {
         let floatingSheetRegistry: FloatingSheetRegistry
         let baseURL: URL
-        let provider: MoyaProvider<MCPConnectionTarget>
+        let connectionProvider: MoyaProvider<MCPConnectionTarget>
+        let agentProvider: MoyaProvider<MCPAgentTarget>
         let logger: TangemLogger.Logger
 
         public init(
             floatingSheetRegistry: FloatingSheetRegistry,
             baseURL: URL,
-            provider: MoyaProvider<MCPConnectionTarget>,
+            connectionProvider: MoyaProvider<MCPConnectionTarget>,
+            agentProvider: MoyaProvider<MCPAgentTarget>,
             logger: TangemLogger.Logger
         ) {
             self.floatingSheetRegistry = floatingSheetRegistry
             self.baseURL = baseURL
-            self.provider = provider
+            self.connectionProvider = connectionProvider
+            self.agentProvider = agentProvider
             self.logger = logger
         }
     }
@@ -185,6 +197,25 @@ extension TangemMCPAssembly {
     }
 }
 
-extension TangemMCPAssembly {
+// MARK: - Private factory methods
+
+extension MCPAssembly {
+    private static let jsonDecoder = JSONDecoder()
+
+    private static let connectionClient = MoyaMCPConnectionClient(
+        provider: Self.configuration.connectionProvider,
+        baseURL: Self.configuration.baseURL,
+        encoder: JSONEncoder(),
+        decoder: Self.jsonDecoder
+    )
+
+    private static let agentClient = MoyaMCPAgentClient(
+        provider: configuration.agentProvider,
+        baseURL: configuration.baseURL,
+        decoder: Self.jsonDecoder
+    )
+}
+
+extension MCPAssembly {
     private static let kingfisherImageCache = ImageCache(name: "com.tangem.mcp.icons")
 }
