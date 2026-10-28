@@ -16,6 +16,8 @@ import TangemAccessibilityIdentifiers
 struct StakingDetailsView: View {
     @ObservedObject var viewModel: StakingDetailsViewModel
 
+    @Environment(\.mainShtorkaSize) private var sheetSize
+
     @State private var viewGeometryInfo: GeometryInfo = .zero
     @State private var contentSize: CGSize = .zero
     @State private var bottomViewSize: CGSize = .zero
@@ -83,6 +85,7 @@ struct StakingDetailsView: View {
     private var marketingBanner: some View {
         if let standaloneMarketingBanners = viewModel.standaloneMarketingBanners {
             StandaloneMarketingBannersView(banners: standaloneMarketingBanners)
+                .messageBannerNeutralVariant(sheetSize.isFeedSheet ? .light : nil)
         }
     }
 

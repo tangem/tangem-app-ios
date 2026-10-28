@@ -63,8 +63,10 @@ extension TokenNotificationEvent: NotificationEvent {
 
     var bannerVariant: MessageBannerVariant? {
         switch self {
-        case .noAccount:
+        case .networkNotUpdated:
             return .default
+        case .noAccount:
+            return .neutral(.light)
         default:
             return nil
         }

@@ -78,7 +78,7 @@ extension GeneralNotificationEvent: NotificationEvent {
     var bannerVariant: MessageBannerVariant? {
         switch self {
         case .missingDerivation, .walletLocked, .forceUpdateAvailable:
-            return .default
+            return .neutral(.light)
         case .failedToVerifyCard:
             return .error
         case .lowSignatures:
