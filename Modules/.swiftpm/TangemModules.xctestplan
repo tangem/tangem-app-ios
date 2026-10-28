@@ -92,6 +92,13 @@
     {
       "target" : {
         "containerPath" : "container:",
+        "identifier" : "TangemSocialAuthenticationTests",
+        "name" : "TangemSocialAuthenticationTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
         "identifier" : "TangemWebSocketTests",
         "name" : "TangemWebSocketTests"
       }
