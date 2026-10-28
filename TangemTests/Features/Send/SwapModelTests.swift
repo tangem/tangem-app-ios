@@ -284,9 +284,8 @@ final class SwapModelTests: LeakTrackingTestSuite {
         )
 
         // initialLoading runs on a detached task; wait for the resolved source to land.
-        for _ in 0 ..< 500 {
-            if case .success = sut.sourceToken { break }
-            try await Task.sleep(for: .milliseconds(10))
+        try await waitUntil {
+            if case .success = sut.sourceToken { true } else { false }
         }
 
         #expect(sut.sourceToken.value?.tokenItem == resolvedSource.tokenItem)
@@ -1455,39 +1454,40 @@ private extension SwapModelTests {
         since baseline: Int,
         where predicate: @escaping (SwapModel.ProvidersState) -> Bool
     ) async throws -> SwapModel.ProvidersState {
-        let deadline = ContinuousClock.now.advanced(by: Self.waitTimeout)
-
-        while ContinuousClock.now < deadline {
-            if recorder.count > baseline, let latest = recorder.latest, predicate(latest) {
-                return latest
+        try await poll {
+            guard recorder.count > baseline, let latest = recorder.latest, predicate(latest) else {
+                return nil
             }
-            try await Task.sleep(for: .milliseconds(10))
-        }
 
-        throw TimeoutError()
+            return latest
+        }
     }
 
     /// Waits until the receive token leaves `.loading` and returns the failure. Under the pre-fix
     /// ordering (selection state sent only after the resolver await) this never happens with a
     /// suspended resolver, so the timeout is the regression signal.
     func waitForReceiveTokenFailure(_ sut: SwapModel) async throws -> any Error {
-        let deadline = ContinuousClock.now.advanced(by: Self.waitTimeout)
-
-        while ContinuousClock.now < deadline {
-            if case .failure(let error) = sut.receiveToken {
-                return error
+        try await poll {
+            guard case .failure(let error) = sut.receiveToken else {
+                return nil
             }
-            try await Task.sleep(for: .milliseconds(10))
-        }
 
-        throw TimeoutError()
+            return error
+        }
     }
 
     func waitUntil(_ condition: @escaping () async -> Bool) async throws {
+        try await poll { await condition() ? () : nil }
+    }
+
+    func poll<Value>(_ value: () async -> Value?) async throws -> Value {
         let deadline = ContinuousClock.now.advanced(by: Self.waitTimeout)
 
         while ContinuousClock.now < deadline {
-            if await condition() { return }
+            if let value = await value() {
+                return value
+            }
+
             try await Task.sleep(for: .milliseconds(10))
         }
 

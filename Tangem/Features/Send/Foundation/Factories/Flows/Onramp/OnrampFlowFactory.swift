@@ -105,8 +105,7 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
 
         marketingBannerManager.setup(
             tokenItem: tokenItem,
-            amountInput: onrampModel,
-            providersInput: onrampModel
+            amountInput: onrampModel
         )
 
         // Logger setup

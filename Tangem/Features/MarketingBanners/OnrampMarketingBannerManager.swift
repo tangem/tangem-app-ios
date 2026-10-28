@@ -25,8 +25,7 @@ final class OnrampMarketingBannerManager {
 extension OnrampMarketingBannerManager {
     func setup(
         tokenItem: TokenItem,
-        amountInput: any OnrampAmountInput,
-        providersInput: any OnrampProvidersInput
+        amountInput: any OnrampAmountInput
     ) {
         let requests = amountInput.fiatCurrencyPublisher
             .map { fiatCurrency -> OnrampMarketingBannerRequest? in
@@ -37,13 +36,13 @@ extension OnrampMarketingBannerManager {
             }
             .eraseToAnyPublisher()
 
-        let amount = providersInput.selectedOnrampProviderPublisher
-            .map { provider -> MarketingBannerAmount? in
-                guard let value = provider?.value?.quote?.expectedAmount, let currencyId = tokenItem.currencyId else {
+        let amount = Publishers.CombineLatest(amountInput.amountPublisher, amountInput.fiatCurrencyPublisher)
+            .map { amount, fiatCurrency -> MarketingBannerAmount? in
+                guard let amount, let fiatCurrency else {
                     return nil
                 }
 
-                return MarketingBannerAmount(value: value, currencyId: currencyId)
+                return .fiat(value: amount, currencyCode: fiatCurrency.identity.code)
             }
             .eraseToAnyPublisher()
 
