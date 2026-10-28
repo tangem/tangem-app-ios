@@ -878,6 +878,7 @@
 "hw_cloud_backup_permissions_title" = "Complete Google Drive access";
 "hw_cloud_backup_remove_title" = "%1$@ %2$@ backup";
 "hw_cloud_backup_removed" = "Backup removed";
+"hw_cloud_backup_restore_all_added_hint" = "All backups in this %1$@ account are already in Tangem";
 "hw_cloud_backup_restore_error_title" = "Something went wrong";
 "hw_cloud_backup_restore_error_with_recovery" = "Please try again later or import your recovery phrase.";
 "hw_cloud_backup_restore_navtitle_v2" = "%1$@ backup";
@@ -962,6 +963,8 @@
 "hw_upgrade_to_cold_banner_description" = "Keep your crypto safe with Tangem's top-tier hardware wallet.";
 "hw_upgrade_to_cold_banner_title" = "Upgrade your wallet to hardware security";
 "hw_upgrade" = "Upgrade";
+"hw_wallets_limit_alert_message" = "You can have up to %1$@ mobile wallets in Tangem. To create or import a new one, remove one of your existing mobile wallets first.";
+"hw_wallets_limit_alert_title" = "You’ve reached the mobile wallet limit";
 "information_generated_with_ai" = "This information was generated with AI.\nTap here if you find any errors.";
 "initial_message_change_access_code_body" = "要更改訪問密碼，請完全按照上圖所示連接手機和卡片";
 "initial_message_change_passcode_body" = "要更改密碼，請完全按照上圖所示連接手機和卡";
@@ -1349,8 +1352,10 @@
 "mobile_wallet_requires_min_os_warning_title" = "Mobile Wallet requires %1$@ or later";
 "money_account_add_funds_bank_description" = "透過 ACH/Wire 或 SPEI 從銀行帳戶接收 USD";
 "money_account_add_funds_receive_description" = "將 Polygon 網路的 USDC 發送至帳戶地址";
-"money_account_add_funds_swap_description" = "使用錢包中的加密資產為帳戶儲值";
-"money_account_close_account" = "Close account";
+"money_account_add_funds_swap_description" = "使用錢包中的加密資產為美元帳戶儲值";
+"money_account_balance_unavailable_description" = "We’re having trouble loading your balance. Try again later";
+"money_account_balance_unavailable_title" = "Balance unavailable";
+"money_account_close_account" = "關閉帳戶";
 "money_account_main_name" = "美元帳戶";
 "money_account_main_status_action_required" = "需要操作";
 "money_account_main_status_activating" = "正在啟用…";
@@ -1384,9 +1389,9 @@
 "money_account_onboarding_transfers_card_subtitle" = "使用具備銀行資訊的專屬帳戶";
 "money_account_onboarding_transfers_card_title" = "以法幣付款與收款";
 "money_account_send_bank_transfer_unavailable" = "Unavailable";
-"money_account_send_fees_footer" = "Fees include %@ service charge and estimated network fee";
-"money_account_send_network_fee_note" = "Fees include an estimated %@ network fee, which may vary with network activity";
-"money_account_send_pay_button" = "Pay %@";
+"money_account_send_fees_footer" = "費用包含%@服務費和預估網路費";
+"money_account_send_network_fee_note" = "費用包含預估網路費%@，可能隨網路活躍度變化";
+"money_account_send_pay_button" = "支付 %@";
 "money_account_send_unavailable_description" = "Try again in 5 minutes";
 "money_account_send_unavailable_title" = "Operation currently unavailable";
 "news_all_news" = "All news";
@@ -2020,10 +2025,15 @@
 "social_login_creating_wallet_description" = "This will only take a few seconds";
 "social_login_creating_wallet" = "Creating your wallet";
 "social_login_error_account_linked" = "This %@ account is already linked to another wallet.";
+"social_login_error_backup_not_saved_description" = "Make sure your cloud storage is available and try again.";
+"social_login_error_backup_not_saved_title" = "Couldn't save backup";
 "social_login_error_backup_not_saved" = "Couldn't save backup — make sure your cloud storage is available and try again";
 "social_login_error_cloud_access_description" = "Make sure Tangem has access to your %@ account, then try again";
 "social_login_error_cloud_access_title" = "Couldn't restore wallet";
+"social_login_error_generic_v2" = "Please check your internet connection and try again.";
 "social_login_error_generic" = "Something went wrong. Please try again";
+"social_login_error_network_description" = "Check your connection and try again.";
+"social_login_error_network_title" = "No internet connection";
 "social_login_error_no_account" = "Add your %@ account to this device to continue.";
 "social_login_error_restore_failed_description" = "We couldn't restore the wallet for this account. Try again or contact support";
 "social_login_error_session_expired" = "Session expired. Please try again";
@@ -2033,6 +2043,8 @@
 "social_login_restoring_wallet" = "Restoring your wallet";
 "social_login_toast_wallet_added" = "Wallet added";
 "social_login_toast_wallet_created" = "Wallet created";
+"social_wallet_already_added_alert_message" = "Only one wallet on this device can use Sign in with %1$@. To use a different account, log out of the current one first.";
+"social_wallet_already_added_alert_title" = "You’re already signed in with %1$@";
 "social_wallet_delete_anyway" = "Delete anyway";
 "social_wallet_delete_attention_acknowledge" = "I understand that if I haven't backed up my recovery phrase, I'll lose access to this wallet forever.";
 "social_wallet_delete_attention_description" = "This will delete the wallet from this device, unlink it from your %1$@ account and delete your encrypted keys from the cloud. Signing in with %1$@ will no longer restore it.";
@@ -2675,8 +2687,8 @@
 "tangempay_unified_onboarding_fees_caption" = "所見即所付";
 "tangempay_unified_onboarding_fees_subtitle" = "1 USDC = 1 USD";
 "tangempay_unified_onboarding_fees_title" = "消費免手續費。%1$@";
-"tangempay_unified_onboarding_interest_caption" = "Interest";
-"tangempay_unified_onboarding_interest_title" = "Hold and earn up to 4%% APY";
+"tangempay_unified_onboarding_interest_caption" = "利息";
+"tangempay_unified_onboarding_interest_title" = "持有即可賺取最高4%%的年化收益";
 "tangempay_unified_onboarding_legal" = "可開通的產品取決於您所在地區。驗證完成後我們會立即確認";
 "tangempay_unified_onboarding_money_account_caption" = "十分方便";
 "tangempay_unified_onboarding_money_account_header" = "美元帳戶";
@@ -2685,8 +2697,8 @@
 "tangempay_unified_onboarding_payment_account_caption" = "隨心支付";
 "tangempay_unified_onboarding_payment_account_header" = "Visa 卡";
 "tangempay_unified_onboarding_payment_account_title" = "線上或 %1$@";
-"tangempay_unified_onboarding_payments_caption" = "Payments";
-"tangempay_unified_onboarding_payments_title" = "ACH and wire transfers for daily needs";
+"tangempay_unified_onboarding_payments_caption" = "付款";
+"tangempay_unified_onboarding_payments_title" = "滿足日常所需的ACH和電匯轉帳";
 "tangempay_unified_onboarding_plan_caption" = "一個方案";
 "tangempay_unified_onboarding_plan_subtitle" = "Basic 免費。";
 "tangempay_unified_onboarding_plan_title" = "%1$@ Plus 涵蓋兩者，還有更多權益";
@@ -2703,7 +2715,7 @@
 "tangempay_verified_choose_plan" = "選擇方案";
 "tangempay_verified_description_all" = "您可以同時擁有 Visa 卡和美元帳戶。\n選擇方案後，我們將為您開通";
 "tangempay_verified_description_money_account" = "您可以開通美元帳戶。Visa 卡尚未在您所在地區推出，推出後我們會通知您";
-"tangempay_verified_description_none" = "產品暫不可用";
+"tangempay_verified_description_none" = "產品不可用";
 "tangempay_verified_description_payment_account" = "您可以取得 Visa 卡。美元帳戶尚未在您所在地區推出，推出後我們會通知您";
 "tangempay_verified_money_account_subtitle" = "透過銀行轉帳收付款";
 "tangempay_verified_notify_money_account" = "美元帳戶上線時通知我";
@@ -2711,7 +2723,7 @@
 "tangempay_verified_open_money_account" = "開通美元帳戶";
 "tangempay_verified_payment_account_subtitle" = "Apple Pay、Google Pay";
 "tangempay_verified_payment_account_title" = "Visa 卡";
-"tangempay_verified_product_not_available" = "您所在的國家/地區暫不可用";
+"tangempay_verified_product_not_available" = "您所在的國家/地區不可用";
 "tangempay_verified_title" = "身分驗證已完成";
 "tangempay_waitlist_description" = "在您所在地區開通後，我們會第一時間以電子郵件通知您";
 "tangempay_waitlist_email_placeholder" = "satoshi.nakamoto@tangem.com";
@@ -2936,6 +2948,7 @@
 "user_wallet_coming_soon_dialog_description" = "We are building support for multiple mobile wallets.";
 "user_wallet_list_add_button" = "添加新錢包";
 "user_wallet_list_delete_prompt" = "您確定要刪除此錢包?";
+"user_wallet_list_error_wallet_already_saved_title" = "Wallet already added";
 "user_wallet_list_error_wallet_already_saved" = "此錢包已保存，您可以再添加一個";
 "user_wallet_list_rename_popup_placeholder" = "錢包名稱";
 "user_wallet_list_rename_popup_title" = "重新命名錢包";
@@ -2947,7 +2960,7 @@
 "virtual_account_requisites_beneficiary_name" = "收款人姓名";
 "virtual_account_requisites_clabe" = "CLABE";
 "virtual_account_requisites_reference" = "參考號";
-"virtual_account_requisites_routing_number" = "Routing number";
+"virtual_account_requisites_routing_number" = "銀行路由號碼";
 "virtual_account_title" = "美元帳戶";
 "visa_balance_limits_details_aml_verified" = "AML verified";
 "visa_balance_limits_details_available" = "Available";

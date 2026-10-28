@@ -878,6 +878,7 @@
 "hw_cloud_backup_permissions_title" = "Повний доступ до Google Drive";
 "hw_cloud_backup_remove_title" = "%1$@: резервна копія «%2$@»";
 "hw_cloud_backup_removed" = "Резервну копію видалено";
+"hw_cloud_backup_restore_all_added_hint" = "All backups in this %1$@ account are already in Tangem";
 "hw_cloud_backup_restore_error_title" = "Щось пішло не так";
 "hw_cloud_backup_restore_error_with_recovery" = "Будь ласка, спробуйте пізніше або імпортуйте фразу відновлення.";
 "hw_cloud_backup_restore_navtitle_v2" = "Копія в %1$@";
@@ -962,6 +963,8 @@
 "hw_upgrade_to_cold_banner_description" = "Зберігайте свою криптовалюту в безпеці за допомогою першокласного апаратного гаманця Tangem.";
 "hw_upgrade_to_cold_banner_title" = "Оновіть свій гаманець до апаратної версії.";
 "hw_upgrade" = "Оновлення";
+"hw_wallets_limit_alert_message" = "You can have up to %1$@ mobile wallets in Tangem. To create or import a new one, remove one of your existing mobile wallets first.";
+"hw_wallets_limit_alert_title" = "You’ve reached the mobile wallet limit";
 "information_generated_with_ai" = "Ця інформація була створена за допомогою ШІ.\nНатисніть тут, якщо знайшли помилку.";
 "initial_message_change_access_code_body" = "Щоб змінити код доступу, прикладіть картку або кільце, як показано вище, і не прибирайте її до закінчення операції";
 "initial_message_change_passcode_body" = "Щоб змінити пароль, прикладіть картку, як показано вище, і не прибирайте її до закінчення операції";
@@ -1349,8 +1352,10 @@
 "mobile_wallet_requires_min_os_warning_title" = "Мобільний гаманець потребує %1$@ або новіше.";
 "money_account_add_funds_bank_description" = "Отримуйте USD з банківського рахунку через ACH/Wire або SPEI";
 "money_account_add_funds_receive_description" = "Надішліть USDC у мережі Polygon на адресу рахунку";
-"money_account_add_funds_swap_description" = "Поповніть рахунок криптою з вашого гаманця";
-"money_account_close_account" = "Close account";
+"money_account_add_funds_swap_description" = "Поповніть рахунок у USD криптовалютою з вашого гаманця";
+"money_account_balance_unavailable_description" = "We’re having trouble loading your balance. Try again later";
+"money_account_balance_unavailable_title" = "Balance unavailable";
+"money_account_close_account" = "Закрити рахунок";
 "money_account_main_name" = "Рахунок у USD";
 "money_account_main_status_action_required" = "Потрібна дія";
 "money_account_main_status_activating" = "Активація…";
@@ -1384,9 +1389,9 @@
 "money_account_onboarding_transfers_card_subtitle" = "з окремим рахунком і банківськими реквізитами";
 "money_account_onboarding_transfers_card_title" = "Надсилайте й отримуйте фіатні платежі";
 "money_account_send_bank_transfer_unavailable" = "Unavailable";
-"money_account_send_fees_footer" = "Fees include %@ service charge and estimated network fee";
-"money_account_send_network_fee_note" = "Fees include an estimated %@ network fee, which may vary with network activity";
-"money_account_send_pay_button" = "Pay %@";
+"money_account_send_fees_footer" = "Комісії включають плату за сервіс %@ і розрахункову комісію мережі";
+"money_account_send_network_fee_note" = "Комісії включають розрахункову комісію мережі %@, яка може змінюватися залежно від навантаження на мережу";
+"money_account_send_pay_button" = "Сплатити %@";
 "money_account_send_unavailable_description" = "Try again in 5 minutes";
 "money_account_send_unavailable_title" = "Operation currently unavailable";
 "news_all_news" = "Всі новини";
@@ -2020,10 +2025,15 @@
 "social_login_creating_wallet_description" = "Це займе лише кілька секунд";
 "social_login_creating_wallet" = "Створення гаманця";
 "social_login_error_account_linked" = "This %@ account is already linked to another wallet.";
+"social_login_error_backup_not_saved_description" = "Make sure your cloud storage is available and try again.";
+"social_login_error_backup_not_saved_title" = "Couldn't save backup";
 "social_login_error_backup_not_saved" = "Не вдалося зберегти резервну копію. Переконайтеся, що хмарне сховище доступне, і спробуйте ще раз";
 "social_login_error_cloud_access_description" = "Переконайтеся, що Tangem має доступ до вашого акаунта %@, а потім спробуйте ще раз";
 "social_login_error_cloud_access_title" = "Не вдалося відновити гаманець";
+"social_login_error_generic_v2" = "Please check your internet connection and try again.";
 "social_login_error_generic" = "Щось пішло не так. Будь ласка, спробуйте ще раз";
+"social_login_error_network_description" = "Check your connection and try again.";
+"social_login_error_network_title" = "No internet connection";
 "social_login_error_no_account" = "Щоб продовжити, додайте на цей пристрій акаунт %@.";
 "social_login_error_restore_failed_description" = "Не вдалося відновити гаманець для цього акаунта. Спробуйте ще раз або зверніться до служби підтримки";
 "social_login_error_session_expired" = "Термін дії сеансу минув. Будь ласка, спробуйте ще раз";
@@ -2033,6 +2043,8 @@
 "social_login_restoring_wallet" = "Відновлення гаманця";
 "social_login_toast_wallet_added" = "Гаманець додано";
 "social_login_toast_wallet_created" = "Гаманець створено";
+"social_wallet_already_added_alert_message" = "Only one wallet on this device can use Sign in with %1$@. To use a different account, log out of the current one first.";
+"social_wallet_already_added_alert_title" = "You’re already signed in with %1$@";
 "social_wallet_delete_anyway" = "Усе одно видалити";
 "social_wallet_delete_attention_acknowledge" = "Я розумію, що якщо резервну копію моєї фрази відновлення не збережено, то я назавжди втрачу доступ до цього гаманця.";
 "social_wallet_delete_attention_description" = "Гаманець буде видалено з цього пристрою та відв’язано від вашого акаунта %1$@, а ваші зашифровані ключі буде видалено з хмари. Вхід через %1$@ більше не дасть змоги відновити його.";
@@ -2675,8 +2687,8 @@
 "tangempay_unified_onboarding_fees_caption" = "Без прихованих комісій";
 "tangempay_unified_onboarding_fees_subtitle" = "1 USDC = 1 USD";
 "tangempay_unified_onboarding_fees_title" = "Без комісій за покупки. %1$@";
-"tangempay_unified_onboarding_interest_caption" = "Interest";
-"tangempay_unified_onboarding_interest_title" = "Hold and earn up to 4%% APY";
+"tangempay_unified_onboarding_interest_caption" = "Відсотки";
+"tangempay_unified_onboarding_interest_title" = "Зберігайте кошти й отримуйте до 4%% річних";
 "tangempay_unified_onboarding_legal" = "Що вам доступно, залежить від вашого регіону. Ми підтвердимо це одразу після верифікації";
 "tangempay_unified_onboarding_money_account_caption" = "Дуже зручно";
 "tangempay_unified_onboarding_money_account_header" = "Рахунок у USD";
@@ -2685,8 +2697,8 @@
 "tangempay_unified_onboarding_payment_account_caption" = "Платіть як зручно";
 "tangempay_unified_onboarding_payment_account_header" = "Картка Visa";
 "tangempay_unified_onboarding_payment_account_title" = "Онлайн або %1$@";
-"tangempay_unified_onboarding_payments_caption" = "Payments";
-"tangempay_unified_onboarding_payments_title" = "ACH and wire transfers for daily needs";
+"tangempay_unified_onboarding_payments_caption" = "Платежі";
+"tangempay_unified_onboarding_payments_title" = "ACH і банківські перекази на щодень";
 "tangempay_unified_onboarding_plan_caption" = "Один тариф";
 "tangempay_unified_onboarding_plan_subtitle" = "Basic — безкоштовно.";
 "tangempay_unified_onboarding_plan_title" = "%1$@ Plus включає обидва продукти й набагато більше";
@@ -2936,6 +2948,7 @@
 "user_wallet_coming_soon_dialog_description" = "Ми працюємо над підтримкою кількох мобільних гаманців.";
 "user_wallet_list_add_button" = "Додати гаманець";
 "user_wallet_list_delete_prompt" = "Ви впевнені, що хочете видалити цей гаманець?";
+"user_wallet_list_error_wallet_already_saved_title" = "Wallet already added";
 "user_wallet_list_error_wallet_already_saved" = "Цей гаманець вже збережено, ви можете додати інший";
 "user_wallet_list_rename_popup_placeholder" = "Назва гаманця";
 "user_wallet_list_rename_popup_title" = "Перейменування гаманця";
@@ -2947,7 +2960,7 @@
 "virtual_account_requisites_beneficiary_name" = "Ім’я отримувача";
 "virtual_account_requisites_clabe" = "CLABE";
 "virtual_account_requisites_reference" = "Референс";
-"virtual_account_requisites_routing_number" = "Routing number";
+"virtual_account_requisites_routing_number" = "Маршрутний номер";
 "virtual_account_title" = "Рахунок у USD";
 "visa_balance_limits_details_aml_verified" = "AML verified";
 "visa_balance_limits_details_available" = "Available";

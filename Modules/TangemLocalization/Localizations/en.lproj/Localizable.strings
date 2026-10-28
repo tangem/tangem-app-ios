@@ -878,6 +878,7 @@
 "hw_cloud_backup_permissions_title" = "Complete Google Drive access";
 "hw_cloud_backup_remove_title" = "%1$@ %2$@ backup";
 "hw_cloud_backup_removed" = "Backup removed";
+"hw_cloud_backup_restore_all_added_hint" = "All backups in this %1$@ account are already in Tangem";
 "hw_cloud_backup_restore_error_title" = "Something went wrong";
 "hw_cloud_backup_restore_error_with_recovery" = "Please try again later or import your recovery phrase.";
 "hw_cloud_backup_restore_navtitle_v2" = "%1$@ backup";
@@ -962,6 +963,8 @@
 "hw_upgrade_to_cold_banner_description" = "Keep your crypto safe with Tangem's top-tier hardware wallet.";
 "hw_upgrade_to_cold_banner_title" = "Upgrade your wallet to hardware security";
 "hw_upgrade" = "Upgrade";
+"hw_wallets_limit_alert_message" = "You can have up to %1$@ mobile wallets in Tangem. To create or import a new one, remove one of your existing mobile wallets first.";
+"hw_wallets_limit_alert_title" = "You’ve reached the mobile wallet limit";
 "information_generated_with_ai" = "This information was generated with AI.\nTap here if you find any errors.";
 "initial_message_change_access_code_body" = "To change the access code tap the card or ring as shown above and do not remove until the end of the operation";
 "initial_message_change_passcode_body" = "To change the passcode tap the card as shown above and do not remove until the end of the operation";
@@ -1348,8 +1351,10 @@
 "mobile_wallet_requires_min_os_warning_body" = "You must update to %1$@ before creating a mobile wallet";
 "mobile_wallet_requires_min_os_warning_title" = "Mobile Wallet requires %1$@ or later";
 "money_account_add_funds_bank_description" = "Receive USD from a bank account via ACH/Wire or SPEI";
-"money_account_add_funds_receive_description" = "Send USDC Polygon to your account's address";
-"money_account_add_funds_swap_description" = "Use crypto from your wallet to topup your banking account";
+"money_account_add_funds_receive_description" = "Send USDC on Polygon to your account address";
+"money_account_add_funds_swap_description" = "Use crypto from your wallet to top up your USD account";
+"money_account_balance_unavailable_description" = "We’re having trouble loading your balance. Try again later";
+"money_account_balance_unavailable_title" = "Balance unavailable";
 "money_account_close_account" = "Close account";
 "money_account_main_name" = "USD account";
 "money_account_main_status_action_required" = "Action required";
@@ -1378,8 +1383,8 @@
 "money_account_onboarding_fees_title" = "Fees";
 "money_account_onboarding_secondary_button" = "Terms and fees";
 "money_account_onboarding_terms_link" = "Terms of Service";
-"money_account_onboarding_terms_notice" = "By using service, you agree with provider %1$@";
-"money_account_onboarding_title" = "Get USD account";
+"money_account_onboarding_terms_notice" = "By using the service, you agree to the provider’s %1$@";
+"money_account_onboarding_title" = "Get a USD account";
 "money_account_onboarding_transfers_card_caption" = "Money in. Money out.";
 "money_account_onboarding_transfers_card_subtitle" = "with a dedicated account with banking details";
 "money_account_onboarding_transfers_card_title" = "Send and receive fiat payments";
@@ -2020,10 +2025,15 @@
 "social_login_creating_wallet_description" = "This will only take a few seconds";
 "social_login_creating_wallet" = "Creating your wallet";
 "social_login_error_account_linked" = "This %@ account is already linked to another wallet.";
+"social_login_error_backup_not_saved_description" = "Make sure your cloud storage is available and try again.";
+"social_login_error_backup_not_saved_title" = "Couldn't save backup";
 "social_login_error_backup_not_saved" = "Couldn't save backup — make sure your cloud storage is available and try again";
 "social_login_error_cloud_access_description" = "Make sure Tangem has access to your %@ account, then try again";
 "social_login_error_cloud_access_title" = "Couldn't restore wallet";
+"social_login_error_generic_v2" = "Please check your internet connection and try again.";
 "social_login_error_generic" = "Something went wrong. Please try again";
+"social_login_error_network_description" = "Check your connection and try again.";
+"social_login_error_network_title" = "No internet connection";
 "social_login_error_no_account" = "Add your %@ account to this device to continue.";
 "social_login_error_restore_failed_description" = "We couldn't restore the wallet for this account. Try again or contact support";
 "social_login_error_session_expired" = "Session expired. Please try again";
@@ -2033,6 +2043,8 @@
 "social_login_restoring_wallet" = "Restoring your wallet";
 "social_login_toast_wallet_added" = "Wallet added";
 "social_login_toast_wallet_created" = "Wallet created";
+"social_wallet_already_added_alert_message" = "Only one wallet on this device can use Sign in with %1$@. To use a different account, log out of the current one first.";
+"social_wallet_already_added_alert_title" = "You’re already signed in with %1$@";
 "social_wallet_delete_anyway" = "Delete anyway";
 "social_wallet_delete_attention_acknowledge" = "I understand that if I haven't backed up my recovery phrase, I'll lose access to this wallet forever.";
 "social_wallet_delete_attention_description" = "This will delete the wallet from this device, unlink it from your %1$@ account and delete your encrypted keys from the cloud. Signing in with %1$@ will no longer restore it.";
@@ -2936,6 +2948,7 @@
 "user_wallet_coming_soon_dialog_description" = "We are building support for multiple mobile wallets.";
 "user_wallet_list_add_button" = "Add Wallet";
 "user_wallet_list_delete_prompt" = "Are you sure you want to forget this wallet?";
+"user_wallet_list_error_wallet_already_saved_title" = "Wallet already added";
 "user_wallet_list_error_wallet_already_saved" = "This wallet has already been saved, you can add another one";
 "user_wallet_list_rename_popup_placeholder" = "Wallet name";
 "user_wallet_list_rename_popup_title" = "Rename wallet";

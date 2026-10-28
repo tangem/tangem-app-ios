@@ -878,6 +878,7 @@
 "hw_cloud_backup_permissions_title" = "Полный доступ к Google Drive";
 "hw_cloud_backup_remove_title" = "%1$@: резервная копия «%2$@»";
 "hw_cloud_backup_removed" = "Резервная копия удалена";
+"hw_cloud_backup_restore_all_added_hint" = "All backups in this %1$@ account are already in Tangem";
 "hw_cloud_backup_restore_error_title" = "Что-то пошло не так";
 "hw_cloud_backup_restore_error_with_recovery" = "Пожалуйста, попробуйте позже или импортируйте фразу восстановления.";
 "hw_cloud_backup_restore_navtitle_v2" = "Резервная копия %1$@";
@@ -962,6 +963,8 @@
 "hw_upgrade_to_cold_banner_description" = "Храните свою криптовалюту в безопасности с помощью первоклассного аппаратного кошелька Tangem.";
 "hw_upgrade_to_cold_banner_title" = "Сделать апгрейд кошелька до аппаратной версии.";
 "hw_upgrade" = "Апгрейд";
+"hw_wallets_limit_alert_message" = "You can have up to %1$@ mobile wallets in Tangem. To create or import a new one, remove one of your existing mobile wallets first.";
+"hw_wallets_limit_alert_title" = "You’ve reached the mobile wallet limit";
 "information_generated_with_ai" = "Эта информация была сгенерирована ИИ.\nНажмите здесь, если обнаружили ошибку.";
 "initial_message_change_access_code_body" = "Чтобы изменить код доступа, приложите карту или кольцо как показано выше и не убирайте до окончания операции";
 "initial_message_change_passcode_body" = "Чтобы изменить пароль, приложите карту как показано выше и не убирайте до окончания операции";
@@ -1349,8 +1352,10 @@
 "mobile_wallet_requires_min_os_warning_title" = "Мобильный кошелек требует %1$@ или новее.";
 "money_account_add_funds_bank_description" = "Получайте USD с банковского счёта через ACH/Wire или SPEI";
 "money_account_add_funds_receive_description" = "Отправьте USDC в сети Polygon на адрес счёта";
-"money_account_add_funds_swap_description" = "Пополните счёт криптой из вашего кошелька";
-"money_account_close_account" = "Close account";
+"money_account_add_funds_swap_description" = "Пополните счёт в USD криптовалютой из вашего кошелька";
+"money_account_balance_unavailable_description" = "We’re having trouble loading your balance. Try again later";
+"money_account_balance_unavailable_title" = "Balance unavailable";
+"money_account_close_account" = "Закрыть счёт";
 "money_account_main_name" = "Счёт в USD";
 "money_account_main_status_action_required" = "Требуется действие";
 "money_account_main_status_activating" = "Активация…";
@@ -1384,9 +1389,9 @@
 "money_account_onboarding_transfers_card_subtitle" = "с отдельным счётом и банковскими реквизитами";
 "money_account_onboarding_transfers_card_title" = "Отправляйте и получайте фиатные платежи";
 "money_account_send_bank_transfer_unavailable" = "Unavailable";
-"money_account_send_fees_footer" = "Fees include %@ service charge and estimated network fee";
-"money_account_send_network_fee_note" = "Fees include an estimated %@ network fee, which may vary with network activity";
-"money_account_send_pay_button" = "Pay %@";
+"money_account_send_fees_footer" = "Комиссии включают плату за сервис %@ и расчётную комиссию сети";
+"money_account_send_network_fee_note" = "Комиссии включают расчётную комиссию сети %@, которая может меняться в зависимости от нагрузки на сеть";
+"money_account_send_pay_button" = "Оплатить %@";
 "money_account_send_unavailable_description" = "Try again in 5 minutes";
 "money_account_send_unavailable_title" = "Operation currently unavailable";
 "news_all_news" = "Все новости";
@@ -2020,10 +2025,15 @@
 "social_login_creating_wallet_description" = "Это займёт всего несколько секунд";
 "social_login_creating_wallet" = "Создание кошелька";
 "social_login_error_account_linked" = "This %@ account is already linked to another wallet.";
+"social_login_error_backup_not_saved_description" = "Make sure your cloud storage is available and try again.";
+"social_login_error_backup_not_saved_title" = "Couldn't save backup";
 "social_login_error_backup_not_saved" = "Не удалось сохранить резервную копию. Убедитесь, что облачное хранилище доступно, и попробуйте снова";
 "social_login_error_cloud_access_description" = "Убедитесь, что у Tangem есть доступ к вашему аккаунту %@, затем попробуйте снова";
 "social_login_error_cloud_access_title" = "Не удалось восстановить кошелёк";
+"social_login_error_generic_v2" = "Please check your internet connection and try again.";
 "social_login_error_generic" = "Что-то пошло не так. Пожалуйста, попробуйте снова";
+"social_login_error_network_description" = "Check your connection and try again.";
+"social_login_error_network_title" = "No internet connection";
 "social_login_error_no_account" = "Чтобы продолжить, добавьте на это устройство аккаунт %@.";
 "social_login_error_restore_failed_description" = "Не удалось восстановить кошелёк для этого аккаунта. Попробуйте снова или обратитесь в поддержку";
 "social_login_error_session_expired" = "Сессия истекла. Пожалуйста, попробуйте снова";
@@ -2033,6 +2043,8 @@
 "social_login_restoring_wallet" = "Восстановление кошелька";
 "social_login_toast_wallet_added" = "Кошелёк добавлен";
 "social_login_toast_wallet_created" = "Кошелёк создан";
+"social_wallet_already_added_alert_message" = "Only one wallet on this device can use Sign in with %1$@. To use a different account, log out of the current one first.";
+"social_wallet_already_added_alert_title" = "You’re already signed in with %1$@";
 "social_wallet_delete_anyway" = "Всё равно удалить";
 "social_wallet_delete_attention_acknowledge" = "Я понимаю, что если резервная копия моей фразы восстановления не сохранена, то я навсегда потеряю доступ к этому кошельку.";
 "social_wallet_delete_attention_description" = "Кошелёк будет удалён с этого устройства и отвязан от вашего аккаунта %1$@, а ваши зашифрованные ключи будут удалены из облака. Вход через %1$@ больше не позволит его восстановить.";
@@ -2675,8 +2687,8 @@
 "tangempay_unified_onboarding_fees_caption" = "Без скрытых комиссий";
 "tangempay_unified_onboarding_fees_subtitle" = "1 USDC = 1 USD";
 "tangempay_unified_onboarding_fees_title" = "Без комиссий за покупки. %1$@";
-"tangempay_unified_onboarding_interest_caption" = "Interest";
-"tangempay_unified_onboarding_interest_title" = "Hold and earn up to 4%% APY";
+"tangempay_unified_onboarding_interest_caption" = "Проценты";
+"tangempay_unified_onboarding_interest_title" = "Храните средства и получайте до 4%% годовых";
 "tangempay_unified_onboarding_legal" = "Что вам доступно, зависит от вашего региона. Мы подтвердим это сразу после верификации";
 "tangempay_unified_onboarding_money_account_caption" = "Очень удобно";
 "tangempay_unified_onboarding_money_account_header" = "Счёт в USD";
@@ -2685,8 +2697,8 @@
 "tangempay_unified_onboarding_payment_account_caption" = "Платите как удобно";
 "tangempay_unified_onboarding_payment_account_header" = "Карта Visa";
 "tangempay_unified_onboarding_payment_account_title" = "Онлайн или %1$@";
-"tangempay_unified_onboarding_payments_caption" = "Payments";
-"tangempay_unified_onboarding_payments_title" = "ACH and wire transfers for daily needs";
+"tangempay_unified_onboarding_payments_caption" = "Платежи";
+"tangempay_unified_onboarding_payments_title" = "ACH и банковские переводы на каждый день";
 "tangempay_unified_onboarding_plan_caption" = "Один тариф";
 "tangempay_unified_onboarding_plan_subtitle" = "Basic — бесплатно.";
 "tangempay_unified_onboarding_plan_title" = "%1$@ Plus включает оба продукта и гораздо больше";
@@ -2936,6 +2948,7 @@
 "user_wallet_coming_soon_dialog_description" = "Мы работаем над поддержкой нескольких мобильных кошельков.";
 "user_wallet_list_add_button" = "Добавить кошелек";
 "user_wallet_list_delete_prompt" = "Вы уверены, что хотите забыть этот кошелек?";
+"user_wallet_list_error_wallet_already_saved_title" = "Wallet already added";
 "user_wallet_list_error_wallet_already_saved" = "Этот кошелек уже был сохранен, вы можете добавить другой";
 "user_wallet_list_rename_popup_placeholder" = "Имя кошелька";
 "user_wallet_list_rename_popup_title" = "Переименование кошелька";
@@ -2947,7 +2960,7 @@
 "virtual_account_requisites_beneficiary_name" = "Имя получателя";
 "virtual_account_requisites_clabe" = "CLABE";
 "virtual_account_requisites_reference" = "Референс";
-"virtual_account_requisites_routing_number" = "Routing number";
+"virtual_account_requisites_routing_number" = "Маршрутный номер";
 "virtual_account_title" = "Счёт в USD";
 "visa_balance_limits_details_aml_verified" = "AML verified";
 "visa_balance_limits_details_available" = "Available";

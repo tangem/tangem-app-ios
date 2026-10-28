@@ -878,6 +878,7 @@
 "hw_cloud_backup_permissions_title" = "完全访问 Google 云端硬盘";
 "hw_cloud_backup_remove_title" = "%1$@ %2$@ 备份";
 "hw_cloud_backup_removed" = "备份已删除";
+"hw_cloud_backup_restore_all_added_hint" = "All backups in this %1$@ account are already in Tangem";
 "hw_cloud_backup_restore_error_title" = "出现了一些问题";
 "hw_cloud_backup_restore_error_with_recovery" = "请稍后再试，或导入您的恢复短语。";
 "hw_cloud_backup_restore_navtitle_v2" = "%1$@ 备份";
@@ -962,6 +963,8 @@
 "hw_upgrade_to_cold_banner_description" = "使用 Tangem 的顶级硬件钱包，确保您的加密货币安全。";
 "hw_upgrade_to_cold_banner_title" = "将您的钱包升级到硬件安全级别";
 "hw_upgrade" = "升级";
+"hw_wallets_limit_alert_message" = "You can have up to %1$@ mobile wallets in Tangem. To create or import a new one, remove one of your existing mobile wallets first.";
+"hw_wallets_limit_alert_title" = "You’ve reached the mobile wallet limit";
 "information_generated_with_ai" = "此信息由人工智能生成。\n如果您发现任何错误，请点击这里。";
 "initial_message_change_access_code_body" = "要更改访问密码，请按上述方式轻触卡片或指环，并在操作完成前不要移开。";
 "initial_message_change_passcode_body" = "要更改密码，请按上述步骤轻触卡片，并在操作完成前不要移开。";
@@ -1349,8 +1352,10 @@
 "mobile_wallet_requires_min_os_warning_title" = "手机钱包需要 %1$@ 或更高版本";
 "money_account_add_funds_bank_description" = "通过 ACH/Wire 或 SPEI 从银行账户接收 USD";
 "money_account_add_funds_receive_description" = "将 Polygon 网络的 USDC 发送至账户地址";
-"money_account_add_funds_swap_description" = "使用钱包中的加密资产为账户充值";
-"money_account_close_account" = "Close account";
+"money_account_add_funds_swap_description" = "使用钱包中的加密资产为美元账户充值";
+"money_account_balance_unavailable_description" = "We’re having trouble loading your balance. Try again later";
+"money_account_balance_unavailable_title" = "Balance unavailable";
+"money_account_close_account" = "关闭账户";
 "money_account_main_name" = "美元账户";
 "money_account_main_status_action_required" = "需要操作";
 "money_account_main_status_activating" = "正在激活…";
@@ -1384,9 +1389,9 @@
 "money_account_onboarding_transfers_card_subtitle" = "使用带有银行信息的专属账户";
 "money_account_onboarding_transfers_card_title" = "以法币付款和收款";
 "money_account_send_bank_transfer_unavailable" = "Unavailable";
-"money_account_send_fees_footer" = "Fees include %@ service charge and estimated network fee";
-"money_account_send_network_fee_note" = "Fees include an estimated %@ network fee, which may vary with network activity";
-"money_account_send_pay_button" = "Pay %@";
+"money_account_send_fees_footer" = "费用包含%@服务费和预估网络费";
+"money_account_send_network_fee_note" = "费用包含预估网络费%@，可能随网络活跃度变化";
+"money_account_send_pay_button" = "支付 %@";
 "money_account_send_unavailable_description" = "Try again in 5 minutes";
 "money_account_send_unavailable_title" = "Operation currently unavailable";
 "news_all_news" = "所有新闻";
@@ -2020,10 +2025,15 @@
 "social_login_creating_wallet_description" = "这只需要几秒钟";
 "social_login_creating_wallet" = "正在创建您的钱包";
 "social_login_error_account_linked" = "This %@ account is already linked to another wallet.";
+"social_login_error_backup_not_saved_description" = "Make sure your cloud storage is available and try again.";
+"social_login_error_backup_not_saved_title" = "Couldn't save backup";
 "social_login_error_backup_not_saved" = "无法保存备份——请确保您的云存储可用，然后重试";
 "social_login_error_cloud_access_description" = "请确保 Tangem 能够访问您的 %@ 账户，然后重试";
 "social_login_error_cloud_access_title" = "无法恢复钱包";
+"social_login_error_generic_v2" = "Please check your internet connection and try again.";
 "social_login_error_generic" = "出现错误。请重试";
+"social_login_error_network_description" = "Check your connection and try again.";
+"social_login_error_network_title" = "No internet connection";
 "social_login_error_no_account" = "添加您的 %@ 账户到此设备以继续。";
 "social_login_error_restore_failed_description" = "我们无法恢复该账户的钱包。请重试或联系客服";
 "social_login_error_session_expired" = "会话已过期。请重试";
@@ -2033,6 +2043,8 @@
 "social_login_restoring_wallet" = "正在恢复您的钱包";
 "social_login_toast_wallet_added" = "钱包已添加";
 "social_login_toast_wallet_created" = "钱包已创建";
+"social_wallet_already_added_alert_message" = "Only one wallet on this device can use Sign in with %1$@. To use a different account, log out of the current one first.";
+"social_wallet_already_added_alert_title" = "You’re already signed in with %1$@";
 "social_wallet_delete_anyway" = "确定删除";
 "social_wallet_delete_attention_acknowledge" = "我明白，如果我没有备份恢复短语，我就将永远无法访问这个钱包了。";
 "social_wallet_delete_attention_description" = "此操作将从该设备中删除该钱包，将其与您的 %1$@ 账户解绑，并从云端删除您的加密密钥。此后，即使通过 %1$@ 登录，也无法恢复该钱包。";
@@ -2675,8 +2687,8 @@
 "tangempay_unified_onboarding_fees_caption" = "所见即所付";
 "tangempay_unified_onboarding_fees_subtitle" = "1 USDC = 1 USD";
 "tangempay_unified_onboarding_fees_title" = "消费免手续费。%1$@";
-"tangempay_unified_onboarding_interest_caption" = "Interest";
-"tangempay_unified_onboarding_interest_title" = "Hold and earn up to 4%% APY";
+"tangempay_unified_onboarding_interest_caption" = "利息";
+"tangempay_unified_onboarding_interest_title" = "持有即可赚取最高4%%的年化收益";
 "tangempay_unified_onboarding_legal" = "可开通的产品取决于您所在地区。验证完成后我们会立即确认";
 "tangempay_unified_onboarding_money_account_caption" = "十分方便";
 "tangempay_unified_onboarding_money_account_header" = "美元账户";
@@ -2685,8 +2697,8 @@
 "tangempay_unified_onboarding_payment_account_caption" = "随心支付";
 "tangempay_unified_onboarding_payment_account_header" = "Visa 卡";
 "tangempay_unified_onboarding_payment_account_title" = "线上或 %1$@";
-"tangempay_unified_onboarding_payments_caption" = "Payments";
-"tangempay_unified_onboarding_payments_title" = "ACH and wire transfers for daily needs";
+"tangempay_unified_onboarding_payments_caption" = "支付";
+"tangempay_unified_onboarding_payments_title" = "满足日常所需的ACH和电汇转账";
 "tangempay_unified_onboarding_plan_caption" = "一个套餐";
 "tangempay_unified_onboarding_plan_subtitle" = "Basic 免费。";
 "tangempay_unified_onboarding_plan_title" = "%1$@ Plus 涵盖两者，还有更多权益";
@@ -2703,7 +2715,7 @@
 "tangempay_verified_choose_plan" = "选择套餐";
 "tangempay_verified_description_all" = "您可以同时拥有 Visa 卡和美元账户。\n选择套餐后，我们将为您开通";
 "tangempay_verified_description_money_account" = "您可以开通美元账户。Visa 卡暂未在您所在地区推出，推出后我们会通知您";
-"tangempay_verified_description_none" = "产品暂不可用";
+"tangempay_verified_description_none" = "产品不可用";
 "tangempay_verified_description_payment_account" = "您可以获取 Visa 卡。美元账户暂未在您所在地区推出，推出后我们会通知您";
 "tangempay_verified_money_account_subtitle" = "通过银行转账收付款";
 "tangempay_verified_notify_money_account" = "美元账户上线时通知我";
@@ -2711,7 +2723,7 @@
 "tangempay_verified_open_money_account" = "开通美元账户";
 "tangempay_verified_payment_account_subtitle" = "Apple Pay、Google Pay";
 "tangempay_verified_payment_account_title" = "Visa 卡";
-"tangempay_verified_product_not_available" = "您所在的国家/地区暂不可用";
+"tangempay_verified_product_not_available" = "您所在的国家/地区不可用";
 "tangempay_verified_title" = "身份验证已完成";
 "tangempay_waitlist_description" = "在您所在地区开通后，我们会第一时间通过邮件通知您";
 "tangempay_waitlist_email_placeholder" = "satoshi.nakamoto@tangem.com";
@@ -2936,6 +2948,7 @@
 "user_wallet_coming_soon_dialog_description" = "我们正在开发支持创建多个移动钱包的功能。";
 "user_wallet_list_add_button" = "添加钱包";
 "user_wallet_list_delete_prompt" = "您确定要忘记这个钱包吗？";
+"user_wallet_list_error_wallet_already_saved_title" = "Wallet already added";
 "user_wallet_list_error_wallet_already_saved" = "此钱包已保存，您可以添加另一个钱包";
 "user_wallet_list_rename_popup_placeholder" = "钱包名称";
 "user_wallet_list_rename_popup_title" = "重命名钱包";
@@ -2947,7 +2960,7 @@
 "virtual_account_requisites_beneficiary_name" = "收款人姓名";
 "virtual_account_requisites_clabe" = "CLABE";
 "virtual_account_requisites_reference" = "参考号";
-"virtual_account_requisites_routing_number" = "Routing number";
+"virtual_account_requisites_routing_number" = "银行路由号码";
 "virtual_account_title" = "美元账户";
 "visa_balance_limits_details_aml_verified" = "已通过反洗钱（AML）验证";
 "visa_balance_limits_details_available" = "可用";

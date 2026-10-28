@@ -878,6 +878,7 @@
 "hw_cloud_backup_permissions_title" = "Complete Google Drive access";
 "hw_cloud_backup_remove_title" = "Sauvegarde de %2$@ sur %1$@";
 "hw_cloud_backup_removed" = "Sauvegarde supprimée";
+"hw_cloud_backup_restore_all_added_hint" = "All backups in this %1$@ account are already in Tangem";
 "hw_cloud_backup_restore_error_title" = "Une erreur est survenue";
 "hw_cloud_backup_restore_error_with_recovery" = "Veuillez réessayer plus tard ou importer votre phrase de récupération.";
 "hw_cloud_backup_restore_navtitle_v2" = "Sauvegarde %1$@";
@@ -962,6 +963,8 @@
 "hw_upgrade_to_cold_banner_description" = "Protégez vos cryptomonnaies grâce au hardware wallet haut de gamme de Tangem.";
 "hw_upgrade_to_cold_banner_title" = "Améliorez la sécurité de votre wallet grâce à un dispositif matériel";
 "hw_upgrade" = "Améliorer";
+"hw_wallets_limit_alert_message" = "You can have up to %1$@ mobile wallets in Tangem. To create or import a new one, remove one of your existing mobile wallets first.";
+"hw_wallets_limit_alert_title" = "You’ve reached the mobile wallet limit";
 "information_generated_with_ai" = "Ces informations ont été générées avec l'IA.\nAppuyez ici si vous trouvez des erreurs.";
 "initial_message_change_access_code_body" = "Touchez, pour modifier le code d'accès";
 "initial_message_change_passcode_body" = "Touchez, pour modifier le mot de passe";
@@ -1349,8 +1352,10 @@
 "mobile_wallet_requires_min_os_warning_title" = "Le portefeuille mobile nécessite %1$@ ou une version supérieure.";
 "money_account_add_funds_bank_description" = "Recevez des USD depuis un compte bancaire via ACH/Wire ou SPEI";
 "money_account_add_funds_receive_description" = "Envoyez des USDC sur Polygon à l'adresse de votre compte";
-"money_account_add_funds_swap_description" = "Utilisez la crypto de votre wallet pour alimenter votre compte";
-"money_account_close_account" = "Close account";
+"money_account_add_funds_swap_description" = "Utilisez les cryptos de votre portefeuille pour alimenter votre compte en USD";
+"money_account_balance_unavailable_description" = "We’re having trouble loading your balance. Try again later";
+"money_account_balance_unavailable_title" = "Balance unavailable";
+"money_account_close_account" = "Clôturer le compte";
 "money_account_main_name" = "Compte en USD";
 "money_account_main_status_action_required" = "Action requise";
 "money_account_main_status_activating" = "Activation…";
@@ -1384,9 +1389,9 @@
 "money_account_onboarding_transfers_card_subtitle" = "avec un compte dédié et des coordonnées bancaires";
 "money_account_onboarding_transfers_card_title" = "Envoyez et recevez des paiements en fiat";
 "money_account_send_bank_transfer_unavailable" = "Unavailable";
-"money_account_send_fees_footer" = "Fees include %@ service charge and estimated network fee";
-"money_account_send_network_fee_note" = "Fees include an estimated %@ network fee, which may vary with network activity";
-"money_account_send_pay_button" = "Pay %@";
+"money_account_send_fees_footer" = "Les frais incluent le service %@ et les frais réseau estimés";
+"money_account_send_network_fee_note" = "Les frais incluent des frais réseau estimés à %@, variables selon l’activité du réseau";
+"money_account_send_pay_button" = "Payer %@";
 "money_account_send_unavailable_description" = "Try again in 5 minutes";
 "money_account_send_unavailable_title" = "Operation currently unavailable";
 "news_all_news" = "Toutes les actualités";
@@ -2020,10 +2025,15 @@
 "social_login_creating_wallet_description" = "Cela ne prendra que quelques secondes";
 "social_login_creating_wallet" = "Création de votre portefeuille";
 "social_login_error_account_linked" = "This %@ account is already linked to another wallet.";
+"social_login_error_backup_not_saved_description" = "Make sure your cloud storage is available and try again.";
+"social_login_error_backup_not_saved_title" = "Couldn't save backup";
 "social_login_error_backup_not_saved" = "Impossible d’enregistrer la sauvegarde — vérifiez que votre stockage cloud est disponible et réessayez";
 "social_login_error_cloud_access_description" = "Vérifiez que Tangem a accès à votre compte %@, puis réessayez";
 "social_login_error_cloud_access_title" = "Impossible de restaurer le portefeuille";
+"social_login_error_generic_v2" = "Please check your internet connection and try again.";
 "social_login_error_generic" = "Une erreur est survenue. Veuillez réessayer";
+"social_login_error_network_description" = "Check your connection and try again.";
+"social_login_error_network_title" = "No internet connection";
 "social_login_error_no_account" = "Ajoutez votre compte %@ à cet appareil pour continuer.";
 "social_login_error_restore_failed_description" = "Nous n’avons pas pu restaurer le portefeuille associé à ce compte. Réessayez ou contactez l’assistance";
 "social_login_error_session_expired" = "Session expirée. Veuillez réessayer";
@@ -2033,6 +2043,8 @@
 "social_login_restoring_wallet" = "Restauration de votre portefeuille";
 "social_login_toast_wallet_added" = "Portefeuille ajouté";
 "social_login_toast_wallet_created" = "Portefeuille créé";
+"social_wallet_already_added_alert_message" = "Only one wallet on this device can use Sign in with %1$@. To use a different account, log out of the current one first.";
+"social_wallet_already_added_alert_title" = "You’re already signed in with %1$@";
 "social_wallet_delete_anyway" = "Supprimer quand même";
 "social_wallet_delete_attention_acknowledge" = "Je comprends que si je n’ai pas sauvegardé ma phrase de récupération, je perdrai définitivement l’accès à ce portefeuille.";
 "social_wallet_delete_attention_description" = "Cela supprimera le portefeuille de cet appareil, le dissociera de votre compte %1$@ et supprimera vos clés chiffrées du cloud. Se connecter avec %1$@ ne le restaurera plus.";
@@ -2675,8 +2687,8 @@
 "tangempay_unified_onboarding_fees_caption" = "Pas de frais cachés";
 "tangempay_unified_onboarding_fees_subtitle" = "1 USDC = 1 USD";
 "tangempay_unified_onboarding_fees_title" = "Aucuns frais sur les achats. %1$@";
-"tangempay_unified_onboarding_interest_caption" = "Interest";
-"tangempay_unified_onboarding_interest_title" = "Hold and earn up to 4%% APY";
+"tangempay_unified_onboarding_interest_caption" = "Intérêts";
+"tangempay_unified_onboarding_interest_title" = "Conservez vos fonds, gagnez jusqu’à 4%% par an";
 "tangempay_unified_onboarding_legal" = "Ce que vous pouvez ouvrir dépend de votre lieu de résidence. Nous vous le confirmerons juste après la vérification";
 "tangempay_unified_onboarding_money_account_caption" = "Très pratique";
 "tangempay_unified_onboarding_money_account_header" = "Compte en USD";
@@ -2685,8 +2697,8 @@
 "tangempay_unified_onboarding_payment_account_caption" = "Payez comme vous voulez";
 "tangempay_unified_onboarding_payment_account_header" = "Carte Visa";
 "tangempay_unified_onboarding_payment_account_title" = "En ligne ou %1$@";
-"tangempay_unified_onboarding_payments_caption" = "Payments";
-"tangempay_unified_onboarding_payments_title" = "ACH and wire transfers for daily needs";
+"tangempay_unified_onboarding_payments_caption" = "Paiements";
+"tangempay_unified_onboarding_payments_title" = "Virements ACH et bancaires au quotidien";
 "tangempay_unified_onboarding_plan_caption" = "Un seul forfait";
 "tangempay_unified_onboarding_plan_subtitle" = "Basic est gratuit.";
 "tangempay_unified_onboarding_plan_title" = "%1$@ Plus couvre les deux et bien plus encore";
@@ -2936,6 +2948,7 @@
 "user_wallet_coming_soon_dialog_description" = "Nous travaillons sur la possibilité de créer plusieurs portefeuilles mobiles.";
 "user_wallet_list_add_button" = "Ajouter un nouveau portefeuille";
 "user_wallet_list_delete_prompt" = "Êtes-vous sûr de vouloir supprimer ce portefeuille ?";
+"user_wallet_list_error_wallet_already_saved_title" = "Wallet already added";
 "user_wallet_list_error_wallet_already_saved" = "Ce portefeuille a déjà été enregistré, vous pouvez en ajouter un autre";
 "user_wallet_list_rename_popup_placeholder" = "Nom du portefeuille";
 "user_wallet_list_rename_popup_title" = "Renommer le portefeuille";
@@ -2947,7 +2960,7 @@
 "virtual_account_requisites_beneficiary_name" = "Nom du bénéficiaire";
 "virtual_account_requisites_clabe" = "CLABE";
 "virtual_account_requisites_reference" = "Référence";
-"virtual_account_requisites_routing_number" = "Routing number";
+"virtual_account_requisites_routing_number" = "Numéro de routage";
 "virtual_account_title" = "Compte en USD";
 "visa_balance_limits_details_aml_verified" = "AML vérifié";
 "visa_balance_limits_details_available" = "Disponible";
