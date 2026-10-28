@@ -49,6 +49,21 @@ final class TangemPayBankTransferAmountScreen: ScreenBase<TangemPayBankTransferA
     }
 
     @discardableResult
+    func verifySourceTokenBalance(_ balance: String, network: String) -> Self {
+        XCTContext.runActivity(named: "Verify the source token on \(network) shows \(balance)") { _ in
+            waitAndAssertTrue(tokenRow, timeout: .networkRequest, "Source token row should be displayed")
+            let subtitle = Localization.tangempayWithdrawBankSourceSubtitle(network, balance)
+            let shown = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label CONTAINS %@", subtitle), object: tokenRow)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [shown], timeout: .networkRequest),
+                .completed,
+                "Source token should read '\(subtitle)'. Actual: '\(tokenRow.label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func tapSourceToken() -> TangemPayBankTransferTokenSheet {
         XCTContext.runActivity(named: "Open the source token selector") { _ in
             tokenRow.waitAndTap()

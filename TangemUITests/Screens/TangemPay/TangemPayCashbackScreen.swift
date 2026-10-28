@@ -167,6 +167,20 @@ final class TangemPayCashbackScreen: ScreenBase<TangemPayCashbackScreenElement> 
     }
 
     @discardableResult
+    func verifyChartValues(_ value: String, count: Int) -> Self {
+        XCTContext.runActivity(named: "Verify all \(count) chart column values show \(value)") { _ in
+            let valueLabels = app.staticTexts.matching(
+                NSPredicate(format: "identifier BEGINSWITH %@", TangemPayAccessibilityIdentifiers.cashbackChartValuePrefix)
+            )
+            scrollToElement(valueLabels.firstMatch)
+            waitAndAssertTrue(valueLabels.firstMatch, "Chart column values should be displayed")
+            let labels = valueLabels.allElementsBoundByIndex.map(\.label)
+            XCTAssertEqual(labels, Array(repeating: value, count: count), "Every chart column value should be '\(value)'")
+            return self
+        }
+    }
+
+    @discardableResult
     func verifyAdditionalCashbackSection() -> Self {
         XCTContext.runActivity(named: "Verify the Additional cashback section") { _ in
             scrollToElement(additionalSectionTitle)
