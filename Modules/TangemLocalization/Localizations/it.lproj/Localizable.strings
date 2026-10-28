@@ -2682,7 +2682,7 @@
 "tangempay_unified_onboarding_cashback_caption" = "Cashback";
 "tangempay_unified_onboarding_cashback_subtitle" = "Pagato in USDC";
 "tangempay_unified_onboarding_cashback_title" = "Fino al 2%%. %1$@";
-"tangempay_unified_onboarding_description" = "Una carta Visa e un conto in USD, insieme. Basta una verifica: apriremo tutti i prodotti disponibili nella Sua regione";
+"tangempay_unified_onboarding_description" = "Una carta Visa e un conto in USD, tutto in uno. Verifica la tua identità una sola volta: apriremo tutti i prodotti disponibili nella tua regione";
 "tangempay_unified_onboarding_everything_header" = "Per tutto";
 "tangempay_unified_onboarding_fees_caption" = "Nessun costo nascosto";
 "tangempay_unified_onboarding_fees_subtitle" = "1 USDC = 1 USD";
@@ -2692,9 +2692,9 @@
 "tangempay_unified_onboarding_legal" = "I prodotti disponibili dipendono dal Paese di residenza. Li confermeremo subito dopo la verifica";
 "tangempay_unified_onboarding_money_account_caption" = "Davvero comodo";
 "tangempay_unified_onboarding_money_account_header" = "Conto in USD";
-"tangempay_unified_onboarding_money_account_subtitle" = "Bonifici ACH in entrata, USD in USDC 1:1; commissione fissa di 1 USD";
-"tangempay_unified_onboarding_money_account_title" = "Le Sue coordinate bancarie negli USA. %1$@";
-"tangempay_unified_onboarding_payment_account_caption" = "Pagamenti come preferisce";
+"tangempay_unified_onboarding_money_account_subtitle" = "Ricevi bonifici ACH, da USD a USDC 1:1; commissione fissa di 1 USD";
+"tangempay_unified_onboarding_money_account_title" = "Le tue coordinate bancarie negli USA. %1$@";
+"tangempay_unified_onboarding_payment_account_caption" = "Paga come preferisci";
 "tangempay_unified_onboarding_payment_account_header" = "Carta Visa";
 "tangempay_unified_onboarding_payment_account_title" = "Online o %1$@";
 "tangempay_unified_onboarding_payments_caption" = "Pagamenti";

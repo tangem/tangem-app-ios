@@ -1359,7 +1359,7 @@
 "money_account_main_name" = "USD account";
 "money_account_main_status_action_required" = "Action required";
 "money_account_main_status_activating" = "Activating…";
-"money_account_main_status_active" = "%1$@ network";
+"money_account_main_status_active" = "%1$@ ACH";
 "money_account_main_status_dialog_activating_description" = "We're getting your account ready. This may take a little time";
 "money_account_main_status_dialog_activating_title" = "Creating your banking account";
 "money_account_main_status_dialog_country_not_supported_description_template" = "We're working on expanding to more regions. Need help? %@";
@@ -2490,7 +2490,7 @@
 "tangempay_daily_limit_set_button" = "Set limits";
 "tangempay_declined_reason_1" = "insufficient funds";
 "tangempay_declined_reason_10" = "card spending limit exceeded";
-"tangempay_declined_reason_11" = "СVV2 match fail";
+"tangempay_declined_reason_11" = "CVV2 match fail";
 "tangempay_declined_reason_12" = "wrong expiry date";
 "tangempay_declined_reason_13" = "incorrect PIN";
 "tangempay_declined_reason_14" = "prohibited transaction";
