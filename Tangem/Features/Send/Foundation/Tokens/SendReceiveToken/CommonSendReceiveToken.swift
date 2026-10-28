@@ -11,4 +11,5 @@ struct CommonSendReceiveToken: SendReceiveToken {
     let isCustom: Bool
     let fiatItem: FiatItem
     let destination: SendReceiveTokenDestination?
+    let isCustomSlippageAllowed = true
 }
