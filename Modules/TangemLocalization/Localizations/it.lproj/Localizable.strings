@@ -1099,7 +1099,7 @@
 "joint_account_members_signers_title" = "Required to sign";
 "joint_account_members_status_confirmed" = "Confirmed";
 "joint_account_members_status_not_confirmed" = "Not confirmed";
-"joint_account_members_subtitle_helper_part" = " %1$@ of %2$@ to sign";
+"joint_account_members_subtitle_helper_part" = "%1$@ of %2$@ to sign";
 "joint_account_members_subtitle_main_part" = "Set how many people share the account. Every transaction waits for %1$@. This can't be changed later";
 "joint_account_members_subtitle" = "Set how many people share the account. Every transaction waits for %1$@ of %2$@ to sign. This can't be changed later";
 "joint_account_members_title" = "Members";
@@ -2561,7 +2561,7 @@
 "tangempay_onboarding_get_card_button_text" = "Ottieni carta";
 "tangempay_onboarding_pay_description" = "Carta digitale con Apple Pay o Google Pay, acquisti senza commissioni";
 "tangempay_onboarding_pay_title" = "Spendi i tuoi asset ovunque";
-"tangempay_onboarding_purchases_description" = "In USDC — senza punti o token sconosciuti ";
+"tangempay_onboarding_purchases_description" = "In USDC — senza punti o token sconosciuti";
 "tangempay_onboarding_purchases_title" = "Fino al 2%% di cashback";
 "tangempay_onboarding_security_description" = "Verrà creato un conto di pagamento separato senza divulgare i tuoi indirizzi e asset";
 "tangempay_onboarding_security_title" = "Privacy senza rivali";
@@ -2638,7 +2638,7 @@
 "tangempay_residency_all_state" = "Seleziona un altro stato";
 "tangempay_residency_search_empty" = "Nessun risultato. Provi a modificare la ricerca";
 "tangempay_residency_suggested_country" = "Paese suggerito";
-"tangempay_residency_suggested_state" = " Stato suggerito";
+"tangempay_residency_suggested_state" = "Stato suggerito";
 "tangempay_residency_title_country" = "Paese di residenza";
 "tangempay_residency_title_state" = "Seleziona lo stato";
 "tangempay_select_plan_btn_downgrade" = "Continua";
