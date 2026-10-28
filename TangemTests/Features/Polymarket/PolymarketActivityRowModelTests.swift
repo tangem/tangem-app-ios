@@ -31,10 +31,10 @@ struct PolymarketActivityRowModelTests {
     }
 
     @Test("A claim is titled and toned by its result", arguments: [
-        ClaimCase(result: .won, title: Localization.predictionHistoryRedeemed, tone: .positive),
+        ClaimCase(result: .won, title: Localization.predictionHistoryRedeemed, tone: .success),
         ClaimCase(result: .split, title: Localization.predictionPositionsSplit, tone: .neutral),
         ClaimCase(result: .lost, title: Localization.predictionPositionsLost, tone: .neutral),
-        ClaimCase(result: nil, title: Localization.predictionHistoryRedeemed, tone: .positive),
+        ClaimCase(result: nil, title: Localization.predictionHistoryRedeemed, tone: .success),
     ])
     func claimIsTitledByItsResult(claimCase: ClaimCase) {
         let model = PolymarketActivityRow.Model.make(record: .claim(result: claimCase.result))

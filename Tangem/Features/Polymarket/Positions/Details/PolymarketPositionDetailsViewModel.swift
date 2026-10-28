@@ -25,6 +25,7 @@ final class PolymarketPositionDetailsViewModel: ObservableObject, Identifiable {
             openEventDetails: { [weak self] in self?.onMarketTap() },
             onClosePosition: { [weak self] in self?.onOrderTap(.sell) },
             onBuy: { [weak self] in self?.onOrderTap(.buy) },
+            onMarketUnavailable: { [weak self] in self?.onMarketUnavailableTap() },
             onHint: { [weak self] hint in self?.hint = hint },
             loadingSide: loadingSide
         )
@@ -36,6 +37,7 @@ final class PolymarketPositionDetailsViewModel: ObservableObject, Identifiable {
             openEventDetails: { [weak self] in self?.onMarketTap() },
             onClosePosition: { [weak self] in self?.onOrderTap(.sell) },
             onBuy: { [weak self] in self?.onOrderTap(.buy) },
+            onMarketUnavailable: { [weak self] in self?.onMarketUnavailableTap() },
             onHint: { [weak self] hint in self?.hint = hint },
             loadingSide: loadingSide
         )
@@ -49,9 +51,11 @@ final class PolymarketPositionDetailsViewModel: ObservableObject, Identifiable {
     private let geoblockStateProvider: PolymarketGeoblockStateProvider
     private let onOrderPlaced: @MainActor (PolymarketOrderIndexing) -> Void
     private weak var coordinator: PolymarketPositionDetailsRoutable?
+    private let poller: PolymarketForegroundPoller
 
     private var orderTask: Task<Void, Never>?
     private var refreshTask: Task<Void, Never>?
+    private var pollTask: Task<Void, Never>?
 
     init(
         position: PolymarketPosition,
@@ -60,7 +64,8 @@ final class PolymarketPositionDetailsViewModel: ObservableObject, Identifiable {
         geoblockStateProvider: PolymarketGeoblockStateProvider,
         usesPhaseTwoLayout: Bool,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
-        coordinator: PolymarketPositionDetailsRoutable
+        coordinator: PolymarketPositionDetailsRoutable,
+        poller: PolymarketForegroundPoller? = nil
     ) {
         self.position = position
         self.usesPhaseTwoLayout = usesPhaseTwoLayout
@@ -69,6 +74,9 @@ final class PolymarketPositionDetailsViewModel: ObservableObject, Identifiable {
         self.geoblockStateProvider = geoblockStateProvider
         self.onOrderPlaced = onOrderPlaced
         self.coordinator = coordinator
+        self.poller = poller ?? PolymarketForegroundPoller(interval: Constants.pollInterval)
+
+        startPolling()
     }
 
     func handleViewAction(_ action: ViewAction) {
@@ -92,6 +100,7 @@ final class PolymarketPositionDetailsViewModel: ObservableObject, Identifiable {
 
     deinit {
         refreshTask?.cancel()
+        pollTask?.cancel()
     }
 }
 
@@ -114,9 +123,58 @@ extension PolymarketPositionDetailsViewModel {
     }
 }
 
+// MARK: - Polling
+
+private extension PolymarketPositionDetailsViewModel {
+    func startPolling() {
+        pollTask = runTask(in: self) { @MainActor viewModel in
+            await viewModel.pollPosition()
+        }
+
+        poller.start(
+            onTick: { [weak self] in await self?.pollPosition() },
+            onPause: { [weak self] in self?.pollTask?.cancel() }
+        )
+    }
+
+    @MainActor
+    func pollPosition() async {
+        let requested = position
+
+        do {
+            let refreshed = try await positionsService.position(
+                conditionId: requested.conditionId,
+                assetId: requested.assetId
+            )
+
+            guard !Task.isCancelled, let refreshed, position == requested else { return }
+
+            position = refreshed
+        } catch {
+            guard !error.isCancellationError else { return }
+
+            PolymarketLogger.error("Failed to refresh the held position", error: error)
+        }
+    }
+}
+
+// MARK: - Constants
+
+private extension PolymarketPositionDetailsViewModel {
+    enum Constants {
+        static let pollInterval: TimeInterval = 20
+    }
+}
+
 // MARK: - The market the position belongs to
 
 private extension PolymarketPositionDetailsViewModel {
+    func onMarketUnavailableTap() {
+        MainActor.assumeIsolated {
+            coordinator?.openMarketUnavailable()
+        }
+    }
+
     private func onMarketTap() {
         guard let eventId = position.eventId else { return }
 

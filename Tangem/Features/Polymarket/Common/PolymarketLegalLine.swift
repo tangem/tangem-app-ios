@@ -22,22 +22,26 @@ struct PolymarketLegalLine: View {
     }
 
     var body: some View {
-        Text(text)
+        Text(Self.text(notice: notice))
             .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
             .tint(DesignSystem.Color.textPrimary)
-            .environment(\.openURL, OpenURLAction { url in
-                onTermsTap(url)
-                return .handled
-            })
+            .environment(\.openURL, Self.openURLAction(onTermsTap))
     }
 
-    private var text: AttributedString {
+    static func openURLAction(_ onTermsTap: @escaping (URL) -> Void) -> OpenURLAction {
+        OpenURLAction { url in
+            onTermsTap(url)
+            return .handled
+        }
+    }
+
+    static func text(notice: PolymarketLegalNotice = .termsAgreement) -> AttributedString {
         let polymarketTerms = Localization.predictionOnboardingLegalPolymarketTerms
         let tangemTerms = Localization.predictionOnboardingLegalTangemTerms
 
-        var text = AttributedString(sentence(polymarketTerms: polymarketTerms, tangemTerms: tangemTerms))
+        var text = AttributedString(sentence(notice: notice, polymarketTerms: polymarketTerms, tangemTerms: tangemTerms))
 
         link(polymarketTerms, to: Constants.polymarketTermsURL, in: &text)
         link(tangemTerms, to: AppConstants.tosURL, in: &text)
@@ -45,14 +49,14 @@ struct PolymarketLegalLine: View {
         return text
     }
 
-    private func sentence(polymarketTerms: String, tangemTerms: String) -> String {
+    private static func sentence(notice: PolymarketLegalNotice, polymarketTerms: String, tangemTerms: String) -> String {
         switch notice {
         case .termsAgreement: Localization.predictionOnboardingLegal(polymarketTerms, tangemTerms)
         case .termsAlreadyAccepted: Localization.predictionOnboardingReconnectLegal(polymarketTerms, tangemTerms)
         }
     }
 
-    private func link(_ title: String, to url: URL, in text: inout AttributedString) {
+    private static func link(_ title: String, to url: URL, in text: inout AttributedString) {
         guard let range = text.range(of: title) else {
             return
         }

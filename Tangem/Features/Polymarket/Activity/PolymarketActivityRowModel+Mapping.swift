@@ -91,7 +91,7 @@ private extension PolymarketActivityRow.Model {
         guard record.type == .redeem, record.amount > 0 else { return .neutral }
 
         switch record.redeemResult {
-        case .won, .none: return .positive
+        case .won, .none: return .success
         case .lost, .split: return .neutral
         }
     }

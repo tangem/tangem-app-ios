@@ -39,8 +39,8 @@ struct PolymarketWebSocketSubscriptionClientTests {
         withExtendedLifetime(readerOfA) {}
     }
 
-    @Test("A reader coming back before the socket closes gets no value cached for the readers that left")
-    func quickReturnDoesNotReplayOldValues() async throws {
+    @Test("A reader coming back before the topic is unsubscribed gets its latest value at once, without a new subscription")
+    func quickReturnReplaysLatestValue() async throws {
         let env = makeSUT()
         let (reader, connection) = try await env.readOneTopic()
 
@@ -51,10 +51,52 @@ struct PolymarketWebSocketSubscriptionClientTests {
         try await env.delayProvider.parkedWaits(of: Constants.disconnectDelay, count: 2)
 
         let returningReader = await env.read(["a"])
+        #expect(try await returningReader.values.element(at: 0) == 1)
+
         connection.receive("a=2")
+        #expect(try await returningReader.values.element(at: 1) == 2)
+        #expect(connection.sent.elements == [.text("subscribe-first:a")])
+        #expect(env.transport.connections.elements.count == 1)
+    }
+
+    @Test("A reader coming back after the topic was unsubscribed gets no value cached before the unsubscription")
+    func returnAfterUnsubscribeDoesNotReplayOldValues() async throws {
+        let env = makeSUT()
+        let (readerOfA, readerOfB, connection) = try await env.readTwoTopics()
+
+        connection.receive("b=1")
+        #expect(try await readerOfB.values.element(at: 0) == 1)
+
+        readerOfB.stop()
+        try await env.delayProvider.parkedWaits(of: Constants.unsubscribeDelay, count: 1)
+        env.delayProvider.release(Constants.unsubscribeDelay)
+        #expect(try await connection.sent.element(at: 2) == .text("unsubscribe:b"))
+
+        let returningReader = await env.read(["b"])
+        #expect(try await connection.sent.element(at: 3) == .text("subscribe:b"))
+        connection.receive("b=2")
 
         #expect(try await returningReader.values.element(at: 0) == 2)
-        #expect(env.transport.connections.elements.count == 1)
+        withExtendedLifetime(readerOfA) {}
+    }
+
+    @Test("On a channel without subscriptions, like the sports one, a reader coming back within five seconds gets its latest value at once")
+    func quickReturnReplaysLatestValueWithoutSubscriptions() async throws {
+        let env = makeSUT(subscribes: false)
+        let (reader, connection) = try await env.readWithoutSubscribing(["a"])
+
+        connection.receive("a=1")
+        #expect(try await reader.values.element(at: 0) == 1)
+
+        reader.stop()
+        try await env.delayProvider.parkedWaits(of: Constants.disconnectDelay, count: 1)
+
+        let returningReader = await env.read(["a"])
+        connection.receive("a=2")
+
+        try #require(try await returningReader.values.element(at: 0) == 1)
+        #expect(try await returningReader.values.element(at: 1) == 2)
+        #expect(connection.sent.elements.isEmpty)
     }
 
     @Test("A reader coming back after the socket closed gets no value from the previous connection")
@@ -190,13 +232,13 @@ struct PolymarketWebSocketSubscriptionClientTests {
 // MARK: - Helpers
 
 private extension PolymarketWebSocketSubscriptionClientTests {
-    func makeSUT(silenceTimeout: Duration? = Constants.silenceTimeout) -> Environment {
+    func makeSUT(silenceTimeout: Duration? = Constants.silenceTimeout, subscribes: Bool = true) -> Environment {
         let transport = WebSocketTransportSpy()
         let delayProvider = DelayProviderSpy()
         let clock = ClockStub()
 
         let sut = PolymarketWebSocketSubscriptionClient(
-            channel: ChannelStub(silenceTimeout: silenceTimeout),
+            channel: ChannelStub(silenceTimeout: silenceTimeout, subscribes: subscribes),
             transport: transport,
             delayProvider: delayProvider,
             notificationCenter: NotificationCenter(),
@@ -220,6 +262,18 @@ private extension PolymarketWebSocketSubscriptionClientTests {
             let reader = await read(["a"])
             let connection = try await transport.connections.element(at: 0)
             try await connection.sent.element(at: 0)
+
+            return (reader, connection)
+        }
+
+        func readWithoutSubscribing(_ topics: Set<String>) async throws -> (ReaderSpy, WebSocketConnectionSpy) {
+            let statuses = await sut.statusChanges()
+            let reader = await read(topics)
+            let connection = try await transport.connections.element(at: 0)
+
+            for await status in statuses where status == .connected {
+                break
+            }
 
             return (reader, connection)
         }
@@ -263,6 +317,7 @@ private struct ChannelStub: PolymarketWebSocketChannel, PolymarketWebSocketSubsc
     }
 
     let silenceTimeout: Duration?
+    let subscribes: Bool
 
     var url: URL {
         URL(string: "wss://channel.test")!
@@ -273,7 +328,7 @@ private struct ChannelStub: PolymarketWebSocketChannel, PolymarketWebSocketSubsc
     }
 
     var subscribing: (any PolymarketWebSocketSubscribing<String>)? {
-        self
+        subscribes ? self : nil
     }
 
     func subscribeMessage(for topics: Set<String>, isFirstOnConnection: Bool) throws -> WebSocketMessage {

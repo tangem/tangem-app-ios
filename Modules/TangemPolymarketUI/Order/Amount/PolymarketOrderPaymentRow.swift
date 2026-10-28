@@ -14,11 +14,18 @@ import TangemUIUtils
 
 public struct PolymarketOrderPaymentRow: View {
     private let model: Model
+    private let style: PolymarketOrderBlockStyle
     private let isAddFundsEnabled: Bool
     private let onAddFunds: () -> Void
 
-    public init(model: Model, isAddFundsEnabled: Bool, onAddFunds: @escaping () -> Void) {
+    public init(
+        model: Model,
+        style: PolymarketOrderBlockStyle = .regular,
+        isAddFundsEnabled: Bool,
+        onAddFunds: @escaping () -> Void
+    ) {
         self.model = model
+        self.style = style
         self.isAddFundsEnabled = isAddFundsEnabled
         self.onAddFunds = onAddFunds
     }
@@ -34,14 +41,28 @@ public struct PolymarketOrderPaymentRow: View {
             addFundsButton
         }
         .padding(.horizontal, Constants.horizontalPadding)
-        .padding(.vertical, Constants.verticalPadding)
+        .padding(.vertical, verticalPadding)
+    }
+
+    private var verticalPadding: CGFloat {
+        switch style {
+        case .regular: Constants.regularVerticalPadding
+        case .sheet: Constants.sheetVerticalPadding
+        }
+    }
+
+    private var iconSide: CGFloat {
+        switch style {
+        case .regular: Constants.regularIconSide
+        case .sheet: Constants.sheetIconSide
+        }
     }
 
     private var icon: some View {
         model.icon.image
             .resizable()
             .aspectRatio(contentMode: .fit)
-            .frame(width: Constants.iconSide, height: Constants.iconSide)
+            .frame(size: CGSize(bothDimensions: iconSide))
             .accessibilityHidden(true)
     }
 
@@ -100,7 +121,9 @@ private extension PolymarketOrderPaymentRow {
         static let spacing: CGFloat = 12
         static let textSpacing: CGFloat = 2
         static let horizontalPadding: CGFloat = 16
-        static let verticalPadding: CGFloat = 12
-        static let iconSide: CGFloat = 36
+        static let regularVerticalPadding: CGFloat = 12
+        static let sheetVerticalPadding: CGFloat = 16
+        static let regularIconSide: CGFloat = 36
+        static let sheetIconSide: CGFloat = 40
     }
 }

@@ -136,7 +136,7 @@ private extension PolymarketOrderResumeTests {
             collateralBalancePublisher: .just(output: 200),
             addFundsReadinessStream: AsyncStream { $0.yield(.unavailable); $0.finish() },
             delayProvider: ShortPollDelayProvider(),
-            notificationCenter: notificationCenter
+            appStateObserver: AppStateObserver(notificationCenter: notificationCenter)
         )
 
         try await settle { model.state.balance != nil }

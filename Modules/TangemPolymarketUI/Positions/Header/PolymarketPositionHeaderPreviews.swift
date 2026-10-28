@@ -29,6 +29,8 @@ private struct PolymarketPositionHeaderShowcase: View {
                 PolymarketPositionHeader(model: .losing)
 
                 PolymarketPositionHeader(model: .settled)
+
+                PolymarketPositionHeader(model: .finished)
             }
             .padding(.vertical, 24)
         }
@@ -39,8 +41,7 @@ private struct PolymarketPositionHeaderShowcase: View {
 private extension PolymarketPositionHeader.Model {
     static let winning = PolymarketPositionHeader.Model(
         iconURL: nil,
-        changeText: "10.94% ($40.50)",
-        changeType: .positive,
+        change: PolymarketPositionRow.Change(text: "10.94% ($40.50)", type: .positive),
         valueText: "$4,000.10",
         question: "Will Uzbekistan win the 2026 FIFA World Cup?",
         outcomeTitle: "Yes",
@@ -50,8 +51,7 @@ private extension PolymarketPositionHeader.Model {
 
     static let losing = PolymarketPositionHeader.Model(
         iconURL: nil,
-        changeText: "8.10% ($32.40)",
-        changeType: .negative,
+        change: PolymarketPositionRow.Change(text: "8.10% ($32.40)", type: .negative),
         valueText: "$367.60",
         question: "Will France not win the 2026 FIFA World Cup?",
         outcomeTitle: "No",
@@ -61,12 +61,21 @@ private extension PolymarketPositionHeader.Model {
 
     static let settled = PolymarketPositionHeader.Model(
         iconURL: nil,
-        changeText: "0.00% ($0.00)",
-        changeType: .neutral,
+        change: PolymarketPositionRow.Change(text: "0.00% ($0.00)", type: .neutral),
         valueText: "$0.00",
         question: "Will the German Super League NRW T10 match between Westfalen Royals and SC Krefeld end in a draw?",
         outcomeTitle: "No",
         outcomeStyle: PolymarketOutcomeStyle(outcomeIndex: 1),
         payoutAmount: "$1,000.00"
+    )
+
+    static let finished = PolymarketPositionHeader.Model(
+        iconURL: nil,
+        change: nil,
+        valueText: nil,
+        question: "Will Uzbekistan win the 2026 FIFA World Cup?",
+        outcomeTitle: "Yes",
+        outcomeStyle: PolymarketOutcomeStyle(outcomeIndex: 0),
+        payoutAmount: nil
     )
 }

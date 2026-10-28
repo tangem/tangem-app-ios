@@ -20,8 +20,8 @@ struct PolymarketOrderSheetModifier: ViewModifier {
                 NavigationStack {
                     PolymarketOrderCoordinatorView(coordinator: orderCoordinator)
                 }
-                .presentationCornerRadius(Constants.cornerRadius)
-                .containerCornerRadius(Constants.cornerRadius)
+                .presentationCornerRadius(presentationCornerRadius(for: orderCoordinator))
+                .containerCornerRadius(presentationCornerRadius(for: orderCoordinator) ?? Constants.cornerRadius)
                 .background {
                     if let mainCoordinator = presenter.mainCoordinator {
                         PolymarketMainSheetHost(coordinator: mainCoordinator, isActive: true)
@@ -29,6 +29,10 @@ struct PolymarketOrderSheetModifier: ViewModifier {
                 }
                 .softTopScrollEdgeEffect()
             }
+    }
+
+    private func presentationCornerRadius(for coordinator: PolymarketOrderCoordinator) -> CGFloat? {
+        coordinator.flowStyle.isSingleSheet ? ModalAppearance.cornerRadius : Constants.cornerRadius
     }
 }
 

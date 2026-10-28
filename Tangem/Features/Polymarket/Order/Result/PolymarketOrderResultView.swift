@@ -64,7 +64,6 @@ struct PolymarketOrderResultView: View {
         .actionLoading(viewModel.isAwaitingPosition)
         .actionDisabled(viewModel.isActionDisabled)
         .footerAxis(.horizontal)
-        .footerHidden(viewModel.hidesFooter)
         .assetSlot { statusIcon }
     }
 }

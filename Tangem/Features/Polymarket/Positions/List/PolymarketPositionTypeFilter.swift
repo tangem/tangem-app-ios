@@ -19,7 +19,6 @@ enum PolymarketPositionTypeFilter: String, CaseIterable, Identifiable {
     case pending
     case split
     case closed
-    case unknown
 
     var id: String { rawValue }
 
@@ -33,14 +32,13 @@ enum PolymarketPositionTypeFilter: String, CaseIterable, Identifiable {
         case .pending: Localization.predictionPositionsPending
         case .split: Localization.predictionPositionsSplit
         case .closed: Localization.predictionPositionsClosed
-        case .unknown: Localization.predictionPositionsUnknown
         }
     }
 
     static func cases(for tab: PolymarketPositionsTab) -> [Self] {
         switch tab {
-        case .active: [.all, .active, .won, .lost, .disputed, .pending, .split, .unknown]
-        case .finished: [.all, .won, .lost, .split, .closed, .unknown]
+        case .active: [.all, .active, .won, .lost, .disputed, .pending, .split]
+        case .finished: [.all, .won, .lost, .split, .closed]
         }
     }
 
@@ -54,7 +52,6 @@ enum PolymarketPositionTypeFilter: String, CaseIterable, Identifiable {
         case .lost: position.settlement == .lost
         case .split: position.settlement == .split
         case .closed: false
-        case .unknown: position.settlement == .unknown || position.resolutionStatus == .unknown
         }
     }
 
@@ -66,7 +63,6 @@ enum PolymarketPositionTypeFilter: String, CaseIterable, Identifiable {
         case .lost: position.status == .lost
         case .split: position.status == .split
         case .closed: position.status == .closed
-        case .unknown: position.status == .unknown
         }
     }
 }

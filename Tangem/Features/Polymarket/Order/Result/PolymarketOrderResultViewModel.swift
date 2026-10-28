@@ -70,7 +70,7 @@ final class PolymarketOrderResultViewModel: ObservableObject, Identifiable {
             return Constants.viewPositionTitle
         }
 
-        return Localization.commonClose
+        return Localization.commonGotIt
     }
 
     var action: ViewAction {
@@ -83,10 +83,6 @@ final class PolymarketOrderResultViewModel: ObservableObject, Identifiable {
 
     var isActionDisabled: Bool {
         canViewPosition && position == nil
-    }
-
-    var hidesFooter: Bool {
-        !canViewPosition
     }
 
     var blocksSwipeDismiss: Bool {

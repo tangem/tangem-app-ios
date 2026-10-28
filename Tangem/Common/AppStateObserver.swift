@@ -8,7 +8,11 @@
 
 import UIKit
 
-final class AppStateObserver {
+protocol AppStateObserving {
+    func start(onChange: @escaping @MainActor (_ isInBackground: Bool) -> Void)
+}
+
+final class AppStateObserver: AppStateObserving {
     private let notificationCenter: NotificationCenter
     private var task: Task<Void, Never>?
 

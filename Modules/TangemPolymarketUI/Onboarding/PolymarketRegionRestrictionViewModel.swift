@@ -47,6 +47,14 @@ public extension PolymarketRegionRestrictionViewModel {
         )
     }
 
+    static func marketUnavailable(onClose: @escaping () -> Void) -> PolymarketRegionRestrictionViewModel {
+        PolymarketRegionRestrictionViewModel(
+            title: Localization.predictionPlaceNotificationMarketClosedTitle,
+            message: "You can't place orders for this market currently. Please try later.",
+            onClose: onClose
+        )
+    }
+
     // [REDACTED_TODO_COMMENT]
     static func quoteUnavailable(onClose: @escaping () -> Void) -> PolymarketRegionRestrictionViewModel {
         PolymarketRegionRestrictionViewModel(

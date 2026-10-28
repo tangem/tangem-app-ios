@@ -69,6 +69,9 @@ public struct Footer: View, Setupable {
                     .horizontalLayout(.infinity)
             }
 
+        case .signingButton(let button):
+            button
+
         case .toolbar(let start, let end):
             HStack(spacing: 0) {
                 start?.size(.x11)

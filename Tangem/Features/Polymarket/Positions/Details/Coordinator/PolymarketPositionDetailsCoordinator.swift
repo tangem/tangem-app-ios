@@ -125,6 +125,13 @@ extension PolymarketPositionDetailsCoordinator: PolymarketPositionDetailsRoutabl
         ))
     }
 
+    @MainActor
+    func openMarketUnavailable() {
+        floatingSheetPresenter.enqueue(sheet: PolymarketRegionRestrictionViewModel.marketUnavailable(
+            onClose: { [weak self] in self?.floatingSheetPresenter.removeActiveSheet() }
+        ))
+    }
+
     func openEventDetails(
         eventID: String,
         placeholder: PolymarketEventPlaceholder?,

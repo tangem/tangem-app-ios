@@ -11,7 +11,6 @@ import TangemFoundation
 import TangemLocalization
 import TangemPolymarket
 import TangemPolymarketUI
-import TangemUI
 
 extension PolymarketFinishedPositionSheetView.Model {
     static func make(closedPosition: PolymarketClosedPosition) -> Self {
@@ -30,9 +29,8 @@ private extension PolymarketFinishedPositionSheetView.Model {
     static func header(closedPosition: PolymarketClosedPosition) -> PolymarketPositionHeader.Model {
         PolymarketPositionHeader.Model(
             iconURL: closedPosition.iconURL,
-            changeText: PolymarketPositionRow.Model.changeText(closedPosition: closedPosition),
-            changeType: PriceChangeView.ChangeType(from: PolymarketOrderFormatter.displayedMoney(closedPosition.realizedPnl)),
-            valueText: PolymarketOrderFormatter.money(abs(PolymarketOrderFormatter.displayedMoney(closedPosition.realizedPnl))),
+            change: nil,
+            valueText: nil,
             question: closedPosition.title.nilIfEmpty ?? Localization.predictionPositionsUnavailable,
             outcomeTitle: closedPosition.outcome,
             outcomeStyle: PolymarketOutcomeStyle(outcomeIndex: closedPosition.outcomeIndex, name: closedPosition.outcome),
