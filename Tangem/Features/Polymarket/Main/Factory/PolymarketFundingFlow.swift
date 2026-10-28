@@ -25,7 +25,8 @@ struct PolymarketFundingFlow {
 
         return PolymarketAddFundsSheetViewModel(
             interactor: dependencies.accountFundsInteractor,
-            swapParametersFactory: dependencies.makeSwapParametersFactory(accountModel: accountModel),
+            userWalletModel: dependencies.userWalletModel,
+            accountModel: accountModel,
             coordinator: routable
         )
     }
@@ -53,7 +54,7 @@ struct PolymarketFundingFlow {
     func makeWithdrawParameters(
         from source: PolymarketWithdrawSource
     ) async throws(PolymarketFundingError) -> PredefinedSwapParameters {
-        guard let accountModel = dependencies.accountModel else {
+        guard dependencies.accountModel != nil else {
             throw .missingPolymarketAccountModel
         }
 
@@ -63,9 +64,13 @@ struct PolymarketFundingFlow {
         )
         .resolve()
 
-        return dependencies
-            .makeSwapParametersFactory(accountModel: accountModel)
-            .make(withdrawingFrom: source, receiveToken: receiveToken)
+        let builder = PolymarketWithdrawSwapPredefinedParametersBuilder(
+            userWalletInfo: dependencies.userWalletModel.userWalletInfo,
+            source: source,
+            receiveToken: receiveToken
+        )
+
+        return builder.make()
     }
 
     var currentBalance: Decimal? {

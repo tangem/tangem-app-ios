@@ -130,14 +130,6 @@ struct PolymarketMainDependencies {
             .sell(shares: shares)
         }
     }
-
-    func makeSwapParametersFactory(accountModel: any PolymarketAccountModel) -> PolymarketSwapParametersFactory {
-        PolymarketSwapParametersFactory(
-            userWalletInfo: userWalletModel.userWalletInfo,
-            walletModelsProvider: walletModelsProvider,
-            accountModel: accountModel
-        )
-    }
 }
 
 // MARK: - Main screen blocks
