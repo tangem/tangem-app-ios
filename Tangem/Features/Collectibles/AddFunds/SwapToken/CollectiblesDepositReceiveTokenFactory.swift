@@ -69,6 +69,7 @@ struct CollectiblesDepositReceiveTokenFactory {
             providerTransactionValidator: CollectiblesAccountExpressProviderTransactionValidator(),
             operationType: .swap,
             supportedProvidersFilter: .byTypes([.dex]),
+            isCustomSlippageAllowed: accountModel.resolve(using: CustomSlippageAvailabilityResolver()),
             presentation: SendReceiveTokenPresentation(
                 currencySymbol: tokenItem.currencySymbol,
                 icon: Assets.Accounts.starAccounts,
