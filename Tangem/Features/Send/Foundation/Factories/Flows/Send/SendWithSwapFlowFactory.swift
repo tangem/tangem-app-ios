@@ -61,7 +61,11 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         self.sourceToken = sourceToken
         self.predefinedSendParameters = predefinedSendParameters
         self.coordinatorSource = coordinatorSource
-        expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
+        expressDependenciesFactory = CommonExpressDependenciesFactory(
+            userWalletInfo: sourceToken.userWalletInfo,
+            preferredProviderId: nil,
+            mcpIntentID: nil
+        )
     }
 
     private func makeAddContactViewModel(router: SendRoutable) -> SendAddContactFinishViewModel? {

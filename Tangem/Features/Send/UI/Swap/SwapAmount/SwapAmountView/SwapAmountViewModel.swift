@@ -60,6 +60,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     private var sourceTokenCancellable: AnyCancellable?
     private var sourceTokenAmountCancellable: AnyCancellable?
     private var sourceFiatAmountCancellable: AnyCancellable?
+    private var sourceAmountSyncCancellable: AnyCancellable?
 
     private var isInputDisabledCancellable: AnyCancellable?
 
@@ -162,6 +163,17 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { $0.updateSourceAlternativeAmount(amount: $1) }
+
+        sourceAmountSyncCancellable = interactor.sourceAmountPublisher
+            .compactMap { $0.value }
+            .withWeakCaptureOf(self)
+            .filter { viewModel, amount in
+                amount.crypto != viewModel.sourceCryptoDecimalNumberTextFieldViewModel.value
+            }
+            .receiveOnMain()
+            .sink { viewModel, amount in
+                viewModel.externalUpdate(amount: amount)
+            }
 
         // Receive token / amount updating
 
@@ -406,5 +418,9 @@ extension SwapAmountViewModel: SendAmountExternalUpdatableViewModel {
         sourceCryptoDecimalNumberTextFieldViewModel.update(value: amount?.crypto)
         sourceFiatDecimalNumberTextFieldViewModel.update(value: amount?.fiat)
         updateSourceAlternativeAmount(amount: amount)
+    }
+
+    func externalUpdate(receiveAmount: Decimal?) {
+        _ = interactor.update(receiveAmount: receiveAmount)
     }
 }

@@ -12,8 +12,8 @@ public struct ExpressFeatureFlags {
     public let isHideRejectedSwapProvidersEnabled: Bool
 
     public init(
-        isSwapBestRateDefaultProviderEnabled: Bool = false,
-        isHideRejectedSwapProvidersEnabled: Bool = false
+        isSwapBestRateDefaultProviderEnabled: Bool,
+        isHideRejectedSwapProvidersEnabled: Bool
     ) {
         self.isSwapBestRateDefaultProviderEnabled = isSwapBestRateDefaultProviderEnabled
         self.isHideRejectedSwapProvidersEnabled = isHideRejectedSwapProvidersEnabled

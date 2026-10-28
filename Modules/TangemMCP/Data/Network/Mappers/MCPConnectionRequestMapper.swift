@@ -11,18 +11,10 @@ import struct OrderedCollections.OrderedSet
 import struct TangemFoundation.UserWalletId
 
 enum MCPConnectionRequestMapper {
-    private static let agentFallbackName = "AI Agent"
-    private static let agentFallbackHost = "mcp.tangem.org"
-
     static func mapToDomainRequest(
         _ fetchResponse: FetchMCPConnectionRequestDTO.Response
     ) -> MCPConnectionRequest {
-        let agent = MCPAgent(
-            id: fetchResponse.clientId,
-            name: fetchResponse.clientName ?? Self.agentFallbackName,
-            host: fetchResponse.clientOrigin ?? Self.agentFallbackHost,
-            icon: fetchResponse.clientIconUrl
-        )
+        let agent = MCPAgentMapper.mapToDomain(fetchResponse)
 
         let scopes = fetchResponse.scope.split(separator: " ").map(String.init)
 

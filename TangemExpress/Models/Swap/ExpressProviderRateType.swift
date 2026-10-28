@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-public enum ExpressProviderRateType: String, Codable, Hashable {
+public enum ExpressProviderRateType: String, Codable, Hashable, Sendable {
     case float
     case fixed
 }

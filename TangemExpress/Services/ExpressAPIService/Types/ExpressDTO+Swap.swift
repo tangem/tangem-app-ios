@@ -127,6 +127,7 @@ extension ExpressDTO {
                 let refundExtraId: String? // typically it's a memo or tag
                 let partnerOperationType: String
                 let slippage: Int?
+                let intentId: String?
             }
 
             struct Response: Decodable {
@@ -140,6 +141,35 @@ extension ExpressDTO {
                 let signature: String
                 let payTill: Date?
                 let slippage: Decimal?
+            }
+        }
+
+        // MARK: - ExchangeMCPIntent
+
+        enum ExchangeMCPIntent {
+            struct Request: Encodable {
+                let intentId: String
+            }
+
+            struct Response: Decodable {
+                let intent: Intent
+                let transactions: [Transaction]
+            }
+
+            struct Intent: Decodable {
+                let intentId: String
+                let provider: String
+                let rateType: String
+                let fromContractAddress: String
+                let fromNetwork: String
+                let fromDecimals: Int
+                let fromAmount: String?
+                let toContractAddress: String
+                let toNetwork: String
+                let toDecimals: Int
+                let toAmount: String?
+                let walletId: String
+                let clientId: String
             }
         }
 

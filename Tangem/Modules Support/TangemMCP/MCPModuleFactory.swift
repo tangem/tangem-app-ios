@@ -7,6 +7,7 @@
 //
 
 import Combine
+import Foundation
 import class UIKit.UIApplication
 import class UIKit.UIImage
 import class Alamofire.Interceptor
@@ -14,6 +15,7 @@ import enum TangemBackendAuthentication.BackendAuthenticationAssembly
 import TangemFoundation
 import TangemLocalization
 import TangemMCP
+import struct TangemNetworkUtils.TimeoutIntervalPlugin
 import class TangemNetworkUtils.TangemProvider
 import class TangemUI.FloatingSheetRegistry
 import TangemUIUtils
@@ -24,24 +26,38 @@ enum MCPModuleFactory {
     @Injected(\.userWalletRepository) private static var userWalletRepository: any UserWalletRepository
 
     private static let balanceFormatter = BalanceFormatter()
+    private static let blockchainImageAssetProvider = NetworkImageProvider()
+    private static let tokenIconURLBuilder = IconURLBuilder()
 
     static func configure() {
         guard FeatureProvider.isAvailable(.mcp) else { return }
 
-        let configuration = TangemMCPAssembly.Configuration(
+        let connectionProvider = TangemProvider<MCPConnectionTarget>(
+            configuration: .ephemeralConfiguration,
+            requestInterceptor: Alamofire.Interceptor(
+                adapter: BackendAuthenticationAssembly.requestAdapter,
+                retrier: BackendAuthenticationAssembly.requestRetrier
+            )
+        )
+
+        let agentProvider = TangemProvider<MCPAgentTarget>(
+            configuration: .ephemeralConfiguration,
+            additionalPlugins: [TimeoutIntervalPlugin()],
+            requestInterceptor: Alamofire.Interceptor(
+                adapter: BackendAuthenticationAssembly.requestAdapter,
+                retrier: BackendAuthenticationAssembly.requestRetrier
+            )
+        )
+
+        let configuration = MCPAssembly.Configuration(
             floatingSheetRegistry: FloatingSheetRegistry.default,
             baseURL: AppEnvironment.current.backendAuthenticationBaseUrl,
-            provider: TangemProvider<MCPConnectionTarget>(
-                configuration: .ephemeralConfiguration,
-                requestInterceptor: Alamofire.Interceptor(
-                    adapter: BackendAuthenticationAssembly.requestAdapter,
-                    retrier: BackendAuthenticationAssembly.requestRetrier
-                )
-            ),
+            connectionProvider: connectionProvider,
+            agentProvider: agentProvider,
             logger: MCPLogger
         )
 
-        TangemMCPAssembly.configure(configuration)
+        MCPAssembly.configure(configuration)
     }
 
     @MainActor
@@ -63,7 +79,7 @@ enum MCPModuleFactory {
             service: Self.pushNotificationsPermission
         )
 
-        return TangemMCPAssembly.makeConnectionRequestViewModel(
+        return MCPAssembly.makeConnectionRequestViewModel(
             userCode: userCode,
             userWallets: userWallets,
             selectedUserWallet: selectedUserWallet,
@@ -71,8 +87,86 @@ enum MCPModuleFactory {
             fetchUserWalletImage: Self.makeFetchUserWalletImage(),
             updateUserWalletBalance: Self.makeUpdateUserWalletBalance(),
             openSystemSettingsAction: UIApplication.openSystemSettings,
-            closeAction: Self.floatingSheetPresenter.removeActiveSheet
+            closeAction: { [weak floatingSheetPresenter] in
+                floatingSheetPresenter?.removeActiveSheet()
+            }
         )
+    }
+
+    @MainActor
+    static func makeSwapIntentViewModel(
+        agent: MCPAgent,
+        fromAmount: MCPSwapAmount,
+        toToken: MCPToken,
+        proceedAction: @escaping () -> Void
+    ) -> MCPSwapIntentViewModel {
+        MCPAssembly.makeSwapIntentViewModel(
+            agent: agent,
+            fromAmount: fromAmount,
+            toToken: toToken,
+            closeAction: { [weak floatingSheetPresenter] in
+                floatingSheetPresenter?.removeActiveSheet()
+            },
+            proceedAction: { [weak floatingSheetPresenter] in
+                floatingSheetPresenter?.removeActiveSheet()
+                proceedAction()
+            }
+        )
+    }
+
+    @MainActor
+    static func makeSwapIntentViewModel(
+        agent: MCPAgent,
+        fromToken: MCPToken,
+        toAmount: MCPSwapAmount,
+        proceedAction: @escaping () -> Void
+    ) -> MCPSwapIntentViewModel {
+        MCPAssembly.makeSwapIntentViewModel(
+            agent: agent,
+            fromToken: fromToken,
+            toAmount: toAmount,
+            closeAction: { [weak floatingSheetPresenter] in
+                floatingSheetPresenter?.removeActiveSheet()
+            },
+            proceedAction: { [weak floatingSheetPresenter] in
+                floatingSheetPresenter?.removeActiveSheet()
+                proceedAction()
+            }
+        )
+    }
+
+    static func makeMCPToken(from walletModel: some WalletModel) -> MCPToken {
+        let tokenItem = walletModel.tokenItem
+        let blockchain = tokenItem.blockchain
+
+        let displayName: String
+        let kind: MCPToken.Kind
+
+        switch tokenItem.amountType {
+        case .coin, .reserve, .feeResource:
+            displayName = blockchain.coinDisplayName
+            kind = .nativeCoin
+
+        case .token(let token):
+            displayName = token.name
+            if let tokenID = token.id {
+                let iconURL = Self.tokenIconURLBuilder.tokenIconURL(id: tokenID, size: .large)
+                kind = MCPToken.Kind.token(iconURL: iconURL)
+            } else {
+                kind = MCPToken.Kind.customToken
+            }
+        }
+
+        return MCPToken(
+            displayName: displayName,
+            symbol: tokenItem.currencySymbol,
+            network: MCPToken.Blockchain(iconAsset: Self.blockchainImageAssetProvider.provide(by: blockchain, filled: true)),
+            kind: kind
+        )
+    }
+
+    static func makeFormattedAmount(_ amount: Decimal, symbol: String) -> String {
+        balanceFormatter.formatCryptoBalance(amount, currencyCode: symbol)
     }
 }
 

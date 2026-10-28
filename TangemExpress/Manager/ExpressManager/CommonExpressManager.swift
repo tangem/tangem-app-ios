@@ -19,6 +19,7 @@ actor CommonExpressManager {
     private let expressProviderManagerFactory: ExpressProviderManagerFactory
     private let expressRepository: ExpressRepository
     private let featureFlags: ExpressFeatureFlags
+    private let mcpIntentID: String?
 
     // MARK: - Inputs
 
@@ -44,13 +45,15 @@ actor CommonExpressManager {
         expressProviderManagerFactory: ExpressProviderManagerFactory,
         expressRepository: ExpressRepository,
         featureFlags: ExpressFeatureFlags,
-        preferredProviderId: ExpressProvider.Id? = nil
+        preferredProviderId: ExpressProvider.Id? = nil,
+        mcpIntentID: String? = nil
     ) {
         self.expressAPIProvider = expressAPIProvider
         self.expressProviderManagerFactory = expressProviderManagerFactory
         self.expressRepository = expressRepository
         self.featureFlags = featureFlags
         _preferredProviderId = preferredProviderId
+        self.mcpIntentID = mcpIntentID
     }
 }
 
@@ -363,6 +366,7 @@ private extension CommonExpressManager {
             amountType: _amountType,
             approvePolicy: _approvePolicy,
             slippage: _slippage,
+            mcpIntentID: mcpIntentID,
             quotesLoadingPerformanceTracker: tracker
         )
     }

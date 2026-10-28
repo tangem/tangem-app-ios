@@ -84,15 +84,23 @@ struct PredefinedSwapParameters {
     }
 
     /// Optional preselections carried by a `tangem://swap` deeplink on top of the resolved pair: an initial
-    /// FROM amount to prefill and a provider to auto-select once the pair's providers arrive.
+    /// amount to prefill on whichever side was specified, a provider to auto-select once the pair's providers
+    /// arrive, and the AI agent intent this swap was proposed by, if any.
     struct Extras {
-        let sourceAmount: Decimal?
+        let specifiedAmount: SpecifiedAmount?
         let providerId: ExpressProvider.Id?
+        let mcpIntentID: String?
 
-        init(sourceAmount: Decimal? = nil, providerId: ExpressProvider.Id? = nil) {
-            self.sourceAmount = sourceAmount
+        init(specifiedAmount: SpecifiedAmount? = nil, providerId: ExpressProvider.Id? = nil, mcpIntentID: String? = nil) {
+            self.specifiedAmount = specifiedAmount
             self.providerId = providerId
+            self.mcpIntentID = mcpIntentID
         }
+    }
+
+    enum SpecifiedAmount {
+        case source(Decimal)
+        case receive(Decimal)
     }
 }
 

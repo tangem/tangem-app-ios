@@ -89,6 +89,7 @@ private extension ExpressManagerMapperTests {
             approvePolicy: .specified,
             operationType: .swap,
             slippage: slippage,
+            mcpIntentID: nil,
             quotesLoadingPerformanceTracker: nil
         )
     }

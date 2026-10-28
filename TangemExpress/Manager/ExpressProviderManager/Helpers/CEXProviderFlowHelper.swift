@@ -181,6 +181,7 @@ private extension CEXProviderFlowHelper {
             approvePolicy: request.approvePolicy,
             operationType: request.operationType,
             slippage: request.slippage,
+            mcpIntentID: request.mcpIntentID,
             quotesLoadingPerformanceTracker: request.quotesLoadingPerformanceTracker
         )
     }

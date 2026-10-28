@@ -96,7 +96,10 @@ private extension CEXProviderFlowHelperExchangeDataErrorTests {
             expressFeeProvider: FeeProviderFactoryStub().makeExpressFeeProvider(),
             expressAPIProvider: apiProvider,
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isHideRejectedSwapProvidersEnabled: isHideRejectedSwapProvidersEnabled)
+            featureFlags: ExpressFeatureFlags(
+                isSwapBestRateDefaultProviderEnabled: false,
+                isHideRejectedSwapProvidersEnabled: isHideRejectedSwapProvidersEnabled
+            )
         ))
     }
 
@@ -107,6 +110,7 @@ private extension CEXProviderFlowHelperExchangeDataErrorTests {
             approvePolicy: .specified,
             operationType: .swap,
             slippage: nil,
+            mcpIntentID: nil,
             quotesLoadingPerformanceTracker: nil
         )
     }

@@ -50,7 +50,9 @@ struct DeeplinkOverlayProviderTests {
              .campaigns,
              .survey,
              .payCustomCard,
-             .tangemPayTransaction:
+             .tangemPayTransaction,
+             .mcpIntent,
+             .mcpAuthorization:
             false
         }
     }
@@ -81,6 +83,8 @@ struct DeeplinkOverlayProviderTests {
         .survey(SurveyDeeplink(token: "ntt-abc123")),
         .payCustomCard(PayCustomCardDeeplink(campaignKey: "tpay_for_harvard")),
         .support(SupportDeeplink()),
+        .mcpIntent(MCPIntentDeeplink(id: "intent-id", source: "intent-source", type: "intent-type")),
+        .mcpAuthorization(MCPAuthorizationDeeplink(userCode: "user-code")),
     ]
 
     /// The list above is written by hand, so this is what says it is still the whole enum: one action per

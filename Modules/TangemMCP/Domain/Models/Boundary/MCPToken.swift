@@ -12,18 +12,16 @@ public import struct TangemAssets.ImageType
 // [REDACTED_TODO_COMMENT]
 
 public struct MCPToken: Equatable, Sendable {
-    let displayName: String
-    let symbol: String
-    let network: Self.Blockchain
-    let kind: Self.Kind
-    let hasCustomDerivation: Bool
+    public let displayName: String
+    public let symbol: String
+    public let network: Self.Blockchain
+    public let kind: Self.Kind
 
-    public init(displayName: String, symbol: String, network: Self.Blockchain, kind: Self.Kind, hasCustomDerivation: Bool) {
+    public init(displayName: String, symbol: String, network: Self.Blockchain, kind: Self.Kind) {
         self.displayName = displayName
         self.symbol = symbol
         self.network = network
         self.kind = kind
-        self.hasCustomDerivation = hasCustomDerivation
     }
 }
 

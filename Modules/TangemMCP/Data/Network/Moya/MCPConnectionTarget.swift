@@ -13,22 +13,17 @@ public import Moya
 
 public struct MCPConnectionTarget: Moya.TargetType {
     public let baseURL: URL
-    public let path: String
+    public let path = "api/authentication/v1/mcp/device_verification"
     public let method: Alamofire.HTTPMethod
     public let task: Moya.Task
-    public let validationType: Moya.ValidationType
-    public let headers: [String: String]?
+    public let validationType = Moya.ValidationType.successCodes
+    public let headers: [String: String]? = ["Content-Type": "application/json"]
 
     private init(baseURL: URL, method: Alamofire.HTTPMethod, task: Moya.Task) {
         self.baseURL = baseURL
-        path = Self.path
         self.method = method
         self.task = task
-        validationType = .successCodes
-        headers = ["Content-Type": "application/json"]
     }
-
-    private static let path = "api/authentication/v1/mcp/device_verification"
 }
 
 // MARK: - api/authentication/v1/mcp/device_verification

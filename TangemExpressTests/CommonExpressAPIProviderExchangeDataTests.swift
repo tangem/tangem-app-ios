@@ -19,7 +19,7 @@ struct CommonExpressAPIProviderExchangeDataTests {
             expressAPIService: service,
             expressAPIMapper: ExpressAPIMapper(
                 exchangeDataDecoder: RefusingExchangeDataDecoderStub(),
-                featureFlags: ExpressFeatureFlags()
+                featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
             )
         )
 
@@ -55,7 +55,8 @@ private extension CommonExpressAPIProviderExchangeDataTests {
             providerInfo: .init(id: "provider", type: .cex),
             operationType: .swap,
             quoteId: nil,
-            slippage: nil
+            slippage: nil,
+            mcpIntentID: nil
         )
     }
 }
@@ -93,6 +94,7 @@ private final class ExpressAPIServiceSpy: ExpressAPIService {
     func pairs(request: ExpressDTO.Swap.Pairs.Request) async throws -> [ExpressDTO.Swap.Pairs.Response] { throw ServiceSpyError.notImplemented }
     func providers() async throws -> [ExpressDTO.Swap.Providers.Response] { throw ServiceSpyError.notImplemented }
     func exchangeQuote(request: ExpressDTO.Swap.ExchangeQuote.Request) async throws -> ExpressDTO.Swap.ExchangeQuote.Response { throw ServiceSpyError.notImplemented }
+    func exchangeMCPIntent(request: ExpressDTO.Swap.ExchangeMCPIntent.Request) async throws -> ExpressDTO.Swap.ExchangeMCPIntent.Response { throw ServiceSpyError.notImplemented }
     func exchangeStatus(request: ExpressDTO.Swap.ExchangeStatus.Request) async throws -> ExpressDTO.Swap.ExchangeStatus.Response { throw ServiceSpyError.notImplemented }
     func exchangeSent(request: ExpressDTO.Swap.ExchangeSent.Request) async throws -> ExpressDTO.Swap.ExchangeSent.Response { throw ServiceSpyError.notImplemented }
     func exchangeHistory(request: ExpressDTO.Swap.History.Request) async throws -> ExpressDTO.Swap.History.Response { throw ServiceSpyError.notImplemented }

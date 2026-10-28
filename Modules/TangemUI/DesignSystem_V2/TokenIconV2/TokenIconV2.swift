@@ -53,7 +53,6 @@ public struct TokenIconV2: View {
             .onChange(of: tokenIconInfo.imageURL) { _ in
                 isLoaded = false
             }
-            .geometryGroupBackport()
     }
 
     @ViewBuilder

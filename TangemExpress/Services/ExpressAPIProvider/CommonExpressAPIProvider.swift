@@ -144,7 +144,8 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             refundAddress: item.source.address,
             refundExtraId: nil, // There is no memo on the client side
             partnerOperationType: item.operationType.rawValue,
-            slippage: item.slippage.map(expressAPIMapper.mapToSlippageBasisPoints(fraction:))
+            slippage: item.slippage.map(expressAPIMapper.mapToSlippageBasisPoints(fraction:)),
+            intentId: item.mcpIntentID
         )
 
         ExpressLogger.info(request.logDescription)
@@ -154,6 +155,12 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
         let data = try expressAPIMapper.mapToExpressTransactionData(item: item, request: request, response: response)
         return data
+    }
+
+    func exchangeIntent(mcpIntentID: String) async throws -> ExchangeMCPIntent {
+        let request = ExpressDTO.Swap.ExchangeMCPIntent.Request(intentId: mcpIntentID)
+        let response = try await expressAPIService.exchangeMCPIntent(request: request)
+        return try expressAPIMapper.mapToExchangeIntent(response: response)
     }
 
     func exchangeStatus(transactionId: String) async throws -> ExchangeTransaction {
