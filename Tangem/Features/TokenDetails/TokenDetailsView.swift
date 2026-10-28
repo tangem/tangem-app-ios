@@ -58,6 +58,7 @@ struct TokenDetailsView: View {
             )
         }
         .padding(.horizontal, 16)
+        .messageBannerNeutralVariant(.light)
         .background {
             backgroundColor
                 .edgesIgnoringSafeArea(.all)

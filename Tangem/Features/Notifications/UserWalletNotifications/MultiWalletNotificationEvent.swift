@@ -9,6 +9,7 @@
 import Foundation
 import TangemLocalization
 import TangemAssets
+import TangemUI
 
 enum MultiWalletNotificationEvent: Hashable {
     case someTokenBalancesNotUpdated
@@ -36,6 +37,15 @@ extension MultiWalletNotificationEvent: NotificationEvent {
                     color: DesignSystem.Color.iconSecondary
                 )
             )
+        case .someNetworksUnreachable:
+            return nil
+        }
+    }
+
+    var bannerVariant: MessageBannerVariant? {
+        switch self {
+        case .someTokenBalancesNotUpdated:
+            return .default
         case .someNetworksUnreachable:
             return nil
         }

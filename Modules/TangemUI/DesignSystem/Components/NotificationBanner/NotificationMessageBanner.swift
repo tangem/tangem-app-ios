@@ -86,12 +86,12 @@ private extension NotificationMessageBanner {
         return (text.title, subtitle)
     }
 
-    var variantAndRing: (MessageBannerVariant, NotificationBanner.Ring) {
-        let (variant, ring): (MessageBannerVariant, NotificationBanner.Ring) = switch bannerType {
+    var variantAndRing: (MessageBannerVariant?, NotificationBanner.Ring) {
+        let (variant, ring): (MessageBannerVariant?, NotificationBanner.Ring) = switch bannerType {
         case .critical: (.error, ringOverride ?? .error)
         case .warning: (.warning, ringOverride ?? .warning)
-        case .promo, .survey, .informational: (.default, ringOverride ?? .magic)
-        case .status: (.default, ringOverride ?? .off)
+        case .promo, .survey, .informational: (nil, ringOverride ?? .magic)
+        case .status: (nil, ringOverride ?? .off)
         }
 
         return (variantOverride ?? variant, ring)
