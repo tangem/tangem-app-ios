@@ -162,6 +162,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayCachedCustomerInfo)
     var tangemPayCachedCustomerInfo: [String: String] = [:]
 
+    @AppStorageCompat(StorageType.tangemPayCachedCustomerSummary)
+    var tangemPayCachedCustomerSummary: [String: String] = [:]
+
     @AppStorageCompat(StorageType.tangemPayCachedCashbackSummary)
     var tangemPayCachedCashbackSummary: [String: String] = [:]
 
