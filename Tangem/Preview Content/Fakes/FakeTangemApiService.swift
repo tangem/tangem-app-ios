@@ -31,6 +31,11 @@ final class FakeTangemApiService: TangemApiService {
     var loadCoinsGeckoCategoriesHandler: ((MarketsDTO.GeckoCategories.Request) async throws -> MarketsDTO.GeckoCategories.Response)?
     var loadMarketIndicatorsHandler: ((MarketsDTO.MarketIndicators.Request) async throws -> MarketsDTO.MarketIndicators.Response)?
 
+    // MARK: - Survey Responses Handlers (Tests/Previews)
+
+    var submitSurveyResponseHandler: ((SurveyResponsesDTO.Submit.Request) async throws -> Void)?
+    var loadSurveyResponseStatusHandler: ((SurveyResponsesDTO.Status.Request) async throws -> SurveyResponsesDTO.Status.Response)?
+
     // MARK: - Campaigns Handlers (Tests/Previews)
 
     var loadQuotesHandler: ((QuotesDTO.Request) throws -> [Quote])?
@@ -175,6 +180,23 @@ final class FakeTangemApiService: TangemApiService {
 
     func loadMarketingCampaigns(request: MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response {
         if let handler = loadMarketingCampaignsHandler {
+            return try await handler(request)
+        }
+
+        throw "Not implemented"
+    }
+
+    func submitSurveyResponse(request: SurveyResponsesDTO.Submit.Request) async throws {
+        if let handler = submitSurveyResponseHandler {
+            try await handler(request)
+            return
+        }
+
+        throw "Not implemented"
+    }
+
+    func loadSurveyResponseStatus(request: SurveyResponsesDTO.Status.Request) async throws -> SurveyResponsesDTO.Status.Response {
+        if let handler = loadSurveyResponseStatusHandler {
             return try await handler(request)
         }
 
