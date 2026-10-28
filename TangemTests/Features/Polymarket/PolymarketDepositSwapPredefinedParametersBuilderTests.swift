@@ -1,5 +1,5 @@
 //
-//  PolymarketSwapParametersFactoryTests.swift
+//  PolymarketDepositSwapPredefinedParametersBuilderTests.swift
 //  TangemTests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -14,7 +14,7 @@ import TangemPolymarket
 @testable import Tangem
 
 @Suite
-struct PolymarketSwapParametersFactoryTests {
+struct PolymarketDepositSwapPredefinedParametersBuilderTests {
     private static let fundingAddress = "0xC8C0C4575EBdd47fF173ba56962e9827440dabfa"
 
     private static let baseFundingAddress = "0x1F0f1B6b2eC7A0aC4F0d1b7F9b1E3aD5c2B4A6e8"
@@ -43,7 +43,7 @@ struct PolymarketSwapParametersFactoryTests {
 
     @Test("The receive side is addressed to the funding address the bridge issued")
     func receiveTokenCarriesFundingAddress() throws {
-        let parameters = try #require(makeSUT().make(depositTargets: [Self.depositTarget]))
+        let parameters = makeSUT().make()
         let receive = try #require(parameters.receive.initialReceive.value)
 
         #expect(receive.destination?.destination.transactionAddress == Self.fundingAddress)
@@ -52,7 +52,7 @@ struct PolymarketSwapParametersFactoryTests {
 
     @Test("The account is shown in dollars, as Tangem Pay shows its own, not in the coin it holds")
     func accountIsPresentedInDollars() throws {
-        let parameters = try #require(makeSUT().make(depositTargets: [Self.depositTarget]))
+        let parameters = makeSUT().make()
         let receive = try #require(parameters.receive.initialReceive.value)
         let presentation = try #require(receive.presentation)
 
@@ -62,37 +62,30 @@ struct PolymarketSwapParametersFactoryTests {
 
     @Test("The receive side is the token the bridge accepts, not the pUSD the account holds")
     func receiveTokenIsUSDCOnPolygon() throws {
-        let parameters = try #require(makeSUT().make(depositTargets: [Self.depositTarget]))
+        let parameters = makeSUT().make()
         let receive = try #require(parameters.receive.initialReceive.value)
 
         #expect(receive.tokenItem == PolymarketUtilities.usdcTokenItem)
     }
 
-    @Test("Without a single deposit target there is nothing to open the swap with")
-    func noParametersWithoutTargets() {
-        #expect(makeSUT().make(depositTargets: []) == nil)
-    }
-
     @Test("Neither side of the pair can be swapped away from the deposit")
-    func pairIsLocked() throws {
-        let parameters = try #require(makeSUT().make(depositTargets: [Self.depositTarget]))
-        let config = parameters.configuration
+    func pairIsLocked() {
+        let config = makeSUT().make().configuration
 
         #expect(config.isPairReversalEnabled == false)
         #expect(config.receiveTokenSelection.isSelectionEnabled == false)
     }
 
     @Test("The source side is preselected by the shared funding rules instead of being left empty")
-    func sourceIsPreselected() throws {
-        let parameters = try #require(makeSUT().make(depositTargets: [Self.depositTarget]))
+    func sourceIsPreselected() {
+        let parameters = makeSUT().make()
 
         #expect(parameters.source is PolymarketDepositSourceResolver)
     }
 
     @Test("An ordinary crypto token survives the filter that keeps the payment account out")
     func cryptoTokensRemainDepositSources() throws {
-        let parameters = try #require(makeSUT().make(depositTargets: [Self.depositTarget]))
-        let config = parameters.configuration
+        let config = makeSUT().make().configuration
         let provider = try #require(config.sourceTokenSelection.walletsProvider as? FilteredTokenSelectorWalletsProvider)
 
         #expect(provider.isIncluded(CampaignsFixtures.makeTokenSelectorItem()))
@@ -122,27 +115,38 @@ struct PolymarketSwapParametersFactoryTests {
 
 // MARK: - Fixtures
 
-private extension PolymarketSwapParametersFactoryTests {
-    func makeSUT(supportedBlockchains: Set<Blockchain> = [PolymarketUtilities.blockchain]) -> PolymarketSwapParametersFactory {
-        PolymarketSwapParametersFactory(
-            userWalletInfo: UserWalletInfo(
-                name: "Test",
-                id: UserWalletId(value: Data([0x01])),
-                config: UserWalletConfigStub(supportedBlockchains: supportedBlockchains),
-                backupState: .valid,
-                refcode: nil,
-                signerFactory: TangemSignerFactory(),
-                emailDataProvider: EmailDataProviderStub()
-            ),
-            walletModelsProvider: MainScreenUIOrderedWalletModelsProvider(userWalletModel: UserWalletModelMock()),
-            accountModel: PolymarketAccountModelStub(state: .active)
+private extension PolymarketDepositSwapPredefinedParametersBuilderTests {
+    func makeSUT(
+        otherTargets: [PolymarketAccountFundsInteractor.DepositTarget] = [],
+        supportedBlockchains: Set<Blockchain> = [PolymarketUtilities.blockchain]
+    ) -> PolymarketDepositSwapPredefinedParametersBuilder {
+        PolymarketDepositSwapPredefinedParametersBuilder(
+            userWalletModel: PolymarketDepositUserWalletModelStub(supportedBlockchains: supportedBlockchains),
+            accountModel: PolymarketAccountModelStub(state: .active),
+            defaultTarget: Self.depositTarget,
+            otherTargets: otherTargets
         )
     }
 
     func multiNetworkDestinationResolver() throws -> any SwapDestinationTokenResolver {
-        let factory = makeSUT(supportedBlockchains: [PolymarketUtilities.blockchain, .base(testnet: false)])
-        let parameters = try #require(factory.make(depositTargets: [Self.depositTarget, Self.baseDepositTarget]))
+        let parameters = makeSUT(
+            otherTargets: [Self.baseDepositTarget],
+            supportedBlockchains: [PolymarketUtilities.blockchain, .base(testnet: false)]
+        )
+        .make()
 
         return try #require(parameters.configuration.receiveTokenSelection.destinationResolver)
     }
+}
+
+// MARK: - Stubs
+
+private final class PolymarketDepositUserWalletModelStub: UserWalletModelMock {
+    private let supportedBlockchains: Set<Blockchain>
+
+    init(supportedBlockchains: Set<Blockchain>) {
+        self.supportedBlockchains = supportedBlockchains
+    }
+
+    override var config: UserWalletConfig { UserWalletConfigStub(supportedBlockchains: supportedBlockchains) }
 }
