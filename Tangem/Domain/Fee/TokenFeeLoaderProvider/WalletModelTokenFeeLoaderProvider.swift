@@ -48,7 +48,10 @@ extension WalletModelTokenFeeLoaderProvider: TokenFeeLoaderProvider {
         if let ethereumNetworkProvider = walletModel.ethereumNetworkProvider {
             return CommonEthereumTokenFeeLoader(
                 feeBlockchain: tokenItem.blockchain,
-                tokenFeeLoader: tokenFeeLoader,
+                tokenFeeLoader: makeYieldModuleSendTokenFeeLoader(
+                    tokenFeeLoader: tokenFeeLoader,
+                    ethereumNetworkProvider: ethereumNetworkProvider
+                ),
                 ethereumNetworkProvider: ethereumNetworkProvider
             )
         }
@@ -62,6 +65,22 @@ extension WalletModelTokenFeeLoaderProvider: TokenFeeLoaderProvider {
         }
 
         return tokenFeeLoader
+    }
+
+    private func makeYieldModuleSendTokenFeeLoader(
+        tokenFeeLoader: TokenFeeLoader,
+        ethereumNetworkProvider: EthereumNetworkProvider
+    ) -> TokenFeeLoader {
+        guard let yieldModuleManager = walletModel.yieldModuleManager else {
+            return tokenFeeLoader
+        }
+
+        return YieldModuleSendTokenFeeLoader(
+            tokenItem: walletModel.tokenItem,
+            tokenFeeLoader: tokenFeeLoader,
+            yieldModuleManager: yieldModuleManager,
+            ethereumNetworkProvider: ethereumNetworkProvider
+        )
     }
 
     func makeGaslessTokenFeeLoader(feeToken: BSDKToken, yieldFeeContext: GaslessYieldFeeContext?) -> TokenFeeLoader? {
