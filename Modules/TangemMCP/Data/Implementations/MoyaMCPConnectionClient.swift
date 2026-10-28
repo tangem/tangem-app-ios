@@ -7,7 +7,9 @@
 //
 
 import Foundation
-import Moya
+import enum Moya.MoyaError
+import class Moya.MoyaProvider
+import class Moya.Response
 import struct TangemFoundation.UserWalletId
 private import TangemNetworkUtils
 

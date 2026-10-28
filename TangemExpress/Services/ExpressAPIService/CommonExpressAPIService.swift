@@ -56,6 +56,12 @@ extension CommonExpressAPIService: ExpressAPIService {
         try await _request(target: .exchangeData(request: request))
     }
 
+    func exchangeMCPIntent(
+        request: ExpressDTO.Swap.ExchangeMCPIntent.Request
+    ) async throws -> ExpressDTO.Swap.ExchangeMCPIntent.Response {
+        try await _request(target: .exchangeMCPIntent(request: request))
+    }
+
     func exchangeStatus(request: ExpressDTO.Swap.ExchangeStatus.Request) async throws -> ExpressDTO.Swap.ExchangeStatus.Response {
         try await _request(target: .exchangeStatus(request: request))
     }

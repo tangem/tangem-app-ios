@@ -105,7 +105,7 @@ struct ExpressProviderFormatterBadgeTests {
             expressFeeProvider: StubExpressFeeProvider(),
             expressAPIProvider: StubExpressAPIProvider(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags()
+            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
         )
 
         let available = ExpressAvailableProvider(
@@ -337,7 +337,7 @@ struct ExpressAvailableProviderBestDEXTests {
             expressFeeProvider: StubExpressFeeProvider(),
             expressAPIProvider: StubExpressAPIProvider(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags()
+            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
         )
 
         return ExpressAvailableProvider(context: context, manager: StubExpressProviderManager(state: state))
@@ -472,6 +472,7 @@ private final class StubExpressAPIProvider: ExpressAPIProvider {
     func providers(branches: [ExpressBranch]) async throws -> [ExpressProvider] { fatalError("Not used in tests") }
     func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote { fatalError("Not used in tests") }
     func exchangeData(item: ExpressSwappableDataItem) async throws -> ExpressTransactionData { fatalError("Not used in tests") }
+    func exchangeIntent(mcpIntentID: String) async throws -> ExchangeMCPIntent { fatalError("Not used in tests") }
     func exchangeStatus(transactionId: String) async throws -> ExchangeTransaction { fatalError("Not used in tests") }
     func exchangeSent(result: ExpressTransactionSentResult) async throws { fatalError("Not used in tests") }
     func onrampCurrencies() async throws -> [OnrampFiatCurrency] { fatalError("Not used in tests") }

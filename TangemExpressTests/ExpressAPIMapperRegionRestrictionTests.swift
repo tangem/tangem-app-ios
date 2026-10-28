@@ -54,7 +54,7 @@ private extension ExpressAPIMapperRegionRestrictionTests {
     func makeMapper() -> ExpressAPIMapper {
         ExpressAPIMapper(
             exchangeDataDecoder: StubExchangeDataDecoder(),
-            featureFlags: ExpressFeatureFlags()
+            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
         )
     }
 

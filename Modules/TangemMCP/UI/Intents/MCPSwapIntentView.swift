@@ -59,6 +59,7 @@ struct MCPSwapIntentView: View {
                 .scaledToFill()
                 .foregroundStyle(DesignSystem.Color.iconSecondary)
                 .frame(width: 20, height: 20)
+                .opacity(arrowIconAssetOpacity)
                 .zIndex(1)
 
             tokenIconView(viewModel.state.toTokenIcon)
@@ -79,6 +80,8 @@ struct MCPSwapIntentView: View {
             ),
             size: .size56
         )
+        .animation(nil, value: tokensAppearAnimationHasPlayed)
+        .geometryGroupBackport()
     }
 
     private var title: some View {
@@ -153,6 +156,10 @@ struct MCPSwapIntentView: View {
 
     private var trailingTokenIconOffsetX: CGFloat {
         tokensAppearAnimationHasPlayed ? 0 : -20
+    }
+
+    private var arrowIconAssetOpacity: CGFloat {
+        tokensAppearAnimationHasPlayed ? 1 : 0
     }
 
     private var tokensOffsetAnimation: Animation? {

@@ -34,21 +34,36 @@ struct DeeplinkSwapParametersResolver {
         return builder.make()
     }
 
-    /// `from_amount` / `provider_id` are honored only for a fully-specified held pair — both sides requested
-    /// and matched. With a best-effort source or a manual TO the pair is ambiguous, so they're dropped.
+    /// `from_amount` / `to_amount` / `provider_id` are honored only for a fully-specified held pair — both sides
+    /// requested and matched. With a best-effort source or a manual TO the pair is ambiguous, so they're dropped.
     private func makeExtras(deeplink: SwapDeeplink, isApplicable: Bool) -> PredefinedSwapParameters.Extras? {
         guard isApplicable else {
             return nil
         }
 
-        let sourceAmount = Decimal(stringValue: deeplink.fromAmount).flatMap { $0 > 0 ? $0 : nil }
+        let specifiedAmount = Self.makeSpecifiedAmount(deeplink: deeplink)
         let providerId = deeplink.providerId?.nilIfEmpty
+        let intentId = deeplink.intentId?.nilIfEmpty
 
-        guard sourceAmount != nil || providerId != nil else {
+        guard specifiedAmount != nil || providerId != nil || intentId != nil else {
             return nil
         }
 
-        return .init(sourceAmount: sourceAmount, providerId: providerId)
+        return .init(specifiedAmount: specifiedAmount, providerId: providerId, mcpIntentID: intentId)
+    }
+
+    /// `from_amount` wins when a malformed link somehow carries both sides — `SwapDeeplink` never invalidates
+    /// on bad input, it just ignores what it can't use.
+    private static func makeSpecifiedAmount(deeplink: SwapDeeplink) -> PredefinedSwapParameters.SpecifiedAmount? {
+        if let sourceAmount = Decimal(stringValue: deeplink.fromAmount), sourceAmount > 0 {
+            return .source(sourceAmount)
+        }
+
+        if let receiveAmount = Decimal(stringValue: deeplink.toAmount), receiveAmount > 0 {
+            return .receive(receiveAmount)
+        }
+
+        return nil
     }
 }
 
