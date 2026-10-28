@@ -6,7 +6,6 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import struct Foundation.URL
 import struct OrderedCollections.OrderedSet
 
 /// Pending MCP agent connection request, fetched by user code, before the wallet owner accepts or rejects it.

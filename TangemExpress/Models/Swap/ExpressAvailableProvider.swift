@@ -98,6 +98,7 @@ private extension ExpressAvailableProvider {
             approvePolicy: request.approvePolicy,
             operationType: pair.source.operationType,
             slippage: provider.isCustomSlippageSupported ? request.slippage : nil,
+            mcpIntentID: request.mcpIntentID,
             quotesLoadingPerformanceTracker: request.quotesLoadingPerformanceTracker
         )
     }
@@ -123,6 +124,7 @@ struct ExpressAvailableProviderUpdatingRequest {
     let amountType: ExpressAmountType?
     let approvePolicy: ApprovePolicy
     let slippage: Decimal?
+    let mcpIntentID: String?
     let quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker?
 }
 

@@ -285,7 +285,7 @@ private extension DEXProviderFlowHelperFallbackTests {
             expressFeeProvider: feeProvider,
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags()
+            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
         )
         return DEXProviderFlowHelper(context: context)
     }
@@ -312,6 +312,7 @@ private extension DEXProviderFlowHelperFallbackTests {
             approvePolicy: .specified,
             operationType: .swap,
             slippage: nil,
+            mcpIntentID: nil,
             quotesLoadingPerformanceTracker: nil
         )
     }
@@ -510,6 +511,10 @@ final class ExpressAPIProviderStub: ExpressAPIProvider {
             payInAddress: "",
             slippage: nil
         )
+    }
+
+    func exchangeIntent(mcpIntentID: String) async throws -> ExchangeMCPIntent {
+        throw StubError.notImplemented
     }
 
     func exchangeStatus(transactionId: String) async throws -> ExchangeTransaction {

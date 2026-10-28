@@ -8,7 +8,7 @@
 
 import struct TangemUI.TokenIconInfo
 
-class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
+final class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
     let expressDependenciesFactory: ExpressDependenciesFactory
 
     private let parameters: PredefinedSwapParameters
@@ -35,7 +35,8 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(
             userWalletInfo: parameters.userWalletInfo,
-            preferredProviderId: parameters.extras?.providerId
+            preferredProviderId: parameters.extras?.providerId,
+            mcpIntentID: parameters.extras?.mcpIntentID
         )
     }
 }
@@ -116,10 +117,15 @@ extension SwapFlowFactory: SendGenericFlowFactory {
         swapModel.router = viewModel
         swapModel.externalAmountUpdater = amount.amountUpdater
 
-        // A deeplink can carry a FROM amount to prefill — push it into the amount field via the same
+        // A deeplink can carry a prefill amount on either side — push it into the amount field via the same
         // path a user's keystroke uses, so validation and the "insufficient funds" state kick in normally.
-        if let sourceAmount = parameters.extras?.sourceAmount {
+        switch parameters.extras?.specifiedAmount {
+        case .source(let sourceAmount):
             amount.amountUpdater.externalUpdate(cryptoAmount: sourceAmount)
+        case .receive(let receiveAmount):
+            amount.viewModel.externalUpdate(receiveAmount: receiveAmount)
+        case nil:
+            break
         }
 
         coordinatorStateProvider.setup(autoupdatingTimer: autoupdatingTimer)

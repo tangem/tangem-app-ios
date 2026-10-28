@@ -10,7 +10,6 @@ import struct Foundation.URL
 import struct TangemAssets.ImageType
 
 // [REDACTED_TODO_COMMENT]
-// [REDACTED_TODO_COMMENT]
 struct MCPSwapIntentState: Equatable {
     let fromTokenIcon: TokenIconState
     let toTokenIcon: TokenIconState
@@ -18,11 +17,28 @@ struct MCPSwapIntentState: Equatable {
     let intentDescription: IntentDescriptionSection
     let proceedButtonTitle: String
 
-    init(agent: MCPAgent, amount: String, from fromToken: MCPToken, to toToken: MCPToken) {
+    init(agent: MCPAgent, fromAmount: MCPSwapAmount, toToken: MCPToken) {
+        self.init(
+            agent: agent,
+            fromToken: fromAmount.token,
+            toToken: toToken,
+            title: "\(agent.name) wants to swap \(fromAmount.formattedValue) to \(toToken.symbol)"
+        )
+    }
+
+    init(agent: MCPAgent, fromToken: MCPToken, toAmount: MCPSwapAmount) {
+        self.init(
+            agent: agent,
+            fromToken: fromToken,
+            toToken: toAmount.token,
+            title: "\(agent.name) wants to swap \(fromToken.symbol) to \(toAmount.formattedValue)"
+        )
+    }
+
+    private init(agent: MCPAgent, fromToken: MCPToken, toToken: MCPToken, title: String) {
         fromTokenIcon = TokenIconState(token: fromToken)
         toTokenIcon = TokenIconState(token: toToken)
-
-        title = "\(agent.name) wants to swap \(amount) \(fromToken.symbol) to \(toToken.symbol)"
+        self.title = title
 
         intentDescription = IntentDescriptionSection(
             agent: AgentHeader(iconURL: agent.icon, host: agent.host),
@@ -63,7 +79,7 @@ extension MCPSwapIntentState {
                 source = .remote(nil)
             }
 
-            isCustom = token.hasCustomDerivation || token.kind == .customToken
+            isCustom = token.kind == .customToken
             accessibilityIdentifier = token.displayName
         }
     }

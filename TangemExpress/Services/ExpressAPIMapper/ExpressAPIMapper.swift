@@ -153,6 +153,73 @@ struct ExpressAPIMapper {
         )
     }
 
+    func mapToExchangeIntent(response: ExpressDTO.Swap.ExchangeMCPIntent.Response) throws -> ExchangeMCPIntent {
+        let intent = response.intent
+
+        return ExchangeMCPIntent(
+            intentID: intent.intentId,
+            providerID: intent.provider,
+            rateType: try Self.mapRateType(fromResponse: intent),
+            from: Self.mapToExchangeMCPIntentAsset(
+                contractAddress: intent.fromContractAddress,
+                network: intent.fromNetwork,
+                decimals: intent.fromDecimals
+            ),
+            to: Self.mapToExchangeMCPIntentAsset(
+                contractAddress: intent.toContractAddress,
+                network: intent.toNetwork,
+                decimals: intent.toDecimals
+            ),
+            specifiedAmount: try Self.mapSpecifiedAmount(fromResponse: intent),
+            walletID: intent.walletId,
+            agentID: intent.clientId
+        )
+    }
+
+    private static func mapRateType(
+        fromResponse responseIntent: ExpressDTO.Swap.ExchangeMCPIntent.Intent
+    ) throws(ExpressAPIMapperError) -> ExpressProviderRateType {
+        guard let rateType = ExpressProviderRateType(rawValue: responseIntent.rateType) else {
+            throw ExpressAPIMapperError.unrecognizedRateType(responseIntent.rateType)
+        }
+
+        return rateType
+    }
+
+    private static func mapToExchangeMCPIntentAsset(
+        contractAddress: String,
+        network: String,
+        decimals: Int
+    ) -> ExchangeMCPIntent.Asset {
+        ExchangeMCPIntent.Asset(
+            currency: ExpressCurrency(contractAddress: contractAddress, network: network),
+            decimals: decimals
+        )
+    }
+
+    private static func mapSpecifiedAmount(
+        fromResponse responseIntent: ExpressDTO.Swap.ExchangeMCPIntent.Intent
+    ) throws -> ExchangeMCPIntent.SpecifiedAmount {
+        switch (responseIntent.fromAmount, responseIntent.toAmount) {
+        case (let fromAmount?, nil):
+            return .from(try Self.mapToDecimalAmount(fromAmount, decimals: responseIntent.fromDecimals))
+        case (nil, let toAmount?):
+            return .to(try Self.mapToDecimalAmount(toAmount, decimals: responseIntent.toDecimals))
+        case (nil, nil):
+            throw ExpressAPIMapperError.missingExchangeIntentAmount
+        case (.some, .some):
+            throw ExpressAPIMapperError.ambiguousExchangeIntentAmount
+        }
+    }
+
+    private static func mapToDecimalAmount(_ value: String, decimals: Int) throws -> Decimal {
+        guard let rawAmount = Decimal(stringValue: value) else {
+            throw ExpressAPIMapperError.mapToDecimalError(value)
+        }
+
+        return rawAmount / pow(10, decimals)
+    }
+
     func mapTxValueToDecimalValue(item: ExpressSwappableDataItem, txValue: String?, txType: ExpressTransactionType) throws -> Decimal {
         switch txType {
         case .send:
@@ -552,6 +619,9 @@ enum ExpressAPIMapperError: LocalizedError {
     case payoutAddressNotEqual
     case payoutExtraIdNotEqual
     case widgetUrlMissing
+    case unrecognizedRateType(String)
+    case missingExchangeIntentAmount
+    case ambiguousExchangeIntentAmount
 
     var errorDescription: String? {
         switch self {
@@ -560,6 +630,9 @@ enum ExpressAPIMapperError: LocalizedError {
         case .payoutAddressNotEqual: "Payout address is not matched with value in the request"
         case .payoutExtraIdNotEqual: "Payout extra id is not matched with value in the request"
         case .widgetUrlMissing: "Widget url is missing for a widget transaction"
+        case .unrecognizedRateType(let rateType): "Rate type \(rateType) is not recognized"
+        case .missingExchangeIntentAmount: "Exchange intent has neither a from nor a to amount"
+        case .ambiguousExchangeIntentAmount: "Exchange intent has both a from and a to amount"
         }
     }
 }

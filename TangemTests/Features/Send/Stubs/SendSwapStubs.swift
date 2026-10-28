@@ -46,6 +46,10 @@ final class ExpressAPIProviderStub: ExpressAPIProvider {
         )
     }
 
+    func exchangeIntent(mcpIntentID: String) async throws -> ExchangeMCPIntent {
+        fatalError("Not used in tests")
+    }
+
     func exchangeStatus(transactionId: String) async throws -> ExchangeTransaction {
         fatalError("Not used in tests")
     }
