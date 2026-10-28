@@ -24,11 +24,13 @@ public protocol YieldSupplyService {
     func allowance(tokenContractAddress: String) async throws -> String
 
     func makeVersionChecker() -> YieldModuleVersionChecker?
+    func makeVersionResolver() -> YieldModuleVersionResolver?
     func makeSwapExecutionRegistryProvider() -> YieldModuleSwapExecutionRegistryProvider?
 }
 
 public extension YieldSupplyService {
     func makeVersionChecker() -> YieldModuleVersionChecker? { nil }
+    func makeVersionResolver() -> YieldModuleVersionResolver? { nil }
     func makeSwapExecutionRegistryProvider() -> YieldModuleSwapExecutionRegistryProvider? { nil }
 }
 
@@ -42,6 +44,7 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
     private let wallet: Wallet
     private let contractAddressFactory: YieldSupplyContractAddressFactory
     private let dataStorage: BlockchainDataStorage
+    private let versionResolver: YieldModuleVersionResolver?
 
     init(
         networkService: EthereumNetworkService,
@@ -53,6 +56,13 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
         self.wallet = wallet
         self.contractAddressFactory = contractAddressFactory
         self.dataStorage = dataStorage
+
+        versionResolver = Self.makeCommonVersionResolver(
+            networkService: networkService,
+            blockchain: wallet.blockchain,
+            contractAddressFactory: contractAddressFactory,
+            dataStorage: dataStorage
+        )
     }
 
     public func isSupported() -> Bool {
@@ -220,6 +230,10 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
         )
     }
 
+    public func makeVersionResolver() -> YieldModuleVersionResolver? {
+        versionResolver
+    }
+
     public func makeSwapExecutionRegistryProvider() -> YieldModuleSwapExecutionRegistryProvider? {
         guard let registryAddress = try? contractAddressFactory.getYieldSupplyContractAddresses().swapExecutionRegistryContractAddress else {
             return nil
@@ -282,6 +296,24 @@ extension AllowedTargetMethod: SmartContractMethod {
 }
 
 private extension EthereumYieldSupplyService {
+    static func makeCommonVersionResolver(
+        networkService: EthereumNetworkService,
+        blockchain: Blockchain,
+        contractAddressFactory: YieldSupplyContractAddressFactory,
+        dataStorage: BlockchainDataStorage
+    ) -> YieldModuleVersionResolver? {
+        guard let factoryContractAddress = try? contractAddressFactory.getYieldSupplyContractAddresses().factoryContractAddress else {
+            return nil
+        }
+
+        let reader = CommonYieldModuleImplementationReader(
+            networkService: networkService,
+            factoryContractAddress: factoryContractAddress
+        )
+
+        return CommonYieldModuleVersionResolver(reader: reader, blockchain: blockchain, dataStorage: dataStorage)
+    }
+
     func resolveYieldContract(request: YieldSmartContractRequest) async throws -> String {
         let results = try await networkService.ethCallAllProviders(request: request).async()
         return try YieldModuleUtils.resolveConsistentEthereumAddress(from: results)

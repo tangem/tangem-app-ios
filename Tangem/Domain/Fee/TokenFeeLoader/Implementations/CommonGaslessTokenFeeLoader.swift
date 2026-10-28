@@ -252,6 +252,10 @@ private extension CommonGaslessTokenFeeLoader {
     }
 
     func makeYieldFeeOptions(context: GaslessYieldFeeContext) async throws -> GaslessYieldFeeOptions {
+        if let versionResolver = context.versionResolver {
+            return try await makeYieldFeeOptions(context: context, versionResolver: versionResolver)
+        }
+
         guard let versionChecker = context.versionChecker else {
             return GaslessYieldFeeOptions(
                 yieldContractAddress: context.yieldContractAddress,
@@ -283,6 +287,29 @@ private extension CommonGaslessTokenFeeLoader {
                 upgrade: .required(implementation: latestImplementation)
             )
         }
+    }
+
+    func makeYieldFeeOptions(
+        context: GaslessYieldFeeContext,
+        versionResolver: YieldModuleVersionResolver
+    ) async throws -> GaslessYieldFeeOptions {
+        let status = try await versionResolver.resolveStatus(moduleAddress: context.yieldContractAddress)
+
+        guard status.supports(.v2) else {
+            throw TokenFeeLoaderError.yieldModuleVersionUnsupported
+        }
+
+        guard case .upgradeAvailable(let implementation, _) = status else {
+            return GaslessYieldFeeOptions(
+                yieldContractAddress: context.yieldContractAddress,
+                upgrade: .none
+            )
+        }
+
+        return GaslessYieldFeeOptions(
+            yieldContractAddress: context.yieldContractAddress,
+            upgrade: .required(implementation: implementation)
+        )
     }
 
     func requiredBalance(fee: BSDKFee, spentAmount: Decimal) -> Decimal {
