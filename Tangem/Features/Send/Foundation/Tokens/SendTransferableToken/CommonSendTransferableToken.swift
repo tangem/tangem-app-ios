@@ -46,6 +46,7 @@ struct CommonSendTransferableToken: SendTransferableToken {
     var confirmTransactionPolicy: any ConfirmTransactionPolicy { sourceToken.confirmTransactionPolicy }
     var isTangemPayAccount: Bool { sourceToken.isTangemPayAccount }
     var jointAccountPolicy: JointAccountPolicy? { sourceToken.jointAccountPolicy }
+    var isCustomSlippageAllowed: Bool { sourceToken.isCustomSlippageAllowed }
 
     var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? {
         get async { await sourceToken.transactionHistoryEnricher }

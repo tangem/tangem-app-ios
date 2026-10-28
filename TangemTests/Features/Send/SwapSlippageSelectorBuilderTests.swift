@@ -20,7 +20,7 @@ struct SwapSlippageSelectorBuilderTests {
     func reportsOpening() {
         let output = SlippageOutputSpy()
         let provider = ExpressAvailableProviderFixture.make(state: .idle, slippage: Decimal(string: "0.003"), isCustomSlippageSupported: true)
-        let builder = makeBuilder(provider: provider.provider, output: output)
+        let builder = makeBuilder(providerSlippage: provider.providerSlippage, output: output)
 
         let viewModel = builder.makeSlippageSelector()
 
@@ -31,7 +31,7 @@ struct SwapSlippageSelectorBuilderTests {
     @Test("Opens nothing and reports nothing until a provider has loaded")
     func skipsWithoutProvider() {
         let output = SlippageOutputSpy()
-        let builder = makeBuilder(provider: nil, output: output)
+        let builder = makeBuilder(providerSlippage: nil, output: output)
 
         let viewModel = builder.makeSlippageSelector()
 
@@ -43,7 +43,7 @@ struct SwapSlippageSelectorBuilderTests {
     func skipsProviderWithoutSlippage() {
         let output = SlippageOutputSpy()
         let provider = ExpressAvailableProviderFixture.make(state: .idle, slippage: nil, isCustomSlippageSupported: true)
-        let builder = makeBuilder(provider: provider.provider, output: output)
+        let builder = makeBuilder(providerSlippage: provider.providerSlippage, output: output)
 
         let viewModel = builder.makeSlippageSelector()
 
@@ -55,8 +55,8 @@ struct SwapSlippageSelectorBuilderTests {
 // MARK: - Helpers
 
 private extension SwapSlippageSelectorBuilderTests {
-    func makeBuilder(provider: ExpressProvider?, output: SlippageOutputSpy) -> SwapSlippageSelectorBuilder {
-        SwapSlippageSelectorBuilder(slippageInput: SlippageInputStub(provider: provider), slippageOutput: output)
+    func makeBuilder(providerSlippage: SwapProviderSlippage?, output: SlippageOutputSpy) -> SwapSlippageSelectorBuilder {
+        SwapSlippageSelectorBuilder(slippageInput: SlippageInputStub(providerSlippage: providerSlippage), slippageOutput: output)
     }
 }
 
@@ -71,14 +71,14 @@ private final class SlippageOutputSpy: SwapSlippageOutput {
 }
 
 private final class SlippageInputStub: SwapSlippageInput {
-    let slippageProvider: ExpressProvider?
+    let providerSlippage: SwapProviderSlippage?
 
-    init(provider: ExpressProvider?) {
-        slippageProvider = provider
+    init(providerSlippage: SwapProviderSlippage?) {
+        self.providerSlippage = providerSlippage
     }
 
     var slippage: SwapSlippage { .auto }
     var slippagePublisher: AnyPublisher<SwapSlippage, Never> { Just(.auto).eraseToAnyPublisher() }
-    var slippageProviderPublisher: AnyPublisher<ExpressProvider?, Never> { Just(slippageProvider).eraseToAnyPublisher() }
+    var providerSlippagePublisher: AnyPublisher<SwapProviderSlippage?, Never> { Just(providerSlippage).eraseToAnyPublisher() }
     var isCustomSlippageResetPublisher: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
 }

@@ -16,10 +16,10 @@ struct ICPExternalLinkProvider: ExternalLinkProvider {
     private let baseExplorerURL = URL(string: "https://dashboard.internetcomputer.org")
 
     func url(address: String, contractAddress: String?) -> URL? {
-        baseExplorerURL?.appendingPathComponent("account").appendingPathComponent(address)
+        baseExplorerURL?.appendingPathComponent("tokens/account").appendingPathComponent(address)
     }
 
-    func url(transaction hash: String) -> URL? {
-        baseExplorerURL?.appendingPathComponent("transaction").appendingPathComponent(hash)
+    func url(transaction blockIndex: String) -> URL? {
+        baseExplorerURL?.appendingPathComponent("tokens/tx").appendingPathComponent(blockIndex)
     }
 }
