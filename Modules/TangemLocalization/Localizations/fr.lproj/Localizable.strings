@@ -1179,7 +1179,7 @@
 "main_add_funds_promo_title" = "Obtenez votre première crypto";
 "main_empty_tokens_list_message" = "Pour commencer à suivre vos actifs et transactions crypto, ajoutez des jetons";
 "main_manage_tokens" = "Gérer les jetons";
-"main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
+"main_qr_scan_hint" = "Send crypto, connect to dApps, or open links.";
 "main_scan_card_warning_view_subtitle" = "Pour accéder à tous les réseaux, vous devez scanner la carte";
 "main_scan_card_warning_view_title" = "Scannez votre carte";
 "manage_tokens_remove" = "Enlever";
@@ -2176,7 +2176,7 @@
 "swap_in_progress" = "Échange en cours";
 "swap_simple_mode" = "Mode simplifié";
 "swap_slippage_error" = "Montant non pris en charge";
-"swap_slippage_info_text" = "est l’écart entre le prix d’exécution attendu et le prix d’exécution réel, causé par les variations du prix du marché ou de la liquidité";
+"swap_slippage_info_text" = "est l’écart de prix entre votre signature et l’arrivée de la transaction chez le fournisseur. Elle est exécutée au prix du moment, dans votre tolérance de slippage.";
 "swap_slippage_warning_text" = "L’échange peut échouer si le seuil de slippage est atteint";
 "swap_slippage_warning_title" = "Le slippage est défini à %@";
 "swap_story_first_subtitle_v2" = "Échangez des cryptos directement dans Tangem\nSans transferts supplémentaires\nSans envoyer vos fonds vers un échange";
@@ -3136,8 +3136,11 @@
 "wc_connection_reqeust_will_not" = "Ne pourra pas";
 "wc_connection_reqeust_would_like" = "Souhaite";
 "wc_connection_request" = "Demande de connexion";
+"wc_connections_agents_error_title" = "AI agents unavailable";
 "wc_connections_agents_title" = "Connected Agents";
 "wc_connections_dapps_title" = "Connected dApps";
+"wc_connections_empty_desc" = "Connect to dApps via WalletConnect or AI agents via MCP. Manage all your connections in one place.";
+"wc_connections_empty_title" = "No connections yet";
 "wc_connections_subtitle" = "Connect to dApps or MCP";
 "wc_connections" = "Connexions";
 "wc_contents" = "Contenu";

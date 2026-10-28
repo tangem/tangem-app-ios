@@ -80,6 +80,7 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
 
             // TangemPay is limited to CEX providers — every operation type collapses to a CEX-style filter.
             supportedProvidersFilter: .cex,
+            isCustomSlippageAllowed: account?.resolve(using: CustomSlippageAvailabilityResolver()) ?? false,
             presentation: receiveTokenPresentation
         )
     }

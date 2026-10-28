@@ -74,6 +74,7 @@ struct PolymarketDepositReceiveTokenFactory {
             providerTransactionValidator: PolymarketAccountExpressProviderTransactionValidator(),
             operationType: .swap,
             supportedProvidersFilter: .swap,
+            isCustomSlippageAllowed: accountModel.resolve(using: CustomSlippageAvailabilityResolver()),
             presentation: makePresentation()
         )
     }

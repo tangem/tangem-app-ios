@@ -2176,7 +2176,7 @@
 "swap_in_progress" = "兑换中";
 "swap_simple_mode" = "简易模式";
 "swap_slippage_error" = "不支持的金额";
-"swap_slippage_info_text" = "是指由于市场价格或流动性变化导致的预期成交价格与实际成交价格之间的差异。";
+"swap_slippage_info_text" = "是指从您签名到交易送达服务商期间的价格变化。交易将按送达时的价格，在您设定的滑点容差范围内执行。";
 "swap_slippage_warning_text" = "如果达到滑点阈值，互换交易可能会失败。";
 "swap_slippage_warning_title" = "滑点已设定为 %@";
 "swap_story_first_subtitle_v2" = "在 Tangem 直接兑换加密货币\n无需额外转账\n无需将资金转移到其他交易所";
@@ -3136,8 +3136,11 @@
 "wc_connection_reqeust_will_not" = "将无法";
 "wc_connection_reqeust_would_like" = "希望";
 "wc_connection_request" = "连接请求";
+"wc_connections_agents_error_title" = "AI agents unavailable";
 "wc_connections_agents_title" = "Connected Agents";
 "wc_connections_dapps_title" = "Connected dApps";
+"wc_connections_empty_desc" = "Connect to dApps via WalletConnect or AI agents via MCP. Manage all your connections in one place.";
+"wc_connections_empty_title" = "No connections yet";
 "wc_connections_subtitle" = "Connect to dApps or MCP";
 "wc_connections" = "连接";
 "wc_contents" = "内容";
