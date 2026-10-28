@@ -46,6 +46,8 @@ struct TangemApiTarget: TargetType {
             // NOTE: the leading `/api` segment is applied here but still needs backend confirmation.
             // If BE serves `/v1/...` without `/api`, revert this case back to `apiBaseUrl`.
             AppEnvironment.current.apiBaseUrlWithGatewaySegment
+        case .submitSurveyResponse, .surveyResponseStatus:
+            AppEnvironment.current.apiBaseUrlWithGatewaySegment
         case .subscribeToPriceAlerts, .unsubscribeFromPriceAlerts, .getPriceAlertsSubscriptions:
             // Spec documents the full path as `/api/v1/price-alerts/subscriptions`. Same `/api`
             // gateway-segment caveat as notification-preferences above; endpoints are not yet in the
@@ -122,6 +124,10 @@ struct TangemApiTarget: TargetType {
             return "/banner/displays/\(request.displayId)"
         case .marketingCampaigns:
             return "/marketing/campaigns"
+        case .submitSurveyResponse:
+            return "/survey-responses"
+        case .surveyResponseStatus(let request):
+            return "/survey-responses/\(request.walletId)/status"
         case .bindMarketingActivityWallets:
             return ""
         case .createAccount:
@@ -265,6 +271,7 @@ struct TangemApiTarget: TargetType {
              .coins,
              .quotes,
              .geo,
+             .surveyResponseStatus,
              .getUserWalletTokens,
              .loadReferralProgramInfo,
              .promotion,
@@ -330,7 +337,8 @@ struct TangemApiTarget: TargetType {
              .syncAddressBooks,
              .subscribeToPriceAlerts,
              .promotionRegistration,
-             .promoCampaignEnrollment:
+             .promoCampaignEnrollment,
+             .submitSurveyResponse:
             return .post
         case .unsubscribeFromPriceAlerts:
             return .delete
@@ -378,6 +386,10 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
         case .bindMarketingActivityWallets(_, let request):
             return .requestJSONEncodable(request)
+        case .submitSurveyResponse(let request):
+            return .requestJSONEncodable(request)
+        case .surveyResponseStatus(let request):
+            return .requestParameters(parameters: ["surveyId": request.surveyId], encoding: URLEncoding.default)
         case .createAccount(let parameters):
             return .requestJSONEncodable(parameters)
         case .apiList:
@@ -606,14 +618,19 @@ struct TangemApiTarget: TargetType {
              .bindWalletsByCode,
              .bindMarketingActivityWallets,
              .applicationVersions,
-             .syncAddressBooks:
+             .syncAddressBooks,
+             .submitSurveyResponse,
+             .surveyResponseStatus:
             return nil
         }
     }
 
     var validationType: ValidationType {
         switch type {
-        case .promoCampaigns, .promoCampaignEnrollment:
+        case .promoCampaigns,
+             .promoCampaignEnrollment,
+             .submitSurveyResponse,
+             .surveyResponseStatus:
             return .successCodes
         default:
             return .none
@@ -650,6 +667,9 @@ extension TangemApiTarget {
 
         case marketingCampaigns(parameters: [String: Any])
         case bindMarketingActivityWallets(uid: String, _ request: MarketingActivityDTO.BindWallets.Request)
+
+        case submitSurveyResponse(_ request: SurveyResponsesDTO.Submit.Request)
+        case surveyResponseStatus(_ request: SurveyResponsesDTO.Status.Request)
 
         case story(_ id: String)
         case stories(slugs: [String], language: String)
@@ -746,7 +766,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .coinsCategories, .coinsGeckoCategories, .marketIndicators, .tokenMarketsDetails, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns, .getJointAccounts, .getJointAccountInvite, .getJointOperationsHistory, .getJointOperationsHistoryDelta, .getJointOperation, .stories:
+        case .geo, .features, .apiList, .quotes, .coinsList, .coinsCategories, .coinsGeckoCategories, .marketIndicators, .tokenMarketsDetails, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns, .surveyResponseStatus, .getJointAccounts, .getJointAccountInvite, .getJointOperationsHistory, .getJointOperationsHistoryDelta, .getJointOperation, .stories:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -765,6 +785,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .getJointOperationsHistoryDelta(let walletId, _),
              .getJointOperation(let walletId, _, _):
             return path.replacingOccurrences(of: walletId, with: "{walletId}")
+        case .surveyResponseStatus(let request):
+            return path.replacingOccurrences(of: request.walletId, with: "{walletId}")
         case .bindMarketingActivityWallets(let uid, _):
             return MarketingActivityURLBuilderUtil().bindWalletsLoggablePath(uid: uid)
         default:
@@ -823,7 +845,9 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .getJointOperationsHistory,
              .getJointOperationsHistoryDelta,
              .getJointOperation,
-             .promoCampaignEnrollment:
+             .promoCampaignEnrollment,
+             .submitSurveyResponse,
+             .surveyResponseStatus:
             return false
         case .geo,
              .features,
