@@ -31,11 +31,11 @@ extension WalletModel {
             return .just(output: [])
         }
 
-        let signersResolver = JointAccountOperationSignersResolver()
+        let standingResolver = JointAccountPendingOperationStandingResolver()
 
         return jointOperationsAwaitingSignaturesPublisher
             .combineLatest(jointAccount.jointAccountMembersService.slotsPublisher)
-            .map { operations, _ in operations.filter(signersResolver.canSign) }
+            .map { operations, _ in operations.filter(standingResolver.canSign) }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }

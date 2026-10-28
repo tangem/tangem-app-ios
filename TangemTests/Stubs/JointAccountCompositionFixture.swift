@@ -85,7 +85,9 @@ enum JointAccountCompositionFixture {
     static func coinTransfer(
         id: String = "coin",
         status: JointAccountOperationStatus = .awaitingSignatures,
-        finishedAt: Date? = nil
+        finishedAt: Date? = nil,
+        initiator: String = "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
+        signatures: [JointAccountOperation.Signature] = []
     ) -> JointAccountOperation {
         JointAccountOperation(
             id: id,
@@ -106,8 +108,8 @@ enum JointAccountCompositionFixture {
             txHash: nil,
             finishedAt: finishedAt,
             cancelReason: nil,
-            initiator: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
-            signatures: []
+            initiator: initiator,
+            signatures: signatures
         )
     }
 
