@@ -867,6 +867,18 @@ extension MultiWalletMainContentViewModel {
     }
 }
 
+// MARK: - Money account
+
+extension MultiWalletMainContentViewModel {
+    var isTangemPayMoneyAccountVisible: Bool {
+        FeatureProvider.isAvailable(.tangemPayMoneyAccount)
+    }
+
+    func openTangemPayMoneyAccount() {
+        coordinator?.openTangemPayMoneyAccount(userWalletModel: userWalletModel)
+    }
+}
+
 // MARK: - TangemPayAccountRoutable
 
 extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
