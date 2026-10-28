@@ -63,10 +63,18 @@ enum MarketingCampaignsDTO {
         let bgColor: String?
         let deeplink: URL?
         let dismissible: Bool
+        let categoryLabel: String?
+        let subtitle: String?
+        let etaLabel: String?
+        let partnerLabel: String?
+        let buttonText: String?
+        let glow: Bool?
 
         enum UIType: Codable {
             case standalone
             case linkedToProvider
+            case pseudoProvider
+            case standaloneCTA
             case unknown(String)
 
             init(from decoder: Decoder) throws {
@@ -77,6 +85,10 @@ enum MarketingCampaignsDTO {
                     self = .standalone
                 case "linked_to_provider":
                     self = .linkedToProvider
+                case "pseudo_provider":
+                    self = .pseudoProvider
+                case "standalone_cta":
+                    self = .standaloneCTA
                 default:
                     self = .unknown(raw)
                 }
@@ -90,6 +102,10 @@ enum MarketingCampaignsDTO {
                     "standalone"
                 case .linkedToProvider:
                     "linked_to_provider"
+                case .pseudoProvider:
+                    "pseudo_provider"
+                case .standaloneCTA:
+                    "standalone_cta"
                 case .unknown(let raw):
                     raw
                 }
