@@ -130,12 +130,14 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
             }
             .sheet(isPresented: $coordinator.isGeoSelectionPresented, onDismiss: coordinator.onGeoSelectionDismiss) {
                 coordinator.makeGeoSelectionView()
+                    .softTopScrollEdgeEffect()
             }
             .fullScreenCover(item: $coordinator.successStatusModel) { model in
                 TransferSuccessStatusView(
                     model: model,
                     onClose: { coordinator.dismiss(with: nil) }
                 )
+                .softTopScrollEdgeEffect()
             }
             .fullScreenCover(item: $coordinator.failedStatus) { status in
                 TransferFailedStatusView(
@@ -143,6 +145,7 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
                     onRetry: status.canRetry ? { coordinator.retryAfterFailedStatus() } : nil,
                     onClose: { coordinator.closeFailedStatus() }
                 )
+                .softTopScrollEdgeEffect()
             }
     }
 }

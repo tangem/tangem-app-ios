@@ -53,6 +53,7 @@ struct TangemPayCashbackDetailView: View {
                 )
                 .presentationDetents(idealHeight: Constants.tiersIdealContentHeight)
                 .presentationBackground(Constants.presentationBackground)
+                .softTopScrollEdgeEffect()
             }
             .sheet(item: $viewModel.accrualsViewData) { data in
                 TangemPayCashbackAccrualsView(
@@ -62,6 +63,7 @@ struct TangemPayCashbackDetailView: View {
                 )
                 .presentationDetents(idealHeight: Constants.accrualsIdealContentHeight)
                 .presentationBackground(Constants.presentationBackground)
+                .softTopScrollEdgeEffect()
             }
         }
     }

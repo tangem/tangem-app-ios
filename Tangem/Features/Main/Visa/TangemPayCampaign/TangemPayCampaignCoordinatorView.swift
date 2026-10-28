@@ -26,6 +26,7 @@ struct TangemPayCampaignCoordinatorView: CoordinatorView {
         }
         .sheet(item: $coordinator.legalDocumentViewModel) {
             WebViewContainer(viewModel: $0)
+                .softTopScrollEdgeEffect()
         }
     }
 

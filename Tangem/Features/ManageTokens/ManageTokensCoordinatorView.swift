@@ -26,6 +26,7 @@ struct ManageTokensCoordinatorView: CoordinatorView {
         NavHolder()
             .sheet(item: $coordinator.addCustomTokenCoordinator, content: {
                 AddCustomTokenCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
             })
     }
 }

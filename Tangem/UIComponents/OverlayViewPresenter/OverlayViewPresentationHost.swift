@@ -82,6 +82,7 @@ private extension OverlayViewPresentationHost {
         // Presented from outside the app's own hierarchy, so what it would have inherited there is handed to it.
         let rootView = overlay.view
             .accentColor(DesignSystem.Color.textPrimary)
+            .softTopScrollEdgeEffect()
             .environment(\.floatingSheetRegistry, sheetRegistry)
             .environment(\.mainWindowSize, UIApplication.mainWindow?.screen.bounds.size ?? .zero)
 
