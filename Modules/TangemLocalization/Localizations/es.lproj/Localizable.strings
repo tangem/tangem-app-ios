@@ -616,7 +616,7 @@
 "dynamic_addresses_enter_features_receving_description" = "Reciba fondos fácilmente en redes basadas en UTXO con generación automática de direcciones, sin necesidad de gestión manual de direcciones.";
 "dynamic_addresses_enter_features_receving_title" = "Recepción sin problemas";
 "dynamic_addresses_enter_main_button_title" = "Habilitar direcciones dinámicas";
-"dynamic_addresses_enter_subtitle" = "Las direcciones dinámicas crean una nueva cada vez para mayor privacidad - su saldo total no varía. ";
+"dynamic_addresses_enter_subtitle" = "Las direcciones dinámicas crean una nueva cada vez para mayor privacidad - su saldo total no varía.";
 "dynamic_addresses_error_has_custom_token_description" = "Las direcciones dinámicas no pueden activarse porque algunas direcciones/tokens personalizadas utilizan una ruta de derivación modificada, que no cumple los criterios requeridos.";
 "dynamic_addresses_error_has_custom_token_title" = "Direcciones dinámicas no disponibles";
 "dynamic_addresses_error_service_unavailable_description" = "No podemos conectar con el proveedor en este momento. Vuelva a intentarlo más tarde.";
@@ -1100,7 +1100,7 @@
 "joint_account_members_status_confirmed" = "Confirmado";
 "joint_account_members_status_not_confirmed" = "No confirmado";
 "joint_account_members_subtitle_helper_part" = "%1$@ de %2$@ para firmar";
-"joint_account_members_subtitle_main_part" = "Establezca cuántas personas comparten la cuenta. Cada transacción espera a %1$@Esto no se puede cambiar más adelante.";
+"joint_account_members_subtitle_main_part" = "Establezca cuántas personas comparten la cuenta. Cada transacción espera a %1$@. Esto no se puede cambiar más adelante.";
 "joint_account_members_subtitle" = "Establezca cuántas personas comparten la cuenta. Cada transacción espera a %1$@ de %2$@ para firmar. Esto no se puede cambiar más adelante.";
 "joint_account_members_title" = "Miembros";
 "joint_account_members_total_subtitle" = "Máximo %1$@ personas, incluyéndole a Ud";
@@ -2638,7 +2638,7 @@
 "tangempay_residency_all_state" = "Seleccionar otro estado";
 "tangempay_residency_search_empty" = "Sin resultados. Pruebe a cambiar la búsqueda";
 "tangempay_residency_suggested_country" = "País sugerido";
-"tangempay_residency_suggested_state" = " Estado sugerido";
+"tangempay_residency_suggested_state" = "Estado sugerido";
 "tangempay_residency_title_country" = "País de residencia";
 "tangempay_residency_title_state" = "Seleccionar estado";
 "tangempay_select_plan_btn_downgrade" = "Continuar";
