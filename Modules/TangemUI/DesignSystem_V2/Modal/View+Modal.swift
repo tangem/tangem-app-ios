@@ -75,6 +75,26 @@ public extension View {
             content: content
         )
     }
+
+    func shtorkaCompatibleModal<Item: Identifiable, Header: View, Content: View>(
+        item: Binding<Item?>,
+        size: @escaping (Item) -> ModalSize = { _ in .flexible },
+        contentLayout: ModalContentLayout = .scrollable,
+        dragIndicator: Visibility = .visible,
+        navigation: ModalNavigation? = nil,
+        @ViewBuilder header: @escaping (Item) -> Header,
+        @ViewBuilder content: @escaping (Item) -> Content
+    ) -> some View {
+        modifier(ShtorkaCompatibleItemModalModifier(
+            item: item,
+            size: size,
+            contentLayout: contentLayout,
+            dragIndicator: dragIndicator,
+            navigation: navigation,
+            header: header,
+            bodyContent: content
+        ))
+    }
 }
 
 private struct ModalPresentationModifier<Header: View, BodyContent: View>: ViewModifier {
@@ -91,16 +111,15 @@ private struct ModalPresentationModifier<Header: View, BodyContent: View>: ViewM
 
     func body(content: Content) -> some View {
         content.sheet(isPresented: $isPresented, onDismiss: onDismiss) {
-            Modal(
+            PresentedModal(
                 size: size,
                 contentLayout: contentLayout,
                 dragIndicator: dragIndicator,
                 navigation: navigation,
+                dynamicTypeSize: dynamicTypeSize,
                 header: header,
-                content: bodyContent
+                bodyContent: bodyContent
             )
-            .dynamicTypeSize(dynamicTypeSize)
-            .modifier(SheetScrollTouchModifier())
             .softTopScrollEdgeEffect()
         }
     }
@@ -120,17 +139,65 @@ private struct ItemModalPresentationModifier<Item: Identifiable, Header: View, B
 
     func body(content: Content) -> some View {
         content.sheet(item: $item, onDismiss: onDismiss) { item in
-            Modal(
+            PresentedModal(
                 size: size(item),
                 contentLayout: contentLayout,
                 dragIndicator: dragIndicator,
                 navigation: navigation,
+                dynamicTypeSize: dynamicTypeSize,
                 header: { header(item) },
-                content: { bodyContent(item) }
+                bodyContent: { bodyContent(item) }
             )
-            .dynamicTypeSize(dynamicTypeSize)
-            .modifier(SheetScrollTouchModifier())
             .softTopScrollEdgeEffect()
         }
+    }
+}
+
+private struct ShtorkaCompatibleItemModalModifier<Item: Identifiable, Header: View, BodyContent: View>: ViewModifier {
+    @Binding var item: Item?
+    let size: (Item) -> ModalSize
+    let contentLayout: ModalContentLayout
+    let dragIndicator: Visibility
+    let navigation: ModalNavigation?
+    let header: (Item) -> Header
+    let bodyContent: (Item) -> BodyContent
+
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    func body(content: Content) -> some View {
+        content.shtorkaCompatibleSheet(item: $item) { item in
+            PresentedModal(
+                size: size(item),
+                contentLayout: contentLayout,
+                dragIndicator: dragIndicator,
+                navigation: navigation,
+                dynamicTypeSize: dynamicTypeSize,
+                header: { header(item) },
+                bodyContent: { bodyContent(item) }
+            )
+        }
+    }
+}
+
+private struct PresentedModal<Header: View, BodyContent: View>: View {
+    let size: ModalSize
+    let contentLayout: ModalContentLayout
+    let dragIndicator: Visibility
+    let navigation: ModalNavigation?
+    let dynamicTypeSize: DynamicTypeSize
+    let header: () -> Header
+    let bodyContent: () -> BodyContent
+
+    var body: some View {
+        Modal(
+            size: size,
+            contentLayout: contentLayout,
+            dragIndicator: dragIndicator,
+            navigation: navigation,
+            header: header,
+            content: bodyContent
+        )
+        .dynamicTypeSize(dynamicTypeSize)
+        .modifier(SheetScrollTouchModifier())
     }
 }

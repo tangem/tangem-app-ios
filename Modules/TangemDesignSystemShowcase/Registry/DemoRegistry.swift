@@ -35,7 +35,7 @@ private extension DemoRegistry {
             DemoEntry("Loader", version: DSVersion(1, 0, 0), section: .ds3) { LoaderShowcase() },
             DemoEntry("MessageBanner", version: DSVersion(1, 2, 0), section: .ds3) { MessageBannerShowcase() },
             DemoEntry("MessageBubble", version: DSVersion(1, 1, 0), section: .ds3) { MessageBubbleShowcase() },
-            DemoEntry("Modal", version: DSVersion(1, 0, 3), section: .ds3) { ModalShowcase() },
+            DemoEntry("Modal", version: DSVersion(1, 0, 4), section: .ds3) { ModalShowcase() },
             DemoEntry("ModalStatus", version: DSVersion(1, 1, 0), section: .ds3) { ModalStatusShowcase() },
             DemoEntry("Row", version: DSVersion(1, 0, 1), section: .ds3) { RowShowcase() },
             DemoEntry("Search", version: DSVersion(1, 0, 0), section: .ds3) { SearchShowcase() },
