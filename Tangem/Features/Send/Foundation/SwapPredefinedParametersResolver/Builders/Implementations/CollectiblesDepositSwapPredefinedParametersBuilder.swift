@@ -1,8 +1,7 @@
 //
-//  CollectiblesSwapParametersFactory.swift
-//  Tangem
+//  CollectiblesDepositSwapPredefinedParametersBuilder.swift
+//  TangemApp
 //
-//  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
@@ -10,14 +9,14 @@ import Foundation
 import TangemCollectibles
 import TangemLocalization
 
-enum CollectiblesSwapParametersFactory {
-    static func make(
-        accountModel: any CollectiblesBalanceSource & BaseAccountModel,
-        userWalletInfo: UserWalletInfo,
-        walletModelsProvider: MainScreenUIOrderedWalletModelsProvider,
-        tokenItem: TokenItem,
-        fundingAddress: String
-    ) -> PredefinedSwapParameters {
+struct CollectiblesDepositSwapPredefinedParametersBuilder: SwapPredefinedParametersBuilder {
+    let accountModel: any CollectiblesBalanceSource & BaseAccountModel
+    let userWalletModel: any UserWalletModel
+    let tokenItem: TokenItem
+    let fundingAddress: String
+
+    func make() -> PredefinedSwapParameters {
+        let userWalletInfo = userWalletModel.userWalletInfo
         let destination = CollectiblesDepositReceiveTokenFactory(
             userWalletInfo: userWalletInfo,
             accountModel: accountModel,
@@ -28,10 +27,8 @@ enum CollectiblesSwapParametersFactory {
 
         let depositCurrency = destination.tokenItem.expressCurrency
         let sourceResolver = CollectiblesDepositSourceResolver(
-            userWalletInfo: userWalletInfo,
-            walletModelsProvider: walletModelsProvider,
-            depositCurrencies: [depositCurrency],
-            availabilityChecker: CommonFundingSourceAvailabilityChecker(userWalletInfo: userWalletInfo)
+            userWalletModel: userWalletModel,
+            depositCurrencies: [depositCurrency]
         )
 
         return PredefinedSwapParameters(

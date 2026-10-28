@@ -1,8 +1,7 @@
 //
-//  PolymarketSwapParametersFactory.swift
-//  Tangem
+//  PolymarketWithdrawSwapPredefinedParametersBuilder.swift
+//  TangemApp
 //
-//  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
@@ -10,48 +9,12 @@ import Foundation
 import TangemLocalization
 import TangemPolymarket
 
-struct PolymarketSwapParametersFactory {
+struct PolymarketWithdrawSwapPredefinedParametersBuilder: SwapPredefinedParametersBuilder {
     let userWalletInfo: UserWalletInfo
-    let walletModelsProvider: MainScreenUIOrderedWalletModelsProvider
-    let accountModel: any PolymarketAccountModel
+    let source: PolymarketWithdrawSource
+    let receiveToken: SendReceiveToken?
 
-    func make(depositTargets: [PolymarketAccountFundsInteractor.DepositTarget]) -> PredefinedSwapParameters? {
-        let candidates = depositTargets.map { depositTarget in
-            PolymarketDepositReceiveTokenFactory(
-                userWalletInfo: userWalletInfo,
-                accountModel: accountModel,
-                depositTarget: depositTarget
-            )
-            .makeReceiveToken()
-        }
-
-        guard let defaultDestination = candidates.first else {
-            return nil
-        }
-
-        let sourceResolver = PolymarketDepositSourceResolver(
-            userWalletInfo: userWalletInfo,
-            walletModelsProvider: walletModelsProvider,
-            depositCurrencies: Set(candidates.map(\.tokenItem.expressCurrency)),
-            availabilityChecker: CommonFundingSourceAvailabilityChecker(userWalletInfo: userWalletInfo)
-        )
-
-        return PredefinedSwapParameters(
-            userWalletInfo: defaultDestination.userWalletInfo,
-            source: sourceResolver,
-            receive: .resolved(defaultDestination),
-            configuration: SwapFlowConfiguration(
-                isPairReversalEnabled: false,
-                sourceTokenSelection: .selectable(.filtered(isIncluded: { !$0.isPayAccount })),
-                receiveTokenSelection: .followsSource(
-                    AccountFundingDestinationResolver(candidates: candidates, defaultDestination: defaultDestination)
-                ),
-                summaryTitle: Localization.commonAddFunds
-            )
-        )
-    }
-
-    func make(withdrawingFrom source: PolymarketWithdrawSource, receiveToken: SendReceiveToken?) -> PredefinedSwapParameters {
+    func make() -> PredefinedSwapParameters {
         let sourceToken = PolymarketWithdrawSwapableTokenFactory(userWalletInfo: userWalletInfo, source: source)
             .makeSwapableToken()
 
@@ -90,9 +53,9 @@ struct PolymarketSwapParametersFactory {
     }
 }
 
-// MARK: - Private implementation
+// MARK: - Private
 
-private extension PolymarketSwapParametersFactory {
+private extension PolymarketWithdrawSwapPredefinedParametersBuilder {
     var walletUSDCTokenItem: TokenItem? {
         let usdc = PolymarketUtilities.usdcTokenItem
 

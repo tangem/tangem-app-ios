@@ -18,16 +18,19 @@ final class PolymarketAddFundsSheetViewModel: ObservableObject, FloatingSheetCon
     @Published var alert: AlertBinder?
 
     private let interactor: PolymarketAccountFundsInteractor
-    private let swapParametersFactory: PolymarketSwapParametersFactory
+    private let userWalletModel: any UserWalletModel
+    private let accountModel: any PolymarketAccountModel
     private weak var coordinator: PolymarketAddFundsSheetRoutable?
 
     init(
         interactor: PolymarketAccountFundsInteractor,
-        swapParametersFactory: PolymarketSwapParametersFactory,
+        userWalletModel: any UserWalletModel,
+        accountModel: any PolymarketAccountModel,
         coordinator: PolymarketAddFundsSheetRoutable
     ) {
         self.interactor = interactor
-        self.swapParametersFactory = swapParametersFactory
+        self.userWalletModel = userWalletModel
+        self.accountModel = accountModel
         self.coordinator = coordinator
     }
 }
@@ -68,15 +71,19 @@ private extension PolymarketAddFundsSheetViewModel {
     }
 
     func openSwap() {
-        guard
-            let depositTargets = availableDepositTargets,
-            let parameters = swapParametersFactory.make(depositTargets: depositTargets)
-        else {
+        guard let depositTargets = availableDepositTargets, let defaultTarget = depositTargets.first else {
             reportUnavailableDeposit()
             return
         }
 
-        coordinator?.openSwapFlow(parameters: parameters)
+        let builder = PolymarketDepositSwapPredefinedParametersBuilder(
+            userWalletModel: userWalletModel,
+            accountModel: accountModel,
+            defaultTarget: defaultTarget,
+            otherTargets: Array(depositTargets.dropFirst())
+        )
+
+        coordinator?.openSwapFlow(parameters: builder.make())
     }
 
     func openReceive() {

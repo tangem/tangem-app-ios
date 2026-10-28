@@ -197,8 +197,7 @@ private extension CollectiblesCoordinator {
         let coordinator = FundsCoordinator(dismissAction: {}, popToRootAction: popToRootAction)
         coordinator.start(with: .init(
             accountModel: accountModel,
-            userWalletInfo: options.userWalletModel.userWalletInfo,
-            walletModelsProvider: MainScreenUIOrderedWalletModelsProvider(userWalletModel: options.userWalletModel)
+            userWalletModel: options.userWalletModel
         ))
         fundsCoordinator = coordinator
     }
