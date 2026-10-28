@@ -15,6 +15,7 @@ protocol SendDestinationInput: AnyObject {
 
     var destinationPublisher: AnyPublisher<SendDestination?, Never> { get }
     var additionalFieldPublisher: AnyPublisher<SendDestinationAdditionalField, Never> { get }
+    var destinationTokenItemPublisher: AnyPublisher<TokenItem, Never> { get }
 }
 
 protocol SendDestinationOutput: AnyObject {
