@@ -66,6 +66,7 @@ struct Modal<Header: View, Content: View>: View {
                     .environment(\.footerHost, footerHost)
             }
         }
+        .messageBannerNeutralVariant(bannerNeutralVariant)
         .modifier(ModalDetentModifier(
             size: isSearchPresented ? .full : size,
             contentLayout: contentLayout,
@@ -175,6 +176,10 @@ struct Modal<Header: View, Content: View>: View {
         }
         .fixedSize(horizontal: false, vertical: true)
         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { footerHeight = $0 }
+    }
+
+    private var bannerNeutralVariant: MessageBannerVariant.Neutral? {
+        ModalSurface.isOpaque(isExpanded: size == .full, reduceTransparency: reduceTransparency) ? nil : .onMaterial
     }
 
     private var footerHost: FooterHost {
