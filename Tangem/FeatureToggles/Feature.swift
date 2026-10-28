@@ -38,6 +38,7 @@ enum Feature: String, Hashable, CaseIterable {
     case solanaPNFTAndMetaplexCore
     case tangemPayMoneyAccount
     case hideRejectedSwapProviders
+    case tangemPayCustomerSummary
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -72,6 +73,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .solanaPNFTAndMetaplexCore: return "TWI-1822_solana_pnft_and_metaplex_core"
         case .tangemPayMoneyAccount: return "TWI-1525_money_account"
         case .hideRejectedSwapProviders: return "[REDACTED_INFO]_hide_cex_provider_after_exchange_data_error"
+        case .tangemPayCustomerSummary: return "[REDACTED_INFO]_tangem_pay_customer_summary"
         }
     }
 
@@ -106,6 +108,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .solanaPNFTAndMetaplexCore: return .unspecified
         case .tangemPayMoneyAccount: return .unspecified
         case .hideRejectedSwapProviders: return .unspecified
+        case .tangemPayCustomerSummary: return .unspecified
         }
     }
 }

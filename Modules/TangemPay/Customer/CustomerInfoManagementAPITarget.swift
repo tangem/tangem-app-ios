@@ -24,6 +24,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
         switch target {
         case .getCustomerInfo:
             "customer/me"
+        case .getCustomerSummary:
+            "customer/summary"
         case .getKYCAccessToken:
             "customer/kyc"
         case .getBalance:
@@ -100,6 +102,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
     var method: Moya.Method {
         switch target {
         case .getCustomerInfo,
+             .getCustomerSummary,
              .getKYCAccessToken,
              .getOrder,
              .findOrders,
@@ -151,6 +154,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
     var task: Moya.Task {
         switch target {
         case .getCustomerInfo,
+             .getCustomerSummary,
              .getKYCAccessToken,
              .getOrder,
              .cancelOrder,
@@ -282,6 +286,8 @@ extension CustomerInfoManagementAPITarget {
         /// Load all available customer info. Can be used for loading data about payment account address
         /// Will be updated later, not fully implemented on BFF
         case getCustomerInfo
+
+        case getCustomerSummary
 
         /// Retrieves an access token for the SumSub KYC flow
         case getKYCAccessToken
