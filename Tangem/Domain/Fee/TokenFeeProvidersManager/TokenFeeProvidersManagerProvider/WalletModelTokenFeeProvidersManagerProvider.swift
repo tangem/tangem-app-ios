@@ -198,7 +198,10 @@ private extension WalletModelTokenFeeProvidersManagerProvider {
             yieldContractAddress: activeInfo.yieldContractAddress,
             yieldModuleBalance: activeInfo.yieldModuleBalanceValue,
             feeTokenBalanceProvider: feeTokenItemBalanceProvider,
-            versionChecker: feeWalletModel.yieldModuleManager?.versionChecker
+            versionChecker: feeWalletModel.yieldModuleManager?.versionChecker,
+            versionResolver: FeatureProvider.isAvailable(.yieldModuleOwnerActionUpgrade)
+                ? feeWalletModel.yieldModuleManager?.versionResolver
+                : nil
         )
     }
 }

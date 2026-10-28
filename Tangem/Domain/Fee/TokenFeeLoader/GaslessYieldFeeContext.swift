@@ -15,6 +15,7 @@ struct GaslessYieldFeeContext {
     let yieldModuleBalance: Decimal
     let feeTokenBalanceProvider: TokenBalanceProvider
     let versionChecker: YieldModuleVersionChecker?
+    var versionResolver: YieldModuleVersionResolver?
 }
 
 extension GaslessYieldFeeContext: CustomStringConvertible {
@@ -24,6 +25,7 @@ extension GaslessYieldFeeContext: CustomStringConvertible {
             "yieldModuleBalance": yieldModuleBalance,
             "feeTokenBalanceProvider": feeTokenBalanceProvider,
             "versionChecker": String(describing: versionChecker),
+            "versionResolver": String(describing: versionResolver),
         ])
     }
 }

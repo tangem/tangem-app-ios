@@ -19,6 +19,7 @@ protocol YieldModuleManager {
     var blockchain: Blockchain { get }
     var tokenId: String { get }
     var versionChecker: YieldModuleVersionChecker? { get }
+    var versionResolver: YieldModuleVersionResolver? { get }
     var swapExecutionRegistryProvider: YieldModuleSwapExecutionRegistryProvider? { get }
     /// `nil` when the Merkl incentives feature is off.
     var incentivesManager: YieldIncentivesManager? { get }
@@ -61,6 +62,8 @@ struct YieldExitResult {
 }
 
 extension YieldModuleManager {
+    var versionResolver: YieldModuleVersionResolver? { nil }
+
     func exit(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> YieldExitResult {
         try await exit(fee: fee, precedingTransaction: { nil }, transactionDispatcher: transactionDispatcher)
     }
@@ -201,6 +204,10 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
     var versionChecker: YieldModuleVersionChecker? {
         yieldSupplyService.makeVersionChecker()
+    }
+
+    var versionResolver: YieldModuleVersionResolver? {
+        yieldSupplyService.makeVersionResolver()
     }
 
     var swapExecutionRegistryProvider: YieldModuleSwapExecutionRegistryProvider? {
