@@ -2638,7 +2638,7 @@
 "tangempay_residency_all_state" = "Sélectionner un autre État";
 "tangempay_residency_search_empty" = "Aucun résultat. Essayez de modifier votre recherche";
 "tangempay_residency_suggested_country" = "Pays suggéré";
-"tangempay_residency_suggested_state" = " État suggéré";
+"tangempay_residency_suggested_state" = "État suggéré";
 "tangempay_residency_title_country" = "Pays de résidence";
 "tangempay_residency_title_state" = "Sélectionner un État";
 "tangempay_select_plan_btn_downgrade" = "Continuer";

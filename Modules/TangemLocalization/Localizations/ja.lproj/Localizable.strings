@@ -729,7 +729,7 @@
 "express_transaction_id" = "ID: %@";
 "fee_selector_choose_speed_description" = "速度を上げるほど承認は速くなりますが、\nネットワーク手数料も高くなります。%@";
 "fee_selector_choose_speed_title" = "速度を選択";
-"fee_selector_choose_token_description" = "\nネットワーク手数料の支払いに使用するトークンを選択します。%@";
+"fee_selector_choose_token_description" = "ネットワーク手数料の支払いに使用するトークンを選択します。%@";
 "fee_selector_choose_token_title" = "トークンを選択";
 "feed_market_and_news" = "マーケット＆ニュース";
 "feed_promo_earn_active_description" = "%2$@で最大%1$@のAPYを獲得";
@@ -1884,7 +1884,7 @@
 "referral_less" = "少ない";
 "referral_more" = "多い";
 "referral_no_expected_awards" = "お支払いの予定はありません";
-"referral_point_currencies_description" = "あなたの%2$@ネットワークアドレス%3$@で友達が購入したウォレットごとに、^^30日後 ^^^^ %1$@ ^^ をゲットできます ";
+"referral_point_currencies_description" = "あなたの%2$@ネットワークアドレス%3$@で友達が購入したウォレットごとに、^^30日後 ^^^^ %1$@ ^^ をゲットできます";
 "referral_point_currencies_title" = "あなた";
 "referral_point_discount_description_prefix" = "以下を取得します。";
 "referral_point_discount_description_suffix" = "tangem.comでウォレットを購入するとき";
@@ -2638,7 +2638,7 @@
 "tangempay_residency_all_state" = "別の州を選択";
 "tangempay_residency_search_empty" = "見つかりませんでした。検索条件を変更してお試しください";
 "tangempay_residency_suggested_country" = "おすすめの国";
-"tangempay_residency_suggested_state" = " おすすめの州";
+"tangempay_residency_suggested_state" = "おすすめの州";
 "tangempay_residency_title_country" = "居住国";
 "tangempay_residency_title_state" = "州を選択";
 "tangempay_select_plan_btn_downgrade" = "続ける";
@@ -2992,7 +2992,7 @@
 "visa_onboarding_success_screen_description" = "準備完了です！";
 "visa_onboarding_tangem_approve_description" = "Tangemカードを用意し、タップして承認してください。";
 "visa_onboarding_tangem_approve_title" = "Tangemウォレットを準備してください。";
-"visa_onboarding_wallet_connect_description" = "\nサードパーティのWebサイト\nで接続手続きを完了し、その後Tangemアプリに戻ってください。";
+"visa_onboarding_wallet_connect_description" = "サードパーティのWebサイト\nで接続手続きを完了し、その後Tangemアプリに戻ってください。";
 "visa_onboarding_wallet_connect_title" = "ウェブサイトに移動";
 "visa_onboarding_wallet_list_header" = "ウォレットを選択";
 "visa_onboarding_welcome_back_button_title" = "有効化を続行";

@@ -1099,7 +1099,7 @@
 "joint_account_members_signers_title" = "Нужно подписей";
 "joint_account_members_status_confirmed" = "Confirmed";
 "joint_account_members_status_not_confirmed" = "Not confirmed";
-"joint_account_members_subtitle_helper_part" = " %1$@ из %2$@ участников";
+"joint_account_members_subtitle_helper_part" = "%1$@ из %2$@ участников";
 "joint_account_members_subtitle_main_part" = "Укажите, сколько человек будет пользоваться аккаунтом. Каждую транзакцию должны подписать %1$@. Позже это изменить нельзя";
 "joint_account_members_subtitle" = "Укажите, сколько человек будет пользоваться аккаунтом. Каждую транзакцию должны подписать %1$@ из %2$@ участников. Позже это изменить нельзя";
 "joint_account_members_title" = "Участники";
@@ -2638,7 +2638,7 @@
 "tangempay_residency_all_state" = "Выбрать другой штат";
 "tangempay_residency_search_empty" = "Ничего не найдено. Попробуйте изменить запрос";
 "tangempay_residency_suggested_country" = "Предлагаемая страна";
-"tangempay_residency_suggested_state" = " Предлагаемый штат";
+"tangempay_residency_suggested_state" = "Предлагаемый штат";
 "tangempay_residency_title_country" = "Страна проживания";
 "tangempay_residency_title_state" = "Выберите штат";
 "tangempay_select_plan_btn_downgrade" = "Продолжить";
