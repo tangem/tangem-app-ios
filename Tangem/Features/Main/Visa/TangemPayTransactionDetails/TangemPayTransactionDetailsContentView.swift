@@ -233,6 +233,7 @@ private extension TangemPayTransactionDetailsContentView {
                         .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
                 }
                 .showDivider()
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsCashback)
         case .text(let text):
             Row(title: Localization.tangempayCashbackTitle, value: text, subvalue: row.subvalue)
                 .verticalAlignment(verticalAlignment)
