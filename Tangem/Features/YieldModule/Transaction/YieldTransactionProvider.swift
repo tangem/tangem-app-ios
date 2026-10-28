@@ -84,6 +84,7 @@ final class YieldTransactionProvider {
                 tokenContractAddress: tokenContractAddress,
                 yieldContractAddress: yieldContractAddress,
                 maxNetworkFee: maxNetworkFee,
+                newImplementationAddress: fee.newImplementationAddress,
                 fee: fee.initFee
             )
         )
@@ -124,6 +125,7 @@ final class YieldTransactionProvider {
                 tokenContractAddress: tokenContractAddress,
                 yieldContractAddress: yieldContractAddress,
                 maxNetworkFee: maxNetworkFee,
+                newImplementationAddress: fee.newImplementationAddress,
                 fee: fee.reactivateFee
             )
         )
@@ -212,28 +214,32 @@ private extension YieldTransactionProvider {
         tokenContractAddress: String,
         yieldContractAddress: String,
         maxNetworkFee: BigUInt,
+        newImplementationAddress: String?,
         fee: Fee
     ) async throws -> Transaction {
         let smartContract = InitYieldTokenMethod(
             tokenContractAddress: tokenContractAddress,
             maxNetworkFee: maxNetworkFee
         )
+        let txData = UpgradeToAndCallMethod.wrapIfNeeded(smartContract.data, newImplementation: newImplementationAddress)
 
-        return try await transaction(contractAddress: yieldContractAddress, txData: smartContract.data, fee: fee)
+        return try await transaction(contractAddress: yieldContractAddress, txData: txData, fee: fee)
     }
 
     func reactivateTokenTransaction(
         tokenContractAddress: String,
         yieldContractAddress: String,
         maxNetworkFee: BigUInt,
+        newImplementationAddress: String?,
         fee: Fee
     ) async throws -> Transaction {
         let smartContract = ReactivateTokenMethod(
             tokenContractAddress: tokenContractAddress,
             maxNetworkFee: maxNetworkFee
         )
+        let txData = UpgradeToAndCallMethod.wrapIfNeeded(smartContract.data, newImplementation: newImplementationAddress)
 
-        return try await transaction(contractAddress: yieldContractAddress, txData: smartContract.data, fee: fee)
+        return try await transaction(contractAddress: yieldContractAddress, txData: txData, fee: fee)
     }
 
     private func enterTransaction(

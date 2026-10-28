@@ -428,6 +428,7 @@ private extension CommonSendYieldModuleHelperTests {
                 decimalCount: 6,
                 symbol: "USDC"
             ),
+            newImplementationAddress: { nil },
             swapExecutionRegistryProvider: swapExecutionRegistry,
             yieldModuleUpgradeHandler: upgradeHandler
         )

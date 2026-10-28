@@ -24,6 +24,9 @@ protocol YieldModuleManager {
     /// `nil` when the Merkl incentives feature is off.
     var incentivesManager: YieldIncentivesManager? { get }
 
+    func newImplementationAddress(moduleAddress: String) async -> String?
+    func upgradingSendCallData(destination: String, amount: BigUInt) async throws -> YieldModuleSendCallData?
+
     func enterFee() async throws -> YieldTransactionFee
     func enter(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String]
 
@@ -37,7 +40,7 @@ protocol YieldModuleManager {
     func approveFee() async throws -> YieldTransactionFee
     func approve(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> String
 
-    func claimFee(to: String, data: Data) async throws -> YieldTransactionFee
+    func claimFee(to: String, data: Data, includingModuleUpgrade: Bool) async throws -> YieldTransactionFee
     func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee) async throws -> BSDKTransaction
     func submitClaim(transaction: BSDKTransaction, transactionDispatcher: TransactionDispatcher) async throws -> String
 
@@ -49,6 +52,11 @@ protocol YieldModuleManager {
 
     func sendActivationState()
     func sendTransactionSendEvent(sourceAddress: String, transactionHash: String)
+}
+
+struct YieldModuleSendCallData {
+    let yieldContractAddress: String
+    let data: Data
 }
 
 struct YieldExitResult {
@@ -210,6 +218,44 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         yieldSupplyService.makeVersionResolver()
     }
 
+    func newImplementationAddress(moduleAddress: String) async -> String? {
+        guard FeatureProvider.isAvailable(.yieldModuleOwnerActionUpgrade),
+              let versionResolver = yieldSupplyService.makeVersionResolver() else {
+            return nil
+        }
+
+        do {
+            guard case .upgradeAvailable(let targetImplementation, _) = try await versionResolver.resolveStatus(moduleAddress: moduleAddress) else {
+                return nil
+            }
+
+            return targetImplementation
+        } catch {
+            AppLogger.tag("YieldModule").error("Yield Module version is unresolved, the upgrade is skipped for \(moduleAddress)", error: error)
+            return nil
+        }
+    }
+
+    func upgradingSendCallData(destination: String, amount: BigUInt) async throws -> YieldModuleSendCallData? {
+        let moduleState = state?.state
+
+        guard let yieldContractAddress = (moduleState?.activeInfo ?? moduleState?.cachedState?.activeInfo)?.yieldContractAddress,
+              let newImplementationAddress = await newImplementationAddress(moduleAddress: yieldContractAddress) else {
+            return nil
+        }
+
+        let sendMethod = try YieldSendMethod(
+            tokenContractAddress: token.contractAddress,
+            destination: destination,
+            amount: amount
+        )
+
+        return YieldModuleSendCallData(
+            yieldContractAddress: yieldContractAddress,
+            data: UpgradeToAndCallMethod.wrapIfNeeded(sendMethod.data, newImplementation: newImplementationAddress)
+        )
+    }
+
     var swapExecutionRegistryProvider: YieldModuleSwapExecutionRegistryProvider? {
         yieldSupplyService.makeSwapExecutionRegistryProvider()
     }
@@ -249,14 +295,16 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
                 return try await transactionFeeProvider.initializeFee(
                     yieldContractAddress: deployed.yieldModule,
                     tokenContractAddress: token.contractAddress,
-                    maxNetworkFee: maxTokenNetworkFee
+                    maxNetworkFee: maxTokenNetworkFee,
+                    newImplementationAddress: await newImplementationAddress(moduleAddress: deployed.yieldModule)
                 )
             case .initialized(.notActive):
                 return try await transactionFeeProvider.reactivateFee(
                     yieldContractAddress: deployed.yieldModule,
                     tokenContractAddress: token.contractAddress,
                     tokenDecimalCount: token.decimalCount,
-                    maxNetworkFee: maxTokenNetworkFee
+                    maxNetworkFee: maxTokenNetworkFee,
+                    newImplementationAddress: await newImplementationAddress(moduleAddress: deployed.yieldModule)
                 )
             case .initialized(.active):
                 throw YieldModuleError.yieldIsAlreadyActive
@@ -421,8 +469,12 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         return hash
     }
 
-    func claimFee(to: String, data: Data) async throws -> YieldTransactionFee {
-        try await transactionFeeProvider.claimFee(to: to, data: data)
+    func claimFee(to: String, data: Data, includingModuleUpgrade: Bool) async throws -> YieldTransactionFee {
+        try await transactionFeeProvider.claimFee(
+            to: to,
+            data: data,
+            newImplementationAddress: includingModuleUpgrade ? await newImplementationAddress(moduleAddress: to) : nil
+        )
     }
 
     func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee) async throws -> BSDKTransaction {
@@ -430,7 +482,10 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
             throw YieldModuleError.feeNotFound
         }
 
-        return try await transactionProvider.claimTransaction(to: to, data: data, fee: claimFee.fee)
+        let claimData = UpgradeToAndCallMethod.wrapIfNeeded(data, newImplementation: claimFee.newImplementationAddress)
+        AppLogger.tag("YieldModule").info("Claim on \(to) upgrades the module: \(claimFee.newImplementationAddress ?? "no")")
+
+        return try await transactionProvider.claimTransaction(to: to, data: claimData, fee: claimFee.fee)
     }
 
     func submitClaim(transaction: BSDKTransaction, transactionDispatcher: TransactionDispatcher) async throws -> String {
@@ -892,7 +947,7 @@ private extension Transaction {
         guard let params = params as? EthereumTransactionParams,
               let data = params.data else { return nil }
 
-        return data.hexString
+        return data.yieldModuleCallDataHexString
     }
 }
 
@@ -901,7 +956,13 @@ private extension PendingTransactionRecord {
         guard let params = transactionParams as? EthereumTransactionParams,
               let data = params.data else { return nil }
 
-        return data.hexString
+        return data.yieldModuleCallDataHexString
+    }
+}
+
+private extension Data {
+    var yieldModuleCallDataHexString: String {
+        (UpgradeToAndCallMethod(calldata: self)?.callData ?? self).hexString
     }
 }
 
