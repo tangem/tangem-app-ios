@@ -89,6 +89,7 @@ struct PolymarketWithdrawSwapableTokenFactory: SendSwapableTokenFactory {
             operationType: .swap,
 
             supportedProvidersFilter: .cex,
+            isCustomSlippageAllowed: accountModel.resolve(using: CustomSlippageAvailabilityResolver()),
             presentation: makePresentation()
         )
     }
