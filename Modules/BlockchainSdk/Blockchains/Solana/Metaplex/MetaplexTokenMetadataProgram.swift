@@ -16,7 +16,10 @@ enum MetaplexTokenMetadataProgram {
     static let associatedTokenProgramId = PublicKey(string: "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL")!
 
     static let tokenRecordSpace: UInt64 = 80
-    static let tokenAccountSpace: UInt64 = 165
+
+    static func tokenAccountSpace(tokenProgram: PublicKey) -> UInt64 {
+        tokenProgram == .token2022ProgramId ? TokenAccountSpace.token2022WithImmutableOwner : TokenAccountSpace.token
+    }
 
     // MARK: - Addresses
 
@@ -88,14 +91,15 @@ enum MetaplexTokenMetadataProgram {
 
     static func transferInstruction(
         mint: PublicKey,
+        tokenProgram: PublicKey,
         owner: PublicKey,
         destinationOwner: PublicKey,
         authority: PublicKey,
         payer: PublicKey,
         ruleSet: PublicKey?
     ) throws -> SolanaRawInstruction {
-        let token = try associatedTokenAddress(owner: owner, mint: mint)
-        let destination = try associatedTokenAddress(owner: destinationOwner, mint: mint)
+        let token = try associatedTokenAddress(owner: owner, mint: mint, tokenProgram: tokenProgram)
+        let destination = try associatedTokenAddress(owner: destinationOwner, mint: mint, tokenProgram: tokenProgram)
 
         let accounts: [(PublicKey, isSigner: Bool, isWritable: Bool)] = [
             (token, false, true),
@@ -111,7 +115,7 @@ enum MetaplexTokenMetadataProgram {
             (payer, true, true),
             (PublicKey.programId, false, false),
             (sysvarInstructionsId, false, false),
-            (PublicKey.tokenProgramId, false, false),
+            (tokenProgram, false, false),
             (associatedTokenProgramId, false, false),
             (ruleSet == nil ? programId : authorizationRulesProgramId, false, false),
             (ruleSet ?? programId, false, false),
@@ -126,11 +130,11 @@ enum MetaplexTokenMetadataProgram {
         )
     }
 
-    static func associatedTokenAddress(owner: PublicKey, mint: PublicKey) throws -> PublicKey {
+    static func associatedTokenAddress(owner: PublicKey, mint: PublicKey, tokenProgram: PublicKey) throws -> PublicKey {
         try PublicKey.associatedTokenAddress(
             walletAddress: owner,
             tokenMintAddress: mint,
-            tokenProgramId: .tokenProgramId
+            tokenProgramId: tokenProgram
         ).get()
     }
 
@@ -190,6 +194,11 @@ extension MetaplexTokenMetadataProgram {
 
     private enum OptionTag {
         static let none: UInt8 = 0
+    }
+
+    private enum TokenAccountSpace {
+        static let token: UInt64 = 165
+        static let token2022WithImmutableOwner: UInt64 = 170
     }
 }
 
