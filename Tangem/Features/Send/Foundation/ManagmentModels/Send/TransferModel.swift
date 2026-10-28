@@ -412,6 +412,10 @@ extension TransferModel: SendDestinationInput {
     var additionalFieldPublisher: AnyPublisher<SendDestinationAdditionalField, Never> {
         _destinationAdditionalField.eraseToAnyPublisher()
     }
+
+    var destinationTokenItemPublisher: AnyPublisher<TokenItem, Never> {
+        .just(output: _sourceToken.tokenItem)
+    }
 }
 
 // MARK: - SendDestinationOutput
