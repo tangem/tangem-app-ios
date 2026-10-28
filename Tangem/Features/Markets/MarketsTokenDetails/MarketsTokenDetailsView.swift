@@ -342,6 +342,7 @@ struct MarketsTokenDetailsView: View {
     @ViewBuilder
     private var content: some View {
         MarketsTokenDetailsContentView(viewModel: viewModel)
+            .messageBannerNeutralVariant(sheetSize.isFeedSheet ? .light : nil)
     }
 
     private var backgroundColor: Color {

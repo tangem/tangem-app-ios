@@ -12,13 +12,19 @@ import TangemUIUtils
 
 // MARK: - Public types
 
-public enum MessageBannerVariant: Sendable, Hashable, CaseIterable {
+public enum MessageBannerVariant: Sendable, Hashable {
     case `default`
     case solid
+    case neutral(Neutral)
     case success
     case error
     case warning
     case info
+
+    public enum Neutral: Sendable, Hashable, CaseIterable {
+        case light
+        case onMaterial
+    }
 }
 
 public enum MessageBannerContentAlign: Sendable, Hashable, CaseIterable {
@@ -82,7 +88,7 @@ public struct MessageBannerButton {
 }
 
 struct MessageBannerConfiguration {
-    var variant: MessageBannerVariant = .default
+    var variant: MessageBannerVariant?
     var contentAlign: MessageBannerContentAlign = .start
     var glowRing: GlowRingAppearance?
     var titleLineLimit: Int?
@@ -175,6 +181,24 @@ public extension MessageBanner {
     func accessibilityLabel(_ label: String?) -> Self {
         map { $0.config.accessibilityLabel = label }
     }
+}
+
+extension MessageBanner {
+    func variant(_ variant: Variant?) -> Self {
+        map { $0.config.variant = variant }
+    }
+}
+
+// MARK: - Neutral variant
+
+public extension View {
+    func messageBannerNeutralVariant(_ variant: MessageBannerVariant.Neutral?) -> some View {
+        environment(\.messageBannerNeutralVariant, variant)
+    }
+}
+
+extension EnvironmentValues {
+    @Entry var messageBannerNeutralVariant: MessageBannerVariant.Neutral? = nil
 }
 
 // MARK: - Slot transforms
