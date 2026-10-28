@@ -35,7 +35,7 @@ final class TangemPayCashbackUITests: BaseTestCase {
     func testEuLayout_ShowsCashbackInMenuInsteadOfWidget() {
         setAllureId(10938)
 
-        launchWithCashback(Constants.State.altBlock)
+        launchWithCashback(Constants.State.altBlockZero)
             .waitForBalanceLoaded()
             .verifyCashbackWidgetHidden()
             .openMoreActionsMenu()
@@ -195,7 +195,7 @@ private extension TangemPayCashbackUITests {
             static let positive = "Positive"
             static let empty = "Empty"
             static let refund = "Refund"
-            static let altBlock = "AltBlock"
+            static let altBlockZero = "AltBlockZero"
             static let fraud = "Fraud"
             static let payout = "Payout"
             static let historyFailed = "HistoryFailed"
