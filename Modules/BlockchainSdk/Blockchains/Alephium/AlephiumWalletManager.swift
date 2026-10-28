@@ -16,6 +16,8 @@ class AlephiumWalletManager: BaseWalletManager, WalletManager {
         networkService.host
     }
 
+    private(set) var isBalanceIncomplete = false
+
     // MARK: - Private Implementation
 
     private let networkService: AlephiumNetworkService
@@ -112,6 +114,7 @@ class AlephiumWalletManager: BaseWalletManager, WalletManager {
         let convertedBalance = balanceValue / wallet.blockchain.decimalValue
 
         wallet.add(coinValue: convertedBalance)
+        isBalanceIncomplete = accountInfo.utxo.count >= ALPH.Constants.maxNodeUtxosNum
         transactionBuilder.update(utxo: accountInfo.utxo)
 
         updateRecentTransactions(utxo: accountInfo.utxo)
@@ -154,6 +157,14 @@ class AlephiumWalletManager: BaseWalletManager, WalletManager {
 extension AlephiumWalletManager: DustRestrictable {
     var dustValue: Amount {
         Amount(with: wallet.blockchain, type: .coin, value: ALPH.Constants.dustAmountValue)
+    }
+}
+
+// MARK: - IncompleteBalanceProvider
+
+extension AlephiumWalletManager: IncompleteBalanceProvider {
+    var unspentsLimit: Int {
+        ALPH.Constants.maxNodeUtxosNum
     }
 }
 
