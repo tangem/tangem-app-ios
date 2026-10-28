@@ -33,6 +33,7 @@ final class FakeTangemApiService: TangemApiService {
 
     // MARK: - Campaigns Handlers (Tests/Previews)
 
+    var loadQuotesHandler: ((QuotesDTO.Request) throws -> [Quote])?
     var loadMarketingCampaignsHandler: ((MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response)?
     var bindMarketingActivityWalletsHandler: ((String, MarketingActivityDTO.BindWallets.Request) async throws -> Void)?
     var loadPromotionCampaignsHandler: ((String) async throws -> [BannerPromotion.Response.Promotion])?
@@ -93,7 +94,11 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadQuotes(requestModel: QuotesDTO.Request) -> AnyPublisher<[Quote], Error> {
-        .anyFail(error: "Not implemented")
+        guard let handler = loadQuotesHandler else {
+            return .anyFail(error: "Not implemented")
+        }
+
+        return Result { try handler(requestModel) }.publisher.eraseToAnyPublisher()
     }
 
     func loadCurrencies() -> AnyPublisher<[CurrenciesResponse.Currency], Error> {
