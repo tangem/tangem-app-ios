@@ -70,7 +70,8 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
 
         destinationAddressViewModel = SendDestinationAddressViewModel(
             textViewModel: .init(),
-            address: .init(string: "", source: .textField)
+            address: .init(string: "", source: .textField),
+            iconProvider: CommonSendDestinationAddressAddressIconProvider(tokenItemPublisher: interactor.tokenItemPublisher)
         )
 
         destinationAddressViewModel.router = self
@@ -184,12 +185,12 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         // MARK: - Transaction History
 
         Publishers
-            .CombineLatest(interactor.transactionHistoryPublisher, interactor.suggestedWalletsPublisher)
+            .CombineLatest3(interactor.transactionHistoryPublisher, interactor.suggestedWalletsPublisher, interactor.tokenItemPublisher.removeDuplicates())
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, args in
-                let (recentTransactions, suggestedWallets) = args
-                viewModel.setupSuggestedDestination(recentTransactions: recentTransactions, suggestedWallets: suggestedWallets)
+                let (recentTransactions, suggestedWallets, tokenItem) = args
+                viewModel.setupSuggestedDestination(recentTransactions: recentTransactions, suggestedWallets: suggestedWallets, tokenItem: tokenItem)
             }
             .store(in: &bag)
 
@@ -270,7 +271,8 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
 
     private func setupSuggestedDestination(
         recentTransactions: [SendDestinationSuggestedTransactionRecord],
-        suggestedWallets: [SendDestinationSuggestedWallet]
+        suggestedWallets: [SendDestinationSuggestedWallet],
+        tokenItem: TokenItem
     ) {
         let hasSuggestions = !suggestedWallets.isEmpty || !recentTransactions.isEmpty
 
@@ -281,7 +283,8 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
 
         suggestedDestinationViewModel = SendDestinationSuggestedViewModel(
             wallets: suggestedWallets,
-            recentTransactions: recentTransactions
+            recentTransactions: recentTransactions,
+            networkId: AddressBookNetworkID(tokenItem.blockchain.networkId)
         ) { [weak self] destination in
             self?.userDidTapSuggestedDestination(destination)
         }
