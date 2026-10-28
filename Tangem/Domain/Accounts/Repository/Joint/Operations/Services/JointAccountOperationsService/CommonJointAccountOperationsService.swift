@@ -180,7 +180,7 @@ private extension CommonJointAccountOperationsService {
         let verdict = await blockaidGate.verdict(
             on: operation,
             safeAddress: safeAddress,
-            ownerAddress: JointAccountOperationSignersResolver().ownAddress(of: wallet),
+            ownerAddress: wallet.ownAddress,
             blockchain: wallet.tokenItem.blockchain
         )
 

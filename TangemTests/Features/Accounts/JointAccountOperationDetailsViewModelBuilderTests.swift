@@ -24,11 +24,34 @@ struct JointAccountOperationDetailsViewModelBuilderTests {
         let operation = try makePendingOperation(operationSubject: operationSubject)
         let statuses = StatusesCollector(following: operation)
 
-        operationSubject.send(JointAccountCompositionFixture.coinTransfer(status: .executed))
+        operationSubject.send(JointAccountCompositionFixture.coinTransfer(status: .executed, finishedAt: Constants.finishedAt))
 
-        #expect(statuses.received.count == 2)
-        #expect(statuses.received.first == .awaitingSignatures)
-        #expect(statuses.received.last?.isSent == true)
+        #expect(statuses.received == [.awaitingSignatures, .sent(at: Constants.finishedAt)])
+    }
+
+    @Test("An operation the poller reports as failed is shown as failed")
+    func failedOperationIsShownAsFailed() throws {
+        let operationSubject = Self.makeOperationSubject(status: .awaitingSignatures)
+        let operation = try makePendingOperation(operationSubject: operationSubject)
+        let statuses = StatusesCollector(following: operation)
+
+        operationSubject.send(JointAccountCompositionFixture.coinTransfer(status: .failed, finishedAt: Constants.finishedAt))
+
+        #expect(statuses.received == [.awaitingSignatures, .failed(at: Constants.finishedAt)])
+    }
+
+    @Test(
+        "An operation called off, or at a stage this version does not know, is shown as cancelled",
+        arguments: [JointAccountOperationStatus.cancelled, .unknown]
+    )
+    func finishedOperationIsShownAsCancelled(status: JointAccountOperationStatus) throws {
+        let operationSubject = Self.makeOperationSubject(status: .awaitingSignatures)
+        let operation = try makePendingOperation(operationSubject: operationSubject)
+        let statuses = StatusesCollector(following: operation)
+
+        operationSubject.send(JointAccountCompositionFixture.coinTransfer(status: status, finishedAt: Constants.finishedAt))
+
+        #expect(statuses.received == [.awaitingSignatures, .cancelled(at: Constants.finishedAt)])
     }
 
     @Test("An operation the relayer took over is shown as sending")
@@ -95,16 +118,7 @@ private extension JointAccountOperationDetailsViewModelBuilderTests {
         static let coin: TokenItem = .blockchain(BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil))
         static let recipient = "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c"
         static let safeAddress = "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"
-    }
-}
-
-private extension JointAccountOperationDetailsViewModel.Status {
-    var isSent: Bool {
-        if case .sent = self {
-            return true
-        }
-
-        return false
+        static let finishedAt = Date(timeIntervalSince1970: 1_791_379_800)
     }
 }
 

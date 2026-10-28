@@ -19,7 +19,7 @@ struct JointAccountOperationDetailsViewModelBuilder {
     private let balanceConverter = BalanceConverter()
     private let tokenIconInfoBuilder = TokenIconInfoBuilder()
     private let signersBuilder = JointAccountSignersViewDataBuilder()
-    private let signersResolver = JointAccountOperationSignersResolver()
+    private let standingResolver = JointAccountPendingOperationStandingResolver()
 
     func build(
         pendingOperation: JointAccountPendingOperation,
@@ -68,26 +68,30 @@ private extension JointAccountOperationDetailsViewModelBuilder {
             membersCount: account?.jointAccountMembersService.slots.members.count ?? 0,
             signers: signersBuilder.build(pendingOperation: pendingOperation),
             answer: answer(of: pendingOperation),
-            canSign: signersResolver.canSign(pendingOperation),
-            canReject: signersResolver.canReject(pendingOperation),
-            isInitiator: signersResolver.ownAnswer(of: pendingOperation) == .created,
+            canSign: standingResolver.canSign(pendingOperation),
+            canReject: standingResolver.canReject(pendingOperation),
+            isInitiator: pendingOperation.isInitiator,
             status: status(of: pendingOperation)
         )
     }
 
     func status(of pendingOperation: JointAccountPendingOperation) -> JointAccountOperationDetailsViewModel.Status {
-        switch pendingOperation.operation.status {
+        let operation = pendingOperation.operation
+
+        return switch operation.status {
+        case .awaitingSignatures: .awaitingSignatures
         case .pending: .sending
-        case .executed: .sent(at: Date())
-        case .awaitingSignatures, .failed, .cancelled, .unknown: .awaitingSignatures
+        case .executed: .sent(at: operation.finishedAt ?? Date())
+        case .failed: .failed(at: operation.finishedAt ?? Date())
+        case .cancelled, .unknown: .cancelled(at: operation.finishedAt ?? Date())
         }
     }
 
     func answer(of pendingOperation: JointAccountPendingOperation) -> JointAccountOperationDetailsViewModel.Answer {
-        switch signersResolver.ownAnswer(of: pendingOperation) {
-        case .signed, .created: .signed
+        switch standingResolver.standing(for: pendingOperation) {
+        case .signed: .signed
         case .declined: .declined
-        case .waiting, .none: .awaiting
+        case .noDecisionYet: .awaiting
         }
     }
 
