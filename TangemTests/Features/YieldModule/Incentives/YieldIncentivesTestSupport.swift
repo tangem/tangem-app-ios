@@ -87,7 +87,7 @@ enum YieldIncentivesFixtures {
     }
 
     static func claimFee(value: Decimal = Decimal(string: "0.001")!) -> YieldTransactionFee {
-        try! ClaimFee(fees: [Fee(amount(value: value))])
+        try! ClaimFee(fees: [Fee(amount(value: value))], newImplementationAddress: nil)
     }
 
     static func amount(value: Decimal) -> Amount {
@@ -260,7 +260,11 @@ final class YieldClaimManagerStub: YieldModuleManager {
     var versionChecker: YieldModuleVersionChecker? { nil }
     var swapExecutionRegistryProvider: YieldModuleSwapExecutionRegistryProvider? { nil }
 
-    func claimFee(to: String, data: Data) async throws -> YieldTransactionFee {
+    func newImplementationAddress(moduleAddress: String) async -> String? { nil }
+
+    func upgradingSendCallData(destination: String, amount: BigUInt) async throws -> YieldModuleSendCallData? { nil }
+
+    func claimFee(to: String, data: Data, includingModuleUpgrade: Bool) async throws -> YieldTransactionFee {
         let result = lockedState.withLock { state -> Result<YieldTransactionFee, Error> in
             state.feeCalls.append(SubmittedCall(to: to, dataHex: data.hexString))
             return state.feeResult

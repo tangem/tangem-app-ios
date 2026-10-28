@@ -80,6 +80,7 @@ extension TransferTransactionDispatcher: TransactionDispatcher {
             return try await gaslessTransactionSender.send(transaction: transaction)
         }
 
+        let transaction = try await wrappingYieldModuleUpgrade(transaction)
         let sendResult = try await walletModel.transactionSender.send(transaction, signer: transactionSigner).async()
         let dispatcherResult = TransactionDispatcherResultMapper().mapResult(
             sendResult,
@@ -97,6 +98,24 @@ extension TransferTransactionDispatcher: TransactionDispatcher {
         let operation = try await wallet.createOperation(transaction: transaction)
 
         return TransactionDispatcherResultMapper().mapResult(operation, signer: transactionSigner.latestSignerType)
+    }
+
+    private func wrappingYieldModuleUpgrade(_ transaction: BSDKTransaction) async throws -> BSDKTransaction {
+        let params = (transaction.params as? EthereumTransactionParams) ?? EthereumTransactionParams()
+
+        guard params.data == nil,
+              let yieldModuleManager = walletModel.yieldModuleManager,
+              let amount = transaction.amount.bigUIntValue,
+              let upgradingSendCallData = try await yieldModuleManager.upgradingSendCallData(
+                  destination: transaction.destinationAddress,
+                  amount: amount
+              ) else {
+            return transaction
+        }
+
+        var upgradingTransaction = transaction
+        upgradingTransaction.params = EthereumTransactionParams(data: upgradingSendCallData.data, nonce: params.nonce)
+        return upgradingTransaction
     }
 
     private func didUpgradeYieldModule(transaction: BSDKTransaction) -> Bool {

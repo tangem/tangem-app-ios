@@ -24,7 +24,7 @@ struct YieldIncentivesClaimInteractorTests {
         try await withInjectedYieldNetworkManager(network) {
             let sut = makeSUT(manager: manager)
 
-            let prepared = try await sut.prepare()
+            let prepared = try await sut.prepare(includingModuleUpgrade: true)
 
             #expect(prepared.to == Fixtures.moduleAddress)
             #expect(prepared.data == Data(hexString: Fixtures.calldataHex))
@@ -44,7 +44,7 @@ struct YieldIncentivesClaimInteractorTests {
             let sut = makeSUT(chainId: 1, manager: manager)
 
             await #expect {
-                _ = try await sut.prepare()
+                _ = try await sut.prepare(includingModuleUpgrade: true)
             } throws: { isSameCase($0, as: .moduleUnavailable) }
 
             #expect(network.calldataCallCount == 0)
@@ -62,7 +62,7 @@ struct YieldIncentivesClaimInteractorTests {
             let sut = makeSUT(manager: manager)
 
             await #expect {
-                _ = try await sut.prepare()
+                _ = try await sut.prepare(includingModuleUpgrade: true)
             } throws: { isSameCase($0, as: .validationFailed(.notRecommended)) }
 
             #expect(manager.feeCalls.isEmpty)
@@ -78,7 +78,7 @@ struct YieldIncentivesClaimInteractorTests {
             let sut = makeSUT(manager: manager)
 
             await #expect {
-                _ = try await sut.prepare()
+                _ = try await sut.prepare(includingModuleUpgrade: true)
             } throws: { isSameCase($0, as: .rewardsUnavailable) }
         }
     }
@@ -91,7 +91,7 @@ struct YieldIncentivesClaimInteractorTests {
         try await withInjectedYieldNetworkManager(network) {
             let sut = makeSUT(manager: manager)
 
-            let prepared = try await sut.prepare()
+            let prepared = try await sut.prepare(includingModuleUpgrade: true)
 
             #expect(prepared.to == Fixtures.moduleAddress)
         }
@@ -107,7 +107,7 @@ struct YieldIncentivesClaimInteractorTests {
             let sut = makeSUT(manager: manager)
 
             await #expect {
-                _ = try await sut.prepare()
+                _ = try await sut.prepare(includingModuleUpgrade: true)
             } throws: { isSameCase($0, as: .rewardsUnavailable) }
         }
     }
@@ -122,7 +122,7 @@ struct YieldIncentivesClaimInteractorTests {
             let sut = makeSUT(manager: manager)
 
             await #expect {
-                _ = try await sut.prepare()
+                _ = try await sut.prepare(includingModuleUpgrade: true)
             } throws: { isSameCase($0, as: .rewardsUnavailable) }
         }
     }
@@ -152,7 +152,7 @@ struct YieldIncentivesClaimInteractorTests {
             let sut = makeSUT(manager: manager)
 
             await #expect {
-                _ = try await sut.prepare()
+                _ = try await sut.prepare(includingModuleUpgrade: true)
             } throws: { isSameCase($0, as: .validationFailed(.unsupportedRewardToken)) }
         }
     }
@@ -166,7 +166,7 @@ struct YieldIncentivesClaimInteractorTests {
             let sut = makeSUT(manager: manager)
 
             await #expect {
-                _ = try await sut.prepare()
+                _ = try await sut.prepare(includingModuleUpgrade: true)
             } throws: { isSameCase($0, as: .moduleUnavailable) }
         }
     }
@@ -180,7 +180,7 @@ struct YieldIncentivesClaimInteractorTests {
         try await withInjectedYieldNetworkManager(network) {
             let sut = makeSUT(manager: manager)
 
-            _ = try await sut.prepare()
+            _ = try await sut.prepare(includingModuleUpgrade: true)
 
             #expect(incentives.forceRefreshFlags == [true])
         }
@@ -196,7 +196,7 @@ struct YieldIncentivesClaimInteractorTests {
             let sut = makeSUT(manager: manager)
 
             await #expect {
-                _ = try await sut.prepare()
+                _ = try await sut.prepare(includingModuleUpgrade: true)
             } throws: { $0 is CancellationError }
         }
     }
@@ -211,7 +211,7 @@ struct YieldIncentivesClaimInteractorTests {
             let sut = makeSUT(manager: manager)
 
             await #expect {
-                _ = try await sut.prepare()
+                _ = try await sut.prepare(includingModuleUpgrade: true)
             } throws: { isSameCase($0, as: .rewardsUnavailable) }
         }
     }

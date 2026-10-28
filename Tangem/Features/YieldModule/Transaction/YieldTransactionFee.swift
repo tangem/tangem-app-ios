@@ -47,8 +47,9 @@ struct InitEnterFee: YieldTransactionFee {
     let initFee: Fee
     let approveFee: Fee
     let enterFee: Fee?
+    let newImplementationAddress: String?
 
-    init(fees: [Fee]) throws {
+    init(fees: [Fee], newImplementationAddress: String?) throws {
         guard fees.count >= 2 else {
             throw YieldModuleError.feeNotFound
         }
@@ -56,6 +57,7 @@ struct InitEnterFee: YieldTransactionFee {
         initFee = fees[0]
         approveFee = fees[1]
         enterFee = fees[safe: 2]
+        self.newImplementationAddress = newImplementationAddress
     }
 
     var totalFeeAmount: Amount {
@@ -75,8 +77,11 @@ struct ReactivateEnterFee: YieldTransactionFee {
     let reactivateFee: Fee
     let approveFee: Fee?
     let enterFee: Fee?
+    let newImplementationAddress: String?
 
-    init(fees: [Fee], isEnterAvailable: Bool, isPermissionRequired: Bool) throws {
+    init(fees: [Fee], isEnterAvailable: Bool, isPermissionRequired: Bool, newImplementationAddress: String?) throws {
+        self.newImplementationAddress = newImplementationAddress
+
         switch fees.count {
         case 3:
             reactivateFee = fees[0]
@@ -139,13 +144,15 @@ struct ExitFee: YieldTransactionFee {
 
 struct ClaimFee: YieldTransactionFee {
     let fee: Fee
+    let newImplementationAddress: String?
 
-    init(fees: [Fee]) throws {
+    init(fees: [Fee], newImplementationAddress: String?) throws {
         guard fees.count == 1 else {
             throw YieldModuleError.feeNotFound
         }
 
         fee = fees[0]
+        self.newImplementationAddress = newImplementationAddress
     }
 
     var totalFeeAmount: Amount {

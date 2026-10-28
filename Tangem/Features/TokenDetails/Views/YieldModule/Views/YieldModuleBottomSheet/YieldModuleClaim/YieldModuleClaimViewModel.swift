@@ -163,7 +163,7 @@ final class YieldModuleClaimViewModel: ObservableObject {
     @MainActor
     private func prepare() async {
         do {
-            let prepared = try await claimInteractor.prepare()
+            let prepared = try await claimInteractor.prepare(includingModuleUpgrade: true)
             let feeValue = prepared.fee.totalFeeAmount.value
             let feeText = try await feeFormatter.createFeeString(from: feeValue)
 

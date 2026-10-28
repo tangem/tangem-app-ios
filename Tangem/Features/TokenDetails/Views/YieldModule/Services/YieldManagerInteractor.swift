@@ -193,7 +193,7 @@ actor YieldManagerInteractor {
             return nil
         }
 
-        return try await claimInteractor.prepare()
+        return try await claimInteractor.prepare(includingModuleUpgrade: false)
     }
 
     func approve(with token: TokenItem) async throws {
