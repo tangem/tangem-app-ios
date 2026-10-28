@@ -202,7 +202,7 @@
 "card_settings_reset_card_to_factory" = "Auf Werkseinstellungen zurücksetzen";
 "card_settings_security_mode" = "Sicherheitsmodus";
 "card_settings_title" = "Geräteeinstellungen";
-"cardano_coin_will_be_send_with_token_description" = "Zusätzlich zu den Netzwerkgebühren erhebt das Cardano-Netzwerk %1$@ ADA bei Transaktionen mit dem Token %2$@ ";
+"cardano_coin_will_be_send_with_token_description" = "Zusätzlich zu den Netzwerkgebühren erhebt das Cardano-Netzwerk %1$@ ADA bei Transaktionen mit dem Token %2$@";
 "cardano_coin_will_be_send_with_token_title" = "Cardano-Transaktionsanforderungen";
 "cardano_insufficient_balance_to_send_token_description" = "Um eine %1$@ Transaktion durchzuführen, musst du einen gewissen ADA-Betrag einzahlen, um die Netzwerkgebühr und den ADA-Mindestwert zu decken (5 ADA werden empfohlen).";
 "cardano_insufficient_balance_to_send_token_title" = "Nicht genügend ADA für die Tokenübertrag";
@@ -616,7 +616,7 @@
 "dynamic_addresses_enter_features_receving_description" = "Einfacher Geldempfang in UTXO-basierten Netzwerken mit automatischer Adressgenerierung - keine manuelle Adressverwaltung erforderlich.";
 "dynamic_addresses_enter_features_receving_title" = "Nahtloser Empfang";
 "dynamic_addresses_enter_main_button_title" = "Dynamische Adressen aktivieren";
-"dynamic_addresses_enter_subtitle" = "Bei dynamischen Adressen wird jedes Mal eine neue Adresse erstellt, um den Datenschutz zu gewährleisten - Ihr Gesamtguthaben bleibt gleich. ";
+"dynamic_addresses_enter_subtitle" = "Bei dynamischen Adressen wird jedes Mal eine neue Adresse erstellt, um den Datenschutz zu gewährleisten - Ihr Gesamtguthaben bleibt gleich.";
 "dynamic_addresses_error_has_custom_token_description" = "Dynamische Adressen können nicht aktiviert werden, da einige benutzerdefinierte Adressen/Tokens einen geänderten Ableitungspfad verwenden, der die erforderlichen Kriterien nicht erfüllt.";
 "dynamic_addresses_error_has_custom_token_title" = "Nicht verfügbar";
 "dynamic_addresses_error_service_unavailable_description" = "Wir können im Moment keine Verbindung zum Provider herstellen. Bitte versuchen Sie es später noch einmal.";
@@ -1100,7 +1100,7 @@
 "joint_account_members_status_confirmed" = "Bestätigt";
 "joint_account_members_status_not_confirmed" = "Nicht bestätigt";
 "joint_account_members_subtitle_helper_part" = "%1$@ von %2$@ zum Unterschreiben";
-"joint_account_members_subtitle_main_part" = "Legen Sie fest, wie viele Personen das Konto gemeinsam nutzen. Jede Transaktion wie „Senden“, „Tauschen“ oder „Schließen“ wartet auf „ %1$@“. Diese wird einmalig gesperrt";
+"joint_account_members_subtitle_main_part" = "Legen Sie fest, wie viele Personen das Konto gemeinsam nutzen. Jede Transaktion wie „Senden“, „Tauschen“ oder „Schließen“ wartet auf „%1$@“. Diese wird einmalig gesperrt";
 "joint_account_members_subtitle" = "Legen Sie fest, wie viele Personen das Konto gemeinsam nutzen. Jede Transaktion – wie Senden, Tauschen oder Schließen – wartet auf die Unterschrift von %1$@ oder %2$@. Diese Einstellung wird einmalig festgelegt";
 "joint_account_members_title" = "Mitglieder";
 "joint_account_members_total_subtitle" = "Max %1$@ Menschen, einschließlich dir";
@@ -2729,7 +2729,7 @@
 "tangempay_waitlist_email_placeholder" = "satoshi.nakamoto@tangem.com";
 "tangempay_waitlist_joined_message" = "Auf die Warteliste gesetzt";
 "tangempay_waitlist_marketing_consent" = "Ich möchte außerdem Marketingmitteilungen von Tangem erhalten. Sie können diese Einwilligung jederzeit widerrufen – siehe unsere %@";
-"tangempay_waitlist_title" = " Auf die Warteliste setzen";
+"tangempay_waitlist_title" = "Auf die Warteliste setzen";
 "tangempay_withdraw_bank_account_type_checking" = "Überprüfung";
 "tangempay_withdraw_bank_account_type_saving" = "Sparen";
 "tangempay_withdraw_bank_account_type_screen_title" = "Kontotyp auswählen";
@@ -3177,7 +3177,7 @@
 "wc_alert_unsupported_network_title" = "Nicht unterstütztes Netzwerk";
 "wc_alert_unsupported_networks_description" = "Tangem unterstützt derzeit das erforderliches Netzwerk von %@ nicht.";
 "wc_alert_unsupported_networks_title" = "Nicht unterstützte Netzwerke";
-"wc_alert_verified_domain_description" = "Diese Domain hat die Überprüfungen bestanden und gilt als sicher, vertrauenswürdig und frei von bekannten Bedrohungen oder verdächtigen Aktivitäten. ";
+"wc_alert_verified_domain_description" = "Diese Domain hat die Überprüfungen bestanden und gilt als sicher, vertrauenswürdig und frei von bekannten Bedrohungen oder verdächtigen Aktivitäten.";
 "wc_alert_verified_domain_title" = "Verifizierte Domain";
 "wc_allow_to_spend" = "Erlaubnis auszugeben";
 "wc_common_address" = "Vertragsadresse";
@@ -3255,7 +3255,7 @@
 "welcome_create_wallet_feature_seedphrase" = "Keine Seed-Phrase";
 "welcome_create_wallet_feature_use" = "Einfach zu bedienen";
 "welcome_create_wallet_hardware_description" = "Erstelle eine Hardware-Wallet mit Tangem. Schlank wie eine Bankkarte, sicher wie ein Banktresor.";
-"welcome_create_wallet_mobile_description_full" = "Erstelle oder importiere eine Software-Wallet auf Deinem Telefon ";
+"welcome_create_wallet_mobile_description_full" = "Erstelle oder importiere eine Software-Wallet auf Deinem Telefon";
 "welcome_create_wallet_mobile_title" = "Beginne mit Mobile Wallet";
 "welcome_create_wallet_use_hardware_description" = "Tangem Hardware Wallet verwenden";
 "welcome_create_wallet_use_hardware_title" = "Mehr erfahren & kaufen";

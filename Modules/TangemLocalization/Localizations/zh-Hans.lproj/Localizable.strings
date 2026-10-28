@@ -616,7 +616,7 @@
 "dynamic_addresses_enter_features_receving_description" = "通过自动生成地址，轻松在基于UTXO的网络中接收资金——无需手动管理地址。";
 "dynamic_addresses_enter_features_receving_title" = "无缝接收";
 "dynamic_addresses_enter_main_button_title" = "启用动态地址";
-"dynamic_addresses_enter_subtitle" = "动态地址每次都会创建一个新地址，以增强隐私保护——您的总余额保持不变。 ";
+"dynamic_addresses_enter_subtitle" = "动态地址每次都会创建一个新地址，以增强隐私保护——您的总余额保持不变。";
 "dynamic_addresses_error_has_custom_token_description" = "无法启用动态地址，因为某些自定义地址/代币使用的是修改后的派生路径，不符合所需的标准。";
 "dynamic_addresses_error_has_custom_token_title" = "动态地址不可用";
 "dynamic_addresses_error_service_unavailable_description" = "我们目前无法连接到服务提供商，请稍后再试。";
@@ -1085,7 +1085,7 @@
 "joint_account_join_invalid_link_subtitle" = "请确认您打开的是正确的链接，或者请账号创建者重新发送一次";
 "joint_account_join_invalid_link_title" = "邀请链接无效";
 "joint_account_join_load_failed" = "无法加载邀请页面。点击重新加载";
-"joint_account_join_subtitle_value" = " %2$@分之%1$@ 的成员";
+"joint_account_join_subtitle_value" = "%2$@分之%1$@ 的成员";
 "joint_account_join_subtitle" = "这是一个联合账户。该账户的每笔交易都需要 %1$@ 签字";
 "joint_account_join_success_message" = "账户已添加";
 "joint_account_join_title" = "您已受邀参加 %1$@";
@@ -1134,7 +1134,7 @@
 "joint_account_send_sends_automatically_setup_fee" = "收集完成后自动发送。首次发送包含一次性设置费。";
 "joint_account_send_sends_automatically" = "收集完成后自动发送";
 "joint_account_send_setup_fee_note" = "%1$@上的首笔交易。该手续费包含一次 %2$@ ，用于在链上开设联名账户。";
-"joint_account_send_signatures_required" = " 需要 %2$@ 中的%1$@个签名";
+"joint_account_send_signatures_required" = "需要 %2$@ 中的%1$@个签名";
 "joint_account_send_slot_busy_subtitle" = "该网络上已有正在进行的签名收集活动。请等待该活动结束，再创建新的活动";
 "joint_account_send_slot_busy_title" = "操作正在进行中";
 "joint_account_settings_networks_info" = "该账户仅在受支持的网络中有效。";
@@ -2221,7 +2221,7 @@
 "survey_demand_transaction_size_500k_1m" = "$500K–1M";
 "survey_demand_transaction_size_hint" = "Roughly, in USD";
 "survey_demand_transaction_size_question" = "What’s a typical amount per transaction?";
-"swap_custom_slippage_info" = "该服务商无法自定义滑点，在极少数情况下滑点可能高达 %@ ";
+"swap_custom_slippage_info" = "该服务商无法自定义滑点，在极少数情况下滑点可能高达 %@";
 "swap_detailed_mode" = "详细模式";
 "swap_exchange_rates_info_text" = "显示的费用包含服务提供商的费用。";
 "swap_exchange_rates_info_title" = "汇率";
@@ -2638,7 +2638,7 @@
 "tangempay_residency_all_state" = "选择其他州";
 "tangempay_residency_search_empty" = "未找到结果，请尝试更改搜索内容";
 "tangempay_residency_suggested_country" = "推荐国家";
-"tangempay_residency_suggested_state" = " 推荐州";
+"tangempay_residency_suggested_state" = "推荐州";
 "tangempay_residency_title_country" = "居住国家";
 "tangempay_residency_title_state" = "选择州";
 "tangempay_select_plan_btn_downgrade" = "继续";

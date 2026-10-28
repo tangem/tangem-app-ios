@@ -1099,7 +1099,7 @@
 "joint_account_members_signers_title" = "Required to sign";
 "joint_account_members_status_confirmed" = "Confirmed";
 "joint_account_members_status_not_confirmed" = "Not confirmed";
-"joint_account_members_subtitle_helper_part" = " %1$@ of %2$@ to sign";
+"joint_account_members_subtitle_helper_part" = "%1$@ of %2$@ to sign";
 "joint_account_members_subtitle_main_part" = "Set how many people share the account. Every transaction waits for %1$@. This can't be changed later";
 "joint_account_members_subtitle" = "Set how many people share the account. Every transaction waits for %1$@ of %2$@ to sign. This can't be changed later";
 "joint_account_members_title" = "Members";
@@ -2638,7 +2638,7 @@
 "tangempay_residency_all_state" = "選擇其他州";
 "tangempay_residency_search_empty" = "未找到結果，請嘗試變更搜尋內容";
 "tangempay_residency_suggested_country" = "建議國家";
-"tangempay_residency_suggested_state" = " 建議州";
+"tangempay_residency_suggested_state" = "建議州";
 "tangempay_residency_title_country" = "居住國家";
 "tangempay_residency_title_state" = "選擇州";
 "tangempay_select_plan_btn_downgrade" = "繼續";
