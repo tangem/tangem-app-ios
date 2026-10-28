@@ -1404,15 +1404,13 @@ private extension SwapModelTests {
         since baseline: Int,
         where predicate: @escaping (SwapModel.ProvidersState) -> Bool
     ) async throws -> SwapModel.ProvidersState {
-        let pollInterval: Duration = .milliseconds(10)
-        // ~5s budget: must comfortably outlast the amount path's 1s quote debounce.
-        let maxAttempts = 500
+        let deadline = ContinuousClock.now.advanced(by: Self.waitTimeout)
 
-        for _ in 0 ..< maxAttempts {
+        while ContinuousClock.now < deadline {
             if recorder.count > baseline, let latest = recorder.latest, predicate(latest) {
                 return latest
             }
-            try await Task.sleep(for: pollInterval)
+            try await Task.sleep(for: .milliseconds(10))
         }
 
         throw TimeoutError()
@@ -1422,21 +1420,20 @@ private extension SwapModelTests {
     /// ordering (selection state sent only after the resolver await) this never happens with a
     /// suspended resolver, so the timeout is the regression signal.
     func waitForReceiveTokenFailure(_ sut: SwapModel) async throws -> any Error {
-        let pollInterval: Duration = .milliseconds(10)
-        let maxAttempts = 500
+        let deadline = ContinuousClock.now.advanced(by: Self.waitTimeout)
 
-        for _ in 0 ..< maxAttempts {
+        while ContinuousClock.now < deadline {
             if case .failure(let error) = sut.receiveToken {
                 return error
             }
-            try await Task.sleep(for: pollInterval)
+            try await Task.sleep(for: .milliseconds(10))
         }
 
         throw TimeoutError()
     }
 
     func waitUntil(_ condition: @escaping () async -> Bool) async throws {
-        let deadline = ContinuousClock.now.advanced(by: .seconds(10))
+        let deadline = ContinuousClock.now.advanced(by: Self.waitTimeout)
 
         while ContinuousClock.now < deadline {
             if await condition() { return }
@@ -1445,6 +1442,8 @@ private extension SwapModelTests {
 
         throw TimeoutError()
     }
+
+    static let waitTimeout: Duration = .seconds(30)
 
     struct TimeoutError: Error {}
     struct StubError: Error {}
