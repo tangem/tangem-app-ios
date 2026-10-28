@@ -210,6 +210,7 @@ struct HighPriceImpactCalculatorTests {
 
             let input = HighPriceImpactCalculator.Input(
                 provider: makeDexProvider(),
+                slippage: nil,
                 sourceToken: makeTokenItem(currencyId: Self.sourceCurrencyId),
                 destinationToken: makeTokenItem(currencyId: Self.destinationCurrencyId),
                 sourceAmount: sourceAmount,

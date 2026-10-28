@@ -1030,6 +1030,20 @@ extension CommonWalletModel: FeeResourceInfoProvider {
     }
 }
 
+extension CommonWalletModel: IncompleteBalanceInfoProvider {
+    var incompleteBalanceWarning: String? {
+        guard let provider = walletManager as? IncompleteBalanceProvider, provider.isBalanceIncomplete else {
+            return nil
+        }
+
+        return Localization.warningIncompleteBalanceMessage(
+            provider.unspentsLimit.formatted(),
+            blockchainNetwork.blockchain.displayName,
+            blockchainNetwork.blockchain.currencySymbol
+        )
+    }
+}
+
 // MARK: - WalletModelReceiveAddressProvider
 
 extension CommonWalletModel: ReceiveAddressTypesProvider {

@@ -13,9 +13,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>pessoa</string>
+        <string>%li pessoa</string>
         <key>other</key>
-        <string>pessoas</string>
+        <string>%li pessoas</string>
       </dict>
     </dict>
     <key>address_book_addresses</key>
@@ -141,9 +141,25 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Awaiting for %li member to join</string>
+        <string>Aguardando a entrada de %li membro</string>
         <key>other</key>
-        <string>Awaiting for %li members to join</string>
+        <string>Aguardando a entrada de %li membros</string>
+      </dict>
+    </dict>
+    <key>joint_account_invite_members_invite_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Convide mais %li membro</string>
+        <key>other</key>
+        <string>Convide mais %li membros</string>
       </dict>
     </dict>
     <key>joint_account_invite_members_invite_more</key>
@@ -157,9 +173,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Invite %li more member</string>
+        <string>Convide mais %li membro</string>
         <key>other</key>
-        <string>Invite %li more members</string>
+        <string>Convide mais %li membros</string>
       </dict>
     </dict>
     <key>joint_account_invite_members_still_need_to_join</key>
@@ -173,9 +189,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li member still needs to join</string>
+        <string>%li membro ainda precisa entrar</string>
         <key>other</key>
-        <string>%li members still need to join</string>
+        <string>%li membros ainda precisam entrar</string>
       </dict>
     </dict>
     <key>joint_account_join_signatures_count</key>
@@ -192,6 +208,38 @@
         <string>%li assinatura</string>
         <key>other</key>
         <string>%li assinaturas</string>
+      </dict>
+    </dict>
+    <key>joint_account_main_waiting_confirmations</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Aguardando %li confirmação</string>
+        <key>other</key>
+        <string>Aguardando %li confirmações</string>
+      </dict>
+    </dict>
+    <key>joint_account_main_waiting_members</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Aguardando %li membro</string>
+        <key>other</key>
+        <string>Aguardando %li membros</string>
       </dict>
     </dict>
     <key>joint_account_members_count</key>
@@ -221,9 +269,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li member still needs to confirm</string>
+        <string>%li membro ainda precisa confirmar</string>
         <key>other</key>
-        <string>%li members still need to confirm</string>
+        <string>%li membros ainda precisam confirmar</string>
       </dict>
     </dict>
     <key>joint_account_send_signatures_required_banner</key>

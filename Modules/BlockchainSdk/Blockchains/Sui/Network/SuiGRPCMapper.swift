@@ -27,6 +27,22 @@ struct SuiGRPCMapper {
         return request
     }
 
+    func makeListBalancesRequest(address: String, pageToken: Data?) -> Sui_Rpc_V2_ListBalancesRequest {
+        var request = Sui_Rpc_V2_ListBalancesRequest()
+        request.owner = address
+        request.pageSize = Constants.pageSize
+
+        if let pageToken {
+            request.pageToken = pageToken
+        }
+
+        return request
+    }
+
+    func makeGetServiceInfoRequest() -> Sui_Rpc_V2_GetServiceInfoRequest {
+        Sui_Rpc_V2_GetServiceInfoRequest()
+    }
+
     func makeGetEpochRequest() -> Sui_Rpc_V2_GetEpochRequest {
         var request = Sui_Rpc_V2_GetEpochRequest()
         request.readMask = .init(protoPaths: ["reference_gas_price"])
@@ -64,8 +80,20 @@ struct SuiGRPCMapper {
         return SuiGetCoins(
             hasNextPage: !nextPageToken.isEmpty,
             data: coins,
-            nextCursor: nextPageToken.isEmpty ? nil : nextPageToken.base64EncodedString()
+            nextCursor: nextPageToken.nilIfEmpty?.base64EncodedString()
         )
+    }
+
+    func mapToBalances(response: Sui_Rpc_V2_ListBalancesResponse) throws -> [SuiBalance] {
+        try response.balances.compactMap(mapToBalance(balance:))
+    }
+
+    func mapToServiceInfo(response: Sui_Rpc_V2_GetServiceInfoResponse) throws -> SuiServiceInfo {
+        guard response.hasChainID, !response.chainID.isEmpty, response.hasEpoch else {
+            throw BlockchainSdkError.failedToParseNetworkResponse()
+        }
+
+        return SuiServiceInfo(chainIdentifier: response.chainID, epoch: response.epoch)
     }
 
     func mapToReferenceGasPrice(response: Sui_Rpc_V2_GetEpochResponse) throws -> SuiReferenceGasPrice {
@@ -150,6 +178,25 @@ struct SuiGRPCMapper {
         )
     }
 
+    private func mapToBalance(balance: Sui_Rpc_V2_Balance) throws -> SuiBalance? {
+        guard
+            balance.hasCoinType,
+            let coinType = try? SuiCoinObject.CoinType(string: normalizeCoinType(balance.coinType))
+        else {
+            return nil
+        }
+
+        guard balance.hasBalance else {
+            throw BlockchainSdkError.failedToParseNetworkResponse()
+        }
+
+        return SuiBalance(
+            coinType: coinType,
+            balance: Decimal(balance.balance),
+            addressBalance: Decimal(balance.addressBalance)
+        )
+    }
+
     private func extractCoinType(objectType: String) -> String? {
         guard
             let start = objectType.firstIndex(of: "<"),
@@ -187,7 +234,7 @@ struct SuiGRPCMapper {
 private extension SuiGRPCMapper {
     enum Constants {
         static let pageSize: UInt32 = 1000
-        static let coinObjectType = "0x2::coin::Coin"
+        static let coinObjectType = "0x2\(typeSeparator)coin\(typeSeparator)Coin"
         static let typeSeparator = "::"
         static let successStatus = "success"
         static let failureStatus = "failure"

@@ -85,7 +85,8 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
             analyticsLogger: analyticsLogger,
             providerTransactionValidator: providerTransactionValidator,
             operationType: operationType,
-            supportedProvidersFilter: supportedProvidersFilter
+            supportedProvidersFilter: supportedProvidersFilter,
+            isCustomSlippageAllowed: walletModel.account?.resolve(using: CustomSlippageAvailabilityResolver()) ?? true
         )
     }
 }

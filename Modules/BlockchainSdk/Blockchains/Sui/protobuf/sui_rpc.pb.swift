@@ -28,6 +28,47 @@ fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAP
   typealias Version = _2
 }
 
+struct Sui_Rpc_V2_GetServiceInfoRequest: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+}
+
+struct Sui_Rpc_V2_GetServiceInfoResponse: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var chainID: String {
+    get {return _chainID ?? String()}
+    set {_chainID = newValue}
+  }
+  /// Returns true if `chainID` has been explicitly set.
+  var hasChainID: Bool {return self._chainID != nil}
+  /// Clears the value of `chainID`. Subsequent reads from it will return its default value.
+  mutating func clearChainID() {self._chainID = nil}
+
+  var epoch: UInt64 {
+    get {return _epoch ?? 0}
+    set {_epoch = newValue}
+  }
+  /// Returns true if `epoch` has been explicitly set.
+  var hasEpoch: Bool {return self._epoch != nil}
+  /// Clears the value of `epoch`. Subsequent reads from it will return its default value.
+  mutating func clearEpoch() {self._epoch = nil}
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+
+  fileprivate var _chainID: String? = nil
+  fileprivate var _epoch: UInt64? = nil
+}
+
 struct Sui_Rpc_V2_GetEpochRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -162,6 +203,111 @@ struct Sui_Rpc_V2_ListOwnedObjectsResponse: @unchecked Sendable {
   init() {}
 
   fileprivate var _nextPageToken: Data? = nil
+}
+
+struct Sui_Rpc_V2_ListBalancesRequest: @unchecked Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var owner: String {
+    get {return _owner ?? String()}
+    set {_owner = newValue}
+  }
+  /// Returns true if `owner` has been explicitly set.
+  var hasOwner: Bool {return self._owner != nil}
+  /// Clears the value of `owner`. Subsequent reads from it will return its default value.
+  mutating func clearOwner() {self._owner = nil}
+
+  var pageSize: UInt32 {
+    get {return _pageSize ?? 0}
+    set {_pageSize = newValue}
+  }
+  /// Returns true if `pageSize` has been explicitly set.
+  var hasPageSize: Bool {return self._pageSize != nil}
+  /// Clears the value of `pageSize`. Subsequent reads from it will return its default value.
+  mutating func clearPageSize() {self._pageSize = nil}
+
+  var pageToken: Data {
+    get {return _pageToken ?? Data()}
+    set {_pageToken = newValue}
+  }
+  /// Returns true if `pageToken` has been explicitly set.
+  var hasPageToken: Bool {return self._pageToken != nil}
+  /// Clears the value of `pageToken`. Subsequent reads from it will return its default value.
+  mutating func clearPageToken() {self._pageToken = nil}
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+
+  fileprivate var _owner: String? = nil
+  fileprivate var _pageSize: UInt32? = nil
+  fileprivate var _pageToken: Data? = nil
+}
+
+struct Sui_Rpc_V2_ListBalancesResponse: @unchecked Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var balances: [Sui_Rpc_V2_Balance] = []
+
+  var nextPageToken: Data {
+    get {return _nextPageToken ?? Data()}
+    set {_nextPageToken = newValue}
+  }
+  /// Returns true if `nextPageToken` has been explicitly set.
+  var hasNextPageToken: Bool {return self._nextPageToken != nil}
+  /// Clears the value of `nextPageToken`. Subsequent reads from it will return its default value.
+  mutating func clearNextPageToken() {self._nextPageToken = nil}
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+
+  fileprivate var _nextPageToken: Data? = nil
+}
+
+struct Sui_Rpc_V2_Balance: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var coinType: String {
+    get {return _coinType ?? String()}
+    set {_coinType = newValue}
+  }
+  /// Returns true if `coinType` has been explicitly set.
+  var hasCoinType: Bool {return self._coinType != nil}
+  /// Clears the value of `coinType`. Subsequent reads from it will return its default value.
+  mutating func clearCoinType() {self._coinType = nil}
+
+  var balance: UInt64 {
+    get {return _balance ?? 0}
+    set {_balance = newValue}
+  }
+  /// Returns true if `balance` has been explicitly set.
+  var hasBalance: Bool {return self._balance != nil}
+  /// Clears the value of `balance`. Subsequent reads from it will return its default value.
+  mutating func clearBalance() {self._balance = nil}
+
+  var addressBalance: UInt64 {
+    get {return _addressBalance ?? 0}
+    set {_addressBalance = newValue}
+  }
+  /// Returns true if `addressBalance` has been explicitly set.
+  var hasAddressBalance: Bool {return self._addressBalance != nil}
+  /// Clears the value of `addressBalance`. Subsequent reads from it will return its default value.
+  mutating func clearAddressBalance() {self._addressBalance = nil}
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+
+  fileprivate var _coinType: String? = nil
+  fileprivate var _balance: UInt64? = nil
+  fileprivate var _addressBalance: UInt64? = nil
 }
 
 struct Sui_Rpc_V2_ExecuteTransactionRequest: Sendable {
@@ -685,6 +831,67 @@ struct Sui_Rpc_V2_GasCostSummary: Sendable {
 
 fileprivate let _protobuf_package = "sui.rpc.v2"
 
+extension Sui_Rpc_V2_GetServiceInfoRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".GetServiceInfoRequest"
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap()
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    // Load everything into unknown fields
+    while try decoder.nextFieldNumber() != nil {}
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Sui_Rpc_V2_GetServiceInfoRequest, rhs: Sui_Rpc_V2_GetServiceInfoRequest) -> Bool {
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Sui_Rpc_V2_GetServiceInfoResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".GetServiceInfoResponse"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "chain_id"),
+    3: .same(proto: "epoch"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self._chainID) }()
+      case 3: try { try decoder.decodeSingularUInt64Field(value: &self._epoch) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
+    try { if let v = self._chainID {
+      try visitor.visitSingularStringField(value: v, fieldNumber: 1)
+    } }()
+    try { if let v = self._epoch {
+      try visitor.visitSingularUInt64Field(value: v, fieldNumber: 3)
+    } }()
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Sui_Rpc_V2_GetServiceInfoResponse, rhs: Sui_Rpc_V2_GetServiceInfoResponse) -> Bool {
+    if lhs._chainID != rhs._chainID {return false}
+    if lhs._epoch != rhs._epoch {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
 extension Sui_Rpc_V2_GetEpochRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".GetEpochRequest"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
@@ -860,6 +1067,144 @@ extension Sui_Rpc_V2_ListOwnedObjectsResponse: SwiftProtobuf.Message, SwiftProto
   static func ==(lhs: Sui_Rpc_V2_ListOwnedObjectsResponse, rhs: Sui_Rpc_V2_ListOwnedObjectsResponse) -> Bool {
     if lhs.objects != rhs.objects {return false}
     if lhs._nextPageToken != rhs._nextPageToken {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Sui_Rpc_V2_ListBalancesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".ListBalancesRequest"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "owner"),
+    2: .standard(proto: "page_size"),
+    3: .standard(proto: "page_token"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self._owner) }()
+      case 2: try { try decoder.decodeSingularUInt32Field(value: &self._pageSize) }()
+      case 3: try { try decoder.decodeSingularBytesField(value: &self._pageToken) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
+    try { if let v = self._owner {
+      try visitor.visitSingularStringField(value: v, fieldNumber: 1)
+    } }()
+    try { if let v = self._pageSize {
+      try visitor.visitSingularUInt32Field(value: v, fieldNumber: 2)
+    } }()
+    try { if let v = self._pageToken {
+      try visitor.visitSingularBytesField(value: v, fieldNumber: 3)
+    } }()
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Sui_Rpc_V2_ListBalancesRequest, rhs: Sui_Rpc_V2_ListBalancesRequest) -> Bool {
+    if lhs._owner != rhs._owner {return false}
+    if lhs._pageSize != rhs._pageSize {return false}
+    if lhs._pageToken != rhs._pageToken {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Sui_Rpc_V2_ListBalancesResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".ListBalancesResponse"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "balances"),
+    2: .standard(proto: "next_page_token"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeRepeatedMessageField(value: &self.balances) }()
+      case 2: try { try decoder.decodeSingularBytesField(value: &self._nextPageToken) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
+    if !self.balances.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.balances, fieldNumber: 1)
+    }
+    try { if let v = self._nextPageToken {
+      try visitor.visitSingularBytesField(value: v, fieldNumber: 2)
+    } }()
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Sui_Rpc_V2_ListBalancesResponse, rhs: Sui_Rpc_V2_ListBalancesResponse) -> Bool {
+    if lhs.balances != rhs.balances {return false}
+    if lhs._nextPageToken != rhs._nextPageToken {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Sui_Rpc_V2_Balance: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".Balance"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "coin_type"),
+    3: .same(proto: "balance"),
+    4: .standard(proto: "address_balance"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self._coinType) }()
+      case 3: try { try decoder.decodeSingularUInt64Field(value: &self._balance) }()
+      case 4: try { try decoder.decodeSingularUInt64Field(value: &self._addressBalance) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
+    try { if let v = self._coinType {
+      try visitor.visitSingularStringField(value: v, fieldNumber: 1)
+    } }()
+    try { if let v = self._balance {
+      try visitor.visitSingularUInt64Field(value: v, fieldNumber: 3)
+    } }()
+    try { if let v = self._addressBalance {
+      try visitor.visitSingularUInt64Field(value: v, fieldNumber: 4)
+    } }()
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Sui_Rpc_V2_Balance, rhs: Sui_Rpc_V2_Balance) -> Bool {
+    if lhs._coinType != rhs._coinType {return false}
+    if lhs._balance != rhs._balance {return false}
+    if lhs._addressBalance != rhs._addressBalance {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

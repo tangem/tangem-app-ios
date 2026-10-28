@@ -30,6 +30,8 @@
 "account_details_archive_joint_description" = "Аккаунт будет скрыт только у вас, уведомления по нему отключатся. Другие участники сохранят доступ, а вы сможете вернуть аккаунт в любой момент.";
 "account_details_archive" = "Архивировать аккаунт";
 "account_details_archiving" = "Архивация...";
+"account_details_joint_members_confirmed" = "%1$@ of %2$@ confirmed";
+"account_details_joint_members_joined" = "%1$@ of %2$@ joined";
 "account_details_joint_members_progress" = "%1$@/%2$@ человек";
 "account_details_joint_networks_info" = "Поддерживаемые сети.";
 "account_details_joint_pending_description" = "Ожидаем, пока участники присоединятся";
@@ -208,6 +210,7 @@
 "choose_asset_title" = "Choose asset";
 "collectibles_account_collection_empty" = "No cards";
 "collectibles_account_collection_row_subtitle" = "My collection";
+"collectibles_account_reconnect_subtitle" = "Reconnect required";
 "collectibles_account_withdraw" = "Withdrawal";
 "collectibles_confirm_order_approve_button" = "Approve";
 "collectibles_confirm_order_confirming_transaction_button" = "Confirming transaction...";
@@ -248,6 +251,9 @@
 "collectibles_main_pack_buyback_badge" = "Buyback %@";
 "collectibles_main_packs_empty" = "There are no packs here yet";
 "collectibles_main_packs_load_error" = "Failed to load packs. Tap to reload";
+"collectibles_main_relink_button" = "Relink account";
+"collectibles_main_relink_description" = "Make this phone primary for Packs account";
+"collectibles_main_relink_title" = "Relink account";
 "collectibles_main_search_empty" = "No results. Try to change your wording\nor explore from the list";
 "collectibles_main_search_load_error" = "Failed to load cards list.";
 "collectibles_main_title" = "Packs account";
@@ -393,9 +399,11 @@
 "common_fee_selector_option_market" = "По рынку";
 "common_fee_selector_option_slow" = "Медленно";
 "common_finish" = "Завершить";
+"common_for" = "for";
 "common_forget" = "Забыть";
 "common_from_account" = "From account";
 "common_from_address" = "From address";
+"common_from_lowercase" = "from";
 "common_from_wallet_name" = "Из %@";
 "common_from_wallet" = "From wallet";
 "common_from" = "С";
@@ -642,6 +650,7 @@
 "express_error_provider_amount_roundup" = "Ошибка %1$@. Выбранный провайдер не может обработать указанную транзакцию. Округлите значение до %2$@ или измените его.";
 "express_error_swap_pair_unavailable" = "Выбранный провайдер недоступен для обмена. Попробуйте позже. (Код: %@)";
 "express_error_swap_unavailable" = "В данный момент обмен невозможен. Попробуйте позже. (Код: %@)";
+"express_error_transaction_cannot_be_created" = "The transaction cannot be created with %1$@. Please choose another provider. (Code: %2$@)";
 "express_estimated_amount" = "Ожидаемая сумма";
 "express_exchange_by" = "Обмен через %@";
 "express_exchange_notification_failed_text" = "Перейдите на сайт провайдера для возврата средств";
@@ -1007,8 +1016,17 @@
 "joint_account_activation_title" = "Вы активируете общий аккаунт";
 "joint_account_coming_soon_description" = "Это действие пока недоступно для общих аккаунтов. Мы работаем над этим";
 "joint_account_coming_soon_title" = "Скоро в общих аккаунтах";
+"joint_account_compromised_message" = "The account address on your device doesn't match the one from our servers.";
+"joint_account_compromised_title" = "Can't verify this account";
 "joint_account_confirm_account_subtitle" = "Before using your Joint Account, make sure every member sees exactly the same address.";
 "joint_account_confirm_account_title" = "Confirm the account";
+"joint_account_confirm_address_compare_subtitle" = "Contact all members outside Tangem by phone, messenger, or in person. Check that everyone sees the exact same address.";
+"joint_account_confirm_address_compare_title" = "Compare with other members";
+"joint_account_confirm_address_confirm_button" = "Checked with everyone";
+"joint_account_confirm_address_everyone_subtitle" = "Your account will be ready once all members have confirmed the address.";
+"joint_account_confirm_address_everyone_title" = "Everyone must confirm";
+"joint_account_confirm_address_label" = "Shared address";
+"joint_account_confirm_address_mismatch_button" = "Address doesn't match";
 "joint_account_confirm_shared_address" = "Confirm shared address";
 "joint_account_invite_invalid_subtitle" = "Проверьте, что открыли правильную ссылку, или попросите создателя аккаунта отправить её ещё раз";
 "joint_account_invite_invalid_title" = "Ссылка-приглашение недействительна";
@@ -1070,6 +1088,7 @@
 "joint_account_join_title" = "Вас пригласили в аккаунт %1$@";
 "joint_account_join_to_account_btn_text" = "Вступить в аккаунт";
 "joint_account_join_to_approve" = "To approve";
+"joint_account_main_cant_verify" = "Can't verify";
 "joint_account_members_progress" = "%1$@ из %2$@ участников";
 "joint_account_members_role_joined" = "Вступил(а)";
 "joint_account_members_role_you" = "Вы";
@@ -1311,9 +1330,21 @@
 "mcp_connection_request_notifications_description" = "You'll get a notification to approve each transaction. Without notifications, the agent can't connect.";
 "mcp_connection_success_description" = "%@ can now view your balances and request transaction approvals. Revoke access anytime in Connections.";
 "mcp_connection_success_title" = "Agent connected";
+"mcp_intent_cant_reach_title" = "Can’t reach intent";
+"mcp_intent_proceed" = "Proceed";
+"mcp_intent_processed_title" = "This intent has already been processed";
+"mcp_intent_unknown_agent_name" = "AI";
+"mcp_send_intent_cant_reach_title" = "Can’t reach intent";
+"mcp_send_intent_offer_description" = "The agent is asking to send from your account. You’ll review the details next.";
+"mcp_send_intent_offer_title" = "%1$@ Agent wants to send %2$@";
+"mcp_send_intent_processed_subtitle" = "Send %1$@";
 "mcp_session_revoke_access" = "Revoke access";
 "mcp_session_revoke_failed" = "Failed to revoke access";
 "mcp_session_title" = "Connected MCP";
+"mcp_swap_intent_cant_reach_title" = "Can’t reach intent";
+"mcp_swap_intent_offer_description" = "The agent is asking to swap from your account. You’ll review the details next.";
+"mcp_swap_intent_offer_title" = "%1$@ Agent wants to swap %2$@ to %3$@";
+"mcp_swap_intent_processed_subtitle" = "Swap %1$@ to %2$@";
 "mobile_wallet_requires_min_os_warning_body" = "Обновитесь до версии %1$@, чтобы создать мобильный кошелёк";
 "mobile_wallet_requires_min_os_warning_title" = "Мобильный кошелек требует %1$@ или новее.";
 "money_account_add_funds_bank_description" = "Receive USD from a bank account via ACH/Wire or SPEI";
@@ -1351,6 +1382,9 @@
 "money_account_onboarding_transfers_card_caption" = "Money in. Money out.";
 "money_account_onboarding_transfers_card_subtitle" = "with a dedicated account with banking details";
 "money_account_onboarding_transfers_card_title" = "Send and receive fiat payments";
+"money_account_send_bank_transfer_unavailable" = "Unavailable";
+"money_account_send_unavailable_description" = "Try again in 5 minutes";
+"money_account_send_unavailable_title" = "Operation currently unavailable";
 "news_all_news" = "Все новости";
 "news_like" = "Нравится";
 "news_quick_recap" = "Резюме";
@@ -1544,6 +1578,7 @@
 "prediction_add_funds_receive_title" = "From another wallet or exchange";
 "prediction_add_funds_swap_subtitle" = "Use crypto in your Tangem wallet to top up your Polymarket account";
 "prediction_add_funds_swap_title" = "From your Tangem Wallet";
+"prediction_cash_out" = "Cash Out";
 "prediction_claim_error_failed" = "The claim did not go through. Nothing left your account, and you can try again.";
 "prediction_claim_error_generic" = "The claim could not be sent. Please try again.";
 "prediction_claim_error_rejected" = "Polymarket refused to relay the claim. Refresh your positions and try again.";
@@ -1565,6 +1600,7 @@
 "prediction_details_market_opened" = "Market Opened";
 "prediction_details_market_volume" = "Volume:";
 "prediction_details_resolution_date" = "Resolution Date";
+"prediction_details_resolution_source" = "Resolution Source";
 "prediction_details_total_volume" = "Total volume";
 "prediction_event_live" = "Live";
 "prediction_event_probability" = "Probability";
@@ -1972,7 +2008,7 @@
 "settings_forget_wallet" = "Забыть кошелек";
 "settings_wallet_name_title" = "Имя";
 "social_agreement_action_create" = "Создать кошелёк";
-"social_login_consent_acknowledge" = "Я понимаю, что если я не сохраню свою фразу восстановления, потеря доступа к моему аккаунту %@ может навсегда лишить меня доступа к этому кошельку.";
+"social_login_consent_acknowledge" = "Я понимаю, что если я не сохраню свою фразу восстановления, то потеря доступа к моему аккаунту %@ может навсегда лишить меня доступа к этому кошельку.";
 "social_login_consent_description" = "Ключи вашего кошелька зашифрованы, а их резервная копия хранится в вашем облачном аккаунте. Tangem не может получить к ним доступ. Войдите через %1$@, чтобы восстановить кошелёк, или используйте фразу восстановления, если потеряете доступ к своему аккаунту %1$@.";
 "social_login_consent_email_sharing" = "Получать новости о продукте и эксклюзивные предложения по электронной почте";
 "social_login_consent_learn_more" = "Узнать больше";
@@ -1994,7 +2030,7 @@
 "social_login_toast_wallet_added" = "Кошелёк добавлен";
 "social_login_toast_wallet_created" = "Кошелёк создан";
 "social_wallet_delete_anyway" = "Всё равно удалить";
-"social_wallet_delete_attention_acknowledge" = "Я понимаю, что если резервная копия моей фразы восстановления не сохранена, я навсегда потеряю доступ к этому кошельку.";
+"social_wallet_delete_attention_acknowledge" = "Я понимаю, что если резервная копия моей фразы восстановления не сохранена, то я навсегда потеряю доступ к этому кошельку.";
 "social_wallet_delete_attention_description" = "Кошелёк будет удалён с этого устройства и отвязан от вашего аккаунта %1$@, а ваши зашифрованные ключи будут удалены из облака. Вход через %1$@ больше не позволит его восстановить.";
 "social_wallet_delete_confirmation_title" = "Удалить этот кошелёк и отвязать его от вашего аккаунта %1$@?";
 "social_wallet_delete_description" = "Кошелёк будет удалён с этого устройства и отвязан от вашего аккаунта %1$@, а ваши зашифрованные ключи будут удалены из облака. Вход через %1$@ больше не позволит его восстановить. Сначала сохраните резервную копию своей фразы восстановления. Без неё вы навсегда потеряете доступ к криптовалюте в этом кошельке.";
@@ -2140,7 +2176,7 @@
 "swap_in_progress" = "Обмен в процессе";
 "swap_simple_mode" = "Простой режим";
 "swap_slippage_error" = "Недопустимое значение";
-"swap_slippage_info_text" = "означает разницу между ожидаемой и фактической ценой обмена из-за изменений рыночной цены или ликвидности";
+"swap_slippage_info_text" = "это изменение цены с момента подписания до поступления транзакции к провайдеру. Она исполняется по цене на этот момент в пределах допустимого проскальзывания.";
 "swap_slippage_warning_text" = "Обмен может не пройти, если проскальзывание достигнет установленного порога";
 "swap_slippage_warning_title" = "Установленное проскальзывание: %@";
 "swap_story_first_subtitle_v2" = "Обменивайте крипту прямо в Tangem\nНикаких лишних переводов\nНе нужно отправлять средства на биржи";
@@ -2478,6 +2514,8 @@
 "tangempay_onboarding_security_title" = "Абсолютная приватность";
 "tangempay_onboarding_setup_wallet_description" = "И привяжем Tangem Pay к нему";
 "tangempay_onboarding_setup_wallet_title" = "Настроим новый кошелёк";
+"tangempay_onboarding_success_description" = "Products activation might take a few minutes to finish";
+"tangempay_onboarding_success_title" = "Tangem Pay is activating";
 "tangempay_onboarding_title" = "Откройте виртуальную\nTangem Pay Card";
 "tangempay_order_card_error_active_order" = "Заказ карты уже оформляется.";
 "tangempay_order_card_error_insufficient_balance" = "Недостаточно средств для доставки. Пополните баланс и попробуйте снова.";
@@ -2659,6 +2697,7 @@
 "tangempay_withdraw_bank_geo_country_selected" = "Выбранная страна";
 "tangempay_withdraw_bank_geo_state_selected" = "Выбранный штат";
 "tangempay_withdraw_bank_geo_state_title" = "Штат";
+"tangempay_withdraw_bank_network_fee_unreachable" = "Network fee info unreachable. Check your internet connection or tap to refresh";
 "tangempay_withdraw_bank_offramp_unavailable" = "Off-ramp недоступен";
 "tangempay_withdraw_bank_placeholder_address_line1" = "Напр.: Ebunike St., Apt. 32";
 "tangempay_withdraw_bank_placeholder_bank_name" = "Напр.: Goldman Sachs";
@@ -2798,7 +2837,10 @@
 "transaction_history_supplied" = "Supplied";
 "transaction_history_transaction_for_address" = "для: %@";
 "transaction_history_transaction_from_address" = "от: %@";
+"transaction_history_transaction_from_for_address" = "from: %1$@ for %2$@";
+"transaction_history_transaction_from_from_address" = "from: %1$@ from %2$@";
 "transaction_history_transaction_to_address" = "на: %@";
+"transaction_history_transaction_to_for_address" = "to: %1$@ for %2$@";
 "transaction_history_unlimited_amount" = "Unlimited %@";
 "transaction_history_unlimited" = "Unlimited";
 "transaction_history_withdrawn" = "Withdrawn";
@@ -2987,6 +3029,7 @@
 "warning_express_not_enough_fee_for_token_tx_description" = "Чтобы совершить транзакцию, вам необходимо внести немного %1$@ %2$@";
 "warning_express_not_enough_fee_for_token_tx_title" = "Невозможно покрыть комиссию %@";
 "warning_express_notification_invalid_reserve_amount_title" = "Сумма получения не может быть менее %@";
+"warning_express_pair_unavailable_message_v2" = "The provider can’t exchange your selected pair right now. Please choose another provider. (Code %@)";
 "warning_express_pair_unavailable_message" = "Это может произойти из-за того, что провайдер временно не предоставляет обмен выбранной вами пары. Пожалуйста, подождите некоторое время и попробуйте снова. (Код %@)";
 "warning_express_pair_unavailable_title" = "Выбранная пара временно недоступна";
 "warning_express_providers_fca_warning_description" = "Для пользователей из Великобритании: некоторые провайдеры не авторизованы FCA Великобритании. Вам следует избегать взаимодействия с ними.";
@@ -3006,6 +3049,8 @@
 "warning_hedera_token_association_not_enough_hbar_message" = "Недостаточно %@. Пополните ваш аккаунт Hedera для ассоциации этого токена";
 "warning_incomplete_backup_notification_message" = "Мы обнаружили, что процесс активации карты не завершен должным образом из-за проблем с NFC-модулем устройства или неправильного прикладывания карт к телефону. Пожалуйста, обратитесь в службу поддержки для уточнения деталей.";
 "warning_incomplete_backup_notification_title" = "Требуется действие. Не используйте кошелек!";
+"warning_incomplete_balance_message" = "This address has more than %1$@ UTXOs, so the %2$@ network returns only part of them. Your funds are safe. To see the full balance, consolidate UTXOs by sending %3$@ to your own address.";
+"warning_incomplete_balance_title" = "Balance may be incomplete";
 "warning_ios_deprecation_ended_message" = "Поддержка iOS %1$@ прекращена %2$@. Чтобы продолжать получать обновления приложения и обеспечить полную работоспособность, обновите iOS до последней версии.";
 "warning_ios_deprecation_message" = "Поддержка iOS %1$@ завершится %2$@. Чтобы продолжать получать обновления приложения и обеспечить полную работоспособность, обновите iOS до последней версии.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Вы уверены что хотите отменить эту транзакцию? Вы не сможете отправить ее еще раз";
@@ -3091,8 +3136,11 @@
 "wc_connection_reqeust_will_not" = "Не имеет возможности";
 "wc_connection_reqeust_would_like" = "Хотели бы";
 "wc_connection_request" = "Запрос на подключение";
+"wc_connections_agents_error_title" = "AI agents unavailable";
 "wc_connections_agents_title" = "Connected Agents";
 "wc_connections_dapps_title" = "Connected dApps";
+"wc_connections_empty_desc" = "Connect to dApps via WalletConnect or AI agents via MCP. Manage all your connections in one place.";
+"wc_connections_empty_title" = "No connections yet";
 "wc_connections_subtitle" = "Connect to dApps or MCP";
 "wc_connections" = "Подключения";
 "wc_contents" = "Вложение";
