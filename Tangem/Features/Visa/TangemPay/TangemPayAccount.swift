@@ -230,6 +230,7 @@ final class TangemPayAccount {
     private let virtualAccountCreationFailureStorage: TangemPayVirtualAccountCreationFailureStorage
 
     private let customerInfoSubject: CurrentValueSubject<VisaCustomerInfoResponse, Never>
+    private let summarySubject: CurrentValueSubject<TangemPayCustomerSummaryResponse?, Never>
     private let cardsSubject = CurrentValueSubject<[TangemPayCard], Never>([])
     private let offersSubject = CurrentValueSubject<[TangemPayCustomerOffer], Never>([])
     private let activeIssueOrdersSubject = CurrentValueSubject<[TangemPayOrderResponse], Never>([])
@@ -274,6 +275,7 @@ final class TangemPayAccount {
     init(
         userWalletId: UserWalletId,
         customerInfo: VisaCustomerInfoResponse,
+        summary: TangemPayCustomerSummaryResponse?,
         customerService: any CustomerInfoManagementService,
         balancesService: any TangemPayBalancesService,
         withdrawTransactionService: any TangemPayWithdrawTransactionService,
@@ -291,6 +293,7 @@ final class TangemPayAccount {
     ) {
         self.userWalletId = userWalletId
         customerInfoSubject = CurrentValueSubject(customerInfo)
+        summarySubject = CurrentValueSubject(summary)
         self.customerService = customerService
         self.balancesService = balancesService
         self.withdrawTransactionService = withdrawTransactionService
@@ -959,11 +962,13 @@ private extension TangemPayAccount {
     func loadCustomerInfoNew() async {
         do throws(TangemPayAPIServiceError) {
             let customerInfo = try await customerService.loadCustomerInfo()
+            let summary = FeatureProvider.isAvailable(.tangemPayCustomerSummary) ? try await customerService.loadCustomerSummary() : nil
             let updatedCards = rebuildingCards(from: customerInfo, existing: cardsSubject.value)
             pruneReissueSourceTracking(liveCards: updatedCards)
             activeIssueOrderEventsSubject.send(.pruneAgainst(customerInfo: customerInfo))
             cardsSubject.send(updatedCards)
             customerInfoSubject.send(customerInfo)
+            summarySubject.send(summary)
             await refreshActivatingProductInstanceIds(cards: updatedCards)
             await loadBalance()
         } catch {
