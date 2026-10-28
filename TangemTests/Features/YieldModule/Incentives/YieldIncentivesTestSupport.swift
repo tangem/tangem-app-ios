@@ -363,6 +363,7 @@ final class YieldClaimNetworkManagerStub: YieldModuleNetworkManager {
 
     var markets: [YieldModuleMarketInfo] { [] }
     var marketsPublisher: AnyPublisher<[YieldModuleMarketInfo], Never> { Just([]).eraseToAnyPublisher() }
+    var marketsLoadStatePublisher: AnyPublisher<YieldModuleMarketsLoadState, Never> { Just(.idle).eraseToAnyPublisher() }
 
     func updateMarkets() {}
     func fetchYieldTokenInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleTokenInfo { fatalError() }

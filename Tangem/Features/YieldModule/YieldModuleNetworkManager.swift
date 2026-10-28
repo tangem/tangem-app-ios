@@ -16,6 +16,7 @@ import TangemNetworkUtils
 protocol YieldModuleNetworkManager {
     var markets: [YieldModuleMarketInfo] { get }
     var marketsPublisher: AnyPublisher<[YieldModuleMarketInfo], Never> { get }
+    var marketsLoadStatePublisher: AnyPublisher<YieldModuleMarketsLoadState, Never> { get }
 
     func updateMarkets()
 
@@ -41,6 +42,7 @@ final class CommonYieldModuleNetworkManager {
     private var bag = Set<AnyCancellable>()
 
     private let marketsSubject = CurrentValueSubject<[YieldModuleMarketInfo], Never>([])
+    private let marketsLoadStateSubject = CurrentValueSubject<YieldModuleMarketsLoadState, Never>(.idle)
 
     private let inFlightMarketsUpdate = OSAllocatedUnfairLock<UUID?>(initialState: nil)
 
@@ -68,6 +70,10 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
         marketsSubject.eraseToAnyPublisher()
     }
 
+    var marketsLoadStatePublisher: AnyPublisher<YieldModuleMarketsLoadState, Never> {
+        marketsLoadStateSubject.eraseToAnyPublisher()
+    }
+
     /// Every call derives the same chain IDs from all user wallets, so the newest one subsumes the ones before it.
     func updateMarkets() {
         let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletRepository.models)
@@ -80,6 +86,7 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
 
         let token = UUID()
         inFlightMarketsUpdate { $0 = token }
+        marketsLoadStateSubject.send(.loading)
 
         Task { @MainActor [weak self] in
             guard let self else { return }
@@ -106,6 +113,7 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
             }
 
             marketsSubject.send(markets)
+            marketsLoadStateSubject.send(freshResponse == nil ? .failed : .loaded)
         }
     }
 
