@@ -34,6 +34,10 @@ struct WalletConnectSolanaSignMessageHandler {
                 throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainNetworkID: blockchainId)
             }
 
+            guard !walletModel.publicKey.isSharedAcrossBlockchains else {
+                throw WalletConnectTransactionRequestProcessingError.unsupportedMethod(WalletConnectMethod.solanaSignMessage.rawValue)
+            }
+
             guard !SolanaTransactionHelper().isTransactionMessage(parameters.message.base58DecodedData) else {
                 throw WalletConnectTransactionRequestProcessingError.invalidPayload("solana_signMessage payload is a serialized Solana transaction")
             }
@@ -79,5 +83,13 @@ extension WalletConnectSolanaSignMessageHandler: WalletConnectMessageHandler {
             WCLogger.error("Failed to sign message", error: error)
             return .error(.internalError)
         }
+    }
+}
+
+// MARK: - Shared key detection
+
+private extension Wallet.PublicKey {
+    var isSharedAcrossBlockchains: Bool {
+        derivationType == nil
     }
 }
