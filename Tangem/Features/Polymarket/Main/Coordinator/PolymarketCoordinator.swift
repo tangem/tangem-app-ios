@@ -175,8 +175,6 @@ private extension PolymarketCoordinator {
             Task { @MainActor in self?.openReconnect() }
         }
 
-        let activityService = dependencies.activityService
-        Task { await activityService.reconcileDeposits() }
         Task { await dependencies.withdrawContext.tracker.resume() }
 
         viewState = .main(
