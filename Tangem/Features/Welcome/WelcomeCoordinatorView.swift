@@ -52,6 +52,7 @@ struct WelcomeCoordinatorView: CoordinatorView {
             WebViewContainer(viewModel: legalViewModel.webViewModel)
                 .background(legalViewModel.backgroundStyle)
                 .environment(\.colorScheme, legalViewModel.colorScheme)
+                .softTopScrollEdgeEffect()
         }
     }
 

@@ -18,6 +18,7 @@ struct PolymarketMyPositionsCoordinatorView: CoordinatorView {
             .navigationLinks(links)
             .fullScreenCover(item: $coordinator.redeem) { viewModel in
                 PolymarketRedeemView(viewModel: viewModel)
+                    .softTopScrollEdgeEffect()
             }
     }
 

@@ -32,6 +32,7 @@ struct TangemPayCardManagementView: View {
             .animation(.easeInOut, value: viewModel.contentState.isRenaming)
             .sheet(item: $viewModel.addToApplePayGuideViewModel) {
                 TangemPayAddToAppPayGuideView(viewModel: $0)
+                    .softTopScrollEdgeEffect()
             }
             .alert(item: $viewModel.alert) { $0.alert }
             .onAppear(perform: viewModel.onAppear)

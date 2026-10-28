@@ -21,5 +21,6 @@ struct OverlayRootView: View {
                 dismissSheetAction: floatingSheetViewModel.removeActiveSheet
             )
             .alert(item: $alertPresenterViewModel.alert) { $0.alert }
+            .softTopScrollEdgeEffect()
     }
 }

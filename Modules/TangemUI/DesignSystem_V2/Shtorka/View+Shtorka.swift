@@ -55,6 +55,7 @@ private struct ShtorkaModifier<SheetContent: View>: ViewModifier {
                     .presentationBackgroundInteraction(.enabled(upThrough: detents.medium))
                     .interactiveDismissDisabled()
                     .modifier(ShtorkaBackgroundModifier(size: size, expansionProgress: expansionProgress))
+                    .softTopScrollEdgeEffect()
             }
             .onChange(of: isPresented) { isPresented in
                 if !isPresented {

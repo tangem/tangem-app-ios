@@ -46,6 +46,7 @@ struct AccountDetailsCoordinatorView: View {
                 }
                 .presentation(onDismissalAttempt: viewModel.onClose)
                 .presentationCornerRadius(24)
+                .softTopScrollEdgeEffect()
             }
             .modal(
                 item: $coordinator.supportedNetworksViewModel,

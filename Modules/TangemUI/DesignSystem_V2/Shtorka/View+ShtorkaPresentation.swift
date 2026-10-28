@@ -101,7 +101,7 @@ private struct ShtorkaSheetModifier<C: View>: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .sheet(isPresented: nativeBinding(isPresented: $isPresented, isShtorkaActive: isShtorkaActive)) { presentedContent() }
+            .sheet(isPresented: nativeBinding(isPresented: $isPresented, isShtorkaActive: isShtorkaActive)) { presentedContent().softTopScrollEdgeEffect() }
             .onChange(of: isPresented) { syncSlot(isPresented: $0) }
     }
 
@@ -123,7 +123,7 @@ private struct ShtorkaSheetModifier<C: View>: ViewModifier {
 
     private func makeItem() -> ShtorkaPresentationHost.PresentedItem {
         ShtorkaPresentationHost.PresentedItem(
-            content: { AnyView(presentedContent()) },
+            content: { AnyView(presentedContent().softTopScrollEdgeEffect()) },
             onDismiss: { isPresented = false }
         )
     }
@@ -138,7 +138,7 @@ private struct ShtorkaSheetItemModifier<Item: Identifiable, C: View>: ViewModifi
 
     func body(content: Content) -> some View {
         content
-            .sheet(item: nativeBinding(item: $item, isShtorkaActive: isShtorkaActive)) { presentedContent($0) }
+            .sheet(item: nativeBinding(item: $item, isShtorkaActive: isShtorkaActive)) { presentedContent($0).softTopScrollEdgeEffect() }
             // The closure only gets the id; the binding reads through to the source of truth, so it already holds the new item.
             .onChange(of: item?.id) { _ in syncSlot(item: item) }
     }
@@ -155,7 +155,7 @@ private struct ShtorkaSheetItemModifier<Item: Identifiable, C: View>: ViewModifi
 
     private func makeItem(for item: Item) -> ShtorkaPresentationHost.PresentedItem {
         ShtorkaPresentationHost.PresentedItem(
-            content: { AnyView(presentedContent(item)) },
+            content: { AnyView(presentedContent(item).softTopScrollEdgeEffect()) },
             onDismiss: { self.item = nil }
         )
     }
@@ -172,7 +172,7 @@ private struct ShtorkaCoverModifier<C: View>: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .fullScreenCover(isPresented: nativeBinding(isPresented: $isPresented, isShtorkaActive: isShtorkaActive)) { presentedContent() }
+            .fullScreenCover(isPresented: nativeBinding(isPresented: $isPresented, isShtorkaActive: isShtorkaActive)) { presentedContent().softTopScrollEdgeEffect() }
             .onChange(of: isPresented) { syncSlot(isPresented: $0) }
     }
 
@@ -188,7 +188,7 @@ private struct ShtorkaCoverModifier<C: View>: ViewModifier {
 
     private func makeItem() -> ShtorkaPresentationHost.PresentedItem {
         ShtorkaPresentationHost.PresentedItem(
-            content: { AnyView(presentedContent()) },
+            content: { AnyView(presentedContent().softTopScrollEdgeEffect()) },
             onDismiss: { isPresented = false }
         )
     }
@@ -203,7 +203,7 @@ private struct ShtorkaCoverItemModifier<Item: Identifiable, C: View>: ViewModifi
 
     func body(content: Content) -> some View {
         content
-            .fullScreenCover(item: nativeBinding(item: $item, isShtorkaActive: isShtorkaActive)) { presentedContent($0) }
+            .fullScreenCover(item: nativeBinding(item: $item, isShtorkaActive: isShtorkaActive)) { presentedContent($0).softTopScrollEdgeEffect() }
             .onChange(of: item?.id) { _ in syncSlot(item: item) }
     }
 
@@ -219,7 +219,7 @@ private struct ShtorkaCoverItemModifier<Item: Identifiable, C: View>: ViewModifi
 
     private func makeItem(for item: Item) -> ShtorkaPresentationHost.PresentedItem {
         ShtorkaPresentationHost.PresentedItem(
-            content: { AnyView(presentedContent(item)) },
+            content: { AnyView(presentedContent(item).softTopScrollEdgeEffect()) },
             onDismiss: { self.item = nil }
         )
     }

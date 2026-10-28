@@ -101,6 +101,7 @@ private struct ModalPresentationModifier<Header: View, BodyContent: View>: ViewM
             )
             .dynamicTypeSize(dynamicTypeSize)
             .modifier(SheetScrollTouchModifier())
+            .softTopScrollEdgeEffect()
         }
     }
 }
@@ -129,6 +130,7 @@ private struct ItemModalPresentationModifier<Item: Identifiable, Header: View, B
             )
             .dynamicTypeSize(dynamicTypeSize)
             .modifier(SheetScrollTouchModifier())
+            .softTopScrollEdgeEffect()
         }
     }
 }

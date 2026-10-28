@@ -38,6 +38,7 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .modifyView { view in
                 view.fullScreenCover(item: $coordinator.marketsTokenDetailsCoordinator) { marketsTokenDetailsCoordinator in
                     MarketsTokenDetailsCoordinatorView(coordinator: marketsTokenDetailsCoordinator)
+                        .softTopScrollEdgeEffect()
                 }
             }
     }
@@ -47,12 +48,15 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
         NavHolder()
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.yieldModuleActiveCoordinator) {
                 YieldModuleActiveCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.dynamicAddressesEnterViewModel) {
                 DynamicAddressesEnterView(viewModel: $0)
+                    .softTopScrollEdgeEffect()
             }
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)

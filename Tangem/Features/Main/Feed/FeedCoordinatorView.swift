@@ -41,15 +41,17 @@ struct FeedCoordinatorView: CoordinatorView {
                 })
                 .onAnimationCompleted(for: sheetSize == .full, completion: coordinator.sheetDidFinishExpanding)
                 .environment(\.feedZoomNamespace, zoomNamespace)
-                .fullScreenCover(item: $coordinator.cover) { FeedCoverView(cover: $0, namespace: zoomNamespace) }
+                .fullScreenCover(item: $coordinator.cover) { FeedCoverView(cover: $0, namespace: zoomNamespace).softTopScrollEdgeEffect() }
             }
 
             NavHolder()
                 .sheet(item: presentation(fullScreen: false), onDismiss: coordinator.presentationDidDismiss) {
                     FeedDestinationView(destination: $0)
+                        .softTopScrollEdgeEffect()
                 }
                 .fullScreenCover(item: presentation(fullScreen: true), onDismiss: coordinator.presentationDidDismiss) {
                     FeedDestinationView(destination: $0)
+                        .softTopScrollEdgeEffect()
                 }
                 .modifier(FeedWidgetSelectorModal(presenter: coordinator.widgetSheetPresenter))
                 .modifier(FeedWidgetStatusModal(presenter: coordinator.widgetSheetPresenter))

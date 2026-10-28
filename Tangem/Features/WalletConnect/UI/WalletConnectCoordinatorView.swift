@@ -17,7 +17,10 @@ struct WalletConnectCoordinatorView: CoordinatorView {
     var body: some View {
         if let viewModel = coordinator.viewModel {
             WalletConnectView(viewModel: viewModel, kingfisherImageCache: kingfisherImageCache)
-                .fullScreenCover(item: $coordinator.qrScanCoordinator, content: WalletConnectQRScanCoordinatorView.init)
+                .fullScreenCover(item: $coordinator.qrScanCoordinator) {
+                    WalletConnectQRScanCoordinatorView(coordinator: $0)
+                        .softTopScrollEdgeEffect()
+                }
         }
     }
 }

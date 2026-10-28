@@ -43,9 +43,11 @@ struct OnboardingCoordinatorView: CoordinatorView {
         NavHolder()
             .sheet(item: $coordinator.accessCodeModel) {
                 OnboardingAccessCodeView(viewModel: $0)
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.modalWebViewModel) {
                 WebViewContainer(viewModel: $0)
+                    .softTopScrollEdgeEffect()
             }
             .floatingSheetContent(for: MobileBackupStorageUnavailableViewModel.self) {
                 MobileBackupStorageUnavailableView(viewModel: $0)

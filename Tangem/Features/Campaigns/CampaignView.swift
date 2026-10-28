@@ -29,6 +29,7 @@ struct CampaignView: View {
         )
         .sheet(item: $viewModel.tokenSelectorViewModel) { tokenSelectorViewModel in
             CampaignTokenSelectorView(viewModel: tokenSelectorViewModel)
+                .softTopScrollEdgeEffect()
         }
     }
 

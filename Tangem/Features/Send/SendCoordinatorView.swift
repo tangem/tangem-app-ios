@@ -70,27 +70,34 @@ struct SendCoordinatorView: CoordinatorView {
                 OnrampCountryDetectionCoordinatorView(coordinator: $0)
                     .interactiveDismissDisabled(true)
                     .presentationBackground(DesignSystem.Color.bgPrimary)
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.qrScanViewCoordinator) {
                 QRScanViewCoordinatorView(coordinator: $0).ignoresSafeArea()
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.onrampCountrySelectorViewModel) {
                 OnrampCountrySelectorView(viewModel: $0)
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.onrampCurrencySelectorViewModel) {
                 OnrampCurrencySelectorView(viewModel: $0)
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.sendReceiveTokenCoordinator, onDismiss: coordinator.onReceiveTokensListDismissed) {
                 SendReceiveTokenCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.addressBooksCoordinator) { coordinator in
                 NavigationStack {
                     AddressBooksCoordinatorView(coordinator: coordinator)
                 }
+                .softTopScrollEdgeEffect()
             }
             .addressBookContactManagementSheet($coordinator.contactManagementCoordinator)
             .sheet(item: $coordinator.swapTokenSelectorViewModel) {
                 SwapTokenSelectorView(viewModel: $0)
+                    .softTopScrollEdgeEffect()
             }
     }
 }

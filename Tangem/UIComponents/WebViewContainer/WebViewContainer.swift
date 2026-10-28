@@ -43,6 +43,7 @@ struct WebViewContainer: View {
                 )
                 .navigationBarTitle("", displayMode: .inline)
             }
+            .softTopScrollEdgeEffect()
         }
     }
 

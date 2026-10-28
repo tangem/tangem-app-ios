@@ -35,6 +35,7 @@ struct UncompletedBackupCoordinatorView: CoordinatorView {
                     .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
+                    .softTopScrollEdgeEffect()
             }
     }
 }

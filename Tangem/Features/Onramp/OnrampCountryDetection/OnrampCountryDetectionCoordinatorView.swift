@@ -27,6 +27,7 @@ struct OnrampCountryDetectionCoordinatorView: CoordinatorView {
         NavHolder()
             .sheet(item: $coordinator.onrampCountrySelectorViewModel) {
                 OnrampCountrySelectorView(viewModel: $0)
+                    .softTopScrollEdgeEffect()
             }
     }
 }
