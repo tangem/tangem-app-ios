@@ -57,6 +57,7 @@ final class PolymarketPositionDetailsCoordinator: CoordinatorObject {
             apiProvider: options.apiProvider,
             positionsService: options.positionsService,
             geoblockStateProvider: options.geoblockStateProvider,
+            usesPhaseTwoLayout: options.usesPhaseTwoLayout,
             onOrderPlaced: options.onOrderPlaced,
             coordinator: self
         )
@@ -71,6 +72,7 @@ extension PolymarketPositionDetailsCoordinator {
         let apiProvider: PolymarketAPIProvider
         let positionsService: PolymarketPositionsService
         let geoblockStateProvider: PolymarketGeoblockStateProvider
+        let usesPhaseTwoLayout: Bool
         let onOrderPlaced: @MainActor (PolymarketOrderIndexing) -> Void
         let onRegionWarning: () -> Void
         let orderBuilder: PolymarketOrderFlowBuilder

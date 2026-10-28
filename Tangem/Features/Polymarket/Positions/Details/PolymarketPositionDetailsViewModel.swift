@@ -30,6 +30,19 @@ final class PolymarketPositionDetailsViewModel: ObservableObject, Identifiable {
         )
     }
 
+    var phaseTwoModel: PolymarketPositionDetailsPhaseTwoView.Model {
+        .make(
+            position: position,
+            openEventDetails: { [weak self] in self?.onMarketTap() },
+            onClosePosition: { [weak self] in self?.onOrderTap(.sell) },
+            onBuy: { [weak self] in self?.onOrderTap(.buy) },
+            onHint: { [weak self] hint in self?.hint = hint },
+            loadingSide: loadingSide
+        )
+    }
+
+    let usesPhaseTwoLayout: Bool
+
     @Published private(set) var position: PolymarketPosition
     private let apiProvider: PolymarketAPIProvider
     private let positionsService: PolymarketPositionsService
@@ -45,10 +58,12 @@ final class PolymarketPositionDetailsViewModel: ObservableObject, Identifiable {
         apiProvider: PolymarketAPIProvider,
         positionsService: PolymarketPositionsService,
         geoblockStateProvider: PolymarketGeoblockStateProvider,
+        usesPhaseTwoLayout: Bool,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
         coordinator: PolymarketPositionDetailsRoutable
     ) {
         self.position = position
+        self.usesPhaseTwoLayout = usesPhaseTwoLayout
         self.apiProvider = apiProvider
         self.positionsService = positionsService
         self.geoblockStateProvider = geoblockStateProvider

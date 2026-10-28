@@ -30,6 +30,7 @@ final class PolymarketMyPositionsCoordinator: CoordinatorObject {
     private var geoblockStateProvider: PolymarketGeoblockStateProvider?
     private var redeemService: PolymarketRedeeming?
     private var signingButtonType: SigningActionButtonViewType = .holdToConfirm
+    private var usesPhaseTwoPositionDetails = false
     private var onRegionWarning: (() -> Void)?
     private var onOrderPlaced: (@MainActor (PolymarketOrderIndexing) -> Void)?
     private var onClaimed: ((PolymarketPosition?) -> Void)?
@@ -52,6 +53,7 @@ final class PolymarketMyPositionsCoordinator: CoordinatorObject {
         geoblockStateProvider = options.geoblockStateProvider
         redeemService = options.redeemService
         signingButtonType = options.signingButtonType
+        usesPhaseTwoPositionDetails = options.usesPhaseTwoPositionDetails
         onRegionWarning = options.onRegionWarning
         onOrderPlaced = options.onOrderPlaced
         onClaimed = options.onClaimed
@@ -78,6 +80,7 @@ extension PolymarketMyPositionsCoordinator {
         let geoblockStateProvider: PolymarketGeoblockStateProvider
         let redeemService: PolymarketRedeeming
         let signingButtonType: SigningActionButtonViewType
+        let usesPhaseTwoPositionDetails: Bool
         let onRegionWarning: () -> Void
         let onOrderPlaced: @MainActor (PolymarketOrderIndexing) -> Void
         let onClaimed: (PolymarketPosition?) -> Void
@@ -134,6 +137,7 @@ extension PolymarketMyPositionsCoordinator: PolymarketMyPositionsRoutable {
             apiProvider: apiProvider,
             positionsService: positionsService,
             geoblockStateProvider: geoblockStateProvider,
+            usesPhaseTwoLayout: usesPhaseTwoPositionDetails,
             onOrderPlaced: { [weak self] indexing in
                 onOrderPlaced(indexing)
                 self?.onOrderPlaced?(indexing)
