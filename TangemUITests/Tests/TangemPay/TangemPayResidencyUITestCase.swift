@@ -74,6 +74,12 @@ class TangemPayResidencyUITestCase: BaseTestCase {
         return countrySelection.waitForScreen(title: Localization.tangempayResidencyTitleCountry)
     }
 
+    func relaunchWithKycInProgress() -> MainScreen {
+        relaunchKeepingState(scenarios: [
+            ScenarioConfig(name: Constants.Scenario.kycStatus, initialState: Constants.ScenarioState.kycInProgress),
+        ])
+    }
+
     func openCountrySelectionFromDetails(_ details: DetailsScreen) -> TangemPayGeoSelectionScreen {
         openCountrySelection(from: details.verifyGetTangemPayVisible().openGetTangemPay())
     }
@@ -140,6 +146,7 @@ private extension TangemPayResidencyUITestCase {
             static let notCustomer = "Started"
             static let paeraCustomer = "PaeraCustomer"
             static let kycRequired = "Required"
+            static let kycInProgress = "InProgress"
             static let unavailable = "Unavailable"
             static let banner = "Banner"
         }
