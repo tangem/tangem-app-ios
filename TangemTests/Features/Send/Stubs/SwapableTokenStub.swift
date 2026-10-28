@@ -24,6 +24,7 @@ final class SwapableTokenStub: SendSwapableToken {
     private let injectedSendingRestrictionsProvider: (any SendingRestrictionsProvider)?
 
     let presentation: SendReceiveTokenPresentation?
+    let isCustomSlippageAllowed: Bool
 
     init(
         blockchain: Blockchain,
@@ -43,6 +44,7 @@ final class SwapableTokenStub: SendSwapableToken {
         feeProvidersManager = nil
         defaultAddress = nil
         presentation = nil
+        isCustomSlippageAllowed = true
         injectedReceivingRestrictionsProvider = receivingRestrictionsProvider
         injectedSendingRestrictionsProvider = sendingRestrictionsProvider
     }
@@ -55,6 +57,7 @@ final class SwapableTokenStub: SendSwapableToken {
         destination: SendReceiveTokenDestination? = nil,
         balanceProviders: BalanceProviders? = nil,
         presentation: SendReceiveTokenPresentation? = nil,
+        isCustomSlippageAllowed: Bool = true,
         tokenFeeProvidersManager: (any TokenFeeProvidersManager)? = nil,
         defaultAddress: String? = nil,
         receivingRestrictionsProvider: (any ReceivingRestrictionsProvider)? = nil
@@ -66,6 +69,7 @@ final class SwapableTokenStub: SendSwapableToken {
         receiveDestination = destination
         self.balanceProviders = balanceProviders
         self.presentation = presentation
+        self.isCustomSlippageAllowed = isCustomSlippageAllowed
         feeProvidersManager = tokenFeeProvidersManager
         self.defaultAddress = defaultAddress
         injectedReceivingRestrictionsProvider = receivingRestrictionsProvider

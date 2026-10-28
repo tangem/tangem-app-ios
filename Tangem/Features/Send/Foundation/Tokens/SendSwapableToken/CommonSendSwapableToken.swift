@@ -25,6 +25,7 @@ struct CommonSendSwapableToken: SendSwapableToken {
     let providerTransactionValidator: any ExpressProviderTransactionValidator
     let operationType: ExpressOperationType
     let supportedProvidersFilter: SupportedProvidersFilter
+    let isCustomSlippageAllowed: Bool
 
     /// Abstract receive-side presentation (account funding flows). `nil` keeps standard rendering.
     var presentation: SendReceiveTokenPresentation?

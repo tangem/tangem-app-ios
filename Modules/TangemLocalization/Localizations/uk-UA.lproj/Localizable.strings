@@ -2176,7 +2176,7 @@
 "swap_in_progress" = "Обмін у процесі";
 "swap_simple_mode" = "Простий режим";
 "swap_slippage_error" = "Недопустиме значення";
-"swap_slippage_info_text" = "означає різницю між очікуваною та фактичною ціною обміну через зміни ринкової ціни або ліквідності";
+"swap_slippage_info_text" = "це зміна ціни з моменту підписання до надходження транзакції до провайдера. Її виконують за ціною на цей момент у межах допустимого прослизання.";
 "swap_slippage_warning_text" = "Обмін може не відбутися, якщо прослизання досягне встановленого порога";
 "swap_slippage_warning_title" = "Встановлене прослизання: %@";
 "swap_story_first_subtitle_v2" = "Обмінюйте крипту прямо в Tangem\nНіяких зайвих переказів\nНе потрібно відправляти кошти на біржі";
@@ -3136,8 +3136,11 @@
 "wc_connection_reqeust_will_not" = "Не має можливості";
 "wc_connection_reqeust_would_like" = "Хотіли б";
 "wc_connection_request" = "Запит на підключення";
+"wc_connections_agents_error_title" = "AI agents unavailable";
 "wc_connections_agents_title" = "Connected Agents";
 "wc_connections_dapps_title" = "Connected dApps";
+"wc_connections_empty_desc" = "Connect to dApps via WalletConnect or AI agents via MCP. Manage all your connections in one place.";
+"wc_connections_empty_title" = "No connections yet";
 "wc_connections_subtitle" = "Connect to dApps or MCP";
 "wc_connections" = "З'єднання";
 "wc_contents" = "Вміст";

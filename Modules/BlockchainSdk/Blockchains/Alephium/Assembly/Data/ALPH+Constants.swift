@@ -20,6 +20,7 @@ extension ALPH {
         static let maxALPHValue: U256 = .unsafe(billion).mulUnsafe(coinInOneALPH)
 
         static let maxTxInputNum: Int = 256
+        static let maxNodeUtxosNum: Int = 5000
 
         static let dustAmountValue = Decimal(stringValue: "0.001")!
 

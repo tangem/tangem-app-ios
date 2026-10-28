@@ -20,6 +20,7 @@ enum TokenNotificationEvent: Hashable {
     case rentFee(rentMessage: String)
     case noAccount(message: String)
     case existentialDepositWarning(message: String)
+    case incompleteBalance(message: String)
     case notEnoughFeeForTransaction(configuration: NotEnoughFeeConfiguration)
     case bnbBeaconChainRetirement
     case hasUnfulfilledRequirements(configuration: UnfulfilledRequirementsConfiguration, icon: MainButton.Icon?)
@@ -33,7 +34,7 @@ enum TokenNotificationEvent: Hashable {
 extension TokenNotificationEvent: NotificationEvent {
     var bannerKind: NotificationBannerKind? {
         switch self {
-        case .networkNotUpdated, .staking, .manaLevel, .maticMigration, .cloreMigration, .existentialDepositWarning:
+        case .networkNotUpdated, .staking, .manaLevel, .maticMigration, .cloreMigration, .existentialDepositWarning, .incompleteBalance:
             return .status
         case .noAccount:
             return .warning
@@ -90,6 +91,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .string(Localization.warningNoAccountTitle)
         case .existentialDepositWarning:
             return .string(Localization.warningExistentialDepositTitle)
+        case .incompleteBalance:
+            return .string(Localization.warningIncompleteBalanceTitle)
         case .notEnoughFeeForTransaction(let configuration):
             return .string(Localization.warningSendBlockedFundsForFeeTitle(configuration.feeAmountTypeName))
         case .bnbBeaconChainRetirement:
@@ -130,7 +133,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return message
         case .noAccount(let message):
             return message
-        case .existentialDepositWarning(let message):
+        case .existentialDepositWarning(let message),
+             .incompleteBalance(let message):
             return message
         case .notEnoughFeeForTransaction(let configuration):
             return Localization.warningSendBlockedFundsForFeeMessage(
@@ -177,6 +181,7 @@ extension TokenNotificationEvent: NotificationEvent {
              .networkNotUpdated,
              .rentFee,
              .existentialDepositWarning,
+             .incompleteBalance,
              .noAccount,
              .bnbBeaconChainRetirement,
              .manaLevel,
@@ -204,7 +209,7 @@ extension TokenNotificationEvent: NotificationEvent {
              .cloreMigration,
              .dynamicAddressesFundsFound:
             return .init(iconType: .image(Assets.attention))
-        case .rentFee, .existentialDepositWarning, .manaLevel:
+        case .rentFee, .existentialDepositWarning, .incompleteBalance, .manaLevel:
             return .init(iconType: .image(Assets.blueCircleWarning))
         case .noAccount:
             return .init(iconType: .image(Assets.infoCircle20))
@@ -226,6 +231,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .noAccount,
              .rentFee,
              .existentialDepositWarning,
+             .incompleteBalance,
              .staking,
              .manaLevel,
              .maticMigration,
@@ -251,6 +257,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .networkUnreachable,
              .networkNotUpdated,
              .existentialDepositWarning,
+             .incompleteBalance,
              .notEnoughFeeForTransaction,
              .noAccount,
              .bnbBeaconChainRetirement,
@@ -272,6 +279,7 @@ extension TokenNotificationEvent: NotificationEvent {
              .networkNotUpdated,
              .rentFee,
              .existentialDepositWarning,
+             .incompleteBalance,
              .noAccount,
              .bnbBeaconChainRetirement,
              .manaLevel,
@@ -360,6 +368,7 @@ extension TokenNotificationEvent {
         case .rentFee: return nil
         case .noAccount: return nil
         case .existentialDepositWarning: return nil
+        case .incompleteBalance: return nil
         case .notEnoughFeeForTransaction: return .tokenNoticeNotEnoughFee
         case .bnbBeaconChainRetirement: return nil
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation, _): return nil
@@ -390,6 +399,7 @@ extension TokenNotificationEvent {
         case .rentFee,
              .noAccount,
              .existentialDepositWarning,
+             .incompleteBalance,
              .bnbBeaconChainRetirement,
              .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation, _),
              .hasUnfulfilledRequirements(configuration: .missingTokenTrustline, _),
