@@ -2176,7 +2176,7 @@
 "swap_in_progress" = "スワップ中";
 "swap_simple_mode" = "シンプルモード";
 "swap_slippage_error" = "対応していない金額です";
-"swap_slippage_info_text" = "とは、市場価格や流動性の変動によって生じる、予想価格と実際の約定価格の差です。";
+"swap_slippage_info_text" = "とは、署名した時点からトランザクションがプロバイダーに届くまでの価格変動です。届いた時点の価格で、スリッページ許容値の範囲内で執行されます。";
 "swap_slippage_warning_text" = "スリッページが許容範囲を超えると、スワップが失敗する場合があります";
 "swap_slippage_warning_title" = "スリッページは%@に設定されています";
 "swap_story_first_subtitle_v2" = "Tangem内で暗号資産を直接交換できます\n追加の送金は不要\n取引所に資金を移す必要もありません";
@@ -3136,8 +3136,11 @@
 "wc_connection_reqeust_will_not" = "できなくなります";
 "wc_connection_reqeust_would_like" = "したい";
 "wc_connection_request" = "接続リクエスト";
+"wc_connections_agents_error_title" = "AI agents unavailable";
 "wc_connections_agents_title" = "Connected Agents";
 "wc_connections_dapps_title" = "Connected dApps";
+"wc_connections_empty_desc" = "Connect to dApps via WalletConnect or AI agents via MCP. Manage all your connections in one place.";
+"wc_connections_empty_title" = "No connections yet";
 "wc_connections_subtitle" = "Connect to dApps or MCP";
 "wc_connections" = "接続";
 "wc_contents" = "内容";

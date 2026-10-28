@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import BlockchainSdk
 import Combine
 import Foundation
 import Testing
@@ -49,10 +50,38 @@ struct SwapSummarySlippageViewModelTests {
     @Test("Hides the row once the loading provider fails")
     func hidesAfterLoadingFails() async throws {
         let input = SwapProvidersInputStub(selected: .loading)
-        let viewModel = SwapSummarySlippageViewModel(swapProvidersInput: input, slippageInput: SlippageInputStub())
+        let viewModel = SwapSummarySlippageViewModel(swapProvidersInput: input, receiveTokenInput: ReceiveTokenInputStub(), slippageInput: SlippageInputStub())
         let recorder = ValueRecorder(publisher: viewModel.$isVisible)
 
         input.selectedSubject.send(.failure(StubError()))
+        try await recorder.waitForValues(count: 2)
+
+        #expect(recorder.values == [true, false])
+    }
+
+    @Test("Hides the row when the swap funds an account")
+    func hiddenForAccountDestination() async throws {
+        let provider = ExpressAvailableProviderFixture.make(state: .idle)
+
+        let isVisible = try await resolveVisibility(
+            selected: .success(provider),
+            receiveToken: .success(ReceiveTokenStub(isCustomSlippageAllowed: false))
+        )
+
+        #expect(!isVisible)
+    }
+
+    @Test("Hides the row once the destination switches to an account")
+    func hidesAfterSwitchingToAccount() async throws {
+        let receiveTokenInput = ReceiveTokenInputStub()
+        let viewModel = SwapSummarySlippageViewModel(
+            swapProvidersInput: SwapProvidersInputStub(selected: .loading),
+            receiveTokenInput: receiveTokenInput,
+            slippageInput: SlippageInputStub()
+        )
+        let recorder = ValueRecorder(publisher: viewModel.$isVisible)
+
+        receiveTokenInput.subject.send(.success(ReceiveTokenStub(isCustomSlippageAllowed: false)))
         try await recorder.waitForValues(count: 2)
 
         #expect(recorder.values == [true, false])
@@ -64,6 +93,7 @@ struct SwapSummarySlippageViewModelTests {
         let slippageInput = SlippageInputStub()
         let viewModel = SwapSummarySlippageViewModel(
             swapProvidersInput: input,
+            receiveTokenInput: ReceiveTokenInputStub(),
             slippageInput: slippageInput,
             percentFormatter: PercentFormatter(locale: Locale(identifier: "en_US"))
         )
@@ -81,6 +111,7 @@ struct SwapSummarySlippageViewModelTests {
         slippageInput.subject.send(.custom(0.0015))
         let viewModel = SwapSummarySlippageViewModel(
             swapProvidersInput: SwapProvidersInputStub(selected: .loading),
+            receiveTokenInput: ReceiveTokenInputStub(),
             slippageInput: slippageInput,
             percentFormatter: PercentFormatter(locale: Locale(identifier: "en_US"))
         )
@@ -99,6 +130,7 @@ struct SwapSummarySlippageViewModelTests {
         let slippageInput = SlippageInputStub()
         let viewModel = SwapSummarySlippageViewModel(
             swapProvidersInput: SwapProvidersInputStub(selected: .loading),
+            receiveTokenInput: ReceiveTokenInputStub(),
             slippageInput: slippageInput
         )
         let recorder = ValueRecorder(publisher: viewModel.$isEditable)
@@ -116,9 +148,16 @@ struct SwapSummarySlippageViewModelTests {
 private extension SwapSummarySlippageViewModelTests {
     struct StubError: Error {}
 
-    func resolveVisibility(selected: LoadingResult<ExpressAvailableProvider, any Error>?) async throws -> Bool {
+    func resolveVisibility(
+        selected: LoadingResult<ExpressAvailableProvider, any Error>?,
+        receiveToken: LoadingResult<SendReceiveToken, any Error> = .success(ReceiveTokenStub())
+    ) async throws -> Bool {
         let input = SwapProvidersInputStub(selected: selected)
-        let viewModel = SwapSummarySlippageViewModel(swapProvidersInput: input, slippageInput: SlippageInputStub())
+        let viewModel = SwapSummarySlippageViewModel(
+            swapProvidersInput: input,
+            receiveTokenInput: ReceiveTokenInputStub(receiveToken: receiveToken),
+            slippageInput: SlippageInputStub()
+        )
         let recorder = ValueRecorder(publisher: viewModel.$isVisible)
 
         try await recorder.waitForValues(count: 1)
@@ -166,6 +205,27 @@ private final class SlippageInputStub: SwapSlippageInput {
     var providerSlippage: SwapProviderSlippage? { providerSlippageSubject.value }
     var providerSlippagePublisher: AnyPublisher<SwapProviderSlippage?, Never> { providerSlippageSubject.eraseToAnyPublisher() }
     var isCustomSlippageResetPublisher: AnyPublisher<Bool, Never> { resetSubject.eraseToAnyPublisher() }
+}
+
+private final class ReceiveTokenInputStub: SendReceiveTokenInput {
+    let subject: CurrentValueSubject<LoadingResult<SendReceiveToken, any Error>, Never>
+
+    init(receiveToken: LoadingResult<SendReceiveToken, any Error> = .success(ReceiveTokenStub())) {
+        subject = CurrentValueSubject(receiveToken)
+    }
+
+    var isReceiveTokenSelectionAvailable: Bool { true }
+    var receiveToken: LoadingResult<SendReceiveToken, any Error> { subject.value }
+    var receiveTokenPublisher: AnyPublisher<LoadingResult<SendReceiveToken, any Error>, Never> { subject.eraseToAnyPublisher() }
+}
+
+private struct ReceiveTokenStub: SendReceiveToken {
+    var isCustomSlippageAllowed = true
+
+    var tokenItem: TokenItem { .blockchain(.init(.polygon(testnet: false), derivationPath: nil)) }
+    var isCustom: Bool { false }
+    var fiatItem: FiatItem { FiatItem(iconURL: nil, currencyCode: "USD") }
+    var destination: SendReceiveTokenDestination? { nil }
 }
 
 private final class SwapProvidersInputStub: SendSwapProvidersInput {
