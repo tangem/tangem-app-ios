@@ -23,6 +23,11 @@ struct OnrampSummaryView: View {
 
             marketingBanner
 
+            CallToActionMarketingBannersView(banners: viewModel.callToActionMarketingBanners) { action in
+                keyboardActive = false
+                viewModel.userDidTapCallToActionBanner(action: action)
+            }
+
             middleContainer
 
             ForEach(viewModel.notificationInputs) { input in
