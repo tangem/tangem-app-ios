@@ -464,7 +464,7 @@ struct PolymarketWithdrawSwapParametersTests {
     @Test("A destination resolved in advance is carried into the flow as the fixed receive side")
     func carriesTheResolvedDestination() throws {
         let receiveToken = SwapableTokenStub(tokenItem: PolymarketUtilities.usdcTokenItem)
-        let parameters = try makeSUT().make(withdrawingFrom: makeSource(), receiveToken: receiveToken)
+        let parameters = try makeSUT(receiveToken: receiveToken).make()
 
         guard let receive = parameters.receive as? ResolvedSwapReceiveTokenResolver else {
             Issue.record("A resolved destination must fix the receive side")
@@ -476,7 +476,7 @@ struct PolymarketWithdrawSwapParametersTests {
 
     @Test("Without a destination of its own the flow leaves the receive side to the user")
     func fallsBackToUserSelection() throws {
-        let parameters = try makeSUT().make(withdrawingFrom: makeSource(), receiveToken: nil)
+        let parameters = try makeSUT(receiveToken: nil).make()
 
         guard parameters.receive is UserSelectionSwapTokenResolver else {
             Issue.record("An unresolved destination must leave the receive side open")
@@ -695,16 +695,16 @@ private extension PolymarketWithdrawTransactionServiceTests {
 }
 
 private extension PolymarketWithdrawSwapParametersTests {
-    func makeSUT() -> PolymarketSwapParametersFactory {
-        PolymarketSwapParametersFactory(
+    func makeSUT(receiveToken: SendReceiveToken?) throws -> PolymarketWithdrawSwapPredefinedParametersBuilder {
+        PolymarketWithdrawSwapPredefinedParametersBuilder(
             userWalletInfo: makeUserWalletInfo(),
-            walletModelsProvider: MainScreenUIOrderedWalletModelsProvider(userWalletModel: UserWalletModelMock()),
-            accountModel: PolymarketAccountModelStub(state: .active)
+            source: try makeSource(),
+            receiveToken: receiveToken
         )
     }
 
     func makeConfiguration() throws -> SwapFlowConfiguration {
-        try makeSUT().make(withdrawingFrom: makeSource(), receiveToken: nil).configuration
+        try makeSUT(receiveToken: nil).make().configuration
     }
 
     func makeSource() throws -> PolymarketWithdrawSource {

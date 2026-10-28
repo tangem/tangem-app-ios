@@ -67,7 +67,7 @@ extension TangemPayAddFundsSourceResolver {
         }
 
         let candidates = walletModels.filter {
-            TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: $0).swapSourceAvailability().isAvailable
+            TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: $0).isSwapAvailable(direction: .from)
         }
         return candidates.mostFiatFundedOrFirst
     }
@@ -79,21 +79,8 @@ private extension TangemPayAddFundsSourceResolver {
     static func isTransferAvailable(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) -> Bool {
         let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
 
-        switch availabilityProvider.swapSourceAvailability() {
-        case .jointAccountsComingSoon:
-            return false
-        case .available,
-             .customToken,
-             .blockchainLoading,
-             .blockchainUnreachable,
-             .hasOnlyCachedBalance,
-             .cantSignLongTransactions,
-             .expressUnreachable,
-             .expressLoading,
-             .missingAssetRequirement,
-             .yieldModuleApproveNeeded:
-            return availabilityProvider.isSendAvailable
-        }
+        return SwapSourcePreselectionEligibility.canBecomeSource(for: availabilityProvider.swapSourceAvailability())
+            && availabilityProvider.isSendAvailable
     }
 
     func resolveSourceToken(from walletModels: [any WalletModel]) -> SendSwapableToken? {

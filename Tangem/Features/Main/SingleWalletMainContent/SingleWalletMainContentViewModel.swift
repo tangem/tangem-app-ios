@@ -131,8 +131,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             ? coordinator.map {
                 ActionButtonsViewModel(
                     coordinator: $0,
-                    userWalletModel: userWalletModel,
-                    swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
+                    userWalletModel: userWalletModel
                 )
             }
             : nil

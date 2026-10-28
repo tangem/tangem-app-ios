@@ -112,6 +112,19 @@ struct TangemPayAddFundsSourceResolverTests {
         #expect(chosen == nil)
     }
 
+    @Test("A custom token in the Pay currency is never the transfer source, so the swap fallback is picked")
+    func customTokenIsNotTransferSource() async {
+        let custom = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 500, isCustom: true)
+        let swapFallback = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 5)
+
+        let chosen = await chooseSource(
+            from: [custom, swapFallback],
+            preferredCurrencies: [usdcPolygon.expressCurrency]
+        )
+
+        #expect(chosen?.tokenItem == ethereum)
+    }
+
     @Test("A joint account never becomes the transfer source, however much of the Pay currency it holds")
     func jointAccountNeverBecomesTransferSource() async {
         let joint = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 999, accountType: .joint)
