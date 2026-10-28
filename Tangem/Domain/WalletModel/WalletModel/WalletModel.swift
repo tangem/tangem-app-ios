@@ -276,3 +276,7 @@ protocol FeeResourceInfoProvider {
     var feeResourceBalance: Decimal? { get }
     var maxResourceBalance: Decimal? { get }
 }
+
+protocol IncompleteBalanceInfoProvider {
+    var incompleteBalanceWarning: String? { get }
+}

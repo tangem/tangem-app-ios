@@ -27,23 +27,18 @@ struct SuiInitialWalletTokenSyncConfigurationProvider {
         }
 
         let suiNetworkService: SuiNetworkService = try networkServiceFactory.makeServiceWithType(for: blockchain)
-        let balanceResult = try await suiNetworkService.getBalance(address: address, coinType: .sui, cursor: nil).async()
-        let coins = try balanceResult.get()
+        let balances = try await suiNetworkService.getBalances(address: address).async()
 
-        let objects = coins.compactMap {
-            try? SuiCoinObject.from($0)
-        }
-
-        let totalNativeBalance = objects
+        let totalNativeBalance = balances
             .filter { $0.coinType == .sui }
-            .reduce(into: Decimal.zero) { partialResult, coin in
-                partialResult += coin.balance
+            .reduce(into: Decimal.zero) { partialResult, balance in
+                partialResult += balance.balance
             }
 
-        let tokenBalancesByType = objects
+        let tokenBalancesByType = balances
             .filter { $0.coinType != .sui }
-            .reduce(into: [String: Decimal]()) { result, coin in
-                result[coin.coinType.string, default: 0] += coin.balance
+            .reduce(into: [String: Decimal]()) { result, balance in
+                result[balance.coinType.string, default: 0] += balance.balance
             }
 
         let nativeBalance = totalNativeBalance / blockchain.decimalValue

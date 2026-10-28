@@ -17,21 +17,26 @@ final class SwapSummarySlippageViewModel: ObservableObject {
 
     init(
         swapProvidersInput: SendSwapProvidersInput,
+        receiveTokenInput: SendReceiveTokenInput,
         slippageInput: SwapSlippageInput,
         percentFormatter: PercentFormatter = PercentFormatter()
     ) {
-        swapProvidersInput.selectedExpressProviderPublisher
-            .map { provider in
+        Publishers.CombineLatest(swapProvidersInput.selectedExpressProviderPublisher, receiveTokenInput.receiveTokenPublisher)
+            .map { provider, receiveToken in
+                guard receiveToken.value?.isCustomSlippageAllowed != false else {
+                    return false
+                }
+
                 switch provider {
-                case .success, .loading: true
-                case .none, .failure: false
+                case .success, .loading: return true
+                case .none, .failure: return false
                 }
             }
             .removeDuplicates()
             .receiveOnMain()
             .assign(to: &$isVisible)
 
-        slippageInput.slippageProviderPublisher
+        slippageInput.providerSlippagePublisher
             .map { $0 != nil }
             .removeDuplicates()
             .receiveOnMain()
