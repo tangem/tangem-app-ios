@@ -57,6 +57,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var manageTokensCoordinator: ManageTokensCoordinator?
     @Published var polymarketCoordinator: PolymarketCoordinator?
     @Published var collectiblesCoordinator: CollectiblesCoordinator?
+    @Published var tangemPayMoneyAccountCoordinator: TangemPayMoneyAccountCoordinator?
     @Published var jointAccountManagementCoordinator: JointAccountManagementCoordinator?
 
     // MARK: - Child coordinators (Other)
@@ -493,6 +494,24 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
                     await tangemPayAccount.loadCustomerInfo()
                 }
             }
+    }
+
+    func openTangemPayMoneyAccount(userWalletModel: any UserWalletModel) {
+        mainBottomSheetUIManager.hide()
+
+        let coordinator = TangemPayMoneyAccountCoordinator(
+            dismissAction: { [weak self] in
+                self?.tangemPayMoneyAccountCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+
+        let options = TangemPayMoneyAccountCoordinator.Options(
+            userWalletModel: userWalletModel
+        )
+
+        coordinator.start(with: options)
+        tangemPayMoneyAccountCoordinator = coordinator
     }
 
     func openTangemPaySelectPlan(

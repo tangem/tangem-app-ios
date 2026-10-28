@@ -25,6 +25,10 @@ struct MultiWalletMainContentRedesignedView: View {
             pendingJointAccountsOperations
 
             VStack(spacing: 8) {
+                if viewModel.isTangemPayMoneyAccountVisible {
+                    TangemPayMoneyAccountRowView(onTap: viewModel.openTangemPayMoneyAccount)
+                }
+
                 if let tangemPayAccountViewModel = viewModel.tangemPayAccountViewModel {
                     TangemPayAccountView(viewModel: tangemPayAccountViewModel)
                 }

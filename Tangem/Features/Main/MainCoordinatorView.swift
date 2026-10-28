@@ -63,6 +63,9 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemPayMainCoordinator) {
                 TangemPayMainCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.tangemPayMoneyAccountCoordinator) {
+                TangemPayMoneyAccountCoordinatorView(coordinator: $0)
+            }
             .navigation(item: $coordinator.tangemPaySelectPlanCoordinator) {
                 TangemPaySelectPlanCoordinatorView(coordinator: $0)
             }
