@@ -33,7 +33,7 @@ struct ModalSurface: View {
 
     @ViewBuilder
     private var surface: some View {
-        if isExpanded || reduceTransparency {
+        if Self.isOpaque(isExpanded: isExpanded, reduceTransparency: reduceTransparency) {
             Self.fill(isExpanded: isExpanded, reduceTransparency: reduceTransparency)
         } else if #available(iOS 26.0, *) {
             DesignSystem.Color.materialModalTintGlass
@@ -45,6 +45,10 @@ struct ModalSurface: View {
                 .dimmingOvershoot(nil)
                 .overlay { Self.fill(isExpanded: false, reduceTransparency: false) }
         }
+    }
+
+    static func isOpaque(isExpanded: Bool, reduceTransparency: Bool) -> Bool {
+        isExpanded || reduceTransparency
     }
 
     /// The color the surface lays over the sheet's glass on iOS 26 and later, and over its own blur below.

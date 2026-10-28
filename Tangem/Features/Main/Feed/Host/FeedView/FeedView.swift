@@ -25,6 +25,7 @@ struct FeedView: View {
 
     var body: some View {
         content
+            .messageBannerNeutralVariant(.light)
             .ignoresSafeArea(edges: .bottom)
             .toolbar(.hidden, for: .navigationBar)
     }
