@@ -19,6 +19,7 @@ struct AppCoordinatorView: CoordinatorView {
     var body: some View {
         content
             .accentColor(DesignSystem.Color.textPrimary)
+            .softTopScrollEdgeEffect()
             .bottomSheet(
                 item: $sensitiveTextVisibilityViewModel.informationHiddenBalancesViewModel,
                 backgroundColor: DesignSystem.Color.bgPrimary

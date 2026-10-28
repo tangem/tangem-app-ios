@@ -30,9 +30,11 @@ struct NFTCollectionsCoordinatorView: View {
             .sheet(item: $coordinator.receiveCoordinator) { coordinator in
                 NFTReceiveCoordinatorView(coordinator: coordinator)
                     .presentationCornerRadius(24.0)
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.assetDetailsCoordinator) {
                 NFTAssetDetailsCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
             }
             // Floating sheets are controlled by the global `FloatingSheetRegistry` singleton instance, therefore
             // weakly capture is required here to avoid retaining the `coordinator` instance forever

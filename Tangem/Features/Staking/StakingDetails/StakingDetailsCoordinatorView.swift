@@ -43,9 +43,11 @@ struct StakingDetailsCoordinatorView: CoordinatorView {
         NavHolder()
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.multipleRewardsCoordinator) {
                 MultipleRewardsCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
             }
     }
 }

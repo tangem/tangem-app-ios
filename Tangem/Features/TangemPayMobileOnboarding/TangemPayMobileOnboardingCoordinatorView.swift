@@ -30,6 +30,7 @@ struct TangemPayMobileOnboardingCoordinatorView: CoordinatorView {
         .animation(.default, value: coordinator.tangemPayOnboardingCoordinator?.id)
         .sheet(item: $coordinator.webViewContainerViewModel) {
             WebViewContainer(viewModel: $0)
+                .softTopScrollEdgeEffect()
         }
     }
 }

@@ -25,6 +25,7 @@ struct TangemPayResidencyCoordinatorView: CoordinatorView {
         .alert(item: $coordinator.alert) { $0.alert }
         .sheet(isPresented: $coordinator.isWaitlistPresented) {
             waitlist
+                .softTopScrollEdgeEffect()
         }
     }
 }
@@ -99,6 +100,7 @@ private extension TangemPayResidencyCoordinatorView {
             }
             .sheet(item: $coordinator.privacyPolicyViewModel) {
                 WebViewContainer(viewModel: $0)
+                    .softTopScrollEdgeEffect()
             }
         }
     }

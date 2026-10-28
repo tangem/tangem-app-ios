@@ -27,6 +27,7 @@ struct PolymarketOrderSheetModifier: ViewModifier {
                         PolymarketMainSheetHost(coordinator: mainCoordinator, isActive: true)
                     }
                 }
+                .softTopScrollEdgeEffect()
             }
     }
 }
