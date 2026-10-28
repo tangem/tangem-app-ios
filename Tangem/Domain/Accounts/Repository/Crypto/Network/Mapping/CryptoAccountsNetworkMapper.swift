@@ -398,6 +398,12 @@ final class CryptoAccountsNetworkMapper {
                 return nil
             }
 
+            let accountType = mapAccountType(rawType: archivedAccountDTO.type)
+
+            guard accountType != .collectibles else {
+                return nil
+            }
+
             return ArchivedCryptoAccountInfo(
                 accountId: accountId,
                 name: name,
@@ -405,7 +411,7 @@ final class CryptoAccountsNetworkMapper {
                 tokensCount: archivedAccountDTO.totalTokens,
                 networksCount: archivedAccountDTO.totalNetworks,
                 derivationIndex: archivedAccountDTO.derivation,
-                type: mapAccountType(rawType: archivedAccountDTO.type)
+                type: accountType
             )
         }
     }

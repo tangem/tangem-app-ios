@@ -570,19 +570,20 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
                 partialResult[element.element.toAnyHashable()] = element.offset
             }
 
-        let orderedCryptoAccounts = persistentStorage
-            .getList()
-            .sorted { first, second in
-                guard
-                    let firstIndex = orderedIndicesKeyedByIdentifiers[first.derivationIdentity.toPersistentIdentifier()],
-                    let secondIndex = orderedIndicesKeyedByIdentifiers[second.derivationIdentity.toPersistentIdentifier()]
-                else {
-                    // Preserve existing order
-                    return false
-                }
+        let orderedIndex = { (account: StoredCryptoAccount) in
+            orderedIndicesKeyedByIdentifiers[account.derivationIdentity.toPersistentIdentifier()]
+        }
 
-                return firstIndex < secondIndex
-            }
+        let storedCryptoAccounts = persistentStorage.getList()
+        var reorderedCryptoAccounts = storedCryptoAccounts
+            .compactMap { account in orderedIndex(account).map { (index: $0, account: account) } }
+            .sorted { $0.index < $1.index }
+            .map(\.account)
+            .makeIterator()
+
+        let orderedCryptoAccounts = storedCryptoAccounts.map { account in
+            orderedIndex(account) == nil ? account : reorderedCryptoAccounts.next() ?? account
+        }
 
         persistentStorage.replace(with: orderedCryptoAccounts)
 
