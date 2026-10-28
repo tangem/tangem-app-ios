@@ -14,6 +14,7 @@ import Foundation
 enum AccountType: String, Codable, Equatable {
     case crypto
     case joint
+    case collectibles
 }
 
 // MARK: - Decodable protocol conformance

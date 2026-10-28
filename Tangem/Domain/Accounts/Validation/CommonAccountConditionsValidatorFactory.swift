@@ -51,6 +51,8 @@ private extension CommonAccountConditionsValidatorFactory {
             NewCryptoAccountConditionsValidator(newAccountName: newAccountName, remoteState: remoteState)
         case .joint:
             NewJointAccountConditionsValidator(newAccountName: newAccountName, remoteState: remoteState)
+        case .collectibles:
+            NewCollectiblesAccountConditionsValidator()
         }
     }
 
@@ -63,6 +65,8 @@ private extension CommonAccountConditionsValidatorFactory {
             UnarchivedCryptoAccountConditionsValidator(newAccountName: info.name, identifier: info.id, remoteState: remoteState)
         case .joint:
             UnarchivedJointAccountConditionsValidator(remoteState: remoteState)
+        case .collectibles:
+            UnarchivedCollectiblesAccountConditionsValidator()
         }
     }
 }

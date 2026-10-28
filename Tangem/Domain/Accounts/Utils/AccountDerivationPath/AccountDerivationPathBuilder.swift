@@ -39,6 +39,8 @@ enum AccountDerivationPathBuilderFactory {
             )
         case .joint:
             return JointAccountDerivationPathBuilder(derivationIndex: derivationIdentity.derivationIndex)
+        case .collectibles:
+            return CollectiblesAccountDerivationPathBuilder()
         }
     }
 }

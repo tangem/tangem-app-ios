@@ -23,6 +23,7 @@ actor CommonAccountModelsManager {
     private let accountConditionsValidatorFactory: any AccountConditionsValidatorFactory
     private let cryptoAccountModelsRegistry: CryptoAccountModelsRegistry
     private let jointAccountModelsRegistry: JointAccountModelsRegistry
+    private let collectiblesAccountModelsRegistry: CollectiblesAccountModelsRegistry
 
     private nonisolated let userWalletId: UserWalletId
     private let areHDWalletsSupported: Bool
@@ -47,6 +48,7 @@ actor CommonAccountModelsManager {
         accountConditionsValidatorFactory: any AccountConditionsValidatorFactory,
         cryptoAccountModelsRegistry: CryptoAccountModelsRegistry,
         jointAccountModelsRegistry: JointAccountModelsRegistry,
+        collectiblesAccountModelsRegistry: CollectiblesAccountModelsRegistry,
         areHDWalletsSupported: Bool
     ) {
         self.userWalletId = userWalletId
@@ -58,6 +60,7 @@ actor CommonAccountModelsManager {
         self.accountConditionsValidatorFactory = accountConditionsValidatorFactory
         self.cryptoAccountModelsRegistry = cryptoAccountModelsRegistry
         self.jointAccountModelsRegistry = jointAccountModelsRegistry
+        self.collectiblesAccountModelsRegistry = collectiblesAccountModelsRegistry
         self.areHDWalletsSupported = areHDWalletsSupported
 
         // Synchronization for `cryptoAccountsGlobalStateProvider` is guaranteed by the initialization of Swift static variables,
@@ -101,7 +104,8 @@ actor CommonAccountModelsManager {
                 makeTangemPayAccountModelsPublisher(),
                 accountModelsProvider.accountModelsPublisher
             )
-            .map { $0 + $1 + $2 + $3 }
+            .combineLatest(makeCollectiblesAccountModelsPublisher())
+            .map { models, collectibles in models.0 + models.1 + models.2 + models.3 + collectibles }
             .handleEvents(receiveOutput: { [weak self] accountModels in
                 self?.criticalSection {
                     self?.unsafeAccountModels = accountModels
@@ -184,6 +188,16 @@ actor CommonAccountModelsManager {
 
                 return [.joint(jointAccountModels)]
             }
+            .eraseToAnyPublisher()
+    }
+
+    private nonisolated func makeCollectiblesAccountModelsPublisher() -> AnyPublisher<[AccountModel], Never> {
+        return makeStoredCryptoAccountsPublisher(ofType: .collectibles)
+            .withWeakCaptureOf(self)
+            .asyncMap { manager, storedCryptoAccounts in
+                await manager.collectiblesAccountModelsRegistry.collectiblesAccountModels(from: storedCryptoAccounts)
+            }
+            .map { collectiblesAccountModels in collectiblesAccountModels.map(AccountModel.collectibles) }
             .eraseToAnyPublisher()
     }
 

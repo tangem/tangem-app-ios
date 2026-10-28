@@ -57,15 +57,6 @@ struct CommonUserWalletModelDependencies {
             )
         )
 
-        let collectiblesAccountProvider = CollectiblesAccountProvider(
-            builder: CollectiblesAccountBuilder(
-                userWalletId: userWalletId,
-                config: config,
-                keysRepository: keysRepository,
-                coldKeyInteractorFactory: collectiblesColdKeyInteractorFactory
-            )
-        )
-
         let accountModelsManagerDependencies = Self.makeAccountModelsManagerDependencies(
             userWalletId: userWalletId,
             config: config,
@@ -84,7 +75,8 @@ struct CommonUserWalletModelDependencies {
             jointAccountPendingOperationsRepository: accountModelsManagerDependencies.jointAccountPendingOperationsRepository,
             tangemSignerFactory: tangemSignerFactory,
             tangemPayManager: tangemPayManager,
-            accountModelsProvider: CompositeAccountModelsProvider([polymarketAccountProvider, collectiblesAccountProvider]),
+            accountModelsProvider: CompositeAccountModelsProvider([polymarketAccountProvider]),
+            collectiblesColdKeyInteractorFactory: collectiblesColdKeyInteractorFactory,
             cryptoAccountsNetworkMapper: accountModelsManagerDependencies.networkMapper,
             archivedCryptoAccountsProvider: accountModelsManagerDependencies.archivedCryptoAccountsProvider,
             derivationManager: derivationManager,
@@ -246,6 +238,7 @@ private extension CommonUserWalletModelDependencies {
         tangemSignerFactory: TangemSignerFactory,
         tangemPayManager: TangemPayManager,
         accountModelsProvider: any AccountModelsProvider,
+        collectiblesColdKeyInteractorFactory: any CollectiblesColdKeyInteractorFactory,
         cryptoAccountsNetworkMapper: CryptoAccountsNetworkMapper,
         archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
         derivationManager: DerivationManager?,
@@ -298,6 +291,15 @@ private extension CommonUserWalletModelDependencies {
             walletModelsFactoryProvider: walletModelsFactoryProvider
         )
 
+        let collectiblesAccountDependenciesFactory = CollectiblesAccountModelsRegistry.DependenciesFactory(
+            userWalletId: userWalletId,
+            derivationStyle: config.derivationStyle,
+            keysRepository: keysRepository,
+            cryptoAccountsRepository: cryptoAccountsRepository,
+            coldKeyInteractorFactory: collectiblesColdKeyInteractorFactory,
+            buybackSigningLimits: hardwareLimitationsUtil
+        )
+
         let cryptoAccountModelsRegistry = CryptoAccountModelsRegistry(
             userWalletId: userWalletId,
             dependenciesFactory: cryptoAccountDependenciesFactory
@@ -305,6 +307,9 @@ private extension CommonUserWalletModelDependencies {
         let jointAccountModelsRegistry = JointAccountModelsRegistry(
             userWalletId: userWalletId,
             dependenciesFactory: jointAccountDependenciesFactory
+        )
+        let collectiblesAccountModelsRegistry = CollectiblesAccountModelsRegistry(
+            dependenciesFactory: collectiblesAccountDependenciesFactory
         )
 
         let accountModelsManager = CommonAccountModelsManager(
@@ -317,6 +322,7 @@ private extension CommonUserWalletModelDependencies {
             accountConditionsValidatorFactory: CommonAccountConditionsValidatorFactory(userWalletId: userWalletId),
             cryptoAccountModelsRegistry: cryptoAccountModelsRegistry,
             jointAccountModelsRegistry: jointAccountModelsRegistry,
+            collectiblesAccountModelsRegistry: collectiblesAccountModelsRegistry,
             areHDWalletsSupported: areHDWalletsSupported
         )
 

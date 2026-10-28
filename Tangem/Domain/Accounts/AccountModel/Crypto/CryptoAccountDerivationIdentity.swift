@@ -27,7 +27,7 @@ extension CryptoAccountDerivationIdentity: AccountModelPersistentIdentifierConve
         switch type {
         case .crypto:
             return derivationIndex.toAnyHashable()
-        case .joint:
+        case .joint, .collectibles:
             return "\(type.rawValue)\(derivationIndex)".toAnyHashable()
         }
     }
