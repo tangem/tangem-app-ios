@@ -27,12 +27,79 @@ struct ExpressAvailableProviderSlippageTests {
 
         #expect(manager.requests.map(\.slippage) == [isCustomSlippageSupported ? Decimal(string: "0.01") : nil])
     }
+
+    @Test("The default slippage comes from the quote requested without a custom slippage")
+    func defaultSlippageComesFromQuote() async {
+        let manager = ExpressProviderManagerSpy(quoteSlippage: { _ in Self.quoteSlippage })
+        let sut = ExpressAvailableProvider(context: makeContext(isCustomSlippageSupported: true, slippage: Self.providerSlippage), manager: manager)
+
+        await sut.update(request: makeRequest(slippage: nil))
+
+        #expect(sut.defaultSlippage == Self.quoteSlippage)
+    }
+
+    @Test("A quote requested with a custom slippage keeps the default slippage")
+    func customSlippageQuoteKeepsDefault() async {
+        let manager = ExpressProviderManagerSpy(quoteSlippage: { $0 ?? Self.quoteSlippage })
+        let sut = ExpressAvailableProvider(context: makeContext(isCustomSlippageSupported: true, slippage: Self.providerSlippage), manager: manager)
+
+        await sut.update(request: makeRequest(slippage: nil))
+        await sut.update(request: makeRequest(slippage: Self.customSlippage))
+
+        #expect(sut.defaultSlippage == Self.quoteSlippage)
+    }
+
+    @Test("Without a quote slippage the default slippage falls back to the provider one")
+    func defaultSlippageFallsBackToProvider() async {
+        let manager = ExpressProviderManagerSpy(quoteSlippage: { _ in nil })
+        let sut = ExpressAvailableProvider(context: makeContext(isCustomSlippageSupported: true, slippage: Self.providerSlippage), manager: manager)
+
+        await sut.update(request: makeRequest(slippage: nil))
+
+        #expect(sut.defaultSlippage == Self.providerSlippage)
+    }
+
+    @Test("A failed quote keeps the default slippage from the last quote")
+    func failedQuoteKeepsDefault() async {
+        let manager = ExpressProviderManagerSpy(quoteSlippage: { _ in Self.quoteSlippage })
+        let sut = ExpressAvailableProvider(context: makeContext(isCustomSlippageSupported: true, slippage: Self.providerSlippage), manager: manager)
+
+        await sut.update(request: makeRequest(slippage: nil))
+        manager.failQuotes()
+        await sut.update(request: makeRequest(slippage: nil))
+
+        #expect(sut.defaultSlippage == Self.quoteSlippage)
+    }
+
+    @Test("A reset drops the quote slippage")
+    func resetDropsQuoteSlippage() async {
+        let manager = ExpressProviderManagerSpy(quoteSlippage: { _ in Self.quoteSlippage })
+        let sut = ExpressAvailableProvider(context: makeContext(isCustomSlippageSupported: true, slippage: Self.providerSlippage), manager: manager)
+
+        await sut.update(request: makeRequest(slippage: nil))
+        sut.reset()
+
+        #expect(sut.defaultSlippage == Self.providerSlippage)
+    }
 }
 
 // MARK: - Helpers
 
 private extension ExpressAvailableProviderSlippageTests {
-    func makeContext(isCustomSlippageSupported: Bool) -> ExpressProviderFlowContext {
+    static let providerSlippage = Decimal(string: "0.035")!
+    static let quoteSlippage = Decimal(string: "0.003")!
+    static let customSlippage = Decimal(string: "0.01")!
+
+    func makeRequest(slippage: Decimal?) -> ExpressAvailableProviderUpdatingRequest {
+        ExpressAvailableProviderUpdatingRequest(
+            amountType: .from(100),
+            approvePolicy: .specified,
+            slippage: slippage,
+            quotesLoadingPerformanceTracker: nil
+        )
+    }
+
+    func makeContext(isCustomSlippageSupported: Bool, slippage: Decimal? = nil) -> ExpressProviderFlowContext {
         let source = SourceWalletStub(analyticsLogger: AnalyticsLoggerSpy(), address: "0xOwner", allowanceProvider: nil)
         let provider = ExpressProvider(
             id: "test-provider",
@@ -43,7 +110,7 @@ private extension ExpressAvailableProviderSlippageTests {
             termsOfUse: nil,
             privacyPolicy: nil,
             recommended: nil,
-            slippage: nil,
+            slippage: slippage,
             isCustomSlippageSupported: isCustomSlippageSupported
         )
 
@@ -68,12 +135,48 @@ final class ExpressProviderManagerSpy: ExpressProviderManager {
     var requests: [ExpressManagerSwappingPairRequest] { _requests.withLock { $0 } }
 
     private let _requests = OSAllocatedUnfairLock(initialState: [ExpressManagerSwappingPairRequest]())
+    private let _quotedSlippage = OSAllocatedUnfairLock<Decimal??>(initialState: nil)
+    private let _isQuoteFailing = OSAllocatedUnfairLock(initialState: false)
+    private let quoteSlippage: (@Sendable (_ requestSlippage: Decimal?) -> Decimal?)?
 
-    func getState() -> ExpressProviderManagerState { .idle }
-    func reset() {}
+    init(quoteSlippage: (@Sendable (_ requestSlippage: Decimal?) -> Decimal?)? = nil) {
+        self.quoteSlippage = quoteSlippage
+    }
+
+    func getState() -> ExpressProviderManagerState {
+        guard let slippage = _quotedSlippage.withLock({ $0 }) else {
+            return .idle
+        }
+
+        let quote = ExpressQuote(
+            fromAmount: 100,
+            expectAmount: 100,
+            allowanceContract: nil,
+            quoteId: nil,
+            txType: nil,
+            isRestricted: false,
+            slippage: slippage
+        )
+        return .error(StubError.estimateFailed, quote: quote)
+    }
+
+    func failQuotes() {
+        _isQuoteFailing.withLock { $0 = true }
+    }
+
+    func reset() {
+        _quotedSlippage.withLock { $0 = nil }
+    }
 
     func update(request: ExpressManagerSwappingPairRequest) async {
         _requests.withLock { $0.append(request) }
+
+        if _isQuoteFailing.withLock({ $0 }) {
+            _quotedSlippage.withLock { $0 = nil }
+        } else if let quoteSlippage {
+            let slippage = quoteSlippage(request.slippage)
+            _quotedSlippage.withLock { $0 = .some(slippage) }
+        }
     }
 
     func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {

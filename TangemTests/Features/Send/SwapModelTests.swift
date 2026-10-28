@@ -436,23 +436,23 @@ final class SwapModelTests: LeakTrackingTestSuite {
         sut.actualizeInformation()
         _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
 
-        #expect(sut.slippageProvider?.slippage == defaultSlippage)
+        #expect(sut.providerSlippage?.defaultSlippage == defaultSlippage)
 
         baseline = recorder.count
         sut.actualizeInformation()
 
-        #expect(sut.slippageProvider == nil)
+        #expect(sut.providerSlippage == nil)
 
         _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
 
-        #expect(sut.slippageProvider?.slippage == defaultSlippage)
+        #expect(sut.providerSlippage?.defaultSlippage == defaultSlippage)
 
         baseline = recorder.count
         sut.userDidFinishSelection(feeTokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)), feeOption: .market)
 
         let isLoadingFee = if case .loading(.fee) = recorder.latest { true } else { false }
         #expect(isLoadingFee)
-        #expect(sut.slippageProvider?.slippage == defaultSlippage)
+        #expect(sut.providerSlippage?.defaultSlippage == defaultSlippage)
 
         _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
 
@@ -463,16 +463,16 @@ final class SwapModelTests: LeakTrackingTestSuite {
             if case .loading = state { true } else { false }
         }
 
-        #expect(sut.slippageProvider == nil)
+        #expect(sut.providerSlippage == nil)
 
         await manager.releaseHeldAmountUpdate()
         _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
 
-        #expect(sut.slippageProvider?.slippage == defaultSlippage)
+        #expect(sut.providerSlippage?.defaultSlippage == defaultSlippage)
 
         sut.update(receive: ReceiveTokenStub(blockchain: .polygon(testnet: false)))
 
-        #expect(sut.slippageProvider == nil)
+        #expect(sut.providerSlippage == nil)
     }
 
     @Test("Choosing another provider hands the slippage sheet the new provider right away")
@@ -498,16 +498,16 @@ final class SwapModelTests: LeakTrackingTestSuite {
         sut.actualizeInformation()
         _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
 
-        #expect(sut.slippageProvider?.isCustomSlippageSupported == true)
+        #expect(sut.providerSlippage?.isCustomSlippageSupported == true)
 
         baseline = recorder.count
         sut.userDidSelect(provider: second)
 
-        #expect(sut.slippageProvider?.isCustomSlippageSupported == false)
+        #expect(sut.providerSlippage?.isCustomSlippageSupported == false)
 
         _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
 
-        #expect(sut.slippageProvider?.isCustomSlippageSupported == false)
+        #expect(sut.providerSlippage?.isCustomSlippageSupported == false)
     }
 
     @Test("A provider without a default slippage gives the slippage sheet nothing to open")
@@ -520,7 +520,7 @@ final class SwapModelTests: LeakTrackingTestSuite {
 
         sut.userDidSelect(provider: ExpressAvailableProviderFixture.make(state: quotedState, slippage: nil))
 
-        #expect(sut.slippageProvider == nil)
+        #expect(sut.providerSlippage == nil)
     }
 
     @Test("Tapping the low slippage warning asks the router to open the slippage sheet")
@@ -572,6 +572,56 @@ final class SwapModelTests: LeakTrackingTestSuite {
 
         #expect(resets == [false, false, true, false])
         #expect(sut.slippage == .custom(0.004))
+    }
+
+    @Test("An account destination of the same asset drops the custom slippage to Auto")
+    func accountDestinationResetsCustomSlippage() {
+        let blockchain = Blockchain.polygon(testnet: false)
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: blockchain)
+        )
+
+        var resets: [Bool] = []
+        let cancellable = sut.isCustomSlippageResetPublisher.sink { resets.append($0) }
+
+        withExtendedLifetime(cancellable) {
+            sut.userDidSet(slippage: .custom(0.005))
+            sut.update(receive: ReceiveTokenStub(blockchain: blockchain, isCustomSlippageAllowed: false))
+        }
+
+        #expect(sut.slippage == .auto)
+        #expect(resets.allSatisfy { !$0 })
+    }
+
+    @Test("Reversing a pair that turns an account into the destination drops the custom slippage to Auto")
+    func reversalToAccountDestinationResetsCustomSlippage() {
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(
+                tokenItem: .blockchain(.init(.polygon(testnet: false), derivationPath: nil)),
+                isCustomSlippageAllowed: false
+            ),
+            receiveToken: SwapableTokenStub(blockchain: .ethereum(testnet: false))
+        )
+
+        sut.userDidSet(slippage: .custom(0.005))
+        sut.userDidRequestSwapSourceAndReceiveToken()
+
+        #expect(sut.slippage == .auto)
+    }
+
+    @Test("A regular destination of the same asset keeps the custom slippage")
+    func sameAssetDestinationKeepsCustomSlippage() {
+        let blockchain = Blockchain.polygon(testnet: false)
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: blockchain)
+        )
+
+        sut.userDidSet(slippage: .custom(0.005))
+        sut.update(receive: ReceiveTokenStub(blockchain: blockchain))
+
+        #expect(sut.slippage == .custom(0.005))
     }
 
     @Test("An amount change leaves the slippage reset to the manager instead of requoting before the new amount")
@@ -1154,9 +1204,11 @@ private enum SwapPairHandlerError: Error {
 
 private final class ReceiveTokenStub: SendReceiveToken {
     let tokenItem: TokenItem
+    let isCustomSlippageAllowed: Bool
 
-    init(blockchain: Blockchain) {
+    init(blockchain: Blockchain, isCustomSlippageAllowed: Bool = true) {
         tokenItem = .blockchain(.init(blockchain, derivationPath: nil))
+        self.isCustomSlippageAllowed = isCustomSlippageAllowed
     }
 
     var isCustom: Bool { false }

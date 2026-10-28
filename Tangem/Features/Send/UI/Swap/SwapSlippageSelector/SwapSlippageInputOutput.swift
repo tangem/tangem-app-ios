@@ -8,13 +8,12 @@
 
 import Combine
 import Foundation
-import TangemExpress
 
 protocol SwapSlippageInput: AnyObject {
     var slippage: SwapSlippage { get }
     var slippagePublisher: AnyPublisher<SwapSlippage, Never> { get }
-    var slippageProvider: ExpressProvider? { get }
-    var slippageProviderPublisher: AnyPublisher<ExpressProvider?, Never> { get }
+    var providerSlippage: SwapProviderSlippage? { get }
+    var providerSlippagePublisher: AnyPublisher<SwapProviderSlippage?, Never> { get }
     var isCustomSlippageResetPublisher: AnyPublisher<Bool, Never> { get }
 }
 
