@@ -16,7 +16,7 @@ struct PolymarketPositionDetailsScreen: View {
     @ObservedObject var viewModel: PolymarketPositionDetailsViewModel
 
     var body: some View {
-        PolymarketPositionDetailsView(model: viewModel.model) { viewModel.handleViewAction(.close) }
+        content
             .onWillDisappear { viewModel.handleViewAction(.onDisappear) }
             .alert(item: $viewModel.alert) { $0.alert }
             .modal(
@@ -29,5 +29,14 @@ struct PolymarketPositionDetailsScreen: View {
                 }
             )
             .scrollIndicators(.hidden)
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if viewModel.usesPhaseTwoLayout {
+            PolymarketPositionDetailsPhaseTwoView(model: viewModel.phaseTwoModel) { viewModel.handleViewAction(.close) }
+        } else {
+            PolymarketPositionDetailsView(model: viewModel.model) { viewModel.handleViewAction(.close) }
+        }
     }
 }

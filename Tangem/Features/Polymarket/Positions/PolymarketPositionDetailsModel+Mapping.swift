@@ -231,6 +231,150 @@ private extension PolymarketPositionDetailsView.Model {
     }
 }
 
+// MARK: - Phase two
+
+extension PolymarketPositionDetailsPhaseTwoView.Model {
+    private typealias Values = PolymarketPositionDetailsView.Model
+
+    static func make(
+        position: PolymarketPosition,
+        openEventDetails: @escaping () -> Void,
+        onClosePosition: @escaping () -> Void,
+        onBuy: @escaping () -> Void,
+        onHint: @escaping (PolymarketPositionHintSheetView.Model) -> Void,
+        loadingSide: PolymarketOrderSide?
+    ) -> Self {
+        let isOrderLoading = loadingSide != nil
+        let isTradable = Values.canTrade(position) && !isOrderLoading
+
+        return Self(
+            summary: .init(
+                iconURL: position.iconURL,
+                question: Values.question(position: position),
+                outcomeTitle: position.outcome,
+                outcomeStyle: PolymarketOutcomeStyle(outcomeIndex: position.outcomeIndex, name: position.outcome)
+            ),
+            notice: Values.notice(position: position),
+            market: .init(
+                title: Values.marketTitle(position: position),
+                iconURL: position.iconURL,
+                onTap: openEventDetails
+            ),
+            currentValue: currentValue(position: position),
+            payout: payout(position: position),
+            priceRange: priceRange(position: position, onHintTap: { onHint(.unrealizedPnl) }),
+            realizedProfit: realizedProfit(position: position, onHintTap: { onHint(.realizedPnl) }),
+            rows: rows(position: position),
+            secondaryAction: Values.action(
+                title: Localization.predictionCashOut,
+                isEnabled: isTradable,
+                isLoading: loadingSide == .sell,
+                perform: onClosePosition
+            ),
+            primaryAction: Values.action(
+                title: Localization.commonBuy,
+                isEnabled: isTradable,
+                isLoading: loadingSide == .buy,
+                perform: onBuy
+            )
+        )
+    }
+}
+
+private extension PolymarketPositionDetailsPhaseTwoView.Model {
+    static func currentValue(position: PolymarketPosition) -> PolymarketPositionDetailsPhaseTwoView.CurrentValue {
+        PolymarketPositionDetailsPhaseTwoView.CurrentValue(
+            caption: "Current value",
+            valueText: Values.money(position.currentValue),
+            changeText: Values.changeText(position: position),
+            changeDirection: direction(of: Values.displayedMoney(position.cashPnl))
+        )
+    }
+
+    static func payout(position: PolymarketPosition) -> PolymarketPositionDetailsPhaseTwoView.Payout? {
+        guard let payoutAmount = Values.payoutAmount(position: position) else { return nil }
+
+        let profit = Values.signedMoney(position.size - position.initialValue)
+
+        return PolymarketPositionDetailsPhaseTwoView.Payout(
+            caption: "If you win",
+            valueText: payoutAmount,
+            profitText: "\(profit) profit"
+        )
+    }
+
+    static func priceRange(position: PolymarketPosition, onHintTap: @escaping () -> Void) -> PolymarketPositionPriceRangeView.Model {
+        PolymarketPositionPriceRangeView.Model(
+            minText: Values.percentFormatter.format(Constants.minPrice, option: .predictionPrice),
+            maxText: Values.percentFormatter.format(Constants.maxPrice, option: .predictionPrice),
+            change: .init(
+                bought: mark(displayedPrice(position.avgPrice)),
+                now: mark(displayedPrice(position.curPrice))
+            ),
+            onHintTap: onHintTap
+        )
+    }
+
+    static func realizedProfit(
+        position: PolymarketPosition,
+        onHintTap: @escaping () -> Void
+    ) -> PolymarketPositionDetailsPhaseTwoView.RealizedProfit? {
+        guard Values.displayedMoney(position.realizedPnl) != 0 else { return nil }
+
+        return PolymarketPositionDetailsPhaseTwoView.RealizedProfit(
+            caption: "Realized Profit",
+            valueText: Values.signedMoney(position.realizedPnl),
+            onHintTap: onHintTap
+        )
+    }
+
+    static func rows(position: PolymarketPosition) -> [PolymarketDetailsRowsBlock.Row] {
+        var rows: [PolymarketDetailsRowsBlock.Row] = [
+            .init(title: "Notional of Position", value: Values.money(position.initialValue)),
+            .init(title: Localization.predictionPositionsQuantity, value: Values.shares(position.size)),
+            .init(title: Localization.predictionPositionsStatus, value: Values.statusText(position: position)),
+        ]
+
+        if let endDate = position.endDate {
+            rows.append(.init(
+                title: Localization.predictionDetailsResolutionDate,
+                value: PolymarketOrderResultFormatter.resolutionDay(endDate)
+            ))
+        }
+
+        return rows
+    }
+
+    static func displayedPrice(_ price: Decimal) -> Decimal {
+        clamp(price, min: Constants.minPrice, max: Constants.maxPrice)
+            .rounded(scale: Constants.displayedPriceScale, roundingMode: .plain)
+    }
+
+    static func mark(_ price: Decimal) -> PolymarketPositionPriceRangeView.Mark {
+        PolymarketPositionPriceRangeView.Mark(
+            position: price.doubleValue,
+            valueText: Values.percentFormatter.format(price, option: .predictionPrice)
+        )
+    }
+
+    static func direction(of value: Decimal) -> UtilPriceChange.Direction {
+        switch PriceChangeView.ChangeType(from: value) {
+        case .positive:
+            .positive
+        case .neutral:
+            .neutral
+        case .negative:
+            .negative
+        }
+    }
+
+    enum Constants {
+        static let minPrice: Decimal = 0
+        static let maxPrice: Decimal = 1
+        static let displayedPriceScale = 4
+    }
+}
+
 // MARK: - Hints
 
 extension PolymarketPositionHintSheetView.Model {
