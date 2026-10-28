@@ -12,11 +12,20 @@ package sui.rpc.v2;
 import "google/protobuf/field_mask.proto";
 
 service LedgerService {
+  rpc GetServiceInfo(GetServiceInfoRequest) returns (GetServiceInfoResponse);
   rpc GetEpoch(GetEpochRequest) returns (GetEpochResponse);
 }
 
 service StateService {
   rpc ListOwnedObjects(ListOwnedObjectsRequest) returns (ListOwnedObjectsResponse);
+  rpc ListBalances(ListBalancesRequest) returns (ListBalancesResponse);
+}
+
+message GetServiceInfoRequest {}
+
+message GetServiceInfoResponse {
+  optional string chain_id = 1;
+  optional uint64 epoch = 3;
 }
 
 service TransactionExecutionService {
@@ -44,6 +53,23 @@ message ListOwnedObjectsRequest {
 message ListOwnedObjectsResponse {
   repeated Object objects = 1;
   optional bytes next_page_token = 2;
+}
+
+message ListBalancesRequest {
+  optional string owner = 1;
+  optional uint32 page_size = 2;
+  optional bytes page_token = 3;
+}
+
+message ListBalancesResponse {
+  repeated Balance balances = 1;
+  optional bytes next_page_token = 2;
+}
+
+message Balance {
+  optional string coin_type = 1;
+  optional uint64 balance = 3;
+  optional uint64 address_balance = 4;
 }
 
 message ExecuteTransactionRequest {
