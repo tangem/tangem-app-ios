@@ -151,7 +151,11 @@ extension XCUIElement {
         }
     }
 
-    func holdToConfirm(timeout: TimeInterval = .robustUIUpdate, attempts: Int = Constants.holdToConfirmAttempts) {
+    func holdToConfirm(
+        timeout: TimeInterval = .robustUIUpdate,
+        attempts: Int = Constants.holdToConfirmAttempts,
+        isConfirmedBySustainedProgress: Bool = false
+    ) {
         guard waitForState(state: .enabled, for: timeout) else {
             return
         }
@@ -166,9 +170,14 @@ extension XCUIElement {
             }
 
             let labelBeforePress = label
+            let isAlertShownBeforePress = XCUIApplication().alerts.firstMatch.exists
             pressEvenIfNotHittable(forDuration: Constants.holdToConfirmDuration)
 
-            if waitForHoldToBeConfirmed(labelBeforePress: labelBeforePress) {
+            if waitForHoldToBeConfirmed(
+                labelBeforePress: labelBeforePress,
+                isAlertShownBeforePress: isAlertShownBeforePress,
+                isConfirmedBySustainedProgress: isConfirmedBySustainedProgress
+            ) {
                 return
             }
         }
@@ -200,15 +209,34 @@ extension XCUIElement {
         _ = XCTWaiter().wait(for: [startExpectation], timeout: Constants.holdRefreshPeriod)
     }
 
-    private func waitForHoldToBeConfirmed(labelBeforePress: String) -> Bool {
-        let predicate = NSPredicate { object, _ in
+    private func waitForHoldToBeConfirmed(
+        labelBeforePress: String,
+        isAlertShownBeforePress: Bool,
+        isConfirmedBySustainedProgress: Bool
+    ) -> Bool {
+        let holdEnded = NSPredicate { object, _ in
             guard let element = object as? XCUIElement else { return false }
-            return !element.exists || element.label != labelBeforePress || !element.isHoldInProgress
+            return element.isHoldActionDone(labelBeforePress: labelBeforePress) || !element.isHoldInProgress
         }
-        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: self)
-        _ = XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate)
+        let holdEndedExpectation = XCTNSPredicateExpectation(predicate: holdEnded, object: self)
 
-        return !exists || label != labelBeforePress
+        let holdEndTimeout: TimeInterval = isConfirmedBySustainedProgress ? Constants.holdRefreshPeriod : .robustUIUpdate
+
+        guard XCTWaiter().wait(for: [holdEndedExpectation], timeout: holdEndTimeout) == .completed else {
+            return isConfirmedBySustainedProgress
+        }
+
+        let resultShown = NSPredicate { object, _ in
+            guard let element = object as? XCUIElement else { return false }
+            return element.isHoldActionDone(labelBeforePress: labelBeforePress)
+                || (!isAlertShownBeforePress && XCUIApplication().alerts.firstMatch.exists)
+        }
+        let resultShownExpectation = XCTNSPredicateExpectation(predicate: resultShown, object: self)
+        return XCTWaiter().wait(for: [resultShownExpectation], timeout: Constants.holdResultTimeout) == .completed
+    }
+
+    private func isHoldActionDone(labelBeforePress: String) -> Bool {
+        !exists || label != labelBeforePress
     }
 }
 
@@ -332,5 +360,6 @@ private extension XCUIElement {
         static let holdToConfirmDuration: TimeInterval = 3
         static let holdToConfirmAttempts = 3
         static let holdRefreshPeriod: TimeInterval = 12
+        static let holdResultTimeout: TimeInterval = 2
     }
 }
