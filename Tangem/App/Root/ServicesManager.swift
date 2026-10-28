@@ -131,6 +131,11 @@ final class CommonServicesManager {
 
         let arguments = ProcessInfo.processInfo.arguments
 
+        let isHidingBalances = arguments.firstIndex(of: "-uitest-hide-balances") != nil
+        let settingsStore = UserDefaults(suiteName: AppEnvironment.current.suiteName)
+        settingsStore?.set(isHidingBalances, forKey: StorageType.hideSensitiveAvailable.rawValue)
+        settingsStore?.set(isHidingBalances, forKey: StorageType.hideSensitiveInformation.rawValue)
+
         if let _ = arguments.firstIndex(of: "-uitest-skip-tos") {
             AppSettings.shared.termsOfServicesAccepted = ["https://tangem.com/tangem_tos.html"]
         } else {

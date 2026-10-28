@@ -279,6 +279,20 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
+    func verifyBalance(_ expected: String) -> Self {
+        XCTContext.runActivity(named: "Verify balance is '\(expected)'") { _ in
+            waitAndAssertTrue(balanceText, timeout: .networkRequest, "Balance text should be displayed")
+            let isExpected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label == %@", expected), object: balanceText)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [isExpected], timeout: .networkRequest),
+                .completed,
+                "Balance should be '\(expected)'. Actual: '\(balanceText.label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func tapBack() -> MainScreen {
         XCTContext.runActivity(named: "Tap back to return to main screen") { _ in
             backButton.waitAndTap()

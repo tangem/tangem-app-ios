@@ -95,6 +95,19 @@ final class SwapTokenSelectorScreen: ScreenBase<SwapTokenSelectorScreenElement> 
     }
 
     @discardableResult
+    func verifyTokenBalancesMasked(_ name: String, mask: String) -> Self {
+        XCTContext.runActivity(named: "Verify token '\(name)' fiat and crypto balances are masked with '\(mask)'") { _ in
+            let tokenElement = tokenItemButton(name: name)
+            waitAndAssertTrue(tokenElement, "Token '\(name)' should be displayed in token selector list")
+            let escapedMask = NSRegularExpression.escapedPattern(for: mask)
+            let bothBalancesMasked = NSPredicate(format: "label MATCHES %@", "(?s).*\(escapedMask).*\(escapedMask).*")
+            let balances = tokenItems(named: name).matching(bothBalancesMasked).firstMatch
+            waitAndAssertTrue(balances, timeout: .networkRequest, "Token '\(name)' fiat and crypto balances should both be masked with '\(mask)'. Actual: '\(tokenElement.label)'")
+        }
+        return self
+    }
+
+    @discardableResult
     func waitForTokenNotDisplayed(_ name: String) -> Self {
         XCTContext.runActivity(named: "Verify token '\(name)' is NOT displayed in token selector") { _ in
             let tokenElement = tokenItemButton(name: name)

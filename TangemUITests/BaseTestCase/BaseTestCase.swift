@@ -186,6 +186,7 @@ class BaseTestCase: XCTestCase {
         expressApiType: ExpressAPI? = nil,
         scenarios: [ScenarioConfig] = [],
         featureToggles: [String: Bool] = [:],
+        extraLaunchArguments: [String] = [],
         extraLaunchEnvironment: [String: String] = [:]
     ) -> MainScreen {
         let eligibilityScenario = ScenarioConfig(name: "tangem_pay_eligibility", initialState: eligibilityState)
@@ -197,6 +198,7 @@ class BaseTestCase: XCTestCase {
             clearStorage: true,
             featureToggles: featureToggles,
             scenarios: [eligibilityScenario] + scenarios,
+            extraLaunchArguments: extraLaunchArguments,
             extraLaunchEnvironment: extraLaunchEnvironment
         )
 
@@ -219,16 +221,22 @@ class BaseTestCase: XCTestCase {
     @discardableResult
     func launchAndImportHotWalletWithRealPayAuthorization(
         expressApiType: ExpressAPI? = nil,
-        scenarios: [ScenarioConfig] = []
+        scenarios: [ScenarioConfig] = [],
+        extraLaunchArguments: [String] = []
     ) -> MainScreen {
-        launchAndImportHotWalletRequiringPayRenewal(expressApiType: expressApiType, scenarios: scenarios)
-            .renewTangemPaySession()
+        launchAndImportHotWalletRequiringPayRenewal(
+            expressApiType: expressApiType,
+            scenarios: scenarios,
+            extraLaunchArguments: extraLaunchArguments
+        )
+        .renewTangemPaySession()
     }
 
     @discardableResult
     func launchAndImportHotWalletRequiringPayRenewal(
         expressApiType: ExpressAPI? = nil,
-        scenarios: [ScenarioConfig] = []
+        scenarios: [ScenarioConfig] = [],
+        extraLaunchArguments: [String] = []
     ) -> MainScreen {
         launchApp(
             tangemApiType: .mock,
@@ -236,7 +244,7 @@ class BaseTestCase: XCTestCase {
             visaApiType: .mock,
             clearStorage: true,
             scenarios: [ScenarioConfig(name: "tangem_pay_eligibility", initialState: "PaeraCustomer")] + scenarios,
-            extraLaunchArguments: [Constants.realPayAuthorizationArgument]
+            extraLaunchArguments: [Constants.realPayAuthorizationArgument] + extraLaunchArguments
         )
 
         return importHotWallet()
