@@ -65,6 +65,24 @@ extension JointAccountPendingOperation {
     }
 }
 
+// MARK: - Own standing
+
+extension JointAccountPendingOperation {
+    var isInitiator: Bool {
+        wallet.ownAddress?.caseInsensitiveEquals(to: operation.initiator) == true
+    }
+}
+
+// MARK: - Auxiliary types
+
+extension JointAccountPendingOperation {
+    enum Standing {
+        case noDecisionYet
+        case signed
+        case declined
+    }
+}
+
 // MARK: - JointAccountPendingOperationPoller protocol conformance
 
 extension JointAccountPendingOperation: JointAccountPendingOperationPoller {

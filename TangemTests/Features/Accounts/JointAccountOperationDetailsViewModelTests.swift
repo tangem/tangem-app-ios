@@ -119,6 +119,41 @@ struct JointAccountOperationDetailsViewModelTests {
         #expect(viewModel.blocks.contains { if case .caption(let text) = $0 { text == Localization.jointOperationSentFooter(3, 3) } else { false } })
     }
 
+    @Test("An operation that failed is shown as a failed send, with nothing left to sign or decline", .timeLimit(.minutes(1)))
+    func failedOperationIsShownAsFailed() async throws {
+        let viewModel = makeViewModel()
+        let failedAt = Date(timeIntervalSince1970: 1_791_379_800)
+
+        updates.send(makeContent(collectedSignaturesCount: 3, canReject: true, status: .failed(at: failedAt)))
+
+        _ = try await viewModel.$content.first { $0.status.isFailed }.async()
+
+        #expect(viewModel.header.title == Localization.transactionHistoryStatusSendFailed)
+        #expect(viewModel.header.titleStyle == .failed)
+        #expect(viewModel.header.date == TransactionDetailsFactory.headerDateFormatter.string(from: failedAt))
+        #expect(isAmountStruckThrough(in: viewModel) == true)
+        #expect(signButton(in: viewModel) == nil)
+        #expect(rejectAction(in: viewModel) == nil)
+        #expect(!viewModel.blocks.contains { if case .caption = $0 { true } else { false } })
+    }
+
+    @Test("An operation called off is shown as cancelled, with nothing left to sign or decline", .timeLimit(.minutes(1)))
+    func cancelledOperationIsShownAsCancelled() async throws {
+        let viewModel = makeViewModel()
+        let cancelledAt = Date(timeIntervalSince1970: 1_791_379_800)
+
+        updates.send(makeContent(collectedSignaturesCount: 1, canReject: true, status: .cancelled(at: cancelledAt)))
+
+        _ = try await viewModel.$content.first { $0.status.isCancelled }.async()
+
+        #expect(viewModel.header.titleStyle == .neutral)
+        #expect(viewModel.header.date == TransactionDetailsFactory.headerDateFormatter.string(from: cancelledAt))
+        #expect(isAmountStruckThrough(in: viewModel) == false)
+        #expect(signButton(in: viewModel) == nil)
+        #expect(rejectAction(in: viewModel) == nil)
+        #expect(!viewModel.blocks.contains { if case .caption = $0 { true } else { false } })
+    }
+
     @Test("The Sign button is confirmed the way the wallet signs")
     func signButtonFollowsTheSigner() {
         let cardButton = signButton(in: makeViewModel(signingActionButtonType: .requiredNFCInteraction))
@@ -330,6 +365,16 @@ struct JointAccountOperationDetailsViewModelTests {
 
     private func rejectAction(in viewModel: JointAccountOperationDetailsViewModel) -> TransactionDetailsHeaderViewData.MenuAction? {
         viewModel.header.menuSections.flatMap(\.actions).first { $0.action == .rejectOperation }
+    }
+
+    private func isAmountStruckThrough(in viewModel: JointAccountOperationDetailsViewModel) -> Bool? {
+        viewModel.blocks.lazy.compactMap { block -> Bool? in
+            guard case .tokens(let data) = block, case .single(let amount) = data.content else {
+                return nil
+            }
+
+            return amount.isAmountStrikethrough
+        }.first
     }
 
     private func signaturesRow(in viewModel: JointAccountOperationDetailsViewModel) -> TransactionDetailsSignaturesViewData? {
