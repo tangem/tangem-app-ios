@@ -330,7 +330,60 @@ struct PolkadotTests {
         } catch BlockchainSdkError.failedToConvertPublicKey {}
     }
 
+    @Test("An Energy Web X amount above UInt64.max is encoded in full as a u128 compact")
+    func energyWebXAmountAboveUInt64IsEncodedInFull() throws {
+        let (txBuilder, blockchain, meta) = try makeEnergyWebXBuilder()
+
+        let preImage = try txBuilder.buildForSign(
+            amount: Amount(with: blockchain, value: 100),
+            destination: energyWebXDestination,
+            meta: meta
+        )
+
+        let expectedCall = Data(
+            hexString: "0a000080c1b49ca830d61fcc69256c26bb5ef6a3f0e198a7a981365f038bba42266ed717000010632d5ec76b05"
+        )
+        #expect(preImage.prefix(expectedCall.count) == expectedCall)
+    }
+
+    @Test("An amount that does not fit the u128 balance is rejected before anything is signed")
+    func amountAboveU128IsRejected() throws {
+        let (txBuilder, blockchain, meta) = try makeEnergyWebXBuilder()
+        let value = try #require(Decimal(stringValue: "1000000000000000000000"))
+
+        do {
+            _ = try txBuilder.buildForSign(
+                amount: Amount(with: blockchain, value: value),
+                destination: energyWebXDestination,
+                meta: meta
+            )
+            Issue.record("An amount above u128 was encoded into the transfer call")
+        } catch BlockchainSdkError.failedToBuildTx {}
+    }
+
     // MARK: - Helpers
+
+    private var energyWebXDestination: String { "5EyXXdg6o3CVV8Dinom4wxLP8CnWHTXECU92cQedQCWQuNtp" }
+
+    private func makeEnergyWebXBuilder() throws -> (PolkadotTransactionBuilder, Blockchain, PolkadotBlockchainMeta) {
+        let blockchain: Blockchain = .energyWebX(curve: .ed25519)
+        let network = try #require(PolkadotNetwork(blockchain: blockchain))
+        let txBuilder = PolkadotTransactionBuilder(
+            blockchain: blockchain,
+            walletPublicKey: Data(repeating: 1, count: 32),
+            network: network,
+            runtimeVersionProvider: SubstrateRuntimeVersionProvider(network: network)
+        )
+        let meta = PolkadotBlockchainMeta(
+            specVersion: 77,
+            transactionVersion: 1,
+            genesisHash: "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
+            blockHash: "7d5fa17b70251d0806f26156b1b698dfd09e040642fa092595ce0a78e9e84fcd",
+            nonce: 0,
+            era: .init(blockNumber: 1_000_000, period: 64)
+        )
+        return (txBuilder, blockchain, meta)
+    }
 
     private func removeSignature(image: Data, expectedImage: Data, signature: Data) throws -> (image: Data, expectedImage: Data) {
         let signatureRange = try #require(image.range(of: signature))
