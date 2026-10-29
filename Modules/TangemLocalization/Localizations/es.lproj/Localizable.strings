@@ -1571,7 +1571,7 @@
 "prediction_close_result_partially_sold_title" = "Vendido parcialmente";
 "prediction_close_result_sold_title" = "Vendido %@";
 "prediction_close_result_tokens_sold" = "Acciones vendidas";
-"prediction_close_selling_of" = "Vendiendo %1@ de %2@ acciones";
+"prediction_close_selling_of" = "Vendiendo %1$@ de %2$@ acciones";
 "prediction_close_selling_tokens" = "Vendiendo %@ acciones";
 "prediction_close_summary_to" = "A";
 "prediction_close_title" = "Cerrar posición";
@@ -1586,10 +1586,10 @@
 "prediction_event_live" = "En directo";
 "prediction_event_total_volume" = "Volumen total:";
 "prediction_fee_sheet_builder_fee" = "Comisión de Tangem";
-"prediction_fee_sheet_buy_description" = "Comprando %1@ acciones a %2@¢ cada una. El número final de acciones (y el importe correspondiente de %3@ ejecutado) puede variar dentro de tu límite de deslizamiento de %4@, según lo que este mercado pueda emparejar.";
+"prediction_fee_sheet_buy_description" = "Buying %1$@ shares at %2$@¢ each. Final shares count (and corresponding %3$@ amount executed) may vary within your %4$@ slippage limit, depending on what this market can match.";
 "prediction_fee_sheet_order" = "Orden de predicción";
 "prediction_fee_sheet_polymarket_fee" = "Comisión de Polymarket";
-"prediction_fee_sheet_sell_description" = "Vendiendo %1@ acciones a %2@¢ cada una. El número final de acciones (y el importe correspondiente de %3@ ejecutado) puede variar dentro de tu límite de deslizamiento de %4@, según lo que este mercado pueda emparejar.";
+"prediction_fee_sheet_sell_description" = "Vendiendo %1$@ acciones a %2$@¢ cada una. El número final de acciones (y el importe correspondiente de %3$@ ejecutado) puede variar dentro de tu límite de deslizamiento de %4$@, según lo que este mercado pueda emparejar.";
 "prediction_fee_sheet_total" = "Total";
 "prediction_history_bought" = "Comprado";
 "prediction_history_csv_average_price" = "Precio medio";
@@ -1644,7 +1644,7 @@
 "prediction_onboarding_faq_tap_question" = "¿Qué ocurre cuando acerco mi tarjeta?";
 "prediction_onboarding_legal_polymarket_terms" = "Términos y condiciones de Polymarket";
 "prediction_onboarding_legal_tangem_terms" = "Términos y condiciones de Tangem";
-"prediction_onboarding_legal" = "Al usar la función de Predicciones, aceptas los %1@ y los %2@";
+"prediction_onboarding_legal" = "Al usar la función de Predicciones, aceptas los %1$@ y los %2$@";
 "prediction_onboarding_reconnect_benefit_safe_subtitle" = "Misma cuenta de depósito, mismos fondos. Volver a vincular nunca mueve tus fondos";
 "prediction_onboarding_reconnect_benefit_safe_title" = "Nada se mueve";
 "prediction_onboarding_reconnect_benefit_tap_subtitle" = "Vuelve a emitir las claves que vinculan este teléfono con tu cuenta";
@@ -1652,7 +1652,7 @@
 "prediction_onboarding_reconnect_button" = "Seguir prediciendo";
 "prediction_onboarding_reconnect_faq_answer" = "Las claves de acceso se guardan solo en tu dispositivo. Se borran al reinstalar la app, cambiar de teléfono o cuando caduca la sesión. Tu cuenta reside en Polymarket y no se ve afectada.";
 "prediction_onboarding_reconnect_faq_question" = "¿Por qué veo esto?";
-"prediction_onboarding_reconnect_legal" = "No hay nuevos términos que aceptar: tu acuerdo con %1@ y %2@ sigue vigente";
+"prediction_onboarding_reconnect_legal" = "No hay nuevos términos que aceptar: tu acuerdo con %1$@ y %2$@ sigue vigente";
 "prediction_onboarding_reconnect_subtitle" = "Tu cuenta de depósito, saldo y posiciones abiertas están a salvo. Solo hay que volver a vincular este dispositivo: acerca tu tarjeta una vez para restaurar el acceso.";
 "prediction_onboarding_reconnect_title" = "Reconecta tu cuenta de Polymarket";
 "prediction_onboarding_start_button" = "Empezar a predecir";
@@ -1690,7 +1690,7 @@
 "prediction_place_result_no_fill_banner_description" = "No hay acciones disponibles en Polymarket; tu orden no se pudo ejecutar.";
 "prediction_place_result_no_fill_banner_title" = "Sin ejecución";
 "prediction_place_result_no_fill_title" = "Liquidez insuficiente";
-"prediction_place_result_partial_amount" = "%1@ de %2@";
+"prediction_place_result_partial_amount" = "%1$@ de %2$@";
 "prediction_place_result_partial_banner_description" = "Tu orden se completó parcialmente debido a una liquidez insuficiente en Polymarket dentro de tu tolerancia de deslizamiento.";
 "prediction_place_result_partial_banner_title" = "Completada parcialmente";
 "prediction_place_result_partial_title" = "Colocada parcialmente";
@@ -1746,7 +1746,7 @@
 "prediction_positions_quantity" = "Acciones";
 "prediction_positions_realized_description" = "Ganancia o pérdida ya consolidada. Proviene de las acciones que has vendido (parcial o totalmente) y de las posiciones resueltas como ganadas, perdidas o divididas. El P&L realizado incluye todas las comisiones.";
 "prediction_positions_realized_pnl" = "P&L realizado";
-"prediction_positions_result_amount" = "%1@ %2@";
+"prediction_positions_result_amount" = "%1$@ %2$@";
 "prediction_positions_split" = "Dividida";
 "prediction_positions_status" = "Estado";
 "prediction_positions_title" = "Mis posiciones";
