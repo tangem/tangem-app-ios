@@ -68,6 +68,14 @@ struct PolymarketMarketChannelTests {
         #expect(try sut.updates(from: .text("")).isEmpty)
     }
 
+    @Test("Only the server's pong is a keepalive reply, the empty list it sends for a closed market is not")
+    func onlyPongIsAKeepaliveReply() {
+        let sut = makeSUT()
+
+        #expect(sut.isKeepaliveReply(.text("PONG")))
+        #expect(!sut.isKeepaliveReply(.text("[]")))
+    }
+
     @Test("New best prices keep the last trade the outcome already had")
     func bestPricesKeepThePreviousLastTrade() {
         let previous = quote(bestBid: "0.18", bestAsk: "0.21", lastTradePrice: "0.2")

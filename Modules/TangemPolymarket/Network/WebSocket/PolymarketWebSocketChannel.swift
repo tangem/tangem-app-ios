@@ -20,6 +20,7 @@ protocol PolymarketWebSocketChannel: Sendable {
     var silenceTimeout: Duration? { get }
 
     func updates(from message: WebSocketMessage) throws -> [Update]
+    func isKeepaliveReply(_ message: WebSocketMessage) -> Bool
     func topic(of update: Update) -> Topic
     func value(applying update: Update, to previous: Value?) -> Value
 }

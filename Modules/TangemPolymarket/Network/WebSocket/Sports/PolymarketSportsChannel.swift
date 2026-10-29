@@ -50,6 +50,10 @@ struct PolymarketSportsChannel: PolymarketWebSocketChannel {
         ]
     }
 
+    func isKeepaliveReply(_ message: WebSocketMessage) -> Bool {
+        false
+    }
+
     func topic(of update: PolymarketLiveGame) -> String {
         update.gameId
     }
