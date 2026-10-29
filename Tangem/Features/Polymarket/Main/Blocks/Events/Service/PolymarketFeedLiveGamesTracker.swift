@@ -76,7 +76,6 @@ extension PolymarketFeedLiveGamesTracker {
     enum Update: Sendable {
         case game(PolymarketLiveGame)
         case silent(gameId: String)
-        case connectionLost
         case reconnected
     }
 }
@@ -89,8 +88,7 @@ private extension PolymarketFeedLiveGamesTracker {
         case .value(let game):
             receive(game)
         case .connectionLost:
-            forgetGames { _ in true }
-            updatesContinuation.yield(.connectionLost)
+            break
         case .reconnected:
             updatesContinuation.yield(.reconnected)
         }

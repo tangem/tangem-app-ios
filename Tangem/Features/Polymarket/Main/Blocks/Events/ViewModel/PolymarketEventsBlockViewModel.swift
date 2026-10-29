@@ -492,8 +492,6 @@ private extension PolymarketEventsBlockViewModel {
                     self?.applyLiveGame(game)
                 case .silent(let gameId):
                     self?.dropLiveGames(withIds: [gameId])
-                case .connectionLost:
-                    self?.dropAllLiveGames()
                 case .reconnected:
                     self?.refetchFeedAfterReconnect()
                 }

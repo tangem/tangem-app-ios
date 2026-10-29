@@ -46,6 +46,7 @@ actor PolymarketWebSocketSubscriptionClient<Channel: PolymarketWebSocketChannel>
         manager = PolymarketWebSocketConnectionManager(
             url: channel.url,
             keepalive: channel.keepalive,
+            isKeepaliveReply: { [channel] message in channel.isKeepaliveReply(message) },
             transport: transport,
             delayProvider: delayProvider,
             notificationCenter: notificationCenter
@@ -246,12 +247,20 @@ private extension PolymarketWebSocketSubscriptionClient {
                 }
 
                 guard !updates.isEmpty else {
+                    if !channel.isKeepaliveReply(message) {
+                        await self?.serverAnswered()
+                    }
+
                     continue
                 }
 
                 await self?.deliver(updates)
             }
         }
+    }
+
+    func serverAnswered() {
+        lastDataAt = now()
     }
 
     func deliver(_ updates: [Update]) {

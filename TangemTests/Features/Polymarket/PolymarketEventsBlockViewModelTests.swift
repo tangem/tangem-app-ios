@@ -408,18 +408,6 @@ struct PolymarketEventsBlockViewModelTests {
         await Self.awayScore(of: context.sut, becomes: "100")
     }
 
-    @Test("A lost socket brings the score from REST back")
-    func lostSocketFallsBackToRest() async throws {
-        let context = try await Self.makeGameContext(events: [Games.basketball()])
-
-        context.push(Games.liveGame(Games.basketballGameId, score: "100-101"))
-        await Self.awayScore(of: context.sut, becomes: "100")
-
-        context.liveGames.statuses.push(.waitingToReconnect)
-
-        await Self.awayScore(of: context.sut, becomes: "98")
-    }
-
     @Test("After a real reconnection only the pages on screen are asked again, each with its own cursor")
     func reconnectionRefetchesVisiblePages() async throws {
         let provider = PolymarketAPIProviderStub()
