@@ -1,15 +1,21 @@
 //
-//  StubEarnCalculatorProjector.swift
-//  TangemApp
+//  CompoundingEarnCalculatorProjector.swift
+//  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import Foundation
+import TangemFoundation
 
-struct StubEarnCalculatorProjector: EarnCalculatorProjecting {
-    var monthlyRate: Decimal = 0.004
+struct CompoundingEarnCalculatorProjector: EarnCalculatorProjecting {
+    private let monthlyRate: Decimal
+
+    init(apy: Decimal, performanceFee: Decimal) {
+        let netApy = apy * (1 - performanceFee)
+        monthlyRate = Decimal(pow(1 + netApy.doubleValue, 1.0 / 12) - 1)
+    }
 
     func project(_ input: EarnCalculatorInput) -> EarnCalculatorProjection {
         var balance = input.initialBalance
@@ -24,4 +30,8 @@ struct StubEarnCalculatorProjector: EarnCalculatorProjecting {
 
         return EarnCalculatorProjection(points: points)
     }
+}
+
+extension CompoundingEarnCalculatorProjector {
+    static let preview = CompoundingEarnCalculatorProjector(apy: 0.055, performanceFee: 0.15)
 }
