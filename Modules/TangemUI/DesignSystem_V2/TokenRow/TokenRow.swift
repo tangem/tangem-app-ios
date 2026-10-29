@@ -124,12 +124,10 @@ private extension TokenRow {
     func balanceColumn(balance: Balance, indicator: BalanceIndicator?) -> some View {
         VStack(alignment: .trailing, spacing: lineSpacing) {
             HStack(alignment: .center, spacing: balanceIndicatorSpacing) {
-                if let indicator {
-                    TokenRowGlyph.balanceIndicator(indicator)
-                }
-
                 if balance.isStale {
                     TokenRowGlyph.staleBalance
+                } else if let indicator {
+                    TokenRowGlyph.balanceIndicator(indicator)
                 }
 
                 balanceLine(
