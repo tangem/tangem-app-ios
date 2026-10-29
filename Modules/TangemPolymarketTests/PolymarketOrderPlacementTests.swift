@@ -159,6 +159,18 @@ struct PolymarketPlaceOrderWireFormatTests {
         }
     }
 
+    @Test("An order the exchange refused for rejected credentials was not placed, so it is final, not ambiguous")
+    func unauthorizedOrderIsFinal() {
+        let error = CommonPolymarketCLOBService.placementError(from: .http(statusCode: 401, problemDetail: nil))
+
+        #expect(!error.isAmbiguous)
+
+        guard case .rejected = error else {
+            Issue.record("Expected a rejection, got \(error)")
+            return
+        }
+    }
+
     @Test("An order that never left the device is a definite failure, not an unknown outcome", arguments: [
         URLError.Code.notConnectedToInternet,
         .cannotFindHost,
