@@ -1571,7 +1571,7 @@
 "prediction_close_result_partially_sold_title" = "一部売却完了";
 "prediction_close_result_sold_title" = "%@を売却しました";
 "prediction_close_result_tokens_sold" = "売却シェア数";
-"prediction_close_selling_of" = "%2@シェアのうち%1@を売却中";
+"prediction_close_selling_of" = "%2$@シェアのうち%1$@を売却中";
 "prediction_close_selling_tokens" = "%@シェアを売却中";
 "prediction_close_summary_to" = "受取先";
 "prediction_close_title" = "ポジションを決済";
@@ -1586,10 +1586,10 @@
 "prediction_event_live" = "ライブ";
 "prediction_event_total_volume" = "総取引高:";
 "prediction_fee_sheet_builder_fee" = "Tangemビルダー手数料";
-"prediction_fee_sheet_buy_description" = "%1@シェアを1シェアあたり%2@¢で購入します。最終的なシェア数（および約定する%3@の金額）は、マーケットの流動性に応じて%4@のスリッページ許容範囲内で変動する場合があります。";
+"prediction_fee_sheet_buy_description" = "Buying %1$@ shares at %2$@¢ each. Final shares count (and corresponding %3$@ amount executed) may vary within your %4$@ slippage limit, depending on what this market can match.";
 "prediction_fee_sheet_order" = "予測注文";
 "prediction_fee_sheet_polymarket_fee" = "Polymarket手数料";
-"prediction_fee_sheet_sell_description" = "%1@シェアを1シェアあたり%2@¢で売却します。最終的なシェア数（および約定する%3@の金額）は、マーケットの流動性に応じて%4@のスリッページ許容範囲内で変動する場合があります。";
+"prediction_fee_sheet_sell_description" = "Selling %1$@ shares at %2$@¢ each. Final shares count (and corresponding %3$@ amount executed) may vary within your %4$@ slippage limit, depending on what this market can match.";
 "prediction_fee_sheet_total" = "合計";
 "prediction_history_bought" = "購入済み";
 "prediction_history_csv_average_price" = "平均価格";
@@ -1652,7 +1652,7 @@
 "prediction_onboarding_reconnect_button" = "予測を続ける";
 "prediction_onboarding_reconnect_faq_answer" = "アクセスキーはお使いの端末にのみ保存されます。アプリの再インストールや機種変更、またはセッションが無効になった際に消去されますが、Polymarket上のアカウント自体は影響を受けません。";
 "prediction_onboarding_reconnect_faq_question" = "なぜこれが表示されるのですか？";
-"prediction_onboarding_reconnect_legal" = "新たな規約への同意は不要です。%1@および%2@との既存の同意がそのまま適用されます";
+"prediction_onboarding_reconnect_legal" = "新たな規約への同意は不要です。%1$@および%2$@との既存の同意がそのまま適用されます";
 "prediction_onboarding_reconnect_subtitle" = "入金アカウント、残高、保有ポジションは安全です。この端末を再連携するだけでアクセスを復元できます。カードを1回タップしてください。";
 "prediction_onboarding_reconnect_title" = "Polymarketアカウントを再接続";
 "prediction_onboarding_start_button" = "予測を始める";
@@ -1690,7 +1690,7 @@
 "prediction_place_result_no_fill_banner_description" = "Polymarket上に利用可能なシェアがないため、注文を約定できませんでした。";
 "prediction_place_result_no_fill_banner_title" = "未約定";
 "prediction_place_result_no_fill_title" = "流動性が不足しています";
-"prediction_place_result_partial_amount" = "%2@のうち%1@";
+"prediction_place_result_partial_amount" = "%2$@のうち%1$@";
 "prediction_place_result_partial_banner_description" = "スリッページ許容範囲内でのPolymarket上の流動性が不足していたため、注文は一部のみ約定しました。";
 "prediction_place_result_partial_banner_title" = "一部約定";
 "prediction_place_result_partial_title" = "一部注文完了";
@@ -1746,7 +1746,7 @@
 "prediction_positions_quantity" = "シェア数";
 "prediction_positions_realized_description" = "すでに確定した損益です。（一部または全部）売却したシェアや、的中・外れ・分割決済として確定したポジションから算出されます。実現損益にはすべての手数料が含まれます。";
 "prediction_positions_realized_pnl" = "実現損益";
-"prediction_positions_result_amount" = "%1@ %2@";
+"prediction_positions_result_amount" = "%1$@ %2$@";
 "prediction_positions_split" = "分割決済";
 "prediction_positions_status" = "ステータス";
 "prediction_positions_title" = "マイポジション";

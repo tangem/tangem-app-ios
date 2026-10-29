@@ -789,7 +789,7 @@
 "give_permission_rows_amount" = "數量 %@";
 "give_permission_staking_subtitle" = "To continue you need to allow Polygon smart contract to use your %@";
 "give_permission_swap_subtitle_v2" = "Decentralized exchanges require permission to interact with your wallet. %1$@";
-"give_permission_swap_subtitle" = "要繼續，您需要允許 %1@ 智能合約使用您的 %2@";
+"give_permission_swap_subtitle" = "要繼續，您需要允許 %1$@ 智能合約使用您的 %2$@";
 "give_permission_title" = "賦予權限";
 "give_permission_unlimited" = "Unlimited";
 "hardware_wallet_backup_feature_description" = "Addresses are generated directly on your Tangem hardware wallet — ready to use and fully protected.";
@@ -1586,10 +1586,10 @@
 "prediction_event_live" = "進行中";
 "prediction_event_total_volume" = "總交易量：";
 "prediction_fee_sheet_builder_fee" = "Tangem 建設者費用";
-"prediction_fee_sheet_buy_description" = "以每份 %2$@¢ 的價格買入 %1$@ 份。根據市場撮合情況，最終成交份數（及對應的 %3$@ 執行金額）可能會在您設定的 %4$@ 滑點限制內浮動。";
+"prediction_fee_sheet_buy_description" = "Buying %1$@ shares at %2$@¢ each. Final shares count (and corresponding %3$@ amount executed) may vary within your %4$@ slippage limit, depending on what this market can match.";
 "prediction_fee_sheet_order" = "預測訂單";
 "prediction_fee_sheet_polymarket_fee" = "Polymarket 費用";
-"prediction_fee_sheet_sell_description" = "以每份 %2$@¢ 的價格賣出 %1$@ 份。根據市場撮合情況，最終成交份數（及對應的 %3$@ 執行金額）可能會在您設定的 %4$@ 滑點限制內浮動。";
+"prediction_fee_sheet_sell_description" = "Selling %1$@ shares at %2$@¢ each. Final shares count (and corresponding %3$@ amount executed) may vary within your %4$@ slippage limit, depending on what this market can match.";
 "prediction_fee_sheet_total" = "總計";
 "prediction_history_bought" = "已買入";
 "prediction_history_csv_average_price" = "平均價格";

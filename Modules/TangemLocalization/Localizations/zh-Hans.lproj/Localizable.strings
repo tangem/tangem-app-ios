@@ -1571,7 +1571,7 @@
 "prediction_close_result_partially_sold_title" = "部分卖出";
 "prediction_close_result_sold_title" = "已卖出 %@";
 "prediction_close_result_tokens_sold" = "已卖出份额";
-"prediction_close_selling_of" = "正在卖出 %1@ / %2@ 份";
+"prediction_close_selling_of" = "正在卖出 %1$@ / %2$@ 份";
 "prediction_close_selling_tokens" = "正在卖出 %@ 份";
 "prediction_close_summary_to" = "至";
 "prediction_close_title" = "平仓";
@@ -1586,10 +1586,10 @@
 "prediction_event_live" = "进行中";
 "prediction_event_total_volume" = "总交易量：";
 "prediction_fee_sheet_builder_fee" = "Tangem 服务费";
-"prediction_fee_sheet_buy_description" = "以每份 %2@¢ 的价格买入 %1@ 份。根据市场撮合情况，最终成交份额（及相应的 %3@ 成交金额）可能会在您设置的 %4@ 滑点限制内浮动。";
+"prediction_fee_sheet_buy_description" = "Buying %1$@ shares at %2$@¢ each. Final shares count (and corresponding %3$@ amount executed) may vary within your %4$@ slippage limit, depending on what this market can match.";
 "prediction_fee_sheet_order" = "预测订单";
 "prediction_fee_sheet_polymarket_fee" = "Polymarket 手续费";
-"prediction_fee_sheet_sell_description" = "以每份 %2@¢ 的价格卖出 %1@ 份。根据市场撮合情况，最终成交份额（及相应的 %3@ 成交金额）可能会在您设置的 %4@ 滑点限制内浮动。";
+"prediction_fee_sheet_sell_description" = "Selling %1$@ shares at %2$@¢ each. Final shares count (and corresponding %3$@ amount executed) may vary within your %4$@ slippage limit, depending on what this market can match.";
 "prediction_fee_sheet_total" = "总计";
 "prediction_history_bought" = "已买入";
 "prediction_history_csv_average_price" = "平均价格";
@@ -1644,7 +1644,7 @@
 "prediction_onboarding_faq_tap_question" = "轻触卡片时会发生什么？";
 "prediction_onboarding_legal_polymarket_terms" = "Polymarket 条款与条件";
 "prediction_onboarding_legal_tangem_terms" = "Tangem 条款与条件";
-"prediction_onboarding_legal" = "使用预测功能即表示您同意 %1@ 和 %2@";
+"prediction_onboarding_legal" = "使用预测功能即表示您同意 %1$@ 和 %2$@";
 "prediction_onboarding_reconnect_benefit_safe_subtitle" = "相同的存款账户，相同的资金。重新关联绝不会转移您的资金";
 "prediction_onboarding_reconnect_benefit_safe_title" = "资金安全不动";
 "prediction_onboarding_reconnect_benefit_tap_subtitle" = "重新签发将此手机与您的账户关联的密钥";
@@ -1652,7 +1652,7 @@
 "prediction_onboarding_reconnect_button" = "继续预测";
 "prediction_onboarding_reconnect_faq_answer" = "访问密钥仅存储在您的设备上。当您重新安装应用、更换新手机或会话失效时，密钥会被清除。您的账户本身保存在 Polymarket 上，不受任何影响。";
 "prediction_onboarding_reconnect_faq_question" = "为什么会看到此提示？";
-"prediction_onboarding_reconnect_legal" = "无需接受新条款 — 您与 %1@ 和 %2@ 的协议仍然有效";
+"prediction_onboarding_reconnect_legal" = "无需接受新条款 — 您与 %1$@ 和 %2$@ 的协议仍然有效";
 "prediction_onboarding_reconnect_subtitle" = "您的存款账户、余额和未平仓位均安全无虞。只需重新关联此设备 — 轻触一次卡片即可恢复访问权限。";
 "prediction_onboarding_reconnect_title" = "重新连接您的 Polymarket 账户";
 "prediction_onboarding_start_button" = "开始预测";
@@ -1690,7 +1690,7 @@
 "prediction_place_result_no_fill_banner_description" = "Polymarket 上暂无可用份额 — 您的订单无法成交。";
 "prediction_place_result_no_fill_banner_title" = "未成交";
 "prediction_place_result_no_fill_title" = "流动性不足";
-"prediction_place_result_partial_amount" = "%1@ / %2@";
+"prediction_place_result_partial_amount" = "%1$@ / %2$@";
 "prediction_place_result_partial_banner_description" = "由于在您的滑点容差范围内 Polymarket 流动性不足，您的订单已部分成交。";
 "prediction_place_result_partial_banner_title" = "部分成交";
 "prediction_place_result_partial_title" = "部分下单成功";
@@ -1746,7 +1746,7 @@
 "prediction_positions_quantity" = "份额";
 "prediction_positions_realized_description" = "已锁定的盈利或亏损。来源于您已（部分或全部）卖出的份额，以及已结算为获胜、失败或平分的持仓。已实现盈亏包含所有手续费。";
 "prediction_positions_realized_pnl" = "已实现盈亏";
-"prediction_positions_result_amount" = "%1@ %2@";
+"prediction_positions_result_amount" = "%1$@ %2$@";
 "prediction_positions_split" = "平分结算";
 "prediction_positions_status" = "状态";
 "prediction_positions_title" = "我的持仓";

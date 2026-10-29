@@ -1586,10 +1586,10 @@
 "prediction_event_live" = "Live";
 "prediction_event_total_volume" = "Gesamtertrag";
 "prediction_fee_sheet_builder_fee" = "Tangem-Baugebühr";
-"prediction_fee_sheet_buy_description" = "Kauf von „%1$@“-Aktien zu je %2$@¢. Die endgültige Anzahl der Aktien (und der entsprechende ausgeführte Betrag auf %3$@) kann innerhalb Ihres Slippage-Limits auf %4$@ variieren, je nachdem, was dieser Markt abgleichen kann.";
+"prediction_fee_sheet_buy_description" = "Buying %1$@ shares at %2$@¢ each. Final shares count (and corresponding %3$@ amount executed) may vary within your %4$@ slippage limit, depending on what this market can match.";
 "prediction_fee_sheet_order" = "Vorhersagereihenfolge";
 "prediction_fee_sheet_polymarket_fee" = "Polymarket-Gebühr";
-"prediction_fee_sheet_sell_description" = "Verkauf von „%1$@“-Aktien zu je %2$@¢. Die endgültige Anzahl der Aktien (und der entsprechende ausgeführte Betrag auf %3$@) kann innerhalb Ihres Slippage-Limits auf %4$@ variieren, je nachdem, was dieser Markt abgleichen kann.";
+"prediction_fee_sheet_sell_description" = "Selling %1$@ shares at %2$@¢ each. Final shares count (and corresponding %3$@ amount executed) may vary within your %4$@ slippage limit, depending on what this market can match.";
 "prediction_fee_sheet_total" = "Gesamt";
 "prediction_history_bought" = "Gekauft";
 "prediction_history_csv_average_price" = "Durchschnittspreis";
