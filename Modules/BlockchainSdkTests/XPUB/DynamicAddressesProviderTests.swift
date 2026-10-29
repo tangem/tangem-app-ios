@@ -72,6 +72,48 @@ struct DynamicAddressesProviderTests {
         #expect(usedAddress.value == reportedAddress)
         #expect(usedAddress.type == .used(.default, path: "0/3"))
     }
+
+    @Test(
+        "Used address without a valid change/index pair at the end of its path is skipped",
+        arguments: [
+            "m/0",
+            "m/84'/0'/0'/0'/3",
+            "m/84'/0'/0'/0/3'",
+            "m/84'/0'/0'/2/3",
+        ]
+    )
+    func usedAddressWithMalformedPathIsSkipped(path: String) throws {
+        let blockchain = Blockchain.bitcoin(testnet: false)
+        let accountPath = "m/84'/0'/0'"
+        let firstReceiveAddress = try makeAddress(blockchain: blockchain, accountPath: accountPath, path: "0/0", type: .default)
+
+        var wallet = try makeXPUBWallet(blockchain: blockchain, accountPath: accountPath)
+        wallet.update(usedAddresses: [
+            try makeUsedAddress("bc1qmalformed", path: path, scriptType: .p2wpkh(xpub: "xpub")),
+        ])
+
+        #expect(!wallet.addresses.contains(where: { $0.type.isUsed }))
+        #expect(wallet.defaultAddress.value == firstReceiveAddress)
+    }
+
+    @Test("Valid used addresses survive next to one with a malformed derivation path")
+    func validUsedAddressesSurviveMalformedOne() throws {
+        let blockchain = Blockchain.bitcoin(testnet: false)
+        let accountPath = "m/84'/0'/0'"
+        let reportedAddress = try makeAddress(blockchain: blockchain, accountPath: accountPath, path: "0/0", type: .default)
+        let nextReceiveAddress = try makeAddress(blockchain: blockchain, accountPath: accountPath, path: "0/1", type: .default)
+
+        var wallet = try makeXPUBWallet(blockchain: blockchain, accountPath: accountPath)
+        wallet.update(usedAddresses: [
+            try makeUsedAddress("bc1qmalformed", path: "m/0", scriptType: .p2wpkh(xpub: "xpub")),
+            try makeUsedAddress(reportedAddress, path: "\(accountPath)/0/0", scriptType: .p2wpkh(xpub: "xpub")),
+        ])
+
+        let usedAddresses = wallet.addresses.filter { $0.type.isUsed }
+        #expect(usedAddresses.map(\.value) == [reportedAddress])
+        #expect(usedAddresses.map(\.type) == [.used(.default, path: "0/0")])
+        #expect(wallet.defaultAddress.value == nextReceiveAddress)
+    }
 }
 
 // MARK: - Private

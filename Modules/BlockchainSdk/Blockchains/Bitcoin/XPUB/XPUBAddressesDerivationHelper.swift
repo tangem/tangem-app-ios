@@ -20,17 +20,49 @@ struct XPUBAddressesDerivationHelper {
     ///   - usedDerivations: Used derivation paths
     func resolveDerivationPath(chain: Chain) -> DerivationPath {
         let usedIndices = parseUsedIndices(from: usedDerivations, chain: chain)
-        let chainNode: DerivationNode = .nonHardened(chain.rawValue)
         let nextIndex = findFirstUnusedIndex(in: usedIndices)
-        let addressNode: DerivationNode = .nonHardened(nextIndex)
+        let nodes = Self.addressNodes(chain: chain, index: nextIndex)
 
-        return DerivationPath(nodes: accountDerivationPath.nodes + [chainNode, addressNode])
+        return DerivationPath(nodes: accountDerivationPath.nodes + [nodes.chainNode, nodes.addressNode])
+    }
+
+    static func addressPosition(of path: DerivationPath) -> (chain: Chain, index: UInt32)? {
+        let nodes = path.nodes
+
+        guard nodes.count >= 2 else {
+            return nil
+        }
+
+        // Both change and index nodes must be non-hardened in BIP-44
+        switch (nodes[nodes.count - 2], nodes[nodes.count - 1]) {
+        case (.nonHardened(let changeValue), .nonHardened(let indexValue)):
+            guard let chain = Chain(rawValue: changeValue) else {
+                return nil
+            }
+
+            return (chain: chain, index: indexValue)
+        case (.hardened, _),
+             (_, .hardened):
+            return nil
+        }
+    }
+
+    static func addressNodes(of path: DerivationPath) -> (chainNode: DerivationNode, addressNode: DerivationNode)? {
+        guard let position = addressPosition(of: path) else {
+            return nil
+        }
+
+        return addressNodes(chain: position.chain, index: position.index)
     }
 }
 
 // MARK: - Private
 
 private extension XPUBAddressesDerivationHelper {
+    static func addressNodes(chain: Chain, index: UInt32) -> (chainNode: DerivationNode, addressNode: DerivationNode) {
+        (chainNode: .nonHardened(chain.rawValue), addressNode: .nonHardened(index))
+    }
+
     /// Finds the first unused index (starting from 0) not present in the given set.
     func findFirstUnusedIndex(in usedIndices: Set<UInt32>) -> UInt32 {
         var index: UInt32 = 0
@@ -46,20 +78,11 @@ private extension XPUBAddressesDerivationHelper {
         var indices = Set<UInt32>()
 
         for path in paths {
-            let nodes = path.nodes
-            guard nodes.count >= 2 else { continue }
-
-            let changeNode = nodes[nodes.count - 2]
-            let indexNode = nodes[nodes.count - 1]
-
-            // Both change and index nodes must be non-hardened in BIP-44
-            guard case .nonHardened(let changeValue) = changeNode,
-                  case .nonHardened(let indexValue) = indexNode,
-                  changeValue == chain.rawValue else {
+            guard let position = Self.addressPosition(of: path), position.chain == chain else {
                 continue
             }
 
-            indices.insert(indexValue)
+            indices.insert(position.index)
         }
 
         return indices
