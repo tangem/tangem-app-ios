@@ -9,5 +9,5 @@
 import Foundation
 
 public protocol PolymarketUnauthorizedObserving: AnyObject {
-    func backendRejectedAuthorization(walletId: String)
+    func exchangeRejectedCredentials(walletId: String)
 }
