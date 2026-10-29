@@ -87,9 +87,10 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
         case .finished,
              .refunded,
              .expired,
+             .paused,
+             .unknown,
              .txFailed where branch == .swap,
-             .failed where branch == .onramp,
-             .paused where branch == .onramp:
+             .failed where branch == .onramp:
             return true
         case .created,
              .awaitingDeposit,
@@ -100,8 +101,6 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
              .failed,
              .verificationRequired,
              .awaitingHash,
-             .unknown,
-             .paused,
              .txFailed,
              .refunding:
             return false
