@@ -21,7 +21,8 @@ final class ApproveTransactionDispatcherBuildTests: LeakTrackingTestSuite {
         let approveData = ApproveTransactionData(
             txData: Data([0x09, 0x5E, 0xA7, 0xB3, 0xFF]),
             spender: "TXXxc9NsHndfQ2z9kMKyWpYa5T3QbhKGwn",
-            toContractAddress: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+            toContractAddress: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+            amountRaw: 1
         )
         let fee = Fee(Amount(with: .tron(testnet: false), value: Decimal(string: "15")!))
         let env = makeEnvironment(tokenItem: .blockchain(.init(.tron(testnet: false), derivationPath: nil)))
@@ -45,7 +46,7 @@ final class ApproveTransactionDispatcherBuildTests: LeakTrackingTestSuite {
             return
         }
         #expect(calldata == approveData.txData)
-        #expect(feeLimit == nil)
+        #expect(feeLimit == TronTransactionParams.defaultSmartContractFeeLimit)
     }
 
     @Test("EVM approve still builds EthereumTransactionParams")
@@ -53,7 +54,8 @@ final class ApproveTransactionDispatcherBuildTests: LeakTrackingTestSuite {
         let approveData = ApproveTransactionData(
             txData: Data([0x09, 0x5E, 0xA7, 0xB3, 0xAB]),
             spender: "0xSpender",
-            toContractAddress: "0xContract"
+            toContractAddress: "0xContract",
+            amountRaw: 1
         )
         let fee = Fee(Amount(with: .ethereum(testnet: false), value: Decimal(string: "0.001")!))
         let env = makeEnvironment(tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)))

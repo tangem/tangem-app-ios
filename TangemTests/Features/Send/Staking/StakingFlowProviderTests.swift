@@ -457,7 +457,7 @@ struct StakingFlowProviderTests {
     // MARK: - Helpers
 
     private func approveData() -> ApproveTransactionData {
-        ApproveTransactionData(txData: Data(), spender: "0xspender", toContractAddress: "0xcontract")
+        ApproveTransactionData(txData: Data(), spender: "0xspender", toContractAddress: "0xcontract", amountRaw: 1)
     }
 
     private func withdraw() -> StakingAction {

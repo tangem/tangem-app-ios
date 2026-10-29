@@ -279,7 +279,7 @@ private extension ExpressApproveAndDEXTransactionDispatcherTests {
     }
 
     func makeApproveData() -> ApproveTransactionData {
-        ApproveTransactionData(txData: Data([0xAB]), spender: "0xSpender", toContractAddress: "0xContract")
+        ApproveTransactionData(txData: Data([0xAB]), spender: "0xSpender", toContractAddress: "0xContract", amountRaw: 1)
     }
 
     func makeCombinedFee() throws -> Fee {

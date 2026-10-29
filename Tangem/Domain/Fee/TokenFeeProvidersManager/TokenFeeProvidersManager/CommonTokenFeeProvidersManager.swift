@@ -152,14 +152,26 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
     }
 
     func transactionFee(approveData: ApproveTransactionData) async throws -> BSDKFee {
-        update(input: .approve(txData: approveData.txData, toContractAddress: approveData.toContractAddress))
+        update(input: .approve(
+            txData: approveData.txData,
+            toContractAddress: approveData.toContractAddress,
+            spender: approveData.spender,
+            amountRaw: approveData.amountRaw,
+            feeMultiplier: .single
+        ))
         await updateFees().value
         let fee = try selectedFeeProvider.selectedTokenFee.value.get()
         return fee
     }
 
     func revokeAndApproveTransactionFee(revokeData: ApproveTransactionData) async throws -> RevokeAndApproveFee {
-        update(input: .approve(txData: revokeData.txData, toContractAddress: revokeData.toContractAddress, feeMultiplier: .triple))
+        update(input: .approve(
+            txData: revokeData.txData,
+            toContractAddress: revokeData.toContractAddress,
+            spender: revokeData.spender,
+            amountRaw: revokeData.amountRaw,
+            feeMultiplier: .triple
+        ))
         await updateFees().value
         let total = try selectedFeeProvider.selectedTokenFee.value.get()
 
@@ -182,7 +194,7 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
 
             return fee
 
-        case (.dex(let data), .solana):
+        case (.dex(let data, _), .solana):
             guard let txData = data.txData, let transactionData = Data(base64Encoded: txData) else {
                 throw ExpressProviderError.transactionDataNotFound
             }
@@ -193,7 +205,7 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
 
             return fee
 
-        case (.dex(let data), _) where blockchain.isPsbtDexSwapSupported:
+        case (.dex(let data, _), _) where blockchain.isPsbtDexSwapSupported:
             guard let psbtBase64 = data.txData else {
                 throw ExpressProviderError.transactionDataNotFound
             }
@@ -204,7 +216,7 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
 
             return fee
 
-        case (.dex(let data), .tron):
+        case (.dex(let data, let spender), .tron):
             let transaction = try TronDEXTransactionMapper(blockchain: blockchain)
                 .map(data: data, expectedOwner: ownerAddress)
 
@@ -227,14 +239,18 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
                 )
             }
 
-            update(input: .dex(.tron(request: request)))
+            update(input: .dex(.tron(
+                request: request,
+                sourceAmount: data.fromAmount,
+                spender: spender
+            )))
 
             await updateFees().value
             let fee = try selectedFeeProvider.selectedTokenFee.value.get()
 
             return fee
 
-        case (.dex(let data), _):
+        case (.dex(let data, _), _):
             guard let txData = data.txData.map(Data.init(hexString:)) else {
                 throw ExpressProviderError.transactionDataNotFound
             }
@@ -262,7 +278,7 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
     ) async throws -> ApproveWithSwapFee {
         let blockchain = initialSelectedProvider.feeTokenItem.blockchain
 
-        guard case .dex(let dexData) = data, blockchain.isEvm,
+        guard case .dex(let dexData, _) = data, blockchain.isEvm,
               let txData = dexData.txData.map(Data.init(hexString:)) else {
             throw ExpressProviderError.transactionDataNotFound
         }

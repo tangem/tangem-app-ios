@@ -25,6 +25,9 @@ struct CommonGaslessTokenFeeLoader {
 // MARK: - TokenFeeLoader
 
 extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
+    var rejectsBridgeCoinFee: Bool { true }
+    var tripleApproveFeeRequiresFeature: Bool { true }
+
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         let params = try await resolveGaslessParameters()
         let amount = makeAmount(amount: amount)
@@ -85,6 +88,14 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
         } catch let error where error.isEVMExecutionReverted {
             throw TokenFeeLoaderError.gaslessExecutionReverted(gaslessMinTokenAmount: EthereumFeeParametersConstants.gaslessMinTokenAmountDecimal)
         }
+    }
+
+    func supports(_ input: TokenFeeProviderInputData) -> Bool {
+        supportsEthereumFeeInput(input)
+    }
+
+    func loadFees(_ input: TokenFeeProviderInputData, feeBlockchain: Blockchain) async throws -> [BSDKFee] {
+        try await loadEthereumFees(input, feeBlockchain: feeBlockchain)
     }
 }
 
