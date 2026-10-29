@@ -70,7 +70,7 @@ final class CollectiblesAccountViewModel: ObservableObject {
         switch vaultUsdcState {
         case .ready(let account):
             routable?.openAddFunds(account: account)
-        case .loading:
+        case .loading, .unavailable:
             break
         case .missing:
             alert = AlertBuilder.makeOkGotItAlert(message: Localization.commonSomethingWentWrong)

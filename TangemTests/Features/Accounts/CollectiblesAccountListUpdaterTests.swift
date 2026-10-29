@@ -29,7 +29,7 @@ struct CollectiblesAccountListUpdaterTests {
     func skipsListedAccount() {
         let sut = makeSUT()
 
-        sut.updater.update(isInAccountList: true)
+        sut.isInAccountList.send(true)
         sut.vaultState.send(.ready(Constants.vault))
 
         #expect(sut.additions.configs.isEmpty)
@@ -51,19 +51,22 @@ private extension CollectiblesAccountListUpdaterTests {
     typealias SUT = (
         updater: CollectiblesAccountModelsRegistry.AccountListUpdater,
         vaultState: CurrentValueSubject<CollectiblesState, Never>,
+        isInAccountList: CurrentValueSubject<Bool, Never>,
         additions: AdditionsRecorder
     )
 
     func makeSUT(canAddToAccountList: Bool = true) -> SUT {
         let vaultState = CurrentValueSubject<CollectiblesState, Never>(.unresolved)
+        let isInAccountList = CurrentValueSubject<Bool, Never>(false)
         let additions = AdditionsRecorder()
         let updater = CollectiblesAccountModelsRegistry.AccountListUpdater(
             vaultStatePublisher: vaultState.eraseToAnyPublisher(),
+            isInAccountListPublisher: isInAccountList.eraseToAnyPublisher(),
             canAddToAccountList: canAddToAccountList,
             addToAccountList: additions.record
         )
 
-        return (updater, vaultState, additions)
+        return (updater, vaultState, isInAccountList, additions)
     }
 }
 

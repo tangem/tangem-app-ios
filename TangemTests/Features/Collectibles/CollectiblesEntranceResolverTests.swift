@@ -89,6 +89,8 @@ private final class CollectiblesAccountModelStub: CollectiblesAccountModel {
 
     var hasAccountPublisher: AnyPublisher<Bool, Never> { Just(hasAccount).eraseToAnyPublisher() }
 
+    var isSyncRequiredPublisher: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
+
     func update(name: String) {}
 
     func onboard() async throws {}

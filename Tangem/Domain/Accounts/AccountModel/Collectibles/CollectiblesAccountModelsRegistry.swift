@@ -31,7 +31,7 @@ actor CollectiblesAccountModelsRegistry {
         }
 
         let accountModel = cachedOrNewAccountModel()
-        accountListUpdater?.update(isInAccountList: storedCryptoAccounts.isNotEmpty)
+        accountModel.update(isInAccountList: storedCryptoAccounts.isNotEmpty)
 
         return [accountModel]
     }
@@ -66,6 +66,7 @@ private extension CollectiblesAccountModelsRegistry {
     func makeAccountListUpdater(dependencies: Dependencies) -> AccountListUpdater {
         AccountListUpdater(
             vaultStatePublisher: dependencies.manager.statePublisher,
+            isInAccountListPublisher: dependencies.manager.isInAccountListPublisher,
             canAddToAccountList: FeatureProvider.isAvailable(.jointAccounts),
             addToAccountList: { [accountListWriter = dependencies.accountListWriter] config in
                 runTask {

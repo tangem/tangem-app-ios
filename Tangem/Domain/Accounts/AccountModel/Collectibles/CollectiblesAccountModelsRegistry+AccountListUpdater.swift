@@ -22,11 +22,11 @@ extension CollectiblesAccountModelsRegistry {
         )
 
         private let addToAccountList: (CryptoAccountPersistentConfig) -> Void
-        private let isInAccountListSubject = CurrentValueSubject<Bool, Never>(false)
         private var subscription: AnyCancellable?
 
         init(
             vaultStatePublisher: AnyPublisher<CollectiblesState, Never>,
+            isInAccountListPublisher: AnyPublisher<Bool, Never>,
             canAddToAccountList: Bool,
             addToAccountList: @escaping (CryptoAccountPersistentConfig) -> Void
         ) {
@@ -36,11 +36,7 @@ extension CollectiblesAccountModelsRegistry {
                 return
             }
 
-            bind(vaultStatePublisher: vaultStatePublisher)
-        }
-
-        func update(isInAccountList: Bool) {
-            isInAccountListSubject.send(isInAccountList)
+            bind(vaultStatePublisher: vaultStatePublisher, isInAccountListPublisher: isInAccountListPublisher)
         }
     }
 }
@@ -48,10 +44,13 @@ extension CollectiblesAccountModelsRegistry {
 // MARK: - Private logic
 
 private extension CollectiblesAccountModelsRegistry.AccountListUpdater {
-    func bind(vaultStatePublisher: AnyPublisher<CollectiblesState, Never>) {
+    func bind(
+        vaultStatePublisher: AnyPublisher<CollectiblesState, Never>,
+        isInAccountListPublisher: AnyPublisher<Bool, Never>
+    ) {
         subscription = vaultStatePublisher
             .map(\.isAccountVisible)
-            .combineLatest(isInAccountListSubject)
+            .combineLatest(isInAccountListPublisher)
             .map { isAccountVisible, isInAccountList in isAccountVisible && !isInAccountList }
             .removeDuplicates()
             .filter { $0 }

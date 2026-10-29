@@ -17,9 +17,17 @@ struct CollectiblesStateTests {
         #expect(state.isAccountVisible == isVisible)
     }
 
-    @Test("Only a vault naming another session key needs a relink", arguments: Self.relinkArguments)
-    func relinkRequirement(state: CollectiblesState, isRelinkRequired: Bool) {
-        #expect(state.isRelinkRequired == isRelinkRequired)
+    @Test(
+        "A vault naming another session key needs a relink, and so does a recorded account with no key on this phone",
+        arguments: Self.relinkArguments
+    )
+    func relinkRequirement(state: CollectiblesState, isRecorded: Bool, isRelinkRequired: Bool) {
+        #expect(state.isRelinkRequired(isRecorded: isRecorded) == isRelinkRequired)
+    }
+
+    @Test("Only a recorded account with no key on this phone needs a sync", arguments: Self.syncArguments)
+    func syncRequirement(state: CollectiblesState, isRecorded: Bool, isSyncRequired: Bool) {
+        #expect(state.isSyncRequired(isRecorded: isRecorded) == isSyncRequired)
     }
 }
 
@@ -34,12 +42,22 @@ extension CollectiblesStateTests {
         (state: .coldOwnerNotDerived, isVisible: false),
     ]
 
-    static let relinkArguments: [(state: CollectiblesState, isRelinkRequired: Bool)] = [
-        (state: .ready(Constants.vaultInfo), isRelinkRequired: false),
-        (state: .rekeyRequired(Constants.vaultInfo), isRelinkRequired: true),
-        (state: .unresolved, isRelinkRequired: false),
-        (state: .notOnboarded, isRelinkRequired: false),
-        (state: .coldOwnerNotDerived, isRelinkRequired: false),
+    static let relinkArguments: [(state: CollectiblesState, isRecorded: Bool, isRelinkRequired: Bool)] = [
+        (state: .ready(Constants.vaultInfo), isRecorded: true, isRelinkRequired: false),
+        (state: .rekeyRequired(Constants.vaultInfo), isRecorded: false, isRelinkRequired: true),
+        (state: .unresolved, isRecorded: true, isRelinkRequired: false),
+        (state: .notOnboarded, isRecorded: true, isRelinkRequired: false),
+        (state: .coldOwnerNotDerived, isRecorded: true, isRelinkRequired: true),
+        (state: .coldOwnerNotDerived, isRecorded: false, isRelinkRequired: false),
+    ]
+
+    static let syncArguments: [(state: CollectiblesState, isRecorded: Bool, isSyncRequired: Bool)] = [
+        (state: .ready(Constants.vaultInfo), isRecorded: true, isSyncRequired: false),
+        (state: .rekeyRequired(Constants.vaultInfo), isRecorded: true, isSyncRequired: false),
+        (state: .unresolved, isRecorded: true, isSyncRequired: false),
+        (state: .notOnboarded, isRecorded: true, isSyncRequired: false),
+        (state: .coldOwnerNotDerived, isRecorded: true, isSyncRequired: true),
+        (state: .coldOwnerNotDerived, isRecorded: false, isSyncRequired: false),
     ]
 }
 

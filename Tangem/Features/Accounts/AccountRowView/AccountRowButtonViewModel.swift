@@ -173,6 +173,18 @@ private extension AccountRowButtonViewModel {
                     vm.trailingBalanceState = balanceState
                 }
                 .store(in: &viewModel.bag)
+
+            accountModel
+                .isSyncRequiredPublisher
+                .receiveOnMain()
+                .withWeakCaptureOf(viewModel)
+                .sink { vm, isSyncRequired in
+                    vm.updateSubtitleState(
+                        description: isSyncRequired ? Localization.collectiblesAccountReconnectSubtitle : "",
+                        balanceState: .empty
+                    )
+                }
+                .store(in: &viewModel.bag)
         }
 
         private static func polymarketBalanceState(
