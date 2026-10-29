@@ -103,6 +103,8 @@ private final class StubRoutable: YieldModePromoSheetRoutable {
 
     private(set) var events: [Event] = []
 
+    func presentYieldModePromo(_ viewModel: YieldModePromoSheetViewModel) {}
+
     func dismissYieldModePromo() {
         events.append(.dismiss)
     }
