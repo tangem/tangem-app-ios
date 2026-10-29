@@ -8,4 +8,25 @@
 
 import Foundation
 
-struct TangemPayMoneyAccountStateModel {}
+struct TangemPayMoneyAccountStateModel {
+    var balance: Balance
+    var transactionHistory: TransactionsListView.State
+    var isTrxHistoryReloading = false
+}
+
+// MARK: - Balance
+
+extension TangemPayMoneyAccountStateModel {
+    enum Balance {
+        case loading(cached: String)
+        case loaded(String)
+        case failed(cached: String)
+
+        var isFailed: Bool {
+            switch self {
+            case .failed: true
+            default: false
+            }
+        }
+    }
+}
