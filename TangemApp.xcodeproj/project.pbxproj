@@ -2212,7 +2212,6 @@
 					walletUserWalletList.json,
 					notReferralMock.json,
 					referralMock.json,
-					visaSingleTransaction.json,
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;

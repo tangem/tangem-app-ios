@@ -32,7 +32,7 @@ struct TransactionDetailsOperationIconView: View {
     }
 
     private var glyph: Image {
-        glyphOverride?.image ?? data.redesignedIcon
+        glyphOverride?.image ?? data.icon
     }
 
     private var backgroundColor: Color {

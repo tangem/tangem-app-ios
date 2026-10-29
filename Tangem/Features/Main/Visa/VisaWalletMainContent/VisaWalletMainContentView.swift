@@ -29,16 +29,6 @@ struct VisaWalletMainContentView: View {
                 NotificationView(input: input)
                     .transition(.notificationTransition)
             }
-
-            TransactionsListView(
-                state: viewModel.transactionListViewState,
-                exploreAction: viewModel.openExplorer,
-                exploreConfirmationDialog: nil,
-                exploreTransactionAction: viewModel.exploreTransaction(with:),
-                reloadButtonAction: viewModel.reloadTransactionHistory,
-                isReloadButtonBusy: viewModel.isTransactionHistoryReloading,
-                fetchMore: viewModel.fetchNextTransactionHistoryPage()
-            )
         }
         .padding(.horizontal, 16)
         .bottomSheet(item: $viewModel.balancesAndLimitsViewModel, backgroundColor: DesignSystem.Color.bgPrimary) { model in
