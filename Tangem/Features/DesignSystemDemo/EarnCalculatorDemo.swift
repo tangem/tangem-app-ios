@@ -61,7 +61,7 @@ private struct EarnCalculatorDemoCard: View {
     init(incentiveApy: Decimal?, onIncentiveInfoTap: @escaping () -> Void) {
         let viewModel = EarnCalculatorViewModel(
             incentiveApy: incentiveApy,
-            projector: StubEarnCalculatorProjector(),
+            projector: CompoundingEarnCalculatorProjector.preview,
             currencyCode: AppSettings.shared.selectedCurrencyCode
         )
         _viewModel = StateObject(wrappedValue: viewModel)

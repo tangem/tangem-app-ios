@@ -117,7 +117,7 @@ private extension EarnCalculatorViewModel {
         let viewModel = EarnCalculatorViewModel(
             input: input,
             incentiveApy: incentiveApy,
-            projector: StubEarnCalculatorProjector(),
+            projector: CompoundingEarnCalculatorProjector.preview,
             currencyCode: "USD"
         )
         viewModel.selectedBarID = selectedBarID
