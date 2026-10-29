@@ -75,6 +75,10 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
     private(set) var shtorka: MainShtorkaPresenter?
 
+    // MARK: - Child view models
+
+    @Published var yieldModePromoSheetViewModel: YieldModePromoSheetViewModel?
+
     // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper = false
@@ -116,7 +120,10 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
             coordinator: self,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self),
             pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider,
-            promoSheetProvider: MainScreenPromoSheetProvider(managers: [], host: self)
+            promoSheetProvider: MainScreenPromoSheetProvider(
+                managers: [YieldModePromoSheetManager.make(routable: self)].compactMap { $0 },
+                host: self
+            )
         )
 
         mainViewModel = viewModel
@@ -608,6 +615,10 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     /// The campaign cover shares a host with every other modal in `MainCoordinatorView`, and SwiftUI drops
     /// the second presentation rather than queueing it — leaving a coordinator no view will ever clear.
     private var isPresentingOverMain: Bool {
+        isPresentingModalOverMain || yieldModePromoSheetViewModel != nil
+    }
+
+    private var isPresentingModalOverMain: Bool {
         tangemPayOnboardingCoordinator != nil
             || mainQRScanFlowCoordinator != nil
             || jointAccountManagementCoordinator != nil
@@ -630,9 +641,23 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             $actionButtonsBuyCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $actionButtonsSellCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $yieldModuleActiveCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
+            $yieldModePromoSheetViewModel.dropFirst().mapToVoid().eraseToAnyPublisher(),
         ]
 
         return Publishers.MergeMany(slots).eraseToAnyPublisher()
+    }
+
+    private var modalSlotPresences: [AnyPublisher<Bool, Never>] {
+        [
+            $tangemPayOnboardingCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
+            $mainQRScanFlowCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
+            $jointAccountManagementCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
+            $sendCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
+            $modalOnboardingCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
+            $actionButtonsBuyCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
+            $actionButtonsSellCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
+            $yieldModuleActiveCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
+        ]
     }
 
     private func presentTangemPayCampaign(campaignKey: String) {
@@ -1190,7 +1215,24 @@ extension MainCoordinator: MainScreenPromoSheetHost {
             sheetStateProvider.hasPresentedSheetPublisher,
             mobileFinishActivationManager.isActivationPendingOrShownPublisher,
             hasPresentedStoryPublisher,
+            hasPresentedModalPublisher,
+            isRootHiddenPublisher,
         ]
+    }
+
+    private var hasPresentedModalPublisher: AnyPublisher<Bool, Never> {
+        MainScreenPromoSheetModalBusySurface.publisher(
+            isModalPresented: isPresentingModalOverMain || tangemPayCampaignCoordinator != nil,
+            modalPresences: modalSlotPresences + [$tangemPayCampaignCoordinator.map { $0 != nil }.eraseToAnyPublisher()]
+        )
+    }
+
+    private var isRootHiddenPublisher: AnyPublisher<Bool, Never> {
+        guard let mainViewModel else {
+            return Just(false).eraseToAnyPublisher()
+        }
+
+        return mainViewModel.isRootVisiblePublisher.map { !$0 }.eraseToAnyPublisher()
     }
 
     private var hasPresentedStoryPublisher: AnyPublisher<Bool, Never> {
@@ -1202,5 +1244,25 @@ extension MainCoordinator: MainScreenPromoSheetHost {
             .map { $0 || $1 }
             .eraseToAnyPublisher()
         }
+    }
+}
+
+// MARK: - YieldModePromoSheetRoutable
+
+extension MainCoordinator: YieldModePromoSheetRoutable {
+    func presentYieldModePromo(_ viewModel: YieldModePromoSheetViewModel) {
+        guard !isPresentingOverMain, tangemPayCampaignCoordinator == nil else {
+            return
+        }
+
+        yieldModePromoSheetViewModel = viewModel
+    }
+
+    func dismissYieldModePromo() {
+        yieldModePromoSheetViewModel = nil
+    }
+
+    func openYieldModeEarn() {
+        openFeed(selection: .earn(type: .yield))
     }
 }

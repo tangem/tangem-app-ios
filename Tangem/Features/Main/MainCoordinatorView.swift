@@ -125,6 +125,13 @@ struct MainCoordinatorView: CoordinatorView {
             .shtorkaCompatibleSheet(item: $coordinator.yieldModuleActiveCoordinator) {
                 YieldModuleActiveCoordinatorView(coordinator: $0)
             }
+            .shtorkaCompatibleModal(
+                item: $coordinator.yieldModePromoSheetViewModel,
+                contentLayout: .intrinsic,
+                dragIndicator: .hidden,
+                header: { YieldModePromoSheetHeaderView(viewModel: $0) },
+                content: { YieldModePromoSheetView(viewModel: $0) }
+            )
             .floatingSheetContent(for: MobileFinishActivationNeededViewModel.self) {
                 MobileFinishActivationNeededView(viewModel: $0)
             }
