@@ -486,6 +486,12 @@ extension Analytics {
         case walletPromoAppear = "[Main Screen] Notice - Note Promo"
         case mainButtonFinalizeActivation = "[Main Screen] Button - Finalize Activation"
         case addFundsBannerAppear = "[Main Screen] Notice - Add Funds"
+        case mainNoticeSoftUpdate = "[Main Screen] Notice - Soft Update"
+        case mainNoticeCriticalUpdate = "[Main Screen] Notice - Critical update"
+        case mainNoticeUnsupportedDevice = "[Main Screen] Notice - Unsupported Device"
+        case mainNoticeOSUpdate = "[Main Screen] Notice - OS Update"
+        case mainButtonUpdateApp = "[Main Screen] Button - Update App"
+        case mainButtonLater = "[Main Screen] Button - Later"
 
         // MARK: - BlockchainSdk exceptions
 
