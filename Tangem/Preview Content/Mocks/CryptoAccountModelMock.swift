@@ -84,9 +84,9 @@ extension CryptoAccountModelMock {
     }
 }
 
-// MARK: - CryptoAccountModel protocol conformance
+// MARK: - StandardCryptoAccountModel protocol conformance
 
-extension CryptoAccountModelMock: CryptoAccountModel {
+extension CryptoAccountModelMock: StandardCryptoAccountModel {
     var didChangePublisher: AnyPublisher<Void, Never> {
         didChangeSubject.eraseToAnyPublisher()
     }
@@ -102,6 +102,14 @@ extension CryptoAccountModelMock: CryptoAccountModel {
 
     func archive() async throws(AccountArchivationError) {
         onArchive(self)
+    }
+}
+
+// MARK: - AccountModelResolvable protocol conformance
+
+extension CryptoAccountModelMock {
+    func resolve<R>(using resolver: R) -> R.Result where R: AccountModelResolving {
+        resolver.resolve(accountModel: self)
     }
 }
 

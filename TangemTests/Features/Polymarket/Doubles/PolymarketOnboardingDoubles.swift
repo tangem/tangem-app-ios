@@ -417,6 +417,10 @@ final class PolymarketAccountModelStub: PolymarketAccountModel {
     func refreshBalance(scope: PolymarketBalanceRefreshScope) async {}
 
     func resetOnboarding(isAccountGone: Bool) {}
+
+    func resolve<R>(using resolver: R) -> R.Result where R: AccountModelResolving {
+        resolver.resolve(accountModel: self)
+    }
 }
 
 // MARK: - Account presence
