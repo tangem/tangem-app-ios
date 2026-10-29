@@ -160,7 +160,7 @@ private extension TangemPayMoneyAccountContentView {
 
 private extension TangemPayMoneyAccountContentView {
     var transactionList: some View {
-        TransactionsListViewRedesigned(
+        TransactionsListView(
             state: state.transactionHistory,
             exploreAction: { action(.openExplorer) },
             openTransactionDetailsAction: { action(.openTransactionDetails(id: $0.id)) },

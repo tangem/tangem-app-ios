@@ -86,6 +86,21 @@ struct TransactionHistoryMapperUTXOAmountTests {
         #expect(makeSUT().mapSuggestedRecord(record)?.address == Self.recipient)
     }
 
+    @Test("A suggested payment shows the signed amount with its ticker")
+    func suggestedPaymentShowsSignedAmountWithTicker() throws {
+        let record = try makeRecord(
+            inputs: [(Self.owner, #require(Decimal(stringValue: "0.002")))],
+            outputs: [
+                (Self.recipient, #require(Decimal(stringValue: "0.001"))),
+                (Self.changeAddress, #require(Decimal(stringValue: "0.00099"))),
+            ]
+        )
+        let sentAmount = try #require(Decimal(stringValue: "0.001"))
+        let expectedAmount = AppConstants.minusSign + BalanceFormatter().formatCryptoBalance(sentAmount, currencyCode: "BTC")
+
+        #expect(makeSUT().mapSuggestedRecord(record)?.amountFormatted == expectedAmount)
+    }
+
     @Test("An incoming UTXO transaction is not suggested")
     func incomingTransactionIsNotSuggested() throws {
         let record = try makeRecord(

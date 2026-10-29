@@ -39,7 +39,7 @@ struct TokenDetailsView: View {
                     exploreTransactionAction: viewModel.openTransactionExplorer
                 )
 
-                TransactionsListViewRedesigned(
+                TransactionsListView(
                     state: viewModel.transactionHistoryState,
                     exploreAction: viewModel.openExplorer,
                     openTransactionDetailsAction: viewModel.openTransactionDetails,

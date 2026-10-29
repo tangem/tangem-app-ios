@@ -46,7 +46,7 @@ struct TransactionHistoryMapperCoinFallbackTests {
         let feeValue = try Self.feeValue
 
         #expect(viewModel.display.title.fullText == Localization.commonNetworkFeeTitle)
-        #expect(viewModel.amount.amount.hasSuffix(BalanceFormatter().formatCryptoBalance(feeValue, currencyCode: "ETH")))
+        #expect(viewModel.amount.value?.hasSuffix(BalanceFormatter().formatDecimal(feeValue)) == true)
         // The details sheet converts this value to fiat, so it has to be the fee too, not the zero transfer.
         #expect(sut.displayedAmountValue(from: record) == feeValue)
     }

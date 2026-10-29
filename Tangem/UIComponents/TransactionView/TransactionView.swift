@@ -3,356 +3,504 @@
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2023 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
 import TangemAssets
-import Kingfisher
+import TangemFoundation
+import TangemLocalization
 import TangemUI
+import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct TransactionView: View {
     let viewModel: TransactionViewModel
 
-    var body: some View {
-        HStack(spacing: 12) {
-            TransactionViewIconView(data: viewModel.icon, size: .medium)
+    @ScaledMetric private var iconContainerSide: CGFloat = 40
+    @ScaledMetric private var glyphSize: CGFloat = 20
+    @ScaledMetric private var warningIconSize: CGFloat = 16
+    @ScaledMetric private var pendingIndicatorSide: CGFloat = 16
+    @ScaledMetric private var pendingIndicatorGlyphSize: CGFloat = 12
+    @ScaledMetric private var pendingIndicatorBorderWidth: CGFloat = 2
 
-            textContent
-                .lineLimit(1)
+    private var display: TransactionDisplayModel { viewModel.display }
+
+    private var transactionKey: String { viewModel.transactionType.accessibilityIdentifierKey }
+
+    private var statusAccessibilityIdentifier: String? {
+        switch viewModel.icon.status {
+        case .confirmed: TxHistoryAccessibilityIdentifiers.transactionConfirmedStatus(key: transactionKey)
+        case .inProgress: TxHistoryAccessibilityIdentifiers.transactionInProgressStatus(key: transactionKey)
+        case .failed, .undefined: nil
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 6)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            rowLayout
+
+            if let warning = viewModel.warning {
+                warningView(warning)
+            }
+        }
     }
 
     @ViewBuilder
-    private var textContent: some View {
-        // we can use 2 row layout only when all the data is present
-        // otherwise left or right part needs to be vertically centered
-        if viewModel.localizeDestination != nil, viewModel.amount.formattedAmount != nil {
-            twoRowsTextContent
+    private var rowLayout: some View {
+        if let value = viewModel.amount.displayValue {
+            TangemTwoLineRowLayout(
+                icon: { iconView },
+                primaryLeading: { nameView },
+                primaryTrailing: { amountView(value) },
+                secondaryLeading: { subtitleView },
+                secondaryTrailing: { secondaryTrailingView }
+            )
+            .compressionPolicy(.trailingPreserved)
         } else {
-            twoColumnsTextContent
+            // Without an amount the top trailing slot would be blank, leaving the ticker hanging off the
+            // bottom line, so the whole trailing column moves to the centre instead.
+            TangemTwoLineRowLayout(
+                icon: { iconView },
+                primaryLeading: { nameView },
+                secondaryLeading: { subtitleView },
+                centeredTrailing: { secondaryTrailingView }
+            )
+            .compressionPolicy(.trailingPreserved)
         }
     }
 
-    private var twoRowsTextContent: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: .zero) {
-                name
-                Spacer(minLength: 8)
-                amount
-            }
+    private func warningView(_ warning: TransactionViewModel.Warning) -> some View {
+        HStack(spacing: 12) {
+            DesignSystem.Icons.Error.filled16.image
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(width: warningIconSize, height: warningIconSize)
+                .frame(width: iconContainerSide)
+                .foregroundStyle(DesignSystem.Color.iconStatusWarning)
 
-            HStack(spacing: .zero) {
-                description
-                Spacer(minLength: 6)
-                subtitle
-            }
+            Text(warningTitle(for: warning))
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusWarning)
+                .lineLimit(2)
+
+            Spacer(minLength: 0)
+        }
+        .padding(.top, 8)
+    }
+
+    private func warningTitle(for warning: TransactionViewModel.Warning) -> String {
+        switch warning {
+        case .verifying:
+            Localization.expressExchangeNotificationVerificationTitle
+        case .paused:
+            Localization.expressExchangeStatusPaused
         }
     }
 
-    private var twoColumnsTextContent: some View {
-        HStack(spacing: .zero) {
-            VStack(alignment: .leading, spacing: 4) {
-                name
-                description
-            }
+    private var iconView: some View {
+        ZStack {
+            Circle().fill(iconBackgroundColor)
 
-            Spacer(minLength: 8)
-
-            VStack(alignment: .trailing, spacing: 4) {
-                amount
-                subtitle
+            iconContent
+        }
+        .frame(width: iconContainerSide, height: iconContainerSide)
+        .overlay(alignment: .bottomTrailing) {
+            if viewModel.isPendingSignature {
+                pendingSignatureIndicator
             }
+        }
+        .accessibilityIdentifier(statusAccessibilityIdentifier)
+    }
+
+    private var pendingSignatureIndicator: some View {
+        Circle()
+            .fill(DesignSystem.Color.bgStatusWarningSubtle)
+            .overlay {
+                DesignSystem.Icons.Clock.regular12.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: pendingIndicatorGlyphSize, height: pendingIndicatorGlyphSize)
+                    .foregroundStyle(DesignSystem.Color.iconStatusWarning)
+            }
+            .overlay {
+                Circle().strokeBorder(DesignSystem.Color.bgPrimary, lineWidth: pendingIndicatorBorderWidth)
+            }
+            .frame(width: pendingIndicatorSide, height: pendingIndicatorSide)
+    }
+
+    @ViewBuilder
+    private var iconContent: some View {
+        if case .tangemPay(.spend(_, let iconURL?, _, _)) = viewModel.transactionType {
+            IconView(
+                url: iconURL,
+                size: CGSize(bothDimensions: iconContainerSide),
+                cornerRadius: iconContainerSide / 2
+            ) {
+                glyphImage
+            }
+        } else {
+            glyphImage
         }
     }
 
-    private var name: some View {
+    private var glyphImage: some View {
+        viewModel.icon.icon
+            .renderingMode(.template)
+            .resizable()
+            .scaledToFit()
+            .frame(width: glyphSize, height: glyphSize)
+            .foregroundStyle(iconGlyphColor)
+    }
+
+    private var nameView: some View {
         HStack(spacing: 8) {
-            Text(viewModel.display.title.fullText)
-                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
-                .multilineTextAlignment(.leading)
+            Text(display.title.fullText)
+                .style(DesignSystem.Font.bodyMediumToken, color: nameColor)
                 .lineLimit(1)
+                .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionItem(key: transactionKey))
 
-            if viewModel.inProgress {
+            if viewModel.isPendingSignature {
+                Badge(label: Localization.transactionHistoryPending, accessibilityLabel: nil)
+                    .size(.x4)
+                    .appearance(.warning)
+            } else if viewModel.inProgress {
                 ProgressDots(style: .small)
             }
         }
     }
 
+    private func amountView(_ value: String) -> some View {
+        SensitiveText(value)
+            .strikethroughWhenVisible(isFailed, color: amountColor)
+            .style(DesignSystem.Font.bodyMediumToken, color: amountColor)
+            .lineLimit(1)
+            .layoutPriority(1)
+            .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionAmount(key: transactionKey))
+    }
+
     @ViewBuilder
-    private var description: some View {
-        if let localizeDestination = viewModel.getTransactionDescription() {
-            Text(localizeDestination)
-                .multilineTextAlignment(.leading)
-                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
+    private var subtitleView: some View {
+        switch display.subtitle {
+        case .owner(let direction, let owner):
+            TransactionSubtitleView(
+                direction: direction,
+                owner: owner,
+                accessibilityIdentifier: TxHistoryAccessibilityIdentifiers.transactionSubtitle(key: transactionKey)
+            )
+
+        case .text(let description):
+            Text(description)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
                 .truncationMode(viewModel.transactionDescriptionTruncationMode)
+                .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionSubtitle(key: transactionKey))
+
+        case .express(let model):
+            TransactionExpressSubtitleView(model: model)
+
+        case .provider(let direction, let provider):
+            TransactionProviderSubtitleView(
+                direction: direction,
+                provider: provider,
+                accessibilityIdentifier: TxHistoryAccessibilityIdentifiers.transactionSubtitle(key: transactionKey)
+            )
+
+        case .sentAsset(let sent):
+            TransactionSentAssetSubtitleView(
+                sent: sent,
+                accessibilityIdentifier: TxHistoryAccessibilityIdentifiers.transactionSubtitle(key: transactionKey)
+            )
+
+        case .none:
+            EmptyView()
         }
     }
 
-    @ViewBuilder
-    private var amount: some View {
-        TransactionViewAmountView(data: viewModel.amount, size: .medium)
-            // The amount has priority to show
-            .layoutPriority(1)
-    }
+    private var secondaryTrailingView: some View {
+        HStack(spacing: 4) {
+            if let cashback = viewModel.cashback {
+                TransactionCashbackBadge(cashback: cashback)
+                    .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionCashback(key: transactionKey))
+            }
 
-    private var subtitle: some View {
-        Text(viewModel.subtitleText)
-            .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
-    }
-}
-
-#if DEBUG
-
-enum TransactionViewPreviewData {
-    static let previewViewModels: [TransactionViewModel] = [
-        TransactionViewModel(
-            hash: UUID().uuidString,
-            index: 0,
-            interactionAddress: .user("0xeEDBa2484aAF940f37cd3CD21a5D7C4A7DAfbfC0"),
-            timeFormatted: "10:45",
-            amount: "443 wxDAI",
-            value: "443",
-            currencyCode: "wxDAI",
-            isOutgoing: false,
-            transactionType: .transfer,
-            status: .inProgress,
-            isFromYieldContract: false,
-            isTangemPayCounterparty: false
-        ),
-        TransactionViewModel(
-            hash: UUID().uuidString,
-            index: 0,
-            interactionAddress: .user("0xeEDBa2484aAF940f37cd3CD21a5D7C4A7DAfbfC0"),
-            timeFormatted: "05:10",
-            amount: "50 wxDAI",
-            value: "50",
-            currencyCode: "wxDAI",
-            isOutgoing: false,
-            transactionType: .transfer,
-            status: .confirmed,
-            isFromYieldContract: false,
-            isTangemPayCounterparty: false
-        ),
-        TransactionViewModel(
-            hash: UUID().uuidString,
-            index: 0,
-            interactionAddress: .contract("0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619"),
-            timeFormatted: "00:04",
-            amount: "0 wxDAI",
-            value: "0",
-            currencyCode: "wxDAI",
-            isOutgoing: true,
-            transactionType: .approve,
-            status: .confirmed,
-            isFromYieldContract: false,
-            isTangemPayCounterparty: false
-        ),
-        TransactionViewModel(
-            hash: UUID().uuidString,
-            index: 0,
-            interactionAddress: .contract("0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619"),
-            timeFormatted: "15:00",
-            amount: "15 wxDAI",
-            value: "15",
-            currencyCode: "wxDAI",
-            isOutgoing: true,
-            transactionType: .swap,
-            status: .inProgress,
-            isFromYieldContract: false,
-            isTangemPayCounterparty: false
-        ),
-        TransactionViewModel(
-            hash: UUID().uuidString,
-            index: 0,
-            interactionAddress: .user("0xeEDBa2484aAF940f37cd3CD21a5D7C4A7DAfbfC0"),
-            timeFormatted: "16:23",
-            amount: "0.000000532154 ETH",
-            value: "0.000000532154",
-            currencyCode: "ETH",
-            isOutgoing: false,
-            transactionType: .swap,
-            status: .inProgress,
-            isFromYieldContract: false,
-            isTangemPayCounterparty: false
-        ),
-        TransactionViewModel(
-            hash: UUID().uuidString,
-            index: 0,
-            interactionAddress: .user("0xeEDBa2484aAF940f37cd3CD21a5D7C4A7DAfbfC0"),
-            timeFormatted: "16:23",
-            amount: "0.532154 USDT",
-            value: "0.532154",
-            currencyCode: "USDT",
-            isOutgoing: true,
-            transactionType: .swap,
-            status: .confirmed,
-            isFromYieldContract: false,
-            isTangemPayCounterparty: false
-        ),
-        TransactionViewModel(
-            hash: UUID().uuidString,
-            index: 0,
-            interactionAddress: .user("0xeEDBa2484aAF940f37cd3CD21a5D7C4A7DAfbfC0"),
-            timeFormatted: "18:32",
-            amount: "0.0012 ETH",
-            value: "0.0012",
-            currencyCode: "ETH",
-            isOutgoing: true,
-            transactionType: .approve,
-            status: .confirmed,
-            isFromYieldContract: false,
-            isTangemPayCounterparty: false
-        ),
-        TransactionViewModel(
-            hash: UUID().uuidString,
-            index: 0,
-            interactionAddress: .user("0xeEDBa2484aAF940f37cd3CD21a5D7C4A7DAfbfC0"),
-            timeFormatted: "18:32",
-            amount: "0.0012 ETH",
-            value: "0.0012",
-            currencyCode: "ETH",
-            isOutgoing: true,
-            transactionType: .approve,
-            status: .inProgress,
-            isFromYieldContract: false,
-            isTangemPayCounterparty: false
-        ),
-    ]
-
-    static let figmaViewModels1: [TransactionViewModel] = [
-        TransactionViewModel(
-            hash: UUID().uuidString,
-            index: 0,
-            interactionAddress: .user("33BdfS...ga2B"),
-            timeFormatted: "10:45",
-            amount: "−0.500913 BTC",
-            value: "−0.500913",
-            currencyCode: "BTC",
-            isOutgoing: true,
-            transactionType: .operation(name: "Sending"),
-            status: .inProgress,
-            isFromYieldContract: false,
-            isTangemPayCounterparty: false
-        ),
-        TransactionViewModel(
-            hash: UUID().uuidString,
-            index: 0,
-            interactionAddress: .contract("33BdfS...ga2B"),
-            timeFormatted: "10:45",
-            amount: "+0.500913 BTC",
-            value: "+0.500913",
-            currencyCode: "BTC",
-            isOutgoing: false,
-            transactionType: .swap,
-            status: .inProgress,
-            isFromYieldContract: false,
-            isTangemPayCounterparty: false
-        ),
-        TransactionViewModel(
-            hash: UUID().uuidString,
-            index: 0,
-            interactionAddress: .contract("33BdfS...ga2B"),
-            timeFormatted: "10:45",
-            amount: "+0.500913 BTC",
-            value: "+0.500913",
-            currencyCode: "BTC",
-            isOutgoing: false,
-            transactionType: .approve,
-            status: .inProgress,
-            isFromYieldContract: false,
-            isTangemPayCounterparty: false
-        ),
-        TransactionViewModel(
-            hash: UUID().uuidString,
-            index: 0,
-            interactionAddress: .contract("33BdfS...ga2B"),
-            timeFormatted: "10:45",
-            amount: "+0.500913 BTC",
-            value: "+0.500913",
-            currencyCode: "BTC",
-            isOutgoing: false,
-            transactionType: .swap,
-            status: .inProgress,
-            isFromYieldContract: false,
-            isTangemPayCounterparty: false
-        ),
-    ]
-
-    static let figmaViewModels2: [TransactionViewModel] = [
-        TransactionViewModel(
-            hash: UUID().uuidString,
-            index: 0,
-            interactionAddress: .user("33BdfS...ga2B"),
-            timeFormatted: "10:45",
-            amount: "−0.500913 BTC",
-            value: "−0.500913",
-            currencyCode: "BTC",
-            isOutgoing: true,
-            transactionType: .operation(name: "Sending"),
-            status: .confirmed,
-            isFromYieldContract: false,
-            isTangemPayCounterparty: false
-        ),
-        TransactionViewModel(
-            hash: UUID().uuidString,
-            index: 0,
-            interactionAddress: .contract("33BdfS...ga2B"),
-            timeFormatted: "10:45",
-            amount: "+0.500913 BTC",
-            value: "+0.500913",
-            currencyCode: "BTC",
-            isOutgoing: false,
-            transactionType: .approve,
-            status: .confirmed,
-            isFromYieldContract: false,
-            isTangemPayCounterparty: false
-        ),
-        TransactionViewModel(
-            hash: UUID().uuidString,
-            index: 0,
-            interactionAddress: .contract("33BdfS...ga2B"),
-            timeFormatted: "10:45",
-            amount: "+0.500913 BTC",
-            value: "+0.500913",
-            currencyCode: "BTC",
-            isOutgoing: false,
-            transactionType: .swap,
-            status: .failed,
-            isFromYieldContract: false,
-            isTangemPayCounterparty: false
-        ),
-    ]
-}
-
-#Preview("previewViewModels") {
-    VStack {
-        ForEach(TransactionViewPreviewData.previewViewModels, id: \.self) {
-            TransactionView(viewModel: $0)
+            if let text = viewModel.secondaryTrailingText {
+                Text(text)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .lineLimit(1)
+                    .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionCurrency(key: transactionKey))
+            }
         }
+    }
+}
+
+// MARK: - Cashback badge
+
+private struct TransactionCashbackBadge: View {
+    let cashback: TransactionViewModel.Cashback
+
+    @ObservedObject private var visibilityState: SensitiveTextVisibilityState = .shared
+
+    var body: some View {
+        Badge(label: label, accessibilityLabel: nil)
+            .size(.x4)
+            .variant(.tinted)
+            .appearance(appearance)
+    }
+
+    private var label: String {
+        visibilityState.isHidden ? visibilityState.maskedBalanceString : cashback.formattedAmount
+    }
+
+    private var appearance: BadgeAppearance {
+        switch cashback.style {
+        case .estimated: .neutral
+        case .confirmed: .info
+        }
+    }
+}
+
+// MARK: - Status-driven styling
+
+private extension TransactionView {
+    var isFailed: Bool { viewModel.icon.status == .failed }
+
+    var nameColor: Color {
+        if viewModel.isPendingSignature {
+            return DesignSystem.Color.textPrimary
+        }
+
+        switch viewModel.icon.status {
+        case .failed, .undefined: return DesignSystem.Color.textAccentRed
+        case .inProgress: return DesignSystem.Color.textAccentBlue
+        case .confirmed: return DesignSystem.Color.textPrimary
+        }
+    }
+
+    var amountColor: Color {
+        if let tangemPayAmountColor {
+            return tangemPayAmountColor
+        }
+
+        switch viewModel.icon.status {
+        case .failed, .undefined, .inProgress: return DesignSystem.Color.textSecondary
+        case .confirmed: return DesignSystem.Color.textPrimary
+        }
+    }
+
+    var tangemPayAmountColor: Color? {
+        guard case .tangemPay(let payType) = viewModel.transactionType else { return nil }
+
+        switch payType {
+        case .spend(_, _, let isDeclined, _) where isDeclined:
+            return DesignSystem.Color.textAccentRed
+        case .spend(_, _, _, let isNegativeAmount) where isNegativeAmount:
+            return DesignSystem.Color.textAccentBlue
+        case .transfer where !viewModel.isOutgoing,
+             .cashback:
+            return DesignSystem.Color.textAccentBlue
+        case .spend, .transfer, .fee:
+            return nil
+        }
+    }
+
+    var iconBackgroundColor: Color {
+        switch viewModel.icon.status {
+        case .failed, .undefined: DesignSystem.Color.bgStatusErrorSubtle
+        case .inProgress: DesignSystem.Color.bgStatusInfoSubtle
+        case .confirmed: DesignSystem.Color.bgTransparentPrimary
+        }
+    }
+
+    var iconGlyphColor: Color {
+        switch viewModel.icon.status {
+        case .failed, .undefined: DesignSystem.Color.iconAccentRed
+        case .inProgress: DesignSystem.Color.iconAccentBlue
+        case .confirmed: DesignSystem.Color.iconSecondary
+        }
+    }
+}
+
+// MARK: - Previews
+
+#Preview("States") {
+    VStack(spacing: 16) {
+        TransactionView(
+            viewModel: TransactionViewModel(
+                hash: UUID().uuidString,
+                index: 0,
+                interactionAddress: .user("33BdfS...ga2B"),
+                timeFormatted: "10:45",
+                amount: "−350.31 USDT",
+                value: "−350.31",
+                currencyCode: "USDT",
+                isOutgoing: true,
+                transactionType: .transfer,
+                status: .confirmed,
+                isFromYieldContract: false,
+                isTangemPayCounterparty: false
+            )
+        )
+
+        TransactionView(
+            viewModel: TransactionViewModel(
+                hash: UUID().uuidString,
+                index: 0,
+                interactionAddress: .user("33BdfS...ga2B"),
+                timeFormatted: "10:45",
+                amount: "+350.31 USDT",
+                value: "+350.31",
+                currencyCode: "USDT",
+                isOutgoing: true,
+                transactionType: .transfer,
+                status: .inProgress,
+                isFromYieldContract: false,
+                isTangemPayCounterparty: false
+            )
+        )
+
+        TransactionView(
+            viewModel: TransactionViewModel(
+                hash: UUID().uuidString,
+                index: 0,
+                interactionAddress: .user("33BdfS...ga2B"),
+                timeFormatted: "10:45",
+                amount: "350.31 USDT",
+                value: "350.31",
+                currencyCode: "USDT",
+                isOutgoing: true,
+                transactionType: .transfer,
+                status: .failed,
+                isFromYieldContract: false,
+                isTangemPayCounterparty: false
+            )
+        )
+
+        TransactionView(
+            viewModel: TransactionViewModel(
+                hash: UUID().uuidString,
+                index: 0,
+                interactionAddress: .contract("33BdfS...ga2B"),
+                timeFormatted: "10:45",
+                amount: "+350.00 USDT",
+                value: "+350.00",
+                currencyCode: "USDT",
+                isOutgoing: false,
+                transactionType: .swap,
+                status: .confirmed,
+                isFromYieldContract: false,
+                isTangemPayCounterparty: false
+            )
+        )
+
+        TransactionView(
+            viewModel: TransactionViewModel(
+                hash: UUID().uuidString,
+                index: 0,
+                interactionAddress: .contract("33BdfS...ga2B"),
+                timeFormatted: "10:45",
+                amount: "+350.00 USDT",
+                value: "+350.00",
+                currencyCode: "USDT",
+                isOutgoing: false,
+                transactionType: .swap,
+                status: .inProgress,
+                isFromYieldContract: false,
+                isTangemPayCounterparty: false
+            )
+        )
+
+        TransactionView(
+            viewModel: TransactionViewModel(
+                hash: UUID().uuidString,
+                index: 0,
+                interactionAddress: .contract("33BdfS...ga2B"),
+                timeFormatted: "10:45",
+                amount: "−390.00 USDT",
+                value: "−390.00",
+                currencyCode: "USDT",
+                isOutgoing: true,
+                transactionType: .swap,
+                status: .inProgress,
+                isFromYieldContract: false,
+                isTangemPayCounterparty: false,
+                warning: .verifying
+            )
+        )
+
+        TransactionView(
+            viewModel: TransactionViewModel(
+                hash: UUID().uuidString,
+                index: 0,
+                interactionAddress: .custom(message: "Restaurants"),
+                timeFormatted: "10:45",
+                amount: "−$12.34",
+                value: "−$12.34",
+                currencyCode: "",
+                isOutgoing: true,
+                transactionType: .tangemPay(.spend(name: "Tangem Coffee", icon: nil, isDeclined: false, isNegativeAmount: false)),
+                status: .confirmed,
+                isFromYieldContract: false,
+                isTangemPayCounterparty: false,
+                cashback: TransactionViewModel.Cashback(formattedAmount: "+$5.00", style: .estimated)
+            )
+        )
+
+        TransactionView(
+            viewModel: TransactionViewModel(
+                hash: UUID().uuidString,
+                index: 0,
+                interactionAddress: .custom(message: "Restaurants"),
+                timeFormatted: "10:45",
+                amount: "−$12.34",
+                value: "−$12.34",
+                currencyCode: "",
+                isOutgoing: true,
+                transactionType: .tangemPay(.spend(name: "Tangem Coffee", icon: nil, isDeclined: false, isNegativeAmount: false)),
+                status: .confirmed,
+                isFromYieldContract: false,
+                isTangemPayCounterparty: false,
+                cashback: TransactionViewModel.Cashback(formattedAmount: "+$5.00", style: .confirmed)
+            )
+        )
+
+        TransactionView(
+            viewModel: TransactionViewModel(
+                hash: UUID().uuidString,
+                index: 0,
+                interactionAddress: .custom(message: "Restaurants"),
+                timeFormatted: "10:45",
+                amount: "+$12.34",
+                value: "+$12.34",
+                currencyCode: "",
+                isOutgoing: false,
+                transactionType: .tangemPay(.spend(name: "Tangem Coffee", icon: nil, isDeclined: false, isNegativeAmount: true)),
+                status: .confirmed,
+                isFromYieldContract: false,
+                isTangemPayCounterparty: false,
+                cashback: TransactionViewModel.Cashback(formattedAmount: "−$5.00", style: .confirmed)
+            )
+        )
+
+        TransactionView(
+            viewModel: TransactionViewModel(
+                hash: UUID().uuidString,
+                index: 0,
+                interactionAddress: .user("33BdfS...ga2B"),
+                timeFormatted: "10:45",
+                amount: "−0.3212 ETH",
+                value: "−0.3212",
+                currencyCode: "ETH",
+                isOutgoing: true,
+                transactionType: .transfer,
+                status: .inProgress,
+                isFromYieldContract: false,
+                isTangemPayCounterparty: false,
+                isPendingSignature: true
+            )
+        )
     }
     .padding()
+    .background(DesignSystem.Color.bgPrimary)
 }
-
-#Preview("figmaViewModels1") {
-    VStack {
-        ForEach(TransactionViewPreviewData.figmaViewModels1, id: \.self) {
-            TransactionView(viewModel: $0)
-        }
-    }
-    .padding()
-}
-
-#Preview("figmaViewModels2") {
-    VStack {
-        ForEach(TransactionViewPreviewData.figmaViewModels2, id: \.self) {
-            TransactionView(viewModel: $0)
-        }
-    }
-    .padding()
-}
-
-#endif

@@ -1,5 +1,5 @@
 //
-//  TransactionChipRedesigned.swift
+//  TransactionChip.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -20,7 +20,7 @@ import TangemAccessibilityIdentifiers
 /// Per Figma node `7013:46986`, examples include:
 /// - `Approved 2,350.00 USDT to: <icon> Open Sea`
 /// - `Yield mode enabled` (no amount, no subtitle)
-struct TransactionChipRedesigned: View {
+struct TransactionChip: View {
     let viewModel: TransactionViewModel
     let style: TransactionDisplayModel.ChipStatusStyle
 
@@ -96,7 +96,7 @@ struct TransactionChipRedesigned: View {
         case .success:
             iconImage(DesignSystem.Icons.Success.regular16.image)
         case .plain where isOperationGlyphVisible:
-            iconImage(viewModel.icon.redesignedIcon)
+            iconImage(viewModel.icon.icon)
         case .plain:
             EmptyView()
         }
@@ -233,7 +233,7 @@ private enum ChipPreviewFixture {
     VStack(spacing: 8) {
         ForEach(indexed: ChipPreviewFixture.combinations, id: \.0) { _, model in
             if case .chip(let style) = model.display.style {
-                TransactionChipRedesigned(viewModel: model, style: style)
+                TransactionChip(viewModel: model, style: style)
             }
         }
     }

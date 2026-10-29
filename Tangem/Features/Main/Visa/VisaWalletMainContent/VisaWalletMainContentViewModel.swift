@@ -18,8 +18,6 @@ import struct TangemUIUtils.AlertBinder
 
 protocol VisaWalletRoutable: AnyObject {
     func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo])
-    func openInSafari(url: URL)
-    func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord, emailConfig: EmailConfig)
 }
 
 class VisaWalletMainContentViewModel: ObservableObject {
@@ -29,8 +27,6 @@ class VisaWalletMainContentViewModel: ObservableObject {
     @Published var balancesAndLimitsViewModel: VisaBalancesLimitsBottomSheetViewModel? = nil
     @Published var alert: AlertBinder? = nil
 
-    @Published private(set) var transactionListViewState: TransactionsListView.State = .loading
-    @Published private(set) var isTransactionHistoryReloading: Bool = true
     @Published private(set) var cryptoLimitText: String = ""
     @Published private(set) var numberOfDaysLimitText: String = ""
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
@@ -78,54 +74,14 @@ class VisaWalletMainContentViewModel: ObservableObject {
         balancesAndLimitsViewModel = .init(balances: balances, limit: limit, currencySymbol: tokenItem.currencySymbol)
     }
 
-    func openExplorer() {
-        guard let url = visaWalletModel.exploreURL() else {
-            return
-        }
-
-        Analytics.log(.mainButtonExplore)
-        coordinator?.openInSafari(url: url)
-    }
-
-    func exploreTransaction(with id: String) {
-        guard
-            let transactionId = UInt64(id),
-            let transactionRecord = visaWalletModel.transaction(with: transactionId),
-            let tokenItem = visaWalletModel.tokenItem,
-            let emailConfig = visaWalletModel.emailConfig
-        else {
-            return
-        }
-
-        coordinator?.openTransactionDetails(tokenItem: tokenItem, for: transactionRecord, emailConfig: emailConfig)
-    }
-
-    func reloadTransactionHistory() {
-        isTransactionHistoryReloading = true
-        visaWalletModel.reloadHistory()
-    }
-
-    func fetchNextTransactionHistoryPage() -> FetchMore? {
-        guard visaWalletModel.canFetchMoreTransactionHistory else {
-            return nil
-        }
-
-        return FetchMore { [weak self] in
-            self?.visaWalletModel.loadNextHistoryPage()
-        }
-    }
-
     func onPullToRefresh() async {
         guard updateTask == nil else {
             return
         }
 
-        isTransactionHistoryReloading = true
         updateTask = runTask(in: self) { viewModel in
             await viewModel.visaWalletModel.generalUpdateAsync()
             try? await Task.sleep(for: .seconds(0.2))
-
-            await runOnMain { viewModel.isTransactionHistoryReloading = false }
 
             viewModel.updateTask = nil
         }
@@ -154,25 +110,6 @@ class VisaWalletMainContentViewModel: ObservableObject {
                     self.setupNotifications(error)
                 }
             }
-            .store(in: &bag)
-
-        visaWalletModel.transactionHistoryStatePublisher
-            .receive(on: DispatchQueue.main)
-            .filter { !$0.isLoading }
-            .withWeakCaptureOf(self)
-            .map { viewModel, newState in
-                switch newState {
-                case .initial, .loading:
-                    return .loading
-                case .loaded:
-                    viewModel.isTransactionHistoryReloading = false
-                    return .loaded(viewModel.visaWalletModel.transactionHistoryItems)
-                case .failedToLoad(let error):
-                    viewModel.isTransactionHistoryReloading = false
-                    return .error(error)
-                }
-            }
-            .assign(to: \.transactionListViewState, on: self, ownership: .weak)
             .store(in: &bag)
     }
 

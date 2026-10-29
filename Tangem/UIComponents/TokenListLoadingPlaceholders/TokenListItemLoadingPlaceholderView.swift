@@ -11,12 +11,7 @@ import TangemAssets
 import TangemUI
 
 struct TokenListItemLoadingPlaceholderView: View {
-    enum Style {
-        case tokenList(hasNetworkItemPlaceholder: Bool)
-        case transactionHistory
-    }
-
-    let style: Style
+    let hasNetworkItemPlaceholder: Bool
 
     var body: some View {
         ZStack {
@@ -35,30 +30,9 @@ struct TokenListItemLoadingPlaceholderView: View {
         .background(DesignSystem.Color.bgSecondary)
     }
 
-    private var iconDimension: CGFloat {
-        switch style {
-        case .tokenList:
-            return 36.0
-        case .transactionHistory:
-            return 40.0
-        }
-    }
+    private var iconDimension: CGFloat { 36.0 }
 
-    private var height: CGFloat {
-        switch style {
-        case .tokenList:
-            return 68.0
-        case .transactionHistory:
-            return 56.0
-        }
-    }
-
-    private var hasNetworkItemPlaceholder: Bool {
-        if case .tokenList(let hasNetworkItemPlaceholder) = style {
-            return hasNetworkItemPlaceholder
-        }
-        return false
-    }
+    private var height: CGFloat { 68.0 }
 
     private var networkItemPlaceholderOffset: CGFloat { 4 }
 
@@ -129,15 +103,11 @@ struct TokenListItemLoadingPlaceholderView: View {
 
         VStack {
             TokenListItemLoadingPlaceholderView(
-                style: .tokenList(hasNetworkItemPlaceholder: false)
+                hasNetworkItemPlaceholder: false
             )
 
             TokenListItemLoadingPlaceholderView(
-                style: .tokenList(hasNetworkItemPlaceholder: true)
-            )
-
-            TokenListItemLoadingPlaceholderView(
-                style: .transactionHistory
+                hasNetworkItemPlaceholder: true
             )
         }
         .infinityFrame(alignment: .top)
