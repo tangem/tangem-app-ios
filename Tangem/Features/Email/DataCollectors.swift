@@ -382,6 +382,29 @@ struct TangemPaySupportDataCollector: EmailDataCollector {
     }
 }
 
+struct TangemPayMoneyAccountSupportDataCollector: EmailDataCollector {
+    let customerId: String?
+    let accountId: String?
+
+    var logData: Data? {
+        var stringBuilder = DeviceInfoProvider.Subject.allCases
+            .map(\.description)
+            .joined(separator: "\n")
+
+        stringBuilder.append("\n--------\n")
+
+        if let customerId {
+            stringBuilder.append("Tangem Pay Customer ID: \(customerId)\n")
+        }
+
+        if let accountId {
+            stringBuilder.append("USD Account ID: \(accountId)\n")
+        }
+
+        return stringBuilder.data(using: .utf8)
+    }
+}
+
 // MARK: - Paera
 
 struct TangemPayKYCDeclinedDataCollector: EmailDataCollector {
