@@ -14,13 +14,11 @@ final class YieldModuleAboutApyViewModel {
 
     let baseApyText: String
     let rewardsApyText: String
-    let usesIncentiveDesign: Bool
 
-    init(baseApy: Decimal, rewardsApy: Decimal, usesIncentiveDesign: Bool) {
+    init(baseApy: Decimal, rewardsApy: Decimal) {
         let formatter = PercentFormatter()
         baseApyText = formatter.format(baseApy, option: .earn)
         rewardsApyText = formatter.format(rewardsApy, option: .earn)
-        self.usesIncentiveDesign = usesIncentiveDesign
     }
 
     func onCloseTap() {

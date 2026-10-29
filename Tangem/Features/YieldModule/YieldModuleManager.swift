@@ -190,9 +190,7 @@ final class CommonYieldModuleManager {
             tokenBalanceProvider: tokenBalanceProvider
         )
 
-        incentivesManager = FeatureProvider.isAvailable(.merklIncentives)
-            ? InjectedValues[\.yieldIncentivesManagerProvider].manager(chainId: chainId, userAddress: walletAddress)
-            : nil
+        incentivesManager = InjectedValues[\.yieldIncentivesManagerProvider].manager(chainId: chainId, userAddress: walletAddress)
 
         bind()
         checkPromoAvailability()
