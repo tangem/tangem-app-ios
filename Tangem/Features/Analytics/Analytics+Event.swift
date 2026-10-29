@@ -1106,5 +1106,6 @@ extension Analytics {
 
         case userWalletRegistrationUnexpectedCurve = "[Backend Auth] Unexpected Wallet Curve"
         case backendAuthNonceRequestTimeout = "[Backend Auth] Nonce Request Timeout"
+        case backendAuthAttestationFailed = "[Backend Auth] Attestation Failed"
     }
 }

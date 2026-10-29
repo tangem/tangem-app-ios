@@ -32,4 +32,8 @@ extension TangemProblemDetailError {
         message: "Wallet is not registered for this device",
         code: nil
     )
+
+    var isAppAttestRejected: Bool {
+        httpStatusCode == 400 && code == "APPATTEST_REJECTED"
+    }
 }

@@ -77,6 +77,20 @@ package actor DeviceKeyManager {
         }
     }
 
+    /// Deletes the device key from the repository and drops the copy held in memory.
+    ///
+    /// - Note: The next ``publicKey`` or ``sign(data:)`` call loads the private key from the repository again,
+    /// which generates a new one when none is stored.
+    func deleteKey() async throws(DeviceKeyManagerError) {
+        defer { generateOrLoadPrivateKeyTask = nil }
+
+        do {
+            try await privateKeyRepository.delete()
+        } catch {
+            throw DeviceKeyManagerError.privateKeyDeletionFailed(error)
+        }
+    }
+
     private func resolvePrivateKey() async throws(DeviceKeyManagerError) -> any DevicePrivateKey {
         let task: Task<Result<any DevicePrivateKey, DevicePrivateKeyRepositoryError>, Never>
 

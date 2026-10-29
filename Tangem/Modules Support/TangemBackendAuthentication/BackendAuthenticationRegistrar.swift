@@ -31,7 +31,8 @@ enum BackendAuthenticationRegistrar {
                         retrier: BackendAuthenticationAssembly.requestRetrier
                     )
                 ),
-                analyticsReporter: CommonBackendAuthenticationAnalyticsReporter(),
+                nonceAnalyticsReporter: CommonBackendAuthenticationNonceAnalyticsReporter(),
+                appAttestAnalyticsReporter: CommonBackendAuthenticationAppAttestAnalyticsReporter(),
                 logger: BackendAuthLogger
             )
         )
