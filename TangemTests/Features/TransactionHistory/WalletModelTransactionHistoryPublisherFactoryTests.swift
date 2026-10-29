@@ -9,42 +9,81 @@
 import Foundation
 import Combine
 import Testing
-import TangemFoundation
 @testable import Tangem
 @testable import TangemExpress
 @testable import BlockchainSdk
 
 extension TransactionHistoryAuxDataRepositoryDependentTests {
-    @Suite("Wallet model transaction history publisher factory")
+    @Suite("Wallet model transaction history publisher factory", .timeLimit(.minutes(1)))
     final class WalletModelTransactionHistoryPublisherFactoryTests {
         @Test("An on-chain failure with nothing on screen yet reaches the list as an error, despite stored express records")
-        func onChainFailureOnFirstLoadIsNotMaskedByExpressRecords() async throws {
-            try await withStubbedDependencies {
+        func onChainFailureOnFirstLoadIsNotMaskedByExpressRecords() async {
+            await withStubbedDependencies {
                 let onChainState = CurrentValueSubject<WalletModelTransactionHistoryState, Never>(.loading)
-                let recorder = StateRecorder(Self.makePublisher(onChainState: onChainState))
-                let initialState = await recorder.settledLastState()
-                try #require(initialState == "loading")
+                let (states, subscription) = Self.states(of: Self.makePublisher(onChainState: onChainState, exchangeStatus: .waiting))
+                defer { subscription.cancel() }
+                var iterator = states.makeAsyncIterator()
+
+                guard case .loading? = await iterator.next() else {
+                    Issue.record("The on-chain loading state is expected first")
+                    return
+                }
 
                 onChainState.send(.error(TestError()))
 
-                let lastState = await recorder.settledLastState()
-                #expect(lastState == "error")
+                guard case .error? = await iterator.next() else {
+                    Issue.record("The on-chain failure is expected to reach the list")
+                    return
+                }
             }
         }
 
         @Test("Express rows already on screen survive a failed on-chain refresh")
-        func expressRowsOnScreenSurviveFailedRefresh() async throws {
-            try await withStubbedDependencies {
+        func expressRowsOnScreenSurviveFailedRefresh() async {
+            await withStubbedDependencies {
                 let onChainState = CurrentValueSubject<WalletModelTransactionHistoryState, Never>(.loaded(items: []))
-                let recorder = StateRecorder(Self.makePublisher(onChainState: onChainState))
-                let initialState = await recorder.settledLastState()
-                try #require(initialState == "loaded(1)")
+                let (states, subscription) = Self.states(of: Self.makePublisher(onChainState: onChainState, exchangeStatus: .waiting))
+                defer { subscription.cancel() }
+                var iterator = states.makeAsyncIterator()
+
+                #expect(Self.loadedHashes(await iterator.next()) == [Self.syntheticHash])
 
                 onChainState.send(.loading)
                 onChainState.send(.error(TestError()))
+                onChainState.send(.loaded(items: [Self.makeOnChainRecord(date: Self.dayAfterExchange)]))
 
-                let lastState = await recorder.settledLastState()
-                #expect(lastState == "loaded(1)")
+                #expect(Self.loadedHashes(await iterator.next()) == [Self.onChainHash])
+            }
+        }
+
+        @Test(
+            "Express rows older than the loaded on-chain history are hidden, whatever the deal status",
+            arguments: [ExpressTransactionStatus.refunded, .paused, .waiting, .failed]
+        )
+        func expressRowsOlderThanLoadedOnChainHistoryAreHidden(status: ExpressTransactionStatus) async {
+            await withStubbedDependencies {
+                let onChainState = CurrentValueSubject<WalletModelTransactionHistoryState, Never>(
+                    .loaded(items: [Self.makeOnChainRecord(date: Self.dayAfterExchange)])
+                )
+                let (states, subscription) = Self.states(of: Self.makePublisher(onChainState: onChainState, exchangeStatus: status))
+                defer { subscription.cancel() }
+                var iterator = states.makeAsyncIterator()
+
+                #expect(Self.loadedHashes(await iterator.next()) == [Self.onChainHash])
+            }
+        }
+
+        @Test("Express rows within the loaded on-chain history stay visible")
+        func expressRowsWithinLoadedOnChainHistoryStayVisible() async {
+            await withStubbedDependencies {
+                let onChainState = CurrentValueSubject<WalletModelTransactionHistoryState, Never>(
+                    .loaded(items: [Self.makeOnChainRecord(date: Self.dayBeforeExchange)])
+                )
+                let (states, subscription) = Self.states(of: Self.makePublisher(onChainState: onChainState, exchangeStatus: .refunded))
+                defer { subscription.cancel() }
+                var iterator = states.makeAsyncIterator()
+
+                #expect(Self.loadedHashes(await iterator.next()) == [Self.syntheticHash, Self.onChainHash])
             }
         }
     }
@@ -65,7 +104,8 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.WalletModelT
     }
 
     static func makePublisher(
-        onChainState: CurrentValueSubject<WalletModelTransactionHistoryState, Never>
+        onChainState: CurrentValueSubject<WalletModelTransactionHistoryState, Never>,
+        exchangeStatus: ExpressTransactionStatus
     ) -> AnyPublisher<WalletModelTransactionHistoryState, Never> {
         let token = ExpressMergeTestDataFactory.ethereumToken
         let wallet = Wallet(
@@ -73,7 +113,7 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.WalletModelT
             publicKey: .init(seedKey: Data(), derivationType: .none),
             addressesProvider: EmptyAddressesProvider()
         )
-        let provider = StubTransactionHistoryProvider(records: [.express(.exchange(makeExchangeInfo(token: token)))])
+        let provider = StubTransactionHistoryProvider(records: [.express(.exchange(makeExchangeInfo(token: token, status: exchangeStatus)))])
 
         return WalletModelTransactionHistoryPublisherFactory.makeTransactionHistoryPublisher(
             transactionHistoryPublisher: onChainState,
@@ -85,10 +125,46 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.WalletModelT
         )
     }
 
-    static func makeExchangeInfo(token: TokenItem) -> ExchangeTransactionInfo {
+    static let exchangeTxId = "exchange-tx"
+    static let onChainHash = "0xOnChainHash"
+    static let syntheticHash = ExpressSyntheticTxHelper(txId: exchangeTxId).makeSyntheticTxIdentifier()
+    static let dayAfterExchange = ExpressMergeTestDataFactory.baseDate.addingTimeInterval(ExpressMergeTestDataFactory.dayInSeconds)
+    static let dayBeforeExchange = ExpressMergeTestDataFactory.baseDate.addingTimeInterval(-ExpressMergeTestDataFactory.dayInSeconds)
+
+    static func states(
+        of publisher: AnyPublisher<WalletModelTransactionHistoryState, Never>
+    ) -> (AsyncStream<WalletModelTransactionHistoryState>, AnyCancellable) {
+        let (stream, continuation) = AsyncStream<WalletModelTransactionHistoryState>.makeStream()
+        let subscription = publisher.sink { continuation.yield($0) }
+        return (stream, subscription)
+    }
+
+    static func loadedHashes(_ state: WalletModelTransactionHistoryState?) -> [String]? {
+        guard case .loaded(let items)? = state else {
+            return nil
+        }
+
+        return items.map(\.hash)
+    }
+
+    static func makeOnChainRecord(date: Date) -> TransactionRecord {
+        ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: onChainHash,
+            isOutgoing: false,
+            sources: ["0xCounterparty"],
+            destinations: [(ExpressMergeTestDataFactory.ownerAddress, 5)],
+            date: date,
+            index: 0,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: ExpressMergeTestDataFactory.ethereumToken
+        )
+    }
+
+    static func makeExchangeInfo(token: TokenItem, status: ExpressTransactionStatus) -> ExchangeTransactionInfo {
         let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
-            txId: "exchange-tx",
-            status: .waiting,
+            txId: exchangeTxId,
+            status: status,
             fromAddress: ExpressMergeTestDataFactory.ownerAddress,
             payInAddress: "0xPayIn",
             payInHash: nil,
@@ -131,32 +207,6 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.WalletModelT
         ) -> AsyncStream<[TransactionHistoryRecordsReader.Record]> {
             AsyncStream { [records] continuation in
                 continuation.yield(records)
-            }
-        }
-    }
-
-    final class StateRecorder {
-        private let tags = OSAllocatedUnfairLock<[String]>(initialState: [])
-        private var cancellable: AnyCancellable?
-
-        init(_ publisher: AnyPublisher<WalletModelTransactionHistoryState, Never>) {
-            cancellable = publisher.sink { [tags] state in
-                tags.withLock { $0.append(Self.tag(for: state)) }
-            }
-        }
-
-        func settledLastState() async -> String? {
-            try? await Task.sleep(for: .milliseconds(500))
-            return tags.withLock { $0.last }
-        }
-
-        private static func tag(for state: WalletModelTransactionHistoryState) -> String {
-            switch state {
-            case .notSupported: "notSupported"
-            case .notLoaded: "notLoaded"
-            case .loading: "loading"
-            case .loaded(let items): "loaded(\(items.count))"
-            case .error: "error"
             }
         }
     }
