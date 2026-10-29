@@ -37,7 +37,7 @@ final class RadiantWalletManager: BaseWalletManager, DustRestrictable {
     func updateWalletManager(address: String) async throws {
         do {
             let response = try await networkService.getInfo(address: address).async()
-            updateWallet(with: response)
+            try updateWallet(with: response)
         } catch {
             wallet.clearAmounts()
             throw error
@@ -48,9 +48,9 @@ final class RadiantWalletManager: BaseWalletManager, DustRestrictable {
 // MARK: - Private Implementation
 
 private extension RadiantWalletManager {
-    func updateWallet(with response: UTXOResponse) {
+    func updateWallet(with response: UTXOResponse) throws {
         unspentOutputManager.update(outputs: response.outputs, for: wallet.defaultAddress)
-        let balance = unspentOutputManager.balance(blockchain: wallet.blockchain)
+        let balance = try unspentOutputManager.balance(blockchain: wallet.blockchain)
         wallet.add(coinValue: balance)
 
         let pending = response.pending.map {
