@@ -332,6 +332,7 @@ extension Analytics {
         case backupTypeCloud = "Cloud"
         case createWalletIntro = "Create Wallet Intro"
         case addNewWallet = "Add New Wallet"
+        case mobileWallets = "Mobile Wallets"
 
         // MARK: - Social login
 

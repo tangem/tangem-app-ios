@@ -139,6 +139,12 @@ final class CommonUserWalletRepository: UserWalletRepository {
             throw UserWalletRepositoryError.duplicateWalletAdded
         }
 
+        if FeatureProvider.isAvailable(.mobileWalletMultiCreation) {
+            guard !isMobileWalletsLimitReached(for: userWalletModel) else {
+                throw UserWalletRepositoryError.mobileWalletLimitReached
+            }
+        }
+
         let shouldShowInsertedEvent = models.isNotEmpty
         models.append(userWalletModel)
         if shouldShowInsertedEvent {
