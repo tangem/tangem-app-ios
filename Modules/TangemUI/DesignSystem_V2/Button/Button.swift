@@ -21,6 +21,7 @@ public struct Button: View, Setupable {
     private var styleType: StyleType = .brand
     private var horizontalLayout: HorizontalLayout = .intrinsic
     private var loading: Loading?
+    private var isEnabled = true
     private var accessibilityLabel: String?
     @ScaledMetric private var iconSide = Size.x10.iconSize
     @ScaledMetric private var wrapperPadding = Size.x10.wrapperPadding
@@ -87,6 +88,7 @@ public struct Button: View, Setupable {
         .accessibilityLabel(Text(resolvedAccessibilityLabel))
         .accessibilityValue(Text(resolvedAccessibilityValue))
         .allowsHitTesting(loading == nil)
+        .disabled(!isEnabled)
     }
 
     private var isLoading: Bool {
@@ -236,6 +238,10 @@ public extension Button {
 
     func loading(_ loading: Loading?) -> Self {
         map { $0.loading = loading }
+    }
+
+    func enabled(_ isEnabled: Bool) -> Self {
+        map { $0.isEnabled = isEnabled }
     }
 
     func accessibilityLabel(_ label: String?) -> Self {
