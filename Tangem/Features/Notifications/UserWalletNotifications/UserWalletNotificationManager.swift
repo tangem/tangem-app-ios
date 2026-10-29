@@ -21,6 +21,7 @@ final class UserWalletNotificationManager {
     @Injected(\.deprecationService) private var deprecationService: DeprecationServicing
     @Injected(\.walletAssetsDiscoveryProgressProvider) private var walletAssetsDiscoveryProgressProvider: WalletAssetsDiscoveryProgressProvider
     @Injected(\.addFundsBannerVisibilityProvider) private var addFundsBannerVisibilityProvider: AddFundsBannerVisibilityProvider
+    @Injected(\.forceUpdateService) private var forceUpdateService: ForceUpdateService
 
     private let analyticsService: NotificationsAnalyticsService
     private let userWalletModel: UserWalletModel
@@ -44,6 +45,8 @@ final class UserWalletNotificationManager {
     private var shouldShowAddFundsBanner: Bool?
     private var showMobileUpgradeNotification = false
     private var shownMobileUpgradeNotificationId: NotificationViewId?
+    private var showForceUpdateNotification = false
+    private var shownForceUpdateNotificationId: NotificationViewId?
     private var shownTokenSyncNotificationId: NotificationViewId?
 
     private lazy var pushPermissionNotificationInteractor: PushPermissionNotificationManager = makePushPermissionNotificationsManager()
@@ -147,6 +150,7 @@ final class UserWalletNotificationManager {
         showMobileUpgradeNotificationIfNeeded()
         showMobileActivationNotificationIfNeeded()
         createAndShowPushPermissionNotificationIfNeeded()
+        showForceUpdateNotificationIfNeeded()
     }
 
     private func createAndShowPushPermissionNotificationIfNeeded() {
@@ -290,6 +294,47 @@ final class UserWalletNotificationManager {
 
         hideNotification(with: shownMobileUpgradeNotificationId)
         self.shownMobileUpgradeNotificationId = nil
+    }
+
+    private func showForceUpdateNotificationIfNeeded() {
+        guard showForceUpdateNotification else {
+            hideForceUpdateNotificationIfNeeded()
+            return
+        }
+
+        let factory = NotificationsFactory()
+
+        let action: NotificationView.NotificationAction = { _ in }
+
+        let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
+            if case .openAppStore = action {
+                Analytics.log(.mainButtonUpdateApp, params: [.source: .soft])
+                AppStoreOpener.open()
+            } else {
+                self?.delegate?.didTapNotification(with: id, action: action)
+            }
+        }
+
+        let dismissAction: NotificationView.NotificationAction = { _ in }
+
+        let input = factory.buildNotificationInput(
+            for: .forceUpdateAvailable,
+            action: action,
+            buttonAction: buttonAction,
+            dismissAction: dismissAction
+        )
+        shownForceUpdateNotificationId = input.id
+
+        addInputIfNeeded(input)
+    }
+
+    private func hideForceUpdateNotificationIfNeeded() {
+        guard let shownForceUpdateNotificationId else {
+            return
+        }
+
+        hideNotification(with: shownForceUpdateNotificationId)
+        self.shownForceUpdateNotificationId = nil
     }
 
     private func showAddFundsBannerIfNeeded() {
@@ -451,6 +496,18 @@ final class UserWalletNotificationManager {
             .sink { manager, shouldShow in
                 manager.showMobileUpgradeNotification = shouldShow
                 manager.showMobileUpgradeNotificationIfNeeded()
+            }
+            .store(in: &bag)
+
+        forceUpdateService
+            .statePublisher
+            .map(\.isOptionalUpdate)
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { manager, shouldShow in
+                manager.showForceUpdateNotification = shouldShow
+                manager.showForceUpdateNotificationIfNeeded()
             }
             .store(in: &bag)
     }
