@@ -160,12 +160,9 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
 
         let blob = JointAccountCreationBlob(payload: result.payload, signature: result.signature)
 
-        let creationResult = try await networkService.createJointAccount(blob: blob)
+        let account = try await networkService.createJointAccount(blob: blob)
 
-        // The invites go first: they are handed out once and never read back, whereas the account itself is reported
-        // by every list read, so a failure here costs a record that comes back on its own rather than one that cannot
-        try invitesPersistentStorage.save(creationResult.invites, forCryptoAccountId: creationResult.account.cryptoAccountId)
-        try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: creationResult.account))
+        try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: account))
     }
 
     func joinJointAccount(withConfig config: JointAccountJoinConfig) async throws {
@@ -276,7 +273,6 @@ private extension CommonJointAccountsRepository {
         JointAccountsLogger.info("Loaded \(remoteJointAccounts.count) joint accounts from API.")
         JointAccountsLogger.debug("Accounts: \(remoteJointAccounts)")
 
-        // The invites are not the endpoint's to report, so a read leaves them where they are and says nothing of them
         let accounts = remoteJointAccounts.map(StoredJointAccount.init(remote:))
         let pendingOperations = remoteJointAccounts.compactMap(StoredJointAccountPendingOperations.init(remote:))
 

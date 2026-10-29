@@ -15,49 +15,16 @@ import TangemSdk
 struct CommonJointAccountMembersServiceTests {
     // MARK: - Slots
 
-    @Test("Every invite opens a free slot while nobody has walked in with one")
-    func allInvitesAreUnusedWithoutMembers() {
-        let sut = Self.makeSUT(membersCount: 3, members: [Self.creator], inviteIds: ["AA", "BB"])
-
-        #expect(Self.inviteIds(of: sut.slots) == [nil, "AA", "BB"])
-    }
-
-    @Test("The invite a member walked in with is no longer handed out")
-    func takenInviteIsLeftOut() {
-        let sut = Self.makeSUT(membersCount: 3, members: [Self.creator, Self.member(inviteId: "AA")], inviteIds: ["AA", "BB"])
-
-        #expect(Self.inviteIds(of: sut.slots) == [nil, nil, "BB"])
-    }
-
-    @Test("An invite is matched to its member regardless of how either is cased")
-    func takenInviteIsMatchedCaseInsensitively() {
-        let sut = Self.makeSUT(membersCount: 3, members: [Self.creator, Self.member(inviteId: "aa")], inviteIds: ["AA", "BB"])
-
-        #expect(Self.inviteIds(of: sut.slots) == [nil, nil, "BB"])
-    }
-
-    @Test("A slot left free with no invite to open it is still a slot, with nothing to offer")
-    func freeSlotWithoutAnInviteIsStillASlot() {
-        let sut = Self.makeSUT(membersCount: 3, members: [Self.creator], inviteIds: nil)
+    @Test("Every slot left free is a slot of its own, with no invite to offer")
+    func freeSlotsCarryNoInvite() {
+        let sut = Self.makeSUT(membersCount: 3, members: [Self.creator])
 
         #expect(sut.slots == [.member(Self.creator), .empty(invite: nil), .empty(invite: nil)])
     }
 
-    @Test("An invite is handed on as the link that carries it")
-    func inviteIsWrittenAsALink() {
-        let sut = Self.makeSUT(membersCount: 2, members: [Self.creator], inviteIds: ["AA"])
-
-        guard case .empty(let invite?) = sut.slots.last else {
-            Issue.record("The free slot carries no invite")
-            return
-        }
-
-        #expect(invite.url.absoluteString == "https://tangem.com/joint-account/join/AA")
-    }
-
     @Test("More members than the count says leaves no free slots rather than a negative number of them")
     func freeSlotsNeverGoNegative() {
-        let sut = Self.makeSUT(membersCount: 2, members: [Self.creator, Self.member(inviteId: "AA"), Self.member(inviteId: "BB")], inviteIds: ["CC"])
+        let sut = Self.makeSUT(membersCount: 2, members: [Self.creator, Self.member(named: "Bob"), Self.member(named: "Carol")])
 
         #expect(sut.slots.count == 3)
         #expect(sut.slots.allSatisfy { $0.member != nil })
@@ -71,25 +38,6 @@ struct CommonJointAccountMembersServiceTests {
         #expect(sut.userRole == .outsider)
     }
 
-    // MARK: - Inviting
-
-    @Test("An invite is offered where a free slot and an invite for it meet, and nowhere else")
-    func invitingTakesAFreeSlotAndAnInvite() {
-        let creator = Self.makeSUT(membersCount: 3, members: [Self.creator], inviteIds: ["AA", "BB"])
-        // A member was never handed invites of their own, so they have no one to bring in
-        let member = Self.makeSUT(membersCount: 3, members: [Self.creator], inviteIds: nil)
-        // The creator of a full composition still holds the invites it was created with, but nothing to spend them on
-        let full = Self.makeSUT(
-            membersCount: 2,
-            members: [Self.creator, Self.member(inviteId: "AA")],
-            inviteIds: ["AA"]
-        )
-
-        #expect(creator.slots.contains { $0.invite != nil })
-        #expect(!member.slots.contains { $0.invite != nil })
-        #expect(!full.slots.contains { $0.invite != nil })
-    }
-
     // MARK: - This wallet's own slot
 
     /// What the role service answers is its own suite's to check; this one is about the composition it is asked
@@ -97,7 +45,7 @@ struct CommonJointAccountMembersServiceTests {
     @Test("The slot the wallet holds is looked for among the account's own members")
     func ownSlotIsLookedForAmongTheAccountsMembers() {
         let own = JointAccountMember(name: "Me", address: Self.derivedAddress, role: .creator)
-        let sut = Self.makeSUT(membersCount: 2, members: [own, Self.member(inviteId: "AA")], inviteIds: nil, storedKeyPath: Self.ownPath)
+        let sut = Self.makeSUT(membersCount: 2, members: [own, Self.member(named: "Bob")], storedKeyPath: Self.ownPath)
 
         #expect(sut.userRole == .member(own))
         #expect(sut.userRole.isCreator)
@@ -105,7 +53,7 @@ struct CommonJointAccountMembersServiceTests {
 
     @Test("A composition this wallet holds no slot of leaves it outside")
     func ownSlotIsAbsentFromAForeignComposition() {
-        let sut = Self.makeSUT(membersCount: 2, members: [Self.creator], inviteIds: nil, storedKeyPath: Self.ownPath)
+        let sut = Self.makeSUT(membersCount: 2, members: [Self.creator], storedKeyPath: Self.ownPath)
 
         #expect(sut.userRole == .outsider)
     }
@@ -118,16 +66,12 @@ private extension CommonJointAccountMembersServiceTests {
         JointAccountMember(name: "Isaac", address: "0xcreator", role: .creator)
     }
 
-    static func member(inviteId: String) -> JointAccountMember {
-        JointAccountMember(name: "Member \(inviteId)", address: "0xmember\(inviteId)", role: .member(inviteId: inviteId))
+    static func member(named name: String) -> JointAccountMember {
+        JointAccountMember(name: name, address: "0x\(name.lowercased())", role: .member)
     }
 
-    static func makeSUT(membersCount: Int, members: [JointAccountMember], inviteIds: [String]?) -> CommonJointAccountMembersService {
-        JointAccountCompositionFixture.makeMembersService(
-            membersCount: membersCount,
-            members: members,
-            inviteIds: inviteIds
-        )
+    static func makeSUT(membersCount: Int, members: [JointAccountMember]) -> CommonJointAccountMembersService {
+        JointAccountCompositionFixture.makeMembersService(membersCount: membersCount, members: members)
     }
 
     static let derivedAddress = "0x6ECa00c52AFC728CDbF42E817d712e175bb23C7d"
@@ -139,13 +83,11 @@ private extension CommonJointAccountMembersServiceTests {
     static func makeSUT(
         membersCount: Int,
         members: [JointAccountMember],
-        inviteIds: [String]?,
         storedKeyPath: DerivationPath
     ) -> CommonJointAccountMembersService {
         JointAccountCompositionFixture.makeMembersService(
             membersCount: membersCount,
             members: members,
-            inviteIds: inviteIds,
             keysProvider: KeysRepositoryTestsMock(keys: [masterKey(storedKeyPath: storedKeyPath)])
         )
     }
@@ -162,16 +104,5 @@ private extension CommonJointAccountMembersServiceTests {
             isImported: false,
             derivedKeys: [storedKeyPath: derivedKey]
         )
-    }
-
-    /// The invite each slot is opened with; nil for a taken slot and for a free one this wallet holds no invite for.
-    static func inviteIds(of slots: [JointAccountSlot]) -> [String?] {
-        slots.map { slot in
-            guard case .empty(let invite) = slot else {
-                return nil
-            }
-
-            return invite?.id
-        }
     }
 }

@@ -189,7 +189,7 @@ private func previewJointAccount(
                     JointAccountMember(
                         name: "Member \(index)",
                         address: "0x0000000000000000000000000000000000000000",
-                        role: index == 0 ? .creator : .member(inviteId: nil)
+                        role: index == 0 ? .creator : .member
                     )
                 )
             },

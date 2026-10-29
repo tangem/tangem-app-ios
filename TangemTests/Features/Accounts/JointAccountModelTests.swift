@@ -57,7 +57,7 @@ struct JointAccountModelTests {
 private extension JointAccountModelTests {
     static let safeAddress = "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"
     static let creatorMember = JointAccountMember(name: "Isaac", address: "0xcreator", role: .creator)
-    static let memberMember = JointAccountMember(name: "Bob", address: "0xmember", role: .member(inviteId: nil))
+    static let memberMember = JointAccountMember(name: "Bob", address: "0xmember", role: .member)
 
     func makeSUT(status: JointAccountStatus, userRole: JointAccountUserRole) -> CommonJointAccountModel {
         CommonJointAccountModel(

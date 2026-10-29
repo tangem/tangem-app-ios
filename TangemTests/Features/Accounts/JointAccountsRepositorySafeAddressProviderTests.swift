@@ -120,7 +120,8 @@ private extension JointAccountsRepositorySafeAddressProviderTests {
                     name: member.0,
                     address: member.1,
                     role: index == 0 ? .creator : .member,
-                    inviteId: nil
+                    slot: nil,
+                    signature: nil
                 )
             }
         )
