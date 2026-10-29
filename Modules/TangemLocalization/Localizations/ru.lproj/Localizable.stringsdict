@@ -512,9 +512,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>+%li Outcome</string>
+        <string>+%li исход</string>
+        <key>few</key>
+        <string>+%li исхода</string>
+        <key>many</key>
+        <string>+%li исходов</string>
         <key>other</key>
-        <string>+%li Outcomes</string>
+        <string>+%li исходов</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>
