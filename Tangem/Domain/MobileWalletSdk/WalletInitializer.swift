@@ -35,6 +35,10 @@ final class MobileWalletInitializer: WalletInitializer {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     func initializeWallet(parameters: WalletInitializerParameters) async throws -> MobileWalletInfo {
+        if FeatureProvider.isAvailable(.mobileWalletMultiCreation), userWalletRepository.isMobileWalletsLimitReached {
+            throw UserWalletRepositoryError.mobileWalletLimitReached
+        }
+
         let sdk = CommonMobileWalletSdk()
 
         let userWalletId = switch parameters.mnemonic {

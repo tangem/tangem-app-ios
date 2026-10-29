@@ -76,6 +76,7 @@ extension Analytics {
         case memo = "Memo"
         case walletsCount = "Wallets Count"
         case wallets = "Wallets"
+        case limit = "Limit"
         case walletHasBackup = "Backuped"
         case walletType = "Wallet Type"
         case exceptionHost = "exception_host"
