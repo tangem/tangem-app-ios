@@ -18,6 +18,15 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
     final class TransactionDetailsStakingContentTests {
         private static let blockchain = Blockchain.ethereum(testnet: false)
         private static let validator = "0x1111111111111111111111111111111111111111"
+        private static let quote = TokenQuote(
+            currencyId: blockchain.currencyId,
+            price: 2,
+            priceUsd: 2,
+            priceChange24h: nil,
+            priceChange7d: nil,
+            priceChange30d: nil,
+            currencyCode: "USD"
+        )
 
         private let auxDataRepository = TransactionHistoryAuxDataRepositoryStub()
 
@@ -44,6 +53,25 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
             }
         }
 
+        @Test(
+            "Prices the staked amount in fiat under it",
+            arguments: [
+                TransactionRecord.TransactionType.StakingTransactionType.stake,
+                .unstake,
+                .withdraw,
+                .claimRewards,
+                .restake,
+                .vote,
+            ]
+        )
+        func stakingShowsFiatEquivalent(stakingType: TransactionRecord.TransactionType.StakingTransactionType) async throws {
+            let single = try await withStubbedDependencies {
+                try #require(makeContent(stakingType: stakingType)?.tokens?.single)
+            }
+
+            #expect(single.fiatText == BalanceFormatter().formatFiatBalance(2))
+        }
+
         @Test("Copies the unresolved validator address from its row")
         func validatorAddressIsCopyable() async throws {
             let rows = try await withStubbedDependencies {
@@ -65,11 +93,18 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
 // MARK: - Helpers
 
 private extension TransactionHistoryAuxDataRepositoryDependentTests.TransactionDetailsStakingContentTests {
-    func withStubbedDependencies<T>(_ operation: () throws -> T) async rethrows -> T {
+    func withStubbedDependencies<T>(_ operation: () throws -> T) async throws -> T {
         try await InjectedDependenciesIsolation.shared.run {
             let previousAuxDataRepository = InjectedValues[\.transactionHistoryAuxDataRepository]
+            let previousQuotesRepository = try #require(
+                InjectedValues[\.quotesRepository] as? TokenQuotesRepository & TokenQuotesRepositoryUpdater
+            )
             InjectedValues[\.transactionHistoryAuxDataRepository] = auxDataRepository
-            defer { InjectedValues[\.transactionHistoryAuxDataRepository] = previousAuxDataRepository }
+            InjectedValues.setTokenQuotesRepository(MockTokenQuotesRepository(quotes: [Self.blockchain.currencyId: Self.quote]))
+            defer {
+                InjectedValues[\.transactionHistoryAuxDataRepository] = previousAuxDataRepository
+                InjectedValues.setTokenQuotesRepository(previousQuotesRepository)
+            }
             return try operation()
         }
     }
@@ -120,7 +155,7 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.TransactionD
         let content = TransactionDetailsFactory.reduce(
             transaction: transaction,
             record: record,
-            cryptoAmount: 0,
+            cryptoAmount: 1,
             context: context,
             addContactHelper: addContactHelper
         ).content
@@ -130,5 +165,15 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.TransactionD
         }
 
         return data
+    }
+}
+
+private extension TransactionDetailsTokensViewData {
+    var single: Single? {
+        guard case .single(let single) = content else {
+            return nil
+        }
+
+        return single
     }
 }

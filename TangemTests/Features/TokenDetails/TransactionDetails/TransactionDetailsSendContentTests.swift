@@ -33,6 +33,15 @@ struct TransactionDetailsSendContentTests {
         #expect(single.amountText == expected)
     }
 
+    @Test("Prices a transfer in fiat under its amount", arguments: [true, false])
+    func transferShowsFiatEquivalent(isOutgoing: Bool) async throws {
+        let single = try await withQuote(price: 2) {
+            try #require(makeContent(type: .transfer, isOutgoing: isOutgoing, status: .confirmed)?.tokens?.single)
+        }
+
+        #expect(single.fiatText == BalanceFormatter().formatFiatBalance(0.2))
+    }
+
     @Test("Drops the sign of a failed transfer, like the history row does")
     func failedTransferHasNoSign() throws {
         let single = try #require(makeContent(type: .transfer, isOutgoing: true, status: .failed)?.tokens?.single)
@@ -120,6 +129,29 @@ struct TransactionDetailsSendContentTests {
 
 private extension TransactionDetailsSendContentTests {
     static let payDepositAddress = "0x37960c48ebdcf1007d242db9fd29a86527e389b4"
+
+    func withQuote<T>(price: Decimal, _ operation: () throws -> T) async throws -> T {
+        try await InjectedDependenciesIsolation.shared.run {
+            let currencyId = try #require(CommonWalletModel.previewWalletModel(history: []).tokenItem.currencyId)
+            let previousQuotesRepository = try #require(
+                InjectedValues[\.quotesRepository] as? TokenQuotesRepository & TokenQuotesRepositoryUpdater
+            )
+            let quote = TokenQuote(
+                currencyId: currencyId,
+                price: price,
+                priceUsd: price,
+                priceChange24h: nil,
+                priceChange7d: nil,
+                priceChange30d: nil,
+                currencyCode: "USD"
+            )
+            InjectedValues.setTokenQuotesRepository(MockTokenQuotesRepository(quotes: [currencyId: quote]))
+            defer {
+                InjectedValues.setTokenQuotesRepository(previousQuotesRepository)
+            }
+            return try operation()
+        }
+    }
 
     func makeContent(
         type: TransactionRecord.TransactionType,
