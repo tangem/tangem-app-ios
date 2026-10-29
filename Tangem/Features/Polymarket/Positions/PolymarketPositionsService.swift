@@ -76,7 +76,7 @@ extension CommonPolymarketPositionsService: PolymarketPositionsService {
         }
 
         return PolymarketPositionsPage(
-            positions: collected.prefix(limit).sorted(by: endsSooner),
+            positions: Array(collected.prefix(limit)),
             receivedCount: received,
             nextCursor: cursor
         )
@@ -142,13 +142,5 @@ private extension CommonPolymarketPositionsService {
             conditionId: conditionId,
             assetId: assetId
         )
-    }
-
-    func endsSooner(_ lhs: PolymarketPosition, _ rhs: PolymarketPosition) -> Bool {
-        switch (lhs.endDate, rhs.endDate) {
-        case (.some(let lhs), .some(let rhs)): lhs < rhs
-        case (.some, .none): true
-        case (.none, .some), (.none, .none): false
-        }
     }
 }

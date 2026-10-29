@@ -632,8 +632,19 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
         return quoteResult
     }
 
+    var positionPages: [String?: PolymarketPositionsPage] = [:]
+
     func positions(request: PolymarketPositionsRequest) async throws -> PolymarketPositionsPage {
-        throw PolymarketDepositWalletServiceStub.StubError()
+        let cursor: String? = switch request.page {
+        case .first: nil
+        case .next(let cursor): cursor
+        }
+
+        guard let page = positionPages[cursor] else {
+            throw PolymarketDepositWalletServiceStub.StubError()
+        }
+
+        return page
     }
 
     func closedPositions(request: PolymarketClosedPositionsRequest) async throws -> PolymarketClosedPositionsPage {
