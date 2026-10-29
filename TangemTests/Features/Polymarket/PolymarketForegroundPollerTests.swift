@@ -19,10 +19,10 @@ struct PolymarketForegroundPollerTests {
 
         #expect(await context.next() == .parked)
 
-        context.delayProvider.releaseParkedWaits()
+        context.delayProvider.resume()
         #expect(await context.next(2) == [.tick, .parked])
 
-        context.delayProvider.releaseParkedWaits()
+        context.delayProvider.resume()
         #expect(await context.next(2) == [.tick, .parked])
     }
 
@@ -37,7 +37,7 @@ struct PolymarketForegroundPollerTests {
         context.appState.enterForeground()
         #expect(await context.next(2) == [.tick, .parked])
 
-        context.delayProvider.releaseParkedWaits()
+        context.delayProvider.resume()
         #expect(await context.next(2) == [.tick, .parked])
     }
 
@@ -56,7 +56,7 @@ struct PolymarketForegroundPollerTests {
         context.poller.setSuspended(false)
         #expect(await context.next(2) == [.tick, .parked])
 
-        context.delayProvider.releaseParkedWaits()
+        context.delayProvider.resume()
         #expect(await context.next(2) == [.tick, .parked])
     }
 
@@ -91,14 +91,14 @@ private extension PolymarketForegroundPollerTests {
     final class Context {
         let poller: PolymarketForegroundPoller
         let appState: AppStateObserverStub
-        let delayProvider: ParkingDelayProvider
+        let delayProvider: PolymarketSteppedDelayProvider
 
         private var iterator: AsyncStream<Event>.Iterator
 
         init(
             poller: PolymarketForegroundPoller,
             appState: AppStateObserverStub,
-            delayProvider: ParkingDelayProvider,
+            delayProvider: PolymarketSteppedDelayProvider,
             events: AsyncStream<Event>
         ) {
             self.poller = poller
@@ -129,12 +129,12 @@ private extension PolymarketForegroundPollerTests {
     static func makeSUT() -> Context {
         let (events, continuation) = AsyncStream<Event>.makeStream()
         let appState = AppStateObserverStub()
-        let delayProvider = ParkingDelayProvider { event in
+        let delayProvider = PolymarketSteppedDelayProvider(onEvent: { event in
             switch event {
             case .parked: continuation.yield(.parked)
             case .cancelled: continuation.yield(.cancelled)
             }
-        }
+        })
 
         let poller = PolymarketForegroundPoller(interval: 10, appStateObserver: appState, delayProvider: delayProvider)
 

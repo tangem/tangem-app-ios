@@ -524,16 +524,18 @@ final class PolymarketCardSignerStub: TangemSigner {
 final class PolymarketAPIProviderStub: PolymarketAPIProvider {
     private(set) var searchRequests: [PolymarketSearchRequest] = []
     private(set) var quoteRequests: [PolymarketOrderQuoteRequest] = []
+    let searchRequested = PolymarketTestSignal<PolymarketSearchRequest>()
+    let quoteRequested = PolymarketTestSignal<PolymarketOrderQuoteRequest>()
+    let heldQuoteEntered = PolymarketTestSignal<Void>()
 
     var queuedQuoteResults: [Result<PolymarketOrderQuote, Error>] = []
     var holdsQuotes = false
     private var heldQuotes: [CheckedContinuation<Void, Never>] = []
     var categoryList: [PolymarketCategory] = []
     var queuedCategoryResults: [Result<[PolymarketCategory], Error>] = []
-    var slowEventCategories: Set<Int> = []
-    var slowEventsIgnoreCancellation = false
-
-    static let slowEventsDelay: UInt64 = 200_000_000
+    var heldEventCategories: Set<Int> = []
+    let heldEvents = PolymarketTestGate()
+    let eventsRequested = PolymarketTestSignal<PolymarketEventsRequest>()
     var eventPages: [EventsPageKey: PolymarketEventsPage] = [:]
     var eventErrors: [EventsPageKey: Error] = [:]
     private(set) var eventsRequests: [PolymarketEventsRequest] = []
@@ -551,6 +553,7 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
 
     func search(request: PolymarketSearchRequest) async throws -> PolymarketSearchResult {
         searchRequests.append(request)
+        searchRequested.send(request)
 
         guard !searchResults.isEmpty else {
             return PolymarketSearchResult(events: [], page: request.page, total: 0, hasNext: false)
@@ -567,15 +570,13 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
         return categoryList
     }
 
+    @MainActor
     func events(request: PolymarketEventsRequest) async throws -> PolymarketEventsPage {
         eventsRequests.append(request)
+        eventsRequested.send(request)
 
-        if let category = request.category, slowEventCategories.contains(category) {
-            if slowEventsIgnoreCancellation {
-                await Task.detached { try? await Task.sleep(nanoseconds: Self.slowEventsDelay) }.value
-            } else {
-                try await Task.sleep(nanoseconds: Self.slowEventsDelay)
-            }
+        if let category = request.category, heldEventCategories.contains(category) {
+            await heldEvents.pass()
         }
 
         let key = EventsPageKey(category: request.category, cursor: request.cursor)
@@ -602,21 +603,22 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
         throw PolymarketDepositWalletServiceStub.StubError()
     }
 
-    var hasHeldQuotes: Bool {
-        !heldQuotes.isEmpty
-    }
-
     func releaseQuotes() {
         let held = heldQuotes
         heldQuotes = []
         held.forEach { $0.resume() }
     }
 
+    @MainActor
     func orderQuote(request: PolymarketOrderQuoteRequest) async throws -> PolymarketOrderQuote {
         quoteRequests.append(request)
+        quoteRequested.send(request)
 
         if holdsQuotes {
-            await withCheckedContinuation { heldQuotes.append($0) }
+            await withCheckedContinuation {
+                heldQuotes.append($0)
+                heldQuoteEntered.send()
+            }
         }
 
         if !queuedQuoteResults.isEmpty {

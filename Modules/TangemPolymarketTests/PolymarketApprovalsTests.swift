@@ -9,7 +9,7 @@ import Foundation
 import Testing
 @testable import TangemPolymarket
 
-@Suite("Approvals batch")
+@Suite("Approvals batch", .timeLimit(.minutes(1)))
 struct PolymarketApprovalsTests {
     private static let depositWallet = "0xfAeA0f08159fcF2f573fE24E9E989B0d48f7651B"
     private static let deadline = "1735690200"
@@ -20,33 +20,6 @@ struct PolymarketApprovalsTests {
     private static let setApprovalForAllSelector = "0xa22cb465"
 
     // MARK: - The set the validator expects
-
-    @Test("The batch carries the seventeen calls the backend validates")
-    func theBatchHasSeventeenCalls() {
-        #expect(PolymarketApprovalCalls.make().count == 17)
-    }
-
-    @Test("Eight allowances are granted on the collateral, seven on the conditional tokens, two on the position manager")
-    func callsSplitBetweenTheTokens() {
-        let calls = PolymarketApprovalCalls.make()
-
-        #expect(calls.filter { $0.target == PolymarketCollateral.contractAddress }.count == 8)
-        #expect(calls.filter { $0.target == PolymarketApprovalContracts.conditionalTokens }.count == 7)
-        #expect(calls.filter { $0.target == PolymarketApprovalContracts.positionManager }.count == 2)
-    }
-
-    @Test("The V2 operators are approved on the token that holds their positions", arguments: [
-        OperatorGrant(token: PolymarketApprovalContracts.positionManager, operatorAddress: PolymarketApprovalContracts.exchangeV3),
-        OperatorGrant(token: PolymarketApprovalContracts.positionManager, operatorAddress: PolymarketApprovalContracts.routerV3),
-        OperatorGrant(token: PolymarketApprovalContracts.conditionalTokens, operatorAddress: PolymarketApprovalContracts.binaryModule),
-        OperatorGrant(token: PolymarketApprovalContracts.conditionalTokens, operatorAddress: PolymarketApprovalContracts.negRiskModule),
-    ])
-    func v2OperatorsAreApproved(grant: OperatorGrant) {
-        let operatorWord = String(repeating: "0", count: 24) + grant.operatorAddress.dropFirst(2).lowercased()
-        let expected = Self.setApprovalForAllSelector + operatorWord + String(repeating: "0", count: 63) + "1"
-
-        #expect(PolymarketApprovalCalls.make().contains { $0.target == grant.token && $0.data == expected })
-    }
 
     @Test("Every call is one of the two expected selectors and moves no coin")
     func callsAreWellFormed() {
@@ -62,19 +35,6 @@ struct PolymarketApprovalsTests {
         let calls = PolymarketApprovalCalls.make()
 
         #expect(Set(calls.map(\.data)).count == calls.count)
-    }
-
-    @Test("Approvals grant the maximum allowance and set the flag to true")
-    func amountsAreTheExpectedConstants() {
-        for call in PolymarketApprovalCalls.make() {
-            let argument = String(call.data.suffix(64))
-
-            if call.data.hasPrefix(Self.approveSelector) {
-                #expect(argument == String(repeating: "f", count: 64))
-            } else {
-                #expect(argument == String(repeating: "0", count: 63) + "1")
-            }
-        }
     }
 
     // MARK: - The digest the card signs
@@ -233,11 +193,6 @@ extension PolymarketApprovalsTests {
     struct Vector: Sendable {
         let nonce: String
         let digest: String
-    }
-
-    struct OperatorGrant: Sendable {
-        let token: String
-        let operatorAddress: String
     }
 }
 

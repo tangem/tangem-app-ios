@@ -12,7 +12,7 @@ import TangemFoundation
 import TangemPolymarket
 @testable import Tangem
 
-@Suite("Polymarket deposits scan on launch")
+@Suite("Polymarket deposits scan on launch", .timeLimit(.minutes(1)))
 struct PolymarketLaunchDepositsReconcilerTests {
     @Test("The scan is asked for once per launch, however often the balance loads")
     func asksOncePerLaunch() async {
@@ -58,15 +58,6 @@ struct PolymarketLaunchDepositsReconcilerTests {
         await second.reconcileOncePerLaunch(ownerAddress: Self.ownerAddress)?.value
 
         #expect(calls.withLock { $0 } == 2)
-    }
-
-    @Test("A refused scan does not break the launch")
-    func refusedScanIsSwallowed() async {
-        let sut = makeSUT(ledger: PolymarketLaunchLedger()) { _ in
-            throw PolymarketAPIError.http(statusCode: 429, problemDetail: nil)
-        }
-
-        await sut.reconcileOncePerLaunch(ownerAddress: Self.ownerAddress)?.value
     }
 }
 

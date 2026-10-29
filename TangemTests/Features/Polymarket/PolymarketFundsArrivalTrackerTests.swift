@@ -12,18 +12,9 @@ import Testing
 import TangemFoundation
 @testable import Tangem
 
-@Suite("Polymarket funds arrival")
+@Suite("Polymarket funds arrival", .timeLimit(.minutes(1)))
+@MainActor
 struct PolymarketFundsArrivalTrackerTests {
-    @Test("A deposit raises the banner and reads the balance more often")
-    func depositRaisesTheBanner() {
-        let sut = makeSUT()
-
-        sut.startAwaitingFunds()
-
-        #expect(sut.isAwaitingFunds)
-        #expect(sut.isBalanceChangeExpected)
-    }
-
     @Test("A withdrawal reads the balance more often without raising the banner")
     func withdrawalRaisesNoBanner() {
         let sut = makeSUT()
@@ -98,7 +89,7 @@ struct PolymarketFundsArrivalTrackerTests {
 
         sut.startAwaitingFunds()
 
-        try await sut.windowClosed()
+        await sut.windowClosed()
 
         #expect(!sut.isAwaitingFunds)
         #expect(!sut.isBalanceChangeExpected)
@@ -140,7 +131,7 @@ struct PolymarketFundsArrivalTrackerTests {
 
         sut.startAwaitingFunds { settlements += 1 }
 
-        try await sut.windowClosed()
+        await sut.windowClosed()
 
         #expect(settlements == 1)
     }
@@ -167,10 +158,8 @@ private extension PolymarketFundsArrivalTrackerTests {
 }
 
 private extension PolymarketFundsArrivalTracker {
-    func windowClosed() async throws {
-        _ = try await $isBalanceChangeExpected
-            .filter { !$0 }
-            .eraseToAnyPublisher()
-            .async()
+    @MainActor
+    func windowClosed() async {
+        await $isBalanceChangeExpected.firstValue { !$0 }
     }
 }

@@ -13,14 +13,14 @@ import TangemFoundation
 import TangemPolymarket
 @testable import Tangem
 
-@Suite("Polymarket balance block")
+@Suite("Polymarket balance block", .timeLimit(.minutes(1)))
 @MainActor
 struct PolymarketBalanceBlockViewModelTests {
     @Test("In a restricted region add funds opens the region warning, not the unavailable alert")
     func restrictedRegionWinsOverUnavailableAddFunds() async throws {
         let context = Self.makeSUT(isRegionRestricted: true)
 
-        try await settle { context.sut.addFundsState == .unavailable }
+        _ = await context.sut.$addFundsState.firstValue { $0 == .unavailable }
 
         context.sut.handleViewAction(.openAddFunds)
 
@@ -33,11 +33,12 @@ struct PolymarketBalanceBlockViewModelTests {
     func unavailableAddFundsShowsAlert() async throws {
         let context = Self.makeSUT(isRegionRestricted: false)
 
-        try await settle { context.sut.addFundsState == .unavailable }
+        _ = await context.sut.$addFundsState.firstValue { $0 == .unavailable }
 
         context.sut.handleViewAction(.openAddFunds)
 
         #expect(context.routable.regionWarnings == 0)
+        #expect(context.routable.addFundsOpenings == 0)
         #expect(context.sut.alert != nil)
     }
 
@@ -45,7 +46,7 @@ struct PolymarketBalanceBlockViewModelTests {
     func restrictedRegionStillOpensWithdraw() async throws {
         let context = Self.makeSUT(isRegionRestricted: true, isAccountPrepared: true)
 
-        try await settle { context.sut.withdrawState == .available }
+        _ = await context.sut.$withdrawState.firstValue { $0 == .available }
 
         context.sut.handleViewAction(.openWithdraw)
 
@@ -58,7 +59,7 @@ struct PolymarketBalanceBlockViewModelTests {
     func restrictedRegionUnavailableWithdrawShowsAlert() async throws {
         let context = Self.makeSUT(isRegionRestricted: true)
 
-        try await settle { context.sut.withdrawState == .unavailable(.accountUnavailable) }
+        _ = await context.sut.$withdrawState.firstValue { $0 == .unavailable(.accountUnavailable) }
 
         context.sut.handleViewAction(.openWithdraw)
 
@@ -71,7 +72,7 @@ struct PolymarketBalanceBlockViewModelTests {
     func unknownMinimumWithdrawShowsAlert() async throws {
         let context = Self.makeSUT(isAccountPrepared: true, isBridgeReachable: false)
 
-        try await settle { context.sut.withdrawState == .unavailable(.minimumUnknown) }
+        _ = await context.sut.$withdrawState.firstValue { $0 == .unavailable(.minimumUnknown) }
 
         context.sut.handleViewAction(.openWithdraw)
 
@@ -81,39 +82,34 @@ struct PolymarketBalanceBlockViewModelTests {
 
     @Test("An account funds refresh prepares them again without refreshing the balance")
     func accountFundsRefreshSkipsBalance() async throws {
-        let context = Self.makeSUT()
-
-        try await settle { context.configuration.callCount == 1 && context.balanceProvider.refreshCount == 1 }
+        let context = try await Self.makeStartedSUT()
 
         await context.refreshCenter.refresh(.accountFunds)
 
-        try await settle { context.configuration.callCount == 2 }
-        #expect(context.balanceProvider.refreshCount == 1)
+        try await context.configuration.calls.waitForCount(2)
+        #expect(context.balanceProvider.refreshes.recorded.count == 1)
     }
 
     @Test("A balance refresh refreshes the balance without preparing the account funds")
     func balanceRefreshSkipsPreparation() async throws {
-        let context = Self.makeSUT()
-
-        try await settle { context.configuration.callCount == 1 && context.balanceProvider.refreshCount == 1 }
+        let context = try await Self.makeStartedSUT()
 
         await context.refreshCenter.refresh(.balance)
+        #expect(context.balanceProvider.refreshes.recorded.count == 2)
 
-        #expect(context.balanceProvider.refreshCount == 2)
-        try await drain()
-        #expect(context.configuration.callCount == 1)
+        await context.refreshCenter.refresh(.accountFunds)
+        try await context.configuration.calls.waitForCount(2)
+        #expect(context.configuration.calls.recorded.count == 2)
     }
 
     @Test("A full refresh does both")
     func fullRefreshDoesBoth() async throws {
-        let context = Self.makeSUT()
-
-        try await settle { context.configuration.callCount == 1 && context.balanceProvider.refreshCount == 1 }
+        let context = try await Self.makeStartedSUT()
 
         await context.refreshCenter.refresh(.full)
 
-        #expect(context.balanceProvider.refreshCount == 2)
-        try await settle { context.configuration.callCount == 2 }
+        #expect(context.balanceProvider.refreshes.recorded.count == 2)
+        try await context.configuration.calls.waitForCount(2)
     }
 }
 
@@ -135,6 +131,15 @@ private extension PolymarketBalanceBlockViewModelTests {
                 ownerAddress: PolymarketOwnerAddressProviderStub.ownerAddress
             )
         )
+    }
+
+    static func makeStartedSUT() async throws -> Context {
+        let context = makeSUT()
+
+        try await context.configuration.calls.waitForCount(1)
+        try await context.balanceProvider.refreshes.waitForCount(1)
+
+        return context
     }
 
     static func makeSUT(
@@ -162,7 +167,9 @@ private extension PolymarketBalanceBlockViewModelTests {
             withdrawalStatePublisher: Empty().eraseToAnyPublisher(),
             isRegionRestricted: { isRegionRestricted },
             refreshCenter: refreshCenter,
-            routable: routable
+            routable: routable,
+            appStateObserver: AppStateObserverStub(),
+            delayProvider: PolymarketSteppedDelayProvider()
         )
 
         return Context(
@@ -178,9 +185,7 @@ private extension PolymarketBalanceBlockViewModelTests {
 // MARK: - Doubles
 
 private final class BalanceProviderSpy: PolymarketBalanceProvider {
-    var refreshCount: Int { counter.withLock { $0 } }
-
-    private let counter = OSAllocatedUnfairLock(initialState: 0)
+    let refreshes = PolymarketTestSignal<PolymarketBalanceRefreshScope>()
 
     var balancePublisher: AnyPublisher<FormattedTokenBalanceType, Never> {
         Just(.loaded("$10.00")).eraseToAnyPublisher()
@@ -195,7 +200,7 @@ private final class BalanceProviderSpy: PolymarketBalanceProvider {
     }
 
     func refresh(scope: PolymarketBalanceRefreshScope) async {
-        counter.withLock { $0 += 1 }
+        refreshes.send(scope)
     }
 }
 
@@ -218,17 +223,16 @@ private final class BalanceBlockRoutableSpy: PolymarketBalanceBlockRoutable {
 }
 
 private final class ConfigurationServiceStub: PolymarketConfigurationService {
-    var callCount: Int { counter.withLock { $0 } }
+    let calls = PolymarketTestSignal<Void>()
 
     private let fails: Bool
-    private let counter = OSAllocatedUnfairLock(initialState: 0)
 
     init(fails: Bool) {
         self.fails = fails
     }
 
     func builderCode() async throws -> String {
-        counter.withLock { $0 += 1 }
+        calls.send()
 
         if fails { throw BalanceBlockTestError.unavailable }
 

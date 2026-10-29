@@ -12,7 +12,7 @@ import TangemPolymarket
 import TangemTestKit
 @testable import Tangem
 
-@Suite("Polymarket feed live games tracker")
+@Suite("Polymarket feed live games tracker", .timeLimit(.minutes(1)))
 final class PolymarketFeedLiveGamesTrackerTests: LeakTrackingTestSuite {
     private typealias Fixtures = PolymarketLiveGamesFixtures
 
@@ -27,9 +27,8 @@ final class PolymarketFeedLiveGamesTrackerTests: LeakTrackingTestSuite {
         env.stream.push(frame)
         env.stream.push(next)
 
-        try await settle { env.recorder.updates.count == 2 }
-        try await drain()
-        #expect(env.recorder.updates == [.game(frame), .game(next)])
+        #expect(try await env.updates.next() == .game(frame))
+        #expect(try await env.updates.next() == .game(next))
     }
 
     @Test("A repeat of the last state still restarts the ten-minute silence countdown")
@@ -37,16 +36,19 @@ final class PolymarketFeedLiveGamesTrackerTests: LeakTrackingTestSuite {
     func repeatRestartsTheSilenceCountdown() async throws {
         let env = try await makeSUT()
         let frame = Fixtures.liveGame(Constants.gameId, score: "98-101")
+        let next = Fixtures.liveGame(Constants.gameId, score: "100-101")
 
         env.stream.push(frame)
-        try await settle { env.delay.parkedCount == 1 }
-        env.stream.push(frame)
+        try await env.delay.nextWait(of: Constants.silenceTimeout)
 
-        try await settle { env.delay.heldWaits.count == 2 }
-        try await drain()
-        #expect(env.delay.heldWaits == [Constants.silenceTimeout, Constants.silenceTimeout])
-        #expect(env.delay.parkedCount == 1)
-        #expect(env.recorder.updates == [.game(frame)])
+        env.stream.push(frame)
+        #expect(try await env.delay.cancellations.next() == Constants.silenceTimeout)
+        try await env.delay.nextWait(of: Constants.silenceTimeout)
+        #expect(env.delay.parkedWaits == [Constants.silenceTimeout])
+
+        env.stream.push(next)
+        #expect(try await env.updates.next() == .game(frame))
+        #expect(try await env.updates.next() == .game(next))
     }
 
     @Test("A game silent for ten minutes falls back to REST, a repeat of its last state does not bring it back, a changed frame does")
@@ -57,17 +59,16 @@ final class PolymarketFeedLiveGamesTrackerTests: LeakTrackingTestSuite {
         let next = Fixtures.liveGame(Constants.gameId, score: "100-101")
 
         env.stream.push(frame)
-        try await settle { env.delay.parkedCount == 1 }
+        try await env.delay.nextWait(of: Constants.silenceTimeout)
 
-        env.delay.resumeParkedWaits()
-        try await settle { env.recorder.updates == [.game(frame), .silent(Constants.gameId)] }
+        env.delay.resume()
+        #expect(try await env.updates.next() == .game(frame))
+        #expect(try await env.updates.next() == .silent(Constants.gameId))
 
         env.stream.push(frame)
         env.stream.push(next)
 
-        try await settle { env.recorder.updates.count == 3 }
-        try await drain()
-        #expect(env.recorder.updates == [.game(frame), .silent(Constants.gameId), .game(next)])
+        #expect(try await env.updates.next() == .game(next))
     }
 
     @Test("A game that has not started yet gets the silence countdown too")
@@ -78,7 +79,7 @@ final class PolymarketFeedLiveGamesTrackerTests: LeakTrackingTestSuite {
 
         env.stream.push(upcoming)
 
-        try await settle { env.delay.parkedCount == 1 }
+        #expect(try await env.delay.nextWait() == Constants.silenceTimeout)
     }
 
     @Test("A game that has ended keeps its final frame without a silence countdown")
@@ -88,10 +89,9 @@ final class PolymarketFeedLiveGamesTrackerTests: LeakTrackingTestSuite {
         let final = Fixtures.liveGame(Constants.gameId, score: "110-104", period: "FT", isLive: false, hasEnded: true)
 
         env.stream.push(final)
-        try await settle { env.recorder.updates == [.game(final)] }
-        try await drain()
+        #expect(try await env.updates.next() == .game(final))
 
-        #expect(env.delay.parkedCount == 0)
+        #expect(env.delay.requests.recorded.isEmpty)
     }
 }
 
@@ -101,21 +101,21 @@ private extension PolymarketFeedLiveGamesTrackerTests {
     @MainActor
     func makeSUT() async throws -> Environment {
         let source = PolymarketLiveGamesSourceSpy()
-        let delay = HoldingDelayProviderSpy(holdThreshold: 0)
+        let delay = PolymarketSteppedDelayProvider()
         let sut = trackForMemoryLeaks(source.makeTracker(delayProvider: delay))
-        let recorder = GameUpdatesRecorder(updates: sut.updates)
+        let updates = PolymarketTestSignal<RecordedGameUpdate>()
+        updates.record(sut.updates, transform: { RecordedGameUpdate($0) })
 
         sut.update(events: [Fixtures.basketball(gameId: Constants.gameId)])
-        try await settle { source.streams.count == 1 }
+        let stream = try await source.requests.next()
 
-        return Environment(sut: sut, source: source, delay: delay, recorder: recorder, stream: source.streams[0])
+        return Environment(sut: sut, delay: delay, updates: updates, stream: stream)
     }
 
     struct Environment {
         let sut: PolymarketFeedLiveGamesTracker
-        let source: PolymarketLiveGamesSourceSpy
-        let delay: HoldingDelayProviderSpy
-        let recorder: GameUpdatesRecorder
+        let delay: PolymarketSteppedDelayProvider
+        let updates: PolymarketTestSignal<RecordedGameUpdate>
         let stream: PolymarketLiveStreamSpy<PolymarketLiveGame>
     }
 
@@ -126,19 +126,6 @@ private extension PolymarketFeedLiveGamesTrackerTests {
 }
 
 // MARK: - Doubles
-
-@MainActor
-private final class GameUpdatesRecorder {
-    private(set) var updates: [RecordedGameUpdate] = []
-
-    init(updates: AsyncStream<PolymarketFeedLiveGamesTracker.Update>) {
-        Task { [weak self] in
-            for await update in updates {
-                self?.updates.append(RecordedGameUpdate(update))
-            }
-        }
-    }
-}
 
 private enum RecordedGameUpdate: Equatable {
     case game(PolymarketLiveGame)

@@ -39,13 +39,18 @@ final class PolymarketPositionsBlockViewModel: ObservableObject {
         refreshCenter: PolymarketMainRefreshCenter,
         activityHandler: PolymarketMainActivityHandler,
         routable: PolymarketPositionsBlockRoutable,
-        notificationCenter: NotificationCenter = .default
+        appStateObserver: AppStateObserving = AppStateObserver(),
+        delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
         loader = positionsService.map(PolymarketPositionsLoader.init(service:))
         self.presenceStore = presenceStore
         self.userWalletId = userWalletId
         self.activityHandler = activityHandler
-        poller = PolymarketForegroundPoller(interval: Constants.pollingInterval, notificationCenter: notificationCenter)
+        poller = PolymarketForegroundPoller(
+            interval: Constants.pollingInterval,
+            appStateObserver: appStateObserver,
+            delayProvider: delayProvider
+        )
         self.routable = routable
 
         refreshCenter.register { [weak self] scope in

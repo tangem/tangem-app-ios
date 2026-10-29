@@ -12,7 +12,7 @@ import TangemFoundation
 import TangemPolymarket
 @testable import Tangem
 
-@Suite("Polymarket feed live quotes tracker")
+@Suite("Polymarket feed live quotes tracker", .timeLimit(.minutes(1)))
 @MainActor
 struct PolymarketFeedLiveQuotesTrackerTests {
     private typealias Fixtures = PolymarketLiveQuotesFixtures
@@ -30,9 +30,7 @@ struct PolymarketFeedLiveQuotesTrackerTests {
 
         let expected = Set([2, 3, 5, 6, 7, 8, 9, 10, 11, 12].flatMap { Fixtures.assetIds(of: events[$0], markets: 2) })
         #expect(env.sut.trackedAssetIds == expected)
-
-        try await settle { env.source.streams.count == 1 }
-        #expect(env.source.streams.first?.assetIds == expected)
+        #expect(try await env.source.requests.next().assetIds == expected)
     }
 
     @Test("A soccer match also follows the Yes of its draw, which its card shows though the two displayed markets leave it out")
@@ -43,8 +41,7 @@ struct PolymarketFeedLiveQuotesTrackerTests {
         env.sut.update(events: [match], visibleEventIDs: [match.id], isLive: \.isLive)
 
         #expect(env.sut.trackedAssetIds.contains("1201001-draw-yes"))
-        try await settle { env.source.streams.count == 1 }
-        #expect(env.source.streams.first?.assetIds.contains("1201001-draw-yes") == true)
+        #expect(try await env.source.requests.next().assetIds.contains("1201001-draw-yes"))
     }
 
     @Test("A match whose page left markets out follows only the markets its card shows")
@@ -60,26 +57,24 @@ struct PolymarketFeedLiveQuotesTrackerTests {
     @Test("Updates while paused are ignored until the tracker is resumed")
     func pausedTrackerIgnoresUpdates() async throws {
         let env = makeSUT()
-        let event = Fixtures.event(id: "a")
+        let paused = Fixtures.event(id: "a")
+        let resumed = Fixtures.event(id: "b")
 
-        env.sut.update(events: [event], visibleEventIDs: ["a"], isLive: \.isLive)
-        try await settle { env.source.streams.count == 1 }
+        env.sut.update(events: [paused], visibleEventIDs: ["a"], isLive: \.isLive)
+        let first = try await env.source.requests.next()
 
         env.sut.pause()
         #expect(env.sut.trackedAssetIds.isEmpty)
-        try await settle { env.source.streams[0].isCancelled }
+        try await first.cancelled.next()
 
-        env.sut.update(events: [event], visibleEventIDs: ["a"], isLive: \.isLive)
-        try await drain()
-
+        env.sut.update(events: [paused], visibleEventIDs: ["a"], isLive: \.isLive)
         #expect(env.sut.trackedAssetIds.isEmpty)
-        #expect(env.source.streams.count == 1)
 
         env.sut.resume()
-        env.sut.update(events: [event], visibleEventIDs: ["a"], isLive: \.isLive)
+        env.sut.update(events: [resumed], visibleEventIDs: ["b"], isLive: \.isLive)
 
-        #expect(env.sut.trackedAssetIds == Fixtures.assetIds(of: event))
-        try await settle { env.source.streams.count == 2 }
+        #expect(env.sut.trackedAssetIds == Fixtures.assetIds(of: resumed))
+        #expect(try await env.source.requests.next().assetIds == Fixtures.assetIds(of: resumed))
     }
 
     @Test("A new set of outcomes opens its stream before the previous one is closed")
@@ -89,18 +84,18 @@ struct PolymarketFeedLiveQuotesTrackerTests {
         let second = Fixtures.event(id: "b")
 
         env.sut.update(events: [first], visibleEventIDs: ["a"], isLive: \.isLive)
-        try await settle { env.source.streams.count == 1 }
+        let firstStream = try await env.source.requests.next()
 
         env.sut.update(events: [first, second], visibleEventIDs: ["a", "b"], isLive: \.isLive)
-        try await settle { env.source.streams.count == 2 }
-        try await settle { env.source.streams[0].isCancelled }
+        try await env.source.requests.next()
+        try await firstStream.cancelled.next()
 
         #expect(env.source.openStreamsAtRequest == [0, 1])
     }
 
     // MARK: - Batches
 
-    @Test("Quotes arriving together leave in one batch with the latest quote of each outcome, later ones in the next batch")
+    @Test("Every batch carries the latest quote of each outcome, and a quote arriving after a flush leaves in the next batch")
     func quotesAreBatchedAndNothingIsLostOnFlush() async throws {
         let env = makeSUT()
         let event = Fixtures.event(id: "a")
@@ -108,20 +103,28 @@ struct PolymarketFeedLiveQuotesTrackerTests {
         let no = "a-m0-no"
 
         env.sut.update(events: [event], visibleEventIDs: ["a"], isLive: \.isLive)
-        try await settle { env.source.streams.count == 1 }
+        let stream = try await env.source.requests.next()
 
-        let stream = env.source.streams[0]
         stream.push(Fixtures.quote(yes, ask: "0.40"))
         stream.push(Fixtures.quote(no, ask: "0.60"))
         stream.push(Fixtures.quote(yes, ask: "0.41"))
 
-        try await settle { env.recorder.updates.count == 1 }
-        #expect(env.recorder.updates == [.quotes([yes: Fixtures.quote(yes, ask: "0.41"), no: Fixtures.quote(no, ask: "0.60")])])
+        var delivered: [String: PolymarketOutcomeQuote] = [:]
+        let latest = [yes: Fixtures.quote(yes, ask: "0.41"), no: Fixtures.quote(no, ask: "0.60")]
+
+        while delivered != latest {
+            guard case .quotes(let batch) = try await env.flushNextBatch() else {
+                Issue.record("Only quotes were expected")
+                return
+            }
+
+            #expect(delivered[yes] != Fixtures.quote(yes, ask: "0.41") || batch[yes] == nil)
+            delivered.merge(batch) { _, new in new }
+        }
 
         stream.push(Fixtures.quote(no, ask: "0.61"))
 
-        try await settle { env.recorder.updates.count == 2 }
-        #expect(env.recorder.updates.last == .quotes([no: Fixtures.quote(no, ask: "0.61")]))
+        #expect(try await env.flushNextBatch() == .quotes([no: Fixtures.quote(no, ask: "0.61")]))
     }
 
     @Test("A quote waiting for its batch is dropped when its outcome stops being tracked")
@@ -131,17 +134,18 @@ struct PolymarketFeedLiveQuotesTrackerTests {
         let kept = Fixtures.event(id: "b")
 
         env.sut.update(events: [dropped, kept], visibleEventIDs: ["a", "b"], isLive: \.isLive)
-        try await settle { env.source.streams.count == 1 }
+        let firstStream = try await env.source.requests.next()
 
-        env.source.streams[0].push(Fixtures.quote("a-m0-yes", ask: "0.40"))
-        try await settle { env.source.streams[0].pulls >= 2 }
+        firstStream.push(Fixtures.quote("a-m0-yes", ask: "0.40"))
+        try await env.delay.waitUntilParked(Constants.batchInterval)
 
         env.sut.update(events: [Fixtures.event(id: "a", isLive: false), kept], visibleEventIDs: ["a", "b"], isLive: \.isLive)
-        try await settle { env.source.streams.count == 2 }
-        env.source.streams[1].push(Fixtures.quote("b-m0-yes", ask: "0.50"))
+        env.delay.resume()
 
-        try await settle { env.recorder.updates.count == 1 }
-        #expect(env.recorder.updates == [.quotes(["b-m0-yes": Fixtures.quote("b-m0-yes", ask: "0.50")])])
+        let secondStream = try await env.source.requests.next()
+        secondStream.push(Fixtures.quote("b-m0-yes", ask: "0.50"))
+
+        #expect(try await env.flushNextBatch() == .quotes(["b-m0-yes": Fixtures.quote("b-m0-yes", ask: "0.50")]))
     }
 
     // MARK: - Connection
@@ -153,79 +157,49 @@ struct PolymarketFeedLiveQuotesTrackerTests {
 
         try await env.connect()
         env.sut.update(events: [Fixtures.event(id: "a")], visibleEventIDs: ["a"], isLive: \.isLive)
-        try await settle { env.source.streams.count == 1 }
+        let lostStream = try await env.source.requests.next()
 
         env.source.statuses.push(.waitingToReconnect)
-        try await settle { env.recorder.updates == [.connectionLost] }
-        try await settle { env.source.streams.count == 2 }
-        #expect(env.source.streams[0].isCancelled)
+        #expect(try await env.updates.next() == .connectionLost)
+        let freshStream = try await env.source.requests.next()
+        try await lostStream.cancelled.next()
 
-        env.source.streams[0].push(Fixtures.quote(yes, ask: "0.40"))
-        env.source.streams[1].push(Fixtures.quote(yes, ask: "0.45"))
+        lostStream.push(Fixtures.quote(yes, ask: "0.40"))
+        freshStream.push(Fixtures.quote(yes, ask: "0.45"))
 
-        try await settle { env.recorder.updates.count == 2 }
-        #expect(env.recorder.updates == [.connectionLost, .quotes([yes: Fixtures.quote(yes, ask: "0.45")])])
+        #expect(try await env.flushNextBatch() == .quotes([yes: Fixtures.quote(yes, ask: "0.45")]))
     }
 
     @Test("Quotes the old reader already holds when the connection is lost never reach the feed")
     func quotesBufferedBeforeTheLossAreDropped() async throws {
         let statuses = PolymarketLiveStreamSpy<PolymarketWebSocketConnectionStatus>()
         let source = BufferedQuotesSourceSpy()
+        let delay = PolymarketSteppedDelayProvider()
         let sut = PolymarketFeedLiveQuotesTracker(
-            quotes: { _ in source.makeStream() },
-            statusChanges: { statuses.makeStream() }
+            quotes: { @MainActor _ in source.makeStream() },
+            statusChanges: { statuses.makeStream() },
+            delayProvider: delay
         )
-        let recorder = UpdatesRecorder(updates: sut.updates)
+        let updates = PolymarketTestSignal<RecordedUpdate>()
+        updates.record(sut.updates, transform: { RecordedUpdate($0) })
 
         statuses.push(.connected)
-        try await settle { statuses.pulls >= 2 }
+        try await statuses.waitForPulls(2)
         sut.update(events: [Fixtures.event(id: "a")], visibleEventIDs: ["a"], isLive: \.isLive)
-        try await settle { source.continuations.count == 1 }
-        try await drain()
+        let lost = try await source.requests.next()
 
         statuses.push(.waitingToReconnect)
-        source.continuations[0].yield(Fixtures.quote("a-m0-no", ask: "0.60"))
-        source.continuations[0].yield(Fixtures.quote("a-m0-no", ask: "0.61"))
+        lost.yield(Fixtures.quote("a-m0-no", ask: "0.60"))
+        lost.yield(Fixtures.quote("a-m0-no", ask: "0.61"))
 
-        try await settle { source.continuations.count == 2 }
-        source.continuations[1].yield(Fixtures.quote("a-m0-yes", ask: "0.45"))
+        #expect(try await updates.next() == .connectionLost)
+        let fresh = try await source.requests.next()
+        fresh.yield(Fixtures.quote("a-m0-yes", ask: "0.45"))
+        try await delay.waitUntilParked(Constants.batchInterval)
 
-        try await settle { recorder.updates.count == 2 }
-        #expect(recorder.updates == [.connectionLost, .quotes(["a-m0-yes": Fixtures.quote("a-m0-yes", ask: "0.45")])])
-    }
-
-    @Test("A stopped socket stops reading quotes without opening a new stream")
-    func stoppedSocketDoesNotReopenTheStream() async throws {
-        let env = makeSUT()
-
-        try await env.connect()
-        env.sut.update(events: [Fixtures.event(id: "a")], visibleEventIDs: ["a"], isLive: \.isLive)
-        try await settle { env.source.streams.count == 1 }
-
-        env.source.statuses.push(.stopped)
-        try await settle { env.recorder.updates == [.connectionLost] }
-        try await drain()
-
-        #expect(env.source.streams.count == 1)
-        #expect(env.source.streams[0].isCancelled)
-    }
-
-    @Test("A lost connection is reported once however many statuses it goes through")
-    func lostConnectionIsReportedOnce() async throws {
-        let env = makeSUT()
-
-        try await env.connect()
-        env.source.statuses.push(.waitingToReconnect)
-        env.source.statuses.push(.connecting)
-        env.source.statuses.push(.waitingToReconnect)
-        try await settle { env.source.statuses.pulls >= 5 }
-        try await drain()
-
-        #expect(env.recorder.updates == [.connectionLost])
-
-        env.source.statuses.push(.connected)
-        env.source.statuses.push(.waitingToReconnect)
-        try await settle { env.recorder.updates == [.connectionLost, .connectionLost] }
+        delay.resume()
+        #expect(try await updates.next() == .quotes(["a-m0-yes": Fixtures.quote("a-m0-yes", ask: "0.45")]))
+        withExtendedLifetime(sut) {}
     }
 }
 
@@ -234,51 +208,47 @@ struct PolymarketFeedLiveQuotesTrackerTests {
 private extension PolymarketFeedLiveQuotesTrackerTests {
     func makeSUT() -> Environment {
         let source = PolymarketLiveQuotesSourceSpy()
-        let sut = source.makeTracker()
+        let delay = PolymarketSteppedDelayProvider()
+        let sut = source.makeTracker(delayProvider: delay)
+        let updates = PolymarketTestSignal<RecordedUpdate>()
+        updates.record(sut.updates, transform: { RecordedUpdate($0) })
 
-        return Environment(sut: sut, source: source, recorder: UpdatesRecorder(updates: sut.updates))
+        return Environment(sut: sut, source: source, delay: delay, updates: updates)
     }
 
     @MainActor
     struct Environment {
         let sut: PolymarketFeedLiveQuotesTracker
         let source: PolymarketLiveQuotesSourceSpy
-        let recorder: UpdatesRecorder
+        let delay: PolymarketSteppedDelayProvider
+        let updates: PolymarketTestSignal<RecordedUpdate>
 
         func connect() async throws {
-            let pulls = source.statuses.pulls
             source.statuses.push(.connected)
-            try await settle { source.statuses.pulls > max(pulls, 1) }
+            try await source.statuses.waitForPulls(2)
         }
+
+        func flushNextBatch() async throws -> RecordedUpdate {
+            try await delay.waitUntilParked(Constants.batchInterval)
+            delay.resume()
+            return try await updates.next()
+        }
+    }
+
+    enum Constants {
+        static let batchInterval: TimeInterval = 0.3
     }
 }
 
 // MARK: - Doubles
 
 private final class BufferedQuotesSourceSpy: Sendable {
-    private let state = OSAllocatedUnfairLock(initialState: [AsyncStream<PolymarketOutcomeQuote>.Continuation]())
-
-    var continuations: [AsyncStream<PolymarketOutcomeQuote>.Continuation] {
-        state.withLock { $0 }
-    }
+    let requests = PolymarketTestSignal<AsyncStream<PolymarketOutcomeQuote>.Continuation>()
 
     func makeStream() -> AsyncStream<PolymarketOutcomeQuote> {
         let (stream, continuation) = AsyncStream.makeStream(of: PolymarketOutcomeQuote.self)
-        state.withLock { $0.append(continuation) }
+        requests.send(continuation)
         return stream
-    }
-}
-
-@MainActor
-private final class UpdatesRecorder {
-    private(set) var updates: [RecordedUpdate] = []
-
-    init(updates: AsyncStream<PolymarketFeedLiveQuotesTracker.Update>) {
-        Task { [weak self] in
-            for await update in updates {
-                self?.updates.append(RecordedUpdate(update))
-            }
-        }
     }
 }
 

@@ -12,7 +12,7 @@ import TangemFoundation
 import TangemPolymarket
 @testable import Tangem
 
-@Suite("Polymarket live topics reader")
+@Suite("Polymarket live topics reader", .timeLimit(.minutes(1)))
 @MainActor
 struct PolymarketLiveTopicsReaderTests {
     @Test("A real drop reports the loss and, once connected again, the reconnection")
@@ -23,7 +23,8 @@ struct PolymarketLiveTopicsReaderTests {
         env.statuses.push(.connecting)
         env.statuses.push(.connected)
 
-        try await settle { env.recorder.updates == [.connectionLost, .reconnected] }
+        #expect(try await env.updates.next() == .connectionLost)
+        #expect(try await env.updates.next() == .reconnected)
     }
 
     @Test("A socket closed on purpose and opened again is not a reconnection, so nothing is fetched again")
@@ -33,24 +34,39 @@ struct PolymarketLiveTopicsReaderTests {
         env.statuses.push(.idle)
         env.statuses.push(.connecting)
         env.statuses.push(.connected)
-        try await settle { env.statuses.pulls >= 5 }
-        try await drain()
+        env.statuses.push(.waitingToReconnect)
 
-        #expect(env.recorder.updates == [.connectionLost])
+        #expect(try await env.updates.next() == .connectionLost)
+        #expect(try await env.updates.next() == .connectionLost)
+    }
+
+    @Test("A lost connection is reported once however many statuses it goes through")
+    func lostConnectionIsReportedOnce() async throws {
+        let env = try await makeSUT()
+
+        env.statuses.push(.waitingToReconnect)
+        env.statuses.push(.connecting)
+        env.statuses.push(.waitingToReconnect)
+        env.statuses.push(.connected)
+
+        #expect(try await env.updates.next() == .connectionLost)
+        #expect(try await env.updates.next() == .reconnected)
     }
 
     @Test("A stopped socket stops reading without opening a new stream")
     func stoppedSocketIsNotReadAgain() async throws {
         let env = try await makeSUT()
         env.sut.track(["a"])
-        try await settle { env.values.streams.count == 1 }
+        let stopped = try await env.values.requests.next()
 
         env.statuses.push(.stopped)
-        try await settle { env.recorder.updates == [.connectionLost] }
-        try await drain()
+        #expect(try await env.updates.next() == .connectionLost)
+        try await stopped.cancelled.next()
 
-        #expect(env.values.streams.count == 1)
-        #expect(env.values.streams[0].isCancelled)
+        env.statuses.push(.connected)
+        #expect(try await env.updates.next() == .reconnected)
+        env.sut.track(["b"])
+        #expect(try await env.values.requests.next().assetIds == ["b"])
     }
 }
 
@@ -64,48 +80,32 @@ private extension PolymarketLiveTopicsReaderTests {
             values: { topics in values.makeStream(topics) },
             statusChanges: { statuses.makeStream() }
         )
-        let recorder = ReaderUpdatesRecorder(updates: sut.updates)
+        let updates = PolymarketTestSignal<RecordedReaderUpdate>()
+        updates.record(sut.updates, transform: { RecordedReaderUpdate($0) })
 
         statuses.push(.connected)
-        try await settle { statuses.pulls >= 2 }
+        try await statuses.waitForPulls(2)
 
-        return Environment(sut: sut, statuses: statuses, values: values, recorder: recorder)
+        return Environment(sut: sut, statuses: statuses, values: values, updates: updates)
     }
 
     struct Environment {
         let sut: PolymarketLiveTopicsReader<String, Int>
         let statuses: PolymarketLiveStreamSpy<PolymarketWebSocketConnectionStatus>
         let values: ValuesSourceSpy
-        let recorder: ReaderUpdatesRecorder
+        let updates: PolymarketTestSignal<RecordedReaderUpdate>
     }
 }
 
 // MARK: - Doubles
 
 private final class ValuesSourceSpy: Sendable {
-    private let state = OSAllocatedUnfairLock(initialState: [PolymarketLiveStreamSpy<Int>]())
-
-    var streams: [PolymarketLiveStreamSpy<Int>] {
-        state.withLock { $0 }
-    }
+    let requests = PolymarketTestSignal<PolymarketLiveStreamSpy<Int>>()
 
     func makeStream(_ topics: Set<String>) -> AsyncStream<Int> {
         let stream = PolymarketLiveStreamSpy<Int>(assetIds: topics)
-        state.withLock { $0.append(stream) }
+        requests.send(stream)
         return stream.makeStream()
-    }
-}
-
-@MainActor
-private final class ReaderUpdatesRecorder {
-    private(set) var updates: [RecordedReaderUpdate] = []
-
-    init(updates: AsyncStream<PolymarketLiveTopicsReader<String, Int>.Update>) {
-        Task { [weak self] in
-            for await update in updates {
-                self?.updates.append(RecordedReaderUpdate(update))
-            }
-        }
     }
 }
 

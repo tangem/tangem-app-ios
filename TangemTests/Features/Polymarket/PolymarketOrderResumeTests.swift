@@ -8,14 +8,13 @@
 
 import Foundation
 import Combine
-import UIKit
 import Testing
 import TangemFoundation
 import TangemPolymarket
 @testable import Tangem
 
 @MainActor
-@Suite("Polymarket quote after returning from background")
+@Suite("Polymarket quote after returning from background", .timeLimit(.minutes(1)))
 struct PolymarketOrderResumeTests {
     // MARK: - Quote
 
@@ -23,18 +22,18 @@ struct PolymarketOrderResumeTests {
     func resumeShowsLoading() async throws {
         let resumed = try await resume(enteredAmount: 100)
 
-        try await settle { resumed.log.quotes.contains { $0.isResuming } }
-
         #expect(resumed.log.quotes.first?.isResuming == true)
-        withExtendedLifetime(resumed.model) {}
     }
 
     @Test("One network failure of the quote after coming back is kept off the screen")
     func firstTransientQuoteFailureIsHidden() async throws {
         let resumed = try await resume(enteredAmount: 100, queuedQuotes: [.failure(Self.unavailable)])
 
-        try await settle { resumed.model.state.quote.quote != nil && resumed.api.queuedQuoteResults.isEmpty }
+        try await resumed.nextPoll()
 
+        _ = await resumed.model.$state.firstValue { $0.quote.quote != nil }
+
+        #expect(resumed.api.queuedQuoteResults.isEmpty)
         #expect(!resumed.log.quotes.contains { $0.isFailed })
     }
 
@@ -42,24 +41,27 @@ struct PolymarketOrderResumeTests {
     func secondTransientQuoteFailureIsReported() async throws {
         let resumed = try await resume(enteredAmount: 100, queuedQuotes: [.failure(Self.unavailable), .failure(Self.unavailable)])
 
-        try await settle { resumed.log.quotes.contains { $0.isFailed } }
+        try await resumed.nextPoll()
+
+        _ = await resumed.model.$state.firstValue { $0.quote.isFailed }
 
         let firstFailure = try #require(resumed.log.quotes.firstIndex { $0.isFailed })
 
+        #expect(firstFailure > 0)
         #expect(resumed.log.quotes[..<firstFailure].allSatisfy { $0.isResuming })
-        withExtendedLifetime(resumed.model) {}
     }
 
     @Test("A refused quote after coming back is reported at once")
     func refusedQuoteIsReportedAtOnce() async throws {
         let resumed = try await resume(enteredAmount: 100, queuedQuotes: [.failure(Self.badRequest)])
 
-        try await settle { resumed.log.quotes.contains { $0.isFailed } }
+        _ = await resumed.model.$state.firstValue { $0.quote.isFailed }
 
         let firstFailure = try #require(resumed.log.quotes.firstIndex { $0.isFailed })
 
-        #expect(resumed.log.quotes[..<firstFailure].count == 1)
+        #expect(firstFailure == 1)
         #expect(resumed.log.quotes.first?.isResuming == true)
+        #expect(resumed.api.quoteRequests.count == 2)
     }
 
     // MARK: - Book price
@@ -68,17 +70,14 @@ struct PolymarketOrderResumeTests {
     func resumeShowsBookPriceLoading() async throws {
         let resumed = try await resume(enteredAmount: nil)
 
-        try await settle { resumed.log.states.contains { $0.isBookPriceResuming } }
-
         #expect(resumed.log.states.first?.isBookPriceResuming == true)
-        withExtendedLifetime(resumed.model) {}
     }
 
     @Test("A refused book price after coming back opens the error sheet at once")
     func refusedBookPriceIsReportedAtOnce() async throws {
         let resumed = try await resume(enteredAmount: nil, queuedPrices: [.failure(Self.noOrderBook)])
 
-        try await settle { resumed.model.state.bookPriceFailure != nil }
+        _ = await resumed.model.$state.firstValue { $0.bookPriceFailure != nil }
 
         #expect(resumed.model.state.bookPriceFailure == .marketClosed)
         #expect(!resumed.model.state.isBookPriceResuming)
@@ -91,7 +90,10 @@ struct PolymarketOrderResumeTests {
             queuedPrices: [.failure(Self.unavailable), .failure(Self.unavailable), .success(Self.freshPrice)]
         )
 
-        try await settle { resumed.model.state.bookPrice == Self.freshPrice && !resumed.model.state.isBookPriceResuming }
+        try await resumed.nextPoll()
+        try await resumed.nextPoll()
+
+        _ = await resumed.model.$state.firstValue { $0.bookPrice == Self.freshPrice && !$0.isBookPriceResuming }
 
         let settled = resumed.log.states.filter { !$0.isBookPriceResuming }
 
@@ -107,12 +109,19 @@ private extension PolymarketOrderResumeTests {
     static let badRequest = PolymarketAPIError.http(statusCode: 400, problemDetail: nil)
     static let unavailable = PolymarketAPIError.http(statusCode: 503, problemDetail: nil)
     static let freshPrice: Decimal = 0.42
+    static let pollInterval: TimeInterval = 3
 
     struct Resumed {
         let model: PolymarketOrderModel
         let api: PolymarketAPIProviderStub
-        let clob: PolymarketCLOBServiceStub
+        let delays: PolymarketSteppedDelayProvider
         let log: StateLog
+
+        @MainActor
+        func nextPoll() async throws {
+            try await delays.waitUntilParked(PolymarketOrderResumeTests.pollInterval)
+            delays.resume(PolymarketOrderResumeTests.pollInterval)
+        }
     }
 
     func resume(
@@ -122,7 +131,8 @@ private extension PolymarketOrderResumeTests {
     ) async throws -> Resumed {
         let api = PolymarketAPIProviderStub(quoteResult: .stub(status: .full))
         let clob = PolymarketCLOBServiceStub()
-        let notificationCenter = NotificationCenter()
+        let delays = PolymarketSteppedDelayProvider()
+        let appState = AppStateObserverStub()
         let model = PolymarketOrderModel(
             market: .fixture,
             outcome: .fixture,
@@ -135,23 +145,21 @@ private extension PolymarketOrderResumeTests {
             isAwaitingFundsPublisher: .just(output: false),
             collateralBalancePublisher: .just(output: 200),
             addFundsReadinessStream: AsyncStream { $0.yield(.unavailable); $0.finish() },
-            delayProvider: ShortPollDelayProvider(),
-            appStateObserver: AppStateObserver(notificationCenter: notificationCenter)
+            delayProvider: delays,
+            appStateObserver: appState
         )
 
-        try await settle { model.state.balance != nil }
-
-        model.handleViewAction(.onAppear)
+        _ = await model.$state.firstValue { $0.balance != nil }
 
         if let enteredAmount {
             model.apply(enteredAmount: enteredAmount, debounced: false)
-            try await settle { model.state.quote.quote != nil }
-        } else {
-            try await settle { model.state.bookPrice != nil }
         }
 
-        notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
-        try await Task.sleep(nanoseconds: 100_000_000)
+        model.handleViewAction(.onAppear)
+        try await delays.waitUntilParked(Self.pollInterval)
+
+        appState.enterBackground()
+        try await delays.cancellations.next()
 
         api.queuedQuoteResults = queuedQuotes
         clob.queuedPriceResults = queuedPrices
@@ -159,9 +167,10 @@ private extension PolymarketOrderResumeTests {
         let log = StateLog()
         log.observe(model)
 
-        notificationCenter.post(name: UIApplication.willEnterForegroundNotification, object: nil)
+        appState.enterForeground()
+        _ = await model.$state.firstValue { $0.quote.isResuming || $0.isBookPriceResuming }
 
-        return Resumed(model: model, api: api, clob: clob, log: log)
+        return Resumed(model: model, api: api, delays: delays, log: log)
     }
 }
 
@@ -186,11 +195,5 @@ private final class StateLog {
             .removeDuplicates()
             .sink { [weak self] in self?.states.append($0) }
             .store(in: &bag)
-    }
-}
-
-private struct ShortPollDelayProvider: PollDelayProvider {
-    func wait(for seconds: TimeInterval) async throws {
-        try await Task.sleep(nanoseconds: 20_000_000)
     }
 }

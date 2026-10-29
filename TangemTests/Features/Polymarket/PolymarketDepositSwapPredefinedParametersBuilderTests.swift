@@ -13,7 +13,7 @@ import TangemFoundation
 import TangemPolymarket
 @testable import Tangem
 
-@Suite
+@Suite(.timeLimit(.minutes(1)))
 struct PolymarketDepositSwapPredefinedParametersBuilderTests {
     private static let fundingAddress = "0xC8C0C4575EBdd47fF173ba56962e9827440dabfa"
 
@@ -50,22 +50,20 @@ struct PolymarketDepositSwapPredefinedParametersBuilderTests {
         #expect(receive.destination?.destinationTag == nil)
     }
 
-    @Test("The account is shown in dollars, as Tangem Pay shows its own, not in the coin it holds")
-    func accountIsPresentedInDollars() throws {
+    @Test("The receive side is USDC on Polygon shown in dollars, as Tangem Pay shows its own, not the pUSD the account holds")
+    func receiveSideIsUSDCPresentedInDollars() throws {
         let parameters = makeSUT().make()
         let receive = try #require(parameters.receive.initialReceive.value)
         let presentation = try #require(receive.presentation)
 
+        #expect(receive.tokenItem == PolymarketUtilities.usdcTokenItem)
         #expect(presentation.balanceDenomination == .fiat)
         #expect(presentation.currencySymbol == AppConstants.usdCurrencyCode)
     }
 
-    @Test("The receive side is the token the bridge accepts, not the pUSD the account holds")
-    func receiveTokenIsUSDCOnPolygon() throws {
-        let parameters = makeSUT().make()
-        let receive = try #require(parameters.receive.initialReceive.value)
-
-        #expect(receive.tokenItem == PolymarketUtilities.usdcTokenItem)
+    @Test("The source side is preselected by the shared funding rules instead of being left empty")
+    func sourceIsPreselected() {
+        #expect(makeSUT().make().source is PolymarketDepositSourceResolver)
     }
 
     @Test("Neither side of the pair can be swapped away from the deposit")
@@ -74,13 +72,6 @@ struct PolymarketDepositSwapPredefinedParametersBuilderTests {
 
         #expect(config.isPairReversalEnabled == false)
         #expect(config.receiveTokenSelection.isSelectionEnabled == false)
-    }
-
-    @Test("The source side is preselected by the shared funding rules instead of being left empty")
-    func sourceIsPreselected() {
-        let parameters = makeSUT().make()
-
-        #expect(parameters.source is PolymarketDepositSourceResolver)
     }
 
     @Test("An ordinary crypto token survives the filter that keeps the payment account out")

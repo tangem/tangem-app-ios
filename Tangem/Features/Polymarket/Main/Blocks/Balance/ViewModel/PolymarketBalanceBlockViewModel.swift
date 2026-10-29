@@ -63,7 +63,9 @@ final class PolymarketBalanceBlockViewModel: ObservableObject {
         withdrawalStatePublisher: AnyPublisher<PolymarketWithdrawState?, Never>,
         isRegionRestricted: @escaping () -> Bool,
         refreshCenter: PolymarketMainRefreshCenter,
-        routable: PolymarketBalanceBlockRoutable
+        routable: PolymarketBalanceBlockRoutable,
+        appStateObserver: AppStateObserving = AppStateObserver(),
+        delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
         self.balanceProvider = balanceProvider
         self.isRegionRestricted = isRegionRestricted
@@ -71,7 +73,9 @@ final class PolymarketBalanceBlockViewModel: ObservableObject {
 
         refresher = PolymarketBalanceRefresher(
             balanceProvider: balanceProvider,
-            fundsArrivalTracker: fundsArrivalTracker
+            fundsArrivalTracker: fundsArrivalTracker,
+            appStateObserver: appStateObserver,
+            delayProvider: delayProvider
         )
         actionsAvailability = PolymarketBalanceActionsAvailability(
             accountFundsInteractor: accountFundsInteractor,
