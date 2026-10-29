@@ -31,7 +31,7 @@ struct PolymarketGameState {
             return
         }
 
-        score = liveGame.score
+        score = liveGame.score == .missing ? restGame.score : liveGame.score
         period = liveGame.period
         isLive = liveStage == .live
         hasEnded = liveStage == .ended
