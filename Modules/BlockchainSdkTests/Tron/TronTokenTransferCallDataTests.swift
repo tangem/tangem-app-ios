@@ -56,15 +56,25 @@ struct TronTokenTransferCallDataTests {
 
     @Test(
         "Call data of any other length doesn't decode",
-        arguments: [
-            "a9059cbb" + recipientBody + amount,
-            "a9059cbb" + String(repeating: "00", count: 11) + "41" + recipientBody,
-            "a9059cbb" + String(repeating: "00", count: 11) + "41" + recipientBody + amount + "00",
-            "a9059cbb",
-            "",
-        ] as [String]
+        arguments: TronTokenTransferCallDataTests.callDataOfAnyOtherLength
     )
     func rejectsAnyOtherLength(calldata: String) {
         #expect(TronTokenTransferCallData(calldata: calldata) == nil)
     }
+}
+
+private extension TronTokenTransferCallDataTests {
+    static let callDataWithUnpaddedRecipient: String = "a9059cbb" + recipientBody + amount
+    static let callDataWithoutAmount: String = "a9059cbb" + String(repeating: "00", count: 11) + "41" + recipientBody
+    static let callDataWithTrailingByte: String = callDataWithoutAmount + amount + "00"
+    static let callDataWithSelectorOnly: String = "a9059cbb"
+    static let emptyCallData: String = ""
+
+    static let callDataOfAnyOtherLength: [String] = [
+        callDataWithUnpaddedRecipient,
+        callDataWithoutAmount,
+        callDataWithTrailingByte,
+        callDataWithSelectorOnly,
+        emptyCallData,
+    ]
 }

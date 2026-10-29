@@ -19,7 +19,7 @@ struct RegisterMobileUserWalletUseCaseTests {
         let expectedNonce = UserWalletRegistrationNonce.fake
         let expectedRequest = UserWalletRegistrationRequest.fake
         let expectedSigner = SpyUserWalletRegistrationSigner()
-        let analyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
+        let analyticsReporter = SpyBackendAuthenticationNonceAnalyticsReporter()
 
         let sut = makeSUT(
             obtainNonce: Self.obtainNonceMock(expectedID: expectedID, returnedNonce: expectedNonce),
@@ -95,7 +95,7 @@ struct RegisterMobileUserWalletUseCaseTests {
 
     @Test
     func registerMobileUserWalletReportsMobileUserWalletNonceTimeoutWhenObtainNonceTimesOut() async throws {
-        let analyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
+        let analyticsReporter = SpyBackendAuthenticationNonceAnalyticsReporter()
 
         let sut = makeSUT(
             obtainNonce: { _ throws(ObtainUserWalletRegistrationNonceError) in
@@ -148,7 +148,7 @@ struct RegisterMobileUserWalletUseCaseTests {
         let expectedRequest = UserWalletRegistrationRequest.fake
         let expectedUnderlyingError = AnyTestError()
         let expectedSigner = SpyUserWalletRegistrationSigner()
-        let analyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
+        let analyticsReporter = SpyBackendAuthenticationNonceAnalyticsReporter()
 
         let sut = makeSUT(
             obtainNonce: Self.obtainNonceMock(expectedID: expectedID, returnedNonce: expectedNonce),
@@ -185,7 +185,7 @@ extension RegisterMobileUserWalletUseCaseTests {
         obtainNonce: @escaping ObtainUserWalletRegistrationNonce,
         attestUserWallet: @escaping AttestUserWallet,
         submitRegistration: @escaping SubmitUserWalletRegistration,
-        analyticsReporter: some BackendAuthenticationAnalyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
+        analyticsReporter: some BackendAuthenticationNonceAnalyticsReporter = SpyBackendAuthenticationNonceAnalyticsReporter()
     ) -> RegisterMobileUserWalletUseCase {
         RegisterMobileUserWalletUseCase(
             obtainNonce: obtainNonce,

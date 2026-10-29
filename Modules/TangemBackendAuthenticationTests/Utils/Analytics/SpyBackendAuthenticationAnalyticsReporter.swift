@@ -1,5 +1,5 @@
 //
-//  SpyBackendAuthenticationAnalyticsReporter.swift
+//  SpyBackendAuthenticationNonceAnalyticsReporter.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 private import os.lock
 @testable import TangemBackendAuthentication
 
-final class SpyBackendAuthenticationAnalyticsReporter: BackendAuthenticationAnalyticsReporter {
+final class SpyBackendAuthenticationNonceAnalyticsReporter: BackendAuthenticationNonceAnalyticsReporter {
     private let state = OSAllocatedUnfairLock(initialState: [Message]())
 
     var receivedMessages: [Message] {
@@ -29,7 +29,7 @@ final class SpyBackendAuthenticationAnalyticsReporter: BackendAuthenticationAnal
     }
 }
 
-extension SpyBackendAuthenticationAnalyticsReporter {
+extension SpyBackendAuthenticationNonceAnalyticsReporter {
     enum Message: Equatable {
         case reportDeviceNonceTimeout
         case reportAuthenticationNonceTimeout

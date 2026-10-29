@@ -19,28 +19,31 @@ public struct ObtainUserWalletRegistrationNonceUseCase: Sendable {
 
     private let appAttestService: any AppAttestService
     private let registrationClient: any UserWalletRegistrationClient
+    private let appAttestationStatusRepository: any AppAttestationStatusRepository
     private let registrationStatusRepository: any UserWalletRegistrationStatusRepository
-
     private let deviceKeyManager: DeviceKeyManager
     private let nonceDecryptor: any NonceDecryptor
-
     private let logger: Logger
 
     init(
         registerDevice: @escaping RegisterDevice,
         appAttestService: some AppAttestService,
         registrationClient: some UserWalletRegistrationClient,
+        appAttestationStatusRepository: some AppAttestationStatusRepository,
         registrationStatusRepository: some UserWalletRegistrationStatusRepository,
         deviceKeyManager: DeviceKeyManager,
         nonceDecryptor: some NonceDecryptor,
         logger: Logger
     ) {
         self.registerDevice = registerDevice
+
         self.appAttestService = appAttestService
         self.registrationClient = registrationClient
+        self.appAttestationStatusRepository = appAttestationStatusRepository
         self.registrationStatusRepository = registrationStatusRepository
         self.deviceKeyManager = deviceKeyManager
         self.nonceDecryptor = nonceDecryptor
+
         self.logger = logger
     }
 
@@ -59,15 +62,11 @@ public struct ObtainUserWalletRegistrationNonceUseCase: Sendable {
 
         let decryptedNonceBytes = try decrypt(cipheredNonce: cipheredNonce)
         let decryptedNonce = String(decoding: decryptedNonceBytes, as: UTF8.self)
+
         let nonceBytesToSign = try decodeNonceForSigning(decryptedNonce)
+        let appAssertion = await assert(decryptedNonceBytes: decryptedNonceBytes)
 
-        let appAttestationToken = await generateAppAttestationToken(for: decryptedNonceBytes)
-
-        return UserWalletRegistrationNonce(
-            value: decryptedNonce,
-            bytesToSign: nonceBytesToSign,
-            appAttestationToken: appAttestationToken
-        )
+        return UserWalletRegistrationNonce(value: decryptedNonce, bytesToSign: nonceBytesToSign, appAssertion: appAssertion)
     }
 
     private func ensureDeviceIsRegistered() async throws(ObtainUserWalletRegistrationNonceError) {
@@ -113,11 +112,34 @@ public struct ObtainUserWalletRegistrationNonceUseCase: Sendable {
         return nonceBytesToSign
     }
 
-    private func generateAppAttestationToken(for decryptedNonceBytes: Data) async -> Data? {
+    private func assert(decryptedNonceBytes: Data) async -> AppAssertion? {
+        let appHasAlreadyBeenAttested = appAttestationStatusRepository.retrieve()
+
+        guard appHasAlreadyBeenAttested else {
+            return nil
+        }
+
         do {
-            return try await appAttestService.generateAttestationToken(for: decryptedNonceBytes)
+            return try await appAttestService.assert(decryptedNonceBytes: decryptedNonceBytes)
+        } catch AppAttestServiceError.assertionKeyCorrupted {
+            appAttestationStatusRepository.persist(isAppAttested: false)
+            logger.error(
+                "App attestation status cleared, because stored key for app assertion was malformed.",
+                error: AppAttestServiceError.assertionKeyCorrupted
+            )
+            return nil
+        } catch AppAttestServiceError.assertionKeyNotFound {
+            appAttestationStatusRepository.persist(isAppAttested: false)
+            logger.error(
+                "App attestation status cleared, because stored key for app assertion was not found.",
+                error: AppAttestServiceError.assertionKeyNotFound
+            )
+            return nil
+        } catch AppAttestServiceError.deviceCheckUnsupported {
+            logger.debug("App assertion is not supported, proceeding without it")
+            return nil
         } catch {
-            logger.error("Failed to generate app attestation token", error: error)
+            logger.error("Failed to generate app assertion", error: error)
             return nil
         }
     }

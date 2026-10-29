@@ -1,14 +1,14 @@
 //
-//  CommonBackendAuthenticationAnalyticsReporter.swift
+//  CommonBackendAuthenticationNonceAnalyticsReporter.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import protocol TangemBackendAuthentication.BackendAuthenticationAnalyticsReporter
+import protocol TangemBackendAuthentication.BackendAuthenticationNonceAnalyticsReporter
 
-struct CommonBackendAuthenticationAnalyticsReporter: BackendAuthenticationAnalyticsReporter {
+struct CommonBackendAuthenticationNonceAnalyticsReporter: BackendAuthenticationNonceAnalyticsReporter {
     func reportDeviceNonceTimeout() {
         reportNonceTimeout(type: Analytics.ParameterValue.backendAuthNonceTypeDevice)
     }

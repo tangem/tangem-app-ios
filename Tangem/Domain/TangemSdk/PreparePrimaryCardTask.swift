@@ -21,7 +21,7 @@ final class PreparePrimaryCardTask: CardSessionRunnable {
     private let shouldReset: Bool
     private let mnemonic: Mnemonic?
     private let passphrase: String?
-    private let userWalletRegistrar = CardUserWalletRegistrar(analyticsReporter: CommonBackendAuthenticationAnalyticsReporter())
+    private let userWalletRegistrar = CardUserWalletRegistrar(analyticsReporter: CommonBackendAuthenticationNonceAnalyticsReporter())
 
     private var primaryCard: PrimaryCard?
 

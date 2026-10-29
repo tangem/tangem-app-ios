@@ -14,7 +14,7 @@ import TangemBackendAuthentication
 actor CardUserWalletRegistrar {
     private typealias NonceTask = Task<Void, Never>
 
-    private let analyticsReporter: CommonBackendAuthenticationAnalyticsReporter
+    private let analyticsReporter: CommonBackendAuthenticationNonceAnalyticsReporter
 
     private var nonceTask: NonceTask?
     private var nonceResult: Result<UserWalletRegistrationNonce?, ObtainUserWalletRegistrationNonceError>?
@@ -32,7 +32,7 @@ actor CardUserWalletRegistrar {
         }
     }
 
-    init(analyticsReporter: CommonBackendAuthenticationAnalyticsReporter) {
+    init(analyticsReporter: CommonBackendAuthenticationNonceAnalyticsReporter) {
         self.analyticsReporter = analyticsReporter
     }
 

@@ -17,6 +17,7 @@ enum RegisterWalletDTO {
         let cardSignatureSalt: String?
         let walletStatus: String?
         let attestationToken: String?
+        let appAttestKeyId: String?
         let providerIdToken: String?
         let encryptedRecoveryKey: String?
         let metadata: DeviceMetadataDTO.Request

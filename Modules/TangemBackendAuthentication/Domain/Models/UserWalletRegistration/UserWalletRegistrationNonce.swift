@@ -14,6 +14,6 @@ public struct UserWalletRegistrationNonce: Equatable, Sendable {
     let value: String
     /// The decrypted nonce decoded from base64URL — the bytes a ``UserWalletRegistrationSigner`` signs.
     let bytesToSign: Data
-    /// Platform app attestation token, if available.
-    let appAttestationToken: Data?
+    /// Platform app assertion token, if available.
+    let appAssertion: AppAssertion?
 }
