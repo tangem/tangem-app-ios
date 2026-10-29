@@ -91,8 +91,4 @@ extension CollectiblesAccountModel {
     func analyticsParameters(with builder: any AccountsAnalyticsBuilder) -> [Analytics.ParameterKey: String] {
         [:]
     }
-
-    func resolve<R>(using resolver: R) -> R.Result where R: AccountModelResolving {
-        resolver.resolve(accountModel: self)
-    }
 }
