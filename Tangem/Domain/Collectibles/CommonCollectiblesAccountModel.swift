@@ -31,6 +31,10 @@ final class CommonCollectiblesAccountModel {
         self.buybackSigningLimits = buybackSigningLimits
         nameSubject = CurrentValueSubject(name)
     }
+
+    func update(isInAccountList: Bool) {
+        manager.update(isInAccountList: isInAccountList)
+    }
 }
 
 // MARK: - CollectiblesAccountModel protocol conformance
@@ -59,6 +63,10 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
         manager.hasAccountPublisher
     }
 
+    var isSyncRequiredPublisher: AnyPublisher<Bool, Never> {
+        manager.isSyncRequiredPublisher
+    }
+
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider {
         balanceService.fiatTotalTokenBalanceProvider
     }
@@ -72,10 +80,7 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
     }
 
     var isRelinkRequiredPublisher: AnyPublisher<Bool, Never> {
-        manager.statePublisher
-            .map(\.isRelinkRequired)
-            .removeDuplicates()
-            .eraseToAnyPublisher()
+        manager.isRelinkRequiredPublisher
     }
 
     var isRelinkingPublisher: AnyPublisher<Bool, Never> {
