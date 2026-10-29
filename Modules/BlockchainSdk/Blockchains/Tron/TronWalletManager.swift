@@ -249,7 +249,12 @@ class TronWalletManager: BaseWalletManager, WalletManager {
         wallet.add(amount: Amount(with: wallet.blockchain, value: accountInfo.balance))
 
         for (token, balance) in accountInfo.tokenBalances {
-            wallet.add(tokenValue: balance, for: token)
+            switch balance {
+            case .success(let value):
+                wallet.add(tokenValue: value, for: token)
+            case .failure:
+                wallet.clearAmount(for: token)
+            }
         }
 
         wallet.removePendingTransaction { hash in
