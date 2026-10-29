@@ -32,25 +32,47 @@ struct WalletConnectSolanaSignMessageHandlerTests {
         }
     }
 
-    @Test("Rejects every message on a wallet whose key is shared across blockchains", arguments: [
+    @Test("Rejects a non-text or digest-sized message on a wallet whose key is shared across blockchains", arguments: [
         Payload.digest,
         Payload.algorandLikePayload,
         Payload.substrateLikePayload,
-        Payload.signInText,
+        Payload.digestSizedText,
+        Payload.textWithControlCharacter,
     ])
-    func rejectsSharedKeyWallet(message: Data) {
+    func rejectsNonTextOnSharedKeyWallet(message: Data) {
         let signer = WalletConnectSignerSpy()
 
         let error = #expect(throws: WalletConnectTransactionRequestProcessingError.self) {
             _ = try makeHandler(message: message.base58EncodedString, signer: signer, publicKey: Payload.sharedPublicKey)
         }
 
-        guard case .unsupportedMethod? = error else {
-            Issue.record("Expected unsupportedMethod, got \(String(describing: error))")
+        guard case .invalidPayload? = error else {
+            Issue.record("Expected invalidPayload, got \(String(describing: error))")
             return
         }
 
         #expect(signer.signedData.isEmpty)
+    }
+
+    @Test("Signs a text message on a wallet whose key is shared across blockchains")
+    func signsTextOnSharedKeyWallet() async throws {
+        let signer = WalletConnectSignerSpy()
+
+        let handler = try makeHandler(message: Payload.signInText.base58EncodedString, signer: signer, publicKey: Payload.sharedPublicKey)
+
+        _ = try await handler.handle()
+        #expect(signer.signedData == [Payload.signInText])
+    }
+
+    @Test("Signs a digest-sized binary message on a derived key as before")
+    func signsBinaryOnDerivedKey() async throws {
+        let signer = WalletConnectSignerSpy()
+        let publicKey = try makeDerivedPublicKey()
+
+        let handler = try makeHandler(message: Payload.digest.base58EncodedString, signer: signer, publicKey: publicKey)
+
+        _ = try await handler.handle()
+        #expect(signer.signedData == [Payload.digest])
     }
 
     @Test("Signs a human-readable message as raw decoded bytes on a derived key")
@@ -111,6 +133,10 @@ private enum Payload {
     static let signInText = Data("example.com wants you to sign in with your Solana account".utf8)
 
     static let digest = Data(repeating: 0x5C, count: 32)
+
+    static let digestSizedText = Data("0123456789abcdef0123456789abcdef".utf8)
+
+    static let textWithControlCharacter = Data("example.com wants you to sign in\u{0}".utf8)
 
     static let algorandLikePayload: Data = {
         var data = Data("TX".utf8)
