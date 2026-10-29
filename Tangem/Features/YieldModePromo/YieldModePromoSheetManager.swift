@@ -143,11 +143,9 @@ extension YieldModePromoSheetManager: MainScreenPromoSheetManager {
     }
 
     func presentSheet(experimentVariant: String?) -> AnyPublisher<Void, Never>? {
-        guard let content, let routable else {
+        guard let content, let data = content.sheetData(for: experimentVariant), let routable else {
             return nil
         }
-
-        let data = content.candidateData
 
         return MainActor.assumeIsolated {
             let viewModel = YieldModePromoSheetViewModel(data: data, routable: routable, analyticsLogger: analyticsLogger)
