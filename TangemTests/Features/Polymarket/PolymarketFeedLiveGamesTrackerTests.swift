@@ -71,6 +71,28 @@ final class PolymarketFeedLiveGamesTrackerTests: LeakTrackingTestSuite {
         #expect(try await env.updates.next() == .game(next))
     }
 
+    @Test("A lost connection keeps the last frame of every game, so its repeat after the reconnect is dropped and only a change passes")
+    @MainActor
+    func lostConnectionKeepsTheLastFrames() async throws {
+        let env = try await makeSUT()
+        let frame = Fixtures.liveGame(Constants.gameId, score: "98-101")
+        let next = Fixtures.liveGame(Constants.gameId, score: "100-101")
+
+        env.source.statuses.push(.connected)
+        env.stream.push(frame)
+        #expect(try await env.updates.next() == .game(frame))
+
+        env.source.statuses.push(.waitingToReconnect)
+        let streamAfterReconnect = try await env.source.requests.next()
+        env.source.statuses.push(.connected)
+        #expect(try await env.updates.next() == .reconnected)
+
+        streamAfterReconnect.push(frame)
+        streamAfterReconnect.push(next)
+
+        #expect(try await env.updates.next() == .game(next))
+    }
+
     @Test("A game that has not started yet gets the silence countdown too")
     @MainActor
     func notStartedGameHasASilenceCountdown() async throws {
@@ -109,11 +131,12 @@ private extension PolymarketFeedLiveGamesTrackerTests {
         sut.update(events: [Fixtures.basketball(gameId: Constants.gameId)])
         let stream = try await source.requests.next()
 
-        return Environment(sut: sut, delay: delay, updates: updates, stream: stream)
+        return Environment(sut: sut, source: source, delay: delay, updates: updates, stream: stream)
     }
 
     struct Environment {
         let sut: PolymarketFeedLiveGamesTracker
+        let source: PolymarketLiveGamesSourceSpy
         let delay: PolymarketSteppedDelayProvider
         let updates: PolymarketTestSignal<RecordedGameUpdate>
         let stream: PolymarketLiveStreamSpy<PolymarketLiveGame>
@@ -130,7 +153,6 @@ private extension PolymarketFeedLiveGamesTrackerTests {
 private enum RecordedGameUpdate: Equatable {
     case game(PolymarketLiveGame)
     case silent(String)
-    case connectionLost
     case reconnected
 
     init(_ update: PolymarketFeedLiveGamesTracker.Update) {
@@ -139,8 +161,6 @@ private enum RecordedGameUpdate: Equatable {
             self = .game(game)
         case .silent(let gameId):
             self = .silent(gameId)
-        case .connectionLost:
-            self = .connectionLost
         case .reconnected:
             self = .reconnected
         }

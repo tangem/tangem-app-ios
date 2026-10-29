@@ -42,6 +42,15 @@ struct PolymarketGameStateTests {
         #expect(state.period == "Q4")
     }
 
+    @Test("A socket frame without a score keeps the score REST has")
+    func socketFrameWithoutScoreKeepsTheRestScore() throws {
+        let event = Fixtures.basketball(isLive: true, score: "98-101", period: "Q3")
+        let state = try #require(PolymarketGameState(event: event, liveGame: Fixtures.liveGame("20023885", score: nil, period: "Q4")))
+
+        #expect(state.score == event.game?.score)
+        #expect(state.period == "Q4")
+    }
+
     @Test("An event without a game has no game state")
     func eventWithoutGame() {
         let event = Fixtures.event(id: "e", title: "Will it rain?", isLive: true, markets: [], teams: [], game: nil)
