@@ -122,7 +122,11 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     func openTransactionDetails(_ transaction: TransactionViewModel) {
         if let jointOperation = jointOperation(for: transaction) {
-            coordinator?.openJointAccountOperationDetails(pendingOperation: jointOperation, userWalletInfo: userWalletInfo)
+            coordinator?.openJointAccountOperationDetails(
+                pendingOperation: jointOperation,
+                userWalletInfo: userWalletInfo,
+                addressBookManager: addressBookManager
+            )
             return
         }
 
@@ -530,7 +534,11 @@ private extension TokenDetailsViewModel {
             .sink { [weak self] pendingOperation in
                 guard let self else { return }
 
-                coordinator?.openJointAccountOperationDetails(pendingOperation: pendingOperation, userWalletInfo: userWalletInfo)
+                coordinator?.openJointAccountOperationDetails(
+                    pendingOperation: pendingOperation,
+                    userWalletInfo: userWalletInfo,
+                    addressBookManager: addressBookManager
+                )
             }
             .store(in: &bag)
     }

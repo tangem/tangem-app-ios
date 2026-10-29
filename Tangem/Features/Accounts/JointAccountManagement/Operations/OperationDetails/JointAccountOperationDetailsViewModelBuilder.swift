@@ -15,29 +15,51 @@ import TangemFoundation
 /// - Note: Everything comes from the payload the signature covers — the amount and the recipient off the inner call,
 ///   the fee off the Safe transaction — rather than from display fields of the response.
 struct JointAccountOperationDetailsViewModelBuilder {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     private let balanceFormatter = BalanceFormatter()
     private let balanceConverter = BalanceConverter()
     private let tokenIconInfoBuilder = TokenIconInfoBuilder()
+    private let transactionViewModelBuilder = JointAccountOperationTransactionViewModelBuilder()
     private let signersBuilder = JointAccountSignersViewDataBuilder()
     private let standingResolver = JointAccountPendingOperationStandingResolver()
 
     func build(
         pendingOperation: JointAccountPendingOperation,
         userWalletInfo: UserWalletInfo,
+        addressBookManager: AddressBookManager,
         coordinator: JointAccountOperationDetailsRoutable?
     ) -> JointAccountOperationDetailsViewModel {
         let tokenItem = pendingOperation.tokenItem
+        let addressBookWallet = AddressBookWallet(wallet: userWalletInfo, addressBookManager: addressBookManager)
+        let initialRecipientState = recipientState(
+            of: pendingOperation,
+            userWalletId: userWalletInfo.id,
+            contacts: addressBookManager.contacts,
+            isAddressBookSynced: false,
+            tangemPayDepositOwners: []
+        )
 
         return JointAccountOperationDetailsViewModel(
             tokenIconInfo: tokenIconInfoBuilder.build(from: tokenItem, isCustom: pendingOperation.wallet.isCustom),
-            cryptoAmount: cryptoAmount(of: pendingOperation),
+            cryptoAmount: transactionViewModelBuilder.cryptoAmount(of: pendingOperation),
             fiatAmount: fiatAmount(of: pendingOperation),
             recipient: pendingOperation.destination,
-            recipientBlockiesImage: AddressIconProvider.makeBlockiesImage(address: pendingOperation.destination),
+            recipientState: initialRecipientState,
+            blockchain: tokenItem.blockchain,
             networkFee: networkFee(of: pendingOperation),
             signingActionButtonType: SigningActionButtonViewTypeBuilder().build(userWalletInfo: userWalletInfo),
             content: content(of: pendingOperation),
             contentPublisher: contentPublisher(of: pendingOperation),
+            addressBookWallet: addressBookWallet,
+            addressBookAnalyticsLogger: CommonAddressBookAnalyticsLogger(),
+            recipientStatePublisher: recipientStatePublisher(
+                of: pendingOperation,
+                userWalletId: userWalletInfo.id,
+                contactsPublisher: AddressBookContactsAggregator.contactsPublisher(),
+                syncStatePublisher: addressBookWallet.syncStatePublisher,
+                tangemPayDepositOwnersPublisher: TangemPayDepositOwnersPublisherFactory.makePublisher(userWalletRepository: userWalletRepository)
+            ),
             poller: pendingOperation,
             coordinator: coordinator,
             sign: { try await pendingOperation.sign() },
@@ -56,9 +78,73 @@ extension JointAccountOperationDetailsViewModelBuilder {
     }
 }
 
+// MARK: - Recipient
+
+extension JointAccountOperationDetailsViewModelBuilder {
+    func recipientStatePublisher(
+        of pendingOperation: JointAccountPendingOperation,
+        userWalletId: UserWalletId,
+        contactsPublisher: some Publisher<[AddressBookContact], Never>,
+        syncStatePublisher: some Publisher<AddressBookSyncState, Never>,
+        tangemPayDepositOwnersPublisher: some Publisher<[TangemPayDepositOwner], Never>
+    ) -> AnyPublisher<JointAccountOperationDetailsViewModel.RecipientState, Never> {
+        contactsPublisher
+            .removeDuplicates()
+            .combineLatest(syncStatePublisher.map(\.isSynced).removeDuplicates(), tangemPayDepositOwnersPublisher)
+            .receiveOnMain()
+            .map { contacts, isAddressBookSynced, tangemPayDepositOwners in
+                recipientState(
+                    of: pendingOperation,
+                    userWalletId: userWalletId,
+                    contacts: contacts,
+                    isAddressBookSynced: isAddressBookSynced,
+                    tangemPayDepositOwners: tangemPayDepositOwners
+                )
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+}
+
 // MARK: - Private
 
 private extension JointAccountOperationDetailsViewModelBuilder {
+    func recipientState(
+        of pendingOperation: JointAccountPendingOperation,
+        userWalletId: UserWalletId,
+        contacts: [AddressBookContact],
+        isAddressBookSynced: Bool,
+        tangemPayDepositOwners: [TangemPayDepositOwner]
+    ) -> JointAccountOperationDetailsViewModel.RecipientState {
+        let blockchain = pendingOperation.tokenItem.blockchain
+        let recipient = pendingOperation.destination
+
+        let subtitleOwnerResolver = SubtitleOwnerResolver(
+            blockchain: blockchain,
+            currentUserWalletId: userWalletId,
+            // A wallet holding a joint account always has at least two accounts
+            isAccountsMode: true,
+            contacts: contacts,
+            tangemPayDepositOwners: tangemPayDepositOwners
+        )
+
+        let owner = subtitleOwnerResolver.resolve(address: recipient, blockchain: blockchain)
+
+        let addContactHelper = TransactionDetailsAddContactHelper(
+            networkId: AddressBookNetworkID(blockchain.networkId),
+            contacts: contacts.filter { $0.walletId == userWalletId },
+            isAddressBookSynced: isAddressBookSynced,
+            transactionType: .transfer,
+            interactionAddress: .user(recipient),
+            subtitleOwner: owner
+        )
+
+        return JointAccountOperationDetailsViewModel.RecipientState(
+            owner: owner,
+            canAddToContacts: addContactHelper.addressToSave() != nil
+        )
+    }
+
     func content(of pendingOperation: JointAccountPendingOperation) -> JointAccountOperationDetailsViewModel.Content {
         let account = pendingOperation.wallet.account
 
@@ -93,21 +179,6 @@ private extension JointAccountOperationDetailsViewModelBuilder {
         case .declined: .declined
         case .noDecisionYet: .awaiting
         }
-    }
-
-    /// - Note: Signed as an outgoing transfer, so it is stated as one — an amount this version cannot read is shown
-    ///   the way an unknown balance is rather than as a number that understates what the member is signing.
-    func cryptoAmount(of pendingOperation: JointAccountPendingOperation) -> String {
-        let formatted = balanceFormatter.formatCryptoBalance(
-            pendingOperation.amount?.value,
-            tokenItem: pendingOperation.tokenItem
-        )
-
-        guard pendingOperation.amount?.value != nil else {
-            return formatted
-        }
-
-        return AppConstants.minusSign + formatted
     }
 
     func fiatAmount(of pendingOperation: JointAccountPendingOperation) -> String {

@@ -182,10 +182,15 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         )
     }
 
-    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation, userWalletInfo: UserWalletInfo) {
+    func openJointAccountOperationDetails(
+        pendingOperation: JointAccountPendingOperation,
+        userWalletInfo: UserWalletInfo,
+        addressBookManager: AddressBookManager
+    ) {
         let viewModel = JointAccountOperationDetailsViewModelBuilder().build(
             pendingOperation: pendingOperation,
             userWalletInfo: userWalletInfo,
+            addressBookManager: addressBookManager,
             coordinator: self
         )
 
@@ -598,6 +603,13 @@ extension TokenDetailsCoordinator: JointAccountOperationDetailsRoutable {
     func closeOperationDetails() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func openAddContactFromOperationDetails(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft]) {
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            openAddContact(addressBookWallet: addressBookWallet, prefilledEntries: prefilledEntries)
         }
     }
 }
