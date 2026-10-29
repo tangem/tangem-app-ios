@@ -92,14 +92,14 @@ enum Feature: String, Hashable, CaseIterable {
         case .payBundleIntroduction: return .version("6.7")
         case .tangemPayAppleWalletProvisioning: return .unspecified
         case .marketingActivityBinding: return .unspecified
-        case .qrScanDeeplinks: return .unspecified
+        case .qrScanDeeplinks: return .version("6.7")
         case .yieldModePromo: return .unspecified
-        case .swapBestRateDefaultProvider: return .unspecified
-        case .solanaPNFTAndMetaplexCore: return .unspecified
+        case .swapBestRateDefaultProvider: return .version("6.7")
+        case .solanaPNFTAndMetaplexCore: return .version("6.7")
         case .tangemPayMoneyAccount: return .unspecified
-        case .hideRejectedSwapProviders: return .unspecified
+        case .hideRejectedSwapProviders: return .version("6.7")
         case .tangemPayCustomerSummary: return .unspecified
-        case .yieldModuleOwnerActionUpgrade: return .unspecified
+        case .yieldModuleOwnerActionUpgrade: return .version("6.7")
         }
     }
 }
