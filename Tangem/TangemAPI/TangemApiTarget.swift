@@ -69,9 +69,11 @@ struct TangemApiTarget: TargetType {
             AppEnvironment.current.apiBaseUrlv2WithGatewaySegment
         case .getJointAccounts,
              .createJointAccount,
+             .issueJointAccountInvite,
              .getJointAccountInvite,
              .joinJointAccount,
              .activateJointAccount,
+             .confirmJointAccount,
              .createJointAccountOperation,
              .signJointAccountOperation,
              .rejectJointAccountOperation,
@@ -225,12 +227,16 @@ struct TangemApiTarget: TargetType {
         case .getJointAccounts(let walletId, _),
              .createJointAccount(let walletId, _):
             return "/wallets/\(walletId)/joint-accounts"
+        case .issueJointAccountInvite(let walletId, _):
+            return "/wallets/\(walletId)/joint-accounts/invites"
         case .getJointAccountInvite(let walletId, let inviteId):
             return "/wallets/\(walletId)/joint-accounts/invites/\(inviteId)"
         case .joinJointAccount(let walletId, _):
             return "/wallets/\(walletId)/joint-accounts/join"
         case .activateJointAccount(let walletId, _):
             return "/wallets/\(walletId)/joint-accounts/activate"
+        case .confirmJointAccount(let walletId, _):
+            return "/wallets/\(walletId)/joint-accounts/confirm"
         case .createJointAccountOperation(let walletId, _):
             return "/wallets/\(walletId)/joint-accounts/operations"
         case .signJointAccountOperation(let walletId, let operationId, _):
@@ -323,8 +329,10 @@ struct TangemApiTarget: TargetType {
         case .participateInReferralProgram,
              .createAccount,
              .createJointAccount,
+             .issueJointAccountInvite,
              .joinJointAccount,
              .activateJointAccount,
+             .confirmJointAccount,
              .createJointAccountOperation,
              .signJointAccountOperation,
              .rejectJointAccountOperation,
@@ -493,9 +501,13 @@ struct TangemApiTarget: TargetType {
             return .requestPlain
         case .createJointAccount(_, let body):
             return .requestJSONEncodable(body)
+        case .issueJointAccountInvite(_, let body):
+            return .requestJSONEncodable(body)
         case .joinJointAccount(_, let body):
             return .requestJSONEncodable(body)
         case .activateJointAccount(_, let body):
+            return .requestJSONEncodable(body)
+        case .confirmJointAccount(_, let body):
             return .requestJSONEncodable(body)
         case .createJointAccountOperation(_, let body):
             return .requestJSONEncodable(body)
@@ -598,9 +610,11 @@ struct TangemApiTarget: TargetType {
              .getUserAccounts,
              .getArchivedUserAccounts,
              .createJointAccount,
+             .issueJointAccountInvite,
              .getJointAccountInvite,
              .joinJointAccount,
              .activateJointAccount,
+             .confirmJointAccount,
              .createJointAccountOperation,
              .signJointAccountOperation,
              .rejectJointAccountOperation,
@@ -740,9 +754,11 @@ extension TangemApiTarget {
         // Joint accounts
         case getJointAccounts(walletId: String, knownETag: String?)
         case createJointAccount(walletId: String, body: JointAccountsDTO.Request.Create)
+        case issueJointAccountInvite(walletId: String, body: JointAccountsDTO.Request.IssueInvite)
         case getJointAccountInvite(walletId: String, inviteId: String)
         case joinJointAccount(walletId: String, body: JointAccountsDTO.Request.Join)
         case activateJointAccount(walletId: String, body: JointAccountsDTO.Request.Activate)
+        case confirmJointAccount(walletId: String, body: JointAccountsDTO.Request.Confirm)
         case createJointAccountOperation(walletId: String, body: JointAccountsDTO.Request.CreateOperation)
         case signJointAccountOperation(walletId: String, operationId: String, body: JointAccountsDTO.Request.SignOperation)
         case rejectJointAccountOperation(walletId: String, operationId: String)
@@ -835,10 +851,12 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .bindWalletsByCode,
              .bindMarketingActivityWallets,
              .createJointAccount,
+             .issueJointAccountInvite,
              .joinJointAccount,
              .getJointAccountInvite,
              .getJointAccounts,
              .activateJointAccount,
+             .confirmJointAccount,
              .createJointAccountOperation,
              .signJointAccountOperation,
              .rejectJointAccountOperation,

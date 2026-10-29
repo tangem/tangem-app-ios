@@ -194,7 +194,11 @@ private extension JointAccountJoinView {
 
 #if DEBUG
 private struct JointAccountsNetworkServicePreviewStub: JointAccountsNetworkService {
-    func createJointAccount(blob: JointAccountCreationBlob) async throws -> JointAccountCreationResult {
+    func createJointAccount(blob: JointAccountCreationBlob) async throws -> RemoteJointAccount {
+        throw CancellationError()
+    }
+
+    func issueInvite(cryptoAccountId: String, slot: JointAccountMemberSlotID) async throws -> JointAccountIssuedInvite {
         throw CancellationError()
     }
 
@@ -221,6 +225,10 @@ private struct JointAccountsNetworkServicePreviewStub: JointAccountsNetworkServi
     }
 
     func activateJointAccount(blob: JointAccountActivationBlob) async throws -> RemoteJointAccount {
+        throw CancellationError()
+    }
+
+    func confirmJointAccount(blob: JointAccountConfirmationBlob) async throws -> RemoteJointAccount {
         throw CancellationError()
     }
 
