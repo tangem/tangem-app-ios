@@ -14,16 +14,26 @@ import TangemFoundation
 final class OnrampMarketingBannerManager {
     @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
 
+    weak var router: OnrampMarketingBannerRoutable?
+
     private let service = MarketingBannerService()
+    private let userWalletId: UserWalletId
+    private let conciergeWaitlistBannerFilter: ConciergeWaitlistBannerFilter
     private let externalLinkResponder = ExternalLinkDeeplinkResponder()
     private lazy var callToActionActionPerformer = CallToActionMarketingBannerActionPerformer(
         incomingActionHandler: incomingActionHandler,
-        externalLinkResponder: externalLinkResponder
+        externalLinkResponder: externalLinkResponder,
+        openConciergeWaitlist: { [weak self] in self?.openConciergeWaitlist() }
     )
     private let standaloneBannersSubject = CurrentValueSubject<[StandaloneMarketingBannerViewModel], Never>([])
     private let callToActionBannersSubject = CurrentValueSubject<[CallToActionMarketingBanner], Never>([])
     private let linkedBannersSubject = CurrentValueSubject<[MarketingBanner], Never>([])
     private var subscription: AnyCancellable?
+
+    init(userWalletId: UserWalletId) {
+        self.userWalletId = userWalletId
+        conciergeWaitlistBannerFilter = ConciergeWaitlistBannerFilter(userWalletId: userWalletId)
+    }
 }
 
 // MARK: - Setup
@@ -83,13 +93,21 @@ private extension OnrampMarketingBannerManager {
             dismiss: banner.isDismissible ? { HiddenMarketingCampaignsStorage.hide(campaignId: banner.id) } : nil
         )
     }
+
+    func openConciergeWaitlist() {
+        router?.openDemandSurvey(userWalletId: userWalletId)
+    }
 }
 
 // MARK: - Call-to-action banners
 
 extension OnrampMarketingBannerManager {
     var callToActionBannersPublisher: AnyPublisher<[CallToActionMarketingBanner], Never> {
-        callToActionBannersSubject.removeDuplicates().eraseToAnyPublisher()
+        conciergeWaitlistBannerFilter
+            .filter(callToActionBannersSubject.eraseToAnyPublisher())
+            .receiveOnMain()
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
     func perform(_ action: CallToActionMarketingBannerAction) {

@@ -12,15 +12,18 @@ final class CallToActionMarketingBannerActionPerformer {
     private let incomingActionHandler: IncomingActionHandler
     private let externalLinkResponder: IncomingActionResponder
     private let incomingActionParser: IncomingActionParser
+    private let openConciergeWaitlist: () -> Void
 
     init(
         incomingActionHandler: IncomingActionHandler,
         externalLinkResponder: IncomingActionResponder,
-        incomingActionParser: IncomingActionParser = IncomingActionParser()
+        incomingActionParser: IncomingActionParser = IncomingActionParser(),
+        openConciergeWaitlist: @escaping () -> Void
     ) {
         self.incomingActionHandler = incomingActionHandler
         self.externalLinkResponder = externalLinkResponder
         self.incomingActionParser = incomingActionParser
+        self.openConciergeWaitlist = openConciergeWaitlist
     }
 
     func perform(_ action: CallToActionMarketingBannerAction) {
@@ -38,6 +41,8 @@ final class CallToActionMarketingBannerActionPerformer {
 private extension CallToActionMarketingBannerActionPerformer {
     func open(_ link: URL) {
         switch CallToActionMarketingBannerLinkRoute(link: link, incomingActionParser: incomingActionParser) {
+        case .conciergeWaitlist:
+            openConciergeWaitlist()
         case .incomingAction:
             incomingActionHandler.handleIncomingURL(link)
         case .browser:
@@ -51,10 +56,16 @@ private extension CallToActionMarketingBannerActionPerformer {
 // MARK: - Link route
 
 enum CallToActionMarketingBannerLinkRoute: Equatable {
+    case conciergeWaitlist
     case incomingAction
     case browser
 
     init?(link: URL, incomingActionParser: IncomingActionParser) {
+        if ConciergeWaitlistLink.matches(link) {
+            self = .conciergeWaitlist
+            return
+        }
+
         switch incomingActionParser.parseIncomingURL(link) {
         case .walletConnect, .externalLink, .navigation:
             self = .incomingAction
