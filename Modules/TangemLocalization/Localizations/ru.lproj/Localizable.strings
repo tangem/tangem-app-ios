@@ -1571,7 +1571,7 @@
 "prediction_close_result_partially_sold_title" = "Частично продано";
 "prediction_close_result_sold_title" = "Продано %@";
 "prediction_close_result_tokens_sold" = "Продано долей";
-"prediction_close_selling_of" = "Продажа %1@ из %2@ долей";
+"prediction_close_selling_of" = "Продажа %1$@ из %2$@ долей";
 "prediction_close_selling_tokens" = "Продажа %@ долей";
 "prediction_close_summary_to" = "Куда";
 "prediction_close_title" = "Закрыть позицию";
@@ -1586,10 +1586,10 @@
 "prediction_event_live" = "Live";
 "prediction_event_total_volume" = "Общий объем:";
 "prediction_fee_sheet_builder_fee" = "Комиссия Tangem";
-"prediction_fee_sheet_buy_description" = "Покупка %1@ долей по %2@¢ за штуку. Итоговое количество долей (и соответствующая сумма в %3@) может меняться в пределах вашего лимита проскальзывания %4@ в зависимости от доступной ликвидности рынка.";
+"prediction_fee_sheet_buy_description" = "Покупка %1$@ долей по %2$@¢ за штуку. Итоговое количество долей (и соответствующая сумма в %3$@) может меняться в пределах вашего лимита проскальзывания %4$@ в зависимости от доступной ликвидности рынка.";
 "prediction_fee_sheet_order" = "Ордер прогноза";
 "prediction_fee_sheet_polymarket_fee" = "Комиссия Polymarket";
-"prediction_fee_sheet_sell_description" = "Продажа %1@ долей по %2@¢ за штуку. Итоговое количество долей (и соответствующая сумма в %3@) может меняться в пределах вашего лимита проскальзывания %4@ в зависимости от доступной ликвидности рынка.";
+"prediction_fee_sheet_sell_description" = "Продажа %1$@ долей по %2$@¢ за штуку. Итоговое количество долей (и соответствующая сумма в %3$@) может меняться в пределах вашего лимита проскальзывания %4$@ в зависимости от доступной ликвидности рынка.";
 "prediction_fee_sheet_total" = "Итого";
 "prediction_history_bought" = "Куплено";
 "prediction_history_csv_average_price" = "Средняя цена";
@@ -1644,7 +1644,7 @@
 "prediction_onboarding_faq_tap_question" = "Что происходит, когда я прикладываю карту?";
 "prediction_onboarding_legal_polymarket_terms" = "Условиями использования Polymarket";
 "prediction_onboarding_legal_tangem_terms" = "Условиями использования Tangem";
-"prediction_onboarding_legal" = "Используя функцию «Прогнозы», вы соглашаетесь с %1@ и %2@";
+"prediction_onboarding_legal" = "Используя функцию «Прогнозы», вы соглашаетесь с %1$@ и %2$@";
 "prediction_onboarding_reconnect_benefit_safe_subtitle" = "Тот же депозитный аккаунт, те же средства. Повторная привязка никогда не перемещает ваши средства";
 "prediction_onboarding_reconnect_benefit_safe_title" = "Средства остаются на месте";
 "prediction_onboarding_reconnect_benefit_tap_subtitle" = "Перевыпускает ключи, которые связывают этот телефон с вашим аккаунтом";
@@ -1652,7 +1652,7 @@
 "prediction_onboarding_reconnect_button" = "Продолжить прогнозирование";
 "prediction_onboarding_reconnect_faq_answer" = "Ключи доступа хранятся только на вашем устройстве. Они удаляются при переустановке приложения, смене телефона или истечении сессии. Сам аккаунт находится на Polymarket и остается в сохранности.";
 "prediction_onboarding_reconnect_faq_question" = "Почему я это вижу?";
-"prediction_onboarding_reconnect_legal" = "Принимать новые условия не нужно — ваше соглашение с %1@ и %2@ продолжает действовать";
+"prediction_onboarding_reconnect_legal" = "Принимать новые условия не нужно — ваше соглашение с %1$@ и %2$@ продолжает действовать";
 "prediction_onboarding_reconnect_subtitle" = "Ваш депозитный аккаунт, баланс и открытые позиции в безопасности. Это устройство просто нужно привязать заново — приложите карту один раз, чтобы восстановить доступ.";
 "prediction_onboarding_reconnect_title" = "Переподключите аккаунт Polymarket";
 "prediction_onboarding_start_button" = "Начать прогнозировать";
@@ -1690,7 +1690,7 @@
 "prediction_place_result_no_fill_banner_description" = "На Polymarket нет доступных долей — ваш ордер не удалось исполнить.";
 "prediction_place_result_no_fill_banner_title" = "Не исполнено";
 "prediction_place_result_no_fill_title" = "Недостаточная ликвидность";
-"prediction_place_result_partial_amount" = "%1@ из %2@";
+"prediction_place_result_partial_amount" = "%1$@ из %2$@";
 "prediction_place_result_partial_banner_description" = "Ваш ордер был исполнен частично из-за недостаточной ликвидности на Polymarket в пределах вашего допуска проскальзывания.";
 "prediction_place_result_partial_banner_title" = "Частично исполнен";
 "prediction_place_result_partial_title" = "Частично размещен";
@@ -1746,7 +1746,7 @@
 "prediction_positions_quantity" = "Доли";
 "prediction_positions_realized_description" = "Прибыль или убыток, которые уже зафиксированы. Они формируются из проданных (частично или полностью) долей и позиций, разрешившихся выигрышем, проигрышем или разделением. Реализованный P&L включает все комиссии.";
 "prediction_positions_realized_pnl" = "Реализованный P&L";
-"prediction_positions_result_amount" = "%1@ %2@";
+"prediction_positions_result_amount" = "%1$@ %2$@";
 "prediction_positions_split" = "Разделено";
 "prediction_positions_status" = "Статус";
 "prediction_positions_title" = "Мои позиции";

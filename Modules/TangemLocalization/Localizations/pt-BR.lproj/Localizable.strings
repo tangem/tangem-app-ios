@@ -1571,7 +1571,7 @@
 "prediction_close_result_partially_sold_title" = "Venda parcial";
 "prediction_close_result_sold_title" = "Vendido por %@";
 "prediction_close_result_tokens_sold" = "Tokens vendidos";
-"prediction_close_selling_of" = "Vendendo %1$@ de %2$@ tokens de previsão";
+"prediction_close_selling_of" = "Selling %1$@ of %2$@ predict tokens";
 "prediction_close_selling_tokens" = "Vendendo %@ tokens de previsão";
 "prediction_close_summary_to" = "Para";
 "prediction_close_title" = "Encerrar posição";
