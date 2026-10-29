@@ -208,7 +208,13 @@ extension GaslessBridgeFeeSupportTests {
             case .cex:
                 .cex(amount: 20)
             case .approve:
-                .approve(txData: anyTxData, toContractAddress: anyTokenContract)
+                .approve(
+                    txData: anyTxData,
+                    toContractAddress: anyTokenContract,
+                    spender: nil,
+                    amountRaw: 1,
+                    feeMultiplier: .single
+                )
             }
         }
     }
@@ -294,6 +300,14 @@ private struct EthereumTokenFeeLoaderStub: EthereumTokenFeeLoader {
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee] { throw StubError.notNeeded }
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee { throw StubError.notNeeded }
     func getFee(request: EthereumFeeRequestData) async throws -> [BSDKFee] { throw StubError.notNeeded }
+
+    func supports(_ input: TokenFeeProviderInputData) -> Bool {
+        supportsEthereumFeeInput(input)
+    }
+
+    func loadFees(_ input: TokenFeeProviderInputData, feeBlockchain: Blockchain) async throws -> [BSDKFee] {
+        try await loadEthereumFees(input, feeBlockchain: feeBlockchain)
+    }
 
     func getApproveWithSwapFee(request: EthereumFeeRequestData, approveInput: ApproveWithSwapInput) async throws -> [BSDKFee] {
         throw StubError.notNeeded

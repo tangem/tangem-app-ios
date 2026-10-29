@@ -60,7 +60,13 @@ struct EthereumStakingFlowProvider: GenericStakingFlowProvider {
 
     private func permissionRequired(approveData: ApproveTransactionData, action: StakingAction) async throws -> StakeFlowState {
         tokenFeeProvidersManager.update(
-            input: .approve(txData: approveData.txData, toContractAddress: approveData.toContractAddress)
+            input: .approve(
+                txData: approveData.txData,
+                toContractAddress: approveData.toContractAddress,
+                spender: approveData.spender,
+                amountRaw: approveData.amountRaw,
+                feeMultiplier: .single
+            )
         )
         await tokenFeeProvidersManager.updateFees().value
 

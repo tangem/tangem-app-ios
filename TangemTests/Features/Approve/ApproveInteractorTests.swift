@@ -28,7 +28,7 @@ struct ApproveInteractorTests {
         let newTxData = Data([0x11, 0x22, 0x33])
         let newContractAddress = "0xNewContract"
         let newSpender = "0xNewSpender"
-        let newApproveData = ApproveTransactionData(txData: newTxData, spender: newSpender, toContractAddress: newContractAddress)
+        let newApproveData = ApproveTransactionData(txData: newTxData, spender: newSpender, toContractAddress: newContractAddress, amountRaw: 1)
 
         let env = makeEnv()
         env.allowanceService.makeApproveDataResult = .success(newApproveData)
@@ -53,7 +53,7 @@ struct ApproveInteractorTests {
         #expect(env.feeManager.updateInputCalls.count == inputCallsBefore + 1)
         #expect(env.feeManager.updateFeesCalls == feesCallsBefore + 1)
 
-        if case .approve(let txData, let toContractAddress, _) = env.feeManager.updateInputCalls.last {
+        if case .approve(let txData, let toContractAddress, _, _, _) = env.feeManager.updateInputCalls.last {
             #expect(txData == newTxData)
             #expect(toContractAddress == newContractAddress)
         } else {
@@ -87,7 +87,7 @@ struct ApproveInteractorTests {
 
     @Test("A rebuild cancelled before the calldata arrives leaves the state untouched")
     func updateApprovePolicy_cancelledBeforeCalldataArrives_leavesStateUntouched() async throws {
-        let unlimitedData = ApproveTransactionData(txData: Data([0x01]), spender: testSpender, toContractAddress: "0xUnlimited")
+        let unlimitedData = ApproveTransactionData(txData: Data([0x01]), spender: testSpender, toContractAddress: "0xUnlimited", amountRaw: 1)
 
         let env = makeEnv()
         env.allowanceService.setMakeApproveDataResult(.success(unlimitedData), for: ApprovePolicy.unlimited)
@@ -141,7 +141,7 @@ struct ApproveInteractorTests {
 
     @Test("Revoke+approve: policy change keeps the feeUnit and tags the state with the new policy")
     func revokeAndApprove_updateApprovePolicy_keepsFeeUnitAndUpdatesPolicy() async throws {
-        let updatedApprove = ApproveTransactionData(txData: Data([0xFF]), spender: testSpender, toContractAddress: testContractAddress)
+        let updatedApprove = ApproveTransactionData(txData: Data([0xFF]), spender: testSpender, toContractAddress: testContractAddress, amountRaw: 1)
         let feeUnitValue: Decimal = 0.002
 
         let env = makeEnv()
@@ -202,7 +202,8 @@ struct ApproveInteractorTests {
             approveData: ApproveTransactionData(
                 txData: specificTxData,
                 spender: specificSpender,
-                toContractAddress: specificContract
+                toContractAddress: specificContract,
+                amountRaw: 1
             )
         )
 
@@ -268,7 +269,7 @@ struct ApproveInteractorTests {
     @Test("After policy change, dispatcher receives the UPDATED approveData")
     func sendApproveTransaction_afterPolicyChange_sendsUpdatedData() async throws {
         let updatedTxData = Data([0xFF, 0xEE])
-        let updatedData = ApproveTransactionData(txData: updatedTxData, spender: testSpender, toContractAddress: "0xUpdatedContract")
+        let updatedData = ApproveTransactionData(txData: updatedTxData, spender: testSpender, toContractAddress: "0xUpdatedContract", amountRaw: 1)
 
         let env = makeEnv()
         env.allowanceService.makeApproveDataResult = .success(updatedData)
@@ -289,7 +290,7 @@ struct ApproveInteractorTests {
 
     @Test("Analytics logger receives the correct policy value after policy change")
     func sendApproveTransaction_afterPolicyChange_logsCorrectPolicy() async throws {
-        let updatedData = ApproveTransactionData(txData: Data([0x01]), spender: testSpender, toContractAddress: testContractAddress)
+        let updatedData = ApproveTransactionData(txData: Data([0x01]), spender: testSpender, toContractAddress: testContractAddress, amountRaw: 1)
 
         let env = makeEnv()
         env.allowanceService.makeApproveDataResult = .success(updatedData)
@@ -366,7 +367,8 @@ struct ApproveInteractorTests {
         let approveData = ApproveTransactionData(
             txData: Data([0x01]),
             spender: approveSpender,
-            toContractAddress: approveContract
+            toContractAddress: approveContract,
+            amountRaw: 1
         )
 
         let env = makeEnv()
@@ -388,7 +390,8 @@ struct ApproveInteractorTests {
         let updatedData = ApproveTransactionData(
             txData: Data([0x99]),
             spender: testSpender,
-            toContractAddress: "0xNewContract"
+            toContractAddress: "0xNewContract",
+            amountRaw: 1
         )
 
         let env = makeEnv()
@@ -408,7 +411,8 @@ struct ApproveInteractorTests {
         let updatedData = ApproveTransactionData(
             txData: Data([0x42]),
             spender: testSpender,
-            toContractAddress: "0xApproveContract"
+            toContractAddress: "0xApproveContract",
+            amountRaw: 1
         )
 
         let env = makeEnv()
@@ -421,7 +425,7 @@ struct ApproveInteractorTests {
         #expect(env.feeManager.updateInputCalls.count == inputCallsBefore + 1)
 
         guard let lastInput = env.feeManager.updateInputCalls.last,
-              case .approve(let txData, let contractAddress, _) = lastInput else {
+              case .approve(let txData, let contractAddress, _, _, _) = lastInput else {
             Issue.record("Fee input must be .approve, not .common/.dex/.cex — got \(String(describing: env.feeManager.updateInputCalls.last))")
             return
         }
@@ -437,12 +441,12 @@ struct ApproveInteractorTests {
         let sut = makeSUT(env: env)
 
         // First change
-        let data1 = ApproveTransactionData(txData: Data([0x01]), spender: testSpender, toContractAddress: "0xC1")
+        let data1 = ApproveTransactionData(txData: Data([0x01]), spender: testSpender, toContractAddress: "0xC1", amountRaw: 1)
         env.allowanceService.makeApproveDataResult = .success(data1)
         try await sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
 
         // Second change
-        let data2 = ApproveTransactionData(txData: Data([0x02]), spender: testSpender, toContractAddress: "0xC2")
+        let data2 = ApproveTransactionData(txData: Data([0x02]), spender: testSpender, toContractAddress: "0xC2", amountRaw: 1)
         env.allowanceService.makeApproveDataResult = .success(data2)
         try await sut.updateApprovePolicy(policy: ApprovePolicy.specified)
 
@@ -546,16 +550,17 @@ struct ApproveInteractorTests {
 
     @Test("feeInput uses approve tx data with .single multiplier for single approve")
     func feeInput_approve() {
-        let data = ApproveTransactionData(txData: testTxData, spender: testSpender, toContractAddress: testContractAddress)
+        let data = ApproveTransactionData(txData: testTxData, spender: testSpender, toContractAddress: testContractAddress, amountRaw: 1)
         let state = ApproveInteractor.ApproveInteractorState.approve(data: data, policy: ApprovePolicy.specified)
 
-        guard case .approve(let txData, let toContractAddress, let feeMultiplier) = state.feeInput else {
+        guard case .approve(let txData, let toContractAddress, _, let amountRaw, let feeMultiplier) = state.feeInput else {
             Issue.record("Expected .approve fee input")
             return
         }
 
         #expect(txData == testTxData)
         #expect(toContractAddress == testContractAddress)
+        #expect(amountRaw == 1)
         #expect(feeMultiplier == .single)
     }
 
@@ -565,19 +570,20 @@ struct ApproveInteractorTests {
         let revokeContract = "0xRevoke"
         let feeUnit = Fee(Amount(with: .ethereum(testnet: false), value: 0.001))
         let state = ApproveInteractor.ApproveInteractorState.revokeAndApprove(
-            revoke: ApproveTransactionData(txData: revokeTxData, spender: testSpender, toContractAddress: revokeContract),
-            approve: ApproveTransactionData(txData: Data([0x02]), spender: testSpender, toContractAddress: testContractAddress),
+            revoke: ApproveTransactionData(txData: revokeTxData, spender: testSpender, toContractAddress: revokeContract, amountRaw: 0),
+            approve: ApproveTransactionData(txData: Data([0x02]), spender: testSpender, toContractAddress: testContractAddress, amountRaw: 1),
             feeUnit: feeUnit,
             policy: ApprovePolicy.specified
         )
 
-        guard case .approve(let txData, let toContractAddress, let feeMultiplier) = state.feeInput else {
+        guard case .approve(let txData, let toContractAddress, _, let amountRaw, let feeMultiplier) = state.feeInput else {
             Issue.record("Expected .approve fee input")
             return
         }
 
         #expect(txData == revokeTxData, "Fee must be estimated against revoke tx")
         #expect(toContractAddress == revokeContract, "Fee must use revoke contract address")
+        #expect(amountRaw == 0)
         #expect(feeMultiplier == .triple)
     }
 
@@ -681,7 +687,7 @@ struct ApproveInteractorTests {
 
     @Test("Revoke+approve: updateApprovePolicy passes feeMultiplier .triple to fee provider")
     func revokeAndApprove_updateApprovePolicy_passesFeeMultiplier() async throws {
-        let updatedApprove = ApproveTransactionData(txData: Data([0xFF]), spender: testSpender, toContractAddress: testContractAddress)
+        let updatedApprove = ApproveTransactionData(txData: Data([0xFF]), spender: testSpender, toContractAddress: testContractAddress, amountRaw: 1)
         let env = makeEnv()
         env.allowanceService.makeApproveDataResult = .success(updatedApprove)
 
@@ -689,7 +695,7 @@ struct ApproveInteractorTests {
         try await sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
 
         guard let input = env.feeManager.updateInputCalls.last,
-              case .approve(_, _, let feeMultiplier) = input else {
+              case .approve(_, _, _, _, let feeMultiplier) = input else {
             Issue.record("Expected .approve input")
             return
         }
@@ -699,7 +705,7 @@ struct ApproveInteractorTests {
 
     @Test("Single approve: updateApprovePolicy passes feeMultiplier 1 to fee provider")
     func approve_updateApprovePolicy_passesFeeMultiplier() async throws {
-        let updatedData = ApproveTransactionData(txData: Data([0xFF]), spender: testSpender, toContractAddress: testContractAddress)
+        let updatedData = ApproveTransactionData(txData: Data([0xFF]), spender: testSpender, toContractAddress: testContractAddress, amountRaw: 1)
         let env = makeEnv()
         env.allowanceService.makeApproveDataResult = .success(updatedData)
 
@@ -707,7 +713,7 @@ struct ApproveInteractorTests {
         try await sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
 
         guard let input = env.feeManager.updateInputCalls.last,
-              case .approve(_, _, let feeMultiplier) = input else {
+              case .approve(_, _, _, _, let feeMultiplier) = input else {
             Issue.record("Expected .approve input")
             return
         }
@@ -789,7 +795,8 @@ struct ApproveInteractorTests {
         let data = approveData ?? ApproveTransactionData(
             txData: testTxData,
             spender: testSpender,
-            toContractAddress: testContractAddress
+            toContractAddress: testContractAddress,
+            amountRaw: 1
         )
 
         if let feeResult {
@@ -818,8 +825,8 @@ struct ApproveInteractorTests {
         let ethParams = EthereumLegacyFeeParameters(gasLimit: 50000, gasPrice: 20_000_000_000)
         let unit = feeUnit ?? Fee(Amount(with: .ethereum(testnet: false), value: feeUnitValue), parameters: ethParams)
 
-        let revokeData = ApproveTransactionData(txData: testRevokeTxData, spender: testSpender, toContractAddress: testContractAddress)
-        let approveData = ApproveTransactionData(txData: testTxData, spender: testSpender, toContractAddress: testContractAddress)
+        let revokeData = ApproveTransactionData(txData: testRevokeTxData, spender: testSpender, toContractAddress: testContractAddress, amountRaw: 0)
+        let approveData = ApproveTransactionData(txData: testTxData, spender: testSpender, toContractAddress: testContractAddress, amountRaw: 1)
 
         return ApproveInteractor(
             approveInteractorState: .revokeAndApprove(revoke: revokeData, approve: approveData, feeUnit: unit, policy: ApprovePolicy.specified),

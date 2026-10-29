@@ -13,5 +13,5 @@ public enum ExpressTransactionDataType {
     case cex(data: ExpressTransactionData)
 
     /// For `DEX` / `DEX/Bridge` operations
-    case dex(data: ExpressTransactionData)
+    case dex(data: ExpressTransactionData, spender: String? = nil)
 }

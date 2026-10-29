@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BigInt
 import TangemFoundation
 
 public struct EVMAllowanceChecker: AllowanceChecking {
@@ -41,8 +42,8 @@ public struct EVMAllowanceChecker: AllowanceChecking {
     }
 
     public func makeApproveData(spender: String, amount: Decimal, policy: ApprovePolicy) throws -> ApproveTransactionData {
-        let (data, contract) = try buildApproveCalldata(spender: spender, amount: amount, policy: policy)
-        return .init(txData: data, spender: spender, toContractAddress: contract)
+        let (data, contract, amountRaw) = try buildApproveCalldata(spender: spender, amount: amount, policy: policy)
+        return .init(txData: data, spender: spender, toContractAddress: contract, amountRaw: amountRaw)
     }
 
     /// Determines the full allowance state in a single call: whether approval is needed,
@@ -90,7 +91,11 @@ public struct EVMAllowanceChecker: AllowanceChecking {
         return contractAddress.caseInsensitiveCompare(Constants.ethereumUSDTContractAddress) == .orderedSame
     }
 
-    private func buildApproveCalldata(spender: String, amount: Decimal, policy: ApprovePolicy) throws -> (data: Data, contract: String) {
+    private func buildApproveCalldata(
+        spender: String,
+        amount: Decimal,
+        policy: ApprovePolicy
+    ) throws -> (data: Data, contract: String, amountRaw: BigUInt) {
         guard let contract = amountType.token?.contractAddress else {
             throw AllowanceCheckerError.contractAddressNotFound
         }
@@ -101,7 +106,8 @@ public struct EVMAllowanceChecker: AllowanceChecking {
         }
 
         let data = try ethereumTransactionDataBuilder.buildForApprove(spender: spender, amount: approveAmount)
-        return (data, contract)
+        let amountRaw = EthereumUtils.mapToBigUInt(approveAmount)
+        return (data, contract, amountRaw)
     }
 
     private func decimalValue() throws -> Decimal {

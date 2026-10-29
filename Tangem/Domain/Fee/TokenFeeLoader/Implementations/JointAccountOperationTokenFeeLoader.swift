@@ -32,9 +32,9 @@ struct JointAccountOperationTokenFeeLoader {
     }
 }
 
-// MARK: - TokenFeeLoader
+// MARK: - TokenFeeLoading
 
-extension JointAccountOperationTokenFeeLoader: TokenFeeLoader {
+extension JointAccountOperationTokenFeeLoader: TokenFeeLoading {
     /// Only a CEX swap asks for a fee without a destination, and a joint account does not swap.
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         throw TokenFeeLoaderError.tokenFeeLoaderNotFound

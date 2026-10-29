@@ -31,7 +31,7 @@ struct CommonTokenFeeProviderMappingTests {
     private func makeProvider(
         feeTokenItem: TokenItem,
         balance: Decimal,
-        loader: any TokenFeeLoader = NoopFeeLoaderMock(),
+        loader: any TokenFeeLoader = DefaultTokenFeeLoader(loader: NoopFeeLoaderMock()),
         minimumRequiredBalance: Decimal? = nil
     ) -> CommonTokenFeeProvider {
         CommonTokenFeeProvider(
@@ -96,7 +96,9 @@ struct CommonTokenFeeProviderMappingTests {
     func gaslessNotEnoughFeeBalanceMapsToNotEnoughGaslessFeeBalance() async {
         // decimalValue for a 6-decimal token is 1_000_000, so a 5_000_000 minimum = 5 tokens.
         // Balance 1 < 5 → the provider enters .unavailable(.notEnoughFeeBalance).
-        let loader = ThrowingFeeLoaderMock(error: TokenFeeLoaderError.gaslessExecutionReverted(gaslessMinTokenAmount: 5_000_000))
+        let loader = DefaultTokenFeeLoader(
+            loader: ThrowingFeeLoaderMock(error: TokenFeeLoaderError.gaslessExecutionReverted(gaslessMinTokenAmount: 5_000_000))
+        )
         let sut = makeProvider(feeTokenItem: gaslessTokenFeeToken, balance: 1, loader: loader)
 
         sut.setup(input: .common(amount: 0.5, destination: "0xTo"))
@@ -110,7 +112,7 @@ struct CommonTokenFeeProviderMappingTests {
 
     @Test("Loader-not-found → unsupportedByProvider")
     func loaderNotFoundMapsToUnsupportedByProvider() async {
-        let loader = ThrowingFeeLoaderMock(error: TokenFeeLoaderError.tokenFeeLoaderNotFound)
+        let loader = DefaultTokenFeeLoader(loader: ThrowingFeeLoaderMock(error: TokenFeeLoaderError.tokenFeeLoaderNotFound))
         let sut = makeProvider(feeTokenItem: nativeCoinFeeToken, balance: 1, loader: loader)
 
         sut.setup(input: .common(amount: 0.1, destination: "0xTo"))
@@ -122,7 +124,7 @@ struct CommonTokenFeeProviderMappingTests {
     @Test("EVM gas-estimation rejection → notEnoughBalanceForFee carrying the balance the node judged against")
     func gasRequiredExceedsAllowanceMapsToNotEnoughBalanceForFee() async {
         // Partial native-coin balance (> 0, so no .noTokenBalance); gas estimation is rejected by the node.
-        let loader = ThrowingFeeLoaderMock(error: ETHError.gasRequiredExceedsAllowance)
+        let loader = DefaultTokenFeeLoader(loader: ThrowingFeeLoaderMock(error: ETHError.gasRequiredExceedsAllowance))
         let sut = makeProvider(feeTokenItem: nativeCoinFeeToken, balance: 0.0001, loader: loader)
 
         sut.setup(input: .common(amount: 0.00005, destination: "0xTo"))
@@ -157,12 +159,12 @@ struct CommonTokenFeeProviderMappingTests {
 
 // MARK: - Loader mocks
 
-private struct NoopFeeLoaderMock: TokenFeeLoader {
+private struct NoopFeeLoaderMock: TokenFeeLoading {
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] { [] }
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee] { [] }
 }
 
-private struct ThrowingFeeLoaderMock: TokenFeeLoader {
+private struct ThrowingFeeLoaderMock: TokenFeeLoading {
     let error: any Error
 
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] { throw error }

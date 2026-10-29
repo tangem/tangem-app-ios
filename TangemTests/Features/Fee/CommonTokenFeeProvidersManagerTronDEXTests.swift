@@ -30,13 +30,17 @@ struct CommonTokenFeeProvidersManagerTronDEXTests {
             return
         }
         let embeddedCallData = parsedCall.callData
-        let expectedInput = TokenFeeProviderInputData.dex(.tron(request: TronFeeRequestData(
-            amount: BSDKAmount(with: .tron(testnet: false), type: .coin, value: .zero),
-            destination: "TU3ymitEKCWQFtASkEeHaPb8NfZcJtCHLt",
-            callData: embeddedCallData,
-            memo: nil,
-            otherNativeFee: Decimal(string: "0.3")!
-        )))
+        let expectedInput = TokenFeeProviderInputData.dex(.tron(
+            request: TronFeeRequestData(
+                amount: BSDKAmount(with: .tron(testnet: false), type: .coin, value: .zero),
+                destination: "TU3ymitEKCWQFtASkEeHaPb8NfZcJtCHLt",
+                callData: embeddedCallData,
+                memo: nil,
+                otherNativeFee: Decimal(string: "0.3")!
+            ),
+            sourceAmount: .zero,
+            spender: nil
+        ))
 
         #expect(provider.setupCalls == [expectedInput])
         #expect(provider.updateFeesCallCount == 1)
@@ -70,7 +74,7 @@ struct CommonTokenFeeProvidersManagerTronDEXTests {
             ))
         )
 
-        guard case .dex(.tron(let request)) = provider.setupCalls.first else {
+        guard case .dex(.tron(let request, _, _)) = provider.setupCalls.first else {
             Issue.record("Expected a Tron DEX input, got \(String(describing: provider.setupCalls.first))")
             return
         }
@@ -92,13 +96,17 @@ struct CommonTokenFeeProvidersManagerTronDEXTests {
             ))
         )
 
-        let expectedInput = TokenFeeProviderInputData.dex(.tron(request: TronFeeRequestData(
-            amount: BSDKAmount(with: .tron(testnet: false), type: .coin, value: 50),
-            destination: "TKJMd8JF5hevd2TQeSKvJzwQKgpRQVHpr6",
-            callData: nil,
-            memo: nil,
-            otherNativeFee: Decimal(string: "0.3")!
-        )))
+        let expectedInput = TokenFeeProviderInputData.dex(.tron(
+            request: TronFeeRequestData(
+                amount: BSDKAmount(with: .tron(testnet: false), type: .coin, value: 50),
+                destination: "TKJMd8JF5hevd2TQeSKvJzwQKgpRQVHpr6",
+                callData: nil,
+                memo: nil,
+                otherNativeFee: Decimal(string: "0.3")!
+            ),
+            sourceAmount: .zero,
+            spender: nil
+        ))
 
         #expect(provider.setupCalls == [expectedInput])
         #expect(provider.updateFeesCallCount == 1)

@@ -115,4 +115,61 @@ extension CommonEthereumTokenFeeLoader: TokenFeeLoader {
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee] {
         try await tokenFeeLoader.getFee(amount: amount, destination: destination)
     }
+
+    func supports(_ input: TokenFeeProviderInputData) -> Bool {
+        supportsEthereumFeeInput(input)
+    }
+
+    func loadFees(_ input: TokenFeeProviderInputData, feeBlockchain: Blockchain) async throws -> [BSDKFee] {
+        try await loadEthereumFees(input, feeBlockchain: feeBlockchain)
+    }
+}
+
+extension EthereumTokenFeeLoader {
+    func supportsEthereumFeeInput(_ input: TokenFeeProviderInputData) -> Bool {
+        switch input {
+        case .common, .cex, .dex(.ethereum), .dex(.ethereumEstimate), .approve, .approveWithSwap:
+            return true
+        case .dex(.solana), .dex(.bitcoinPsbt), .dex(.tron):
+            return false
+        }
+    }
+
+    func loadEthereumFees(_ input: TokenFeeProviderInputData, feeBlockchain: Blockchain) async throws -> [BSDKFee] {
+        switch input {
+        case .common(let amount, let destination):
+            return try await getFee(amount: amount, destination: destination)
+        case .cex(let amount):
+            return try await estimatedFee(amount: amount)
+        case .dex(.ethereumEstimate(let estimatedGasLimit, let otherNativeFee)):
+            return [try await estimatedFee(estimatedGasLimit: estimatedGasLimit, otherNativeFee: otherNativeFee)]
+        case .dex(.ethereum(let amount, let destination, let txData, let otherNativeFee)):
+            return try await getFee(request: EthereumFeeRequestData(
+                amount: amount,
+                destination: destination,
+                txData: txData,
+                otherNativeFee: otherNativeFee
+            ))
+        case .approve(let txData, let toContractAddress, _, _, _):
+            let zeroAmount = BSDKAmount(with: feeBlockchain, type: .coin, value: 0)
+            return try await getFee(request: EthereumFeeRequestData(
+                amount: zeroAmount,
+                destination: toContractAddress,
+                txData: txData,
+                otherNativeFee: nil
+            ))
+        case .approveWithSwap(let amount, let destination, let txData, let otherNativeFee, let approve):
+            return try await getApproveWithSwapFee(
+                request: EthereumFeeRequestData(
+                    amount: amount,
+                    destination: destination,
+                    txData: txData,
+                    otherNativeFee: otherNativeFee
+                ),
+                approveInput: approve
+            )
+        case .dex(.solana), .dex(.bitcoinPsbt), .dex(.tron):
+            throw TokenFeeLoaderError.tokenFeeLoaderNotFound
+        }
+    }
 }

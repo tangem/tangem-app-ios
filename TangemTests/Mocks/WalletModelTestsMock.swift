@@ -28,9 +28,11 @@ final class WalletModelTestsMock: WalletModel {
 
     var transactionCreatorMock: TransactionCreator?
     var multipleTransactionsSenderMock: MultipleTransactionsSender?
+    var availableBalanceProviderMock: TokenBalanceProvider?
     var stakingManagerMock: StakingManager?
     var yieldModuleManagerMock: (any YieldModuleManager)?
     var tronAccountActivationStateProviderMock: (any TronAccountActivationStateProvider)?
+    var tronGaslessTransactionsBuilderMock: (any TronGaslessTransactionsBuilder)?
     var isCustomMock = false
     var sendingRestrictionsMock: SendingRestrictions?
     private let _updateAfterSendingTransactionCalls = OSAllocatedUnfairLock(initialState: [Bool]())
@@ -207,7 +209,10 @@ final class WalletModelTestsMock: WalletModel {
     var account: (any CryptoAccountModel)? { _account }
     var yieldModuleManager: YieldModuleManager? { yieldModuleManagerMock }
     var feeTokenItemBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
-    var availableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
+    var availableBalanceProvider: TokenBalanceProvider {
+        availableBalanceProviderMock ?? TokenBalanceProviderTestsMock(balance: 0)
+    }
+
     var stakingBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var totalTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var fiatAvailableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: _fiatAvailableBalance) }
@@ -248,7 +253,7 @@ final class WalletModelTestsMock: WalletModel {
     var hasRent: Bool { false }
     var existentialDepositWarning: String? { nil }
     var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { nil }
-    var tronGaslessTransactionsBuilder: (any TronGaslessTransactionsBuilder)? { nil }
+    var tronGaslessTransactionsBuilder: (any TronGaslessTransactionsBuilder)? { tronGaslessTransactionsBuilderMock }
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { nil }
 
     // MARK: - CustomStringConvertible

@@ -151,7 +151,7 @@ extension ExpressDEXTransactionDispatcher {
                     // `estimatedGasLimit` is not a fallback here: it's an EVM gas count, not a sun cap.
                     transactionType: .contractCall(
                         callData: call.callData,
-                        feeLimit: call.adjustedFeeLimit(covering: fee, blockchain: blockchain)
+                        feeLimit: try call.adjustedFeeLimit(covering: fee, blockchain: blockchain)
                     ),
                     memo: call.memo
                 )

@@ -69,7 +69,15 @@ public struct TronAllowanceChecker: AllowanceChecking {
 
         let approveAmount = Amount(with: blockchain, type: amountType, value: approveValue)
         let txData = try transactionDataBuilder.buildForApprove(spender: spender, amount: approveAmount)
+        guard let amountRaw = approveAmount.bigUIntValue else {
+            throw AllowanceCheckerError.wrongAmountType
+        }
 
-        return ApproveTransactionData(txData: txData, spender: spender, toContractAddress: token.contractAddress)
+        return ApproveTransactionData(
+            txData: txData,
+            spender: spender,
+            toContractAddress: token.contractAddress,
+            amountRaw: amountRaw
+        )
     }
 }

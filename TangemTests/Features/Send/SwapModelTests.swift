@@ -1439,7 +1439,7 @@ private extension SwapModelTests {
     }
 
     func makeApproveTransactionData() -> ApproveTransactionData {
-        ApproveTransactionData(txData: Data(), spender: "0xspender", toContractAddress: "0xcontract")
+        ApproveTransactionData(txData: Data(), spender: "0xspender", toContractAddress: "0xcontract", amountRaw: 1)
     }
 
     func makeZeroFee() -> Fee {

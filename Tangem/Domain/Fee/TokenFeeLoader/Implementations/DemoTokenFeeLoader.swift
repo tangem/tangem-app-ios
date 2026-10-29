@@ -12,9 +12,9 @@ struct DemoTokenFeeLoader {
     let tokenItem: TokenItem
 }
 
-// MARK: - TokenFeeLoader
+// MARK: - TokenFeeLoading
 
-extension DemoTokenFeeLoader: TokenFeeLoader {
+extension DemoTokenFeeLoader: TokenFeeLoading {
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         let fees = DemoUtil().getDemoFee(for: tokenItem.blockchain)
         return fees

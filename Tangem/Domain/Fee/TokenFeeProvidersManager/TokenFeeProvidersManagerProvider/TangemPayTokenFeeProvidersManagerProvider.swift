@@ -15,7 +15,7 @@ struct TangemPayTokenFeeProvidersManagerProvider {
 
 extension TangemPayTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerProvider {
     func makeTokenFeeProvidersManager() -> TokenFeeProvidersManager {
-        let tokenFeeLoader = TangemPayTokenFeeLoader(feeTokenItem: feeTokenItem)
+        let tokenFeeLoader = DefaultTokenFeeLoader(loader: TangemPayTokenFeeLoader(feeTokenItem: feeTokenItem))
         let feeProvider: TokenFeeProvider = CommonTokenFeeProvider(
             feeTokenItem: feeTokenItem,
             tokenFeeLoader: tokenFeeLoader,
