@@ -139,6 +139,14 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
     }
 }
 
+// MARK: - AccountModelResolvable protocol conformance
+
+extension CommonCollectiblesAccountModel {
+    func resolve<R>(using resolver: R) -> R.Result where R: AccountModelResolving {
+        resolver.resolve(accountModel: self)
+    }
+}
+
 // MARK: - CollectiblesPurchaseSigner
 
 extension CollectiblesManager: CollectiblesPurchaseSigner {}

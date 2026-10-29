@@ -112,9 +112,9 @@ extension CommonCryptoAccountModel: Identifiable {
     }
 }
 
-// MARK: - CryptoAccountModel protocol conformance
+// MARK: - StandardCryptoAccountModel protocol conformance
 
-extension CommonCryptoAccountModel: CryptoAccountModel {
+extension CommonCryptoAccountModel: StandardCryptoAccountModel {
     var isMainAccount: Bool {
         AccountModelUtils.isMainAccount(derivationIdentity)
     }
@@ -166,6 +166,14 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
         }
 
         try await delegate.commonCryptoAccountModelWantsToArchive(self)
+    }
+}
+
+// MARK: - AccountModelResolvable protocol conformance
+
+extension CommonCryptoAccountModel {
+    func resolve<R>(using resolver: R) -> R.Result where R: AccountModelResolving {
+        resolver.resolve(accountModel: self)
     }
 }
 

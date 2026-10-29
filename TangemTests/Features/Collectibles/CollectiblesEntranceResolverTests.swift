@@ -121,6 +121,10 @@ private final class CollectiblesAccountModelStub: CollectiblesAccountModel {
     var buybackInteractor: any CollectiblesBuybackInteractor {
         CollectiblesBuybackInteractorStub()
     }
+
+    func resolve<R>(using resolver: R) -> R.Result where R: AccountModelResolving {
+        resolver.resolve(accountModel: self)
+    }
 }
 
 private struct CollectiblesBuybackInteractorStub: CollectiblesBuybackInteractor {

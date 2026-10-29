@@ -592,6 +592,14 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     }
 }
 
+// MARK: - AccountModelResolvable protocol conformance
+
+extension TangemPayManager {
+    func resolve<R>(using resolver: R) -> R.Result where R: AccountModelResolving {
+        resolver.resolve(accountModel: self)
+    }
+}
+
 enum TangemPayManagerError: Error {
     case missingCustomerWalletAddress
     case managerDeallocated

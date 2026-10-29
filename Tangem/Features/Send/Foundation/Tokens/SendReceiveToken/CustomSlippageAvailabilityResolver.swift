@@ -7,7 +7,11 @@
 //
 
 struct CustomSlippageAvailabilityResolver: AccountModelResolving {
-    func resolve(accountModel: any CryptoAccountModel) -> Bool {
+    func resolve(accountModel: any StandardCryptoAccountModel) -> Bool {
+        true
+    }
+
+    func resolve(accountModel: any JointAccountModel) -> Bool {
         true
     }
 
