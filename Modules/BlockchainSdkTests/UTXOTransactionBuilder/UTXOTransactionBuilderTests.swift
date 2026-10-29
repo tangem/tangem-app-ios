@@ -194,4 +194,64 @@ struct UTXOTransactionSerializerTests {
         // OP_RETURN output: value=0 + scriptLen=4 + 6a 02 6869
         #expect(encoded.hex().contains("0000000000000000046a026869"))
     }
+
+    @Test(arguments: [-1, Int(UInt32.max) + 1])
+    func outOfRangeInputIndexThrows(index: Int) throws {
+        let builder = CommonUTXOTransactionSerializer(version: 1, sequence: .final, signHashType: .bitcoinAll)
+        let preImage = try makePreImage(index: index, amount: 186367788)
+
+        #expect(throws: UTXOTransactionSerializerError.self) {
+            try builder.preImageHashes(transaction: preImage)
+        }
+    }
+
+    @Test(arguments: [(-1, UInt64(186367788)), (1, UInt64(Int64.max) + 1)])
+    func walletCoreOutOfRangeInputThrows(index: Int, amount: UInt64) throws {
+        let builder = WalletCoreUTXOTransactionSerializer(coinType: .bitcoin, sequence: .final)
+        let preImage = try makePreImage(index: index, amount: amount)
+        let transaction = Transaction(
+            amount: Amount(with: .bitcoin(testnet: false), type: .coin, value: 0),
+            fee: Fee(Amount(with: .bitcoin(testnet: false), type: .coin, value: 0)),
+            sourceAddress: "source",
+            destinationAddress: "destination",
+            changeAddress: "change"
+        )
+
+        #expect(throws: UTXOTransactionSerializerError.self) {
+            try builder.preImageHashes(transaction: (transaction: transaction, preImage: preImage))
+        }
+    }
+}
+
+private extension UTXOTransactionSerializerTests {
+    func makePreImage(index: Int, amount: UInt64) throws -> PreImageTransaction {
+        let publicKey = Data(hexString: "02677dd71d01665229de974005670618568b83f6b1e0809aabb99b1646bdc660bb")
+        let spendable: UTXOLockingScript.SpendableType = .publicKey(
+            .init(publicKey: publicKey, derivationPath: try DerivationPath(rawPath: "m/44'/0'/0'/0/0"))
+        )
+        let sourceScript = UTXOLockingScript(
+            data: Data(hex: "76a9147775253a54f9873fe3065877a423e4191057d8b988ac"), type: .p2pkh, spendable: spendable
+        )
+        let destinationScript = UTXOLockingScript(
+            data: Data(hex: "76a914041c20c9f7d7e16cb2813da977bc9901a8e7d0d688ac"), type: .p2pkh, spendable: .none
+        )
+        let utxo = UnspentOutput(
+            blockId: 3793801,
+            txId: "f303c9828af090314f6ab2dc953c21d93e18aaa7c6f3db6e99437d7658412a59",
+            index: index,
+            amount: amount
+        )
+
+        return PreImageTransaction(
+            inputs: [
+                .init(output: utxo, script: sourceScript),
+            ],
+            outputs: [
+                .destination(destinationScript, value: 5000000),
+                .change(sourceScript, value: 181092520),
+            ],
+            fee: .zero,
+            opReturn: nil
+        )
+    }
 }

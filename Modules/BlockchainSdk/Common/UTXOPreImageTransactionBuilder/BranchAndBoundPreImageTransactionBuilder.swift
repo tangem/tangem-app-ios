@@ -49,7 +49,12 @@ extension BranchAndBoundPreImageTransactionBuilder: UTXOPreImageTransactionBuild
             throw Error.noOutputs
         }
 
-        let total = try outputs.sumReportingOverflow(by: \.amount)
+        let outputsTotal = try outputs.sumReportingOverflow(by: \.amount)
+
+        guard let total = Int(exactly: outputsTotal) else {
+            throw Error.outputsTotalOverflow
+        }
+
         guard destination.amount <= total else {
             throw Error.insufficientFunds
         }
@@ -61,7 +66,7 @@ extension BranchAndBoundPreImageTransactionBuilder: UTXOPreImageTransactionBuild
             destination: destination,
             fee: fee,
             totalOutputsCount: outputs.count,
-            total: Int(total)
+            total: total
         )
 
         logger.debug(self, "Start selection in: \(context.startDate.formatted(date: .omitted, time: .complete))")
@@ -129,7 +134,7 @@ private extension BranchAndBoundPreImageTransactionBuilder {
             }
 
             // If we can't possibly reach destination amount, cut the branch
-            if state.currentValue + state.remaining < context.destination.amount {
+            if state.remaining < context.destination.amount - state.currentValue {
                 continue
             }
 

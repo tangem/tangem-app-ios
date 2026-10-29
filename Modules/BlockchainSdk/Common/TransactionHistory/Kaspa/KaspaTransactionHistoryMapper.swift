@@ -25,14 +25,14 @@ final class KaspaTransactionHistoryMapper {
     private func extractTransactionAmount(
         transaction: KaspaTransactionHistoryResponse.Transaction,
         isOutgoing: Bool,
-        fee: Int,
+        fee: Decimal,
         walletAddress: String
     ) -> Decimal? {
         let amount = transaction.outputs
             .filter {
                 isOutgoing ? $0.scriptPublicKeyAddress != walletAddress : $0.scriptPublicKeyAddress == walletAddress
             }
-            .reduce(0) { $0 + ($1.amount ?? 0) }
+            .reduce(Decimal.zero) { $0 + Decimal($1.amount ?? 0) }
 
         let amountWithFee = if isOutgoing {
             amount + fee
@@ -40,7 +40,7 @@ final class KaspaTransactionHistoryMapper {
             amount
         }
 
-        return Decimal(amountWithFee) / blockchain.decimalValue
+        return amountWithFee / blockchain.decimalValue
     }
 
     private func extractDestination(
@@ -89,10 +89,11 @@ final class KaspaTransactionHistoryMapper {
         }
     }
 
-    private func calculateFee(inputs: [Input], outputs: [Output]) -> Int {
-        let inputSum = inputs.compactMap { $0.previousOutpointAmount }.reduce(0, +)
-        let outputSum = outputs.compactMap { $0.amount }.reduce(0, +)
-        return max(0, inputSum - outputSum)
+    private func calculateFee(inputs: [Input], outputs: [Output]) -> Decimal {
+        let inputSum = inputs.compactMap { $0.previousOutpointAmount }.reduce(Decimal.zero) { $0 + Decimal($1) }
+        let outputSum = outputs.compactMap { $0.amount }.reduce(Decimal.zero) { $0 + Decimal($1) }
+
+        return max(.zero, inputSum - outputSum)
     }
 }
 
@@ -151,7 +152,7 @@ extension KaspaTransactionHistoryMapper: TransactionHistoryMapper {
                 index: 0,
                 source: source,
                 destination: destination,
-                fee: Fee(Amount(with: blockchain, value: Decimal(fee) / blockchain.decimalValue)),
+                fee: Fee(Amount(with: blockchain, value: fee / blockchain.decimalValue)),
                 status: transactionStatus,
                 isOutgoing: isOutgoing,
                 type: .transfer,

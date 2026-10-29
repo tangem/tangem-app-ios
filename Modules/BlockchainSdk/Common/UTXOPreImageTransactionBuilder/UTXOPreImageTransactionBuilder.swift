@@ -49,4 +49,5 @@ enum UTXOPreImageTransactionBuilderError: LocalizedError {
     case dustAmount
     case insufficientFunds
     case unableToFindSuitableUTXOs
+    case outputsTotalOverflow
 }

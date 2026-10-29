@@ -19,8 +19,8 @@ protocol UnspentOutputManager {
     func availableOutputs() -> [ScriptUnspentOutput]
     func pendingOutputs() -> [ScriptUnspentOutput]
 
-    func confirmedBalance() -> UInt64
-    func unconfirmedBalance() -> UInt64
+    func confirmedBalance() throws -> UInt64
+    func unconfirmedBalance() throws -> UInt64
 
     /// Clear cached outputs
     func clearOutputs()
@@ -51,9 +51,10 @@ extension UnspentOutputManager {
         return preImage
     }
 
-    func balance(blockchain: Blockchain) -> Decimal {
-        let balance = confirmedBalance() + unconfirmedBalance()
-        return Decimal(balance) / blockchain.decimalValue
+    func balance(blockchain: Blockchain) throws -> Decimal {
+        let balance = try Decimal(confirmedBalance()) + Decimal(unconfirmedBalance())
+
+        return balance / blockchain.decimalValue
     }
 }
 

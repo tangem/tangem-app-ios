@@ -70,8 +70,8 @@ private extension CommonUTXOTransactionSerializer {
 
         // Inputs
         bytes += transaction.inputs.count.byte
-        zip(transaction.inputs, signatures).forEach { input, signature in
-            bytes += encodeInput(input, script: input.script.type.isWitness ? .blank : .signed(signature))
+        try zip(transaction.inputs, signatures).forEach { input, signature in
+            bytes += try encodeInput(input, script: input.script.type.isWitness ? .blank : .signed(signature))
         }
 
         // Outputs
@@ -100,10 +100,9 @@ private extension CommonUTXOTransactionSerializer {
         case signed(SignatureInfo)
     }
 
-    func encodeInput(_ input: ScriptUnspentOutput, script: InputScriptSigType) -> Data {
+    func encodeInput(_ input: ScriptUnspentOutput, script: InputScriptSigType) throws -> Data {
         var bytes = Data()
-        bytes += input.hash.reversed()
-        bytes += UInt32(input.index).data
+        bytes += try encodeOutPoint(input)
 
         switch script {
         case .toBeSigned(let lockingScript):
@@ -190,9 +189,9 @@ private extension CommonUTXOTransactionSerializer {
 
         // Inputs
         bytes += transaction.inputs.count.byte
-        transaction.inputs.enumerated().forEach { index, input in
+        try transaction.inputs.enumerated().forEach { index, input in
             let currentInputToBeSigned = inputIndex == index
-            bytes += encodeInput(input, script: currentInputToBeSigned ? .toBeSigned(lockingScript: input.script.data) : .blank)
+            bytes += try encodeInput(input, script: currentInputToBeSigned ? .toBeSigned(lockingScript: input.script.data) : .blank)
         }
 
         // Outputs
@@ -221,14 +220,14 @@ private extension CommonUTXOTransactionSerializer {
 
         let opReturnOutput = opReturnOutput(from: transaction.opReturn)
 
-        let prevouts = transaction.inputs.flatMap { encodeOutPoint($0) }
+        let prevouts = try transaction.inputs.flatMap { try encodeOutPoint($0) }
         bytes += prevouts.getDoubleSHA256()
 
         let sequences = transaction.inputs.flatMap { _ in sequence.value.data }
         bytes += sequences.getDoubleSHA256()
 
         let input = transaction.inputs[inputIndex]
-        bytes += encodeOutPoint(input)
+        bytes += try encodeOutPoint(input)
 
         switch (input.script.type, input.script.spendable) {
         case (.p2wsh, .redeemScript(let redeemScript)):
@@ -262,10 +261,15 @@ private extension CommonUTXOTransactionSerializer {
         return bytes.getDoubleSHA256()
     }
 
-    func encodeOutPoint(_ input: ScriptUnspentOutput) -> Data {
+    func encodeOutPoint(_ input: ScriptUnspentOutput) throws -> Data {
+        guard let index = UInt32(exactly: input.index) else {
+            throw UTXOTransactionSerializerError.invalidInput
+        }
+
         var bytes = Data()
         bytes += input.hash.reversed()
-        bytes += UInt32(input.index).data
+        bytes += index.data
+
         return bytes
     }
 }
