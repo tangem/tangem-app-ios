@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 
 @MainActor
@@ -14,6 +15,7 @@ final class YieldModePromoSheetViewModel: Identifiable {
 
     private let analyticsLogger: YieldModePromoAnalyticsLogger
     private weak var routable: YieldModePromoSheetRoutable?
+    private let appearanceSubject = PassthroughSubject<Void, Never>()
     private var isOutcomeHandled = false
 
     init(
@@ -41,6 +43,14 @@ final class YieldModePromoSheetViewModel: Identifiable {
 
     var actionTitle: String {
         "Try Yield Mode"
+    }
+
+    var appearancePublisher: AnyPublisher<Void, Never> {
+        appearanceSubject.eraseToAnyPublisher()
+    }
+
+    func onAppear() {
+        appearanceSubject.send()
     }
 
     func close() {

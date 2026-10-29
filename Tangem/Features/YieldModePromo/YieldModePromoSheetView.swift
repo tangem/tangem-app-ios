@@ -40,6 +40,7 @@ struct YieldModePromoSheetView: View {
             tokensRow
                 .padding(.horizontal, Constants.padding)
         }
+        .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .footer {
             Footer(.buttons(primary: tryYieldModeButton))
