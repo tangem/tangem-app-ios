@@ -70,17 +70,7 @@ final class CosmosNetworkService: MultiNetworkProvider {
                     if chain.allowCW20Tokens {
                         tokenAmounts = cw20TokenBalances
                     } else {
-                        tokenAmounts = Dictionary(try tokens.compactMap { token in
-                            guard let denomination = chain.tokenDenomination(contractAddress: token.contractAddress, tokenCurrencySymbol: token.symbol) else {
-                                return nil
-                            }
-
-                            let balance = try service.parseBalance(balanceInfo, denomination: denomination, decimalValue: token.decimalValue)
-                            return (token, balance)
-                        }, uniquingKeysWith: {
-                            pair1, _ in
-                            pair1
-                        })
+                        tokenAmounts = try service.parseTokenBalances(balanceInfo, tokens: tokens)
                     }
 
                     return CosmosAccountInfo(
@@ -120,7 +110,10 @@ final class CosmosNetworkService: MultiNetworkProvider {
             provider.simulate(data: transaction)
                 .map(\.gasInfo.gasUsed)
                 .tryMap { rawGasUsed in
-                    guard let gasUsed = UInt64(rawGasUsed) else {
+                    guard
+                        let gasUsed = UInt64(rawGasUsed),
+                        gasUsed <= Constants.maxGasUsed
+                    else {
                         throw BlockchainSdkError.failedToGetFee
                     }
 
@@ -154,7 +147,15 @@ final class CosmosNetworkService: MultiNetworkProvider {
                 return service.cw20TokenBalance(walletAddress: walletAddress, token: token)
             }
             .collect()
-            .map { Dictionary($0) { pair1, _ in pair1 } }
+            .map { balances in
+                balances.reduce(into: [:]) { tokenBalances, tokenBalance in
+                    let (token, balance) = tokenBalance
+
+                    if tokenBalances[token] == nil {
+                        tokenBalances[token] = balance
+                    }
+                }
+            }
             .eraseToAnyPublisher()
     }
 
@@ -212,6 +213,26 @@ final class CosmosNetworkService: MultiNetworkProvider {
             .eraseToAnyPublisher()
     }
 
+    private func parseTokenBalances(_ balanceInfo: CosmosBalanceResponse, tokens: [Token]) throws -> [Token: Decimal] {
+        try tokens.reduce(into: [:]) { tokenBalances, token in
+            guard
+                tokenBalances[token] == nil,
+                let denomination = cosmosChain.tokenDenomination(
+                    contractAddress: token.contractAddress,
+                    tokenCurrencySymbol: token.symbol
+                )
+            else {
+                return
+            }
+
+            tokenBalances[token] = try parseBalance(
+                balanceInfo,
+                denomination: denomination,
+                decimalValue: token.decimalValue
+            )
+        }
+    }
+
     private func parseBalance(_ balanceInfo: CosmosBalanceResponse, denomination: String, decimalValue: Decimal) throws -> Decimal {
         guard let balanceAmountString = balanceInfo.balances.first(where: { $0.denom == denomination })?.amount else {
             return .zero
@@ -222,5 +243,15 @@ final class CosmosNetworkService: MultiNetworkProvider {
         }
 
         return Decimal(balanceInSmallestDenomination) / decimalValue
+    }
+}
+
+// MARK: - Constants
+
+private extension CosmosNetworkService {
+    enum Constants {
+        /// 10× the largest finite block `max_gas` among supported chains, a tx can't exceed its block's limit:
+        /// https://github.com/cometbft/cometbft/blob/v0.38.x/spec/core/data_structures.md#blockparams
+        static let maxGasUsed: UInt64 = 1_000_000_000
     }
 }
