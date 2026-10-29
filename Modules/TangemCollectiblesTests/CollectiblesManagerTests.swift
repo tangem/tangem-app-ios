@@ -28,7 +28,7 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         let (sut, doubles) = await makeSUT(start: start, isMarkedLocally: true)
 
         #expect(sut.state == start.expectedState)
-        #expect(sut.hasAccount == start.hasVisibleVault)
+        #expect(sut.hasAccount == start.hasAccountWhenMarked)
         #expect(doubles.presenceStore.contains(Fixtures.userWalletId) == start.keepsPresenceMark)
     }
 
@@ -46,7 +46,7 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         } else {
             #expect(doubles.balanceUpdater.updates.map(\.testDescription) == ["unavailable"])
             #expect(doubles.usdcReader.requestedColdOwners.isEmpty)
-            #expect(usdcStates.recorded == [.missing])
+            #expect(usdcStates.recorded == [.unavailable])
         }
     }
 
@@ -90,6 +90,21 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         #expect(!doubles.presenceStore.contains(Fixtures.userWalletId))
     }
 
+    @Test("An account in the account list counts before its key is derived and asks for a sync and a relink")
+    func accountListRecordCountsBeforeDerivation() async {
+        let (sut, _) = await makeSUT(start: .coldOwnerNotDerived)
+        let accountAnswers = PublisherRecorder(sut.hasAccountPublisher)
+        let syncAnswers = PublisherRecorder(sut.isSyncRequiredPublisher)
+        let relinkAnswers = PublisherRecorder(sut.isRelinkRequiredPublisher)
+
+        sut.update(isInAccountList: true)
+
+        #expect(sut.hasAccount)
+        #expect(accountAnswers.recorded == [false, true])
+        #expect(syncAnswers.recorded == [false, true])
+        #expect(relinkAnswers.recorded == [false, true])
+    }
+
     @Test("While nothing has resolved, the account answer comes from the local mark", arguments: [true, false])
     func unresolvedAccountFallsBackToLocalMark(isMarkedLocally: Bool) async {
         let (sut, _) = await makeSUT(vaultReadError: TestError.chain, isMarkedLocally: isMarkedLocally)
@@ -108,6 +123,19 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
 
         #expect(usdcStates.recorded == [.failed, .loading, .ready(Fixtures.usdcAccount)])
         #expect(sut.state == .ready(Fixtures.vault()))
+    }
+
+    @Test("A failed first read once the key is derived marks the USDC state failed")
+    func usdcStateFailsOnFirstReadAfterDerivation() async {
+        let (sut, doubles) = await makeSUT(start: .coldOwnerNotDerived)
+        let usdcStates = PublisherRecorder(sut.vaultUsdcStatePublisher)
+        doubles.coldOwnerProvider.set(Fixtures.coldOwner)
+        doubles.vaultReader.vault = Fixtures.vault()
+        doubles.usdcReader.enqueue([.failure(TestError.chain)])
+
+        await sut.refreshState()
+
+        #expect(usdcStates.recorded == [.unavailable, .loading, .failed])
     }
 
     // MARK: - Onboarding
@@ -495,6 +523,13 @@ extension CollectiblesManagerTests {
 
         var keepsPresenceMark: Bool {
             self != .notOnboarded
+        }
+
+        var hasAccountWhenMarked: Bool {
+            switch self {
+            case .ready, .rekeyMismatch, .rekeyUnreadable, .coldOwnerNotDerived: true
+            case .notOnboarded: false
+            }
         }
 
         var hasVisibleVault: Bool {

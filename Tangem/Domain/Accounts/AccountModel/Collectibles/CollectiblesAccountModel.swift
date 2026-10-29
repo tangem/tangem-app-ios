@@ -76,6 +76,7 @@ protocol CollectiblesAccountModel: BaseAccountModel,
 
     var hasAccount: Bool { get }
     var hasAccountPublisher: AnyPublisher<Bool, Never> { get }
+    var isSyncRequiredPublisher: AnyPublisher<Bool, Never> { get }
 
     func update(name: String)
 }
