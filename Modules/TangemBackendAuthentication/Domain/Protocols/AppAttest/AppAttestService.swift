@@ -9,5 +9,6 @@
 import struct Foundation.Data
 
 protocol AppAttestService: Sendable {
-    func generateAttestationToken(for requestData: Data) async throws(AppAttestServiceError) -> Data
+    func attest(decryptedNonceBytes: Data) async throws(AppAttestServiceError) -> AppAttestation
+    func assert(decryptedNonceBytes: Data) async throws(AppAttestServiceError) -> AppAssertion
 }

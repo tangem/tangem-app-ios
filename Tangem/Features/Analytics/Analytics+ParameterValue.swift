@@ -409,6 +409,9 @@ extension Analytics {
         case backendAuthNonceTypeMobileWallet = "Mobile Wallet"
         case backendAuthNonceTypeColdWallet = "Cold Wallet"
 
+        case backendAuthAttestationStageAttestation = "Attestation"
+        case backendAuthAttestationStageAssertion = "Assertion"
+
         // MARK: - Common
 
         static func toggleState(for boolean: Bool) -> ParameterValue {

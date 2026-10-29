@@ -46,7 +46,7 @@ public struct AttestUserWalletUseCase: Sendable {
             id: id,
             walletAttestation: walletAttestation,
             decryptedNonce: nonce.value,
-            appAttestationToken: nonce.appAttestationToken,
+            appAssertion: nonce.appAssertion,
             metadata: deviceMetadataProvider(),
             recoveryEnrollment: recoveryEnrollment
         )

@@ -13,6 +13,8 @@ typealias RegisterDevice = @Sendable () async throws(RegisterDeviceError) -> Ses
 
 public actor RegisterDeviceUseCase {
     private let appAttestService: any AppAttestService
+    private let appAttestationStatusRepository: any AppAttestationStatusRepository
+
     private let registrationClient: any DeviceRegistrationClient
     private let registrationStatusRepository: any DeviceRegistrationStatusRepository
     private let sessionTokensRepository: any SessionTokensRepository
@@ -21,23 +23,26 @@ public actor RegisterDeviceUseCase {
     private let nonceDecryptor: any NonceDecryptor
 
     private let deviceMetadataProvider: @Sendable () -> DeviceMetadata
-    private let analyticsReporter: any BackendAuthenticationAnalyticsReporter
+    private let analyticsReporter: any BackendAuthenticationNonceAnalyticsReporter
     private let logger: Logger
 
     private var inFlightRegistrationTask: Task<Result<SessionTokens?, RegisterDeviceError>, Never>?
 
     init(
         appAttestService: some AppAttestService,
+        appAttestationStatusRepository: some AppAttestationStatusRepository,
         registrationClient: some DeviceRegistrationClient,
         registrationStatusRepository: some DeviceRegistrationStatusRepository,
         sessionTokensRepository: some SessionTokensRepository,
         deviceKeyManager: DeviceKeyManager,
         nonceDecryptor: some NonceDecryptor,
         deviceMetadataProvider: @escaping @Sendable @autoclosure () -> DeviceMetadata,
-        analyticsReporter: some BackendAuthenticationAnalyticsReporter,
+        analyticsReporter: some BackendAuthenticationNonceAnalyticsReporter,
         logger: Logger
     ) {
         self.appAttestService = appAttestService
+        self.appAttestationStatusRepository = appAttestationStatusRepository
+
         self.registrationClient = registrationClient
         self.registrationStatusRepository = registrationStatusRepository
         self.sessionTokensRepository = sessionTokensRepository
@@ -86,7 +91,7 @@ public actor RegisterDeviceUseCase {
         let decryptedNonceBytes = try decrypt(cipheredNonce: cipheredNonce)
         let decryptedNonce = String(decoding: decryptedNonceBytes, as: UTF8.self)
 
-        let attestationToken = await generateAttestationToken(for: decryptedNonceBytes)
+        let appAttestation = await attest(decryptedNonceBytes: decryptedNonceBytes)
         let deviceMetadata = deviceMetadataProvider()
 
         let signature: DeviceSignature
@@ -95,7 +100,7 @@ public actor RegisterDeviceUseCase {
             let signaturePayload = DeviceSignaturePayloadFactory.make(
                 devicePublicKey: devicePublicKey,
                 decryptedNonce: decryptedNonce,
-                attestationToken: attestationToken,
+                attestationToken: appAttestation?.object,
                 metadata: deviceMetadata
             )
 
@@ -109,23 +114,29 @@ public actor RegisterDeviceUseCase {
             decryptedNonce: decryptedNonce,
             metadata: deviceMetadata,
             signature: signature,
-            appAttestationToken: attestationToken
+            appAttestation: appAttestation
         )
         let sessionTokens = try await registerDevice(request: request)
 
         if let sessionTokens {
             try await persist(sessionTokens: sessionTokens)
         }
+
+        let isAppAttested = appAttestation != nil && sessionTokens?.refreshToken != nil
+        appAttestationStatusRepository.persist(isAppAttested: isAppAttested)
         registrationStatusRepository.persist(isRegistered: true)
 
         return sessionTokens
     }
 
-    private func generateAttestationToken(for decryptedNonceBytes: Data) async -> Data? {
+    private func attest(decryptedNonceBytes: Data) async -> AppAttestation? {
         do {
-            return try await appAttestService.generateAttestationToken(for: decryptedNonceBytes)
+            return try await appAttestService.attest(decryptedNonceBytes: decryptedNonceBytes)
+        } catch AppAttestServiceError.deviceCheckUnsupported {
+            logger.debug("App attestation is not supported, proceeding without it")
+            return nil
         } catch {
-            logger.error("Failed to generate app attestation token", error: error)
+            logger.error("Failed to generate app attestation", error: error)
             return nil
         }
     }
@@ -171,11 +182,7 @@ public actor RegisterDeviceUseCase {
             throw RegisterDeviceError.clientFailure(error)
         }
     }
-}
 
-// MARK: - Persistence
-
-extension RegisterDeviceUseCase {
     private func persist(sessionTokens: SessionTokens) async throws(RegisterDeviceError) {
         do {
             try await sessionTokensRepository.persist(tokens: sessionTokens)

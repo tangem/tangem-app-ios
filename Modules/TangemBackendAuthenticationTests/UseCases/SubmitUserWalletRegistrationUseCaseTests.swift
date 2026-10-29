@@ -85,6 +85,35 @@ struct SubmitUserWalletRegistrationUseCaseTests {
     }
 
     @Test
+    func submitRegistrationClearsAppAttestationStatusWhenBackendRejectsAppAttest() async throws {
+        let request = UserWalletRegistrationRequest.fake
+
+        let registrationClient = SpyUserWalletRegistrationClient()
+        registrationClient.registerResult = Result.failure(.appAttestRejected)
+
+        let registrationStatusRepository = SpyUserWalletRegistrationStatusRepository()
+        let appAttestationStatusRepository = SpyAppAttestationStatusRepository()
+
+        let sut = makeSUT(
+            registrationClient: registrationClient,
+            registrationStatusRepository: registrationStatusRepository,
+            appAttestationStatusRepository: appAttestationStatusRepository
+        )
+
+        let error = try await #require(throws: SubmitUserWalletRegistrationError.self) {
+            try await sut(request: request)
+        }
+
+        guard case .clientFailure(.appAttestRejected) = error else {
+            Issue.record("Expected .clientFailure(.appAttestRejected), got \(error)")
+            return
+        }
+
+        #expect(appAttestationStatusRepository.receivedMessages == [.persist(false)])
+        #expect(registrationStatusRepository.receivedMessages.isEmpty)
+    }
+
+    @Test
     func submitRegistrationThrowsRepositoryFailureWhenPersistFails() async throws {
         let request = UserWalletRegistrationRequest.fake
 
@@ -124,12 +153,14 @@ extension SubmitUserWalletRegistrationUseCaseTests {
     private func makeSUT(
         registrationClient: some UserWalletRegistrationClient = SpyUserWalletRegistrationClient(),
         registrationStatusRepository: some UserWalletRegistrationStatusRepository = SpyUserWalletRegistrationStatusRepository(),
-        sessionTokensRepository: some SessionTokensRepository = SpySessionTokensRepository()
+        sessionTokensRepository: some SessionTokensRepository = SpySessionTokensRepository(),
+        appAttestationStatusRepository: some AppAttestationStatusRepository = SpyAppAttestationStatusRepository()
     ) -> SubmitUserWalletRegistrationUseCase {
         SubmitUserWalletRegistrationUseCase(
             registrationClient: registrationClient,
             registrationStatusRepository: registrationStatusRepository,
-            sessionTokensRepository: sessionTokensRepository
+            sessionTokensRepository: sessionTokensRepository,
+            appAttestationStatusRepository: appAttestationStatusRepository
         )
     }
 }

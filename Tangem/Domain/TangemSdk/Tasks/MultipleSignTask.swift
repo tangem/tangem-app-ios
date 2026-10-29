@@ -14,7 +14,7 @@ final class MultipleSignTask: CardSessionRunnable {
     private let dataToSign: [SignData]
     private let seedKey: Data
     private let pairKey: Data?
-    private let userWalletRegistrar = CardUserWalletRegistrar(analyticsReporter: CommonBackendAuthenticationAnalyticsReporter())
+    private let userWalletRegistrar = CardUserWalletRegistrar(analyticsReporter: CommonBackendAuthenticationNonceAnalyticsReporter())
 
     public init(dataToSign: [SignData], seedKey: Data, pairKey: Data?) {
         self.dataToSign = dataToSign

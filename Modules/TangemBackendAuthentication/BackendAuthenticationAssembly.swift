@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+private import class DeviceCheck.DCAppAttestService
 public import Foundation
 private import os.lock
 public import protocol Alamofire.RequestAdapter
@@ -55,7 +56,8 @@ public extension BackendAuthenticationAssembly {
         let appPrivateKey: String
         let provider: MoyaProvider<BackendAuthenticationTarget>
         let userWalletProvider: @Sendable () -> MoyaProvider<UserWalletTarget>
-        let analyticsReporter: any BackendAuthenticationAnalyticsReporter
+        let nonceAnalyticsReporter: any BackendAuthenticationNonceAnalyticsReporter
+        let appAttestAnalyticsReporter: any BackendAuthenticationAppAttestAnalyticsReporter
         let logger: Logger
 
         public init(
@@ -63,14 +65,16 @@ public extension BackendAuthenticationAssembly {
             appPrivateKey: String,
             provider: MoyaProvider<BackendAuthenticationTarget>,
             userWalletProvider: @escaping @Sendable @autoclosure () -> MoyaProvider<UserWalletTarget>,
-            analyticsReporter: some BackendAuthenticationAnalyticsReporter,
+            nonceAnalyticsReporter: some BackendAuthenticationNonceAnalyticsReporter,
+            appAttestAnalyticsReporter: some BackendAuthenticationAppAttestAnalyticsReporter,
             logger: Logger
         ) {
             self.baseURL = baseURL
             self.appPrivateKey = appPrivateKey
             self.provider = provider
             self.userWalletProvider = userWalletProvider
-            self.analyticsReporter = analyticsReporter
+            self.nonceAnalyticsReporter = nonceAnalyticsReporter
+            self.appAttestAnalyticsReporter = appAttestAnalyticsReporter
             self.logger = logger
         }
     }
@@ -110,6 +114,14 @@ extension BackendAuthenticationAssembly {
     )
 
     private static let userWalletRegistrationStatusRepository = UserDefaultsUserWalletRegistrationStatusRepository()
+
+    private static let appAttestationStatusRepository = UserDefaultsAppAttestationStatusRepository()
+
+    private static let appAttestKeyIDRepository = SecurityKeychainRepository(
+        keychainService: Keychain.service,
+        keychainAccount: "appAttestKeyID"
+    )
+
     private static let deviceRegistrationStatusRepository = UserDefaultsDeviceRegistrationStatusRepository()
 
     private static let jsonDecoder: JSONDecoder = {
@@ -127,7 +139,19 @@ extension BackendAuthenticationAssembly {
 
     private static let dPoPProofGenerator = DPoPProofGenerator(deviceKeyManager: Self.deviceKeyManager)
     private static let nonceDecryptor = SecurityNonceDecryptor(appPrivateKey: Self.configuration.appPrivateKey)
-    private static let appAttestService = FakeAppAttestService()
+
+    private static let appAttestService: some AppAttestService = {
+        #if targetEnvironment(simulator)
+        return SimulatorAppAttestService()
+        #else
+        return DeviceCheckAppAttestService(
+            appAttestService: DCAppAttestService.shared,
+            keyIDRepository: Self.appAttestKeyIDRepository,
+            analyticsReporter: Self.configuration.appAttestAnalyticsReporter,
+            logger: Self.configuration.logger
+        )
+        #endif
+    }()
 
     private static let renewSessionTokensUseCase: RenewSessionTokensUseCase = {
         let sessionAuthenticationClient = MoyaSessionAuthenticationClient(
@@ -142,12 +166,13 @@ extension BackendAuthenticationAssembly {
             appAttestService: Self.appAttestService,
             sessionAuthenticationClient: sessionAuthenticationClient,
             sessionTokensRepository: Self.sessionTokensRepository,
+            appAttestationStatusRepository: Self.appAttestationStatusRepository,
             deviceRegistrationStatusRepository: Self.deviceRegistrationStatusRepository,
             userWalletRegistrationStatusRepository: Self.userWalletRegistrationStatusRepository,
             deviceKeyManager: Self.deviceKeyManager,
             nonceDecryptor: Self.nonceDecryptor,
             deviceMetadataProvider: DeviceMetadata.default,
-            analyticsReporter: Self.configuration.analyticsReporter,
+            analyticsReporter: Self.configuration.nonceAnalyticsReporter,
             logger: Self.configuration.logger
         )
     }()
@@ -173,13 +198,14 @@ extension BackendAuthenticationAssembly {
 
         return RegisterDeviceUseCase(
             appAttestService: Self.appAttestService,
+            appAttestationStatusRepository: Self.appAttestationStatusRepository,
             registrationClient: deviceRegistrationClient,
             registrationStatusRepository: Self.deviceRegistrationStatusRepository,
             sessionTokensRepository: Self.sessionTokensRepository,
             deviceKeyManager: Self.deviceKeyManager,
             nonceDecryptor: Self.nonceDecryptor,
             deviceMetadataProvider: DeviceMetadata.default,
-            analyticsReporter: Self.configuration.analyticsReporter,
+            analyticsReporter: Self.configuration.nonceAnalyticsReporter,
             logger: Self.configuration.logger
         )
     }
@@ -189,6 +215,7 @@ extension BackendAuthenticationAssembly {
             registerDevice: registerDevice.callAsFunction,
             appAttestService: appAttestService,
             registrationClient: userWalletRegistrationClient,
+            appAttestationStatusRepository: appAttestationStatusRepository,
             registrationStatusRepository: userWalletRegistrationStatusRepository,
             deviceKeyManager: deviceKeyManager,
             nonceDecryptor: nonceDecryptor,
@@ -207,7 +234,8 @@ extension BackendAuthenticationAssembly {
         SubmitUserWalletRegistrationUseCase(
             registrationClient: userWalletRegistrationClient,
             registrationStatusRepository: userWalletRegistrationStatusRepository,
-            sessionTokensRepository: sessionTokensRepository
+            sessionTokensRepository: sessionTokensRepository,
+            appAttestationStatusRepository: appAttestationStatusRepository
         )
     }
 
@@ -218,7 +246,7 @@ extension BackendAuthenticationAssembly {
                 try await Self.attestUserWallet(id: id, nonce: nonce, recoveryEnrollment: recoveryEnrollment, signer: signer)
             },
             submitRegistration: submitUserWalletRegistration.callAsFunction,
-            analyticsReporter: configuration.analyticsReporter,
+            analyticsReporter: configuration.nonceAnalyticsReporter,
             logger: configuration.logger
         )
     }
@@ -248,8 +276,9 @@ extension BackendAuthenticationAssembly {
 
     private static func makeStorageCleaner() -> BackendAuthenticationStorageCleaner {
         BackendAuthenticationStorageCleaner(
-            devicePrivateKeyRepository: devicePrivateKeyRepository,
+            deviceKeyManager: deviceKeyManager,
             sessionTokensRepository: sessionTokensRepository,
+            appAttestKeyIDRepository: appAttestKeyIDRepository,
             logger: configuration.logger
         )
     }
@@ -258,14 +287,6 @@ extension BackendAuthenticationAssembly {
 extension BackendAuthenticationAssembly {
     private enum Keychain {
         static let service = "com.tangem.backendAuthentication"
-    }
-}
-
-// [REDACTED_TODO_COMMENT]
-
-private struct FakeAppAttestService: AppAttestService {
-    func generateAttestationToken(for requestData: Data) async throws(AppAttestServiceError) -> Data {
-        throw AppAttestServiceError()
     }
 }
 
