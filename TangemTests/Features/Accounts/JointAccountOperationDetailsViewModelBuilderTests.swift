@@ -75,6 +75,47 @@ struct JointAccountOperationDetailsViewModelBuilderTests {
 
         #expect(statuses.received == [.awaitingSignatures])
     }
+
+    @Test("The recipient is offered for contacts only once the address book is synced", .timeLimit(.minutes(1)))
+    func recipientIsOfferedOnceTheBookIsSynced() async throws {
+        let operation = try makePendingOperation(operationSubject: Self.makeOperationSubject(status: .awaitingSignatures))
+        let syncState = CurrentValueSubject<AddressBookSyncState, Never>(.syncing)
+        let collector = RecipientStatesCollector(following: operation, contacts: Just([]), syncState: syncState)
+        var states = collector.states.makeAsyncIterator()
+
+        #expect(await states.next()?.canAddToContacts == false)
+
+        syncState.send(.synced)
+
+        #expect(await states.next()?.canAddToContacts == true)
+    }
+
+    @Test("A recipient saved in this wallet's book on the operation's network is no longer offered", .timeLimit(.minutes(1)))
+    func savedRecipientIsNotOffered() async throws {
+        let operation = try makePendingOperation(operationSubject: Self.makeOperationSubject(status: .awaitingSignatures))
+        let contacts = CurrentValueSubject<[AddressBookContact], Never>([])
+        let collector = RecipientStatesCollector(following: operation, contacts: contacts, syncState: Just(.synced))
+        var states = collector.states.makeAsyncIterator()
+
+        #expect(await states.next()?.canAddToContacts == true)
+
+        try contacts.send([makeContact(walletId: Constants.userWalletId, address: Constants.recipient)])
+
+        #expect(await states.next()?.canAddToContacts == false)
+    }
+
+    @Test("A recipient saved only in another wallet's book is named after it and still offered", .timeLimit(.minutes(1)))
+    func recipientSavedInAnotherWalletIsOffered() async throws {
+        let operation = try makePendingOperation(operationSubject: Self.makeOperationSubject(status: .awaitingSignatures))
+        let otherWalletId = UserWalletId(value: Data(repeating: 0xCD, count: 32))
+        let contacts = try [makeContact(walletId: otherWalletId, address: Constants.recipient)]
+        let collector = RecipientStatesCollector(following: operation, contacts: Just(contacts), syncState: Just(.synced))
+        var states = collector.states.makeAsyncIterator()
+
+        let state = try #require(await states.next())
+        #expect(state.canAddToContacts)
+        #expect(state.owner.contactName == "Alice")
+    }
 }
 
 // MARK: - Fixtures
@@ -114,11 +155,56 @@ private extension JointAccountOperationDetailsViewModelBuilderTests {
         )
     }
 
+    func makeContact(walletId: UserWalletId, address: String) throws -> AddressBookContact {
+        let blockchain = Constants.coin.blockchain
+        let contactId = AddressBookContactID()
+        let contactName = try AddressBookContactNameValidator().validate("Alice")
+
+        let decoded = AddressBookDecodedAddressEntry(
+            id: AddressBookAddressEntryID(),
+            address: address,
+            networkId: AddressBookNetworkID(blockchain.networkId),
+            memo: nil,
+            signature: Data([0x01])
+        )
+
+        let built = AddressBookVerifiedAddressEntryBuilder(supportedBlockchains: [blockchain]).make(
+            verifying: decoded,
+            contactId: contactId,
+            contactName: contactName,
+            walletPublicKey: Data(repeating: 0xB2, count: 33),
+            verifier: AddressBookSignatureVerifyingStub()
+        )
+
+        let verified = try #require(built)
+        let entries = try #require(AddressBookContactVerifiedEntries([verified]))
+
+        return AddressBookContact(
+            id: contactId,
+            walletId: walletId,
+            name: contactName,
+            appearance: AddressBookContactAppearance(rawColor: "MexicanPink"),
+            createdAt: Date(),
+            entries: entries
+        )
+    }
+
     enum Constants {
+        static let userWalletId = UserWalletId(value: Data(repeating: 0xAB, count: 32))
         static let coin: TokenItem = .blockchain(BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil))
         static let recipient = "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c"
         static let safeAddress = "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"
         static let finishedAt = Date(timeIntervalSince1970: 1_791_379_800)
+    }
+}
+
+private extension TransactionViewModel.SubtitleOwner {
+    var contactName: String? {
+        if case .contact(let name, _, _) = self {
+            return name
+        }
+
+        return nil
     }
 }
 
@@ -138,6 +224,38 @@ private final class StatusesCollector {
 
     var received: [JointAccountOperationDetailsViewModel.Status] {
         statuses.withLock { $0 }
+    }
+}
+
+private final class RecipientStatesCollector {
+    let states: AsyncStream<JointAccountOperationDetailsViewModel.RecipientState>
+    private var subscription: AnyCancellable?
+
+    init(
+        following operation: JointAccountPendingOperation,
+        contacts: some Publisher<[AddressBookContact], Never>,
+        syncState: some Publisher<AddressBookSyncState, Never>
+    ) {
+        let (states, continuation) = AsyncStream<JointAccountOperationDetailsViewModel.RecipientState>.makeStream()
+        self.states = states
+
+        subscription = JointAccountOperationDetailsViewModelBuilder()
+            .recipientStatePublisher(
+                of: operation,
+                userWalletId: JointAccountOperationDetailsViewModelBuilderTests.Constants.userWalletId,
+                contactsPublisher: contacts,
+                syncStatePublisher: syncState,
+                tangemPayDepositOwnersPublisher: Just([])
+            )
+            .sink { state in
+                continuation.yield(state)
+            }
+    }
+}
+
+private struct AddressBookSignatureVerifyingStub: AddressBookSignatureVerifying {
+    func isSignatureValid(_ signature: Data, of digest: Data, walletPublicKey: Data) -> Bool {
+        true
     }
 }
 

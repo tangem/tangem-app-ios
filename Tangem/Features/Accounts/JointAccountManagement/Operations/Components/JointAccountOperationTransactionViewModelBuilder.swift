@@ -17,14 +17,6 @@ struct JointAccountOperationTransactionViewModelBuilder {
         return formatter
     }()
 
-    private static let answerDateFormatter: ISO8601DateFormatter = {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        return formatter
-    }()
-
-    private static let answerDateFallbackFormatter = ISO8601DateFormatter()
-
     private let balanceFormatter = BalanceFormatter()
 
     func build(
@@ -37,15 +29,13 @@ struct JointAccountOperationTransactionViewModelBuilder {
         let interactionAddress: TransactionViewModel.InteractionAddressType = .user(destination)
         let amount = pendingOperation.amount?.value
 
-        let sign = amount == nil ? "" : AppConstants.minusSign
-
         return TransactionViewModel(
             hash: operation.id,
             index: 0,
             interactionAddress: interactionAddress,
             timeFormatted: startedAt(of: operation).map(Self.timeFormatter.string(from:)),
-            amount: sign + balanceFormatter.formatCryptoBalance(amount, tokenItem: tokenItem),
-            value: sign + balanceFormatter.formatDecimal(amount),
+            amount: cryptoAmount(of: pendingOperation),
+            value: sign(of: amount) + balanceFormatter.formatDecimal(amount),
             currencyCode: tokenItem.currencySymbol,
             isOutgoing: true,
             transactionType: .transfer,
@@ -57,11 +47,22 @@ struct JointAccountOperationTransactionViewModelBuilder {
         )
     }
 
+    /// - Note: Signed as an outgoing transfer, so it is stated as one — an amount this version cannot read is shown
+    ///   the way an unknown balance is rather than as a number that understates what the member is signing.
+    func cryptoAmount(of pendingOperation: JointAccountPendingOperation) -> String {
+        let amount = pendingOperation.amount?.value
+        return sign(of: amount) + balanceFormatter.formatCryptoBalance(amount, tokenItem: pendingOperation.tokenItem)
+    }
+
+    private func sign(of amount: Decimal?) -> String {
+        amount == nil ? "" : AppConstants.minusSign
+    }
+
     private func startedAt(of operation: JointAccountOperation) -> Date? {
         guard let answer = operation.signatures.first(where: { $0.address.caseInsensitiveEquals(to: operation.initiator) }) else {
             return nil
         }
 
-        return Self.answerDateFormatter.date(from: answer.at) ?? Self.answerDateFallbackFormatter.date(from: answer.at)
+        return RelativeDateFormatter.shared.parseDate(from: answer.at)
     }
 }

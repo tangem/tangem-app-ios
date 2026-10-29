@@ -24,20 +24,38 @@ struct JointAccountOperationDetailsView: View {
             .onDisappear(perform: viewModel.onDisappear)
     }
 
-    @ViewBuilder
     private var content: some View {
-        switch viewModel.viewState {
-        case .details:
-            TransactionDetailsContentView(
-                header: viewModel.header,
-                blocks: viewModel.blocks,
-                animatesBlockChanges: true,
-                onAction: viewModel.handleViewAction
-            )
-        case .signers(let signersViewModel):
-            JointAccountSignersView(viewModel: signersViewModel)
+        ZStack(alignment: .top) {
+            switch viewModel.viewState {
+            case .details:
+                TransactionDetailsContentView(
+                    header: viewModel.header,
+                    blocks: viewModel.blocks,
+                    animatesBlockChanges: true,
+                    onAction: viewModel.handleViewAction
+                )
+                .transition(.transactionDetailsContent)
+            case .signers(let signersViewModel):
+                JointAccountSignersView(viewModel: signersViewModel)
+                    .transition(.transactionDetailsOverlay)
+            }
         }
+        .animation(.contentFrameUpdate, value: isShowingSigners)
     }
+
+    private var isShowingSigners: Bool {
+        if case .signers = viewModel.viewState {
+            return true
+        }
+
+        return false
+    }
+}
+
+// MARK: - Content transition
+
+private extension Animation {
+    static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
 }
 
 // MARK: - Previews
@@ -91,7 +109,15 @@ private extension JointAccountOperationDetailsViewModel {
             cryptoAmount: "–0.3212 ETH",
             fiatAmount: "$591.08",
             recipient: "33Bd321fS2p2o8Bk7mQwXeATkLQ3B36Yv2p210xxdSga21412B",
-            recipientBlockiesImage: nil,
+            recipientState: .init(
+                owner: .unresolved(
+                    short: "33Bd321fS2…dSga21412B",
+                    fullAddress: "33Bd321fS2p2o8Bk7mQwXeATkLQ3B36Yv2p210xxdSga21412B",
+                    blockiesImage: nil
+                ),
+                canAddToContacts: true
+            ),
+            blockchain: .ethereum(testnet: false),
             networkFee: "~0.00056 ETH",
             signingActionButtonType: .requiredNFCInteraction,
             content: .init(
@@ -119,6 +145,12 @@ private extension JointAccountOperationDetailsViewModel {
                 status: status
             ),
             contentPublisher: .empty,
+            addressBookWallet: AddressBookWallet(
+                wallet: UserWalletModelMock().userWalletInfo,
+                addressBookManager: NoopAddressBookManager()
+            ),
+            addressBookAnalyticsLogger: CommonAddressBookAnalyticsLogger(),
+            recipientStatePublisher: .empty,
             poller: JointAccountPendingOperationPollerMock(),
             coordinator: nil,
             sign: {},

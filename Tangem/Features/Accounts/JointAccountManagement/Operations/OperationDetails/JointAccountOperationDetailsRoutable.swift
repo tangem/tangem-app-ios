@@ -10,4 +10,5 @@
 ///   within the sheet, which swaps its own content the way the fee selector does.
 protocol JointAccountOperationDetailsRoutable: AnyObject {
     func closeOperationDetails()
+    func openAddContactFromOperationDetails(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft])
 }

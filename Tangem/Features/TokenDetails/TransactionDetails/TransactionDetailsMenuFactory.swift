@@ -31,12 +31,7 @@ enum TransactionDetailsMenuFactory {
         }
 
         if let addressToSave = addContactHelper.addressToSave(for: record) {
-            addressActions.append(.init(
-                id: "addContact",
-                title: Localization.addressBookAddContact,
-                icon: DesignSystem.Icons.UserPlus.regular24,
-                action: .addContact(address: addressToSave)
-            ))
+            addressActions.append(addContactAction(for: addressToSave))
         }
 
         var transactionActions: [TransactionDetailsHeaderViewData.MenuAction] = []
@@ -101,6 +96,15 @@ enum TransactionDetailsMenuFactory {
                 toast: Localization.walletNotificationAddressCopied,
                 kind: .address
             )
+        )
+    }
+
+    static func addContactAction(for address: String) -> TransactionDetailsHeaderViewData.MenuAction {
+        .init(
+            id: "addContact",
+            title: Localization.addressBookAddContact,
+            icon: DesignSystem.Icons.UserPlus.regular24,
+            action: .addContact(address: address)
         )
     }
 

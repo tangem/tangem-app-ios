@@ -35,6 +35,7 @@ struct JointAccountSignersView: View {
         .floatingSheetConfiguration {
             $0.sheetBackground = .color(DesignSystem.Color.bgSecondary)
             $0.backgroundInteractionBehavior = .tapToDismiss
+            $0.sheetFrameUpdateAnimation = .contentFrameUpdate
         }
     }
 
@@ -56,6 +57,12 @@ private extension JointAccountSignersView {
     enum Constants {
         static let contentBottomPadding: CGFloat = 8
     }
+}
+
+// MARK: - Content transition
+
+private extension Animation {
+    static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
 }
 
 // MARK: - Previews
