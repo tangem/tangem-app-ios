@@ -119,6 +119,7 @@ extension P2PStakingError: BindableError {
 
 enum UserWalletRepositoryError: String, Error, LocalizedError, BindableError {
     case duplicateWalletAdded
+    case mobileWalletLimitReached
     case biometricsChanged
     case cardWithWrongUserWalletIdScanned
     case notFound
@@ -133,6 +134,8 @@ enum UserWalletRepositoryError: String, Error, LocalizedError, BindableError {
         switch self {
         case .duplicateWalletAdded:
             return .init(title: "", message: Localization.userWalletListErrorWalletAlreadySaved)
+        case .mobileWalletLimitReached:
+            return MobileWalletLimitUtil.Restriction.makeMobileWalletsLimitAlert()
         case .biometricsChanged:
             return .init(title: Localization.commonAttention, message: Localization.keyInvalidatedWarningDescription)
         case .cardWithWrongUserWalletIdScanned:
