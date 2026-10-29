@@ -78,6 +78,21 @@ struct PolymarketCLOBTarget: Moya.TargetType {
         }
     }
 
+    var usesL2Credentials: Bool {
+        switch target {
+        case .updateBalanceAllowance,
+             .balanceAllowance,
+             .placeOrder,
+             .order:
+            true
+        case .createCredentials,
+             .deriveCredentials,
+             .price,
+             .priceHistory:
+            false
+        }
+    }
+
     var headers: [String: String]? {
         switch target {
         case .placeOrder:

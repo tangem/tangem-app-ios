@@ -14,6 +14,8 @@ struct PolymarketUnauthorizedPlugin: PluginType {
     weak var observer: PolymarketUnauthorizedObserving?
 
     func didReceive(_ result: Result<Response, MoyaError>, target: any TargetType) {
+        guard (target as? PolymarketCLOBTarget)?.usesL2Credentials == true else { return }
+
         let statusCode: Int? = switch result {
         case .success(let response): response.statusCode
         case .failure(let error): error.response?.statusCode
@@ -21,8 +23,8 @@ struct PolymarketUnauthorizedPlugin: PluginType {
 
         guard statusCode == Constants.unauthorizedStatusCode else { return }
 
-        PolymarketLogger.warning("The backend rejected the wallet's authorization")
-        observer?.backendRejectedAuthorization(walletId: walletId)
+        PolymarketLogger.warning("The exchange rejected the wallet's API credentials")
+        observer?.exchangeRejectedCredentials(walletId: walletId)
     }
 }
 
