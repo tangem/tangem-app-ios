@@ -30,10 +30,6 @@ extension PolymarketPosition {
         size <= 0
     }
 
-    var isWorthShowing: Bool {
-        !isEmptied && (settlement == nil || isRedeemable)
-    }
-
     var opensClaim: Bool {
         (isRedeemable || settlement?.isResolved == true) && version?.isSupported == true
     }
@@ -64,7 +60,7 @@ extension CommonPolymarketPositionsService: PolymarketPositionsService {
         for _ in 0 ..< Constants.activePageScans {
             let page = try await openPositions(limit: limit, cursor: cursor)
 
-            for position in page.positions where position.isWorthShowing && !seenIDs.contains(position.id) {
+            for position in page.positions where !position.isEmptied && !seenIDs.contains(position.id) {
                 seenIDs.insert(position.id)
                 collected.append(position)
             }

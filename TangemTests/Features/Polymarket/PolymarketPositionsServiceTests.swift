@@ -37,6 +37,38 @@ struct PolymarketPositionsServiceTests {
 
         #expect(page.positions.map(\.conditionId) == ["later", "noEnd"])
     }
+
+    @Test("A resolved position stays among the active ones before its payout lands on-chain", arguments: [
+        PolymarketPositionSettlement.won,
+        .lost,
+        .split,
+    ])
+    func resolvedPositionWaitingForPayoutStays(settlement: PolymarketPositionSettlement) async throws {
+        let sut = Self.makeSUT(positions: [
+            .stub(conditionId: "open"),
+            .stub(conditionId: "waiting", isRedeemable: false, settlement: settlement),
+            .stub(conditionId: "claimable", isRedeemable: true, settlement: settlement),
+        ])
+
+        let page = try await sut.activePositions(limit: 10)
+
+        #expect(Set(page.positions.map(\.conditionId)) == ["open", "waiting", "claimable"])
+    }
+
+    @Test("A position the user has sold out of stays hidden, resolved or not", arguments: [
+        PolymarketPositionSettlement?.none,
+        .won,
+    ])
+    func emptiedPositionIsHidden(settlement: PolymarketPositionSettlement?) async throws {
+        let sut = Self.makeSUT(positions: [
+            .stub(conditionId: "held"),
+            .stub(conditionId: "sold", size: 0, isRedeemable: settlement != nil, settlement: settlement),
+        ])
+
+        let page = try await sut.activePositions(limit: 10)
+
+        #expect(page.positions.map(\.conditionId) == ["held"])
+    }
 }
 
 // MARK: - Helpers
@@ -50,6 +82,13 @@ private extension PolymarketPositionsServiceTests {
 
     static func page(_ positions: [PolymarketPosition], nextCursor: String?) -> PolymarketPositionsPage {
         PolymarketPositionsPage(positions: positions, receivedCount: positions.count, nextCursor: nextCursor)
+    }
+
+    static func makeSUT(positions: [PolymarketPosition]) -> CommonPolymarketPositionsService {
+        let api = PolymarketAPIProviderStub()
+        api.positionPages = [nil: page(positions, nextCursor: nil)]
+
+        return makeSUT(api: api)
     }
 
     static func makeSUT(api: PolymarketAPIProviderStub) -> CommonPolymarketPositionsService {
