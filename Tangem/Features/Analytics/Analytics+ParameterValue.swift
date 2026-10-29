@@ -91,6 +91,11 @@ extension Analytics {
         case to = "To"
         case backup = "Backup"
         case sign = "Sign"
+        case critUpdate = "Crit Update"
+        case unsupportedDevice = "Unsupported Device"
+
+        case soft = "Soft"
+        case critical = "Critical"
 
         case fixed = "Fixed"
         case float = "Float"

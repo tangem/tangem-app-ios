@@ -9,4 +9,5 @@
 protocol ForceUpdateRoutable: AnyObject {
     func closeForceUpdate()
     func openSupport()
+    func openAppStore()
 }

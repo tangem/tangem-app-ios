@@ -122,7 +122,7 @@ class AppCoordinator: CoordinatorObject {
     }
 
     private func setupForceUpdate(reason: ForceUpdateReason) {
-        let viewModel = ForceUpdateViewModel(reason: reason, coordinator: self)
+        let viewModel = ForceUpdateViewModel(reason: reason, analyticsLogger: CommonForceUpdateAnalyticsLogger(), coordinator: self)
         setState(.forceUpdate(viewModel))
     }
 
@@ -377,6 +377,10 @@ extension AppCoordinator: ForceUpdateRoutable {
         runTask(in: self) { @MainActor coordinator in
             coordinator.mailComposePresenter.present(viewModel: mailViewModel)
         }
+    }
+
+    func openAppStore() {
+        AppStoreOpener.open()
     }
 }
 
