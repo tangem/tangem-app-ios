@@ -11,7 +11,9 @@ import Foundation
 protocol AccountModelResolving {
     associatedtype Result
 
-    func resolve(accountModel: any CryptoAccountModel) -> Result
+    func resolve(accountModel: any StandardCryptoAccountModel) -> Result
+
+    func resolve(accountModel: any JointAccountModel) -> Result
 
     // Uncomment when this account type is added
     #if false
