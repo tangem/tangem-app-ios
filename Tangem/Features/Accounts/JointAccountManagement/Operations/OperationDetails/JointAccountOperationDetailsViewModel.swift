@@ -26,6 +26,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     @Published private(set) var viewState: ViewState = .details
     @Published private(set) var content: Content
     @Published private(set) var answer: Answer
+    @Published private(set) var recipientState: RecipientState
 
     private let alertPresenter: AlertPresenter
 
@@ -35,11 +36,11 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     let fiatAmount: String
     /// Taken from the payload's own `to`.
     let recipient: String
-    /// Rendered ahead of time rather than in the view body: generating blockies is not free, and the sheet has no
-    /// reason to redo it on every recomputation.
-    let recipientBlockiesImage: UIImage?
     let networkFee: String
 
+    private let blockchain: BSDKBlockchain
+    private let addressBookWallet: AddressBookWallet
+    private let addressBookAnalyticsLogger: AddressBookAnalyticsLogger
     private let signingActionButtonType: SigningActionButtonViewType
     private let sign: () async throws -> Void
     private let reject: () async throws -> Void
@@ -50,17 +51,22 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     private var isClosing = false
     private var updatesSubscription: AnyCancellable?
     private var frequentUpdatesSubscription: AnyCancellable?
+    private var recipientStateSubscription: AnyCancellable?
 
     init(
         tokenIconInfo: TokenIconInfo,
         cryptoAmount: String,
         fiatAmount: String,
         recipient: String,
-        recipientBlockiesImage: UIImage?,
+        recipientState: RecipientState,
+        blockchain: BSDKBlockchain,
         networkFee: String,
         signingActionButtonType: SigningActionButtonViewType,
         content: Content,
         contentPublisher: AnyPublisher<Content, Never>,
+        addressBookWallet: AddressBookWallet,
+        addressBookAnalyticsLogger: AddressBookAnalyticsLogger,
+        recipientStatePublisher: AnyPublisher<RecipientState, Never>,
         poller: any JointAccountPendingOperationPoller,
         coordinator: JointAccountOperationDetailsRoutable?,
         alertPresenter: AlertPresenter = InjectedValues[\.alertPresenter],
@@ -71,11 +77,14 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         self.cryptoAmount = cryptoAmount
         self.fiatAmount = fiatAmount
         self.recipient = recipient
-        self.recipientBlockiesImage = recipientBlockiesImage
+        self.recipientState = recipientState
+        self.blockchain = blockchain
         self.networkFee = networkFee
         self.signingActionButtonType = signingActionButtonType
         self.content = content
         answer = content.answer
+        self.addressBookWallet = addressBookWallet
+        self.addressBookAnalyticsLogger = addressBookAnalyticsLogger
         self.sign = sign
         self.reject = reject
         self.poller = poller
@@ -83,6 +92,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         self.alertPresenter = alertPresenter
 
         bind(contentPublisher: contentPublisher)
+        bind(recipientStatePublisher: recipientStatePublisher)
     }
 
     /// While signatures are collected the icon and title stay neutral by design: the warning-coloured line under the
@@ -100,10 +110,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
             ),
             iconGlyph: nil,
             menuSections: [
-                .init(
-                    id: Constants.addressMenuSectionID,
-                    actions: [TransactionDetailsMenuFactory.copyAddressAction(for: recipient)]
-                ),
+                .init(id: Constants.addressMenuSectionID, actions: addressMenuActions),
                 rejectMenuSection,
             ].compactMap { $0 }
         )
@@ -111,10 +118,17 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
 
     private var headerTitle: String {
         switch content.status {
-        case .awaitingSignatures: Localization.commonSend
-        case .sending: Localization.commonSending
-        case .sent: Localization.commonSent
-        case .failed: Localization.transactionHistoryStatusSendFailed
+        case .awaitingSignatures, .sending, .sent, .failed:
+            TransactionDisplayModel.title(
+                transactionType: .transfer,
+                status: headerIconStatus,
+                isOutgoing: true,
+                isFromYieldContract: false,
+                legacyName: Localization.commonTransfer,
+                subtitleOwner: recipientState.owner,
+                isTangemPayCounterparty: false,
+                isPendingSignature: content.status == .awaitingSignatures
+            ).fullText
         // [REDACTED_TODO_COMMENT]
         case .cancelled: Localization.expressExchangeStatusCanceled
         }
@@ -176,6 +190,8 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
             openSigners()
         case .copy(let value, let toast, _):
             copy(value, toast: toast)
+        case .addContact(let address):
+            addContact(address: address)
         default:
             break
         }
@@ -191,6 +207,15 @@ private extension JointAccountOperationDetailsViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, content in
                 viewModel.updateContent(content)
+            }
+    }
+
+    func bind(recipientStatePublisher: AnyPublisher<RecipientState, Never>) {
+        recipientStateSubscription = recipientStatePublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, recipientState in
+                viewModel.recipientState = recipientState
             }
     }
 
@@ -244,6 +269,27 @@ private extension JointAccountOperationDetailsViewModel {
                 .iconColor(DesignSystem.Color.iconAccentBlue)
         )
         .present(layout: .top(padding: 14), type: .temporary())
+    }
+}
+
+// MARK: - Address book
+
+private extension JointAccountOperationDetailsViewModel {
+    var addressMenuActions: [TransactionDetailsHeaderViewData.MenuAction] {
+        let copyAddressAction = TransactionDetailsMenuFactory.copyAddressAction(for: recipient)
+
+        guard recipientState.canAddToContacts else {
+            return [copyAddressAction]
+        }
+
+        return [copyAddressAction, TransactionDetailsMenuFactory.addContactAction(for: recipient)]
+    }
+
+    func addContact(address: String) {
+        addressBookAnalyticsLogger.logAddContactTapped(source: .transactionDetails)
+
+        let entry = AddressBookEntryDraft(address: address, blockchain: blockchain, memo: nil)
+        coordinator?.openAddContactFromOperationDetails(addressBookWallet: addressBookWallet, prefilledEntries: [entry])
     }
 }
 
@@ -422,16 +468,7 @@ private extension JointAccountOperationDetailsViewModel {
     }
 
     var recipientBlock: TransactionDetailsBlock {
-        .counterparty(
-            TransactionDetailsAddressViewData(
-                label: Localization.sendRecipient,
-                actor: .address(
-                    recipient,
-                    blockiesImage: AddressBlockiesIconViewData(image: recipientBlockiesImage)
-                ),
-                copyAction: TransactionDetailsMenuFactory.copyAddressAction(for: recipient).action
-            )
-        )
+        .counterparty(TransactionDetailsFactory.counterparty(for: recipientState.owner, label: Localization.sendRecipient))
     }
 
     var signaturesBlock: TransactionDetailsBlock {
@@ -451,7 +488,7 @@ private extension JointAccountOperationDetailsViewModel {
                     TransactionDetailsInfoSectionViewData.Row(
                         id: Constants.networkFeeRowID,
                         title: Localization.commonNetworkFeeTitle,
-                        content: .text(networkFee)
+                        content: .sensitiveText(networkFee)
                     ),
                 ]
             )
@@ -547,6 +584,11 @@ extension JointAccountOperationDetailsViewModel {
         case awaiting
         case signed
         case declined
+    }
+
+    struct RecipientState: Equatable {
+        let owner: TransactionViewModel.SubtitleOwner
+        let canAddToContacts: Bool
     }
 
     @CaseFlagable

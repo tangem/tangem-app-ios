@@ -20,9 +20,11 @@ import TangemUIUtils
 @MainActor
 struct JointAccountOperationDetailsViewModelTests {
     private let updates = PassthroughSubject<JointAccountOperationDetailsViewModel.Content, Never>()
+    private let recipientStates = PassthroughSubject<JointAccountOperationDetailsViewModel.RecipientState, Never>()
     private let coordinator = RoutableSpy()
     private let poller = PollerSpy()
     private let alertPresenter = AlertPresenterSpy()
+    private let addressBookAnalyticsLogger = AddressBookAnalyticsLoggerSpy()
 
     @Test("A new signature on the open operation reaches the sheet", .timeLimit(.minutes(1)))
     func newSignatureIsShown() async throws {
@@ -119,6 +121,15 @@ struct JointAccountOperationDetailsViewModelTests {
         #expect(viewModel.blocks.contains { if case .caption(let text) = $0 { text == Localization.jointOperationSentFooter(3, 3) } else { false } })
     }
 
+    @Test("The network fee is paid out of the account, so it is hidden along with the balances")
+    func networkFeeIsHiddenWithBalances() {
+        let rows = makeViewModel().blocks.flatMap { block -> [TransactionDetailsInfoSectionViewData.Row] in
+            if case .info(let data) = block { data.rows } else { [] }
+        }
+
+        #expect(rows.map(\.content) == [.sensitiveText("~0.0005 ETH")])
+    }
+
     @Test("An operation that failed is shown as a failed send, with nothing left to sign or decline", .timeLimit(.minutes(1)))
     func failedOperationIsShownAsFailed() async throws {
         let viewModel = makeViewModel()
@@ -168,6 +179,86 @@ struct JointAccountOperationDetailsViewModelTests {
         let actions = makeViewModel().header.menuSections.flatMap(\.actions).map(\.action)
 
         #expect(actions == [.copy(value: "0xrecipient", toast: Localization.walletNotificationAddressCopied, kind: .address)])
+    }
+
+    @Test("The header menu offers adding the recipient to contacts between copying it and rejecting", .timeLimit(.minutes(1)))
+    func headerMenuOffersAddingTheRecipientToContacts() async throws {
+        let viewModel = makeViewModel()
+
+        updates.send(makeContent(collectedSignaturesCount: 1, canReject: true))
+        _ = try await viewModel.$content.first { $0.canReject }.async()
+        recipientStates.send(makeRecipientState(canAddToContacts: true))
+        _ = try await viewModel.$recipientState.first { $0.canAddToContacts }.async()
+
+        let actions = viewModel.header.menuSections.flatMap(\.actions).map(\.action)
+
+        #expect(actions == [
+            .copy(value: "0xrecipient", toast: Localization.walletNotificationAddressCopied, kind: .address),
+            .addContact(address: "0xrecipient"),
+            .rejectOperation,
+        ])
+    }
+
+    @Test("The add-contact item is withdrawn once the recipient can no longer be added", .timeLimit(.minutes(1)))
+    func addContactItemFollowsTheAddressBook() async throws {
+        let viewModel = makeViewModel()
+
+        recipientStates.send(makeRecipientState(canAddToContacts: true))
+        _ = try await viewModel.$recipientState.first { $0.canAddToContacts }.async()
+        recipientStates.send(makeRecipientState(canAddToContacts: false))
+        _ = try await viewModel.$recipientState.first { !$0.canAddToContacts }.async()
+
+        #expect(addContactAction(in: viewModel) == nil)
+    }
+
+    @Test("Adding the recipient opens the contact editor prefilled with the recipient on the operation's network")
+    func addContactOpensThePrefilledEditor() throws {
+        let viewModel = makeViewModel()
+
+        viewModel.handleViewAction(.addContact(address: "0xrecipient"))
+
+        let entries = try #require(coordinator.openedContactEntries.first)
+        #expect(coordinator.openedContactEntries.count == 1)
+        #expect(entries.map(\.address) == ["0xrecipient"])
+        #expect(entries.map(\.blockchain) == [.ethereum(testnet: false)])
+        #expect(entries.allSatisfy { $0.memo == nil })
+    }
+
+    @Test("A recipient saved as a contact is named after it and its address stays copyable", .timeLimit(.minutes(1)))
+    func recipientRowNamesTheContact() async throws {
+        let viewModel = makeViewModel()
+        let icon = AddressBookContactNameIconViewData(letter: "A", color: .blue)
+
+        recipientStates.send(makeRecipientState(owner: .contact(name: "Alice", icon: icon, fullAddress: "0xrecipient")))
+        _ = try await viewModel.$recipientState.first { if case .contact = $0.owner { true } else { false } }.async()
+
+        let row = try #require(recipientRow(in: viewModel))
+        #expect(row.actor == .contact(name: "Alice", icon))
+        #expect(row.copyAction == .copy(value: "0xrecipient", toast: Localization.walletNotificationAddressCopied, kind: .address))
+    }
+
+    @Test("A transfer to the member's own wallet is titled and shown as one", .timeLimit(.minutes(1)))
+    func transferToOwnWalletIsShownAsOne() async throws {
+        let viewModel = makeViewModel()
+
+        updates.send(makeContent(collectedSignaturesCount: 3, status: .sending))
+        _ = try await viewModel.$content.first { $0.status == .sending }.async()
+        recipientStates.send(makeRecipientState(owner: .wallet(name: "Wallet 2", imageProvider: nil, thumbnailType: nil)))
+        _ = try await viewModel.$recipientState.first { $0.owner.isOwnWallet }.async()
+
+        let row = try #require(recipientRow(in: viewModel))
+        #expect(viewModel.header.title == Localization.transactionHistoryStatusTransferring)
+        #expect(row.actor == .wallet(name: "Wallet 2"))
+        #expect(row.copyAction == nil)
+    }
+
+    @Test("Adding the recipient to contacts is counted as a tap from the transaction details, once")
+    func addContactTapIsLogged() {
+        let viewModel = makeViewModel()
+
+        viewModel.handleViewAction(.addContact(address: "0xrecipient"))
+
+        #expect(addressBookAnalyticsLogger.addContactTapSources == [.transactionDetails])
     }
 
     @Test("Tapping the recipient row copies the full address, the way the transaction details do")
@@ -305,11 +396,26 @@ struct JointAccountOperationDetailsViewModelTests {
             cryptoAmount: "–0.1 ETH",
             fiatAmount: "$200",
             recipient: "0xrecipient",
-            recipientBlockiesImage: nil,
+            recipientState: makeRecipientState(),
+            blockchain: .ethereum(testnet: false),
             networkFee: "~0.0005 ETH",
             signingActionButtonType: signingActionButtonType,
             content: makeContent(collectedSignaturesCount: 1, isInitiator: isInitiator),
             contentPublisher: updates.eraseToAnyPublisher(),
+            addressBookWallet: AddressBookWallet(
+                wallet: UserWalletInfo(
+                    name: "Test",
+                    id: UserWalletId(value: Data([0x01, 0x02, 0x03])),
+                    config: UserWalletConfigStub(),
+                    backupState: .valid,
+                    refcode: nil,
+                    signerFactory: TangemSignerFactory(),
+                    emailDataProvider: EmailDataProviderStub()
+                ),
+                addressBookManager: NoopAddressBookManager()
+            ),
+            addressBookAnalyticsLogger: addressBookAnalyticsLogger,
+            recipientStatePublisher: recipientStates.eraseToAnyPublisher(),
             poller: poller,
             coordinator: coordinator,
             alertPresenter: alertPresenter,
@@ -340,6 +446,13 @@ struct JointAccountOperationDetailsViewModelTests {
         )
     }
 
+    private func makeRecipientState(
+        owner: TransactionViewModel.SubtitleOwner = .unresolved(short: "0xrec…ient", fullAddress: "0xrecipient", blockiesImage: nil),
+        canAddToContacts: Bool = false
+    ) -> JointAccountOperationDetailsViewModel.RecipientState {
+        JointAccountOperationDetailsViewModel.RecipientState(owner: owner, canAddToContacts: canAddToContacts)
+    }
+
     private func makeSigner(id: String, answer: JointAccountSignerRow.Answer) -> JointAccountSignerRow.ViewData {
         JointAccountSignerRow.ViewData(
             id: id,
@@ -363,8 +476,18 @@ struct JointAccountOperationDetailsViewModelTests {
         }.first
     }
 
+    private func addContactAction(in viewModel: JointAccountOperationDetailsViewModel) -> TransactionDetailsHeaderViewData.MenuAction? {
+        viewModel.header.menuSections.flatMap(\.actions).first { $0.action == .addContact(address: "0xrecipient") }
+    }
+
     private func rejectAction(in viewModel: JointAccountOperationDetailsViewModel) -> TransactionDetailsHeaderViewData.MenuAction? {
         viewModel.header.menuSections.flatMap(\.actions).first { $0.action == .rejectOperation }
+    }
+
+    private func recipientRow(in viewModel: JointAccountOperationDetailsViewModel) -> TransactionDetailsAddressViewData? {
+        viewModel.blocks.lazy.compactMap { block in
+            if case .counterparty(let data) = block { data } else { nil }
+        }.first
     }
 
     private func isAmountStruckThrough(in viewModel: JointAccountOperationDetailsViewModel) -> Bool? {
@@ -388,10 +511,38 @@ struct JointAccountOperationDetailsViewModelTests {
 
 private final class RoutableSpy: JointAccountOperationDetailsRoutable {
     let closeCount = CurrentValueSubject<Int, Never>(0)
+    private(set) var openedContactEntries: [[AddressBookEntryDraft]] = []
 
     func closeOperationDetails() {
         closeCount.value += 1
     }
+
+    func openAddContactFromOperationDetails(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft]) {
+        openedContactEntries.append(prefilledEntries)
+    }
+}
+
+private final class AddressBookAnalyticsLoggerSpy: AddressBookAnalyticsLogger {
+    private(set) var addContactTapSources: [AddressBookAnalyticsSource] = []
+
+    func logAddContactTapped(source: AddressBookAnalyticsSource) {
+        addContactTapSources.append(source)
+    }
+
+    func logContactListScreenOpened(source: AddressBookAnalyticsSource, contactsCount: Int) {}
+    func logContactScreenOpened(contactId: String?) {}
+    func logButtonSaveTo() {}
+    func logContactSaved(contactId: String, mode: AddressBookAnalyticsMode, source: AddressBookAnalyticsSource) {}
+    func logSaveErrorShown(contactId: String?, error: Error) {}
+    func logAddressScreenOpened() {}
+    func logAddressInvalid(contactId: String?) {}
+    func logDuplicateNameErrorShown(contactId: String?) {}
+    func logAddressRemoved(contactId: String?) {}
+    func logContactDeleted(contactId: String?) {}
+    func logSendFlowWidgetShown() {}
+    func logContactSelected(contactId: String) {}
+    func logAddressSubstitutedInSend(contactId: String) {}
+    func logSelectAllNetworksTapped(action: AddressBookSelectAllAction) {}
 }
 
 private final class AlertPresenterSpy: AlertPresenter {

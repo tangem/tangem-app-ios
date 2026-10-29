@@ -37,7 +37,7 @@ struct SubtitleOwnerResolver {
         return tangemPayDepositOwners.contains { $0.hasDepositAddress(address, on: blockchain) }
     }
 
-    func resolve(address: String, blockchain: Blockchain) -> TransactionViewModel.SubtitleOwner? {
+    func resolve(address: String, blockchain: Blockchain) -> TransactionViewModel.SubtitleOwner {
         guard let match = try? WalletModelFinder.findMainWalletModel(
             address: address,
             networkId: blockchain.networkId,

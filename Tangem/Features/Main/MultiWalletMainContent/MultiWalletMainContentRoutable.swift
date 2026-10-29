@@ -41,5 +41,9 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openPolymarket(userWalletModel: UserWalletModel)
     func openCollectibles(with options: CollectiblesCoordinator.Options)
     func openJointAccountMembers(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig)
-    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation, userWalletInfo: UserWalletInfo)
+    func openJointAccountOperationDetails(
+        pendingOperation: JointAccountPendingOperation,
+        userWalletInfo: UserWalletInfo,
+        addressBookManager: AddressBookManager
+    )
 }

@@ -987,6 +987,35 @@ enum TransactionDetailsFactory {
 
     private static func counterparty(for transaction: TransactionViewModel, label: String) -> TransactionDetailsAddressViewData? {
         switch transaction.subtitleOwner {
+        case .accountInCurrentWallet, .accountInOtherWallet, .wallet, .contact:
+            break
+        case .unresolved, .none:
+            if let stakingCounterparty = stakingCounterparty(for: transaction, label: label) {
+                return stakingCounterparty
+            }
+        }
+
+        if let subtitleOwner = transaction.subtitleOwner {
+            return counterparty(for: subtitleOwner, label: label)
+        }
+
+        guard let address = counterpartyAddress(for: transaction) else {
+            return nil
+        }
+
+        return .init(
+            label: label,
+            actor: .address(
+                address,
+                blockiesImage: AddressIconProvider.makeBlockiesIconViewData(address: address)
+            ),
+            copyAction: copyAddressAction(for: address),
+            walletImageProvider: nil
+        )
+    }
+
+    static func counterparty(for subtitleOwner: TransactionViewModel.SubtitleOwner, label: String) -> TransactionDetailsAddressViewData {
+        switch subtitleOwner {
         case .accountInCurrentWallet(let name, let icon):
             return .init(label: label, actor: .account(name: name, icon: icon), copyAction: nil, walletImageProvider: nil)
 
@@ -1005,33 +1034,10 @@ enum TransactionDetailsFactory {
             )
 
         case .unresolved(_, let fullAddress, let blockiesImage):
-            if let stakingCounterparty = stakingCounterparty(for: transaction, label: label) {
-                return stakingCounterparty
-            }
-
             return .init(
                 label: label,
                 actor: .address(fullAddress, blockiesImage: AddressBlockiesIconViewData(image: blockiesImage)),
                 copyAction: copyAddressAction(for: fullAddress),
-                walletImageProvider: nil
-            )
-
-        case .none:
-            if let stakingCounterparty = stakingCounterparty(for: transaction, label: label) {
-                return stakingCounterparty
-            }
-
-            guard let address = counterpartyAddress(for: transaction) else {
-                return nil
-            }
-
-            return .init(
-                label: label,
-                actor: .address(
-                    address,
-                    blockiesImage: AddressIconProvider.makeBlockiesIconViewData(address: address)
-                ),
-                copyAction: copyAddressAction(for: address),
                 walletImageProvider: nil
             )
         }

@@ -87,9 +87,16 @@ struct TransactionDetailsAddContactHelper {
     func addressToSave(for record: TransactionRecord) -> String? {
         // Ignoring swap, onramp transactions and various contract calls
         // Also, the address book must be synced to avoid saving a duplicate contact
+        guard record.expressExtraInfo == nil else {
+            return nil
+        }
+
+        return addressToSave()
+    }
+
+    func addressToSave() -> String? {
         guard
             isAddressBookSynced,
-            record.expressExtraInfo == nil,
             isPlainTransfer,
             subtitleOwner?.isOwnWallet != true,
             let counterpartyAddress,
