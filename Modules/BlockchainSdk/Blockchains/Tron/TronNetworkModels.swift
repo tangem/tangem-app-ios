@@ -34,7 +34,7 @@ struct TronEnergyFeeData {
 
 struct TronAccountInfo {
     let balance: Decimal
-    let tokenBalances: [Token: Decimal]
+    let tokenBalances: [Token: Result<Decimal, Error>]
     let confirmedTransactionIDs: [String]
 }
 
