@@ -509,7 +509,7 @@ extension GeneralNotificationEvent {
         case .mobileUpgrade: return .mainNoticeUpgradeToColdWallet
         case .pushNotificationsPermissionRequest: return .promoPushBanner
         case .initialWalletTokenSyncCompleted: return nil
-        case .forceUpdateAvailable: return nil
+        case .forceUpdateAvailable: return .mainNoticeSoftUpdate
         case .addFunds: return .addFundsBannerAppear
         }
     }
