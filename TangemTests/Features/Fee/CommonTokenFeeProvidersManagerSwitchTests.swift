@@ -44,7 +44,7 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
     }
 
     private func makeApproveInput(multiplier: FeeMultiplier) -> TokenFeeProviderInputData {
-        .approve(txData: Data(), toContractAddress: "0xC", feeMultiplier: multiplier)
+        .approve(txData: Data(), toContractAddress: "0xC", spender: nil, amountRaw: 1, feeMultiplier: multiplier)
     }
 
     // MARK: - Scenario A: balance covers fee → no switch
@@ -266,7 +266,8 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
         let approveData = ApproveTransactionData(
             txData: Data([0xAA]),
             spender: "0xSpender",
-            toContractAddress: "0xC"
+            toContractAddress: "0xC",
+            amountRaw: 1
         )
         let returnedFee = try await sut.transactionFee(approveData: approveData)
 
@@ -277,7 +278,7 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
 
         // setup() was called with .single multiplier — our guard's trigger condition (.triple) is absent.
         guard let lastUsdtSetup = usdt.setupCalls.last,
-              case .approve(_, _, let multiplier) = lastUsdtSetup
+              case .approve(_, _, _, _, let multiplier) = lastUsdtSetup
         else {
             Issue.record("Expected last setup() call on USDT to be .approve")
             return
@@ -552,7 +553,7 @@ struct TronGaslessQuoteRequestTests {
     @Test("Quote matches the transaction built from the estimated amount")
     func matchingTransaction_isRecognized() {
         let transaction = makeTransaction(amount: 3)
-        let request = makeRequest(amountRaw: "3000000")
+        let request = makeRequest(amountRaw: 3_000_000)
 
         #expect(request.matches(transaction: transaction, feeToken: makeFeeToken()))
     }
@@ -560,7 +561,7 @@ struct TronGaslessQuoteRequestTests {
     @Test("Quote does not match a fee-adjusted transaction amount")
     func feeAdjustedTransaction_requiresNewQuote() {
         let transaction = makeTransaction(amount: Decimal(string: "0.4662")!)
-        let request = makeRequest(amountRaw: "3000000")
+        let request = makeRequest(amountRaw: 3_000_000)
 
         #expect(!request.matches(transaction: transaction, feeToken: makeFeeToken()))
     }
@@ -579,11 +580,57 @@ struct TronGaslessQuoteRequestTests {
             type: .token(value: token),
             value: Decimal(string: "0.4662")!
         )
-        let request = makeRequest(amountRaw: "466200")
+        let request = makeRequest(amountRaw: 466_200)
 
         #expect(request.matches(
             amount: amount,
             destinationAddress: destinationAddress,
+            feeToken: makeFeeToken()
+        ))
+    }
+
+    @Test("Approve quote matches only its contract call")
+    func approveQuote_matchesContractCall() {
+        let callData = Data([0x09, 0x5E, 0xA7, 0xB3])
+        let request = TronGaslessQuoteRequest(
+            sourceAddress: sourceAddress,
+            tokenContractAddress: tokenContractAddress,
+            amountRaw: 10_000_000,
+            feeTokenContractAddress: feeTokenContractAddress,
+            operation: .approve(
+                contractAddress: tokenContractAddress,
+                spender: "TSpender",
+                callData: callData
+            )
+        )
+
+        #expect(request.matches(
+            transaction: makeContractTransaction(contractAddress: tokenContractAddress, callData: callData),
+            feeToken: makeFeeToken()
+        ))
+        #expect(!request.matches(
+            transaction: makeContractTransaction(contractAddress: tokenContractAddress, callData: Data([0xFF])),
+            feeToken: makeFeeToken()
+        ))
+    }
+
+    @Test("Swap quote matches only its contract and calldata")
+    func swapQuote_matchesContractCall() {
+        let callData = Data([0x31, 0x10, 0xC7, 0xB9])
+        let request = TronGaslessQuoteRequest(
+            sourceAddress: sourceAddress,
+            tokenContractAddress: tokenContractAddress,
+            amountRaw: 3_000_000,
+            feeTokenContractAddress: feeTokenContractAddress,
+            operation: .swap(contractAddress: "TSwap", callData: callData, spender: "TSpender")
+        )
+
+        #expect(request.matches(
+            transaction: makeContractTransaction(contractAddress: "TSwap", callData: callData),
+            feeToken: makeFeeToken()
+        ))
+        #expect(!request.matches(
+            transaction: makeContractTransaction(contractAddress: "TOtherSwap", callData: callData),
             feeToken: makeFeeToken()
         ))
     }
@@ -618,6 +665,7 @@ struct TronGaslessQuoteRequestTests {
             feeToken: feeToken,
             sourceAddress: sourceAddress,
             userWalletId: UserWalletId(value: Data("wallet".utf8)),
+            isDEXEnabled: false,
             networkManager: networkManager
         )
 
@@ -628,7 +676,7 @@ struct TronGaslessQuoteRequestTests {
     }
 
     private func makeRequest(
-        amountRaw: String,
+        amountRaw: BigUInt,
         feeTokenContractAddress: String? = nil
     ) -> TronGaslessQuoteRequest {
         TronGaslessQuoteRequest(
@@ -672,6 +720,18 @@ struct TronGaslessQuoteRequestTests {
             symbol: "FEE",
             contractAddress: feeTokenContractAddress,
             decimalCount: 6
+        )
+    }
+
+    private func makeContractTransaction(contractAddress: String, callData: Data) -> BSDKTransaction {
+        BSDKTransaction(
+            amount: BSDKAmount(with: .tron(testnet: false), type: .coin, value: 0),
+            fee: BSDKFee(BSDKAmount(with: makeFeeToken(), value: 1)),
+            sourceAddress: sourceAddress,
+            destinationAddress: contractAddress,
+            changeAddress: sourceAddress,
+            contractAddress: contractAddress,
+            params: TronTransactionParams(transactionType: .contractCall(callData: callData, feeLimit: nil))
         )
     }
 
@@ -738,6 +798,59 @@ struct TronGaslessAPIContractTests {
         #expect(submit.headers?["userWalletId"] == userWalletId.stringValue)
     }
 
+    @Test("Transfer estimate encodes only transfer fields")
+    func transferEstimateEncoding() throws {
+        let request = GaslessTransactionsDTO.Request.TronEstimate(
+            fromAddress: "TFrom",
+            toAddress: "TTo",
+            tokenContract: "TToken",
+            amount: "1",
+            feeTokenContract: "TFee"
+        )
+
+        let json = try encode(request)
+        #expect(json["toAddress"] as? String == "TTo")
+        #expect(json["feeTokenContract"] as? String == "TFee")
+        #expect(json["approve"] == nil)
+        #expect(json["swap"] == nil)
+    }
+
+    @Test("Approve estimate encodes only approve fields")
+    func approveEstimateEncoding() throws {
+        let request = GaslessTransactionsDTO.Request.TronEstimate(
+            fromAddress: "TFrom",
+            tokenContract: "TToken",
+            amount: "2",
+            feeTokenContract: "TFee",
+            approve: .init(spender: "TSpender")
+        )
+
+        let json = try encode(request)
+        let approve = try #require(json["approve"] as? [String: Any])
+        #expect(approve["spender"] as? String == "TSpender")
+        #expect(json["toAddress"] == nil)
+        #expect(json["swap"] == nil)
+    }
+
+    @Test("Swap estimate encodes contract calldata and optional spender")
+    func swapEstimateEncoding() throws {
+        let request = GaslessTransactionsDTO.Request.TronEstimate(
+            fromAddress: "TFrom",
+            tokenContract: "TToken",
+            amount: "3",
+            feeTokenContract: "TFee",
+            swap: .init(contractAddress: "TSwap", data: "abcdef", spender: nil)
+        )
+
+        let json = try encode(request)
+        let swap = try #require(json["swap"] as? [String: Any])
+        #expect(swap["contractAddress"] as? String == "TSwap")
+        #expect(swap["data"] as? String == "abcdef")
+        #expect(swap["spender"] == nil)
+        #expect(json["toAddress"] == nil)
+        #expect(json["approve"] == nil)
+    }
+
     @Test("Activation error codes map from Tangem API errors")
     func activationErrorCodesMapFromTangemAPIError() throws {
         for code in GaslessTransactionsDTO.APIError.TronActivation.Code.allCases {
@@ -775,6 +888,11 @@ struct TronGaslessAPIContractTests {
 
         #expect(rateLimited.errorDescription == Localization.gaslessTronActivationAttemptsLimit)
         #expect(halted.errorDescription == Localization.gaslessTronActivationTryAgainLater)
+    }
+
+    private func encode(_ request: GaslessTransactionsDTO.Request.TronEstimate) throws -> [String: Any] {
+        let data = try JSONEncoder().encode(request)
+        return try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
     }
 }
 

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BigInt
 import BlockchainSdk
 import TangemFoundation
 
@@ -23,8 +24,7 @@ final class TronGaslessTransactionSender {
     }
 
     func send(transaction: BSDKTransaction) async throws -> TransactionDispatcherResult {
-        guard transaction.amount.type.isToken,
-              transaction.fee.amount.type.isToken,
+        guard transaction.fee.amount.type.isToken,
               let feeToken = transaction.fee.amount.type.token,
               let builder = walletModel.tronGaslessTransactionsBuilder else {
             throw TransactionDispatcherResult.Error.actionNotSupported
@@ -141,13 +141,23 @@ private extension TronGaslessTransactionSender {
     }
 
     func validateBalance(transaction: BSDKTransaction, quote: TronGaslessFeeParameters, feeToken: BSDKToken) throws {
-        guard transaction.amount.type.token?.contractAddress == feeToken.contractAddress else {
+        guard quote.request.tokenContractAddress == feeToken.contractAddress else {
             return
         }
 
         let compensation = try makeAmount(rawValue: quote.compensationAmountRaw, token: feeToken)
+        let transactionAmount: Decimal
+        switch quote.request.operation {
+        case .transfer:
+            transactionAmount = transaction.amount.value
+        case .approve:
+            transactionAmount = .zero
+        case .swap:
+            transactionAmount = try makeAmount(rawValue: quote.request.amountRaw, token: feeToken).value
+        }
+
         let feeCurrencyBalance = walletModel.availableBalanceProvider.balanceType.value ?? 0
-        guard transaction.amount.value + compensation.value <= feeCurrencyBalance else {
+        guard transactionAmount + compensation.value <= feeCurrencyBalance else {
             throw TokenFeeProviderError.notEnoughGaslessFeeBalance(feeCurrencyBalance: feeCurrencyBalance)
         }
     }
@@ -158,6 +168,10 @@ private extension TronGaslessTransactionSender {
         }
 
         return BSDKAmount(with: token, value: rawDecimal / pow(10, token.decimalCount))
+    }
+
+    func makeAmount(rawValue: BigUInt, token: BSDKToken) throws -> BSDKAmount {
+        try makeAmount(rawValue: String(rawValue, radix: 10), token: token)
     }
 
     enum ValidationError: LocalizedError {

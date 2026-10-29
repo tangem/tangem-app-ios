@@ -27,6 +27,7 @@ enum Feature: String, Hashable, CaseIterable {
     case mcp
     case payBundleIntroduction
     case tangemPayAppleWalletProvisioning
+    case tronGaslessDEX
     case marketingActivityBinding
     case qrScanDeeplinks
     case yieldModePromo
@@ -59,6 +60,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .mcp: return "TWI-1721_mcp"
         case .payBundleIntroduction: return "TWI-1728_pay_bundle_introduction"
         case .tangemPayAppleWalletProvisioning: return "TWI-1062_apple_wallet_push_provisioning"
+        case .tronGaslessDEX: return "TWI-1850_tron_gasless_dex"
         case .marketingActivityBinding: return "TWI-1732_marketing_activity_binding"
         case .qrScanDeeplinks: return "TWI-1690_qr_scan_deeplinks"
         case .yieldModePromo: return "TWI-1762_yield_mode_promo"
@@ -91,6 +93,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .mcp: return .unspecified
         case .payBundleIntroduction: return .version("6.7")
         case .tangemPayAppleWalletProvisioning: return .unspecified
+        case .tronGaslessDEX: return .unspecified
         case .marketingActivityBinding: return .unspecified
         case .qrScanDeeplinks: return .version("6.7")
         case .yieldModePromo: return .unspecified

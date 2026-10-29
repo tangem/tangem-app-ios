@@ -247,7 +247,9 @@ extension DEXProviderFlowHelper {
         quote: ExpressQuote,
         data: ExpressTransactionData
     ) async throws -> ExpressProviderManagerState {
-        let fee = try await expressFeeProvider.transactionFee(data: .dex(data: data))
+        let fee = try await expressFeeProvider.transactionFee(
+            data: .dex(data: data, spender: quote.allowanceContract)
+        )
         try Task.checkCancellation()
 
         // better to make the quote from the data
@@ -422,7 +424,7 @@ extension DEXProviderFlowHelper {
         )
 
         return try await expressFeeProvider.transactionFee(
-            data: .dex(data: data),
+            data: .dex(data: data, spender: nil),
             allowanceOverride: allowanceOverride,
             approveData: approveData.approveTransactionData
         )
