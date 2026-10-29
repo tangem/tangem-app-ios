@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol MarketingActivityBindingStore {
+protocol MarketingActivityBindingStore: Actor {
     @discardableResult
     func add(uid: String) async -> MarketingActivityBinding
     func pending() async -> [MarketingActivityBinding]
