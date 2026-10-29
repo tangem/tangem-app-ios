@@ -11,6 +11,8 @@ import TangemPolymarket
 
 extension PolymarketPosition {
     static func stub(
+        conditionId: String = "0xcondition",
+        endDate: Date? = nil,
         size: Decimal = 10,
         cashPnl: Decimal = 0,
         realizedPnl: Decimal = 0,
@@ -20,7 +22,7 @@ extension PolymarketPosition {
         isAcceptingOrders: Bool? = nil
     ) -> PolymarketPosition {
         PolymarketPosition(
-            conditionId: "0xcondition",
+            conditionId: conditionId,
             assetId: "1",
             marketId: "market",
             version: .v1,
@@ -28,7 +30,7 @@ extension PolymarketPosition {
             eventTitle: "Event",
             title: "Question",
             iconURL: nil,
-            endDate: nil,
+            endDate: endDate,
             outcome: "Yes",
             outcomeIndex: 0,
             size: size,
