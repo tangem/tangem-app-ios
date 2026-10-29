@@ -12,18 +12,21 @@ import TangemFoundation
 import TangemPolymarket
 @testable import Tangem
 
-@Suite("Polymarket session health")
+@Suite("Polymarket session health", .timeLimit(.minutes(1)))
 struct PolymarketSessionHealthTests {
     @Test("A burst of checks against a wallet that is no longer ready reads its status once, resets once and asks for one reconnect")
-    func concurrentChecksFoldIntoOneReaction() async {
-        let fixture = Fixture(status: .success(.deployed))
+    func concurrentChecksFoldIntoOneReaction() async throws {
+        let fixture = Fixture(status: .success(.deployed), isReadHeld: true)
 
-        let verdicts = await withTaskGroup(of: PolymarketSessionVerdict.self) { group in
+        let verdicts = try await withThrowingTaskGroup(of: PolymarketSessionVerdict.self) { group in
             for _ in 0 ..< 20 {
                 group.addTask { await fixture.sut.verify() }
             }
 
-            return await group.reduce(into: [PolymarketSessionVerdict]()) { $0.append($1) }
+            try await fixture.walletService.gate.entered.next()
+            fixture.walletService.gate.open()
+
+            return try await group.reduce(into: [PolymarketSessionVerdict]()) { $0.append($1) }
         }
 
         #expect(verdicts.count == 20)
@@ -33,33 +36,31 @@ struct PolymarketSessionHealthTests {
         #expect(fixture.reconnectRequests == 1)
     }
 
-    @MainActor
     @Test("A burst of 401s from the backend ends in a single status read, a single reset and a single reconnect")
     func unauthorizedBurstFoldsIntoOneReaction() async throws {
-        let fixture = Fixture(status: .success(.deployed))
+        let fixture = Fixture(status: .success(.deployed), isReadHeld: true)
 
         for _ in 0 ..< 10 {
             fixture.unauthorizedEvents.yield()
         }
 
-        try await settle { fixture.reconnectRequests == 1 }
-        try await drain()
+        try await fixture.walletService.gate.entered.next()
+        fixture.walletService.gate.open()
+        try await fixture.reconnects.next()
 
         #expect(fixture.walletService.calls == 1)
         #expect(fixture.resets == 1)
         #expect(fixture.reconnectRequests == 1)
     }
 
-    @MainActor
     @Test("A 401 while the wallet is still ready to trade keeps the user signed in")
     func unauthorizedWithAReadyWalletKeepsTheSession() async throws {
         let fixture = Fixture(status: .success(.readyToTrade))
 
         fixture.unauthorizedEvents.yield()
+        try await fixture.walletService.gate.entered.next()
 
-        try await settle { fixture.walletService.calls == 1 }
-        try await drain()
-
+        #expect(await fixture.sut.verify() == .ready)
         #expect(fixture.resets == 0)
         #expect(fixture.reconnectRequests == 0)
     }
@@ -150,16 +151,18 @@ struct PolymarketSessionHealthTests {
     }
 
     @Test("A not-ready status reported while an unreadable check runs still asks for a reconnect")
-    func reportDuringAnInconclusiveCheckConcludes() async {
-        let fixture = Fixture(status: .failure(.upstreamUnavailable(detail: nil)))
+    func reportDuringAnInconclusiveCheckConcludes() async throws {
+        let fixture = Fixture(status: .failure(.upstreamUnavailable(detail: nil)), isReadHeld: true)
 
         let running = Task { await fixture.sut.verify() }
-        while fixture.walletService.calls == 0 {
-            await Task.yield()
-        }
+        try await fixture.walletService.gate.entered.next()
 
-        #expect(await fixture.sut.report(.deployed) == .reconnectRequired)
+        let reporting = Task { await fixture.sut.report(.deployed) }
+        fixture.walletService.gate.open()
+
+        #expect(await reporting.value == .reconnectRequired)
         #expect(await running.value == .inconclusive)
+        #expect(fixture.walletService.calls == 1)
         #expect(fixture.resets == 1)
         #expect(fixture.reconnectRequests == 1)
     }
@@ -192,18 +195,19 @@ struct PolymarketSessionHealthTests {
 private final class Fixture {
     let walletService: PolymarketWalletStatusServiceStub
     let unauthorizedEvents: AsyncStream<Void>.Continuation
+    let reconnects = PolymarketTestSignal<Void>()
     let sut: PolymarketSessionHealth
 
     var resets: Int { resetFlags.withLock { $0.count } }
     var accountGoneFlags: [Bool] { resetFlags.withLock { $0 } }
-    var reconnectRequests: Int { reconnectCount.withLock { $0 } }
+    var reconnectRequests: Int { reconnects.recorded.count }
 
     private let resetFlags: OSAllocatedUnfairLock<[Bool]>
-    private let reconnectCount = OSAllocatedUnfairLock(initialState: 0)
 
     init(
         status: Result<PolymarketDepositWalletStatus, PolymarketWalletError>,
-        ownerAddress: String? = PolymarketOwnerAddressProviderStub.ownerAddress
+        ownerAddress: String? = PolymarketOwnerAddressProviderStub.ownerAddress,
+        isReadHeld: Bool = false
     ) {
         let resetFlags = OSAllocatedUnfairLock(initialState: [Bool]())
         let (events, continuation) = AsyncStream<Void>.makeStream()
@@ -211,7 +215,7 @@ private final class Fixture {
         unauthorizedEvents = continuation
 
         self.resetFlags = resetFlags
-        walletService = PolymarketWalletStatusServiceStub(result: status)
+        walletService = PolymarketWalletStatusServiceStub(result: status, gate: PolymarketTestGate(isOpen: !isReadHeld))
         sut = PolymarketSessionHealth(
             walletService: walletService,
             ownerAddressProvider: PolymarketOwnerAddressProviderStub(derived: ownerAddress),
@@ -219,24 +223,24 @@ private final class Fixture {
             resetOnboarding: { isAccountGone in resetFlags.withLock { $0.append(isAccountGone) } }
         )
 
-        sut.setReconnectHandler { [reconnectCount] in reconnectCount.withLock { $0 += 1 } }
+        sut.setReconnectHandler { [reconnects] in reconnects.send() }
     }
 }
 
 final class PolymarketWalletStatusServiceStub: PolymarketDepositWalletService {
-    var calls: Int { callCount.withLock { $0 } }
+    let gate: PolymarketTestGate
+
+    var calls: Int { gate.entered.recorded.count }
 
     private let result: Result<PolymarketDepositWalletStatus, PolymarketWalletError>
-    private let callCount = OSAllocatedUnfairLock(initialState: 0)
 
-    init(result: Result<PolymarketDepositWalletStatus, PolymarketWalletError>) {
+    init(result: Result<PolymarketDepositWalletStatus, PolymarketWalletError>, gate: PolymarketTestGate = PolymarketTestGate(isOpen: true)) {
         self.result = result
+        self.gate = gate
     }
 
     func depositWalletState(ownerAddress: String?) async throws(PolymarketWalletError) -> PolymarketDepositWallet {
-        callCount.withLock { $0 += 1 }
-
-        try? await Task.sleep(nanoseconds: Constants.responseDelay)
+        await gate.pass()
 
         let status = try result.get()
 
@@ -252,10 +256,6 @@ final class PolymarketWalletStatusServiceStub: PolymarketDepositWalletService {
 
     func submitApprovals(_ batch: PolymarketRelayedBatch) async throws(PolymarketWalletError) -> PolymarketDepositWalletStatus {
         try result.get()
-    }
-
-    private enum Constants {
-        static let responseDelay: UInt64 = 50_000_000
     }
 }
 

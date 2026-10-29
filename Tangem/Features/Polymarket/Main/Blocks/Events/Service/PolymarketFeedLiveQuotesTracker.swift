@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
+import TangemFoundation
 import TangemPolymarket
 import TangemPolymarketUI
 
@@ -15,6 +17,7 @@ final class PolymarketFeedLiveQuotesTracker {
 
     private let reader: PolymarketLiveTopicsReader<String, PolymarketOutcomeQuote>
     private let updatesContinuation: AsyncStream<Update>.Continuation
+    private let delayProvider: PollDelayProvider
 
     private var readerTask: Task<Void, Never>?
     private var pendingQuotes: [String: PolymarketOutcomeQuote] = [:]
@@ -26,8 +29,10 @@ final class PolymarketFeedLiveQuotesTracker {
 
     init(
         quotes: @escaping @Sendable (Set<String>) async -> AsyncStream<PolymarketOutcomeQuote>,
-        statusChanges: @escaping @Sendable () async -> AsyncStream<PolymarketWebSocketConnectionStatus>
+        statusChanges: @escaping @Sendable () async -> AsyncStream<PolymarketWebSocketConnectionStatus>,
+        delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
+        self.delayProvider = delayProvider
         reader = PolymarketLiveTopicsReader(values: quotes, statusChanges: statusChanges)
         (updates, updatesContinuation) = AsyncStream.makeStream(of: Update.self)
 
@@ -121,9 +126,9 @@ private extension PolymarketFeedLiveQuotesTracker {
             return
         }
 
-        flushTask = Task { [weak self] in
+        flushTask = Task { [weak self, delayProvider] in
             do {
-                try await Task.sleep(for: Constants.batchInterval)
+                try await delayProvider.wait(for: Constants.batchInterval)
             } catch {
                 return
             }
@@ -163,5 +168,5 @@ private extension PolymarketEvent {
 
 private enum Constants {
     static let prefetchedNeighbours = 5
-    static let batchInterval: Duration = .milliseconds(300)
+    static let batchInterval: TimeInterval = 0.3
 }

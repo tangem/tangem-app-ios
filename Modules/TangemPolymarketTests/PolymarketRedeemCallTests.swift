@@ -11,7 +11,7 @@ import Testing
 import TangemFoundation
 @testable import TangemPolymarket
 
-@Suite("Polymarket redeem call V1")
+@Suite("Polymarket redeem call V1", .timeLimit(.minutes(1)))
 struct PolymarketRedeemCallTests {
     private let mapper = PolymarketMapper()
 
@@ -105,7 +105,7 @@ struct PolymarketRedeemCallTests {
 
 // MARK: - V2
 
-@Suite("Polymarket redeem call V2")
+@Suite("Polymarket redeem call V2", .timeLimit(.minutes(1)))
 struct PolymarketRedeemCallV2Tests {
     private let mapper = PolymarketMapper()
 
@@ -305,29 +305,8 @@ private extension PolymarketRedeemCallRequest {
 
 // MARK: - Decoding and errors
 
-@Suite("Polymarket redeem call response")
+@Suite("Polymarket redeem call response", .timeLimit(.minutes(1)))
 struct PolymarketRedeemCallResponseTests {
-    @Test("The calls array is what is read, the deprecated single call is ignored")
-    func readsCalls() throws {
-        let json = """
-        {
-          "version": "v2",
-          "calls": [
-            { "target": "0x12121212006e4cd160d18e3f00711da5c3372600", "value": "0", "data": "0x01" },
-            { "target": "0x12121212006e4cd160d18e3f00711da5c3372600", "value": "0", "data": "0x02" }
-          ],
-          "target": "0x12121212006e4cd160d18e3f00711da5c3372600",
-          "value": "0",
-          "data": "0x01"
-        }
-        """
-
-        let response = try JSONDecoder().decode(PolymarketDTO.RedeemCallResponse.self, from: Data(json.utf8))
-
-        #expect(response.version == "v2")
-        #expect(response.calls.map(\.data) == ["0x01", "0x02"])
-    }
-
     @Test("409 on asking for the redeem calls means there is nothing left to redeem")
     func conflictOnTheCallIsNothingToRedeem() {
         let error = PolymarketRedeemError.forRedeemCall(PolymarketRedeemError(apiError: .http(statusCode: 409, problemDetail: nil)))

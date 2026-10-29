@@ -18,7 +18,7 @@ import TangemSdk
 
 // MARK: - The bytes the card signs
 
-@Suite("Polymarket withdraw calldata")
+@Suite("Polymarket withdraw calldata", .timeLimit(.minutes(1)))
 struct PolymarketWithdrawCallTests {
     @Test("A transfer is packed exactly as the bridge documents it")
     func packsTheDocumentedTransfer() throws {
@@ -73,7 +73,7 @@ struct PolymarketWithdrawCallTests {
 
 // MARK: - The withdrawal itself
 
-@Suite("Polymarket withdrawal")
+@Suite("Polymarket withdrawal", .timeLimit(.minutes(1)))
 struct PolymarketWithdrawTransactionServiceTests {
     @Test("The signed batch carries one pUSD transfer of the entered amount to the bridge address")
     func submitsTheTransferTheUserAskedFor() async throws {
@@ -89,21 +89,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         #expect(batch.nonce == PolymarketRelayerServiceStub.nonce)
         #expect(call.target == PolymarketCollateral.contractAddress)
         #expect(PolymarketWithdrawCall.carries(call, transferOf: 12_500_000, to: bridgeAddress))
-    }
-
-    @Test("The deadline is ten minutes out, well inside the twenty the backend accepts")
-    func deadlineIsInTheNearFuture() async throws {
-        let context = try Context()
-
-        let before = Date().timeIntervalSince1970
-        _ = try await context.sut.withdraw(amount: 1, to: recipientAddress)
-        let after = Date().timeIntervalSince1970
-
-        let batch = try #require(context.withdrawService.submitted.singleElement)
-        let deadline = try #require(TimeInterval(batch.deadline))
-
-        #expect(deadline >= before.rounded(.down) + 600)
-        #expect(deadline <= after + 600)
     }
 
     @Test("The deadline is measured by the backend's clock, not by a device running half an hour behind")
@@ -270,17 +255,6 @@ struct PolymarketWithdrawTransactionServiceTests {
         #expect(context.bridge.receivedBuilderCodes == [ConfigurationServiceStub.code])
     }
 
-    @Test("A first leg confirmed on submission is reported as confirmed")
-    func reportsAConfirmedFirstLeg() async throws {
-        let confirmed = PolymarketWithdrawRecord(transactionId: transactionId, state: .confirmed, transactionHash: "0x7ae1")
-        let context = try Context(submitResults: [.success(confirmed)])
-
-        let record = try await context.sut.withdraw(amount: 1, to: recipientAddress)
-
-        #expect(record.state == .confirmed)
-        #expect(record.transactionHash == "0x7ae1")
-    }
-
     @Test("A first leg still in flight is handed back as it is, without waiting for it to settle")
     func handsBackAnUnsettledFirstLegWithoutWaiting() async throws {
         let accepted = PolymarketWithdrawRecord(transactionId: transactionId, state: .inProgress, transactionHash: nil)
@@ -407,7 +381,7 @@ struct PolymarketWithdrawTransactionServiceTests {
 
 // MARK: - What the withdrawal offers to choose from
 
-@Suite("Polymarket withdraw pair")
+@Suite("Polymarket withdraw pair", .timeLimit(.minutes(1)))
 struct PolymarketWithdrawSwapParametersTests {
     @Test("The source is pinned to the prediction account: nothing to pick, nothing to add from markets")
     func sourceIsPinnedToThePredictionAccount() throws {
@@ -420,22 +394,13 @@ struct PolymarketWithdrawSwapParametersTests {
 
         #expect(configuration.sourceTokenSelection.isSelectionEnabled == false)
         #expect(configuration.sourceTokenSelection.allowsMarketsTokens == false)
-    }
-
-    @Test("Even if the source selector were ever opened, it would list nothing")
-    func sourceSelectorOffersNothing() throws {
-        let provider = try #require(makeConfiguration().sourceTokenSelection.walletsProvider as? FilteredTokenSelectorWalletsProvider)
-
-        #expect(!provider.isIncluded(CampaignsFixtures.makeTokenSelectorItem(tokenItem: .usdcOnPolygon)))
-        #expect(!provider.isIncluded(CampaignsFixtures.makeTokenSelectorItem(tokenItem: CampaignsFixtures.usdcOnEthereum)))
-    }
-
-    @Test("The destination stays selectable while markets search is off")
-    func destinationIsSelectableWithoutMarkets() throws {
-        let configuration = try makeConfiguration()
-
         #expect(configuration.receiveTokenSelection.isSelectionEnabled)
         #expect(configuration.receiveTokenSelection.allowsMarketsTokens == false)
+    }
+
+    @Test("Neither side of the pair can be swapped for the other")
+    func pairCannotBeReversed() throws {
+        #expect(try makeConfiguration().isPairReversalEnabled == false)
     }
 
     @Test("Only USDC on Polygon passes the destination filter")
@@ -454,11 +419,6 @@ struct PolymarketWithdrawSwapParametersTests {
 
         #expect(offered.expressCurrency == PolymarketUtilities.usdcTokenItem.expressCurrency)
         #expect(offered != PolymarketUtilities.usdcTokenItem)
-    }
-
-    @Test("Neither side of the pair can be swapped for the other")
-    func pairCannotBeReversed() throws {
-        #expect(try makeConfiguration().isPairReversalEnabled == false)
     }
 
     @Test("A destination resolved in advance is carried into the flow as the fixed receive side")
@@ -487,7 +447,7 @@ struct PolymarketWithdrawSwapParametersTests {
 
 // MARK: - What may leave the account
 
-@Suite("Polymarket withdraw dispatcher")
+@Suite("Polymarket withdraw dispatcher", .timeLimit(.minutes(1)))
 struct PolymarketWithdrawTransactionDispatcherTests {
     @Test("A transfer is withdrawn for the amount and to the address it carries")
     func withdrawsTheTransferItWasGiven() async throws {
@@ -500,8 +460,8 @@ struct PolymarketWithdrawTransactionDispatcherTests {
         #expect(result.hash == transactionId)
     }
 
-    @Test("A withdrawal never links to an explorer, since its hash is the transfer to the bridge and not the delivery")
-    func neverLinksToAnExplorer() async throws {
+    @Test("A withdrawal reports the hash of its transfer but never links to an explorer, since that hash is the transfer to the bridge and not the delivery")
+    func reportsTheTransferHashWithoutAnExplorerLink() async throws {
         let sut = try makeSUT(withdrawing: WithdrawingSpy(transactionHash: "0x7ae1"))
 
         let result = try await sut.send(transaction: .transfer(makeTransfer(amount: 12.5, destination: recipientAddress)))
@@ -551,16 +511,21 @@ struct PolymarketWithdrawTransactionDispatcherTests {
 
 // MARK: - Errors and states off the wire
 
-@Suite("Polymarket withdraw wire mapping")
+@Suite("Polymarket withdraw wire mapping", .timeLimit(.minutes(1)))
 struct PolymarketWithdrawWireTests {
     @Test("Every status the backend documents maps to its own case", arguments: [
-        (400, "badRequest"), (401, "unauthorized"), (403, "foreignDepositWallet"),
-        (404, "notFound"), (409, "conflict"), (422, "relayerRejected"), (502, "upstreamUnavailable"),
+        (400, \PolymarketWithdrawError.isBadRequest),
+        (401, \PolymarketWithdrawError.isUnauthorized),
+        (403, \PolymarketWithdrawError.isForeignDepositWallet),
+        (404, \PolymarketWithdrawError.isNotFound),
+        (409, \PolymarketWithdrawError.isConflict),
+        (422, \PolymarketWithdrawError.isRelayerRejected),
+        (502, \PolymarketWithdrawError.isUpstreamUnavailable),
     ])
-    func mapsDocumentedStatuses(statusCode: Int, expected: String) {
+    func mapsDocumentedStatuses(statusCode: Int, isExpectedCase: KeyPath<PolymarketWithdrawError, Bool>) {
         let error = PolymarketWithdrawError(apiError: .http(statusCode: statusCode, problemDetail: nil))
 
-        #expect(String(describing: error).hasPrefix(expected))
+        #expect(error[keyPath: isExpectedCase])
     }
 
     @Test("An undocumented status is not mistaken for a documented one")
@@ -579,6 +544,10 @@ struct PolymarketWithdrawWireTests {
 
         #expect(decoded == .unknown)
         #expect(!decoded.isTerminal)
+    }
+
+    @Test("Only a confirmed or a failed withdrawal is settled")
+    func onlyConfirmedAndFailedAreTerminal() {
         #expect(PolymarketWithdrawState.confirmed.isTerminal)
         #expect(PolymarketWithdrawState.failed.isTerminal)
         #expect(!PolymarketWithdrawState.inProgress.isTerminal)

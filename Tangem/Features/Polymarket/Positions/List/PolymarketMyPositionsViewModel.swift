@@ -41,6 +41,7 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
     private weak var coordinator: PolymarketMyPositionsRoutable?
     private let now: () -> Date
     private let visibilitySettleDelay: TimeInterval
+    private let delayProvider: PollDelayProvider
     private let poller: PolymarketForegroundPoller
 
     private var feed = PolymarketPagedFeed<Row>()
@@ -60,16 +61,22 @@ final class PolymarketMyPositionsViewModel: ObservableObject, Identifiable {
         tab: PolymarketPositionsTab,
         positionsService: PolymarketPositionsService,
         coordinator: PolymarketMyPositionsRoutable?,
-        notificationCenter: NotificationCenter = .default,
+        appStateObserver: AppStateObserving = AppStateObserver(),
         now: @escaping () -> Date = Date.init,
-        visibilitySettleDelay: TimeInterval? = nil
+        visibilitySettleDelay: TimeInterval? = nil,
+        delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
         self.tab = tab
         self.positionsService = positionsService
         self.coordinator = coordinator
         self.now = now
         self.visibilitySettleDelay = visibilitySettleDelay ?? Constants.visibilitySettleDelay
-        poller = PolymarketForegroundPoller(interval: Constants.pollInterval, notificationCenter: notificationCenter)
+        self.delayProvider = delayProvider
+        poller = PolymarketForegroundPoller(
+            interval: Constants.pollInterval,
+            appStateObserver: appStateObserver,
+            delayProvider: delayProvider
+        )
 
         reload()
 
@@ -333,7 +340,7 @@ private extension PolymarketMyPositionsViewModel {
         guard !isPollingPaused, visibilityTask == nil else { return }
 
         visibilityTask = runTask(in: self) { @MainActor viewModel in
-            try? await Task.sleep(for: .seconds(viewModel.visibilitySettleDelay))
+            try? await viewModel.delayProvider.wait(for: viewModel.visibilitySettleDelay)
 
             guard !Task.isCancelled else { return }
 

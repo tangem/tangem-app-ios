@@ -11,7 +11,7 @@ import Testing
 import TangemWebSocket
 @testable import TangemPolymarket
 
-@Suite("Polymarket sports channel")
+@Suite("Polymarket sports channel", .timeLimit(.minutes(1)))
 struct PolymarketSportsChannelTests {
     @Test("A frame becomes a game with a string id")
     func frameBecomesAGame() throws {

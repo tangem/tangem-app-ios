@@ -12,25 +12,24 @@ import TangemPolymarket
 import TangemPolymarketUI
 @testable import Tangem
 
-@Suite("Polymarket market list label")
+@Suite("Polymarket market list label", .timeLimit(.minutes(1)))
 struct PolymarketMarketListLabelTests {
     @Test(
-        "A market of a multi-market event is titled by the rule of its event",
+        "A market of a multi-market event is titled by the display mode of its event",
         arguments: [
-            Case(eventNegRisk: false, marketNegRisk: false, groupItemTitle: "Group", expected: "Question"),
-            Case(eventNegRisk: false, marketNegRisk: false, groupItemTitle: nil, expected: "Question"),
-            Case(eventNegRisk: false, marketNegRisk: false, groupItemTitle: "  ", expected: "Question"),
-            Case(eventNegRisk: true, marketNegRisk: true, groupItemTitle: "Group", expected: "Group"),
-            Case(eventNegRisk: true, marketNegRisk: true, groupItemTitle: nil, expected: "Question"),
-            Case(eventNegRisk: true, marketNegRisk: true, groupItemTitle: "", expected: "Question"),
-            Case(eventNegRisk: true, marketNegRisk: true, groupItemTitle: "  ", expected: "Question"),
-            Case(eventNegRisk: true, marketNegRisk: false, groupItemTitle: "Group", expected: "Group"),
-            Case(eventNegRisk: false, marketNegRisk: true, groupItemTitle: "Group", expected: "Question"),
+            Case(displayMode: .plainMarkets, groupItemTitle: "Group", expected: "Question"),
+            Case(displayMode: .plainMarkets, groupItemTitle: nil, expected: "Question"),
+            Case(displayMode: .plainMarkets, groupItemTitle: "", expected: "Question"),
+            Case(displayMode: .plainMarkets, groupItemTitle: "  ", expected: "Question"),
+            Case(displayMode: .groupedOutcomes, groupItemTitle: "Group", expected: "Group"),
+            Case(displayMode: .groupedOutcomes, groupItemTitle: nil, expected: "Question"),
+            Case(displayMode: .groupedOutcomes, groupItemTitle: "", expected: "Question"),
+            Case(displayMode: .groupedOutcomes, groupItemTitle: "  ", expected: "Question"),
         ]
     )
     func multiMarketEvent(_ testCase: Case) {
-        let market = Self.makeMarket(question: "Question", groupItemTitle: testCase.groupItemTitle, isNegRisk: testCase.marketNegRisk)
-        let event = Self.makeEvent(isNegRisk: testCase.eventNegRisk, totalMarketsCount: 2, markets: [market])
+        let market = Self.makeMarket(question: "Question", groupItemTitle: testCase.groupItemTitle, isNegRisk: false)
+        let event = Self.makeEvent(isNegRisk: false, displayMode: testCase.displayMode, totalMarketsCount: 2, markets: [market])
 
         #expect(event.listLabel(for: market) == testCase.expected)
     }
@@ -81,17 +80,17 @@ struct PolymarketMarketListLabelTests {
     @Test(
         "A single-market event labels its market only by the group title, even when it repeats the event title",
         arguments: [
-            Case(eventNegRisk: false, marketNegRisk: false, groupItemTitle: "Group", expected: "Group"),
-            Case(eventNegRisk: false, marketNegRisk: false, groupItemTitle: nil, expected: nil),
-            Case(eventNegRisk: true, marketNegRisk: true, groupItemTitle: "Group", expected: "Group"),
-            Case(eventNegRisk: true, marketNegRisk: true, groupItemTitle: nil, expected: nil),
-            Case(eventNegRisk: true, marketNegRisk: true, groupItemTitle: "Match Winner", expected: nil),
-            Case(eventNegRisk: false, marketNegRisk: false, groupItemTitle: "Event", expected: "Event"),
+            Case(displayMode: .plainMarkets, groupItemTitle: "Group", expected: "Group"),
+            Case(displayMode: .plainMarkets, groupItemTitle: nil, expected: nil),
+            Case(displayMode: .groupedOutcomes, groupItemTitle: "Group", expected: "Group"),
+            Case(displayMode: .groupedOutcomes, groupItemTitle: nil, expected: nil),
+            Case(displayMode: .groupedOutcomes, groupItemTitle: "Match Winner", expected: nil),
+            Case(displayMode: .plainMarkets, groupItemTitle: "Event", expected: "Event"),
         ]
     )
     func singleMarketEvent(_ testCase: Case) {
-        let market = Self.makeMarket(question: "Question", groupItemTitle: testCase.groupItemTitle, isNegRisk: testCase.marketNegRisk)
-        let event = Self.makeEvent(isNegRisk: testCase.eventNegRisk, totalMarketsCount: 1, markets: [market])
+        let market = Self.makeMarket(question: "Question", groupItemTitle: testCase.groupItemTitle, isNegRisk: false)
+        let event = Self.makeEvent(isNegRisk: false, displayMode: testCase.displayMode, totalMarketsCount: 1, markets: [market])
 
         #expect(event.listLabel(for: market) == testCase.expected)
     }
@@ -131,13 +130,12 @@ struct PolymarketMarketListLabelTests {
 
 extension PolymarketMarketListLabelTests {
     struct Case: Sendable, CustomTestStringConvertible {
-        let eventNegRisk: Bool
-        let marketNegRisk: Bool
+        let displayMode: PolymarketDisplayMode
         let groupItemTitle: String?
         let expected: String?
 
         var testDescription: String {
-            "event negRisk \(eventNegRisk), market negRisk \(marketNegRisk), groupItemTitle \(groupItemTitle ?? "nil")"
+            "display mode \(displayMode), groupItemTitle \(groupItemTitle ?? "nil")"
         }
     }
 }

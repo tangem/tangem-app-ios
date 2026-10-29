@@ -21,41 +21,25 @@ struct PolymarketBalanceDisplayTests {
 
         display.update(available: .loaded("$10.00"))
 
-        #expect(display.state == Self.loadedState("$10.00"))
+        #expect(display.state?.loadedText == "$10.00")
     }
 
     @Test("A failed refresh keeps showing the last loaded balance")
-    func failureFallsBackToTheLastBalance() throws {
+    func failureFallsBackToTheLastBalance() {
         var display = PolymarketBalanceDisplay()
         display.update(available: .loaded("$10.00"))
         display.update(available: .failure(.empty("-")))
 
-        let state = try #require(display.state)
-        let reference = try #require(Self.loadedState("$10.00"))
-
-        guard case .failed(let cached, _) = state, case .loaded(let loaded) = reference else {
-            Issue.record("Expected the cached balance, got \(state)")
-            return
-        }
-
-        #expect(cached == loaded)
+        #expect(display.state?.failedText == "$10.00")
     }
 
     @Test("A failed refresh after a cached balance keeps showing that cache")
-    func failureFallsBackToTheCachedBalance() throws {
+    func failureFallsBackToTheCachedBalance() {
         var display = PolymarketBalanceDisplay()
         display.update(available: .loading(.cache(.init(balance: "$10.00", date: Date()))))
         display.update(available: .failure(.empty("-")))
 
-        let state = try #require(display.state)
-        let reference = try #require(Self.loadedState("$10.00"))
-
-        guard case .failed(let cached, _) = state, case .loaded(let loaded) = reference else {
-            Issue.record("Expected the cached balance, got \(state)")
-            return
-        }
-
-        #expect(cached == loaded)
+        #expect(display.state?.failedText == "$10.00")
     }
 
     @Test("A failed first load shows the failure as is")
@@ -63,10 +47,7 @@ struct PolymarketBalanceDisplayTests {
         var display = PolymarketBalanceDisplay()
         display.update(available: .failure(.empty("-")))
 
-        guard case .failed = display.state else {
-            Issue.record("Expected the failure state")
-            return
-        }
+        #expect(display.state?.failedText == "-")
     }
 
     @Test("A refresh over a cached balance is drawn as the loaded balance")
@@ -74,7 +55,7 @@ struct PolymarketBalanceDisplayTests {
         var display = PolymarketBalanceDisplay()
         display.update(available: .loading(.cache(.init(balance: "$10.00", date: Date()))))
 
-        #expect(display.state == Self.loadedState("$10.00"))
+        #expect(display.state?.loadedText == "$10.00")
     }
 
     @Test("The mode stays on available while the total has no value to show")
@@ -97,11 +78,11 @@ struct PolymarketBalanceDisplayTests {
 
         display.toggleMode()
         #expect(display.mode == .total)
-        #expect(display.state == Self.loadedState("$25.00"))
+        #expect(display.state?.loadedText == "$25.00")
 
         display.toggleMode()
         #expect(display.mode == .available)
-        #expect(display.state == Self.loadedState("$10.00"))
+        #expect(display.state?.loadedText == "$10.00")
     }
 
     @Test("A cached total lets the mode switch")
@@ -128,12 +109,30 @@ struct PolymarketBalanceDisplayTests {
         #expect(display.mode == .available)
         #expect(!display.canSwitchMode)
     }
+}
 
-    // MARK: - Helpers
+// MARK: - Helpers
 
-    static func loadedState(_ balance: String) -> LoadableBalanceView.State? {
-        var display = PolymarketBalanceDisplay()
-        display.update(available: .loaded(balance))
-        return display.state
+private extension LoadableBalanceView.State {
+    var loadedText: String? {
+        guard case .loaded(let text) = self else { return nil }
+
+        return text.plainText
+    }
+
+    var failedText: String? {
+        guard case .failed(let text, _) = self else { return nil }
+
+        return text.plainText
+    }
+}
+
+private extension LoadableBalanceView.Text {
+    var plainText: String? {
+        switch self {
+        case .string(let string): string
+        case .attributed(let attributed): String(attributed.characters)
+        case .builder: nil
+        }
     }
 }

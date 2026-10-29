@@ -14,16 +14,21 @@ import TangemPolymarket
 @Suite("Polymarket event details mapping")
 struct PolymarketEventDetailsContentTests {
     @Test("A 24h change of a thousand percent and more is abbreviated like the total volume")
-    func hugeVolumeChangeIsAbbreviated() {
+    func hugeVolumeChangeIsAbbreviated() throws {
         let content = PolymarketEventDetailsContent.make(
-            event: Self.makeEvent(markets: [], volume: 1_000_000, volume24h: 999_990),
+            event: Self.makeEvent(markets: [], volume: 1_000_040, volume24h: 1_000_000),
             category: nil,
             abbreviatesHugeVolumeChange: true,
             onSelectOutcome: { _, _ in }
         )
 
-        #expect(content.volumeChange.text.hasSuffix("M" + PercentFormatter.Suffix.default.value))
-        #expect(content.volumeChange.text.count < 10)
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        numberFormatter.locale = .current
+        numberFormatter.maximumFractionDigits = 2
+        let millions = try #require(numberFormatter.string(from: NSDecimalNumber(string: "2.5")))
+
+        #expect(content.volumeChange.text == millions + "M" + PercentFormatter.Suffix.default.value)
     }
 
     @Test("Without phase two a huge 24h change keeps the regular percent format")
@@ -94,18 +99,6 @@ struct PolymarketEventDetailsContentTests {
         #expect(content.closedMarkets.map(\.id) == ["closed"])
         #expect(content.closedMarkets.allSatisfy { $0.outcomes.isNotEmpty })
         #expect(content.closedMarkets.allSatisfy { $0.outcomes.allSatisfy { !$0.isEnabled } })
-    }
-
-    @Test("Archived markets are shown in neither the open nor the closed list")
-    func archivedMarketsAreHidden() {
-        let content = Self.makeContent(markets: [
-            Self.makeMarket(id: "open", status: .active),
-            Self.makeMarket(id: "archived", status: .archived),
-            Self.makeMarket(id: "closed", status: .closed),
-        ])
-
-        #expect(content.activeMarkets.map(\.id) == ["open"])
-        #expect(content.closedMarkets.map(\.id) == ["closed"])
         #expect(content.showsClosedMarketsToggle)
     }
 

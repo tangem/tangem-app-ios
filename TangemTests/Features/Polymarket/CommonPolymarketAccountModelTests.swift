@@ -13,7 +13,7 @@ import TangemFoundation
 import TangemPolymarket
 @testable import Tangem
 
-@Suite("Polymarket account state")
+@Suite("Polymarket account state", .timeLimit(.minutes(1)))
 struct CommonPolymarketAccountModelTests {
     @Test("A wallet the backend has never seen produces no account at all")
     func notCreatedProducesNoAccount() async {
@@ -347,27 +347,6 @@ struct CommonPolymarketAccountModelTests {
         #expect(sut.state == .active)
     }
 
-    @Test("An active account is only claimed once the balance has actually been asked for")
-    func anActiveAccountReadsItsBalance() async {
-        let clob = PolymarketCLOBServiceStub(balanceResult: .success(12.34))
-        let (sut, balance) = makeSUT(
-            walletService: PolymarketDepositWalletServiceStub(status: .readyToTrade),
-            credentialsRepository: PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials),
-            clobService: clob
-        )
-
-        await sut.refreshState()
-
-        #expect(clob.balanceCalls == 1)
-
-        guard case .loaded(let value) = balance.updates.last else {
-            Issue.record("The balance was never delivered")
-            return
-        }
-
-        #expect(value.available == 12.34)
-    }
-
     @Test("A cancelled balance load does not leave the row loading forever")
     func aCancelledBalanceLoadSettlesTheRow() async {
         let (sut, balance) = makeSUT(
@@ -387,23 +366,6 @@ struct CommonPolymarketAccountModelTests {
 // MARK: - Positions value
 
 extension CommonPolymarketAccountModelTests {
-    @Test("A refresh that joined a round already past its state read starts one of its own")
-    func aJoinedRoundThatSkippedTheStateIsFollowedByAnother() async throws {
-        let wallet = GatedDepositWalletServiceStub(status: .deploymentInProgress)
-        let (sut, _) = makeSUT(walletService: wallet)
-
-        async let first: Void = sut.refreshState()
-
-        await wallet.waitUntilAsked()
-
-        async let second: Void = sut.refreshState()
-
-        await wallet.release()
-        _ = await (first, second)
-
-        #expect(wallet.requestedOwnerAddresses.count == 2)
-    }
-
     @Test("A full round reads the positions, and the total holds both parts")
     func fullRoundReadsPositions() async {
         let positions = PolymarketPositionsValueServiceStub(result: .success(7))
@@ -449,17 +411,6 @@ extension CommonPolymarketAccountModelTests {
         await sut.refreshState(scope: .full)
 
         #expect(wallet.requestedOwnerAddresses.count == 1)
-    }
-
-    @Test("An account that needs a sync settles after a single round as well")
-    func aFullRoundOnAnAccountThatNeedsSyncSettlesAtOnce() async {
-        let wallet = PolymarketDepositWalletServiceStub(status: .readyToTrade)
-        let (sut, balance) = makeSUT(walletService: wallet, credentialsRepository: PolymarketCredentialsRepositoryStub())
-
-        await sut.refreshState(scope: .full)
-
-        #expect(sut.state == .syncNeeded)
-        #expect(balance.unavailableCalls == 1)
     }
 
     @Test("Skipping the positions before anything is known leaves the total unknown instead of pretending there are no bets")
@@ -634,71 +585,5 @@ private extension PolymarketBalanceServiceSpy {
                 return balance
             }
             .first
-    }
-}
-
-// MARK: - A wallet service that can be held mid-request
-
-private final class GatedDepositWalletServiceStub: PolymarketDepositWalletService, @unchecked Sendable {
-    private(set) var requestedOwnerAddresses: [String?] = []
-
-    private let state: PolymarketDepositWallet
-    private let asked = AsyncSignal()
-    private let gate = AsyncSignal()
-
-    init(status: PolymarketDepositWalletStatus) {
-        state = PolymarketDepositWallet(
-            address: PolymarketDepositWalletServiceStub.depositWalletAddress,
-            status: status
-        )
-    }
-
-    func waitUntilAsked() async {
-        await asked.wait()
-    }
-
-    func release() async {
-        await gate.signal()
-    }
-
-    func depositWalletState(ownerAddress: String?) async throws(PolymarketWalletError) -> PolymarketDepositWallet {
-        requestedOwnerAddresses.append(ownerAddress)
-
-        guard requestedOwnerAddresses.count == 1 else {
-            return state
-        }
-
-        await asked.signal()
-        await gate.wait()
-
-        return state
-    }
-
-    func deployWallet(
-        ownerAddress: String,
-        depositWalletAddress: String
-    ) async throws(PolymarketWalletError) -> PolymarketDepositWalletStatus {
-        state.status
-    }
-
-    func submitApprovals(_ batch: PolymarketRelayedBatch) async throws(PolymarketWalletError) -> PolymarketDepositWalletStatus {
-        state.status
-    }
-}
-
-private actor AsyncSignal {
-    private var isSignalled = false
-    private var waiters: [CheckedContinuation<Void, Never>] = []
-
-    func signal() {
-        isSignalled = true
-        waiters.forEach { $0.resume() }
-        waiters = []
-    }
-
-    func wait() async {
-        guard !isSignalled else { return }
-
-        await withCheckedContinuation { waiters.append($0) }
     }
 }

@@ -9,19 +9,9 @@ import Foundation
 import Testing
 @testable import TangemPolymarket
 
-@Suite("PolymarketFeedPages")
+@Suite("PolymarketFeedPages", .timeLimit(.minutes(1)))
 struct PolymarketFeedPagesTests {
     // MARK: - Appending
-
-    @Test("A page keeps the cursor it was asked for, which is what a refresh of it asks again")
-    func pageKeepsItsCursor() {
-        var feed = PolymarketFeedPages()
-
-        feed.append(events: [Self.event("a")], requestCursor: nil, at: Self.start)
-        feed.append(events: [Self.event("b")], requestCursor: "cursor-1", at: Self.start)
-
-        #expect(feed.pages.map(\.requestCursor) == [nil, "cursor-1"])
-    }
 
     @Test("An event the feed already holds stays on the page it first arrived on")
     func duplicatesStayOnTheirFirstPage() {

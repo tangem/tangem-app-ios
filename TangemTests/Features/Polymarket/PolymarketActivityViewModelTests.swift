@@ -11,7 +11,7 @@ import Testing
 import TangemPolymarket
 @testable import Tangem
 
-@Suite("Polymarket history screen")
+@Suite("Polymarket history screen", .timeLimit(.minutes(1)))
 @MainActor
 struct PolymarketActivityViewModelTests {
     @Test("The first page shows its rows and asks for a deposit scan")
@@ -21,7 +21,8 @@ struct PolymarketActivityViewModelTests {
 
         let sut = PolymarketActivityViewModel(activityService: service, coordinator: nil)
 
-        try await settle { sut.loadingState == .allDataLoaded && service.reconcileCount == 1 }
+        try await service.reconciled.next()
+        await Self.loadingState(of: sut, becomes: .allDataLoaded)
         #expect(sut.sections.flatMap(\.rows).map(\.id) == ["1"])
     }
 
@@ -32,12 +33,13 @@ struct PolymarketActivityViewModelTests {
 
         let sut = PolymarketActivityViewModel(activityService: service, coordinator: nil)
 
-        try await settle { sut.loadingState == .error(.rejected(statusCode: 403)) }
+        await Self.loadingState(of: sut, becomes: .error(.rejected(statusCode: 403)))
 
         service.pages[nil] = .success(.init(records: [.withdrawal(id: "1")], receivedCount: 1, nextCursor: nil))
         sut.handleViewAction(.retry)
 
-        try await settle { sut.loadingState == .allDataLoaded }
+        await Self.loadingState(of: sut, becomes: .allDataLoaded)
+        #expect(sut.sections.flatMap(\.rows).map(\.id) == ["1"])
     }
 
     @Test("The next page continues from the cursor and merges a claim split across pages")
@@ -48,31 +50,12 @@ struct PolymarketActivityViewModelTests {
 
         let sut = PolymarketActivityViewModel(activityService: service, coordinator: nil)
 
-        try await settle { sut.loadingState == .loaded }
+        await Self.loadingState(of: sut, becomes: .loaded)
         sut.handleViewAction(.loadNextPage)
-        try await settle { sut.loadingState == .allDataLoaded }
+        await Self.loadingState(of: sut, becomes: .allDataLoaded)
 
         #expect(service.requestedCursors == [nil, "next"])
         #expect(sut.sections.flatMap(\.rows).map(\.id) == ["1"])
-    }
-
-    @Test("A failed next page keeps the rows and retries from the footer")
-    func paginationRetry() async throws {
-        let service = PolymarketActivityServiceStub()
-        service.pages[nil] = .success(.init(records: [.withdrawal(id: "1")], receivedCount: 1, nextCursor: "next"))
-        service.pages["next"] = .failure(PolymarketAPIError.connection(underlying: URLError(.timedOut)))
-
-        let sut = PolymarketActivityViewModel(activityService: service, coordinator: nil)
-
-        try await settle { sut.loadingState == .loaded }
-        sut.handleViewAction(.loadNextPage)
-        try await settle { sut.loadingState == .paginationError }
-
-        service.pages["next"] = .success(.init(records: [.withdrawal(id: "2")], receivedCount: 1, nextCursor: nil))
-        sut.handleViewAction(.retryNextPage)
-
-        try await settle { sut.loadingState == .allDataLoaded }
-        #expect(sut.sections.flatMap(\.rows).map(\.id) == ["1", "2"])
     }
 
     @Test("Tapping a claim opens its merged details")
@@ -87,7 +70,7 @@ struct PolymarketActivityViewModelTests {
 
         let sut = PolymarketActivityViewModel(activityService: service, coordinator: routable)
 
-        try await settle { sut.loadingState == .allDataLoaded }
+        await Self.loadingState(of: sut, becomes: .allDataLoaded)
         sut.handleViewAction(.rowTapped(id: "1"))
 
         #expect(routable.openedRecords.first?.amount == 6)
@@ -102,15 +85,16 @@ struct PolymarketActivityViewModelTests {
 
         let sut = PolymarketActivityViewModel(activityService: service, coordinator: nil)
 
-        try await settle { sut.loadingState == .loaded }
+        await Self.loadingState(of: sut, becomes: .loaded)
         sut.handleViewAction(.loadNextPage)
-        try await settle { sut.loadingState == .paginationError }
+        await Self.loadingState(of: sut, becomes: .paginationError)
+        #expect(sut.sections.flatMap(\.rows).map(\.id) == ["1"])
 
         service.pages["next"] = .success(.init(records: [.withdrawal(id: "2")], receivedCount: 1, nextCursor: nil))
         sut.handleViewAction(.retryNextPage)
 
-        try await settle { sut.loadingState == .allDataLoaded }
-        #expect(service.requestedCursors.suffix(2) == ["next", "next"])
+        await Self.loadingState(of: sut, becomes: .allDataLoaded)
+        #expect(service.requestedCursors == [nil, "next", "next"])
         #expect(sut.sections.flatMap(\.rows).map(\.id) == ["1", "2"])
     }
 
@@ -122,22 +106,32 @@ struct PolymarketActivityViewModelTests {
 
         let sut = PolymarketActivityViewModel(activityService: service, coordinator: nil)
 
-        try await settle { sut.loadingState == .loaded }
+        await Self.loadingState(of: sut, becomes: .loaded)
 
-        service.holdsFirstPage = true
+        let firstPage = PolymarketTestGate()
+        service.firstPageGate = firstPage
         let refresh = Task { await sut.refresh() }
-        try await settle { service.isHoldingFirstPage }
+        try await firstPage.entered.next()
 
         sut.handleViewAction(.loadNextPage)
-        service.releaseFirstPage()
+        #expect(sut.loadingState == .loaded)
+
+        firstPage.open()
         await refresh.value
 
-        try await settle { sut.loadingState == .allDataLoaded }
+        await Self.loadingState(of: sut, becomes: .allDataLoaded)
+        #expect(service.requestedCursors == [nil, nil, "next"])
         #expect(sut.sections.flatMap(\.rows).map(\.id) == ["1", "2"])
     }
 }
 
 // MARK: - Helpers
+
+private extension PolymarketActivityViewModelTests {
+    static func loadingState(of sut: PolymarketActivityViewModel, becomes state: PolymarketActivityViewModel.LoadingState) async {
+        _ = await sut.$loadingState.firstValue { $0 == state }
+    }
+}
 
 private extension PolymarketActivityRecord {
     static func withdrawal(id: String) -> PolymarketActivityRecord {

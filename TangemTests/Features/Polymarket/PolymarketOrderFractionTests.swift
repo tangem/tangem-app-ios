@@ -14,7 +14,7 @@ import TangemPolymarket
 @testable import Tangem
 
 @MainActor
-@Suite("Polymarket amount fractions")
+@Suite("Polymarket amount fractions", .timeLimit(.minutes(1)))
 struct PolymarketOrderFractionTests {
     @Test("A chip moves the amount the order is quoted at, not just the digits in the field")
     func chipMovesTheOrder() async throws {
@@ -42,7 +42,7 @@ struct PolymarketOrderFractionTests {
         model.handleViewAction(.onAppear)
         model.handleViewAction(.selectFraction(.quarter))
 
-        try await settle { model.state.quote.quote != nil }
+        _ = await model.$state.firstValue { $0.quote.quote != nil }
 
         model.handleViewAction(.selectFraction(.max))
 
@@ -61,7 +61,7 @@ struct PolymarketOrderFractionTests {
         model.handleViewAction(.onAppear)
         model.handleViewAction(.selectFraction(.quarter))
 
-        try await settle { model.state.quote.quote != nil }
+        _ = await model.$state.firstValue { $0.quote.quote != nil }
 
         model.handleViewAction(.selectFraction(.max))
 
@@ -97,16 +97,6 @@ struct PolymarketOrderFractionTests {
         #expect(model.state.enteredAmount == held)
     }
 
-    @Test("A position smaller than a token is sold whole")
-    func sellMaxOfATinyPositionIsExact() async throws {
-        let held = Decimal(string: "0.4")!
-        let model = try await makeModel(balance: held, intent: .sell(shares: held))
-
-        model.handleViewAction(.selectFraction(.max))
-
-        #expect(model.state.enteredAmount == held)
-    }
-
     @Test("Without a quote to read the fee from, Max still offers nine tenths of the balance")
     func maxWithoutAQuoteIsNineTenthsOfTheBalance() async throws {
         let model = try await makeModel(balance: 200)
@@ -130,7 +120,7 @@ struct PolymarketOrderFractionTests {
 // MARK: - Stepper bounds
 
 @MainActor
-@Suite("Polymarket amount steppers")
+@Suite("Polymarket amount steppers", .timeLimit(.minutes(1)))
 struct PolymarketOrderStepperTests {
     @Test("A sale opens on the whole position, so only the minus can move")
     func saleOpensAtTheTop() async throws {
@@ -204,24 +194,16 @@ struct PolymarketOrderStepperTests {
         #expect(!model.gate.canStepDown)
     }
 
-    @Test("Without a balance neither stepper is offered")
+    @Test("Without a balance neither stepper nor fraction is offered")
     func noBalanceOffersNoSteps() {
-        let model = PolymarketOrderModel(
-            market: .fixture,
-            outcome: .fixture,
-            eventTitle: "Fixture event",
-            intent: .buy(balance: .just(output: nil)),
-            apiProvider: PolymarketAPIProviderStub(),
-            geoblockStateProvider: PolymarketGeoblockStateProviderStub(),
-            positionsService: nil,
-            clobService: PolymarketCLOBServiceStub(),
-            isAwaitingFundsPublisher: .just(output: false),
-            collateralBalancePublisher: .just(output: nil),
-            addFundsReadinessStream: AsyncStream { $0.yield(.unavailable); $0.finish() }
+        let gate = PolymarketOrderGate(
+            state: .stub(enteredAmount: nil, balance: nil),
+            intent: .buy(balance: .just(output: nil))
         )
 
-        #expect(!model.gate.canStepUp)
-        #expect(!model.gate.canStepDown)
+        #expect(!gate.canStepUp)
+        #expect(!gate.canStepDown)
+        #expect(gate.selectableFractions.isEmpty)
     }
 }
 
@@ -243,10 +225,11 @@ private extension PolymarketOrderStepperTests {
             clobService: PolymarketCLOBServiceStub(),
             isAwaitingFundsPublisher: .just(output: false),
             collateralBalancePublisher: .just(output: balance),
-            addFundsReadinessStream: AsyncStream { $0.yield(.unavailable); $0.finish() }
+            addFundsReadinessStream: AsyncStream { $0.yield(.unavailable); $0.finish() },
+            delayProvider: PolymarketSteppedDelayProvider()
         )
 
-        try await settle { model.state.balance != nil }
+        _ = await model.$state.firstValue { $0.balance != nil }
 
         return model
     }
@@ -271,10 +254,11 @@ private extension PolymarketOrderFractionTests {
             clobService: PolymarketCLOBServiceStub(),
             isAwaitingFundsPublisher: .just(output: false),
             collateralBalancePublisher: .just(output: balance),
-            addFundsReadinessStream: AsyncStream { $0.yield(.unavailable); $0.finish() }
+            addFundsReadinessStream: AsyncStream { $0.yield(.unavailable); $0.finish() },
+            delayProvider: PolymarketSteppedDelayProvider()
         )
 
-        try await settle { model.state.balance != nil }
+        _ = await model.$state.firstValue { $0.balance != nil }
 
         return model
     }

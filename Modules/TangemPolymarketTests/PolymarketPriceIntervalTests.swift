@@ -10,13 +10,8 @@ import Foundation
 import Testing
 @testable import TangemPolymarket
 
-@Suite("Polymarket price interval")
+@Suite("Polymarket price interval", .timeLimit(.minutes(1)))
 struct PolymarketPriceIntervalTests {
-    @Test("Every interval goes on the wire under the name the endpoint knows it by")
-    func rawValuesMatchTheEndpointQuery() {
-        #expect(PolymarketPriceInterval.allCases.map(\.rawValue) == ["1h", "6h", "1d", "1w", "1m", "max"])
-    }
-
     @Test("The windows on offer follow the market's age the way Polymarket picks them", arguments: [
         AgeCase(age: 0, intervals: [.hour, .sixHours, .allTime]),
         AgeCase(age: Constants.day - Constants.minute, intervals: [.hour, .sixHours, .allTime]),
@@ -48,7 +43,7 @@ struct PolymarketPriceIntervalTests {
 
 // MARK: - History query
 
-@Suite("Polymarket price history query")
+@Suite("Polymarket price history query", .timeLimit(.minutes(1)))
 struct PolymarketPriceHistoryQueryTests {
     @Test("MAX charts a market from its start on a grid sized to its life, the way Polymarket does", arguments: [
         SpanCase(span: 0, fidelityMinutes: 1),

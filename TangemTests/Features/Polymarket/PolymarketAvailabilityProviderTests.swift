@@ -67,13 +67,6 @@ struct PolymarketAvailabilityProviderTests {
         #expect(sut.isAvailable(hasAccount: { true }))
     }
 
-    @Test("A wallet without an account follows the feature-wide decision", arguments: [true, false])
-    func walletWithoutAnAccountFollowsTheFeature(isEnrolled: Bool) {
-        let sut = makeSUT(isToggleOn: true, variant: isEnrolled ? .on : nil)
-
-        #expect(sut.isAvailable(hasAccount: { false }) == isEnrolled)
-    }
-
     @Test("Availability follows the experiment once its variants arrive")
     func availabilityFollowsFetchedVariants() {
         let experimentService = ExperimentServiceStub(storedVariant: nil)

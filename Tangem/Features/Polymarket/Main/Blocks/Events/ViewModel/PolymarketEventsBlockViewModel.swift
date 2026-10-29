@@ -45,6 +45,7 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
     private let isRegionRestricted: () -> Bool
     private weak var routable: PolymarketEventOpeningRoutable?
     private let now: () -> Date
+    private let delayProvider: PollDelayProvider
     private let reportOutdatedData: () -> Void
 
     private var feed = PolymarketFeedPages()
@@ -75,8 +76,9 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
         usesPhaseTwoCards: Bool,
         isRegionRestricted: @escaping () -> Bool,
         routable: PolymarketEventOpeningRoutable,
-        notificationCenter: NotificationCenter = .default,
+        appStateObserver: AppStateObserving = AppStateObserver(),
         now: @escaping () -> Date = Date.init,
+        delayProvider: PollDelayProvider = TaskSleepPollDelayProvider(),
         reportOutdatedData: @escaping () -> Void = PolymarketEventsBlockViewModel.presentOutdatedDataToast
     ) {
         self.apiProvider = apiProvider
@@ -88,8 +90,13 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
         self.isRegionRestricted = isRegionRestricted
         self.routable = routable
         self.now = now
+        self.delayProvider = delayProvider
         self.reportOutdatedData = reportOutdatedData
-        poller = PolymarketForegroundPoller(interval: Constants.pollInterval, notificationCenter: notificationCenter)
+        poller = PolymarketForegroundPoller(
+            interval: Constants.pollInterval,
+            appStateObserver: appStateObserver,
+            delayProvider: delayProvider
+        )
 
         refreshCenter.register { [weak self] scope in
             await self?.refresh(scope: scope)
@@ -302,7 +309,7 @@ private extension PolymarketEventsBlockViewModel {
         guard !isPollingPaused, visibilityTask == nil else { return }
 
         visibilityTask = runTask(in: self) { @MainActor viewModel in
-            try? await Task.sleep(for: .seconds(Constants.visibilitySettleDelay))
+            try? await viewModel.delayProvider.wait(for: Constants.visibilitySettleDelay)
 
             guard !Task.isCancelled else { return }
 
@@ -606,7 +613,7 @@ private extension PolymarketEventsBlockViewModel {
         } catch {
             guard !error.isCancellationError else { throw error }
 
-            try await Task.sleep(for: .seconds(Constants.silentRetryDelay))
+            try await delayProvider.wait(for: Constants.silentRetryDelay)
 
             return try await apiProvider.events(request: request)
         }

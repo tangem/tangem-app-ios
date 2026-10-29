@@ -13,6 +13,7 @@ import TangemFoundation
 
 final class PolymarketLiveGamesSourceSpy: Sendable {
     let statuses = PolymarketLiveStreamSpy<PolymarketWebSocketConnectionStatus>()
+    let requests = PolymarketTestSignal<PolymarketLiveStreamSpy<PolymarketLiveGame>>()
 
     private let state = OSAllocatedUnfairLock(initialState: [PolymarketLiveStreamSpy<PolymarketLiveGame>]())
 
@@ -23,7 +24,7 @@ final class PolymarketLiveGamesSourceSpy: Sendable {
     @MainActor
     func makeTracker(delayProvider: any PollDelayProvider = HoldingDelayProviderSpy(holdThreshold: 0)) -> PolymarketFeedLiveGamesTracker {
         PolymarketFeedLiveGamesTracker(
-            games: { [self] gameIds in games(for: gameIds) },
+            games: { @MainActor [self] gameIds in games(for: gameIds) },
             statusChanges: { [statuses] in statuses.makeStream() },
             delayProvider: delayProvider
         )
@@ -32,6 +33,7 @@ final class PolymarketLiveGamesSourceSpy: Sendable {
     private func games(for gameIds: Set<String>) -> AsyncStream<PolymarketLiveGame> {
         let stream = PolymarketLiveStreamSpy<PolymarketLiveGame>(assetIds: gameIds)
         state.withLock { $0.append(stream) }
+        requests.send(stream)
         return stream.makeStream()
     }
 }

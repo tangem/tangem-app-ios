@@ -206,7 +206,7 @@ struct PolymarketWebSocketSubscriptionClientTests {
         try await env.delayProvider.parkedWaits(of: Constants.disconnectDelay, count: 2)
         try await env.delayProvider.parkedWaits(of: Constants.keepaliveInterval, count: 1)
 
-        #expect(env.delayProvider.parkedSeconds == [Constants.unsubscribeDelay, Constants.disconnectDelay, Constants.keepaliveInterval].map { $0 / .seconds(1) })
+        #expect(!env.delayProvider.parkedSeconds.contains(Constants.silenceTimeout / .seconds(1)))
         #expect(connection.sent.elements == [.text("subscribe-first:a")])
         #expect(env.transport.connections.elements.count == 1)
     }

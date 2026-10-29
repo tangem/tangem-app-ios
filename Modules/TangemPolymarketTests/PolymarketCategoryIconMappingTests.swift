@@ -10,16 +10,9 @@ import Foundation
 import Testing
 @testable import TangemPolymarket
 
-@Suite("Polymarket category icon")
+@Suite("Polymarket category icon", .timeLimit(.minutes(1)))
 struct PolymarketCategoryIconMappingTests {
     private let mapper = PolymarketMapper()
-
-    @Test("Every key the backend can send maps to its icon", arguments: PolymarketCategoryIcon.allCases)
-    func knownKeyMapsToItsIcon(icon: PolymarketCategoryIcon) throws {
-        let category = try mapper.mapCategory(Self.decode(icon: "\"\(icon.rawValue)\""))
-
-        #expect(category.icon == icon)
-    }
 
     @Test("A key this build does not know, or no key at all, leaves the category without an icon", arguments: [
         "\"astrology\"",

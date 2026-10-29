@@ -12,10 +12,10 @@ import TangemPolymarket
 import TangemSdk
 @testable import Tangem
 
-@Suite("Polymarket support chat input", .serialized)
+@Suite("Polymarket support chat input", .timeLimit(.minutes(1)))
 @MainActor
 struct PolymarketSupportChatInputFactoryTests {
-    @Test("The chat is opened as the wallet Polymarket runs on, not the selected one")
+    @Test("The chat and its analytics are opened as the wallet Polymarket runs on, not the selected one")
     func identifiesThePolymarketWallet() async {
         let environment = InjectedEnvironment()
 
@@ -23,15 +23,6 @@ struct PolymarketSupportChatInputFactoryTests {
             let input = PolymarketSupportChatInputFactory().makeInput(for: environment.otherWallet)
 
             #expect(input.userIdentifier == InjectedEnvironment.otherWalletId.lowercased())
-        }
-    }
-
-    @Test("Chat analytics carry the wallet Polymarket runs on, not the selected one")
-    func reportsAnalyticsForThePolymarketWallet() async {
-        let environment = InjectedEnvironment()
-
-        await environment.run {
-            let input = PolymarketSupportChatInputFactory().makeInput(for: environment.otherWallet)
 
             guard case .userWallet(let userWalletId) = input.analyticsContextParams else {
                 Issue.record("Expected the analytics context of a specific wallet, got \(input.analyticsContextParams)")
@@ -39,18 +30,6 @@ struct PolymarketSupportChatInputFactoryTests {
             }
 
             #expect(userWalletId == environment.otherWallet.userWalletId)
-        }
-    }
-
-    @Test("The chat says it came from Polymarket to analytics and to Usedesk")
-    func marksTheSourceAndTopic() async {
-        let environment = InjectedEnvironment()
-
-        await environment.run {
-            let input = PolymarketSupportChatInputFactory().makeInput(for: environment.selectedWallet)
-
-            #expect(input.source.analyticsParameterValue == .predictions)
-            #expect(input.topic == .polymarket)
         }
     }
 

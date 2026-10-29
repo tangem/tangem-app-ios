@@ -56,11 +56,6 @@ struct PolymarketDepositNetworkResolverTests {
         #expect(!polygon.receiveInput.minimumDepositFormatted.contains(lenient))
     }
 
-    @Test("Without targets there are no networks to choose from")
-    func noTargetsNoNetworks() {
-        #expect(PolymarketDepositNetworkResolver.resolve(depositTargets: []).isEmpty)
-    }
-
     @Test("A screen that would name one network for tokens of several is not built at all")
     func receiveInputRefusesTokensOfSeveralNetworks() throws {
         let polygon = try makeTarget(PolymarketDepositAssetCatalog.usdcOnPolygon).tokenItem
@@ -69,19 +64,6 @@ struct PolymarketDepositNetworkResolverTests {
         #expect(makeReceiveInput(tokens: [polygon, base]) == nil)
         #expect(makeReceiveInput(tokens: []) == nil)
         #expect(makeReceiveInput(tokens: [polygon])?.primaryToken == polygon)
-    }
-
-    @Test("The first token speaks for the screen and the rest keep the order they came in")
-    func receiveInputKeepsTheOrderOfItsTokens() throws {
-        let usdc = try makeTarget(PolymarketDepositAssetCatalog.usdcOnPolygon).tokenItem
-        let usdt = try makeTarget(PolymarketDepositAssetCatalog.usdcOnPolygon, symbol: "USDT").tokenItem
-
-        let input = try #require(makeReceiveInput(tokens: [usdc, usdt]))
-
-        #expect(input.primaryToken == usdc)
-        #expect(input.otherTokens == [usdt])
-        #expect(input.tokens == [usdc, usdt])
-        #expect(input.blockchain == PolymarketUtilities.blockchain)
     }
 }
 

@@ -10,7 +10,7 @@ import Foundation
 import Testing
 @testable import Tangem
 
-@Suite("Polymarket price display")
+@Suite("Polymarket price display", .timeLimit(.minutes(1)))
 struct PolymarketPriceFormatterTests {
     @Test("A price under the lowest tenth of a cent is held at it rather than shown as nothing")
     func aPriceUnderTheFloorIsHeldAtTheFloor() {
@@ -22,11 +22,14 @@ struct PolymarketPriceFormatterTests {
         #expect(PolymarketPriceFormatter.cents(probability("0.9996")) == PolymarketPriceFormatter.cents(probability("0.999")))
     }
 
-    @Test("A resolved market keeps the certainty it has earned", arguments: ["0", "1"])
-    func aResolvedMarketKeepsItsCertainty(_ value: String) {
-        let probability = probability(value)
+    @Test("A resolved market keeps the certainty it has earned", arguments: [
+        ("0", "0"),
+        ("1", "100"),
+    ])
+    func aResolvedMarketKeepsItsCertainty(_ value: String, _ expectedDigits: String) {
+        let text = PolymarketPriceFormatter.cents(probability(value), isResolved: true)
 
-        #expect(PolymarketPriceFormatter.cents(probability, isResolved: true) != PolymarketPriceFormatter.cents(probability))
+        #expect(text.filter(\.isNumber) == expectedDigits)
     }
 
     @Test("A whole number of cents drops the tenth")

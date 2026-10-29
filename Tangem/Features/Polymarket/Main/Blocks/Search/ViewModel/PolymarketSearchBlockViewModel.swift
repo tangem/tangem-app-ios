@@ -32,6 +32,7 @@ final class PolymarketSearchBlockViewModel: ObservableObject {
     private let isRegionRestricted: () -> Bool
     private let usesPhaseTwoCards: Bool
     private let debounceInterval: DispatchQueue.SchedulerTimeType.Stride
+    private let delayProvider: PollDelayProvider
     private weak var routable: PolymarketEventOpeningRoutable?
 
     private var events: [PolymarketEvent] = []
@@ -42,7 +43,7 @@ final class PolymarketSearchBlockViewModel: ObservableObject {
     private var searchTask: Task<Void, Never>?
     private var refreshTask: Task<Void, Never>?
     private var visibleResultsRefreshTask: Task<Void, Never>?
-    private let appStateObserver = AppStateObserver()
+    private let appStateObserver: AppStateObserving
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -51,7 +52,9 @@ final class PolymarketSearchBlockViewModel: ObservableObject {
         isRegionRestricted: @escaping () -> Bool,
         usesPhaseTwoCards: Bool,
         routable: PolymarketEventOpeningRoutable,
-        debounceInterval: DispatchQueue.SchedulerTimeType.Stride = .milliseconds(Constants.debounceMilliseconds)
+        debounceInterval: DispatchQueue.SchedulerTimeType.Stride = .milliseconds(Constants.debounceMilliseconds),
+        appStateObserver: AppStateObserving = AppStateObserver(),
+        delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
         self.apiProvider = apiProvider
         self.activityHandler = activityHandler
@@ -59,6 +62,8 @@ final class PolymarketSearchBlockViewModel: ObservableObject {
         self.usesPhaseTwoCards = usesPhaseTwoCards
         self.routable = routable
         self.debounceInterval = debounceInterval
+        self.delayProvider = delayProvider
+        self.appStateObserver = appStateObserver
 
         bind()
         startRefreshing()
@@ -232,9 +237,11 @@ private extension PolymarketSearchBlockViewModel {
     func startRefreshing() {
         refreshTask?.cancel()
 
+        let delayProvider = delayProvider
+
         refreshTask = Task { @MainActor [weak self] in
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(Constants.refreshInterval))
+                try? await delayProvider.wait(for: Constants.refreshInterval)
 
                 guard !Task.isCancelled, let self else { return }
 

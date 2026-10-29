@@ -9,13 +9,12 @@
 import Combine
 import Foundation
 import Testing
-import UIKit
 import TangemFoundation
 import TangemPolymarket
 @testable import Tangem
 
 @MainActor
-@Suite("Polymarket positions block")
+@Suite("Polymarket positions block", .timeLimit(.minutes(1)))
 struct PolymarketPositionsBlockViewModelTests {
     // MARK: - What the block shows
 
@@ -26,22 +25,11 @@ struct PolymarketPositionsBlockViewModelTests {
 
         #expect(context.sut.content == .hidden)
 
-        try await settle { service.activeRequests == 1 }
-        try await drain()
+        try await context.log.waitForCount(2)
 
-        #expect(context.sut.content == .hidden)
+        #expect(context.log.contents == [.hidden, .hidden])
         #expect(!context.sut.hasFinishedPositions)
         #expect(!context.presenceStore.hadPositions(userWalletId: Self.userWalletId))
-    }
-
-    @Test("A wallet that had positions sees a skeleton until the list arrives")
-    func returningUserSeesSkeleton() async throws {
-        let service = PositionsBlockServiceStub(active: [Self.page(["a"])], finished: [.success(false)])
-        let context = Self.makeSUT(service: service, hadPositions: true)
-
-        #expect({ if case .skeleton = context.sut.content { true } else { false } }())
-
-        try await settle { Self.rowIDs(context.sut.content) == ["a/1"] }
     }
 
     @Test("A wallet that had positions but never showed any sees a single skeleton row")
@@ -58,7 +46,7 @@ struct PolymarketPositionsBlockViewModelTests {
         let firstService = PositionsBlockServiceStub(active: [Self.page(["a", "b"])], finished: [.success(false)])
         let first = Self.makeSUT(service: firstService, presenceStore: presenceStore)
 
-        try await settle { Self.rowIDs(first.sut.content) == ["a/1", "b/1"] }
+        try await first.log.waitUntil { Self.rowIDs($0) == ["a/1", "b/1"] }
 
         #expect(presenceStore.shownPositionsCount(userWalletId: Self.userWalletId) == 2)
 
@@ -73,7 +61,7 @@ struct PolymarketPositionsBlockViewModelTests {
         let service = PositionsBlockServiceStub(active: [Self.page(["a", "b", "c", "d"])], finished: [.success(false)])
         let context = Self.makeSUT(service: service)
 
-        try await settle { Self.rowIDs(context.sut.content) != nil }
+        try await context.log.waitUntil { Self.rowIDs($0) != nil }
 
         #expect(Self.rowIDs(context.sut.content) == ["a/1", "b/1", "c/1"])
         #expect(Self.showsViewAll(context.sut.content) == true)
@@ -84,9 +72,10 @@ struct PolymarketPositionsBlockViewModelTests {
         let service = PositionsBlockServiceStub(active: [Self.page([])], finished: [.success(true)])
         let context = Self.makeSUT(service: service)
 
-        try await settle { context.sut.hasFinishedPositions }
+        try await context.log.waitForCount(2)
 
         #expect(context.sut.content == .noActivePositions(showsViewAll: false))
+        #expect(context.sut.hasFinishedPositions)
         #expect(context.presenceStore.hadPositions(userWalletId: Self.userWalletId))
     }
 
@@ -100,12 +89,13 @@ struct PolymarketPositionsBlockViewModelTests {
         )
         let context = Self.makeSUT(service: service)
 
-        try await settle { context.sut.content == .failed }
+        try await context.log.waitForCount(2)
+        #expect(context.sut.content == .failed)
 
         context.sut.handleViewAction(.retry)
 
-        #expect({ if case .skeleton = context.sut.content { true } else { false } }())
-        try await settle { Self.rowIDs(context.sut.content) == ["a/1"] }
+        #expect(context.sut.content == .skeleton(rowCount: 1))
+        try await context.log.waitUntil { Self.rowIDs($0) == ["a/1"] }
     }
 
     @Test("An empty list with an unknown history offers a retry instead of hiding the block")
@@ -113,7 +103,9 @@ struct PolymarketPositionsBlockViewModelTests {
         let service = PositionsBlockServiceStub(active: [Self.page([])], finished: [.failure(TestError.refused)])
         let context = Self.makeSUT(service: service)
 
-        try await settle { context.sut.content == .failed }
+        try await context.log.waitForCount(2)
+
+        #expect(context.sut.content == .failed)
     }
 
     @Test("A failure after the list has loaded keeps what is on screen")
@@ -123,43 +115,35 @@ struct PolymarketPositionsBlockViewModelTests {
             finished: [.success(false)]
         )
         let context = Self.makeSUT(service: service)
-
-        try await settle { Self.rowIDs(context.sut.content) == ["a/1"] }
+        try await context.log.waitUntil { Self.rowIDs($0) == ["a/1"] }
+        let shown = context.log.contents.count
 
         await context.refreshCenter.refresh(.full)
 
-        try await settle { service.activeRequests == 2 }
-        try await drain()
+        try await context.log.waitForCount(shown + 1)
         #expect(Self.rowIDs(context.sut.content) == ["a/1"])
     }
 
     // MARK: - Refresh
 
-    @Test("A balance refresh leaves the positions alone, a full one reloads them")
-    func onlyAFullRefreshReloads() async throws {
-        let service = PositionsBlockServiceStub(active: [Self.page(["a"]), Self.page(["b"])], finished: [.success(false)])
-        let context = Self.makeSUT(service: service)
-
-        try await settle { Self.rowIDs(context.sut.content) == ["a/1"] }
-
-        await context.refreshCenter.refresh(.balance)
-        #expect(service.activeRequests == 1)
-
-        await context.refreshCenter.refresh(.full)
-        try await settle { Self.rowIDs(context.sut.content) == ["b/1"] }
-    }
-
-    @Test("An account funds refresh leaves the positions alone")
-    func accountFundsRefreshLeavesPositionsAlone() async throws {
+    @Test("A refresh of the balance or of the account funds leaves the positions alone, a full one reloads them", arguments: QuietScope.allCases)
+    func onlyAFullRefreshReloads(_ quietScope: QuietScope) async throws {
         let service = PositionsBlockServiceStub(active: [Self.page(["a"])], finished: [.success(false)])
+        let firstLoad = service.holdActiveRequest(1)
         let context = Self.makeSUT(service: service)
+        try await firstLoad.entered.next()
+        context.presenceStore.markPositionsExisted(for: Self.userWalletId)
 
-        try await settle { Self.rowIDs(context.sut.content) == ["a/1"] }
+        await context.refreshCenter.refresh(quietScope.scope)
 
-        await context.refreshCenter.refresh(.accountFunds)
-        try await drain()
+        #expect(context.sut.content == .hidden)
 
-        #expect(service.activeRequests == 1)
+        let shown = context.log.contents.count
+        await context.refreshCenter.refresh(.full)
+
+        try await context.log.waitForCount(shown + 1)
+        #expect(context.log.contents[shown] == .skeleton(rowCount: 1))
+        firstLoad.open()
     }
 
     @Test("A full refresh after a failure keeps the error on screen instead of flashing a skeleton")
@@ -169,154 +153,130 @@ struct PolymarketPositionsBlockViewModelTests {
             finished: [.failure(TestError.refused)]
         )
         let context = Self.makeSUT(service: service, hadPositions: true)
-
-        try await settle { context.sut.content == .failed }
+        try await context.log.waitUntil { $0 == .failed }
+        let shown = context.log.contents.count
 
         await context.refreshCenter.refresh(.full)
 
-        #expect(context.sut.content == .failed)
-        try await settle { service.activeRequests >= 2 }
-        #expect(context.sut.content == .failed)
+        try await context.log.waitForCount(shown + 1)
+        #expect(context.log.contents.dropFirst(shown).allSatisfy { $0 == .failed })
     }
 
     @Test("Going to background drops the load in flight")
     func backgroundCancelsTheLoadInFlight() async throws {
         let service = PositionsBlockServiceStub(active: [Self.page(["a"]), Self.page(["b"])], finished: [.success(false)])
-        service.slowActiveRequests = [1]
+        let reload = service.holdActiveRequest(2)
         let context = Self.makeSUT(service: service)
-
-        try await settle { Self.rowIDs(context.sut.content) == ["a/1"] }
+        try await context.log.waitUntil { Self.rowIDs($0) == ["a/1"] }
 
         await context.refreshCenter.refresh(.full)
-        try await settle { service.activeRequests == 2 }
+        try await reload.entered.next()
 
-        context.notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
-        try await Task.sleep(nanoseconds: PositionsBlockServiceStub.slowDelay * 2)
+        context.appState.enterBackground()
 
-        #expect(Self.rowIDs(context.sut.content) == ["a/1"])
+        try await reload.cancelled.next()
+        reload.open()
     }
 
     @Test("Coming back from background reloads the list")
     func foregroundReloads() async throws {
         let service = PositionsBlockServiceStub(active: [Self.page(["a"]), Self.page(["b"])], finished: [.success(false)])
         let context = Self.makeSUT(service: service)
+        try await context.log.waitUntil { Self.rowIDs($0) == ["a/1"] }
+        try await context.delays.waitUntilParked(Delays.pollInterval)
 
-        try await settle { Self.rowIDs(context.sut.content) == ["a/1"] }
+        context.appState.enterBackground()
+        try await context.delays.cancellations.next()
+        context.appState.enterForeground()
 
-        context.notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
-        context.notificationCenter.post(name: UIApplication.willEnterForegroundNotification, object: nil)
-
-        try await settle { Self.rowIDs(context.sut.content) == ["b/1"] }
+        try await context.log.waitUntil { Self.rowIDs($0) == ["b/1"] }
     }
 
     // MARK: - Trades and claims
 
     @Test("A claimed position leaves the list even when the reload still hands it back")
     func claimedPositionLeaves() async throws {
-        let service = PositionsBlockServiceStub(active: [Self.page(["a", "b"])], finished: [.success(false)])
+        let service = PositionsBlockServiceStub(
+            active: [Self.page(["a", "b"]), Self.page(["a", "b"]), Self.page(["a", "b", "c"])],
+            finished: [.success(false)]
+        )
         let context = Self.makeSUT(service: service)
-
-        try await settle { Self.rowIDs(context.sut.content) == ["a/1", "b/1"] }
+        try await context.log.waitUntil { Self.rowIDs($0) == ["a/1", "b/1"] }
 
         context.activityHandler.claimed(Self.position("a"))
-
-        try await settle { Self.rowIDs(context.sut.content) == ["b/1"] }
+        try await context.log.waitUntil { Self.rowIDs($0) == ["b/1"] }
 
         await context.refreshCenter.refresh(.full)
-        try await settle { service.activeRequests == 3 }
-        try await drain()
 
-        #expect(Self.rowIDs(context.sut.content) == ["b/1"])
+        try await context.log.waitUntil { Self.rowIDs($0)?.contains("c/1") == true }
+        #expect(Self.rowIDs(context.sut.content) == ["b/1", "c/1"])
     }
 
     @Test("A sold-out position leaves the list even when the reload still hands it back")
     func soldOutPositionLeaves() async throws {
-        let service = PositionsBlockServiceStub(active: [Self.page(["a", "b"])], finished: [.success(false)])
+        let service = PositionsBlockServiceStub(
+            active: [Self.page(["a", "b"]), Self.page(["a", "b"]), Self.page(["a", "b", "c"])],
+            finished: [.success(false)]
+        )
         let context = Self.makeSUT(service: service)
-
-        try await settle { Self.rowIDs(context.sut.content) == ["a/1", "b/1"] }
+        try await context.log.waitUntil { Self.rowIDs($0) == ["a/1", "b/1"] }
 
         context.activityHandler.orderPlaced(awaiting: Task { Self.position("a", size: 0) })
-
-        try await settle { Self.rowIDs(context.sut.content) == ["b/1"] }
+        try await context.log.waitUntil { Self.rowIDs($0) == ["b/1"] }
 
         await context.refreshCenter.refresh(.full)
-        try await settle { service.activeRequests == 3 }
-        try await drain()
 
-        #expect(Self.rowIDs(context.sut.content) == ["b/1"])
+        try await context.log.waitUntil { Self.rowIDs($0)?.contains("c/1") == true }
+        #expect(Self.rowIDs(context.sut.content) == ["b/1", "c/1"])
     }
 
     @Test("A partial sale updates the row in place")
     func partialSaleUpdatesTheRow() async throws {
         let service = PositionsBlockServiceStub(active: [Self.page(["a", "b"])], finished: [.success(false)])
         let context = Self.makeSUT(service: service)
-
-        try await settle { Self.rowIDs(context.sut.content) == ["a/1", "b/1"] }
+        try await context.log.waitUntil { Self.rowIDs($0) == ["a/1", "b/1"] }
 
         context.activityHandler.orderPlaced(awaiting: Task { Self.position("a", size: 2, title: "Updated") })
 
-        try await settle { Self.rowQuestions(context.sut.content)?.first == "Updated" }
+        try await context.log.waitUntil { Self.rowQuestions($0)?.first == "Updated" }
         #expect(Self.rowIDs(context.sut.content) == ["a/1", "b/1"])
     }
 
-    @Test("A claim from the claim screen reaches the block through the router callback")
-    func claimThroughRouterLeavesTheList() async throws {
+    @Test("A claim or a trade reported back through the router takes the position off the block", arguments: RouterCallback.allCases)
+    func routerCallbackLeavesTheList(_ callback: RouterCallback) async throws {
         let service = PositionsBlockServiceStub(
             active: [.success(PolymarketPositionsPage(
-                positions: [Self.position("a", isRedeemable: true), Self.position("b")],
-                receivedCount: 2,
+                positions: [Self.position("a"), Self.position("b"), Self.position("r", isRedeemable: true)],
+                receivedCount: 3,
                 nextCursor: nil
             ))],
             finished: [.success(false)]
         )
         let context = Self.makeSUT(service: service)
+        try await context.log.waitUntil { Self.rowIDs($0) == ["a/1", "b/1", "r/1"] }
 
-        try await settle { Self.rowIDs(context.sut.content) == ["a/1", "b/1"] }
-
-        context.sut.handleViewAction(.openPositionDetails(id: "a/1"))
-        context.routable.lastOnClaimed?(Self.position("a"))
-
-        try await settle { Self.rowIDs(context.sut.content) == ["b/1"] }
-    }
-
-    @Test("A claim from my positions reaches the block through the router callback")
-    func claimFromMyPositionsLeavesTheList() async throws {
-        let service = PositionsBlockServiceStub(active: [Self.page(["a", "b"])], finished: [.success(false)])
-        let context = Self.makeSUT(service: service)
-
-        try await settle { Self.rowIDs(context.sut.content) == ["a/1", "b/1"] }
-
-        context.sut.handleViewAction(.openMyPositions(.active))
-        context.routable.lastOnClaimed?(Self.position("a"))
-
-        try await settle { Self.rowIDs(context.sut.content) == ["b/1"] }
-    }
-
-    @Test("A trade from my positions reaches the block through the router callback")
-    func tradeFromMyPositionsLeavesTheList() async throws {
-        let service = PositionsBlockServiceStub(active: [Self.page(["a", "b"])], finished: [.success(false)])
-        let context = Self.makeSUT(service: service)
-
-        try await settle { Self.rowIDs(context.sut.content) == ["a/1", "b/1"] }
-
-        context.sut.handleViewAction(.openMyPositions(.active))
-        context.routable.lastOnOrderPlaced?(Task { Self.position("a", size: 0) })
-
-        try await settle { Self.rowIDs(context.sut.content) == ["b/1"] }
-    }
-
-    @Test("A trade from the position details reaches the block through the router callback")
-    func tradeThroughRouterLeavesTheList() async throws {
-        let service = PositionsBlockServiceStub(active: [Self.page(["a", "b"])], finished: [.success(false)])
-        let context = Self.makeSUT(service: service)
-
-        try await settle { Self.rowIDs(context.sut.content) == ["a/1", "b/1"] }
-
-        context.sut.handleViewAction(.openPositionDetails(id: "a/1"))
-        context.routable.lastOnOrderPlaced?(Task { Self.position("a", size: 0) })
-
-        try await settle { Self.rowIDs(context.sut.content) == ["b/1"] }
+        switch callback {
+        case .claimOnTheClaimScreen:
+            context.sut.handleViewAction(.openPositionDetails(id: "r/1"))
+            let onClaimed = try #require(context.routable.lastOnClaimed)
+            onClaimed(Self.position("r", isRedeemable: true))
+            try await context.log.waitUntil { Self.rowIDs($0) == ["a/1", "b/1"] }
+        case .claimFromMyPositions:
+            context.sut.handleViewAction(.openMyPositions(.active))
+            let onClaimed = try #require(context.routable.lastOnClaimed)
+            onClaimed(Self.position("a"))
+            try await context.log.waitUntil { Self.rowIDs($0) == ["b/1", "r/1"] }
+        case .tradeFromMyPositions:
+            context.sut.handleViewAction(.openMyPositions(.active))
+            let onOrderPlaced = try #require(context.routable.lastOnOrderPlaced)
+            onOrderPlaced(Task { Self.position("a", size: 0) })
+            try await context.log.waitUntil { Self.rowIDs($0) == ["b/1", "r/1"] }
+        case .tradeOnThePositionDetails:
+            context.sut.handleViewAction(.openPositionDetails(id: "a/1"))
+            let onOrderPlaced = try #require(context.routable.lastOnOrderPlaced)
+            onOrderPlaced(Task { Self.position("a", size: 0) })
+            try await context.log.waitUntil { Self.rowIDs($0) == ["b/1", "r/1"] }
+        }
     }
 
     // MARK: - Navigation
@@ -332,8 +292,7 @@ struct PolymarketPositionsBlockViewModelTests {
             finished: [.success(false)]
         )
         let context = Self.makeSUT(service: service)
-
-        try await settle { Self.rowIDs(context.sut.content) == ["a/1", "b/1"] }
+        try await context.log.waitUntil { Self.rowIDs($0) == ["a/1", "b/1"] }
 
         context.sut.handleViewAction(.openPositionDetails(id: "a/1"))
         context.sut.handleViewAction(.openPositionDetails(id: "b/1"))
@@ -341,71 +300,44 @@ struct PolymarketPositionsBlockViewModelTests {
         #expect(context.routable.detailedIDs == ["a/1"])
         #expect(context.routable.redeemedIDs == ["b/1"])
     }
+}
 
-    @Test("A settled position opens the claim even before it turns redeemable")
-    func settledRowOpensTheClaim() async throws {
-        let service = PositionsBlockServiceStub(
-            active: [.success(PolymarketPositionsPage(
-                positions: [Self.position("a", settlement: .won)],
-                receivedCount: 1,
-                nextCursor: nil
-            ))],
-            finished: [.success(false)]
-        )
-        let context = Self.makeSUT(service: service)
+// MARK: - Arguments
 
-        try await settle { Self.rowIDs(context.sut.content) == ["a/1"] }
+extension PolymarketPositionsBlockViewModelTests {
+    enum QuietScope: CaseIterable, Sendable {
+        case balance
+        case accountFunds
 
-        context.sut.handleViewAction(.openPositionDetails(id: "a/1"))
-
-        #expect(context.routable.detailedIDs.isEmpty)
-        #expect(context.routable.redeemedIDs == ["a/1"])
+        var scope: PolymarketMainRefreshCenter.Scope {
+            switch self {
+            case .balance: .balance
+            case .accountFunds: .accountFunds
+            }
+        }
     }
 
-    @Test("A redeemable position of a market version this build does not know opens the details, not the claim")
-    func unknownVersionHasNoClaim() async throws {
-        let service = PositionsBlockServiceStub(
-            active: [.success(PolymarketPositionsPage(
-                positions: [Self.position("a", isRedeemable: true, version: .unknown("v3"))],
-                receivedCount: 1,
-                nextCursor: nil
-            ))],
-            finished: [.success(false)]
-        )
-        let context = Self.makeSUT(service: service)
-
-        try await settle { Self.rowIDs(context.sut.content) == ["a/1"] }
-
-        context.sut.handleViewAction(.openPositionDetails(id: "a/1"))
-
-        #expect(context.routable.redeemedIDs.isEmpty)
-        #expect(context.routable.detailedIDs == ["a/1"])
-    }
-
-    @Test("View all opens the active tab and the finished badge opens the finished one")
-    func viewAllAndBadgeOpenTheirTabs() async throws {
-        let service = PositionsBlockServiceStub(active: [Self.page(["a"])], finished: [.success(true)])
-        let context = Self.makeSUT(service: service)
-
-        try await settle { Self.rowIDs(context.sut.content) == ["a/1"] }
-
-        context.sut.handleViewAction(.openMyPositions(.active))
-        context.sut.handleViewAction(.openMyPositions(.finished))
-
-        #expect(context.routable.openedTabs == [.active, .finished])
+    enum RouterCallback: CaseIterable, Sendable {
+        case claimOnTheClaimScreen
+        case claimFromMyPositions
+        case tradeFromMyPositions
+        case tradeOnThePositionDetails
     }
 }
 
 // MARK: - Helpers
 
 private extension PolymarketPositionsBlockViewModelTests {
+    @MainActor
     struct Context {
         let sut: PolymarketPositionsBlockViewModel
         let presenceStore: PolymarketAccountPresenceStoreStub
         let refreshCenter: PolymarketMainRefreshCenter
         let activityHandler: PolymarketMainActivityHandler
         let routable: PositionsBlockRoutableSpy
-        let notificationCenter: NotificationCenter
+        let appState: AppStateObserverStub
+        let delays: PolymarketSteppedDelayProvider
+        let log: ContentLog
     }
 
     static let userWalletId = UserWalletId(value: Data([0x01, 0x02, 0x03]))
@@ -422,7 +354,8 @@ private extension PolymarketPositionsBlockViewModelTests {
             refreshCenter: refreshCenter
         )
         let routable = PositionsBlockRoutableSpy()
-        let notificationCenter = NotificationCenter()
+        let appState = AppStateObserverStub()
+        let delays = PolymarketSteppedDelayProvider()
 
         let sut = PolymarketPositionsBlockViewModel(
             positionsService: service,
@@ -431,7 +364,8 @@ private extension PolymarketPositionsBlockViewModelTests {
             refreshCenter: refreshCenter,
             activityHandler: activityHandler,
             routable: routable,
-            notificationCenter: notificationCenter
+            appStateObserver: appState,
+            delayProvider: delays
         )
 
         return Context(
@@ -440,7 +374,9 @@ private extension PolymarketPositionsBlockViewModelTests {
             refreshCenter: refreshCenter,
             activityHandler: activityHandler,
             routable: routable,
-            notificationCenter: notificationCenter
+            appState: appState,
+            delays: delays,
+            log: ContentLog(sut)
         )
     }
 
@@ -474,15 +410,13 @@ private extension PolymarketPositionsBlockViewModelTests {
         _ conditionId: String,
         size: Decimal = 1,
         isRedeemable: Bool = false,
-        settlement: PolymarketPositionSettlement? = nil,
-        title: String = "Question",
-        version: PolymarketMarketVersion? = .v1
+        title: String = "Question"
     ) -> PolymarketPosition {
         PolymarketPosition(
             conditionId: conditionId,
             assetId: "1",
             marketId: "3",
-            version: version,
+            version: .v1,
             eventId: "4",
             eventTitle: "Event",
             title: title,
@@ -503,9 +437,13 @@ private extension PolymarketPositionsBlockViewModelTests {
             isAcceptingOrders: true,
             isLive: false,
             resolutionStatus: .open,
-            settlement: settlement
+            settlement: nil
         )
     }
+}
+
+private enum Delays {
+    static let pollInterval: TimeInterval = 20
 }
 
 // MARK: - Doubles
@@ -514,48 +452,65 @@ private enum TestError: Error {
     case refused
 }
 
+@MainActor
+private final class ContentLog {
+    private(set) var contents: [PolymarketPositionsBlockViewModel.Content] = []
+
+    private let changes = PolymarketTestSignal<Void>()
+    private var subscription: AnyCancellable?
+
+    init(_ sut: PolymarketPositionsBlockViewModel) {
+        subscription = sut.$content.sink { [weak self] content in
+            self?.contents.append(content)
+            self?.changes.send()
+        }
+    }
+
+    func waitForCount(_ count: Int) async throws {
+        try await changes.waitForCount(count)
+    }
+
+    func waitUntil(_ isMatching: (PolymarketPositionsBlockViewModel.Content) -> Bool) async throws {
+        while !(contents.last.map(isMatching) ?? false) {
+            try await changes.next()
+        }
+    }
+}
+
+@MainActor
 private final class PositionsBlockServiceStub: PolymarketPositionsService {
-    private struct Script {
-        var active: [Result<PolymarketPositionsPage, Error>]
-        var finished: [Result<Bool, Error>]
-        var activeRequests = 0
-        var finishedRequests = 0
-    }
-
-    static let slowDelay: UInt64 = 200_000_000
-
-    var slowActiveRequests: Set<Int> = []
-
-    private let script: OSAllocatedUnfairLock<Script>
-
-    var activeRequests: Int {
-        script.withLock { $0.activeRequests }
-    }
+    private let active: [Result<PolymarketPositionsPage, Error>]
+    private let finished: [Result<Bool, Error>]
+    private var activeRequests = 0
+    private var finishedRequests = 0
+    private var heldActiveRequests: [Int: PolymarketTestGate] = [:]
 
     init(active: [Result<PolymarketPositionsPage, Error>], finished: [Result<Bool, Error>]) {
-        script = OSAllocatedUnfairLock(initialState: Script(active: active, finished: finished))
+        self.active = active
+        self.finished = finished
+    }
+
+    func holdActiveRequest(_ number: Int) -> PolymarketTestGate {
+        let gate = PolymarketTestGate()
+        heldActiveRequests[number] = gate
+        return gate
     }
 
     func activePositions(limit: Int) async throws -> PolymarketPositionsPage {
-        let (index, result) = script.withLock { script in
-            let index = script.activeRequests
-            script.activeRequests += 1
-            return (index, script.active[safe: index] ?? script.active.last)
-        }
+        activeRequests += 1
+        let result = active[safe: activeRequests - 1] ?? active.last
 
-        if slowActiveRequests.contains(index) {
-            try await Task.sleep(nanoseconds: Self.slowDelay)
+        if let gate = heldActiveRequests[activeRequests] {
+            await gate.pass()
         }
 
         return try result?.get() ?? PolymarketPositionsPage(positions: [], receivedCount: 0, nextCursor: nil)
     }
 
     func closedPositions(limit: Int, cursor: String?) async throws -> PolymarketClosedPositionsPage {
-        let exists = try script.withLock { script in
-            let result = script.finished[safe: script.finishedRequests] ?? script.finished.last
-            script.finishedRequests += 1
-            return result
-        }?.get() ?? false
+        let result = finished[safe: finishedRequests] ?? finished.last
+        finishedRequests += 1
+        let exists = try result?.get() ?? false
 
         return PolymarketClosedPositionsPage(
             positions: exists ? [Self.closedPosition] : [],
@@ -596,7 +551,6 @@ private final class PositionsBlockServiceStub: PolymarketPositionsService {
 private final class PositionsBlockRoutableSpy: PolymarketPositionsBlockRoutable {
     private(set) var detailedIDs: [String] = []
     private(set) var redeemedIDs: [String] = []
-    private(set) var openedTabs: [PolymarketPositionsTab] = []
     private(set) var lastOnOrderPlaced: (@MainActor (PolymarketOrderIndexing) -> Void)?
     private(set) var lastOnClaimed: ((PolymarketPosition?) -> Void)?
 
@@ -605,7 +559,6 @@ private final class PositionsBlockRoutableSpy: PolymarketPositionsBlockRoutable 
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
         onClaimed: @escaping (PolymarketPosition?) -> Void
     ) {
-        openedTabs.append(tab)
         lastOnOrderPlaced = onOrderPlaced
         lastOnClaimed = onClaimed
     }
