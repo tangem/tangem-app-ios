@@ -122,6 +122,7 @@ struct PolkadotAddressTests {
         "cosmos1l4f4max9w06gqrvsxf74hhyzuqhu2l3zyf0480",
         "3317oFJC9FvxU2fwrKVsvgnMGCDzTZ5nyf",
         "ELmaX1aPkyEF7TSmYbbyCjmSgrBpGHv9EtpwR2tk1kmpwvG",
+        "12M7j8DGDi47xCFjXqSUBz73q4RAVmRSfjKw6K85BuEPtxVQg",
     ])
     func invalidAddresses(addressHex: String) {
         curves.forEach {

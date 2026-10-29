@@ -67,17 +67,13 @@ struct SS58 {
     /// Raw representation (without the prefix) was used in the older protocol versions
     /// - Parameter string: Base58 encoded address string, e.g. j4UiniaZ4GBrMQmjFPapb4fKMmXHxsPbVF4Lny1jHXSuWBKTS
     /// - Returns: Base58 decoded data without ss58 prefix and checksum
-    func bytes(string: String, raw: Bool = true) -> Data {
-        var decoded = string.base58DecodedData
-        guard let networkTypeBytes = try? networkType(from: string) else {
-            return decoded
+    func bytes(string: String, raw: Bool = true) -> Data? {
+        let decoded = string.base58DecodedData
+        guard let prefixSize = accountIdPrefixSize(in: decoded) else {
+            return nil
         }
-        decoded.removeFirst(networkTypeBytes >= Constants.rangeLimit ? 2 : 1)
-        decoded.removeLast(Constants.checksumSize)
-        if !raw {
-            decoded = Data(UInt8(0)) + decoded
-        }
-        return decoded
+        let accountId = decoded.dropFirst(prefixSize).dropLast(Constants.checksumSize)
+        return raw ? Data(accountId) : Data(UInt8(0)) + accountId
     }
 
     /// Checks if provided address is valid for network type
@@ -88,7 +84,8 @@ struct SS58 {
         let data = address.base58DecodedData
 
         guard let networkType = try? networkType(from: address),
-              networkType == type else { return false }
+              networkType == type,
+              accountIdPrefixSize(in: data) != nil else { return false }
 
         let expectedChecksum = data.suffix(Constants.checksumSize)
         let addressData = data.dropLast(Constants.checksumSize)
@@ -110,6 +107,15 @@ struct SS58 {
 extension SS58 {
     enum Error: Swift.Error {
         case invalidAddress
+    }
+}
+
+private extension SS58 {
+    func accountIdPrefixSize(in data: Data) -> Int? {
+        guard let first = data.first else { return nil }
+        let prefixSize = first >= Constants.rangeLimit ? 2 : 1
+        guard data.count == prefixSize + Int(Constants.publicKeySize) + Constants.checksumSize else { return nil }
+        return prefixSize
     }
 }
 
