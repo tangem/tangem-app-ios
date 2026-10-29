@@ -28,8 +28,9 @@ class KaspaTransactionBuilder {
         addressService = KaspaAddressService(isTestnet: isTestnet)
     }
 
-    func availableAmount() -> Amount {
-        let availableAmountInSatoshi = unspentOutputManager.availableOutputs().sum(by: \.amount)
+    func availableAmount() throws -> Amount {
+        let availableAmountInSatoshi = try unspentOutputManager.availableOutputs().sumReportingOverflow(by: \.amount)
+
         return Amount(with: blockchain, value: Decimal(availableAmountInSatoshi) / blockchain.decimalValue)
     }
 }
@@ -38,11 +39,22 @@ class KaspaTransactionBuilder {
 
 extension KaspaTransactionBuilder {
     func buildForSign(transaction: Transaction) async throws -> (transaction: KaspaTransaction, hashes: [Data]) {
-        try await buildForSign(amount: transaction.amount, feeType: .exactly(transaction.fee), destination: transaction.destinationAddress, changeAddress: transaction.changeAddress)
+        try await buildForSign(
+            amount: transaction.amount,
+            feeType: .exactly(transaction.fee),
+            destination: transaction.destinationAddress,
+            changeAddress: transaction.changeAddress
+        )
     }
 
-    func buildForMassCalculation(amount: Amount, feeRate: Int, sourceAddress: String, destination: String, changeAddress: String) async throws -> KaspaDTO.Send.Request.Transaction {
-        let amountValue = min(amount.value, availableAmount().value)
+    func buildForMassCalculation(
+        amount: Amount,
+        feeRate: Int,
+        sourceAddress: String,
+        destination: String,
+        changeAddress: String
+    ) async throws -> KaspaDTO.Send.Request.Transaction {
+        let amountValue = try min(amount.value, availableAmount().value)
         let amount = Amount(with: blockchain, value: amountValue)
 
         let (builtTransaction, _) = try await buildForSign(
@@ -60,7 +72,12 @@ extension KaspaTransactionBuilder {
         )
     }
 
-    private func buildForSign(amount: Amount, feeType: FeeType, destination: String, changeAddress: String) async throws -> (KaspaTransaction, [Data]) {
+    private func buildForSign(
+        amount: Amount,
+        feeType: FeeType,
+        destination: String,
+        changeAddress: String
+    ) async throws -> (KaspaTransaction, [Data]) {
         guard case .coin = amount.type else {
             throw BlockchainSdkError.notImplemented
         }
@@ -72,15 +89,25 @@ extension KaspaTransactionBuilder {
             switch feeType {
             case .exactly(let fee):
                 let fee = fee.amount.asSmallest().value.intValue()
-                return try await unspentOutputManager.preImage(amount: amount, fee: fee, destination: destination, changeAddress: changeAddress, opReturn: nil)
+                return try await unspentOutputManager.preImage(
+                    amount: amount,
+                    fee: fee,
+                    destination: destination,
+                    changeAddress: changeAddress,
+                    opReturn: nil
+                )
             case .calculation(let feeRate):
-                return try await unspentOutputManager.preImage(amount: amount, feeRate: feeRate, destination: destination, changeAddress: changeAddress, opReturn: nil)
+                return try await unspentOutputManager.preImage(
+                    amount: amount,
+                    feeRate: feeRate,
+                    destination: destination,
+                    changeAddress: changeAddress,
+                    opReturn: nil
+                )
             }
         }()
 
-        let inputs: [KaspaTransaction.Input] = preImage.inputs.map {
-            .init(transactionHash: $0.hash, outputIndex: $0.index, amount: $0.amount, script: $0.script.data)
-        }
+        let inputs = try preImage.inputs.map(mapToInput(_:))
 
         let outputs: [KaspaTransaction.Output] = preImage.outputs.map { output in
             switch output {
@@ -100,7 +127,9 @@ extension KaspaTransactionBuilder {
 // MARK: - Tokens
 
 extension KaspaTransactionBuilder {
-    func buildForSignKRC20(transaction: Transaction) async throws -> (txgroup: KaspaKRC20.TransactionGroup, meta: KaspaKRC20.TransactionMeta) {
+    func buildForSignKRC20(
+        transaction: Transaction
+    ) async throws -> (txgroup: KaspaKRC20.TransactionGroup, meta: KaspaKRC20.TransactionMeta) {
         // Commit
         let resultCommit = try await buildCommitTransactionKRC20(
             amount: transaction.amount,
@@ -140,7 +169,13 @@ extension KaspaTransactionBuilder {
         return try buildRevealTransactionKRC20(sourceAddress: sourceAddress, params: params, fee: fee)
     }
 
-    func buildForMassCalculationKRC20(amount: Amount, feeRate: Int, sourceAddress: String, destination: String, changeAddress: String) async throws -> KaspaDTO.Send.Request.Transaction {
+    func buildForMassCalculationKRC20(
+        amount: Amount,
+        feeRate: Int,
+        sourceAddress: String,
+        destination: String,
+        changeAddress: String
+    ) async throws -> KaspaDTO.Send.Request.Transaction {
         let dummySignature = Data(repeating: 1, count: 65)
         let commitTx = try await buildCommitTransactionKRC20(
             amount: amount,
@@ -156,7 +191,13 @@ extension KaspaTransactionBuilder {
         )
     }
 
-    private func buildCommitTransactionKRC20(amount: Amount, feeType: FeeType, sourceAddress: String, destination: String, changeAddress: String) async throws -> KaspaKRC20.CommitTransaction {
+    private func buildCommitTransactionKRC20(
+        amount: Amount,
+        feeType: FeeType,
+        sourceAddress: String,
+        destination: String,
+        changeAddress: String
+    ) async throws -> KaspaKRC20.CommitTransaction {
         guard case .token(let token) = amount.type else {
             throw BlockchainSdkError.failedToBuildTx
         }
@@ -174,10 +215,22 @@ extension KaspaTransactionBuilder {
 
                 let targetOutputAmount = dust + feeParams.revealFee.asSmallest().value.intValue()
                 let fee = feeParams.commitFee.asSmallest().value.intValue()
-                let preImage = try await unspentOutputManager.preImage(amount: targetOutputAmount, fee: fee, destination: destination, changeAddress: changeAddress, opReturn: nil)
+                let preImage = try await unspentOutputManager.preImage(
+                    amount: targetOutputAmount,
+                    fee: fee,
+                    destination: destination,
+                    changeAddress: changeAddress,
+                    opReturn: nil
+                )
                 return (preImage: preImage, targetOutputAmount: targetOutputAmount)
             case .calculation(let feeRate):
-                let preImage = try await unspentOutputManager.preImage(amount: dust, feeRate: feeRate, destination: destination, changeAddress: changeAddress, opReturn: nil)
+                let preImage = try await unspentOutputManager.preImage(
+                    amount: dust,
+                    feeRate: feeRate,
+                    destination: destination,
+                    changeAddress: changeAddress,
+                    opReturn: nil
+                )
                 return (preImage: preImage, targetOutputAmount: dust)
             }
         }
@@ -198,9 +251,7 @@ extension KaspaTransactionBuilder {
         // Build preImage transaction
         let (preImage, targetOutputAmount) = try await preImage()
 
-        let inputs: [KaspaTransaction.Input] = preImage.inputs.map {
-            .init(transactionHash: $0.hash, outputIndex: $0.index, amount: $0.amount, script: $0.script.data)
-        }
+        let inputs = try preImage.inputs.map(mapToInput(_:))
 
         let outputs: [KaspaTransaction.Output] = preImage.outputs.map { output in
             switch output {
@@ -287,7 +338,7 @@ extension KaspaTransactionBuilder {
 
             let outpoint = KaspaDTO.Send.Request.Transaction.Input.PreviousOutpoint(
                 transactionId: input.transactionHash.hex(),
-                index: input.outputIndex
+                index: Int(input.outputIndex)
             )
 
             return .init(previousOutpoint: outpoint, signatureScript: signatureScript)
@@ -306,26 +357,32 @@ extension KaspaTransactionBuilder {
         return KaspaDTO.Send.Request.Transaction(inputs: inputs, outputs: outputs)
     }
 
-    func mapToRevealTransaction(transaction builtTransaction: KaspaTransaction, commitRedeemScript: Data, signatures: [Data]) -> KaspaDTO.Send.Request.Transaction {
-        let inputs: [KaspaDTO.Send.Request.Transaction.Input] = builtTransaction.inputs.enumerated().map { index, input in
-            let sigHashAll: UInt8 = 1
-            let script = signatures[index] + sigHashAll.data
+    func mapToRevealTransaction(
+        transaction builtTransaction: KaspaTransaction,
+        commitRedeemScript: Data,
+        signatures: [Data]
+    ) -> KaspaDTO.Send.Request.Transaction {
+        let inputs: [KaspaDTO.Send.Request.Transaction.Input] = builtTransaction.inputs
+            .enumerated()
+            .map { index, input in
+                let sigHashAll: UInt8 = 1
+                let script = signatures[index] + sigHashAll.data
 
-            let outpoint = KaspaDTO.Send.Request.Transaction.Input.PreviousOutpoint(
-                transactionId: input.transactionHash.hex(),
-                index: input.outputIndex
-            )
+                let outpoint = KaspaDTO.Send.Request.Transaction.Input.PreviousOutpoint(
+                    transactionId: input.transactionHash.hex(),
+                    index: Int(input.outputIndex)
+                )
 
-            switch index {
-            case 0:
-                let signatureScript = (OpCode.push(script) + OpCode.push(commitRedeemScript)).hex()
-                return .init(previousOutpoint: outpoint, signatureScript: signatureScript)
+                switch index {
+                case 0:
+                    let signatureScript = (OpCode.push(script) + OpCode.push(commitRedeemScript)).hex()
+                    return .init(previousOutpoint: outpoint, signatureScript: signatureScript)
 
-            default:
-                let signatureScript = OpCode.push(script).hex()
-                return .init(previousOutpoint: outpoint, signatureScript: signatureScript)
+                default:
+                    let signatureScript = OpCode.push(script).hex()
+                    return .init(previousOutpoint: outpoint, signatureScript: signatureScript)
+                }
             }
-        }
 
         let outputs: [KaspaDTO.Send.Request.Transaction.Output] = builtTransaction.outputs.map {
             .init(
@@ -339,13 +396,26 @@ extension KaspaTransactionBuilder {
 
         return .init(inputs: inputs, outputs: outputs)
     }
+
+    private func mapToInput(_ output: ScriptUnspentOutput) throws -> KaspaTransaction.Input {
+        guard let outputIndex = UInt32(exactly: output.index) else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+
+        return KaspaTransaction.Input(
+            transactionHash: output.hash,
+            outputIndex: outputIndex,
+            amount: output.amount,
+            script: output.script.data
+        )
+    }
 }
 
 // MARK: - Validation
 
 private extension KaspaTransactionBuilder {
     func validateAvailableAmount(amount: Amount) throws {
-        let availableInputValue = availableAmount()
+        let availableInputValue = try availableAmount()
 
         guard amount.type == availableInputValue.type,
               amount <= availableInputValue else {

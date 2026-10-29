@@ -410,9 +410,9 @@ final class KaspaWalletManager: BaseWalletManager, WalletManager {
         }
     }
 
-    private func updateWallet(_ response: UTXOResponse, tokensInfo: [Token: Result<KaspaBalanceResponseKRC20, Error>]) {
+    private func updateWallet(_ response: UTXOResponse, tokensInfo: [Token: Result<KaspaBalanceResponseKRC20, Error>]) throws {
         unspentOutputManager.update(outputs: response.outputs, for: wallet.defaultAddress)
-        let balance = unspentOutputManager.balance(blockchain: wallet.blockchain)
+        let balance = try unspentOutputManager.balance(blockchain: wallet.blockchain)
         wallet.add(coinValue: balance)
 
         for (token, value) in tokensInfo {
@@ -588,7 +588,7 @@ extension KaspaWalletManager: DustRestrictable {
 
         // Max amount available to send
         let maxAmount: Amount? = switch amount.type {
-        case .coin: txBuilder.availableAmount()
+        case .coin: try txBuilder.availableAmount()
         default: wallet.amounts[amount.type]
         }
 
@@ -630,7 +630,7 @@ extension KaspaWalletManager: MaximumAmountRestrictable {
     func validateMaximumAmount(amount: Amount, fee: Amount) throws {
         switch amount.type {
         case .token:
-            let amountAvailableToSend = txBuilder.availableAmount()
+            let amountAvailableToSend = try txBuilder.availableAmount()
 
             if fee <= amountAvailableToSend {
                 return
@@ -643,7 +643,7 @@ extension KaspaWalletManager: MaximumAmountRestrictable {
             )
 
         default:
-            let amountAvailableToSend = txBuilder.availableAmount() - fee
+            let amountAvailableToSend = try txBuilder.availableAmount() - fee
 
             if amount <= amountAvailableToSend {
                 return
