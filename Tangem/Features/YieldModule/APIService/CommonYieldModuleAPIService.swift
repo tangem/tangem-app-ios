@@ -34,12 +34,6 @@ final class CommonYieldModuleAPIService {
 }
 
 extension CommonYieldModuleAPIService: YieldModuleAPIService {
-    func getYieldMarkets(
-        chainIDs: [String]?
-    ) async throws -> YieldModuleDTO.Response.MarketsInfo {
-        try await request(for: .markets(chains: chainIDs), decoder: decoder)
-    }
-
     func getIncentiveYieldMarkets(
         chainIDs: [String]?
     ) async throws -> YieldModuleDTO.Response.MarketsInfo {

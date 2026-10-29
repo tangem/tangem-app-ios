@@ -61,7 +61,7 @@ extension CommonMarketsWidgetEarnService: MarketsWidgetEarnProvider {
                     limit: Constants.earnLimit,
                     type: nil,
                     networkIds: nil,
-                    apyType: FeatureProvider.isAvailable(.merklIncentives) ? .gross : nil
+                    apyType: .gross
                 )
 
                 let response = try await service.tangemApiService.loadEarnYieldMarkets(requestModel: requestModel)

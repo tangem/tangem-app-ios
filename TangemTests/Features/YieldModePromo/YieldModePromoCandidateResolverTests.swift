@@ -90,7 +90,7 @@ struct YieldModePromoCandidateResolverTests {
 
         let resolution = resolver.resolve(
             positions: [position(chainId: 1, address: "0xaaa", balance: .loaded(1))],
-            markets: [YieldModuleMarketInfo(dto: dto, includeIncentive: false)]
+            markets: [YieldModuleMarketInfo(dto: dto)]
         )
 
         guard case .candidate(let candidate) = resolution else {

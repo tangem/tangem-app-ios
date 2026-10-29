@@ -13,26 +13,23 @@ protocol PolymarketAvailabilityProvider {
     func isAvailablePublisher(hasAccount: @escaping () -> Bool) -> AnyPublisher<Bool, Never>
 }
 
-/// The feature opens when the toggle is on and the variants fetched in this session for the selected wallet enroll it;
+/// The feature opens when the variants fetched in this session for the selected wallet enroll it;
 /// variants cached by an earlier session or another wallet never open it.
-/// A wallet that already has an account keeps the feature on its own, without the toggle and the experiment.
+/// A wallet that already has an account keeps the feature on its own, without the experiment.
 struct CommonPolymarketAvailabilityProvider: PolymarketAvailabilityProvider {
     private let experimentService: ExperimentService
-    private let isToggleOn: () -> Bool
     private let accountPresenceChangesPublisher: AnyPublisher<Void, Never>
 
     init(
         experimentService: ExperimentService = InjectedValues[\.experimentService],
-        isToggleOn: @escaping () -> Bool = { FeatureProvider.isAvailable(.polymarket) },
         accountPresenceChangesPublisher: AnyPublisher<Void, Never> = AppSettings.shared.$polymarketHasAccount.mapToVoid().eraseToAnyPublisher()
     ) {
         self.experimentService = experimentService
-        self.isToggleOn = isToggleOn
         self.accountPresenceChangesPublisher = accountPresenceChangesPublisher
     }
 
     var isAvailable: Bool {
-        isToggleOn() && experimentService.hasFreshVariants && experimentService.isOn(.polymarket, variant: .on)
+        experimentService.hasFreshVariants && experimentService.isOn(.polymarket, variant: .on)
     }
 
     func isAvailable(hasAccount: () -> Bool) -> Bool {
