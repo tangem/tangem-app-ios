@@ -301,6 +301,35 @@ struct PolkadotTests {
         #expect(imageWithoutSignature == expectedImageWithoutSignature)
     }
 
+    @Test("A destination whose SS58 payload carries an extra byte is rejected before anything is signed")
+    func destinationWithOversizedPayloadIsRejected() throws {
+        let blockchain: Blockchain = .polkadot(curve: .ed25519, testnet: false)
+        let network = try #require(PolkadotNetwork(blockchain: blockchain))
+        let txBuilder = PolkadotTransactionBuilder(
+            blockchain: blockchain,
+            walletPublicKey: Data(repeating: 1, count: 32),
+            network: network,
+            runtimeVersionProvider: SubstrateRuntimeVersionProvider(network: network)
+        )
+        let meta = PolkadotBlockchainMeta(
+            specVersion: 2005001,
+            transactionVersion: 15,
+            genesisHash: "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
+            blockHash: "7d5fa17b70251d0806f26156b1b698dfd09e040642fa092595ce0a78e9e84fcd",
+            nonce: 7,
+            era: .init(blockNumber: 10_000_000, period: 128)
+        )
+
+        do {
+            _ = try txBuilder.buildForSign(
+                amount: Amount(with: blockchain, value: 20),
+                destination: "12M7j8DGDi47xCFjXqSUBz73q4RAVmRSfjKw6K85BuEPtxVQg",
+                meta: meta
+            )
+            Issue.record("The extra payload byte was encoded into the transfer call")
+        } catch BlockchainSdkError.failedToConvertPublicKey {}
+    }
+
     // MARK: - Helpers
 
     private func removeSignature(image: Data, expectedImage: Data, signature: Data) throws -> (image: Data, expectedImage: Data) {
