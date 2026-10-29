@@ -108,6 +108,29 @@ struct YieldModePromoSheetManagerTests {
         #expect(await terminalState(of: sut) == .unavailable(.noEligibleContent))
     }
 
+    @Test("The global_max_apy arm presents the top Earn offer")
+    func globalMaxApyArm() async {
+        let earnLoader = EarnOffersLoaderSpy(result: .success(makeEarnResponse(total: 12, topNetworkId: "polygon-pos")))
+        let routable = RoutableSpy()
+        let sut = makeSUT(earnLoader: earnLoader, routable: routable)
+        _ = await terminalState(of: sut)
+
+        let expected = YieldModePromoSheetData(apy: Decimal(string: "0.092")!, tokensCount: 12, tokenSymbol: "DAI", blockchainName: "Polygon")
+        #expect(await presentedData(of: sut, variant: "global_max_apy", routable: routable) == expected)
+    }
+
+    @Test("Control or no assignment presents nothing", arguments: ["control", nil] as [String?])
+    func presentsNothingOutsideShowingArms(variant: String?) async {
+        let routable = RoutableSpy()
+        let sut = makeSUT(routable: routable)
+        #expect(await terminalState(of: sut) == .ready)
+
+        let isPresented = await MainActor.run { sut.presentSheet(experimentVariant: variant) != nil }
+
+        #expect(!isPresented)
+        #expect(routable.presentedViewModel == nil)
+    }
+
     @Test("The promo runs under its own experiment")
     func declaresExperiment() {
         let sut = makeSUT()
@@ -207,12 +230,12 @@ private extension YieldModePromoSheetManagerTests {
         )
     }
 
-    func makeEarnResponse(total: Int) -> EarnDTO.List.Response {
+    func makeEarnResponse(total: Int, topNetworkId: String = "ethereum") -> EarnDTO.List.Response {
         let items = total > 0
             ? [
                 EarnDTO.List.Item(
                     apy: "0.092",
-                    networkId: "ethereum",
+                    networkId: topNetworkId,
                     rewardType: "apy",
                     type: "yield",
                     token: EarnDTO.List.Token(id: "dai", symbol: "DAI", name: "Dai", address: "0xdai", decimalCount: 18)
