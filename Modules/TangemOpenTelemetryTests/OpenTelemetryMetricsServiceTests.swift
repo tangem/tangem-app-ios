@@ -7,7 +7,9 @@
 
 import Foundation
 import OpenTelemetryApi
+import OpenTelemetryProtocolExporterCommon
 import OpenTelemetrySdk
+import SwiftProtobuf
 import TangemFoundation
 import Testing
 @testable import TangemOpenTelemetry
@@ -119,6 +121,93 @@ struct OpenTelemetryMetricsServiceTests {
     }
 }
 
+// MARK: - Histograms
+
+extension OpenTelemetryMetricsServiceTests {
+    @Test
+    func bucketSetsArePinned() {
+        #expect(OpenTelemetryHistogramBuckets.main.boundaries == [250, 500, 1000, 2000, 5000, 10000, 30000])
+        #expect(OpenTelemetryHistogramBuckets.short.boundaries == [250, 500, 1000, 3000, 10000])
+    }
+
+    @Test(
+        "Histogram reaches the network with its own bounds, with and without the spool",
+        arguments: [OpenTelemetryHistogramBuckets.main, .short],
+        [false, true]
+    )
+    func histogramBoundsSurviveExport(buckets: OpenTelemetryHistogramBuckets, spooled: Bool) async throws {
+        StubURLProtocol.reset()
+        let service = makeService(spooled: spooled)
+
+        #expect(service.record("tangem_probe_loaded", milliseconds: 700, buckets: buckets))
+        service.flush()
+
+        let captured = try #require(await waitForRequests(1).first)
+        let metric = try #require(metrics(in: captured, named: "tangem_probe_loaded").first)
+        let point = try #require(metric.histogram.dataPoints.first)
+
+        #expect(metric.unit == "ms")
+        #expect(point.explicitBounds == buckets.boundaries)
+        try #require(point.bucketCounts.count == buckets.boundaries.count + 1)
+        #expect(point.bucketCounts[2] == 1)
+        #expect(point.count == 1)
+    }
+
+    @Test("Delta export cycles do not carry earlier values over")
+    func histogramDeltaCycles() async throws {
+        StubURLProtocol.reset()
+        let service = makeService()
+
+        service.record("tangem_probe_loaded", milliseconds: 100, buckets: .main)
+        service.flush()
+        _ = try #require(await waitForRequest())
+
+        service.record("tangem_probe_loaded", milliseconds: 7000, buckets: .main)
+        service.flush()
+        let requests = await waitForRequests(2)
+        try #require(requests.count == 2)
+
+        let points = try metrics(in: requests[1], named: "tangem_probe_loaded").flatMap { $0.histogram.dataPoints }
+        let point = try #require(points.first)
+
+        #expect(points.count == 1)
+        #expect(point.count == 1)
+        #expect(point.sum == 7000)
+        #expect(point.bucketCounts == [0, 0, 0, 0, 0, 1, 0, 0])
+    }
+
+    @Test
+    func histogramKeepsTheBucketsItWasCreatedWith() {
+        let service = makeService()
+
+        #expect(service.record("tangem_probe_loaded", milliseconds: 100, buckets: .main))
+        #expect(!service.record("tangem_probe_loaded", milliseconds: 100, buckets: .short))
+        #expect(service.record("tangem_probe_loaded", milliseconds: 100, buckets: .main))
+    }
+
+    @Test("A value the spool cannot encode is rejected and does not take the batch down with it")
+    func nonFiniteOrNegativeValuesAreRejected() async throws {
+        StubURLProtocol.reset()
+        let service = makeService()
+
+        #expect(!service.record("tangem_probe_loaded", milliseconds: .nan, buckets: .main))
+        #expect(!service.record("tangem_probe_loaded", milliseconds: .infinity, buckets: .main))
+        #expect(!service.record("tangem_probe_loaded", milliseconds: -1, buckets: .main))
+
+        service.increment("tangem_probe_total", by: 1)
+        service.flush()
+
+        let captured = try #require(await waitForRequest())
+        #expect(try metrics(in: captured, named: "tangem_probe_total").count == 1)
+        #expect(try metrics(in: captured, named: "tangem_probe_loaded").isEmpty)
+    }
+
+    @Test
+    func recordingBeforeStartIsRejected() {
+        #expect(!CommonOpenTelemetryMetricsService().record("tangem_probe_loaded", milliseconds: 100, buckets: .main))
+    }
+}
+
 // MARK: - Helpers
 
 private extension OpenTelemetryMetricsServiceTests {
@@ -131,7 +220,20 @@ private extension OpenTelemetryMetricsServiceTests {
     /// The spool directory is unique per pipeline: tests would otherwise share the real caches
     /// location with each other and with leftovers of earlier runs.
     func makePipeline(language: String? = "de", countryCode: String? = "de") -> CommonOpenTelemetryMetricsService.Pipeline {
-        let configuration = OTLPConfiguration(
+        CommonOpenTelemetryMetricsService.makePipeline(
+            configuration: makeConfiguration(language: language, countryCode: countryCode),
+            storageURL: makeStorageURL()
+        )
+    }
+
+    func makeService(spooled: Bool = true) -> CommonOpenTelemetryMetricsService {
+        let service = CommonOpenTelemetryMetricsService()
+        service.start(configuration: makeConfiguration(), storageURL: spooled ? makeStorageURL() : nil)
+        return service
+    }
+
+    func makeConfiguration(language: String? = "de", countryCode: String? = "de") -> OTLPConfiguration {
+        OTLPConfiguration(
             baseURL: URL(string: "https://otlp.example.com")!,
             apiKey: "test-key",
             serviceName: "tangem-ios",
@@ -143,19 +245,37 @@ private extension OpenTelemetryMetricsServiceTests {
             countryCode: countryCode,
             session: makeSession()
         )
+    }
 
-        let storageURL = FileManager.default.temporaryDirectory
+    func makeStorageURL() -> URL {
+        FileManager.default.temporaryDirectory
             .appending(path: "OTLPTests-\(UUID().uuidString)", directoryHint: .isDirectory)
-
-        return CommonOpenTelemetryMetricsService.makePipeline(configuration: configuration, storageURL: storageURL)
     }
 
     func waitForRequest() async -> StubURLProtocol.Captured? {
+        await waitForRequests(1).first
+    }
+
+    func waitForRequests(_ count: Int) async -> [StubURLProtocol.Captured] {
         for _ in 0 ..< 150 {
-            if let first = StubURLProtocol.snapshot().first { return first }
+            let captured = StubURLProtocol.snapshot()
+            if captured.count >= count { return captured }
             try? await Task.sleep(for: .milliseconds(20))
         }
-        return nil
+        return StubURLProtocol.snapshot()
+    }
+
+    func metrics(in captured: StubURLProtocol.Captured, named name: String) throws -> [Opentelemetry_Proto_Metrics_V1_Metric] {
+        let body = try #require(captured.body)
+        let deflated = Data(body.dropFirst(10).dropLast(8)) as NSData
+        let request = try Opentelemetry_Proto_Collector_Metrics_V1_ExportMetricsServiceRequest(
+            serializedBytes: deflated.decompressed(using: .zlib) as Data
+        )
+
+        return request.resourceMetrics
+            .flatMap { $0.scopeMetrics }
+            .flatMap { $0.metrics }
+            .filter { $0.name == name }
     }
 }
 
