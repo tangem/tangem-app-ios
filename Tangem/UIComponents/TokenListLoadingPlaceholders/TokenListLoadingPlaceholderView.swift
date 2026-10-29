@@ -15,11 +15,11 @@ struct TokenListLoadingPlaceholderView: View {
             TokenListSectionLoadingPlaceholderView()
 
             TokenListItemLoadingPlaceholderView(
-                style: .tokenList(hasNetworkItemPlaceholder: false)
+                hasNetworkItemPlaceholder: false
             )
 
             TokenListItemLoadingPlaceholderView(
-                style: .tokenList(hasNetworkItemPlaceholder: true)
+                hasNetworkItemPlaceholder: true
             )
         }
     }

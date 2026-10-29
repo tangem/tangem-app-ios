@@ -116,9 +116,6 @@ struct MainCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
-            .shtorkaCompatibleSheet(item: $coordinator.visaTransactionDetailsViewModel) {
-                VisaTransactionDetailsView(viewModel: $0)
-            }
             .shtorkaCompatibleSheet(item: $coordinator.actionButtonsBuyCoordinator) {
                 ActionButtonsBuyCoordinatorView(coordinator: $0)
             }

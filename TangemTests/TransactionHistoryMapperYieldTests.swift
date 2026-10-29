@@ -52,12 +52,6 @@ struct TransactionHistoryMapperYieldTests {
         }
     }
 
-    @Test("The legacy row keeps showing the amount of the coin-variant enable and disable")
-    func legacyAmountVisibilityIsUntouched() {
-        #expect(makeSUT(isToken: false).mapTransactionViewModel(makeYieldRecord(method: "yieldEnter")).amount.formattedAmount != nil)
-        #expect(makeSUT(isToken: true).mapTransactionViewModel(makeYieldRecord(method: "yieldEnter")).amount.formattedAmount == nil)
-    }
-
     @Test("The Supply and Withdraw chips carry no amount")
     func supplyAndWithdrawChipsHaveNoAmount() {
         #expect(makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldTopup")).amount.displayValue == nil)
@@ -87,18 +81,7 @@ struct TransactionHistoryMapperYieldTests {
         for method in ["yieldEnter", "yieldWithdraw"] {
             let amount = sut.mapTransactionViewModel(makeYieldRecord(method: method, isOutgoing: true)).amount
 
-            #expect(!amount.amount.hasPrefix(AppConstants.minusSign))
             #expect(!amount.amountWithCurrencyCode.hasPrefix(AppConstants.minusSign))
-        }
-    }
-
-    @Test("The sign the redesign invents never reaches the legacy amount string")
-    func legacyAmountStaysUnsigned() {
-        for record in [makeYieldRecord(method: "yieldTopup"), makeWithdrawRecord()] {
-            let amount = makeSUT().mapTransactionViewModel(record).amount.amount
-
-            #expect(!amount.hasPrefix(AppConstants.minusSign))
-            #expect(!amount.hasPrefix(AppConstants.plusSign))
         }
     }
 

@@ -28,13 +28,6 @@ struct TransactionHistoryMapperAmountTests {
         #expect(viewModel.amount.value?.hasPrefix(AppConstants.minusSign) == true)
     }
 
-    @Test("Failed tx keeps the sign on the legacy `amount` string (redesign-vs-legacy divergence)")
-    func failedLegacyAmountKeepsSign() {
-        let viewModel = makeSUT().mapTransactionViewModel(makeRecord(status: .failed, isOutgoing: true))
-
-        #expect(viewModel.amount.amount.hasPrefix(AppConstants.minusSign))
-    }
-
     @Test("A staking record whose self destination carries a zeroed amount nets to the gross source amount, not to zero, and stays unsigned")
     func zeroedSelfDestinationNetsToGrossAmount() {
         let record = TransactionRecord(
@@ -53,7 +46,7 @@ struct TransactionHistoryMapperAmountTests {
 
         let viewModel = makeSUT().mapTransactionViewModel(record)
 
-        #expect(viewModel.amount.amount == BalanceFormatter().formatCryptoBalance(2, currencyCode: "ETH"))
+        #expect(viewModel.amount.value == BalanceFormatter().formatDecimal(2))
     }
 }
 

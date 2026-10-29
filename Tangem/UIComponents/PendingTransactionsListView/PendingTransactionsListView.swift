@@ -7,23 +7,20 @@
 //
 
 import SwiftUI
-import TangemAssets
+import TangemFoundation
 
 struct PendingTransactionsListView: View {
     let items: [TransactionViewModel]
     let exploreTransactionAction: (String) -> Void
 
     var body: some View {
-        ForEach(items, id: \.self) { item in
-            Button {
-                exploreTransactionAction(item.hash)
-            } label: {
-                TransactionView(viewModel: item)
+        if items.isNotEmpty {
+            VStack(spacing: .zero) {
+                ForEach(items, id: \.self) { item in
+                    TransactionsListRowView(viewModel: item) { exploreTransactionAction($0.hash) }
+                }
             }
+            .frame(maxWidth: .infinity)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
-        .background(DesignSystem.Color.bgSecondary)
-        .cornerRadiusContinuous(14)
     }
 }
