@@ -1361,7 +1361,7 @@
 "money_account_onboarding_transfers_card_subtitle" = "with a dedicated account with banking details";
 "money_account_onboarding_transfers_card_title" = "Send and receive fiat payments";
 "money_account_send_bank_transfer_unavailable" = "Unavailable";
-"money_account_send_fees_footer" = "Fees include %@ service charge and estimated network fee";
+"money_account_send_fees_footer" = "Fees include %@ service\ncharge and estimated network fee";
 "money_account_send_network_fee_note" = "Fees include an estimated %@ network fee, which may vary with network activity";
 "money_account_send_pay_button" = "Pay %@";
 "money_account_send_unavailable_description" = "Try again in 5 minutes";
