@@ -14,7 +14,7 @@ import TangemPolymarket
 
 // MARK: - Claiming end to end
 
-@Suite("Polymarket claim")
+@Suite("Polymarket claim", .timeLimit(.minutes(1)))
 struct PolymarketRedeemTransactionServiceTests {
     @Test("A claim that lands on the first read is reported as confirmed")
     func confirmedOnTheFirstRead() async throws {
@@ -42,9 +42,16 @@ struct PolymarketRedeemTransactionServiceTests {
         let service = RedeemServiceSpy(submit: .inProgress, records: Array(repeating: .success(.stub(state: .inProgress)), count: 40))
         let sut = try makeSUT(redeemService: service)
 
-        await #expect(throws: PolymarketRedeemTransactionService.Error.self) {
+        let error = try await #require(throws: PolymarketRedeemTransactionService.Error.self) {
             _ = try await sut.claim(position: Self.position())
         }
+
+        guard case .claimUnconfirmed(let record) = error else {
+            Issue.record("Expected an unconfirmed claim, got \(error)")
+            return
+        }
+
+        #expect(record.state == .inProgress)
     }
 
     @Test("Polling that only ever fails is not a success")
@@ -56,8 +63,28 @@ struct PolymarketRedeemTransactionServiceTests {
         let service = RedeemServiceSpy(submit: .inProgress, records: failures)
         let sut = try makeSUT(redeemService: service)
 
-        await #expect(throws: PolymarketRedeemTransactionService.Error.self) {
+        let error = try await #require(throws: PolymarketRedeemTransactionService.Error.self) {
             _ = try await sut.claim(position: Self.position())
+        }
+
+        guard case .claimUnconfirmed = error else {
+            Issue.record("Expected an unconfirmed claim, got \(error)")
+            return
+        }
+    }
+
+    @Test("A claim the backend has no record of while polling is refused as not found")
+    func unknownClaimWhilePollingIsRefused() async throws {
+        let service = RedeemServiceSpy(submit: .inProgress, records: [.success(.stub(state: .inProgress)), .failure(.notFound)])
+        let sut = try makeSUT(redeemService: service)
+
+        let error = try await #require(throws: PolymarketRedeemTransactionService.Error.self) {
+            _ = try await sut.claim(position: Self.position())
+        }
+
+        guard case .refused(.notFound) = error else {
+            Issue.record("Expected the claim to be refused as not found, got \(error)")
+            return
         }
     }
 
@@ -66,9 +93,16 @@ struct PolymarketRedeemTransactionServiceTests {
         let service = RedeemServiceSpy(submit: .failed, records: [])
         let sut = try makeSUT(redeemService: service)
 
-        await #expect(throws: PolymarketRedeemTransactionService.Error.self) {
+        let error = try await #require(throws: PolymarketRedeemTransactionService.Error.self) {
             _ = try await sut.claim(position: Self.position())
         }
+
+        guard case .claimFailed(let record) = error else {
+            Issue.record("Expected a failed claim, got \(error)")
+            return
+        }
+
+        #expect(record.state == .failed)
     }
 
     @Test("A submission that got no answer is resent once")
@@ -91,11 +125,41 @@ struct PolymarketRedeemTransactionServiceTests {
         let service = RedeemServiceSpy(submit: .confirmed, records: [], submitFailures: [.relayerRejected(detail: "not redeemable")])
         let sut = try makeSUT(redeemService: service)
 
-        await #expect(throws: PolymarketRedeemTransactionService.Error.self) {
+        let error = try await #require(throws: PolymarketRedeemTransactionService.Error.self) {
             _ = try await sut.claim(position: Self.position())
         }
 
+        guard case .refused(.relayerRejected) = error else {
+            Issue.record("Expected the relayer's refusal, got \(error)")
+            return
+        }
+
         #expect(service.submitted.count == 1)
+    }
+
+    @Test("A second claim while one is in flight is refused and never reaches the backend")
+    func refusesASecondClaimWhileOneIsInFlight() async throws {
+        let service = RedeemServiceSpy(submit: .confirmed, records: [])
+        let signer = GatedSigner()
+        let sut = try makeSUT(redeemService: service, signer: signer)
+
+        let first = Task { try await sut.claim(position: Self.position()) }
+        try await signer.gate.entered.next()
+
+        let error = try await #require(throws: PolymarketRedeemTransactionService.Error.self) {
+            _ = try await sut.claim(position: Self.position())
+        }
+
+        guard case .claimInProgress = error else {
+            Issue.record("Expected the second claim to be refused as in progress, got \(error)")
+            return
+        }
+
+        signer.gate.open()
+
+        #expect(try await first.value.state == .confirmed)
+        #expect(service.submitted.count == 1)
+        #expect(service.callRequests == 1)
     }
 
     @Test("A claim the user refused to sign reads as a cancellation")
@@ -249,6 +313,19 @@ private struct PassthroughSigner: PolymarketBatchSigning {
     }
 }
 
+private final class GatedSigner: PolymarketBatchSigning {
+    let gate = PolymarketTestGate()
+
+    func sign(
+        _ batch: PolymarketRelayedBatch.Unsigned,
+        as ownerAddress: String
+    ) async throws(PolymarketSigningError) -> PolymarketRelayedBatch {
+        await gate.pass()
+
+        return batch.signed(by: ownerAddress, signature: "0xsignature")
+    }
+}
+
 private struct CancellingSigner: PolymarketBatchSigning {
     func sign(
         _ batch: PolymarketRelayedBatch.Unsigned,
@@ -262,6 +339,7 @@ private final class RedeemServiceSpy: PolymarketRedeemService {
     private struct State {
         var submitted: [PolymarketRelayedBatch] = []
         var request: PolymarketRedeemCallRequest?
+        var callRequests = 0
         var records: [Result<PolymarketRedeemRecord, PolymarketRedeemError>]
         var submitFailures: [PolymarketRedeemError]
     }
@@ -292,8 +370,15 @@ private final class RedeemServiceSpy: PolymarketRedeemService {
         state.withLock { $0.request }
     }
 
+    var callRequests: Int {
+        state.withLock { $0.callRequests }
+    }
+
     func calls(for request: PolymarketRedeemCallRequest) async throws(PolymarketRedeemError) -> [PolymarketRelayedBatch.Call] {
-        state.withLock { $0.request = request }
+        state.withLock { state in
+            state.request = request
+            state.callRequests += 1
+        }
 
         if let callFailure {
             throw callFailure

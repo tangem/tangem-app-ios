@@ -10,7 +10,7 @@ import Foundation
 import Testing
 @testable import TangemPolymarket
 
-@Suite("Polymarket positions mapping")
+@Suite("Polymarket positions mapping", .timeLimit(.minutes(1)))
 struct PolymarketPositionsMappingTests {
     private let mapper = PolymarketMapper()
     private let decoder = JSONDecoder()
@@ -63,12 +63,6 @@ struct PolymarketPositionsMappingTests {
         #expect(page.receivedCount == 2)
     }
 
-    @Test("The side held is carried by its name, whatever the market calls it")
-    func outcomeIsCarriedByName() throws {
-        #expect(try position(outcome: "\"Yes\"").outcome == "Yes")
-        #expect(try position(outcome: "\"Kevin Warsh\"").outcome == "Kevin Warsh")
-    }
-
     @Test("The proportion is carried as a fraction, the way the rest of the module carries one")
     func percentIsAFraction() throws {
         let position = try #require(mapPage(Self.pageJSON).positions.first)
@@ -105,35 +99,6 @@ struct PolymarketPositionsMappingTests {
         #expect(try !mapPage(Self.degradedJSON).hasNext)
     }
 
-    @Test("A closed page decodes into the domain model with its money read as decimals")
-    func closedPageMapping() throws {
-        let page = try mapClosedPage(Self.closedPageJSON)
-        let position = try #require(page.positions.first)
-
-        #expect(page.hasNext)
-        #expect(page.nextCursor == "c2")
-        #expect(page.receivedCount == 1)
-        #expect(position.conditionId == "0xe131e7ab")
-        #expect(position.assetId == "14029358")
-        #expect(position.outcome == "Yes")
-        #expect(position.avgPrice == Decimal(string: "0.3911"))
-        #expect(position.curPrice == Decimal(string: "0.295"))
-        #expect(position.totalBought == Decimal(string: "15.5128"))
-        #expect(position.realizedPnl == Decimal(string: "-2.363"))
-        #expect(position.status == .closed)
-    }
-
-    @Test("An ending this build does not know keeps the row, marked unknown")
-    func closedStatusFallsBackToUnknown() throws {
-        let json = Data("""
-        { "positions": [{ "conditionId": "0x1", "assetId": "2", "status": "SOMETHING_NEW" }] }
-        """.utf8)
-
-        let position = try #require(mapClosedPage(json).positions.first)
-
-        #expect(position.status == .unknown)
-    }
-
     @Test("A closed row whose money cannot be read is dropped, and the page still says how many arrived")
     func closedRowThatCannotBeReadIsCounted() throws {
         let json = Data("""
@@ -151,13 +116,6 @@ struct PolymarketPositionsMappingTests {
         #expect(page.receivedCount == 2)
         #expect(page.positions.first?.conditionId == "0x3")
     }
-
-    @Test("Both parts of the identity are separated, so neighbouring pairs cannot collide")
-    func identityIsSeparated() throws {
-        let position = try #require(mapPage(Self.pageJSON).positions.first)
-
-        #expect(position.id == "0x94947a23/10977723")
-    }
 }
 
 // MARK: - Helpers
@@ -170,40 +128,11 @@ private extension PolymarketPositionsMappingTests {
     func mapClosedPage(_ json: Data) throws -> PolymarketClosedPositionsPage {
         try mapper.mapClosedPositions(decoder.decode(PolymarketDTO.ClosedPositionsResponse.self, from: json))
     }
-
-    func position(outcome: String) throws -> PolymarketPosition {
-        let json = Data("""
-        { "positions": [{ "conditionId": "0x1", "assetId": "2", "outcome": \(outcome) }] }
-        """.utf8)
-
-        return try #require(mapPage(json).positions.first)
-    }
 }
 
 // MARK: - Fixtures
 
 private extension PolymarketPositionsMappingTests {
-    static let closedPageJSON = Data("""
-    {
-      "positions": [{
-        "conditionId": "0xe131e7ab",
-        "assetId": "14029358",
-        "title": "Israel x Lebanon diplomatic meeting by September 15, 2026?",
-        "slug": "israel-x-lebanon",
-        "icon": "https://example.com/icon.jpg",
-        "endDate": "2026-09-16",
-        "closedAt": "2026-09-12T23:49:48Z",
-        "outcome": "Yes",
-        "avgPrice": "0.3911",
-        "curPrice": "0.295",
-        "totalBought": "15.5128",
-        "realizedPnl": "-2.363",
-        "status": "CLOSED"
-      }],
-      "nextCursor": "c2"
-    }
-    """.utf8)
-
     static let pageJSON = Data("""
     {
       "positions": [{

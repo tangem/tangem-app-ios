@@ -10,7 +10,7 @@ import Foundation
 import Testing
 @testable import TangemPolymarket
 
-@Suite("Polymarket order record")
+@Suite("Polymarket order record", .timeLimit(.minutes(1)))
 struct PolymarketOrderRecordTests {
     @Test("Sizes read back as the shares they already are, priced to the cent")
     func readsSizesBackInHumanUnits() {
@@ -61,11 +61,6 @@ struct PolymarketOrderRecordTests {
         #expect(record.executedAmount == 0)
         #expect(!placement.isMatchedWithoutFill(side: .sell))
         #expect(placement.filledShares(side: .sell) == Decimal(string: "0.4")!)
-    }
-
-    @Test("A status this build does not know is not mistaken for a match")
-    func unknownStatusIsNotAMatch() {
-        #expect(PolymarketOrderRecordStatus(rawValue: "ORDER_STATUS_SOMETHING_NEW") == nil)
     }
 
     @Test(

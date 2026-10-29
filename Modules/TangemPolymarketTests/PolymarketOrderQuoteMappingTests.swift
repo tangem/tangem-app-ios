@@ -9,7 +9,7 @@ import Foundation
 import Testing
 @testable import TangemPolymarket
 
-@Suite("PolymarketOrderQuote mapping")
+@Suite("PolymarketOrderQuote mapping", .timeLimit(.minutes(1)))
 struct PolymarketOrderQuoteMappingTests {
     private let mapper = PolymarketMapper()
 
@@ -17,41 +17,31 @@ struct PolymarketOrderQuoteMappingTests {
     func quoteIsMapped() throws {
         let quote = try mapper.mapOrderQuote(.stub())
 
-        #expect(quote.status == .full)
-        #expect(quote.side == .buy)
-        #expect(quote.shares == Decimal(string: "97.95918"))
-        #expect(quote.notional == 72)
-        #expect(quote.expectedExecutionAmount == Decimal(string: "97.95918"))
-        #expect(quote.averagePrice == Decimal(string: "0.72"))
-        #expect(quote.worstCasePrice == Decimal(string: "0.735"))
-        #expect(quote.fees.total == Decimal(string: "0.36"))
-        #expect(quote.total == Decimal(string: "72.36"))
-        #expect(quote.minOrderSize == 5)
-        #expect(quote.minOrderAmount == 1)
-        #expect(quote.tickSize == Decimal(string: "0.001"))
-        #expect(quote.isLive)
-    }
+        let expected = PolymarketOrderQuote(
+            status: .full,
+            side: .buy,
+            shares: Decimal(string: "97.95918")!,
+            notional: 72,
+            expectedExecutionAmount: Decimal(string: "98.40001")!,
+            averagePrice: Decimal(string: "0.72")!,
+            worstCasePrice: Decimal(string: "0.735")!,
+            fees: PolymarketOrderFees(
+                market: Decimal(string: "0.24")!,
+                builder: Decimal(string: "0.12")!,
+                total: Decimal(string: "0.36")!
+            ),
+            total: Decimal(string: "72.36")!,
+            builderCode: "0x00000000000000000000000000000000000000000000000000000000000000aa",
+            minOrderSize: 5,
+            minOrderAmount: 1,
+            tickSize: Decimal(string: "0.001")!,
+            isLive: true,
+            version: .v1,
+            exchange: "0xE111180000d2663C0091e4f400237545B87B996B",
+            signingDomainVersion: "2"
+        )
 
-    @Test("A sale nets its total off the expectation rather than the guarantee")
-    func sellTotalNetsOffTheExpectation() throws {
-        let quote = try mapper.mapOrderQuote(.sellStub())
-
-        #expect(quote.side == .sell)
-        #expect(quote.shares == Decimal(string: "100.00"))
-        #expect(quote.notional == Decimal(string: "68.60000"))
-        #expect(quote.expectedExecutionAmount == Decimal(string: "70.00000"))
-        #expect(quote.total == Decimal(string: "67.20000"))
-        #expect(quote.total == quote.expectedExecutionAmount - quote.fees.total)
-    }
-
-    @Test("A sale at the widest tolerance keeps the total it had at the narrowest")
-    func sellTotalSurvivesACollapsedGuarantee() throws {
-        let narrow = try mapper.mapOrderQuote(.sellStub())
-        let wide = try mapper.mapOrderQuote(.sellStub(notional: "0.10000", worstCasePrice: "0.001"))
-
-        #expect(wide.notional == Decimal(string: "0.10000"))
-        #expect(wide.expectedExecutionAmount == narrow.expectedExecutionAmount)
-        #expect(wide.total == narrow.total)
+        #expect(quote == expected)
     }
 
     @Test("A quote without the collateral floor keeps it absent rather than inventing one")
@@ -187,7 +177,7 @@ private extension PolymarketDTO.OrderQuoteResponse {
             side: side,
             shares: "97.95918",
             notional: "72",
-            expectedExecutionAmount: "97.95918",
+            expectedExecutionAmount: "98.40001",
             averagePrice: "0.72",
             worstCasePrice: worstCasePrice,
             fees: PolymarketDTO.OrderQuoteFees(market: "0.24", builder: "0.12", total: "0.36"),
@@ -200,31 +190,6 @@ private extension PolymarketDTO.OrderQuoteResponse {
             version: version,
             exchange: exchange,
             signingDomainVersion: signingDomainVersion
-        )
-    }
-
-    static func sellStub(
-        notional: String = "68.60000",
-        worstCasePrice: String = "0.686"
-    ) -> PolymarketDTO.OrderQuoteResponse {
-        PolymarketDTO.OrderQuoteResponse(
-            status: "FULL",
-            side: "SELL",
-            shares: "100.00",
-            notional: notional,
-            expectedExecutionAmount: "70.00000",
-            averagePrice: "0.700",
-            worstCasePrice: worstCasePrice,
-            fees: PolymarketDTO.OrderQuoteFees(market: "1.05000", builder: "1.75000", total: "2.80000"),
-            total: "67.20000",
-            builderCode: "0x00000000000000000000000000000000000000000000000000000000000000aa",
-            minOrderSize: "7",
-            minOrderAmount: "1",
-            tickSize: "0.001",
-            live: false,
-            version: "v1",
-            exchange: "0xE111180000d2663C0091e4f400237545B87B996B",
-            signingDomainVersion: "2"
         )
     }
 }

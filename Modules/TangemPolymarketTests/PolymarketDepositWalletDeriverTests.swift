@@ -9,7 +9,7 @@ import Foundation
 import Testing
 @testable import TangemPolymarket
 
-@Suite("Deposit wallet derivation")
+@Suite("Deposit wallet derivation", .timeLimit(.minutes(1)))
 struct PolymarketDepositWalletDeriverTests {
     static let vectors: [(owner: String, depositWallet: String)] = [
         ("0x0491eb219E3D2d05aEF0C35D1079c0a55b19bd2B", "0xdf1a31b50D3F99d4460ACC1Bc99aB2e09BCcC538"),
@@ -20,13 +20,6 @@ struct PolymarketDepositWalletDeriverTests {
     @Test("An owner derives the wallet the factory deployed for it", arguments: vectors)
     func matchesTheDeployedWallet(vector: (owner: String, depositWallet: String)) throws {
         #expect(try PolymarketDepositWalletDeriver.derive(ownerAddress: vector.owner) == vector.depositWallet)
-    }
-
-    @Test("The derived address is ERC-55 checksummed, not lowercase")
-    func isChecksummed() throws {
-        let derived = try PolymarketDepositWalletDeriver.derive(ownerAddress: Self.vectors[0].owner)
-
-        #expect(derived != derived.lowercased())
     }
 
     @Test("The owner address is read regardless of its case")

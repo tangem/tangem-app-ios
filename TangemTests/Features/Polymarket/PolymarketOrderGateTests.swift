@@ -13,7 +13,7 @@ import TangemPolymarketUI
 @testable import Tangem
 
 @MainActor
-@Suite("Polymarket order gate")
+@Suite("Polymarket order gate", .timeLimit(.minutes(1)))
 struct PolymarketOrderGateTests {
     static let buyIntent = PolymarketOrderIntent.buy(balance: .just(output: nil))
 
@@ -169,7 +169,7 @@ struct PolymarketOrderGateTests {
         let gate = PolymarketOrderGate(state: state, intent: .sell(shares: 1000))
 
         #expect(gate.isPrimaryButtonEnabled)
-        #expect(gate.amountCaption != .notEnoughForFees)
+        #expect(gate.amountCaption == nil)
     }
 
     @Test("A sell says nothing about winnings — the proceeds live on the confirmation")
@@ -260,21 +260,6 @@ struct PolymarketOrderGateTests {
         #expect(gate.amountCaption == nil)
     }
 
-    @Test("An empty book still reports what the exchange would pay for the sale")
-    func sellWithoutABookKeepsTheQuotedAmount() {
-        let quote = PolymarketOrderQuote.stub(status: .insufficientLiquidity, expectedExecutionAmount: 42)
-        let state = PolymarketOrderModel.State.stub(quote: quote)
-
-        #expect(state.quote.expectedExecutionAmount == 42)
-    }
-
-    @Test("A closed market states no amount at all")
-    func closedMarketReportsNoAmount() {
-        let state = PolymarketOrderModel.State.stub(quote: .stub(status: .marketClosed))
-
-        #expect(state.quote.expectedExecutionAmount == nil)
-    }
-
     @Test("Closing the whole position under the share minimum keeps the order placeable and unwarned")
     func fullCloseUnderTheShareMinimumStaysPlaceable() {
         let state = PolymarketOrderModel.State.stub(quote: .stub(status: .belowMinOrderSize), enteredAmount: 1000, balance: 1000)
@@ -339,7 +324,26 @@ struct PolymarketOrderGateTests {
 }
 
 @MainActor
-@Suite("Polymarket quote age")
+@Suite("Polymarket quote state", .timeLimit(.minutes(1)))
+struct PolymarketOrderQuoteStateTests {
+    @Test("An empty book still reports what the exchange would pay for the sale")
+    func sellWithoutABookKeepsTheQuotedAmount() {
+        let quote = PolymarketOrderQuote.stub(status: .insufficientLiquidity, expectedExecutionAmount: 42)
+        let state = PolymarketOrderModel.State.stub(quote: quote)
+
+        #expect(state.quote.expectedExecutionAmount == 42)
+    }
+
+    @Test("A closed market states no amount at all")
+    func closedMarketReportsNoAmount() {
+        let state = PolymarketOrderModel.State.stub(quote: .stub(status: .marketClosed))
+
+        #expect(state.quote.expectedExecutionAmount == nil)
+    }
+}
+
+@MainActor
+@Suite("Polymarket quote age", .timeLimit(.minutes(1)))
 struct PolymarketOrderQuoteAgeTests {
     static let receivedAt = Date(timeIntervalSince1970: 1_000_000)
 

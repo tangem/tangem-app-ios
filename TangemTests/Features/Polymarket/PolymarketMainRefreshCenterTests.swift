@@ -10,7 +10,7 @@ import Foundation
 import Testing
 @testable import Tangem
 
-@Suite("Polymarket main refresh center")
+@Suite("Polymarket main refresh center", .timeLimit(.minutes(1)))
 @MainActor
 struct PolymarketMainRefreshCenterTests {
     @Test("A refresh reaches every registered block with its scope")
@@ -30,16 +30,20 @@ struct PolymarketMainRefreshCenterTests {
     func refreshWaitsForEveryBlock() async {
         let center = PolymarketMainRefreshCenter()
         let log = ScopeLog()
+        let slowBlock = PolymarketTestGate()
 
         center.register { scope in
-            try? await Task.sleep(nanoseconds: 50_000_000)
+            await slowBlock.pass()
             log.append("slow", scope)
         }
-        center.register { log.append("fast", $0) }
+        center.register { scope in
+            log.append("fast", scope)
+            slowBlock.open()
+        }
 
         await center.refresh(.full)
 
-        #expect(log.entries.count == 2)
+        #expect(log.entries == ["fast: full", "slow: full"])
     }
 }
 

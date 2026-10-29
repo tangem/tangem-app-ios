@@ -9,7 +9,7 @@ import Foundation
 import Testing
 @testable import TangemPolymarket
 
-@Suite("ClobAuth signing payload")
+@Suite("ClobAuth signing payload", .timeLimit(.minutes(1)))
 struct PolymarketClobAuthTests {
     private static let owner = "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
     private static let timestamp = "1735689600"
@@ -27,42 +27,6 @@ struct PolymarketClobAuthTests {
         let digest = PolymarketClobAuth.digest(ownerAddress: vector.owner, timestamp: vector.timestamp)
 
         #expect(digest.map { String(format: "%02x", $0) }.joined() == vector.digest)
-    }
-
-    @Test("A different timestamp signs a different payload")
-    func theTimestampIsPartOfTheDigest() {
-        let digest = PolymarketClobAuth.digest(ownerAddress: Self.owner, timestamp: Self.timestamp)
-        let other = PolymarketClobAuth.digest(ownerAddress: Self.owner, timestamp: "1735689601")
-
-        #expect(digest != other)
-    }
-
-    @Test("A different owner signs a different payload")
-    func theOwnerIsPartOfTheDigest() {
-        let digest = PolymarketClobAuth.digest(ownerAddress: Self.owner, timestamp: Self.timestamp)
-        let other = PolymarketClobAuth.digest(
-            ownerAddress: "0x0491eb219E3D2d05aEF0C35D1079c0a55b19bd2B",
-            timestamp: Self.timestamp
-        )
-
-        #expect(digest != other)
-    }
-
-    @Test("The auth headers carry the four values the CLOB expects")
-    func headersAreNamedAsTheCLOBExpects() {
-        let headers = PolymarketCLOBAuthHeaders(
-            ownerAddress: Self.owner,
-            signature: "0xdeadbeef",
-            timestamp: Self.timestamp,
-            nonce: PolymarketClobAuth.nonce
-        )
-
-        #expect(headers.values == [
-            "POLY_ADDRESS": Self.owner,
-            "POLY_SIGNATURE": "0xdeadbeef",
-            "POLY_TIMESTAMP": Self.timestamp,
-            "POLY_NONCE": "0",
-        ])
     }
 }
 

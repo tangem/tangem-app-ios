@@ -13,6 +13,7 @@ import TangemPolymarket
 
 final class PolymarketLiveQuotesSourceSpy: Sendable {
     let statuses = PolymarketLiveStreamSpy<PolymarketWebSocketConnectionStatus>()
+    let requests = PolymarketTestSignal<PolymarketLiveStreamSpy<PolymarketOutcomeQuote>>()
 
     private let state = OSAllocatedUnfairLock(initialState: State())
 
@@ -25,10 +26,11 @@ final class PolymarketLiveQuotesSourceSpy: Sendable {
     }
 
     @MainActor
-    func makeTracker() -> PolymarketFeedLiveQuotesTracker {
+    func makeTracker(delayProvider: any PollDelayProvider = InstantPollDelayProvider()) -> PolymarketFeedLiveQuotesTracker {
         PolymarketFeedLiveQuotesTracker(
-            quotes: { [self] assetIds in quotes(for: assetIds) },
-            statusChanges: { [statuses] in statuses.makeStream() }
+            quotes: { @MainActor [self] assetIds in quotes(for: assetIds) },
+            statusChanges: { [statuses] in statuses.makeStream() },
+            delayProvider: delayProvider
         )
     }
 
@@ -39,6 +41,8 @@ final class PolymarketLiveQuotesSourceSpy: Sendable {
             let openStreams = state.streams.filter { !$0.stream.isCancelled }.count
             state.streams.append(Request(stream: stream, openStreamsAtRequest: openStreams))
         }
+
+        requests.send(stream)
 
         return stream.makeStream()
     }
@@ -55,6 +59,9 @@ final class PolymarketLiveQuotesSourceSpy: Sendable {
 
 final class PolymarketLiveStreamSpy<Element: Sendable>: Sendable {
     let assetIds: Set<String>
+    let cancelled = PolymarketTestSignal<Void>()
+
+    private let pulled = PolymarketTestSignal<Int>()
 
     private let state = OSAllocatedUnfairLock(initialState: State())
 
@@ -71,7 +78,14 @@ final class PolymarketLiveStreamSpy<Element: Sendable>: Sendable {
     }
 
     func makeStream() -> AsyncStream<Element> {
-        AsyncStream(unfolding: { [self] in await next() }, onCancel: { [self] in cancel() })
+        AsyncStream(unfolding: { @MainActor [self] in await next() }, onCancel: { [self] in cancel() })
+    }
+
+    @MainActor
+    func waitForPulls(_ count: Int) async throws {
+        while pulls < count {
+            try await pulled.next()
+        }
     }
 
     func push(_ element: Element) {
@@ -88,22 +102,25 @@ final class PolymarketLiveStreamSpy<Element: Sendable>: Sendable {
         waiter?.resume(returning: element)
     }
 
+    @MainActor
     private func next() async -> Element? {
         await withCheckedContinuation { continuation in
-            let ready = state.withLock { state -> Element?? in
+            let (pull, ready) = state.withLock { state -> (Int, Element??) in
                 state.pulls += 1
 
                 guard !state.isCancelled else {
-                    return .some(nil)
+                    return (state.pulls, .some(nil))
                 }
 
                 guard state.pending.isEmpty else {
-                    return state.pending.removeFirst()
+                    return (state.pulls, state.pending.removeFirst())
                 }
 
                 state.waiter = continuation
-                return nil
+                return (state.pulls, nil)
             }
+
+            pulled.send(pull)
 
             if let ready {
                 continuation.resume(returning: ready)
@@ -119,6 +136,7 @@ final class PolymarketLiveStreamSpy<Element: Sendable>: Sendable {
         }
 
         waiter?.resume(returning: nil)
+        cancelled.send()
     }
 
     private struct State {

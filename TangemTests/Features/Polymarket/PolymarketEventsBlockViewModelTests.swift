@@ -15,7 +15,7 @@ import TangemPolymarket
 import TangemPolymarketUI
 @testable import Tangem
 
-@Suite("Polymarket events block")
+@Suite("Polymarket events block", .timeLimit(.minutes(1)))
 @MainActor
 struct PolymarketEventsBlockViewModelTests {
     private typealias Games = PolymarketLiveGamesFixtures
@@ -30,10 +30,10 @@ struct PolymarketEventsBlockViewModelTests {
         ]
         let sut = Self.makeSUT(provider: provider)
 
-        try await settle { Self.cardIDs(sut) == ["a"] }
+        await Self.cards(of: sut, become: ["a"])
 
         sut.selectedCategoryTab.wrappedValue = PolymarketCategoryTab(id: 2, title: "")
-        try await settle { Self.cardIDs(sut) == ["b"] }
+        await Self.cards(of: sut, become: ["b"])
 
         sut.selectedCategoryTab.wrappedValue = PolymarketCategoryTab(id: 1, title: "")
 
@@ -51,15 +51,13 @@ struct PolymarketEventsBlockViewModelTests {
             .init(category: 1, cursor: "c2"): Self.page(["b"]),
         ]
         let sut = Self.makeSUT(provider: provider)
-
-        try await settle { Self.cardIDs(sut) == ["a"] }
+        await Self.loadingState(of: sut, becomes: .loaded)
 
         sut.handleViewAction(.loadNextPage)
 
-        try await settle { Self.cardIDs(sut) == ["a", "b"] }
-
+        await Self.loadingState(of: sut, becomes: .allDataLoaded)
+        #expect(Self.cardIDs(sut) == ["a", "b"])
         #expect(provider.eventsRequests.map(\.cursor) == [nil, "c1", "c2"])
-        #expect(sut.loadingState == .allDataLoaded)
     }
 
     @Test("A backend that keeps returning only events already shown stops being asked after a few pages")
@@ -71,16 +69,12 @@ struct PolymarketEventsBlockViewModelTests {
             .init(category: 1, cursor: "c1"): Self.page(["a"], cursor: "c1"),
         ]
         let sut = Self.makeSUT(provider: provider)
-
-        try await settle { Self.cardIDs(sut) == ["a"] }
+        await Self.loadingState(of: sut, becomes: .loaded)
 
         sut.handleViewAction(.loadNextPage)
 
-        try await settle { provider.eventsRequests.count == 5 }
-        try await drain()
-
+        await Self.loadingState(of: sut, becomes: .loaded)
         #expect(provider.eventsRequests.count == 5)
-        #expect(sut.loadingState == .loaded)
         #expect(Self.cardIDs(sut) == ["a"])
     }
 
@@ -92,12 +86,12 @@ struct PolymarketEventsBlockViewModelTests {
         provider.eventPages = [.init(category: 1, cursor: nil): Self.page(["a"])]
         let sut = Self.makeSUT(provider: provider)
 
-        try await settle { sut.loadingState == .error }
+        await Self.loadingState(of: sut, becomes: .error)
 
         sut.handleViewAction(.retry)
 
-        try await settle { Self.cardIDs(sut) == ["a"] }
-        #expect(sut.loadingState == .allDataLoaded)
+        await Self.loadingState(of: sut, becomes: .allDataLoaded)
+        #expect(Self.cardIDs(sut) == ["a"])
     }
 
     @Test("A tab picked while the retried feed is still loading shows only its own events")
@@ -105,22 +99,24 @@ struct PolymarketEventsBlockViewModelTests {
         let provider = PolymarketAPIProviderStub()
         provider.queuedCategoryResults = [.failure(EventsTestError.unavailable)]
         provider.categoryList = [Self.category(1), Self.category(2)]
-        provider.slowEventCategories = [1]
+        provider.heldEventCategories = [1]
         provider.eventPages = [
             .init(category: 1, cursor: nil): Self.page(["a"]),
             .init(category: 2, cursor: nil): Self.page(["b"]),
         ]
         let sut = Self.makeSUT(provider: provider)
-
-        try await settle { sut.loadingState == .error }
+        await Self.loadingState(of: sut, becomes: .error)
 
         sut.handleViewAction(.retry)
-        try await settle { !sut.categories.isEmpty }
+        try await provider.heldEvents.entered.next()
 
         sut.selectedCategoryTab.wrappedValue = PolymarketCategoryTab(id: 2, title: "")
+        await Self.loadingState(of: sut, becomes: .allDataLoaded)
 
-        try await settle { Self.cardIDs(sut) == ["b"] }
-        try await Task.sleep(nanoseconds: PolymarketAPIProviderStub.slowEventsDelay * 3 / 2)
+        provider.heldEvents.open()
+        sut.handleViewAction(.retry)
+        try await provider.eventsRequested.waitForCount(3)
+        await Self.loadingState(of: sut, becomes: .allDataLoaded)
 
         #expect(Self.cardIDs(sut) == ["b"])
     }
@@ -134,7 +130,7 @@ struct PolymarketEventsBlockViewModelTests {
         let routable = PolymarketEventOpeningRoutableSpy()
         let sut = Self.makeSUT(provider: provider, routable: routable, isRegionRestricted: true)
 
-        try await settle { Self.cardIDs(sut) == ["a"] }
+        await Self.cards(of: sut, become: ["a"])
 
         let selected = try #require(sut.eventCards.first?.regularModel?.rows.first?.outcomes.first)
         selected.onSelect()
@@ -152,8 +148,9 @@ struct PolymarketEventsBlockViewModelTests {
 
         context.clock.advance(by: 21)
         context.sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: true))
+        try await context.runVisibilityTick()
 
-        try await settle { context.provider.eventsRequests.count == 2 }
+        #expect(context.provider.eventsRequests.count == 2)
         #expect(context.provider.eventsRequests.last?.cursor == nil)
         #expect(context.provider.eventsRequests.last?.category == 1)
     }
@@ -163,20 +160,22 @@ struct PolymarketEventsBlockViewModelTests {
         let context = try await Self.makePollingContext(pages: [.init(category: 1, cursor: nil): Self.page(["a"])])
 
         context.sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: true))
-        try await Task.sleep(nanoseconds: Self.visibilitySettle)
+        try await context.runVisibilityTick()
 
         context.sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: false))
         context.clock.advance(by: 21)
         context.sut.handleViewAction(.onEventVisibilityChange(id: "elsewhere", isVisible: true))
-        try await Task.sleep(nanoseconds: Self.visibilitySettle)
+        try await context.runVisibilityTick()
 
         #expect(context.provider.eventsRequests.count == 1)
 
         context.sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: true))
-        try await settle { context.provider.eventsRequests.count == 2 }
+        try await context.runVisibilityTick()
+
+        #expect(context.provider.eventsRequests.count == 2)
     }
 
-    @Test("A failed later page keeps the feed as it is and is asked again on the next tick")
+    @Test("A failed later page keeps the feed as it is")
     func failedLaterPageKeepsTheFeed() async throws {
         let context = try await Self.makePollingContext(pages: [
             .init(category: 1, cursor: nil): Self.page(["a"], cursor: "c1"),
@@ -184,17 +183,14 @@ struct PolymarketEventsBlockViewModelTests {
         ])
 
         context.sut.handleViewAction(.loadNextPage)
-        try await settle { Self.cardIDs(context.sut) == ["a", "b"] }
+        await Self.loadingState(of: context.sut, becomes: .allDataLoaded)
 
         context.provider.eventErrors = [.init(category: 1, cursor: "c1"): Self.badGateway]
         context.clock.advance(by: 21)
         context.sut.handleViewAction(.onEventVisibilityChange(id: "b", isVisible: true))
+        try await context.runVisibilityTick()
 
-        try await settle { context.provider.eventsRequests.count == 3 }
-        try await Task.sleep(nanoseconds: Self.visibilitySettle)
-
-        #expect(context.provider.eventsRequests.count == 3)
-        #expect(context.provider.eventsRequests.last?.cursor == "c1")
+        #expect(context.provider.eventsRequests.map(\.cursor) == [nil, "c1", "c1"])
         #expect(Self.cardIDs(context.sut) == ["a", "b"])
     }
 
@@ -207,12 +203,13 @@ struct PolymarketEventsBlockViewModelTests {
 
         context.provider.eventErrors = [.init(category: 1, cursor: "c1"): Self.badGateway]
         context.sut.handleViewAction(.loadNextPage)
-        try await settle(timeout: .seconds(5)) { context.sut.loadingState == .paginationError }
+        await Self.loadingState(of: context.sut, becomes: .paginationError)
 
         context.provider.eventErrors = [:]
         context.sut.handleViewAction(.retryNextPage)
 
-        try await settle { Self.cardIDs(context.sut) == ["a", "b"] }
+        await Self.loadingState(of: context.sut, becomes: .allDataLoaded)
+        #expect(Self.cardIDs(context.sut) == ["a", "b"])
         #expect(context.provider.eventsRequests.map(\.cursor) == [nil, "c1", "c1", "c1"])
     }
 
@@ -223,9 +220,7 @@ struct PolymarketEventsBlockViewModelTests {
         context.provider.eventErrors = [.init(category: 1, cursor: nil): Self.badGateway]
         context.clock.advance(by: 21)
         context.sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: true))
-
-        try await settle { context.provider.eventsRequests.count == 2 }
-        try await Task.sleep(nanoseconds: Self.visibilitySettle)
+        try await context.runVisibilityTick()
 
         #expect(context.provider.eventsRequests.count == 2)
         #expect(Self.cardIDs(context.sut) == ["a"])
@@ -236,36 +231,40 @@ struct PolymarketEventsBlockViewModelTests {
         let context = try await Self.makePollingContext(pages: [.init(category: 1, cursor: nil): Self.page(["a"])])
 
         context.provider.eventErrors = [.init(category: 1, cursor: nil): Self.unavailable]
+        context.sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: true))
 
-        try await Self.failRefresh(context, expectingRequests: 2)
-        try await Self.failRefresh(context, expectingRequests: 3)
-        try await Self.failRefresh(context, expectingRequests: 4)
-        try await settle { context.outdatedDataLog.reports == 1 }
+        try await Self.failRefresh(context)
+        try await Self.failRefresh(context)
+        #expect(context.outdatedDataLog.reports == 0)
 
-        try await Self.failRefresh(context, expectingRequests: 5)
-        try await Self.failRefresh(context, expectingRequests: 6)
+        try await Self.failRefresh(context)
+        #expect(context.outdatedDataLog.reports == 1)
+
+        try await Self.failRefresh(context)
+        try await Self.failRefresh(context)
         #expect(context.outdatedDataLog.reports == 1)
 
         context.clock.advance(by: 300)
-        try await Self.failRefresh(context, expectingRequests: 7)
-        try await settle { context.outdatedDataLog.reports == 2 }
+        try await Self.failRefresh(context)
+        #expect(context.outdatedDataLog.reports == 2)
+        #expect(context.provider.eventsRequests.count == 7)
     }
 
-    @Test("In background a page coming on screen is not asked for")
+    @Test("In background a page coming on screen is not asked for, coming back asks for it at once")
     func backgroundPausesRefreshes() async throws {
         let context = try await Self.makePollingContext(pages: [.init(category: 1, cursor: nil): Self.page(["a"])])
 
-        context.notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
-        try await Task.sleep(nanoseconds: Self.visibilitySettle)
+        context.appState.enterBackground()
+        try await context.delays.cancellations.next()
 
         context.clock.advance(by: 21)
         context.sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: true))
-        try await Task.sleep(nanoseconds: Self.visibilitySettle)
 
-        #expect(context.provider.eventsRequests.count == 1)
+        context.appState.enterForeground()
+        try await context.provider.eventsRequested.waitForCount(2)
 
-        context.notificationCenter.post(name: UIApplication.willEnterForegroundNotification, object: nil)
-        try await settle { context.provider.eventsRequests.count == 2 }
+        #expect(!context.delays.requests.recorded.contains(Delays.visibilitySettleDelay))
+        #expect(context.provider.eventsRequests.count == 2)
     }
 
     @Test("While search is open a page coming on screen is not asked for, closing search asks for it at once")
@@ -276,12 +275,12 @@ struct PolymarketEventsBlockViewModelTests {
 
         context.clock.advance(by: 21)
         context.sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: true))
-        try await Task.sleep(nanoseconds: Self.visibilitySettle)
-
-        #expect(context.provider.eventsRequests.count == 1)
 
         context.sut.setPollingSuspended(false)
-        try await settle { context.provider.eventsRequests.count == 2 }
+        try await context.provider.eventsRequested.waitForCount(2)
+
+        #expect(!context.delays.requests.recorded.contains(Delays.visibilitySettleDelay))
+        #expect(context.provider.eventsRequests.count == 2)
     }
 
     @Test("A poll answer arriving after the tab changed is not merged into the new tab")
@@ -294,21 +293,24 @@ struct PolymarketEventsBlockViewModelTests {
             ]
         )
 
-        context.provider.slowEventCategories = [1]
+        context.provider.heldEventCategories = [1]
         context.provider.eventPages[.init(category: 1, cursor: nil)] = PolymarketEventsPage(
             events: [Self.event(id: "b", title: "stale"), Self.event(id: "a")],
             cursor: nil
         )
         context.clock.advance(by: 21)
         context.sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: true))
-        context.notificationCenter.post(name: UIApplication.willEnterForegroundNotification, object: nil)
-        try await settle { context.provider.eventsRequests.count == 2 }
+        context.appState.enterForeground()
+        try await context.provider.heldEvents.entered.next()
 
         context.sut.selectedCategoryTab.wrappedValue = PolymarketCategoryTab(id: 2, title: "")
-        try await settle { Self.cardIDs(context.sut) == ["b"] }
-        try await Task.sleep(nanoseconds: PolymarketAPIProviderStub.slowEventsDelay * 2)
+        await Self.loadingState(of: context.sut, becomes: .allDataLoaded)
+        context.sut.handleViewAction(.onEventVisibilityChange(id: "b", isVisible: true))
 
-        #expect(context.sut.eventCards.first?.regularModel?.title == "b")
+        context.provider.heldEvents.open()
+        try await context.runVisibilityTick()
+
+        #expect(context.sut.eventCards.map(\.regularModel?.title) == ["b"])
     }
 
     @Test("An outcome chosen on a card drawn before a poll opens the order with the market from that poll")
@@ -323,7 +325,8 @@ struct PolymarketEventsBlockViewModelTests {
         context.provider.eventPages[.init(category: 1, cursor: nil)] = Self.page(["a"], outcomes: [Self.outcome(probability: "0.55")])
         context.clock.advance(by: 21)
         context.sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: true))
-        try await settle { Self.priceTexts(context.sut).first == Self.cents("0.55") }
+        try await context.runVisibilityTick()
+        #expect(Self.priceTexts(context.sut).first == Self.cents("0.55"))
 
         cardBeforePoll.onSelect()
 
@@ -337,10 +340,10 @@ struct PolymarketEventsBlockViewModelTests {
     func liveQuoteShowsTheBestAsk() async throws {
         let context = try await Self.makeLiveContext()
 
-        context.stream.push(PolymarketLiveQuotesFixtures.quote("a-m0-yes", bid: "0.36", ask: "0.37"))
-        context.stream.push(PolymarketLiveQuotesFixtures.quote("a-m0-no", bid: "0.62"))
+        try await context.deliver(PolymarketLiveQuotesFixtures.quote("a-m0-yes", bid: "0.36", ask: "0.37"))
+        try await context.deliver(PolymarketLiveQuotesFixtures.quote("a-m0-no", bid: "0.62"))
 
-        try await settle { Self.priceTexts(context.sut) == [Self.cents("0.37"), BalanceFormatter.defaultEmptyBalanceString] }
+        await Self.priceTexts(of: context.sut, become: [Self.cents("0.37"), BalanceFormatter.defaultEmptyBalanceString])
     }
 
     @Test("A batch that changes no price on screen does not republish the cards")
@@ -349,14 +352,10 @@ struct PolymarketEventsBlockViewModelTests {
         var publishes = 0
         let subscription = context.sut.$eventCards.dropFirst().sink { _ in publishes += 1 }
 
-        context.stream.push(PolymarketLiveQuotesFixtures.quote("a-m0-yes", bid: "0.30", ask: "0.37"))
-        try await settle { Self.priceTexts(context.sut).first == Self.cents("0.37") }
-
-        context.stream.push(PolymarketLiveQuotesFixtures.quote("a-m0-yes", bid: "0.31", ask: "0.37"))
-        try await Task.sleep(nanoseconds: Self.batchSettle)
-
-        context.stream.push(PolymarketLiveQuotesFixtures.quote("a-m0-yes", bid: "0.31", ask: "0.38"))
-        try await settle { Self.priceTexts(context.sut).first == Self.cents("0.38") }
+        try await context.deliver(PolymarketLiveQuotesFixtures.quote("a-m0-yes", bid: "0.30", ask: "0.37"))
+        try await context.deliver(PolymarketLiveQuotesFixtures.quote("a-m0-yes", bid: "0.31", ask: "0.37"))
+        try await context.deliver(PolymarketLiveQuotesFixtures.quote("a-m0-yes", bid: "0.31", ask: "0.38"))
+        await Self.firstPriceText(of: context.sut, becomes: Self.cents("0.38"))
 
         #expect(publishes == 2)
         withExtendedLifetime(subscription) {}
@@ -366,12 +365,12 @@ struct PolymarketEventsBlockViewModelTests {
     func lostConnectionFallsBackToBackendPrices() async throws {
         let context = try await Self.makeLiveContext()
 
-        context.stream.push(PolymarketLiveQuotesFixtures.quote("a-m0-yes", ask: "0.37"))
-        try await settle { Self.priceTexts(context.sut).first == Self.cents("0.37") }
+        try await context.deliver(PolymarketLiveQuotesFixtures.quote("a-m0-yes", ask: "0.37"))
+        await Self.firstPriceText(of: context.sut, becomes: Self.cents("0.37"))
 
         context.liveQuotes.statuses.push(.waitingToReconnect)
 
-        try await settle { Self.priceTexts(context.sut) == [Self.cents("0.42"), Self.cents("0.58")] }
+        await Self.priceTexts(of: context.sut, become: [Self.cents("0.42"), Self.cents("0.58")])
     }
 
     // MARK: - Live games
@@ -392,13 +391,12 @@ struct PolymarketEventsBlockViewModelTests {
     func liveQuoteReachesTheLiveCard() async throws {
         let context = try await Self.makeGameContext(events: [Games.soccer()])
         context.sut.handleViewAction(.onEventVisibilityChange(id: "1201001", isVisible: true))
-        try await settle { context.liveQuotes.streams.count == 1 }
+        let stream = try await context.liveQuotes.requests.next()
 
-        context.liveQuotes.streams[0].push(PolymarketLiveQuotesFixtures.quote("1201001-draw-yes", bid: "0.26", ask: "0.27"))
+        stream.push(PolymarketLiveQuotesFixtures.quote("1201001-draw-yes", bid: "0.26", ask: "0.27"))
 
-        try await settle {
-            context.sut.eventCards.first?.liveGameModel?.outcomes[safe: 1]?.priceText == PolymarketPriceFormatter.wholeCentsText(Decimal(string: "0.27"))
-        }
+        let expected = PolymarketPriceFormatter.wholeCentsText(Decimal(string: "0.27"))
+        _ = await context.sut.$eventCards.firstValue { $0.first?.liveGameModel?.outcomes[safe: 1]?.priceText == expected }
     }
 
     @Test("When the socket and the feed put a match on the same stage, the card shows the socket score, because the feed score lags behind")
@@ -407,7 +405,7 @@ struct PolymarketEventsBlockViewModelTests {
 
         context.push(Games.liveGame(Games.basketballGameId, score: "100-101"))
 
-        try await settle { Self.liveScore(context.sut)?.away == "100" }
+        await Self.awayScore(of: context.sut, becomes: "100")
     }
 
     @Test("A lost socket brings the score from REST back")
@@ -415,11 +413,11 @@ struct PolymarketEventsBlockViewModelTests {
         let context = try await Self.makeGameContext(events: [Games.basketball()])
 
         context.push(Games.liveGame(Games.basketballGameId, score: "100-101"))
-        try await settle { Self.liveScore(context.sut)?.away == "100" }
+        await Self.awayScore(of: context.sut, becomes: "100")
 
         context.liveGames.statuses.push(.waitingToReconnect)
 
-        try await settle { Self.liveScore(context.sut)?.away == "98" }
+        await Self.awayScore(of: context.sut, becomes: "98")
     }
 
     @Test("After a real reconnection only the pages on screen are asked again, each with its own cursor")
@@ -431,33 +429,36 @@ struct PolymarketEventsBlockViewModelTests {
         ]
         let context = try await Self.makeGameContext(provider: provider)
         context.sut.handleViewAction(.loadNextPage)
-        try await settle { context.sut.eventCards.count == 2 }
+        await Self.loadingState(of: context.sut, becomes: .allDataLoaded)
         context.sut.handleViewAction(.onEventVisibilityChange(id: "1197295", isVisible: true))
-        try await Task.sleep(nanoseconds: Self.visibilitySettle)
         let requestsBefore = provider.eventsRequests.count
 
         context.reconnect()
+        try await provider.eventsRequested.waitForCount(requestsBefore + 1)
 
-        try await settle { provider.eventsRequests.count == requestsBefore + 1 }
-        try await drain()
-        #expect(provider.eventsRequests.dropFirst(requestsBefore).map(\.cursor) == ["c1"])
+        provider.heldEventCategories = [1]
+        context.reconnect()
+        try await provider.heldEvents.entered.next()
+
+        #expect(provider.eventsRequests.dropFirst(requestsBefore).map(\.cursor) == ["c1", "c1"])
     }
 
     @Test("A second reconnection while the first refetch still waits for the backend asks for the page again")
     func secondReconnectionDuringARefetchStillRefetches() async throws {
         let provider = PolymarketAPIProviderStub()
-        provider.slowEventCategories = [1]
-        provider.slowEventsIgnoreCancellation = true
         let context = try await Self.makeGameContext(events: [Games.basketball()], provider: provider)
         context.sut.handleViewAction(.onEventVisibilityChange(id: "1197295", isVisible: true))
-        try await Task.sleep(nanoseconds: Self.visibilitySettle)
         let requestsBefore = provider.eventsRequests.count
+        provider.heldEventCategories = [1]
 
         context.reconnect()
-        try await settle { provider.eventsRequests.count == requestsBefore + 1 }
+        try await provider.heldEvents.entered.next()
         context.reconnect()
+        try await provider.heldEvents.cancelled.next()
 
-        try await settle { provider.eventsRequests.count == requestsBefore + 2 }
+        provider.heldEvents.open()
+
+        try await provider.eventsRequested.waitForCount(requestsBefore + 2)
     }
 
     @Test("A match the socket reports started gets its quotes followed before REST catches up")
@@ -465,12 +466,13 @@ struct PolymarketEventsBlockViewModelTests {
         let match = Games.basketball(isLive: false, score: nil, period: nil)
         let context = try await Self.makeGameContext(events: [match])
         context.sut.handleViewAction(.onEventVisibilityChange(id: match.id, isVisible: true))
-        try await drain()
-        #expect(context.liveQuotes.streams.isEmpty)
+        try await context.delays.waitUntilParked(Delays.visibilitySettleDelay)
+        #expect(context.liveQuotes.requests.recorded.isEmpty)
 
         context.push(Games.liveGame(Games.basketballGameId, score: "2-0", period: "Q1"))
 
-        try await settle { context.liveQuotes.streams.last?.assetIds.contains("1197295-phi") == true }
+        let stream = try await context.liveQuotes.requests.next()
+        #expect(stream.assetIds.contains("1197295-phi"))
     }
 
     @Test("Without phase two a live match stays on the regular card with the bullet")
@@ -497,7 +499,7 @@ struct PolymarketEventsBlockViewModelTests {
 
         context.push(Games.liveGame(Games.basketballGameId, score: "98-101"))
         context.push(Games.liveGame(Games.basketballGameId, score: "100-101"))
-        try await settle { Self.liveScore(context.sut)?.away == "100" }
+        await Self.awayScore(of: context.sut, becomes: "100")
 
         #expect(publishes == 1)
         #expect(context.sut.eventCards.last == soccerCard)
@@ -515,14 +517,14 @@ struct PolymarketEventsBlockViewModelTests {
         let context = try await Self.makeGameContext(provider: provider)
 
         context.sut.selectedCategoryTab.wrappedValue = PolymarketCategoryTab(id: 2, title: "")
-        try await settle { Self.cardIDs(context.sut) == ["b"] }
+        await Self.cards(of: context.sut, become: ["b"])
         context.sut.selectedCategoryTab.wrappedValue = PolymarketCategoryTab(id: 1, title: "")
-        try await settle { Self.cardIDs(context.sut) == ["1197295"] }
-        try await drain()
+        #expect(Self.cardIDs(context.sut) == ["1197295"])
+        try await context.liveGames.requests.next()
 
         context.push(Games.liveGame(Games.basketballGameId, score: "100-101"))
 
-        try await settle { Self.liveScore(context.sut)?.away == "100" }
+        await Self.awayScore(of: context.sut, becomes: "100")
     }
 }
 
@@ -533,10 +535,12 @@ private extension PolymarketEventsBlockViewModelTests {
         provider: PolymarketAPIProviderStub,
         routable: PolymarketEventOpeningRoutableSpy = PolymarketEventOpeningRoutableSpy.ignored,
         isRegionRestricted: Bool = false,
-        notificationCenter: NotificationCenter = NotificationCenter(),
+        appState: AppStateObserverStub = AppStateObserverStub(),
         clock: PollingClock = PollingClock(),
+        delays: PolymarketSteppedDelayProvider = PolymarketSteppedDelayProvider(passing: { $0 == Delays.silentRetryDelay }),
         outdatedDataLog: OutdatedDataLog = OutdatedDataLog(),
         liveQuotes: PolymarketLiveQuotesSourceSpy = PolymarketLiveQuotesSourceSpy(),
+        quoteBatches: any PollDelayProvider = InstantPollDelayProvider(),
         liveGames: PolymarketLiveGamesSourceSpy = PolymarketLiveGamesSourceSpy(),
         usesPhaseTwoCards: Bool = false
     ) -> PolymarketEventsBlockViewModel {
@@ -549,26 +553,56 @@ private extension PolymarketEventsBlockViewModelTests {
                 fundsArrivalTracker: PolymarketFundsArrivalTracker(balancePublisher: Empty().eraseToAnyPublisher()),
                 refreshCenter: refreshCenter
             ),
-            liveQuotesTracker: liveQuotes.makeTracker(),
+            liveQuotesTracker: liveQuotes.makeTracker(delayProvider: quoteBatches),
             liveGamesTracker: liveGames.makeTracker(),
             usesPhaseTwoCards: usesPhaseTwoCards,
             isRegionRestricted: { isRegionRestricted },
             routable: routable,
-            notificationCenter: notificationCenter,
+            appStateObserver: appState,
             now: { clock.now },
+            delayProvider: delays,
             reportOutdatedData: { outdatedDataLog.reports += 1 }
         )
     }
 
+    static func cards(of sut: PolymarketEventsBlockViewModel, become ids: [String]) async {
+        _ = await sut.$eventCards.firstValue { $0.map(\.id) == ids }
+    }
+
+    static func loadingState(of sut: PolymarketEventsBlockViewModel, becomes state: PolymarketEventsBlockViewModel.LoadingState) async {
+        _ = await sut.$loadingState.firstValue { $0 == state }
+    }
+
+    static func priceTexts(of sut: PolymarketEventsBlockViewModel, become texts: [String?]) async {
+        _ = await sut.$eventCards.firstValue { $0.first?.regularModel?.rows.first?.outcomes.map(\.priceText) == texts }
+    }
+
+    static func firstPriceText(of sut: PolymarketEventsBlockViewModel, becomes text: String) async {
+        _ = await sut.$eventCards.firstValue { $0.first?.regularModel?.rows.first?.outcomes.first?.priceText == text }
+    }
+
+    static func awayScore(of sut: PolymarketEventsBlockViewModel, becomes away: String) async {
+        _ = await sut.$eventCards.firstValue { $0.first { $0.id == "1197295" }?.liveGameModel?.score?.away == away }
+    }
+
+    @MainActor
     struct PollingContext {
         let sut: PolymarketEventsBlockViewModel
         let provider: PolymarketAPIProviderStub
         let clock: PollingClock
+        let delays: PolymarketSteppedDelayProvider
         let outdatedDataLog: OutdatedDataLog
-        let notificationCenter: NotificationCenter
+        let appState: AppStateObserverStub
+
+        func runVisibilityTick() async throws {
+            try await delays.waitUntilParked(Delays.visibilitySettleDelay)
+            delays.resume(Delays.visibilitySettleDelay)
+
+            sut.handleViewAction(.onEventVisibilityChange(id: UUID().uuidString, isVisible: true))
+            try await delays.waitUntilParked(Delays.visibilitySettleDelay)
+        }
     }
 
-    static let visibilitySettle: UInt64 = 800_000_000
     static let badGateway = PolymarketAPIError.http(statusCode: 502, problemDetail: nil)
     static let unavailable = PolymarketAPIError.http(statusCode: 503, problemDetail: nil)
 
@@ -581,43 +615,49 @@ private extension PolymarketEventsBlockViewModelTests {
         provider.categoryList = categories.map(category)
         provider.eventPages = pages
         let clock = PollingClock()
+        let delays = PolymarketSteppedDelayProvider(passing: { $0 == Delays.silentRetryDelay })
         let outdatedDataLog = OutdatedDataLog()
-        let notificationCenter = NotificationCenter()
+        let appState = AppStateObserverStub()
         let sut = makeSUT(
             provider: provider,
             routable: routable,
-            notificationCenter: notificationCenter,
+            appState: appState,
             clock: clock,
+            delays: delays,
             outdatedDataLog: outdatedDataLog
         )
 
-        try await settle { !sut.eventCards.isEmpty }
+        _ = await sut.$loadingState.firstValue { $0 == .loaded || $0 == .allDataLoaded }
+        try await delays.waitUntilParked(Delays.pollInterval)
 
         return PollingContext(
             sut: sut,
             provider: provider,
             clock: clock,
+            delays: delays,
             outdatedDataLog: outdatedDataLog,
-            notificationCenter: notificationCenter
+            appState: appState
         )
     }
 
-    static func failRefresh(_ context: PollingContext, expectingRequests count: Int) async throws {
+    static func failRefresh(_ context: PollingContext) async throws {
         context.clock.advance(by: 21)
-
-        try await settle {
-            context.sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: true))
-            return context.provider.eventsRequests.count == count
-        }
+        try await context.runVisibilityTick()
     }
 
+    @MainActor
     struct LiveContext {
         let sut: PolymarketEventsBlockViewModel
         let liveQuotes: PolymarketLiveQuotesSourceSpy
+        let quoteBatches: PolymarketSteppedDelayProvider
         let stream: PolymarketLiveStreamSpy<PolymarketOutcomeQuote>
-    }
 
-    static let batchSettle: UInt64 = 600_000_000
+        func deliver(_ quote: PolymarketOutcomeQuote) async throws {
+            stream.push(quote)
+            try await quoteBatches.waitUntilParked(Delays.quoteBatchInterval)
+            quoteBatches.resume()
+        }
+    }
 
     static func makeLiveContext() async throws -> LiveContext {
         let provider = PolymarketAPIProviderStub()
@@ -626,23 +666,26 @@ private extension PolymarketEventsBlockViewModelTests {
             .init(category: 1, cursor: nil): PolymarketEventsPage(events: [PolymarketLiveQuotesFixtures.event(id: "a")], cursor: nil),
         ]
         let liveQuotes = PolymarketLiveQuotesSourceSpy()
-        let sut = makeSUT(provider: provider, liveQuotes: liveQuotes)
+        let quoteBatches = PolymarketSteppedDelayProvider()
+        let sut = makeSUT(provider: provider, liveQuotes: liveQuotes, quoteBatches: quoteBatches)
 
-        try await settle { cardIDs(sut) == ["a"] }
+        await cards(of: sut, become: ["a"])
 
         liveQuotes.statuses.push(.connected)
-        try await settle { liveQuotes.statuses.pulls >= 2 }
+        try await liveQuotes.statuses.waitForPulls(2)
 
         sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: true))
-        try await settle { liveQuotes.streams.count == 1 }
+        let stream = try await liveQuotes.requests.next()
 
-        return LiveContext(sut: sut, liveQuotes: liveQuotes, stream: liveQuotes.streams[0])
+        return LiveContext(sut: sut, liveQuotes: liveQuotes, quoteBatches: quoteBatches, stream: stream)
     }
 
+    @MainActor
     struct GameContext {
         let sut: PolymarketEventsBlockViewModel
         let liveGames: PolymarketLiveGamesSourceSpy
         let liveQuotes: PolymarketLiveQuotesSourceSpy
+        let delays: PolymarketSteppedDelayProvider
 
         func push(_ game: PolymarketLiveGame) {
             guard let stream = liveGames.streams.last else {
@@ -675,18 +718,22 @@ private extension PolymarketEventsBlockViewModelTests {
 
         let liveGames = PolymarketLiveGamesSourceSpy()
         let liveQuotes = PolymarketLiveQuotesSourceSpy()
-        let sut = makeSUT(provider: provider, routable: routable, liveQuotes: liveQuotes, liveGames: liveGames, usesPhaseTwoCards: usesPhaseTwoCards)
+        let delays = PolymarketSteppedDelayProvider(passing: { $0 == Delays.silentRetryDelay })
+        let sut = makeSUT(
+            provider: provider,
+            routable: routable,
+            delays: delays,
+            liveQuotes: liveQuotes,
+            liveGames: liveGames,
+            usesPhaseTwoCards: usesPhaseTwoCards
+        )
 
-        try await settle { !sut.eventCards.isEmpty }
+        _ = await sut.$loadingState.firstValue { $0 == .loaded || $0 == .allDataLoaded }
+        try await liveGames.requests.next()
         liveGames.statuses.push(.connected)
-        try await settle { liveGames.statuses.pulls >= 2 }
-        try await drain()
+        try await liveGames.statuses.waitForPulls(2)
 
-        return GameContext(sut: sut, liveGames: liveGames, liveQuotes: liveQuotes)
-    }
-
-    static func liveScore(_ sut: PolymarketEventsBlockViewModel) -> PolymarketLiveGameCard.Score? {
-        sut.eventCards.first { $0.id == "1197295" }?.liveGameModel?.score
+        return GameContext(sut: sut, liveGames: liveGames, liveQuotes: liveQuotes, delays: delays)
     }
 
     static func priceTexts(_ sut: PolymarketEventsBlockViewModel) -> [String?] {
@@ -761,6 +808,13 @@ private extension PolymarketEventsBlockViewModelTests {
             markets: markets
         )
     }
+}
+
+private enum Delays {
+    static let visibilitySettleDelay: TimeInterval = 0.5
+    static let silentRetryDelay: TimeInterval = 2
+    static let quoteBatchInterval: TimeInterval = 0.3
+    static let pollInterval: TimeInterval = 20
 }
 
 // MARK: - Doubles
