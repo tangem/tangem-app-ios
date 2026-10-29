@@ -25,7 +25,7 @@ struct TangemPayTransactionHistoryView: View {
                 .frame(maxWidth: .infinity, minHeight: max(0, visibleBodyHeight - headerHeight), alignment: .center)
                 .frame(maxWidth: .infinity, minHeight: visibleBodyHeight, alignment: .top)
         case .loading, .loaded, .notSupported:
-            TransactionsListViewRedesigned(
+            TransactionsListView(
                 state: state,
                 exploreAction: nil,
                 openTransactionDetailsAction: { openTransactionDetailsAction($0.hash) },

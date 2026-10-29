@@ -65,49 +65,6 @@ struct TransactionViewModel: Hashable {
         }
     }
 
-    func getTransactionDescription() -> String? {
-        let base = baseTransactionDescription()
-        guard let cardName else { return base }
-        guard let base else { return cardName }
-        return "\(base) \(AppConstants.dotSign) \(cardName)"
-    }
-
-    private func baseTransactionDescription() -> String? {
-        switch transactionType {
-        case .yieldEnter:
-            return Localization.yieldModuleTransactionEnterSubtitle(amount.amount)
-
-        case .yieldTopup:
-            return Localization.yieldModuleTransactionTopupSubtitle(amount.amount)
-
-        case .yieldSend where isOutgoing:
-            return localizeDestination
-
-        case .yieldWithdraw,
-             .yieldSend where isFromYieldContract:
-            return Localization.yieldModuleTransactionExitSubtitle(amount.amount)
-
-        default:
-            return localizeDestination
-        }
-    }
-
-    var localizeDestination: String? {
-        if status == .failed {
-            return Localization.commonTransactionFailed
-        }
-
-        return addressDestination
-    }
-
-    var addressDestination: String? {
-        Self.computeAddressDestination(
-            interactionAddress: interactionAddress,
-            transactionType: transactionType,
-            isOutgoing: isOutgoing
-        )
-    }
-
     var name: String {
         Self.legacyName(
             transactionType: transactionType,
@@ -131,8 +88,7 @@ struct TransactionViewModel: Hashable {
         index: Int,
         interactionAddress: InteractionAddressType,
         timeFormatted: String?,
-        amount: String,
-        amountWithCurrencyCode: String? = nil,
+        amount: String?,
         value: String?,
         currencyCode: String,
         isOutgoing: Bool,
@@ -155,8 +111,8 @@ struct TransactionViewModel: Hashable {
             isFromYieldContract: isFromYieldContract
         )
         self.amount = TransactionViewAmountViewData(
-            amount: amount,
-            amountWithCurrencyCode: amountWithCurrencyCode,
+            amount: amount ?? "",
+            amountWithCurrencyCode: amount,
             value: value,
             currencyCode: currencyCode,
             type: transactionType,

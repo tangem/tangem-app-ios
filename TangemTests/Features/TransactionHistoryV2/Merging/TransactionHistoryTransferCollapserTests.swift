@@ -41,7 +41,7 @@ struct TransactionHistoryTransferCollapserTests {
         let viewModel = makeHistoryMapper().mapTransactionViewModel(try #require(collapsed.singleElement))
 
         #expect(viewModel.isOutgoing)
-        #expect(viewModel.amount.amount == formatted(2, signedBy: AppConstants.minusSign))
+        #expect(viewModel.amount.value == formatted(2, signedBy: AppConstants.minusSign))
     }
 
     /// Both arguments are the same address: the wallet keeps the EIP-55 casing it generates, while a provider
@@ -72,7 +72,7 @@ struct TransactionHistoryTransferCollapserTests {
             .mapTransactionViewModel(try #require(collapsed.singleElement))
 
         #expect(!viewModel.isOutgoing)
-        #expect(viewModel.amount.amount == formatted(2, signedBy: AppConstants.plusSign))
+        #expect(viewModel.amount.value == formatted(2, signedBy: AppConstants.plusSign))
     }
 
     @Test("A transaction that nets to zero keeps its row and renders unsigned")
@@ -84,9 +84,9 @@ struct TransactionHistoryTransferCollapserTests {
 
         let viewModel = makeHistoryMapper().mapTransactionViewModel(try #require(collapsed.singleElement))
 
-        #expect(!viewModel.amount.amount.hasPrefix(AppConstants.minusSign))
-        #expect(!viewModel.amount.amount.hasPrefix(AppConstants.plusSign))
-        #expect(viewModel.amount.amount == formatted(0, signedBy: ""))
+        #expect(viewModel.amount.value?.hasPrefix(AppConstants.minusSign) == false)
+        #expect(viewModel.amount.value?.hasPrefix(AppConstants.plusSign) == false)
+        #expect(viewModel.amount.value == formatted(0, signedBy: ""))
     }
 
     /// Several transfers rarely share a meaning worth borrowing from the method that carried them, so what the
@@ -300,7 +300,7 @@ private extension TransactionHistoryTransferCollapserTests {
     }
 
     func formatted(_ amount: Decimal, signedBy sign: String) -> String {
-        sign + BalanceFormatter().formatCryptoBalance(amount, currencyCode: Self.currencySymbol)
+        sign + BalanceFormatter().formatDecimal(amount)
     }
 
     /// Mirrors what the history mappers emit per transfer: the moved amount sits on both ends of it.

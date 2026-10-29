@@ -374,10 +374,7 @@ struct TransactionHistoryMapper {
             return nil
         }
 
-        guard let amountFormatted = transferAmount(from: record)?.legacy else {
-            return nil
-        }
-
+        let amountFormatted = suggestedAmount(from: record)
         let date = record.date ?? Date()
         let dateFormatted = Self.dateTimeFormatter.string(from: date)
 
@@ -397,9 +394,8 @@ struct TransactionHistoryMapper {
 
 private extension TransactionHistoryMapper {
     struct FormattedAmount {
-        let legacy: String
-        let redesigned: String
-        /// `legacy` with the ticker after the number regardless of locale.
+        let value: String
+        /// The amount with the ticker after the number regardless of locale.
         let withCurrencyCode: String
     }
 
@@ -479,10 +475,8 @@ private extension TransactionHistoryMapper {
             index: record.index,
             interactionAddress: interaction,
             timeFormatted: timeFormatted,
-            // [REDACTED_TODO_COMMENT]
-            amount: formattedAmount?.legacy ?? "",
-            amountWithCurrencyCode: formattedAmount?.withCurrencyCode,
-            value: formattedAmount?.redesigned,
+            amount: formattedAmount?.withCurrencyCode,
+            value: formattedAmount?.value,
             currencyCode: amountSymbol(for: prepared),
             isOutgoing: record.isOutgoing,
             transactionType: prepared.transactionType,
@@ -495,12 +489,13 @@ private extension TransactionHistoryMapper {
         )
     }
 
-    func transferAmount(from record: TransactionRecord) -> FormattedAmount? {
-        getFormattedAmount(for: prepare(record))
+    func suggestedAmount(from record: TransactionRecord) -> String {
+        let amount = prepare(record).amount
+        return sign(for: amount, isOutgoing: record.isOutgoing) + balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
     }
 
-    /// An approve is sent to the contract of the token it grants, so `interactionAddress` — which the legacy
-    /// row prints — names that contract. The redesigned chip names the spender instead.
+    /// An approve is sent to the contract of the token it grants, so `interactionAddress` names that contract.
+    /// The redesigned chip names the spender instead.
     func subtitleInteraction(
         from record: TransactionRecord,
         fallback: TransactionViewModel.InteractionAddressType
@@ -821,29 +816,23 @@ private extension TransactionHistoryMapper {
     }
 
     func formatted(amount: Decimal, isOutgoing: Bool, isFailed: Bool) -> FormattedAmount {
-        let sign = showSign && !amount.isZero ? (isOutgoing ? AppConstants.minusSign : AppConstants.plusSign) : ""
-
-        return makeFormattedAmount(
+        makeFormattedAmount(
             amount,
             symbol: currencySymbol,
-            sign: sign,
-            redesignedSign: isFailed ? "" : sign
+            sign: isFailed ? "" : sign(for: amount, isOutgoing: isOutgoing)
         )
     }
 
-    func makeFormattedAmount(
-        _ amount: Decimal,
-        symbol: String,
-        sign: String = "",
-        redesignedSign: String? = nil
-    ) -> FormattedAmount {
+    func sign(for amount: Decimal, isOutgoing: Bool) -> String {
+        showSign && !amount.isZero ? (isOutgoing ? AppConstants.minusSign : AppConstants.plusSign) : ""
+    }
+
+    func makeFormattedAmount(_ amount: Decimal, symbol: String, sign: String = "") -> FormattedAmount {
         let formattedAmount = balanceFormatter.formatDecimal(amount)
-        let redesignedSign = redesignedSign ?? sign
 
         return FormattedAmount(
-            legacy: sign + balanceFormatter.formatCryptoBalance(amount, currencyCode: symbol),
-            redesigned: redesignedSign + formattedAmount,
-            withCurrencyCode: TransactionDetailsAmountTextBuilder.build(formattedAmount, symbol: symbol, sign: redesignedSign) ?? formattedAmount
+            value: sign + formattedAmount,
+            withCurrencyCode: TransactionDetailsAmountTextBuilder.build(formattedAmount, symbol: symbol, sign: sign) ?? formattedAmount
         )
     }
 }
@@ -934,14 +923,14 @@ private extension TransactionHistoryMapper {
             return makeFormattedAmount(
                 amount,
                 symbol: currencySymbol,
-                redesignedSign: yieldSign(AppConstants.minusSign, amount: amount, record: record)
+                sign: yieldSign(AppConstants.minusSign, amount: amount, record: record)
             )
         // Kept as a separate case so the `where` guard clearly applies only to `.yieldSend`.
         case .yieldSend where record.isFromYieldContract:
             return makeFormattedAmount(
                 amount,
                 symbol: currencySymbol,
-                redesignedSign: yieldSign(AppConstants.plusSign, amount: amount, record: record)
+                sign: yieldSign(AppConstants.plusSign, amount: amount, record: record)
             )
         default:
             return formatted(amount: amount, isOutgoing: record.isOutgoing, isFailed: record.status == .failed && !prepared.transactionType.isNetworkFee)
@@ -958,16 +947,13 @@ private extension TransactionHistoryMapper {
         let status = status(from: record)
         let tilde = "\(AppConstants.tildeSign) "
 
-        let redesignedSign = switch status {
+        let sign = switch status {
         case .inProgress: tilde
         case .confirmed: AppConstants.plusSign
         case .failed, .undefined: ""
         }
 
-        // The legacy row keeps the estimate rule it shipped with; only the redesigned sign follows the stage.
-        let legacySign = info.transaction.to.actualAmount == nil || status == .inProgress ? tilde : ""
-
-        return makeFormattedAmount(amount, symbol: currencySymbol, sign: legacySign, redesignedSign: redesignedSign)
+        return makeFormattedAmount(amount, symbol: currencySymbol, sign: sign)
     }
 
     func yieldSign(_ sign: String, amount: Decimal, record: TransactionRecord) -> String {
@@ -985,12 +971,9 @@ private extension TransactionHistoryMapper {
         case .revoked:
             return makeFormattedAmount(.zero, symbol: symbol)
         case .unlimited:
-            let legacy = approve.symbol.map(Localization.transactionHistoryUnlimitedAmount) ?? Localization.transactionHistoryUnlimited
-
             return FormattedAmount(
-                legacy: legacy,
-                redesigned: Localization.transactionHistoryUnlimited,
-                withCurrencyCode: legacy
+                value: Localization.transactionHistoryUnlimited,
+                withCurrencyCode: approve.symbol.map(Localization.transactionHistoryUnlimitedAmount) ?? Localization.transactionHistoryUnlimited
             )
         case .limited(let value):
             return makeFormattedAmount(value, symbol: symbol)

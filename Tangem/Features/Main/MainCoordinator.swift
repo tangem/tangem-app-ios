@@ -75,10 +75,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
     private(set) var shtorka: MainShtorkaPresenter?
 
-    // MARK: - Child view models
-
-    @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
-
     // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper = false
@@ -617,7 +613,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             || jointAccountManagementCoordinator != nil
             || sendCoordinator != nil
             || modalOnboardingCoordinator != nil
-            || visaTransactionDetailsViewModel != nil
             || actionButtonsBuyCoordinator != nil
             || actionButtonsSellCoordinator != nil
             || yieldModuleActiveCoordinator != nil
@@ -632,7 +627,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             $jointAccountManagementCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $sendCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $modalOnboardingCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
-            $visaTransactionDetailsViewModel.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $actionButtonsBuyCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $actionButtonsSellCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $yieldModuleActiveCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
@@ -920,10 +914,6 @@ extension MainCoordinator: TokensManagementFlowRoutable {
 // MARK: - Visa
 
 extension MainCoordinator: VisaWalletRoutable {
-    func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord, emailConfig: EmailConfig) {
-        visaTransactionDetailsViewModel = .init(tokenItem: tokenItem, transaction: record, emailConfig: emailConfig, router: self)
-    }
-
     func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
         let addressTypesProvider = VisaReceiveAssetInfoProvider(addressInfos)
 
@@ -940,8 +930,6 @@ extension MainCoordinator: VisaWalletRoutable {
         }
     }
 }
-
-extension MainCoordinator: VisaTransactionDetailsRouter {}
 
 extension MainCoordinator: TangemPayFailedToIssueCardRoutable {
     func closeFailedToIssueCardSheet() {
