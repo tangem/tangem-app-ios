@@ -37,20 +37,14 @@ struct MarketsTokenDetailsCoordinatorOptionsTests {
         #expect(options.showsPortfolioActions)
     }
 
-    @Test("The token chart deeplink opens in a navigation stack and follows the toggle", arguments: [true, false])
-    func tokenChartDeeplink(isToggleEnabled: Bool) {
-        var requestedFeatures: [Feature] = []
+    @Test("The token chart deeplink opens in a navigation stack with portfolio actions")
+    func tokenChartDeeplink() {
+        let options = MarketsTokenDetailsCoordinator.Options.tokenChartDeeplink(tokenId: Constants.tokenId)
 
-        let options = MarketsTokenDetailsCoordinator.Options.tokenChartDeeplink(tokenId: Constants.tokenId) { feature in
-            requestedFeatures.append(feature)
-            return isToggleEnabled
-        }
-
-        #expect(requestedFeatures == [.tokenChartAddToPortfolio])
         #expect(options.info.id == Constants.tokenId)
         #expect(options.style == .navigationStack)
         #expect(!options.isDeeplinkMode)
-        #expect(options.showsPortfolioActions == isToggleEnabled)
+        #expect(options.showsPortfolioActions)
     }
 }
 

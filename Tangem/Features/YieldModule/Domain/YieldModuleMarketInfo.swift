@@ -34,7 +34,7 @@ struct YieldModuleMarketIncentive: Codable, Equatable {
 }
 
 extension YieldModuleMarketInfo {
-    init(dto: YieldModuleDTO.Response.MarketInfo, includeIncentive: Bool) {
+    init(dto: YieldModuleDTO.Response.MarketInfo) {
         self.init(
             tokenContractAddress: dto.tokenAddress,
             apy: dto.apy / 100,
@@ -42,7 +42,7 @@ extension YieldModuleMarketInfo {
             chainId: dto.chainId,
             maxFeeNative: dto.maxFeeNative,
             maxFeeUSD: dto.maxFeeUSD,
-            incentive: includeIncentive ? Self.makeIncentive(dto: dto) : nil
+            incentive: Self.makeIncentive(dto: dto)
         )
     }
 

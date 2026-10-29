@@ -25,12 +25,11 @@ struct PolymarketWidgetProviderTests {
         #expect(widget == .polymarket)
     }
 
-    @Test("A wallet with an account keeps the widget when the experiment is off", arguments: [true, false])
-    func walletWithAccountKeepsWidgetWithExperimentOff(isToggleOn: Bool) async throws {
+    @Test("A wallet with an account keeps the widget when the experiment is off")
+    func walletWithAccountKeepsWidgetWithExperimentOff() async throws {
         let widget = try await resolvedWidget(
             wallets: [makeWallet()],
             experimentService: ExperimentServiceStub(storedVariant: .control),
-            isToggleOn: isToggleOn,
             hasAccount: true
         )
 
@@ -131,13 +130,11 @@ private extension PolymarketWidgetProviderTests {
     func resolvedWidget(
         wallets: [UserWalletModel],
         experimentService: ExperimentServiceStub,
-        isToggleOn: Bool = true,
         hasAccount: Bool
     ) async throws -> FeedWidget? {
         try await resolvedWidget(
             wallets: wallets,
             experimentService: experimentService,
-            isToggleOn: isToggleOn,
             presenceStore: PolymarketAccountPresenceStoreStub(known: hasAccount)
         )
     }
@@ -145,14 +142,10 @@ private extension PolymarketWidgetProviderTests {
     func resolvedWidget(
         wallets: [UserWalletModel],
         experimentService: ExperimentServiceStub,
-        isToggleOn: Bool = true,
         presenceStore: PolymarketAccountPresenceStore,
         router: PredictionsFeedRouterStub = PredictionsFeedRouterStub()
     ) async throws -> FeedWidget? {
-        let availabilityProvider = CommonPolymarketAvailabilityProvider(
-            experimentService: experimentService,
-            isToggleOn: { isToggleOn }
-        )
+        let availabilityProvider = CommonPolymarketAvailabilityProvider(experimentService: experimentService)
 
         return await InjectedDependenciesIsolation.shared.run {
             let previousRepository = InjectedValues[\.userWalletRepository]

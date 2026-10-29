@@ -132,14 +132,11 @@ extension MarketsTokenDetailsCoordinator {
             self.showsPortfolioActions = showsPortfolioActions
         }
 
-        static func tokenChartDeeplink(
-            tokenId: String,
-            isFeatureAvailable: (Feature) -> Bool = FeatureProvider.isAvailable
-        ) -> Options {
+        static func tokenChartDeeplink(tokenId: String) -> Options {
             Options(
                 info: .deeplinkStub(tokenId: tokenId),
                 style: .navigationStack,
-                showsPortfolioActions: isFeatureAvailable(.tokenChartAddToPortfolio)
+                showsPortfolioActions: true
             )
         }
     }

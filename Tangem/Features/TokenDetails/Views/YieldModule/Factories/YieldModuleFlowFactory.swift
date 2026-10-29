@@ -84,10 +84,7 @@ final class CommonYieldModuleFlowFactory {
         )
     }
 
-    private func makeYieldModuleActiveViewModel(
-        coordinator: YieldModuleActiveCoordinator,
-        usesIncentiveDesign: Bool
-    ) -> YieldModuleActiveViewModel {
+    private func makeYieldModuleActiveViewModel(coordinator: YieldModuleActiveCoordinator) -> YieldModuleActiveViewModel {
         let claimInteractor = makeClaimInteractor()
         let interactor = makeInteractor(claimInteractor: claimInteractor)
 
@@ -103,8 +100,7 @@ final class CommonYieldModuleFlowFactory {
             marketInfoPublisher: yieldModuleManager.marketInfoPublisher,
             claimInteractor: claimInteractor,
             notificationManager: YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem),
-            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId),
-            usesIncentiveDesign: usesIncentiveDesign
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
         )
     }
 
@@ -146,8 +142,7 @@ final class CommonYieldModuleFlowFactory {
     }
 
     private func makeClaimInteractor() -> YieldIncentivesClaimInteractor? {
-        guard FeatureProvider.isAvailable(.merklIncentives),
-              let chainId = walletModel.tokenItem.blockchain.chainId else {
+        guard let chainId = walletModel.tokenItem.blockchain.chainId else {
             return nil
         }
 
@@ -175,7 +170,7 @@ extension CommonYieldModuleFlowFactory: YieldModuleFlowFactory {
 
         // The boost promo keeps the legacy screen: the boost takes precedence over a campaign pre-supply.
         let root: YieldModulePromoCoordinator.Root
-        if FeatureProvider.isAvailable(.merklIncentives), !isApyBoostPromo {
+        if !isApyBoostPromo {
             root = .v2(makeYieldPromoV2ViewModel(apy: apy, coordinator: coordinator))
         } else {
             root = .legacy(makeYieldPromoViewModel(apy: apy, isApyBoostPromo: isApyBoostPromo, coordinator: coordinator))
@@ -189,12 +184,8 @@ extension CommonYieldModuleFlowFactory: YieldModuleFlowFactory {
         dismissAction: @escaping Action<YieldModuleActiveCoordinator.DismissOptions?>
     ) -> YieldModuleActiveCoordinator {
         let coordinator = YieldModuleActiveCoordinator(dismissAction: dismissAction)
-        let usesIncentiveDesign = FeatureProvider.isAvailable(.merklIncentives)
-        let viewModel = makeYieldModuleActiveViewModel(coordinator: coordinator, usesIncentiveDesign: usesIncentiveDesign)
-        let options = YieldModuleActiveCoordinator.Options(
-            viewModel: viewModel,
-            usesIncentiveDesign: usesIncentiveDesign
-        )
+        let viewModel = makeYieldModuleActiveViewModel(coordinator: coordinator)
+        let options = YieldModuleActiveCoordinator.Options(viewModel: viewModel)
 
         coordinator.start(with: options)
         return coordinator

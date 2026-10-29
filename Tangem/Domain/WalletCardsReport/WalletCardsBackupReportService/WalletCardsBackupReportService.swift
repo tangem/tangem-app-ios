@@ -43,17 +43,5 @@ extension InjectedValues {
 // MARK: - Private implementation
 
 private struct WalletCardsBackupReportServiceInjectionKey: InjectionKey {
-    static var currentValue: WalletCardsBackupReportService = {
-        guard FeatureProvider.isAvailable(.walletCardsBackupReport) else {
-            return DummyWalletCardsBackupReportService()
-        }
-
-        return CommonWalletCardsBackupReportService()
-    }()
-}
-
-private struct DummyWalletCardsBackupReportService: WalletCardsBackupReportService {
-    func initialize() {}
-    func reportCard(_ card: WalletCardsCurrentlyProcessedCard, primaryCardId: String) {}
-    func reportFailure(_ card: WalletCardsCurrentlyProcessedCard, primaryCardId: String, error: TangemSdkError) {}
+    static var currentValue: WalletCardsBackupReportService = CommonWalletCardsBackupReportService()
 }

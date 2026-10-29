@@ -28,8 +28,6 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
     @Published
     var rootViewModel: YieldModuleActiveViewModel? = nil
 
-    private(set) var usesIncentiveDesign = false
-
     @Published
     private(set) var claimViewModel: YieldModuleClaimViewModel?
 
@@ -58,7 +56,6 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
     // MARK: - Public Implementation
 
     func start(with options: Options) {
-        usesIncentiveDesign = options.usesIncentiveDesign
         rootViewModel = options.viewModel
     }
 
@@ -150,7 +147,6 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
 extension YieldModuleActiveCoordinator {
     struct Options {
         let viewModel: YieldModuleActiveViewModel
-        let usesIncentiveDesign: Bool
     }
 
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption
