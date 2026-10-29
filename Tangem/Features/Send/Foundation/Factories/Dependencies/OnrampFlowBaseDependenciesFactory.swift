@@ -95,6 +95,6 @@ extension OnrampFlowBaseDependenciesFactory {
     }
 
     func makeOnrampMarketingBannerManager() -> OnrampMarketingBannerManager {
-        OnrampMarketingBannerManager()
+        OnrampMarketingBannerManager(userWalletId: userWalletInfo.id)
     }
 }

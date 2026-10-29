@@ -12,7 +12,7 @@ import TangemExpress
 import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
-protocol SendRoutable: SendDestinationRoutable, OnrampRoutable, SwapRoutable, SendFeeSelectorRoutable, SendSwapProvidersRoutable, AnyObject {
+protocol SendRoutable: SendDestinationRoutable, OnrampRoutable, SwapRoutable, SendFeeSelectorRoutable, SendSwapProvidersRoutable, OnrampMarketingBannerRoutable, AnyObject {
     func dismiss(reason: SendDismissReason)
     /// The transaction has been accepted by the dispatcher — the flow is still on screen.
     func didDispatchTransaction()

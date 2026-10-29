@@ -38,6 +38,7 @@ struct CallToActionMarketingBannerViewModelFactoryTests {
         "https://partner.example.com/otc?ref=tangem",
         "tangem://support",
         "Tangem://support",
+        "tangem://onramp?type=concierge_waitlist",
         "https://tangem.com/onramp",
         "https://tangem.com/some-page",
     ])
@@ -50,7 +51,6 @@ struct CallToActionMarketingBannerViewModelFactoryTests {
         "otherapp://open",
         "tangem://future_screen",
         "mailto:support@tangem.com",
-        "tangem://onramp?type=concierge_waitlist",
         "tangem://onramp",
     ])
     func unopenableLinkIsDropped(link: String) {
