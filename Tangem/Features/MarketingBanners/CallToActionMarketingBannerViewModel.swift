@@ -20,6 +20,15 @@ enum CallToActionMarketingBanner: Identifiable, Hashable {
             viewModel.id
         }
     }
+
+    var link: URL {
+        switch self {
+        case .pseudoProvider(let viewModel):
+            viewModel.link
+        case .standalone(let viewModel):
+            viewModel.link
+        }
+    }
 }
 
 extension CallToActionMarketingBanner {

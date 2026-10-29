@@ -15,11 +15,13 @@ import TangemFoundation
 struct CallToActionMarketingBannerActionPerformerTests {
     private let incomingActionHandler = IncomingActionHandlerSpy()
     private let externalLinkResponder = IncomingActionResponderSpy()
+    private let conciergeWaitlistOpenCount = OSAllocatedUnfairLock(initialState: 0)
 
     private var performer: CallToActionMarketingBannerActionPerformer {
         CallToActionMarketingBannerActionPerformer(
             incomingActionHandler: incomingActionHandler,
-            externalLinkResponder: externalLinkResponder
+            externalLinkResponder: externalLinkResponder,
+            openConciergeWaitlist: { [conciergeWaitlistOpenCount] in conciergeWaitlistOpenCount.withLock { $0 += 1 } }
         )
     }
 
@@ -48,15 +50,25 @@ struct CallToActionMarketingBannerActionPerformerTests {
         #expect(externalLinkResponder.receivedActions.isEmpty)
     }
 
-    @Test("A link that only signals the provider's browser to close is opened by nobody", arguments: [
+    @Test("The Waitlist link opens the survey for the banner's own wallet, not through the app's link handling", arguments: [
         "tangem://onramp?type=concierge_waitlist",
-        "tangem://onramp",
+        "Tangem://onramp?type=CONCIERGE_WAITLIST",
     ])
-    func dismissSafariLinkIsIgnored(link: String) {
+    func waitlistLinkOpensSurvey(link: String) {
         performer.perform(.open(URL(string: link)!))
+
+        #expect(conciergeWaitlistOpenCount.withLock { $0 } == 1)
+        #expect(incomingActionHandler.handledURLs.isEmpty)
+        #expect(externalLinkResponder.receivedActions.isEmpty)
+    }
+
+    @Test("A link that only signals the provider's browser to close is opened by nobody")
+    func dismissSafariLinkIsIgnored() {
+        performer.perform(.open(URL(string: "tangem://onramp")!))
 
         #expect(incomingActionHandler.handledURLs.isEmpty)
         #expect(externalLinkResponder.receivedActions.isEmpty)
+        #expect(conciergeWaitlistOpenCount.withLock { $0 } == 0)
     }
 }
 

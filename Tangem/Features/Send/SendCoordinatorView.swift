@@ -99,5 +99,21 @@ struct SendCoordinatorView: CoordinatorView {
                 SwapTokenSelectorView(viewModel: $0)
                     .softTopScrollEdgeEffect()
             }
+            .sheet(item: $coordinator.demandSurveySheet) { sheet in
+                NavigationStack {
+                    demandSurvey(sheet)
+                        .withCloseButton(action: coordinator.closeDemandSurvey)
+                }
+            }
+    }
+
+    @ViewBuilder
+    private func demandSurvey(_ sheet: SendCoordinator.DemandSurveySheet) -> some View {
+        switch sheet {
+        case .form(let viewModel):
+            DemandSurveyView(viewModel: viewModel)
+        case .success:
+            DemandSurveySuccessView(onDone: coordinator.closeDemandSurvey)
+        }
     }
 }
