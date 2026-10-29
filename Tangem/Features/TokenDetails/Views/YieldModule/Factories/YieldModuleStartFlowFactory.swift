@@ -17,9 +17,7 @@ final class YieldStartFlowFactory {
     private weak var coordinator: YieldModulePromoCoordinator?
 
     private var marketIncentive: YieldModuleMarketIncentive? {
-        guard FeatureProvider.isAvailable(.merklIncentives) else { return nil }
-
-        return walletModel.yieldModuleManager?.state?.marketInfo?.incentive
+        walletModel.yieldModuleManager?.state?.marketInfo?.incentive
     }
 
     private var currentApy: Decimal? {

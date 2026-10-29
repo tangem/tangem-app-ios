@@ -116,10 +116,6 @@ private final class YieldModuleMarketsRepositoryStub: YieldModuleMarketsReposito
 private struct YieldModuleAPIServiceStub: YieldModuleAPIService {
     let marketsResult: Result<YieldModuleDTO.Response.MarketsInfo, Error>
 
-    func getYieldMarkets(chainIDs: [String]?) async throws -> YieldModuleDTO.Response.MarketsInfo {
-        try marketsResult.get()
-    }
-
     func getIncentiveYieldMarkets(chainIDs: [String]?) async throws -> YieldModuleDTO.Response.MarketsInfo {
         try marketsResult.get()
     }

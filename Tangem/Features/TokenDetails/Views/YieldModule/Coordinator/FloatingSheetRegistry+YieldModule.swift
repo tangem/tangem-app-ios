@@ -20,13 +20,7 @@ extension FloatingSheetRegistry {
         }
 
         register(YieldModuleAboutApyViewModel.self) { viewModel in
-            Group {
-                if viewModel.usesIncentiveDesign {
-                    YieldModuleAboutApyV2View(viewModel: viewModel)
-                } else {
-                    YieldModuleAboutApyView(viewModel: viewModel)
-                }
-            }
+            YieldModuleAboutApyV2View(viewModel: viewModel)
         }
     }
 }

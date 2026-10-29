@@ -135,7 +135,6 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
         }
 
         let isTokenYieldModuleSupported = isEarnSupported
-            && YieldModuleBlockchainAvailability().isAvailable(on: blockchainNetwork.blockchain)
 
         walletManager.cardTokens.forEach { token in
             let amountType: Amount.AmountType = .token(value: token)
