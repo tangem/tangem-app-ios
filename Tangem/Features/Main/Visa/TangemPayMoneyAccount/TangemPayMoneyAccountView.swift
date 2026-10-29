@@ -21,7 +21,12 @@ struct TangemPayMoneyAccountView: View {
     var body: some View {
         TangemPayMoneyAccountContentView(
             state: viewModel.stateModel,
+            refreshScrollState: viewModel.refreshScrollState,
             action: viewModel.handleAction
+        )
+        .tangemPayMoneyAccountToolbar(
+            menuSections: viewModel.menuSections,
+            onMenuItemSelected: { viewModel.handleAction(.selectMenuItem($0)) }
         )
     }
 }

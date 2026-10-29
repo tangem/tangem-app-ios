@@ -60,6 +60,8 @@ enum VisaEmailSubject {
     case payment
     case depositWithdrawal
     case failedToIssueCard
+    case usdAccountGeneralHelp
+    case usdAccountCloseAccount
 
     var prefix: String {
         let visaPrefix = "[Visa]"
@@ -68,6 +70,7 @@ enum VisaEmailSubject {
         case .dispute: return "\(visaPrefix) [DISPUTE]"
         case .payment: return "\(visaPrefix) [PAYMENT]"
         case .activation: return "\(visaPrefix) [Activation]"
+        case .usdAccountGeneralHelp, .usdAccountCloseAccount: return "\(visaPrefix) [USD ACCOUNT]"
         }
     }
 
@@ -76,9 +79,10 @@ enum VisaEmailSubject {
         switch self {
         case .default, .dispute, .activation: return Localization.feedbackSubjectSupport
         case .payment: return "Help"
-        case .generalHelp: return "General help"
+        case .generalHelp, .usdAccountGeneralHelp: return "General help"
         case .depositWithdrawal: return "Deposit/withdrawal"
         case .failedToIssueCard: return "Failed to issue card"
+        case .usdAccountCloseAccount: return "Close account"
         }
     }
 }

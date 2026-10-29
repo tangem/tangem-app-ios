@@ -20,7 +20,9 @@ struct TangemPayMoneyAccountRowView: View {
             subtitle: Localization.moneyAccountMainStatusActivating
         )
         .start { avatar }
+        .includeInnerPadding(false)
         .onTap(action: onTap)
+        .padding(12)
         .background(
             DesignSystem.Color.bgSecondary,
             in: RoundedRectangle(cornerRadius: 24, style: .continuous)

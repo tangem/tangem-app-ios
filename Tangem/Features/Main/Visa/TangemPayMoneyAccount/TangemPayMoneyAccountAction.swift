@@ -7,8 +7,14 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 enum TangemPayMoneyAccountAction {
     case topup
     case withdraw
+    case openYieldMode
+    case reloadTransactionHistory
+    case openTransactionDetails(id: TransactionRecord.ID)
+    case openExplorer
+    case selectMenuItem(TangemPayMoneyAccountMenuItem)
 }
