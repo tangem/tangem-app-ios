@@ -20,15 +20,11 @@ public final class CommonPolymarketAPIProvider {
         networkConfiguration: TangemProviderConfiguration,
         headers: [APIHeaderKeyInfo],
         walletId: String,
-        builderCodeStore: PolymarketBuilderCodeStore,
-        unauthorizedObserver: PolymarketUnauthorizedObserving? = nil
+        builderCodeStore: PolymarketBuilderCodeStore
     ) {
         let provider = TangemProvider<PolymarketTarget>(
             configuration: networkConfiguration,
-            additionalPlugins: [
-                NetworkHeadersPlugin(networkHeaders: headers),
-                PolymarketUnauthorizedPlugin(walletId: walletId, observer: unauthorizedObserver),
-            ]
+            additionalPlugins: [NetworkHeadersPlugin(networkHeaders: headers)]
         )
         service = CommonPolymarketAPIService(provider: provider, baseURL: baseURL, walletId: walletId)
         mapper = PolymarketMapper()

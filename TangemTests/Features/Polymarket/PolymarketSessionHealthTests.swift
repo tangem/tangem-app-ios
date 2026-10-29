@@ -36,33 +36,30 @@ struct PolymarketSessionHealthTests {
         #expect(fixture.reconnectRequests == 1)
     }
 
-    @Test("A burst of 401s from the backend ends in a single status read, a single reset and a single reconnect")
-    func unauthorizedBurstFoldsIntoOneReaction() async throws {
-        let fixture = Fixture(status: .success(.deployed), isReadHeld: true)
-
-        for _ in 0 ..< 10 {
-            fixture.unauthorizedEvents.yield()
-        }
-
-        try await fixture.walletService.gate.entered.next()
-        fixture.walletService.gate.open()
-        try await fixture.reconnects.next()
-
-        #expect(fixture.walletService.calls == 1)
-        #expect(fixture.resets == 1)
-        #expect(fixture.reconnectRequests == 1)
-    }
-
-    @Test("A 401 while the wallet is still ready to trade keeps the user signed in")
-    func unauthorizedWithAReadyWalletKeepsTheSession() async throws {
+    @Test("A 401 from the exchange asks for a reconnect at once, even while our backend still calls the wallet ready")
+    func exchangeUnauthorizedRequiresAReconnect() async throws {
         let fixture = Fixture(status: .success(.readyToTrade))
 
         fixture.unauthorizedEvents.yield()
-        try await fixture.walletService.gate.entered.next()
+        try await fixture.reconnects.next()
 
-        #expect(await fixture.sut.verify() == .ready)
-        #expect(fixture.resets == 0)
-        #expect(fixture.reconnectRequests == 0)
+        #expect(fixture.walletService.calls == 0)
+        #expect(fixture.accountGoneFlags == [false])
+        #expect(fixture.reconnectRequests == 1)
+    }
+
+    @Test("Once the exchange has rejected the credentials, later checks answer at once and never reset again")
+    func exchangeUnauthorizedIsFinal() async throws {
+        let fixture = Fixture(status: .success(.readyToTrade))
+
+        fixture.unauthorizedEvents.yield()
+        try await fixture.reconnects.next()
+
+        #expect(await fixture.sut.verify() == .reconnectRequired)
+        #expect(await fixture.sut.report(.deployed) == .reconnectRequired)
+        #expect(fixture.walletService.calls == 0)
+        #expect(fixture.resets == 1)
+        #expect(fixture.reconnectRequests == 1)
     }
 
     @Test("A ready wallet passes the check without touching the stored onboarding")
@@ -93,12 +90,13 @@ struct PolymarketSessionHealthTests {
         #expect(fixture.reconnectRequests == 1)
     }
 
-    @Test("A status read that is itself unauthorized asks for a reconnect")
-    func unauthorizedStatusReadRequiresAReconnect() async {
+    @Test("A 401 from our backend on the status read is not about the wallet, so the session is left alone")
+    func unauthorizedStatusReadIsInconclusive() async {
         let fixture = Fixture(status: .failure(.unauthorized))
 
-        #expect(await fixture.sut.verify() == .reconnectRequired)
-        #expect(fixture.resets == 1)
+        #expect(await fixture.sut.verify() == .inconclusive)
+        #expect(fixture.resets == 0)
+        #expect(fixture.reconnectRequests == 0)
     }
 
     @Test("A wallet the backend no longer knows asks for a reconnect")
