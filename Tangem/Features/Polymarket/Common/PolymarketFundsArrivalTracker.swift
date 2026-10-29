@@ -20,7 +20,7 @@ final class PolymarketFundsArrivalTracker: ObservableObject {
     private let latestBalance = OSAllocatedUnfairLock<Decimal?>(initialState: nil)
 
     private var windowTask: Task<Void, Never>?
-    private var onSettled: (() -> Void)?
+    private var settleHandlers: [() -> Void] = []
     private var balanceSubscription: AnyCancellable?
     private var latestBalanceSubscription: AnyCancellable?
 
@@ -43,7 +43,9 @@ final class PolymarketFundsArrivalTracker: ObservableObject {
     }
 
     func startAwaitingFunds(since baseline: Decimal? = nil, onSettled: (() -> Void)? = nil) {
-        self.onSettled = onSettled
+        if let onSettled {
+            settleHandlers.append(onSettled)
+        }
 
         guard !hasChanged(since: baseline) else {
             closeWindow()
@@ -86,12 +88,12 @@ private extension PolymarketFundsArrivalTracker {
         isBalanceChangeExpected = true
         observeBalance(since: baseline)
 
-        windowTask = Task { @MainActor [weak self] in
-            try? await self?.delayProvider.wait(for: Constants.windowDuration)
+        windowTask = Task { @MainActor [self] in
+            try? await delayProvider.wait(for: Constants.windowDuration)
 
             guard !Task.isCancelled else { return }
 
-            self?.closeWindow()
+            closeWindow()
         }
     }
 
@@ -118,9 +120,9 @@ private extension PolymarketFundsArrivalTracker {
         isBalanceChangeExpected = false
         isAwaitingFunds = false
 
-        let settled = onSettled
-        onSettled = nil
-        settled?()
+        let handlers = settleHandlers
+        settleHandlers = []
+        handlers.forEach { $0() }
     }
 }
 

@@ -17,7 +17,9 @@ struct PolymarketMainDependenciesFactory {
         let isPhaseTwoAvailable = FeatureProvider.isAvailable(.polymarketPhaseTwo)
         let apiProvider = PolymarketAPIProviderFactory().makeProvider(walletId: walletId)
         let balanceProvider = CommonPolymarketBalanceProvider(userWalletModel: userWalletModel)
-        let fundsArrivalTracker = PolymarketFundsArrivalTracker(
+        let fundsArrivalTracker = InjectedValues[\.polymarketFundsArrivalTrackerRegistry].tracker(
+            for: userWalletModel.userWalletId,
+            owner: userWalletModel,
             balancePublisher: balanceProvider.collateralBalancePublisher.map(\.value).eraseToAnyPublisher()
         )
         let refreshCenter = PolymarketMainRefreshCenter()
