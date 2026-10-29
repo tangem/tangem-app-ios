@@ -330,4 +330,30 @@ struct KaspaTransactionTests {
         #expect(tx2.transactionId?.hex() == "d9cd38d294de5cce401330a91c97807b5433a377e043e99b66363fe5274477c9")
         #expect(tx2.transactionHash?.hex() == "b5b1f2be9ec7dd34ee0da90addcae9bb7bbba145b1460ad639017059f9e41829")
     }
+
+    @Test
+    func availableAmountOverflowThrows() throws {
+        let publicKey = Data(hexString: "03401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01deb")
+        let address = try AddressServiceFactory(blockchain: blockchain).makeAddressService().makeAddress(from: publicKey)
+        let unspentOutputManager: UnspentOutputManager = .kaspa()
+        let outputs = (0 ..< 3).map { index in
+            UnspentOutput(
+                blockId: 1,
+                txId: "414f096361040f27e3ebfd02965c27d1492a69880dbf1544bf213e7159709134",
+                index: index,
+                amount: UInt64(Int64.max)
+            )
+        }
+
+        unspentOutputManager.update(outputs: outputs, for: address)
+        let txBuilder = KaspaTransactionBuilder(
+            walletPublicKey: .init(seedKey: publicKey, derivationType: .none),
+            unspentOutputManager: unspentOutputManager,
+            isTestnet: false
+        )
+
+        #expect(throws: (any Error).self) {
+            try txBuilder.availableAmount()
+        }
+    }
 }

@@ -45,6 +45,19 @@ struct KaspaTransactionHistoryMapperTests {
 
         #expect(record.fee.amount.value == Decimal(string: "0.1"))
     }
+
+    @Test("Output amounts that add up past Int.max are summed without trapping")
+    func outputAmountsBeyondIntRangeAreSummed() throws {
+        let record = try mapOutgoingTransaction(outputs: [
+            ("kaspa:first", Int.max),
+            ("kaspa:second", Int.max),
+        ])
+
+        let expectedAmount = (Decimal(Int.max) + Decimal(Int.max)) / Blockchain.kaspa(testnet: false).decimalValue
+
+        #expect(record.source == .single(.init(address: walletAddress, amount: expectedAmount)))
+        #expect(record.fee.amount.value == .zero)
+    }
 }
 
 // MARK: - Helpers
