@@ -51,6 +51,10 @@ final class JointAccountsNetworkServiceStub: JointAccountsNetworkService {
         }
     }
 
+    var issuedInviteRequests: [IssueInviteRequest] {
+        state.withLock(\.issuedInviteRequests)
+    }
+
     var operationCallsCount: Int {
         state.withLock { $0.createdRequests.count + $0.signedOperations.count + $0.rejectedOperationIds.count + $0.fetchedOperations.count }
     }
@@ -61,9 +65,11 @@ final class JointAccountsNetworkServiceStub: JointAccountsNetworkService {
         error: Error? = nil,
         suspendedFirstAnswer: JointAccountsRemoteState? = nil,
         operationAnswer: JointAccountOperation? = nil,
-        fetchedOperationAnswers: [Result<JointOperationFetchResult, Error>] = []
+        fetchedOperationAnswers: [Result<JointOperationFetchResult, Error>] = [],
+        issuedInviteAnswer: Result<JointAccountIssuedInvite, Error>? = nil
     ) {
         state.withLock {
+            $0.issuedInviteAnswer = issuedInviteAnswer
             $0.jointAccounts = jointAccounts
             $0.answersUnchanged = answersUnchanged
             $0.error = error
@@ -108,8 +114,21 @@ final class JointAccountsNetworkServiceStub: JointAccountsNetworkService {
         }
     }
 
-    func createJointAccount(blob: JointAccountCreationBlob) async throws -> JointAccountCreationResult {
+    func createJointAccount(blob: JointAccountCreationBlob) async throws -> RemoteJointAccount {
         throw "Not called by these tests"
+    }
+
+    func issueInvite(cryptoAccountId: String, slot: JointAccountMemberSlotID) async throws -> JointAccountIssuedInvite {
+        let answer = state.withLock { state -> Result<JointAccountIssuedInvite, Error>? in
+            state.issuedInviteRequests.append(IssueInviteRequest(cryptoAccountId: cryptoAccountId, slot: slot))
+            return state.issuedInviteAnswer
+        }
+
+        guard let answer else {
+            throw "The test handed no invite for the endpoint to issue"
+        }
+
+        return try answer.get()
     }
 
     func getInvitePreview(inviteId: String) async throws -> JointAccountInvitePreview {
@@ -121,6 +140,10 @@ final class JointAccountsNetworkServiceStub: JointAccountsNetworkService {
     }
 
     func activateJointAccount(blob: JointAccountActivationBlob) async throws -> RemoteJointAccount {
+        throw "Not called by these tests"
+    }
+
+    func confirmJointAccount(blob: JointAccountConfirmationBlob) async throws -> RemoteJointAccount {
         throw "Not called by these tests"
     }
 
@@ -175,6 +198,13 @@ final class JointAccountsNetworkServiceStub: JointAccountsNetworkService {
 
 // MARK: - Auxiliary types
 
+extension JointAccountsNetworkServiceStub {
+    struct IssueInviteRequest: Equatable {
+        let cryptoAccountId: String
+        let slot: JointAccountMemberSlotID
+    }
+}
+
 private extension JointAccountsNetworkServiceStub {
     struct State {
         var jointAccounts: [RemoteJointAccount] = []
@@ -183,6 +213,8 @@ private extension JointAccountsNetworkServiceStub {
         var suspendedFirstAnswer: JointAccountsRemoteState?
         var operationAnswer: JointAccountOperation?
         var fetchedOperationAnswers: [Result<JointOperationFetchResult, Error>] = []
+        var issuedInviteAnswer: Result<JointAccountIssuedInvite, Error>?
+        var issuedInviteRequests: [IssueInviteRequest] = []
         var fetchedOperations: [(id: String, knownETag: String?)] = []
         var getJointAccountsCallsCount = 0
         var sentKnownETags: [String?] = []

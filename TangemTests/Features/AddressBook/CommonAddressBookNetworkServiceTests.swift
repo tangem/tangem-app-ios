@@ -285,6 +285,9 @@ private final class MockTangemApiService: TangemApiService {
     func createJointAccount(
         walletId: String, body: JointAccountsDTO.Request.Create
     ) async throws -> JointAccountsDTO.Response.JointAccount { fatalError("unused") }
+    func issueJointAccountInvite(
+        walletId: String, body: JointAccountsDTO.Request.IssueInvite
+    ) async throws -> JointAccountsDTO.Response.IssuedInvite { fatalError("unused") }
     func getJointAccountInvite(
         walletId: String, inviteId: String
     ) async throws -> JointAccountsDTO.Response.InvitePreview { fatalError("unused") }
@@ -293,6 +296,10 @@ private final class MockTangemApiService: TangemApiService {
     ) async throws -> JointAccountsDTO.Response.JointAccount { fatalError("unused") }
     func activateJointAccount(
         walletId: String, body: JointAccountsDTO.Request.Activate
+    ) async throws -> JointAccountsDTO.Response.JointAccount { fatalError("unused") }
+
+    func confirmJointAccount(
+        walletId: String, body: JointAccountsDTO.Request.Confirm
     ) async throws -> JointAccountsDTO.Response.JointAccount { fatalError("unused") }
 
     func createJointAccountOperation(

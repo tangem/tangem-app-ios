@@ -212,10 +212,14 @@ protocol TangemApiService: AnyObject {
         walletId: String, knownETag: String?
     ) async throws -> (eTag: String?, accounts: JointAccountsDTO.Response.JointAccounts)?
 
-    /// - Returns: The account, in `pending` with the caller as its creator, and one invite per free slot.
+    /// - Returns: The account, in `pending` with the caller as its creator.
     func createJointAccount(
         walletId: String, body: JointAccountsDTO.Request.Create
     ) async throws -> JointAccountsDTO.Response.JointAccount
+
+    func issueJointAccountInvite(
+        walletId: String, body: JointAccountsDTO.Request.IssueInvite
+    ) async throws -> JointAccountsDTO.Response.IssuedInvite
 
     /// - Returns: What the invited wallet is joining and who is inviting it.
     /// - Note: The wallet in the path is the one the invite is being checked for, so a wallet that already holds a slot
@@ -230,6 +234,10 @@ protocol TangemApiService: AnyObject {
 
     func activateJointAccount(
         walletId: String, body: JointAccountsDTO.Request.Activate
+    ) async throws -> JointAccountsDTO.Response.JointAccount
+
+    func confirmJointAccount(
+        walletId: String, body: JointAccountsDTO.Request.Confirm
     ) async throws -> JointAccountsDTO.Response.JointAccount
 
     /// - Returns: The operation, in `awaiting_signatures` with the initiator's signature already counted — or in

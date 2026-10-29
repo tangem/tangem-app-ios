@@ -152,6 +152,6 @@ private extension JointAccountPendingOperationStandingResolverTests {
         static let creatorAddress = "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf"
         static let ownAddress = "0x3c9e1b7a5d2f80461c8a0e2b4d6f8a0c2e4b6c90"
         static let signedAt = "2026-10-27T10:00:00Z"
-        static let member = JointAccountMember(name: "Me", address: ownAddress, role: .member(inviteId: nil))
+        static let member = JointAccountMember(name: "Me", address: ownAddress, role: .member)
     }
 }

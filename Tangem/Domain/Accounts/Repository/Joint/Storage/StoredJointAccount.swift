@@ -18,10 +18,8 @@ struct StoredJointAccount: Codable, Equatable {
         /// these are only ever compared case-insensitively, never as strings.
         let address: String
         let role: JointAccountMemberRole
-        /// The invite this member redeemed to take their slot. Absent on the creator's slot, which never had one, on
-        /// every slot of an activated account, which the endpoint describes without its invites, and throughout a
-        /// record stored before the endpoint learnt to report them at all.
-        let inviteId: String?
+        let slot: JointAccountMemberSlotID?
+        let signature: String?
     }
 
     /// The wallet's own account this joint one is joined with, and the only field the two endpoints describing it share.

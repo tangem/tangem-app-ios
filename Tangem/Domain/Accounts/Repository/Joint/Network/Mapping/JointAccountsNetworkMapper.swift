@@ -61,28 +61,22 @@ extension JointAccountsNetworkMapper {
 // MARK: - Responses
 
 extension JointAccountsNetworkMapper {
-    func mapToCreationResult(from response: JointAccountsDTO.Response.JointAccount) throws -> JointAccountCreationResult {
-        let invites = (response.invites ?? []).map { StoredJointAccountInvite(id: $0.id) }
-        let freeSlotsCount = max(0, response.membersCount - response.members.count)
-
-        if invites.count != freeSlotsCount {
-            // Neither reissued nor readable afterwards, so a slot that came back without an invite can never be
-            // filled — worth seeing in the logs of a wallet whose creator turns out unable to invite anybody
-            JointAccountsLogger.warning("A joint account was created with \(invites.count) invites for \(freeSlotsCount) free slots")
-        }
-
-        return try JointAccountCreationResult(account: mapToJointAccount(from: response), invites: invites)
-    }
-
     func mapToJointAccounts(from response: JointAccountsDTO.Response.JointAccounts) throws -> [RemoteJointAccount] {
         try response.jointAccounts.map(mapToJointAccount(from:))
     }
 
     func mapToJointAccount(from dto: JointAccountsDTO.Response.JointAccount) throws -> RemoteJointAccount {
         let members = dto.members.map { member in
-            StoredJointAccount.Member(name: member.name, address: member.address, role: member.role, inviteId: member.inviteId)
+            StoredJointAccount.Member(
+                name: member.name,
+                address: member.address,
+                role: member.role,
+                slot: member.slot.map(JointAccountMemberSlotID.init),
+                signature: member.signature
+            )
         }
 
+        let invites = dto.invites?.compactMap(mapToInvite(from:)) ?? []
         let status = try mapStatus(from: dto)
         let operations = try dto.operations?.map(mapToOperation(from:)) ?? []
 
@@ -92,8 +86,26 @@ extension JointAccountsNetworkMapper {
             threshold: dto.threshold,
             status: status,
             members: members,
+            invites: invites,
             operations: operations
         )
+    }
+
+    func mapToInvite(from dto: JointAccountsDTO.Response.JointAccount.Invite) -> RemoteJointAccount.Invite? {
+        guard let expiresAt = parseDate(dto.expiresAt) else {
+            JointAccountsLogger.warning("An invite of the joint account has an unreadable expiry and is skipped")
+            return nil
+        }
+
+        return RemoteJointAccount.Invite(slot: JointAccountMemberSlotID(dto.slot), expiresAt: expiresAt)
+    }
+
+    func mapToIssuedInvite(from dto: JointAccountsDTO.Response.IssuedInvite) throws -> JointAccountIssuedInvite {
+        guard let expiresAt = parseDate(dto.expiresAt) else {
+            throw JointAccountsNetworkMapperError.malformedInvite(field: "expiresAt")
+        }
+
+        return JointAccountIssuedInvite(id: dto.id, slot: JointAccountMemberSlotID(dto.slot), expiresAt: expiresAt)
     }
 
     func mapToInvitePreview(from response: JointAccountsDTO.Response.InvitePreview) -> JointAccountInvitePreview {
@@ -271,11 +283,15 @@ private extension JointAccountsNetworkMapper {
     }
 
     func date(_ string: String, field: String) throws -> Date {
-        guard let date = Self.dateFormatter.date(from: string) ?? Self.dateFallbackFormatter.date(from: string) else {
+        guard let date = parseDate(string) else {
             throw JointAccountsNetworkMapperError.malformedOperation(field: field)
         }
 
         return date
+    }
+
+    func parseDate(_ string: String) -> Date? {
+        Self.dateFormatter.date(from: string) ?? Self.dateFallbackFormatter.date(from: string)
     }
 
     func mapStatus(from dto: JointAccountsDTO.Response.JointAccount) throws -> JointAccountStatus {
@@ -366,4 +382,5 @@ enum JointAccountsNetworkMapperError: Error, Equatable {
     /// A figure of an operation that is not a base-10 integer cannot be hashed, so the operation could be neither
     /// signed nor shown.
     case malformedOperation(field: String)
+    case malformedInvite(field: String)
 }

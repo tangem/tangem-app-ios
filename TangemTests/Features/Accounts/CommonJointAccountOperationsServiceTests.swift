@@ -325,7 +325,7 @@ private extension CommonJointAccountOperationsServiceTests {
 
     func makeAccount(status: JointAccountStatus) -> CommonJointAccountModel {
         let slots = Constants.members.map { address in
-            JointAccountSlot.member(JointAccountMember(name: "Member", address: address, role: .member(inviteId: nil)))
+            JointAccountSlot.member(JointAccountMember(name: "Member", address: address, role: .member))
         }
 
         return CommonJointAccountModel(

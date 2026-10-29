@@ -16,7 +16,7 @@ struct CommonJointAccountUserRoleServiceTests {
     @Test("The slot the stored key resolves to is the one the wallet holds")
     func slotIsTheOneTheStoredKeyResolvesTo() {
         let sut = Self.makeSUT()
-        let own = Self.own(role: .member(inviteId: "AA"))
+        let own = Self.own(role: .member)
 
         #expect(sut.role(among: [Self.other, own]) == .member(own))
     }
@@ -26,7 +26,7 @@ struct CommonJointAccountUserRoleServiceTests {
         let sut = Self.makeSUT()
 
         #expect(sut.role(among: [Self.own(role: .creator)]).isCreator)
-        #expect(!sut.role(among: [Self.own(role: .member(inviteId: "AA"))]).isCreator)
+        #expect(!sut.role(among: [Self.own(role: .member)]).isCreator)
     }
 
     /// The endpoint keeps the addresses in lower case while the app computes the checksummed form.

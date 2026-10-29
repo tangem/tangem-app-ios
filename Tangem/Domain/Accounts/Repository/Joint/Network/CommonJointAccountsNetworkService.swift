@@ -29,14 +29,24 @@ final class CommonJointAccountsNetworkService {
 // MARK: - JointAccountsNetworkService
 
 extension CommonJointAccountsNetworkService: JointAccountsNetworkService {
-    func createJointAccount(blob: JointAccountCreationBlob) async throws -> JointAccountCreationResult {
+    func createJointAccount(blob: JointAccountCreationBlob) async throws -> RemoteJointAccount {
         let response = try await tangemApiService.createJointAccount(
             walletId: userWalletId.stringValue,
             body: mapper.mapToRequest(from: blob)
         )
         invalidateJointAccountsETag()
 
-        return try mapper.mapToCreationResult(from: response)
+        return try mapper.mapToJointAccount(from: response)
+    }
+
+    func issueInvite(cryptoAccountId: String, slot: JointAccountMemberSlotID) async throws -> JointAccountIssuedInvite {
+        let response = try await tangemApiService.issueJointAccountInvite(
+            walletId: userWalletId.stringValue,
+            body: JointAccountsDTO.Request.IssueInvite(cryptoAccountId: cryptoAccountId, slot: slot.rawValue)
+        )
+        invalidateJointAccountsETag()
+
+        return try mapper.mapToIssuedInvite(from: response)
     }
 
     func getJointAccounts(knownETag: String?) async throws -> JointAccountsRemoteState {
@@ -68,6 +78,16 @@ extension CommonJointAccountsNetworkService: JointAccountsNetworkService {
 
     func activateJointAccount(blob: JointAccountActivationBlob) async throws -> RemoteJointAccount {
         let response = try await tangemApiService.activateJointAccount(
+            walletId: userWalletId.stringValue,
+            body: mapper.mapToRequest(from: blob)
+        )
+        invalidateJointAccountsETag()
+
+        return try mapper.mapToJointAccount(from: response)
+    }
+
+    func confirmJointAccount(blob: JointAccountConfirmationBlob) async throws -> RemoteJointAccount {
+        let response = try await tangemApiService.confirmJointAccount(
             walletId: userWalletId.stringValue,
             body: mapper.mapToRequest(from: blob)
         )

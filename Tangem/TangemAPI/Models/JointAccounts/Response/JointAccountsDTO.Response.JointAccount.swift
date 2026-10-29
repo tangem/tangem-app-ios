@@ -10,21 +10,20 @@ import Foundation
 
 extension JointAccountsDTO.Response {
     /// The account as every endpoint describes it, whether it has just been created, joined, activated or merely
-    /// read: creating is the one answer that fills the invites in, and joining the last free slot is what brings
-    /// the address and the status the endpoint works out from the full composition.
+    /// read: joining the last free slot is what brings the address and the status the endpoint works out from the
+    /// full composition.
     struct JointAccount {
         struct Member: Decodable {
             let name: String
             let address: String
             let role: JointAccountMemberRole
-            /// The invite this member redeemed to take their slot, which is what lets the creator tell which invite
-            /// went to whom while the account is still filling up. The creator's own slot never had one, and an
-            /// activated account is reported without them: by then they have all served their purpose.
-            let inviteId: String?
+            let slot: Int?
+            let signature: String?
         }
 
         struct Invite: Decodable {
-            let id: String
+            let slot: Int
+            let expiresAt: String
         }
 
         /// The names matched here are the wire contract. What the stages mean is `JointAccountStatus`'s to say.
@@ -43,7 +42,6 @@ extension JointAccountsDTO.Response {
         /// Reported by every answer; nil for a stage this version has never heard of — see `init(from:)`.
         let status: Status?
         let members: [Member]
-        /// Only ever answers creating the account — see `StoredJointAccountInvite`.
         let invites: [Invite]?
         /// The unfinished operations, at most one per network.
         let operations: [Operation]?

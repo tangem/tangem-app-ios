@@ -63,7 +63,7 @@ struct JointAccountActivationTests {
         let account = makeJointAccount(
             status: .confirming(safeAddress: Constants.announcedSafeAddress),
             members: Constants.owners.enumerated().map { index, address in
-                JointAccountMember(name: "Member \(index)", address: address, role: .member(inviteId: "invite-\(index)"))
+                JointAccountMember(name: "Member \(index)", address: address, role: .member)
             }
         )
 
@@ -186,7 +186,7 @@ private extension JointAccountActivationTests {
                 JointAccountMember(
                     name: "Member \(index)",
                     address: address,
-                    role: index == 0 ? .creator : .member(inviteId: "invite-\(index)")
+                    role: index == 0 ? .creator : .member
                 )
             }
         }

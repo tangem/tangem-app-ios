@@ -19,18 +19,56 @@ import Testing
 struct JointAccountsNetworkMapperTests {
     private let mapper = JointAccountsNetworkMapper()
 
-    @Test("A freshly created account arrives without an address and with an invite per free slot")
+    @Test("A freshly created account arrives without an address and without invites")
     func createdAccountIsRead() throws {
         let response: JointAccountsDTO.Response.JointAccount = try Self.decode(Constants.createdAccountJSON)
 
-        let result = try mapper.mapToCreationResult(from: response)
+        let account = try mapper.mapToJointAccount(from: response)
 
-        #expect(result.account.cryptoAccountId == "0F2A4B6C8D0E2F4A61C8A9E7D6053A1B4C7E2F8D9A0B3C5E7F1A2D4B6C8E0F2A")
-        #expect(result.account.membersCount == 3)
-        #expect(result.account.threshold == 2)
-        #expect(result.account.status == .pending)
-        #expect(result.account.members.map(\.role) == [.creator])
-        #expect(result.invites.map(\.id) == ["A1B2C3", "D4E5F6"])
+        #expect(account.cryptoAccountId == "0F2A4B6C8D0E2F4A61C8A9E7D6053A1B4C7E2F8D9A0B3C5E7F1A2D4B6C8E0F2A")
+        #expect(account.membersCount == 3)
+        #expect(account.threshold == 2)
+        #expect(account.status == .pending)
+        #expect(account.members.map(\.role) == [.creator])
+        #expect(account.invites.isEmpty)
+    }
+
+    @Test("The creator of a pending account is told the members' slots")
+    func memberSlotsAreRead() throws {
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(Constants.pendingAccountsWithSlotsJSON)
+
+        let account = try #require(try mapper.mapToJointAccounts(from: response).first)
+
+        #expect(account.members.map(\.slot) == [JointAccountMemberSlotID(0), JointAccountMemberSlotID(1)])
+    }
+
+    @Test("The creator of a pending account is told the invites of the free slots, one with an unreadable expiry skipped")
+    func freeSlotInvitesAreRead() throws {
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(Constants.pendingAccountsWithSlotsJSON)
+
+        let account = try #require(try mapper.mapToJointAccounts(from: response).first)
+
+        #expect(account.invites == [RemoteJointAccount.Invite(slot: JointAccountMemberSlotID(2), expiresAt: Constants.inviteExpiresAt)])
+    }
+
+    @Test("An issued invite is read with its code, its slot and when it expires")
+    func issuedInviteIsRead() throws {
+        let response: JointAccountsDTO.Response.IssuedInvite = try Self.decode(
+            #"{"id":"A1B2C3","slot":2,"expiresAt":"2026-10-29T12:00:00.000Z"}"#
+        )
+
+        let invite = try mapper.mapToIssuedInvite(from: response)
+
+        #expect(invite == JointAccountIssuedInvite(id: "A1B2C3", slot: JointAccountMemberSlotID(2), expiresAt: Constants.inviteExpiresAt))
+    }
+
+    @Test("An issued invite whose expiry does not parse is refused")
+    func issuedInviteWithoutExpiryIsRefused() throws {
+        let response: JointAccountsDTO.Response.IssuedInvite = try Self.decode(#"{"id":"A1B2C3","slot":2,"expiresAt":"tomorrow"}"#)
+
+        #expect(throws: JointAccountsNetworkMapperError.malformedInvite(field: "expiresAt")) {
+            try mapper.mapToIssuedInvite(from: response)
+        }
     }
 
     @Test("The members are read slot for slot, the creator first")
@@ -43,7 +81,16 @@ struct JointAccountsNetworkMapperTests {
         #expect(accounts.first?.status == .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"))
         #expect(accounts.first?.members.map(\.name) == ["Alice", "Bob"])
         #expect(accounts.first?.members.map(\.role) == [.creator, .member])
-        #expect(accounts.first?.members.map(\.inviteId) == [nil, "F0E1D2C3A4B5C6D7"])
+        #expect(accounts.first?.members.map(\.slot) == [nil, nil])
+    }
+
+    @Test("A member's confirmation of the account is read, and is absent until they confirm")
+    func memberSignaturesAreRead() throws {
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(Constants.confirmingAccountsJSON)
+
+        let account = try #require(try mapper.mapToJointAccounts(from: response).first)
+
+        #expect(account.members.map(\.signature) == [Constants.creatorConfirmation, nil])
     }
 
     @Test("An empty list is a list and not a failure")
@@ -417,11 +464,37 @@ private extension JointAccountsNetworkMapperTests {
           "safeAddress": null,
           "status": "pending",
           "members": [
-            { "name": "Alice", "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "role": "creator" }
-          ],
-          "invites": [{ "id": "A1B2C3" }, { "id": "D4E5F6" }]
+            { "name": "Alice", "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "role": "creator", "slot": null }
+          ]
         }
         """
+
+        static let pendingAccountsWithSlotsJSON = """
+        {
+          "jointAccounts": [
+            {
+              "cryptoAccountId": "0F2A4B6C8D0E2F4A61C8A9E7D6053A1B4C7E2F8D9A0B3C5E7F1A2D4B6C8E0F2A",
+              "membersCount": 4,
+              "threshold": 2,
+              "safeAddress": null,
+              "status": "pending",
+              "members": [
+                { "name": "Alice", "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "role": "creator", "slot": 0 },
+                { "name": "Bob", "address": "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", "role": "member", "slot": 1 }
+              ],
+              "invites": [
+                { "slot": 2, "expiresAt": "2026-10-29T12:00:00.000Z" },
+                { "slot": 3, "expiresAt": "tomorrow" }
+              ],
+              "operations": []
+            }
+          ]
+        }
+        """
+
+        static let inviteExpiresAt = Date(timeIntervalSince1970: 1_793_275_200)
+
+        static let creatorConfirmation = "0xababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab"
 
         static let confirmingAccountsJSON = """
         {
@@ -433,8 +506,8 @@ private extension JointAccountsNetworkMapperTests {
               "safeAddress": "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b",
               "status": "confirming",
               "members": [
-                { "name": "Alice", "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "role": "creator", "inviteId": null },
-                { "name": "Bob", "address": "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", "role": "member", "inviteId": "F0E1D2C3A4B5C6D7" }
+                { "name": "Alice", "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "role": "creator", "slot": null, "signature": "0xababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab" },
+                { "name": "Bob", "address": "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", "role": "member", "slot": null, "signature": null }
               ]
             }
           ]
@@ -451,8 +524,8 @@ private extension JointAccountsNetworkMapperTests {
               "safeAddress": "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b",
               "status": "active",
               "members": [
-                { "name": "Alice", "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "role": "creator", "inviteId": null },
-                { "name": "Bob", "address": "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", "role": "member", "inviteId": "F0E1D2C3A4B5C6D7" }
+                { "name": "Alice", "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "role": "creator", "slot": null },
+                { "name": "Bob", "address": "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", "role": "member", "slot": null }
               ],
               "operations": [
                 {

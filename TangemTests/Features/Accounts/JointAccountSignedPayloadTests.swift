@@ -46,6 +46,13 @@ struct JointAccountSignedPayloadTests {
         #expect(String(decoding: canonical, as: UTF8.self) == Constants.expectedCanonicalActivationPayload)
     }
 
+    @Test("Confirming lays the settings and the lower-case address out flat, without the wallet or the account")
+    func confirmationPayloadCanonicalises() throws {
+        let canonical = try JointAccountDerivationUtils.canonicalPayload(of: Constants.confirmationPayload)
+
+        #expect(String(decoding: canonical, as: UTF8.self) == Constants.expectedCanonicalConfirmationPayload)
+    }
+
     @Test("Properties are ordered by name")
     func propertiesAreOrderedByName() throws {
         let canonical = try JointAccountDerivationUtils.canonicalPayload(of: ["b": 1, "a": 2, "C": 3])
@@ -137,6 +144,20 @@ private extension JointAccountSignedPayloadTests {
         "safeAddress":"0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21b","threshold":2},\
         "cryptoAccountId":"1D3F5A7C9E0B2D4F6A8C0E2B4D6F8A0C2E4B6D8F0A2C4E6B8D0F2A4C6E8B0D2F",\
         "walletId":"4B2F1C8A9E7D6053A1B4C7E2F8D9A0B3C5E7F1A2D4B6C8E0F2A4B6C8D0E2F4A6"}
+        """
+
+        static let confirmationPayload = JointAccountConfirmationPayload(
+            name: "Family",
+            icon: "Family",
+            iconColor: "Azure",
+            membersCount: 3,
+            threshold: 2,
+            safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"
+        )
+
+        static let expectedCanonicalConfirmationPayload = """
+        {"icon":"Family","iconColor":"Azure","membersCount":3,"name":"Family",\
+        "safeAddress":"0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b","threshold":2}
         """
     }
 }
