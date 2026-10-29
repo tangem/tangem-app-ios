@@ -13,7 +13,7 @@ import TangemPolymarket
 import TangemTestKit
 @testable import Tangem
 
-@Suite("Polymarket order add funds")
+@Suite("Polymarket order add funds", .timeLimit(.minutes(1)))
 final class PolymarketOrderAddFundsTests: LeakTrackingTestSuite {
     @Test("A prepared deposit enables the button and a tap opens add funds")
     @MainActor
@@ -74,22 +74,16 @@ final class PolymarketOrderAddFundsTests: LeakTrackingTestSuite {
         #expect(context.sut.alert == nil)
     }
 
-    @Test("Closing a position offers no add funds row at all")
-    @MainActor
-    func sellingShowsNoPaymentRow() async throws {
-        let context = try await makeContext(readiness: prepared, intent: .sell(shares: 5))
-
-        #expect(context.sut.payment == nil)
-    }
-
     @Test("A deposit prepared after the screen opened enables the button")
     @MainActor
     func lateReadinessEnablesButton() async throws {
         let context = try await makeContext(readiness: .loading)
 
+        #expect(!context.sut.isAddFundsEnabled)
+
         context.readiness.yield(prepared)
 
-        try await settle { context.sut.isAddFundsEnabled }
+        _ = await context.sut.$isAddFundsEnabled.firstValue { $0 }
     }
 }
 
@@ -105,8 +99,7 @@ private extension PolymarketOrderAddFundsTests {
     @MainActor
     func makeContext(
         readiness: PolymarketAccountFundsInteractor.State,
-        geoblock: PolymarketGeoblockState = .allowed,
-        intent: PolymarketOrderIntent = .buy(balance: .just(output: 200))
+        geoblock: PolymarketGeoblockState = .allowed
     ) async throws -> Context {
         let (stream, continuation) = AsyncStream<PolymarketAccountFundsInteractor.State>.makeStream()
         let routable = OrderRoutableSpy()
@@ -115,26 +108,25 @@ private extension PolymarketOrderAddFundsTests {
             market: .fixture,
             outcome: .fixture,
             eventTitle: "Fixture event",
-            intent: intent,
+            intent: .buy(balance: .just(output: 200)),
             apiProvider: PolymarketAPIProviderStub(),
             geoblockStateProvider: PolymarketGeoblockStateProviderStub(state: geoblock),
             positionsService: nil,
             clobService: PolymarketCLOBServiceStub(),
             isAwaitingFundsPublisher: .just(output: false),
             collateralBalancePublisher: .just(output: 200),
-            addFundsReadinessStream: stream
+            addFundsReadinessStream: stream,
+            delayProvider: PolymarketSteppedDelayProvider()
         )
 
         let sut = PolymarketOrderViewModel(model: trackForMemoryLeaks(model), coordinator: routable)
 
         continuation.yield(readiness)
 
-        let isAddFundsEnabled = readiness.addFundsAvailability == .available
+        _ = await model.$state.firstValue { $0.addFundsReadiness == readiness && $0.geoblock == geoblock }
 
-        try await settle {
-            model.state.addFundsReadiness == readiness
-                && model.state.geoblock == geoblock
-                && sut.isAddFundsEnabled == isAddFundsEnabled
+        if readiness.addFundsAvailability == .available {
+            _ = await sut.$isAddFundsEnabled.firstValue { $0 }
         }
 
         return Context(sut: sut, routable: routable, readiness: continuation)

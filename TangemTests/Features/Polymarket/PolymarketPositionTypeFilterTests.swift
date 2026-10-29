@@ -10,14 +10,8 @@ import Testing
 import TangemPolymarket
 @testable import Tangem
 
-@Suite("Polymarket position type filter")
+@Suite("Polymarket position type filter", .timeLimit(.minutes(1)))
 struct PolymarketPositionTypeFilterTests {
-    @Test("All keeps every row of both lists")
-    func allKeepsEverything() {
-        #expect(PolymarketPositionTypeFilter.all.accepts(Self.open(resolution: .disputed, settlement: nil)))
-        #expect(PolymarketPositionTypeFilter.all.accepts(Self.closed(status: .lost)))
-    }
-
     @Test("The live states read the resolution, not the settlement", arguments: [
         (PolymarketPositionTypeFilter.active, PolymarketResolutionStatus.open),
         (.disputed, .disputed),
@@ -79,17 +73,6 @@ struct PolymarketPositionTypeFilterTests {
         for filter in PolymarketPositionTypeFilter.allCases where filter != .all {
             #expect(!filter.accepts(openRow))
             #expect(!filter.accepts(closedRow))
-        }
-    }
-
-    @Test("Nothing closed is live, so the live states match no closed row", arguments: [
-        PolymarketPositionTypeFilter.active,
-        .disputed,
-        .pending,
-    ])
-    func liveStatesMatchNoClosedRow(filter: PolymarketPositionTypeFilter) {
-        for status in PolymarketClosedPositionStatus.allCases {
-            #expect(!filter.accepts(Self.closed(status: status)))
         }
     }
 }

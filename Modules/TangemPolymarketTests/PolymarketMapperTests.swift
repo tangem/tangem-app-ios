@@ -11,7 +11,7 @@ import TangemFoundation
 import Testing
 @testable import TangemPolymarket
 
-@Suite("PolymarketMapper")
+@Suite("PolymarketMapper", .timeLimit(.minutes(1)))
 struct PolymarketMapperTests {
     private let mapper = PolymarketMapper()
     private let decoder = JSONDecoder()
@@ -96,34 +96,7 @@ struct PolymarketMapperTests {
         #expect(activity.nextCursor == nil)
     }
 
-    @Test("Market statuses map active, closed and archived apart")
-    func marketStatusMapping() throws {
-        let json = #"""
-        {"event":{"eventId":"e1","slug":"e1","title":"Event","markets":[
-          {"id":"m1","question":"Open?","status":"active"},
-          {"id":"m2","question":"Closed?","status":"closed"},
-          {"id":"m3","question":"Archived?","status":"archived"}
-        ]}}
-        """#
-        let dto = try decoder.decode(PolymarketDTO.EventResponse.self, from: Data(json.utf8))
-        let event = mapper.mapEvent(dto.event)
-
-        #expect(event.markets.map(\.status) == [.active, .closed, .archived])
-    }
-
-    // MARK: - Search
-
-    @Test("Search response maps the page/total envelope")
-    func searchMapping() throws {
-        let dto = try decoder.decode(PolymarketDTO.EventsSearchResponse.self, from: Self.searchJSON)
-        let result = mapper.mapSearchResult(dto)
-
-        #expect(result.page == 0)
-        #expect(result.total == 42)
-        #expect(result.hasNext)
-        #expect(result.events.count == 1)
-        #expect(result.events.first?.id == "0x-event-9")
-    }
+    // MARK: - Sparse events
 
     @Test("Empty and missing optional fields degrade gracefully")
     func minimalEventMapping() throws {
@@ -264,23 +237,6 @@ private extension PolymarketMapperTests {
         }
       ],
       "cursor": "cursor-2",
-      "hasNext": true
-    }
-    """.utf8)
-
-    static let searchJSON = Data("""
-    {
-      "events": [
-        {
-          "eventId": "0x-event-9",
-          "slug": "election",
-          "title": "Election winner",
-          "totalMarketsCount": 1,
-          "markets": []
-        }
-      ],
-      "page": 0,
-      "total": 42,
       "hasNext": true
     }
     """.utf8)

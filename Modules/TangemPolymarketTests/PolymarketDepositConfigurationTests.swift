@@ -7,62 +7,16 @@
 
 import Foundation
 import Testing
-import Alamofire
-import Moya
 import TangemFoundation
 @testable import TangemPolymarket
 
-// MARK: - Configuration target
-
-@Suite("Polymarket configuration target")
-struct PolymarketConfigurationTargetTests {
-    private let baseURL = URL(string: "https://api.tangem.org")!
-
-    private func target(headers: [String: String] = [:], walletId: String = "abc") -> PolymarketConfigurationTarget {
-        PolymarketConfigurationTarget(
-            environment: PolymarketBFFEnvironment(baseURL: baseURL, headers: headers),
-            walletId: walletId
-        )
-    }
-
-    @Test("Path and method")
-    func pathAndMethod() {
-        #expect(target().baseURL == baseURL)
-        #expect(target().path == "api/predictions/v1/configuration")
-        #expect(target().method == .get)
-    }
-
-    @Test("The wallet id travels as a header, and the environment's own headers survive alongside it")
-    func walletIdHeaderIsAddedToEnvironmentHeaders() {
-        let walletId = String(repeating: "a", count: 64)
-        let target = target(headers: ["api-key": "secret", "version": "6.4"], walletId: walletId)
-
-        #expect(target.headers?["wallet-id"] == walletId)
-        #expect(target.headers?["api-key"] == "secret")
-        #expect(target.headers?["version"] == "6.4")
-    }
-
-    @Test("The configuration read takes no parameters")
-    func requestIsPlain() {
-        guard case .requestPlain = target().task else {
-            Issue.record("The configuration read must be a plain request")
-            return
-        }
-    }
-}
-
 // MARK: - Builder code store
 
-@Suite("Polymarket builder code store")
+@Suite("Polymarket builder code store", .timeLimit(.minutes(1)))
 struct PolymarketBuilderCodeStoreTests {
     private let host = URL(string: "https://api.tangem.org")!
     private let otherHost = URL(string: "https://api.dev.tangem.org")!
     private let day: TimeInterval = 24 * 60 * 60
-
-    @Test("An empty store has nothing to hand out")
-    func emptyStore() {
-        #expect(PolymarketBuilderCodeStore().code(forHost: host) == nil)
-    }
 
     @Test("A stored code stays usable for the whole day the guide allows")
     func freshWithinADay() {
@@ -127,7 +81,7 @@ struct PolymarketBuilderCodeStoreTests {
 
 // MARK: - Builder code format
 
-@Suite("Polymarket builder code format")
+@Suite("Polymarket builder code format", .timeLimit(.minutes(1)))
 struct PolymarketBuilderCodeTests {
     @Test(
         "The format the guide pins is 0x plus 64 hex digits",

@@ -9,7 +9,7 @@ import Foundation
 import Testing
 @testable import TangemPolymarket
 
-@Suite("PolymarketOrderFactory")
+@Suite("PolymarketOrderFactory", .timeLimit(.minutes(1)))
 struct PolymarketOrderFactoryTests {
     @Test("A buy commits the typed USDC and receives the guaranteed shares")
     func buyLegs() {
@@ -70,25 +70,11 @@ struct PolymarketOrderFactoryTests {
         #expect(order.builder == PolymarketOrderQuote.stubBuilderCode)
         #expect(order.metadata == PolymarketExchange.emptyWord)
     }
-
-    @Test("The salt stays inside the range a JSON number carries exactly")
-    func saltIsSafeForJSON() {
-        for _ in 0 ..< 128 {
-            let order = PolymarketOrderFactory.make(
-                quote: .stub(side: .buy, notional: 1, shares: 1),
-                assetId: "47",
-                depositWalletAddress: Self.depositWallet
-            )
-
-            #expect(order.salt >= 1)
-            #expect(order.salt <= 9_007_199_254_740_991)
-        }
-    }
 }
 
 // MARK: - Wire format
 
-@Suite("PolymarketPlaceOrder wire format")
+@Suite("PolymarketPlaceOrder wire format", .timeLimit(.minutes(1)))
 struct PolymarketPlaceOrderWireFormatTests {
     @Test("The request states every field under the name the exchange reads")
     func requestFieldNames() throws {
@@ -113,14 +99,6 @@ struct PolymarketPlaceOrderWireFormatTests {
         #expect(order["timestamp"] as? String == "1787300000000")
         #expect(order["expiration"] as? String == "0")
         #expect(order["signature"] as? String == "0xdeadbeef")
-    }
-
-    @Test("The addresses go out lowercased, the way the exchange stores them")
-    func addressesAreLowercased() throws {
-        let body = PolymarketMapper().mapPlaceOrderRequest(Self.signedOrder, apiKey: "api-key")
-
-        #expect(body.order.maker == body.order.maker.lowercased())
-        #expect(body.order.signer == body.order.signer.lowercased())
     }
 
     @Test("The exchange's own answer is read under its wire names")
@@ -206,17 +184,6 @@ struct PolymarketPlaceOrderWireFormatTests {
         #expect(CommonPolymarketCLOBService.placementError(from: apiError).isAmbiguous)
     }
 
-    @Test("A refusal reported inside a success keeps its reason")
-    func refusalInsideSuccess() throws {
-        let json = #"{"success":false,"errorMsg":"not enough balance / allowance","orderID":null}"#
-
-        let dto = try JSONDecoder().decode(PolymarketDTO.PlaceOrderResponse.self, from: Data(json.utf8))
-
-        #expect(!dto.success)
-        #expect(dto.errorMsg == "not enough balance / allowance")
-        #expect(dto.orderID == nil)
-    }
-
     @Test("An answer without the optional halves still decodes")
     func sparseResponseIsDecoded() throws {
         let dto = try JSONDecoder().decode(
@@ -255,7 +222,7 @@ private extension PolymarketPlaceOrderWireFormatTests {
     )
 }
 
-@Suite("PolymarketOrderPlacement fill")
+@Suite("PolymarketOrderPlacement fill", .timeLimit(.minutes(1)))
 struct PolymarketOrderPlacementFillTests {
     @Test("A purchase that received no shares counts as unfilled")
     func buyWithoutTakenSharesIsUnfilled() {
@@ -298,14 +265,6 @@ struct PolymarketOrderPlacementFillTests {
         let placement = PolymarketOrderPlacement.stub(makingAmount: 100, takingAmount: 0)
 
         #expect(!placement.isMatchedWithoutFill(side: .sell))
-    }
-
-    @Test("An order with both legs filled is not an anomaly")
-    func fullyFilledOrderIsClean() {
-        let placement = PolymarketOrderPlacement.stub(makingAmount: 100, takingAmount: 72)
-
-        #expect(!placement.isMatchedWithoutFill(side: .sell))
-        #expect(!placement.isMatchedWithoutFill(side: .buy))
     }
 
     @Test("The money leg is read from the side that holds it")

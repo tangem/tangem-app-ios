@@ -14,58 +14,77 @@ import TangemPolymarket
 @testable import Tangem
 
 @MainActor
-@Suite("Polymarket order quote loop")
+@Suite("Polymarket order quote loop", .timeLimit(.minutes(1)))
 struct PolymarketOrderQuoteLoopTests {
     @Test("An order nobody holds is released while it polls the book price")
     func modelPollingTheBookPriceIsReleased() async throws {
+        let delays = PolymarketSteppedDelayProvider()
         weak var released: PolymarketOrderModel?
 
         do {
-            let model = try await makeModel()
+            let model = await makeModel(delays: delays)
             model.handleViewAction(.onAppear)
-            try await drain()
+            try await delays.waitUntilParked(Self.pollInterval)
             released = model
         }
 
-        try await settle { released == nil }
+        try await delays.cancellations.next()
+
+        #expect(released == nil)
+        #expect(delays.parkedWaits.isEmpty)
     }
 
     @Test("An order nobody holds is released while it polls the quote for the entered amount")
     func modelPollingTheQuoteIsReleased() async throws {
+        let delays = PolymarketSteppedDelayProvider()
+        let api = PolymarketAPIProviderStub(quoteResult: .stub(status: .full))
         weak var released: PolymarketOrderModel?
 
         do {
-            let model = try await makeModel()
+            let model = await makeModel(delays: delays, api: api)
             model.handleViewAction(.onAppear)
+            try await delays.waitUntilParked(Self.pollInterval)
+
             model.handleViewAction(.selectFraction(.half))
-            try await drain()
+            try await delays.cancellations.next()
+            try await api.quoteRequested.next()
+            try await delays.waitUntilParked(Self.pollInterval)
             released = model
         }
 
-        try await settle { released == nil }
+        try await delays.cancellations.next()
+
+        #expect(released == nil)
+        #expect(delays.parkedWaits.isEmpty)
     }
 }
 
 // MARK: - Fixtures
 
 private extension PolymarketOrderQuoteLoopTests {
-    func makeModel() async throws -> PolymarketOrderModel {
+    static let pollInterval: TimeInterval = 3
+
+    func makeModel(
+        delays: PolymarketSteppedDelayProvider,
+        api: PolymarketAPIProviderStub = PolymarketAPIProviderStub()
+    ) async -> PolymarketOrderModel {
         let balance: Decimal = 200
         let model = PolymarketOrderModel(
             market: .fixture,
             outcome: .fixture,
             eventTitle: "Fixture event",
             intent: .buy(balance: .just(output: balance)),
-            apiProvider: PolymarketAPIProviderStub(quoteResult: .stub(status: .full)),
+            apiProvider: api,
             geoblockStateProvider: PolymarketGeoblockStateProviderStub(),
             positionsService: nil,
             clobService: PolymarketCLOBServiceStub(),
             isAwaitingFundsPublisher: .just(output: false),
             collateralBalancePublisher: .just(output: balance),
-            addFundsReadinessStream: AsyncStream { $0.yield(.unavailable); $0.finish() }
+            addFundsReadinessStream: AsyncStream { $0.yield(.unavailable); $0.finish() },
+            delayProvider: delays
         )
 
-        try await settle { model.state.balance != nil }
+        _ = await model.$state.firstValue { $0.balance != nil }
 
         return model
     }

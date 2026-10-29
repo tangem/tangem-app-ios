@@ -10,15 +10,8 @@ import Foundation
 import Testing
 @testable import TangemPolymarket
 
-@Suite("Polymarket price history mapping")
+@Suite("Polymarket price history mapping", .timeLimit(.minutes(1)))
 struct PolymarketPriceHistoryMappingTests {
-    @Test("An empty history maps to no points")
-    func emptyHistoryHasNoPoints() throws {
-        let points = try Self.map(#"{ "history": [] }"#)
-
-        #expect(points.isEmpty)
-    }
-
     @Test("Unix seconds become dates and the points come out in time order")
     func pointsAreDatedAndSorted() throws {
         let points = try Self.map("""

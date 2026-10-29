@@ -10,7 +10,7 @@ import Testing
 import TangemFoundation
 @testable import TangemPolymarket
 
-@Suite("CLOB collateral amounts")
+@Suite("CLOB collateral amounts", .timeLimit(.minutes(1)))
 struct PolymarketCollateralAmountTests {
     @Test(
         "Amounts arrive in the smallest unit and are shifted by the collateral exponent",
@@ -27,13 +27,13 @@ struct PolymarketCollateralAmountTests {
         #expect(amount == expected)
     }
 
-    @Test("A max allowance stays exact rather than overflowing into a rounded double")
+    @Test("A max allowance keeps its leading digits and magnitude rather than collapsing into a rounded double")
     func maxAllowanceIsReadable() throws {
         let maxUint256 = "115792089237316195423570985008687907853269984665640564039457584007913129639935"
 
-        let amount = CommonPolymarketCLOBService.collateralAmount(from: maxUint256)
+        let amount = try #require(CommonPolymarketCLOBService.collateralAmount(from: maxUint256))
 
-        #expect(amount != nil)
+        #expect(amount.description == "115792089237316195423570985008687907853" + String(repeating: "0", count: 33))
     }
 
     @Test("An unreadable amount is reported rather than defaulted to zero")

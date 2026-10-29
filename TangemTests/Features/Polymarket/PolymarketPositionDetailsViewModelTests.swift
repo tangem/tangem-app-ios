@@ -27,19 +27,19 @@ struct PolymarketPositionDetailsViewModelTests {
     }
 
     @Test("A missing or failed answer keeps what is on screen", arguments: [LookupAnswer.missing, .failure])
-    func keepsThePositionWithoutAnAnswer(answer: LookupAnswer) async {
+    func keepsThePositionWithoutAnAnswer(answer: LookupAnswer) async throws {
         let context = Self.makeSUT(answers: [answer.result, .success(.stub(size: 11))])
 
         await context.nextRequest()
-        await context.nextParkedWait()
-        context.delayProvider.releaseParkedWaits()
+        try await context.nextParkedWait()
+        context.delayProvider.resume()
 
         #expect(await context.nextPosition()?.size == 11)
         #expect(context.routable.closings == 0)
     }
 
     @Test("The position keeps refreshing while the screen is open")
-    func keepsPolling() async {
+    func keepsPolling() async throws {
         let context = Self.makeSUT(answers: [
             .success(.stub(size: 11)),
             .success(.stub(size: 12)),
@@ -48,12 +48,12 @@ struct PolymarketPositionDetailsViewModelTests {
 
         #expect(await context.nextPosition()?.size == 11)
 
-        await context.nextParkedWait()
-        context.delayProvider.releaseParkedWaits()
+        try await context.nextParkedWait()
+        context.delayProvider.resume()
         #expect(await context.nextPosition()?.size == 12)
 
-        await context.nextParkedWait()
-        context.delayProvider.releaseParkedWaits()
+        try await context.nextParkedWait()
+        context.delayProvider.resume()
         #expect(await context.nextPosition()?.size == 13)
     }
 
@@ -116,10 +116,9 @@ private extension PolymarketPositionDetailsViewModelTests {
         let service: PositionLookupStub
         let routable: DetailsRoutableStub
         let appState: AppStateObserverStub
-        let delayProvider: ParkingDelayProvider
+        let delayProvider: PolymarketSteppedDelayProvider
 
         private var positions: AsyncStream<PolymarketPosition>.Iterator
-        private var parkedWaits: AsyncStream<ParkingDelayProvider.Event>.Iterator
         private var requests: AsyncStream<Void>.Iterator
         private var bag: Set<AnyCancellable> = []
 
@@ -128,7 +127,7 @@ private extension PolymarketPositionDetailsViewModelTests {
             service: PositionLookupStub,
             routable: DetailsRoutableStub,
             appState: AppStateObserverStub,
-            delayProvider: ParkingDelayProvider
+            delayProvider: PolymarketSteppedDelayProvider
         ) {
             self.sut = sut
             self.service = service
@@ -138,7 +137,6 @@ private extension PolymarketPositionDetailsViewModelTests {
 
             let (positions, continuation) = AsyncStream<PolymarketPosition>.makeStream()
             self.positions = positions.makeAsyncIterator()
-            parkedWaits = delayProvider.events.makeAsyncIterator()
             requests = service.requests.makeAsyncIterator()
 
             sut.$position
@@ -160,14 +158,8 @@ private extension PolymarketPositionDetailsViewModelTests {
             self.requests = requests
         }
 
-        func nextParkedWait() async {
-            var parkedWaits = parkedWaits
-
-            while let event = await parkedWaits.next() {
-                if case .parked = event { break }
-            }
-
-            self.parkedWaits = parkedWaits
+        func nextParkedWait() async throws {
+            try await delayProvider.requests.next()
         }
     }
 
@@ -179,7 +171,7 @@ private extension PolymarketPositionDetailsViewModelTests {
         let service = PositionLookupStub(answers: answers, holdsAnswers: holdsAnswers)
         let routable = DetailsRoutableStub()
         let appState = AppStateObserverStub()
-        let delayProvider = ParkingDelayProvider()
+        let delayProvider = PolymarketSteppedDelayProvider()
 
         let sut = PolymarketPositionDetailsViewModel(
             position: position,

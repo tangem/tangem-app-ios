@@ -11,7 +11,7 @@ import TangemFoundation
 import Testing
 @testable import Tangem
 
-@Suite("Polymarket feed widget visibility")
+@Suite("Polymarket feed widget visibility", .timeLimit(.minutes(1)))
 @MainActor
 struct PolymarketWidgetProviderTests {
     @Test("A wallet enrolled in the experiment sees the widget before it has an account")
@@ -19,8 +19,7 @@ struct PolymarketWidgetProviderTests {
         let widget = try await resolvedWidget(
             wallets: [makeWallet()],
             experimentService: ExperimentServiceStub(storedVariant: .on),
-            hasAccount: false,
-            expectsWidget: true
+            hasAccount: false
         )
 
         #expect(widget == .polymarket)
@@ -32,8 +31,7 @@ struct PolymarketWidgetProviderTests {
             wallets: [makeWallet()],
             experimentService: ExperimentServiceStub(storedVariant: .control),
             isToggleOn: isToggleOn,
-            hasAccount: true,
-            expectsWidget: true
+            hasAccount: true
         )
 
         #expect(widget == .polymarket)
@@ -44,14 +42,18 @@ struct PolymarketWidgetProviderTests {
         nil,
     ] as [ExperimentFeatureVariantKey?])
     func walletWithoutAccountHidesWidgetWithExperimentOff(variant: ExperimentFeatureVariantKey?) async throws {
+        let wallet = makeWallet()
+        let router = PredictionsFeedRouterStub()
+
         let widget = try await resolvedWidget(
-            wallets: [makeWallet()],
+            wallets: [wallet],
             experimentService: ExperimentServiceStub(storedVariant: variant),
-            hasAccount: false,
-            expectsWidget: false
+            presenceStore: PolymarketAccountPresenceStoreStub(known: false),
+            router: router
         )
 
         #expect(widget == nil)
+        #expect(router.openedWalletIds == [wallet.userWalletId])
     }
 
     @Test("A wallet with an account sees the widget before this session's variants arrive")
@@ -59,8 +61,7 @@ struct PolymarketWidgetProviderTests {
         let widget = try await resolvedWidget(
             wallets: [makeWallet()],
             experimentService: ExperimentServiceStub(storedVariant: ExperimentFeatureVariantKey.on.rawValue, isFetched: false),
-            hasAccount: true,
-            expectsWidget: true
+            hasAccount: true
         )
 
         #expect(widget == .polymarket)
@@ -71,8 +72,7 @@ struct PolymarketWidgetProviderTests {
         let widget = try await resolvedWidget(
             wallets: hasLockedWallet ? [makeWallet(isLocked: true)] : [],
             experimentService: ExperimentServiceStub(storedVariant: .on),
-            hasAccount: true,
-            expectsWidget: false
+            hasAccount: true
         )
 
         #expect(widget == nil)
@@ -88,9 +88,7 @@ struct PolymarketWidgetProviderTests {
             wallets: [firstWallet, secondWallet],
             experimentService: ExperimentServiceStub(storedVariant: .control),
             presenceStore: PerWalletPresenceStoreStub(walletIdsWithAccount: [secondWallet.userWalletId]),
-            router: router,
-            expectsWidget: true,
-            selectsWidget: true
+            router: router
         )
 
         #expect(widget == .polymarket)
@@ -99,14 +97,19 @@ struct PolymarketWidgetProviderTests {
 
     @Test("Without an account on any supporting wallet the widget stays hidden when the experiment is off")
     func noAccountOnAnyWalletHidesWidget() async throws {
+        let firstWallet = makeWallet(id: 0xAA)
+        let secondWallet = makeWallet(id: 0xBB)
+        let router = PredictionsFeedRouterStub()
+
         let widget = try await resolvedWidget(
-            wallets: [makeWallet(id: 0xAA), makeWallet(id: 0xBB)],
+            wallets: [firstWallet, secondWallet],
             experimentService: ExperimentServiceStub(storedVariant: .control),
             presenceStore: PerWalletPresenceStoreStub(walletIdsWithAccount: []),
-            expectsWidget: false
+            router: router
         )
 
         #expect(widget == nil)
+        #expect(router.openedWalletIds == [firstWallet.userWalletId, secondWallet.userWalletId])
     }
 }
 
@@ -129,15 +132,13 @@ private extension PolymarketWidgetProviderTests {
         wallets: [UserWalletModel],
         experimentService: ExperimentServiceStub,
         isToggleOn: Bool = true,
-        hasAccount: Bool,
-        expectsWidget: Bool
+        hasAccount: Bool
     ) async throws -> FeedWidget? {
         try await resolvedWidget(
             wallets: wallets,
             experimentService: experimentService,
             isToggleOn: isToggleOn,
-            presenceStore: PolymarketAccountPresenceStoreStub(known: hasAccount),
-            expectsWidget: expectsWidget
+            presenceStore: PolymarketAccountPresenceStoreStub(known: hasAccount)
         )
     }
 
@@ -146,16 +147,14 @@ private extension PolymarketWidgetProviderTests {
         experimentService: ExperimentServiceStub,
         isToggleOn: Bool = true,
         presenceStore: PolymarketAccountPresenceStore,
-        router: PredictionsFeedRouterStub = PredictionsFeedRouterStub(),
-        expectsWidget: Bool,
-        selectsWidget: Bool = false
+        router: PredictionsFeedRouterStub = PredictionsFeedRouterStub()
     ) async throws -> FeedWidget? {
         let availabilityProvider = CommonPolymarketAvailabilityProvider(
             experimentService: experimentService,
             isToggleOn: { isToggleOn }
         )
 
-        return try await InjectedDependenciesIsolation.shared.run {
+        return await InjectedDependenciesIsolation.shared.run {
             let previousRepository = InjectedValues[\.userWalletRepository]
             let previousAvailabilityProvider = InjectedValues[\.polymarketAvailabilityProvider]
             InjectedValues[\.userWalletRepository] = FakeUserWalletRepository(models: wallets)
@@ -170,19 +169,18 @@ private extension PolymarketWidgetProviderTests {
             var latestWidget: FeedWidget?
             let subscription = sut.widgetPublisher.sink { latestWidget = $0 }
 
-            if expectsWidget {
-                try await settle { latestWidget == .polymarket }
-            } else {
-                try await drain()
-            }
-
-            if selectsWidget {
-                sut.select()
-            }
+            await walletsResolved()
+            sut.select()
 
             subscription.cancel()
 
             return latestWidget
+        }
+    }
+
+    func walletsResolved() async {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async { continuation.resume() }
         }
     }
 }

@@ -9,7 +9,7 @@ import Foundation
 import Testing
 @testable import TangemPolymarket
 
-@Suite("PolymarketOrderPlacer")
+@Suite("PolymarketOrderPlacer", .timeLimit(.minutes(1)))
 struct PolymarketOrderPlacerTests {
     @Test("The quote's exchange domain reaches the digest, the wrapping and the wire", arguments: QuotedMarket.allCases)
     func domainReachesEveryStage(_ market: QuotedMarket) async throws {
@@ -43,10 +43,16 @@ struct PolymarketOrderPlacerTests {
         let clobService = StubCLOBService()
         let placer = PolymarketOrderPlacer(clobService: clobService, digestSigner: signer)
 
-        await #expect(throws: PolymarketOrderPlacementError.self) {
+        let error = await #expect(throws: PolymarketOrderPlacementError.self) {
             try await placer.place(mismatch.options)
         }
 
+        guard case .notSent(let underlying) = error else {
+            Issue.record("Expected a not-sent failure, got \(String(describing: error))")
+            return
+        }
+
+        #expect(underlying is PolymarketExchangeDomainError)
         #expect(signer.signedDigest == nil)
         #expect(clobService.placedOrder == nil)
         #expect(clobService.refreshedAssets.isEmpty)
@@ -54,11 +60,20 @@ struct PolymarketOrderPlacerTests {
 
     @Test("A refusal on the way to the card is reported as never sent")
     func signingFailureIsNotSent() async {
-        let placer = PolymarketOrderPlacer(clobService: StubCLOBService(), digestSigner: FailingDigestSigner())
+        let clobService = StubCLOBService()
+        let placer = PolymarketOrderPlacer(clobService: clobService, digestSigner: FailingDigestSigner())
 
-        await #expect(throws: PolymarketOrderPlacementError.self) {
+        let error = await #expect(throws: PolymarketOrderPlacementError.self) {
             try await placer.place(Self.options(.v1))
         }
+
+        guard case .notSent(let underlying) = error else {
+            Issue.record("Expected a not-sent failure, got \(String(describing: error))")
+            return
+        }
+
+        #expect(underlying is FailingDigestSigner.Refused)
+        #expect(clobService.placedOrder == nil)
     }
 
     @Test("A sale refreshes the exchange's view of the sold token first", arguments: [

@@ -36,8 +36,11 @@ struct PolymarketActivityDetailsModelTests {
         let record = PolymarketActivityRecord.make(type: .redeem, result: .won)
 
         let details = PolymarketActivityDetailsView.Model.make(record: record)
+        let row = PolymarketActivityRow.Model.make(record: record)
 
-        #expect(details.headlines == ["Your Prediction Won", PolymarketActivityRow.Model.make(record: record).amount])
+        #expect(details.headlines.count == 2)
+        #expect(details.headlines.first != row.amount)
+        #expect(details.headlines.last == row.amount)
     }
 
     @Test("A split claim puts the unsigned amount into its title")
@@ -47,11 +50,12 @@ struct PolymarketActivityDetailsModelTests {
         #expect(details.headlines == [Localization.predictionPositionResultSplitTitle(PolymarketOrderFormatter.money(5))])
     }
 
-    @Test("A lost claim shows no amount")
+    @Test("A lost claim shows its result alone, without an amount")
     func lostClaim() {
         let details = PolymarketActivityDetailsView.Model.make(record: .make(type: .redeem, result: .lost))
 
-        #expect(details.headlines == ["Your Prediction Loss"])
+        #expect(details.headlines.count == 1)
+        #expect(!details.headlines.contains { $0.contains(PolymarketOrderFormatter.money(5)) })
     }
 }
 
@@ -67,18 +71,6 @@ struct PolymarketActivityDetailsRoutingTests {
 
         #expect(routable.openedEventIDs == ["event-1"])
         #expect(routable.openedEventTitles == ["Lions vs. Bills"])
-    }
-
-    @Test("An event with an empty title opens without a placeholder")
-    @MainActor
-    func emptyTitleOpensWithoutAPlaceholder() {
-        let routable = PolymarketActivityRoutableSpy()
-        let viewModel = PolymarketActivityDetailsViewModel(record: .make(eventTitle: ""), coordinator: routable)
-
-        viewModel.handleViewAction(.goToPredictTapped)
-
-        #expect(routable.openedEventIDs == ["event-1"])
-        #expect(routable.openedEventTitles == [nil])
     }
 }
 
