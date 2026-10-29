@@ -54,6 +54,8 @@ final class FakeTangemApiService: TangemApiService {
     // MARK: - Joint Accounts Handlers (Tests/Previews)
 
     var getJointAccountsHandler: ((_ knownETag: String?) async throws -> (eTag: String?, accounts: JointAccountsDTO.Response.JointAccounts)?)?
+    var issueJointAccountInviteHandler: ((_ body: JointAccountsDTO.Request.IssueInvite) async throws -> JointAccountsDTO.Response.IssuedInvite)?
+    var confirmJointAccountHandler: ((_ body: JointAccountsDTO.Request.Confirm) async throws -> JointAccountsDTO.Response.JointAccount)?
     var createJointAccountOperationHandler: ((_ body: JointAccountsDTO.Request.CreateOperation) async throws -> JointAccountsDTO.Response.Operation)?
     var rejectJointAccountOperationHandler: ((_ operationId: String) async throws -> JointAccountsDTO.Response.Operation?)?
     var getJointOperationsHistoryHandler: ((_ request: JointAccountsDTO.Request.OperationsHistory) async throws -> JointAccountsDTO.Response.OperationsHistory)?
@@ -384,6 +386,16 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func issueJointAccountInvite(
+        walletId: String, body: JointAccountsDTO.Request.IssueInvite
+    ) async throws -> JointAccountsDTO.Response.IssuedInvite {
+        guard let issueJointAccountInviteHandler else {
+            throw "Not implemented"
+        }
+
+        return try await issueJointAccountInviteHandler(body)
+    }
+
     func getJointAccountInvite(
         walletId: String, inviteId: String
     ) async throws -> JointAccountsDTO.Response.InvitePreview {
@@ -400,6 +412,16 @@ final class FakeTangemApiService: TangemApiService {
         walletId: String, body: JointAccountsDTO.Request.Activate
     ) async throws -> JointAccountsDTO.Response.JointAccount {
         throw "Not implemented"
+    }
+
+    func confirmJointAccount(
+        walletId: String, body: JointAccountsDTO.Request.Confirm
+    ) async throws -> JointAccountsDTO.Response.JointAccount {
+        guard let confirmJointAccountHandler else {
+            throw "Not implemented"
+        }
+
+        return try await confirmJointAccountHandler(body)
     }
 
     func createJointAccountOperation(

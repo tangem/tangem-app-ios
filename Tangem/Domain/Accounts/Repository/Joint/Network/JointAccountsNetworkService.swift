@@ -14,11 +14,16 @@ import BlockchainSdk
 /// creator's own account list holds for it.
 /// - Throws: `TangemAPIError`, whose `code` is what gives each refusal below its meaning.
 protocol JointAccountsNetworkService {
-    /// - Returns: The account, and one invite per slot the creator left free — the only time the endpoint hands those
-    /// out at all.
     /// - Throws: `.conflict` when this owner address already belongs to a joint account, which means the account is to
     /// be looked for among the ones read back rather than created a second time.
-    func createJointAccount(blob: JointAccountCreationBlob) async throws -> JointAccountCreationResult
+    func createJointAccount(blob: JointAccountCreationBlob) async throws -> RemoteJointAccount
+
+    /// Issues the invite of one free slot. A slot issued again gets a new code, and the old link answers 404.
+    /// - Returns: The code, which no other answer ever carries, and when it expires — a day after it was issued.
+    /// - Throws: `.badRequest` when the slot is out of range, `.forbidden` when this wallet did not create the
+    /// account, `.notFound` when it holds no such account, and `.conflict` when the account no longer takes members or
+    /// the slot is taken already.
+    func issueInvite(cryptoAccountId: String, slot: JointAccountMemberSlotID) async throws -> JointAccountIssuedInvite
 
     /// Every joint account the wallet takes part in, except the archived ones. The composition changes inside other
     /// people's wallets, which leaves no trace on this one, so the list is asked about often.
@@ -38,6 +43,15 @@ protocol JointAccountsNetworkService {
     /// or when what is being confirmed differs from what the account holds.
     /// - Note: Activating an account that is active already succeeds, so a lost answer costs a repeat and no more.
     func activateJointAccount(blob: JointAccountActivationBlob) async throws -> RemoteJointAccount
+
+    /// Adds this member's confirmation of the composition and the address it adds up to; the last one puts the
+    /// account to work.
+    /// - Throws: `.badRequest` when the address is not in lower case or the signature is not this member's,
+    /// `.forbidden` when this wallet is not a member, `.notFound` when no account has this address, and `.conflict`
+    /// when the account is cancelled or what is being confirmed differs from what the account holds.
+    /// - Note: Confirming twice, or confirming an account that is active already, changes nothing, so a lost answer
+    /// costs a repeat and no more.
+    func confirmJointAccount(blob: JointAccountConfirmationBlob) async throws -> RemoteJointAccount
 
     // MARK: - Operations
 
@@ -67,10 +81,4 @@ enum JointAccountsRemoteState {
     /// The list is what it was when it was last read, so nothing came back with the answer.
     case notModified
     case changed([RemoteJointAccount], eTag: String?)
-}
-
-struct JointAccountCreationResult {
-    let account: RemoteJointAccount
-    /// One per slot the creator left free, which is the only time they are ever handed out — see `StoredJointAccountInvite`.
-    let invites: [StoredJointAccountInvite]
 }
