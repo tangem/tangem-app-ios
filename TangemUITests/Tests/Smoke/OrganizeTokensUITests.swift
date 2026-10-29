@@ -67,24 +67,24 @@ final class OrganizeTokensUITests: BaseTestCase {
             .verifyOrganizeTokensButtonVisible()
     }
 
-    func testOrganizeTokensButtonHidden_SingleTokenNoAccounts() {
+    func testOrganizeTokensButtonVisible_SingleTokenNoAccounts() {
         setAllureId(8748)
         let scenario = ScenarioConfig(name: "user_tokens_api", initialState: "Cardano")
         launchApp(tangemApiType: .mock, scenarios: [scenario])
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .verifyOrganizeTokensButtonNotVisible()
+            .verifyOrganizeTokensButtonVisible()
     }
 
-    func testOrganizeTokensButtonHidden_MultiAccountSingleTokenEach() {
+    func testOrganizeTokensButtonVisible_MultiAccountSingleTokenEach() {
         setAllureId(8749)
         let scenario = ScenarioConfig(name: "user_tokens_api", initialState: "TwoAccountsSingleTokenEach")
         launchApp(tangemApiType: .mock, scenarios: [scenario])
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-            .verifyOrganizeTokensButtonNotVisible()
+            .verifyOrganizeTokensButtonVisible()
     }
 
     func testOrganizeTokensButtonVisible_MultiAccountMultipleTokensInOne() {
