@@ -135,11 +135,97 @@ struct PolymarketFundsArrivalTrackerTests {
 
         #expect(settlements == 1)
     }
+
+    @Test("A second deposit keeps the first one's settlement")
+    func aSecondDepositKeepsTheFirstSettlement() async {
+        let balance = CurrentValueSubject<Decimal?, Never>(10)
+        let sut = makeSUT(balance: balance)
+        var firstSettlements = 0
+        var secondSettlements = 0
+
+        sut.startAwaitingFunds(since: sut.currentBalance) { firstSettlements += 1 }
+        sut.startAwaitingFunds(since: sut.currentBalance) { secondSettlements += 1 }
+        balance.send(60)
+        await drainMain()
+
+        #expect(firstSettlements == 1)
+        #expect(secondSettlements == 1)
+    }
+
+    @Test("Re-entering the wallet while its funds are awaited keeps the banner")
+    func reenteringWhileAwaitingKeepsTheBanner() async {
+        let registry = PolymarketFundsArrivalTrackerRegistry()
+        let wallet = NSObject()
+        let balance = CurrentValueSubject<Decimal?, Never>(10)
+
+        registry
+            .tracker(for: Self.userWalletId, owner: wallet, balancePublisher: balance.eraseToAnyPublisher())
+            .startAwaitingFunds(since: 10)
+
+        let reentered = registry.tracker(for: Self.userWalletId, owner: wallet, balancePublisher: Empty().eraseToAnyPublisher())
+
+        #expect(reentered.isAwaitingFunds)
+
+        balance.send(60)
+        await drainMain()
+
+        #expect(!reentered.isAwaitingFunds)
+    }
+
+    @Test("A wallet model rebuilt on unlock watches its own balance instead of the old one")
+    func aRebuiltWalletModelGetsItsOwnTracker() async {
+        let registry = PolymarketFundsArrivalTrackerRegistry()
+        let wallet = NSObject()
+        let balance = CurrentValueSubject<Decimal?, Never>(10)
+        let awaiting = registry.tracker(for: Self.userWalletId, owner: wallet, balancePublisher: balance.eraseToAnyPublisher())
+
+        awaiting.startAwaitingFunds(since: 10)
+
+        let rebuiltWallet = NSObject()
+        let rebuiltBalance = CurrentValueSubject<Decimal?, Never>(20)
+        let rebuilt = registry.tracker(for: Self.userWalletId, owner: rebuiltWallet, balancePublisher: rebuiltBalance.eraseToAnyPublisher())
+
+        rebuilt.startAwaitingFunds(since: 20)
+        rebuiltBalance.send(70)
+        await drainMain()
+
+        #expect(!rebuilt.isAwaitingFunds)
+        #expect(awaiting.isAwaitingFunds)
+
+        balance.send(60)
+        await drainMain()
+
+        #expect(!awaiting.isAwaitingFunds)
+    }
+
+    @Test("Funds awaited for one wallet raise no banner for another")
+    func anotherWalletRaisesNoBanner() async {
+        let registry = PolymarketFundsArrivalTrackerRegistry()
+        let wallet = NSObject()
+        let balance = CurrentValueSubject<Decimal?, Never>(10)
+        let awaiting = registry.tracker(for: Self.userWalletId, owner: wallet, balancePublisher: balance.eraseToAnyPublisher())
+
+        awaiting.startAwaitingFunds(since: 10)
+
+        let other = registry.tracker(
+            for: UserWalletId(value: Data(repeating: 0xCD, count: 32)),
+            owner: wallet,
+            balancePublisher: Empty().eraseToAnyPublisher()
+        )
+
+        #expect(awaiting.isAwaitingFunds)
+        #expect(!other.isAwaitingFunds)
+
+        balance.send(60)
+        await drainMain()
+    }
 }
 
 // MARK: - Fixtures
 
 private extension PolymarketFundsArrivalTrackerTests {
+    static let userWalletId = UserWalletId(value: Data(repeating: 0xAB, count: 32))
+
     func makeSUT(
         balance: CurrentValueSubject<Decimal?, Never> = CurrentValueSubject(10),
         delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
