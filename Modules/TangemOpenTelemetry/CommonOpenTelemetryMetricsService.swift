@@ -27,6 +27,10 @@ public final class CommonOpenTelemetryMetricsService: OpenTelemetryMetricsServic
     // MARK: - Lifecycle
 
     public func start(configuration: OTLPConfiguration) {
+        start(configuration: configuration, storageURL: Self.defaultStorageURL())
+    }
+
+    func start(configuration: OTLPConfiguration, storageURL: URL?) {
         guard protectedState({ $0.pipeline == nil }) else {
             OTLPLogger.warning("Already started, ignoring repeated start")
             return
@@ -34,7 +38,7 @@ public final class CommonOpenTelemetryMetricsService: OpenTelemetryMetricsServic
 
         OpenTelemetry.registerFeedbackHandler { OTLPLogger.warning($0) }
 
-        let pipeline = Self.makePipeline(configuration: configuration, storageURL: Self.defaultStorageURL())
+        let pipeline = Self.makePipeline(configuration: configuration, storageURL: storageURL)
 
         let started = protectedState { state in
             guard state.pipeline == nil else { return false }
@@ -109,6 +113,38 @@ public final class CommonOpenTelemetryMetricsService: OpenTelemetryMetricsServic
         guard let counter else { return false }
 
         counter.add(value: value, attributes: attributes.mapValues { AttributeValue.string($0) })
+
+        return true
+    }
+
+    @discardableResult
+    public func record(
+        _ name: String,
+        milliseconds: Double,
+        buckets: OpenTelemetryHistogramBuckets,
+        attributes: [String: String] = [:]
+    ) -> Bool {
+        guard milliseconds.isFinite, milliseconds >= 0 else { return false }
+
+        let histogram: DoubleHistogramMeterSdk? = protectedState { state in
+            guard let meter = state.pipeline?.meter else { return nil }
+
+            if let cached = state.histograms[name] {
+                return cached.buckets == buckets ? cached.histogram : nil
+            }
+
+            let histogram = meter.histogramBuilder(name: name)
+                .setUnit("ms")
+                .setExplicitBucketBoundariesAdvice(buckets.boundaries)
+                .build()
+            state.histograms[name] = (histogram, buckets)
+
+            return histogram
+        }
+
+        guard let histogram else { return false }
+
+        histogram.record(value: milliseconds, attributes: attributes.mapValues { AttributeValue.string($0) })
 
         return true
     }
@@ -203,6 +239,7 @@ private extension CommonOpenTelemetryMetricsService {
     struct State {
         var pipeline: Pipeline?
         var counters: [String: LongCounterSdk] = [:]
+        var histograms: [String: (histogram: DoubleHistogramMeterSdk, buckets: OpenTelemetryHistogramBuckets)] = [:]
         var backgroundObserver: NSObjectProtocol?
     }
 
