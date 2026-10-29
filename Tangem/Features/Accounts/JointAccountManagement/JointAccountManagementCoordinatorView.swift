@@ -13,16 +13,12 @@ import TangemUI
 struct JointAccountManagementCoordinatorView: View {
     @ObservedObject var coordinator: JointAccountManagementCoordinator
 
-    var dismissStyle: JointAccountInviteMembersView.DismissStyle = .close
+    var dismissStyle: JointAccountMembersView.DismissStyle = .close
 
     var body: some View {
         content
-            .modal(
-                item: $coordinator.inviteSafetyViewModel,
-                contentLayout: .intrinsic,
-                navigation: .title(Localization.jointAccountInviteMembersSafetySheetTitle)
-            ) {
-                JointAccountInviteSafetyView(viewModel: $0)
+            .modalStatus(item: $coordinator.aboutSignaturesViewModel) {
+                JointAccountAboutSignaturesView(viewModel: $0)
             }
             .modal(
                 item: $coordinator.memberDetailsViewModel,
@@ -52,8 +48,8 @@ struct JointAccountManagementCoordinatorView: View {
             switch coordinator.root {
             case .onboarding(let viewModel):
                 JointAccountOnboardingView(viewModel: viewModel)
-            case .inviteMembers(let viewModel):
-                JointAccountInviteMembersView(viewModel: viewModel, dismissStyle: dismissStyle)
+            case .members(let viewModel):
+                JointAccountMembersView(viewModel: viewModel, dismissStyle: dismissStyle)
             case nil:
                 EmptyView()
             }
@@ -69,8 +65,8 @@ struct JointAccountManagementCoordinatorView: View {
             JointAccountMembersCountView(viewModel: viewModel)
         case .memberName(let viewModel):
             JointAccountMemberNameView(viewModel: viewModel)
-        case .inviteMembers(let viewModel):
-            JointAccountInviteMembersView(viewModel: viewModel, dismissStyle: .close)
+        case .members(let viewModel):
+            JointAccountMembersView(viewModel: viewModel, dismissStyle: .close)
         }
     }
 }

@@ -25,7 +25,7 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var inviteSafetyViewModel: JointAccountInviteSafetyViewModel?
+    @Published var aboutSignaturesViewModel: JointAccountAboutSignaturesViewModel?
     @Published var memberDetailsViewModel: JointAccountMemberDetailsViewModel?
 
     private var isCreationWalletFixed = false
@@ -45,11 +45,7 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
             root = .onboarding(JointAccountOnboardingViewModel(creationHelper: creationHelper, coordinator: self))
 
         case .members(let jointAccount, let userWalletConfig):
-            root = .inviteMembers(JointAccountInviteMembersViewModel(
-                jointAccount: jointAccount,
-                userWalletConfig: userWalletConfig,
-                coordinator: self
-            ))
+            root = .members(makeMembersViewModel(jointAccount: jointAccount, userWalletConfig: userWalletConfig))
         }
     }
 }
@@ -68,7 +64,7 @@ extension JointAccountManagementCoordinator {
 extension JointAccountManagementCoordinator {
     enum Root {
         case onboarding(JointAccountOnboardingViewModel)
-        case inviteMembers(JointAccountInviteMembersViewModel)
+        case members(JointAccountMembersViewModel)
     }
 }
 
@@ -79,7 +75,7 @@ extension JointAccountManagementCoordinator {
         case accountForm(viewModel: AccountFormViewModel)
         case membersCount(viewModel: JointAccountMembersCountViewModel)
         case memberName(viewModel: JointAccountMemberNameViewModel)
-        case inviteMembers(viewModel: JointAccountInviteMembersViewModel)
+        case members(viewModel: JointAccountMembersViewModel)
     }
 }
 
@@ -90,7 +86,7 @@ extension JointAccountManagementCoordinator.Step: Hashable {
         case (.accountForm(let lhs), .accountForm(let rhs)): lhs === rhs
         case (.membersCount(let lhs), .membersCount(let rhs)): lhs === rhs
         case (.memberName(let lhs), .memberName(let rhs)): lhs === rhs
-        case (.inviteMembers(let lhs), .inviteMembers(let rhs)): lhs === rhs
+        case (.members(let lhs), .members(let rhs)): lhs === rhs
         default: false
         }
     }
@@ -100,7 +96,7 @@ extension JointAccountManagementCoordinator.Step: Hashable {
         case .accountForm(let viewModel): hasher.combine(ObjectIdentifier(viewModel))
         case .membersCount(let viewModel): hasher.combine(ObjectIdentifier(viewModel))
         case .memberName(let viewModel): hasher.combine(ObjectIdentifier(viewModel))
-        case .inviteMembers(let viewModel): hasher.combine(ObjectIdentifier(viewModel))
+        case .members(let viewModel): hasher.combine(ObjectIdentifier(viewModel))
         }
     }
 }
@@ -177,39 +173,38 @@ extension JointAccountManagementCoordinator: JointAccountMemberNameRoutable {
 
 extension JointAccountManagementCoordinator: JointAccountCreationMemberNameRoutable {
     func openInviteMembers(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig) {
-        let viewModel = JointAccountInviteMembersViewModel(
-            jointAccount: jointAccount,
-            userWalletConfig: userWalletConfig,
-            coordinator: self
-        )
-
-        path.append(.inviteMembers(viewModel: viewModel))
+        let viewModel = makeMembersViewModel(jointAccount: jointAccount, userWalletConfig: userWalletConfig)
+        path.append(.members(viewModel: viewModel))
     }
 }
 
-// MARK: - JointAccountInviteSafetyRoutable
+// MARK: - JointAccountAboutSignaturesRoutable
 
-extension JointAccountManagementCoordinator: JointAccountInviteSafetyRoutable {
-    func closeInviteSafety() {
-        inviteSafetyViewModel = nil
+extension JointAccountManagementCoordinator: JointAccountAboutSignaturesRoutable {
+    func closeAboutSignatures() {
+        aboutSignaturesViewModel = nil
     }
 }
 
-// MARK: - JointAccountInviteMembersRoutable
+// MARK: - JointAccountMembersRoutable
 
-extension JointAccountManagementCoordinator: JointAccountInviteMembersRoutable {
-    func closeInviteMembers() {
+extension JointAccountManagementCoordinator: JointAccountMembersRoutable {
+    func closeMembers() {
         dismiss()
     }
 
+    func openAboutSignatures(policy: JointAccountPolicy) {
+        aboutSignaturesViewModel = JointAccountAboutSignaturesViewModel(policy: policy, coordinator: self)
+    }
+}
+
+// MARK: - JointAccountMembersViewSlotRoutable
+
+extension JointAccountManagementCoordinator: JointAccountMembersViewSlotRoutable {
     func shareInvite(url: URL, accountName: String) {
         let itemSource = JointAccountInviteActivityItemSource(url: url, accountName: accountName)
 
         AppPresenter.shared.show(UIActivityViewController(activityItems: [itemSource], applicationActivities: nil))
-    }
-
-    func openInviteSafety() {
-        inviteSafetyViewModel = JointAccountInviteSafetyViewModel(coordinator: self)
     }
 
     func openMemberDetails(name: String, address: String, accentColor: Color) {
@@ -227,6 +222,19 @@ extension JointAccountManagementCoordinator: JointAccountInviteMembersRoutable {
 extension JointAccountManagementCoordinator: JointAccountMemberDetailsRoutable {
     func closeMemberDetails() {
         memberDetailsViewModel = nil
+    }
+}
+
+// MARK: - Members
+
+private extension JointAccountManagementCoordinator {
+    func makeMembersViewModel(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig) -> JointAccountMembersViewModel {
+        JointAccountMembersViewModel(
+            jointAccount: jointAccount,
+            contentProvider: CommonJointAccountMembersViewModelContentProvider(jointAccount: jointAccount, routable: self),
+            userWalletConfig: userWalletConfig,
+            coordinator: self
+        )
     }
 }
 
