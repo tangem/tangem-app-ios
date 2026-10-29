@@ -16,6 +16,7 @@ struct JointAccountMemberDetailsView: View {
 
     var body: some View {
         content
+            .frame(maxWidth: .infinity)
             .padding(.horizontal, Constants.horizontalPadding)
             .padding(.vertical, Constants.contentVerticalPadding)
             .footer { Footer(.buttons(primary: closeButton)) }
