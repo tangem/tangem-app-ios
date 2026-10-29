@@ -69,7 +69,7 @@ final class AllowanceServiceMock: AllowanceService {
         let result = state { $0.makeApproveDataResultsByPolicy[policy] ?? $0.makeApproveDataResult }
 
         guard let result else {
-            return ApproveTransactionData(txData: Data(), spender: spender, toContractAddress: "")
+            return ApproveTransactionData(txData: Data(), spender: spender, toContractAddress: "", amountRaw: 0)
         }
 
         return try result.get()

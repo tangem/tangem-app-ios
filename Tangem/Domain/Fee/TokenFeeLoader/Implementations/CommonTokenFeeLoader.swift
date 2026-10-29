@@ -15,9 +15,9 @@ struct CommonTokenFeeLoader {
     let transactionFeeProvider: any TransactionFeeProvider
 }
 
-// MARK: - TokenFeeLoader
+// MARK: - TokenFeeLoading
 
-extension CommonTokenFeeLoader: TokenFeeLoader {
+extension CommonTokenFeeLoader: TokenFeeLoading {
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         let amount = makeAmount(amount: amount)
         let fees = try await transactionFeeProvider.estimatedFee(amount: amount).async()

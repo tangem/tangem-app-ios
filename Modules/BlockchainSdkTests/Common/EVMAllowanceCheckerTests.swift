@@ -34,6 +34,7 @@ struct EVMAllowanceCheckerTests {
         #expect(result.spender == anySpender)
         #expect(result.toContractAddress == token.contractAddress)
         #expect(result.txData == approveCalldata)
+        #expect(result.amountRaw == 100_000_000)
     }
 
     /// `.unlimited` must encode the maximum value and never the requested amount — the guard against accidentally granting an allowance that doesn't match the user's choice.
@@ -50,6 +51,7 @@ struct EVMAllowanceCheckerTests {
 
         #expect(result.spender == anySpender)
         #expect(result.toContractAddress == token.contractAddress)
+        #expect(result.amountRaw == BigUInt.maxUInt256)
     }
 }
 

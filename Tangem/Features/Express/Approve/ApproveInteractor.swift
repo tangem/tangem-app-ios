@@ -208,9 +208,21 @@ extension ApproveInteractor {
         var feeInput: TokenFeeProviderInputData {
             switch self {
             case .approve(let data, _):
-                .approve(txData: data.txData, toContractAddress: data.toContractAddress)
+                .approve(
+                    txData: data.txData,
+                    toContractAddress: data.toContractAddress,
+                    spender: data.spender,
+                    amountRaw: data.amountRaw,
+                    feeMultiplier: .single
+                )
             case .revokeAndApprove(let revoke, _, _, _):
-                .approve(txData: revoke.txData, toContractAddress: revoke.toContractAddress, feeMultiplier: .triple)
+                .approve(
+                    txData: revoke.txData,
+                    toContractAddress: revoke.toContractAddress,
+                    spender: revoke.spender,
+                    amountRaw: revoke.amountRaw,
+                    feeMultiplier: .triple
+                )
             }
         }
     }

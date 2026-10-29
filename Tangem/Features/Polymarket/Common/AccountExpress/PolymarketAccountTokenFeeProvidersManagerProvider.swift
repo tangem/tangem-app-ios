@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct PolymarketAccountTokenFeeLoader: TokenFeeLoader {
+struct PolymarketAccountTokenFeeLoader: TokenFeeLoading {
     let feeTokenItem: TokenItem
 
     private var zeroFee: BSDKFee {
@@ -35,7 +35,7 @@ extension PolymarketAccountTokenFeeProvidersManagerProvider: TokenFeeProvidersMa
     func makeTokenFeeProvidersManager() -> TokenFeeProvidersManager {
         let feeProvider: TokenFeeProvider = CommonTokenFeeProvider(
             feeTokenItem: feeTokenItem,
-            tokenFeeLoader: PolymarketAccountTokenFeeLoader(feeTokenItem: feeTokenItem),
+            tokenFeeLoader: DefaultTokenFeeLoader(loader: PolymarketAccountTokenFeeLoader(feeTokenItem: feeTokenItem)),
             customFeeProvider: .none,
             feeTokenItemBalanceProvider: feeTokenItemBalanceProvider,
             supportingOptions: .all

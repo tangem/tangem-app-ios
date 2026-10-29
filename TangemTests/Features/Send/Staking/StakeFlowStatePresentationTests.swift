@@ -56,7 +56,7 @@ struct StakeFlowStatePresentationTests {
     }
 
     private func approveData() -> ApproveTransactionData {
-        ApproveTransactionData(txData: Data(), spender: "0x", toContractAddress: "0x")
+        ApproveTransactionData(txData: Data(), spender: "0x", toContractAddress: "0x", amountRaw: 1)
     }
 
     private func fee(_ value: Decimal) -> Fee {

@@ -16,9 +16,9 @@ struct YieldModuleSendTokenFeeLoader {
     let ethereumNetworkProvider: any EthereumNetworkProvider
 }
 
-// MARK: - TokenFeeLoader
+// MARK: - TokenFeeLoading
 
-extension YieldModuleSendTokenFeeLoader: TokenFeeLoader {
+extension YieldModuleSendTokenFeeLoader: TokenFeeLoading {
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         try await tokenFeeLoader.estimatedFee(amount: amount)
     }
