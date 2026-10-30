@@ -25,7 +25,7 @@ extension PolymarketMapper {
     }
 }
 
-private extension PolymarketMapper {
+extension PolymarketMapper {
     static func date(_ seconds: Int) -> Date {
         Date(timeIntervalSince1970: TimeInterval(seconds))
     }

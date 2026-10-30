@@ -78,7 +78,58 @@ struct PolymarketCLOBServicePlaceOrderTests {
     }
 }
 
+@Suite("Polymarket CLOB service session signers", .timeLimit(.minutes(1)))
+struct PolymarketCLOBServiceSessionSignersTests {
+    @Test("The signers are read from the owner's account with a request signed under the L2 credentials")
+    func signersAreReadUnderTheOwnersCredentials() async throws {
+        let credentials = PolymarketCLOBServicePlaceOrderTests.credentials
+        let ownerAddress = PolymarketCLOBServicePlaceOrderTests.ownerAddress
+        let baseURL = PolymarketStubURLProtocol.makeBaseURL(answering: .init(body: Self.signersResponse))
+
+        let signers = try await PolymarketCLOBServicePlaceOrderTests.makeService(baseURL: baseURL).sessionSigners(
+            credentials: credentials,
+            ownerAddress: ownerAddress
+        )
+
+        let requests = PolymarketStubURLProtocol.sentRequests(to: baseURL)
+        #expect(requests.count == 1)
+
+        let sent = try #require(requests.first)
+        let timestamp = try #require(sent.header("POLY_TIMESTAMP"))
+
+        let expectedSignature = try PolymarketL2Auth.signature(
+            secret: credentials.secret,
+            timestamp: timestamp,
+            method: "GET",
+            requestPath: "/v1/user/session-signers"
+        )
+
+        #expect(sent.method == "GET")
+        #expect(sent.url?.path == "/v1/user/session-signers")
+        #expect(sent.url?.query == nil)
+        #expect(sent.body.isEmpty)
+        #expect(sent.header("POLY_SIGNATURE") == expectedSignature)
+        #expect(sent.header("POLY_ADDRESS") == ownerAddress)
+        #expect(sent.header("POLY_API_KEY") == credentials.apiKey)
+        #expect(sent.header("POLY_PASSPHRASE") == credentials.passphrase)
+        #expect(signers == [
+            PolymarketSessionSigner(
+                address: "0x5e55000000000000000000000000000000000001",
+                scopes: ["CLOB"],
+                validUntil: Date(timeIntervalSince1970: 1_804_982_400)
+            ),
+        ])
+    }
+}
+
 // MARK: - Fixtures
+
+private extension PolymarketCLOBServiceSessionSignersTests {
+    static let signersResponse = """
+    {"wallet":"0x4130efa9e628a991520be60f2e948a4f9be52fbc",
+    "signers":[{"address":"0x5E55000000000000000000000000000000000001","scopes":["CLOB"],"valid_until":1804982400}]}
+    """
+}
 
 private extension PolymarketCLOBServicePlaceOrderTests {
     static let ownerAddress = "0x4130EFA9E628A991520BE60F2E948A4F9BE52FBC"
