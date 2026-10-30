@@ -25,4 +25,17 @@ struct YieldModePromoAnalyticsLoggerTests {
     func formatsAPY(apy: Decimal, expected: String) {
         #expect(CommonYieldModePromoAnalyticsLogger.formatAPY(apy) == expected)
     }
+
+    @Test(
+        "Skip reasons are reported with the spec's values",
+        arguments: [
+            (MainScreenPromoSheetSkipReason.surfaceBusy, "Surface Busy"),
+            (.dataNotReady, "Data Not Ready"),
+            (.noEligibleContent, "No Eligible Token"),
+            (.variantNotReady, "Variant Not Ready"),
+        ]
+    )
+    func skipReasonValues(reason: MainScreenPromoSheetSkipReason, expected: String) {
+        #expect(CommonYieldModePromoAnalyticsLogger.skipReasonValue(reason) == expected)
+    }
 }

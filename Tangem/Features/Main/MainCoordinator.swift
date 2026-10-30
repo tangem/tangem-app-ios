@@ -1249,6 +1249,10 @@ extension MainCoordinator: MainScreenPromoSheetHost {
         ]
     }
 
+    var isSurfaceBusy: Bool {
+        isPresentingOverMain || tangemPayCampaignCoordinator != nil
+    }
+
     private var didEnterBackgroundPublisher: AnyPublisher<Bool, Never> {
         NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
             .map { _ in true }
@@ -1285,12 +1289,13 @@ extension MainCoordinator: MainScreenPromoSheetHost {
 // MARK: - YieldModePromoSheetRoutable
 
 extension MainCoordinator: YieldModePromoSheetRoutable {
-    func presentYieldModePromo(_ viewModel: YieldModePromoSheetViewModel) {
-        guard !isPresentingOverMain, tangemPayCampaignCoordinator == nil else {
-            return
+    func presentYieldModePromo(_ viewModel: YieldModePromoSheetViewModel) -> Bool {
+        guard !isSurfaceBusy else {
+            return false
         }
 
         yieldModePromoSheetViewModel = viewModel
+        return true
     }
 
     func dismissYieldModePromo() {
