@@ -45,14 +45,6 @@ enum CLTypeHelper {
         }
     }
 
-    static func CLTypeToJson(clType: CLType) -> AnyObject {
-        if CLValue.isCLTypePrimitive(clType1: clType) {
-            return CLTypeHelper.CLTypePrimitiveToJson(clType: clType) as AnyObject
-        } else {
-            return CLTypeHelper.CLTypeCompoundToJson(clType: clType) as AnyObject
-        }
-    }
-
     // CLType to Json string primitive
 
     static func CLTypePrimitiveToJsonString(clType: CLType) -> String {
@@ -425,79 +417,11 @@ enum CLTypeHelper {
      - Returns: CLType object
      */
 
-    static func jsonToCLType(from: AnyObject, keyStr: String = "cl_type") -> CLType {
-        var ret: CLType = .none
-        if let clTypeWrapper = from[keyStr] as? String {
-            ret = CLTypeHelper.stringToCLTypePrimitive(input: clTypeWrapper)
-            return ret
-        } else if let clTypeWrapper = from[keyStr] as? AnyObject {
-            ret = CLTypeHelper.jsonToCLTypeCompound(from: clTypeWrapper as AnyObject)
-        }
-        return ret
-    }
-
     /*
      Get CLType primitive (CLType with no recursive type inside) from Json string
      - Parameter: a Json String represent the CLType object
      - Returns: CLType object
      */
-
-    static func jsonToCLTypePrimitive(from: AnyObject, keyStr: String = "cl_type") -> CLType {
-        let clType: CLType = .none
-        // primitive type
-        if (from["Bool"] as? Bool) != nil {
-            return .boolClType
-        }
-        if (from["U8"] as? UInt8) != nil {
-            return .u8ClType
-        }
-        if (from["U32"] as? UInt32) != nil {
-            return .u32ClType
-        }
-        if let _ = from["U64"] as? UInt64 {
-            return .u64
-        }
-        if (from["U128"] as? String) != nil {
-            return .u128ClType
-        }
-        if (from["U256"] as? String) != nil {
-            return .u256ClType
-        }
-        if (from["U512"] as? String) != nil {
-            return .u512
-        }
-        if (from["String"] as? String) != nil {
-            return .stringClType
-        }
-        if (from["key"] as? String) != nil {
-            return .stringClType
-        }
-        if (from["value"] as? String) != nil {
-            return .stringClType
-        }
-        if (from["ok"] as? String) != nil {
-            return .stringClType
-        }
-        if (from["err"] as? String) != nil {
-            return .stringClType
-        }
-        if let byteArrray = from["ByteArray"] as? UInt32 {
-            return .bytesArrayClType(byteArrray)
-        }
-        if (from["Key"] as? String) != nil {
-            return .keyClType
-        }
-        if (from["PublicKey"] as? String) != nil {
-            return .publicKey
-        }
-        if (from["URef"] as? String) != nil {
-            return .urefClType
-        }
-        if (from["Unit"] as? String) != nil {
-            return .unitClType
-        }
-        return clType
-    }
 
     /*
      Get CLType compound from Json string, which are the recursive CLType such as List(CLType), Map(CLType, CLType), Tuple1(CLType), Tuple2(CLType, CLType), Tuple3(CLType, CLType, CLType)...
@@ -505,148 +429,15 @@ enum CLTypeHelper {
      - Returns: CLType object
      */
 
-    static func jsonToCLTypeCompound(from: AnyObject, keyStr: String = "cl_type") -> CLType {
-        var clType: CLType = .none
-        if let listCLType = from["List"] as? String {
-            clType = CLTypeHelper.stringToCLTypePrimitive(input: listCLType)
-            return .listClType(clType)
-        } else if let listCLType = from["List"] as? AnyObject {
-            if !(listCLType is NSNull) {
-                clType = CLTypeHelper.jsonToCLTypeCompound(from: listCLType)
-                return .listClType(clType)
-            }
-        }
-        if let byteArray = from["ByteArray"] as? UInt32 {
-            return .bytesArrayClType(byteArray)
-        }
-        if let mapCLType = from["Map"] as? AnyObject {
-            if !(mapCLType is NSNull) {
-                let keyCLType = CLTypeHelper.jsonToCLType(from: mapCLType, keyStr: "key")
-                let valueCLType = CLTypeHelper.jsonToCLType(from: mapCLType, keyStr: "value")
-                return .mapClType(keyCLType, valueCLType)
-            }
-        }
-        if let tuple1CLType = from["Tuple1"] as? [AnyObject] {
-            var tuple1: CLType?
-            var counter = 0
-            for oneTuple in tuple1CLType {
-                if counter == 0 {
-                    tuple1 = CLTypeHelper.directJsonToCLType(from: oneTuple)
-                }
-                counter += 1
-            }
-            return .tuple1(tuple1!)
-        }
-        if let tuple2CLType = from["Tuple2"] as? [AnyObject] {
-            var tuple1: CLType?
-            var tuple2: CLType?
-            var counter = 0
-            for oneTuple in tuple2CLType {
-                if counter == 0 {
-                    tuple1 = CLTypeHelper.directJsonToCLType(from: oneTuple)
-                } else if counter == 1 {
-                    tuple2 = CLTypeHelper.directJsonToCLType(from: oneTuple)
-                }
-                counter += 1
-            }
-            return .tuple2(tuple1!, tuple2!)
-        }
-        if let tuple3CLType = from["Tuple3"] as? [AnyObject] {
-            var tuple1: CLType?
-            var tuple2: CLType?
-            var tuple3: CLType?
-            var counter = 0
-            for oneTuple in tuple3CLType {
-                if counter == 0 {
-                    tuple1 = CLTypeHelper.directJsonToCLType(from: oneTuple)
-                } else if counter == 1 {
-                    tuple2 = CLTypeHelper.directJsonToCLType(from: oneTuple)
-                } else if counter == 2 {
-                    tuple3 = CLTypeHelper.directJsonToCLType(from: oneTuple)
-                }
-                counter += 1
-            }
-            return .tuple3(tuple1!, tuple2!, tuple3!)
-        }
-        if let optionCLType = from["Option"] as? String {
-            clType = CLTypeHelper.stringToCLTypePrimitive(input: optionCLType)
-            return .option(clType)
-        } else if let optionCLType = from["Option"] as? AnyObject {
-            if !(optionCLType is NSNull) {
-                clType = CLTypeHelper.jsonToCLTypeCompound(from: optionCLType)
-                return .option(clType)
-            }
-        }
-        if let resultCLType = from["Result"] as? AnyObject {
-            if !(resultCLType is NSNull) {
-                let okCLType = CLTypeHelper.jsonToCLType(from: resultCLType, keyStr: "ok")
-                let errCLType = CLTypeHelper.jsonToCLType(from: resultCLType, keyStr: "err")
-                return .resultClType(okCLType, errCLType)
-            } else {
-                BSDKLogger.error(error: "parse result cltype error")
-            }
-        }
-        return .none
-    }
-
     /*
      Get CLType  from Json string. If the Json string can convert to CLType primitive, then return the CLType primitive, otherwise return the CLType getting from the CLType compound
      - Parameter: a Json String represent the CLType object
      - Returns: CLType object
      */
 
-    static func directJsonToCLType(from: AnyObject?) -> CLType {
-        var ret: CLType = .none
-        if let clTypeWrapper = from as? String {
-            ret = CLTypeHelper.stringToCLTypePrimitive(input: clTypeWrapper)
-            return ret
-        }
-        if let clTypeWrapper = from {
-            ret = CLTypeHelper.jsonToCLTypeCompound(from: clTypeWrapper)
-        }
-        return ret
-    }
-
     /*
      Get CLType primitive from String
      - Parameter: a  String represent the CLType object
      - Returns: CLType object
      */
-
-    static func stringToCLTypePrimitive(input: String) -> CLType {
-        if input == "String" {
-            return .stringClType
-        } else if input == "Bool" {
-            return .boolClType
-        } else if input == "U8" {
-            return .u8ClType
-        } else if input == "U32" {
-            return .u32ClType
-        } else if input == "U64" {
-            return .u64
-        } else if input == "U128" {
-            return .u128ClType
-        } else if input == "I32" {
-            return .i32ClType
-        } else if input == "I64" {
-            return .i64ClType
-        } else if input == "U256" {
-            return .u256ClType
-        } else if input == "U512" {
-            return .u512
-        } else if input == "String" {
-            return .stringClType
-        } else if input == "Key" {
-            return .keyClType
-        } else if input == "URef" {
-            return .urefClType
-        } else if input == "PublicKey" {
-            return .publicKey
-        } else if input == "Any" {
-            return .clTypeAny
-        } else if input == "Unit" {
-            return .unitClType
-        }
-        return .none
-    }
 }

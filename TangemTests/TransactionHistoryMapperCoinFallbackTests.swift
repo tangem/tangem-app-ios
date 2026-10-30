@@ -16,6 +16,7 @@ import TangemLocalization
 struct TransactionHistoryMapperCoinFallbackTests {
     private static let walletAddress = "0xWalletAddress"
     private static let contractAddress = "0xContractAddress"
+    private static let unregisteredTokenContract = "0x000000000000000000000000000000000000dEaD"
     private static var feeValue: Decimal {
         get throws {
             try #require(Decimal(stringValue: "0.00003936"))
@@ -50,11 +51,76 @@ struct TransactionHistoryMapperCoinFallbackTests {
         #expect(sut.displayedAmountValue(from: record) == feeValue)
     }
 
+    @Test(
+        "The fee shows the stage of its transaction, except that a failed one was still charged",
+        arguments: [
+            (TransactionRecord.TransactionStatus.failed, TransactionViewModel.Status.confirmed),
+            (.confirmed, .confirmed),
+            (.unconfirmed, .inProgress),
+        ]
+    )
+    func theFeeShowsTheStageOfItsTransaction(
+        recordStatus: TransactionRecord.TransactionStatus,
+        expectedStatus: TransactionViewModel.Status
+    ) throws {
+        let viewModel = try makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: nil, status: recordStatus))
+
+        #expect(viewModel.status == expectedStatus)
+        #expect(viewModel.icon.status == expectedStatus)
+        #expect(viewModel.amount.status == expectedStatus)
+    }
+
+    @Test("The fee a failed transaction cost is signed as spent")
+    func theFeeOfAFailedTransactionIsSignedAsSpent() throws {
+        let viewModel = try makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: "transfer", status: .failed))
+
+        #expect(viewModel.amount.value?.hasPrefix(AppConstants.minusSign) == true)
+    }
+
+    @Test("A failed transaction that moved coin is still shown as failed")
+    func aFailedTransactionThatMovedCoinIsFailed() throws {
+        let viewModel = try makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: "transfer", amount: 1, status: .failed))
+
+        #expect(viewModel.transactionType == .transfer)
+        #expect(viewModel.status == .failed)
+    }
+
+    @Test("A failed token send is still shown as failed in the token's history")
+    func aFailedTokenSendIsFailed() throws {
+        let record = try makeRecord(
+            methodName: "transfer",
+            tokenTransfers: [makeTokenTransfer(from: Self.walletAddress, amount: 1)],
+            status: .failed
+        )
+        let viewModel = makeSUT(isToken: true).mapTransactionViewModel(record)
+
+        #expect(viewModel.transactionType == .transfer)
+        #expect(viewModel.status == .failed)
+    }
+
     @Test("The fee for a send says it paid for sending", arguments: ["transfer", "yieldSend"])
     func theFeeForASendIsForSending(methodName: String) throws {
         let viewModel = try makeSUT(isToken: false).mapTransactionViewModel(makeRecord(methodName: methodName))
 
         #expect(viewModel.display.subtitle == .text(Localization.transactionHistoryFeeForSending))
+    }
+
+    @Test("The fee for a token send names the token it sent", arguments: [Blockchain.ethereum(testnet: false), .tron(testnet: false)])
+    func theFeeForATokenSendNamesTheToken(blockchain: Blockchain) throws {
+        let isTron = if case .tron = blockchain { true } else { false }
+        let record = try makeRecord(
+            methodName: "transfer",
+            type: isTron ? .transfer : nil,
+            tokenTransfers: [
+                makeTokenTransfer(from: Self.walletAddress, amount: 1_000_000, contract: Self.unregisteredTokenContract),
+            ]
+        )
+
+        let viewModel = makeSUT(isToken: false, blockchain: blockchain).mapTransactionViewModel(record)
+        let sent = try #require(sentTokens(of: viewModel))
+
+        #expect(sent.symbol == "USDT")
+        #expect(viewModel.display.subtitle == .sentAsset(sent))
     }
 
     @Test("The fee for a call the wallet cannot name says it paid for an operation")
@@ -340,7 +406,8 @@ struct TransactionHistoryMapperCoinFallbackTests {
         type: TransactionRecord.TransactionType? = nil,
         destination: TransactionRecord.Destination.Address? = nil,
         fee: Decimal? = nil,
-        tokenTransfers: [TransactionRecord.TokenTransfer] = []
+        tokenTransfers: [TransactionRecord.TokenTransfer] = [],
+        status: TransactionRecord.TransactionStatus = .confirmed
     ) throws -> TransactionRecord {
         let fee = try fee ?? Self.feeValue
 
@@ -353,7 +420,7 @@ struct TransactionHistoryMapperCoinFallbackTests {
                 amount: amount
             )),
             fee: Fee(Amount(type: .coin, currencySymbol: "ETH", value: fee, decimals: 18)),
-            status: .confirmed,
+            status: status,
             isOutgoing: isOutgoing,
             type: type ?? .contractMethodName(name: methodName),
             date: Date(),

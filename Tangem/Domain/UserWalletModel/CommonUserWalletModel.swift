@@ -9,7 +9,6 @@
 import Combine
 import SwiftUI
 import BlockchainSdk
-import TangemAssets
 import TangemVisa
 import TangemSdk
 import TangemNFT
@@ -22,7 +21,6 @@ class CommonUserWalletModel {
     // MARK: Services
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
     let nftManager: NFTManager
     let keysRepository: KeysRepository
@@ -47,7 +45,6 @@ class CommonUserWalletModel {
     private var _walletImageProvider: WalletImageProviding?
 
     private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
-    private let _cardHeaderImagePublisher: CurrentValueSubject<ImageType?, Never>
 
     init(
         walletInfo: WalletInfo,
@@ -73,8 +70,6 @@ class CommonUserWalletModel {
         self.priceAlertsSubscriptionsProvider = priceAlertsSubscriptionsProvider
         self.accountModelsManager = accountModelsManager
         self.addressBookManager = addressBookManager
-
-        _cardHeaderImagePublisher = .init(config.cardHeaderImage)
     }
 
     deinit {
@@ -104,13 +99,6 @@ class CommonUserWalletModel {
     }
 }
 
-extension CommonUserWalletModel {
-    enum WalletsBalanceState {
-        case inProgress
-        case loaded
-    }
-}
-
 // MARK: - UserWalletModel
 
 extension CommonUserWalletModel: UserWalletModel {
@@ -124,10 +112,6 @@ extension CommonUserWalletModel: UserWalletModel {
 
     var tangemApiAuthData: TangemApiAuthorizationData? {
         walletInfo.tangemApiAuthData
-    }
-
-    var hasBackupCards: Bool {
-        walletInfo.hasBackupCards
     }
 
     var signer: TangemSigner {
@@ -231,7 +215,6 @@ extension CommonUserWalletModel: UserWalletModel {
                 // Prevents saving the wallet until the onboarding is completed
                 let shouldSave = userWalletRepository.models[userWalletId] != nil
                 updateConfiguration(walletInfo: .cardWallet(mutableCardInfo), shouldSave: shouldSave)
-                _cardHeaderImagePublisher.send(config.cardHeaderImage)
 
             case .mobileWallet(let existingInfo):
                 for wallet in mutableCardInfo.card.wallets {
@@ -242,7 +225,6 @@ extension CommonUserWalletModel: UserWalletModel {
 
                 _walletImageProvider = nil
                 updateConfiguration(walletInfo: .cardWallet(mutableCardInfo)) // Upgrading from mobile wallet to card wallet
-                _cardHeaderImagePublisher.send(config.cardHeaderImage)
                 cleanMobileWallet(mobileWalletInfo: existingInfo)
                 syncRemoteAfterUpgrade()
                 logMobileWalletUpgradedAnalytics()
@@ -324,14 +306,6 @@ extension CommonUserWalletModel: UserWalletModel {
     }
 }
 
-extension CommonUserWalletModel: MainHeaderSupplementInfoProvider {
-    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
-        _cardHeaderImagePublisher
-            .removeDuplicates()
-            .eraseToAnyPublisher()
-    }
-}
-
 extension CommonUserWalletModel: MainHeaderUserWalletStateInfoProvider {
     var isUserWalletLocked: Bool { false }
 
@@ -389,6 +363,21 @@ extension CommonUserWalletModel: CollectiblesColdKeyInteractorProvider {
             keysDeriving: keysDerivingInteractor,
             signer: signer
         )
+    }
+}
+
+extension CommonUserWalletModel: PolymarketOwnerKeySessionProvider {
+    var polymarketOwnerKeySession: PolymarketOwnerKeySession {
+        switch walletInfo {
+        case .cardWallet:
+            return CardPolymarketOwnerKeySession(config: config, keysRepository: keysRepository)
+        case .mobileWallet:
+            return MobilePolymarketOwnerKeySession(
+                userWalletId: userWalletId,
+                config: config,
+                keysRepository: keysRepository
+            )
+        }
     }
 }
 
@@ -479,7 +468,7 @@ extension CommonUserWalletModel: DisposableEntity {
 
 private extension CommonUserWalletModel {
     func cleanMobileWallet(mobileWalletInfo: MobileWalletInfo) {
-        MobileCleanupUtil.clean(walletId: userWalletId, mobileWalletInfo: mobileWalletInfo)
+        MobileCleanupUtil.cleanAfterUpgrade(walletId: userWalletId, mobileWalletInfo: mobileWalletInfo)
     }
 }
 

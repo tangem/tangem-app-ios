@@ -18,7 +18,6 @@ protocol SingleTokenRoutable {
     func openSwap(parameters: PredefinedSwapParameters)
     func openStaking(walletModel: any WalletModel)
     func openSell(for walletModel: any WalletModel)
-    func openSendToSell(with request: SellCryptoRequest, for walletModel: any WalletModel)
     func openExplorer(at url: URL, for walletModel: any WalletModel)
     func openMarketsTokenDetails(for tokenItem: TokenItem)
     func openInSafari(url: URL)
@@ -33,7 +32,6 @@ extension SingleTokenRoutable {
 }
 
 final class SingleTokenRouter: SingleTokenRoutable {
-    @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
 
     private let userWalletInfo: UserWalletInfo

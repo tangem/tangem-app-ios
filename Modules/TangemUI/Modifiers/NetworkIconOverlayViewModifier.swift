@@ -27,7 +27,7 @@ public extension View {
                 isMainIndicatorVisible: false,
                 size: iconSize
             )
-            .shimmer(isEnabled: isShimmerEnabled)
+            .if(isShimmerEnabled) { $0.shimmering() }
             .background(
                 borderColor
                     .clipShape(.circle)

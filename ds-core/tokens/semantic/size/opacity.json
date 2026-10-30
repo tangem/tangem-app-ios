@@ -7,7 +7,8 @@
           "iOS": "0"
         },
         "com.figma.scopes": [
-          "OPACITY"
+          "OPACITY",
+          "COLOR_OPACITY"
         ]
       },
       "$type": "opacity",
@@ -20,7 +21,8 @@
           "iOS": "0.05"
         },
         "com.figma.scopes": [
-          "OPACITY"
+          "OPACITY",
+          "COLOR_OPACITY"
         ]
       },
       "$type": "opacity",
@@ -33,7 +35,8 @@
           "iOS": "0.1"
         },
         "com.figma.scopes": [
-          "OPACITY"
+          "OPACITY",
+          "COLOR_OPACITY"
         ]
       },
       "$type": "opacity",
@@ -46,7 +49,8 @@
           "iOS": "0.15"
         },
         "com.figma.scopes": [
-          "OPACITY"
+          "OPACITY",
+          "COLOR_OPACITY"
         ]
       },
       "$type": "opacity",
@@ -59,7 +63,8 @@
           "iOS": "0.2"
         },
         "com.figma.scopes": [
-          "OPACITY"
+          "OPACITY",
+          "COLOR_OPACITY"
         ]
       },
       "$type": "opacity",
@@ -72,7 +77,8 @@
           "iOS": "0.25"
         },
         "com.figma.scopes": [
-          "OPACITY"
+          "OPACITY",
+          "COLOR_OPACITY"
         ]
       },
       "$type": "opacity",
@@ -85,7 +91,8 @@
           "iOS": "0.3"
         },
         "com.figma.scopes": [
-          "OPACITY"
+          "OPACITY",
+          "COLOR_OPACITY"
         ]
       },
       "$type": "opacity",
@@ -98,7 +105,8 @@
           "iOS": "0.4"
         },
         "com.figma.scopes": [
-          "OPACITY"
+          "OPACITY",
+          "COLOR_OPACITY"
         ]
       },
       "$type": "opacity",
@@ -111,7 +119,8 @@
           "iOS": "0.5"
         },
         "com.figma.scopes": [
-          "OPACITY"
+          "OPACITY",
+          "COLOR_OPACITY"
         ]
       },
       "$type": "opacity",
@@ -124,7 +133,8 @@
           "iOS": "0.6"
         },
         "com.figma.scopes": [
-          "OPACITY"
+          "OPACITY",
+          "COLOR_OPACITY"
         ]
       },
       "$type": "opacity",
@@ -137,7 +147,8 @@
           "iOS": "0.7"
         },
         "com.figma.scopes": [
-          "OPACITY"
+          "OPACITY",
+          "COLOR_OPACITY"
         ]
       },
       "$type": "opacity",
@@ -150,7 +161,8 @@
           "iOS": "0.8"
         },
         "com.figma.scopes": [
-          "OPACITY"
+          "OPACITY",
+          "COLOR_OPACITY"
         ]
       },
       "$type": "opacity",
@@ -163,7 +175,8 @@
           "iOS": "0.9"
         },
         "com.figma.scopes": [
-          "OPACITY"
+          "OPACITY",
+          "COLOR_OPACITY"
         ]
       },
       "$type": "opacity",
@@ -176,7 +189,8 @@
           "iOS": "0.95"
         },
         "com.figma.scopes": [
-          "OPACITY"
+          "OPACITY",
+          "COLOR_OPACITY"
         ]
       },
       "$type": "opacity",
@@ -189,7 +203,8 @@
           "iOS": "1"
         },
         "com.figma.scopes": [
-          "OPACITY"
+          "OPACITY",
+          "COLOR_OPACITY"
         ]
       },
       "$type": "opacity",

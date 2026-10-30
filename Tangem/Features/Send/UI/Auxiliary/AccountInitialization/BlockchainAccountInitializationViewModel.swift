@@ -21,8 +21,7 @@ final class BlockchainAccountInitializationViewModel: ObservableObject, Floating
     @Published var isLoading = false
 
     let tokenIconInfo: TokenIconInfo
-    let mainButtonIcon: MainButton.Icon?
-    let needsHoldToInitialize: Bool
+    let signingActionButtonType: SigningActionButtonViewType
 
     private let feeFormatter = CommonFeeFormatter(
         balanceFormatter: .init(),
@@ -44,7 +43,7 @@ final class BlockchainAccountInitializationViewModel: ObservableObject, Floating
     init(
         accountInitializationService: BlockchainAccountInitializationService,
         transactionDispatcher: TransactionDispatcher,
-        tangemIconProvider: any TangemIconProvider,
+        signingActionButtonType: SigningActionButtonViewType,
         tokenItem: TokenItem,
         fee: Fee,
         feeTokenItem: TokenItem,
@@ -64,8 +63,7 @@ final class BlockchainAccountInitializationViewModel: ObservableObject, Floating
         self.onInitialized = onInitialized
 
         feeRowViewModel = DefaultRowViewModel(title: Localization.commonNetworkFeeTitle, detailsType: .none)
-        mainButtonIcon = tangemIconProvider.getMainButtonIcon()
-        needsHoldToInitialize = CommonConfirmTransactionPolicy(dispatcher: transactionDispatcher).needsHoldToConfirm
+        self.signingActionButtonType = signingActionButtonType
 
         updateView(state: .success(fee))
     }

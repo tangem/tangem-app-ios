@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import Testing
+import TangemFoundation
 @testable import Tangem
 
 @MainActor
@@ -113,8 +114,25 @@ struct NewsDataProviderTests {
                 provider.fetchCategories()
             }
 
-            #expect(categories.map(\.id) == [1, 2])
-            #expect(categories.map(\.name) == ["Markets", "Regulation"])
+            #expect(categories.value?.map(\.id) == [1, 2])
+            #expect(categories.value?.map(\.name) == ["Markets", "Regulation"])
+        }
+    }
+
+    @Test("fetchCategories publishes failure when the request fails")
+    func fetchCategoriesPublishesFailure() async throws {
+        let apiService = FakeTangemApiService()
+        apiService.loadNewsCategoriesHandler = {
+            throw TestError.sample
+        }
+
+        let provider = NewsDataProvider(limitPerPage: 1)
+        try await Self.withInjected(apiService) {
+            let categories = await Self.collectCategories(from: provider) {
+                provider.fetchCategories()
+            }
+
+            #expect(categories.isFailure)
         }
     }
 
@@ -266,7 +284,7 @@ private extension NewsDataProviderTests {
     static func collectCategories(
         from provider: NewsDataProvider,
         action: () -> Void
-    ) async -> [NewsDTO.Categories.Item] {
+    ) async -> LoadingResult<[NewsDTO.Categories.Item], any Error> {
         await withCheckedContinuation { continuation in
             var cancellable: AnyCancellable?
 

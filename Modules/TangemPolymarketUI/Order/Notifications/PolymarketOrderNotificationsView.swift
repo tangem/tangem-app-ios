@@ -35,19 +35,19 @@ public struct PolymarketOrderNotificationsView: View {
     private func banner(for notification: PolymarketOrderNotification) -> some View {
         let base = MessageBanner(
             title: AttributedString(notification.title),
-            description: AttributedString(notification.message)
+            description: notification.message.map { AttributedString($0) }
         )
         .variant(notification.variant)
         .glowRing(notification.glowRing)
 
         switch notification {
-        case .awaitingFunds:
+        case .awaitingFunds, .withdrawalInProgress:
             base.slotEnd { Loader().loaderSize(Constants.loaderSize) }
         case .partialFill, .noLiquidity:
             base.slotEnd { infoIcon }
         case .quoteUnavailable:
             base.primaryButton(onRetry.map { .init(title: Localization.commonRetry, action: $0) })
-        case .belowMinOrder, .marketClosed, .regionRestricted:
+        case .withdrawalSent, .withdrawalFailed, .belowMinOrder, .marketClosed, .regionRestricted:
             base
         }
     }

@@ -93,9 +93,7 @@ extension WalletConnectConnectedDAppDetailsViewState.DAppDetails.ConnectionTarge
         case wallet(WCWalletTarget = WCWalletTarget())
         case account(WCAccountTarget)
 
-        struct WCWalletTarget: Equatable {
-            let label = Localization.wcCommonWallet
-        }
+        struct WCWalletTarget: Equatable {}
 
         struct WCAccountTarget: Equatable {
             let label = Localization.accountDetailsTitle

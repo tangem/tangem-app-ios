@@ -181,9 +181,6 @@ protocol TangemApiService: AnyObject {
     /// Reports the known cards and their backup state for a wallet.
     func saveWalletCards(userWalletId: String, cards: WalletCardsDTO.Request) async throws
 
-    /// Retrieves the stored cards and backup state for a wallet.
-    func getWalletCards(userWalletId: String) async throws -> WalletCardsDTO.Response
-
     // MARK: - Accounts
 
     /// - Returns: New revision for optimistic locking and the list of active accounts.
@@ -246,6 +243,18 @@ protocol TangemApiService: AnyObject {
     func rejectJointAccountOperation(
         walletId: String, operationId: String
     ) async throws -> JointAccountsDTO.Response.Operation?
+
+    func getJointOperationsHistory(
+        walletId: String, request: JointAccountsDTO.Request.OperationsHistory
+    ) async throws -> JointAccountsDTO.Response.OperationsHistory
+
+    func getJointOperationsHistoryDelta(
+        walletId: String, request: JointAccountsDTO.Request.OperationsHistoryDelta
+    ) async throws -> JointAccountsDTO.Response.OperationsHistoryDelta
+
+    func getJointOperation(
+        walletId: String, operationId: String, knownETag: String?
+    ) async throws -> (eTag: String?, operation: JointAccountsDTO.Response.HistoryOperation)?
 
     // MARK: - Address Book
 

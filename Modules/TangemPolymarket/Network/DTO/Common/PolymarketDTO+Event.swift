@@ -34,5 +34,15 @@ extension PolymarketDTO {
         let displayMode: String?
 
         let markets: [Market]?
+
+        let teams: [Team]?
+    }
+
+    struct Team: Decodable {
+        let name: String?
+        let abbreviation: String?
+        let alias: String?
+        let logo: String?
+        let ordering: String?
     }
 }

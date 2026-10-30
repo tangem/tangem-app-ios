@@ -14,8 +14,5 @@ protocol DynamicAddressesAnalyticsLogger {
     func logDynamicAddressesEnabled()
     func logButtonDisableDynamicAddresses()
     func logDynamicAddressesDisabled()
-    func logDynamicAddressesNoticeUnavailable()
-    func logDynamicAddressesErrorUnavailable()
     func logTokenNoticeNotEnoughFee(feeCurrencyBalance: Decimal)
-    func logDynamicAddressesNoticeFundsFound()
 }

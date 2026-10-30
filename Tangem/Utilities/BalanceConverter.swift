@@ -23,23 +23,6 @@ struct BalanceConverter {
         return fiatValue
     }
 
-    /// Converts a crypto amount to another crypto via fiat as an intermediary.
-    /// - Parameters:
-    ///   - sourceId: ID of the source crypto asset.
-    ///   - sourceAmount: Amount of the source crypto to convert.
-    ///   - targetId: ID of the target crypto asset.
-    /// - Returns: Equivalent amount in the target crypto.
-    /// - Throws: `BalanceConverterError.cannotConvertToCrypto` if target rate is unavailable.
-    func convertCryptoToCrypto(sourceId: String, sourceAmount: Decimal, targetId: String) async throws -> Decimal {
-        let sourceToFiat = try await convertToFiat(sourceAmount, currencyId: sourceId)
-
-        guard let fiatToTarget = convertToCryptoFrom(fiatValue: sourceToFiat, currencyId: targetId) else {
-            throw BalanceConverterError.cannotConvertToCrypto(currencyId: targetId)
-        }
-
-        return fiatToTarget
-    }
-
     func cryptoToCryptoRate(from sourceAssetId: String, to targetAssetId: String) async throws -> Decimal {
         if sourceAssetId == targetAssetId { return 1 }
 

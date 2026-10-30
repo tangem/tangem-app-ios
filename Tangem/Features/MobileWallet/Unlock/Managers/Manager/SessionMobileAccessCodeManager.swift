@@ -30,7 +30,6 @@ final class SessionMobileAccessCodeManager {
     private let storageManager: MobileAccessCodeStorageManager
 
     private var bag: Set<AnyCancellable> = []
-    private var timersBag: Set<AnyCancellable> = []
 
     init(
         userWalletId: UserWalletId,
@@ -247,10 +246,6 @@ private extension SessionMobileAccessCodeManager {
     }
 
     // Other commands
-
-    func makeUnavailableCommand(state: MobileAccessCodeState.UnavailableState) -> StateCommand {
-        return .update(.unavailable(state))
-    }
 
     func makeValidCommand(context: MobileWalletContext) -> StateCommand {
         return .update(.valid(context))

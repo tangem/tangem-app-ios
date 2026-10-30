@@ -19,6 +19,7 @@ struct SubtitleOwnerResolver {
     let currentUserWalletId: UserWalletId
     let isAccountsMode: Bool
     let contacts: [AddressBookContact]
+    let tangemPayDepositOwners: [TangemPayDepositOwner]
 
     func resolve(for interactionAddress: TransactionViewModel.InteractionAddressType) -> TransactionViewModel.SubtitleOwner? {
         guard let address = counterpartyAddress(from: interactionAddress) else {
@@ -28,13 +29,22 @@ struct SubtitleOwnerResolver {
         return resolve(address: address, blockchain: blockchain)
     }
 
+    func isTangemPayDeposit(_ interactionAddress: TransactionViewModel.InteractionAddressType) -> Bool {
+        guard let address = counterpartyAddress(from: interactionAddress) else {
+            return false
+        }
+
+        return tangemPayDepositOwners.contains { $0.hasDepositAddress(address, on: blockchain) }
+    }
+
     func resolve(address: String, blockchain: Blockchain) -> TransactionViewModel.SubtitleOwner? {
         guard let match = try? WalletModelFinder.findMainWalletModel(
             address: address,
             networkId: blockchain.networkId,
             isTestnet: blockchain.isTestnet
         ) else {
-            return external(address: address, blockchain: blockchain)
+            return tangemPayAccount(address: address, blockchain: blockchain)
+                ?? external(address: address, blockchain: blockchain)
         }
 
         let walletName = match.userWalletModel.name
@@ -60,6 +70,18 @@ struct SubtitleOwnerResolver {
             accountName: account.name,
             accountIcon: iconViewData
         )
+    }
+
+    private func tangemPayAccount(address: String, blockchain: Blockchain) -> TransactionViewModel.SubtitleOwner? {
+        guard let owner = tangemPayDepositOwners.first(where: { $0.hasDepositAddress(address, on: blockchain) }) else {
+            return nil
+        }
+
+        if owner.userWalletId == currentUserWalletId {
+            return .accountInCurrentWallet(name: owner.name, icon: owner.icon)
+        }
+
+        return .accountInOtherWallet(accountName: owner.name, accountIcon: owner.icon)
     }
 
     private func external(address: String, blockchain: Blockchain) -> TransactionViewModel.SubtitleOwner {

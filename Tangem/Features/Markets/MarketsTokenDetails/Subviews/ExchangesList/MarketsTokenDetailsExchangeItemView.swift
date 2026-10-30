@@ -59,17 +59,17 @@ struct MarketsTokenDetailsExchangeItemView: View {
         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.exchangesListExchangeLogo)
     }
 
-    private var trustScoreBadge: TangemBadge {
-        let color: TangemBadge.BadgeColor = switch info.trustScore {
-        case .trusted: .blue
-        case .caution: .yellow
-        case .risky: .red
+    private var trustScoreBadge: some View {
+        let appearance: BadgeAppearance = switch info.trustScore {
+        case .trusted: .info
+        case .caution: .warning
+        case .risky: .error
         }
 
-        return TangemBadge(text: info.trustScore.title, size: .x4)
-            .color(color)
-            .type(.tinted)
-            .shape(.rounded)
+        return Badge(label: info.trustScore.title, accessibilityLabel: nil)
+            .size(.x4)
+            .variant(.tinted)
+            .appearance(appearance)
     }
 }
 

@@ -13,6 +13,10 @@ import TangemAccounts
 struct YieldModuleClaimViewData: Equatable {
     let total: String
     let sections: [Section]
+
+    var rewardsCount: Int {
+        sections.reduce(0) { $0 + $1.rewards.count }
+    }
 }
 
 struct YieldModuleClaimSuccessViewData: Equatable {

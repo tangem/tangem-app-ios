@@ -26,7 +26,7 @@ struct WalletConnectRedesignedRowView: View {
                     .frame(width: 36, height: 36)
             }
             .end(icon: DesignSystem.Icons.ChevronRight.regular20)
-            .onTap(viewModel.action)
+            .onTap(action: viewModel.action)
             .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.detailsButton)
     }
 }

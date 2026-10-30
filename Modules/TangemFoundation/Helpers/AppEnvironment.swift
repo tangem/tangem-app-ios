@@ -54,6 +54,14 @@ public extension AppEnvironment {
         #endif
     }
 
+    var isSnapshotTestHost: Bool {
+        #if DEBUG
+        return ProcessInfo.processInfo.environment["TANGEM_SNAPSHOT_HOST"] == "1"
+        #else
+        return false
+        #endif
+    }
+
     var isInternalOrDebug: Bool {
         isDebug || !isProduction
     }

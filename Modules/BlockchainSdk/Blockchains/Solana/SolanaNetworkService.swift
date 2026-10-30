@@ -173,22 +173,6 @@ public final class SolanaNetworkService: MultiNetworkProvider {
             .eraseToAnyPublisher()
     }
 
-    func transactionFee(numberOfSignatures: Int) -> AnyPublisher<Decimal, Error> {
-        solanaSdk.api.getFees(commitment: nil)
-            .tryMap { [weak self] fee in
-                guard let self = self else {
-                    throw BlockchainSdkError.empty
-                }
-
-                guard let lamportsPerSignature = fee.feeCalculator?.lamportsPerSignature else {
-                    throw BlockchainSdkError.failedToLoadFee
-                }
-
-                return Decimal(lamportsPerSignature) * Decimal(numberOfSignatures) / blockchain.decimalValue
-            }
-            .eraseToAnyPublisher()
-    }
-
     func accountRentFeePerEpoch() -> AnyPublisher<Decimal, Error> {
         // https://docs.solana.com/developing/programming-model/accounts#calculation-of-rent
         let minimumAccountSizeInBytes = Decimal(128)

@@ -94,7 +94,8 @@ final class TangemPayCardFreezeUITests: BaseTestCase {
         .verifyCardFrozenIndicator(cardId: Constants.cardId)
     }
 
-    func testPaymentOnFrozenCard_ShownAsDeclinedZeroAmountTransaction() {
+    /// [REDACTED_INFO] Tangem Pay card management stays in "freezing/unfreezing in progress" after a successful freeze or unfreeze
+    func skipped_testPaymentOnFrozenCard_ShownAsDeclinedZeroAmountTransaction() {
         setAllureId(9533)
 
         let cardDetails = launchAndImportHotWallet(

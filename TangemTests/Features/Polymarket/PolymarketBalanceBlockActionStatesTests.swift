@@ -44,6 +44,20 @@ struct PolymarketBalanceBlockActionStatesTests {
         #expect(states.withdraw == .available)
     }
 
+    @Test("A withdrawal still being processed blocks the next one, however healthy the balance")
+    func pendingWithdrawalBlocksTheNextOne() {
+        let states = makeStates(readiness: .ready(makeReadiness(depositAvailability: .available([target]))), balance: .loaded(10), isWithdrawalPending: true)
+
+        #expect(states.withdraw == .unavailable(.withdrawalInProgress))
+        #expect(states.addFunds == .available)
+    }
+
+    @Test("A pending withdrawal does not outrank an account that is unavailable or still loading")
+    func pendingWithdrawalYieldsToAccountReadiness() {
+        #expect(makeStates(readiness: .unavailable, balance: .loaded(10), isWithdrawalPending: true).withdraw == .unavailable(.accountUnavailable))
+        #expect(makeStates(readiness: .loading, balance: .loaded(10), isWithdrawalPending: true).withdraw == .loading)
+    }
+
     @Test("A zero balance has nothing to withdraw")
     func zeroBalanceCannotBeWithdrawn() {
         let states = makeStates(readiness: prepared, balance: .loaded(0))
@@ -53,23 +67,39 @@ struct PolymarketBalanceBlockActionStatesTests {
 
     @Test("A balance below the bridge minimum cannot be withdrawn, and the reason names the minimum")
     func balanceBelowMinimumCannotBeWithdrawn() {
-        let states = makeStates(readiness: prepared, balance: .loaded(1), minimum: 2)
+        let states = makeStates(readiness: prepared, balance: .loaded(1))
 
         #expect(states.withdraw == .unavailable(.tooSmallBalance(minimumFormatted: PolymarketOrderFormatter.money(2))))
     }
 
+    @Test("The bridge minimum is compared in the account's token, not in dollars")
+    func minimumIsConvertedToTokenBeforeTheComparison() {
+        let states = PolymarketBalanceBlockActionStates(
+            readiness: prepared,
+            collateralBalance: .loaded(3),
+            usdToToken: { $0 * 2 },
+            isWithdrawalPending: false
+        )
+
+        #expect(states.withdraw == .unavailable(.tooSmallBalance(minimumFormatted: PolymarketOrderFormatter.money(4))))
+    }
+
     @Test("A balance exactly at the minimum can be withdrawn")
     func balanceAtMinimumCanBeWithdrawn() {
-        let states = makeStates(readiness: prepared, balance: .loaded(2), minimum: 2)
+        let states = makeStates(readiness: prepared, balance: .loaded(2))
 
         #expect(states.withdraw == .available)
     }
 
-    @Test("Without a known minimum any positive balance can be withdrawn")
-    func anyPositiveBalanceCanBeWithdrawnWithoutAMinimum() {
-        let states = makeStates(readiness: prepared, balance: .loaded(Decimal(string: "0.000001")!), minimum: nil)
+    @Test("Without a known minimum the withdrawal is withheld, whatever the balance says, while add funds follows the deposit")
+    func unknownMinimumWithholdsWithdraw() {
+        let states = makeStates(
+            readiness: .ready(makeReadiness(depositAvailability: .available([target]), withdrawalAvailability: .unavailable)),
+            balance: .loaded(10)
+        )
 
-        #expect(states.withdraw == .available)
+        #expect(states.withdraw == .unavailable(.minimumUnknown))
+        #expect(states.addFunds == .available)
     }
 
     @Test("While the balance reloads or fails, the cached figure decides")
@@ -77,8 +107,8 @@ struct PolymarketBalanceBlockActionStatesTests {
         let tooSmall = TokenBalanceType.Cached(balance: 1, date: Date())
         let enough = TokenBalanceType.Cached(balance: 5, date: Date())
 
-        #expect(makeStates(readiness: prepared, balance: .loading(tooSmall), minimum: 2).withdraw == .unavailable(.tooSmallBalance(minimumFormatted: PolymarketOrderFormatter.money(2))))
-        #expect(makeStates(readiness: prepared, balance: .failure(enough), minimum: 2).withdraw == .available)
+        #expect(makeStates(readiness: prepared, balance: .loading(tooSmall)).withdraw == .unavailable(.tooSmallBalance(minimumFormatted: PolymarketOrderFormatter.money(2))))
+        #expect(makeStates(readiness: prepared, balance: .failure(enough)).withdraw == .available)
     }
 
     @Test("A first load without a cache keeps withdraw waiting")
@@ -119,19 +149,27 @@ private extension PolymarketBalanceBlockActionStatesTests {
         .ready(makeReadiness(depositAvailability: .available([target])))
     }
 
-    func makeReadiness(depositAvailability: PolymarketAccountFundsInteractor.DepositAvailability) -> PolymarketAccountFundsInteractor.Readiness {
+    func makeReadiness(
+        depositAvailability: PolymarketAccountFundsInteractor.DepositAvailability,
+        withdrawalAvailability: PolymarketAccountFundsInteractor.WithdrawalAvailability = .available(minimumUSD: 2)
+    ) -> PolymarketAccountFundsInteractor.Readiness {
         PolymarketAccountFundsInteractor.Readiness(
             depositWalletAddress: "0x1111111111111111111111111111111111111111",
-            collateralMinCheckoutUSD: 2,
-            depositAvailability: depositAvailability
+            depositAvailability: depositAvailability,
+            withdrawalAvailability: withdrawalAvailability
         )
     }
 
     func makeStates(
         readiness: PolymarketAccountFundsInteractor.State,
         balance: TokenBalanceType,
-        minimum: Decimal? = 2
+        isWithdrawalPending: Bool = false
     ) -> PolymarketBalanceBlockActionStates {
-        PolymarketBalanceBlockActionStates(readiness: readiness, collateralBalance: balance, withdrawMinimum: minimum)
+        PolymarketBalanceBlockActionStates(
+            readiness: readiness,
+            collateralBalance: balance,
+            usdToToken: { $0 },
+            isWithdrawalPending: isWithdrawalPending
+        )
     }
 }

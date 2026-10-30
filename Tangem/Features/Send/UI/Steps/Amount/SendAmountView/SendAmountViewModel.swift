@@ -267,13 +267,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func isFiatMode(for field: ActiveAmountField) -> Bool {
-        switch field {
-        case .send: return useFiatCalculation
-        case .receive: return useDestinationFiatCalculation
-        }
-    }
-
     // MARK: - Rate Badges
 
     var sourceRateBadge: RateBadgeConfig? {

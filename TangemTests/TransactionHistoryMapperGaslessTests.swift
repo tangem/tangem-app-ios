@@ -390,14 +390,8 @@ private final class StubGaslessTransactionsNetworkManager: GaslessTransactionsNe
     var cachedFeeRecipientAddress: String?
 
     var availableFeeTokens: [GaslessTransactionsDTO.Response.FeeToken] { [] }
-    var availableFeeTokensPublisher: AnyPublisher<[GaslessTransactionsDTO.Response.FeeToken], Never> {
-        Just([]).eraseToAnyPublisher()
-    }
 
     var availableTronFeeTokens: [GaslessTransactionsDTO.Response.TronFeeToken] { [] }
-    var availableTronFeeTokensPublisher: AnyPublisher<[GaslessTransactionsDTO.Response.TronFeeToken], Never> {
-        Just([]).eraseToAnyPublisher()
-    }
 
     var currentHost: String { "" }
 
@@ -427,5 +421,4 @@ private final class StubGaslessTransactionsNetworkManager: GaslessTransactionsNe
 
     func initialize() {}
     var feeRecipientAddress: String? { cachedFeeRecipientAddress }
-    func preloadFeeRecipientAddress() {}
 }
