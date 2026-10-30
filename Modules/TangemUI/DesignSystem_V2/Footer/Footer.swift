@@ -69,8 +69,16 @@ public struct Footer: View, Setupable {
                     .horizontalLayout(.infinity)
             }
 
-        case .signingButton(let button):
-            button
+        case .signingButton(let button, let secondary):
+            VStack(spacing: Metrics.buttonSpacing) {
+                if let secondary {
+                    secondary
+                        .size(.x12)
+                        .horizontalLayout(.infinity)
+                }
+
+                button
+            }
 
         case .toolbar(let start, let end):
             HStack(spacing: 0) {
