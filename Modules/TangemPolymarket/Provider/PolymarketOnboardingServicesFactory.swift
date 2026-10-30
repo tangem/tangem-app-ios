@@ -37,6 +37,15 @@ public struct PolymarketOnboardingServicesFactory {
         return CommonPolymarketDepositWalletService(provider: provider, environment: environment, walletId: walletId)
     }
 
+    public func makeSessionKeyService(walletId: String) -> PolymarketSessionKeyService {
+        let provider = TangemProvider<PolymarketSessionKeyTarget>(
+            configuration: networkConfiguration,
+            additionalPlugins: backendClockPlugins
+        )
+
+        return CommonPolymarketSessionKeyService(provider: provider, environment: environment, walletId: walletId)
+    }
+
     public func makeGeoblockService() -> PolymarketGeoblockService {
         let provider = TangemProvider<PolymarketGeoblockTarget>(configuration: networkConfiguration)
 
