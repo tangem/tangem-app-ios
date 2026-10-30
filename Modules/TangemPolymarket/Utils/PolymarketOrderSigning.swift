@@ -224,8 +224,4 @@ private extension Character {
     var isASCIIDigit: Bool {
         isASCII && isNumber
     }
-
-    var isASCIIHexDigit: Bool {
-        isASCII && isHexDigit
-    }
 }

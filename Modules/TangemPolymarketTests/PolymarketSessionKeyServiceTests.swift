@@ -32,16 +32,16 @@ struct PolymarketSessionKeyServiceTests {
         #expect(keys.map(\.status) == [.active])
     }
 
-    @Test("An authorization posts the owner's signed batch with the key, the device and the validity as a string")
+    @Test("An authorization posts the owner's signed batch with the granted key, the device and the granted validity as a string")
     func authorizationPostsTheSignedBatch() async throws {
         let (service, baseURL) = Self.makeService(answering: .init(body: #"{"address":"0x5e55","status":"PENDING"}"#))
+        let batch = Self.makeBatch(calls: [Self.grant.call])
 
         let key = try await service.authorize(PolymarketSessionKeyAuthorization(
-            batch: Self.batch,
-            sessionKeyAddress: "0x5e55",
+            batch: batch,
+            grant: Self.grant,
             deviceId: "device-1",
             deviceName: "iPhone 17 Pro",
-            validUntil: Date(timeIntervalSince1970: 1_804_982_400),
             replacesSessionKeyAddress: "0x01d0"
         ))
 
@@ -50,47 +50,49 @@ struct PolymarketSessionKeyServiceTests {
 
         #expect(sent.method == "POST")
         #expect(sent.url?.path == "/api/predictions/v1/wallet/session-keys")
-        #expect(body["ownerAddress"] as? String == Self.batch.ownerAddress)
-        #expect(body["depositWalletAddress"] as? String == Self.batch.depositWalletAddress)
-        #expect(body["sessionKeyAddress"] as? String == "0x5e55")
+        #expect(body["ownerAddress"] as? String == batch.ownerAddress)
+        #expect(body["depositWalletAddress"] as? String == Self.depositWallet)
+        #expect(body["sessionKeyAddress"] as? String == Self.sessionKey)
         #expect(body["deviceId"] as? String == "device-1")
         #expect(body["deviceName"] as? String == "iPhone 17 Pro")
         #expect(body["validUntil"] as? String == "1804982400")
-        #expect(body["nonce"] as? String == Self.batch.nonce)
-        #expect(body["deadline"] as? String == Self.batch.deadline)
-        #expect(body["signature"] as? String == Self.batch.signature)
+        #expect(body["nonce"] as? String == batch.nonce)
+        #expect(body["deadline"] as? String == batch.deadline)
+        #expect(body["signature"] as? String == batch.signature)
         #expect(body["replacesSessionKeyAddress"] as? String == "0x01d0")
-        #expect((body["calls"] as? [[String: String]]) == [["target": "0xdef0", "value": "0", "data": "0x24017fae"]])
+        #expect((body["calls"] as? [[String: String]]) == [["target": Self.depositWallet, "value": "0", "data": "0x24017fae"]])
         #expect(key.status == .pending)
     }
 
     @Test("A revocation posts the owner's signed batch for the key to the revocations endpoint")
     func revocationPostsTheSignedBatch() async throws {
         let (service, baseURL) = Self.makeService(answering: .init(body: #"{"address":"0x5e55","status":"REVOKING"}"#))
+        let batch = Self.makeBatch(calls: [Self.revokeCall])
 
-        _ = try await service.revoke(PolymarketSessionKeyRevocation(batch: Self.batch, sessionKeyAddress: "0x5e55"))
+        _ = try await service.revoke(PolymarketSessionKeyRevocation(batch: batch, sessionKeyAddress: Self.sessionKey))
 
         let sent = try #require(PolymarketStubURLProtocol.sentRequests(to: baseURL).first)
         let body = try #require(try JSONSerialization.jsonObject(with: sent.body) as? [String: Any])
 
         #expect(sent.method == "POST")
         #expect(sent.url?.path == "/api/predictions/v1/wallet/session-keys/revocations")
-        #expect(body["ownerAddress"] as? String == Self.batch.ownerAddress)
-        #expect(body["depositWalletAddress"] as? String == Self.batch.depositWalletAddress)
-        #expect(body["sessionKeyAddress"] as? String == "0x5e55")
-        #expect(body["nonce"] as? String == Self.batch.nonce)
-        #expect(body["deadline"] as? String == Self.batch.deadline)
-        #expect(body["signature"] as? String == Self.batch.signature)
-        #expect((body["calls"] as? [[String: String]]) == [["target": "0xdef0", "value": "0", "data": "0x24017fae"]])
+        #expect(body["ownerAddress"] as? String == batch.ownerAddress)
+        #expect(body["depositWalletAddress"] as? String == Self.depositWallet)
+        #expect(body["sessionKeyAddress"] as? String == Self.sessionKey)
+        #expect(body["nonce"] as? String == batch.nonce)
+        #expect(body["deadline"] as? String == batch.deadline)
+        #expect(body["signature"] as? String == batch.signature)
+        #expect((body["calls"] as? [[String: String]]) == [["target": Self.depositWallet, "value": "0", "data": Self.revokeCall.data]])
         #expect(body.count == 7)
     }
 
     @Test("An answer of an unexpected shape is reported as a decoding failure, not as a lost connection")
-    func malformedAnswerIsADecodingFailure() async {
+    func malformedAnswerIsADecodingFailure() async throws {
         let (service, _) = Self.makeService(answering: .init(body: #"{"unexpected":true}"#))
+        let revocation = try PolymarketSessionKeyRevocation(batch: Self.makeBatch(calls: [Self.revokeCall]), sessionKeyAddress: Self.sessionKey)
 
         do {
-            _ = try await service.revoke(PolymarketSessionKeyRevocation(batch: Self.batch, sessionKeyAddress: "0x5e55"))
+            _ = try await service.revoke(revocation)
             Issue.record("Expected a decoding failure")
         } catch {
             guard case .other(.decoding) = error else {
@@ -141,15 +143,30 @@ struct PolymarketSessionKeyServiceTests {
 
 private extension PolymarketSessionKeyServiceTests {
     static let walletId = "wallet-1"
+    static let sessionKey = "0x5e55000000000000000000000000000000000001"
+    static let depositWallet = "0xdef0000000000000000000000000000000000002"
 
-    static let batch = PolymarketRelayedBatch(
-        ownerAddress: "0x0aaa000000000000000000000000000000000001",
-        depositWalletAddress: "0xdef0000000000000000000000000000000000002",
-        nonce: "7",
-        deadline: "1789430400",
-        calls: [PolymarketRelayedBatch.Call(target: "0xdef0", data: "0x24017fae")],
-        signature: "0x51"
+    static let grant = PolymarketSessionKeyGrant(
+        sessionKeyAddress: sessionKey,
+        validUntil: Date(timeIntervalSince1970: 1_804_982_400),
+        call: PolymarketRelayedBatch.Call(target: depositWallet, data: "0x24017fae")
     )
+
+    static let revokeCall = PolymarketRelayedBatch.Call(
+        target: depositWallet,
+        data: "0xe63f952f" + "0000000000000000000000005e55000000000000000000000000000000000001"
+    )
+
+    static func makeBatch(calls: [PolymarketRelayedBatch.Call]) -> PolymarketRelayedBatch {
+        PolymarketRelayedBatch(
+            ownerAddress: "0x0aaa000000000000000000000000000000000001",
+            depositWalletAddress: depositWallet,
+            nonce: "7",
+            deadline: "1789430400",
+            calls: calls,
+            signature: "0x51"
+        )
+    }
 
     static func makeService(answering response: PolymarketStubURLProtocol.Response) -> (any PolymarketSessionKeyService, URL) {
         let baseURL = PolymarketStubURLProtocol.makeBaseURL(answering: response)
