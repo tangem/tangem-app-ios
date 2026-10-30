@@ -15,8 +15,8 @@ public struct FooterContent {
         FooterContent(kind: .buttons(primary: primary, secondary: secondary))
     }
 
-    public static func signingButton(_ button: SigningActionButtonView) -> FooterContent {
-        FooterContent(kind: .signingButton(button))
+    public static func signingButton(_ button: SigningActionButtonView, secondary: Button? = nil) -> FooterContent {
+        FooterContent(kind: .signingButton(button, secondary: secondary))
     }
 
     public static func toolbar(start: Button, end: Button) -> FooterContent {
@@ -39,7 +39,7 @@ public struct FooterContent {
 extension FooterContent {
     enum Kind {
         case buttons(primary: Button, secondary: Button?)
-        case signingButton(SigningActionButtonView)
+        case signingButton(SigningActionButtonView, secondary: Button?)
         case toolbar(start: Button?, end: Button?)
         case search(Search)
     }
