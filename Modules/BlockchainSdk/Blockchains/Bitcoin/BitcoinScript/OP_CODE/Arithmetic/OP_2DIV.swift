@@ -26,5 +26,4 @@ import Foundation
 /// The input is divided by 2. disabled.
 struct Op2Div: OpCodeProtocol {
     var value: UInt8 { return 0x8e }
-    var name: String { return "OP_2DIV" }
 }

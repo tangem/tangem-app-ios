@@ -11,7 +11,7 @@ struct SwapFlowConfiguration {
     /// When `false`, the source/receive reverse button is hidden.
     let isPairReversalEnabled: Bool
     /// What the source token selector offers.
-    let sourceTokenSelection: TokenSelection
+    let sourceTokenSelection: SourceTokenSelection
     /// How the receive side may change.
     let receiveTokenSelection: ReceiveTokenSelection
     /// Overrides the swap summary navigation title.
@@ -19,9 +19,15 @@ struct SwapFlowConfiguration {
     var offeredReceiveTokens: [TokenItem] = []
     var onTransactionSent: ((SwapSentTransaction) -> Void)?
 
+    var isPairReversalAvailable: Bool {
+        isPairReversalEnabled
+            && sourceTokenSelection.isSelectionEnabled
+            && receiveTokenSelection.isSelectionEnabled
+    }
+
     static let `default` = SwapFlowConfiguration(
         isPairReversalEnabled: true,
-        sourceTokenSelection: .unrestricted,
+        sourceTokenSelection: .selectable(.unrestricted),
         receiveTokenSelection: .selectable(.unrestricted),
         summaryTitle: nil
     )
@@ -54,6 +60,32 @@ extension SwapFlowConfiguration {
             switch self {
             case .unrestricted, .filtered: true
             case .restricted(_, let allowsMarketsTokens): allowsMarketsTokens
+            }
+        }
+    }
+
+    enum SourceTokenSelection {
+        case selectable(TokenSelection)
+        case fixed
+
+        var isSelectionEnabled: Bool {
+            switch self {
+            case .selectable: true
+            case .fixed: false
+            }
+        }
+
+        var walletsProvider: (any TokenSelectorWalletsProvider)? {
+            switch self {
+            case .selectable(let selection): selection.walletsProvider
+            case .fixed: FilteredTokenSelectorWalletsProvider(base: .cryptoJointAccounts(), isIncluded: { _ in false })
+            }
+        }
+
+        var allowsMarketsTokens: Bool {
+            switch self {
+            case .selectable(let selection): selection.allowsMarketsTokens
+            case .fixed: false
             }
         }
     }

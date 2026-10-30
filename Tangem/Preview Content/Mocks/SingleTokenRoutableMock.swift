@@ -11,11 +11,7 @@ import Combine
 import struct TangemUIUtils.AlertBinder
 
 class SingleTokenRoutableMock: SingleTokenRoutable {
-    var errorAlertPublisher: AnyPublisher<AlertBinder?, Never> { .just(output: nil) }
-
     func openReceive(walletModel: any WalletModel) {}
-
-    func openBuy(walletModel: any WalletModel) {}
 
     func openSend(walletModel: any WalletModel) {}
 
@@ -26,8 +22,6 @@ class SingleTokenRoutableMock: SingleTokenRoutable {
     func openStaking(walletModel: any WalletModel) {}
 
     func openSell(for walletModel: any WalletModel) {}
-
-    func openSendToSell(with request: SellCryptoRequest, for walletModel: any WalletModel) {}
 
     func openExplorer(at url: URL, for walletModel: any WalletModel) {}
 

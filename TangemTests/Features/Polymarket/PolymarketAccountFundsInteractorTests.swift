@@ -101,11 +101,6 @@ private struct OwnerAddressProviderStub: PolymarketOwnerAddressProviding {
     func getOwnerAddress() -> String? {
         address
     }
-
-    func deriveOwnerAddress() async throws(PolymarketDerivationError) -> String {
-        guard let address else { throw .missingWallet }
-        return address
-    }
 }
 
 private final class FirstAttemptFailsBridgeStub: PolymarketBridgeService {
@@ -145,8 +140,18 @@ private enum StubError: Error {
 // MARK: - Fixtures
 
 private extension PolymarketAccountFundsInteractor.State {
+    var depositWalletAddress: String? {
+        if case .ready(let readiness) = self { return readiness.depositWalletAddress }
+        return nil
+    }
+
     var depositAvailability: PolymarketAccountFundsInteractor.DepositAvailability? {
         if case .ready(let readiness) = self { return readiness.depositAvailability }
+        return nil
+    }
+
+    var withdrawalAvailability: PolymarketAccountFundsInteractor.WithdrawalAvailability? {
+        if case .ready(let readiness) = self { return readiness.withdrawalAvailability }
         return nil
     }
 
@@ -220,14 +225,16 @@ private func makeInteractor(
     configuration: ConfigurationServiceSpy = ConfigurationServiceSpy(),
     walletService: DepositWalletServiceStub = DepositWalletServiceStub(),
     ownerAddressProvider: OwnerAddressProviderStub = OwnerAddressProviderStub(),
-    supportedBlockchains: Set<Blockchain> = supportedBlockchains
+    supportedBlockchains: Set<Blockchain> = supportedBlockchains,
+    sessionHealth: PolymarketSessionHealthChecking? = nil
 ) -> PolymarketAccountFundsInteractor {
     PolymarketAccountFundsInteractor(
         bridgeService: bridge,
         configurationService: configuration,
         walletService: walletService,
         ownerAddressProvider: ownerAddressProvider,
-        supportedBlockchains: supportedBlockchains
+        supportedBlockchains: supportedBlockchains,
+        sessionHealth: sessionHealth
     )
 }
 
@@ -314,20 +321,45 @@ struct PolymarketAddFundsPreparationTests {
         await interactor.prepare()
 
         #expect(interactor.state.depositAvailability == .unavailable)
-        #expect(interactor.state.collateralMinCheckoutUSD == 2)
+        #expect(interactor.state.withdrawalAvailability == .available(minimumUSD: 2))
     }
 
-    @Test("A bridge that stops listing USDC on Polygon leaves no withdrawal floor to enforce")
+    @Test("A bridge that stops listing USDC on Polygon leaves the withdrawal minimum unknown, so the withdrawal is withheld")
     func withdrawalFloorNeedsTheCollateralAsset() async {
         let interactor = makeInteractor(bridge: BridgeServiceStub(assets: [.usdcBase]))
 
         await interactor.prepare()
 
-        #expect(interactor.state.collateralMinCheckoutUSD == nil)
+        #expect(interactor.state.withdrawalAvailability == .unavailable)
+        #expect(interactor.state.depositWalletAddress != nil)
     }
 
-    @Test("A bridge that lists no asset the app offers withholds the deposit without blocking a withdrawal")
-    func depositWithheldWhenNotAccepted() async {
+    @Test("Without USDC on Polygon the deposit is withheld even though the bridge accepts USDC elsewhere")
+    func depositNeedsUSDCOnPolygon() async {
+        let interactor = makeInteractor(bridge: BridgeServiceStub(assets: [.usdcBase, .usdcSolana]))
+
+        await interactor.prepare()
+
+        #expect(interactor.state.depositAvailability == .unavailable)
+        #expect(interactor.state.depositWalletAddress != nil)
+    }
+
+    @Test("Without an EVM funding address the deposit is withheld even though a Solana target could be built")
+    func depositNeedsTheEVMFundingAddress() async {
+        let bridge = BridgeServiceStub(
+            assets: [.usdcPolygon, .usdcSolana],
+            fundingAddresses: PolymarketBridgeAddresses(addresses: [.svm: solanaFundingAddress])
+        )
+
+        let interactor = makeInteractor(bridge: bridge)
+        await interactor.prepare()
+
+        #expect(interactor.state.depositAvailability == .unavailable)
+        #expect(interactor.state.withdrawalAvailability == .available(minimumUSD: 2))
+    }
+
+    @Test("A bridge that lists no asset the app offers withholds both flows but keeps the account prepared")
+    func bothFlowsWithheldWhenNotAccepted() async {
         let other = PolymarketSupportedAsset.make(
             chainId: "8453",
             symbol: "USDC",
@@ -339,16 +371,18 @@ struct PolymarketAddFundsPreparationTests {
         await interactor.prepare()
 
         #expect(interactor.state.depositTargets.first == nil)
+        #expect(interactor.state.withdrawalAvailability == .unavailable)
         #expect(interactor.state.depositWalletAddress == derivedDepositWallet)
     }
 
-    @Test("A failing bridge withholds the deposit without blocking a withdrawal")
-    func depositWithheldWhenBridgeFails() async {
+    @Test("A failing bridge withholds both flows but keeps the account prepared")
+    func bothFlowsWithheldWhenBridgeFails() async {
         let interactor = makeInteractor(bridge: BridgeServiceStub(assetsError: StubError.offline))
 
         await interactor.prepare()
 
         #expect(interactor.state.depositTargets.first == nil)
+        #expect(interactor.state.withdrawalAvailability == .unavailable)
         #expect(interactor.state.depositWalletAddress == derivedDepositWallet)
     }
 
@@ -500,6 +534,32 @@ struct PolymarketAddFundsDepositWalletTests {
         await interactor.prepare()
 
         #expect(interactor.state == .unavailable)
+    }
+
+    @Test("A wallet the backend has taken back from ready to trade asks for a reconnect instead of offering add funds")
+    func notReadyWalletAsksForAReconnect() async {
+        let sessionHealth = PolymarketSessionHealthSpy(verdict: .reconnectRequired)
+        let interactor = makeInteractor(
+            walletService: DepositWalletServiceStub(status: .deployed),
+            sessionHealth: sessionHealth
+        )
+
+        await interactor.prepare()
+
+        #expect(interactor.state == .unavailable)
+        #expect(sessionHealth.reportedStatuses == [.deployed])
+    }
+
+    @Test("A ready wallet never troubles the session health")
+    func readyWalletLeavesTheSessionAlone() async {
+        let sessionHealth = PolymarketSessionHealthSpy(verdict: .ready)
+        let interactor = makeInteractor(sessionHealth: sessionHealth)
+
+        await interactor.prepare()
+
+        #expect(interactor.state.depositTargets.isEmpty == false)
+        #expect(sessionHealth.reportedStatuses.isEmpty)
+        #expect(sessionHealth.verifyCalls == 0)
     }
 
     @Test("An unreachable backend leaves add funds unavailable rather than funding unverified")

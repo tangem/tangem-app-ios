@@ -106,10 +106,6 @@ extension NFTSendWalletModelProxy: WalletModel {
         .empty
     }
 
-    var qrReceiveMessage: String {
-        mainTokenWalletModel.qrReceiveMessage
-    }
-
     var isDemo: Bool {
         // By definition, NFT assets can't be used in demo
         false
@@ -210,10 +206,6 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     var fiatAvailableBalanceProvider: TokenBalanceProvider {
         mainTokenWalletModel.fiatAvailableBalanceProvider
-    }
-
-    var fiatStakingBalanceProvider: TokenBalanceProvider {
-        mainTokenWalletModel.stakingBalanceProvider
     }
 
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider {
@@ -332,11 +324,6 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> {
         mainTokenWalletModel.pendingTransactionPublisher
-    }
-
-    var isEmptyIncludingPendingIncomingTxs: Bool {
-        // The presence of an NFT asset implicitly means that we have a positive balance
-        false
     }
 
     var hasRent: Bool {

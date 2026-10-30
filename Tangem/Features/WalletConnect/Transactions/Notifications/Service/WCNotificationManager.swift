@@ -33,13 +33,4 @@ class WCNotificationManager {
     func currentFeeValidationInputs(buttonAction: NotificationView.NotificationButtonTapAction? = nil) -> [NotificationViewInput] {
         feeNotifications.map { notificationsFactory.buildNotificationInput(for: $0, buttonAction: buttonAction) }
     }
-
-    var currentSimulationValidationInputs: [NotificationViewInput] {
-        simulationNotifications.map { notificationsFactory.buildNotificationInput(for: $0) }
-    }
-
-    func clearAllNotifications() {
-        feeNotifications.removeAll()
-        simulationNotifications.removeAll()
-    }
 }

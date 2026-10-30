@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Combine
+import TangemLocalization
 import TangemUI
 
 final class TokenSelectorItemViewModel: ObservableObject, Identifiable {
@@ -21,6 +22,22 @@ final class TokenSelectorItemViewModel: ObservableObject, Identifiable {
     @Published var fiatBalance: LoadableBalanceView.State
 
     let action: (TokenSelectorItem.AvailabilityType) -> Void
+
+    var secondaryLeadingText: String {
+        switch availabilityType {
+        case .available, .unavailable(.unavailableForSend):
+            symbol
+        case .unavailable(.unavailableForOnramp):
+            Localization.tokensListUnavailableToPurchaseHeader
+        case .unavailable(.unavailableForSwap(.sourceState(.jointAccountsComingSoon))),
+             .unavailable(.unavailableForSell(.jointAccountsComingSoon)):
+            Localization.commonComingSoon
+        case .unavailable(.unavailableForSwap):
+            Localization.tokensListUnavailableToSwapSourceHeader
+        case .unavailable(.unavailableForSell):
+            Localization.tokensListUnavailableToSellHeader
+        }
+    }
 
     init(
         id: WalletModelId,
@@ -62,8 +79,9 @@ extension TokenSelectorItem.AvailabilityType {
         switch self {
         case .available: false
         case .unavailable(.unavailableForSwap(.noAddress)): true
-        case .unavailable(.unavailableForSwap(.swapState(.customToken))): true
-        case .unavailable(.unavailableForSwap(.swapState)): false
+        case .unavailable(.unavailableForSwap(.sourceState(.customToken))): true
+        case .unavailable(.unavailableForSwap(.receiveState(.customToken))): true
+        case .unavailable(.unavailableForSwap(.sourceState)), .unavailable(.unavailableForSwap(.receiveState)): false
         case .unavailable(.unavailableForSell(.jointAccountsComingSoon)): false
         case .unavailable(.unavailableForOnramp), .unavailable(.unavailableForSell), .unavailable(.unavailableForSend): true
         }
@@ -80,6 +98,7 @@ extension TokenSelectorItemViewModel {
 
     enum SwapUnavailabilityReason {
         case noAddress
-        case swapState(TokenActionAvailabilityProvider.SwapActionAvailabilityStatus)
+        case sourceState(TokenActionAvailabilityProvider.SwapSourceActionAvailabilityStatus)
+        case receiveState(TokenActionAvailabilityProvider.SwapReceiveActionAvailabilityStatus)
     }
 }

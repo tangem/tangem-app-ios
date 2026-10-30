@@ -118,6 +118,30 @@ struct PolymarketOrderGateTests {
         #expect(gate.amountCaption == .notEnoughForFees)
     }
 
+    // MARK: - While quoting
+
+    @Test("A covered amount keeps the button ready while its quote is on the way")
+    func coveredAmountStaysReadyWhileQuoting() {
+        let gate = PolymarketOrderGate(state: .stub(quoteState: .loading, enteredAmount: 100, balance: 200), intent: Self.buyIntent)
+
+        #expect(!gate.isPrimaryButtonEnabled)
+        #expect(gate.isPrimaryButtonEnabledWhileQuoting)
+    }
+
+    @Test("An amount above the balance stays blocked while its quote is on the way")
+    func uncoveredAmountStaysBlockedWhileQuoting() {
+        let gate = PolymarketOrderGate(state: .stub(quoteState: .loading, enteredAmount: 100, balance: 50), intent: Self.buyIntent)
+
+        #expect(!gate.isPrimaryButtonEnabledWhileQuoting)
+    }
+
+    @Test("A quote that has arrived is judged by the quote, not by the waiting rule")
+    func arrivedQuoteIsNotWaiting() {
+        let gate = PolymarketOrderGate(state: .stub(quote: .stub(status: .full)), intent: Self.buyIntent)
+
+        #expect(!gate.isPrimaryButtonEnabledWhileQuoting)
+    }
+
     // MARK: - Selling
 
     @Test("Selling more shares than the position holds is refused")
@@ -421,7 +445,10 @@ extension PolymarketOrderQuote {
             minOrderSize: minOrderSize,
             minOrderAmount: minOrderAmount,
             tickSize: Decimal(string: "0.001")!,
-            isLive: isLive
+            isLive: isLive,
+            version: .v1,
+            exchange: "0xE111180000d2663C0091e4f400237545B87B996B",
+            signingDomainVersion: "2"
         )
     }
 }

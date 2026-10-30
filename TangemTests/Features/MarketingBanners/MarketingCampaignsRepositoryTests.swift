@@ -113,8 +113,7 @@ final class MarketingCampaignsRepositoryTests: LeakTrackingTestSuite {
             #expect(apiSpy.recordedRequests == [expected])
 
             // Wait out the rest of the fire-and-forget load (apply + persist): a straggler disk write
-            // would corrupt the snapshot seeded by the next test, and the still-running task would trip
-            // the leak check on the tracked repository.
+            // would corrupt the snapshot seeded by the next test.
             let persisted = await waitUntilConditionMet { [self] in
                 diskSnapshot()?.keys.contains(kind.rawValue) == true
             }

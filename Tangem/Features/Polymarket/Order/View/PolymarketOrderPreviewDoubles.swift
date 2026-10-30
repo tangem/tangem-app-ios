@@ -42,15 +42,23 @@ final class PolymarketOrderPreviewAPIProvider: PolymarketAPIProvider {
     }
 
     func positions(request: PolymarketPositionsRequest) async throws -> PolymarketPositionsPage {
-        PolymarketPositionsPage(positions: [], receivedCount: 0, hasNext: false)
+        PolymarketPositionsPage(positions: [], receivedCount: 0, nextCursor: nil)
     }
 
     func closedPositions(request: PolymarketClosedPositionsRequest) async throws -> PolymarketClosedPositionsPage {
-        PolymarketClosedPositionsPage(positions: [], receivedCount: 0, hasNext: false)
+        PolymarketClosedPositionsPage(positions: [], receivedCount: 0, nextCursor: nil)
     }
 
     func positionOutcome(request: PolymarketPositionOutcomeRequest) async throws -> PolymarketPosition? {
         nil
+    }
+
+    func activity(request: PolymarketActivityRequest) async throws -> PolymarketActivityPage {
+        PolymarketActivityPage(records: [], receivedCount: 0, nextCursor: nil)
+    }
+
+    func reconcileDeposits(depositWalletAddress: String) async throws -> PolymarketDepositsScan {
+        PolymarketDepositsScan(state: .scanning, retryAfter: 0)
     }
 }
 
@@ -91,6 +99,19 @@ extension PolymarketOrderQuote {
         minOrderSize: 5,
         minOrderAmount: 1,
         tickSize: Decimal(string: "0.001")!,
-        isLive: false
+        isLive: false,
+        version: .v1,
+        exchange: "0xE111180000d2663C0091e4f400237545B87B996B",
+        signingDomainVersion: "2"
     )
+}
+
+struct PolymarketOrderPreviewPlacementService: PolymarketOrderPlacementService {
+    func place(
+        quote: PolymarketOrderQuote,
+        market: PolymarketMarket,
+        outcome: PolymarketOutcome
+    ) async throws -> PolymarketOrderPlacement {
+        throw CancellationError()
+    }
 }

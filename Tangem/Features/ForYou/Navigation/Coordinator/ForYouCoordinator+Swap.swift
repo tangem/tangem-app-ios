@@ -8,6 +8,7 @@
 import TangemFoundation
 import TangemLocalization
 import TangemUI
+import struct TangemUIUtils.AlertBinder
 
 @MainActor
 extension ForYouCoordinator {
@@ -37,14 +38,13 @@ extension ForYouCoordinator {
         Task { @MainActor in action() }
     }
 
-    func openSwap(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) {
-        guard let parameters = SwapPredefinedParametersHelper().makeParameters(
+    func openSwap(walletModel: any WalletModel, userWalletInfo: UserWalletInfo, direction: SwapDirection) {
+        let builder = TokenDetailsSwapPredefinedParametersBuilder(
             walletModel: walletModel,
             userWalletInfo: userWalletInfo,
-            position: .automatic
-        ) else {
-            return
-        }
+            direction: direction
+        )
+        let parameters = builder.make()
 
         presentSwap(parameters: parameters)
     }
@@ -94,14 +94,18 @@ private extension ForYouCoordinator {
         let userWalletInfo = userWalletModel.userWalletInfo
         let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
 
-        guard availabilityProvider.isSwapAvailable else {
-            if let alert = TokenActionAvailabilityAlertBuilder().alert(for: availabilityProvider.swapAvailability) {
-                alertPresenter.present(alert: alert)
-            }
+        let direction = SwapDirection.build(for: walletModel)
+        let swapUnavailableAlert: AlertBinder? = switch direction {
+        case .from: TokenActionAvailabilityAlertBuilder().alert(for: availabilityProvider.swapSourceAvailability())
+        case .to: TokenActionAvailabilityAlertBuilder().alert(for: availabilityProvider.swapReceiveAvailability())
+        }
+
+        if let swapUnavailableAlert {
+            alertPresenter.present(alert: swapUnavailableAlert)
             return
         }
 
-        openSwap(walletModel: walletModel, userWalletInfo: userWalletInfo)
+        openSwap(walletModel: walletModel, userWalletInfo: userWalletInfo, direction: direction)
     }
 
     @MainActor

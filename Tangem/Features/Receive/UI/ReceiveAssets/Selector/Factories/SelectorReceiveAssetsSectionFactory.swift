@@ -10,8 +10,6 @@ import Foundation
 import TangemLocalization
 
 protocol SelectorReceiveAssetsSectionFactory {
-    var analyticsLogger: ReceiveAnalyticsLogger { get }
-
     func makeSections(from assets: [ReceiveAddressType]) -> [SelectorReceiveAssetsSection]
 }
 

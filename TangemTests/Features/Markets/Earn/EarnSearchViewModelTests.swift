@@ -55,8 +55,8 @@ private extension EarnSearchViewModelTests {
     func makeSUT(searchProvider: some FeedSearchProvider<EarnTokenModel>) -> SUT {
         let sut = SUT(
             query: query.eraseToAnyPublisher(),
-            history: HistoryProviderStub(),
             router: RouterStub(),
+            portfolioProvider: FeedSearchPortfolioProvider(query: query.eraseToAnyPublisher(), onSelect: { _ in }),
             searchProvider: searchProvider
         )
 
@@ -116,19 +116,8 @@ private final class SearchProviderStub: FeedSearchProvider {
     }
 }
 
-private final class HistoryProviderStub: FeedSearchHistoryProvider {
-    var historyPublisher: AnyPublisher<FeedSearchHistory, Never> {
-        Empty<FeedSearchHistory, Never>(completeImmediately: false).eraseToAnyPublisher()
-    }
-
-    func save(query: String) {}
-    func remove(_ query: FeedRecentQuery) {}
-    func clear() {}
-}
-
 private final class RouterStub: EarnFeedRoutable {
     func routeOnTokenResolved(_ resolution: EarnTokenResolution, source: EarnOpportunitySource) {}
-    func openPortfolioToken(_ walletModel: any WalletModel) {}
     func openNetworksFilter() {}
     func openTypesFilter() {}
 }

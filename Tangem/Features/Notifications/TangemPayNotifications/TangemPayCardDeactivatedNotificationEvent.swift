@@ -30,7 +30,7 @@ extension TangemPayCardDeactivatedNotificationEvent {
         .init(
             iconType: .image(DesignSystem.Icons.Error.regular20),
             renderingMode: .template,
-            color: .Tangem.Graphic.Neutral.primary,
+            color: DesignSystem.Color.iconPrimary,
             isLeading: true
         )
     }

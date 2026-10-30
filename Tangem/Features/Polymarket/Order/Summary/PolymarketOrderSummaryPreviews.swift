@@ -7,7 +7,7 @@
 //
 
 import SwiftUI
-import TangemPolymarket
+import TangemUI
 
 // MARK: - Previews
 
@@ -26,18 +26,9 @@ private extension PolymarketOrderSummaryViewModel {
         PolymarketOrderSummaryViewModel(
             model: .preview(outcomeIndex: outcomeIndex),
             account: nil,
-            placementService: PolymarketOrderPlacementServiceStub(),
+            placementService: PolymarketOrderPreviewPlacementService(),
+            signingButtonType: .requiredNFCInteraction,
             coordinator: nil
         )
-    }
-}
-
-private struct PolymarketOrderPlacementServiceStub: PolymarketOrderPlacementService {
-    func place(
-        quote: PolymarketOrderQuote,
-        market: PolymarketMarket,
-        outcome: PolymarketOutcome
-    ) async throws -> PolymarketOrderPlacement {
-        throw CancellationError()
     }
 }

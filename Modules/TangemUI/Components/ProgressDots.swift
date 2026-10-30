@@ -19,7 +19,7 @@ public struct ProgressDots: View {
     @State private var animation2: Bool = false
     @State private var animation3: Bool = false
 
-    public init(style: Style, color: Color = Color.Tangem.Graphic.Status.accent) {
+    public init(style: Style, color: Color = DesignSystem.Color.iconAccentBlue) {
         self.style = style
         self.color = color
         _circleSizeSide = ScaledMetric(wrappedValue: style.size)

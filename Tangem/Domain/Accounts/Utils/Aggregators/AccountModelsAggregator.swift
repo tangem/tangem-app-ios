@@ -71,10 +71,6 @@ extension AccountModelsAggregator where Selectors == any AccountModelsSelector<M
         models(from: accountModelsManager.accountModels)
     }
 
-    func models(from userWalletModels: [any UserWalletModel]) -> Models {
-        userWalletModels.reduce(into: Models()) { $0.append(contentsOf: models(from: $1.accountModelsManager)) }
-    }
-
     func modelsPublisher(from accountModelsManager: AccountModelsManager) -> AnyPublisher<Models, Never> {
         selectors.selectedPublisher(from: accountModelsManager.accountModelsPublisher)
     }

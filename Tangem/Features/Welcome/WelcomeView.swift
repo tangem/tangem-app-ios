@@ -67,6 +67,12 @@ struct WelcomeView: View {
             )
         )
         .environment(\.topNavigationDrawsBarBackground, false)
+        .disabled(viewModel.isProcessing)
+        .overlay {
+            if viewModel.isProcessing {
+                processingOverlay
+            }
+        }
         .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 
@@ -140,17 +146,33 @@ struct WelcomeView: View {
 
     private var footerAttributedString: AttributedString {
         let terms = Localization.introductionTermsOfService
-        var string = AttributedString(Localization.introductionTermsOfServiceConsent(terms))
+        let privacy = Localization.commonPrivacyPolicy
+        var string = AttributedString(Localization.introductionLegal(terms, privacy))
         string.setFontStyle(DesignSystem.Font.captionMediumToken)
         string.foregroundColor = DesignSystem.Color.textStaticDarkSecondary
 
         if let range = string.range(of: terms) {
             string[range].foregroundColor = DesignSystem.Color.textStaticDarkPrimary
-            string[range].font = Font.system(size: 12, weight: .semibold)
             string[range].link = WelcomeLegalDocument.termsOfService.url
         }
 
+        if let range = string.range(of: privacy) {
+            string[range].foregroundColor = DesignSystem.Color.textStaticDarkPrimary
+            string[range].link = WelcomeLegalDocument.privacyPolicy.url
+        }
+
         return string
+    }
+
+    private var processingOverlay: some View {
+        ZStack {
+            DesignSystem.Color.overlayModal
+                .ignoresSafeArea(edges: .all)
+
+            Loader()
+                .loaderColor(DesignSystem.Color.iconSecondary)
+                .loaderSize(.size32)
+        }
     }
 }
 

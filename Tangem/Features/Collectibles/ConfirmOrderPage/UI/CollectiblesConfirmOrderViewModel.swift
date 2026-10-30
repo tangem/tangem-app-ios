@@ -8,7 +8,9 @@
 
 import Combine
 import Foundation
+import SwiftUI
 import TangemCollectibles
+import TangemFoundation
 import TangemLocalization
 
 @MainActor
@@ -19,18 +21,38 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     private let price: Decimal
     private let platformFee: Decimal
     private let total: Decimal
-    private let buybackRate: Decimal
-    private let openingVideoURL: URL?
+    private let isTurboModeOn: Bool
     private let purchaseInteractor: any CollectiblesPackPurchaseInteractor
+    private let revealAssetsPreloader: any CollectiblesRevealAssetsPreloader
+    private let delayProvider: any PollDelayProvider
     private let refreshBalance: () async -> Void
+
+    private weak var routable: (any CollectiblesConfirmOrderRoutable)?
 
     private var balanceState: BalanceState = .loading
     private var orderPhase: OrderPhase = .idle
+    private var revealColorScheme: ColorScheme?
     private var bag = Set<AnyCancellable>()
     private var errorDismissTask: Task<Void, Error>?
 
     let artworkURL: URL?
     let rows: [OrderRow]
+
+    private(set) lazy var lowInventorySheetViewModel = CollectiblesInfoSheetViewModel(
+        model: .lowInventory(
+            explorePacks: { [weak self] in self?.routable?.closePackFlow() },
+            enableTurboMode: { [weak self] in self?.routable?.returnToMachine() }
+        )
+    )
+
+    private(set) lazy var buybackCompleteSheetViewModel = CollectiblesInfoSheetViewModel(
+        model: buybackCompleteModel(amount: nil)
+    )
+
+    private(set) lazy var packUnopenedSheetViewModel = CollectiblesInfoSheetViewModel(
+        model: .packUnopened(openPack: { [weak self] in self?.approve() }),
+        actionTiming: .immediately
+    )
 
     // MARK: - Publishers
 
@@ -43,37 +65,43 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     init(
         machineID: String,
         machine: CollectiblesMachine,
+        isTurboModeOn: Bool,
         usdcBalanceProvider: any TokenBalanceProvider,
         purchaseInteractor: any CollectiblesPackPurchaseInteractor,
+        routable: (any CollectiblesConfirmOrderRoutable)?,
+        revealAssetsPreloader: any CollectiblesRevealAssetsPreloader,
+        delayProvider: any PollDelayProvider = TaskSleepPollDelayProvider(),
         refreshBalance: @escaping () async -> Void
     ) {
         self.machineID = machineID
         price = machine.price
         platformFee = machine.platformFee
         total = machine.price + machine.platformFee
-        buybackRate = machine.buybackRate
-        openingVideoURL = machine.openingVideoURL
+        self.isTurboModeOn = isTurboModeOn
         self.purchaseInteractor = purchaseInteractor
+        self.revealAssetsPreloader = revealAssetsPreloader
+        self.routable = routable
+        self.delayProvider = delayProvider
         self.refreshBalance = refreshBalance
         artworkURL = machine.artworkURL
         rows = [
             OrderRow(
+                kind: .pack,
                 title: "\(machine.name) x1",
-                value: CollectiblesPriceFormatter.format(machine.price),
-                isTotal: false
+                value: CollectiblesPriceFormatter.format(machine.price)
             ),
             OrderRow(
+                kind: .fee,
                 title: Localization.collectiblesConfirmOrderPlatformFee,
-                value: CollectiblesPriceFormatter.format(machine.platformFee),
-                isTotal: false
+                value: CollectiblesPriceFormatter.format(machine.platformFee)
             ),
             OrderRow(
+                kind: .total,
                 title: Localization.collectiblesConfirmOrderTotal,
                 value: CollectiblesPriceFormatter.formatAmount(
                     total,
                     ticker: CollectiblesChainEnvironment.usdcTokenItem.currencySymbol
-                ),
-                isTotal: true
+                )
             ),
         ]
 
@@ -89,26 +117,56 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         orderPhase = .generating
         updateButtonState()
 
-        Task { [weak self, purchaseInteractor, machineID, price, platformFee, refreshBalance] in
-            let result: Result<CollectiblesWonCard, any Error>
+        if let revealColorScheme {
+            revealAssetsPreloader.preload(for: revealColorScheme)
+        }
 
+        Task { [weak self, purchaseInteractor, revealAssetsPreloader, machineID, price, platformFee, isTurboModeOn, refreshBalance] in
             do {
-                let wonCard = try await purchaseInteractor.purchase(
+                let result = try await purchaseInteractor.purchase(
                     machineID: machineID,
                     price: price,
                     platformFee: platformFee,
-                    turboMode: .off,
+                    isTurboModeOn: isTurboModeOn,
                     onStep: { [weak self] step in self?.apply(step) }
                 )
-                result = .success(wonCard)
+
+                switch result {
+                case .wonCard(let wonCard):
+                    let imageURLs = [wonCard.imageFrontURL, wonCard.imageBackURL].compactMap { $0 }
+                    let assets = await revealAssetsPreloader.assets(prefetchingImages: imageURLs)
+
+                    // [REDACTED_TODO_COMMENT]
+                    self?.openReveal(of: wonCard, assets: assets)
+                case .autoSold(let amount):
+                    self?.showBuybackComplete(amount: amount)
+                }
             } catch {
-                result = .failure(error)
+                self?.handlePurchaseFailure(error)
             }
 
-            // [REDACTED_TODO_COMMENT]
-            self?.handlePurchaseResult(result)
             await refreshBalance()
         }
+    }
+
+    func close() {
+        routable?.closePackFlow()
+    }
+
+    func show(reveal viewModel: CollectiblesPackRevealViewModel) {
+        revealViewModel = viewModel
+        orderPhase = .generated
+        updateButtonState()
+    }
+
+    func preloadRevealAssets(for colorScheme: ColorScheme, isReduceMotionEnabled: Bool) {
+        guard !isReduceMotionEnabled else {
+            revealColorScheme = nil
+            return
+        }
+
+        revealColorScheme = colorScheme
+        revealAssetsPreloader.preload(for: colorScheme)
     }
 
     func dismissError() {
@@ -132,10 +190,18 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
 // MARK: - Nested types
 
 extension CollectiblesConfirmOrderViewModel {
-    struct OrderRow: Hashable {
+    struct OrderRow: Identifiable {
+        enum Kind {
+            case pack
+            case fee
+            case total
+        }
+
+        let kind: Kind
         let title: String
         let value: String
-        let isTotal: Bool
+
+        var id: Kind { kind }
     }
 
     enum ButtonState {
@@ -200,30 +266,53 @@ private extension CollectiblesConfirmOrderViewModel {
         updateButtonState()
     }
 
-    func handlePurchaseResult(_ result: Result<CollectiblesWonCard, any Error>) {
-        switch result {
-        case .success(let wonCard):
-            let bundledVideoURL = Bundle.main.url(forResource: "CollectiblesPackReveal", withExtension: "mp4")
-            revealViewModel = CollectiblesPackRevealViewModel(
-                videoURL: openingVideoURL ?? bundledVideoURL,
-                prize: CollectiblesPackRevealView.Prize(wonCard: wonCard, buybackRate: buybackRate)
-            )
-            orderPhase = .generated
-        case .failure(let error):
-            CollectiblesLogger.error("Collectibles pack \(machineID) purchase failed", error: error)
-            orderPhase = .idle
-            showError()
-        }
-
-        updateButtonState()
+    func openReveal(of wonCard: CollectiblesWonCard, assets: CollectiblesRevealAssets) {
+        routable?.openPackReveal(wonCard: wonCard, assets: assets)
     }
 
-    func showError() {
-        errorMessage = Localization.commonSomethingWentWrong
+    func showBuybackComplete(amount: Decimal?) {
+        orderPhase = .idle
+        updateButtonState()
+        buybackCompleteSheetViewModel.present(with: buybackCompleteModel(amount: amount))
+    }
+
+    func buybackCompleteModel(amount: Decimal?) -> CollectiblesInfoSheetView.Model {
+        let ticker = CollectiblesChainEnvironment.usdcTokenItem.currencySymbol
+
+        return .buybackComplete(
+            amount: amount.map { CollectiblesPriceFormatter.formatAmount($0, ticker: ticker) },
+            price: CollectiblesPriceFormatter.formatAmount(price, ticker: ticker),
+            explorePacks: { [weak self] in self?.routable?.closePackFlow() },
+            openAgain: { [weak self] in self?.approve() }
+        )
+    }
+
+    func handlePurchaseFailure(_ error: any Error) {
+        CollectiblesLogger.error("Collectibles pack \(machineID) purchase failed", error: error)
+        orderPhase = .idle
+        updateButtonState()
+
+        switch error as? CollectiblesPackPurchaseError {
+        case .lowInventory:
+            lowInventorySheetViewModel.present()
+        case .packUnopened, .openFailed, .prizeNotDelivered:
+            packUnopenedSheetViewModel.present()
+        // [REDACTED_TODO_COMMENT]
+        case .paymentFailed(.expired):
+            showError(message: "Your purchase has expired")
+        case .paymentFailed(.refunded):
+            showError(message: "Your payment has been refunded")
+        default:
+            showError()
+        }
+    }
+
+    func showError(message: String = Localization.commonSomethingWentWrong) {
+        errorMessage = message
 
         errorDismissTask?.cancel()
-        errorDismissTask = Task { [weak self] in
-            try await Task.sleep(for: Constants.errorDisplayDuration)
+        errorDismissTask = Task { [weak self, delayProvider] in
+            try await delayProvider.wait(for: Constants.errorDisplayDuration)
             self?.errorMessage = nil
             self?.errorDismissTask = nil
         }
@@ -275,6 +364,6 @@ private extension CollectiblesConfirmOrderViewModel {
 
 private extension CollectiblesConfirmOrderViewModel {
     enum Constants {
-        static let errorDisplayDuration: Duration = .seconds(3)
+        static let errorDisplayDuration: TimeInterval = 3
     }
 }

@@ -57,10 +57,6 @@ final class TangemPayAccount {
             || activeIssueOrdersSubject.value.contains { TangemPayOrderType.plasticDeliveringFamily.contains($0.type) }
     }
 
-    var offersPublisher: AnyPublisher<[TangemPayCustomerOffer], Never> {
-        offersSubject.eraseToAnyPublisher()
-    }
-
     var additionalCardIssueOffer: TangemPayCustomerOffer? {
         offersSubject.value.first { $0.type.isAdditionalCardIssue }
     }
@@ -205,10 +201,10 @@ final class TangemPayAccount {
 
     // MARK: - Withdraw
 
-    private let transactionDispatcherFactory: (TangemPayWithdrawEligibility) -> TransactionDispatcher
+    private let transactionDispatcherFactory: (TangemPayAccountToken) -> TransactionDispatcher
 
-    func makeTransactionDispatcher(withdrawEligibility: TangemPayWithdrawEligibility) -> TransactionDispatcher {
-        transactionDispatcherFactory(withdrawEligibility)
+    func makeTransactionDispatcher(accountToken: TangemPayAccountToken) -> TransactionDispatcher {
+        transactionDispatcherFactory(accountToken)
     }
 
     let withdrawAvailabilityProvider: TangemPayWithdrawAvailabilityProvider
@@ -281,7 +277,7 @@ final class TangemPayAccount {
         customerService: any CustomerInfoManagementService,
         balancesService: any TangemPayBalancesService,
         withdrawTransactionService: any TangemPayWithdrawTransactionService,
-        transactionDispatcherFactory: @escaping (TangemPayWithdrawEligibility) -> TransactionDispatcher,
+        transactionDispatcherFactory: @escaping (TangemPayAccountToken) -> TransactionDispatcher,
         withdrawAvailabilityProvider: TangemPayWithdrawAvailabilityProvider,
         offrampOrderSigner: any TangemPayOfframpOrderSigning,
         orderStatusPollingService: TangemPayOrderStatusPollingService,
@@ -654,23 +650,7 @@ extension TangemPayAccount {
     }
 }
 
-private extension TangemPayAccount {
-    func setupBalance() async {
-        await balancesService.loadBalance()
-    }
-}
-
 // MARK: - TangemPayWithdrawTransactionServiceOutput
-
-extension TangemPayAccount: TangemPayWithdrawTransactionServiceOutput {
-    func withdrawTransactionDidSent() {
-        _ = Task {
-            // Update balance after withdraw with some delay
-            try await Task.sleep(for: .seconds(5))
-            await setupBalance()
-        }
-    }
-}
 
 // MARK: - Multi-card flow
 

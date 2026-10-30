@@ -53,4 +53,8 @@ enum CollectiblesPriceFormatter {
             )
         )
     }
+
+    static func formatWithCents(_ value: Decimal) -> String {
+        format(value, formattingOptions: .defaultFiatFormattingOptions)
+    }
 }

@@ -6,11 +6,20 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
-import UIKit
+public import struct CoreGraphics.CGFloat
+public import struct Foundation.AttributeContainer
+public import struct Foundation.AttributedString
+public import struct SwiftUI.Color
+public import struct SwiftUI.Font
+public import struct SwiftUI.ScaledMetric
+public import protocol SwiftUI.View
+public import struct SwiftUI.ViewBuilder
+public import protocol SwiftUI.ViewModifier
+private import class UIKit.UIFont
 
 // MARK: - TangemFontStyle
 
+@available(iOS, deprecated: 100000.0, message: "Use TangemTypographyToken")
 public struct TangemFontStyle: Hashable, Sendable {
     public let font: Font
     public let tracking: CGFloat
@@ -47,10 +56,12 @@ public struct TangemFontStyle: Hashable, Sendable {
 }
 
 public extension View {
+    @available(iOS, deprecated: 100000.0, message: "Use TangemTypographyToken")
     func font(_ style: TangemFontStyle) -> some View {
         modifier(TangemFontStyleModifier(style: style))
     }
 
+    @available(iOS, deprecated: 100000.0, message: "Use TangemTypographyToken")
     func style(_ style: TangemFontStyle, color: Color) -> some View {
         modifier(TangemFontStyleModifier(style: style)).foregroundStyle(color)
     }
@@ -114,6 +125,7 @@ private extension Font.Weight {
 }
 
 public extension AttributedString {
+    @available(iOS, deprecated: 100000.0, message: "Use TangemTypographyToken")
     mutating func setFontStyle(_ style: TangemFontStyle) {
         var container = AttributeContainer()
         container.font = style.font
@@ -132,6 +144,7 @@ public extension AttributedString {
 // MARK: - Tangem fonts ([REDACTED_INFO]: weights collapsed; each tier carries design tracking)
 
 public extension Font {
+    @available(iOS, deprecated: 100000.0, message: "Use DesignSystem.Font tokens")
     enum Tangem {
         public enum Caption11 {}
         public enum Caption12 {}

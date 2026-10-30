@@ -30,10 +30,6 @@ class CommonSendAnalyticsLogger {
         sendReceiveTokenInput?.receiveToken.value?.tokenItem
     }
 
-    private var feeTokenItem: TokenItem? {
-        sendFeeInput?.selectedFee?.tokenItem
-    }
-
     private var sourceFlow: Analytics.ParameterValue {
         switch sendType {
         case .send where isSwap: .sendAndSwap
@@ -163,7 +159,7 @@ extension CommonSendAnalyticsLogger: SendDestinationAnalyticsLogger {
 
 // MARK: - SendFeeAnalyticsLogger, FeeSelectorAnalytics
 
-extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorAnalytics {
+extension CommonSendAnalyticsLogger: FeeSelectorAnalytics {
     func logCustomFeeClicked() {
         guard let tokenItem = sourceTokenItem else {
             return
@@ -221,15 +217,6 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorAnalytic
         }
     }
 
-    func logFeeStepReopened() {
-        switch sourceTokenItem?.token?.metadata.kind {
-        case .nonFungible:
-            Analytics.log(.nftCommissionScreenOpened)
-        case .fungible, .none:
-            Analytics.log(.sendScreenReopened, params: [.source: .fee])
-        }
-    }
-
     func logFeeSelected(tokenFee: TokenFee) {
         guard let tokenItem = sourceTokenItem else {
             return
@@ -279,16 +266,6 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorAnalytic
         params[.source] = source?.rawValue
 
         Analytics.log(event: event, params: params)
-    }
-
-    func logSendNoticeTransactionDelaysArePossible() {
-        guard let feeTokenItem else {
-            return
-        }
-
-        Analytics.log(event: .sendNoticeTransactionDelaysArePossible, params: [
-            .token: feeTokenItem.currencySymbol,
-        ])
     }
 }
 
@@ -1073,15 +1050,6 @@ extension CommonSendAnalyticsLogger {
         case sell
         case nft
         case swap
-
-        var analytics: Analytics.ParameterValue {
-            switch self {
-            case .send: .send
-            case .sell: .sell
-            case .nft: .nft
-            case .swap: .swap
-            }
-        }
     }
 }
 

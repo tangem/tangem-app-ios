@@ -136,7 +136,6 @@ private extension MobileOnboardingICloudBackupView {
         static let horizontalPadding: CGFloat = 24
         static let passwordTopPadding: CGFloat = 36
         static let validationTopPadding: CGFloat = 14
-        static let validationSpacing: CGFloat = 8
         static let passwordWarningHorizontalPadding: CGFloat = 24
         static let actionHorizontalPadding: CGFloat = 16
         static let actionsSpacing: CGFloat = 20
