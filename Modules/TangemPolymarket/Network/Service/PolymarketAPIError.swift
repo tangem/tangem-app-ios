@@ -35,6 +35,7 @@ public struct PolymarketProblemDetail: Decodable, Hashable, Sendable {
     public let instance: String?
     public let error: String?
     public let traceId: String?
+    public let reason: String?
 
     public var message: String? {
         detail ?? error ?? title
@@ -47,7 +48,8 @@ public struct PolymarketProblemDetail: Decodable, Hashable, Sendable {
         detail: String? = nil,
         instance: String? = nil,
         error: String? = nil,
-        traceId: String? = nil
+        traceId: String? = nil,
+        reason: String? = nil
     ) {
         self.type = type
         self.title = title
@@ -56,6 +58,7 @@ public struct PolymarketProblemDetail: Decodable, Hashable, Sendable {
         self.instance = instance
         self.error = error
         self.traceId = traceId
+        self.reason = reason
     }
 }
 
@@ -68,5 +71,11 @@ public extension PolymarketAPIError {
         case .connection(let underlying): !(underlying is DecodingError)
         case .decoding: false
         }
+    }
+
+    var isClientRefusal: Bool {
+        guard case .http(let statusCode, _) = self else { return false }
+
+        return (400 ..< 500).contains(statusCode)
     }
 }
