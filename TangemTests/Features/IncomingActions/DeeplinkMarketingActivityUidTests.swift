@@ -79,6 +79,23 @@ struct DeeplinkMarketingActivityUidTests {
         #expect(destinationName(of: actionWithUid) == destinationName(of: plainAction))
     }
 
+    @Test(
+        "A Tangem Pay link goes to the onboarding validation without its uid",
+        arguments: [
+            "tangem://onboard-visa?entry=banner&id=42",
+            "tangem://pay-app?id=42",
+            "https://tangem.com/pay-app?id=42",
+        ]
+    )
+    func tangemPayLinkLosesUid(link: String) throws {
+        let parser = IncomingActionParser()
+        let plain = try #require(URL(string: link))
+        let withUid = try #require(appendingUid(to: plain))
+        let plainAction = try #require(parser.parseIncomingURL(plain))
+
+        #expect(parser.parseIncomingURL(withUid) == plainAction)
+    }
+
     @Test("A uid doesn't reach the logged description of the action", arguments: DeeplinkMarketingActivityUidTests.allLinks)
     func uidStaysOutOfActionDescription(link: String) throws {
         let withUid = try #require(URL(string: link).flatMap(appendingUid(to:)))

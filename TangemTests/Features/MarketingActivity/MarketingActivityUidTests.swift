@@ -76,4 +76,19 @@ struct MarketingActivityUidTests {
     func loggableLinkFromText(link: String, expectedLink: String) {
         #expect(MarketingActivityUid.loggableLink(link) == expectedLink)
     }
+
+    @Test(
+        "A link without its uid keeps every other parameter as it was",
+        arguments: [
+            ("tangem://onboard-visa?entry=banner&id=42&uid=AbC-123", "tangem://onboard-visa?entry=banner&id=42"),
+            ("tangem://pay-app?uid=AbC-123&id=42", "tangem://pay-app?id=42"),
+            ("https://tangem.com/pay-app?id=a%2Fb&uid=x%26y&q=a+b", "https://tangem.com/pay-app?id=a%2Fb&q=a+b"),
+            ("tangem://pay-app?id=42&uid=first&uid=", "tangem://pay-app?id=42"),
+            ("tangem://markets?uid=AbC-123", "tangem://markets"),
+            ("tangem://pay-app?id=42", "tangem://pay-app?id=42"),
+        ]
+    )
+    func linkWithoutUid(link: String, expectedLink: String) {
+        #expect(MarketingActivityUid.linkWithoutUid(link) == expectedLink)
+    }
 }

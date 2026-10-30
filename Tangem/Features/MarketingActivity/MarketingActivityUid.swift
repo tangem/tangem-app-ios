@@ -41,6 +41,19 @@ enum MarketingActivityUid {
     static func loggableLink(_ link: String) -> String {
         URL(string: link).map(loggableLink) ?? link
     }
+
+    static func linkWithoutUid(_ link: String) -> String {
+        guard var components = URLComponents(string: link),
+              let queryItems = components.percentEncodedQueryItems,
+              queryItems.contains(where: isUid) else {
+            return link
+        }
+
+        let remainingItems = queryItems.filter { !isUid($0) }
+        components.percentEncodedQueryItems = remainingItems.isEmpty ? nil : remainingItems
+
+        return components.string ?? link
+    }
 }
 
 // MARK: - Private
