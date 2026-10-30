@@ -73,6 +73,7 @@ struct CommonUserWalletModelDependencies {
             cryptoAccountsRepository: accountModelsManagerDependencies.cryptoAccountsRepository,
             jointAccountsRepository: accountModelsManagerDependencies.jointAccountsRepository,
             jointAccountPendingOperationsRepository: accountModelsManagerDependencies.jointAccountPendingOperationsRepository,
+            jointAccountsNetworkService: accountModelsManagerDependencies.jointAccountsNetworkService,
             tangemSignerFactory: tangemSignerFactory,
             tangemPayManager: tangemPayManager,
             accountModelsProvider: CompositeAccountModelsProvider([polymarketAccountProvider]),
@@ -212,7 +213,6 @@ private extension CommonUserWalletModelDependencies {
             networkService: jointAccountsNetworkService,
             derivationInteractorFactory: jointAccountDerivationInteractorFactory,
             persistentStorage: CommonJointAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue),
-            invitesPersistentStorage: CommonJointAccountsInvitesPersistentStorage(storageIdentifier: userWalletId.stringValue),
             pendingOperationsSynchronizer: jointAccountPendingOperationsSynchronizer,
             eTagStorage: InjectedValues[\.eTagStorage],
             isJointAccountsAvailable: isJointAccountsAvailable
@@ -223,6 +223,7 @@ private extension CommonUserWalletModelDependencies {
             cryptoAccountsRepository: cryptoAccountsRepository,
             jointAccountsRepository: jointAccountsRepository,
             jointAccountPendingOperationsRepository: jointAccountPendingOperationsRepository,
+            jointAccountsNetworkService: jointAccountsNetworkService,
             archivedCryptoAccountsProvider: networkService
         )
     }
@@ -236,6 +237,7 @@ private extension CommonUserWalletModelDependencies {
         cryptoAccountsRepository: CommonCryptoAccountsRepository,
         jointAccountsRepository: CommonJointAccountsRepository,
         jointAccountPendingOperationsRepository: CommonJointAccountPendingOperationsRepository,
+        jointAccountsNetworkService: JointAccountsNetworkService,
         tangemSignerFactory: TangemSignerFactory,
         tangemPayManager: TangemPayManager,
         accountModelsProvider: any AccountModelsProvider,
@@ -283,6 +285,7 @@ private extension CommonUserWalletModelDependencies {
             cryptoAccountsRepository: cryptoAccountsRepository,
             jointAccountsRepository: jointAccountsRepository,
             jointAccountPendingOperationsRepository: jointAccountPendingOperationsRepository,
+            jointAccountsNetworkService: jointAccountsNetworkService,
             signerFactory: tangemSignerFactory,
             defaultWalletFactory: config.makeAnyWalletFactory(),
             walletManagerFactory: GenericWalletManagerFactory(),
@@ -433,6 +436,7 @@ private extension CommonUserWalletModelDependencies {
         let cryptoAccountsRepository: CommonCryptoAccountsRepository
         let jointAccountsRepository: CommonJointAccountsRepository
         let jointAccountPendingOperationsRepository: CommonJointAccountPendingOperationsRepository
+        let jointAccountsNetworkService: JointAccountsNetworkService
         let archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider
     }
 }

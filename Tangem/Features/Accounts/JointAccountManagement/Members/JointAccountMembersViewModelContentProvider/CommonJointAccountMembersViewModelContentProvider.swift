@@ -80,12 +80,12 @@ private extension CommonJointAccountMembersViewModelContentProvider {
 
     func makeContent(slots: [JointAccountSlot]) -> Content {
         let phase = Phase(status: jointAccount.status)
-        let userRole = jointAccount.jointAccountMembersService.userRole
+        let isCreator = jointAccount.jointAccountUserRoleService.isCreator ?? false
 
         return Content(
-            title: title(phase: phase, isCreator: userRole.isCreator),
-            slots: slotViewModels(of: slots, phase: phase, userRole: userRole),
-            footer: footer(phase: phase, isCreator: userRole.isCreator, slots: slots),
+            title: title(phase: phase, isCreator: isCreator),
+            slots: slotViewModels(of: slots, phase: phase),
+            footer: footer(phase: phase, isCreator: isCreator, slots: slots),
             actions: actions(phase: phase)
         )
     }
@@ -142,13 +142,12 @@ private extension CommonJointAccountMembersViewModelContentProvider {
 private extension CommonJointAccountMembersViewModelContentProvider {
     func slotViewModels(
         of slots: [JointAccountSlot],
-        phase: Phase,
-        userRole: JointAccountUserRole
+        phase: Phase
     ) -> [JointAccountMembersViewSlotViewModel] {
         let viewModels = slots.enumerated().map { index, slot in
             slotViewModel(
                 id: slotId(of: slot, at: index),
-                content: slotContent(of: slot, at: index, phase: phase, userRole: userRole)
+                content: slotContent(of: slot, at: index, phase: phase)
             )
         }
 
@@ -176,7 +175,7 @@ private extension CommonJointAccountMembersViewModelContentProvider {
 
     func slotId(of slot: JointAccountSlot, at index: Int) -> JointAccountMembersViewSlotViewModel.ID {
         switch slot {
-        case .member(let member):
+        case .member(let member, _):
             .member(address: member.address.lowercased())
         case .empty:
             .freeSlot(index: index)
@@ -186,36 +185,33 @@ private extension CommonJointAccountMembersViewModelContentProvider {
     func slotContent(
         of slot: JointAccountSlot,
         at index: Int,
-        phase: Phase,
-        userRole: JointAccountUserRole
+        phase: Phase
     ) -> JointAccountMembersViewSlotViewModel.Content {
         switch slot {
-        case .member(let member):
+        case .member(let member, let type):
             // [REDACTED_TODO_COMMENT]
             let icon = AddressBookContactNameIconViewData(
                 letter: member.name.prefix(1).uppercased(),
                 color: CompositeIconColorPalette.color(for: .jointAccountMember(at: index))
             )
-            let isOwn = userRole.member?.address.caseInsensitiveEquals(to: member.address) ?? false
+            let isOwn = member.isMe
 
             return JointAccountMembersViewSlotViewModel.Content(
                 avatar: .member(icon),
                 title: member.name,
                 subtitle: role(of: member, isOwn: isOwn),
-                status: memberStatus(phase: phase),
+                status: memberStatus(of: type),
                 accessory: .empty,
                 tapAction: .memberDetails(name: member.name, address: member.address, accentColor: icon.color)
             )
 
-        case .empty(let invite):
+        case .empty(_, let type):
             return JointAccountMembersViewSlotViewModel.Content(
                 avatar: .vacant,
                 title: Localization.jointAccountInviteMembersMember,
-                subtitle: userRole.isCreator
-                    ? Localization.jointAccountInviteMembersNotInvited
-                    : Localization.jointAccountInviteMembersWaitingToJoin,
+                subtitle: freeSlotSubtitle(of: type),
                 status: nil,
-                accessory: freeSlotAccessory(invite: invite, isCreator: userRole.isCreator),
+                accessory: freeSlotAccessory(of: type),
                 tapAction: nil
             )
         }
@@ -234,20 +230,27 @@ private extension CommonJointAccountMembersViewModelContentProvider {
         return "\(role) \(AppConstants.dotSign) \(Localization.jointAccountMembersRoleYou)"
     }
 
-    func memberStatus(phase: Phase) -> JointAccountMembersViewSlotViewModel.Status? {
-        switch phase {
-        case .collecting: .joined
-        case .confirming: .notConfirmed
-        case .completed: nil
+    func memberStatus(of type: JointAccountSlot.MemberType) -> JointAccountMembersViewSlotViewModel.Status? {
+        switch type {
+        case .joined: .joined
+        case .awaitingConfirmation: .notConfirmed
+        case .confirmed: .confirmed
+        case .active: nil
         }
     }
 
-    func freeSlotAccessory(invite: JointAccountInvite?, isCreator: Bool) -> JointAccountMembersViewSlotViewModel.Accessory {
-        guard isCreator, let invite else {
-            return .empty
+    func freeSlotSubtitle(of type: JointAccountSlot.EmptyType) -> String {
+        switch type {
+        case .notInvitable: Localization.jointAccountInviteMembersWaitingToJoin
+        case .invitable, .reinvitable: Localization.jointAccountInviteMembersNotInvited
         }
+    }
 
-        return .invite(url: invite.url)
+    func freeSlotAccessory(of type: JointAccountSlot.EmptyType) -> JointAccountMembersViewSlotViewModel.Accessory {
+        switch type {
+        case .notInvitable: .empty
+        case .invitable, .reinvitable: .invite
+        }
     }
 }
 

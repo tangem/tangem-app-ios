@@ -73,12 +73,9 @@ struct JointAccountPendingOperationStandingResolverTests {
         #expect(!sut.canSign(pendingOperation))
     }
 
-    @Test(
-        "A wallet that is no member, or whose key is not derived yet, has no decision and nothing to answer",
-        arguments: [JointAccountUserRole.outsider, .derivationNeeded]
-    )
-    func walletWithoutAMemberAddressHasNothingToAnswer(userRole: JointAccountUserRole) throws {
-        let pendingOperation = try makePendingOperation(signatures: [Self.ownSignature(.signed)], userRole: userRole)
+    @Test("A wallet whose key of the account is not derived yet has no decision and nothing to answer")
+    func walletWithoutTheDerivedKeyHasNothingToAnswer() throws {
+        let pendingOperation = try makePendingOperation(signatures: [Self.ownSignature(.signed)], hasDerivedKey: false)
 
         #expect(!pendingOperation.isInitiator)
         #expect(sut.standing(for: pendingOperation) == .noDecisionYet)
@@ -112,7 +109,7 @@ private extension JointAccountPendingOperationStandingResolverTests {
         status: JointAccountOperationStatus = .awaitingSignatures,
         initiator: String = Constants.creatorAddress,
         signatures: [JointAccountOperation.Signature],
-        userRole: JointAccountUserRole = .member(Constants.member)
+        hasDerivedKey: Bool = true
     ) throws -> JointAccountPendingOperation {
         let account = CommonJointAccountModel(
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
@@ -121,7 +118,8 @@ private extension JointAccountPendingOperationStandingResolverTests {
             accountStatus: .active(safeAddress: Constants.safeAddress),
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
-            membersService: JointAccountMembersServiceMock(userRole: userRole),
+            membersService: JointAccountMembersServiceMock(),
+            userRoleService: JointAccountUserRoleServiceMock(address: hasDerivedKey ? Constants.ownAddress : nil),
             delegate: delegate
         )
 
@@ -152,6 +150,5 @@ private extension JointAccountPendingOperationStandingResolverTests {
         static let creatorAddress = "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf"
         static let ownAddress = "0x3c9e1b7a5d2f80461c8a0e2b4d6f8a0c2e4b6c90"
         static let signedAt = "2026-10-27T10:00:00Z"
-        static let member = JointAccountMember(name: "Me", address: ownAddress, role: .member)
     }
 }

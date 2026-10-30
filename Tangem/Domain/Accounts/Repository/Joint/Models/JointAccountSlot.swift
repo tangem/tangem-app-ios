@@ -10,24 +10,30 @@ import Foundation
 
 /// One of the account's slots, as many as the account was created with: taken by a member, or still free.
 enum JointAccountSlot: Equatable {
-    case member(JointAccountMember)
-    /// - Note: Nil on a wallet that holds no invite for the slot — anyone's but the creator's, and the creator's own
-    /// once every invite has been spent or lost.
-    case empty(invite: JointAccountInvite?)
+    case empty(JointAccountMemberSlotID, EmptyType)
+    case member(JointAccountMember, MemberType)
+}
+
+extension JointAccountSlot {
+    enum EmptyType: Equatable {
+        case notInvitable
+        case invitable
+        case reinvitable(previousInviteExpiresAt: Date)
+    }
+
+    enum MemberType: Equatable {
+        case joined
+        case awaitingConfirmation
+        case confirmed
+        case active
+    }
 }
 
 extension JointAccountSlot {
     var member: JointAccountMember? {
         switch self {
-        case .member(let member): member
+        case .member(let member, _): member
         case .empty: nil
-        }
-    }
-
-    var invite: JointAccountInvite? {
-        switch self {
-        case .member: nil
-        case .empty(let invite): invite
         }
     }
 }

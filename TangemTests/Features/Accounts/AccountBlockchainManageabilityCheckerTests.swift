@@ -54,6 +54,7 @@ private extension AccountBlockchainManageabilityCheckerTests {
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             membersService: JointAccountMembersServiceMock(),
+            userRoleService: JointAccountUserRoleServiceMock(),
             delegate: delegate
         )
     }

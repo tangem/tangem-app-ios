@@ -23,6 +23,7 @@ final class CommonJointAccountModel {
     private let operationsService: any JointAccountOperationsService
     private let pendingOperationsProvider: any JointAccountPendingOperationsProvider
     private let membersService: any JointAccountMembersService
+    private let userRoleService: any JointAccountUserRoleService
     private weak var delegate: (any JointAccountModelDelegate)?
 
     private let didChangeSubject = PassthroughSubject<Void, Never>()
@@ -35,6 +36,7 @@ final class CommonJointAccountModel {
         operationsService: any JointAccountOperationsService,
         pendingOperationsProvider: any JointAccountPendingOperationsProvider,
         membersService: any JointAccountMembersService,
+        userRoleService: any JointAccountUserRoleService,
         delegate: any JointAccountModelDelegate
     ) {
         self.cryptoAccount = cryptoAccount
@@ -44,6 +46,7 @@ final class CommonJointAccountModel {
         self.operationsService = operationsService
         self.pendingOperationsProvider = pendingOperationsProvider
         self.membersService = membersService
+        self.userRoleService = userRoleService
         self.delegate = delegate
     }
 }
@@ -93,7 +96,7 @@ extension CommonJointAccountModel: JointAccountModel {
             return false
         }
 
-        return membersService.userRole.isCreator
+        return userRoleService.isCreator ?? false
     }
 
     func activate() async throws(AccountEditError) {
@@ -229,6 +232,10 @@ extension CommonJointAccountModel: JointAccountOperationsServicesProviding {
 extension CommonJointAccountModel: JointAccountMembersServiceProviding {
     var jointAccountMembersService: any JointAccountMembersService {
         membersService
+    }
+
+    var jointAccountUserRoleService: any JointAccountUserRoleService {
+        userRoleService
     }
 }
 

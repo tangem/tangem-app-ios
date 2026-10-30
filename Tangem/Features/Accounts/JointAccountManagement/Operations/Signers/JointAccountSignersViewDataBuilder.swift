@@ -35,7 +35,7 @@ struct JointAccountSignersViewDataBuilder {
         // Walked by slot rather than by member so the colours line up with the composition screen, which numbers
         // them the same way
         return slots.enumerated().compactMap { index, slot -> JointAccountSignerRow.ViewData? in
-            guard case .member(let member) = slot else {
+            guard let member = slot.member else {
                 return nil
             }
 

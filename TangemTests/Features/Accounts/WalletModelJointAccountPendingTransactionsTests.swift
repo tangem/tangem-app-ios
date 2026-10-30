@@ -122,8 +122,9 @@ private extension WalletModelJointAccountPendingTransactionsTests {
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: provider,
             membersService: JointAccountMembersServiceMock(
-                slots: [.member(JointAccountMember(name: "Isaac", address: Self.creatorAddress, role: .creator))]
+                slots: [.member(JointAccountMember(name: "Isaac", address: Self.creatorAddress, role: .creator, isMe: false), .active)]
             ),
+            userRoleService: JointAccountUserRoleServiceMock(),
             delegate: delegate
         )
     }

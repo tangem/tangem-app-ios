@@ -21,7 +21,6 @@ final class CommonJointAccountsRepository {
     private let networkService: JointAccountsNetworkService
     private let derivationInteractorFactory: JointAccountDerivationInteractorFactory
     private let persistentStorage: JointAccountsPersistentStorage
-    private let invitesPersistentStorage: JointAccountsInvitesPersistentStorage
     private let pendingOperationsSynchronizer: JointAccountPendingOperationsSynchronizer
     private let eTagStorage: ETagStorage
     private let isJointAccountsAvailable: Bool
@@ -57,24 +56,11 @@ final class CommonJointAccountsRepository {
         .share(replay: 1)
         .eraseToAnyPublisher()
 
-    /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
-    private lazy var invitesStorageDidUpdatePublisher: AnyPublisher<[StoredJointAccountInvites], Never> = invitesPersistentStorage
-        .didUpdatePublisher
-        .prepend(()) // An initial value to trigger loading from storage
-        .receive(on: storageReadingQueue)
-        .withWeakCaptureOf(self)
-        .map { repository, _ in repository.invitesPersistentStorage.getList() }
-        .removeDuplicates()
-        .receiveOnMain()
-        .share(replay: 1)
-        .eraseToAnyPublisher()
-
     init(
         userWalletId: UserWalletId,
         networkService: JointAccountsNetworkService,
         derivationInteractorFactory: JointAccountDerivationInteractorFactory,
         persistentStorage: JointAccountsPersistentStorage,
-        invitesPersistentStorage: JointAccountsInvitesPersistentStorage,
         pendingOperationsSynchronizer: JointAccountPendingOperationsSynchronizer,
         eTagStorage: ETagStorage,
         isJointAccountsAvailable: Bool
@@ -83,7 +69,6 @@ final class CommonJointAccountsRepository {
         self.networkService = networkService
         self.derivationInteractorFactory = derivationInteractorFactory
         self.persistentStorage = persistentStorage
-        self.invitesPersistentStorage = invitesPersistentStorage
         self.pendingOperationsSynchronizer = pendingOperationsSynchronizer
         self.eTagStorage = eTagStorage
         self.isJointAccountsAvailable = isJointAccountsAvailable
@@ -91,7 +76,6 @@ final class CommonJointAccountsRepository {
         // Eager initialization of these lazy properties to ensure that there are no race conditions
         _ = loadJointAccountsDebouncer
         _ = storageDidUpdatePublisher
-        _ = invitesStorageDidUpdatePublisher
 
         _ = autoupdater
     }
@@ -106,14 +90,6 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
 
     var jointAccountsPublisher: AnyPublisher<[StoredJointAccount], Never> {
         storageDidUpdatePublisher
-    }
-
-    var jointAccountsInvites: [StoredJointAccountInvites] {
-        invitesPersistentStorage.getList()
-    }
-
-    var jointAccountsInvitesPublisher: AnyPublisher<[StoredJointAccountInvites], Never> {
-        invitesStorageDidUpdatePublisher
     }
 
     func initialize() {
@@ -311,7 +287,7 @@ private extension CommonJointAccountsRepository {
         /// The listing is the only place an account waiting for its members or its activation moves on, so it is re-read
         /// this often until every account has settled.
         static let regularPollingInterval: Duration = .seconds(60)
-        static let frequentPollingInterval: Duration = .seconds(2)
+        static let frequentPollingInterval: Duration = .seconds(5)
     }
 }
 

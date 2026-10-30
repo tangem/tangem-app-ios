@@ -320,6 +320,7 @@ private extension TokenActionAvailabilityProviderJointAccountTests {
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             membersService: JointAccountMembersServiceMock(),
+            userRoleService: JointAccountUserRoleServiceMock(),
             delegate: delegate
         )
     }

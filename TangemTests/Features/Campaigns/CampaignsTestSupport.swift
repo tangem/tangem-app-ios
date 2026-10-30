@@ -243,6 +243,7 @@ enum CampaignJointAccountFixtures {
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             membersService: JointAccountMembersServiceMock(),
+            userRoleService: JointAccountUserRoleServiceMock(),
             delegate: delegate
         )
     }
