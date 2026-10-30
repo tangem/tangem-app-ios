@@ -63,8 +63,7 @@ extension DeeplinkNavigationAction {
             action = try? Self.destinationsNamedByHost[host]?.init(link: link).action
 
         case .path(_, let components):
-            let destination = components.first.flatMap { Self.destinationsNamedByPath[$0.lowercased()] }
-            action = destination?.action(from: link)
+            action = Self.destinationNamedByPath(components)?.action(from: link)
         }
 
         guard let action else {
@@ -72,6 +71,19 @@ extension DeeplinkNavigationAction {
         }
 
         self = action
+    }
+
+    static func namesDestination(_ link: DeeplinkURL) -> Bool {
+        switch link.kind {
+        case .host(let host):
+            destinationsNamedByHost[host] != nil
+        case .path(_, let components):
+            destinationNamedByPath(components) != nil
+        }
+    }
+
+    private static func destinationNamedByPath(_ components: [String]) -> (any PathNamedDeeplink.Type)? {
+        components.first.flatMap { destinationsNamedByPath[$0.lowercased()] }
     }
 
     /// Keyed by the host, so nothing can be reached by a name it doesn't declare and two destinations can't
