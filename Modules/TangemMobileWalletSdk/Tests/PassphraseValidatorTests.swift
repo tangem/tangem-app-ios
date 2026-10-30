@@ -12,6 +12,7 @@ import Foundation
 
 struct PassphraseValidatorTests {
     private let tooLong = PassphraseValidator.ValidationError.tooLong(maxByteCount: PassphraseValidator.maxByteCount)
+    private let containsNullCharacter = PassphraseValidator.ValidationError.containsNullCharacter
 
     @Test
     func acceptsPassphraseAtTheByteLimit() throws {
@@ -39,6 +40,22 @@ struct PassphraseValidatorTests {
         #expect(passphrase.utf8.count <= PassphraseValidator.maxByteCount)
         #expect(throws: tooLong) {
             try PassphraseValidator.validate(passphrase: passphrase)
+        }
+    }
+
+    @Test(arguments: ["\u{0}", "\u{0}suffix", "prefix\u{0}", "pre\u{0}fix"])
+    func rejectsPassphraseWithNullCharacter(passphrase: String) {
+        #expect(throws: containsNullCharacter) {
+            try PassphraseValidator.validate(passphrase: passphrase)
+        }
+    }
+
+    @Test
+    func importRejectsPassphraseWithNullCharacter() {
+        let sdk = makeSdk()
+
+        #expect(throws: containsNullCharacter) {
+            try sdk.importWallet(entropy: entropy, passphrase: "\u{0}suffix")
         }
     }
 

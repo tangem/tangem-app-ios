@@ -14,11 +14,10 @@ final class TangemPayOnboardingUITests: BaseTestCase {
     func testGetTangemPayBanner_ShownOnMain_WhenBannerChannelReceived() {
         setAllureId(9632)
 
-        launchAndImportHotWallet(
+        launchAndImportHotWalletWithoutSystemBanners(
             eligibilityState: "Started",
             accessCode: accessCode,
-            scenarios: [ScenarioConfig(name: "tangem_pay_eligibility_channels", initialState: "Banner")],
-            featureToggles: Constants.marketingBannersShownWithSystemCards
+            scenarios: [ScenarioConfig(name: "tangem_pay_eligibility_channels", initialState: "Banner")]
         )
         .verifyGetTangemPayBannerExists()
     }
@@ -62,20 +61,14 @@ final class TangemPayOnboardingUITests: BaseTestCase {
     }
 
     private func launchWithTwoWalletsWithoutTangemPay(scenarios: [ScenarioConfig] = []) -> MainScreen {
-        launchAndImportHotWallet(
-            eligibilityState: "Started",
-            scenarios: scenarios,
-            featureToggles: Constants.marketingBannersShownWithSystemCards
-        )
-        .addNewWallet(name: .wallet2)
-        .swipeWalletRight()
+        launchAndImportHotWallet(eligibilityState: "Started", scenarios: scenarios)
+            .addNewWallet(name: .wallet2)
+            .swipeWalletRight()
     }
 }
 
 private extension TangemPayOnboardingUITests {
     enum Constants {
-        static let marketingBannersShownWithSystemCards = ["TWI-1841_hide_marketing_banners_while_system": false]
-
         enum Wallet {
             static let hot = "Wallet"
             static let mockCard = "Wallet 2"

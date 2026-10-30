@@ -13,6 +13,7 @@ struct ModalDetentModifier: ViewModifier {
     let size: ModalSize
     let contentLayout: ModalContentLayout
     let height: CGFloat?
+    let animatesChanges: Bool
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var detents: Set<PresentationDetent>
@@ -20,10 +21,11 @@ struct ModalDetentModifier: ViewModifier {
     @State private var animationRevision: CGFloat = 0
     @State private var hasMeasuredHeight: Bool
 
-    init(size: ModalSize, contentLayout: ModalContentLayout, height: CGFloat?) {
+    init(size: ModalSize, contentLayout: ModalContentLayout, height: CGFloat?, animatesChanges: Bool) {
         self.size = size
         self.contentLayout = contentLayout
         self.height = height
+        self.animatesChanges = animatesChanges
         let detent = Self.detent(size: size, contentLayout: contentLayout, height: height)
         _detents = State(initialValue: [detent])
         _selection = State(initialValue: detent)
@@ -37,7 +39,7 @@ struct ModalDetentModifier: ViewModifier {
         content
             .presentationDetents(detents, selection: $selection)
             .onChange(of: detent) { target in
-                if reduceMotion || !hasMeasuredHeight {
+                if reduceMotion || !hasMeasuredHeight || !animatesChanges {
                     // Resolve the first native-bar measurement before animating subsequent content changes.
                     var transaction = Transaction()
                     transaction.disablesAnimations = true

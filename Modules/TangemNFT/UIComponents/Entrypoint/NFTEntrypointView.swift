@@ -225,12 +225,7 @@ extension NFTEntrypointView {
 
         enum MultipleCollections {
             static let imageSize: CGSize = .init(bothDimensions: 17)
-            static let spacing: CGFloat = 2
             static let dotsImageSize: CGSize = .init(bothDimensions: 9)
-        }
-
-        enum Failed {
-            static let imageSize: CGSize = .init(bothDimensions: 20)
         }
 
         enum Texts {

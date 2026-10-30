@@ -18,10 +18,11 @@ actor PolymarketWithdrawTransactionService {
     private let configurationService: PolymarketConfigurationService
     private let relayerService: PolymarketRelayerService
     private let withdrawService: PolymarketWithdrawService
+    private let tracker: any PolymarketWithdrawTracking
     private let depositWalletResolver: PolymarketDepositWalletResolver
     private let signer: PolymarketBatchSigning
     private let serverClock: PolymarketServerClock
-    private let pollDelayProvider: PollDelayProvider
+    private let sessionHealth: PolymarketSessionHealthChecking?
 
     private var isWithdrawInProgress = false
 
@@ -30,19 +31,21 @@ actor PolymarketWithdrawTransactionService {
         configurationService: PolymarketConfigurationService,
         relayerService: PolymarketRelayerService,
         withdrawService: PolymarketWithdrawService,
+        tracker: any PolymarketWithdrawTracking,
         depositWalletResolver: PolymarketDepositWalletResolver,
         signer: PolymarketBatchSigning,
         serverClock: PolymarketServerClock,
-        pollDelayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
+        sessionHealth: PolymarketSessionHealthChecking? = nil
     ) {
         self.bridgeService = bridgeService
         self.configurationService = configurationService
         self.relayerService = relayerService
         self.withdrawService = withdrawService
+        self.tracker = tracker
         self.depositWalletResolver = depositWalletResolver
         self.signer = signer
         self.serverClock = serverClock
-        self.pollDelayProvider = pollDelayProvider
+        self.sessionHealth = sessionHealth
     }
 }
 
@@ -79,6 +82,11 @@ private extension PolymarketWithdrawTransactionService {
 
             return Error.notSigned
 
+        case PolymarketAccountFundsError.depositWalletNotReadyToTrade(let status):
+            PolymarketLogger.error(error: "The withdrawal was stopped: the wallet is \(status.rawValue), not ready to trade")
+
+            return PolymarketSessionVerdict(status: status) == .reconnectRequired ? Error.reconnectRequired : Error.preparationFailed
+
         case let refusal as PolymarketWithdrawError:
             PolymarketLogger.error("The backend refused the withdrawal", error: refusal)
 
@@ -112,17 +120,21 @@ private extension PolymarketWithdrawTransactionService {
         let amountBaseUnits = try makeAmountBaseUnits(from: amount)
         let call = try makeCall(to: bridgeAddress, amountBaseUnits: amountBaseUnits)
         let nonce = try await relayerService.walletNonce(ownerAddress: addresses.owner)
+        let deadline = makeDeadline()
 
         let batch = PolymarketRelayedBatch.Unsigned(
             depositWalletAddress: addresses.depositWallet,
             nonce: nonce,
-            deadline: makeDeadline(),
+            deadline: String(Int(deadline.timeIntervalSince1970)),
             calls: [call]
         )
 
         let signed = try await signer.sign(batch, as: addresses.owner)
+        let record = try await submit(signed)
 
-        return try await settledRecord(for: try await submit(signed))
+        await tracker.track(record, deadline: deadline)
+
+        return try settled(record)
     }
 
     func bridgeAddress(
@@ -180,13 +192,15 @@ private extension PolymarketWithdrawTransactionService {
         return call
     }
 
-    func makeDeadline() -> String {
-        String(Int(serverClock.now.timeIntervalSince1970) + Constants.deadlineOffset)
+    func makeDeadline() -> Date {
+        Date(timeIntervalSince1970: TimeInterval(Int(serverClock.now.timeIntervalSince1970) + Constants.deadlineOffset))
     }
 
     func submit(_ batch: PolymarketRelayedBatch) async throws -> PolymarketWithdrawRecord {
         do {
             return try await withdrawService.submit(batch)
+        } catch .conflict(let detail) {
+            throw await reconnectRequirementOrConflict(detail: detail)
         } catch {
             guard case .other(.connection) = error else {
                 throw error
@@ -198,35 +212,14 @@ private extension PolymarketWithdrawTransactionService {
         }
     }
 
-    func settledRecord(for record: PolymarketWithdrawRecord) async throws -> PolymarketWithdrawRecord {
-        if record.state.isTerminal {
-            return try settled(record)
+    func reconnectRequirementOrConflict(detail: String?) async -> Swift.Error {
+        let conflict = PolymarketWithdrawError.conflict(detail: detail)
+
+        guard let sessionHealth else {
+            return conflict
         }
 
-        try? await pollDelayProvider.wait(for: Constants.pollingInterval)
-
-        let polling = PollingSequence(
-            interval: Constants.pollingInterval,
-            request: { [withdrawService] in try await withdrawService.record(ofWithdrawal: record.transactionId) },
-            delayProvider: pollDelayProvider
-        )
-
-        var latest = record
-
-        for await result in polling.prefix(Constants.pollingAttempts) {
-            guard let polled = result.value else {
-                continue
-            }
-
-            guard polled.state.isTerminal else {
-                latest = polled
-                continue
-            }
-
-            return try settled(polled)
-        }
-
-        return latest
+        return await sessionHealth.verify() == .reconnectRequired ? Error.reconnectRequired : conflict
     }
 
     func settled(_ record: PolymarketWithdrawRecord) throws -> PolymarketWithdrawRecord {
@@ -251,6 +244,7 @@ extension PolymarketWithdrawTransactionService {
         case preparationFailed
         case transferFailed(PolymarketWithdrawRecord)
         case refused(PolymarketWithdrawError)
+        case reconnectRequired
 
         var errorDescription: String? {
             switch self {
@@ -264,6 +258,9 @@ extension PolymarketWithdrawTransactionService {
                 Localization.predictionWithdrawStatusFailedDescription
             case .refused(let error):
                 Self.message(for: error)
+            // [REDACTED_TODO_COMMENT]
+            case .reconnectRequired:
+                "Your prediction account needs to be reconnected before you can withdraw."
             }
         }
     }
@@ -293,7 +290,5 @@ private extension PolymarketWithdrawTransactionService.Error {
 private extension PolymarketWithdrawTransactionService {
     enum Constants {
         static let deadlineOffset = 600
-        static let pollingInterval: TimeInterval = 3
-        static let pollingAttempts = 10
     }
 }

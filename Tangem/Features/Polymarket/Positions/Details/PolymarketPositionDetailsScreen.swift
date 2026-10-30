@@ -19,18 +19,15 @@ struct PolymarketPositionDetailsScreen: View {
         PolymarketPositionDetailsView(model: viewModel.model) { viewModel.handleViewAction(.close) }
             .onWillDisappear { viewModel.handleViewAction(.onDisappear) }
             .alert(item: $viewModel.alert) { $0.alert }
-            .sheet(item: $viewModel.hint) { hint in
-                PolymarketPositionHintSheetView(model: hint)
-                    .presentationDetents(idealHeight: Constants.hintSheetHeight)
-                    .presentationBackground(DesignSystem.Color.bgPrimary)
-            }
-    }
-}
-
-// MARK: - Constants
-
-private extension PolymarketPositionDetailsScreen {
-    enum Constants {
-        static let hintSheetHeight: CGFloat = 180
+            .modal(
+                item: $viewModel.hint,
+                header: { hint in
+                    FeedModalHeaderView(title: hint.title, onClose: { viewModel.hint = nil })
+                },
+                content: { hint in
+                    PolymarketPositionHintSheetView(model: hint)
+                }
+            )
+            .scrollIndicators(.hidden)
     }
 }

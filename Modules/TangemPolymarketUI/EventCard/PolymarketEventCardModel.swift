@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 public extension PolymarketEventCard {
     enum Variant: Hashable {
@@ -14,7 +15,7 @@ public extension PolymarketEventCard {
         case singleMarket
     }
 
-    struct Model {
+    struct Model: Equatable {
         public let id: String
 
         public let title: String
@@ -25,6 +26,7 @@ public extension PolymarketEventCard {
         public let rows: [Row]
         public let additionalOutcomesCount: Int
         public let isInActivePredicts: Bool
+        public let isLive: Bool
 
         public init(
             id: String,
@@ -35,7 +37,8 @@ public extension PolymarketEventCard {
             variant: Variant,
             rows: [Row],
             additionalOutcomesCount: Int,
-            isInActivePredicts: Bool
+            isInActivePredicts: Bool,
+            isLive: Bool = false
         ) {
             self.id = id
             self.title = title
@@ -46,12 +49,13 @@ public extension PolymarketEventCard {
             self.rows = rows
             self.additionalOutcomesCount = additionalOutcomesCount
             self.isInActivePredicts = isInActivePredicts
+            self.isLive = isLive
         }
     }
 
     typealias Category = PolymarketMarketMetaRow.Category
 
-    struct Row: Identifiable {
+    struct Row: Identifiable, Equatable {
         public let id: String
         public let title: String?
         public let subtitle: String?
@@ -65,12 +69,13 @@ public extension PolymarketEventCard {
         }
     }
 
-    struct Outcome: Identifiable {
+    struct Outcome: Identifiable, Equatable {
         public let id: String
         public let title: String
         public let priceText: String?
         public let style: PolymarketOutcomeStyle
-        public let onSelect: () -> Void
+        @IgnoredEquatable
+        public var onSelect: () -> Void
 
         public init(
             id: String,

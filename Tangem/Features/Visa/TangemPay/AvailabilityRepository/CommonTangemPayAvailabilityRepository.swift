@@ -18,7 +18,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
     }
 
     var tangemPayDetailsEntrypointEligibleWalletSelectionPublisher: AnyPublisher<TangemPayWalletSelectionType?, Never> {
-        tangemPayEligibleWalletSelectionPublisher(for: .details, requiresDistributionChannel: !isChooseCountryEnabled)
+        tangemPayEligibleWalletSelectionPublisher(for: .details, requiresDistributionChannel: false)
     }
 
     @Injected(\.userWalletRepository)
@@ -71,21 +71,14 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
             .map { $0 && $1 }
     }
 
-    private var isChooseCountryEnabled: Bool {
-        FeatureProvider.isAvailable(.tangemPayChooseCountry)
-    }
-
     private let availabilityService: TangemPayAvailabilityService
+    private let eligibleDistributionChannelsRequests = KeyedTaskProcessor<String, [TangemPayDistributionChannel]>()
     private var bag = Set<AnyCancellable>()
 
     init(availabilityService: TangemPayAvailabilityService = TangemPayAvailabilityServiceBuilder().build()) {
         self.availabilityService = availabilityService
 
         bind()
-
-        runTask(in: self) { repo in
-            await repo.requestEligibleDistributionChannels()
-        }
     }
 
     func tangemPayBannerEntrypointEligibleWalletSelectionPublisher(
@@ -113,7 +106,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
     var tangemPayFeedCardEntrypointEligibleWalletSelectionPublisher: AnyPublisher<TangemPayWalletSelectionType?, Never> {
         Publishers
             .CombineLatest(
-                tangemPayEligibleWalletSelectionPublisher(for: .banner, requiresDistributionChannel: !isChooseCountryEnabled),
+                tangemPayEligibleWalletSelectionPublisher(for: .banner, requiresDistributionChannel: false),
                 currentWalletModelsContainPaeraCustomers
             )
             .map { walletSelection, currentWalletModelsContainPaeraCustomers in
@@ -135,17 +128,32 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
 
     @discardableResult
     func requestEligibleDistributionChannels() async -> [TangemPayDistributionChannel] {
+        let channels = try? await eligibleDistributionChannelsRequests.execute(
+            forKey: Self.eligibleDistributionChannelsRequestKey
+        ) { [weak self] in
+            await self?.loadEligibleDistributionChannelsIfNeeded() ?? []
+        }
+
+        return channels ?? []
+    }
+
+    private func loadEligibleDistributionChannelsIfNeeded() async -> [TangemPayDistributionChannel] {
+        let cachedChannels = await MainActor.run {
+            AppSettings.shared.tangemPayEligibleDistributionChannels
+        }
+
+        if let cachedChannels {
+            return cachedChannels.compactMap(TangemPayDistributionChannel.init(rawValue:))
+        }
+
         do {
-            let eligibleDistributionChannels =
-                try await availabilityService
-                    .loadEligibility()
-                    .channels
+            let channels = try await availabilityService.loadEligibility().channels
 
             await MainActor.run {
-                AppSettings.shared.tangemPayEligibleDistributionChannels = eligibleDistributionChannels.map(\.rawValue)
+                AppSettings.shared.tangemPayEligibleDistributionChannels = channels.map(\.rawValue)
             }
 
-            return eligibleDistributionChannels
+            return channels
         } catch {
             VisaLogger.error("Failed to receive TangemPay availability", error: error)
             return []
@@ -158,7 +166,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
     ) -> AnyPublisher<TangemPayWalletSelectionType?, Never> {
         let isDistributionChannelEligible = AppSettings.shared
             .$tangemPayEligibleDistributionChannels
-            .map { !requiresDistributionChannel || $0.contains(distributionChannel.rawValue) }
+            .map { !requiresDistributionChannel || ($0 ?? []).contains(distributionChannel.rawValue) }
 
         return Publishers
             .CombineLatest(
@@ -284,6 +292,10 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
 }
 
 // MARK: - Private utils
+
+private extension CommonTangemPayAvailabilityRepository {
+    static let eligibleDistributionChannelsRequestKey = "eligibleDistributionChannels"
+}
 
 private extension UserWalletRepositoryEvent {
     var requestPaeraCustomerId: UserWalletId? {

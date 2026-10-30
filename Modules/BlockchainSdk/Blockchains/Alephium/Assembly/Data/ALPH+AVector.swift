@@ -12,10 +12,6 @@ extension ALPH {
     /// Define AVector as a typealias for Array
     typealias AVector<Element> = [Element]
 
-    /// Creates an empty array of the specified element type
-    /// - Returns: An empty array of the specified element type
-    static func empty<Element>() -> AVector<Element> { [] }
-
     /// Creates an array with the specified element type and initializes it with the given elements
     /// - Parameters:
     ///   - elements: The elements to initialize the array with

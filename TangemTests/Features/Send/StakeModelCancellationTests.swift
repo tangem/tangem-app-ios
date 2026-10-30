@@ -10,12 +10,11 @@ import Combine
 import Testing
 import BlockchainSdk
 import TangemFoundation
-import TangemTestKit
 @testable import TangemStaking
 @testable import Tangem
 
 @Suite("StakeModel ignores cancelled fee updates")
-final class StakeModelCancellationTests: LeakTrackingTestSuite {
+final class StakeModelCancellationTests {
     private let blockchain = Blockchain.solana(curve: .ed25519_slip0010, testnet: false)
 
     private var tokenItem: TokenItem { .blockchain(.init(blockchain, derivationPath: nil)) }
@@ -23,19 +22,26 @@ final class StakeModelCancellationTests: LeakTrackingTestSuite {
     @Test("StakeModel does not publish a network failure when fee estimation is cancelled", .timeLimit(.minutes(1)))
     func ignoresCancelledFeeEstimation() async throws {
         let (estimationStarted, stakingManager) = makeHangingFirstCallStakingManager()
-        let model = makeModel(stakingManager: stakingManager, preflightValidator: nil)
-        let recordedStates = recordStates(of: model.statePublisher)
+        weak var weakModel: StakeModel?
 
-        var estimationStartedIterator = estimationStarted.makeAsyncIterator()
-        await estimationStartedIterator.next()
+        do {
+            let model = makeModel(stakingManager: stakingManager, preflightValidator: nil)
+            weakModel = model
+            let recordedStates = recordStates(of: model.statePublisher)
 
-        model.updateFees()
+            var estimationStartedIterator = estimationStarted.makeAsyncIterator()
+            await estimationStartedIterator.next()
 
-        try await waitUntilReady(state: { model.state })
-        try await Task.sleep(nanoseconds: 100_000_000)
+            model.updateFees()
 
-        assertNoFailureStates(in: recordedStates.states.withLock { $0 })
-        withExtendedLifetime(recordedStates.cancellable) {}
+            try await waitUntilReady(state: { model.state })
+            try await Task.sleep(nanoseconds: 100_000_000)
+
+            assertNoFailureStates(in: recordedStates.states.withLock { $0 })
+            withExtendedLifetime(recordedStates.cancellable) {}
+        }
+
+        #expect(await waitUntilConditionMet { weakModel == nil })
     }
 
     @Test("StakeModel does not publish a stale preflight result from a cancelled task", .timeLimit(.minutes(1)))
@@ -44,19 +50,26 @@ final class StakeModelCancellationTests: LeakTrackingTestSuite {
         stakingManager.estimateFeeBody = { _ in 0.000005 }
 
         let (preflightStarted, preflightValidator) = makeHangingFirstCallPreflightValidator()
-        let model = makeModel(stakingManager: stakingManager, preflightValidator: preflightValidator)
-        let recordedStates = recordStates(of: model.statePublisher)
+        weak var weakModel: StakeModel?
 
-        var preflightStartedIterator = preflightStarted.makeAsyncIterator()
-        await preflightStartedIterator.next()
+        do {
+            let model = makeModel(stakingManager: stakingManager, preflightValidator: preflightValidator)
+            weakModel = model
+            let recordedStates = recordStates(of: model.statePublisher)
 
-        model.updateFees()
+            var preflightStartedIterator = preflightStarted.makeAsyncIterator()
+            await preflightStartedIterator.next()
 
-        try await waitUntilReady(state: { model.state })
-        try await Task.sleep(nanoseconds: 100_000_000)
+            model.updateFees()
 
-        assertNoFailureStates(in: recordedStates.states.withLock { $0 })
-        withExtendedLifetime(recordedStates.cancellable) {}
+            try await waitUntilReady(state: { model.state })
+            try await Task.sleep(nanoseconds: 100_000_000)
+
+            assertNoFailureStates(in: recordedStates.states.withLock { $0 })
+            withExtendedLifetime(recordedStates.cancellable) {}
+        }
+
+        #expect(await waitUntilConditionMet { weakModel == nil })
     }
 }
 
@@ -115,7 +128,7 @@ private extension StakeModelCancellationTests {
             initialAmount: SendAmount(type: .typical(crypto: action.amount, fiat: nil)),
             initialTarget: .loading
         )
-        return trackForMemoryLeaks(model)
+        return model
     }
 
     func makeSendSourceToken() -> SendTransferableTokenStub {

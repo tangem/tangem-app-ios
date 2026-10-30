@@ -57,7 +57,6 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.WalletModelT
             self.records = OSAllocatedUnfairLock(uncheckedState: records)
         }
 
-        var state: TransactionHistoryServiceState { stateSubject.value }
         var statePublisher: AnyPublisher<TransactionHistoryServiceState, Never> { stateSubject.eraseToAnyPublisher() }
         var items: [TransactionRecord] { get async { records.withLockUnchecked { $0 } } }
         var canFetchHistory: Bool { false }

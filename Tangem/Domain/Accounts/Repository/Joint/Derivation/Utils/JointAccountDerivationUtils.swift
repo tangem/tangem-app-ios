@@ -26,11 +26,11 @@ enum JointAccountDerivationUtils {
 
     /// Reads the keys anew on every call: `KeyInfo` is a value, so a copy taken before
     /// `update(derivations:)` never gains the key that was just derived.
-    static func storedDerivedKey(at derivationPath: DerivationPath, in keysProvider: KeysProvider) throws -> JointAccountDerivedKey? {
+    static func storedDerivedKey(at derivationPath: DerivationPath, in keysProvider: KeysProvider) throws -> JointAccountDerivedKey {
         let masterKey = try keysProvider.masterKey(curve: JointAccountKeyPath.blockchain.curve)
 
         guard let extendedPublicKey = masterKey.derivedKeys[derivationPath] else {
-            return nil
+            throw Error.keyNotStored
         }
 
         guard let seedKey = masterKey.publicKey else {
@@ -56,6 +56,20 @@ enum JointAccountDerivationUtils {
         let prefix = "\u{19}Ethereum Signed Message:\n\(canonicalPayload.count)"
 
         return (Data(prefix.utf8) + canonicalPayload).sha3(.keccak256)
+    }
+}
+
+// MARK: - Error
+
+extension JointAccountDerivationUtils {
+    enum Error: String, LocalizedError {
+        case keyNotStored
+
+        var errorDescription: String? {
+            switch self {
+            case .keyNotStored: "No key has been derived at this path on the wallet yet."
+            }
+        }
     }
 }
 

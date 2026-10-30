@@ -14,12 +14,7 @@ protocol KeysManager {
     var authServiceKey: String { get }
     var surveySparrow: SurveySparrowKeys { get }
     var moonPayKeys: MoonPayKeys { get }
-    var mercuryoWidgetId: String { get }
-    var mercuryoSecret: String { get }
     var blockchainSdkKeysConfig: BlockchainSdkKeysConfig { get }
-    var tangemComAuthorization: String? { get }
-    var infuraProjectId: String { get }
-    var utorgSID: String { get }
     var walletConnectProjectId: String { get }
     var expressKeys: ExpressKeys { get }
     var devExpressKeys: ExpressKeys? { get }
@@ -31,7 +26,6 @@ protocol KeysManager {
     var tangemApiKeyStage: String { get }
     var amplitudeApiKey: String { get }
     var otlpApiKey: String { get }
-    var appsFlyerConfig: AppsFlyerConfig { get }
     var yieldModuleApiKey: String { get }
     var yieldModuleApiKeyDev: String { get }
     var p2pApiKeys: P2PAPIKeys { get }

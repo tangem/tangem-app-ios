@@ -67,14 +67,5 @@ extension TangemPayCardDetailsState {
     enum LoadedState: Equatable {
         case unrevealed(details: TangemPayCardDetailsData, isLoading: Bool)
         case revealed(TangemPayCardDetailsData)
-
-        var isRevealed: Bool {
-            switch self {
-            case .revealed:
-                true
-            case .unrevealed:
-                false
-            }
-        }
     }
 }

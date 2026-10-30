@@ -19,10 +19,6 @@ extension FloatingSheetRegistry {
             YieldModuleTransactionView(viewModel: viewModel)
         }
 
-        register(YieldModuleClaimViewModel.self) { viewModel in
-            YieldModuleClaimView(viewModel: viewModel)
-        }
-
         register(YieldModuleAboutApyViewModel.self) { viewModel in
             Group {
                 if viewModel.usesIncentiveDesign {

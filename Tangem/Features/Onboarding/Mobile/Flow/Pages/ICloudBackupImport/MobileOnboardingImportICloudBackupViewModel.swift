@@ -197,7 +197,13 @@ private extension MobileOnboardingImportICloudBackupViewModel {
             await setupIsProcessing(false)
 
             logImportErrorAnalytics(error)
-            await showErrorAlert()
+
+            switch error {
+            case UserWalletRepositoryError.duplicateWalletAdded:
+                await showAlert(error.alertBinder)
+            default:
+                await showErrorAlert()
+            }
 
             AppLogger.error("Failed to create wallet from iCloud backup", error: error)
         }

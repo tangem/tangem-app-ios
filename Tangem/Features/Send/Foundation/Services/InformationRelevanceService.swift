@@ -13,7 +13,6 @@ import TangemFoundation
 protocol InformationRelevanceService {
     var isActual: Bool { get }
 
-    func informationDidUpdated()
     func updateInformation() -> AnyPublisher<InformationRelevanceServiceUpdateResult, Error>
 }
 

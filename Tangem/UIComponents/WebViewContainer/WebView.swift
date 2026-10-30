@@ -24,6 +24,7 @@ struct WebView: UIViewRepresentable {
     var urlActions: [String: (String) -> Void] = [:]
     var isLoading: Binding<Bool>?
     var contentInset: UIEdgeInsets?
+    var contentInsetAdjustmentBehavior: UIScrollView.ContentInsetAdjustmentBehavior = .automatic
     var timeoutSettings: WebViewTimeoutSettings?
 
     /// Allow page JavaScript to run. Documents keep it off; the chat widget needs it on.
@@ -56,6 +57,7 @@ struct WebView: UIViewRepresentable {
         if let contentInset {
             view.scrollView.contentInset = contentInset
         }
+        view.scrollView.contentInsetAdjustmentBehavior = contentInsetAdjustmentBehavior
 
         if let htmlString {
             view.loadHTMLString(htmlString, baseURL: baseURL)

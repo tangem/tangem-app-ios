@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import TangemFoundation
+import TangemUI
 
 enum MainUserWalletPageBuilder: Identifiable {
     case singleWallet(
@@ -49,13 +50,6 @@ enum MainUserWalletPageBuilder: Identifiable {
         }
     }
 
-    var isLockedWallet: Bool {
-        switch self {
-        case .lockedWallet: return true
-        case .singleWallet, .multiWallet, .visaWallet: return false
-        }
-    }
-
     var headerModel: MainHeaderViewModel {
         switch self {
         case .singleWallet(_, _, let headerModel, _): headerModel
@@ -91,12 +85,13 @@ enum MainUserWalletPageBuilder: Identifiable {
         MainNavigationView(viewModel: navigationModel)
     }
 
-    var header: some View {
-        MainHeaderView(viewModel: headerModel)
+    var content: some View {
+        pageContent
+            .messageBannerNeutralVariant(.light)
     }
 
     @ViewBuilder
-    var content: some View {
+    private var pageContent: some View {
         switch self {
         case .singleWallet(let id, _, _, let bodyModel):
             makeSingleWalletContent(id: id, bodyModel: bodyModel)

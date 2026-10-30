@@ -11,8 +11,6 @@ import TangemLocalization
 import TangemSdk
 
 class WriteIssuerDataTask: CardSessionRunnable {
-    var message: Message? { Message(header: Localization.twinsRecreateTitleCreatingWallet) }
-
     private let pairPubKey: Data
     private let keys: KeyPair
 

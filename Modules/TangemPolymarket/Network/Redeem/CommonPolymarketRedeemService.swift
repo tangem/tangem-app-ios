@@ -33,12 +33,16 @@ final class CommonPolymarketRedeemService {
 // MARK: - PolymarketRedeemService protocol conformance
 
 extension CommonPolymarketRedeemService: PolymarketRedeemService {
-    func call(conditionId: String, isNegRisk: Bool) async throws(PolymarketRedeemError) -> PolymarketRelayedBatch.Call {
-        let response: PolymarketDTO.RedeemCallResponse = try await request(
-            .call(conditionId: conditionId, isNegRisk: isNegRisk)
-        )
+    func calls(for request: PolymarketRedeemCallRequest) async throws(PolymarketRedeemError) -> [PolymarketRelayedBatch.Call] {
+        let response: PolymarketDTO.RedeemCallResponse
 
-        return try mapper.mapRedeemCall(response, conditionId: conditionId, isNegRisk: isNegRisk)
+        do {
+            response = try await self.request(.call(conditionId: request.conditionId, isNegRisk: request.isNegRisk))
+        } catch {
+            throw PolymarketRedeemError.forRedeemCall(error)
+        }
+
+        return try mapper.mapRedeemCalls(response, request: request)
     }
 
     func submit(_ batch: PolymarketRelayedBatch) async throws(PolymarketRedeemError) -> PolymarketRedeemRecord {

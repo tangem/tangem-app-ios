@@ -32,10 +32,6 @@ extension MobileBackupStatusUtil {
         userWalletModel.config.hasSocialLogin
     }
 
-    var hasBackup: Bool {
-        Self.hasBackup(config: userWalletModel.config)
-    }
-
     var isBackupNeeded: Bool {
         Self.isBackupNeeded(config: userWalletModel.config)
     }

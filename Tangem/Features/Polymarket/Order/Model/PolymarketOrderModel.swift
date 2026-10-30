@@ -139,6 +139,8 @@ final class PolymarketOrderModel: ObservableObject {
             }
         case .selectFraction(let fraction):
             apply(fraction: fraction)
+        case .selectAmount(let amount):
+            select(amount: amount)
         case .selectSlippage(let percent):
             apply(slippagePercent: percent)
         case .step(let step):
@@ -228,6 +230,7 @@ extension PolymarketOrderModel {
         case onAppear
         case onDisappear
         case selectFraction(PolymarketAmountFraction)
+        case selectAmount(Decimal)
         case selectSlippage(Decimal)
         case step(Int)
         case retryQuote
@@ -445,10 +448,10 @@ private extension PolymarketOrderModel {
         }
 
         guard state.enteredAmount != nil else {
-            quoteTask = runTask(in: self) { [delayProvider] model in
+            quoteTask = Task { [weak self, delayProvider] in
                 let polling = PollingSequence(
                     interval: Constants.pollInterval,
-                    request: { await model.requestBookPrice() },
+                    request: { await self?.requestBookPrice() },
                     delayProvider: delayProvider
                 )
 
@@ -457,14 +460,14 @@ private extension PolymarketOrderModel {
             return
         }
 
-        quoteTask = runTask(in: self) { [delayProvider] model in
+        quoteTask = Task { [weak self, delayProvider] in
             if debounced {
                 try? await delayProvider.wait(for: Constants.debounce)
             }
 
             let polling = PollingSequence(
-                interval: { model.pollInterval },
-                request: { await model.requestQuote() },
+                interval: { self?.pollInterval ?? Constants.pollInterval },
+                request: { await self?.requestQuote() },
                 delayProvider: delayProvider
             )
 
@@ -508,7 +511,7 @@ private extension PolymarketOrderModel {
     }
 
     func requestQuote() async {
-        guard let amount = state.enteredAmount else { return }
+        guard let amount = state.enteredAmount, market.version.isSupported else { return }
 
         if case .empty = state.quote {
             state.quote = .loading

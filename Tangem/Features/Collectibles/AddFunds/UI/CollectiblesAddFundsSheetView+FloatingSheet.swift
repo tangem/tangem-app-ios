@@ -17,7 +17,7 @@ extension CollectiblesAddFundsSheetView {
         var body: some View {
             CollectiblesAddFundsSheetView(viewModel: viewModel)
                 .floatingSheetConfiguration { configuration in
-                    configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+                    configuration.sheetBackground = .color(DesignSystem.Color.bgSecondary)
                     configuration.backgroundInteractionBehavior = .tapToDismiss
                 }
         }

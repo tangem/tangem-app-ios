@@ -47,5 +47,11 @@ struct AccountDetailsCoordinatorView: View {
                 .presentation(onDismissalAttempt: viewModel.onClose)
                 .presentationCornerRadius(24)
             }
+            .modal(
+                item: $coordinator.supportedNetworksViewModel,
+                navigation: .title(Localization.commonSupportedNetworks)
+            ) {
+                JointAccountSupportedNetworksView(viewModel: $0)
+            }
     }
 }

@@ -7,8 +7,6 @@
 //
 
 protocol WalletConnectHapticFeedbackGenerator {
-    func selectionChanged()
-
     func prepareNotificationFeedback()
     func successNotificationOccurred()
     func warningNotificationOccurred()

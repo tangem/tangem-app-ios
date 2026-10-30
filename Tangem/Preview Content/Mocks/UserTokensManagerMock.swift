@@ -13,6 +13,7 @@ import BlockchainSdk
 struct UserTokensManagerMock: UserTokensManager {
     var containsTokenItem = false
     var userTokenItems: [TokenItem] = []
+    var onUpdate: ((_ itemsToAdd: [TokenItem]) -> Void)?
 
     var userTokens: [TokenItem] { userTokenItems }
 
@@ -33,7 +34,9 @@ struct UserTokensManagerMock: UserTokensManager {
         completion(.success(updatedItems))
     }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws {}
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws {
+        onUpdate?(itemsToAdd)
+    }
 
     func addTokenItemHardwarePrecondition(_ tokenItem: TokenItem) throws {}
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {}

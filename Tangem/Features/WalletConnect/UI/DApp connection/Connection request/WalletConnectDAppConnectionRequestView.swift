@@ -106,9 +106,7 @@ struct WalletConnectDAppConnectionRequestView: View {
                 titleView: {
                     switch connectionTargetSection.state {
                     case .loading:
-                        SkeletonView()
-                            .frame(width: 64, height: 24)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        Shimmer().variant(.custom(width: 64, height: 24, cornerRadius: 8))
                     case .content:
                         Text(label)
                             .style(Fonts.Regular.body, color: Colors.Text.primary1)
@@ -118,9 +116,7 @@ struct WalletConnectDAppConnectionRequestView: View {
                 trailingView: {
                     switch connectionTargetSection.state {
                     case .loading:
-                        SkeletonView()
-                            .frame(width: 88, height: 24)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        Shimmer().variant(.custom(width: 88, height: 24, cornerRadius: 8))
                     case .content:
                         switch connectionTargetSection.target {
                         case .wallet:
@@ -170,9 +166,7 @@ struct WalletConnectDAppConnectionRequestView: View {
         HStack(spacing: 0) {
             switch viewModel.state.networksSection.state {
             case .loading:
-                SkeletonView()
-                    .frame(width: 88, height: 24)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                Shimmer().variant(.custom(width: 88, height: 24, cornerRadius: 8))
 
             case .content(let contentState):
                 switch contentState.selectionMode {

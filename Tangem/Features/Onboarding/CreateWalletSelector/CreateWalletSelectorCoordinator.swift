@@ -20,8 +20,6 @@ class CreateWalletSelectorCoordinator: CoordinatorObject {
 
     // MARK: - Dependencies
 
-    @Injected(\.safariManager) private var safariManager: SafariManager
-
     required init(
         dismissAction: @escaping Action<OutputOptions>,
         popToRootAction: @escaping Action<PopToRootOptions>

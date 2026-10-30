@@ -120,7 +120,8 @@ enum TransactionViewPreviewData {
             isOutgoing: false,
             transactionType: .transfer,
             status: .inProgress,
-            isFromYieldContract: false
+            isFromYieldContract: false,
+            isTangemPayCounterparty: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -133,7 +134,8 @@ enum TransactionViewPreviewData {
             isOutgoing: false,
             transactionType: .transfer,
             status: .confirmed,
-            isFromYieldContract: false
+            isFromYieldContract: false,
+            isTangemPayCounterparty: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -146,7 +148,8 @@ enum TransactionViewPreviewData {
             isOutgoing: true,
             transactionType: .approve,
             status: .confirmed,
-            isFromYieldContract: false
+            isFromYieldContract: false,
+            isTangemPayCounterparty: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -159,7 +162,8 @@ enum TransactionViewPreviewData {
             isOutgoing: true,
             transactionType: .swap,
             status: .inProgress,
-            isFromYieldContract: false
+            isFromYieldContract: false,
+            isTangemPayCounterparty: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -172,7 +176,8 @@ enum TransactionViewPreviewData {
             isOutgoing: false,
             transactionType: .swap,
             status: .inProgress,
-            isFromYieldContract: false
+            isFromYieldContract: false,
+            isTangemPayCounterparty: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -185,7 +190,8 @@ enum TransactionViewPreviewData {
             isOutgoing: true,
             transactionType: .swap,
             status: .confirmed,
-            isFromYieldContract: false
+            isFromYieldContract: false,
+            isTangemPayCounterparty: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -198,7 +204,8 @@ enum TransactionViewPreviewData {
             isOutgoing: true,
             transactionType: .approve,
             status: .confirmed,
-            isFromYieldContract: false
+            isFromYieldContract: false,
+            isTangemPayCounterparty: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -211,7 +218,8 @@ enum TransactionViewPreviewData {
             isOutgoing: true,
             transactionType: .approve,
             status: .inProgress,
-            isFromYieldContract: false
+            isFromYieldContract: false,
+            isTangemPayCounterparty: false
         ),
     ]
 
@@ -227,7 +235,8 @@ enum TransactionViewPreviewData {
             isOutgoing: true,
             transactionType: .operation(name: "Sending"),
             status: .inProgress,
-            isFromYieldContract: false
+            isFromYieldContract: false,
+            isTangemPayCounterparty: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -240,7 +249,8 @@ enum TransactionViewPreviewData {
             isOutgoing: false,
             transactionType: .swap,
             status: .inProgress,
-            isFromYieldContract: false
+            isFromYieldContract: false,
+            isTangemPayCounterparty: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -253,7 +263,8 @@ enum TransactionViewPreviewData {
             isOutgoing: false,
             transactionType: .approve,
             status: .inProgress,
-            isFromYieldContract: false
+            isFromYieldContract: false,
+            isTangemPayCounterparty: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -266,7 +277,8 @@ enum TransactionViewPreviewData {
             isOutgoing: false,
             transactionType: .swap,
             status: .inProgress,
-            isFromYieldContract: false
+            isFromYieldContract: false,
+            isTangemPayCounterparty: false
         ),
     ]
 
@@ -282,7 +294,8 @@ enum TransactionViewPreviewData {
             isOutgoing: true,
             transactionType: .operation(name: "Sending"),
             status: .confirmed,
-            isFromYieldContract: false
+            isFromYieldContract: false,
+            isTangemPayCounterparty: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -295,7 +308,8 @@ enum TransactionViewPreviewData {
             isOutgoing: false,
             transactionType: .approve,
             status: .confirmed,
-            isFromYieldContract: false
+            isFromYieldContract: false,
+            isTangemPayCounterparty: false
         ),
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -308,7 +322,8 @@ enum TransactionViewPreviewData {
             isOutgoing: false,
             transactionType: .swap,
             status: .failed,
-            isFromYieldContract: false
+            isFromYieldContract: false,
+            isTangemPayCounterparty: false
         ),
     ]
 }

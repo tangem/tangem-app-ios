@@ -11,7 +11,6 @@ import Foundation
 import TangemExpress
 import TangemFoundation
 import TangemStaking
-import TangemUI
 @testable import Tangem
 
 // MARK: - StakingTargetInfo
@@ -68,8 +67,6 @@ final class StakingManagerMock: StakingManager {
     var updateWalletBalancesPublisher: AnyPublisher<Void, Never> { Empty().eraseToAnyPublisher() }
     var tosURL: URL { URL(string: "https://tangem.com/tos")! }
     var privacyPolicyURL: URL { URL(string: "https://tangem.com/privacy")! }
-
-    func send(state: StakingManagerState) { stateSubject.send(state) }
 
     func updateState(loadActions: Bool, source: StakingUpdateSource) async {}
     func estimateFee(action: StakingAction) async throws -> Decimal {
@@ -183,6 +180,7 @@ final class SendStakingableTokenStub: SendStakingableToken {
     private let dispatcher: TransactionDispatcher
     let transactionValidator: SendTransactionValidator
     let tokenFeeProvidersManager: TokenFeeProvidersManager
+    let availableBalanceProvider: TokenBalanceProvider
     var allowanceService: (any AllowanceService)?
 
     private(set) lazy var transactionDispatcherProviderStub = StakingDispatcherProviderStub(stakingDispatcher: dispatcher)
@@ -191,11 +189,13 @@ final class SendStakingableTokenStub: SendStakingableToken {
         blockchain: Blockchain = .ton(curve: .ed25519, testnet: false),
         dispatcher: TransactionDispatcher = TransactionDispatcherMock(),
         transactionValidator: SendTransactionValidator = SendTransactionValidatorMock(),
+        availableBalanceProvider: TokenBalanceProvider = TokenBalanceProviderStub(),
         allowanceService: (any AllowanceService)? = nil
     ) {
         self.blockchain = blockchain
         self.dispatcher = dispatcher
         self.transactionValidator = transactionValidator
+        self.availableBalanceProvider = availableBalanceProvider
         self.allowanceService = allowanceService
 
         let tokenItem: TokenItem = .blockchain(.init(blockchain, derivationPath: nil))
@@ -226,17 +226,22 @@ final class SendStakingableTokenStub: SendStakingableToken {
     var scaledUIAmountMultiplierResolver: ScaledUIAmountMultiplierResolver? { nil }
     var header: TokenHeader { .wallet(name: "Test", hasOnlyOneWallet: true) }
     var defaultAddressString: String { "" }
-    var availableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderStub() }
     var fiatAvailableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderStub() }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { nil }
     var emailDataCollectorBuilder: EmailDataCollectorBuilder { EmailDataCollectorBuilderStub() }
     var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? { get async { nil } }
     var transactionDispatcherProvider: any TransactionDispatcherProvider { transactionDispatcherProviderStub }
+    var transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider {
+        DefaultTransactionSummaryDescriptionBuilderProvider(tokenItem: tokenItem)
+    }
+
+    var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { BlockchainSDKNotificationMapper(tokenItem: tokenItem) }
+
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { nil }
-    var tangemIconProvider: any TangemIconProvider { StakingTangemIconProviderStub() }
-    var confirmTransactionPolicy: any ConfirmTransactionPolicy { StakingConfirmTransactionPolicyStub() }
+    var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { ReceivingRestrictionsProviderStub(result: nil) }
     var isTangemPayAccount: Bool { false }
     var jointAccountPolicy: JointAccountPolicy? { nil }
+    var isCustomSlippageAllowed: Bool { true }
 
     var transactionCreator: SendTransactionCreator { SendTransactionCreatorStub() }
 }
@@ -255,15 +260,6 @@ final class StakingDispatcherProviderStub: TransactionDispatcherProvider {
     func makeDEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
     func makeApproveAndDEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
     func makeCEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
-    func makeYieldModuleTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
-}
-
-private struct StakingTangemIconProviderStub: TangemIconProvider {
-    func getMainButtonIcon() -> MainButton.Icon? { nil }
-}
-
-private struct StakingConfirmTransactionPolicyStub: ConfirmTransactionPolicy {
-    let needsHoldToConfirm: Bool = false
 }
 
 // MARK: - StakeModelAnalyticsLogger

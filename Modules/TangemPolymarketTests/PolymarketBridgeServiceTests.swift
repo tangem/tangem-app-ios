@@ -7,6 +7,7 @@
 
 import Foundation
 import Testing
+import Alamofire
 import Moya
 @testable import TangemPolymarket
 

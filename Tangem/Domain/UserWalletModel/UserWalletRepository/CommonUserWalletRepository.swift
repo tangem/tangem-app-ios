@@ -25,6 +25,8 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
     @Injected(\.tangemPayRecentOperationsStore)
     private var tangemPayRecentOperationsStore: TangemPayRecentOperationsStore
+    @Injected(\.tangemPayPendingWithdrawExchangesStore)
+    private var tangemPayPendingWithdrawExchangesStore: TangemPayPendingWithdrawExchangesStore
 
     var shouldLockOnBackground: Bool {
         if isLocked {
@@ -76,7 +78,6 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
     private let collectiblesSessionKeyWalletStore: any CollectiblesSessionKeyWalletStore = CommonCollectiblesSessionKeyWalletStore()
     private let collectiblesAccountPresenceStore: any CollectiblesAccountPresenceStore = StoredCollectiblesAccountPresenceStore.appSettings()
-    private var bag: Set<AnyCancellable> = .init()
 
     deinit {
         AppLogger.debug("CommonUserWalletRepository deinit")
@@ -184,55 +185,6 @@ final class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    /// Clean all data except current user wallet
-    func onSaveUserWalletsChanged(enabled: Bool) {
-        if enabled {
-            savePublicData()
-
-            if let selectedModel, let encryptionKey = UserWalletEncryptionKey(config: selectedModel.config) {
-                savePrivateData(userWalletModel: selectedModel, encryptionKey: encryptionKey)
-                userWalletEncryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: selectedModel.userWalletId)
-            }
-
-            // All the necessary data is already saved in MobileWalletSdk, so we don't need to do anything else.
-        } else {
-            let selectedModel = selectedModel
-
-            AccessCodeRepository().clear()
-            CardAccessTokensRepository().clear()
-            visaRefreshTokenRepository.clean()
-            let userWalletIds = models.map { $0.userWalletId }
-            userWalletDataStorage.clean()
-            userWalletEncryptionKeyStorage.clear(userWalletIds: userWalletIds)
-
-            let modelsToDelete = userWalletIds.filter { $0 != selectedModel?.userWalletId }
-
-            do {
-                try mobileWalletSdk.delete(walletIDs: modelsToDelete)
-            } catch {
-                Log.error("Failed to delete mobile sdk data: \(error.localizedDescription)")
-            }
-
-            userWalletIds.forEach {
-                polymarketCredentialsRepository.delete(userWalletId: $0)
-                polymarketAccountPresenceStore.delete(userWalletId: $0)
-            }
-
-            modelsToDelete.forEach {
-                try? collectiblesSessionKeyWalletStore.deleteKey(for: $0)
-                collectiblesAccountPresenceStore.remove($0)
-            }
-
-            let otherUserWallets = models.filter { $0.userWalletId != selectedUserWalletId }
-
-            if let selectedModel {
-                models = [selectedModel]
-            }
-
-            sendEvent(.deleted(userWalletIds: otherUserWallets.map { $0.userWalletId }, isRepositoryEmpty: false))
-        }
-    }
-
     func lock() {
         guard !isLocked else {
             return
@@ -269,10 +221,12 @@ final class CommonUserWalletRepository: UserWalletRepository {
         }
         try? tangemPayAuthorizationTokensRepository.deleteTokens(customerWalletId: userWalletId.stringValue)
         tangemPayRecentOperationsStore.clear(customerWalletId: userWalletId.stringValue)
+        tangemPayPendingWithdrawExchangesStore.clear(userWalletId: userWalletId)
         tangemPayStorageCleaner.clear(customerWalletId: userWalletId.stringValue)
         tangemPayResidencyStatusStorage.deleteResidencyStatuses(userWalletId: userWalletId)
         polymarketCredentialsRepository.delete(userWalletId: userWalletId)
         polymarketAccountPresenceStore.delete(userWalletId: userWalletId)
+        PolymarketWithdrawRecordStore(userWalletId: userWalletId).delete()
         try? collectiblesSessionKeyWalletStore.deleteKey(for: userWalletId)
         collectiblesAccountPresenceStore.remove(userWalletId)
 

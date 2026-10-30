@@ -9,19 +9,17 @@
 import XCTest
 
 final class TangemPayHotWalletOnboardingUITests: BaseTestCase {
-    func testCardIssuing_StartsFromBanner_WhenHotWalletIsCreated() {
+    func testCardIssuing_StartsFromBanner_ForBackedUpHotWallet() {
         setAllureId(10666)
 
-        launchWithoutWallet(
+        let mainScreen = launchAndImportHotWalletWithoutSystemBanners(
             eligibilityState: "Started",
-            extraScenarios: [ScenarioConfig(name: "tangem_pay_eligibility_channels", initialState: "Banner")],
-            featureToggles: Constants.marketingBannersShownWithSystemCards
+            scenarios: [
+                ScenarioConfig(name: "tangem_pay_kyc_status", initialState: "Required"),
+                ScenarioConfig(name: "tangem_pay_eligibility_channels", initialState: "Banner"),
+            ]
         )
-
-        let mainScreen = CreateWalletSelectorScreen(app)
-            .createMobileWallet()
-            .skipPushNotificationsSetup()
-            .verifyGetTangemPayBannerExists()
+        .verifyGetTangemPayBannerExists()
 
         let countrySelection = mainScreen
             .tapGetTangemPayBanner()
@@ -33,12 +31,22 @@ final class TangemPayHotWalletOnboardingUITests: BaseTestCase {
 
         countrySelection
             .waitForScreen(title: Localization.tangempayResidencyTitleCountry)
+            .verifySectionHeaderDisplayed(Localization.tangempayResidencySuggestedCountry)
             .selectRow(Constants.residenceCountry)
             .waitForScreen(title: Localization.tangempayResidencyTitleState)
+
+        let kycRequestsBeforeState = wireMockRequestCount(urlPattern: Constants.kycAccessTokenEndpoint)
+
+        countrySelection
             .selectRow(Constants.residenceState)
             .waitForClosed(title: Localization.tangempayResidencyTitleState)
 
-        mainScreen.verifyTangemPayTileSubtitle(contains: Localization.tangempayKycInProgress)
+        waitForWireMockRequestCount(urlPattern: Constants.kycAccessTokenEndpoint, toExceed: kycRequestsBeforeState)
+
+        mainScreen
+            .verifyTangemPayTileShowsActionRequired()
+            .openTangemPayResidency()
+            .waitForScreen(title: Localization.tangempayResidencyTitleCountry)
     }
 
     func testCardIssuing_StartsFromMobileOnboarding_WhenOpenedByDeeplink() {
@@ -56,21 +64,15 @@ final class TangemPayHotWalletOnboardingUITests: BaseTestCase {
             .verifyTangemPayTileSubtitle(contains: Localization.tangempayKycInProgress)
     }
 
-    private func launchWithoutWallet(
-        eligibilityState: String,
-        extraScenarios: [ScenarioConfig] = [],
-        featureToggles: [String: Bool] = [:],
-        extraLaunchArguments: [String] = []
-    ) {
+    private func launchWithoutWallet(eligibilityState: String, extraLaunchArguments: [String] = []) {
         launchApp(
             tangemApiType: .mock,
             visaApiType: .mock,
             clearStorage: true,
-            featureToggles: featureToggles,
             scenarios: [
                 ScenarioConfig(name: "tangem_pay_eligibility", initialState: eligibilityState),
                 ScenarioConfig(name: "tangem_pay_kyc_status", initialState: "InProgress"),
-            ] + extraScenarios,
+            ],
             extraLaunchArguments: extraLaunchArguments
         )
     }
@@ -80,6 +82,6 @@ private extension TangemPayHotWalletOnboardingUITests {
     enum Constants {
         static let residenceCountry = "United States"
         static let residenceState = "California"
-        static let marketingBannersShownWithSystemCards = ["TWI-1841_hide_marketing_banners_while_system": false]
+        static let kycAccessTokenEndpoint = "/bff-v2/v1/customer/kyc(\\?.*)?"
     }
 }

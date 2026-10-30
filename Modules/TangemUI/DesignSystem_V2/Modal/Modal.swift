@@ -7,15 +7,15 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 
-struct Modal<Header: View, Content: View, Footer: View>: View {
+struct Modal<Header: View, Content: View>: View {
     private let size: ModalSize
     private let contentLayout: ModalContentLayout
     private let dragIndicator: Visibility
     private let navigation: ModalNavigation?
     private let header: Header
     private let content: Content
-    private let footer: Footer
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
@@ -26,6 +26,8 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
     @State private var footerHeight: CGFloat = 0
     @State private var navigationBarHeight: CGFloat = 0
     @State private var isContentScrolled = false
+    @State private var isSearchPresented = false
+    @State private var isPresentationSettled = false
 
     init(
         size: ModalSize = .flexible,
@@ -33,8 +35,7 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
         dragIndicator: Visibility = .visible,
         navigation: ModalNavigation? = nil,
         @ViewBuilder header: () -> Header = { EmptyView() },
-        @ViewBuilder content: () -> Content,
-        @ViewBuilder footer: () -> Footer = { EmptyView() }
+        @ViewBuilder content: () -> Content
     ) {
         self.size = size
         self.contentLayout = contentLayout
@@ -42,7 +43,6 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
         self.navigation = navigation
         self.header = header()
         self.content = content()
-        self.footer = footer()
     }
 
     var body: some View {
@@ -50,6 +50,7 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
             if let navigation {
                 NavigationStack {
                     barLayout
+                        .environment(\.footerHost, footerHost)
                         .topNavigation(
                             title: navigation.title,
                             subtitle: navigation.subtitle,
@@ -62,10 +63,18 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
                 .environment(\.topNavigationDrawsBarBackground, false)
             } else {
                 layout
+                    .environment(\.footerHost, footerHost)
             }
         }
-        .modifier(ModalDetentModifier(size: size, contentLayout: contentLayout, height: measuredHeight))
-        .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 1), value: idealHeight)
+        .messageBannerNeutralVariant(bannerNeutralVariant)
+        .modifier(ModalDetentModifier(
+            size: isSearchPresented ? .full : size,
+            contentLayout: contentLayout,
+            height: measuredHeight,
+            animatesChanges: isPresentationSettled
+        ))
+        .animation(heightAnimation, value: idealHeight)
+        .onFirstDidAppear { isPresentationSettled = true }
         .presentationCornerRadius(ModalAppearance.cornerRadius)
         .presentationDragIndicator(dragIndicator)
         .modifier(ModalBackgroundModifier(size: size))
@@ -85,12 +94,15 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
                     bodyContent
                         .frame(height: bodyHeight(availableHeight: geometry.size.height, scrollsSheet: scrollsSheet))
 
-                    footerBlock
+                    footerSpace
                 }
                 .frame(maxWidth: .infinity, alignment: .top)
             }
             .scrollBounceBehavior(.basedOnSize)
             .scrollDismissesKeyboard(.interactively)
+        }
+        .overlayPreferenceValue(ModalFooterPreferenceKey.self, alignment: .bottom) { item in
+            footerBlock(item)
         })
     }
 
@@ -102,8 +114,12 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
 
                 barBody
 
-                footerBlock
+                footerSpace
             }
+            .overlayPreferenceValue(ModalFooterPreferenceKey.self, alignment: .bottom) { item in
+                footerBlock(item)
+            }
+            .onPreferenceChange(ModalSearchPresentedPreferenceKey.self) { isSearchPresented = $0 }
         )
         .overlay(alignment: .top) {
             barFade
@@ -149,12 +165,28 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { headerHeight = $0 }
     }
 
-    private var footerBlock: some View {
+    private var footerSpace: some View {
+        Color.clear
+            .frame(height: footerHeight)
+    }
+
+    private func footerBlock(_ item: ModalFooterItem?) -> some View {
         VStack(spacing: 0) {
-            footer
+            item?.view
         }
         .fixedSize(horizontal: false, vertical: true)
         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { footerHeight = $0 }
+    }
+
+    private var bannerNeutralVariant: MessageBannerVariant.Neutral? {
+        ModalSurface.isOpaque(isExpanded: size == .full, reduceTransparency: reduceTransparency) ? nil : .onMaterial
+    }
+
+    private var footerHost: FooterHost {
+        FooterHost(
+            modalSurface: ModalSurface.fill(isExpanded: size == .full, reduceTransparency: reduceTransparency),
+            supportsNativeSearch: navigation != nil
+        )
     }
 
     private func readingNavigationBarHeight(_ layout: some View) -> some View {
@@ -202,6 +234,10 @@ struct Modal<Header: View, Content: View, Footer: View>: View {
             content
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+    }
+
+    private var heightAnimation: Animation? {
+        reduceMotion || !isPresentationSettled ? nil : .spring(response: 0.35, dampingFraction: 1)
     }
 
     private var idealHeight: CGFloat {

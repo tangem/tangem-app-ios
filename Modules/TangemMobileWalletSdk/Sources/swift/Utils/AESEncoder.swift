@@ -214,10 +214,8 @@ extension AESEncoder {
         static let possibleEncryptionKeyLengths: [Int] = [16, 24, 32]
         static let stretchedPasswordLengthBytes = 32
         static let encodeSchemeVersion: UInt8 = 1
-        static let tagLengthBit = 128
         static let ivLengthByte = 12
         static let saltSize = 16
-        static let minIterations = 1_000
         static let iterations = 600_000
     }
 }

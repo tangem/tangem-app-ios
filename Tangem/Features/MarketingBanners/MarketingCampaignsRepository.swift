@@ -69,18 +69,19 @@ extension MarketingCampaignsRepository {
             return
         }
 
-        Task { [weak self] in
-            guard let self else { return }
+        let apiService = apiService
+        let request = kind.request(language: language)
 
+        Task { [campaignsSubject, loadState, storage] in
             defer { loadState.withLock { _ = $0.inFlight.remove(kind) } }
 
             do {
-                let campaigns = try await apiService.loadMarketingCampaigns(request: kind.request(language: language)).campaigns
-                await apply(campaigns, for: kind, persist: true)
+                let campaigns = try await apiService.loadMarketingCampaigns(request: request).campaigns
+                await Self.apply(campaigns, for: kind, persist: true, subject: campaignsSubject, storage: storage)
                 loadState.withLock { _ = $0.loaded.insert(kind) }
             } catch {
-                if let cached = cachedCampaigns(for: kind) {
-                    await apply(cached, for: kind, persist: false)
+                if let cached = Self.cachedCampaigns(for: kind, in: storage) {
+                    await Self.apply(cached, for: kind, persist: false, subject: campaignsSubject, storage: storage)
                 }
             }
         }
@@ -93,8 +94,14 @@ private extension MarketingCampaignsRepository {
     typealias Snapshot = [String: [MarketingCampaignsDTO.Campaign]]
 
     @MainActor
-    func apply(_ campaigns: [MarketingCampaignsDTO.Campaign], for kind: Kind, persist: Bool) {
-        campaignsSubject.value[kind] = campaigns
+    static func apply(
+        _ campaigns: [MarketingCampaignsDTO.Campaign],
+        for kind: Kind,
+        persist: Bool,
+        subject: CurrentValueSubject<[Kind: [MarketingCampaignsDTO.Campaign]], Never>,
+        storage: CachesDirectoryStorage
+    ) {
+        subject.value[kind] = campaigns
 
         guard persist else {
             return
@@ -105,7 +112,7 @@ private extension MarketingCampaignsRepository {
         }
     }
 
-    func cachedCampaigns(for kind: Kind) -> [MarketingCampaignsDTO.Campaign]? {
+    static func cachedCampaigns(for kind: Kind, in storage: CachesDirectoryStorage) -> [MarketingCampaignsDTO.Campaign]? {
         let snapshot: Snapshot? = try? storage.value()
         return snapshot?[kind.rawValue]
     }

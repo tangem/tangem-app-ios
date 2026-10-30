@@ -12,6 +12,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemUIUtils
 import TangemSdk
+import TangemUI
 
 final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
     @Published var isCreating: Bool = false
@@ -21,7 +22,7 @@ final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
 
     lazy var importViewModel = OnboardingSeedPhraseImportViewModel(
         inputProcessor: SeedPhraseInputProcessor(),
-        tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: false),
+        signingActionButtonType: .holdToConfirm,
         delegate: self
     )
 

@@ -15,17 +15,10 @@ final class CommonSendMainButtonUIOptionsProvider: SendMainButtonUIOptionsProvid
         self.sourceTokenInput = sourceTokenInput
     }
 
-    func mainButtonNeedsHoldAction(mainButtonType: SendMainButtonType, flowActionType: SendFlowActionType) -> Bool {
+    func mainButtonSigningActionButtonType(mainButtonType: SendMainButtonType, flowActionType: SendFlowActionType) -> SigningActionButtonViewType? {
         switch mainButtonType {
-        case .action where flowActionType == .approve: false
-        case .action: sourceTokenInput?.sourceToken.value?.confirmTransactionPolicy.needsHoldToConfirm ?? false
-        default: false
-        }
-    }
-
-    func mainButtonIcon(mainButtonType: SendMainButtonType, flowActionType: SendFlowActionType) -> MainButton.Icon? {
-        switch mainButtonType {
-        case .action: sourceTokenInput?.sourceToken.value?.tangemIconProvider.getMainButtonIcon()
+        case .action where flowActionType == .approve: nil
+        case .action: sourceTokenInput?.sourceToken.value?.signingActionButtonType
         default: nil
         }
     }

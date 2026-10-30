@@ -37,7 +37,7 @@ struct WalletConnectV2SignTypedDataHandler {
 
         let targetAddress = params[0]
 
-        walletModel = try wcAccountsWalletModelProvider.getModel(
+        let walletModel = try wcAccountsWalletModelProvider.getModel(
             with: targetAddress,
             blockchainId: blockchainId,
             accountId: accountId
@@ -50,7 +50,10 @@ struct WalletConnectV2SignTypedDataHandler {
             throw WalletConnectTransactionRequestProcessingError.invalidPayload(requestParams.description)
         }
 
+        try Self.ensureSigningAllowed(for: typedData, signerAddress: walletModel.walletConnectAddress)
+
         self.typedData = typedData
+        self.walletModel = walletModel
         self.signer = signer
         request = requestParams
     }
@@ -72,9 +75,21 @@ extension WalletConnectV2SignTypedDataHandler: WalletConnectMessageHandler {
     }
 
     func handle() async throws -> RPCResult {
+        try Self.ensureSigningAllowed(for: typedData, signerAddress: walletModel.walletConnectAddress)
+
         let hash = typedData.signHash
 
         let signedHash = try await signer.sign(data: hash, using: walletModel)
         return .response(AnyCodable(signedHash.hexString.addHexPrefix().lowercased()))
+    }
+}
+
+private extension WalletConnectV2SignTypedDataHandler {
+    static func ensureSigningAllowed(for typedData: EIP712TypedData, signerAddress: String) throws {
+        do {
+            try WCEthTypedDataValidator().validate(typedData, signerAddress: signerAddress)
+        } catch {
+            throw WalletConnectTransactionRequestProcessingError.forbiddenTypedData(error)
+        }
     }
 }

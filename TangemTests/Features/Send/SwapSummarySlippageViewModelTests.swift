@@ -243,7 +243,6 @@ private final class SwapProvidersInputStub: SendSwapProvidersInput {
         selectedSubject.eraseToAnyPublisher()
     }
 
-    var providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never> { Just([]).eraseToAnyPublisher() }
     var currentRateType: ExpressProviderRateType? { nil }
     var currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never> { Just(nil).eraseToAnyPublisher() }
 }

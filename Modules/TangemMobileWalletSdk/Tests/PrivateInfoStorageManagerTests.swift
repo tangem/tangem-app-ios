@@ -9,6 +9,7 @@
 import Foundation
 import Testing
 import LocalAuthentication
+import TangemSdk
 @testable import TangemMobileWalletSdk
 @testable import TangemFoundation
 
@@ -92,7 +93,7 @@ struct PrivateInfoStorageManagerTests {
 
         try storage.updateAccessCode("accessCode", context: context)
 
-        #expect(throws: Error.self, performing: {
+        #expect(throws: (any Error).self, performing: {
             try storage.validate(auth: .accessCode("newAccessCode"), for: walletID)
         })
     }
@@ -146,7 +147,7 @@ struct PrivateInfoStorageManagerTests {
 
         try storage.updateAccessCode("accessCode", enableBiometrics: true, context: context)
 
-        #expect(throws: Error.self, performing: {
+        #expect(throws: (any Error).self, performing: {
             _ = try storage.validate(auth: .accessCode("invalidAccessCode"), for: walletID)
         })
     }
@@ -160,11 +161,11 @@ struct PrivateInfoStorageManagerTests {
         try storage.storeUnsecured(privateInfoData: encoded, walletID: walletID)
         try storage.delete(walletID: walletID)
 
-        #expect(throws: Error.self, performing: {
+        #expect(throws: (any Error).self, performing: {
             _ = try storage.validate(auth: .biometrics(context: LAContext()), for: walletID)
         })
 
-        #expect(throws: Error.self, performing: {
+        #expect(throws: (any Error).self, performing: {
             _ = try storage.validate(auth: .none, for: walletID)
         })
     }
@@ -173,7 +174,7 @@ struct PrivateInfoStorageManagerTests {
     func testDeleteWalletFailure() throws {
         let storage = makeStorage()
 
-        #expect(throws: Error.self, performing: {
+        #expect(throws: (any Error).self, performing: {
             try storage.delete(walletID: walletID)
         })
     }

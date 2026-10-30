@@ -16,7 +16,7 @@ public enum CollectiblesChainEnvironment {
     public static let programId = CollectiblesVaultProgram.devnetProgramId
 
     /// The RPC cluster only; key derivation pins its own blockchain in `CollectiblesAccountKeyPath`.
-    public static let blockchain: Blockchain = .solana(curve: .ed25519, testnet: true)
+    public static var blockchain: Blockchain { .solana(curve: .ed25519, testnet: true) }
 
     // [REDACTED_TODO_COMMENT]
     /// Spending caps in base USDC units (6 decimals) a fresh vault is initialized with.

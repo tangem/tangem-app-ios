@@ -12,18 +12,15 @@ import TangemFoundation
 
 struct MarketsPortfolioTokenItemFactory {
     private let contextActionsProvider: MarketsPortfolioContextActionsProvider
-    private let contextActionsDelegate: MarketsPortfolioContextActionsDelegate
 
     private let tokenItemInfoProviderItemBuilder = TokenItemInfoProviderItemBuilder()
 
     // MARK: - Init
 
     init(
-        contextActionsProvider: MarketsPortfolioContextActionsProvider,
-        contextActionsDelegate: MarketsPortfolioContextActionsDelegate
+        contextActionsProvider: MarketsPortfolioContextActionsProvider
     ) {
         self.contextActionsProvider = contextActionsProvider
-        self.contextActionsDelegate = contextActionsDelegate
     }
 
     // MARK: - Implementation
@@ -88,8 +85,7 @@ struct MarketsPortfolioTokenItemFactory {
             tokenIcon: tokenIcon,
             tokenItem: tokenItem,
             tokenItemInfoProvider: provider,
-            contextActionsProvider: contextActionsProvider,
-            contextActionsDelegate: contextActionsDelegate
+            contextActionsProvider: contextActionsProvider
         )
     }
 }

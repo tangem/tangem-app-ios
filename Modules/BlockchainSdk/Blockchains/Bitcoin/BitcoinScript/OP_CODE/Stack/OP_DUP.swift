@@ -27,5 +27,4 @@ import Foundation
 /// Duplicates the top stack item.
 struct OpDuplicate: OpCodeProtocol {
     var value: UInt8 { return 0x76 }
-    var name: String { return "OP_DUP" }
 }

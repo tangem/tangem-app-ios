@@ -29,7 +29,6 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
 
     // MARK: - Private property
 
-    private var safariHandle: SafariHandle?
     private var userWalletModels: [UserWalletModel] = []
     private var tokenListViewModel: ActionButtonsBuyViewModel?
 
@@ -109,31 +108,6 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
         guard let tokenListViewModel else { return }
         viewState = .newTokenList(tokenListViewModel)
     }
-
-    func openAddToPortfolio(viewModel: HotCryptoAddToPortfolioBottomSheetViewModel) {
-        addToPortfolioBottomSheetInfo = viewModel
-    }
-
-    func closeAddToPortfolio() {
-        addToPortfolioBottomSheetInfo = nil
-    }
-
-    func openAddHotToken(hotToken: HotCryptoToken, userWalletModels: [UserWalletModel]) {
-        Task { @MainActor in
-            let configuration = HotCryptoAddTokenFlowConfigurationFactory.make(
-                hotToken: hotToken,
-                coordinator: self
-            )
-
-            let viewModel = AddTokenFlowViewModel(
-                userWalletModels: userWalletModels,
-                configuration: configuration,
-                coordinator: self
-            )
-
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
-    }
 }
 
 // MARK: - AddFundsRoutable
@@ -147,12 +121,12 @@ extension ActionButtonsBuyCoordinator: AddFundsRoutable {
     }
 
     func addFundsRequestSwap(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
-        let helper = SwapPredefinedParametersHelper()
-        guard let parameters = helper.makeParameters(
+        let builder = TokenDetailsSwapPredefinedParametersBuilder(
             walletModel: walletModel,
             userWalletInfo: userWalletModel.userWalletInfo,
-            position: .automatic
-        ) else { return }
+            direction: .to
+        )
+        let parameters = builder.make()
 
         Task { @MainActor [weak self] in
             guard let self else { return }
@@ -184,7 +158,7 @@ extension ActionButtonsBuyCoordinator: AddFundsRoutable {
 
 // MARK: - HotCryptoAddTokenRoutable, AddTokenFlowRoutable, AddTokenFlowRedesignedRoutable
 
-extension ActionButtonsBuyCoordinator: HotCryptoAddTokenRoutable, AddTokenFlowRoutable, AddTokenFlowRedesignedRoutable {
+extension ActionButtonsBuyCoordinator: AddTokenFlowRoutable, AddTokenFlowRedesignedRoutable {
     func addTokenFlowShowGetToken(for tokenItem: TokenItem, accountSelectorCell: AccountSelectorCellModel) {
         close()
     }

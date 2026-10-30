@@ -10,7 +10,6 @@ import TangemUI
 
 protocol RealAssetsFeedRoutable: AnyObject {
     func openToken(_ token: MarketsTokenModel)
-    func openPortfolioToken(_ walletModel: any WalletModel)
     func openCategoryFilter(with input: RealAssetsCategoryFilterInput)
 }
 
@@ -18,12 +17,10 @@ final class RealAssetsFeedRouter {
     private weak var navigation: (any FeedNavigation)?
 
     private let popToRootAction: Action<PopToRootOptions>
-    private let portfolioTokenRouter: FeedPortfolioTokenRouter
 
     init(context: FeedContext) {
         navigation = context.navigation
         popToRootAction = context.popToRootAction
-        portfolioTokenRouter = FeedPortfolioTokenRouter(context: context)
     }
 }
 
@@ -38,10 +35,6 @@ extension RealAssetsFeedRouter: RealAssetsFeedRoutable {
 
         coordinator.start(with: .init(info: token, style: .marketsSheet))
         navigation?.push(.token(coordinator))
-    }
-
-    func openPortfolioToken(_ walletModel: any WalletModel) {
-        portfolioTokenRouter.open(walletModel)
     }
 
     func openCategoryFilter(with input: RealAssetsCategoryFilterInput) {

@@ -12,19 +12,10 @@ import TangemPolymarket
 struct PolymarketAccountBuilder {
     private let userWalletId: UserWalletId
     private let keysRepository: KeysRepository
-    private let keysDerivingInteractorFactory: KeysDerivingInteractorFactory
-    private let areHDWalletsSupported: Bool
 
-    init(
-        userWalletId: UserWalletId,
-        keysRepository: KeysRepository,
-        keysDerivingInteractorFactory: KeysDerivingInteractorFactory,
-        areHDWalletsSupported: Bool
-    ) {
+    init(userWalletId: UserWalletId, keysRepository: KeysRepository) {
         self.userWalletId = userWalletId
         self.keysRepository = keysRepository
-        self.keysDerivingInteractorFactory = keysDerivingInteractorFactory
-        self.areHDWalletsSupported = areHDWalletsSupported
     }
 
     func hasAccount() -> Bool {
@@ -40,15 +31,12 @@ struct PolymarketAccountBuilder {
             clobService: services.makeCLOBService(),
             positionsValueService: services.makePositionsValueService(),
             credentialsRepository: CommonPolymarketCredentialsRepository(),
-            ownerAddressProvider: CommonPolymarketOwnerAddressProvider(
-                keysRepository: keysRepository,
-                keysDerivingFactory: keysDerivingInteractorFactory,
-                areHDWalletsSupported: areHDWalletsSupported
-            ),
+            ownerAddressProvider: CommonPolymarketOwnerAddressProvider(keysRepository: keysRepository),
             balanceService: CommonPolymarketBalanceService(
                 tokenBalancesRepository: CommonTokenBalancesRepository(userWalletId: userWalletId)
             ),
-            presenceStore: AppSettings.shared
+            presenceStore: AppSettings.shared,
+            depositsReconciler: PolymarketLaunchDepositsReconciler.make(userWalletId: userWalletId)
         )
     }
 }

@@ -93,10 +93,7 @@ struct SquaredOrRectangleImageView: View {
             .onFailure {
                 loadingState = .failure($0)
             }
-            .skeletonable(
-                isShown: loadingState.isLoading,
-                radius: cornerRadius
-            )
+            .shimmerPlaceholder(loadingState.isLoading, variant: .custom(cornerRadius: cornerRadius))
     }
 }
 

@@ -53,7 +53,6 @@ final class AddTokenViewModel: ObservableObject, FloatingSheetContentViewModel {
     private let networkDataProvider: AddTokenNetworkSelectorDataProvider
     private let analyticsLogger: AddTokenAnalyticsLogger
     private let onAddTokenTapped: (Result<TokenItem, Error>) -> Void
-    private var bag = Set<AnyCancellable>()
 
     // MARK: - Initialization
 

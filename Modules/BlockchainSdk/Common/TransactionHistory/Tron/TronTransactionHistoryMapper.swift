@@ -11,6 +11,7 @@ import TangemFoundation
 
 final class TronTransactionHistoryMapper {
     private let blockchain: Blockchain
+    private let addressComparator = AddressComparator()
     private var transactionIndicesCounter: [String: Int] = [:]
 
     init(blockchain: Blockchain) {
@@ -44,7 +45,13 @@ final class TronTransactionHistoryMapper {
             // Here we're filtering out unrelated transaction history completely if needed
             guard
                 let tokens = response.tokens,
-                tokens.contains(where: { $0.matching(contractAddress: value.contractAddress) })
+                tokens.contains(where: {
+                    $0.matching(
+                        contractAddress: value.contractAddress,
+                        using: addressComparator,
+                        blockchain: blockchain
+                    )
+                })
             else {
                 return []
             }
@@ -62,7 +69,8 @@ final class TronTransactionHistoryMapper {
         votes: [Vote]
     ) -> TransactionInfo? {
         guard
-            sourceAddress.caseInsensitiveEquals(to: walletAddress) || destinationAddress.caseInsensitiveEquals(to: walletAddress)
+            addressComparator.addressesMatch(sourceAddress, walletAddress, blockchain: blockchain)
+            || addressComparator.addressesMatch(destinationAddress, walletAddress, blockchain: blockchain)
         else {
             BSDKLogger.error(error: "Unrelated transaction \(transaction) received")
             return nil
@@ -73,7 +81,7 @@ final class TronTransactionHistoryMapper {
             return nil
         }
 
-        let isOutgoing = sourceAddress.caseInsensitiveEquals(to: walletAddress)
+        let isOutgoing = addressComparator.addressesMatch(sourceAddress, walletAddress, blockchain: blockchain)
 
         let source = TransactionRecord.Source(
             address: sourceAddress,
@@ -148,12 +156,22 @@ final class TronTransactionHistoryMapper {
     ) -> [TransactionInfo] {
         // Double check to exclude token transfers sent to self.
         // Actually, this is a feasible case, but we don't support such transfers at the moment
-        let filteredTokenTransfers = tokenTransfers.filter { transfer in
-            if isOutgoing {
-                return transfer.from.caseInsensitiveEquals(to: walletAddress) && !transfer.to.caseInsensitiveEquals(to: walletAddress)
+        let filteredTokenTransfers = tokenTransfers
+            .filter { transfer in
+                if isOutgoing {
+                    return addressComparator.addressesMatch(transfer.from, walletAddress, blockchain: blockchain)
+                        && !addressComparator.addressesMatch(transfer.to, walletAddress, blockchain: blockchain)
+                }
+                return addressComparator.addressesMatch(transfer.to, walletAddress, blockchain: blockchain)
+                    && !addressComparator.addressesMatch(transfer.from, walletAddress, blockchain: blockchain)
             }
-            return transfer.to.caseInsensitiveEquals(to: walletAddress) && !transfer.from.caseInsensitiveEquals(to: walletAddress)
-        }
+            .filter { transfer in
+                guard let contract = transfer.compat.contract else {
+                    return false
+                }
+
+                return addressComparator.addressesMatch(token.contractAddress, contract, blockchain: blockchain)
+            }
 
         let otherAddresses: [String]
         let groupedFilteredTokenTransfers: [String: [BlockBookAddressResponse.TokenTransfer]]
@@ -392,7 +410,13 @@ final class TronTransactionHistoryMapper {
         }
 
         let token = transaction.destinationAddress.flatMap { contract in
-            tokens?.first { $0.matching(contractAddress: contract) }
+            tokens?.first {
+                $0.matching(
+                    contractAddress: contract,
+                    using: addressComparator,
+                    blockchain: blockchain
+                )
+            }
         }
 
         return ApproveHistoryMapper.approve(spender: call.spender, amount: call.amount, symbol: token?.symbol, decimals: token?.decimals)
@@ -455,7 +479,13 @@ final class TronTransactionHistoryMapper {
             return nil
         }
 
-        let token = tokens?.first { $0.matching(contractAddress: contract) }
+        let token = tokens?.first {
+            $0.matching(
+                contractAddress: contract,
+                using: addressComparator,
+                blockchain: blockchain
+            )
+        }
 
         return TransactionRecord.TokenTransfer(
             source: source,
@@ -560,7 +590,13 @@ extension TronTransactionHistoryMapper: BlockBookTransactionHistoryTotalPageCoun
             guard
                 let itemsOnPage = response.itemsOnPage,
                 let tokens = response.tokens,
-                let token = tokens.first(where: { $0.matching(contractAddress: contractAddress) }),
+                let token = tokens.first(where: {
+                    $0.matching(
+                        contractAddress: contractAddress,
+                        using: addressComparator,
+                        blockchain: blockchain
+                    )
+                }),
                 let transfersCount = token.transfers
             else {
                 return 0
@@ -661,7 +697,11 @@ private extension TronTransactionHistoryMapper {
 // MARK: - Convenience extensions
 
 private extension BlockBookAddressResponse.Token {
-    func matching(contractAddress: String) -> Bool {
+    func matching(
+        contractAddress: String,
+        using addressComparator: AddressComparator,
+        blockchain: Blockchain
+    ) -> Bool {
         // Tron Blockbook has a really terrible API contract: a token's contract address may be stored in various DTO fields,
         // not just in the `$.tokens[*].contract` field
         let props = [
@@ -670,9 +710,13 @@ private extension BlockBookAddressResponse.Token {
             contract,
         ]
 
-        return props
-            .compactMap { $0?.caseInsensitiveEquals(to: contractAddress) }
-            .contains(true)
+        return props.contains { property in
+            guard let property else {
+                return false
+            }
+
+            return addressComparator.addressesMatch(property, contractAddress, blockchain: blockchain)
+        }
     }
 }
 

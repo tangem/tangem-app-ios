@@ -116,4 +116,56 @@ struct TangemPayAddFundsSourceResolverTests {
 
         #expect(chosen == nil)
     }
+
+    @Test("A joint account never becomes the transfer source, however much of the Pay currency it holds")
+    func jointAccountNeverBecomesTransferSource() {
+        let joint = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 999, accountType: .joint)
+        let standard = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 1)
+
+        let chosen = TangemPayAddFundsSourceResolver.chooseSource(
+            from: [joint, standard],
+            preferredCurrencies: [usdcPolygon.expressCurrency],
+            availabilityChecker: FundingSourceAvailabilityCheckerStub(
+                transferAvailable: [joint.id, standard.id],
+                swapAvailable: [joint.id, standard.id]
+            )
+        )
+
+        #expect(chosen === standard)
+    }
+
+    @Test("A joint account never becomes the swap fallback either")
+    func jointAccountNeverBecomesSwapFallback() {
+        let joint = makeWalletModel(tokenItem: ethereum, fiatBalance: 999, accountType: .joint)
+        let standard = makeWalletModel(tokenItem: ethereum, fiatBalance: 1)
+
+        let chosen = TangemPayAddFundsSourceResolver.chooseSource(
+            from: [joint, standard],
+            preferredCurrencies: [usdcPolygon.expressCurrency],
+            availabilityChecker: FundingSourceAvailabilityCheckerStub(swapAvailable: [joint.id, standard.id])
+        )
+
+        #expect(chosen === standard)
+    }
+}
+
+// MARK: - Fixtures
+
+private extension TangemPayAddFundsSourceResolverTests {
+    func makeWalletModel(
+        tokenItem: TokenItem,
+        fiatBalance: Decimal,
+        accountType: AccountType = .crypto
+    ) -> WalletModelTestsMock {
+        WalletModelTestsMock(
+            tokenItem: tokenItem,
+            isEmpty: false,
+            fiatBalance: fiatBalance,
+            account: CryptoAccountModelMock(
+                isMainAccount: false,
+                accountType: accountType,
+                onArchive: { _ in }
+            )
+        )
+    }
 }

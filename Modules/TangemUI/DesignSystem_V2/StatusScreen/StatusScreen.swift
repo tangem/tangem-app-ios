@@ -55,6 +55,7 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
     var secondaryAction: StatusScreenSecondaryAction?
     var footerCaption: String?
     var actionIcon: ImageType?
+    var actionSigningType: SigningActionButtonViewType?
     var isActionLoading = false
     var isActionDisabled = false
     var footerAxis: StatusScreenFooterAxis = .vertical
@@ -211,13 +212,23 @@ public struct StatusScreen<AssetSlot: View, HeaderAccessory: View, Details: View
                 .horizontalLayout(.infinity)
             }
 
-            Button(label: actionTitle, accessibilityLabel: actionTitle, action: action)
-                .iconEnd(actionIcon)
-                .size(.x12)
-                .styleType(.primary)
-                .horizontalLayout(.infinity)
-                .loading(.spinner(if: isActionLoading))
-                .disabled(isActionDisabled)
+            if let actionSigningType {
+                SigningActionButtonView(
+                    type: actionSigningType,
+                    title: actionTitle,
+                    isLoading: isActionLoading,
+                    isDisabled: isActionDisabled,
+                    action: action
+                )
+            } else {
+                Button(label: actionTitle, accessibilityLabel: actionTitle, action: action)
+                    .iconEnd(actionIcon)
+                    .size(.x12)
+                    .styleType(.primary)
+                    .horizontalLayout(.infinity)
+                    .loading(.spinner(if: isActionLoading))
+                    .disabled(isActionDisabled)
+            }
         }
     }
 

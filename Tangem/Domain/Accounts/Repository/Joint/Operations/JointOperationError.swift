@@ -29,6 +29,9 @@ enum JointOperationError: UniversalError, Equatable {
     case missingFeeParameters
     case maliciousOperation
     case securityCheckUnavailable
+    case operationNotFound
+    case notAMember
+    case refused(JointOperationRefusal)
 
     var errorDescription: String? {
         switch self {
@@ -44,6 +47,10 @@ enum JointOperationError: UniversalError, Equatable {
         case .missingFeeParameters: "The fee carries no Safe operation terms"
         case .maliciousOperation: Localization.jointOperationMaliciousSubtitle
         case .securityCheckUnavailable: "The operation could not be checked for security"
+        case .operationNotFound: "The joint operation no longer exists"
+        case .notAMember: "The wallet holds no slot in this joint account"
+        case .refused(.nonceMismatch), .refused(.gasPriceTooLow), .refused(.gasPriceTooHigh): Localization.jointAccountSendNetworkChangedSubtitle
+        case .refused: Localization.commonUnknownError
         }
     }
 
@@ -61,6 +68,18 @@ enum JointOperationError: UniversalError, Equatable {
         case .missingFeeParameters: 100013009
         case .maliciousOperation: 100013010
         case .securityCheckUnavailable: 100013011
+        case .operationNotFound: 100013012
+        case .notAMember: 100013013
+        case .refused(.unsupportedChain): 100013014
+        case .refused(.nonceMismatch): 100013015
+        case .refused(.invalidBaseGas): 100013016
+        case .refused(.gasPriceTooLow): 100013017
+        case .refused(.gasPriceTooHigh): 100013018
+        case .refused(.gasTokenNotAllowed): 100013019
+        case .refused(.invalidRefundReceiver): 100013020
+        case .refused(.invalidSafeOperation): 100013021
+        case .refused(.invalidSafeAddress): 100013022
+        case .refused(.unknown): 100013023
         }
     }
 }

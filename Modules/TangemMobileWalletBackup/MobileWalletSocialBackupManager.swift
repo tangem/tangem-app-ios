@@ -125,7 +125,7 @@ public final class CommonMobileWalletSocialBackupManager: MobileWalletSocialBack
         let backup = try resolveFormat(fileData: fileData).backup(from: fileData)
 
         guard backup.walletId == userWalletId.stringValue else {
-            throw WalletBackupStorageError.fileNotFound
+            throw WalletBackupStorageError.walletMismatch
         }
 
         try await storage.delete(file: file)

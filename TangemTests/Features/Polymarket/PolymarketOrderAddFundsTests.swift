@@ -154,8 +154,8 @@ private extension PolymarketOrderAddFundsTests {
     func makeReadiness(depositAvailability: PolymarketAccountFundsInteractor.DepositAvailability) -> PolymarketAccountFundsInteractor.Readiness {
         PolymarketAccountFundsInteractor.Readiness(
             depositWalletAddress: "0x1111111111111111111111111111111111111111",
-            collateralMinCheckoutUSD: 2,
-            depositAvailability: depositAvailability
+            depositAvailability: depositAvailability,
+            withdrawalAvailability: .available(minimumUSD: 2)
         )
     }
 }
@@ -183,4 +183,12 @@ private final class OrderRoutableSpy: PolymarketOrderRoutable {
     func openSlippageSelector(percent: Decimal, onConfirm: @escaping (Decimal) -> Void) {}
 
     func openSummary(model: PolymarketOrderModel) {}
+
+    func openFeeBreakdown(model: PolymarketOrderModel) {}
+
+    func openResult(state: PolymarketOrderResultViewModel.State, content: PolymarketOrderResultViewModel.Content) {}
+
+    func openLegalTerms(url: URL) {}
+
+    func openSupport() {}
 }

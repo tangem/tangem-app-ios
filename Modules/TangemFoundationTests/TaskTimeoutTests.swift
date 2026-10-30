@@ -27,7 +27,7 @@ struct TaskTimeoutTests {
     @Test("Code exceeds timeout — throws TaskTimeoutError")
     func asyncRunTaskThrowsOnTimeout() async {
         await #expect(throws: TaskTimeoutError.self) {
-            try await Task<Int, Error>.run(withTimeout: .milliseconds(50)) {
+            try await Task<Int, any Error>.run(withTimeout: .milliseconds(50)) {
                 try await Task.sleep(for: .seconds(10))
                 return 0
             }
@@ -51,7 +51,7 @@ struct TaskTimeoutTests {
         let clock = ContinuousClock()
         let elapsed = await clock.measure {
             await #expect(throws: TaskTimeoutError.self) {
-                try await Task<Int, Error>.run(withTimeout: timeout, clock: clock) {
+                try await Task<Int, any Error>.run(withTimeout: timeout, clock: clock) {
                     try await Task.sleep(for: slowCodeDuration, clock: clock)
                     return 0
                 }
@@ -78,7 +78,7 @@ struct TaskTimeoutTests {
         let clock = ContinuousClock()
         let elapsed = await clock.measure {
             await #expect(throws: TaskTimeoutError.self) {
-                let task: Task<Int, Error> = Task.run(withTimeout: timeout, clock: clock) {
+                let task: Task<Int, any Error> = Task.run(withTimeout: timeout, clock: clock) {
                     try await Task.sleep(for: slowCodeDuration, clock: clock)
                     return 0
                 }
@@ -92,7 +92,7 @@ struct TaskTimeoutTests {
     @Test("Code throws before timeout — error is propagated")
     func asyncRunTaskPropagatesCodeError() async {
         await #expect(throws: RunTaskTestError.self) {
-            try await Task<Int, Error>.run(withTimeout: .seconds(1)) {
+            try await Task<Int, any Error>.run(withTimeout: .seconds(1)) {
                 throw RunTaskTestError()
             }
         }
@@ -100,7 +100,7 @@ struct TaskTimeoutTests {
 
     @Test("Caller cancellation is propagated")
     func asyncRunTaskPropagatesCancellation() async {
-        let task = Task<Int, Error> {
+        let task = Task<Int, any Error> {
             try await Task.run(withTimeout: .seconds(10)) {
                 try await Task.sleep(for: .seconds(10))
                 return 0
@@ -144,7 +144,7 @@ struct TaskTimeoutTests {
 
     @Test("Fire-and-forget overload — code completes before timeout")
     func fireAndForgetRunTaskReturnsResult() async throws {
-        let task: Task<Int, Error> = Task.run(withTimeout: .seconds(1)) {
+        let task: Task<Int, any Error> = Task.run(withTimeout: .seconds(1)) {
             try await Task.sleep(for: .milliseconds(50))
             return 7
         }
@@ -157,7 +157,7 @@ struct TaskTimeoutTests {
     func fireAndForgetRunTaskCallsOnTimeout() async throws {
         let onTimeoutCalled = OSAllocatedUnfairLock(initialState: false)
 
-        let task: Task<Int, Error> = Task.run(
+        let task: Task<Int, any Error> = Task.run(
             withTimeout: .milliseconds(50),
             code: {
                 try await Task.sleep(for: .seconds(10))
@@ -183,7 +183,7 @@ struct TaskTimeoutTests {
     func fireAndForgetRunTaskPropagatesCodeError() async throws {
         let onTimeoutCalled = OSAllocatedUnfairLock(initialState: false)
 
-        let task: Task<Int, Error> = Task.run(
+        let task: Task<Int, any Error> = Task.run(
             withTimeout: .seconds(1),
             code: {
                 throw RunTaskTestError()

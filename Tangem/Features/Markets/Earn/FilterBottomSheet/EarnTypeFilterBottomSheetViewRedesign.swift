@@ -31,7 +31,7 @@ struct EarnTypeFilterBottomSheetViewRedesign: View {
         .padding(.horizontal, horizontalPadding)
         .accessibilityAction(.escape) { viewModel.onCloseTap() }
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = DesignSystem.Color.bgPrimary
+            configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
             configuration.backgroundInteractionBehavior = .tapToDismiss
             configuration.verticalSwipeBehavior = .init(target: .sheet, threshold: 100)
         }

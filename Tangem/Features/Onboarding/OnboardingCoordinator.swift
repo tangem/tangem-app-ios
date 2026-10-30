@@ -29,8 +29,6 @@ final class OnboardingCoordinator: CoordinatorObject {
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var accessCodeModel: OnboardingAccessCodeViewModel? = nil
 
-    // MARK: - Child coordinators
-
     // MARK: - Helpers
 
     /// For non-dismissable presentation
@@ -119,15 +117,6 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
         Task { @MainActor in
             mailPresenter.present(viewModel: mailViewModel)
         }
-    }
-
-    func openWebView(with url: URL) {
-        modalWebViewModel = WebViewContainerViewModel(
-            url: url,
-            title: "",
-            addLoadingIndicator: true,
-            withCloseButton: true
-        )
     }
 }
 

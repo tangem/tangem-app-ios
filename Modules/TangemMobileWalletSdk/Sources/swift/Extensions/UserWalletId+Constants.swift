@@ -40,14 +40,6 @@ extension UserWalletId {
     var publicInfoSecureEnclaveTag: String {
         Constants.publicInfoSecureEnclavePrefix + stringValue
     }
-
-    var publicInfoBiometricsTag: String {
-        Constants.publicInfoBiometricsPrefix + stringValue
-    }
-
-    var publicInfoBiometricsSecureEnclaveTag: String {
-        Constants.publicInfoBiometricsSecureEnclavePrefix + stringValue
-    }
 }
 
 extension UserWalletId {
@@ -60,7 +52,5 @@ extension UserWalletId {
         static let encryptionKeyBiometricsSecureEnclavePrefix = "mobile_sdk_encryption_key_biometrics_secure_enclave_"
         static let publicInfoPrefix = "mobile_sdk_public_info_"
         static let publicInfoSecureEnclavePrefix = "mobile_sdk_public_info_secure_enclave_"
-        static let publicInfoBiometricsPrefix = "mobile_sdk_public_info_biometrics_"
-        static let publicInfoBiometricsSecureEnclavePrefix = "mobile_sdk_public_info_biometrics_secure_enclave_"
     }
 }

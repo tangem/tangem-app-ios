@@ -14,15 +14,6 @@ extension ALPH {
     struct GasBox: Comparable {
         let value: Int
 
-        /// Use gas and return a Result
-        func use(amount: GasBox) throws -> GasBox {
-            if self >= amount {
-                return GasBox(value: value - amount.value)
-            } else {
-                throw GasBoxError.outOfGas
-            }
-        }
-
         /// Convert to U256 (assuming U256 is a custom type)
         func toU256() -> U256 {
             return U256.unsafe(BigUInt(value))
@@ -48,12 +39,5 @@ extension ALPH {
         static var serde: ALPH.AnySerde<ALPH.GasBox> {
             IntSerde().xmap(to: { GasBox(value: $0) }, from: { $0.value })
         }
-    }
-
-    // MARK: - Errors
-
-    enum GasBoxError: LocalizedError {
-        case negativeGas
-        case outOfGas
     }
 }

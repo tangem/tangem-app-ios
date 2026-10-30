@@ -67,6 +67,18 @@ struct PolymarketBalanceBlockViewModelTests {
         #expect(context.sut.alert != nil)
     }
 
+    @Test("Without a known bridge minimum a withdraw tap explains itself instead of opening the withdrawal")
+    func unknownMinimumWithdrawShowsAlert() async throws {
+        let context = Self.makeSUT(isAccountPrepared: true, isBridgeReachable: false)
+
+        try await settle { context.sut.withdrawState == .unavailable(.minimumUnknown) }
+
+        context.sut.handleViewAction(.openWithdraw)
+
+        #expect(context.routable.withdrawOpenings == 0)
+        #expect(context.sut.alert != nil)
+    }
+
     @Test("An account funds refresh prepares them again without refreshing the balance")
     func accountFundsRefreshSkipsBalance() async throws {
         let context = Self.makeSUT()
@@ -125,7 +137,11 @@ private extension PolymarketBalanceBlockViewModelTests {
         )
     }
 
-    static func makeSUT(isRegionRestricted: Bool = false, isAccountPrepared: Bool = false) -> Context {
+    static func makeSUT(
+        isRegionRestricted: Bool = false,
+        isAccountPrepared: Bool = false,
+        isBridgeReachable: Bool = true
+    ) -> Context {
         let balanceProvider = BalanceProviderSpy()
         let configuration = ConfigurationServiceStub(fails: !isAccountPrepared)
         let refreshCenter = PolymarketMainRefreshCenter()
@@ -134,7 +150,7 @@ private extension PolymarketBalanceBlockViewModelTests {
         let sut = PolymarketBalanceBlockViewModel(
             balanceProvider: balanceProvider,
             accountFundsInteractor: PolymarketAccountFundsInteractor(
-                bridgeService: BridgeServiceStub(fails: !isAccountPrepared),
+                bridgeService: BridgeServiceStub(fails: !isAccountPrepared || !isBridgeReachable),
                 configurationService: configuration,
                 walletService: isAccountPrepared ? Self.readyWalletService : PolymarketDepositWalletServiceStub(),
                 ownerAddressProvider: PolymarketOwnerAddressProviderStub(
@@ -143,6 +159,7 @@ private extension PolymarketBalanceBlockViewModelTests {
                 supportedBlockchains: []
             ),
             fundsArrivalTracker: PolymarketFundsArrivalTracker(balancePublisher: Empty().eraseToAnyPublisher()),
+            withdrawalStatePublisher: Empty().eraseToAnyPublisher(),
             isRegionRestricted: { isRegionRestricted },
             refreshCenter: refreshCenter,
             routable: routable

@@ -29,5 +29,7 @@ public enum CollectiblesAccountKeyPath {
     /// `m/44'/501'/999799'/0'/0'` — fixed, because a wallet has at most one collectibles account.
     /// - Warning: A part of the contract with the backend and Android. The vault is addressed off the key this path
     /// produces, so changing a node orphans every vault already created, along with what it holds.
-    public static let derivationPath = try! DerivationPath(rawPath: FeatureDerivationPaths.collectibles)
+    public static var derivationPath: DerivationPath {
+        try! DerivationPath(rawPath: FeatureDerivationPaths.collectibles)
+    }
 }

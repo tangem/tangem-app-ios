@@ -27,7 +27,6 @@ class VisaWalletModel {
     lazy var totalTokenBalanceProvider = makeTotalTokenBalanceProvider()
 
     lazy var fiatAvailableBalanceProvider = makeFiatAvailableBalanceProvider()
-    lazy var fiatStakingBalanceProvider = makeFiatStakingBalanceProvider()
     lazy var fiatTotalTokenBalanceProvider = makeFiatTotalTokenBalanceProvider()
 
     var demoBalance: Decimal?
@@ -103,16 +102,8 @@ extension VisaWalletModel: WalletModelBalancesProvider {
         FiatTokenBalanceProvider(input: self, cryptoBalanceProvider: availableBalanceProvider)
     }
 
-    func makeFiatStakingBalanceProvider() -> TokenBalanceProvider {
-        FiatTokenBalanceProvider(input: self, cryptoBalanceProvider: stakingBalanceProvider)
-    }
-
     func makeFiatTotalTokenBalanceProvider() -> TokenBalanceProvider {
         FiatTokenBalanceProvider(input: self, cryptoBalanceProvider: totalTokenBalanceProvider)
-    }
-
-    func makeBSDKTokenBalanceProvider(tokenItem: TokenItem) -> any TokenBalanceProvider {
-        NotSupportedStakingTokenBalanceProvider()
     }
 }
 
@@ -166,7 +157,6 @@ extension VisaWalletModel: WalletModelDependenciesProvider {
     var blockchainDataProvider: any BlockchainDataProvider { VisaDummyBlockchainDataProvider() }
     var withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? { nil }
     var assetRequirementsManager: (any AssetRequirementsManager)? { nil }
-    var addressResolver: (any AddressResolver)? { nil }
     var transactionFeeProvider: any TransactionFeeProvider { fatalError("VisaWalletModel does not support TransactionFeeProvider") }
     var transactionCreator: any TransactionCreator { transactionDependency }
     var transactionValidator: any TransactionValidator { transactionDependency }
@@ -211,10 +201,6 @@ extension VisaWalletModel: WalletModelTransactionHistoryProvider {
 
     var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> {
         .just(output: [])
-    }
-
-    var isEmptyIncludingPendingIncomingTxs: Bool {
-        true
     }
 }
 
@@ -285,10 +271,6 @@ extension VisaWalletModel: WalletModel {
 
     var actionsUpdatePublisher: AnyPublisher<Void, Never> {
         expressAvailabilityProvider.availabilityDidChangePublisher
-    }
-
-    var qrReceiveMessage: String {
-        Localization.addressQrCodeMessageFormat(tokenItem.name, tokenItem.currencySymbol, tokenItem.blockchain.displayName)
     }
 
     var isDemo: Bool {

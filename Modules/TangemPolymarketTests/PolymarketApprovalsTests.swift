@@ -21,17 +21,31 @@ struct PolymarketApprovalsTests {
 
     // MARK: - The set the validator expects
 
-    @Test("The batch carries the thirteen calls the backend validates")
-    func theBatchHasThirteenCalls() {
-        #expect(PolymarketApprovalCalls.make().count == 13)
+    @Test("The batch carries the seventeen calls the backend validates")
+    func theBatchHasSeventeenCalls() {
+        #expect(PolymarketApprovalCalls.make().count == 17)
     }
 
-    @Test("Eight allowances are granted on the collateral, five on the conditional tokens")
-    func callsSplitBetweenTheTwoTokens() {
+    @Test("Eight allowances are granted on the collateral, seven on the conditional tokens, two on the position manager")
+    func callsSplitBetweenTheTokens() {
         let calls = PolymarketApprovalCalls.make()
 
         #expect(calls.filter { $0.target == PolymarketCollateral.contractAddress }.count == 8)
-        #expect(calls.filter { $0.target == PolymarketApprovalContracts.conditionalTokens }.count == 5)
+        #expect(calls.filter { $0.target == PolymarketApprovalContracts.conditionalTokens }.count == 7)
+        #expect(calls.filter { $0.target == PolymarketApprovalContracts.positionManager }.count == 2)
+    }
+
+    @Test("The V2 operators are approved on the token that holds their positions", arguments: [
+        OperatorGrant(token: PolymarketApprovalContracts.positionManager, operatorAddress: PolymarketApprovalContracts.exchangeV3),
+        OperatorGrant(token: PolymarketApprovalContracts.positionManager, operatorAddress: PolymarketApprovalContracts.routerV3),
+        OperatorGrant(token: PolymarketApprovalContracts.conditionalTokens, operatorAddress: PolymarketApprovalContracts.binaryModule),
+        OperatorGrant(token: PolymarketApprovalContracts.conditionalTokens, operatorAddress: PolymarketApprovalContracts.negRiskModule),
+    ])
+    func v2OperatorsAreApproved(grant: OperatorGrant) {
+        let operatorWord = String(repeating: "0", count: 24) + grant.operatorAddress.dropFirst(2).lowercased()
+        let expected = Self.setApprovalForAllSelector + operatorWord + String(repeating: "0", count: 63) + "1"
+
+        #expect(PolymarketApprovalCalls.make().contains { $0.target == grant.token && $0.data == expected })
     }
 
     @Test("Every call is one of the two expected selectors and moves no coin")
@@ -66,8 +80,8 @@ struct PolymarketApprovalsTests {
     // MARK: - The digest the card signs
 
     @Test("The digest matches an independently computed vector", arguments: [
-        Vector(nonce: "0", digest: "6fd17c637494a09bf666ce28424a055b805e36bb799c74525ac527e39bd4f08c"),
-        Vector(nonce: "7", digest: "6dc8f8c5a4cc89a1291aa95210ac97c2ea8b5604c14c3b74e3c086d937eac79d"),
+        Vector(nonce: "0", digest: "bdb41c03f6c32a72a73ca7b7baff7e1fb55b066fb73e048c270c32a0f6157d21"),
+        Vector(nonce: "7", digest: "f2f3e2e6dea85743224e6eb632ddbb6ad8533c9ecd2c5b61061dfec0a2f4f829"),
     ])
     func digestMatchesTheVector(vector: Vector) throws {
         let digest = try PolymarketRelayedBatchSigning.digest(
@@ -219,6 +233,11 @@ extension PolymarketApprovalsTests {
     struct Vector: Sendable {
         let nonce: String
         let digest: String
+    }
+
+    struct OperatorGrant: Sendable {
+        let token: String
+        let operatorAddress: String
     }
 }
 

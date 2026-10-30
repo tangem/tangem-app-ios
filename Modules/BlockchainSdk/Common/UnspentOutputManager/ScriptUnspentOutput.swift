@@ -12,7 +12,6 @@ struct ScriptUnspentOutput: Hashable {
     let output: UnspentOutput
     let script: UTXOLockingScript
 
-    var blockId: Int { output.blockId }
     var hash: Data { output.hash }
     var index: Int { output.index }
     var amount: UInt64 { output.amount }

@@ -6,12 +6,7 @@
 //
 
 import Foundation
-import TangemUI
 @testable import Tangem
-
-struct ApproveTangemIconProviderStub: TangemIconProvider {
-    func getMainButtonIcon() -> MainButton.Icon? { nil }
-}
 
 struct ApproveFeeFormatterStub: FeeFormatter {
     func formattedFeeComponents(

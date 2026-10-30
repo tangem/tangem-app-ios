@@ -33,7 +33,10 @@ struct PolymarketWelcomeView: View {
         .readGeometry(\.size.width) { containerWidth = $0 }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .ignoresSafeArea(edges: .top)
-        .overlay(alignment: .topTrailing) { closeButton }
+        .overlay(alignment: .topTrailing) {
+            closeButton
+                .animation(.default, value: viewModel.isRunning)
+        }
         .safeAreaInset(edge: .bottom, spacing: 0) { footer }
         .disabled(viewModel.isRunning)
         .alert(item: $viewModel.alert) { $0.alert }
@@ -43,8 +46,9 @@ struct PolymarketWelcomeView: View {
     private var closeButton: some View {
         if !viewModel.isRunning {
             NavigationBarButton.close { viewModel.handleViewAction(.close) }
-                .padding(.trailing, Constants.horizontalPadding)
-                .padding(.top, Constants.closeButtonTopPadding)
+                .redesigned()
+                .padding(.trailing, Constants.navigationHorizontalPadding)
+                .transition(.opacity)
         }
     }
 
@@ -183,23 +187,35 @@ struct PolymarketWelcomeView: View {
         VStack(spacing: Constants.footerSpacing) {
             PolymarketLegalLine(notice: viewModel.copy.legalNotice, onTermsTap: { viewModel.handleViewAction(.openLegalTerms($0)) })
 
-            TangemUI.Button(
-                label: viewModel.copy.actionTitle,
-                accessibilityLabel: nil,
-                action: { viewModel.handleViewAction(.startOnboarding) }
-            )
-            .iconEnd(Assets.Polymarket.logo)
-            .styleType(.primary)
-            .size(.x12)
-            .horizontalLayout(.infinity)
-            .loading(viewModel.stageMessage.map(TangemUI.Button.Loading.spinnerWithMessage))
+            actionButton
         }
         .padding(.horizontal, Constants.horizontalPadding)
         .padding(.vertical, Constants.footerVerticalPadding)
         .background {
             Fade(position: .bottom)
+                .variant(.hard)
                 .blurred()
+                .padding(.top, -Constants.footerFadeOverhang)
                 .ignoresSafeArea(edges: .bottom)
+        }
+    }
+
+    @ViewBuilder
+    private var actionButton: some View {
+        if let stageMessage = viewModel.stageMessage {
+            TangemUI.Button(label: viewModel.copy.actionTitle, accessibilityLabel: nil, action: {})
+                .styleType(.primary)
+                .size(.x12)
+                .horizontalLayout(.infinity)
+                .loading(.spinnerWithMessage(stageMessage))
+        } else {
+            SigningActionButtonView(
+                type: viewModel.signingButtonType,
+                title: viewModel.copy.actionTitle,
+                isLoading: false,
+                isDisabled: false,
+                action: { viewModel.handleViewAction(.startOnboarding) }
+            )
         }
     }
 }
@@ -209,7 +225,7 @@ struct PolymarketWelcomeView: View {
 private extension PolymarketWelcomeView {
     enum Constants {
         static let horizontalPadding: CGFloat = 24
-        static let closeButtonTopPadding: CGFloat = 8
+        static let navigationHorizontalPadding: CGFloat = 16
         static let scrollSpace = "polymarketWelcomeScroll"
 
         static let heroAspectRatio: CGFloat = 402.0 / 608.0
@@ -233,5 +249,6 @@ private extension PolymarketWelcomeView {
 
         static let footerSpacing: CGFloat = 12
         static let footerVerticalPadding: CGFloat = 12
+        static let footerFadeOverhang: CGFloat = 16
     }
 }

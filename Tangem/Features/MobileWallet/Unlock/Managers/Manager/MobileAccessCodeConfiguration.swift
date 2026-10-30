@@ -28,13 +28,4 @@ extension MobileAccessCodeConfiguration {
         attemptsBeforeDeleteLimit: 30,
         lockedTimeout: 60
     )
-
-    #if DEBUG
-    static let demo = MobileAccessCodeConfiguration(
-        attemptsToLockLimit: 3,
-        attemptsBeforeWarningLimit: 5,
-        attemptsBeforeDeleteLimit: 10,
-        lockedTimeout: 5
-    )
-    #endif
 }

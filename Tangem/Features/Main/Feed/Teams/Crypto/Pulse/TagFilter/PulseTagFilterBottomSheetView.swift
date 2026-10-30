@@ -195,9 +195,7 @@ private extension PulseTagFilterBottomSheetView {
     }
 
     func skeletonBlock(width: CGFloat, height: CGFloat) -> some View {
-        SkeletonView()
-            .frame(width: width, height: height)
-            .clipShape(.capsule)
+        Shimmer().variant(.custom(width: width, height: height))
     }
 }
 
