@@ -10,6 +10,7 @@ import Foundation
 import TangemFoundation
 import Combine
 import UIKit
+import TangemUIUtils
 
 @MainActor
 final class WrappedHoldToConfirmButtonModel: ObservableObject {
@@ -48,6 +49,7 @@ final class WrappedHoldToConfirmButtonModel: ObservableObject {
     private var pendingSubscription: AnyCancellable?
     private var touchesSubscription: AnyCancellable?
     private var isConfirmedActionPending = false
+    private weak var touchView: UIView?
 
     init(
         title: String,
@@ -71,6 +73,7 @@ extension WrappedHoldToConfirmButtonModel {
     func onTouches(view: UIView?, touches: Set<UITouch>, event: UIEvent?) {
         guard shouldObserveTouches() else { return }
         bindTouchesIfNeeded()
+        touchView = view
 
         let item = TouchesItem(view: view, touches: touches, event: event)
         touchesSubject.send(item)
@@ -198,6 +201,7 @@ private extension WrappedHoldToConfirmButtonModel {
 
     func confirm() {
         setup(state: .confirmed)
+        touchView?.stopEnclosingScrollTracking()
         unbindTouches()
         isConfirmedActionPending = true
         pendingSubscription = Just(())
