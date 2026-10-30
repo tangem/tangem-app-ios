@@ -205,7 +205,6 @@ extension Analytics {
         case walletConnectTxSend = "wallet_connect_tx_sign"
         case readPinSettings = "read_pin_settings"
         case changeSecOptions = "change_sec_options"
-        case createWallet = "create_wallet"
         case purgeWallet = "purge_wallet"
         case deriveKeys = "derive_keys"
         case preparePrimary = "prepare_primary"
@@ -319,7 +318,7 @@ extension Analytics {
         // MARK: - Mobile Wallet
 
         case `import` = "Import"
-        case create = "Create Wallet"
+        case createWallet = "Create Wallet"
         case importWallet = "Import Wallet"
         case walletSettings = "Wallet Settings"
         case upgrade = "Upgrade"
@@ -370,7 +369,7 @@ extension Analytics {
 
         case addressBookSourceSendFlow = "Send Flow"
         case addressBookSourceTransactionDetails = "Transaction Details"
-        case addressBookModeCreate = "Create"
+        case create = "Create"
         case addressBookErrorServer = "Server"
         case addressBookErrorSigning = "Signing"
         case addressBookSelectAll = "Select All"
@@ -384,7 +383,7 @@ extension Analytics {
 
         // MARK: - Welcome V2
 
-        // The Create Wallet sheet reuses `.create` (= "Create Wallet") from the Mobile Wallet block.
+        // The Create Wallet sheet reuses `.createWallet` (= "Create Wallet") from the Mobile Wallet block.
 
         case welcomeIHaveWallet = "I Have Wallet"
         case welcomeImportExisting = "Import Existing"
