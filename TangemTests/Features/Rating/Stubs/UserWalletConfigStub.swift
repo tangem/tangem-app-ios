@@ -32,6 +32,7 @@ struct UserWalletConfigStub: UserWalletConfig {
     let emailData: [EmailCollectedData] = []
     let userWalletIdSeed: Data? = nil
     var productType: Analytics.ProductType = .wallet
+    var hasSocialLogin: Bool = false
     let cardHeaderImage: ImageType? = nil
     let walletThumbnailType: ThumbnailWalletViewType? = nil
     let cardSessionFilter: SessionFilter = .cardId("test")
