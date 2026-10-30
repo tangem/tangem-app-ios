@@ -91,6 +91,11 @@ extension CollectiblesCoordinator: CollectiblesWelcomeRoutable {
     func closeReconnection() {
         reconnectionViewModel = nil
     }
+
+    func closeCollectibles() {
+        reconnectionViewModel = nil
+        dismiss()
+    }
 }
 
 extension CollectiblesCoordinator: CollectiblesMainRoutable {

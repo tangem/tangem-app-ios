@@ -205,6 +205,31 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         #expect(sut.state == .ready(Fixtures.vault()))
     }
 
+    @Test("A relink that finds no vault for the derived key signs nothing and reports the account missing")
+    func relinkWithoutVaultSignsNothing() async throws {
+        let (sut, doubles) = await makeSUT(start: .coldOwnerNotDerived, holdsSessionKey: false)
+
+        let outcome = try await sut.relink()
+
+        #expect(outcome == .accountNotFound)
+        #expect(doubles.coldKeyInteractor.deriveCount == 1)
+        #expect(doubles.chainService.transactions.isEmpty)
+        #expect(sut.state == .notOnboarded)
+    }
+
+    @Test("A relink points a vault naming a foreign session key back at the held one")
+    func relinkRekeysVault() async throws {
+        let (sut, doubles) = await makeSUT(start: .rekeyMismatch)
+        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.vault()) }
+
+        let outcome = try await sut.relink()
+
+        let transaction = try #require(doubles.chainService.transactions.first)
+        #expect(outcome == .relinked)
+        #expect(transaction.instructions.first?.data.prefix(8) == CollectiblesVaultProgram.instructionDiscriminator("update_vault"))
+        #expect(sut.state == .ready(Fixtures.vault()))
+    }
+
     @Test("An onboarding started while another runs joins it instead of signing again")
     func concurrentOnboardingRunsOnce() async throws {
         let (sut, doubles) = await makeSUT(start: .rekeyMismatch)
@@ -212,8 +237,10 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         doubles.chainService.sendGate = sendGate
         doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.vault()) }
 
+        var sendGateArrivals = sendGate.arrivals.makeAsyncIterator()
+
         async let first: Void = sut.onboard()
-        let isFirstSending = await waitUntilConditionMet { doubles.chainService.broadcasts.count == 1 }
+        await sendGateArrivals.next()
 
         async let second: Void = sut.onboard()
         let isSecondSending = await waitUntilConditionMet(timeout: .milliseconds(300)) {
@@ -223,7 +250,6 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         sendGate.open()
         _ = try await (first, second)
 
-        #expect(isFirstSending)
         #expect(!isSecondSending)
         #expect(doubles.chainService.broadcasts.count == 1)
         #expect(sut.state == .ready(Fixtures.vault()))
@@ -1187,9 +1213,18 @@ private final class SendGate {
         var waiters: [CheckedContinuation<Void, Never>] = []
     }
 
+    let arrivals: AsyncStream<Void>
+
+    private let arrival: AsyncStream<Void>.Continuation
     private let state = OSAllocatedUnfairLock(uncheckedState: State())
 
+    init() {
+        (arrivals, arrival) = AsyncStream.makeStream(of: Void.self)
+    }
+
     func pass() async {
+        arrival.yield()
+
         await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
             let isOpen = state { state -> Bool in
                 guard !state.isOpen else {

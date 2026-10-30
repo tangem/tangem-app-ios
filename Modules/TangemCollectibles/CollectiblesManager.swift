@@ -38,7 +38,7 @@ public final class CollectiblesManager: @unchecked Sendable {
     private let lastVaultUsdcBalance = OSAllocatedUnfairLock<UInt64?>(initialState: nil)
 
     private let refreshProcessor = SingleTaskProcessor<Bool, Never>()
-    private let onboardingProcessor = SingleTaskProcessor<Void, any Error>()
+    private let onboardingProcessor = SingleTaskProcessor<(canDeployVault: Bool, outcome: OnboardingOutcome), any Error>()
     private let purchaseSigningTasks = OSAllocatedUnfairLock<[String: Task<CollectiblesSignedPurchase, any Error>]>(
         initialState: [:]
     )
@@ -173,16 +173,30 @@ extension CollectiblesManager: CollectiblesOnboarder {
     /// the loop the agreed onboarding flow is drawn as. Every step reads before it writes, so an interrupted
     /// run is resumed by calling this again rather than repaired.
     public func onboard() async throws {
-        try await onboardingProcessor.execute { [weak self] in
-            guard let self else {
-                return
+        _ = try await runOnboardingPass(canDeployVault: true)
+    }
+
+    private func runOnboardingPass(canDeployVault: Bool) async throws -> OnboardingOutcome {
+        while true {
+            let run = try await onboardingProcessor.execute { [weak self] in
+                guard let self else {
+                    throw CancellationError()
+                }
+
+                let outcome = try await runOnboarding(canDeployVault: canDeployVault)
+                return (canDeployVault: canDeployVault, outcome: outcome)
             }
 
-            try await runOnboarding()
+            guard run.canDeployVault != canDeployVault else {
+                return run.outcome
+            }
+
+            try Task.checkCancellation()
+            CollectiblesLogger.debug("onboarding: joined a run with another deploy rule, running again with its own")
         }
     }
 
-    private func runOnboarding() async throws {
+    private func runOnboarding(canDeployVault: Bool) async throws -> OnboardingOutcome {
         isOnboardingSubject.send(true)
         defer { isOnboardingSubject.send(false) }
 
@@ -196,11 +210,19 @@ extension CollectiblesManager: CollectiblesOnboarder {
                 CollectiblesLogger.debug("create account: -> Solana address of the key stored locally, derivation skipped")
             }
 
-            guard let step = try onboardingInteractor.onboardingStep(for: resolved) else {
+            let step: CollectiblesOnboardingInteractor.OnboardingStep
+
+            switch try onboardingInteractor.onboardingDecision(for: resolved, canDeployVault: canDeployVault) {
+            case .ready:
                 let outcome = performedSteps.isEmpty ? "nothing to do" : "set up in this run"
                 CollectiblesLogger.debug("create account: the account is ready to use, \(outcome)")
                 await refreshBalance(for: resolved, silent: false)
-                return
+                return .ready
+            case .vaultMissing:
+                CollectiblesLogger.debug("relink: no vault on chain for this key, nothing to relink")
+                return .vaultMissing
+            case .step(let nextStep):
+                step = nextStep
             }
 
             // A step can land and still resolve back to the state that asked for it — an RPC that has not
@@ -215,7 +237,20 @@ extension CollectiblesManager: CollectiblesOnboarder {
                 continue
             }
 
-            performedSteps.formUnion(try await onboardingInteractor.perform(step, resolveState: resolveState))
+            performedSteps.formUnion(
+                try await onboardingInteractor.perform(step, canDeployVault: canDeployVault, resolveState: resolveState)
+            )
+        }
+    }
+}
+
+// MARK: - CollectiblesRelinker protocol conformance
+
+extension CollectiblesManager: CollectiblesRelinker {
+    public func relink() async throws -> CollectiblesRelinkOutcome {
+        switch try await runOnboardingPass(canDeployVault: false) {
+        case .ready: .relinked
+        case .vaultMissing: .accountNotFound
         }
     }
 }
@@ -561,6 +596,15 @@ private extension CollectiblesManager {
         }
 
         return try await purchaseTransactionDispatcher.sign(purchase, vault: vault)
+    }
+}
+
+// MARK: - Onboarding outcome
+
+extension CollectiblesManager {
+    enum OnboardingOutcome {
+        case ready
+        case vaultMissing
     }
 }
 
