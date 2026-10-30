@@ -65,6 +65,14 @@ public struct PolymarketProblemDetail: Decodable, Hashable, Sendable {
 // MARK: - Retrying
 
 public extension PolymarketAPIError {
+    static let unauthorizedStatusCode = 401
+
+    var isUnauthorized: Bool {
+        guard case .http(let statusCode, _) = self else { return false }
+
+        return statusCode == Self.unauthorizedStatusCode
+    }
+
     var isTransient: Bool {
         switch self {
         case .http(let statusCode, _): (500 ... 599).contains(statusCode)

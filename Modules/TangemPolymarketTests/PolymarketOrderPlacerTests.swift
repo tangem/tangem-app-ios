@@ -304,6 +304,13 @@ private final class StubCLOBService: PolymarketCLOBService, @unchecked Sendable 
         fatalError("Not reachable from this test")
     }
 
+    func sessionSigners(
+        credentials: PolymarketL2Credentials,
+        ownerAddress: String
+    ) async throws -> [PolymarketSessionSigner] {
+        fatalError("Not reachable from the placer")
+    }
+
     func placeOrder(
         _ signedOrder: PolymarketSignedOrder,
         credentials: PolymarketL2Credentials,

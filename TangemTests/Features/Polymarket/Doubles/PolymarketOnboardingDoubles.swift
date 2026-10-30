@@ -191,6 +191,13 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
         fatalError("Not reachable from this test")
     }
 
+    func sessionSigners(
+        credentials: PolymarketL2Credentials,
+        ownerAddress: String
+    ) async throws -> [PolymarketSessionSigner] {
+        fatalError("Not reachable from this test")
+    }
+
     private(set) var balanceCalls = 0
     private(set) var credentialRequests = 0
 

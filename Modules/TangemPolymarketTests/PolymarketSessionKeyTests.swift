@@ -169,3 +169,56 @@ struct PolymarketSessionKeyErrorTests {
         return PolymarketSessionKeyError(apiError: CommonPolymarketAPIService.mapMoyaError(moyaError, decoder: JSONDecoder()))
     }
 }
+
+@Suite("Polymarket session signers mapping", .timeLimit(.minutes(1)))
+struct PolymarketSessionSignersTests {
+    @Test("Signers are mapped with lowercased addresses and the expiry read as a number or a string")
+    func signers() throws {
+        let signers = try Self.mapSigners("""
+        {
+            "wallet": "0xdef0000000000000000000000000000000000002",
+            "signers": [
+                { "address": "0x5E55000000000000000000000000000000000001", "scopes": ["CLOB"], "valid_until": 1804982400 },
+                { "address": "0x01d0000000000000000000000000000000000009", "scopes": ["ALL"], "valid_until": "1801353600" },
+                { "address": "0x0000000000000000000000000000000000000003", "valid_until": null }
+            ]
+        }
+        """)
+
+        #expect(signers == [
+            PolymarketSessionSigner(
+                address: "0x5e55000000000000000000000000000000000001",
+                scopes: ["CLOB"],
+                validUntil: Date(timeIntervalSince1970: 1_804_982_400)
+            ),
+            PolymarketSessionSigner(
+                address: "0x01d0000000000000000000000000000000000009",
+                scopes: ["ALL"],
+                validUntil: Date(timeIntervalSince1970: 1_801_353_600)
+            ),
+            PolymarketSessionSigner(address: "0x0000000000000000000000000000000000000003", scopes: [], validUntil: nil),
+        ])
+    }
+
+    @Test("An expiry in an unexpected format fails the decoding instead of reading as no expiry", arguments: [
+        "1804982400.5",
+        #""2027-01-15T08:00:00Z""#,
+        #""1804982400.0""#,
+        "true",
+    ])
+    func unexpectedExpiryFails(_ validUntil: String) {
+        #expect(throws: DecodingError.self) {
+            try Self.mapSigners(#"{"signers":[{"address":"0x1","valid_until":\#(validUntil)}]}"#)
+        }
+    }
+
+    @Test("A wallet without session signers yields an empty list")
+    func missingSigners() throws {
+        #expect(try Self.mapSigners(#"{"wallet":"0x1"}"#).isEmpty)
+    }
+
+    private static func mapSigners(_ json: String) throws -> [PolymarketSessionSigner] {
+        let dto = try JSONDecoder().decode(PolymarketDTO.SessionSignersResponse.self, from: Data(json.utf8))
+        return PolymarketMapper().mapSessionSigners(dto)
+    }
+}

@@ -136,6 +136,16 @@ extension CommonPolymarketCLOBService: PolymarketCLOBService {
 
         return try mapper.mapOrderRecord(dto)
     }
+
+    func sessionSigners(
+        credentials: PolymarketL2Credentials,
+        ownerAddress: String
+    ) async throws -> [PolymarketSessionSigner] {
+        let data = try await send(.sessionSigners, credentials: credentials, ownerAddress: ownerAddress)
+        let dto = try decode(PolymarketDTO.SessionSignersResponse.self, from: data)
+
+        return mapper.mapSessionSigners(dto)
+    }
 }
 
 // MARK: - Order placement errors
@@ -147,6 +157,10 @@ extension CommonPolymarketCLOBService {
         }
 
         let message = problemDetail?.message
+
+        guard !error.isUnauthorized else {
+            return .unauthorized(message: message)
+        }
 
         guard let message, message.localizedCaseInsensitiveContains(Constants.noMatchMarker) else {
             return .rejected(message: message)
