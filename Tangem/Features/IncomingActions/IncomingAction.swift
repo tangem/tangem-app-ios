@@ -16,3 +16,22 @@ enum IncomingAction: Equatable {
     case externalLink(URL)
     case navigation(DeeplinkNavigationAction)
 }
+
+// MARK: - CustomStringConvertible
+
+extension IncomingAction: CustomStringConvertible {
+    var description: String {
+        switch self {
+        case .walletConnect:
+            return "walletConnect"
+        case .start:
+            return "start"
+        case .dismissSafari(let url):
+            return "dismissSafari(\(url.absoluteStringWithoutQuery ?? ""))"
+        case .externalLink(let url):
+            return "externalLink(\(url.absoluteStringWithoutQuery ?? ""))"
+        case .navigation(let navigationAction):
+            return "navigation(\(navigationAction.rawCaseValue))"
+        }
+    }
+}

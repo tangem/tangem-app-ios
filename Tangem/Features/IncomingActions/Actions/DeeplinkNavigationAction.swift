@@ -7,7 +7,9 @@
 //
 
 import Foundation
+import TangemMacro
 
+@RawCaseName
 enum DeeplinkNavigationAction: Equatable {
     case token(TokenDeeplink)
     case staking(StakingDeeplink)

@@ -171,14 +171,16 @@ private extension ActionButtonsSellCoordinator {
             currencySymbol: walletModel.tokenItem.currencySymbol,
             amountType: walletModel.tokenItem.amountType,
             blockchain: walletModel.tokenItem.blockchain,
-            walletAddress: walletModel.defaultAddressString
+            walletAddress: walletModel.defaultAddressString,
+            userWalletId: userWalletModel.userWalletId
         )
     }
 
     func makeSendToSellModel(from response: String, and walletModel: any WalletModel) -> ActionButtonsSendToSellModel? {
         let sellUtility = SellCryptoUtility(
             tokenItem: walletModel.tokenItem,
-            address: walletModel.defaultAddressString
+            address: walletModel.defaultAddressString,
+            userWalletId: userWalletModel.userWalletId
         )
 
         guard let sellCryptoRequest = sellUtility.extractSellCryptoRequest(from: response) else {
