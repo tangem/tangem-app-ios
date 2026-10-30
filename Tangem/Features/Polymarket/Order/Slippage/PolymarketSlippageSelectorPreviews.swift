@@ -7,24 +7,35 @@
 //
 
 import SwiftUI
+import TangemLocalization
+import TangemUI
 
 // MARK: - Previews
 
 #Preview("Default") {
-    PolymarketSlippageSelectorView(
-        viewModel: PolymarketSlippageSelectorViewModel(onConfirm: { _ in })
-    )
+    PolymarketSlippageSelectorPreviewHost(viewModel: PolymarketSlippageSelectorViewModel(onConfirm: { _ in }))
 }
 
 #Preview("Above the ceiling") {
-    PolymarketSlippageSelectorView(
-        viewModel: PolymarketSlippageSelectorViewModel(percent: 42, onConfirm: { _ in })
-    )
+    PolymarketSlippageSelectorPreviewHost(viewModel: PolymarketSlippageSelectorViewModel(percent: 42, onConfirm: { _ in }))
 }
 
 #Preview("Below the floor — Dark") {
-    PolymarketSlippageSelectorView(
-        viewModel: PolymarketSlippageSelectorViewModel(percent: 0.05, onConfirm: { _ in })
-    )
-    .preferredColorScheme(.dark)
+    PolymarketSlippageSelectorPreviewHost(viewModel: PolymarketSlippageSelectorViewModel(percent: 0.05, onConfirm: { _ in }))
+        .preferredColorScheme(.dark)
+}
+
+private struct PolymarketSlippageSelectorPreviewHost: View {
+    let viewModel: PolymarketSlippageSelectorViewModel
+
+    var body: some View {
+        Color.clear.modal(
+            isPresented: .constant(true),
+            navigation: .title(Localization.predictionPlaceSlippage),
+            content: {
+                PolymarketSlippageSelectorView(viewModel: viewModel)
+                    .legacyFooter { PolymarketSlippageSelectorFooterView(viewModel: viewModel) }
+            }
+        )
+    }
 }

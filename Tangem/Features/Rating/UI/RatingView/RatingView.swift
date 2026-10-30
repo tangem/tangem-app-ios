@@ -42,9 +42,8 @@ private extension RatingView {
         CardView(displayRating: 0, background: background)
             .hidden()
             .overlay {
-                background.color
-                    .cornerRadiusContinuous(background.cornerRadius)
-                    .skeletonable(isShown: true, radius: background.cornerRadius)
+                Shimmer()
+                    .variant(.custom(cornerRadius: background.cornerRadius))
             }
     }
 }

@@ -63,8 +63,10 @@ extension TokenNotificationEvent: NotificationEvent {
 
     var bannerVariant: MessageBannerVariant? {
         switch self {
-        case .noAccount:
+        case .networkNotUpdated:
             return .default
+        case .noAccount:
+            return .neutral(.light)
         default:
             return nil
         }
@@ -355,10 +357,6 @@ extension TokenNotificationEvent {
         case missingHederaTokenAssociation(associationFee: HederaTokenAssociationFee?)
         case incompleteKaspaTokenTransaction(revealTransaction: KaspaTokenRevealTransaction)
         case missingTokenTrustline(MissingTrustlineInfo)
-    }
-
-    struct YieldAvailableConfiguration: Hashable {
-        let apy: String
     }
 }
 

@@ -179,7 +179,6 @@ private extension HardwareBackupTypesViewModel {
                 assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
                 return .canceled
             }
-
         } catch {
             return .failed(error: error)
         }
@@ -215,10 +214,6 @@ private extension HardwareBackupTypesViewModel {
     func openBuyHardwareWallet() {
         logBuyHardwareWalletAnalytics()
         safariManager.openURL(TangemShopUrlBuilder().url(utmCampaign: .backup))
-    }
-
-    func closeOnboarding() {
-        coordinator?.closeOnboarding()
     }
 }
 

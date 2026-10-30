@@ -12,37 +12,34 @@ import TangemUI
 extension CollectiblesPackRevealView {
     struct Prize {
         let imageURL: URL?
-        let gradeText: String
-        let serialText: String
+        let backImageURL: URL?
         let rarityTitle: String?
         let badgeAppearance: BadgeAppearance
-        let glow: GlowRingAppearance
+        let glow: GlowRingAppearance?
         let name: String
         let number: String
         let subtitle: String
         let keepTitle: String
-        let sellBackTitle: String
     }
 }
 
 // [REDACTED_TODO_COMMENT]
 extension CollectiblesPackRevealView.Prize {
-    init(wonCard: CollectiblesWonCard, buybackRate: Decimal) {
+    init(wonCard: CollectiblesWonCard) {
         let rarity = wonCard.rarity
-        let buybackValue = wonCard.insuredValue.map { $0 * buybackRate }
 
         self.init(
             imageURL: wonCard.imageFrontURL,
-            gradeText: [wonCard.gradingCompany, wonCard.grade].compactMap { $0 }.joined(separator: " • "),
-            serialText: wonCard.gradingID.map { "#\($0)" } ?? "",
+            backImageURL: wonCard.imageBackURL,
             rarityTitle: rarity.map { "\($0.rawValue.capitalized) pull" },
             badgeAppearance: rarity.map(Self.badgeAppearance(of:)) ?? .neutral,
-            glow: rarity.map(Self.glow(of:)) ?? .info,
+            glow: rarity.flatMap(Self.glow(of:)),
             name: [wonCard.year, wonCard.set].compactMap { $0 }.joined(separator: " "),
             number: wonCard.serialNumber.map { "#\($0)" } ?? "",
-            subtitle: wonCard.insuredValue.map { "Market value \(Self.formatDollars($0)) · Insured" } ?? "",
-            keepTitle: "Keep card",
-            sellBackTitle: buybackValue.map { "Sell back for \(Self.formatDollars($0))" } ?? "Sell back"
+            subtitle: wonCard.insuredValue.map {
+                "Market value \(CollectiblesPriceFormatter.formatWithCents($0)) · Insured"
+            } ?? "",
+            keepTitle: "Keep card"
         )
     }
 }
@@ -52,20 +49,16 @@ private extension CollectiblesPackRevealView.Prize {
         switch rarity {
         case .common: .neutral
         case .uncommon: .success
-        case .rare: .info
-        case .epic, .legendary: .warning
+        case .rare, .epic, .legendary: .info
         }
     }
 
-    static func glow(of rarity: CollectiblesMachine.Tier) -> GlowRingAppearance {
+    static func glow(of rarity: CollectiblesMachine.Tier) -> GlowRingAppearance? {
         switch rarity {
-        case .common, .rare: .info
+        case .common: nil
+        case .rare: .info
         case .uncommon: .success
         case .epic, .legendary: .magic
         }
-    }
-
-    static func formatDollars(_ value: Decimal) -> String {
-        CollectiblesPriceFormatter.format(value, formattingOptions: .defaultFiatFormattingOptions)
     }
 }

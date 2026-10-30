@@ -21,8 +21,6 @@ final class MobileCreateWalletViewModel: ObservableObject {
     let createButtonTitle = Localization.onboardingCreateWalletButtonCreateWallet
     let importButtonTitle = Localization.hwImportExistingWallet
 
-    let navBarHeight: CGFloat = OnboardingLayoutConstants.navbarSize.height
-
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
@@ -82,6 +80,7 @@ extension MobileCreateWalletViewModel {
                     parameters: WalletInitializerParameters(
                         mnemonic: nil,
                         passphrase: nil,
+                        isImported: false,
                         hasMnemonicBackup: false,
                         hasICloudBackup: false,
                         hasSocialLogin: false

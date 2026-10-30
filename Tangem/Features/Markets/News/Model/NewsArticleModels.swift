@@ -88,15 +88,9 @@ struct NewsCategory: Identifiable, Equatable {
 // MARK: - NewsRelatedToken
 
 struct NewsRelatedToken: Identifiable, Equatable {
-    private static let iconBuilder = IconURLBuilder()
-
     let id: String
     let symbol: String
     let name: String
-
-    var iconURL: URL {
-        Self.iconBuilder.tokenIconURL(id: id, size: .small)
-    }
 }
 
 // MARK: - NewsSource

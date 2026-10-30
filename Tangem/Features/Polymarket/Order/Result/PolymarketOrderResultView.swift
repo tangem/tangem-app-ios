@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemLocalization
 import TangemPolymarket
 import TangemPolymarketUI
@@ -17,7 +18,22 @@ struct PolymarketOrderResultView: View {
 
     var body: some View {
         content
+            .overlay(alignment: .topTrailing) {
+                closeButton
+            }
             .toolbar(.hidden, for: .navigationBar)
+            .interactiveDismissDisabled(viewModel.blocksSwipeDismiss)
+    }
+
+    private var closeButton: some View {
+        TangemUI.Button(
+            icon: DesignSystem.Icons.Cross.regular20,
+            accessibilityLabel: Localization.commonClose,
+            action: { viewModel.handleViewAction(.close) }
+        )
+        .size(.x11)
+        .styleType(.material(.glass))
+        .padding(Constants.closeButtonPadding)
     }
 
     @ViewBuilder
@@ -38,7 +54,7 @@ struct PolymarketOrderResultView: View {
     }
 
     private var screen: StatusScreen<StatusIcon, EmptyView, EmptyView> {
-        let screen = StatusScreen(
+        StatusScreen(
             title: viewModel.title,
             description: viewModel.description,
             actionTitle: viewModel.actionTitle,
@@ -48,11 +64,16 @@ struct PolymarketOrderResultView: View {
         .actionLoading(viewModel.isAwaitingPosition)
         .actionDisabled(viewModel.isActionDisabled)
         .footerAxis(.horizontal)
+        .footerHidden(viewModel.hidesFooter)
         .assetSlot { statusIcon }
+    }
+}
 
-        guard let secondaryActionTitle = viewModel.secondaryActionTitle else { return screen }
+// MARK: - Constants
 
-        return screen.secondaryAction(title: secondaryActionTitle) { viewModel.handleViewAction(.returnToMain) }
+private extension PolymarketOrderResultView {
+    enum Constants {
+        static let closeButtonPadding: CGFloat = 16
     }
 }
 

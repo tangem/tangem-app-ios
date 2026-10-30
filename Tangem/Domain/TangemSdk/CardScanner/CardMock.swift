@@ -106,8 +106,6 @@ enum CardMock: String, CaseIterable {
         decodeFromURL(url)!
     }
 
-    var name: String { rawValue }
-
     var walletData: DefaultWalletData {
         switch self {
         case .twin:

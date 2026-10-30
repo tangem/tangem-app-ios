@@ -18,26 +18,24 @@ enum Feature: String, Hashable, CaseIterable {
     case priceAlertsSubscription
     case backup4cards
     case polymarket
+    case polymarketPhaseTwo
     case walletCardsBackupReport
     case jointAccounts
     case ethPolLocalStakingValidation
-    case yieldDexTransferDetection
     case collectibles
     case totalTokenBalanceV2
     case mobileSocialLogin
-    case realAssets
-    case hardwareUpgradeStories
     case jointAccountsGaslessTokenFee
     case merklIncentives
     case mcp
-    case tangemPayChooseCountry
     case payBundleIntroduction
-    case hideMarketingBannersWithSystem
-    case tangemPayOnrampV2
-    case promoCampaignsV2
     case tangemPayAppleWalletProvisioning
-    case customSlippage
-    case tronGaslessCEX
+    case tokenChartAddToPortfolio
+    case marketingActivityBinding
+    case qrScanDeeplinks
+    case yieldModePromo
+    case solanaPNFTAndMetaplexCore
+    case tangemPayMoneyAccount
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -52,26 +50,24 @@ enum Feature: String, Hashable, CaseIterable {
         case .priceAlertsSubscription: return "TWI-1603_price_alerts_subscription"
         case .backup4cards: return "[REDACTED_INFO]_backup_4_cards_fw8"
         case .polymarket: return "TWI-1576_polymarket"
+        case .polymarketPhaseTwo: return "TWI-1700_polymarket_phase_two"
         case .walletCardsBackupReport: return "[REDACTED_INFO]_cardlinked_status_update_stage2"
         case .jointAccounts: return "TWI-1611_joint_accounts"
         case .ethPolLocalStakingValidation: return "[REDACTED_INFO]_eth_pol_local_staking_validation"
-        case .yieldDexTransferDetection: return "[REDACTED_INFO]_yield_dex_transfer_detection"
         case .collectibles: return "TWI-1640_gacha_machine"
         case .totalTokenBalanceV2: return "[REDACTED_INFO]_total_token_balance_v2"
         case .mobileSocialLogin: return "[REDACTED_INFO]_mobile_social_login"
-        case .realAssets: return "TWI-1477_real_assets_shelf"
-        case .hardwareUpgradeStories: return "TWI-1357_hardware_upgrade_stories"
         case .jointAccountsGaslessTokenFee: return "[REDACTED_INFO]_joint_accounts_gasless_token_fee"
         case .merklIncentives: return "TWI-1520_merkl_incentives"
         case .mcp: return "TWI-1721_mcp"
-        case .tangemPayChooseCountry: return "TWI-1771_choose_country"
         case .payBundleIntroduction: return "TWI-1728_pay_bundle_introduction"
-        case .hideMarketingBannersWithSystem: return "TWI-1841_hide_marketing_banners_while_system"
-        case .tangemPayOnrampV2: return "TWI-1753_tangem_pay_onramp_v2"
-        case .promoCampaignsV2: return "TWI-1705_promo_campaigns_v2"
         case .tangemPayAppleWalletProvisioning: return "TWI-1062_apple_wallet_push_provisioning"
-        case .customSlippage: return "TWI-1674_custom_slippage"
-        case .tronGaslessCEX: return "TWI-1803_tron_gasless_cex"
+        case .tokenChartAddToPortfolio: return "TWI-1857_token_chart_add_to_portfolio"
+        case .marketingActivityBinding: return "TWI-1732_marketing_activity_binding"
+        case .qrScanDeeplinks: return "TWI-1690_qr_scan_deeplinks"
+        case .yieldModePromo: return "TWI-1762_yield_mode_promo"
+        case .solanaPNFTAndMetaplexCore: return "TWI-1822_solana_pnft_and_metaplex_core"
+        case .tangemPayMoneyAccount: return "TWI-1525_money_account"
         }
     }
 
@@ -85,27 +81,25 @@ enum Feature: String, Hashable, CaseIterable {
         case .mobileWalletMultiCreation: return .unspecified
         case .priceAlertsSubscription: return .unspecified
         case .backup4cards: return .unspecified
-        case .polymarket: return .unspecified
-        case .walletCardsBackupReport: return .unspecified
+        case .polymarket: return .version("6.6")
+        case .polymarketPhaseTwo: return .unspecified
+        case .walletCardsBackupReport: return .version("6.6")
         case .jointAccounts: return .unspecified
         case .ethPolLocalStakingValidation: return .unspecified
-        case .yieldDexTransferDetection: return .version("6.5")
         case .collectibles: return .unspecified
         case .totalTokenBalanceV2: return .unspecified
         case .mobileSocialLogin: return .unspecified
-        case .realAssets: return .version("6.5")
-        case .hardwareUpgradeStories: return .version("6.5")
         case .jointAccountsGaslessTokenFee: return .unspecified
-        case .merklIncentives: return .unspecified
+        case .merklIncentives: return .version("6.6")
         case .mcp: return .unspecified
-        case .tangemPayChooseCountry: return .version("6.5")
         case .payBundleIntroduction: return .unspecified
-        case .hideMarketingBannersWithSystem: return .version("6.5")
-        case .tangemPayOnrampV2: return .version("6.5")
-        case .promoCampaignsV2: return .version("6.5")
         case .tangemPayAppleWalletProvisioning: return .unspecified
-        case .customSlippage: return .version("6.5")
-        case .tronGaslessCEX: return .version("6.4.1")
+        case .tokenChartAddToPortfolio: return .version("6.6")
+        case .marketingActivityBinding: return .unspecified
+        case .qrScanDeeplinks: return .unspecified
+        case .yieldModePromo: return .unspecified
+        case .solanaPNFTAndMetaplexCore: return .unspecified
+        case .tangemPayMoneyAccount: return .unspecified
         }
     }
 }

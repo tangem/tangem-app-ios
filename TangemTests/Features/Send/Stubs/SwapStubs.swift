@@ -26,7 +26,6 @@ final class SwapProvidersStateRecorder {
 
     var count: Int { states.withLock { $0.count } }
     var latest: SwapModel.ProvidersState? { states.withLock { $0.last } }
-    var all: [SwapModel.ProvidersState] { states.withLock { $0 } }
 }
 
 final class SwapRepositoryStub: SwapRepository {

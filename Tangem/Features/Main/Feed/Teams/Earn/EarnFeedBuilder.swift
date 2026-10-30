@@ -19,9 +19,15 @@ struct EarnFeedBuilder: FeedTabBuilder {
 
     func makeSearchTab(
         query: AnyPublisher<String, Never>,
-        history: FeedSearchHistoryProvider,
+        portfolioProvider: FeedSearchPortfolioProvider,
         context: FeedContext
     ) -> FeedSearchTab {
-        .earn(EarnSearchViewModel(query: query, history: history, router: EarnFeedRouter(context: context)))
+        .earn(
+            EarnSearchViewModel(
+                query: query,
+                router: EarnFeedRouter(context: context),
+                portfolioProvider: portfolioProvider
+            )
+        )
     }
 }

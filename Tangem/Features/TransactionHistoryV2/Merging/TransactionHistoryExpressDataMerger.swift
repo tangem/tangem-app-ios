@@ -76,7 +76,7 @@ struct TransactionHistoryExpressDataMerger {
         // Lazily built once on first use and shared across the send / receive matchers (see their `inout` param).
         var bsdkTransactionsGroupedByDestinationAddressString: [String: [TransactionRecord]]?
 
-        for exchangeTransaction in exchangeTransactions {
+        for exchangeTransaction in exchangeTransactions where shouldMergeTransaction(from: exchangeTransaction) {
             let provider = auxDataRepository.provider(id: exchangeTransaction.providerId, branch: .swap)
             let cryptoCurrencies = auxDataRepository.cryptoCurrencies(for: exchangeTransaction.expressCurrencies)
             let info = ExchangeTransactionInfo(
@@ -145,7 +145,7 @@ struct TransactionHistoryExpressDataMerger {
             }
         }
 
-        for onrampTransaction in onrampTransactions {
+        for onrampTransaction in onrampTransactions where shouldMergeTransaction(from: onrampTransaction) {
             let provider = auxDataRepository.provider(id: onrampTransaction.providerId, branch: .onramp)
             let fiatCurrency = auxDataRepository.fiatCurrency(for: onrampTransaction.from)
             let cryptoCurrencies = auxDataRepository.cryptoCurrencies(for: onrampTransaction.expressCurrencies)
@@ -203,7 +203,7 @@ struct TransactionHistoryExpressDataMerger {
         )
         let rows = gaslessFeeAttacher.attach(gaslessFees, to: transferCollapser.collapse(paidOutput))
 
-        return sortedRecords(rows + standaloneTransactions)
+        return TransactionHistoryRecordsSorter.sorted(rows + standaloneTransactions)
     }
 
     // MARK: - Leg claiming (Exchange)
@@ -558,25 +558,48 @@ struct TransactionHistoryExpressDataMerger {
         return grouped
     }
 
-    private func sortedRecords(_ records: [TransactionRecord]) -> [TransactionRecord] {
-        return records.sorted { lhs, rhs in
-            let lhsDate = lhs.date ?? .distantFuture
-            let rhsDate = rhs.date ?? .distantFuture
-            if lhsDate != rhsDate {
-                return lhsDate > rhsDate // timestamp (date) DESC
-            }
+    @inline(__always)
+    private func shouldMergeTransaction(from exchangeTransaction: ExchangeTransaction) -> Bool {
+        switch exchangeTransaction.status {
+        case .expired:
+            return false
+        case .unknown,
+             .preview,
+             .created,
+             .exchangeTxSent,
+             .waiting,
+             .waitingTxHash,
+             .confirming,
+             .exchanging,
+             .sending,
+             .finished,
+             .failed,
+             .txFailed,
+             .refunded,
+             .verifying,
+             .paused:
+            return true
+        }
+    }
 
-            let lhsNonce = lhs.nonce ?? -1
-            let rhsNonce = rhs.nonce ?? -1
-            if lhsNonce != rhsNonce {
-                return lhsNonce > rhsNonce // IFNULL(nonce, -1) DESC
-            }
-
-            if lhs.hash != rhs.hash {
-                return lhs.hash < rhs.hash // hash ASC
-            }
-
-            return lhs.index < rhs.index // index ASC
+    @inline(__always)
+    private func shouldMergeTransaction(from onrampTransaction: OnrampTransaction) -> Bool {
+        switch onrampTransaction.status {
+        case .expired:
+            return false
+        case .unknown,
+             .created,
+             .waitingForPayment,
+             .paymentProcessing,
+             .verifying,
+             .failed,
+             .paid,
+             .sending,
+             .refunding,
+             .refunded,
+             .finished,
+             .paused:
+            return true
         }
     }
 

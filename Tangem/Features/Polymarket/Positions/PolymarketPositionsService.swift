@@ -13,27 +13,13 @@ import TangemPolymarket
 protocol PolymarketPositionsService {
     func activePositions(limit: Int) async throws -> PolymarketPositionsPage
 
-    func openPositions(
-        sort: PolymarketPositionsRequest.Sort,
-        ascending: Bool,
-        limit: Int,
-        offset: Int
-    ) async throws -> PolymarketPositionsPage
+    func openPositions(limit: Int, cursor: String?) async throws -> PolymarketPositionsPage
 
-    func closedPositions(
-        sort: PolymarketClosedPositionsRequest.Sort,
-        ascending: Bool,
-        limit: Int,
-        offset: Int
-    ) async throws -> PolymarketClosedPositionsPage
+    func closedPositions(limit: Int, cursor: String?) async throws -> PolymarketClosedPositionsPage
 
     func position(conditionId: String, assetId: String) async throws -> PolymarketPosition?
 
     func awaitPosition(conditionId: String, assetId: String, changedFrom shares: Decimal?) async throws -> PolymarketPosition?
-}
-
-enum PolymarketPositionsError: Error {
-    case ownerAddressUnavailable
 }
 
 // MARK: - What still counts as an open position
@@ -46,6 +32,10 @@ extension PolymarketPosition {
 
     var isWorthShowing: Bool {
         !isEmptied && (settlement == nil || isRedeemable)
+    }
+
+    var opensClaim: Bool {
+        (isRedeemable || settlement?.isResolved == true) && version?.isSupported == true
     }
 }
 
@@ -69,11 +59,10 @@ extension CommonPolymarketPositionsService: PolymarketPositionsService {
         var collected: [PolymarketPosition] = []
         var seenIDs: Set<String> = []
         var received = 0
-        var offset = 0
-        var hasNext = false
+        var cursor: String?
 
         for _ in 0 ..< Constants.activePageScans {
-            let page = try await openPositions(sort: .endDate, ascending: true, limit: limit, offset: offset)
+            let page = try await openPositions(limit: limit, cursor: cursor)
 
             for position in page.positions where position.isWorthShowing && !seenIDs.contains(position.id) {
                 seenIDs.insert(position.id)
@@ -81,49 +70,32 @@ extension CommonPolymarketPositionsService: PolymarketPositionsService {
             }
 
             received += page.receivedCount
-            offset += page.receivedCount
-            hasNext = page.hasNext || page.receivedCount == limit
+            cursor = page.nextCursor
 
-            guard collected.count < limit, hasNext, page.receivedCount > 0 else { break }
+            guard collected.count < limit, cursor != nil, page.receivedCount > 0 else { break }
         }
 
         return PolymarketPositionsPage(
-            positions: Array(collected.sorted(by: endsSooner).prefix(limit)),
+            positions: collected.prefix(limit).sorted(by: endsSooner),
             receivedCount: received,
-            hasNext: hasNext
+            nextCursor: cursor
         )
     }
 
-    func openPositions(
-        sort: PolymarketPositionsRequest.Sort,
-        ascending: Bool,
-        limit: Int,
-        offset: Int
-    ) async throws -> PolymarketPositionsPage {
+    func openPositions(limit: Int, cursor: String?) async throws -> PolymarketPositionsPage {
         try await apiProvider.positions(
             request: PolymarketPositionsRequest(
-                depositWalletAddress: depositWalletAddress(),
-                sort: sort,
-                ascending: ascending,
-                limit: limit,
-                offset: offset
+                depositWalletAddress: ownerAddressProvider.depositWalletAddress(),
+                page: .page(limit: limit, cursor: cursor)
             )
         )
     }
 
-    func closedPositions(
-        sort: PolymarketClosedPositionsRequest.Sort,
-        ascending: Bool,
-        limit: Int,
-        offset: Int
-    ) async throws -> PolymarketClosedPositionsPage {
+    func closedPositions(limit: Int, cursor: String?) async throws -> PolymarketClosedPositionsPage {
         try await apiProvider.closedPositions(
             request: PolymarketClosedPositionsRequest(
-                depositWalletAddress: depositWalletAddress(),
-                sort: sort,
-                ascending: ascending,
-                limit: limit,
-                offset: offset
+                depositWalletAddress: ownerAddressProvider.depositWalletAddress(),
+                page: .page(limit: limit, cursor: cursor)
             )
         )
     }
@@ -166,18 +138,10 @@ private extension CommonPolymarketPositionsService {
 
     func outcomeRequest(conditionId: String, assetId: String) throws -> PolymarketPositionOutcomeRequest {
         try PolymarketPositionOutcomeRequest(
-            depositWalletAddress: depositWalletAddress(),
+            depositWalletAddress: ownerAddressProvider.depositWalletAddress(),
             conditionId: conditionId,
             assetId: assetId
         )
-    }
-
-    func depositWalletAddress() throws -> String {
-        guard let ownerAddress = ownerAddressProvider.getOwnerAddress() else {
-            throw PolymarketPositionsError.ownerAddressUnavailable
-        }
-
-        return try PolymarketDepositWalletDeriver.derive(ownerAddress: ownerAddress)
     }
 
     func endsSooner(_ lhs: PolymarketPosition, _ rhs: PolymarketPosition) -> Bool {

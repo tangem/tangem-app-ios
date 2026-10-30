@@ -14,7 +14,6 @@ import TangemSdk
 enum WCApprovalAnalyzer {
     private static let approvalFunctionSelector = "0x095ea7b3"
     private static let expectedDataLengthWithPrefix = 138
-    private static let expectedDataLengthBytes = 68
 
     static func analyzeApproval(transaction: WCSendableTransaction) -> ApprovalInfo? {
         guard isApprovalTransaction(transaction) else {
@@ -31,19 +30,6 @@ enum WCApprovalAnalyzer {
             isUnlimited: amount == BigUInt.maxUInt256,
             isEditable: isEditable
         )
-    }
-
-    static func createUpdatedApproval(
-        originalTransaction: WCSendableTransaction,
-        newAmount: BigUInt
-    ) -> WCSendableTransaction? {
-        guard isApprovalTransaction(originalTransaction) else { return nil }
-
-        guard let (spender, _) = extractApprovalData(from: originalTransaction.data) else { return nil }
-
-        let newData = createApprovalData(spender: spender, amount: newAmount)
-
-        return originalTransaction.withUpdatedData(newData)
     }
 
     static func createApprovalData(spender: String, amount: BigUInt) -> String {

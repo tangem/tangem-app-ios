@@ -7,7 +7,8 @@
 {% set colorType %}{{param.colorTypeName|default:"Color"}}{% endset %}
 {% set forceNamespaces %}{{param.forceProvidesNamespaces|default:"false"}}{% endset %}
 {% set accessModifier %}{% if param.publicAccess %}public{% else %}internal{% endif %}{% endset %}
-import SwiftUI
+{% set importAccessModifier %}{% if param.publicAccess %}public {% endif %}{% endset %}
+{{importAccessModifier}}import struct SwiftUI.Color
 
 // MARK: - Asset Catalogs
 

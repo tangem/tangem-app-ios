@@ -27,7 +27,6 @@ protocol UserWalletRepository {
     func delete(userWalletId: UserWalletId)
     func reorder(orderedUserWalletIds: [UserWalletId])
     func onBiometricsChanged(enabled: Bool)
-    func onSaveUserWalletsChanged(enabled: Bool)
     func savePublicData()
     func save(userWalletModel: UserWalletModel)
 }
@@ -64,13 +63,4 @@ enum UserWalletRepositoryUnlockMethod {
     case biometrics(LAContext)
     case biometricsUserWallet(userWalletId: UserWalletId, context: LAContext)
     case encryptionKey(userWalletId: UserWalletId, encryptionKey: UserWalletEncryptionKey)
-
-    var analyticsValue: Analytics.ParameterValue {
-        switch self {
-        case .biometrics, .biometricsUserWallet:
-            return Analytics.ParameterValue.signInTypeBiometrics
-        case .encryptionKey:
-            return Analytics.ParameterValue.card
-        }
-    }
 }

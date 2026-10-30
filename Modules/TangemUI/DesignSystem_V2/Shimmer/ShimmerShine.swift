@@ -15,6 +15,7 @@ struct ShimmerShine: View {
 
     @Environment(\.layoutDirection) private var layoutDirection
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.isShimmerAnimationPaused) private var isAnimationPaused
 
     /// Gradient axis tilt, measured from the vertical (Figma convention: 0° points down).
     private static let axisAngleDegrees: Double = 75
@@ -35,7 +36,7 @@ struct ShimmerShine: View {
     private static let innerStopOpacity: Double = 0.6
 
     var body: some View {
-        if reduceMotion {
+        if reduceMotion || isAnimationPaused {
             gradient(progress: 1)
         } else {
             TimelineView(.animation) { context in

@@ -43,17 +43,6 @@ final class LockedWalletMainContentViewModel: ObservableObject {
 
     lazy var notificationBannerItems: [NotificationBannerItem] = MultiWalletNotificationBannerMapper().mapItems([lockedNotificationInput])
 
-    lazy var singleWalletButtonsInfo: [FixedSizeButtonWithIconInfo] = TokenActionAvailabilityProvider.buildActionsForLockedSingleWallet()
-        .map {
-            FixedSizeButtonWithIconInfo(
-                title: $0.title,
-                icon: $0.icon,
-                disabled: true,
-                style: .disabled,
-                action: {}
-            )
-        }
-
     @Published
     private(set) var actionButtonsViewModel: ActionButtonsViewModel?
 
@@ -69,8 +58,6 @@ final class LockedWalletMainContentViewModel: ObservableObject {
 
     private weak var lockedUserWalletDelegate: MainLockedUserWalletDelegate?
     private weak var coordinator: ActionButtonsRoutable?
-
-    private var bag = Set<AnyCancellable>()
 
     init(
         userWalletModel: UserWalletModel,
@@ -121,7 +108,6 @@ private extension LockedWalletMainContentViewModel {
             let method = UserWalletRepositoryUnlockMethod.biometricsUserWallet(userWalletId: userWalletModel.userWalletId, context: context)
             let userWalletModel = try await userWalletRepository.unlock(with: method)
             signInAnalyticsLogger.logSignInEvent(signInType: .biometrics, userWalletModel: userWalletModel)
-
         } catch where error.isCancellationError {
             await unlockWithFallback()
         } catch let repositoryError as UserWalletRepositoryError {
@@ -170,7 +156,6 @@ private extension LockedWalletMainContentViewModel {
                 let method = UserWalletRepositoryUnlockMethod.biometrics(context)
                 let userWalletModel = try await userWalletRepository.unlock(with: method)
                 signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
-
             } catch {
                 await runOnMain {
                     alert = error.alertBinder
@@ -188,7 +173,6 @@ private extension LockedWalletMainContentViewModel {
                 let method = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                 let userWalletModel = try await userWalletRepository.unlock(with: method)
                 signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
-
             } catch {
                 await runOnMain {
                     alert = error.alertBinder

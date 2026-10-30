@@ -15,9 +15,6 @@ protocol MarketsPortfolioContainerRoutable: AnyObject {
     @MainActor
     func openSwap(input: PredefinedSwapParameters, destination: TokenItem)
     func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters)
-    func openStaking(input: SendInput, stakingManager: any StakingManager)
-    func openYield(input: SendInput, yieldModuleManager: any YieldModuleManager)
-    func openAddFunds(input: SendInput)
 
     @MainActor
     func openMatchedTokenList(

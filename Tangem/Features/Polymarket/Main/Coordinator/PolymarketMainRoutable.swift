@@ -17,6 +17,9 @@ protocol PolymarketMainRoutable: AnyObject {
 
     @MainActor
     func openSupportChat()
+
+    @MainActor
+    func openActivity()
 }
 
 typealias PolymarketMainScreenRoutable = PolymarketMainRoutable

@@ -51,8 +51,10 @@ final class CollectiblesLoreTabsViewModel: ObservableObject {
             state = .loading
         }
 
-        let task = runTask(in: self) { @MainActor viewModel in
-            await viewModel.loadTabs()
+        let task = Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            await loadTabs()
         }
         loadTask = task
 

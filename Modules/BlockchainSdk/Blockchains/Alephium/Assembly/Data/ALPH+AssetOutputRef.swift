@@ -18,12 +18,6 @@ extension ALPH {
         /// The key of the output reference
         let key: TxOutputRefKey
 
-        /// Returns true if the output reference is an asset type
-        var isAssetType: Bool { true }
-
-        /// Returns true if the output reference is a contract type
-        var isContractType: Bool { false }
-
         /// Hashes the output reference into a hasher
         func hash(into hasher: inout Hasher) {
             hasher.combine(key)

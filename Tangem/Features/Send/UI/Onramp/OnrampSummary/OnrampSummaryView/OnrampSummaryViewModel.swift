@@ -40,8 +40,6 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
     private lazy var fiatPresetService = FiatPresetService()
     private lazy var onrampOfferViewModelBuilder = OnrampSuggestedOfferViewModelBuilder(tokenItem: tokenItem)
 
-    private var bag: Set<AnyCancellable> = []
-
     init(
         onrampAmountViewModel: OnrampAmountViewModel,
         tokenItem: TokenItem,

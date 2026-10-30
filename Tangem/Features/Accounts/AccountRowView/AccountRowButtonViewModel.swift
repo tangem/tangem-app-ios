@@ -155,7 +155,7 @@ private extension AccountRowButtonViewModel {
                 vm.trailingBalanceState = Self.polymarketBalanceState(type: balanceType, needsReconnect: needsReconnect)
                 vm.updateSubtitleState(
                     // [REDACTED_TODO_COMMENT]
-                    description: needsReconnect ? "Reconnect required" : "",
+                    description: needsReconnect ? "Reconnect required" : Localization.predictionAccountOpenDetailedView,
                     balanceState: .empty
                 )
             }

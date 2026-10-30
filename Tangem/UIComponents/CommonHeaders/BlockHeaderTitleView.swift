@@ -59,7 +59,6 @@ struct BlockHeaderTitleView<TrailingView: View>: View {
 
 private enum BlockHeaderConstants {
     static let topPaddingTitle: CGFloat = 12.0
-    static let bottomPaddingTitle: CGFloat = 8.0
 }
 
 // MARK: - Helpers

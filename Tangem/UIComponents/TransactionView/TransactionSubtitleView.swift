@@ -32,7 +32,7 @@ struct TransactionSubtitleView: View {
 
     private var prefixView: some View {
         Text(direction.localizedPrefix)
-            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
     }
 
     @ViewBuilder
@@ -44,7 +44,7 @@ struct TransactionSubtitleView: View {
                 AccountIconView(data: icon)
                     .settings(.smallSized)
                 Text(name)
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
                     .lineLimit(1)
                     .accessibilityIdentifier(accessibilityIdentifier)
             }
@@ -52,7 +52,7 @@ struct TransactionSubtitleView: View {
         case .wallet(let name, _, let thumbnailType):
             HStack(spacing: 4) {
                 Text(name)
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
                     .lineLimit(1)
                     .accessibilityIdentifier(accessibilityIdentifier)
 
@@ -67,7 +67,7 @@ struct TransactionSubtitleView: View {
                 AddressBookContactNameIconView(viewData: icon, size: 16)
 
                 Text(name)
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
                     .lineLimit(1)
                     .accessibilityIdentifier(accessibilityIdentifier)
             }
@@ -76,7 +76,7 @@ struct TransactionSubtitleView: View {
             HStack(spacing: 4) {
                 addressBlockies(image: blockiesImage)
                 Text(short)
-                    .style(Font.Tangem.Caption12.semibold, color: addressColor)
+                    .style(DesignSystem.Font.captionMediumToken, color: addressColor)
                     .lineLimit(1)
                     .truncationMode(.middle)
                     .accessibilityIdentifier(accessibilityIdentifier)
@@ -85,7 +85,7 @@ struct TransactionSubtitleView: View {
     }
 
     private var addressColor: Color {
-        isAddressEmphasized ? .Tangem.Text.Neutral.primary : .Tangem.Text.Neutral.tertiary
+        isAddressEmphasized ? DesignSystem.Color.textPrimary : DesignSystem.Color.textSecondary
     }
 
     @ViewBuilder
@@ -98,7 +98,7 @@ struct TransactionSubtitleView: View {
                 .clipShape(Circle())
         } else {
             Circle()
-                .fill(Color.Tangem.Surface.level3)
+                .fill(DesignSystem.Color.bgSecondary)
                 .frame(width: glyphSize, height: glyphSize)
         }
     }
@@ -116,7 +116,7 @@ struct TransactionProviderSubtitleView: View {
     var body: some View {
         HStack(spacing: 4) {
             Text(direction.localizedPrefix)
-                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
             logo
                 .resizable()
@@ -124,7 +124,7 @@ struct TransactionProviderSubtitleView: View {
                 .clipShape(Circle())
 
             Text(name)
-                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
                 .accessibilityIdentifier(accessibilityIdentifier)
         }
         .lineLimit(1)
@@ -142,5 +142,28 @@ struct TransactionProviderSubtitleView: View {
         case .aave: Localization.yieldModuleProvider
         case .merkl: Localization.yieldModuleIncentivesProvider
         }
+    }
+}
+
+struct TransactionSentAssetSubtitleView: View {
+    let sent: TransactionViewModel.SentTokens
+    let accessibilityIdentifier: String
+
+    @ScaledMetric private var glyphSize: CGFloat = 16
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Text(Localization.commonSend)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+
+            // [REDACTED_TODO_COMMENT]
+            TokenIcon(tokenIconInfo: sent.iconInfo, size: CGSize(bothDimensions: glyphSize), isWithOverlays: false)
+
+            Text(sent.symbol)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
+        }
+        .lineLimit(1)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier(accessibilityIdentifier)
     }
 }

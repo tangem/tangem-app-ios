@@ -11,7 +11,6 @@ import TangemFoundation
 import Foundation
 
 protocol SendReceiveTokenAmountInput: AnyObject {
-    var receiveAmount: LoadingResult<SendAmount, any Error> { get }
     var receiveAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> { get }
     var exchangeRestrictionPublisher: AnyPublisher<ExchangeAmountRestriction?, Never> { get }
 

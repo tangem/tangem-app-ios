@@ -36,6 +36,12 @@ enum PolymarketOrderQuoteState: Equatable {
         return nil
     }
 
+    var partialQuote: PolymarketOrderQuote? {
+        if case .unavailable(.insufficientLiquidity, let quote) = self { return quote }
+
+        return nil
+    }
+
     var expectedExecutionAmount: Decimal? {
         switch self {
         case .content(let quote), .unavailable(.insufficientLiquidity, .some(let quote)):
@@ -49,10 +55,6 @@ enum PolymarketOrderQuoteState: Equatable {
         if case .failed = self { return true }
 
         return false
-    }
-
-    var isLive: Bool {
-        quote?.isLive ?? false
     }
 
     init(quote: PolymarketOrderQuote) {

@@ -14,6 +14,10 @@ import SwiftUI
     PolymarketOrderView(viewModel: .preview(outcomeIndex: 0))
 }
 
+#Preview("Single sheet") {
+    PolymarketOrderView(viewModel: .preview(outcomeIndex: 1, isSingleSheet: true))
+}
+
 #Preview("No — Dark") {
     PolymarketOrderView(viewModel: .preview(outcomeIndex: 1))
         .preferredColorScheme(.dark)
@@ -21,7 +25,13 @@ import SwiftUI
 
 @MainActor
 private extension PolymarketOrderViewModel {
-    static func preview(outcomeIndex: Int) -> PolymarketOrderViewModel {
-        PolymarketOrderViewModel(model: .preview(outcomeIndex: outcomeIndex), coordinator: nil)
+    static func preview(outcomeIndex: Int, isSingleSheet: Bool = false) -> PolymarketOrderViewModel {
+        PolymarketOrderViewModel(
+            model: .preview(outcomeIndex: outcomeIndex),
+            flowStyle: isSingleSheet
+                ? .singleSheet(.init(placementService: PolymarketOrderPreviewPlacementService(), signingButtonType: .holdToConfirm))
+                : .summaryStep,
+            coordinator: nil
+        )
     }
 }

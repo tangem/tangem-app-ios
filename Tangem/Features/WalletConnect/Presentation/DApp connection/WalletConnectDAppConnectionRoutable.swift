@@ -8,8 +8,6 @@
 
 @MainActor
 protocol WalletConnectDAppConnectionRoutable: AnyObject {
-    func openConnectionRequest()
-
     func openVerifiedDomain()
 
     func openDomainVerificationWarning(

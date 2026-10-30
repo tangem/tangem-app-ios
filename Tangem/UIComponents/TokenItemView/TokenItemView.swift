@@ -210,14 +210,6 @@ extension TokenItemView {
     }
 }
 
-// MARK: - Constants
-
-private extension TokenItemView {
-    enum Constants {
-        static let spacerLength = 12.0
-    }
-}
-
 // MARK: - Auxiliary types
 
 extension TokenItemView {

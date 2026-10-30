@@ -16,21 +16,21 @@ struct TransactionDetailsAmountTextBuilderTests {
         #expect(TransactionDetailsAmountTextBuilder.build("0.10", symbol: "USDC") == "0.10\u{a0}USDC")
     }
 
-    @Test("Holds the sign to the number with a non-breaking space", arguments: ["−", "+", "~"])
+    @Test("Holds the sign to the number with a thin space", arguments: ["−", "+", "~"])
     func signIsSpaced(sign: String) {
-        #expect(TransactionDetailsAmountTextBuilder.build("0.10", symbol: "USDC", sign: sign) == "\(sign)\u{a0}0.10\u{a0}USDC")
+        #expect(TransactionDetailsAmountTextBuilder.build("0.10", symbol: "USDC", sign: sign) == "\(sign)\u{2009}0.10\u{a0}USDC")
     }
 
     @Test("Trims every part, so a sign that already carries a space is not spaced twice")
     func partsAreTrimmed() {
-        #expect(TransactionDetailsAmountTextBuilder.build(" 0.10 ", symbol: " USDC ", sign: "~ ") == "~\u{a0}0.10\u{a0}USDC")
+        #expect(TransactionDetailsAmountTextBuilder.build(" 0.10 ", symbol: " USDC ", sign: "~ ") == "~\u{2009}0.10\u{a0}USDC")
     }
 
     @Test("Leaves out an empty sign or ticker without a dangling space", arguments: [nil, "", " "])
     func emptyPartsAreDropped(part: String?) {
         #expect(TransactionDetailsAmountTextBuilder.build("0.10", symbol: part, sign: part) == "0.10")
         #expect(TransactionDetailsAmountTextBuilder.build("0.10", symbol: "USDC", sign: part) == "0.10\u{a0}USDC")
-        #expect(TransactionDetailsAmountTextBuilder.build("0.10", symbol: part, sign: "−") == "−\u{a0}0.10")
+        #expect(TransactionDetailsAmountTextBuilder.build("0.10", symbol: part, sign: "−") == "−\u{2009}0.10")
     }
 
     @Test("Builds nothing without a number", arguments: [nil, "", " "])

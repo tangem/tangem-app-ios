@@ -15,7 +15,8 @@ import TangemUIUtils
 struct MessageBannerShowcase: View {
     @State private var titleInput = "Invite friends. Earn 10 USDT."
     @State private var descriptionInput = "Share Tangem, give 10% OFF to your friends, and earn 10 USDT for every wallet they activate."
-    @State private var variant: MessageBannerVariant = .default
+    @State private var variant: MessageBannerVariant?
+    @State private var neutralVariant: MessageBannerVariant.Neutral?
     @State private var contentAlign: MessageBannerContentAlign = .start
     @State private var glowRing: GlowRingAppearance? = .magic
     @State private var hasDescription = true
@@ -37,7 +38,10 @@ struct MessageBannerShowcase: View {
         DSShowcase("MessageBanner") { controls in
             controls.text("Title", $titleInput)
             controls.text("Description", $descriptionInput)
-            controls.picker("Variant", $variant)
+            controls.picker("Variant", $variant, options: [nil] + Self.variants.map(Optional.some)) { variant in
+                variant.map(Self.label(for:)) ?? "none"
+            }
+            controls.picker("Neutral variant", $neutralVariant)
             controls.picker("Content align", $contentAlign)
             controls.picker("Glow ring", $glowRing)
             controls.toggle("Description", $hasDescription)
@@ -59,9 +63,10 @@ struct MessageBannerShowcase: View {
             controls.readout("Last action", lastAction)
         } stage: {
             focusableBanner
+                .messageBannerNeutralVariant(neutralVariant)
         } matrix: {
             DSShowcaseGroup("Variants") {
-                DSShowcaseMatrix(rows: MessageBannerVariant.allCases) { variant in
+                DSShowcaseMatrix(rows: Self.variants, rowLabel: Self.label(for:)) { variant in
                     MessageBanner(title: "Staking rewards are ready", description: "Claim 0.0421 ETH earned this week")
                         .variant(variant)
                         .secondaryButton(MessageBannerButton(title: "Later") {})
@@ -95,7 +100,7 @@ struct MessageBannerShowcase: View {
             }
 
             DSShowcaseGroup("Tappable") {
-                DSShowcaseMatrix(rows: MessageBannerVariant.allCases) { variant in
+                DSShowcaseMatrix(rows: Self.variants, rowLabel: Self.label(for:)) { variant in
                     MessageBanner(title: "Market Pulse", description: "Bitcoin is up 4.2% in the last 24 hours")
                         .variant(variant)
                         .glowRing(ring(for: variant))
@@ -149,7 +154,6 @@ struct MessageBannerShowcase: View {
             .extraBottom {
                 if hasExtraContent { protectedByRow }
             }
-            .variant(variant)
             .contentAlign(contentAlign)
             .glowRing(glowRing)
             .titleLineLimit(titleLineLimit)
@@ -160,6 +164,11 @@ struct MessageBannerShowcase: View {
     }
 
     private var baseBanner: MessageBanner<EmptyView, EmptyView, EmptyView> {
+        let banner = textBanner
+        return variant.map { banner.variant($0) } ?? banner
+    }
+
+    private var textBanner: MessageBanner<EmptyView, EmptyView, EmptyView> {
         let description = hasDescription ? descriptionInput : nil
 
         if isCustomText {
@@ -207,7 +216,7 @@ struct MessageBannerShowcase: View {
 
     private func ring(for variant: MessageBannerVariant) -> GlowRingAppearance {
         switch variant {
-        case .default, .solid: .magic
+        case .default, .solid, .neutral: .magic
         case .success: .success
         case .error: .error
         case .warning: .warning
@@ -219,6 +228,17 @@ struct MessageBannerShowcase: View {
 private extension MessageBannerShowcase {
     enum Constants {
         static let cellWidth: CGFloat = 320
+    }
+
+    static let variants: [MessageBannerVariant] = [.default, .solid]
+        + MessageBannerVariant.Neutral.allCases.map(MessageBannerVariant.neutral)
+        + [.success, .error, .warning, .info]
+
+    static func label(for variant: MessageBannerVariant) -> String {
+        switch variant {
+        case .neutral(let neutral): DSShowcaseLabel.text(neutral)
+        case .default, .solid, .success, .error, .warning, .info: DSShowcaseLabel.text(variant)
+        }
     }
 }
 #endif

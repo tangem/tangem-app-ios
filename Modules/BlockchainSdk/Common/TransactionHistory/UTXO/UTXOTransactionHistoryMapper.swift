@@ -45,8 +45,11 @@ extension UTXOTransactionHistoryMapper: TransactionHistoryMapper {
 
         let walletAddressSet = Set(walletAddress)
         let isOutgoing = transaction.compat.vin.contains { vin in
-            guard let addresses = vin.addresses else { return false }
-            return !walletAddressSet.isDisjoint(with: addresses)
+            guard let address = singleAddress(addresses: vin.addresses, isAddress: vin.isAddress) else {
+                return false
+            }
+
+            return walletAddressSet.contains(address)
         }
         let status: TransactionRecord.TransactionStatus = transaction.confirmations > 0 ? .confirmed : .unconfirmed
         let fee = feeSatoshi / decimalValue
@@ -70,7 +73,7 @@ extension UTXOTransactionHistoryMapper: TransactionHistoryMapper {
         let spenders: [TransactionRecord.Source] = vin.reduce([]) { result, input in
             guard let value = input.value,
                   let amountSatoshi = Decimal(stringValue: value),
-                  let address = input.addresses?.first else {
+                  let address = singleAddress(addresses: input.addresses, isAddress: input.isAddress) else {
                 return result
             }
 
@@ -88,7 +91,7 @@ extension UTXOTransactionHistoryMapper: TransactionHistoryMapper {
     func destinationType(vout: [BlockBookAddressResponse.Vout]) -> TransactionRecord.DestinationType {
         let destinations: [TransactionRecord.Destination] = vout.reduce([]) { result, output in
             guard let amountSatoshi = Decimal(stringValue: output.value),
-                  let address = output.addresses?.first else {
+                  let address = singleAddress(addresses: output.addresses, isAddress: output.isAddress) else {
                 return result
             }
 
@@ -101,5 +104,13 @@ extension UTXOTransactionHistoryMapper: TransactionHistoryMapper {
         }
 
         return .multiple(destinations)
+    }
+
+    private func singleAddress(addresses: [String]?, isAddress: Bool) -> String? {
+        guard isAddress else {
+            return nil
+        }
+
+        return addresses?.singleElement
     }
 }

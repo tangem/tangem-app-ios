@@ -471,7 +471,6 @@ private final class StubNetworkService: AddressBookNetworkService {
     var loadCallCount: Int { state.withLock { $0.loadCallCount } }
     var saveCallCount: Int { state.withLock { $0.saveCallCount } }
     var lastLoadKnownETag: String? { state.withLock { $0.lastLoadKnownETag } }
-    var lastSaveKnownETag: String? { state.withLock { $0.lastSaveKnownETag } }
     var savedEnvelopes: [AddressBookEnvelope] { state.withLock { $0.savedEnvelopes } }
 
     func loadAddressBook(walletId: UserWalletId, knownETag: String?) async throws -> AddressBookFetchResult {

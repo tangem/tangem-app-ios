@@ -25,7 +25,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case legacyDerivation
     case systemDeprecationTemporary
     case systemDeprecationPermanent(version: String, date: String, hasEnded: Bool)
-    case missingDerivation(numberOfNetworks: Int, icon: MainButton.Icon?, hasNFCInteraction: Bool)
+    case missingDerivation(numberOfNetworks: Int, signingActionButtonType: SigningActionButtonViewType)
     case walletLocked(hasNFCInteraction: Bool)
     case missingBackup
     case supportedOnlySingleCurrencyWallet
@@ -78,7 +78,7 @@ extension GeneralNotificationEvent: NotificationEvent {
     var bannerVariant: MessageBannerVariant? {
         switch self {
         case .missingDerivation, .walletLocked, .forceUpdateAvailable:
-            return .default
+            return .neutral(.light)
         case .failedToVerifyCard:
             return .error
         case .lowSignatures:
@@ -188,12 +188,10 @@ extension GeneralNotificationEvent: NotificationEvent {
             return hasEnded
                 ? Localization.warningIosDeprecationEndedMessage(version, dateString)
                 : Localization.warningIosDeprecationMessage(version, dateString)
-        case .missingDerivation(let numberOfNetworks, _, let hasNFCInteraction):
-            if hasNFCInteraction {
-                return Localization.warningMissingDerivationMessage(numberOfNetworks)
-            } else {
-                return Localization.warningMissingDerivationNoNfcMessage(numberOfNetworks)
-            }
+        case .missingDerivation(let numberOfNetworks, .requiredNFCInteraction):
+            return Localization.warningMissingDerivationMessage(numberOfNetworks)
+        case .missingDerivation(let numberOfNetworks, .holdToConfirm):
+            return Localization.warningMissingDerivationNoNfcMessage(numberOfNetworks)
         case .walletLocked(let hasNFCInteraction):
             let biometryName = BiometricsUtil.biometryType.name
             return hasNFCInteraction
@@ -262,7 +260,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .init(
                 iconType: .image(Assets.DesignSystem.attention),
                 renderingMode: .template,
-                color: .Tangem.Text.Neutral.primary,
+                color: DesignSystem.Color.textPrimary,
                 size: .init(bothDimensions: 28)
             )
         case .demoCard, .legacyDerivation, .systemDeprecationTemporary, .missingDerivation:
@@ -273,7 +271,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .init(
                 iconType: .image(Assets.lock),
                 renderingMode: .template,
-                color: .Tangem.Graphic.Neutral.primary
+                color: DesignSystem.Color.iconPrimary
             )
         case .mobileFinishActivation(let hasPositiveBalance, _):
             let imageType = hasPositiveBalance ? Assets.criticalAttentionShield : Assets.attentionShield
@@ -284,13 +282,13 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .init(
                 iconType: .image(DesignSystem.Icons.Bell.regular20),
                 renderingMode: .template,
-                color: .Tangem.Graphic.Neutral.primary
+                color: DesignSystem.Color.iconPrimary
             )
         case .initialWalletTokenSyncCompleted:
             return .init(
                 iconType: .image(DesignSystem.Icons.Success.regular20),
                 renderingMode: .template,
-                color: .Tangem.Graphic.Status.accent
+                color: DesignSystem.Color.iconAccentBlue
             )
         case .forceUpdateAvailable:
             return .init(iconType: .image(Assets.warningIcon), isLeading: false)
@@ -298,7 +296,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .init(
                 iconType: .image(DesignSystem.Icons.ArrowDown.regular20),
                 renderingMode: .template,
-                color: .Tangem.Text.Neutral.primary
+                color: DesignSystem.Color.textPrimary
             )
         }
     }
@@ -414,13 +412,13 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .withButtons([
                 NotificationView.NotificationButton(action: buttonAction, actionType: .backupCard, isWithLoader: false),
             ])
-        case .missingDerivation(_, let icon, _):
+        case .missingDerivation(_, let signingActionButtonType):
             guard let buttonAction else {
                 break
             }
 
             return .withButtons([
-                .init(action: buttonAction, actionType: .generateAddresses(icon: icon), isWithLoader: true),
+                .init(action: buttonAction, actionType: .generateAddresses(icon: signingActionButtonType.mainButtonIcon), isWithLoader: true),
             ])
         case .rateApp:
             guard let buttonAction else {

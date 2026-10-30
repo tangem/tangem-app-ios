@@ -30,7 +30,6 @@ final class AddCustomTokenDerivationPathWriterViewModel: ObservableObject, Ident
     private let blockchain: Blockchain
     private weak var output: AddCustomTokenDerivationPathWriterOutput?
     private weak var coordinator: AddCustomTokenDerivationPathWriterRoutable?
-    private var bag: Set<AnyCancellable> = []
 
     init(
         currentDerivationPath: String,

@@ -5,6 +5,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import BlockchainSdk
 import TangemExpress
@@ -19,6 +20,8 @@ final class SwapableTokenStub: SendSwapableToken {
     private let balanceProviders: BalanceProviders?
     private let feeProvidersManager: (any TokenFeeProvidersManager)?
     private let defaultAddress: String?
+    private let injectedReceivingRestrictionsProvider: (any ReceivingRestrictionsProvider)?
+    private let injectedSendingRestrictionsProvider: (any SendingRestrictionsProvider)?
 
     let presentation: SendReceiveTokenPresentation?
     let isCustomSlippageAllowed: Bool
@@ -28,7 +31,9 @@ final class SwapableTokenStub: SendSwapableToken {
         sendingRestriction: SendingRestrictions? = nil,
         receivingRestriction: ReceivedRestriction? = nil,
         transactionValidator: SendTransactionValidator? = nil,
-        destination: SendReceiveTokenDestination? = nil
+        destination: SendReceiveTokenDestination? = nil,
+        receivingRestrictionsProvider: (any ReceivingRestrictionsProvider)? = nil,
+        sendingRestrictionsProvider: (any SendingRestrictionsProvider)? = nil
     ) {
         inner = SendSourceTokenStub(blockchain: blockchain)
         self.sendingRestriction = sendingRestriction
@@ -40,6 +45,8 @@ final class SwapableTokenStub: SendSwapableToken {
         defaultAddress = nil
         presentation = nil
         isCustomSlippageAllowed = true
+        injectedReceivingRestrictionsProvider = receivingRestrictionsProvider
+        injectedSendingRestrictionsProvider = sendingRestrictionsProvider
     }
 
     init(
@@ -52,7 +59,8 @@ final class SwapableTokenStub: SendSwapableToken {
         presentation: SendReceiveTokenPresentation? = nil,
         isCustomSlippageAllowed: Bool = true,
         tokenFeeProvidersManager: (any TokenFeeProvidersManager)? = nil,
-        defaultAddress: String? = nil
+        defaultAddress: String? = nil,
+        receivingRestrictionsProvider: (any ReceivingRestrictionsProvider)? = nil
     ) {
         inner = SendSourceTokenStub(tokenItem: tokenItem)
         self.sendingRestriction = sendingRestriction
@@ -64,6 +72,8 @@ final class SwapableTokenStub: SendSwapableToken {
         self.isCustomSlippageAllowed = isCustomSlippageAllowed
         feeProvidersManager = tokenFeeProvidersManager
         self.defaultAddress = defaultAddress
+        injectedReceivingRestrictionsProvider = receivingRestrictionsProvider
+        injectedSendingRestrictionsProvider = nil
     }
 
     struct BalanceProviders {
@@ -72,7 +82,7 @@ final class SwapableTokenStub: SendSwapableToken {
     }
 
     var sendingRestrictionsProvider: any SendingRestrictionsProvider {
-        SendingRestrictionsProviderStub(sendingRestrictions: sendingRestriction)
+        injectedSendingRestrictionsProvider ?? SendingRestrictionsProviderStub(sendingRestrictions: sendingRestriction)
     }
 
     var destination: SendReceiveTokenDestination? {
@@ -97,9 +107,9 @@ final class SwapableTokenStub: SendSwapableToken {
     var emailDataCollectorBuilder: EmailDataCollectorBuilder { inner.emailDataCollectorBuilder }
     var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? { get async { await inner.transactionHistoryEnricher } }
     var transactionDispatcherProvider: any TransactionDispatcherProvider { inner.transactionDispatcherProvider }
+    var transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider { inner.transactionSummaryDescriptionBuilderProvider }
+    var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { inner.blockchainSDKNotificationMapper }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { inner.accountModelAnalyticsProvider }
-    var tangemIconProvider: any TangemIconProvider { inner.tangemIconProvider }
-    var confirmTransactionPolicy: any ConfirmTransactionPolicy { inner.confirmTransactionPolicy }
     var isTangemPayAccount: Bool { inner.isTangemPayAccount }
     var jointAccountPolicy: JointAccountPolicy? { inner.jointAccountPolicy }
 
@@ -113,7 +123,7 @@ final class SwapableTokenStub: SendSwapableToken {
     /// When the stub plays the destination, the pair-update task queries its restrictions from a
     /// detached task — a `fatalError` here crashes the whole run intermittently.
     var receivingRestrictionsProvider: any ReceivingRestrictionsProvider {
-        ReceivingRestrictionsProviderStub(result: receivingRestriction)
+        injectedReceivingRestrictionsProvider ?? ReceivingRestrictionsProviderStub(result: receivingRestriction)
     }
 
     var transactionValidator: any SendTransactionValidator {
@@ -145,7 +155,7 @@ struct SwapAvailabilityProviderStub: SwapAvailabilityProvider {
     let isSwapAvailable: Bool
 }
 
-private struct ReceivingRestrictionsProviderStub: ReceivingRestrictionsProvider {
+struct ReceivingRestrictionsProviderStub: ReceivingRestrictionsProvider {
     let result: ReceivedRestriction?
 
     var isRestrictionKnown: Bool { true }
@@ -154,6 +164,8 @@ private struct ReceivingRestrictionsProviderStub: ReceivingRestrictionsProvider 
 
 private struct SendingRestrictionsProviderStub: SendingRestrictionsProvider {
     let sendingRestrictions: SendingRestrictions?
+
+    var sendingRestrictionsPublisher: AnyPublisher<SendingRestrictions?, Never> { .just(output: sendingRestrictions) }
 }
 
 // MARK: - Token item helpers

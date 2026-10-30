@@ -17,8 +17,6 @@ struct PulseMarketWidgetView: View {
 
     var showsSeeAllButton: Bool = true
 
-    @Environment(\.mainWindowSize) private var mainWindowSize
-
     private var listStateID: Int {
         switch viewModel.tokenViewModelsState {
         case .loading: return 0

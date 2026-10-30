@@ -21,6 +21,7 @@ struct ShimmerShowcase: View {
     @State private var isCapsule = true
     @State private var cornerRadius: CGFloat = 0
     @State private var isModifierActive = true
+    @State private var isPlaceholderShown = true
 
     var body: some View {
         DSShowcase("Shimmer") { controls in
@@ -41,7 +42,8 @@ struct ShimmerShowcase: View {
                 EmptyView()
             }
 
-            controls.toggle(".tangemShimmer() active", $isModifierActive)
+            controls.toggle(".shimmering() env active", $isModifierActive)
+            controls.toggle(".shimmerPlaceholder shown", $isPlaceholderShown)
         } stage: {
             VStack(alignment: .leading, spacing: 24) {
                 Shimmer()
@@ -49,6 +51,8 @@ struct ShimmerShowcase: View {
                     .frame(height: variant == .fill ? 80 : nil)
 
                 modifierSample
+
+                placeholderSample
             }
         } matrix: {
             DSShowcaseGroup("Text variant") {
@@ -61,6 +65,10 @@ struct ShimmerShowcase: View {
 
             DSShowcaseGroup("List skeleton") {
                 listSkeleton
+            }
+
+            DSShowcaseGroup("Placeholder") {
+                placeholderMatrix
             }
         }
     }
@@ -83,8 +91,46 @@ struct ShimmerShowcase: View {
             Text("Total balance")
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
         }
-        .tangemShimmer()
+        .shimmering()
         .environment(\.isShimmerActive, isModifierActive)
+    }
+
+    private var placeholderSample: some View {
+        HStack(spacing: 12) {
+            Circle()
+                .fill(DesignSystem.Color.bgTertiary)
+                .frame(width: 36, height: 36)
+                .shimmerPlaceholder(isPlaceholderShown, variant: .custom(width: 36, height: 36))
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Ethereum")
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                    .shimmerPlaceholder(isPlaceholderShown)
+
+                Text("ETH")
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .shimmerPlaceholder(isPlaceholderShown, variant: .custom(width: 60, height: 12))
+            }
+        }
+    }
+
+    private var placeholderMatrix: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Content frame")
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                .shimmerPlaceholder(true)
+
+            Text("Content frame, radius 2")
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                .shimmerPlaceholder(true, variant: .custom(cornerRadius: 2))
+
+            Text("")
+                .shimmerPlaceholder(true, variant: .custom(width: 80, height: 16))
+
+            Text("Wider than block")
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                .shimmerPlaceholder(true, variant: .custom(width: 40, height: 12))
+        }
     }
 
     private var listSkeleton: some View {

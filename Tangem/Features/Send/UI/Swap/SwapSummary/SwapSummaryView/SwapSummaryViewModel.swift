@@ -31,8 +31,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
     @Published private(set) var mainButtonIsUpdating: Bool = false
     @Published private(set) var mainButtonIsEnabled: Bool = false
-    @Published private(set) var mainButtonIcon: MainButton.Icon?
-    @Published private(set) var mainButtonNeedsHold: Bool = false
+    @Published private(set) var mainButtonSigningActionButtonType: SigningActionButtonViewType = .requiredNFCInteraction
     @Published private(set) var mainButtonState: MainButtonState = .swap
 
     @Published private(set) var transactionDescription: AttributedString?
@@ -41,7 +40,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var formVariant: SwapFormVariant
     @Published var shouldAnimateBestRateBadge: Bool = true
 
-    let swapSummarySlippageViewModel: SwapSummarySlippageViewModel?
+    let swapSummarySlippageViewModel: SwapSummarySlippageViewModel
 
     var mainButtonIsLoading: Bool { isActionInProcessing }
 
@@ -61,7 +60,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         analyticsLogger: SendSummaryAnalyticsLogger,
         swapAmountViewModel: SwapAmountViewModel,
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
-        swapSummarySlippageViewModel: SwapSummarySlippageViewModel?,
+        swapSummarySlippageViewModel: SwapSummarySlippageViewModel,
         feeCompactViewModel: SendFeeCompactViewModel,
         sourceTokenInput: SendSourceTokenInput,
         formVariantResolver: SwapFormVariantResolver = SwapFormVariantResolver()
@@ -111,17 +110,15 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     }
 
     func bind(sourceTokenInput: SendSourceTokenInput) {
-        sourceTokenInput.sourceTokenPublisher
-            .compactMap { $0.value }
-            .map { $0.tangemIconProvider.getMainButtonIcon() }
-            .receiveOnMain()
-            .assign(to: &$mainButtonIcon)
+        if let signingActionButtonType = sourceTokenInput.sourceToken.value?.signingActionButtonType {
+            mainButtonSigningActionButtonType = signingActionButtonType
+        }
 
         sourceTokenInput.sourceTokenPublisher
             .compactMap { $0.value }
-            .map { $0.confirmTransactionPolicy.needsHoldToConfirm }
+            .map { $0.signingActionButtonType }
             .receiveOnMain()
-            .assign(to: &$mainButtonNeedsHold)
+            .assign(to: &$mainButtonSigningActionButtonType)
     }
 
     func userDidTapFee() {
@@ -179,19 +176,17 @@ private extension SwapSummaryViewModel {
             .receiveOnMain()
             .assign(to: &$transactionDescription)
 
-        if let swapSummarySlippageViewModel {
-            Publishers.CombineLatest($formVariant, swapSummarySlippageViewModel.$isVisible)
-                .map { variant, isVisible in variant == .simple && isVisible }
-                .removeDuplicates()
-                .withWeakCaptureOf(self)
-                .sink { $0.swapAmountViewModel.update(isEditSlippageAvailable: $1) }
-                .store(in: &bag)
+        Publishers.CombineLatest($formVariant, swapSummarySlippageViewModel.$isVisible)
+            .map { variant, isVisible in variant == .simple && isVisible }
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { $0.swapAmountViewModel.update(isEditSlippageAvailable: $1) }
+            .store(in: &bag)
 
-            swapSummarySlippageViewModel.$isEditable
-                .withWeakCaptureOf(self)
-                .sink { $0.swapAmountViewModel.update(isEditSlippageEnabled: $1) }
-                .store(in: &bag)
-        }
+        swapSummarySlippageViewModel.$isEditable
+            .withWeakCaptureOf(self)
+            .sink { $0.swapAmountViewModel.update(isEditSlippageEnabled: $1) }
+            .store(in: &bag)
 
         interactor
             .isMaxAmountButtonHiddenPublisher

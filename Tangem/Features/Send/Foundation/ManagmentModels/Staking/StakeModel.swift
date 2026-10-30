@@ -14,7 +14,6 @@ import TangemLocalization
 import struct TangemUI.TokenIconInfo
 
 protocol StakeModelStateProvider {
-    var state: StakeFlowState { get }
     var statePublisher: AnyPublisher<StakeFlowState, Never> { get }
     /// The action as currently parameterized (entered amount + selected target). Notifications key on it.
     var stakingAction: StakingAction { get }
@@ -478,8 +477,8 @@ extension StakeModel: NotificationTapDelegate {
         case .activate:
             openAccountInitializationFlow()
         case .reduceAmountBy(let amountToReduce, _, _):
-            guard let oldAmount = sourceAmount.value?.main else { return }
-            amountExternalUpdater?.externalUpdate(amount: oldAmount - amountToReduce)
+            guard let oldAmount = _amount.value?.crypto else { return }
+            amountExternalUpdater?.externalUpdate(cryptoAmount: oldAmount - amountToReduce)
             updateState()
         default:
             assertionFailure("StakeModel doesn't support notification action \(action)")
@@ -492,13 +491,14 @@ extension StakeModel: NotificationTapDelegate {
             return
         }
 
+        let balanceBeforeInitialization = sendSourceToken.availableBalanceProvider.balanceType.value
         let transactionDispatcher = sendSourceToken.transactionDispatcherProvider.makeTransferTransactionDispatcher()
         let tokenIconInfo = TokenIconInfoBuilder().build(from: sendSourceToken.tokenItem, isCustom: sendSourceToken.isCustom)
 
         let viewModel = BlockchainAccountInitializationViewModel(
             accountInitializationService: accountInitializationService,
             transactionDispatcher: transactionDispatcher,
-            tangemIconProvider: sendSourceToken.tangemIconProvider,
+            signingActionButtonType: sendSourceToken.signingActionButtonType,
             tokenItem: tokenItem,
             fee: initializationFee,
             feeTokenItem: feeTokenItem,
@@ -508,8 +508,11 @@ extension StakeModel: NotificationTapDelegate {
             },
             onInitialized: { [weak self] in
                 guard let self else { return }
-                if let oldAmount = sourceAmount.value?.main {
-                    amountExternalUpdater?.externalUpdate(amount: oldAmount - initializationFee.amount.value)
+                if let amount = _amount.value?.crypto, let balanceBeforeInitialization {
+                    let maxAmount = balanceBeforeInitialization - initializationFee.amount.value
+                    if amount > maxAmount {
+                        amountExternalUpdater?.externalUpdate(cryptoAmount: maxAmount)
+                    }
                 }
                 updateState()
             }

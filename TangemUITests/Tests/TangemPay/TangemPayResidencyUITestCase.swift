@@ -55,11 +55,11 @@ class TangemPayResidencyUITestCase: BaseTestCase {
             scenarios.append(ScenarioConfig(name: Constants.Scenario.channels, initialState: Constants.ScenarioState.banner))
         }
 
-        return launchAndImportHotWallet(
-            eligibilityState: Constants.ScenarioState.notCustomer,
-            scenarios: scenarios,
-            featureToggles: Constants.marketingBannersShownWithSystemCards
-        )
+        guard isBannerShown else {
+            return launchAndImportHotWallet(eligibilityState: Constants.ScenarioState.notCustomer, scenarios: scenarios)
+        }
+
+        return launchAndImportHotWalletWithoutSystemBanners(eligibilityState: Constants.ScenarioState.notCustomer, scenarios: scenarios)
     }
 
     func openCountrySelection(from onboarding: TangemPayOnboardingScreen) -> TangemPayGeoSelectionScreen {
@@ -72,6 +72,12 @@ class TangemPayResidencyUITestCase: BaseTestCase {
         }
 
         return countrySelection.waitForScreen(title: Localization.tangempayResidencyTitleCountry)
+    }
+
+    func relaunchWithKycInProgress() -> MainScreen {
+        relaunchKeepingState(scenarios: [
+            ScenarioConfig(name: Constants.Scenario.kycStatus, initialState: Constants.ScenarioState.kycInProgress),
+        ])
     }
 
     func openCountrySelectionFromDetails(_ details: DetailsScreen) -> TangemPayGeoSelectionScreen {
@@ -128,8 +134,6 @@ class TangemPayResidencyUITestCase: BaseTestCase {
 
 private extension TangemPayResidencyUITestCase {
     enum Constants {
-        static let marketingBannersShownWithSystemCards = ["TWI-1841_hide_marketing_banners_while_system": false]
-
         enum Scenario {
             static let eligibility = "tangem_pay_eligibility"
             static let kycStatus = "tangem_pay_kyc_status"
@@ -142,6 +146,7 @@ private extension TangemPayResidencyUITestCase {
             static let notCustomer = "Started"
             static let paeraCustomer = "PaeraCustomer"
             static let kycRequired = "Required"
+            static let kycInProgress = "InProgress"
             static let unavailable = "Unavailable"
             static let banner = "Banner"
         }

@@ -64,6 +64,13 @@ struct CollectiblesAccountBuilder {
             transactionSender: transactionSender
         )
 
+        let buybackTransactionDispatcher = CollectiblesBuybackTransactionDispatcher(
+            coldOwnerProvider: coldOwnerProvider,
+            configReader: chainReader,
+            coldKeyInteractorFactory: coldKeyInteractorFactory,
+            transactionSender: transactionSender
+        )
+
         let manager = CollectiblesManager(
             userWalletId: userWalletId,
             coldOwnerProvider: coldOwnerProvider,
@@ -75,13 +82,15 @@ struct CollectiblesAccountBuilder {
             transactionSender: transactionSender,
             onboardingInteractor: onboardingInteractor,
             purchaseTransactionDispatcher: purchaseTransactionDispatcher,
+            buybackTransactionDispatcher: buybackTransactionDispatcher,
             presenceStore: StoredCollectiblesAccountPresenceStore.appSettings()
         )
 
         return CommonCollectiblesAccountModel(
             manager: manager,
             name: Localization.collectiblesMainTitle,
-            balanceService: balanceService
+            balanceService: balanceService,
+            buybackSigningLimits: HardwareLimitationsUtil(config: config)
         )
     }
 }

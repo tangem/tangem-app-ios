@@ -52,7 +52,7 @@ struct TokenDetailsActionsBottomSheetView: View {
         // Scoped to the actions branch so receive keeps ReceiveMainView's own configuration; the
         // frame-update animation must live here to keep the actions->receive height change animated.
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = DesignSystem.Color.bgPrimary
+            configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }

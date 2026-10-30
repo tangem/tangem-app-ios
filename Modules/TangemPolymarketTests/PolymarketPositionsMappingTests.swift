@@ -21,6 +21,7 @@ struct PolymarketPositionsMappingTests {
         let position = try #require(page.positions.first)
 
         #expect(page.hasNext)
+        #expect(page.nextCursor == "c2")
         #expect(page.positions.count == 1)
 
         #expect(position.conditionId == "0x94947a23")
@@ -99,8 +100,8 @@ struct PolymarketPositionsMappingTests {
         #expect(position.settlement == nil)
     }
 
-    @Test("A missing page flag reads as the last page")
-    func missingHasNextIsFalse() throws {
+    @Test("A missing cursor reads as the last page")
+    func missingCursorIsTheLastPage() throws {
         #expect(try !mapPage(Self.degradedJSON).hasNext)
     }
 
@@ -110,6 +111,7 @@ struct PolymarketPositionsMappingTests {
         let position = try #require(page.positions.first)
 
         #expect(page.hasNext)
+        #expect(page.nextCursor == "c2")
         #expect(page.receivedCount == 1)
         #expect(position.conditionId == "0xe131e7ab")
         #expect(position.assetId == "14029358")
@@ -198,7 +200,7 @@ private extension PolymarketPositionsMappingTests {
         "realizedPnl": "-2.363",
         "status": "CLOSED"
       }],
-      "hasNext": true
+      "nextCursor": "c2"
     }
     """.utf8)
 
@@ -229,7 +231,7 @@ private extension PolymarketPositionsMappingTests {
         "resolutionStatus": "RESOLVED",
         "status": "LOST"
       }],
-      "hasNext": true
+      "nextCursor": "c2"
     }
     """.utf8)
 

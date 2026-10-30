@@ -24,7 +24,6 @@ protocol PromoCampaignsProviding {
 final class PromoCampaignsRepository {
     private let walletsProvider: PromoCampaignWalletsProviding
     private let campaignsLoader: PromoCampaignsLoading
-    private let isEnabled: () -> Bool
     private let retryCount: Int
     private let retryInterval: (_ retryAttempt: Int) -> UInt64
     private let campaignsSubject = CurrentValueSubject<[UserWalletId: [PromoCampaign]], Never>([:])
@@ -35,13 +34,11 @@ final class PromoCampaignsRepository {
     init(
         walletsProvider: PromoCampaignWalletsProviding = CommonPromoCampaignWalletsProvider(),
         campaignsLoader: PromoCampaignsLoading = CommonPromoCampaignsLoader(),
-        isEnabled: @escaping () -> Bool = { PromoCampaignsAvailability.isEnabled },
         retryCount: Int = Constants.retryCount,
         retryInterval: @escaping (_ retryAttempt: Int) -> UInt64 = { ExponentialBackoffInterval(retryAttempt: $0)() }
     ) {
         self.walletsProvider = walletsProvider
         self.campaignsLoader = campaignsLoader
-        self.isEnabled = isEnabled
         self.retryCount = retryCount
         self.retryInterval = retryInterval
     }
@@ -51,7 +48,7 @@ final class PromoCampaignsRepository {
 
 extension PromoCampaignsRepository: PromoCampaignsProviding {
     func initialize() {
-        guard isEnabled(), walletsSubscription == nil else {
+        guard walletsSubscription == nil else {
             return
         }
 
@@ -73,10 +70,6 @@ extension PromoCampaignsRepository: PromoCampaignsProviding {
 
     @MainActor
     func reloadCampaigns(for userWalletIds: [UserWalletId]) {
-        guard isEnabled() else {
-            return
-        }
-
         let userWalletIds = Set(userWalletIds)
         let wallets = walletsProvider.wallets.filter { userWalletIds.contains($0.userWalletId) }
         let loads = requestedWallets.withLock { $0.startReloading(wallets) }

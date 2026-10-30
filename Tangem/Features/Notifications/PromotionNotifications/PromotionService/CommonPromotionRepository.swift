@@ -24,7 +24,6 @@ class CommonPromotionRepository {
         var dismissedPromotionIds: [UserWalletId: Set<Int>] = [:]
     }
 
-    private let isPromoCampaignsEnabled: () -> Bool
     private let state = OSAllocatedUnfairLock(initialState: State())
     private let publishQueue = DispatchQueue(label: "com.tangem.CommonPromotionRepository.publish")
 
@@ -51,9 +50,7 @@ class CommonPromotionRepository {
 
     private var userWalletRepositoryEventSubscription: AnyCancellable?
 
-    init(isPromoCampaignsEnabled: @escaping () -> Bool = { PromoCampaignsAvailability.isEnabled }) {
-        self.isPromoCampaignsEnabled = isPromoCampaignsEnabled
-
+    init() {
         bind()
 
         if let userWalletId = selectedUserWalletId {
@@ -66,18 +63,10 @@ class CommonPromotionRepository {
 
 extension CommonPromotionRepository: PromotionRepository {
     func promotionsPublisher(userWalletId: UserWalletId, placeholder: PromotionPlacement) -> AnyPublisher<[Promotion], Never> {
-        let promotions = promotionsSubject
+        promotionsSubject
             .map { promotions in
                 promotions[userWalletId]?[placeholder] ?? []
             }
-
-        guard isPromoCampaignsEnabled() else {
-            return promotions
-                .map { promotions in promotions.filter { $0.campaignId == nil } }
-                .eraseToAnyPublisher()
-        }
-
-        return promotions
             .combineLatest(promoCampaignsRepository.campaignsPublisher(for: userWalletId))
             .map { promotions, campaigns in
                 promotions
@@ -214,15 +203,12 @@ private extension CommonPromotionRepository {
         }
     }
 
-    /// A feed placement costs a request only once its tab can appear at all.
     static var placementsToLoad: [PromotionPlacement] {
         var placements: [PromotionPlacement] = [.main, .paymentAccountMain]
 
         placements.append(contentsOf: [.crypto, .earn])
 
-        if FeatureProvider.isAvailable(.realAssets) {
-            placements.append(.realAssets)
-        }
+        placements.append(.realAssets)
 
         return placements
     }

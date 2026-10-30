@@ -12,18 +12,15 @@ struct CommonApproveViewModelInputDataBuilder {
     private let dataProvider: ApproveFlowDataProvider
     private let analyticsLogger: any SendApproveAnalyticsLogger
     private let output: ApproveOutput
-    private let confirmTransactionPolicy: ConfirmTransactionPolicy
 
     init(
         dataProvider: ApproveFlowDataProvider,
         analyticsLogger: any SendApproveAnalyticsLogger,
-        output: ApproveOutput,
-        confirmTransactionPolicy: ConfirmTransactionPolicy
+        output: ApproveOutput
     ) {
         self.dataProvider = dataProvider
         self.analyticsLogger = analyticsLogger
         self.output = output
-        self.confirmTransactionPolicy = confirmTransactionPolicy
     }
 }
 
@@ -33,7 +30,10 @@ extension CommonApproveViewModelInputDataBuilder: SendApproveViewModelInputDataB
     func makeApproveFlowFactory() throws -> ApproveFlowFactory {
         let flowInput = try dataProvider.approveFlowInput()
         let input = try buildApproveViewModelInput(from: flowInput)
-        return ApproveFlowFactory(approveInput: input, confirmTransactionPolicy: confirmTransactionPolicy)
+        return ApproveFlowFactory(
+            approveInput: input,
+            signingActionButtonType: flowInput.sourceToken.signingActionButtonType
+        )
     }
 }
 
@@ -63,8 +63,7 @@ private extension CommonApproveViewModelInputDataBuilder {
             title: flowInput.localization.title,
             subtitle: flowInput.localization.subtitle,
             feeFooterText: flowInput.localization.feeFooterText,
-            tokenItem: flowInput.sourceToken.tokenItem,
-            tangemIconProvider: flowInput.sourceToken.tangemIconProvider
+            tokenItem: flowInput.sourceToken.tokenItem
         )
 
         let feeFormatter = CommonFeeFormatter()

@@ -10,6 +10,4 @@ final class TangemPayReceiveTokenWithdrawNoticeInteractor: ReceiveTokenWithdrawN
     func shouldShowWithdrawalAlert(for tokenItem: TokenItem) -> Bool {
         true
     }
-
-    func markWithdrawalAlertShown(for tokenItem: TokenItem) {}
 }

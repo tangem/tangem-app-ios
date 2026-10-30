@@ -44,8 +44,6 @@ protocol WCTransactionFeeManager {
         feeInteractor: any WCFeeInteractorType,
         selectedFeeOption: FeeOption
     ) -> [WCNotificationEvent]
-
-    func getHighestNetworkFee(from feeInteractor: any WCFeeInteractorType) -> Fee?
 }
 
 final class CommonWCTransactionFeeManager: WCTransactionFeeManager {
@@ -198,10 +196,5 @@ final class CommonWCTransactionFeeManager: WCTransactionFeeManager {
         }
 
         return events
-    }
-
-    func getHighestNetworkFee(from feeInteractor: any WCFeeInteractorType) -> Fee? {
-        let loadedFees = feeInteractor.fees.compactMap { $0.value.value }
-        return loadedFees.max { $0.amount.value < $1.amount.value }
     }
 }

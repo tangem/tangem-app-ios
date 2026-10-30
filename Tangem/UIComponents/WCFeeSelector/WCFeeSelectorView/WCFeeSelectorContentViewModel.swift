@@ -12,18 +12,9 @@ import SwiftUI
 import TangemFoundation
 
 final class WCFeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewModel {
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
-
     @Published var selectedFeeOption: FeeOption = .market
     @Published private(set) var feesRowData: [WCFeeSelectorContentRowViewModel] = []
     @Published private(set) var doneButtonIsDisabled: Bool = false
-
-    var showDoneButton: Bool {
-        switch (savingType, selectedFeeOption) {
-        case (.doneButton, _), (.autosave, .custom): true
-        case (.autosave, _): false
-        }
-    }
 
     let dismissButtonType: FeeSelectorDismissButtonType
 

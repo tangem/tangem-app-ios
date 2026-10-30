@@ -85,9 +85,7 @@ struct TokenDetailsMarketPriceView: View {
             .accessibilityIdentifier(TokenAccessibilityIdentifiers.marketPriceChart)
 
         case .loading:
-            SkeletonView()
-                .frame(width: 64, height: 24)
-                .clipShape(.rect(cornerRadius: 8))
+            Shimmer().variant(.custom(width: 64, height: 24, cornerRadius: 8))
         }
     }
 
@@ -102,7 +100,7 @@ struct TokenDetailsMarketPriceView: View {
     }
 }
 
-private struct NoOpButtonStyle: ButtonStyle {
+struct NoOpButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
     }

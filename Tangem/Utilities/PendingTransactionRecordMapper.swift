@@ -52,7 +52,8 @@ struct PendingTransactionRecordMapper {
             isOutgoing: !transaction.isIncoming,
             transactionType: transactionType(for: transaction),
             status: .inProgress,
-            isFromYieldContract: false
+            isFromYieldContract: false,
+            isTangemPayCounterparty: false
         )
     }
 

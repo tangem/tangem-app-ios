@@ -12,28 +12,41 @@ import TangemUI
 import TangemFoundation
 
 struct NewsCategoryChipsView: View {
-    let categories: [NewsDTO.Categories.Item]
+    let categories: LoadingResult<[NewsDTO.Categories.Item], any Error>
     @Binding var selectedCategoryId: Int?
 
     var body: some View {
-        redesignContent
+        if showsRow {
+            redesignContent
+                .transition(.opacity)
+        }
+    }
+
+    private var showsRow: Bool {
+        categories.isLoading || loadedCategories.isNotEmpty
+    }
+
+    private var loadedCategories: [NewsDTO.Categories.Item] {
+        categories.value ?? []
     }
 
     // MARK: - Redesign
 
     private var redesignContent: some View {
         ScrollViewReader { proxy in
-            ScrollView(.horizontal, showsIndicators: false) {
-                TangemTabs(
-                    data: redesignTabs,
-                    selection: redesignSelectionBinding
-                )
-                .padding(.horizontal, Constants.horizontalChipsViewInset)
+            TabNavigation(
+                data: categories.isLoading ? Constants.placeholderTabs : redesignTabs,
+                selection: redesignSelectionBinding
+            )
+            .scrollable()
+            .loading(categories.isLoading)
+            .onAppear {
+                scrollToSelectedTab(using: proxy)
             }
             .onChange(of: selectedCategoryId) { _ in
                 scrollToSelectedTab(using: proxy)
             }
-            .onChange(of: categories.count) { _ in
+            .onChange(of: loadedCategories.count) { _ in
                 scrollToSelectedTab(using: proxy)
             }
         }
@@ -41,7 +54,7 @@ struct NewsCategoryChipsView: View {
 
     private var redesignTabs: [Tab] {
         var result: [Tab] = [Tab(id: Constants.allCategoryId, title: Localization.commonAll)]
-        result.append(contentsOf: categories.map { Tab(id: String($0.id), title: $0.name) })
+        result.append(contentsOf: loadedCategories.map { Tab(id: String($0.id), title: $0.name) })
         return result
     }
 
@@ -85,13 +98,11 @@ struct NewsCategoryChipsView: View {
 extension NewsCategoryChipsView {
     enum Constants {
         static let allCategoryId = Localization.commonAll
-        static let horizontalChipsViewInset: CGFloat = 16
+        fileprivate static let placeholderTabs = (0 ..< 6).map { Tab(id: "placeholder\($0)", title: "") }
     }
 
-    fileprivate struct Tab: TangemTabsTextProvider {
+    fileprivate struct Tab: TabNavigationItem {
         let id: String
         let title: String
-
-        var text: String { title }
     }
 }

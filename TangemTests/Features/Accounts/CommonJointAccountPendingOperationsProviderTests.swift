@@ -59,6 +59,55 @@ struct CommonJointAccountPendingOperationsProviderTests {
         #expect(operation.amount?.value == 5)
     }
 
+    @Test("A fee paid in the coin is worded in the coin")
+    func coinFeeIsWordedInTheCoin() async throws {
+        let account = makeJointAccount()
+        let sut = Self.makeSUT(
+            records: [Self.record(operations: [Self.coinTransfer()])],
+            walletModels: [Self.makeWalletModel(tokenItem: Self.coin, account: account)]
+        ).provider
+
+        let operations = try await sut.pendingOperationsPublisher.async()
+        let operation = try #require(operations.first)
+
+        #expect(operation.fee?.value == 0.0001)
+        #expect(operation.fee?.currencySymbol == "ETH")
+    }
+
+    @Test("A fee paid in a token is worded in that token, however either spells the contract")
+    func tokenFeeIsWordedInTheToken() async throws {
+        let account = makeJointAccount()
+        let sut = Self.makeSUT(
+            records: [Self.record(operations: [Self.coinTransfer(gasToken: "0xdac17f958d2ee523a2206206994597c13d831ec7", gasPrice: 20)])],
+            walletModels: [
+                Self.makeWalletModel(tokenItem: Self.coin, account: account),
+                Self.makeWalletModel(tokenItem: Self.token, account: account),
+            ]
+        ).provider
+
+        let operations = try await sut.pendingOperationsPublisher.async()
+        let operation = try #require(operations.first)
+
+        #expect(operation.tokenItem == Self.coin)
+        #expect(operation.fee?.value == 2)
+        #expect(operation.fee?.currencySymbol == "USDT")
+    }
+
+    @Test("A fee in a token this wallet has not added leaves the operation in, with the fee unknown")
+    func feeInATokenNotAddedIsUnknown() async throws {
+        let account = makeJointAccount()
+        let sut = Self.makeSUT(
+            records: [Self.record(operations: [Self.coinTransfer(gasToken: "0xdac17f958d2ee523a2206206994597c13d831ec7", gasPrice: 20)])],
+            walletModels: [Self.makeWalletModel(tokenItem: Self.coin, account: account)]
+        ).provider
+
+        let operations = try await sut.pendingOperationsPublisher.async()
+        let operation = try #require(operations.first)
+
+        #expect(operations.count == 1)
+        #expect(operation.fee == nil)
+    }
+
     @Test("Only the account's own record is read, whichever case its identifier is stored in")
     func onlyTheAccountsRecordIsRead() async throws {
         let account = makeJointAccount()
@@ -247,8 +296,12 @@ private extension CommonJointAccountPendingOperationsProviderTests {
     }
 
     /// 0.001 of the coin to the recipient.
-    static func coinTransfer(id: String = "coin") -> JointAccountOperation {
-        operation(id: id, to: recipient, value: 1_000_000_000_000_000, data: Data())
+    static func coinTransfer(
+        id: String = "coin",
+        gasToken: String = SafeGasToken.coinGasTokenRawValue,
+        gasPrice: BigUInt = 1_000_000_000
+    ) -> JointAccountOperation {
+        operation(id: id, to: recipient, value: 1_000_000_000_000_000, data: Data(), gasToken: gasToken, gasPrice: gasPrice)
     }
 
     /// 5 USDT to the recipient, worded as the contract call the Safe makes; the contract is spelled in lower case, unlike the token's.
@@ -258,7 +311,15 @@ private extension CommonJointAccountPendingOperationsProviderTests {
         return operation(id: id, to: "0xdac17f958d2ee523a2206206994597c13d831ec7", value: 0, data: calldata)
     }
 
-    static func operation(id: String, to: String, value: BigUInt, data: Data, operation: Int = 0) -> JointAccountOperation {
+    static func operation(
+        id: String,
+        to: String,
+        value: BigUInt,
+        data: Data,
+        operation: Int = 0,
+        gasToken: String = SafeGasToken.coinGasTokenRawValue,
+        gasPrice: BigUInt = 1_000_000_000
+    ) -> JointAccountOperation {
         JointAccountOperation(
             id: id,
             chainId: 1,
@@ -269,12 +330,13 @@ private extension CommonJointAccountPendingOperationsProviderTests {
                 operation: operation,
                 safeTxGas: 0,
                 baseGas: 100_000,
-                gasPrice: 1_000_000_000,
-                gasToken: SafeGasToken.coinGasTokenRawValue,
+                gasPrice: gasPrice,
+                gasToken: gasToken,
                 refundReceiver: creatorAddress,
                 nonce: 0
             ),
             status: .awaitingSignatures,
+            txHash: nil,
             initiator: creatorAddress,
             signatures: []
         )

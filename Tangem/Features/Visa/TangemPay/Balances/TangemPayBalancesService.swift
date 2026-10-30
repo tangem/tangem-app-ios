@@ -26,12 +26,6 @@ protocol TangemPayBalancesProvider {
     /// Tangem Pay with constant fiat rate `1:1`
     var fixedFiatTotalTokenBalanceProvider: TokenBalanceProvider { get }
 
-    /// Available Tangem Pay balance as crypto currency from `TangemPayBalance.availableForWithdrawal.amount`
-    var availableBalanceProvider: TokenBalanceProvider { get }
-
-    /// Available Tangem Pay balance as fiat currency from `TangemPayBalance.availableForWithdrawal.amount`
-    var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
-
     func availableBalanceProvider(for accountToken: TangemPayAccountToken) -> TokenBalanceProvider
 
     func fiatAvailableBalanceProvider(for accountToken: TangemPayAccountToken) -> TokenBalanceProvider

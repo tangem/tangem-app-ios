@@ -87,7 +87,8 @@ struct PolymarketL2AuthTests {
         arguments: [
             PolymarketCLOBTarget.Target.createCredentials,
             .deriveCredentials,
-            .updateBalanceAllowance,
+            .updateBalanceAllowance(.collateral),
+            .updateBalanceAllowance(.conditionalV2(tokenId: "47")),
             .balanceAllowance,
         ]
     )

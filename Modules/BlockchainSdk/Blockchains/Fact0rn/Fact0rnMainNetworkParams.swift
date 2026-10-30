@@ -14,7 +14,5 @@ struct Fact0rnMainNetworkParams: UTXONetworkParams {
     let bech32Prefix: String = "fact"
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
 
-    let coinType: UInt32 = 42069
-
     let dustCalculator: UTXONetworkParamsDustCalculator = .fact0rn
 }

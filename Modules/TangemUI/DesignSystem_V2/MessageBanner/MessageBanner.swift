@@ -21,6 +21,7 @@ public struct MessageBanner<SlotStart: View, SlotEnd: View, ExtraBottom: View>: 
     var config: MessageBannerConfiguration
 
     @Environment(\.isFocused) private var isFocused
+    @Environment(\.messageBannerNeutralVariant) private var neutralVariant
 
     init(
         title: AttributedString,
@@ -51,8 +52,8 @@ public struct MessageBanner<SlotStart: View, SlotEnd: View, ExtraBottom: View>: 
         let core = bannerContent
             .padding(MessageBannerMetrics.contentPadding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background { MessageBannerPressBackground(shape: containerShape) }
-            .background(config.variant.background, in: containerShape)
+            .background { MessageBannerPressBackground(shape: containerShape, fill: resolvedVariant.pressFill) }
+            .background(resolvedVariant.background, in: containerShape)
             .overlay {
                 containerShape.strokeBorder(DesignSystem.Color.borderPrimary, lineWidth: MessageBannerMetrics.borderWidth)
             }
@@ -75,6 +76,10 @@ public struct MessageBanner<SlotStart: View, SlotEnd: View, ExtraBottom: View>: 
         }
 
         return hasButtons ? nil : config.onTap
+    }
+
+    private var resolvedVariant: MessageBannerVariant {
+        config.variant ?? neutralVariant.map(MessageBannerVariant.neutral) ?? .default
     }
 
     private var hasButtons: Bool {
@@ -209,11 +214,12 @@ private struct MessageBannerPressStyle: ButtonStyle {
 
 private struct MessageBannerPressBackground: View {
     let shape: RoundedRectangle
+    let fill: Color
 
     @Environment(\.messageBannerIsPressed) private var isPressed
 
     var body: some View {
-        shape.fill(isPressed ? DesignSystem.Color.interactionPressLight : Color.clear)
+        shape.fill(isPressed ? fill : Color.clear)
     }
 }
 
@@ -228,10 +234,19 @@ extension MessageBannerVariant {
         switch self {
         case .default: DesignSystem.Color.bgTransparentPrimary
         case .solid: DesignSystem.Color.bgTertiary
+        case .neutral(.light): DesignSystem.Color.bgSecondary
+        case .neutral(.onMaterial): DesignSystem.Color.bgTransparentOnMaterialPrimary
         case .success: DesignSystem.Color.bgStatusSuccessSubtle
         case .error: DesignSystem.Color.bgStatusErrorSubtle
         case .warning: DesignSystem.Color.bgStatusWarningSubtle
         case .info: DesignSystem.Color.bgStatusInfoSubtle
+        }
+    }
+
+    var pressFill: Color {
+        switch self {
+        case .neutral: DesignSystem.Color.interactionPressDefault
+        case .default, .solid, .success, .error, .warning, .info: DesignSystem.Color.interactionPressLight
         }
     }
 }

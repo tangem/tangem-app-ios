@@ -151,11 +151,92 @@ extension XCUIElement {
         }
     }
 
-    func holdToConfirm(timeout: TimeInterval = .robustUIUpdate) {
+    func holdToConfirm(
+        timeout: TimeInterval = .robustUIUpdate,
+        attempts: Int = Constants.holdToConfirmAttempts,
+        isConfirmedBySustainedProgress: Bool = false
+    ) {
         guard waitForState(state: .enabled, for: timeout) else {
             return
         }
-        pressEvenIfNotHittable(forDuration: Constants.holdToConfirmDuration)
+
+        for attempt in 0 ..< attempts {
+            if attempt > 0 {
+                waitForHoldRefreshCycleToEnd()
+            }
+
+            guard waitForHoldToBeIdle(timeout: timeout) else {
+                continue
+            }
+
+            let labelBeforePress = label
+            let isAlertShownBeforePress = XCUIApplication().alerts.firstMatch.exists
+            pressEvenIfNotHittable(forDuration: Constants.holdToConfirmDuration)
+
+            if waitForHoldToBeConfirmed(
+                labelBeforePress: labelBeforePress,
+                isAlertShownBeforePress: isAlertShownBeforePress,
+                isConfirmedBySustainedProgress: isConfirmedBySustainedProgress
+            ) {
+                return
+            }
+        }
+    }
+
+    private var isHoldInProgress: Bool {
+        guard exists else {
+            return false
+        }
+
+        return !((value as? String) ?? "").isEmpty
+    }
+
+    private func waitForHoldToBeIdle(timeout: TimeInterval) -> Bool {
+        let predicate = NSPredicate { object, _ in
+            guard let element = object as? XCUIElement else { return false }
+            return !element.isHoldInProgress
+        }
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: self)
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
+    }
+
+    private func waitForHoldRefreshCycleToEnd() {
+        let started = NSPredicate { object, _ in
+            guard let element = object as? XCUIElement else { return false }
+            return element.isHoldInProgress
+        }
+        let startExpectation = XCTNSPredicateExpectation(predicate: started, object: self)
+        _ = XCTWaiter().wait(for: [startExpectation], timeout: Constants.holdRefreshPeriod)
+    }
+
+    private func waitForHoldToBeConfirmed(
+        labelBeforePress: String,
+        isAlertShownBeforePress: Bool,
+        isConfirmedBySustainedProgress: Bool
+    ) -> Bool {
+        let holdEnded = NSPredicate { object, _ in
+            guard let element = object as? XCUIElement else { return false }
+            return element.isHoldActionDone(labelBeforePress: labelBeforePress) || !element.isHoldInProgress
+        }
+        let holdEndedExpectation = XCTNSPredicateExpectation(predicate: holdEnded, object: self)
+
+        let holdEndTimeout: TimeInterval = isConfirmedBySustainedProgress ? Constants.holdRefreshPeriod : .robustUIUpdate
+
+        guard XCTWaiter().wait(for: [holdEndedExpectation], timeout: holdEndTimeout) == .completed else {
+            return isConfirmedBySustainedProgress
+        }
+
+        let resultShown = NSPredicate { object, _ in
+            guard let element = object as? XCUIElement else { return false }
+            return element.isHoldActionDone(labelBeforePress: labelBeforePress)
+                || (!isAlertShownBeforePress && XCUIApplication().alerts.firstMatch.exists)
+        }
+        let resultShownExpectation = XCTNSPredicateExpectation(predicate: resultShown, object: self)
+        return XCTWaiter().wait(for: [resultShownExpectation], timeout: Constants.holdResultTimeout) == .completed
+    }
+
+    private func isHoldActionDone(labelBeforePress: String) -> Bool {
+        !exists || label != labelBeforePress
     }
 }
 
@@ -277,5 +358,8 @@ extension XCUIElement {
 private extension XCUIElement {
     enum Constants {
         static let holdToConfirmDuration: TimeInterval = 3
+        static let holdToConfirmAttempts = 3
+        static let holdRefreshPeriod: TimeInterval = 12
+        static let holdResultTimeout: TimeInterval = 2
     }
 }

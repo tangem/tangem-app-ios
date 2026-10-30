@@ -19,8 +19,7 @@ final class YieldModuleClaimViewModel: ObservableObject {
 
     // MARK: - ViewState
 
-    let tangemIconProvider: TangemIconProvider
-    let confirmTransactionPolicy: ConfirmTransactionPolicy
+    let signingActionButtonType: SigningActionButtonViewType
 
     var feeCurrencySymbol: String {
         walletModel.feeTokenItem.currencySymbol
@@ -66,15 +65,13 @@ final class YieldModuleClaimViewModel: ObservableObject {
         coordinator: YieldModuleActiveCoordinator?,
         claimInteractor: YieldIncentivesClaimInteractor,
         notificationManager: YieldModuleNotificationManager,
-        tangemIconProvider: TangemIconProvider,
-        confirmTransactionPolicy: ConfirmTransactionPolicy
+        signingActionButtonType: SigningActionButtonViewType
     ) {
         self.walletModel = walletModel
         self.coordinator = coordinator
         self.claimInteractor = claimInteractor
         self.notificationManager = notificationManager
-        self.tangemIconProvider = tangemIconProvider
-        self.confirmTransactionPolicy = confirmTransactionPolicy
+        self.signingActionButtonType = signingActionButtonType
 
         mapper = YieldModuleClaimViewDataMapper(
             blockchain: walletModel.tokenItem.blockchain,
@@ -254,9 +251,9 @@ final class YieldModuleClaimViewModel: ObservableObject {
     }
 }
 
-// MARK: - FloatingSheetContentViewModel
+// MARK: - Identifiable
 
-extension YieldModuleClaimViewModel: FloatingSheetContentViewModel {}
+extension YieldModuleClaimViewModel: Identifiable {}
 
 // MARK: - View State
 

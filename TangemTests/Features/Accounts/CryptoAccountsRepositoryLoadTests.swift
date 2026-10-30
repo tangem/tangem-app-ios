@@ -161,10 +161,6 @@ private final class TokenItemsRepositoryStub: TokenItemsRepository {
     var containsFile: Bool { false }
 
     func update(_ list: StoredUserTokenList) {}
-    func append(_ entries: [StoredUserTokenList.Entry]) {}
-    func remove(_ blockchainNetworks: [BlockchainNetwork], completion: (() -> Void)?) { completion?() }
-    func remove(_ entries: [StoredUserTokenList.Entry]) {}
-    func removeAll() {}
     func getList() -> StoredUserTokenList { .empty }
 }
 

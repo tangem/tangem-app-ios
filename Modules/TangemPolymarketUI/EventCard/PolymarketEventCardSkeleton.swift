@@ -15,6 +15,9 @@ struct PolymarketEventCardSkeleton: View {
         VStack(spacing: 0) {
             header
             marketRow
+            rowDivider
+            marketRow
+            outcomesBadge
         }
         .frame(maxWidth: .infinity)
         .background(DesignSystem.Color.bgSecondary)
@@ -24,8 +27,10 @@ struct PolymarketEventCardSkeleton: View {
     private var header: some View {
         HStack(alignment: .top, spacing: 20) {
             VStack(alignment: .leading, spacing: 4) {
-                bar(width: 160, height: 16)
-                bar(width: 128, height: 16)
+                VStack(alignment: .leading, spacing: 0) {
+                    Shimmer().variant(.text(style: .body))
+                    Shimmer().variant(.text(style: .body))
+                }
 
                 HStack(spacing: 8) {
                     bar(width: 40, height: 12)
@@ -42,16 +47,34 @@ struct PolymarketEventCardSkeleton: View {
     }
 
     private var marketRow: some View {
-        HStack {
+        HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
                 bar(width: 168, height: 16)
                 bar(width: 88, height: 12)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
-            Spacer(minLength: 0)
+            HStack(spacing: 4) {
+                bar(width: 56, height: 36)
+                bar(width: 56, height: 36)
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+    }
+
+    private var rowDivider: some View {
+        DesignSystem.Color.borderPrimary
+            .frame(height: 1)
+            .padding(.horizontal, 16)
+    }
+
+    private var outcomesBadge: some View {
+        bar(width: 104, height: 24)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 16)
     }
 
     private func bar(width: CGFloat, height: CGFloat) -> some View {

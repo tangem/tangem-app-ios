@@ -440,9 +440,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>+%li Outcome</string>
+        <string>+%li resultado</string>
         <key>other</key>
-        <string>+%li Outcomes</string>
+        <string>+%li resultados</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>

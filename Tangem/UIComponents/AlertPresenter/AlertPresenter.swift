@@ -11,5 +11,4 @@ import struct TangemUIUtils.AlertBinder
 
 protocol AlertPresenter: AnyObject {
     func present(alert: AlertBinder)
-    func hideAlert()
 }

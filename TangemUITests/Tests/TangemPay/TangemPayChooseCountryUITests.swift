@@ -23,9 +23,9 @@ final class TangemPayChooseCountryUITests: TangemPayResidencyUITestCase {
 
         verifyRequested(.kycAccessToken, since: kycRequestsBefore)
 
-        details
-            .verifyGetTangemPayNotVisible()
-            .goBackToMain()
+        details.verifyGetTangemPayNotVisible()
+
+        relaunchWithKycInProgress()
             .verifyTangemPayTileShowsKycInProgress()
             .openTangemPayKycStatusSheet()
             .waitForSheet()

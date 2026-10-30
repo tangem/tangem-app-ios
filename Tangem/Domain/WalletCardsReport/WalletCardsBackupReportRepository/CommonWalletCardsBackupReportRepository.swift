@@ -27,11 +27,15 @@ final class CommonWalletCardsBackupReportRepository {
 // MARK: - WalletCardsBackupReportRepository
 
 extension CommonWalletCardsBackupReportRepository: WalletCardsBackupReportRepository {
-    var pendingToDeliveryPublisher: AnyPublisher<[WalletCardsWaitingDeliveryBackupCards], Never> {
+    var pendingReportsPublisher: AnyPublisher<[WalletCardsWaitingDeliveryBackupCards], Never> {
         report
-            .map(\.waitingDelivery)
+            .map(\.pendingReports)
             .removeDuplicates()
             .eraseToAnyPublisher()
+    }
+
+    var oldestPendingReport: WalletCardsWaitingDeliveryBackupCards? {
+        lockQueue.sync { report.value.pendingReports.first }
     }
 
     func store(card: WalletCardsCurrentlyProcessedCard, primaryCardId: String, error: TangemSdkError?) {
@@ -42,9 +46,10 @@ extension CommonWalletCardsBackupReportRepository: WalletCardsBackupReportReposi
 
             // A primary reporting itself must not fall back to its own stored record — that may be a stale
             // wallet from a previous onboarding of the same physical card (the store isn't cleared on a
-            // factory reset).
+            // factory reset). A failed step is the exception: its snapshot carries no identity.
             let isPrimaryCard = card.cardId == primaryCardId
-            let inheritedIdentity = isPrimaryCard ? nil : currentReport.cards[primaryCardId]?.identity
+            let canInheritIdentity = !isPrimaryCard || error != nil
+            let inheritedIdentity = canInheritIdentity ? currentReport.cards[primaryCardId]?.identity : nil
             let identity = card.identity ?? inheritedIdentity
 
             let appliedCard = apply(
@@ -64,30 +69,39 @@ extension CommonWalletCardsBackupReportRepository: WalletCardsBackupReportReposi
                 return
             }
 
+            if case .filled(let userWalletId, let isImported)? = identity {
+                let pendingReport = currentReport.pendingReport(userWalletId: userWalletId, isImported: isImported)
+                enqueue(pendingReport, in: &currentReport)
+            }
+
             report.send(currentReport)
             saveChanges()
         }
     }
 
-    func markDelivered(report cards: WalletCardsWaitingDeliveryBackupCards) {
+    func removePendingReport(_ pendingReport: WalletCardsWaitingDeliveryBackupCards) {
         lockQueue.async { [weak self] in
             guard let self else { return }
 
             var updated = report.value
+            updated.pendingReports.removeAll { $0.id == pendingReport.id }
 
-            // Only cards that still hold exactly what was sent get marked: a report that landed while the
-            // request was in flight put its card back to waiting on purpose.
-            let delivered = cards.cards.filter { updated.cards[$0.cardId] == $0 }
-
-            guard !delivered.isEmpty else {
+            guard updated.pendingReports.count != report.value.pendingReports.count else {
                 return
             }
-
-            delivered.forEach { updated.cards[$0.cardId]?.deliveryState = .delivered }
 
             report.send(updated)
             saveChanges()
         }
+    }
+}
+
+// MARK: - Queue
+
+private extension CommonWalletCardsBackupReportRepository {
+    func enqueue(_ pendingReport: WalletCardsWaitingDeliveryBackupCards, in report: inout WalletCardsBackupReport) {
+        let queue = report.pendingReports + [pendingReport]
+        report.pendingReports = Array(queue.suffix(Constants.maxPendingReports))
     }
 }
 
@@ -111,13 +125,12 @@ private extension CommonWalletCardsBackupReportRepository {
             backupStatus: card.backupStatus,
             curves: card.curves,
             errorCode: error?.code,
-            errorMessage: error?.message,
-            deliveryState: .waitingForDelivery
+            errorMessage: error?.localizedDescription
         )
 
-        // A report that changes nothing must keep the card's delivery state, otherwise every repeated scan
-        // would send the same card again. A real change resets it to `.waitingForDelivery`, which queues it.
-        guard incoming != existing?.withoutDeliveryMark else {
+        // A report that changes nothing must queue nothing, otherwise every repeated scan would send the same
+        // card again.
+        guard incoming != existing else {
             return false
         }
 
@@ -180,41 +193,37 @@ private extension CommonWalletCardsBackupReportRepository {
     }
 }
 
-private extension WalletCardsBackupReport {
-    /// Sorted — both the groups and the cards inside them — so that an unchanged store always produces an
-    /// equal value; dictionary iteration order alone would make `removeDuplicates()` useless.
-    var waitingDelivery: [WalletCardsWaitingDeliveryBackupCards] {
-        var walletCards: [String: (isImported: Bool, cards: [WalletCardsBackupCard])] = [:]
+// MARK: - Constants
 
-        for card in cards.values where card.deliveryState == .waitingForDelivery {
-            guard case .filled(let userWalletId, let isImported) = card.identity else {
-                continue
-            }
-
-            walletCards[userWalletId, default: (isImported, [])].cards.append(card)
-        }
-
-        return walletCards.map { userWalletId, group in
-            WalletCardsWaitingDeliveryBackupCards(
-                userWalletId: userWalletId,
-                isImported: group.isImported,
-                cards: group.cards.sorted { $0.cardId < $1.cardId }
-            )
-        }
-        .sorted { $0.userWalletId < $1.userWalletId }
+private extension CommonWalletCardsBackupReportRepository {
+    enum Constants {
+        static let maxPendingReports = 50
     }
 }
 
-private extension WalletCardsBackupCard {
-    /// The card as it would look before any delivery, for comparing reported state alone.
-    var withoutDeliveryMark: WalletCardsBackupCard {
-        var card = self
-        card.deliveryState = .waitingForDelivery
-        return card
+private extension WalletCardsBackupReport {
+    func pendingReport(userWalletId: String, isImported: Bool) -> WalletCardsWaitingDeliveryBackupCards {
+        let walletCards = cards.values
+            .filter { $0.identity.userWalletId == userWalletId }
+            .sorted { $0.cardId < $1.cardId }
+
+        return WalletCardsWaitingDeliveryBackupCards(
+            id: UUID(),
+            userWalletId: userWalletId,
+            isImported: isImported,
+            cards: walletCards
+        )
     }
 }
 
 private extension WalletCardsBackupCard.Identity {
+    var userWalletId: String? {
+        switch self {
+        case .blank: nil
+        case .filled(let userWalletId, _): userWalletId
+        }
+    }
+
     func isMatched(primaryCardId cardId: String) -> Bool {
         switch self {
         case .blank(let primaryCardId): primaryCardId == cardId

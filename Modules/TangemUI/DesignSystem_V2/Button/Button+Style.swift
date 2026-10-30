@@ -18,6 +18,7 @@ extension Button {
 
         @Environment(\.isEnabled) private var isEnabled
         @Environment(\.buttonPaintsPressOverlay) private var paintsPressOverlay
+        @Environment(\.buttonHoldFill) private var holdFill
         @ScaledMetric private var height: CGFloat
         @ScaledMetric private var labelMinWidth: CGFloat
         @ScaledMetric private var horizontalPadding: CGFloat
@@ -68,10 +69,16 @@ extension Button {
 
         private func fixedChromeBody(configuration: Configuration) -> some View {
             paddedLabel(configuration: configuration)
-                .background { Capsule().fill(resolvedBackgroundColor) }
+                .background {
+                    Capsule()
+                        .fill(resolvedBackgroundColor)
+                        .overlay { holdOverlay }
+                        .clipShape(Capsule())
+                }
                 .overlay { borderOverlay }
                 .overlay { pressOverlay(isPressed: configuration.isPressed) }
                 .contentShape(Capsule())
+                .compositingGroup()
         }
 
         private func materialBlurBody(configuration: Configuration) -> some View {
@@ -96,14 +103,32 @@ extension Button {
         @ViewBuilder
         private var borderOverlay: some View {
             if styleType.borderWidth > 0 {
-                Capsule().stroke(styleType.borderColor, lineWidth: styleType.borderWidth)
+                Capsule().strokeBorder(styleType.borderColor, lineWidth: styleType.borderWidth)
+            }
+        }
+
+        @ViewBuilder
+        private var holdOverlay: some View {
+            if let holdFill {
+                GeometryReader { proxy in
+                    styleType.pressOverlay
+                        .frame(width: holdFill.isFilled ? proxy.size.width : 0)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .animation(holdFill.animation, value: holdFill.isFilled)
+                        .opacity(holdFill.isCompleted ? 0 : 1)
+                }
             }
         }
 
         private func pressOverlay(isPressed: Bool) -> some View {
             Capsule()
                 .fill(styleType.pressOverlay)
-                .opacity(isPressed && isEnabled && paintsPressOverlay ? 1 : 0)
+                .opacity((isPressed && isEnabled && paintsPressOverlay) || isHoldPulsing ? 1 : 0)
+                .animation(Button.HoldMotion.pulse, value: isHoldPulsing)
+        }
+
+        private var isHoldPulsing: Bool {
+            holdFill?.isPulsing ?? false
         }
 
         // MARK: - Layout helpers

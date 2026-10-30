@@ -7,6 +7,7 @@
 
 import Foundation
 import Testing
+import Moya
 @testable import TangemPolymarket
 
 @Suite("Polymarket BFF environment")
