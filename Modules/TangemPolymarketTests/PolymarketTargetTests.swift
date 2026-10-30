@@ -57,6 +57,16 @@ struct PolymarketTargetTests {
         #expect(parameters["limit"] as? Int == 20)
         #expect(parameters["ascending"] == nil)
         #expect(parameters["cursor"] == nil)
+        #expect(parameters["filter"] == nil)
+    }
+
+    @Test("events: the feed filter goes as its raw value", arguments: zip([PolymarketCategoryFilter.games, .props], ["games", "props"]))
+    func eventsFilterParameter(filter: PolymarketCategoryFilter, rawValue: String) throws {
+        let parameters = try queryParameters(target(.events(.init(category: 7, filter: filter))).task)
+
+        #expect(parameters["filter"] as? String == rawValue)
+        #expect(parameters["category"] as? Int == 7)
+        #expect(parameters.count == 2)
     }
 
     @Test("search: query always present, page/limit guarded")
