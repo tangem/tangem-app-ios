@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
+import Alamofire
 import Moya
 
 public extension MoyaError {
@@ -45,6 +47,18 @@ public extension MoyaError {
         return String(data: response.data, encoding: .utf8) ?? "no response data"
     }
 
+    var isTimeout: Bool {
+        urlErrorCode == .timedOut
+    }
+
+    var isNotConnectedToInternet: Bool {
+        guard let urlErrorCode else {
+            return false
+        }
+
+        return [.notConnectedToInternet, .dataNotAllowed, .networkConnectionLost].contains(urlErrorCode)
+    }
+
     var isMappingError: Bool {
         switch self {
         case .objectMapping,
@@ -59,5 +73,19 @@ public extension MoyaError {
              .underlying:
             return false
         }
+    }
+}
+
+private extension MoyaError {
+    var urlErrorCode: URLError.Code? {
+        guard
+            case .underlying(let underlyingError, _) = self,
+            case .sessionTaskFailed(let sessionTaskError) = underlyingError as? AFError,
+            let urlError = sessionTaskError as? URLError
+        else {
+            return nil
+        }
+
+        return urlError.code
     }
 }
