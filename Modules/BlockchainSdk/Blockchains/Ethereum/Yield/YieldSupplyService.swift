@@ -22,6 +22,7 @@ public protocol YieldSupplyService {
     func getBalance(yieldSupplyStatus: YieldSupplyStatus, token: Token) async throws -> Amount
     func getBalances(address: String, tokens: [Token]) async -> [Token: Result<Amount, Error>]
     func allowance(tokenContractAddress: String) async throws -> String
+    func makeLendingLiquidityProvider() -> YieldModuleLendingLiquidityProvider?
 
     func makeVersionChecker() -> YieldModuleVersionChecker?
     func makeVersionResolver() -> YieldModuleVersionResolver?
@@ -29,6 +30,7 @@ public protocol YieldSupplyService {
 }
 
 public extension YieldSupplyService {
+    func makeLendingLiquidityProvider() -> YieldModuleLendingLiquidityProvider? { nil }
     func makeVersionChecker() -> YieldModuleVersionChecker? { nil }
     func makeVersionResolver() -> YieldModuleVersionResolver? { nil }
     func makeSwapExecutionRegistryProvider() -> YieldModuleSwapExecutionRegistryProvider? { nil }
@@ -214,6 +216,18 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
             spender: getYieldContract(),
             contractAddress: tokenContractAddress
         ).async()
+    }
+
+    public func makeLendingLiquidityProvider() -> YieldModuleLendingLiquidityProvider? {
+        guard isSupported() else {
+            return nil
+        }
+
+        return CommonYieldModuleLendingLiquidityProvider(
+            smartContractInteractor: networkService,
+            decimalCount: wallet.blockchain.decimalCount,
+            resolveYieldModule: getYieldContract
+        )
     }
 
     public func makeVersionChecker() -> YieldModuleVersionChecker? {
