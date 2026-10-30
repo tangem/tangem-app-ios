@@ -109,7 +109,9 @@ private final class StubRoutable: YieldModePromoSheetRoutable {
 
     private(set) var events: [Event] = []
 
-    func presentYieldModePromo(_ viewModel: YieldModePromoSheetViewModel) {}
+    func presentYieldModePromo(_ viewModel: YieldModePromoSheetViewModel) -> Bool {
+        true
+    }
 
     func dismissYieldModePromo() {
         events.append(.dismiss)
@@ -127,6 +129,10 @@ private final class StubAnalyticsLogger: YieldModePromoAnalyticsLogger {
     }
 
     private(set) var events: [Event] = []
+
+    func logOpened(data: YieldModePromoSheetData) {}
+
+    func logSkipped(reason: MainScreenPromoSheetSkipReason) {}
 
     func logClosed(data: YieldModePromoSheetData, method: YieldModePromoCloseMethod) {
         events.append(.closed(method))

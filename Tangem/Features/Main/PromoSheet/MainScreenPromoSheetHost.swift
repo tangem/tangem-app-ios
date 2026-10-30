@@ -10,4 +10,5 @@ import Combine
 
 protocol MainScreenPromoSheetHost: AnyObject {
     var busySurfacePublishers: [AnyPublisher<Bool, Never>] { get }
+    var isSurfaceBusy: Bool { get }
 }
