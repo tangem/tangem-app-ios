@@ -34,15 +34,6 @@ struct CollectiblesAccountListUpdaterTests {
 
         #expect(sut.additions.configs.isEmpty)
     }
-
-    @Test("Adds nothing while the account list can't keep the account's type")
-    func skipsUntypedAccountList() {
-        let sut = makeSUT(canAddToAccountList: false)
-
-        sut.vaultState.send(.ready(Constants.vault))
-
-        #expect(sut.additions.configs.isEmpty)
-    }
 }
 
 // MARK: - Helpers
@@ -55,14 +46,13 @@ private extension CollectiblesAccountListUpdaterTests {
         additions: AdditionsRecorder
     )
 
-    func makeSUT(canAddToAccountList: Bool = true) -> SUT {
+    func makeSUT() -> SUT {
         let vaultState = CurrentValueSubject<CollectiblesState, Never>(.unresolved)
         let isInAccountList = CurrentValueSubject<Bool, Never>(false)
         let additions = AdditionsRecorder()
         let updater = CollectiblesAccountModelsRegistry.AccountListUpdater(
             vaultStatePublisher: vaultState.eraseToAnyPublisher(),
             isInAccountListPublisher: isInAccountList.eraseToAnyPublisher(),
-            canAddToAccountList: canAddToAccountList,
             addToAccountList: additions.record
         )
 

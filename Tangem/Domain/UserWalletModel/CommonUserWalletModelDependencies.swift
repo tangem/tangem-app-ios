@@ -167,9 +167,11 @@ private extension CommonUserWalletModelDependencies {
         )
         let persistentStorage = CommonCryptoAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue)
         let remoteIdentifierBuilder = CryptoAccountsRemoteIdentifierBuilder(userWalletId: userWalletId)
+        let isJointAccountsAvailable = FeatureProvider.isAvailable(.jointAccounts)
 
         let networkMapper = CryptoAccountsNetworkMapper(
             supportedBlockchains: config.supportedBlockchains,
+            isJointAccountsAvailable: isJointAccountsAvailable,
             remoteIdentifierBuilder: remoteIdentifierBuilder.build(from:)
         )
         let walletsNetworkService = CommonWalletsNetworkService(userWalletId: userWalletId)
@@ -194,7 +196,6 @@ private extension CommonUserWalletModelDependencies {
             hasTokenSynchronization: hasTokenSynchronization
         )
 
-        let isJointAccountsAvailable = FeatureProvider.isAvailable(.jointAccounts)
         let jointAccountsNetworkService = CommonJointAccountsNetworkService(userWalletId: userWalletId)
         let jointAccountPendingOperationsSynchronizer = CommonJointAccountPendingOperationsSynchronizer(
             persistentStorage: CommonJointAccountsPendingOperationsPersistentStorage(storageIdentifier: userWalletId.stringValue)
