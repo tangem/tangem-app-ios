@@ -47,7 +47,7 @@ struct TangemPayOfframpCoordinatorView: CoordinatorView {
                 )
                 .topNavigation(
                     title: Localization.tangempayWithdrawBankRecipientsTitle,
-                    onClose: { [weak coordinator] in
+                    close: .enabled { [weak coordinator] in
                         coordinator?.dismiss(with: nil)
                     }
                 )

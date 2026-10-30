@@ -161,7 +161,7 @@ private struct TopNavigationShowcaseBar: ViewModifier {
                     leading: leading,
                     actions: actions,
                     actionsHaveBackground: actionsHaveBackground,
-                    onClose: onClose
+                    close: onClose.map { .enabled($0) }
                 ) {
                     HStack(spacing: 8) {
                         Circle()
@@ -182,7 +182,7 @@ private struct TopNavigationShowcaseBar: ViewModifier {
                     leading: leading,
                     actions: actions,
                     actionsHaveBackground: actionsHaveBackground,
-                    onClose: onClose
+                    close: onClose.map { .enabled($0) }
                 )
         }
     }
@@ -287,7 +287,7 @@ private struct TopNavigationPushDemo: View {
             leading: .automatic,
             actions: config.actions(config.actionsKind),
             actionsHaveBackground: config.actionsHaveBackground,
-            onClose: config.showsClose ? { dismiss() } : nil
+            close: config.showsClose ? .enabled { dismiss() } : nil
         )
     }
 }

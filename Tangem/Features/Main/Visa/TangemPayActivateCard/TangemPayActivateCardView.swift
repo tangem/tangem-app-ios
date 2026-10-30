@@ -24,7 +24,7 @@ struct TangemPayActivateCardView: View {
             .safeAreaInset(edge: .bottom, spacing: 0) { footer }
             .topNavigation(
                 leading: .none,
-                onClose: viewModel.close,
+                close: .enabled(viewModel.close),
                 content: { title }
             )
             .onDidAppear(perform: viewModel.focusEntry)
