@@ -22,7 +22,7 @@ extension PolymarketDTO {
             depositWalletAddress = batch.depositWalletAddress
             nonce = batch.nonce
             deadline = batch.deadline
-            calls = batch.calls.map { RelayedCall(target: $0.target, value: $0.value, data: $0.data) }
+            calls = batch.calls.map(RelayedCall.init)
             signature = batch.signature
         }
     }
@@ -31,5 +31,11 @@ extension PolymarketDTO {
         let target: String
         let value: String
         let data: String
+    }
+}
+
+extension PolymarketDTO.RelayedCall {
+    init(_ call: PolymarketRelayedBatch.Call) {
+        self.init(target: call.target, value: call.value, data: call.data)
     }
 }
