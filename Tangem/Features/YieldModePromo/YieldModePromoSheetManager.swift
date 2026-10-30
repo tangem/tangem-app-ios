@@ -19,6 +19,7 @@ final class YieldModePromoSheetManager {
     private weak var routable: YieldModePromoSheetRoutable?
 
     private var content: YieldModePromoContent?
+    private var presentedData: YieldModePromoSheetData?
 
     init(
         catalogProvider: YieldModePromoCatalogProvider,
@@ -149,14 +150,28 @@ extension YieldModePromoSheetManager: MainScreenPromoSheetManager {
 
         return MainActor.assumeIsolated {
             let viewModel = YieldModePromoSheetViewModel(data: data, routable: routable, analyticsLogger: analyticsLogger)
-            routable.presentYieldModePromo(viewModel)
+
+            guard routable.presentYieldModePromo(viewModel) else {
+                logSkipped(.surfaceBusy)
+                return nil
+            }
+
+            presentedData = data
             return viewModel.appearancePublisher
         }
     }
 
-    func logShown() {}
+    func logShown() {
+        guard let presentedData else {
+            return
+        }
 
-    func logSkipped(_ reason: MainScreenPromoSheetSkipReason) {}
+        analyticsLogger.logOpened(data: presentedData)
+    }
+
+    func logSkipped(_ reason: MainScreenPromoSheetSkipReason) {
+        analyticsLogger.logSkipped(reason: reason)
+    }
 }
 
 // MARK: - Factory
