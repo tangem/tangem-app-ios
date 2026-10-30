@@ -8,7 +8,6 @@
 
 import Foundation
 import Testing
-import TangemFoundation
 @testable import Tangem
 
 @Suite("Recording a marketing activity uid on link arrival", .serialized)
@@ -86,6 +85,34 @@ struct MarketingActivityLinkRecorderTests {
         }
     }
 
+    @Test(
+        "A OneLink naming a uid in deep_link_sub3 leaves it to AppsFlyer",
+        arguments: [Deeplink.oneLinkWithSub3, Deeplink.brandedOneLinkWithSub3, Deeplink.uppercaseOneLinkWithSub3]
+    )
+    func leavesSub3OneLinksToAppsFlyer(link: URL) async {
+        await withRepository {
+            let manager = makeManager()
+
+            manager.handleIncomingURL(link)
+
+            #expect(bindingService.registeredUids.isEmpty)
+        }
+    }
+
+    @Test(
+        "A OneLink without a uid in deep_link_sub3 registers the uid it carries",
+        arguments: [Deeplink.oneLinkWithUid, Deeplink.oneLinkWithEmptySub3]
+    )
+    func registersOneLinkUidWithoutSub3(link: URL) async {
+        await withRepository {
+            let manager = makeManager()
+
+            manager.handleIncomingURL(link)
+
+            #expect(bindingService.registeredUids == ["AbC-123"])
+        }
+    }
+
     @Test("A link without a uid registers nothing")
     func ignoresLinksWithoutUid() async {
         await withRepository {
@@ -138,6 +165,11 @@ private extension MarketingActivityLinkRecorderTests {
         static let tokenWithoutParametersWithUid = URL(string: "tangem://token?uid=AbC-123")!
         static let payAppPageWithoutIdWithUid = URL(string: "https://tangem.com/pay-app?uid=AbC-123")!
         static let uppercaseSchemeWithUid = URL(string: "Tangem://markets?uid=AbC-123")!
+        static let oneLinkWithUid = URL(string: "https://tangem.onelink.me/AbCd?deep_link_value=tpay_mobileonboard&uid=AbC-123")!
+        static let oneLinkWithEmptySub3 = URL(string: "https://tangem.onelink.me/AbCd?deep_link_value=tpay_mobileonboard&deep_link_sub3=&uid=AbC-123")!
+        static let oneLinkWithSub3 = URL(string: "https://tangem.onelink.me/AbCd?deep_link_value=tpay_mobileonboard&deep_link_sub3=AbC-123&uid=AbC-123")!
+        static let brandedOneLinkWithSub3 = URL(string: "https://join.tangem.com/AbCd?deep_link_value=tpay_for_some-campaign&deep_link_sub3=AbC-123&uid=AbC-123")!
+        static let uppercaseOneLinkWithSub3 = URL(string: "https://Tangem.OneLink.me/AbCd?deep_link_value=tpay_mobileonboard&deep_link_sub3=AbC-123&uid=AbC-123")!
     }
 
     enum Push {
@@ -169,21 +201,5 @@ private extension MarketingActivityLinkRecorderTests {
 
             await body()
         }
-    }
-}
-
-// MARK: - Spies
-
-private final class MarketingActivityBindingServiceSpy: MarketingActivityBindingService {
-    private let state = OSAllocatedUnfairLock(initialState: [String]())
-
-    var registeredUids: [String] {
-        state.withLock { $0 }
-    }
-
-    func initialize() {}
-
-    func register(uid: String) {
-        state.withLock { $0.append(uid) }
     }
 }
