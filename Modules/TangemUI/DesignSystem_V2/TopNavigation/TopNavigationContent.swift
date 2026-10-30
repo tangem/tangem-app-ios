@@ -140,11 +140,13 @@ struct TopNavigationActionsGroup: View {
 struct TopNavigationCircleButton: View {
     let action: TopNavigation.Action
 
+    @Environment(\.isEnabled) private var isEnabled
+
     private let size = TopNavigationChromeMetrics.chromeButtonSize
 
     var body: some View {
         TopNavigationActionButton(action: action, size: size)
-            .tangemMaterialSurface(in: Circle(), interactive: true, shadow: DesignSystem.Shadow.fallbackButton)
+            .tangemMaterialSurface(in: Circle(), interactive: isEnabled, shadow: DesignSystem.Shadow.fallbackButton)
             .barHitTarget(size: size, square: true)
             .deferringPressFeedbackToGlass()
     }

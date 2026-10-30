@@ -28,7 +28,7 @@ struct TransferView: View {
         .padding(.horizontal, 16)
         .padding(.bottom, 20)
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
-        .topNavigation(title: viewModel.title, leading: .none, onClose: viewModel.close)
+        .topNavigation(title: viewModel.title, leading: .none, close: .enabled(viewModel.close))
         .onFirstAppear(perform: viewModel.onAppear)
     }
 
