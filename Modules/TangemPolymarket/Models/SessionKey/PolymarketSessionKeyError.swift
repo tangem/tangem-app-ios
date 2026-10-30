@@ -79,3 +79,7 @@ public extension PolymarketSessionKeyError {
         }
     }
 }
+
+// MARK: - PolymarketRelayedError protocol conformance
+
+extension PolymarketSessionKeyError: PolymarketRelayedError {}
