@@ -183,7 +183,7 @@ extension PolymarketEventChartContent {
             )
         }
 
-        let series = filledIn(complemented(candidates)).filter { $0.points.count >= MappingConstants.minimumPointCount }
+        let series = ledInFromZero(filledIn(complemented(candidates))).filter { $0.points.count >= MappingConstants.minimumPointCount }
 
         guard series.count < MappingConstants.minimumSeriesCount else {
             return series
@@ -237,25 +237,13 @@ extension PolymarketEventChartContent {
             }
 
             guard let first = own.points.first, let last = own.points.last else {
-                return PolymarketProbabilityChart.Series(
-                    id: own.id,
-                    title: own.title,
-                    probabilityText: own.probabilityText,
-                    color: own.color,
-                    points: other.points.map(mirrored)
-                )
+                return own.withPoints(other.points.map(mirrored))
             }
 
             let before = other.points.filter { $0.date < first.date }.map(mirrored)
             let after = other.points.filter { $0.date > last.date }.map(mirrored)
 
-            return PolymarketProbabilityChart.Series(
-                id: own.id,
-                title: own.title,
-                probabilityText: own.probabilityText,
-                color: own.color,
-                points: before + own.points + after
-            )
+            return own.withPoints(before + own.points + after)
         }
     }
 
@@ -279,16 +267,34 @@ extension PolymarketEventChartContent {
                 return line
             }
 
-            return PolymarketProbabilityChart.Series(
-                id: line.id,
-                title: line.title,
-                probabilityText: line.probabilityText,
-                color: line.color,
-                points: [
-                    PolymarketProbabilityChart.Point(date: start, probability: probability),
-                    PolymarketProbabilityChart.Point(date: end, probability: probability),
-                ]
-            )
+            return line.withPoints([
+                PolymarketProbabilityChart.Point(date: start, probability: probability),
+                PolymarketProbabilityChart.Point(date: end, probability: probability),
+            ])
+        }
+    }
+
+    func ledInFromZero(_ series: [PolymarketProbabilityChart.Series]) -> [PolymarketProbabilityChart.Series] {
+        let drawn = series.filter { $0.points.count >= MappingConstants.minimumPointCount }
+
+        guard let start = drawn.compactMap(\.points.first?.date).min() else {
+            return series
+        }
+
+        return series.map { line in
+            guard
+                line.points.count >= MappingConstants.minimumPointCount,
+                let first = line.points.first,
+                first.date > start
+            else {
+                return line
+            }
+
+            let jumpDate = first.date.addingTimeInterval(-MappingConstants.appearanceJumpLead)
+            let zeroDates = jumpDate > start ? [start, jumpDate] : [start]
+            let leadIn = zeroDates.map { PolymarketProbabilityChart.Point(date: $0, probability: 0) }
+
+            return line.withPoints(leadIn + line.points)
         }
     }
 
@@ -443,6 +449,7 @@ private extension PolymarketEventChartContent {
         static let outcomeStyledSeriesCount = 2
         static let complementaryPairCount = 2
         static let minimumPointCount = 2
+        static let appearanceJumpLead: TimeInterval = 1
         static let genericOutcomes: Set<String> = ["yes", "no"]
         static let dateLabelCount = 4
         static let minute: TimeInterval = 60
@@ -459,5 +466,19 @@ private extension PolymarketEventChartContent {
             formatter.setLocalizedDateFormatFromTemplate(template)
             return formatter
         }
+    }
+}
+
+// MARK: - Series points
+
+private extension PolymarketProbabilityChart.Series {
+    func withPoints(_ points: [PolymarketProbabilityChart.Point]) -> Self {
+        PolymarketProbabilityChart.Series(
+            id: id,
+            title: title,
+            probabilityText: probabilityText,
+            color: color,
+            points: points
+        )
     }
 }
