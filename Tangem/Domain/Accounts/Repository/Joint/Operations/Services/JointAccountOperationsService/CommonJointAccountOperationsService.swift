@@ -177,10 +177,11 @@ private extension CommonJointAccountOperationsService {
     }
 
     func ensureIsNotMalicious(_ operation: JointAccountOperation, in wallet: JointAccountWallet, safeAddress: String, at state: SafeContractState) async throws {
+        let ownerAddress = try wallet.ownAddress()
         let verdict = await blockaidGate.verdict(
             on: operation,
             safeAddress: safeAddress,
-            ownerAddress: wallet.ownAddress,
+            ownerAddress: ownerAddress,
             blockchain: wallet.tokenItem.blockchain
         )
 

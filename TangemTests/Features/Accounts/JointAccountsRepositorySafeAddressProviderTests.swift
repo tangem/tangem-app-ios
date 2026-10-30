@@ -123,7 +123,8 @@ private extension JointAccountsRepositorySafeAddressProviderTests {
                     slot: nil,
                     signature: nil
                 )
-            }
+            },
+            invites: []
         )
     }
 }

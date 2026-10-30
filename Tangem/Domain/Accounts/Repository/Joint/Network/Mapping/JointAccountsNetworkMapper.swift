@@ -91,13 +91,15 @@ extension JointAccountsNetworkMapper {
         )
     }
 
-    func mapToInvite(from dto: JointAccountsDTO.Response.JointAccount.Invite) -> RemoteJointAccount.Invite? {
+    func mapToInvite(from dto: JointAccountsDTO.Response.JointAccount.Invite) -> StoredJointAccount.Invite? {
         guard let expiresAt = parseDate(dto.expiresAt) else {
             JointAccountsLogger.warning("An invite of the joint account has an unreadable expiry and is skipped")
             return nil
         }
 
-        return RemoteJointAccount.Invite(slot: JointAccountMemberSlotID(dto.slot), expiresAt: expiresAt)
+        let slot = JointAccountMemberSlotID(dto.slot)
+
+        return StoredJointAccount.Invite(slot: slot, expiresAt: expiresAt)
     }
 
     func mapToIssuedInvite(from dto: JointAccountsDTO.Response.IssuedInvite) throws -> JointAccountIssuedInvite {

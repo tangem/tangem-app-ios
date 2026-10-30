@@ -336,8 +336,9 @@ private extension CommonJointAccountPendingOperationsProviderTests {
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             membersService: JointAccountMembersServiceMock(
-                slots: [.member(JointAccountMember(name: "Isaac", address: Self.creatorAddress, role: .creator))]
+                slots: [.member(JointAccountMember(name: "Isaac", address: Self.creatorAddress, role: .creator, isMe: false), .active)]
             ),
+            userRoleService: JointAccountUserRoleServiceMock(),
             delegate: delegate
         )
     }

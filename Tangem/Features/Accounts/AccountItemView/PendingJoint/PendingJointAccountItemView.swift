@@ -158,19 +158,18 @@ private extension PendingJointAccountItemView {
 /// Outlives the accounts of the previews below, which hold it weakly.
 private let previewJointAccountDelegate = JointAccountModelDelegateMock()
 
-private let previewInviteURL = URL(string: "https://tangem.com/joint-account/join/preview")
-
 private let previewCreator = JointAccountMember(
     name: "Member 0",
     address: "0x0000000000000000000000000000000000000000",
-    role: .creator
+    role: .creator,
+    isMe: false
 )
 
 private func previewJointAccount(
     status: JointAccountStatus,
     membersCount: Int,
     takenSlotsCount: Int,
-    userRole: JointAccountUserRole = .outsider
+    isCreator: Bool = false
 ) -> any JointAccountModel {
     CommonJointAccountModel(
         cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
@@ -182,19 +181,23 @@ private func previewJointAccount(
         membersService: JointAccountMembersServiceMock(
             slots: (0 ..< max(membersCount, takenSlotsCount)).map { index -> JointAccountSlot in
                 guard index < takenSlotsCount else {
-                    return .empty(invite: previewInviteURL.map { JointAccountInvite(id: "invite-\(index)", url: $0) })
+                    let slot = JointAccountMemberSlotID(index)
+
+                    return .empty(slot, .invitable)
                 }
 
                 return .member(
                     JointAccountMember(
                         name: "Member \(index)",
                         address: "0x0000000000000000000000000000000000000000",
-                        role: index == 0 ? .creator : .member
-                    )
+                        role: index == 0 ? .creator : .member,
+                        isMe: false
+                    ),
+                    .joined
                 )
-            },
-            userRole: userRole
+            }
         ),
+        userRoleService: JointAccountUserRoleServiceMock(creator: isCreator),
         delegate: previewJointAccountDelegate
     )
 }
@@ -219,7 +222,7 @@ private func previewJointAccount(
                         status: .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"),
                         membersCount: 3,
                         takenSlotsCount: 3,
-                        userRole: .member(previewCreator)
+                        isCreator: true
                     ),
                     onTap: {}
                 )

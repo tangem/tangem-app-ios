@@ -22,6 +22,11 @@ struct StoredJointAccount: Codable, Equatable {
         let signature: String?
     }
 
+    struct Invite: Codable, Equatable {
+        let slot: JointAccountMemberSlotID
+        let expiresAt: Date
+    }
+
     /// The wallet's own account this joint one is joined with, and the only field the two endpoints describing it share.
     let cryptoAccountId: String
     /// Both fixed when the account is created.
@@ -30,6 +35,7 @@ struct StoredJointAccount: Codable, Equatable {
     let status: JointAccountStatus
     /// Only the slots that are taken, in the order they were taken, the creator first.
     let members: [Member]
+    let invites: [Invite]
 }
 
 // MARK: - Convenience
@@ -41,7 +47,8 @@ extension StoredJointAccount {
             membersCount: remote.membersCount,
             threshold: remote.threshold,
             status: remote.status,
-            members: remote.members
+            members: remote.members,
+            invites: remote.invites
         )
     }
 }

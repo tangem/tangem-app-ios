@@ -136,6 +136,7 @@ actor JointAccountModelsRegistry {
                     operationsService: dependencies.operationsService,
                     pendingOperationsProvider: dependencies.pendingOperationsProvider,
                     membersService: dependencies.membersService,
+                    userRoleService: dependencies.userRoleService,
                     delegate: delegate
                 )
 

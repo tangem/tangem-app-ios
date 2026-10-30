@@ -10,4 +10,5 @@ import Foundation
 
 protocol JointAccountMembersServiceProviding {
     var jointAccountMembersService: JointAccountMembersService { get }
+    var jointAccountUserRoleService: JointAccountUserRoleService { get }
 }

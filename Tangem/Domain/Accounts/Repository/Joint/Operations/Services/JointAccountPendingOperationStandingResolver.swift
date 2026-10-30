@@ -11,7 +11,7 @@ import TangemFoundation
 
 struct JointAccountPendingOperationStandingResolver {
     func standing(for pendingOperation: JointAccountPendingOperation) -> JointAccountPendingOperation.Standing {
-        guard let ownAddress = pendingOperation.wallet.ownAddress else {
+        guard let ownAddress = try? pendingOperation.wallet.ownAddress() else {
             return .noDecisionYet
         }
 
@@ -49,6 +49,6 @@ private extension JointAccountPendingOperationStandingResolver {
             return nil
         }
 
-        return pendingOperation.wallet.ownAddress
+        return try? pendingOperation.wallet.ownAddress()
     }
 }

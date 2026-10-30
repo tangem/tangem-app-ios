@@ -21,11 +21,6 @@ protocol JointAccountsRepository {
     /// while the list is being read anew.
     var jointAccountsPublisher: AnyPublisher<[StoredJointAccount], Never> { get }
 
-    /// What is stored at this moment — the synchronous counterpart of `jointAccountsInvitesPublisher`.
-    var jointAccountsInvites: [StoredJointAccountInvites] { get }
-
-    var jointAccountsInvitesPublisher: AnyPublisher<[StoredJointAccountInvites], Never> { get }
-
     /// Asks for the list once, so that what is stored is the backend's answer rather than the last thing this wallet
     /// happened to write.
     func initialize()

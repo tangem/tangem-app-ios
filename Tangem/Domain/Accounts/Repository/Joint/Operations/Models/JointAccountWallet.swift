@@ -34,8 +34,12 @@ struct JointAccountWallet {
         walletModel.account as? any JointAccountModel
     }
 
-    var ownAddress: String? {
-        account?.jointAccountMembersService.userRole.member?.address
+    func ownAddress() throws -> String {
+        guard let account else {
+            throw JointAccountWalletBuilder.Error.notJointAccount
+        }
+
+        return try account.jointAccountUserRoleService.ownAddress()
     }
 
     private let walletModel: any WalletModel

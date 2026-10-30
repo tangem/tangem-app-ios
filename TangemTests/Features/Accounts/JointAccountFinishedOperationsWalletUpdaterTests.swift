@@ -104,6 +104,7 @@ private extension JointAccountFinishedOperationsWalletUpdaterTests {
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             membersService: JointAccountMembersServiceMock(),
+            userRoleService: JointAccountUserRoleServiceMock(),
             delegate: delegate
         )
     }

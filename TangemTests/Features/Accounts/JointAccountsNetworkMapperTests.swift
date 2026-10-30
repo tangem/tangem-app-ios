@@ -48,7 +48,7 @@ struct JointAccountsNetworkMapperTests {
 
         let account = try #require(try mapper.mapToJointAccounts(from: response).first)
 
-        #expect(account.invites == [RemoteJointAccount.Invite(slot: JointAccountMemberSlotID(2), expiresAt: Constants.inviteExpiresAt)])
+        #expect(account.invites == [StoredJointAccount.Invite(slot: JointAccountMemberSlotID(2), expiresAt: Constants.inviteExpiresAt)])
     }
 
     @Test("An issued invite is read with its code, its slot and when it expires")

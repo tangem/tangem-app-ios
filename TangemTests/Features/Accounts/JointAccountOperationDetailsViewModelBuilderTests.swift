@@ -134,6 +134,7 @@ private extension JointAccountOperationDetailsViewModelBuilderTests {
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: provider,
             membersService: JointAccountMembersServiceMock(slots: []),
+            userRoleService: JointAccountUserRoleServiceMock(),
             delegate: delegate
         )
 
