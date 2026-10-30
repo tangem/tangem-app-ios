@@ -487,7 +487,7 @@ private extension PolymarketCoordinator {
             with: .init(
                 type: .swap(parameters),
                 source: .main,
-                onTransactionDispatched: { [weak self] in self?.transactionDispatched(operation) }
+                onTransactionDispatched: { [weak self] _ in self?.transactionDispatched(operation) }
             )
         )
 

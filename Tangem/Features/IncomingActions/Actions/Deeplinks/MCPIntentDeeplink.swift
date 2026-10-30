@@ -14,6 +14,10 @@ struct MCPIntentDeeplink: HostNamedDeeplink, Equatable {
     let type: String
 
     var action: DeeplinkNavigationAction { DeeplinkNavigationAction.mcpIntent(self) }
+
+    var comparableId: String {
+        id.lowercased()
+    }
 }
 
 // MARK: - Parsing

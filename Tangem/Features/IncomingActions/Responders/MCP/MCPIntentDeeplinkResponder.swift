@@ -14,8 +14,11 @@ final class MCPIntentDeeplinkResponder: IncomingActionResponder {
     @Injected(\.userWalletRepository) private var userWalletRepository: any UserWalletRepository
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.incomingActionHandler) private var incomingActionHandler: any IncomingActionHandler
+    @Injected(\.overlayViewPresenter) private var overlayViewPresenter: any OverlayViewPresenter
 
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
+    private let coordinatorFactory = CommonMainCoordinatorChildFactory()
+    private let sendIntentClient = MoyaMCPSendIntentClient()
     private let logger: TangemLogger.Logger = MCPLogger
 
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
@@ -33,6 +36,12 @@ final class MCPIntentDeeplinkResponder: IncomingActionResponder {
         case ("express", "exchange"):
             Task { @MainActor in
                 await handleSwapIntent(intentID: intentDeeplink.id, selectedUserWallet: selectedUserWallet)
+            }
+            return true
+
+        case ("transaction", "send"):
+            Task { @MainActor in
+                await handleSendIntent(intentDeeplink)
             }
             return true
 
@@ -183,5 +192,218 @@ extension MCPIntentDeeplinkResponder {
 
             return walletModel.tokenItem.contractAddress?.caseInsensitiveCompare(asset.currency.contractAddress) == .orderedSame
         }
+    }
+}
+
+// MARK: - Send Intent
+
+@MainActor
+private extension MCPIntentDeeplinkResponder {
+    func handleSendIntent(_ intentDeeplink: MCPIntentDeeplink) async {
+        guard SendFeatureProvider.shared.isAvailable else {
+            logger.info("Send is unavailable, the send intent is dropped")
+            return
+        }
+
+        let intent: MCPSendIntent
+
+        do {
+            intent = try await sendIntentClient.fetch(intentId: intentDeeplink.id)
+        } catch {
+            logger.error("Failed to fetch the send intent", error: error)
+            return
+        }
+
+        guard !userWalletRepository.isLocked else {
+            logger.info("Wallets got locked while the send intent was loading")
+            return
+        }
+
+        guard !intent.isCompleted else {
+            logger.info("The send intent is already completed")
+            return
+        }
+
+        guard let target = findSendTarget(for: intent) else {
+            logger.info("No wallet holds the token of the send intent")
+            return
+        }
+
+        guard canSend(from: target) else {
+            logger.info("The wallet can't send the token of the send intent right now")
+            return
+        }
+
+        guard isValidDestination(intent.toAddress, for: target.walletModel) else {
+            logger.info("The destination of the send intent is invalid or belongs to the sender")
+            return
+        }
+
+        guard SendIntentValidator.isValidMemo(intent.memo, for: target.walletModel.tokenItem.blockchain) else {
+            logger.info("The memo of the send intent is invalid for its network")
+            return
+        }
+
+        guard SendIntentValidator.fitsDecimals(intent.amount, decimalCount: target.walletModel.tokenItem.decimalCount) else {
+            logger.info("The amount of the send intent has more decimals than its token")
+            return
+        }
+
+        // [REDACTED_TODO_COMMENT]
+        openSend(intent: intent, intentDeeplink: intentDeeplink, target: target)
+    }
+
+    func findSendTarget(for intent: MCPSendIntent) -> DeeplinkWalletModelLocator.Target? {
+        for userWalletModel in userWalletRepository.models {
+            let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
+
+            let walletModel = walletModels.first { walletModel in
+                !walletModel.isJointAccountParticipant
+                    && walletModel.tokenItem.id == intent.tokenId
+                    && walletModel.tokenItem.blockchain.networkId == intent.networkId
+                    && isOwnAddress(intent.fromAddress, of: walletModel)
+            }
+
+            if let walletModel {
+                return DeeplinkWalletModelLocator.Target(walletModel: walletModel, userWalletModel: userWalletModel)
+            }
+        }
+
+        return nil
+    }
+
+    func canSend(from target: DeeplinkWalletModelLocator.Target) -> Bool {
+        let availability = TokenActionAvailabilityProvider(
+            userWalletInfo: target.userWalletModel.userWalletInfo,
+            walletModel: target.walletModel
+        ).sendAvailability
+
+        let hasBlockingPendingTransaction = target.walletModel.hasAnyPendingTransactions
+            && !target.walletModel.tokenItem.blockchain.isParallelTransactionAllowed
+
+        return SendIntentValidator.canSend(availability, hasBlockingPendingTransaction: hasBlockingPendingTransaction)
+    }
+
+    func reportTransaction(_ transactionHash: String, ofSendIntent intentID: String) async {
+        do {
+            try await sendIntentClient.reportTransaction(intentId: intentID, transactionHash: transactionHash)
+        } catch {
+            logger.error("Failed to report the transaction of the send intent", error: error)
+        }
+    }
+
+    func isOwnAddress(_ address: String, of walletModel: any WalletModel) -> Bool {
+        SendIntentValidator.isOwnAddress(
+            address,
+            ownAddresses: walletModel.allAddresses.map(\.value),
+            blockchain: walletModel.tokenItem.blockchain
+        )
+    }
+
+    func isValidDestination(_ address: String, for walletModel: any WalletModel) -> Bool {
+        SendIntentValidator.isValidDestination(
+            address,
+            ownAddresses: walletModel.allAddresses.map(\.value),
+            blockchain: walletModel.tokenItem.blockchain
+        )
+    }
+
+    func openSend(intent: MCPSendIntent, intentDeeplink: MCPIntentDeeplink, target: DeeplinkWalletModelLocator.Target) {
+        let sourceToken = CommonSendSwapableTokenFactory(
+            userWalletInfo: target.userWalletModel.userWalletInfo,
+            walletModel: target.walletModel,
+            operationType: .swapAndSend
+        ).makeSwapableToken()
+
+        let parametersFactory = MainQRSendParametersFactory()
+        let parameters = parametersFactory.resolveSendParameters(
+            parametersFactory.makeSendParameters(destination: intent.toAddress, amount: intent.amount, tag: intent.memo),
+            sourceToken: sourceToken
+        )
+
+        let overlayViewPresenter = overlayViewPresenter
+        let context = DeeplinkOverlayContext(
+            id: intentDeeplink.comparableId,
+            coordinatorFactory: coordinatorFactory,
+            present: { overlayViewPresenter.present($0) },
+            dismiss: { overlayViewPresenter.dismiss() }
+        )
+        let coordinator = SendCoordinator(
+            dismissAction: { options in
+                Task { @MainActor in Self.finishSend(with: options, in: context) }
+            },
+            popToRootAction: { _ in overlayViewPresenter.dismiss() }
+        )
+        coordinator.start(
+            with: .init(
+                type: .send(sourceToken, parameters: parameters),
+                source: .main,
+                onTransactionDispatched: { [weak self] transactionHash in
+                    Task { @MainActor in
+                        await self?.reportTransaction(transactionHash, ofSendIntent: intentDeeplink.id)
+                    }
+                }
+            )
+        )
+
+        overlayViewPresenter.present(OverlayView(id: intentDeeplink.comparableId, view: SendCoordinatorView(coordinator: coordinator), style: .sheet))
+        DeeplinkFloatingSheet.dismissActive()
+    }
+
+    static func finishSend(with option: SendCoordinator.DismissOptions?, in context: DeeplinkOverlayContext) {
+        context.dismiss()
+
+        switch option {
+        case .openFeeCurrency(let feeCurrency):
+            openFeeCurrency(feeCurrency, in: context)
+        case .openSwap(let swap):
+            openSwap(swap, in: context)
+        case .closeButtonTap, .none:
+            break
+        }
+    }
+
+    static func openFeeCurrency(_ option: FeeCurrencyNavigatingDismissOption, in context: DeeplinkOverlayContext) {
+        guard let result = try? WalletModelFinder.findWalletModel(userWalletId: option.userWalletId, tokenItem: option.tokenItem) else {
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.navigationAfterDismissDelay) {
+            context.makeTokenDetailsOverlay(
+                walletModel: result.walletModel,
+                userWalletModel: result.userWalletModel,
+                pendingTransactionDetails: nil,
+                id: context.id + Constants.feeCurrencyIdSuffix
+            )
+            .map { context.present($0) }
+        }
+    }
+
+    static func openSwap(_ option: SwapNavigatingDismissOption, in context: DeeplinkOverlayContext) {
+        guard let options = option.makeSwapFlowOptions(source: .main) else {
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.navigationAfterDismissDelay) {
+            let coordinator = SendCoordinator(
+                dismissAction: { options in
+                    Task { @MainActor in finishSend(with: options, in: context) }
+                },
+                popToRootAction: { _ in context.dismiss() }
+            )
+            coordinator.start(with: options)
+
+            context.present(context.sheet(SendCoordinatorView(coordinator: coordinator), id: context.id + Constants.swapIdSuffix))
+        }
+    }
+}
+
+// MARK: - Constants
+
+private extension MCPIntentDeeplinkResponder {
+    enum Constants {
+        static let navigationAfterDismissDelay: TimeInterval = 0.6
+        static let feeCurrencyIdSuffix = "/fee-currency"
+        static let swapIdSuffix = "/swap"
     }
 }

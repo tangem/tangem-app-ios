@@ -165,7 +165,7 @@ private extension CollectiblesCoordinator.FundsCoordinator {
             with: .init(
                 type: .swap(parameters),
                 source: .main,
-                onTransactionDispatched: { [weak self] in self?.awaitDeposit() }
+                onTransactionDispatched: { [weak self] _ in self?.awaitDeposit() }
             )
         )
         sendCoordinator = coordinator
