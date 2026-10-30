@@ -163,6 +163,12 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     func cancelTransactionDetailsPresentation() {
         transactionDetailsPresentationTask?.cancel()
         transactionDetailsPresentationTask = nil
+
+        guard let transactionDetailsSheetId else { return }
+
+        Task { @MainActor in
+            floatingSheetPresenter.removeSheet(withId: transactionDetailsSheetId)
+        }
     }
 
     private var isTransactionDetailsSheetAlive: Bool {
