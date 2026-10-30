@@ -8,27 +8,32 @@
 
 import Foundation
 
+public enum PolymarketSessionKeyRequestError: Error, Equatable {
+    case callMissingFromBatch
+}
+
 public struct PolymarketSessionKeyAuthorization: Hashable, Sendable {
     public let batch: PolymarketRelayedBatch
-    public let sessionKeyAddress: String
+    public let grant: PolymarketSessionKeyGrant
     public let deviceId: String
     public let deviceName: String
-    public let validUntil: Date
     public let replacesSessionKeyAddress: String?
 
     public init(
         batch: PolymarketRelayedBatch,
-        sessionKeyAddress: String,
+        grant: PolymarketSessionKeyGrant,
         deviceId: String,
         deviceName: String,
-        validUntil: Date,
         replacesSessionKeyAddress: String? = nil
-    ) {
+    ) throws(PolymarketSessionKeyRequestError) {
+        guard batch.calls.contains(grant.call) else {
+            throw .callMissingFromBatch
+        }
+
         self.batch = batch
-        self.sessionKeyAddress = sessionKeyAddress
+        self.grant = grant
         self.deviceId = deviceId
         self.deviceName = deviceName
-        self.validUntil = validUntil
         self.replacesSessionKeyAddress = replacesSessionKeyAddress
     }
 }
@@ -37,7 +42,16 @@ public struct PolymarketSessionKeyRevocation: Hashable, Sendable {
     public let batch: PolymarketRelayedBatch
     public let sessionKeyAddress: String
 
-    public init(batch: PolymarketRelayedBatch, sessionKeyAddress: String) {
+    public init(batch: PolymarketRelayedBatch, sessionKeyAddress: String) throws(PolymarketSessionKeyRequestError) {
+        let call = try? PolymarketSessionKeyCalls.revoke(
+            sessionKeyAddress: sessionKeyAddress,
+            depositWalletAddress: batch.depositWalletAddress
+        )
+
+        guard let call, batch.calls.contains(call) else {
+            throw .callMissingFromBatch
+        }
+
         self.batch = batch
         self.sessionKeyAddress = sessionKeyAddress
     }

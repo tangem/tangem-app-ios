@@ -42,10 +42,10 @@ extension CommonPolymarketSessionKeyService: PolymarketSessionKeyService {
     ) async throws(PolymarketSessionKeyError) -> PolymarketSessionKey {
         let payload = PolymarketDTO.SessionKeyAuthorizationRequest(
             batch: authorization.batch,
-            sessionKeyAddress: authorization.sessionKeyAddress,
+            sessionKeyAddress: authorization.grant.sessionKeyAddress,
             deviceId: authorization.deviceId,
             deviceName: authorization.deviceName,
-            validUntil: String(Int(authorization.validUntil.timeIntervalSince1970)),
+            validUntil: String(Int(authorization.grant.validUntil.timeIntervalSince1970)),
             replacesSessionKeyAddress: authorization.replacesSessionKeyAddress
         )
 

@@ -38,20 +38,23 @@ private extension PolymarketApprovalCalls {
     static func approve(spender: String) -> PolymarketRelayedBatch.Call {
         PolymarketRelayedBatch.Call(
             target: PolymarketCollateral.contractAddress,
-            data: Constants.approveSelector + leftPaddedWord(spender) + Constants.maxUint256
+            data: Constants.approveSelector + addressWord(spender) + Constants.maxUint256
         )
     }
 
     static func setApprovalForAll(token: String, operator operatorAddress: String) -> PolymarketRelayedBatch.Call {
         PolymarketRelayedBatch.Call(
             target: token,
-            data: Constants.setApprovalForAllSelector + leftPaddedWord(operatorAddress) + Constants.boolTrue
+            data: Constants.setApprovalForAllSelector + addressWord(operatorAddress) + Constants.boolTrue
         )
     }
 
-    static func leftPaddedWord(_ address: String) -> String {
-        let digits = address.hasPrefix("0x") ? String(address.dropFirst(2)) : address
-        return String(repeating: "0", count: max(0, Constants.wordLength - digits.count)) + digits.lowercased()
+    static func addressWord(_ contractAddress: String) -> String {
+        guard let word = PolymarketABIWord.address(contractAddress) else {
+            preconditionFailure("\(contractAddress) is not an EVM address")
+        }
+
+        return word
     }
 
     enum Constants {
@@ -59,6 +62,5 @@ private extension PolymarketApprovalCalls {
         static let setApprovalForAllSelector = "0xa22cb465"
         static let maxUint256 = String(repeating: "f", count: 64)
         static let boolTrue = String(repeating: "0", count: 63) + "1"
-        static let wordLength = 64
     }
 }
