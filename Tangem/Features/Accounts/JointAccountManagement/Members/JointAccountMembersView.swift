@@ -32,7 +32,7 @@ struct JointAccountMembersView: View {
         }
         .topNavigation(
             leading: dismissStyle == .back ? .automatic : .none,
-            onClose: dismissStyle == .close ? viewModel.onCloseTap : nil
+            close: dismissStyle == .close ? .enabled(viewModel.onCloseTap) : nil
         ) {
             if case .navigationBar(let text) = viewModel.title {
                 TopNavigationTitleContent(title: text)

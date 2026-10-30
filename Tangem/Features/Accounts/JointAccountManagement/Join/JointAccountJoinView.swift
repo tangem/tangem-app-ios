@@ -60,7 +60,7 @@ struct JointAccountJoinView: View {
                 .padding(.horizontal, Constants.contentHorizontalPadding)
             }
         }
-        .topNavigation(leading: .none, onClose: viewModel.onCloseTap)
+        .topNavigation(leading: .none, close: .enabled(viewModel.onCloseTap))
     }
 
     private func glow(_ content: JointAccountJoinViewModel.Content) -> some View {

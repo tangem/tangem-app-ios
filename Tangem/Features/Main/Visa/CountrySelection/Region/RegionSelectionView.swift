@@ -37,7 +37,7 @@ struct RegionSelectionView: View {
         .topNavigation(
             title: viewModel.configuration.title,
             leading: viewModel.configuration.leadingPolicy,
-            onClose: viewModel.onClose
+            close: .enabled(viewModel.onClose)
         )
     }
 }

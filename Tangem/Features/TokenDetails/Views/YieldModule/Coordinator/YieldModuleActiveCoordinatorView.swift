@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct YieldModuleActiveCoordinatorView: View {
     @ObservedObject var coordinator: YieldModuleActiveCoordinator
@@ -18,20 +19,14 @@ struct YieldModuleActiveCoordinatorView: View {
                     .interactiveDismissDisabled()
             }
         }
-        .background {
-            claimModal
-        }
-    }
-
-    @ViewBuilder
-    private var claimModal: some View {
-        if let viewModel = coordinator.claimViewModel {
-            YieldModuleClaimModal(
-                viewModel: viewModel,
-                isPresented: $coordinator.isClaimSheetShown,
-                onDismissed: coordinator.claimSheetDidDismiss
-            )
-            .id(viewModel.id)
-        }
+        .modal(
+            item: $coordinator.claimViewModel,
+            size: YieldModuleClaimModal.size,
+            contentLayout: YieldModuleClaimModal.contentLayout,
+            dragIndicator: .hidden,
+            navigation: YieldModuleClaimModal.navigation,
+            onDismiss: coordinator.claimSheetDidDismiss,
+            content: { YieldModuleClaimView(viewModel: $0) }
+        )
     }
 }

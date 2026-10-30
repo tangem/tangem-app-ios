@@ -153,7 +153,7 @@ public extension View {
         leading: TopNavigation.LeadingPolicy = .automatic,
         actions: TopNavigation.Actions? = nil,
         actionsHaveBackground: Bool = true,
-        onClose: (() -> Void)? = nil
+        close: TopNavigation.Close? = nil
     ) -> some View {
         modifier(
             TopNavigationModifier(
@@ -161,7 +161,7 @@ public extension View {
                 leading: leading,
                 actions: actions,
                 actionsHaveBackground: actionsHaveBackground,
-                onClose: onClose
+                close: close
             ) {
                 TopNavigationTitleContent(
                     title: title,
@@ -177,7 +177,7 @@ public extension View {
         leading: TopNavigation.LeadingPolicy = .automatic,
         actions: TopNavigation.Actions? = nil,
         actionsHaveBackground: Bool = true,
-        onClose: (() -> Void)? = nil,
+        close: TopNavigation.Close? = nil,
         @ViewBuilder content: () -> Slot
     ) -> some View {
         modifier(
@@ -186,29 +186,34 @@ public extension View {
                 leading: leading,
                 actions: actions,
                 actionsHaveBackground: actionsHaveBackground,
-                onClose: onClose,
+                close: close,
                 slot: content
             )
         )
     }
 
     /// A bar without content of its own — only the chrome: leading button, actions and close.
-    /// - Note: A separate overload rather than a `content:` default, since a default makes the trailing-closure
-    /// scan bind a slot-only call's closure to `onClose:` instead of the slot.
     func topNavigation(
         contentPosition: TopNavigation.ContentPosition = .center,
         leading: TopNavigation.LeadingPolicy = .automatic,
         actions: TopNavigation.Actions? = nil,
         actionsHaveBackground: Bool = true,
-        onClose: (() -> Void)? = nil
+        close: TopNavigation.Close? = nil
     ) -> some View {
         topNavigation(
             contentPosition: contentPosition,
             leading: leading,
             actions: actions,
             actionsHaveBackground: actionsHaveBackground,
-            onClose: onClose,
+            close: close,
             content: { EmptyView() }
         )
+    }
+}
+
+public extension TopNavigation {
+    enum Close {
+        case enabled(() -> Void)
+        case disabled
     }
 }

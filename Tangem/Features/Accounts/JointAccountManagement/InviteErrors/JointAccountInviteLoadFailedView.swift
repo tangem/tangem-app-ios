@@ -36,7 +36,7 @@ struct JointAccountInviteLoadFailedView: View {
                     .multilineTextAlignment(.center)
             }
         }
-        .topNavigation(leading: .none, onClose: onCloseTap)
+        .topNavigation(leading: .none, close: .enabled(onCloseTap))
     }
 }
 

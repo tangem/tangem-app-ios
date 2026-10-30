@@ -6,59 +6,34 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
 import TangemLocalization
 import TangemUI
 
-struct YieldModuleClaimModal: View {
-    @ObservedObject var viewModel: YieldModuleClaimViewModel
-
-    @Binding var isPresented: Bool
-
-    let onDismissed: () -> Void
-
-    var body: some View {
-        let current = appearance
-
-        Color.clear
-            .modal(
-                isPresented: $isPresented,
-                size: current.size,
-                contentLayout: current.contentLayout,
-                dragIndicator: .hidden,
-                navigation: current.navigation,
-                onDismiss: onDismissed,
-                content: { YieldModuleClaimView(viewModel: viewModel) }
-            )
-            .onAppear {
-                isPresented = true
-            }
-    }
-
-    private var appearance: Appearance {
+enum YieldModuleClaimModal {
+    static func size(_ viewModel: YieldModuleClaimViewModel) -> ModalSize {
         switch viewModel.viewState {
-        case .claim(let viewData):
-            Appearance(
-                size: viewData.rewardsCount > 1 ? .full : .flexible,
-                contentLayout: .scrollable,
-                navigation: .title(
-                    Localization.yieldModuleClaimSheetTitle,
-                    subtitle: Localization.yieldModuleClaimSheetSubtitle,
-                    onClose: viewModel.onCloseTap
-                )
-            )
-        case .success:
-            Appearance(size: .full, contentLayout: .fill, navigation: .closeButton(onClose: viewModel.onCloseTap))
+        case .claim(let viewData): viewData.rewardsCount > 1 ? .full : .flexible
+        case .success: .full
         }
     }
-}
 
-// MARK: - Appearance
+    static func contentLayout(_ viewModel: YieldModuleClaimViewModel) -> ModalContentLayout {
+        switch viewModel.viewState {
+        case .claim: .scrollable
+        case .success: .fill
+        }
+    }
 
-private extension YieldModuleClaimModal {
-    struct Appearance {
-        let size: ModalSize
-        let contentLayout: ModalContentLayout
-        let navigation: ModalNavigation
+    static func navigation(_ viewModel: YieldModuleClaimViewModel) -> ModalNavigation? {
+        switch viewModel.viewState {
+        case .claim:
+            .title(
+                Localization.yieldModuleClaimSheetTitle,
+                subtitle: Localization.yieldModuleClaimSheetSubtitle,
+                isCloseEnabled: !viewModel.isProcessingRequest
+            )
+        case .success:
+            .closeButton()
+        }
     }
 }
