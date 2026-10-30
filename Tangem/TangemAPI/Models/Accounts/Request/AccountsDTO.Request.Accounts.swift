@@ -12,7 +12,7 @@ extension AccountsDTO.Request {
     struct Accounts: Encodable {
         /// - Warning: Deliberately says nothing about the account's kind: the v1 endpoint turns away a row that
         /// mentions one ("property type should not exist"), and v1 is what a wallet without the joint accounts
-        /// feature asks.
+        /// and collectibles features asks.
         struct Account {
             let id: String
             /// Nil, if the account uses a localized name.
@@ -45,7 +45,7 @@ extension AccountsDTO.Request.Accounts.Account: Encodable {
         try container.encode(iconColor, forKey: .iconColor)
         try container.encode(derivation, forKey: .derivation)
 
-        if FeatureProvider.isAvailable(.jointAccounts) {
+        if AccountsDTO.isV2Available {
             try container.encode(type, forKey: .type)
         }
     }
