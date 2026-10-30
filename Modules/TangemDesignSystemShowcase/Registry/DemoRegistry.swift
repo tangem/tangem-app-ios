@@ -23,6 +23,7 @@ public enum DemoRegistry {
 private extension DemoRegistry {
     static var ds3: [DemoEntry] {
         [
+            DemoEntry("ActionMessage", version: DSVersion(1, 0, 0), section: .ds3) { ActionMessageShowcase() },
             DemoEntry("Avatar", version: DSVersion(1, 1, 0), section: .ds3) { AvatarShowcase() },
             DemoEntry("Badge", version: DSVersion(1, 1, 0), section: .ds3) { BadgeShowcase() },
             DemoEntry("Button", version: DSVersion(1, 3, 1), section: .ds3) { ButtonShowcase() },
