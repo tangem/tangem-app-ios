@@ -11,7 +11,7 @@ import Foundation
 extension AccountsDTO.Response {
     struct Accounts: Decodable {
         /// - Warning: Which counters the answer must carry follows which endpoint was asked, and the joint accounts
-        /// feature is what decides the endpoint — see the `Decodable` conformance below.
+        /// or collectibles feature is what decides the endpoint — see the `Decodable` conformance below.
         struct Wallet {
             /// - Note: This field may be nil in cases where a new wallet is created by [REDACTED_AUTHOR]
             /// and the PUT request `/user-tokens` has not been sent yet.
@@ -69,7 +69,7 @@ extension AccountsDTO.Response.Accounts.Wallet: Decodable {
         sort = try container.decodeIfPresent(AccountsDTO.SortType.self, forKey: .sort)
         totalArchivedAccounts = try container.decode(Int.self, forKey: .totalArchivedAccounts)
 
-        if FeatureProvider.isAvailable(.jointAccounts) {
+        if AccountsDTO.isV2Available {
             totalCryptoAccounts = try container.decode(Int.self, forKey: .totalCryptoAccounts)
             totalJointAccounts = try container.decode(Int.self, forKey: .totalJointAccounts)
         } else {

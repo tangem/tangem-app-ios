@@ -67,7 +67,6 @@ private extension CollectiblesAccountModelsRegistry {
         AccountListUpdater(
             vaultStatePublisher: dependencies.manager.statePublisher,
             isInAccountListPublisher: dependencies.manager.isInAccountListPublisher,
-            canAddToAccountList: FeatureProvider.isAvailable(.jointAccounts),
             addToAccountList: { [accountListWriter = dependencies.accountListWriter] config in
                 runTask {
                     await accountListWriter.add(config)
