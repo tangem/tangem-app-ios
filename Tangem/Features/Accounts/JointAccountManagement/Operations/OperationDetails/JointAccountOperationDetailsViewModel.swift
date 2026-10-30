@@ -45,6 +45,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     private let sign: () async throws -> Void
     private let reject: () async throws -> Void
     private let poller: any JointAccountPendingOperationPoller
+    private let copyHelper = JointAccountCopyHelper()
     private weak var coordinator: JointAccountOperationDetailsRoutable?
     private var signTask: Task<Void, Never>?
     private var rejectTask: Task<Void, Never>?
@@ -189,7 +190,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         case .openSigners:
             openSigners()
         case .copy(let value, let toast, _):
-            copy(value, toast: toast)
+            copyHelper.copy(value, toast: toast)
         case .addContact(let address):
             addContact(address: address)
         default:
@@ -253,22 +254,6 @@ private extension JointAccountOperationDetailsViewModel {
         )
 
         viewState = .signers(viewModel)
-    }
-}
-
-// MARK: - Copying
-
-private extension JointAccountOperationDetailsViewModel {
-    func copy(_ value: String, toast text: String) {
-        UIPasteboard.general.string = value
-        FeedbackGenerator.selectionChanged()
-
-        Toast(
-            view: TangemSnackbar(title: text)
-                .icon(DesignSystem.Icons.Checkmark.regular20)
-                .iconColor(DesignSystem.Color.iconAccentBlue)
-        )
-        .present(layout: .top(padding: 14), type: .temporary())
     }
 }
 
