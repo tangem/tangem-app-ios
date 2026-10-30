@@ -87,9 +87,7 @@ enum MCPModuleFactory {
             fetchUserWalletImage: Self.makeFetchUserWalletImage(),
             updateUserWalletBalance: Self.makeUpdateUserWalletBalance(),
             openSystemSettingsAction: UIApplication.openSystemSettings,
-            closeAction: { [weak floatingSheetPresenter] in
-                floatingSheetPresenter?.removeActiveSheet()
-            }
+            closeAction: closeActiveSheet()
         )
     }
 
@@ -104,13 +102,8 @@ enum MCPModuleFactory {
             agent: agent,
             fromAmount: fromAmount,
             toToken: toToken,
-            closeAction: { [weak floatingSheetPresenter] in
-                floatingSheetPresenter?.removeActiveSheet()
-            },
-            proceedAction: { [weak floatingSheetPresenter] in
-                floatingSheetPresenter?.removeActiveSheet()
-                proceedAction()
-            }
+            closeAction: closeActiveSheet(),
+            proceedAction: closeActiveSheet(then: proceedAction)
         )
     }
 
@@ -125,13 +118,8 @@ enum MCPModuleFactory {
             agent: agent,
             fromToken: fromToken,
             toAmount: toAmount,
-            closeAction: { [weak floatingSheetPresenter] in
-                floatingSheetPresenter?.removeActiveSheet()
-            },
-            proceedAction: { [weak floatingSheetPresenter] in
-                floatingSheetPresenter?.removeActiveSheet()
-                proceedAction()
-            }
+            closeAction: closeActiveSheet(),
+            proceedAction: closeActiveSheet(then: proceedAction)
         )
     }
 
@@ -145,7 +133,7 @@ enum MCPModuleFactory {
         switch tokenItem.amountType {
         case .coin, .reserve, .feeResource:
             displayName = blockchain.coinDisplayName
-            kind = .nativeCoin
+            kind = .nativeCoin(iconURL: Self.tokenIconURLBuilder.tokenIconURL(id: blockchain.coinId, size: .large))
 
         case .token(let token):
             displayName = token.name
@@ -168,11 +156,27 @@ enum MCPModuleFactory {
     static func makeFormattedAmount(_ amount: Decimal, symbol: String) -> String {
         balanceFormatter.formatCryptoBalance(amount, currencyCode: symbol)
     }
+
+    static func makeFormattedSendAmount(_ amount: Decimal, tokenItem: TokenItem) -> String {
+        SendCryptoValueFormatter(
+            decimals: tokenItem.decimalCount,
+            currencySymbol: tokenItem.currencySymbol,
+            trimFractions: false
+        ).string(from: amount)
+    }
 }
 
 // MARK: - Utility methods
 
 extension MCPModuleFactory {
+    @MainActor
+    private static func closeActiveSheet(then action: @escaping () -> Void = {}) -> () -> Void {
+        { [weak floatingSheetPresenter] in
+            floatingSheetPresenter?.removeActiveSheet()
+            action()
+        }
+    }
+
     private static func makeFetchUserWalletImage() -> @Sendable (UserWalletId) async -> UIImage {
         return { userWalletID in
             guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletID }) else {
@@ -236,6 +240,43 @@ private extension MCPUserWallet {
             name: userWalletModel.name,
             numberOfCards: userWalletModel.config.cardsCount,
             isLocked: userWalletModel.isUserWalletLocked
+        )
+    }
+}
+
+// MARK: - Send intent
+
+extension MCPModuleFactory {
+    @MainActor
+    static func makeSendIntentViewModel(
+        id: String,
+        agent: MCPAgent,
+        amount: Decimal,
+        walletModel: some WalletModel,
+        proceedAction: @escaping () -> Void
+    ) -> MCPSendIntentViewModel {
+        MCPAssembly.makeSendIntentViewModel(
+            id: id,
+            agent: agent,
+            amount: makeFormattedSendAmount(amount, tokenItem: walletModel.tokenItem),
+            token: makeMCPToken(from: walletModel),
+            closeAction: closeActiveSheet(),
+            proceedAction: closeActiveSheet(then: proceedAction)
+        )
+    }
+
+    @MainActor
+    static func makeIntentStatusViewModel(
+        id: String,
+        status: MCPIntentStatus,
+        primaryActionClosesSheet: Bool,
+        primaryAction: @escaping () -> Void
+    ) -> MCPIntentStatusViewModel {
+        MCPAssembly.makeIntentStatusViewModel(
+            id: id,
+            status: status,
+            closeAction: closeActiveSheet(),
+            primaryAction: primaryActionClosesSheet ? closeActiveSheet(then: primaryAction) : primaryAction
         )
     }
 }

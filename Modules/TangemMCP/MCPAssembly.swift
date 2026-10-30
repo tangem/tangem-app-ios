@@ -82,7 +82,7 @@ public enum MCPAssembly {
     ) -> MCPSwapIntentViewModel {
         MCPSwapIntentViewModel(
             closeAction: closeAction,
-            proceedAction: proceedAction,
+            primaryAction: proceedAction,
             state: MCPSwapIntentState(agent: agent, fromAmount: fromAmount, toToken: toToken)
         )
     }
@@ -97,8 +97,40 @@ public enum MCPAssembly {
     ) -> MCPSwapIntentViewModel {
         MCPSwapIntentViewModel(
             closeAction: closeAction,
-            proceedAction: proceedAction,
+            primaryAction: proceedAction,
             state: MCPSwapIntentState(agent: agent, fromToken: fromToken, toAmount: toAmount)
+        )
+    }
+
+    @MainActor
+    public static func makeSendIntentViewModel(
+        id: String,
+        agent: MCPAgent,
+        amount: String,
+        token: MCPToken,
+        closeAction: @escaping () -> Void,
+        proceedAction: @escaping () -> Void
+    ) -> MCPSendIntentViewModel {
+        MCPSendIntentViewModel(
+            id: id,
+            closeAction: closeAction,
+            primaryAction: proceedAction,
+            state: MCPSendIntentState(agent: agent, amount: amount, token: token)
+        )
+    }
+
+    @MainActor
+    public static func makeIntentStatusViewModel(
+        id: String,
+        status: MCPIntentStatus,
+        closeAction: @escaping () -> Void,
+        primaryAction: @escaping () -> Void
+    ) -> MCPIntentStatusViewModel {
+        MCPIntentStatusViewModel(
+            id: id,
+            closeAction: closeAction,
+            primaryAction: primaryAction,
+            state: MCPIntentStatusState(status: status)
         )
     }
 }
@@ -193,6 +225,14 @@ extension MCPAssembly {
 
         registry.register(MCPSwapIntentViewModel.self) { viewModel in
             MCPSwapIntentView(viewModel: viewModel, kingfisherImageCache: Self.kingfisherImageCache)
+        }
+
+        registry.register(MCPSendIntentViewModel.self) { viewModel in
+            MCPSendIntentView(viewModel: viewModel, kingfisherImageCache: Self.kingfisherImageCache)
+        }
+
+        registry.register(MCPIntentStatusViewModel.self) { viewModel in
+            MCPIntentStatusView(viewModel: viewModel)
         }
     }
 }
