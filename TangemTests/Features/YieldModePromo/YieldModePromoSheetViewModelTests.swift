@@ -73,17 +73,23 @@ struct YieldModePromoSheetViewModelTests {
         #expect(analytics.events == [.closed(.swipe)])
     }
 
+    @Test("The tokens pill takes the plural form of the Earn count", arguments: [(1, "Choose from 1 token"), (12, "Choose from 12 tokens")])
+    func tokensCountText(count: Int, expected: String) {
+        #expect(makeViewModel(routable: routable, tokensCount: count).tokensCountText == expected)
+    }
+
     private func makeViewModel() -> YieldModePromoSheetViewModel {
         makeViewModel(routable: routable)
     }
 
     private func makeViewModel(
-        routable: YieldModePromoSheetRoutable?
+        routable: YieldModePromoSheetRoutable?,
+        tokensCount: Int = 12
     ) -> YieldModePromoSheetViewModel {
         YieldModePromoSheetViewModel(
             data: YieldModePromoSheetData(
                 apy: Decimal(string: "0.0612")!,
-                tokensCount: 12,
+                tokensCount: tokensCount,
                 tokenSymbol: "USDT",
                 blockchainName: "Ethereum"
             ),
