@@ -28,18 +28,20 @@ struct YieldModePromoSheetView: View {
 
                 Text(viewModel.subtitle)
                     .style(
-                        DesignSystem.Font.subheadingMediumToken,
+                        DesignSystem.Font.bodyMediumToken,
                         color: DesignSystem.Color.textSecondary
                     )
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, Constants.padding)
-            .padding(.bottom, 20)
+            .padding(.horizontal, 24)
+            .padding(.top, 32)
+            .padding(.bottom, 24)
 
             tokensRow
-                .padding(.horizontal, Constants.padding)
+                .padding(.horizontal, 16)
         }
+        .padding(.bottom, 20)
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .footer {
@@ -50,16 +52,33 @@ struct YieldModePromoSheetView: View {
     private var tokensRow: some View {
         HStack(spacing: 12) {
             Text(viewModel.tokensCountText)
-                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 
             Spacer(minLength: 0)
 
-            // [REDACTED_TODO_COMMENT]
+            tokenIcons
         }
-        .padding(.horizontal, 16)
+        .padding(.leading, 20)
+        .padding(.trailing, 16)
         .padding(.vertical, 12)
-        .background(DesignSystem.Color.bgSecondary, in: Capsule())
+        .background {
+            let shadow = DesignSystem.Shadow.button
+
+            Capsule()
+                .fill(DesignSystem.Color.bgTransparentOnMaterialPrimary)
+                .shadow(color: shadow.color, radius: shadow.blur / 2, y: shadow.offsetY)
+        }
+    }
+
+    private var tokenIcons: some View {
+        HStack(spacing: -Constants.tokenIconOverlap) {
+            ForEach(indexed: viewModel.tokenIcons, id: \.0) { index, tokenIcon in
+                TokenIconV2(tokenIconInfo: tokenIcon, size: .size40)
+                    .clipShape(Circle())
+                    .zIndex(Double(-index))
+            }
+        }
     }
 
     private var tryYieldModeButton: TangemUI.Button {
@@ -87,7 +106,7 @@ struct YieldModePromoSheetHeaderView: View {
                 )
                 .size(.x11)
                 .styleType(.material(.glass))
-                .padding(Constants.padding)
+                .padding(16)
             }
     }
 }
@@ -95,8 +114,8 @@ struct YieldModePromoSheetHeaderView: View {
 // MARK: - Constants
 
 private enum Constants {
-    static let heroHeight: CGFloat = 220
-    static let padding: CGFloat = 16
+    static let heroHeight: CGFloat = 274
+    static let tokenIconOverlap: CGFloat = 12
 }
 
 // MARK: - Previews

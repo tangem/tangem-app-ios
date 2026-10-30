@@ -1245,7 +1245,14 @@ extension MainCoordinator: MainScreenPromoSheetHost {
             hasPresentedStoryPublisher,
             hasPresentedModalPublisher,
             isRootHiddenPublisher,
+            didEnterBackgroundPublisher,
         ]
+    }
+
+    private var didEnterBackgroundPublisher: AnyPublisher<Bool, Never> {
+        NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
+            .map { _ in true }
+            .eraseToAnyPublisher()
     }
 
     private var hasPresentedModalPublisher: AnyPublisher<Bool, Never> {

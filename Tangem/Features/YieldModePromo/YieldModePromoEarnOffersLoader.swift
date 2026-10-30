@@ -42,6 +42,6 @@ struct CommonYieldModePromoEarnOffersLoader: YieldModePromoEarnOffersLoader {
 private extension CommonYieldModePromoEarnOffersLoader {
     enum Constants {
         static let firstPage = 1
-        static let pageLimit = 3
+        static let pageLimit = 1
     }
 }
