@@ -137,6 +137,10 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
     func onboard() async throws {
         try await manager.onboard()
     }
+
+    func relink() async throws -> CollectiblesRelinkOutcome {
+        try await manager.relink()
+    }
 }
 
 // MARK: - AccountModelResolvable protocol conformance

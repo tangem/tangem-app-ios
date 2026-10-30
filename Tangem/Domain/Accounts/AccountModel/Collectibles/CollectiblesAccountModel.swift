@@ -65,6 +65,7 @@ protocol CollectiblesBuybackInteractorProvider: AnyObject {
 /// state to `.ready` — the alternative is a second object deciding the same three questions from its own reads.
 protocol CollectiblesAccountModel: BaseAccountModel,
     CollectiblesOnboarder,
+    CollectiblesRelinker,
     CollectiblesBalanceSource,
     CollectiblesVaultUsdcAccountProvider,
     CollectiblesRelinkStatusProvider,

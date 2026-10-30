@@ -95,6 +95,8 @@ private final class CollectiblesAccountModelStub: CollectiblesAccountModel {
 
     func onboard() async throws {}
 
+    func relink() async throws -> CollectiblesRelinkOutcome { .relinked }
+
     var vaultUsdcStatePublisher: AnyPublisher<CollectiblesVaultUsdcState, Never> {
         Just(.loading).eraseToAnyPublisher()
     }
