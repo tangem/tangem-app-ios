@@ -24,4 +24,14 @@ public extension UIView {
     var enclosingScrollViews: [UIScrollView] {
         ancestors.compactMap { $0 as? UIScrollView }
     }
+
+    func stopEnclosingScrollTracking() {
+        enclosingScrollViews
+            .map(\.panGestureRecognizer)
+            .filter { $0.isEnabled && $0.state == .possible }
+            .forEach { panGestureRecognizer in
+                panGestureRecognizer.isEnabled = false
+                panGestureRecognizer.isEnabled = true
+            }
+    }
 }
