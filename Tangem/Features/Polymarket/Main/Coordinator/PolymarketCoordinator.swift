@@ -269,6 +269,17 @@ extension PolymarketCoordinator: PolymarketMainScreenRoutable {
     }
 
     @MainActor
+    func openCategory(_ category: PolymarketCategory) {
+        guard let destinationFactory = viewState?.destinationFactory else { return }
+
+        destination = .category(destinationFactory.makeCategory(
+            category: category,
+            onRegionWarning: { [weak self] in self?.openRegionWarning() },
+            onClose: { [weak self] in self?.popToMain() }
+        ))
+    }
+
+    @MainActor
     func openRedeem(position: PolymarketPosition, onClaimed: @escaping (PolymarketPosition?) -> Void) {
         guard let redeemService else { return }
 
@@ -612,6 +623,7 @@ extension PolymarketCoordinator {
         case myPositions(PolymarketMyPositionsCoordinator)
         case tokenDetails(TokenDetailsCoordinator)
         case activity(PolymarketActivityCoordinator)
+        case category(PolymarketCategoryCoordinator)
     }
 
     enum Sheet: Identifiable {
