@@ -37,3 +37,24 @@ protocol PolymarketOrderFlowBuilder: AnyObject {
 
     func runAfterOrderDismiss(_ action: @escaping () -> Void)
 }
+
+// MARK: - Position after an order
+
+extension PolymarketOrderFlowBuilder {
+    func makePositionDetailsAfterOrder(
+        position: PolymarketPosition,
+        onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
+        onRegionWarning: @escaping () -> Void
+    ) -> PolymarketPositionDetailsCoordinator {
+        let coordinator = makePositionDetails(
+            position: position,
+            onOrderPlaced: onOrderPlaced,
+            onRegionWarning: onRegionWarning,
+            onClose: { [weak self] in self?.returnToMain() }
+        )
+
+        coordinator.disablesPopGesture = true
+
+        return coordinator
+    }
+}

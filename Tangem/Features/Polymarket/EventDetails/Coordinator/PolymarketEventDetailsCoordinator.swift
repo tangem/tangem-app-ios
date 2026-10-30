@@ -96,16 +96,13 @@ extension PolymarketEventDetailsCoordinator {
             return
         }
 
-        guard let coordinator = orderBuilder?.makePositionDetails(
+        guard let coordinator = orderBuilder?.makePositionDetailsAfterOrder(
             position: position,
             onOrderPlaced: onPlaced,
-            onRegionWarning: { [weak self] in self?.onRegionWarning?() },
-            onClose: { [weak self] in self?.orderBuilder?.returnToMain() }
+            onRegionWarning: { [weak self] in self?.onRegionWarning?() }
         ) else {
             return
         }
-
-        coordinator.disablesPopGesture = true
 
         destination = .positionDetails(coordinator)
     }

@@ -11,5 +11,7 @@ extension PolymarketDTO {
         let id: Int
         let label: String
         let icon: String?
+        let subcategories: [Category]?
+        let filters: [String]?
     }
 }
