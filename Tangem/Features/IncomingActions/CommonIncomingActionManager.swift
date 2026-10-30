@@ -16,6 +16,7 @@ class CommonIncomingActionManager {
     private var responders = OrderedWeakObjectsCollection<IncomingActionResponder>()
     private lazy var parser = IncomingActionParser()
     private let incomingActionsSubject = PassthroughSubject<IncomingAction, Never>()
+    private let marketingActivityLinkRecorder = MarketingActivityLinkRecorder()
     private var cancellable: AnyCancellable?
 
     init() {
@@ -35,7 +36,10 @@ class CommonIncomingActionManager {
     private func _handleIncomingURL(_ url: URL) -> Bool {
         AppLogger.info("Received deeplink: \(url.absoluteStringWithoutQuery ?? "")")
 
-        guard let action = parser.parseIncomingURL(url) else {
+        let action = parser.parseIncomingURL(url)
+        marketingActivityLinkRecorder.record(url, for: action)
+
+        guard let action else {
             return false
         }
 
@@ -48,7 +52,13 @@ class CommonIncomingActionManager {
             return
         }
 
-        let userInfo = response.notification.request.content.userInfo
+        handlePush(userInfo: response.notification.request.content.userInfo)
+    }
+
+    func handlePush(userInfo: [AnyHashable: Any]) {
+        if let link = parser.pushLink(from: userInfo) {
+            marketingActivityLinkRecorder.record(link, for: parser.parseIncomingURL(link))
+        }
 
         guard let action = parser.parse(push: userInfo) else {
             return
