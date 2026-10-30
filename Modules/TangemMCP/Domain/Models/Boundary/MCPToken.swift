@@ -36,7 +36,7 @@ public extension MCPToken {
 
     enum Kind: Equatable, Sendable {
         /// The network's own coin (ETH on Ethereum, BTC on Bitcoin)
-        case nativeCoin
+        case nativeCoin(iconURL: URL)
 
         /// A token Tangem knows, identified by a backend id, with a logo at `iconURL`.
         case token(iconURL: URL)

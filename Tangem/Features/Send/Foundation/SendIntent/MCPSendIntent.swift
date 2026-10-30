@@ -15,5 +15,5 @@ struct MCPSendIntent: Equatable, Sendable {
     let amount: Decimal
     let memo: String?
     let isCompleted: Bool
-    let agentId: String?
+    let agentId: String
 }

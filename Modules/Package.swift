@@ -613,6 +613,7 @@ var unitTestsModules: [PackageDescription.Target] {
         .tangemTestTarget(
             name: "TangemMCPTests",
             dependencies: [
+                "TangemAssets",
                 "TangemMCP",
                 "TangemTestKit",
             ],

@@ -16,6 +16,6 @@ enum FetchMCPSendIntentDTO {
         let amount: String
         let memo: String?
         let txHash: String?
-        let clientId: String?
+        let clientId: String
     }
 }

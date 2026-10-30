@@ -83,10 +83,10 @@ struct MCPSendIntentMapperTests {
     }
 
     @Test
-    func keepsMissingAgentEmpty() throws {
-        let intent = try map(Self.makeJSON(clientId: nil))
-
-        #expect(intent.agentId == nil)
+    func rejectsIntentWithoutAgent() {
+        #expect(throws: DecodingError.self) {
+            try map(Self.makeJSON(clientId: nil))
+        }
     }
 
     @Test(arguments: ["abc", "12,5", "1,000.50", "0", "-1", "", ".5", "1.", "1e5", " 1", "1 ", "+1", "0x10", "NaN"])
