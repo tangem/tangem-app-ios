@@ -11,7 +11,7 @@ import Combine
 
 struct JointAccountMembersServiceMock: JointAccountMembersService {
     var slots: [JointAccountSlot] = []
-    var userRole: JointAccountUserRole = .outsider
+    var issuedInvite: JointAccountInvite?
 
     var slotsPublisher: AnyPublisher<[JointAccountSlot], Never> {
         Just(slots).eraseToAnyPublisher()
@@ -19,5 +19,13 @@ struct JointAccountMembersServiceMock: JointAccountMembersService {
 
     func requestFrequentUpdates() -> AnyCancellable {
         AnyCancellable {}
+    }
+
+    func issueInvite(slot: JointAccountMemberSlotID) async throws(JointAccountInviteIssueError) -> JointAccountInvite {
+        guard let issuedInvite else {
+            throw .failed(CancellationError())
+        }
+
+        return issuedInvite
     }
 }

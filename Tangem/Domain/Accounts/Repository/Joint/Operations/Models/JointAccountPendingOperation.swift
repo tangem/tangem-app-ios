@@ -69,7 +69,7 @@ extension JointAccountPendingOperation {
 
 extension JointAccountPendingOperation {
     var isInitiator: Bool {
-        wallet.ownAddress?.caseInsensitiveEquals(to: operation.initiator) == true
+        (try? wallet.ownAddress())?.caseInsensitiveEquals(to: operation.initiator) == true
     }
 }
 

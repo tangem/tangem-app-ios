@@ -63,7 +63,7 @@ struct JointAccountActivationTests {
         let account = makeJointAccount(
             status: .confirming(safeAddress: Constants.announcedSafeAddress),
             members: Constants.owners.enumerated().map { index, address in
-                JointAccountMember(name: "Member \(index)", address: address, role: .member)
+                JointAccountMember(name: "Member \(index)", address: address, role: .member, isMe: false)
             }
         )
 
@@ -157,7 +157,8 @@ private extension JointAccountActivationTests {
             accountStatus: status,
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
-            membersService: JointAccountMembersServiceMock(slots: members.map(JointAccountSlot.member)),
+            membersService: JointAccountMembersServiceMock(slots: members.map { .member($0, .joined) }),
+            userRoleService: JointAccountUserRoleServiceMock(),
             delegate: delegate ?? self.delegate
         )
     }
@@ -186,7 +187,8 @@ private extension JointAccountActivationTests {
                 JointAccountMember(
                     name: "Member \(index)",
                     address: address,
-                    role: index == 0 ? .creator : .member
+                    role: index == 0 ? .creator : .member,
+                    isMe: false
                 )
             }
         }

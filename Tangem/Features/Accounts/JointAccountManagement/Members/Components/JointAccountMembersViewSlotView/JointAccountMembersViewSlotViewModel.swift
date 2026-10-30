@@ -46,14 +46,7 @@ final class JointAccountMembersViewSlotViewModel: ObservableObject, Identifiable
         }
     }
 
-    func onInviteTap() {
-        switch content.accessory {
-        case .invite(let url):
-            routable?.shareInvite(url: url, accountName: accountName)
-        case .empty:
-            break
-        }
-    }
+    func onInviteTap() {}
 }
 
 // MARK: - Auxiliary types
@@ -80,12 +73,13 @@ extension JointAccountMembersViewSlotViewModel {
 
     enum Status: Equatable {
         case joined
+        case confirmed
         case notConfirmed
     }
 
     enum Accessory: Equatable {
         case empty
-        case invite(url: URL)
+        case invite
     }
 
     enum TapAction: Equatable {

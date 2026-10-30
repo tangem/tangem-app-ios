@@ -95,12 +95,7 @@ final class PendingJointAccountItemViewModel: Identifiable, ObservableObject {
     }
 
     private static func action(of jointAccount: any JointAccountModel, slots: [JointAccountSlot]) -> Action? {
-        if jointAccount.canActivate {
-            return .activate
-        }
-
-        // Inviting takes both a slot to fill and an invite to fill it with
-        return slots.contains { $0.invite != nil } ? .invite : nil
+        jointAccount.canActivate ? .activate : nil
     }
 
     private static func status(of status: JointAccountStatus, slots: [JointAccountSlot]) -> String {

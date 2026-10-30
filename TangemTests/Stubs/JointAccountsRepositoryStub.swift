@@ -16,19 +16,14 @@ import TangemFoundation
 /// only counted, since there is no backend to read from.
 final class JointAccountsRepositoryStub: JointAccountsRepository {
     private let jointAccountsSubject: CurrentValueSubject<[StoredJointAccount], Never>
-    private let invitesSubject: CurrentValueSubject<[StoredJointAccountInvites], Never>
     private let loadCallsCount = OSAllocatedUnfairLock(initialState: 0)
 
     var loadJointAccountsFromRemoteCallsCount: Int {
         loadCallsCount.withLock { $0 }
     }
 
-    init(
-        jointAccounts: [StoredJointAccount] = [],
-        invites: [StoredJointAccountInvites] = []
-    ) {
+    init(jointAccounts: [StoredJointAccount] = []) {
         jointAccountsSubject = CurrentValueSubject(jointAccounts)
-        invitesSubject = CurrentValueSubject(invites)
     }
 
     /// What the backend would have stored on a read.
@@ -42,14 +37,6 @@ final class JointAccountsRepositoryStub: JointAccountsRepository {
 
     var jointAccountsPublisher: AnyPublisher<[StoredJointAccount], Never> {
         jointAccountsSubject.eraseToAnyPublisher()
-    }
-
-    var jointAccountsInvites: [StoredJointAccountInvites] {
-        invitesSubject.value
-    }
-
-    var jointAccountsInvitesPublisher: AnyPublisher<[StoredJointAccountInvites], Never> {
-        invitesSubject.eraseToAnyPublisher()
     }
 
     func initialize() {}

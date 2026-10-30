@@ -59,6 +59,9 @@ struct JointAccountMembersViewSlotView: View {
         case .joined:
             Badge(label: Localization.jointAccountMembersRoleJoined, accessibilityLabel: nil)
                 .appearance(.info)
+        case .confirmed:
+            Badge(label: Localization.jointAccountMembersStatusConfirmed, accessibilityLabel: nil)
+                .appearance(.success)
         case .notConfirmed:
             Badge(label: Localization.jointAccountMembersStatusNotConfirmed, accessibilityLabel: nil)
                 .appearance(.neutral)

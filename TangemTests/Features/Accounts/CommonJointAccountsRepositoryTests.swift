@@ -37,34 +37,19 @@ struct CommonJointAccountsRepositoryTests {
         #expect(account.members.map(\.name) == ["Alice", "Bob"])
     }
 
-    @Test("Invites are kept apart from the accounts, so a read has nothing to say about them")
-    func invitesSurviveARead() async throws {
-        let invites = [StoredJointAccountInvite(id: "A1B2C3"), StoredJointAccountInvite(id: "D4E5F6")]
-        let storage = JointAccountsPersistentStorageStub(accounts: [Self.storedAccount(status: .pending)])
-        let invitesStorage = JointAccountsInvitesPersistentStorageStub(invites: invites, forCryptoAccountId: Self.accountId)
+    @Test("The invites of the free slots are stored with the account, and a list without them clears them")
+    func invitesAreStoredWithTheAccount() async throws {
+        let invite = StoredJointAccount.Invite(slot: JointAccountMemberSlotID(1), expiresAt: Date(timeIntervalSince1970: 1_793_275_200))
+        let storage = JointAccountsPersistentStorageStub(accounts: [Self.storedAccount(invites: [invite])])
         let networkService = JointAccountsNetworkServiceStub(jointAccounts: [
-            Self.remoteAccount(status: .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"), memberNames: ["Alice", "Bob"]),
+            Self.remoteAccount(),
+            Self.remoteAccount(cryptoAccountId: Self.otherAccountId, invites: [invite]),
         ])
-        let sut = Self.makeSUT(networkService: networkService, storage: storage, invitesStorage: invitesStorage)
+        let sut = Self.makeSUT(networkService: networkService, storage: storage)
 
         try await sut.loadJointAccountsFromRemote()
 
-        #expect(invitesStorage.getInvites(forCryptoAccountId: Self.accountId) == invites)
-        #expect(storage.accounts.first?.status == .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"))
-    }
-
-    @Test("An account gone from the answer leaves its invites behind, since nothing can hand them out again")
-    func invitesOutliveTheAccountVanishingFromTheAnswer() async throws {
-        let invites = [StoredJointAccountInvite(id: "A1B2C3")]
-        let storage = JointAccountsPersistentStorageStub(accounts: [Self.storedAccount()])
-        let invitesStorage = JointAccountsInvitesPersistentStorageStub(invites: invites, forCryptoAccountId: Self.accountId)
-        let networkService = JointAccountsNetworkServiceStub(jointAccounts: [])
-        let sut = Self.makeSUT(networkService: networkService, storage: storage, invitesStorage: invitesStorage)
-
-        try await sut.loadJointAccountsFromRemote()
-
-        #expect(storage.accounts.isEmpty)
-        #expect(invitesStorage.getInvites(forCryptoAccountId: Self.accountId) == invites)
+        #expect(storage.accounts.map(\.invites) == [[], [invite]])
     }
 
     @Test("The operations riding inside an account are stored apart from it")
@@ -149,12 +134,10 @@ struct CommonJointAccountsRepositoryTests {
     @Test("An account is not created while the feature is off either")
     func nothingIsCreatedWhileTheFeatureIsOff() async throws {
         let storage = JointAccountsPersistentStorageStub(accounts: [])
-        let invitesStorage = JointAccountsInvitesPersistentStorageStub()
         let networkService = JointAccountsNetworkServiceStub(jointAccounts: [])
         let sut = Self.makeSUT(
             networkService: networkService,
             storage: storage,
-            invitesStorage: invitesStorage,
             isJointAccountsAvailable: false
         )
 
@@ -163,7 +146,6 @@ struct CommonJointAccountsRepositoryTests {
         }
 
         #expect(storage.accounts.isEmpty)
-        #expect(invitesStorage.records.isEmpty)
     }
 
     @Test("The reads asked for together amount to the one request that goes out")
@@ -356,7 +338,6 @@ private extension CommonJointAccountsRepositoryTests {
     static func makeSUT(
         networkService: JointAccountsNetworkService,
         storage: JointAccountsPersistentStorage,
-        invitesStorage: JointAccountsInvitesPersistentStorage = JointAccountsInvitesPersistentStorageStub(),
         pendingOperationsSynchronizer: JointAccountPendingOperationsSynchronizer = CommonJointAccountPendingOperationsSynchronizer(
             persistentStorage: JointAccountsPendingOperationsPersistentStorageStub()
         ),
@@ -368,7 +349,6 @@ private extension CommonJointAccountsRepositoryTests {
             networkService: networkService,
             derivationInteractorFactory: JointAccountDerivationInteractorFactory(),
             persistentStorage: storage,
-            invitesPersistentStorage: invitesStorage,
             pendingOperationsSynchronizer: pendingOperationsSynchronizer,
             eTagStorage: eTagStorage,
             isJointAccountsAvailable: isJointAccountsAvailable
@@ -403,14 +383,16 @@ private extension CommonJointAccountsRepositoryTests {
     static func storedAccount(
         cryptoAccountId: String = accountId,
         status: JointAccountStatus = .pending,
-        memberNames: [String] = ["Alice"]
+        memberNames: [String] = ["Alice"],
+        invites: [StoredJointAccount.Invite] = []
     ) -> StoredJointAccount {
         StoredJointAccount(
             cryptoAccountId: cryptoAccountId,
             membersCount: 3,
             threshold: 2,
             status: status,
-            members: members(named: memberNames)
+            members: members(named: memberNames),
+            invites: invites
         )
     }
 
@@ -418,6 +400,7 @@ private extension CommonJointAccountsRepositoryTests {
         cryptoAccountId: String = accountId,
         status: JointAccountStatus = .pending,
         memberNames: [String] = ["Alice"],
+        invites: [StoredJointAccount.Invite] = [],
         operations: [JointAccountOperation] = []
     ) -> RemoteJointAccount {
         RemoteJointAccount(
@@ -426,7 +409,7 @@ private extension CommonJointAccountsRepositoryTests {
             threshold: 2,
             status: status,
             members: members(named: memberNames),
-            invites: [],
+            invites: invites,
             operations: operations
         )
     }
@@ -499,51 +482,6 @@ private final class JointAccountsETagStorageStub: ETagStorage {
 
     func clearETag(for key: ETagStorageKey) {
         eTagLock.withLock { $0 = nil }
-    }
-}
-
-private final class JointAccountsInvitesPersistentStorageStub: JointAccountsInvitesPersistentStorage {
-    private let recordsLock: OSAllocatedUnfairLock<[StoredJointAccountInvites]>
-    private let didUpdateSubject = PassthroughSubject<Void, Never>()
-
-    var records: [StoredJointAccountInvites] {
-        recordsLock.withLock { $0 }
-    }
-
-    var didUpdatePublisher: AnyPublisher<Void, Never> {
-        didUpdateSubject.eraseToAnyPublisher()
-    }
-
-    init(records: [StoredJointAccountInvites] = []) {
-        recordsLock = OSAllocatedUnfairLock(initialState: records)
-    }
-
-    func getList() -> [StoredJointAccountInvites] {
-        records
-    }
-
-    convenience init(invites: [StoredJointAccountInvite], forCryptoAccountId cryptoAccountId: String) {
-        self.init(records: [StoredJointAccountInvites(cryptoAccountId: cryptoAccountId, invites: invites)])
-    }
-
-    func getInvites(forCryptoAccountId cryptoAccountId: String) -> [StoredJointAccountInvite]? {
-        recordsLock.withLock { records in
-            records.first { $0.cryptoAccountId.caseInsensitiveEquals(to: cryptoAccountId) }?.invites
-        }
-    }
-
-    func save(_ invites: [StoredJointAccountInvite], forCryptoAccountId cryptoAccountId: String) throws {
-        recordsLock.withLock { records in
-            let record = StoredJointAccountInvites(cryptoAccountId: cryptoAccountId, invites: invites)
-
-            if let index = records.firstIndex(where: { $0.cryptoAccountId.caseInsensitiveEquals(to: cryptoAccountId) }) {
-                records[index] = record
-            } else {
-                records.append(record)
-            }
-        }
-
-        didUpdateSubject.send()
     }
 }
 
