@@ -10,13 +10,6 @@ import SwiftUI
 
 extension CollectiblesPackRevealView {
     enum Motion {
-        static let videoFlashTime: Double = 7
-        static let videoEndTolerance: Double = 0.1
-        static let videoPollInterval: Duration = .milliseconds(30)
-        static let videoStallTimeout: Duration = .seconds(3)
-
-        static let cardWidthOfScreen: CGFloat = 0.577
-        static let cardAspect: CGFloat = 0.757
         static let cardCornerRadiusOfWidth: CGFloat = 0.043
         static let cardCenterOfScreenHeight: CGFloat = 0.403
         static let perspectiveOfScreenWidth: CGFloat = 1.923
@@ -26,16 +19,38 @@ extension CollectiblesPackRevealView {
         static let cardStartLift: CGFloat = 0.221
         static let cardPeakLift: CGFloat = -0.053
 
-        static let riseDuration: Duration = .milliseconds(2000)
-        static let landingTime: Duration = .milliseconds(800)
+        static let frameStartScale: CGFloat = 0.8
+        static let tapFlip: Animation = .easeInOut(duration: 0.42)
 
-        static let whiteOverlayFade: Animation = .timingCurve(0.30, 0.26, 0.14, 1.00, duration: 2)
-        static let rise: Animation = .timingCurve(0.25, 0, 0.20, 1, duration: 2)
-        static let settle: Animation = .timingCurve(0.80, 0, 0.20, 1, duration: 1.5)
-        static let spin: Animation = .timingCurve(0.60, 0, 0.10, 1, duration: 2.75)
-        static let tapSpin: Animation = .easeInOut(duration: 0.8)
+        static let chromeRiseOffset: CGFloat = 30
+        static let chromeRise: Animation = .timingCurve(0.25, 0.46, 0.45, 0.94, duration: 0.45)
+        static let chromeFade: Animation = .timingCurve(0.33, 1, 0.68, 1, duration: 0.25)
 
-        static let detailsOffset: CGFloat = 120
-        static let detailsAppearance: Animation = .timingCurve(0, 0, 0.2, 1, duration: 0.32)
+        static func appear(_ timing: Timing) -> Animation {
+            .timingCurve(0.30, 0.26, 0.14, 1.00, duration: timing.appear)
+        }
+
+        static func rise(_ timing: Timing) -> Animation {
+            .timingCurve(0.25, 0, 0.20, 1, duration: timing.rise)
+        }
+
+        static func settle(_ timing: Timing) -> Animation {
+            .timingCurve(0.80, 0, 0.20, 1, duration: timing.settle)
+        }
+
+        static func spin(_ timing: Timing) -> Animation {
+            .timingCurve(0.60, 0, 0.10, 1, duration: timing.spin)
+        }
+    }
+}
+
+// MARK: - Timing
+
+extension CollectiblesPackRevealView.Motion {
+    struct Timing {
+        let appear, rise, settle, spin, landing: Double
+
+        static let regular = Timing(appear: 2, rise: 2, settle: 1.5, spin: 2.75, landing: 0.8)
+        static let skipped = Timing(appear: 1.14, rise: 1.14, settle: 0.86, spin: 1.57, landing: 0.46)
     }
 }

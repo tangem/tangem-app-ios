@@ -12,7 +12,6 @@ protocol OnboardingRoutable: AnyObject {
     func onboardingDidFinish(userWalletModel: UserWalletModel?)
     func closeOnboarding()
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
-    func openWebView(with url: URL)
 }
 
 protocol OnboardingBrowserRoutable: AnyObject {

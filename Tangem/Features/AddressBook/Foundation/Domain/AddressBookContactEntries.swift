@@ -111,7 +111,5 @@ struct AddressBookContactAddressGroup: Hashable, Identifiable {
     struct Network: Hashable, Identifiable {
         let id: AddressBookAddressEntryID
         let blockchain: BSDKBlockchain
-
-        var networkId: AddressBookNetworkID { AddressBookNetworkID(blockchain.networkId) }
     }
 }

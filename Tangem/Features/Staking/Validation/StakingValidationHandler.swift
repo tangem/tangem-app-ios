@@ -102,21 +102,6 @@ final class StakingValidationHandler: StakingValidationStateProvider {
 
 // MARK: - Optional + StakingValidationHandler
 
-/// Resolves transaction with validation if handler exists, or falls back to direct `stakingManager.transaction()`.
-/// The handler is nil for networks out of validation scope.
-extension Optional where Wrapped == StakingValidationHandler {
-    func resolveTransaction(
-        action: StakingAction,
-        blockchain: Blockchain,
-        stakingManager: StakingManager
-    ) async throws -> StakingTransactionAction {
-        guard let self else {
-            return try await stakingManager.transaction(action: action)
-        }
-        return try await self.resolveTransaction(action: action, blockchain: blockchain)
-    }
-}
-
 // MARK: - RevalidationResult
 
 extension StakingValidationHandler {

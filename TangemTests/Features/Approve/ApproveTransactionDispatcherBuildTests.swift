@@ -109,8 +109,6 @@ private extension ApproveTransactionDispatcherBuildTests {
 private final class TransferTransactionDispatcherSpy: TransactionDispatcher {
     private(set) var sentTransactions: [TransactionDispatcherTransactionType] = []
 
-    var hasNFCInteraction: Bool { false }
-
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         sentTransactions.append(transaction)
         return TransactionDispatcherResult(hash: "hash", url: nil, signerType: "stub", currentHost: "host")

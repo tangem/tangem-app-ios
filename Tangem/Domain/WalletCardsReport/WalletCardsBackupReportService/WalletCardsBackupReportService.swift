@@ -31,13 +31,6 @@ extension WalletCardsBackupReportService {
         let processed = WalletCardsCurrentlyProcessedCard(cardInfo: cardInfo, role: .primary)
         reportCard(processed, primaryCardId: cardInfo.card.cardId)
     }
-
-    /// A card observed outside the ceremony — any scan in the app, including unlocking an existing wallet.
-    func reportScannedCard(cardInfo: CardInfo) {
-        // No ceremony primary to group under, so the card groups under itself.
-        let processed = WalletCardsCurrentlyProcessedCard(cardInfo: cardInfo, role: nil)
-        reportCard(processed, primaryCardId: cardInfo.card.cardId)
-    }
 }
 
 extension InjectedValues {

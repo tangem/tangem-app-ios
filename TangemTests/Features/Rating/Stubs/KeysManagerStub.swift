@@ -15,12 +15,7 @@ struct KeysManagerStub: KeysManager {
     var authServiceKey: String = ""
     let surveySparrow: SurveySparrowKeys = .stub
     let moonPayKeys: MoonPayKeys = .stub
-    let mercuryoWidgetId: String = ""
-    let mercuryoSecret: String = ""
     let blockchainSdkKeysConfig: BlockchainSdkKeysConfig = .stub
-    let tangemComAuthorization: String? = nil
-    let infuraProjectId: String = ""
-    let utorgSID: String = ""
     let walletConnectProjectId: String = ""
     let expressKeys: ExpressKeys = .stub
     let devExpressKeys: ExpressKeys? = nil
@@ -32,7 +27,6 @@ struct KeysManagerStub: KeysManager {
     let tangemApiKeyStage: String = ""
     let amplitudeApiKey: String = ""
     let otlpApiKey: String = ""
-    let appsFlyerConfig: AppsFlyerConfig = .stub
     let yieldModuleApiKey: String = "stub"
     let yieldModuleApiKeyDev: String = "stub"
     let p2pApiKeys: P2PAPIKeys = .stub

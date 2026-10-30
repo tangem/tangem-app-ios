@@ -31,14 +31,9 @@ enum TangemTokenRowConstants {
             static let font = Font.Tangem.Caption12.regular
             static let color: Color = .Tangem.Text.Neutral.tertiary
         }
-
-        enum PriceChange {
-            static let font = Font.Tangem.Caption12.regular
-        }
     }
 
     enum Spacings {
-        static let priceChangeIconSpacing: CGFloat = 4
         static let badgeSpacing: CGFloat = 4
     }
 }

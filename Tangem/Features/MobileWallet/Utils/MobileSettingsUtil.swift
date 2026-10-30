@@ -12,9 +12,6 @@ import TangemFoundation
 import TangemMobileWalletSdk
 
 final class MobileSettingsUtil {
-    @Injected(\.userWalletDismissedNotifications)
-    private var dismissedNotifications: UserWalletDismissedNotifications
-
     private var isAccessCodeFeatureAvailable: Bool {
         userWalletConfig.hasFeature(.userWalletAccessCode)
     }
@@ -34,8 +31,6 @@ final class MobileSettingsUtil {
     private var userWalletConfig: UserWalletConfig {
         userWalletModel.config
     }
-
-    private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
     private let backupStatusUtil: MobileBackupStatusUtil
     private let userWalletModel: UserWalletModel
@@ -75,48 +70,6 @@ extension MobileSettingsUtil {
             return .none
         }
     }
-
-    func calculateSeedPhraseState() async -> SeedPhraseState? {
-        switch await unlock() {
-        case .successful:
-            return .onboarding
-        case .canceled, .failed:
-            return .none
-        }
-    }
-}
-
-// MARK: - Upgrade notification
-
-extension MobileSettingsUtil {
-    func makeUpgradeNotificationInput(
-        onUpgrade: @escaping () -> Void,
-        onDismiss: @escaping () -> Void
-    ) -> NotificationViewInput {
-        let factory = NotificationsFactory()
-
-        let action: NotificationView.NotificationAction = { _ in
-            onUpgrade()
-        }
-
-        let buttonAction: NotificationView.NotificationButtonTapAction = { _, _ in }
-
-        let dismissAction: NotificationView.NotificationAction = { [weak self] _ in
-            self?.onUpgradeNotificationDismiss(onDismiss: onDismiss)
-        }
-
-        return factory.buildNotificationInput(
-            for: GeneralNotificationEvent.mobileUpgrade,
-            action: action,
-            buttonAction: buttonAction,
-            dismissAction: dismissAction
-        )
-    }
-
-    func onUpgradeNotificationDismiss(onDismiss: @escaping () -> Void) {
-        dismissedNotifications.add(userWalletId: userWalletModel.userWalletId, notification: .mobileUpgradeFromSettings)
-        onDismiss()
-    }
 }
 
 // MARK: - Unlocking
@@ -142,7 +95,6 @@ private extension MobileSettingsUtil {
                 assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
                 return .failed
             }
-
         } catch {
             return .failed
         }
@@ -167,9 +119,5 @@ extension MobileSettingsUtil {
     enum AccessCodeState {
         case needsBackup
         case onboarding(context: MobileWalletContext)
-    }
-
-    enum SeedPhraseState {
-        case onboarding
     }
 }

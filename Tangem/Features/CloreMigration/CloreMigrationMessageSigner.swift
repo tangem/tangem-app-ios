@@ -126,10 +126,6 @@ struct CloreMigrationMessageSigner {
 }
 
 extension CloreMigrationMessageSigner {
-    var requestData: Data {
-        Data(hex: message)
-    }
-
     func handle() async throws -> String {
         let messageHash = createMessageHash(message: dataToSign)
 

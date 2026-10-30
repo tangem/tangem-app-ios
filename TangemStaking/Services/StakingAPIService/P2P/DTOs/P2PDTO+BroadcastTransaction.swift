@@ -14,8 +14,6 @@ extension P2PDTO {
             let signedTransaction: String
         }
 
-        typealias Response = GenericResponse<BroadcastTransactionInfo>
-
         struct BroadcastTransactionInfo: Decodable {
             let hash: String
             let status: Status

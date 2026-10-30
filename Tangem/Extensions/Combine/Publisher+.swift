@@ -11,21 +11,6 @@ import SwiftUI
 import Combine
 import CombineExt
 
-extension Publisher where Output: Equatable {
-    var uiPublisher: AnyPublisher<Output, Failure> {
-        dropFirst()
-            .debounce(for: 0.6, scheduler: DispatchQueue.main)
-            .removeDuplicates()
-            .eraseToAnyPublisher()
-    }
-
-    var uiPublisherWithFirst: AnyPublisher<Output, Failure> {
-        debounce(for: 0.6, scheduler: DispatchQueue.main)
-            .removeDuplicates()
-            .eraseToAnyPublisher()
-    }
-}
-
 extension Publisher {
     /// An overload of the default `sink` method with the only `receiveValue` required closure.
     func receiveValue(_ receiveValue: @escaping ((Self.Output) -> Void)) -> AnyCancellable {
@@ -56,12 +41,6 @@ extension Publisher {
     }
 }
 
-extension Publisher where Output == Void, Failure == Error {
-    static var just: AnyPublisher<Output, Failure> {
-        Just(()).setFailureType(to: Failure.self).eraseToAnyPublisher()
-    }
-}
-
 extension Publisher where Output == Void, Failure == Never {
     static var just: AnyPublisher<Output, Failure> {
         .just(output: ())
@@ -74,7 +53,7 @@ extension Publisher where Failure == Never {
     /// be iterated over asynchronously using `for await`. The
     /// stream will yield each output value produced by the
     /// publisher and will finish once the publisher completes.
-    var values: AsyncStream<Output> {
+    var values_: AsyncStream<Output> {
         get async {
             AsyncStream { continuation in
                 var cancellable: AnyCancellable?
@@ -112,22 +91,6 @@ extension Publisher {
         scan((Output?, Output)?.none) { ($0?.1, $1) }
             .compactMap { $0 }
             .eraseToAnyPublisher()
-    }
-
-    /// Includes the current element as well as the previous element from the upstream publisher in a tuple where the previous element is not optional.
-    /// The first time the upstream publisher emits an element, the previous element will be the `initialPreviousValue`.
-    ///
-    ///     let range = (1...5)
-    ///     cancellable = range.publisher
-    ///         .withPrevious(0)
-    ///         .sink { print ("(\($0.previous), \($0.current))", terminator: " ") }
-    ///      // Prints: "(0, 1) (1, 2) (2, 3) (3, 4) (4, 5) ".
-    ///
-    /// - Parameter initialPreviousValue: The initial value to use as the "previous" value when the upstream publisher emits for the first time.
-    /// - Returns: A publisher of a tuple of the previous and current elements from the upstream publisher.
-    @available(iOS, deprecated: 100000.0, message: "Use `pairwise()` from CombineExt package instead.")
-    func withPrevious(_ initialPreviousValue: Output) -> AnyPublisher<(previous: Output, current: Output), Failure> {
-        scan((initialPreviousValue, initialPreviousValue)) { ($0.1, $1) }.eraseToAnyPublisher()
     }
 }
 

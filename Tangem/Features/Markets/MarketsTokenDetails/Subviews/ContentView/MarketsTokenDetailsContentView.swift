@@ -15,18 +15,12 @@ import TangemUIUtils
 struct MarketsTokenDetailsContentView: View {
     @ObservedObject var viewModel: MarketsTokenDetailsViewModel
 
-    @Environment(\.mainWindowSize) private var mainWindowSize
-
     private var shortDescription: String? {
         guard case .loaded(let model) = viewModel.state else {
             return nil
         }
 
         return model.shortDescription
-    }
-
-    private var blocksWidth: CGFloat {
-        mainWindowSize.width - Constants.contentHorizontalPadding * 2
     }
 
     var body: some View {

@@ -26,15 +26,7 @@ final class PriceAlertsSubscriptionsProviderStub: PriceAlertsSubscriptionsProvid
         subscriptionsSubject.eraseToAnyPublisher()
     }
 
-    var subscriptions: RemotePriceAlertsSubscriptions {
-        subscriptionsSubject.value
-    }
-
     nonisolated init() {}
-
-    func isSubscribed(tokenId: PriceAlertTokenId) -> Bool {
-        subscriptions.isSubscribed(tokenId: tokenId)
-    }
 
     func fetch() async throws {
         try await Task.sleep(for: Self.simulatedNetworkDelay)

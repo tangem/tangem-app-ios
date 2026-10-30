@@ -16,7 +16,6 @@ struct DashTestNetworkParams: UTXONetworkParams {
     // Don't use in this network
     let bech32Prefix: String = "bc"
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
-    let coinType: UInt32 = 1
 
     let dustCalculator: UTXONetworkParamsDustCalculator = .dashTestnet
 }

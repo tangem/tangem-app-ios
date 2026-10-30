@@ -27,5 +27,4 @@ import Foundation
 /// replaces number with its absolute value
 struct OpAbsolute: OpCodeProtocol {
     var value: UInt8 { return 0x90 }
-    var name: String { return "OP_ABS" }
 }

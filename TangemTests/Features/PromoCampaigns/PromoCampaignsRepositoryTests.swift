@@ -222,19 +222,6 @@ struct PromoCampaignsRepositoryTests {
         #expect(loader.requestedWallets.filter { $0.userWalletId == walletA }.count == 2)
     }
 
-    @Test("With promo campaigns unavailable nothing is requested at all")
-    func disabledRequestsNothing() async throws {
-        let loader = CampaignsLoaderStub()
-        let wallets = WalletsProviderStub([mobileWallet(walletA)])
-        let sut = makeSUT(wallets: wallets, loader: loader, isEnabled: false)
-
-        sut.initialize()
-        wallets.set([mobileWallet(walletA), mobileWallet(walletB)])
-        try await Task.sleep(nanoseconds: Constants.settleInterval)
-
-        #expect(loader.requestedWallets.isEmpty)
-    }
-
     @Test("Reloading a wallet already loaded asks about it again and publishes the fresh answer")
     func reloadRefreshesLoadedWallet() async throws {
         let loader = CampaignsLoaderStub()
@@ -402,13 +389,11 @@ private extension PromoCampaignsRepositoryTests {
     func makeSUT(
         wallets: WalletsProviderStub,
         loader: CampaignsLoaderStub,
-        isEnabled: Bool = true,
         retryCount: Int = 0
     ) -> PromoCampaignsRepository {
         PromoCampaignsRepository(
             walletsProvider: wallets,
             campaignsLoader: loader,
-            isEnabled: { isEnabled },
             retryCount: retryCount,
             retryInterval: { _ in Constants.retryInterval }
         )

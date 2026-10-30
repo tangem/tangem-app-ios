@@ -27,7 +27,7 @@ struct PriceAlertsView: View {
             }
         }
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = Colors.Background.tertiary
+            configuration.sheetBackground = .color(Colors.Background.tertiary)
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
     }

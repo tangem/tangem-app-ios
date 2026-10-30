@@ -54,7 +54,7 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
 
             // [REDACTED_INFO]: the field resigns focus on swap-state re-renders, so clear, refocus and retype until it sticks.
             for _ in 0 ..< 8 {
-                guard focusFromAmountField(field) else {
+                guard focusFromAmountFieldStably(field) else {
                     continue
                 }
                 let length = enteredFromAmountLength(field)
@@ -62,7 +62,7 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
                     field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: length))
                 }
                 // A swap-state re-render can resign focus between clearing and typing; refocus so typeText won't throw.
-                guard fromAmountFieldHasKeyboardFocus() || focusFromAmountField(field) else {
+                guard fromAmountFieldHasKeyboardFocus() || focusFromAmountFieldStably(field) else {
                     continue
                 }
                 field.typeText(amount)
@@ -750,15 +750,6 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     }
 
     @discardableResult
-    func verifyFinishScreenNotOpened(within timeout: TimeInterval) -> Self {
-        XCTContext.runActivity(named: "Verify finish screen is not opened while the transaction is pending") { _ in
-            let finishHeader = app.staticTexts[SendAccessibilityIdentifiers.finishHeader]
-            XCTAssertFalse(finishHeader.waitForExistence(timeout: timeout), "Finish screen should not be opened before the transaction hash arrives")
-        }
-        return self
-    }
-
-    @discardableResult
     func waitForErrorAlert() -> Self {
         XCTContext.runActivity(named: "Assert error alert is shown and finish screen is not opened") { _ in
             let alert = app.alerts[Constants.errorAlertTitle].firstMatch
@@ -923,6 +914,14 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
         waitForFieldEnabled(field)
         field.tap()
         return fromAmountFieldHasKeyboardFocus() || focusedFromAmountField.waitForExistence(timeout: Constants.keyboardFocusTimeout)
+    }
+
+    private func focusFromAmountFieldStably(_ field: XCUIElement) -> Bool {
+        guard focusFromAmountField(field) else {
+            return false
+        }
+        _ = app.keyboards.firstMatch.waitForExistence(timeout: Constants.keyboardFocusTimeout)
+        return !focusedFromAmountField.waitForNonExistence(timeout: Constants.focusSettleTimeout)
     }
 
     private func enteredFromAmountLength(_ field: XCUIElement) -> Int {
@@ -1490,6 +1489,7 @@ private extension SwapScreen {
         static let errorAlertTitle = "Error"
         static let errorAlertButton = "OK"
         static let keyboardFocusTimeout: TimeInterval = 3
+        static let focusSettleTimeout: TimeInterval = 1
         static let focusAttempts = 3
         static let confirmSwapAttempts = 3
         static let fiatSign = "$"

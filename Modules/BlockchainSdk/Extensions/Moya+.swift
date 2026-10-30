@@ -44,18 +44,3 @@ extension Moya.URLEncoding {
         )
     }
 }
-
-extension Moya.Response {
-    func tryMap<Output, Failure>(
-        output: Output.Type,
-        failure: Failure.Type,
-        using decoder: JSONDecoder = JSONDecoder(),
-        failsOnEmptyData: Bool = true
-    ) throws -> Output where Output: Decodable, Failure: Decodable, Failure: Error {
-        if let apiError = try? map(failure, using: decoder, failsOnEmptyData: failsOnEmptyData) {
-            throw apiError
-        }
-
-        return try map(output, using: decoder, failsOnEmptyData: failsOnEmptyData)
-    }
-}

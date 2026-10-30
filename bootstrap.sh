@@ -49,6 +49,14 @@ do
     shift
 done
 
+# SwiftPM clones every submodule of a package on checkout, so skip the ones our dependencies' builds
+# don't use to speed up package resolution.
+echo "🛠️ Configuring Git to skip unused submodules of SPM dependencies"
+# GRDB: only needed for custom SQLite builds, see https://github.com/groue/GRDB.swift/issues/182#issuecomment-284140434
+git config --global 'submodule.SQLiteCustom/src.update' none
+# yttrium (a reown-swift dependency): a WalletConnect test environment
+git config --global 'submodule.test/scripts/forked_state/mock-aa-environment.update' none
+
 echo "🔜 Check & Install dependencies..."
 
 if which -a brew > /dev/null; then

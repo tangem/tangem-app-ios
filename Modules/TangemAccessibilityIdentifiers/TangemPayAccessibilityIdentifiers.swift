@@ -20,6 +20,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let mainScreenTileCachedIcon = "\(prefix)MainScreenTileCachedIcon"
     public static let getTangemPayBanner = "\(prefix)GetTangemPayBanner"
     public static let getTangemPayBannerOpenButton = "\(prefix)GetTangemPayBannerOpenButton"
+    public static let feedBanner = "\(prefix)FeedBanner"
 
     // MARK: - Stale state notifications
 
@@ -71,7 +72,6 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let addFundsSheetReceiveOption = "\(prefix)AddFundsSheetReceiveOption"
     public static let addFundsSheetBankTransferOption = "\(prefix)AddFundsSheetBankTransferOption"
     public static let addFundsSheetCloseButton = "\(prefix)AddFundsSheetCloseButton"
-    public static let virtualAccountShowDetailsButton = "\(prefix)VirtualAccountShowDetailsButton"
     public static let virtualAccountOnboardingContinueButton = "\(prefix)VirtualAccountOnboardingContinueButton"
     public static let virtualAccountBankDetailsShareButton = "\(prefix)VirtualAccountBankDetailsShareButton"
     public static let virtualAccountFeeErrorBanner = "\(prefix)VirtualAccountFeeErrorBanner"

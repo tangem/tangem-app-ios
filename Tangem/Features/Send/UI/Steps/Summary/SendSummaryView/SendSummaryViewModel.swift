@@ -33,8 +33,6 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
 
     weak var router: SendSummaryStepsRoutable?
 
-    private var bag: Set<AnyCancellable> = []
-
     init(
         interactor: SendSummaryInteractor,
         settings: Settings,

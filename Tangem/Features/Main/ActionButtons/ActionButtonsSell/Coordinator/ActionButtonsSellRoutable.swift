@@ -9,10 +9,6 @@
 import Foundation
 
 protocol ActionButtonsSellRoutable: AnyObject {
-    func openSellCrypto(
-        at url: URL,
-        makeSellToSendToModel: @escaping (String) -> ActionButtonsSendToSellModel?
-    )
     func openTransfer(walletModel: any WalletModel, userWalletInfo: UserWalletInfo)
     func dismiss()
 }

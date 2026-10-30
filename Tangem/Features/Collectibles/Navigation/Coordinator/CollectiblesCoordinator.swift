@@ -12,6 +12,7 @@ import BlockchainSdk
 import TangemFoundation
 import TangemStories
 import TangemCollectibles
+import TangemUI
 
 final class CollectiblesCoordinator: CoordinatorObject {
     // MARK: - Properties
@@ -26,6 +27,7 @@ final class CollectiblesCoordinator: CoordinatorObject {
 
     private var accountModel: (any CollectiblesAccountModel)?
     private var userWalletID = ""
+    private var signingActionButtonType: SigningActionButtonViewType = .requiredNFCInteraction
 
     // [REDACTED_TODO_COMMENT]
     private var devnetUserWalletModel: (any UserWalletModel)?
@@ -50,6 +52,7 @@ final class CollectiblesCoordinator: CoordinatorObject {
     func start(with options: Options) {
         accountModel = options.accountModel
         userWalletID = options.userWalletModel.userWalletId.stringValue
+        signingActionButtonType = SigningActionButtonViewTypeBuilder().build(config: options.userWalletModel.config)
         devnetUserWalletModel = options.userWalletModel
 
         startFundsCoordinator(with: options)
@@ -63,10 +66,6 @@ final class CollectiblesCoordinator: CoordinatorObject {
             // [REDACTED_TODO_COMMENT]
             actionsMenu: CollectiblesActionsMenuViewModel(routable: self, devnet: makeDevnetMenuViewModel())
         )
-    }
-
-    func closeMachine() {
-        machineViewModel = nil
     }
 
     func closeConfirmOrder() {
@@ -86,6 +85,7 @@ extension CollectiblesCoordinator: CollectiblesMainRoutable {
     func openMachine(for pack: CollectiblesPack) {
         guard machineViewModel == nil else { return }
 
+        confirmOrderViewModel = nil
         machineViewModel = CollectiblesMachineViewModel(
             pack: pack,
             routable: self,
@@ -108,19 +108,58 @@ extension CollectiblesCoordinator: CollectiblesMainRoutable {
 }
 
 extension CollectiblesCoordinator: CollectiblesMachineRoutable {
-    // [REDACTED_TODO_COMMENT]
-    func openConfirmOrder(machineID: String, machine: CollectiblesMachine, isTurboModeOn _: Bool) {
+    func openConfirmOrder(machineID: String, machine: CollectiblesMachine, isTurboModeOn: Bool) {
         guard confirmOrderViewModel == nil, let accountModel else { return }
 
         confirmOrderViewModel = CollectiblesConfirmOrderViewModel(
             machineID: machineID,
             machine: machine,
+            isTurboModeOn: isTurboModeOn,
             usdcBalanceProvider: accountModel.usdcTokenBalanceProvider,
             purchaseInteractor: accountModel.purchaseInteractor,
+            routable: self,
+            revealAssetsPreloader: RemoteCollectiblesRevealAssetsPreloader(openingMedia: machine.openingMedia),
             refreshBalance: accountModel.refreshState
         )
     }
 }
+
+// MARK: - CollectiblesConfirmOrderRoutable
+
+extension CollectiblesCoordinator: CollectiblesConfirmOrderRoutable {
+    func openPackReveal(wonCard: CollectiblesWonCard, assets: CollectiblesRevealAssets) {
+        guard let accountModel else { return }
+
+        let offerProvider = RemoteCollectiblesBuybackOfferProvider(
+            userWalletID: userWalletID,
+            requester: CollectiblesAPIService()
+        )
+        let revealViewModel = CollectiblesPackRevealViewModel(
+            darkVideoURL: assets.darkVideoURL,
+            lightVideoURL: assets.lightVideoURL,
+            wonCard: wonCard,
+            player: AVCollectiblesRevealPlayer(skipAudioURL: assets.skipAudioURL),
+            offerProvider: offerProvider,
+            buybackInteractor: accountModel.buybackInteractor,
+            signingActionButtonType: signingActionButtonType,
+            routable: self,
+            refreshBalance: accountModel.refreshState
+        )
+        confirmOrderViewModel?.show(reveal: revealViewModel)
+    }
+
+    func returnToMachine() {
+        closeConfirmOrder()
+    }
+
+    func closePackFlow() {
+        machineViewModel = nil
+    }
+}
+
+// MARK: - CollectiblesPackRevealRoutable
+
+extension CollectiblesCoordinator: CollectiblesPackRevealRoutable {}
 
 // MARK: - Private logic
 
@@ -142,7 +181,7 @@ private extension CollectiblesCoordinator {
     func open(_ destination: Options.Destination) {
         switch destination {
         case .welcome:
-            state = .welcome(CollectiblesWelcomeViewModel(routable: self, onboarder: accountModel))
+            state = .welcome(CollectiblesWelcomeViewModel(routable: self, onboarder: accountModel, signingActionButtonType: signingActionButtonType))
         case .main:
             Task { @MainActor [weak self] in self?.openMain() }
         }

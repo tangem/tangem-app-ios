@@ -77,28 +77,6 @@ public extension AnyPublisher where Output == Response, Failure == MoyaError {
 }
 
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-extension AnyPublisher where Output == ProgressResponse, Failure == MoyaError {
-    /**
-     Filter completed progress response and maps to actual response
-
-     - returns: response associated with ProgressResponse object
-     */
-    func filterCompleted() -> AnyPublisher<Response, MoyaError> {
-        return compactMap { $0.response }
-            .eraseToAnyPublisher()
-    }
-
-    /**
-     Filter progress events of current ProgressResponse
-
-     - returns: observable of progress events
-     */
-    func filterProgress() -> AnyPublisher<Double, MoyaError> {
-        return filter { !$0.completed }
-            .map { $0.progress }
-            .eraseToAnyPublisher()
-    }
-}
 
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension AnyPublisher where Failure == MoyaError {

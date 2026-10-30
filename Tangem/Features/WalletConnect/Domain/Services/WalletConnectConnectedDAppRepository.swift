@@ -15,7 +15,6 @@ protocol WalletConnectConnectedDAppRepository {
 
     func save(dApp: WalletConnectConnectedDApp) async throws(WalletConnectDAppPersistenceError)
 
-    func getDApp(with sessionTopic: String) async throws(WalletConnectDAppPersistenceError) -> WalletConnectConnectedDApp
     func getDApps(with sessionTopic: String) async throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp]
     func getDApps(forUserWalletId userWalletId: String) async throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp]
     func getAllDApps() async throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp]
