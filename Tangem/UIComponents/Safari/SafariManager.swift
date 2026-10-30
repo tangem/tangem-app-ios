@@ -73,12 +73,12 @@ class CommonSafariManager: NSObject, SafariManager {
         onSuccess: @escaping (URL) -> Void
     ) -> SafariHandle? {
         guard url.isWebURL else {
-            AppLogger.warning("Can't open a non-web URL in Safari: \(url)")
+            AppLogger.warning("Can't open a non-web URL in Safari: \(url.absoluteStringWithoutQuery ?? "")")
             onDismiss()
             return nil
         }
 
-        AppLogger.info("Open URL: \(url)")
+        AppLogger.info("Open URL: \(url.absoluteStringWithoutQuery ?? "")")
         let controller = SFSafariViewController(url: url)
         controller.modalPresentationStyle = .pageSheet
         controller.dismissButtonStyle = configuration.dismissButtonStyle.sfDismissButtonStyle

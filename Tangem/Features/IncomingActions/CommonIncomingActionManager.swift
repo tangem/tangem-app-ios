@@ -33,7 +33,7 @@ class CommonIncomingActionManager {
 
     @discardableResult
     private func _handleIncomingURL(_ url: URL) -> Bool {
-        AppLogger.info("Received deeplink: \(url.absoluteString)")
+        AppLogger.info("Received deeplink: \(url.absoluteStringWithoutQuery ?? "")")
 
         guard let action = parser.parseIncomingURL(url) else {
             return false
