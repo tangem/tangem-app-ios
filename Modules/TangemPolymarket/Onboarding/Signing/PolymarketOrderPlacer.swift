@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 public protocol PolymarketOrderDigestSigning {
     func sign(digest: Data) async throws -> String
@@ -25,10 +26,16 @@ public protocol PolymarketOrderPlacing {
 public struct PolymarketOrderPlacer {
     private let clobService: PolymarketCLOBService
     private let digestSigner: PolymarketOrderDigestSigning
+    private let delayProvider: PollDelayProvider
 
-    public init(clobService: PolymarketCLOBService, digestSigner: PolymarketOrderDigestSigning) {
+    public init(
+        clobService: PolymarketCLOBService,
+        digestSigner: PolymarketOrderDigestSigning,
+        delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
+    ) {
         self.clobService = clobService
         self.digestSigner = digestSigner
+        self.delayProvider = delayProvider
     }
 }
 
@@ -60,13 +67,30 @@ extension PolymarketOrderPlacer: PolymarketOrderPlacing {
                 depositWalletAddress: options.depositWalletAddress
             )
 
-            let inner = try await digestSigner.sign(digest: digest)
+            let inner: String
 
-            signature = try PolymarketOrderSigning.wrap(
+            switch options.signing {
+            case .depositWallet:
+                inner = try await digestSigner.sign(digest: digest)
+            case .sessionKey(_, let sessionKeySigner):
+                inner = try await sessionKeySigner.sign(digest: digest)
+            }
+
+            let wrapped = try PolymarketOrderSigning.wrap(
                 signature: inner,
                 order: order,
                 domain: domain
             )
+
+            switch options.signing {
+            case .depositWallet:
+                signature = wrapped
+            case .sessionKey(let sessionKeyAddress, _):
+                signature = try PolymarketSessionKeySignature.envelope(
+                    depositWalletSignature: wrapped,
+                    sessionKeyAddress: sessionKeyAddress
+                )
+            }
         } catch let error as CancellationError {
             throw error
         } catch {
@@ -77,10 +101,10 @@ extension PolymarketOrderPlacer: PolymarketOrderPlacing {
             try await refreshPositionBalance(options)
         }
 
-        return try await clobService.placeOrder(
+        return try await send(
             PolymarketSignedOrder(order: order, signature: signature),
-            credentials: options.credentials,
-            ownerAddress: options.ownerAddress
+            options: options,
+            resendLimit: options.signing.resendLimit
         )
     }
 
@@ -96,6 +120,37 @@ extension PolymarketOrderPlacer: PolymarketOrderPlacing {
 // MARK: - Private implementation
 
 private extension PolymarketOrderPlacer {
+    enum Constants {
+        static let sessionKeyResendLimit = 2
+        static let resendDelaySeconds: TimeInterval = 1
+    }
+
+    func send(
+        _ signedOrder: PolymarketSignedOrder,
+        options: Options,
+        resendLimit: Int
+    ) async throws -> PolymarketOrderPlacement {
+        var resends = 0
+
+        while true {
+            do {
+                return try await clobService.placeOrder(
+                    signedOrder,
+                    credentials: options.credentials,
+                    ownerAddress: options.ownerAddress
+                )
+            } catch let error as PolymarketOrderPlacementError where error.neverReachedTheExchange && resends < resendLimit {
+                resends += 1
+                PolymarketLogger.warning("The signed order never reached the exchange, sending the same order again (\(resends) of \(resendLimit))")
+                try await delayProvider.wait(for: Constants.resendDelaySeconds)
+                try Task.checkCancellation()
+            } catch PolymarketOrderPlacementError.rejected(let message) where resends > 0 {
+                PolymarketLogger.warning("The exchange refused a resent order, an earlier copy of it may already be on the book")
+                throw PolymarketOrderPlacementError.ambiguous(underlying: PolymarketOrderPlacementError.rejected(message: message))
+            }
+        }
+    }
+
     func refreshPositionBalance(_ options: Options) async throws {
         guard let asset = PolymarketBalanceAllowanceAsset.position(tokenId: options.assetId, version: options.quote.version) else {
             return
@@ -125,6 +180,7 @@ public extension PolymarketOrderPlacer {
         public let ownerAddress: String
         public let depositWalletAddress: String
         public let credentials: PolymarketL2Credentials
+        public let signing: Signing
 
         public init(
             quote: PolymarketOrderQuote,
@@ -132,7 +188,8 @@ public extension PolymarketOrderPlacer {
             isNegRisk: Bool,
             ownerAddress: String,
             depositWalletAddress: String,
-            credentials: PolymarketL2Credentials
+            credentials: PolymarketL2Credentials,
+            signing: Signing = .depositWallet
         ) {
             self.quote = quote
             self.assetId = assetId
@@ -140,6 +197,31 @@ public extension PolymarketOrderPlacer {
             self.ownerAddress = ownerAddress
             self.depositWalletAddress = depositWalletAddress
             self.credentials = credentials
+            self.signing = signing
         }
+    }
+
+    enum Signing {
+        case depositWallet
+        case sessionKey(address: String, signer: any PolymarketOrderDigestSigning)
+    }
+}
+
+// MARK: - Resending
+
+private extension PolymarketOrderPlacer.Signing {
+    var resendLimit: Int {
+        switch self {
+        case .depositWallet: 0
+        case .sessionKey: PolymarketOrderPlacer.Constants.sessionKeyResendLimit
+        }
+    }
+}
+
+private extension PolymarketOrderPlacementError {
+    var neverReachedTheExchange: Bool {
+        guard case .notSent(let underlying) = self else { return false }
+
+        return (underlying as? PolymarketAPIError)?.neverReachedTheServer == true
     }
 }
