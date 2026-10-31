@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 public enum PolymarketAPIError: Error, LocalizedError {
     case http(statusCode: Int, problemDetail: PolymarketProblemDetail?)
@@ -85,5 +86,30 @@ public extension PolymarketAPIError {
         guard case .http(let statusCode, _) = self else { return false }
 
         return (400 ..< 500).contains(statusCode)
+    }
+
+    var neverReachedTheServer: Bool {
+        guard case .connection(let underlying) = self, let code = underlying.networkErrorCode else {
+            return false
+        }
+
+        return Constants.unreachableCodes.contains(code)
+    }
+}
+
+// MARK: - Constants
+
+private extension PolymarketAPIError {
+    enum Constants {
+        static let unreachableCodes: Set<URLError.Code> = [
+            .notConnectedToInternet,
+            .cannotFindHost,
+            .cannotConnectToHost,
+            .dnsLookupFailed,
+            .secureConnectionFailed,
+            .appTransportSecurityRequiresSecureConnection,
+            .internationalRoamingOff,
+            .dataNotAllowed,
+        ]
     }
 }
