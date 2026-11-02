@@ -136,11 +136,14 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
             bucketSizeDays: nil
         )
 
+        let buckets = chartData.data.sorted { $0.start < $1.start }
+        let apyValues = buckets.map { $0.avgApy.doubleValue }
+
         return YieldChartData(
-            buckets: chartData.data.map { $0.avgApy.doubleValue },
+            buckets: apyValues,
             averageApy: chartData.avr,
-            maxApy: chartData.data.map { $0.avgApy.doubleValue }.max() ?? 0,
-            xLabels: yieldModuleChartManager.makeMonthLabels(from: chartData.from, to: chartData.to, bucketsCount: chartData.data.count)
+            maxApy: apyValues.max() ?? 0,
+            xTicks: yieldModuleChartManager.makeMonthTicks(bucketStarts: buckets.map(\.start))
         )
     }
 
