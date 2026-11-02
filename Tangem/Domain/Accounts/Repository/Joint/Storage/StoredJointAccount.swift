@@ -51,4 +51,17 @@ extension StoredJointAccount {
             invites: remote.invites
         )
     }
+
+    func replacingInvite(_ invite: Invite) -> StoredJointAccount {
+        let otherInvites = invites.filter { $0.slot != invite.slot }
+
+        return StoredJointAccount(
+            cryptoAccountId: cryptoAccountId,
+            membersCount: membersCount,
+            threshold: threshold,
+            status: status,
+            members: members,
+            invites: otherInvites + [invite]
+        )
+    }
 }

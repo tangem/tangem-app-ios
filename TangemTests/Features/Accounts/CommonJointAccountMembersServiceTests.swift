@@ -92,15 +92,15 @@ struct CommonJointAccountMembersServiceTests {
     @Test("An invite is issued for the slot of the account and handed on as a link, with its expiry")
     func inviteIsIssuedForTheAccount() async throws {
         let inviteURL = try #require(URL(string: "https://tangem.com/joint-account/join/A1B2C3"))
-        let (sut, _, networkService) = Self.makeIssuingSUT(
+        let (sut, repository) = Self.makeIssuingSUT(
             answer: .success(JointAccountIssuedInvite(id: "A1B2C3", slot: JointAccountMemberSlotID(2), expiresAt: Self.later))
         )
 
         let invite = try await sut.issueInvite(slot: JointAccountMemberSlotID(2))
 
         #expect(invite == JointAccountInvite(id: "A1B2C3", url: inviteURL, expiresAt: Self.later))
-        #expect(networkService.issuedInviteRequests == [
-            JointAccountsNetworkServiceStub.IssueInviteRequest(
+        #expect(repository.issuedInviteRequests == [
+            JointAccountsRepositoryStub.IssueInviteRequest(
                 cryptoAccountId: CryptoAccountModelId(
                     userWalletId: JointAccountCompositionFixture.userWalletId,
                     derivationIdentity: JointAccountCompositionFixture.derivationIdentity
@@ -115,7 +115,7 @@ struct CommonJointAccountMembersServiceTests {
         arguments: [TangemAPIError.ErrorCode.forbidden, .notFound, .conflict]
     )
     func unavailableSlotReadsTheAccountAgain(code: TangemAPIError.ErrorCode) async {
-        let (sut, repository, _) = Self.makeIssuingSUT(answer: .failure(TangemAPIError(code: code)))
+        let (sut, repository) = Self.makeIssuingSUT(answer: .failure(TangemAPIError(code: code)))
 
         await #expect {
             _ = try await sut.issueInvite(slot: JointAccountMemberSlotID(2))
@@ -132,7 +132,7 @@ struct CommonJointAccountMembersServiceTests {
 
     @Test("Any other failure is handed on as it is, with nothing read again")
     func otherFailureIsHandedOn() async {
-        let (sut, repository, _) = Self.makeIssuingSUT(answer: .failure(TangemAPIError(code: .badRequest)))
+        let (sut, repository) = Self.makeIssuingSUT(answer: .failure(TangemAPIError(code: .badRequest)))
 
         await #expect {
             _ = try await sut.issueInvite(slot: JointAccountMemberSlotID(2))
@@ -218,16 +218,16 @@ private extension CommonJointAccountMembersServiceTests {
 
     static func makeIssuingSUT(
         answer: Result<JointAccountIssuedInvite, Error>
-    ) -> (sut: CommonJointAccountMembersService, repository: JointAccountsRepositoryStub, networkService: JointAccountsNetworkServiceStub) {
+    ) -> (sut: CommonJointAccountMembersService, repository: JointAccountsRepositoryStub) {
         let repository = JointAccountsRepositoryStub(
             jointAccounts: [
                 JointAccountCompositionFixture.storedAccount(status: .pending, membersCount: 3, members: [creator], memberSlots: [0]),
-            ]
+            ],
+            issuedInviteAnswer: answer
         )
-        let networkService = JointAccountsNetworkServiceStub(issuedInviteAnswer: answer)
-        let sut = JointAccountCompositionFixture.makeMembersService(repository: repository, networkService: networkService)
+        let sut = JointAccountCompositionFixture.makeMembersService(repository: repository)
 
-        return (sut, repository, networkService)
+        return (sut, repository)
     }
 
     static let derivedAddress = "0x6ECa00c52AFC728CDbF42E817d712e175bb23C7d"

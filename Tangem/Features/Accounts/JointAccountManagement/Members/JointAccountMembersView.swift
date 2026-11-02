@@ -50,11 +50,15 @@ struct JointAccountMembersView: View {
             JointAccountHeaderTitle(title: text, subtitle: subtitle)
                 .padding(.top, Constants.titleTopPadding)
                 .padding(.horizontal, Constants.titleHorizontalPadding)
+                .id(viewModel.title)
+                .transition(.blurSwap)
 
-            JointAccountMembersSummaryView(
-                summary: viewModel.summary,
-                onApprovalsInfoTap: viewModel.onApprovalsInfoTap
-            )
+            if let summary = viewModel.summary {
+                JointAccountMembersSummaryView(
+                    summary: summary,
+                    onApprovalsInfoTap: viewModel.onApprovalsInfoTap
+                )
+            }
 
             VStack(alignment: .leading, spacing: Constants.rowSpacing) {
                 Text(Localization.jointAccountMembersTitle)
@@ -74,6 +78,7 @@ struct JointAccountMembersView: View {
     private var slots: some View {
         ForEach(viewModel.slots) { slot in
             JointAccountMembersViewSlotView(viewModel: slot)
+                .transition(.blurSwap)
         }
     }
 
@@ -82,10 +87,13 @@ struct JointAccountMembersView: View {
         if viewModel.footer != nil || viewModel.actions.isNotEmpty {
             VStack(spacing: Constants.footerSpacing) {
                 if let footer = viewModel.footer {
-                    Text(footer)
+                    Text(footer.text)
                         .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: .infinity)
+                        .contentTransition(.numericText(countsDown: true))
+                        .id(footer.sentence)
+                        .transition(.blurSwap)
                 }
 
                 ForEach(viewModel.actions, id: \.self) { action in
@@ -108,13 +116,13 @@ struct JointAccountMembersView: View {
     private func actionButton(_ action: JointAccountMembersViewModel.Action) -> some View {
         switch action {
         case .confirmSharedAddress(let isEnabled):
-            SigningActionButtonView(
-                type: viewModel.signingActionButtonType,
-                title: Localization.jointAccountConfirmSharedAddress,
-                isLoading: viewModel.isActivating,
-                isDisabled: !isEnabled,
-                action: { viewModel.onActionTap(action) }
-            )
+            TangemUI.Button(label: Localization.jointAccountConfirmSharedAddress, accessibilityLabel: nil) {
+                viewModel.onActionTap(action)
+            }
+            .styleType(.primary)
+            .size(.x12)
+            .horizontalLayout(.infinity)
+            .disabled(!isEnabled)
         }
     }
 }

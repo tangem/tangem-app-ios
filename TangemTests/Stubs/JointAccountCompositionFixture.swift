@@ -55,7 +55,6 @@ enum JointAccountCompositionFixture {
 
     static func makeMembersService(
         repository: JointAccountsRepository,
-        networkService: JointAccountsNetworkService = JointAccountsNetworkServiceStub(),
         userRoleService: JointAccountUserRoleService? = nil,
         keysProvider: KeysProvider = KeysRepositoryTestsMock(keys: [])
     ) -> CommonJointAccountMembersService {
@@ -63,7 +62,6 @@ enum JointAccountCompositionFixture {
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
             jointAccountsRepository: repository,
-            networkService: networkService,
             userRoleService: userRoleService ?? makeUserRoleService(repository: repository, keysProvider: keysProvider)
         )
     }

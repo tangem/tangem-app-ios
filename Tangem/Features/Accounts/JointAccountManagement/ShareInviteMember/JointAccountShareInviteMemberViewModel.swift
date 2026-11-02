@@ -11,26 +11,26 @@ import TangemFoundation
 import TangemLocalization
 
 final class JointAccountShareInviteMemberViewModel: Identifiable {
-    let message: String
-    let link: String
+    var message: String { inviteActivityItemSource.message }
+    var link: String { [inviteActivityItemSource.url.host, inviteActivityItemSource.url.path].compactMap { $0 }.joined() }
 
-    private let shareMessage: String
+    private let inviteActivityItemSource: JointAccountInviteActivityItemSource
     private let copyHelper = JointAccountCopyHelper()
     private weak var coordinator: JointAccountShareInviteMemberRoutable?
 
-    init(accountName: String, url: URL, coordinator: JointAccountShareInviteMemberRoutable?) {
+    init(
+        inviteActivityItemSource: JointAccountInviteActivityItemSource,
+        coordinator: JointAccountShareInviteMemberRoutable?
+    ) {
+        self.inviteActivityItemSource = inviteActivityItemSource
         self.coordinator = coordinator
-
-        message = Localization.jointAccountInviteMemberMessage(accountName, "").trimmed()
-        link = [url.host, url.path].compactMap { $0 }.joined()
-        shareMessage = Localization.jointAccountInviteMemberMessage(accountName, url.absoluteString)
     }
 
     func onShareTap() {
-        coordinator?.shareInvite(message: shareMessage)
+        coordinator?.shareInvite(item: inviteActivityItemSource)
     }
 
     func onMessageTap() {
-        copyHelper.copy(shareMessage, toast: Localization.commonValueCopied)
+        copyHelper.copy(inviteActivityItemSource.shareMessage, toast: Localization.commonValueCopied)
     }
 }
