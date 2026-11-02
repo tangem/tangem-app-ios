@@ -9,5 +9,5 @@
 import Foundation
 
 protocol JointAccountShareInviteMemberRoutable: AnyObject {
-    func shareInvite(message: String)
+    func shareInvite(item: JointAccountInviteActivityItemSource)
 }

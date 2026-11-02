@@ -147,8 +147,10 @@ private extension JointAccountShareInviteMemberView {
             content: {
                 JointAccountShareInviteMemberView(
                     viewModel: JointAccountShareInviteMemberViewModel(
-                        accountName: "Family savings",
-                        url: URL(string: "https://tangem.com/joint-account/join/0EB4F7E48E9DC3F")!,
+                        inviteActivityItemSource: JointAccountInviteActivityItemSource(
+                            accountName: "Family savings",
+                            url: URL(string: "https://tangem.com/joint-account/join/0EB4F7E48E9DC3F")!
+                        ),
                         coordinator: nil
                     )
                 )

@@ -29,6 +29,9 @@ protocol JointAccountsRepository {
     /// answers.
     func loadJointAccountsFromRemote() async throws
 
+    /// Re-reads the list every few seconds for as long as the returned token is held, for a screen watching members
+    /// join or confirm; once the last token is dropped the polling falls back to its regular pace, or stops when no
+    /// account is waiting on anything.
     func requestFrequentUpdates() -> AnyCancellable
 
     /// Derives the key the account is signed with, has the backend create it and stores what it reports back.
@@ -42,4 +45,10 @@ protocol JointAccountsRepository {
     /// - Note: The creator's to do, and only once every slot is taken. Repeating it on an account that is active
     /// already succeeds, so a lost answer costs a repeat and no more.
     func activateJointAccount(withConfig config: JointAccountActivationConfig) async throws
+
+    /// Has the backend issue an invite into a free slot of an account this wallet created and stores it beside the
+    /// account's other invites, so the slot reads as invited before the list is read again.
+    /// - Note: One invite per slot: issuing another replaces the one stored for that slot. The endpoint turns away a
+    /// slot that is taken, an account past the pending stage and a wallet other than the creator's.
+    func issueInvite(cryptoAccountId: String, slot: JointAccountMemberSlotID) async throws -> JointAccountIssuedInvite
 }

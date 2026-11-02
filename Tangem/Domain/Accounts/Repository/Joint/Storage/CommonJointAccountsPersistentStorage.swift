@@ -94,6 +94,25 @@ extension CommonJointAccountsPersistentStorage: JointAccountsPersistentStorage {
         }
     }
 
+    func updateInvite(_ invite: StoredJointAccount.Invite, ofAccountWith cryptoAccountId: String) throws {
+        try workingQueue.sync(flags: .barrier) {
+            let currentAccounts = unsafeFetch()
+
+            guard let index = currentAccounts.firstIndex(by: cryptoAccountId) else {
+                return
+            }
+
+            var editedAccounts = currentAccounts
+            editedAccounts[index] = currentAccounts[index].replacingInvite(invite)
+
+            guard editedAccounts != currentAccounts else {
+                return
+            }
+
+            try unsafeSave(editedAccounts)
+        }
+    }
+
     func replace(with accounts: [StoredJointAccount]) throws {
         try workingQueue.sync(flags: .barrier) {
             guard accounts != unsafeFetch() else {

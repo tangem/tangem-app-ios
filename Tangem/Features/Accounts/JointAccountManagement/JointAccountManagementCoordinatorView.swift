@@ -27,6 +27,12 @@ struct JointAccountManagementCoordinatorView: View {
             ) {
                 JointAccountMemberDetailsView(viewModel: $0)
             }
+            .modal(
+                item: $coordinator.shareInviteMemberViewModel,
+                navigation: { _ in .title(Localization.jointAccountInviteMemberTitle) }
+            ) {
+                JointAccountShareInviteMemberView(viewModel: $0)
+            }
     }
 
     @ViewBuilder

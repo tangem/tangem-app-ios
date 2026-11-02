@@ -52,6 +52,42 @@ struct CommonJointAccountsRepositoryTests {
         #expect(storage.accounts.map(\.invites) == [[], [invite]])
     }
 
+    @Test("An issued invite replaces the one stored for its slot and leaves the invites of the other slots alone")
+    func issuedInviteReplacesTheOneOfItsSlot() async throws {
+        let previousInvite = StoredJointAccount.Invite(slot: JointAccountMemberSlotID(1), expiresAt: Date(timeIntervalSince1970: 1_793_188_800))
+        let otherSlotInvite = StoredJointAccount.Invite(slot: JointAccountMemberSlotID(2), expiresAt: Date(timeIntervalSince1970: 1_793_275_200))
+        let issuedInvite = JointAccountIssuedInvite(
+            id: "7C1D5E9B3A8F2064D7E1C3A5B9F8027E",
+            slot: JointAccountMemberSlotID(1),
+            expiresAt: Date(timeIntervalSince1970: 1_793_361_600)
+        )
+        let storage = JointAccountsPersistentStorageStub(accounts: [Self.storedAccount(invites: [previousInvite, otherSlotInvite])])
+        let networkService = JointAccountsNetworkServiceStub(issuedInviteAnswer: .success(issuedInvite))
+        let sut = Self.makeSUT(networkService: networkService, storage: storage)
+
+        let invite = try await sut.issueInvite(cryptoAccountId: Self.accountId, slot: JointAccountMemberSlotID(1))
+
+        #expect(invite == issuedInvite)
+        #expect(storage.accounts.map(\.invites) == [[
+            otherSlotInvite,
+            StoredJointAccount.Invite(slot: issuedInvite.slot, expiresAt: issuedInvite.expiresAt),
+        ]])
+    }
+
+    @Test("An invite the endpoint refused to issue leaves the stored account as it was")
+    func refusedInviteLeavesTheStoredAccountAlone() async {
+        let invite = StoredJointAccount.Invite(slot: JointAccountMemberSlotID(1), expiresAt: Date(timeIntervalSince1970: 1_793_275_200))
+        let storage = JointAccountsPersistentStorageStub(accounts: [Self.storedAccount(invites: [invite])])
+        let networkService = JointAccountsNetworkServiceStub(issuedInviteAnswer: .failure(TestError.failedToRead))
+        let sut = Self.makeSUT(networkService: networkService, storage: storage)
+
+        await #expect(throws: TestError.failedToRead) {
+            try await sut.issueInvite(cryptoAccountId: Self.accountId, slot: JointAccountMemberSlotID(1))
+        }
+
+        #expect(storage.accounts.map(\.invites) == [[invite]])
+    }
+
     @Test("The operations riding inside an account are stored apart from it")
     func pendingOperationsAreStoredApartFromTheAccount() async throws {
         let operation = Self.operation()
@@ -515,6 +551,18 @@ private final class JointAccountsPersistentStorageStub: JointAccountsPersistentS
             } else {
                 accounts.append(account)
             }
+        }
+
+        didUpdateSubject.send()
+    }
+
+    func updateInvite(_ invite: StoredJointAccount.Invite, ofAccountWith cryptoAccountId: String) throws {
+        accountsLock.withLock { accounts in
+            guard let index = accounts.firstIndex(by: cryptoAccountId) else {
+                return
+            }
+
+            accounts[index] = accounts[index].replacingInvite(invite)
         }
 
         didUpdateSubject.send()
