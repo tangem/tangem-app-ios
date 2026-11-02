@@ -336,6 +336,10 @@ private extension CommonJointAccountOperationsServiceTests {
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             membersService: JointAccountMembersServiceMock(slots: slots),
+            finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
+                pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
+                walletModelsManager: WalletModelsManagerMock()
+            ),
             userRoleService: JointAccountUserRoleServiceMock(address: Constants.members[1]),
             delegate: delegate
         )

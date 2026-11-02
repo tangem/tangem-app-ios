@@ -67,8 +67,7 @@ class SendSourceTokenStub: SendSourceToken {
 
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { nil }
     var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { ReceivingRestrictionsProviderStub(result: receivingRestriction) }
-    var isTangemPayAccount: Bool { false }
-    var jointAccountPolicy: JointAccountPolicy? { nil }
+    var accountType: SendSourceTokenAccountType { .crypto }
 }
 
 // MARK: - TokenBalanceProvider

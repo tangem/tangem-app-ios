@@ -157,10 +157,6 @@ final class SendViewModel: ObservableObject {
         }
     }
 
-    func mainButtonTitle(mainButtonType: SendMainButtonType) -> String {
-        mainButtonUIOptionsProvider.mainButtonTitle(mainButtonType: mainButtonType, flowActionType: flowActionType)
-    }
-
     func mainButtonSigningActionButtonType(mainButtonType: SendMainButtonType) -> SigningActionButtonViewType? {
         mainButtonUIOptionsProvider.mainButtonSigningActionButtonType(mainButtonType: mainButtonType, flowActionType: flowActionType)
     }

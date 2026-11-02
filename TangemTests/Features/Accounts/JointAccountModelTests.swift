@@ -59,6 +59,10 @@ private extension JointAccountModelTests {
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             membersService: JointAccountMembersServiceMock(),
+            finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
+                pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
+                walletModelsManager: WalletModelsManagerMock()
+            ),
             userRoleService: JointAccountUserRoleServiceMock(creator: isCreator),
             delegate: delegate
         )

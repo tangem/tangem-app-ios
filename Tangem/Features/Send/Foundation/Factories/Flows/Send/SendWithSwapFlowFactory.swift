@@ -28,7 +28,7 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         swapNotificationManager: swapNotificationManager
     )
     private lazy var predefinedTransferValues = makePredefinedTransferValues(parameters: predefinedSendParameters)
-    private lazy var predefinedInitialStep = CommonSendStepsManager.InitialStep(parameters: predefinedSendParameters)
+    private lazy var predefinedInitialStep = mapToInitialStep(parameters: predefinedSendParameters)
 
     lazy var transferModel = makeTransferModel(
         analyticsLogger: analyticsLogger,
@@ -76,6 +76,21 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
             coordinator: router,
             analyticsLogger: CommonAddressBookAnalyticsLogger()
         )
+    }
+
+    private func mapToInitialStep(parameters: PredefinedSendParameters?) -> CommonSendStepsManager.InitialStep {
+        guard let parameters else {
+            return .amount
+        }
+
+        switch parameters.initialStep {
+        case .amount:
+            return .amount
+        case .amountThenSummary:
+            return .amountThenSummary
+        case .summary:
+            return .summary
+        }
     }
 }
 

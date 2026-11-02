@@ -216,7 +216,7 @@ struct SendView: View {
         if let signingActionButtonType = viewModel.mainButtonSigningActionButtonType(mainButtonType: mainButtonType) {
             SigningActionButtonView(
                 type: signingActionButtonType,
-                title: viewModel.mainButtonTitle(mainButtonType: mainButtonType),
+                title: mainButtonType.title(action: viewModel.flowActionType),
                 isLoading: viewModel.mainButtonUpdating || viewModel.mainButtonLoading,
                 isDisabled: !viewModel.actionIsAvailable,
                 action: {
@@ -230,7 +230,7 @@ struct SendView: View {
 
     private func bottomAction(type mainButtonType: SendMainButtonType, isLoading: Bool) -> some View {
         MainButton(
-            title: viewModel.mainButtonTitle(mainButtonType: mainButtonType),
+            title: mainButtonType.title(action: viewModel.flowActionType),
             style: .primary,
             size: .default,
             isLoading: isLoading,

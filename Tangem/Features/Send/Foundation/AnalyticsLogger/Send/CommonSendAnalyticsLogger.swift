@@ -840,7 +840,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
         ]
 
         if let sourceToken = sendSourceTokenInput?.sourceToken.value {
-            let isTangemPayAccount = sourceToken.isTangemPayAccount
+            let isTangemPayAccount = sourceToken.accountType == .tangemPay
             analyticsParameters[.payAccount] = Analytics.ParameterValue.boolState(for: isTangemPayAccount).rawValue
         }
 

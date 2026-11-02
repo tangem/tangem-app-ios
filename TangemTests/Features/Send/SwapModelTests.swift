@@ -1325,6 +1325,10 @@ private extension SwapModelTests {
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             membersService: JointAccountMembersServiceMock(),
+            finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
+                pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
+                walletModelsManager: WalletModelsManagerMock()
+            ),
             userRoleService: JointAccountUserRoleServiceMock(),
             delegate: jointAccountDelegate
         )
