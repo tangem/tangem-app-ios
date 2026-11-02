@@ -732,8 +732,7 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
             let parameter = SendAnalyticsHelper.makeFeeTypeParameter(selectedFee: selectedFee.option, supportFeeSelection: sendFeeInput?.supportFeeSelection ?? false)
             analyticsParameters[.feeType] = parameter.rawValue
             analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: selectedFee.tokenItem)
-            let isGasless = selectedFee.value.value?.isGasless ?? false
-            analyticsParameters[.feeAssetType] = Analytics.ParameterValue.feeAssetType(isGasless: isGasless).rawValue
+            analyticsParameters[.feeAssetType] = Analytics.ParameterValue.feeAssetType(for: selectedFee.value.value).rawValue
         }
 
         Analytics.log(
@@ -807,8 +806,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             }
 
             analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: selectedFee.tokenItem)
-            let isGasless = selectedFee.value.value?.isGasless ?? false
-            analyticsParameters[.feeAssetType] = Analytics.ParameterValue.feeAssetType(isGasless: isGasless).rawValue
+            analyticsParameters[.feeAssetType] = Analytics.ParameterValue.feeAssetType(for: selectedFee.value.value).rawValue
         }
 
         // Merge account analytics (source + destination)
@@ -850,8 +848,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             let parameter = SendAnalyticsHelper.makeFeeTypeParameter(selectedFee: selectedFee.option, supportFeeSelection: sendFeeInput?.supportFeeSelection ?? false)
             analyticsParameters[.feeType] = parameter.rawValue
             analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: selectedFee.tokenItem)
-            let isGasless = selectedFee.value.value?.isGasless ?? false
-            analyticsParameters[.feeAssetType] = Analytics.ParameterValue.feeAssetType(isGasless: isGasless).rawValue
+            analyticsParameters[.feeAssetType] = Analytics.ParameterValue.feeAssetType(for: selectedFee.value.value).rawValue
         }
 
         if let receive = sendReceiveTokenInput?.receiveToken.value {
@@ -1007,8 +1004,7 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
 
         if let tokenFee = tokenFee {
             params[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFee.tokenItem)
-            let isGasless = tokenFee.value.value?.isGasless ?? false
-            params[.feeAssetType] = Analytics.ParameterValue.feeAssetType(isGasless: isGasless).rawValue
+            params[.feeAssetType] = Analytics.ParameterValue.feeAssetType(for: tokenFee.value.value).rawValue
         }
 
         Analytics.log(

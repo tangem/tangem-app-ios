@@ -25,7 +25,7 @@ final class TokenFeeProvidersManagerMock: TokenFeeProvidersManager {
 
     private(set) var updateInputCalls: [TokenFeeProviderInputData] = []
     private(set) var updateFeesCalls: Int = 0
-    private(set) var updateSelectedFeeProviderCalls: [TokenItem] = []
+    private(set) var updateSelectedFeeProviderCalls: [TokenFeeProviderID] = []
 
     var updateFeesGate: TestGate?
 
@@ -62,8 +62,8 @@ final class TokenFeeProvidersManagerMock: TokenFeeProvidersManager {
         }
     }
 
-    func updateSelectedFeeProvider(feeTokenItem: TokenItem) {
-        updateSelectedFeeProviderCalls.append(feeTokenItem)
+    func updateSelectedFeeProvider(feeProviderID: TokenFeeProviderID) {
+        updateSelectedFeeProviderCalls.append(feeProviderID)
     }
 
     // MARK: - ExpressFeeProvider

@@ -421,4 +421,8 @@ private final class StubGaslessTransactionsNetworkManager: GaslessTransactionsNe
 
     func initialize() {}
     var feeRecipientAddress: String? { cachedFeeRecipientAddress }
+    var cachedSolanaFeePayer: String? { nil }
+    var solanaFeePayer: String? { nil }
+
+    func submitSolanaGaslessTransaction(_ request: SolanaSubmitRequest, userWalletId: UserWalletId) async throws -> String { "" }
 }

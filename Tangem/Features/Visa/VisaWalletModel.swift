@@ -179,6 +179,7 @@ extension VisaWalletModel: WalletModelDependenciesProvider {
     var scaledUIAmountProvider: (any ScaledUIAmountProvider)? { nil }
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { nil }
     var tronGaslessTransactionsBuilder: (any TronGaslessTransactionsBuilder)? { nil }
+    var solanaGaslessTransactionBuilder: (any SolanaGaslessTransactionBuilder)? { nil }
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { nil }
 }
 
