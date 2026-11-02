@@ -296,6 +296,19 @@ private extension JointAccountsNetworkMapper {
         Self.dateFormatter.date(from: string) ?? Self.dateFallbackFormatter.date(from: string)
     }
 
+    func verifiedSafeAddress(_ announcedSafeAddress: String, of dto: JointAccountsDTO.Response.JointAccount) -> String? {
+        do {
+            return try JointAccountSafeAddressVerifier.confirm(
+                announcedAddress: announcedSafeAddress,
+                owners: dto.members.map(\.address),
+                threshold: dto.threshold
+            )
+        } catch {
+            JointAccountsLogger.error("The Safe of a joint account does not resolve to its composition", error: error)
+            return nil
+        }
+    }
+
     func mapStatus(from dto: JointAccountsDTO.Response.JointAccount) throws -> JointAccountStatus {
         switch dto.status {
         case .pending:
@@ -303,10 +316,22 @@ private extension JointAccountsNetworkMapper {
         case .confirming:
             // Taken as it comes: an answer that names the stage without the address is the one account's problem,
             // and refusing it here would cost the whole list its refresh
-            return .confirming(safeAddress: dto.safeAddress)
+            guard let announcedSafeAddress = dto.safeAddress else {
+                return .confirming(safeAddress: nil)
+            }
+
+            guard let safeAddress = verifiedSafeAddress(announcedSafeAddress, of: dto) else {
+                return .untrusted
+            }
+
+            return .confirming(safeAddress: safeAddress)
         case .active:
-            guard let safeAddress = dto.safeAddress else {
+            guard let announcedSafeAddress = dto.safeAddress else {
                 throw JointAccountsNetworkMapperError.activeAccountWithoutAddress
+            }
+
+            guard let safeAddress = verifiedSafeAddress(announcedSafeAddress, of: dto) else {
+                return .untrusted
             }
 
             return .active(safeAddress: safeAddress)

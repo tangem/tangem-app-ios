@@ -95,7 +95,11 @@ final class PendingJointAccountItemViewModel: Identifiable, ObservableObject {
     }
 
     private static func action(of jointAccount: any JointAccountModel, slots: [JointAccountSlot]) -> Action? {
-        jointAccount.canActivate ? .activate : nil
+        guard case .confirming(.some) = jointAccount.status, let me = slots.members.first(where: \.isMe) else {
+            return nil
+        }
+
+        return me.signature == nil ? .activate : nil
     }
 
     private static func status(of status: JointAccountStatus, slots: [JointAccountSlot]) -> String {
@@ -104,7 +108,7 @@ final class PendingJointAccountItemViewModel: Identifiable, ObservableObject {
             return Localization.jointAccountWaitingActivation
         case .pending:
             return Localization.jointAccountMembersProgress(slots.members.count, slots.count)
-        case .active, .cancelled, .unknown:
+        case .active, .untrusted, .cancelled, .unknown:
             return Localization.jointAccountMembersProgress(slots.members.count, slots.count)
         }
     }

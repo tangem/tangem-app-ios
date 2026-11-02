@@ -11,7 +11,7 @@ import BlockchainSdk
 import TangemFoundation
 
 /// - Note: Nothing here is retried. Creating and joining are spent once by contract, so a repeat answers with a
-/// conflict rather than the same result; activating is the exception and repeats happily, but only its caller knows
+/// conflict rather than the same result; confirming is the exception and repeats happily, but only its caller knows
 /// whether a repeat is what it wants. The two reads are cheap enough to leave to whoever asked.
 final class CommonJointAccountsNetworkService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
@@ -68,16 +68,6 @@ extension CommonJointAccountsNetworkService: JointAccountsNetworkService {
 
     func joinJointAccount(blob: JointAccountJoinBlob) async throws -> RemoteJointAccount {
         let response = try await tangemApiService.joinJointAccount(
-            walletId: userWalletId.stringValue,
-            body: mapper.mapToRequest(from: blob)
-        )
-        invalidateJointAccountsETag()
-
-        return try mapper.mapToJointAccount(from: response)
-    }
-
-    func activateJointAccount(blob: JointAccountActivationBlob) async throws -> RemoteJointAccount {
-        let response = try await tangemApiService.activateJointAccount(
             walletId: userWalletId.stringValue,
             body: mapper.mapToRequest(from: blob)
         )

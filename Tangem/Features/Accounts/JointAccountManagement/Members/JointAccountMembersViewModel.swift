@@ -7,18 +7,17 @@
 //
 
 import Combine
+import CombineExt
 import Foundation
 import SwiftUI
 import TangemAccounts
 import TangemFoundation
 import TangemLocalization
 import TangemUI
-import struct TangemUIUtils.AlertBinder
 
 final class JointAccountMembersViewModel: ObservableObject {
     @Published private(set) var phase: JointAccountMembersPhase?
     @Published private(set) var slots: [JointAccountMembersViewSlotViewModel] = []
-    @Published var alert: AlertBinder?
 
     var title: Title? { makeTitle() }
     var summary: Summary? { makeSummary() }
@@ -66,8 +65,7 @@ final class JointAccountMembersViewModel: ObservableObject {
     func onActionTap(_ action: Action) {
         switch action {
         case .confirmSharedAddress:
-            // [REDACTED_TODO_COMMENT]
-            break
+            coordinator?.openConfirmSharedAddress(jointAccount: jointAccount, userWalletConfig: userWalletConfig)
         }
     }
 
@@ -100,10 +98,14 @@ extension JointAccountMembersViewModel: JointAccountMembersViewSlotViewModelDele
 
 private extension JointAccountMembersViewModel {
     func bind() {
+        let slotsPublisher = jointAccount.jointAccountMembersService.slotsPublisher
+            .removeDuplicates()
+            .share(replay: 1)
+
         Publishers
             .CombineLatest(
                 jointAccount.didChangePublisher.prepend(()),
-                jointAccount.jointAccountMembersService.slotsPublisher
+                slotsPublisher
             )
             .map { $1 }
             .receiveOnMain()
@@ -111,7 +113,7 @@ private extension JointAccountMembersViewModel {
             .sink { $0.updatePhase(slots: $1) }
             .store(in: &bag)
 
-        jointAccount.jointAccountMembersService.slotsPublisher
+        slotsPublisher
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { $0.updateSlots($1) }
@@ -136,6 +138,11 @@ private extension JointAccountMembersViewModel {
     func updateSlots(_ accountSlots: [JointAccountSlot]) {
         let slotViewModels = makeSlots(accountSlots)
 
+        guard slots.isNotEmpty else {
+            slots = slotViewModels
+            return
+        }
+
         withAnimation(JointAccountMembersMotion.member) {
             self.slots = slotViewModels
         }
@@ -146,7 +153,6 @@ private extension JointAccountMembersViewModel {
             status: jointAccount.status,
             slots: slots,
             isCreator: jointAccount.jointAccountUserRoleService.isCreator ?? false,
-            canActivate: jointAccount.canActivate,
             now: dateProvider.now
         )
     }
@@ -200,7 +206,7 @@ private extension JointAccountMembersViewModel {
     func makeActions() -> [Action] {
         switch phase {
         case .collecting: [.confirmSharedAddress(isEnabled: false)]
-        case .confirming(let canActivate): [.confirmSharedAddress(isEnabled: canActivate)]
+        case .confirming(let canConfirm): canConfirm ? [.confirmSharedAddress(isEnabled: true)] : []
         case .completed, .none: []
         }
     }
@@ -283,14 +289,5 @@ private extension JointAccountMembersViewModel.Summary {
         let requiredApprovals = Localization.jointAccountInviteMembersApprovalsValue(policy.signersCount, policy.membersCount)
 
         self.init(iconViewData: iconViewData, name: jointAccount.name, membersCount: membersCount, requiredApprovals: requiredApprovals)
-    }
-}
-
-// MARK: - Constants
-
-private extension JointAccountMembersViewModel {
-    enum Constants {
-        static let toastTopPadding: CGFloat = 24
-        static let toastInterval: TimeInterval = 4
     }
 }
