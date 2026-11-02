@@ -10,13 +10,10 @@ import Combine
 import Foundation
 import class UIKit.UIApplication
 import class UIKit.UIImage
-import class Alamofire.Interceptor
 import enum TangemBackendAuthentication.BackendAuthenticationAssembly
 import TangemFoundation
 import TangemLocalization
 import TangemMCP
-import struct TangemNetworkUtils.TimeoutIntervalPlugin
-import class TangemNetworkUtils.TangemProvider
 import class TangemUI.FloatingSheetRegistry
 import TangemUIUtils
 
@@ -32,28 +29,11 @@ enum MCPModuleFactory {
     static func configure() {
         guard FeatureProvider.isAvailable(.mcp) else { return }
 
-        let connectionProvider = TangemProvider<MCPConnectionTarget>(
-            configuration: .ephemeralConfiguration,
-            requestInterceptor: Alamofire.Interceptor(
-                adapter: BackendAuthenticationAssembly.requestAdapter,
-                retrier: BackendAuthenticationAssembly.requestRetrier
-            )
-        )
-
-        let agentProvider = TangemProvider<MCPAgentTarget>(
-            configuration: .ephemeralConfiguration,
-            additionalPlugins: [TimeoutIntervalPlugin()],
-            requestInterceptor: Alamofire.Interceptor(
-                adapter: BackendAuthenticationAssembly.requestAdapter,
-                retrier: BackendAuthenticationAssembly.requestRetrier
-            )
-        )
-
         let configuration = MCPAssembly.Configuration(
             floatingSheetRegistry: FloatingSheetRegistry.default,
             baseURL: AppEnvironment.current.backendAuthenticationBaseUrl,
-            connectionProvider: connectionProvider,
-            agentProvider: agentProvider,
+            requestAdapter: BackendAuthenticationAssembly.requestAdapter,
+            requestRetrier: BackendAuthenticationAssembly.requestRetrier,
             logger: MCPLogger
         )
 
@@ -79,7 +59,7 @@ enum MCPModuleFactory {
             service: Self.pushNotificationsPermission
         )
 
-        return MCPAssembly.makeConnectionRequestViewModel(
+        return MCPAssembly.ViewModels.makeConnectionRequest(
             userCode: userCode,
             userWallets: userWallets,
             selectedUserWallet: selectedUserWallet,
@@ -98,7 +78,7 @@ enum MCPModuleFactory {
         toToken: MCPToken,
         proceedAction: @escaping () -> Void
     ) -> MCPSwapIntentViewModel {
-        MCPAssembly.makeSwapIntentViewModel(
+        MCPAssembly.ViewModels.makeSwapIntent(
             agent: agent,
             fromAmount: fromAmount,
             toToken: toToken,
@@ -114,7 +94,7 @@ enum MCPModuleFactory {
         toAmount: MCPSwapAmount,
         proceedAction: @escaping () -> Void
     ) -> MCPSwapIntentViewModel {
-        MCPAssembly.makeSwapIntentViewModel(
+        MCPAssembly.ViewModels.makeSwapIntent(
             agent: agent,
             fromToken: fromToken,
             toAmount: toAmount,
@@ -255,7 +235,7 @@ extension MCPModuleFactory {
         walletModel: some WalletModel,
         proceedAction: @escaping () -> Void
     ) -> MCPSendIntentViewModel {
-        MCPAssembly.makeSendIntentViewModel(
+        MCPAssembly.ViewModels.makeSendIntent(
             id: id,
             agent: agent,
             amount: makeFormattedSendAmount(amount, tokenItem: walletModel.tokenItem),
@@ -272,7 +252,7 @@ extension MCPModuleFactory {
         primaryActionClosesSheet: Bool,
         primaryAction: @escaping () -> Void
     ) -> MCPIntentStatusViewModel {
-        MCPAssembly.makeIntentStatusViewModel(
+        MCPAssembly.ViewModels.makeIntentStatus(
             id: id,
             status: status,
             closeAction: closeActiveSheet(),
