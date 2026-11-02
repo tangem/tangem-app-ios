@@ -1,5 +1,5 @@
 //
-//  TransferFlowFactory.swift
+//  TransferNFTFlowFactory.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
