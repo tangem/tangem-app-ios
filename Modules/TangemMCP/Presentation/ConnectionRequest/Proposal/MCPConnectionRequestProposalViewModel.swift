@@ -140,6 +140,7 @@ extension MCPConnectionRequestProposalViewModel {
     }
 
     private func handleFetchSucceeded(_ connectionRequest: MCPConnectionRequest) {
+        // [REDACTED_TODO_COMMENT]
         self.connectionRequest = connectionRequest
 
         state.agentSummary = .content(connectionRequest.agent)
@@ -159,6 +160,7 @@ extension MCPConnectionRequestProposalViewModel {
         acceptConnectionTask?.cancel()
         acceptConnectionTask = nil
 
+        // [REDACTED_TODO_COMMENT]
         logger.debug("Fire and forget connection request reject initiated.")
 
         // [REDACTED_USERNAME], intentionally not messing with decline and connect buttons loading or disabled state
@@ -187,6 +189,7 @@ extension MCPConnectionRequestProposalViewModel {
             return
         }
 
+        // [REDACTED_TODO_COMMENT]
         state.declineButton.state = .loading
         state.connectButton.state = .disabled
         state.userWalletSelector.isEnabled = false
@@ -220,6 +223,7 @@ extension MCPConnectionRequestProposalViewModel {
             return
         }
 
+        // [REDACTED_TODO_COMMENT]
         state.declineButton.state = .disabled
         state.connectButton.state = .loading
         state.userWalletSelector.isEnabled = false
@@ -236,6 +240,7 @@ extension MCPConnectionRequestProposalViewModel {
             }
 
             guard await interactor.ensurePushNotificationsAuthorized() else {
+                // [REDACTED_TODO_COMMENT]
                 logger.debug("Push notifications are disabled. Connection is blocked.")
                 self?.state.pushPermissionsBanner = MCPConnectionRequestProposalState.PushNotificationsPermissionBanner()
                 self?.state.connectButton.state = .disabled

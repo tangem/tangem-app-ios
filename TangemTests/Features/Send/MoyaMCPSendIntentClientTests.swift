@@ -35,15 +35,16 @@ struct MoyaMCPSendIntentClientTests {
         let intent = try await sut.fetch(intentId: Fixture.intentId)
 
         #expect(
-            intent == MCPSendIntent(
-                networkId: "ethereum",
-                tokenId: "ethereum",
+            intent == SendMCPIntent(
+                id: Fixture.intentId,
+                networkID: "ethereum",
+                tokenID: "ethereum",
                 fromAddress: "0xe34979ea46a0bb49f0e483f163c79be02101cd1b",
                 toAddress: "0x1111111111111111111111111111111111111111",
                 amount: Decimal(string: "0.000001", locale: Locale(identifier: "en_US_POSIX"))!,
                 memo: nil,
                 isCompleted: false,
-                agentId: "https://claude.ai/oauth/claude-code-client-metadata"
+                agentID: "https://claude.ai/oauth/claude-code-client-metadata"
             )
         )
     }
@@ -60,7 +61,7 @@ struct MoyaMCPSendIntentClientTests {
         let requestRecorder = RequestRecorder()
         let sut = try Self.makeSUT(statusCode: 200, responseBody: Fixture.intentJSON(type: "SEND"), requestRecorder: requestRecorder)
 
-        let error = try await #require(throws: MCPSendIntentError.self) {
+        let error = try await #require(throws: SendMCPIntentError.self) {
             _ = try await sut.fetch(intentId: intentId)
         }
 
@@ -75,7 +76,7 @@ struct MoyaMCPSendIntentClientTests {
     func fetchThrowsRequestFailedOnErrorStatusCode(errorStatusCode: Int) async throws {
         let sut = try Self.makeSUT(statusCode: errorStatusCode, responseBody: Fixture.intentJSON(type: "SEND"))
 
-        let error = try await #require(throws: MCPSendIntentError.self) {
+        let error = try await #require(throws: SendMCPIntentError.self) {
             _ = try await sut.fetch(intentId: Fixture.intentId)
         }
 
@@ -89,7 +90,7 @@ struct MoyaMCPSendIntentClientTests {
     func fetchThrowsTimeoutOnTimeoutNetworkError() async throws {
         let sut = try Self.makeSUT(networkError: AFError.sessionTaskFailed(error: URLError(.timedOut)))
 
-        let error = try await #require(throws: MCPSendIntentError.self) {
+        let error = try await #require(throws: SendMCPIntentError.self) {
             _ = try await sut.fetch(intentId: Fixture.intentId)
         }
 
@@ -103,7 +104,7 @@ struct MoyaMCPSendIntentClientTests {
     func fetchThrowsNoInternetConnectionOnMissingConnection(code: URLError.Code) async throws {
         let sut = try Self.makeSUT(networkError: AFError.sessionTaskFailed(error: URLError(code)))
 
-        let error = try await #require(throws: MCPSendIntentError.self) {
+        let error = try await #require(throws: SendMCPIntentError.self) {
             _ = try await sut.fetch(intentId: Fixture.intentId)
         }
 
@@ -117,7 +118,7 @@ struct MoyaMCPSendIntentClientTests {
     func fetchThrowsRequestFailedOnOtherNetworkError() async throws {
         let sut = try Self.makeSUT(networkError: AFError.sessionTaskFailed(error: URLError(.cannotFindHost)))
 
-        let error = try await #require(throws: MCPSendIntentError.self) {
+        let error = try await #require(throws: SendMCPIntentError.self) {
             _ = try await sut.fetch(intentId: Fixture.intentId)
         }
 
@@ -131,7 +132,7 @@ struct MoyaMCPSendIntentClientTests {
     func fetchThrowsRequestFailedOnUnreadableBody(responseBody: String) async throws {
         let sut = try Self.makeSUT(statusCode: 200, responseBody: responseBody)
 
-        let error = try await #require(throws: MCPSendIntentError.self) {
+        let error = try await #require(throws: SendMCPIntentError.self) {
             _ = try await sut.fetch(intentId: Fixture.intentId)
         }
 
@@ -145,7 +146,7 @@ struct MoyaMCPSendIntentClientTests {
     func fetchThrowsUnsupportedTypeForAnotherIntentType() async throws {
         let sut = try Self.makeSUT(statusCode: 200, responseBody: Fixture.intentJSON(type: "SWAP"))
 
-        let error = try await #require(throws: MCPSendIntentError.self) {
+        let error = try await #require(throws: SendMCPIntentError.self) {
             _ = try await sut.fetch(intentId: Fixture.intentId)
         }
 
@@ -162,7 +163,7 @@ struct MoyaMCPSendIntentClientTests {
         let requestRecorder = RequestRecorder()
         let sut = try Self.makeSUT(statusCode: 200, requestRecorder: requestRecorder)
 
-        try await sut.reportTransaction(intentId: Fixture.intentId.uppercased(), transactionHash: Fixture.transactionHash)
+        try await sut.reportTransaction(sendIntentID: Fixture.intentId.uppercased(), transactionHash: Fixture.transactionHash)
 
         let request = try #require(requestRecorder.requests.first)
         let body = try #require(request.httpBody)
@@ -176,7 +177,7 @@ struct MoyaMCPSendIntentClientTests {
     func reportSucceedsOnSuccessStatusCode(successStatusCode: Int) async throws {
         let sut = try Self.makeSUT(statusCode: successStatusCode)
 
-        try await sut.reportTransaction(intentId: Fixture.intentId, transactionHash: Fixture.transactionHash)
+        try await sut.reportTransaction(sendIntentID: Fixture.intentId, transactionHash: Fixture.transactionHash)
     }
 
     @Test(arguments: ["", "abc", "../intents"])
@@ -184,8 +185,8 @@ struct MoyaMCPSendIntentClientTests {
         let requestRecorder = RequestRecorder()
         let sut = try Self.makeSUT(statusCode: 200, requestRecorder: requestRecorder)
 
-        let error = try await #require(throws: MCPSendIntentError.self) {
-            try await sut.reportTransaction(intentId: intentId, transactionHash: Fixture.transactionHash)
+        let error = try await #require(throws: SendMCPIntentError.self) {
+            try await sut.reportTransaction(sendIntentID: intentId, transactionHash: Fixture.transactionHash)
         }
 
         guard case .invalidIntentId(intentId) = error else {
@@ -199,8 +200,8 @@ struct MoyaMCPSendIntentClientTests {
     func reportThrowsRequestFailedOnErrorStatusCode(errorStatusCode: Int) async throws {
         let sut = try Self.makeSUT(statusCode: errorStatusCode)
 
-        let error = try await #require(throws: MCPSendIntentError.self) {
-            try await sut.reportTransaction(intentId: Fixture.intentId, transactionHash: Fixture.transactionHash)
+        let error = try await #require(throws: SendMCPIntentError.self) {
+            try await sut.reportTransaction(sendIntentID: Fixture.intentId, transactionHash: Fixture.transactionHash)
         }
 
         guard case .requestFailed = error else {

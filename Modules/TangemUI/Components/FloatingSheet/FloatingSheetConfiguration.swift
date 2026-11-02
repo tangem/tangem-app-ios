@@ -9,7 +9,7 @@
 import SwiftUI
 import TangemAssets
 
-public struct FloatingSheetConfiguration: Equatable {
+public struct FloatingSheetConfiguration: Equatable, Sendable {
     public var maxHeightFraction: CGFloat
     public var sheetFrameUpdateAnimation: Animation?
     public var sheetBackground: Background
@@ -46,19 +46,19 @@ extension FloatingSheetConfiguration {
 // MARK: - Nested types
 
 public extension FloatingSheetConfiguration {
-    enum Background: Equatable {
+    enum Background: Equatable, Sendable {
         case color(Color)
         case tangemMaterial(TangemMaterialStyle)
     }
 
-    enum BackgroundInteractionBehavior: Equatable {
+    enum BackgroundInteractionBehavior: Equatable, Sendable {
         case tapToDismiss
         case passTouchesThrough
         case consumeTouches
     }
 
-    struct VerticalSwipeBehavior: Equatable {
-        public enum Target: Equatable {
+    struct VerticalSwipeBehavior: Equatable, Sendable {
+        public enum Target: Equatable, Sendable {
             /// Does not have any effect when ``FloatingSheetConfiguration/backgroundInteractionBehavior`` is set
             /// to ``BackgroundInteractionBehavior/passTouchesThrough``.
             case background
