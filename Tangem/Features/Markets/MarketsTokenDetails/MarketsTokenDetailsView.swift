@@ -102,37 +102,21 @@ struct MarketsTokenDetailsView: View {
         }
     }
 
-    @ViewBuilder
     private var sheetNavigationBar: some View {
-        if isContentCollapsed {
-            HStack(spacing: 0) {
+        NavigationHeader(
+            leadingContent: {
                 redesignedBackButton
                     .readGeometry(\.size.width, bindTo: $headerLeadingWidth)
-                Spacer(minLength: 8)
+            },
+            principalContent: {
+                sheetNavigationBarTitle
+            },
+            trailingContent: {
                 redesignedTrailingButtons
                     .readGeometry(\.size.width, bindTo: $headerTrailingWidth)
             }
-            .overlay(alignment: .center) {
-                sheetNavigationBarTitle
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 16)
-            .padding(.bottom, 12)
-        } else {
-            NavigationHeader(
-                leadingContent: {
-                    redesignedBackButton
-                        .readGeometry(\.size.width, bindTo: $headerLeadingWidth)
-                },
-                principalContent: {
-                    sheetNavigationBarTitle
-                },
-                trailingContent: {
-                    redesignedTrailingButtons
-                        .readGeometry(\.size.width, bindTo: $headerTrailingWidth)
-                }
-            )
-        }
+        )
+        .backgroundHidden(isContentCollapsed)
     }
 
     private var sheetNavigationBarTitle: some View {
