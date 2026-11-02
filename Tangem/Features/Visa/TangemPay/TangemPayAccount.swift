@@ -66,7 +66,14 @@ final class TangemPayAccount {
     }
 
     var statePublisher: AnyPublisher<VisaCustomerInfoResponse.CustomerState, Never> {
-        customerInfoSubject
+        if FeatureProvider.isAvailable(.tangemPayCustomerSummary) {
+            return summarySubject
+                .compactMap { $0.map { VisaCustomerInfoResponse.CustomerState($0.customerStatus) } }
+                .removeDuplicates()
+                .eraseToAnyPublisher()
+        }
+
+        return customerInfoSubject
             .map(\.state)
             .removeDuplicates()
             .eraseToAnyPublisher()
@@ -163,7 +170,11 @@ final class TangemPayAccount {
     // MARK: - Virtual Account
 
     var isKYCApproved: Bool {
-        currentCustomerInfo.kyc?.status == .approved
+        if FeatureProvider.isAvailable(.tangemPayCustomerSummary), let summary = summarySubject.value {
+            return summary.kycStatus == .approved
+        }
+
+        return currentCustomerInfo.kyc?.status == .approved
     }
 
     var virtualAccountEntry: VirtualAccountEntry {
@@ -192,6 +203,10 @@ final class TangemPayAccount {
     }
 
     var isDeactivated: Bool {
+        if FeatureProvider.isAvailable(.tangemPayCustomerSummary), let summary = summarySubject.value {
+            return summary.customerStatus == .former || summary.paymentAccount.areAllCardsDeactivated
+        }
+
         let info = customerInfoSubject.value
         if info.state == .former { return true }
         let cardInstances = info.cardProductInstances
@@ -849,6 +864,7 @@ extension TangemPayAccount {
         }
     }
 
+    // [REDACTED_TODO_COMMENT]
     func checkFailedToIssueState() async {
         guard activeCards.isEmpty else { return }
 
@@ -1164,7 +1180,11 @@ private extension TangemPayAccount {
         }
 
         runTask { [weak self] in
-            await self?.checkFailedToIssueState()
+            if FeatureProvider.isAvailable(.tangemPayCustomerSummary) {
+                await self?.account?.refreshState()
+            } else {
+                await self?.checkFailedToIssueState()
+            }
         }
     }
 
