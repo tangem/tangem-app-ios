@@ -22,7 +22,7 @@ struct YieldModuleEarnInfoChartContainer: View {
                 skeletonView
 
             case .legacy(let data):
-                YieldModuleChart(state: .loaded(apyData: data.buckets, xAxisLabels: data.xLabels, averageApy: data.averageApy))
+                YieldModuleChart(state: .loaded(apyData: data.buckets, xAxisTicks: data.xTicks, averageApy: data.averageApy))
 
             case .incentive(let data):
                 YieldIncentiveChart(data: data)
