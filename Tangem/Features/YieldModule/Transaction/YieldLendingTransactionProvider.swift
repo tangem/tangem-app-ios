@@ -7,29 +7,89 @@
 //
 
 import Foundation
+import BigInt
 import BlockchainSdk
 import TangemFoundation
 
 final class YieldLendingTransactionProvider {
     private let blockchain: Blockchain
+    private let factoryContractAddress: String
     private let transactionCreator: TransactionCreator
 
-    init(blockchain: Blockchain, transactionCreator: TransactionCreator) {
+    init(blockchain: Blockchain, factoryContractAddress: String, transactionCreator: TransactionCreator) {
         self.blockchain = blockchain
+        self.factoryContractAddress = factoryContractAddress
         self.transactionCreator = transactionCreator
     }
 
-    func depositTransaction(amount: Decimal, yieldModule: String, fee: Fee) async throws -> Transaction {
-        try await transaction(
-            value: positiveWholeWei(amount),
+    func deployTransaction(owner: String, wrappedNative: String, fee: Fee) async throws -> Transaction {
+        let method = DeployYieldModuleMethod(
+            walletAddress: owner,
+            tokenContractAddress: wrappedNative,
+            maxNetworkFee: Self.maxNetworkFee
+        )
+
+        return try await transaction(value: .zero, contractAddress: factoryContractAddress, data: method.data, fee: fee)
+    }
+
+    func initTokenTransaction(
+        wrappedNative: String,
+        yieldModule: String,
+        upgradeImplementation: String?,
+        fee: Fee
+    ) async throws -> Transaction {
+        try await moduleTransaction(
+            value: .zero,
             yieldModule: yieldModule,
-            method: EnterProtocolByOwnerWithNativeMethod(),
+            method: InitYieldTokenMethod(tokenContractAddress: wrappedNative, maxNetworkFee: Self.maxNetworkFee),
+            upgradeImplementation: upgradeImplementation,
             fee: fee
         )
     }
 
-    func withdrawTransaction(_ amount: WithdrawalAmount, yieldModule: String, fee: Fee) async throws -> Transaction {
-        try await transaction(value: .zero, yieldModule: yieldModule, method: withdrawMethod(amount), fee: fee)
+    func reactivateTokenTransaction(
+        wrappedNative: String,
+        yieldModule: String,
+        upgradeImplementation: String?,
+        fee: Fee
+    ) async throws -> Transaction {
+        try await moduleTransaction(
+            value: .zero,
+            yieldModule: yieldModule,
+            method: ReactivateTokenMethod(tokenContractAddress: wrappedNative, maxNetworkFee: Self.maxNetworkFee),
+            upgradeImplementation: upgradeImplementation,
+            fee: fee
+        )
+    }
+
+    func depositTransaction(
+        amount: Decimal,
+        yieldModule: String,
+        upgradeImplementation: String?,
+        fee: Fee
+    ) async throws -> Transaction {
+        try await moduleTransaction(
+            value: positiveWholeWei(amount),
+            yieldModule: yieldModule,
+            method: EnterProtocolByOwnerWithNativeMethod(),
+            upgradeImplementation: upgradeImplementation,
+            fee: fee
+        )
+    }
+
+    func withdrawTransaction(
+        _ amount: WithdrawalAmount,
+        yieldModule: String,
+        upgradeImplementation: String?,
+        fee: Fee
+    ) async throws -> Transaction {
+        try await moduleTransaction(
+            value: .zero,
+            yieldModule: yieldModule,
+            method: withdrawMethod(amount),
+            upgradeImplementation: upgradeImplementation,
+            fee: fee
+        )
     }
 
     private func positiveWholeWei(_ amount: Decimal) throws -> Decimal {
@@ -57,13 +117,27 @@ final class YieldLendingTransactionProvider {
         }
     }
 
-    private func transaction(value: Decimal, yieldModule: String, method: SmartContractMethod, fee: Fee) async throws -> Transaction {
+    private func moduleTransaction(
+        value: Decimal,
+        yieldModule: String,
+        method: SmartContractMethod,
+        upgradeImplementation: String?,
+        fee: Fee
+    ) async throws -> Transaction {
+        let data = upgradeImplementation.map {
+            UpgradeToAndCallMethod(newImplementation: $0, callData: method.data).data
+        } ?? method.data
+
+        return try await transaction(value: value, contractAddress: yieldModule, data: data, fee: fee)
+    }
+
+    private func transaction(value: Decimal, contractAddress: String, data: Data, fee: Fee) async throws -> Transaction {
         try await transactionCreator.createTransaction(
             amount: Amount(with: blockchain, type: .coin, value: value),
             fee: fee,
-            destinationAddress: yieldModule,
-            contractAddress: yieldModule,
-            params: EthereumTransactionParams(data: method.data)
+            destinationAddress: contractAddress,
+            contractAddress: contractAddress,
+            params: EthereumTransactionParams(data: data)
         )
     }
 }
@@ -75,4 +149,8 @@ extension YieldLendingTransactionProvider {
         case all
         case partial(Decimal)
     }
+}
+
+private extension YieldLendingTransactionProvider {
+    static let maxNetworkFee: BigUInt = .zero
 }
