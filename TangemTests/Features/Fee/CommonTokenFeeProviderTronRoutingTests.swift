@@ -266,7 +266,8 @@ private extension CommonTokenFeeProviderTronRoutingTests {
             tokenFeeLoader: loader,
             customFeeProvider: nil,
             feeTokenItemBalanceProvider: MutableTokenBalanceProviderMock(balance: 25),
-            supportingOptions: .all
+            supportingOptions: .all,
+            payer: .user
         )
     }
 
@@ -402,6 +403,10 @@ private final class TronGaslessNetworkManagerStub: GaslessTransactionsNetworkMan
     var availableTronFeeTokens: [TronFeeToken] { [] }
     var currentHost: String { "test" }
     var feeRecipientAddress: String? { nil }
+    var cachedSolanaFeePayer: String? { nil }
+    var solanaFeePayer: String? { nil }
+
+    func submitSolanaGaslessTransaction(_ request: SolanaSubmitRequest, userWalletId: UserWalletId) async throws -> String { "" }
 
     private let compensationAmountRaw: String
 

@@ -311,7 +311,7 @@ extension SolanaWalletManager: TransactionSender {
         SolanaNFTTransferBuilder(accountProvider: networkService)
     }
 
-    private func makeTokenTransferAmountPublisher(
+    func makeTokenTransferAmountPublisher(
         tokenProgramId: PublicKey,
         amount: Decimal,
         token: Token
@@ -360,7 +360,7 @@ extension SolanaWalletManager: TransactionSender {
         return rawAmount.uint64Value
     }
 
-    private func associatedTokenAddress(accountAddress: String, mintAddress: String, tokenProgramId: PublicKey) -> String? {
+    func associatedTokenAddress(accountAddress: String, mintAddress: String, tokenProgramId: PublicKey) -> String? {
         guard
             let accountPublicKey = PublicKey(string: accountAddress),
             let tokenMintPublicKey = PublicKey(string: mintAddress),
@@ -437,6 +437,15 @@ extension SolanaWalletManager: RentExtemptionRestrictable {
 }
 
 extension SolanaWalletManager: ThenProcessable {}
+
+// MARK: - PendingTransactionRecordAdding
+
+extension SolanaWalletManager: PendingTransactionRecordAdding {
+    func addPendingTransaction(_ transaction: Transaction, hash: String) {
+        let mapper = PendingTransactionRecordMapper()
+        wallet.addPendingTransaction(mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash))
+    }
+}
 
 // MARK: - StakeKitTransactionSender, StakingTransactionsBuilder
 

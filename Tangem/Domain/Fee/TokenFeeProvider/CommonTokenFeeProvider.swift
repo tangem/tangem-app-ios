@@ -16,6 +16,7 @@ let FeeLogger = AppLogger.tag("TokenFeeProvider")
 
 final class CommonTokenFeeProvider {
     let feeTokenItem: TokenItem
+    let payer: TokenFeePayer
     let tokenFeeLoader: any TokenFeeLoader
     let customFeeProvider: (any CustomFeeProvider)?
     let feeTokenItemBalanceProvider: TokenBalanceProvider
@@ -42,8 +43,10 @@ final class CommonTokenFeeProvider {
         feeTokenItemBalanceProvider: TokenBalanceProvider,
         supportingOptions: TokenFeeProviderSupportingOptions,
         minimumRequiredBalance: Decimal? = nil,
+        payer: TokenFeePayer,
     ) {
         self.feeTokenItem = feeTokenItem
+        self.payer = payer
         self.tokenFeeLoader = tokenFeeLoader
         self.customFeeProvider = customFeeProvider
         self.feeTokenItemBalanceProvider = feeTokenItemBalanceProvider
@@ -320,7 +323,12 @@ private extension CommonTokenFeeProvider {
     }
 
     func hasFeeCurrency(balance: Decimal) -> Bool {
-        feeTokenItem.blockchain.allowsZeroFeePaid ? balance >= 0 : balance > 0
+        switch payer {
+        case .tangem:
+            return true
+        case .user:
+            return feeTokenItem.blockchain.allowsZeroFeePaid ? balance >= 0 : balance > 0
+        }
     }
 
     /// The fee a bridge provider charges in the blockchain's coin, carried by every input that can describe a swap
@@ -422,6 +430,7 @@ extension CommonTokenFeeProvider: CustomStringConvertible {
     var description: String {
         objectDescription(self, userInfo: [
             "feeTokenItem": feeTokenItem.name,
+            "payer": payer,
             "feeTokenItemBlockchain": feeTokenItem.blockchain.displayName,
             "input": tokenFeeProviderInputData?.rawCaseValue ?? "",
             "state": state.description,

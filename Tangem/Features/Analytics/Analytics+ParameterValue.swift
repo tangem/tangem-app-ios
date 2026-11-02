@@ -67,6 +67,7 @@ extension Analytics {
 
         case main = "Main"
         case token = "Token"
+        case sponsored = "Sponsored"
         case manageTokens = "Manage Tokens"
         case introduction = "Introduction"
         case onboarding = "Onboarding"
@@ -437,8 +438,16 @@ extension Analytics {
             return balance > 0 ? .full : .empty
         }
 
-        static func feeAssetType(isGasless: Bool) -> ParameterValue {
-            return isGasless ? .token : .coin
+        static func feeAssetType(for fee: BSDKFee?) -> ParameterValue {
+            guard let fee else {
+                return .coin
+            }
+
+            if fee.isSponsored {
+                return .sponsored
+            }
+
+            return fee.isGasless ? .token : .coin
         }
 
         static let transactionFeeMax: ParameterValue = .max

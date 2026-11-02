@@ -749,9 +749,9 @@ extension TransferModel: TokenFeeProvidersManagerProviding {
 // MARK: - FeeSelectorOutput
 
 extension TransferModel: FeeSelectorOutput {
-    func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
+    func userDidFinishSelection(feeProviderID: TokenFeeProviderID, feeOption: FeeOption) {
         _sourceToken.tokenFeeProvidersManager.update(feeOption: feeOption)
-        _sourceToken.tokenFeeProvidersManager.updateSelectedFeeProvider(feeTokenItem: feeTokenItem)
+        _sourceToken.tokenFeeProvidersManager.updateSelectedFeeProvider(feeProviderID: feeProviderID)
     }
 }
 

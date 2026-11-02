@@ -249,7 +249,8 @@ private extension GaslessBridgeFeeSupportTests {
             tokenFeeLoader: loader,
             customFeeProvider: nil,
             feeTokenItemBalanceProvider: balanceProvider,
-            supportingOptions: .all
+            supportingOptions: .all,
+            payer: .user
         )
     }
 
@@ -259,7 +260,8 @@ private extension GaslessBridgeFeeSupportTests {
             tokenFeeLoader: EthereumTokenFeeLoaderStub(),
             customFeeProvider: nil,
             feeTokenItemBalanceProvider: MutableTokenBalanceProviderMock(balance: 1),
-            supportingOptions: .all
+            supportingOptions: .all,
+            payer: .user
         )
     }
 

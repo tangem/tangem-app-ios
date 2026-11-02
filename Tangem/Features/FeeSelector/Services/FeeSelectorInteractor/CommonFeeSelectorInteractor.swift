@@ -11,7 +11,7 @@ import Combine
 final class CommonFeeSelectorInteractor {
     private let tokenFeeProvidersSubject: CurrentValueSubject<[any TokenFeeProvider], Never>
     private let selectedTokenFeeProviderSubject: CurrentValueSubject<any TokenFeeProvider, Never>
-    private let selectedTokenFeeOptionSubject: CurrentValueSubject<[TokenItem: FeeOption], Never>
+    private let selectedTokenFeeOptionSubject: CurrentValueSubject<[TokenFeeProviderID: FeeOption], Never>
 
     private weak var output: FeeSelectorOutput?
 
@@ -23,7 +23,7 @@ final class CommonFeeSelectorInteractor {
         tokenFeeProvidersSubject = .init(tokenFeeProviders)
         selectedTokenFeeProviderSubject = .init(selectedTokenFeeProvider)
         selectedTokenFeeOptionSubject = .init([
-            selectedTokenFeeProvider.feeTokenItem: selectedTokenFeeProvider.selectedTokenFee.option,
+            selectedTokenFeeProvider.id: selectedTokenFeeProvider.selectedTokenFee.option,
         ])
 
         self.output = output
@@ -38,13 +38,13 @@ extension CommonFeeSelectorInteractor: FeeSelectorInteractor {
     }
 
     func userDidSelect(feeOption: FeeOption) {
-        selectedTokenFeeOptionSubject.value[selectedTokenFeeProvider.feeTokenItem] = feeOption
+        selectedTokenFeeOptionSubject.value[selectedTokenFeeProvider.id] = feeOption
     }
 
-    func userDidSelect(feeTokenItem: TokenItem) {
+    func userDidSelect(feeProviderID: TokenFeeProviderID) {
         assert(state == .multiple, "Supposed to be called only in .multiple state")
 
-        guard let tokenFeeProvider = supportedTokenFeeProviders.first(where: { $0.feeTokenItem == feeTokenItem }) else {
+        guard let tokenFeeProvider = supportedTokenFeeProviders[feeProviderID] else {
             return
         }
 
@@ -54,7 +54,7 @@ extension CommonFeeSelectorInteractor: FeeSelectorInteractor {
 
     func completeSelection() {
         output?.userDidFinishSelection(
-            feeTokenItem: selectedTokenFeeProvider.feeTokenItem,
+            feeProviderID: selectedTokenFeeProvider.id,
             feeOption: selectedTokenFeeOption
         )
     }
@@ -64,7 +64,7 @@ extension CommonFeeSelectorInteractor: FeeSelectorInteractor {
 
 extension CommonFeeSelectorInteractor: FeeSelectorFeesDataProvider {
     var selectedTokenFeeOption: FeeOption {
-        selectedTokenFeeOptionSubject.value[selectedTokenFeeProvider.feeTokenItem, default: .market]
+        selectedTokenFeeOptionSubject.value[selectedTokenFeeProvider.id, default: .market]
     }
 
     var feeCoveragePublisher: AnyPublisher<FeeCoverage, Never> {
@@ -92,7 +92,7 @@ extension CommonFeeSelectorInteractor: FeeSelectorFeesDataProvider {
     var selectedTokenFeeOptionPublisher: AnyPublisher<FeeOption, Never> {
         Publishers
             .CombineLatest(selectedTokenFeeOptionSubject, selectedTokenFeeProviderPublisher)
-            .map { $0[$1.feeTokenItem, default: .market] }
+            .map { $0[$1.id, default: .market] }
             .eraseToAnyPublisher()
     }
 
