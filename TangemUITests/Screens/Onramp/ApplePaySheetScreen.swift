@@ -55,8 +55,8 @@ final class ApplePaySheetScreen: Screen {
     private func fillEmailIfNeeded(_ email: String) {
         let addEmailRow = sheet.buttons[Constants.addEmail].firstMatch
         let savedContactRow = sheet.buttons.matching(NSPredicate(
-            format: "label BEGINSWITH %@ OR (identifier == %@ AND label CONTAINS %@)",
-            Constants.contactPrefix, Constants.Identifier.contact, "@"
+            format: "label BEGINSWITH %@ OR (identifier IN %@ AND label CONTAINS %@)",
+            Constants.contactPrefix, Constants.Identifier.contactRows, "@"
         )).firstMatch
         waitForAny(addEmailRow, savedContactRow, "Apple Pay contact row should be displayed")
         guard addEmailRow.exists else { return }
@@ -147,12 +147,12 @@ struct ApplePayBillingAddress {
 
     var fields: [(name: String, value: String)] {
         [
-            ("First Name", firstName),
-            ("Last Name", lastName),
-            ("Street", street),
-            ("City", city),
-            ("State", state),
-            ("ZIP", zip),
+            ("given-name", firstName),
+            ("family-name", lastName),
+            ("street-primary", street),
+            ("city", city),
+            ("state", state),
+            ("postal-code", zip),
         ]
     }
 }
@@ -172,7 +172,7 @@ private extension ApplePaySheetScreen {
             static let dismiss = "dismiss"
             static let card = "pass"
             static let billing = "billing-address"
-            static let contact = "shipping-email"
+            static let contactRows = ["shipping-email", "shipping-contact"]
             static let done = "Done"
         }
 

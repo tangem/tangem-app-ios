@@ -30,7 +30,7 @@ final class SwapGeoRestrictionsUITests: BaseTestCase {
             .chooseReceiveToken(Constants.receiveTokenName)
             .enterFromAmount(Constants.inputAmount)
             .assertReceiveAmountIsNotZero()
-            .verifyProviderName(contains: Constants.availableProviderName)
+            .verifyProviderName(contains: Constants.bestRateProviderName)
             .waitForNotificationNotShown(title: Constants.restrictionsTitle)
             .waitForConfirmButtonEnabled()
 
@@ -53,6 +53,7 @@ private extension SwapGeoRestrictionsUITests {
         static let inputAmount = "0.1"
         static let restrictedProviderName = "1Inch"
         static let availableProviderName = "LI.FI"
+        static let bestRateProviderName = "SimpleSwap"
         static let restrictionsTitle = "Regional swap restrictions"
     }
 }
