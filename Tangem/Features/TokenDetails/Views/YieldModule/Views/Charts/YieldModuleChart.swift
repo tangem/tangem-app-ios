@@ -97,17 +97,14 @@ struct YieldModuleChart: View {
 
     private func makeXLabelMap(barsCount: Int) -> [Int: String] {
         guard barsCount > 1 else { return [:] }
-        let labels: [String]
 
         switch state {
-        case .loaded(_, let xLabels, _) where !xLabels.isEmpty:
-            labels = xLabels
-        case .loading, .loaded:
-            labels = Array(repeating: "Aaa", count: 5)
+        case .loaded(_, let xTicks, _):
+            return xTicks
+        case .loading:
+            let ticks = [0, 7, 14, 21, 27].filter { $0 < barsCount }
+            return Dictionary(uniqueKeysWithValues: ticks.map { ($0, "Aaa") })
         }
-
-        let ticks = [0, 7, 14, 21, 27]
-        return Dictionary(uniqueKeysWithValues: zip(ticks, labels))
     }
 }
 
@@ -116,7 +113,7 @@ struct YieldModuleChart: View {
 extension YieldModuleChart {
     enum State {
         case loading
-        case loaded(apyData: [Double], xAxisLabels: [String], averageApy: Double?)
+        case loaded(apyData: [Double], xAxisTicks: [Int: String], averageApy: Double?)
 
         var isLoading: Bool {
             switch self {
