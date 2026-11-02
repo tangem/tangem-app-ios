@@ -273,6 +273,13 @@ private extension EthereumTransactionHistoryMapper {
             return .transfer
         }
 
+        if let innerMethodId = YieldModuleUpgradeHistoryMapper.innerMethodId(
+            calldata: transaction.ethereumSpecific?.data,
+            blockchain: blockchain
+        ) {
+            return .contractMethodIdentifier(id: innerMethodId)
+        }
+
         if let approve = approve(transaction, tokensByContract: tokensByContract) {
             return .approve(approve)
         }
