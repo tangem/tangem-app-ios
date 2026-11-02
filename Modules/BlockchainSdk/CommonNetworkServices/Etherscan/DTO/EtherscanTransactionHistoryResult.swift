@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct EtherscanTransactionHistoryResult {
     enum Result {
@@ -99,5 +100,25 @@ extension EtherscanTransactionHistoryResult.Transaction: Decodable {
         to = try container.decode(String.self, forKey: CodingKeys.to)
         txReceiptStatus = try container.decodeIfPresent(String.self, forKey: CodingKeys.txReceiptStatus)
         value = try container.decode(String.self, forKey: CodingKeys.value)
+    }
+}
+
+// MARK: - Rate limit
+
+extension EtherscanTransactionHistoryResult {
+    var isRateLimitReached: Bool {
+        guard case .description(let description) = result else {
+            return false
+        }
+
+        return description.caseInsensitiveContains(Constants.rateLimitReachedResultMarker)
+    }
+}
+
+// MARK: - Constants
+
+private extension EtherscanTransactionHistoryResult {
+    enum Constants {
+        static let rateLimitReachedResultMarker = "rate limit reached"
     }
 }
