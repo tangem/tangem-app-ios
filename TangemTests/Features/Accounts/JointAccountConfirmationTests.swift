@@ -1,5 +1,5 @@
 //
-//  JointAccountActivationTests.swift
+//  JointAccountConfirmationTests.swift
 //  TangemTests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,15 +12,15 @@ import Testing
 
 // MARK: - Tests
 
-/// What the creator's activation is asked for with, and what is refused before the wallet is asked for anything.
-@Suite("Tests for activating a joint account")
-struct JointAccountActivationTests {
+/// What a member's confirmation is asked for with, and what is refused before the wallet is asked for anything.
+@Suite("Tests for confirming a joint account")
+struct JointAccountConfirmationTests {
     /// Kept by the suite because the accounts hold it weakly, and a new one is made per test the way every stored
     /// property of a suite is.
     private let delegate = JointAccountModelDelegateMock()
 
-    @Test("The activation carries the checked composition, with the address spelled as the backend announced it")
-    func activationCarriesTheCheckedComposition() async throws {
+    @Test("The confirmation carries the account's settings and the shown address, spelled as the backend announced it")
+    func confirmationCarriesTheSettingsAndTheShownAddress() async throws {
         let cryptoAccount = CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in })
         let account = makeJointAccount(
             // The backend keeps the address in lower case and compares the config it holds character by character,
@@ -30,15 +30,13 @@ struct JointAccountActivationTests {
             cryptoAccount: cryptoAccount
         )
 
-        try await account.activate()
+        try await account.confirm(safeAddress: Constants.announcedSafeAddress.lowercased())
 
-        let config = try #require(delegate.activationConfigs.first)
+        let config = try #require(delegate.confirmationConfigs.first)
 
-        #expect(delegate.activationConfigs.count == 1)
+        #expect(delegate.confirmationConfigs.count == 1)
         #expect(config.safeAddress == Constants.announcedSafeAddress.lowercased())
-        #expect(config.creatorAddress == Constants.owners[0])
         #expect(config.derivationIndex == Constants.derivationIdentity.derivationIndex)
-        #expect(config.cryptoAccountId == cryptoAccount.id.rawValue.hexString)
         #expect(config.signedConfig.name == cryptoAccount.name)
         #expect(config.signedConfig.icon == cryptoAccount.icon.name.rawValue)
         #expect(config.signedConfig.iconColor == cryptoAccount.icon.color.rawValue)
@@ -46,50 +44,31 @@ struct JointAccountActivationTests {
         #expect(config.signedConfig.threshold == Constants.threshold)
     }
 
-    /// The button is offered without one — see `JointAccountStateTests` — so pressing it is what has to
-    /// report that the answer named no address to confirm.
-    @Test("An account with no announced address has nothing to activate with")
-    func activationWithoutAnAnnouncedAddressIsRefused() async {
+    @Test("An account with no announced address has nothing to confirm")
+    func confirmationWithoutAnAnnouncedAddressIsRefused() async {
         let account = makeJointAccount(status: .confirming(safeAddress: nil), members: Constants.fullComposition)
 
-        let error = await activationError(of: account)
+        let error = await confirmationError(of: account)
 
-        #expect(error as? JointAccountModelError == .notReadyForActivation)
-        #expect(delegate.activationConfigs.isEmpty)
+        #expect(error as? JointAccountModelError == .notReadyForConfirmation)
+        #expect(delegate.confirmationConfigs.isEmpty)
     }
 
-    @Test("An account that names no creator among its members has no slot to activate from")
-    func activationWithoutACreatorIsRefused() async {
+    @Test("An address other than the one the account carries now is not confirmed")
+    func confirmationOfAnotherAddressIsRefused() async {
         let account = makeJointAccount(
             status: .confirming(safeAddress: Constants.announcedSafeAddress),
-            members: Constants.owners.enumerated().map { index, address in
-                JointAccountMember(name: "Member \(index)", address: address, role: .member, isMe: false)
-            }
+            members: Constants.fullComposition
         )
 
-        let error = await activationError(of: account)
+        let error = await confirmationError(of: account, safeAddress: Constants.otherSafeAddress)
 
-        #expect(error as? JointAccountModelError == .notReadyForActivation)
-        #expect(delegate.activationConfigs.isEmpty)
+        #expect(error as? JointAccountModelError == .addressChanged)
+        #expect(delegate.confirmationConfigs.isEmpty)
     }
 
-    @Test("A composition that does not resolve to the announced address is refused before anything is signed")
-    func activationOfAnotherCompositionIsRefused() async {
-        let account = makeJointAccount(
-            // The address of the same members under a threshold of three
-            status: .confirming(safeAddress: Constants.announcedSafeAddress),
-            members: Constants.fullComposition,
-            threshold: 3
-        )
-
-        let error = await activationError(of: account)
-
-        #expect(error as? JointAccountSafeAddressVerifier.VerificationError == .addressMismatch)
-        #expect(delegate.activationConfigs.isEmpty)
-    }
-
-    @Test("An account the wallet has already let go of refuses to activate rather than reporting that it has")
-    func activationWithoutTheWalletThatRunsItIsRefused() async {
+    @Test("An account the wallet has already let go of refuses to confirm rather than reporting that it has")
+    func confirmationWithoutTheWalletThatRunsItIsRefused() async {
         var goneDelegate: JointAccountModelDelegateMock? = JointAccountModelDelegateMock()
         let account = makeJointAccount(
             status: .confirming(safeAddress: Constants.announcedSafeAddress),
@@ -99,40 +78,43 @@ struct JointAccountActivationTests {
 
         goneDelegate = nil
 
-        let error = await activationError(of: account)
+        let error = await confirmationError(of: account)
 
-        #expect(error as? JointAccountModelError == .activationUnavailable)
+        #expect(error as? JointAccountModelError == .confirmationUnavailable)
     }
 
-    @Test("What the wallet reports the activation with reaches whoever asked for it")
-    func activationFailureIsReported() async {
-        delegate.failActivation(with: .duplicateAccountName)
+    @Test("What the wallet reports the confirmation with reaches whoever asked for it")
+    func confirmationFailureIsReported() async {
+        delegate.failConfirmation(with: .duplicateAccountName)
         let account = makeJointAccount(
             status: .confirming(safeAddress: Constants.announcedSafeAddress),
             members: Constants.fullComposition
         )
 
         do throws(AccountEditError) {
-            try await account.activate()
-            Issue.record("The activation was reported as done")
+            try await account.confirm(safeAddress: Constants.announcedSafeAddress)
+            Issue.record("The confirmation was reported as done")
         } catch .duplicateAccountName {
             // The error the wallet reported, passed on as it was
         } catch {
-            Issue.record("The activation failed with \(error) instead")
+            Issue.record("The confirmation failed with \(error) instead")
         }
 
-        #expect(delegate.activationConfigs.count == 1)
+        #expect(delegate.confirmationConfigs.count == 1)
     }
 }
 
 // MARK: - Helpers
 
-private extension JointAccountActivationTests {
-    /// - Returns: What the activation failed with, unwrapped out of `AccountEditError.unknownError` because that is
+private extension JointAccountConfirmationTests {
+    /// - Returns: What the confirmation failed with, unwrapped out of `AccountEditError.unknownError` because that is
     /// how the joint account reports everything of its own, or `nil` when it went through.
-    func activationError(of account: any JointAccountModel) async -> (any Error)? {
+    func confirmationError(
+        of account: any JointAccountModel,
+        safeAddress: String = Constants.announcedSafeAddress
+    ) async -> (any Error)? {
         do throws(AccountEditError) {
-            try await account.activate()
+            try await account.confirm(safeAddress: safeAddress)
             return nil
         } catch {
             guard case .unknownError(let underlyingError) = error else {
@@ -170,7 +152,7 @@ private extension JointAccountActivationTests {
 
 // MARK: - Constants
 
-private extension JointAccountActivationTests {
+private extension JointAccountConfirmationTests {
     enum Constants {
         static let threshold = 2
         static let derivationIdentity = CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint)
@@ -184,15 +166,17 @@ private extension JointAccountActivationTests {
         ]
 
         static let announcedSafeAddress = "0x9295a5836685C5F5f42242f9B64d23E46F8c259F"
+        static let otherSafeAddress = "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"
 
-        /// Every slot taken, the creator's first, as the account reports them once it is waiting to be activated.
+        /// Every slot taken, the creator's first, as the account reports them once it is waiting to be confirmed.
         static var fullComposition: [JointAccountMember] {
             owners.enumerated().map { index, address in
                 JointAccountMember(
                     name: "Member \(index)",
                     address: address,
                     role: index == 0 ? .creator : .member,
-                    isMe: false
+                    isMe: false,
+                    signature: nil
                 )
             }
         }

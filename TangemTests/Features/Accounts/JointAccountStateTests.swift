@@ -15,7 +15,7 @@ import Testing
 @Suite("Tests for the state a joint account is asked for by")
 struct JointAccountStateTests {
     @Test(
-        "An account is still being put together until every slot is taken and the creator has activated it",
+        "An account is still being put together until every slot is taken and every member has confirmed it",
         arguments: [
             (JointAccountStatus.pending, true),
             (.confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"), true),

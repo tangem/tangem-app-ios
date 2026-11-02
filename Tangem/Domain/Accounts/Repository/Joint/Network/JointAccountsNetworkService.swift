@@ -39,11 +39,6 @@ protocol JointAccountsNetworkService {
     /// - Throws: `.conflict`, which is the end of that invite unless it came of the address being registered already.
     func joinJointAccount(blob: JointAccountJoinBlob) async throws -> RemoteJointAccount
 
-    /// - Throws: `.forbidden` when this wallet's slot is not the creator's, and `.conflict` while a slot is still free
-    /// or when what is being confirmed differs from what the account holds.
-    /// - Note: Activating an account that is active already succeeds, so a lost answer costs a repeat and no more.
-    func activateJointAccount(blob: JointAccountActivationBlob) async throws -> RemoteJointAccount
-
     /// Adds this member's confirmation of the composition and the address it adds up to; the last one puts the
     /// account to work.
     /// - Throws: `.badRequest` when the address is not in lower case or the signature is not this member's,

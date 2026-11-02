@@ -24,6 +24,7 @@ struct JointAccountConfirmSharedAddressView: View {
             .footer { Footer(.signingButton(confirmButton, secondary: mismatchButton)).showFade() }
         }
         .topNavigation(leading: .automatic)
+        .alert(item: $viewModel.alert) { $0.alert }
     }
 
     private var content: some View {
@@ -104,7 +105,7 @@ struct JointAccountConfirmSharedAddressView: View {
         SigningActionButtonView(
             type: viewModel.signingActionButtonType,
             title: Localization.jointAccountConfirmAddressConfirmButton,
-            isLoading: false,
+            isLoading: viewModel.isConfirming,
             isDisabled: false,
             action: viewModel.onConfirmTap
         )
@@ -143,11 +144,31 @@ private extension JointAccountConfirmSharedAddressView {
 
 // MARK: - Previews
 
+/// Outlives the account of the preview below, which holds it weakly.
+private let previewJointAccountDelegate = JointAccountModelDelegateMock()
+
 #Preview {
+    let jointAccount = CommonJointAccountModel(
+        cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
+        derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
+        accountPolicy: JointAccountPolicy(membersCount: 3, signersCount: 2),
+        accountStatus: .confirming(safeAddress: "0xbef7b368aac4e6752a9ce0xbef7b36a9cevef7b2336"),
+        operationsService: JointAccountOperationsServiceMock(),
+        pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
+        membersService: JointAccountMembersServiceMock(),
+        finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
+            pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
+            walletModelsManager: WalletModelsManagerMock()
+        ),
+        userRoleService: JointAccountUserRoleServiceMock(),
+        delegate: previewJointAccountDelegate
+    )
+
     NavigationStack {
         JointAccountConfirmSharedAddressView(
             viewModel: JointAccountConfirmSharedAddressViewModel(
-                address: "0xBef7B368aac4e6752A9cE0xBef7B36A9cEVef7B2336",
+                address: "0xbef7b368aac4e6752a9ce0xbef7b36a9cevef7b2336",
+                jointAccount: jointAccount,
                 signingActionButtonType: .requiredNFCInteraction,
                 coordinator: nil
             )

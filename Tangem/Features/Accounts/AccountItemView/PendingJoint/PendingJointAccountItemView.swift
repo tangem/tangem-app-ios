@@ -162,7 +162,8 @@ private let previewCreator = JointAccountMember(
     name: "Member 0",
     address: "0x0000000000000000000000000000000000000000",
     role: .creator,
-    isMe: false
+    isMe: false,
+    signature: nil
 )
 
 private func previewJointAccount(
@@ -191,7 +192,8 @@ private func previewJointAccount(
                         name: "Member \(index)",
                         address: "0x0000000000000000000000000000000000000000",
                         role: index == 0 ? .creator : .member,
-                        isMe: false
+                        isMe: false,
+                        signature: nil
                     ),
                     .joined
                 )

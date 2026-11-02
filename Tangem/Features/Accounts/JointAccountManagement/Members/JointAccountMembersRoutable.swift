@@ -15,4 +15,5 @@ protocol JointAccountMembersRoutable: AnyObject {
     func openShareInviteMember(url: URL, accountName: String)
     func showInviteIssueError(_ error: Error)
     func openMemberDetails(name: String, address: String, accentColor: Color)
+    func openConfirmSharedAddress(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig)
 }

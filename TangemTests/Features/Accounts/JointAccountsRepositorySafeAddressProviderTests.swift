@@ -52,24 +52,6 @@ struct JointAccountsRepositorySafeAddressProviderTests {
         withExtendedLifetime(subscription) {}
     }
 
-    /// A member who did not activate the account learns its address off a refresh alone, so a refresh is where an
-    /// address the composition does not resolve to has to be turned away.
-    @Test("An address the members and the threshold do not resolve to is not handed out, whenever it arrives")
-    func addressOfAnotherCompositionIsWithheld() {
-        let repository = JointAccountsRepositoryStub(jointAccounts: [
-            Self.storedAccount(status: .active(safeAddress: Self.safeAddress)),
-        ])
-        let sut = Self.makeSUT(repository: repository)
-        var emitted: [String?] = []
-        let subscription = sut.safeAddressPublisher.sink { emitted.append($0) }
-
-        repository.store([Self.storedAccount(status: .active(safeAddress: Self.foreignSafeAddress))])
-
-        #expect(sut.safeAddress == nil)
-        #expect(emitted == [Self.safeAddress, nil])
-        withExtendedLifetime(subscription) {}
-    }
-
     /// The endpoint keeps addresses in lower case, and the wallet is built around the form the app computes.
     @Test("The address is handed out in the form the composition resolves to, not in the case it was stored in")
     func addressIsHandedOutChecksummed() {
@@ -89,7 +71,6 @@ private extension JointAccountsRepositorySafeAddressProviderTests {
     static let derivationIdentity = CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint)
     /// What `memberAddresses` resolve to under a threshold of two — see `JointAccountSafeAddressVerifierTests`.
     static let safeAddress = "0x9295a5836685C5F5f42242f9B64d23E46F8c259F"
-    static let foreignSafeAddress = "0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21b"
     static let memberAddresses = [
         "0xa9936482d7d056d6f843f5C6088Ff0123b796bCC",
         "0xB8C09e7abE7e0F70f4F4cAf48eED46cc8BfdA120",

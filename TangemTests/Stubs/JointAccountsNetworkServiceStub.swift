@@ -139,10 +139,6 @@ final class JointAccountsNetworkServiceStub: JointAccountsNetworkService {
         throw "Not called by these tests"
     }
 
-    func activateJointAccount(blob: JointAccountActivationBlob) async throws -> RemoteJointAccount {
-        throw "Not called by these tests"
-    }
-
     func confirmJointAccount(blob: JointAccountConfirmationBlob) async throws -> RemoteJointAccount {
         throw "Not called by these tests"
     }

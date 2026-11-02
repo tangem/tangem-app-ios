@@ -28,8 +28,10 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
     @Published var aboutSignaturesViewModel: JointAccountAboutSignaturesViewModel?
     @Published var memberDetailsViewModel: JointAccountMemberDetailsViewModel?
     @Published var shareInviteMemberViewModel: JointAccountShareInviteMemberViewModel?
+    @Published var confirmSharedAddressViewModel: JointAccountConfirmSharedAddressViewModel?
 
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
 
     private var isCreationWalletFixed = false
 
@@ -216,6 +218,45 @@ extension JointAccountManagementCoordinator: JointAccountMembersRoutable {
             accentColor: accentColor,
             coordinator: self
         )
+    }
+
+    func openConfirmSharedAddress(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig) {
+        guard case .confirming(.some(let safeAddress)) = jointAccount.status else {
+            return
+        }
+
+        let signingActionButtonType = SigningActionButtonViewTypeBuilder().build(config: userWalletConfig)
+        confirmSharedAddressViewModel = JointAccountConfirmSharedAddressViewModel(
+            address: safeAddress,
+            jointAccount: jointAccount,
+            signingActionButtonType: signingActionButtonType,
+            coordinator: self
+        )
+    }
+}
+
+// MARK: - JointAccountConfirmSharedAddressRoutable
+
+extension JointAccountManagementCoordinator: JointAccountConfirmSharedAddressRoutable {
+    func shareSharedAddress(_ address: String) {
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [address], applicationActivities: nil))
+    }
+
+    func openSharedAddressMismatch() {
+        let logsComposer = LogsComposer(infoProvider: BaseDataCollector())
+        let mailViewModel = MailViewModel(
+            logsComposer: logsComposer,
+            recipient: EmailConfig.default.recipient,
+            emailType: .appFeedback(subject: EmailConfig.default.subject)
+        )
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
+    }
+
+    func didConfirmSharedAddress() {
+        confirmSharedAddressViewModel = nil
     }
 }
 

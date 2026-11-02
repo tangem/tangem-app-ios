@@ -22,6 +22,7 @@ struct JointAccountMember: Equatable {
     let address: String
     let role: Role
     let isMe: Bool
+    let signature: String?
 }
 
 // MARK: - Convenience
@@ -33,6 +34,6 @@ extension JointAccountMember {
         case .member: .member
         }
 
-        self.init(name: stored.name, address: stored.address, role: role, isMe: isMe)
+        self.init(name: stored.name, address: stored.address, role: role, isMe: isMe, signature: stored.signature)
     }
 }

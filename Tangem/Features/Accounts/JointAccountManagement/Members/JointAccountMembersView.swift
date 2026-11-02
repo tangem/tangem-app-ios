@@ -40,7 +40,6 @@ struct JointAccountMembersView: View {
         }
         .onWillAppear(perform: viewModel.onWillAppear)
         .onWillDisappear(perform: viewModel.onWillDisappear)
-        .alert(item: $viewModel.alert, content: { $0.alert })
     }
 
     @ViewBuilder

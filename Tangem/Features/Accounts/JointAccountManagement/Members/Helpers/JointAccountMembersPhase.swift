@@ -13,17 +13,20 @@ import TangemMacro
 @RawCaseName
 enum JointAccountMembersPhase: Equatable {
     case collecting(Collecting, isCreator: Bool)
-    case confirming(canActivate: Bool)
+    case confirming(canConfirm: Bool)
     case completed
 
-    init(status: JointAccountStatus, slots: [JointAccountSlot], isCreator: Bool, canActivate: Bool, now: Date) {
+    init(status: JointAccountStatus, slots: [JointAccountSlot], isCreator: Bool, now: Date) {
         switch status {
         case .pending:
             let collecting = Collecting(slots: slots, isCreator: isCreator, now: now)
             self = .collecting(collecting, isCreator: isCreator)
-        case .confirming:
-            self = .confirming(canActivate: canActivate)
-        case .active, .cancelled, .unknown:
+        case .confirming(.some):
+            let me = slots.members.first(where: \.isMe)
+            self = .confirming(canConfirm: me.map { $0.signature == nil } ?? false)
+        case .confirming(.none):
+            self = .confirming(canConfirm: false)
+        case .active, .untrusted, .cancelled, .unknown:
             self = .completed
         }
     }
