@@ -8,6 +8,7 @@
 
 public import Foundation
 private import os.lock
+private import SwiftUI
 public import class UIKit.UIImage
 public import Alamofire
 private import class Kingfisher.ImageCache
@@ -54,6 +55,7 @@ public extension MCPAssembly {
             fetchUserWalletImage: @escaping @Sendable (UserWalletId) async -> UIImage,
             updateUserWalletBalance: @escaping @Sendable (UserWalletId) -> AsyncStream<String>,
             openSystemSettingsAction: @escaping () -> Void,
+            connectionFailedAction: @escaping () -> Void,
             closeAction: @escaping () -> Void
         ) -> MCPConnectionRequestViewModel {
             let interactor = MCPConnectionRequestInteractor(
@@ -70,21 +72,15 @@ public extension MCPAssembly {
             let delegate = MCPConnectionRequestViewModel.Delegate(
                 closeButtonTapped: closeAction,
                 openSystemSettingsButtonTapped: openSystemSettingsAction,
-                fetchRequestErrorOccurred: { fetchRequestError in
-                    Self.presentToast(for: fetchRequestError)
+                fetchRequestErrorOccurred: { _ in
+                    connectionFailedAction()
+                },
+                proposalRejected: { _ in
                     closeAction()
                 },
-                proposalRejected: { rejectResult in
-                    switch rejectResult {
-                    case .success:
-                        break
-                    case .failure(let error):
-                        Self.handleProposalRejectError(error)
-                    }
-
-                    closeAction()
-                },
-                proposalAcceptErrorOccurred: Self.handleProposalAcceptError
+                proposalAcceptErrorOccurred: { _ in
+                    connectionFailedAction()
+                }
             )
 
             return MCPConnectionRequestViewModel(
@@ -100,60 +96,24 @@ public extension MCPAssembly {
         }
 
         public static func makeSwapIntent(
-            agent: MCPAgent,
-            fromAmount: MCPSwapAmount,
-            toToken: MCPToken,
+            initialLoadingResult: MCPIntentLoadingResult<MCPSwapIntentProposalState>,
             closeAction: @escaping () -> Void,
-            proceedAction: @escaping () -> Void
+            retryAction: @escaping () async -> MCPIntentLoadingResult<MCPSwapIntentProposalState>
         ) -> MCPSwapIntentViewModel {
             MCPSwapIntentViewModel(
-                closeAction: closeAction,
-                primaryAction: proceedAction,
-                state: MCPSwapIntentState(agent: agent, fromAmount: fromAmount, toToken: toToken)
-            )
-        }
-
-        public static func makeSwapIntent(
-            agent: MCPAgent,
-            fromToken: MCPToken,
-            toAmount: MCPSwapAmount,
-            closeAction: @escaping () -> Void,
-            proceedAction: @escaping () -> Void
-        ) -> MCPSwapIntentViewModel {
-            MCPSwapIntentViewModel(
-                closeAction: closeAction,
-                primaryAction: proceedAction,
-                state: MCPSwapIntentState(agent: agent, fromToken: fromToken, toAmount: toAmount)
+                initialLoadingResult: initialLoadingResult,
+                delegate: MCPSwapIntentViewModel.Delegate(flowTerminated: closeAction, issueRetryButtonTapped: retryAction)
             )
         }
 
         public static func makeSendIntent(
-            id: String,
-            agent: MCPAgent,
-            amount: String,
-            token: MCPToken,
+            initialLoadingResult: MCPIntentLoadingResult<MCPSendIntentProposalState>,
             closeAction: @escaping () -> Void,
-            proceedAction: @escaping () -> Void
+            retryAction: @escaping () async -> MCPIntentLoadingResult<MCPSendIntentProposalState>
         ) -> MCPSendIntentViewModel {
             MCPSendIntentViewModel(
-                id: id,
-                closeAction: closeAction,
-                primaryAction: proceedAction,
-                state: MCPSendIntentState(agent: agent, amount: amount, token: token)
-            )
-        }
-
-        public static func makeIntentStatus(
-            id: String,
-            status: MCPIntentStatus,
-            closeAction: @escaping () -> Void,
-            primaryAction: @escaping () -> Void
-        ) -> MCPIntentStatusViewModel {
-            MCPIntentStatusViewModel(
-                id: id,
-                closeAction: closeAction,
-                primaryAction: primaryAction,
-                state: MCPIntentStatusState(status: status)
+                initialLoadingResult: initialLoadingResult,
+                delegate: MCPSendIntentViewModel.Delegate(flowTerminated: closeAction, issueRetryButtonTapped: retryAction)
             )
         }
     }
@@ -213,15 +173,15 @@ extension MCPAssembly {
         }
 
         registry.register(MCPSwapIntentViewModel.self) { viewModel in
-            MCPSwapIntentView(viewModel: viewModel, kingfisherImageCache: Infrastructure.kingfisherImageCache)
+            MCPIntentView(viewModel: viewModel) { proposalViewModel in
+                MCPSwapIntentProposalView(viewModel: proposalViewModel, kingfisherImageCache: Infrastructure.kingfisherImageCache)
+            }
         }
 
         registry.register(MCPSendIntentViewModel.self) { viewModel in
-            MCPSendIntentView(viewModel: viewModel, kingfisherImageCache: Infrastructure.kingfisherImageCache)
-        }
-
-        registry.register(MCPIntentStatusViewModel.self) { viewModel in
-            MCPIntentStatusView(viewModel: viewModel)
+            MCPIntentView(viewModel: viewModel) { proposalViewModel in
+                MCPSendIntentProposalView(viewModel: proposalViewModel, kingfisherImageCache: Infrastructure.kingfisherImageCache)
+            }
         }
     }
 }
@@ -273,37 +233,5 @@ extension MCPAssembly {
         )
 
         static let kingfisherImageCache = ImageCache(name: "com.tangem.mcp.icons")
-    }
-}
-
-// MARK: - Error toasts
-
-// [REDACTED_TODO_COMMENT]
-// [REDACTED_TODO_COMMENT]
-
-extension MCPAssembly.ViewModels {
-    private static func presentToast(for fetchRequestError: MCPConnectionClientError) {
-        let errorMessage = "MCP connection proposal fetch failed"
-        let toast = Toast(view: WarningToast(text: errorMessage))
-
-        Self.present(toast: toast)
-    }
-
-    private static func handleProposalRejectError(_ error: MCPConnectionClientError) {
-        let errorMessage = "MCP connection decline failed"
-        let toast = Toast(view: WarningToast(text: errorMessage))
-
-        Self.present(toast: toast)
-    }
-
-    private static func handleProposalAcceptError(_ error: MCPConnectionClientError) {
-        let errorMessage = "MCP connection failed"
-        let toast = Toast(view: WarningToast(text: errorMessage))
-
-        Self.present(toast: toast)
-    }
-
-    private static func present(toast: some Toast<WarningToast>) {
-        toast.present(layout: .top(padding: 20), type: .temporary())
     }
 }

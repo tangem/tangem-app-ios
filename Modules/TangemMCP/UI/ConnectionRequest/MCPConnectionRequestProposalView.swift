@@ -30,7 +30,7 @@ struct MCPConnectionRequestProposalView: View {
             buttons
         }
         .animation(.linear(duration: 0.2), value: viewModel.state.agentSummary)
-        .animation(Animation.contentFrameUpdate, value: viewModel.state.pushPermissionsBanner)
+        .animation(Animation.mcpFloatingSheetFrameUpdate, value: viewModel.state.pushPermissionsBanner)
     }
 
     private var agentAndPermissionsCard: some View {
