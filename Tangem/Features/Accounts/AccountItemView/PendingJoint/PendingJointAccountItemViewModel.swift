@@ -105,8 +105,6 @@ final class PendingJointAccountItemViewModel: Identifiable, ObservableObject {
         case .pending:
             return Localization.jointAccountMembersProgress(slots.members.count, slots.count)
         case .active, .cancelled, .unknown:
-            assertionFailure("The plate is only shown for a joint account that is still being put together")
-
             return Localization.jointAccountMembersProgress(slots.members.count, slots.count)
         }
     }

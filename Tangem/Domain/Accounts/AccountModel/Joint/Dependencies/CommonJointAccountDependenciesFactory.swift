@@ -123,7 +123,6 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
             jointAccountsRepository: jointAccountsRepository,
-            networkService: jointAccountsNetworkService,
             userRoleService: userRoleService
         )
 

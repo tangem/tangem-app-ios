@@ -16,7 +16,6 @@ import TangemSdk
 struct CommonJointAccountMembersService {
     private let cryptoAccountId: String
     private let jointAccountsRepository: JointAccountsRepository
-    private let networkService: JointAccountsNetworkService
     private let userRoleService: JointAccountUserRoleService
     private let inviteLinkBuilder = JointAccountInviteLinkBuilder()
     private let inviteIssueProcessors = OSAllocatedUnfairLock(initialState: [JointAccountMemberSlotID: InviteIssueProcessor]())
@@ -25,11 +24,9 @@ struct CommonJointAccountMembersService {
         userWalletId: UserWalletId,
         derivationIdentity: CryptoAccountDerivationIdentity,
         jointAccountsRepository: JointAccountsRepository,
-        networkService: JointAccountsNetworkService,
         userRoleService: JointAccountUserRoleService
     ) {
         self.jointAccountsRepository = jointAccountsRepository
-        self.networkService = networkService
         self.userRoleService = userRoleService
         cryptoAccountId = CryptoAccountModelId(userWalletId: userWalletId, derivationIdentity: derivationIdentity).rawValue.hexString
     }
@@ -87,7 +84,7 @@ private extension CommonJointAccountMembersService {
         let issuedInvite: JointAccountIssuedInvite
 
         do {
-            issuedInvite = try await networkService.issueInvite(cryptoAccountId: cryptoAccountId, slot: slot)
+            issuedInvite = try await jointAccountsRepository.issueInvite(cryptoAccountId: cryptoAccountId, slot: slot)
         } catch let error as TangemAPIError where Constants.slotUnavailableCodes.contains(error.code) {
             // The slot was taken, the account left the pending stage or this wallet is not the creator any more, all
             // of which happened in another wallet: the screen still draws the slot as free until the next poll, so

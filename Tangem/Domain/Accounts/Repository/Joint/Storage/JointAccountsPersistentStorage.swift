@@ -18,5 +18,7 @@ protocol JointAccountsPersistentStorage {
 
     func appendNewOrUpdateExisting(_ account: StoredJointAccount) throws
 
+    func updateInvite(_ invite: StoredJointAccount.Invite, ofAccountWith cryptoAccountId: String) throws
+
     func replace(with accounts: [StoredJointAccount]) throws
 }

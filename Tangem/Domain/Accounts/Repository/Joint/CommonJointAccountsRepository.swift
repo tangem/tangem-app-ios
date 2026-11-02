@@ -197,6 +197,19 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
 
         try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: account))
     }
+
+    func issueInvite(cryptoAccountId: String, slot: JointAccountMemberSlotID) async throws -> JointAccountIssuedInvite {
+        guard isJointAccountsAvailable else {
+            throw InternalError.featureUnavailable
+        }
+
+        let invite = try await networkService.issueInvite(cryptoAccountId: cryptoAccountId, slot: slot)
+        let storedInvite = StoredJointAccount.Invite(slot: invite.slot, expiresAt: invite.expiresAt)
+
+        try persistentStorage.updateInvite(storedInvite, ofAccountWith: cryptoAccountId)
+
+        return invite
+    }
 }
 
 // MARK: - Private
