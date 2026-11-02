@@ -37,6 +37,7 @@ enum Feature: String, Hashable, CaseIterable {
     case hideRejectedSwapProviders
     case tangemPayCustomerSummary
     case yieldModuleOwnerActionUpgrade
+    case promoPage
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -70,6 +71,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .hideRejectedSwapProviders: return "[REDACTED_INFO]_hide_cex_provider_after_exchange_data_error"
         case .tangemPayCustomerSummary: return "[REDACTED_INFO]_tangem_pay_customer_summary"
         case .yieldModuleOwnerActionUpgrade: return "[REDACTED_INFO]_yield_module_owner_action_upgrade"
+        case .promoPage: return "[REDACTED_INFO]_promo_page"
         }
     }
 
@@ -103,6 +105,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .hideRejectedSwapProviders: return .version("6.7")
         case .tangemPayCustomerSummary: return .unspecified
         case .yieldModuleOwnerActionUpgrade: return .version("6.7")
+        case .promoPage: return .unspecified
         }
     }
 }
