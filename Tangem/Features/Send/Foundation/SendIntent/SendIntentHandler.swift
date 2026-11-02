@@ -219,7 +219,7 @@ private extension SendIntentHandler {
             return
         }
 
-        let agent = await MCPAssembly.fetchMCPAgent(agentID: intent.agentId)
+        let agent = await MCPAssembly.UseCases.fetchAgent(agentID: intent.agentId)
 
         guard !userWalletRepository.isLocked else {
             logger.info("Wallets got locked while the agent of the send intent was loading")

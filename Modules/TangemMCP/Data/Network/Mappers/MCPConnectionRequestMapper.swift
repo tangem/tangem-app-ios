@@ -12,7 +12,7 @@ import struct TangemFoundation.UserWalletId
 
 enum MCPConnectionRequestMapper {
     static func mapToDomainRequest(
-        _ fetchResponse: FetchMCPConnectionRequestDTO.Response
+        _ fetchResponse: MCPDeviceVerificationDTO.Get.Response
     ) -> MCPConnectionRequest {
         let agent = MCPAgentMapper.mapToDomain(fetchResponse)
 
@@ -26,21 +26,33 @@ enum MCPConnectionRequestMapper {
         )
     }
 
-    static func mapDecisionRequestBody(
+    static func mapDeviceVerificationPostBody(
         fromDomain domainRequest: MCPConnectionRequest,
         userWalletID: UserWalletId
-    ) -> MCPConnectionDecisionDTO.Request.Body {
-        MCPConnectionDecisionDTO.Request.Body(
+    ) -> MCPDeviceVerificationDTO.Post.Request.Body {
+        MCPDeviceVerificationDTO.Post.Request.Body(
             clientId: domainRequest.agent.id,
             walletId: userWalletID.value.base64EncodedString(),
             scope: domainRequest.scopes.elements
         )
     }
 
-    static func mapDecisionRequestQueryParameters(
+    static func mapDeviceVerificationPostQueryParameters(
         fromDomain domainRequest: MCPConnectionRequest
-    ) -> MCPConnectionDecisionDTO.Request.QueryParameters {
-        MCPConnectionDecisionDTO.Request.QueryParameters(
+    ) -> MCPDeviceVerificationDTO.Post.Request.QueryParameters {
+        mapDeviceVerificationUserCodeAndStateQueryParameters(fromDomain: domainRequest)
+    }
+
+    static func mapDeviceVerificationDeleteQueryParameters(
+        fromDomain domainRequest: MCPConnectionRequest
+    ) -> MCPDeviceVerificationDTO.Delete.Request.QueryParameters {
+        mapDeviceVerificationUserCodeAndStateQueryParameters(fromDomain: domainRequest)
+    }
+
+    private static func mapDeviceVerificationUserCodeAndStateQueryParameters(
+        fromDomain domainRequest: MCPConnectionRequest
+    ) -> MCPDeviceVerificationDTO.UserCodeAndStateQueryParameters {
+        MCPDeviceVerificationDTO.UserCodeAndStateQueryParameters(
             userCode: domainRequest.normalizedUserCode,
             state: domainRequest.oAuthState
         )

@@ -106,7 +106,7 @@ extension MCPIntentDeeplinkResponder {
             return
         }
 
-        let agent = await MCPAssembly.fetchMCPAgent(agentID: intent.agentID)
+        let agent = await MCPAssembly.UseCases.fetchAgent(agentID: intent.agentID)
         let fromToken = MCPModuleFactory.makeMCPToken(from: fromWalletModel)
         let toToken = MCPModuleFactory.makeMCPToken(from: toWalletModel)
 

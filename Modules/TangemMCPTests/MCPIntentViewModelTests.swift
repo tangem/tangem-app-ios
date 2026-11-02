@@ -85,7 +85,7 @@ struct MCPIntentViewModelTests {
     private static let intentId = "3f7c2a1e-9b4d-4c6a-8e21-5d0f7a9b1c33"
 
     private static func makeSendIntentViewModel(spy: ActionSpy) -> MCPSendIntentViewModel {
-        MCPAssembly.makeSendIntentViewModel(
+        MCPAssembly.ViewModels.makeSendIntent(
             id: intentId,
             agent: MCPAgent(id: "claude.ai", name: "Claude", host: "claude.ai", icon: nil),
             amount: "0.000001 ETH",
@@ -101,7 +101,7 @@ struct MCPIntentViewModelTests {
     }
 
     private static func makeIntentStatusViewModel(spy: ActionSpy) -> MCPIntentStatusViewModel {
-        MCPAssembly.makeIntentStatusViewModel(
+        MCPAssembly.ViewModels.makeIntentStatus(
             id: intentId,
             status: .unreachable(canRetry: true),
             closeAction: { spy.actions.append(.close) },
