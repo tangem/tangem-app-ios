@@ -21,5 +21,4 @@ struct JointAccountSignedBlob<Payload: Encodable> {
 
 typealias JointAccountCreationBlob = JointAccountSignedBlob<JointAccountCreationPayload>
 typealias JointAccountJoinBlob = JointAccountSignedBlob<JointAccountJoinPayload>
-typealias JointAccountActivationBlob = JointAccountSignedBlob<JointAccountActivationPayload>
 typealias JointAccountConfirmationBlob = JointAccountSignedBlob<JointAccountConfirmationPayload>

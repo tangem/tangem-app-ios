@@ -55,11 +55,31 @@ struct JointAccountManagementCoordinatorView: View {
             case .onboarding(let viewModel):
                 JointAccountOnboardingView(viewModel: viewModel)
             case .members(let viewModel):
-                JointAccountMembersView(viewModel: viewModel, dismissStyle: dismissStyle)
+                membersView(viewModel: viewModel, dismissStyle: dismissStyle)
             case nil:
                 EmptyView()
             }
         }
+    }
+
+    private func membersView(viewModel: JointAccountMembersViewModel, dismissStyle: JointAccountMembersView.DismissStyle) -> some View {
+        JointAccountMembersView(viewModel: viewModel, dismissStyle: dismissStyle)
+            .navigationDestination(isPresented: isConfirmSharedAddressPresented) {
+                if let viewModel = coordinator.confirmSharedAddressViewModel {
+                    JointAccountConfirmSharedAddressView(viewModel: viewModel)
+                }
+            }
+    }
+
+    private var isConfirmSharedAddressPresented: Binding<Bool> {
+        Binding(
+            get: { coordinator.confirmSharedAddressViewModel != nil },
+            set: { isPresented in
+                if !isPresented {
+                    coordinator.confirmSharedAddressViewModel = nil
+                }
+            }
+        )
     }
 
     @ViewBuilder
@@ -72,7 +92,7 @@ struct JointAccountManagementCoordinatorView: View {
         case .memberName(let viewModel):
             JointAccountMemberNameView(viewModel: viewModel)
         case .members(let viewModel):
-            JointAccountMembersView(viewModel: viewModel, dismissStyle: .close)
+            membersView(viewModel: viewModel, dismissStyle: .close)
         }
     }
 }

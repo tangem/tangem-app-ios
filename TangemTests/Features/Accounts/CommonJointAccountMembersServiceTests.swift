@@ -62,7 +62,15 @@ struct CommonJointAccountMembersServiceTests {
             memberSignatures: ["0xsignature", nil]
         )
 
-        #expect(sut.slots == [.member(Self.me(Self.creator), .confirmed), .member(Self.member, .awaitingConfirmation)])
+        let confirmedCreator = JointAccountMember(
+            name: Self.creator.name,
+            address: Self.creator.address,
+            role: Self.creator.role,
+            isMe: true,
+            signature: "0xsignature"
+        )
+
+        #expect(sut.slots == [.member(confirmedCreator, .confirmed), .member(Self.member, .awaitingConfirmation)])
     }
 
     @Test("Every member of an active account is active, whatever the listing says of their signatures")
@@ -153,7 +161,7 @@ struct CommonJointAccountMembersServiceTests {
     /// about being the slots of this account.
     @Test("The slot the wallet holds is marked as its own, and a free slot then takes its invite")
     func ownSlotIsLookedForAmongTheAccountsMembers() {
-        let own = JointAccountMember(name: "Me", address: Self.derivedAddress, role: .creator, isMe: false)
+        let own = JointAccountMember(name: "Me", address: Self.derivedAddress, role: .creator, isMe: false, signature: nil)
         let sut = Self.makeSUT(membersCount: 3, members: [own, Self.member], storedKeyPath: Self.ownPath)
 
         #expect(sut.slots.members.map(\.isMe) == [true, false])
@@ -175,19 +183,19 @@ private extension CommonJointAccountMembersServiceTests {
     static let later = Date(timeIntervalSince1970: 1_793_286_400)
 
     static var creator: JointAccountMember {
-        JointAccountMember(name: "Isaac", address: "0xcreator", role: .creator, isMe: false)
+        JointAccountMember(name: "Isaac", address: "0xcreator", role: .creator, isMe: false, signature: nil)
     }
 
     static var member: JointAccountMember {
-        JointAccountMember(name: "Bob", address: "0xbob", role: .member, isMe: false)
+        JointAccountMember(name: "Bob", address: "0xbob", role: .member, isMe: false, signature: nil)
     }
 
     static var otherMember: JointAccountMember {
-        JointAccountMember(name: "Carol", address: "0xcarol", role: .member, isMe: false)
+        JointAccountMember(name: "Carol", address: "0xcarol", role: .member, isMe: false, signature: nil)
     }
 
     static func me(_ member: JointAccountMember) -> JointAccountMember {
-        JointAccountMember(name: member.name, address: member.address, role: member.role, isMe: true)
+        JointAccountMember(name: member.name, address: member.address, role: member.role, isMe: true, signature: nil)
     }
 
     static func freeSlot(_ slot: Int, inviteExpiresAt: Date? = nil) -> JointAccountSlot {

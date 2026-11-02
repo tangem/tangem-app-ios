@@ -224,10 +224,6 @@ private struct JointAccountsNetworkServicePreviewStub: JointAccountsNetworkServi
         throw CancellationError()
     }
 
-    func activateJointAccount(blob: JointAccountActivationBlob) async throws -> RemoteJointAccount {
-        throw CancellationError()
-    }
-
     func confirmJointAccount(blob: JointAccountConfirmationBlob) async throws -> RemoteJointAccount {
         throw CancellationError()
     }

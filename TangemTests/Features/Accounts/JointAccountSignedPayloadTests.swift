@@ -14,7 +14,7 @@ import Testing
 
 /// The creation vector below is shared with Android and the backend: the same payload has to canonicalise to the same
 /// bytes and hash to the same digest everywhere, because the endpoint verifies the signature against its own canonical
-/// form of what it receives. A divergence here rejects every signature this platform produces. Joining and activating
+/// form of what it receives. A divergence here rejects every signature this platform produces. Joining and confirming
 /// have no vector of their own yet, so what is pinned for them is the layout this side lays them out in.
 @Suite("Tests for the form a joint account's requests are signed in")
 struct JointAccountSignedPayloadTests {
@@ -37,13 +37,6 @@ struct JointAccountSignedPayloadTests {
         let canonical = try JointAccountDerivationUtils.canonicalPayload(of: Constants.joinPayload)
 
         #expect(String(decoding: canonical, as: UTF8.self) == Constants.expectedCanonicalJoinPayload)
-    }
-
-    @Test("Activating puts the address inside the settings rather than beside them")
-    func activationPayloadCanonicalises() throws {
-        let canonical = try JointAccountDerivationUtils.canonicalPayload(of: Constants.activationPayload)
-
-        #expect(String(decoding: canonical, as: UTF8.self) == Constants.expectedCanonicalActivationPayload)
     }
 
     @Test("Confirming lays the settings and the lower-case address out flat, without the wallet or the account")
@@ -128,22 +121,6 @@ private extension JointAccountSignedPayloadTests {
         "inviteId":"7C1D5E9B3A8F2064D7E1C3A5B9F8027E4C6A1D3B5F7092E4C6A8D0B2F4E6A801",\
         "member":{"address":"0x2b5aD9c1E7F40638B2c1A9d3E5F70241C6b8A91c","derivation":7,"name":"Bob",\
         "walletId":"9A3E7C1B5D2F8064A2C4E6B8D0F2A4C6E8B0D2F4A6C8E0B2D4F6A8C0E2B4D6F8"}}
-        """
-
-        static let activationPayload = JointAccountActivationPayload(
-            walletId: "4B2F1C8A9E7D6053A1B4C7E2F8D9A0B3C5E7F1A2D4B6C8E0F2A4B6C8D0E2F4A6",
-            cryptoAccountId: "1D3F5A7C9E0B2D4F6A8C0E2B4D6F8A0C2E4B6D8F0A2C4E6B8D0F2A4C6E8B0D2F",
-            config: JointAccountActivationPayload.Config(
-                config: config,
-                safeAddress: "0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21b"
-            )
-        )
-
-        static let expectedCanonicalActivationPayload = """
-        {"config":{"icon":"Family","iconColor":"Azure","membersCount":3,"name":"Family",\
-        "safeAddress":"0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21b","threshold":2},\
-        "cryptoAccountId":"1D3F5A7C9E0B2D4F6A8C0E2B4D6F8A0C2E4B6D8F0A2C4E6B8D0F2A4C6E8B0D2F",\
-        "walletId":"4B2F1C8A9E7D6053A1B4C7E2F8D9A0B3C5E7F1A2D4B6C8E0F2A4B6C8D0E2F4A6"}
         """
 
         static let confirmationPayload = JointAccountConfirmationPayload(

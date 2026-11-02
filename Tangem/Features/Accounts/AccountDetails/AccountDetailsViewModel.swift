@@ -264,7 +264,7 @@ final class AccountDetailsViewModel: ObservableObject {
             return Localization.accountDetailsJointMembersProgress(slots.members.count, slots.count)
         case .confirming, .active:
             return Localization.accountDetailsJointMembersCount(slots.count)
-        case .cancelled, .unknown:
+        case .untrusted, .cancelled, .unknown:
             return nil
         }
     }

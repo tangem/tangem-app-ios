@@ -10,5 +10,5 @@ import Foundation
 
 /// A joint account is built on a crypto account, so whoever answers for the one answers for the other as well.
 protocol JointAccountModelDelegate: CommonCryptoAccountModelDelegate {
-    func activateJointAccount(with config: JointAccountActivationConfig) async throws(AccountEditError)
+    func confirmJointAccount(with config: JointAccountConfirmationConfig) async throws(AccountEditError) -> JointAccountStatus
 }

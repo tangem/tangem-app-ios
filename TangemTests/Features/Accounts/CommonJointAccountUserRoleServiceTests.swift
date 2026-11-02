@@ -22,7 +22,7 @@ struct CommonJointAccountUserRoleServiceTests {
     /// The endpoint keeps the addresses in lower case while the app computes the checksummed form.
     @Test("The wallet finds its slot regardless of how either address is cased")
     func slotIsMatchedCaseInsensitively() throws {
-        let lowercased = JointAccountMember(name: "Me", address: Self.derivedAddress.lowercased(), role: .creator, isMe: false)
+        let lowercased = JointAccountMember(name: "Me", address: Self.derivedAddress.lowercased(), role: .creator, isMe: false, signature: nil)
 
         #expect(try Self.makeSUT(members: [lowercased]).isCreator())
         #expect(try Self.makeSUT(members: nil).isMe(member: Self.stored(lowercased)))
@@ -67,11 +67,11 @@ private extension CommonJointAccountUserRoleServiceTests {
     }
 
     static func other(role: JointAccountMember.Role) -> JointAccountMember {
-        JointAccountMember(name: "Isaac", address: "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", role: role, isMe: false)
+        JointAccountMember(name: "Isaac", address: "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", role: role, isMe: false, signature: nil)
     }
 
     static func own(role: JointAccountMember.Role) -> JointAccountMember {
-        JointAccountMember(name: "Me", address: derivedAddress, role: role, isMe: false)
+        JointAccountMember(name: "Me", address: derivedAddress, role: role, isMe: false, signature: nil)
     }
 
     static func stored(_ member: JointAccountMember) -> StoredJointAccount.Member {

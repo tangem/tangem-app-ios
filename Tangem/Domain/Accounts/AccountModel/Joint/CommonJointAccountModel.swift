@@ -94,23 +94,16 @@ extension CommonJointAccountModel: JointAccountModel {
         accountStatus
     }
 
-    var canActivate: Bool {
-        guard case .confirming = accountStatus else {
-            return false
-        }
-
-        return userRoleService.isCreator ?? false
-    }
-
-    func activate() async throws(AccountEditError) {
+    @discardableResult
+    func confirm(safeAddress: String) async throws(AccountEditError) -> JointAccountStatus {
         guard let delegate else {
-            let error = JointAccountModelError.activationUnavailable
-            JointAccountsLogger.error("The joint account has nothing left to activate it", error: error)
+            let error = JointAccountModelError.confirmationUnavailable
+            JointAccountsLogger.error("The joint account has nothing left to confirm it", error: error)
             throw .unknownError(error)
         }
 
-        let config = try makeActivationConfig()
-        try await delegate.activateJointAccount(with: config)
+        let config = try makeConfirmationConfig(safeAddress: safeAddress)
+        return try await delegate.confirmJointAccount(with: config)
     }
 
     var name: String {
@@ -173,37 +166,16 @@ extension CommonJointAccountModel {
 // MARK: - Private
 
 private extension CommonJointAccountModel {
-    /// Checked before the wallet is asked for anything: a composition that does not resolve to the announced address
-    /// is not the account it claims to be, and there is nothing worth signing.
-    func makeActivationConfig() throws(AccountEditError) -> JointAccountActivationConfig {
-        // Announced, not verified: the address is the backend's word until the composition is checked against it.
-        // Read before the composition is, so that an account that cannot be activated costs nothing to turn away
-        guard case .confirming(.some(let announcedSafeAddress)) = status else {
-            throw .unknownError(JointAccountModelError.notReadyForActivation)
+    func makeConfirmationConfig(safeAddress: String) throws(AccountEditError) -> JointAccountConfirmationConfig {
+        guard case .confirming(.some(let statusSafeAddress)) = status else {
+            throw .unknownError(JointAccountModelError.notReadyForConfirmation)
         }
 
-        let members = membersService.slots.compactMap(\.member)
-
-        guard let creator = members.first(where: { $0.role == .creator }) else {
-            throw .unknownError(JointAccountModelError.notReadyForActivation)
+        guard statusSafeAddress == safeAddress else {
+            throw .unknownError(JointAccountModelError.addressChanged)
         }
 
-        let safeAddress: String
-
-        do {
-            safeAddress = try JointAccountSafeAddressVerifier.confirm(
-                announcedAddress: announcedSafeAddress,
-                owners: members.map(\.address),
-                threshold: accountPolicy.signersCount
-            )
-        } catch {
-            JointAccountsLogger.error("The joint account does not resolve to the address it was given", error: error)
-            throw .unknownError(error)
-        }
-
-        return JointAccountActivationConfig(
-            // The identifier the backend minted the account with is the one the app works out for itself, case included
-            cryptoAccountId: id.rawValue.hexString,
+        return JointAccountConfirmationConfig(
             signedConfig: JointAccountSignedConfig(
                 name: name,
                 icon: icon.name.rawValue,
@@ -212,7 +184,6 @@ private extension CommonJointAccountModel {
                 threshold: accountPolicy.signersCount
             ),
             safeAddress: safeAddress,
-            creatorAddress: creator.address,
             derivationIndex: derivationIdentity.derivationIndex
         )
     }

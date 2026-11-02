@@ -11,5 +11,5 @@ import Foundation
 protocol JointAccountConfirmSharedAddressRoutable: AnyObject {
     func shareSharedAddress(_ address: String)
     func openSharedAddressMismatch()
-    func confirmSharedAddress()
+    func didConfirmSharedAddress()
 }

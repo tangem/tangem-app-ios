@@ -23,7 +23,7 @@ struct JointAccountsTargetTests {
         #expect(target.method == .post)
     }
 
-    @Test("An account is confirmed with a POST to confirm, next to the activation it replaces")
+    @Test("An account is confirmed with a POST to confirm")
     func confirmTarget() {
         let payload = JointAccountConfirmationPayload(
             name: "Family",
