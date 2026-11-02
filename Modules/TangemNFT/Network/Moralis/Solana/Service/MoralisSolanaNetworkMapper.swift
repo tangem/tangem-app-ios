@@ -35,7 +35,7 @@ struct MoralisSolanaNetworkMapper {
             }
         }
 
-        return Array(collections.values)
+        return CollectorCryptRegrouper.regroup(Array(collections.values), ownerAddress: ownerAddress)
     }
 
     private func map(
