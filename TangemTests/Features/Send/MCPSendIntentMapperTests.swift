@@ -15,15 +15,16 @@ struct MCPSendIntentMapperTests {
         let intent = try map(Self.makeJSON())
 
         #expect(
-            intent == MCPSendIntent(
-                networkId: "polygon-pos",
-                tokenId: "tether",
+            intent == SendMCPIntent(
+                id: "3f7c2a1e-9b4d-4c6a-8e21-5d0f7a9b1c33",
+                networkID: "polygon-pos",
+                tokenID: "tether",
                 fromAddress: "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
                 toAddress: "0x1111111111111111111111111111111111111111",
                 amount: Decimal(string: "12.5", locale: Locale(identifier: "en_US_POSIX"))!,
                 memo: "12345",
                 isCompleted: false,
-                agentId: "https://claude.ai/oauth/claude-code-client-metadata"
+                agentID: "https://claude.ai/oauth/claude-code-client-metadata"
             )
         )
     }
@@ -41,7 +42,7 @@ struct MCPSendIntentMapperTests {
 
     @Test
     func rejectsUnsupportedType() throws {
-        let error = try #require(throws: MCPSendIntentError.self) {
+        let error = try #require(throws: SendMCPIntentError.self) {
             try map(Self.makeJSON(type: "SWAP"))
         }
 
@@ -91,7 +92,7 @@ struct MCPSendIntentMapperTests {
 
     @Test(arguments: ["abc", "12,5", "1,000.50", "0", "-1", "", ".5", "1.", "1e5", " 1", "1 ", "+1", "0x10", "NaN"])
     func rejectsInvalidAmount(amount: String) throws {
-        let error = try #require(throws: MCPSendIntentError.self) {
+        let error = try #require(throws: SendMCPIntentError.self) {
             try map(Self.makeJSON(amount: amount))
         }
 
@@ -101,9 +102,9 @@ struct MCPSendIntentMapperTests {
         }
     }
 
-    private func map(_ json: String) throws -> MCPSendIntent {
+    private func map(_ json: String) throws -> SendMCPIntent {
         let response = try JSONDecoder().decode(FetchMCPSendIntentDTO.Response.self, from: Data(json.utf8))
-        return try MCPSendIntentMapper.mapToDomainIntent(response)
+        return try SendMCPIntentMapper.mapToDomainIntent(response)
     }
 
     private static func makeJSON(

@@ -12,53 +12,6 @@ import BlockchainSdk
 
 @Suite("Intent validator")
 struct SendIntentValidatorTests {
-    // MARK: - Send availability
-
-    @Test("The wallet can send while it only lacks a balance or a fresh network state")
-    func sendsWhenNothingBlocksTheWallet() {
-        let statuses: [TokenActionAvailabilityProvider.SendActionAvailabilityStatus] = [
-            .available,
-            .zeroWalletBalance,
-            .blockchainLoading,
-            .blockchainUnreachable,
-            .hasOnlyCachedBalance,
-        ]
-
-        for status in statuses {
-            #expect(SendIntentValidator.canSend(status, hasBlockingPendingTransaction: false), "\(status)")
-        }
-    }
-
-    @Test("The wallet can't send when the card, a pending transaction or the account blocks it")
-    func doesNotSendWhenTheWalletIsBlocked() {
-        let statuses: [TokenActionAvailabilityProvider.SendActionAvailabilityStatus] = [
-            .oldCard,
-            .cantSignLongTransactions,
-            .hasPendingTransaction(blockchainDisplayName: "Ethereum"),
-            .yieldModuleApproveNeeded,
-            .noAccount,
-        ]
-
-        for status in statuses {
-            #expect(!SendIntentValidator.canSend(status, hasBlockingPendingTransaction: false), "\(status)")
-        }
-    }
-
-    @Test("A pending transaction blocks the send even while the balance is loading or only cached")
-    func doesNotSendOverPendingTransaction() {
-        let statuses: [TokenActionAvailabilityProvider.SendActionAvailabilityStatus] = [
-            .available,
-            .zeroWalletBalance,
-            .blockchainLoading,
-            .blockchainUnreachable,
-            .hasOnlyCachedBalance,
-        ]
-
-        for status in statuses {
-            #expect(!SendIntentValidator.canSend(status, hasBlockingPendingTransaction: true), "\(status)")
-        }
-    }
-
     // MARK: - Amount
 
     @Test("An amount fits the token when it has no more decimals than the token")
@@ -72,7 +25,7 @@ struct SendIntentValidatorTests {
         ]
 
         for (amount, decimalCount) in cases {
-            #expect(SendIntentValidator.fitsDecimals(Self.decimal(amount), decimalCount: decimalCount), "\(amount) with \(decimalCount) decimals")
+            #expect(SendMCPIntentValidator.fitsDecimals(Self.decimal(amount), decimalCount: decimalCount), "\(amount) with \(decimalCount) decimals")
         }
     }
 
@@ -86,7 +39,7 @@ struct SendIntentValidatorTests {
         ]
 
         for (amount, decimalCount) in cases {
-            #expect(!SendIntentValidator.fitsDecimals(Self.decimal(amount), decimalCount: decimalCount), "\(amount) with \(decimalCount) decimals")
+            #expect(!SendMCPIntentValidator.fitsDecimals(Self.decimal(amount), decimalCount: decimalCount), "\(amount) with \(decimalCount) decimals")
         }
     }
 
@@ -102,7 +55,7 @@ struct SendIntentValidatorTests {
 
         for candidate in candidates {
             #expect(
-                SendIntentValidator.isOwnAddress(candidate, ownAddresses: [Constants.ownEthereumAddress], blockchain: Constants.ethereum),
+                SendMCPIntentValidator.isOwnAddress(candidate, ownAddresses: [Constants.ownEthereumAddress], blockchain: Constants.ethereum),
                 "\(candidate)"
             )
         }
@@ -112,7 +65,7 @@ struct SendIntentValidatorTests {
     func doesNotMatchForeignAddress() {
         for candidate in [Constants.foreignEthereumAddress, ""] {
             #expect(
-                !SendIntentValidator.isOwnAddress(candidate, ownAddresses: [Constants.ownEthereumAddress], blockchain: Constants.ethereum),
+                !SendMCPIntentValidator.isOwnAddress(candidate, ownAddresses: [Constants.ownEthereumAddress], blockchain: Constants.ethereum),
                 "\(candidate)"
             )
         }
@@ -123,20 +76,20 @@ struct SendIntentValidatorTests {
     @Test("A valid foreign address of the network is a valid destination")
     func acceptsForeignAddress() {
         #expect(
-            SendIntentValidator.isValidDestination(
+            SendMCPIntentValidator.isValidDestination(
                 Constants.foreignEthereumAddress,
                 ownAddresses: [Constants.ownEthereumAddress],
                 blockchain: Constants.ethereum
             )
         )
-        #expect(SendIntentValidator.isValidDestination(Constants.xrpAddress, ownAddresses: [], blockchain: Constants.xrp))
+        #expect(SendMCPIntentValidator.isValidDestination(Constants.xrpAddress, ownAddresses: [], blockchain: Constants.xrp))
     }
 
     @Test("The sender's own address is never a destination, in any letter case")
     func rejectsOwnAddress() {
         for candidate in [Constants.ownEthereumAddress, Constants.ownEthereumAddress.uppercased().replacingOccurrences(of: "0X", with: "0x")] {
             #expect(
-                !SendIntentValidator.isValidDestination(candidate, ownAddresses: [Constants.ownEthereumAddress], blockchain: Constants.ethereum),
+                !SendMCPIntentValidator.isValidDestination(candidate, ownAddresses: [Constants.ownEthereumAddress], blockchain: Constants.ethereum),
                 "\(candidate)"
             )
         }
@@ -154,7 +107,7 @@ struct SendIntentValidatorTests {
 
         for (address, blockchain) in cases {
             #expect(
-                !SendIntentValidator.isValidDestination(address, ownAddresses: [Constants.ownEthereumAddress], blockchain: blockchain),
+                !SendMCPIntentValidator.isValidDestination(address, ownAddresses: [Constants.ownEthereumAddress], blockchain: blockchain),
                 "\(address) on \(blockchain.displayName)"
             )
         }
@@ -165,25 +118,25 @@ struct SendIntentValidatorTests {
     @Test("A network without a memo field ignores whatever memo the intent carries")
     func ignoresMemoWithoutMemoField() {
         for memo in [nil, "", "12345", "any text"] {
-            #expect(SendIntentValidator.isValidMemo(memo, for: Constants.ethereum), "\(String(describing: memo))")
+            #expect(SendMCPIntentValidator.isValidMemo(memo, for: Constants.ethereum), "\(String(describing: memo))")
         }
     }
 
     @Test("An XRP destination tag must be an unsigned 32-bit number, and a missing one is fine")
     func validatesXrpDestinationTag() {
         for memo in [nil, "", "0", "12345", "4294967295"] {
-            #expect(SendIntentValidator.isValidMemo(memo, for: Constants.xrp), "\(String(describing: memo))")
+            #expect(SendMCPIntentValidator.isValidMemo(memo, for: Constants.xrp), "\(String(describing: memo))")
         }
 
         for memo in ["abc", "-1", "4294967296", "1.5", "12 345"] {
-            #expect(!SendIntentValidator.isValidMemo(memo, for: Constants.xrp), "\(memo)")
+            #expect(!SendMCPIntentValidator.isValidMemo(memo, for: Constants.xrp), "\(memo)")
         }
     }
 
     @Test("A Stellar memo may be a number or text")
     func acceptsStellarTextMemo() {
         for memo in ["12345", "Pay for the coffee"] {
-            #expect(SendIntentValidator.isValidMemo(memo, for: Constants.stellar), "\(memo)")
+            #expect(SendMCPIntentValidator.isValidMemo(memo, for: Constants.stellar), "\(memo)")
         }
     }
 }

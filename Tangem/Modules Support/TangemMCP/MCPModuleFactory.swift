@@ -19,6 +19,7 @@ import TangemUIUtils
 
 enum MCPModuleFactory {
     @Injected(\.floatingSheetPresenter) private static var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.alertPresenter) private static var alertPresenter: any AlertPresenter
     @Injected(\.pushNotificationsPermission) private static var pushNotificationsPermission: any PushNotificationsPermissionService
     @Injected(\.userWalletRepository) private static var userWalletRepository: any UserWalletRepository
 
@@ -55,6 +56,7 @@ enum MCPModuleFactory {
         let selectedUserWalletID = userWalletRepository.selectedModel?.userWalletId
         let selectedUserWallet = userWallets.first { $0.id == selectedUserWalletID } ?? userWallets[0]
 
+        // [REDACTED_TODO_COMMENT]
         let pushNotificationsPermissionProvider = CommonMCPPushNotificationsPermissionProvider(
             service: Self.pushNotificationsPermission
         )
@@ -67,39 +69,19 @@ enum MCPModuleFactory {
             fetchUserWalletImage: Self.makeFetchUserWalletImage(),
             updateUserWalletBalance: Self.makeUpdateUserWalletBalance(),
             openSystemSettingsAction: UIApplication.openSystemSettings,
-            closeAction: closeActiveSheet()
-        )
-    }
-
-    @MainActor
-    static func makeSwapIntentViewModel(
-        agent: MCPAgent,
-        fromAmount: MCPSwapAmount,
-        toToken: MCPToken,
-        proceedAction: @escaping () -> Void
-    ) -> MCPSwapIntentViewModel {
-        MCPAssembly.ViewModels.makeSwapIntent(
-            agent: agent,
-            fromAmount: fromAmount,
-            toToken: toToken,
-            closeAction: closeActiveSheet(),
-            proceedAction: closeActiveSheet(then: proceedAction)
-        )
-    }
-
-    @MainActor
-    static func makeSwapIntentViewModel(
-        agent: MCPAgent,
-        fromToken: MCPToken,
-        toAmount: MCPSwapAmount,
-        proceedAction: @escaping () -> Void
-    ) -> MCPSwapIntentViewModel {
-        MCPAssembly.ViewModels.makeSwapIntent(
-            agent: agent,
-            fromToken: fromToken,
-            toAmount: toAmount,
-            closeAction: closeActiveSheet(),
-            proceedAction: closeActiveSheet(then: proceedAction)
+            connectionFailedAction: { [weak floatingSheetPresenter, weak alertPresenter] in
+                floatingSheetPresenter?.removeActiveSheet()
+                alertPresenter?.present(
+                    alert: AlertBuilder.makeAlertWithDefaultPrimaryButton(
+                        title: Localization.commonSomethingWentWrong,
+                        message: Localization.commonTryAgainLater,
+                        buttonText: Localization.commonOk
+                    )
+                )
+            },
+            closeAction: { [weak floatingSheetPresenter] in
+                floatingSheetPresenter?.removeActiveSheet()
+            }
         )
     }
 
@@ -136,27 +118,103 @@ enum MCPModuleFactory {
     static func makeFormattedAmount(_ amount: Decimal, symbol: String) -> String {
         balanceFormatter.formatCryptoBalance(amount, currencyCode: symbol)
     }
+}
+
+// MARK: - Swap intent
+
+extension MCPModuleFactory {
+    @MainActor
+    static func makeSwapIntentViewModel(
+        initialLoadingResult: MCPIntentLoadingResult<MCPSwapIntentProposalState>,
+        retryAction: @escaping () async -> MCPIntentLoadingResult<MCPSwapIntentProposalState>
+    ) -> MCPSwapIntentViewModel {
+        weak var futureViewModel: MCPSwapIntentViewModel?
+
+        let viewModel = MCPAssembly.ViewModels.makeSwapIntent(
+            initialLoadingResult: initialLoadingResult,
+            closeAction: { [weak floatingSheetPresenter] in
+                guard let futureViewModel else { return }
+                floatingSheetPresenter?.removeSheet(withId: futureViewModel.id)
+            },
+            retryAction: retryAction
+        )
+
+        futureViewModel = viewModel
+        return viewModel
+    }
+
+    @MainActor
+    static func makeSwapIntentProposal(
+        state: MCPSwapIntentProposalState,
+        proceedAction: @escaping () -> Void
+    ) -> MCPIntentLoadingResult<MCPSwapIntentProposalState> {
+        MCPIntentLoadingResult.proposal(
+            state,
+            proceedAction: { [weak floatingSheetPresenter] in
+                floatingSheetPresenter?.removeActiveSheet()
+                proceedAction()
+            }
+        )
+    }
+}
+
+// MARK: - Send intent
+
+extension MCPModuleFactory {
+    @MainActor
+    static func makeSendIntentViewModel(
+        initialLoadingResult: MCPIntentLoadingResult<MCPSendIntentProposalState>,
+        closeAction: @escaping () -> Void,
+        retryAction: @escaping () async -> MCPIntentLoadingResult<MCPSendIntentProposalState>
+    ) -> MCPSendIntentViewModel {
+        weak var futureViewModel: MCPSendIntentViewModel?
+
+        let viewModel = MCPAssembly.ViewModels.makeSendIntent(
+            initialLoadingResult: initialLoadingResult,
+            closeAction: { [weak floatingSheetPresenter] in
+                if let futureViewModel {
+                    floatingSheetPresenter?.removeSheet(withId: futureViewModel.id)
+                }
+                closeAction()
+            },
+            retryAction: retryAction
+        )
+
+        futureViewModel = viewModel
+        return viewModel
+    }
+
+    @MainActor
+    static func makeSendIntentProposal(
+        agent: MCPAgent,
+        amount: Decimal,
+        walletModel: some WalletModel,
+        proceedAction: @escaping () -> Void
+    ) -> MCPIntentLoadingResult<MCPSendIntentProposalState> {
+        let state = MCPSendIntentProposalState(
+            agent: agent,
+            amount: makeFormattedSendAmount(amount, tokenItem: walletModel.tokenItem),
+            token: makeMCPToken(from: walletModel)
+        )
+
+        return MCPIntentLoadingResult.proposal(
+            state,
+            proceedAction: { [weak floatingSheetPresenter] in
+                floatingSheetPresenter?.removeActiveSheet()
+                proceedAction()
+            }
+        )
+    }
 
     static func makeFormattedSendAmount(_ amount: Decimal, tokenItem: TokenItem) -> String {
-        SendCryptoValueFormatter(
-            decimals: tokenItem.decimalCount,
-            currencySymbol: tokenItem.currencySymbol,
-            trimFractions: false
-        ).string(from: amount)
+        SendCryptoValueFormatter(decimals: tokenItem.decimalCount, currencySymbol: tokenItem.currencySymbol, trimFractions: false)
+            .string(from: amount)
     }
 }
 
 // MARK: - Utility methods
 
 extension MCPModuleFactory {
-    @MainActor
-    private static func closeActiveSheet(then action: @escaping () -> Void = {}) -> () -> Void {
-        { [weak floatingSheetPresenter] in
-            floatingSheetPresenter?.removeActiveSheet()
-            action()
-        }
-    }
-
     private static func makeFetchUserWalletImage() -> @Sendable (UserWalletId) async -> UIImage {
         return { userWalletID in
             guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletID }) else {
@@ -220,43 +278,6 @@ private extension MCPUserWallet {
             name: userWalletModel.name,
             numberOfCards: userWalletModel.config.cardsCount,
             isLocked: userWalletModel.isUserWalletLocked
-        )
-    }
-}
-
-// MARK: - Send intent
-
-extension MCPModuleFactory {
-    @MainActor
-    static func makeSendIntentViewModel(
-        id: String,
-        agent: MCPAgent,
-        amount: Decimal,
-        walletModel: some WalletModel,
-        proceedAction: @escaping () -> Void
-    ) -> MCPSendIntentViewModel {
-        MCPAssembly.ViewModels.makeSendIntent(
-            id: id,
-            agent: agent,
-            amount: makeFormattedSendAmount(amount, tokenItem: walletModel.tokenItem),
-            token: makeMCPToken(from: walletModel),
-            closeAction: closeActiveSheet(),
-            proceedAction: closeActiveSheet(then: proceedAction)
-        )
-    }
-
-    @MainActor
-    static func makeIntentStatusViewModel(
-        id: String,
-        status: MCPIntentStatus,
-        primaryActionClosesSheet: Bool,
-        primaryAction: @escaping () -> Void
-    ) -> MCPIntentStatusViewModel {
-        MCPAssembly.ViewModels.makeIntentStatus(
-            id: id,
-            status: status,
-            closeAction: closeActiveSheet(),
-            primaryAction: primaryActionClosesSheet ? closeActiveSheet(then: primaryAction) : primaryAction
         )
     }
 }
