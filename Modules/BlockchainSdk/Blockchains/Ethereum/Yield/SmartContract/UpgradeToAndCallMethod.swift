@@ -91,6 +91,10 @@ public extension UpgradeToAndCallMethod {
             callData: Data(arguments[payloadStart ..< payloadStart + Int(length)])
         )
     }
+
+    init?(calldata: String) {
+        self.init(calldata: Data(hexString: calldata))
+    }
 }
 
 extension UpgradeToAndCallMethod: SmartContractMethod {
