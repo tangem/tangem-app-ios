@@ -29,6 +29,12 @@ extension CryptoAccountFormViewCreator: AccountFormViewCreator {
 
     var mainButtonTitle: String { Localization.commonCreateAccount }
 
+    var initialAccountName: String { "" }
+
+    var initialIcon: AccountModel.CompositeIcon { AccountModelUtils.UI.newAccountIcon() }
+
+    var showsAccountIndexDescription: Bool { true }
+
     var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
         userWalletModelSubject
             .map { $0.accountModelsManager.totalCryptoAccountsCountPublisher }

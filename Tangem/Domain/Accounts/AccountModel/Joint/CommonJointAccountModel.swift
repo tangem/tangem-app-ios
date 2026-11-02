@@ -23,6 +23,7 @@ final class CommonJointAccountModel {
     private let operationsService: any JointAccountOperationsService
     private let pendingOperationsProvider: any JointAccountPendingOperationsProvider
     private let membersService: any JointAccountMembersService
+    private let finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater
     private let userRoleService: any JointAccountUserRoleService
     private weak var delegate: (any JointAccountModelDelegate)?
 
@@ -36,6 +37,7 @@ final class CommonJointAccountModel {
         operationsService: any JointAccountOperationsService,
         pendingOperationsProvider: any JointAccountPendingOperationsProvider,
         membersService: any JointAccountMembersService,
+        finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater,
         userRoleService: any JointAccountUserRoleService,
         delegate: any JointAccountModelDelegate
     ) {
@@ -46,6 +48,7 @@ final class CommonJointAccountModel {
         self.operationsService = operationsService
         self.pendingOperationsProvider = pendingOperationsProvider
         self.membersService = membersService
+        self.finishedOperationsWalletUpdater = finishedOperationsWalletUpdater
         self.userRoleService = userRoleService
         self.delegate = delegate
     }
@@ -255,6 +258,7 @@ extension CommonJointAccountModel: BalanceProvidingAccountModel {
 
 extension CommonJointAccountModel: DisposableEntity {
     nonisolated func dispose() {
+        finishedOperationsWalletUpdater.dispose()
         cryptoAccount.dispose()
     }
 }

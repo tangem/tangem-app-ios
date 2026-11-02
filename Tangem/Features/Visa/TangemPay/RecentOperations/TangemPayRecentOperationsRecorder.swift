@@ -47,7 +47,7 @@ private extension TangemPayRecentOperationsRecorder {
         TangemPayRecentOperation.Side(
             userWalletId: token.userWalletInfo.id.stringValue,
             tokenItem: token.tokenItem,
-            isPaymentAccount: token.isTangemPayAccount
+            isPaymentAccount: token.accountType == .tangemPay
         )
     }
 }

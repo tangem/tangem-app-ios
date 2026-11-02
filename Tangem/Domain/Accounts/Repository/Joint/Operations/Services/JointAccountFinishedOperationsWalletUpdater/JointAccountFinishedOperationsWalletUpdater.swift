@@ -39,6 +39,10 @@ final class JointAccountFinishedOperationsWalletUpdater {
             }
     }
 
+    func dispose() {
+        subscription = nil
+    }
+
     private func updateWallets(in networks: Set<BlockchainNetwork>) {
         for walletModel in walletModelsManager.walletModels where networks.contains(walletModel.tokenItem.blockchainNetwork) {
             walletModel.updateAfterSendingTransaction(silent: true)

@@ -197,6 +197,10 @@ private func previewJointAccount(
                 )
             }
         ),
+        finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
+            pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
+            walletModelsManager: WalletModelsManagerMock()
+        ),
         userRoleService: JointAccountUserRoleServiceMock(creator: isCreator),
         delegate: previewJointAccountDelegate
     )
