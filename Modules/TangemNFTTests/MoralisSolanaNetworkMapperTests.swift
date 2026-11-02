@@ -232,4 +232,104 @@ struct MoralisSolanaNetworkMapperTests {
 
         #expect(NFTCachedModels.ContractTypeUtils.deserialize(contractTypeIdentifier: serialized) == .other("MplCore"))
     }
+
+    @Test("Collector Crypt cards are split into collections by Category, cards without one go to Collector Crypt")
+    func splitsCollectorCryptCardsByCategory() throws {
+        let collections = try mapCards(
+            regular: [Self.regularCard("Pikachu", traits: ["Collector Crypt ID": "C1", "Category": "Pokemon"])],
+            core: Self.collectorCryptCoreCards
+        )
+
+        let summary = collections.map { collection in
+            let cards = collection.assetsResult.value.map(\.name).sorted().joined(separator: ", ")
+            return "\(collection.name): \(cards)"
+        }.sorted()
+
+        #expect(summary == [
+            "Collector Crypt: Mystery",
+            "One Piece (Collector Crypt): Luffy",
+            "Pokemon (Collector Crypt): Charizard, Pikachu",
+        ])
+    }
+
+    @Test("An unnamed collection keeps the default name and loses only its Collector Crypt cards")
+    func keepsOtherNFTsInTheirCollection() throws {
+        let collections = try mapCards(
+            regular: [
+                Self.regularCard("Legacy", traits: ["Category": "Pokemon"]),
+                Self.regularCard("Pikachu", traits: ["Collector Crypt ID": "C1", "Category": "Pokemon"]),
+                Self.regularCard("Plain", collectionAddress: Self.plainCollectionAddress, traits: [:]),
+            ],
+            core: []
+        )
+
+        let legacy = try #require(collections.first { $0.id.collectionIdentifier == Self.pnftCollectionAddress })
+        let plain = try #require(collections.first { $0.id.collectionIdentifier == Self.plainCollectionAddress })
+        #expect(legacy.name == plain.name)
+        #expect(legacy.assetsResult.value.map(\.name) == ["Legacy"])
+        #expect(legacy.assetsCount == 1)
+    }
+
+    @Test("Each Collector Crypt collection gets its own id, the same on every load")
+    func keepsCollectorCryptCollectionIdsStable() throws {
+        let firstLoad = try mapCards(regular: [], core: Self.collectorCryptCoreCards)
+        let secondLoad = try mapCards(regular: [], core: Self.collectorCryptCoreCards)
+
+        let identifiers = firstLoad.map(\.id.collectionIdentifier).sorted()
+        #expect(Set(identifiers).count == 3)
+        #expect(identifiers == secondLoad.map(\.id.collectionIdentifier).sorted())
+    }
+}
+
+// MARK: - Helpers
+
+private extension MoralisSolanaNetworkMapperTests {
+    static let pnftCollectionAddress = "PnftCollection11111111111111111111111111111"
+    static let plainCollectionAddress = "PlainCollection1111111111111111111111111111"
+
+    static let collectorCryptCoreCards = [
+        coreCard("Charizard", traits: ["Collector Crypt ID": "C2", "Category": "Pokemon"]),
+        coreCard("Luffy", traits: ["Collector Crypt ID": "C3", "Category": "One Piece"]),
+        coreCard("Mystery", traits: ["Collector Crypt ID": "C4"]),
+    ]
+
+    func mapCards(regular: [String], core: [String]) throws -> [NFTCollection] {
+        let regularAssets = try MoralisSolanaFixtures.decodeRegularAssets("[\(regular.joined(separator: ","))]")
+        let coreResponse = try MoralisSolanaFixtures.decodeResponse(#"{ "result": [\#(core.joined(separator: ","))] }"#)
+        let coreAssets = try #require(coreResponse.result)
+
+        return mapper.map(regularAssets: regularAssets, coreAssets: coreAssets, ownerAddress: ownerAddress)
+    }
+
+    static func regularCard(
+        _ name: String,
+        collectionAddress: String = pnftCollectionAddress,
+        traits: KeyValuePairs<String, String>
+    ) -> String {
+        """
+        {
+          "mint": "\(name)Mint",
+          "tokenStandard": 4,
+          "name": "\(name)",
+          "collection": { "collectionAddress": "\(collectionAddress)", "name": "" },
+          "attributes": \(attributes(traits))
+        }
+        """
+    }
+
+    static func coreCard(_ name: String, traits: KeyValuePairs<String, String>) -> String {
+        """
+        {
+          "tokenAddress": "\(name)Token",
+          "tokenStandard": "MplCore",
+          "name": "\(name)",
+          "metadata": { "attributes": \(attributes(traits)) },
+          "collection": { "address": "CoreCollection11111111111111111111111111111", "name": "Collector Crypt" }
+        }
+        """
+    }
+
+    static func attributes(_ traits: KeyValuePairs<String, String>) -> String {
+        "[" + traits.map { #"{ "traitType": "\#($0.key)", "value": "\#($0.value)" }"# }.joined(separator: ",") + "]"
+    }
 }
