@@ -61,6 +61,10 @@ protocol CollectiblesBuybackInteractorProvider: AnyObject {
     var buybackInteractor: any CollectiblesBuybackInteractor { get }
 }
 
+protocol CollectiblesPendingDerivationNetworksProvider: AnyObject {
+    var pendingDerivationNetworksPublisher: AnyPublisher<[BlockchainNetwork], Never> { get }
+}
+
 /// Refines `CollectiblesOnboarder`: the account model owns the vault's state, so it is also what walks that
 /// state to `.ready` — the alternative is a second object deciding the same three questions from its own reads.
 protocol CollectiblesAccountModel: BaseAccountModel,
@@ -71,7 +75,8 @@ protocol CollectiblesAccountModel: BaseAccountModel,
     CollectiblesRelinkStatusProvider,
     CollectiblesDepositAwaiter,
     CollectiblesPackPurchaseInteractorProvider,
-    CollectiblesBuybackInteractorProvider
+    CollectiblesBuybackInteractorProvider,
+    CollectiblesPendingDerivationNetworksProvider
     where Icon == AccountModel.StandaloneIcon, ID == CollectiblesAccountId {
     var state: CollectiblesState { get }
 

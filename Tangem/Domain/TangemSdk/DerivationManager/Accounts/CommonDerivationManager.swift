@@ -26,8 +26,9 @@ final class CommonDerivationManager {
         self.keysRepository = keysRepository
     }
 
-    private func process(entries: [TokenItem], keys: [KeyInfo]) {
-        pendingDerivations = entries.flatMap { PendingDerivationHelper.pendingDerivations(network: $0.blockchainNetwork, keys: keys) }
+    private func process(entries: [TokenItem], collectiblesNetworks: [BlockchainNetwork], keys: [KeyInfo]) {
+        let networks = entries.map(\.blockchainNetwork) + collectiblesNetworks
+        pendingDerivations = networks.flatMap { PendingDerivationHelper.pendingDerivations(network: $0, keys: keys) }
     }
 
     /// - Note: The implementation is equivalent to `CommonDerivationManager.deriveKeys(completion:)`,
@@ -127,11 +128,11 @@ extension CommonDerivationManager: DerivationDependenciesConfigurable {
                     .map { $0.flattened() }
                     .eraseToAnyPublisher()
             }
-            .combineLatest(keysRepository.keysPublisher)
+            .combineLatest(accountModelsManager.collectiblesPendingDerivationNetworksPublisher, keysRepository.keysPublisher)
             .withWeakCaptureOf(self)
             .sink { manager, input in
-                let (entries, keys) = input
-                manager.process(entries: entries, keys: keys)
+                let (entries, collectiblesNetworks, keys) = input
+                manager.process(entries: entries, collectiblesNetworks: collectiblesNetworks, keys: keys)
             }
     }
 }

@@ -15,6 +15,7 @@ actor CollectiblesAccountModelsRegistry {
     private let dependenciesFactory: DependenciesFactory
     private var cache: CommonCollectiblesAccountModel?
     private var accountListUpdater: AccountListUpdater?
+    private var coldOwnerKeyObserver: ColdOwnerKeyObserver?
 
     init(dependenciesFactory: DependenciesFactory) {
         self.dependenciesFactory = dependenciesFactory
@@ -50,6 +51,7 @@ private extension CollectiblesAccountModelsRegistry {
 
         cache = accountModel
         accountListUpdater = makeAccountListUpdater(dependencies: dependencies)
+        coldOwnerKeyObserver = makeColdOwnerKeyObserver(dependencies: dependencies)
 
         return accountModel
     }
@@ -59,7 +61,9 @@ private extension CollectiblesAccountModelsRegistry {
             manager: dependencies.manager,
             name: Localization.collectiblesMainTitle,
             balanceService: dependencies.balanceService,
-            buybackSigningLimits: dependencies.buybackSigningLimits
+            buybackSigningLimits: dependencies.buybackSigningLimits,
+            coldOwnerNetwork: dependencies.coldOwnerNetwork,
+            keysPublisher: dependencies.keysPublisher
         )
     }
 
@@ -70,6 +74,19 @@ private extension CollectiblesAccountModelsRegistry {
             addToAccountList: { [accountListWriter = dependencies.accountListWriter] config in
                 runTask {
                     await accountListWriter.add(config)
+                }
+            }
+        )
+    }
+
+    func makeColdOwnerKeyObserver(dependencies: Dependencies) -> ColdOwnerKeyObserver {
+        ColdOwnerKeyObserver(
+            keysPublisher: dependencies.keysPublisher,
+            isSyncRequiredPublisher: dependencies.manager.isSyncRequiredPublisher,
+            isOnboardingPublisher: dependencies.manager.isOnboardingPublisher,
+            refreshState: { [manager = dependencies.manager] in
+                runTask {
+                    await manager.refreshState()
                 }
             }
         )
