@@ -108,3 +108,9 @@ public extension TangemPayCustomerSummaryResponse {
         public let pending: Int
     }
 }
+
+public extension TangemPayCustomerSummaryResponse.PaymentAccount {
+    var areAllCardsDeactivated: Bool {
+        activation.status == .completed && cards.active + cards.frozen + cards.pending == 0
+    }
+}

@@ -295,6 +295,13 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
             let account = makePaymentAccount(customerInfo: customerInfo, summary: summary)
             stateSubject.value = .cardDeactivated(account)
 
+        case .failedToIssueCard(let customerInfo, let summary):
+            let account = makePaymentAccount(customerInfo: customerInfo, summary: summary)
+            customerInfoCacheStorage.saveCachedCustomerInfo(customerInfo, customerWalletId: customerWalletId)
+            customerSummaryCacheStorage.saveCachedCustomerSummary(summary, userWalletId: userWalletId)
+            stateSubject.value = .failedToIssueCard(account)
+            Analytics.log(.visaOnboardingVisaKYCPassedAndOrderCreated, analyticsSystems: .all, contextParams: .userWallet(userWalletId))
+
         case .kycRequired:
             orderStatusPollingService.cancel()
             stateSubject.value = makeKYCRequiredState()
@@ -310,6 +317,9 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
 
         case .planSelectNeeded:
             stateSubject.value = .planSelectNeeded(tariffPlanSelector: weakReferenceHolder)
+
+        case .unavailable:
+            stateSubject.value = .unavailable
         }
     }
 
@@ -372,7 +382,13 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
 
         // A failed lookup must not block enrollment — `findOrders` is not known to answer before KYC —
         // so `try?` falls through to placing the order.
-        if (try? await orderResolver.findActiveCardIssueOrder()) != nil {
+        let hasActiveCardIssueOrder = if FeatureProvider.isAvailable(.tangemPayCustomerSummary) {
+            (try? await customerService.loadCustomerSummary())?.paymentAccount.activation.status == .processing
+        } else {
+            (try? await orderResolver.findActiveCardIssueOrder()) != nil
+        }
+
+        if hasActiveCardIssueOrder {
             await refreshState()
             return
         }
@@ -508,8 +524,10 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         runTask {
             await account.resumeActiveIssueOrderPolling()
         }
-        runTask {
-            await account.checkFailedToIssueState()
+        if !FeatureProvider.isAvailable(.tangemPayCustomerSummary) {
+            runTask {
+                await account.checkFailedToIssueState()
+            }
         }
 
         return account
