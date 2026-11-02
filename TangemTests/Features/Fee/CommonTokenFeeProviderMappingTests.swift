@@ -40,7 +40,8 @@ struct CommonTokenFeeProviderMappingTests {
             customFeeProvider: nil,
             feeTokenItemBalanceProvider: MutableTokenBalanceProviderMock(balance: balance),
             supportingOptions: .all,
-            minimumRequiredBalance: minimumRequiredBalance
+            minimumRequiredBalance: minimumRequiredBalance,
+            payer: .user
         )
     }
 

@@ -141,6 +141,19 @@ extension WalletModelTokenFeeLoaderProvider: TokenFeeLoaderProvider {
         )
     }
 
+    func makeSolanaGaslessTokenFeeLoader() -> TokenFeeLoader? {
+        guard case .solana(_, testnet: false) = walletModel.tokenItem.blockchain,
+              walletModel.solanaGaslessTransactionBuilder != nil else {
+            return nil
+        }
+
+        return SolanaGaslessTokenFeeLoader(
+            networkFeeLoader: makeMainTokenFeeLoader(),
+            feeTokenItem: walletModel.feeTokenItem,
+            feePayerProvider: { await InjectedValues[\.gaslessTransactionsNetworkManager].solanaFeePayer }
+        )
+    }
+
     func makeCustomFeeProvider() -> (any CustomFeeProvider)? {
         let tokenItem = walletModel.tokenItem
         let feeTokenItem = walletModel.feeTokenItem

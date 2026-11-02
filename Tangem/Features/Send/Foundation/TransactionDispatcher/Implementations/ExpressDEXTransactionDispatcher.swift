@@ -15,6 +15,7 @@ final class ExpressDEXTransactionDispatcher {
     private let walletModel: any WalletModel
     private let transactionSigner: TangemSigner
     private let transferTransactionDispatcher: TransactionDispatcher
+    private let solanaGaslessTransactionSender: SolanaGaslessTransactionSender
 
     private var feeTokenItem: TokenItem { walletModel.feeTokenItem }
     private var transactionCreator: TransactionCreator { walletModel.transactionCreator }
@@ -22,11 +23,13 @@ final class ExpressDEXTransactionDispatcher {
     init(
         walletModel: any WalletModel,
         transactionSigner: TangemSigner,
-        transferTransactionDispatcher: TransactionDispatcher
+        transferTransactionDispatcher: TransactionDispatcher,
+        solanaGaslessTransactionSender: SolanaGaslessTransactionSender
     ) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.transferTransactionDispatcher = transferTransactionDispatcher
+        self.solanaGaslessTransactionSender = solanaGaslessTransactionSender
     }
 }
 
@@ -43,6 +46,10 @@ extension ExpressDEXTransactionDispatcher: TransactionDispatcher {
             let transaction = try await buildTransaction(data: data, fee: fee)
             let result = try await transferTransactionDispatcher.send(transaction: .transfer(transaction))
             return result
+
+        case .solana where fee.parameters is SolanaGaslessFeeParameters:
+            let compiled = try buildRawCompiledTransaction(data: data, fee: fee)
+            return try await solanaGaslessTransactionSender.send(compiledTransaction: compiled, fee: fee)
 
         case .solana:
             guard let sender = walletModel.compiledTransactionSender else {

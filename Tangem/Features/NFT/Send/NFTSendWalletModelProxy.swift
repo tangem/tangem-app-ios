@@ -393,6 +393,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.tronGaslessTransactionsBuilder
     }
 
+    var solanaGaslessTransactionBuilder: (any SolanaGaslessTransactionBuilder)? {
+        mainTokenWalletModel.solanaGaslessTransactionBuilder
+    }
+
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? {
         mainTokenWalletModel.pendingTransactionRecordAdder
     }

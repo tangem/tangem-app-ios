@@ -735,11 +735,11 @@ extension SendWithSwapModel: TokenFeeProvidersManagerProviding {
 // MARK: - FeeSelectorOutput
 
 extension SendWithSwapModel: FeeSelectorOutput {
-    func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
+    func userDidFinishSelection(feeProviderID: TokenFeeProviderID, feeOption: FeeOption) {
         if isSwapMode {
-            swapModel.userDidFinishSelection(feeTokenItem: feeTokenItem, feeOption: feeOption)
+            swapModel.userDidFinishSelection(feeProviderID: feeProviderID, feeOption: feeOption)
         } else {
-            transferModel.userDidFinishSelection(feeTokenItem: feeTokenItem, feeOption: feeOption)
+            transferModel.userDidFinishSelection(feeProviderID: feeProviderID, feeOption: feeOption)
         }
     }
 }

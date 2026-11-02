@@ -740,6 +740,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
         walletManager as? TronGaslessTransactionsBuilder
     }
 
+    var solanaGaslessTransactionBuilder: (any SolanaGaslessTransactionBuilder)? {
+        walletManager as? SolanaGaslessTransactionBuilder
+    }
+
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? {
         walletManager as? PendingTransactionRecordAdding
     }
