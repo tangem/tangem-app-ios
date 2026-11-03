@@ -25,4 +25,15 @@ enum BiometryLogoImage {
             return Image("")
         }
     }
+
+    static var imageType: ImageType? {
+        switch BiometricsUtil.biometryType {
+        case .faceID:
+            return Assets.Biometry.faceId
+        case .touchID:
+            return Assets.Biometry.touchId
+        default:
+            return nil
+        }
+    }
 }
