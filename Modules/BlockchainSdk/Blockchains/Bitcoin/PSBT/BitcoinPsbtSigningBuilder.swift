@@ -17,10 +17,11 @@ import TangemSdk
 ///   FORKID inputs are finalized manually instead: BDK (rust-bitcoin) rejects a `partial_sigs`
 ///   entry with the non-standard 0x41 sighash byte at PSBT parse time.
 /// - Important: `BitcoinDevKit.Psbt.extractTx()` enforces a BTC-centric fee-rate sanity cap
-///   (`AbsurdFeeRate`, ~25k sat/vB) that normal Dogecoin fees exceed, and the bindings expose
-///   no uncapped variant (rust-bitcoin's `extract_tx_with_fee_rate_limit` is not wrapped by bdk-ffi).
-///   It stays the primary path. Only when the caller passes `PsbtFeeRateLimit.chainOverride`
-///   (defined for Dogecoin only) AND the fee rate BDK reported is within that chain's limit
+///   (`AbsurdFeeRate`, ~25k sat/vB) that normal Dogecoin fees exceed.
+///   With `PsbtFeeRateLimit.bdkChainLimit` (Dogecoin only) the transaction is extracted by
+///   `extractTxWithFeeRateLimit(maxFeeRate:)` with that chain's limit instead of the default cap.
+///   With `PsbtFeeRateLimit.chainOverride` (the legacy path, Dogecoin only) `extractTx()` stays
+///   the primary path, and only when the fee rate BDK reported is within that chain's limit
 ///   do we fall back: transaction structure is read from the PSBT global map, and the final raw
 ///   transaction is extracted by BDK itself from a zero-fee copy of the PSBT
 ///   (see `zeroFeeExtractionCopyBase64`). A fee rate above the limit is a drain attempt
@@ -53,6 +54,11 @@ public enum BitcoinPsbtSigningBuilder {
     public static func extractRawTransactionHex(finalizedPsbtBase64: String, feeRateLimit: PsbtFeeRateLimit = .bdkDefault) throws -> String {
         guard let psbtData = Data(base64Encoded: finalizedPsbtBase64) else {
             throw BlockchainSdk.BitcoinError.invalidBase64
+        }
+
+        if case .bdkChainLimit = feeRateLimit {
+            let psbt = try Psbt(psbtBase64: finalizedPsbtBase64)
+            return try transaction(psbt: psbt, psbtData: psbtData, feeRateLimit: feeRateLimit).serialize().hex()
         }
 
         do {
@@ -350,6 +356,10 @@ private extension BitcoinPsbtSigningBuilder {
     }
 
     static func transaction(psbt: Psbt, psbtData: Data, feeRateLimit: PsbtFeeRateLimit) throws -> BitcoinDevKit.Transaction {
+        if case .bdkChainLimit(let satPerVByte) = feeRateLimit {
+            return try psbt.extractTxWithFeeRateLimit(maxFeeRate: FeeRate.fromSatPerVb(satVb: satPerVByte))
+        }
+
         do {
             return try psbt.extractTx()
         } catch let error as ExtractTxError {

@@ -12,6 +12,7 @@ enum Feature: String, Hashable, CaseIterable {
     case disableFirmwareVersionLimit
     case visa // [REDACTED_TODO_COMMENT]
     case exchangeOnlyWithinSingleAddress
+    // When enabling, check signPsbt with other parties' finalized inputs: since bdk-swift 3.1.1 they no longer fail finalization
     case walletConnectBitcoin
     case usdtRevokeGaslessFee
     case mobileWalletMultiCreation
@@ -39,6 +40,7 @@ enum Feature: String, Hashable, CaseIterable {
     case yieldModuleOwnerActionUpgrade
     case solanaGasless
     case promoPage
+    case dogecoinPsbtBdkFeeRateLimit
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -74,6 +76,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .yieldModuleOwnerActionUpgrade: return "[REDACTED_INFO]_yield_module_owner_action_upgrade"
         case .solanaGasless: return "TWI-1258_solana_gasless"
         case .promoPage: return "[REDACTED_INFO]_promo_page"
+        case .dogecoinPsbtBdkFeeRateLimit: return "[REDACTED_INFO]_dogecoin_psbt_bdk_fee_rate_limit"
         }
     }
 
@@ -109,6 +112,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .yieldModuleOwnerActionUpgrade: return .version("6.7")
         case .solanaGasless: return .unspecified
         case .promoPage: return .unspecified
+        case .dogecoinPsbtBdkFeeRateLimit: return .unspecified
         }
     }
 }
