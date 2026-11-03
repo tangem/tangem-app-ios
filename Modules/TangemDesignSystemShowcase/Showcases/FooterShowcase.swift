@@ -15,6 +15,7 @@ import TangemUIUtils
 struct FooterShowcase: View {
     @State private var variant: Variant = .default
     @State private var showsSecondary = true
+    @State private var orientation: ButtonGroup.Orientation = .vertical
     @State private var toolbarItems: ToolbarItems = .both
     @State private var showsCaption = false
     @State private var showsFade = true
@@ -30,6 +31,7 @@ struct FooterShowcase: View {
 
             switch variant {
             case .default:
+                controls.picker("Orientation", $orientation)
                 controls.toggle("Secondary button", $showsSecondary)
                 controls.toggle("Primary loading", $isPrimaryLoading)
             case .signing:
@@ -66,7 +68,7 @@ struct FooterShowcase: View {
                 columns: [false, true],
                 columnLabel: { $0 ? "caption" : "no caption" }
             ) { variant, showsCaption in
-                Footer(content(for: variant, toolbarItems: .both, showsSecondary: true, isPrimaryLoading: false))
+                Footer(content(for: variant, toolbarItems: .both, showsSecondary: true, orientation: .vertical, isPrimaryLoading: false))
                     .caption(showsCaption ? Self.caption : nil)
                     .frame(width: 360)
             }
@@ -74,15 +76,22 @@ struct FooterShowcase: View {
     }
 
     private var footer: Footer {
-        Footer(content(for: variant, toolbarItems: toolbarItems, showsSecondary: showsSecondary, isPrimaryLoading: isPrimaryLoading))
-            .caption(variant != .search && showsCaption ? Self.caption : nil)
-            .showFade(variant != .search && showsFade)
+        Footer(content(
+            for: variant,
+            toolbarItems: toolbarItems,
+            showsSecondary: showsSecondary,
+            orientation: orientation,
+            isPrimaryLoading: isPrimaryLoading
+        ))
+        .caption(variant != .search && showsCaption ? Self.caption : nil)
+        .showFade(variant != .search && showsFade)
     }
 
     private func content(
         for variant: Variant,
         toolbarItems: ToolbarItems,
         showsSecondary: Bool,
+        orientation: ButtonGroup.Orientation,
         isPrimaryLoading: Bool
     ) -> FooterContent {
         switch variant {
@@ -92,7 +101,7 @@ struct FooterShowcase: View {
                 .loading(.spinner(if: isPrimaryLoading))
             let secondary = TangemUI.Button(label: "Not now", accessibilityLabel: nil, action: tap)
                 .styleType(.secondary(.default))
-            return .buttons(primary: primary, secondary: showsSecondary ? secondary : nil)
+            return .buttons(primary: primary, secondary: showsSecondary ? secondary : nil, orientation: orientation)
         case .signing:
             return .signingButton(SigningActionButtonView(
                 type: signingType,

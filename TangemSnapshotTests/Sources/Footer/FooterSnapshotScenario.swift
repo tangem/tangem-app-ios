@@ -13,6 +13,7 @@ import TangemUIUtils
 
 enum FooterSnapshotScenario: String, SnapshotScenario {
     case buttons
+    case buttonsHorizontal
     case toolbar
     case search
     case signingButton
@@ -21,6 +22,7 @@ enum FooterSnapshotScenario: String, SnapshotScenario {
     var canvases: [SnapshotCanvas] {
         switch self {
         case .buttons: [.fixed(width: 402, height: 420)]
+        case .buttonsHorizontal: [.fixed(width: 402, height: 180)]
         case .toolbar: [.fixed(width: 402, height: 240)]
         case .search: [.fixed(width: 402, height: 72)]
         case .signingButton: [.fixed(width: 402, height: 152)]
@@ -37,6 +39,12 @@ enum FooterSnapshotScenario: String, SnapshotScenario {
                 Footer(.buttons(primary: button("Continue"))),
                 Footer(.buttons(primary: button("Continue"), secondary: secondaryButton("Cancel"))),
                 Footer(.buttons(primary: button("Continue"), secondary: secondaryButton("Cancel")))
+                    .caption(caption),
+            ])
+        case .buttonsHorizontal:
+            samples([
+                Footer(.buttons(primary: button("Continue"), secondary: secondaryButton("Cancel"), orientation: .horizontal)),
+                Footer(.buttons(primary: button("Continue"), secondary: secondaryButton("Cancel"), orientation: .horizontal))
                     .caption(caption),
             ])
         case .toolbar:
