@@ -24,6 +24,8 @@ enum TransactionHistoryIndexTable: AppDatabaseTable {
             break // The table is unchanged in this version of the schema
         case .v3:
             break
+        case .v4:
+            break
         }
     }
 }

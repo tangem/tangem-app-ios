@@ -44,6 +44,15 @@ struct AppDatabaseSchemaTests {
         #expect(schema == Self.expectedSchemaV3)
     }
 
+    @Test("V4 schema matches the pinned snapshot")
+    func v4SchemaMatchesSnapshot() throws {
+        let databaseQueue = try AppDatabaseTestFactory.makeMigratedDatabaseQueue(upTo: .v4)
+
+        let schema = try AppDatabaseTestFactory.schemaDump(of: databaseQueue)
+
+        #expect(schema == Self.expectedSchemaV4)
+    }
+
     /// Migrating all the way must land on the newest pinned version, so a version added without a snapshot fails here.
     @Test("A fully migrated database lands on the newest pinned schema")
     func fullyMigratedSchemaMatchesNewestSnapshot() throws {
@@ -51,7 +60,7 @@ struct AppDatabaseSchemaTests {
 
         let schema = try AppDatabaseTestFactory.schemaDump(of: databaseQueue)
 
-        #expect(schema == Self.expectedSchemaV3)
+        #expect(schema == Self.expectedSchemaV4)
     }
 
     @Test("Applied migration identifiers are pinned")
@@ -62,7 +71,7 @@ struct AppDatabaseSchemaTests {
             try String.fetchAll(database, sql: "SELECT identifier FROM grdb_migrations ORDER BY identifier")
         }
 
-        #expect(identifiers == ["v1", "v2", "v3"])
+        #expect(identifiers == ["v1", "v2", "v3", "v4"])
     }
 
     @Test("Database version identifiers are unique")
@@ -76,6 +85,7 @@ struct AppDatabaseSchemaTests {
     func historyIndexEntityTypeLiteralsArePinned() {
         #expect(TransactionHistoryIndexRecord.Values.EntityType.expressExchange == "expressExchange")
         #expect(TransactionHistoryIndexRecord.Values.EntityType.expressOnramp == "expressOnramp")
+        #expect(TransactionHistoryIndexRecord.Values.EntityType.jointOperation == "jointOperation")
     }
 
     /// Tests run in DEBUG, where `eraseDatabaseOnSchemaChange` is enabled: data surviving
@@ -221,6 +231,48 @@ private extension AppDatabaseSchemaTests {
     CREATE INDEX "index_expressOnrampTransactions_on_toNetwork_toContract" ON "expressOnrampTransactions"("toNetwork", "toContract")
 
     CREATE INDEX "index_transactionHistoryIndex_on_address_network_contract_dateTime_entityID" ON "transactionHistoryIndex"("address", "network", "contract", "dateTime", "entityID")
+
+    CREATE TABLE "stakingTargetsCache" ("networkID" TEXT NOT NULL, "address" TEXT NOT NULL, "name" TEXT NOT NULL, "updatedAt" DATETIME NOT NULL, PRIMARY KEY ("networkID", "address"))
+
+    CREATE TABLE "transactionHistoryIndex" ("entityType" TEXT NOT NULL, "entityID" TEXT NOT NULL, "address" TEXT NOT NULL, "network" TEXT NOT NULL, "contract" TEXT NOT NULL, "dateTime" DATETIME NOT NULL, PRIMARY KEY ("entityType", "entityID", "address", "network", "contract"))
+    """
+
+    static let expectedSchemaV4 = """
+    CREATE TABLE "cryptoCurrenciesCache" ("id" TEXT, "networkID" TEXT NOT NULL, "name" TEXT NOT NULL, "symbol" TEXT NOT NULL, "contractAddress" TEXT NOT NULL, "decimalCount" INTEGER NOT NULL, "updatedAt" DATETIME NOT NULL, PRIMARY KEY ("networkID", "contractAddress"))
+
+    CREATE TABLE "expressExchangeTransactions" ("id" TEXT PRIMARY KEY NOT NULL, "providerID" TEXT NOT NULL, "fromAddress" TEXT, "payInAddress" TEXT NOT NULL, "payInExtraId" TEXT, "payOutAddress" TEXT NOT NULL, "status" TEXT NOT NULL, "rateType" TEXT, "externalTxID" TEXT, "externalTxURL" TEXT, "payInHash" TEXT, "payOutHash" TEXT, "fromNetwork" TEXT NOT NULL, "fromContract" TEXT NOT NULL, "fromAmount" TEXT NOT NULL, "fromDecimals" INTEGER NOT NULL, "fromActualAmount" TEXT, "toNetwork" TEXT NOT NULL, "toContract" TEXT NOT NULL, "toAmount" TEXT NOT NULL, "toDecimals" INTEGER NOT NULL, "toActualAmount" TEXT, "refundAddress" TEXT, "refundExtraId" TEXT, "refundNetwork" TEXT, "refundContractAddress" TEXT, "createdAt" DATETIME NOT NULL, "updatedAt" DATETIME NOT NULL)
+
+    CREATE TABLE "expressOnrampTransactions" ("id" TEXT PRIMARY KEY NOT NULL, "providerID" TEXT NOT NULL, "payOutAddress" TEXT NOT NULL, "status" TEXT NOT NULL, "externalTxID" TEXT, "externalTxURL" TEXT, "payOutHash" TEXT, "fromCurrency" TEXT NOT NULL, "fromAmount" TEXT NOT NULL, "toContract" TEXT NOT NULL, "toNetwork" TEXT NOT NULL, "toAmount" TEXT, "toDecimals" INTEGER NOT NULL, "toActualAmount" TEXT, "failReason" TEXT, "paymentMethod" TEXT NOT NULL, "countryCode" TEXT NOT NULL, "createdAt" DATETIME NOT NULL, "updatedAt" DATETIME NOT NULL)
+
+    CREATE TABLE "expressProvidersCache" ("id" TEXT NOT NULL, "name" TEXT NOT NULL, "type" TEXT NOT NULL, "exchangeOnlyWithinSingleAddress" BOOLEAN NOT NULL, "imageURL" TEXT, "termsOfUse" TEXT, "privacyPolicy" TEXT, "recommended" BOOLEAN, "slippage" TEXT, "updatedAt" DATETIME NOT NULL, PRIMARY KEY ("id", "type"))
+
+    CREATE TABLE "expressSyncMetadata" ("walletID" TEXT NOT NULL, "endpointType" TEXT NOT NULL, "archiveCursor" TEXT, "deltaCursor" TEXT, "isInitialSyncDone" BOOLEAN NOT NULL DEFAULT 0, "lastSyncAt" DATETIME NOT NULL, PRIMARY KEY ("walletID", "endpointType"))
+
+    CREATE TABLE "fiatCurrenciesCache" ("code" TEXT PRIMARY KEY NOT NULL, "name" TEXT NOT NULL, "imageURL" TEXT, "precision" INTEGER NOT NULL, "updatedAt" DATETIME NOT NULL)
+
+    CREATE TABLE grdb_migrations (identifier TEXT NOT NULL PRIMARY KEY)
+
+    CREATE INDEX "index_cryptoCurrenciesCache_on_id" ON "cryptoCurrenciesCache"("id")
+
+    CREATE INDEX "index_expressExchangeTransactions_on_fromNetwork_fromContract" ON "expressExchangeTransactions"("fromNetwork", "fromContract")
+
+    CREATE INDEX "index_expressExchangeTransactions_on_payInHash" ON "expressExchangeTransactions"("payInHash")
+
+    CREATE INDEX "index_expressExchangeTransactions_on_payOutHash" ON "expressExchangeTransactions"("payOutHash")
+
+    CREATE INDEX "index_expressExchangeTransactions_on_status_refundNetwork_refundContractAddress_refundAddress_createdAt" ON "expressExchangeTransactions"("status", "refundNetwork", "refundContractAddress", "refundAddress", "createdAt")
+
+    CREATE INDEX "index_expressExchangeTransactions_on_toNetwork_toContract" ON "expressExchangeTransactions"("toNetwork", "toContract")
+
+    CREATE INDEX "index_expressOnrampTransactions_on_payOutHash" ON "expressOnrampTransactions"("payOutHash")
+
+    CREATE INDEX "index_expressOnrampTransactions_on_toNetwork_toContract" ON "expressOnrampTransactions"("toNetwork", "toContract")
+
+    CREATE INDEX "index_transactionHistoryIndex_on_address_network_contract_dateTime_entityID" ON "transactionHistoryIndex"("address", "network", "contract", "dateTime", "entityID")
+
+    CREATE TABLE "jointOperations" ("id" TEXT PRIMARY KEY NOT NULL, "cryptoAccountID" TEXT NOT NULL, "safeAddress" TEXT NOT NULL, "chainID" INTEGER NOT NULL, "status" TEXT NOT NULL, "initiator" TEXT NOT NULL, "to" TEXT NOT NULL, "value" TEXT NOT NULL, "data" TEXT NOT NULL, "operation" INTEGER NOT NULL, "safeTxGas" TEXT NOT NULL, "baseGas" TEXT NOT NULL, "gasPrice" TEXT NOT NULL, "gasToken" TEXT NOT NULL, "refundReceiver" TEXT NOT NULL, "nonce" INTEGER NOT NULL, "threshold" INTEGER NOT NULL, "txHash" TEXT, "cancelReason" TEXT, "signatures" TEXT NOT NULL, "createdAt" DATETIME NOT NULL, "finishedAt" DATETIME)
+
+    CREATE TABLE "jointOperationsSyncMetadata" ("walletID" TEXT PRIMARY KEY NOT NULL, "archiveCursor" TEXT, "deltaCursor" TEXT, "isInitialSyncDone" BOOLEAN NOT NULL DEFAULT 0, "lastSyncAt" DATETIME NOT NULL)
 
     CREATE TABLE "stakingTargetsCache" ("networkID" TEXT NOT NULL, "address" TEXT NOT NULL, "name" TEXT NOT NULL, "updatedAt" DATETIME NOT NULL, PRIMARY KEY ("networkID", "address"))
 

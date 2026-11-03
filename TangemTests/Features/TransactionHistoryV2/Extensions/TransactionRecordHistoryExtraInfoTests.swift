@@ -46,6 +46,37 @@ struct TransactionRecordHistoryExtraInfoTests {
         #expect(enriched.index == folded.index)
     }
 
+    @Test("Joint operation info is read back through its projection and groups the row by the operation")
+    func jointOperationInfoIsProjected() {
+        let info = JointOperationHistoryInfo(item: JointOperationHistoryTestDataFactory.coinItem(id: "joint"))
+
+        let record = makeRecord().withJointOperationInfo(info)
+
+        #expect(record.historyExtraInfo == .jointOperation(info))
+        #expect(record.jointOperationInfo == info)
+        #expect(record.expressExtraInfo == nil)
+        #expect(record.historyExtraInfo?.groupingId == "joint")
+    }
+
+    @Test("Express info is not read as joint operation info")
+    func expressInfoIsNotJointOperationInfo() {
+        let record = makeRecord().withExpressExtraInfo(.exchange(makeExchangeInfo(txId: "deal")))
+
+        #expect(record.jointOperationInfo == nil)
+    }
+
+    @Test("Copying a record with joint operation info keeps it folded")
+    func withJointOperationInfoKeepsIsFolded() {
+        let folded = makeRecord(isFolded: true)
+        let info = JointOperationHistoryInfo(item: JointOperationHistoryTestDataFactory.coinItem(id: "joint"))
+
+        let enriched = folded.withJointOperationInfo(info)
+
+        #expect(enriched.isFolded)
+        #expect(enriched.jointOperationInfo == info)
+        #expect(enriched.hash == folded.hash)
+    }
+
     @Test("A synthetic swap row carries its deal as Express info")
     func syntheticSwapRowCarriesExpressInfo() {
         let token = ExpressMergeTestDataFactory.ethereumToken

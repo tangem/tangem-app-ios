@@ -196,12 +196,12 @@ struct TransactionHistoryMapper {
         from record: TransactionRecord,
         resolver: SubtitleOwnerResolver?
     ) -> TransactionDisplayModel.ExpressSubtitle? {
-        switch record.expressExtraInfo {
-        case .exchange(let info):
+        switch record.historyExtraInfo {
+        case .express(.exchange(let info)):
             return swapSubtitle(info: info, isOutgoing: record.isOutgoing, resolver: resolver)
-        case .onramp(let info):
+        case .express(.onramp(let info)):
             return onrampSubtitle(info: info)
-        case nil:
+        case .jointOperation, nil:
             return nil
         }
     }
@@ -310,10 +310,10 @@ struct TransactionHistoryMapper {
     }
 
     private func expressWarning(from record: TransactionRecord) -> TransactionViewModel.Warning? {
-        switch record.expressExtraInfo {
-        case .exchange(let info):
+        switch record.historyExtraInfo {
+        case .express(.exchange(let info)):
             return warning(for: info.transaction.status)
-        case .onramp, nil:
+        case .express(.onramp), .jointOperation, nil:
             return nil
         }
     }
@@ -614,12 +614,12 @@ private extension TransactionHistoryMapper {
     }
 
     func transactionType(from record: TransactionRecord) -> TransactionViewModel.TransactionType {
-        switch record.expressExtraInfo {
-        case .exchange:
+        switch record.historyExtraInfo {
+        case .express(.exchange):
             return .swap
-        case .onramp:
+        case .express(.onramp):
             return .onramp
-        case nil:
+        case .jointOperation, nil:
             break
         }
 
@@ -902,8 +902,11 @@ private extension TransactionHistoryMapper {
         let record = prepared.record
         let amount = prepared.amount
 
-        if case .onramp(let info) = record.expressExtraInfo {
+        switch record.historyExtraInfo {
+        case .express(.onramp(let info)):
             return onrampAmount(for: record, info: info, amount: amount)
+        case .express(.exchange), .jointOperation, nil:
+            break
         }
 
         switch prepared.transactionType {
