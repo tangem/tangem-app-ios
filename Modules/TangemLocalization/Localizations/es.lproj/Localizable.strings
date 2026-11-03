@@ -16,6 +16,7 @@
 "access_code_navtitle" = "Código de acceso";
 "accessibility_action_long_press" = "Pulsación larga";
 "accessibility_hint_access_more_actions" = "Deslice hacia arriba o hacia abajo para acceder a más acciones.";
+"account_add_limit_badge" = "Full";
 "account_add_limit_dialog_description" = "No puede crear más de %1$@ cuentas. Archive una para añadir una nueva.";
 "account_add_limit_dialog_title" = "No se puede agregar una nueva cuenta";
 "account_archive_success_message" = "Cuenta archivada";
@@ -208,6 +209,9 @@
 "collectibles_account_collection_row_subtitle" = "My collection";
 "collectibles_account_reconnect_subtitle" = "Reconnect required";
 "collectibles_account_withdraw" = "Withdrawal";
+"collectibles_auto_buyback_message" = "Your common card was bought back instantly. %@ is in your balance";
+"collectibles_auto_buyback_open_again_button" = "Open again for %@";
+"collectibles_auto_buyback_title" = "Buyback complete";
 "collectibles_confirm_order_approve_button" = "Approve";
 "collectibles_confirm_order_confirming_transaction_button" = "Confirming transaction...";
 "collectibles_confirm_order_generating_pack_button" = "Generating pack...";
@@ -473,6 +477,7 @@
 "common_retry" = "Reintentar";
 "common_save_changes" = "Guardar cambios";
 "common_save" = "Guarde";
+"common_scan_card" = "Scan card";
 "common_search_tokens" = "Buscar tokens";
 "common_search" = "Buscar";
 "common_second_no_param" = "seg";
@@ -1128,6 +1133,7 @@
 "joint_operation_deleted_snackbar" = "Transacción eliminada";
 "joint_operation_malicious_subtitle" = "Esta transacción fue marcada como maliciosa. La firma está bloqueada.";
 "joint_operation_malicious_title" = "Transacción peligrosa";
+"joint_operation_no_response" = "No response";
 "joint_operation_sending_to_network" = "Enviando a la red";
 "joint_operation_sent_footer" = "Firmado por %1$@ de %2$@ y enviado a la red";
 "joint_operation_signatures_progress" = "Firmas %1$@ de %2$@";
@@ -1328,6 +1334,7 @@
 "money_account_main_name" = "Cuenta en USD";
 "money_account_main_status_action_required" = "Acción necesaria";
 "money_account_main_status_activating" = "Activando…";
+"money_account_main_status_active_v2" = "ACH";
 "money_account_main_status_active" = "Red %1$@";
 "money_account_main_status_dialog_activating_description" = "Estamos preparando tu cuenta. Esto puede tardar un poco";
 "money_account_main_status_dialog_activating_title" = "Creando tu cuenta bancaria";
@@ -1360,7 +1367,7 @@
 "money_account_onboarding_transfers_card_caption" = "Entra. Sale.";
 "money_account_onboarding_transfers_card_subtitle" = "con una cuenta propia con datos bancarios";
 "money_account_onboarding_transfers_card_title" = "Envíe y reciba pagos en moneda fiduciaria";
-"money_account_send_bank_transfer_unavailable" = "Unavailable";
+"money_account_send_bank_transfer_unavailable" = "No disponible";
 "money_account_send_fees_footer" = "Las comisiones incluyen el servicio %@ y la comisión de red estimada";
 "money_account_send_network_fee_note" = "Las comisiones incluyen una comisión de red estimada de %@, que puede variar según la actividad de la red";
 "money_account_send_pay_button" = "Pagar %@";
@@ -1559,7 +1566,15 @@
 "prediction_add_funds_receive_title" = "Desde otra billetera o exchange";
 "prediction_add_funds_swap_subtitle" = "Usa cripto de tu billetera Tangem para recargar tu cuenta de Polymarket";
 "prediction_add_funds_swap_title" = "Desde tu billetera Tangem";
-"prediction_cash_out" = "Cash Out";
+"prediction_cash_out" = "Cobrar";
+"prediction_chart_empty_description" = "The chart will appear after the first predictions";
+"prediction_chart_empty_title" = "No data yet";
+"prediction_chart_period_1d" = "1d";
+"prediction_chart_period_1h" = "1h";
+"prediction_chart_period_1m" = "1m";
+"prediction_chart_period_1w" = "1w";
+"prediction_chart_period_6h" = "6h";
+"prediction_chart_period_max" = "Max";
 "prediction_claim_error_failed" = "La reclamación no se procesó. No ha salido nada de tu cuenta y puedes intentarlo de nuevo.";
 "prediction_claim_error_generic" = "No se pudo enviar la reclamación. Inténtalo de nuevo.";
 "prediction_claim_error_rejected" = "Polymarket rechazó procesar la reclamación. Actualiza tus posiciones e inténtalo de nuevo.";
@@ -1586,7 +1601,7 @@
 "prediction_event_live" = "En directo";
 "prediction_event_total_volume" = "Volumen total:";
 "prediction_fee_sheet_builder_fee" = "Comisión de Tangem";
-"prediction_fee_sheet_buy_description" = "Buying %1$@ shares at %2$@¢ each. Final shares count (and corresponding %3$@ amount executed) may vary within your %4$@ slippage limit, depending on what this market can match.";
+"prediction_fee_sheet_buy_description" = "Comprando %1$@ acciones a %2$@¢ cada una. El número final de acciones (y el importe correspondiente de %3$@ ejecutado) puede variar dentro de tu límite de deslizamiento de %4$@, según lo que este mercado pueda emparejar.";
 "prediction_fee_sheet_order" = "Orden de predicción";
 "prediction_fee_sheet_polymarket_fee" = "Comisión de Polymarket";
 "prediction_fee_sheet_sell_description" = "Vendiendo %1$@ acciones a %2$@¢ cada una. El número final de acciones (y el importe correspondiente de %3$@ ejecutado) puede variar dentro de tu límite de deslizamiento de %4$@, según lo que este mercado pueda emparejar.";
@@ -2282,6 +2297,7 @@
 "tangempay_bank_transfer_details_daily_deposits_hint" = "Si quieres depositar más de %@, contacta con soporte";
 "tangempay_bank_transfer_details_daily_deposits_left" = "Left today";
 "tangempay_bank_transfer_details_daily_deposits" = "Depósitos diarios";
+"tangempay_bank_transfer_details_exchange_rate" = "Exchange rate";
 "tangempay_bank_transfer_details_fee_header" = "Métodos de depósito y comisiones";
 "tangempay_bank_transfer_details_limitations" = "Limitaciones";
 "tangempay_bank_transfer_details_minimum_deposit" = "Minimum deposit";
@@ -2591,10 +2607,10 @@
 "tangempay_set_pin_title" = "Establecer PIN";
 "tangempay_status_deactivated" = "Cuenta cerrada";
 "tangempay_status_inactive" = "Inactiva";
-"tangempay_sync_needed_body" = "Usa la tarjeta o el anillo para renovar la sesión";
+"tangempay_sync_needed_body" = "Renueve la sesión para ver su tarjeta y su cuenta";
 "tangempay_sync_needed_button" = "Restablecer acceso";
 "tangempay_sync_needed_restore_access" = "Restablecer acceso";
-"tangempay_sync_needed_title" = "Tangem Pay sesión expirada";
+"tangempay_sync_needed_title" = "La sesión ha caducado";
 "tangempay_tangem_visa_card" = "Gaste sus criptos en el día a día";
 "tangempay_temporarily_unavailable" = "Tangem Pay no está disponible temporalmente.";
 "tangempay_title" = "Tangem Pay";
@@ -2604,7 +2620,7 @@
 "tangempay_topup_receive_body_multichain" = "Envíe USDC o USDT a la dirección de su cuenta";
 "tangempay_topup_receive_title" = "Desde otra billetera o exchange";
 "tangempay_topup_swap_body" = "Recargue su cuenta con cualquier token de su billetera";
-"tangempay_topup_swap_title" = "Desde tu Tangem Wallet";
+"tangempay_topup_swap_title" = "Desde su Tangem Wallet";
 "tangempay_touch_id_not_set_button" = "Configurar Touch ID";
 "tangempay_touch_id_not_set_description" = "No se puede utilizar el PIN sin Touch ID. Active Touch ID en los ajustes de la aplicación.";
 "tangempay_touch_id_not_set_title" = "Touch ID no está configurado";
@@ -3036,6 +3052,9 @@
 "warning_kaspa_unfinished_token_transaction_message" = "Su transacción con un importe de %1$@ %2$@ no se ha completado. Puede volver a intentarlo para completarla.";
 "warning_kaspa_unfinished_token_transaction_title" = "Tiene una transacción sin terminar";
 "warning_last_balance_updated_time" = "Última actualización hace %@";
+"warning_link_wallet_cold_message" = "Scan your card to link your wallet to this device.";
+"warning_link_wallet_hot_message" = "Confirm to link your wallet to this device.";
+"warning_link_wallet_title" = "Link your wallet to this device";
 "warning_long_transaction_message" = "iPhone 7/7+ no puede firmar transacciones en esta red. Para completar esta operación, por favor use un teléfono diferente.";
 "warning_long_transaction_title" = "Firma de transacción no disponible";
 "warning_low_signatures_message" = "Solo quedan %@ firmas en esta tarjeta. Debe retirar todos sus fondos.";
@@ -3258,9 +3277,9 @@
 "yield_module_incentive_chart_powered_by_title" = "Powered by Merkl";
 "yield_module_incentive_chart_sheet_title" = "Incentivized yield";
 "yield_module_incentives_provider" = "Merkl";
-"yield_module_main_promo_button" = "Try Yield Mode";
-"yield_module_main_promo_subtitle" = "Put idle coins to work. No lockups, withdraw anytime.";
-"yield_module_main_promo_title" = "Earn with your crypto up to %1$@%% APY";
+"yield_module_main_promo_button" = "Prueba el Modo Rendimiento";
+"yield_module_main_promo_subtitle" = "Pon a trabajar tus monedas inactivas. Sin bloqueos, retira en cualquier momento.";
+"yield_module_main_promo_title" = "Gana con tu cripto hasta un %1$@%% APY";
 "yield_module_main_screen_promo_banner_message" = "Consiga un %1$@%% APY sobre su saldo";
 "yield_module_network_fee_unreachable_notification_description" = "Compruebe su conexión de red";
 "yield_module_network_fee_unreachable_notification_title" = "Información de tarifas de red inaccesible";
