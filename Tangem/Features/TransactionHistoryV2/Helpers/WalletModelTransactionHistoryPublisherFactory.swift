@@ -28,7 +28,9 @@ enum WalletModelTransactionHistoryPublisherFactory {
         walletModelId: WalletModelId,
         walletPublisher: some Publisher<Wallet, Never>,
         tokenItem: TokenItem,
-        feeTokenItem: TokenItem
+        feeTokenItem: TokenItem,
+        transactionHistoryFetcher: TransactionHistoryFetcher?,
+        isJointAccountsAvailable: Bool
     ) -> AnyPublisher<WalletModelTransactionHistoryState, Never> {
         // Retained before the express merge: an emptied on-chain response would otherwise still produce a
         // shorter merged list, which is how the reported partial loss of rows happens.
@@ -49,7 +51,9 @@ enum WalletModelTransactionHistoryPublisherFactory {
                     provider: provider,
                     walletModelId: walletModelId,
                     tokenItem: tokenItem,
-                    feeTokenItem: feeTokenItem
+                    feeTokenItem: feeTokenItem,
+                    transactionHistoryFetcher: transactionHistoryFetcher,
+                    isJointAccountsAvailable: isJointAccountsAvailable
                 )
             }
             .eraseToAnyPublisher()
@@ -62,7 +66,9 @@ enum WalletModelTransactionHistoryPublisherFactory {
         provider: (any TransactionHistoryProviding)?,
         walletModelId: WalletModelId,
         tokenItem: TokenItem,
-        feeTokenItem: TokenItem
+        feeTokenItem: TokenItem,
+        transactionHistoryFetcher: TransactionHistoryFetcher?,
+        isJointAccountsAvailable: Bool
     ) -> AnyPublisher<WalletModelTransactionHistoryState, Never> {
         let expressRecords: AnyPublisher<[TransactionHistoryRecordsReader.Record], Never> = if let provider {
             Publishers
@@ -95,18 +101,24 @@ enum WalletModelTransactionHistoryPublisherFactory {
                     currentToken: tokenItem,
                     feeTokenItem: feeTokenItem
                 )
+                let jointOperationEnricher = TransactionHistoryJointOperationEnricher(
+                    currentToken: tokenItem,
+                    feeTokenItem: feeTokenItem
+                )
 
                 // [REDACTED_TODO_COMMENT]
                 var exchangeTransactions: [ExchangeTransaction] = []
                 var onrampTransactions: [OnrampTransaction] = []
+                var jointOperations: [JointOperationHistoryItem] = []
                 for record in records {
                     switch record {
                     case .express(.exchange(let transactionInfo)):
                         exchangeTransactions.append(transactionInfo.transaction)
                     case .express(.onramp(let transactionInfo)):
                         onrampTransactions.append(transactionInfo.transaction)
+                    case .jointOperation(let info) where isJointAccountsAvailable:
+                        jointOperations.append(info.item)
                     case .jointOperation:
-                        // [REDACTED_TODO_COMMENT]
                         break
                     }
                 }
@@ -119,10 +131,18 @@ enum WalletModelTransactionHistoryPublisherFactory {
                         onrampTransactions: onrampTransactions,
                         using: merger
                     )
-                    guard let oldestOnChainDate = bsdkTransactions.compactMap(\.date).min() else {
-                        return .loaded(items: mergedTransactions)
-                    }
-                    return .loaded(items: mergedTransactions.filter { ($0.date ?? .distantFuture) >= oldestOnChainDate })
+                    let oldestOnChainDate = bsdkTransactions.compactMap(\.date).min()
+                    let visibleTransactions = oldestOnChainDate.map { oldestOnChainDate in
+                        mergedTransactions.filter { ($0.date ?? .distantFuture) >= oldestOnChainDate }
+                    } ?? mergedTransactions
+                    let isOnChainHistoryFullyLoaded = !(transactionHistoryFetcher?.canFetchHistory ?? false)
+                    let enrichedTransactions = enrich(
+                        visibleTransactions,
+                        with: jointOperations,
+                        syntheticWindowStart: isOnChainHistoryFullyLoaded ? nil : oldestOnChainDate,
+                        using: jointOperationEnricher
+                    )
+                    return .loaded(items: enrichedTransactions)
                 case .notSupported:
                     // Merging can add synthetic transactions even without matching BSDK transactions.
                     let mergedTransactions = merge(
@@ -131,7 +151,13 @@ enum WalletModelTransactionHistoryPublisherFactory {
                         onrampTransactions: onrampTransactions,
                         using: merger
                     )
-                    return mergedTransactions.isEmpty ? transactionHistoryState : .loaded(items: mergedTransactions)
+                    let enrichedTransactions = enrich(
+                        mergedTransactions,
+                        with: jointOperations,
+                        syntheticWindowStart: nil,
+                        using: jointOperationEnricher
+                    )
+                    return enrichedTransactions.isEmpty ? transactionHistoryState : .loaded(items: enrichedTransactions)
                 case .notLoaded, .loading, .error:
                     return transactionHistoryState
                 }
@@ -152,5 +178,18 @@ enum WalletModelTransactionHistoryPublisherFactory {
             exchangeTransactions: exchangeTransactions,
             onrampTransactions: onrampTransactions
         )
+    }
+
+    private static func enrich(
+        _ transactions: [TransactionRecord],
+        with jointOperations: [JointOperationHistoryItem],
+        syntheticWindowStart: Date?,
+        using enricher: TransactionHistoryJointOperationEnricher
+    ) -> [TransactionRecord] {
+        guard jointOperations.isNotEmpty else {
+            return transactions
+        }
+
+        return enricher.enrich(transactions, with: jointOperations, syntheticWindowStart: syntheticWindowStart)
     }
 }
