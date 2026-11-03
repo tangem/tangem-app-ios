@@ -12,6 +12,7 @@ import TangemUI
 final class YieldStartFlowFactory {
     private let walletModel: any WalletModel
     private let yieldManagerInteractor: YieldManagerInteractor
+    private let gaslessFeeService: YieldGaslessFeeService?
     private let logger: YieldAnalyticsLogger
     private let signingActionButtonType: SigningActionButtonViewType
     private weak var coordinator: YieldModulePromoCoordinator?
@@ -29,12 +30,14 @@ final class YieldStartFlowFactory {
     init(
         walletModel: any WalletModel,
         yieldManagerInteractor: YieldManagerInteractor,
+        gaslessFeeService: YieldGaslessFeeService?,
         coordinator: YieldModulePromoCoordinator?,
         logger: YieldAnalyticsLogger,
         signingActionButtonType: SigningActionButtonViewType
     ) {
         self.walletModel = walletModel
         self.yieldManagerInteractor = yieldManagerInteractor
+        self.gaslessFeeService = gaslessFeeService
         self.coordinator = coordinator
         self.logger = logger
         self.signingActionButtonType = signingActionButtonType
@@ -67,6 +70,7 @@ final class YieldStartFlowFactory {
             currentApy: currentApy,
             coordinator: coordinator,
             yieldManagerInteractor: yieldManagerInteractor,
+            gaslessFeeService: gaslessFeeService,
             logger: logger,
             signingActionButtonType: signingActionButtonType
         )

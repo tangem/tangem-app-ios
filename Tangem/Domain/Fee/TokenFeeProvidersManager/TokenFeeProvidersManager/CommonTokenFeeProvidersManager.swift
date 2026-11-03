@@ -17,19 +17,33 @@ final class CommonTokenFeeProvidersManager {
     private let initialSelectedProvider: any TokenFeeProvider
     /// The wallet's own address; provider-built transactions (Tron DEX) are validated against it — `nil` skips the check.
     private let ownerAddress: String?
+    private let providerSwitching: ProviderSwitching
 
     private let selectedProviderSubject: CurrentValueSubject<any TokenFeeProvider, Never>
+    private var isFeeProviderSelectedByUser = false
+    private var excludedFeeTokenItem: TokenItem?
 
     init(
         feeProviders: [any TokenFeeProvider],
         initialSelectedProvider: any TokenFeeProvider,
-        ownerAddress: String?
+        ownerAddress: String?,
+        providerSwitching: ProviderSwitching = .always
     ) {
         self.feeProviders = feeProviders
         self.initialSelectedProvider = initialSelectedProvider
         self.ownerAddress = ownerAddress
+        self.providerSwitching = providerSwitching
 
         selectedProviderSubject = .init(initialSelectedProvider)
+    }
+}
+
+// MARK: - ProviderSwitching
+
+extension CommonTokenFeeProvidersManager {
+    enum ProviderSwitching {
+        case always
+        case untilUserSelection
     }
 }
 
@@ -103,13 +117,26 @@ extension CommonTokenFeeProvidersManager: TokenFeeProvidersManager {
             return
         }
 
-        guard tokenFeeProvider.feeTokenItem != selectedFeeProvider.feeTokenItem else {
-            FeeLogger.info(self, "Try to select already selected provider with token item \(feeTokenItem.name). Will not select")
+        isFeeProviderSelectedByUser = true
+        select(tokenFeeProvider)
+    }
+
+    func updateExcludedFeeProvider(feeTokenItem: TokenItem?) {
+        excludedFeeTokenItem = feeTokenItem
+
+        guard isExcluded(selectedFeeProvider) else {
             return
         }
 
-        FeeLogger.info(self, "Update selected provider to token item \(tokenFeeProvider)")
-        selectedProviderSubject.send(tokenFeeProvider)
+        let candidates = [initialSelectedProvider] + feeProviders
+
+        guard let fallbackProvider = candidates.first(where: { $0.state.isSupported && !isExcluded($0) }) else {
+            FeeLogger.error(self, error: "Don't have a supported token fee provider besides the excluded one")
+            return
+        }
+
+        FeeLogger.info(self, "Selected provider with token item \(selectedFeeProvider.feeTokenItem.name) is excluded")
+        select(fallbackProvider)
     }
 }
 
@@ -314,8 +341,30 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
 // MARK: - Private
 
 private extension CommonTokenFeeProvidersManager {
+    var switchesToProviderWithEnoughBalance: Bool {
+        switch providerSwitching {
+        case .always: true
+        case .untilUserSelection: !isFeeProviderSelectedByUser
+        }
+    }
+
+    func select(_ tokenFeeProvider: any TokenFeeProvider) {
+        guard tokenFeeProvider.feeTokenItem != selectedFeeProvider.feeTokenItem else {
+            FeeLogger.info(self, "Try to select already selected provider with token item \(tokenFeeProvider.feeTokenItem.name). Will not select")
+            return
+        }
+
+        FeeLogger.info(self, "Update selected provider to token item \(tokenFeeProvider)")
+        selectedProviderSubject.send(tokenFeeProvider)
+    }
+
+    func isExcluded(_ tokenFeeProvider: any TokenFeeProvider) -> Bool {
+        tokenFeeProvider.feeTokenItem == excludedFeeTokenItem
+    }
+
     func switchToProviderWithEnoughBalanceIfNeeded() async {
-        guard let feeAmount = selectedFeeProvider.selectedTokenFee.value.value?.amount.value,
+        guard switchesToProviderWithEnoughBalance,
+              let feeAmount = selectedFeeProvider.selectedTokenFee.value.value?.amount.value,
               let balance = selectedFeeProvider.balanceFeeTokenState.loaded else {
             return
         }
@@ -325,10 +374,10 @@ private extension CommonTokenFeeProvidersManager {
         }
 
         FeeLogger.info(self, "Detect that selected provider doesn't have enough balance to cover fee")
-        let idleTokenFeeProvider = tokenFeeProviders.first(where: { $0.state.isIdle })
+        let idleTokenFeeProvider = tokenFeeProviders.first(where: { $0.state.isIdle && !isExcluded($0) })
 
         guard let idleTokenFeeProvider else {
-            guard initialSelectedProvider.state.isSupported else {
+            guard initialSelectedProvider.state.isSupported, !isExcluded(initialSelectedProvider) else {
                 FeeLogger.info(self, "Initial provider is unsupported for current input; keep current selected")
                 return
             }
@@ -338,7 +387,7 @@ private extension CommonTokenFeeProvidersManager {
             return
         }
 
-        updateSelectedFeeProvider(feeTokenItem: idleTokenFeeProvider.feeTokenItem)
+        select(idleTokenFeeProvider)
         await updateFees().value
     }
 
@@ -347,7 +396,7 @@ private extension CommonTokenFeeProvidersManager {
             return
         }
 
-        guard let supportedFeeProvider = feeProviders.first(where: { $0.state.isSupported }) else {
+        guard let supportedFeeProvider = feeProviders.first(where: { $0.state.isSupported && !isExcluded($0) }) else {
             FeeLogger.error(self, error: "Don't have supported token fee provider")
             return
         }

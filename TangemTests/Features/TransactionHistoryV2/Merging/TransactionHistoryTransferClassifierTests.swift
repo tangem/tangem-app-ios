@@ -98,7 +98,7 @@ struct TransactionHistoryTransferClassifierTests {
     /// The wallet is the sender of these two, so the address says nothing and only the method does.
     @Test(
         "Entering and leaving Yield mode are operations of their own, an ordinary contract call is not",
-        arguments: ["0x79be55f7", "0xc65e6dcf"]
+        arguments: ["0x79be55f7", "0x3e44dfd2", "0xc65e6dcf"]
     )
     func switchingYieldModeIsTakenOutOfTheMerge(methodId: String) {
         let yieldModeSwitch = transfer(index: 0, from: Self.owner, to: Self.aave, amount: 5, methodId: methodId)
@@ -400,6 +400,7 @@ private struct StubClassifierSmartContractMethodMapper: SmartContractMethodMappe
     private static let names = [
         "0x6234d42b": "gaslessTransaction",
         "0x79be55f7": "yieldEnter",
+        "0x3e44dfd2": "yieldEnter",
         "0xc65e6dcf": "yieldWithdraw",
     ]
 

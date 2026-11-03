@@ -25,6 +25,7 @@ protocol TokenFeeProvidersManager: ExpressFeeProvider {
     func updateFees() -> Task<Void, Never>
 
     func updateSelectedFeeProvider(feeTokenItem: TokenItem)
+    func updateExcludedFeeProvider(feeTokenItem: TokenItem?)
 }
 
 // Proxy from `selectedFeeProvider`

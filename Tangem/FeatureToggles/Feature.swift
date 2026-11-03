@@ -39,6 +39,7 @@ enum Feature: String, Hashable, CaseIterable {
     case tangemPayCustomerSummary
     case yieldModuleOwnerActionUpgrade
     case walletCardsBackupReportWithoutRole
+    case yieldModeGasless
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -74,6 +75,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayCustomerSummary: return "[REDACTED_INFO]_tangem_pay_customer_summary"
         case .yieldModuleOwnerActionUpgrade: return "[REDACTED_INFO]_yield_module_owner_action_upgrade"
         case .walletCardsBackupReportWithoutRole: return "[REDACTED_INFO]_card_backups_without_role"
+        case .yieldModeGasless: return "[REDACTED_INFO]_yield_mode_gasless"
         }
     }
 
@@ -109,6 +111,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayCustomerSummary: return .unspecified
         case .yieldModuleOwnerActionUpgrade: return .version("6.7")
         case .walletCardsBackupReportWithoutRole: return .version("6.7")
+        case .yieldModeGasless: return .version("6.7")
         }
     }
 }

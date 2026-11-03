@@ -35,6 +35,17 @@ struct YieldModuleNotificationManager {
         )
     }
 
+    func createNotEnoughFeeTokenNotification(
+        feeTokenItem: TokenItem,
+        action: @escaping () -> Void
+    ) -> YieldModuleNotificationBannerParams {
+        .notEnoughFeeCurrency(
+            feeCurrencyName: feeTokenItem.name,
+            tokenIcon: NetworkImageProvider().provide(by: feeTokenItem.blockchain, filled: true),
+            buttonAction: { action() }
+        )
+    }
+
     func createFeeUnreachableNotification(action: @escaping () -> Void) -> YieldModuleNotificationBannerParams {
         .feeUnreachable(buttonAction: { action() })
     }

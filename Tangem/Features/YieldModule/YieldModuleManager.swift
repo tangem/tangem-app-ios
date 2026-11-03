@@ -29,6 +29,8 @@ protocol YieldModuleManager {
 
     func enterFee() async throws -> YieldTransactionFee
     func enter(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String]
+    func enter(fee: YieldTransactionFee, gaslessFee: BSDKFee, transactionSender: GaslessBatchTransactionSending) async throws -> String
+    func supportsEnterWithAmount(fee: YieldTransactionFee) async -> Bool
 
     func exitFee() async throws -> YieldTransactionFee
     func exit(
@@ -36,12 +38,18 @@ protocol YieldModuleManager {
         precedingTransaction: () async throws -> BSDKTransaction?,
         transactionDispatcher: TransactionDispatcher
     ) async throws -> YieldExitResult
+    func exit(
+        fee: YieldTransactionFee,
+        gaslessFee: BSDKFee,
+        precedingTransaction: () async throws -> BSDKTransaction?,
+        transactionSender: GaslessBatchTransactionSending
+    ) async throws -> String
 
     func approveFee() async throws -> YieldTransactionFee
     func approve(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> String
 
     func claimFee(to: String, data: Data, includingModuleUpgrade: Bool) async throws -> YieldTransactionFee
-    func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee) async throws -> BSDKTransaction
+    func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee, isGasless: Bool) async throws -> BSDKTransaction
     func submitClaim(transaction: BSDKTransaction, transactionDispatcher: TransactionDispatcher) async throws -> String
 
     func currentNetworkFeeParameters() async throws -> EthereumFeeParameters
@@ -76,6 +84,14 @@ extension YieldModuleManager {
         try await exit(fee: fee, precedingTransaction: { nil }, transactionDispatcher: transactionDispatcher)
     }
 
+    func exit(fee: YieldTransactionFee, gaslessFee: BSDKFee, transactionSender: GaslessBatchTransactionSending) async throws -> String {
+        try await exit(fee: fee, gaslessFee: gaslessFee, precedingTransaction: { nil }, transactionSender: transactionSender)
+    }
+
+    func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee) async throws -> BSDKTransaction {
+        try await makeClaimTransaction(to: to, data: data, fee: fee, isGasless: false)
+    }
+
     var marketInfoPublisher: AnyPublisher<YieldModuleMarketInfo?, Never> {
         statePublisher
             .map(\.?.marketInfo)
@@ -108,7 +124,9 @@ final class CommonYieldModuleManager {
     private let userWalletId: String
 
     private let transactionProvider: YieldTransactionProvider
+    private let gaslessTransactionProvider: YieldTransactionProvider
     private let transactionFeeProvider: YieldTransactionFeeProvider
+    private let tokenBalanceProvider: TokenBalanceProvider
 
     private let yieldModuleStateRepository: YieldModuleStateRepository
     private let yieldModuleMarketsRepository: YieldModuleMarketsRepository
@@ -172,6 +190,7 @@ final class CommonYieldModuleManager {
         self.yieldModuleStateRepository = yieldModuleStateRepository
         self.yieldModuleMarketsRepository = yieldModuleMarketsRepository
         self.pendingTransactionsPublisher = pendingTransactionsPublisher
+        self.tokenBalanceProvider = tokenBalanceProvider
         self.updateWallet = updateWallet
 
         transactionProvider = YieldTransactionProvider(
@@ -179,6 +198,14 @@ final class CommonYieldModuleManager {
             blockchain: blockchain,
             transactionCreator: transactionCreator,
             yieldSupplyContractAddresses: yieldSupplyContractAddresses,
+        )
+
+        gaslessTransactionProvider = YieldTransactionProvider(
+            token: token,
+            blockchain: blockchain,
+            transactionCreator: transactionCreator,
+            yieldSupplyContractAddresses: yieldSupplyContractAddresses,
+            validatesFee: false
         )
 
         transactionFeeProvider = YieldTransactionFeeProvider(
@@ -311,78 +338,54 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
     }
 
     func enter(fee: any YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String] {
-        let yieldTokenState = try await getYieldModuleState()
+        let enterTransactions = try await makeEnterTransactions(fee: fee, enterAmount: nil, transactionProvider: transactionProvider)
 
-        let maxTokenNetworkFee = try await maxTokenNetworkFee()
-
-        var transactions = [Transaction]()
-
-        var yieldContractAddressToSave: String?
-
-        switch (yieldTokenState, fee) {
-        case (.notDeployed, let deployEnterFee as DeployEnterFee):
-            let yieldContractAddress = try await yieldSupplyService.calculateYieldContract()
-
-            let deployTransactions = try await transactionProvider.deployTransactions(
-                walletAddress: walletAddress,
-                tokenContractAddress: token.contractAddress,
-                yieldContractAddress: yieldContractAddress,
-                maxNetworkFee: maxTokenNetworkFee,
-                fee: deployEnterFee
-            )
-
-            yieldContractAddressToSave = yieldContractAddress
-
-            transactions.append(contentsOf: deployTransactions)
-        case (.deployed(let deployed), let fee):
-            switch (deployed.initializationState, fee) {
-            case (.notInitialized, let initFee as InitEnterFee):
-                let initTransactions = try await transactionProvider.initTransactions(
-                    tokenContractAddress: token.contractAddress,
-                    yieldContractAddress: deployed.yieldModule,
-                    maxNetworkFee: maxTokenNetworkFee,
-                    fee: initFee
-                )
-
-                transactions.append(contentsOf: initTransactions)
-            case (.initialized(.notActive), let reactivateFee as ReactivateEnterFee):
-                let reactivateTransactions = try await transactionProvider.reactivateTransactions(
-                    tokenContractAddress: token.contractAddress,
-                    yieldContractAddress: deployed.yieldModule,
-                    maxNetworkFee: maxTokenNetworkFee,
-                    fee: reactivateFee
-                )
-
-                transactions.append(contentsOf: reactivateTransactions)
-            case (.initialized, _):
-                throw YieldModuleError.yieldIsAlreadyActive
-            default:
-                throw YieldModuleError.inconsistentState
-            }
-        default: throw YieldModuleError.inconsistentState
-        }
-
-        let result = try await transactionDispatcher
-            .send(transactions: transactions.map { .transfer($0) })
+        let hashes = try await transactionDispatcher
+            .send(transactions: enterTransactions.transactions.map { .transfer($0) })
             .map(\.hash)
 
-        if let yieldContractAddressToSave {
-            await yieldSupplyService.storeYieldContract(yieldContractAddressToSave)
+        await completeEnter(enterTransactions, enterHash: hashes.last)
+
+        return hashes
+    }
+
+    func enter(
+        fee: any YieldTransactionFee,
+        gaslessFee: BSDKFee,
+        transactionSender: GaslessBatchTransactionSending
+    ) async throws -> String {
+        let enterAmount = try gaslessEnterAmount(gaslessFee: gaslessFee)
+
+        if enterAmount != nil, await !supportsEnterWithAmount(fee: fee) {
+            throw TokenFeeProviderError.unsupportedByProvider
         }
 
-        await setNextExpectedState(.active)
+        let enterTransactions = try await makeEnterTransactions(
+            fee: fee,
+            enterAmount: enterAmount,
+            transactionProvider: gaslessTransactionProvider
+        )
 
-        await activate()
+        let hash = try await transactionSender
+            .send(batch: enterTransactions.transactions, fee: gaslessFee)
+            .hash
 
-        if hasEnterTransaction(in: transactions), let enterHash = result.last, let lastSourceAddress = transactions.last?.sourceAddress {
-            await yieldModuleNetworkManager.sendTransactionEvent(
-                txHash: enterHash,
-                operation: .enter,
-                userAddress: arePushNotificationsEnabled() ? lastSourceAddress : nil
-            )
+        await completeEnter(enterTransactions, enterHash: hash)
+
+        return hash
+    }
+
+    func supportsEnterWithAmount(fee: any YieldTransactionFee) async -> Bool {
+        switch fee {
+        case is DeployEnterFee:
+            return true
+        case let initFee as InitEnterFee:
+            return await supportsEnterWithAmount(newImplementationAddress: initFee.newImplementationAddress)
+        case let reactivateFee as ReactivateEnterFee:
+            return await supportsEnterWithAmount(newImplementationAddress: reactivateFee.newImplementationAddress)
+        default:
+            return false
         }
-
-        return result
     }
 
     func exitFee() async throws -> any YieldTransactionFee {
@@ -437,6 +440,49 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         return result
     }
 
+    func exit(
+        fee: YieldTransactionFee,
+        gaslessFee: BSDKFee,
+        precedingTransaction: () async throws -> BSDKTransaction?,
+        transactionSender: GaslessBatchTransactionSending
+    ) async throws -> String {
+        let yieldModuleState = try await getYieldModuleState()
+
+        guard case .deployed(let deployedState) = yieldModuleState,
+              case .initialized(let activeState) = deployedState.initializationState,
+              case .active = activeState,
+              let exitFee = fee as? ExitFee else {
+            throw YieldModuleError.yieldIsNotActive
+        }
+
+        let exitTransactions = try await gaslessTransactionProvider.exitTransactions(
+            tokenContractAddress: token.contractAddress,
+            yieldContractAddress: deployedState.yieldModule,
+            fee: exitFee
+        )
+
+        let preceding = try await precedingTransaction()
+        let transactions = (preceding.map { [$0] } ?? []) + exitTransactions
+
+        let hash = try await transactionSender
+            .send(batch: transactions, fee: gaslessFee)
+            .hash
+
+        await setNextExpectedState(.notActive)
+
+        await deactivate()
+
+        if let exitSourceAddress = exitTransactions.first?.sourceAddress {
+            await yieldModuleNetworkManager.sendTransactionEvent(
+                txHash: hash,
+                operation: .exit,
+                userAddress: arePushNotificationsEnabled() ? exitSourceAddress : nil
+            )
+        }
+
+        return hash
+    }
+
     func approveFee() async throws -> any YieldTransactionFee {
         try await transactionFeeProvider.approveFee(
             yieldContractAddress: try await yieldSupplyService.getYieldContract(),
@@ -475,7 +521,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         )
     }
 
-    func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee) async throws -> BSDKTransaction {
+    func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee, isGasless: Bool) async throws -> BSDKTransaction {
         guard let claimFee = fee as? ClaimFee else {
             throw YieldModuleError.feeNotFound
         }
@@ -483,7 +529,8 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         let claimData = UpgradeToAndCallMethod.wrapIfNeeded(data, newImplementation: claimFee.newImplementationAddress)
         AppLogger.tag("YieldModule").info("Claim on \(to) upgrades the module: \(claimFee.newImplementationAddress ?? "no")")
 
-        return try await transactionProvider.claimTransaction(to: to, data: claimData, fee: claimFee.fee)
+        let provider = isGasless ? gaslessTransactionProvider : transactionProvider
+        return try await provider.claimTransaction(to: to, data: claimData, fee: claimFee.fee)
     }
 
     func submitClaim(transaction: BSDKTransaction, transactionDispatcher: TransactionDispatcher) async throws -> String {
@@ -666,6 +713,125 @@ private extension CommonYieldModuleManager {
         }
     }
 
+    func makeEnterTransactions(
+        fee: any YieldTransactionFee,
+        enterAmount: BigUInt?,
+        transactionProvider: YieldTransactionProvider
+    ) async throws -> EnterTransactions {
+        let yieldTokenState = try await getYieldModuleState()
+
+        let maxTokenNetworkFee = try await maxTokenNetworkFee()
+
+        switch (yieldTokenState, fee) {
+        case (.notDeployed, let deployEnterFee as DeployEnterFee):
+            let yieldContractAddress = try await yieldSupplyService.calculateYieldContract()
+
+            let deployTransactions = try await transactionProvider.deployTransactions(
+                walletAddress: walletAddress,
+                tokenContractAddress: token.contractAddress,
+                yieldContractAddress: yieldContractAddress,
+                maxNetworkFee: maxTokenNetworkFee,
+                fee: deployEnterFee,
+                enterAmount: enterAmount
+            )
+
+            return EnterTransactions(transactions: deployTransactions, yieldContractAddressToSave: yieldContractAddress)
+        case (.deployed(let deployed), let fee):
+            switch (deployed.initializationState, fee) {
+            case (.notInitialized, let initFee as InitEnterFee):
+                let initTransactions = try await transactionProvider.initTransactions(
+                    tokenContractAddress: token.contractAddress,
+                    yieldContractAddress: deployed.yieldModule,
+                    maxNetworkFee: maxTokenNetworkFee,
+                    fee: initFee,
+                    enterAmount: enterAmount
+                )
+
+                return EnterTransactions(transactions: initTransactions, yieldContractAddressToSave: nil)
+            case (.initialized(.notActive), let reactivateFee as ReactivateEnterFee):
+                let reactivateTransactions = try await transactionProvider.reactivateTransactions(
+                    tokenContractAddress: token.contractAddress,
+                    yieldContractAddress: deployed.yieldModule,
+                    maxNetworkFee: maxTokenNetworkFee,
+                    fee: reactivateFee,
+                    enterAmount: enterAmount
+                )
+
+                return EnterTransactions(transactions: reactivateTransactions, yieldContractAddressToSave: nil)
+            case (.initialized, _):
+                throw YieldModuleError.yieldIsAlreadyActive
+            default:
+                throw YieldModuleError.inconsistentState
+            }
+        default: throw YieldModuleError.inconsistentState
+        }
+    }
+
+    func completeEnter(_ enterTransactions: EnterTransactions, enterHash: String?) async {
+        if let yieldContractAddressToSave = enterTransactions.yieldContractAddressToSave {
+            await yieldSupplyService.storeYieldContract(yieldContractAddressToSave)
+        }
+
+        await setNextExpectedState(.active)
+
+        await activate()
+
+        let transactions = enterTransactions.transactions
+
+        if hasEnterTransaction(in: transactions), let enterHash, let lastSourceAddress = transactions.last?.sourceAddress {
+            await yieldModuleNetworkManager.sendTransactionEvent(
+                txHash: enterHash,
+                operation: .enter,
+                userAddress: arePushNotificationsEnabled() ? lastSourceAddress : nil
+            )
+        }
+    }
+
+    func gaslessEnterAmount(gaslessFee: BSDKFee) throws -> BigUInt? {
+        let calculator = YieldGaslessEnterAmountCalculator()
+
+        guard calculator.isPaidWithSuppliedToken(fee: gaslessFee, token: token) else {
+            return nil
+        }
+
+        let balance = tokenBalanceProvider.balanceType.value ?? .zero
+
+        guard let enterAmount = calculator.enterAmount(balance: balance, fee: gaslessFee, token: token) else {
+            throw TokenFeeProviderError.notEnoughGaslessFeeBalance(feeCurrencyBalance: balance)
+        }
+
+        return enterAmount
+    }
+
+    func supportsEnterWithAmount(newImplementationAddress: String?) async -> Bool {
+        guard newImplementationAddress == nil else {
+            return true
+        }
+
+        do {
+            let moduleAddress = try await yieldSupplyService.getYieldContract()
+
+            if let versionResolver = yieldSupplyService.makeVersionResolver() {
+                let status = try await versionResolver.resolveStatus(moduleAddress: moduleAddress)
+
+                if case .upgradeAvailable = status {
+                    return false
+                }
+
+                return status.supports(.v2)
+            }
+
+            if let versionChecker = yieldSupplyService.makeVersionChecker() {
+                return try await versionChecker.checkVersion(userModuleAddress: moduleAddress) == .upToDate
+            }
+
+            return false
+        } catch {
+            AppLogger.tag("YieldModule").error("Yield Module version is unresolved, the enter with amount is unavailable", error: error)
+            return false
+        }
+    }
+
     func maxTokenNetworkFee() async throws -> BigUInt {
         guard let marketInfo = state?.marketInfo,
               let maxFeeNative = marketInfo.maxFeeNative,
@@ -805,7 +971,9 @@ private extension CommonYieldModuleManager {
 private extension CommonYieldModuleManager {
     func hasEnterTransaction(in transactions: [Transaction]) -> Bool {
         let dummyEnterMethod = EnterProtocolMethod(tokenContractAddress: .empty)
+        let dummyEnterWithAmountMethod = EnterProtocolWithAmountMethod(tokenContractAddress: .empty, amount: .zero)
         return hasTransaction(in: transactions, for: dummyEnterMethod)
+            || hasTransaction(in: transactions, for: dummyEnterWithAmountMethod)
     }
 
     func hasEnterOrExitTransactions(in pendingTransactions: [PendingTransactionRecord], yieldContract: String?) -> Bool {
@@ -816,6 +984,7 @@ private extension CommonYieldModuleManager {
         )
         let dummyInitMethod = InitYieldTokenMethod(tokenContractAddress: String(), maxNetworkFee: .zero)
         let dummyEnterMethod = EnterProtocolMethod(tokenContractAddress: String())
+        let dummyEnterWithAmountMethod = EnterProtocolWithAmountMethod(tokenContractAddress: String(), amount: .zero)
         let dummyReactivateMethod = ReactivateTokenMethod(tokenContractAddress: String(), maxNetworkFee: .zero)
         let dummyApproveMethod = ApproveERC20TokenMethod(spender: String(), amount: .zero)
         let dummyWithdrawAndDeactivateMethod = WithdrawAndDeactivateMethod(tokenContractAddress: String())
@@ -827,6 +996,7 @@ private extension CommonYieldModuleManager {
                 dummyInitMethod,
                 dummyReactivateMethod,
                 dummyEnterMethod,
+                dummyEnterWithAmountMethod,
                 dummyApproveMethod,
                 dummyWithdrawAndDeactivateMethod,
             ],
@@ -932,6 +1102,11 @@ extension CommonYieldModuleManager {
     enum NextExpectedState {
         case active
         case notActive
+    }
+
+    struct EnterTransactions {
+        let transactions: [Transaction]
+        let yieldContractAddressToSave: String?
     }
 }
 

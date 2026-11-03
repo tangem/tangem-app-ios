@@ -273,7 +273,7 @@ final class YieldClaimManagerStub: YieldModuleManager {
         return try result.get()
     }
 
-    func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee) async throws -> BSDKTransaction {
+    func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee, isGasless: Bool) async throws -> BSDKTransaction {
         let result = lockedState.withLock { state -> Result<BSDKTransaction, Error> in
             state.builtCalls.append(SubmittedCall(to: to, dataHex: data.hexString))
             return state.transactionResult
@@ -293,8 +293,11 @@ final class YieldClaimManagerStub: YieldModuleManager {
 
     func enterFee() async throws -> YieldTransactionFee { fatalError() }
     func enter(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String] { fatalError() }
+    func enter(fee: YieldTransactionFee, gaslessFee: BSDKFee, transactionSender: GaslessBatchTransactionSending) async throws -> String { fatalError() }
+    func supportsEnterWithAmount(fee: YieldTransactionFee) async -> Bool { fatalError() }
     func exitFee() async throws -> YieldTransactionFee { fatalError() }
     func exit(fee: YieldTransactionFee, precedingTransaction: () async throws -> BSDKTransaction?, transactionDispatcher: TransactionDispatcher) async throws -> YieldExitResult { fatalError() }
+    func exit(fee: YieldTransactionFee, gaslessFee: BSDKFee, precedingTransaction: () async throws -> BSDKTransaction?, transactionSender: GaslessBatchTransactionSending) async throws -> String { fatalError() }
     func approveFee() async throws -> YieldTransactionFee { fatalError() }
     func approve(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> String { fatalError() }
     func currentNetworkFeeParameters() async throws -> EthereumFeeParameters { fatalError() }

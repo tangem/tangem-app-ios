@@ -98,7 +98,11 @@ extension WalletModelTokenFeeLoaderProvider: TokenFeeLoaderProvider {
         )
     }
 
-    func makeGaslessTokenFeeLoader(feeToken: BSDKToken, yieldFeeContext: GaslessYieldFeeContext?) -> TokenFeeLoader? {
+    func makeGaslessTokenFeeLoader(
+        feeToken: BSDKToken,
+        yieldFeeContext: GaslessYieldFeeContext?,
+        isFeeTokenFundedByTransaction: Bool
+    ) -> TokenFeeLoader? {
         let tokenItem = walletModel.tokenItem
 
         // Until paying in a token is turned on, a Safe refunds its relayer in the coin and no token option is offered.
@@ -137,7 +141,8 @@ extension WalletModelTokenFeeLoaderProvider: TokenFeeLoaderProvider {
             tokenItem: tokenItem,
             feeToken: feeToken,
             gaslessTransactionFeeProvider: gaslessTransactionFeeProvider,
-            yieldFeeContext: yieldFeeContext
+            yieldFeeContext: yieldFeeContext,
+            isFeeTokenFundedByTransaction: isFeeTokenFundedByTransaction
         )
     }
 
