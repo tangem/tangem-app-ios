@@ -13,17 +13,28 @@ import TangemFoundation
 import TangemNetworkUtils
 
 final class CommonWalletCardsBackupReportService {
-    @Injected(\.walletCardsBackupReportRepository)
-    private var repository: WalletCardsBackupReportRepository
-
-    @Injected(\.tangemApiService)
-    private var apiService: TangemApiService
-
+    private let repository: WalletCardsBackupReportRepository
+    private let apiService: TangemApiService
+    private let userWalletRepository: UserWalletRepository
+    private let savedCardsCollector: WalletCardsSavedCardsCollector
     private let reachabilityProvider: NetworkReachabilityProvider
+    private let reportsPreviouslySavedWallets: Bool
     private var deliveryTask: Task<Void, Never>?
+    private var savedCardsSubscription: AnyCancellable?
 
-    init(reachabilityProvider: NetworkReachabilityProvider = CommonNetworkReachabilityProvider()) {
+    init(
+        reachabilityProvider: NetworkReachabilityProvider = CommonNetworkReachabilityProvider(),
+        reportsPreviouslySavedWallets: Bool = FeatureProvider.isAvailable(.walletCardsBackupReportOnLogin),
+        repository: WalletCardsBackupReportRepository = InjectedValues[\.walletCardsBackupReportRepository],
+        apiService: TangemApiService = InjectedValues[\.tangemApiService],
+        userWalletRepository: UserWalletRepository = InjectedValues[\.userWalletRepository]
+    ) {
         self.reachabilityProvider = reachabilityProvider
+        self.reportsPreviouslySavedWallets = reportsPreviouslySavedWallets
+        self.repository = repository
+        self.apiService = apiService
+        self.userWalletRepository = userWalletRepository
+        savedCardsCollector = WalletCardsSavedCardsCollector(userWalletRepository: userWalletRepository)
     }
 
     deinit {
@@ -38,6 +49,7 @@ extension CommonWalletCardsBackupReportService: WalletCardsBackupReportService {
     /// session reach the back end without waiting for another card to be scanned.
     func initialize() {
         bind()
+        bindPreviouslySavedWallets()
     }
 
     func reportCard(_ card: WalletCardsCurrentlyProcessedCard, primaryCardId: String) {
@@ -52,14 +64,37 @@ extension CommonWalletCardsBackupReportService: WalletCardsBackupReportService {
 // MARK: - Delivery
 
 private extension CommonWalletCardsBackupReportService {
+    func bindPreviouslySavedWallets() {
+        guard reportsPreviouslySavedWallets else { return }
+
+        savedCardsSubscription = savedCardsCollector.cardLinkedCardsPublisher
+            .withWeakCaptureOf(self)
+            .sink { service, cards in
+                for card in cards {
+                    service.repository.storePreviouslySavedCardIfNeeded(card)
+                }
+            }
+    }
+
     func bind() {
+        let reportChanges = repository.pendingReportsPublisher
+            .map(\.last?.id)
+            .removeDuplicates()
+            .map { _ in () }
+        let walletEvents = userWalletRepository.eventProvider
+            .filter { event in
+                switch event {
+                case .unlocked, .unlockedWallet: true
+                default: false
+                }
+            }
+            .map { _ in () }
         let deliveryTriggers = Publishers.CombineLatest(
-            reachabilityProvider.isReachablePublisher,
-            repository.pendingReportsPublisher.map(\.last?.id),
+            reachabilityProvider.isReachablePublisher.removeDuplicates(),
+            Publishers.Merge(reportChanges, walletEvents),
         )
-        .removeDuplicates(by: ==)
-        .filter { isReachable, newestReportId in
-            isReachable && newestReportId != nil
+        .filter { isReachable, _ in
+            isReachable
         }
 
         // A single consumer keeps passes sequential, so the same cards can't be sent twice.
@@ -73,8 +108,10 @@ private extension CommonWalletCardsBackupReportService {
     func deliverPendingReports() async {
         while let report = repository.oldestPendingReport {
             switch await deliver(report: report) {
-            case .delivered, .refused:
-                repository.removePendingReport(report)
+            case .delivered:
+                repository.removePendingReport(report, wasDelivered: true)
+            case .refused:
+                repository.removePendingReport(report, wasDelivered: false)
             case .postponed:
                 return
             }

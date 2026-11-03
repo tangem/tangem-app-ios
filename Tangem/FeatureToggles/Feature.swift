@@ -9,6 +9,7 @@
 import Foundation
 
 enum Feature: String, Hashable, CaseIterable {
+    case walletCardsBackupReportOnLogin
     case disableFirmwareVersionLimit
     case visa // [REDACTED_TODO_COMMENT]
     case exchangeOnlyWithinSingleAddress
@@ -43,6 +44,7 @@ enum Feature: String, Hashable, CaseIterable {
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
     var name: String {
         switch self {
+        case .walletCardsBackupReportOnLogin: return "[REDACTED_INFO]_card_backups_on_login"
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
         case .visa: return "Visa"
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
@@ -77,6 +79,7 @@ enum Feature: String, Hashable, CaseIterable {
 
     var releaseVersion: ReleaseVersion {
         switch self {
+        case .walletCardsBackupReportOnLogin: return .version("6.7")
         case .disableFirmwareVersionLimit: return .unspecified
         case .visa: return .unspecified
         case .exchangeOnlyWithinSingleAddress: return .unspecified
