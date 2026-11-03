@@ -937,6 +937,7 @@
 "hw_upgrade_start_action" = "アップグレードを開始";
 "hw_upgrade_start_description" = "ハードウェアウォレットへのアップグレードを行います。資産はコールドストレージで安全に保管されます。";
 "hw_upgrade_title" = "ハードウェアウォレットにアップグレード";
+"hw_upgrade_to_cold_badge" = "Upgrade to a cold wallet";
 "hw_upgrade_to_cold_banner_description" = "Tangemの業界最高クラスのハードウェアウォレットで、暗号資産を安全に保管しましょう。";
 "hw_upgrade_to_cold_banner_title" = "ウォレットをハードウェアセキュリティにアップグレードする";
 "hw_upgrade" = "アップグレード";
@@ -1336,6 +1337,7 @@
 "money_account_main_status_activating" = "有効化中…";
 "money_account_main_status_active_v2" = "ACH";
 "money_account_main_status_active" = "%1$@ネットワーク";
+"money_account_main_status_awaiting_deposit" = "Opens after your deposit";
 "money_account_main_status_dialog_activating_description" = "口座の準備を進めています。しばらく時間がかかる場合があります";
 "money_account_main_status_dialog_activating_title" = "銀行口座を開設しています";
 "money_account_main_status_dialog_country_not_supported_description_template" = "対応地域の拡大に取り組んでいます。お困りですか？%@";
@@ -2607,7 +2609,7 @@
 "tangempay_set_pin_title" = "PINを設定";
 "tangempay_status_deactivated" = "口座は閉鎖されました";
 "tangempay_status_inactive" = "無効";
-"tangempay_sync_needed_body" = "セッションを更新して、カードと口座を表示してください";
+"tangempay_sync_needed_body" = "更新してカードと口座をご確認ください";
 "tangempay_sync_needed_button" = "セッションを更新";
 "tangempay_sync_needed_restore_access" = "セッションを更新";
 "tangempay_sync_needed_title" = "セッションの有効期限が切れました";
@@ -2790,6 +2792,7 @@
 "transaction_history_approve_high_risk_subtitle" = "You're connected. Funds may be at risk. Consider revoking access.";
 "transaction_history_approve_high_risk_title" = "High Risk";
 "transaction_history_approved_amount" = "Approved amount";
+"transaction_history_awaiting_signatures" = "Awaiting signatures";
 "transaction_history_claiming_incentive_rewards" = "Claiming incentive rewards";
 "transaction_history_contract_address" = "コントラクト: %@";
 "transaction_history_disabling_yield_mode" = "利息モードを無効化中";
@@ -2811,6 +2814,7 @@
 "transaction_history_multiple_addresses" = "複数のアドレス";
 "transaction_history_not_supported_description" = "現在、このブロックチェーンでは取引履歴はサポートされていません。しかしご心配なく！弊社で対応中です。その間、エクスプローラーで確認することができます。";
 "transaction_history_operation" = "処理";
+"transaction_history_pending_send" = "Pending send";
 "transaction_history_pending" = "保留中";
 "transaction_history_rewards_restaked" = "報酬を再ステーキングしました";
 "transaction_history_status_approve_failed" = "Approve failed";
