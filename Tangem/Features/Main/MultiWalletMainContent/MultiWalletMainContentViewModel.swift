@@ -473,6 +473,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private func bindPendingJointAccountPlates() {
         AccountModelsAggregator(.joint(.pending))
             .modelsPublisher(from: userWalletModel.accountModelsManager)
+            .removeDuplicates { $0.elementsEqual($1, by: ===) }
             .withWeakCaptureOf(self)
             .map { viewModel, pendingJointAccounts in
                 pendingJointAccounts.map { pendingJointAccount in

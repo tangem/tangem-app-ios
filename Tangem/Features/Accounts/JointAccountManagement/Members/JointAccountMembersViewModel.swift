@@ -206,7 +206,7 @@ private extension JointAccountMembersViewModel {
     func makeActions() -> [Action] {
         switch phase {
         case .collecting: [.confirmSharedAddress(isEnabled: false)]
-        case .confirming(let canConfirm): canConfirm ? [.confirmSharedAddress(isEnabled: true)] : []
+        case .confirming(let canConfirm, _): canConfirm ? [.confirmSharedAddress(isEnabled: true)] : []
         case .completed, .none: []
         }
     }

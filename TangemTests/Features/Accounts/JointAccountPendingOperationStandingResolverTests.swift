@@ -48,7 +48,7 @@ struct JointAccountPendingOperationStandingResolverTests {
     func initiatorStandsAsSigned() throws {
         let pendingOperation = try makePendingOperation(initiator: Constants.ownAddress, signatures: [])
 
-        #expect(pendingOperation.isInitiator)
+        #expect(pendingOperation.initiator.isMe)
         #expect(sut.standing(for: pendingOperation) == .signed)
         #expect(!sut.canSign(pendingOperation))
         #expect(sut.canReject(pendingOperation))
@@ -68,7 +68,7 @@ struct JointAccountPendingOperationStandingResolverTests {
         let signature = JointAccountOperation.Signature(address: Constants.ownAddress.uppercased(), state: .signed, at: Constants.signedAt)
         let pendingOperation = try makePendingOperation(initiator: Constants.creatorAddress.uppercased(), signatures: [signature])
 
-        #expect(!pendingOperation.isInitiator)
+        #expect(!pendingOperation.initiator.isMe)
         #expect(sut.standing(for: pendingOperation) == .signed)
         #expect(!sut.canSign(pendingOperation))
     }
@@ -77,7 +77,7 @@ struct JointAccountPendingOperationStandingResolverTests {
     func walletWithoutTheDerivedKeyHasNothingToAnswer() throws {
         let pendingOperation = try makePendingOperation(signatures: [Self.ownSignature(.signed)], hasDerivedKey: false)
 
-        #expect(!pendingOperation.isInitiator)
+        #expect(!pendingOperation.initiator.isMe)
         #expect(sut.standing(for: pendingOperation) == .noDecisionYet)
         #expect(!sut.canSign(pendingOperation))
         #expect(!sut.canReject(pendingOperation))
@@ -138,9 +138,14 @@ private extension JointAccountPendingOperationStandingResolverTests {
 
         let operation = JointAccountCompositionFixture.coinTransfer(status: status, initiator: initiator, signatures: signatures)
 
+        let operationInitiator: JointAccountPendingOperation.Initiator = initiator.caseInsensitiveEquals(to: Constants.ownAddress)
+            ? .me
+            : .unlisted(address: initiator)
+
         return JointAccountPendingOperation(
             wallet: wallet,
             operation: operation,
+            initiator: operationInitiator,
             operationPublisher: Just(operation).eraseToAnyPublisher(),
             innerCallType: .transfer(.coin(destination: Constants.recipient, value: 1_000_000_000_000_000)),
             feeTokenItem: Constants.coin

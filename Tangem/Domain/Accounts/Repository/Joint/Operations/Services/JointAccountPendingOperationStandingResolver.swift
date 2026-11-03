@@ -15,7 +15,7 @@ struct JointAccountPendingOperationStandingResolver {
             return .noDecisionYet
         }
 
-        guard !pendingOperation.isInitiator else {
+        guard !pendingOperation.initiator.isMe else {
             return .signed
         }
 
@@ -29,7 +29,7 @@ struct JointAccountPendingOperationStandingResolver {
     }
 
     func canSign(_ pendingOperation: JointAccountPendingOperation) -> Bool {
-        guard let ownAddress = answeringAddress(of: pendingOperation), !pendingOperation.isInitiator else {
+        guard let ownAddress = answeringAddress(of: pendingOperation), !pendingOperation.initiator.isMe else {
             return false
         }
 
