@@ -17,7 +17,7 @@ struct WalletCardsBackupCard: Codable, Equatable {
     let cardPublicKey: Data
     var identity: Identity
     /// `nil` when the reporting step can't determine the role (a scan outside a ceremony). A known role is
-    /// never overwritten with `nil` — see the repository merge.
+    /// kept while the card stays in the same wallet — see the repository merge.
     var role: Role?
     /// `nil` when the card didn't reveal its status (an interrupted ceremony step). Mirrors the card, so an
     /// unknown status replaces a previously known one.

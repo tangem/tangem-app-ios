@@ -799,7 +799,9 @@ extension TangemApiTarget: TargetTypeLogConvertible {
             return path.replacingOccurrences(of: inviteId, with: inviteId.masked())
         case .getJointOperationsHistory(let walletId, _),
              .getJointOperationsHistoryDelta(let walletId, _),
-             .getJointOperation(let walletId, _, _):
+             .getJointOperation(let walletId, _, _),
+             .getWalletCards(let walletId),
+             .saveWalletCards(let walletId, _):
             return path.replacingOccurrences(of: walletId, with: "{walletId}")
         case .surveyResponseStatus(let request):
             return path.replacingOccurrences(of: request.walletId, with: "{walletId}")

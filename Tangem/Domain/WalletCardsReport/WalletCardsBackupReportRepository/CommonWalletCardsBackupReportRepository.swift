@@ -55,6 +55,7 @@ extension CommonWalletCardsBackupReportRepository: WalletCardsBackupReportReposi
             let appliedCard = apply(
                 card: card,
                 identity: identity ?? .blank(primaryCardId: primaryCardId),
+                primaryCardId: primaryCardId,
                 error: error,
                 to: &currentReport
             )
@@ -108,20 +109,28 @@ private extension CommonWalletCardsBackupReportRepository {
 // MARK: - Mutations
 
 private extension CommonWalletCardsBackupReportRepository {
-    /// Overwrites the stored card with `card`: only a known `role` survives, the rest mirrors the card even
-    /// where it revealed nothing. Returns whether the store was mutated (i.e. needs persisting).
+    /// Overwrites the stored card with `card`: only a known `role` of the same wallet survives, the rest mirrors
+    /// the card even where it revealed nothing. Returns whether the store was mutated (i.e. needs persisting).
     func apply(
         card: WalletCardsCurrentlyProcessedCard,
         identity: WalletCardsBackupCard.Identity,
+        primaryCardId: String,
         error: TangemSdkError?,
         to report: inout WalletCardsBackupReport
     ) -> Bool {
         let existing = report.cards[card.cardId]
+        let role: WalletCardsBackupCard.Role? = if let knownRole = card.role {
+            knownRole
+        } else if let existing, existing.identity.isSameWallet(as: identity, primaryCardId: primaryCardId) {
+            existing.role
+        } else {
+            nil
+        }
         let incoming = WalletCardsBackupCard(
             cardId: card.cardId,
             cardPublicKey: card.cardPublicKey,
             identity: identity,
-            role: card.role ?? existing?.role,
+            role: role,
             backupStatus: card.backupStatus,
             curves: card.curves,
             errorCode: error?.code,
@@ -228,6 +237,13 @@ private extension WalletCardsBackupCard.Identity {
         switch self {
         case .blank(let primaryCardId): primaryCardId == cardId
         case .filled: false
+        }
+    }
+
+    func isSameWallet(as identity: Self, primaryCardId cardId: String) -> Bool {
+        switch self {
+        case .blank(let primaryCardId): primaryCardId == cardId
+        case .filled(let userWalletId, _): userWalletId == identity.userWalletId
         }
     }
 }

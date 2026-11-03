@@ -104,10 +104,9 @@ private extension CommonWalletCardsBackupReportService {
         WalletCardsDTO.Card(
             cardId: card.cardId,
             cardPublicKey: card.cardPublicKey.hexString,
-            // The back end takes only `primary` or `backupN`, so a card seen outside a ceremony — which has no
-            // position to report — travels as the primary. Only the payload defaults; the stored role stays
-            // unknown.
-            role: (card.role ?? .primary).wireValue,
+            // A card whose position is unknown, like one added with its wallet, goes without a role so the back end
+            // keeps the stored one.
+            role: card.role?.wireValue,
             backupStatus: card.backupStatus?.rawValue,
             curves: card.curves.map(\.rawValue),
             errorCode: card.errorCode?.description,
