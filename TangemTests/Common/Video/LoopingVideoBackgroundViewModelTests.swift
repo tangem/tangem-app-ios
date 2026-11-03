@@ -91,6 +91,23 @@ struct LoopingVideoBackgroundViewModelTests {
         #expect(viewModel.player !== firstPlayer)
         #expect(provider.missingAssetCallCount == 0)
     }
+
+    @Test("Pausing halts the player without releasing it, so playing again resumes the same one")
+    func pauseKeepsPlayerForResume() throws {
+        let provider = StubProvider(url: URL(string: "file:///tmp/looping-video-background-test.mp4")!)
+        let viewModel = LoopingVideoBackgroundViewModel(provider: provider)
+
+        viewModel.play()
+        let player = try #require(viewModel.player)
+        viewModel.pause()
+
+        #expect(viewModel.player === player)
+        #expect(player.rate == 0)
+
+        viewModel.play()
+
+        #expect(viewModel.player === player)
+    }
 }
 
 private final class StubProvider: LoopingVideoBackgroundProvider {
