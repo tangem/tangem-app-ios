@@ -55,6 +55,28 @@ struct GaslessYieldFeeTests {
         #expect(parameters.gasLimit == 21_000 + 140_000 + 70_000 + EthereumFeeParametersConstants.gaslessBaseGasBuffer)
     }
 
+    @Test("Fee funded by the transaction falls back to deterministic transfer gas without a yield withdraw")
+    func feeFundedByTransactionFallsBackToTransferGasWithoutWithdraw() async throws {
+        let sut = makeSUT(gasLimitResults: [
+            .failure(JSONRPC.APIError(code: 3, message: "ERC20: transfer amount exceeds balance")),
+        ])
+
+        let fee = try await sut.getEstimatedGaslessTransactionFeeFundedByTransaction(
+            feeToken: Self.feeToken,
+            estimatedGasLimit: 21_000,
+            feeRecipientAddress: Self.feeRecipientAddress,
+            nativeToFeeTokenRate: 1
+        )
+
+        let parameters = try #require(fee.parameters as? EthereumGaslessTransactionFeeParameters)
+
+        #expect(parameters.yieldWithdraw == nil)
+        #expect(parameters.feeTokenTransferGasLimit == 140_000)
+        #expect(parameters.callGasLimit == 21_000)
+        #expect(parameters.gasLimit == 21_000 + 140_000 + EthereumFeeParametersConstants.gaslessBaseGasBuffer)
+        #expect(sut.gasLimitRequests.count == 1)
+    }
+
     @Test("Yield transaction fee re-estimates upgrade wrapped user transaction")
     func yieldTransactionFeeReestimatesUpgradeWrappedUserTransaction() async throws {
         let sut = makeSUT(gasLimitResults: [

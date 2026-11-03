@@ -19,14 +19,15 @@ struct YieldModuleTransactionView: View {
 
     var body: some View {
         YieldModuleBottomSheetContainerView(
-            title: viewModel.action.title,
-            subtitle: viewModel.action.description,
+            title: viewModel.isSelectingFeeToken ? YieldFeeTokenSelector.title : viewModel.action.title,
+            subtitle: viewModel.isSelectingFeeToken ? YieldFeeTokenSelector.subtitle : viewModel.action.description,
             button: mainButton,
             header: { header },
             topContent: { topContent },
             content: { content },
         )
         .transition(.content)
+        .animation(.contentFrameUpdate, value: viewModel.isSelectingFeeToken)
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
@@ -35,32 +36,50 @@ struct YieldModuleTransactionView: View {
 
     // MARK: - Sub Views
 
+    @ViewBuilder
     private var content: some View {
-        YieldFeeSection(
-            sectionState: viewModel.networkFeeState,
-            leadingTitle: Localization.commonNetworkFeeTitle,
-            linkTitle: Localization.commonReadMore,
-            onLinkTapAction: viewModel.openReadMore,
-            notification: viewModel.networkFeeNotification
-        )
+        if viewModel.isSelectingFeeToken, let feeTokenSelector = viewModel.feeTokenSelector {
+            FeeSelectorTokensView(viewModel: feeTokenSelector.feeTokensViewModel)
+        } else {
+            YieldFeeSection(
+                sectionState: viewModel.networkFeeState,
+                leadingTitle: Localization.commonNetworkFeeTitle,
+                linkTitle: Localization.commonReadMore,
+                onLinkTapAction: viewModel.openReadMore,
+                notification: viewModel.networkFeeNotification,
+                feeSelector: feeSelector
+            )
+        }
     }
 
+    private var feeSelector: YieldFeeSectionFeeSelector? {
+        viewModel.feeTokenSelector.map { selector in
+            YieldFeeSectionFeeSelector(viewModel: selector.feeCompactViewModel, tapAction: viewModel.onFeeTap)
+        }
+    }
+
+    @ViewBuilder
     private var topContent: some View {
-        viewModel.action.icon.image
-            .resizable()
-            .scaledToFit()
-            .frame(size: .init(bothDimensions: 56))
+        if !viewModel.isSelectingFeeToken {
+            viewModel.action.icon.image
+                .resizable()
+                .scaledToFit()
+                .frame(size: .init(bothDimensions: 56))
+        }
     }
 
+    @ViewBuilder
     private var mainButton: some View {
-        SigningActionButtonView(
-            type: viewModel.signingActionButtonType,
-            title: viewModel.action.buttonTitle,
-            isLoading: viewModel.isProcessingRequest,
-            isDisabled: !viewModel.isActionButtonAvailable,
-            action: viewModel.onActionTap
-        )
-        .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.confirmButton)
+        if !viewModel.isSelectingFeeToken {
+            SigningActionButtonView(
+                type: viewModel.signingActionButtonType,
+                title: viewModel.action.buttonTitle,
+                isLoading: viewModel.isProcessingRequest,
+                isDisabled: !viewModel.isActionButtonAvailable,
+                action: viewModel.onActionTap
+            )
+            .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.confirmButton)
+        }
     }
 
     private var header: some View {

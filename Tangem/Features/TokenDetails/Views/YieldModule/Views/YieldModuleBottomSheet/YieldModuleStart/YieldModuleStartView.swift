@@ -48,7 +48,7 @@ struct YieldModuleStartView: View {
         switch viewModel.viewState {
         case .incentiveRateInfo:
             DesignSystem.Color.bgPrimary
-        case .rateInfo, .startEarning, .feePolicy:
+        case .rateInfo, .startEarning, .feePolicy, .feeTokenSelection:
             DesignSystem.Color.bgPrimary
         }
     }
@@ -57,7 +57,7 @@ struct YieldModuleStartView: View {
         switch viewModel.viewState {
         case .incentiveRateInfo:
             DesignSystem.Color.bgPrimary
-        case .rateInfo, .startEarning, .feePolicy:
+        case .rateInfo, .startEarning, .feePolicy, .feeTokenSelection:
             DesignSystem.Color.bgPrimary
         }
     }
@@ -72,6 +72,8 @@ struct YieldModuleStartView: View {
             Localization.yieldModuleStartEarning
         case .feePolicy:
             Localization.yieldModuleFeePolicySheetTitle
+        case .feeTokenSelection:
+            YieldFeeTokenSelector.title
         }
     }
 
@@ -85,6 +87,8 @@ struct YieldModuleStartView: View {
             Localization.yieldModuleStartEarningSheetDescription(viewModel.walletModel.tokenItem.currencySymbol)
         case .feePolicy:
             Localization.yieldModuleFeePolicySheetDescription(viewModel.walletModel.tokenItem.currencySymbol)
+        case .feeTokenSelection:
+            YieldFeeTokenSelector.subtitle
         }
     }
 
@@ -93,7 +97,7 @@ struct YieldModuleStartView: View {
         switch viewModel.viewState {
         case .rateInfo:
             rateInfoSubtitleFooter
-        case .incentiveRateInfo, .feePolicy, .startEarning:
+        case .incentiveRateInfo, .feePolicy, .startEarning, .feeTokenSelection:
             EmptyView()
         }
     }
@@ -128,13 +132,15 @@ struct YieldModuleStartView: View {
                 action: ctaButtonAction
             )
             .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.startEarningButton)
+        case .feeTokenSelection:
+            EmptyView()
         }
     }
 
     @ViewBuilder
     private var topContent: some View {
         switch viewModel.viewState {
-        case .rateInfo, .incentiveRateInfo, .feePolicy:
+        case .rateInfo, .incentiveRateInfo, .feePolicy, .feeTokenSelection:
             EmptyView()
         case .startEarning:
             LendingPairIcon(tokenId: viewModel.walletModel.tokenItem.id, iconsSize: IconViewSizeSettings.tokenDetails.iconSize)
@@ -148,7 +154,8 @@ struct YieldModuleStartView: View {
                 leadingTitle: Localization.commonNetworkFeeTitle,
                 linkTitle: Localization.yieldModuleStartEarningSheetFeePolicy,
                 onLinkTapAction: viewModel.onShowFeePolicy,
-                notification: viewModel.networkFeeNotification
+                notification: viewModel.networkFeeNotification,
+                feeSelector: feeSelector
             )
 
             if let params = viewModel.highNetworkFeesNotification {
@@ -166,6 +173,10 @@ struct YieldModuleStartView: View {
             incentiveRateInfoView
         case .startEarning:
             startEarningView
+        case .feeTokenSelection:
+            if let feeTokenSelector = viewModel.feeTokenSelector {
+                FeeSelectorTokensView(viewModel: feeTokenSelector.feeTokensViewModel)
+            }
         case .feePolicy:
             YieldModuleFeePolicyView(
                 minimalAmountState: viewModel.minimalAmountState,
@@ -173,6 +184,12 @@ struct YieldModuleStartView: View {
                 maximumFeeState: viewModel.maximumFeeState,
                 footerText: viewModel.feePolicyFooter
             )
+        }
+    }
+
+    private var feeSelector: YieldFeeSectionFeeSelector? {
+        viewModel.feeTokenSelector.map { selector in
+            YieldFeeSectionFeeSelector(viewModel: selector.feeCompactViewModel, tapAction: viewModel.onFeeTap)
         }
     }
 
@@ -238,7 +255,7 @@ struct YieldModuleStartView: View {
             viewModel.onStartEarnTap
         case .rateInfo, .incentiveRateInfo:
             viewModel.onCloseTap
-        case .feePolicy:
+        case .feePolicy, .feeTokenSelection:
             viewModel.onBackAction
         }
     }
@@ -265,7 +282,7 @@ private extension YieldModuleStartView {
     @ViewBuilder
     func makeHeader(viewState: YieldModuleStartViewModel.ViewState) -> some View {
         switch viewState {
-        case .feePolicy:
+        case .feePolicy, .feeTokenSelection:
             BottomSheetHeaderView(title: "", leading: { NavigationBarButton.back(action: viewModel.onBackAction) })
         case .startEarning, .rateInfo:
             BottomSheetHeaderView(title: "", trailing: { NavigationBarButton.close(action: viewModel.onCloseTap) })
