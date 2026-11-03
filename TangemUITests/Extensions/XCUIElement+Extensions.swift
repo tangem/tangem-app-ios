@@ -212,7 +212,7 @@ extension XCUIElement {
             return element.isHoldInProgress
         }
         let startExpectation = XCTNSPredicateExpectation(predicate: started, object: self)
-        _ = XCTWaiter().wait(for: [startExpectation], timeout: Constants.holdRefreshPeriod)
+        _ = XCTWaiter().wait(for: [startExpectation], timeout: Constants.holdRetryRefreshWait)
     }
 
     private func waitForHoldToBeConfirmed(
@@ -366,6 +366,7 @@ private extension XCUIElement {
         static let holdToConfirmDuration: TimeInterval = 3
         static let holdToConfirmAttempts = 3
         static let holdRefreshPeriod: TimeInterval = 12
+        static let holdRetryRefreshWait: TimeInterval = 5
         static let holdResultTimeout: TimeInterval = 2
     }
 }
