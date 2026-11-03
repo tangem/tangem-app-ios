@@ -19,7 +19,7 @@ final class EarnCalculatorViewModel: ObservableObject {
 
     var selectedHorizon: EarnCalculatorHorizon { input.horizon }
 
-    private var input: EarnCalculatorInput
+    private(set) var input: EarnCalculatorInput
     private let incentiveApy: Decimal?
     private let projector: EarnCalculatorProjecting
     private let stateBuilder: EarnCalculatorViewStateBuilder
