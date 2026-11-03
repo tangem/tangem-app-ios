@@ -573,10 +573,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>Choose from %li token</string>
         <key>other</key>
-        <string>Choose from %li tokens</string>
+        <string>超过 %li 种可用代币</string>
       </dict>
     </dict>
   </dict>

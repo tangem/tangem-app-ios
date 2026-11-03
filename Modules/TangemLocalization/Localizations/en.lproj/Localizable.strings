@@ -16,6 +16,7 @@
 "access_code_navtitle" = "Access code";
 "accessibility_action_long_press" = "Long press";
 "accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
+"account_add_limit_badge" = "Full";
 "account_add_limit_dialog_description" = "You cannot create more than %1$@ accounts. Archive one to add a new one.";
 "account_add_limit_dialog_title" = "Can’t add new account";
 "account_archive_success_message" = "Account archived";
@@ -208,6 +209,9 @@
 "collectibles_account_collection_row_subtitle" = "My collection";
 "collectibles_account_reconnect_subtitle" = "Reconnect required";
 "collectibles_account_withdraw" = "Withdrawal";
+"collectibles_auto_buyback_message" = "Your common card was bought back instantly. %@ is in your balance";
+"collectibles_auto_buyback_open_again_button" = "Open again for %@";
+"collectibles_auto_buyback_title" = "Buyback complete";
 "collectibles_confirm_order_approve_button" = "Approve";
 "collectibles_confirm_order_confirming_transaction_button" = "Confirming transaction...";
 "collectibles_confirm_order_generating_pack_button" = "Generating pack...";
@@ -473,6 +477,7 @@
 "common_retry" = "Retry";
 "common_save_changes" = "Save changes";
 "common_save" = "Save";
+"common_scan_card" = "Scan card";
 "common_search_tokens" = "Search tokens";
 "common_search" = "Search";
 "common_second_no_param" = "sec";
@@ -1128,6 +1133,7 @@
 "joint_operation_deleted_snackbar" = "Transaction deleted";
 "joint_operation_malicious_subtitle" = "This transaction was flagged as malicious. Signing is blocked";
 "joint_operation_malicious_title" = "Dangerous transaction";
+"joint_operation_no_response" = "No response";
 "joint_operation_sending_to_network" = "Sending to the network";
 "joint_operation_sent_footer" = "Signed by %1$@ of %2$@ and sent to the network";
 "joint_operation_signatures_progress" = "Signatures %1$@ of %2$@";
@@ -1328,6 +1334,7 @@
 "money_account_main_name" = "USD account";
 "money_account_main_status_action_required" = "Action required";
 "money_account_main_status_activating" = "Activating…";
+"money_account_main_status_active_v2" = "ACH";
 "money_account_main_status_active" = "%1$@ ACH";
 "money_account_main_status_dialog_activating_description" = "We're getting your account ready. This may take a little time";
 "money_account_main_status_dialog_activating_title" = "Creating your banking account";
@@ -1560,6 +1567,14 @@
 "prediction_add_funds_swap_subtitle" = "Use crypto in your Tangem wallet to top up your Polymarket account";
 "prediction_add_funds_swap_title" = "From your Tangem Wallet";
 "prediction_cash_out" = "Cash Out";
+"prediction_chart_empty_description" = "The chart will appear after the first predictions";
+"prediction_chart_empty_title" = "No data yet";
+"prediction_chart_period_1d" = "1d";
+"prediction_chart_period_1h" = "1h";
+"prediction_chart_period_1m" = "1m";
+"prediction_chart_period_1w" = "1w";
+"prediction_chart_period_6h" = "6h";
+"prediction_chart_period_max" = "Max";
 "prediction_claim_error_failed" = "The claim did not go through. Nothing left your account, and you can try again.";
 "prediction_claim_error_generic" = "The claim could not be sent. Please try again.";
 "prediction_claim_error_rejected" = "Polymarket refused to relay the claim. Refresh your positions and try again.";
@@ -2282,6 +2297,7 @@
 "tangempay_bank_transfer_details_daily_deposits_hint" = "If you want to deposit more than %@ – contact support";
 "tangempay_bank_transfer_details_daily_deposits_left" = "Left today";
 "tangempay_bank_transfer_details_daily_deposits" = "Daily deposits";
+"tangempay_bank_transfer_details_exchange_rate" = "Exchange rate";
 "tangempay_bank_transfer_details_fee_header" = "Deposit methods and fees";
 "tangempay_bank_transfer_details_limitations" = "Limitations";
 "tangempay_bank_transfer_details_minimum_deposit" = "Minimum deposit";
@@ -2591,10 +2607,10 @@
 "tangempay_set_pin_title" = "Set PIN";
 "tangempay_status_deactivated" = "Account closed";
 "tangempay_status_inactive" = "Inactive";
-"tangempay_sync_needed_body" = "Use your card or ring to renew session";
+"tangempay_sync_needed_body" = "Renew your session to view your card and account";
 "tangempay_sync_needed_button" = "Renew session";
 "tangempay_sync_needed_restore_access" = "Renew session";
-"tangempay_sync_needed_title" = "Payment account session expired";
+"tangempay_sync_needed_title" = "Session expired";
 "tangempay_tangem_visa_card" = "Spend crypto anywhere in real life";
 "tangempay_temporarily_unavailable" = "Connection issues";
 "tangempay_title" = "Tangem Pay";
@@ -3036,6 +3052,9 @@
 "warning_kaspa_unfinished_token_transaction_message" = "Your transaction with an amount of %1$@ %2$@ was not completed. You can try again to complete it.";
 "warning_kaspa_unfinished_token_transaction_title" = "You have an unfinished transaction";
 "warning_last_balance_updated_time" = "Last update was %@";
+"warning_link_wallet_cold_message" = "Scan your card to link your wallet to this device.";
+"warning_link_wallet_hot_message" = "Confirm to link your wallet to this device.";
+"warning_link_wallet_title" = "Link your wallet to this device";
 "warning_long_transaction_message" = "iPhone 7/7+ cannot sign transactions on this network. To complete this operation, please use a different phone.";
 "warning_long_transaction_title" = "Transaction signing unavailable";
 "warning_low_signatures_message" = "Only %@ signatures are left on this card. You must withdraw all of your funds.";

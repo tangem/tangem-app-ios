@@ -573,10 +573,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>Choose from %li token</string>
         <key>other</key>
-        <string>Choose from %li tokens</string>
+        <string>%li種類以上のトークンが利用可能</string>
       </dict>
     </dict>
   </dict>

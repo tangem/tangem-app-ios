@@ -632,9 +632,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Choose from %li token</string>
+        <string>More than %li available token</string>
         <key>other</key>
-        <string>Choose from %li tokens</string>
+        <string>More than %li available tokens</string>
       </dict>
     </dict>
   </dict>
