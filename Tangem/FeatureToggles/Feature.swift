@@ -9,6 +9,7 @@
 import Foundation
 
 enum Feature: String, Hashable, CaseIterable {
+    case walletCardsBackupReportOnLogin
     case disableFirmwareVersionLimit
     case visa // [REDACTED_TODO_COMMENT]
     case exchangeOnlyWithinSingleAddress
@@ -41,11 +42,13 @@ enum Feature: String, Hashable, CaseIterable {
     case solanaGasless
     case promoPage
     case dogecoinPsbtBdkFeeRateLimit
+    case walletCardsBackupReportWithoutRole
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
     var name: String {
         switch self {
+        case .walletCardsBackupReportOnLogin: return "[REDACTED_INFO]_card_backups_on_login"
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
         case .visa: return "Visa"
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
@@ -77,11 +80,13 @@ enum Feature: String, Hashable, CaseIterable {
         case .solanaGasless: return "TWI-1258_solana_gasless"
         case .promoPage: return "[REDACTED_INFO]_promo_page"
         case .dogecoinPsbtBdkFeeRateLimit: return "[REDACTED_INFO]_dogecoin_psbt_bdk_fee_rate_limit"
+        case .walletCardsBackupReportWithoutRole: return "[REDACTED_INFO]_card_backups_without_role"
         }
     }
 
     var releaseVersion: ReleaseVersion {
         switch self {
+        case .walletCardsBackupReportOnLogin: return .version("6.7")
         case .disableFirmwareVersionLimit: return .unspecified
         case .visa: return .unspecified
         case .exchangeOnlyWithinSingleAddress: return .unspecified
@@ -113,6 +118,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .solanaGasless: return .unspecified
         case .promoPage: return .unspecified
         case .dogecoinPsbtBdkFeeRateLimit: return .unspecified
+        case .walletCardsBackupReportWithoutRole: return .version("6.7")
         }
     }
 }
