@@ -328,6 +328,85 @@ enum AppDatabaseFixtures {
             dateTime: dateTime
         )
     }
+
+    // MARK: Joint operations
+
+    static func makeFullJointOperationRecord(id: String) -> JointOperationRecord {
+        JointOperationRecord(
+            id: id,
+            cryptoAccountID: "crypto-account-1",
+            safeAddress: "0xsafe",
+            chainID: 8453,
+            status: "executed",
+            initiator: "0xinitiator",
+            to: "0xrecipient",
+            value: "1000000000000000000",
+            data: "0x",
+            operation: 0,
+            safeTxGas: "65000",
+            baseGas: "30000",
+            gasPrice: "2000000000",
+            gasToken: "0x0000000000000000000000000000000000000000",
+            refundReceiver: "0xtreasury",
+            nonce: 7,
+            threshold: 2,
+            txHash: "0xtxhash",
+            cancelReason: "threshold",
+            signatures: [
+                JointOperationRecord.Signature(address: "0xinitiator", state: "signed", at: "2026-09-08T09:20:37.000Z"),
+                JointOperationRecord.Signature(address: "0xcosigner", state: "declined", at: "2026-09-08T09:23:51.000Z"),
+            ],
+            createdAt: Date(timeIntervalSince1970: 1_752_000_000.125),
+            finishedAt: Date(timeIntervalSince1970: 1_752_003_600.5)
+        )
+    }
+
+    static func makeMinimalJointOperationRecord(id: String) -> JointOperationRecord {
+        JointOperationRecord(
+            id: id,
+            cryptoAccountID: "crypto-account-1",
+            safeAddress: "0xsafe",
+            chainID: 8453,
+            status: "awaitingSignatures",
+            initiator: "0xinitiator",
+            to: "0xrecipient",
+            value: "0",
+            data: "0xa9059cbb",
+            operation: 0,
+            safeTxGas: "0",
+            baseGas: "0",
+            gasPrice: "0",
+            gasToken: "0x0000000000000000000000000000000000000000",
+            refundReceiver: "0xtreasury",
+            nonce: 0,
+            threshold: 1,
+            txHash: nil,
+            cancelReason: nil,
+            signatures: [],
+            createdAt: Date(timeIntervalSince1970: 1_752_000_000.125),
+            finishedAt: nil
+        )
+    }
+
+    static func makeFullJointOperationsSyncMetadataRecord(walletID: String) -> JointOperationsSyncMetadataRecord {
+        JointOperationsSyncMetadataRecord(
+            walletID: walletID,
+            archiveCursor: "archive-cursor-1",
+            deltaCursor: "delta-cursor-1",
+            isInitialSyncDone: true,
+            lastSyncAt: Date(timeIntervalSince1970: 1_752_000_000.125)
+        )
+    }
+
+    static func makeMinimalJointOperationsSyncMetadataRecord(walletID: String) -> JointOperationsSyncMetadataRecord {
+        JointOperationsSyncMetadataRecord(
+            walletID: walletID,
+            archiveCursor: nil,
+            deltaCursor: nil,
+            isInitialSyncDone: false,
+            lastSyncAt: Date(timeIntervalSince1970: 1_752_000_000.125)
+        )
+    }
 }
 
 // MARK: - Expectations

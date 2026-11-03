@@ -105,6 +105,9 @@ enum WalletModelTransactionHistoryPublisherFactory {
                         exchangeTransactions.append(transactionInfo.transaction)
                     case .express(.onramp(let transactionInfo)):
                         onrampTransactions.append(transactionInfo.transaction)
+                    case .jointOperation:
+                        // [REDACTED_TODO_COMMENT]
+                        break
                     }
                 }
 

@@ -138,11 +138,12 @@ enum TransactionDetailsMenuFactory {
     }
 
     private static func transactionId(for record: TransactionRecord) -> String {
-        guard let expressExtraInfo = record.expressExtraInfo else {
+        switch record.historyExtraInfo {
+        case .express(let expressExtraInfo):
+            return expressExtraInfo.txId
+        case .jointOperation, nil:
             return record.hash
         }
-
-        return expressExtraInfo.txId
     }
 
     private static func copyProviderTransactionIdAction(for record: TransactionRecord) -> TransactionDetailsHeaderViewData.MenuAction? {
@@ -150,16 +151,16 @@ enum TransactionDetailsMenuFactory {
         let title: String
         let toast: String
 
-        switch record.expressExtraInfo {
-        case .exchange(let info):
+        switch record.historyExtraInfo {
+        case .express(.exchange(let info)):
             externalTx = info.transaction.externalTx
             title = Localization.expressSwapId
             toast = Localization.expressSwapIdCopied
-        case .onramp(let info):
+        case .express(.onramp(let info)):
             externalTx = info.transaction.externalTx
             title = Localization.expressOnrampId
             toast = Localization.expressOnrampIdCopied
-        case nil:
+        case .jointOperation, nil:
             return nil
         }
 
@@ -192,16 +193,21 @@ enum TransactionDetailsMenuFactory {
     // MARK: - Share
 
     private static func isShareAvailable(for record: TransactionRecord) -> Bool {
-        record.expressExtraInfo != nil
+        switch record.historyExtraInfo {
+        case .express:
+            return true
+        case .jointOperation, nil:
+            return false
+        }
     }
 
     static func shareText(for record: TransactionRecord, context: TransactionDetailsContext) -> String? {
-        switch record.expressExtraInfo {
-        case .exchange(let info):
+        switch record.historyExtraInfo {
+        case .express(.exchange(let info)):
             return swapShareText(info, onChainHash: onChainHash(for: record))
-        case .onramp(let info):
+        case .express(.onramp(let info)):
             return onrampShareText(info, onChainHash: onChainHash(for: record), context: context)
-        case nil:
+        case .jointOperation, nil:
             return nil
         }
     }

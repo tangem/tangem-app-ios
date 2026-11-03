@@ -69,12 +69,12 @@ enum TransactionDetailsFactory {
         cryptoAmount: Decimal,
         context: TransactionDetailsContext
     ) -> TransactionDetailsViewModel.Content {
-        switch record.expressExtraInfo {
-        case .exchange(let info):
+        switch record.historyExtraInfo {
+        case .express(.exchange(let info)):
             return .swap(swapContent(info, transaction: transaction, record: record, context: context))
-        case .onramp(let info):
+        case .express(.onramp(let info)):
             return .onramp(onrampContent(info, context: context))
-        case nil:
+        case .jointOperation, nil:
             return onChainContent(for: transaction, record: record, cryptoAmount: cryptoAmount, context: context)
         }
     }
@@ -915,11 +915,10 @@ enum TransactionDetailsFactory {
     }
 
     private static func headerIconGlyph(for transaction: TransactionViewModel, record: TransactionRecord) -> ImageType? {
-        switch record.expressExtraInfo {
-        case .exchange: DesignSystem.Icons.ArrowSwapHorizontal.regular20
-        case .onramp: DesignSystem.Icons.Card.regular20
-        case nil where yieldStage(for: transaction) == .balanceMovement: DesignSystem.Icons.Lightning.regular20
-        case nil: nil
+        switch record.historyExtraInfo {
+        case .express(.exchange): DesignSystem.Icons.ArrowSwapHorizontal.regular20
+        case .express(.onramp): DesignSystem.Icons.Card.regular20
+        case .jointOperation, nil: yieldStage(for: transaction) == .balanceMovement ? DesignSystem.Icons.Lightning.regular20 : nil
         }
     }
 
@@ -928,12 +927,12 @@ enum TransactionDetailsFactory {
         record: TransactionRecord,
         status: TransactionViewModel.Status
     ) -> (text: String, style: TransactionDetailsHeaderViewData.TitleStyle) {
-        switch record.expressExtraInfo {
-        case .exchange(let info):
+        switch record.historyExtraInfo {
+        case .express(.exchange(let info)):
             return swapTitle(status: info.transaction.status)
-        case .onramp(let info):
+        case .express(.onramp(let info)):
             return onrampTitle(status: info.transaction.status)
-        case nil:
+        case .jointOperation, nil:
             let text = TransactionDisplayModel.title(
                 transactionType: transaction.transactionType,
                 status: status,

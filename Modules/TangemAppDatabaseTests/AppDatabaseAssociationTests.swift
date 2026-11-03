@@ -258,12 +258,23 @@ struct AppDatabaseAssociationTests {
             contract: AppDatabaseFixtures.coinContractAddress,
             dateTime: Date(timeIntervalSince1970: 1_752_000_000.125)
         )
+        let jointOperation = AppDatabaseFixtures.makeFullJointOperationRecord(id: "joint-operation-1")
+        let jointOperationIndex = AppDatabaseFixtures.makeHistoryIndexRecord(
+            entityType: TransactionHistoryIndexRecord.Values.EntityType.jointOperation,
+            entityID: jointOperation.id,
+            address: jointOperation.safeAddress,
+            network: "base",
+            contract: AppDatabaseFixtures.coinContractAddress,
+            dateTime: Date(timeIntervalSince1970: 1_752_000_000.125)
+        )
 
         try databaseQueue.write { database in
             try exchangeTransaction.insert(database)
             try onrampTransaction.insert(database)
+            try jointOperation.insert(database)
             try exchangeIndex.insert(database)
             try onrampIndex.insert(database)
+            try jointOperationIndex.insert(database)
         }
 
         let fetchedExchangeRelations = try databaseQueue.read { database in
@@ -276,19 +287,32 @@ struct AppDatabaseAssociationTests {
                 .filter(TransactionHistoryIndexRecord.Columns.entityID == onrampTransaction.id)
                 .fetchOne(database)
         }
+        let fetchedJointOperationRelations = try databaseQueue.read { database in
+            try Self.makeHistoryIndexRequest()
+                .filter(TransactionHistoryIndexRecord.Columns.entityID == jointOperation.id)
+                .fetchOne(database)
+        }
 
         let exchangeRelations = try #require(fetchedExchangeRelations)
         try expectSameDatabaseRepresentation(exchangeRelations.historyIndex, exchangeIndex)
         try expectSameDatabaseRepresentation(try #require(exchangeRelations.expressEntity), exchangeTransaction)
         #expect(exchangeRelations.onrampEntity == nil)
+        #expect(exchangeRelations.jointOperationEntity == nil)
 
         let onrampRelations = try #require(fetchedOnrampRelations)
         try expectSameDatabaseRepresentation(onrampRelations.historyIndex, onrampIndex)
         try expectSameDatabaseRepresentation(try #require(onrampRelations.onrampEntity), onrampTransaction)
         #expect(onrampRelations.expressEntity == nil)
+        #expect(onrampRelations.jointOperationEntity == nil)
+
+        let jointOperationRelations = try #require(fetchedJointOperationRelations)
+        try expectSameDatabaseRepresentation(jointOperationRelations.historyIndex, jointOperationIndex)
+        try expectSameDatabaseRepresentation(try #require(jointOperationRelations.jointOperationEntity), jointOperation)
+        #expect(jointOperationRelations.expressEntity == nil)
+        #expect(jointOperationRelations.onrampEntity == nil)
     }
 
-    @Test("Entity associations join by ID alone, without discriminating by entity type")
+    @Test("Raw entity associations join by ID alone; only the history index info query discriminates by entity type")
     func historyIndexEntityAssociationsJoinByIDAlone() throws {
         let databaseQueue = try AppDatabaseTestFactory.makeMigratedDatabaseQueue()
 
@@ -309,6 +333,7 @@ struct AppDatabaseAssociationTests {
             toNetwork: "ethereum",
             toContract: AppDatabaseFixtures.mixedCaseContractAddress
         )
+        let jointOperation = AppDatabaseFixtures.makeFullJointOperationRecord(id: exchangeTransaction.id)
         let exchangeIndex = AppDatabaseFixtures.makeHistoryIndexRecord(
             entityType: TransactionHistoryIndexRecord.Values.EntityType.expressExchange,
             entityID: exchangeTransaction.id,
@@ -321,16 +346,28 @@ struct AppDatabaseAssociationTests {
         try databaseQueue.write { database in
             try exchangeTransaction.insert(database)
             try onrampTransaction.insert(database)
+            try jointOperation.insert(database)
             try exchangeIndex.insert(database)
         }
 
         let fetchedRelations = try databaseQueue.read { database in
             try Self.makeHistoryIndexRequest().fetchOne(database)
         }
+        let fetchedInfo = try databaseQueue.read { database in
+            try TransactionHistoryIndexInfoRecord
+                .query(addresses: [exchangeIndex.address], network: exchangeIndex.network, contractAddress: exchangeIndex.contract)
+                .fetchOne(database)
+        }
 
         let relations = try #require(fetchedRelations)
         try expectSameDatabaseRepresentation(try #require(relations.expressEntity), exchangeTransaction)
         try expectSameDatabaseRepresentation(try #require(relations.onrampEntity), onrampTransaction)
+        try expectSameDatabaseRepresentation(try #require(relations.jointOperationEntity), jointOperation)
+
+        let info = try #require(fetchedInfo)
+        try expectSameDatabaseRepresentation(try #require(info.exchangeTransaction?.transaction), exchangeTransaction)
+        #expect(info.onrampTransaction == nil)
+        #expect(info.jointOperation == nil)
     }
 
     @Test("Transactions resolve their history index rows through the inverse association")
@@ -434,6 +471,7 @@ private extension AppDatabaseAssociationTests {
         let historyIndex: TransactionHistoryIndexRecord
         let expressEntity: ExpressExchangeTransactionRecord?
         let onrampEntity: ExpressOnrampTransactionRecord?
+        let jointOperationEntity: JointOperationRecord?
     }
 
     struct ExchangeTransactionWithHistoryIndexes: Decodable, FetchableRecord {
@@ -467,6 +505,7 @@ private extension AppDatabaseAssociationTests {
         TransactionHistoryIndexRecord
             .including(optional: TransactionHistoryIndexRecord.expressEntity)
             .including(optional: TransactionHistoryIndexRecord.onrampEntity)
+            .including(optional: TransactionHistoryIndexRecord.jointOperationEntity)
             .asRequest(of: HistoryIndexWithEntities.self)
     }
 }
