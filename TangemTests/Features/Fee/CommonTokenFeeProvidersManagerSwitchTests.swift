@@ -97,6 +97,99 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
         #expect(sut.selectedFeeProvider.feeTokenItem == usdtTokenItem)
     }
 
+    @Test("Switching until the user selects a provider still switches before any selection")
+    func feeExceedsBalance_untilUserSelection_noSelection_switchesToIdle() async {
+        let eth = ControllableTokenFeeProviderStub(
+            feeTokenItem: ethTokenItem,
+            state: .available([.market: makeFee(0.001)]),
+            balance: .loaded(0.0001),
+            selectedTokenFee: makeSuccessTokenFee(0.001, tokenItem: ethTokenItem)
+        )
+        let usdt = ControllableTokenFeeProviderStub(
+            feeTokenItem: usdtTokenItem,
+            state: .idle,
+            balance: .loaded(100),
+            selectedTokenFee: TokenFee(option: .market, tokenItem: usdtTokenItem, value: .loading)
+        )
+
+        let sut = CommonTokenFeeProvidersManager(
+            feeProviders: [eth, usdt],
+            initialSelectedProvider: eth,
+            ownerAddress: nil,
+            providerSwitching: .untilUserSelection
+        )
+
+        await sut.updateFees().value
+
+        #expect(sut.selectedFeeProvider.feeTokenItem == usdtTokenItem)
+    }
+
+    @Test("Switching until the user selects a provider keeps the user's choice with insufficient balance")
+    func feeExceedsBalance_untilUserSelection_userSelected_keepsSelection() async {
+        let eth = ControllableTokenFeeProviderStub(
+            feeTokenItem: ethTokenItem,
+            state: .available([.market: makeFee(0.001)]),
+            balance: .loaded(0.0001),
+            selectedTokenFee: makeSuccessTokenFee(0.001, tokenItem: ethTokenItem)
+        )
+        let usdt = ControllableTokenFeeProviderStub(
+            feeTokenItem: usdtTokenItem,
+            state: .idle,
+            balance: .loaded(100),
+            selectedTokenFee: TokenFee(option: .market, tokenItem: usdtTokenItem, value: .loading)
+        )
+
+        let sut = CommonTokenFeeProvidersManager(
+            feeProviders: [eth, usdt],
+            initialSelectedProvider: usdt,
+            ownerAddress: nil,
+            providerSwitching: .untilUserSelection
+        )
+
+        sut.updateSelectedFeeProvider(feeTokenItem: ethTokenItem)
+        await sut.updateFees().value
+
+        #expect(sut.selectedFeeProvider.feeTokenItem == ethTokenItem)
+        #expect(usdt.updateFeesCallCount == 0)
+    }
+
+    @Test("Switching skips the excluded provider and moves to the next idle one")
+    func feeExceedsBalance_excludedIdle_switchesToNextIdle() async {
+        let eth = ControllableTokenFeeProviderStub(
+            feeTokenItem: ethTokenItem,
+            state: .available([.market: makeFee(0.001)]),
+            balance: .loaded(0.0001),
+            selectedTokenFee: makeSuccessTokenFee(0.001, tokenItem: ethTokenItem)
+        )
+        let usdt = ControllableTokenFeeProviderStub(
+            feeTokenItem: usdtTokenItem,
+            state: .idle,
+            balance: .loaded(100),
+            selectedTokenFee: TokenFee(option: .market, tokenItem: usdtTokenItem, value: .loading)
+        )
+        let usdc = ControllableTokenFeeProviderStub(
+            feeTokenItem: usdcTokenItem,
+            state: .idle,
+            balance: .loaded(100),
+            selectedTokenFee: TokenFee(option: .market, tokenItem: usdcTokenItem, value: .loading)
+        )
+
+        let sut = CommonTokenFeeProvidersManager(
+            feeProviders: [eth, usdt, usdc],
+            initialSelectedProvider: usdt,
+            ownerAddress: nil,
+            providerSwitching: .untilUserSelection
+        )
+
+        sut.updateExcludedFeeProvider(feeTokenItem: usdtTokenItem)
+        #expect(sut.selectedFeeProvider.feeTokenItem == ethTokenItem)
+
+        await sut.updateFees().value
+
+        #expect(sut.selectedFeeProvider.feeTokenItem == usdcTokenItem)
+        #expect(usdt.updateFeesCallCount == 0)
+    }
+
     // MARK: - Scenario D: fallback to initial when no idle and initial is supported
 
     @Test("Falls back to initial when no idle and initial is supported")
@@ -1136,6 +1229,54 @@ struct GaslessYieldFeeTests {
             #expect(feeProvider.getGaslessYieldFeeCallCount == 1)
         }
     }
+
+    @Test("Fee token funded by the transaction is quoted without the plain transfer estimate or a yield withdraw")
+    func feeTokenFundedByTransactionSkipsPlainQuote() async throws {
+        try await InjectedDependenciesIsolation.shared.run {
+            let previousNetworkManager = InjectedValues[\.gaslessTransactionsNetworkManager]
+            InjectedValues[\.gaslessTransactionsNetworkManager] = GaslessTransactionsNetworkManagerStub(
+                feeRecipientAddress: "0x0000000000000000000000000000000000000001"
+            )
+            defer {
+                InjectedValues[\.gaslessTransactionsNetworkManager] = previousNetworkManager
+            }
+
+            let blockchain = BSDKBlockchain.polygon(testnet: false)
+            let token = Token(
+                name: "USDT",
+                symbol: "USDT",
+                contractAddress: "0x0000000000000000000000000000000000000002",
+                decimalCount: 6,
+                id: blockchain.coinId
+            )
+            let feeToken = BSDKToken(
+                name: token.name,
+                symbol: token.symbol,
+                contractAddress: token.contractAddress,
+                decimalCount: token.decimalCount,
+                id: token.id
+            )
+            let fundedFee = BSDKFee(BSDKAmount(with: blockchain, type: .token(value: feeToken), value: 3))
+            let feeProvider = GaslessTransactionFeeProviderStub(
+                plainError: JSONRPC.APIError(code: 3, message: "ERC20: transfer amount exceeds balance"),
+                plainFee: fundedFee,
+                yieldFee: BSDKFee(BSDKAmount(with: blockchain, type: .token(value: feeToken), value: 2))
+            )
+
+            let sut = CommonGaslessTokenFeeLoader(
+                tokenItem: .token(token, .init(blockchain, derivationPath: nil)),
+                feeToken: feeToken,
+                gaslessTransactionFeeProvider: feeProvider,
+                yieldFeeContext: nil,
+                isFeeTokenFundedByTransaction: true
+            )
+
+            let fee = try await sut.estimatedFee(estimatedGasLimit: 120_000, otherNativeFee: nil)
+
+            #expect(fee.amount.value == fundedFee.amount.value)
+            #expect(feeProvider.getEstimatedGaslessTransactionFeeFundedByTransactionCallCount == 1)
+        }
+    }
 }
 
 private extension GaslessYieldFeeTests {
@@ -1169,6 +1310,7 @@ final class GaslessTransactionFeeProviderStub: GaslessTransactionFeeProvider {
 
     private(set) var getGaslessFeeCallCount = 0
     private(set) var getGaslessYieldFeeCallCount = 0
+    private(set) var getEstimatedGaslessTransactionFeeFundedByTransactionCallCount = 0
 
     init(plainError: Error?, plainFee: BSDKFee? = nil, yieldFee: BSDKFee) {
         self.plainError = plainError
@@ -1243,6 +1385,16 @@ final class GaslessTransactionFeeProviderStub: GaslessTransactionFeeProvider {
             throw plainError
         }
 
+        return plainFee
+    }
+
+    func getEstimatedGaslessTransactionFeeFundedByTransaction(
+        feeToken: BSDKToken,
+        estimatedGasLimit: Int,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> BSDKFee {
+        getEstimatedGaslessTransactionFeeFundedByTransactionCallCount += 1
         return plainFee
     }
 

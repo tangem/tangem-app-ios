@@ -66,6 +66,8 @@ final class TokenFeeProvidersManagerMock: TokenFeeProvidersManager {
         updateSelectedFeeProviderCalls.append(feeTokenItem)
     }
 
+    func updateExcludedFeeProvider(feeTokenItem: TokenItem?) {}
+
     // MARK: - ExpressFeeProvider
 
     func feeCurrency() -> ExpressWalletCurrency {
