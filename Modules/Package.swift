@@ -59,7 +59,7 @@ let package = Package(
         // AnyCodable
         .package(url: "git@github.com:tangem-developments/SwiftBinanceChain.git", exact: "0.0.18"),
         .package(url: "https://github.com/jedisct1/swift-sodium.git", .upToNextMajor(from: "0.10.0")),
-        .package(url: "https://github.com/bitcoindevkit/bdk-swift", .upToNextMajor(from: "2.3.1")),
+        .package(url: "https://github.com/bitcoindevkit/bdk-swift", .upToNextMajor(from: "3.1.1")),
         // CombineExt
         // CryptoSwift
         .package(url: "git@github.com:tangem-developments/grpc-swift.git", exact: "1.26.2-tangem1"),

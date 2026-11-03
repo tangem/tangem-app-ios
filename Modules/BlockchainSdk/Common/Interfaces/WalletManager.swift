@@ -50,7 +50,13 @@ public protocol CompiledTransactionSender {
 }
 
 public protocol BitcoinPsbtSwapSender {
-    func send(psbtBase64: String, destination: String, signer: TransactionSigner) async throws -> TransactionSendResult
+    // [REDACTED_TODO_COMMENT]
+    func send(
+        psbtBase64: String,
+        destination: String,
+        usesBdkDogecoinFeeRateLimit: Bool,
+        signer: TransactionSigner
+    ) async throws -> TransactionSendResult
 }
 
 // MARK: - TransactionSigner
