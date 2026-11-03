@@ -11,8 +11,12 @@ import SwiftUI
 public struct FooterContent {
     let kind: Kind
 
-    public static func buttons(primary: Button, secondary: Button? = nil) -> FooterContent {
-        FooterContent(kind: .buttons(primary: primary, secondary: secondary))
+    public static func buttons(
+        primary: Button,
+        secondary: Button? = nil,
+        orientation: ButtonGroup.Orientation = .vertical
+    ) -> FooterContent {
+        FooterContent(kind: .buttons(ButtonGroup(start: secondary, end: primary).orientation(orientation)))
     }
 
     public static func signingButton(_ button: SigningActionButtonView, secondary: Button? = nil) -> FooterContent {
@@ -38,7 +42,7 @@ public struct FooterContent {
 
 extension FooterContent {
     enum Kind {
-        case buttons(primary: Button, secondary: Button?)
+        case buttons(ButtonGroup)
         case signingButton(SigningActionButtonView, secondary: Button?)
         case toolbar(start: Button?, end: Button?)
         case search(Search)
