@@ -86,6 +86,20 @@ struct MarketingActivityLinkRecorderTests {
     }
 
     @Test(
+        "A promo page link registers its uid whatever page it carries",
+        arguments: [Deeplink.promoPageWithoutPageWithUid, Deeplink.promoPageWithEmptyPageWithUid, Deeplink.promoPageWithForeignPageWithUid]
+    )
+    func promoPageRegistersWhateverItsPage(link: URL) async {
+        await withRepository {
+            let manager = makeManager()
+
+            manager.handleIncomingURL(link)
+
+            #expect(bindingService.registeredUids == ["AbC-123"])
+        }
+    }
+
+    @Test(
         "A OneLink naming a uid in deep_link_sub3 leaves it to AppsFlyer",
         arguments: [Deeplink.oneLinkWithSub3, Deeplink.brandedOneLinkWithSub3, Deeplink.uppercaseOneLinkWithSub3]
     )
@@ -165,6 +179,9 @@ private extension MarketingActivityLinkRecorderTests {
         static let tokenWithoutParametersWithUid = URL(string: "tangem://token?uid=AbC-123")!
         static let payAppPageWithoutIdWithUid = URL(string: "https://tangem.com/pay-app?uid=AbC-123")!
         static let uppercaseSchemeWithUid = URL(string: "Tangem://markets?uid=AbC-123")!
+        static let promoPageWithoutPageWithUid = URL(string: "tangem://promo_page?uid=AbC-123")!
+        static let promoPageWithEmptyPageWithUid = URL(string: "tangem://promo_page?uid=AbC-123&page=")!
+        static let promoPageWithForeignPageWithUid = URL(string: "tangem://promo_page?uid=AbC-123&page=https%3A%2F%2Fexample.org")!
         static let oneLinkWithUid = URL(string: "https://tangem.onelink.me/AbCd?deep_link_value=tpay_mobileonboard&uid=AbC-123")!
         static let oneLinkWithEmptySub3 = URL(string: "https://tangem.onelink.me/AbCd?deep_link_value=tpay_mobileonboard&deep_link_sub3=&uid=AbC-123")!
         static let oneLinkWithSub3 = URL(string: "https://tangem.onelink.me/AbCd?deep_link_value=tpay_mobileonboard&deep_link_sub3=AbC-123&uid=AbC-123")!

@@ -35,7 +35,7 @@ extension DeeplinkNavigationAction {
         // Shown by whoever owns them: the payment account and the co-brand campaign from the main screen,
         // campaigns, the survey and a payment transaction, an agent's intent or an MCP pairing request by
         // responders of their own.
-        case .tangemPayAccount, .campaigns, .survey, .payCustomCard, .tangemPayTransaction, .mcpIntent, .mcpAuthorization: nil
+        case .tangemPayAccount, .campaigns, .survey, .payCustomCard, .tangemPayTransaction, .mcpIntent, .mcpAuthorization, .promoPage: nil
         }
     }
 }

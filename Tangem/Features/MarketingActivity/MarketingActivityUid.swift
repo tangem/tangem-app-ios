@@ -13,10 +13,7 @@ enum MarketingActivityUid {
     private static let queryKey = "uid"
 
     static func read(from url: URL) -> String? {
-        URLComponents(url: url, resolvingAgainstBaseURL: false)?
-            .queryItems?
-            .first { $0.name == queryKey && $0.value?.isEmpty == false }?
-            .value
+        DeeplinkQuery(url: url).decodedOnce(queryKey)
     }
 
     static func loggableLink(_ url: URL) -> String {
