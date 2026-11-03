@@ -239,14 +239,9 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
 }
 
 private extension View {
-    @ViewBuilder
     func clearNavigationBar() -> some View {
-        if #available(iOS 26.0, *) {
-            scrollEdgeEffectHidden(true, for: .top)
-                .toolbarBackground(.hidden, for: .navigationBar)
-        } else {
-            toolbarBackground(.hidden, for: .navigationBar)
-        }
+        hiddenTopScrollEdgeEffect()
+            .toolbarBackground(.hidden, for: .navigationBar)
     }
 }
 

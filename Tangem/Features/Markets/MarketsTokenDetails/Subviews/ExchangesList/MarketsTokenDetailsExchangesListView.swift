@@ -32,6 +32,7 @@ struct MarketsTokenDetailsExchangesListView: View {
     }
 
     private let scrollViewContentTopInset = 14.0
+    private let horizontalPadding = 16.0
     private let navigationBarTitle = Localization.marketsTokenDetailsExchangesTitle
 
     var body: some View {
@@ -129,12 +130,6 @@ struct MarketsTokenDetailsExchangesListView: View {
 
     @ViewBuilder
     private var listContent: some View {
-        redesignedListContent
-            .padding(.horizontal, 16)
-    }
-
-    @ViewBuilder
-    private var redesignedListContent: some View {
         switch viewModel.exchangesList {
         case .loading, .success:
             redesignedScrollContent
@@ -146,6 +141,7 @@ struct MarketsTokenDetailsExchangesListView: View {
             )
             .infinityFrame()
             .padding(.top, headerHeight)
+            .padding(.horizontal, horizontalPadding)
         }
     }
 
@@ -173,12 +169,14 @@ struct MarketsTokenDetailsExchangesListView: View {
                 }
                 .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: 0, radius: 20)
             }
+            .padding(.horizontal, horizontalPadding)
             .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame)) { contentOffset in
                 isListContentObscured = contentOffset.y > scrollViewContentTopInset
             }
             .id(viewModel.exchangesList.value)
         }
         .coordinateSpace(name: CoordinateSpaceName.scrollViewFrame)
+        .hiddenTopScrollEdgeEffect()
     }
 
     private var exchangeListAnimationValue: Int {
