@@ -124,23 +124,11 @@ private extension AuthView {
     }
 
     func biometricsUnlockButton(item: AuthViewState.Button) -> some View {
-        SwiftUI.Button(action: item.action) {
-            HStack(spacing: 6) {
-                Text(item.title)
-                    .style(Fonts.Bold.callout, color: DesignSystem.Color.textPrimary)
-
-                BiometryLogoImage.image
-                    .resizable()
-                    .renderingMode(.template)
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 20, height: 20)
-                    .foregroundStyle(DesignSystem.Color.iconPrimary)
-            }
-            .padding(.vertical, 12)
-            .frame(maxWidth: .infinity, alignment: .center)
-            .background(DesignSystem.Color.bgTransparentSecondary, in: .capsule)
-        }
-        .colorScheme(.dark)
-        .accessibilityIdentifier(AuthAccessibilityIdentifiers.biometricsUnlockButton)
+        TangemUI.Button(label: item.title, accessibilityLabel: nil, action: item.action)
+            .iconEnd(BiometryLogoImage.imageType)
+            .styleType(.primary)
+            .size(.x11)
+            .horizontalLayout(.infinity)
+            .accessibilityIdentifier(AuthAccessibilityIdentifiers.biometricsUnlockButton)
     }
 }
