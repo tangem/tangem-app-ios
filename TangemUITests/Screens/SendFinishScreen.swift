@@ -55,6 +55,27 @@ final class SendFinishScreen: ScreenBase<SendFinishScreenElement> {
         }
     }
 
+    /// Reads the sent transaction's explorer link (exposed as the Explore button's accessibility value), logs it
+    /// and reports it as a step name so it is visible in the Allure scenario.
+    ///
+    /// The link is reported as a step name rather than an `XCTAttachment`: the CI `xcresult`→Allure converter drops
+    /// attachment payloads (they surface in TestOps as a broken "missed" attachment), while step names are part of
+    /// the result itself and always survive.
+    @discardableResult
+    func reportTransactionLink() -> Self {
+        waitAndAssertTrue(exploreButton, "Explore button should exist")
+        let link = (exploreButton.value as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        print("E2E transaction link: \(link)")
+
+        XCTContext.runActivity(named: "Sent transaction: \(link)") { _ in }
+
+        XCTAssertTrue(
+            link.lowercased().hasPrefix("http"),
+            "Transaction link should be a URL, but was '\(link)'"
+        )
+        return self
+    }
+
     @discardableResult
     func tapExploreButton() -> Self {
         XCTContext.runActivity(named: "Tap Explore button on Send Finish screen") { _ in
