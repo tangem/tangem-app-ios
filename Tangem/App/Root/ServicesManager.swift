@@ -255,7 +255,6 @@ extension CommonServicesManager: ServicesManager {
         mobileFinishActivationManager.initialize()
         mainScreenPromoSheetInteractor.initialize()
         stakingTargetAmountLimitProvider.initialize()
-        walletCardsBackupReportService.initialize()
         // Refresh the cached app-versions DTO once per session. Applied on the next launch.
         forceUpdateService.refreshCache()
         appDatabase.initialize()
@@ -278,6 +277,8 @@ extension CommonServicesManager: ServicesManager {
         if isFirstLaunch {
             await KeychainCleaner.cleanAllData()
         }
+
+        walletCardsBackupReportService.initialize()
 
         marketingActivityBindingService.initialize()
 
