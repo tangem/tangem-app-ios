@@ -14,6 +14,7 @@ import Foundation
 struct WalletCardsBackupReport: Codable {
     var cards: [String: WalletCardsBackupCard]
     var pendingReports: [WalletCardsWaitingDeliveryBackupCards]
+    var deliveredCardLinkedHashes: Set<String> = []
 
     static var empty: WalletCardsBackupReport {
         WalletCardsBackupReport(cards: [:], pendingReports: [])
@@ -24,13 +25,8 @@ struct WalletCardsBackupReport: Codable {
 
 extension WalletCardsBackupReport: CustomStringConvertible {
     var description: String {
-        let cardLines = cards.values
-            .sorted { $0.cardId < $1.cardId }
-            .map { "\n  • \($0)" }
-            .joined()
-
         return objectDescription("WalletCardsBackupReport", userInfo: [
-            "cards": "\(cards.count)\(cardLines)",
+            "cards": "\(cards.count)",
             "pendingReports": "\(pendingReports.count)",
         ])
     }

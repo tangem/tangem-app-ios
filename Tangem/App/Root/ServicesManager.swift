@@ -182,6 +182,8 @@ final class CommonServicesManager {
 
         if let wireMockBaseURL = ProcessInfo.processInfo.environment[WireMockEnvironment.baseURLKey] {
             UserDefaults.standard.set(wireMockBaseURL, forKey: WireMockEnvironment.baseURLKey)
+        } else {
+            UserDefaults.standard.removeObject(forKey: WireMockEnvironment.baseURLKey)
         }
     }
 
@@ -255,7 +257,6 @@ extension CommonServicesManager: ServicesManager {
         mobileFinishActivationManager.initialize()
         mainScreenPromoSheetInteractor.initialize()
         stakingTargetAmountLimitProvider.initialize()
-        walletCardsBackupReportService.initialize()
         // Refresh the cached app-versions DTO once per session. Applied on the next launch.
         forceUpdateService.refreshCache()
         appDatabase.initialize()
@@ -269,6 +270,7 @@ extension CommonServicesManager: ServicesManager {
         }
 
         await UITestsStorageCleaner.clearKeychain()
+        await UITestsStorageCleaner.resetE2EPortfolioTokens()
 
         await userWalletRepository.initialize()
 
@@ -278,6 +280,8 @@ extension CommonServicesManager: ServicesManager {
         if isFirstLaunch {
             await KeychainCleaner.cleanAllData()
         }
+
+        walletCardsBackupReportService.initialize()
 
         marketingActivityBindingService.initialize()
 
