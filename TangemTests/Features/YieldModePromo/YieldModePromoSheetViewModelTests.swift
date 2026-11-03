@@ -73,7 +73,7 @@ struct YieldModePromoSheetViewModelTests {
         #expect(analytics.events == [.closed(.swipe)])
     }
 
-    @Test("The tokens pill takes the plural form of the Earn count", arguments: [(1, "Choose from 1 token"), (12, "Choose from 12 tokens")])
+    @Test("The tokens pill takes the plural form of the Earn count", arguments: [(1, "More than 1 available token"), (12, "More than 12 available tokens")])
     func tokensCountText(count: Int, expected: String) {
         #expect(makeViewModel(routable: routable, tokensCount: count).tokensCountText == expected)
     }
