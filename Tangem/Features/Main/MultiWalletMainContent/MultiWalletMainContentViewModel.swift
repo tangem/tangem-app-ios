@@ -865,7 +865,15 @@ extension MultiWalletMainContentViewModel {
     }
 
     func openTangemPayMoneyAccount() {
-        coordinator?.openTangemPayMoneyAccount(userWalletModel: userWalletModel)
+        guard let moneyAccount = AccountModelsAggregator(.tangemPay)
+            .model(from: userWalletModel.accountModelsManager)?
+            .moneyAccountState?
+            .moneyAccount
+        else {
+            return
+        }
+
+        coordinator?.openTangemPayMoneyAccount(userWalletModel: userWalletModel, moneyAccount: moneyAccount)
     }
 }
 

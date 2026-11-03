@@ -500,7 +500,10 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             }
     }
 
-    func openTangemPayMoneyAccount(userWalletModel: any UserWalletModel) {
+    func openTangemPayMoneyAccount(
+        userWalletModel: any UserWalletModel,
+        moneyAccount: any TangemPayMoneyAccountModel
+    ) {
         mainBottomSheetUIManager.hide()
 
         let coordinator = TangemPayMoneyAccountCoordinator(
@@ -511,7 +514,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         )
 
         let options = TangemPayMoneyAccountCoordinator.Options(
-            userWalletModel: userWalletModel
+            userWalletModel: userWalletModel,
+            moneyAccount: moneyAccount
         )
 
         coordinator.start(with: options)
