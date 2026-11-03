@@ -254,7 +254,9 @@ private extension CommonUserWalletModelDependencies {
             keysDerivingInteractorFactory: keysDerivingInteractorFactory,
             transactionHistoryProviderResolver: TransactionHistoryProviderResolver(
                 userWalletId: userWalletId,
-                refcodeProvider: refcodeProvider
+                refcodeProvider: refcodeProvider,
+                jointAccountsRepository: jointAccountsRepository,
+                isJointAccountsAvailable: FeatureProvider.isAvailable(.jointAccounts)
             ),
             transactionHistoryUpdater: TransactionHistoryUpdater()
         )

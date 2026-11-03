@@ -179,7 +179,8 @@ private func previewJointAccount(
         ),
         finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
-            walletModelsManager: WalletModelsManagerMock()
+            walletModelsManager: WalletModelsManagerMock(),
+            historyDeltaSyncing: MockJointOperationsHistorySyncService()
         ),
         userRoleService: JointAccountUserRoleServiceMock(creator: isCreator),
         delegate: previewJointAccountDelegate

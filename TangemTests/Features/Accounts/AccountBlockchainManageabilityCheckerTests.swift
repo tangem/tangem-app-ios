@@ -56,7 +56,8 @@ private extension AccountBlockchainManageabilityCheckerTests {
             membersService: JointAccountMembersServiceMock(),
             finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
                 pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
-                walletModelsManager: WalletModelsManagerMock()
+                walletModelsManager: WalletModelsManagerMock(),
+                historyDeltaSyncing: JointOperationsHistoryDeltaSyncingStub()
             ),
             userRoleService: JointAccountUserRoleServiceMock(),
             delegate: delegate

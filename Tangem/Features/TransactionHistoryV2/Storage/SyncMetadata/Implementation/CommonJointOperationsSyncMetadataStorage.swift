@@ -123,4 +123,12 @@ extension CommonJointOperationsSyncMetadataStorage: JointOperationsSyncMetadataS
             ).insert(database)
         }
     }
+
+    func clear() async throws {
+        try await appDatabase.databaseHandle.write { database in
+            _ = try JointOperationsSyncMetadataRecord
+                .filter(walletID: hashedUserWalletID)
+                .deleteAll(database)
+        }
+    }
 }

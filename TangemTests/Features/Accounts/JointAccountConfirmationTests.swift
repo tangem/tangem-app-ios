@@ -142,7 +142,8 @@ private extension JointAccountConfirmationTests {
             membersService: JointAccountMembersServiceMock(slots: members.map { .member($0, .joined) }),
             finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
                 pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
-                walletModelsManager: WalletModelsManagerMock()
+                walletModelsManager: WalletModelsManagerMock(),
+                historyDeltaSyncing: JointOperationsHistoryDeltaSyncingStub()
             ),
             userRoleService: JointAccountUserRoleServiceMock(),
             delegate: delegate ?? self.delegate

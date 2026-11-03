@@ -158,7 +158,8 @@ private let previewJointAccountDelegate = JointAccountModelDelegateMock()
         membersService: JointAccountMembersServiceMock(),
         finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
-            walletModelsManager: WalletModelsManagerMock()
+            walletModelsManager: WalletModelsManagerMock(),
+            historyDeltaSyncing: MockJointOperationsHistorySyncService()
         ),
         userRoleService: JointAccountUserRoleServiceMock(),
         delegate: previewJointAccountDelegate
