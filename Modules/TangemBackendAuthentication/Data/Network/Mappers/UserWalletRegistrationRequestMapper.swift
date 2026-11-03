@@ -23,6 +23,7 @@ enum UserWalletRegistrationRequestMapper {
             appAttestKeyId: domainRequest.appAssertion?.keyID,
             providerIdToken: domainRequest.recoveryEnrollment?.providerIdToken,
             encryptedRecoveryKey: domainRequest.recoveryEnrollment?.encryptedRecoveryKey,
+            kmsKeyId: domainRequest.recoveryEnrollment?.recoveryKeyId,
             metadata: DeviceMetadataMapper.mapToDTO(domainRequest.metadata)
         )
     }

@@ -19,7 +19,7 @@ public protocol SocialAuthProvider {
     func existingWalletBinding(credentials: SocialAuthCredentials) async throws(SocialAuthAPIError) -> SocialAuthWalletBinding?
 
     /// Encrypts the social backup recovery key `K` for deposit with the wallet registration.
-    func encryptRecoveryKey(_ recoveryKey: Data) async throws -> String
+    func encryptRecoveryKey(_ recoveryKey: Data) async throws -> EncryptedRecoveryKey
 
     /// Recovers the wallet's secret payload from the social backup.
     func recoverWalletBackup(binding: SocialAuthWalletBinding) async throws -> SocialAuthRecoveredBackup
