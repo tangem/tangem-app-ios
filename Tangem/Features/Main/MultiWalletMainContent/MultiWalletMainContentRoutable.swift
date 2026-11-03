@@ -36,7 +36,10 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
         tariffPlanSelector: any TangemPayTariffPlanSelector,
         userWalletModel: UserWalletModel
     )
-    func openTangemPayMoneyAccount(userWalletModel: UserWalletModel)
+    func openTangemPayMoneyAccount(
+        userWalletModel: UserWalletModel,
+        moneyAccount: any TangemPayMoneyAccountModel
+    )
     func openGetTangemPay(availableSelection: TangemPayWalletSelectionType)
     func openPolymarket(userWalletModel: UserWalletModel)
     func openCollectibles(with options: CollectiblesCoordinator.Options)

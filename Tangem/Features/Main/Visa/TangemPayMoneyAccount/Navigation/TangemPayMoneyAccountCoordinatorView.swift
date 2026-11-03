@@ -25,6 +25,7 @@ private extension TangemPayMoneyAccountCoordinatorView {
     var rootView: some View {
         TangemPayMoneyAccountFactory.makeView(
             userWalletModel: coordinator.options.userWalletModel,
+            moneyAccount: coordinator.options.moneyAccount,
             output: { [weak coordinator] in
                 coordinator?.handle($0)
             }
