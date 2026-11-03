@@ -20,6 +20,7 @@ class UserWalletModelMock: UserWalletModel {
     var jointAccountDerivationInteractor: JointAccountDerivationInteractor { UnavailableJointAccountDerivationInteractor() }
     var collectiblesColdKeyInteractor: CollectiblesColdKeyInteractor { UnavailableCollectiblesColdKeyInteractor() }
     var tangemPayAuthorizingInteractor: TangemPayAuthorizing { TangemPayAuthorizingMock() }
+    var tangemPayBankingAccountAddressSigner: TangemPayBankingAccountAddressSigning { TangemPayBankingAccountAddressSigningMock() }
     var polymarketOwnerKeySession: PolymarketOwnerKeySession { UnavailablePolymarketOwnerKeySession() }
 
     var keysRepository: KeysRepository {
