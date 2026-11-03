@@ -16,6 +16,7 @@
 "access_code_navtitle" = "Access code";
 "accessibility_action_long_press" = "Long press";
 "accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
+"account_add_limit_badge" = "Full";
 "account_add_limit_dialog_description" = "You cannot create more than %1$@ accounts. Archive one to add a new one.";
 "account_add_limit_dialog_title" = "Can’t add new account";
 "account_archive_success_message" = "Account archived";
@@ -208,6 +209,9 @@
 "collectibles_account_collection_row_subtitle" = "My collection";
 "collectibles_account_reconnect_subtitle" = "Reconnect required";
 "collectibles_account_withdraw" = "Withdrawal";
+"collectibles_auto_buyback_message" = "Your common card was bought back instantly. %@ is in your balance";
+"collectibles_auto_buyback_open_again_button" = "Open again for %@";
+"collectibles_auto_buyback_title" = "Buyback complete";
 "collectibles_confirm_order_approve_button" = "Approve";
 "collectibles_confirm_order_confirming_transaction_button" = "Confirming transaction...";
 "collectibles_confirm_order_generating_pack_button" = "Generating pack...";
@@ -473,6 +477,7 @@
 "common_retry" = "重試";
 "common_save_changes" = "保存設置";
 "common_save" = "Save";
+"common_scan_card" = "Scan card";
 "common_search_tokens" = "搜尋代幣";
 "common_search" = "搜索";
 "common_second_no_param" = "sec";
@@ -1128,6 +1133,7 @@
 "joint_operation_deleted_snackbar" = "Transaction deleted";
 "joint_operation_malicious_subtitle" = "This transaction was flagged as malicious. Signing is blocked";
 "joint_operation_malicious_title" = "Dangerous transaction";
+"joint_operation_no_response" = "No response";
 "joint_operation_sending_to_network" = "Sending to the network";
 "joint_operation_sent_footer" = "Signed by %1$@ of %2$@ and sent to the network";
 "joint_operation_signatures_progress" = "Signatures %1$@ of %2$@";
@@ -1328,6 +1334,7 @@
 "money_account_main_name" = "美元帳戶";
 "money_account_main_status_action_required" = "需要操作";
 "money_account_main_status_activating" = "正在啟用…";
+"money_account_main_status_active_v2" = "ACH";
 "money_account_main_status_active" = "%1$@ 網路";
 "money_account_main_status_dialog_activating_description" = "我們正在為您準備帳戶，這可能需要一些時間";
 "money_account_main_status_dialog_activating_title" = "正在開設您的銀行帳戶";
@@ -1360,7 +1367,7 @@
 "money_account_onboarding_transfers_card_caption" = "入帳。出帳。";
 "money_account_onboarding_transfers_card_subtitle" = "使用具備銀行資訊的專屬帳戶";
 "money_account_onboarding_transfers_card_title" = "以法幣付款與收款";
-"money_account_send_bank_transfer_unavailable" = "Unavailable";
+"money_account_send_bank_transfer_unavailable" = "無法使用";
 "money_account_send_fees_footer" = "費用包含%@服務費和預估網路費";
 "money_account_send_network_fee_note" = "費用包含預估網路費%@，可能隨網路活躍度變化";
 "money_account_send_pay_button" = "支付 %@";
@@ -1559,7 +1566,15 @@
 "prediction_add_funds_receive_title" = "來自其他錢包或交易所";
 "prediction_add_funds_swap_subtitle" = "使用 Tangem 錢包中的加密貨幣為您的 Polymarket 帳戶充值";
 "prediction_add_funds_swap_title" = "從您的 Tangem 錢包";
-"prediction_cash_out" = "Cash Out";
+"prediction_cash_out" = "兌現";
+"prediction_chart_empty_description" = "The chart will appear after the first predictions";
+"prediction_chart_empty_title" = "No data yet";
+"prediction_chart_period_1d" = "1d";
+"prediction_chart_period_1h" = "1h";
+"prediction_chart_period_1m" = "1m";
+"prediction_chart_period_1w" = "1w";
+"prediction_chart_period_6h" = "6h";
+"prediction_chart_period_max" = "Max";
 "prediction_claim_error_failed" = "索賠未成功。您的帳戶資金未發生變動，您可以重試。";
 "prediction_claim_error_generic" = "無法發送索賠請求。請重試。";
 "prediction_claim_error_rejected" = "Polymarket 拒絕轉發索賠請求。請重新整理您的持倉並重試。";
@@ -1586,10 +1601,10 @@
 "prediction_event_live" = "進行中";
 "prediction_event_total_volume" = "總交易量：";
 "prediction_fee_sheet_builder_fee" = "Tangem 建設者費用";
-"prediction_fee_sheet_buy_description" = "Buying %1$@ shares at %2$@¢ each. Final shares count (and corresponding %3$@ amount executed) may vary within your %4$@ slippage limit, depending on what this market can match.";
+"prediction_fee_sheet_buy_description" = "以每份 %2$@¢ 的價格買入 %1$@ 份。根據市場撮合情況，最終成交份數（及對應的 %3$@ 執行金額）可能會在您設定的 %4$@ 滑點限制內浮動。";
 "prediction_fee_sheet_order" = "預測訂單";
 "prediction_fee_sheet_polymarket_fee" = "Polymarket 費用";
-"prediction_fee_sheet_sell_description" = "Selling %1$@ shares at %2$@¢ each. Final shares count (and corresponding %3$@ amount executed) may vary within your %4$@ slippage limit, depending on what this market can match.";
+"prediction_fee_sheet_sell_description" = "以每份 %2$@¢ 的價格賣出 %1$@ 份。根據市場撮合情況，最終成交份數（及對應的 %3$@ 執行金額）可能會在您設定的 %4$@ 滑點限制內浮動。";
 "prediction_fee_sheet_total" = "總計";
 "prediction_history_bought" = "已買入";
 "prediction_history_csv_average_price" = "平均價格";
@@ -2282,6 +2297,7 @@
 "tangempay_bank_transfer_details_daily_deposits_hint" = "如需存入超過 %@，請聯絡客服";
 "tangempay_bank_transfer_details_daily_deposits_left" = "Left today";
 "tangempay_bank_transfer_details_daily_deposits" = "每日存款";
+"tangempay_bank_transfer_details_exchange_rate" = "Exchange rate";
 "tangempay_bank_transfer_details_fee_header" = "存款方式與費用";
 "tangempay_bank_transfer_details_limitations" = "限制";
 "tangempay_bank_transfer_details_minimum_deposit" = "Minimum deposit";
@@ -2591,10 +2607,10 @@
 "tangempay_set_pin_title" = "設定 PIN 碼";
 "tangempay_status_deactivated" = "帳戶已關閉";
 "tangempay_status_inactive" = "未啟用";
-"tangempay_sync_needed_body" = "用卡或戒指續期會話";
+"tangempay_sync_needed_body" = "請更新工作階段以查看您的卡片和帳戶";
 "tangempay_sync_needed_button" = "恢復存取權限";
 "tangempay_sync_needed_restore_access" = "恢復存取權限";
-"tangempay_sync_needed_title" = "Tangem Pay 工作階段已過期";
+"tangempay_sync_needed_title" = "工作階段已過期";
 "tangempay_tangem_visa_card" = "在現實生活中隨心消費加密資產";
 "tangempay_temporarily_unavailable" = "Tangem Pay暂时不可用";
 "tangempay_title" = "Tangem Pay";
@@ -2602,9 +2618,9 @@
 "tangempay_topup_bank_transfer_pending_body" = "正在建立您的銀行帳戶資訊...";
 "tangempay_topup_bank_transfer_title" = "從銀行帳戶";
 "tangempay_topup_receive_body_multichain" = "將 USDC 或 USDT 傳送至您帳戶的地址";
-"tangempay_topup_receive_title" = "从其他钱包或交易所";
+"tangempay_topup_receive_title" = "從其他錢包或交易所";
 "tangempay_topup_swap_body" = "使用您錢包中的任意代幣為支付帳戶充值";
-"tangempay_topup_swap_title" = "从您的 Tangem 钱包";
+"tangempay_topup_swap_title" = "從您的 Tangem Wallet";
 "tangempay_touch_id_not_set_button" = "設定 Touch ID";
 "tangempay_touch_id_not_set_description" = "若未啟用觸控 ID，則無法使用 PIN 碼。請在應用程式設定中開啟觸控 ID";
 "tangempay_touch_id_not_set_title" = "Touch ID 未設定";
@@ -2740,7 +2756,7 @@
 "token_button_unavailability_reason_sell_unavailable" = "Selling %@ is not supported by current providers, but we are working to add more options.";
 "token_button_unavailability_reason_yield_supply_approval" = "Approval has been revoked. Your funds remain in Yield mode. To perform actions, please go to Yield mode and grant permission again.";
 "token_details_balance_available" = "Available balance";
-"token_details_balance_total" = "Total balance";
+"token_details_balance_total" = "總餘額";
 "token_details_choose_address" = "Choose address";
 "token_details_earn_staking_subtitle_apy" = "Up to %@ APY";
 "token_details_earn_staking_subtitle" = "Up to %@ APR";
@@ -3036,6 +3052,9 @@
 "warning_kaspa_unfinished_token_transaction_message" = "Your transaction with an amount of %1$@ %2$@ was not completed. You can try again to complete it.";
 "warning_kaspa_unfinished_token_transaction_title" = "You have an unfinished transaction";
 "warning_last_balance_updated_time" = "Last update was %@";
+"warning_link_wallet_cold_message" = "Scan your card to link your wallet to this device.";
+"warning_link_wallet_hot_message" = "Confirm to link your wallet to this device.";
+"warning_link_wallet_title" = "Link your wallet to this device";
 "warning_long_transaction_message" = "iPhone 7/7+ cannot sign transactions on this network. To complete this operation, please use a different phone.";
 "warning_long_transaction_title" = "Transaction signing unavailable";
 "warning_low_signatures_message" = "Only %@ signatures are left on this card. You must withdraw all of your funds.";

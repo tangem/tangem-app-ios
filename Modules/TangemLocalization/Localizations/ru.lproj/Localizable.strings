@@ -16,6 +16,7 @@
 "access_code_navtitle" = "Код доступа";
 "accessibility_action_long_press" = "Долгое нажатие";
 "accessibility_hint_access_more_actions" = "Проведите вверх или вниз, чтобы получить доступ к дополнительным действиям";
+"account_add_limit_badge" = "Full";
 "account_add_limit_dialog_description" = "Превышен лимит %1$@ аккаунтов. Архивируйте, чтобы создать новый.";
 "account_add_limit_dialog_title" = "Невозможно добавить новый аккаунт.";
 "account_archive_success_message" = "Аккаунт заархивирован";
@@ -208,6 +209,9 @@
 "collectibles_account_collection_row_subtitle" = "My collection";
 "collectibles_account_reconnect_subtitle" = "Reconnect required";
 "collectibles_account_withdraw" = "Withdrawal";
+"collectibles_auto_buyback_message" = "Your common card was bought back instantly. %@ is in your balance";
+"collectibles_auto_buyback_open_again_button" = "Open again for %@";
+"collectibles_auto_buyback_title" = "Buyback complete";
 "collectibles_confirm_order_approve_button" = "Approve";
 "collectibles_confirm_order_confirming_transaction_button" = "Confirming transaction...";
 "collectibles_confirm_order_generating_pack_button" = "Generating pack...";
@@ -473,6 +477,7 @@
 "common_retry" = "Повторить";
 "common_save_changes" = "Сохранить изменения";
 "common_save" = "Сохранить";
+"common_scan_card" = "Scan card";
 "common_search_tokens" = "Поиск токенов";
 "common_search" = "Поиск";
 "common_second_no_param" = "сек";
@@ -1128,6 +1133,7 @@
 "joint_operation_deleted_snackbar" = "Транзакция удалена";
 "joint_operation_malicious_subtitle" = "Транзакция помечена как вредоносная. Подписание заблокировано";
 "joint_operation_malicious_title" = "Опасная транзакция";
+"joint_operation_no_response" = "No response";
 "joint_operation_sending_to_network" = "Отправка в сеть";
 "joint_operation_sent_footer" = "Подписано %1$@ из %2$@ и отправлено в сеть";
 "joint_operation_signatures_progress" = "Подписи: %1$@ из %2$@";
@@ -1328,6 +1334,7 @@
 "money_account_main_name" = "Счёт в USD";
 "money_account_main_status_action_required" = "Требуется действие";
 "money_account_main_status_activating" = "Активация…";
+"money_account_main_status_active_v2" = "ACH";
 "money_account_main_status_active" = "Сеть %1$@";
 "money_account_main_status_dialog_activating_description" = "Готовим ваш счёт. Это может занять некоторое время";
 "money_account_main_status_dialog_activating_title" = "Открываем ваш банковский счёт";
@@ -1360,7 +1367,7 @@
 "money_account_onboarding_transfers_card_caption" = "Пополнение. Вывод.";
 "money_account_onboarding_transfers_card_subtitle" = "с отдельным счётом и банковскими реквизитами";
 "money_account_onboarding_transfers_card_title" = "Отправляйте и получайте фиатные платежи";
-"money_account_send_bank_transfer_unavailable" = "Unavailable";
+"money_account_send_bank_transfer_unavailable" = "Недоступно";
 "money_account_send_fees_footer" = "Комиссии включают плату за сервис %@ и расчётную комиссию сети";
 "money_account_send_network_fee_note" = "Комиссии включают расчётную комиссию сети %@, которая может меняться в зависимости от нагрузки на сеть";
 "money_account_send_pay_button" = "Оплатить %@";
@@ -1559,7 +1566,15 @@
 "prediction_add_funds_receive_title" = "С другого кошелька или биржи";
 "prediction_add_funds_swap_subtitle" = "Используйте криптовалюту в кошельке Tangem для пополнения аккаунта Polymarket";
 "prediction_add_funds_swap_title" = "Из вашего кошелька Tangem";
-"prediction_cash_out" = "Cash Out";
+"prediction_cash_out" = "Обналичить";
+"prediction_chart_empty_description" = "The chart will appear after the first predictions";
+"prediction_chart_empty_title" = "No data yet";
+"prediction_chart_period_1d" = "1d";
+"prediction_chart_period_1h" = "1h";
+"prediction_chart_period_1m" = "1m";
+"prediction_chart_period_1w" = "1w";
+"prediction_chart_period_6h" = "6h";
+"prediction_chart_period_max" = "Max";
 "prediction_claim_error_failed" = "Запрос на получение не прошел. Средства остались на счете, вы можете попробовать снова.";
 "prediction_claim_error_generic" = "Не удалось отправить запрос на получение. Пожалуйста, попробуйте снова.";
 "prediction_claim_error_rejected" = "Polymarket отклонил запрос на получение. Обновите свои позиции и попробуйте снова.";
@@ -2282,6 +2297,7 @@
 "tangempay_bank_transfer_details_daily_deposits_hint" = "Чтобы пополнить более чем на %@, обратитесь в поддержку";
 "tangempay_bank_transfer_details_daily_deposits_left" = "Left today";
 "tangempay_bank_transfer_details_daily_deposits" = "Дневные пополнения";
+"tangempay_bank_transfer_details_exchange_rate" = "Exchange rate";
 "tangempay_bank_transfer_details_fee_header" = "Способы пополнения и комиссии";
 "tangempay_bank_transfer_details_limitations" = "Ограничения";
 "tangempay_bank_transfer_details_minimum_deposit" = "Minimum deposit";
@@ -2591,10 +2607,10 @@
 "tangempay_set_pin_title" = "Установить ПИН-код";
 "tangempay_status_deactivated" = "Аккаунт закрыт";
 "tangempay_status_inactive" = "Неактивна";
-"tangempay_sync_needed_body" = "Используйте карту или кольцо для обновления сессии";
+"tangempay_sync_needed_body" = "Обновите сессию, чтобы увидеть карту и счёт";
 "tangempay_sync_needed_button" = "Обновить сессию";
 "tangempay_sync_needed_restore_access" = "Обновить сессию";
-"tangempay_sync_needed_title" = "Tangem Pay · Сессия истекла";
+"tangempay_sync_needed_title" = "Сессия истекла";
 "tangempay_tangem_visa_card" = "Платите за ежедневные покупки криптой";
 "tangempay_temporarily_unavailable" = "Проблема с соединением";
 "tangempay_title" = "Tangem Pay";
@@ -2604,7 +2620,7 @@
 "tangempay_topup_receive_body_multichain" = "Отправьте USDC или USDT на адрес вашего счёта";
 "tangempay_topup_receive_title" = "С другого кошелька или биржи";
 "tangempay_topup_swap_body" = "Пополните платежный аккаунт любым токеном из вашего кошелька";
-"tangempay_topup_swap_title" = "Из вашего кошелька Tangem";
+"tangempay_topup_swap_title" = "Из вашего Tangem Wallet";
 "tangempay_touch_id_not_set_button" = "Настроить Touch ID";
 "tangempay_touch_id_not_set_description" = "Невозможно использовать PIN-код без Touch ID. Включите Touch ID в настройках приложения";
 "tangempay_touch_id_not_set_title" = "Touch ID не настроен";
@@ -3036,6 +3052,9 @@
 "warning_kaspa_unfinished_token_transaction_message" = "Ваша транзакция %1$@ %2$@ не была завершена. Вы можете попробовать отправить ее еще раз.";
 "warning_kaspa_unfinished_token_transaction_title" = "У вас есть незавершенная транзакция";
 "warning_last_balance_updated_time" = "Последнее обновление %@";
+"warning_link_wallet_cold_message" = "Scan your card to link your wallet to this device.";
+"warning_link_wallet_hot_message" = "Confirm to link your wallet to this device.";
+"warning_link_wallet_title" = "Link your wallet to this device";
 "warning_long_transaction_message" = "iPhone 7/7+ не может подписывать транзакции в данной сети. Для завершения этой операции, пожалуйста, используйте другой телефон";
 "warning_long_transaction_title" = "Невозможно подписать транзакцию";
 "warning_low_signatures_message" = "На этой карте осталось всего %@ подписей. Вам следует вывести все ваши средства.";
@@ -3258,9 +3277,9 @@
 "yield_module_incentive_chart_powered_by_title" = "Powered by Merkl";
 "yield_module_incentive_chart_sheet_title" = "Incentivized yield";
 "yield_module_incentives_provider" = "Merkl";
-"yield_module_main_promo_button" = "Try Yield Mode";
-"yield_module_main_promo_subtitle" = "Put idle coins to work. No lockups, withdraw anytime.";
-"yield_module_main_promo_title" = "Earn with your crypto up to %1$@%% APY";
+"yield_module_main_promo_button" = "Попробовать режим доходности";
+"yield_module_main_promo_subtitle" = "Пусть свободные монеты работают. Без блокировки, вывод в любой момент.";
+"yield_module_main_promo_title" = "Зарабатывайте на крипте с доходностью до %1$@%% APY";
 "yield_module_main_screen_promo_banner_message" = "Получай до %1$@ APY на свой баланс";
 "yield_module_network_fee_unreachable_notification_description" = "Проверьте ваше интернет соединение";
 "yield_module_network_fee_unreachable_notification_title" = "Информация о комиссии недоступна";

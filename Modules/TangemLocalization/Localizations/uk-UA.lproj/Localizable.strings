@@ -16,6 +16,7 @@
 "access_code_navtitle" = "Код доступу";
 "accessibility_action_long_press" = "Тривале натискання";
 "accessibility_hint_access_more_actions" = "Проведіть пальцем вгору або вниз, щоб отримати доступ до інших дій";
+"account_add_limit_badge" = "Full";
 "account_add_limit_dialog_description" = "Не можна створити більше ніж %1$@ акаунтів. Архівуйте, щоб додати новий.";
 "account_add_limit_dialog_title" = "Неможливо додати новий акаунт";
 "account_archive_success_message" = "Акаунт архівовано";
@@ -208,6 +209,9 @@
 "collectibles_account_collection_row_subtitle" = "My collection";
 "collectibles_account_reconnect_subtitle" = "Reconnect required";
 "collectibles_account_withdraw" = "Withdrawal";
+"collectibles_auto_buyback_message" = "Your common card was bought back instantly. %@ is in your balance";
+"collectibles_auto_buyback_open_again_button" = "Open again for %@";
+"collectibles_auto_buyback_title" = "Buyback complete";
 "collectibles_confirm_order_approve_button" = "Approve";
 "collectibles_confirm_order_confirming_transaction_button" = "Confirming transaction...";
 "collectibles_confirm_order_generating_pack_button" = "Generating pack...";
@@ -473,6 +477,7 @@
 "common_retry" = "Повторити";
 "common_save_changes" = "Зберегти зміни";
 "common_save" = "Зберегти";
+"common_scan_card" = "Scan card";
 "common_search_tokens" = "Пошук токенів";
 "common_search" = "Пошук";
 "common_second_no_param" = "сек";
@@ -1128,6 +1133,7 @@
 "joint_operation_deleted_snackbar" = "Транзакцію видалено";
 "joint_operation_malicious_subtitle" = "Цю транзакцію позначено як шкідливу. Підписання заблоковано";
 "joint_operation_malicious_title" = "Небезпечна транзакція";
+"joint_operation_no_response" = "No response";
 "joint_operation_sending_to_network" = "Надсилання в мережу";
 "joint_operation_sent_footer" = "Підписано %1$@ із %2$@ і надіслано в мережу";
 "joint_operation_signatures_progress" = "Підписи: %1$@ із %2$@";
@@ -1328,6 +1334,7 @@
 "money_account_main_name" = "Рахунок у USD";
 "money_account_main_status_action_required" = "Потрібна дія";
 "money_account_main_status_activating" = "Активація…";
+"money_account_main_status_active_v2" = "ACH";
 "money_account_main_status_active" = "Мережа %1$@";
 "money_account_main_status_dialog_activating_description" = "Готуємо ваш рахунок. Це може зайняти деякий час";
 "money_account_main_status_dialog_activating_title" = "Відкриваємо ваш банківський рахунок";
@@ -1360,7 +1367,7 @@
 "money_account_onboarding_transfers_card_caption" = "Поповнення. Виведення.";
 "money_account_onboarding_transfers_card_subtitle" = "з окремим рахунком і банківськими реквізитами";
 "money_account_onboarding_transfers_card_title" = "Надсилайте й отримуйте фіатні платежі";
-"money_account_send_bank_transfer_unavailable" = "Unavailable";
+"money_account_send_bank_transfer_unavailable" = "Недоступно";
 "money_account_send_fees_footer" = "Комісії включають плату за сервіс %@ і розрахункову комісію мережі";
 "money_account_send_network_fee_note" = "Комісії включають розрахункову комісію мережі %@, яка може змінюватися залежно від навантаження на мережу";
 "money_account_send_pay_button" = "Сплатити %@";
@@ -1560,6 +1567,14 @@
 "prediction_add_funds_swap_subtitle" = "Use crypto in your Tangem wallet to top up your Polymarket account";
 "prediction_add_funds_swap_title" = "From your Tangem Wallet";
 "prediction_cash_out" = "Cash Out";
+"prediction_chart_empty_description" = "The chart will appear after the first predictions";
+"prediction_chart_empty_title" = "No data yet";
+"prediction_chart_period_1d" = "1d";
+"prediction_chart_period_1h" = "1h";
+"prediction_chart_period_1m" = "1m";
+"prediction_chart_period_1w" = "1w";
+"prediction_chart_period_6h" = "6h";
+"prediction_chart_period_max" = "Max";
 "prediction_claim_error_failed" = "The claim did not go through. Nothing left your account, and you can try again.";
 "prediction_claim_error_generic" = "The claim could not be sent. Please try again.";
 "prediction_claim_error_rejected" = "Polymarket refused to relay the claim. Refresh your positions and try again.";
@@ -2282,6 +2297,7 @@
 "tangempay_bank_transfer_details_daily_deposits_hint" = "Щоб поповнити більш ніж на %@, зверніться до служби підтримки";
 "tangempay_bank_transfer_details_daily_deposits_left" = "Left today";
 "tangempay_bank_transfer_details_daily_deposits" = "Денні поповнення";
+"tangempay_bank_transfer_details_exchange_rate" = "Exchange rate";
 "tangempay_bank_transfer_details_fee_header" = "Способи поповнення та комісії";
 "tangempay_bank_transfer_details_limitations" = "Обмеження";
 "tangempay_bank_transfer_details_minimum_deposit" = "Minimum deposit";
@@ -2591,10 +2607,10 @@
 "tangempay_set_pin_title" = "Встановити ПІН-код";
 "tangempay_status_deactivated" = "Рахунок закрито";
 "tangempay_status_inactive" = "Неактивна";
-"tangempay_sync_needed_body" = "Використайте картку або кільце для поновлення сесії";
+"tangempay_sync_needed_body" = "Оновіть сесію, щоб побачити картку й рахунок";
 "tangempay_sync_needed_button" = "Відновити доступ";
 "tangempay_sync_needed_restore_access" = "Відновити доступ";
-"tangempay_sync_needed_title" = "Tangem Pay · Сесія закінчилася";
+"tangempay_sync_needed_title" = "Сесія закінчилася";
 "tangempay_tangem_visa_card" = "Витрачайте крипту в реальному житті";
 "tangempay_temporarily_unavailable" = "Tangem Pay тимчасово недоступний";
 "tangempay_title" = "Tangem Pay";
@@ -2632,7 +2648,7 @@
 "tangempay_unified_onboarding_plan_subtitle" = "Basic — безкоштовно.";
 "tangempay_unified_onboarding_plan_title" = "%1$@ Plus включає обидва продукти й набагато більше";
 "tangempay_unified_onboarding_terms_button" = "Умови та комісії";
-"tangempay_usdc_on_polygon_network" = "USDC у Polygon";
+"tangempay_usdc_on_polygon_network" = "USDC у мережі Polygon";
 "tangempay_va_account_details" = "Реквізити рахунку";
 "tangempay_va_available_to_deposit_day" = "Ліміт на день:";
 "tangempay_va_banking_details_error_description" = "Спробуйте ще раз або зверніться до служби підтримки, якщо проблема повториться";
@@ -3036,6 +3052,9 @@
 "warning_kaspa_unfinished_token_transaction_message" = "Ваша транзакція %1$@ %2$@ не була завершена. Ви можете спробувати відправити її ще раз.";
 "warning_kaspa_unfinished_token_transaction_title" = "У вас є незавершена транзакція";
 "warning_last_balance_updated_time" = "Останнє оновлення було %@";
+"warning_link_wallet_cold_message" = "Scan your card to link your wallet to this device.";
+"warning_link_wallet_hot_message" = "Confirm to link your wallet to this device.";
+"warning_link_wallet_title" = "Link your wallet to this device";
 "warning_long_transaction_message" = "iPhone 7/7+ не може підписувати транзакції в цій мережі. Щоб виконати цю операцію, скористайтеся, будь ласка, іншим телефоном";
 "warning_long_transaction_title" = "Підписання транзакції недоступне";
 "warning_low_signatures_message" = "На цій картці залишається лише %@ підписів. Ви повинні вивести всі свої кошти.";
@@ -3258,9 +3277,9 @@
 "yield_module_incentive_chart_powered_by_title" = "Powered by Merkl";
 "yield_module_incentive_chart_sheet_title" = "Incentivized yield";
 "yield_module_incentives_provider" = "Merkl";
-"yield_module_main_promo_button" = "Try Yield Mode";
-"yield_module_main_promo_subtitle" = "Put idle coins to work. No lockups, withdraw anytime.";
-"yield_module_main_promo_title" = "Earn with your crypto up to %1$@%% APY";
+"yield_module_main_promo_button" = "Спробувати режим дохідності";
+"yield_module_main_promo_subtitle" = "Нехай вільні монети працюють. Без блокування, виведення в будь-який час.";
+"yield_module_main_promo_title" = "Заробляйте на крипті з дохідністю до %1$@%% APY";
 "yield_module_main_screen_promo_banner_message" = "Отримуй до %1$@ APY на свій баланс";
 "yield_module_network_fee_unreachable_notification_description" = "Перевірте підключення до мережі";
 "yield_module_network_fee_unreachable_notification_title" = "Інформація про комісію недоступна";
