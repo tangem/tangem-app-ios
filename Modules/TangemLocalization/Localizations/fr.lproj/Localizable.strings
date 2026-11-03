@@ -937,6 +937,7 @@
 "hw_upgrade_start_action" = "Lancer la mise à niveau";
 "hw_upgrade_start_description" = "Vous êtes sur le point de passer à notre hardware wallet. Il assurera la sécurité de vos actifs grâce au stockage hors ligne.";
 "hw_upgrade_title" = "Passez à notre Hardware Wallet";
+"hw_upgrade_to_cold_badge" = "Upgrade to a cold wallet";
 "hw_upgrade_to_cold_banner_description" = "Protégez vos cryptomonnaies grâce au hardware wallet haut de gamme de Tangem.";
 "hw_upgrade_to_cold_banner_title" = "Améliorez la sécurité de votre wallet grâce à un dispositif matériel";
 "hw_upgrade" = "Améliorer";
@@ -1336,6 +1337,7 @@
 "money_account_main_status_activating" = "Activation…";
 "money_account_main_status_active_v2" = "ACH";
 "money_account_main_status_active" = "Réseau %1$@";
+"money_account_main_status_awaiting_deposit" = "Opens after your deposit";
 "money_account_main_status_dialog_activating_description" = "Nous préparons votre compte. Cela peut prendre un peu de temps";
 "money_account_main_status_dialog_activating_title" = "Création de votre compte bancaire";
 "money_account_main_status_dialog_country_not_supported_description_template" = "Nous travaillons à couvrir d'autres régions. Besoin d'aide ? %@";
@@ -2607,7 +2609,7 @@
 "tangempay_set_pin_title" = "Créer un PIN";
 "tangempay_status_deactivated" = "Compte clôturé";
 "tangempay_status_inactive" = "Inactive";
-"tangempay_sync_needed_body" = "Renouvelez votre session pour consulter votre carte et votre compte";
+"tangempay_sync_needed_body" = "Renouvelez pour voir votre carte et votre compte";
 "tangempay_sync_needed_button" = "Restaurer l'accès";
 "tangempay_sync_needed_restore_access" = "Restaurer l'accès";
 "tangempay_sync_needed_title" = "Session expirée";
@@ -2790,6 +2792,7 @@
 "transaction_history_approve_high_risk_subtitle" = "You're connected. Funds may be at risk. Consider revoking access.";
 "transaction_history_approve_high_risk_title" = "High Risk";
 "transaction_history_approved_amount" = "Approved amount";
+"transaction_history_awaiting_signatures" = "Awaiting signatures";
 "transaction_history_claiming_incentive_rewards" = "Claiming incentive rewards";
 "transaction_history_contract_address" = "contrat : %@";
 "transaction_history_disabling_yield_mode" = "Disabling Yield mode";
@@ -2811,6 +2814,7 @@
 "transaction_history_multiple_addresses" = "Adresses multiples";
 "transaction_history_not_supported_description" = "L'historique des transactions n'est actuellement pas pris en charge pour cette blockchain. Mais ne vous inquiétez pas, nous y travaillons ! En attendant, vous pouvez le vérifier dans l'explorateur.";
 "transaction_history_operation" = "Opération";
+"transaction_history_pending_send" = "Pending send";
 "transaction_history_pending" = "Pending";
 "transaction_history_rewards_restaked" = "Rewards restaked";
 "transaction_history_status_approve_failed" = "Approve failed";
