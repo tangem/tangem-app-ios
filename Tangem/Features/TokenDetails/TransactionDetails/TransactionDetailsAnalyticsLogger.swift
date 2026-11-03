@@ -98,8 +98,8 @@ final class TransactionDetailsAnalyticsLogger {
     }
 
     private func logExpressStatusOpened(_ state: State) {
-        switch state.record.expressExtraInfo {
-        case .exchange(let info):
+        switch state.record.historyExtraInfo {
+        case .express(.exchange(let info)):
             Analytics.log(
                 event: .tokenSwapStatusScreenOpened,
                 params: [
@@ -107,7 +107,7 @@ final class TransactionDetailsAnalyticsLogger {
                     .provider: info.providerName,
                 ]
             )
-        case .onramp(let info):
+        case .express(.onramp(let info)):
             Analytics.log(
                 event: .onrampOnrampStatusOpened,
                 params: [
@@ -116,7 +116,7 @@ final class TransactionDetailsAnalyticsLogger {
                     .currency: info.transaction.from.currencyCode,
                 ]
             )
-        case nil:
+        case .jointOperation, nil:
             break
         }
     }

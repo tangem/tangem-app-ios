@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import BigInt
+import BlockchainSdk
 import TangemExpress
 import TangemFoundation
 import TangemAppDatabase
@@ -154,6 +156,72 @@ enum TransactionHistoryRecordsMapper {
         ]
     }
 
+    // MARK: Domain to record: Joint operations
+
+    static func mapToJointOperationRecord(_ item: JointOperationHistoryItem) -> JointOperationRecord {
+        let operation = item.operation
+        let safeTransaction = operation.safeTransaction
+
+        return JointOperationRecord(
+            id: operation.id,
+            cryptoAccountID: item.cryptoAccountId,
+            safeAddress: item.safeAddress,
+            chainID: operation.chainId,
+            status: operation.status.rawValue,
+            initiator: operation.initiator,
+            to: safeTransaction.to,
+            value: safeTransaction.value.description,
+            data: safeTransaction.data.hexString.lowercased().addHexPrefix(),
+            operation: safeTransaction.operation,
+            safeTxGas: safeTransaction.safeTxGas.description,
+            baseGas: safeTransaction.baseGas.description,
+            gasPrice: safeTransaction.gasPrice.description,
+            gasToken: safeTransaction.gasToken,
+            refundReceiver: safeTransaction.refundReceiver,
+            nonce: safeTransaction.nonce,
+            threshold: item.threshold,
+            txHash: operation.txHash,
+            cancelReason: operation.cancelReason?.rawValue,
+            signatures: operation.signatures.map { signature in
+                JointOperationRecord.Signature(address: signature.address, state: signature.state.rawValue, at: signature.at)
+            },
+            createdAt: item.createdAt,
+            finishedAt: operation.finishedAt
+        )
+    }
+
+    static func mapToTransactionHistoryIndexRecord(_ item: JointOperationHistoryItem) -> TransactionHistoryIndexRecord? {
+        let operation = item.operation
+
+        guard let blockchain = JointAccountSupportedBlockchains.all.first(where: { $0.chainId == operation.chainId }) else {
+            TransactionHistoryLogger.warning("Skipping the history index of a joint operation on unsupported chain \(operation.chainId)")
+            return nil
+        }
+
+        let contract: String
+
+        do {
+            switch try SafeInnerCallTypeParser.parse(try operation.safeTransaction.innerCall) {
+            case .transfer(.coin):
+                contract = ExpressConstants.coinContractAddress
+            case .transfer(.token(let contractAddress, _, _)):
+                contract = contractAddress
+            }
+        } catch {
+            TransactionHistoryLogger.warning("Skipping the history index of an unreadable joint operation: \(error)")
+            return nil
+        }
+
+        return makeIndexRecord(
+            entityType: TransactionHistoryIndexRecord.Values.EntityType.jointOperation,
+            entityID: operation.id,
+            address: item.safeAddress,
+            network: blockchain.networkId,
+            contract: contract,
+            dateTime: item.createdAt
+        )
+    }
+
     // MARK: Record to domain: Express exchange/onramp transactions
 
     static func mapToTransactionHistoryExtraInfo(
@@ -191,6 +259,13 @@ enum TransactionHistoryRecordsMapper {
             }
 
             return .express(.onramp(try mapToOnrampTransactionInfo(records)))
+
+        case TransactionHistoryIndexRecord.Values.EntityType.jointOperation:
+            guard let record = info.jointOperation else {
+                throw "Missing joint operation \(indexRecord.entityID) referenced by an index record"
+            }
+
+            return .jointOperation(JointOperationHistoryInfo(item: try mapToJointOperationHistoryItem(record)))
 
         default:
             throw "Unknown entity type \(indexRecord.entityType) of an index record for entity \(indexRecord.entityID)"
@@ -334,6 +409,61 @@ enum TransactionHistoryRecordsMapper {
                     TransactionHistoryLogger.warning("Skipping malformed crypto currency \(record.networkID): \(error)")
                 }
             }
+    }
+
+    // MARK: Record to domain: Joint operations
+
+    private static func mapToJointOperationHistoryItem(_ record: JointOperationRecord) throws -> JointOperationHistoryItem {
+        guard record.data.removeHexPrefix().isValidHex else {
+            throw "Malformed calldata of joint operation \(record.id)"
+        }
+
+        let safeTransaction = SafeTransaction(
+            to: record.to,
+            value: try bigUInt(fromString: record.value),
+            data: Data(hexString: record.data),
+            operation: record.operation,
+            safeTxGas: try bigUInt(fromString: record.safeTxGas),
+            baseGas: try bigUInt(fromString: record.baseGas),
+            gasPrice: try bigUInt(fromString: record.gasPrice),
+            gasToken: record.gasToken,
+            refundReceiver: record.refundReceiver,
+            nonce: record.nonce
+        )
+
+        let operation = JointAccountOperation(
+            id: record.id,
+            chainId: record.chainID,
+            safeTransaction: safeTransaction,
+            status: JointAccountOperationStatus(rawValue: record.status) ?? .unknown,
+            txHash: record.txHash,
+            finishedAt: record.finishedAt,
+            cancelReason: record.cancelReason.flatMap(JointOperationCancelReason.init(rawValue:)),
+            initiator: record.initiator,
+            signatures: record.signatures.map { signature in
+                JointAccountOperation.Signature(
+                    address: signature.address,
+                    state: JointAccountOperation.Signature.State(rawValue: signature.state) ?? .unknown,
+                    at: signature.at
+                )
+            }
+        )
+
+        return JointOperationHistoryItem(
+            operation: operation,
+            cryptoAccountId: record.cryptoAccountID,
+            safeAddress: record.safeAddress,
+            createdAt: record.createdAt,
+            threshold: record.threshold
+        )
+    }
+
+    private static func bigUInt(fromString string: String) throws -> BigUInt {
+        guard let value = BigUInt(string) else {
+            throw "Failed to create BigUInt from string: \(string)"
+        }
+
+        return value
     }
 
     // MARK: Domain to record: Shared helpers
