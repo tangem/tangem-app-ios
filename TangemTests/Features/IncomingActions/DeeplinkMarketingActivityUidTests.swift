@@ -37,6 +37,7 @@ struct DeeplinkMarketingActivityUidTests {
         SupportDeeplink.host: "tangem://support",
         MCPIntentDeeplink.host: "tangem://intent?id=intent-id&source=intent-source&type=intent-type",
         MCPAuthorizationDeeplink.host: "tangem://mcp.authorization?user_code=user-code",
+        PromoPageDeeplink.host: "tangem://promo_page?page=https%3A%2F%2Fpromo.tangem.com%2Fprize-draw-status%2F%3Fsuccess",
     ]
 
     private static let linksByPath: [String: String] = [
