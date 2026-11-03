@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import BlockchainSdk
 import TangemFoundation
+import TangemMacro
 
 /// An unfinished operation of the account, with the wallet it is made through: what a screen shows of it, and what
 /// this member can do about it.
@@ -21,6 +22,7 @@ struct JointAccountPendingOperation: Equatable {
 
     let wallet: JointAccountWallet
     let operation: JointAccountOperation
+    let initiator: Initiator
     @IgnoredEquatable
     var operationPublisher: AnyPublisher<JointAccountOperation, Never>
     let innerCallType: SafeInnerCallType
@@ -29,12 +31,14 @@ struct JointAccountPendingOperation: Equatable {
     init(
         wallet: JointAccountWallet,
         operation: JointAccountOperation,
+        initiator: Initiator,
         operationPublisher: AnyPublisher<JointAccountOperation, Never>,
         innerCallType: SafeInnerCallType,
         feeTokenItem: TokenItem?
     ) {
         self.wallet = wallet
         self.operation = operation
+        self.initiator = initiator
         self.operationPublisher = operationPublisher
         self.innerCallType = innerCallType
         self.feeTokenItem = feeTokenItem
@@ -44,6 +48,7 @@ struct JointAccountPendingOperation: Equatable {
         JointAccountPendingOperation(
             wallet: wallet,
             operation: operation,
+            initiator: initiator,
             operationPublisher: operationPublisher,
             innerCallType: innerCallType,
             feeTokenItem: feeTokenItem
@@ -65,17 +70,16 @@ extension JointAccountPendingOperation {
     }
 }
 
-// MARK: - Own standing
-
-extension JointAccountPendingOperation {
-    var isInitiator: Bool {
-        (try? wallet.ownAddress())?.caseInsensitiveEquals(to: operation.initiator) == true
-    }
-}
-
 // MARK: - Auxiliary types
 
 extension JointAccountPendingOperation {
+    @CaseFlagable
+    enum Initiator: Equatable {
+        case me
+        case member(name: String)
+        case unlisted(address: String)
+    }
+
     enum Standing {
         case noDecisionYet
         case signed

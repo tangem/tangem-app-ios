@@ -22,35 +22,39 @@ final class PendingJointAccountItemViewModel: Identifiable, ObservableObject {
 
     @Published private(set) var name: String
     @Published private(set) var iconData: AccountIconView.ViewData
-    /// Stated outright rather than awaited from the balance provider, which would leave the plate shimmering over a
-    /// balance that cannot exist yet.
     @Published private(set) var balance: String
-    @Published private(set) var status: String
-    @Published private(set) var action: Action?
 
+    @Published private(set) var phase: JointAccountMembersPhase?
+
+    var action: Action? { makeAction() }
+
+    let status: String
     let priceChange: PriceChangeView.State
 
     // MARK: - Private properties
 
     private let jointAccount: any JointAccountModel
     private let onTap: () -> Void
+    private let dateProvider: DateProvider
 
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
 
-    init(jointAccount: any JointAccountModel, onTap: @escaping () -> Void) {
+    init(
+        jointAccount: any JointAccountModel,
+        onTap: @escaping () -> Void,
+        dateProvider: DateProvider = SystemDateProvider()
+    ) {
         self.jointAccount = jointAccount
         self.onTap = onTap
-
-        let slots = jointAccount.jointAccountMembersService.slots
+        self.dateProvider = dateProvider
 
         name = jointAccount.name
         iconData = AccountModelUtils.UI.iconViewData(accountModel: jointAccount)
-        status = Self.status(of: jointAccount.status, slots: slots)
+        status = Localization.jointAccountMembersCount(jointAccount.policy.membersCount)
         balance = BalanceFormatter().formatFiatBalance(.zero, currencyCode: AppSettings.shared.selectedCurrencyCode)
         priceChange = PriceChangeUtility().convertToPriceChangeState(changePercent: .zero)
-        action = Self.action(of: jointAccount, slots: slots)
 
         bind()
     }
@@ -90,35 +94,47 @@ final class PendingJointAccountItemViewModel: Identifiable, ObservableObject {
     private func onAccountModelDidChange(slots: [JointAccountSlot]) {
         name = jointAccount.name
         iconData = AccountModelUtils.UI.iconViewData(accountModel: jointAccount)
-        status = Self.status(of: jointAccount.status, slots: slots)
-        action = Self.action(of: jointAccount, slots: slots)
+        phase = makePhase(slots: slots)
     }
 
-    private static func action(of jointAccount: any JointAccountModel, slots: [JointAccountSlot]) -> Action? {
-        guard case .confirming(.some) = jointAccount.status, let me = slots.members.first(where: \.isMe) else {
-            return nil
-        }
-
-        return me.signature == nil ? .activate : nil
+    private func makePhase(slots: [JointAccountSlot]) -> JointAccountMembersPhase {
+        JointAccountMembersPhase(
+            status: jointAccount.status,
+            slots: slots,
+            isCreator: jointAccount.isCreator,
+            now: dateProvider.now
+        )
     }
 
-    private static func status(of status: JointAccountStatus, slots: [JointAccountSlot]) -> String {
-        switch status {
-        case .confirming:
-            return Localization.jointAccountWaitingActivation
-        case .pending:
-            return Localization.jointAccountMembersProgress(slots.members.count, slots.count)
-        case .active, .untrusted, .cancelled, .unknown:
-            return Localization.jointAccountMembersProgress(slots.members.count, slots.count)
+    private func makeAction() -> Action? {
+        switch phase {
+        case .collecting(.notInvited, _), .collecting(.moreNotInvited, _):
+            .invite
+        case .collecting(.awaitingMembers(let count), _):
+            .waitingForMembers(count: count)
+        case .confirming(canConfirm: true, _):
+            .confirm
+        case .confirming(canConfirm: false, let unconfirmedCount) where unconfirmedCount > 0:
+            .waitingForConfirmations(count: unconfirmedCount)
+        case .collecting(.everyoneJoined, _), .confirming, .completed, .none:
+            nil
         }
     }
 }
 
 // MARK: - Auxiliary types
 
+private extension JointAccountModel {
+    var isCreator: Bool { jointAccountUserRoleService.isCreator ?? false }
+}
+
+// MARK: - Auxiliary types
+
 extension PendingJointAccountItemViewModel {
-    enum Action {
+    enum Action: Equatable {
         case invite
-        case activate
+        case confirm
+        case waitingForMembers(count: Int)
+        case waitingForConfirmations(count: Int)
     }
 }

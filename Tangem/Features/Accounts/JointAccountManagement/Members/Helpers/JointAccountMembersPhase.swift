@@ -13,7 +13,7 @@ import TangemMacro
 @RawCaseName
 enum JointAccountMembersPhase: Equatable {
     case collecting(Collecting, isCreator: Bool)
-    case confirming(canConfirm: Bool)
+    case confirming(canConfirm: Bool, unconfirmedCount: Int)
     case completed
 
     init(status: JointAccountStatus, slots: [JointAccountSlot], isCreator: Bool, now: Date) {
@@ -23,9 +23,11 @@ enum JointAccountMembersPhase: Equatable {
             self = .collecting(collecting, isCreator: isCreator)
         case .confirming(.some):
             let me = slots.members.first(where: \.isMe)
-            self = .confirming(canConfirm: me.map { $0.signature == nil } ?? false)
+            let canConfirm = me.map { $0.signature == nil } ?? false
+            let unconfirmedCount = slots.members.filter { $0.signature == nil }.count
+            self = .confirming(canConfirm: canConfirm, unconfirmedCount: unconfirmedCount)
         case .confirming(.none):
-            self = .confirming(canConfirm: false)
+            self = .confirming(canConfirm: false, unconfirmedCount: 0)
         case .active, .untrusted, .cancelled, .unknown:
             self = .completed
         }
@@ -45,21 +47,21 @@ extension JointAccountMembersPhase {
 
 private extension JointAccountMembersPhase.Collecting {
     init(slots: [JointAccountSlot], isCreator: Bool, now: Date) {
-        let freeSlots = slots.compactMap(Self.emptyType(of:))
+        let freeSlots = slots.compactMap(\.emptyType)
 
         guard freeSlots.isNotEmpty else {
             self = .everyoneJoined
             return
         }
 
-        let notInvitedCount = freeSlots.filter { !Self.isInvited($0, at: now) }.count
+        let notInvitedCount = freeSlots.filter { !$0.isInvited(at: now) }.count
 
         guard isCreator, notInvitedCount > 0 else {
             self = .awaitingMembers(count: freeSlots.count)
             return
         }
 
-        let isAnyInviteIssued = slots.members.count > 1 || freeSlots.contains { Self.inviteExpiresAt(of: $0) != nil }
+        let isAnyInviteIssued = slots.members.count > 1 || freeSlots.contains { $0.inviteExpiresAt != nil }
 
         guard isAnyInviteIssued else {
             self = .notInvited(count: notInvitedCount)
@@ -67,27 +69,5 @@ private extension JointAccountMembersPhase.Collecting {
         }
 
         self = .moreNotInvited(count: notInvitedCount)
-    }
-
-    static func emptyType(of slot: JointAccountSlot) -> JointAccountSlot.EmptyType? {
-        switch slot {
-        case .empty(_, let type): type
-        case .member: nil
-        }
-    }
-
-    static func isInvited(_ type: JointAccountSlot.EmptyType, at now: Date) -> Bool {
-        guard let expiresAt = inviteExpiresAt(of: type) else {
-            return false
-        }
-
-        return expiresAt > now
-    }
-
-    static func inviteExpiresAt(of type: JointAccountSlot.EmptyType) -> Date? {
-        switch type {
-        case .reinvitable(let previousInviteExpiresAt): previousInviteExpiresAt
-        case .notInvitable, .invitable: nil
-        }
     }
 }

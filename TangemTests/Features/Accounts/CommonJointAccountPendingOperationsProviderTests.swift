@@ -209,6 +209,48 @@ struct CommonJointAccountPendingOperationsProviderTests {
         #expect(sut.pendingOperations.map(\.operation.id) == ["coin", "token"])
     }
 
+    // MARK: - Initiator
+
+    @Test("An operation this wallet made is its own")
+    func ownOperationIsMine() async throws {
+        let account = makeJointAccount(ownAddress: Self.ownAddress)
+        let sut = Self.makeSUT(
+            records: [Self.record(operations: [Self.coinTransfer(initiator: Self.ownAddress.uppercased())])],
+            walletModels: [Self.makeWalletModel(tokenItem: Self.coin, account: account)]
+        ).provider
+
+        let operation = try #require(try await sut.pendingOperationsPublisher.async().first)
+
+        #expect(operation.initiator == .me)
+    }
+
+    @Test("An operation another member made is named after them")
+    func memberOperationIsNamed() async throws {
+        let account = makeJointAccount(ownAddress: Self.ownAddress)
+        let sut = Self.makeSUT(
+            records: [Self.record(operations: [Self.coinTransfer(initiator: Self.creatorAddress.uppercased())])],
+            walletModels: [Self.makeWalletModel(tokenItem: Self.coin, account: account)]
+        ).provider
+
+        let operation = try #require(try await sut.pendingOperationsPublisher.async().first)
+
+        #expect(operation.initiator == .member(name: Self.creator.name))
+    }
+
+    @Test("An operation of a member the account no longer lists is told by its address")
+    func unlistedOperationKeepsTheAddress() async throws {
+        let account = makeJointAccount(ownAddress: Self.ownAddress)
+        let sut = Self.makeSUT(
+            records: [Self.record(operations: [Self.coinTransfer()])],
+            walletModels: [Self.makeWalletModel(tokenItem: Self.coin, account: account)],
+            members: []
+        ).provider
+
+        let operation = try #require(try await sut.pendingOperationsPublisher.async().first)
+
+        #expect(operation.initiator == .unlisted(address: Self.creatorAddress))
+    }
+
     @Test("Only the operations in flight are listed, though the store keeps the finished ones")
     func onlyOperationsInFlightAreListed() async throws {
         let account = makeJointAccount()
@@ -300,18 +342,24 @@ private extension CommonJointAccountPendingOperationsProviderTests {
 
     static let recipient = "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c"
     static let creatorAddress = "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf"
+    static let ownAddress = "0x3c9e1b7a5d2f80461c8a0e2b4d6f8a0c2e4b6c90"
+    static let creator = JointAccountMember(name: "Isaac", address: creatorAddress, role: .creator, isMe: false, signature: nil)
     static let safeAddress = "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"
 
     static func makeSUT(
         records: [StoredJointAccountPendingOperations],
-        walletModels: [any WalletModel]
+        walletModels: [any WalletModel],
+        members: [JointAccountMember] = [creator]
     ) -> (provider: CommonJointAccountPendingOperationsProvider, walletModelsManager: WalletModelsManagerTestsMock) {
-        makeSUT(repository: JointAccountPendingOperationsRepositoryStub(pendingOperations: records), walletModels: walletModels)
+        let repository = JointAccountPendingOperationsRepositoryStub(pendingOperations: records)
+
+        return makeSUT(repository: repository, walletModels: walletModels, members: members)
     }
 
     static func makeSUT(
         repository: JointAccountPendingOperationsRepositoryStub,
-        walletModels: [any WalletModel]
+        walletModels: [any WalletModel],
+        members: [JointAccountMember] = [creator]
     ) -> (provider: CommonJointAccountPendingOperationsProvider, walletModelsManager: WalletModelsManagerTestsMock) {
         let walletModelsManager = WalletModelsManagerTestsMock()
         walletModelsManager.walletModels = walletModels
@@ -321,13 +369,14 @@ private extension CommonJointAccountPendingOperationsProviderTests {
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
             pendingOperationsRepository: repository,
-            walletModelsManager: walletModelsManager
+            walletModelsManager: walletModelsManager,
+            membersService: JointAccountMembersServiceMock(slots: members.map { .member($0, .active) })
         )
 
         return (provider, walletModelsManager)
     }
 
-    func makeJointAccount() -> any JointAccountModel {
+    func makeJointAccount(ownAddress: String? = nil) -> any JointAccountModel {
         CommonJointAccountModel(
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
             derivationIdentity: Self.derivationIdentity,
@@ -336,13 +385,13 @@ private extension CommonJointAccountPendingOperationsProviderTests {
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             membersService: JointAccountMembersServiceMock(
-                slots: [.member(JointAccountMember(name: "Isaac", address: Self.creatorAddress, role: .creator, isMe: false, signature: nil), .active)]
+                slots: [.member(Self.creator, .active)]
             ),
             finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
                 pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
                 walletModelsManager: WalletModelsManagerMock()
             ),
-            userRoleService: JointAccountUserRoleServiceMock(),
+            userRoleService: JointAccountUserRoleServiceMock(address: ownAddress),
             delegate: delegate
         )
     }
@@ -365,9 +414,19 @@ private extension CommonJointAccountPendingOperationsProviderTests {
         id: String = "coin",
         status: JointAccountOperationStatus = .awaitingSignatures,
         gasToken: String = SafeGasToken.coinGasTokenRawValue,
-        gasPrice: BigUInt = 1_000_000_000
+        gasPrice: BigUInt = 1_000_000_000,
+        initiator: String = creatorAddress
     ) -> JointAccountOperation {
-        operation(id: id, to: recipient, value: 1_000_000_000_000_000, data: Data(), status: status, gasToken: gasToken, gasPrice: gasPrice)
+        operation(
+            id: id,
+            to: recipient,
+            value: 1_000_000_000_000_000,
+            data: Data(),
+            status: status,
+            gasToken: gasToken,
+            gasPrice: gasPrice,
+            initiator: initiator
+        )
     }
 
     /// 5 USDT to the recipient, worded as the contract call the Safe makes; the contract is spelled in lower case, unlike the token's.
@@ -385,7 +444,8 @@ private extension CommonJointAccountPendingOperationsProviderTests {
         operation: Int = 0,
         status: JointAccountOperationStatus = .awaitingSignatures,
         gasToken: String = SafeGasToken.coinGasTokenRawValue,
-        gasPrice: BigUInt = 1_000_000_000
+        gasPrice: BigUInt = 1_000_000_000,
+        initiator: String = creatorAddress
     ) -> JointAccountOperation {
         JointAccountOperation(
             id: id,
@@ -406,7 +466,7 @@ private extension CommonJointAccountPendingOperationsProviderTests {
             txHash: nil,
             finishedAt: nil,
             cancelReason: nil,
-            initiator: creatorAddress,
+            initiator: initiator,
             signatures: []
         )
     }

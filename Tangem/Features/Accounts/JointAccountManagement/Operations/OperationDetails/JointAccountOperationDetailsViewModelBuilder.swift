@@ -156,7 +156,7 @@ private extension JointAccountOperationDetailsViewModelBuilder {
             answer: answer(of: pendingOperation),
             canSign: standingResolver.canSign(pendingOperation),
             canReject: standingResolver.canReject(pendingOperation),
-            isInitiator: pendingOperation.isInitiator,
+            isInitiator: pendingOperation.initiator.isMe,
             status: status(of: pendingOperation)
         )
     }

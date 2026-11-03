@@ -154,6 +154,7 @@ private extension JointAccountOperationDetailsViewModelBuilderTests {
         return JointAccountPendingOperation(
             wallet: wallet,
             operation: operationSubject.value,
+            initiator: .unlisted(address: operationSubject.value.initiator),
             operationPublisher: operationSubject.removeDuplicates().eraseToAnyPublisher(),
             innerCallType: .transfer(.coin(destination: Constants.recipient, value: 1_000_000_000_000_000)),
             feeTokenItem: Constants.coin

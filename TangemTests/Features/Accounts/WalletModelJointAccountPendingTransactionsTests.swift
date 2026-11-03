@@ -158,6 +158,7 @@ private extension WalletModelJointAccountPendingTransactionsTests {
         return JointAccountPendingOperation(
             wallet: wallet,
             operation: operation,
+            initiator: .unlisted(address: operation.initiator),
             operationPublisher: Just(operation).eraseToAnyPublisher(),
             innerCallType: innerCallType,
             feeTokenItem: .blockchain(tokenItem.blockchainNetwork)

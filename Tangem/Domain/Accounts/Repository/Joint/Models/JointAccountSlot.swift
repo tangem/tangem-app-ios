@@ -36,6 +36,30 @@ extension JointAccountSlot {
         case .empty: nil
         }
     }
+
+    var emptyType: EmptyType? {
+        switch self {
+        case .empty(_, let type): type
+        case .member: nil
+        }
+    }
+}
+
+extension JointAccountSlot.EmptyType {
+    var inviteExpiresAt: Date? {
+        switch self {
+        case .reinvitable(let previousInviteExpiresAt): previousInviteExpiresAt
+        case .notInvitable, .invitable: nil
+        }
+    }
+
+    func isInvited(at now: Date) -> Bool {
+        guard let inviteExpiresAt else {
+            return false
+        }
+
+        return inviteExpiresAt > now
+    }
 }
 
 // MARK: - Collection + JointAccountSlot

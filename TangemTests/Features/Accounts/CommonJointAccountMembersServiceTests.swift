@@ -16,21 +16,25 @@ struct CommonJointAccountMembersServiceTests {
     // MARK: - Slots
 
     @Test("The members come first, then a free slot per one left, numbered after them while the slots are not told")
-    func freeSlotsFollowTheMembers() {
+    func freeSlotsFollowTheMembers() async throws {
         let sut = Self.makeSUT(membersCount: 3, members: [Self.creator])
 
-        #expect(sut.slots == [.member(Self.me(Self.creator), .joined), Self.freeSlot(1), Self.freeSlot(2)])
+        let slots = try await sut.slotsPublisher.async()
+
+        #expect(slots == [.member(Self.me(Self.creator), .joined), Self.freeSlot(1), Self.freeSlot(2)])
     }
 
     @Test("The creator is told the members' slots, so a free slot keeps its own number")
-    func freeSlotsKeepTheirNumbers() {
+    func freeSlotsKeepTheirNumbers() async throws {
         let sut = Self.makeSUT(membersCount: 3, members: [Self.creator, Self.member], memberSlots: [0, 2])
 
-        #expect(sut.slots == [.member(Self.me(Self.creator), .joined), Self.freeSlot(1), .member(Self.member, .joined)])
+        let slots = try await sut.slotsPublisher.async()
+
+        #expect(slots == [.member(Self.me(Self.creator), .joined), Self.freeSlot(1), .member(Self.member, .joined)])
     }
 
     @Test("A free slot carries the expiry of the invite issued on it")
-    func freeSlotCarriesItsInvite() {
+    func freeSlotCarriesItsInvite() async throws {
         let sut = Self.makeSUT(
             membersCount: 3,
             members: [Self.creator],
@@ -38,11 +42,13 @@ struct CommonJointAccountMembersServiceTests {
             invites: [StoredJointAccount.Invite(slot: JointAccountMemberSlotID(2), expiresAt: Self.later)]
         )
 
-        #expect(sut.slots == [.member(Self.me(Self.creator), .joined), Self.freeSlot(1), Self.freeSlot(2, inviteExpiresAt: Self.later)])
+        let slots = try await sut.slotsPublisher.async()
+
+        #expect(slots == [.member(Self.me(Self.creator), .joined), Self.freeSlot(1), Self.freeSlot(2, inviteExpiresAt: Self.later)])
     }
 
     @Test("A free slot takes no invite from a wallet that is not the creator's, whatever the listing says of it")
-    func freeSlotsTakeNoInviteFromAMember() {
+    func freeSlotsTakeNoInviteFromAMember() async throws {
         let sut = Self.makeSUT(
             membersCount: 3,
             members: [Self.creator, Self.member],
@@ -50,11 +56,13 @@ struct CommonJointAccountMembersServiceTests {
             viewer: Self.member
         )
 
-        #expect(sut.slots == [.member(Self.creator, .joined), .member(Self.me(Self.member), .joined), .empty(JointAccountMemberSlotID(2), .notInvitable)])
+        let slots = try await sut.slotsPublisher.async()
+
+        #expect(slots == [.member(Self.creator, .joined), .member(Self.me(Self.member), .joined), .empty(JointAccountMemberSlotID(2), .notInvitable)])
     }
 
     @Test("A member who confirmed the address is told by their signature from one still to confirm it")
-    func confirmationIsReadOffTheSignature() {
+    func confirmationIsReadOffTheSignature() async throws {
         let sut = Self.makeSUT(
             status: .confirming(safeAddress: "0xsafe"),
             membersCount: 2,
@@ -70,29 +78,37 @@ struct CommonJointAccountMembersServiceTests {
             signature: "0xsignature"
         )
 
-        #expect(sut.slots == [.member(confirmedCreator, .confirmed), .member(Self.member, .awaitingConfirmation)])
+        let slots = try await sut.slotsPublisher.async()
+
+        #expect(slots == [.member(confirmedCreator, .confirmed), .member(Self.member, .awaitingConfirmation)])
     }
 
     @Test("Every member of an active account is active, whatever the listing says of their signatures")
-    func membersOfAnActiveAccountAreActive() {
+    func membersOfAnActiveAccountAreActive() async throws {
         let sut = Self.makeSUT(status: .active(safeAddress: "0xsafe"), membersCount: 2, members: [Self.creator, Self.member])
 
-        #expect(sut.slots == [.member(Self.me(Self.creator), .active), .member(Self.member, .active)])
+        let slots = try await sut.slotsPublisher.async()
+
+        #expect(slots == [.member(Self.me(Self.creator), .active), .member(Self.member, .active)])
     }
 
     @Test("More members than the count says leaves no free slots rather than a negative number of them")
-    func freeSlotsNeverGoNegative() {
+    func freeSlotsNeverGoNegative() async throws {
         let sut = Self.makeSUT(membersCount: 2, members: [Self.creator, Self.member, Self.otherMember])
 
-        #expect(sut.slots.count == 3)
-        #expect(sut.slots.allSatisfy { $0.member != nil })
+        let slots = try await sut.slotsPublisher.async()
+
+        #expect(slots.count == 3)
+        #expect(slots.allSatisfy { $0.member != nil })
     }
 
     @Test("An account the store does not hold has no slots to speak of")
-    func unknownAccountHasNoSlots() {
+    func unknownAccountHasNoSlots() async throws {
         let sut = JointAccountCompositionFixture.makeMembersService(repository: JointAccountsRepositoryStub())
 
-        #expect(sut.slots.isEmpty)
+        let slots = try await sut.slotsPublisher.async()
+
+        #expect(slots.isEmpty)
     }
 
     // MARK: - Issuing invites
@@ -160,20 +176,24 @@ struct CommonJointAccountMembersServiceTests {
     /// What the role service answers is its own suite's to check; this one is about the composition it is asked
     /// about being the slots of this account.
     @Test("The slot the wallet holds is marked as its own, and a free slot then takes its invite")
-    func ownSlotIsLookedForAmongTheAccountsMembers() {
+    func ownSlotIsLookedForAmongTheAccountsMembers() async throws {
         let own = JointAccountMember(name: "Me", address: Self.derivedAddress, role: .creator, isMe: false, signature: nil)
         let sut = Self.makeSUT(membersCount: 3, members: [own, Self.member], storedKeyPath: Self.ownPath)
 
-        #expect(sut.slots.members.map(\.isMe) == [true, false])
-        #expect(sut.slots.last == Self.freeSlot(2))
+        let slots = try await sut.slotsPublisher.async()
+
+        #expect(slots.members.map(\.isMe) == [true, false])
+        #expect(slots.last == Self.freeSlot(2))
     }
 
     @Test("A composition this wallet holds no slot of marks no slot as its own and takes no invite")
-    func ownSlotIsAbsentFromAForeignComposition() {
+    func ownSlotIsAbsentFromAForeignComposition() async throws {
         let sut = Self.makeSUT(membersCount: 2, members: [Self.creator], storedKeyPath: Self.ownPath)
 
-        #expect(sut.slots.members.allSatisfy { !$0.isMe })
-        #expect(sut.slots.last == .empty(JointAccountMemberSlotID(1), .notInvitable))
+        let slots = try await sut.slotsPublisher.async()
+
+        #expect(slots.members.allSatisfy { !$0.isMe })
+        #expect(slots.last == .empty(JointAccountMemberSlotID(1), .notInvitable))
     }
 }
 
