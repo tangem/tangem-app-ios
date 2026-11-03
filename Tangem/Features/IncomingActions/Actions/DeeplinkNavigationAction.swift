@@ -38,6 +38,7 @@ enum DeeplinkNavigationAction: Equatable {
     case tangemPayTransaction(TangemPayTransactionDeeplink)
     case mcpIntent(MCPIntentDeeplink)
     case mcpAuthorization(MCPAuthorizationDeeplink)
+    case promoPage(PromoPageDeeplink)
 }
 
 // MARK: - Identity
@@ -113,6 +114,7 @@ extension DeeplinkNavigationAction {
         SupportDeeplink.host: SupportDeeplink.self,
         MCPAuthorizationDeeplink.host: MCPAuthorizationDeeplink.self,
         MCPIntentDeeplink.host: MCPIntentDeeplink.self,
+        PromoPageDeeplink.host: PromoPageDeeplink.self,
     ]
 
     /// Keyed by the first component of the path for the same reason. The rest of the shape is each
