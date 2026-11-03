@@ -101,7 +101,7 @@ extension CommonWalletCardsBackupReportRepository: WalletCardsBackupReportReposi
                   !attemptedCardLinkedHashes.contains(deliveryHash),
                   !currentReport.pendingReports.contains(where: {
                       $0.userWalletId == userWalletId && $0.cards.contains {
-                          $0.cardId == card.cardId && $0.backupStatus == .cardLinked && $0.role != nil
+                          $0.cardId == card.cardId && $0.backupStatus == .cardLinked
                       }
                   }) else {
                 return
@@ -137,7 +137,7 @@ extension CommonWalletCardsBackupReportRepository: WalletCardsBackupReportReposi
             updated.pendingReports.removeAll { $0.id == pendingReport.id }
 
             if wasDelivered {
-                for card in pendingReport.cards where card.backupStatus == .cardLinked && card.role != nil {
+                for card in pendingReport.cards where card.backupStatus == .cardLinked {
                     updated.deliveredCardLinkedHashes.insert(cardLinkedDeliveryHash(userWalletId: pendingReport.userWalletId, cardId: card.cardId))
                 }
             }
