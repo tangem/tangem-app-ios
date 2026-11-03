@@ -136,7 +136,8 @@ private extension JointAccountOperationDetailsViewModelBuilderTests {
             membersService: JointAccountMembersServiceMock(slots: []),
             finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
                 pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
-                walletModelsManager: WalletModelsManagerMock()
+                walletModelsManager: WalletModelsManagerMock(),
+                historyDeltaSyncing: JointOperationsHistoryDeltaSyncingStub()
             ),
             userRoleService: JointAccountUserRoleServiceMock(),
             delegate: delegate

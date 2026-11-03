@@ -33,7 +33,8 @@ struct WalletModelsFactoryProvider {
             userWalletId: userWalletId,
             userWalletConfig: userWalletConfig,
             dynamicAddressesManagerProvider: dynamicAddressesManagerProvider,
-            transactionHistoryProviderResolver: transactionHistoryProviderResolver
+            transactionHistoryProviderResolver: transactionHistoryProviderResolver,
+            isSafe: isSafe
         )
 
         let transactionHistoryServiceProvider = TransactionHistoryServiceProvider(isSafe: isSafe)

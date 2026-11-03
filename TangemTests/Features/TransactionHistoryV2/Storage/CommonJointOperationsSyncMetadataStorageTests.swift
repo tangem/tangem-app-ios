@@ -67,6 +67,32 @@ struct CommonJointOperationsSyncMetadataStorageTests {
         #expect(secondCursor == "second-delta-cursor")
         #expect(!isSecondInitialSyncDone)
     }
+
+    @Test("Clearing drops the wallet's metadata and keeps the other wallets' metadata")
+    func clearDropsOnlyThisWalletMetadata() async throws {
+        let (archiveCursor, deltaCursor, isInitialSyncDone, otherDeltaCursor) = try await withInjectedInMemoryAppDatabase {
+            let storage = CommonJointOperationsSyncMetadataStorage(userWalletId: Self.firstWalletId)
+            let otherStorage = CommonJointOperationsSyncMetadataStorage(userWalletId: Self.secondWalletId)
+            try await storage.setArchiveCursor("archive-cursor")
+            try await storage.setDeltaCursor("delta-cursor")
+            try await storage.setIsInitialSyncDone(true)
+            try await otherStorage.setDeltaCursor("other-delta-cursor")
+
+            try await storage.clear()
+
+            return (
+                try await storage.archiveCursor(),
+                try await storage.deltaCursor(),
+                try await storage.isInitialSyncDone(),
+                try await otherStorage.deltaCursor()
+            )
+        }
+
+        #expect(archiveCursor == nil)
+        #expect(deltaCursor == nil)
+        #expect(!isInitialSyncDone)
+        #expect(otherDeltaCursor == "other-delta-cursor")
+    }
 }
 
 // MARK: - Helpers
