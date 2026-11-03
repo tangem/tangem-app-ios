@@ -135,7 +135,8 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
 
         let finishedOperationsWalletUpdater = JointAccountFinishedOperationsWalletUpdater(
             pendingOperationsProvider: pendingOperationsProvider,
-            walletModelsManager: walletModelsManager
+            walletModelsManager: walletModelsManager,
+            historyDeltaSyncing: walletModelsFactoryProvider.transactionHistoryProviderResolver
         )
 
         let operationsService = CommonJointAccountOperationsService(

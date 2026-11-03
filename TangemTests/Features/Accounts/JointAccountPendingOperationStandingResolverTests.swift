@@ -121,7 +121,8 @@ private extension JointAccountPendingOperationStandingResolverTests {
             membersService: JointAccountMembersServiceMock(),
             finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
                 pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
-                walletModelsManager: WalletModelsManagerMock()
+                walletModelsManager: WalletModelsManagerMock(),
+                historyDeltaSyncing: JointOperationsHistoryDeltaSyncingStub()
             ),
             userRoleService: JointAccountUserRoleServiceMock(address: hasDerivedKey ? Constants.ownAddress : nil),
             delegate: delegate

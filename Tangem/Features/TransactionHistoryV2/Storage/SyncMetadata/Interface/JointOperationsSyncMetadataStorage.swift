@@ -13,4 +13,5 @@ protocol JointOperationsSyncMetadataStorage: Sendable {
     func setDeltaCursor(_ cursor: String?) async throws
     func isInitialSyncDone() async throws -> Bool
     func setIsInitialSyncDone(_ isDone: Bool) async throws
+    func clear() async throws
 }

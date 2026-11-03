@@ -133,7 +133,8 @@ private final class JointAccountDependenciesFactoryStub: JointAccountDependencie
             pendingOperationsProvider: pendingOperationsProvider,
             finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
                 pendingOperationsProvider: pendingOperationsProvider,
-                walletModelsManager: walletModelsManager
+                walletModelsManager: walletModelsManager,
+                historyDeltaSyncing: JointOperationsHistoryDeltaSyncingStub()
             ),
             membersService: JointAccountMembersServiceMock(),
             userRoleService: JointAccountUserRoleServiceMock()
