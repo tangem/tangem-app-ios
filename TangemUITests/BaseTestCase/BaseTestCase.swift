@@ -39,6 +39,7 @@ class BaseTestCase: XCTestCase {
         skipToS: Bool = true,
         clearStorage: Bool = false,
         keepWallets: Bool = false,
+        useWireMock: Bool = true,
         featureToggles: [String: Bool] = [:],
         scenarios: [ScenarioConfig] = [],
         mockCardBatchIdOverride: String? = nil,
@@ -95,12 +96,12 @@ class BaseTestCase: XCTestCase {
 
         app.launchArguments = arguments
 
-        // Build launch environment with resolved WireMock URL for parallel test support
-        // WireMockPortResolver determines the correct port based on simulator UDID
-        let wireMockURL = WireMockPortResolver.wireMockBaseURL
-
         var launchEnvironment = ["UITEST": "1"]
-        launchEnvironment["WIREMOCK_BASE_URL"] = wireMockURL
+        // Without WIREMOCK_BASE_URL the WireMockRedirectPlugin is inert, so E2E tests (useWireMock: false) talk to
+        // production. For mocked tests, resolve the per-UDID port so parallel runs hit their own WireMock instance.
+        if useWireMock {
+            launchEnvironment["WIREMOCK_BASE_URL"] = WireMockPortResolver.wireMockBaseURL
+        }
         if let mockCardBatchIdOverride {
             launchEnvironment["UITEST_MOCK_CARD_BATCH_ID"] = mockCardBatchIdOverride
         }
@@ -111,7 +112,9 @@ class BaseTestCase: XCTestCase {
         app.launchEnvironment = launchEnvironment
 
         // Setup WireMock scenarios before launching the app
-        setupWireMockScenarios(scenarios)
+        if useWireMock {
+            setupWireMockScenarios(scenarios)
+        }
 
         app.launch()
     }
@@ -129,7 +132,7 @@ class BaseTestCase: XCTestCase {
         }
     }
 
-    private func resetAllWireMockScenarios() {
+    func resetAllWireMockScenarios() {
         XCTContext.runActivity(named: "Reset all WireMock scenarios") { _ in
             wireMockClient.resetAllScenariosSync()
         }

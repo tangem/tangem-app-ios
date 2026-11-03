@@ -400,6 +400,125 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func verifyTokenBalanceNonNegative(_ tokenName: String) -> MainScreen {
+        XCTContext.runActivity(named: "Verify '\(tokenName)' balance is loaded and >= 0") { _ in
+            let balance = tokensList.staticTexts[MainAccessibilityIdentifiers.tokenBalance(for: tokenName)].firstMatch
+            let loaded = NSPredicate(
+                format: "exists == true AND label != %@ AND label != %@ AND label != %@ AND NOT (label CONTAINS[c] %@)",
+                "\u{2013}", "\u{2014}", "-", "Unreachable"
+            )
+            let result = XCTWaiter().wait(
+                for: [XCTNSPredicateExpectation(predicate: loaded, object: balance)],
+                timeout: .networkRequest
+            )
+            XCTAssertEqual(result, .completed, "Balance for '\(tokenName)' should load (not dash or unreachable)")
+            XCTAssertGreaterThanOrEqual(
+                getTokenBalanceNumeric(tokenName: tokenName), 0,
+                "Balance for '\(tokenName)' should be a real value >= 0"
+            )
+            return self
+        }
+    }
+
+    /// Multi-account wallets collapse each account by default; expand collapsed headers until the token row shows.
+    @discardableResult
+    func revealToken(_ tokenName: String) -> MainScreen {
+        XCTContext.runActivity(named: "Reveal token '\(tokenName)'") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            if scrollTokensListToVisible(tokenElement(named: tokenName)) {
+                return self
+            }
+            let accountHeaders = app.buttons.matching(identifier: MainAccessibilityIdentifiers.tokensList)
+            for index in 0 ..< accountHeaders.count {
+                let header = accountHeaders.element(boundBy: index)
+                guard header.exists, header.label.localizedCaseInsensitiveContains("token") else { continue }
+                guard scrollTokensListToVisible(header) else { continue }
+                header.tap()
+                if scrollTokensListToVisible(tokenElement(named: tokenName)) {
+                    return self
+                }
+            }
+            return self
+        }
+    }
+
+    /// Expands every collapsed account header so each account's token rows are present (e.g. to read a token's
+    /// balance per account). A header still showing a token count in its label is collapsed.
+    @discardableResult
+    func expandAllAccounts() -> MainScreen {
+        XCTContext.runActivity(named: "Expand all collapsed accounts") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            // Account headers and the per-account "Add tokens" button share the `mainTokensList` id; a collapsed
+            // header is told apart by its percentage-change suffix (e.g. "…, 0 tokens, 0.00 %"), which the
+            // "Add tokens" button never has.
+            let accountHeaders = app.buttons.matching(identifier: MainAccessibilityIdentifiers.tokensList)
+            for index in 0 ..< accountHeaders.count {
+                let header = accountHeaders.element(boundBy: index)
+                guard header.exists,
+                      header.label.localizedCaseInsensitiveContains("token"),
+                      header.label.contains("%") else { continue }
+                guard scrollTokensListToVisible(header) else { continue }
+                header.tap()
+            }
+            return self
+        }
+    }
+
+    /// Reads the fiat balance of a token under a given account index (top-to-bottom). Each account renders in its
+    /// own `mainTokensList` container, so the balances are matched at app scope, not inside a single container.
+    func tokenFiatBalanceNumeric(tokenName: String, accountIndex: Int, accountCount: Int) -> Decimal {
+        XCTContext.runActivity(named: "Get '\(tokenName)' balance at account index \(accountIndex)") { _ in
+            let balances = app.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
+            let enough = XCTNSPredicateExpectation(predicate: NSPredicate(format: "count >= %d", accountCount), object: balances)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [enough], timeout: .robustUIUpdate), .completed,
+                "Expected a '\(tokenName)' balance in each of the \(accountCount) accounts"
+            )
+            // A dust balance renders as "< $0.01"; drop the comparator so it parses as the small positive value.
+            let label = balances.element(boundBy: accountIndex).label
+                .replacingOccurrences(of: "<", with: "")
+                .trimmingCharacters(in: .whitespaces)
+            return NumericValueHelper.parseNumericValue(from: label)
+        }
+    }
+
+    /// Opens the token detail for the token row at a given account index (top-to-bottom order), for wallets
+    /// where the same token exists under more than one account.
+    func tapToken(_ label: String, atAccountIndex index: Int) -> TokenScreen {
+        XCTContext.runActivity(named: "Tap token '\(label)' at account index \(index)") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            let titles = app.staticTexts
+                .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
+                .matching(NSPredicate(format: "label == %@", label))
+            XCTAssertGreaterThan(titles.count, index, "Expected a '\(label)' token row at account index \(index)")
+            let token = titles.element(boundBy: index)
+            XCTAssertTrue(scrollTokensListToVisible(token), "Token '\(label)' at index \(index) should be visible")
+            token.waitForStableFrame()
+            for _ in 0 ..< 5 where !token.isHittable {
+                scrollTokensList(byOffset: -200)
+                token.waitForStableFrame()
+            }
+            token.tapEvenIfNotHittable()
+            return TokenScreen(app)
+        }
+    }
+
+    /// Taps the "Add tokens" button of the first account still showing the empty state (e.g. after a portfolio
+    /// reset) and opens Manage Tokens for that account — no wallet-settings navigation needed. Each added account
+    /// drops out of the empty state, so calling this repeatedly walks through the remaining empty accounts.
+    func tapAddTokensForEmptyAccount() -> ManageTokensScreen {
+        XCTContext.runActivity(named: "Tap 'Add tokens' on the first empty account") { _ in
+            // The button carries the shared `mainTokensList` id, so it is matched by its label; it renders below
+            // the fold, so scroll it clear of the Markets sheet before tapping.
+            let addButton = app.buttons.matching(NSPredicate(format: "label == %@", "Add tokens")).firstMatch
+            XCTAssertTrue(addButton.waitForExistence(timeout: .robustUIUpdate), "An empty-account 'Add tokens' button should exist")
+            XCTAssertTrue(scrollTokensListToVisible(addButton), "'Add tokens' button should be visible after scrolling")
+            addButton.waitAndTap()
+            return ManageTokensScreen(app)
+        }
+    }
+
+    @discardableResult
     func verifyAccountVisible(_ accountName: String) -> Self {
         XCTContext.runActivity(named: "Verify account '\(accountName)' visible on main screen") { _ in
             waitAndAssertTrue(accountElement(named: accountName), "Account '\(accountName)' should be visible on main screen")

@@ -182,6 +182,8 @@ final class CommonServicesManager {
 
         if let wireMockBaseURL = ProcessInfo.processInfo.environment[WireMockEnvironment.baseURLKey] {
             UserDefaults.standard.set(wireMockBaseURL, forKey: WireMockEnvironment.baseURLKey)
+        } else {
+            UserDefaults.standard.removeObject(forKey: WireMockEnvironment.baseURLKey)
         }
     }
 
@@ -268,6 +270,7 @@ extension CommonServicesManager: ServicesManager {
         }
 
         await UITestsStorageCleaner.clearKeychain()
+        await UITestsStorageCleaner.resetE2EPortfolioTokens()
 
         await userWalletRepository.initialize()
 
