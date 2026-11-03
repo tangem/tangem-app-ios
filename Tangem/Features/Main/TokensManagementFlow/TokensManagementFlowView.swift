@@ -16,21 +16,16 @@ struct TokensManagementFlowView: View {
 
     @State private var cancelButtonHeight: CGFloat = 0
 
-    private var isRedesignedAccountSelector: Bool {
-        viewModel.state.isChooseAccount && viewModel.isAddAndOrganizeRedesignEnabled
-    }
-
     var body: some View {
         TokensManagementFlowContainerView(
             state: viewModel.state.rawCaseValue,
             hidesHeader: viewModel.state.hidesContainerHeader,
-            topPadding: isRedesignedAccountSelector ? .zero : 16,
+            topPadding: viewModel.state.isChooseAccount ? .zero : 16,
             bottomPadding: viewModel.state.isChooser ? 16 : .zero,
-            isRedesign: viewModel.isAddAndOrganizeRedesignEnabled,
             headerContent: { headerView },
             mainContent: { mainContentView }
         )
-        .environment(\.isAddAndOrganizeRedesignEnabled, viewModel.isAddAndOrganizeRedesignEnabled)
+        .environment(\.isAddAndOrganizeRedesignEnabled, true)
     }
 
     // MARK: - Sub Views
@@ -73,17 +68,13 @@ struct TokensManagementFlowView: View {
         case .chooser:
             TokensManagementChooserView(viewModel: viewModel)
         case .chooseAccount(let accountSelector):
-            if viewModel.isAddAndOrganizeRedesignEnabled {
-                ZStack(alignment: .bottom) {
-                    AccountSelectorView(viewModel: accountSelector, style: .addTokenRedesigned)
-                        .bottomFade()
-                        .bottomContentInset(cancelButtonHeight)
+            ZStack(alignment: .bottom) {
+                AccountSelectorView(viewModel: accountSelector, style: .addTokenRedesigned)
+                    .bottomFade()
+                    .bottomContentInset(cancelButtonHeight)
 
-                    cancelButton
-                        .readGeometry(\.size.height) { cancelButtonHeight = $0 }
-                }
-            } else {
-                AccountSelectorView(viewModel: accountSelector, style: .addAndManage)
+                cancelButton
+                    .readGeometry(\.size.height) { cancelButtonHeight = $0 }
             }
         case .organize(let organizeViewModel):
             OrganizeTokensView(viewModel: organizeViewModel, onCloseTap: viewModel.close)
