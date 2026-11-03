@@ -13,8 +13,8 @@ import struct TangemFoundation.UserWalletId
 
 @Suite(.tags(.backendAuthentication))
 struct UserWalletRegistrationRequestMapperTests {
-    @Test(arguments: Self.appAssertions)
-    func mapFromDomainProducesCorrectRegisterWalletDTORequest(appAssertion: AppAssertion?) {
+    @Test(arguments: Self.appAssertions, Self.recoveryKeyIds)
+    func mapFromDomainProducesCorrectRegisterWalletDTORequest(appAssertion: AppAssertion?, recoveryKeyId: String?) {
         let walletAttestation = UserWalletAttestation(
             walletSignature: UserWalletAttestation.Signature(value: Data([0x0A]), salt: Data([0x0B])),
             cardSignature: UserWalletAttestation.Signature(value: Data([0x0C]), salt: Data([0x0D])),
@@ -22,7 +22,8 @@ struct UserWalletRegistrationRequestMapperTests {
         )
         let recoveryEnrollment = UserWalletRecoveryEnrollment(
             providerIdToken: "some provider id token",
-            encryptedRecoveryKey: "some encrypted recovery key"
+            encryptedRecoveryKey: "some encrypted recovery key",
+            recoveryKeyId: recoveryKeyId
         )
         let request = UserWalletRegistrationRequest(
             id: UserWalletId.fake,
@@ -46,6 +47,7 @@ struct UserWalletRegistrationRequestMapperTests {
         #expect(dto.appAttestKeyId == appAssertion?.keyID)
         #expect(dto.providerIdToken == recoveryEnrollment.providerIdToken)
         #expect(dto.encryptedRecoveryKey == recoveryEnrollment.encryptedRecoveryKey)
+        #expect(dto.kmsKeyId == recoveryEnrollment.recoveryKeyId)
         #expect(dto.metadata.deviceModel == request.metadata.deviceModel)
     }
 }
@@ -53,6 +55,11 @@ struct UserWalletRegistrationRequestMapperTests {
 extension UserWalletRegistrationRequestMapperTests {
     static let appAssertions: [AppAssertion?] = [
         AppAssertion.fake,
+        nil,
+    ]
+
+    static let recoveryKeyIds: [String?] = [
+        "kms-recovery-key-v2",
         nil,
     ]
 }

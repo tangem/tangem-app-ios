@@ -20,6 +20,7 @@ enum RegisterWalletDTO {
         let appAttestKeyId: String?
         let providerIdToken: String?
         let encryptedRecoveryKey: String?
+        let kmsKeyId: String?
         let metadata: DeviceMetadataDTO.Request
     }
 }
