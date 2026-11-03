@@ -126,6 +126,7 @@ private extension ExpressDEXTransactionDispatcher {
         let transactionSendResult = try await sender.send(
             psbtBase64: psbtBase64,
             destination: data.destinationAddress,
+            usesBdkDogecoinFeeRateLimit: PsbtFeeRateLimit.usesBdkDogecoinFeeRateLimit,
             signer: transactionSigner
         )
 

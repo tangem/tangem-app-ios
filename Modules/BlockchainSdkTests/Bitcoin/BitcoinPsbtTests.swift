@@ -1140,6 +1140,12 @@ extension MultiInputPsbtFixture {
         changeValue: 500_000 // fee = 19_998_000_000 sat
     )
 
+    static let overflowingInputValuesTwoInputs = makeAbsurdFeeRateFixture(
+        inputValues: (UInt64.max - 1_000, 2_000),
+        destinationValue: 1_500_000,
+        changeValue: 500_000
+    )
+
     /// The shape of a live Dogecoin swap PSBT: legacy p2pkh inputs carrying `non_witness_utxo`,
     /// regular Dogecoin-scale fee (~96k sat/vB).
     static let dogecoinLegacyFeeRateTwoInputs: MultiInputPsbtFixture = {
@@ -1185,7 +1191,11 @@ extension MultiInputPsbtFixture {
         )
     }()
 
-    private static func makeAbsurdFeeRateFixture(destinationValue: UInt64, changeValue: UInt64) -> MultiInputPsbtFixture {
+    private static func makeAbsurdFeeRateFixture(
+        inputValues: (first: UInt64, second: UInt64) = (12_000_000_000, 8_000_000_000),
+        destinationValue: UInt64,
+        changeValue: UInt64
+    ) -> MultiInputPsbtFixture {
         let version: UInt32 = 2
         let lockTime: UInt32 = 0
 
@@ -1193,13 +1203,13 @@ extension MultiInputPsbtFixture {
             privateKeyHex: "e120fc1ef9d193a851926ebd937c3985dc2c4e642fb3d0832317884d5f18f3b3",
             txidByte: 0x11,
             vout: 0,
-            utxoValue: 12_000_000_000
+            utxoValue: inputValues.first
         )
         let input1 = makeInput(
             privateKeyHex: "4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318",
             txidByte: 0x33,
             vout: 1,
-            utxoValue: 8_000_000_000
+            utxoValue: inputValues.second
         )
         let inputs = [input0, input1]
 
@@ -1235,7 +1245,9 @@ extension MultiInputPsbtFixture {
 @Suite("Bitcoin PSBT absurd-fee-rate fallback")
 struct BitcoinPsbtAbsurdFeeRateFallbackTests {
     private var fixture: MultiInputPsbtFixture { .dogecoinFeeRateTwoInputs }
-    private var feeRateLimit: PsbtFeeRateLimit { PsbtFeeRateLimit(blockchain: .dogecoin) }
+    private var legacyFeeRateLimit: PsbtFeeRateLimit {
+        PsbtFeeRateLimit(blockchain: .dogecoin, usesBdkDogecoinFeeRateLimit: false)
+    }
 
     private var signInputs: [BitcoinPsbtSigningBuilder.SignInput] {
         fixture.inputs.indices.map { .init(index: $0) }
@@ -1261,19 +1273,58 @@ struct BitcoinPsbtAbsurdFeeRateFallbackTests {
         }
     }
 
-    @Test
-    func drainFeeRateAboveChainLimitIsRejected() {
-        #expect(throws: ExtractTxError.self) {
+    @Test("A drain-level fee rate above the Dogecoin limit is rejected on both extraction paths", arguments: [false, true])
+    func drainFeeRateAboveDogecoinLimitIsRejected(usesBdkDogecoinFeeRateLimit: Bool) {
+        let feeRateLimit = PsbtFeeRateLimit(blockchain: .dogecoin, usesBdkDogecoinFeeRateLimit: usesBdkDogecoinFeeRateLimit)
+
+        do {
             _ = try BitcoinPsbtSigningBuilder.fee(
                 psbtBase64: MultiInputPsbtFixture.drainFeeRateTwoInputs.psbtBase64,
                 feeRateLimit: feeRateLimit
             )
+            Issue.record("Expected AbsurdFeeRate — the fixture fee rate is above the Dogecoin limit")
+        } catch ExtractTxError.AbsurdFeeRate {
+        } catch {
+            Issue.record("Unexpected error: \(error)")
         }
     }
 
-    @Test
-    func feeFallsBackToUnsignedTransactionRead() throws {
+    @Test("A drain-level fee rate is rejected at the final raw-transaction extraction on both paths", arguments: [false, true])
+    func drainFeeRateIsRejectedAtRawTransactionExtraction(usesBdkDogecoinFeeRateLimit: Bool) {
+        let feeRateLimit = PsbtFeeRateLimit(blockchain: .dogecoin, usesBdkDogecoinFeeRateLimit: usesBdkDogecoinFeeRateLimit)
+
+        do {
+            _ = try BitcoinPsbtSigningBuilder.extractRawTransactionHex(
+                finalizedPsbtBase64: MultiInputPsbtFixture.drainFeeRateTwoInputs.psbtBase64,
+                feeRateLimit: feeRateLimit
+            )
+            Issue.record("Expected AbsurdFeeRate — the fixture fee rate is above the Dogecoin limit")
+        } catch ExtractTxError.AbsurdFeeRate {
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+    }
+
+    @Test("PSBT input values overflowing UInt64 are rejected on both extraction paths", arguments: [false, true])
+    func overflowingInputValuesAreRejected(usesBdkDogecoinFeeRateLimit: Bool) {
+        let feeRateLimit = PsbtFeeRateLimit(blockchain: .dogecoin, usesBdkDogecoinFeeRateLimit: usesBdkDogecoinFeeRateLimit)
+        let psbtBase64 = MultiInputPsbtFixture.overflowingInputValuesTwoInputs.psbtBase64
+        let maxFeeRateReported = ExtractTxError.AbsurdFeeRate(feeRate: 73_786_976_294_838_207)
+
+        #expect(throws: maxFeeRateReported) {
+            try BitcoinPsbtSigningBuilder.fee(psbtBase64: psbtBase64, feeRateLimit: feeRateLimit)
+        }
+        #expect(throws: maxFeeRateReported) {
+            try BitcoinPsbtSigningBuilder.extractRawTransactionHex(finalizedPsbtBase64: psbtBase64, feeRateLimit: feeRateLimit)
+        }
+    }
+
+    @Test("Regular Dogecoin fee is read from the PSBT on both extraction paths", arguments: [false, true])
+    func feeOfRegularDogecoinFeeRate(usesBdkDogecoinFeeRateLimit: Bool) throws {
+        let feeRateLimit = PsbtFeeRateLimit(blockchain: .dogecoin, usesBdkDogecoinFeeRateLimit: usesBdkDogecoinFeeRateLimit)
+
         let fee = try BitcoinPsbtSigningBuilder.fee(psbtBase64: fixture.psbtBase64, feeRateLimit: feeRateLimit)
+
         #expect(fee == 20_000_000)
     }
 
@@ -1282,7 +1333,7 @@ struct BitcoinPsbtAbsurdFeeRateFallbackTests {
         let owned = try BitcoinPsbtSigningBuilder.ownedInputs(
             psbtBase64: fixture.psbtBase64,
             ownerScriptPubKeys: fixture.ownerScriptPubKeys,
-            feeRateLimit: feeRateLimit
+            feeRateLimit: legacyFeeRateLimit
         )
         #expect(owned.map(\.index) == [0, 1])
     }
@@ -1292,7 +1343,7 @@ struct BitcoinPsbtAbsurdFeeRateFallbackTests {
         let sentAmount = try BitcoinPsbtSigningBuilder.sentAmount(
             psbtBase64: fixture.psbtBase64,
             ownerScriptPubKeys: fixture.ownerScriptPubKeys,
-            feeRateLimit: feeRateLimit
+            feeRateLimit: legacyFeeRateLimit
         )
         #expect(sentAmount == 15_000_000_000)
     }
@@ -1328,8 +1379,9 @@ struct BitcoinPsbtAbsurdFeeRateFallbackTests {
         #expect(zeroFeeCopyRaw == plainExtractTxRaw)
     }
 
-    @Test
-    func legacyInputsPipelineMatchesSerializerByteForByte() throws {
+    @Test("Signed legacy-input Dogecoin swap matches the serializer byte for byte on both extraction paths", arguments: [false, true])
+    func legacyInputsPipelineMatchesSerializerByteForByte(usesBdkDogecoinFeeRateLimit: Bool) throws {
+        let feeRateLimit = PsbtFeeRateLimit(blockchain: .dogecoin, usesBdkDogecoinFeeRateLimit: usesBdkDogecoinFeeRateLimit)
         let legacyFixture = MultiInputPsbtFixture.dogecoinLegacyFeeRateTwoInputs
         let legacySignInputs = legacyFixture.inputs.indices.map { BitcoinPsbtSigningBuilder.SignInput(index: $0) }
 
@@ -1389,8 +1441,9 @@ struct BitcoinPsbtAbsurdFeeRateFallbackTests {
         #expect(rawTransactionHex == expectedTransactionHex)
     }
 
-    @Test
-    func fullSigningPipelineMatchesSerializerByteForByte() throws {
+    @Test("Signed segwit-input Dogecoin swap matches the serializer byte for byte on both extraction paths", arguments: [false, true])
+    func fullSigningPipelineMatchesSerializerByteForByte(usesBdkDogecoinFeeRateLimit: Bool) throws {
+        let feeRateLimit = PsbtFeeRateLimit(blockchain: .dogecoin, usesBdkDogecoinFeeRateLimit: usesBdkDogecoinFeeRateLimit)
         let hashes = try BitcoinPsbtSigningBuilder.hashesToSign(
             psbtBase64: fixture.psbtBase64,
             signInputs: signInputs,
@@ -1445,5 +1498,22 @@ struct BitcoinPsbtAbsurdFeeRateFallbackTests {
         let expectedTransactionHex = try serializer.compile(transaction: preImage, signatures: expectedSignatures).hex()
 
         #expect(rawTransactionHex == expectedTransactionHex)
+    }
+}
+
+@Suite("PSBT fee-rate limit per chain")
+struct PsbtFeeRateLimitTests {
+    @Test("Dogecoin takes the BDK fee-rate limit path only with the toggle on")
+    func dogecoinPathFollowsToggle() {
+        #expect(PsbtFeeRateLimit(blockchain: .dogecoin, usesBdkDogecoinFeeRateLimit: true) == .bdkChainLimit(satPerVByte: 1_000_000))
+        #expect(PsbtFeeRateLimit(blockchain: .dogecoin, usesBdkDogecoinFeeRateLimit: false) == .chainOverride(satPerVByte: 1_000_000))
+    }
+
+    @Test(
+        "Other PSBT swap chains keep BDK's default cap with the toggle on",
+        arguments: [BlockchainSdk.Blockchain.bitcoin(testnet: false), .litecoin, .bitcoinCash, .dash(testnet: false)]
+    )
+    func otherChainsKeepBdkDefaultCap(blockchain: BlockchainSdk.Blockchain) {
+        #expect(PsbtFeeRateLimit(blockchain: blockchain, usesBdkDogecoinFeeRateLimit: true) == .bdkDefault)
     }
 }
