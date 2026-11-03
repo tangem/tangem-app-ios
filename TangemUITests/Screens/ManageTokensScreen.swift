@@ -44,6 +44,38 @@ final class ManageTokensScreen: ScreenBase<ManageTokensScreenElement> {
     }
 
     @discardableResult
+    func ensureNetworkEnabled(_ networkName: String) -> Self {
+        XCTContext.runActivity(named: "Ensure network enabled: \(networkName)") { _ in
+            let toggleIdentifier = ManageTokensAccessibilityIdentifiers.networkToggle(networkName)
+            let toggle = app.switches[toggleIdentifier]
+            waitAndAssertTrue(toggle, "Network toggle \(toggleIdentifier) should exist")
+
+            if (toggle.value as? String) == "0" {
+                toggle.waitAndTap()
+            }
+
+            return self
+        }
+    }
+
+    /// Enables the network and taps Save only when it was off; a no-op when it is already enabled, so it stays
+    /// idempotent whether or not the account already holds the network.
+    @discardableResult
+    func enableNetworkAndSaveIfNeeded(_ networkName: String) -> Self {
+        XCTContext.runActivity(named: "Enable \(networkName) and save only if it was off") { _ in
+            let toggle = app.switches[ManageTokensAccessibilityIdentifiers.networkToggle(networkName)]
+            waitAndAssertTrue(toggle, "Network toggle \(networkName) should exist")
+
+            if (toggle.value as? String) == "0" {
+                toggle.waitAndTap()
+                tapSaveButton()
+            }
+
+            return self
+        }
+    }
+
+    @discardableResult
     func longPressNetworkToCopy(_ networkName: String, duration: TimeInterval = 1.0) -> Self {
         XCTContext.runActivity(named: "Long press \(networkName) to copy") { _ in
             let networkRow = app.staticTexts[ManageTokensAccessibilityIdentifiers.networkRow(networkName)]
