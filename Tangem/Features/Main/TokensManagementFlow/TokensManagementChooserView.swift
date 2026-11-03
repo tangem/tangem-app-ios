@@ -18,18 +18,10 @@ struct TokensManagementChooserView: View {
 
     @ObservedObject var viewModel: TokensManagementFlowCoordinator
 
-    // MARK: - Redesign-aware styling
-
-    private var isRedesign: Bool {
-        viewModel.isAddAndOrganizeRedesignEnabled
-    }
+    // MARK: - Styling
 
     private var rowBackgroundColor: Color {
         DesignSystem.Color.bgSecondary
-    }
-
-    private var rowCornerRadius: CGFloat {
-        isRedesign ? Constants.redesignRowCornerRadius : Constants.rowCornerRadius
     }
 
     private var titleColor: Color {
@@ -46,26 +38,15 @@ struct TokensManagementChooserView: View {
 
     // MARK: - View Body
 
-    @ViewBuilder
     var body: some View {
-        if isRedesign {
-            VStack(spacing: 8) {
-                addTokensRow
-                    .background(rowBackground)
+        VStack(spacing: 8) {
+            addTokensRow
+                .background(rowBackground)
 
-                organizeTokensRow
-                    .background(rowBackground)
-            }
-            .padding(.horizontal, Constants.horizontalInset)
-        } else {
-            VStack(spacing: 0) {
-                addTokensRow
-
-                organizeTokensRow
-            }
-            .background(rowBackground)
-            .padding(.horizontal, Constants.horizontalInset)
+            organizeTokensRow
+                .background(rowBackground)
         }
+        .padding(.horizontal, Constants.horizontalInset)
     }
 
     // MARK: - Sub Views
@@ -91,17 +72,8 @@ struct TokensManagementChooserView: View {
     }
 
     private var rowBackground: some View {
-        RoundedRectangle(cornerRadius: rowCornerRadius, style: .continuous)
+        RoundedRectangle(cornerRadius: Constants.rowCornerRadius, style: .continuous)
             .fill(rowBackgroundColor)
-    }
-
-    @ViewBuilder
-    private func styledText(_ string: String, token: TangemTypographyToken, legacyFont: Font, color: Color) -> some View {
-        if isRedesign {
-            Text(string).style(token, color: color)
-        } else {
-            Text(string).style(legacyFont, color: color)
-        }
     }
 
     private func row(icon: ImageType, title: String, subtitle: String, action: @escaping () -> Void) -> some View {
@@ -110,18 +82,18 @@ struct TokensManagementChooserView: View {
                 iconView(icon: icon)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    styledText(title, token: DesignSystem.Font.bodyMediumToken, legacyFont: Fonts.Bold.subheadline, color: titleColor)
+                    Text(title)
+                        .style(DesignSystem.Font.bodyMediumToken, color: titleColor)
                         .multilineTextAlignment(.leading)
 
-                    styledText(subtitle, token: DesignSystem.Font.captionMediumToken, legacyFont: Fonts.Regular.caption1, color: subtitleColor)
+                    Text(subtitle)
+                        .style(DesignSystem.Font.captionMediumToken, color: subtitleColor)
                         .multilineTextAlignment(.leading)
                 }
 
                 Spacer(minLength: 0)
 
-                if isRedesign {
-                    chevronView
-                }
+                chevronView
             }
             .padding(.vertical, 16)
             .padding(.horizontal, 14)
@@ -160,8 +132,7 @@ private extension TokensManagementChooserView {
         static let iconContainerSize: CGFloat = 36
         static let iconCornerRadius: CGFloat = 18
         static let iconSize: CGFloat = 24
-        static let rowCornerRadius: CGFloat = 14
-        static let redesignRowCornerRadius: CGFloat = 24
+        static let rowCornerRadius: CGFloat = 24
         static let horizontalInset: CGFloat = 16
     }
 }
