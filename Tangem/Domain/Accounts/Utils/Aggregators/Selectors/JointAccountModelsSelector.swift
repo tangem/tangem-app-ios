@@ -46,12 +46,14 @@ extension JointAccountModelsSelector {
         /// Still being put together: slots left to take, or the address announced and its members yet to confirm it.
         case pending
         case active
+        case untrusted
 
         func isMatching(status: JointAccountStatus) -> Bool {
             switch self {
             case .all: true
             case .pending: status.isPending || status.isConfirming
             case .active: status.isActive
+            case .untrusted: status.isUntrusted
             }
         }
     }

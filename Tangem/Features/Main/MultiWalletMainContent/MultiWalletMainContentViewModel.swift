@@ -18,6 +18,7 @@ import TangemMobileWalletSdk
 import TangemVisa
 import BlockchainSdk
 import struct TangemUIUtils.AlertBinder
+import struct SwiftUI.Text
 import TangemPay
 
 final class MultiWalletMainContentViewModel: ObservableObject {
@@ -41,6 +42,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published private(set) var collectiblesAccountViewModel: AccountRowButtonViewModel?
 
     @Published private(set) var pendingJointAccountViewModels: [PendingJointAccountItemViewModel] = []
+    @Published private(set) var pausedJointAccountViewModels: [PausedJointAccountItemViewModel] = []
     @Published private(set) var pendingJointAccountsOperationsViewData: [JointAccountOperationPlate.ViewData] = []
 
     @Published private(set) var isScannerBusy = false
@@ -357,6 +359,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         bindPolymarketAccountRow()
         bindCollectiblesAccountRow()
         bindPendingJointAccountPlates()
+        bindPausedJointAccountPlates()
         bindPendingJointAccountOperationPlates()
     }
 
@@ -491,6 +494,50 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             }
             .receiveOnMain()
             .assign(to: &$pendingJointAccountViewModels)
+    }
+
+    private func bindPausedJointAccountPlates() {
+        AccountModelsAggregator(.joint(.untrusted))
+            .modelsPublisher(from: userWalletModel.accountModelsManager)
+            .removeDuplicates { $0.elementsEqual($1, by: ===) }
+            .withWeakCaptureOf(self)
+            .map { viewModel, pausedJointAccounts in
+                pausedJointAccounts.map { pausedJointAccount in
+                    PausedJointAccountItemViewModel(jointAccount: pausedJointAccount) { [weak viewModel] in
+                        viewModel?.showPausedJointAccountAlert()
+                    }
+                }
+            }
+            .receiveOnMain()
+            .assign(to: &$pausedJointAccountViewModels)
+    }
+
+    private func showPausedJointAccountAlert() {
+        error = AlertBuilder.makeAlert(
+            title: Localization.jointAccountCompromisedTitle,
+            message: Localization.jointAccountCompromisedMessage,
+            primaryButton: .default(Text(Localization.commonContactSupport)) { [weak self] in
+                self?.openPausedJointAccountSupport()
+            },
+            secondaryButton: .cancel()
+        )
+    }
+
+    private func openPausedJointAccountSupport() {
+        let dataCollector = DetailsFeedbackDataCollector(
+            data: [
+                .init(
+                    userWalletEmailData: userWalletModel.emailData,
+                    walletModels: AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
+                ),
+            ]
+        )
+
+        coordinator?.openMail(
+            with: dataCollector,
+            emailType: .appFeedback(subject: EmailConfig.default.subject),
+            recipient: EmailConfig.default.recipient
+        )
     }
 
     private func bindPendingJointAccountOperationPlates() {
