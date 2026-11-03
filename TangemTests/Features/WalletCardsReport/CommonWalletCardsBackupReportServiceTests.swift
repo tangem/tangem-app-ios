@@ -140,7 +140,7 @@ struct CommonWalletCardsBackupReportServiceTests {
 
             let card = try #require(repository.observedSavedCards.first)
             #expect(card.backupStatus == .cardLinked)
-            #expect(card.role == .primary)
+            #expect(card.role == nil)
             #expect(repository.observedSavedCards.count == 1)
             withExtendedLifetime(service) {}
         }

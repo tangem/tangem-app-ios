@@ -20,7 +20,7 @@ struct CommonWalletCardsBackupReportRepositoryTests {
     func repeatedSignInsKeepOnePendingReport() async throws {
         try await withRepository { repository, storage in
             repository.store(card: makeCard(identity: Constants.identity), primaryCardId: Constants.primaryCardId, error: nil)
-            let card = makeSavedCard(id: Constants.backupCardId, role: nil)
+            let card = makeSavedCard(id: Constants.backupCardId)
             repository.storePreviouslySavedCardIfNeeded(card)
             repository.storePreviouslySavedCardIfNeeded(card)
             _ = repository.oldestPendingReport
@@ -118,7 +118,7 @@ struct CommonWalletCardsBackupReportRepositoryTests {
             #expect(stored.cards[Constants.primaryCardId]?.identity == newerIdentity)
             #expect(stored.pendingReports.last?.userWalletId == Constants.userWalletId)
             #expect(stored.pendingReports.last?.cards.first?.backupStatus == .cardLinked)
-            #expect(stored.pendingReports.last?.cards.first?.role == .primary)
+            #expect(stored.pendingReports.last?.cards.first?.role == nil)
         }
     }
 
@@ -282,7 +282,7 @@ private extension CommonWalletCardsBackupReportRepositoryTests {
 
     func makeSavedCard(
         id: String = Constants.primaryCardId,
-        role: WalletCardsBackupCard.Role? = .primary
+        role: WalletCardsBackupCard.Role? = nil
     ) -> WalletCardsCurrentlyProcessedCard {
         WalletCardsCurrentlyProcessedCard(
             cardId: id,

@@ -54,7 +54,7 @@ private extension WalletCardsSavedCardsCollector {
         return WalletCardsCurrentlyProcessedCard(
             cardId: card.cardId,
             cardPublicKey: card.cardPublicKey,
-            role: .primary,
+            role: nil,
             identity: .filled(userWalletId: model.userWalletId.stringValue, isImported: model.hasImportedWallets),
             curves: card.walletCurves,
             backupStatus: .cardLinked
