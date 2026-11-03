@@ -141,6 +141,8 @@ enum TransactionDetailsMenuFactory {
         switch record.historyExtraInfo {
         case .express(let expressExtraInfo):
             return expressExtraInfo.txId
+        case .jointOperation(let info) where JointOperationSyntheticTxHelper.isSyntheticIdentifier(record.hash):
+            return info.groupingId
         case .jointOperation, nil:
             return record.hash
         }
@@ -177,7 +179,10 @@ enum TransactionDetailsMenuFactory {
     }
 
     private static func onChainHash(for record: TransactionRecord) -> String? {
-        ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash) ? nil : record.hash
+        let isSynthetic = ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash)
+            || JointOperationSyntheticTxHelper.isSyntheticIdentifier(record.hash)
+
+        return isSynthetic ? nil : record.hash
     }
 
     // MARK: - Explore

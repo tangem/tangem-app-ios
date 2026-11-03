@@ -69,7 +69,9 @@ class CommonWalletModel {
                 walletModelId: id,
                 walletPublisher: walletManager.walletPublisher,
                 tokenItem: tokenItem,
-                feeTokenItem: feeTokenItem
+                feeTokenItem: feeTokenItem,
+                transactionHistoryFetcher: _transactionHistoryService,
+                isJointAccountsAvailable: FeatureProvider.isAvailable(.jointAccounts)
             )
             .share(replay: 1)
             .eraseToAnyPublisher()

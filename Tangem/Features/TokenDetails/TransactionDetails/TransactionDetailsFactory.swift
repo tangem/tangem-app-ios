@@ -851,6 +851,7 @@ enum TransactionDetailsFactory {
             record.isOutgoing || ignoringDirection,
             // Hide network fee for synthetic Express records
             !ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash),
+            !(JointOperationSyntheticTxHelper.isSyntheticIdentifier(record.hash) && record.fee.amount.isZero),
             !(GaslessTransactionFeeMatcher.isExecutorCall(record.type) && record.fee.amount.type == .coin),
             !GaslessTransactionFeeMatcher.isFeeCoveredByTronResources(of: record, on: blockchain)
         else {
