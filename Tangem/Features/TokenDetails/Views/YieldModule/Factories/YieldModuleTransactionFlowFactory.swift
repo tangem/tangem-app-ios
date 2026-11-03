@@ -12,6 +12,7 @@ final class YieldModuleTransactionFlowFactory {
     private let walletModel: any WalletModel
     private let yieldManagerInteractor: YieldManagerInteractor
     private let claimInteractor: YieldIncentivesClaimInteractor?
+    private let gaslessFeeService: YieldGaslessFeeService?
     private let logger: YieldAnalyticsLogger
     private let signingActionButtonType: SigningActionButtonViewType
     private weak var coordinator: YieldModuleActiveCoordinator?
@@ -22,6 +23,7 @@ final class YieldModuleTransactionFlowFactory {
         walletModel: any WalletModel,
         yieldManagerInteractor: YieldManagerInteractor,
         claimInteractor: YieldIncentivesClaimInteractor?,
+        gaslessFeeService: YieldGaslessFeeService? = nil,
         logger: YieldAnalyticsLogger,
         signingActionButtonType: SigningActionButtonViewType,
         coordinator: YieldModuleActiveCoordinator? = nil
@@ -29,6 +31,7 @@ final class YieldModuleTransactionFlowFactory {
         self.walletModel = walletModel
         self.yieldManagerInteractor = yieldManagerInteractor
         self.claimInteractor = claimInteractor
+        self.gaslessFeeService = gaslessFeeService
         self.logger = logger
         self.signingActionButtonType = signingActionButtonType
         self.coordinator = coordinator
@@ -37,11 +40,17 @@ final class YieldModuleTransactionFlowFactory {
     // MARK: - Public Implementation
 
     func makeTransactionViewModel(action: YieldModuleAction) -> YieldModuleTransactionViewModel {
-        YieldModuleTransactionViewModel(
+        let actionGaslessFeeService: YieldGaslessFeeService? = switch action {
+        case .stop: gaslessFeeService
+        case .approve: nil
+        }
+
+        return YieldModuleTransactionViewModel(
             action: action,
             walletModel: walletModel,
             coordinator: coordinator,
             yieldManagerInteractor: yieldManagerInteractor,
+            gaslessFeeService: actionGaslessFeeService,
             notificationManager: YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem),
             logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId),
             signingActionButtonType: signingActionButtonType

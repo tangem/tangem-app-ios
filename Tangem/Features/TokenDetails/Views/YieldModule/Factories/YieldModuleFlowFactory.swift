@@ -51,8 +51,9 @@ final class CommonYieldModuleFlowFactory {
         isApyBoostPromo: Bool,
         coordinator: YieldModulePromoCoordinator
     ) -> YieldModulePromoViewModel {
-        let interactor = makeInteractor()
-        let startFlowFactory = makeStartFlowFactory(coordinator: coordinator, interactor: interactor)
+        let gaslessFeeService = makeGaslessFeeService(transactionReleasesSourceToken: false)
+        let interactor = makeInteractor(gaslessFeeService: gaslessFeeService)
+        let startFlowFactory = makeStartFlowFactory(coordinator: coordinator, interactor: interactor, gaslessFeeService: gaslessFeeService)
 
         return YieldModulePromoViewModel(
             walletModel: walletModel,
@@ -70,8 +71,9 @@ final class CommonYieldModuleFlowFactory {
         apy: Decimal,
         coordinator: YieldModulePromoCoordinator
     ) -> YieldModulePromoV2ViewModel {
-        let interactor = makeInteractor()
-        let startFlowFactory = makeStartFlowFactory(coordinator: coordinator, interactor: interactor)
+        let gaslessFeeService = makeGaslessFeeService(transactionReleasesSourceToken: false)
+        let interactor = makeInteractor(gaslessFeeService: gaslessFeeService)
+        let startFlowFactory = makeStartFlowFactory(coordinator: coordinator, interactor: interactor, gaslessFeeService: gaslessFeeService)
 
         return YieldModulePromoV2ViewModel(
             walletModel: walletModel,
@@ -86,7 +88,8 @@ final class CommonYieldModuleFlowFactory {
 
     private func makeYieldModuleActiveViewModel(coordinator: YieldModuleActiveCoordinator) -> YieldModuleActiveViewModel {
         let claimInteractor = makeClaimInteractor()
-        let interactor = makeInteractor(claimInteractor: claimInteractor)
+        let gaslessFeeService = makeGaslessFeeService(transactionReleasesSourceToken: true)
+        let interactor = makeInteractor(claimInteractor: claimInteractor, gaslessFeeService: gaslessFeeService)
 
         return YieldModuleActiveViewModel(
             walletModel: walletModel,
@@ -94,7 +97,8 @@ final class CommonYieldModuleFlowFactory {
             transactionFlowFactory: makeTransactionFlowFactory(
                 coordinator: coordinator,
                 interactor: interactor,
-                claimInteractor: claimInteractor
+                claimInteractor: claimInteractor,
+                gaslessFeeService: gaslessFeeService
             ),
             yieldManagerInteractor: interactor,
             marketInfoPublisher: yieldModuleManager.marketInfoPublisher,
@@ -106,10 +110,15 @@ final class CommonYieldModuleFlowFactory {
 
     // MARK: - Factories
 
-    private func makeStartFlowFactory(coordinator: YieldModulePromoCoordinator, interactor: YieldManagerInteractor) -> YieldStartFlowFactory {
+    private func makeStartFlowFactory(
+        coordinator: YieldModulePromoCoordinator,
+        interactor: YieldManagerInteractor,
+        gaslessFeeService: YieldGaslessFeeService?
+    ) -> YieldStartFlowFactory {
         YieldStartFlowFactory(
             walletModel: walletModel,
             yieldManagerInteractor: interactor,
+            gaslessFeeService: gaslessFeeService,
             coordinator: coordinator,
             logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId),
             signingActionButtonType: SigningActionButtonViewTypeBuilder().build(userWalletInfo: userWalletInfo)
@@ -119,12 +128,14 @@ final class CommonYieldModuleFlowFactory {
     private func makeTransactionFlowFactory(
         coordinator: YieldModuleActiveCoordinator,
         interactor: YieldManagerInteractor,
-        claimInteractor: YieldIncentivesClaimInteractor?
+        claimInteractor: YieldIncentivesClaimInteractor?,
+        gaslessFeeService: YieldGaslessFeeService?
     ) -> YieldModuleTransactionFlowFactory {
         YieldModuleTransactionFlowFactory(
             walletModel: walletModel,
             yieldManagerInteractor: interactor,
             claimInteractor: claimInteractor,
+            gaslessFeeService: gaslessFeeService,
             logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId),
             signingActionButtonType: SigningActionButtonViewTypeBuilder().build(userWalletInfo: userWalletInfo),
             coordinator: coordinator
@@ -133,11 +144,48 @@ final class CommonYieldModuleFlowFactory {
 
     // MARK: - Interactor
 
-    private func makeInteractor(claimInteractor: YieldIncentivesClaimInteractor? = nil) -> YieldManagerInteractor {
+    private func makeInteractor(
+        claimInteractor: YieldIncentivesClaimInteractor? = nil,
+        gaslessFeeService: YieldGaslessFeeService? = nil
+    ) -> YieldManagerInteractor {
         YieldManagerInteractor(
             transactionDispatcher: transactionDispatcher,
             manager: yieldModuleManager,
-            claimInteractor: claimInteractor
+            claimInteractor: claimInteractor,
+            gaslessFeeService: gaslessFeeService
+        )
+    }
+
+    private func makeGaslessFeeService(transactionReleasesSourceToken: Bool) -> YieldGaslessFeeService? {
+        guard FeatureProvider.isAvailable(.yieldModeGasless),
+              walletModel.tokenItem.blockchain.isGaslessTransactionSupported,
+              !walletModel.isDemo,
+              !walletModel.isJointAccountParticipant else {
+            return nil
+        }
+
+        let signer = userWalletInfo.signerFactory.makeSigner()
+        let transactionSender = YieldGaslessTransactionDispatcher(
+            walletModel: walletModel,
+            gaslessTransactionSender: GaslessTransactionSender(
+                walletModel: walletModel,
+                transactionSigner: signer,
+                gaslessTransactionBuilder: GaslessTransactionBuilder(walletModel: walletModel, signer: signer)
+            ),
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
+        )
+
+        let tokenFeeProvidersManagerProvider = WalletModelTokenFeeProvidersManagerProvider(
+            walletModel: walletModel,
+            supportingOptions: .exactly([.market]),
+            transactionReleasesSourceToken: transactionReleasesSourceToken,
+            providerSwitching: .untilUserSelection
+        )
+
+        return YieldGaslessFeeService(
+            coinFeeTokenItem: walletModel.feeTokenItem,
+            transactionSender: transactionSender,
+            makeTokenFeeProvidersManager: tokenFeeProvidersManagerProvider.makeTokenFeeProvidersManager
         )
     }
 

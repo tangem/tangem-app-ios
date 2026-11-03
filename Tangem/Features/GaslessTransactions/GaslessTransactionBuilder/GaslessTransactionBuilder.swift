@@ -498,6 +498,97 @@ extension GaslessTransactionBuilder {
     }
 }
 
+// MARK: - Batch of calls flow
+
+extension GaslessTransactionBuilder {
+    func buildGaslessBatchTransaction(
+        bsdkTransactions: [BSDKTransaction],
+        batchFee: BSDKFee,
+        feeRecipientAddress: String
+    ) async throws -> GaslessBatchTransaction {
+        guard let chainId = walletModel.tokenItem.blockchain.chainId else {
+            throw GaslessTransactionBuilderError.missingChainId
+        }
+
+        let (parameters, _) = try gaslessFeeParameters(from: batchFee)
+        let eip7702Data = try await getEIP7702Data()
+
+        guard eip7702Data.executorVersion == .batchCapable else {
+            throw GaslessTransactionBuilderError.batchUnsupportedByExecutorVersion
+        }
+
+        var transactions: [TransactionData.Transaction] = []
+
+        for bsdkTransaction in bsdkTransactions {
+            let gasLimit = try callGasLimit(of: bsdkTransaction, executorVersion: eip7702Data.executorVersion)
+            transactions.append(try await makeTransaction(from: bsdkTransaction, gasLimit: gasLimit))
+        }
+
+        let feeData = try await makeGaslessTransactionFee(bsdkFee: batchFee, feeRecipientAddress: feeRecipientAddress)
+
+        if let yieldWithdraw = parameters.yieldWithdraw {
+            var batchHandlesUpgrade = false
+
+            if let moduleCallIndex = transactions.firstIndex(where: { $0.to.caseInsensitiveEquals(to: yieldWithdraw.yieldContractAddress) }) {
+                let (moduleCall, handlesUpgrade) = try makeUpgradeWrappedYieldTransactionIfNeeded(
+                    transactions[moduleCallIndex],
+                    yieldWithdraw: yieldWithdraw
+                )
+
+                transactions[moduleCallIndex] = moduleCall
+                batchHandlesUpgrade = handlesUpgrade
+            }
+
+            transactions.append(
+                try makeYieldWithdrawTransaction(
+                    bsdkFee: batchFee,
+                    fee: feeData,
+                    yieldWithdraw: yieldWithdraw,
+                    shouldWrapUpgrade: !batchHandlesUpgrade
+                )
+            )
+        }
+
+        let smartContractNonce = try await getSmartContractNonce(address: walletModel.defaultAddressString)
+        let transactionData = BatchTransactionData(transactions: transactions, fee: feeData, nonce: smartContractNonce)
+
+        let signedData = try await makeSignedGaslessBatchData(
+            transactions: transactions,
+            fee: feeData,
+            chainId: chainId,
+            smartContractNonce: smartContractNonce,
+            eip7702Data: eip7702Data
+        )
+
+        return GaslessBatchTransaction(
+            gaslessTransaction: transactionData,
+            signature: signedData.eip712Signature,
+            userAddress: walletModel.defaultAddressString,
+            chainId: chainId,
+            eip7702auth: .init(
+                chainId: signedData.eip7702Auth.chainId,
+                address: signedData.eip7702Auth.address,
+                nonce: signedData.eip7702Auth.nonce,
+                yParity: signedData.eip7702Auth.yParity,
+                r: signedData.eip7702Auth.r,
+                s: signedData.eip7702Auth.s
+            )
+        )
+    }
+
+    private func callGasLimit(of bsdkTransaction: BSDKTransaction, executorVersion: GaslessExecutorVersion) throws -> String? {
+        guard executorVersion.requiresCallGasLimit else {
+            return nil
+        }
+
+        guard let parameters = bsdkTransaction.fee.parameters as? EthereumFeeParameters else {
+            throw GaslessTransactionBuilderError.missingCallGasLimit
+        }
+
+        return parameters.gasLimit.description
+    }
+}
+
 extension GaslessTransactionBuilder {
     enum GaslessTransactionBuildResult {
         case single(GaslessTransaction, executorVersion: GaslessExecutorVersion)
