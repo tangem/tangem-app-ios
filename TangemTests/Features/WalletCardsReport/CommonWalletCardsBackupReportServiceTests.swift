@@ -17,6 +17,33 @@ import TangemNetworkUtils
 
 @Suite("CommonWalletCardsBackupReportService", .timeLimit(.minutes(1)))
 struct CommonWalletCardsBackupReportServiceTests {
+    @Test("A queued card with an unknown role is sent without inventing a primary role")
+    func queuedUnknownRoleIsOmitted() async throws {
+        let card = WalletCardsBackupCard(
+            cardId: "AC01000000000001",
+            cardPublicKey: Data(repeating: 0x02, count: 33),
+            identity: .filled(userWalletId: Constants.firstWalletId, isImported: false),
+            role: nil,
+            backupStatus: .cardLinked,
+            curves: [.secp256k1],
+            errorCode: nil,
+            errorMessage: nil
+        )
+        let environment = DeliveryEnvironment(userWalletIds: [Constants.firstWalletId], cards: [card])
+
+        try await environment.run {
+            try await environment.repository.waitUntilDrained()
+        }
+
+        let request = try #require(environment.sentRequests.first)
+        let data = try JSONEncoder().encode(request)
+        let body = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let cards = try #require(body["cards"] as? [[String: Any]])
+        let sentCard = try #require(cards.first)
+        #expect(sentCard["role"] == nil)
+        #expect(sentCard["backupStatus"] as? String == "cardLinked")
+    }
+
     @Test("Pending reports are sent oldest first")
     func pendingReportsAreSentOldestFirst() async throws {
         let environment = DeliveryEnvironment(userWalletIds: [Constants.firstWalletId, Constants.secondWalletId, Constants.thirdWalletId])
@@ -77,20 +104,26 @@ private final class DeliveryEnvironment {
 
     private let apiService = FakeTangemApiService()
     private let attempts = CurrentValueSubject<[String], Never>([])
+    private let requests = CurrentValueSubject<[WalletCardsDTO.Request], Never>([])
 
     var attemptedWalletIds: [String] {
         attempts.value
     }
 
-    init(userWalletIds: [String], firstAttemptStatusCode: Int? = nil) {
+    var sentRequests: [WalletCardsDTO.Request] {
+        requests.value
+    }
+
+    init(userWalletIds: [String], firstAttemptStatusCode: Int? = nil, cards: [WalletCardsBackupCard] = []) {
         repository = WalletCardsBackupReportRepositoryStub(
             pendingReports: userWalletIds.map {
-                WalletCardsWaitingDeliveryBackupCards(id: UUID(), userWalletId: $0, isImported: false, cards: [])
+                WalletCardsWaitingDeliveryBackupCards(id: UUID(), userWalletId: $0, isImported: false, cards: cards)
             }
         )
 
-        apiService.saveWalletCardsHandler = { [attempts] userWalletId, _ in
+        apiService.saveWalletCardsHandler = { [attempts, requests] userWalletId, request in
             attempts.send(attempts.value + [userWalletId])
+            requests.send(requests.value + [request])
 
             if let firstAttemptStatusCode, attempts.value.count == 1 {
                 throw MoyaError.statusCode(Response(statusCode: firstAttemptStatusCode, data: Data()))

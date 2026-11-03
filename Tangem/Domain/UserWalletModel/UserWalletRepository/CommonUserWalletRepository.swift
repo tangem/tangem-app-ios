@@ -27,6 +27,8 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private var tangemPayRecentOperationsStore: TangemPayRecentOperationsStore
     @Injected(\.tangemPayPendingWithdrawExchangesStore)
     private var tangemPayPendingWithdrawExchangesStore: TangemPayPendingWithdrawExchangesStore
+    @Injected(\.walletCardsBackupReportService)
+    private var walletCardsBackupReportService: WalletCardsBackupReportService
 
     var shouldLockOnBackground: Bool {
         if isLocked {
@@ -153,6 +155,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
 
         select(userWalletId: userWalletModel.userWalletId)
         save(userWalletModel: userWalletModel)
+        walletCardsBackupReportService.reportAddedWalletCard(userWalletModel: userWalletModel)
 
         if isLocked {
             unlockInternal()

@@ -54,6 +54,32 @@ struct CommonWalletCardsBackupReportRepositoryTests {
         #expect(backupCard?.errorCode == error.code)
         #expect(backupCard?.errorMessage == error.localizedDescription)
     }
+
+    @Test("An unknown role doesn't carry over when a card moves to another wallet")
+    func newWalletDoesNotInheritRole() async throws {
+        let newIdentity = WalletCardsBackupCard.Identity.filled(userWalletId: "wallet-b", isImported: false)
+        let pending = try await pendingCards { repository in
+            repository.store(card: makeCard(identity: Constants.identity), primaryCardId: Constants.primaryCardId, error: nil)
+            repository.store(card: makeCard(role: nil, identity: newIdentity), primaryCardId: Constants.primaryCardId, error: nil)
+        }
+
+        let report = try #require(pending.last)
+        let card = try #require(report.cards.first)
+        #expect(report.userWalletId == "wallet-b")
+        #expect(card.role == nil)
+    }
+
+    @Test("An unknown role preserves the known role within the same wallet")
+    func sameWalletKeepsRole() async throws {
+        let pending = try await pendingCards { repository in
+            repository.store(card: makeCard(identity: Constants.identity), primaryCardId: Constants.primaryCardId, error: error)
+            repository.store(card: makeCard(role: nil, identity: Constants.identity), primaryCardId: Constants.primaryCardId, error: nil)
+        }
+
+        let report = try #require(pending.last)
+        let card = try #require(report.cards.first)
+        #expect(card.role == .primary)
+    }
 }
 
 // MARK: - Helpers
@@ -78,7 +104,7 @@ private extension CommonWalletCardsBackupReportRepositoryTests {
 
     func makeCard(
         id: String = Constants.primaryCardId,
-        role: WalletCardsBackupCard.Role = .primary,
+        role: WalletCardsBackupCard.Role? = .primary,
         identity: WalletCardsBackupCard.Identity?
     ) -> WalletCardsCurrentlyProcessedCard {
         WalletCardsCurrentlyProcessedCard(
