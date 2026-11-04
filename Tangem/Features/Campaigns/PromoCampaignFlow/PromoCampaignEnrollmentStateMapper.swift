@@ -15,6 +15,15 @@ struct PromoCampaignEnrollmentStateMapper {
         self.userWalletModels = userWalletModels
     }
 
+    func mapToEntry(campaignId: Int, settlement: PromoCampaignsSettlement) -> Entry {
+        switch settlement {
+        case .loaded(let campaigns):
+            return mapToEntry(campaignId: campaignId, campaigns: campaigns)
+        case .failed:
+            return .precheck(.temporarilyUnavailable)
+        }
+    }
+
     func mapToEntry(campaignId: Int, campaigns: [PromoCampaign]) -> Entry {
         guard let campaign = campaigns.first(where: { $0.id == campaignId }) else {
             return .precheck(.campaignUnavailable)

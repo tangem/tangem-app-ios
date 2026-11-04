@@ -415,6 +415,7 @@ struct DeeplinkNavigationActionTests {
         "A campaigns link takes the id it carries, if any",
         arguments: [
             ("tangem://campaigns?campaignId=whale-swap-cashback", DeeplinkNavigationAction.campaigns(CampaignsDeeplink(campaignId: "whale-swap-cashback"))),
+            ("tangem://campaigns?campaignId=5", .campaigns(CampaignsDeeplink(campaignId: "5"))),
             ("tangem://campaigns", .campaigns(CampaignsDeeplink(campaignId: nil))),
             ("tangem://campaigns?campaignId=", .campaigns(CampaignsDeeplink(campaignId: nil))),
         ]

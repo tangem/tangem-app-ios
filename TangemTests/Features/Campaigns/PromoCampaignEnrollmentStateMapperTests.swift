@@ -69,6 +69,30 @@ struct PromoCampaignEnrollmentStateMapperTests {
         }
     }
 
+    @Test("Campaigns that failed to load ask to try again later instead of calling the campaign unavailable")
+    func failedLoadIsTemporarilyUnavailable() {
+        let entry = makeSUT().mapToEntry(campaignId: 7, settlement: .failed)
+
+        guard case .precheck(.temporarilyUnavailable) = entry else {
+            Issue.record("Expected the temporarily unavailable pre-check, got \(entry)")
+            return
+        }
+    }
+
+    @Test("Loaded campaigns are matched by id as before")
+    func loadedSettlementMatchesCampaign() {
+        let campaign = PromoCampaignFixtures.makeCampaign(id: 7)
+
+        let entry = makeSUT().mapToEntry(campaignId: 7, settlement: .loaded([campaign]))
+
+        guard case .campaign(let shownCampaign) = entry else {
+            Issue.record("Expected the campaign sheet, got \(entry)")
+            return
+        }
+
+        #expect(shownCampaign == campaign)
+    }
+
     // MARK: - Result
 
     @Test("Enrolled reports the campaign name and how many wallets joined")
