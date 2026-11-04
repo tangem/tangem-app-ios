@@ -43,6 +43,7 @@ enum Feature: String, Hashable, CaseIterable {
     case promoPage
     case dogecoinPsbtBdkFeeRateLimit
     case walletCardsBackupReportWithoutRole
+    case walletLinking
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -81,6 +82,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .promoPage: return "[REDACTED_INFO]_promo_page"
         case .dogecoinPsbtBdkFeeRateLimit: return "[REDACTED_INFO]_dogecoin_psbt_bdk_fee_rate_limit"
         case .walletCardsBackupReportWithoutRole: return "[REDACTED_INFO]_card_backups_without_role"
+        case .walletLinking: return "[REDACTED_INFO]_wallet_linking"
         }
     }
 
@@ -119,6 +121,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .promoPage: return .unspecified
         case .dogecoinPsbtBdkFeeRateLimit: return .unspecified
         case .walletCardsBackupReportWithoutRole: return .version("6.7")
+        case .walletLinking: return .unspecified
         }
     }
 }
