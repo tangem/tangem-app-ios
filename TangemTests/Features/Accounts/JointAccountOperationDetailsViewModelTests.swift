@@ -93,6 +93,14 @@ struct JointAccountOperationDetailsViewModelTests {
         #expect(poller.activeRequestsCount == 0)
     }
 
+    @Test("An operation still collecting signatures is titled Send in the sheet")
+    func awaitingSignaturesOperationIsTitledSend() {
+        let viewModel = makeViewModel()
+
+        #expect(viewModel.content.status == .awaitingSignatures)
+        #expect(viewModel.header.title == Localization.commonSend)
+    }
+
     @Test("An operation being sent can no longer be signed", .timeLimit(.minutes(1)))
     func sendingOperationCannotBeSigned() async throws {
         let viewModel = makeViewModel()

@@ -119,7 +119,8 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
 
     private var headerTitle: String {
         switch content.status {
-        case .awaitingSignatures, .sending, .sent, .failed:
+        case .awaitingSignatures: Localization.commonSend
+        case .sending, .sent, .failed:
             TransactionDisplayModel.title(
                 transactionType: .transfer,
                 status: headerIconStatus,
@@ -127,8 +128,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
                 isFromYieldContract: false,
                 legacyName: Localization.commonTransfer,
                 subtitleOwner: recipientState.owner,
-                isTangemPayCounterparty: false,
-                isPendingSignature: content.status == .awaitingSignatures
+                isTangemPayCounterparty: false
             ).fullText
         // [REDACTED_TODO_COMMENT]
         case .cancelled: Localization.expressExchangeStatusCanceled
