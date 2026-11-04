@@ -24,6 +24,8 @@ protocol CollectiblesVaultUsdcAccountProvider: AnyObject {
 protocol CollectiblesRelinkStatusProvider: AnyObject {
     var isRelinkRequiredPublisher: AnyPublisher<Bool, Never> { get }
     var isRelinkingPublisher: AnyPublisher<Bool, Never> { get }
+
+    func refreshStateSilently() async
 }
 
 protocol CollectiblesDepositAwaiter: AnyObject {
@@ -32,6 +34,9 @@ protocol CollectiblesDepositAwaiter: AnyObject {
 
 protocol CollectiblesPurchaseSigner: AnyObject {
     var purchaseAddresses: CollectiblesPurchaseAddresses? { get }
+    var isRelinkRequired: Bool { get }
+
+    func resolveRelinkRequirement() async throws -> Bool
 
     func signPurchase(
         _ purchase: CollectiblesPackPurchase,

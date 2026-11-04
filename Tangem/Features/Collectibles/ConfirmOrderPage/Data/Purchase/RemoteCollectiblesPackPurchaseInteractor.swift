@@ -56,6 +56,10 @@ extension RemoteCollectiblesPackPurchaseInteractor: CollectiblesPackPurchaseInte
         activePurchase?.machineID == machineID || pendingOrder?.machineID == machineID
     }
 
+    func isPurchaseLocked(machineID: String) -> Bool {
+        !hasUnfinishedPurchase(machineID: machineID) && signer.isRelinkRequired
+    }
+
     func purchase(
         machineID: String,
         price: Decimal,
@@ -228,6 +232,12 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
             }
         }
 
+        let isRelinkRequired = try await signer.resolveRelinkRequirement()
+
+        guard !isRelinkRequired else {
+            throw CollectiblesPackPurchaseError.relinkRequired
+        }
+
         guard let addresses = signer.purchaseAddresses else {
             throw CollectiblesPackPurchaseError.accountNotReady
         }
@@ -245,7 +255,19 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
             throw CollectiblesPackPurchaseError.lowInventory
         }
         let confirmedPrice = try CollectiblesConfirmedPrice(price: price, platformFee: platformFee)
-        let signedPurchase = try await signer.signPurchase(generated.purchase, confirmedPrice: confirmedPrice)
+        let signedPurchase: CollectiblesSignedPurchase
+
+        do {
+            signedPurchase = try await signer.signPurchase(generated.purchase, confirmedPrice: confirmedPrice)
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            guard try await isRelinkRequiredNow(txID: generated.txID) else {
+                throw error
+            }
+
+            throw CollectiblesPackPurchaseError.relinkRequired
+        }
 
         let order = Order(machineID: machineID, txID: generated.txID, signedPurchase: signedPurchase, stage: .signed)
         pendingOrder = order
@@ -271,9 +293,30 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
             switch error {
             case .transactionExpired, .outcomeUnknown:
                 CollectiblesLogger.info("Collectibles purchase \(order.txID) send outcome is unknown, the backend status decides")
-            case .rejected:
-                throw error
+            case .rejected(let rejection):
+                guard rejection as? CollectiblesProgramRejection == .unauthorized else {
+                    throw error
+                }
+
+                pendingOrder = nil
+                try await refreshRelinkState(txID: order.txID)
+                throw CollectiblesPackPurchaseError.relinkRequired
             }
+        }
+    }
+
+    func refreshRelinkState(txID: String) async throws {
+        _ = try await isRelinkRequiredNow(txID: txID)
+    }
+
+    func isRelinkRequiredNow(txID: String) async throws -> Bool {
+        do {
+            return try await signer.resolveRelinkRequirement()
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            CollectiblesLogger.error("Collectibles purchase \(txID) relink recheck failed", error: error)
+            return false
         }
     }
 }
