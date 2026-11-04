@@ -6,8 +6,10 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
+import TangemBackendAuthentication
 import TangemExpress
 import TangemFoundation
+import class Alamofire.Interceptor
 
 struct ExpressAPIProviderFactory {
     // MARK: - Injected
@@ -40,20 +42,31 @@ struct ExpressAPIProviderFactory {
             refcode: refcode?.rawValue
         )
 
+        let featureFlags = ExpressFeatureFlags(
+            isSwapBestRateDefaultProviderEnabled: FeatureProvider.isAvailable(.swapBestRateDefaultProvider),
+            isHideRejectedSwapProvidersEnabled: FeatureProvider.isAvailable(.hideRejectedSwapProviders),
+            isAPIV2Enabled: FeatureProvider.isAvailable(.expressApiV2)
+        )
+
         return factory.makeExpressAPIProvider(
             credential: credentials,
             configuration: .defaultConfiguration,
             expressAPIType: expressAPIType,
             exchangeDataDecoder: exchangeDataDecoder,
-            featureFlags: ExpressFeatureFlags(
-                isSwapBestRateDefaultProviderEnabled: FeatureProvider.isAvailable(.swapBestRateDefaultProvider),
-                isHideRejectedSwapProvidersEnabled: FeatureProvider.isAvailable(.hideRejectedSwapProviders)
-            )
+            featureFlags: featureFlags,
+            requestInterceptor: featureFlags.isAPIV2Enabled ? authenticationInterceptor : nil
         )
     }
 }
 
 private extension ExpressAPIProviderFactory {
+    var authenticationInterceptor: Interceptor {
+        Interceptor(
+            adapter: BackendAuthenticationAssembly.requestAdapter,
+            retrier: BackendAuthenticationAssembly.requestRetrier
+        )
+    }
+
     func apiKey(expressAPIType: ExpressAPIType) -> String {
         switch expressAPIType {
         case .develop, .developNew, .develop2, .develop2New, .develop3, .develop3New,

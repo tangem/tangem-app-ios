@@ -41,8 +41,10 @@ private extension CommonExpressAPIServiceErrorDescriptionTests {
             exchangeDataDecoder: StubExchangeDataDecoder(),
             featureFlags: ExpressFeatureFlags(
                 isSwapBestRateDefaultProviderEnabled: false,
-                isHideRejectedSwapProvidersEnabled: isHideRejectedSwapProvidersEnabled
-            )
+                isHideRejectedSwapProvidersEnabled: isHideRejectedSwapProvidersEnabled,
+                isAPIV2Enabled: false
+            ),
+            requestInterceptor: nil
         )
 
         do {
