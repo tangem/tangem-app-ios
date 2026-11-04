@@ -141,6 +141,13 @@ public struct TangemPayAPIError: Error, Decodable {
         public static let cardReissuePlasticInvalidEmbossName = 140143
 
         public static let bankOfframpUnsupportedConfiguration = 140141
+
+        public static let eligibilityInvalidRegion = 140154
+
+        public static let onboardingActiveOrderExists = 140160
+        public static let onboardingAlreadyOnboarded = 140161
+        public static let onboardingWalletMismatch = 140162
+        public static let onboardingNotEligible = 140163
     }
 }
 
