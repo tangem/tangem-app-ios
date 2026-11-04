@@ -118,6 +118,37 @@ struct TangemPayAccountTokensResolverTests {
         #expect(TangemPayAccountTokensResolver.makeEntries(from: networks).isEmpty)
     }
 
+    @Test("Each network keeps its own deposit address, an EVM network and Tron alike")
+    func networksKeepTheirOwnDepositAddresses() throws {
+        let networks = try makeTangemPayNetworks(
+            """
+            [
+              {
+                "name": "\(Blockchain.polygon(testnet: false).networkId)",
+                "isTestnet": false,
+                "chainId": 137,
+                "status": "ENABLED",
+                "depositAddress": "0xpolygonDeposit",
+                "tokens": [{ "token": "USDC", "tokenContractAddress": "0xusdc" }]
+              },
+              {
+                "name": "\(Blockchain.tron(testnet: false).networkId)",
+                "isTestnet": false,
+                "chainId": 728126428,
+                "status": "ENABLED",
+                "depositAddress": "TTronDeposit",
+                "tokens": [{ "token": "USDT", "tokenContractAddress": "TUsdt" }]
+              }
+            ]
+            """
+        )
+
+        let entries = TangemPayAccountTokensResolver.makeEntries(from: networks)
+
+        #expect(entries.map(\.blockchain) == [.polygon(testnet: false), .tron(testnet: false)])
+        #expect(entries.map(\.depositAddress) == ["0xpolygonDeposit", "TTronDeposit"])
+    }
+
     @Test("A network neither table can address is skipped — no name, and no EVM chain id either")
     func unaddressableNetworkSkipped() throws {
         let networks = try makeTangemPayNetworks(
