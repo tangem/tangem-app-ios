@@ -62,13 +62,13 @@ final class PromoCampaignCoordinator: CoordinatorObject {
                 return
             }
 
-            let campaigns = await cachedCampaigns(for: options.userWalletId)
+            let settlement = await settledCampaigns(for: options.userWalletId)
 
             guard !state.isFinished else {
                 return
             }
 
-            let entry = makeStateMapper().mapToEntry(campaignId: options.campaignId, campaigns: campaigns)
+            let entry = makeStateMapper().mapToEntry(campaignId: options.campaignId, settlement: settlement)
 
             state.enqueueSheet()
 
@@ -76,6 +76,7 @@ final class PromoCampaignCoordinator: CoordinatorObject {
             case .campaign(let campaign):
                 let viewModel = PromoCampaignViewModel(campaign: campaign, coordinator: self)
                 sheet = .campaign
+                DeeplinkFloatingSheet.dismissActive()
                 overlayViewPresenter.present(OverlayView(
                     id: Constants.campaignOverlayId,
                     view: PromoCampaignView(viewModel: viewModel),
@@ -118,8 +119,12 @@ private extension PromoCampaignCoordinator {
         PromoCampaignEnrollmentStateMapper(userWalletModels: userWalletRepository.models)
     }
 
-    func cachedCampaigns(for userWalletId: UserWalletId) async -> [PromoCampaign] {
-        (try? await promoCampaignsRepository.campaignsPublisher(for: userWalletId).async()) ?? []
+    func settledCampaigns(for userWalletId: UserWalletId) async -> PromoCampaignsSettlement {
+        let settlement = promoCampaignsRepository
+            .settledCampaignsPublisher(for: userWalletId)
+            .timeout(Constants.campaignsLoadingTimeout, scheduler: DispatchQueue.main)
+
+        return (try? await settlement.async()) ?? .failed
     }
 
     func subscribeToLock() {
@@ -380,5 +385,6 @@ private extension PromoCampaignCoordinator {
         static let toastTopPadding: CGFloat = 52
         static let campaignOverlayId = "promo_campaign"
         static let resultOverlayId = "promo_campaign_enrollment_result"
+        static let campaignsLoadingTimeout: DispatchQueue.SchedulerTimeType.Stride = .seconds(60)
     }
 }
