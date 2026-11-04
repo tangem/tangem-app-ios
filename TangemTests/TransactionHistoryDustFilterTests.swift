@@ -99,11 +99,11 @@ struct TransactionHistoryDustFilterTests {
 
     // MARK: - Test arguments
 
-    private static var filterableTypes: [TransactionViewModel.TransactionType] {
+    private static func assertAllCasesListed(_ transactionType: TransactionViewModel.TransactionType) {
         // Did you get a compilation error here? If so, add your new transaction type to one of the two lists
         // below: `filterableTypes` if received dust of this type should be hidden, `neverFilteredTypes` if the
         // threshold must not apply at all
-        switch TransactionViewModel.TransactionType.transfer {
+        switch transactionType {
         case .transfer: break
         case .gaslessTransfer: break
         case .stake: break
@@ -132,6 +132,10 @@ struct TransactionHistoryDustFilterTests {
         case .unknownOperation: break
         case .tangemPay: break
         }
+    }
+
+    private static var filterableTypes: [TransactionViewModel.TransactionType] {
+        assertAllCasesListed(.transfer)
 
         return [
             .transfer,

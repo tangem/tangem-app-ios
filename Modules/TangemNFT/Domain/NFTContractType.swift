@@ -40,9 +40,8 @@ public enum NFTContractType: Hashable, Sendable, CustomStringConvertible {
 // MARK: - CaseIterable protocol conformance
 
 extension NFTContractType: CaseIterable {
-    /// Poor man's `CaseIterable`.
-    public static var allCases: [NFTContractType] {
-        switch NFTContractType.unknown {
+    private static func assertAllCasesListed(_ contractType: NFTContractType) {
+        switch contractType {
         case .erc721:
             break
         case .erc1155:
@@ -57,6 +56,11 @@ extension NFTContractType: CaseIterable {
         // READ BELOW:
         //
         // Did you get a compilation error here? If so, add your new chain to the array below
+    }
+
+    /// Poor man's `CaseIterable`.
+    public static var allCases: [NFTContractType] {
+        assertAllCasesListed(.unknown)
 
         return [
             .erc721,
