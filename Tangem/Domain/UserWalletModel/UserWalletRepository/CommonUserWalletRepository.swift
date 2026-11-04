@@ -74,6 +74,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private let supportChatTokenStorage = SupportChatTokenStorage()
     private let polymarketCredentialsRepository = CommonPolymarketCredentialsRepository()
     private let polymarketAccountPresenceStore: PolymarketAccountPresenceStore = AppSettings.shared
+    private let polymarketSessionKeyStore: any PolymarketSessionKeyStore = CommonPolymarketSessionKeyStore()
     private let tangemPayResidencyStatusStorage: TangemPayResidencyStatusStorage = AppSettings.shared
     private let tangemPayStorageCleaner: TangemPayStorageCleaner = AppSettings.shared
     private let tangemPayCustomerSummaryCacheStorage: TangemPayCustomerSummaryCacheStorage = AppSettings.shared
@@ -238,6 +239,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
         polymarketCredentialsRepository.delete(userWalletId: userWalletId)
         polymarketAccountPresenceStore.delete(userWalletId: userWalletId)
         PolymarketWithdrawRecordStore(userWalletId: userWalletId).delete()
+        try? polymarketSessionKeyStore.deleteKey(for: userWalletId)
         try? collectiblesSessionKeyWalletStore.deleteKey(for: userWalletId)
         collectiblesAccountPresenceStore.remove(userWalletId)
 
