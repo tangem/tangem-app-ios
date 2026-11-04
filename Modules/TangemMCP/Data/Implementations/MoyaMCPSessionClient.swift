@@ -62,6 +62,16 @@ struct MoyaMCPSessionClient: MCPSessionClient {
         }
     }
 
+    func revokeAll() async throws(MCPSessionClientError) {
+        let target = MCPSessionsTarget.delete(baseURL: baseURL)
+
+        do {
+            _ = try await provider.request(target)
+        } catch {
+            throw wrapped(moyaError: error, into: MCPSessionClientError.revokeAllFailed)
+        }
+    }
+
     func revokeAll(userWalletID: UserWalletId) async throws(MCPSessionClientError) {
         let target = MCPSessionsTarget.delete(
             queryParameters: MCPSessionMapper.mapToDeleteQueryParameters(userWalletID),

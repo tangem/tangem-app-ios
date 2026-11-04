@@ -1,5 +1,5 @@
 //
-//  WalletConnectQRScanViewModel.swift
+//  ConnectionsQRScanViewModel.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,25 +11,25 @@ import TangemLocalization
 import struct TangemUIUtils.ConfirmationDialogViewModel
 
 @MainActor
-final class WalletConnectQRScanViewModel: ObservableObject {
+final class ConnectionsQRScanViewModel: ObservableObject {
     private let cameraAccessProvider: any WalletConnectCameraAccessProvider
     private let openSystemSettingsAction: () -> Void
-    private weak var coordinator: (any WalletConnectQRScanRoutable)?
+    private weak var coordinator: (any ConnectionsQRScanRoutable)?
     private let uriParser = WalletConnectURLParser()
     private let feedbackGenerator = WalletConnectUIFeedbackGenerator()
 
     private var requestCameraAccessTask: Task<Void, Never>?
 
-    @Published private(set) var state: WalletConnectQRScanViewState
+    @Published private(set) var state: ConnectionsQRScanViewState
 
     // [REDACTED_TODO_COMMENT]
     private var qrCodeNotYetProcessed = true
 
     init(
-        state: WalletConnectQRScanViewState,
+        state: ConnectionsQRScanViewState,
         cameraAccessProvider: some WalletConnectCameraAccessProvider,
         openSystemSettingsAction: @escaping () -> Void,
-        coordinator: some WalletConnectQRScanRoutable
+        coordinator: some ConnectionsQRScanRoutable
     ) {
         self.state = state
         self.cameraAccessProvider = cameraAccessProvider
@@ -52,8 +52,8 @@ final class WalletConnectQRScanViewModel: ObservableObject {
 
 // MARK: - View events handling
 
-extension WalletConnectQRScanViewModel {
-    func handle(viewEvent: WalletConnectQRScanViewEvent) {
+extension ConnectionsQRScanViewModel {
+    func handle(viewEvent: ConnectionsQRScanViewEvent) {
         switch viewEvent {
         case .viewDidAppear:
             handleViewDidAppear()
@@ -98,10 +98,10 @@ extension WalletConnectQRScanViewModel {
         }
 
         do {
-            let qrURI = try uriParser.parse(uriString: rawQRCode)
+            let scanResult = try parseScanResult(from: rawQRCode, source: .qrCode)
 
             qrCodeNotYetProcessed = false
-            coordinator?.dismiss(with: .fromQRCode(qrURI))
+            coordinator?.dismiss(with: scanResult)
         } catch {
             feedbackGenerator.errorNotificationOccurred()
             coordinator?.display(error: error)
@@ -112,12 +112,24 @@ extension WalletConnectQRScanViewModel {
         guard let rawClipboardString else { return }
 
         do {
-            let clipboardURI = try uriParser.parse(uriString: rawClipboardString)
-            coordinator?.dismiss(with: .fromClipboard(clipboardURI))
+            let scanResult = try parseScanResult(from: rawClipboardString, source: .clipboard)
+            coordinator?.dismiss(with: scanResult)
         } catch {
             feedbackGenerator.errorNotificationOccurred()
             coordinator?.display(error: error)
         }
+    }
+
+    private func parseScanResult(
+        from rawValue: String,
+        source: ConnectionsQRScanResult.Source
+    ) throws -> ConnectionsQRScanResult {
+        if FeatureProvider.isAvailable(.mcp), let userCode = MainQRMCPConnectionRequestUserCodeParser.parse(rawValue) {
+            return .mcpConnectionRequest(userCode: userCode, source: source)
+        }
+
+        let uri = try uriParser.parse(uriString: rawValue)
+        return .walletConnect(uri, source: source)
     }
 
     private func handleCameraAccessStatusChanged(_ accessGranted: Bool) {

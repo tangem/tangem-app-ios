@@ -1,12 +1,12 @@
 //
-//  WalletConnectQRScanViewEvent.swift
+//  ConnectionsQRScanViewEvent.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-enum WalletConnectQRScanViewEvent {
+enum ConnectionsQRScanViewEvent {
     case viewDidAppear
     case navigationCloseButtonTapped
     case pasteFromClipboardButtonTapped(String?)

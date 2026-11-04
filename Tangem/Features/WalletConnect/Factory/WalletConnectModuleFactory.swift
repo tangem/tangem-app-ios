@@ -146,11 +146,11 @@ enum WalletConnectModuleFactory {
     }
 
     static func makeQRScanFlow(
-        dismissAction: @escaping (WalletConnectQRScanResult?) -> Void
-    ) -> (WalletConnectQRScanCoordinator, WalletConnectQRScanCoordinator.Options) {
-        let coordinator = WalletConnectQRScanCoordinator(dismissAction: dismissAction)
+        dismissAction: @escaping (ConnectionsQRScanResult?) -> Void
+    ) -> (ConnectionsQRScanCoordinator, ConnectionsQRScanCoordinator.Options) {
+        let coordinator = ConnectionsQRScanCoordinator(dismissAction: dismissAction)
 
-        let options = WalletConnectQRScanCoordinator.Options(
+        let options = ConnectionsQRScanCoordinator.Options(
             cameraAccessProvider: cameraAccessProvider,
             openSystemSettingsAction: openSystemSettingsAction
         )

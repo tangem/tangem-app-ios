@@ -10,6 +10,9 @@ import struct TangemFoundation.UserWalletId
 
 protocol MCPSessionClient: Sendable {
     func fetchAll() async throws(MCPSessionClientError) -> [MCPSession]
+
     func revoke(sessionID: MCPSession.ID) async throws(MCPSessionClientError)
+
+    func revokeAll() async throws(MCPSessionClientError)
     func revokeAll(userWalletID: UserWalletId) async throws(MCPSessionClientError)
 }
