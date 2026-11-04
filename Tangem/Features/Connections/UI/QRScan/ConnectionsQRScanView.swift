@@ -1,5 +1,5 @@
 //
-//  WalletConnectQRScanView.swift
+//  ConnectionsQRScanView.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,8 +13,8 @@ import TangemUI
 import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
-struct WalletConnectQRScanView: View {
-    @ObservedObject var viewModel: WalletConnectQRScanViewModel
+struct ConnectionsQRScanView: View {
+    @ObservedObject var viewModel: ConnectionsQRScanViewModel
 
     var body: some View {
         ZStack {

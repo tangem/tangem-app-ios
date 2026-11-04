@@ -26,6 +26,7 @@ final class DetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
+    @Published var connectionsCoordinator: ConnectionsCoordinator?
     @Published var walletConnectCoordinator: WalletConnectCoordinator?
     @Published var userWalletSettingsCoordinator: UserWalletSettingsCoordinator?
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
@@ -71,9 +72,22 @@ extension DetailsCoordinator: SupportChatPresenting {}
 
 // MARK: - DetailsRoutable
 
+@MainActor
 extension DetailsCoordinator: DetailsRoutable {
+    func openConnections() {
+        Task {
+            let coordinator = ConnectionsCoordinator()
+
+            let options = ConnectionsCoordinator.Options(
+                prefetchedConnectedDApps: await connectedDAppRepository.prefetchedDApps
+            )
+            coordinator.start(with: options)
+            connectionsCoordinator = coordinator
+        }
+    }
+
     func openWalletConnect(with disabledLocalizedReason: String?) {
-        Task { @MainActor in
+        Task {
             let coordinator = WalletConnectCoordinator()
 
             let options = WalletConnectCoordinator.Options(

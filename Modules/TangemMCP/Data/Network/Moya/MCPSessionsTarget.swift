@@ -48,6 +48,15 @@ extension MCPSessionsTarget {
         )
     }
 
+    static func delete(baseURL: URL) -> MCPSessionsTarget {
+        MCPSessionsTarget(
+            baseURL: baseURL,
+            path: basePath,
+            method: Alamofire.HTTPMethod.delete,
+            task: Moya.Task.requestPlain
+        )
+    }
+
     static func delete(
         queryParameters: MCPSessionsDTO.Delete.Request.QueryParameters,
         baseURL: URL

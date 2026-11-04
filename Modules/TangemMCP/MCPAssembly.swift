@@ -28,6 +28,18 @@ public extension MCPAssembly {
             FetchMCPAgentUseCase(client: Infrastructure.agentClient, logger: MCPAssembly.configuration.logger)
         }
 
+        public static var fetchSessions: FetchMCPSessionsUseCase {
+            FetchMCPSessionsUseCase(client: Infrastructure.sessionClient)
+        }
+
+        public static var revokeDeviceSessions: RevokeDeviceMCPSessionsUseCase {
+            RevokeDeviceMCPSessionsUseCase(client: Infrastructure.sessionClient)
+        }
+
+        fileprivate static var revokeSession: RevokeMCPSessionUseCase {
+            RevokeMCPSessionUseCase(client: Infrastructure.sessionClient, logger: MCPAssembly.configuration.logger)
+        }
+
         fileprivate static var fetchConnectionRequest: FetchMCPConnectionRequestUseCase {
             FetchMCPConnectionRequestUseCase(client: Infrastructure.connectionClient)
         }
@@ -116,6 +128,30 @@ public extension MCPAssembly {
                 delegate: MCPSendIntentViewModel.Delegate(flowTerminated: closeAction, issueRetryButtonTapped: retryAction)
             )
         }
+
+        public static func makeSessionDetails(
+            session: MCPSession,
+            userWallet: MCPUserWallet,
+            closeAction: @escaping () -> Void,
+            sessionRevokedAction: @escaping () -> Void,
+            sessionRevokeFailedAction: @escaping () -> Void
+        ) -> MCPSessionDetailsViewModel {
+            let delegate = MCPSessionDetailsViewModel.Delegate(
+                closeButtonTapped: closeAction,
+                sessionRevoked: sessionRevokedAction,
+                sessionRevokeFailed: { _ in
+                    sessionRevokeFailedAction()
+                }
+            )
+
+            return MCPSessionDetailsViewModel(
+                session: session,
+                userWallet: userWallet,
+                revokeSession: UseCases.revokeSession,
+                delegate: delegate,
+                logger: MCPAssembly.configuration.logger
+            )
+        }
     }
 }
 
@@ -182,6 +218,10 @@ extension MCPAssembly {
             MCPIntentView(viewModel: viewModel) { proposalViewModel in
                 MCPSendIntentProposalView(viewModel: proposalViewModel, kingfisherImageCache: Infrastructure.kingfisherImageCache)
             }
+        }
+
+        registry.register(MCPSessionDetailsViewModel.self) { viewModel in
+            MCPSessionDetailsView(viewModel: viewModel)
         }
     }
 }

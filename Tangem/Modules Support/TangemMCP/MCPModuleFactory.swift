@@ -42,7 +42,10 @@ enum MCPModuleFactory {
     }
 
     @MainActor
-    static func makeConnectionRequestViewModel(userCode: String) -> MCPConnectionRequestViewModel? {
+    static func makeConnectionRequestViewModel(
+        userCode: String,
+        sheetClosedAction: @escaping () -> Void = {}
+    ) -> MCPConnectionRequestViewModel? {
         guard FeatureProvider.isAvailable(.mcp) else {
             return nil
         }
@@ -81,8 +84,48 @@ enum MCPModuleFactory {
             },
             closeAction: { [weak floatingSheetPresenter] in
                 floatingSheetPresenter?.removeActiveSheet()
+                sheetClosedAction()
             }
         )
+    }
+
+    @MainActor
+    static func makeSessionDetailsViewModel(
+        session: MCPSession,
+        sessionRevokedAction: @escaping () -> Void
+    ) -> MCPSessionDetailsViewModel? {
+        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == session.userWalletID }) else {
+            return nil
+        }
+
+        weak var futureViewModel: MCPSessionDetailsViewModel?
+
+        let viewModel = MCPAssembly.ViewModels.makeSessionDetails(
+            session: session,
+            userWallet: MCPUserWallet(from: userWalletModel),
+            closeAction: { [weak floatingSheetPresenter] in
+                guard let futureViewModel else { return }
+                floatingSheetPresenter?.removeSheet(withId: futureViewModel.id)
+            },
+            sessionRevokedAction: { [weak floatingSheetPresenter] in
+                if let futureViewModel {
+                    floatingSheetPresenter?.removeSheet(withId: futureViewModel.id)
+                }
+                sessionRevokedAction()
+            },
+            sessionRevokeFailedAction: { [weak alertPresenter] in
+                alertPresenter?.present(
+                    alert: AlertBuilder.makeAlertWithDefaultPrimaryButton(
+                        title: Localization.commonSomethingWentWrong,
+                        message: Localization.commonTryAgainLater,
+                        buttonText: Localization.commonOk
+                    )
+                )
+            }
+        )
+
+        futureViewModel = viewModel
+        return viewModel
     }
 
     static func makeMCPToken(from walletModel: some WalletModel) -> MCPToken {
