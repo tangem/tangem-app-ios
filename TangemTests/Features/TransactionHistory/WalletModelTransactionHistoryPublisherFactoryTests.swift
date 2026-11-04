@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import Testing
+import TangemFoundation
 @testable import Tangem
 @testable import TangemExpress
 @testable import BlockchainSdk
@@ -84,6 +85,46 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
                 var iterator = states.makeAsyncIterator()
 
                 #expect(Self.loadedHashes(await iterator.next()) == [Self.syntheticHash, Self.onChainHash])
+            }
+        }
+
+        @Test("A deal reached through two addresses of the wallet model, e.g. the yield contract and the wallet, is listed once")
+        func dealReachedThroughTwoAddressesIsListedOnce() async {
+            await withStubbedDependencies {
+                let onChainState = CurrentValueSubject<WalletModelTransactionHistoryState, Never>(.loaded(items: []))
+                let publisher = Self.makePublisher(onChainState: onChainState, exchangeStatus: .waiting, indexRowsPerDeal: 2)
+                let (states, subscription) = Self.states(of: publisher)
+                defer { subscription.cancel() }
+                var iterator = states.makeAsyncIterator()
+
+                #expect(Self.loadedHashes(await iterator.next()) == [Self.syntheticHash])
+            }
+        }
+
+        @Test(
+            "The yield contract address joins the wallet addresses handed to the express history provider",
+            arguments: [
+                (nil, [ExpressMergeTestDataFactory.ownerAddress]),
+                ("0xYieldContract", [ExpressMergeTestDataFactory.ownerAddress, "0xYieldContract"]),
+            ] as [(String?, [String])]
+        )
+        func yieldContractAddressJoinsWalletAddresses(yieldContractAddress: String?, expectedAddresses: [String]) async {
+            await withStubbedDependencies {
+                let receivedAddresses = OSAllocatedUnfairLock<[String]?>(initialState: nil)
+                let onChainState = CurrentValueSubject<WalletModelTransactionHistoryState, Never>(.loaded(items: []))
+                let publisher = Self.makePublisher(
+                    onChainState: onChainState,
+                    exchangeStatus: .waiting,
+                    yieldContractAddress: yieldContractAddress,
+                    onWalletModelAddresses: { addresses in receivedAddresses.withLock { $0 = addresses } }
+                )
+                let (states, subscription) = Self.states(of: publisher)
+                defer { subscription.cancel() }
+                var iterator = states.makeAsyncIterator()
+
+                _ = await iterator.next()
+
+                #expect(receivedAddresses.withLock { $0 } == expectedAddresses)
             }
         }
 
@@ -189,21 +230,31 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.WalletModelT
 
     static func makePublisher(
         onChainState: CurrentValueSubject<WalletModelTransactionHistoryState, Never>,
-        exchangeStatus: ExpressTransactionStatus
+        exchangeStatus: ExpressTransactionStatus,
+        yieldContractAddress: String? = nil,
+        indexRowsPerDeal: Int = 1,
+        onWalletModelAddresses: @escaping @Sendable ([String]) -> Void = { _ in }
     ) -> AnyPublisher<WalletModelTransactionHistoryState, Never> {
         let token = ExpressMergeTestDataFactory.ethereumToken
         let wallet = Wallet(
             blockchain: token.blockchain,
             publicKey: .init(seedKey: Data(), derivationType: .none),
-            addressesProvider: EmptyAddressesProvider()
+            addressesProvider: CommonAddressesProvider(
+                defaultAddress: PlainAddress(value: ExpressMergeTestDataFactory.ownerAddress, type: .default)
+            )
         )
-        let provider = StubTransactionHistoryProvider(records: [.express(.exchange(makeExchangeInfo(token: token, status: exchangeStatus)))])
+        let record: TransactionHistoryRecordsReader.Record = .express(.exchange(makeExchangeInfo(token: token, status: exchangeStatus)))
+        let provider = StubTransactionHistoryProvider(
+            records: Array(repeating: record, count: indexRowsPerDeal),
+            onWalletModelAddresses: onWalletModelAddresses
+        )
 
         return WalletModelTransactionHistoryPublisherFactory.makeTransactionHistoryPublisher(
             transactionHistoryPublisher: onChainState,
             featuresPublisher: Just([.transactionHistory(provider: provider)]),
             walletModelId: WalletModelId(tokenItem: token),
             walletPublisher: Just(wallet),
+            yieldContractAddressPublisher: Just(yieldContractAddress),
             tokenItem: token,
             feeTokenItem: token,
             transactionHistoryFetcher: nil,
@@ -248,6 +299,7 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.WalletModelT
             featuresPublisher: Just([.transactionHistory(provider: provider)]),
             walletModelId: WalletModelId(tokenItem: token),
             walletPublisher: Just(wallet),
+            yieldContractAddressPublisher: Just(nil),
             tokenItem: token,
             feeTokenItem: token,
             transactionHistoryFetcher: fetcher,
@@ -328,6 +380,7 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.WalletModelT
         let id = UUID()
         let mappingQueue = DispatchQueue(label: "com.tangem.tests.StubTransactionHistoryProvider")
         let records: [TransactionHistoryRecordsReader.Record]
+        var onWalletModelAddresses: @Sendable ([String]) -> Void = { _ in }
 
         var state: TransactionHistorySyncState { get async { .idle(.ready) } }
         var stateUpdates: AsyncStream<TransactionHistorySyncState> { AsyncStream { $0.finish() } }
@@ -345,7 +398,9 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.WalletModelT
             for walletModelId: WalletModelId,
             walletModelAddressesPublisher: some Publisher<[String], Never>
         ) -> AsyncStream<[TransactionHistoryRecordsReader.Record]> {
-            AsyncStream { [records] continuation in
+            AsyncStream { [records, onWalletModelAddresses] continuation in
+                let subscription = walletModelAddressesPublisher.sink(receiveValue: onWalletModelAddresses)
+                continuation.onTermination = { _ in subscription.cancel() }
                 continuation.yield(records)
             }
         }
