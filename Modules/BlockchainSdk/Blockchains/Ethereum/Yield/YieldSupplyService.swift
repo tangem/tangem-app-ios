@@ -15,7 +15,7 @@ public protocol YieldSupplyService {
     func getYieldContract() async throws -> String
 
     func storeYieldContract(_ yieldContract: String) async
-    func storedYieldContract() async -> String?
+    func storedYieldContract() -> String?
 
     func calculateYieldContract() async throws -> String
     func getYieldSupplyStatus(tokenContractAddress: String) async throws -> YieldSupplyStatus
@@ -76,7 +76,7 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
     }
 
     public func getYieldContract() async throws -> String {
-        let storedYieldContractAddress = await storedYieldContract()
+        let storedYieldContractAddress = storedYieldContract()
         switch storedYieldContractAddress {
         case .some(let address):
             return address
@@ -100,8 +100,8 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
         await dataStorage.store(key: storageKey(), value: yieldContract)
     }
 
-    public func storedYieldContract() async -> String? {
-        await dataStorage.get(key: storageKey())
+    public func storedYieldContract() -> String? {
+        dataStorage.get(key: storageKey())
     }
 
     public func calculateYieldContract() async throws -> String {

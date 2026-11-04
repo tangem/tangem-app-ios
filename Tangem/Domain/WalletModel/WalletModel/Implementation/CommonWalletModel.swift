@@ -68,6 +68,7 @@ class CommonWalletModel {
                 featuresPublisher: featureManager.featuresPublisher,
                 walletModelId: id,
                 walletPublisher: walletManager.walletPublisher,
+                yieldContractAddressPublisher: makeYieldContractAddressPublisher(),
                 tokenItem: tokenItem,
                 feeTokenItem: feeTokenItem,
                 transactionHistoryFetcher: _transactionHistoryService,
@@ -761,6 +762,18 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
     /// Listen tx history changes
     var transactionHistoryPublisher: AnyPublisher<WalletModelTransactionHistoryState, Never> {
         _transactionHistoryPublisher.value
+    }
+
+    /// Swaps out of Yield are sent by the yield contract, so the history treats it as an own address of the wallet.
+    private func makeYieldContractAddressPublisher() -> AnyPublisher<String?, Never> {
+        guard tokenItem.isToken, let yieldSupplyService = walletManager.yieldSupplyService else {
+            return .just(output: nil)
+        }
+
+        return walletManager
+            .walletPublisher
+            .map { _ in yieldSupplyService.storedYieldContract() }
+            .eraseToAnyPublisher()
     }
 
     var hasPendingTransactions: Bool {

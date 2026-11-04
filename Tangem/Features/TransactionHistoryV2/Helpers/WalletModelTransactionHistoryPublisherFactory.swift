@@ -27,6 +27,7 @@ enum WalletModelTransactionHistoryPublisherFactory {
         featuresPublisher: some Publisher<[WalletModelFeature], Never>,
         walletModelId: WalletModelId,
         walletPublisher: some Publisher<Wallet, Never>,
+        yieldContractAddressPublisher: some Publisher<String?, Never>,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
         transactionHistoryFetcher: TransactionHistoryFetcher?,
@@ -38,6 +39,9 @@ enum WalletModelTransactionHistoryPublisherFactory {
 
         let walletModelAddressesPublisher = walletPublisher
             .map { $0.addresses.map(\.value) }
+            .combineLatest(yieldContractAddressPublisher) { walletAddresses, yieldContractAddress in
+                yieldContractAddress.map { walletAddresses + [$0] } ?? walletAddresses
+            }
             .removeDuplicates()
             .eraseToAnyPublisher()
 
@@ -110,7 +114,7 @@ enum WalletModelTransactionHistoryPublisherFactory {
                 var exchangeTransactions: [ExchangeTransaction] = []
                 var onrampTransactions: [OnrampTransaction] = []
                 var jointOperations: [JointOperationHistoryItem] = []
-                for record in records {
+                for record in records.unique() { // One row per index entry, e.g. the yield contract and the wallet
                     switch record {
                     case .express(.exchange(let transactionInfo)):
                         exchangeTransactions.append(transactionInfo.transaction)
