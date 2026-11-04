@@ -165,14 +165,27 @@ struct CommonWalletCardsBackupReportServiceTests {
         }
     }
 
-    @Test("Locked and active cards are not reported on sign-in", arguments: [true, false])
-    func ignoresIneligibleSavedWallet(isLocked: Bool) async throws {
+    @Test("Locked cards are not reported on sign-in")
+    func ignoresLockedSavedWallet() async throws {
         try await withLoginEnvironment { wallets, repository in
-            wallets.models = [makeSavedWallet(isLocked: isLocked, status: isLocked ? .cardLinked(cardsCount: 2) : .active(cardsCount: 2))]
+            wallets.models = [makeSavedWallet(isLocked: true)]
             let service = CommonWalletCardsBackupReportService(reportsPreviouslySavedWallets: true)
             service.initialize()
             await drainMainQueue()
             #expect(repository.observedSavedCards.isEmpty)
+            withExtendedLifetime(service) {}
+        }
+    }
+
+    @Test("An active card of a wallet with an unfinished backup is reported with its own status")
+    func reportsActiveCardOfUnfinishedBackup() async throws {
+        try await withLoginEnvironment { wallets, repository in
+            wallets.models = [makeSavedWallet(status: .active(cardsCount: 2))]
+            let service = CommonWalletCardsBackupReportService(reportsPreviouslySavedWallets: true)
+            service.initialize()
+            await drainMainQueue()
+            let card = try #require(repository.observedSavedCards.first)
+            #expect(card.backupStatus == .active)
             withExtendedLifetime(service) {}
         }
     }

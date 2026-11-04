@@ -18,7 +18,7 @@ struct WalletCardsSavedCardsCollector {
         self.userWalletRepository = userWalletRepository
     }
 
-    var cardLinkedCardsPublisher: AnyPublisher<[WalletCardsCurrentlyProcessedCard], Never> {
+    var incompleteBackupCardsPublisher: AnyPublisher<[WalletCardsCurrentlyProcessedCard], Never> {
         userWalletRepository.eventProvider
             .filter { event in
                 switch event {
@@ -28,7 +28,7 @@ struct WalletCardsSavedCardsCollector {
             }
             .prepend(.unlocked)
             .receiveOnMain()
-            .map { _ in cardLinkedCards() }
+            .map { _ in incompleteBackupCards() }
             .eraseToAnyPublisher()
     }
 }
@@ -36,18 +36,19 @@ struct WalletCardsSavedCardsCollector {
 // MARK: - Private
 
 private extension WalletCardsSavedCardsCollector {
-    func cardLinkedCards() -> [WalletCardsCurrentlyProcessedCard] {
+    func incompleteBackupCards() -> [WalletCardsCurrentlyProcessedCard] {
         userWalletRepository.models
             .filter { !$0.isUserWalletLocked }
-            .compactMap(cardLinkedCard(of:))
+            .compactMap(incompleteBackupCard(of:))
     }
 
-    func cardLinkedCard(of model: UserWalletModel) -> WalletCardsCurrentlyProcessedCard? {
+    func incompleteBackupCard(of model: UserWalletModel) -> WalletCardsCurrentlyProcessedCard? {
         guard !model.config.isDemo,
               !model.backupState.isValid,
               let card = (model.config as? WalletOnboardingStepsBuilderFactory)?.card,
               card.settings.isBackupAllowed,
-              case .cardLinked = card.backupStatus else {
+              let backupStatus = card.backupStatus.map(WalletCardsBackupCard.BackupStatus.init),
+              backupStatus != .noBackup else {
             return nil
         }
 
@@ -57,7 +58,7 @@ private extension WalletCardsSavedCardsCollector {
             role: nil,
             identity: .filled(userWalletId: model.userWalletId.stringValue, isImported: model.hasImportedWallets),
             curves: card.walletCurves,
-            backupStatus: .cardLinked
+            backupStatus: backupStatus
         )
     }
 }

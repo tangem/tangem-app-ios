@@ -90,18 +90,18 @@ extension CommonWalletCardsBackupReportRepository: WalletCardsBackupReportReposi
     func storePreviouslySavedCardIfNeeded(_ card: WalletCardsCurrentlyProcessedCard) {
         lockQueue.async { [weak self] in
             guard let self, loadReportIfNeeded(),
-                  card.backupStatus == .cardLinked,
+                  let backupStatus = card.backupStatus,
                   case .filled(let userWalletId, let isImported)? = card.identity else {
                 return
             }
 
             var currentReport = report.value
-            let deliveryHash = cardLinkedDeliveryHash(userWalletId: userWalletId, cardId: card.cardId)
+            let deliveryHash = cardDeliveryHash(userWalletId: userWalletId, cardId: card.cardId, backupStatus: backupStatus)
             guard !currentReport.deliveredCardLinkedHashes.contains(deliveryHash),
                   !attemptedCardLinkedHashes.contains(deliveryHash),
                   !currentReport.pendingReports.contains(where: {
                       $0.userWalletId == userWalletId && $0.cards.contains {
-                          $0.cardId == card.cardId && $0.backupStatus == .cardLinked
+                          $0.cardId == card.cardId && $0.backupStatus == backupStatus
                       }
                   }) else {
                 return
@@ -137,8 +137,10 @@ extension CommonWalletCardsBackupReportRepository: WalletCardsBackupReportReposi
             updated.pendingReports.removeAll { $0.id == pendingReport.id }
 
             if wasDelivered {
-                for card in pendingReport.cards where card.backupStatus == .cardLinked {
-                    updated.deliveredCardLinkedHashes.insert(cardLinkedDeliveryHash(userWalletId: pendingReport.userWalletId, cardId: card.cardId))
+                for card in pendingReport.cards {
+                    if let backupStatus = card.backupStatus {
+                        updated.deliveredCardLinkedHashes.insert(cardDeliveryHash(userWalletId: pendingReport.userWalletId, cardId: card.cardId, backupStatus: backupStatus))
+                    }
                 }
             }
 
@@ -156,9 +158,9 @@ extension CommonWalletCardsBackupReportRepository: WalletCardsBackupReportReposi
 // MARK: - Queue
 
 private extension CommonWalletCardsBackupReportRepository {
-    func cardLinkedDeliveryHash(userWalletId: String, cardId: String) -> String {
+    func cardDeliveryHash(userWalletId: String, cardId: String, backupStatus: WalletCardsBackupCard.BackupStatus) -> String {
         UserWalletId(value: Data(hexString: userWalletId))
-            .hashedStringValue(message: "wallet-cards-backup-delivery.\(cardId)")
+            .hashedStringValue(message: "wallet-cards-backup-delivery.\(cardId).\(backupStatus.rawValue)")
     }
 
     func enqueue(_ pendingReport: WalletCardsWaitingDeliveryBackupCards, in report: inout WalletCardsBackupReport) {
