@@ -197,6 +197,28 @@ extension BackendAuthenticationRegistrar {
         let secp256k1PublicKey = try CommonKeysRepository(keys: .mobileWallet(keys: keys))
             .masterKeyPublicKey(curve: .secp256k1)
 
+        try await registerMobileWallet(
+            id: id,
+            context: context,
+            secp256k1PublicKey: secp256k1PublicKey,
+            recoveryEnrollment: recoveryEnrollment,
+            mobileWalletSDK: mobileWalletSDK
+        )
+        BackendAuthLogger.info("Registered social mobile wallet \(id.stringValue.masked())")
+    }
+
+    static func unregisterSocialMobileWallet(id: UserWalletId) async throws {
+        try await BackendAuthenticationAssembly.unregisterUserWallet(id: id, shouldEraseSocialLoginData: true)
+        BackendAuthLogger.info("Unregistered social mobile wallet \(id.stringValue.masked())")
+    }
+
+    static func registerMobileWallet(
+        id: UserWalletId,
+        context: MobileWalletContext,
+        secp256k1PublicKey: Data?,
+        recoveryEnrollment: UserWalletRecoveryEnrollment? = nil,
+        mobileWalletSDK: some MobileWalletSdk
+    ) async throws {
         let signer = MobileUserWalletRegistrationSigner(
             context: context,
             secp256k1PublicKey: secp256k1PublicKey,
@@ -208,12 +230,6 @@ extension BackendAuthenticationRegistrar {
             recoveryEnrollment: recoveryEnrollment,
             signer: signer
         )
-        BackendAuthLogger.info("Registered social mobile wallet \(id.stringValue.masked())")
-    }
-
-    static func unregisterSocialMobileWallet(id: UserWalletId) async throws {
-        try await BackendAuthenticationAssembly.unregisterUserWallet(id: id, shouldEraseSocialLoginData: true)
-        BackendAuthLogger.info("Unregistered social mobile wallet \(id.stringValue.masked())")
     }
 
     private static func registerMobileWallet(
@@ -223,15 +239,14 @@ extension BackendAuthenticationRegistrar {
         mobileWalletSDK: some MobileWalletSdk,
         secp256k1PublicKey: Data? = nil
     ) {
-        let signer = MobileUserWalletRegistrationSigner(
-            context: context,
-            secp256k1PublicKey: secp256k1PublicKey,
-            mobileWalletSDK: mobileWalletSDK
-        )
-
         Task {
             do {
-                try await BackendAuthenticationAssembly.registerMobileUserWallet(id: id, recoveryEnrollment: nil, signer: signer)
+                try await registerMobileWallet(
+                    id: id,
+                    context: context,
+                    secp256k1PublicKey: secp256k1PublicKey,
+                    mobileWalletSDK: mobileWalletSDK
+                )
                 BackendAuthLogger.info("Registered mobile wallet \(id.stringValue) \(trigger)")
             } catch {
                 BackendAuthLogger.error("Failed to register mobile wallet \(id.stringValue) \(trigger)", error: error)
