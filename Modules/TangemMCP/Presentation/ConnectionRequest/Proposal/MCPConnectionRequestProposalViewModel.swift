@@ -20,6 +20,7 @@ final class MCPConnectionRequestProposalViewModel: ObservableObject, HashableObj
     private let notificationCenter: NotificationCenter
     private let delegate: Delegate
 
+    private let analyticsReporter: any MCPAuthorizationAnalyticsReporter
     private let logger: TangemLogger.Logger
 
     private var connectionRequest: MCPConnectionRequest?
@@ -39,6 +40,7 @@ final class MCPConnectionRequestProposalViewModel: ObservableObject, HashableObj
         interactor: MCPConnectionRequestInteractor,
         notificationCenter: NotificationCenter = NotificationCenter.default,
         delegate: Delegate,
+        analyticsReporter: some MCPAuthorizationAnalyticsReporter,
         logger: TangemLogger.Logger
     ) {
         self.state = state
@@ -48,6 +50,7 @@ final class MCPConnectionRequestProposalViewModel: ObservableObject, HashableObj
         self.notificationCenter = notificationCenter
         self.delegate = delegate
 
+        self.analyticsReporter = analyticsReporter
         self.logger = logger
     }
 
@@ -140,7 +143,7 @@ extension MCPConnectionRequestProposalViewModel {
     }
 
     private func handleFetchSucceeded(_ connectionRequest: MCPConnectionRequest) {
-        // [REDACTED_TODO_COMMENT]
+        analyticsReporter.reportAgentConnectionRequested(agent: connectionRequest.agent)
         self.connectionRequest = connectionRequest
 
         state.agentSummary = .content(connectionRequest.agent)
@@ -160,7 +163,7 @@ extension MCPConnectionRequestProposalViewModel {
         acceptConnectionTask?.cancel()
         acceptConnectionTask = nil
 
-        // [REDACTED_TODO_COMMENT]
+        analyticsReporter.reportDeclineButtonTapped(agent: connectionRequest.agent)
         logger.debug("Fire and forget connection request reject initiated.")
 
         // [REDACTED_USERNAME], intentionally not messing with decline and connect buttons loading or disabled state
@@ -189,7 +192,7 @@ extension MCPConnectionRequestProposalViewModel {
             return
         }
 
-        // [REDACTED_TODO_COMMENT]
+        analyticsReporter.reportDeclineButtonTapped(agent: connectionRequest.agent)
         state.declineButton.state = .loading
         state.connectButton.state = .disabled
         state.userWalletSelector.isEnabled = false
@@ -223,14 +226,14 @@ extension MCPConnectionRequestProposalViewModel {
             return
         }
 
-        // [REDACTED_TODO_COMMENT]
+        analyticsReporter.reportApproveButtonTapped(agent: connectionRequest.agent)
         state.declineButton.state = .disabled
         state.connectButton.state = .loading
         state.userWalletSelector.isEnabled = false
 
         let userWalletID = state.userWalletSelector.selection.id
 
-        acceptConnectionTask = Task { [interactor, logger, weak self] in
+        acceptConnectionTask = Task { [interactor, analyticsReporter, logger, weak self] in
             self?.hasRequestedPushNotificationsAuthorizationAtLeastOnce = true
 
             defer {
@@ -240,7 +243,7 @@ extension MCPConnectionRequestProposalViewModel {
             }
 
             guard await interactor.ensurePushNotificationsAuthorized() else {
-                // [REDACTED_TODO_COMMENT]
+                analyticsReporter.reportPushPermissionRequired()
                 logger.debug("Push notifications are disabled. Connection is blocked.")
                 self?.state.pushPermissionsBanner = MCPConnectionRequestProposalState.PushNotificationsPermissionBanner()
                 self?.state.connectButton.state = .disabled
@@ -249,7 +252,8 @@ extension MCPConnectionRequestProposalViewModel {
 
             do throws(MCPConnectionClientError) {
                 try await interactor.accept(request: connectionRequest, for: userWalletID)
-                self?.delegate.connectionAccepted(Result.success(connectionRequest.agent.name))
+                analyticsReporter.reportAgentConnected(agent: connectionRequest.agent)
+                self?.delegate.connectionAccepted(Result.success(connectionRequest.agent.name ?? MCPAgent.fallbackName))
             } catch {
                 self?.delegate.connectionAccepted(Result.failure(error))
             }

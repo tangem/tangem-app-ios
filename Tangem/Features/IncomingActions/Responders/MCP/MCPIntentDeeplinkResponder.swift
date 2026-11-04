@@ -28,7 +28,9 @@ final class MCPIntentDeeplinkResponder: IncomingActionResponder {
 
         switch (intentDeeplink.source, intentDeeplink.type) {
         case ("express", "exchange"):
-            // [REDACTED_TODO_COMMENT]
+            MCPIntentAnalyticsReporter(intentType: .exchange)
+                .reportIntentReceived(intentID: intentDeeplink.id, source: intentDeeplink.source)
+
             Task { @MainActor in
                 await swapIntentHandler.handle(intentDeeplink)
             }
@@ -39,7 +41,9 @@ final class MCPIntentDeeplinkResponder: IncomingActionResponder {
                 logger.warning("Send feature is unavailable. Send MCP intent with id \(intentDeeplink.id) will not be handled.")
                 return false
             }
-            // [REDACTED_TODO_COMMENT]
+            MCPIntentAnalyticsReporter(intentType: .send)
+                .reportIntentReceived(intentID: intentDeeplink.id, source: intentDeeplink.source)
+
             Task { @MainActor in
                 await sendIntentHandler.handle(intentDeeplink)
             }

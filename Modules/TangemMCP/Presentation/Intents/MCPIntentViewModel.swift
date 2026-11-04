@@ -12,6 +12,7 @@ public import protocol TangemUI.FloatingSheetContentViewModel
 @MainActor
 public final class MCPIntentViewModel<IntentProposalState: Equatable>: ObservableObject, FloatingSheetContentViewModel {
     private let delegate: Delegate
+    private var hasReportedAppearance = false
     private var hasReportedFlowTermination = false
 
     @Published private(set) var state: MCPIntentState<IntentProposalState>
@@ -29,6 +30,9 @@ public final class MCPIntentViewModel<IntentProposalState: Equatable>: Observabl
 
     func handle(action: MCPIntentAction<IntentProposalState>) {
         switch action {
+        case .viewDidAppear:
+            reportAppearance()
+
         case .navigationCloseButtonTapped:
             handleNavigationCloseButtonTapped()
 
@@ -63,6 +67,15 @@ public final class MCPIntentViewModel<IntentProposalState: Equatable>: Observabl
         }
     }
 
+    private func reportAppearance() {
+        guard !hasReportedAppearance else {
+            return
+        }
+
+        hasReportedAppearance = true
+        delegate.sheetAppeared()
+    }
+
     private func reportFlowTermination() {
         guard !hasReportedFlowTermination else {
             return
@@ -75,6 +88,7 @@ public final class MCPIntentViewModel<IntentProposalState: Equatable>: Observabl
 
 extension MCPIntentViewModel {
     struct Delegate {
+        let sheetAppeared: () -> Void
         let flowTerminated: () -> Void
         let issueRetryButtonTapped: () async -> MCPIntentLoadingResult<IntentProposalState>
     }

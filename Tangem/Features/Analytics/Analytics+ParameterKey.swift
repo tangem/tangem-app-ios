@@ -174,6 +174,13 @@ extension Analytics {
         case walletConnectDAppDomainVerification = "Domain Verification"
         case walletConnectTransactionEmulationStatus = "Emulation Status"
 
+        // MARK: - MCP
+
+        case mcpAgentName = "Agent Name"
+        case mcpIntentType = "Intent Type"
+        case mcpIntentId = "Intent Id"
+        case mcpIntentModified = "Intent Modified"
+
         // MARK: - NFT
 
         case nftCollectionsCount = "Collections"

@@ -20,13 +20,14 @@ final class SwapMCPIntentHandler {
     @Injected(\.incomingActionHandler) private var incomingActionHandler: any IncomingActionHandler
 
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
+    private let analyticsReporter = MCPIntentAnalyticsReporter(intentType: .exchange)
     private let logger: TangemLogger.Logger = MCPLogger
 
     nonisolated init() {}
 
     func handle(_ intentDeeplink: MCPIntentDeeplink) async {
         let intentID = intentDeeplink.id
-        let initialLoadingResult = await load(intentID: intentID)
+        let initialLoadingOutcome = await load(intentID: intentID)
 
         guard !userWalletRepository.isLocked else {
             logger.warning("Wallets got locked while Swap MCP intent with id \(intentID) was loading")
@@ -34,26 +35,44 @@ final class SwapMCPIntentHandler {
         }
 
         let viewModel = MCPModuleFactory.makeSwapIntentViewModel(
-            initialLoadingResult: initialLoadingResult,
+            initialLoadingResult: initialLoadingOutcome.result,
+            sheetAppearedAction: { [analyticsReporter] in
+                analyticsReporter.reportLoadEvent(initialLoadingOutcome.analyticsEvent, intentID: intentID)
+            },
             retryAction: { [self] in
-                // [REDACTED_TODO_COMMENT]
-                await load(intentID: intentID)
+                let loadingOutcome = await load(intentID: intentID)
+                analyticsReporter.reportLoadEvent(loadingOutcome.analyticsEvent, intentID: intentID)
+                return loadingOutcome.result
             }
         )
 
-        // [REDACTED_TODO_COMMENT]
         floatingSheetPresenter.enqueue(sheet: viewModel)
+    }
+}
+
+// MARK: - Analytics
+
+private extension SwapMCPIntentHandler {
+    static func loadFailureReason(for error: any Error) -> MCPIntentAnalyticsReporter.LoadFailureReason {
+        if error.isNetworkingTransportError {
+            return .unreachable
+        }
+
+        if case .statusCode(let response) = error as? MoyaError, response.statusCode == 404 {
+            return .notFound
+        }
+
+        return .unknown
     }
 }
 
 // MARK: - Intent loading
 
 private extension SwapMCPIntentHandler {
-    func load(intentID: String) async -> MCPIntentLoadingResult<MCPSwapIntentProposalState> {
+    func load(intentID: String) async -> MCPIntentLoadingOutcome<MCPSwapIntentProposalState> {
         guard let selectedUserWallet = userWalletRepository.selectedModel else {
-            // [REDACTED_TODO_COMMENT]
             logger.warning("No selected wallet to load Swap MCP intent with")
-            return MCPIntentLoadingResult.issue(MCPIntentIssue.swapIntentUnreachable(isRecoverable: false))
+            return .failed(MCPIntentIssue.swapIntentUnreachable(isRecoverable: false), reason: .unknown)
         }
 
         // [REDACTED_TODO_COMMENT]
@@ -67,39 +86,36 @@ private extension SwapMCPIntentHandler {
         do {
             intent = try await provider.exchangeIntent(mcpIntentID: intentID)
         } catch {
-            // [REDACTED_TODO_COMMENT]
             logger.error("Failed to fetch Swap MCP intent", error: error)
-            return MCPIntentLoadingResult.issue(
-                MCPIntentIssue.swapIntentUnreachable(isRecoverable: error.isNetworkingTransportError)
+            return .failed(
+                MCPIntentIssue.swapIntentUnreachable(isRecoverable: error.isNetworkingTransportError),
+                reason: Self.loadFailureReason(for: error),
+                errorCode: error.analyticsErrorCode
             )
         }
 
         guard !intent.isHandled else {
-            // [REDACTED_TODO_COMMENT]
             logger.warning("Swap MCP intent has already been processed")
             let swapTexts = makeProcessedSwapTexts(for: intent)
-            return MCPIntentLoadingResult.issue(MCPIntentIssue.swapIntentProcessed(from: swapTexts?.from, to: swapTexts?.to))
+            return .failed(MCPIntentIssue.swapIntentProcessed(from: swapTexts?.from, to: swapTexts?.to), reason: .alreadyProcessed)
         }
 
         if case .from = intent.specifiedAmount, intent.rateType == .fixed {
-            // [REDACTED_TODO_COMMENT]
             logger.warning("Unsupported combination: from-amount intent with a fixed rate")
-            return MCPIntentLoadingResult.issue(MCPIntentIssue.swapIntentUnreachable(isRecoverable: false))
+            return .failed(MCPIntentIssue.swapIntentUnreachable(isRecoverable: false), reason: .unknown)
         }
 
         guard let userWalletModel = DeeplinkWalletModelLocator().findUserWalletModel(userWalletModelId: intent.walletID) else {
-            // [REDACTED_TODO_COMMENT]
             logger.warning("Failed to resolve the wallet of the swap intent on this device")
-            return MCPIntentLoadingResult.issue(MCPIntentIssue.swapIntentUnreachable(isRecoverable: false))
+            return .failed(MCPIntentIssue.swapIntentUnreachable(isRecoverable: false), reason: .wrongWallet)
         }
 
         guard
             let fromWalletModel = walletModel(for: intent.from, in: userWalletModel),
             let toWalletModel = walletModel(for: intent.to, in: userWalletModel)
         else {
-            // [REDACTED_TODO_COMMENT]
             logger.warning("Failed to resolve the from/to token of the swap intent in the wallet")
-            return MCPIntentLoadingResult.issue(MCPIntentIssue.swapIntentUnreachable(isRecoverable: false))
+            return .failed(MCPIntentIssue.swapIntentUnreachable(isRecoverable: false), reason: .tokenMissing)
         }
 
         guard
@@ -110,12 +126,12 @@ private extension SwapMCPIntentHandler {
                 toWalletModel: toWalletModel
             )
         else {
-            // [REDACTED_TODO_COMMENT]
             logger.warning("Failed to construct a valid SwapDeeplink from ExchangeMCPIntent. Developer mistake")
-            return MCPIntentLoadingResult.issue(MCPIntentIssue.swapIntentUnreachable(isRecoverable: false))
+            return .failed(MCPIntentIssue.swapIntentUnreachable(isRecoverable: false), reason: .unknown)
         }
 
         let agent = await MCPAssembly.UseCases.fetchAgent(agentID: intent.agentID)
+
         let fromToken = MCPModuleFactory.makeMCPToken(from: fromWalletModel)
         let toToken = MCPModuleFactory.makeMCPToken(from: toWalletModel)
 
@@ -139,13 +155,15 @@ private extension SwapMCPIntentHandler {
             )
         }
 
-        return MCPModuleFactory.makeSwapIntentProposal(
+        let proposal = MCPModuleFactory.makeSwapIntentProposal(
             state: state,
-            proceedAction: { [incomingActionHandler] in
-                // [REDACTED_TODO_COMMENT]
+            proceedAction: { [incomingActionHandler, analyticsReporter] in
+                analyticsReporter.reportContinueButtonTapped(intentID: intentID)
                 _ = incomingActionHandler.handleIncomingURL(swapDeeplinkURL)
             }
         )
+
+        return .loaded(proposal, agent: agent, tokenItem: fromWalletModel.tokenItem)
     }
 
     func makeProcessedSwapTexts(for intent: ExchangeMCPIntent) -> (from: String, to: String)? {
@@ -257,5 +275,29 @@ private extension Error {
         }
 
         return moyaError.isTimeout || moyaError.isNotConnectedToInternet
+    }
+
+    var analyticsErrorCode: String {
+        if let expressAPIError = self as? ExpressAPIError, let code = expressAPIError.code {
+            return String(code)
+        }
+
+        guard let moyaError = self as? MoyaError else {
+            return "unknown"
+        }
+
+        if case .statusCode(let response) = moyaError {
+            return String(response.statusCode)
+        }
+
+        if moyaError.isTimeout {
+            return "timeout"
+        }
+
+        if moyaError.isNotConnectedToInternet {
+            return "noInternetConnection"
+        }
+
+        return "requestFailed"
     }
 }

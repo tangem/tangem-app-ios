@@ -20,6 +20,7 @@ final class SendMCPIntentHandler {
 
     private let coordinatorFactory = CommonMainCoordinatorChildFactory()
     private let sendIntentClient = MoyaMCPSendIntentClient()
+    private let analyticsReporter = MCPIntentAnalyticsReporter(intentType: .send)
     private var processingIntents: [String: IntentProcessingPhase] = [:]
 
     private let logger: TangemLogger.Logger = MCPLogger
@@ -34,7 +35,7 @@ final class SendMCPIntentHandler {
 
         processingIntents[intentDeeplink.comparableID] = .presenting
 
-        let initialLoadingResult = await load(intentDeeplink: intentDeeplink)
+        let initialLoadingOutcome = await load(intentDeeplink: intentDeeplink)
 
         guard !userWalletRepository.isLocked else {
             logger.warning("Wallets got locked while Send MCP intent with id \(intentDeeplink.id) was loading")
@@ -43,19 +44,22 @@ final class SendMCPIntentHandler {
         }
 
         let viewModel = MCPModuleFactory.makeSendIntentViewModel(
-            initialLoadingResult: initialLoadingResult,
+            initialLoadingResult: initialLoadingOutcome.result,
+            sheetAppearedAction: { [analyticsReporter] in
+                analyticsReporter.reportLoadEvent(initialLoadingOutcome.analyticsEvent, intentID: intentDeeplink.id)
+            },
             closeAction: { [self] in
                 if processingIntents[intentDeeplink.comparableID] == .presenting {
                     finishProcessing(intentDeeplink: intentDeeplink)
                 }
             },
             retryAction: { [self] in
-                // [REDACTED_TODO_COMMENT]
-                await load(intentDeeplink: intentDeeplink)
+                let loadingOutcome = await load(intentDeeplink: intentDeeplink)
+                analyticsReporter.reportLoadEvent(loadingOutcome.analyticsEvent, intentID: intentDeeplink.id)
+                return loadingOutcome.result
             }
         )
 
-        // [REDACTED_TODO_COMMENT]
         floatingSheetPresenter.enqueue(sheet: viewModel)
     }
 }
@@ -71,47 +75,49 @@ private extension SendMCPIntentHandler {
 // MARK: - Intent loading
 
 private extension SendMCPIntentHandler {
-    func load(intentDeeplink: MCPIntentDeeplink) async -> MCPIntentLoadingResult<MCPSendIntentProposalState> {
+    func load(intentDeeplink: MCPIntentDeeplink) async -> MCPIntentLoadingOutcome<MCPSendIntentProposalState> {
         let intent: SendMCPIntent
 
         do throws(SendMCPIntentError) {
             intent = try await sendIntentClient.fetch(intentId: intentDeeplink.id)
         } catch {
-            // [REDACTED_TODO_COMMENT]
             logger.error("Failed to fetch Send MCP intent", error: error)
-            return MCPIntentLoadingResult.issue(
-                MCPIntentIssue.sendIntentUnreachable(isRecoverable: error.isNetworkingTransportError)
+            return .failed(
+                MCPIntentIssue.sendIntentUnreachable(isRecoverable: error.isNetworkingTransportError),
+                reason: error.analyticsLoadFailureReason,
+                errorCode: error.analyticsErrorCode
             )
         }
 
         let target = findSendTarget(for: intent)
 
         guard !intent.isCompleted else {
-            // [REDACTED_TODO_COMMENT]
             logger.warning("Send MCP intent has already been completed")
-            return MCPIntentLoadingResult.issue(
-                MCPIntentIssue.sendIntentProcessed(amount: intent.amount, tokenItem: target?.walletModel.tokenItem)
+            return .failed(
+                MCPIntentIssue.sendIntentProcessed(amount: intent.amount, tokenItem: target?.walletModel.tokenItem),
+                reason: .alreadyProcessed
             )
         }
 
         guard let target else {
-            // [REDACTED_TODO_COMMENT]
             logger.warning("No wallet holds the token of the send intent")
-            return MCPIntentLoadingResult.issue(
-                MCPIntentIssue.sendIntentUnreachable(isRecoverable: false)
+            return .failed(
+                MCPIntentIssue.sendIntentUnreachable(isRecoverable: false),
+                reason: holdsToken(of: intent) ? .wrongWallet : .tokenMissing
             )
         }
 
         guard isValid(intent, for: target) else {
-            // [REDACTED_TODO_COMMENT]
-            return MCPIntentLoadingResult.issue(
-                MCPIntentIssue.sendIntentUnreachable(isRecoverable: false)
+            let fitsDecimals = SendMCPIntentValidator.fitsDecimals(intent.amount, decimalCount: target.walletModel.tokenItem.decimalCount)
+            return .failed(
+                MCPIntentIssue.sendIntentUnreachable(isRecoverable: false),
+                reason: fitsDecimals ? .unknown : .invalidAmount
             )
         }
 
         let agent = await MCPAssembly.UseCases.fetchAgent(agentID: intent.agentID)
 
-        return MCPModuleFactory.makeSendIntentProposal(
+        let proposal = MCPModuleFactory.makeSendIntentProposal(
             agent: agent,
             amount: intent.amount,
             walletModel: target.walletModel,
@@ -119,6 +125,8 @@ private extension SendMCPIntentHandler {
                 proceedToSend(intentDeeplink: intentDeeplink, intent: intent)
             }
         )
+
+        return .loaded(proposal, agent: agent, tokenItem: target.walletModel.tokenItem)
     }
 
     func isValid(_ intent: SendMCPIntent, for target: DeeplinkWalletModelLocator.Target) -> Bool {
@@ -149,6 +157,14 @@ private extension SendMCPIntentHandler {
         }
 
         return true
+    }
+
+    func holdsToken(of intent: SendMCPIntent) -> Bool {
+        userWalletRepository.models.contains { userWalletModel in
+            AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager).contains { walletModel in
+                walletModel.tokenItem.id == intent.tokenID && walletModel.tokenItem.blockchain.networkId == intent.networkID
+            }
+        }
     }
 
     func findSendTarget(for intent: SendMCPIntent) -> DeeplinkWalletModelLocator.Target? {
@@ -184,7 +200,7 @@ private extension SendMCPIntentHandler {
             let target = findSendTarget(for: intent),
             isValid(intent, for: target)
         else {
-            // [REDACTED_TODO_COMMENT]
+            analyticsReporter.reportIntentLoadFailed(intentID: intentDeeplink.id, reason: .sendNotOpened)
             logger.warning("Send MCP intent with id \(intentDeeplink.id) can no longer be sent")
             alertPresenter.present(
                 alert: AlertBuilder.makeAlertWithDefaultPrimaryButton(
@@ -237,7 +253,7 @@ private extension SendMCPIntentHandler {
                     processingIntents[intentDeeplink.comparableID] = .reporting
 
                     Task {
-                        await reportTransaction(transactionHash, intentDeeplink: intentDeeplink)
+                        await reportTransaction(transactionHash, intentDeeplink: intentDeeplink, tokenItem: target.walletModel.tokenItem)
                     }
                 }
             )
@@ -256,7 +272,7 @@ private extension SendMCPIntentHandler {
             )
         )
 
-        // [REDACTED_TODO_COMMENT]
+        analyticsReporter.reportContinueButtonTapped(intentID: intentDeeplink.id)
     }
 
     static func finishSend(with option: SendCoordinator.DismissOptions?, in context: DeeplinkOverlayContext) {
@@ -310,8 +326,8 @@ private extension SendMCPIntentHandler {
 // MARK: - Hash report
 
 private extension SendMCPIntentHandler {
-    func reportTransaction(_ transactionHash: String, intentDeeplink: MCPIntentDeeplink) async {
-        do {
+    func reportTransaction(_ transactionHash: String, intentDeeplink: MCPIntentDeeplink, tokenItem: TokenItem) async {
+        do throws(SendMCPIntentError) {
             try await Self.reportTransaction(
                 retryPauses: Constants.reportRetryPauses,
                 report: { () async throws(SendMCPIntentError) in
@@ -320,9 +336,10 @@ private extension SendMCPIntentHandler {
                 pause: { try? await Task.sleep(for: $0) }
             )
             // [REDACTED_TODO_COMMENT]
+            analyticsReporter.reportIntentCompleted(intentID: intentDeeplink.id, tokenItem: tokenItem)
             finishProcessing(intentDeeplink: intentDeeplink)
         } catch {
-            // [REDACTED_TODO_COMMENT]
+            analyticsReporter.reportIntentReportFailed(intentID: intentDeeplink.id, errorCode: error.analyticsErrorCode)
             logger.error("Failed to report the transaction of the send intent, its link is ignored until the app restarts", error: error)
         }
     }
@@ -432,6 +449,52 @@ private extension SendMCPIntentError {
 
         case .invalidIntentId, .unsupportedType, .invalidAmount, .requestFailed:
             false
+        }
+    }
+
+    var analyticsLoadFailureReason: MCPIntentAnalyticsReporter.LoadFailureReason {
+        switch self {
+        case .timeout, .noInternetConnection:
+            return .unreachable
+
+        case .invalidAmount:
+            return .invalidAmount
+
+        case .requestFailed(let underlying):
+            guard case .statusCode(let response) = underlying as? MoyaError, response.statusCode == 404 else {
+                return .unknown
+            }
+
+            return .notFound
+
+        case .invalidIntentId, .unsupportedType:
+            return .unknown
+        }
+    }
+
+    var analyticsErrorCode: String {
+        switch self {
+        case .requestFailed(let underlying):
+            guard case .statusCode(let response) = underlying as? MoyaError else {
+                return "requestFailed"
+            }
+
+            return String(response.statusCode)
+
+        case .timeout:
+            return "timeout"
+
+        case .noInternetConnection:
+            return "noInternetConnection"
+
+        case .invalidIntentId:
+            return "invalidIntentId"
+
+        case .unsupportedType:
+            return "unsupportedType"
+
+        case .invalidAmount:
+            return "invalidAmount"
         }
     }
 }
