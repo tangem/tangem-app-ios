@@ -25,6 +25,9 @@ struct MCPIntentView<IntentProposalState: Equatable, IntentProposalContent: View
                 .padding(.bottom, 16)
         }
         .animation(Animation.mcpFloatingSheetFrameUpdate, value: viewModel.state)
+        .onAppear {
+            viewModel.handle(action: .viewDidAppear)
+        }
         .floatingSheetConfiguration { configuration in
             configuration.sheetFrameUpdateAnimation = Animation.mcpFloatingSheetFrameUpdate
             configuration.sheetBackground = FloatingSheetConfiguration.Background.mcpFloatingSheet

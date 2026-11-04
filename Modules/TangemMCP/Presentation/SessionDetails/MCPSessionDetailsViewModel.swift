@@ -17,6 +17,7 @@ public final class MCPSessionDetailsViewModel: ObservableObject, FloatingSheetCo
     private let sessionID: MCPSession.ID
     private let revokeSession: RevokeMCPSessionUseCase
     private let delegate: Delegate
+    private let analyticsReporter: any MCPSessionsAnalyticsReporter
     private let logger: TangemLogger.Logger
 
     private var revokeSessionTask: Task<Void, Never>?
@@ -28,11 +29,13 @@ public final class MCPSessionDetailsViewModel: ObservableObject, FloatingSheetCo
         userWallet: MCPUserWallet,
         revokeSession: RevokeMCPSessionUseCase,
         delegate: Delegate,
+        analyticsReporter: some MCPSessionsAnalyticsReporter,
         logger: TangemLogger.Logger
     ) {
         sessionID = session.id
         self.revokeSession = revokeSession
         self.delegate = delegate
+        self.analyticsReporter = analyticsReporter
         self.logger = logger
 
         state = MCPSessionDetailsState(
@@ -81,6 +84,7 @@ public final class MCPSessionDetailsViewModel: ObservableObject, FloatingSheetCo
         switch result {
         case .success:
             logger.debug("MCP session revoked")
+            analyticsReporter.reportAgentDisconnected(agent: state.agent)
             delegate.sessionRevoked()
 
         case .failure(let error):

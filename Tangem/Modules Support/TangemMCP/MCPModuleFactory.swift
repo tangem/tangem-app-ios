@@ -35,6 +35,8 @@ enum MCPModuleFactory {
             baseURL: AppEnvironment.current.backendAuthenticationBaseUrl,
             requestAdapter: BackendAuthenticationAssembly.requestAdapter,
             requestRetrier: BackendAuthenticationAssembly.requestRetrier,
+            authorizationAnalyticsReporter: CommonMCPAuthorizationAnalyticsReporter(),
+            sessionsAnalyticsReporter: CommonMCPSessionsAnalyticsReporter(),
             logger: MCPLogger
         )
 
@@ -59,7 +61,8 @@ enum MCPModuleFactory {
         let selectedUserWalletID = userWalletRepository.selectedModel?.userWalletId
         let selectedUserWallet = userWallets.first { $0.id == selectedUserWalletID } ?? userWallets[0]
 
-        // [REDACTED_TODO_COMMENT]
+        CommonMCPAuthorizationAnalyticsReporter().reportConnectionReceived()
+
         let pushNotificationsPermissionProvider = CommonMCPPushNotificationsPermissionProvider(
             service: Self.pushNotificationsPermission
         )
@@ -169,12 +172,14 @@ extension MCPModuleFactory {
     @MainActor
     static func makeSwapIntentViewModel(
         initialLoadingResult: MCPIntentLoadingResult<MCPSwapIntentProposalState>,
+        sheetAppearedAction: @escaping () -> Void,
         retryAction: @escaping () async -> MCPIntentLoadingResult<MCPSwapIntentProposalState>
     ) -> MCPSwapIntentViewModel {
         weak var futureViewModel: MCPSwapIntentViewModel?
 
         let viewModel = MCPAssembly.ViewModels.makeSwapIntent(
             initialLoadingResult: initialLoadingResult,
+            sheetAppearedAction: sheetAppearedAction,
             closeAction: { [weak floatingSheetPresenter] in
                 guard let futureViewModel else { return }
                 floatingSheetPresenter?.removeSheet(withId: futureViewModel.id)
@@ -207,6 +212,7 @@ extension MCPModuleFactory {
     @MainActor
     static func makeSendIntentViewModel(
         initialLoadingResult: MCPIntentLoadingResult<MCPSendIntentProposalState>,
+        sheetAppearedAction: @escaping () -> Void,
         closeAction: @escaping () -> Void,
         retryAction: @escaping () async -> MCPIntentLoadingResult<MCPSendIntentProposalState>
     ) -> MCPSendIntentViewModel {
@@ -214,6 +220,7 @@ extension MCPModuleFactory {
 
         let viewModel = MCPAssembly.ViewModels.makeSendIntent(
             initialLoadingResult: initialLoadingResult,
+            sheetAppearedAction: sheetAppearedAction,
             closeAction: { [weak floatingSheetPresenter] in
                 if let futureViewModel {
                     floatingSheetPresenter?.removeSheet(withId: futureViewModel.id)

@@ -45,7 +45,6 @@ enum ConnectionsModuleFactory {
         let disconnectAllDAppsUseCase = WalletConnectDisconnectAllDAppsUseCase(
             disconnectDAppService: disconnectDAppService,
             connectedDAppRepository: connectedDAppRepository,
-            // [REDACTED_TODO_COMMENT]
             analyticsLogger: CommonWalletConnectAnalyticsLogger(),
             logger: WCLogger
         )

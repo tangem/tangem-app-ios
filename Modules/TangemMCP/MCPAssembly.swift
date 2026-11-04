@@ -103,29 +103,40 @@ public extension MCPAssembly {
                 userCode: userCode,
                 interactor: interactor,
                 delegate: delegate,
+                analyticsReporter: MCPAssembly.configuration.authorizationAnalyticsReporter,
                 logger: MCPAssembly.configuration.logger
             )
         }
 
         public static func makeSwapIntent(
             initialLoadingResult: MCPIntentLoadingResult<MCPSwapIntentProposalState>,
+            sheetAppearedAction: @escaping () -> Void,
             closeAction: @escaping () -> Void,
             retryAction: @escaping () async -> MCPIntentLoadingResult<MCPSwapIntentProposalState>
         ) -> MCPSwapIntentViewModel {
             MCPSwapIntentViewModel(
                 initialLoadingResult: initialLoadingResult,
-                delegate: MCPSwapIntentViewModel.Delegate(flowTerminated: closeAction, issueRetryButtonTapped: retryAction)
+                delegate: MCPSwapIntentViewModel.Delegate(
+                    sheetAppeared: sheetAppearedAction,
+                    flowTerminated: closeAction,
+                    issueRetryButtonTapped: retryAction
+                )
             )
         }
 
         public static func makeSendIntent(
             initialLoadingResult: MCPIntentLoadingResult<MCPSendIntentProposalState>,
+            sheetAppearedAction: @escaping () -> Void,
             closeAction: @escaping () -> Void,
             retryAction: @escaping () async -> MCPIntentLoadingResult<MCPSendIntentProposalState>
         ) -> MCPSendIntentViewModel {
             MCPSendIntentViewModel(
                 initialLoadingResult: initialLoadingResult,
-                delegate: MCPSendIntentViewModel.Delegate(flowTerminated: closeAction, issueRetryButtonTapped: retryAction)
+                delegate: MCPSendIntentViewModel.Delegate(
+                    sheetAppeared: sheetAppearedAction,
+                    flowTerminated: closeAction,
+                    issueRetryButtonTapped: retryAction
+                )
             )
         }
 
@@ -149,6 +160,7 @@ public extension MCPAssembly {
                 userWallet: userWallet,
                 revokeSession: UseCases.revokeSession,
                 delegate: delegate,
+                analyticsReporter: MCPAssembly.configuration.sessionsAnalyticsReporter,
                 logger: MCPAssembly.configuration.logger
             )
         }
@@ -163,6 +175,8 @@ extension MCPAssembly {
         let baseURL: URL
         let requestAdapter: any Alamofire.RequestAdapter
         let requestRetrier: any Alamofire.RequestRetrier
+        let authorizationAnalyticsReporter: any MCPAuthorizationAnalyticsReporter
+        let sessionsAnalyticsReporter: any MCPSessionsAnalyticsReporter
         let logger: TangemLogger.Logger
 
         public init(
@@ -170,12 +184,16 @@ extension MCPAssembly {
             baseURL: URL,
             requestAdapter: some Alamofire.RequestAdapter,
             requestRetrier: some Alamofire.RequestRetrier,
+            authorizationAnalyticsReporter: some MCPAuthorizationAnalyticsReporter,
+            sessionsAnalyticsReporter: some MCPSessionsAnalyticsReporter,
             logger: TangemLogger.Logger
         ) {
             self.floatingSheetRegistry = floatingSheetRegistry
             self.baseURL = baseURL
             self.requestAdapter = requestAdapter
             self.requestRetrier = requestRetrier
+            self.authorizationAnalyticsReporter = authorizationAnalyticsReporter
+            self.sessionsAnalyticsReporter = sessionsAnalyticsReporter
             self.logger = logger
         }
     }

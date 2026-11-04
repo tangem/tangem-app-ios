@@ -18,6 +18,7 @@ public final class MCPConnectionRequestViewModel: ObservableObject, FloatingShee
     private let userWalletBalanceUpdater: (MCPUserWallet.ID) -> AsyncStream<String>
     private let delegate: Delegate
 
+    private let analyticsReporter: any MCPAuthorizationAnalyticsReporter
     private let logger: TangemLogger.Logger
 
     private let proposalViewModel: MCPConnectionRequestProposalViewModel
@@ -38,6 +39,7 @@ public final class MCPConnectionRequestViewModel: ObservableObject, FloatingShee
         userCode: String,
         interactor: MCPConnectionRequestInteractor,
         delegate: Delegate,
+        analyticsReporter: some MCPAuthorizationAnalyticsReporter,
         logger: TangemLogger.Logger
     ) {
         self.userWallets = userWallets
@@ -45,6 +47,7 @@ public final class MCPConnectionRequestViewModel: ObservableObject, FloatingShee
         self.userWalletBalanceUpdater = userWalletBalanceUpdater
 
         self.delegate = delegate
+        self.analyticsReporter = analyticsReporter
         self.logger = logger
 
         let isUserWalletSelectionAllowed = userWallets.count > 1
@@ -78,6 +81,7 @@ public final class MCPConnectionRequestViewModel: ObservableObject, FloatingShee
                     futureSelf?.handle(action: .agentConnectionAccepted(acceptResult))
                 }
             ),
+            analyticsReporter: analyticsReporter,
             logger: logger
         )
 
@@ -126,7 +130,7 @@ extension MCPConnectionRequestViewModel {
             state = .proposal(proposalViewModel)
 
         case .fetchRequestFailed(let error):
-            // [REDACTED_TODO_COMMENT]
+            analyticsReporter.reportAuthorizationFailed(errorCode: error.errorCode)
             logger.error("Proposal fetch request failed", error: error)
             delegate.fetchRequestErrorOccurred(error)
 
@@ -178,7 +182,6 @@ extension MCPConnectionRequestViewModel {
     private func handle(acceptResult: Result<String, MCPConnectionClientError>) {
         switch acceptResult {
         case .success(let agentName):
-            // [REDACTED_TODO_COMMENT]
             logger.debug("Proposal accept succeeded")
             let agentConnectedViewModel = MCPConnectionRequestAgentConnectedViewModel(
                 doneAction: delegate.closeButtonTapped,
@@ -187,7 +190,7 @@ extension MCPConnectionRequestViewModel {
             state = .agentConnected(agentConnectedViewModel)
 
         case .failure(let error):
-            // [REDACTED_TODO_COMMENT]
+            analyticsReporter.reportAuthorizationFailed(errorCode: error.errorCode)
             logger.error("Proposal accept failed", error: error)
             delegate.proposalAcceptErrorOccurred(error)
         }

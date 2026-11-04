@@ -171,7 +171,7 @@ private extension DetailsViewModel {
     }
 
     func openConnections() {
-        // [REDACTED_TODO_COMMENT]
+        Analytics.log(.buttonConnections)
         coordinator?.openConnections()
     }
 
