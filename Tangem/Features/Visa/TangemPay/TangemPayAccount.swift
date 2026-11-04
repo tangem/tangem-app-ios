@@ -145,6 +145,10 @@ final class TangemPayAccount {
         balancesService.networks
     }
 
+    var networksPublisher: some Publisher<[TangemPayBalance.Network], Never> {
+        balancesService.networksPublisher
+    }
+
     var customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan? {
         customerInfoSubject.value.customerTariffPlan
     }
