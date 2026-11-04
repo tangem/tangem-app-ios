@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-// [REDACTED_TODO_COMMENT]
+import enum TangemLocalization.Localization
 
 public typealias MCPSwapIntentViewModel = MCPIntentViewModel<MCPSwapIntentProposalState>
 
@@ -22,7 +22,11 @@ public struct MCPSwapIntentProposalState: Equatable {
             agent: agent,
             fromToken: fromAmount.token,
             toToken: toToken,
-            title: "\(agent.name) wants to swap \(fromAmount.formattedValue) to \(toToken.symbol)"
+            title: Localization.mcpSwapIntentOfferTitle(
+                agent.host ?? Localization.mcpIntentUnknownAgentName,
+                fromAmount.formattedValue,
+                toToken.symbol
+            )
         )
     }
 
@@ -31,7 +35,11 @@ public struct MCPSwapIntentProposalState: Equatable {
             agent: agent,
             fromToken: fromToken,
             toToken: toAmount.token,
-            title: "\(agent.name) wants to swap \(fromToken.symbol) to \(toAmount.formattedValue)"
+            title: Localization.mcpSwapIntentOfferTitle(
+                agent.host ?? Localization.mcpIntentUnknownAgentName,
+                fromToken.symbol,
+                toAmount.formattedValue
+            )
         )
     }
 
@@ -42,9 +50,9 @@ public struct MCPSwapIntentProposalState: Equatable {
 
         intentDescription = MCPIntentProposalDescriptionSection(
             agent: agent,
-            body: "The agent is asking to send from your account. You’ll review the details next."
+            body: Localization.mcpSwapIntentOfferDescription
         )
 
-        proceedButtonTitle = "Proceed"
+        proceedButtonTitle = Localization.mcpIntentProceed
     }
 }

@@ -17,7 +17,7 @@ struct MCPSendIntentProposalStateTests {
 
         let state = MCPSendIntentProposalState(agent: agent, amount: "42.00 USDT", token: Self.usdt)
 
-        #expect(state.title == "Claude wants to send 42.00 USDT")
+        #expect(state.title == "claude.ai Agent wants to send 42.00 USDT")
         #expect(state.intentDescription.agent.host == "claude.ai")
     }
 
