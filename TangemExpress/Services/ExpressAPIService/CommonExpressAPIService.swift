@@ -10,6 +10,7 @@ import Foundation
 import Moya
 import TangemFoundation
 import TangemNetworkUtils
+import enum Alamofire.AFError
 
 final class CommonExpressAPIService {
     private let provider: TangemProvider<ExpressAPITarget>
@@ -127,10 +128,15 @@ extension CommonExpressAPIService: ExpressAPIService {
 
 private extension CommonExpressAPIService {
     func _request<T: Decodable>(target: ExpressAPITarget.Target) async throws -> T {
-        let request = ExpressAPITarget(expressAPIType: expressAPIType, target: target)
+        let apiVersion: ExpressAPITarget.APIVersion = featureFlags.isAPIV2Enabled ? .v2 : .v1
+        let request = ExpressAPITarget(expressAPIType: expressAPIType, target: target, apiVersion: apiVersion)
         var response: Response
 
-        response = try await provider.requestPublisher(request).async()
+        do {
+            response = try await provider.requestPublisher(request).async()
+        } catch MoyaError.underlying(let error, let rejectedResponse?) where Self.isStatusCodeRejection(error) {
+            response = rejectedResponse
+        }
 
         do {
             response = try response.filterSuccessfulStatusAndRedirectCodes()
@@ -159,6 +165,19 @@ private extension CommonExpressAPIService {
             return featureFlags.isHideRejectedSwapProvidersEnabled ? error.error.withoutDescription : error.error
         } catch {
             return nil
+        }
+    }
+}
+
+extension CommonExpressAPIService {
+    static func isStatusCodeRejection(_ error: any Error) -> Bool {
+        switch error as? AFError {
+        case .responseValidationFailed(reason: .unacceptableStatusCode)?:
+            true
+        case .requestRetryFailed(_, let originalError)?:
+            isStatusCodeRejection(originalError)
+        default:
+            false
         }
     }
 }
