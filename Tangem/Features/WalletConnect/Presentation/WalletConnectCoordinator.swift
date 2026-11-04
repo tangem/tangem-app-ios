@@ -22,7 +22,7 @@ final class WalletConnectCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @MainActor
-    @Published var qrScanCoordinator: WalletConnectQRScanCoordinator?
+    @Published var qrScanCoordinator: ConnectionsQRScanCoordinator?
 
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -57,7 +57,7 @@ extension WalletConnectCoordinator: WalletConnectRoutable {
         floatingSheetPresenter.enqueue(sheet: WalletConnectModuleFactory.makeConnectedDAppDetailsViewModel(dApp))
     }
 
-    func openQRScanner(completion: @escaping (WalletConnectQRScanResult) -> Void) {
+    func openQRScanner(completion: @escaping (ConnectionsQRScanResult) -> Void) {
         let (coordinator, options) = WalletConnectModuleFactory.makeQRScanFlow(
             dismissAction: { [weak self] qrScanResult in
                 guard let qrScanResult else {

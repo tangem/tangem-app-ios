@@ -1,5 +1,5 @@
 //
-//  WalletConnectQRScanCoordinator.swift
+//  ConnectionsQRScanCoordinator.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,22 +11,22 @@ import TangemAccessibilityIdentifiers
 import class TangemUI.Toast
 import struct TangemUI.WarningToast
 
-final class WalletConnectQRScanCoordinator: CoordinatorObject {
-    let dismissAction: Action<WalletConnectQRScanResult?>
+final class ConnectionsQRScanCoordinator: CoordinatorObject {
+    let dismissAction: Action<ConnectionsQRScanResult?>
     let popToRootAction: Action<PopToRootOptions>
 
     @MainActor
-    @Published private(set) var viewModel: WalletConnectQRScanViewModel?
+    @Published private(set) var viewModel: ConnectionsQRScanViewModel?
 
-    required init(dismissAction: @escaping Action<WalletConnectQRScanResult?>, popToRootAction: @escaping Action<PopToRootOptions>) {
+    required init(dismissAction: @escaping Action<ConnectionsQRScanResult?>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
 
     func start(with options: Options) {
         Task { @MainActor in
-            viewModel = WalletConnectQRScanViewModel(
-                state: WalletConnectQRScanViewState(),
+            viewModel = ConnectionsQRScanViewModel(
+                state: ConnectionsQRScanViewState(),
                 cameraAccessProvider: options.cameraAccessProvider,
                 openSystemSettingsAction: options.openSystemSettingsAction,
                 coordinator: self
@@ -35,15 +35,15 @@ final class WalletConnectQRScanCoordinator: CoordinatorObject {
     }
 }
 
-extension WalletConnectQRScanCoordinator {
+extension ConnectionsQRScanCoordinator {
     struct Options {
         let cameraAccessProvider: any WalletConnectCameraAccessProvider
         let openSystemSettingsAction: () -> Void
     }
 }
 
-extension WalletConnectQRScanCoordinator: WalletConnectQRScanRoutable {
-    func dismiss(with result: WalletConnectQRScanResult?) {
+extension ConnectionsQRScanCoordinator: ConnectionsQRScanRoutable {
+    func dismiss(with result: ConnectionsQRScanResult?) {
         dismissAction(result)
     }
 

@@ -27,6 +27,9 @@ struct DetailsCoordinatorView: CoordinatorView {
 
     private var links: some View {
         NavHolder()
+            .navigation(item: $coordinator.connectionsCoordinator) {
+                ConnectionsCoordinatorView(coordinator: $0)
+            }
             .navigation(item: $coordinator.walletConnectCoordinator) {
                 WalletConnectCoordinatorView(coordinator: $0)
             }

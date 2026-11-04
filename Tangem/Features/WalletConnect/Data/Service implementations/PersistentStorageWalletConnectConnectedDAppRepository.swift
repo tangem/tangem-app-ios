@@ -108,6 +108,13 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
         try commitCache(updatedCache)
     }
 
+    func deleteDApps(with sessionTopics: Set<String>) throws(WalletConnectDAppPersistenceError) {
+        try fetchIfNeeded()
+
+        let updatedCache = inMemoryCache.filter { !sessionTopics.contains($0.session.topic) }
+        try commitCache(updatedCache)
+    }
+
     func delete(dApps: [WalletConnectConnectedDApp]) throws(WalletConnectDAppPersistenceError) {
         try fetchIfNeeded()
 

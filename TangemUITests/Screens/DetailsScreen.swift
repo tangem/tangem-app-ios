@@ -213,13 +213,13 @@ enum DetailsScreenElement: UIElement {
         case .buyWallet:
             return DetailsAccessibilityIdentifiers.buyWalletButton
         case .contactSupport:
-            return DetailsAccessibilityIdentifiers.contactSupport
+            return DetailsAccessibilityIdentifiers.contactSupportButton
         case .appSettings:
-            return DetailsAccessibilityIdentifiers.appSettings
+            return DetailsAccessibilityIdentifiers.appSettingsButton
         case .termsOfService:
-            return DetailsAccessibilityIdentifiers.termsOfService
+            return DetailsAccessibilityIdentifiers.termsOfServiceButton
         case .appVersion:
-            return DetailsAccessibilityIdentifiers.appVersion
+            return DetailsAccessibilityIdentifiers.appVersionLabel
         }
     }
 }

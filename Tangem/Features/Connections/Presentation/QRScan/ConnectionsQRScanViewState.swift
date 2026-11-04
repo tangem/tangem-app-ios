@@ -1,5 +1,5 @@
 //
-//  WalletConnectQRScanViewState.swift
+//  ConnectionsQRScanViewState.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,14 +10,15 @@ import TangemAssets
 import TangemLocalization
 import struct TangemUIUtils.ConfirmationDialogViewModel
 
-struct WalletConnectQRScanViewState {
+struct ConnectionsQRScanViewState {
     let navigationBar = NavigationBar()
+    // [REDACTED_TODO_COMMENT]
     let hint = Localization.wcQrScanHint
     var hasCameraAccess = false
     var confirmationDialog: ConfirmationDialogViewModel?
 }
 
-extension WalletConnectQRScanViewState {
+extension ConnectionsQRScanViewState {
     struct NavigationBar {
         let title = Localization.wcNewConnection
         let closeButtonTitle = Localization.commonClose
