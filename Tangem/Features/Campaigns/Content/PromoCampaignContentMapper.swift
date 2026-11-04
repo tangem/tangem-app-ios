@@ -34,7 +34,9 @@ struct PromoCampaignContentMapper {
             blocks: blocks,
             learnMoreLink: hasBlockLink ? nil : content.learnMoreLink.flatMap(mapLink),
             termsLink: content.tncLink.flatMap(mapLink),
-            actionButtonTitle: content.actionButtonName
+            actionButtonTitle: content.actionButtonName,
+            payoutButtonTitle: content.payoutButtonName?.trimmed().nilIfEmpty,
+            payoutAccountTitle: content.payoutAccountTitle?.trimmed().nilIfEmpty
         )
     }
 }
