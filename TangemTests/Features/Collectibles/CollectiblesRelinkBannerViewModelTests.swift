@@ -124,6 +124,8 @@ private final class RelinkerStub: CollectiblesRelinkStatusProvider, Collectibles
         self.outcome = outcome
     }
 
+    func refreshStateSilently() async {}
+
     func relink() async throws -> CollectiblesRelinkOutcome {
         let error = state.withLock { state -> (any Error)? in
             state.callsCount += 1

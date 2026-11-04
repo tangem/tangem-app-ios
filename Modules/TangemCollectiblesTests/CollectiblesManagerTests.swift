@@ -100,6 +100,7 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         sut.update(isInAccountList: true)
 
         #expect(sut.hasAccount)
+        #expect(sut.isRelinkRequired)
         #expect(accountAnswers.recorded == [false, true])
         #expect(syncAnswers.recorded == [false, true])
         #expect(relinkAnswers.recorded == [false, true])
@@ -136,6 +137,42 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         await sut.refreshState()
 
         #expect(usdcStates.recorded == [.unavailable, .loading, .failed])
+    }
+
+    @Test("A silent re-read publishes a vault taken over by another phone without flashing the balance")
+    func silentRefreshKeepsBalanceSteady() async {
+        let (sut, doubles) = await makeSUT()
+        let foreignVault = Fixtures.vault(sessionKey: Fixtures.foreignSessionKey)
+        doubles.vaultReader.vault = foreignVault
+
+        await sut.refreshStateSilently()
+
+        #expect(sut.state == .rekeyRequired(foreignVault))
+        #expect(sut.isRelinkRequired)
+        #expect(doubles.balanceUpdater.updates.map(\.testDescription) == ["loaded(1000000)"])
+    }
+
+    @Test("A fresh read before a purchase answers with and publishes the vault the chain holds now")
+    func freshReadPublishesState() async throws {
+        let (sut, doubles) = await makeSUT()
+        let foreignVault = Fixtures.vault(sessionKey: Fixtures.foreignSessionKey)
+        doubles.vaultReader.vault = foreignVault
+
+        let isRelinkRequired = try await sut.resolveRelinkRequirement()
+
+        #expect(isRelinkRequired)
+        #expect(sut.state == .rekeyRequired(foreignVault))
+    }
+
+    @Test("A fresh read that fails reports the failure and keeps the last known state")
+    func failedFreshReadThrows() async {
+        let (sut, doubles) = await makeSUT()
+        doubles.vaultReader.error = TestError.chain
+
+        await #expect(throws: TestError.chain) {
+            try await sut.resolveRelinkRequirement()
+        }
+        #expect(sut.state == .ready(Fixtures.vault()))
     }
 
     // MARK: - Onboarding
@@ -445,46 +482,6 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
             try await sut.signPurchase(Fixtures.purchase(), confirmedPrice: Fixtures.confirmedPrice())
         }
         #expect(doubles.chainService.transactions.isEmpty)
-    }
-
-    @Test("Signing the same order again reuses the first signature")
-    func signPurchaseReusesSignature() async throws {
-        let (sut, doubles) = await makeSUT()
-
-        let first = try await sut.signPurchase(Fixtures.purchase(), confirmedPrice: Fixtures.confirmedPrice())
-        let second = try await sut.signPurchase(Fixtures.purchase(), confirmedPrice: Fixtures.confirmedPrice())
-
-        #expect(first.signature == second.signature)
-        #expect(doubles.sessionKeySigner.signedMessages.count == 1)
-    }
-
-    @Test("An order signed again with another amount is a conflict")
-    func signPurchaseDetectsConflict() async throws {
-        let (sut, doubles) = await makeSUT()
-        _ = try await sut.signPurchase(Fixtures.purchase(), confirmedPrice: Fixtures.confirmedPrice())
-
-        await #expect(throws: (any Error).self) {
-            try await sut.signPurchase(
-                Fixtures.purchase(amount: 20_000_000, feeAmount: 400_000),
-                confirmedPrice: Fixtures.confirmedPrice(amount: 20_000_000, feeAmount: 400_000)
-            )
-        }
-        #expect(doubles.sessionKeySigner.signedMessages.count == 1)
-    }
-
-    @Test("A failed signing is forgotten so the order can be signed again")
-    func signPurchaseRetriesAfterFailure() async throws {
-        let (sut, doubles) = await makeSUT()
-        doubles.sessionKeySigner.signError = TestError.signing
-
-        await #expect(throws: TestError.signing) {
-            try await sut.signPurchase(Fixtures.purchase(), confirmedPrice: Fixtures.confirmedPrice())
-        }
-        doubles.sessionKeySigner.signError = nil
-        let signed = try await sut.signPurchase(Fixtures.purchase(), confirmedPrice: Fixtures.confirmedPrice())
-
-        #expect(signed.signature == doubles.sessionKeySigner.signatures.last?.base58EncodedString)
-        #expect(doubles.sessionKeySigner.signedMessages.count == 2)
     }
 
     // MARK: - Send
@@ -863,7 +860,6 @@ private extension CollectiblesSendError {
 
 private enum TestError: Error {
     case chain
-    case signing
     case sessionKey
     case unexpectedCall
 }
@@ -1033,7 +1029,6 @@ private final class SessionKeySignerFake: CollectiblesSessionKeySigner {
     private struct State {
         var signingKey: Curve25519.Signing.PrivateKey?
         var publicKeyError: (any Error)?
-        var signError: (any Error)?
         var generateCount = 0
         var signedMessages: [Data] = []
         var signatures: [Data] = []
@@ -1050,11 +1045,6 @@ private final class SessionKeySignerFake: CollectiblesSessionKeySigner {
     var publicKeyError: (any Error)? {
         get { state { $0.publicKeyError } }
         set { state { $0.publicKeyError = newValue } }
-    }
-
-    var signError: (any Error)? {
-        get { state { $0.signError } }
-        set { state { $0.signError = newValue } }
     }
 
     var generateCount: Int {
@@ -1091,10 +1081,6 @@ private final class SessionKeySignerFake: CollectiblesSessionKeySigner {
     func signSpin(_ message: Data) async throws -> Data {
         try state { state -> Data in
             state.signedMessages.append(message)
-
-            if let error = state.signError {
-                throw error
-            }
 
             guard let signingKey = state.signingKey else {
                 throw TestError.sessionKey

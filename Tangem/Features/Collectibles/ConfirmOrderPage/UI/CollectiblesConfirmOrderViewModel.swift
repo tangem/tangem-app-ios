@@ -54,6 +54,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         isTurboModeOn: Bool,
         usdcBalanceProvider: any TokenBalanceProvider,
         purchaseInteractor: any CollectiblesPackPurchaseInteractor,
+        relinkStatusProvider: (any CollectiblesRelinkStatusProvider)?,
         routable: (any CollectiblesConfirmOrderRoutable)?,
         revealAssetsPreloader: any CollectiblesRevealAssetsPreloader,
         delayProvider: any PollDelayProvider = TaskSleepPollDelayProvider(),
@@ -91,7 +92,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
             ),
         ]
 
-        bind(usdcBalanceProvider: usdcBalanceProvider)
+        bind(usdcBalanceProvider: usdcBalanceProvider, relinkStatusProvider: relinkStatusProvider)
     }
 
     // MARK: - Methods
@@ -225,6 +226,7 @@ extension CollectiblesConfirmOrderViewModel {
         case balanceUnavailable
         case approve
         case notEnoughFunds
+        case relinkRequired
         case generating
         case confirming
         case opening
@@ -266,12 +268,22 @@ private extension CollectiblesConfirmOrderViewModel {
 // MARK: - Private logic
 
 private extension CollectiblesConfirmOrderViewModel {
-    func bind(usdcBalanceProvider: any TokenBalanceProvider) {
+    func bind(
+        usdcBalanceProvider: any TokenBalanceProvider,
+        relinkStatusProvider: (any CollectiblesRelinkStatusProvider)?
+    ) {
         usdcBalanceProvider.balanceTypePublisher
             .map(Self.balanceState(from:))
             .receive(on: DispatchQueue.main)
             .sink { [weak self] balanceState in
                 self?.update(balanceState: balanceState)
+            }
+            .store(in: &bag)
+
+        relinkStatusProvider?.isRelinkRequiredPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateButtonState()
             }
             .store(in: &bag)
     }
@@ -332,6 +344,8 @@ private extension CollectiblesConfirmOrderViewModel {
         updateButtonState()
 
         switch error as? CollectiblesPackPurchaseError {
+        case .relinkRequired:
+            buttonState = .relinkRequired
         case .lowInventory:
             present(.lowInventory)
         case .packUnopened, .openFailed, .prizeNotDelivered:
@@ -372,6 +386,11 @@ private extension CollectiblesConfirmOrderViewModel {
             return
         case .generated:
             buttonState = .packGenerated
+            return
+        }
+
+        if purchaseInteractor.isPurchaseLocked(machineID: machineID) {
+            buttonState = .relinkRequired
             return
         }
 

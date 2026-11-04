@@ -80,9 +80,12 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
         #expect(signer.confirmedPrices.isEmpty)
     }
 
-    @Test("A node rejection keeps the signed order, the retry sends the same transaction")
-    func rejectionResendsSameOrder() async throws {
-        let (sut, provider, signer) = makeSUT(sendResults: [.failure(.rejected(Constants.error)), .success(())])
+    @Test(
+        "A node or program rejection keeps the signed order, the retry sends the same transaction",
+        arguments: Self.rejections
+    )
+    func rejectionResendsSameOrder(rejection: CollectiblesSendError) async throws {
+        let (sut, provider, signer) = makeSUT(sendResults: [.failure(rejection), .success(())])
 
         let failure = await failure(of: sut)
         #expect(failure == .other)
@@ -90,7 +93,82 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
         _ = try await purchase(sut)
 
         #expect(provider.generatedMachineIDs.count == 1)
+        #expect(signer.confirmedPrices.count == 1)
         #expect(signer.sentSignatures == [Constants.signature, Constants.signature])
+    }
+
+    @Test("A session key the vault refuses stops as a relink, reports nothing and drops the order, so the next try signs a fresh one")
+    func sessionKeyRefusalStopsAsRelink() async throws {
+        let (sut, provider, signer) = makeSUT(
+            sendResults: [.failure(.rejected(CollectiblesProgramRejection.unauthorized)), .success(())]
+        )
+
+        let failure = await failure(of: sut)
+        #expect(failure == .relinkRequired)
+        #expect(provider.reportedHashes.isEmpty)
+        #expect(!sut.hasUnfinishedPurchase(machineID: Constants.machineID))
+
+        _ = try await purchase(sut)
+
+        #expect(provider.generatedMachineIDs.count == 2)
+        #expect(signer.confirmedPrices.count == 2)
+    }
+
+    @Test(
+        "A relink locks a new purchase, including one after the vault refused the session key, never an order that may have paid",
+        arguments: [
+            (isRelinkRequired: false, order: OrderStage.noOrder, isLocked: false),
+            (isRelinkRequired: true, order: OrderStage.noOrder, isLocked: true),
+            (isRelinkRequired: true, order: OrderStage.signedOnly, isLocked: false),
+            (isRelinkRequired: true, order: OrderStage.refusedForSessionKey, isLocked: true),
+            (isRelinkRequired: false, order: OrderStage.refusedForSessionKey, isLocked: false),
+            (isRelinkRequired: true, order: OrderStage.sent, isLocked: false),
+        ]
+    )
+    func relinkLocksOnlyNewPurchases(isRelinkRequired: Bool, order: OrderStage, isLocked: Bool) async {
+        let (sut, _, signer) = makeSUT(sendResults: [order.sendResult], reportResults: [.failure(Constants.error)])
+
+        if order != .noOrder {
+            _ = await failure(of: sut)
+        }
+
+        signer.setRelinkRequired(isRelinkRequired)
+
+        #expect(sut.isPurchaseLocked(machineID: Constants.machineID) == isLocked)
+    }
+
+    @Test("A fresh read that fails stops the purchase before any order is created")
+    func failedFreshReadStopsPurchase() async {
+        let (sut, provider, signer) = makeSUT(freshReadError: Constants.error)
+
+        let failure = await failure(of: sut)
+
+        #expect(failure == .other)
+        #expect(provider.generatedMachineIDs.isEmpty)
+        #expect(signer.sentSignatures.isEmpty)
+    }
+
+    @Test("A relink found by the fresh read stops the purchase before any order is created, whatever the last known state says")
+    func relinkStopsPurchaseBeforeOrder() async {
+        let (sut, provider, signer) = makeSUT(relinkReads: [true])
+
+        let failure = await failure(of: sut)
+
+        #expect(failure == .relinkRequired)
+        #expect(provider.generatedMachineIDs.isEmpty)
+        #expect(signer.sentSignatures.isEmpty)
+        #expect(!sut.hasUnfinishedPurchase(machineID: Constants.machineID))
+    }
+
+    @Test("A signing refused after a relink stops the purchase as a relink and leaves no order")
+    func signingRefusedAfterRelink() async {
+        let (sut, _, signer) = makeSUT(relinkReads: [false, true], signError: Constants.error)
+
+        let failure = await failure(of: sut)
+
+        #expect(failure == .relinkRequired)
+        #expect(signer.sentSignatures.isEmpty)
+        #expect(!sut.hasUnfinishedPurchase(machineID: Constants.machineID))
     }
 
     @Test("A machine out of cards fails as low inventory and leaves no unfinished purchase")
@@ -456,6 +534,26 @@ extension RemoteCollectiblesPackPurchaseInteractorTests {
     ]
 
     nonisolated static let paidStatuses: [CollectiblesPurchaseStatus] = [.packPurchased, .packOpeningError]
+
+    nonisolated static let rejections: [CollectiblesSendError] = [
+        .rejected(Constants.error),
+        .rejected(CollectiblesProgramRejection.paused),
+    ]
+
+    enum OrderStage: Sendable {
+        case noOrder
+        case signedOnly
+        case refusedForSessionKey
+        case sent
+
+        var sendResult: Result<Void, CollectiblesSendError> {
+            switch self {
+            case .signedOnly: .failure(.rejected(Constants.error))
+            case .refusedForSessionKey: .failure(.rejected(CollectiblesProgramRejection.unauthorized))
+            case .noOrder, .sent: .success(())
+            }
+        }
+    }
 }
 
 // MARK: - Helpers
@@ -465,6 +563,7 @@ private extension RemoteCollectiblesPackPurchaseInteractorTests {
 
     enum Failure: Equatable {
         case accountNotReady
+        case relinkRequired
         case lowInventory
         case invalidPrice
         case paymentFailed(CollectiblesPurchaseStatus)
@@ -522,6 +621,8 @@ private extension RemoteCollectiblesPackPurchaseInteractorTests {
 
     func makeSUT(
         addresses: CollectiblesPurchaseAddresses? = Constants.addresses,
+        relinkReads: [Bool] = [false],
+        freshReadError: (any Error)? = nil,
         generateError: (any Error)? = nil,
         signError: (any Error)? = nil,
         sendResults: [Result<Void, CollectiblesSendError>] = [.success(())],
@@ -537,7 +638,13 @@ private extension RemoteCollectiblesPackPurchaseInteractorTests {
             statusFailures: statusFailures,
             openResults: openResults
         )
-        let signer = PurchaseSignerStub(addresses: addresses, signError: signError, sendResults: sendResults)
+        let signer = PurchaseSignerStub(
+            addresses: addresses,
+            relinkReads: relinkReads,
+            freshReadError: freshReadError,
+            signError: signError,
+            sendResults: sendResults
+        )
         let sut = SUT(
             generator: provider,
             signer: signer,
@@ -614,6 +721,7 @@ private extension RemoteCollectiblesPackPurchaseInteractorTests {
         } catch let error as CollectiblesPackPurchaseError {
             switch error {
             case .accountNotReady: return .accountNotReady
+            case .relinkRequired: return .relinkRequired
             case .lowInventory: return .lowInventory
             case .invalidPrice: return .invalidPrice
             case .paymentFailed(let status): return .paymentFailed(status)
@@ -712,20 +820,43 @@ private final class PurchaseProviderStub: CollectiblesPurchaseGenerator, Collect
 private final class PurchaseSignerStub: CollectiblesPurchaseSigner {
     nonisolated let purchaseAddresses: CollectiblesPurchaseAddresses?
 
+    nonisolated var isRelinkRequired: Bool {
+        isRelinkRequiredState.withLock { $0 }
+    }
+
     private(set) var confirmedPrices: [CollectiblesConfirmedPrice] = []
     private(set) var sentSignatures: [String] = []
 
+    private let isRelinkRequiredState = OSAllocatedUnfairLock(initialState: false)
+    private let freshReadError: (any Error)?
     private let signError: (any Error)?
+    private var relinkReads: [Bool]
     private var sendResults: [Result<Void, CollectiblesSendError>]
 
     init(
         addresses: CollectiblesPurchaseAddresses?,
+        relinkReads: [Bool] = [false],
+        freshReadError: (any Error)? = nil,
         signError: (any Error)? = nil,
         sendResults: [Result<Void, CollectiblesSendError>]
     ) {
         purchaseAddresses = addresses
+        self.relinkReads = relinkReads
+        self.freshReadError = freshReadError
         self.signError = signError
         self.sendResults = sendResults
+    }
+
+    func resolveRelinkRequirement() async throws -> Bool {
+        if let freshReadError {
+            throw freshReadError
+        }
+
+        return relinkReads.count > 1 ? relinkReads.removeFirst() : relinkReads[0]
+    }
+
+    func setRelinkRequired(_ isRelinkRequired: Bool) {
+        isRelinkRequiredState.withLock { $0 = isRelinkRequired }
     }
 
     func signPurchase(

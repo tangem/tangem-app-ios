@@ -39,9 +39,6 @@ public final class CollectiblesManager: @unchecked Sendable {
 
     private let refreshProcessor = SingleTaskProcessor<Bool, Never>()
     private let onboardingProcessor = SingleTaskProcessor<(canDeployVault: Bool, outcome: OnboardingOutcome), any Error>()
-    private let purchaseSigningTasks = OSAllocatedUnfairLock<[String: Task<CollectiblesSignedPurchase, any Error>]>(
-        initialState: [:]
-    )
 
     public init(
         userWalletId: UserWalletId,
@@ -100,6 +97,10 @@ public extension CollectiblesManager {
             .eraseToAnyPublisher()
     }
 
+    var isRelinkRequired: Bool {
+        state.isRelinkRequired(isRecorded: isRecorded)
+    }
+
     var isRelinkRequiredPublisher: AnyPublisher<Bool, Never> {
         recordedStatePublisher
             .map { state, isRecorded in state.isRelinkRequired(isRecorded: isRecorded) }
@@ -133,6 +134,16 @@ public extension CollectiblesManager {
         }
 
         await refresh(silent: false)
+    }
+
+    func refreshStateSilently() async {
+        await refresh(silent: true)
+    }
+
+    func resolveRelinkRequirement() async throws -> Bool {
+        let state = try await resolveState()
+        update(state: state)
+        return state.isRelinkRequired(isRecorded: isRecorded)
     }
 }
 
@@ -290,44 +301,7 @@ public extension CollectiblesManager {
     ) async throws -> CollectiblesSignedPurchase {
         try purchaseTransactionDispatcher.validate(purchase, against: confirmedPrice)
 
-        let signing = purchaseSigningTasks.withLock { tasks in
-            if let task = tasks[purchase.memo] {
-                return task
-            }
-
-            let task = Task<CollectiblesSignedPurchase, any Error> { [weak self] in
-                guard let self else {
-                    throw CancellationError()
-                }
-
-                return try await makeSignedPurchase(purchase)
-            }
-
-            tasks[purchase.memo] = task
-            return task
-        }
-
-        let signedPurchase: CollectiblesSignedPurchase
-
-        do {
-            signedPurchase = try await signing.value
-        } catch {
-            purchaseSigningTasks.withLock { tasks in
-                guard tasks[purchase.memo] == signing else {
-                    return
-                }
-
-                tasks[purchase.memo] = nil
-            }
-
-            throw error
-        }
-
-        guard signedPurchase.amount == purchase.amount, signedPurchase.feeAmount == purchase.feeAmount else {
-            throw PurchaseError.conflictingPurchase
-        }
-
-        return signedPurchase
+        return try await makeSignedPurchase(purchase)
     }
 
     func sendPurchase(_ signedPurchase: CollectiblesSignedPurchase) async throws(CollectiblesSendError) {
@@ -613,7 +587,6 @@ extension CollectiblesManager {
 extension CollectiblesManager {
     enum PurchaseError: Error {
         case vaultNotReady
-        case conflictingPurchase
     }
 }
 

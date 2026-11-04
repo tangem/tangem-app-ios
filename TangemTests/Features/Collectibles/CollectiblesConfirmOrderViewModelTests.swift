@@ -95,6 +95,34 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
         #expect(sut.buttonState == expectedState)
     }
 
+    // MARK: - Relink
+
+    @Test("The button asks to relink once the relink status changes and the purchase turns out locked")
+    func relinkStatusLocksApprove() async {
+        let (sut, doubles) = makeSUT()
+        _ = await sut.$buttonState.values.first { $0 == .approve }
+
+        doubles.interactor.isLocked = true
+        doubles.relinkStatusProvider.isRelinkRequiredSubject.send(true)
+        _ = await sut.$buttonState.values.first { $0 == .relinkRequired }
+        sut.approve()
+
+        #expect(sut.buttonState == .relinkRequired)
+        #expect(doubles.interactor.purchases.isEmpty)
+    }
+
+    @Test("A relink found right before paying locks the button without the generic error, even before the lock catches up")
+    func relinkFoundBeforePayingLocksButton() async {
+        let (sut, doubles) = makeSUT(results: [.failure(CollectiblesPackPurchaseError.relinkRequired)])
+        _ = await sut.$buttonState.values.first { $0 == .approve }
+
+        sut.approve()
+        _ = await sut.$buttonState.values.first { $0 == .relinkRequired }
+
+        #expect(sut.errorMessage == nil)
+        #expect(doubles.interactor.purchases.count == 1)
+    }
+
     // MARK: - Approve
 
     @Test("Approve does nothing while the button is not approvable", arguments: Self.notApprovableArguments)
@@ -519,6 +547,7 @@ private extension CollectiblesConfirmOrderViewModelTests {
         let balanceProvider: MutableTokenBalanceProviderMock
         let delayProvider: ManualDelayProviderStub
         let balanceRefresher: BalanceRefreshSpy
+        let relinkStatusProvider: RelinkStatusProviderStub
     }
 
     enum Constants {
@@ -603,7 +632,8 @@ private extension CollectiblesConfirmOrderViewModelTests {
             routable: ConfirmOrderRoutableSpy(),
             balanceProvider: MutableTokenBalanceProviderMock(initialState: balance),
             delayProvider: ManualDelayProviderStub(),
-            balanceRefresher: BalanceRefreshSpy()
+            balanceRefresher: BalanceRefreshSpy(),
+            relinkStatusProvider: RelinkStatusProviderStub()
         )
         let sut = SUT(
             machineID: Constants.machineID,
@@ -611,6 +641,7 @@ private extension CollectiblesConfirmOrderViewModelTests {
             isTurboModeOn: isTurboModeOn,
             usdcBalanceProvider: doubles.balanceProvider,
             purchaseInteractor: doubles.interactor,
+            relinkStatusProvider: doubles.relinkStatusProvider,
             routable: doubles.routable,
             revealAssetsPreloader: doubles.preloader,
             delayProvider: doubles.delayProvider,
@@ -658,6 +689,8 @@ private struct PurchaseRequest: Equatable {
 
 @MainActor
 private final class PurchaseInteractorStub: CollectiblesPackPurchaseInteractor {
+    var isLocked = false
+
     private(set) var purchases: [PurchaseRequest] = []
 
     private let steps: [CollectiblesPackPurchaseStep]
@@ -676,6 +709,10 @@ private final class PurchaseInteractorStub: CollectiblesPackPurchaseInteractor {
 
     func hasUnfinishedPurchase(machineID: String) -> Bool {
         isPurchaseUnfinished
+    }
+
+    func isPurchaseLocked(machineID: String) -> Bool {
+        isLocked
     }
 
     func purchase(
@@ -817,6 +854,15 @@ private final class ConfirmOrderRoutableSpy: CollectiblesConfirmOrderRoutable {
     func closePackFlow() {
         closePackFlowCallsCount += 1
     }
+}
+
+private final class RelinkStatusProviderStub: CollectiblesRelinkStatusProvider {
+    let isRelinkRequiredSubject = CurrentValueSubject<Bool, Never>(false)
+
+    var isRelinkRequiredPublisher: AnyPublisher<Bool, Never> { isRelinkRequiredSubject.eraseToAnyPublisher() }
+    var isRelinkingPublisher: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
+
+    func refreshStateSilently() async {}
 }
 
 private final class BalanceRefreshSpy: Sendable {

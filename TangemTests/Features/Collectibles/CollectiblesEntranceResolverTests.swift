@@ -115,6 +115,8 @@ private final class CollectiblesAccountModelStub: CollectiblesAccountModel {
         refreshCount += 1
     }
 
+    func refreshStateSilently() async {}
+
     func awaitDeposit() async {}
 
     @MainActor
@@ -140,6 +142,10 @@ private struct CollectiblesBuybackInteractorStub: CollectiblesBuybackInteractor 
 @MainActor
 private final class CollectiblesPackPurchaseInteractorStub: CollectiblesPackPurchaseInteractor {
     func hasUnfinishedPurchase(machineID: String) -> Bool {
+        false
+    }
+
+    func isPurchaseLocked(machineID: String) -> Bool {
         false
     }
 

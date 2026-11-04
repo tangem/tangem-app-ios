@@ -145,6 +145,10 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
         await manager.refreshState()
     }
 
+    func refreshStateSilently() async {
+        await manager.refreshStateSilently()
+    }
+
     func awaitDeposit() async {
         await manager.awaitDeposit()
     }
