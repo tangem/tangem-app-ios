@@ -15,6 +15,7 @@ struct EarnProductDetailsDemoView: View {
     @State private var isRightToLeft = false
     @State private var linkTapCount = 0
     @State private var presentedInfo: EarnProductDetails.InfoSheet?
+    @State private var presentedHowItWorks: EarnHowItWorks?
 
     private let details = EarnProductDetails.preview
 
@@ -47,6 +48,17 @@ struct EarnProductDetailsDemoView: View {
             EarnProductInfoSheetView(sheet: info)
                 .environment(\.layoutDirection, isRightToLeft ? .rightToLeft : .leftToRight)
         }
+        .modal(
+            item: $presentedHowItWorks,
+            navigation: .title(EarnHowItWorksView.title)
+        ) { howItWorks in
+            EarnHowItWorksView(
+                content: howItWorks,
+                onLearnMore: { _ in linkTapCount += 1 },
+                onGotIt: { presentedHowItWorks = nil }
+            )
+            .environment(\.layoutDirection, isRightToLeft ? .rightToLeft : .leftToRight)
+        }
     }
 }
 
@@ -62,7 +74,20 @@ private extension EarnProductDetailsDemoView {
                 Spacer()
                 Text("\(linkTapCount)")
             }
+
+            HStack(spacing: 8) {
+                howItWorksButton(label: "Aave How it works", content: .lendingOnAavePreview)
+
+                howItWorksButton(label: "Vault How it works", content: .highYieldVaultPreview)
+            }
         }
         .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+    }
+
+    func howItWorksButton(label: String, content: EarnHowItWorks) -> TangemUI.Button {
+        TangemUI.Button(label: label, accessibilityLabel: label) { presentedHowItWorks = content }
+            .styleType(.secondary(.default))
+            .size(.x10)
+            .horizontalLayout(.infinity)
     }
 }
