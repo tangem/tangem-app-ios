@@ -45,7 +45,7 @@ struct MCPConnectionRequestProposalView: View {
                     .transition(.opacity)
 
             case .content(let agentState):
-                Row(title: agentState.name, subtitle: agentState.host ?? MCPAgent.fallbackHost)
+                Row(title: agentState.name ?? MCPAgent.fallbackName, subtitle: agentState.host ?? MCPAgent.fallbackHost)
                     .includeInnerPadding(false)
                     .start {
                         agentIcon(agentState.icon)

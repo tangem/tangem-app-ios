@@ -7,6 +7,7 @@
 //
 
 enum MCPIntentAction<IntentProposalState: Equatable> {
+    case viewDidAppear
     case navigationCloseButtonTapped
     case issueTerminated
     case issueRetryResultReceived(MCPIntentLoadingResult<IntentProposalState>)

@@ -68,8 +68,7 @@ extension ConnectionsViewModel {
     func handle(action: ConnectionsViewAction) {
         switch action {
         case .viewDidAppear:
-            // [REDACTED_TODO_COMMENT]
-            break
+            Analytics.log(.connectionsScreenOpened, analyticsSystems: .all)
 
         case .tabSelected(let tabID):
             state.selectedTabID = tabID
@@ -156,7 +155,7 @@ extension ConnectionsViewModel {
     private func handleDisconnectAllButtonTapped() {
         let alert = ConnectionsViewState.ModalDialog.Alert.disconnectAll(
             action: { [weak self] in
-                // [REDACTED_TODO_COMMENT]
+                Analytics.log(.connectionsDisconnectAllButtonTapped)
                 self?.disconnectAll()
             }
         )
