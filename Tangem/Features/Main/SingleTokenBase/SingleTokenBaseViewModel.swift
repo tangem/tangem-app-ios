@@ -612,7 +612,7 @@ extension SingleTokenBaseViewModel {
 
         let items = jointOperations.map { builder.build(pendingOperation: $0, subtitleOwnerResolver: resolver) }
         let header = items.contains(where: \.isPendingSignature)
-            ? Localization.transactionHistoryPending
+            ? Localization.transactionHistoryAwaitingSignatures
             : Localization.jointOperationSendingToNetwork
 
         return TransactionListItem(header: header, items: items)
