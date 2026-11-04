@@ -17,7 +17,7 @@ public struct MCPAgent: Equatable, Sendable {
     public let name: String
 
     /// Domain the agent's registration was fetched from and confirmed by the server.
-    public let host: String
+    public let host: String?
 
     /// The agent's icon.
     public let icon: URL?
@@ -25,12 +25,13 @@ public struct MCPAgent: Equatable, Sendable {
     init(id: String, name: String?, host: String?, icon: URL?) {
         self.id = id
         self.name = name ?? Self.fallbackName
-        self.host = host ?? Self.fallbackHost
+        self.host = host
         self.icon = icon
     }
 }
 
 extension MCPAgent {
+    static let fallbackHost = "mcp.tangem.org"
+
     private static let fallbackName = "AI Agent"
-    private static let fallbackHost = "mcp.tangem.org"
 }
