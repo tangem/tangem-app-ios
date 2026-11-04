@@ -130,7 +130,7 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
             jointAccount
                 .jointAccountPendingOperationsProvider
                 .pendingOperationsPublisher
-                .map { operations in operations.contains { $0.operation.status.isInFlight } }
+                .map { operations in operations.contains { $0.status.isInFlight } }
                 .removeDuplicates()
                 .receiveOnMain()
                 .assign(to: &$hasOperationsInFlight)

@@ -19,40 +19,41 @@ struct JointAccountPendingOperation: Equatable {
     var amount: Amount? { operationAmount() }
     var fee: Amount? { operationFee() }
     var destination: String { innerCallType.destination }
+    var id: String { operation.id }
+    var status: JointAccountOperationStatus { operation.status }
+    var finishedAt: Date? { operation.finishedAt }
+    var initiatorAddress: String { operation.initiator }
+    var signatures: [JointAccountOperation.Signature] { operation.signatures }
+    /// Includes the initiator's signature, so it is never zero for an operation that exists.
+    var collectedSignaturesCount: Int { operation.signatures.filter { $0.state == .signed }.count }
+    var standing: Standing { memberStanding() }
+    var canSign: Bool { isSignable() }
+    var canReject: Bool { isRejectable() }
+    var didChangePublisher: AnyPublisher<JointAccountPendingOperation, Never> { makeDidChangePublisher() }
 
     let wallet: JointAccountWallet
-    let operation: JointAccountOperation
     let initiator: Initiator
-    @IgnoredEquatable
-    var operationPublisher: AnyPublisher<JointAccountOperation, Never>
     let innerCallType: SafeInnerCallType
     let feeTokenItem: TokenItem?
 
+    private let operation: JointAccountOperation
+    @IgnoredEquatable
+    private var operationPublisher: AnyPublisher<JointAccountOperation, Never>
+
     init(
         wallet: JointAccountWallet,
-        operation: JointAccountOperation,
         initiator: Initiator,
+        operation: JointAccountOperation,
         operationPublisher: AnyPublisher<JointAccountOperation, Never>,
         innerCallType: SafeInnerCallType,
         feeTokenItem: TokenItem?
     ) {
         self.wallet = wallet
-        self.operation = operation
         self.initiator = initiator
+        self.operation = operation
         self.operationPublisher = operationPublisher
         self.innerCallType = innerCallType
         self.feeTokenItem = feeTokenItem
-    }
-
-    func updating(operation: JointAccountOperation) -> JointAccountPendingOperation {
-        JointAccountPendingOperation(
-            wallet: wallet,
-            operation: operation,
-            initiator: initiator,
-            operationPublisher: operationPublisher,
-            innerCallType: innerCallType,
-            feeTokenItem: feeTokenItem
-        )
     }
 }
 
@@ -84,6 +85,10 @@ extension JointAccountPendingOperation {
         case noDecisionYet
         case signed
         case declined
+        /// Own key of the account not derived yet
+        case unavailable
+        /// Own answer in a state this version cannot read
+        case unreadable
     }
 }
 
@@ -98,6 +103,57 @@ extension JointAccountPendingOperation: JointAccountPendingOperationPoller {
 // MARK: - Private
 
 private extension JointAccountPendingOperation {
+    func makeDidChangePublisher() -> AnyPublisher<JointAccountPendingOperation, Never> {
+        operationPublisher
+            .map { [self] operation in updating(operation: operation) }
+            .eraseToAnyPublisher()
+    }
+
+    func updating(operation: JointAccountOperation) -> JointAccountPendingOperation {
+        JointAccountPendingOperation(
+            wallet: wallet,
+            initiator: initiator,
+            operation: operation,
+            operationPublisher: operationPublisher,
+            innerCallType: innerCallType,
+            feeTokenItem: feeTokenItem
+        )
+    }
+
+    func memberStanding() -> Standing {
+        guard let ownAddress = try? wallet.ownAddress() else {
+            return .unavailable
+        }
+
+        guard !initiator.isMe else {
+            return .signed
+        }
+
+        let signature = operation.signatures.first { $0.address.caseInsensitiveEquals(to: ownAddress) }
+
+        return switch signature?.state {
+        case .none: .noDecisionYet
+        case .signed: .signed
+        case .declined: .declined
+        case .unknown: .unreadable
+        }
+    }
+
+    func isSignable() -> Bool {
+        operation.status == .awaitingSignatures && standing == .noDecisionYet
+    }
+
+    func isRejectable() -> Bool {
+        guard operation.status == .awaitingSignatures else {
+            return false
+        }
+
+        return switch standing {
+        case .noDecisionYet, .signed, .unreadable: true
+        case .declined, .unavailable: false
+        }
+    }
+
     /// - Returns: `nil` for an amount too large to state as a `Decimal`, which is better shown as unknown than
     /// understated.
     func operationAmount() -> Amount? {

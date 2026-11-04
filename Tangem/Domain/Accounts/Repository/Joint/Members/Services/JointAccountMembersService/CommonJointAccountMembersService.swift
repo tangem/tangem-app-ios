@@ -35,10 +35,6 @@ struct CommonJointAccountMembersService {
 // MARK: - JointAccountMembersService protocol conformance
 
 extension CommonJointAccountMembersService: JointAccountMembersService {
-    var slots: [JointAccountSlot] {
-        slots(from: jointAccountsRepository.jointAccounts)
-    }
-
     var slotsPublisher: AnyPublisher<[JointAccountSlot], Never> {
         jointAccountsRepository.jointAccountsPublisher
             .map { slots(from: $0) }

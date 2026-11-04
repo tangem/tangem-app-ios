@@ -23,17 +23,16 @@ struct JointAccountOperationTransactionViewModelBuilder {
         pendingOperation: JointAccountPendingOperation,
         subtitleOwnerResolver: SubtitleOwnerResolver?
     ) -> TransactionViewModel {
-        let operation = pendingOperation.operation
         let tokenItem = pendingOperation.tokenItem
         let destination = pendingOperation.destination
         let interactionAddress: TransactionViewModel.InteractionAddressType = .user(destination)
         let amount = pendingOperation.amount?.value
 
         return TransactionViewModel(
-            hash: operation.id,
+            hash: pendingOperation.id,
             index: 0,
             interactionAddress: interactionAddress,
-            timeFormatted: startedAt(of: operation).map(Self.timeFormatter.string(from:)),
+            timeFormatted: startedAt(of: pendingOperation).map(Self.timeFormatter.string(from:)),
             amount: cryptoAmount(of: pendingOperation),
             value: sign(of: amount) + balanceFormatter.formatDecimal(amount),
             currencyCode: tokenItem.currencySymbol,
@@ -43,7 +42,7 @@ struct JointAccountOperationTransactionViewModelBuilder {
             isFromYieldContract: false,
             subtitleOwner: subtitleOwnerResolver?.resolve(address: destination, blockchain: tokenItem.blockchain),
             isTangemPayCounterparty: subtitleOwnerResolver?.isTangemPayDeposit(interactionAddress) == true,
-            isPendingSignature: operation.status == .awaitingSignatures
+            isPendingSignature: pendingOperation.status == .awaitingSignatures
         )
     }
 
@@ -58,8 +57,8 @@ struct JointAccountOperationTransactionViewModelBuilder {
         amount == nil ? "" : AppConstants.minusSign
     }
 
-    private func startedAt(of operation: JointAccountOperation) -> Date? {
-        guard let answer = operation.signatures.first(where: { $0.address.caseInsensitiveEquals(to: operation.initiator) }) else {
+    private func startedAt(of pendingOperation: JointAccountPendingOperation) -> Date? {
+        guard let answer = pendingOperation.signatures.first(where: { $0.address.caseInsensitiveEquals(to: pendingOperation.initiatorAddress) }) else {
             return nil
         }
 

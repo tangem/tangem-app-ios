@@ -134,7 +134,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             .jointAccountPendingOperationsProvider
             .pendingOperationsPublisher
             .map { operations in
-                operations.filter { $0.operation.status.isInFlight && $0.tokenItem == tokenItem }
+                operations.filter { $0.status.isInFlight && $0.tokenItem == tokenItem }
             }
             .removeDuplicates()
             .eraseToAnyPublisher()
@@ -619,7 +619,7 @@ extension SingleTokenBaseViewModel {
     }
 
     final func jointOperation(for transaction: TransactionViewModel) -> JointAccountPendingOperation? {
-        jointOperationsInFlight.first { $0.operation.id == transaction.hash }
+        jointOperationsInFlight.first { $0.id == transaction.hash }
     }
 
     private func updateMiniChartState(using data: MarketsChartModel) {

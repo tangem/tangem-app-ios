@@ -121,7 +121,7 @@ struct CommonJointAccountPendingOperationsProviderTests {
 
         let operations = try await sut.pendingOperationsPublisher.async()
 
-        #expect(operations.map(\.operation.id) == ["mine"])
+        #expect(operations.map(\.id) == ["mine"])
     }
 
     @Test("An operation in a token this wallet has not added is left out until it is, the rest staying")
@@ -157,7 +157,7 @@ struct CommonJointAccountPendingOperationsProviderTests {
 
         let operations = try await sut.pendingOperationsPublisher.async()
 
-        #expect(operations.map(\.operation.id) == ["coin"])
+        #expect(operations.map(\.id) == ["coin"])
     }
 
     @Test("A wallet no operation of a joint account goes through is left out: one without a Safe, or one of the wallet's own accounts")
@@ -192,21 +192,45 @@ struct CommonJointAccountPendingOperationsProviderTests {
         withExtendedLifetime(subscription) {}
     }
 
-    @Test("The snapshot answers right away with what the publisher would emit")
-    func snapshotAnswersWhatThePublisherWouldEmit() async throws {
+    // MARK: - Networks in use
+
+    @Test("An operation in flight holds its network and no other", arguments: [JointAccountOperationStatus.awaitingSignatures, .pending])
+    func operationInFlightHoldsItsNetwork(status: JointAccountOperationStatus) throws {
+        let sut = Self.makeSUT(records: [Self.record(operations: [Self.coinTransfer(status: status)])], walletModels: []).provider
+
+        #expect(try sut.hasPendingOperations(chainId: #require(Self.coin.blockchain.chainId)))
+        #expect(try !sut.hasPendingOperations(chainId: #require(Blockchain.polygon(testnet: false).chainId)))
+    }
+
+    @Test(
+        "An operation that is over holds no network, though the store keeps it",
+        arguments: [JointAccountOperationStatus.executed, .failed, .cancelled, .unknown]
+    )
+    func operationThatIsOverHoldsNoNetwork(status: JointAccountOperationStatus) throws {
+        let sut = Self.makeSUT(records: [Self.record(operations: [Self.coinTransfer(status: status)])], walletModels: []).provider
+
+        #expect(try !sut.hasPendingOperations(chainId: #require(Self.coin.blockchain.chainId)))
+    }
+
+    @Test("An operation in a token this device has not added holds the network all the same")
+    func operationInAMissingTokenHoldsTheNetwork() throws {
         let account = makeJointAccount()
         let sut = try Self.makeSUT(
-            records: [Self.record(operations: [Self.coinTransfer(), Self.tokenTransfer()])],
-            walletModels: [
-                Self.makeWalletModel(tokenItem: Self.coin, account: account),
-                Self.makeWalletModel(tokenItem: Self.token, account: account),
-            ]
+            records: [Self.record(operations: [Self.tokenTransfer()])],
+            walletModels: [Self.makeWalletModel(tokenItem: Self.coin, account: account)]
         ).provider
 
-        let emitted = try await sut.pendingOperationsPublisher.async()
+        #expect(try sut.hasPendingOperations(chainId: #require(Self.coin.blockchain.chainId)))
+    }
 
-        #expect(sut.pendingOperations == emitted)
-        #expect(sut.pendingOperations.map(\.operation.id) == ["coin", "token"])
+    @Test("An operation of another account holds none of this account's networks")
+    func operationOfAnotherAccountHoldsNoNetwork() throws {
+        let sut = Self.makeSUT(
+            records: [Self.record(operations: [Self.coinTransfer()], cryptoAccountId: String(repeating: "0", count: 64))],
+            walletModels: []
+        ).provider
+
+        #expect(try !sut.hasPendingOperations(chainId: #require(Self.coin.blockchain.chainId)))
     }
 
     // MARK: - Initiator
@@ -261,17 +285,17 @@ struct CommonJointAccountPendingOperationsProviderTests {
 
         let operations = try await sut.pendingOperationsPublisher.async()
 
-        #expect(operations.map(\.operation.id) == ["coin"])
+        #expect(operations.map(\.id) == ["coin"])
     }
 
     @Test("Each operation is followed through the store to its end, and falls silent once the store drops it")
-    func operationIsFollowedToItsEnd() throws {
+    func operationIsFollowedToItsEnd() async throws {
         let account = makeJointAccount()
         let repository = JointAccountPendingOperationsRepositoryStub(pendingOperations: [Self.record(operations: [Self.coinTransfer()])])
         let sut = Self.makeSUT(repository: repository, walletModels: [Self.makeWalletModel(tokenItem: Self.coin, account: account)]).provider
-        let operation = try #require(sut.pendingOperations.first)
+        let operation = try #require(try await sut.pendingOperationsPublisher.async().first)
         var statuses: [JointAccountOperationStatus] = []
-        let subscription = operation.operationPublisher.sink { statuses.append($0.status) }
+        let subscription = operation.didChangePublisher.sink { statuses.append($0.status) }
 
         repository.store(pendingOperations: [Self.record(operations: [Self.coinTransfer(status: .pending)])])
         repository.store(pendingOperations: [Self.record(operations: [Self.coinTransfer(status: .executed)])])
@@ -282,13 +306,13 @@ struct CommonJointAccountPendingOperationsProviderTests {
     }
 
     @Test("An operation of another account is not taken for this one, whatever its identifier")
-    func operationOfAnotherAccountIsNotFollowed() throws {
+    func operationOfAnotherAccountIsNotFollowed() async throws {
         let account = makeJointAccount()
         let repository = JointAccountPendingOperationsRepositoryStub(pendingOperations: [Self.record(operations: [Self.coinTransfer()])])
         let sut = Self.makeSUT(repository: repository, walletModels: [Self.makeWalletModel(tokenItem: Self.coin, account: account)]).provider
-        let operation = try #require(sut.pendingOperations.first)
+        let operation = try #require(try await sut.pendingOperationsPublisher.async().first)
         var statuses: [JointAccountOperationStatus] = []
-        let subscription = operation.operationPublisher.sink { statuses.append($0.status) }
+        let subscription = operation.didChangePublisher.sink { statuses.append($0.status) }
 
         repository.store(pendingOperations: [
             Self.record(operations: [Self.coinTransfer(status: .executed)], cryptoAccountId: String(repeating: "0", count: 64)),
