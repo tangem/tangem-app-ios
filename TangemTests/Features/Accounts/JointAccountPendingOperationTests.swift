@@ -1,5 +1,5 @@
 //
-//  JointAccountPendingOperationStandingResolverTests.swift
+//  JointAccountPendingOperationTests.swift
 //  TangemTests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,35 +13,34 @@ import BlockchainSdk
 @testable import Tangem
 
 @Suite("Tests for where a member stands on an operation of their joint account")
-struct JointAccountPendingOperationStandingResolverTests {
-    private let sut = JointAccountPendingOperationStandingResolver()
+struct JointAccountPendingOperationTests {
     private let delegate = JointAccountModelDelegateMock()
 
     @Test("A member who has not answered has no decision yet, and may sign or decline")
     func memberWithoutAnAnswerHasNoDecisionYet() throws {
         let pendingOperation = try makePendingOperation(signatures: [Self.creatorSignature])
 
-        #expect(sut.standing(for: pendingOperation) == .noDecisionYet)
-        #expect(sut.canSign(pendingOperation))
-        #expect(sut.canReject(pendingOperation))
+        #expect(pendingOperation.standing == .noDecisionYet)
+        #expect(pendingOperation.canSign)
+        #expect(pendingOperation.canReject)
     }
 
     @Test("A member who signed stands as signed, with nothing left to sign, though they may still decline")
     func memberWhoSignedStandsAsSigned() throws {
         let pendingOperation = try makePendingOperation(signatures: [Self.creatorSignature, Self.ownSignature(.signed)])
 
-        #expect(sut.standing(for: pendingOperation) == .signed)
-        #expect(!sut.canSign(pendingOperation))
-        #expect(sut.canReject(pendingOperation))
+        #expect(pendingOperation.standing == .signed)
+        #expect(!pendingOperation.canSign)
+        #expect(pendingOperation.canReject)
     }
 
     @Test("A member who declined stands as declined, with nothing left to answer")
     func memberWhoDeclinedStandsAsDeclined() throws {
         let pendingOperation = try makePendingOperation(signatures: [Self.creatorSignature, Self.ownSignature(.declined)])
 
-        #expect(sut.standing(for: pendingOperation) == .declined)
-        #expect(!sut.canSign(pendingOperation))
-        #expect(!sut.canReject(pendingOperation))
+        #expect(pendingOperation.standing == .declined)
+        #expect(!pendingOperation.canSign)
+        #expect(!pendingOperation.canReject)
     }
 
     @Test("The initiator stands as signed by creating the operation, and may still call it off")
@@ -49,18 +48,18 @@ struct JointAccountPendingOperationStandingResolverTests {
         let pendingOperation = try makePendingOperation(initiator: Constants.ownAddress, signatures: [])
 
         #expect(pendingOperation.initiator.isMe)
-        #expect(sut.standing(for: pendingOperation) == .signed)
-        #expect(!sut.canSign(pendingOperation))
-        #expect(sut.canReject(pendingOperation))
+        #expect(pendingOperation.standing == .signed)
+        #expect(!pendingOperation.canSign)
+        #expect(pendingOperation.canReject)
     }
 
-    @Test("An answer this version cannot read is no decision yet, but leaves nothing to sign")
+    @Test("An answer this version cannot read leaves nothing to sign, though the member may still decline")
     func unreadableAnswerLeavesNothingToSign() throws {
         let pendingOperation = try makePendingOperation(signatures: [Self.ownSignature(.unknown)])
 
-        #expect(sut.standing(for: pendingOperation) == .noDecisionYet)
-        #expect(!sut.canSign(pendingOperation))
-        #expect(sut.canReject(pendingOperation))
+        #expect(pendingOperation.standing == .unreadable)
+        #expect(!pendingOperation.canSign)
+        #expect(pendingOperation.canReject)
     }
 
     @Test("Addresses are matched whichever case either side spells them in")
@@ -69,18 +68,18 @@ struct JointAccountPendingOperationStandingResolverTests {
         let pendingOperation = try makePendingOperation(initiator: Constants.creatorAddress.uppercased(), signatures: [signature])
 
         #expect(!pendingOperation.initiator.isMe)
-        #expect(sut.standing(for: pendingOperation) == .signed)
-        #expect(!sut.canSign(pendingOperation))
+        #expect(pendingOperation.standing == .signed)
+        #expect(!pendingOperation.canSign)
     }
 
-    @Test("A wallet whose key of the account is not derived yet has no decision and nothing to answer")
+    @Test("A wallet whose key of the account is not derived yet has nothing to answer")
     func walletWithoutTheDerivedKeyHasNothingToAnswer() throws {
         let pendingOperation = try makePendingOperation(signatures: [Self.ownSignature(.signed)], hasDerivedKey: false)
 
         #expect(!pendingOperation.initiator.isMe)
-        #expect(sut.standing(for: pendingOperation) == .noDecisionYet)
-        #expect(!sut.canSign(pendingOperation))
-        #expect(!sut.canReject(pendingOperation))
+        #expect(pendingOperation.standing == .unavailable)
+        #expect(!pendingOperation.canSign)
+        #expect(!pendingOperation.canReject)
     }
 
     @Test(
@@ -90,15 +89,15 @@ struct JointAccountPendingOperationStandingResolverTests {
     func operationPastSigningLeavesNothingToAnswer(status: JointAccountOperationStatus) throws {
         let pendingOperation = try makePendingOperation(status: status, signatures: [Self.creatorSignature])
 
-        #expect(sut.standing(for: pendingOperation) == .noDecisionYet)
-        #expect(!sut.canSign(pendingOperation))
-        #expect(!sut.canReject(pendingOperation))
+        #expect(pendingOperation.standing == .noDecisionYet)
+        #expect(!pendingOperation.canSign)
+        #expect(!pendingOperation.canReject)
     }
 }
 
 // MARK: - Fixtures
 
-private extension JointAccountPendingOperationStandingResolverTests {
+private extension JointAccountPendingOperationTests {
     static let creatorSignature = JointAccountOperation.Signature(address: Constants.creatorAddress, state: .signed, at: Constants.signedAt)
 
     static func ownSignature(_ state: JointAccountOperation.Signature.State) -> JointAccountOperation.Signature {
@@ -145,8 +144,8 @@ private extension JointAccountPendingOperationStandingResolverTests {
 
         return JointAccountPendingOperation(
             wallet: wallet,
-            operation: operation,
             initiator: operationInitiator,
+            operation: operation,
             operationPublisher: Just(operation).eraseToAnyPublisher(),
             innerCallType: .transfer(.coin(destination: Constants.recipient, value: 1_000_000_000_000_000)),
             feeTokenItem: Constants.coin

@@ -21,158 +21,69 @@ import TangemUI
 /// - Note: Handed an operation already read out of its signed payload. The sheet does no parsing, no digest of its
 ///   own and no signing — that belongs to the domain layer over the Safe support in the SDK.
 final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingSheetContentViewModel {
-    @Published private(set) var isSigning = false
-    @Published private(set) var isRejecting = false
+    @Published private(set) var isProcessing = false
     @Published private(set) var viewState: ViewState = .details
-    @Published private(set) var content: Content
-    @Published private(set) var answer: Answer
-    @Published private(set) var recipientState: RecipientState
-
-    private let alertPresenter: AlertPresenter
-
-    let tokenIconInfo: TokenIconInfo
-    /// Written out for display, and taken from the payload's own `value` rather than from a field on the response.
-    let cryptoAmount: String
-    let fiatAmount: String
-    /// Taken from the payload's own `to`.
-    let recipient: String
-    let networkFee: String
-
-    private let blockchain: BSDKBlockchain
-    private let addressBookWallet: AddressBookWallet
-    private let addressBookAnalyticsLogger: AddressBookAnalyticsLogger
-    private let signingActionButtonType: SigningActionButtonViewType
-    private let sign: () async throws -> Void
-    private let reject: () async throws -> Void
-    private let poller: any JointAccountPendingOperationPoller
-    private let copyHelper = JointAccountCopyHelper()
-    private weak var coordinator: JointAccountOperationDetailsRoutable?
-    private var signTask: Task<Void, Never>?
-    private var rejectTask: Task<Void, Never>?
-    private var isClosing = false
-    private var updatesSubscription: AnyCancellable?
-    private var frequentUpdatesSubscription: AnyCancellable?
-    private var recipientStateSubscription: AnyCancellable?
-
-    init(
-        tokenIconInfo: TokenIconInfo,
-        cryptoAmount: String,
-        fiatAmount: String,
-        recipient: String,
-        recipientState: RecipientState,
-        blockchain: BSDKBlockchain,
-        networkFee: String,
-        signingActionButtonType: SigningActionButtonViewType,
-        content: Content,
-        contentPublisher: AnyPublisher<Content, Never>,
-        addressBookWallet: AddressBookWallet,
-        addressBookAnalyticsLogger: AddressBookAnalyticsLogger,
-        recipientStatePublisher: AnyPublisher<RecipientState, Never>,
-        poller: any JointAccountPendingOperationPoller,
-        coordinator: JointAccountOperationDetailsRoutable?,
-        alertPresenter: AlertPresenter = InjectedValues[\.alertPresenter],
-        sign: @escaping () async throws -> Void,
-        reject: @escaping () async throws -> Void
-    ) {
-        self.tokenIconInfo = tokenIconInfo
-        self.cryptoAmount = cryptoAmount
-        self.fiatAmount = fiatAmount
-        self.recipient = recipient
-        self.recipientState = recipientState
-        self.blockchain = blockchain
-        self.networkFee = networkFee
-        self.signingActionButtonType = signingActionButtonType
-        self.content = content
-        answer = content.answer
-        self.addressBookWallet = addressBookWallet
-        self.addressBookAnalyticsLogger = addressBookAnalyticsLogger
-        self.sign = sign
-        self.reject = reject
-        self.poller = poller
-        self.coordinator = coordinator
-        self.alertPresenter = alertPresenter
-
-        bind(contentPublisher: contentPublisher)
-        bind(recipientStatePublisher: recipientStatePublisher)
-    }
+    @Published private(set) var pendingOperation: JointAccountPendingOperation
+    @Published private(set) var recipientContext: RecipientContext
 
     /// While signatures are collected the icon and title stay neutral by design: the warning-coloured line under the
     /// title is what says the operation is still waiting, and repeating that in the title would say it twice.
-    var header: TransactionDetailsHeaderViewData {
-        TransactionDetailsHeaderViewData(
-            title: headerTitle,
-            titleStyle: headerTitleStyle,
-            date: headerSubtitle,
-            subtitleStyle: content.status == .awaitingSignatures ? .warning : .secondary,
-            operationIcon: TransactionViewIconViewData(
-                type: .transfer,
-                status: headerIconStatus,
-                isOutgoing: true
-            ),
-            iconGlyph: nil,
-            menuSections: [
-                .init(id: Constants.addressMenuSectionID, actions: addressMenuActions),
-                rejectMenuSection,
-            ].compactMap { $0 }
-        )
-    }
-
-    private var headerTitle: String {
-        switch content.status {
-        case .awaitingSignatures: Localization.commonSend
-        case .sending, .sent, .failed:
-            TransactionDisplayModel.title(
-                transactionType: .transfer,
-                status: headerIconStatus,
-                isOutgoing: true,
-                isFromYieldContract: false,
-                legacyName: Localization.commonTransfer,
-                subtitleOwner: recipientState.owner,
-                isTangemPayCounterparty: false
-            ).fullText
-        // [REDACTED_TODO_COMMENT]
-        case .cancelled: Localization.expressExchangeStatusCanceled
-        }
-    }
-
-    private var headerTitleStyle: TransactionDetailsHeaderViewData.TitleStyle {
-        switch content.status {
-        case .sending: .active
-        case .failed: .failed
-        case .awaitingSignatures, .sent, .cancelled: .neutral
-        }
-    }
-
-    private var headerSubtitle: String {
-        switch content.status {
-        case .awaitingSignatures: Localization.transactionHistoryPending
-        case .sending: Localization.jointOperationSendingToNetwork
-        case .sent(let date), .failed(let date), .cancelled(let date):
-            TransactionDetailsFactory.headerDateFormatter.string(from: date)
-        }
-    }
-
-    private var headerIconStatus: TransactionViewModel.Status {
-        switch content.status {
-        case .sending: .inProgress
-        case .failed: .failed
-        case .awaitingSignatures, .sent, .cancelled: .confirmed
-        }
-    }
+    var header: TransactionDetailsHeaderViewData { makeHeader() }
+    var tokenBlock: TransactionDetailsBlock { makeTokenBlock() }
+    var recipientBlock: TransactionDetailsBlock { makeRecipientBlock() }
+    var signaturesBlock: TransactionDetailsBlock { makeSignaturesBlock() }
+    var feeBlock: TransactionDetailsBlock { makeFeeBlock() }
+    var actionsBlock: TransactionDetailsBlock? { makeActionsBlock() }
+    var footerBlock: TransactionDetailsBlock? { makeFooterBlock() }
 
     var blocks: [TransactionDetailsBlock] {
         [
-            amountBlock,
+            tokenBlock,
             recipientBlock,
             signaturesBlock,
-            networkFeeBlock,
-            signBlock,
+            feeBlock,
+            actionsBlock,
             footerBlock,
         ].compactMap { $0 }
     }
 
+    private let alertPresenter: AlertPresenter
+    private let blockchain: BSDKBlockchain
+    private let addressBookWallet: AddressBookWallet
+    private let recipientSource: JointAccountOperationRecipientSource
+    private let addressBookAnalyticsLogger: AddressBookAnalyticsLogger
+    private let balanceFormatter = BalanceFormatter()
+    private let balanceConverter = BalanceConverter()
+    private let tokenIconInfoBuilder = TokenIconInfoBuilder()
+    private let transactionViewModelBuilder = JointAccountOperationTransactionViewModelBuilder()
+    private let signingActionButtonType: SigningActionButtonViewType
+    private let copyHelper = JointAccountCopyHelper()
+    private weak var coordinator: JointAccountOperationDetailsRoutable?
+    private var frequentUpdatesSubscription: AnyCancellable?
+
+    init(
+        pendingOperation: JointAccountPendingOperation,
+        addressBookWallet: AddressBookWallet,
+        recipientSource: JointAccountOperationRecipientSource,
+        coordinator: JointAccountOperationDetailsRoutable?,
+        addressBookAnalyticsLogger: AddressBookAnalyticsLogger = CommonAddressBookAnalyticsLogger(),
+        alertPresenter: AlertPresenter = InjectedValues[\.alertPresenter]
+    ) {
+        self.pendingOperation = pendingOperation
+        self.addressBookWallet = addressBookWallet
+        self.recipientSource = recipientSource
+        self.coordinator = coordinator
+        self.addressBookAnalyticsLogger = addressBookAnalyticsLogger
+        self.alertPresenter = alertPresenter
+        blockchain = pendingOperation.tokenItem.blockchain
+        signingActionButtonType = SigningActionButtonViewTypeBuilder().build(userWalletInfo: addressBookWallet.wallet)
+        recipientContext = RecipientContext(contacts: recipientSource.contacts, isAddressBookSynced: false, tangemPayDepositOwners: [])
+
+        bind()
+    }
+
     func onAppear() {
-        frequentUpdatesSubscription = poller.requestFrequentUpdates()
+        frequentUpdatesSubscription = pendingOperation.requestFrequentUpdates()
     }
 
     func onDisappear() {
@@ -197,47 +108,47 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
             break
         }
     }
+
+    func rejectOperation() {
+        guard !isProcessing else {
+            return
+        }
+
+        isProcessing = true
+
+        runTask(in: self) { viewModel in
+            await viewModel.reject()
+        }
+    }
 }
 
 // MARK: - Updates
 
 private extension JointAccountOperationDetailsViewModel {
-    func bind(contentPublisher: AnyPublisher<Content, Never>) {
-        updatesSubscription = contentPublisher
+    func bind() {
+        pendingOperation.didChangePublisher
             .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, content in
-                viewModel.updateContent(content)
-            }
-    }
+            .assign(to: &$pendingOperation)
 
-    func bind(recipientStatePublisher: AnyPublisher<RecipientState, Never>) {
-        recipientStateSubscription = recipientStatePublisher
+        recipientSource.contactsPublisher
+            .removeDuplicates()
+            .combineLatest(
+                recipientSource.isAddressBookSyncedPublisher.removeDuplicates(),
+                recipientSource.tangemPayDepositOwnersPublisher
+            )
+            .map { contacts, isAddressBookSynced, tangemPayDepositOwners in
+                RecipientContext(
+                    contacts: contacts,
+                    isAddressBookSynced: isAddressBookSynced,
+                    tangemPayDepositOwners: tangemPayDepositOwners
+                )
+            }
+            .removeDuplicates()
             .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, recipientState in
-                viewModel.recipientState = recipientState
-            }
-    }
-
-    func updateContent(_ content: Content) {
-        self.content = content
-
-        if answer == .awaiting, !isSigning, !isRejecting {
-            answer = content.answer
-        }
-
-        if case .signers(let signersViewModel) = viewState {
-            signersViewModel.update(membersCount: content.membersCount, signers: content.signers)
-        }
+            .assign(to: &$recipientContext)
     }
 
     func close() {
-        guard !isClosing else {
-            return
-        }
-
-        isClosing = true
         frequentUpdatesSubscription = nil
         coordinator?.closeOperationDetails()
     }
@@ -247,11 +158,7 @@ private extension JointAccountOperationDetailsViewModel {
 
 private extension JointAccountOperationDetailsViewModel {
     func openSigners() {
-        let viewModel = JointAccountSignersViewModel(
-            membersCount: content.membersCount,
-            signers: content.signers,
-            coordinator: self
-        )
+        let viewModel = JointAccountSignersViewModel(pendingOperation: pendingOperation, coordinator: self)
 
         viewState = .signers(viewModel)
     }
@@ -294,71 +201,41 @@ extension JointAccountOperationDetailsViewModel: JointAccountSignersRoutable {
 
 private extension JointAccountOperationDetailsViewModel {
     func signOperation() {
-        guard signTask == nil else {
+        guard !isProcessing else {
             return
         }
 
-        isSigning = true
-        signTask = runTask(in: self) { viewModel in
-            do {
-                try await viewModel.sign()
-                await viewModel.finishSigning(with: nil)
-            } catch {
-                await viewModel.finishSigning(with: error)
-            }
+        isProcessing = true
+
+        runTask(in: self) { viewModel in
+            await viewModel.sign()
         }
     }
 
     @MainActor
-    func finishSigning(with error: (any Error)?) {
-        isSigning = false
-        signTask = nil
+    func sign() async {
+        defer { isProcessing = false }
 
-        guard let error else {
-            answer = .signed
+        do {
+            try await pendingOperation.sign()
+        } catch let error where error.isCancellationError {
             return
+        } catch {
+            JointAccountsLogger.error("Failed to sign a joint account operation", error: error)
+            alertPresenter.present(alert: JointAccountOperationSigningErrorAlert(error: error).alertBinder)
         }
-
-        if answer == .awaiting {
-            answer = content.answer
-        }
-
-        guard !error.isCancellationError else {
-            return
-        }
-
-        JointAccountsLogger.error("Failed to sign a joint account operation", error: error)
-        alertPresenter.present(alert: JointAccountOperationSigningErrorAlert(error: error).alertBinder)
     }
 }
 
 // MARK: - Rejecting
 
-extension JointAccountOperationDetailsViewModel {
-    func rejectOperation() {
-        guard rejectTask == nil, !isSigning else {
+private extension JointAccountOperationDetailsViewModel {
+    func confirmRejection() {
+        guard !isProcessing else {
             return
         }
 
-        let isInitiator = content.isInitiator
-
-        isRejecting = true
-        rejectTask = runTask(in: self) { viewModel in
-            do {
-                try await viewModel.reject()
-                await viewModel.finishRejecting(isInitiator: isInitiator, with: nil)
-            } catch {
-                await viewModel.finishRejecting(isInitiator: isInitiator, with: error)
-            }
-        }
-    }
-
-    private func confirmRejection() {
-        guard rejectTask == nil, !isSigning else {
-            return
-        }
-
-        let isInitiator = content.isInitiator
+        let isInitiator = pendingOperation.initiator.isMe
 
         alertPresenter.present(alert: AlertBuilder.makeAlert(
             title: isInitiator ? Localization.jointOperationDeleteAlertTitle : Localization.jointOperationDeclineAlertTitle,
@@ -371,47 +248,40 @@ extension JointAccountOperationDetailsViewModel {
     }
 
     @MainActor
-    private func finishRejecting(isInitiator: Bool, with error: (any Error)?) {
-        isRejecting = false
-        rejectTask = nil
+    func reject() async {
+        defer { isProcessing = false }
 
-        guard let error else {
-            if isInitiator {
-                close()
-                showDeletedToast()
-                return
-            }
-
-            answer = .declined
+        do {
+            try await pendingOperation.reject()
+        } catch let error where error.isCancellationError {
             return
-        }
-
-        if answer == .awaiting {
-            answer = content.answer
-        }
-
-        guard !error.isCancellationError else {
-            return
-        }
-
-        JointAccountsLogger.error("Failed to reject a joint account operation", error: error)
-
-        switch (error as? TangemAPIError)?.code {
-        case .notFound:
+        } catch let error as TangemAPIError where error.code == .notFound {
             close()
-        case .conflict:
+            return
+        } catch let error as TangemAPIError where error.code == .conflict {
+            JointAccountsLogger.error("Failed to reject a joint account operation", error: error)
             alertPresenter.present(alert: AlertBuilder.makeAlertWithDefaultPrimaryButton(
                 title: Localization.jointOperationThresholdReachedTitle,
                 message: Localization.jointOperationThresholdReachedSubtitle,
                 buttonText: Localization.commonGotIt,
                 buttonAction: { [weak self] in self?.close() }
             ))
-        default:
+            return
+        } catch {
+            JointAccountsLogger.error("Failed to reject a joint account operation", error: error)
             alertPresenter.present(alert: JointAccountOperationSigningErrorAlert(error: error).alertBinder)
+            return
         }
+
+        guard pendingOperation.initiator.isMe else {
+            return
+        }
+
+        close()
+        showDeletedToast()
     }
 
-    private func showDeletedToast() {
+    func showDeletedToast() {
         Toast(
             view: TangemSnackbar(title: Localization.jointOperationDeletedSnackbar)
                 .icon(DesignSystem.Icons.TrashBin.regular20)
@@ -421,52 +291,118 @@ extension JointAccountOperationDetailsViewModel {
     }
 }
 
-// MARK: - Blocks
+// MARK: - Header
 
 private extension JointAccountOperationDetailsViewModel {
+    func makeHeader() -> TransactionDetailsHeaderViewData {
+        TransactionDetailsHeaderViewData(
+            title: headerTitle,
+            titleStyle: headerTitleStyle,
+            date: headerSubtitle,
+            subtitleStyle: status == .awaitingSignatures ? .warning : .secondary,
+            operationIcon: TransactionViewIconViewData(
+                type: .transfer,
+                status: headerIconStatus,
+                isOutgoing: true
+            ),
+            iconGlyph: nil,
+            menuSections: [
+                .init(id: Constants.addressMenuSectionID, actions: addressMenuActions),
+                rejectMenuSection,
+            ].compactMap { $0 }
+        )
+    }
+
+    var headerTitle: String {
+        switch status {
+        case .awaitingSignatures: Localization.commonSend
+        case .sending, .sent, .failed:
+            TransactionDisplayModel.title(
+                transactionType: .transfer,
+                status: headerIconStatus,
+                isOutgoing: true,
+                isFromYieldContract: false,
+                legacyName: Localization.commonTransfer,
+                subtitleOwner: recipientState.owner,
+                isTangemPayCounterparty: false
+            ).fullText
+        // [REDACTED_TODO_COMMENT]
+        case .cancelled: Localization.expressExchangeStatusCanceled
+        }
+    }
+
+    var headerTitleStyle: TransactionDetailsHeaderViewData.TitleStyle {
+        switch status {
+        case .sending: .active
+        case .failed: .failed
+        case .awaitingSignatures, .sent, .cancelled: .neutral
+        }
+    }
+
+    var headerSubtitle: String {
+        switch status {
+        case .awaitingSignatures: Localization.transactionHistoryPending
+        case .sending: Localization.jointOperationSendingToNetwork
+        case .sent(let date), .failed(let date), .cancelled(let date):
+            TransactionDetailsFactory.headerDateFormatter.string(from: date)
+        }
+    }
+
+    var headerIconStatus: TransactionViewModel.Status {
+        switch status {
+        case .sending: .inProgress
+        case .failed: .failed
+        case .awaitingSignatures, .sent, .cancelled: .confirmed
+        }
+    }
+
     var rejectMenuSection: TransactionDetailsHeaderViewData.MenuSection? {
-        guard content.canReject, content.status == .awaitingSignatures, answer != .declined else {
+        guard pendingOperation.canReject else {
             return nil
         }
 
         let action = TransactionDetailsHeaderViewData.MenuAction(
             id: Constants.rejectMenuActionID,
-            title: content.isInitiator ? Localization.commonDelete : Localization.commonDecline,
-            icon: content.isInitiator ? DesignSystem.Icons.TrashBin.regular24 : DesignSystem.Icons.Cross.regular24,
+            title: pendingOperation.initiator.isMe ? Localization.commonDelete : Localization.commonDecline,
+            icon: pendingOperation.initiator.isMe ? DesignSystem.Icons.TrashBin.regular24 : DesignSystem.Icons.Cross.regular24,
             action: .rejectOperation,
             role: .destructive
         )
 
         return .init(id: Constants.rejectMenuSectionID, actions: [action])
     }
+}
 
-    var amountBlock: TransactionDetailsBlock {
+// MARK: - Blocks
+
+private extension JointAccountOperationDetailsViewModel {
+    func makeTokenBlock() -> TransactionDetailsBlock {
         .tokens(
             TransactionDetailsTokensViewData(
                 icon: .token(tokenIconInfo),
                 caption: nil,
                 amountText: cryptoAmount,
                 fiatText: fiatAmount,
-                isAmountStrikethrough: content.status.isFailed
+                isAmountStrikethrough: status.isFailed
             )
         )
     }
 
-    var recipientBlock: TransactionDetailsBlock {
+    func makeRecipientBlock() -> TransactionDetailsBlock {
         .counterparty(TransactionDetailsFactory.counterparty(for: recipientState.owner, label: Localization.sendRecipient))
     }
 
-    var signaturesBlock: TransactionDetailsBlock {
+    func makeSignaturesBlock() -> TransactionDetailsBlock {
         .signatures(
             TransactionDetailsSignaturesViewData(
-                title: Localization.jointOperationSignaturesProgress(content.collectedSignaturesCount, content.requiredSignaturesCount),
-                collectedCount: content.collectedSignaturesCount,
-                requiredCount: content.requiredSignaturesCount
+                title: Localization.jointOperationSignaturesProgress(pendingOperation.collectedSignaturesCount, requiredSignaturesCount),
+                collectedCount: pendingOperation.collectedSignaturesCount,
+                requiredCount: requiredSignaturesCount
             )
         )
     }
 
-    var networkFeeBlock: TransactionDetailsBlock {
+    func makeFeeBlock() -> TransactionDetailsBlock {
         .info(
             TransactionDetailsInfoSectionViewData(
                 rows: [
@@ -480,8 +416,8 @@ private extension JointAccountOperationDetailsViewModel {
         )
     }
 
-    var signBlock: TransactionDetailsBlock? {
-        guard content.status == .awaitingSignatures else {
+    func makeActionsBlock() -> TransactionDetailsBlock? {
+        guard status == .awaitingSignatures else {
             return nil
         }
 
@@ -491,55 +427,133 @@ private extension JointAccountOperationDetailsViewModel {
                 icon: nil,
                 style: .default,
                 action: .signOperation,
-                isBusy: isSigning || isRejecting,
-                isEnabled: isSignEnabled,
+                isBusy: isProcessing,
+                isEnabled: pendingOperation.canSign,
                 signingType: signingActionButtonType
             )
         )
     }
 
     var signTitle: String {
-        switch answer {
-        case .awaiting: return Localization.commonSign
+        switch pendingOperation.standing {
+        case .noDecisionYet, .unavailable, .unreadable: return Localization.commonSign
         case .signed: return Localization.jointOperationSigned
         case .declined: return Localization.jointOperationDeclined
         }
     }
 
-    var isSignEnabled: Bool {
-        guard content.canSign, !isRejecting else {
-            return false
-        }
-
-        switch answer {
-        case .awaiting: return true
-        case .signed, .declined: return false
-        }
-    }
-
     /// A member who declined is told the operation is not dead: the others can still reach the threshold without
     /// them, which is the whole point of a threshold below the member count.
-    var footerBlock: TransactionDetailsBlock? {
-        let requiredSignaturesCount = content.requiredSignaturesCount
-        let membersCount = content.membersCount
-
-        switch content.status {
+    func makeFooterBlock() -> TransactionDetailsBlock? {
+        switch status {
         case .sending, .failed, .cancelled:
             return nil
         case .sent:
-            return .caption(Localization.jointOperationSentFooter(content.collectedSignaturesCount, membersCount))
+            return .caption(Localization.jointOperationSentFooter(pendingOperation.collectedSignaturesCount, membersCount))
         case .awaitingSignatures:
             break
         }
 
-        switch answer {
-        case .awaiting:
+        switch pendingOperation.standing {
+        case .noDecisionYet, .unavailable, .unreadable:
             return .caption(Localization.jointOperationAutoSendsFooter(requiredSignaturesCount, membersCount))
         case .signed:
             return .caption(Localization.jointOperationSignedFooter(requiredSignaturesCount, membersCount))
         case .declined:
             return .caption(Localization.jointOperationDeclinedFooter(requiredSignaturesCount, membersCount))
         }
+    }
+}
+
+// MARK: - Content
+
+private extension JointAccountOperationDetailsViewModel {
+    var tokenIconInfo: TokenIconInfo { makeTokenIconInfo() }
+    /// Written out for display, and taken from the payload's own `value` rather than from a field on the response.
+    var cryptoAmount: String { transactionViewModelBuilder.cryptoAmount(of: pendingOperation) }
+    var fiatAmount: String { makeFiatAmount() }
+    /// Taken from the payload's own `to`.
+    var recipient: String { pendingOperation.destination }
+    var networkFee: String { makeNetworkFee() }
+    var recipientState: RecipientState { makeRecipientState() }
+
+    var status: Status {
+        let finishedAt = pendingOperation.finishedAt ?? Date()
+
+        return switch pendingOperation.status {
+        case .awaitingSignatures: .awaitingSignatures
+        case .pending: .sending
+        case .executed: .sent(at: finishedAt)
+        case .failed: .failed(at: finishedAt)
+        case .cancelled, .unknown: .cancelled(at: finishedAt)
+        }
+    }
+
+    /// How many of the members have to sign for the operation to go through.
+    var requiredSignaturesCount: Int {
+        pendingOperation.wallet.account?.policy.signersCount ?? 0
+    }
+
+    /// Everyone on the account. Kept apart from the threshold because the copy needs both: the signatures row
+    /// counts against the threshold, while the footers and the signers screen name the roster.
+    var membersCount: Int {
+        pendingOperation.wallet.account?.policy.membersCount ?? 0
+    }
+
+    func makeTokenIconInfo() -> TokenIconInfo {
+        tokenIconInfoBuilder.build(from: pendingOperation.tokenItem, isCustom: pendingOperation.wallet.isCustom)
+    }
+
+    func makeFiatAmount() -> String {
+        guard
+            let value = pendingOperation.amount?.value,
+            let currencyId = pendingOperation.tokenItem.currencyId,
+            let fiat = balanceConverter.convertToFiat(value, currencyId: currencyId)
+        else {
+            return BalanceFormatter.defaultEmptyBalanceString
+        }
+
+        return balanceFormatter.formatFiatBalance(fiat)
+    }
+
+    func makeNetworkFee() -> String {
+        guard let fee = pendingOperation.fee else {
+            return BalanceFormatter.defaultEmptyBalanceString
+        }
+
+        let formattedFee = balanceFormatter.formatCryptoBalance(
+            fee.value,
+            currencyCode: fee.currencySymbol,
+            formattingOptions: .sendCryptoFeeFormattingOptions
+        )
+
+        return fee.value > 0 ? AppConstants.tildeSign + formattedFee : formattedFee
+    }
+
+    func makeRecipientState() -> RecipientState {
+        let userWalletId = addressBookWallet.wallet.id
+
+        let subtitleOwnerResolver = SubtitleOwnerResolver(
+            blockchain: blockchain,
+            currentUserWalletId: userWalletId,
+            // A wallet holding a joint account always has at least two accounts
+            isAccountsMode: true,
+            contacts: recipientContext.contacts,
+            tangemPayDepositOwners: recipientContext.tangemPayDepositOwners
+        )
+
+        let owner = subtitleOwnerResolver.resolve(address: recipient, blockchain: blockchain)
+
+        let addContactHelper = TransactionDetailsAddContactHelper(
+            networkId: AddressBookNetworkID(blockchain.networkId),
+            contacts: recipientContext.contacts.filter { $0.walletId == userWalletId },
+            isAddressBookSynced: recipientContext.isAddressBookSynced,
+            transactionType: .transfer,
+            interactionAddress: .user(recipient),
+            subtitleOwner: owner
+        )
+
+        return RecipientState(owner: owner, canAddToContacts: addContactHelper.addressToSave() != nil)
     }
 }
 
@@ -564,13 +578,6 @@ extension JointAccountOperationDetailsViewModel {
         case signers(JointAccountSignersViewModel)
     }
 
-    /// What this member has already done about the operation.
-    enum Answer {
-        case awaiting
-        case signed
-        case declined
-    }
-
     struct RecipientState: Equatable {
         let owner: TransactionViewModel.SubtitleOwner
         let canAddToContacts: Bool
@@ -585,21 +592,9 @@ extension JointAccountOperationDetailsViewModel {
         case cancelled(at: Date)
     }
 
-    struct Content {
-        /// Includes the initiator's signature, so it is never zero for an operation that exists.
-        let collectedSignaturesCount: Int
-        /// How many of the members have to sign for the operation to go through.
-        let requiredSignaturesCount: Int
-        /// Everyone on the account. Kept apart from the threshold because the copy needs both: the signatures row
-        /// counts against the threshold, while the footers and the signers screen name the roster.
-        let membersCount: Int
-        /// Every member of the account with where they stand on the operation, laid out ahead of the tap that opens
-        /// them.
-        let signers: [JointAccountSignerRow.ViewData]
-        let answer: Answer
-        let canSign: Bool
-        let canReject: Bool
-        let isInitiator: Bool
-        let status: Status
+    struct RecipientContext: Equatable {
+        let contacts: [AddressBookContact]
+        let isAddressBookSynced: Bool
+        let tangemPayDepositOwners: [TangemPayDepositOwner]
     }
 }

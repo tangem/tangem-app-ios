@@ -64,8 +64,8 @@ final class JointAccountFinishedOperationsWalletUpdater {
     ) -> [String: BlockchainNetwork] {
         Dictionary(
             pendingOperations
-                .filter(\.operation.status.isInFlight)
-                .map { ($0.operation.id, $0.tokenItem.blockchainNetwork) },
+                .filter(\.status.isInFlight)
+                .map { ($0.id, $0.tokenItem.blockchainNetwork) },
             uniquingKeysWith: { _, last in last }
         )
     }

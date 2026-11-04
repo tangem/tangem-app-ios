@@ -777,7 +777,7 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
     }
 
     var hasPendingTransactions: Bool {
-        if jointAccountOperationsInFlight.contains(where: { $0.tokenItem == tokenItem }) {
+        if hasJointAccountOperationsInFlight {
             return true
         }
 
@@ -791,7 +791,7 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
     }
 
     var hasAnyPendingTransactions: Bool {
-        if jointAccountOperationsInFlight.contains(where: { $0.tokenItem.blockchainNetwork == blockchainNetwork }) {
+        if hasJointAccountOperationsInFlight {
             return true
         }
 
@@ -804,12 +804,12 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
         return wallet.hasPendingTx
     }
 
-    private var jointAccountOperationsInFlight: [JointAccountPendingOperation] {
-        guard let jointAccount = account as? any JointAccountModel else {
-            return []
+    private var hasJointAccountOperationsInFlight: Bool {
+        guard let jointAccount = account as? any JointAccountModel, let chainId = tokenItem.blockchain.chainId else {
+            return false
         }
 
-        return jointAccount.jointAccountPendingOperationsProvider.pendingOperations.filter { $0.operation.status.isInFlight }
+        return jointAccount.jointAccountPendingOperationsProvider.hasPendingOperations(chainId: chainId)
     }
 
     var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> {

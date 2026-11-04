@@ -91,8 +91,8 @@ final class CommonJointAccountPendingOperationsProvider {
 
             return JointAccountPendingOperation(
                 wallet: wallet,
-                operation: operation,
                 initiator: initiator,
+                operation: operation,
                 operationPublisher: pendingOperationsRepository.operationPublisher(id: operation.id, in: cryptoAccountId),
                 innerCallType: innerCallType,
                 feeTokenItem: feeTokenItem
@@ -173,12 +173,9 @@ final class CommonJointAccountPendingOperationsProvider {
 // MARK: - JointAccountPendingOperationsProvider protocol conformance
 
 extension CommonJointAccountPendingOperationsProvider: JointAccountPendingOperationsProvider {
-    var pendingOperations: [JointAccountPendingOperation] {
-        pendingOperations(
-            in: pendingOperationsRepository.operations.first(by: cryptoAccountId),
-            walletModels: walletModelsManager.walletModels,
-            members: membersService.slots.members
-        )
+    func hasPendingOperations(chainId: Int) -> Bool {
+        let operations = pendingOperationsRepository.operations.first(by: cryptoAccountId)?.operations ?? []
+        return operations.contains { $0.chainId == chainId && $0.status.isInFlight }
     }
 
     var pendingOperationsPublisher: AnyPublisher<[JointAccountPendingOperation], Never> {

@@ -761,10 +761,11 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         userWalletInfo: UserWalletInfo,
         addressBookManager: AddressBookManager
     ) {
-        let viewModel = JointAccountOperationDetailsViewModelBuilder().build(
+        let addressBookWallet = AddressBookWallet(wallet: userWalletInfo, addressBookManager: addressBookManager)
+        let viewModel = JointAccountOperationDetailsViewModel(
             pendingOperation: pendingOperation,
-            userWalletInfo: userWalletInfo,
-            addressBookManager: addressBookManager,
+            addressBookWallet: addressBookWallet,
+            recipientSource: CommonJointAccountOperationRecipientSource(addressBookWallet: addressBookWallet),
             coordinator: self
         )
 
