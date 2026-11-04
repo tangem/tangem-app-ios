@@ -17,7 +17,6 @@ struct JointAccountOperationPlateViewDataBuilder {
     /// - Note: An amount this version cannot state is shown the way an unknown balance is, rather than costing the
     /// operation its plate.
     func build(pendingOperation: JointAccountPendingOperation, onTap: @escaping () -> Void) -> JointAccountOperationPlate.ViewData {
-        let operation = pendingOperation.operation
         let account = pendingOperation.wallet.account
         let amount = pendingOperation.amount?.value
 
@@ -35,10 +34,10 @@ struct JointAccountOperationPlateViewDataBuilder {
         }
 
         return JointAccountOperationPlate.ViewData(
-            id: operation.id,
+            id: pendingOperation.id,
             title: title,
             subtitle: Localization.jointOperationBannerSubtitle(formattedAmount, destination),
-            collectedSignaturesCount: operation.signatures.filter { $0.state == .signed }.count,
+            collectedSignaturesCount: pendingOperation.collectedSignaturesCount,
             requiredSignaturesCount: account?.policy.signersCount ?? 0,
             isActionable: true,
             onTap: onTap
