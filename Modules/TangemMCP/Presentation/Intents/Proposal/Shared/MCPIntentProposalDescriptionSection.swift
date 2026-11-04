@@ -7,13 +7,12 @@
 
 import struct Foundation.URL
 
-// [REDACTED_TODO_COMMENT]
 struct MCPIntentProposalDescriptionSection: Equatable {
     let agent: AgentHeader
     let body: String
 
     init(agent: MCPAgent, body: String) {
-        self.agent = AgentHeader(iconURL: agent.icon, host: agent.host)
+        self.agent = AgentHeader(iconURL: agent.icon, host: agent.host ?? MCPAgent.fallbackHost)
         self.body = body
     }
 }

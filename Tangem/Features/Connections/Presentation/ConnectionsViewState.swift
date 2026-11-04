@@ -106,9 +106,7 @@ extension ConnectionsViewState.UserWalletTab.MCPSessionsSection {
 
     struct FailedState: Equatable {
         let title = Localization.wcConnectionsAgentsErrorTitle
-
-        // [REDACTED_TODO_COMMENT]
-        let subtitle = Localization.feedPromoLoadErrorAction
+        let subtitle = Localization.wcConnectionsAgentsErrorSubtitle
         var isReloading = false
     }
 }
@@ -211,11 +209,10 @@ extension ConnectionsViewState.ModalDialog {
         let subtitle: String
         let buttons: [AlertButton]
 
-        // [REDACTED_TODO_COMMENT]
         static func disconnectAll(action: @escaping () -> Void) -> Alert {
             Alert(
-                title: Localization.wcDisconnectAllAlertTitle,
-                subtitle: Localization.wcDisconnectAllAlertDesc,
+                title: Localization.wcConnectionsDisconnectAllAlertTitle,
+                subtitle: Localization.wcConnectionsDisconnectAllAlertDesc,
                 buttons: [
                     AlertButton.cancel,
                     AlertButton(title: Localization.commonDisconnect, role: .destructive, action: action),

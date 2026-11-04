@@ -81,8 +81,7 @@ extension ConnectionsCoordinator: ConnectionsRoutable {
 
     func openMCPSessionDetails(_ session: MCPSession, sessionRevokedAction: @escaping () -> Void) {
         let revokedActionWithToast = { [weak self] in
-            // [REDACTED_TODO_COMMENT]
-            self?.presentSuccessSnackbar(title: "Connection revoked")
+            self?.presentSuccessSnackbar(title: Localization.mcpSessionRevoked)
             sessionRevokedAction()
         }
 
@@ -96,8 +95,7 @@ extension ConnectionsCoordinator: ConnectionsRoutable {
 
     func openDAppConnectionProposal(forURI uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource) {
         guard userWalletRepository.models.contains(where: { $0.config.isFeatureVisible(.walletConnect) }) else {
-            // [REDACTED_TODO_COMMENT]
-            presentErrorSnackbar(title: Localization.commonSomethingWentWrong)
+            presentErrorSnackbar(title: Localization.wcConnectionsNoWalletconnectWallets)
             return
         }
 
@@ -114,8 +112,7 @@ extension ConnectionsCoordinator: ConnectionsRoutable {
     }
 
     func displayDisconnectAllSucceeded() {
-        // [REDACTED_TODO_COMMENT]
-        presentSuccessSnackbar(title: Localization.wcDisconnectAllAlertTitle)
+        presentSuccessSnackbar(title: Localization.wcConnectionsDisconnectAllSuccess)
     }
 
     func displayDisconnectAllFailed() {
