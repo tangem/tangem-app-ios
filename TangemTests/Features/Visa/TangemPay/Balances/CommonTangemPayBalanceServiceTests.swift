@@ -172,6 +172,10 @@ private final class CustomerInfoManagementServiceStub: CustomerInfoManagementSer
         throw .unauthorized
     }
 
+    func checkEligibility(product: TangemPayProduct) async throws(TangemPayAPIServiceError) -> TangemPayEligibilityCheckResponse {
+        throw .unauthorized
+    }
+
     func getCardDetails(cardId: String, sessionId: String) async throws(TangemPayAPIServiceError) -> TangemPayCardDetailsResponse {
         throw .unauthorized
     }
