@@ -37,15 +37,15 @@ struct CommonJointAccountUserRoleServiceTests {
 
     @Test("The own address is the one the stored key resolves to, and another member's is not")
     func ownAddressIsTheDerivedOne() throws {
-        let sut = Self.makeSUT(members: nil)
+        let sut = try Self.makeSUT(members: nil)
 
         #expect(try sut.ownAddress() == Self.derivedAddress)
         #expect(try !sut.isMe(member: Self.stored(Self.other(role: .creator))))
     }
 
     @Test("Without a key stored for this account the wallet needs a derivation first, and says so")
-    func walletWithoutTheStoredKeyNeedsDerivation() {
-        let sut = Self.makeSUT(members: [Self.own(role: .creator)], storedKeyPath: Self.otherPath)
+    func walletWithoutTheStoredKeyNeedsDerivation() throws {
+        let sut = try Self.makeSUT(members: [Self.own(role: .creator)], storedKeyPath: Self.otherPath)
 
         #expect(throws: JointAccountUserRoleServiceError.derivationNeeded) { try sut.isCreator() }
         #expect(throws: JointAccountUserRoleServiceError.derivationNeeded) { try sut.ownAddress() }
@@ -59,11 +59,15 @@ private extension CommonJointAccountUserRoleServiceTests {
     static let derivedAddress = "0x6ECa00c52AFC728CDbF42E817d712e175bb23C7d"
 
     static var ownPath: DerivationPath {
-        JointAccountKeyPath.derivationPath(forAccountAtIndex: JointAccountCompositionFixture.derivationIdentity.derivationIndex)
+        get throws {
+            try JointAccountKeyPath.derivationPath(forAccountAtIndex: JointAccountCompositionFixture.derivationIdentity.derivationIndex)
+        }
     }
 
     static var otherPath: DerivationPath {
-        JointAccountKeyPath.derivationPath(forAccountAtIndex: JointAccountCompositionFixture.derivationIdentity.derivationIndex + 1)
+        get throws {
+            try JointAccountKeyPath.derivationPath(forAccountAtIndex: JointAccountCompositionFixture.derivationIdentity.derivationIndex + 1)
+        }
     }
 
     static func other(role: JointAccountMember.Role) -> JointAccountMember {
@@ -85,7 +89,8 @@ private extension CommonJointAccountUserRoleServiceTests {
     }
 
     /// - Parameter members: The account's members, or nil for a store that does not hold the account.
-    static func makeSUT(members: [JointAccountMember]?, storedKeyPath: DerivationPath = ownPath) -> CommonJointAccountUserRoleService {
+    static func makeSUT(members: [JointAccountMember]?, storedKeyPath: DerivationPath? = nil) throws -> CommonJointAccountUserRoleService {
+        let storedKeyPath = try storedKeyPath ?? ownPath
         let derivedKey = ExtendedPublicKey(
             publicKey: Data(hexString: "0241DCD64B5F4A039FC339A16300A833A883B218909F2EBCAF3906651C76842C45"),
             chainCode: Data(repeating: 0x11, count: 32)
