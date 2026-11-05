@@ -189,7 +189,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     }
 
     func openAgain() {
-        dismissSheet { [weak self] in self?.approve() }
+        dismissSheet { [weak self] in self?.routable?.returnToMachine() }
     }
 
     func sheetDidDismiss() {

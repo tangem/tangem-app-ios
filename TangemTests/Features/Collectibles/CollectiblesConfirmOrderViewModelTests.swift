@@ -268,24 +268,19 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
         #expect(sut.buttonState == .approve)
     }
 
-    @Test("Open again from the buyback complete sheet buys another pack once the sheet is dismissed")
+    @Test("Open again from the buyback complete sheet returns to the machine once the sheet is dismissed")
     func buybackCompleteOpensAgain() async {
-        let results: [Result<CollectiblesPackPurchaseResult, any Error>] = [
-            .success(.autoSold(amount: nil)),
-            .success(.wonCard(Self.wonCard)),
-        ]
-        let (sut, doubles) = makeSUT(results: results)
+        let (sut, doubles) = makeSUT(results: [.success(.autoSold(amount: nil))])
         await waitUntil { sut.buttonState == .approve }
         await approve(sut, in: doubles)
 
         sut.openAgain()
-        #expect(doubles.interactor.purchases.count == 1)
+        #expect(doubles.routable.returnToMachineCallsCount == 0)
 
         sut.sheetDidDismiss()
-        await waitUntil { doubles.balanceRefresher.callsCount == 2 }
 
-        #expect(doubles.interactor.purchases.count == 2)
-        #expect(doubles.routable.revealCards.count == 1)
+        #expect(doubles.routable.returnToMachineCallsCount == 1)
+        #expect(doubles.interactor.purchases.count == 1)
     }
 
     @Test("Explore packs from the buyback complete sheet leaves the flow once the sheet is dismissed")

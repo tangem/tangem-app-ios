@@ -48,7 +48,7 @@ extension CollectiblesAPIService {
 
     func loadPurchaseStatus(txID: String, userWalletID: String) async throws -> CollectiblesPurchaseTransaction {
         let transaction: CollectiblesDTO.PurchaseTransaction = try await request(
-            .purchaseStatus(.init(txID: txID, includeNftWon: true), userWalletID: userWalletID)
+            .purchaseStatus(.init(txID: txID, includeNftWon: true, includeAutoBuyback: true), userWalletID: userWalletID)
         )
 
         return Mapper.mapToPurchaseTransaction(transaction)
