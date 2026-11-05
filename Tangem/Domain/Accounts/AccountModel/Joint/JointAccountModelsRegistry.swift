@@ -99,7 +99,6 @@ actor JointAccountModelsRegistry {
                     return cachedAccount.update { editor in
                         storedCryptoAccount.name.map(editor.setName)
                         editor.setIcon(accountIcon)
-                        editor.setStatus(storedJointAccount.status)
                     }
                 }
 
@@ -130,7 +129,7 @@ actor JointAccountModelsRegistry {
                     cryptoAccount: cryptoAccount,
                     derivationIdentity: storedCryptoAccount.derivationIdentity,
                     accountPolicy: policy,
-                    accountStatus: storedJointAccount.status,
+                    statusProvider: dependencies.statusProvider,
                     operationsService: dependencies.operationsService,
                     pendingOperationsProvider: dependencies.pendingOperationsProvider,
                     membersService: dependencies.membersService,

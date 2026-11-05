@@ -26,7 +26,7 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
         let tokensCount = Localization.commonTokensCount(rawTokensCount)
 
         switch accountModel {
-        case let jointAccount as any JointAccountModel where jointAccount.status.isActive:
+        case let jointAccount as any JointAccountModel where jointAccount.jointAccountStatusProvider.status.isActive:
             let membersCount = Localization.jointAccountMembersCount(jointAccount.policy.membersCount)
             return "\(tokensCount) \(AppConstants.dotSign) \(membersCount)"
 

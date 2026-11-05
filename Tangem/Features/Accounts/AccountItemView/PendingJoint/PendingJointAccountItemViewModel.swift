@@ -99,7 +99,7 @@ final class PendingJointAccountItemViewModel: Identifiable, ObservableObject {
 
     private func makePhase(slots: [JointAccountSlot]) -> JointAccountMembersPhase {
         JointAccountMembersPhase(
-            status: jointAccount.status,
+            status: jointAccount.jointAccountStatusProvider.status,
             slots: slots,
             isCreator: jointAccount.isCreator,
             now: dateProvider.now

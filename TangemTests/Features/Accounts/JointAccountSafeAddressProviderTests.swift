@@ -1,5 +1,5 @@
 //
-//  JointAccountsRepositorySafeAddressProviderTests.swift
+//  JointAccountSafeAddressProviderTests.swift
 //  TangemTests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -16,7 +16,7 @@ import TangemFoundation
 
 /// Where the tokens of a joint account learn the address they live at.
 @Suite("Tests for reading a joint account's Safe address off its record")
-struct JointAccountsRepositorySafeAddressProviderTests {
+struct JointAccountSafeAddressProviderTests {
     @Test("There is no address until the account is activated, and then it reaches the subscribers once")
     func addressAppearsWithActivation() {
         // The address is announced at this stage already, and reading it off the record before activation is exactly
@@ -66,7 +66,7 @@ struct JointAccountsRepositorySafeAddressProviderTests {
 
 // MARK: - Helpers
 
-private extension JointAccountsRepositorySafeAddressProviderTests {
+private extension JointAccountSafeAddressProviderTests {
     static let userWalletId = UserWalletId(value: Data(repeating: 0xAB, count: 32))
     static let derivationIdentity = CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint)
     /// What `memberAddresses` resolve to under a threshold of two — see `JointAccountSafeAddressVerifierTests`.
@@ -77,11 +77,12 @@ private extension JointAccountsRepositorySafeAddressProviderTests {
         "0xD048326c01787c475Af00C51eb0221d2557bfEc2",
     ]
 
-    static func makeSUT(repository: JointAccountsRepository) -> JointAccountsRepositorySafeAddressProvider {
-        JointAccountsRepositorySafeAddressProvider(
+    static func makeSUT(repository: JointAccountsRepository) -> JointAccountSafeAddressProvider {
+        CommonJointAccountStatusProvider(
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
-            jointAccountsRepository: repository
+            jointAccountsRepository: repository,
+            userRoleService: JointAccountUserRoleServiceMock()
         )
     }
 

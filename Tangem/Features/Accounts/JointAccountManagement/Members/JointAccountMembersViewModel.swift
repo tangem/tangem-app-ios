@@ -129,7 +129,7 @@ private extension JointAccountMembersViewModel {
             self.phase = phase
         case (.some(let current), _) where current == phase:
             break
-        case (.some, .completed) where jointAccount.status.isActive:
+        case (.some, .completed) where jointAccount.jointAccountStatusProvider.status.isActive:
             closeActivatedAccount()
         case (.some(let current), _) where current.rawCaseValue == phase.rawCaseValue:
             withAnimation(JointAccountMembersMotion.member) { self.phase = phase }
@@ -164,7 +164,7 @@ private extension JointAccountMembersViewModel {
 
     func makePhase(slots: [JointAccountSlot]) -> JointAccountMembersPhase {
         JointAccountMembersPhase(
-            status: jointAccount.status,
+            status: jointAccount.jointAccountStatusProvider.status,
             slots: slots,
             isCreator: jointAccount.jointAccountUserRoleService.isCreator ?? false,
             now: dateProvider.now

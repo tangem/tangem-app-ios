@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 import BlockchainSdk
-import TangemFoundation
 
 /// The Safe address a joint account's wallets are built at: nil until the account is active, although
 /// `JointAccountStatus.confirming` carries the address already, and nil for an untrusted account.
@@ -18,50 +17,26 @@ protocol JointAccountSafeAddressProvider {
     var safeAddressPublisher: AnyPublisher<String?, Never> { get }
 }
 
-struct JointAccountsRepositorySafeAddressProvider {
-    private let cryptoAccountId: String
-    private let jointAccountsRepository: JointAccountsRepository
-
-    init(
-        userWalletId: UserWalletId,
-        derivationIdentity: CryptoAccountDerivationIdentity,
-        jointAccountsRepository: JointAccountsRepository,
-    ) {
-        self.jointAccountsRepository = jointAccountsRepository
-        cryptoAccountId = CryptoAccountModelId(userWalletId: userWalletId, derivationIdentity: derivationIdentity).rawValue.hexString
-    }
-
-    private func safeAddress(in storedJointAccounts: [StoredJointAccount]) -> String? {
-        guard
-            let storedJointAccount = storedJointAccounts.first(by: cryptoAccountId),
-            let statusSafeAddress = safeAddress(of: storedJointAccount.status)
-        else {
-            return nil
-        }
-
-        return EVMAddressUtils.toChecksumAddress(statusSafeAddress) ?? statusSafeAddress
-    }
-
-    private func safeAddress(of status: JointAccountStatus) -> String? {
-        switch status {
-        case .active(let safeAddress): safeAddress
-        case .pending, .confirming, .untrusted, .cancelled, .unknown: nil
-        }
-    }
-}
-
 // MARK: - JointAccountSafeAddressProvider protocol conformance
 
-extension JointAccountsRepositorySafeAddressProvider: JointAccountSafeAddressProvider {
+extension JointAccountStatusProvider {
     var safeAddress: String? {
-        safeAddress(in: jointAccountsRepository.jointAccounts)
+        status.activeSafeAddress
     }
 
     var safeAddressPublisher: AnyPublisher<String?, Never> {
-        jointAccountsRepository
-            .jointAccountsPublisher
-            .map { safeAddress(in: $0) }
+        statusPublisher
+            .map(\.activeSafeAddress)
             .removeDuplicates()
             .eraseToAnyPublisher()
+    }
+}
+
+private extension JointAccountStatus {
+    var activeSafeAddress: String? {
+        switch self {
+        case .active(let safeAddress): EVMAddressUtils.toChecksumAddress(safeAddress) ?? safeAddress
+        case .pending, .confirming, .untrusted, .cancelled, .unknown: nil
+        }
     }
 }

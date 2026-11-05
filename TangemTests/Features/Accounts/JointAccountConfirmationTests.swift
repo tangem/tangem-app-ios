@@ -136,7 +136,7 @@ private extension JointAccountConfirmationTests {
             cryptoAccount: cryptoAccount,
             derivationIdentity: Constants.derivationIdentity,
             accountPolicy: JointAccountPolicy(membersCount: Constants.owners.count, signersCount: threshold),
-            accountStatus: status,
+            statusProvider: JointAccountStatusProviderStub(status: status),
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             membersService: JointAccountMembersServiceMock(slots: members.map { .member($0, .joined) }),
