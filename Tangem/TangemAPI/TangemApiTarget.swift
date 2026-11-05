@@ -125,10 +125,10 @@ struct TangemApiTarget: TargetType {
             return "/banner/displays/\(request.displayId)"
         case .marketingCampaigns:
             return "/marketing/campaigns"
-        case .submitSurveyResponse:
-            return "/survey-responses"
+        case .submitSurveyResponse(let request):
+            return "/wallets/\(request.walletId)/survey-completions"
         case .surveyResponseStatus(let request):
-            return "/survey-responses/\(request.walletId)/status"
+            return "/wallets/\(request.walletId)/survey-completions/\(request.surveyId)"
         case .bindMarketingActivityWallets:
             return ""
         case .createAccount:
@@ -392,8 +392,8 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(request)
         case .submitSurveyResponse(let request):
             return .requestJSONEncodable(request)
-        case .surveyResponseStatus(let request):
-            return .requestParameters(parameters: ["surveyId": request.surveyId], encoding: URLEncoding.default)
+        case .surveyResponseStatus:
+            return .requestPlain
         case .createAccount(let parameters):
             return .requestJSONEncodable(parameters)
         case .apiList:
@@ -795,6 +795,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .getWalletCards(let walletId),
              .saveWalletCards(let walletId, _):
             return path.replacingOccurrences(of: walletId, with: "{walletId}")
+        case .submitSurveyResponse(let request):
+            return path.replacingOccurrences(of: request.walletId, with: "{walletId}")
         case .surveyResponseStatus(let request):
             return path.replacingOccurrences(of: request.walletId, with: "{walletId}")
         case .bindMarketingActivityWallets(let uid, _):
