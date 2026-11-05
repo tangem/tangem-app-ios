@@ -24,7 +24,7 @@ extension EarnProductDetails {
                 ),
             ],
             risk: .risk(.low),
-            provider: Link(title: "Validator", name: "P2P", url: URL(string: "https://p2p.org")!),
+            provider: URL(string: "https://p2p.org").map { Link(title: "Validator", name: "P2P", url: $0) },
             withdrawals: Detail(
                 value: "Up to 5 days",
                 info: InfoSheet(

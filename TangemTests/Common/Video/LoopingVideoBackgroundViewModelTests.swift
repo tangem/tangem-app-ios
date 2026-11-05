@@ -94,7 +94,7 @@ struct LoopingVideoBackgroundViewModelTests {
 
     @Test("Pausing halts the player without releasing it, so playing again resumes the same one")
     func pauseKeepsPlayerForResume() throws {
-        let provider = StubProvider(url: URL(string: "file:///tmp/looping-video-background-test.mp4")!)
+        let provider = StubProvider(url: URL(fileURLWithPath: "/tmp/looping-video-background-test.mp4"))
         let viewModel = LoopingVideoBackgroundViewModel(provider: provider)
 
         viewModel.play()

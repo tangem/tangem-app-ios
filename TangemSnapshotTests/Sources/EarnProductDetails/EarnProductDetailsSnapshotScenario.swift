@@ -80,7 +80,7 @@ private extension EarnProductDetails {
         return EarnProductDetails(
             benefits: details.benefits,
             risk: details.risk,
-            provider: Link(title: details.provider.title, name: "Aave V3 Ethereum Core Market", url: details.provider.url),
+            provider: details.provider.map { Link(title: $0.title, name: "Aave V3 Ethereum Core Market", url: $0.url) },
             withdrawals: Detail(value: "Usually instant, subject to protocol liquidity", info: details.withdrawals.info),
             managementFee: nil,
             performanceFee: details.performanceFee,

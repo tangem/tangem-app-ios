@@ -17,49 +17,35 @@ struct EarnYieldPickerView: View {
 
     @State private var presentedInfo: EarnProductDetails.InfoSheet?
     @State private var presentedInfoTitle = ""
-    @State private var currentSection: EarnYieldPickerSection = .calculator
     @State private var isTabsPinned = false
-    @State private var pendingSection: EarnYieldPickerSection?
-    @State private var viewport = ScrollMeasurement.zero
-    @State private var scrollFrames = ScrollFrames()
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                VStack(spacing: 0) {
-                    header
-
-                    tabs(proxy)
-                        .scrollMarker(.tabs)
-                        .opacity(isTabsPinned ? 0 : 1)
-                        .accessibilityHidden(isTabsPinned)
-                        .padding(.top, Constants.sectionSpacing)
-
-                    sections
-                        .padding(.top, Constants.sectionSpacing)
-                }
-                .scrollMarker(.content)
-            }
-            .coordinateSpace(name: Constants.scrollSpace)
-            .scrollIndicators(.hidden)
-            .ignoresSafeArea(edges: .top)
-            .scrollMarker(.viewport, in: .local)
-            .onPreferenceChange(ScrollMarkersKey.self, perform: updateLayout)
-            .overlay(alignment: .top) {
-                if isTabsPinned {
-                    pinnedTabs(proxy)
-                }
+        AnchoredSectionsScrollView(
+            sections: viewModel.sections,
+            isTabsPinned: $isTabsPinned,
+            ignoresTopSafeArea: true,
+            header: header(viewport:)
+        ) {
+            sections
+        }
+        .onChange(of: isTabsPinned) { isPinned in
+            if isPinned {
+                viewModel.video.pause()
+            } else {
+                viewModel.video.play()
             }
         }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .footer {
             Footer(.buttons(primary: primaryButton)).showFade()
         }
-        .topNavigation(
-            title: isTabsPinned ? viewModel.selectedProduct.name : "",
-            leading: .none,
-            close: .enabled(viewModel.onClose)
-        )
+        .topNavigation(leading: .none, close: .enabled(viewModel.onClose)) {
+            TopNavigationTitleContent(title: viewModel.selectedProduct.name)
+                .opacity(isTabsPinned ? 1 : 0)
+                .animation(reduceMotion ? nil : .easeInOut(duration: Constants.pinnedTitleFadeDuration), value: isTabsPinned)
+                .accessibilityHidden(!isTabsPinned)
+        }
         .environment(\.topNavigationDrawsBarBackground, false)
         .modal(
             item: $presentedInfo,
@@ -74,13 +60,9 @@ struct EarnYieldPickerView: View {
 // MARK: - Header
 
 private extension EarnYieldPickerView {
-    var header: some View {
+    func header(viewport: AnchoredSectionsViewport) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            LoopingVideoBackgroundView(viewModel: viewModel.video)
-                .frame(height: heroHeight)
-                .clipped()
-                .overlay(alignment: .bottom) { tint }
-                .accessibilityHidden(true)
+            hero(height: heroHeight(viewport: viewport))
 
             VStack(alignment: .leading, spacing: 0) {
                 title
@@ -91,7 +73,21 @@ private extension EarnYieldPickerView {
         }
     }
 
-    var heroHeight: CGFloat {
+    func hero(height: CGFloat) -> some View {
+        GeometryReader { proxy in
+            let pull = max(0, proxy.frame(in: .named(AnchoredSections.coordinateSpace)).minY)
+
+            LoopingVideoBackgroundView(viewModel: viewModel.video)
+                .frame(width: proxy.size.width, height: height + pull)
+                .clipped()
+                .overlay(alignment: .bottom) { tint }
+                .offset(y: -pull)
+        }
+        .frame(height: height)
+        .accessibilityHidden(true)
+    }
+
+    func heroHeight(viewport: AnchoredSectionsViewport) -> CGFloat {
         let screenHeight = viewport.frame.height + viewport.safeAreaInsets.top + viewport.safeAreaInsets.bottom
         return screenHeight * Constants.heroHeightRatio
     }
@@ -177,150 +173,34 @@ private extension EarnYieldPickerView {
     }
 }
 
-// MARK: - Tabs
-
-private extension EarnYieldPickerView {
-    func tabs(_ proxy: ScrollViewProxy) -> some View {
-        TabNavigation(data: viewModel.sections, selection: sectionBinding(proxy))
-            .scrollable()
-            .padding(.horizontal, Constants.tabsExtraHorizontalPadding)
-    }
-
-    func pinnedTabs(_ proxy: ScrollViewProxy) -> some View {
-        tabs(proxy)
-            .padding(.vertical, Constants.pinnedTabsVerticalPadding)
-            .background {
-                Fade(position: .top)
-                    .variant(.hard)
-                    .padding(.bottom, -Constants.pinnedFadeTail)
-                    .ignoresSafeArea(edges: .top)
-            }
-    }
-
-    func sectionBinding(_ proxy: ScrollViewProxy) -> Binding<EarnYieldPickerSection> {
-        Binding(
-            get: { currentSection },
-            set: { section in
-                currentSection = section
-                pendingSection = section
-
-                withAnimation(.easeInOut(duration: Constants.scrollDuration)) {
-                    proxy.scrollTo(SectionAnchor(section: section), anchor: sectionAnchor)
-                }
-
-                DispatchQueue.main.asyncAfter(deadline: .now() + Constants.scrollDuration) {
-                    if pendingSection == section {
-                        pendingSection = nil
-                    }
-                }
-            }
-        )
-    }
-
-    var sectionsEdge: CGFloat {
-        viewport.safeAreaInsets.top + (scrollFrames.values[.tabs]?.height ?? 0) + Constants.pinnedTabsVerticalPadding * 2
-    }
-
-    var visibleBottom: CGFloat {
-        viewport.safeAreaInsets.top + viewport.frame.height
-    }
-
-    var sectionAnchor: UnitPoint {
-        guard visibleBottom > 0 else {
-            return .top
-        }
-
-        return UnitPoint(x: 0.5, y: sectionsEdge / visibleBottom)
-    }
-
-    func sectionTop(_ section: EarnYieldPickerSection) -> CGFloat {
-        scrollFrames.values[.section(section)]?.minY ?? .infinity
-    }
-
-    func updateLayout(_ measurements: [ScrollMarker: ScrollMeasurement]) {
-        if let measuredViewport = measurements[.viewport], measuredViewport != viewport {
-            viewport = measuredViewport
-        }
-
-        scrollFrames.values = measurements.mapValues(\.frame)
-
-        if let tabsFrame = scrollFrames.values[.tabs] {
-            let isPinned = tabsFrame.minY <= viewport.safeAreaInsets.top + Constants.pinnedTabsVerticalPadding
-
-            if isPinned != isTabsPinned {
-                isTabsPinned = isPinned
-
-                if isPinned {
-                    viewModel.video.pause()
-                } else {
-                    viewModel.video.play()
-                }
-            }
-        }
-
-        updateCurrentSection()
-    }
-
-    func updateCurrentSection() {
-        guard pendingSection == nil, let contentBottom = scrollFrames.values[.content]?.maxY else {
-            return
-        }
-
-        let section = EarnYieldPickerSection.current(
-            sectionTops: Dictionary(uniqueKeysWithValues: EarnYieldPickerSection.allCases.map { ($0, sectionTop($0)) }),
-            pinnedEdge: sectionsEdge + Constants.sectionEdgeTolerance,
-            visibleBottom: visibleBottom,
-            remainingScroll: contentBottom - visibleBottom
-        )
-
-        if section != currentSection {
-            currentSection = section
-        }
-    }
-}
-
 // MARK: - Sections
 
 private extension EarnYieldPickerView {
     var sections: some View {
         VStack(spacing: Constants.sectionSpacing) {
-            section(.calculator) {
-                VStack(spacing: 0) {
-                    // [REDACTED_TODO_COMMENT]
-                    EarnProductSectionTitle(title: "Calculate your earnings")
+            VStack(spacing: 0) {
+                // [REDACTED_TODO_COMMENT]
+                EarnProductSectionTitle(title: "Calculate your earnings")
 
-                    EarnCalculatorView(viewModel: viewModel.calculator, onIncentiveInfoTap: viewModel.onIncentiveInfoTap)
-                        .padding(.horizontal, Constants.horizontalPadding)
-                }
+                EarnCalculatorView(viewModel: viewModel.calculator, onIncentiveInfoTap: viewModel.onIncentiveInfoTap)
+                    .padding(.horizontal, Constants.horizontalPadding)
             }
+            .anchoredSection(EarnYieldPickerSection.calculator)
 
             if viewModel.sections.contains(.benefits) {
-                section(.benefits) {
-                    EarnProductBenefitsView(benefits: viewModel.selectedProduct.details.benefits)
+                EarnProductBenefitsView(benefits: viewModel.selectedProduct.details.benefits)
+                    .anchoredSection(EarnYieldPickerSection.benefits)
+            }
+
+            EarnProductDetailsView(
+                details: viewModel.selectedProduct.details,
+                onLinkTap: viewModel.onLinkTap,
+                onInfoTap: { info in
+                    presentedInfoTitle = info.title
+                    presentedInfo = info
                 }
-            }
-
-            section(.details) {
-                EarnProductDetailsView(
-                    details: viewModel.selectedProduct.details,
-                    onLinkTap: viewModel.onLinkTap,
-                    onInfoTap: { info in
-                        presentedInfoTitle = info.title
-                        presentedInfo = info
-                    }
-                )
-            }
-        }
-    }
-
-    func section(_ section: EarnYieldPickerSection, @ViewBuilder content: () -> some View) -> some View {
-        VStack(spacing: 0) {
-            Color.clear
-                .frame(height: 0)
-                .id(SectionAnchor(section: section))
-                .scrollMarker(.section(section))
-
-            content()
+            )
+            .anchoredSection(EarnYieldPickerSection.details)
         }
     }
 
@@ -336,62 +216,12 @@ private extension EarnYieldPickerView {
     }
 }
 
-// MARK: - Scroll geometry
-
-private extension EarnYieldPickerView {
-    struct SectionAnchor: Hashable {
-        let section: EarnYieldPickerSection
-    }
-
-    final class ScrollFrames {
-        var values: [ScrollMarker: CGRect] = [:]
-    }
-
-    enum ScrollMarker: Hashable {
-        case viewport
-        case content
-        case tabs
-        case section(EarnYieldPickerSection)
-    }
-
-    struct ScrollMeasurement: Equatable {
-        static let zero = ScrollMeasurement(frame: .zero, safeAreaInsets: EdgeInsets())
-
-        let frame: CGRect
-        let safeAreaInsets: EdgeInsets
-    }
-
-    struct ScrollMarkersKey: PreferenceKey {
-        static let defaultValue: [ScrollMarker: ScrollMeasurement] = [:]
-
-        static func reduce(value: inout [ScrollMarker: ScrollMeasurement], nextValue: () -> [ScrollMarker: ScrollMeasurement]) {
-            value.merge(nextValue()) { $1 }
-        }
-    }
-}
-
-private extension View {
-    func scrollMarker(
-        _ marker: EarnYieldPickerView.ScrollMarker,
-        in coordinateSpace: CoordinateSpace = .named(EarnYieldPickerView.Constants.scrollSpace)
-    ) -> some View {
-        background {
-            GeometryReader { proxy in
-                Color.clear.preference(
-                    key: EarnYieldPickerView.ScrollMarkersKey.self,
-                    value: [marker: EarnYieldPickerView.ScrollMeasurement(frame: proxy.frame(in: coordinateSpace), safeAreaInsets: proxy.safeAreaInsets)]
-                )
-            }
-        }
-    }
-}
-
 // MARK: - Constants
 
 private extension EarnYieldPickerView {
     enum Constants {
-        static let scrollSpace = "EarnYieldPickerScroll"
         static let heroHeightRatio: CGFloat = 722 / 874
+        static let pinnedTitleFadeDuration: TimeInterval = 0.25
         static let heroOverlap: CGFloat = 217
         static let tintHeight: CGFloat = 264
         static let horizontalPadding: CGFloat = 24
@@ -400,10 +230,6 @@ private extension EarnYieldPickerView {
         static let chipSpacing: CGFloat = 8
         static let productInfoSpacing: CGFloat = 8
         static let sectionSpacing: CGFloat = 24
-        static let tabsExtraHorizontalPadding: CGFloat = 8
-        static let pinnedTabsVerticalPadding: CGFloat = 12
-        static let pinnedFadeTail: CGFloat = 8
-        static let sectionEdgeTolerance: CGFloat = 1
         static let scrollDuration: TimeInterval = 0.3
         static let productSwitchAnimation: Animation = .easeInOut(duration: 0.3)
     }

@@ -100,7 +100,7 @@ final class EarnYieldPickerViewModelTests: LeakTrackingTestSuite {
 
     @Test("A product without benefits has no Benefits tab")
     func sectionsWithoutBenefits() throws {
-        let withoutBenefits = Self.makeProduct(id: .pooledStaking, apy: Decimal(string: "0.02")!, benefits: [])
+        let withoutBenefits = Self.makeProduct(id: .pooledStaking, apy: Decimal(2) / 100, benefits: [])
         let (sut, _) = try makeSUT(products: [withoutBenefits, Self.lending], selectedProductID: .pooledStaking)
 
         #expect(sut.sections == [.calculator, .details])
@@ -113,8 +113,8 @@ final class EarnYieldPickerViewModelTests: LeakTrackingTestSuite {
     @Test(
         "A chip shows the rate as a percent with up to two decimals",
         arguments: [
-            (Decimal(string: "0.03")!, "3% APY"),
-            (Decimal(string: "0.0387")!, "3.87% APY"),
+            (Decimal(3) / 100, "3% APY"),
+            (Decimal(387) / 10000, "3.87% APY"),
         ]
     )
     func rate(apy: Decimal, expected: String) throws {
@@ -130,17 +130,17 @@ private extension EarnYieldPickerViewModelTests {
     static let currencyCode = "USD"
     static let staking = makeProduct(
         id: .pooledStaking,
-        apy: Decimal(string: "0.02")!,
+        apy: Decimal(2) / 100,
         incentiveApy: nil,
-        performanceFee: Decimal(string: "0.08")!
+        performanceFee: Decimal(8) / 100
     )
-    static let lending = makeProduct(id: .lendingOnAave, apy: Decimal(string: "0.03")!, incentiveApy: Decimal(string: "0.014")!)
+    static let lending = makeProduct(id: .lendingOnAave, apy: Decimal(3) / 100, incentiveApy: Decimal(14) / 1000)
 
     static func makeProduct(
         id: EarnYieldPickerProduct.ID,
         apy: Decimal,
         incentiveApy: Decimal? = nil,
-        performanceFee: Decimal = Decimal(string: "0.15")!,
+        performanceFee: Decimal = Decimal(15) / 100,
         benefits: [EarnProductDetails.Benefit]? = nil
     ) -> EarnYieldPickerProduct {
         let details = EarnProductDetails.preview
