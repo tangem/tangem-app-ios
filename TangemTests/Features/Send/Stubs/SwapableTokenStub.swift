@@ -22,6 +22,7 @@ final class SwapableTokenStub: SendSwapableToken {
     private let defaultAddress: String?
     private let injectedReceivingRestrictionsProvider: (any ReceivingRestrictionsProvider)?
     private let injectedSendingRestrictionsProvider: (any SendingRestrictionsProvider)?
+    private let injectedTransactionDispatcherProvider: (any TransactionDispatcherProvider)?
 
     let presentation: SendReceiveTokenPresentation?
     let isCustomSlippageAllowed: Bool
@@ -33,7 +34,8 @@ final class SwapableTokenStub: SendSwapableToken {
         transactionValidator: SendTransactionValidator? = nil,
         destination: SendReceiveTokenDestination? = nil,
         receivingRestrictionsProvider: (any ReceivingRestrictionsProvider)? = nil,
-        sendingRestrictionsProvider: (any SendingRestrictionsProvider)? = nil
+        sendingRestrictionsProvider: (any SendingRestrictionsProvider)? = nil,
+        transactionDispatcherProvider: (any TransactionDispatcherProvider)? = nil
     ) {
         inner = SendSourceTokenStub(blockchain: blockchain)
         self.sendingRestriction = sendingRestriction
@@ -47,6 +49,7 @@ final class SwapableTokenStub: SendSwapableToken {
         isCustomSlippageAllowed = true
         injectedReceivingRestrictionsProvider = receivingRestrictionsProvider
         injectedSendingRestrictionsProvider = sendingRestrictionsProvider
+        injectedTransactionDispatcherProvider = transactionDispatcherProvider
     }
 
     init(
@@ -74,6 +77,7 @@ final class SwapableTokenStub: SendSwapableToken {
         self.defaultAddress = defaultAddress
         injectedReceivingRestrictionsProvider = receivingRestrictionsProvider
         injectedSendingRestrictionsProvider = nil
+        injectedTransactionDispatcherProvider = nil
     }
 
     struct BalanceProviders {
@@ -106,7 +110,7 @@ final class SwapableTokenStub: SendSwapableToken {
     var scaledUIAmountMultiplierResolver: ScaledUIAmountMultiplierResolver? { inner.scaledUIAmountMultiplierResolver }
     var emailDataCollectorBuilder: EmailDataCollectorBuilder { inner.emailDataCollectorBuilder }
     var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? { get async { await inner.transactionHistoryEnricher } }
-    var transactionDispatcherProvider: any TransactionDispatcherProvider { inner.transactionDispatcherProvider }
+    var transactionDispatcherProvider: any TransactionDispatcherProvider { injectedTransactionDispatcherProvider ?? inner.transactionDispatcherProvider }
     var transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider { inner.transactionSummaryDescriptionBuilderProvider }
     var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { inner.blockchainSDKNotificationMapper }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { inner.accountModelAnalyticsProvider }

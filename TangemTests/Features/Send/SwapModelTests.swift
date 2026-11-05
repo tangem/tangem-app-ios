@@ -11,6 +11,7 @@ import Combine
 import Foundation
 import TangemFoundation
 import TangemPay
+import TangemStaking
 import Testing
 import TangemTestKit
 @testable import TangemExpress
@@ -1227,11 +1228,80 @@ final class SwapModelTests: LeakTrackingTestSuite {
         #expect(router.openedTokenDetails.first?.tokenItem == receive.tokenItem)
         #expect(router.openedTokenDetails.first?.userWalletId == receive.userWalletInfo.id)
     }
+
+    // MARK: - Sent swap rate type
+
+    @Test("A DEX swap hands the selected provider's rate type to the sent transaction", .timeLimit(.minutes(1)))
+    func dexSwapKeepsSelectedRateType() async throws {
+        let preview = ExpressProviderManagerState.DEXPreview(
+            provider: ExpressAvailableProviderFixture.make(state: .idle).provider,
+            data: ExpressTransactionDataFixture.make(fromAmount: 1, toAmount: 2, txValue: 1, txData: "cHNidP8="),
+            fee: Self.sentSwapFee,
+            quote: ExpressQuoteFixture.make(fromAmount: 1, expectAmount: 2)
+        )
+        let provider = ExpressAvailableProviderFixture.make(state: .dexPreview(preview), rateType: .fixed)
+
+        let sent = try await sendSwap(with: provider)
+
+        #expect(sent.rateType == .fixed)
+    }
+
+    @Test("A CEX swap hands the selected provider's rate type to the sent transaction", .timeLimit(.minutes(1)))
+    func cexSwapKeepsSelectedRateType() async throws {
+        let feeTokenItem = TokenItem.blockchain(.init(.bitcoin(testnet: false), derivationPath: nil))
+        let feeManager = TokenFeeProvidersManagerMock(
+            feeProvider: TokenFeeProviderStub(
+                feeTokenItem: feeTokenItem,
+                initialFee: TokenFee(option: .market, tokenItem: feeTokenItem, value: .success(Self.sentSwapFee))
+            )
+        )
+        let preview = ExpressProviderManagerState.CEXPreview(
+            provider: ExpressAvailableProviderFixture.make(state: .idle).provider,
+            subtractFee: 0,
+            quote: ExpressQuoteFixture.make(fromAmount: 1, expectAmount: 2),
+            fee: Self.sentSwapFee
+        )
+        let provider = ExpressAvailableProviderFixture.make(
+            state: .cexPreview(preview),
+            expressFeeProvider: feeManager,
+            rateType: .fixed
+        )
+
+        let sent = try await sendSwap(with: provider)
+
+        #expect(sent.rateType == .fixed)
+    }
 }
 
 // MARK: - Helpers
 
 private extension SwapModelTests {
+    static let sentSwapFee = Fee(Amount(with: .bitcoin(testnet: false), type: .coin, value: Decimal(stringValue: "0.0001")!))
+
+    func sendSwap(with provider: ExpressAvailableProvider) async throws -> SentSwapTransactionData {
+        let manager = ExpressManagerStub()
+        await manager.setSelectedProvider(provider)
+        let repository = ExpressPendingTransactionRepositorySpy()
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(
+                blockchain: .bitcoin(testnet: false),
+                transactionValidator: SendTransactionValidatorStub(),
+                transactionDispatcherProvider: SucceedingTransactionDispatcherProvider()
+            ),
+            receiveToken: SwapableTokenStub(tokenItem: .accountToken(symbol: "USDT", contract: "0xUSDT")),
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager),
+            expressPendingTransactionRepository: repository
+        )
+
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+        _ = await sut.statePublisher.values.first { $0.isReadyToSend }
+
+        _ = try await sut.send()
+
+        return try #require(repository.sentSwaps.singleElement)
+    }
+
     func makeSUT(
         sourceToken: SendSwapableToken? = nil,
         receiveToken: SendReceiveToken? = nil,
@@ -1241,7 +1311,8 @@ private extension SwapModelTests {
         sourceTokenResolver: (any SwapSourceTokenResolver)? = nil,
         receiveTokenResolver: (any SwapReceiveTokenResolver)? = nil,
         destinationTokenResolver: (any SwapDestinationTokenResolver)? = nil,
-        initialResolvingPolicy: SwapModel.InitialResolvingPolicy = .disabled
+        initialResolvingPolicy: SwapModel.InitialResolvingPolicy = .disabled,
+        expressPendingTransactionRepository: ExpressPendingTransactionRepository = ExpressPendingTransactionRepositoryStub()
     ) -> SwapModel {
         let model = SwapModel(
             parameters: makeParameters(
@@ -1253,7 +1324,7 @@ private extension SwapModelTests {
             ),
             expressManager: expressManager,
             swapRepository: SwapRepositoryStub(),
-            expressPendingTransactionRepository: ExpressPendingTransactionRepositoryStub(),
+            expressPendingTransactionRepository: expressPendingTransactionRepository,
             expressAPIProvider: ExpressAPIProviderStub(),
             expressUserWalletId: UserWalletId(value: Data()),
             analyticsLogger: SendAnalyticsLoggerStub(),
@@ -1513,6 +1584,41 @@ private extension SwapModelTests {
 }
 
 // MARK: - Stubs
+
+private final class ExpressPendingTransactionRepositorySpy: ExpressPendingTransactionRepository {
+    private let sent = OSAllocatedUnfairLock(initialState: [SentSwapTransactionData]())
+
+    var sentSwaps: [SentSwapTransactionData] { sent.withLock { $0 } }
+
+    var transactions: [ExpressPendingTransactionRecord] { [] }
+    var transactionsPublisher: AnyPublisher<[ExpressPendingTransactionRecord], Never> { .just(output: []) }
+    func updateItems(_ items: [ExpressPendingTransactionRecord]) {}
+    func hideSwapTransaction(with id: String) {}
+
+    func swapTransactionDidSend(_ transaction: SentSwapTransactionData) {
+        sent.withLock { $0.append(transaction) }
+    }
+}
+
+private struct SucceedingTransactionDispatcherProvider: TransactionDispatcherProvider {
+    func makeTransferTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherMock() }
+    func makeApproveTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherMock() }
+    func makeDEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherMock() }
+    func makeApproveAndDEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherMock() }
+    func makeCEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherMock() }
+    func makeStakingTransactionDispatcher(analyticsLogger: any StakingAnalyticsLogger) -> TransactionDispatcher { TransactionDispatcherMock() }
+}
+
+private extension SwapModel.ProvidersState {
+    var isReadyToSend: Bool {
+        switch self {
+        case .loaded(_, .readyToSwap), .loaded(_, .previewCEX):
+            return true
+        default:
+            return false
+        }
+    }
+}
 
 private final class SwapModelRouterSpy: SwapModelRoutable {
     private(set) var slippageSelectorOpenings = 0
