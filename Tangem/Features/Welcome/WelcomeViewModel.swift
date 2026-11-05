@@ -8,9 +8,6 @@
 
 import Combine
 import Foundation
-import struct TangemUI.TangemSnackbar
-import class TangemUI.Toast
-import TangemAssets
 
 final class WelcomeViewModel: ObservableObject {
     @Injected(\.welcomeEntryReasonProvider)
@@ -73,13 +70,6 @@ final class WelcomeViewModel: ObservableObject {
 
     func set(isProcessing: Bool) {
         self.isProcessing = isProcessing
-    }
-
-    func showSnackbar(withMessage message: String) {
-        let snackbar = TangemSnackbar(title: message)
-            .icon(DesignSystem.Icons.Warning.filled20)
-            .iconColor(DesignSystem.Color.iconStatusError)
-        Toast(view: snackbar).present(layout: .top(padding: 8), type: .temporary())
     }
 
     private func bind() {

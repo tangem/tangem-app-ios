@@ -30,6 +30,7 @@ final class MobileSocialWalletViewModel: ObservableObject {
     private let supportUserIdentifier = UUID().uuidString
     private let analyticsLogger = MobileSocialLoginAnalyticsLogger()
     private let creationUtil = MobileCreationUtil()
+    private let backupImportUtil = MobileBackupImportUtil()
 
     private let input: MobileSocialWalletInput
     private let socialAuthProvider: SocialAuthProvider
@@ -157,13 +158,13 @@ private extension MobileSocialWalletViewModel {
             return
         }
 
-        guard !isWalletAdded(walletId: recoveredBackup.walletId) else {
+        guard !backupImportUtil.isAdded(walletId: recoveredBackup.walletId) else {
             AppLogger.error("Social wallet restore failed", error: UserWalletRepositoryError.duplicateWalletAdded)
             await presentWalletAlreadyAddedAlert()
             return
         }
 
-        let preparedWallet: MobileCreationUtil.PreparedWallet
+        let preparedWallet: MobileWalletInitializer.PreparedWallet
 
         do {
             preparedWallet = try await prepareImportedWallet(mnemonicWords: recoveredBackup.payload.mnemonicWords)
@@ -290,9 +291,11 @@ private extension MobileSocialWalletViewModel {
         let message = Localization.userWalletListErrorWalletAlreadySaved
         analyticsLogger.logErrorShown(message: message)
 
-        let alert = AlertBuilder.makeOkGotItAlert(
+        let alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
+            title: Localization.userWalletListErrorWalletAlreadySavedTitle,
             message: message,
-            okAction: { [weak self] in
+            buttonText: Localization.commonGotIt,
+            buttonAction: { [weak self] in
                 self?.onAlertCancel()
             }
         )
@@ -301,11 +304,11 @@ private extension MobileSocialWalletViewModel {
     }
 
     func presentBackupRetryAlert(wallet: PendingWallet, mode: Mode) {
-        let message = Localization.socialLoginErrorBackupNotSaved
+        let message = Localization.socialLoginErrorBackupNotSavedDescription
         analyticsLogger.logErrorShown(message: message)
 
         let alert = AlertBuilder.makeAlert(
-            title: Localization.commonSomethingWentWrong,
+            title: Localization.socialLoginErrorBackupNotSavedTitle,
             message: message,
             with: .withPrimaryCancelButton(
                 cancelAction: { [weak self] in
@@ -422,7 +425,7 @@ private extension MobileSocialWalletViewModel {
         )
     }
 
-    func registerRestored(preparedWallet: MobileCreationUtil.PreparedWallet) async throws {
+    func registerRestored(preparedWallet: MobileWalletInitializer.PreparedWallet) async throws {
         try await BackendAuthenticationRegistrar.registerNewUnprotectedSocialMobileWallet(
             id: preparedWallet.walletId,
             keys: preparedWallet.walletInfo.keys,
@@ -455,11 +458,7 @@ private extension MobileSocialWalletViewModel {
         MobileCleanupUtil.cleanMobileWallet(walletId: userWalletId)
     }
 
-    func isWalletAdded(walletId: String) -> Bool {
-        userWalletRepository.models.contains { $0.userWalletId.stringValue == walletId }
-    }
-
-    func prepareImportedWallet(mnemonicWords: [String]) async throws -> MobileCreationUtil.PreparedWallet {
+    func prepareImportedWallet(mnemonicWords: [String]) async throws -> MobileWalletInitializer.PreparedWallet {
         try await creationUtil.prepareImportedWallet(
             mnemonic: Mnemonic(with: mnemonicWords.joined(separator: " ")),
             passphrase: nil,
@@ -469,7 +468,7 @@ private extension MobileSocialWalletViewModel {
         )
     }
 
-    func store(preparedWallet: MobileCreationUtil.PreparedWallet) throws -> UserWalletModel {
+    func store(preparedWallet: MobileWalletInitializer.PreparedWallet) throws -> UserWalletModel {
         let userWalletModel = try creationUtil.makeModel(preparedWallet: preparedWallet)
         AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWalletModel.userWalletId)
 
@@ -537,7 +536,7 @@ private extension MobileSocialWalletViewModel {
 
     struct PendingWallet {
         let recoveryKey: Data
-        let preparedWallet: MobileCreationUtil.PreparedWallet
+        let preparedWallet: MobileWalletInitializer.PreparedWallet
     }
 
     enum Constants {

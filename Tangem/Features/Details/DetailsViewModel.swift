@@ -60,7 +60,10 @@ final class DetailsViewModel: ObservableObject {
     @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
 
     var userWalletsSectionFooterString: String? {
-        guard [.mobile, .mixed].contains(UserWalletRepositoryModeHelper.mode) else {
+        guard
+            !FeatureProvider.isAvailable(.mobileWalletMultiCreation),
+            [.mobile, .mixed].contains(UserWalletRepositoryModeHelper.mode)
+        else {
             return nil
         }
         return Localization.detailsWalletsSectionDescription
@@ -691,7 +694,7 @@ private extension DetailsViewModel {
             }
 
         case .userWalletNeedsToDelete:
-            assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
+            userWalletRepository.delete(userWalletId: userWalletModel.userWalletId)
         }
     }
 }

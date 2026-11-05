@@ -14,11 +14,10 @@ import TangemMobileWalletBackup
 final class MobileOnboardingImportICloudBackupFlowBuilder: MobileOnboardingFlowBuilder {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
-    private var hasBackupList: Bool { backups.count > 1 }
-
     private var selectedBackup: MobileWalletBackup?
     private var userWalletModel: UserWalletModel?
 
+    private let hasBackupList: Bool
     private let backups: [MobileWalletBackup]
     private let source: MobileOnboardingFlowSource
     private weak var coordinator: MobileOnboardingFlowRoutable?
@@ -31,6 +30,7 @@ final class MobileOnboardingImportICloudBackupFlowBuilder: MobileOnboardingFlowB
         self.backups = backups
         self.source = source
         self.coordinator = coordinator
+        hasBackupList = backups.count > 1 || backups.allSatisfy(MobileBackupImportUtil().isAdded)
         super.init(hasProgressBar: false)
     }
 
