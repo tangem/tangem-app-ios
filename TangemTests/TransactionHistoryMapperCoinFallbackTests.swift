@@ -374,7 +374,7 @@ struct TransactionHistoryMapperCoinFallbackTests {
         makeSUT(isToken: isToken, blockchain: .tron(testnet: false))
             .mapTransactionListItem(
                 from: records,
-                groupingStyle: .day(.short),
+                groupingStyle: .day,
                 dustFilter: TransactionHistoryDustFilter(usdRate: nil),
                 subtitleOwnerResolver: nil
             )

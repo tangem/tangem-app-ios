@@ -213,7 +213,7 @@ final class TransactionHistoryMapperGaslessTests {
 
             let historyItems = mapper.mapTransactionListItem(
                 from: [record],
-                groupingStyle: .day(.short),
+                groupingStyle: .day,
                 dustFilter: TransactionHistoryDustFilter(usdRate: nil),
                 subtitleOwnerResolver: nil
             )

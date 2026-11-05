@@ -85,7 +85,7 @@ struct TransactionHistoryMapperDustFilterTests {
 
         let items = makeSUT().mapTransactionListItem(
             from: [record],
-            groupingStyle: .day(.short),
+            groupingStyle: .day,
             dustFilter: TransactionHistoryDustFilter(usdRate: nil),
             subtitleOwnerResolver: nil
         )
@@ -131,7 +131,7 @@ private extension TransactionHistoryMapperDustFilterTests {
     func mapRecords(_ records: [TransactionRecord]) -> [TransactionListItem] {
         makeSUT().mapTransactionListItem(
             from: records,
-            groupingStyle: .day(.short),
+            groupingStyle: .day,
             dustFilter: TransactionHistoryDustFilter(usdRate: usdRate),
             subtitleOwnerResolver: nil
         )

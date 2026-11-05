@@ -92,8 +92,7 @@ final class ActionButtonsViewModel: ObservableObject {
         AppLogger.debug(self, "deinit")
     }
 
-    // [REDACTED_TODO_COMMENT]
-    func isRedesignActionDisabled(_ actionViewModel: any ActionButtonViewModel) -> Bool {
+    func isActionDisabled(_ actionViewModel: any ActionButtonViewModel) -> Bool {
         if userWalletModel.isUserWalletLocked {
             return true
         }
