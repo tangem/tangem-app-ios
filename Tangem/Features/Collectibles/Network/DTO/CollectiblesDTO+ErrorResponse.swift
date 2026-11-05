@@ -11,5 +11,6 @@ import Foundation
 extension CollectiblesDTO {
     struct ErrorResponse: Decodable {
         let code: Int?
+        let detail: String?
     }
 }

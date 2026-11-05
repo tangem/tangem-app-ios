@@ -211,6 +211,43 @@ struct CollectiblesAPIServiceTests {
         #expect(Self.queryValue("includeAutoBuyback", of: CollectiblesStubURLProtocol.requests.first) == "true")
     }
 
+    @Test("A spin the partner no longer knows surfaces as spinNotFound, other opening failures stay .http", arguments: [
+        ("No spin transaction found for memo", true),
+        ("Machine empty", false),
+    ])
+    func mapsSpinNotFound(detail: String, isSpinNotFound: Bool) async throws {
+        CollectiblesStubURLProtocol.statusCode = 502
+        CollectiblesStubURLProtocol.responses = [
+            Data(#"{"title":"Bad Gateway","status":502,"detail":"\#(detail)","code":3010,"errors":[]}"#.utf8),
+        ]
+
+        do {
+            _ = try await makeSUT().openPack(txID: "tx-1", userWalletID: "wallet-1")
+            Issue.record("Expected the opening to fail")
+        } catch CollectiblesPackOpeningError.spinNotFound {
+            #expect(isSpinNotFound)
+        } catch CollectiblesAPIService.Error.http(let statusCode, _) {
+            #expect(!isSpinNotFound)
+            #expect(statusCode == 502)
+        }
+    }
+
+    @Test("Active purchases ask for their machine and keep only the ones that name it")
+    func loadsActivePurchases() async throws {
+        CollectiblesStubURLProtocol.responses = [Self.activePurchases]
+
+        let purchases = try await makeSUT().loadActivePurchases(userWalletID: "wallet-1")
+
+        let purchase = try #require(purchases.first)
+        #expect(purchases.count == 1)
+        #expect(purchase.txID == "tx-1")
+        #expect(purchase.machineID == "pokemon_50")
+        #expect(purchase.status == .packPurchased)
+        #expect(abs(purchase.createdAt.timeIntervalSince1970 - 1_787_646_067.518) < 0.001)
+        #expect(Self.queryValue("includeMachine", of: CollectiblesStubURLProtocol.requests.first) == "true")
+        #expect(CollectiblesStubURLProtocol.requests.first?.value(forHTTPHeaderField: "user-id") == "wallet-1")
+    }
+
     // MARK: - Buyback
 
     @Test("Reads the buyback deadline with or without fractional seconds", arguments: Self.deadlineArguments)
@@ -321,6 +358,16 @@ private extension CollectiblesAPIServiceTests {
             userWalletID: "wallet-1"
         )
     }
+
+    static let activePurchases = Data(
+        #"""
+        {"activeTxs": [
+            {"txId": "tx-1", "status": "pack-purchased", "machine": {"externalId": "pokemon_50"},
+             "createdAt": "2026-08-25T08:21:07.518119Z"},
+            {"txId": "tx-2", "status": "waiting-for-payment", "createdAt": "2026-08-25T08:21:07.518119Z"}
+        ]}
+        """#.utf8
+    )
 
     static func queryValue(_ name: String, of request: URLRequest?) -> String? {
         request?.url

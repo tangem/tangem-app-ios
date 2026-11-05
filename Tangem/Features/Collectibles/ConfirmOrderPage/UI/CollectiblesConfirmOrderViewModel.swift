@@ -93,6 +93,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         ]
 
         bind(usdcBalanceProvider: usdcBalanceProvider, relinkStatusProvider: relinkStatusProvider)
+        restorePendingPurchase()
     }
 
     // MARK: - Methods
@@ -288,6 +289,13 @@ private extension CollectiblesConfirmOrderViewModel {
             .store(in: &bag)
     }
 
+    func restorePendingPurchase() {
+        Task { [weak self, purchaseInteractor] in
+            await purchaseInteractor.restorePendingPurchase()
+            self?.updateButtonState()
+        }
+    }
+
     func update(balanceState newState: BalanceState) {
         if case .loading = newState, case .known = balanceState {
             return
@@ -355,6 +363,8 @@ private extension CollectiblesConfirmOrderViewModel {
             showError(message: "Your purchase has expired")
         case .paymentFailed(.refunded):
             showError(message: "Your payment has been refunded")
+        case .anotherPurchaseInProgress:
+            showError(message: "Open your other pack first")
         default:
             showError()
         }
