@@ -16,6 +16,8 @@ struct TangemPayMoneyAccountCoordinatorView: CoordinatorView {
 
     var body: some View {
         rootView
+            .navigationLinks(links)
+            .addressBookContactManagementSheet($coordinator.contactManagementCoordinator)
     }
 }
 
@@ -24,8 +26,8 @@ struct TangemPayMoneyAccountCoordinatorView: CoordinatorView {
 private extension TangemPayMoneyAccountCoordinatorView {
     var rootView: some View {
         TangemPayMoneyAccountFactory.makeView(
-            userWalletModel: coordinator.options.userWalletModel,
             moneyAccount: coordinator.options.moneyAccount,
+            userWalletModel: coordinator.options.userWalletModel,
             output: { [weak coordinator] in
                 coordinator?.handle($0)
             }
@@ -35,4 +37,11 @@ private extension TangemPayMoneyAccountCoordinatorView {
 
 // MARK: - Destinations
 
-private extension TangemPayMoneyAccountCoordinatorView {}
+private extension TangemPayMoneyAccountCoordinatorView {
+    var links: some View {
+        NavHolder()
+            .navigation(item: $coordinator.tokenDetailsCoordinator) {
+                TokenDetailsCoordinatorView(coordinator: $0)
+            }
+    }
+}

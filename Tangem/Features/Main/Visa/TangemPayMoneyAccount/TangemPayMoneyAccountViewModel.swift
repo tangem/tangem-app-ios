@@ -6,39 +6,65 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
+import BlockchainSdk
+import TangemFoundation
+import TangemLocalization
+import TangemPay
 import TangemUI
+import TangemUIUtils
 
 @MainActor
 final class TangemPayMoneyAccountViewModel: ObservableObject {
     @Published private(set) var stateModel: TangemPayMoneyAccountStateModel
     @Published private(set) var menuSections: [[TangemPayMoneyAccountMenuItem]] = []
+    @Published var alert: AlertBinder?
 
-    let refreshScrollState = RefreshScrollViewStateObject(refreshable: {})
+    private(set) lazy var refreshScrollState = RefreshScrollViewStateObject { [weak self] in
+        await self?.refreshState()
+    }
 
-    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
-    @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.mailComposePresenter)
+    private var mailPresenter: MailComposePresenter
 
-    private let userWalletModel: any UserWalletModel
+    @Injected(\.safariManager)
+    private var safariManager: SafariManager
+
+    @Injected(\.userWalletRepository)
+    private var userWalletRepository: UserWalletRepository
+
+    @Injected(\.cryptoAccountsGlobalStateProvider)
+    private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
+
     private let moneyAccount: any TangemPayMoneyAccountModel
+    private let userWalletModel: any UserWalletModel
     private let output: (Output) -> Void
 
+    private var bag = Set<AnyCancellable>()
+
     init(
-        userWalletModel: any UserWalletModel,
         moneyAccount: any TangemPayMoneyAccountModel,
+        userWalletModel: any UserWalletModel,
         output: @escaping (Output) -> Void
     ) {
-        self.userWalletModel = userWalletModel
         self.moneyAccount = moneyAccount
+        self.userWalletModel = userWalletModel
         self.output = output
 
-        // [REDACTED_TODO_COMMENT]
         stateModel = TangemPayMoneyAccountStateModel(
-            balance: .loaded("$0,00"),
-            transactionHistory: .loaded([])
+            balance: moneyAccount.fiatBalance,
+            transactionHistory: .loading
         )
 
         menuSections = makeMenuSections()
+
+        updateNotifications(for: moneyAccount.state)
+        bindMoneyAccountState()
+    }
+
+    func loadState() async {
+        await updateOnChainData()
     }
 
     func handleAction(_ action: TangemPayMoneyAccountAction) {
@@ -53,16 +79,13 @@ final class TangemPayMoneyAccountViewModel: ObservableObject {
             handleMenuItem(item)
 
         case .reloadTransactionHistory:
-            // [REDACTED_TODO_COMMENT]
-            break
+            reloadTransactionHistory()
 
-        case .openTransactionDetails:
-            // [REDACTED_TODO_COMMENT]
-            break
+        case .openTransactionDetails(let id):
+            output(.openTransactionDetails(id: id))
 
         case .openExplorer:
-            // [REDACTED_TODO_COMMENT]
-            break
+            openExplorer()
 
         case .openYieldMode:
             break
@@ -76,6 +99,227 @@ extension TangemPayMoneyAccountViewModel {
     enum Output {
         case topup
         case withdraw
+        case openTransactionDetails(id: TransactionRecord.ID)
+    }
+}
+
+// MARK: - Constants
+
+private extension TangemPayMoneyAccountViewModel {
+    enum Constants {
+        static let usdRate: Decimal = 1
+    }
+}
+
+// MARK: - Bindings
+
+private extension TangemPayMoneyAccountViewModel {
+    var addressBookContactsPublisher: AnyPublisher<[AddressBookContact], Never> {
+        AddressBookContactsAggregator
+            .contactsPublisher()
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    var tangemPayDepositOwnersPublisher: some Publisher<[TangemPayDepositOwner], Never> {
+        TangemPayDepositOwnersPublisherFactory.makePublisher(userWalletRepository: userWalletRepository)
+    }
+
+    func bindMoneyAccountState() {
+        moneyAccount.fiatBalancePublisher
+            .receiveOnMain()
+            .sink { [weak self] balance in
+                self?.stateModel.balance = balance
+            }
+            .store(in: &bag)
+
+        moneyAccount.transactionHistoryPublisher
+            .combineLatest(addressBookContactsPublisher, tangemPayDepositOwnersPublisher)
+            .receiveOnMain()
+            .sink { [weak self] newState, contacts, tangemPayDepositOwners in
+                self?.updateTransactionHistory(
+                    to: newState,
+                    contacts: contacts,
+                    tangemPayDepositOwners: tangemPayDepositOwners
+                )
+            }
+            .store(in: &bag)
+
+        moneyAccount.statePublisher
+            .receiveOnMain()
+            .sink { [weak self] state in
+                self?.updateNotifications(for: state)
+            }
+            .store(in: &bag)
+    }
+}
+
+// MARK: - Refresh State
+
+private extension TangemPayMoneyAccountViewModel {
+    func refreshState() async {
+        async let accountStateUpdate: Void = moneyAccount.refreshState()
+        async let onChainDataUpdate: Void = updateOnChainData()
+
+        _ = await (accountStateUpdate, onChainDataUpdate)
+    }
+
+    func updateOnChainData() async {
+        async let balanceUpdate: Void = moneyAccount.updateBalance()
+        async let transactionHistoryUpdate: Void = moneyAccount.updateTransactionHistory()
+
+        _ = await (balanceUpdate, transactionHistoryUpdate)
+    }
+}
+
+// MARK: - Notifications
+
+private extension TangemPayMoneyAccountViewModel {
+    var mainButtonIcon: MainButton.Icon? {
+        SigningActionButtonViewTypeBuilder().build(config: userWalletModel.config).mainButtonIcon
+    }
+
+    func updateNotifications(for state: TangemPayLocalState?) {
+        let notificationInputs = state?
+            .errorNotificationEvent(icon: mainButtonIcon)
+            .map { [makeNotificationInput(for: $0)] } ?? []
+
+        stateModel.notificationBannerItems = MultiWalletNotificationBannerMapper().mapItems(notificationInputs)
+        stateModel.isStale = !notificationInputs.isEmpty
+    }
+
+    func makeNotificationInput(for event: TangemPayNotificationEvent) -> NotificationViewInput {
+        NotificationsFactory().buildNotificationInput(
+            for: event,
+            buttonAction: { [weak self] _, action in
+                self?.handleNotificationButtonTap(action)
+            }
+        )
+    }
+
+    func handleNotificationButtonTap(_ action: NotificationButtonActionType) {
+        switch action {
+        case .renewTangemPaySession:
+            renewSession()
+        default:
+            break
+        }
+    }
+
+    func renewSession() {
+        moneyAccount.renewSession(authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor) { [weak self] error in
+            Task { @MainActor in
+                self?.showRenewSessionErrorIfNeeded(error)
+            }
+        }
+    }
+
+    func showRenewSessionErrorIfNeeded(_ error: TangemPayAuthorizationError?) {
+        guard let error, !error.isUserCancelled, userWalletModel.config.hasFeature(.nfcInteraction) else {
+            return
+        }
+
+        alert = AlertBinder(
+            title: Localization.commonError,
+            message: error.serverErrorStatusCode == nil
+                ? Localization.commonUnknownError
+                : Localization.commonServerUnavailable
+        )
+    }
+}
+
+// MARK: - Transaction history
+
+private extension TangemPayMoneyAccountViewModel {
+    var isAccountsMode: Bool {
+        cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
+    }
+
+    func updateTransactionHistory(
+        to newState: WalletModelTransactionHistoryState,
+        contacts: [AddressBookContact],
+        tangemPayDepositOwners: [TangemPayDepositOwner]
+    ) {
+        switch newState {
+        case .notSupported:
+            stateModel.transactionHistory = .notSupported
+        case .notLoaded, .loading:
+            if case .loaded = stateModel.transactionHistory {
+                break
+            }
+
+            stateModel.transactionHistory = .loading
+        case .error(let error):
+            stateModel.transactionHistory = .error(error)
+        case .loaded(let records):
+            let transactionHistoryMapper = TransactionHistoryMapper(
+                currencySymbol: moneyAccount.tokenItem.currencySymbol,
+                blockchain: moneyAccount.tokenItem.blockchain,
+                addressesProvider: moneyAccount,
+                showSign: true,
+                isToken: moneyAccount.tokenItem.isToken,
+                stakingNetwork: nil
+            )
+
+            let subtitleOwnerResolver = SubtitleOwnerResolver(
+                blockchain: moneyAccount.tokenItem.blockchain,
+                currentUserWalletId: moneyAccount.userWalletId,
+                isAccountsMode: isAccountsMode,
+                contacts: contacts,
+                tangemPayDepositOwners: tangemPayDepositOwners
+            )
+
+            let listItems = transactionHistoryMapper.mapTransactionListItem(
+                from: records,
+                groupingStyle: .day(.long),
+                dustFilter: TransactionHistoryDustFilter(usdRate: Constants.usdRate),
+                subtitleOwnerResolver: subtitleOwnerResolver
+            )
+
+            stateModel.transactionHistory = .loaded(listItems)
+        }
+
+        updateFetchMore()
+    }
+
+    func reloadTransactionHistory() {
+        Task { [weak self] in
+            guard let self else { return }
+
+            setTransactionHistoryReloading(true)
+            await moneyAccount.reloadTransactionHistory()
+            setTransactionHistoryReloading(false)
+        }
+    }
+
+    func setTransactionHistoryReloading(_ isReloading: Bool) {
+        stateModel.isTrxHistoryReloading = isReloading
+        updateFetchMore()
+    }
+
+    func updateFetchMore() {
+        guard moneyAccount.canLoadMoreTransactionHistory, !stateModel.isTrxHistoryReloading else {
+            stateModel.fetchMore = nil
+            return
+        }
+
+        stateModel.fetchMore = FetchMore { [weak self] in
+            self?.loadNextTransactionHistoryPage()
+        }
+    }
+
+    func loadNextTransactionHistoryPage() {
+        Task { [weak self] in
+            await self?.moneyAccount.loadTransactionHistory()
+        }
+    }
+
+    func openExplorer() {
+        guard let url = moneyAccount.explorerURL else {
+            return
+        }
+
+        safariManager.openURL(url)
     }
 }
 
@@ -84,22 +328,13 @@ extension TangemPayMoneyAccountViewModel {
 private extension TangemPayMoneyAccountViewModel {
     func makeMenuSections() -> [[TangemPayMoneyAccountMenuItem]] {
         [
-            [makeCurrentPlanMenuItem(), .termsAndFees, .support].compactMap(\.self),
-            [.closeAccount],
+            [.termsAndFees, .support],
+            // close_account item might be here
         ]
-    }
-
-    func makeCurrentPlanMenuItem() -> TangemPayMoneyAccountMenuItem? {
-        // [REDACTED_TODO_COMMENT]
-        moneyAccount.customerTariffPlan.map { .currentPlan(planName: $0.tariffPlan.name) }
     }
 
     func handleMenuItem(_ item: TangemPayMoneyAccountMenuItem) {
         switch item {
-        case .currentPlan:
-            // [REDACTED_TODO_COMMENT]
-            break
-
         case .termsAndFees:
             safariManager.openURL(AppConstants.tangemPayTermsOfServiceURL)
 
@@ -107,7 +342,7 @@ private extension TangemPayMoneyAccountViewModel {
             contactSupport(subject: .usdAccountGeneralHelp)
 
         case .closeAccount:
-            contactSupport(subject: .usdAccountCloseAccount)
+            break
         }
     }
 

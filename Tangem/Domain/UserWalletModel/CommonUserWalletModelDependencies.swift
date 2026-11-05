@@ -43,13 +43,6 @@ struct CommonUserWalletModelDependencies {
             areHDWalletsSupported: areHDWalletsSupported
         )
 
-        let tangemPayManager = TangemPayBuilder(
-            userWalletId: userWalletId,
-            keysRepository: keysRepository,
-            signerFactory: tangemSignerFactory
-        )
-        .buildTangemPayManager()
-
         let polymarketAccountProvider = PolymarketAccountProvider(
             builder: PolymarketAccountBuilder(
                 userWalletId: userWalletId,
@@ -64,12 +57,28 @@ struct CommonUserWalletModelDependencies {
             jointAccountDerivationInteractorFactory: jointAccountDerivationInteractorFactory
         )
 
-        accountModelsManager = Self.makeAccountModelsManager(
+        let walletModelsFactoryProvider = Self.makeWalletModelsFactoryProvider(
             userWalletId: userWalletId,
             config: config,
             keysRepository: keysRepository,
             keysDerivingInteractorFactory: keysDerivingInteractorFactory,
             refcodeProvider: walletInfo.refcodeProvider,
+            jointAccountsRepository: accountModelsManagerDependencies.jointAccountsRepository
+        )
+
+        let tangemPayManager = TangemPayBuilder(
+            userWalletId: userWalletId,
+            keysRepository: keysRepository,
+            signerFactory: tangemSignerFactory,
+            walletModelsFactoryProvider: walletModelsFactoryProvider
+        )
+        .buildTangemPayManager()
+
+        accountModelsManager = Self.makeAccountModelsManager(
+            userWalletId: userWalletId,
+            config: config,
+            keysRepository: keysRepository,
+            walletModelsFactoryProvider: walletModelsFactoryProvider,
             cryptoAccountsRepository: accountModelsManagerDependencies.cryptoAccountsRepository,
             jointAccountsRepository: accountModelsManagerDependencies.jointAccountsRepository,
             jointAccountPendingOperationsRepository: accountModelsManagerDependencies.jointAccountPendingOperationsRepository,
@@ -226,12 +235,34 @@ private extension CommonUserWalletModelDependencies {
         )
     }
 
-    static func makeAccountModelsManager(
+    static func makeWalletModelsFactoryProvider(
         userWalletId: UserWalletId,
         config: UserWalletConfig,
         keysRepository: KeysRepository,
         keysDerivingInteractorFactory: KeysDerivingInteractorFactory,
         refcodeProvider: RefcodeProvider?,
+        jointAccountsRepository: CommonJointAccountsRepository
+    ) -> WalletModelsFactoryProvider {
+        WalletModelsFactoryProvider(
+            userWalletId: userWalletId,
+            userWalletConfig: config,
+            keysRepository: keysRepository,
+            keysDerivingInteractorFactory: keysDerivingInteractorFactory,
+            transactionHistoryProviderResolver: TransactionHistoryProviderResolver(
+                userWalletId: userWalletId,
+                refcodeProvider: refcodeProvider,
+                jointAccountsRepository: jointAccountsRepository,
+                isJointAccountsAvailable: FeatureProvider.isAvailable(.jointAccounts)
+            ),
+            transactionHistoryUpdater: TransactionHistoryUpdater()
+        )
+    }
+
+    static func makeAccountModelsManager(
+        userWalletId: UserWalletId,
+        config: UserWalletConfig,
+        keysRepository: KeysRepository,
+        walletModelsFactoryProvider: WalletModelsFactoryProvider,
         cryptoAccountsRepository: CommonCryptoAccountsRepository,
         jointAccountsRepository: CommonJointAccountsRepository,
         jointAccountPendingOperationsRepository: CommonJointAccountPendingOperationsRepository,
@@ -246,20 +277,6 @@ private extension CommonUserWalletModelDependencies {
         shouldLoadExpressAvailability: Bool
     ) -> AccountModelsManager {
         let hardwareLimitationsUtil = HardwareLimitationsUtil(config: config)
-
-        let walletModelsFactoryProvider = WalletModelsFactoryProvider(
-            userWalletId: userWalletId,
-            userWalletConfig: config,
-            keysRepository: keysRepository,
-            keysDerivingInteractorFactory: keysDerivingInteractorFactory,
-            transactionHistoryProviderResolver: TransactionHistoryProviderResolver(
-                userWalletId: userWalletId,
-                refcodeProvider: refcodeProvider,
-                jointAccountsRepository: jointAccountsRepository,
-                isJointAccountsAvailable: FeatureProvider.isAvailable(.jointAccounts)
-            ),
-            transactionHistoryUpdater: TransactionHistoryUpdater()
-        )
 
         let cryptoAccountDependenciesFactory = CommonCryptoAccountDependenciesFactory(
             userWalletId: userWalletId,

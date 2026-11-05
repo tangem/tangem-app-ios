@@ -12,7 +12,7 @@ import TangemFoundation
 struct WalletModelFeaturesManagerFactory {
     let userWalletId: UserWalletId
     let userWalletConfig: UserWalletConfig
-    let dynamicAddressesManagerProvider: DynamicAddressesManagerProvider
+    let dynamicAddressesManagerProvider: DynamicAddressesManagerProvider?
     let transactionHistoryProviderResolver: TransactionHistoryProviderResolver
     let isSafe: Bool
 
@@ -27,7 +27,7 @@ struct WalletModelFeaturesManagerFactory {
         )
 
         let dynamicAddressesFeatureManager = WalletModelDynamicAddressesFeatureManager(
-            dynamicAddressesManager: dynamicAddressesManagerProvider.makeDynamicAddressesManager(
+            dynamicAddressesManager: dynamicAddressesManagerProvider?.makeDynamicAddressesManager(
                 tokenItem: tokenItem,
                 walletManager: walletManager
             )

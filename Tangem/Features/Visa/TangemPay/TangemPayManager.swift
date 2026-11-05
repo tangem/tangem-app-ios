@@ -61,6 +61,14 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         )
     }
 
+    var lastKnownMoneyAccount: (any TangemPayMoneyAccountModel)? {
+        guard isMoneyAccountAvailable, let summary = cachedCustomerSummary else {
+            return nil
+        }
+
+        return makeMoneyAccountState(summary: summary).moneyAccount
+    }
+
     private var customerWalletId: String {
         userWalletId.stringValue
     }
@@ -74,7 +82,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     }
 
     private var isMoneyAccountAvailable: Bool {
-        FeatureProvider.isAvailable(.tangemPayMoneyAccount) && FeatureProvider.isAvailable(.tangemPayCustomerSummary)
+        TangemPayUtilities.isMoneyAccountAvailable
     }
 
     @Injected(\.tangemPayAssembly)
@@ -161,6 +169,10 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
             runTask { [cached] in
                 await cached.loadBalance()
             }
+        }
+
+        if isMoneyAccountAvailable, let cachedSummary = cachedCustomerSummary {
+            updateMoneyAccountState(summary: cachedSummary)
         }
 
         runTask { [self] in
@@ -574,9 +586,13 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
             return
         }
 
+        moneyAccountStateSubject.value = makeMoneyAccountState(summary: summary)
+    }
+
+    private func makeMoneyAccountState(summary: TangemPayCustomerSummaryResponse) -> TangemPayMoneyAccountState {
         let bankingAccount = summary.bankingAccount
 
-        moneyAccountStateSubject.value = TangemPayMoneyAccountState(activationStatus: bankingAccount.activation.status) {
+        return TangemPayMoneyAccountState(activationStatus: bankingAccount.activation.status) {
             updatedMoneyAccount(customerId: summary.customerId, bankingAccount: bankingAccount)
         }
     }
@@ -584,16 +600,20 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     private func updatedMoneyAccount(
         customerId: String,
         bankingAccount: TangemPayCustomerSummaryResponse.BankingAccount
-    ) -> TangemPayMoneyAccount {
+    ) -> TangemPayMoneyAccount? {
         if let moneyAccount = moneyAccountSubject.value {
             moneyAccount.update(bankingAccount: bankingAccount)
             return moneyAccount
         }
 
-        let moneyAccount = tangemPayAccountBuilder.makeMoneyAccount(
+        guard let moneyAccount = tangemPayAccountBuilder.makeMoneyAccount(
             customerId: customerId,
-            bankingAccount: bankingAccount
-        )
+            bankingAccount: bankingAccount,
+            account: self
+        ) else {
+            return nil
+        }
+
         moneyAccountSubject.value = moneyAccount
 
         return moneyAccount

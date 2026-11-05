@@ -7,6 +7,7 @@
 //
 
 import BlockchainSdk
+import TangemSdk
 import TangemVisa
 import TangemPay
 
@@ -62,18 +63,36 @@ extension TangemPayUtilities {
     /// Hardcoded USDC token on visa blockchain network (currently - Polygon)
     static var usdcTokenItem: TokenItem {
         TokenItem.token(
-            Token(
-                name: Constants.usdcSymbol,
-                symbol: Constants.usdcSymbol,
-                contractAddress: Constants.usdcContractAddress,
-                decimalCount: Constants.defaultTokenDecimalCount,
-                id: Constants.usdcCoinId,
-                metadata: .fungibleTokenMetadata
-            ),
+            usdcToken,
             BlockchainNetwork(
                 TangemPayUtilities.blockchain,
                 derivationPath: TangemPayUtilities.derivationPath
             )
+        )
+    }
+
+    static var bankingAccountUsdcTokenItem: TokenItem {
+        TokenItem.token(
+            usdcToken,
+            BlockchainNetwork(
+                TangemPayUtilities.blockchain,
+                derivationPath: TangemPayUtilities.bankingAccountDerivationPath
+            )
+        )
+    }
+
+    static var isMoneyAccountAvailable: Bool {
+        FeatureProvider.isAvailable(.tangemPayMoneyAccount) && FeatureProvider.isAvailable(.tangemPayCustomerSummary)
+    }
+
+    private static var usdcToken: Token {
+        Token(
+            name: Constants.usdcSymbol,
+            symbol: Constants.usdcSymbol,
+            contractAddress: Constants.usdcContractAddress,
+            decimalCount: Constants.defaultTokenDecimalCount,
+            id: Constants.usdcCoinId,
+            metadata: .fungibleTokenMetadata
         )
     }
 
