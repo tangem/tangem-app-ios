@@ -70,6 +70,8 @@ final class AppOverlaysManager {
         floatingSheetViewModel.removeAllSheets()
         floatingSheetViewModel.pauseSheetsDisplaying()
         overlayViewPresenterViewModel.dismissAll()
+        alertPresenterViewModel.alert = nil
+        dismissShareSheet()
 
         tangemStoriesViewModel.forceDismiss()
         storiesV2Presenter.forceDismiss()
@@ -140,6 +142,17 @@ final class AppOverlaysManager {
 
     private func present(viewController: UIViewController) {
         overlayWindow?.rootViewController?.present(viewController, animated: true)
+    }
+
+    private func dismissShareSheet() {
+        guard
+            let rootViewController = overlayWindow?.rootViewController,
+            rootViewController.presentedViewController is UIActivityViewController
+        else {
+            return
+        }
+
+        rootViewController.dismiss(animated: false)
     }
 
     private func handleNewStoriesState(_ state: TangemStoriesViewModel.State?) {
