@@ -478,7 +478,7 @@
 "common_retry" = "リトライ";
 "common_save_changes" = "変更内容を保存";
 "common_save" = "保存";
-"common_scan_card" = "Scan card";
+"common_scan_card" = "カードをスキャン";
 "common_search_tokens" = "トークンを検索";
 "common_search" = "検索";
 "common_second_no_param" = "秒";
@@ -1308,6 +1308,8 @@
 "mcp_connection_request_agent_can" = "このエージェントは以下の操作ができます";
 "mcp_connection_request_can_view_balance" = "残高と取引履歴を表示する";
 "mcp_connection_request_notifications_description" = "各取引を承認するための通知が届きます。通知が無効になっている場合、エージェントは接続できません。";
+"mcp_connection_request_wallet_needs_sync_description" = "Go back to the main wallet screen, sync your wallet, then try again";
+"mcp_connection_request_wallet_needs_sync_title" = "This wallet needs syncing";
 "mcp_connection_success_description" = "%@は残高の確認と取引の承認リクエストができるようになりました。「接続」からいつでもアクセス権を取り消せます。";
 "mcp_connection_success_title" = "エージェントが接続されました";
 "mcp_intent_cant_reach_title" = "Can’t reach intent";
@@ -1782,6 +1784,7 @@
 "prediction_search_initial_subtitle" = "イベントや自分の予測を検索";
 "prediction_search_initial_title" = "入力して検索を開始";
 "prediction_search_results_title" = "検索結果";
+"prediction_sports_draw" = "Draw";
 "prediction_withdraw_balance_unavailable" = "予測アカウントの残高を読み込めませんでした。更新するか、この画面を再度開いてください。";
 "prediction_withdraw_confirm_fee_footer" = "この出金にはネットワーク手数料はかかりません。ブリッジ変換により、実際の受取額がわずかに異なる場合があります。";
 "prediction_withdraw_confirm_title" = "出金の確認";
@@ -3059,9 +3062,9 @@
 "warning_kaspa_unfinished_token_transaction_message" = "%1$@ %2$@の取引が完了しませんでした。もう一度試して完了してください。";
 "warning_kaspa_unfinished_token_transaction_title" = "未完了の取引があります";
 "warning_last_balance_updated_time" = "最終更新日は%@です";
-"warning_link_wallet_cold_message" = "Scan your card to link your wallet to this device.";
-"warning_link_wallet_hot_message" = "Confirm to link your wallet to this device.";
-"warning_link_wallet_title" = "Link your wallet to this device";
+"warning_link_wallet_cold_message" = "カードをスキャンして、ウォレットをこのデバイスに接続してください。";
+"warning_link_wallet_hot_message" = "ウォレットをこのデバイスに接続することを確認してください。";
+"warning_link_wallet_title" = "このデバイスにウォレットを接続";
 "warning_long_transaction_message" = "iPhone 7/7+ はこのネットワーク上で取引に署名できません。この操作を完了するには、別のデバイスを使用してください。";
 "warning_long_transaction_title" = "取引署名は利用できません";
 "warning_low_signatures_message" = "このカードには%@の署名のみが残っています。資金をすべて引き出す必要があります。";

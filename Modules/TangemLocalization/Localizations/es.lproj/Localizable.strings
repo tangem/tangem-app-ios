@@ -478,7 +478,7 @@
 "common_retry" = "Reintentar";
 "common_save_changes" = "Guardar cambios";
 "common_save" = "Guarde";
-"common_scan_card" = "Scan card";
+"common_scan_card" = "Escanear tarjeta";
 "common_search_tokens" = "Buscar tokens";
 "common_search" = "Buscar";
 "common_second_no_param" = "seg";
@@ -1308,6 +1308,8 @@
 "mcp_connection_request_agent_can" = "Este agente podrá";
 "mcp_connection_request_can_view_balance" = "Ver saldos y actividad";
 "mcp_connection_request_notifications_description" = "Recibirá una notificación para aprobar cada transacción. Sin notificaciones, el agente no podrá conectarse.";
+"mcp_connection_request_wallet_needs_sync_description" = "Go back to the main wallet screen, sync your wallet, then try again";
+"mcp_connection_request_wallet_needs_sync_title" = "This wallet needs syncing";
 "mcp_connection_success_description" = "%@ puede ahora consultar sus saldos y solicitar la aprobación de transacciones. Puede revocar el acceso en cualquier momento en Conexiones.";
 "mcp_connection_success_title" = "Agente conectado";
 "mcp_intent_cant_reach_title" = "No se puede determinar la intención";
@@ -1782,6 +1784,7 @@
 "prediction_search_initial_subtitle" = "Busca eventos o tus predicciones";
 "prediction_search_initial_title" = "Empieza a escribir para buscar";
 "prediction_search_results_title" = "Resultados de búsqueda";
+"prediction_sports_draw" = "Draw";
 "prediction_withdraw_balance_unavailable" = "No se pudo cargar el saldo de tu cuenta de predicciones. Actualiza o vuelve a abrir esta pantalla.";
 "prediction_withdraw_confirm_fee_footer" = "No se cobra comisión de red por este retiro. El importe que recibas puede variar ligeramente debido a la conversión del puente.";
 "prediction_withdraw_confirm_title" = "Confirmar retiro";
@@ -3059,9 +3062,9 @@
 "warning_kaspa_unfinished_token_transaction_message" = "Su transacción con un importe de %1$@ %2$@ no se ha completado. Puede volver a intentarlo para completarla.";
 "warning_kaspa_unfinished_token_transaction_title" = "Tiene una transacción sin terminar";
 "warning_last_balance_updated_time" = "Última actualización hace %@";
-"warning_link_wallet_cold_message" = "Scan your card to link your wallet to this device.";
-"warning_link_wallet_hot_message" = "Confirm to link your wallet to this device.";
-"warning_link_wallet_title" = "Link your wallet to this device";
+"warning_link_wallet_cold_message" = "Escanee su tarjeta para vincular su billetera a este dispositivo.";
+"warning_link_wallet_hot_message" = "Confirme para vincular su billetera a este dispositivo.";
+"warning_link_wallet_title" = "Vincule su billetera a este dispositivo.";
 "warning_long_transaction_message" = "iPhone 7/7+ no puede firmar transacciones en esta red. Para completar esta operación, por favor use un teléfono diferente.";
 "warning_long_transaction_title" = "Firma de transacción no disponible";
 "warning_low_signatures_message" = "Solo quedan %@ firmas en esta tarjeta. Debe retirar todos sus fondos.";

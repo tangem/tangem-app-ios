@@ -31,6 +31,9 @@ final class MCPConnectionRequestProposalViewModel: ObservableObject, HashableObj
     private var fireAndForgetRejectConnectionTask: Task<Void, Never>?
     private var rejectConnectionTask: Task<Void, Never>?
     private var acceptConnectionTask: Task<Void, Never>?
+    private var hasBeenClosed = false
+
+    private(set) var isAcceptingConnection = false
 
     @Published private(set) var state: MCPConnectionRequestProposalState
 
@@ -57,7 +60,6 @@ final class MCPConnectionRequestProposalViewModel: ObservableObject, HashableObj
     deinit {
         applicationLifecycleObservationTask?.cancel()
         fetchConnectionRequestTask?.cancel()
-        acceptConnectionTask?.cancel()
     }
 }
 
@@ -103,7 +105,7 @@ extension MCPConnectionRequestProposalViewModel {
 
         fetchConnectionRequestTask = Task { [fetchRequest = interactor.fetchRequest, userCode, weak self] in
             do throws(MCPConnectionClientError) {
-                let connectionRequest = try await fetchRequest(userCode: userCode)
+                let connectionRequest = try await fetchRequest(userCode)
                 self?.handle(action: .fetchSucceeded(connectionRequest))
             } catch {
                 self?.delegate.fetchRequestFailed(error)
@@ -160,6 +162,13 @@ extension MCPConnectionRequestProposalViewModel {
             return
         }
 
+        hasBeenClosed = true
+
+        guard !isAcceptingConnection else {
+            logger.debug("Closed while the connection is being accepted. The connection is kept.")
+            return
+        }
+
         acceptConnectionTask?.cancel()
         acceptConnectionTask = nil
 
@@ -171,7 +180,7 @@ extension MCPConnectionRequestProposalViewModel {
 
         fireAndForgetRejectConnectionTask = Task { [reject = interactor.reject, logger] in
             do throws(MCPConnectionClientError) {
-                try await reject(request: connectionRequest)
+                try await reject(connectionRequest)
             } catch {
                 logger.error("Fire and forget connection request reject failed", error: error)
             }
@@ -199,7 +208,7 @@ extension MCPConnectionRequestProposalViewModel {
 
         rejectConnectionTask = Task { [reject = interactor.reject, weak self] in
             do throws(MCPConnectionClientError) {
-                try await reject(request: connectionRequest)
+                try await reject(connectionRequest)
                 self?.delegate.connectionRejected(Result.success(()))
             } catch {
                 self?.delegate.connectionRejected(Result.failure(error))
@@ -250,15 +259,39 @@ extension MCPConnectionRequestProposalViewModel {
                 return
             }
 
-            do throws(MCPConnectionClientError) {
-                try await interactor.accept(request: connectionRequest, for: userWalletID)
-                analyticsReporter.reportAgentConnected(agent: connectionRequest.agent)
-                self?.delegate.connectionAccepted(Result.success(connectionRequest.agent.name ?? MCPAgent.fallbackName))
-            } catch {
-                self?.delegate.connectionAccepted(Result.failure(error))
+            guard await interactor.retrieveUserWalletRegistrationStatus(userWalletID) else {
+                logger.debug("The selected user wallet isn't registered. Connection is blocked.")
+                self?.state.connectButton.state = .enabled
+                self?.delegate.unregisteredUserWalletSelected()
+                return
             }
 
-            self?.state.connectButton.state = .enabled
+            guard !Task.isCancelled, self?.hasBeenClosed == false else {
+                return
+            }
+
+            self?.isAcceptingConnection = true
+
+            let acceptResult: Result<String, MCPConnectionClientError>
+
+            do throws(MCPConnectionClientError) {
+                try await interactor.accept(connectionRequest, userWalletID)
+                analyticsReporter.reportAgentConnected(agent: connectionRequest.agent)
+                acceptResult = Result.success(connectionRequest.agent.name ?? MCPAgent.fallbackName)
+            } catch {
+                acceptResult = Result.failure(error)
+            }
+
+            self?.isAcceptingConnection = false
+
+            guard let self, !hasBeenClosed else {
+                logger.debug("Connection accept finished after the sheet was closed. Result is ignored.")
+                return
+            }
+
+            delegate.connectionAccepted(acceptResult)
+
+            state.connectButton.state = .enabled
         }
     }
 
@@ -276,6 +309,7 @@ extension MCPConnectionRequestProposalViewModel {
         let fetchRequestFailed: (MCPConnectionClientError) -> Void
         let userWalletSelectorTapped: () -> Void
         let openSystemSettingsButtonTapped: () -> Void
+        let unregisteredUserWalletSelected: () -> Void
         let connectionRejected: (Result<Void, MCPConnectionClientError>) -> Void
         let connectionAccepted: (Result<String, MCPConnectionClientError>) -> Void
     }

@@ -1308,6 +1308,8 @@
 "mcp_connection_request_agent_can" = "This agent will be able to";
 "mcp_connection_request_can_view_balance" = "View balances and activity";
 "mcp_connection_request_notifications_description" = "You'll get a notification to approve each transaction. Without notifications, the agent can't connect.";
+"mcp_connection_request_wallet_needs_sync_description" = "Go back to the main wallet screen, sync your wallet, then try again";
+"mcp_connection_request_wallet_needs_sync_title" = "This wallet needs syncing";
 "mcp_connection_success_description" = "%@ can now view your balances and request transaction approvals. Revoke access anytime in Connections.";
 "mcp_connection_success_title" = "Agent connected";
 "mcp_intent_cant_reach_title" = "Can’t reach intent";
@@ -1782,6 +1784,7 @@
 "prediction_search_initial_subtitle" = "Search events or your predictions";
 "prediction_search_initial_title" = "Start typing to search";
 "prediction_search_results_title" = "Search results";
+"prediction_sports_draw" = "Draw";
 "prediction_withdraw_balance_unavailable" = "Couldn't load your prediction account balance. Refresh or reopen this screen.";
 "prediction_withdraw_confirm_fee_footer" = "No network fee is charged for this withdrawal. The amount you receive may differ slightly due to bridge conversion.";
 "prediction_withdraw_confirm_title" = "Confirm withdrawal";

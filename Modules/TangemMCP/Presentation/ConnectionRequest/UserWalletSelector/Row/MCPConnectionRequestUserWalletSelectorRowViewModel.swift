@@ -51,7 +51,7 @@ final class MCPConnectionRequestUserWalletSelectorRowViewModel: ObservableObject
 
         case .balanceUpdated(let balanceUpdate):
             assert(!state.userWallet.isLocked, "Locked UserWallet received balance update. Developer mistake.")
-            state.subtitle.balance = balanceUpdate
+            state.subtitle = .balance(balanceUpdate)
 
         case .isSelectedChanged(let isSelected):
             state.isSelected = isSelected
@@ -61,10 +61,12 @@ final class MCPConnectionRequestUserWalletSelectorRowViewModel: ObservableObject
     private func handleViewDidLoad() {
         let userWalletID = state.userWallet.id
 
-        imageTask?.cancel()
-        imageTask = Task { [weak self, imageRepository] in
-            let image = await imageRepository.retrieve(by: userWalletID)
-            self?.handle(action: .imageLoaded(image))
+        if !state.userWallet.isMobileWallet {
+            imageTask?.cancel()
+            imageTask = Task { [weak self, imageRepository] in
+                let image = await imageRepository.retrieve(by: userWalletID)
+                self?.handle(action: .imageLoaded(image))
+            }
         }
 
         guard !state.userWallet.isLocked else {

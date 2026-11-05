@@ -26,6 +26,7 @@ struct MCPConnectionRequestView: View {
         }
         .scrollBounceBehavior(.basedOnSize)
         .animation(Animation.mcpFloatingSheetFrameUpdate, value: viewModel.state)
+        .animation(Animation.mcpFloatingSheetFrameUpdate, value: viewModel.isPushPermissionsBannerVisible)
         .task {
             viewModel.handle(action: .viewDidLoad)
         }
