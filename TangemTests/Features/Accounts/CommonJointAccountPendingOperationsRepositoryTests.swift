@@ -100,6 +100,9 @@ struct CommonJointAccountPendingOperationsRepositoryTests {
         await #expect(throws: CommonJointAccountPendingOperationsRepository.InternalError.featureUnavailable) {
             _ = try await sut.reloadPendingOperation(with: Self.operationId, in: Self.accountId, knownETag: nil)
         }
+        await #expect(throws: CommonJointAccountPendingOperationsRepository.InternalError.featureUnavailable) {
+            _ = try await sut.loadOperation(id: Self.operationId, forCryptoAccountId: Self.accountId)
+        }
 
         #expect(networkService.operationCallsCount == 0)
         #expect(synchronizer.appliedUpdates.isEmpty)
@@ -211,6 +214,74 @@ struct CommonJointAccountPendingOperationsRepositoryTests {
         #expect(synchronizer.appliedUpdates.isEmpty)
     }
 
+    @Test("An operation loaded by its id is read without a tag, whatever its status, and added under its account")
+    func loadedOperationIsAdded() async throws {
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub()
+        let item = Self.historyItem(status: .executed)
+        let networkService = JointAccountsNetworkServiceStub(fetchedOperationAnswers: [.success(.modified(item, eTag: "v1"))])
+        let sut = Self.makeSUT(networkService: networkService, synchronizer: synchronizer)
+
+        let operation = try await sut.loadOperation(id: Self.operationId, forCryptoAccountId: Self.accountId)
+
+        #expect(operation == item.operation)
+        #expect(networkService.fetchedOperations.map(\.id) == [Self.operationId])
+        #expect(networkService.fetchedOperations.map(\.knownETag) == [nil])
+        #expect(synchronizer.appliedUpdates == [.operationAdded(item.operation, cryptoAccountId: Self.accountId)])
+    }
+
+    @Test(
+        "An operation the endpoint does not know, or does not show this wallet, is not stored when loaded by its id",
+        arguments: [JointOperationError.operationNotFound, .notAMember]
+    )
+    func operationGoneFromTheEndpointIsNotLoaded(error: JointOperationError) async throws {
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub()
+        let networkService = JointAccountsNetworkServiceStub(fetchedOperationAnswers: [.failure(error)])
+        let sut = Self.makeSUT(networkService: networkService, synchronizer: synchronizer)
+
+        await #expect(throws: error) {
+            try await sut.loadOperation(id: Self.operationId, forCryptoAccountId: Self.accountId)
+        }
+        #expect(synchronizer.appliedUpdates.isEmpty)
+    }
+
+    @Test("An operation the endpoint reports under another account of the wallet is neither stored nor returned")
+    func operationOfAnotherAccountIsNotLoaded() async throws {
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub()
+        let item = Self.historyItem(status: .awaitingSignatures, cryptoAccountId: String(repeating: "0", count: 64))
+        let networkService = JointAccountsNetworkServiceStub(fetchedOperationAnswers: [.success(.modified(item, eTag: "v1"))])
+        let sut = Self.makeSUT(networkService: networkService, synchronizer: synchronizer)
+
+        await #expect(throws: JointOperationError.operationNotFound) {
+            try await sut.loadOperation(id: Self.operationId, forCryptoAccountId: Self.accountId)
+        }
+        #expect(synchronizer.appliedUpdates.isEmpty)
+    }
+
+    @Test("An operation loaded under its account matches it whichever case either spells the identifier in")
+    func loadedOperationMatchesItsAccountRegardlessOfCase() async throws {
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub()
+        let item = Self.historyItem(status: .pending, cryptoAccountId: Self.accountId.lowercased())
+        let networkService = JointAccountsNetworkServiceStub(fetchedOperationAnswers: [.success(.modified(item, eTag: "v1"))])
+        let sut = Self.makeSUT(networkService: networkService, synchronizer: synchronizer)
+
+        let operation = try await sut.loadOperation(id: Self.operationId, forCryptoAccountId: Self.accountId)
+
+        #expect(operation == item.operation)
+        #expect(synchronizer.appliedUpdates == [.operationAdded(item.operation, cryptoAccountId: Self.accountId)])
+    }
+
+    @Test("An endpoint that answers a load without the operation stores nothing")
+    func loadAnsweredWithoutTheOperationStoresNothing() async throws {
+        let synchronizer = JointAccountPendingOperationsSynchronizerStub()
+        let networkService = JointAccountsNetworkServiceStub(fetchedOperationAnswers: [.success(.notModified)])
+        let sut = Self.makeSUT(networkService: networkService, synchronizer: synchronizer)
+
+        await #expect(throws: CommonJointAccountPendingOperationsRepository.InternalError.operationNotReturned) {
+            try await sut.loadOperation(id: Self.operationId, forCryptoAccountId: Self.accountId)
+        }
+        #expect(synchronizer.appliedUpdates.isEmpty)
+    }
+
     @Test("Nothing is polled while the feature is off")
     func nothingIsPolledWhileTheFeatureIsOff() {
         let synchronizer = JointAccountPendingOperationsSynchronizerStub(pendingOperations: [Self.record(operations: [Self.operation()])])
@@ -279,10 +350,10 @@ private extension CommonJointAccountPendingOperationsRepositoryTests {
         )
     }
 
-    static func historyItem(status: JointAccountOperationStatus) -> JointOperationHistoryItem {
+    static func historyItem(status: JointAccountOperationStatus, cryptoAccountId: String = accountId) -> JointOperationHistoryItem {
         JointOperationHistoryItem(
             operation: operation(status: status),
-            cryptoAccountId: accountId,
+            cryptoAccountId: cryptoAccountId,
             safeAddress: safeAddress,
             createdAt: Date(timeIntervalSince1970: 1_767_225_600),
             threshold: 2
