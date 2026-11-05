@@ -63,7 +63,13 @@ struct CollectiblesAPITarget: Moya.TargetType {
         case .generatePurchaseTx(let request, _): .requestJSONEncodable(request)
         case .purchaseTxSent(let request, _): .requestJSONEncodable(request)
         case .openPack(let request, _):
-            .requestCompositeParameters(body: request, urlParameters: [Constants.includeNftWonKey: Constants.trueValue])
+            .requestCompositeParameters(
+                body: request,
+                urlParameters: [
+                    Constants.includeNftWonKey: Constants.trueValue,
+                    Constants.includeAutoBuybackKey: Constants.trueValue,
+                ]
+            )
         case .buybackAvailability(let request, _): .requestParameters(request, encoding: URLEncoding.queryString)
         case .generateBuybackData(let request, _): .requestJSONEncodable(request)
         case .buybackTxSent(let request, _): .requestJSONEncodable(request)
@@ -103,6 +109,7 @@ extension CollectiblesAPITarget: TargetTypeLogConvertible {
 private extension CollectiblesAPITarget {
     enum Constants {
         static let includeNftWonKey = "includeNftWon"
+        static let includeAutoBuybackKey = "includeAutoBuyback"
         static let trueValue = "true"
     }
 }

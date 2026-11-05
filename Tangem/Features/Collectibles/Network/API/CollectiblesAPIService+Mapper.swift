@@ -76,11 +76,11 @@ extension CollectiblesAPIService {
             CollectiblesPurchaseTransaction(
                 status: mapToPurchaseStatus(transaction),
                 wonCard: transaction.nftWon.map(mapToWonCard),
-                buybackAmount: transaction.buyback.flatMap(mapToBuybackAmount)
+                buybackAmount: transaction.autoBuyback.flatMap(mapToBuybackAmount)
             )
         }
 
-        static func mapToBuybackAmount(_ buyback: CollectiblesDTO.PurchaseBuyback) -> Decimal? {
+        static func mapToBuybackAmount(_ buyback: CollectiblesDTO.AutoBuyback) -> Decimal? {
             guard let toAmount = buyback.toAmount else {
                 return nil
             }
