@@ -19,6 +19,7 @@ private enum TestData {
     static let destinationTag: UInt32 = 12886911
     static let replacedDestinationTag: UInt32 = 42424242
     static let destinationAddress = "rBndy89HdamJ3UHNekAS6ALjW9WoCE2W5s"
+    static let amountAfterFee = Decimal(sign: .plus, exponent: -6, significand: 47202718)
 }
 
 /// Guards [REDACTED_INFO]: an XRP `DestinationTag` must not be dropped when the user taps "Send" while the
@@ -110,6 +111,29 @@ struct TransferModelDestinationTagTests {
             try await model.performAction()
         }
         #expect(harness.recorder.dispatchedTransactions.isEmpty)
+    }
+
+    @Test("A send reports the amount, recipient and tag it went out with, the included fee taken out", .timeLimit(.minutes(1)))
+    func resultCarriesSentTransfer() async throws {
+        let harness = Harness(feeIncludedCalculator: FeeIncludedCalculatorStub(shouldInclude: true))
+        let model = harness.makeModel()
+        await harness.creator.releaseHeldBuild()
+
+        _ = try #require(await harness.awaitFirstBuiltTransaction(model))
+        model.destinationAdditionalParametersDidChanged(harness.filledTagField())
+        await harness.creator.waitUntilFirstTaggedBuildIsInFlight()
+
+        let result = try await model.performAction()
+
+        let dispatched = try #require(harness.recorder.dispatchedTransactions.last)
+        #expect(dispatched.amount.value == TestData.amountAfterFee)
+        #expect(
+            result.transfer == TransactionDispatcherResult.Transfer(
+                amount: TestData.amountAfterFee,
+                destination: TestData.destinationAddress,
+                memo: String(TestData.destinationTag)
+            )
+        )
     }
 }
 

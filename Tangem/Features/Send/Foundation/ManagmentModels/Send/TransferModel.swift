@@ -343,8 +343,7 @@ private extension TransferModel {
         try Task.checkCancellation()
 
         // Don't rely on the awaited build being the newest one: dispatch only what the screen still shows.
-        let builtInputs = transactionBuild.withLock { $0.inputs }
-        guard builtInputs != nil, builtInputs == currentTransactionInputs() else {
+        guard let builtInputs = transactionBuild.withLock({ $0.inputs }), builtInputs == currentTransactionInputs() else {
             throw TransactionDispatcherResult.Error.informationRelevanceServiceError
         }
 
@@ -353,7 +352,12 @@ private extension TransferModel {
         }
 
         let dispatcher = _sourceToken.transactionDispatcherProvider.makeTransferTransactionDispatcher()
-        let result = try await dispatcher.send(transaction: .transfer(transaction))
+        var result = try await dispatcher.send(transaction: .transfer(transaction))
+        result.transfer = TransactionDispatcherResult.Transfer(
+            amount: transaction.amount.value,
+            destination: transaction.destinationAddress,
+            memo: builtInputs.extraId
+        )
         addTokenFromTransactionIfNeeded(transaction)
         return result
     }
