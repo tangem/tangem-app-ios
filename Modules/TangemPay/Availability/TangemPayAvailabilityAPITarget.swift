@@ -80,7 +80,16 @@ extension TangemPayAvailabilityAPITarget {
 
 extension TangemPayAvailabilityAPITarget: TargetTypeLogConvertible {
     var requestDescription: String {
-        path
+        switch target {
+        case .isPaeraCustomer(let customerWalletId):
+            return path
+                .replacingOccurrences(of: customerWalletId, with: "{walletId}")
+        case .getEligibility,
+             .checkEligibility,
+             .validateDeeplink,
+             .getImages:
+            return path
+        }
     }
 
     var shouldLogResponseBody: Bool {
