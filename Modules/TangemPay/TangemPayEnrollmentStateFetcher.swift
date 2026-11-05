@@ -11,96 +11,94 @@ public struct TangemPayEnrollmentStateFetcher {
     public let availabilityService: TangemPayAvailabilityService
     public let customerService: CustomerInfoManagementService
     public let isCustomerSummaryEnabled: Bool
+    public let isUnifiedOnboardingEnabled: Bool
 
     public init(
         customerWalletId: String,
         availabilityService: TangemPayAvailabilityService,
         customerService: CustomerInfoManagementService,
-        isCustomerSummaryEnabled: Bool
+        isCustomerSummaryEnabled: Bool,
+        isUnifiedOnboardingEnabled: Bool
     ) {
         self.customerWalletId = customerWalletId
         self.availabilityService = availabilityService
         self.customerService = customerService
         self.isCustomerSummaryEnabled = isCustomerSummaryEnabled
+        self.isUnifiedOnboardingEnabled = isUnifiedOnboardingEnabled
     }
 
-    public func getEnrollmentState() async throws(TangemPayAPIServiceError) -> (state: TangemPayEnrollmentState, customerId: String) {
+    public func getEnrollmentState() async throws(TangemPayAPIServiceError) -> EnrollmentResult {
         let customerInfo = try await customerService.loadCustomerInfo()
-        let summary = isCustomerSummaryEnabled ? try await customerService.loadCustomerSummary() : nil
         let customerId = customerInfo.id
 
-        let customerState: VisaCustomerInfoResponse.CustomerState = if isCustomerSummaryEnabled, let summary {
-            VisaCustomerInfoResponse.CustomerState(summary.customerStatus)
-        } else {
-            customerInfo.state
+        if isCustomerSummaryEnabled {
+            let summary = try await customerService.loadCustomerSummary()
+            let state = TangemPaySummaryEnrollmentResolver.resolve(
+                summary: summary,
+                isUnifiedOnboardingEnabled: isUnifiedOnboardingEnabled
+            )
+            return EnrollmentResult(state: state, customerId: customerId, customerInfo: customerInfo, summary: summary)
         }
 
-        if customerState == .former {
-            return (.cardDeactivated(customerInfo: customerInfo, summary: summary), customerId)
+        let state = try await getLegacyEnrollmentState(customerInfo: customerInfo)
+        return EnrollmentResult(state: state, customerId: customerId, customerInfo: customerInfo, summary: nil)
+    }
+
+    private func getLegacyEnrollmentState(
+        customerInfo: VisaCustomerInfoResponse
+    ) async throws(TangemPayAPIServiceError) -> TangemPayEnrollmentState {
+        if customerInfo.state == .former {
+            return .cardDeactivated
         }
 
-        let kycStatus: VisaCustomerInfoResponse.KYCStatus? = if isCustomerSummaryEnabled, let summary {
-            VisaCustomerInfoResponse.KYCStatus(summary.kycStatus)
-        } else {
-            customerInfo.kyc?.status
-        }
-
-        switch kycStatus {
+        switch customerInfo.kyc?.status {
         case .approved:
             break
         case .declined:
-            return (.kycDeclined, customerId)
+            return .kycDeclined
         case .inProgress:
-            return (.kycInProgress, customerId)
+            return .kycInProgress
         case .required, .undefined, nil:
-            return (.kycRequired, customerId)
+            return .kycRequired
         }
 
-        if isCustomerSummaryEnabled, let summary {
-            if summary.paymentAccount.areAllCardsDeactivated {
-                return (.cardDeactivated(customerInfo: customerInfo, summary: summary), customerId)
-            }
+        let cardInstances = customerInfo.cardProductInstances
 
-            switch summary.paymentAccount.activation.status {
-            case .processing, .completed:
-                return (.enrolled(customerInfo: customerInfo, summary: summary), customerId)
-            case .failed:
-                return (.failedToIssueCard(customerInfo: customerInfo, summary: summary), customerId)
-            case .notStarted:
-                return (.planSelectNeeded, customerId)
-            case .unavailable, .deactivated, .undefined:
-                return (.unavailable, customerId)
-            }
-        } else {
-            let cardInstances = customerInfo.cardProductInstances
-
-            if cardInstances.contains(where: { $0.status == .active || $0.status == .blocked }) {
-                return (.enrolled(customerInfo: customerInfo, summary: summary), customerId)
-            }
-
-            if !cardInstances.isEmpty,
-               cardInstances.allSatisfy({ $0.status == .deactivated || $0.status == .canceled }) {
-                return (.cardDeactivated(customerInfo: customerInfo, summary: summary), customerId)
-            }
-
-            if customerInfo.paymentAccount != nil {
-                return (.enrolled(customerInfo: customerInfo, summary: summary), customerId)
-            }
-
-            // A campaign card is ordered before KYC, so that order — not a plan transition — is what stands in
-            // for the plan the user was never asked to pick.
-            let orderTypes = TangemPayOrderType.tariffPlanTransitionFamily + TangemPayOrderType.cardIssueFamily
-
-            let activeOrders = try await customerService.findOrders(
-                types: orderTypes,
-                statuses: [.new, .processing]
-            )
-
-            if !activeOrders.isEmpty {
-                return (.enrolled(customerInfo: customerInfo, summary: summary), customerId)
-            }
-
-            return (.planSelectNeeded, customerId)
+        if cardInstances.contains(where: { $0.status == .active || $0.status == .blocked }) {
+            return .enrolled
         }
+
+        if !cardInstances.isEmpty,
+           cardInstances.allSatisfy({ $0.status == .deactivated || $0.status == .canceled }) {
+            return .cardDeactivated
+        }
+
+        if customerInfo.paymentAccount != nil {
+            return .enrolled
+        }
+
+        // A campaign card is ordered before KYC, so that order — not a plan transition — is what stands in
+        // for the plan the user was never asked to pick.
+        let orderTypes = TangemPayOrderType.tariffPlanTransitionFamily + TangemPayOrderType.cardIssueFamily
+
+        let activeOrders = try await customerService.findOrders(
+            types: orderTypes,
+            statuses: [.new, .processing]
+        )
+
+        if !activeOrders.isEmpty {
+            return .enrolled
+        }
+
+        return .planSelectNeeded
+    }
+}
+
+public extension TangemPayEnrollmentStateFetcher {
+    struct EnrollmentResult {
+        public let state: TangemPayEnrollmentState
+        public let customerId: String
+        public let customerInfo: VisaCustomerInfoResponse
+        public let summary: TangemPayCustomerSummaryResponse?
     }
 }

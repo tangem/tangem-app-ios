@@ -6,13 +6,15 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-public enum TangemPayEnrollmentState {
+public enum TangemPayEnrollmentState: Equatable, Sendable {
     case kycRequired
     case kycInProgress
     case kycDeclined
-    case enrolled(customerInfo: VisaCustomerInfoResponse, summary: TangemPayCustomerSummaryResponse?)
-    case cardDeactivated(customerInfo: VisaCustomerInfoResponse, summary: TangemPayCustomerSummaryResponse?)
-    case failedToIssueCard(customerInfo: VisaCustomerInfoResponse, summary: TangemPayCustomerSummaryResponse)
+    case enrolled
+    case cardDeactivated
+    case failedToIssueCard
     case planSelectNeeded
+    case verified
+    case cardNotOpened
     case unavailable
 }

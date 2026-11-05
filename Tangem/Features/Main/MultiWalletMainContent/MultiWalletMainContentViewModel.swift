@@ -38,6 +38,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
     @Published private(set) var tangemPayAccountViewModel: TangemPayAccountViewModel?
+    @Published private(set) var tangemPayMoneyAccountRowState: TangemPayMoneyAccountRowState?
     @Published private(set) var polymarketAccountViewModel: AccountRowButtonViewModel?
     @Published private(set) var collectiblesAccountViewModel: AccountRowButtonViewModel?
 
@@ -397,8 +398,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 if let accountModel {
                     accountModel.statePublisher
                         .withWeakCaptureOf(viewModel)
-                        .map { [weak accountModel] viewModel, state in
-                            TangemPayAccountViewModel(
+                        .map { [weak accountModel] viewModel, state -> TangemPayAccountViewModel? in
+                            guard !state.isCardRowHidden else {
+                                return nil
+                            }
+
+                            return TangemPayAccountViewModel(
                                 tangemPayLocalState: state,
                                 userWalletId: viewModel.userWalletModel.userWalletId,
                                 cachedStateStorage: AppSettings.shared,
@@ -413,6 +418,24 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             }
             .receiveOnMain()
             .assign(to: &$tangemPayAccountViewModel)
+
+        AccountModelsAggregator(.tangemPay)
+            .modelPublisher(from: userWalletModel.accountModelsManager)
+            .flatMapLatest { accountModel -> AnyPublisher<TangemPayMoneyAccountRowState?, Never> in
+                guard let accountModel else {
+                    return .just(output: nil)
+                }
+
+                return Publishers.CombineLatest(
+                    accountModel.moneyAccountStatePublisher.filter { $0?.isResolved ?? true },
+                    accountModel.statePublisher.map(\.isKYCIncomplete)
+                )
+                .map(TangemPayMoneyAccountRowState.init(moneyAccountState:isKYCIncomplete:))
+                .eraseToAnyPublisher()
+            }
+            .removeDuplicates()
+            .receiveOnMain()
+            .assign(to: &$tangemPayMoneyAccountRowState)
     }
 
     private func setupActionButtons() {
@@ -908,40 +931,14 @@ extension MultiWalletMainContentViewModel {
 // MARK: - Money account
 
 extension MultiWalletMainContentViewModel {
-    var isTangemPayMoneyAccountVisible: Bool {
-        TangemPayUtilities.isMoneyAccountAvailable
-    }
-
     func openTangemPayMoneyAccount() {
-        guard let tangemPayAccountModel = AccountModelsAggregator(.tangemPay)
-            .model(from: userWalletModel.accountModelsManager)
+        guard case .active(let moneyAccount) = AccountModelsAggregator(.tangemPay)
+            .model(from: userWalletModel.accountModelsManager)?
+            .moneyAccountState
         else {
             return
         }
 
-        switch tangemPayAccountModel.moneyAccountState {
-        case .activating(let moneyAccount),
-             .activationFailed(let moneyAccount),
-             .active(let moneyAccount),
-             .deactivated(let moneyAccount):
-            openTangemPayMoneyAccount(moneyAccount)
-
-        case .unavailable:
-            if let moneyAccount = tangemPayAccountModel.lastKnownMoneyAccount {
-                openTangemPayMoneyAccount(moneyAccount)
-            }
-
-        case .syncNeeded:
-            if let moneyAccount = tangemPayAccountModel.lastKnownMoneyAccount {
-                openTangemPayMoneyAccount(moneyAccount)
-            }
-
-        case .loading, .notStarted, .none:
-            break
-        }
-    }
-
-    private func openTangemPayMoneyAccount(_ moneyAccount: any TangemPayMoneyAccountModel) {
         coordinator?.openTangemPayMoneyAccount(userWalletModel: userWalletModel, moneyAccount: moneyAccount)
     }
 }

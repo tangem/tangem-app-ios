@@ -546,7 +546,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         let stateAfterAuthorization = tangemPayManager.state
 
         switch stateAfterAuthorization {
-        case .kycRequired, .residencyRequired, .regionUnavailable, .planSelectNeeded:
+        case .kycRequired, .residencyRequired, .regionUnavailable, .planSelectNeeded, .verified:
             do {
                 try await tangemPayManager.placeCampaignCardIssueOrder(campaignKey: campaignKey)
             } catch {
@@ -556,7 +556,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
             tangemPayManager.completeResidency(.eligible)
         case .tangemPayAccount, .cardDeactivated, .failedToIssueCard:
             throw .accountAlreadyExists
-        case .kycDeclined, .unavailable, .syncNeeded, .syncInProgress, .loading, .none:
+        case .kycDeclined, .unavailable, .syncNeeded, .syncInProgress, .loading, .cardNotOpened, .none:
             AccountsLogger.error(
                 "No campaign order to place for \(userWalletId), state \(String(describing: stateAfterAuthorization))",
                 error: TangemPayCampaignOfferError.unexpectedState
