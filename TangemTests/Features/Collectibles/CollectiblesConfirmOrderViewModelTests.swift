@@ -405,6 +405,14 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
         #expect(refunded != Localization.commonSomethingWentWrong)
     }
 
+    @Test("Another unfinished purchase gets its own message")
+    func anotherPurchaseHasOwnMessage() async {
+        let message = await errorMessage(after: .anotherPurchaseInProgress)
+
+        #expect(message != nil)
+        #expect(message != Localization.commonSomethingWentWrong)
+    }
+
     @Test("Dismissing the error clears the message")
     func dismissErrorClearsMessage() async {
         let (sut, doubles) = makeSUT(results: [.failure(CollectiblesPackPurchaseError.paymentTimedOut)])
@@ -527,7 +535,6 @@ extension CollectiblesConfirmOrderViewModelTests {
         CollectiblesPackPurchaseError.paymentFailed(.manuallyBuybacked),
         CollectiblesPackPurchaseError.accountNotReady,
         CollectiblesPackPurchaseError.invalidPrice,
-        CollectiblesPackPurchaseError.anotherPurchaseInProgress,
         URLError(.timedOut),
     ]
 }
@@ -709,6 +716,8 @@ private final class PurchaseInteractorStub: CollectiblesPackPurchaseInteractor {
     func isPurchaseLocked(machineID: String) -> Bool {
         isLocked
     }
+
+    func restorePendingPurchase() async {}
 
     func purchase(
         machineID: String,

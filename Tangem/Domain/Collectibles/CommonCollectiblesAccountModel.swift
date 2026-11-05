@@ -112,7 +112,8 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
                 signer: manager,
                 sentReporter: provider,
                 statusProvider: provider,
-                opener: provider
+                opener: provider,
+                pendingPurchaseProvider: provider
             )
         }
         interactor.update(signer: manager)
