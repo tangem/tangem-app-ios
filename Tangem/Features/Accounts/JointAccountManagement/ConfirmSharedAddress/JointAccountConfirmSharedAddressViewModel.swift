@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemUI
@@ -68,10 +67,8 @@ private extension JointAccountConfirmSharedAddressViewModel {
     func confirm() async {
         defer { isConfirming = false }
 
-        let status: JointAccountStatus
-
         do throws(AccountEditError) {
-            status = try await jointAccount.confirm(safeAddress: address)
+            try await jointAccount.confirm(safeAddress: address)
         } catch .unknownError(let underlying) where underlying.isCancellationError {
             return
         } catch {
@@ -79,21 +76,6 @@ private extension JointAccountConfirmSharedAddressViewModel {
             return
         }
 
-        if status.isActive {
-            let snackbar = TangemSnackbar(title: Localization.jointAccountActivatedSnackbar)
-                .icon(DesignSystem.Icons.Success.regular20)
-                .iconColor(DesignSystem.Color.iconAccentBlue)
-            Toast(view: snackbar).present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
-        }
-
         coordinator?.didConfirmSharedAddress()
-    }
-}
-
-// MARK: - Constants
-
-private extension JointAccountConfirmSharedAddressViewModel {
-    enum Constants {
-        static let toastTopPadding: CGFloat = 14
     }
 }

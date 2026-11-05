@@ -11,6 +11,7 @@ import CombineExt
 import Foundation
 import SwiftUI
 import TangemAccounts
+import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemUI
@@ -128,6 +129,8 @@ private extension JointAccountMembersViewModel {
             self.phase = phase
         case (.some(let current), _) where current == phase:
             break
+        case (.some, .completed) where jointAccount.status.isActive:
+            closeActivatedAccount()
         case (.some(let current), _) where current.rawCaseValue == phase.rawCaseValue:
             withAnimation(JointAccountMembersMotion.member) { self.phase = phase }
         case (.some, _):
@@ -146,6 +149,17 @@ private extension JointAccountMembersViewModel {
         withAnimation(JointAccountMembersMotion.member) {
             self.slots = slotViewModels
         }
+    }
+
+    func closeActivatedAccount() {
+        bag.removeAll()
+
+        let snackbar = TangemSnackbar(title: Localization.jointAccountActivatedSnackbar)
+            .icon(DesignSystem.Icons.Success.regular20)
+            .iconColor(DesignSystem.Color.iconAccentBlue)
+        Toast(view: snackbar).present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
+
+        coordinator?.closedActivatedAccount()
     }
 
     func makePhase(slots: [JointAccountSlot]) -> JointAccountMembersPhase {
@@ -278,6 +292,14 @@ extension JointAccountMembersViewModel {
         let name: String
         let membersCount: String
         let requiredApprovals: String
+    }
+}
+
+// MARK: - Constants
+
+private extension JointAccountMembersViewModel {
+    enum Constants {
+        static let toastTopPadding: CGFloat = 14
     }
 }
 
