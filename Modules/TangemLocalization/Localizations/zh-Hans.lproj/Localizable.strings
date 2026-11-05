@@ -478,7 +478,7 @@
 "common_retry" = "重试";
 "common_save_changes" = "保存更改";
 "common_save" = "节省";
-"common_scan_card" = "Scan card";
+"common_scan_card" = "扫描卡";
 "common_search_tokens" = "搜索代币";
 "common_search" = "搜索";
 "common_second_no_param" = "秒";
@@ -1308,6 +1308,8 @@
 "mcp_connection_request_agent_can" = "该智能体将能够";
 "mcp_connection_request_can_view_balance" = "查看余额和交易记录";
 "mcp_connection_request_notifications_description" = "每笔交易您都会收到确认通知。如果没有通知，智能体将无法连接。";
+"mcp_connection_request_wallet_needs_sync_description" = "Go back to the main wallet screen, sync your wallet, then try again";
+"mcp_connection_request_wallet_needs_sync_title" = "This wallet needs syncing";
 "mcp_connection_success_description" = "%@ 现在可以查看您的余额并申请交易审批。您随时可在 Connections 中撤销访问权限。";
 "mcp_connection_success_title" = "智能体已连接";
 "mcp_intent_cant_reach_title" = "Can’t reach intent";
@@ -1782,6 +1784,7 @@
 "prediction_search_initial_subtitle" = "搜索事件或您的预测";
 "prediction_search_initial_title" = "输入关键字开始搜索";
 "prediction_search_results_title" = "搜索结果";
+"prediction_sports_draw" = "Draw";
 "prediction_withdraw_balance_unavailable" = "无法加载您的预测账户余额。请刷新或重新打开此页面。";
 "prediction_withdraw_confirm_fee_footer" = "本次提现不收取网络费用。由于跨链桥转换，您实际收到的金额可能会略有差异。";
 "prediction_withdraw_confirm_title" = "确认提现";
@@ -3059,8 +3062,8 @@
 "warning_kaspa_unfinished_token_transaction_message" = "您金额为 %1$@ %2$@ 的交易未完成。您可以再次尝试完成交易。";
 "warning_kaspa_unfinished_token_transaction_title" = "您有未完成的交易";
 "warning_last_balance_updated_time" = "上次更新时间是 %@";
-"warning_link_wallet_cold_message" = "Scan your card to link your wallet to this device.";
-"warning_link_wallet_hot_message" = "Confirm to link your wallet to this device.";
+"warning_link_wallet_cold_message" = "扫描您的卡片，将您的钱包与该设备绑定。";
+"warning_link_wallet_hot_message" = "请确认将您的钱包与该设备绑定。";
 "warning_link_wallet_title" = "Link your wallet to this device";
 "warning_long_transaction_message" = "iPhone 7/7+ 无法在此网络上签署交易。请使用其他手机完成此操作。";
 "warning_long_transaction_title" = "交易签名不可用";

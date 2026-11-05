@@ -68,20 +68,25 @@ public extension MCPAssembly {
             userWallets: [MCPUserWallet],
             selectedUserWallet: MCPUserWallet,
             pushNotificationsPermissionProvider: any MCPPushNotificationsPermissionProvider,
+            retrieveUserWalletRegistrationStatus: @escaping RetrieveUserWalletRegistrationStatus,
             fetchUserWalletImage: @escaping @Sendable (UserWalletId) async -> UIImage,
             updateUserWalletBalance: @escaping @Sendable (UserWalletId) -> AsyncStream<String>,
             openSystemSettingsAction: @escaping () -> Void,
+            unregisteredUserWalletSelectedAction: @escaping () -> Void,
             connectionFailedAction: @escaping () -> Void,
             connectionAcceptedAction: @escaping (UserWalletId) -> Void,
             closeAction: @escaping () -> Void
         ) -> MCPConnectionRequestViewModel {
+            let ensurePushNotificationsAuthorized = EnsurePushNotificationsAuthorizedUseCase(
+                provider: pushNotificationsPermissionProvider
+            ).callAsFunction
+
             let interactor = MCPConnectionRequestInteractor(
-                fetchRequest: UseCases.fetchConnectionRequest,
-                ensurePushNotificationsAuthorized: EnsurePushNotificationsAuthorizedUseCase(
-                    provider: pushNotificationsPermissionProvider
-                ),
-                reject: UseCases.rejectConnection,
-                accept: UseCases.acceptConnection
+                fetchRequest: UseCases.fetchConnectionRequest.callAsFunction,
+                ensurePushNotificationsAuthorized: ensurePushNotificationsAuthorized,
+                retrieveUserWalletRegistrationStatus: retrieveUserWalletRegistrationStatus,
+                reject: UseCases.rejectConnection.callAsFunction,
+                accept: UseCases.acceptConnection.callAsFunction
             )
 
             let userWalletImageRepository = MCPUserWalletImageRepository(maxConcurrentFetches: 6, fetchImage: fetchUserWalletImage)
@@ -89,6 +94,7 @@ public extension MCPAssembly {
             let delegate = MCPConnectionRequestViewModel.Delegate(
                 closeButtonTapped: closeAction,
                 openSystemSettingsButtonTapped: openSystemSettingsAction,
+                unregisteredUserWalletSelected: unregisteredUserWalletSelectedAction,
                 fetchRequestErrorOccurred: { _ in
                     connectionFailedAction()
                 },

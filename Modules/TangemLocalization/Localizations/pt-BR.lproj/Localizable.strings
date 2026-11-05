@@ -1308,6 +1308,8 @@
 "mcp_connection_request_agent_can" = "Este agente poderá";
 "mcp_connection_request_can_view_balance" = "Visualizar saldos e atividade";
 "mcp_connection_request_notifications_description" = "Você receberá uma notificação para aprovar cada transação. Sem as notificações, o agente não poderá se conectar.";
+"mcp_connection_request_wallet_needs_sync_description" = "Go back to the main wallet screen, sync your wallet, then try again";
+"mcp_connection_request_wallet_needs_sync_title" = "This wallet needs syncing";
 "mcp_connection_success_description" = "%@ agora pode visualizar seus saldos e solicitar aprovações de transações. Revogue o acesso a qualquer momento em Conexões.";
 "mcp_connection_success_title" = "Agente conectado";
 "mcp_intent_cant_reach_title" = "Não foi possível acessar a intenção";
@@ -1782,6 +1784,7 @@
 "prediction_search_initial_subtitle" = "Pesquise eventos ou suas previsões";
 "prediction_search_initial_title" = "Comece a digitar para pesquisar";
 "prediction_search_results_title" = "Resultados da pesquisa";
+"prediction_sports_draw" = "Draw";
 "prediction_withdraw_balance_unavailable" = "Não foi possível carregar o saldo da sua conta de previsões. Atualize ou reabra esta tela.";
 "prediction_withdraw_confirm_fee_footer" = "Nenhuma taxa de rede é cobrada por este saque. O valor que você receber poderá apresentar uma pequena diferença devido à conversão realizada pela bridge.";
 "prediction_withdraw_confirm_title" = "Confirmar saque";

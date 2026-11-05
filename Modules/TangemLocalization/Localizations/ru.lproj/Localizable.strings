@@ -1308,6 +1308,8 @@
 "mcp_connection_request_agent_can" = "Этот агент сможет";
 "mcp_connection_request_can_view_balance" = "Просматривать балансы и активность";
 "mcp_connection_request_notifications_description" = "Вы будете получать уведомления для подтверждения каждой транзакции. Без уведомлений агент не сможет подключиться.";
+"mcp_connection_request_wallet_needs_sync_description" = "Go back to the main wallet screen, sync your wallet, then try again";
+"mcp_connection_request_wallet_needs_sync_title" = "This wallet needs syncing";
 "mcp_connection_success_description" = "Теперь %@ может просматривать ваши балансы и запрашивать подтверждение транзакций. Отозвать доступ можно в любой момент в разделе «Подключения».";
 "mcp_connection_success_title" = "Агент подключён";
 "mcp_intent_cant_reach_title" = "Can’t reach intent";
@@ -1782,6 +1784,7 @@
 "prediction_search_initial_subtitle" = "Ищите события или свои прогнозы";
 "prediction_search_initial_title" = "Начните вводить текст для поиска";
 "prediction_search_results_title" = "Результаты поиска";
+"prediction_sports_draw" = "Draw";
 "prediction_withdraw_balance_unavailable" = "Не удалось загрузить баланс вашего аккаунта прогнозов. Обновите или заново откройте этот экран.";
 "prediction_withdraw_confirm_fee_footer" = "За этот вывод комиссия сети не взимается. Сумма получения может незначительно отличаться из-за конвертации моста.";
 "prediction_withdraw_confirm_title" = "Подтвердить вывод";

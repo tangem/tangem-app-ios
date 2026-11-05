@@ -152,12 +152,19 @@ struct MCPConnectionRequestProposalView: View {
     private func pushPermissionsBanner(_ banner: MCPConnectionRequestProposalState.PushNotificationsPermissionBanner) -> some View {
         MessageBanner(title: banner.title, description: banner.description)
             .variant(.warning)
+            .glowRing(.warning)
+            .slotEnd {
+                DesignSystem.Icons.Warning.filled20.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconStatusWarning)
+                    .accessibilityHidden(true)
+            }
             .primaryButton(
                 MessageBannerButton(title: banner.buttonTitle) {
                     viewModel.handle(action: .openSystemSettingsButtonTapped)
                 }
             )
-            .transition(.move(edge: .top))
+            .transition(AnyTransition.mcpContent)
     }
 
     private var buttons: some View {
@@ -185,5 +192,6 @@ struct MCPConnectionRequestProposalView: View {
             .disabled(viewModel.state.connectButton.state != .enabled)
         }
         .padding(.top, 16)
+        .transformEffect(.identity)
     }
 }

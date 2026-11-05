@@ -8,6 +8,8 @@
 
 import Combine
 import Foundation
+import struct SwiftUI.Alert
+import struct SwiftUI.Text
 import class UIKit.UIApplication
 import class UIKit.UIImage
 import class Kingfisher.ImageCache
@@ -77,18 +79,28 @@ enum MCPModuleFactory {
             userWallets: userWallets,
             selectedUserWallet: selectedUserWallet,
             pushNotificationsPermissionProvider: pushNotificationsPermissionProvider,
+            retrieveUserWalletRegistrationStatus: { userWalletID in
+                await BackendAuthenticationAssembly.retrieveUserWalletRegistrationStatus(id: userWalletID)
+            },
             fetchUserWalletImage: Self.makeFetchUserWalletImage(),
             updateUserWalletBalance: Self.makeUpdateUserWalletBalance(),
             openSystemSettingsAction: UIApplication.openSystemSettings,
+            unregisteredUserWalletSelectedAction: { [weak alertPresenter] in
+                let alert = Alert(
+                    title: Text(Localization.mcpConnectionRequestWalletNeedsSyncTitle),
+                    message: Text(Localization.mcpConnectionRequestWalletNeedsSyncDescription)
+                )
+
+                alertPresenter?.present(alert: AlertBinder(alert: alert))
+            },
             connectionFailedAction: { [weak floatingSheetPresenter, weak alertPresenter] in
                 floatingSheetPresenter?.removeActiveSheet()
-                alertPresenter?.present(
-                    alert: AlertBuilder.makeAlertWithDefaultPrimaryButton(
-                        title: Localization.commonSomethingWentWrong,
-                        message: Localization.commonTryAgainLater,
-                        buttonText: Localization.commonOk
-                    )
+                let alert = Alert(
+                    title: Text(Localization.commonSomethingWentWrong),
+                    message: Text(Localization.commonTryAgainLater)
                 )
+
+                alertPresenter?.present(alert: AlertBinder(alert: alert))
             },
             connectionAcceptedAction: connectionAcceptedAction,
             closeAction: { [weak floatingSheetPresenter] in
@@ -122,13 +134,12 @@ enum MCPModuleFactory {
                 sessionRevokedAction()
             },
             sessionRevokeFailedAction: { [weak alertPresenter] in
-                alertPresenter?.present(
-                    alert: AlertBuilder.makeAlertWithDefaultPrimaryButton(
-                        title: Localization.commonSomethingWentWrong,
-                        message: Localization.commonTryAgainLater,
-                        buttonText: Localization.commonOk
-                    )
+                let alert = Alert(
+                    title: Text(Localization.commonSomethingWentWrong),
+                    message: Text(Localization.commonTryAgainLater)
                 )
+
+                alertPresenter?.present(alert: AlertBinder(alert: alert))
             }
         )
 
@@ -331,7 +342,7 @@ private extension MCPUserWallet {
             id: userWalletModel.userWalletId,
             thumbnail: userWalletModel.config.walletThumbnailType,
             name: userWalletModel.name,
-            numberOfCards: userWalletModel.config.cardsCount,
+            isMobileWallet: userWalletModel.config.productType == .mobileWallet,
             isLocked: userWalletModel.isUserWalletLocked
         )
     }
