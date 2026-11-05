@@ -49,6 +49,9 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
             let mobileWallet = try mobileWalletSdk.deriveMasterKeys(context: context)
 
             let derivationPath = TangemPayUtilities.derivationPath
+            let derivationPaths = TangemPayUnifiedOnboarding.isEnabled
+                ? [derivationPath, TangemPayUtilities.bankingAccountDerivationPath]
+                : [derivationPath]
             let wallets = mobileWallet.wallets
 
             // Authorization always needs the TangemPay seed-key derivation.
@@ -56,7 +59,10 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
                 throw Error.derivedKeyNotFound
             }
 
-            let rawResult = try mobileWalletSdk.deriveKeys(context: context, derivationPaths: [seedKey: [derivationPath]])
+            let rawResult = try mobileWalletSdk.deriveKeys(
+                context: context,
+                derivationPaths: [seedKey: derivationPaths]
+            )
 
             derivationResult = rawResult.reduce(into: [:]) { partialResult, keyInfo in
                 partialResult[keyInfo.key] = .init(keys: keyInfo.value.derivedKeys)
