@@ -183,6 +183,7 @@ extension MCPConnectionRequestViewModel {
         switch acceptResult {
         case .success(let agentName):
             logger.debug("Proposal accept succeeded")
+            delegate.proposalAccepted(proposalViewModel.state.userWalletSelector.selection.id)
             let agentConnectedViewModel = MCPConnectionRequestAgentConnectedViewModel(
                 doneAction: delegate.closeButtonTapped,
                 state: MCPConnectionRequestAgentConnectedState(agentName: agentName)
@@ -217,6 +218,7 @@ extension MCPConnectionRequestViewModel {
         let openSystemSettingsButtonTapped: () -> Void
         let fetchRequestErrorOccurred: (MCPConnectionClientError) -> Void
         let proposalRejected: (Result<Void, MCPConnectionClientError>) -> Void
+        let proposalAccepted: (UserWalletId) -> Void
         let proposalAcceptErrorOccurred: (MCPConnectionClientError) -> Void
     }
 }

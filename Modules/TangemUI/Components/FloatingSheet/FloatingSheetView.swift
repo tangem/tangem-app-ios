@@ -37,9 +37,7 @@ public struct FloatingSheetView: View {
                 backgroundView
                 sheetContainer(proxy)
             }
-            .if(sheetContentConfiguration.isBackgroundAndSheetSwipeEnabled) {
-                $0.gesture(verticalSwipeGesture)
-            }
+            .gesture(verticalSwipeGesture, isEnabled: sheetContentConfiguration.isBackgroundAndSheetSwipeEnabled)
         }
         .ignoresSafeArea(.all, edges: .bottom)
         .ignoresSafeArea(.container, edges: .horizontal)
@@ -73,9 +71,7 @@ public struct FloatingSheetView: View {
                 guard sheetContentConfiguration.backgroundInteractionBehavior == .tapToDismiss, !isDragging else { return }
                 dismissSheetAction()
             }
-            .if(sheetContentConfiguration.isBackgroundSwipeEnabled) {
-                $0.gesture(verticalSwipeGesture)
-            }
+            .gesture(verticalSwipeGesture, isEnabled: sheetContentConfiguration.isBackgroundSwipeEnabled)
             .animation(.dimmedBackground, value: viewModel == nil)
     }
 

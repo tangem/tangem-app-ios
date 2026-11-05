@@ -63,7 +63,7 @@ enum FeedTab: Identifiable {
 
 extension FeedTab: TabNavigationItem {
     var title: String { kind.title }
-    var icon: ImageType? { kind.icon }
+    var start: TabNavigationItemStart? { .icon(kind.icon) }
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.id == rhs.id

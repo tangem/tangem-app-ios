@@ -39,12 +39,9 @@ private struct TabItemLabel<Item: TabNavigationItem>: View {
 
     var body: some View {
         HStack(spacing: innerSpacing) {
-            if let icon = item.icon {
-                icon.image
-                    .renderingMode(.template)
-                    .resizable()
+            if let start = item.start {
+                startView(start)
                     .frame(width: iconSize, height: iconSize)
-                    .foregroundStyle(iconColor)
                     .accessibilityHidden(true)
             }
 
@@ -68,6 +65,20 @@ private struct TabItemLabel<Item: TabNavigationItem>: View {
         .frame(minWidth: Constants.minWidth)
         .expandingHitArea(.vertical, by: Constants.hitAreaInset)
         .animation(Constants.pressAnimation, value: isPressed)
+    }
+
+    @ViewBuilder
+    private func startView(_ start: TabNavigationItemStart) -> some View {
+        switch start {
+        case .icon(let icon):
+            icon.image
+                .renderingMode(.template)
+                .resizable()
+                .foregroundStyle(iconColor)
+
+        case .walletThumbnail(let thumbnail):
+            MiniatureWalletView(type: thumbnail)
+        }
     }
 
     private var titleColor: Color {

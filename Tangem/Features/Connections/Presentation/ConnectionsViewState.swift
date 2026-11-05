@@ -10,6 +10,7 @@ import struct Foundation.URL
 import TangemAssets
 import struct TangemFoundation.UserWalletId
 import enum TangemLocalization.Localization
+import struct TangemMCP.MCPAgent
 import struct TangemMCP.MCPSession
 import enum TangemUI.ThumbnailWalletViewType
 import struct TangemUIUtils.ConfirmationDialogViewModel
@@ -26,6 +27,18 @@ struct ConnectionsViewState: Equatable {
     var isTabBarVisible: Bool {
         tabs.count > 1
     }
+
+    var tabItems: [UserWalletTab.TabItem] {
+        tabs.map(\.tabItem)
+    }
+
+    var selectedTab: Self.UserWalletTab {
+        guard let selectedTab = tabs.first(where: { $0.id == selectedTabID }) else {
+            preconditionFailure("selectedTabID must match one of the tabs. Developer mistake.")
+        }
+
+        return selectedTab
+    }
 }
 
 extension ConnectionsViewState {
@@ -37,7 +50,7 @@ extension ConnectionsViewState {
 
 extension ConnectionsViewState.NavigationBar {
     struct TrailingButton: Equatable {
-        let icon = DesignSystem.Icons.DotsHorizontal.regular20
+        let accessibilityLabel = Localization.commonMore
         let disconnectAllMenuTitle = Localization.wcDisconnectAll
         var isEnabled = true
     }
@@ -87,11 +100,19 @@ extension ConnectionsViewState.UserWalletTab {
     struct MCPSessionsSection: Equatable {
         let title = Localization.wcConnectionsAgentsTitle
         var state: Self.State
+        var isAwaitingNewSession = false
 
         var isEmpty: Bool {
             switch state {
             case .loading, .failed: false
-            case .content(let sessions): sessions.isEmpty
+            case .content(let sessions): sessions.isEmpty && !isAwaitingNewSession
+            }
+        }
+
+        var sessions: [MCPSession] {
+            switch state {
+            case .loading, .failed: []
+            case .content(let sessionRows): sessionRows.map(\.session)
             }
         }
     }
@@ -101,7 +122,23 @@ extension ConnectionsViewState.UserWalletTab.MCPSessionsSection {
     enum State: Equatable {
         case loading
         case failed(FailedState)
-        case content([MCPSession])
+        case content([SessionRow])
+    }
+
+    struct SessionRow: Identifiable, Equatable {
+        let session: MCPSession
+        let agentName: String
+        let agentHost: String
+
+        var id: MCPSession.ID {
+            session.id
+        }
+
+        init(session: MCPSession) {
+            self.session = session
+            agentName = session.agent.name ?? MCPAgent.fallbackName
+            agentHost = session.agent.host ?? MCPAgent.fallbackHost
+        }
     }
 
     struct FailedState: Equatable {
