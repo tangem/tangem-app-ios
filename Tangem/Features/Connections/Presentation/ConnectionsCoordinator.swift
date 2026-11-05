@@ -9,6 +9,7 @@
 import struct Combine.Published
 import class Dispatch.DispatchQueue
 import TangemAssets
+import struct TangemFoundation.UserWalletId
 import enum TangemLocalization.Localization
 import struct TangemMCP.MCPSession
 import struct TangemUI.TangemSnackbar
@@ -70,8 +71,16 @@ extension ConnectionsCoordinator: ConnectionsRoutable {
         qrScanCoordinator = coordinator
     }
 
-    func openMCPConnectionRequest(userCode: String, sheetClosedAction: @escaping () -> Void) {
-        guard let viewModel = MCPModuleFactory.makeConnectionRequestViewModel(userCode: userCode, sheetClosedAction: sheetClosedAction) else {
+    func openMCPConnectionRequest(
+        userCode: String,
+        preselectedUserWalletID: UserWalletId,
+        connectionAcceptedAction: @escaping (UserWalletId) -> Void
+    ) {
+        guard let viewModel = MCPModuleFactory.makeConnectionRequestViewModel(
+            userCode: userCode,
+            preselectedUserWalletID: preselectedUserWalletID,
+            connectionAcceptedAction: connectionAcceptedAction
+        ) else {
             assertionFailure("Attempting to open MCP connection request without user wallets. Developer mistake.")
             return
         }
@@ -93,13 +102,21 @@ extension ConnectionsCoordinator: ConnectionsRoutable {
         floatingSheetPresenter.enqueue(sheet: viewModel)
     }
 
-    func openDAppConnectionProposal(forURI uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource) {
+    func openDAppConnectionProposal(
+        forURI uri: WalletConnectRequestURI,
+        source: Analytics.WalletConnectSessionSource,
+        preselectedUserWalletID: UserWalletId
+    ) {
         guard userWalletRepository.models.contains(where: { $0.config.isFeatureVisible(.walletConnect) }) else {
             presentErrorSnackbar(title: Localization.wcConnectionsNoWalletconnectWallets)
             return
         }
 
-        guard let viewModel = WalletConnectModuleFactory.makeDAppConnectionViewModel(forURI: uri, source: source) else {
+        guard let viewModel = WalletConnectModuleFactory.makeDAppConnectionViewModel(
+            forURI: uri,
+            source: source,
+            preselectedUserWalletID: preselectedUserWalletID
+        ) else {
             return
         }
         viewModel.loadDAppProposal()

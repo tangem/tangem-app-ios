@@ -14,7 +14,7 @@ struct ConnectionsCoordinatorView: CoordinatorView {
 
     var body: some View {
         if let viewModel = coordinator.viewModel {
-            ConnectionsView(viewModel: viewModel)
+            ConnectionsView(viewModel: viewModel, imageCache: MCPModuleFactory.kingfisherImageCache)
                 .fullScreenCover(item: $coordinator.qrScanCoordinator) {
                     ConnectionsQRScanCoordinatorView(coordinator: $0)
                         .softTopScrollEdgeEffect()

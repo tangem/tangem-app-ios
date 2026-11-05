@@ -11,7 +11,7 @@ private import os.lock
 private import SwiftUI
 public import class UIKit.UIImage
 public import Alamofire
-private import class Kingfisher.ImageCache
+public import class Kingfisher.ImageCache
 private import class Moya.MoyaProvider
 public import TangemUI
 public import struct TangemFoundation.UserWalletId
@@ -34,6 +34,10 @@ public extension MCPAssembly {
 
         public static var revokeDeviceSessions: RevokeDeviceMCPSessionsUseCase {
             RevokeDeviceMCPSessionsUseCase(client: Infrastructure.sessionClient)
+        }
+
+        public static var revokeUserWalletSessions: RevokeUserWalletMCPSessionsUseCase {
+            RevokeUserWalletMCPSessionsUseCase(client: Infrastructure.sessionClient)
         }
 
         fileprivate static var revokeSession: RevokeMCPSessionUseCase {
@@ -68,6 +72,7 @@ public extension MCPAssembly {
             updateUserWalletBalance: @escaping @Sendable (UserWalletId) -> AsyncStream<String>,
             openSystemSettingsAction: @escaping () -> Void,
             connectionFailedAction: @escaping () -> Void,
+            connectionAcceptedAction: @escaping (UserWalletId) -> Void,
             closeAction: @escaping () -> Void
         ) -> MCPConnectionRequestViewModel {
             let interactor = MCPConnectionRequestInteractor(
@@ -90,6 +95,7 @@ public extension MCPAssembly {
                 proposalRejected: { _ in
                     closeAction()
                 },
+                proposalAccepted: connectionAcceptedAction,
                 proposalAcceptErrorOccurred: { _ in
                     connectionFailedAction()
                 }
@@ -177,6 +183,7 @@ extension MCPAssembly {
         let requestRetrier: any Alamofire.RequestRetrier
         let authorizationAnalyticsReporter: any MCPAuthorizationAnalyticsReporter
         let sessionsAnalyticsReporter: any MCPSessionsAnalyticsReporter
+        let kingfisherImageCache: ImageCache
         let logger: TangemLogger.Logger
 
         public init(
@@ -186,6 +193,7 @@ extension MCPAssembly {
             requestRetrier: some Alamofire.RequestRetrier,
             authorizationAnalyticsReporter: some MCPAuthorizationAnalyticsReporter,
             sessionsAnalyticsReporter: some MCPSessionsAnalyticsReporter,
+            kingfisherImageCache: ImageCache,
             logger: TangemLogger.Logger
         ) {
             self.floatingSheetRegistry = floatingSheetRegistry
@@ -194,6 +202,7 @@ extension MCPAssembly {
             self.requestRetrier = requestRetrier
             self.authorizationAnalyticsReporter = authorizationAnalyticsReporter
             self.sessionsAnalyticsReporter = sessionsAnalyticsReporter
+            self.kingfisherImageCache = kingfisherImageCache
             self.logger = logger
         }
     }
@@ -221,25 +230,26 @@ extension MCPAssembly {
     @MainActor
     private static func registerFloatingSheets() {
         let registry = configuration.floatingSheetRegistry
+        let kingfisherImageCache = configuration.kingfisherImageCache
 
         registry.register(MCPConnectionRequestViewModel.self) { viewModel in
-            MCPConnectionRequestView(viewModel: viewModel, imageCache: Infrastructure.kingfisherImageCache)
+            MCPConnectionRequestView(viewModel: viewModel, imageCache: kingfisherImageCache)
         }
 
         registry.register(MCPSwapIntentViewModel.self) { viewModel in
             MCPIntentView(viewModel: viewModel) { proposalViewModel in
-                MCPSwapIntentProposalView(viewModel: proposalViewModel, kingfisherImageCache: Infrastructure.kingfisherImageCache)
+                MCPSwapIntentProposalView(viewModel: proposalViewModel, kingfisherImageCache: kingfisherImageCache)
             }
         }
 
         registry.register(MCPSendIntentViewModel.self) { viewModel in
             MCPIntentView(viewModel: viewModel) { proposalViewModel in
-                MCPSendIntentProposalView(viewModel: proposalViewModel, kingfisherImageCache: Infrastructure.kingfisherImageCache)
+                MCPSendIntentProposalView(viewModel: proposalViewModel, kingfisherImageCache: kingfisherImageCache)
             }
         }
 
         registry.register(MCPSessionDetailsViewModel.self) { viewModel in
-            MCPSessionDetailsView(viewModel: viewModel)
+            MCPSessionDetailsView(viewModel: viewModel, imageCache: kingfisherImageCache)
         }
     }
 }
@@ -289,7 +299,5 @@ extension MCPAssembly {
             baseURL: MCPAssembly.configuration.baseURL,
             decoder: Self.jsonDecoder
         )
-
-        static let kingfisherImageCache = ImageCache(name: "com.tangem.mcp.icons")
     }
 }

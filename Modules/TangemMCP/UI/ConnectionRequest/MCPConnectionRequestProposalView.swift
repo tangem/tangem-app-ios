@@ -65,24 +65,7 @@ struct MCPConnectionRequestProposalView: View {
     }
 
     private func agentIcon(_ iconURL: URL?) -> some View {
-        KFImage(iconURL)
-            .placeholder {
-                Shimmer()
-            }
-            .onFailureView {
-                DesignSystem.Icons.Server.filled32.image
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 32, height: 32)
-                    .foregroundStyle(DesignSystem.Color.iconBrand)
-                    .frame(width: 40, height: 40)
-                    .background(DesignSystem.Color.bgStatusInfoSubtle)
-            }
-            .targetCache(imageCache)
-            .resizable()
-            .scaledToFit()
-            .frame(width: 40, height: 40)
-            .clipShape(.rect(cornerRadius: 12))
+        MCPAgentIconView(iconURL: iconURL, imageCache: imageCache)
     }
 
     private var permissionsSection: some View {

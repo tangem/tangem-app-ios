@@ -15,6 +15,7 @@ public import protocol TangemUI.FloatingSheetContentViewModel
 @MainActor
 public final class MCPSessionDetailsViewModel: ObservableObject, FloatingSheetContentViewModel {
     private let sessionID: MCPSession.ID
+    private let agent: MCPAgent
     private let revokeSession: RevokeMCPSessionUseCase
     private let delegate: Delegate
     private let analyticsReporter: any MCPSessionsAnalyticsReporter
@@ -33,14 +34,15 @@ public final class MCPSessionDetailsViewModel: ObservableObject, FloatingSheetCo
         logger: TangemLogger.Logger
     ) {
         sessionID = session.id
+        agent = session.agent
         self.revokeSession = revokeSession
         self.delegate = delegate
         self.analyticsReporter = analyticsReporter
         self.logger = logger
 
         state = MCPSessionDetailsState(
-            connectionDate: session.createdAt.formatted(.dateTime.month(.abbreviated).day().year().hour().minute()),
-            agent: session.agent,
+            connectionDate: Self.formattedConnectionDate(session.createdAt),
+            agent: MCPSessionDetailsState.AgentRow(agent: session.agent),
             userWallet: MCPSessionDetailsState.UserWalletRow(name: userWallet.name, thumbnail: userWallet.thumbnail)
         )
     }
@@ -84,13 +86,19 @@ public final class MCPSessionDetailsViewModel: ObservableObject, FloatingSheetCo
         switch result {
         case .success:
             logger.debug("MCP session revoked")
-            analyticsReporter.reportAgentDisconnected(agent: state.agent)
+            analyticsReporter.reportAgentDisconnected(agent: agent)
             delegate.sessionRevoked()
 
         case .failure(let error):
             logger.error("Failed to revoke MCP session", error: error)
             delegate.sessionRevokeFailed(error)
         }
+    }
+
+    private static func formattedConnectionDate(_ date: Date) -> String {
+        let day = date.formatted(.dateTime.month(.abbreviated).day().year())
+        let time = date.formatted(date: .omitted, time: .shortened)
+        return "\(day), \(time)"
     }
 }
 

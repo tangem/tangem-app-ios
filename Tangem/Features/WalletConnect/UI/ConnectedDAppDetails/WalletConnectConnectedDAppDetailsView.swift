@@ -44,6 +44,10 @@ struct WalletConnectConnectedDAppDetailsView: View {
             configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
             configuration.backgroundInteractionBehavior = .tapToDismiss
+            configuration.verticalSwipeBehavior = FloatingSheetConfiguration.VerticalSwipeBehavior(
+                target: .backgroundAndSheet,
+                threshold: 100
+            )
         }
     }
 
