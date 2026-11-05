@@ -14,27 +14,40 @@ import TangemAccounts
 import TangemFoundation
 import TangemLocalization
 import TangemAssets
-import TangemAccessibilityIdentifiers
+import TangemMacro
 import struct TangemUIUtils.AlertBinder
 
 final class AccountDetailsViewModel: ObservableObject {
-    typealias AccountDetailsRoutable =
-        any BaseAccountDetailsRoutable &
-        CryptoAccountDetailsRoutable
+    typealias AccountDetailsRoutable = any BaseAccountDetailsRoutable & CryptoAccountDetailsRoutable & JointAccountDetailsRoutable
 
     // MARK: - State
 
-    @Published private(set) var title: String = ""
+    @Published private(set) var navigationTitle: String = ""
     @Published private(set) var accountName: String = ""
     @Published private(set) var accountIcon: AccountModel.Icon = .composite(AccountModelUtils.UI.newAccountIcon())
-    @Published private(set) var managementRowViewModels: [DefaultRowViewModel] = []
-    @Published private(set) var supportedNetworksHint: AttributedString?
-    @Published private(set) var archiveRowViewModel: DefaultRowViewModel?
+    @Published private(set) var accountSubtitle: AccountSubtitle = .nameLabel
+    @Published private(set) var additionalAccountInfo: [AdditionalAccountInfo] = []
+    @Published private(set) var actions: [Action] = []
+    @Published private(set) var managementFooter: AttributedString?
+    @Published private(set) var archivingState: ArchivingState?
     @Published var alert: AlertBinder?
     @Published var archiveAccountDialogPresented = false
 
-    @Published private(set) var archivingState: ArchivingState? {
-        didSet { updateArchiveRow() }
+    var accountIconViewData: AccountIconView.ViewData {
+        AccountModelUtils.UI.iconViewData(icon: accountIcon, accountName: accountName)
+    }
+
+    var canBeEdited: Bool {
+        actions.contains(where: \.isEdit)
+    }
+
+    var managementActions: [Action] {
+        actions.filter { action in
+            switch action {
+            case .jointMembers, .manageTokens: true
+            case .edit, .archive: false
+            }
+        }
     }
 
     // MARK: - Dependencies
@@ -48,10 +61,6 @@ final class AccountDetailsViewModel: ObservableObject {
     private var archiveAccountTask: Task<Void, Never>?
     private var bag = Set<AnyCancellable>()
 
-    private var actions: [Action] {
-        AccountDetailsActionsProvider.getAvailableActions(for: account)
-    }
-
     init(
         account: any BaseAccountModel,
         accountModelsManager: AccountModelsManager,
@@ -61,28 +70,13 @@ final class AccountDetailsViewModel: ObservableObject {
         self.accountModelsManager = accountModelsManager
         self.coordinator = coordinator
 
-        archivingState = actions.contains(.archive) ? .readyToBeArchived : nil
-
-        setupView()
-        bind()
+        let builder = AccountDetailsBuilder(router: coordinator)
+        apply(content: account.resolve(using: AccountDetailsViewContentResolver(builder: builder)))
+        bind(builder: builder)
     }
 
     deinit {
         archiveAccountTask?.cancel()
-    }
-
-    // MARK: - View data
-
-    var accountIconViewData: AccountIconView.ViewData {
-        AccountModelUtils.UI.iconViewData(icon: accountIcon, accountName: accountName)
-    }
-
-    var canBeEdited: Bool {
-        actions.contains(.edit)
-    }
-
-    var isArchivingInProgress: Bool {
-        archivingState == .archivingInProgress
     }
 
     // MARK: - Methods
@@ -107,6 +101,26 @@ final class AccountDetailsViewModel: ObservableObject {
 
     // MARK: - Routing
 
+    func onActionTap(_ action: Action) {
+        switch action {
+        case .edit:
+            openEditAccount()
+        case .archive:
+            showShouldArchiveDialog()
+        case .jointMembers(_, let action):
+            action()
+        case .manageTokens:
+            openManageTokens()
+        }
+    }
+
+    func onAdditionalAccountInfoTap(_ info: AdditionalAccountInfo) {
+        switch info {
+        case .jointSignaturesCount(_, _, let action):
+            action()
+        }
+    }
+
     func showShouldArchiveDialog() {
         Analytics.log(event: .accountSettingsButtonArchiveAccount, params: getAccountAnalyticsParameters())
         archiveAccountDialogPresented = true
@@ -127,14 +141,6 @@ final class AccountDetailsViewModel: ObservableObject {
         coordinator?.openSupportedNetworks()
     }
 
-    func openJointAccountMembers() {
-        guard let jointAccount = account as? any JointAccountModel else {
-            return
-        }
-
-        coordinator?.openJointAccountMembers(jointAccount: jointAccount)
-    }
-
     func openManageTokens() {
         Analytics.log(event: .accountSettingsButtonManageTokens, params: getAccountAnalyticsParameters())
         coordinator?.manageTokens()
@@ -142,131 +148,32 @@ final class AccountDetailsViewModel: ObservableObject {
 
     // MARK: - Setup
 
-    private func setupView() {
-        applySnapshot()
-        updateArchiveRow()
-
-        switch account {
-        case is any JointAccountModel:
-            title = Localization.commonJointAccount
-        default:
-            title = Localization.accountDetailsTitle
-            managementRowViewModels = makeManagementRowViewModels(membersText: nil)
-        }
-    }
-
-    private func bind() {
-        account.didChangePublisher
-            .receiveOnMain()
+    private func bind(builder: AccountDetailsBuilder) {
+        account
+            .resolve(using: AccountDetailsViewContentPublisherResolver(builder: builder))
             .withWeakCaptureOf(self)
-            .sink { viewModel, _ in viewModel.applySnapshot() }
+            .receiveOnMain()
+            .sink { $0.apply(content: $1) }
             .store(in: &bag)
-
-        if let jointAccount = account as? any JointAccountModel {
-            bindJointAccountMembers(of: jointAccount)
-        }
     }
 
-    private func bindJointAccountMembers(of jointAccount: any JointAccountModel) {
-        jointAccount.didChangePublisher.prepend(())
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .map { viewModel, _ in viewModel.actions.contains(.manageTokens) ? viewModel.makeSupportedNetworksHint() : nil }
-            .assign(to: &$supportedNetworksHint)
-
-        jointAccount.didChangePublisher.prepend(())
-            .combineLatest(jointAccount.jointAccountMembersService.slotsPublisher)
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .map { $0.makeMembersText(status: jointAccount.status, slots: $1.1) }
-            .withWeakCaptureOf(self)
-            .map { $0.makeManagementRowViewModels(membersText: $1) }
-            .assign(to: &$managementRowViewModels)
+    private func apply(content: Content) {
+        navigationTitle = content.navigationTitle
+        accountName = content.name
+        accountIcon = content.icon
+        accountSubtitle = content.accountSubtitle
+        additionalAccountInfo = content.additionalAccountInfo
+        actions = content.actions
+        managementFooter = content.managementFooter
+        updateArchivingState()
     }
 
-    private func applySnapshot() {
-        accountName = account.name
-        accountIcon = account.icon.erased
-    }
-
-    private func updateArchiveRow() {
-        archiveRowViewModel = archivingState.map { makeArchiveRowViewModel(state: $0) }
-    }
-
-    // MARK: - Factories
-
-    private func makeManagementRowViewModels(membersText: String?) -> [DefaultRowViewModel] {
-        var rowViewModels: [DefaultRowViewModel] = []
-
-        if let membersText {
-            let jointAccountMembersRowViewModel = DefaultRowViewModel(
-                title: Localization.jointAccountMembersTitle,
-                detailsType: .text(membersText),
-                accessibilityIdentifier: AccountsAccessibilityIdentifiers.accountDetailsJointMembersButton,
-                action: { [weak self] in self?.openJointAccountMembers() }
-            )
-
-            rowViewModels.append(jointAccountMembersRowViewModel)
+    private func updateArchivingState() {
+        guard archivingState != .archivingInProgress else {
+            return
         }
 
-        if actions.contains(.manageTokens) {
-            let manageTokensRowViewModel = DefaultRowViewModel(
-                title: Localization.addTokensTitle,
-                accessibilityIdentifier: AccountsAccessibilityIdentifiers.accountDetailsManageTokensButton,
-                action: { [weak self] in self?.openManageTokens() }
-            )
-
-            rowViewModels.append(manageTokensRowViewModel)
-        }
-
-        return rowViewModels
-    }
-
-    private func makeArchiveRowViewModel(state: ArchivingState) -> DefaultRowViewModel {
-        switch state {
-        case .readyToBeArchived:
-            DefaultRowViewModel(
-                title: Localization.accountDetailsArchive,
-                accessibilityIdentifier: AccountsAccessibilityIdentifiers.accountDetailsArchiveButton,
-                action: { [weak self] in self?.showShouldArchiveDialog() }
-            )
-        case .archivingInProgress:
-            DefaultRowViewModel(
-                title: Localization.accountDetailsArchiving,
-                detailsType: .loader,
-                accessibilityIdentifier: AccountsAccessibilityIdentifiers.accountDetailsArchiveButton
-            )
-        }
-    }
-
-    private func makeSupportedNetworksHint() -> AttributedString {
-        let moreInfo = Localization.jointAccountMoreInfo
-        var hint = AttributedString(Localization.jointAccountSettingsNetworksInfo + " " + moreInfo)
-        hint.font = Fonts.Regular.caption1
-        hint.foregroundColor = DesignSystem.Color.textSecondary
-
-        if let range = hint.range(of: moreInfo) {
-            hint[range].foregroundColor = DesignSystem.Color.textAccentBlue
-            // Tap on "link" will handle as navigation
-            hint[range].link = URL(string: "about:blank")
-        }
-
-        return hint
-    }
-
-    private func makeMembersText(status: JointAccountStatus, slots: [JointAccountSlot]) -> String? {
-        guard slots.isNotEmpty else {
-            return nil
-        }
-
-        switch status {
-        case .pending:
-            return Localization.accountDetailsJointMembersProgress(slots.members.count, slots.count)
-        case .confirming, .active:
-            return Localization.accountDetailsJointMembersCount(slots.count)
-        case .untrusted, .cancelled, .unknown:
-            return nil
-        }
+        archivingState = actions.contains(where: \.isArchive) ? .readyToBeArchived : nil
     }
 
     private func getAccountAnalyticsParameters() -> [Analytics.ParameterKey: String] {
@@ -278,8 +185,10 @@ final class AccountDetailsViewModel: ObservableObject {
         Analytics.log(.accountSettingsAccountArchived)
         coordinator?.close()
 
-        Toast(view: SuccessToast(text: Localization.accountArchiveSuccessMessage))
-            .present(layout: .top(padding: 24), type: .temporary(interval: 4))
+        let snackbar = TangemSnackbar(title: Localization.accountArchiveSuccessMessage)
+            .icon(DesignSystem.Icons.Success.regular20)
+            .iconColor(DesignSystem.Color.iconAccentBlue)
+        Toast(view: snackbar).present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
     }
 
     @MainActor
@@ -297,12 +206,33 @@ final class AccountDetailsViewModel: ObservableObject {
     }
 }
 
-// MARK: - Details actions
+// MARK: - Content
 
 extension AccountDetailsViewModel {
+    struct Content {
+        let navigationTitle: String
+        let name: String
+        let icon: AccountModel.Icon
+        let accountSubtitle: AccountSubtitle
+        let additionalAccountInfo: [AdditionalAccountInfo]
+        let actions: [Action]
+        let managementFooter: AttributedString?
+    }
+
+    enum AccountSubtitle {
+        case nameLabel
+        case membersCount(Int)
+    }
+
+    enum AdditionalAccountInfo {
+        case jointSignaturesCount(signersCount: Int, membersCount: Int, action: () -> Void)
+    }
+
+    @CaseFlagable
     enum Action {
         case edit
         case archive
+        case jointMembers(value: String?, action: () -> Void)
         case manageTokens
     }
 }
@@ -313,6 +243,14 @@ extension AccountDetailsViewModel {
     enum ArchivingState {
         case readyToBeArchived
         case archivingInProgress
+    }
+}
+
+// MARK: - Constants
+
+private extension AccountDetailsViewModel {
+    enum Constants {
+        static let toastTopPadding: CGFloat = 14
     }
 }
 
@@ -356,6 +294,175 @@ private extension AccountDetailsViewModel {
                     await viewModel.handleAccountArchivingFailure(error: error)
                 }
             }
+        }
+    }
+}
+
+// MARK: - AccountDetailsViewContentResolver
+
+private extension AccountDetailsViewModel {
+    struct AccountDetailsViewContentResolver: AccountModelResolving {
+        let builder: AccountDetailsBuilder
+
+        func resolve(accountModel: any StandardCryptoAccountModel) -> Content {
+            builder.makeContent(standardAccount: accountModel)
+        }
+
+        func resolve(accountModel: any JointAccountModel) -> Content {
+            builder.makeContent(jointAccount: accountModel, slots: [])
+        }
+
+        func resolve(accountModel: any TangemPayAccountModel) -> Content {
+            builder.makeContent(accountWithoutActions: accountModel)
+        }
+
+        func resolve(accountModel: any PolymarketAccountModel) -> Content {
+            builder.makeContent(accountWithoutActions: accountModel)
+        }
+
+        func resolve(accountModel: any CollectiblesAccountModel) -> Content {
+            builder.makeContent(accountWithoutActions: accountModel)
+        }
+    }
+}
+
+// MARK: - AccountDetailsViewContentPublisherResolver
+
+private extension AccountDetailsViewModel {
+    struct AccountDetailsViewContentPublisherResolver: AccountModelResolving {
+        typealias Result = AnyPublisher<Content, Never>
+
+        let builder: AccountDetailsBuilder
+
+        func resolve(accountModel: any StandardCryptoAccountModel) -> Result {
+            accountModel.didChangePublisher
+                .prepend(())
+                .map { builder.makeContent(standardAccount: accountModel) }
+                .eraseToAnyPublisher()
+        }
+
+        func resolve(accountModel: any JointAccountModel) -> Result {
+            accountModel.didChangePublisher
+                .prepend(())
+                .combineLatest(accountModel.jointAccountMembersService.slotsPublisher)
+                .map { _, slots in builder.makeContent(jointAccount: accountModel, slots: slots) }
+                .eraseToAnyPublisher()
+        }
+
+        func resolve(accountModel: any TangemPayAccountModel) -> Result {
+            makeContentWithoutActionsPublisher(account: accountModel)
+        }
+
+        func resolve(accountModel: any PolymarketAccountModel) -> Result {
+            makeContentWithoutActionsPublisher(account: accountModel)
+        }
+
+        func resolve(accountModel: any CollectiblesAccountModel) -> Result {
+            makeContentWithoutActionsPublisher(account: accountModel)
+        }
+
+        private func makeContentWithoutActionsPublisher(account: any BaseAccountModel) -> Result {
+            account.didChangePublisher
+                .prepend(())
+                .map { builder.makeContent(accountWithoutActions: account) }
+                .eraseToAnyPublisher()
+        }
+    }
+}
+
+// MARK: - AccountDetailsBuilder
+
+private extension AccountDetailsViewModel {
+    struct AccountDetailsBuilder {
+        private weak var router: AccountDetailsRoutable?
+
+        init(router: AccountDetailsRoutable) {
+            self.router = router
+        }
+
+        func makeContent(standardAccount: any StandardCryptoAccountModel) -> Content {
+            Content(
+                navigationTitle: Localization.accountDetailsTitle,
+                name: standardAccount.name,
+                icon: standardAccount.icon.erased,
+                accountSubtitle: .nameLabel,
+                additionalAccountInfo: [],
+                actions: [
+                    .edit,
+                    standardAccount.isMainAccount ? nil : .archive,
+                    .manageTokens,
+                ].compactMap { $0 },
+                managementFooter: nil
+            )
+        }
+
+        func makeContent(jointAccount: any JointAccountModel, slots: [JointAccountSlot]) -> Content {
+            let policy = jointAccount.policy
+            let membersAction = makeMembersAction(jointAccount: jointAccount, slots: slots)
+            let signaturesCountInfo = AdditionalAccountInfo.jointSignaturesCount(
+                signersCount: policy.signersCount,
+                membersCount: policy.membersCount,
+                action: { router?.openAboutSignatures(policy: policy) }
+            )
+            let isActive = jointAccount.status.isActive
+
+            return Content(
+                navigationTitle: Localization.commonJointAccount,
+                name: jointAccount.name,
+                icon: jointAccount.icon.erased,
+                accountSubtitle: .membersCount(policy.membersCount),
+                additionalAccountInfo: [signaturesCountInfo],
+                actions: [membersAction, .archive, isActive ? .manageTokens : nil].compactMap { $0 },
+                managementFooter: isActive ? makeSupportedNetworksHint() : nil
+            )
+        }
+
+        func makeContent(accountWithoutActions account: any BaseAccountModel) -> Content {
+            Content(
+                navigationTitle: Localization.accountDetailsTitle,
+                name: account.name,
+                icon: account.icon.erased,
+                accountSubtitle: .nameLabel,
+                additionalAccountInfo: [],
+                actions: [],
+                managementFooter: nil
+            )
+        }
+
+        private func makeMembersAction(jointAccount: any JointAccountModel, slots: [JointAccountSlot]) -> Action? {
+            guard slots.isNotEmpty else {
+                return nil
+            }
+
+            let value: String?
+
+            switch jointAccount.status {
+            case .pending:
+                value = Localization.accountDetailsJointMembersJoined(slots.members.count, slots.count)
+            case .confirming:
+                let confirmedCount = slots.members.filter { $0.signature != nil }.count
+                value = Localization.accountDetailsJointMembersConfirmed(confirmedCount, slots.count)
+            case .active:
+                value = nil
+            case .untrusted, .cancelled, .unknown:
+                return nil
+            }
+
+            return .jointMembers(value: value, action: { router?.openJointAccountMembers(jointAccount: jointAccount) })
+        }
+
+        private func makeSupportedNetworksHint() -> AttributedString {
+            let moreInfo = Localization.jointAccountMoreInfo
+            var hint = AttributedString(Localization.accountDetailsJointNetworksInfo + " " + moreInfo)
+            hint.foregroundColor = DesignSystem.Color.textSecondary
+
+            if let range = hint.range(of: moreInfo) {
+                hint[range].foregroundColor = DesignSystem.Color.textAccentBlue
+                // Tap on "link" will handle as navigation
+                hint[range].link = URL(string: "about:blank")
+            }
+
+            return hint
         }
     }
 }

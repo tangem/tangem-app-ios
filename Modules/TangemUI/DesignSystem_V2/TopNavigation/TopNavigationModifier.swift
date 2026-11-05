@@ -69,6 +69,14 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
             .navigationBarBackButtonHidden(true)
             .toolbar { toolbarContent }
             .toolbarRole(contentPosition == .start ? .editor : .automatic)
+            .background { popGestureEnabler }
+    }
+
+    @ViewBuilder
+    private var popGestureEnabler: some View {
+        if case .automatic = leadingPolicy {
+            TopNavigationPopGestureEnabler()
+        }
     }
 
     @ToolbarContentBuilder

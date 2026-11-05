@@ -50,7 +50,7 @@ private extension DemoRegistry {
             DemoEntry("TokenIconV2", version: DSVersion(1, 1, 0), section: .ds3) { TokenIconV2Showcase() },
             DemoEntry("TokenRow", version: DSVersion(1, 1, 1), section: .ds3) { TokenRowShowcase() },
             DemoEntry("TokenRowMarket", version: DSVersion(1, 1, 0), section: .ds3) { TokenRowMarketShowcase() },
-            DemoEntry("TopNavigation", version: DSVersion(1, 2, 0), section: .ds3) { TopNavigationShowcase() },
+            DemoEntry("TopNavigation", version: DSVersion(1, 2, 1), section: .ds3) { TopNavigationShowcase() },
             DemoEntry("Typography", section: .ds3) { TypographyShowcase() },
             DemoEntry("UtilBalance", version: DSVersion(1, 0, 0), section: .ds3) { UtilBalanceShowcase() },
             DemoEntry("UtilGraph", version: DSVersion(1, 0, 0), section: .ds3) { UtilGraphShowcase() },

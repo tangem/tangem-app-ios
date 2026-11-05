@@ -12,6 +12,7 @@ import TangemFoundation
 import TangemLocalization
 
 final class JointAccountMembersViewSlotViewModel: ObservableObject, Identifiable {
+    let id: Int
     let slot: JointAccountSlot
     let icon: JointAccountMemberIconViewData
 
@@ -27,17 +28,11 @@ final class JointAccountMembersViewSlotViewModel: ObservableObject, Identifiable
         expiryFormatter: JointAccountInviteExpiryFormatter,
         delegate: JointAccountMembersViewSlotViewModelDelegate
     ) {
+        id = index
         self.slot = slot
         self.expiryFormatter = expiryFormatter
         self.delegate = delegate
         icon = JointAccountMemberIconViewData(slot: slot, index: index)
-    }
-
-    var id: ID {
-        switch slot {
-        case .member(let member, _): .member(address: member.address.lowercased())
-        case .empty(let id, _): .freeSlot(id)
-        }
     }
 
     var title: String {
@@ -85,6 +80,17 @@ final class JointAccountMembersViewSlotViewModel: ObservableObject, Identifiable
         }
 
         delegate?.jointAccountMembersViewSlotViewModelDidTap(self)
+    }
+
+    func onContentChange(to newSlot: JointAccountSlot) {
+        switch (slot, newSlot) {
+        case (.empty, .member(let member, _)) where !member.isMe:
+            FeedbackGenerator.selectionChanged()
+        case (.member(_, let currentType), .member(let member, .confirmed)) where !member.isMe && currentType != .confirmed:
+            FeedbackGenerator.selectionChanged()
+        case (.empty, _), (.member, _):
+            break
+        }
     }
 
     func onInviteTap() {
@@ -139,11 +145,6 @@ private extension JointAccountMembersViewSlotViewModel {
 // MARK: - Auxiliary types
 
 extension JointAccountMembersViewSlotViewModel {
-    enum ID: Hashable {
-        case member(address: String)
-        case freeSlot(JointAccountMemberSlotID)
-    }
-
     struct ContentKey: Hashable {
         let title: String
         let subtitle: Subtitle

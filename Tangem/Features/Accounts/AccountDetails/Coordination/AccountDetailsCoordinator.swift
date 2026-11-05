@@ -29,6 +29,7 @@ final class AccountDetailsCoordinator: CoordinatorObject {
 
     @Published var editAccountViewModel: AccountFormViewModel?
     @Published var supportedNetworksViewModel: JointAccountSupportedNetworksViewModel?
+    @Published var aboutSignaturesViewModel: JointAccountAboutSignaturesViewModel?
 
     init(
         dismissAction: @escaping Action<Void>,
@@ -76,14 +77,22 @@ extension AccountDetailsCoordinator: CryptoAccountDetailsRoutable {
         options.account.resolve(using: EditAccountResolver(coordinator: self))
     }
 
-    func openSupportedNetworks() {
-        supportedNetworksViewModel = JointAccountSupportedNetworksViewModel(coordinator: self)
-    }
-
     func manageTokens() {
         guard let options else { return }
 
         options.account.resolve(using: ManageTokensResolver(coordinator: self, options: options))
+    }
+}
+
+// MARK: - JointAccountDetailsRoutable
+
+extension AccountDetailsCoordinator: JointAccountDetailsRoutable {
+    func openSupportedNetworks() {
+        supportedNetworksViewModel = JointAccountSupportedNetworksViewModel(coordinator: self)
+    }
+
+    func openAboutSignatures(policy: JointAccountPolicy) {
+        aboutSignaturesViewModel = JointAccountAboutSignaturesViewModel(policy: policy, coordinator: self)
     }
 
     func openJointAccountMembers(jointAccount: any JointAccountModel) {
@@ -118,6 +127,14 @@ private extension AccountDetailsCoordinator {
 extension AccountDetailsCoordinator: JointAccountSupportedNetworksRoutable {
     func closeSupportedNetworks() {
         supportedNetworksViewModel = nil
+    }
+}
+
+// MARK: - JointAccountAboutSignaturesRoutable
+
+extension AccountDetailsCoordinator: JointAccountAboutSignaturesRoutable {
+    func closeAboutSignatures() {
+        aboutSignaturesViewModel = nil
     }
 }
 

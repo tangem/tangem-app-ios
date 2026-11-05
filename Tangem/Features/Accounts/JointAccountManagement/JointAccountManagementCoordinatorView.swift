@@ -67,6 +67,7 @@ struct JointAccountManagementCoordinatorView: View {
             .navigationDestination(isPresented: isConfirmSharedAddressPresented) {
                 if let viewModel = coordinator.confirmSharedAddressViewModel {
                     JointAccountConfirmSharedAddressView(viewModel: viewModel)
+                        .supportChatPresentation(coordinator.supportChatPresenter)
                 }
             }
     }

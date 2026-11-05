@@ -30,6 +30,8 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
     @Published var shareInviteMemberViewModel: JointAccountShareInviteMemberViewModel?
     @Published var confirmSharedAddressViewModel: JointAccountConfirmSharedAddressViewModel?
 
+    let supportChatPresenter = SupportChatPresenter()
+
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
 
@@ -198,6 +200,10 @@ extension JointAccountManagementCoordinator: JointAccountMembersRoutable {
         dismiss()
     }
 
+    func closedActivatedAccount() {
+        dismiss()
+    }
+
     func openAboutSignatures(policy: JointAccountPolicy) {
         aboutSignaturesViewModel = JointAccountAboutSignaturesViewModel(policy: policy, coordinator: self)
     }
@@ -243,6 +249,25 @@ extension JointAccountManagementCoordinator: JointAccountConfirmSharedAddressRou
     }
 
     func openSharedAddressMismatch() {
+        Task { @MainActor [weak self] in
+            guard let self else {
+                return
+            }
+
+            openSupportTypeSelection(
+                emailAction: { [weak self] in self?.openSharedAddressMismatchMail() },
+                chatInput: SupportChatInputFactory().makeInput(source: .settings)
+            )
+        }
+    }
+
+    func didConfirmSharedAddress() {
+        confirmSharedAddressViewModel = nil
+    }
+}
+
+private extension JointAccountManagementCoordinator {
+    func openSharedAddressMismatchMail() {
         let logsComposer = LogsComposer(infoProvider: BaseDataCollector())
         let mailViewModel = MailViewModel(
             logsComposer: logsComposer,
@@ -254,11 +279,11 @@ extension JointAccountManagementCoordinator: JointAccountConfirmSharedAddressRou
             mailPresenter.present(viewModel: mailViewModel)
         }
     }
-
-    func didConfirmSharedAddress() {
-        confirmSharedAddressViewModel = nil
-    }
 }
+
+// MARK: - SupportChatPresenting
+
+extension JointAccountManagementCoordinator: SupportChatPresenting {}
 
 // MARK: - JointAccountShareInviteMemberRoutable
 
