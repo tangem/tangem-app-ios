@@ -42,6 +42,19 @@ enum SendMCPIntentValidator {
             && MainQRBlockchainResolver.isValidDestinationAddress(address, for: blockchain)
     }
 
+    static func isModified(_ intent: SendMCPIntent, sentAs transfer: TransactionDispatcherResult.Transfer?, blockchain: Blockchain) -> Bool {
+        guard let transfer else {
+            return true
+        }
+
+        let isMemoModified = SendDestinationAdditionalFieldType.type(for: blockchain) != nil
+            && transfer.memo?.nilIfEmpty != intent.memo?.nilIfEmpty
+
+        return transfer.amount != intent.amount
+            || !AddressComparator().addressesMatch(transfer.destination, intent.toAddress, blockchain: blockchain)
+            || isMemoModified
+    }
+
     static func fitsDecimals(_ amount: Decimal, decimalCount: Int) -> Bool {
         amount.rounded(scale: decimalCount, roundingMode: .down) == amount
     }

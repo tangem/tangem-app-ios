@@ -139,11 +139,86 @@ struct SendIntentValidatorTests {
             #expect(SendMCPIntentValidator.isValidMemo(memo, for: Constants.stellar), "\(memo)")
         }
     }
+
+    // MARK: - Modification
+
+    @Test("A transfer sent as the intent asked leaves it unmodified", arguments: [
+        (Self.intent(), Self.transfer()),
+        (Self.intent(), Self.transfer(destination: Constants.checksummedDestinationAddress)),
+        (Self.intent(memo: "invoice 42"), Self.transfer(memo: nil)),
+        (Self.intent(network: .xrp, memo: "12345"), Self.transfer(network: .xrp, memo: "12345")),
+        (Self.intent(network: .xrp, memo: nil), Self.transfer(network: .xrp, memo: "")),
+    ])
+    func transferAsAskedIsNotModified(intent: SendMCPIntent, transfer: TransactionDispatcherResult.Transfer) throws {
+        let blockchain = try #require(Network(rawValue: intent.networkID)).blockchain
+
+        #expect(!SendMCPIntentValidator.isModified(intent, sentAs: transfer, blockchain: blockchain))
+    }
+
+    @Test("A changed amount, recipient or memo modifies the intent", arguments: [
+        (Self.intent(amount: "1"), Self.transfer(amount: "0.99979")),
+        (Self.intent(), Self.transfer(destination: Constants.foreignEthereumAddress)),
+        (Self.intent(network: .xrp, memo: "12345"), Self.transfer(network: .xrp, memo: "54321")),
+        (Self.intent(network: .xrp, memo: nil), Self.transfer(network: .xrp, memo: "12345")),
+        (Self.intent(network: .xrp, memo: "12345"), Self.transfer(network: .xrp, memo: nil)),
+    ])
+    func changedTransferIsModified(intent: SendMCPIntent, transfer: TransactionDispatcherResult.Transfer) throws {
+        let blockchain = try #require(Network(rawValue: intent.networkID)).blockchain
+
+        #expect(SendMCPIntentValidator.isModified(intent, sentAs: transfer, blockchain: blockchain))
+    }
+
+    @Test("A send that was no plain transfer modifies the intent")
+    func sendWithoutTransferIsModified() {
+        #expect(SendMCPIntentValidator.isModified(Self.intent(), sentAs: nil, blockchain: Constants.ethereum))
+    }
 }
 
 private extension SendIntentValidatorTests {
     static func decimal(_ value: String) -> Decimal {
         Decimal(string: value, locale: Locale(identifier: "en_US_POSIX"))!
+    }
+
+    static func intent(network: Network = .ethereum, amount: String = "1", memo: String? = nil) -> SendMCPIntent {
+        SendMCPIntent(
+            id: "intent",
+            networkID: network.rawValue,
+            tokenID: network.rawValue,
+            fromAddress: Constants.ownEthereumAddress,
+            toAddress: network.destinationAddress,
+            amount: decimal(amount),
+            memo: memo,
+            isCompleted: false,
+            agentID: "agent"
+        )
+    }
+
+    static func transfer(
+        network: Network = .ethereum,
+        amount: String = "1",
+        destination: String? = nil,
+        memo: String? = nil
+    ) -> TransactionDispatcherResult.Transfer {
+        TransactionDispatcherResult.Transfer(amount: decimal(amount), destination: destination ?? network.destinationAddress, memo: memo)
+    }
+
+    enum Network: String {
+        case ethereum
+        case xrp
+
+        var blockchain: Blockchain {
+            switch self {
+            case .ethereum: Constants.ethereum
+            case .xrp: Constants.xrp
+            }
+        }
+
+        var destinationAddress: String {
+            switch self {
+            case .ethereum: Constants.destinationAddress
+            case .xrp: Constants.xrpAddress
+            }
+        }
     }
 
     enum Constants {
@@ -152,6 +227,8 @@ private extension SendIntentValidatorTests {
         static let stellar = Blockchain.stellar(curve: .ed25519_slip0010, testnet: false)
         static let ownEthereumAddress = "0xe34979ea46a0bb49f0e483f163c79be02101cd1b"
         static let foreignEthereumAddress = "0x1111111111111111111111111111111111111111"
+        static let destinationAddress = "0x5aaeb6053f3e94c9b9a09f33669435e7ef1beaed"
+        static let checksummedDestinationAddress = "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed"
         static let xrpAddress = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
     }
 }

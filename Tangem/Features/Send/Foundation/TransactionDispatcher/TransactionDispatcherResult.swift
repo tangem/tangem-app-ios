@@ -16,9 +16,16 @@ struct TransactionDispatcherResult: Hashable {
     let url: URL?
     let signerType: String
     let currentHost: String
+    var transfer: Transfer?
 }
 
 extension TransactionDispatcherResult {
+    struct Transfer: Hashable {
+        let amount: Decimal
+        let destination: String
+        let memo: String?
+    }
+
     enum Error: CancellableError {
         case informationRelevanceServiceError
         case informationRelevanceServiceFeeWasIncreased

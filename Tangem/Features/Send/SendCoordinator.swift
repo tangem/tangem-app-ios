@@ -30,7 +30,7 @@ final class SendCoordinator: CoordinatorObject {
 
     @Published private(set) var rootViewModel: SendViewModel?
 
-    private var onTransactionDispatched: ((_ transactionHash: String) -> Void)?
+    private var onTransactionDispatched: ((TransactionDispatcherResult) -> Void)?
 
     // MARK: - Child coordinators
 
@@ -134,13 +134,13 @@ extension SendCoordinator {
         let source: Source
         let shouldStartFromTokenList: Bool
         /// Called once the transaction is dispatched, whatever the user does with the flow afterwards.
-        let onTransactionDispatched: ((_ transactionHash: String) -> Void)?
+        let onTransactionDispatched: ((TransactionDispatcherResult) -> Void)?
 
         init(
             type: SendType,
             source: Source,
             shouldStartFromTokenList: Bool = false,
-            onTransactionDispatched: ((_ transactionHash: String) -> Void)? = nil
+            onTransactionDispatched: ((TransactionDispatcherResult) -> Void)? = nil
         ) {
             self.type = type
             self.source = source
@@ -193,8 +193,8 @@ extension SendCoordinator: AddressBookContactNavigating {
 // MARK: - SendRoutable
 
 extension SendCoordinator: SendRoutable {
-    func didDispatchTransaction(transactionHash: String) {
-        onTransactionDispatched?(transactionHash)
+    func didDispatchTransaction(_ result: TransactionDispatcherResult) {
+        onTransactionDispatched?(result)
     }
 
     func dismiss(reason: SendDismissReason) {
