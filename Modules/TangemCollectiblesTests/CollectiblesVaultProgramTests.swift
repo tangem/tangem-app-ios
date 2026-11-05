@@ -12,7 +12,7 @@ import SolanaSwift
 @testable import TangemCollectibles
 
 /// Ground-truth fixtures come from the `tangem_gacha_vault` devnet deployment
-/// (program `29agFEruMu2jedVwnDgKPuq7ejmTiB7sEqzdhufQQS9u`) and its integration doc.
+/// (program `FKWs2cd5E9Fi8t2Gqbq6SkgekL4MJwZgkRMrGFcPGVvt`) and its integration doc.
 @Suite("CollectiblesVaultProgram")
 struct CollectiblesVaultProgramTests {
     // MARK: - Anchor discriminators
@@ -57,14 +57,14 @@ struct CollectiblesVaultProgramTests {
     @Test("Derives the config PDA of the devnet program")
     func derivesConfigPDA() throws {
         let program = try CollectiblesVaultProgram(programId: CollectiblesVaultProgram.devnetProgramId)
-        #expect(try program.configAddress() == "53EDbBLB1sQuVv6aH7us9TQ7XSGXFijPmPdAGNcY8Y1d")
+        #expect(try program.configAddress() == "2jrR9vtzhxYiuxB5aTKWQvgH8FVp3xcC9EinhMGwbsZt")
     }
 
     @Test("Derives the vault PDA from the cold owner bytes")
     func derivesVaultPDAFromColdOwnerBytes() throws {
         let program = try CollectiblesVaultProgram(programId: CollectiblesVaultProgram.devnetProgramId)
         let coldOwner = try #require(PublicKey(string: "CfzgiAsor8k46oAr1zLybapCbAK44892DYxBJUerNX31"))
-        #expect(try program.vaultAddress(coldOwner: coldOwner.data) == "aBRHcE97NY1MjVqGbc2LX2cApfPg9r5h5T1KNZS93oA")
+        #expect(try program.vaultAddress(coldOwner: coldOwner.data) == "6AKsbXpShuotdPM2PSjnmtf6y1gy5JVa93g9pb2bE8Tu")
     }
 
     @Test("Cold owner bytes of the wrong length are rejected")
@@ -77,10 +77,10 @@ struct CollectiblesVaultProgramTests {
 
     @Test("Derives the vault USDC ATA for an off-curve owner")
     func derivesVaultUsdcATAForOffCurveOwner() throws {
-        let vault = try #require(PublicKey(string: "aBRHcE97NY1MjVqGbc2LX2cApfPg9r5h5T1KNZS93oA"))
+        let vault = try #require(PublicKey(string: "6AKsbXpShuotdPM2PSjnmtf6y1gy5JVa93g9pb2bE8Tu"))
         let usdcMint = try #require(PublicKey(string: "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"))
         let vaultUsdc = try CollectiblesVaultProgram.associatedTokenAddress(owner: vault, mint: usdcMint)
-        #expect(vaultUsdc.base58EncodedString == "6atEYZQxh5sYXjnwS5WfVvnh6p8wUXibc2xcD2Gftfqs")
+        #expect(vaultUsdc.base58EncodedString == "DDNGkb4JqVArVD5rBkMrMjEyoRu7uyvHzQjTZ1hVvSw2")
     }
 
     /// For this owner the first ATA candidate (bump 255) is a SHA-256 digest with a
@@ -105,7 +105,7 @@ struct CollectiblesVaultProgramTests {
 
         let address = try program.vaultUsdcAddress(coldOwner: coldOwner.data, usdcMint: usdcMint.data)
 
-        #expect(address == "6atEYZQxh5sYXjnwS5WfVvnh6p8wUXibc2xcD2Gftfqs")
+        #expect(address == "DDNGkb4JqVArVD5rBkMrMjEyoRu7uyvHzQjTZ1hVvSw2")
     }
 
     @Test("Vault USDC address inputs of the wrong length are rejected", arguments: [
@@ -139,8 +139,8 @@ struct CollectiblesVaultProgramTests {
         #expect(instruction.data == Data([1]))
         #expect(instruction.accounts.map(\.address) == [
             "CfzgiAsor8k46oAr1zLybapCbAK44892DYxBJUerNX31",
-            "6atEYZQxh5sYXjnwS5WfVvnh6p8wUXibc2xcD2Gftfqs",
-            "aBRHcE97NY1MjVqGbc2LX2cApfPg9r5h5T1KNZS93oA",
+            "DDNGkb4JqVArVD5rBkMrMjEyoRu7uyvHzQjTZ1hVvSw2",
+            "6AKsbXpShuotdPM2PSjnmtf6y1gy5JVa93g9pb2bE8Tu",
             "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr",
             "11111111111111111111111111111111",
             "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
@@ -183,7 +183,7 @@ struct CollectiblesVaultProgramTests {
 
         #expect(instruction.programId == CollectiblesVaultProgram.devnetProgramId)
         #expect(instruction.accounts.map(\.address) == [
-            "aBRHcE97NY1MjVqGbc2LX2cApfPg9r5h5T1KNZS93oA",
+            "6AKsbXpShuotdPM2PSjnmtf6y1gy5JVa93g9pb2bE8Tu",
             "CfzgiAsor8k46oAr1zLybapCbAK44892DYxBJUerNX31",
             "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr",
             "11111111111111111111111111111111",
@@ -235,7 +235,7 @@ struct CollectiblesVaultProgramTests {
 
         #expect(instruction.programId == CollectiblesVaultProgram.devnetProgramId)
         #expect(instruction.accounts.map(\.address) == [
-            "aBRHcE97NY1MjVqGbc2LX2cApfPg9r5h5T1KNZS93oA",
+            "6AKsbXpShuotdPM2PSjnmtf6y1gy5JVa93g9pb2bE8Tu",
             "CfzgiAsor8k46oAr1zLybapCbAK44892DYxBJUerNX31",
         ])
         #expect(instruction.accounts.map(\.isSigner) == [false, true])
@@ -267,11 +267,11 @@ struct CollectiblesVaultProgramTests {
 
         #expect(instruction.programId == CollectiblesVaultProgram.devnetProgramId)
         #expect(instruction.accounts.map(\.address) == [
-            "53EDbBLB1sQuVv6aH7us9TQ7XSGXFijPmPdAGNcY8Y1d",
-            "aBRHcE97NY1MjVqGbc2LX2cApfPg9r5h5T1KNZS93oA",
+            "2jrR9vtzhxYiuxB5aTKWQvgH8FVp3xcC9EinhMGwbsZt",
+            "6AKsbXpShuotdPM2PSjnmtf6y1gy5JVa93g9pb2bE8Tu",
             "E5DyZRiE4b3mwWZjrdTEacX6vnYgUnkXB4pMZzRspw1S",
             "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr",
-            "6atEYZQxh5sYXjnwS5WfVvnh6p8wUXibc2xcD2Gftfqs",
+            "DDNGkb4JqVArVD5rBkMrMjEyoRu7uyvHzQjTZ1hVvSw2",
             "9ZSgA3PMjeAU8K6CWzgJ8oDnhZwwSgHZu6KP3X95t7Jq",
             "9qsWLjBgicHNncaM1qtLb4jqj4a4NixMwvNXNmsqQyV9",
             "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
@@ -331,7 +331,7 @@ struct CollectiblesVaultProgramTests {
 
         #expect(instruction.programId == CollectiblesVaultProgram.devnetProgramId)
         #expect(instruction.accounts.map(\.address) == [
-            "aBRHcE97NY1MjVqGbc2LX2cApfPg9r5h5T1KNZS93oA",
+            "6AKsbXpShuotdPM2PSjnmtf6y1gy5JVa93g9pb2bE8Tu",
             "CfzgiAsor8k46oAr1zLybapCbAK44892DYxBJUerNX31",
         ])
         #expect(instruction.accounts.map(\.isSigner) == [false, true])
@@ -350,9 +350,9 @@ struct CollectiblesVaultProgramTests {
 
     // MARK: - Config account
 
-    /// Bytes fetched from the devnet config account `53EDbBLB1sQuVv6aH7us9TQ7XSGXFijPmPdAGNcY8Y1d`.
+    /// Bytes fetched from the devnet config account `2jrR9vtzhxYiuxB5aTKWQvgH8FVp3xcC9EinhMGwbsZt`.
     private static let devnetConfigAccountData = Data(
-        base64Encoded: "mwyq4B76zIKtbdnm3fQfKiZwulw19xJe+Y62TcL9MF5YyYuupu7XZOkoOVUJZf/U1krKr0bUXfcxjltPV8kMSH1gYl2Cm4N7hqQIUEd4g/rZZ93XJGmfY1Im7dYaVhpfB0GPFwNaf39/LRy7KpYTz3xzEH7Z5ZuyXLdQy82fbyK8F4zfpFdYmoNiez2h0gaidjS66O7bgD1GanQ/NMIfiiDM0v1mCX+YZAAAAQH/9AE="
+        base64Encoded: "mwyq4B76zIKtbdnm3fQfKiZwulw19xJe+Y62TcL9MF5YyYuupu7XZOkoOVUJZf/U1krKr0bUXfcxjltPV8kMSH1gYl2Cm4N7fy0cuyqWE898cxB+2eWbsly3UMvNn28ivBeM36RXWJqDYns9odIGonY0uuju24A9Rmp0PzTCH4ogzNL9Zgl/mGQA9AEA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
     )!
 
     @Test("Parses the devnet config account")
@@ -370,7 +370,7 @@ struct CollectiblesVaultProgramTests {
         #expect(usdcMint.base58EncodedString == "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr")
         #expect(collectiblesUsdcAccount.base58EncodedString == "9ZSgA3PMjeAU8K6CWzgJ8oDnhZwwSgHZu6KP3X95t7Jq")
         #expect(feeUsdcAccount.base58EncodedString == "9qsWLjBgicHNncaM1qtLb4jqj4a4NixMwvNXNmsqQyV9")
-        // Same fixture, the fee-bps offsets (168/174, either side of the bump byte at 173) — pinned
+        // Same fixture, the fee-bps offsets (136/138, right before the paused byte at 140) — pinned
         // against the real devnet account rather than only a self-built one that shares the same assumption.
         #expect(config.minFeeBps == 100)
         #expect(config.maxFeeBps == 500)
@@ -431,10 +431,8 @@ struct CollectiblesVaultProgramTests {
         var data = Data([211, 8, 232, 43, 2, 152, 117, 119])
         data += coldOwner.data + sessionKey
         data += u64LE(300_000_000) + u64LE(900_000_000) + u64LE(150_000_000) + i64LE(20_690)
-        data += Data(repeating: 0, count: 8) // _reserved
-        data += Data([0]) // live_buyback_mint = None
-        data += Data([0]) // live_buyback_token = None
         data += Data([254]) // bump
+        data += Data(repeating: 0, count: 32) // _reserved
 
         let info = try program.vaultInfo(
             coldOwner: coldOwner.data,
@@ -442,7 +440,7 @@ struct CollectiblesVaultProgramTests {
             accountData: data
         )
 
-        #expect(info?.vaultAddress == "aBRHcE97NY1MjVqGbc2LX2cApfPg9r5h5T1KNZS93oA")
+        #expect(info?.vaultAddress == "6AKsbXpShuotdPM2PSjnmtf6y1gy5JVa93g9pb2bE8Tu")
         #expect(info?.sessionKey == sessionKey)
         #expect(info?.perSpinCap == 300_000_000)
         #expect(info?.dailyCap == 900_000_000)
@@ -480,7 +478,7 @@ struct CollectiblesVaultProgramTests {
         let program = try CollectiblesVaultProgram(programId: CollectiblesVaultProgram.devnetProgramId)
         let coldOwner = try #require(PublicKey(string: "CfzgiAsor8k46oAr1zLybapCbAK44892DYxBJUerNX31"))
         let usdcMint = try #require(PublicKey(string: "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"))
-        let vault = try #require(PublicKey(string: "aBRHcE97NY1MjVqGbc2LX2cApfPg9r5h5T1KNZS93oA"))
+        let vault = try #require(PublicKey(string: "6AKsbXpShuotdPM2PSjnmtf6y1gy5JVa93g9pb2bE8Tu"))
 
         var data = usdcMint.data + vault.data
         data += Data(repeating: 0, count: 165 - data.count)
@@ -538,7 +536,7 @@ struct CollectiblesVaultProgramTests {
         let program = try CollectiblesVaultProgram(programId: CollectiblesVaultProgram.devnetProgramId)
         let coldOwner = try #require(PublicKey(string: "CfzgiAsor8k46oAr1zLybapCbAK44892DYxBJUerNX31"))
         let usdcMint = try #require(PublicKey(string: "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"))
-        let vault = try #require(PublicKey(string: "aBRHcE97NY1MjVqGbc2LX2cApfPg9r5h5T1KNZS93oA"))
+        let vault = try #require(PublicKey(string: "6AKsbXpShuotdPM2PSjnmtf6y1gy5JVa93g9pb2bE8Tu"))
 
         var data = usdcMint.data + vault.data
         data += Data(repeating: 0, count: 165 - data.count)
@@ -558,7 +556,7 @@ struct CollectiblesVaultProgramTests {
         let program = try CollectiblesVaultProgram(programId: CollectiblesVaultProgram.devnetProgramId)
         let coldOwner = try #require(PublicKey(string: "CfzgiAsor8k46oAr1zLybapCbAK44892DYxBJUerNX31"))
         let usdcMint = try #require(PublicKey(string: "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"))
-        let vault = try #require(PublicKey(string: "aBRHcE97NY1MjVqGbc2LX2cApfPg9r5h5T1KNZS93oA"))
+        let vault = try #require(PublicKey(string: "6AKsbXpShuotdPM2PSjnmtf6y1gy5JVa93g9pb2bE8Tu"))
 
         let data = usdcMint.data + vault.data // 64 bytes, short of the 165-byte token account layout
 
@@ -577,7 +575,7 @@ struct CollectiblesVaultProgramTests {
         let program = try CollectiblesVaultProgram(programId: CollectiblesVaultProgram.devnetProgramId)
         let coldOwner = try #require(PublicKey(string: "CfzgiAsor8k46oAr1zLybapCbAK44892DYxBJUerNX31"))
         let usdcMint = try #require(PublicKey(string: "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"))
-        let vault = try #require(PublicKey(string: "aBRHcE97NY1MjVqGbc2LX2cApfPg9r5h5T1KNZS93oA"))
+        let vault = try #require(PublicKey(string: "6AKsbXpShuotdPM2PSjnmtf6y1gy5JVa93g9pb2bE8Tu"))
         let anotherMint = Data(repeating: 0xDD, count: 32)
 
         var data = anotherMint + vault.data
@@ -763,36 +761,32 @@ struct CollectiblesVaultProgramTests {
     func parsesConfigAccount() throws {
         let admin = Data(repeating: 0x11, count: 32)
         let usdcMint = Data(repeating: 0x22, count: 32)
-        let collectiblesWallet = Data(repeating: 0x33, count: 32)
         let collectiblesUsdcAccount = Data(repeating: 0x44, count: 32)
         let feeUsdcAccount = Data(repeating: 0x55, count: 32)
 
         var data = Data([155, 12, 170, 224, 30, 250, 204, 130])
-        data += admin + usdcMint + collectiblesWallet + collectiblesUsdcAccount + feeUsdcAccount
+        data += admin + usdcMint + collectiblesUsdcAccount + feeUsdcAccount
         data += Data([100, 0]) // min_fee_bps = 100, u16 LE
-        data += Data([0]) // paused = false
-        data += Data([1]) // _reserved: legacy filler, can legitimately be 1 — must be ignored
-        data += Data([1]) // allow_buyback_delegation = true
-        data += Data([250]) // bump
         data += Data([44, 1]) // max_fee_bps = 300, u16 LE
+        data += Data([1]) // paused = true
+        data += Data([250]) // bump
+        data += Data(repeating: 0xFF, count: 32) // _reserved
 
         let config = try CollectiblesVaultProgram.Config(data: data)
 
         #expect(config.admin == admin)
         #expect(config.usdcMint == usdcMint)
-        #expect(config.collectiblesWallet == collectiblesWallet)
         #expect(config.collectiblesUsdcAccount == collectiblesUsdcAccount)
         #expect(config.feeUsdcAccount == feeUsdcAccount)
         #expect(config.minFeeBps == 100)
         #expect(config.maxFeeBps == 300)
-        #expect(config.paused == false)
-        #expect(config.allowBuybackDelegation == true)
+        #expect(config.paused == true)
         #expect(config.bump == 250)
     }
 
     @Test("A config account with the wrong discriminator is rejected")
     func rejectsConfigAccountWithWrongDiscriminator() {
-        let data = Data(repeating: 0, count: 176)
+        let data = Data(repeating: 0, count: 174)
         #expect(throws: (any Error).self) {
             try CollectiblesVaultProgram.Config(data: data)
         }
@@ -814,13 +808,12 @@ struct CollectiblesVaultProgramTests {
     @Test("A config account with a non-binary boolean byte is rejected")
     func rejectsConfigAccountWithNonBinaryBooleanByte() {
         var data = Data([155, 12, 170, 224, 30, 250, 204, 130])
-        data += Data(repeating: 0x11, count: 32 * 5)
-        data += Data([100, 0]) // fee_bps
-        data += Data([2]) // paused — invalid boolean byte
-        data += Data([0]) // _reserved
-        data += Data([1]) // allow_buyback_delegation
-        data += Data([250]) // bump
+        data += Data(repeating: 0x11, count: 32 * 4)
+        data += Data([100, 0]) // min_fee_bps
         data += Data([44, 1]) // max_fee_bps
+        data += Data([2]) // paused — invalid boolean byte
+        data += Data([250]) // bump
+        data += Data(repeating: 0, count: 32) // _reserved
 
         #expect(throws: (any Error).self) {
             try CollectiblesVaultProgram.Config(data: data)
@@ -829,8 +822,8 @@ struct CollectiblesVaultProgramTests {
 
     // MARK: - Vault account parsing
 
-    @Test("Parses the vault tail with a cursor and ignores stale bytes")
-    func parsesVaultTailWithCursorIgnoringStaleBytes() throws {
+    @Test("Parses a vault account")
+    func parsesVaultAccount() throws {
         let coldOwner = Data(repeating: 0xAA, count: 32)
         let sessionKey = Data(repeating: 0xBB, count: 32)
 
@@ -840,13 +833,8 @@ struct CollectiblesVaultProgramTests {
         data += u64LE(900_000_000) // daily_cap
         data += u64LE(150_000_000) // spent_today
         data += i64LE(20_690) // day_index
-        data += Data(repeating: 0xFF, count: 8) // _reserved, must be ignored
-        data += Data([0]) // live_buyback_mint = None
-        data += Data([0]) // live_buyback_token = None
         data += Data([254]) // bump
-        // Unwritten tail keeps stale garbage from previous Some-states — a fixed-offset
-        // reader would misread it as a live buyback (real devnet vault has 1 at byte 145)
-        data += Data(repeating: 1, count: 179 - data.count)
+        data += Data(repeating: 0xFF, count: 32) // _reserved
 
         let vault = try CollectiblesVaultProgram.Vault(data: data)
 
@@ -856,36 +844,12 @@ struct CollectiblesVaultProgramTests {
         #expect(vault.dailyCap == 900_000_000)
         #expect(vault.spentToday == 150_000_000)
         #expect(vault.dayIndex == 20_690)
-        #expect(vault.liveBuybackMint == nil)
-        #expect(vault.liveBuybackToken == nil)
         #expect(vault.bump == 254)
-    }
-
-    @Test("Parses a vault with live buyback slots")
-    func parsesVaultWithLiveBuybackSlots() throws {
-        let liveBuybackMint = Data(repeating: 0xCC, count: 32)
-        let liveBuybackToken = Data(repeating: 0xDD, count: 32)
-
-        var data = Data([211, 8, 232, 43, 2, 152, 117, 119])
-        data += Data(repeating: 0xAA, count: 32) // cold_owner
-        data += Data(repeating: 0xBB, count: 32) // session_key
-        data += u64LE(1) + u64LE(2) + u64LE(3) + i64LE(4)
-        data += Data(repeating: 0, count: 8) // _reserved
-        data += Data([1]) + liveBuybackMint // live_buyback_mint = Some
-        data += Data([1]) + liveBuybackToken // live_buyback_token = Some
-        data += Data([7]) // bump
-        data += Data(repeating: 0, count: 179 - data.count)
-
-        let vault = try CollectiblesVaultProgram.Vault(data: data)
-
-        #expect(vault.liveBuybackMint == liveBuybackMint)
-        #expect(vault.liveBuybackToken == liveBuybackToken)
-        #expect(vault.bump == 7)
     }
 
     @Test("A vault account with the wrong discriminator is rejected")
     func rejectsVaultAccountWithWrongDiscriminator() {
-        let data = Data(repeating: 0, count: 179)
+        let data = Data(repeating: 0, count: 137)
         #expect(throws: (any Error).self) {
             try CollectiblesVaultProgram.Vault(data: data)
         }
@@ -895,39 +859,6 @@ struct CollectiblesVaultProgramTests {
     func rejectsTruncatedVaultAccount() {
         // Correct discriminator, cut mid-session_key
         let data = Data([211, 8, 232, 43, 2, 152, 117, 119]) + Data(repeating: 0xAA, count: 52)
-
-        #expect(throws: (any Error).self) {
-            try CollectiblesVaultProgram.Vault(data: data)
-        }
-    }
-
-    @Test("A vault account truncated inside the buyback tail is rejected")
-    func rejectsVaultAccountTruncatedInsideTheBuybackTail() {
-        // The cursor-driven tail must bounds-check too: a Some tag with no pubkey behind it
-        var data = Data([211, 8, 232, 43, 2, 152, 117, 119])
-        data += Data(repeating: 0xAA, count: 32) // cold_owner
-        data += Data(repeating: 0xBB, count: 32) // session_key
-        data += u64LE(1) + u64LE(2) + u64LE(3) + i64LE(4)
-        data += Data(repeating: 0, count: 8) // _reserved
-        data += Data([1]) // live_buyback_mint = Some, pubkey missing
-
-        #expect(throws: (any Error).self) {
-            try CollectiblesVaultProgram.Vault(data: data)
-        }
-    }
-
-    /// A Borsh option tag is strictly 0/1. Reading any other byte as `None` would advance the cursor
-    /// one byte and let misaligned data still parse into a "valid" vault with garbage caps.
-    @Test("A vault account with an unknown option tag is rejected")
-    func rejectsVaultAccountWithUnknownOptionTag() {
-        var data = Data([211, 8, 232, 43, 2, 152, 117, 119])
-        data += Data(repeating: 0xAA, count: 32) // cold_owner
-        data += Data(repeating: 0xBB, count: 32) // session_key
-        data += u64LE(1) + u64LE(2) + u64LE(3) + i64LE(4)
-        data += Data(repeating: 0, count: 8) // _reserved
-        data += Data([7]) // live_buyback_mint — invalid option tag
-        data += Data([0]) // live_buyback_token = None
-        data += Data([254]) // bump
 
         #expect(throws: (any Error).self) {
             try CollectiblesVaultProgram.Vault(data: data)
