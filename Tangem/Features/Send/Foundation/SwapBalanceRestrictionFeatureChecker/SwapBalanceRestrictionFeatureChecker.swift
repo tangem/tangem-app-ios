@@ -45,7 +45,7 @@ extension CommonSwapBalanceRestrictionFeatureChecker: SwapBalanceRestrictionFeat
             return .none
         }
 
-        if userWalletRepository.models.count > 1 {
+        if !FeatureProvider.isAvailable(.mobileWalletMultiCreation), userWalletRepository.models.count > 1 {
             return .none
         }
 

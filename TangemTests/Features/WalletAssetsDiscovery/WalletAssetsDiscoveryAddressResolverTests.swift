@@ -29,7 +29,7 @@ class WalletAssetsDiscoveryAddressResolverTests {
                 hasICloudBackup: false,
                 hasSocialLogin: false
             )
-        )
+        ).walletInfo
     }
 
     private let walletAddressResolver = WalletAddressResolver()

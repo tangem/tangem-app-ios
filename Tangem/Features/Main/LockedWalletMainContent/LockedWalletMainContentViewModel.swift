@@ -180,7 +180,7 @@ private extension LockedWalletMainContentViewModel {
             }
 
         case .userWalletNeedsToDelete:
-            assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
+            userWalletRepository.delete(userWalletId: userWalletModel.userWalletId)
         }
     }
 }

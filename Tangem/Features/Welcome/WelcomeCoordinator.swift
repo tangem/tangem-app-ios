@@ -702,15 +702,18 @@ private extension WelcomeCoordinator {
 
     @MainActor
     private func performMobileWalletShortcut() async throws {
-        let userWalletModel = try await MobileCreationUtil().makeCreatedModel()
+        let creationUtil = MobileCreationUtil()
+        let userWalletModel = try await creationUtil.makeCreatedModel()
 
-        guard !Task.isCancelled else { return }
+        guard !Task.isCancelled else {
+            creationUtil.discard(userWalletModel)
+            return
+        }
 
         AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWalletModel.userWalletId)
         logWalletCreatedAnalytics()
 
-        BackendAuthenticationRegistrar.registerNewUnprotectedMobileWallet(userWalletModel)
-        try userWalletRepository.add(userWalletModel: userWalletModel)
+        try creationUtil.store(userWalletModel)
         pushNotificationsInteractor.suppressAfterLoginRequestsInCurrentSession()
 
         guard !Task.isCancelled else { return }
@@ -807,7 +810,7 @@ extension WelcomeCoordinator: MobileSocialLoginOutput {
 
     func socialLoginFailed(failure: MobileSocialWalletFailure) {
         socialLoginAnalytics.logErrorShown(message: failure.message)
-        rootViewModel?.showSnackbar(withMessage: failure.message)
+        alertPresenter.present(alert: failure.makeAlert())
     }
 }
 
@@ -820,7 +823,7 @@ extension WelcomeCoordinator: MobileSocialWalletRoutable {
 
     func socialWalletFailed(failure: MobileSocialWalletFailure) {
         socialLoginAnalytics.logErrorShown(message: failure.message)
-        rootViewModel?.showSnackbar(withMessage: failure.message)
+        alertPresenter.present(alert: failure.makeAlert())
     }
 
     func socialWalletClose() {
