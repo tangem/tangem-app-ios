@@ -47,6 +47,7 @@ extension SwapMarketingBannerManager {
             sourceTokenInput.sourceTokenPublisher,
             sourceTokenAmountInput.sourceAmountPublisher
         )
+        .filter { _, amount in !amount.isLoading }
         .map { source, amount -> MarketingBannerAmount? in
             guard let source = source.value,
                   let value = amount.value?.crypto,

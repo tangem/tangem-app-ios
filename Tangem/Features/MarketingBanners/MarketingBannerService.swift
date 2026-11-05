@@ -16,6 +16,7 @@ final class MarketingBannerService {
     private let balanceConverter: BalanceConverter
     private let fiatToUsdRateProvider: FiatToUsdRateProvider
     private let language: String?
+    private let combineQueue = DispatchQueue(label: "com.tangem.MarketingBannerService.combine")
 
     init(
         balanceConverter: BalanceConverter = BalanceConverter(),
@@ -83,25 +84,36 @@ private extension MarketingBannerService {
         let balanceConverter = balanceConverter
         let fiatToUsdRateProvider = fiatToUsdRateProvider
 
-        let banners = Publishers.CombineLatest(campaigns, amount.prepend(nil).removeDuplicates())
-            .asyncMap { campaigns, amount -> MarketingBanners in
-                guard campaigns.contains(where: Self.hasAmountBounds) else {
-                    return Self.selectBanners(from: campaigns, usdAmount: nil)
+        let banners = Publishers.CombineLatest(
+            campaigns.receive(on: combineQueue),
+            amount.prepend(nil).removeDuplicates().receive(on: combineQueue)
+        )
+        .map { campaigns, amount -> AnyPublisher<MarketingBanners, Never> in
+            guard campaigns.contains(where: Self.hasAmountBounds) else {
+                return Just(Self.selectBanners(from: campaigns, usdAmount: nil)).eraseToAnyPublisher()
+            }
+
+            return Just(amount)
+                .asyncMap { amount in
+                    let usdAmount = await Self.usdValue(
+                        amount,
+                        balanceConverter: balanceConverter,
+                        fiatToUsdRateProvider: fiatToUsdRateProvider
+                    )
+                    return Self.selectBanners(from: campaigns, usdAmount: usdAmount)
                 }
+                .eraseToAnyPublisher()
+        }
+        .switchToLatest()
 
-                let usdAmount = await Self.usdValue(
-                    amount,
-                    balanceConverter: balanceConverter,
-                    fiatToUsdRateProvider: fiatToUsdRateProvider
-                )
-                return Self.selectBanners(from: campaigns, usdAmount: usdAmount)
-            }
-
-        return Publishers.CombineLatest(banners, HiddenMarketingCampaignsStorage.hiddenCampaignIdsPublisher)
-            .map { banners, hiddenCampaignIds in
-                banners.removing(hiddenCampaignIds: hiddenCampaignIds)
-            }
-            .eraseToAnyPublisher()
+        return Publishers.CombineLatest(
+            banners.receive(on: combineQueue),
+            HiddenMarketingCampaignsStorage.hiddenCampaignIdsPublisher.receive(on: combineQueue)
+        )
+        .map { banners, hiddenCampaignIds in
+            banners.removing(hiddenCampaignIds: hiddenCampaignIds)
+        }
+        .eraseToAnyPublisher()
     }
 
     static func fetchCampaigns(
