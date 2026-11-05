@@ -112,8 +112,10 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
         userTokensManager.walletModelsManager = walletModelsManager
 
         let userRoleService = CommonJointAccountUserRoleService(
+            userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
-            keysProvider: keysRepository
+            keysProvider: keysRepository,
+            jointAccountsRepository: jointAccountsRepository
         )
 
         let membersService = CommonJointAccountMembersService(
@@ -127,12 +129,14 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
             pendingOperationsRepository: jointAccountPendingOperationsRepository,
-            walletModelsManager: walletModelsManager
+            walletModelsManager: walletModelsManager,
+            membersService: membersService
         )
 
         let finishedOperationsWalletUpdater = JointAccountFinishedOperationsWalletUpdater(
             pendingOperationsProvider: pendingOperationsProvider,
-            walletModelsManager: walletModelsManager
+            walletModelsManager: walletModelsManager,
+            historyDeltaSyncing: walletModelsFactoryProvider.transactionHistoryProviderResolver
         )
 
         let operationsService = CommonJointAccountOperationsService(
@@ -148,7 +152,8 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
             operationsService: operationsService,
             pendingOperationsProvider: pendingOperationsProvider,
             finishedOperationsWalletUpdater: finishedOperationsWalletUpdater,
-            membersService: membersService
+            membersService: membersService,
+            userRoleService: userRoleService
         )
     }
 }

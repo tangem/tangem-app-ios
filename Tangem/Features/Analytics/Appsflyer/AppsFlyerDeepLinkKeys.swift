@@ -10,4 +10,5 @@ enum AppsFlyerDeepLinkKeys {
     static let value = "deep_link_value"
     static let sub1 = "deep_link_sub1"
     static let sub2 = "deep_link_sub2"
+    static let sub3 = "deep_link_sub3"
 }

@@ -18,6 +18,7 @@ public struct NavigationHeader<L: View, P: View, T: View>: View {
 
     private var backgroundBottomInset: CGFloat = 0
     private var backgroundColor: Color?
+    private var isBackgroundHidden = false
 
     public init(
         @ViewBuilder leadingContent: () -> L,
@@ -54,6 +55,8 @@ public struct NavigationHeader<L: View, P: View, T: View>: View {
                 .dimmingStartingInset(startingInset)
                 .ignoresSafeArea()
                 .padding(.bottom, coversContentBelow ? -(backgroundBottomInset + NavigationHeaderConstants.extendedBlurOvershoot) : 0)
+                .hidden(isBackgroundHidden)
+                .animation(.easeInOut(duration: 0.2), value: isBackgroundHidden)
                 .allowsHitTesting(false)
         }
     }
@@ -75,6 +78,10 @@ extension NavigationHeader: Setupable {
 
     public func backgroundColor(_ color: Color) -> Self {
         map { $0.backgroundColor = color }
+    }
+
+    public func backgroundHidden(_ hidden: Bool) -> Self {
+        map { $0.isBackgroundHidden = hidden }
     }
 }
 

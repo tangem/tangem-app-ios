@@ -18,4 +18,5 @@ struct JointAccountDependencies: BalanceProvidingAccountDependencies {
     let pendingOperationsProvider: any JointAccountPendingOperationsProvider
     let finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater
     let membersService: any JointAccountMembersService
+    let userRoleService: any JointAccountUserRoleService
 }

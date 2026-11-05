@@ -663,17 +663,6 @@ extension CommonTangemApiService: TangemApiService {
         }
     }
 
-    func activateJointAccount(
-        walletId: String, body: JointAccountsDTO.Request.Activate
-    ) async throws -> JointAccountsDTO.Response.JointAccount {
-        let target = TangemApiTarget(type: .activateJointAccount(walletId: walletId, body: body))
-
-        return try await withErrorLoggingPipeline(target: target) {
-            let response = try await provider.asyncRequest(target)
-            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
-        }
-    }
-
     func confirmJointAccount(
         walletId: String, body: JointAccountsDTO.Request.Confirm
     ) async throws -> JointAccountsDTO.Response.JointAccount {

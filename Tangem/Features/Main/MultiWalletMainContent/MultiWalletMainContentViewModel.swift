@@ -18,6 +18,7 @@ import TangemMobileWalletSdk
 import TangemVisa
 import BlockchainSdk
 import struct TangemUIUtils.AlertBinder
+import struct SwiftUI.Text
 import TangemPay
 
 final class MultiWalletMainContentViewModel: ObservableObject {
@@ -41,6 +42,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published private(set) var collectiblesAccountViewModel: AccountRowButtonViewModel?
 
     @Published private(set) var pendingJointAccountViewModels: [PendingJointAccountItemViewModel] = []
+    @Published private(set) var pausedJointAccountViewModels: [PausedJointAccountItemViewModel] = []
     @Published private(set) var pendingJointAccountsOperationsViewData: [JointAccountOperationPlate.ViewData] = []
 
     @Published private(set) var isScannerBusy = false
@@ -357,6 +359,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         bindPolymarketAccountRow()
         bindCollectiblesAccountRow()
         bindPendingJointAccountPlates()
+        bindPausedJointAccountPlates()
         bindPendingJointAccountOperationPlates()
     }
 
@@ -473,6 +476,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private func bindPendingJointAccountPlates() {
         AccountModelsAggregator(.joint(.pending))
             .modelsPublisher(from: userWalletModel.accountModelsManager)
+            .removeDuplicates { $0.elementsEqual($1, by: ===) }
             .withWeakCaptureOf(self)
             .map { viewModel, pendingJointAccounts in
                 pendingJointAccounts.map { pendingJointAccount in
@@ -492,6 +496,50 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: &$pendingJointAccountViewModels)
     }
 
+    private func bindPausedJointAccountPlates() {
+        AccountModelsAggregator(.joint(.untrusted))
+            .modelsPublisher(from: userWalletModel.accountModelsManager)
+            .removeDuplicates { $0.elementsEqual($1, by: ===) }
+            .withWeakCaptureOf(self)
+            .map { viewModel, pausedJointAccounts in
+                pausedJointAccounts.map { pausedJointAccount in
+                    PausedJointAccountItemViewModel(jointAccount: pausedJointAccount) { [weak viewModel] in
+                        viewModel?.showPausedJointAccountAlert()
+                    }
+                }
+            }
+            .receiveOnMain()
+            .assign(to: &$pausedJointAccountViewModels)
+    }
+
+    private func showPausedJointAccountAlert() {
+        error = AlertBuilder.makeAlert(
+            title: Localization.jointAccountCompromisedTitle,
+            message: Localization.jointAccountCompromisedMessage,
+            primaryButton: .default(Text(Localization.commonContactSupport)) { [weak self] in
+                self?.openPausedJointAccountSupport()
+            },
+            secondaryButton: .cancel()
+        )
+    }
+
+    private func openPausedJointAccountSupport() {
+        let dataCollector = DetailsFeedbackDataCollector(
+            data: [
+                .init(
+                    userWalletEmailData: userWalletModel.emailData,
+                    walletModels: AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
+                ),
+            ]
+        )
+
+        coordinator?.openMail(
+            with: dataCollector,
+            emailType: .appFeedback(subject: EmailConfig.default.subject),
+            recipient: EmailConfig.default.recipient
+        )
+    }
+
     private func bindPendingJointAccountOperationPlates() {
         AccountModelsAggregator(.joint)
             .modelsPublisher(from: userWalletModel.accountModelsManager)
@@ -503,7 +551,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 return jointAccounts
                     .map { $0.jointAccountPendingOperationsProvider.pendingOperationsPublisher }
                     .combineLatest()
-                    .map { $0.flattened().filter { $0.operation.status == .awaitingSignatures } }
+                    .map { $0.flattened().filter { $0.status == .awaitingSignatures } }
                     .eraseToAnyPublisher()
             }
             .withWeakCaptureOf(self)
@@ -518,7 +566,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
                         viewModel.coordinator?.openJointAccountOperationDetails(
                             pendingOperation: pendingOperation,
-                            userWalletInfo: viewModel.userWalletModel.userWalletInfo
+                            userWalletInfo: viewModel.userWalletModel.userWalletInfo,
+                            addressBookManager: viewModel.userWalletModel.addressBookManager
                         )
                     }
                 }
@@ -611,7 +660,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private func tokenItemMessageBubbleTapped(_ messageBubble: TokenItemViewModel.MessageBubble) {
         switch messageBubble {
         case .jointOperationAwaitingSignature(let pendingOperation):
-            coordinator?.openJointAccountOperationDetails(pendingOperation: pendingOperation, userWalletInfo: userWalletModel.userWalletInfo)
+            coordinator?.openJointAccountOperationDetails(
+                pendingOperation: pendingOperation,
+                userWalletInfo: userWalletModel.userWalletInfo,
+                addressBookManager: userWalletModel.addressBookManager
+            )
         }
     }
 
@@ -860,7 +913,15 @@ extension MultiWalletMainContentViewModel {
     }
 
     func openTangemPayMoneyAccount() {
-        coordinator?.openTangemPayMoneyAccount(userWalletModel: userWalletModel)
+        guard let moneyAccount = AccountModelsAggregator(.tangemPay)
+            .model(from: userWalletModel.accountModelsManager)?
+            .moneyAccountState?
+            .moneyAccount
+        else {
+            return
+        }
+
+        coordinator?.openTangemPayMoneyAccount(userWalletModel: userWalletModel, moneyAccount: moneyAccount)
     }
 }
 

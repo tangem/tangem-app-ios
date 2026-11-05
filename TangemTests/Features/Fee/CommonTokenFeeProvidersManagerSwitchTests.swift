@@ -146,7 +146,7 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
             providerSwitching: .untilUserSelection
         )
 
-        sut.updateSelectedFeeProvider(feeTokenItem: ethTokenItem)
+        sut.updateSelectedFeeProvider(feeProviderID: eth.id)
         await sut.updateFees().value
 
         #expect(sut.selectedFeeProvider.feeTokenItem == ethTokenItem)
@@ -466,7 +466,7 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
 
         // Selected starts as USDT(noTokenBalance) — checkSelectedProviderIsSupported leaves it
         // alone because isSupported == true. Manually switch to ETH to set up the scenario.
-        sut.updateSelectedFeeProvider(feeTokenItem: ethTokenItem)
+        sut.updateSelectedFeeProvider(feeProviderID: TokenFeeProviderID(feeTokenItem: ethTokenItem, payer: .user))
         #expect(sut.selectedFeeProvider.feeTokenItem == ethTokenItem)
 
         await sut.updateFees().value
@@ -541,7 +541,10 @@ struct WalletModelTokenFeeProvidersManagerProviderInitialSelectionTests {
     private func makeSUT() -> WalletModelTokenFeeProvidersManagerProvider {
         let walletModel = WalletModelTestsMock(tokenItem: tronTokenItem, isEmpty: false)
 
-        return WalletModelTokenFeeProvidersManagerProvider(walletModel: walletModel)
+        return WalletModelTokenFeeProvidersManagerProvider(
+            walletModel: walletModel,
+            purpose: .transfer(.all)
+        )
     }
 
     private func makeProvider(tokenItem: TokenItem, balance: Decimal) -> ControllableTokenFeeProviderStub {
@@ -549,6 +552,56 @@ struct WalletModelTokenFeeProvidersManagerProviderInitialSelectionTests {
             feeTokenItem: tokenItem,
             balance: .loaded(balance),
             selectedTokenFee: TokenFee(option: .market, tokenItem: tokenItem, value: .loading)
+        )
+    }
+}
+
+@Suite("WalletModelTokenFeeProvidersManagerProvider — Solana sponsored fee selection")
+struct WalletModelTokenFeeProvidersManagerProviderSolanaSponsoredTests {
+    private let solanaTokenItem: TokenItem = .blockchain(.init(.solana(curve: .ed25519, testnet: false), derivationPath: nil))
+
+    @Test("The sponsored provider is the default even when the wallet holds SOL", arguments: [Decimal.zero, 5])
+    func sponsoredProviderIsDefault(balance: Decimal) {
+        let regular = makeProvider(payer: .user, balance: balance)
+        let sponsored = makeProvider(payer: .tangem, balance: balance)
+
+        let selected = makeSUT().prepareInitialTokenFeeProvider(main: regular, all: [regular, sponsored])
+
+        #expect(selected.id == sponsored.id)
+    }
+
+    @Test("Providers of the same fee token are told apart by payer when switching")
+    func switchingByIdTellsKindsApart() {
+        let regular = makeProvider(payer: .user, balance: 5)
+        let sponsored = makeProvider(payer: .tangem, balance: 5)
+        let sut = CommonTokenFeeProvidersManager(
+            feeProviders: [regular, sponsored],
+            initialSelectedProvider: sponsored,
+            ownerAddress: nil
+        )
+
+        sut.updateSelectedFeeProvider(feeProviderID: regular.id)
+        #expect(sut.selectedFeeProvider.id == regular.id)
+
+        sut.updateSelectedFeeProvider(feeProviderID: sponsored.id)
+        #expect(sut.selectedFeeProvider.id == sponsored.id)
+    }
+
+    private func makeSUT() -> WalletModelTokenFeeProvidersManagerProvider {
+        let walletModel = WalletModelTestsMock(tokenItem: solanaTokenItem, isEmpty: false)
+
+        return WalletModelTokenFeeProvidersManagerProvider(
+            walletModel: walletModel,
+            purpose: .transfer(.all)
+        )
+    }
+
+    private func makeProvider(payer: TokenFeePayer, balance: Decimal) -> ControllableTokenFeeProviderStub {
+        ControllableTokenFeeProviderStub(
+            feeTokenItem: solanaTokenItem,
+            payer: payer,
+            balance: .loaded(balance),
+            selectedTokenFee: TokenFee(option: .market, tokenItem: solanaTokenItem, value: .loading)
         )
     }
 }
@@ -628,7 +681,10 @@ struct WalletModelTokenFeeProvidersManagerProviderTronGaslessAvailabilityTests {
                 isAccountActivated: isAccountActivated
             )
 
-            let sut = WalletModelTokenFeeProvidersManagerProvider(walletModel: walletModel)
+            let sut = WalletModelTokenFeeProvidersManagerProvider(
+                walletModel: walletModel,
+                purpose: .transfer(.all)
+            )
 
             #expect(sut.availableGaslessTokenAddresses() == expectedAddresses)
             #expect(sut.minimumRequiredGaslessFeeTokenBalance() == expectedMinimumBalance)
@@ -1446,6 +1502,10 @@ private final class GaslessTransactionsNetworkManagerStub: GaslessTransactionsNe
 
     var currentHost: String { "test" }
     var feeRecipientAddress: String? { cachedFeeRecipientAddress }
+    var cachedSolanaFeePayer: String? { nil }
+    var solanaFeePayer: String? { nil }
+
+    func submitSolanaGaslessTransaction(_ request: SolanaSubmitRequest, userWalletId: UserWalletId) async throws -> String { "" }
 
     init(
         feeRecipientAddress: String?,

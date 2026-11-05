@@ -14,15 +14,18 @@ public struct SubmitUserWalletRegistrationUseCase: Sendable {
     private let registrationClient: any UserWalletRegistrationClient
     private let registrationStatusRepository: any UserWalletRegistrationStatusRepository
     private let sessionTokensRepository: any SessionTokensRepository
+    private let appAttestationStatusRepository: any AppAttestationStatusRepository
 
     init(
         registrationClient: some UserWalletRegistrationClient,
         registrationStatusRepository: some UserWalletRegistrationStatusRepository,
-        sessionTokensRepository: some SessionTokensRepository
+        sessionTokensRepository: some SessionTokensRepository,
+        appAttestationStatusRepository: some AppAttestationStatusRepository
     ) {
         self.registrationClient = registrationClient
         self.registrationStatusRepository = registrationStatusRepository
         self.sessionTokensRepository = sessionTokensRepository
+        self.appAttestationStatusRepository = appAttestationStatusRepository
     }
 
     public func callAsFunction(request: UserWalletRegistrationRequest) async throws(SubmitUserWalletRegistrationError) {
@@ -40,6 +43,9 @@ public struct SubmitUserWalletRegistrationUseCase: Sendable {
             return try await registrationClient.register(request: request)
         } catch UserWalletRegistrationClientError.alreadyRegistered {
             return nil
+        } catch UserWalletRegistrationClientError.appAttestRejected {
+            appAttestationStatusRepository.persist(isAppAttested: false)
+            throw SubmitUserWalletRegistrationError.clientFailure(.appAttestRejected)
         } catch {
             throw SubmitUserWalletRegistrationError.clientFailure(error)
         }

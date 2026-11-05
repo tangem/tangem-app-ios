@@ -12,6 +12,7 @@ public enum UserWalletRegistrationClientError: Error {
 
     case registerFailed(underlying: any Error)
     case alreadyRegistered
+    case appAttestRejected
 
     case unregisterFailed(underlying: any Error)
     case wasNotRegistered

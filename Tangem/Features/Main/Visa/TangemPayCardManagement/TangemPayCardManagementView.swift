@@ -261,7 +261,7 @@ struct TangemPayCardManagementView: View {
         if case .renaming(let renameVM) = viewModel.contentState {
             NavigationToolbarButton.close(placement: .topBarTrailing, action: renameVM.close)
                 .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardRenameCloseButton)
-        } else {
+        } else if viewModel.contentState.isReplaceCardAvailable || viewModel.closeCardRow != nil {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     if viewModel.contentState.isReplaceCardAvailable {

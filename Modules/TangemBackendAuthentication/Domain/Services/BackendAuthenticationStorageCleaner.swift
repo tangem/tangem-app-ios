@@ -9,23 +9,50 @@
 import struct TangemLogger.Logger
 
 public struct BackendAuthenticationStorageCleaner: Sendable {
-    let devicePrivateKeyRepository: any DevicePrivateKeyRepository
+    let deviceKeyManager: DeviceKeyManager
     let sessionTokensRepository: any SessionTokensRepository
+    let appAttestKeyIDRepository: any KeychainRepository
+
     let logger: Logger
 
     public func clean() async {
-        do {
-            try await devicePrivateKeyRepository.delete()
-            logger.debug("Device private key cleared.")
-        } catch {
-            logger.error("Failed to clear device private key.", error: error)
-        }
+        logger.debug("Backend authentication storage cleaning started.")
 
+        async let deviceKeyTask = deleteDeviceKey()
+        async let sessionTokensTask = deleteSessionTokens()
+        async let appAttestKeyIDTask = deleteAppAttestKeyID()
+
+        await deviceKeyTask
+        await sessionTokensTask
+        await appAttestKeyIDTask
+
+        logger.debug("Backend authentication storage cleaning finished.")
+    }
+
+    private func deleteDeviceKey() async {
+        do {
+            try await deviceKeyManager.deleteKey()
+            logger.debug("Device key deleted.")
+        } catch {
+            logger.error("Failed to delete device key.", error: error)
+        }
+    }
+
+    private func deleteSessionTokens() async {
         do {
             try await sessionTokensRepository.delete()
-            logger.debug("Session tokens cleared.")
+            logger.debug("Session tokens deleted.")
         } catch {
-            logger.error("Failed to clear session tokens.", error: error)
+            logger.error("Failed to delete session tokens.", error: error)
+        }
+    }
+
+    private func deleteAppAttestKeyID() async {
+        do {
+            try await appAttestKeyIDRepository.delete()
+            logger.debug("AppAttest keyID deleted.")
+        } catch {
+            logger.error("Failed to delete app attest keyID.", error: error)
         }
     }
 }

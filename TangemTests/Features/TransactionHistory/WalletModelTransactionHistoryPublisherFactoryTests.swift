@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import Testing
+import TangemFoundation
 @testable import Tangem
 @testable import TangemExpress
 @testable import BlockchainSdk
@@ -86,6 +87,130 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
                 #expect(Self.loadedHashes(await iterator.next()) == [Self.syntheticHash, Self.onChainHash])
             }
         }
+
+        @Test("A deal reached through two addresses of the wallet model, e.g. the yield contract and the wallet, is listed once")
+        func dealReachedThroughTwoAddressesIsListedOnce() async {
+            await withStubbedDependencies {
+                let onChainState = CurrentValueSubject<WalletModelTransactionHistoryState, Never>(.loaded(items: []))
+                let publisher = Self.makePublisher(onChainState: onChainState, exchangeStatus: .waiting, indexRowsPerDeal: 2)
+                let (states, subscription) = Self.states(of: publisher)
+                defer { subscription.cancel() }
+                var iterator = states.makeAsyncIterator()
+
+                #expect(Self.loadedHashes(await iterator.next()) == [Self.syntheticHash])
+            }
+        }
+
+        @Test(
+            "The yield contract address joins the wallet addresses handed to the express history provider",
+            arguments: [
+                (nil, [ExpressMergeTestDataFactory.ownerAddress]),
+                ("0xYieldContract", [ExpressMergeTestDataFactory.ownerAddress, "0xYieldContract"]),
+            ] as [(String?, [String])]
+        )
+        func yieldContractAddressJoinsWalletAddresses(yieldContractAddress: String?, expectedAddresses: [String]) async {
+            await withStubbedDependencies {
+                let receivedAddresses = OSAllocatedUnfairLock<[String]?>(initialState: nil)
+                let onChainState = CurrentValueSubject<WalletModelTransactionHistoryState, Never>(.loaded(items: []))
+                let publisher = Self.makePublisher(
+                    onChainState: onChainState,
+                    exchangeStatus: .waiting,
+                    yieldContractAddress: yieldContractAddress,
+                    onWalletModelAddresses: { addresses in receivedAddresses.withLock { $0 = addresses } }
+                )
+                let (states, subscription) = Self.states(of: publisher)
+                defer { subscription.cancel() }
+                var iterator = states.makeAsyncIterator()
+
+                _ = await iterator.next()
+
+                #expect(receivedAddresses.withLock { $0 } == expectedAddresses)
+            }
+        }
+
+        @Test("With joint accounts off a stored joint operation leaves the history as it was")
+        func jointOperationIsIgnoredWithJointAccountsOff() async {
+            await withStubbedDependencies {
+                let onChainState = CurrentValueSubject<WalletModelTransactionHistoryState, Never>(
+                    .loaded(items: [Self.makeOnChainRecord(date: Self.dayBeforeJointOperation)])
+                )
+                let publisher = Self.makeJointPublisher(
+                    onChainState: onChainState,
+                    jointOperationStatus: .cancelled,
+                    fetcher: nil,
+                    isJointAccountsAvailable: false
+                )
+                let (states, subscription) = Self.states(of: publisher)
+                defer { subscription.cancel() }
+                var iterator = states.makeAsyncIterator()
+
+                #expect(Self.loadedHashes(await iterator.next()) == [Self.onChainHash])
+            }
+        }
+
+        @Test("A finished joint operation shows up even where the network keeps no history")
+        func jointOperationShowsWithoutOnChainHistory() async {
+            await withStubbedDependencies {
+                let onChainState = CurrentValueSubject<WalletModelTransactionHistoryState, Never>(.notSupported)
+                let publisher = Self.makeJointPublisher(
+                    onChainState: onChainState,
+                    jointOperationStatus: .cancelled,
+                    fetcher: nil,
+                    isJointAccountsAvailable: true
+                )
+                let (states, subscription) = Self.states(of: publisher)
+                defer { subscription.cancel() }
+                var iterator = states.makeAsyncIterator()
+
+                #expect(Self.loadedHashes(await iterator.next()) == [Self.jointSyntheticHash])
+            }
+        }
+
+        @Test("A joint operation older than the loaded on-chain history waits while more of it can be fetched")
+        func jointOperationOutsidePartialHistoryIsHidden() async {
+            await withStubbedDependencies {
+                let fetcher = StubTransactionHistoryFetcher(canFetchHistory: true)
+
+                #expect(await Self.loadedHashesBesideNewerOnChainRecord(fetcher: fetcher) == [Self.onChainHash])
+            }
+        }
+
+        @Test("A joint operation older than the loaded on-chain history shows once that history is loaded in full")
+        func jointOperationOutsideFullHistoryIsShown() async {
+            await withStubbedDependencies {
+                let fetcher = StubTransactionHistoryFetcher(canFetchHistory: false)
+
+                #expect(await Self.loadedHashesBesideNewerOnChainRecord(fetcher: fetcher) == [Self.onChainHash, Self.jointSyntheticHash])
+            }
+        }
+
+        @Test("An on-chain history with no fetcher behind it counts as loaded in full")
+        func historyWithoutFetcherIsLoadedInFull() async {
+            await withStubbedDependencies {
+                #expect(await Self.loadedHashesBesideNewerOnChainRecord(fetcher: nil) == [Self.onChainHash, Self.jointSyntheticHash])
+            }
+        }
+
+        @Test("Where the network keeps no history, an operation still in flight leaves the history unsupported")
+        func inFlightJointOperationKeepsHistoryUnsupported() async {
+            await withStubbedDependencies {
+                let onChainState = CurrentValueSubject<WalletModelTransactionHistoryState, Never>(.notSupported)
+                let publisher = Self.makeJointPublisher(
+                    onChainState: onChainState,
+                    jointOperationStatus: .awaitingSignatures,
+                    fetcher: nil,
+                    isJointAccountsAvailable: true
+                )
+                let (states, subscription) = Self.states(of: publisher)
+                defer { subscription.cancel() }
+                var iterator = states.makeAsyncIterator()
+
+                guard case .notSupported? = await iterator.next() else {
+                    Issue.record("The history is expected to stay unsupported")
+                    return
+                }
+            }
+        }
     }
 }
 
@@ -105,7 +230,60 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.WalletModelT
 
     static func makePublisher(
         onChainState: CurrentValueSubject<WalletModelTransactionHistoryState, Never>,
-        exchangeStatus: ExpressTransactionStatus
+        exchangeStatus: ExpressTransactionStatus,
+        yieldContractAddress: String? = nil,
+        indexRowsPerDeal: Int = 1,
+        onWalletModelAddresses: @escaping @Sendable ([String]) -> Void = { _ in }
+    ) -> AnyPublisher<WalletModelTransactionHistoryState, Never> {
+        let token = ExpressMergeTestDataFactory.ethereumToken
+        let wallet = Wallet(
+            blockchain: token.blockchain,
+            publicKey: .init(seedKey: Data(), derivationType: .none),
+            addressesProvider: CommonAddressesProvider(
+                defaultAddress: PlainAddress(value: ExpressMergeTestDataFactory.ownerAddress, type: .default)
+            )
+        )
+        let record: TransactionHistoryRecordsReader.Record = .express(.exchange(makeExchangeInfo(token: token, status: exchangeStatus)))
+        let provider = StubTransactionHistoryProvider(
+            records: Array(repeating: record, count: indexRowsPerDeal),
+            onWalletModelAddresses: onWalletModelAddresses
+        )
+
+        return WalletModelTransactionHistoryPublisherFactory.makeTransactionHistoryPublisher(
+            transactionHistoryPublisher: onChainState,
+            featuresPublisher: Just([.transactionHistory(provider: provider)]),
+            walletModelId: WalletModelId(tokenItem: token),
+            walletPublisher: Just(wallet),
+            yieldContractAddressPublisher: Just(yieldContractAddress),
+            tokenItem: token,
+            feeTokenItem: token,
+            transactionHistoryFetcher: nil,
+            isJointAccountsAvailable: false
+        )
+    }
+
+    static func loadedHashesBesideNewerOnChainRecord(fetcher: TransactionHistoryFetcher?) async -> [String]? {
+        let onChainState = CurrentValueSubject<WalletModelTransactionHistoryState, Never>(
+            .loaded(items: [makeOnChainRecord(date: dayAfterJointOperation)])
+        )
+        let publisher = makeJointPublisher(
+            onChainState: onChainState,
+            jointOperationStatus: .cancelled,
+            fetcher: fetcher,
+            isJointAccountsAvailable: true
+        )
+        let (stateStream, subscription) = states(of: publisher)
+        defer { subscription.cancel() }
+        var iterator = stateStream.makeAsyncIterator()
+
+        return loadedHashes(await iterator.next())
+    }
+
+    static func makeJointPublisher(
+        onChainState: CurrentValueSubject<WalletModelTransactionHistoryState, Never>,
+        jointOperationStatus: JointAccountOperationStatus,
+        fetcher: TransactionHistoryFetcher?,
+        isJointAccountsAvailable: Bool
     ) -> AnyPublisher<WalletModelTransactionHistoryState, Never> {
         let token = ExpressMergeTestDataFactory.ethereumToken
         let wallet = Wallet(
@@ -113,15 +291,19 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.WalletModelT
             publicKey: .init(seedKey: Data(), derivationType: .none),
             addressesProvider: EmptyAddressesProvider()
         )
-        let provider = StubTransactionHistoryProvider(records: [.express(.exchange(makeExchangeInfo(token: token, status: exchangeStatus)))])
+        let jointOperation = JointOperationHistoryTestDataFactory.coinItem(id: jointOperationId, status: jointOperationStatus)
+        let provider = StubTransactionHistoryProvider(records: [.jointOperation(JointOperationHistoryInfo(item: jointOperation))])
 
         return WalletModelTransactionHistoryPublisherFactory.makeTransactionHistoryPublisher(
             transactionHistoryPublisher: onChainState,
             featuresPublisher: Just([.transactionHistory(provider: provider)]),
             walletModelId: WalletModelId(tokenItem: token),
             walletPublisher: Just(wallet),
+            yieldContractAddressPublisher: Just(nil),
             tokenItem: token,
-            feeTokenItem: token
+            feeTokenItem: token,
+            transactionHistoryFetcher: fetcher,
+            isJointAccountsAvailable: isJointAccountsAvailable
         )
     }
 
@@ -130,6 +312,10 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.WalletModelT
     static let syntheticHash = ExpressSyntheticTxHelper(txId: exchangeTxId).makeSyntheticTxIdentifier()
     static let dayAfterExchange = ExpressMergeTestDataFactory.baseDate.addingTimeInterval(ExpressMergeTestDataFactory.dayInSeconds)
     static let dayBeforeExchange = ExpressMergeTestDataFactory.baseDate.addingTimeInterval(-ExpressMergeTestDataFactory.dayInSeconds)
+    static let jointOperationId = "joint-operation"
+    static let jointSyntheticHash = JointOperationSyntheticTxHelper(operationId: jointOperationId).makeSyntheticTxIdentifier()
+    static let dayAfterJointOperation = JointOperationHistoryTestDataFactory.finishedAt.addingTimeInterval(ExpressMergeTestDataFactory.dayInSeconds)
+    static let dayBeforeJointOperation = JointOperationHistoryTestDataFactory.finishedAt.addingTimeInterval(-ExpressMergeTestDataFactory.dayInSeconds)
 
     static func states(
         of publisher: AnyPublisher<WalletModelTransactionHistoryState, Never>
@@ -184,10 +370,17 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.WalletModelT
         return ExchangeTransactionInfo(transaction: exchange, provider: nil, cryptoCurrencies: [:])
     }
 
+    struct StubTransactionHistoryFetcher: TransactionHistoryFetcher {
+        let canFetchHistory: Bool
+
+        func clearHistory() async {}
+    }
+
     struct StubTransactionHistoryProvider: TransactionHistoryProviding {
         let id = UUID()
         let mappingQueue = DispatchQueue(label: "com.tangem.tests.StubTransactionHistoryProvider")
         let records: [TransactionHistoryRecordsReader.Record]
+        var onWalletModelAddresses: @Sendable ([String]) -> Void = { _ in }
 
         var state: TransactionHistorySyncState { get async { .idle(.ready) } }
         var stateUpdates: AsyncStream<TransactionHistorySyncState> { AsyncStream { $0.finish() } }
@@ -205,7 +398,9 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.WalletModelT
             for walletModelId: WalletModelId,
             walletModelAddressesPublisher: some Publisher<[String], Never>
         ) -> AsyncStream<[TransactionHistoryRecordsReader.Record]> {
-            AsyncStream { [records] continuation in
+            AsyncStream { [records, onWalletModelAddresses] continuation in
+                let subscription = walletModelAddressesPublisher.sink(receiveValue: onWalletModelAddresses)
+                continuation.onTermination = { _ in subscription.cancel() }
                 continuation.yield(records)
             }
         }

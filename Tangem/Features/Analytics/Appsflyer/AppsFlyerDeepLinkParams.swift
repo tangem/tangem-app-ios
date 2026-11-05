@@ -7,11 +7,13 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct AppsFlyerDeepLinkParams {
     let value: String?
     let refcode: String?
     let campaign: String?
+    let marketingActivityUid: String?
 
     var isReferralDeepLink: Bool {
         value == AppsFlyerDeepLinkResolver.AppsflyerDeepLinkType.referral
@@ -21,6 +23,7 @@ struct AppsFlyerDeepLinkParams {
         value = clickEvent.appsFlyerStringValue(forKey: AppsFlyerDeepLinkKeys.value)
         refcode = ReferralParam.normalized(clickEvent.appsFlyerStringValue(forKey: AppsFlyerDeepLinkKeys.sub1))
         campaign = ReferralParam.normalized(clickEvent.appsFlyerStringValue(forKey: AppsFlyerDeepLinkKeys.sub2))
+        marketingActivityUid = clickEvent.appsFlyerStringValue(forKey: AppsFlyerDeepLinkKeys.sub3)?.nilIfEmpty
     }
 }
 

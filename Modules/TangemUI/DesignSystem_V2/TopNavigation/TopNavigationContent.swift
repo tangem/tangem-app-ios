@@ -140,11 +140,13 @@ struct TopNavigationActionsGroup: View {
 struct TopNavigationCircleButton: View {
     let action: TopNavigation.Action
 
+    @Environment(\.isEnabled) private var isEnabled
+
     private let size = TopNavigationChromeMetrics.chromeButtonSize
 
     var body: some View {
         TopNavigationActionButton(action: action, size: size)
-            .tangemMaterialSurface(in: Circle(), interactive: true, shadow: DesignSystem.Shadow.fallbackButton)
+            .tangemMaterialSurface(in: Circle(), interactive: isEnabled, shadow: DesignSystem.Shadow.fallbackButton)
             .barHitTarget(size: size, square: true)
             .deferringPressFeedbackToGlass()
     }
@@ -252,19 +254,6 @@ private extension View {
 
         return frame(width: square ? side : nil, height: side)
             .contentShape(.rect)
-    }
-}
-
-// MARK: - Press feedback
-
-private extension View {
-    @ViewBuilder
-    func deferringPressFeedbackToGlass() -> some View {
-        if #available(iOS 26.0, *) {
-            environment(\.buttonPaintsPressOverlay, false)
-        } else {
-            self
-        }
     }
 }
 

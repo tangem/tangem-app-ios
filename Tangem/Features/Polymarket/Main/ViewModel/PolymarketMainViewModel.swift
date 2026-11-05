@@ -126,6 +126,8 @@ private extension PolymarketMainViewModel {
     }
 
     func bindWithdrawal() {
+        withdrawalState = withdrawTracker.state
+
         withdrawTracker
             .statePublisher
             .receiveOnMain()

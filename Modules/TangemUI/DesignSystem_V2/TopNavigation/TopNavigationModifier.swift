@@ -21,7 +21,7 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
     private let leadingPolicy: TopNavigation.LeadingPolicy
     private let actions: [TopNavigation.Action]
     private let actionsHaveBackground: Bool
-    private let onClose: (() -> Void)?
+    private let close: TopNavigation.Close?
     private let slot: Slot
 
     init(
@@ -29,14 +29,14 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
         leading: TopNavigation.LeadingPolicy,
         actions: TopNavigation.Actions?,
         actionsHaveBackground: Bool,
-        onClose: (() -> Void)?,
+        close: TopNavigation.Close?,
         @ViewBuilder slot: () -> Slot
     ) {
         self.contentPosition = contentPosition
         leadingPolicy = leading
         self.actions = actions?.values ?? []
         self.actionsHaveBackground = actionsHaveBackground
-        self.onClose = onClose
+        self.close = close
         self.slot = slot()
     }
 
@@ -157,7 +157,7 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
     private var trailingContent: some ToolbarContent {
         if #available(iOS 26.0, *) {
             systemTrailingContent
-        } else if actions.isNotEmpty || onClose != nil {
+        } else if actions.isNotEmpty || close != nil {
             ToolbarItem(placement: .topBarTrailing) {
                 trailingGroup
             }
@@ -175,13 +175,14 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
             .prefersVerticalBar(!actions.contains(where: \.content.isTitle))
         }
 
-        if let onClose {
+        if let close {
             if actions.isNotEmpty {
                 ToolbarSpacer(.fixed, placement: .topBarTrailing)
             }
 
             ToolbarItem(placement: .topBarTrailing) {
-                systemChrome([closeAction(onClose)])
+                systemChrome([closeAction(close)])
+                    .disabled(close.isDisabled)
             }
             .prefersVerticalBar()
         }
@@ -194,15 +195,20 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
                     TopNavigationActionsGroup(actions: actions, hasBackground: actionsHaveBackground)
                 }
 
-                if let onClose {
-                    TopNavigationCircleButton(action: closeAction(onClose))
+                if let close {
+                    TopNavigationCircleButton(action: closeAction(close))
+                        .disabled(close.isDisabled)
                 }
             }
         }
     }
 
-    private func closeAction(_ action: @escaping () -> Void) -> TopNavigation.Action {
-        TopNavigation.Action.close(accessibilityIdentifier: CommonUIAccessibilityIdentifiers.closeButton, action: action)
+    private func closeAction(_ close: TopNavigation.Close) -> TopNavigation.Action {
+        TopNavigation.Action.close(accessibilityIdentifier: CommonUIAccessibilityIdentifiers.closeButton) {
+            if case .enabled(let action) = close {
+                action()
+            }
+        }
     }
 
     private func barTitle(_ alignment: HorizontalAlignment) -> some View {
@@ -233,18 +239,23 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
 }
 
 private extension View {
-    @ViewBuilder
     func clearNavigationBar() -> some View {
-        if #available(iOS 26.0, *) {
-            scrollEdgeEffectHidden(true, for: .top)
-                .toolbarBackground(.hidden, for: .navigationBar)
-        } else {
-            toolbarBackground(.hidden, for: .navigationBar)
-        }
+        hiddenTopScrollEdgeEffect()
+            .toolbarBackground(.hidden, for: .navigationBar)
     }
 }
 
 public extension EnvironmentValues {
     /// Cleared by a container that hosts the navigation stack on its own surface and fades its content itself.
     @Entry var topNavigationDrawsBarBackground = true
+}
+
+private extension TopNavigation.Close {
+    var isDisabled: Bool {
+        if case .disabled = self {
+            return true
+        }
+
+        return false
+    }
 }

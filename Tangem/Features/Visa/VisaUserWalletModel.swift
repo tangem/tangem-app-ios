@@ -447,6 +447,10 @@ extension VisaUserWalletModel: UserWalletModel {
         userWalletModel.tangemPayAuthorizingInteractor
     }
 
+    var tangemPayBankingAccountAddressSigner: TangemPayBankingAccountAddressSigning {
+        userWalletModel.tangemPayBankingAccountAddressSigner
+    }
+
     var polymarketOwnerKeySession: PolymarketOwnerKeySession {
         userWalletModel.polymarketOwnerKeySession
     }

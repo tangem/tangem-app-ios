@@ -32,7 +32,7 @@ struct CryptoAccountsNetworkMapperTests {
         #expect(info.counters.joint == nil)
     }
 
-    @Test("While the joint accounts feature is off, the whole total is the only count read, whatever else the answer carries")
+    @Test("While the account list is read as v1, the whole total is the only count read, whatever else the answer carries")
     func wholeTotalIsTheOnlyCountReadWhileTheFeatureIsOff() throws {
         let info = try map(response: Fixtures.responseWithPerTypeCounters)
 
@@ -40,10 +40,11 @@ struct CryptoAccountsNetworkMapperTests {
         #expect(info.counters.joint == nil)
     }
 
-    @Test("Without the joint accounts feature, an answer missing the whole total is turned away at decoding")
+    @Test("While the account list is read as v1, an answer missing the whole total is turned away at decoding")
     func wholeTotalIsRequiredWhileTheFeatureIsOff() {
-        // The decoding of `Wallet` expects the shape of the endpoint the feature decides, and unit tests
-        // run with the joint accounts feature off — so the v1 shape, with the whole total, is the expected one
+        // The decoding of `Wallet` expects the shape of the endpoint the features decide, and unit tests
+        // run with the joint accounts and collectibles features off — so the v1 shape, with the whole total,
+        // is the expected one
         #expect(throws: DecodingError.self) {
             try map(response: Fixtures.responseWithoutTotalAccounts)
         }
@@ -80,6 +81,20 @@ struct CryptoAccountsNetworkMapperTests {
 
         #expect(infos.map(\.derivationIdentity.type) == [.crypto])
     }
+
+    @Test("An archived joint account is not offered for recovery while the joint accounts feature is off")
+    func archivedJointAccountIsSkippedWhileTheFeatureIsOff() throws {
+        let infos = try map(archivedResponse: Fixtures.archivedResponseWithJointAccount, isJointAccountsAvailable: false)
+
+        #expect(infos.map(\.derivationIdentity.type) == [.crypto])
+    }
+
+    @Test("An archived joint account is offered for recovery while the joint accounts feature is on")
+    func archivedJointAccountIsKeptWhileTheFeatureIsOn() throws {
+        let infos = try map(archivedResponse: Fixtures.archivedResponseWithJointAccount, isJointAccountsAvailable: true)
+
+        #expect(infos.map(\.derivationIdentity.type) == [.crypto, .joint])
+    }
 }
 
 // MARK: - Helpers
@@ -87,14 +102,22 @@ struct CryptoAccountsNetworkMapperTests {
 private extension CryptoAccountsNetworkMapperTests {
     func map(response json: String) throws -> RemoteCryptoAccountsInfo {
         let response = try JSONDecoder().decode(AccountsDTO.Response.Accounts.self, from: Data(json.utf8))
-        let mapper = CryptoAccountsNetworkMapper(supportedBlockchains: [], remoteIdentifierBuilder: { _ in "" })
+        let mapper = CryptoAccountsNetworkMapper(
+            supportedBlockchains: [],
+            isJointAccountsAvailable: false,
+            remoteIdentifierBuilder: { _ in "" }
+        )
 
         return mapper.map(response: response)
     }
 
-    func map(archivedResponse json: String) throws -> [ArchivedCryptoAccountInfo] {
+    func map(archivedResponse json: String, isJointAccountsAvailable: Bool = false) throws -> [ArchivedCryptoAccountInfo] {
         let response = try JSONDecoder().decode(AccountsDTO.Response.ArchivedAccounts.self, from: Data(json.utf8))
-        let mapper = CryptoAccountsNetworkMapper(supportedBlockchains: [], remoteIdentifierBuilder: { _ in "" })
+        let mapper = CryptoAccountsNetworkMapper(
+            supportedBlockchains: [],
+            isJointAccountsAvailable: isJointAccountsAvailable,
+            remoteIdentifierBuilder: { _ in "" }
+        )
 
         return mapper.map(response: response)
     }
@@ -105,6 +128,7 @@ private extension CryptoAccountsNetworkMapperTests {
         let externalParametersProvider = TokenListAddressesProviderStub()
         let mapper = CryptoAccountsNetworkMapper(
             supportedBlockchains: [],
+            isJointAccountsAvailable: false,
             remoteIdentifierBuilder: { "id-\($0.derivationIdentity.derivationIndex)" }
         )
         mapper.externalParametersProvider = externalParametersProvider
@@ -212,6 +236,15 @@ private extension CryptoAccountsNetworkMapperTests {
           "archivedAccounts": [
             { "id": "id-1", "name": "Savings", "icon": "Star", "iconColor": "Azure", "derivation": 1, "type": "crypto", "totalTokens": 0, "totalNetworks": 0 },
             { "id": "id-999799", "name": "Collectibles", "icon": "Package", "iconColor": "Azure", "derivation": 999799, "type": "collectibles", "totalTokens": 0, "totalNetworks": 0 }
+          ]
+        }
+        """
+
+        static let archivedResponseWithJointAccount = """
+        {
+          "archivedAccounts": [
+            { "id": "id-1", "name": "Savings", "icon": "Star", "iconColor": "Azure", "derivation": 1, "type": "crypto", "totalTokens": 0, "totalNetworks": 0 },
+            { "id": "id-2", "name": "Family", "icon": "Star", "iconColor": "Azure", "derivation": 2, "type": "joint", "totalTokens": 0, "totalNetworks": 0 }
           ]
         }
         """

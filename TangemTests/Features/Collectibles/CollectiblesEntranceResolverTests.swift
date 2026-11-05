@@ -91,9 +91,13 @@ private final class CollectiblesAccountModelStub: CollectiblesAccountModel {
 
     var isSyncRequiredPublisher: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
 
+    var pendingDerivationNetworksPublisher: AnyPublisher<[BlockchainNetwork], Never> { Just([]).eraseToAnyPublisher() }
+
     func update(name: String) {}
 
     func onboard() async throws {}
+
+    func relink() async throws -> CollectiblesRelinkOutcome { .relinked }
 
     var vaultUsdcStatePublisher: AnyPublisher<CollectiblesVaultUsdcState, Never> {
         Just(.loading).eraseToAnyPublisher()
@@ -110,6 +114,8 @@ private final class CollectiblesAccountModelStub: CollectiblesAccountModel {
     func refreshState() async {
         refreshCount += 1
     }
+
+    func refreshStateSilently() async {}
 
     func awaitDeposit() async {}
 
@@ -138,6 +144,12 @@ private final class CollectiblesPackPurchaseInteractorStub: CollectiblesPackPurc
     func hasUnfinishedPurchase(machineID: String) -> Bool {
         false
     }
+
+    func isPurchaseLocked(machineID: String) -> Bool {
+        false
+    }
+
+    func restorePendingPurchase() async {}
 
     func purchase(
         machineID: String,

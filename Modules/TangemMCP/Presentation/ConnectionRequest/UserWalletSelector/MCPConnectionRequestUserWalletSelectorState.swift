@@ -7,9 +7,9 @@
 //
 
 import struct TangemFoundation.UserWalletId
+import enum TangemLocalization.Localization
 
-// [REDACTED_TODO_COMMENT]
 struct MCPConnectionRequestUserWalletSelectorState: Equatable {
-    let navigationTitle = "Choose wallet"
+    let navigationTitle = Localization.commonChooseWallet
     let userWallets: [MCPConnectionRequestUserWalletSelectorRowViewModel]
 }

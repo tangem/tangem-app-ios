@@ -18,6 +18,7 @@ struct AppsFlyerDeepLinkResolver {
         // A scenario link may carry a referral code as well, so the params are stored for any deep_link_value.
         // Navigation below, and the promo gate inside the handler, stay bound to the known deep link values.
         AppsFlyerDeepReferralHandler().handle(params)
+        AppsFlyerMarketingActivityHandler().handle(params)
 
         switch params.value {
         case AppsflyerDeepLinkType.referral:

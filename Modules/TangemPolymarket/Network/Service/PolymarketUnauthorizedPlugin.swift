@@ -21,17 +21,9 @@ struct PolymarketUnauthorizedPlugin: PluginType {
         case .failure(let error): error.response?.statusCode
         }
 
-        guard statusCode == Constants.unauthorizedStatusCode else { return }
+        guard statusCode == PolymarketAPIError.unauthorizedStatusCode else { return }
 
         PolymarketLogger.warning("The exchange rejected the wallet's API credentials")
         observer?.exchangeRejectedCredentials(walletId: walletId)
-    }
-}
-
-// MARK: - Constants
-
-private extension PolymarketUnauthorizedPlugin {
-    enum Constants {
-        static let unauthorizedStatusCode = 401
     }
 }

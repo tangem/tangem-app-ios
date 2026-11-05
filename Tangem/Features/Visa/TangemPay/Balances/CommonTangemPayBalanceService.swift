@@ -67,7 +67,7 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
 
     private let tokenItem = TangemPayUtilities.usdcTokenItem
     private let balanceSubject = CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>(nil)
-    private var loadedNetworks: [TangemPayBalance.Network] = []
+    private let networksSubject = CurrentValueSubject<[TangemPayBalance.Network], Never>([])
 
     private lazy var fiatRateProvider: FiatRateProvider = CommonFiatRateProvider(
         tokenItem: tokenItem
@@ -86,14 +86,20 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
 
 extension CommonTangemPayBalanceService {
     var networks: [TangemPayBalance.Network] {
-        loadedNetworks
+        networksSubject.value
+    }
+
+    var networksPublisher: AnyPublisher<[TangemPayBalance.Network], Never> {
+        networksSubject
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
     func loadBalance() async {
         do {
             balanceSubject.send(.loading)
             let balance = try await customerInfoManagementService.getBalance()
-            loadedNetworks = balance.networks
+            networksSubject.send(balance.networks)
             balanceSubject.send(.success(balance))
 
             fiatRateProvider.updateRate()

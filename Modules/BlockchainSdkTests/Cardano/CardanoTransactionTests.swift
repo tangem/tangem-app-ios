@@ -81,6 +81,41 @@ struct CardanoTransactionTests {
         )
     }
 
+    @Test("A destination that begins with the payee's full address is rejected before wallet-core sees it")
+    func forgedDestinationIsRejected() throws {
+        let payee = "addr1vyn6tvyc3daxl8wwvm2glay287dfa7xjgdm2jdl308ksy9canqafn"
+        let forgedDestination = payee + "1vyn5mah4qzseuaxt5tj7sd5qf8rahy63ypzt3k4rvzvlzsgjnjscv"
+        transactionBuilder.update(outputs: [
+            CardanoUnspentOutput(
+                address: payee,
+                amount: 2500000,
+                outputIndex: 0,
+                transactionHash: "1992f01dfd9a94d7a2896617a96b3deb5f007ca32e8860e7c1720714ae6a17e5",
+                assets: []
+            ),
+        ])
+
+        #expect(throws: CardanoError.invalidDestinationAddress) {
+            try transactionBuilder.getFee(
+                amount: Amount(with: blockchain, value: 1.8),
+                destination: forgedDestination,
+                source: payee
+            )
+        }
+
+        let transaction = Transaction(
+            amount: Amount(with: blockchain, value: 1.8),
+            fee: Fee(.zeroCoin(for: blockchain), parameters: CardanoFeeParameters(adaValue: 1800000, change: 0, useMaxAmount: false)),
+            sourceAddress: payee,
+            destinationAddress: forgedDestination,
+            changeAddress: payee
+        )
+
+        #expect(throws: CardanoError.invalidDestinationAddress) {
+            try transactionBuilder.buildForSign(transaction: transaction)
+        }
+    }
+
     /// Successful transaction
     /// https://cardanoscan.io/transaction/03946fe122634d05e93219fde628ce55a5e0d06f23afa456864897357c5dade8
     @Test

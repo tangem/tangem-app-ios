@@ -132,7 +132,7 @@ extension FeeSelectorViewModel: FeeSelectorSummaryRoutable {
 
 extension FeeSelectorViewModel: FeeSelectorTokensRoutable {
     func userDidSelectFeeToken(tokenFeeProvider: any TokenFeeProvider) {
-        interactor.userDidSelect(feeTokenItem: tokenFeeProvider.feeTokenItem)
+        interactor.userDidSelect(feeProviderID: tokenFeeProvider.id)
 
         update(newState: .summary(summaryViewModel))
     }

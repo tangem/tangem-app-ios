@@ -14,6 +14,7 @@ struct WalletModelFeaturesManagerFactory {
     let userWalletConfig: UserWalletConfig
     let dynamicAddressesManagerProvider: DynamicAddressesManagerProvider
     let transactionHistoryProviderResolver: TransactionHistoryProviderResolver
+    let isSafe: Bool
 
     func makeWalletModelFeaturesManager(
         tokenItem: TokenItem,
@@ -34,7 +35,8 @@ struct WalletModelFeaturesManagerFactory {
 
         let transactionHistoryFeatureManager = WalletModelTransactionHistoryFeatureManager(
             providerResolver: transactionHistoryProviderResolver,
-            tokenItem: tokenItem
+            tokenItem: tokenItem,
+            isSafe: isSafe
         )
 
         return CommonWalletModelFeaturesManager(

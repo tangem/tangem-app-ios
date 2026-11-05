@@ -44,7 +44,7 @@ public extension String {
     }
 
     var isEvmAddress: Bool {
-        hasHexPrefix() && count == 42 && dropFirst(2).allSatisfy(\.isHexDigit)
+        hasHexPrefix() && count == 42 && dropFirst(2).allSatisfy(\.isASCIIHexDigit)
     }
 
     func stripLeadingZeroes() -> String {

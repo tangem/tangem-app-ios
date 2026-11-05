@@ -116,6 +116,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         sheetRegistry.registerPolymarketFloatingSheets()
         sheetRegistry.registerCampaignFloatingSheets()
         sheetRegistry.registerTangemPayTransactionDetailsFloatingSheets()
+        sheetRegistry.registerUserWalletLinkFloatingSheets()
 
         let appCoordinator = AppCoordinator()
         let appCoordinatorView = AppCoordinatorView(coordinator: appCoordinator)

@@ -23,14 +23,17 @@ public enum DemoRegistry {
 private extension DemoRegistry {
     static var ds3: [DemoEntry] {
         [
+            DemoEntry("ActionMessage", version: DSVersion(1, 0, 0), section: .ds3) { ActionMessageShowcase() },
             DemoEntry("Avatar", version: DSVersion(1, 1, 0), section: .ds3) { AvatarShowcase() },
             DemoEntry("Badge", version: DSVersion(1, 1, 0), section: .ds3) { BadgeShowcase() },
             DemoEntry("Button", version: DSVersion(1, 3, 1), section: .ds3) { ButtonShowcase() },
+            DemoEntry("ButtonGroup", version: DSVersion(1, 0, 0), section: .ds3) { ButtonGroupShowcase() },
+            DemoEntry("ButtonStack", version: DSVersion(1, 0, 0), section: .ds3) { ButtonStackShowcase() },
             DemoEntry("Checkbox", version: DSVersion(1, 1, 0), section: .ds3) { CheckboxShowcase() },
             DemoEntry("Checkmark", version: DSVersion(1, 1, 0), section: .ds3) { CheckmarkShowcase() },
             DemoEntry("Fade", version: DSVersion(1, 1, 0), section: .ds3) { FadeShowcase() },
             DemoEntry("FilterGroup", version: DSVersion(1, 0, 0), section: .ds3) { FilterGroupShowcase() },
-            DemoEntry("Footer", version: DSVersion(1, 0, 1), section: .ds3) { FooterShowcase() },
+            DemoEntry("Footer", version: DSVersion(1, 0, 2), section: .ds3) { FooterShowcase() },
             DemoEntry("GlowRing", version: DSVersion(1, 1, 0), section: .ds3) { GlowRingShowcase() },
             DemoEntry("Loader", version: DSVersion(1, 0, 0), section: .ds3) { LoaderShowcase() },
             DemoEntry("MessageBanner", version: DSVersion(1, 3, 0), section: .ds3) { MessageBannerShowcase() },
@@ -43,7 +46,7 @@ private extension DemoRegistry {
             DemoEntry("Shimmer", version: DSVersion(1, 0, 1), section: .ds3) { ShimmerShowcase() },
             DemoEntry("Shtorka", version: DSVersion(1, 0, 1), section: .ds3) { ShtorkaShowcase() },
             DemoEntry("StatusScreen", version: DSVersion(1, 0, 1), section: .ds3) { StatusScreenShowcase() },
-            DemoEntry("TabNavigation", version: DSVersion(1, 0, 2), section: .ds3) { TabNavigationShowcase() },
+            DemoEntry("TabNavigation", version: DSVersion(1, 0, 3), section: .ds3) { TabNavigationShowcase() },
             DemoEntry("TokenIconV2", version: DSVersion(1, 1, 0), section: .ds3) { TokenIconV2Showcase() },
             DemoEntry("TokenRow", version: DSVersion(1, 1, 1), section: .ds3) { TokenRowShowcase() },
             DemoEntry("TokenRowMarket", version: DSVersion(1, 1, 0), section: .ds3) { TokenRowMarketShowcase() },

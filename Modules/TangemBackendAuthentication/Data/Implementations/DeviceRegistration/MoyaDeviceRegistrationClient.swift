@@ -45,15 +45,7 @@ struct MoyaDeviceRegistrationClient: DeviceRegistrationClient {
     }
 
     func register(request: DeviceRegistrationRequest) async throws(DeviceRegistrationClientError) -> SessionTokens {
-        let requestBody = RegisterDeviceDTO.Request(
-            payload: RegisterDeviceDTO.Request.Payload(
-                devicePublicKey: request.devicePublicKey.derRepresentation.base64EncodedString(),
-                nonce: request.decryptedNonce,
-                attestationToken: request.appAttestationToken?.base64EncodedString(),
-                metadata: DeviceMetadataMapper.mapToDTO(request.metadata)
-            ),
-            signature: request.signature.derRepresentation.base64EncodedString()
-        )
+        let requestBody = DeviceRegistrationRequestMapper.map(fromDomain: request)
         let target = BackendAuthenticationTarget(registerDevice: requestBody, baseURL: baseURL)
 
         let response: Moya.Response

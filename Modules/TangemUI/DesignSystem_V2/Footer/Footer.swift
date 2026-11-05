@@ -56,7 +56,10 @@ public struct Footer: View, Setupable {
     @ViewBuilder
     private var mainContent: some View {
         switch content.kind {
-        case .buttons(let primary, let secondary):
+        case .buttons(let group):
+            group
+
+        case .signingButton(let button, let secondary):
             VStack(spacing: Metrics.buttonSpacing) {
                 if let secondary {
                     secondary
@@ -64,13 +67,8 @@ public struct Footer: View, Setupable {
                         .horizontalLayout(.infinity)
                 }
 
-                primary
-                    .size(.x12)
-                    .horizontalLayout(.infinity)
+                button
             }
-
-        case .signingButton(let button):
-            button
 
         case .toolbar(let start, let end):
             HStack(spacing: 0) {

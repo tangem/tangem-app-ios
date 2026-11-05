@@ -12,6 +12,8 @@ import TangemCollectibles
 @MainActor
 protocol CollectiblesPackPurchaseInteractor: AnyObject {
     func hasUnfinishedPurchase(machineID: String) -> Bool
+    func isPurchaseLocked(machineID: String) -> Bool
+    func restorePendingPurchase() async
 
     func purchase(
         machineID: String,
@@ -35,6 +37,7 @@ enum CollectiblesPackPurchaseStep {
 
 enum CollectiblesPackPurchaseError: Error {
     case accountNotReady
+    case relinkRequired
     case lowInventory
     case invalidPrice
     case paymentFailed(CollectiblesPurchaseStatus)

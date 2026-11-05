@@ -16,8 +16,7 @@ struct YieldModePromoSheetArtworkView: View {
         Color.clear
             .frame(height: height)
             .overlay {
-                // [REDACTED_TODO_COMMENT]
-                Assets.YieldModule.yieldModulePromoV2Header.image
+                Assets.YieldModule.yieldModePromoSheetArtwork.image
             }
             .accessibilityHidden(true)
     }

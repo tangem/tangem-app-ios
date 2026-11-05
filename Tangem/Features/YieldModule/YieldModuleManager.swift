@@ -600,7 +600,7 @@ private extension CommonYieldModuleManager {
                 let (moduleManager, (previous, current)) = result
                 guard let previous,
                       // avoid redundant calculations if module isn't deployed
-                      let storedYieldContract = await moduleManager.yieldSupplyService.storedYieldContract() else {
+                      let storedYieldContract = moduleManager.yieldSupplyService.storedYieldContract() else {
                     return
                 }
 

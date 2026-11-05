@@ -18,13 +18,14 @@ struct CommonJointAccountsNetworkServiceTests {
     private static let confirmedAccountJSON = """
     {
       "cryptoAccountId": "ACCOUNT",
-      "membersCount": 2,
+      "membersCount": 3,
       "threshold": 2,
-      "safeAddress": "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b",
+      "safeAddress": "0x9295a5836685c5f5f42242f9b64d23e46f8c259f",
       "status": "active",
       "members": [
-        { "name": "Alice", "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "role": "creator", "slot": null, "signature": "\(memberConfirmation)" },
-        { "name": "Bob", "address": "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", "role": "member", "slot": null, "signature": "\(memberConfirmation)" }
+        { "name": "Alice", "address": "0xa9936482d7d056d6f843f5c6088ff0123b796bcc", "role": "creator", "slot": null, "signature": "\(memberConfirmation)" },
+        { "name": "Bob", "address": "0xb8c09e7abe7e0f70f4f4caf48eed46cc8bfda120", "role": "member", "slot": null, "signature": "\(memberConfirmation)" },
+        { "name": "Carol", "address": "0xd048326c01787c475af00c51eb0221d2557bfec2", "role": "member", "slot": null, "signature": "\(memberConfirmation)" }
       ]
     }
     """
@@ -77,9 +78,9 @@ struct CommonJointAccountsNetworkServiceTests {
             name: "Family",
             icon: "Family",
             iconColor: "Azure",
-            membersCount: 2,
+            membersCount: 3,
             threshold: 2,
-            safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"
+            safeAddress: "0x9295a5836685c5f5f42242f9b64d23e46f8c259f"
         )
         var sentBodies: [JointAccountsDTO.Request.Confirm] = []
 
@@ -95,8 +96,8 @@ struct CommonJointAccountsNetworkServiceTests {
 
         #expect(sentBodies.map(\.payload) == [payload])
         #expect(sentBodies.map(\.signature) == ["0x" + String(repeating: "AB", count: 65)])
-        #expect(account.status == .active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"))
-        #expect(account.members.map(\.signature) == [Self.memberConfirmation, Self.memberConfirmation])
+        #expect(account.status == .active(safeAddress: "0x9295a5836685c5f5f42242f9b64d23e46f8c259f"))
+        #expect(account.members.map(\.signature) == [Self.memberConfirmation, Self.memberConfirmation, Self.memberConfirmation])
         #expect(eTagStorage.loadETag(for: .jointAccounts(walletId: Self.userWalletId)) == nil)
     }
 

@@ -60,4 +60,11 @@ extension CommonTransactionHistoryRecordsWriter: TransactionHistoryRecordsWriter
 
         try await save(transactionRecords: transactionRecords, indexRecords: indexRecords)
     }
+
+    func save(_ items: [JointOperationHistoryItem]) async throws {
+        let operationRecords = items.map(TransactionHistoryRecordsMapper.mapToJointOperationRecord)
+        let indexRecords = items.compactMap(TransactionHistoryRecordsMapper.mapToTransactionHistoryIndexRecord)
+
+        try await save(transactionRecords: operationRecords, indexRecords: indexRecords)
+    }
 }

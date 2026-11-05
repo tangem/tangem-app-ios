@@ -52,7 +52,9 @@ class FakeWalletManager: WalletManager {
             keysDerivingInteractorFactory: KeysDerivingInteractorFactory(),
             transactionHistoryProviderResolver: TransactionHistoryProviderResolver(
                 userWalletId: userWalletId,
-                refcodeProvider: WalletInfo.cardWallet(CardMock.wallet.cardInfo).refcodeProvider
+                refcodeProvider: WalletInfo.cardWallet(CardMock.wallet.cardInfo).refcodeProvider,
+                jointAccountsRepository: FakeJointAccountsRepository(),
+                isJointAccountsAvailable: false
             ),
             transactionHistoryUpdater: TransactionHistoryUpdater()
         )

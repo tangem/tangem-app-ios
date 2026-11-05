@@ -190,12 +190,15 @@ extension WalletConnectViewModel {
                     let sessionURI: WalletConnectRequestURI
 
                     switch result {
-                    case .fromClipboard(let uri):
+                    case .walletConnect(let uri, .clipboard):
                         source = .clipboard
                         sessionURI = uri
-                    case .fromQRCode(let uri):
+                    case .walletConnect(let uri, .qrCode):
                         source = .qrCode
                         sessionURI = uri
+                    case .mcpConnectionRequest:
+                        assertionFailure("MCP connection request scanned on the legacy WalletConnect screen. Developer mistake.")
+                        return
                     }
 
                     self?.coordinator?.openDAppConnectionProposal(forURI: sessionURI, source: source)

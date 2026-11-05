@@ -11,6 +11,7 @@ import Combine
 
 protocol TokenFeeProvider {
     var feeTokenItem: TokenItem { get }
+    var payer: TokenFeePayer { get }
     var hasMultipleFeeOptions: Bool { get }
 
     var balanceFeeTokenState: TokenBalanceType { get }
@@ -37,6 +38,12 @@ protocol TokenFeeProvider {
 // MARK: - TokenFeeProvider+
 
 extension TokenFeeProvider {
+    var payer: TokenFeePayer { .user }
+
+    var id: TokenFeeProviderID {
+        TokenFeeProviderID(feeTokenItem: feeTokenItem, payer: payer)
+    }
+
     var usageAvailabilityPublisher: AnyPublisher<FeeTokenUsageAvailability, Never> {
         .just(output: .available)
     }
@@ -62,11 +69,15 @@ extension TokenFeeProvider {
 
 extension [TokenFeeProvider] {
     var hasMultipleFeeProviders: Bool {
-        filter { $0.state.isSupported }.unique(by: \.feeTokenItem).count > 1
+        filter { $0.state.isSupported }.unique(by: \.id).count > 1
     }
 
     subscript(feeTokenItem: TokenItem) -> TokenFeeProvider? {
         first { $0.feeTokenItem == feeTokenItem }
+    }
+
+    subscript(id: TokenFeeProviderID) -> TokenFeeProvider? {
+        first { $0.id == id }
     }
 }
 

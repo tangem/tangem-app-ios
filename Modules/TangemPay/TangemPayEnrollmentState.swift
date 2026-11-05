@@ -12,5 +12,7 @@ public enum TangemPayEnrollmentState {
     case kycDeclined
     case enrolled(customerInfo: VisaCustomerInfoResponse, summary: TangemPayCustomerSummaryResponse?)
     case cardDeactivated(customerInfo: VisaCustomerInfoResponse, summary: TangemPayCustomerSummaryResponse?)
+    case failedToIssueCard(customerInfo: VisaCustomerInfoResponse, summary: TangemPayCustomerSummaryResponse)
     case planSelectNeeded
+    case unavailable
 }

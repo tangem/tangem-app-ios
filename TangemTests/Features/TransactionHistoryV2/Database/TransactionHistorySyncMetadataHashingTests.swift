@@ -31,6 +31,18 @@ struct TransactionHistorySyncMetadataHashingTests {
         #expect(hashedUserWalletID != userWalletId.stringValue)
         #expect(hashedUserWalletID != userWalletId.hashedStringValue)
     }
+
+    @Test("The joint operations hashed user wallet ID is pinned and differs from the Express one")
+    func jointOperationsHashedUserWalletIDIsPinned() {
+        let userWalletId = UserWalletId(stringValue: Fixtures.userWalletIDStringValue)
+
+        let hashedUserWalletID = JointOperationsSyncMetadataUserWalletIDHasher.hash(userWalletId)
+
+        #expect(hashedUserWalletID == Fixtures.jointOperationsHashedUserWalletID)
+        #expect(hashedUserWalletID != Fixtures.hashedUserWalletID)
+        #expect(hashedUserWalletID != userWalletId.stringValue)
+        #expect(hashedUserWalletID != userWalletId.hashedStringValue)
+    }
 }
 
 // MARK: - Fixtures
@@ -39,5 +51,6 @@ private extension TransactionHistorySyncMetadataHashingTests {
     enum Fixtures {
         static let userWalletIDStringValue = "000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F"
         static let hashedUserWalletID = "241C5C03FBB5BA7F0E4615165EB8D265AEDACC876527BEB8AB4F1867F9BF1504"
+        static let jointOperationsHashedUserWalletID = "A48D2016520294B33BF70135964521D53C35ED87C7C1830B9B43B486B2274268"
     }
 }

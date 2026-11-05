@@ -20,16 +20,13 @@ protocol JointAccountModel: CryptoAccountModel, JointAccountOperationsServicesPr
     /// How far the account has come: waiting on its members, or activated and ready to be operated.
     var status: JointAccountStatus { get }
 
-    /// Whether `activate()` is this wallet's to call: the creator's alone, and only once the account reports every
-    /// slot taken.
-    /// - Note: The address that stage is supposed to name is not part of this — an answer that omits it is the
-    /// backend's to explain once the button is pressed, not a reason to leave the creator a screen that offers nothing.
-    var canActivate: Bool { get }
-
-    /// Confirms the composition and puts the account to work, which the creator alone can do.
-    /// - Note: Verifies for itself that the composition resolves to the address the backend announced before anything
-    /// is signed — see `JointAccountSafeAddressVerifier`.
-    func activate() async throws(AccountEditError)
+    /// Adds this wallet's confirmation of the composition and the address it adds up to. The account moves on to
+    /// active once every member has confirmed, which the backend decides and the listing reports.
+    /// - Note: Signs `safeAddress`, the one shown to the member, and only while the status still carries it — see
+    /// `JointAccountStatus.confirming`.
+    /// - Returns: The status the endpoint answered with: active once this confirmation was the last one missing.
+    @discardableResult
+    func confirm(safeAddress: String) async throws(AccountEditError) -> JointAccountStatus
 }
 
 // MARK: - Errors
@@ -40,19 +37,19 @@ enum JointAccountModelError: String, LocalizedError {
     /// A joint account is what its members agreed to when they took their slots, so nothing about it is any one
     /// member's to change.
     case editingNotSupported
-    /// Activation was asked for on an account that has no address to confirm yet, or no creator among its members.
-    /// - Note: The button is offered without an announced address on purpose — see `canActivate` — so the creator
-    /// does reach this one, and it says the answer named no address rather than that anything is wrong with the app.
-    case notReadyForActivation
-    /// Activation was asked for on an account the wallet that runs it has already let go of, so there is no longer
+    /// Confirmation was asked for on an account that has no address to confirm yet.
+    case notReadyForConfirmation
+    case addressChanged
+    /// Confirmation was asked for on an account the wallet that runs it has already let go of, so there is no longer
     /// anything to carry it out — the screen it was asked from outlived the wallet it belongs to.
-    case activationUnavailable
+    case confirmationUnavailable
 
     var errorDescription: String? {
         switch self {
         case .editingNotSupported: "A joint account cannot be edited."
-        case .notReadyForActivation: "The joint account is not ready to be activated."
-        case .activationUnavailable: "The joint account can no longer be activated."
+        case .notReadyForConfirmation: "The joint account is not ready to be confirmed."
+        case .addressChanged: "The joint account's address changed after it was shown."
+        case .confirmationUnavailable: "The joint account can no longer be confirmed."
         }
     }
 }

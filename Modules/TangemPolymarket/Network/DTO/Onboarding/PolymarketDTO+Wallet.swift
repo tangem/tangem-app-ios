@@ -12,6 +12,7 @@ extension PolymarketDTO {
     struct WalletStatusResponse: Decodable {
         let depositWalletAddress: String?
         let status: PolymarketDepositWalletStatus
+        let sessionKeys: [SessionKey]?
     }
 
     struct WalletOperationResponse: Decodable {

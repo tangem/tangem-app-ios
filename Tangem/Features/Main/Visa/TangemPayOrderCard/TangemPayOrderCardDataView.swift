@@ -26,7 +26,7 @@ struct TangemPayOrderCardDataView: View {
                 title: viewModel.title,
                 subtitle: Localization.tangempayOrderDataSubtitle,
                 leading: .custom(.back(action: viewModel.back)),
-                onClose: viewModel.close
+                close: .enabled(viewModel.close)
             )
             .alert(item: $viewModel.alert) { $0.alert }
             .onChange(of: focusedField, perform: viewModel.focusedFieldDidChange(to:))

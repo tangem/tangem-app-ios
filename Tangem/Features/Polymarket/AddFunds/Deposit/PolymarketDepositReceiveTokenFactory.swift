@@ -42,8 +42,7 @@ struct PolymarketDepositReceiveTokenFactory {
                 minCheckoutUSD: depositTarget.minCheckoutUSD,
                 tokenItem: tokenItem
             ),
-            isTangemPayAccount: false,
-            jointAccountPolicy: nil,
+            accountType: .crypto,
             tokenItem: tokenItem,
             fiatItem: makeFiatItem(),
             address: depositTarget.fundingAddress,

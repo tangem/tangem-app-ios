@@ -12,5 +12,5 @@ struct YieldChartData: Equatable {
     let buckets: [Double]
     let averageApy: Double
     let maxApy: Double
-    let xLabels: [String]
+    let xTicks: [Int: String]
 }

@@ -21,6 +21,7 @@ struct PolymarketUnauthorizedPluginTests {
             .updateBalanceAllowance(.collateral),
             .placeOrder(body: Data()),
             .order(id: "0xorder"),
+            .sessionSigners,
         ]
     )
     func reportsAnUnauthorizedResponse(target: PolymarketCLOBTarget.Target) {

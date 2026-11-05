@@ -6,10 +6,12 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Combine
 import TangemPay
 
 protocol TangemPayBalancesService: TangemPayBalancesProvider {
     var networks: [TangemPayBalance.Network] { get }
+    var networksPublisher: AnyPublisher<[TangemPayBalance.Network], Never> { get }
 
     func loadBalance() async
 }

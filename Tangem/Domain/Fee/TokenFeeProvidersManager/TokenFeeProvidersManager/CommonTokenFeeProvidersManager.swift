@@ -106,14 +106,16 @@ extension CommonTokenFeeProvidersManager: TokenFeeProvidersManager {
         }
     }
 
-    func updateSelectedFeeProvider(feeTokenItem: TokenItem) {
-        guard let tokenFeeProvider = feeProviders.first(where: { $0.feeTokenItem == feeTokenItem }) else {
-            FeeLogger.error(self, error: "Provider for token item \(feeTokenItem.name) not found")
+    func updateSelectedFeeProvider(feeProviderID: TokenFeeProviderID) {
+        let feeTokenName = feeProviderID.feeTokenItem.name
+
+        guard let tokenFeeProvider = feeProviders[feeProviderID] else {
+            FeeLogger.error(self, error: "Provider for token item \(feeTokenName) (\(feeProviderID.payer)) not found")
             return
         }
 
         guard tokenFeeProvider.state.isSupported else {
-            FeeLogger.info(self, "Provider for token item \(feeTokenItem.name) is not supported. Will not select")
+            FeeLogger.info(self, "Provider for token item \(feeTokenName) (\(feeProviderID.payer)) is not supported. Will not select")
             return
         }
 
@@ -349,8 +351,8 @@ private extension CommonTokenFeeProvidersManager {
     }
 
     func select(_ tokenFeeProvider: any TokenFeeProvider) {
-        guard tokenFeeProvider.feeTokenItem != selectedFeeProvider.feeTokenItem else {
-            FeeLogger.info(self, "Try to select already selected provider with token item \(tokenFeeProvider.feeTokenItem.name). Will not select")
+        guard tokenFeeProvider.id != selectedFeeProvider.id else {
+            FeeLogger.info(self, "Try to select already selected provider with token item \(tokenFeeProvider.feeTokenItem.name) (\(tokenFeeProvider.payer)). Will not select")
             return
         }
 

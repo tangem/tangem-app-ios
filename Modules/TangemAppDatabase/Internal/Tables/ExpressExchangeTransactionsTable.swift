@@ -24,6 +24,8 @@ enum ExpressExchangeTransactionsTable: AppDatabaseTable {
             try V2.register(in: database)
         case .v3:
             break
+        case .v4:
+            break
         }
     }
 }

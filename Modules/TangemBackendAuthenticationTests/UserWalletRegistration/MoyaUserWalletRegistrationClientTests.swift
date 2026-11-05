@@ -134,6 +134,21 @@ struct MoyaUserWalletRegistrationClientTests {
     }
 
     @Test
+    func registerThrowsAppAttestRejectedFor400WithAppAttestRejectedCode() async throws {
+        let appAttestRejectedError = TangemProblemDetailError(httpStatusCode: 400, message: nil, code: "APPATTEST_REJECTED")
+        let sut = try Self.makeSUT(statusCode: 400, responseBody: appAttestRejectedError.jsonString)
+
+        let error = try await #require(throws: UserWalletRegistrationClientError.self) {
+            _ = try await sut.register(request: .fake)
+        }
+
+        guard case .appAttestRejected = error else {
+            Issue.record("Expected .appAttestRejected, got \(error)")
+            return
+        }
+    }
+
+    @Test
     func registerThrowsRegisterFailedFor400WithNonMatchingProblemDetail() async throws {
         let sut = try Self.makeSUT(statusCode: 400, responseBody: TangemProblemDetailError.walletNotRegistered.jsonString)
 

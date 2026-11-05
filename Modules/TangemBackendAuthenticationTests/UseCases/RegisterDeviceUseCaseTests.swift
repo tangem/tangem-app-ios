@@ -18,8 +18,8 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
     @Test
     func registerDeviceRegistersDeviceAndPersistsTokensOnSuccess() async throws {
         let appAttestService = SpyAppAttestService()
-        let expectedAppAttestationToken = Data("some attestation token".utf8)
-        appAttestService.generateAttestationTokenResult = Result.success(expectedAppAttestationToken)
+        let expectedAppAttestation = AppAttestation(keyID: "some key id", object: Data("some attestation object".utf8))
+        appAttestService.attestResult = Result.success(expectedAppAttestation)
 
         let registrationClient = SpyDeviceRegistrationClient()
         let expectedCipheredNonce = "some ciphered nonce"
@@ -37,20 +37,29 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
         let expectedDecryptedNonceBytes = Data(expectedDecryptedNonce.utf8)
         nonceDecryptor.decryptResult = Result.success(expectedDecryptedNonceBytes)
 
-        let expectedDevicePrivateKey = StubDevicePrivateKey()
+        let expectedDevicePrivateKey = SpyDevicePrivateKey.successStub
         let devicePrivateKeyRepository = SpyDevicePrivateKeyRepository()
         devicePrivateKeyRepository.retrieveResult = Result.success(expectedDevicePrivateKey)
 
         let expectedRequest = try makeDeviceRegistrationRequest(
             devicePrivateKey: expectedDevicePrivateKey,
             decryptedNonce: expectedDecryptedNonce,
-            appAttestationToken: expectedAppAttestationToken
+            appAttestation: expectedAppAttestation
         )
 
-        let analyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
+        let expectedSignedData = DeviceSignaturePayloadFactory.make(
+            devicePublicKey: try expectedDevicePrivateKey.publicKeyResult.get(),
+            decryptedNonce: expectedDecryptedNonce,
+            attestationToken: expectedAppAttestation.object,
+            metadata: DeviceMetadata.fake
+        )
+
+        let appAttestationStatusRepository = SpyAppAttestationStatusRepository()
+        let analyticsReporter = SpyBackendAuthenticationNonceAnalyticsReporter()
 
         let sut = makeSUT(
             appAttestService: appAttestService,
+            appAttestationStatusRepository: appAttestationStatusRepository,
             registrationClient: registrationClient,
             registrationStatusRepository: registrationStatusRepository,
             sessionTokensRepository: sessionTokensRepository,
@@ -64,8 +73,10 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
         #expect(sessionTokens == expectedSessionTokens)
         #expect(registrationClient.receivedMessages == [.requestCipheredNonce, .register(expectedRequest)])
         #expect(nonceDecryptor.receivedMessages == [.decrypt(expectedCipheredNonce)])
-        #expect(appAttestService.receivedMessages == [.generateAttestationToken(expectedDecryptedNonceBytes)])
+        #expect(appAttestService.receivedMessages == [.attest(expectedDecryptedNonceBytes)])
+        #expect(expectedDevicePrivateKey.receivedMessages == [.publicKey, .signature(expectedSignedData)])
         #expect(sessionTokensRepository.receivedMessages == [.persist(expectedSessionTokens)])
+        #expect(appAttestationStatusRepository.receivedMessages == [.persist(true)])
         #expect(registrationStatusRepository.receivedMessages == [.retrieve, .persist(isRegistered: true)])
         #expect(analyticsReporter.receivedMessages.isEmpty)
     }
@@ -87,25 +98,36 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
 
     @Test
     func registerDeviceReturnsNilAndPersistsFlagWhenAlreadyRegisteredOnServer() async throws {
+        let appAttestService = SpyAppAttestService()
+        appAttestService.attestResult = Result.success(AppAttestation.fake)
+
         let registrationClient = SpyDeviceRegistrationClient()
         registrationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
         registrationClient.registerResult = Result.failure(.alreadyRegistered)
 
+        let nonceDecryptor = SpyNonceDecryptor()
+        let expectedDecryptedNonceBytes = Data("any decrypted nonce".utf8)
+        nonceDecryptor.decryptResult = Result.success(expectedDecryptedNonceBytes)
+
         let registrationStatusRepository = SpyDeviceRegistrationStatusRepository()
         let sessionTokensRepository = SpySessionTokensRepository()
+        let appAttestationStatusRepository = SpyAppAttestationStatusRepository()
 
         let sut = makeSUT(
-            appAttestService: .successStub,
+            appAttestService: appAttestService,
+            appAttestationStatusRepository: appAttestationStatusRepository,
             registrationClient: registrationClient,
             registrationStatusRepository: registrationStatusRepository,
             sessionTokensRepository: sessionTokensRepository,
             devicePrivateKeyRepository: .successStub,
-            nonceDecryptor: .successStub
+            nonceDecryptor: nonceDecryptor
         )
 
         let sessionTokens = try await sut()
 
         #expect(sessionTokens == nil)
+        #expect(appAttestService.receivedMessages == [.attest(expectedDecryptedNonceBytes)])
+        #expect(appAttestationStatusRepository.receivedMessages == [.persist(false)])
         #expect(registrationStatusRepository.receivedMessages == [.retrieve, .persist(isRegistered: true)])
         #expect(sessionTokensRepository.receivedMessages.isEmpty)
     }
@@ -113,7 +135,7 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
     @Test
     func registerDeviceSucceedsEvenWhenAttestationFails() async throws {
         let appAttestService = SpyAppAttestService()
-        appAttestService.generateAttestationTokenResult = Result.failure(AppAttestServiceError())
+        appAttestService.attestResult = Result.failure(.attestationFailed(underlying: AnyTestError()))
 
         let registrationClient = SpyDeviceRegistrationClient()
         registrationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
@@ -122,20 +144,31 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
 
         let nonceDecryptor = SpyNonceDecryptor()
         let expectedDecryptedNonce = "any decrypted nonce"
-        nonceDecryptor.decryptResult = Result.success(Data(expectedDecryptedNonce.utf8))
+        let expectedDecryptedNonceBytes = Data(expectedDecryptedNonce.utf8)
+        nonceDecryptor.decryptResult = Result.success(expectedDecryptedNonceBytes)
 
-        let expectedDevicePrivateKey = StubDevicePrivateKey()
+        let expectedDevicePrivateKey = SpyDevicePrivateKey.successStub
         let devicePrivateKeyRepository = SpyDevicePrivateKeyRepository()
         devicePrivateKeyRepository.retrieveResult = Result.success(expectedDevicePrivateKey)
 
         let expectedRequest = try makeDeviceRegistrationRequest(
             devicePrivateKey: expectedDevicePrivateKey,
             decryptedNonce: expectedDecryptedNonce,
-            appAttestationToken: nil
+            appAttestation: nil
         )
+
+        let expectedSignedData = DeviceSignaturePayloadFactory.make(
+            devicePublicKey: try expectedDevicePrivateKey.publicKeyResult.get(),
+            decryptedNonce: expectedDecryptedNonce,
+            attestationToken: nil,
+            metadata: DeviceMetadata.fake
+        )
+
+        let appAttestationStatusRepository = SpyAppAttestationStatusRepository()
 
         let sut = makeSUT(
             appAttestService: appAttestService,
+            appAttestationStatusRepository: appAttestationStatusRepository,
             registrationClient: registrationClient,
             sessionTokensRepository: .successStub,
             devicePrivateKeyRepository: devicePrivateKeyRepository,
@@ -145,7 +178,50 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
         let sessionTokens = try await sut()
 
         #expect(sessionTokens == expectedSessionTokens)
+        #expect(appAttestService.receivedMessages == [.attest(expectedDecryptedNonceBytes)])
         #expect(registrationClient.receivedMessages == [.requestCipheredNonce, .register(expectedRequest)])
+        #expect(expectedDevicePrivateKey.receivedMessages == [.publicKey, .signature(expectedSignedData)])
+        #expect(appAttestationStatusRepository.receivedMessages == [.persist(false)])
+    }
+
+    @Test
+    func registerDeviceDoesNotMarkAppAsAttestedWhenBackendIssuesNoRefreshToken() async throws {
+        let appAttestService = SpyAppAttestService()
+        appAttestService.attestResult = Result.success(AppAttestation.fake)
+
+        let expectedSessionTokens = SessionTokens(
+            accessToken: SessionTokens.Token(jwt: "any access jwt", expiresAt: Date.fake),
+            refreshToken: nil,
+            userWalletIDs: []
+        )
+
+        let registrationClient = SpyDeviceRegistrationClient()
+        registrationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
+        registrationClient.registerResult = Result.success(expectedSessionTokens)
+
+        let nonceDecryptor = SpyNonceDecryptor()
+        let expectedDecryptedNonceBytes = Data("any decrypted nonce".utf8)
+        nonceDecryptor.decryptResult = Result.success(expectedDecryptedNonceBytes)
+
+        let registrationStatusRepository = SpyDeviceRegistrationStatusRepository()
+        let appAttestationStatusRepository = SpyAppAttestationStatusRepository()
+
+        let sut = makeSUT(
+            appAttestService: appAttestService,
+            appAttestationStatusRepository: appAttestationStatusRepository,
+            registrationClient: registrationClient,
+            registrationStatusRepository: registrationStatusRepository,
+            sessionTokensRepository: .successStub,
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: nonceDecryptor
+        )
+
+        let sessionTokens = try await sut()
+
+        #expect(sessionTokens == expectedSessionTokens)
+        #expect(appAttestService.receivedMessages == [.attest(expectedDecryptedNonceBytes)])
+        #expect(appAttestationStatusRepository.receivedMessages == [.persist(false)])
+        #expect(registrationStatusRepository.receivedMessages == [.retrieve, .persist(isRegistered: true)])
     }
 
     @Test
@@ -171,7 +247,7 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
         let registrationClient = SpyDeviceRegistrationClient()
         registrationClient.requestCipheredNonceResult = Result.failure(.requestNonceTimeout)
 
-        let analyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
+        let analyticsReporter = SpyBackendAuthenticationNonceAnalyticsReporter()
 
         let sut = makeSUT(
             registrationClient: registrationClient,
@@ -267,7 +343,7 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
         let registrationClient = SpyDeviceRegistrationClient()
         registrationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
 
-        var devicePrivateKey = StubDevicePrivateKey()
+        let devicePrivateKey = SpyDevicePrivateKey.successStub
         let expectedUnderlyingError = AnyTestError()
         devicePrivateKey.signResult = Result.failure(expectedUnderlyingError)
 
@@ -293,8 +369,8 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
     @Test
     func registerDeviceThrowsRepositoryFailureWhenPersistFails() async throws {
         let appAttestService = SpyAppAttestService()
-        let expectedAppAttestationToken = Data("some attestation token".utf8)
-        appAttestService.generateAttestationTokenResult = Result.success(expectedAppAttestationToken)
+        let expectedAppAttestation = AppAttestation(keyID: "some key id", object: Data("some attestation object".utf8))
+        appAttestService.attestResult = Result.success(expectedAppAttestation)
 
         let registrationClient = SpyDeviceRegistrationClient()
         let expectedCipheredNonce = "some ciphered nonce"
@@ -312,20 +388,22 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
         let expectedDecryptedNonceBytes = Data(expectedDecryptedNonce.utf8)
         nonceDecryptor.decryptResult = Result.success(expectedDecryptedNonceBytes)
 
-        let expectedDevicePrivateKey = StubDevicePrivateKey()
+        let expectedDevicePrivateKey = SpyDevicePrivateKey.successStub
         let devicePrivateKeyRepository = SpyDevicePrivateKeyRepository()
         devicePrivateKeyRepository.retrieveResult = Result.success(expectedDevicePrivateKey)
 
         let expectedRequest = try makeDeviceRegistrationRequest(
             devicePrivateKey: expectedDevicePrivateKey,
             decryptedNonce: expectedDecryptedNonce,
-            appAttestationToken: expectedAppAttestationToken
+            appAttestation: expectedAppAttestation
         )
 
-        let analyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
+        let appAttestationStatusRepository = SpyAppAttestationStatusRepository()
+        let analyticsReporter = SpyBackendAuthenticationNonceAnalyticsReporter()
 
         let sut = makeSUT(
             appAttestService: appAttestService,
+            appAttestationStatusRepository: appAttestationStatusRepository,
             registrationClient: registrationClient,
             registrationStatusRepository: registrationStatusRepository,
             sessionTokensRepository: sessionTokensRepository,
@@ -345,7 +423,8 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
 
         #expect(registrationClient.receivedMessages == [.requestCipheredNonce, .register(expectedRequest)])
         #expect(nonceDecryptor.receivedMessages == [.decrypt(expectedCipheredNonce)])
-        #expect(appAttestService.receivedMessages == [.generateAttestationToken(expectedDecryptedNonceBytes)])
+        #expect(appAttestService.receivedMessages == [.attest(expectedDecryptedNonceBytes)])
+        #expect(appAttestationStatusRepository.receivedMessages.isEmpty)
         #expect(sessionTokensRepository.receivedMessages == [.persist(expectedSessionTokens)])
         #expect(registrationStatusRepository.receivedMessages == [.retrieve, .persist(isRegistered: false)])
         #expect(analyticsReporter.receivedMessages.isEmpty)
@@ -356,8 +435,8 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
         let expectedSessionTokens = SessionTokens.uniqueFake()
 
         let appAttestService = SpyAppAttestService()
-        let expectedAppAttestationToken = Data("some attestation token".utf8)
-        appAttestService.generateAttestationTokenResult = Result.success(expectedAppAttestationToken)
+        let expectedAppAttestation = AppAttestation.fake
+        appAttestService.attestResult = Result.success(expectedAppAttestation)
 
         let registrationClient = SpyDeviceRegistrationClient()
         registrationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
@@ -371,16 +450,17 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
 
         let nonceDecryptor = SpyNonceDecryptor()
         let expectedDecryptedNonce = "any decrypted nonce"
-        nonceDecryptor.decryptResult = Result.success(Data(expectedDecryptedNonce.utf8))
+        let expectedDecryptedNonceBytes = Data(expectedDecryptedNonce.utf8)
+        nonceDecryptor.decryptResult = Result.success(expectedDecryptedNonceBytes)
 
-        let expectedDevicePrivateKey = StubDevicePrivateKey()
+        let expectedDevicePrivateKey = SpyDevicePrivateKey.successStub
         let devicePrivateKeyRepository = SpyDevicePrivateKeyRepository()
         devicePrivateKeyRepository.retrieveResult = Result.success(expectedDevicePrivateKey)
 
         let expectedRequest = try makeDeviceRegistrationRequest(
             devicePrivateKey: expectedDevicePrivateKey,
             decryptedNonce: expectedDecryptedNonce,
-            appAttestationToken: expectedAppAttestationToken
+            appAttestation: expectedAppAttestation
         )
 
         let sut = makeSUT(
@@ -409,6 +489,7 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
         #expect(actualSecondSessionTokens == expectedSessionTokens)
         #expect(actualThirdSessionTokens == expectedSessionTokens)
         #expect(sessionTokensAfterSuccessfulDeviceRegistration == nil)
+        #expect(appAttestService.receivedMessages == [.attest(expectedDecryptedNonceBytes)])
         #expect(registrationClient.receivedMessages == [.requestCipheredNonce, .register(expectedRequest)])
         #expect(registrationStatusRepository.receivedMessages == [
             .retrieve,
@@ -423,8 +504,8 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
     @Test
     func registerDeviceCoalescesConcurrentFailures() async throws {
         let appAttestService = SpyAppAttestService()
-        let firstExpectedAppAttestationToken = Data("first app attestation token".utf8)
-        appAttestService.generateAttestationTokenResult = Result.success(firstExpectedAppAttestationToken)
+        let firstExpectedAppAttestation = AppAttestation(keyID: "first key id", object: Data("first attestation object".utf8))
+        appAttestService.attestResult = Result.success(firstExpectedAppAttestation)
 
         let registrationClient = SpyDeviceRegistrationClient()
         registrationClient.requestCipheredNonceResult = Result.success("any ciphered nonce")
@@ -435,16 +516,17 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
 
         let nonceDecryptor = SpyNonceDecryptor()
         let expectedDecryptedNonce = "any decrypted nonce"
-        nonceDecryptor.decryptResult = Result.success(Data(expectedDecryptedNonce.utf8))
+        let expectedDecryptedNonceBytes = Data(expectedDecryptedNonce.utf8)
+        nonceDecryptor.decryptResult = Result.success(expectedDecryptedNonceBytes)
 
-        let expectedDevicePrivateKey = StubDevicePrivateKey()
+        let expectedDevicePrivateKey = SpyDevicePrivateKey.successStub
         let devicePrivateKeyRepository = SpyDevicePrivateKeyRepository()
         devicePrivateKeyRepository.retrieveResult = Result.success(expectedDevicePrivateKey)
 
         let firstExpectedRequest = try makeDeviceRegistrationRequest(
             devicePrivateKey: expectedDevicePrivateKey,
             decryptedNonce: expectedDecryptedNonce,
-            appAttestationToken: firstExpectedAppAttestationToken
+            appAttestation: firstExpectedAppAttestation
         )
 
         let sut = makeSUT(
@@ -468,10 +550,11 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
             }
         }
 
+        #expect(appAttestService.receivedMessages == [.attest(expectedDecryptedNonceBytes)])
         #expect(registrationClient.receivedMessages == [.requestCipheredNonce, .register(firstExpectedRequest)])
 
-        let secondExpectedAppAttestationToken = Data("second app attestation token".utf8)
-        appAttestService.generateAttestationTokenResult = Result.success(secondExpectedAppAttestationToken)
+        let secondExpectedAppAttestation = AppAttestation(keyID: "second key id", object: Data("second attestation object".utf8))
+        appAttestService.attestResult = Result.success(secondExpectedAppAttestation)
 
         let freshSessionTokensAfterRetry = SessionTokens.uniqueFake()
         registrationClient.registerResult = Result.success(freshSessionTokensAfterRetry)
@@ -479,12 +562,16 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
         let secondExpectedRequest = try makeDeviceRegistrationRequest(
             devicePrivateKey: expectedDevicePrivateKey,
             decryptedNonce: expectedDecryptedNonce,
-            appAttestationToken: secondExpectedAppAttestationToken
+            appAttestation: secondExpectedAppAttestation
         )
 
         let actualSessionTokens = try await sut()
 
         #expect(actualSessionTokens == freshSessionTokensAfterRetry)
+        #expect(appAttestService.receivedMessages == [
+            .attest(expectedDecryptedNonceBytes),
+            .attest(expectedDecryptedNonceBytes),
+        ])
         #expect(registrationClient.receivedMessages == [
             .requestCipheredNonce,
             .register(firstExpectedRequest),
@@ -500,17 +587,19 @@ final class RegisterDeviceUseCaseTests: LeakTrackingTestSuite {
 extension RegisterDeviceUseCaseTests {
     func makeSUT(
         appAttestService: some AppAttestService = SpyAppAttestService(),
+        appAttestationStatusRepository: some AppAttestationStatusRepository = SpyAppAttestationStatusRepository(),
         registrationClient: some DeviceRegistrationClient = SpyDeviceRegistrationClient(),
         registrationStatusRepository: some DeviceRegistrationStatusRepository = SpyDeviceRegistrationStatusRepository(),
         sessionTokensRepository: some SessionTokensRepository = SpySessionTokensRepository(),
         devicePrivateKeyRepository: some DevicePrivateKeyRepository = SpyDevicePrivateKeyRepository(),
         nonceDecryptor: some NonceDecryptor = SpyNonceDecryptor(),
-        analyticsReporter: some BackendAuthenticationAnalyticsReporter = SpyBackendAuthenticationAnalyticsReporter(),
+        analyticsReporter: some BackendAuthenticationNonceAnalyticsReporter = SpyBackendAuthenticationNonceAnalyticsReporter(),
         sourceLocation: SourceLocation = #_sourceLocation
     ) -> RegisterDeviceUseCase {
         trackForMemoryLeaks(
             RegisterDeviceUseCase(
                 appAttestService: appAttestService,
+                appAttestationStatusRepository: appAttestationStatusRepository,
                 registrationClient: registrationClient,
                 registrationStatusRepository: registrationStatusRepository,
                 sessionTokensRepository: sessionTokensRepository,
@@ -533,21 +622,21 @@ extension RegisterDeviceUseCaseTests {
     }
 
     func makeDeviceRegistrationRequest(
-        devicePrivateKey: StubDevicePrivateKey,
+        devicePrivateKey: SpyDevicePrivateKey,
         decryptedNonce: String,
-        appAttestationToken: Data?
+        appAttestation: AppAttestation?
     ) throws -> DeviceRegistrationRequest {
-        let ecdsaSignature = try devicePrivateKey.signature(for: Data())
+        let ecdsaSignature = try devicePrivateKey.signResult.get()
 
         return DeviceRegistrationRequest(
-            devicePublicKey: try devicePrivateKey.publicKey,
+            devicePublicKey: try devicePrivateKey.publicKeyResult.get(),
             decryptedNonce: decryptedNonce,
             metadata: DeviceMetadata.fake,
             signature: try DeviceSignature(
                 derRepresentation: ecdsaSignature.derRepresentation,
                 rawRepresentation: ecdsaSignature.rawRepresentation
             ),
-            appAttestationToken: appAttestationToken
+            appAttestation: appAttestation
         )
     }
 }

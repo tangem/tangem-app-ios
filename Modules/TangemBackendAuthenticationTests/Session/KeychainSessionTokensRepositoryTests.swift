@@ -56,45 +56,75 @@ struct KeychainSessionTokensRepositoryTests {
     @Test
     func retrieveThrowsDecodingFailedForMalformedStoredData() async {
         let malformedData = Data("not valid json".utf8)
-        let sut = makeSUT(keychainRepository: StubKeychainRepository(retrieveResult: .success(malformedData)))
+        let keychainRepository = SpyKeychainRepository()
+        keychainRepository.retrieveResult = Result.success(malformedData)
+        let sut = makeSUT(keychainRepository: keychainRepository)
 
         await #expect(throws: SessionTokensRepositoryError.decodingFailed) {
             _ = try await sut.retrieve()
         }
+
+        #expect(keychainRepository.receivedMessages == [.retrieve])
     }
 
     @Test
     func retrieveThrowsKeychainFailureWhenKeychainRetrieveFails() async throws {
-        let sut = makeSUT(keychainRepository: StubKeychainRepository(retrieveResult: .failure(.itemCorrupted)))
+        let keychainRepository = SpyKeychainRepository()
+        keychainRepository.retrieveResult = Result.failure(.itemCorrupted)
+        let sut = makeSUT(keychainRepository: keychainRepository)
 
         await #expect(throws: SessionTokensRepositoryError.keychainFailure(.itemCorrupted)) {
             _ = try await sut.retrieve()
         }
+
+        #expect(keychainRepository.receivedMessages == [.retrieve])
     }
 
     @Test
     func persistThrowsKeychainFailureWhenInsertFails() async throws {
         let insertFailsKeychainError = KeychainRepositoryError.insertFailed(status: .any)
-        let sut = makeSUT(keychainRepository: StubKeychainRepository(insertResult: .failure(insertFailsKeychainError)))
+        let keychainRepository = SpyKeychainRepository()
+        keychainRepository.insertResult = Result.failure(insertFailsKeychainError)
+        let sut = makeSUT(keychainRepository: keychainRepository)
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        let expectedData = try encoder.encode(
+            KeychainSessionTokensRepository.VersionedDTO(
+                version: 1,
+                dto: KeychainSessionTokensRepository.SessionTokensDTO(fromDomain: Self.sampleTokens)
+            )
+        )
 
         await #expect(throws: SessionTokensRepositoryError.keychainFailure(insertFailsKeychainError)) {
             try await sut.persist(tokens: Self.sampleTokens)
         }
+
+        #expect(keychainRepository.receivedMessages == [.insert(expectedData)])
     }
 
     @Test
     func persistThrowsKeychainFailureWhenUpdateFailsAfterInsertFindsADuplicate() async throws {
         let updateFailsKeychainError = KeychainRepositoryError.updateFailed(status: .any)
-        let sut = makeSUT(
-            keychainRepository: StubKeychainRepository(
-                insertResult: .failure(.duplicateItem),
-                updateResult: .failure(updateFailsKeychainError)
+        let keychainRepository = SpyKeychainRepository()
+        keychainRepository.insertResult = Result.failure(.duplicateItem)
+        keychainRepository.updateResult = Result.failure(updateFailsKeychainError)
+        let sut = makeSUT(keychainRepository: keychainRepository)
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        let expectedData = try encoder.encode(
+            KeychainSessionTokensRepository.VersionedDTO(
+                version: 1,
+                dto: KeychainSessionTokensRepository.SessionTokensDTO(fromDomain: Self.sampleTokens)
             )
         )
 
         await #expect(throws: SessionTokensRepositoryError.keychainFailure(updateFailsKeychainError)) {
             try await sut.persist(tokens: Self.sampleTokens)
         }
+
+        #expect(keychainRepository.receivedMessages == [.insert(expectedData), .update(expectedData)])
     }
 
     @Test
@@ -112,11 +142,15 @@ struct KeychainSessionTokensRepositoryTests {
     func deletePropagatesKeychainFailure() async throws {
         let deleteFailsKeychainError = KeychainRepositoryError.deleteFailed(status: .any)
 
-        let sut = makeSUT(keychainRepository: StubKeychainRepository(deleteResult: .failure(deleteFailsKeychainError)))
+        let keychainRepository = SpyKeychainRepository()
+        keychainRepository.deleteResult = Result.failure(deleteFailsKeychainError)
+        let sut = makeSUT(keychainRepository: keychainRepository)
 
         await #expect(throws: SessionTokensRepositoryError.keychainFailure(deleteFailsKeychainError)) {
             try await sut.delete()
         }
+
+        #expect(keychainRepository.receivedMessages == [.delete])
     }
 }
 

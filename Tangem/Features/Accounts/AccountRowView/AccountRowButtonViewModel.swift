@@ -18,6 +18,7 @@ final class AccountRowButtonViewModel: Identifiable, ObservableObject {
     // MARK: - View State
 
     let id: AnyHashable
+    let badge: String?
 
     @Published private(set) var name: String
     @Published private(set) var iconData: AccountIconView.ViewData
@@ -26,7 +27,6 @@ final class AccountRowButtonViewModel: Identifiable, ObservableObject {
     @Published private(set) var isBalanceUnavailable = false
 
     let isDisabled: Bool
-    let nameBadge: String?
 
     // MARK: - Private Properties
 
@@ -41,15 +41,14 @@ final class AccountRowButtonViewModel: Identifiable, ObservableObject {
     init(
         accountModel: any BaseAccountModel,
         availability: AccountAvailability = .available,
-        nameBadge: String? = nil,
         onTap: @escaping () -> Void
     ) {
         self.accountModel = accountModel
         self.availability = availability
-        self.nameBadge = nameBadge
         self.onTap = onTap
 
         id = accountModel.id.toAnyHashable()
+        badge = accountModel.resolve(using: BadgeResolver())
         name = accountModel.name
         iconData = AccountModelUtils.UI.iconViewData(accountModel: accountModel)
         isDisabled = availability != .available
@@ -113,6 +112,22 @@ extension AccountRowButtonViewModel {
         case balanceOnly(LoadableBalanceView.State)
         case unavailableWithReason(String)
         case none
+    }
+}
+
+// MARK: - BadgeResolver
+
+private extension AccountRowButtonViewModel {
+    struct BadgeResolver: AccountModelResolving {
+        func resolve(accountModel: any StandardCryptoAccountModel) -> String? { nil }
+
+        func resolve(accountModel: any JointAccountModel) -> String? { Localization.commonJoint }
+
+        func resolve(accountModel: any TangemPayAccountModel) -> String? { nil }
+
+        func resolve(accountModel: any PolymarketAccountModel) -> String? { nil }
+
+        func resolve(accountModel: any CollectiblesAccountModel) -> String? { nil }
     }
 }
 

@@ -17,7 +17,7 @@ struct CommonYieldModePromoPositionsProvider: YieldModePromoPositionsProvider {
     let userWalletModel: any UserWalletModel
 
     var positionsPublisher: AnyPublisher<[YieldModePromoPosition], Never> {
-        AccountWalletModelsAggregator.walletModelsPublisher(from: userWalletModel.accountModelsManager)
+        AccountWalletModelsAggregator.walletModelsPublisher(from: userWalletModel.accountModelsManager, accountScope: .personal)
             .flatMapLatest { walletModels -> AnyPublisher<[YieldModePromoPosition], Never> in
                 let positionPublishers = walletModels.compactMap(Self.positionPublisher(for:))
 

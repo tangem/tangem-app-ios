@@ -15,54 +15,69 @@ struct JointAccountMembersViewSlotView: View {
     @ObservedObject var viewModel: JointAccountMembersViewSlotViewModel
 
     var body: some View {
-        Row(title: viewModel.content.title, subtitle: viewModel.content.subtitle)
-            .start { avatarView }
+        ZStack {
+            row
+                .id(viewModel.contentKey)
+                .transition(.blurSwap)
+        }
+    }
+
+    private var row: some View {
+        Row(title: viewModel.title, subtitle: viewModel.subtitle.text)
+            .subtitleAccessory { subtitleIcon }
+            .start { JointAccountMemberIconView(viewData: viewModel.icon, diameter: Constants.avatarDiameter) }
             .end { endView }
+            .overrideTextColors(RowOverrideTextColors(subtitle: subtitleColor))
             .onTap(action: viewModel.isTappable ? viewModel.onTap : nil)
             .background(DesignSystem.Color.bgSecondary)
             .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
     }
 
     @ViewBuilder
-    private var avatarView: some View {
-        switch viewModel.content.avatar {
-        case .member(let viewData):
-            AddressBookContactNameIconView(viewData: viewData, size: Constants.avatarDiameter)
-        case .vacant:
-            JointAccountMemberCircle(state: .vacant, diameter: Constants.avatarDiameter)
+    private var subtitleIcon: some View {
+        switch viewModel.subtitle {
+        case .plain:
+            EmptyView()
+        case .expiry:
+            DesignSystem.Icons.Clock.regular12.image
+                .renderingMode(.template)
+                .foregroundStyle(DesignSystem.Color.iconStatusWarning)
+        }
+    }
+
+    private var subtitleColor: Color? {
+        switch viewModel.subtitle {
+        case .plain: nil
+        case .expiry: DesignSystem.Color.textStatusWarning
         }
     }
 
     @ViewBuilder
     private var endView: some View {
-        if let status = viewModel.content.status {
-            statusBadge(status)
-        }
-
-        switch viewModel.content.accessory {
+        switch viewModel.accessory {
         case .empty:
             EmptyView()
-        case .invite:
-            TangemUI.Button(
-                label: Localization.jointAccountInviteMembersInvite,
-                accessibilityLabel: nil,
-                action: viewModel.onInviteTap
-            )
-            .styleType(.secondary(.default))
-            .size(.x8)
-        }
-    }
-
-    @ViewBuilder
-    private func statusBadge(_ status: JointAccountMembersViewSlotViewModel.Status) -> some View {
-        switch status {
         case .joined:
             Badge(label: Localization.jointAccountMembersRoleJoined, accessibilityLabel: nil)
                 .appearance(.info)
+        case .confirmed:
+            Badge(label: Localization.jointAccountMembersStatusConfirmed, accessibilityLabel: nil)
+                .appearance(.success)
         case .notConfirmed:
             Badge(label: Localization.jointAccountMembersStatusNotConfirmed, accessibilityLabel: nil)
                 .appearance(.neutral)
+        case .invite:
+            inviteButton(title: Localization.jointAccountInviteMembersInvite)
+        case .reInvite:
+            inviteButton(title: Localization.jointAccountInviteMembersReInvite)
         }
+    }
+
+    private func inviteButton(title: String) -> some View {
+        TangemUI.Button(label: title, accessibilityLabel: nil, action: viewModel.onInviteTap)
+            .styleType(.secondary(.default))
+            .size(.x8)
+            .loading(.spinner(if: viewModel.isLoading))
     }
 }
 

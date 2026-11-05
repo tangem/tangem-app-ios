@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 import TangemSdk
 import TangemFoundation
 import TangemCollectibles
@@ -18,6 +19,8 @@ extension CollectiblesAccountModelsRegistry {
         let balanceService: any CollectiblesBalanceService
         let buybackSigningLimits: any CollectiblesBuybackSigningLimits
         let accountListWriter: AccountListWriter
+        let coldOwnerNetwork: BlockchainNetwork
+        let keysPublisher: AnyPublisher<[KeyInfo], Never>
     }
 
     struct DependenciesFactory {
@@ -84,7 +87,9 @@ extension CollectiblesAccountModelsRegistry {
                 manager: manager,
                 balanceService: balanceService,
                 buybackSigningLimits: buybackSigningLimits,
-                accountListWriter: AccountListWriter(cryptoAccountsRepository: cryptoAccountsRepository)
+                accountListWriter: AccountListWriter(cryptoAccountsRepository: cryptoAccountsRepository),
+                coldOwnerNetwork: CollectiblesAccountKeyPath.blockchainNetwork(for: derivationStyle),
+                keysPublisher: keysRepository.keysPublisher
             )
         }
     }

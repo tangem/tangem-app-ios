@@ -85,6 +85,11 @@ final class MainScreenPromoSheetProvider {
             return
         }
 
+        if host?.isSurfaceBusy == true {
+            manager.logSkipped(.surfaceBusy)
+            return
+        }
+
         guard let appearancePublisher = manager.presentSheet(experimentVariant: experimentService.variant(manager.experimentKey)?.value) else {
             return
         }

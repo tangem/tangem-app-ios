@@ -138,22 +138,67 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
         #expect(provider.loadCallsCount == 0)
     }
 
-    @Test("A pack can't be opened while the account has to be relinked")
-    func relinkLocksOpening() async {
-        let sut = makeSUT(relinkStatusProvider: RelinkStatusProviderStub())
+    @Test("A pack can't be opened while its purchase is locked", arguments: [true, false])
+    func lockedPurchaseLocksOpening(isPurchaseLocked: Bool) {
+        let sut = makeSUT(isPurchaseLocked: { isPurchaseLocked })
 
-        await waitUntil { sut.isRelinkRequired }
+        #expect(sut.isOpenLocked == isPurchaseLocked)
+    }
+
+    @Test("The open button follows the purchase lock once the relink status changes")
+    func relinkStatusChangeUpdatesOpening() async {
+        var isPurchaseLocked = false
+        let relinkStatusProvider = RelinkStatusProviderStub()
+        let sut = makeSUT(relinkStatusProvider: relinkStatusProvider, isPurchaseLocked: { isPurchaseLocked })
+
+        isPurchaseLocked = true
+        relinkStatusProvider.isRelinkRequiredSubject.send(true)
+        _ = await sut.$isOpenLocked.values.first { $0 }
 
         #expect(sut.isOpenLocked)
     }
 
-    @Test("A pack with an unfinished purchase can still be opened while the account has to be relinked")
-    func unfinishedPurchaseKeepsOpeningAvailable() async {
-        let sut = makeSUT(relinkStatusProvider: RelinkStatusProviderStub(), hasUnfinishedPurchase: { true })
+    @Test("Appearing again picks up a purchase lock that changed while the screen was covered")
+    func appearingUpdatesOpening() async {
+        var isPurchaseLocked = false
+        let sut = makeSUT(isPurchaseLocked: { isPurchaseLocked })
 
-        await waitUntil { sut.isRelinkRequired }
+        isPurchaseLocked = true
+        sut.onWillAppear()
 
-        #expect(!sut.isOpenLocked)
+        #expect(sut.isOpenLocked)
+        await stopPolling(sut)
+    }
+
+    @Test("Opening the pack screen checks again whether the account has to be relinked")
+    func openingRechecksRelink() async {
+        let relinkStatusProvider = RelinkStatusProviderStub()
+        let sut = makeSUT(relinkStatusProvider: relinkStatusProvider)
+        var refreshes = relinkStatusProvider.refreshes.makeAsyncIterator()
+
+        sut.onWillAppear()
+        await refreshes.next()
+        await stopPolling(sut)
+
+        #expect(relinkStatusProvider.refreshesCount == 1)
+    }
+
+    @Test("Returning to the foreground on the pack screen checks the relink again")
+    func foregroundRechecksRelink() async {
+        let notificationCenter = ObservedNotificationCenter()
+        let relinkStatusProvider = RelinkStatusProviderStub()
+        let sut = makeSUT(relinkStatusProvider: relinkStatusProvider, notificationCenter: notificationCenter)
+        var refreshes = relinkStatusProvider.refreshes.makeAsyncIterator()
+
+        sut.onWillAppear()
+        await refreshes.next()
+        await notificationCenter.observation(of: .willEnterForeground)
+
+        notificationCenter.post(.willEnterForeground)
+        await refreshes.next()
+        await stopPolling(sut)
+
+        #expect(relinkStatusProvider.refreshesCount == 2)
     }
 }
 
@@ -163,7 +208,7 @@ private extension CollectiblesMachineViewModelTests {
     func makeSUT(
         provider: (any CollectiblesMachineProvider)? = nil,
         relinkStatusProvider: (any CollectiblesRelinkStatusProvider)? = nil,
-        hasUnfinishedPurchase: @escaping @MainActor () -> Bool = { false },
+        isPurchaseLocked: @escaping @MainActor () -> Bool = { false },
         pollInterval: Duration = .seconds(60),
         notificationCenter: NotificationCenter = NotificationCenter()
     ) -> SUT {
@@ -172,7 +217,7 @@ private extension CollectiblesMachineViewModelTests {
             routable: nil,
             prizePoolProvider: PrizePoolProviderStub(),
             relinkStatusProvider: relinkStatusProvider,
-            hasUnfinishedPurchase: hasUnfinishedPurchase,
+            isPurchaseLocked: isPurchaseLocked,
             provider: provider ?? MachineProviderStub(results: [.success(Self.machine())]),
             pollInterval: pollInterval,
             notificationCenter: notificationCenter
@@ -232,8 +277,25 @@ private extension CollectiblesMachineViewModelTests {
 // MARK: - Stubs
 
 private final class RelinkStatusProviderStub: CollectiblesRelinkStatusProvider {
-    var isRelinkRequiredPublisher: AnyPublisher<Bool, Never> { Just(true).eraseToAnyPublisher() }
+    let isRelinkRequiredSubject = CurrentValueSubject<Bool, Never>(false)
+    let refreshes: AsyncStream<Void>
+
+    private let refreshesContinuation: AsyncStream<Void>.Continuation
+    private let refreshesCounter = OSAllocatedUnfairLock(initialState: 0)
+
+    var refreshesCount: Int { refreshesCounter.withLock { $0 } }
+
+    var isRelinkRequiredPublisher: AnyPublisher<Bool, Never> { isRelinkRequiredSubject.eraseToAnyPublisher() }
     var isRelinkingPublisher: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
+
+    init() {
+        (refreshes, refreshesContinuation) = AsyncStream<Void>.makeStream()
+    }
+
+    func refreshStateSilently() async {
+        refreshesCounter.withLock { $0 += 1 }
+        refreshesContinuation.yield()
+    }
 }
 
 /// The pool is not under test here, an empty page keeps its view model quiet.
@@ -263,10 +325,32 @@ private final class MachineProviderStub: CollectiblesMachineProvider {
 }
 
 private final class ObservedNotificationCenter: NotificationCenter, @unchecked Sendable {
-    private let observedNames = OSAllocatedUnfairLock(initialState: Set<Notification.Name>())
+    private struct State {
+        var observedNames: Set<Notification.Name> = []
+        var waiters: [(name: Notification.Name, continuation: CheckedContinuation<Void, Never>)] = []
+    }
+
+    private let state = OSAllocatedUnfairLock(initialState: State())
 
     func isObserving(_ events: AppEvent...) -> Bool {
-        observedNames.withLock { $0.isSuperset(of: events.map(\.name)) }
+        state.withLock { $0.observedNames.isSuperset(of: events.map(\.name)) }
+    }
+
+    func observation(of event: AppEvent) async {
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            let isObserved = state.withLock { state -> Bool in
+                guard !state.observedNames.contains(event.name) else {
+                    return true
+                }
+
+                state.waiters.append((name: event.name, continuation: continuation))
+                return false
+            }
+
+            if isObserved {
+                continuation.resume()
+            }
+        }
     }
 
     override func addObserver(
@@ -275,11 +359,22 @@ private final class ObservedNotificationCenter: NotificationCenter, @unchecked S
         queue: OperationQueue?,
         using block: @escaping @Sendable (Notification) -> Void
     ) -> any NSObjectProtocol {
-        if let name {
-            observedNames.withLock { _ = $0.insert(name) }
+        let observer = super.addObserver(forName: name, object: obj, queue: queue, using: block)
+
+        guard let name else {
+            return observer
         }
 
-        return super.addObserver(forName: name, object: obj, queue: queue, using: block)
+        let waiters = state.withLock { state -> [CheckedContinuation<Void, Never>] in
+            state.observedNames.insert(name)
+            let waiters = state.waiters.filter { $0.name == name }.map(\.continuation)
+            state.waiters.removeAll { $0.name == name }
+            return waiters
+        }
+
+        waiters.forEach { $0.resume() }
+
+        return observer
     }
 }
 

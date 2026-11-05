@@ -15,20 +15,20 @@ public struct MCPUserWallet: Equatable, Identifiable, Sendable {
     public let id: UserWalletId
     public let thumbnail: ThumbnailWalletViewType?
     public let name: String
-    public let numberOfCards: Int
+    public let isMobileWallet: Bool
     public let isLocked: Bool
 
     public init(
         id: UserWalletId,
         thumbnail: ThumbnailWalletViewType?,
         name: String,
-        numberOfCards: Int,
+        isMobileWallet: Bool,
         isLocked: Bool
     ) {
         self.id = id
         self.thumbnail = thumbnail
         self.name = name
-        self.numberOfCards = numberOfCards
+        self.isMobileWallet = isMobileWallet
         self.isLocked = isLocked
     }
 }

@@ -37,6 +37,24 @@ struct PolymarketApprovalsTests {
         #expect(Set(calls.map(\.data)).count == calls.count)
     }
 
+    @Test("An allowance and an operator approval encode the spender as a left-padded lowercase word")
+    func approvalCalldataMatchesTheVector() {
+        let calls = PolymarketApprovalCalls.make()
+
+        #expect(calls[0] == PolymarketRelayedBatch.Call(
+            target: "0xC011a7E12a19f7B1f670d46F03B03f3342E82DFB",
+            data: "0x095ea7b3"
+                + "0000000000000000000000004d97dcd97ec945f40cf65f87097ace5ea0476045"
+                + "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        ))
+        #expect(calls[2] == PolymarketRelayedBatch.Call(
+            target: "0x4D97DCd97eC945f40cF65F87097ACe5EA0476045",
+            data: "0xa22cb465"
+                + "000000000000000000000000e111180000d2663c0091e4f400237545b87b996b"
+                + "0000000000000000000000000000000000000000000000000000000000000001"
+        ))
+    }
+
     // MARK: - The digest the card signs
 
     @Test("The digest matches an independently computed vector", arguments: [
