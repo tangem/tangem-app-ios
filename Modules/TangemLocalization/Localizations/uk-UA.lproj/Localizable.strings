@@ -1308,6 +1308,8 @@
 "mcp_connection_request_agent_can" = "Цей агент зможе";
 "mcp_connection_request_can_view_balance" = "Переглядати баланси та активність";
 "mcp_connection_request_notifications_description" = "Ви отримуватимете сповіщення для підтвердження кожної транзакції. Без сповіщень агент не зможе підключитися.";
+"mcp_connection_request_wallet_needs_sync_description" = "Go back to the main wallet screen, sync your wallet, then try again";
+"mcp_connection_request_wallet_needs_sync_title" = "This wallet needs syncing";
 "mcp_connection_success_description" = "Тепер %@ може переглядати ваші баланси та запитувати підтвердження транзакцій. Відкликати доступ можна будь-коли в розділі «З’єднання».";
 "mcp_connection_success_title" = "Агента підключено";
 "mcp_intent_cant_reach_title" = "Can’t reach intent";
@@ -1782,6 +1784,7 @@
 "prediction_search_initial_subtitle" = "Search events or your predictions";
 "prediction_search_initial_title" = "Start typing to search";
 "prediction_search_results_title" = "Search results";
+"prediction_sports_draw" = "Draw";
 "prediction_withdraw_balance_unavailable" = "Couldn't load your prediction account balance. Refresh or reopen this screen.";
 "prediction_withdraw_confirm_fee_footer" = "No network fee is charged for this withdrawal. The amount you receive may differ slightly due to bridge conversion.";
 "prediction_withdraw_confirm_title" = "Confirm withdrawal";

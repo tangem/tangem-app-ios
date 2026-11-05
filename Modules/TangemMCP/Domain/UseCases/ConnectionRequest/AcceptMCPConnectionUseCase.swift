@@ -8,6 +8,11 @@
 
 import struct TangemFoundation.UserWalletId
 
+typealias AcceptMCPConnection = @Sendable (
+    _ request: MCPConnectionRequest,
+    _ userWalletID: UserWalletId
+) async throws(MCPConnectionClientError) -> Void
+
 struct AcceptMCPConnectionUseCase: Sendable {
     let client: any MCPConnectionClient
 

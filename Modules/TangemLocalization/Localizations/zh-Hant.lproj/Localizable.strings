@@ -1308,6 +1308,8 @@
 "mcp_connection_request_agent_can" = "This agent will be able to";
 "mcp_connection_request_can_view_balance" = "View balances and activity";
 "mcp_connection_request_notifications_description" = "You'll get a notification to approve each transaction. Without notifications, the agent can't connect.";
+"mcp_connection_request_wallet_needs_sync_description" = "Go back to the main wallet screen, sync your wallet, then try again";
+"mcp_connection_request_wallet_needs_sync_title" = "This wallet needs syncing";
 "mcp_connection_success_description" = "%@ can now view your balances and request transaction approvals. Revoke access anytime in Connections.";
 "mcp_connection_success_title" = "Agent connected";
 "mcp_intent_cant_reach_title" = "Can’t reach intent";
@@ -1782,6 +1784,7 @@
 "prediction_search_initial_subtitle" = "搜尋事件或您的預測";
 "prediction_search_initial_title" = "輸入關鍵字開始搜尋";
 "prediction_search_results_title" = "搜尋結果";
+"prediction_sports_draw" = "Draw";
 "prediction_withdraw_balance_unavailable" = "無法載入您的預測帳戶餘額。請重新整理或重新開啟此頁面。";
 "prediction_withdraw_confirm_fee_footer" = "本次提現不收取網路費。由於跨鏈橋轉換，您實際收到的金額可能會略有差異。";
 "prediction_withdraw_confirm_title" = "確認提現";

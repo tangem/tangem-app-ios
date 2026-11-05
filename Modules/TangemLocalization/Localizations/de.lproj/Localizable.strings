@@ -1308,6 +1308,8 @@
 "mcp_connection_request_agent_can" = "Dieser Mitarbeiter wird in der Lage sein,";
 "mcp_connection_request_can_view_balance" = "Guthaben und Transaktionen anzeigen";
 "mcp_connection_request_notifications_description" = "Sie erhalten eine Benachrichtigung, um jede Transaktion zu genehmigen. Ohne Benachrichtigungen kann der Agent keine Verbindung herstellen.";
+"mcp_connection_request_wallet_needs_sync_description" = "Go back to the main wallet screen, sync your wallet, then try again";
+"mcp_connection_request_wallet_needs_sync_title" = "This wallet needs syncing";
 "mcp_connection_success_description" = "%@ Sie können nun Ihre Kontostände einsehen und die Genehmigung von Transaktionen beantragen. Den Zugriff können Sie jederzeit in Connections widerrufen.";
 "mcp_connection_success_title" = "Agent verbunden";
 "mcp_intent_cant_reach_title" = "Absicht kann nicht ermittelt werden";
@@ -1782,6 +1784,7 @@
 "prediction_search_initial_subtitle" = "Veranstaltungen oder deine Vorhersagen suchen";
 "prediction_search_initial_title" = "Beginnen Sie mit der Eingabe, um zu suchen";
 "prediction_search_results_title" = "Suchergebnisse";
+"prediction_sports_draw" = "Draw";
 "prediction_withdraw_balance_unavailable" = "Der Saldo Ihres Prognosekontos konnte nicht geladen werden. Bitte aktualisieren Sie die Seite oder öffnen Sie diesen Bildschirm erneut.";
 "prediction_withdraw_confirm_fee_footer" = "Für diese Auszahlung fällt keine Netzwerkgebühr an. Der Betrag, den Sie erhalten, kann aufgrund der Währungsumrechnung geringfügig abweichen.";
 "prediction_withdraw_confirm_title" = "Auszahlung bestätigen";

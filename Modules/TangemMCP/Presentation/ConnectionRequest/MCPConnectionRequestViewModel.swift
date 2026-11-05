@@ -16,6 +16,7 @@ public final class MCPConnectionRequestViewModel: ObservableObject, FloatingShee
     private let userWallets: [MCPUserWallet]
     private let userWalletImageRepository: MCPUserWalletImageRepository
     private let userWalletBalanceUpdater: (MCPUserWallet.ID) -> AsyncStream<String>
+    private let retrieveUserWalletRegistrationStatus: RetrieveUserWalletRegistrationStatus
     private let delegate: Delegate
 
     private let analyticsReporter: any MCPAuthorizationAnalyticsReporter
@@ -24,10 +25,13 @@ public final class MCPConnectionRequestViewModel: ObservableObject, FloatingShee
     private let proposalViewModel: MCPConnectionRequestProposalViewModel
 
     private lazy var userWalletSelectorViewModel: MCPConnectionRequestUserWalletSelectorViewModel = make()
-    private static let userWalletSelectorAutoCloseDelay = Duration.seconds(1)
-    private var userWalletSelectorAutoCloseTask: Task<Void, any Error>?
+    private var userWalletSelectionTask: Task<Void, Never>?
 
     private var pushPermissionsCancellable: AnyCancellable?
+
+    var isPushPermissionsBannerVisible: Bool {
+        proposalViewModel.state.pushPermissionsBanner != nil
+    }
 
     @Published private(set) var state: MCPConnectionRequestState
 
@@ -45,6 +49,7 @@ public final class MCPConnectionRequestViewModel: ObservableObject, FloatingShee
         self.userWallets = userWallets
         self.userWalletImageRepository = userWalletImageRepository
         self.userWalletBalanceUpdater = userWalletBalanceUpdater
+        retrieveUserWalletRegistrationStatus = interactor.retrieveUserWalletRegistrationStatus
 
         self.delegate = delegate
         self.analyticsReporter = analyticsReporter
@@ -74,6 +79,9 @@ public final class MCPConnectionRequestViewModel: ObservableObject, FloatingShee
                 openSystemSettingsButtonTapped: {
                     futureSelf?.handle(action: .openSystemSettingsButtonTapped)
                 },
+                unregisteredUserWalletSelected: {
+                    futureSelf?.handle(action: .unregisteredUserWalletSelected)
+                },
                 connectionRejected: { rejectResult in
                     futureSelf?.handle(action: .agentConnectionRejected(rejectResult))
                 },
@@ -89,13 +97,12 @@ public final class MCPConnectionRequestViewModel: ObservableObject, FloatingShee
 
         futureSelf = self
 
-        pushPermissionsCancellable = proposalViewModel.$state.map(\.pushPermissionsBanner).sink { [weak self] _ in
-            self?.objectWillChange.send()
-        }
-    }
-
-    deinit {
-        userWalletSelectorAutoCloseTask?.cancel()
+        pushPermissionsCancellable = proposalViewModel.$state
+            .map(\.pushPermissionsBanner)
+            .removeDuplicates()
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
     }
 }
 
@@ -110,7 +117,6 @@ extension MCPConnectionRequestViewModel {
                 assertionFailure("MCPConnectionRequestAction.backButtonTapped sent from unexpected state. Developer mistake.")
                 return
             }
-            userWalletSelectorAutoCloseTask?.cancel()
             state = .proposal(proposalViewModel)
 
         case .navigationCloseButtonTapped:
@@ -122,12 +128,14 @@ extension MCPConnectionRequestViewModel {
         case .userWalletSelectorTapped:
             state = .userWalletSelector(userWalletSelectorViewModel)
 
+        case .userWalletSelectionRequested(let userWallet):
+            handleUserWalletSelectionRequested(userWallet)
+
         case .userWalletSelectionUpdated(let selectedUserWallet):
             handleUserWalletSelectionUpdated(selectedUserWallet)
 
-        case .userWalletSelectorAutoCloseDelayElapsed:
-            guard case .userWalletSelector = state else { return }
-            state = .proposal(proposalViewModel)
+        case .unregisteredUserWalletSelected:
+            delegate.unregisteredUserWalletSelected()
 
         case .fetchRequestFailed(let error):
             analyticsReporter.reportAuthorizationFailed(errorCode: error.errorCode)
@@ -145,6 +153,10 @@ extension MCPConnectionRequestViewModel {
     private func handleNavigationCloseButtonTapped() {
         switch state {
         case .proposal, .userWalletSelector:
+            if proposalViewModel.isAcceptingConnection {
+                delegate.proposalAccepted(proposalViewModel.state.userWalletSelector.selection.id)
+            }
+
             proposalViewModel.handle(action: .navigationCloseButtonTapped)
 
         case .agentConnected:
@@ -154,17 +166,23 @@ extension MCPConnectionRequestViewModel {
         delegate.closeButtonTapped()
     }
 
-    private func handleUserWalletSelectionUpdated(_ selectedUserWallet: MCPUserWallet) {
-        let selectionChanged = proposalViewModel.state.userWalletSelector.selection != selectedUserWallet
-        proposalViewModel.handle(action: .userWalletSelectionUpdated(selectedUserWallet))
+    private func handleUserWalletSelectionRequested(_ userWallet: MCPUserWallet) {
+        userWalletSelectionTask?.cancel()
+        userWalletSelectionTask = Task { [weak self, retrieveUserWalletRegistrationStatus] in
+            let isRegistered = await retrieveUserWalletRegistrationStatus(userWallet.id)
 
-        let sleepDuration = selectionChanged ? Self.userWalletSelectorAutoCloseDelay : Duration.zero
+            guard !Task.isCancelled else { return }
 
-        userWalletSelectorAutoCloseTask?.cancel()
-        userWalletSelectorAutoCloseTask = Task { [weak self] in
-            try await Task.sleep(for: sleepDuration)
-            self?.handle(action: .userWalletSelectorAutoCloseDelayElapsed)
+            self?.handle(action: isRegistered ? .userWalletSelectionUpdated(userWallet) : .unregisteredUserWalletSelected)
         }
+    }
+
+    private func handleUserWalletSelectionUpdated(_ selectedUserWallet: MCPUserWallet) {
+        proposalViewModel.handle(action: .userWalletSelectionUpdated(selectedUserWallet))
+        userWalletSelectorViewModel.handle(action: .selectionUpdated(selectedUserWallet.id))
+
+        guard case .userWalletSelector = state else { return }
+        state = .proposal(proposalViewModel)
     }
 
     private func handle(rejectResult: Result<Void, MCPConnectionClientError>) {
@@ -205,8 +223,8 @@ extension MCPConnectionRequestViewModel {
             selectedUserWalletID: proposalViewModel.state.userWalletSelector.selection.id,
             userWalletImageRepository: userWalletImageRepository,
             balanceUpdater: userWalletBalanceUpdater,
-            selectionChanged: { [weak self] selectedUserWallet in
-                self?.handle(action: .userWalletSelectionUpdated(selectedUserWallet))
+            selectionRequested: { [weak self] userWallet in
+                self?.handle(action: .userWalletSelectionRequested(userWallet))
             }
         )
     }
@@ -216,6 +234,7 @@ extension MCPConnectionRequestViewModel {
     struct Delegate {
         let closeButtonTapped: () -> Void
         let openSystemSettingsButtonTapped: () -> Void
+        let unregisteredUserWalletSelected: () -> Void
         let fetchRequestErrorOccurred: (MCPConnectionClientError) -> Void
         let proposalRejected: (Result<Void, MCPConnectionClientError>) -> Void
         let proposalAccepted: (UserWalletId) -> Void
