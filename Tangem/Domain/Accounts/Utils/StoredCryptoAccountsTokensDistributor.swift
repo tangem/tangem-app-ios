@@ -268,7 +268,7 @@ enum StoredCryptoAccountsTokensDistributor {
                 // A joint account's path is read by the scheme of the wallet's own accounts as naming the account of
                 // that very number, since the two keep their number at the same node on the EVM networks. Such a token
                 // belongs to no account of ours, and is left wherever it is rather than filed by a number it never named
-                guard derivationPath != JointAccountKeyPath.derivationPath(forAccountAtIndex: tokenAccountDerivationIndex) else {
+                guard derivationPath != (try? JointAccountKeyPath.derivationPath(forAccountAtIndex: tokenAccountDerivationIndex)) else {
                     return nil
                 }
 
@@ -280,6 +280,8 @@ enum StoredCryptoAccountsTokensDistributor {
                      .accountsUnavailableForBlockchain:
                     // Both of these errors must be unconditionally fallback to the Main account since only the
                     // Main account can handle malformed derivation paths and/or blockchains w/o accounts support
+                    return AccountModelUtils.mainAccountDerivationIndex
+                case .invalidAccountIndex:
                     return AccountModelUtils.mainAccountDerivationIndex
                 }
             }

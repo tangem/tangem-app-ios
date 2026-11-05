@@ -205,10 +205,11 @@ struct StoredCryptoAccountsTokensDistributorTests {
             // The account the joint path would be filed under, were it read by the scheme of the wallet's own accounts
             Fixtures.account(name: "Savings", index: 1),
         ]
+        let jointToken = try Fixtures.jointToken("eth", accountIndex: 1)
 
         let result = StoredCryptoAccountsTokensDistributor.distributeTokens(
             in: &accounts,
-            additionalTokens: [Fixtures.jointToken("eth", accountIndex: 1)]
+            additionalTokens: [jointToken]
         )
 
         #expect(accounts[0].tokens.isEmpty)
@@ -268,8 +269,8 @@ private extension StoredCryptoAccountsTokensDistributorTests {
         }
 
         /// A token derived where a joint account holds everything of an EVM network.
-        static func jointToken(_ name: String, accountIndex: Int) -> StoredCryptoAccount.Token {
-            makeToken(name, blockchainNetwork: .known(blockchainNetwork: .init(
+        static func jointToken(_ name: String, accountIndex: Int) throws -> StoredCryptoAccount.Token {
+            try makeToken(name, blockchainNetwork: .known(blockchainNetwork: .init(
                 blockchain: .ethereum(testnet: false),
                 derivationPath: JointAccountKeyPath.derivationPath(forAccountAtIndex: accountIndex),
                 settings: nil

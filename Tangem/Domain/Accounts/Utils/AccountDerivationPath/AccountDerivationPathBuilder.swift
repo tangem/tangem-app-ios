@@ -55,6 +55,7 @@ enum AccountDerivationPathError: Swift.Error, LocalizedError, Equatable {
     case accountDerivationNodeMismatch(expected: UInt32, actual: UInt32)
     case derivationNotSupported(_ blockchain: String)
     case derivationPathNotFound
+    case invalidDerivationIndex(Int)
 
     /// The wallet's own accounts are derived by `AccountDerivationPathHelper`, which answers in its own terms.
     init(_ error: AccountDerivationPathHelper.Error) {
@@ -63,6 +64,8 @@ enum AccountDerivationPathError: Swift.Error, LocalizedError, Equatable {
             self = .insufficientNodes(required: required, actual: actual, blockchain: blockchain)
         case .accountsUnavailableForBlockchain(let blockchain):
             self = .accountsUnavailableForBlockchain(blockchain)
+        case .invalidAccountIndex(let index):
+            self = .invalidDerivationIndex(index)
         }
     }
 
@@ -82,6 +85,8 @@ enum AccountDerivationPathError: Swift.Error, LocalizedError, Equatable {
             return "Blockchain \(blockchain) does not support deriving anything but its default path."
         case .derivationPathNotFound:
             return "The token brings no derivation path, and the account cannot place it without one."
+        case .invalidDerivationIndex(let index):
+            return "Derivation index \(index) does not fit a derivation node."
         }
     }
 }

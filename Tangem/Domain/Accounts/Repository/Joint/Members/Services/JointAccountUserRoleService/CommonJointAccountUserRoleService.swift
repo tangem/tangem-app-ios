@@ -12,7 +12,7 @@ import TangemSdk
 
 struct CommonJointAccountUserRoleService {
     private let cryptoAccountId: String
-    private let derivationPath: DerivationPath
+    private let derivationIndex: Int
     private let keysProvider: KeysProvider
     private let jointAccountsRepository: JointAccountsRepository
 
@@ -23,7 +23,7 @@ struct CommonJointAccountUserRoleService {
         jointAccountsRepository: JointAccountsRepository
     ) {
         cryptoAccountId = CryptoAccountModelId(userWalletId: userWalletId, derivationIdentity: derivationIdentity).rawValue.hexString
-        derivationPath = JointAccountKeyPath.derivationPath(forAccountAtIndex: derivationIdentity.derivationIndex)
+        derivationIndex = derivationIdentity.derivationIndex
         self.keysProvider = keysProvider
         self.jointAccountsRepository = jointAccountsRepository
     }
@@ -44,13 +44,14 @@ extension CommonJointAccountUserRoleService: JointAccountUserRoleService {
             return try isMe(member: creator)
         } catch {
             // [REDACTED_TODO_COMMENT]
-            JointAccountsLogger.warning("This wallet's key of the joint account at \(derivationPath.rawPath) is not derived, so its own address is unknown")
+            JointAccountsLogger.warning("This wallet's key of the joint account at index \(derivationIndex) is not derived, so its own address is unknown")
             throw error
         }
     }
 
     func ownAddress() throws(JointAccountUserRoleServiceError) -> String {
         do {
+            let derivationPath = try JointAccountKeyPath.derivationPath(forAccountAtIndex: derivationIndex)
             return try JointAccountDerivationUtils.storedDerivedKey(at: derivationPath, in: keysProvider).address
         } catch JointAccountDerivationUtils.Error.keyNotStored {
             throw .derivationNeeded

@@ -342,7 +342,8 @@ private extension CommonUserWalletModelDependencies {
             cryptoAccountModelsRegistry: cryptoAccountModelsRegistry,
             jointAccountModelsRegistry: jointAccountModelsRegistry,
             collectiblesAccountModelsRegistry: collectiblesAccountModelsRegistry,
-            areHDWalletsSupported: areHDWalletsSupported
+            areHDWalletsSupported: areHDWalletsSupported,
+            isJointAccountsAvailable: FeatureProvider.isAvailable(.jointAccounts)
         )
 
         return accountModelsManager

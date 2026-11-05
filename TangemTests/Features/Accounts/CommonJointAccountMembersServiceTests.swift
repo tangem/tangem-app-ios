@@ -178,7 +178,7 @@ struct CommonJointAccountMembersServiceTests {
     @Test("The slot the wallet holds is marked as its own, and a free slot then takes its invite")
     func ownSlotIsLookedForAmongTheAccountsMembers() async throws {
         let own = JointAccountMember(name: "Me", address: Self.derivedAddress, role: .creator, isMe: false, signature: nil)
-        let sut = Self.makeSUT(membersCount: 3, members: [own, Self.member], storedKeyPath: Self.ownPath)
+        let sut = try Self.makeSUT(membersCount: 3, members: [own, Self.member], storedKeyPath: Self.ownPath)
 
         let slots = try await sut.slotsPublisher.async()
 
@@ -188,7 +188,7 @@ struct CommonJointAccountMembersServiceTests {
 
     @Test("A composition this wallet holds no slot of marks no slot as its own and takes no invite")
     func ownSlotIsAbsentFromAForeignComposition() async throws {
-        let sut = Self.makeSUT(membersCount: 2, members: [Self.creator], storedKeyPath: Self.ownPath)
+        let sut = try Self.makeSUT(membersCount: 2, members: [Self.creator], storedKeyPath: Self.ownPath)
 
         let slots = try await sut.slotsPublisher.async()
 
@@ -261,7 +261,9 @@ private extension CommonJointAccountMembersServiceTests {
     static let derivedAddress = "0x6ECa00c52AFC728CDbF42E817d712e175bb23C7d"
 
     static var ownPath: DerivationPath {
-        JointAccountKeyPath.derivationPath(forAccountAtIndex: JointAccountCompositionFixture.derivationIdentity.derivationIndex)
+        get throws {
+            try JointAccountKeyPath.derivationPath(forAccountAtIndex: JointAccountCompositionFixture.derivationIdentity.derivationIndex)
+        }
     }
 
     static func makeSUT(

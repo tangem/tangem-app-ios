@@ -91,7 +91,7 @@ extension CryptoAccountDerivationPathBuilder: AccountDerivationPathBuilder {
         }
 
         let accountDerivationNode = try accountDerivationNode(in: derivationPath, forBlockchain: blockchain)
-        let expectedDerivationIndex = UInt32(derivationIndex)
+        let expectedDerivationIndex = try rawDerivationIndex()
 
         guard accountDerivationNode.rawIndex == expectedDerivationIndex else {
             throw .accountDerivationNodeMismatch(expected: expectedDerivationIndex, actual: accountDerivationNode.rawIndex)
@@ -104,6 +104,14 @@ extension CryptoAccountDerivationPathBuilder: AccountDerivationPathBuilder {
 private extension CryptoAccountDerivationPathBuilder {
     func defaultDerivationPath(forBlockchain blockchain: Blockchain) -> DerivationPath? {
         derivationStyle.flatMap { blockchain.derivationPath(for: $0) }
+    }
+
+    func rawDerivationIndex() throws(AccountDerivationPathError) -> UInt32 {
+        do {
+            return try AccountDerivationIndex.nodeIndex(derivationIndex)
+        } catch {
+            throw .invalidDerivationIndex(derivationIndex)
+        }
     }
 
     func correctAccountDerivationNode(

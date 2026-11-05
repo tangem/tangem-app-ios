@@ -31,7 +31,13 @@ struct AccountDerivationPathHelper {
     }
 
     func makeDerivationPath(from derivationPath: DerivationPath, forAccountWithIndex accountIndex: Int) throws(Error) -> DerivationPath {
-        let rawAccountIndex = UInt32(accountIndex)
+        let rawAccountIndex: UInt32
+        do {
+            rawAccountIndex = try AccountDerivationIndex.nodeIndex(accountIndex)
+        } catch {
+            throw .invalidAccountIndex(accountIndex)
+        }
+
         let accountDerivationNodeIndex = try accountDerivationNodeIndex(for: derivationPath)
         var nodes = derivationPath.nodes
 
@@ -198,6 +204,7 @@ extension AccountDerivationPathHelper {
     enum Error: Swift.Error, LocalizedError {
         case insufficientNodes(required: Int, actual: Int, blockchain: String)
         case accountsUnavailableForBlockchain(_ blockchain: String)
+        case invalidAccountIndex(Int)
 
         var errorDescription: String? {
             switch self {
@@ -205,6 +212,8 @@ extension AccountDerivationPathHelper {
                 return "Derivation path for \(blockchain) has insufficient nodes: expected at least \(required), got \(actual)"
             case .accountsUnavailableForBlockchain(let blockchain):
                 return "Blockchain \(blockchain) does not support custom derivation paths and accounts."
+            case .invalidAccountIndex(let index):
+                return "Account index \(index) does not fit a derivation node."
             }
         }
     }
