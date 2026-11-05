@@ -28,6 +28,12 @@ final class CommonTangemApiService {
         )
     )
 
+    /// Raw data comes from third-party hosts, so it gets no Tangem headers and no interceptor.
+    private let rawDataProvider = TangemProvider<RawDataTarget>(
+        configuration: TangemProviderConfiguration(logOptions: .verbose),
+        additionalPlugins: [TangemNetworkAnalyticsPlugin()]
+    )
+
     private static func makeProvider(requestInterceptor: (any RequestInterceptor)?) -> TangemProvider<TangemApiTarget> {
         TangemProvider<TangemApiTarget>(
             configuration: TangemProviderConfiguration(logOptions: .verbose),
@@ -76,17 +82,10 @@ final class CommonTangemApiService {
         }
     }
 
-    private func requestRawData(for type: TangemApiTarget.TargetType) async throws -> Data {
-        let target = TangemApiTarget(type: type)
-
-        return try await withErrorLoggingPipeline(target: target) {
-            let response = try await provider.asyncRequest(target)
-
-            return response.data
-        }
-    }
-
-    private func withErrorLoggingPipeline<T>(target: TangemApiTarget, work: () async throws -> T) async rethrows -> T {
+    private func withErrorLoggingPipeline<T>(
+        target: some TargetTypeLogConvertible,
+        work: () async throws -> T
+    ) async rethrows -> T {
         do {
             return try await work()
         } catch let error as MoyaError {
@@ -106,7 +105,13 @@ final class CommonTangemApiService {
 
 extension CommonTangemApiService: TangemApiService {
     func getRawData(fromURL url: URL) async throws -> Data {
-        try await requestRawData(for: .rawData(url: url))
+        let target = RawDataTarget(url: url)
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await rawDataProvider.asyncRequest(target)
+
+            return response.data
+        }
     }
 
     func loadGeo() -> AnyPublisher<String, any Error> {

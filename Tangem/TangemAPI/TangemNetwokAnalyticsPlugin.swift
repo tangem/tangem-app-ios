@@ -19,7 +19,7 @@ final class TangemNetworkAnalyticsPlugin: PluginType {
             // Do nothing
             break
         case .failure(let error):
-            let exceptionHost = (error as? TargetTypeLogConvertible)?.requestDescription ?? ""
+            let exceptionHost = (target as? TargetTypeLogConvertible)?.requestDescription ?? ""
             let errorCode = error.response?.statusCode.description ?? ""
             log(error: error, exceptionHost: exceptionHost, code: errorCode)
         }
