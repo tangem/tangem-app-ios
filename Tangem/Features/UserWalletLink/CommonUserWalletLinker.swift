@@ -13,6 +13,17 @@ import TangemMobileWalletSdk
 import TangemBackendAuthentication
 
 final class CommonUserWalletLinker: UserWalletLinker {
+    func isLinkSupported(_ userWalletModel: some UserWalletModel) -> Bool {
+        guard userWalletModel.config.hasFeature(.nfcInteraction) else {
+            return true
+        }
+
+        let unsupportedProducts: [Analytics.ProductType] = [.twin, .visa]
+
+        return !unsupportedProducts.contains(userWalletModel.config.productType)
+            && userWalletModel.keysRepository.keys.first?.curve == .secp256k1
+    }
+
     nonisolated(nonsending) func link(_ userWalletModel: some UserWalletModel) async throws(UserWalletLinkError) {
         guard isLinkSupported(userWalletModel) else {
             BackendAuthLogger.debug("Skipped linking user wallet, not supported")
@@ -37,17 +48,6 @@ final class CommonUserWalletLinker: UserWalletLinker {
 // MARK: - Card
 
 private extension CommonUserWalletLinker {
-    func isLinkSupported(_ userWalletModel: some UserWalletModel) -> Bool {
-        guard userWalletModel.config.hasFeature(.nfcInteraction) else {
-            return true
-        }
-
-        let unsupportedProducts: [Analytics.ProductType] = [.twin, .visa]
-
-        return !unsupportedProducts.contains(userWalletModel.config.productType)
-            && userWalletModel.keysRepository.keys.first?.curve == .secp256k1
-    }
-
     nonisolated(nonsending) func linkCard(_ userWalletModel: some UserWalletModel) async throws(UserWalletLinkError) {
         guard let nonce = try await obtainNonce(id: userWalletModel.userWalletId) else {
             return

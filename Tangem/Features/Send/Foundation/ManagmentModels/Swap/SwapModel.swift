@@ -2385,7 +2385,8 @@ extension SwapModel: NotificationTapDelegate {
              .yieldBoostPromoLater,
              .openGetTangemPay,
              .closeGetTangemPay,
-             .removeTangemPayAccount:
+             .removeTangemPayAccount,
+             .linkUserWallet:
             assertionFailure("Notification tap not handled")
         }
     }

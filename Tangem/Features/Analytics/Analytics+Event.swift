@@ -476,6 +476,7 @@ extension Analytics {
         case mainNoticeOldCard = "[Main Screen] Notice - Old Card"
         case mainNoticeDevelopmentCard = "[Main Screen] Notice - Development Card"
         case mainNoticeMissingAddress = "[Main Screen] Notice - Missing Addresses"
+        case mainNoticeLinkWallet = "[Main Screen] Notice - Link Wallet"
         case mainNoticeWalletUnlock = "[Main Screen] Notice - Wallet Unlock"
         case mainNoticeWalletUnlockTapped = "[Main Screen] Notice - Wallet Unlock Tapped"
         case mainNoticeBackupYourWallet = "[Main Screen] Notice - Backup Your Wallet"
@@ -1115,6 +1116,7 @@ extension Analytics {
         case userWalletRegistrationUnexpectedCurve = "[Backend Auth] Unexpected Wallet Curve"
         case backendAuthNonceRequestTimeout = "[Backend Auth] Nonce Request Timeout"
         case backendAuthAttestationFailed = "[Backend Auth] Attestation Failed"
+        case backendAuthButtonLinkWallet = "[Backend Auth] Button - Link Wallet"
 
         // MARK: - MCP Authorization
 

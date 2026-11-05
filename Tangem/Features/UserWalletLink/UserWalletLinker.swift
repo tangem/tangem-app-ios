@@ -9,6 +9,7 @@
 import TangemFoundation
 
 protocol UserWalletLinker {
+    func isLinkSupported(_ userWalletModel: some UserWalletModel) -> Bool
     nonisolated(nonsending) func link(_ userWalletModel: some UserWalletModel) async throws(UserWalletLinkError)
 }
 
