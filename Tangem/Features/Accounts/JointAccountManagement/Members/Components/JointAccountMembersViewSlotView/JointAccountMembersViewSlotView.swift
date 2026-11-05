@@ -20,6 +20,9 @@ struct JointAccountMembersViewSlotView: View {
                 .id(viewModel.contentKey)
                 .transition(.blurSwap)
         }
+        .onChange(of: viewModel.slot) { newSlot in
+            viewModel.onContentChange(to: newSlot)
+        }
     }
 
     private var row: some View {
