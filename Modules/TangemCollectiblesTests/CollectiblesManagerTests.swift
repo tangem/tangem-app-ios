@@ -267,6 +267,119 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         #expect(sut.state == .ready(Fixtures.vault()))
     }
 
+    @Test(
+        "A read that still names the foreign key keeps the account ready only within two minutes of this phone's relink",
+        arguments: [(elapsed: 119.0, isRelinkRequired: false), (elapsed: 120.0, isRelinkRequired: true)]
+    )
+    func relinkGracePeriodKeepsStaleReadsOut(elapsed: TimeInterval, isRelinkRequired: Bool) async throws {
+        let dateProvider = DateProviderFake(now: Fixtures.blockhashFetchedAt)
+        let (sut, doubles) = await makeSUT(start: .rekeyMismatch, dateProvider: dateProvider)
+        let foreignVault = Fixtures.vault(sessionKey: Fixtures.foreignSessionKey)
+        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.vault()) }
+        _ = try await sut.relink()
+
+        doubles.vaultReader.vault = foreignVault
+        dateProvider.advance(by: elapsed)
+        await sut.refreshState()
+
+        let expectedState: CollectiblesState = isRelinkRequired ? .rekeyRequired(foreignVault) : .ready(Fixtures.vault())
+        #expect(sut.state == expectedState)
+    }
+
+    @Test(
+        "Within two minutes of this phone's relink a key set by another phone is not held back",
+        arguments: StateCheck.allCases
+    )
+    func relinkGracePeriodLetsOtherPhonesKeyThrough(check: StateCheck) async throws {
+        let dateProvider = DateProviderFake(now: Fixtures.blockhashFetchedAt)
+        let (sut, doubles) = await makeSUT(start: .rekeyMismatch, dateProvider: dateProvider)
+        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.vault()) }
+        _ = try await sut.relink()
+
+        doubles.vaultReader.vault = Fixtures.vault(sessionKey: Fixtures.otherPhoneSessionKey)
+        dateProvider.advance(by: 30)
+
+        switch check {
+        case .relinkRequirement:
+            #expect(try await sut.resolveRelinkRequirement())
+        case .purchaseSigning:
+            await #expect(throws: CollectiblesManager.PurchaseError.vaultNotReady) {
+                try await sut.signPurchase(Fixtures.purchase(), confirmedPrice: Fixtures.confirmedPrice())
+            }
+        case .relink:
+            _ = try await sut.relink()
+            #expect(doubles.chainService.transactions.count == 2)
+        }
+    }
+
+    @Test("A relink that landed while its run gave up waiting still holds back reads of the replaced key")
+    func relinkGracePeriodSurvivesStuckRun() async throws {
+        let dateProvider = DateProviderFake(now: Fixtures.blockhashFetchedAt)
+        let (sut, doubles) = await makeSUT(start: .rekeyMismatch, dateProvider: dateProvider)
+        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in
+            vaultReader.land(Fixtures.vault(), afterStaleReads: 50)
+        }
+        await #expect(throws: CollectiblesOnboardingError.self) {
+            try await sut.relink()
+        }
+
+        doubles.vaultReader.land(Fixtures.vault())
+        await sut.refreshState()
+        doubles.vaultReader.vault = Fixtures.vault(sessionKey: Fixtures.foreignSessionKey)
+        await sut.refreshState()
+
+        #expect(sut.state == .ready(Fixtures.vault()))
+    }
+
+    @Test("A relink that fails to send does not hold back reads of the foreign key")
+    func failedRelinkHoldsNothingBack() async {
+        let (sut, doubles) = await makeSUT(start: .rekeyMismatch)
+        let foreignVault = Fixtures.vault(sessionKey: Fixtures.foreignSessionKey)
+        doubles.chainService.sendError = TestError.chain
+        await #expect(throws: TestError.chain) {
+            try await sut.relink()
+        }
+
+        doubles.vaultReader.vault = Fixtures.vault()
+        await sut.refreshState()
+        doubles.vaultReader.vault = foreignVault
+        await sut.refreshState()
+
+        #expect(sut.state == .rekeyRequired(foreignVault))
+    }
+
+    @Test("The two minutes of holding back the replaced key run from the moment the relink lands")
+    func relinkGracePeriodStartsWhenRelinkLands() async throws {
+        let dateProvider = DateProviderFake(now: Fixtures.blockhashFetchedAt)
+        let (sut, doubles) = await makeSUT(start: .rekeyMismatch, dateProvider: dateProvider)
+        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in
+            dateProvider.advance(by: 100)
+            vaultReader.land(Fixtures.vault())
+        }
+        _ = try await sut.relink()
+
+        doubles.vaultReader.vault = Fixtures.vault(sessionKey: Fixtures.foreignSessionKey)
+        dateProvider.advance(by: 60)
+        await sut.refreshState()
+
+        #expect(sut.state == .ready(Fixtures.vault()))
+    }
+
+    @Test("A relink that derives the key in the same tap still holds back reads of the replaced key")
+    func relinkWithDerivationKeepsStaleReadsOut() async throws {
+        let (sut, doubles) = await makeSUT(start: .coldOwnerNotDerived)
+        let foreignVault = Fixtures.vault(sessionKey: Fixtures.foreignSessionKey)
+        doubles.vaultReader.vault = foreignVault
+        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.vault()) }
+        _ = try await sut.relink()
+
+        doubles.vaultReader.vault = foreignVault
+        await sut.refreshState()
+
+        #expect(doubles.coldKeyInteractor.deriveCount == 1)
+        #expect(sut.state == .ready(Fixtures.vault()))
+    }
+
     @Test("An onboarding started while another runs joins it instead of signing again")
     func concurrentOnboardingRunsOnce() async throws {
         let (sut, doubles) = await makeSUT(start: .rekeyMismatch)
@@ -597,6 +710,12 @@ extension CollectiblesManagerTests {
         }
     }
 
+    enum StateCheck: CaseIterable {
+        case relinkRequirement
+        case purchaseSigning
+        case relink
+    }
+
     enum SendFailure: CaseIterable {
         case blockhashNotFound
         case nodeRejection
@@ -647,6 +766,7 @@ private extension CollectiblesManagerTests {
         static let coldOwnerKey = signingKey(seed: 0x44).publicKey.rawRepresentation
         static let heldSessionKey = signingKey(seed: 0x22).publicKey.rawRepresentation
         static let foreignSessionKey = Data(repeating: 0x33, count: 32)
+        static let otherPhoneSessionKey = Data(repeating: 0x88, count: 32)
         static let generatedSessionKey = signingKey(seed: 0x99).publicKey.rawRepresentation
         static let usdcMint = Data(repeating: 0x55, count: 32)
         static let blockhash = Data(repeating: 0x66, count: 32).base58EncodedString
@@ -727,7 +847,8 @@ private extension CollectiblesManagerTests {
         start: Start = .ready,
         holdsSessionKey: Bool = true,
         vaultReadError: (any Error)? = nil,
-        isMarkedLocally: Bool = false
+        isMarkedLocally: Bool = false,
+        dateProvider: any DateProvider = SystemDateProvider()
     ) async -> (SUT, Doubles) {
         let coldOwnerProvider = ColdOwnerProviderFake(key: start == .coldOwnerNotDerived ? nil : Fixtures.coldOwner)
         let vaultReader = VaultReaderFake(vault: start.vaultOnChain)
@@ -787,7 +908,8 @@ private extension CollectiblesManagerTests {
                 transactionSender: transactionSender
             ),
             presenceStore: doubles.presenceStore,
-            delayProvider: delayProvider
+            delayProvider: delayProvider,
+            dateProvider: dateProvider
         )
 
         await settle(sut, doubles: doubles)
@@ -1178,6 +1300,22 @@ private final class PollDelaySpy: PollDelayProvider {
 
     func wait(for seconds: TimeInterval) async throws {
         recorded { $0.append(seconds) }
+    }
+}
+
+private final class DateProviderFake: DateProvider {
+    private let current: OSAllocatedUnfairLock<Date>
+
+    var now: Date {
+        current { $0 }
+    }
+
+    init(now: Date) {
+        current = OSAllocatedUnfairLock(uncheckedState: now)
+    }
+
+    func advance(by seconds: TimeInterval) {
+        current { $0.addTimeInterval(seconds) }
     }
 }
 
