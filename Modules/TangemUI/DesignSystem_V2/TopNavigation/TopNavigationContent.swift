@@ -257,19 +257,6 @@ private extension View {
     }
 }
 
-// MARK: - Press feedback
-
-private extension View {
-    @ViewBuilder
-    func deferringPressFeedbackToGlass() -> some View {
-        if #available(iOS 26.0, *) {
-            environment(\.buttonPaintsPressOverlay, false)
-        } else {
-            self
-        }
-    }
-}
-
 // MARK: - Chrome metrics
 
 enum TopNavigationChromeMetrics {

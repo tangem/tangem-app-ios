@@ -28,6 +28,7 @@ private extension DemoRegistry {
             DemoEntry("Badge", version: DSVersion(1, 1, 0), section: .ds3) { BadgeShowcase() },
             DemoEntry("Button", version: DSVersion(1, 3, 1), section: .ds3) { ButtonShowcase() },
             DemoEntry("ButtonGroup", version: DSVersion(1, 0, 0), section: .ds3) { ButtonGroupShowcase() },
+            DemoEntry("ButtonStack", version: DSVersion(1, 0, 0), section: .ds3) { ButtonStackShowcase() },
             DemoEntry("Checkbox", version: DSVersion(1, 1, 0), section: .ds3) { CheckboxShowcase() },
             DemoEntry("Checkmark", version: DSVersion(1, 1, 0), section: .ds3) { CheckmarkShowcase() },
             DemoEntry("Fade", version: DSVersion(1, 1, 0), section: .ds3) { FadeShowcase() },
