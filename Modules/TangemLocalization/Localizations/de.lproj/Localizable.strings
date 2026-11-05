@@ -2833,12 +2833,14 @@
 "transaction_history_status_rewards_claim_failed" = "Prämienanspruch fehlgeschlagen";
 "transaction_history_status_rewards_claimed" = "Prämien beansprucht";
 "transaction_history_status_rewards_restake_failed" = "Belohnungswiederholung fehlgeschlagen";
+"transaction_history_status_send_cancelled" = "Send cancelled";
 "transaction_history_status_send_failed" = "Senden fehlgeschlagen";
 "transaction_history_status_stake_failed" = "Einsatz gescheitert";
 "transaction_history_status_supply_failed" = "Lieferung fehlgeschlagen";
 "transaction_history_status_swap_failed" = "Tausch fehlgeschlagen";
 "transaction_history_status_top_up_failed" = "Aufladung fehlgeschlagen";
 "transaction_history_status_topping_up" = "Aufladen";
+"transaction_history_status_transfer_cancelled" = "Transfer cancelled";
 "transaction_history_status_transfer_failed" = "Übertragung fehlgeschlagen";
 "transaction_history_status_transferring" = "Übertragung";
 "transaction_history_status_unstake_failed" = "Unstake fehlgeschlagen";

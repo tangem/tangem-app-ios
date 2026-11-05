@@ -2833,12 +2833,14 @@
 "transaction_history_status_rewards_claim_failed" = "Rewards claim failed";
 "transaction_history_status_rewards_claimed" = "Rewards claimed";
 "transaction_history_status_rewards_restake_failed" = "Rewards restake failed";
+"transaction_history_status_send_cancelled" = "Send cancelled";
 "transaction_history_status_send_failed" = "Send failed";
 "transaction_history_status_stake_failed" = "Stake failed";
 "transaction_history_status_supply_failed" = "Supply failed";
 "transaction_history_status_swap_failed" = "Swap failed";
 "transaction_history_status_top_up_failed" = "Top-up failed";
 "transaction_history_status_topping_up" = "Topping up";
+"transaction_history_status_transfer_cancelled" = "Transfer cancelled";
 "transaction_history_status_transfer_failed" = "Transfer failed";
 "transaction_history_status_transferring" = "Transferring";
 "transaction_history_status_unstake_failed" = "Unstake failed";

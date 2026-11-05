@@ -2833,12 +2833,14 @@
 "transaction_history_status_rewards_claim_failed" = "Falha ao resgatar as recompensas";
 "transaction_history_status_rewards_claimed" = "Recompensas resgatadas";
 "transaction_history_status_rewards_restake_failed" = "Falha ao fazer o restaking das recompensas";
+"transaction_history_status_send_cancelled" = "Send cancelled";
 "transaction_history_status_send_failed" = "Falha ao enviar";
 "transaction_history_status_stake_failed" = "Falha ao fazer o staking";
 "transaction_history_status_supply_failed" = "Falha ao fornecer liquidez";
 "transaction_history_status_swap_failed" = "Falha no swap";
 "transaction_history_status_top_up_failed" = "Falha ao adicionar fundos";
 "transaction_history_status_topping_up" = "Adicionando fundos";
+"transaction_history_status_transfer_cancelled" = "Transfer cancelled";
 "transaction_history_status_transfer_failed" = "Falha na transferência";
 "transaction_history_status_transferring" = "Transferindo";
 "transaction_history_status_unstake_failed" = "Falha ao fazer o unstaking";
