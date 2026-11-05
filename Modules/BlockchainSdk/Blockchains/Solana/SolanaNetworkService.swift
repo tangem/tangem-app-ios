@@ -124,24 +124,6 @@ public final class SolanaNetworkService: MultiNetworkProvider {
         }
     }
 
-    func sendSol(
-        amount: UInt64,
-        computeUnitLimit: UInt32?,
-        computeUnitPrice: UInt64?,
-        destinationAddress: String,
-        signer: SolanaTransactionSigner
-    ) -> AnyPublisher<TransactionID, Error> {
-        solanaSdk.action.sendSOL(
-            to: destinationAddress,
-            amount: amount,
-            computeUnitLimit: computeUnitLimit,
-            computeUnitPrice: computeUnitPrice,
-            allowUnfundedRecipient: true,
-            signer: signer
-        )
-        .eraseToAnyPublisher()
-    }
-
     func sendRaw(
         base64serializedTransaction: String,
         startSendingTimestamp: Date
@@ -151,26 +133,6 @@ public final class SolanaNetworkService: MultiNetworkProvider {
             startSendingTimestamp: startSendingTimestamp
         )
         .eraseToAnyPublisher()
-    }
-
-    func sendSplToken(amount: UInt64, computeUnitLimit: UInt32?, computeUnitPrice: UInt64?, sourceTokenAddress: String, destinationAddress: String, token: Token, tokenProgramId: PublicKey, signer: SolanaTransactionSigner) -> AnyPublisher<TransactionID, Error> {
-        checkIfSolanaAccount(destinationAddress: destinationAddress)
-            .withWeakCaptureOf(self)
-            .flatMap { service, isSolanaAccount in
-                service.solanaSdk.action.sendSPLTokens(
-                    mintAddress: token.contractAddress,
-                    tokenProgramId: tokenProgramId,
-                    decimals: Decimals(token.decimalCount),
-                    from: sourceTokenAddress,
-                    to: destinationAddress,
-                    amount: amount,
-                    computeUnitLimit: computeUnitLimit,
-                    computeUnitPrice: computeUnitPrice,
-                    allowUnfundedRecipient: isSolanaAccount,
-                    signer: signer
-                )
-            }
-            .eraseToAnyPublisher()
     }
 
     func accountRentFeePerEpoch() -> AnyPublisher<Decimal, Error> {
@@ -263,6 +225,12 @@ public final class SolanaNetworkService: MultiNetworkProvider {
         }
 
         throw SolanaError.nullValue
+    }
+
+    func latestBlockhash() async throws -> SolanaBlockhash {
+        let fetchedAt = Date()
+
+        return SolanaBlockhash(value: try await getLatestBlockhash(), fetchedAt: fetchedAt)
     }
 
     func getLatestBlockhash() async throws -> String {

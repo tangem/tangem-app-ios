@@ -76,6 +76,10 @@ public struct SolanaTransactionHelper {
         return try readSignerPublicKeys(from: message, maxSigners: Int.max) == [publicKey]
     }
 
+    public func usesDurableNonce(in transaction: Data) throws -> Bool {
+        try messageLayout(of: transaction).usesDurableNonce
+    }
+
     public func replaceRecentBlockhash(_ blockhash: Data, in transaction: Data) throws -> Data {
         guard blockhash.count == Constants.blockhashLength else {
             throw SolanaBSDKError.invalidBlockhashLength

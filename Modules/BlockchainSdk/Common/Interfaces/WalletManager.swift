@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import Combine
+import TangemFoundation
 
 public protocol WalletManager: BaseWalletManagerObject,
     BlockchainDataProvider,
@@ -65,9 +66,34 @@ public protocol TransactionSigner {
     func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], Error>
     func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<SignatureInfo, Error>
     func sign(dataToSign: [SignData], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], Error>
+    func sign(walletPublicKey: Wallet.PublicKey, hashesProvider: @escaping () async throws -> [Data]) async throws -> [SignatureInfo]
 }
 
 public extension TransactionSigner {
+    func sign(walletPublicKey: Wallet.PublicKey, hashesProvider: @escaping () async throws -> [Data]) async throws -> [SignatureInfo] {
+        let hashes = try await hashesProvider()
+        return try await sign(hashes: hashes, walletPublicKey: walletPublicKey).async()
+    }
+
+    func sign<Payload>(
+        walletPublicKey: Wallet.PublicKey,
+        preparing prepare: @escaping () async throws -> (payload: Payload, hashes: [Data])
+    ) async throws -> (payload: Payload, signatures: [SignatureInfo]) {
+        let prepared = OSAllocatedUnfairLock<Payload?>(uncheckedState: nil)
+
+        let signatures = try await sign(walletPublicKey: walletPublicKey) {
+            let (payload, hashes) = try await prepare()
+            prepared.withLockUnchecked { $0 = payload }
+            return hashes
+        }
+
+        guard let payload = prepared.withLockUnchecked({ $0 }) else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+
+        return (payload, signatures)
+    }
+
     func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
         sign(hash: hash, walletPublicKey: walletPublicKey)
             .map { $0.signature }

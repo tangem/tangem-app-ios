@@ -145,18 +145,30 @@ extension SolanaWalletManager: TransactionSender {
             return .anyFail(error: BlockchainSdkError.failedToSendTx)
         }
 
-        let signer = SolanaTransactionSigner(transactionSigner: signer, walletPublicKey: wallet.publicKey)
-
         let decimalAmount = transaction.amount.value * wallet.blockchain.decimalValue
         let intAmount = (decimalAmount.rounded() as NSDecimalNumber).uint64Value
 
-        return networkService.sendSol(
-            amount: intAmount,
-            computeUnitLimit: solanaFeeParameters.computeUnitLimit,
-            computeUnitPrice: solanaFeeParameters.computeUnitPrice,
-            destinationAddress: transaction.destinationAddress,
-            signer: signer
-        )
+        return Future.async { [weak self] in
+            guard let self else {
+                throw BlockchainSdkError.empty
+            }
+
+            let owner = try walletSolanaPublicKey()
+            guard owner.base58EncodedString != transaction.destinationAddress else {
+                throw SolanaError.other("You can not send tokens to yourself")
+            }
+
+            guard let destination = PublicKey(string: transaction.destinationAddress) else {
+                throw SolanaError.invalidPublicKey
+            }
+
+            let transfer = SolanaTransferInstruction.systemTransfer(from: owner, to: destination, lamports: intAmount)
+            return try await signAndSendWithFreshBlockhash(
+                instructions: computeBudgetInstructions(solanaFeeParameters) + [transfer],
+                signer: signer
+            )
+        }
+        .eraseToAnyPublisher()
     }
 
     private func sendSplToken(_ transaction: Transaction, token: Token, signer: TransactionSigner) -> AnyPublisher<TransactionID, Error> {
@@ -164,7 +176,6 @@ extension SolanaWalletManager: TransactionSender {
             return .anyFail(error: BlockchainSdkError.failedToSendTx)
         }
 
-        let signer = SolanaTransactionSigner(transactionSigner: signer, walletPublicKey: wallet.publicKey)
         let tokenProgramIdPublisher = networkService.tokenProgramId(contractAddress: token.contractAddress)
 
         return tokenProgramIdPublisher
@@ -190,18 +201,122 @@ extension SolanaWalletManager: TransactionSender {
                     return .anyFail(error: BlockchainSdkError.failedToConvertPublicKey)
                 }
 
-                return networkService.sendSplToken(
-                    amount: intAmount,
-                    computeUnitLimit: solanaFeeParameters.computeUnitLimit,
-                    computeUnitPrice: solanaFeeParameters.computeUnitPrice,
-                    sourceTokenAddress: associatedSourceTokenAccountAddress,
-                    destinationAddress: transaction.destinationAddress,
-                    token: token,
-                    tokenProgramId: tokenProgramId,
-                    signer: signer
-                )
+                return Future.async { [weak self] in
+                    guard let self else {
+                        throw BlockchainSdkError.empty
+                    }
+
+                    let instructions = try await splTokenTransferInstructions(
+                        amount: intAmount,
+                        feeParameters: solanaFeeParameters,
+                        sourceTokenAddress: associatedSourceTokenAccountAddress,
+                        destinationAddress: transaction.destinationAddress,
+                        token: token,
+                        tokenProgramId: tokenProgramId
+                    )
+
+                    return try await signAndSendWithFreshBlockhash(instructions: instructions, signer: signer)
+                }
+                .eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()
+    }
+
+    private func signAndSendWithFreshBlockhash(instructions: [SolanaRawInstruction], signer: TransactionSigner) async throws -> TransactionID {
+        let feePayer = wallet.publicKey.blockchainKey
+
+        let (transaction, signatures) = try await signer.sign(walletPublicKey: wallet.publicKey) { [networkService] in
+            guard let networkService else {
+                throw BlockchainSdkError.empty
+            }
+
+            let transaction = try SolanaSelfPaidTransaction.make(
+                instructions: instructions,
+                feePayer: feePayer,
+                blockhash: try await networkService.latestBlockhash()
+            )
+            return (transaction, [transaction.message])
+        }
+
+        guard let signature = signatures.first?.signature else {
+            throw BlockchainSdkError.failedToSendTx
+        }
+
+        return try await networkService.sendRaw(
+            base64serializedTransaction: try transaction.serialized(signature: signature).base64EncodedString(),
+            startSendingTimestamp: transaction.blockhashFetchedAt
+        ).async()
+    }
+
+    private func splTokenTransferInstructions(
+        amount: UInt64,
+        feeParameters: SolanaFeeParameters,
+        sourceTokenAddress: String,
+        destinationAddress: String,
+        token: Token,
+        tokenProgramId: PublicKey
+    ) async throws -> [SolanaRawInstruction] {
+        let owner = try walletSolanaPublicKey()
+        let destination = try await networkService.splTokenDestination(
+            mintAddress: token.contractAddress,
+            tokenProgramId: tokenProgramId,
+            destinationAddress: destinationAddress
+        )
+
+        guard
+            sourceTokenAddress != destination.destination.base58EncodedString,
+            let source = PublicKey(string: sourceTokenAddress),
+            let mint = PublicKey(string: token.contractAddress)
+        else {
+            throw SolanaError.invalidPublicKey
+        }
+
+        var instructions = computeBudgetInstructions(feeParameters)
+
+        if destination.isUnregisteredAsocciatedToken {
+            guard let destinationOwner = PublicKey(string: destinationAddress) else {
+                throw SolanaError.invalidPublicKey
+            }
+
+            instructions.append(
+                SolanaTransferInstruction.createAssociatedTokenAccount(
+                    payer: owner,
+                    associatedAccount: destination.destination,
+                    owner: destinationOwner,
+                    mint: mint,
+                    tokenProgramId: tokenProgramId
+                )
+            )
+        }
+
+        instructions.append(
+            SolanaTransferInstruction.transferChecked(
+                source: source,
+                mint: mint,
+                destination: destination.destination,
+                owner: owner,
+                amount: amount,
+                decimals: UInt8(token.decimalCount),
+                tokenProgramId: tokenProgramId
+            )
+        )
+
+        return instructions
+    }
+
+    private func computeBudgetInstructions(_ feeParameters: SolanaFeeParameters) -> [SolanaRawInstruction] {
+        SolanaComputeBudgetInstruction.instructions(
+            computeUnitLimit: feeParameters.computeUnitLimit,
+            computeUnitPrice: feeParameters.computeUnitPrice
+        )
+    }
+
+    private func walletSolanaPublicKey() throws -> PublicKey {
+        guard let publicKey = PublicKey(data: wallet.publicKey.blockchainKey) else {
+            throw SolanaError.invalidPublicKey
+        }
+
+        return publicKey
     }
 
     private func getNFTFee(amount: Amount, token: Token, destination: String) -> AnyPublisher<[Fee], Error> {
@@ -521,38 +636,55 @@ extension SolanaWalletManager: CompiledTransactionSender, CompiledTransactionFee
     }
 
     func send(compiledTransaction data: Data, signer: any TransactionSigner) async throws -> TransactionSendResult {
-        guard let walletPublicKey = SolanaSwift.PublicKey(data: wallet.publicKey.blockchainKey) else {
-            let error = BlockchainSdkError.failedToBuildTx
-            BSDKLogger.error(error: error)
-            throw error
+        let walletKey = wallet.publicKey.blockchainKey
+        let (prepared, signatures) = try await signer.sign(walletPublicKey: wallet.publicKey) { [networkService, transactionHelper] in
+            guard let networkService else {
+                throw BlockchainSdkError.empty
+            }
+
+            let blockhashFetchedAt = Date()
+            let transaction = try await Self.refreshRecentBlockhash(
+                in: data,
+                walletKey: walletKey,
+                networkService: networkService,
+                transactionHelper: transactionHelper
+            )
+            let hashes = [try transactionHelper.removeSignaturesPlaceholders(from: transaction).transaction]
+            return ((transaction: transaction, blockhashFetchedAt: blockhashFetchedAt), hashes)
         }
 
-        let solanaSigner = SolanaTransactionSigner(
-            transactionSigner: signer,
-            walletPublicKey: wallet.publicKey
-        )
-
-        let transaction: VersionedTransaction
-
-        do {
-            transaction = try VersionedTransaction.deserialize(data: data, isIncludeSignature: true)
-        } catch {
-            BSDKLogger.error(error: error)
-            throw error
+        guard let signature = signatures.first?.signature else {
+            throw BlockchainSdkError.failedToSendTx
         }
 
-        let buildForSign = try transaction.prepareForSign()
-        let signature = try await solanaSigner.sign(message: buildForSign)
-        let signatures = [Signature(signature: signature, publicKey: walletPublicKey)]
-        try transaction.prepareForSend(signatures: signatures)
-        let buildForSend = try transaction.serialize()
+        let buildForSend = try transactionHelper.putSignature(signature, publicKey: walletKey, transaction: prepared.transaction)
 
         let hash = try await networkService.sendRaw(
             base64serializedTransaction: buildForSend.base64EncodedString(),
-            startSendingTimestamp: Date()
+            startSendingTimestamp: prepared.blockhashFetchedAt
         ).async()
 
         return TransactionSendResult(hash: hash, currentProviderHost: currentHost)
+    }
+
+    private static func refreshRecentBlockhash(
+        in transaction: Data,
+        walletKey: Data,
+        networkService: SolanaNetworkService,
+        transactionHelper: SolanaTransactionHelper
+    ) async throws -> Data {
+        guard
+            try transactionHelper.isSoleRequiredSigner(walletKey, transaction: transaction),
+            try !transactionHelper.usesDurableNonce(in: transaction)
+        else {
+            return transaction
+        }
+
+        let blockhash = Data(Base58.decode(try await networkService.getLatestBlockhash()))
+        let patched = try transactionHelper.replaceRecentBlockhash(blockhash, in: transaction)
+
+        try transactionHelper.assertDiffersOnlyInRecentBlockhash(original: transaction, patched: patched)
+        return patched
     }
 }
 
