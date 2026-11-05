@@ -27,6 +27,28 @@ extension MobileWalletSigner: TangemSigner {
         .mobileWallet
     }
 
+    func sign(walletPublicKey: Wallet.PublicKey, hashesProvider: @escaping () async throws -> [Data]) async throws -> [SignatureInfo] {
+        guard let userWalletIdSeed = userWalletConfig.userWalletIdSeed else {
+            throw MobileWalletError.seedKeyNotFound
+        }
+
+        let context = try await MobileAuthUtil(
+            userWalletId: UserWalletId(with: userWalletIdSeed),
+            config: userWalletConfig,
+            biometricsProvider: CommonUserWalletBiometricsProvider()
+        )
+        .unlockedContext()
+
+        let dataToSign = SignData(
+            derivationPath: walletPublicKey.derivationPath,
+            hashes: try await hashesProvider(),
+            publicKey: walletPublicKey.blockchainKey
+        )
+
+        return try mobileWalletSdk.sign(dataToSign: [dataToSign], seedKey: walletPublicKey.seedKey, context: context)
+            .map { SignatureInfo(signature: $0.signature, publicKey: $0.publicKey, hash: $0.hash) }
+    }
+
     func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
         let dataToSign = SignData(
             derivationPath: walletPublicKey.derivationPath,

@@ -11,6 +11,7 @@ import Combine
 import TangemSdk
 import TangemLocalization
 import BlockchainSdk
+import TangemFoundation
 
 class CardSigner {
     private let initialMessage = Message(header: nil, body: Localization.initialMessageSignBody)
@@ -59,6 +60,23 @@ extension CardSigner: TangemSigner {
         return sign(dataToSign: [dataToSign], walletPublicKey: walletPublicKey)
     }
 
+    func sign(walletPublicKey: Wallet.PublicKey, hashesProvider: @escaping () async throws -> [Data]) async throws -> [SignatureInfo] {
+        let signCommand = MultipleSignTask(
+            dataProvider: {
+                let hashes = try await hashesProvider()
+                return [SignData(derivationPath: walletPublicKey.derivationPath, hashes: hashes, publicKey: walletPublicKey.blockchainKey)]
+            },
+            seedKey: walletPublicKey.seedKey,
+            pairKey: twinKey?.getPairKey(for: walletPublicKey.seedKey)
+        )
+
+        do {
+            return try await sign(with: signCommand).async()
+        } catch TangemSdkError.underlying(let error) {
+            throw error
+        }
+    }
+
     func sign(dataToSign: [SignData], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
         let signCommand = MultipleSignTask(
             dataToSign: dataToSign,
@@ -66,6 +84,10 @@ extension CardSigner: TangemSigner {
             pairKey: twinKey?.getPairKey(for: walletPublicKey.seedKey)
         )
 
+        return sign(with: signCommand)
+    }
+
+    private func sign(with signCommand: MultipleSignTask) -> AnyPublisher<[SignatureInfo], any Error> {
         let sdk = sdkFactory.makeTangemSdk()
 
         return sdk.startSessionPublisher(with: signCommand, filter: filter, initialMessage: initialMessage)
