@@ -159,7 +159,7 @@ struct ExpressAPIMapper {
         return ExchangeMCPIntent(
             id: intent.intentId,
             providerID: intent.provider,
-            rateType: try Self.mapRateType(fromResponse: intent),
+            rateType: try Self.mapRateType(intent.rateType),
             from: Self.mapToExchangeMCPIntentAsset(
                 contractAddress: intent.fromContractAddress,
                 network: intent.fromNetwork,
@@ -177,11 +177,9 @@ struct ExpressAPIMapper {
         )
     }
 
-    private static func mapRateType(
-        fromResponse responseIntent: ExpressDTO.Swap.ExchangeMCPIntent.Intent
-    ) throws(ExpressAPIMapperError) -> ExpressProviderRateType {
-        guard let rateType = ExpressProviderRateType(rawValue: responseIntent.rateType) else {
-            throw ExpressAPIMapperError.unrecognizedRateType(responseIntent.rateType)
+    private static func mapRateType(_ rawValue: String) throws(ExpressAPIMapperError) -> ExpressProviderRateType {
+        guard let rateType = ExpressProviderRateType(rawValue: rawValue) else {
+            throw ExpressAPIMapperError.unrecognizedRateType(rawValue)
         }
 
         return rateType
@@ -400,7 +398,7 @@ struct ExpressAPIMapper {
             records: response.items.map(mapToExchangeTransaction(record:)),
             nextCursor: response.pagination.endCursor?.value,
             startDeltaCursor: response.pagination.startDeltaCursor?.value,
-            hasMore: response.pagination.hasMore ?? response.pagination.hasNextPage ?? false // [REDACTED_TODO_COMMENT]
+            hasMore: response.pagination.hasMore
         )
     }
 
@@ -418,7 +416,7 @@ struct ExpressAPIMapper {
             records: response.items.map(mapToOnrampTransaction(record:)),
             nextCursor: response.pagination.endCursor?.value,
             startDeltaCursor: response.pagination.startDeltaCursor?.value,
-            hasMore: response.pagination.hasMore ?? response.pagination.hasNextPage ?? false // [REDACTED_TODO_COMMENT]
+            hasMore: response.pagination.hasMore
         )
     }
 
@@ -436,7 +434,7 @@ struct ExpressAPIMapper {
             txId: record.txId,
             providerId: record.providerId,
             status: ExpressTransactionStatus(rawValue: record.status) ?? .unknown,
-            rateType: ExpressProviderRateType(rawValue: record.rateType),
+            rateType: Self.mapRateType(record.rateType),
             externalTx: mapToExternalTxInfo(id: record.externalTxId, url: record.externalTxUrl),
             fromAddress: record.fromAddress,
             payIn: PayInInfo(address: record.payinAddress, extraId: record.payinExtraId, hash: record.payinHash),
