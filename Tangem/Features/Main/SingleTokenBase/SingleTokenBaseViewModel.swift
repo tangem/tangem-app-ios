@@ -590,7 +590,7 @@ extension SingleTokenBaseViewModel {
         case .loaded(let records):
             let listItems = transactionHistoryMapper.mapTransactionListItem(
                 from: records,
-                groupingStyle: .day(.long),
+                groupingStyle: .day,
                 dustFilter: TransactionHistoryDustFilter(usdRate: usdRate),
                 subtitleOwnerResolver: subtitleOwnerResolver(contacts: contacts, tangemPayDepositOwners: tangemPayDepositOwners)
             )

@@ -29,17 +29,17 @@ struct RedesignActionButtonsView: View {
         ColumnContainer(minWidth: TangemMainActionButton.Size.buttonSide, spacing: spacing) {
             if visibility.isAddFundsVisible {
                 RedesignActionButtonView(viewModel: viewModel.buyActionButtonViewModel)
-                    .disabled(viewModel.isRedesignActionDisabled(viewModel.buyActionButtonViewModel))
+                    .disabled(viewModel.isActionDisabled(viewModel.buyActionButtonViewModel))
             }
 
             if visibility.isSwappingVisible {
                 RedesignActionButtonView(viewModel: viewModel.swapActionButtonViewModel)
-                    .disabled(viewModel.isRedesignActionDisabled(viewModel.swapActionButtonViewModel))
+                    .disabled(viewModel.isActionDisabled(viewModel.swapActionButtonViewModel))
             }
 
             if visibility.isTransferVisible {
                 RedesignActionButtonView(viewModel: viewModel.sellActionButtonViewModel)
-                    .disabled(viewModel.isRedesignActionDisabled(viewModel.sellActionButtonViewModel))
+                    .disabled(viewModel.isActionDisabled(viewModel.sellActionButtonViewModel))
             }
         }
         .padding(.horizontal, dynamicHorizontalPadding)

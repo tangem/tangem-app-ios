@@ -167,9 +167,6 @@ struct MultiWalletMainContentRedesignedView: View {
     private var emptyList: some View {
         VStack(spacing: 16) {
             MultiWalletTokenItemsEmptyView()
-                .iconColor(DesignSystem.Color.iconTertiary)
-                .textColor(DesignSystem.Color.textSecondary)
-                .spacing(20)
 
             TangemUI.Button(
                 label: Localization.commonAddTokens,
