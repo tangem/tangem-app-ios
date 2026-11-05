@@ -150,11 +150,15 @@ extension JointAccountCompositionFixture {
     )
 
     static var ownKeyPath: DerivationPath {
-        JointAccountKeyPath.derivationPath(forAccountAtIndex: derivationIdentity.derivationIndex)
+        get throws {
+            try JointAccountKeyPath.derivationPath(forAccountAtIndex: derivationIdentity.derivationIndex)
+        }
     }
 
     static var ownKeyDerivation: DerivationResult {
-        [seedKey: DerivedKeys(keys: [ownKeyPath: derivedKey])]
+        get throws {
+            try [seedKey: DerivedKeys(keys: [ownKeyPath: derivedKey])]
+        }
     }
 
     static func masterKey(derivedKeys: [DerivationPath: ExtendedPublicKey] = [:]) -> KeyInfo {
