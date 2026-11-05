@@ -301,10 +301,6 @@ struct TransactionHistoryMapper {
             return nil
         }
 
-        if case .unresolved = counterpartyOwner {
-            return nil
-        }
-
         let currentOwner = currentLegAddress.flatMap { resolver.resolve(address: $0, blockchain: resolver.blockchain) }
         return counterpartyOwner == currentOwner ? nil : counterpartyOwner
     }
