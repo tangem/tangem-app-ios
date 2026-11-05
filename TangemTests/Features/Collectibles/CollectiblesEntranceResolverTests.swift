@@ -149,6 +149,8 @@ private final class CollectiblesPackPurchaseInteractorStub: CollectiblesPackPurc
         false
     }
 
+    func restorePendingPurchase() async {}
+
     func purchase(
         machineID: String,
         price: Decimal,
