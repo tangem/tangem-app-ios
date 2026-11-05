@@ -337,6 +337,18 @@ extension CommonUserWalletModel: TangemPayAuthorizingProvider {
             )
         }
     }
+
+    var tangemPayBankingAccountAddressSigner: TangemPayBankingAccountAddressSigning {
+        switch walletInfo {
+        case .cardWallet(let cardInfo):
+            return TangemPayBankingAccountSigningCardInteractor(with: cardInfo)
+        case .mobileWallet:
+            return TangemPayBankingAccountSigningMobileWalletInteractor(
+                userWalletId: userWalletId,
+                userWalletConfig: config
+            )
+        }
+    }
 }
 
 extension CommonUserWalletModel: JointAccountDerivationInteractorProvider {

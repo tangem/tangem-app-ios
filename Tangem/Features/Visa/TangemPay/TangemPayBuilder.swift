@@ -149,4 +149,14 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
             accountRemover: accountRemover
         )
     }
+
+    func makeMoneyAccount(
+        customerId: String,
+        bankingAccount: TangemPayCustomerSummaryResponse.BankingAccount
+    ) -> TangemPayMoneyAccount {
+        TangemPayMoneyAccount(
+            customerId: customerId,
+            bankingAccount: bankingAccount
+        )
+    }
 }

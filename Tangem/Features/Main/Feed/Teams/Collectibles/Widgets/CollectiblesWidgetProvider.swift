@@ -7,6 +7,7 @@
 //
 
 import Combine
+import CombineExt
 import TangemFoundation
 
 final class CollectiblesWidgetProvider {
@@ -66,11 +67,25 @@ private extension CollectiblesWidgetProvider {
             .prepend(())
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { provider, _ in provider.resolveWallets() }
+            .flatMapLatest { provider, _ in provider.enterableWallets() }
+            .receiveOnMain()
+            .sink { [walletsSubject] wallets in walletsSubject.send(wallets) }
             .store(in: &bag)
     }
 
-    func resolveWallets() {
-        walletsSubject.send(userWalletRepository.models.filter(\.isCollectiblesEligible))
+    func enterableWallets() -> AnyPublisher<[UserWalletModel], Never> {
+        let wallets = userWalletRepository.models.filter(\.isCollectiblesEligible)
+
+        guard wallets.isNotEmpty else {
+            return .just(output: [])
+        }
+
+        return wallets
+            .map(\.collectiblesSyncRequiredPublisher)
+            .combineLatest()
+            .map { syncRequirements in
+                zip(wallets, syncRequirements).filter { !$0.1 }.map(\.0)
+            }
+            .eraseToAnyPublisher()
     }
 }

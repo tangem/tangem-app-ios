@@ -14,9 +14,11 @@ import TangemUI
 
 struct YieldModuleChart: View {
     let state: State
+    var yScale: YScale = .fixed
 
     var body: some View {
-        let bars = makeBars()
+        let yAxis = makeYAxis()
+        let bars = makeBars(yMax: yAxis.max)
         let xMap = makeXLabelMap(barsCount: bars.count)
         let average = averageApy()
 
@@ -56,18 +58,18 @@ struct YieldModuleChart: View {
             }
         }
         .chartYAxis {
-            AxisMarks(position: .leading, values: [0.0, 0.03, 0.06, 0.09]) { mark in
+            AxisMarks(position: .leading, values: yAxis.ticks) { mark in
                 AxisGridLine()
                 AxisValueLabel {
                     if let v = mark.as(Double.self) {
-                        Text(v, format: .percent.precision(.fractionLength(0)))
+                        Text(v, format: .percent.precision(.fractionLength(0 ... 2)))
                             .style(Fonts.Regular.caption2, color: DesignSystem.Color.textSecondary)
                             .shimmerPlaceholder(state.isLoading)
                     }
                 }
             }
         }
-        .chartYScale(domain: 0.0 ... Constants.maxYValue)
+        .chartYScale(domain: 0.0 ... yAxis.max)
         .frame(height: 110)
     }
 
@@ -84,30 +86,40 @@ struct YieldModuleChart: View {
         }
     }
 
-    private func makeBars() -> [Bar] {
+    private func makeYAxis() -> (ticks: [Double], max: Double) {
+        let fixed = (ticks: Constants.fixedYTicks, max: Constants.maxYValue)
+
+        guard yScale == .fitted, case .loaded(let data, _, let average) = state else {
+            return fixed
+        }
+
+        let peak = max(data.max() ?? 0, average ?? 0) / 100
+        let ticks = YScale.fittedTicks(peak: peak)
+
+        return ticks.last.map { (ticks: ticks, max: $0) } ?? fixed
+    }
+
+    private func makeBars(yMax: Double) -> [Bar] {
         switch state {
         case .loading:
             return (0 ... 31).map { Bar(idx: $0, apr: 0) }
         case .loaded(let data, _, _):
             return data.enumerated().map { index, bar in
-                Bar(idx: index, apr: min(bar / 100, Constants.maxYValue))
+                Bar(idx: index, apr: min(bar / 100, yMax))
             }
         }
     }
 
     private func makeXLabelMap(barsCount: Int) -> [Int: String] {
         guard barsCount > 1 else { return [:] }
-        let labels: [String]
 
         switch state {
-        case .loaded(_, let xLabels, _) where !xLabels.isEmpty:
-            labels = xLabels
-        case .loading, .loaded:
-            labels = Array(repeating: "Aaa", count: 5)
+        case .loaded(_, let xTicks, _):
+            return xTicks
+        case .loading:
+            let ticks = [0, 7, 14, 21, 27].filter { $0 < barsCount }
+            return Dictionary(uniqueKeysWithValues: ticks.map { ($0, "Aaa") })
         }
-
-        let ticks = [0, 7, 14, 21, 27]
-        return Dictionary(uniqueKeysWithValues: zip(ticks, labels))
     }
 }
 
@@ -116,7 +128,7 @@ struct YieldModuleChart: View {
 extension YieldModuleChart {
     enum State {
         case loading
-        case loaded(apyData: [Double], xAxisLabels: [String], averageApy: Double?)
+        case loaded(apyData: [Double], xAxisTicks: [Int: String], averageApy: Double?)
 
         var isLoading: Bool {
             switch self {
@@ -139,8 +151,31 @@ extension YieldModuleChart {
     }
 }
 
+// MARK: - YScale
+
+extension YieldModuleChart {
+    enum YScale {
+        case fixed
+        case fitted
+
+        static func fittedTicks(peak: Double) -> [Double] {
+            let top = peak * Constants.fittedHeadroom
+
+            guard top > 0, let step = Constants.fittedSteps.first(where: { $0 * Double(Constants.fittedTickCount - 1) >= top }) else {
+                return []
+            }
+
+            return (0 ..< Constants.fittedTickCount).map { Double($0) * step }
+        }
+    }
+}
+
 extension YieldModuleChart {
     enum Constants {
         static let maxYValue: Double = 0.12
+        static let fixedYTicks: [Double] = [0.0, 0.03, 0.06, 0.09]
+        static let fittedTickCount = 4
+        static let fittedHeadroom = 1.25
+        static let fittedSteps: [Double] = [0.0025, 0.005, 0.01, 0.02, 0.025, 0.03, 0.04, 0.05, 0.1, 0.25, 0.5, 1]
     }
 }

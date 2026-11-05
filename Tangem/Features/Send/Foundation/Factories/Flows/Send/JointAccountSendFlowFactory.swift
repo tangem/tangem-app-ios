@@ -85,16 +85,15 @@ extension JointAccountSendFlowFactory: SendGenericFlowFactory {
         analyticsLogger.setup(sendFeeInput: sendModel)
         analyticsLogger.setup(sendSourceTokenInput: sendModel)
 
-        let stepsManager = CommonSendStepsManager(
+        let stepsManager = CommonTransferStepsManager(
             amountStep: amount.step,
             destinationStep: destination.step,
             summaryStep: summary,
             finishStep: finish,
             feeSelectorBuilder: fee.feeSelectorBuilder,
-            receiveTokensListBuilder: nil,
-            providersSelector: nil,
             summaryTitleProvider: CommonSendSummaryTitleProvider(tokenItem: tokenItem),
-            initialStep: CommonSendStepsManager.InitialStep(parameters: predefinedSendParameters),
+            flowActionType: .createOperation,
+            initialStep: CommonTransferStepsManager.InitialStep(parameters: predefinedSendParameters),
             router: router
         )
 
@@ -129,9 +128,7 @@ extension JointAccountSendFlowFactory: SendBaseBuildable {
                 sourceTokenInput: sendModel
             ),
             analyticsLogger: analyticsLogger,
-            mainButtonUIOptionsProvider: JointAccountSendMainButtonUIOptionsProvider(
-                base: CommonSendMainButtonUIOptionsProvider(sourceTokenInput: sendModel)
-            )
+            mainButtonUIOptionsProvider: CommonSendMainButtonUIOptionsProvider(sourceTokenInput: sendModel)
         )
     }
 }
@@ -147,7 +144,7 @@ extension JointAccountSendFlowFactory: SendAmountStepBuildable {
     }
 
     var amountTypes: SendAmountStepBuilder.Types {
-        .init(initialSourceToken: transferableToken, flowActionType: .send)
+        .init(initialSourceToken: transferableToken, flowActionType: .createOperation)
     }
 
     var amountDependencies: SendAmountStepBuilder.Dependencies {

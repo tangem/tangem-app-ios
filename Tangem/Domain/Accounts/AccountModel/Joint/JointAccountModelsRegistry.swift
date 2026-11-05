@@ -25,7 +25,6 @@ actor JointAccountModelsRegistry {
     private let dependenciesFactory: JointAccountDependenciesFactory
     private let executor: any SerialExecutor
     private var cache: Cache = [:]
-    private var finishedOperationsWalletUpdaters: [AccountId: JointAccountFinishedOperationsWalletUpdater] = [:]
 
     init(userWalletId: UserWalletId, dependenciesFactory: JointAccountDependenciesFactory) {
         self.userWalletId = userWalletId
@@ -64,7 +63,6 @@ actor JointAccountModelsRegistry {
         let removedAccountIds = currentAccountIds.subtracting(newAccountIds)
         let removedAccounts = cache.filter { removedAccountIds.contains($0.key) }.map { $0.value }
         cache.removeAll { removedAccountIds.contains($0.key) }
-        finishedOperationsWalletUpdaters.removeAll { removedAccountIds.contains($0.key) }
         let cachedAccountsIds = cache.keys.toSet() // Snapshot of currently cached account IDs before adding new ones
 
         removedAccounts.forEach { $0.dispose() }
@@ -136,6 +134,8 @@ actor JointAccountModelsRegistry {
                     operationsService: dependencies.operationsService,
                     pendingOperationsProvider: dependencies.pendingOperationsProvider,
                     membersService: dependencies.membersService,
+                    finishedOperationsWalletUpdater: dependencies.finishedOperationsWalletUpdater,
+                    userRoleService: dependencies.userRoleService,
                     delegate: delegate
                 )
 
@@ -146,7 +146,6 @@ actor JointAccountModelsRegistry {
                 dependencies.walletModelsManager.initialize()
                 // Updating `cache` within this `compactMap` loop to reduce the number of iterations
                 cache[accountId] = jointAccount
-                finishedOperationsWalletUpdaters[accountId] = dependencies.finishedOperationsWalletUpdater
 
                 return jointAccount
             }

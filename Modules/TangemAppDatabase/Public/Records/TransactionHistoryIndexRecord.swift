@@ -42,6 +42,7 @@ public extension TransactionHistoryIndexRecord {
         public enum EntityType {
             public static let expressExchange = "expressExchange"
             public static let expressOnramp = "expressOnramp"
+            public static let jointOperation = "jointOperation"
         }
     }
 }
@@ -65,6 +66,12 @@ public extension TransactionHistoryIndexRecord {
         ExpressOnrampTransactionRecord.Columns.id,
     ])
 
+    static let jointOperationEntityForeignKey = ForeignKey([
+        TransactionHistoryIndexRecord.Columns.entityID,
+    ], to: [
+        JointOperationRecord.Columns.id,
+    ])
+
     static let expressEntity = belongsTo(
         ExpressExchangeTransactionRecord.self,
         key: "expressEntity",
@@ -75,6 +82,12 @@ public extension TransactionHistoryIndexRecord {
         ExpressOnrampTransactionRecord.self,
         key: "onrampEntity",
         using: onrampEntityForeignKey
+    )
+
+    static let jointOperationEntity = belongsTo(
+        JointOperationRecord.self,
+        key: "jointOperationEntity",
+        using: jointOperationEntityForeignKey
     )
 }
 
@@ -91,6 +104,7 @@ extension TransactionHistoryIndexRecord: FetchableRecord {}
 extension TransactionHistoryIndexRecord: TableRecord {
     /// - Note: Only columns used twice or more are extracted to this enum.
     public enum Columns {
+        public static let entityType = Column(CodingKeys.entityType)
         public static let entityID = Column(CodingKeys.entityID)
         public static let address = Column(CodingKeys.address)
         public static let network = Column(CodingKeys.network)

@@ -67,6 +67,13 @@ extension TangemPayCardManagementViewModel.ContentState {
         }
     }
 
+    var isCloseCardAvailable: Bool {
+        switch self {
+        case .plastic: false
+        case .renaming, .closing, .issuing, .reissuing, .details: true
+        }
+    }
+
     var isRenaming: Bool {
         switch self {
         case .renaming: true

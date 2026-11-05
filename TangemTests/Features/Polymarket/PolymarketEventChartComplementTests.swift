@@ -81,6 +81,33 @@ struct PolymarketEventChartComplementTests {
         #expect(probabilities == [Self.decimal("0.2"), Self.decimal("0.2")])
     }
 
+    @Test("An outcome added later runs at zero from the chart's start and jumps to its first price when it appears")
+    func aLateOutcomeIsLedInFromZero() {
+        let content = Self.content(isComplementaryPair: false)
+        let early = Self.series("a", [(0, 0.4), (60, 0.45), (120, 0.5)])
+        let late = Self.series("b", [(60, 0.2), (120, 0.25)])
+
+        let result = content.ledInFromZero([early, late])
+
+        #expect(result[0] == early)
+        #expect(result[1].points.map(\.date) == [Self.date(0), Self.date(59), Self.date(60), Self.date(120)])
+        #expect(result[1].points.map(\.probability) == [0, 0, Self.decimal("0.2"), Self.decimal("0.25")])
+    }
+
+    @Test("Several outcomes added at different times are each led in from the same start")
+    func severalLateOutcomesShareTheStart() {
+        let content = Self.content(isComplementaryPair: false)
+        let early = Self.series("a", [(0, 0.5), (120, 0.4)])
+        let second = Self.series("b", [(60, 0.3), (120, 0.3)])
+        let third = Self.series("c", [(90, 0.1), (120, 0.2)])
+
+        let result = content.ledInFromZero([early, second, third])
+
+        #expect(result[1].points.first == PolymarketProbabilityChart.Point(date: Self.date(0), probability: 0))
+        #expect(result[2].points.first == PolymarketProbabilityChart.Point(date: Self.date(0), probability: 0))
+        #expect(result[2].points.map(\.date).dropFirst(2).first == Self.date(90))
+    }
+
     @Test("Nothing is invented when no line has a history to borrow a span from")
     func nothingIsFilledWithoutAnyHistory() {
         let content = Self.content(isComplementaryPair: false)

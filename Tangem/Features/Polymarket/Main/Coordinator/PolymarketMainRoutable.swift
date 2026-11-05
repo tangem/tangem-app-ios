@@ -26,3 +26,4 @@ typealias PolymarketMainScreenRoutable = PolymarketMainRoutable
     & PolymarketBalanceBlockRoutable
     & PolymarketPositionsBlockRoutable
     & PolymarketEventOpeningRoutable
+    & PolymarketCategoryOpeningRoutable

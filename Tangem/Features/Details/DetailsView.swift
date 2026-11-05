@@ -47,6 +47,8 @@ struct DetailsView: View {
     private var topSection: some View {
         GroupedSection(viewModel.topSectionTypes) { type in
             switch type {
+            case .connections(let viewModel):
+                ConnectionsRowView(viewModel: viewModel)
             case .walletConnect(let viewModel):
                 WalletConnectRedesignedRowView(viewModel: viewModel)
             case .addressBook(let viewModel):
@@ -109,7 +111,7 @@ struct DetailsView: View {
                 Text(applicationInfoFooter)
                     .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                     .padding(.top, 8)
-                    .accessibilityIdentifier(DetailsAccessibilityIdentifiers.appVersion)
+                    .accessibilityIdentifier(DetailsAccessibilityIdentifiers.appVersionLabel)
             }
         }
         .frame(maxWidth: .infinity)

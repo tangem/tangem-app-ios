@@ -21,6 +21,7 @@ protocol GaslessTransactionsNetworkManager {
     typealias TronEstimateResponse = GaslessTransactionsDTO.Response.TronEstimate
     typealias TronSubmitRequest = GaslessTransactionsDTO.Request.TronSubmit
     typealias TronSubmitResponse = GaslessTransactionsDTO.Response.TronSubmit
+    typealias SolanaSubmitRequest = GaslessTransactionsDTO.Request.SolanaSubmit
 
     var availableFeeTokens: [FeeToken] { get }
     var availableTronFeeTokens: [TronFeeToken] { get }
@@ -42,6 +43,10 @@ protocol GaslessTransactionsNetworkManager {
 
     var cachedFeeRecipientAddress: String? { get }
     var feeRecipientAddress: String? { get async }
+
+    var cachedSolanaFeePayer: String? { get }
+    var solanaFeePayer: String? { get async }
+    func submitSolanaGaslessTransaction(_ request: SolanaSubmitRequest, userWalletId: UserWalletId) async throws -> String
 }
 
 final class CommonGaslessTransactionsNetworkManager {
@@ -53,6 +58,7 @@ final class CommonGaslessTransactionsNetworkManager {
     private var feeRecipientTask: Task<String?, Never>?
 
     private let _feeRecipientAddress = OSAllocatedUnfairLock<String?>(initialState: nil)
+    private let solanaFeePayerState = OSAllocatedUnfairLock(initialState: SolanaFeePayerState())
 
     init(apiService: GaslessTransactionsAPIService) {
         self.apiService = apiService
@@ -109,6 +115,40 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
     func initialize() {
         updateAvailableTokens()
         preloadFeeRecipientAddress()
+
+        if FeatureProvider.isAvailable(.solanaGasless) {
+            preloadSolanaFeePayer()
+        }
+    }
+
+    var cachedSolanaFeePayer: String? {
+        solanaFeePayerState.withLock { $0.address }
+    }
+
+    var solanaFeePayer: String? {
+        get async {
+            let task: Task<String?, Never> = solanaFeePayerState.withLock { state in
+                if let address = state.address {
+                    return Task { address }
+                }
+
+                if let task = state.task {
+                    return task
+                }
+
+                let task = Task<String?, Never> { [weak self] in
+                    await self?.loadSolanaFeePayer()
+                }
+                state.task = task
+                return task
+            }
+
+            return await task.value
+        }
+    }
+
+    func submitSolanaGaslessTransaction(_ request: SolanaSubmitRequest, userWalletId: UserWalletId) async throws -> String {
+        try await apiService.submitSolanaGaslessTransaction(request, userWalletId: userWalletId)
     }
 
     func updateAvailableTokens() {
@@ -196,6 +236,32 @@ private extension CommonGaslessTransactionsNetworkManager {
 
         self.fetchTronFeeTokensTask = fetchTronFeeTokensTask
     }
+
+    func preloadSolanaFeePayer() {
+        _ = Task { [weak self] in
+            _ = await self?.solanaFeePayer
+        }
+    }
+
+    func loadSolanaFeePayer() async -> String? {
+        do {
+            let address = try await apiService.getSolanaFeePayer()
+            solanaFeePayerState.withLock { state in
+                state.address = address
+                state.task = nil
+            }
+            return address
+        } catch {
+            AppLogger.error("Failed to fetch Solana gasless fee payer", error: error)
+            solanaFeePayerState.withLock { $0.task = nil }
+            return nil
+        }
+    }
+}
+
+private struct SolanaFeePayerState {
+    var address: String?
+    var task: Task<String?, Never>?
 }
 
 private struct GaslessTransactionsNetworkManagerKey: InjectionKey {

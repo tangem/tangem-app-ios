@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+typealias FetchMCPConnectionRequest = @Sendable (_ userCode: String) async throws(MCPConnectionClientError) -> MCPConnectionRequest
+
 struct FetchMCPConnectionRequestUseCase: Sendable {
     let client: any MCPConnectionClient
 

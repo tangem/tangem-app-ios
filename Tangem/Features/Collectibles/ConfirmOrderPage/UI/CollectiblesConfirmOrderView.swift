@@ -172,6 +172,9 @@ private extension CollectiblesConfirmOrderView {
             Localization.collectiblesConfirmOrderNotEnoughFundsButton
         case .balanceUnavailable:
             Localization.commonRetry
+        // [REDACTED_TODO_COMMENT]
+        case .relinkRequired:
+            "Relink account to use"
         case .generating:
             Localization.collectiblesConfirmOrderGeneratingPackButton
         case .confirming:
@@ -216,7 +219,7 @@ private extension CollectiblesConfirmOrderView {
 
         switch viewModel.buttonState {
         case .generating, .confirming, .opening, .packGenerated: return false
-        case .balanceLoading, .balanceUnavailable, .approve, .notEnoughFunds: return true
+        case .balanceLoading, .balanceUnavailable, .approve, .notEnoughFunds, .relinkRequired: return true
         }
     }
 

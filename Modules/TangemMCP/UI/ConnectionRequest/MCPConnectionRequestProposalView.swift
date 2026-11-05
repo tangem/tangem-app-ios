@@ -30,7 +30,7 @@ struct MCPConnectionRequestProposalView: View {
             buttons
         }
         .animation(.linear(duration: 0.2), value: viewModel.state.agentSummary)
-        .animation(Animation.contentFrameUpdate, value: viewModel.state.pushPermissionsBanner)
+        .animation(Animation.mcpFloatingSheetFrameUpdate, value: viewModel.state.pushPermissionsBanner)
     }
 
     private var agentAndPermissionsCard: some View {
@@ -45,7 +45,7 @@ struct MCPConnectionRequestProposalView: View {
                     .transition(.opacity)
 
             case .content(let agentState):
-                Row(title: agentState.name, subtitle: agentState.host)
+                Row(title: agentState.name ?? MCPAgent.fallbackName, subtitle: agentState.host ?? MCPAgent.fallbackHost)
                     .includeInnerPadding(false)
                     .start {
                         agentIcon(agentState.icon)
@@ -65,24 +65,7 @@ struct MCPConnectionRequestProposalView: View {
     }
 
     private func agentIcon(_ iconURL: URL?) -> some View {
-        KFImage(iconURL)
-            .placeholder {
-                Shimmer()
-            }
-            .onFailureView {
-                DesignSystem.Icons.Server.filled32.image
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 32, height: 32)
-                    .foregroundStyle(DesignSystem.Color.iconBrand)
-                    .frame(width: 40, height: 40)
-                    .background(DesignSystem.Color.bgStatusInfoSubtle)
-            }
-            .targetCache(imageCache)
-            .resizable()
-            .scaledToFit()
-            .frame(width: 40, height: 40)
-            .clipShape(.rect(cornerRadius: 12))
+        MCPAgentIconView(iconURL: iconURL, imageCache: imageCache)
     }
 
     private var permissionsSection: some View {
@@ -169,12 +152,19 @@ struct MCPConnectionRequestProposalView: View {
     private func pushPermissionsBanner(_ banner: MCPConnectionRequestProposalState.PushNotificationsPermissionBanner) -> some View {
         MessageBanner(title: banner.title, description: banner.description)
             .variant(.warning)
+            .glowRing(.warning)
+            .slotEnd {
+                DesignSystem.Icons.Warning.filled20.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconStatusWarning)
+                    .accessibilityHidden(true)
+            }
             .primaryButton(
                 MessageBannerButton(title: banner.buttonTitle) {
                     viewModel.handle(action: .openSystemSettingsButtonTapped)
                 }
             )
-            .transition(.move(edge: .top))
+            .transition(AnyTransition.mcpContent)
     }
 
     private var buttons: some View {
@@ -202,5 +192,6 @@ struct MCPConnectionRequestProposalView: View {
             .disabled(viewModel.state.connectButton.state != .enabled)
         }
         .padding(.top, 16)
+        .transformEffect(.identity)
     }
 }

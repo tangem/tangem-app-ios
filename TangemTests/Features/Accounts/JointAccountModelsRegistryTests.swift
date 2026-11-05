@@ -101,7 +101,8 @@ private extension JointAccountModelsRegistryTests {
                     slot: nil,
                     signature: nil
                 )
-            }
+            },
+            invites: []
         )
     }
 }
@@ -132,9 +133,11 @@ private final class JointAccountDependenciesFactoryStub: JointAccountDependencie
             pendingOperationsProvider: pendingOperationsProvider,
             finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
                 pendingOperationsProvider: pendingOperationsProvider,
-                walletModelsManager: walletModelsManager
+                walletModelsManager: walletModelsManager,
+                historyDeltaSyncing: JointOperationsHistoryDeltaSyncingStub()
             ),
-            membersService: JointAccountMembersServiceMock()
+            membersService: JointAccountMembersServiceMock(),
+            userRoleService: JointAccountUserRoleServiceMock()
         )
     }
 }

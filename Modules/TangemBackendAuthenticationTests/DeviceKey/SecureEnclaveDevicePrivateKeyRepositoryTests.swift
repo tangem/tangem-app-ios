@@ -38,7 +38,9 @@ struct SecureEnclaveDevicePrivateKeyRepositoryTests {
     @Test
     func retrieveThrowsKeyRestorationFailedForCorruptedStoredData() async throws {
         let corruptedData = Data([0x00, 0x01, 0x02])
-        let sut = makeSUT(keychainRepository: StubKeychainRepository(retrieveResult: .success(corruptedData)))
+        let keychainRepository = SpyKeychainRepository()
+        keychainRepository.retrieveResult = Result.success(corruptedData)
+        let sut = makeSUT(keychainRepository: keychainRepository)
 
         let error = try await #require(throws: DevicePrivateKeyRepositoryError.self) {
             _ = try await sut.retrieve()
@@ -48,11 +50,15 @@ struct SecureEnclaveDevicePrivateKeyRepositoryTests {
             Issue.record("Expected .keyRestorationFailed, got \(error)")
             return
         }
+
+        #expect(keychainRepository.receivedMessages == [.retrieve])
     }
 
     @Test
     func retrieveThrowsKeychainFailureWhenKeychainRetrieveFails() async throws {
-        let sut = makeSUT(keychainRepository: StubKeychainRepository(retrieveResult: .failure(.itemCorrupted)))
+        let keychainRepository = SpyKeychainRepository()
+        keychainRepository.retrieveResult = Result.failure(.itemCorrupted)
+        let sut = makeSUT(keychainRepository: keychainRepository)
 
         let error = try await #require(throws: DevicePrivateKeyRepositoryError.self) {
             _ = try await sut.retrieve()
@@ -62,16 +68,16 @@ struct SecureEnclaveDevicePrivateKeyRepositoryTests {
             Issue.record("Expected .keychainFailure(.itemCorrupted), got \(error)")
             return
         }
+
+        #expect(keychainRepository.receivedMessages == [.retrieve])
     }
 
     @Test
     func retrieveThrowsKeychainFailureWhenInsertFails() async throws {
-        let sut = makeSUT(
-            keychainRepository: StubKeychainRepository(
-                insertResult: .failure(.insertFailed(status: -1)),
-                retrieveResult: .success(nil)
-            )
-        )
+        let keychainRepository = SpyKeychainRepository()
+        keychainRepository.insertResult = Result.failure(.insertFailed(status: -1))
+        keychainRepository.retrieveResult = Result.success(nil)
+        let sut = makeSUT(keychainRepository: keychainRepository)
 
         let error = try await #require(throws: DevicePrivateKeyRepositoryError.self) {
             _ = try await sut.retrieve()
@@ -97,7 +103,9 @@ struct SecureEnclaveDevicePrivateKeyRepositoryTests {
 
     @Test
     func deletePropagatesKeychainFailure() async throws {
-        let sut = makeSUT(keychainRepository: StubKeychainRepository(deleteResult: .failure(.deleteFailed(status: -1))))
+        let keychainRepository = SpyKeychainRepository()
+        keychainRepository.deleteResult = Result.failure(.deleteFailed(status: -1))
+        let sut = makeSUT(keychainRepository: keychainRepository)
 
         let error = try await #require(throws: DevicePrivateKeyRepositoryError.self) {
             try await sut.delete()
@@ -107,6 +115,8 @@ struct SecureEnclaveDevicePrivateKeyRepositoryTests {
             Issue.record("Expected .keychainFailure(.deleteFailed(status: -1)), got \(error)")
             return
         }
+
+        #expect(keychainRepository.receivedMessages == [.delete])
     }
 }
 

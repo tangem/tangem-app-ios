@@ -64,12 +64,18 @@ extension CollectiblesOnboardingInteractor {
         }
     }
 
-    func onboardingStep(for state: CollectiblesState) throws -> OnboardingStep? {
+    enum OnboardingDecision: Hashable {
+        case ready
+        case vaultMissing
+        case step(OnboardingStep)
+    }
+
+    func onboardingDecision(for state: CollectiblesState, canDeployVault: Bool) throws -> OnboardingDecision {
         switch state {
-        case .ready: nil
-        case .coldOwnerNotDerived: .deriveColdKeyAndSetUpVault
-        case .notOnboarded: .vault(.deploy)
-        case .rekeyRequired: .vault(.pointAtHeldSessionKey)
+        case .ready: .ready
+        case .coldOwnerNotDerived: .step(.deriveColdKeyAndSetUpVault)
+        case .notOnboarded: canDeployVault ? .step(.vault(.deploy)) : .vaultMissing
+        case .rekeyRequired: .step(.vault(.pointAtHeldSessionKey))
         // `resolveState` answers with a resolved case or throws; this is only ever the value
         // published before the first resolve finishes
         case .unresolved: throw CollectiblesOnboardingError.stateUnresolved
@@ -78,11 +84,15 @@ extension CollectiblesOnboardingInteractor {
 
     func perform(
         _ step: OnboardingStep,
+        canDeployVault: Bool,
         resolveState: @escaping () async throws -> CollectiblesState
     ) async throws -> Set<OnboardingStep> {
         switch step {
         case .deriveColdKeyAndSetUpVault:
-            guard let vaultStep = try await deriveColdKeyAndSetUpVault(resolveState: resolveState) else {
+            guard let vaultStep = try await deriveColdKeyAndSetUpVault(
+                canDeployVault: canDeployVault,
+                resolveState: resolveState
+            ) else {
                 return [step]
             }
 
@@ -114,10 +124,16 @@ private extension CollectiblesOnboardingInteractor {
 
     /// The head of the chain: until this key exists nothing else has an address.
     func deriveColdKeyAndSetUpVault(
+        canDeployVault: Bool,
         resolveState: @escaping () async throws -> CollectiblesState
     ) async throws -> VaultStep? {
         CollectiblesLogger.debug("create account: -> No locally stored Solana address, deriving it")
-        let work = VaultSetUpWork(interactor: self, inputs: try await vaultSetUpInputs(), resolveState: resolveState)
+        let work = VaultSetUpWork(
+            interactor: self,
+            inputs: try await vaultSetUpInputs(),
+            canDeployVault: canDeployVault,
+            resolveState: resolveState
+        )
         let signedStep: SignedVaultStep?
 
         do {
@@ -283,6 +299,7 @@ private extension CollectiblesOnboardingInteractor {
 private struct VaultSetUpWork: CollectiblesColdKeySessionWork {
     let interactor: CollectiblesOnboardingInteractor
     let inputs: CollectiblesOnboardingInteractor.VaultSetUpInputs
+    let canDeployVault: Bool
     let resolveState: () async throws -> CollectiblesState
 
     func run(signer: any CollectiblesColdKeySigner) async throws -> CollectiblesOnboardingInteractor.SignedVaultStep? {
@@ -290,12 +307,12 @@ private struct VaultSetUpWork: CollectiblesColdKeySessionWork {
 
         let state = try await resolveState()
 
-        switch try interactor.onboardingStep(for: state) {
-        case .none:
+        switch try interactor.onboardingDecision(for: state, canDeployVault: canDeployVault) {
+        case .ready, .vaultMissing:
             return nil
-        case .vault(let vaultStep):
+        case .step(.vault(let vaultStep)):
             return try await interactor.signVaultStep(vaultStep, signer: signer, inputs: inputs)
-        case .deriveColdKeyAndSetUpVault:
+        case .step(.deriveColdKeyAndSetUpVault):
             throw CollectiblesOnboardingError.coldKeyNotDerived
         }
     }

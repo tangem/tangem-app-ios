@@ -14,17 +14,20 @@ import TangemFoundation
 /// one throws, so the payload initializer turns the whole link away instead of quietly dropping the
 /// parameter.
 struct DeeplinkQuery {
-    private let items: [String: String]
+    private let itemsDecodedTwice: [String: String]
+    private let itemsDecodedOnce: [String: String]
 
     init(url: URL) {
-        items = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+        itemsDecodedOnce = URLComponents(url: url, resolvingAgainstBaseURL: false)?
             .queryItems?
             .filter { $0.value?.isNotEmpty ?? false }
             .keyedFirst(by: \.name)
+            .compactMapValues(\.value) ?? [:]
+        itemsDecodedTwice = itemsDecodedOnce
             // `queryItems` has already decoded the value, so this decodes it a second time: a value carrying
             // a literal `%` drops out here and reads as absent. Kept as it has always been — the links we
             // publish don't carry one.
-            .compactMapValues { $0.value?.removingPercentEncoding } ?? [:]
+            .compactMapValues { $0.removingPercentEncoding }
     }
 }
 
@@ -34,11 +37,15 @@ extension DeeplinkQuery {
     /// Value as it came in the link, with no character rule applied — for parameters that carry
     /// arbitrary text: derivation paths, transaction ids, swap parameters, opaque vendor tokens.
     func unchecked(_ key: String, lowercased: Bool = false) -> String? {
-        items[key].map { lowercased ? $0.lowercased() : $0 }
+        itemsDecodedTwice[key].map { lowercased ? $0.lowercased() : $0 }
+    }
+
+    func decodedOnce(_ key: String) -> String? {
+        itemsDecodedOnce[key]
     }
 
     func optional(_ key: String, lowercased: Bool = false) throws -> String? {
-        guard let value = items[key] else {
+        guard let value = itemsDecodedTwice[key] else {
             return nil
         }
 

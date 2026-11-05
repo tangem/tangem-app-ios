@@ -15,6 +15,7 @@ import Testing
 
 struct CardanoAddressTests {
     let service = AddressServiceFactory(blockchain: .cardano(extended: false)).makeAddressService()
+    let extendedService = AddressServiceFactory(blockchain: .cardano(extended: true)).makeAddressService()
 
     @Test
     func byronAddressGeneration() throws {
@@ -52,4 +53,34 @@ struct CardanoAddressTests {
             try service.makeAddress(from: Keys.AddressesKeys.secpDecompressedKey)
         }
     }
+
+    @Test("Enterprise, base and Byron addresses pass both validators", arguments: Self.honestAddresses)
+    func honestAddressIsAccepted(address: String) {
+        #expect(service.validate(address))
+        #expect(extendedService.validate(address))
+    }
+
+    @Test("A Shelley string whose bech32 HRP is not \"addr\" is rejected by both validators", arguments: Self.forgedShelleyAddresses)
+    func forgedShelleyAddressIsRejected(address: String) {
+        #expect(!service.validate(address))
+        #expect(!extendedService.validate(address))
+    }
+}
+
+// MARK: - Fixtures
+
+private extension CardanoAddressTests {
+    static let payeeEnterpriseAddress = "addr1vyq5f2ntspszzu77guh8kg4gkhzerws5t9jd6gg4d222yfsajkfw5"
+    static let payeeBaseAddress = "addr1q90uh2eawrdc9vaemftgd50l28yrh9lqxtjjh4z6dnn0u7ggasexxdyyk9f05atygnjlccsjsggtc87hhqjna32fpv5qeq96ls"
+    static let byronAddress = "Ae2tdPwUPEZAwboh4Qb8nzwQe6kmT5A3EmGKAKuS6Tcj8UkHy6BpQFnFnND"
+
+    static let honestAddresses = [payeeEnterpriseAddress, payeeBaseAddress, byronAddress]
+
+    static let forgedShelleyAddresses = [
+        payeeEnterpriseAddress + "1vyn5mah4qzseuaxt5tj7sd5qf8rahy63ypzt3k4rvzvlzsghctmp7",
+        "addr11vyn5mah4qzseuaxt5tj7sd5qf8rahy63ypzt3k4rvzvlzsggwzmd5",
+        payeeEnterpriseAddress + "1vyn5mah4qzseuaxt5tj7sd5qf8rahy63ypzt3k4rvzvlzsgzymhyu",
+        payeeEnterpriseAddress + "1w89res42a6qj0skt5hlmlyvvxzy6lh0wacnyzun9pz960ccpucf3j",
+        String(payeeBaseAddress.prefix(66)) + "1vyn5mah4qzseuaxt5tj7sd5qf8rahy63ypzt3k4rvzvlzsg3rkhag",
+    ]
 }

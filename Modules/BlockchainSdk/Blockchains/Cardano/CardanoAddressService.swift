@@ -49,8 +49,7 @@ extension CardanoAddressService: AddressValidator {
         }
 
         if CardanoAddressUtils.isShelleyAddress(address) {
-            return (try? Bech32().decodeLong(address)) != nil
-
+            return CardanoAddressUtils.isValidShelleyAddress(address)
         } else {
             let decoded58 = address.base58DecodedBytes
             guard !decoded58.isEmpty else {

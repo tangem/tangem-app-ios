@@ -24,6 +24,12 @@ final class DesignSystemDemoViewModel: ObservableObject, Identifiable {
             DemoEntry("Earn calculator", section: .ds3) {
                 EarnCalculatorDemoView()
             },
+            DemoEntry("Earn product details", section: .ds3) {
+                EarnProductDetailsDemoView()
+            },
+            DemoEntry("Earn yield picker", section: .ds3) {
+                EarnYieldPickerDemoView()
+            },
         ]
     }
 

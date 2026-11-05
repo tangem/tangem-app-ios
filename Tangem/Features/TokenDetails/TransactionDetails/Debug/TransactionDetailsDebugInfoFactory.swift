@@ -16,14 +16,14 @@ enum TransactionDetailsDebugInfoFactory {
         let source: String
         let operation: String
 
-        switch record.expressExtraInfo {
-        case .exchange:
+        switch record.historyExtraInfo {
+        case .express(.exchange):
             operation = "Swap"
             source = isSynthetic ? "Express (synthetic)" : "BSDK + Express (merged)"
-        case .onramp:
+        case .express(.onramp):
             operation = "Onramp"
             source = isSynthetic ? "Express (synthetic)" : "BSDK + Express (merged)"
-        case nil:
+        case .jointOperation, nil:
             operation = "On-chain"
             source = "BSDK (on-chain)"
         }

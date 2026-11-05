@@ -10,4 +10,5 @@
 protocol CollectiblesMainRoutable: CollectiblesActionsMenuRoutable, CollectiblesAccountRoutable {
     func openMachine(for pack: CollectiblesPack)
     func openReconnection()
+    func closeCollectibles()
 }

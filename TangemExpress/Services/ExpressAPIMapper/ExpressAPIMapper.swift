@@ -157,7 +157,7 @@ struct ExpressAPIMapper {
         let intent = response.intent
 
         return ExchangeMCPIntent(
-            intentID: intent.intentId,
+            id: intent.intentId,
             providerID: intent.provider,
             rateType: try Self.mapRateType(fromResponse: intent),
             from: Self.mapToExchangeMCPIntentAsset(
@@ -172,7 +172,8 @@ struct ExpressAPIMapper {
             ),
             specifiedAmount: try Self.mapSpecifiedAmount(fromResponse: intent),
             walletID: intent.walletId,
-            agentID: intent.clientId
+            agentID: intent.clientId,
+            isHandled: !response.transactions.isEmpty
         )
     }
 

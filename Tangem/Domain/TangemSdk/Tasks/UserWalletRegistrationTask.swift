@@ -12,7 +12,7 @@ import TangemFoundation
 /// A thin generic wrapper around `CardSessionRunnable` that registers a user wallet after the wrapped task has completed successfully.
 final class UserWalletRegistrationTask<Wrapped: CardSessionRunnable> {
     private let wrapped: Wrapped
-    private let userWalletRegistrar = CardUserWalletRegistrar(analyticsReporter: CommonBackendAuthenticationAnalyticsReporter())
+    private let userWalletRegistrar = CardUserWalletRegistrar(analyticsReporter: CommonBackendAuthenticationNonceAnalyticsReporter())
 
     init(wrapped: Wrapped) {
         self.wrapped = wrapped

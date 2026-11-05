@@ -34,11 +34,11 @@ struct AttestUserWalletUseCaseTests {
         let expectedID = UserWalletId.uniqueFake()
         let expectedNonceBytesToSign = Data([0x01, 0x02, 0x03])
         let expectedDecryptedNonce = "some decrypted nonce"
-        let expectedAppAttestationToken = Data("some attestation token".utf8)
+        let expectedAppAssertion = AppAssertion(keyID: "some key id", object: Data("some assertion object".utf8))
         let nonce = UserWalletRegistrationNonce(
             value: expectedDecryptedNonce,
             bytesToSign: expectedNonceBytesToSign,
-            appAttestationToken: expectedAppAttestationToken
+            appAssertion: expectedAppAssertion
         )
 
         let sut = makeSUT(registrationStatusRepository: registrationStatusRepository)
@@ -49,7 +49,7 @@ struct AttestUserWalletUseCaseTests {
             id: expectedID,
             walletAttestation: expectedWalletAttestation,
             decryptedNonce: expectedDecryptedNonce,
-            appAttestationToken: expectedAppAttestationToken,
+            appAssertion: expectedAppAssertion,
             metadata: DeviceMetadata.fake,
             recoveryEnrollment: nil
         )

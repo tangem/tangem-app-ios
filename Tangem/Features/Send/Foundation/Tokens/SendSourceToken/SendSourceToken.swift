@@ -35,13 +35,19 @@ protocol SendSourceToken: SendReceiveToken {
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
     var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { get }
 
-    /// Whether the source token belongs to a Tangem Pay (Visa Payment) account.
-    var isTangemPayAccount: Bool { get }
-    var jointAccountPolicy: JointAccountPolicy? { get }
+    var accountType: SendSourceTokenAccountType { get }
 }
 
 extension SendSourceToken {
     var walletTokenItem: WalletTokenItem { WalletTokenItem(userWalletId: userWalletInfo.id, tokenItem: tokenItem) }
     var possibleToConvertToFiat: Bool { fiatAvailableBalanceProvider.balanceType.value != .none }
     var signingActionButtonType: SigningActionButtonViewType { SigningActionButtonViewTypeBuilder().build(userWalletInfo: userWalletInfo) }
+}
+
+// MARK: - Auxiliary types
+
+enum SendSourceTokenAccountType: Equatable {
+    case crypto
+    case tangemPay
+    case joint(JointAccountPolicy)
 }

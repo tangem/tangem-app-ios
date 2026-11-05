@@ -73,17 +73,23 @@ struct YieldModePromoSheetViewModelTests {
         #expect(analytics.events == [.closed(.swipe)])
     }
 
+    @Test("The tokens pill takes the plural form of the Earn count", arguments: [(1, "More than 1 available token"), (12, "More than 12 available tokens")])
+    func tokensCountText(count: Int, expected: String) {
+        #expect(makeViewModel(routable: routable, tokensCount: count).tokensCountText == expected)
+    }
+
     private func makeViewModel() -> YieldModePromoSheetViewModel {
         makeViewModel(routable: routable)
     }
 
     private func makeViewModel(
-        routable: YieldModePromoSheetRoutable?
+        routable: YieldModePromoSheetRoutable?,
+        tokensCount: Int = 12
     ) -> YieldModePromoSheetViewModel {
         YieldModePromoSheetViewModel(
             data: YieldModePromoSheetData(
                 apy: Decimal(string: "0.0612")!,
-                tokensCount: 12,
+                tokensCount: tokensCount,
                 tokenSymbol: "USDT",
                 blockchainName: "Ethereum"
             ),
@@ -103,7 +109,9 @@ private final class StubRoutable: YieldModePromoSheetRoutable {
 
     private(set) var events: [Event] = []
 
-    func presentYieldModePromo(_ viewModel: YieldModePromoSheetViewModel) {}
+    func presentYieldModePromo(_ viewModel: YieldModePromoSheetViewModel) -> Bool {
+        true
+    }
 
     func dismissYieldModePromo() {
         events.append(.dismiss)
@@ -121,6 +129,10 @@ private final class StubAnalyticsLogger: YieldModePromoAnalyticsLogger {
     }
 
     private(set) var events: [Event] = []
+
+    func logOpened(data: YieldModePromoSheetData) {}
+
+    func logSkipped(reason: MainScreenPromoSheetSkipReason) {}
 
     func logClosed(data: YieldModePromoSheetData, method: YieldModePromoCloseMethod) {
         events.append(.closed(method))

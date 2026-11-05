@@ -8,26 +8,36 @@
 
 import LinkPresentation
 import UIKit
+import TangemFoundation
 import TangemLocalization
 
 final class JointAccountInviteActivityItemSource: NSObject, UIActivityItemSource {
-    private let url: URL
+    let url: URL
+
     private let accountName: String
 
-    init(url: URL, accountName: String) {
-        self.url = url
+    var message: String {
+        Localization.jointAccountInviteMemberMessage(accountName, "").trimmed()
+    }
+
+    var shareMessage: String {
+        Localization.jointAccountInviteMemberMessage(accountName, url.absoluteString)
+    }
+
+    init(accountName: String, url: URL) {
         self.accountName = accountName
+        self.url = url
     }
 
     func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
-        url
+        shareMessage
     }
 
     func activityViewController(
         _ activityViewController: UIActivityViewController,
         itemForActivityType activityType: UIActivity.ActivityType?
     ) -> Any? {
-        url
+        shareMessage
     }
 
     func activityViewController(

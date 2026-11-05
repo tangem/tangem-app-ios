@@ -43,15 +43,17 @@ extension JointAccountModelsSelector {
     enum JointAccountState {
         /// Whatever state it is in, a status this version has never heard of included.
         case all
-        /// Still being put together: slots left to take, or the address announced and the creator yet to activate it.
+        /// Still being put together: slots left to take, or the address announced and its members yet to confirm it.
         case pending
         case active
+        case untrusted
 
         func isMatching(status: JointAccountStatus) -> Bool {
             switch self {
             case .all: true
             case .pending: status.isPending || status.isConfirming
             case .active: status.isActive
+            case .untrusted: status.isUntrusted
             }
         }
     }

@@ -408,12 +408,6 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func activateJointAccount(
-        walletId: String, body: JointAccountsDTO.Request.Activate
-    ) async throws -> JointAccountsDTO.Response.JointAccount {
-        throw "Not implemented"
-    }
-
     func confirmJointAccount(
         walletId: String, body: JointAccountsDTO.Request.Confirm
     ) async throws -> JointAccountsDTO.Response.JointAccount {

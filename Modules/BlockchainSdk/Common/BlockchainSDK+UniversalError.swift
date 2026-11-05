@@ -147,6 +147,8 @@ extension CardanoError: UniversalError {
             102003005
         case .failedToHashTransactionData:
             102003006
+        case .invalidDestinationAddress:
+            102003007
         }
     }
 }

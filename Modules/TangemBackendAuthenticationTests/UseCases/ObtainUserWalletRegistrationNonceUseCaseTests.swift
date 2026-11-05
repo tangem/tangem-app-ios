@@ -18,8 +18,11 @@ final class ObtainUserWalletRegistrationNonceUseCaseTests: LeakTrackingTestSuite
     @Test
     func obtainNonceReturnsValidUserWalletRegistrationNonceOnSuccess() async throws {
         let appAttestService = SpyAppAttestService()
-        let expectedAppAttestationToken = Data("some attestation token".utf8)
-        appAttestService.generateAttestationTokenResult = Result.success(expectedAppAttestationToken)
+        let expectedAppAssertion = AppAssertion(keyID: "some key id", object: Data("some assertion object".utf8))
+        appAttestService.assertResult = Result.success(expectedAppAssertion)
+
+        let appAttestationStatusRepository = SpyAppAttestationStatusRepository()
+        appAttestationStatusRepository.retrieveResult = true
 
         let registrationClient = SpyUserWalletRegistrationClient()
         let expectedCipheredNonce = "some ciphered nonce"
@@ -28,9 +31,9 @@ final class ObtainUserWalletRegistrationNonceUseCaseTests: LeakTrackingTestSuite
         let registrationStatusRepository = SpyUserWalletRegistrationStatusRepository()
 
         let devicePrivateKeyRepository = SpyDevicePrivateKeyRepository()
-        let expectedDevicePrivateKey = StubDevicePrivateKey()
+        let expectedDevicePrivateKey = SpyDevicePrivateKey.successStub
         devicePrivateKeyRepository.retrieveResult = Result.success(expectedDevicePrivateKey)
-        let expectedDevicePublicKey = try expectedDevicePrivateKey.publicKey
+        let expectedDevicePublicKey = try expectedDevicePrivateKey.publicKeyResult.get()
 
         let expectedNonceBytesToSign = Data([0x01, 0x02, 0x03])
         let expectedDecryptedNonce = expectedNonceBytesToSign.base64URLEncodedString
@@ -42,6 +45,7 @@ final class ObtainUserWalletRegistrationNonceUseCaseTests: LeakTrackingTestSuite
         let sut = makeSUT(
             appAttestService: appAttestService,
             registrationClient: registrationClient,
+            appAttestationStatusRepository: appAttestationStatusRepository,
             registrationStatusRepository: registrationStatusRepository,
             devicePrivateKeyRepository: devicePrivateKeyRepository,
             nonceDecryptor: nonceDecryptor
@@ -53,11 +57,12 @@ final class ObtainUserWalletRegistrationNonceUseCaseTests: LeakTrackingTestSuite
 
         #expect(nonce.value == expectedDecryptedNonce)
         #expect(nonce.bytesToSign == expectedNonceBytesToSign)
-        #expect(nonce.appAttestationToken == expectedAppAttestationToken)
+        #expect(nonce.appAssertion == expectedAppAssertion)
 
         #expect(devicePrivateKeyRepository.receivedMessages == [.retrieve])
+        #expect(expectedDevicePrivateKey.receivedMessages == [.publicKey])
         #expect(nonceDecryptor.receivedMessages == [.decrypt(expectedCipheredNonce)])
-        #expect(appAttestService.receivedMessages == [.generateAttestationToken(expectedDecryptedNonceBytes)])
+        #expect(appAttestService.receivedMessages == [.assert(expectedDecryptedNonceBytes)])
         #expect(registrationClient.receivedMessages == [.requestCipheredNonce(expectedDevicePublicKey)])
         #expect(registrationStatusRepository.receivedMessages == [.retrieve(expectedID)])
     }
@@ -99,21 +104,90 @@ final class ObtainUserWalletRegistrationNonceUseCaseTests: LeakTrackingTestSuite
         #expect(registrationStatusRepository.receivedMessages == [.retrieve(expectedID)])
     }
 
-    @Test
-    func obtainNonceSucceedsEvenWhenAttestationTokenGenerationFails() async throws {
+    @Test(arguments: [
+        AppAttestServiceError.assertionFailed(underlying: AnyTestError()),
+        AppAttestServiceError.keychainFailure(.retrieveFailed(status: errSecInteractionNotAllowed)),
+        AppAttestServiceError.deviceCheckUnsupported,
+    ])
+    func obtainNonceSucceedsWhenAppAssertionFails(assertionError: AppAttestServiceError) async throws {
         let appAttestService = SpyAppAttestService()
-        appAttestService.generateAttestationTokenResult = Result.failure(AppAttestServiceError())
+        appAttestService.assertResult = Result.failure(assertionError)
+
+        let appAttestationStatusRepository = SpyAppAttestationStatusRepository()
+        appAttestationStatusRepository.retrieveResult = true
+
+        let expectedDecryptedNonceBytes = Data(Data([0x01, 0x02, 0x03]).base64URLEncodedString.utf8)
+        let nonceDecryptor = SpyNonceDecryptor()
+        nonceDecryptor.decryptResult = Result.success(expectedDecryptedNonceBytes)
 
         let sut = makeSUT(
             appAttestService: appAttestService,
             registrationClient: .successStub,
+            appAttestationStatusRepository: appAttestationStatusRepository,
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: nonceDecryptor
+        )
+
+        let nonce = try #require(await sut(id: UserWalletId.fake))
+
+        #expect(nonce.appAssertion == nil)
+        #expect(appAttestService.receivedMessages == [.assert(expectedDecryptedNonceBytes)])
+        #expect(appAttestationStatusRepository.receivedMessages == [.retrieve])
+    }
+
+    @Test(arguments: [
+        AppAttestServiceError.assertionKeyCorrupted,
+        AppAttestServiceError.assertionKeyNotFound,
+    ])
+    func obtainNonceResetsAppAttestationStatusWhenAssertionKeyIsUnavailable(
+        keyUnavailableError: AppAttestServiceError
+    ) async throws {
+        let appAttestService = SpyAppAttestService()
+        appAttestService.assertResult = Result.failure(keyUnavailableError)
+
+        let appAttestationStatusRepository = SpyAppAttestationStatusRepository()
+        appAttestationStatusRepository.retrieveResult = true
+
+        let expectedDecryptedNonceBytes = Data(Data([0x01, 0x02, 0x03]).base64URLEncodedString.utf8)
+        let nonceDecryptor = SpyNonceDecryptor()
+        nonceDecryptor.decryptResult = Result.success(expectedDecryptedNonceBytes)
+
+        let sut = makeSUT(
+            appAttestService: appAttestService,
+            registrationClient: .successStub,
+            appAttestationStatusRepository: appAttestationStatusRepository,
+            devicePrivateKeyRepository: .successStub,
+            nonceDecryptor: nonceDecryptor
+        )
+
+        let nonce = try #require(await sut(id: UserWalletId.fake))
+
+        #expect(nonce.appAssertion == nil)
+        #expect(appAttestService.receivedMessages == [.assert(expectedDecryptedNonceBytes)])
+        #expect(appAttestationStatusRepository.receivedMessages == [.retrieve, .persist(false)])
+    }
+
+    @Test
+    func obtainNonceSkipsAssertionWhenAppIsNotAttested() async throws {
+        let appAttestService = SpyAppAttestService()
+        appAttestService.assertResult = Result.success(AppAssertion.fake)
+
+        let appAttestationStatusRepository = SpyAppAttestationStatusRepository()
+        appAttestationStatusRepository.retrieveResult = false
+
+        let sut = makeSUT(
+            appAttestService: appAttestService,
+            registrationClient: .successStub,
+            appAttestationStatusRepository: appAttestationStatusRepository,
             devicePrivateKeyRepository: .successStub,
             nonceDecryptor: .successStub
         )
 
         let nonce = try #require(await sut(id: UserWalletId.fake))
 
-        #expect(nonce.appAttestationToken == nil)
+        #expect(nonce.appAssertion == nil)
+        #expect(appAttestService.receivedMessages.isEmpty)
+        #expect(appAttestationStatusRepository.receivedMessages == [.retrieve])
     }
 
     @Test
@@ -229,6 +303,7 @@ extension ObtainUserWalletRegistrationNonceUseCaseTests {
         registerDevice: @escaping RegisterDevice = ObtainUserWalletRegistrationNonceUseCaseTests.registerDeviceFake(),
         appAttestService: some AppAttestService = SpyAppAttestService(),
         registrationClient: some UserWalletRegistrationClient = SpyUserWalletRegistrationClient(),
+        appAttestationStatusRepository: some AppAttestationStatusRepository = SpyAppAttestationStatusRepository(),
         registrationStatusRepository: some UserWalletRegistrationStatusRepository = SpyUserWalletRegistrationStatusRepository(),
         devicePrivateKeyRepository: some DevicePrivateKeyRepository = SpyDevicePrivateKeyRepository(),
         nonceDecryptor: some NonceDecryptor = SpyNonceDecryptor(),
@@ -241,6 +316,7 @@ extension ObtainUserWalletRegistrationNonceUseCaseTests {
             registerDevice: registerDevice,
             appAttestService: appAttestService,
             registrationClient: registrationClient,
+            appAttestationStatusRepository: appAttestationStatusRepository,
             registrationStatusRepository: registrationStatusRepository,
             deviceKeyManager: deviceKeyManager,
             nonceDecryptor: nonceDecryptor,

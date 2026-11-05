@@ -16,13 +16,15 @@ final class RemoteCollectiblesPackPurchaseInteractor {
 
     private let generator: any CollectiblesPurchaseGenerator
     private let sentReporter: any CollectiblesPurchaseSentReporter
+    private let pendingPurchaseProvider: any CollectiblesPendingPurchaseProvider
     private let tracker: CollectiblesPurchaseTracker
 
     private var signer: any CollectiblesPurchaseSigner
 
-    // [REDACTED_TODO_COMMENT]
     private var pendingOrder: Order?
     private var activePurchase: ActivePurchase?
+    private var restoreTask: Task<Void, Never>?
+    private var deliveredTxIDs: Set<String> = []
     private var stepHandler: ((CollectiblesPackPurchaseStep) -> Void)?
     private var currentStep: CollectiblesPackPurchaseStep?
 
@@ -34,12 +36,20 @@ final class RemoteCollectiblesPackPurchaseInteractor {
         sentReporter: any CollectiblesPurchaseSentReporter,
         statusProvider: any CollectiblesPurchaseStatusProvider,
         opener: any CollectiblesPackOpener,
-        delayProvider: any PollDelayProvider = TaskSleepPollDelayProvider()
+        pendingPurchaseProvider: any CollectiblesPendingPurchaseProvider,
+        delayProvider: any PollDelayProvider = TaskSleepPollDelayProvider(),
+        dateProvider: any DateProvider = SystemDateProvider()
     ) {
         self.generator = generator
         self.signer = signer
         self.sentReporter = sentReporter
-        tracker = CollectiblesPurchaseTracker(statusProvider: statusProvider, opener: opener, delayProvider: delayProvider)
+        self.pendingPurchaseProvider = pendingPurchaseProvider
+        tracker = CollectiblesPurchaseTracker(
+            statusProvider: statusProvider,
+            opener: opener,
+            delayProvider: delayProvider,
+            dateProvider: dateProvider
+        )
     }
 
     // MARK: - Methods
@@ -54,6 +64,33 @@ final class RemoteCollectiblesPackPurchaseInteractor {
 extension RemoteCollectiblesPackPurchaseInteractor: CollectiblesPackPurchaseInteractor {
     func hasUnfinishedPurchase(machineID: String) -> Bool {
         activePurchase?.machineID == machineID || pendingOrder?.machineID == machineID
+    }
+
+    func isPurchaseLocked(machineID: String) -> Bool {
+        !hasUnfinishedPurchase(machineID: machineID) && signer.isRelinkRequired
+    }
+
+    func restorePendingPurchase() async {
+        guard activePurchase == nil else { return }
+
+        restoreTask?.cancel()
+
+        let task = Task { [weak self] in
+            do {
+                try await self?.restorePendingOrder()
+            } catch {
+                if !error.isCancellationError {
+                    CollectiblesLogger.error("Collectibles pending purchase restore failed", error: error)
+                }
+            }
+        }
+        restoreTask = task
+
+        await task.value
+
+        if restoreTask == task {
+            restoreTask = nil
+        }
     }
 
     func purchase(
@@ -77,10 +114,13 @@ extension RemoteCollectiblesPackPurchaseInteractor: CollectiblesPackPurchaseInte
             return try await activePurchase.task.value
         }
 
+        restoreTask?.cancel()
         stepHandler = onStep
 
         let task = Task {
             defer { finishActivePurchase() }
+
+            try await restorePendingOrder()
 
             return try await runPurchase(
                 machineID: machineID,
@@ -106,7 +146,8 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
     struct Order {
         let machineID: String
         let txID: String
-        let signedPurchase: CollectiblesSignedPurchase
+        let signedPurchase: CollectiblesSignedPurchase?
+        var createdAt: Date?
         var stage: Stage
     }
 
@@ -139,14 +180,14 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
             report(.confirming)
         }
 
-        if order.stage == .signed {
-            try await send(order)
+        if order.stage == .signed, let signedPurchase = order.signedPurchase {
+            try await send(signedPurchase, of: order)
             order.stage = .sent
             pendingOrder = order
         }
 
-        if order.stage == .sent {
-            try await reportSent(order)
+        if order.stage == .sent, let signedPurchase = order.signedPurchase {
+            try await reportSent(signedPurchase, of: order)
             order.stage = .reported
             pendingOrder = order
         }
@@ -160,11 +201,13 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
             throw CollectiblesPackPurchaseError.paymentFailed(status)
         } catch let sold as CollectiblesPurchaseTracker.AutoSold {
             pendingOrder = nil
+            deliveredTxIDs.insert(order.txID)
             return .autoSold(amount: sold.amount)
         }
 
         // [REDACTED_TODO_COMMENT]
         pendingOrder = nil
+        deliveredTxIDs.insert(order.txID)
 
         return .wonCard(wonCard)
     }
@@ -174,7 +217,9 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
         var openedCard: CollectiblesWonCard?
 
         if order.stage == .reported || order.stage == .paid {
-            switch try await tracker.awaitPayment(txID: order.txID) {
+            let packCreatedAt = order.stage == .reported ? order.createdAt : nil
+
+            switch try await tracker.awaitPayment(txID: order.txID, createdAt: packCreatedAt) {
             case .paid:
                 order.stage = .paid
             case .opened(let wonCard):
@@ -188,7 +233,7 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
         report(.opening)
 
         if order.stage == .paid {
-            openedCard = try await tracker.open(txID: order.txID)
+            openedCard = try await open(order)
             order.stage = .opened
             pendingOrder = order
         }
@@ -198,6 +243,14 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
         }
 
         return try await tracker.awaitWonCard(txID: order.txID)
+    }
+
+    func open(_ order: Order) async throws -> CollectiblesWonCard? {
+        do {
+            return try await tracker.open(txID: order.txID)
+        } catch CollectiblesPackOpeningError.spinNotFound {
+            throw CollectiblesPackPurchaseError.paymentFailed(.refunded)
+        }
     }
 
     func report(_ step: CollectiblesPackPurchaseStep) {
@@ -217,15 +270,24 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
         platformFee: Decimal,
         isTurboModeOn: Bool
     ) async throws -> Order {
-        // [REDACTED_TODO_COMMENT]
         if let pendingOrder {
             guard pendingOrder.machineID != machineID else {
                 return pendingOrder
             }
 
-            guard pendingOrder.stage == .signed else {
-                throw CollectiblesPackPurchaseError.anotherPurchaseInProgress
+            if pendingOrder.stage != .signed {
+                guard try await tracker.checkPurchaseIsClosed(txID: pendingOrder.txID) else {
+                    throw CollectiblesPackPurchaseError.anotherPurchaseInProgress
+                }
+
+                self.pendingOrder = nil
             }
+        }
+
+        let isRelinkRequired = try await signer.resolveRelinkRequirement()
+
+        guard !isRelinkRequired else {
+            throw CollectiblesPackPurchaseError.relinkRequired
         }
 
         guard let addresses = signer.purchaseAddresses else {
@@ -245,17 +307,35 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
             throw CollectiblesPackPurchaseError.lowInventory
         }
         let confirmedPrice = try CollectiblesConfirmedPrice(price: price, platformFee: platformFee)
-        let signedPurchase = try await signer.signPurchase(generated.purchase, confirmedPrice: confirmedPrice)
+        let signedPurchase: CollectiblesSignedPurchase
 
-        let order = Order(machineID: machineID, txID: generated.txID, signedPurchase: signedPurchase, stage: .signed)
+        do {
+            signedPurchase = try await signer.signPurchase(generated.purchase, confirmedPrice: confirmedPrice)
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            guard try await isRelinkRequiredNow(txID: generated.txID) else {
+                throw error
+            }
+
+            throw CollectiblesPackPurchaseError.relinkRequired
+        }
+
+        let order = Order(
+            machineID: machineID,
+            txID: generated.txID,
+            signedPurchase: signedPurchase,
+            createdAt: nil,
+            stage: .signed
+        )
         pendingOrder = order
 
         return order
     }
 
-    func reportSent(_ order: Order) async throws {
+    func reportSent(_ signedPurchase: CollectiblesSignedPurchase, of order: Order) async throws {
         do {
-            _ = try await sentReporter.report(txID: order.txID, txHash: order.signedPurchase.signature)
+            _ = try await sentReporter.report(txID: order.txID, txHash: signedPurchase.signature)
         } catch is CancellationError {
             throw CancellationError()
         } catch {
@@ -264,16 +344,76 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
         }
     }
 
-    func send(_ order: Order) async throws {
+    func send(_ signedPurchase: CollectiblesSignedPurchase, of order: Order) async throws {
         do throws(CollectiblesSendError) {
-            try await signer.sendPurchase(order.signedPurchase)
+            try await signer.sendPurchase(signedPurchase)
         } catch {
             switch error {
             case .transactionExpired, .outcomeUnknown:
                 CollectiblesLogger.info("Collectibles purchase \(order.txID) send outcome is unknown, the backend status decides")
-            case .rejected:
-                throw error
+            case .rejected(let rejection):
+                guard rejection as? CollectiblesProgramRejection == .unauthorized else {
+                    throw error
+                }
+
+                pendingOrder = nil
+                try await refreshRelinkState(txID: order.txID)
+                throw CollectiblesPackPurchaseError.relinkRequired
             }
+        }
+    }
+
+    func restorePendingOrder() async throws {
+        let pendingPurchase = try await pendingPurchaseProvider.load()
+        try Task.checkCancellation()
+
+        guard let pendingPurchase, !deliveredTxIDs.contains(pendingPurchase.txID) else {
+            return
+        }
+
+        guard pendingPurchase.txID != pendingOrder?.txID else {
+            pendingOrder?.createdAt = pendingPurchase.createdAt
+            return
+        }
+
+        guard let stage = Self.stage(resumingFrom: pendingPurchase.status) else {
+            return
+        }
+
+        pendingOrder = Order(
+            machineID: pendingPurchase.machineID,
+            txID: pendingPurchase.txID,
+            signedPurchase: nil,
+            createdAt: pendingPurchase.createdAt,
+            stage: stage
+        )
+    }
+
+    static func stage(resumingFrom status: CollectiblesPurchaseStatus) -> Stage? {
+        switch status {
+        case .purchaseTxHash, .waitingForPayment, .unknown:
+            .reported
+        case .packPurchased, .packOpeningError:
+            .paid
+        case .packOpened, .nftReceived:
+            .opened
+        case .created, .waitingTxHash, .expired, .refunded, .autoBuybacked, .manuallyBuybacked, .paused:
+            nil
+        }
+    }
+
+    func refreshRelinkState(txID: String) async throws {
+        _ = try await isRelinkRequiredNow(txID: txID)
+    }
+
+    func isRelinkRequiredNow(txID: String) async throws -> Bool {
+        do {
+            return try await signer.resolveRelinkRequirement()
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            CollectiblesLogger.error("Collectibles purchase \(txID) relink recheck failed", error: error)
+            return false
         }
     }
 }

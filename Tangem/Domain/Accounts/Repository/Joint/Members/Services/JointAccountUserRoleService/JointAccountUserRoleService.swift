@@ -9,26 +9,21 @@
 import Foundation
 
 protocol JointAccountUserRoleService {
-    func role(among members: [JointAccountMember]) -> JointAccountUserRole
+    func isCreator() throws(JointAccountUserRoleServiceError) -> Bool
+    func ownAddress() throws(JointAccountUserRoleServiceError) -> String
+}
+
+extension JointAccountUserRoleService {
+    var isCreator: Bool? { try? isCreator() }
+    var ownAddress: String? { try? ownAddress() }
+
+    func isMe(member: StoredJointAccount.Member) throws(JointAccountUserRoleServiceError) -> Bool {
+        try ownAddress().caseInsensitiveEquals(to: member.address)
+    }
 }
 
 // MARK: - Auxiliary types
 
-enum JointAccountUserRole: Equatable {
-    case member(JointAccountMember)
-    case outsider
+enum JointAccountUserRoleServiceError: Error {
     case derivationNeeded
-}
-
-extension JointAccountUserRole {
-    var member: JointAccountMember? {
-        switch self {
-        case .member(let member): member
-        case .outsider, .derivationNeeded: nil
-        }
-    }
-
-    var isCreator: Bool {
-        member?.role == .creator
-    }
 }

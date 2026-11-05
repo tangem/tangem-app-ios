@@ -24,4 +24,8 @@ extension BSDKFee {
 
         return false
     }
+
+    var isSponsored: Bool {
+        parameters is SolanaGaslessFeeParameters
+    }
 }

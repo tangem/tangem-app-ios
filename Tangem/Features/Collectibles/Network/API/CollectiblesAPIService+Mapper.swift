@@ -74,13 +74,13 @@ extension CollectiblesAPIService {
             _ transaction: CollectiblesDTO.PurchaseTransaction
         ) -> CollectiblesPurchaseTransaction {
             CollectiblesPurchaseTransaction(
-                status: mapToPurchaseStatus(transaction),
+                status: mapToPurchaseStatus(transaction.status),
                 wonCard: transaction.nftWon.map(mapToWonCard),
-                buybackAmount: transaction.buyback.flatMap(mapToBuybackAmount)
+                buybackAmount: transaction.autoBuyback.flatMap(mapToBuybackAmount)
             )
         }
 
-        static func mapToBuybackAmount(_ buyback: CollectiblesDTO.PurchaseBuyback) -> Decimal? {
+        static func mapToBuybackAmount(_ buyback: CollectiblesDTO.AutoBuyback) -> Decimal? {
             guard let toAmount = buyback.toAmount else {
                 return nil
             }
@@ -113,15 +113,32 @@ extension CollectiblesAPIService {
         }
 
         static func mapToErrorCode(_ body: Data) -> Int? {
-            (try? errorDecoder.decode(CollectiblesDTO.ErrorResponse.self, from: body))?.code
+            mapToErrorResponse(body)?.code
+        }
+
+        static func mapToErrorResponse(_ body: Data) -> CollectiblesDTO.ErrorResponse? {
+            try? errorDecoder.decode(CollectiblesDTO.ErrorResponse.self, from: body)
         }
 
         private static let errorDecoder = JSONDecoder()
 
-        static func mapToPurchaseStatus(
-            _ transaction: CollectiblesDTO.PurchaseTransaction
-        ) -> CollectiblesPurchaseStatus {
-            switch transaction.status {
+        static func mapToPendingPurchase(
+            _ transaction: CollectiblesDTO.ActiveTransaction
+        ) -> CollectiblesPendingPurchase? {
+            guard let machine = transaction.machine else {
+                return nil
+            }
+
+            return CollectiblesPendingPurchase(
+                txID: transaction.txID,
+                machineID: machine.externalID,
+                status: mapToPurchaseStatus(transaction.status),
+                createdAt: transaction.createdAt
+            )
+        }
+
+        static func mapToPurchaseStatus(_ status: String) -> CollectiblesPurchaseStatus {
+            switch status {
             case "created": .created
             case "waiting-tx-hash": .waitingTxHash
             case "purchase-tx-hash", "purchase-tx-sent": .purchaseTxHash
@@ -135,7 +152,7 @@ extension CollectiblesAPIService {
             case "nft-received": .nftReceived
             case "manually-buybacked": .manuallyBuybacked
             case "paused": .paused
-            default: .unknown(transaction.status)
+            default: .unknown(status)
             }
         }
     }

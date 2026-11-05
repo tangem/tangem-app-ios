@@ -1,0 +1,343 @@
+//
+//  CommonTangemPayBalanceServiceTests.swift
+//  TangemTests
+//
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import Combine
+import Foundation
+import Testing
+import TangemFoundation
+import TangemPay
+@testable import Tangem
+
+@Suite("CommonTangemPayBalanceService networks", .timeLimit(.minutes(1)))
+struct CommonTangemPayBalanceServiceTests {
+    @Test("Networks reach subscribers as soon as the balance loads")
+    func loadedNetworksArePublished() async throws {
+        let balance = try makeBalance()
+        let sut = makeSUT(balanceResults: [.success(balance)])
+        let spy = NetworksSpy(publisher: sut.networksPublisher)
+
+        await load(sut)
+
+        #expect(spy.values == [[], balance.networks])
+        #expect(sut.networks == balance.networks)
+    }
+
+    @Test("A late subscriber gets the networks already loaded")
+    func lateSubscriberGetsLoadedNetworks() async throws {
+        let balance = try makeBalance()
+        let sut = makeSUT(balanceResults: [.success(balance)])
+
+        await load(sut)
+        let networks = try await sut.networksPublisher.first().async()
+
+        #expect(networks == balance.networks)
+    }
+
+    @Test("A failed reload keeps the networks from the last successful one")
+    func failedReloadKeepsNetworks() async throws {
+        let balance = try makeBalance()
+        let sut = makeSUT(balanceResults: [.success(balance), .failure(.unauthorized)])
+        let spy = NetworksSpy(publisher: sut.networksPublisher)
+
+        await load(sut)
+        await load(sut)
+
+        #expect(spy.values == [[], balance.networks])
+        #expect(sut.networks == balance.networks)
+    }
+
+    @Test("Reloading the same networks does not emit them again")
+    func unchangedNetworksAreNotRepublished() async throws {
+        let balance = try makeBalance()
+        let sut = makeSUT(balanceResults: [.success(balance), .success(balance)])
+        let spy = NetworksSpy(publisher: sut.networksPublisher)
+
+        await load(sut)
+        await load(sut)
+
+        #expect(spy.values == [[], balance.networks])
+    }
+
+    @Test("Changed networks are published on reload")
+    func changedNetworksArePublished() async throws {
+        let first = try makeBalance()
+        let second = try makeBalance(depositAddress: "0xanother")
+        let sut = makeSUT(balanceResults: [.success(first), .success(second)])
+        let spy = NetworksSpy(publisher: sut.networksPublisher)
+
+        await load(sut)
+        await load(sut)
+
+        #expect(spy.values == [[], first.networks, second.networks])
+    }
+}
+
+// MARK: - Helpers
+
+private extension CommonTangemPayBalanceServiceTests {
+    func makeSUT(balanceResults: [Result<TangemPayBalance, TangemPayAPIServiceError>]) -> CommonTangemPayBalanceService {
+        CommonTangemPayBalanceService(
+            customerInfoManagementService: CustomerInfoManagementServiceStub(balanceResults: balanceResults),
+            tokenBalancesRepository: TokenBalancesRepositoryStub()
+        )
+    }
+
+    func load(_ sut: CommonTangemPayBalanceService) async {
+        await InjectedDependenciesIsolation.shared.run {
+            guard let previousRepository = InjectedValues[\.quotesRepository] as? TokenQuotesRepository & TokenQuotesRepositoryUpdater else {
+                Issue.record("Expected quotesRepository to conform to both TokenQuotesRepository & TokenQuotesRepositoryUpdater")
+                return
+            }
+
+            InjectedValues.setTokenQuotesRepository(MockTokenQuotesRepository(quotes: [:]))
+            defer { InjectedValues.setTokenQuotesRepository(previousRepository) }
+
+            await sut.loadBalance()
+        }
+    }
+
+    func makeBalance(depositAddress: String = "0xdeposit") throws -> TangemPayBalance {
+        try makeTangemPayBalance(
+            networks: """
+            [
+              {
+                "name": "polygon-pos",
+                "isTestnet": false,
+                "chainId": 137,
+                "status": "ENABLED",
+                "depositAddress": "\(depositAddress)",
+                "tokens": [
+                  { "token": "USDC", "tokenContractAddress": "0xusdc", "availableForWithdrawal": 12.5 }
+                ]
+              }
+            ]
+            """
+        )
+    }
+}
+
+// MARK: - Stubs
+
+private final class NetworksSpy {
+    private let state = OSAllocatedUnfairLock(initialState: [[TangemPayBalance.Network]]())
+    private var cancellable: AnyCancellable?
+
+    var values: [[TangemPayBalance.Network]] {
+        state.withLock { $0 }
+    }
+
+    init(publisher: some Publisher<[TangemPayBalance.Network], Never>) {
+        cancellable = publisher.sink { [state] networks in
+            state.withLock { $0.append(networks) }
+        }
+    }
+}
+
+private final class TokenBalancesRepositoryStub: TokenBalancesRepository {
+    func balance(walletModelId: WalletModelId, type: CachedBalanceType) -> CachedBalance? {
+        nil
+    }
+
+    func store(balance: CachedBalance, for walletModelId: WalletModelId, type: CachedBalanceType) {}
+}
+
+private final class CustomerInfoManagementServiceStub: CustomerInfoManagementService {
+    private let balanceResults: OSAllocatedUnfairLock<[Result<TangemPayBalance, TangemPayAPIServiceError>]>
+
+    init(balanceResults: [Result<TangemPayBalance, TangemPayAPIServiceError>]) {
+        self.balanceResults = OSAllocatedUnfairLock(initialState: balanceResults)
+    }
+
+    func getBalance() async throws(TangemPayAPIServiceError) -> TangemPayBalance {
+        let result = balanceResults.withLock { results in
+            results.isEmpty ? .failure(.unauthorized) : results.removeFirst()
+        }
+
+        return try result.get()
+    }
+
+    func loadCustomerInfo() async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse {
+        throw .unauthorized
+    }
+
+    func loadCustomerSummary() async throws(TangemPayAPIServiceError) -> TangemPayCustomerSummaryResponse {
+        throw .unauthorized
+    }
+
+    func loadKYCAccessToken() async throws(TangemPayAPIServiceError) -> VisaKYCAccessTokenResponse {
+        throw .unauthorized
+    }
+
+    func checkEligibility(product: TangemPayProduct) async throws(TangemPayAPIServiceError) -> TangemPayEligibilityCheckResponse {
+        throw .unauthorized
+    }
+
+    func getCardDetails(cardId: String, sessionId: String) async throws(TangemPayAPIServiceError) -> TangemPayCardDetailsResponse {
+        throw .unauthorized
+    }
+
+    func getCardProcessorDetails(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayCardProcessorDetailsResponse {
+        throw .unauthorized
+    }
+
+    func closeCard(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayCloseCardResponse {
+        throw .unauthorized
+    }
+
+    func getPin(cardId: String, sessionId: String) async throws(TangemPayAPIServiceError) -> TangemPayGetPinResponse {
+        throw .unauthorized
+    }
+
+    func setPin(cardId: String, pin: String, sessionId: String, iv: String) async throws(TangemPayAPIServiceError) -> TangemPaySetPinResponse {
+        throw .unauthorized
+    }
+
+    func placeOrder(
+        request: TangemPayPlaceOrderRequest,
+        idempotencyKey: String
+    ) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {
+        throw .unauthorized
+    }
+
+    func sendBankOfframpSignature(
+        orderId: String,
+        signature: String,
+        idempotencyKey: String
+    ) async throws(TangemPayAPIServiceError) {
+        throw .unauthorized
+    }
+
+    func updateCardDisplayName(cardId: String, _ displayName: String) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.ProductInstance {
+        throw .unauthorized
+    }
+
+    func setCardLimit(cardId: String, amount: Int) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.ProductInstance {
+        throw .unauthorized
+    }
+
+    func freeze(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayFreezeUnfreezeResponse {
+        throw .unauthorized
+    }
+
+    func unfreeze(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayFreezeUnfreezeResponse {
+        throw .unauthorized
+    }
+
+    func getTransactionHistory(limit: Int, cursor: String?) async throws(TangemPayAPIServiceError) -> TangemPayTransactionHistoryResponse {
+        throw .unauthorized
+    }
+
+    func getTransaction(transactionId: String) async throws(TangemPayAPIServiceError) -> TangemPayTransactionHistoryResponse.Transaction {
+        throw .unauthorized
+    }
+
+    func getWithdrawPreSignatureInfo(
+        request: TangemPayWithdrawRequest
+    ) async throws(TangemPayAPIServiceError) -> TangemPayWithdrawPreSignature {
+        throw .unauthorized
+    }
+
+    func sendWithdrawTransaction(
+        request: TangemPayWithdrawRequest,
+        signature: TangemPayWithdrawSignature
+    ) async throws(TangemPayAPIServiceError) -> TangemPayWithdrawTransactionResult {
+        throw .unauthorized
+    }
+
+    func getOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {
+        throw .unauthorized
+    }
+
+    func cancelOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayCancelOrderResponse {
+        throw .unauthorized
+    }
+
+    func findOrders(
+        types: [String],
+        statuses: [TangemPayOrderResponse.Status]
+    ) async throws(TangemPayAPIServiceError) -> [TangemPayOrderResponse] {
+        throw .unauthorized
+    }
+
+    func getCustomerOffers(deeplinkValue: String?) async throws(TangemPayAPIServiceError) -> TangemPayCustomerOffersResponse {
+        throw .unauthorized
+    }
+
+    func getProductInstanceOffers(
+        productInstanceId: String
+    ) async throws(TangemPayAPIServiceError) -> TangemPayCustomerOffersResponse {
+        throw .unauthorized
+    }
+
+    func getTariffPlanTransitions() async throws(TangemPayAPIServiceError) -> TangemPayTariffPlanTransitionsResponse {
+        throw .unauthorized
+    }
+
+    func requestTariffPlanPendingTransition(
+        pendingTariffPlanId: String
+    ) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.CustomerTariffPlan {
+        throw .unauthorized
+    }
+
+    func cancelTariffPlanPendingTransition() async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.CustomerTariffPlan {
+        throw .unauthorized
+    }
+
+    func getFee(type: TangemPayFeeType) async throws(TangemPayAPIServiceError) -> TangemPayFeeResponse {
+        throw .unauthorized
+    }
+
+    func getFees(groups: [TangemPayFeeGroup]) async throws(TangemPayAPIServiceError) -> [TangemPayFeeResponse] {
+        throw .unauthorized
+    }
+
+    func reissueCard(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayReissueCardResponse {
+        throw .unauthorized
+    }
+
+    func getBankCredentials(productInstanceId: String) async throws(TangemPayAPIServiceError) -> TangemPayBankCredentialsResponse {
+        throw .unauthorized
+    }
+
+    func getBankAccounts() async throws(TangemPayAPIServiceError) -> [TangemPayBankAccountResponse] {
+        throw .unauthorized
+    }
+
+    func getBankOfframpOptions() async throws(TangemPayAPIServiceError) -> TangemPayBankOfframpOptionsResponse {
+        throw .unauthorized
+    }
+
+    func loadEligibility() async throws(TangemPayAPIServiceError) -> TangemPayAvailabilityResponse {
+        throw .unauthorized
+    }
+
+    func getCashbackSummary() async throws(TangemPayAPIServiceError) -> TangemPayCashbackSummaryResponse {
+        throw .unauthorized
+    }
+
+    func getCashbackHistory(months: Int?) async throws(TangemPayAPIServiceError) -> TangemPayCashbackHistoryResponse {
+        throw .unauthorized
+    }
+
+    func getCashbackPromotions() async throws(TangemPayAPIServiceError) -> TangemPayCashbackPromotionsResponse {
+        throw .unauthorized
+    }
+
+    func getCashbackAccrualsDocs() async throws(TangemPayAPIServiceError) -> TangemPayCashbackAccrualsDocsResponse {
+        throw .unauthorized
+    }
+
+    func getCashbackTransactionDetails(
+        transactionId: String
+    ) async throws(TangemPayAPIServiceError) -> TangemPayCashbackTransactionDetailsResponse {
+        throw .unauthorized
+    }
+
+    func cancelKYC() async throws(TangemPayAPIServiceError) -> TangemPayCancelKYCResponse {
+        throw .unauthorized
+    }
+}

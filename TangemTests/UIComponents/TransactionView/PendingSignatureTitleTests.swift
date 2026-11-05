@@ -12,9 +12,9 @@ import TangemLocalization
 
 @Suite("Title of a joint account operation in the token history")
 struct PendingSignatureTitleTests {
-    @Test("An operation still collecting signatures is titled Send; one already sent to the network is titled Sending")
+    @Test("An operation still collecting signatures is titled Pending send; one already sent to the network is titled Sending")
     func titleFollowsThePendingSignature() {
-        #expect(title(isPendingSignature: true) == Localization.commonSend)
+        #expect(title(isPendingSignature: true) == Localization.transactionHistoryPendingSend)
         #expect(title(isPendingSignature: false) == Localization.commonSending)
     }
 

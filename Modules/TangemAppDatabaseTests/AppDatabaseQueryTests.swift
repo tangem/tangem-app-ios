@@ -126,6 +126,59 @@ struct AppDatabaseQueryTests {
         try expectSameDatabaseRepresentation(try #require(onrampRecords.cryptoCurrency), cryptoCurrency)
     }
 
+    @Test("History index info query resolves a joint operation, but no Express deal sharing its ID")
+    func historyIndexInfoQueryResolvesJointOperationOnly() throws {
+        let databaseQueue = try AppDatabaseTestFactory.makeMigratedDatabaseQueue()
+
+        let jointOperation = AppDatabaseFixtures.makeFullJointOperationRecord(id: "shared-id-1")
+        let exchangeTransaction = AppDatabaseFixtures.makeFullExchangeTransactionRecord(
+            id: jointOperation.id,
+            providerID: "changelly",
+            fromNetwork: "base",
+            fromContract: AppDatabaseFixtures.coinContractAddress,
+            toNetwork: "bitcoin",
+            toContract: AppDatabaseFixtures.coinContractAddress,
+            refundNetwork: nil,
+            refundContractAddress: nil
+        )
+        let onrampTransaction = AppDatabaseFixtures.makeFullOnrampTransactionRecord(
+            id: jointOperation.id,
+            providerID: "mercuryo",
+            fromCurrency: "USD",
+            toNetwork: "base",
+            toContract: AppDatabaseFixtures.coinContractAddress
+        )
+        let historyIndex = AppDatabaseFixtures.makeHistoryIndexRecord(
+            entityType: TransactionHistoryIndexRecord.Values.EntityType.jointOperation,
+            entityID: jointOperation.id,
+            address: jointOperation.safeAddress,
+            network: "base",
+            contract: AppDatabaseFixtures.coinContractAddress,
+            dateTime: jointOperation.createdAt
+        )
+
+        try databaseQueue.write { database in
+            try jointOperation.insert(database)
+            try exchangeTransaction.insert(database)
+            try onrampTransaction.insert(database)
+            try historyIndex.insert(database)
+        }
+
+        let fetchedInfos = try databaseQueue.read { database in
+            try TransactionHistoryIndexInfoRecord
+                .query(addresses: [historyIndex.address], network: historyIndex.network, contractAddress: historyIndex.contract)
+                .fetchAll(database)
+        }
+
+        #expect(fetchedInfos.count == 1)
+
+        let info = try #require(fetchedInfos.first)
+        try expectSameDatabaseRepresentation(info.indexRecord, historyIndex)
+        try expectSameDatabaseRepresentation(try #require(info.jointOperation), jointOperation)
+        #expect(info.exchangeTransaction == nil)
+        #expect(info.onrampTransaction == nil)
+    }
+
     @Test("History index info query returns only exact matches of the address, network, and contract")
     func historyIndexInfoQueryFiltersByExactMatch() throws {
         let databaseQueue = try AppDatabaseTestFactory.makeMigratedDatabaseQueue()

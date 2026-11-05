@@ -19,7 +19,7 @@ final class CollectiblesWelcomeViewModel: ObservableObject, Identifiable {
     let signingActionButtonType: SigningActionButtonViewType
 
     private weak var routable: (any CollectiblesWelcomeRoutable)?
-    private let onboarder: (any CollectiblesOnboarder)?
+    private let onboarder: (any CollectiblesOnboarder & CollectiblesRelinker)?
     private let purpose: Purpose
 
     // [REDACTED_TODO_COMMENT]
@@ -47,7 +47,7 @@ final class CollectiblesWelcomeViewModel: ObservableObject, Identifiable {
 
     init(
         routable: (any CollectiblesWelcomeRoutable)?,
-        onboarder: (any CollectiblesOnboarder)? = nil,
+        onboarder: (any CollectiblesOnboarder & CollectiblesRelinker)? = nil,
         signingActionButtonType: SigningActionButtonViewType,
         purpose: Purpose = .accountCreation
     ) {
@@ -75,11 +75,18 @@ final class CollectiblesWelcomeViewModel: ObservableObject, Identifiable {
 
         isOnboarding = true
 
-        Task { @MainActor [weak self] in
+        Task { @MainActor [weak self, purpose] in
             do {
-                try await onboarder.onboard()
-                self?.isOnboarding = false
-                self?.finishOnboarding()
+                switch purpose {
+                case .accountCreation:
+                    try await onboarder.onboard()
+                    self?.isOnboarding = false
+                    self?.finishOnboarding()
+                case .reconnection:
+                    let outcome = try await onboarder.relink()
+                    self?.isOnboarding = false
+                    self?.finishReconnection(outcome: outcome)
+                }
             } catch {
                 self?.isOnboarding = false
 
@@ -116,13 +123,19 @@ private extension CollectiblesWelcomeViewModel {
 
     @MainActor
     func finishOnboarding() {
-        switch purpose {
-        case .accountCreation:
-            CollectiblesLogger.debug("onboarding: the gacha account is ready to use, opening the stories")
-            routable?.openStories()
-        case .reconnection:
+        CollectiblesLogger.debug("onboarding: the gacha account is ready to use, opening the stories")
+        routable?.openStories()
+    }
+
+    @MainActor
+    func finishReconnection(outcome: CollectiblesRelinkOutcome) {
+        switch outcome {
+        case .relinked:
             CollectiblesLogger.debug("onboarding: the gacha account is reconnected, closing the screen")
             routable?.closeReconnection()
+        case .accountNotFound:
+            CollectiblesLogger.debug("onboarding: no account to reconnect, closing Packs")
+            routable?.closeCollectibles()
         }
     }
 }

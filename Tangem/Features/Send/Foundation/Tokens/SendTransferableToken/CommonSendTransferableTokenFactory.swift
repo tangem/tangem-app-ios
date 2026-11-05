@@ -31,7 +31,7 @@ struct CommonSendTransferableTokenFactory {
         // The `tokenFeeProvidersManager` for send with all fee options
         let tokenFeeProvidersManager = WalletModelTokenFeeProvidersManagerProvider(
             walletModel: walletModel,
-            supportingOptions: supportingFeeOptions
+            purpose: .transfer(supportingFeeOptions)
         ).makeTokenFeeProvidersManager()
 
         return CommonSendTransferableToken(

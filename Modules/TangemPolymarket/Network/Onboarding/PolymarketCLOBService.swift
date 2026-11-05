@@ -39,4 +39,9 @@ public protocol PolymarketCLOBService {
         credentials: PolymarketL2Credentials,
         ownerAddress: String
     ) async throws -> PolymarketOrderRecord
+
+    func sessionSigners(
+        credentials: PolymarketL2Credentials,
+        ownerAddress: String
+    ) async throws -> [PolymarketSessionSigner]
 }

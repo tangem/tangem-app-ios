@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemNetworkUtils
+import protocol Alamofire.RequestInterceptor
 
 public struct TangemExpressFactory {
     public init() {}
@@ -72,7 +73,8 @@ public struct TangemExpressFactory {
         configuration: URLSessionConfiguration,
         expressAPIType: ExpressAPIType,
         exchangeDataDecoder: ExpressExchangeDataDecoder,
-        featureFlags: ExpressFeatureFlags
+        featureFlags: ExpressFeatureFlags,
+        requestInterceptor: (any RequestInterceptor)?
     ) -> ExpressAPIProvider {
         let provider = TangemProvider<ExpressAPITarget>(
             configuration: TangemProviderConfiguration(
@@ -84,10 +86,12 @@ public struct TangemExpressFactory {
                     apiKey: credential.apiKey,
                     userId: credential.userId,
                     sessionId: credential.sessionId,
-                    refcode: credential.refcode
+                    refcode: credential.refcode,
+                    isVersionV2: featureFlags.isAPIV2Enabled
                 ),
                 DeviceInfoPlugin(),
-            ]
+            ],
+            requestInterceptor: requestInterceptor
         )
         let service = CommonExpressAPIService(provider: provider, expressAPIType: expressAPIType, featureFlags: featureFlags)
         let mapper = ExpressAPIMapper(exchangeDataDecoder: exchangeDataDecoder, featureFlags: featureFlags)

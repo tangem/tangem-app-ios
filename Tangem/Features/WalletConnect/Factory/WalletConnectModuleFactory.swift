@@ -86,7 +86,8 @@ enum WalletConnectModuleFactory {
 
     static func makeDAppConnectionViewModel(
         forURI uri: WalletConnectRequestURI,
-        source: Analytics.WalletConnectSessionSource
+        source: Analytics.WalletConnectSessionSource,
+        preselectedUserWalletID: UserWalletId? = nil
     ) -> WalletConnectDAppConnectionViewModel? {
         let filteredUserWallets = Self.userWalletRepository.models.filter { $0.config.isFeatureVisible(.walletConnect) }
 
@@ -97,13 +98,8 @@ enum WalletConnectModuleFactory {
             return nil
         }
 
-        let selectedUserWallet: any UserWalletModel
-
-        if let selectedModel = Self.userWalletRepository.selectedModel, selectedModel.config.isFeatureVisible(.walletConnect) {
-            selectedUserWallet = selectedModel
-        } else {
-            selectedUserWallet = filteredUserWallets[0]
-        }
+        let preferredUserWalletID = preselectedUserWalletID ?? Self.userWalletRepository.selectedModel?.userWalletId
+        let selectedUserWallet = filteredUserWallets.first { $0.userWalletId == preferredUserWalletID } ?? filteredUserWallets[0]
 
         let getDAppConnectionProposalUseCase = WalletConnectGetDAppConnectionProposalUseCase(
             dAppDataService: dAppDataService,
@@ -146,11 +142,11 @@ enum WalletConnectModuleFactory {
     }
 
     static func makeQRScanFlow(
-        dismissAction: @escaping (WalletConnectQRScanResult?) -> Void
-    ) -> (WalletConnectQRScanCoordinator, WalletConnectQRScanCoordinator.Options) {
-        let coordinator = WalletConnectQRScanCoordinator(dismissAction: dismissAction)
+        dismissAction: @escaping (ConnectionsQRScanResult?) -> Void
+    ) -> (ConnectionsQRScanCoordinator, ConnectionsQRScanCoordinator.Options) {
+        let coordinator = ConnectionsQRScanCoordinator(dismissAction: dismissAction)
 
-        let options = WalletConnectQRScanCoordinator.Options(
+        let options = ConnectionsQRScanCoordinator.Options(
             cameraAccessProvider: cameraAccessProvider,
             openSystemSettingsAction: openSystemSettingsAction
         )

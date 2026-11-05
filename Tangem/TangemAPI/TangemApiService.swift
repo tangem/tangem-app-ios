@@ -232,10 +232,6 @@ protocol TangemApiService: AnyObject {
         walletId: String, body: JointAccountsDTO.Request.Join
     ) async throws -> JointAccountsDTO.Response.JointAccount
 
-    func activateJointAccount(
-        walletId: String, body: JointAccountsDTO.Request.Activate
-    ) async throws -> JointAccountsDTO.Response.JointAccount
-
     func confirmJointAccount(
         walletId: String, body: JointAccountsDTO.Request.Confirm
     ) async throws -> JointAccountsDTO.Response.JointAccount

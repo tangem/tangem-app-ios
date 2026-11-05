@@ -301,11 +301,6 @@ extension AccountSelectorView {
             kind: .legacy
         )
 
-        static let addAndManage = Style(
-            contentInsets: EdgeInsets(top: 12, leading: 16, bottom: 0, trailing: 16),
-            kind: .legacy
-        )
-
         static let addTokenRedesigned = Style(
             contentInsets: .init(),
             kind: .addTokenRedesigned

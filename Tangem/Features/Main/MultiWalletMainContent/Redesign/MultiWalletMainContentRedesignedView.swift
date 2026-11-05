@@ -39,6 +39,8 @@ struct MultiWalletMainContentRedesignedView: View {
 
                 pendingJointAccounts
 
+                pausedJointAccounts
+
                 listContent
 
                 if let collectiblesAccountViewModel = viewModel.collectiblesAccountViewModel {
@@ -94,6 +96,16 @@ struct MultiWalletMainContentRedesignedView: View {
     private var pendingJointAccounts: some View {
         ForEach(viewModel.pendingJointAccountViewModels) { pendingJointAccountViewModel in
             PendingJointAccountItemView(viewModel: pendingJointAccountViewModel)
+                .cornerRadius(MultiWalletMainContentConstants.cornerRadius)
+                .backgroundColor(MultiWalletMainContentConstants.tokenListBackgroundColor)
+        }
+    }
+
+    // MARK: - Paused joint accounts
+
+    private var pausedJointAccounts: some View {
+        ForEach(viewModel.pausedJointAccountViewModels) { pausedJointAccountViewModel in
+            PausedJointAccountItemView(viewModel: pausedJointAccountViewModel)
                 .cornerRadius(MultiWalletMainContentConstants.cornerRadius)
                 .backgroundColor(MultiWalletMainContentConstants.tokenListBackgroundColor)
         }

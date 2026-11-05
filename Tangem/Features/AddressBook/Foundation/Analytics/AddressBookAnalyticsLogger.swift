@@ -32,7 +32,7 @@ enum AddressBookAnalyticsMode {
 
     var parameterValue: Analytics.ParameterValue {
         switch self {
-        case .create: .addressBookModeCreate
+        case .create: .create
         case .edit: .accountSourceEdit
         }
     }

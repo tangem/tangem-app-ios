@@ -125,6 +125,10 @@ struct MainCoordinatorView: CoordinatorView {
             .shtorkaCompatibleSheet(item: $coordinator.yieldModuleActiveCoordinator) {
                 YieldModuleActiveCoordinatorView(coordinator: $0)
             }
+            .shtorkaCompatibleSheet(item: $coordinator.contactManagementCoordinator) { contactManagementCoordinator in
+                AddressBookContactManagementCoordinatorView(coordinator: contactManagementCoordinator)
+                    .presentation(onDismissalAttempt: { contactManagementCoordinator.rootViewModel?.userDidRequestDismiss() })
+            }
             .shtorkaCompatibleModal(
                 item: $coordinator.yieldModePromoSheetViewModel,
                 contentLayout: .intrinsic,

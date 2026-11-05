@@ -15,7 +15,7 @@ struct AddCustomTokenNetworksListView: View {
 
     private let isWithPadding: Bool
 
-    @Environment(\.isAddAndOrganizeRedesignEnabled) private var isRedesign
+    @Environment(\.isInTokensManagementFlow) private var isInTokensManagementFlow
 
     init(viewModel: AddCustomTokenNetworksListViewModel, isWithPadding: Bool = true) {
         self.viewModel = viewModel
@@ -25,15 +25,15 @@ struct AddCustomTokenNetworksListView: View {
     // MARK: - Redesign-aware styling
 
     private var screenBackgroundColor: Color {
-        isRedesign ? DesignSystem.Color.bgPrimary : DesignSystem.Color.bgPrimary
+        DesignSystem.Color.bgPrimary
     }
 
     private var cardBackgroundColor: Color {
-        isRedesign ? DesignSystem.Color.bgSecondary : DesignSystem.Color.bgSecondary
+        DesignSystem.Color.bgSecondary
     }
 
     private var cardCornerRadius: CGFloat {
-        isRedesign ? 20 : 14
+        isInTokensManagementFlow ? 20 : 14
     }
 
     var body: some View {

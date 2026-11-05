@@ -178,7 +178,8 @@ private extension SingleTokenRouter {
         SellCryptoUtility(
             blockchain: walletModel.tokenItem.blockchain,
             address: walletModel.defaultAddressString,
-            amountType: walletModel.tokenItem.amountType
+            amountType: walletModel.tokenItem.amountType,
+            userWalletId: userWalletInfo.id
         )
     }
 

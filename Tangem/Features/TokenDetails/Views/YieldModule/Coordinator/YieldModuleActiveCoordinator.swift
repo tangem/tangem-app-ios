@@ -29,18 +29,13 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
     var rootViewModel: YieldModuleActiveViewModel? = nil
 
     @Published
-    private(set) var claimViewModel: YieldModuleClaimViewModel?
+    var claimViewModel: YieldModuleClaimViewModel?
 
-    @Published
-    var isClaimSheetShown = false
+    private(set) var isClaimSheetPresented = false
 
     private weak var transactionViewModel: YieldModuleTransactionViewModel?
 
     private var handle: SafariHandle?
-
-    var isClaimSheetPresented: Bool {
-        claimViewModel != nil
-    }
 
     var isTransactionSheetPresented: Bool {
         transactionViewModel != nil
@@ -80,17 +75,18 @@ final class YieldModuleActiveCoordinator: CoordinatorObject {
     }
 
     func openClaimSheet(viewModel: YieldModuleClaimViewModel) {
+        isClaimSheetPresented = true
         claimViewModel = viewModel
     }
 
     func closeClaimSheet() {
         Task { @MainActor [weak self] in
-            self?.isClaimSheetShown = false
+            self?.claimViewModel = nil
         }
     }
 
     func claimSheetDidDismiss() {
-        claimViewModel = nil
+        isClaimSheetPresented = false
     }
 
     func openAboutApySheet(viewModel: YieldModuleAboutApyViewModel) {

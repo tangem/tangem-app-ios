@@ -20,13 +20,16 @@ final class TangemPayMoneyAccountViewModel: ObservableObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
 
     private let userWalletModel: any UserWalletModel
+    private let moneyAccount: any TangemPayMoneyAccountModel
     private let output: (Output) -> Void
 
     init(
         userWalletModel: any UserWalletModel,
+        moneyAccount: any TangemPayMoneyAccountModel,
         output: @escaping (Output) -> Void
     ) {
         self.userWalletModel = userWalletModel
+        self.moneyAccount = moneyAccount
         self.output = output
 
         // [REDACTED_TODO_COMMENT]
@@ -35,7 +38,6 @@ final class TangemPayMoneyAccountViewModel: ObservableObject {
             transactionHistory: .loaded([])
         )
 
-        // [REDACTED_TODO_COMMENT]
         menuSections = makeMenuSections()
     }
 
@@ -82,10 +84,14 @@ extension TangemPayMoneyAccountViewModel {
 private extension TangemPayMoneyAccountViewModel {
     func makeMenuSections() -> [[TangemPayMoneyAccountMenuItem]] {
         [
-            // [REDACTED_TODO_COMMENT]
-            [.currentPlan(planName: "Basic"), .termsAndFees, .support],
+            [makeCurrentPlanMenuItem(), .termsAndFees, .support].compactMap(\.self),
             [.closeAccount],
         ]
+    }
+
+    func makeCurrentPlanMenuItem() -> TangemPayMoneyAccountMenuItem? {
+        // [REDACTED_TODO_COMMENT]
+        moneyAccount.customerTariffPlan.map { .currentPlan(planName: $0.tariffPlan.name) }
     }
 
     func handleMenuItem(_ item: TangemPayMoneyAccountMenuItem) {
@@ -106,8 +112,10 @@ private extension TangemPayMoneyAccountViewModel {
     }
 
     func contactSupport(subject: VisaEmailSubject) {
-        // [REDACTED_TODO_COMMENT]
-        let dataCollector = TangemPayMoneyAccountSupportDataCollector(customerId: nil, accountId: nil)
+        let dataCollector = TangemPayMoneyAccountSupportDataCollector(
+            customerId: moneyAccount.customerId,
+            accountId: moneyAccount.accountId
+        )
         let logsComposer = LogsComposer(infoProvider: dataCollector, includeSystemLogs: false)
         let mailViewModel = MailViewModel(
             logsComposer: logsComposer,

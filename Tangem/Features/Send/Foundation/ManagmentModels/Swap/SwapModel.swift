@@ -1204,7 +1204,7 @@ extension SwapModel {
                 let result = try await dispatcher.send(transaction: .cex(data: data, fee: fee))
                 analyticsLogger.logSwapTransactionSent(result: result)
 
-                if !source.isTangemPayAccount {
+                if source.accountType != .tangemPay {
                     await notifyExpressAboutTransactionDidSent(source: source, data: data, result: result)
                 }
                 persistSentTransaction(
@@ -2024,8 +2024,8 @@ extension SwapModel: SendFeeInput {
 // MARK: - FeeSelectorOutput
 
 extension SwapModel: FeeSelectorOutput {
-    func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
-        tokenFeeProvidersManager?.updateSelectedFeeProvider(feeTokenItem: feeTokenItem)
+    func userDidFinishSelection(feeProviderID: TokenFeeProviderID, feeOption: FeeOption) {
+        tokenFeeProvidersManager?.updateSelectedFeeProvider(feeProviderID: feeProviderID)
         tokenFeeProvidersManager?.update(feeOption: feeOption)
 
         updateTask(loadingType: .fee) { manager in
@@ -2385,7 +2385,8 @@ extension SwapModel: NotificationTapDelegate {
              .yieldBoostPromoLater,
              .openGetTangemPay,
              .closeGetTangemPay,
-             .removeTangemPayAccount:
+             .removeTangemPayAccount,
+             .linkUserWallet:
             assertionFailure("Notification tap not handled")
         }
     }

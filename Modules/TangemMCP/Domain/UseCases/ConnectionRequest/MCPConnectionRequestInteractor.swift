@@ -7,8 +7,9 @@
 //
 
 struct MCPConnectionRequestInteractor: Sendable {
-    let fetchRequest: FetchMCPConnectionRequestUseCase
-    let ensurePushNotificationsAuthorized: EnsurePushNotificationsAuthorizedUseCase
-    let reject: RejectMCPConnectionUseCase
-    let accept: AcceptMCPConnectionUseCase
+    let fetchRequest: FetchMCPConnectionRequest
+    let ensurePushNotificationsAuthorized: EnsurePushNotificationsAuthorized
+    let retrieveUserWalletRegistrationStatus: RetrieveUserWalletRegistrationStatus
+    let reject: RejectMCPConnection
+    let accept: AcceptMCPConnection
 }

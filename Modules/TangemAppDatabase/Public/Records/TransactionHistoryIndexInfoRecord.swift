@@ -15,15 +15,18 @@ public struct TransactionHistoryIndexInfoRecord {
     public let indexRecord: TransactionHistoryIndexRecord
     public let exchangeTransaction: ExchangeRecords?
     public let onrampTransaction: OnrampRecords?
+    public let jointOperation: JointOperationRecord?
 
     public init(
         indexRecord: TransactionHistoryIndexRecord,
         exchangeTransaction: ExchangeRecords?,
-        onrampTransaction: OnrampRecords?
+        onrampTransaction: OnrampRecords?,
+        jointOperation: JointOperationRecord?
     ) {
         self.indexRecord = indexRecord
         self.exchangeTransaction = exchangeTransaction
         self.onrampTransaction = onrampTransaction
+        self.jointOperation = jointOperation
     }
 }
 
@@ -31,11 +34,16 @@ public struct TransactionHistoryIndexInfoRecord {
 
 public extension TransactionHistoryIndexInfoRecord {
     static func query(addresses: [String], network: String, contractAddress: String) -> QueryInterfaceRequest<Self> {
-        TransactionHistoryIndexRecord
+        let indexAlias = TableAlias<TransactionHistoryIndexRecord>()
+        let entityType = indexAlias[TransactionHistoryIndexRecord.Columns.entityType]
+
+        return TransactionHistoryIndexRecord
+            .aliased(indexAlias)
             .filter { addresses.contains($0.address) && $0.network == network && $0.contract == contractAddress }
             .order { [$0.dateTime.desc, $0.entityID.desc] }
             .including(optional: TransactionHistoryIndexRecord
                 .expressEntity
+                .filter(entityType == TransactionHistoryIndexRecord.Values.EntityType.expressExchange)
                 .forKey(CodingKeys.exchangeTransaction)
                 .including(optional: ExpressExchangeTransactionRecord
                     .provider
@@ -52,6 +60,7 @@ public extension TransactionHistoryIndexInfoRecord {
             )
             .including(optional: TransactionHistoryIndexRecord
                 .onrampEntity
+                .filter(entityType == TransactionHistoryIndexRecord.Values.EntityType.expressOnramp)
                 .forKey(CodingKeys.onrampTransaction)
                 .including(optional: ExpressOnrampTransactionRecord
                     .provider
@@ -62,6 +71,11 @@ public extension TransactionHistoryIndexInfoRecord {
                 .including(optional: ExpressOnrampTransactionRecord
                     .cryptoCurrency
                     .forKey(OnrampRecords.CodingKeys.cryptoCurrency))
+            )
+            .including(optional: TransactionHistoryIndexRecord
+                .jointOperationEntity
+                .filter(entityType == TransactionHistoryIndexRecord.Values.EntityType.jointOperation)
+                .forKey(CodingKeys.jointOperation)
             )
             .asRequest(of: Self.self)
     }

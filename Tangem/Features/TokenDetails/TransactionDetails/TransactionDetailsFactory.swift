@@ -69,12 +69,12 @@ enum TransactionDetailsFactory {
         cryptoAmount: Decimal,
         context: TransactionDetailsContext
     ) -> TransactionDetailsViewModel.Content {
-        switch record.expressExtraInfo {
-        case .exchange(let info):
+        switch record.historyExtraInfo {
+        case .express(.exchange(let info)):
             return .swap(swapContent(info, transaction: transaction, record: record, context: context))
-        case .onramp(let info):
+        case .express(.onramp(let info)):
             return .onramp(onrampContent(info, context: context))
-        case nil:
+        case .jointOperation, nil:
             return onChainContent(for: transaction, record: record, cryptoAmount: cryptoAmount, context: context)
         }
     }
@@ -851,6 +851,7 @@ enum TransactionDetailsFactory {
             record.isOutgoing || ignoringDirection,
             // Hide network fee for synthetic Express records
             !ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash),
+            !(JointOperationSyntheticTxHelper.isSyntheticIdentifier(record.hash) && record.fee.amount.isZero),
             !(GaslessTransactionFeeMatcher.isExecutorCall(record.type) && record.fee.amount.type == .coin),
             !GaslessTransactionFeeMatcher.isFeeCoveredByTronResources(of: record, on: blockchain)
         else {
@@ -915,11 +916,10 @@ enum TransactionDetailsFactory {
     }
 
     private static func headerIconGlyph(for transaction: TransactionViewModel, record: TransactionRecord) -> ImageType? {
-        switch record.expressExtraInfo {
-        case .exchange: DesignSystem.Icons.ArrowSwapHorizontal.regular20
-        case .onramp: DesignSystem.Icons.Card.regular20
-        case nil where yieldStage(for: transaction) == .balanceMovement: DesignSystem.Icons.Lightning.regular20
-        case nil: nil
+        switch record.historyExtraInfo {
+        case .express(.exchange): DesignSystem.Icons.ArrowSwapHorizontal.regular20
+        case .express(.onramp): DesignSystem.Icons.Card.regular20
+        case .jointOperation, nil: yieldStage(for: transaction) == .balanceMovement ? DesignSystem.Icons.Lightning.regular20 : nil
         }
     }
 
@@ -928,12 +928,12 @@ enum TransactionDetailsFactory {
         record: TransactionRecord,
         status: TransactionViewModel.Status
     ) -> (text: String, style: TransactionDetailsHeaderViewData.TitleStyle) {
-        switch record.expressExtraInfo {
-        case .exchange(let info):
+        switch record.historyExtraInfo {
+        case .express(.exchange(let info)):
             return swapTitle(status: info.transaction.status)
-        case .onramp(let info):
+        case .express(.onramp(let info)):
             return onrampTitle(status: info.transaction.status)
-        case nil:
+        case .jointOperation, nil:
             let text = TransactionDisplayModel.title(
                 transactionType: transaction.transactionType,
                 status: status,
@@ -987,6 +987,35 @@ enum TransactionDetailsFactory {
 
     private static func counterparty(for transaction: TransactionViewModel, label: String) -> TransactionDetailsAddressViewData? {
         switch transaction.subtitleOwner {
+        case .accountInCurrentWallet, .accountInOtherWallet, .wallet, .contact:
+            break
+        case .unresolved, .none:
+            if let stakingCounterparty = stakingCounterparty(for: transaction, label: label) {
+                return stakingCounterparty
+            }
+        }
+
+        if let subtitleOwner = transaction.subtitleOwner {
+            return counterparty(for: subtitleOwner, label: label)
+        }
+
+        guard let address = counterpartyAddress(for: transaction) else {
+            return nil
+        }
+
+        return .init(
+            label: label,
+            actor: .address(
+                address,
+                blockiesImage: AddressIconProvider.makeBlockiesIconViewData(address: address)
+            ),
+            copyAction: copyAddressAction(for: address),
+            walletImageProvider: nil
+        )
+    }
+
+    static func counterparty(for subtitleOwner: TransactionViewModel.SubtitleOwner, label: String) -> TransactionDetailsAddressViewData {
+        switch subtitleOwner {
         case .accountInCurrentWallet(let name, let icon):
             return .init(label: label, actor: .account(name: name, icon: icon), copyAction: nil, walletImageProvider: nil)
 
@@ -1005,33 +1034,10 @@ enum TransactionDetailsFactory {
             )
 
         case .unresolved(_, let fullAddress, let blockiesImage):
-            if let stakingCounterparty = stakingCounterparty(for: transaction, label: label) {
-                return stakingCounterparty
-            }
-
             return .init(
                 label: label,
                 actor: .address(fullAddress, blockiesImage: AddressBlockiesIconViewData(image: blockiesImage)),
                 copyAction: copyAddressAction(for: fullAddress),
-                walletImageProvider: nil
-            )
-
-        case .none:
-            if let stakingCounterparty = stakingCounterparty(for: transaction, label: label) {
-                return stakingCounterparty
-            }
-
-            guard let address = counterpartyAddress(for: transaction) else {
-                return nil
-            }
-
-            return .init(
-                label: label,
-                actor: .address(
-                    address,
-                    blockiesImage: AddressIconProvider.makeBlockiesIconViewData(address: address)
-                ),
-                copyAction: copyAddressAction(for: address),
                 walletImageProvider: nil
             )
         }

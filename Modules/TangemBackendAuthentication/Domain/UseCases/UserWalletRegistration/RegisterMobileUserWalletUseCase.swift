@@ -14,14 +14,14 @@ public struct RegisterMobileUserWalletUseCase: Sendable {
     private let attestUserWallet: AttestUserWallet
     private let submitRegistration: SubmitUserWalletRegistration
 
-    private let analyticsReporter: any BackendAuthenticationAnalyticsReporter
+    private let analyticsReporter: any BackendAuthenticationNonceAnalyticsReporter
     private let logger: Logger
 
     init(
         obtainNonce: @escaping ObtainUserWalletRegistrationNonce,
         attestUserWallet: @escaping AttestUserWallet,
         submitRegistration: @escaping SubmitUserWalletRegistration,
-        analyticsReporter: some BackendAuthenticationAnalyticsReporter,
+        analyticsReporter: some BackendAuthenticationNonceAnalyticsReporter,
         logger: Logger
     ) {
         self.obtainNonce = obtainNonce

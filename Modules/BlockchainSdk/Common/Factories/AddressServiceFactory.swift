@@ -94,7 +94,7 @@ public struct AddressServiceFactory {
             return BinanceAddressService(testnet: isTestnet)
         case .cardano(let extended):
             if extended {
-                return WalletCoreAddressService(coin: .cardano)
+                return CardanoExtendedAddressService()
             }
             return CardanoAddressService()
         case .xrp(let curve):

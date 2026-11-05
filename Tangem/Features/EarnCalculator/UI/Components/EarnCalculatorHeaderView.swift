@@ -29,6 +29,7 @@ struct EarnCalculatorHeaderView: View {
                 .style(DesignSystem.Font.displayMediumToken, color: DesignSystem.Color.textPrimary)
                 .lineLimit(1)
                 .minimumScaleFactor(Constants.totalBalanceMinimumScaleFactor)
+                .contentTransition(.numericText())
                 .accessibilityIdentifier(EarnCalculatorAccessibilityIdentifiers.totalBalance)
 
             horizonMenu
@@ -72,6 +73,7 @@ private extension EarnCalculatorHeaderView {
             HStack(spacing: Constants.menuLabelSpacing) {
                 Text(earnedLine)
                     .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
+                    .contentTransition(.numericText())
 
                 DesignSystem.Icons.ChevronDoubleVertical.regular16.image
                     .renderingMode(.template)

@@ -191,6 +191,13 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
         fatalError("Not reachable from this test")
     }
 
+    func sessionSigners(
+        credentials: PolymarketL2Credentials,
+        ownerAddress: String
+    ) async throws -> [PolymarketSessionSigner] {
+        fatalError("Not reachable from this test")
+    }
+
     private(set) var balanceCalls = 0
     private(set) var credentialRequests = 0
 
@@ -706,7 +713,7 @@ final class PolymarketGeoblockStateProviderStub: PolymarketGeoblockStateProvider
 
 // MARK: - Event opening routing
 
-final class PolymarketEventOpeningRoutableSpy: PolymarketEventOpeningRoutable {
+final class PolymarketEventOpeningRoutableSpy: PolymarketEventOpeningRoutable, PolymarketCategoryOpeningRoutable {
     static let ignored = PolymarketEventOpeningRoutableSpy()
 
     private(set) var openedEventIDs: [String] = []
@@ -714,6 +721,7 @@ final class PolymarketEventOpeningRoutableSpy: PolymarketEventOpeningRoutable {
     private(set) var openedOutcomes: [(market: PolymarketMarket, outcome: PolymarketOutcome, eventTitle: String, isBuy: Bool)] = []
     private(set) var openedEventCategories: [PolymarketCategory?] = []
     private(set) var regionWarningOpenings = 0
+    private(set) var openedCategoryIDs: [Int] = []
     private(set) var lastOnPlaced: (@MainActor (PolymarketOrderIndexing) -> Void)?
 
     func openRegionWarning() {
@@ -741,5 +749,9 @@ final class PolymarketEventOpeningRoutableSpy: PolymarketEventOpeningRoutable {
     ) {
         openedOutcomes.append((market, outcome, eventTitle, request.side == .buy))
         lastOnPlaced = onPlaced
+    }
+
+    func openCategory(_ category: PolymarketCategory) {
+        openedCategoryIDs.append(category.id)
     }
 }

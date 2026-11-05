@@ -25,53 +25,79 @@ enum JointAccountCompositionFixture {
         return String(identifier.map { $0.isUppercase ? Character($0.lowercased()) : Character($0.uppercased()) })
     }
 
+    /// - Parameter memberSlots: The slot of each member, as only the creator of a pending account is told them;
+    /// nil for everyone else.
     static func makeMembersService(
         status: JointAccountStatus = .pending,
         membersCount: Int,
         members: [JointAccountMember],
+        memberSlots: [Int]? = nil,
+        memberSignatures: [String?]? = nil,
+        invites: [StoredJointAccount.Invite] = [],
+        userRoleService: JointAccountUserRoleService? = nil,
         keysProvider: KeysProvider = KeysRepositoryTestsMock(keys: [])
     ) -> CommonJointAccountMembersService {
         let repository = JointAccountsRepositoryStub(
-            jointAccounts: [storedAccount(status: status, membersCount: membersCount, members: members)]
+            jointAccounts: [
+                storedAccount(
+                    status: status,
+                    membersCount: membersCount,
+                    members: members,
+                    memberSlots: memberSlots,
+                    memberSignatures: memberSignatures,
+                    invites: invites
+                ),
+            ]
         )
 
-        return makeMembersService(repository: repository, keysProvider: keysProvider)
+        return makeMembersService(repository: repository, userRoleService: userRoleService, keysProvider: keysProvider)
     }
 
     static func makeMembersService(
         repository: JointAccountsRepository,
+        userRoleService: JointAccountUserRoleService? = nil,
         keysProvider: KeysProvider = KeysRepositoryTestsMock(keys: [])
     ) -> CommonJointAccountMembersService {
         CommonJointAccountMembersService(
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
             jointAccountsRepository: repository,
-            userRoleService: CommonJointAccountUserRoleService(
-                derivationIdentity: derivationIdentity,
-                keysProvider: keysProvider
-            )
+            userRoleService: userRoleService ?? makeUserRoleService(repository: repository, keysProvider: keysProvider)
+        )
+    }
+
+    static func makeUserRoleService(repository: JointAccountsRepository, keysProvider: KeysProvider) -> CommonJointAccountUserRoleService {
+        CommonJointAccountUserRoleService(
+            userWalletId: userWalletId,
+            derivationIdentity: derivationIdentity,
+            keysProvider: keysProvider,
+            jointAccountsRepository: repository
         )
     }
 
     static func storedAccount(
         status: JointAccountStatus,
         membersCount: Int,
-        members: [JointAccountMember]
+        members: [JointAccountMember],
+        memberSlots: [Int]? = nil,
+        memberSignatures: [String?]? = nil,
+        invites: [StoredJointAccount.Invite] = []
     ) -> StoredJointAccount {
         StoredJointAccount(
             cryptoAccountId: caseFlippedCryptoAccountId,
             membersCount: membersCount,
             threshold: 2,
             status: status,
-            members: members.map { member in
+            members: members.enumerated().map { index, member in
                 StoredJointAccount.Member(
                     name: member.name,
                     address: member.address,
                     role: member.role == .creator ? .creator : .member,
-                    slot: nil,
-                    signature: nil
+                    slot: memberSlots?[safe: index].map(JointAccountMemberSlotID.init),
+                    signature: memberSignatures?[safe: index] ?? nil
                 )
-            }
+            },
+            invites: invites
         )
     }
 

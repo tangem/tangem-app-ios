@@ -177,7 +177,6 @@ public extension VisaCustomerInfoResponse {
         case approved = "APPROVED"
         case declined = "DECLINED"
         case inProgress = "IN_PROGRESS"
-        case expired = "EXPIRED"
         case undefined = "UNDEFINED"
 
         public init(from decoder: Decoder) throws {
