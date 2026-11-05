@@ -45,7 +45,7 @@ struct JointWalletFactoryTests {
 
     @Test("A key arriving for an account whose members exclude this wallet builds no wallet, read the moment the key arrives")
     func lateKeyOutsideTheMembersBuildsNoWallet() throws {
-        let outcome = Self.walletBuiltWhenTheKeyArrives(memberAddress: JointAccountCompositionFixture.strangerAddress)
+        let outcome = try Self.walletBuiltWhenTheKeyArrives(memberAddress: JointAccountCompositionFixture.strangerAddress)
 
         let error = #expect(throws: AnyWalletFactoryError.self) { try outcome.get() }
         guard case .accountAddressUnavailable? = error else {
@@ -56,7 +56,7 @@ struct JointWalletFactoryTests {
 
     @Test("A key arriving for an account this wallet is a member of builds the wallet at its Safe")
     func lateKeyOfAMemberBuildsTheWallet() throws {
-        let outcome = Self.walletBuiltWhenTheKeyArrives(memberAddress: JointAccountCompositionFixture.ownAddress)
+        let outcome = try Self.walletBuiltWhenTheKeyArrives(memberAddress: JointAccountCompositionFixture.ownAddress)
 
         #expect(try outcome.get().address == Self.checksummedSafeAddress)
     }
@@ -132,7 +132,7 @@ private extension JointWalletFactoryTests {
         )
     }
 
-    static func walletBuiltWhenTheKeyArrives(memberAddress: String) -> Result<Wallet, any Error> {
+    static func walletBuiltWhenTheKeyArrives(memberAddress: String) throws -> Result<Wallet, any Error> {
         let keysRepository = KeysRepositoryTestsMock(keys: [JointAccountCompositionFixture.masterKey()])
         let sut = makeSUT(memberAddress: memberAddress, keysRepository: keysRepository)
         var outcome: Result<Wallet, any Error>?
@@ -145,7 +145,7 @@ private extension JointWalletFactoryTests {
                 }
             }
 
-        keysRepository.update(derivations: JointAccountCompositionFixture.ownKeyDerivation)
+        try keysRepository.update(derivations: JointAccountCompositionFixture.ownKeyDerivation)
         withExtendedLifetime(subscription) {}
 
         return outcome ?? .failure(CancellationError())

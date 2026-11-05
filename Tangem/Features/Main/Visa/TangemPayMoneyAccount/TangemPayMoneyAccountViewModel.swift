@@ -271,7 +271,7 @@ private extension TangemPayMoneyAccountViewModel {
 
             let listItems = transactionHistoryMapper.mapTransactionListItem(
                 from: records,
-                groupingStyle: .day(.long),
+                groupingStyle: .day,
                 dustFilter: TransactionHistoryDustFilter(usdRate: Constants.usdRate),
                 subtitleOwnerResolver: subtitleOwnerResolver
             )
