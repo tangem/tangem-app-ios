@@ -13,9 +13,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li person</string>
+        <string>%li persona</string>
         <key>other</key>
-        <string>%li people</string>
+        <string>%li persone</string>
       </dict>
     </dict>
     <key>address_book_addresses</key>
@@ -29,9 +29,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li address</string>
+        <string>%li indirizzo</string>
         <key>other</key>
-        <string>%li addresses</string>
+        <string>%li indirizzi</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -45,9 +45,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li device</string>
+        <string>%li dispositivo</string>
         <key>other</key>
-        <string>%li devices</string>
+        <string>%li dispositivi</string>
       </dict>
     </dict>
     <key>collectibles_account_collection_cards_count</key>
@@ -61,9 +61,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li card</string>
+        <string>%li carta</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>%li carte</string>
       </dict>
     </dict>
     <key>common_assets_count</key>
@@ -79,7 +79,7 @@
         <key>one</key>
         <string>%li asset</string>
         <key>other</key>
-        <string>%li assets</string>
+        <string>%li asset</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -93,9 +93,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>day</string>
+        <string>giorno</string>
         <key>other</key>
-        <string>days</string>
+        <string>giorni</string>
       </dict>
     </dict>
     <key>common_networks_count</key>
@@ -109,9 +109,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li network</string>
+        <string>%li rete</string>
         <key>other</key>
-        <string>%li networks</string>
+        <string>%li reti</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
@@ -141,9 +141,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Awaiting for %li member to join</string>
+        <string>In attesa che %li membro si unisca</string>
         <key>other</key>
-        <string>Awaiting for %li members to join</string>
+        <string>In attesa che %li membri si uniscano</string>
       </dict>
     </dict>
     <key>joint_account_invite_members_invite_count</key>
@@ -157,9 +157,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Invite %li member</string>
+        <string>Invita %li membro</string>
         <key>other</key>
-        <string>Invite %li members</string>
+        <string>Invita %li membri</string>
       </dict>
     </dict>
     <key>joint_account_invite_members_invite_more</key>
@@ -173,9 +173,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Invite %li more member</string>
+        <string>Inviti %li altro membro</string>
         <key>other</key>
-        <string>Invite %li more members</string>
+        <string>Inviti %li altri membri</string>
       </dict>
     </dict>
     <key>joint_account_invite_members_still_need_to_join</key>
@@ -189,9 +189,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li member still needs to join</string>
+        <string>%li membro deve ancora unirsi</string>
         <key>other</key>
-        <string>%li members still need to join</string>
+        <string>%li membri devono ancora unirsi</string>
       </dict>
     </dict>
     <key>joint_account_join_signatures_count</key>
@@ -205,9 +205,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li signature</string>
+        <string>%li firma</string>
         <key>other</key>
-        <string>%li signatures</string>
+        <string>%li firme</string>
       </dict>
     </dict>
     <key>joint_account_main_waiting_confirmations</key>
@@ -221,9 +221,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Waiting for %li confirmation</string>
+        <string>In attesa di %li conferma</string>
         <key>other</key>
-        <string>Waiting for %li confirmations</string>
+        <string>In attesa di %li conferme</string>
       </dict>
     </dict>
     <key>joint_account_main_waiting_members</key>
@@ -237,9 +237,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Waiting for %li member</string>
+        <string>In attesa di %li membro</string>
         <key>other</key>
-        <string>Waiting for %li members</string>
+        <string>In attesa di %li membri</string>
       </dict>
     </dict>
     <key>joint_account_members_count</key>
@@ -253,9 +253,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li member</string>
+        <string>%li membro</string>
         <key>other</key>
-        <string>%li members</string>
+        <string>%li membri</string>
       </dict>
     </dict>
     <key>joint_account_members_still_need_to_confirm</key>
@@ -269,9 +269,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li member still needs to confirm</string>
+        <string>%li membro deve ancora confermare</string>
         <key>other</key>
-        <string>%li members still need to confirm</string>
+        <string>%li membri devono ancora confermare</string>
       </dict>
     </dict>
     <key>joint_account_send_signatures_required_banner</key>
@@ -285,9 +285,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%1$li signature required</string>
+        <string>%1$li firma richiesta</string>
         <key>other</key>
-        <string>%1$li signatures required</string>
+        <string>%1$li firme richieste</string>
       </dict>
     </dict>
     <key>markets_token_details_amount_exchanges</key>
@@ -303,7 +303,7 @@
         <key>one</key>
         <string>%li exchange</string>
         <key>other</key>
-        <string>%li exchanges</string>
+        <string>%li exchange</string>
       </dict>
     </dict>
     <key>markets_token_details_based_on_ratings</key>
@@ -317,9 +317,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Based on %li rating</string>
+        <string>Basato su %li valutazione</string>
         <key>other</key>
-        <string>Based on %li ratings</string>
+        <string>Basato su %li valutazioni</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
@@ -333,9 +333,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li item</string>
+        <string>%li elemento</string>
         <key>other</key>
-        <string>%li items</string>
+        <string>%li elementi</string>
       </dict>
     </dict>
     <key>nft_wallet_count_ios</key>
@@ -349,9 +349,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li collection</string>
+        <string>%li collezione</string>
         <key>other</key>
-        <string>%li collections</string>
+        <string>%li collezioni</string>
       </dict>
       <key>nfts_count</key>
       <dict>
@@ -362,7 +362,7 @@
         <key>one</key>
         <string>%li NFT</string>
         <key>other</key>
-        <string>%li NFTs</string>
+        <string>%li NFT</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>
@@ -376,9 +376,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string></string>
+        <string>Annoti questa %li parola nell'ordine indicato di seguito e la conservi in un luogo segreto e sicuro.</string>
         <key>other</key>
-        <string>Write these %li words down in the order given below and store them in a secret and safe place.</string>
+        <string>Annoti queste %li parole nell'ordine indicato di seguito e le conservi in un luogo segreto e sicuro.</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_words_count</key>
@@ -392,9 +392,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string></string>
+        <string>%li parola</string>
         <key>other</key>
-        <string>%li words</string>
+        <string>%li parole</string>
       </dict>
     </dict>
     <key>onramp_providers_count</key>
@@ -410,7 +410,7 @@
         <key>one</key>
         <string>%li provider</string>
         <key>other</key>
-        <string>%li providers</string>
+        <string>%li provider</string>
       </dict>
     </dict>
     <key>onramp_timing_days</key>
@@ -424,9 +424,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>up to %li day</string>
+        <string>fino a %li giorno</string>
         <key>other</key>
-        <string>up to %li days</string>
+        <string>fino a %li giorni</string>
       </dict>
     </dict>
     <key>prediction_event_more_outcomes</key>
@@ -456,9 +456,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>for %li wallet</string>
+        <string>per %li portafoglio</string>
         <key>other</key>
-        <string>for %li wallets</string>
+        <string>per %li portafogli</string>
       </dict>
     </dict>
     <key>referral_wallets_purchased_count</key>
@@ -474,7 +474,7 @@
         <key>one</key>
         <string>%li wallet</string>
         <key>other</key>
-        <string>%li wallets</string>
+        <string>%li wallet</string>
       </dict>
     </dict>
     <key>send_network_selection_hidden_tokens</key>
@@ -488,9 +488,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li token isn't compatible with this address</string>
+        <string>%li token non è compatibile con questo indirizzo</string>
         <key>other</key>
-        <string>%li tokens aren't compatible with this address</string>
+        <string>%li token non sono compatibili con questo indirizzo</string>
       </dict>
     </dict>
     <key>tangempay_cards_count</key>
@@ -552,9 +552,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li business day</string>
+        <string>%li giorno lavorativo</string>
         <key>other</key>
-        <string>%li business days</string>
+        <string>%li giorni lavorativi</string>
       </dict>
     </dict>
     <key>top_assets_count</key>
@@ -570,7 +570,7 @@
         <key>one</key>
         <string>Top %li asset</string>
         <key>other</key>
-        <string>Top %li assets</string>
+        <string>Top %li asset</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
@@ -584,9 +584,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>available for %li day</string>
+        <string>disponibile per %li giorno</string>
         <key>other</key>
-        <string>available for %li days</string>
+        <string>disponibile per %li giorni</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_message</key>
@@ -600,9 +600,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Use your card or ring to get an address for %li network</string>
+        <string>Usi la sua carta o il suo anello per ottenere un indirizzo per la rete %li</string>
         <key>other</key>
-        <string>Use your card or ring to get addresses for %li networks</string>
+        <string>Usi la sua carta o il suo anello per ottenere indirizzi per %li reti</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_no_nfc_message</key>
@@ -616,9 +616,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Sync addresses to get an address for %li network</string>
+        <string>Sincronizzi gli indirizzi per ottenere un indirizzo per la rete %li</string>
         <key>other</key>
-        <string>Sync addresses to get addresses for %li networks</string>
+        <string>Sincronizzi gli indirizzi per ottenere gli indirizzi per le %li reti</string>
       </dict>
     </dict>
     <key>yield_module_main_promo_tokens_count</key>
@@ -632,9 +632,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>More than %li available token</string>
+        <string>Più di %li token disponibili</string>
         <key>other</key>
-        <string>More than %li available tokens</string>
+        <string>Più di %li token disponibili</string>
       </dict>
     </dict>
   </dict>
