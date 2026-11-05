@@ -49,12 +49,17 @@ private extension CommonUserWalletLinker {
     }
 
     nonisolated(nonsending) func linkCard(_ userWalletModel: some UserWalletModel) async throws(UserWalletLinkError) {
-        guard
-            let nonce = try await obtainNonce(id: userWalletModel.userWalletId),
-            let request = try await attest(userWalletModel, nonce: nonce)
-        else {
+        guard let nonce = try await obtainNonce(id: userWalletModel.userWalletId) else {
             return
         }
+
+        try checkCancellation()
+
+        guard let request = try await attest(userWalletModel, nonce: nonce) else {
+            return
+        }
+
+        try checkCancellation()
 
         do {
             try await BackendAuthenticationAssembly.submitUserWalletRegistration(request: request)
@@ -103,6 +108,8 @@ private extension CommonUserWalletLinker {
             return
         }
 
+        try checkCancellation()
+
         let secp256k1PublicKey: Data
         let context: MobileWalletContext
 
@@ -120,6 +127,8 @@ private extension CommonUserWalletLinker {
             throw .failed(underlying: error)
         }
 
+        try checkCancellation()
+
         do {
             try await BackendAuthenticationRegistrar.registerMobileWallet(
                 id: id,
@@ -129,6 +138,16 @@ private extension CommonUserWalletLinker {
             )
         } catch {
             throw .failed(underlying: error)
+        }
+    }
+}
+
+// MARK: - Cancellation
+
+private extension CommonUserWalletLinker {
+    func checkCancellation() throws(UserWalletLinkError) {
+        guard !Task.isCancelled else {
+            throw .cancelled
         }
     }
 }
