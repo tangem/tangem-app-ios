@@ -142,7 +142,7 @@ private extension CommonJointAccountOperationsService {
             throw JointOperationError.accountUnavailable
         }
 
-        guard case .active(let safeAddress) = account.status else {
+        guard case .active(let safeAddress) = account.jointAccountStatusProvider.status else {
             throw JointOperationError.accountNotActive
         }
 

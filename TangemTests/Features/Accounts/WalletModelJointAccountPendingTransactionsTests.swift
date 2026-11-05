@@ -92,7 +92,7 @@ private extension WalletModelJointAccountPendingTransactionsTests {
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
             derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
             accountPolicy: JointAccountPolicy(membersCount: 2, signersCount: 2),
-            accountStatus: .active(safeAddress: Self.safeAddress),
+            statusProvider: JointAccountStatusProviderStub(status: .active(safeAddress: Self.safeAddress)),
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: provider,
             membersService: JointAccountMembersServiceMock(

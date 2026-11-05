@@ -45,7 +45,9 @@ extension JointUserTokensRepositoryAdapter: UserTokensRepository {
         innerAdapter
             .cryptoAccountPublisher
             .combineLatest(safeAddressProvider.safeAddressPublisher)
-            .map(\.0)
+            .map { cryptoAccount, safeAddress in
+                safeAddress == nil ? cryptoAccount.withTokens([]) : cryptoAccount
+            }
             .eraseToAnyPublisher()
     }
 

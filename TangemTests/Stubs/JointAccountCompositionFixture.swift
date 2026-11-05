@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemSdk
 import TangemFoundation
 @testable import Tangem
 
@@ -133,6 +134,52 @@ enum JointAccountCompositionFixture {
             cancelReason: nil,
             initiator: initiator,
             signatures: signatures
+        )
+    }
+}
+
+// MARK: - Keys
+
+extension JointAccountCompositionFixture {
+    static let ownAddress = "0x6ECa00c52AFC728CDbF42E817d712e175bb23C7d"
+    static let strangerAddress = "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c"
+    static let seedKey = Data(hexString: "0279BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798")
+    static let derivedKey = ExtendedPublicKey(
+        publicKey: Data(hexString: "0241DCD64B5F4A039FC339A16300A833A883B218909F2EBCAF3906651C76842C45"),
+        chainCode: Data(repeating: 0x11, count: 32)
+    )
+
+    static var ownKeyPath: DerivationPath {
+        JointAccountKeyPath.derivationPath(forAccountAtIndex: derivationIdentity.derivationIndex)
+    }
+
+    static var ownKeyDerivation: DerivationResult {
+        [seedKey: DerivedKeys(keys: [ownKeyPath: derivedKey])]
+    }
+
+    static func masterKey(derivedKeys: [DerivationPath: ExtendedPublicKey] = [:]) -> KeyInfo {
+        KeyInfo(
+            publicKey: seedKey,
+            chainCode: Data(repeating: 0x11, count: 32),
+            curve: .secp256k1,
+            isImported: false,
+            derivedKeys: derivedKeys
+        )
+    }
+
+    static func member(address: String, role: JointAccountMember.Role = .member) -> JointAccountMember {
+        JointAccountMember(name: "Member", address: address, role: role, isMe: false, signature: nil)
+    }
+
+    static func makeStatusProvider(
+        repository: JointAccountsRepository,
+        userRoleService: JointAccountUserRoleService
+    ) -> CommonJointAccountStatusProvider {
+        CommonJointAccountStatusProvider(
+            userWalletId: userWalletId,
+            derivationIdentity: derivationIdentity,
+            jointAccountsRepository: repository,
+            userRoleService: userRoleService
         )
     }
 }

@@ -11,14 +11,13 @@ import TangemFoundation
 
 /// One of the wallet's own accounts as far as its name, its icon and its tokens go — what it adds is the members it is
 /// shared with and the rules they operate it by.
-protocol JointAccountModel: CryptoAccountModel, JointAccountOperationsServicesProviding, JointAccountMembersServiceProviding where Editor: JointAccountModelEditor {
+protocol JointAccountModel: CryptoAccountModel, JointAccountOperationsServicesProviding, JointAccountMembersServiceProviding {
     /// How many slots the account was created with and how many of them have to sign for it.
     /// - Note: Stays on the account rather than moving to the members service with the composition: it is what the
     /// account was created with and never changes, whereas who fills the slots does.
     var policy: JointAccountPolicy { get }
 
-    /// How far the account has come: waiting on its members, or activated and ready to be operated.
-    var status: JointAccountStatus { get }
+    var jointAccountStatusProvider: any JointAccountStatusProvider { get }
 
     /// Adds this wallet's confirmation of the composition and the address it adds up to. The account moves on to
     /// active once every member has confirmed, which the backend decides and the listing reports.

@@ -27,7 +27,7 @@ struct JointAccountModelsSelector: AccountModelsSelector {
             }
         }
 
-        return jointAccountModels.filter { state.isMatching(status: $0.status) }
+        return jointAccountModels.filter { state.isMatching(status: $0.jointAccountStatusProvider.status) }
     }
 
     func selectedPublisher(

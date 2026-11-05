@@ -227,7 +227,7 @@ extension JointAccountManagementCoordinator: JointAccountMembersRoutable {
     }
 
     func openConfirmSharedAddress(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig) {
-        guard case .confirming(.some(let safeAddress)) = jointAccount.status else {
+        guard case .confirming(.some(let safeAddress)) = jointAccount.jointAccountStatusProvider.status else {
             return
         }
 

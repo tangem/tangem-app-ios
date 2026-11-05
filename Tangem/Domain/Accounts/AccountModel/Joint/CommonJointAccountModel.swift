@@ -13,13 +13,10 @@ import TangemFoundation
 /// - Note: Everything a joint account shares with the wallet's own accounts is delegated to the crypto account it is
 /// built on, so the two kinds cannot drift apart as that one gains behaviour.
 final class CommonJointAccountModel {
-    private var accountStatus: JointAccountStatus {
-        didSet { didChangeSubject.send() }
-    }
-
     private let derivationIdentity: CryptoAccountDerivationIdentity
     private let accountPolicy: JointAccountPolicy
     private let cryptoAccount: any CryptoAccountModel
+    private let statusProvider: any JointAccountStatusProvider
     private let operationsService: any JointAccountOperationsService
     private let pendingOperationsProvider: any JointAccountPendingOperationsProvider
     private let membersService: any JointAccountMembersService
@@ -27,13 +24,11 @@ final class CommonJointAccountModel {
     private let userRoleService: any JointAccountUserRoleService
     private weak var delegate: (any JointAccountModelDelegate)?
 
-    private let didChangeSubject = PassthroughSubject<Void, Never>()
-
     init(
         cryptoAccount: any CryptoAccountModel,
         derivationIdentity: CryptoAccountDerivationIdentity,
         accountPolicy: JointAccountPolicy,
-        accountStatus: JointAccountStatus,
+        statusProvider: any JointAccountStatusProvider,
         operationsService: any JointAccountOperationsService,
         pendingOperationsProvider: any JointAccountPendingOperationsProvider,
         membersService: any JointAccountMembersService,
@@ -44,7 +39,7 @@ final class CommonJointAccountModel {
         self.cryptoAccount = cryptoAccount
         self.derivationIdentity = derivationIdentity
         self.accountPolicy = accountPolicy
-        self.accountStatus = accountStatus
+        self.statusProvider = statusProvider
         self.operationsService = operationsService
         self.pendingOperationsProvider = pendingOperationsProvider
         self.membersService = membersService
@@ -58,17 +53,13 @@ final class CommonJointAccountModel {
 
 extension CommonJointAccountModel {
     @discardableResult
-    func update(with editor: (_ editor: CommonJointAccountModelEditor) -> Void) -> Self {
-        let jointAccountModelEditor = CommonJointAccountModelEditor()
-        editor(jointAccountModelEditor)
+    func update(with editor: (_ editor: CommonCryptoAccountModel.CommonAccountModelEditor) -> Void) -> Self {
+        let accountModelEditor = CommonCryptoAccountModel.CommonAccountModelEditor()
+        editor(accountModelEditor)
 
         cryptoAccount.update { cryptoAccountModelEditor in
-            jointAccountModelEditor.name.map(cryptoAccountModelEditor.setName)
-            jointAccountModelEditor.icon.map(cryptoAccountModelEditor.setIcon)
-        }
-
-        if let newStatus = jointAccountModelEditor.status, accountStatus != newStatus {
-            accountStatus = newStatus
+            accountModelEditor.name.map(cryptoAccountModelEditor.setName)
+            accountModelEditor.icon.map(cryptoAccountModelEditor.setIcon)
         }
 
         return self
@@ -90,8 +81,8 @@ extension CommonJointAccountModel: JointAccountModel {
         accountPolicy
     }
 
-    var status: JointAccountStatus {
-        accountStatus
+    var jointAccountStatusProvider: any JointAccountStatusProvider {
+        statusProvider
     }
 
     @discardableResult
@@ -117,7 +108,7 @@ extension CommonJointAccountModel: JointAccountModel {
     var didChangePublisher: AnyPublisher<Void, Never> {
         cryptoAccount
             .didChangePublisher
-            .merge(with: didChangeSubject)
+            .merge(with: statusProvider.statusPublisher.dropFirst().map { _ in () })
             .eraseToAnyPublisher()
     }
 
@@ -146,7 +137,7 @@ extension CommonJointAccountModel: JointAccountModel {
     }
 
     @discardableResult
-    func edit(with editor: (_ editor: CommonJointAccountModelEditor) -> Void) async throws(AccountEditError) -> Self {
+    func edit(with editor: (_ editor: CommonCryptoAccountModel.CommonAccountModelEditor) -> Void) async throws(AccountEditError) -> Self {
         throw .unknownError(JointAccountModelError.editingNotSupported)
     }
 
@@ -167,7 +158,7 @@ extension CommonJointAccountModel {
 
 private extension CommonJointAccountModel {
     func makeConfirmationConfig(safeAddress: String) throws(AccountEditError) -> JointAccountConfirmationConfig {
-        guard case .confirming(.some(let statusSafeAddress)) = status else {
+        guard case .confirming(.some(let statusSafeAddress)) = statusProvider.status else {
             throw .unknownError(JointAccountModelError.notReadyForConfirmation)
         }
 
@@ -241,30 +232,7 @@ extension CommonJointAccountModel: CustomStringConvertible {
         objectDescription(self, userInfo: [
             "cryptoAccount": cryptoAccount,
             "accountPolicy": accountPolicy,
-            "status": status,
+            "status": statusProvider.status,
         ])
-    }
-}
-
-// MARK: - Auxiliary types
-
-extension CommonJointAccountModel {
-    /// Not private: a private type cannot be the witness for `Editor`.
-    final class CommonJointAccountModelEditor: JointAccountModelEditor {
-        var name: String?
-        var icon: AccountModel.CompositeIcon?
-        var status: JointAccountStatus?
-
-        func setName(_ name: String) {
-            self.name = name
-        }
-
-        func setIcon(_ icon: AccountModel.CompositeIcon) {
-            self.icon = icon
-        }
-
-        func setStatus(_ status: JointAccountStatus) {
-            self.status = status
-        }
     }
 }

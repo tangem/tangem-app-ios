@@ -154,7 +154,7 @@ private func previewJointAccount(
         cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
         derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
         accountPolicy: JointAccountPolicy(membersCount: membersCount, signersCount: 2),
-        accountStatus: status,
+        statusProvider: JointAccountStatusProviderStub(status: status),
         operationsService: JointAccountOperationsServiceMock(),
         pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
         membersService: JointAccountMembersServiceMock(

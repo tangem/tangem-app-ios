@@ -11,7 +11,7 @@ import TangemFoundation
 /// The rules a joint account is operated by, beyond the name, the icon and the tokens it holds as one of the
 /// wallet's own accounts.
 /// - Note: Fixed when the account is created, unlike the status, which is how far the account has come since —
-/// see `JointAccountModel.status`.
+/// see `JointAccountStatusProvider.status`.
 struct JointAccountPolicy: Equatable {
     /// How many slots the account has, the creator's included.
     let membersCount: Int

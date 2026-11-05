@@ -14,13 +14,23 @@ import BlockchainSdk
 struct JointWalletFactory: AnyWalletFactory {
     private let defaultWalletFactory: any AnyWalletFactory
     private let safeAddressProvider: JointAccountSafeAddressProvider
+    private let userRoleService: any JointAccountUserRoleService
 
-    init(defaultWalletFactory: any AnyWalletFactory, safeAddressProvider: JointAccountSafeAddressProvider) {
+    init(
+        defaultWalletFactory: any AnyWalletFactory,
+        safeAddressProvider: JointAccountSafeAddressProvider,
+        userRoleService: any JointAccountUserRoleService
+    ) {
         self.defaultWalletFactory = defaultWalletFactory
         self.safeAddressProvider = safeAddressProvider
+        self.userRoleService = userRoleService
     }
 
     func makeWallet(blockchainNetwork: BlockchainNetwork, keys: [KeyInfo]) throws -> Wallet {
+        guard userRoleService.ownAddress != nil else {
+            throw AnyWalletFactoryError.noDerivation
+        }
+
         // Read at every call: the address arrives on activation, possibly after this factory was built
         guard let safeAddress = safeAddressProvider.safeAddress else {
             throw AnyWalletFactoryError.accountAddressUnavailable

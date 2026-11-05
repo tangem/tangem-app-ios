@@ -404,7 +404,7 @@ private extension AccountDetailsViewModel {
                 membersCount: policy.membersCount,
                 action: { router?.openAboutSignatures(policy: policy) }
             )
-            let isActive = jointAccount.status.isActive
+            let isActive = jointAccount.jointAccountStatusProvider.status.isActive
 
             return Content(
                 navigationTitle: Localization.commonJointAccount,
@@ -436,7 +436,7 @@ private extension AccountDetailsViewModel {
 
             let value: String?
 
-            switch jointAccount.status {
+            switch jointAccount.jointAccountStatusProvider.status {
             case .pending:
                 value = Localization.accountDetailsJointMembersJoined(slots.members.count, slots.count)
             case .confirming:
