@@ -13,40 +13,19 @@ import TangemAssets
 import TangemLocalization
 
 struct MultiWalletTokenItemsEmptyView: View {
-    // [REDACTED_INFO]: Remove legacy defaults and use redesign colors (Graphic/Neutral/quaternary, Text/Neutral/tertiary) and spacing (.x5)
-    private var iconColor: Color = DesignSystem.Color.iconTertiary
-    private var textColor: Color = DesignSystem.Color.textSecondary
-    private var spacing: CGFloat = 16
-
     var body: some View {
-        VStack(spacing: spacing) {
+        VStack(spacing: 20) {
             Assets.emptyTokenList.image
-                .foregroundColor(iconColor)
+                .foregroundColor(DesignSystem.Color.iconTertiary)
 
             Text(Localization.mainEmptyTokensListMessage)
                 .multilineTextAlignment(.center)
                 .style(
                     Fonts.Regular.footnote,
-                    color: textColor
+                    color: DesignSystem.Color.textSecondary
                 )
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.horizontal, 48)
-    }
-}
-
-// MARK: - Setupable
-
-extension MultiWalletTokenItemsEmptyView: Setupable {
-    func iconColor(_ color: Color) -> Self {
-        map { $0.iconColor = color }
-    }
-
-    func textColor(_ color: Color) -> Self {
-        map { $0.textColor = color }
-    }
-
-    func spacing(_ spacing: CGFloat) -> Self {
-        map { $0.spacing = spacing }
     }
 }

@@ -22,14 +22,8 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     /// [REDACTED_INFO]: Remove when the redesign feature toggle is removed
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
 
-    // MARK: - Redesign
-
-    /// [REDACTED_INFO]: This should be unwrapped from container once redesign toggle is deleted
-    private(set) var redesignState: RedesignState?
-
-    var actionButtonsViewModel: ActionButtonsViewModel? {
-        redesignState?.actionButtonsViewModel
-    }
+    private(set) var actionButtonsViewModel: ActionButtonsViewModel?
+    private(set) var tokenCardVariant: TokenCardVariant?
 
     // MARK: - Dependencies
 
@@ -87,7 +81,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             tokenRouter: tokenRouter
         )
 
-        setupRedesign(
+        setupTokenCard(
             walletModel: walletModel,
             userWalletModel: userWalletModel,
             coordinator: coordinator,
@@ -97,7 +91,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         bind()
     }
 
-    private func setupRedesign(
+    private func setupTokenCard(
         walletModel: any WalletModel,
         userWalletModel: UserWalletModel,
         coordinator: (any ActionButtonsRoutable & MultiWalletMainContentRoutable)?,
@@ -124,7 +118,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         )
 
         let actionButtonsVisibility = ActionButtonsVisibility(config: userWalletModel.config)
-        let actionButtonsVM: ActionButtonsViewModel? = actionButtonsVisibility.hasVisibleButtons
+        actionButtonsViewModel = actionButtonsVisibility.hasVisibleButtons
             ? coordinator.map {
                 ActionButtonsViewModel(
                     coordinator: $0,
@@ -133,7 +127,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             }
             : nil
 
-        let tokenCardVariant: RedesignState.TokenCardVariant
         if let accountModel {
             @Injected(\.expandableAccountItemStateStorageProvider)
             var stateStorageProvider: ExpandableAccountItemStateStorageProvider
@@ -152,11 +145,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         } else {
             tokenCardVariant = .token(tokenItemViewModel)
         }
-
-        redesignState = RedesignState(
-            actionButtonsViewModel: actionButtonsVM,
-            tokenCardVariant: tokenCardVariant
-        )
     }
 
     /// [REDACTED_INFO]: Remove when the redesign feature toggle is removed
@@ -349,18 +337,13 @@ extension SingleWalletMainContentViewModel: TokenItemContextActionDelegate {
     }
 }
 
-// MARK: - RedesignState
+// MARK: - TokenCardVariant
 
 extension SingleWalletMainContentViewModel {
-    struct RedesignState {
-        let actionButtonsViewModel: ActionButtonsViewModel?
-        let tokenCardVariant: TokenCardVariant
-
-        enum TokenCardVariant {
-            /// Plain token row (no account header)
-            case token(TokenItemViewModel)
-            /// Token row wrapped in an expandable account card
-            case account(ExpandableAccountItemViewModel, TokenItemViewModel)
-        }
+    enum TokenCardVariant {
+        /// Plain token row (no account header)
+        case token(TokenItemViewModel)
+        /// Token row wrapped in an expandable account card
+        case account(ExpandableAccountItemViewModel, TokenItemViewModel)
     }
 }
