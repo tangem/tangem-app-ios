@@ -14,7 +14,7 @@ extension EarnYieldPickerProduct {
         apy: Decimal,
         incentiveApy: Decimal?,
         performanceFee: Decimal,
-        auditReportURL: URL
+        auditReportURL: URL?
     ) -> EarnYieldPickerProduct {
         EarnYieldPickerProduct(
             id: .lendingOnAave,

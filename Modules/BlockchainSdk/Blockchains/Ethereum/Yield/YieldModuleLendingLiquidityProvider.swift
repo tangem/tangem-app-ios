@@ -9,6 +9,8 @@
 import Foundation
 
 public protocol YieldModuleLendingLiquidityProvider {
+    func wrappedNative() async throws -> String
+    func nativePosition() async throws -> Decimal
     func availableToWithdraw(nativePosition: Decimal) async throws -> Decimal
 }
 
@@ -27,6 +29,18 @@ final class CommonYieldModuleLendingLiquidityProvider: YieldModuleLendingLiquidi
         self.resolveYieldModule = resolveYieldModule
     }
 
+    func wrappedNative() async throws -> String {
+        try await address(returnedBy: WrappedNativeMethod(), contract: resolveYieldModule())
+    }
+
+    func nativePosition() async throws -> Decimal {
+        let yieldModule = try await resolveYieldModule()
+        let wrappedNative = try await address(returnedBy: WrappedNativeMethod(), contract: yieldModule)
+        let result = try await call(EffectiveProtocolBalanceMethod(tokenContractAddress: wrappedNative), contract: yieldModule)
+
+        return try amount(from: result)
+    }
+
     func availableToWithdraw(nativePosition: Decimal) async throws -> Decimal {
         try await min(nativePosition, liquidity())
     }
@@ -40,12 +54,16 @@ final class CommonYieldModuleLendingLiquidityProvider: YieldModuleLendingLiquidi
         let method = try await VirtualUnderlyingBalanceMethod(assetContractAddress: wrappedNative)
         let result = try await call(method, contract: pool)
 
+        return try amount(from: result)
+    }
+
+    private func amount(from result: String) throws -> Decimal {
         guard result.removeHexPrefix().count == Constants.wordHexLength,
-              let liquidity = EthereumUtils.parseEthereumDecimal(result, decimalsCount: decimalCount) else {
+              let amount = EthereumUtils.parseEthereumDecimal(result, decimalsCount: decimalCount) else {
             throw YieldModuleError.unableToParseData
         }
 
-        return liquidity
+        return amount
     }
 
     private func address(returnedBy method: SmartContractMethod, contract: String) async throws -> String {

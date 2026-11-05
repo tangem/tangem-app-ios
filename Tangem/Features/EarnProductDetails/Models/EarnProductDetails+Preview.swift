@@ -11,6 +11,6 @@ import Foundation
 extension EarnProductDetails {
     static let preview = EarnProductDetails.lendingOnAave(
         performanceFee: 0.15,
-        auditReportURL: URL(string: "https://example.com/audit-report")!
+        auditReportURL: URL(string: "https://example.com/audit-report")
     )
 }
