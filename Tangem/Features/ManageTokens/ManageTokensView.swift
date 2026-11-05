@@ -18,7 +18,7 @@ struct ManageTokensView: View {
     @State private var contentOffset: CGPoint = .zero
     private let style: Style
 
-    @Environment(\.isAddAndOrganizeRedesignEnabled) private var isRedesign
+    @Environment(\.isInTokensManagementFlow) private var isInTokensManagementFlow
 
     init(viewModel: ManageTokensViewModel, style: Style = .legacy) {
         self.viewModel = viewModel
@@ -28,35 +28,35 @@ struct ManageTokensView: View {
     // MARK: - Redesign-aware styling
 
     private var viewBackgroundColor: Color {
-        isRedesign ? DesignSystem.Color.bgPrimary : style.viewBackgroundColor
+        isInTokensManagementFlow ? DesignSystem.Color.bgPrimary : style.viewBackgroundColor
     }
 
     private var listBackgroundColor: Color {
-        isRedesign ? DesignSystem.Color.bgSecondary : style.listBackgroundColor
+        isInTokensManagementFlow ? DesignSystem.Color.bgSecondary : style.listBackgroundColor
     }
 
     private var listCornerRadius: CGFloat {
-        isRedesign ? Constants.redesignCardCornerRadius : Constants.cardCornerRadius
+        isInTokensManagementFlow ? Constants.redesignCardCornerRadius : Constants.cardCornerRadius
     }
 
     private var cardBackgroundColor: Color {
-        isRedesign ? DesignSystem.Color.bgSecondary : DesignSystem.Color.bgSecondary
+        DesignSystem.Color.bgSecondary
     }
 
     private var cardCornerRadius: CGFloat {
-        isRedesign ? Constants.redesignCardCornerRadius : Constants.cardCornerRadius
+        isInTokensManagementFlow ? Constants.redesignCardCornerRadius : Constants.cardCornerRadius
     }
 
     private var rowTitleFont: TangemFontStyle {
-        isRedesign ? TangemFontStyle(DesignSystem.Font.subheadingMediumToken) : TangemFontStyle(font: Fonts.Bold.subheadline)
+        isInTokensManagementFlow ? TangemFontStyle(DesignSystem.Font.subheadingMediumToken) : TangemFontStyle(font: Fonts.Bold.subheadline)
     }
 
     private var rowTitleColor: Color {
-        isRedesign ? DesignSystem.Color.textPrimary : DesignSystem.Color.textPrimary
+        DesignSystem.Color.textPrimary
     }
 
     private var accentColor: Color {
-        isRedesign ? DesignSystem.Color.iconAccentBlue : DesignSystem.Color.iconAccentBlue
+        DesignSystem.Color.iconAccentBlue
     }
 
     var body: some View {
@@ -124,7 +124,7 @@ struct ManageTokensView: View {
 
     @ViewBuilder
     private var searchField: some View {
-        if isRedesign {
+        if isInTokensManagementFlow {
             Search(text: $viewModel.searchText)
                 .placeholder(Localization.commonSearch)
                 .textFieldAccessibilityIdentifier(ManageTokensAccessibilityIdentifiers.searchField)

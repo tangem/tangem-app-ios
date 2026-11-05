@@ -15,7 +15,7 @@ import TangemAccessibilityIdentifiers
 struct AddCustomTokenView: View {
     @ObservedObject private var viewModel: AddCustomTokenViewModel
 
-    @Environment(\.isAddAndOrganizeRedesignEnabled) private var isRedesign
+    @Environment(\.isInTokensManagementFlow) private var isInTokensManagementFlow
 
     init(viewModel: AddCustomTokenViewModel) {
         self.viewModel = viewModel
@@ -41,7 +41,7 @@ struct AddCustomTokenView: View {
     }
 
     private var cardCornerRadius: CGFloat {
-        isRedesign ? 20 : Self.defaultCornerRadius
+        isInTokensManagementFlow ? 20 : Self.defaultCornerRadius
     }
 
     var body: some View {
