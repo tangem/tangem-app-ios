@@ -38,6 +38,8 @@ final class AuthViewModel: ObservableObject {
 
     private var analyticsContextParams: Analytics.ContextParams { .empty }
 
+    private var isBiometricsUnlockOnWalletTapDisabled = false
+
     private let signInAnalyticsLogger = SignInAnalyticsLogger()
     private let unlockOnAppear: Bool
     private weak var coordinator: AuthRoutable?
@@ -115,7 +117,7 @@ private extension AuthViewModel {
                 userWalletModel.userWalletId == userWalletId
             },
             action: { [weak self] in
-                self?.unlock(userWalletModel: userWalletModel)
+                self?.onWalletTap(userWalletModel: userWalletModel)
             }
         )
     }
@@ -124,15 +126,56 @@ private extension AuthViewModel {
 // MARK: - Unlocking
 
 private extension AuthViewModel {
-    func unlock(userWalletModel: UserWalletModel) {
+    func onWalletTap(userWalletModel: UserWalletModel) {
+        guard allowsHitTesting else {
+            return
+        }
+
+        unlockingUserWalletId = userWalletModel.userWalletId
+
+        let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
+
+        guard isBiometricsUtilAvailable, !isBiometricsUnlockOnWalletTapDisabled, !unlocker.canUnlockAutomatically else {
+            signInAnalyticsLogger.logSignInButtonWalletEvent(signInType: unlocker.analyticsSignInType, userWalletModel: userWalletModel)
+            unlock(userWalletModel: userWalletModel, unlocker: unlocker)
+            return
+        }
+
+        signInAnalyticsLogger.logSignInButtonWalletEvent(signInType: .biometrics, userWalletModel: userWalletModel)
+
         runTask(in: self) { viewModel in
-            let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
+            do {
+                let context = try await UserWalletBiometricsUnlocker().unlock()
+                viewModel.userWalletRepository.select(userWalletId: userWalletModel.userWalletId)
+                try await viewModel.signIn(with: .biometrics(context), signInType: .biometrics)
+                await viewModel.finishUnlocking()
+            } catch {
+                await runOnMain {
+                    viewModel.isBiometricsUnlockOnWalletTapDisabled = true
+                }
 
-            viewModel.signInAnalyticsLogger.logSignInButtonWalletEvent(
-                signInType: unlocker.analyticsSignInType,
-                userWalletModel: userWalletModel
-            )
+                await viewModel.waitUntilApplicationIsActive()
 
+                if case UserWalletRepositoryError.biometricsChanged = error {
+                    await viewModel.finishUnlocking()
+                    await runOnMain {
+                        viewModel.alert = error.alertBinder
+                    }
+                } else {
+                    viewModel.unlock(userWalletModel: userWalletModel, unlocker: unlocker)
+                }
+            }
+        }
+    }
+
+    func unlock(userWalletModel: UserWalletModel) {
+        let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
+        signInAnalyticsLogger.logSignInButtonWalletEvent(signInType: unlocker.analyticsSignInType, userWalletModel: userWalletModel)
+        unlock(userWalletModel: userWalletModel, unlocker: unlocker)
+    }
+
+    func unlock(userWalletModel: UserWalletModel, unlocker: UserWalletModelUnlocker) {
+        runTask(in: self) { viewModel in
             await viewModel.startUnlocking(userWalletId: userWalletModel.userWalletId)
             let unlockResult = await unlocker.unlock()
             await viewModel.finishUnlocking()
@@ -162,28 +205,10 @@ private extension AuthViewModel {
     func handleUnlock(result: UserWalletModelUnlockerResult, userWalletModel: UserWalletModel, signInType: Analytics.SignInType) async {
         switch result {
         case .success(let userWalletId, let encryptionKey):
-            do {
-                let unlockMethod = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
-                let userWalletModel = try await userWalletRepository.unlock(with: unlockMethod)
-                signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
-                await openMain(userWalletModel: userWalletModel)
-            } catch {
-                await runOnMain {
-                    alert = error.alertBinder
-                }
-            }
+            await signInOrShowAlert(with: .encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey), signInType: signInType)
 
         case .biometrics(let context):
-            do {
-                let unlockMethod = UserWalletRepositoryUnlockMethod.biometrics(context)
-                let userWalletModel = try await userWalletRepository.unlock(with: unlockMethod)
-                signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
-                await openMain(userWalletModel: userWalletModel)
-            } catch {
-                await runOnMain {
-                    alert = error.alertBinder
-                }
-            }
+            await signInOrShowAlert(with: .biometrics(context), signInType: signInType)
 
         case .scanTroubleshooting:
             await showScanTroubleshootingDialog(placement: .wallet(userWalletModel.userWalletId))
@@ -200,6 +225,22 @@ private extension AuthViewModel {
                 alert = error.alertBinder
             }
         }
+    }
+
+    func signInOrShowAlert(with unlockMethod: UserWalletRepositoryUnlockMethod, signInType: Analytics.SignInType) async {
+        do {
+            try await signIn(with: unlockMethod, signInType: signInType)
+        } catch {
+            await runOnMain {
+                alert = error.alertBinder
+            }
+        }
+    }
+
+    func signIn(with unlockMethod: UserWalletRepositoryUnlockMethod, signInType: Analytics.SignInType) async throws {
+        let userWalletModel = try await userWalletRepository.unlock(with: unlockMethod)
+        signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
+        await openMain(userWalletModel: userWalletModel)
     }
 
     /// Returns wallet if it is single mobile protected wallet in repository.
@@ -233,11 +274,7 @@ private extension AuthViewModel {
         runTask(in: self) { viewModel in
             do {
                 let context = try await UserWalletBiometricsUnlocker().unlock()
-                let userWalletModel = try await viewModel.userWalletRepository.unlock(with: .biometrics(context))
-
-                viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .biometrics, userWalletModel: userWalletModel)
-
-                await viewModel.openMain(userWalletModel: userWalletModel)
+                try await viewModel.signIn(with: .biometrics(context), signInType: .biometrics)
             } catch {
                 await viewModel.handleUnlockWithBiometryResult(error: error)
             }
