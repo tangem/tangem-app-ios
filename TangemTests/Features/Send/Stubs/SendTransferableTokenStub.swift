@@ -16,15 +16,24 @@ final class SendTransferableTokenStub: SendSourceTokenStub, SendTransferableToke
     let transactionCreator: SendTransactionCreator
     let tokenFeeProvidersManager: TokenFeeProvidersManager
 
+    private let dispatcherProvider: any TransactionDispatcherProvider
+
     init(
         blockchain: Blockchain,
         transactionValidator: SendTransactionValidator = SendTransactionValidatorStub(),
-        tokenFeeProvidersManager: TokenFeeProvidersManager
+        transactionCreator: SendTransactionCreator = SendTransactionCreatorStub(),
+        tokenFeeProvidersManager: TokenFeeProvidersManager,
+        transactionDispatcherProvider: any TransactionDispatcherProvider = TransactionDispatcherProviderStub()
     ) {
         self.transactionValidator = transactionValidator
-        transactionCreator = SendTransactionCreatorStub()
+        self.transactionCreator = transactionCreator
         self.tokenFeeProvidersManager = tokenFeeProvidersManager
+        dispatcherProvider = transactionDispatcherProvider
         super.init(blockchain: blockchain)
+    }
+
+    override var transactionDispatcherProvider: any TransactionDispatcherProvider {
+        dispatcherProvider
     }
 }
 
