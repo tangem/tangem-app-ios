@@ -19,27 +19,39 @@ enum TangemPayMoneyAccountState {
     case deactivated(any TangemPayMoneyAccountModel)
 }
 
+// MARK: - Mapping from customer summary status
+
 extension TangemPayMoneyAccountState {
     init(
         activationStatus: TangemPayCustomerSummaryResponse.Activation.Status,
-        moneyAccount: () -> any TangemPayMoneyAccountModel
+        moneyAccount: () -> (any TangemPayMoneyAccountModel)?
     ) {
+        let makeState: (any TangemPayMoneyAccountModel) -> Self
+
         switch activationStatus {
         case .notStarted:
             self = .notStarted
-        case .processing:
-            self = .activating(moneyAccount())
-        case .failed:
-            self = .activationFailed(moneyAccount())
-        case .completed:
-            self = .active(moneyAccount())
-        case .deactivated:
-            self = .deactivated(moneyAccount())
+            return
         case .unavailable, .undefined:
             self = .unavailable
+            return
+        case .processing:
+            makeState = Self.activating
+        case .failed:
+            makeState = Self.activationFailed
+        case .completed:
+            makeState = Self.active
+        case .deactivated:
+            makeState = Self.deactivated
         }
-    }
 
+        self = moneyAccount().map(makeState) ?? .syncNeeded
+    }
+}
+
+// MARK: - Helpers
+
+extension TangemPayMoneyAccountState {
     var moneyAccount: (any TangemPayMoneyAccountModel)? {
         switch self {
         case .activating(let moneyAccount),

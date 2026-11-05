@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct TangemPayMoneyAccountView: View {
     @StateObject private var viewModel: TangemPayMoneyAccountViewModel
@@ -28,5 +29,9 @@ struct TangemPayMoneyAccountView: View {
             menuSections: viewModel.menuSections,
             onMenuItemSelected: { viewModel.handleAction(.selectMenuItem($0)) }
         )
+        .alert(item: $viewModel.alert) { $0.alert }
+        .task {
+            await viewModel.loadState()
+        }
     }
 }
