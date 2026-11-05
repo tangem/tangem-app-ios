@@ -18,4 +18,11 @@ protocol JointAccountPendingOperationsProvider {
     var pendingOperationsPublisher: AnyPublisher<[JointAccountPendingOperation], Never> { get }
 
     func requestFrequentUpdates(operationId: String) -> AnyCancellable?
+
+    func loadOperation(id: String) async throws -> JointAccountPendingOperation
+}
+
+enum JointAccountPendingOperationsProviderError: Error {
+    /// The account has no wallet of the token on this device — another member may have added it.
+    case walletNotFound
 }

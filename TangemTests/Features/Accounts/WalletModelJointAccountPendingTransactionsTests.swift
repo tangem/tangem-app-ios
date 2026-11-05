@@ -129,4 +129,8 @@ private final class PendingOperationsProviderStub: JointAccountPendingOperations
     func requestFrequentUpdates(operationId: String) -> AnyCancellable? {
         nil
     }
+
+    func loadOperation(id: String) async throws -> JointAccountPendingOperation {
+        throw "Not called by these tests"
+    }
 }

@@ -82,24 +82,28 @@ final class CommonJointAccountPendingOperationsProvider {
         walletModels: [any WalletModel],
         members: [JointAccountMember]
     ) -> JointAccountPendingOperation? {
-        do {
-            let innerCallType = try SafeInnerCallTypeParser.parse(operation.safeTransaction.innerCall)
-            let walletModel = try walletModel(relatedTo: innerCallType, chainId: operation.chainId, among: walletModels)
-            let wallet = try walletBuilder.build(walletModel: walletModel)
-            let feeTokenItem = feeTokenItem(of: operation, through: walletModel, among: walletModels)
-            let initiator = initiator(of: operation, wallet: wallet, members: members)
+        try? makePendingOperation(from: operation, walletModels: walletModels, members: members)
+    }
 
-            return JointAccountPendingOperation(
-                wallet: wallet,
-                initiator: initiator,
-                operation: operation,
-                operationPublisher: pendingOperationsRepository.operationPublisher(id: operation.id, in: cryptoAccountId),
-                innerCallType: innerCallType,
-                feeTokenItem: feeTokenItem
-            )
-        } catch {
-            return nil
-        }
+    private func makePendingOperation(
+        from operation: JointAccountOperation,
+        walletModels: [any WalletModel],
+        members: [JointAccountMember]
+    ) throws -> JointAccountPendingOperation {
+        let innerCallType = try SafeInnerCallTypeParser.parse(operation.safeTransaction.innerCall)
+        let walletModel = try walletModel(relatedTo: innerCallType, chainId: operation.chainId, among: walletModels)
+        let wallet = try walletBuilder.build(walletModel: walletModel)
+        let feeTokenItem = feeTokenItem(of: operation, through: walletModel, among: walletModels)
+        let initiator = initiator(of: operation, wallet: wallet, members: members)
+
+        return JointAccountPendingOperation(
+            wallet: wallet,
+            initiator: initiator,
+            operation: operation,
+            operationPublisher: pendingOperationsRepository.operationPublisher(id: operation.id, in: cryptoAccountId),
+            innerCallType: innerCallType,
+            feeTokenItem: feeTokenItem
+        )
     }
 
     /// The account's wallet of the token a transfer moves: the network's own for the coin, the one at the contract for a
@@ -117,7 +121,7 @@ final class CommonJointAccountPendingOperationsProvider {
         }
 
         guard let walletModel else {
-            throw Error.walletNotFound
+            throw JointAccountPendingOperationsProviderError.walletNotFound
         }
 
         return walletModel
@@ -185,13 +189,14 @@ extension CommonJointAccountPendingOperationsProvider: JointAccountPendingOperat
     func requestFrequentUpdates(operationId: String) -> AnyCancellable? {
         pendingOperationsRepository.requestFrequentUpdates(operationId: operationId)
     }
-}
 
-// MARK: - Auxiliary types
+    func loadOperation(id: String) async throws -> JointAccountPendingOperation {
+        let operation = try await pendingOperationsRepository.loadOperation(id: id, forCryptoAccountId: cryptoAccountId)
 
-private extension CommonJointAccountPendingOperationsProvider {
-    enum Error: Swift.Error {
-        /// The account has no wallet of the token on this device — another member may have added it.
-        case walletNotFound
+        return try await makePendingOperation(
+            from: operation,
+            walletModels: walletModelsManager.walletModels,
+            members: membersService.slotsPublisher.async().members
+        )
     }
 }

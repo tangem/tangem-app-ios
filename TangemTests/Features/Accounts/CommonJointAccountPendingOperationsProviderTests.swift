@@ -288,6 +288,33 @@ struct CommonJointAccountPendingOperationsProviderTests {
         #expect(operations.map(\.id) == ["coin"])
     }
 
+    @Test("An operation loaded by its id is asked of the repository under the account and goes through the account's wallet")
+    func loadedOperationGoesThroughTheAccountsWallet() async throws {
+        let account = makeJointAccount()
+        let loaded = Self.coinTransfer(id: "loaded", status: .failed)
+        let repository = JointAccountPendingOperationsRepositoryStub(loadedOperationAnswer: .success(loaded))
+        let sut = Self.makeSUT(repository: repository, walletModels: [Self.makeWalletModel(tokenItem: Self.coin, account: account)]).provider
+
+        let operation = try await sut.loadOperation(id: "loaded")
+
+        #expect(operation.id == loaded.id)
+        #expect(operation.status == loaded.status)
+        #expect(operation.tokenItem == Self.coin)
+        #expect(repository.loadedOperations.map(\.id) == ["loaded"])
+        #expect(repository.loadedOperations.map(\.cryptoAccountId) == [Self.cryptoAccountId])
+    }
+
+    @Test("An operation loaded by its id in a token this wallet has not added cannot be shown")
+    func loadedOperationWithoutItsWalletIsReported() async throws {
+        let account = makeJointAccount()
+        let repository = try JointAccountPendingOperationsRepositoryStub(loadedOperationAnswer: .success(Self.tokenTransfer()))
+        let sut = Self.makeSUT(repository: repository, walletModels: [Self.makeWalletModel(tokenItem: Self.coin, account: account)]).provider
+
+        await #expect(throws: JointAccountPendingOperationsProviderError.walletNotFound) {
+            try await sut.loadOperation(id: "token")
+        }
+    }
+
     @Test("Each operation is followed through the store to its end, and falls silent once the store drops it")
     func operationIsFollowedToItsEnd() async throws {
         let account = makeJointAccount()

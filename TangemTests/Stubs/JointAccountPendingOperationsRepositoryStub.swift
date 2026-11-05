@@ -17,6 +17,7 @@ final class JointAccountPendingOperationsRepositoryStub: JointAccountPendingOper
     private let operationCalls = OSAllocatedUnfairLock(initialState: OperationCalls())
     /// What `createOperation` answers with; a test that only looks at what was asked hands none.
     private let registeredOperation: JointAccountOperation?
+    private let loadedOperationAnswer: Result<JointAccountOperation, Error>?
     private let frequentUpdatesRequests = OSAllocatedUnfairLock(initialState: [String: Int]())
 
     var createdOperations: [(request: JointAccountOperationRequest, cryptoAccountId: String)] {
@@ -31,16 +32,22 @@ final class JointAccountPendingOperationsRepositoryStub: JointAccountPendingOper
         operationCalls.withLock(\.rejected)
     }
 
+    var loadedOperations: [(id: String, cryptoAccountId: String)] {
+        operationCalls.withLock(\.loaded)
+    }
+
     func frequentUpdatesRequestsCount(operationId: String) -> Int {
         frequentUpdatesRequests.withLock { $0[operationId] ?? 0 }
     }
 
     init(
         pendingOperations: [StoredJointAccountPendingOperations] = [],
-        registeredOperation: JointAccountOperation? = nil
+        registeredOperation: JointAccountOperation? = nil,
+        loadedOperationAnswer: Result<JointAccountOperation, Error>? = nil
     ) {
         synchronizer = JointAccountPendingOperationsSynchronizerStub(pendingOperations: pendingOperations)
         self.registeredOperation = registeredOperation
+        self.loadedOperationAnswer = loadedOperationAnswer
     }
 
     func store(pendingOperations: [StoredJointAccountPendingOperations]) {
@@ -65,6 +72,16 @@ final class JointAccountPendingOperationsRepositoryStub: JointAccountPendingOper
         return AnyCancellable { [weak self] in
             self?.frequentUpdatesRequests.withLock { $0[operationId, default: 0] -= 1 }
         }
+    }
+
+    func loadOperation(id: String, forCryptoAccountId cryptoAccountId: String) async throws -> JointAccountOperation {
+        operationCalls.withLock { $0.loaded.append((id: id, cryptoAccountId: cryptoAccountId)) }
+
+        guard let loadedOperationAnswer else {
+            throw "The test handed no answer for the endpoint to read the operation with"
+        }
+
+        return try loadedOperationAnswer.get()
     }
 
     func createOperation(_ request: JointAccountOperationRequest, forCryptoAccountId cryptoAccountId: String) async throws -> JointAccountOperation {
@@ -100,5 +117,6 @@ private extension JointAccountPendingOperationsRepositoryStub {
         var created: [(request: JointAccountOperationRequest, cryptoAccountId: String)] = []
         var signed: [(id: String, safeTransaction: SafeTransaction, signature: Data, cryptoAccountId: String)] = []
         var rejected: [(id: String, cryptoAccountId: String)] = []
+        var loaded: [(id: String, cryptoAccountId: String)] = []
     }
 }
