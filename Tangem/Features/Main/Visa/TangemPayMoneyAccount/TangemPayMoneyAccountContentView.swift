@@ -57,6 +57,7 @@ struct TangemPayMoneyAccountContentView: View {
             .padding(.horizontal, 16)
             .padding(.top, Constants.contentTopPadding)
             .animation(.default, value: isBalanceFailed)
+            .animation(.default, value: state.isStale)
         }
         .background {
             DesignSystem.Color.bgPrimary
@@ -69,14 +70,6 @@ struct TangemPayMoneyAccountContentView: View {
             visibleBodyHeight = $0
         }
         .redesigned()
-    }
-
-    private var headerOpacity: CGFloat {
-        clamp(2 * headerHeightRatio - 1, min: 0, max: 1)
-    }
-
-    private var isBalanceFailed: Bool {
-        state.balance.isFailed
     }
 }
 
@@ -110,18 +103,7 @@ private extension TangemPayMoneyAccountContentView {
                 .font(token: DesignSystem.Font.captionMediumToken)
                 .foregroundStyle(DesignSystem.Color.textSecondary)
         }
-        .opacity(isBalanceFailed ? Constants.failedBalanceOpacity : 1)
-    }
-
-    var balanceState: LoadableBalanceView.State {
-        switch state.balance {
-        case .loading(let cached):
-            .loading(cached: .string(cached))
-        case .loaded(let balance):
-            .loaded(text: balance)
-        case .failed(let cached):
-            .failed(cached: .string(cached))
-        }
+        .opacity(isInactive ? Constants.inactiveBalanceOpacity : 1)
     }
 
     var actionButtons: some View {
@@ -138,7 +120,7 @@ private extension TangemPayMoneyAccountContentView {
                 action: { action(.withdraw) }
             )
         }
-        .disabled(isBalanceFailed)
+        .disabled(isInactive)
     }
 }
 
@@ -147,6 +129,13 @@ private extension TangemPayMoneyAccountContentView {
 private extension TangemPayMoneyAccountContentView {
     var banners: some View {
         VStack(spacing: 8) {
+            if !state.notificationBannerItems.isEmpty {
+                NotificationBannerContainer(
+                    items: state.notificationBannerItems,
+                    stackingType: .carousel
+                )
+            }
+
             if isBalanceFailed {
                 TangemPayMoneyAccountBalanceUnavailableBannerView()
             }
@@ -166,8 +155,7 @@ private extension TangemPayMoneyAccountContentView {
             openTransactionDetailsAction: { action(.openTransactionDetails(id: $0.id)) },
             reloadButtonAction: { action(.reloadTransactionHistory) },
             isReloadButtonBusy: state.isTrxHistoryReloading,
-            // [REDACTED_TODO_COMMENT]
-            fetchMore: nil
+            fetchMore: state.fetchMore
         )
         .frame(maxWidth: .infinity, minHeight: placeholderHeight)
         .frame(maxWidth: .infinity, minHeight: visibleBodyHeight, alignment: .top)
@@ -182,6 +170,8 @@ private extension TangemPayMoneyAccountContentView {
     }
 }
 
+// MARK: - Helpers
+
 private extension TransactionsListView.State {
     var isPlaceholder: Bool {
         switch self {
@@ -192,12 +182,30 @@ private extension TransactionsListView.State {
     }
 }
 
+private extension TangemPayMoneyAccountContentView {
+    var headerOpacity: CGFloat {
+        clamp(2 * headerHeightRatio - 1, min: 0, max: 1)
+    }
+
+    var isBalanceFailed: Bool {
+        state.balance.isFailure
+    }
+
+    var isInactive: Bool {
+        isBalanceFailed || state.isStale
+    }
+
+    var balanceState: LoadableBalanceView.State {
+        LoadableBalanceViewStateBuilder().build(type: state.balance)
+    }
+}
+
 // MARK: - Constants
 
 private extension TangemPayMoneyAccountContentView {
     enum Constants {
         static let contentTopPadding: CGFloat = 12
-        static let failedBalanceOpacity: CGFloat = 0.5
+        static let inactiveBalanceOpacity: CGFloat = 0.5
     }
 }
 
@@ -207,7 +215,7 @@ private extension TangemPayMoneyAccountContentView {
 #Preview("Idle") {
     TangemPayMoneyAccountContentPreview(
         state: TangemPayMoneyAccountStateModel(
-            balance: .loaded("$1250,50"),
+            balance: .loaded("$1,250.50"),
             transactionHistory: .loaded(TangemPayMoneyAccountPreviewData.transactions)
         )
     )
@@ -216,8 +224,19 @@ private extension TangemPayMoneyAccountContentView {
 #Preview("Balance failed") {
     TangemPayMoneyAccountContentPreview(
         state: TangemPayMoneyAccountStateModel(
-            balance: .failed(cached: "$2250,50"),
+            balance: .failure(.cache(.init(balance: "$2,250.50", date: Date()))),
             transactionHistory: .loaded(TangemPayMoneyAccountPreviewData.transactions)
+        )
+    )
+}
+
+#Preview("Session expired") {
+    TangemPayMoneyAccountContentPreview(
+        state: TangemPayMoneyAccountStateModel(
+            balance: .loaded("$1,250.50"),
+            transactionHistory: .loaded(TangemPayMoneyAccountPreviewData.transactions),
+            notificationBannerItems: TangemPayMoneyAccountPreviewData.sessionExpiredBannerItems,
+            isStale: true
         )
     )
 }
@@ -225,7 +244,7 @@ private extension TangemPayMoneyAccountContentView {
 #Preview("History failed") {
     TangemPayMoneyAccountContentPreview(
         state: TangemPayMoneyAccountStateModel(
-            balance: .loaded("$0,00"),
+            balance: .loaded("$0.00"),
             transactionHistory: .error("Preview")
         )
     )
@@ -234,7 +253,7 @@ private extension TangemPayMoneyAccountContentView {
 #Preview("Empty") {
     TangemPayMoneyAccountContentPreview(
         state: TangemPayMoneyAccountStateModel(
-            balance: .loaded("$0,00"),
+            balance: .loaded("$0.00"),
             transactionHistory: .loaded([])
         )
     )
@@ -243,7 +262,7 @@ private extension TangemPayMoneyAccountContentView {
 #Preview("Loading") {
     TangemPayMoneyAccountContentPreview(
         state: TangemPayMoneyAccountStateModel(
-            balance: .loading(cached: "$0,00"),
+            balance: .loading(.cache(.init(balance: "$0.00", date: Date()))),
             transactionHistory: .loading
         )
     )

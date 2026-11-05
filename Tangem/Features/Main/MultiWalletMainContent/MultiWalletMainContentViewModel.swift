@@ -909,18 +909,39 @@ extension MultiWalletMainContentViewModel {
 
 extension MultiWalletMainContentViewModel {
     var isTangemPayMoneyAccountVisible: Bool {
-        FeatureProvider.isAvailable(.tangemPayMoneyAccount)
+        TangemPayUtilities.isMoneyAccountAvailable
     }
 
     func openTangemPayMoneyAccount() {
-        guard let moneyAccount = AccountModelsAggregator(.tangemPay)
-            .model(from: userWalletModel.accountModelsManager)?
-            .moneyAccountState?
-            .moneyAccount
+        guard let tangemPayAccountModel = AccountModelsAggregator(.tangemPay)
+            .model(from: userWalletModel.accountModelsManager)
         else {
             return
         }
 
+        switch tangemPayAccountModel.moneyAccountState {
+        case .activating(let moneyAccount),
+             .activationFailed(let moneyAccount),
+             .active(let moneyAccount),
+             .deactivated(let moneyAccount):
+            openTangemPayMoneyAccount(moneyAccount)
+
+        case .unavailable:
+            if let moneyAccount = tangemPayAccountModel.lastKnownMoneyAccount {
+                openTangemPayMoneyAccount(moneyAccount)
+            }
+
+        case .syncNeeded:
+            if let moneyAccount = tangemPayAccountModel.lastKnownMoneyAccount {
+                openTangemPayMoneyAccount(moneyAccount)
+            }
+
+        case .loading, .notStarted, .none:
+            break
+        }
+    }
+
+    private func openTangemPayMoneyAccount(_ moneyAccount: any TangemPayMoneyAccountModel) {
         coordinator?.openTangemPayMoneyAccount(userWalletModel: userWalletModel, moneyAccount: moneyAccount)
     }
 }

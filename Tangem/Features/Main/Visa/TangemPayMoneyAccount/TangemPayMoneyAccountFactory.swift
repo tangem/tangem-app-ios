@@ -11,14 +11,14 @@ import SwiftUI
 enum TangemPayMoneyAccountFactory {
     @MainActor
     static func makeView(
-        userWalletModel: any UserWalletModel,
         moneyAccount: any TangemPayMoneyAccountModel,
+        userWalletModel: any UserWalletModel,
         output: @escaping (TangemPayMoneyAccountViewModel.Output) -> Void
     ) -> some View {
         TangemPayMoneyAccountView(
             viewModel: TangemPayMoneyAccountViewModel(
-                userWalletModel: userWalletModel,
                 moneyAccount: moneyAccount,
+                userWalletModel: userWalletModel,
                 output: output
             )
         )

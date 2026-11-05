@@ -21,6 +21,7 @@ protocol TangemPayAccountModel: BaseAccountModel where Icon == AccountModel.Stan
     /// (`.unavailable`, `.syncNeeded`) so the UI can keep navigating to the Payment Account
     /// screen and show cached balance/transactions while the backend is unavailable.
     var lastKnownTangemPayAccount: TangemPayAccount? { get }
+    var lastKnownMoneyAccount: (any TangemPayMoneyAccountModel)? { get }
 
     var customerId: String? { get }
 

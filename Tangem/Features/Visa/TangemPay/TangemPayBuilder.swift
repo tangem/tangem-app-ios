@@ -16,6 +16,7 @@ final class TangemPayBuilder {
     private let userWalletId: UserWalletId
     private let keysRepository: KeysRepository
     private let signerFactory: TangemSignerFactory
+    private let walletModelsFactoryProvider: WalletModelsFactoryProvider
 
     private var customerWalletId: String {
         userWalletId.stringValue
@@ -92,11 +93,13 @@ final class TangemPayBuilder {
     init(
         userWalletId: UserWalletId,
         keysRepository: KeysRepository,
-        signerFactory: TangemSignerFactory
+        signerFactory: TangemSignerFactory,
+        walletModelsFactoryProvider: WalletModelsFactoryProvider
     ) {
         self.userWalletId = userWalletId
         self.keysRepository = keysRepository
         self.signerFactory = signerFactory
+        self.walletModelsFactoryProvider = walletModelsFactoryProvider
     }
 
     func buildTangemPayManager() -> TangemPayManager {
@@ -152,11 +155,22 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
 
     func makeMoneyAccount(
         customerId: String,
-        bankingAccount: TangemPayCustomerSummaryResponse.BankingAccount
-    ) -> TangemPayMoneyAccount {
-        TangemPayMoneyAccount(
+        bankingAccount: TangemPayCustomerSummaryResponse.BankingAccount,
+        account: (any TangemPayAccountModel)?
+    ) -> TangemPayMoneyAccount? {
+        let walletModelBuilder = TangemPayMoneyAccountWalletModelBuilder(
+            walletModelsFactoryProvider: walletModelsFactoryProvider
+        )
+
+        guard let walletModel = walletModelBuilder.makeWalletModel() else {
+            return nil
+        }
+
+        return TangemPayMoneyAccount(
             customerId: customerId,
-            bankingAccount: bankingAccount
+            bankingAccount: bankingAccount,
+            walletModel: walletModel,
+            account: account
         )
     }
 }
