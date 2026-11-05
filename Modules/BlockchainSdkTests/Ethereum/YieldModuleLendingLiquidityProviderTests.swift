@@ -36,7 +36,7 @@ struct YieldModuleLendingLiquidityProviderTests {
         #expect(available == 1)
     }
 
-    @Test("A liquidity lookup that fails or returns no amount throws instead of guessing", arguments: FailingRead.allCases)
+    @Test("A liquidity lookup that fails or returns no amount throws instead of guessing", arguments: [FailingRead.yieldModule, .pool, .wrappedNative, .liquidity, .emptyLiquidity])
     func failedLookupThrows(failingRead: FailingRead) async {
         let sut = makeSUT(liquidityWei: "400000000000000000", failingRead: failingRead)
 
@@ -51,6 +51,33 @@ struct YieldModuleLendingLiquidityProviderTests {
 
         await #expect(throws: CancellationError.self) {
             try await sut.availableToWithdraw(nativePosition: 1)
+        }
+    }
+
+    @Test("The position is what the module supplied of its wrapped native token")
+    func positionIsTheModuleProtocolBalance() async throws {
+        let sut = makeSUT(liquidityWei: "400000000000000000", positionWei: "1500000000000000000")
+
+        let position = try await sut.nativePosition()
+
+        #expect(position == Decimal(string: "1.5"))
+    }
+
+    @Test("The wrapped native token is the one the module names")
+    func wrappedNativeComesFromTheModule() async throws {
+        let sut = makeSUT(liquidityWei: "400000000000000000")
+
+        let wrappedNative = try await sut.wrappedNative()
+
+        #expect(wrappedNative.lowercased() == Self.weth)
+    }
+
+    @Test("A position lookup that fails or returns no amount throws instead of guessing", arguments: [FailingRead.yieldModule, .wrappedNative, .position, .emptyPosition])
+    func failedPositionLookupThrows(failingRead: FailingRead) async {
+        let sut = makeSUT(liquidityWei: "400000000000000000", failingRead: failingRead)
+
+        await #expect(throws: (any Error).self) {
+            try await sut.nativePosition()
         }
     }
 
@@ -73,12 +100,15 @@ extension YieldModuleLendingLiquidityProviderTests {
         case wrappedNative
         case liquidity
         case emptyLiquidity
+        case position
+        case emptyPosition
     }
 
     private static let zeroAddress = "0x0000000000000000000000000000000000000000"
 
     private func makeSUT(
         liquidityWei: String,
+        positionWei: String = "1000000000000000000",
         failingRead: FailingRead? = nil,
         failure: Error = ReadError(),
         poolAddress: String = Self.pool
@@ -89,12 +119,14 @@ extension YieldModuleLendingLiquidityProviderTests {
 
         let liquidity = failingRead == .emptyLiquidity ? .success("0x") : answer(.liquidity, with: Self.word(wei: liquidityWei))
         let liquidityMethod = VirtualUnderlyingBalanceMethod(assetContractAddress: Self.weth)
+        let position = failingRead == .emptyPosition ? .success("0x") : answer(.position, with: Self.word(wei: positionWei))
 
         let interactor = FakeSmartContractInteractor(responses: [
             Call(contract: Self.module, method: YieldModulePoolMethod()): answer(.pool, with: Self.word(address: poolAddress)),
             Call(contract: Self.module, method: WrappedNativeMethod()): answer(.wrappedNative, with: Self.word(address: Self.weth)),
             Call(contract: Self.pool, method: liquidityMethod): liquidity,
             Call(contract: Self.zeroAddress, method: liquidityMethod): .success(Self.word(wei: liquidityWei)),
+            Call(contract: Self.module, method: EffectiveProtocolBalanceMethod(tokenContractAddress: Self.weth)): position,
         ])
 
         let yieldModule = answer(.yieldModule, with: Self.module)

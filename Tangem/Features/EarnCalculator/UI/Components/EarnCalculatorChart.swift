@@ -22,6 +22,17 @@ struct EarnCalculatorChart: View {
     @Environment(\.layoutDirection) private var layoutDirection
 
     var body: some View {
+        VStack(spacing: Constants.axisSpacing) {
+            chart
+            axisLabelsRow
+        }
+    }
+}
+
+// MARK: - Subviews
+
+private extension EarnCalculatorChart {
+    var chart: some View {
         Chart {
             ForEach(bars) { bar in
                 segment(for: bar, from: .zero, height: Constants.bottomSegmentHeight)
@@ -44,20 +55,7 @@ struct EarnCalculatorChart: View {
         }
         .chartXScale(domain: xDomain)
         .chartYScale(domain: 0 ... Double(Constants.chartHeight))
-        .chartXAxis {
-            AxisMarks(values: axisLabels.keys.sorted()) { value in
-                if let id = value.as(Int.self), let label = axisLabels[id] {
-                    AxisValueLabel(
-                        anchor: id == bars.last?.id ? .topTrailing : nil,
-                        collisionResolution: .disabled,
-                        verticalSpacing: Constants.axisSpacing
-                    ) {
-                        Text(label)
-                            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                    }
-                }
-            }
-        }
+        .chartXAxis(.hidden)
         .chartYAxis(.hidden)
         .chartPlotStyle { plot in
             plot.frame(height: Constants.chartHeight)
@@ -83,11 +81,28 @@ struct EarnCalculatorChart: View {
         .accessibilityLabel("Projected balance")
         .accessibilityIdentifier(EarnCalculatorAccessibilityIdentifiers.chart)
     }
-}
 
-// MARK: - Subviews
+    var axisLabelsRow: some View {
+        let labels = bars.compactMap(\.axisLabel)
 
-private extension EarnCalculatorChart {
+        return ZStack {
+            ForEach(indexed: labels, id: \.0) { index, label in
+                Text(label)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .frame(maxWidth: .infinity, alignment: axisLabelAlignment(index: index, count: labels.count))
+            }
+        }
+        .accessibilityHidden(true)
+    }
+
+    func axisLabelAlignment(index: Int, count: Int) -> Alignment {
+        switch index {
+        case 0: .leading
+        case count - 1: .trailing
+        default: .center
+        }
+    }
+
     func segment(for bar: EarnCalculatorViewState.Bar, from start: CGFloat, height: CGFloat) -> some ChartContent {
         BarMark(
             x: .value("Bar", bar.id),
@@ -186,12 +201,6 @@ private extension EarnCalculatorChart {
 private extension EarnCalculatorChart {
     var selectedBar: EarnCalculatorViewState.Bar? {
         bars.first { $0.id == selectedBarID }
-    }
-
-    var axisLabels: [EarnCalculatorViewState.Bar.ID: String] {
-        bars.reduce(into: [:]) { labels, bar in
-            labels[bar.id] = bar.axisLabel
-        }
     }
 
     var xDomain: ClosedRange<Double> {

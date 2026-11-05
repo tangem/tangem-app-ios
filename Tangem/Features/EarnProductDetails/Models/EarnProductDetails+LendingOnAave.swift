@@ -13,7 +13,7 @@ import TangemAssets
 extension EarnProductDetails {
     static func lendingOnAave(
         performanceFee: Decimal,
-        auditReportURL: URL,
+        auditReportURL: URL?,
         percentFormatter: PercentFormatter = PercentFormatter()
     ) -> EarnProductDetails {
         EarnProductDetails(
@@ -30,7 +30,7 @@ extension EarnProductDetails {
                 ),
             ],
             risk: .risk(.low),
-            provider: Link(title: "Protocol", name: "Aave", url: URL(string: "https://aave.com")!),
+            provider: URL(string: "https://aave.com").map { Link(title: "Protocol", name: "Aave", url: $0) },
             withdrawals: Detail(
                 value: "Usually instant",
                 info: InfoSheet(
@@ -40,7 +40,7 @@ extension EarnProductDetails {
             ),
             managementFee: nil,
             performanceFee: .performanceFee(performanceFee, percentFormatter: percentFormatter),
-            auditReport: Link(title: "Audits", name: "Reports", url: auditReportURL)
+            auditReport: auditReportURL.map { Link(title: "Audits", name: "Reports", url: $0) }
         )
     }
 }

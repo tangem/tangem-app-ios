@@ -1,5 +1,5 @@
 //
-//  EarnYieldPickerSectionTests.swift
+//  AnchoredSectionsScrollViewTests.swift
 //  TangemTests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,8 +10,8 @@ import CoreGraphics
 import Testing
 @testable import Tangem
 
-@Suite("EarnYieldPickerSection")
-struct EarnYieldPickerSectionTests {
+@Suite("Anchored sections")
+struct AnchoredSectionsScrollViewTests {
     @Test(
         "The current section is the last one past a line that slides from the pinned tabs to the screen bottom over the last screen of scrolling",
         arguments: [
@@ -24,7 +24,8 @@ struct EarnYieldPickerSectionTests {
         ]
     )
     func current(tops: Tops, remainingScroll: CGFloat, expected: EarnYieldPickerSection) {
-        let current = EarnYieldPickerSection.current(
+        let current = AnchoredSections.current(
+            in: EarnYieldPickerSection.allCases,
             sectionTops: tops.bySection,
             pinnedEdge: 100,
             visibleBottom: 800,
@@ -37,7 +38,7 @@ struct EarnYieldPickerSectionTests {
 
 // MARK: - Helpers
 
-extension EarnYieldPickerSectionTests {
+extension AnchoredSectionsScrollViewTests {
     struct Tops: CustomTestStringConvertible {
         let calculator: CGFloat
         let benefits: CGFloat?

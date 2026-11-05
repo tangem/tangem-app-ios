@@ -25,7 +25,9 @@ struct EarnProductDetailsView: View {
 
             VStack(spacing: 0) {
                 detailRow(title: "Risk", detail: details.risk)
-                linkRow(details.provider)
+                if let provider = details.provider {
+                    linkRow(provider)
+                }
                 detailRow(title: "Withdrawals", detail: details.withdrawals)
 
                 if let managementFee = details.managementFee {

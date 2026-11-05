@@ -12,7 +12,7 @@ import TangemAssets
 struct EarnProductDetails: Equatable {
     let benefits: [Benefit]
     let risk: Detail
-    let provider: Link
+    let provider: Link?
     let withdrawals: Detail
     let managementFee: Detail?
     let performanceFee: Detail
