@@ -35,7 +35,8 @@ final class TangemPayBuilder {
         customerWalletId: customerWalletId,
         availabilityService: availabilityService,
         customerService: customerService,
-        isCustomerSummaryEnabled: FeatureProvider.isAvailable(.tangemPayCustomerSummary)
+        isCustomerSummaryEnabled: FeatureProvider.isAvailable(.tangemPayCustomerSummary),
+        isUnifiedOnboardingEnabled: TangemPayUnifiedOnboarding.isEnabled
     )
 
     private lazy var orderStatusPollingService = TangemPayOrderStatusPollingService(
