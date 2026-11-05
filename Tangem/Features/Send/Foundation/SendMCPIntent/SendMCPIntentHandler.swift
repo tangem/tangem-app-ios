@@ -249,11 +249,14 @@ private extension SendMCPIntentHandler {
             with: .init(
                 type: .send(sourceToken, parameters: parameters),
                 source: .main,
-                onTransactionDispatched: { [self] transactionHash in
+                onTransactionDispatched: { [self] result in
                     processingIntents[intentDeeplink.comparableID] = .reporting
 
+                    let tokenItem = target.walletModel.tokenItem
+                    let isModified = SendMCPIntentValidator.isModified(intent, sentAs: result.transfer, blockchain: tokenItem.blockchain)
+
                     Task {
-                        await reportTransaction(transactionHash, intentDeeplink: intentDeeplink, tokenItem: target.walletModel.tokenItem)
+                        await reportTransaction(result.hash, intentDeeplink: intentDeeplink, tokenItem: tokenItem, isModified: isModified)
                     }
                 }
             )
@@ -326,7 +329,7 @@ private extension SendMCPIntentHandler {
 // MARK: - Hash report
 
 private extension SendMCPIntentHandler {
-    func reportTransaction(_ transactionHash: String, intentDeeplink: MCPIntentDeeplink, tokenItem: TokenItem) async {
+    func reportTransaction(_ transactionHash: String, intentDeeplink: MCPIntentDeeplink, tokenItem: TokenItem, isModified: Bool) async {
         do throws(SendMCPIntentError) {
             try await Self.reportTransaction(
                 retryPauses: Constants.reportRetryPauses,
@@ -335,8 +338,7 @@ private extension SendMCPIntentHandler {
                 },
                 pause: { try? await Task.sleep(for: $0) }
             )
-            // [REDACTED_TODO_COMMENT]
-            analyticsReporter.reportIntentCompleted(intentID: intentDeeplink.id, tokenItem: tokenItem)
+            analyticsReporter.reportIntentCompleted(intentID: intentDeeplink.id, tokenItem: tokenItem, isModified: isModified)
             finishProcessing(intentDeeplink: intentDeeplink)
         } catch {
             analyticsReporter.reportIntentReportFailed(intentID: intentDeeplink.id, errorCode: error.analyticsErrorCode)

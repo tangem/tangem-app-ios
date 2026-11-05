@@ -74,8 +74,7 @@ struct MCPIntentAnalyticsReporter {
         )
     }
 
-    // [REDACTED_TODO_COMMENT]
-    func reportIntentCompleted(intentID: String, tokenItem: TokenItem) {
+    func reportIntentCompleted(intentID: String, tokenItem: TokenItem, isModified: Bool) {
         let event = Analytics.Event.mcpIntentCompleted
         Analytics.log(
             event: event,
@@ -83,6 +82,7 @@ struct MCPIntentAnalyticsReporter {
                 Analytics.ParameterKey.mcpIntentType: intentType.rawValue,
                 Analytics.ParameterKey.blockchain: tokenItem.blockchain.displayName,
                 Analytics.ParameterKey.token: tokenItem.currencySymbol,
+                Analytics.ParameterKey.mcpIntentModified: Analytics.ParameterValue.affirmativeOrNegative(for: isModified).rawValue,
                 Analytics.ParameterKey.mcpIntentId: intentID,
             ]
         )
