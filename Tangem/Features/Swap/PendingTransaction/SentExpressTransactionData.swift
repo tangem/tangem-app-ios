@@ -16,6 +16,7 @@ struct SentSwapTransactionData {
     let receive: any SendReceiveToken
     let fee: BSDKFee
     let provider: ExpressProvider
+    let rateType: ExpressProviderRateType
     let date: Date
     let expressTransactionData: ExpressTransactionData
 }

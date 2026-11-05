@@ -31,6 +31,24 @@ struct TransactionHistoryRecordsMapperTests {
         #expect(extraInfo.groupingId == "swap")
     }
 
+    @Test(
+        "A stored rate type is read back, a missing or unknown one as float",
+        arguments: [(String?.none, ExpressProviderRateType.float), ("fixed", .fixed), ("some-future-rate", .float)]
+    )
+    func storedRateTypeIsReadBack(storedRateType: String?, expected: ExpressProviderRateType) throws {
+        let records = TransactionHistoryRecordsMapper.mapToTransactionHistoryExtraInfo([
+            makeExchangeIndexInfo(makeExchangeTransaction(txId: "swap"), storedRateType: storedRateType),
+        ])
+
+        let extraInfo = try #require(records.singleElement)
+        guard case .express(.exchange(let info)) = extraInfo else {
+            Issue.record("Expected Express exchange info, got \(extraInfo)")
+            return
+        }
+
+        #expect(info.transaction.rateType == expected)
+    }
+
     @Test("An onramp index row is read back as Express onramp info")
     func onrampRowIsReadAsExpressOnrampInfo() throws {
         let records = TransactionHistoryRecordsMapper.mapToTransactionHistoryExtraInfo([
@@ -230,11 +248,20 @@ private extension TransactionHistoryRecordsMapperTests {
     }
 
     func makeExchangeIndexInfo(_ transaction: ExchangeTransaction) -> TransactionHistoryIndexInfoRecord {
+        makeExchangeIndexInfo(transaction, record: TransactionHistoryRecordsMapper.mapToExpressExchangeTransactionRecord(transaction))
+    }
+
+    func makeExchangeIndexInfo(_ transaction: ExchangeTransaction, storedRateType: String?) -> TransactionHistoryIndexInfoRecord {
+        let record = TransactionHistoryRecordsMapper.mapToExpressExchangeTransactionRecord(transaction)
+        return makeExchangeIndexInfo(transaction, record: record.withRateType(storedRateType))
+    }
+
+    func makeExchangeIndexInfo(_ transaction: ExchangeTransaction, record: ExpressExchangeTransactionRecord) -> TransactionHistoryIndexInfoRecord {
         makeIndexInfo(
             entityType: TransactionHistoryIndexRecord.Values.EntityType.expressExchange,
             entityID: transaction.txId,
             exchange: .init(
-                transaction: TransactionHistoryRecordsMapper.mapToExpressExchangeTransactionRecord(transaction),
+                transaction: record,
                 provider: nil,
                 fromCryptoCurrency: nil,
                 toCryptoCurrency: nil,
@@ -300,5 +327,40 @@ private extension TransactionHistoryExtraInfo {
         }
 
         return info.item
+    }
+}
+
+private extension ExpressExchangeTransactionRecord {
+    func withRateType(_ rateType: String?) -> ExpressExchangeTransactionRecord {
+        ExpressExchangeTransactionRecord(
+            id: id,
+            providerID: providerID,
+            fromAddress: fromAddress,
+            payInAddress: payInAddress,
+            payInExtraId: payInExtraId,
+            payOutAddress: payOutAddress,
+            status: status,
+            rateType: rateType,
+            externalTxID: externalTxID,
+            externalTxURL: externalTxURL,
+            payInHash: payInHash,
+            payOutHash: payOutHash,
+            fromNetwork: fromNetwork,
+            fromContract: fromContract,
+            fromAmount: fromAmount,
+            fromDecimals: fromDecimals,
+            fromActualAmount: fromActualAmount,
+            toNetwork: toNetwork,
+            toContract: toContract,
+            toAmount: toAmount,
+            toDecimals: toDecimals,
+            toActualAmount: toActualAmount,
+            refundAddress: refundAddress,
+            refundExtraId: refundExtraId,
+            refundNetwork: refundNetwork,
+            refundContractAddress: refundContractAddress,
+            createdAt: createdAt,
+            updatedAt: updatedAt
+        )
     }
 }

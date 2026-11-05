@@ -1211,6 +1211,7 @@ extension SwapModel {
                     source: source,
                     receive: receive,
                     provider: selected.provider,
+                    rateType: selected.rateType,
                     fee: fee,
                     data: data,
                     result: result
@@ -1228,6 +1229,7 @@ extension SwapModel {
                     source: source,
                     receive: receive,
                     provider: selected.provider,
+                    rateType: selected.rateType,
                     data: readyToSwap.data,
                     fee: readyToSwap.fee,
                     dispatcher: dispatcher,
@@ -1249,6 +1251,7 @@ extension SwapModel {
                     source: source,
                     receive: receive,
                     provider: selected.provider,
+                    rateType: selected.rateType,
                     data: readyToApproveAndSwap.data,
                     fee: readyToApproveAndSwap.fee,
                     dispatcher: dispatcher,
@@ -1296,6 +1299,7 @@ extension SwapModel {
         source: SendSwapableToken,
         receive: SendReceiveToken,
         provider: ExpressProvider,
+        rateType: ExpressProviderRateType,
         data: ExpressTransactionData,
         fee: BSDKFee,
         dispatcher: TransactionDispatcher,
@@ -1315,6 +1319,7 @@ extension SwapModel {
             source: source,
             receive: receive,
             provider: provider,
+            rateType: rateType,
             fee: fee,
             data: data,
             result: result
@@ -1343,6 +1348,7 @@ extension SwapModel {
         source: SendSwapableToken,
         receive: SendReceiveToken,
         provider: ExpressProvider,
+        rateType: ExpressProviderRateType,
         fee: BSDKFee,
         data: ExpressTransactionData,
         result: TransactionDispatcherResult
@@ -1354,6 +1360,7 @@ extension SwapModel {
             receive: receive,
             fee: fee,
             provider: provider,
+            rateType: rateType,
             date: Date(),
             expressTransactionData: data
         )
