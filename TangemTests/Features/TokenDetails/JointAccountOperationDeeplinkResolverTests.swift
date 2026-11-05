@@ -113,7 +113,7 @@ private extension JointAccountOperationDeeplinkResolverTests {
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
             derivationIdentity: JointAccountCompositionFixture.derivationIdentity,
             accountPolicy: JointAccountPolicy(membersCount: 2, signersCount: 2),
-            accountStatus: .active(safeAddress: Constants.safeAddress),
+            statusProvider: JointAccountStatusProviderStub(status: .active(safeAddress: Constants.safeAddress)),
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: provider,
             membersService: JointAccountMembersServiceMock(slots: []),

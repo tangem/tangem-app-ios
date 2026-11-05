@@ -332,7 +332,7 @@ private extension CommonJointAccountOperationsServiceTests {
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
             derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
             accountPolicy: JointAccountPolicy(membersCount: Constants.members.count, signersCount: 2),
-            accountStatus: status,
+            statusProvider: JointAccountStatusProviderStub(status: status),
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             membersService: JointAccountMembersServiceMock(slots: slots),

@@ -432,7 +432,7 @@ private extension CommonJointAccountPendingOperationsProviderTests {
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
             derivationIdentity: Self.derivationIdentity,
             accountPolicy: JointAccountPolicy(membersCount: 2, signersCount: 2),
-            accountStatus: .active(safeAddress: Self.safeAddress),
+            statusProvider: JointAccountStatusProviderStub(status: .active(safeAddress: Self.safeAddress)),
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             membersService: JointAccountMembersServiceMock(

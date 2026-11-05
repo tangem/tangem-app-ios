@@ -152,7 +152,7 @@ private let previewJointAccountDelegate = JointAccountModelDelegateMock()
         cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
         derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
         accountPolicy: JointAccountPolicy(membersCount: 3, signersCount: 2),
-        accountStatus: .confirming(safeAddress: "0xbef7b368aac4e6752a9ce0xbef7b36a9cevef7b2336"),
+        statusProvider: JointAccountStatusProviderStub(status: .confirming(safeAddress: "0xbef7b368aac4e6752a9ce0xbef7b36a9cevef7b2336")),
         operationsService: JointAccountOperationsServiceMock(),
         pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
         membersService: JointAccountMembersServiceMock(),

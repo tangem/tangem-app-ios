@@ -45,10 +45,18 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
 
         let derivationPathBuilder = JointAccountDerivationPathBuilder(derivationIndex: derivationIdentity.derivationIndex)
 
-        let safeAddressProvider = JointAccountsRepositorySafeAddressProvider(
+        let userRoleService = CommonJointAccountUserRoleService(
+            userWalletId: userWalletId,
+            derivationIdentity: derivationIdentity,
+            keysProvider: keysRepository,
+            jointAccountsRepository: jointAccountsRepository
+        )
+
+        let statusProvider = CommonJointAccountStatusProvider(
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
             jointAccountsRepository: jointAccountsRepository,
+            userRoleService: userRoleService
         )
 
         let userTokensRepository = JointUserTokensRepositoryAdapter(
@@ -57,12 +65,13 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
                 derivationIdentity: derivationIdentity
             ),
             jointAccountsRepository: jointAccountsRepository,
-            safeAddressProvider: safeAddressProvider
+            safeAddressProvider: statusProvider
         )
 
         let walletFactory = JointWalletFactory(
             defaultWalletFactory: defaultWalletFactory,
-            safeAddressProvider: safeAddressProvider
+            safeAddressProvider: statusProvider,
+            userRoleService: userRoleService
         )
 
         let userTokensManager = CommonUserTokensManager(
@@ -111,13 +120,6 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
         userTokensManager.derivationManager = accountSpecificDerivationManager
         userTokensManager.walletModelsManager = walletModelsManager
 
-        let userRoleService = CommonJointAccountUserRoleService(
-            userWalletId: userWalletId,
-            derivationIdentity: derivationIdentity,
-            keysProvider: keysRepository,
-            jointAccountsRepository: jointAccountsRepository
-        )
-
         let membersService = CommonJointAccountMembersService(
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
@@ -153,7 +155,8 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
             pendingOperationsProvider: pendingOperationsProvider,
             finishedOperationsWalletUpdater: finishedOperationsWalletUpdater,
             membersService: membersService,
-            userRoleService: userRoleService
+            userRoleService: userRoleService,
+            statusProvider: statusProvider
         )
     }
 }
