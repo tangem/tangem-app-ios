@@ -11,6 +11,8 @@ import TangemFoundation
 import TangemSdk
 
 final class MobileCreationUtil {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     /// Builds a model for a brand-new mobile wallet.
     /// The caller is responsible for adding the returned model to `UserWalletRepository`.
     func makeCreatedModel(
@@ -23,7 +25,7 @@ final class MobileCreationUtil {
             hasICloudBackup: hasICloudBackup,
             hasSocialLogin: hasSocialLogin
         )
-        let userWalletModel = try makeModel(preparedWallet: preparedWallet)
+        let userWalletModel = try makeModelOrCleanUp(preparedWallet: preparedWallet)
 
         // The name is captured here: WalletCreationHelper would otherwise re-derive it from the
         // repository inside the detached task, racing the caller's `add` and registering the
@@ -64,14 +66,14 @@ final class MobileCreationUtil {
             hasSocialLogin: hasSocialLogin
         )
 
-        return try makeModel(preparedWallet: preparedWallet)
+        return try makeModelOrCleanUp(preparedWallet: preparedWallet)
     }
 
     func prepareNewWallet(
         hasMnemonicBackup: Bool,
         hasICloudBackup: Bool,
         hasSocialLogin: Bool
-    ) async throws -> PreparedWallet {
+    ) async throws -> MobileWalletInitializer.PreparedWallet {
         let parameters = WalletInitializerParameters(
             mnemonic: nil,
             passphrase: nil,
@@ -81,11 +83,9 @@ final class MobileCreationUtil {
             hasSocialLogin: hasSocialLogin
         )
 
-        let walletInfo = try await Task.detached {
+        return try await Task.detached {
             try await MobileWalletInitializer().initializeWallet(parameters: parameters)
         }.value
-
-        return try makePreparedWallet(walletInfo: walletInfo)
     }
 
     func prepareImportedWallet(
@@ -94,8 +94,8 @@ final class MobileCreationUtil {
         hasMnemonicBackup: Bool,
         hasICloudBackup: Bool,
         hasSocialLogin: Bool
-    ) async throws -> PreparedWallet {
-        let walletInfo = try await MobileWalletInitializer().initializeWallet(
+    ) async throws -> MobileWalletInitializer.PreparedWallet {
+        try await MobileWalletInitializer().initializeWallet(
             parameters: WalletInitializerParameters(
                 mnemonic: mnemonic,
                 passphrase: passphrase,
@@ -105,11 +105,9 @@ final class MobileCreationUtil {
                 hasSocialLogin: hasSocialLogin
             )
         )
-
-        return try makePreparedWallet(walletInfo: walletInfo)
     }
 
-    func makeModel(preparedWallet: PreparedWallet) throws -> UserWalletModel {
+    func makeModel(preparedWallet: MobileWalletInitializer.PreparedWallet) throws -> UserWalletModel {
         guard let userWalletModel = CommonUserWalletModelFactory().makeModel(
             walletInfo: .mobileWallet(preparedWallet.walletInfo),
             keys: .mobileWallet(keys: preparedWallet.walletInfo.keys),
@@ -119,25 +117,38 @@ final class MobileCreationUtil {
 
         return userWalletModel
     }
+
+    func store(_ userWalletModel: UserWalletModel) throws {
+        do {
+            try userWalletRepository.add(userWalletModel: userWalletModel)
+        } catch {
+            discard(userWalletModel)
+            throw error
+        }
+
+        BackendAuthenticationRegistrar.registerNewUnprotectedMobileWallet(userWalletModel)
+    }
+
+    func discard(_ userWalletModel: UserWalletModel) {
+        userWalletModel.dispose()
+
+        guard userWalletRepository.models[userWalletModel.userWalletId] == nil else {
+            return
+        }
+
+        MobileCleanupUtil.cleanMobileWallet(walletId: userWalletModel.userWalletId)
+    }
 }
 
 // MARK: - Private methods
 
 private extension MobileCreationUtil {
-    func makePreparedWallet(walletInfo: MobileWalletInfo) throws -> PreparedWallet {
-        guard let walletId = UserWalletId(config: MobileUserWalletConfig(mobileWalletInfo: walletInfo)) else {
-            throw UserWalletRepositoryError.cantUnlockWallet
+    func makeModelOrCleanUp(preparedWallet: MobileWalletInitializer.PreparedWallet) throws -> UserWalletModel {
+        do {
+            return try makeModel(preparedWallet: preparedWallet)
+        } catch {
+            MobileCleanupUtil.cleanMobileWallet(walletId: preparedWallet.walletId)
+            throw error
         }
-
-        return PreparedWallet(walletId: walletId, walletInfo: walletInfo)
-    }
-}
-
-// MARK: - Types
-
-extension MobileCreationUtil {
-    struct PreparedWallet {
-        let walletId: UserWalletId
-        let walletInfo: MobileWalletInfo
     }
 }

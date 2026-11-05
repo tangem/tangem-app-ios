@@ -26,8 +26,6 @@ final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
         delegate: self
     )
 
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
     private let creationUtil = MobileCreationUtil()
 
     private let analyticsContextParams: Analytics.ContextParams = .custom(.mobileWallet)
@@ -93,8 +91,7 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
                     isPassphraseEmpty: passphrase.isEmpty
                 )
 
-                BackendAuthenticationRegistrar.registerNewUnprotectedMobileWallet(userWalletModel)
-                try viewModel.userWalletRepository.add(userWalletModel: userWalletModel)
+                try viewModel.creationUtil.store(userWalletModel)
 
                 await runOnMain {
                     viewModel.isCreating = false

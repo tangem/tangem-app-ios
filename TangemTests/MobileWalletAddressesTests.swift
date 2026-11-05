@@ -30,7 +30,7 @@ class MobileWalletAddressesTests {
                 hasICloudBackup: false,
                 hasSocialLogin: false
             )
-        )
+        ).walletInfo
 
         // Delete the wallet to clean up the keychain
         try? CommonMobileWalletSdk().delete(walletIDs: [userWalletId])
